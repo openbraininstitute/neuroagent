@@ -116,7 +116,7 @@ async def stream_chat_agent(
                 thread_id=thread.thread_id,
                 entity=Entity.USER,
                 content=json.dumps(
-                    {"role": "user", "content": user_request.messages[0].content}
+                    {"role": "user", "content": user_request.messages[-1].content}
                 ),
             )
         )
