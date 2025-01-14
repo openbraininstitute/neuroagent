@@ -18,10 +18,10 @@ export function Sidebar() {
       </div>
       <div className="border-b-2 opacity-50 my-4"></div>
       <div className="flex flex-col gap-2 pl-3">
-        <ThreadCardSidebar title="Hello there" />
-        <ThreadCardSidebar title="Great day" />
-        <ThreadCardSidebar title="Something day" />
-        <ThreadCardSidebar title="Very boring chat" />
+        <ThreadCardSidebar title="Hello there" threadID="1" />
+        <ThreadCardSidebar title="Great day" threadID="2" />
+        <ThreadCardSidebar title="Something day " threadID="3" />
+        <ThreadCardSidebar title="Very boring chat" threadID="4" />
       </div>
     </div>
   );
