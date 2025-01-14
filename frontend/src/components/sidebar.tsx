@@ -7,12 +7,12 @@ export function Sidebar() {
     <div className="w-[15%] border-r-2">
       <div className="flex justify-between">
         <div className="p-4">
-          <PanelRightOpen />
+          <PanelRightOpen className="hover:scale-[1.1] transition" size={24} />
         </div>
         <div className="flex p-4 gap-4 ">
-          <Search size={24} />
+          <Search className="hover:scale-[1.1] transition" size={24} />
           <Link href="/">
-            <SquarePen size={24} />
+            <SquarePen className="hover:scale-[1.1] transition" size={24} />
           </Link>
         </div>
       </div>

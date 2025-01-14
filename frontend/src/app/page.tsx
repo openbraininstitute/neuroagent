@@ -8,7 +8,7 @@ export default function Home() {
           </h1>
           <input
             type="text"
-            className="border-2 border-gray-500 w-1/2 p-2 rounded-full"
+            className="border-2 border-gray-500 w-1/2 p-4 rounded-full"
             placeholder="Message the AI..."
           />
         </div>
