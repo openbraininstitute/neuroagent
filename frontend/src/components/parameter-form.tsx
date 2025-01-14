@@ -64,24 +64,6 @@ export function ParameterForm({
         >
           <FormField
             control={form.control}
-            name="projectID"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Project ID</FormLabel>
-                <FormControl>
-                  <Input
-                    placeholder="Enter project ID"
-                    {...field}
-                    autoComplete="off"
-                  />
-                </FormControl>
-                <FormDescription>Your project identifier</FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
             name="virtualLabID"
             render={({ field }) => (
               <FormItem>
@@ -94,6 +76,24 @@ export function ParameterForm({
                   />
                 </FormControl>
                 <FormDescription>Your virtual lab identifier</FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="projectID"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Project ID</FormLabel>
+                <FormControl>
+                  <Input
+                    placeholder="Enter project ID"
+                    {...field}
+                    autoComplete="off"
+                  />
+                </FormControl>
+                <FormDescription>Your project identifier</FormDescription>
                 <FormMessage />
               </FormItem>
             )}
