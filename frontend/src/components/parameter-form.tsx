@@ -14,8 +14,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { useStore } from "@/config/store";
-import { useEffect } from "react";
+import Cookies from "js-cookie";
 
 const formSchema = z.object({
   projectID: z.string().min(1, { message: "Project ID is required" }),
@@ -23,38 +22,31 @@ const formSchema = z.object({
   token: z.string().min(1, { message: "Token is required" }),
 });
 
-export function ParameterForm() {
-  const {
-    projectID,
-    virtualLabID,
-    token,
-    setProjectID,
-    setVirtualLabID,
-    setToken,
-  } = useStore();
+type ParameterFormProps = {
+  initialValues?: {
+    projectID: string;
+    virtualLabID: string;
+    token: string;
+  };
+};
 
+export function ParameterForm({
+  initialValues = {
+    projectID: Cookies.get("projectID") || "",
+    virtualLabID: Cookies.get("virtualLabID") || "",
+    token: Cookies.get("token") || "",
+  },
+}: ParameterFormProps) {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: {
-      projectID: "",
-      virtualLabID: "",
-      token: "",
-    },
+    defaultValues: initialValues,
   });
 
-  // Update form with store values on mount
-  useEffect(() => {
-    form.reset({
-      projectID,
-      virtualLabID,
-      token,
-    });
-  }, [form, projectID, virtualLabID, token]);
-
   function onSubmit(values: z.infer<typeof formSchema>) {
-    setProjectID(values.projectID);
-    setVirtualLabID(values.virtualLabID);
-    setToken(values.token);
+    // Set cookies that will be accessible on the server
+    Cookies.set("projectID", values.projectID, { expires: 30 }); // 30 days
+    Cookies.set("virtualLabID", values.virtualLabID, { expires: 30 });
+    Cookies.set("token", values.token, { expires: 30 });
   }
 
   return (
