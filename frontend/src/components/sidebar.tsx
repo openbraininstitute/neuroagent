@@ -1,5 +1,6 @@
 import { PanelRightOpen, Search, SquarePen } from "lucide-react";
 import { ThreadCardSidebar } from "@/components/thread-card-sidebar";
+import Link from "next/link";
 
 export function Sidebar() {
   return (
@@ -10,7 +11,9 @@ export function Sidebar() {
         </div>
         <div className="flex p-4 gap-4 ">
           <Search size={24} />
-          <SquarePen size={24} />
+          <Link href="/">
+            <SquarePen size={24} />
+          </Link>
         </div>
       </div>
       <p className="text-xl p-4 text-center">Conversations</p>
