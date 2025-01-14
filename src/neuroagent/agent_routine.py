@@ -10,7 +10,7 @@ from openai import AsyncOpenAI
 from openai.types.chat import ChatCompletionMessage
 from pydantic import ValidationError
 
-from neuroagent.app.database.sql_schemas import Entity, Messages, ToolCalls
+from neuroagent.app.database.sql_schemas import Messages, Role, ToolCalls
 from neuroagent.new_types import (
     Agent,
     HILResponse,
@@ -18,7 +18,7 @@ from neuroagent.new_types import (
     Result,
 )
 from neuroagent.tools.base_tool import BaseTool
-from neuroagent.utils import get_entity, merge_chunk, messages_to_openai_content
+from neuroagent.utils import merge_chunk, messages_to_openai_content
 
 
 class AgentsRoutine:
@@ -212,7 +212,7 @@ class AgentsRoutine:
 
         while len(history) - init_len < max_turns and active_agent:
             # Run chat completion if the last message isn't a tool call (HIL case)
-            if not messages or messages[-1].entity != Entity.AI_TOOL:
+            if not messages or not messages[-1].has_tool_calls:
                 # get completion with current history, agent
                 completion = await self.get_chat_completion(
                     agent=active_agent,
@@ -247,8 +247,10 @@ class AgentsRoutine:
                     Messages(
                         order=len(messages),
                         thread_id=messages[-1].thread_id,
-                        entity=get_entity(message_json),
-                        content=json.dumps(message_json),
+                        role=Role.ASSISTANT,
+                        has_content=bool(message_json["content"]),
+                        has_tool_calls=bool(history[-1]["tool_calls"]),
+                        payload=json.dumps(message_json),
                         tool_calls=tool_calls,
                     )
                 )
@@ -278,8 +280,10 @@ class AgentsRoutine:
                     Messages(
                         order=len(messages) + i,
                         thread_id=messages[-1].thread_id,
-                        entity=Entity.TOOL,
-                        content=json.dumps(tool_response),
+                        role=Role.TOOL,
+                        has_content=True,
+                        has_tool_calls=False,
+                        payload=json.dumps(tool_response),
                     )
                     for i, tool_response in enumerate(partial_response.messages)
                 ]
@@ -325,7 +329,7 @@ class AgentsRoutine:
             }
 
             # get completion with current history, agent
-            if not messages or messages[-1].entity != Entity.AI_TOOL:
+            if not messages or not messages[-1].has_tool_calls:
                 completion = await self.get_chat_completion(
                     agent=active_agent,
                     history=history,
@@ -380,8 +384,10 @@ class AgentsRoutine:
                     Messages(
                         order=len(messages),
                         thread_id=messages[-1].thread_id,
-                        entity=get_entity(message),
-                        content=json.dumps(message),
+                        role=Role.ASSISTANT,
+                        has_content=bool(message["content"]),
+                        has_tool_calls=bool(history[-1]["tool_calls"]),
+                        payload=json.dumps(message),
                         tool_calls=tool_calls,
                     )
                 )
@@ -409,8 +415,10 @@ class AgentsRoutine:
                     Messages(
                         order=len(messages) + i,
                         thread_id=messages[-1].thread_id,
-                        entity=Entity.TOOL,
-                        content=json.dumps(tool_response),
+                        role=Role.TOOL,
+                        has_content=True,
+                        has_tool_calls=False,
+                        payload=json.dumps(tool_response),
                     )
                     for i, tool_response in enumerate(partial_response.messages)
                 ]

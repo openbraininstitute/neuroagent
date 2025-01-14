@@ -14,13 +14,12 @@ def utc_now() -> datetime.datetime:
     return datetime.datetime.now(datetime.timezone.utc).replace(tzinfo=None)
 
 
-class Entity(enum.Enum):
-    """Calss to restrict entity collumn."""
+class Role(enum.Enum):
+    """Class to restrict Role column."""
 
     USER = "user"
-    AI_TOOL = "ai_tool"
+    ASSISTANT = "assistant"
     TOOL = "tool"
-    AI_MESSAGE = "ai_message"
 
 
 class Base(AsyncAttrs, DeclarativeBase):
@@ -62,8 +61,10 @@ class Messages(Base):
     )
     order: Mapped[int] = mapped_column(Integer, nullable=False)
     creation_date: Mapped[datetime.datetime] = mapped_column(DateTime, default=utc_now)
-    entity: Mapped[Entity] = mapped_column(Enum(Entity), nullable=False)
-    content: Mapped[str] = mapped_column(String, nullable=False)
+    role: Mapped[Role] = mapped_column(Enum(Role), nullable=False)
+    has_content: Mapped[bool] = mapped_column(Boolean, nullable=False)
+    has_tool_calls: Mapped[bool] = mapped_column(Boolean, nullable=False)
+    payload: Mapped[str] = mapped_column(String, nullable=False)
 
     thread_id: Mapped[str] = mapped_column(
         String, ForeignKey("threads.thread_id"), nullable=False

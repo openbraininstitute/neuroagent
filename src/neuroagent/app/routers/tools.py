@@ -11,7 +11,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from neuroagent.app.database.db_utils import get_thread
 from neuroagent.app.database.schemas import ToolCallSchema
-from neuroagent.app.database.sql_schemas import Entity, Messages, Threads, ToolCalls
+from neuroagent.app.database.sql_schemas import Messages, Role, Threads, ToolCalls
 from neuroagent.app.dependencies import get_session, get_starting_agent
 from neuroagent.new_types import Agent, HILValidation
 
@@ -39,22 +39,23 @@ async def get_tool_calls(
                 "detail": "Message not found.",
             },
         )
-    if relevant_message.entity != Entity.AI_MESSAGE:
+    if relevant_message.role != Role.ASSISTANT:
         return []
 
-    # Get the nearest previous message that called the tools.
-    previous_user_message_result = await session.execute(
+    # Get the nearest previous message with content that triggered calls to the tools.
+    previous_content_message_result = await session.execute(
         select(Messages)
         .where(
             Messages.thread_id == thread_id,
             Messages.order < relevant_message.order,
-            Messages.entity == Entity.USER,
+            Messages.role != Role.TOOL,
+            Messages.has_content,
         )
         .order_by(desc(Messages.order))
         .limit(1)
     )
-    previous_user_message = previous_user_message_result.scalars().one_or_none()
-    if not previous_user_message:
+    previous_content_message = previous_content_message_result.scalars().one_or_none()
+    if not previous_content_message:
         return []
 
     # Get all the "AI_TOOL" messsages in between.
@@ -63,8 +64,8 @@ async def get_tool_calls(
         .where(
             Messages.thread_id == thread_id,
             Messages.order < relevant_message.order,
-            Messages.order > previous_user_message.order,
-            Messages.entity == Entity.AI_TOOL,
+            Messages.order >= previous_content_message.order,
+            Messages.has_tool_calls,
         )
         .order_by(Messages.order)
     )
@@ -98,7 +99,7 @@ async def get_tool_returns(
         select(Messages)
         .where(
             Messages.thread_id == thread_id,
-            Messages.entity == Entity.TOOL,
+            Messages.role == Role.TOOL,
         )
         .order_by(Messages.order)
     )
@@ -106,7 +107,7 @@ async def get_tool_returns(
 
     tool_output = []
     for msg in tool_messages:
-        msg_content = json.loads(msg.content)
+        msg_content = json.loads(msg.payload)
         if msg_content.get("tool_call_id") == tool_call_id:
             tool_output.append(msg_content["content"])
 

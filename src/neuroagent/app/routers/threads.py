@@ -13,7 +13,7 @@ from neuroagent.app.app_utils import validate_project
 from neuroagent.app.config import Settings
 from neuroagent.app.database.db_utils import get_thread
 from neuroagent.app.database.schemas import MessagesRead, ThreadsRead, ThreadUpdate
-from neuroagent.app.database.sql_schemas import Entity, Messages, Threads
+from neuroagent.app.database.sql_schemas import Messages, Role, Threads
 from neuroagent.app.dependencies import (
     get_httpx_client,
     get_kg_token,
@@ -84,7 +84,8 @@ async def get_messages(
         select(Messages)
         .where(
             Messages.thread_id == thread_id,
-            Messages.entity.in_([Entity.USER, Entity.AI_MESSAGE]),
+            Messages.role.in_([Role.USER, Role.ASSISTANT]),
+            Messages.has_content,
         )
         .order_by(Messages.order)
     )
@@ -94,7 +95,7 @@ async def get_messages(
     for msg in db_messages:
         messages.append(
             MessagesRead(
-                msg_content=json.loads(msg.content)["content"],
+                msg_content=json.loads(msg.payload)["content"],
                 **msg.__dict__,
             )
         )

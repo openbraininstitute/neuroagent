@@ -33,7 +33,7 @@ db_host = os.getenv("NEUROAGENT_DB__HOST", "localhost")
 db_port = os.getenv("NEUROAGENT_DB__PORT", "5432")
 db_user = os.getenv("NEUROAGENT_DB__USER", "postgres")
 db_password = os.getenv("NEUROAGENT_DB__PASSWORD", "secret")
-db_name = os.getenv("NEUROAGENT_DB__NAME", "postgres")
+db_name = os.getenv("NEUROAGENT_DB__NAME", "")
 
 # Set the SQLAlchemy URL dynamically
 # Use synchronous SQLite for Alembic

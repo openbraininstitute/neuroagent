@@ -12,7 +12,7 @@ from openai.types.chat.chat_completion_chunk import (
 )
 
 from neuroagent.agent_routine import AgentsRoutine
-from neuroagent.app.database.sql_schemas import Entity, Messages, ToolCalls
+from neuroagent.app.database.sql_schemas import Messages, Role, ToolCalls
 from neuroagent.new_types import Agent, Response, Result
 from tests.mock_client import create_mock_response
 
@@ -449,8 +449,8 @@ class TestAgentsRoutine:
             Messages(
                 order=0,
                 thread_id="fake_id",
-                entity=Entity.USER,
-                content=json.dumps(
+                role=Role.USER,
+                payload=json.dumps(
                     {
                         "role": "user",
                         "content": {
@@ -511,8 +511,8 @@ class TestAgentsRoutine:
             Messages(
                 order=0,
                 thread_id="fake_id",
-                entity=Entity.USER,
-                content=json.dumps(
+                role=Role.USER,
+                payload=json.dumps(
                     {
                         "role": "user",
                         "content": {

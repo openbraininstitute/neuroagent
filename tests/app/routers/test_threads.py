@@ -119,13 +119,13 @@ async def test_get_messages(
         messages = app_client.get(f"/threads/{thread_id}").json()
 
     assert messages[0]["order"] == 0
-    assert messages[0]["entity"] == "user"
+    assert messages[0]["role"] == "user"
     assert messages[0]["msg_content"] == "This is my query"
     assert messages[0]["message_id"]
     assert messages[0]["creation_date"]
 
     assert messages[1]["order"] == 3
-    assert messages[1]["entity"] == "ai_message"
+    assert messages[1]["role"] == "assistant"
     assert messages[1]["msg_content"] == "sample response content"
     assert messages[1]["message_id"]
     assert messages[1]["creation_date"]

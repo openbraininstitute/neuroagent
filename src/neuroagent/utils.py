@@ -7,10 +7,9 @@ import re
 from pathlib import Path
 from typing import Any, Iterator
 
-from fastapi import HTTPException
 from httpx import AsyncClient
 
-from neuroagent.app.database.sql_schemas import Entity, Messages
+from neuroagent.app.database.sql_schemas import Messages
 from neuroagent.schemas import KGMetadata
 
 logger = logging.getLogger(__name__)
@@ -39,13 +38,13 @@ def merge_chunk(final_response: dict[str, Any], delta: dict[str, Any]) -> None:
 async def messages_to_openai_content(
     db_messages: list[Messages] | None = None,
 ) -> list[dict[str, Any]]:
-    """Exctract content from Messages as dictionary to pass them to OpenAI."""
+    """Extract content from Messages as dictionary to pass them to OpenAI."""
     messages = []
     if db_messages:
         for msg in db_messages:
-            if msg.content and msg.entity == Entity.AI_TOOL:
+            if msg.payload and msg.has_tool_calls:
                 # Load the base content
-                content = json.loads(msg.content)
+                payload = json.loads(msg.payload)
 
                 # Get the associated tool calls
                 tool_calls = await msg.awaitable_attrs.tool_calls
@@ -64,26 +63,12 @@ async def messages_to_openai_content(
                 ]
 
                 # Assign it back to the main content
-                content["tool_calls"] = tool_calls_content
-                messages.append(content)
+                payload["tool_calls"] = tool_calls_content
+                messages.append(payload)
             else:
-                messages.append(json.loads(msg.content))
+                messages.append(json.loads(msg.payload))
 
     return messages
-
-
-def get_entity(message: dict[str, Any]) -> Entity:
-    """Define the Enum entity of the message based on its content."""
-    if message["role"] == "user":
-        return Entity.USER
-    elif message["role"] == "tool":
-        return Entity.TOOL
-    elif message["role"] == "assistant" and message["content"]:
-        return Entity.AI_MESSAGE
-    elif message["role"] == "assistant" and not message["content"]:
-        return Entity.AI_TOOL
-    else:
-        raise HTTPException(status_code=500, detail="Unknown message entity.")
 
 
 class RegionMeta:

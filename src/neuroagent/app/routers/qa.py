@@ -11,8 +11,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from neuroagent.agent_routine import AgentsRoutine
 from neuroagent.app.database.db_utils import get_thread
 from neuroagent.app.database.sql_schemas import (
-    Entity,
     Messages,
+    Role,
     Threads,
     utc_now,
 )
@@ -49,8 +49,10 @@ async def run_simple_agent(
             Messages(
                 order=0,
                 thread_id="Dummy_thread_id",
-                entity=Entity.USER,
-                content=json.dumps({"role": "user", "content": user_request.query}),
+                role=Role.USER,
+                has_content=True,
+                has_tool_calls=False,
+                payload=json.dumps({"role": "user", "content": user_request.query}),
             )
         ],
         context_variables,
@@ -73,13 +75,15 @@ async def run_chat_agent(
     context_variables["project_id"] = thread.project_id
 
     messages: list[Messages] = await thread.awaitable_attrs.messages
-    if not messages or messages[-1].entity != Entity.AI_TOOL:
+    if not messages or not messages[-1].has_tool_calls:
         messages.append(
             Messages(
                 order=len(messages),
                 thread_id=thread.thread_id,
-                entity=Entity.USER,
-                content=json.dumps({"role": "user", "content": user_request.query}),
+                role=Role.USER,
+                has_content=True,
+                has_tool_calls=False,
+                payload=json.dumps({"role": "user", "content": user_request.query}),
             )
         )
     response = await agent_routine.arun(agent, messages, context_variables)
@@ -108,13 +112,15 @@ async def stream_chat_agent(
     context_variables["project_id"] = thread.project_id
 
     messages: list[Messages] = await thread.awaitable_attrs.messages
-    if not messages or messages[-1].entity != Entity.AI_TOOL:
+    if not messages or not messages[-1].has_tool_calls:
         messages.append(
             Messages(
                 order=len(messages),
                 thread_id=thread.thread_id,
-                entity=Entity.USER,
-                content=json.dumps({"role": "user", "content": user_request.query}),
+                role=Role.USER,
+                has_content=True,
+                has_tool_calls=False,
+                payload=json.dumps({"role": "user", "content": user_request.query}),
             )
         )
     stream_generator = stream_agent_response(

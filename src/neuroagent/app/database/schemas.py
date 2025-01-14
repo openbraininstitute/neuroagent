@@ -5,7 +5,7 @@ from typing import Any, Literal
 
 from pydantic import BaseModel
 
-from neuroagent.app.database.sql_schemas import Entity
+from neuroagent.app.database.sql_schemas import Role
 
 
 class ThreadsRead(BaseModel):
@@ -33,7 +33,9 @@ class MessagesRead(BaseModel):
     order: int
     creation_date: datetime.datetime
     msg_content: str
-    entity: Literal[Entity.USER, Entity.AI_MESSAGE]
+    has_content: bool
+    has_tool_calls: bool
+    role: Literal[Role.USER, Role.ASSISTANT]
 
 
 class ToolCallSchema(BaseModel):
