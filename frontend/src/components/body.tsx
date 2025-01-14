@@ -3,5 +3,5 @@ type BodyProps = {
 };
 
 export function Body({ children }: BodyProps) {
-  return <main className="flex-grow">{children}</main>;
+  return <main className="flex-1 flex flex-col justify-start">{children}</main>;
 }
