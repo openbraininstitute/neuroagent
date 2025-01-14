@@ -5,7 +5,7 @@ type ThreadCardSidebarProps = {
 };
 export function ThreadCardSidebar({ title }: ThreadCardSidebarProps) {
   return (
-    <div className="flex gap-3">
+    <div className="flex gap-3 hover:scale-105 w-full">
       <MessageCircle />
       <p className="">{title}</p>
     </div>
