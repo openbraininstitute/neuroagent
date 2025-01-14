@@ -2,7 +2,7 @@
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { MessageCircle } from "lucide-react";
-import { Thread } from "@/types";
+import { Thread } from "@/lib/types";
 
 type ThreadCardSidebarProps = Thread;
 
