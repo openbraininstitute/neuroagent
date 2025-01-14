@@ -1,26 +1,23 @@
 import { ThreadCardSidebar } from "@/components/thread-card-sidebar";
 import { env } from "@/lib/env";
+import { getSettings } from "@/components/settings-provider";
+import { BThread, Thread } from "@/lib/types";
 
-type Thread = {
-  id: string;
-  title: string;
-};
+async function getThreads(): Promise<BThread[]> {
+  const settings = await getSettings();
 
-async function getThreads(): Promise<Thread[]> {
   const response = await fetch(`${env.BACKEND_URL}/threads`, {
     cache: "no-store",
+    headers: {
+      Authorization: `Bearer ${settings.token}`,
+    },
   });
 
   if (!response.ok) {
-    // return dummy data
-    return [
-      { id: "1", title: "Thread 1" },
-      { id: "2", title: "Thread 2" },
-      { id: "3", title: "Thread 3" },
-    ];
+    return [];
   }
 
-  return response.json();
+  return response.json() as Promise<BThread[]>;
 }
 
 export async function ThreadList() {
@@ -30,9 +27,9 @@ export async function ThreadList() {
     <div className="flex flex-col gap-2 pl-3">
       {threads.map((thread) => (
         <ThreadCardSidebar
-          key={thread.id}
+          key={thread.thread_id}
           title={thread.title}
-          threadID={thread.id}
+          threadID={thread.thread_id}
         />
       ))}
     </div>

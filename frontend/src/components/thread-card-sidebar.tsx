@@ -2,11 +2,9 @@
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { MessageCircle } from "lucide-react";
+import { Thread } from "@/types";
 
-type ThreadCardSidebarProps = {
-  title: string;
-  threadID: string;
-};
+type ThreadCardSidebarProps = Thread;
 
 export function ThreadCardSidebar({ title, threadID }: ThreadCardSidebarProps) {
   return (

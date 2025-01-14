@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import Cookies from "js-cookie";
+import { useRouter } from "next/navigation";
 
 const formSchema = z.object({
   projectID: z.string().min(1, { message: "Project ID is required" }),
@@ -37,6 +38,7 @@ export function ParameterForm({
     token: Cookies.get("token") || "",
   },
 }: ParameterFormProps) {
+  const router = useRouter();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: initialValues,
@@ -47,6 +49,9 @@ export function ParameterForm({
     Cookies.set("projectID", values.projectID, { expires: 30 }); // 30 days
     Cookies.set("virtualLabID", values.virtualLabID, { expires: 30 });
     Cookies.set("token", values.token, { expires: 30 });
+
+    // Refresh the client-side router
+    router.refresh();
   }
 
   return (
