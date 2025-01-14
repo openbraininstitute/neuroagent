@@ -16,7 +16,7 @@ export function Sidebar() {
           </Link>
         </div>
       </div>
-      <p className="text-xl p-4 text-center">Conversations</p>
+      <div className="border-b-2 opacity-50 my-4"></div>
       <div className="flex flex-col gap-2 pl-3">
         <ThreadCardSidebar title="Hello there" />
         <ThreadCardSidebar title="Great day" />
