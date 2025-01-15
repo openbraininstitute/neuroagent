@@ -99,7 +99,7 @@ async def get_threads(
 
 @router.get("/{thread_id}")
 async def get_thread_metadata(
-    thread: Annotated[Threads, Depends(get_thread)],  # to check if thread exist
+    thread: Annotated[Threads, Depends(get_thread)],
 ) -> ThreadsRead:
     """Get all messages of the thread."""
     return ThreadsRead(**thread.__dict__)
