@@ -10,7 +10,7 @@ type ThreadCardSidebarProps = Thread;
 export function ThreadCardSidebar({ title, threadID }: ThreadCardSidebarProps) {
   const handleDelete = async (e: React.MouseEvent) => {
     e.preventDefault();
-    const result = await deleteThread(threadID);
+    await deleteThread(threadID);
   };
 
   return (
