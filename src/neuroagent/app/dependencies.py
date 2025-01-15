@@ -28,6 +28,7 @@ from neuroagent.tools import (
     MEModelGetAllTool,
     MEModelGetOneTool,
     MorphologyFeatureTool,
+    NowTool,
     ResolveEntitiesTool,
     SCSGetAllTool,
     SCSGetOneTool,
@@ -251,6 +252,7 @@ def get_starting_agent(
             MorphologyFeatureTool,
             ResolveEntitiesTool,
             GetTracesTool,
+            NowTool,
         ],
         model=settings.openai.model,
     )

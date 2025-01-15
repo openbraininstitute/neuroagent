@@ -4,20 +4,25 @@ import { getSettings } from "@/lib/cookies-server";
 import { BThread } from "@/lib/types";
 
 async function getThreads(): Promise<BThread[]> {
-  const settings = await getSettings();
+  try {
+    const settings = await getSettings();
 
-  const response = await fetch(`${env.BACKEND_URL}/threads`, {
-    headers: {
-      Authorization: `Bearer ${settings.token}`,
-    },
-    next: { tags: ["threads"] },
-  });
+    const response = await fetch(`${env.BACKEND_URL}/threads`, {
+      headers: {
+        Authorization: `Bearer ${settings.token}`,
+      },
+      next: { tags: ["threads"] },
+    });
 
-  if (!response.ok) {
+    if (!response.ok) {
+      return [];
+    }
+
+    return response.json() as Promise<BThread[]>;
+  } catch (error) {
+    console.error("Error fetching threads:", error);
     return [];
   }
-
-  return response.json() as Promise<BThread[]>;
 }
 
 export async function ThreadList() {

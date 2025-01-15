@@ -24,6 +24,7 @@ from neuroagent.tools.resolve_entities_tool import (
     ResolveEntitiesTool,
 )
 from neuroagent.tools.traces_tool import GetTracesTool, TracesOutput
+from neuroagent.tools.now import NowTool
 
 __all__ = [
     "SCSGetAllTool",
@@ -42,6 +43,7 @@ __all__ = [
     "MEModelGetOneTool",
     "MorphologyFeatureOutput",
     "MorphologyFeatureTool",
+    "NowTool",
     "ParagraphMetadata",
     "ResolveEntitiesTool",
     "TracesOutput",
