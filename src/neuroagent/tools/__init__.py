@@ -25,6 +25,7 @@ from neuroagent.tools.resolve_entities_tool import (
 )
 from neuroagent.tools.traces_tool import GetTracesTool, TracesOutput
 from neuroagent.tools.now import NowTool
+from neuroagent.tools.weather import WeatherTool
 
 __all__ = [
     "SCSGetAllTool",
@@ -47,4 +48,5 @@ __all__ = [
     "ParagraphMetadata",
     "ResolveEntitiesTool",
     "TracesOutput",
+    "WeatherTool",
 ]

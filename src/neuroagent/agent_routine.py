@@ -369,7 +369,18 @@ class AgentsRoutine:
                                     }
                                     yield f"b:{json.dumps(tool_begin_data, separators=(',',':'))}\n"
 
-                                else:
+                                if arguments:
+                                    current_id = (
+                                        id
+                                        or draft_tool_calls[draft_tool_calls_index][
+                                            "id"
+                                        ]
+                                    )
+                                    args_data = {
+                                        "toolCallId": current_id,
+                                        "argsTextDelta": arguments,
+                                    }
+                                    yield f"c:{json.dumps(args_data, separators=(',',':'))}\n"
                                     draft_tool_calls[draft_tool_calls_index][
                                         "arguments"
                                     ] += arguments
