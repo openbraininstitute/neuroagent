@@ -51,28 +51,27 @@ class PaginatedParams(BaseModel):
     page_size: int = Field(default=10, ge=1)
 
 
-class PaginatedThreadsRead(BaseModel):
-    """Paginated output for ThreadRead endpoints."""
+class PaginatedOutputBase(BaseModel):
+    """Base class for paginated responses."""
 
     page: int
     page_size: int
     total_pages: int
+
+
+class PaginatedThreadsRead(PaginatedOutputBase):
+    """Paginated output for ThreadRead endpoints."""
+
     results: list[ThreadsRead]
 
 
-class PaginatedMessagesRead(BaseModel):
+class PaginatedMessagesRead(PaginatedOutputBase):
     """Paginated output for ThreadRead endpoints."""
 
-    page: int
-    page_size: int
-    total_pages: int
     results: list[MessagesRead]
 
 
-class PaginatedToolCallSchema(BaseModel):
+class PaginatedToolCallSchema(PaginatedOutputBase):
     """Paginated output for ThreadRead endpoints."""
 
-    page: int
-    page_size: int
-    total_pages: int
     results: list[ToolCallSchema]
