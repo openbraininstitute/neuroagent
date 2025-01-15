@@ -7,7 +7,6 @@ async function getThreads(): Promise<BThread[]> {
   const settings = await getSettings();
 
   const response = await fetch(`${env.BACKEND_URL}/threads`, {
-    cache: "no-store",
     headers: {
       Authorization: `Bearer ${settings.token}`,
     },
