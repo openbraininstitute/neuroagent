@@ -2,7 +2,7 @@
 
 import json
 import logging
-from typing import Annotated
+from typing import Annotated, Any
 from datetime import datetime
 from enum import Enum
 
@@ -37,7 +37,7 @@ class MessageResponse(BaseModel):
     thread_id: str
     order: int
     creation_date: datetime
-    msg_content: str
+    msg_content: dict[str, Any]
     tool_calls: list[ToolCall]
 
 
@@ -68,7 +68,7 @@ async def get_thread_messages(
             "thread_id": msg.thread_id,
             "order": msg.order,
             "creation_date": msg.creation_date.isoformat(),  # Convert datetime to string
-            "msg_content": json.loads(msg.content)["content"],
+            "msg_content": json.loads(msg.content),
         }
 
         # Always include tool_calls data

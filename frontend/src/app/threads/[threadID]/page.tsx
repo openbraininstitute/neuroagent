@@ -30,44 +30,46 @@ function convertToAiMessages(messages: BMessage[]): Message[] {
     if (message.entity === "user") {
       output.push({
         id: message.message_id,
-        content: message.msg_content,
+        content: message.msg_content.content,
         role: "user",
         createdAt: new Date(message.creation_date),
       });
     } else if (message.entity === "ai_message") {
       output.push({
         id: message.message_id,
-        content: message.msg_content,
+        content: message.msg_content.content,
         role: "assistant",
         createdAt: new Date(message.creation_date),
       });
     } else if (message.entity === "ai_tool") {
-      // Find corresponding tool response
-      const toolResponse = messages.find(
-        (m) =>
-          m.entity === "tool" &&
-          m.tool_calls[0]?.tool_call_id === message.tool_calls[0]?.tool_call_id,
-      );
+      const toolInvocations = message.tool_calls.map((toolCall) => {
+        const toolResponse = messages.find(
+          (m) =>
+            m.entity === "tool" &&
+            m.msg_content.tool_call_id === toolCall.tool_call_id,
+        );
+
+        return {
+          toolCallId: toolCall.tool_call_id,
+          toolName: toolCall.name,
+          args: JSON.parse(toolCall.arguments),
+          state: toolResponse ? ("result" as const) : ("call" as const),
+          result: toolResponse?.msg_content.content ?? null,
+        };
+      });
 
       output.push({
         id: message.message_id,
-        content:
-          message.msg_content +
-          (toolResponse ? "\n" + toolResponse.msg_content : ""),
+        content: message.msg_content.content,
         role: "assistant",
         createdAt: new Date(message.creation_date),
-        toolInvocations: message.tool_calls.map((tool) => ({
-          toolCallId: tool.tool_call_id,
-          toolName: tool.name,
-          args: JSON.parse(tool.arguments),
-          state: toolResponse ? ("result" as const) : ("call" as const),
-          result: toolResponse?.msg_content ?? null,
-        })),
+        toolInvocations,
       });
     }
-    // Skip 'tool' messages as they're handled within ai_tool processing
   }
 
+  console.log(JSON.stringify(messages, null, 2));
+  console.log(JSON.stringify(output, null, 2));
   return output;
 }
 

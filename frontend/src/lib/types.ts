@@ -20,12 +20,66 @@ export type BToolCall = {
   validated: boolean | null;
 };
 
-export type BMessage = {
+export type BMessageUser = {
   message_id: string;
-  entity: "user" | "ai_tool" | "tool" | "ai_message";
+  entity: "user";
   thread_id: string;
   order: number;
   creation_date: string;
-  msg_content: string;
+  msg_content: {
+    role: "user";
+    content: string;
+  };
+  tool_calls: never[];
+};
+
+export type BMessageAIContent = {
+  message_id: string;
+  entity: "ai_message";
+  thread_id: string;
+  order: number;
+  creation_date: string;
+  msg_content: {
+    content: string;
+    sender: string;
+    role: "assistant";
+    function_call: null;
+  };
+  tool_calls: never[];
+};
+
+export type BMessageAITool = {
+  message_id: string;
+  entity: "ai_tool";
+  thread_id: string;
+  order: number;
+  creation_date: string;
+  msg_content: {
+    role: "assistant";
+    content: string;
+    sender: string;
+    function_call: null;
+  };
   tool_calls: BToolCall[];
 };
+
+export type BMessageTool = {
+  message_id: string;
+  entity: "tool";
+  thread_id: string;
+  order: number;
+  creation_date: string;
+  msg_content: {
+    role: "assistant";
+    tool_call_id: string;
+    tool_name: string;
+    content: string;
+  };
+  tool_calls: never[];
+};
+
+export type BMessage =
+  | BMessageUser
+  | BMessageAITool
+  | BMessageTool
+  | BMessageAIContent;

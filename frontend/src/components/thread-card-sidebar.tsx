@@ -4,19 +4,13 @@ import Link from "next/link";
 import { MessageCircle, X } from "lucide-react";
 import { Thread } from "@/lib/types";
 import { deleteThread } from "@/actions/delete-thread";
-import { useRouter } from "next/navigation";
 
 type ThreadCardSidebarProps = Thread;
 
 export function ThreadCardSidebar({ title, threadID }: ThreadCardSidebarProps) {
-  const router = useRouter();
-
   const handleDelete = async (e: React.MouseEvent) => {
     e.preventDefault();
     const result = await deleteThread(threadID);
-    if (result.success) {
-      router.refresh();
-    }
   };
 
   return (
