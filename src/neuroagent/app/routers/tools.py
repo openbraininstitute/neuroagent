@@ -9,7 +9,6 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import ValidationError
 from sqlalchemy import desc, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import noload
 
 from neuroagent.app.database.db_utils import get_thread
 from neuroagent.app.database.schemas import (
@@ -75,8 +74,8 @@ async def get_tool_calls(
         )
 
     # Get all the "AI_TOOL" messsages in between.
-    tool_messages_query = (
-        select(Messages)
+    tool_messages_query = await session.execute(
+        select(Messages, func.count().over().label("total_count"))
         .where(
             Messages.thread_id == thread_id,
             Messages.order < relevant_message.order,
@@ -84,24 +83,18 @@ async def get_tool_calls(
             Messages.entity == Entity.AI_TOOL,
         )
         .order_by(Messages.order)
+        .limit(pagination_params.page_size)
+        .offset((pagination_params.page - 1) * pagination_params.page_size)
     )
+
     # Get the total number of messages associated to the conversation
-    count = await session.scalar(
-        select(func.count()).select_from(
-            tool_messages_query.options(noload("*")).subquery()
-        )
-    )
-    tool_messages = await session.execute(
-        tool_messages_query.limit(pagination_params.page_size).offset(
-            (pagination_params.page - 1) * pagination_params.page_size
-        )
-    )
-    tool_messages_scalar = tool_messages.scalars().all()
+
+    tool_messages = tool_messages_query.fetchall()
 
     # We should maybe give back the message_id, for easier search after.
     tool_calls_response = []
-    for ai_tool_message in tool_messages_scalar:
-        tool_calls = await ai_tool_message.awaitable_attrs.tool_calls
+    for ai_tool_message in tool_messages:
+        tool_calls = await ai_tool_message[0].awaitable_attrs.tool_calls
         for tool in tool_calls:
             tool_calls_response.append(
                 ToolCallSchema(
@@ -110,7 +103,11 @@ async def get_tool_calls(
                     arguments=json.loads(tool.arguments),
                 )
             )
-    total_pages = ceil(count / pagination_params.page_size) if count else 0
+    total_pages = (
+        ceil(tool_messages[0].total_count / pagination_params.page_size)
+        if tool_messages
+        else 0
+    )
     return PaginatedToolCallSchema(
         page=pagination_params.page,
         page_size=pagination_params.page_size,
