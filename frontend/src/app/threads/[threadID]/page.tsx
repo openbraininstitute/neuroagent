@@ -13,11 +13,15 @@ async function getMessages(threadId: string): Promise<BMessage[]> {
       headers: {
         Authorization: `Bearer ${settings.token}`,
       },
+      next: {
+        tags: [`thread-${threadId}`],
+        revalidate: 0,
+      },
     },
   );
 
   if (!response.ok) {
-    return [];
+    throw new Error(`Failed to fetch messages: ${response.statusText}`);
   }
 
   return response.json();
@@ -68,8 +72,6 @@ function convertToAiMessages(messages: BMessage[]): Message[] {
     }
   }
 
-  console.log(JSON.stringify(messages, null, 2));
-  console.log(JSON.stringify(output, null, 2));
   return output;
 }
 
@@ -81,14 +83,19 @@ export default async function PageThread({
   const paramsAwaited = await params;
   const threadId = paramsAwaited?.threadID;
 
-  const messages = await getMessages(threadId);
-  const convertedMessages = convertToAiMessages(messages);
+  try {
+    const messages = await getMessages(threadId);
+    const convertedMessages = convertToAiMessages(messages);
 
-  return (
-    <ChatPage
-      threadId={threadId}
-      threadTitle={`AI Discussion #${threadId}`}
-      initialMessages={convertedMessages}
-    />
-  );
+    return (
+      <ChatPage
+        threadId={threadId}
+        threadTitle={`AI Discussion #${threadId}`}
+        initialMessages={convertedMessages}
+      />
+    );
+  } catch (error) {
+    console.error("Error loading thread:", error);
+    return <div>Error loading thread. Please try refreshing the page.</div>;
+  }
 }

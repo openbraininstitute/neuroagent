@@ -63,10 +63,13 @@ export async function createThreadWithMessage(content: string) {
     }
 
     revalidateTag("threads");
+    revalidateTag(`thread-${thread_id}`);
   } catch (error) {
     console.error("Error creating thread with message:", error);
     return { success: false, error: "Failed to create thread with message" };
   }
 
+  // Sleep and redirect moved outside try-catch
+  //   await new Promise(resolve => setTimeout(resolve, ));
   redirect(`/threads/${thread_id}`);
 }

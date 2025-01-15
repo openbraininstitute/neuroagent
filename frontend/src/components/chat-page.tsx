@@ -21,20 +21,10 @@ export function ChatPage({
   threadTitle,
   initialMessages,
 }: ChatPageProps) {
-  const [token, setToken] = useState<string>("");
-
-  useEffect(() => {
-    const initializeToken = async () => {
-      const settings = getSettings();
-      setToken(settings.token);
-    };
-    initializeToken();
-  }, []);
-
   const { messages, input, handleInputChange, handleSubmit, error } = useChat({
     api: `${BACKEND_URL}/${threadId}`,
     headers: {
-      Authorization: `Bearer ${token}`,
+      Authorization: `Bearer ${getSettings().token}`,
     },
     initialMessages,
   });
@@ -63,7 +53,7 @@ export function ChatPage({
       <div className="flex justify-center items-center border-b-4 p-4">
         <h1 className="text-3xl">{threadTitle}</h1>
       </div>
-      <div className="flex flex-col overflow-auto my-4">
+      <div className="flex-1 flex flex-col overflow-y-auto my-4">
         {messages.map((message) =>
           message.role === "assistant" ? (
             message.toolInvocations ? (
