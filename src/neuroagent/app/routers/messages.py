@@ -3,10 +3,14 @@
 import json
 import logging
 from typing import Annotated
+from datetime import datetime
+from enum import Enum
 
 from fastapi import APIRouter, Depends
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import joinedload
+from pydantic import BaseModel, ConfigDict
 
 from neuroagent.app.database.db_utils import get_thread
 from neuroagent.app.database.schemas import MessagesRead
@@ -20,32 +24,66 @@ logger = logging.getLogger(__name__)
 router = APIRouter()
 
 
+class ToolCall(BaseModel):
+    tool_call_id: str
+    name: str
+    arguments: str
+    validated: bool | None
+
+
+class MessageResponse(BaseModel):
+    message_id: str
+    entity: str
+    thread_id: str
+    order: int
+    creation_date: datetime
+    msg_content: str
+    tool_calls: list[ToolCall]
+
+
 # Define your routes here
 @router.get("/")
 async def get_thread_messages(
     session: Annotated[AsyncSession, Depends(get_session)],
     _: Annotated[Threads, Depends(get_thread)],  # to check if thread exists
     thread_id: str,
-) -> list[MessagesRead]:
+) -> list[MessageResponse]:
     """Get all messages of the thread."""
     messages_result = await session.execute(
         select(Messages)
         .where(
             Messages.thread_id == thread_id,
-            Messages.entity.in_([Entity.USER, Entity.AI_MESSAGE]),
         )
+        .options(joinedload(Messages.tool_calls))  # Eager load tool_calls
         .order_by(Messages.order)
     )
-    db_messages = messages_result.scalars().all()
+    db_messages = messages_result.unique().scalars().all()
 
     messages = []
     for msg in db_messages:
-        messages.append(
-            MessagesRead(
-                msg_content=json.loads(msg.content)["content"],
-                **msg.__dict__,
-            )
-        )
+        # Create a clean dict without SQLAlchemy attributes
+        message_data = {
+            "message_id": msg.message_id,
+            "entity": msg.entity.value,  # Convert enum to string
+            "thread_id": msg.thread_id,
+            "order": msg.order,
+            "creation_date": msg.creation_date.isoformat(),  # Convert datetime to string
+            "msg_content": json.loads(msg.content)["content"],
+        }
+
+        # Always include tool_calls data
+        tool_calls_data = [
+            {
+                "tool_call_id": tc.tool_call_id,
+                "name": tc.name,
+                "arguments": tc.arguments,
+                "validated": tc.validated,
+            }
+            for tc in msg.tool_calls
+        ]
+        message_data["tool_calls"] = tool_calls_data
+
+        messages.append(MessageResponse(**message_data))
 
     return messages
 
