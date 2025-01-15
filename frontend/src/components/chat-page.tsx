@@ -14,6 +14,8 @@ type ChatPageProps = {
   initialMessages: Message[];
 };
 
+const BACKEND_URL = "http://localhost:8000/qa/chat_streamed";
+
 export function ChatPage({
   threadId,
   threadTitle,
@@ -23,14 +25,14 @@ export function ChatPage({
 
   useEffect(() => {
     const initializeToken = async () => {
-      const settings = await getSettings();
+      const settings = getSettings();
       setToken(settings.token);
     };
     initializeToken();
   }, []);
 
   const { messages, input, handleInputChange, handleSubmit, error } = useChat({
-    api: "/api/chat-with-tools",
+    api: `${BACKEND_URL}/${threadId}`,
     body: { threadId },
     headers: {
       Authorization: `Bearer ${token}`,
