@@ -2,15 +2,21 @@
 
 import json
 import logging
+from math import ceil
 from typing import Annotated, Any
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import ValidationError
-from sqlalchemy import desc, select
+from sqlalchemy import desc, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import noload
 
 from neuroagent.app.database.db_utils import get_thread
-from neuroagent.app.database.schemas import ToolCallSchema
+from neuroagent.app.database.schemas import (
+    PaginatedParams,
+    PaginatedToolCallSchema,
+    ToolCallSchema,
+)
 from neuroagent.app.database.sql_schemas import Entity, Messages, Threads, ToolCalls
 from neuroagent.app.dependencies import get_session, get_starting_agent
 from neuroagent.new_types import Agent, HILValidation
@@ -24,9 +30,10 @@ router = APIRouter(prefix="/tools", tags=["Tool's CRUD"])
 async def get_tool_calls(
     _: Annotated[Threads, Depends(get_thread)],  # to check if thread exist
     session: Annotated[AsyncSession, Depends(get_session)],
+    pagination_params: Annotated[PaginatedParams, Query()],
     thread_id: str,
     message_id: str,
-) -> list[ToolCallSchema]:
+) -> PaginatedToolCallSchema:
     """Get tool calls of a specific message."""
     # Find relevant messages
     relevant_message = await session.get(Messages, message_id)
@@ -40,7 +47,12 @@ async def get_tool_calls(
             },
         )
     if relevant_message.entity != Entity.AI_MESSAGE:
-        return []
+        return PaginatedToolCallSchema(
+            page=pagination_params.page,
+            page_size=pagination_params.page_size,
+            total_pages=0,
+            results=[],
+        )
 
     # Get the nearest previous message that called the tools.
     previous_user_message_result = await session.execute(
@@ -55,10 +67,15 @@ async def get_tool_calls(
     )
     previous_user_message = previous_user_message_result.scalars().one_or_none()
     if not previous_user_message:
-        return []
+        return PaginatedToolCallSchema(
+            page=pagination_params.page,
+            page_size=pagination_params.page_size,
+            total_pages=0,
+            results=[],
+        )
 
     # Get all the "AI_TOOL" messsages in between.
-    ai_tool_messages_query = await session.execute(
+    tool_messages_query = (
         select(Messages)
         .where(
             Messages.thread_id == thread_id,
@@ -68,11 +85,22 @@ async def get_tool_calls(
         )
         .order_by(Messages.order)
     )
-    ai_tool_messages = ai_tool_messages_query.scalars().all()
+    # Get the total number of messages associated to the conversation
+    count = await session.scalar(
+        select(func.count()).select_from(
+            tool_messages_query.options(noload("*")).subquery()
+        )
+    )
+    tool_messages = await session.execute(
+        tool_messages_query.limit(pagination_params.page_size).offset(
+            (pagination_params.page - 1) * pagination_params.page_size
+        )
+    )
+    tool_messages_scalar = tool_messages.scalars().all()
 
     # We should maybe give back the message_id, for easier search after.
     tool_calls_response = []
-    for ai_tool_message in ai_tool_messages:
+    for ai_tool_message in tool_messages_scalar:
         tool_calls = await ai_tool_message.awaitable_attrs.tool_calls
         for tool in tool_calls:
             tool_calls_response.append(
@@ -82,8 +110,13 @@ async def get_tool_calls(
                     arguments=json.loads(tool.arguments),
                 )
             )
-
-    return tool_calls_response
+    total_pages = ceil(count / pagination_params.page_size) if count else 0
+    return PaginatedToolCallSchema(
+        page=pagination_params.page,
+        page_size=pagination_params.page_size,
+        total_pages=total_pages,
+        results=tool_calls_response,
+    )
 
 
 @router.get("/output/{thread_id}/{tool_call_id}")

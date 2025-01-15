@@ -3,7 +3,7 @@
 import datetime
 from typing import Any, Literal
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from neuroagent.app.database.sql_schemas import Entity
 
@@ -42,3 +42,37 @@ class ToolCallSchema(BaseModel):
     tool_call_id: str
     name: str
     arguments: dict[str, Any]
+
+
+class PaginatedParams(BaseModel):
+    """Input query parameters for paginated endpoints."""
+
+    page: int = Field(default=1, ge=1)
+    page_size: int = Field(default=10, ge=1)
+
+
+class PaginatedThreadsRead(BaseModel):
+    """Paginated output for ThreadRead endpoints."""
+
+    page: int
+    page_size: int
+    total_pages: int
+    results: list[ThreadsRead]
+
+
+class PaginatedMessagesRead(BaseModel):
+    """Paginated output for ThreadRead endpoints."""
+
+    page: int
+    page_size: int
+    total_pages: int
+    results: list[MessagesRead]
+
+
+class PaginatedToolCallSchema(BaseModel):
+    """Paginated output for ThreadRead endpoints."""
+
+    page: int
+    page_size: int
+    total_pages: int
+    results: list[ToolCallSchema]

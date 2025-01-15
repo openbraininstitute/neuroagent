@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Return model dumps of DB schema objects.
 - Moved swarm_copy to neuroagent and delete old code.
+- Route to get messages in thread.
 
 ### Added
 - LLM evaluation logic
@@ -25,6 +26,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Unit tests for database
 - Tests for tool CRUD endpoints.
 - Human In the Loop.
+- Pagination in threads, messages and tool calls
 
 ### Fixed
 - Migrate LLM Evaluation logic to scripts and add tests

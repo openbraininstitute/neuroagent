@@ -2,17 +2,26 @@
 
 import json
 import logging
+from math import ceil
 from typing import Annotated
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Query
 from httpx import AsyncClient
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import noload
 
 from neuroagent.app.app_utils import validate_project
 from neuroagent.app.config import Settings
 from neuroagent.app.database.db_utils import get_thread
-from neuroagent.app.database.schemas import MessagesRead, ThreadsRead, ThreadUpdate
+from neuroagent.app.database.schemas import (
+    MessagesRead,
+    PaginatedMessagesRead,
+    PaginatedParams,
+    PaginatedThreadsRead,
+    ThreadsRead,
+    ThreadUpdate,
+)
 from neuroagent.app.database.sql_schemas import Entity, Messages, Threads
 from neuroagent.app.dependencies import (
     get_httpx_client,
@@ -64,29 +73,63 @@ async def create_thread(
 async def get_threads(
     session: Annotated[AsyncSession, Depends(get_session)],
     user_id: Annotated[str, Depends(get_user_id)],
-) -> list[ThreadsRead]:
+    pagination_params: Annotated[PaginatedParams, Query()],
+) -> PaginatedThreadsRead:
     """Get threads for a user."""
+    query = select(Threads).where(Threads.user_id == user_id)
+
+    # Get the total number of threads associated to the user
+    count = await session.scalar(
+        select(func.count()).select_from(query.options(noload("*")).subquery())
+    )
     thread_result = await session.execute(
-        select(Threads).where(Threads.user_id == user_id)
+        query.limit(pagination_params.page_size).offset(
+            (pagination_params.page - 1) * pagination_params.page_size
+        )
     )
     threads = thread_result.scalars().all()
-    return [ThreadsRead(**thread.__dict__) for thread in threads]
+    total_pages = ceil(count / pagination_params.page_size) if count else 0
+    return PaginatedThreadsRead(
+        page=pagination_params.page,
+        page_size=pagination_params.page_size,
+        total_pages=total_pages,
+        results=[ThreadsRead(**thread.__dict__) for thread in threads],
+    )
 
 
 @router.get("/{thread_id}")
+async def get_thread_metadata(
+    thread: Annotated[Threads, Depends(get_thread)],  # to check if thread exist
+) -> ThreadsRead:
+    """Get all messages of the thread."""
+    return ThreadsRead(**thread.__dict__)
+
+
+@router.get("/{thread_id}/messages")
 async def get_messages(
     session: Annotated[AsyncSession, Depends(get_session)],
     _: Annotated[Threads, Depends(get_thread)],  # to check if thread exist
+    pagination_params: Annotated[PaginatedParams, Query()],
     thread_id: str,
-) -> list[MessagesRead]:
+) -> PaginatedMessagesRead:
     """Get all messages of the thread."""
-    messages_result = await session.execute(
+    messages_query = (
         select(Messages)
         .where(
             Messages.thread_id == thread_id,
             Messages.entity.in_([Entity.USER, Entity.AI_MESSAGE]),
         )
         .order_by(Messages.order)
+    )
+
+    # Get the total number of messages associated to the conversation
+    count = await session.scalar(
+        select(func.count()).select_from(messages_query.options(noload("*")).subquery())
+    )
+    messages_result = await session.execute(
+        messages_query.limit(pagination_params.page_size).offset(
+            (pagination_params.page - 1) * pagination_params.page_size
+        )
     )
     db_messages = messages_result.scalars().all()
 
@@ -98,8 +141,13 @@ async def get_messages(
                 **msg.__dict__,
             )
         )
-
-    return messages
+    total_pages = ceil(count / pagination_params.page_size) if count else 0
+    return PaginatedMessagesRead(
+        page=pagination_params.page,
+        page_size=pagination_params.page_size,
+        total_pages=total_pages,
+        results=messages,
+    )
 
 
 @router.patch("/{thread_id}")

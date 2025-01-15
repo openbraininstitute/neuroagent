@@ -9,13 +9,15 @@ from openai.types.chat.chat_completion_message_tool_call import (
 )
 
 
-def create_mock_response(message, function_calls=[], model="gpt-4o-mini"):
+def create_mock_response(
+    message, function_calls=[], model="gpt-4o-mini", id="mock_tc_id"
+):
     role = message.get("role", "assistant")
     content = message.get("content", "")
     tool_calls = (
         [
             ChatCompletionMessageToolCall(
-                id="mock_tc_id",
+                id=id,
                 type="function",
                 function=Function(
                     name=call.get("name", ""),
