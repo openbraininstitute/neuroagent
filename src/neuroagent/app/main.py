@@ -24,7 +24,7 @@ from neuroagent.app.dependencies import (
     get_update_kg_hierarchy,
 )
 from neuroagent.app.middleware import strip_path_prefix
-from neuroagent.app.routers import qa, threads, tools
+from neuroagent.app.routers import qa, threads, tools, messages
 
 LOGGING = {
     "version": 1,
@@ -145,6 +145,7 @@ app.add_middleware(BaseHTTPMiddleware, dispatch=strip_path_prefix)
 app.include_router(qa.router)
 app.include_router(threads.router)
 app.include_router(tools.router)
+app.include_router(messages.router)
 
 
 @app.get("/healthz")
