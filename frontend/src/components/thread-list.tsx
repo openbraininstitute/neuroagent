@@ -1,6 +1,6 @@
 import { ThreadCardSidebar } from "@/components/thread-card-sidebar";
 import { env } from "@/lib/env";
-import { getSettings } from "@/lib/settings-provider";
+import { getSettings } from "@/lib/cookies-server";
 import { BThread } from "@/lib/types";
 
 async function getThreads(): Promise<BThread[]> {

@@ -1,4 +1,3 @@
-// This is a server component
 import { cookies } from "next/headers";
 
 export async function getSettings() {

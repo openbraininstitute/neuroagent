@@ -3,6 +3,7 @@
 import { useChat } from "ai/react";
 import { useEffect, useRef, useState } from "react";
 import type { Message } from "ai/react";
+import { getSettings } from "@/lib/cookies-client";
 
 import { Button } from "@/components/ui/button";
 import { ChatMessage } from "@/components/chat-message";
@@ -18,9 +19,22 @@ export function ChatPage({
   threadTitle,
   initialMessages,
 }: ChatPageProps) {
+  const [token, setToken] = useState<string>("");
+
+  useEffect(() => {
+    const initializeToken = async () => {
+      const settings = await getSettings();
+      setToken(settings.token);
+    };
+    initializeToken();
+  }, []);
+
   const { messages, input, handleInputChange, handleSubmit, error } = useChat({
     api: "/api/chat-with-tools",
     body: { threadId },
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
     initialMessages,
   });
   const [showTools, setShowTools] = useState(true);

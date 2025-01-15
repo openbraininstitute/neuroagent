@@ -1,6 +1,6 @@
 import { BMessage } from "@/lib/types";
 import { env } from "@/lib/env";
-import { getSettings } from "@/lib/settings-provider";
+import { getSettings } from "@/lib/cookies-server";
 import { Message } from "@ai-sdk/ui-utils";
 import { ChatPage } from "@/components/chat-page";
 
