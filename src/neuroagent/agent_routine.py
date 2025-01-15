@@ -348,9 +348,9 @@ class AgentsRoutine:
                                 tool_call_data = {
                                     "toolCallId": tool_call["id"],
                                     "toolName": tool_call["name"],
-                                    "args": tool_call["arguments"],
+                                    "args": json.loads(tool_call["arguments"] or "{}"),
                                 }
-                                yield f"9:{json.dumps(tool_call_data)}\n"
+                                yield f"9:{json.dumps(tool_call_data, separators=(',',':'))}\n"
 
                         # Check for tool calls
                         elif choice.delta.tool_calls:
@@ -367,7 +367,7 @@ class AgentsRoutine:
                                         "toolCallId": id,
                                         "toolName": name,
                                     }
-                                    yield f"b:{json.dumps(tool_begin_data)}\n"
+                                    yield f"b:{json.dumps(tool_begin_data, separators=(',',':'))}\n"
 
                                 else:
                                     draft_tool_calls[draft_tool_calls_index][
@@ -375,7 +375,7 @@ class AgentsRoutine:
                                     ] += arguments
 
                         else:
-                            yield f"0:{json.dumps(choice.delta.content)}\n"
+                            yield f"0:{json.dumps(choice.delta.content, separators=(',',':'))}\n"
 
                         delta_json = choice.delta.model_dump()
                         delta_json.pop("role", None)
@@ -453,7 +453,7 @@ class AgentsRoutine:
                     "toolCallId": tool_response["tool_call_id"],
                     "result": tool_response["content"],
                 }
-                yield f"a:{json.dumps(response_data)}\n"
+                yield f"a:{json.dumps(response_data, separators=(',',':'))}\n"
 
             yield f"e:{json.dumps(finish_data)}\n"
 

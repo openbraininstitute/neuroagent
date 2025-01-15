@@ -46,7 +46,7 @@ export function ChatPage({
   }, [messages]);
 
   if (error) {
-    console.log("Something went wrong");
+    console.log("Error", error);
     return null;
   }
 
