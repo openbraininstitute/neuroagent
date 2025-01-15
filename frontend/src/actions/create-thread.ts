@@ -62,6 +62,15 @@ export async function createThreadWithMessage(content: string) {
       throw new Error(`Failed to send message: ${messageResponse.statusText}`);
     }
 
+    // Read and consume the entire stream
+    const reader = messageResponse.body?.getReader();
+    if (reader) {
+      while (true) {
+        const { done } = await reader.read();
+        if (done) break;
+      }
+    }
+
     revalidateTag("threads");
     revalidateTag(`thread-${thread_id}`);
   } catch (error) {
@@ -69,7 +78,5 @@ export async function createThreadWithMessage(content: string) {
     return { success: false, error: "Failed to create thread with message" };
   }
 
-  // Sleep and redirect moved outside try-catch
-  //   await new Promise(resolve => setTimeout(resolve, ));
   redirect(`/threads/${thread_id}`);
 }
