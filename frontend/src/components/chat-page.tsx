@@ -33,7 +33,6 @@ export function ChatPage({
 
   const { messages, input, handleInputChange, handleSubmit, error } = useChat({
     api: `${BACKEND_URL}/${threadId}`,
-    body: { threadId },
     headers: {
       Authorization: `Bearer ${token}`,
     },

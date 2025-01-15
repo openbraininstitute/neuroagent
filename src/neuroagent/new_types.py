@@ -3,7 +3,7 @@
 from typing import Any, Callable
 
 # Third-party imports
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 from neuroagent.tools.base_tool import BaseTool
 
@@ -64,22 +64,13 @@ class ClientAttachment(BaseModel):
     url: str
 
 
-class ToolInvocation(BaseModel):
-    """Vercel class."""
-
-    toolCallId: str
-    toolName: str
-    args: dict[str, Any]
-    result: dict[str, Any]
-
-
 class ClientMessage(BaseModel):
     """Vercel class."""
 
     role: str
     content: str
-    experimental_attachments: list[ClientAttachment] | None = None
-    toolInvocations: list[ToolInvocation] | None = None
+
+    model_config = ConfigDict(extra="ignore")
 
 
 class VercelRequest(BaseModel):
