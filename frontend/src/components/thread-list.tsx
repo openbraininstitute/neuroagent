@@ -10,6 +10,7 @@ async function getThreads(): Promise<BThread[]> {
     headers: {
       Authorization: `Bearer ${settings.token}`,
     },
+    next: { tags: ["threads"] },
   });
 
   if (!response.ok) {
