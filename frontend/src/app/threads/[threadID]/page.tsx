@@ -1,6 +1,8 @@
 import { BMessage } from "@/lib/types";
 import { env } from "@/lib/env";
 import { getSettings } from "@/lib/settings-provider";
+import { Message } from "@ai-sdk/ui-utils";
+import { ChatPage } from "@/components/chat-page";
 
 async function getMessages(threadId: string): Promise<BMessage[]> {
   const settings = await getSettings();
@@ -21,6 +23,25 @@ async function getMessages(threadId: string): Promise<BMessage[]> {
   return response.json();
 }
 
+function convertToAiMessage(message: BMessage): Message {
+  return {
+    id: message.message_id,
+    content: message.msg_content,
+    role: message.entity === "assistant" ? "assistant" : "user",
+    createdAt: new Date(message.creation_date),
+    // Convert tool calls if they exist
+    ...(message.tool_calls?.length > 0 && {
+      toolInvocations: message.tool_calls.map((tool) => ({
+        toolCallId: tool.tool_call_id,
+        toolName: tool.name,
+        args: JSON.parse(tool.arguments),
+        state: "result",
+        result: null,
+      })),
+    }),
+  };
+}
+
 export default async function PageThread({
   params,
 }: {
@@ -30,15 +51,13 @@ export default async function PageThread({
   const threadId = paramsAwaited?.threadID;
 
   const messages = await getMessages(threadId);
+  const convertedMessages = messages.map(convertToAiMessage);
 
   return (
-    <>
-      <h1 className="text-2xl my-4 text-center font-bold mb-6">
-        Thread #{threadId}
-      </h1>
-      <pre className="whitespace-pre-wrap">
-        {JSON.stringify(messages, null, 2)}
-      </pre>
-    </>
+    <ChatPage
+      threadId={threadId}
+      threadTitle={`AI Discussion #${threadId}`}
+      initialMessages={convertedMessages}
+    />
   );
 }
