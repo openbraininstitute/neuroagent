@@ -345,7 +345,12 @@ class AgentsRoutine:
 
                         elif choice.finish_reason == "tool_calls":
                             for tool_call in draft_tool_calls:
-                                yield f"9:{{'toolCallId':'{tool_call['id']}','toolName':'{tool_call['name']}','args':{tool_call['arguments']}}}\n"
+                                tool_call_data = {
+                                    "toolCallId": tool_call["id"],
+                                    "toolName": tool_call["name"],
+                                    "args": tool_call["arguments"],
+                                }
+                                yield f"9:{json.dumps(tool_call_data)}\n"
 
                         # Check for tool calls
                         elif choice.delta.tool_calls:
@@ -358,13 +363,16 @@ class AgentsRoutine:
                                     draft_tool_calls.append(
                                         {"id": id, "name": name, "arguments": ""}
                                     )
-                                    yield f"b:{{'toolCallId':{id},'toolName':{name}}}\n"
+                                    tool_begin_data = {
+                                        "toolCallId": id,
+                                        "toolName": name,
+                                    }
+                                    yield f"b:{json.dumps(tool_begin_data)}\n"
 
                                 else:
                                     draft_tool_calls[draft_tool_calls_index][
                                         "arguments"
                                     ] += arguments
-                                yield f"c:{{toolCallId:{id}; argsTextDelta:{arguments}}}\n"
 
                         else:
                             yield f"0:{json.dumps(choice.delta.content)}\n"
@@ -378,11 +386,16 @@ class AgentsRoutine:
                     prompt_tokens = usage.prompt_tokens
                     completion_tokens = usage.completion_tokens
 
-                    yield 'd:{{"finishReason":"{reason}","usage":{{"promptTokens":{prompt},"completionTokens":{completion}}}}}\n'.format(
-                        reason="tool-calls" if len(draft_tool_calls) > 0 else "stop",
-                        prompt=prompt_tokens,
-                        completion=completion_tokens,
-                    )
+                    finish_data = {
+                        "finishReason": "tool-calls"
+                        if len(draft_tool_calls) > 0
+                        else "stop",
+                        "usage": {
+                            "promptTokens": prompt_tokens,
+                            "completionTokens": completion_tokens,
+                        },
+                    }
+
                 message["tool_calls"] = list(message.get("tool_calls", {}).values())
                 if not message["tool_calls"]:
                     message["tool_calls"] = None
@@ -416,12 +429,14 @@ class AgentsRoutine:
                 )
 
             if not messages[-1].tool_calls:
+                yield f"e:{json.dumps(finish_data)}\n"
                 break
 
             # handle function calls, updating context_variables, and switching agents
             partial_response = await self.execute_tool_calls(
                 messages[-1].tool_calls, active_agent.tools, context_variables
             )
+
             # If the tool call response contains HIL validation, do not update anything and return
             if partial_response.hil_messages:
                 yield Response(
@@ -431,6 +446,16 @@ class AgentsRoutine:
                     hil_messages=partial_response.hil_messages,
                 )
                 break
+
+            # Before extending history, yield each tool response
+            for tool_response in partial_response.messages:
+                response_data = {
+                    "toolCallId": tool_response["tool_call_id"],
+                    "result": tool_response["content"],
+                }
+                yield f"a:{json.dumps(response_data)}\n"
+
+            yield f"e:{json.dumps(finish_data)}\n"
 
             history.extend(partial_response.messages)
             messages.extend(
@@ -447,6 +472,12 @@ class AgentsRoutine:
             context_variables.update(partial_response.context_variables)
             if partial_response.agent:
                 active_agent = partial_response.agent
+
+        done_data = {
+            "finishReason": "stop",
+            "usage": {"promptTokens": 0, "completionTokens": 0},
+        }
+        yield f"d:{json.dumps(done_data)}\n"
 
         yield Response(
             messages=history[init_len - 1 :],
