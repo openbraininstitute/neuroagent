@@ -85,6 +85,7 @@ jobs:
           pip install --upgrade pip
           pip install mypy==1.8.0
           pip install ".[dev]"
+          export PYTHONPATH=$(pwd)/src:$PYTHONPATH
       - name: Run alembic
         run: |
           alembic -x url=sqlite:///sqlite.db upgrade head
@@ -92,6 +93,4 @@ jobs:
       - name: Running mypy and tests
         run: |
           mypy src/
-          # Include src/ directory in Python path to prioritize local files in pytest
-          export PYTHONPATH=$(pwd)/src:$PYTHONPATH
           pytest --color=yes tests/
