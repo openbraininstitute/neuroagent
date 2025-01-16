@@ -37,6 +37,7 @@ export function ChatInput() {
         <input
           name="content"
           type="text"
+          autoComplete="off"
           className="border-2 border-gray-500 w-1/2 p-4 rounded-full"
           placeholder={isPending ? "Creating thread..." : "Message the AI..."}
           value={input}
