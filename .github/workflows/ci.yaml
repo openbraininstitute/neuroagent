@@ -87,7 +87,7 @@ jobs:
           pip install ".[dev]"
       - name: Run alembic
         run: |
-          alembic -x url=sqlite:///test_sqlite.db upgrade head
+          alembic -x url=sqlite:///sqlite.db upgrade head
           alembic -x url=postgresql://test:password@localhost:5432 upgrade head
       - name: Running mypy and tests
         run: |

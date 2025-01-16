@@ -32,15 +32,12 @@ if db_url:
     sqlalchemy_url = db_url
 else:
     # Construct the database URL from environment variables
-    if db_prefix := os.getenv("NEUROAGENT_DB__PREFIX"):
-        db_host = os.getenv("NEUROAGENT_DB__HOST", "localhost")
-        db_port = os.getenv("NEUROAGENT_DB__PORT", "5432")
-        db_user = os.getenv("NEUROAGENT_DB__USER", "postgres")
-        db_password = os.getenv("NEUROAGENT_DB__PASSWORD", "secret")
-        db_name = os.getenv("NEUROAGENT_DB__NAME", "")
-    else:
-        db_prefix = "test_sqlite.db"
-        db_name = ""
+    db_prefix = os.getenv("NEUROAGENT_DB__PREFIX")
+    db_host = os.getenv("NEUROAGENT_DB__HOST", "localhost")
+    db_port = os.getenv("NEUROAGENT_DB__PORT", "5432")
+    db_user = os.getenv("NEUROAGENT_DB__USER", "postgres")
+    db_password = os.getenv("NEUROAGENT_DB__PASSWORD", "secret")
+    db_name = os.getenv("NEUROAGENT_DB__NAME", "")
 
     # Set the SQLAlchemy URL dynamically
     # Use synchronous SQLite for Alembic
