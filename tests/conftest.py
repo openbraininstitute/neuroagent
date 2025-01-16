@@ -150,7 +150,7 @@ async def setup_sql_db(request):
     session = AsyncSession(bind=engine)
     async with engine.begin() as conn:
         await conn.run_sync(metadata.reflect)
-        for table in metadata.tables.values():
+        for table in reversed(metadata.tables.values()):
             if table.name != "alembic_version":
                 await session.execute(table.delete())
 
