@@ -29,6 +29,7 @@ export function ChatPage({
       },
       initialMessages,
     });
+  console.log(JSON.stringify(messages, null, 2));
   const [showTools, setShowTools] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 

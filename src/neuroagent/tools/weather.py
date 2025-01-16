@@ -29,6 +29,7 @@ class WeatherTool(BaseTool):
     """Tool that returns random weather data for a given location."""
 
     name: ClassVar[str] = "weather-tool"
+    hil: ClassVar[bool] = True
     description: ClassVar[str] = (
         "Returns weather information for a specified location (temperature in Celsius, "
         "conditions like 'sunny', 'rainy', etc.)"
