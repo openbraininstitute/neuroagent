@@ -3,13 +3,12 @@
 import { env } from "@/lib/env";
 import { getSettings } from "@/lib/cookies-server";
 import { revalidateTag } from "next/cache";
+import { redirect } from "next/navigation";
 
 export async function deleteThread(previousState: unknown, formData: FormData) {
-  console.log("deleteThread", previousState, formData);
   const threadId = formData.get("threadId") as string;
-  if (!threadId) {
-    return { success: false, error: "No thread ID provided" };
-  }
+  const currentThreadId = formData.get("currentThreadId") as string;
+  const isOnThreadPage = currentThreadId === threadId;
 
   try {
     const { token } = await getSettings();
@@ -26,9 +25,16 @@ export async function deleteThread(previousState: unknown, formData: FormData) {
     }
 
     revalidateTag("threads");
-    return { success: true };
   } catch (error) {
-    console.error("Error deleting thread:", error);
-    return { success: false, error: "Failed to delete thread" };
+    return {
+      error: error instanceof Error ? error.message : "Failed to delete thread",
+    };
   }
+
+  // Check for redirect before returning success
+  if (isOnThreadPage) {
+    redirect("/");
+  }
+
+  return { success: true };
 }

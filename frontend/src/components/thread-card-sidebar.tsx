@@ -5,11 +5,14 @@ import { MessageCircle, X } from "lucide-react";
 import { Thread } from "@/lib/types";
 import { deleteThread } from "@/actions/delete-thread";
 import { useActionState } from "react";
+import { usePathname } from "next/navigation";
 
 type ThreadCardSidebarProps = Thread;
 
 export function ThreadCardSidebar({ title, threadID }: ThreadCardSidebarProps) {
   const [state, formAction, isPending] = useActionState(deleteThread, null);
+  const pathname = usePathname();
+  const currentThreadId = pathname.split("/").pop();
 
   return (
     <div className="group flex w-full items-center px-2 py-2 hover:bg-accent">
@@ -19,6 +22,7 @@ export function ThreadCardSidebar({ title, threadID }: ThreadCardSidebarProps) {
       </Link>
       <form action={formAction}>
         <input type="hidden" name="threadId" value={threadID} />
+        <input type="hidden" name="currentThreadId" value={currentThreadId} />
         <Button
           type="submit"
           variant="ghost"
