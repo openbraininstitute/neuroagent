@@ -21,13 +21,14 @@ export function ChatPage({
   threadTitle,
   initialMessages,
 }: ChatPageProps) {
-  const { messages, input, handleInputChange, handleSubmit, error } = useChat({
-    api: `${BACKEND_URL}/${threadId}`,
-    headers: {
-      Authorization: `Bearer ${getSettings().token}`,
-    },
-    initialMessages,
-  });
+  const { messages, input, handleInputChange, handleSubmit, error, isLoading } =
+    useChat({
+      api: `${BACKEND_URL}/${threadId}`,
+      headers: {
+        Authorization: `Bearer ${getSettings().token}`,
+      },
+      initialMessages,
+    });
   const [showTools, setShowTools] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -98,21 +99,28 @@ export function ChatPage({
         className="flex flex-col justify-center items-center gap-4 mb-4"
         onSubmit={handleSubmit}
       >
-        <input
-          type="text"
-          className="border-2 border-gray-500 w-1/2 p-4 rounded-full"
-          name="prompt"
-          placeholder="Message the AI..."
-          value={input}
-          onChange={handleInputChange}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" && !e.shiftKey) {
-              e.preventDefault();
-              handleSubmit(e);
-            }
-          }}
-          autoComplete="off"
-        />
+        <div className="relative w-1/2">
+          <input
+            type="text"
+            className="border-2 border-gray-500 w-full p-4 rounded-full"
+            name="prompt"
+            placeholder="Message the AI..."
+            value={input}
+            onChange={handleInputChange}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                handleSubmit(e);
+              }
+            }}
+            autoComplete="off"
+          />
+          {isLoading && (
+            <div className="absolute right-4 top-1/2 -translate-y-1/2">
+              <div className="w-4 h-4 border-2 border-gray-500 border-t-transparent rounded-full animate-spin" />
+            </div>
+          )}
+        </div>
       </form>
     </div>
   );

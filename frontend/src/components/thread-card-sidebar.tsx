@@ -52,7 +52,7 @@ export function ThreadCardSidebar({ title, threadID }: ThreadCardSidebarProps) {
               name="title"
               className="hidden"
               id={`edit-${threadID}`}
-              value={newTitle}
+              defaultValue={newTitle}
             />
             <Button
               type="button"
@@ -99,8 +99,13 @@ export function ThreadCardSidebar({ title, threadID }: ThreadCardSidebarProps) {
         </Dialog>
 
         <form action={deleteAction}>
-          <input type="hidden" name="threadId" value={threadID} />
-          <input type="hidden" name="currentThreadId" value={currentThreadId} />
+          <input type="hidden" name="threadId" value={threadID} readOnly />
+          <input
+            type="hidden"
+            name="currentThreadId"
+            value={currentThreadId}
+            readOnly
+          />
           <Button
             type="submit"
             variant="ghost"

@@ -34,17 +34,24 @@ export function ChatInput() {
         }}
         className="w-full flex justify-center"
       >
-        <input
-          name="content"
-          type="text"
-          autoComplete="off"
-          className="border-2 border-gray-500 w-1/2 p-4 rounded-full"
-          placeholder={isPending ? "Creating thread..." : "Message the AI..."}
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onKeyDown={handleKeyDown}
-          disabled={isPending}
-        />
+        <div className="relative w-1/2">
+          <input
+            name="content"
+            type="text"
+            autoComplete="off"
+            className="border-2 border-gray-500 w-full p-4 rounded-full"
+            placeholder={isPending ? "Creating thread..." : "Message the AI..."}
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={handleKeyDown}
+            disabled={isPending}
+          />
+          {isPending && (
+            <div className="absolute right-4 top-1/2 -translate-y-1/2">
+              <div className="w-4 h-4 border-2 border-gray-500 border-t-transparent rounded-full animate-spin" />
+            </div>
+          )}
+        </div>
       </form>
     </div>
   );
