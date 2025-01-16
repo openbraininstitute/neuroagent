@@ -80,7 +80,6 @@ export async function createThreadWithMessage(
     }
 
     revalidateTag("threads");
-    revalidateTag(`thread-${thread_id}`);
   } catch (error) {
     console.error("Error creating thread with message:", error);
     return { success: false, error: "Failed to create thread with message" };

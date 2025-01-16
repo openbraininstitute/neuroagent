@@ -97,3 +97,11 @@ async def delete_thread(
     await session.delete(thread)
     await session.commit()
     return {"Acknowledged": "true"}
+
+
+@router.get("/{thread_id}")
+async def get_thread_by_id(
+    thread: Annotated[Threads, Depends(get_thread)],
+) -> ThreadsRead:
+    """Get a specific thread by ID."""
+    return ThreadsRead(**thread.__dict__)

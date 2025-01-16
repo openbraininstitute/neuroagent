@@ -25,6 +25,8 @@ export async function deleteThread(previousState: unknown, formData: FormData) {
     }
 
     revalidateTag("threads");
+    revalidateTag(`thread/${threadId}`);
+    revalidateTag(`thread/${threadId}/messages`);
   } catch (error) {
     return {
       error: error instanceof Error ? error.message : "Failed to delete thread",

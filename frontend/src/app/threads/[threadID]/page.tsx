@@ -14,14 +14,32 @@ async function getMessages(threadId: string): Promise<BMessage[]> {
         Authorization: `Bearer ${settings.token}`,
       },
       next: {
-        tags: [`thread-${threadId}`],
-        revalidate: 0,
+        tags: [`thread/${threadId}/messages`],
       },
     },
   );
 
   if (!response.ok) {
     throw new Error(`Failed to fetch messages: ${response.statusText}`);
+  }
+
+  return response.json();
+}
+
+async function getThread(threadId: string) {
+  const settings = await getSettings();
+
+  const response = await fetch(`${env.BACKEND_URL}/threads/${threadId}`, {
+    headers: {
+      Authorization: `Bearer ${settings.token}`,
+    },
+    next: {
+      tags: [`thread/${threadId}`],
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error(`Failed to fetch thread: ${response.statusText}`);
   }
 
   return response.json();
@@ -84,13 +102,16 @@ export default async function PageThread({
   const threadId = paramsAwaited?.threadID;
 
   try {
-    const messages = await getMessages(threadId);
+    const [thread, messages] = await Promise.all([
+      getThread(threadId),
+      getMessages(threadId),
+    ]);
     const convertedMessages = convertToAiMessages(messages);
 
     return (
       <ChatPage
         threadId={threadId}
-        threadTitle={`AI Discussion #${threadId}`}
+        threadTitle={thread.title || `AI Discussion #${threadId}`}
         initialMessages={convertedMessages}
       />
     );
