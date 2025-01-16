@@ -20,7 +20,7 @@ dependencies = [
     "fastapi",
     "neurom",
     "openai",
-    "psycopg-binary",
+    "psycopg2",
     "pydantic-settings",
     "python-dotenv",
     "python-keycloak",

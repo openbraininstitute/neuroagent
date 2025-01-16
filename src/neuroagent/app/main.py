@@ -15,7 +15,6 @@ from starlette.middleware.base import BaseHTTPMiddleware
 from neuroagent import __version__
 from neuroagent.app.app_utils import setup_engine
 from neuroagent.app.config import Settings
-from neuroagent.app.database.sql_schemas import Base
 from neuroagent.app.dependencies import (
     get_cell_types_kg_hierarchy,
     get_connection_string,
@@ -72,11 +71,6 @@ async def lifespan(fastapi_app: FastAPI) -> AsyncContextManager[None]:  # type: 
     # Get the sqlalchemy engine and store it in app state.
     engine = setup_engine(app_settings, get_connection_string(app_settings))
     fastapi_app.state.engine = engine
-
-    # Create the tables for the agent memory.
-    if engine:
-        async with engine.begin() as conn:
-            await conn.run_sync(Base.metadata.create_all)
 
     prefix = app_settings.misc.application_prefix
     fastapi_app.openapi_url = f"{prefix}/openapi.json"
