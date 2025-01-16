@@ -4,36 +4,32 @@ import Link from "next/link";
 import { MessageCircle, X } from "lucide-react";
 import { Thread } from "@/lib/types";
 import { deleteThread } from "@/actions/delete-thread";
+import { useActionState } from "react";
 
 type ThreadCardSidebarProps = Thread;
 
 export function ThreadCardSidebar({ title, threadID }: ThreadCardSidebarProps) {
-  const handleDelete = async (e: React.MouseEvent) => {
-    e.preventDefault();
-    await deleteThread(threadID);
-  };
+  const [state, formAction, isPending] = useActionState(deleteThread, null);
 
   return (
-    <Button
-      asChild
-      variant="ghost"
-      className="w-full justify-start group relative"
-    >
-      <Link
-        href={`/threads/${threadID}`}
-        className="flex gap-3 hover:scale-105 w-full"
-      >
+    <div className="group flex w-full items-center px-2 py-2 hover:bg-accent">
+      <Link href={`/threads/${threadID}`} className="flex gap-3 flex-1">
         <MessageCircle />
-        <span>{title}</span>
+        <span className={isPending ? "opacity-50" : ""}>{title}</span>
+      </Link>
+      <form action={formAction}>
+        <input type="hidden" name="threadId" value={threadID} />
         <Button
+          type="submit"
           variant="ghost"
           size="icon"
-          className="absolute right-2 opacity-0 group-hover:opacity-100 transition-opacity"
-          onClick={handleDelete}
+          className="opacity-0 group-hover:opacity-100 transition-opacity"
+          disabled={isPending}
+          onClick={(e) => e.stopPropagation()}
         >
-          <X className="h-4 w-4" />
+          <X className={`h-4 w-4 ${isPending ? "animate-spin" : ""}`} />
         </Button>
-      </Link>
-    </Button>
+      </form>
+    </div>
   );
 }

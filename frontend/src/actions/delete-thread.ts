@@ -4,7 +4,13 @@ import { env } from "@/lib/env";
 import { getSettings } from "@/lib/cookies-server";
 import { revalidateTag } from "next/cache";
 
-export async function deleteThread(threadId: string) {
+export async function deleteThread(previousState: unknown, formData: FormData) {
+  console.log("deleteThread", previousState, formData);
+  const threadId = formData.get("threadId") as string;
+  if (!threadId) {
+    return { success: false, error: "No thread ID provided" };
+  }
+
   try {
     const { token } = await getSettings();
 
