@@ -87,11 +87,11 @@ jobs:
           pip install -e ".[dev]"
       - name: Run alembic
         run: |
+          export PYTHONPATH=$(pwd)/src:$PYTHONPATH
           alembic -x url=sqlite:///sqlite.db upgrade head
           alembic -x url=postgresql://test:password@localhost:5432 upgrade head
       - name: Running mypy and tests
         run: |
           mypy src/
           # Include src/ directory in Python path to prioritize local files in pytest
-          export PYTHONPATH=$(pwd)/src:$PYTHONPATH
           pytest --color=yes tests/
