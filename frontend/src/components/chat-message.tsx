@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState, useEffect } from "react";
-import { Check, Loader2, AlertCircle } from "lucide-react";
+import { Check, Loader2, AlertCircle, X } from "lucide-react";
 import Markdown from "react-markdown";
 import { Card, CardContent, CardFooter, CardTitle } from "@/components/ui/card";
 import {
@@ -17,7 +17,7 @@ type Tool = {
   state: "partial-call" | "call" | "result";
   args?: Record<string, unknown>;
   result?: Record<string, unknown>;
-  hil?: boolean;
+  hil?: "accepted" | "rejected" | "pending" | "not_required";
 };
 type ChatMessageProps = {
   id: string;
@@ -48,6 +48,35 @@ export function ChatMessage({ id, content, type, tool }: ChatMessageProps) {
   const handleReject = () => {
     // TODO: Implement reject logic
     console.log("Tool rejected:", tool?.id);
+  };
+
+  const renderToolStatus = () => {
+    // Show green checkmark for completed tools
+    if (tool?.state === "result") {
+      return <Check className="h-4 w-4 mr-2 text-green-500" />;
+    }
+
+    // Special cases
+    if (tool?.state === "call") {
+      if (tool.hil === "pending") {
+        return (
+          <HumanValidationDialog
+            toolId={tool.id}
+            toolName={tool.name}
+            args={tool.args}
+            className="mr-2"
+            onAccept={handleAccept}
+            onReject={handleReject}
+          />
+        );
+      }
+      if (tool.hil === "rejected") {
+        return <X className="h-4 w-4 mr-2 text-red-500" />;
+      }
+    }
+
+    // Default case: show loader
+    return <Loader2 className="h-4 w-4 animate-spin mr-2" />;
   };
 
   if (type === "tool" && !tool) {
@@ -89,20 +118,7 @@ export function ChatMessage({ id, content, type, tool }: ChatMessageProps) {
                   {tool?.name}
                 </span>
               </CollapsibleTrigger>
-              {tool?.hil ? (
-                <HumanValidationDialog
-                  toolId={tool.id}
-                  toolName={tool.name}
-                  args={tool.args}
-                  className="mr-2"
-                  onAccept={handleAccept}
-                  onReject={handleReject}
-                />
-              ) : tool?.state !== "result" ? (
-                <Loader2 className="h-4 w-4 animate-spin mr-2" />
-              ) : (
-                <Check className="h-4 w-4 mr-2" />
-              )}
+              {renderToolStatus()}
             </div>
             <CollapsibleContent>
               <ScrollToBottom />
@@ -119,24 +135,13 @@ export function ChatMessage({ id, content, type, tool }: ChatMessageProps) {
                       {JSON.stringify(tool?.args, null, 2)}
                     </pre>
                   </div>
-                  {tool?.hil ? (
-                    <HumanValidationDialog
-                      toolId={tool.id}
-                      toolName={tool.name}
-                      args={tool.args}
-                      className="ml-2"
-                      onAccept={handleAccept}
-                      onReject={handleReject}
-                    />
-                  ) : tool?.state === "result" ? (
+                  {tool?.state === "result" && (
                     <div className="flex flex-col mt-4">
                       <h1>Result</h1>
                       <pre className="text-sm p-2 mt-2 rounded-md overflow-auto bg-gray-100 dark:bg-slate-800">
                         {JSON.stringify(tool?.result, null, 2)}
                       </pre>
                     </div>
-                  ) : (
-                    <Loader2 className="h-4 w-4 animate-spin ml-2" />
                   )}
                 </CardContent>
                 <CardFooter>

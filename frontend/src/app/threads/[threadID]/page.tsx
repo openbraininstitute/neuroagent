@@ -64,9 +64,10 @@ function convertToAiMessages(messages: BMessage[]): Message[] {
         createdAt: new Date(message.creation_date),
       });
     } else if (message.entity === "ai_tool") {
-      const annotations = message.tool_calls
-        .filter((call) => call.validated === "pending")
-        .map((call) => call.tool_call_id);
+      const annotations = message.tool_calls.map((call) => ({
+        toolCallId: call.tool_call_id,
+        validated: call.validated,
+      }));
 
       const toolInvocations = message.tool_calls.map((toolCall) => {
         const toolResponse = messages.find(

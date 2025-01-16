@@ -73,8 +73,13 @@ export function ChatPage({
                         result: "result" in tool ? tool.result : undefined,
                         id: tool.toolCallId,
                         hil:
-                          message.annotations?.includes(tool.toolCallId) ??
-                          false,
+                          (
+                            message.annotations as Array<{
+                              toolCallId: string;
+                              validated: string;
+                            }>
+                          )?.find((a) => a.toolCallId === tool.toolCallId)
+                            ?.validated ?? "not_required",
                       }}
                     />
                   ),

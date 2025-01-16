@@ -452,14 +452,10 @@ class AgentsRoutine:
             # If the tool call response contains HIL validation, do not update anything and return
             if partial_response.hil_messages:
                 annotation_data = [
-                    {
-                        "id": msg.tool_call_id,
-                        "type": "hil_validation",
-                        "inputs": msg.inputs,
-                        "tool_name": msg.name,
-                    }
+                    {"toolCallId": msg.tool_call_id, "validated": "pending"}
                     for msg in partial_response.hil_messages
                 ]
+
                 yield f"8:{json.dumps(annotation_data, separators=(',',':'))}\n"
                 yield Response(
                     messages=[],

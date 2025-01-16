@@ -2,7 +2,7 @@
 
 import json
 import logging
-from typing import Annotated, Any
+from typing import Annotated, Any, Literal
 from datetime import datetime
 from enum import Enum
 
@@ -17,6 +17,8 @@ from neuroagent.app.database.schemas import MessagesRead
 from neuroagent.app.database.sql_schemas import Entity, Messages, Threads
 from neuroagent.app.dependencies import get_session
 from neuroagent.app.routers.threads import router as threads_router
+from neuroagent.app.dependencies import get_starting_agent
+from neuroagent.new_types import Agent
 
 logger = logging.getLogger(__name__)
 
@@ -28,7 +30,7 @@ class ToolCall(BaseModel):
     tool_call_id: str
     name: str
     arguments: str
-    validated: bool | None
+    validated: Literal["accepted", "rejected", "pending", "not_required"]
 
 
 class MessageResponse(BaseModel):
@@ -47,8 +49,12 @@ async def get_thread_messages(
     session: Annotated[AsyncSession, Depends(get_session)],
     _: Annotated[Threads, Depends(get_thread)],  # to check if thread exists
     thread_id: str,
+    starting_agent: Annotated[Agent, Depends(get_starting_agent)],
 ) -> list[MessageResponse]:
     """Get all messages of the thread."""
+    # Create mapping of tool names to their HIL requirement
+    tool_hil_mapping = {tool.name: tool.hil for tool in starting_agent.tools}
+
     messages_result = await session.execute(
         select(Messages)
         .where(
@@ -71,18 +77,30 @@ async def get_thread_messages(
             "msg_content": json.loads(msg.content),
         }
 
-        # Always include tool_calls data
-        tool_calls_data = [
-            {
-                "tool_call_id": tc.tool_call_id,
-                "name": tc.name,
-                "arguments": tc.arguments,
-                "validated": tc.validated,
-            }
-            for tc in msg.tool_calls
-        ]
-        message_data["tool_calls"] = tool_calls_data
+        # Map validation status based on tool requirements
+        tool_calls_data = []
+        for tc in msg.tool_calls:
+            requires_validation = tool_hil_mapping.get(tc.name, False)
 
+            if tc.validated is True:
+                validation_status = "accepted"
+            elif tc.validated is False:
+                validation_status = "rejected"
+            elif not requires_validation:
+                validation_status = "not_required"
+            else:
+                validation_status = "pending"
+
+            tool_calls_data.append(
+                {
+                    "tool_call_id": tc.tool_call_id,
+                    "name": tc.name,
+                    "arguments": tc.arguments,
+                    "validated": validation_status,
+                }
+            )
+
+        message_data["tool_calls"] = tool_calls_data
         messages.append(MessageResponse(**message_data))
 
     return messages
