@@ -50,7 +50,7 @@ export function ChatPage({
           {showTools ? "Hide Tools" : "Show Tools"}
         </Button>
       </div>
-      <div className="flex justify-center items-center border-b-4 p-4">
+      <div className="flex justify-center items-center border-b-2 p-4">
         <h1 className="text-3xl">{threadTitle}</h1>
       </div>
       <div className="flex-1 flex flex-col overflow-y-auto my-4">
