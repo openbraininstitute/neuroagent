@@ -95,17 +95,24 @@ export function ChatPage({
       </div>
 
       <form
-        className="flex rounded-lg py-4 gap-8 border-4 mt-auto justify-center items-center"
+        className="flex flex-col justify-center items-center gap-4 mb-4"
         onSubmit={handleSubmit}
       >
-        <textarea
-          className="rounded-lg p-4 border-2 w-3/5"
-          rows={2}
+        <input
+          type="text"
+          className="border-2 border-gray-500 w-1/2 p-4 rounded-full"
           name="prompt"
+          placeholder="Message the AI..."
           value={input}
           onChange={handleInputChange}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && !e.shiftKey) {
+              e.preventDefault();
+              handleSubmit(e);
+            }
+          }}
+          autoComplete="off"
         />
-        <button type="submit">Submit</button>
       </form>
     </div>
   );
