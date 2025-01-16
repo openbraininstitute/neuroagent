@@ -3,40 +3,40 @@
 import { env } from "@/lib/env";
 import { getSettings } from "@/lib/cookies-server";
 import { revalidateTag } from "next/cache";
-import { redirect } from "next/navigation";
 
-export async function deleteThread(previousState: unknown, formData: FormData) {
+export async function editThread(previousState: unknown, formData: FormData) {
   const threadId = formData.get("threadId") as string;
-  const currentThreadId = formData.get("currentThreadId") as string;
-  const isOnThreadPage = currentThreadId === threadId;
+  const title = formData.get("title") as string;
+
+  if (!title) {
+    return { error: "Title is required" };
+  }
 
   try {
     const { token } = await getSettings();
 
     const response = await fetch(`${env.BACKEND_URL}/threads/${threadId}`, {
-      method: "DELETE",
+      method: "PATCH",
       headers: {
         Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
       },
+      body: JSON.stringify({ title }),
     });
 
     if (!response.ok) {
-      throw new Error(`Failed to delete thread: ${response.statusText}`);
+      throw new Error(`Failed to edit thread: ${response.statusText}`);
     }
 
+    // Revalidate the same tags as delete for consistency
     revalidateTag("threads");
     revalidateTag(`threads/${threadId}`);
     revalidateTag(`threads/${threadId}/messages`);
+
+    return { success: true };
   } catch (error) {
     return {
-      error: error instanceof Error ? error.message : "Failed to delete thread",
+      error: error instanceof Error ? error.message : "Failed to edit thread",
     };
   }
-
-  // Check for redirect before returning success
-  if (isOnThreadPage) {
-    redirect("/");
-  }
-
-  return { success: true };
 }
