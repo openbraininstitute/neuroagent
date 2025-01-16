@@ -18,7 +18,12 @@ async function getThreads(): Promise<BThread[]> {
       return [];
     }
 
-    return response.json() as Promise<BThread[]>;
+    const threads = (await response.json()) as BThread[];
+    // Sort threads by update_date in descending order (most recent first)
+    return threads.sort(
+      (a, b) =>
+        new Date(b.update_date).getTime() - new Date(a.update_date).getTime(),
+    );
   } catch (error) {
     console.error("Error fetching threads:", error);
     return [];
