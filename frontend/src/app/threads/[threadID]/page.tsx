@@ -101,22 +101,17 @@ export default async function PageThread({
   const paramsAwaited = await params;
   const threadId = paramsAwaited?.threadID;
 
-  try {
-    const [thread, messages] = await Promise.all([
-      getThread(threadId),
-      getMessages(threadId),
-    ]);
-    const convertedMessages = convertToAiMessages(messages);
+  const [thread, messages] = await Promise.all([
+    getThread(threadId),
+    getMessages(threadId),
+  ]);
+  const convertedMessages = convertToAiMessages(messages);
 
-    return (
-      <ChatPage
-        threadId={threadId}
-        threadTitle={thread.title || `AI Discussion #${threadId}`}
-        initialMessages={convertedMessages}
-      />
-    );
-  } catch (error) {
-    console.error("Error loading thread:", error);
-    return <div>Error loading thread. Please try refreshing the page.</div>;
-  }
+  return (
+    <ChatPage
+      threadId={threadId}
+      threadTitle={thread.title || `AI Discussion #${threadId}`}
+      initialMessages={convertedMessages}
+    />
+  );
 }
