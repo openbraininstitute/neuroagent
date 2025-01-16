@@ -72,6 +72,9 @@ export function ChatPage({
                         args: tool.args,
                         result: "result" in tool ? tool.result : undefined,
                         id: tool.toolCallId,
+                        hil:
+                          message.annotations?.includes(tool.toolCallId) ??
+                          false,
                       }}
                     />
                   ),

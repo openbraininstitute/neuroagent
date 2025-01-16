@@ -64,6 +64,10 @@ function convertToAiMessages(messages: BMessage[]): Message[] {
         createdAt: new Date(message.creation_date),
       });
     } else if (message.entity === "ai_tool") {
+      const annotations = message.tool_calls
+        .filter((call) => call.validated === "pending")
+        .map((call) => call.tool_call_id);
+
       const toolInvocations = message.tool_calls.map((toolCall) => {
         const toolResponse = messages.find(
           (m) =>
@@ -86,9 +90,12 @@ function convertToAiMessages(messages: BMessage[]): Message[] {
         role: "assistant",
         createdAt: new Date(message.creation_date),
         toolInvocations,
+        annotations,
       });
     }
   }
+
+  console.log(JSON.stringify(output, null, 2));
 
   return output;
 }

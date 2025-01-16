@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState, useEffect } from "react";
-import { Check, Loader2 } from "lucide-react";
+import { Check, Loader2, AlertCircle } from "lucide-react";
 import Markdown from "react-markdown";
 import { Card, CardContent, CardFooter, CardTitle } from "@/components/ui/card";
 import {
@@ -9,6 +9,7 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
+import { HumanValidationDialog } from "@/components/human-validation-dialog";
 
 type Tool = {
   id: string;
@@ -16,6 +17,7 @@ type Tool = {
   state: "partial-call" | "call" | "result";
   args?: Record<string, unknown>;
   result?: Record<string, unknown>;
+  hil?: boolean;
 };
 type ChatMessageProps = {
   id: string;
@@ -38,9 +40,21 @@ export function ChatMessage({ id, content, type, tool }: ChatMessageProps) {
   const [toolOpen, setToolOpen] = useState(false);
   console.log("rendering tool");
 
+  const handleAccept = () => {
+    // TODO: Implement accept logic
+    console.log("Tool accepted:", tool?.id);
+  };
+
+  const handleReject = () => {
+    // TODO: Implement reject logic
+    console.log("Tool rejected:", tool?.id);
+  };
+
   if (type === "tool" && !tool) {
     return null;
   }
+
+  console.log(tool?.hil);
 
   return (
     <div className="border-r-2 p-8 border-white-300 border-solid">
@@ -75,7 +89,16 @@ export function ChatMessage({ id, content, type, tool }: ChatMessageProps) {
                   {tool?.name}
                 </span>
               </CollapsibleTrigger>
-              {tool?.state !== "result" ? (
+              {tool?.hil ? (
+                <HumanValidationDialog
+                  toolId={tool.id}
+                  toolName={tool.name}
+                  args={tool.args}
+                  className="mr-2"
+                  onAccept={handleAccept}
+                  onReject={handleReject}
+                />
+              ) : tool?.state !== "result" ? (
                 <Loader2 className="h-4 w-4 animate-spin mr-2" />
               ) : (
                 <Check className="h-4 w-4 mr-2" />
@@ -92,11 +115,20 @@ export function ChatMessage({ id, content, type, tool }: ChatMessageProps) {
                 <CardContent>
                   <div className="flex flex-col mt-4">
                     <h1>Args</h1>
-                    <pre className="text-sm p-2 mt-2 rounded-md overflow-auto bg-gray-100 dark:bg-slate-800">
+                    <pre className="text-sm p-2 my-2 rounded-md overflow-auto bg-gray-100 dark:bg-slate-800">
                       {JSON.stringify(tool?.args, null, 2)}
                     </pre>
                   </div>
-                  {tool?.state === "result" ? (
+                  {tool?.hil ? (
+                    <HumanValidationDialog
+                      toolId={tool.id}
+                      toolName={tool.name}
+                      args={tool.args}
+                      className="ml-2"
+                      onAccept={handleAccept}
+                      onReject={handleReject}
+                    />
+                  ) : tool?.state === "result" ? (
                     <div className="flex flex-col mt-4">
                       <h1>Result</h1>
                       <pre className="text-sm p-2 mt-2 rounded-md overflow-auto bg-gray-100 dark:bg-slate-800">

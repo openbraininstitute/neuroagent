@@ -17,7 +17,7 @@ export type BToolCall = {
   tool_call_id: string;
   name: string;
   arguments: string;
-  validated: boolean | null;
+  validated: "accepted" | "rejected" | "pending" | "not_required";
 };
 
 export type BMessageUser = {
