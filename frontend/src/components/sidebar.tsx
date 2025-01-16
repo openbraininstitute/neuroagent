@@ -4,7 +4,7 @@ import Link from "next/link";
 
 export function Sidebar() {
   return (
-    <div className="w-[16rem] border-r-2 overflow-auto md:w-[18rem] lg:w-[20rem]">
+    <div className="w-[16rem] border-r-2 flex flex-col md:w-[18rem] lg:w-[20rem]">
       <div className="flex justify-between">
         <div className="p-4">
           <PanelRightOpen className="hover:scale-[1.1] transition" size={24} />
@@ -17,7 +17,9 @@ export function Sidebar() {
         </div>
       </div>
       <div className="border-b-2 opacity-50 my-4"></div>
-      <ThreadList />
+      <div className="overflow-auto flex-1">
+        <ThreadList />
+      </div>
     </div>
   );
 }
