@@ -7,6 +7,15 @@ import { deleteThread } from "@/actions/delete-thread";
 import { editThread } from "@/actions/edit-thread";
 import { useActionState } from "react";
 import { usePathname } from "next/navigation";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { useState } from "react";
 
 type ThreadCardSidebarProps = Thread;
 
@@ -21,6 +30,8 @@ export function ThreadCardSidebar({ title, threadID }: ThreadCardSidebarProps) {
   );
   const pathname = usePathname();
   const currentThreadId = pathname.split("/").pop();
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [newTitle, setNewTitle] = useState(title);
 
   return (
     <div className="group flex w-full items-center px-2 py-2 hover:bg-accent">
@@ -33,36 +44,59 @@ export function ThreadCardSidebar({ title, threadID }: ThreadCardSidebarProps) {
         </span>
       </Link>
       <div className="flex gap-1">
-        <form action={editAction}>
-          <input type="hidden" name="threadId" value={threadID} />
-          <input
-            type="text"
-            name="title"
-            className="hidden"
-            id={`edit-${threadID}`}
-            defaultValue={title}
-          />
-          <Button
-            type="submit"
-            variant="ghost"
-            size="icon"
-            className="opacity-0 group-hover:opacity-100 transition-opacity"
-            disabled={isEditPending}
-            onClick={(e) => {
-              e.stopPropagation();
-              const input = document.getElementById(
-                `edit-${threadID}`,
-              ) as HTMLInputElement;
-              const newTitle = window.prompt("Enter new title", title);
-              if (newTitle) input.value = newTitle;
-              else e.preventDefault();
-            }}
-          >
-            <Pencil
-              className={`h-4 w-4 ${isEditPending ? "animate-spin" : ""}`}
+        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+          <form action={editAction}>
+            <input type="hidden" name="threadId" value={threadID} />
+            <input
+              type="text"
+              name="title"
+              className="hidden"
+              id={`edit-${threadID}`}
+              value={newTitle}
             />
-          </Button>
-        </form>
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              className="opacity-0 group-hover:opacity-100 transition-opacity"
+              disabled={isEditPending}
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsDialogOpen(true);
+              }}
+            >
+              <Pencil
+                className={`h-4 w-4 ${isEditPending ? "animate-spin" : ""}`}
+              />
+            </Button>
+          </form>
+
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Edit Thread Title</DialogTitle>
+            </DialogHeader>
+            <Input
+              value={newTitle}
+              onChange={(e) => setNewTitle(e.target.value)}
+              placeholder="Enter new title"
+            />
+            <DialogFooter>
+              <Button
+                type="submit"
+                onClick={() => {
+                  const input = document.getElementById(
+                    `edit-${threadID}`,
+                  ) as HTMLInputElement;
+                  input.value = newTitle;
+                  input.form?.requestSubmit();
+                  setIsDialogOpen(false);
+                }}
+              >
+                Save Changes
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
 
         <form action={deleteAction}>
           <input type="hidden" name="threadId" value={threadID} />
