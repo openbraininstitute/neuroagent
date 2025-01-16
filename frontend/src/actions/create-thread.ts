@@ -5,7 +5,15 @@ import { getSettings } from "@/lib/cookies-server";
 import { revalidateTag } from "next/cache";
 import { redirect } from "next/navigation";
 
-export async function createThreadWithMessage(content: string) {
+export async function createThreadWithMessage(
+  previousState: unknown,
+  formData: FormData,
+) {
+  const content = formData.get("content");
+  if (!content || typeof content !== "string") {
+    return { success: false, error: "No content provided" };
+  }
+
   let thread_id: string;
 
   try {
