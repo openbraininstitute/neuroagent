@@ -27,22 +27,31 @@ if config.config_file_name is not None:
 # target_metadata = mymodel.Base.metadata
 target_metadata = Base.metadata
 
-# Construct the database URL from environment variables
-db_prefix = os.getenv("NEUROAGENT_DB__PREFIX")
-db_host = os.getenv("NEUROAGENT_DB__HOST", "localhost")
-db_port = os.getenv("NEUROAGENT_DB__PORT", "5432")
-db_user = os.getenv("NEUROAGENT_DB__USER", "postgres")
-db_password = os.getenv("NEUROAGENT_DB__PASSWORD", "secret")
-db_name = os.getenv("NEUROAGENT_DB__NAME", "postgres")
+db_url = context.get_x_argument(as_dictionary=True).get("url")
+if db_url:
+    sqlalchemy_url = db_url
+else:
+    # Construct the database URL from environment variables
+    if db_prefix := os.getenv("NEUROAGENT_DB__PREFIX"):
+        db_host = os.getenv("NEUROAGENT_DB__HOST", "localhost")
+        db_port = os.getenv("NEUROAGENT_DB__PORT", "5432")
+        db_user = os.getenv("NEUROAGENT_DB__USER", "postgres")
+        db_password = os.getenv("NEUROAGENT_DB__PASSWORD", "secret")
+        db_name = os.getenv("NEUROAGENT_DB__NAME", "")
+    else:
+        db_prefix = "test_sqlite.db"
+        db_name = ""
 
-# Set the SQLAlchemy URL dynamically
-# Use synchronous SQLite for Alembic
-if db_prefix.startswith("sqlite"):
-    db_prefix = db_prefix.replace("sqlite+aiosqlite", "sqlite")
-    sqlalchemy_url = f"{db_prefix}{db_name}"
-elif db_prefix.startswith("postgresql"):
-    db_prefix = db_prefix.replace("postgresql+asyncpg", "postgresql")
-    sqlalchemy_url = f"{db_prefix}{db_user}:{db_password}@{db_host}:{db_port}/{db_name}"
+    # Set the SQLAlchemy URL dynamically
+    # Use synchronous SQLite for Alembic
+    if db_prefix.startswith("sqlite"):
+        db_prefix = db_prefix.replace("sqlite+aiosqlite", "sqlite")
+        sqlalchemy_url = f"{db_prefix}{db_name}"
+    elif db_prefix.startswith("postgresql"):
+        db_prefix = db_prefix.replace("postgresql+asyncpg", "postgresql")
+        sqlalchemy_url = (
+            f"{db_prefix}{db_user}:{db_password}@{db_host}:{db_port}/{db_name}"
+        )
 
 config.set_main_option("sqlalchemy.url", sqlalchemy_url)
 print(f"Sql Alchemy Url was set to: {sqlalchemy_url}")
@@ -67,6 +76,7 @@ def run_migrations_offline() -> None:
 
     """
     url = config.get_main_option("sqlalchemy.url")
+
     context.configure(
         url=url,
         target_metadata=target_metadata,

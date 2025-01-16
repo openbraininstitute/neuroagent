@@ -85,6 +85,10 @@ jobs:
           pip install --upgrade pip
           pip install mypy==1.8.0
           pip install ".[dev]"
+      - name: Run alembic
+        run: |
+          alembic -x url=sqlite:///test_sqlite.db upgrade head
+          alembic -x url=postgresql://test:password@localhost:5432 upgrade head
       - name: Running mypy and tests
         run: |
           mypy src/

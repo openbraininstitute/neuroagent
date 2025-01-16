@@ -128,13 +128,13 @@ def patch_required_env(monkeypatch):
 
 
 @pytest_asyncio.fixture(params=["sqlite", "postgresql"], name="db_connection")
-async def setup_sql_db(request, tmp_path):
+async def setup_sql_db(request):
     db_type = request.param
 
     # To start the postgresql database:
     # docker run -it --rm -p 5432:5432 -e POSTGRES_USER=test -e POSTGRES_PASSWORD=password postgres:latest
     path = (
-        f"sqlite+aiosqlite:///{tmp_path / 'test_db.db'}"
+        "sqlite+aiosqlite:///sqlite.db"
         if db_type == "sqlite"
         else "postgresql+asyncpg://test:password@localhost:5432"
     )
@@ -145,17 +145,18 @@ async def setup_sql_db(request, tmp_path):
         except Exception:
             pytest.skip("Postgres database not connected")
     yield path
-    if db_type == "postgresql":
-        metadata = MetaData()
-        engine = create_async_engine(path)
-        session = AsyncSession(bind=engine)
-        async with engine.begin() as conn:
-            await conn.run_sync(metadata.reflect)
-            await conn.run_sync(metadata.drop_all)
+    engine = create_async_engine(path)
+    metadata = MetaData()
+    session = AsyncSession(bind=engine)
+    async with engine.begin() as conn:
+        await conn.run_sync(metadata.reflect)
+        for table in metadata.tables.values():
+            if table.name != "alembic_version":
+                await session.execute(table.delete())
 
-        await session.commit()
-        await engine.dispose()
-        await session.aclose()
+    await session.commit()
+    await engine.dispose()
+    await session.aclose()
 
 
 @pytest.fixture
