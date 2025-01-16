@@ -386,7 +386,8 @@ class AgentsRoutine:
                                     ] += arguments
 
                         else:
-                            yield f"0:{json.dumps(choice.delta.content, separators=(',',':'))}\n"
+                            if choice.delta.content is not None:
+                                yield f"0:{json.dumps(choice.delta.content, separators=(',',':'))}\n"
 
                         delta_json = choice.delta.model_dump()
                         delta_json.pop("role", None)
