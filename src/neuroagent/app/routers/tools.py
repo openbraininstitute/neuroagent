@@ -286,7 +286,9 @@ async def execute_tool_call(
                     "role": "tool",
                     "tool_call_id": tool_call.tool_call_id,
                     "tool_name": name,
-                    "content": raw_result,
+                    "content": raw_result
+                    if isinstance(raw_result, str)
+                    else json.dumps(raw_result),
                 }
 
             except ValidationError:

@@ -3,6 +3,7 @@
 import { env } from "@/lib/env";
 import { getSettings } from "@/lib/cookies-server";
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 
 export async function executeTool(previousState: unknown, formData: FormData) {
   const threadId = formData.get("threadId") as string;
@@ -11,6 +12,8 @@ export async function executeTool(previousState: unknown, formData: FormData) {
   const args = formData.get("args") as string | null;
 
   console.log(threadId);
+  let success = false;
+
   try {
     const { token } = await getSettings();
 
@@ -43,11 +46,16 @@ export async function executeTool(previousState: unknown, formData: FormData) {
     // Revalidate the thread's messages to show the new tool response
     revalidatePath(`/threads/${threadId}`);
 
-    return { success: true };
+    success = true;
   } catch (error) {
     console.error("Error executing tool:", error);
     return {
       error: error instanceof Error ? error.message : "Failed to execute tool",
     };
   }
+
+  if (success) {
+    redirect(`/threads/${threadId}`);
+  }
+  return { success: true };
 }
