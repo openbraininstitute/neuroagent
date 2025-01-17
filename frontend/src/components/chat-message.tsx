@@ -134,7 +134,19 @@ export function ChatMessage({
                     <div className="flex flex-col mt-4">
                       <h1>Result</h1>
                       <pre className="text-sm p-2 mt-2 rounded-md overflow-auto bg-gray-100 dark:bg-slate-800">
-                        {JSON.stringify(tool?.result, null, 2)}
+                        {typeof tool?.result === "string"
+                          ? (() => {
+                              try {
+                                return JSON.stringify(
+                                  JSON.parse(tool?.result),
+                                  null,
+                                  2,
+                                );
+                              } catch (e) {
+                                return tool?.result;
+                              }
+                            })()
+                          : JSON.stringify(tool?.result, null, 2)}
                       </pre>
                     </div>
                   )}
