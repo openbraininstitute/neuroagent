@@ -33,6 +33,13 @@ export async function executeTool(previousState: unknown, formData: FormData) {
       throw new Error(`Failed to execute tool: ${response.statusText}`);
     }
 
+    const result = await response.json();
+    if (result.status === "validation-error") {
+      return {
+        error: "Invalid input parameters for this tool",
+      };
+    }
+
     // Revalidate the thread's messages to show the new tool response
     revalidatePath(`/threads/${threadId}`);
 

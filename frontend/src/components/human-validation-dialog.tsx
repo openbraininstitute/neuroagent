@@ -49,8 +49,17 @@ export function HumanValidationDialog({
     }
   }, [state?.success, args, threadId]);
 
+  // Add handler for dialog open/close
+  const handleOpenChange = (open: boolean) => {
+    setIsOpen(open);
+    if (!open) {
+      setEditedArgs(JSON.stringify(args, null, 2));
+      setIsEdited(false);
+    }
+  };
+
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+    <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
         <AlertCircle
           className={`h-4 w-4 text-red-500 cursor-pointer ${className}`}

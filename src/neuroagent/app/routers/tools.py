@@ -34,7 +34,7 @@ class ExecuteToolCallRequest(BaseModel):
 class ExecuteToolCallResponse(BaseModel):
     """Response model for tool execution status."""
 
-    status: Literal["done"]
+    status: Literal["done", "validation-error"]
 
 
 @router.get("/{thread_id}/{message_id}")
@@ -289,6 +289,9 @@ async def execute_tool_call(
                     "content": raw_result,
                 }
 
+            except ValidationError:
+                # Return early with validation-error status without committing to DB
+                return ExecuteToolCallResponse(status="validation-error")
             except Exception as err:
                 message = {
                     "role": "tool",
