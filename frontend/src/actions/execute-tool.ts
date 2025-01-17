@@ -11,7 +11,6 @@ export async function executeTool(previousState: unknown, formData: FormData) {
   const validation = formData.get("validation") as "accept" | "reject";
   const args = formData.get("args") as string | null;
 
-  console.log(threadId);
   let success = false;
 
   try {

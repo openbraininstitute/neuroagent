@@ -96,8 +96,6 @@ function convertToAiMessages(messages: BMessage[]): Message[] {
     }
   }
 
-  console.log(JSON.stringify(output, null, 2));
-
   return output;
 }
 

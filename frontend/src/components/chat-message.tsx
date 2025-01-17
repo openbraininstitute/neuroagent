@@ -78,8 +78,6 @@ export function ChatMessage({
     return null;
   }
 
-  console.log(tool?.hil);
-
   return (
     <div className="border-r-2 p-8 border-white-300 border-solid">
       {type === "ai" && (
