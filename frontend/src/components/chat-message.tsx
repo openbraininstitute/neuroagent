@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState, useEffect } from "react";
-import { Check, Loader2, AlertCircle, X } from "lucide-react";
+import { Check, Loader2, X } from "lucide-react";
 import Markdown from "react-markdown";
 import { Card, CardContent, CardFooter, CardTitle } from "@/components/ui/card";
 import {
@@ -24,6 +24,7 @@ type ChatMessageProps = {
   type: "human" | "ai" | "tool";
   content?: string;
   tool?: Tool;
+  threadId: string;
 };
 
 function ScrollToBottom() {
@@ -36,23 +37,21 @@ function ScrollToBottom() {
   return <div ref={messagesEndRef} />;
 }
 
-export function ChatMessage({ id, content, type, tool }: ChatMessageProps) {
+export function ChatMessage({
+  id,
+  content,
+  type,
+  tool,
+  threadId,
+}: ChatMessageProps) {
   const [toolOpen, setToolOpen] = useState(false);
-  console.log("rendering tool");
-
-  const handleAccept = () => {
-    // TODO: Implement accept logic
-    console.log("Tool accepted:", tool?.id);
-  };
-
-  const handleReject = () => {
-    // TODO: Implement reject logic
-    console.log("Tool rejected:", tool?.id);
-  };
 
   const renderToolStatus = () => {
-    // Show green checkmark for completed tools
+    // Show green checkmark for completed tools, red X for rejected
     if (tool?.state === "result") {
+      if (tool.hil === "rejected") {
+        return <X className="h-4 w-4 mr-2 text-red-500" />;
+      }
       return <Check className="h-4 w-4 mr-2 text-green-500" />;
     }
 
@@ -61,17 +60,13 @@ export function ChatMessage({ id, content, type, tool }: ChatMessageProps) {
       if (tool.hil === "pending") {
         return (
           <HumanValidationDialog
+            threadId={threadId}
             toolId={tool.id}
             toolName={tool.name}
             args={tool.args}
             className="mr-2"
-            onAccept={handleAccept}
-            onReject={handleReject}
           />
         );
-      }
-      if (tool.hil === "rejected") {
-        return <X className="h-4 w-4 mr-2 text-red-500" />;
       }
     }
 

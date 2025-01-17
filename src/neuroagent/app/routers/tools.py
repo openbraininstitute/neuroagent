@@ -286,7 +286,7 @@ async def execute_tool_call(
                     "role": "tool",
                     "tool_call_id": tool_call.tool_call_id,
                     "tool_name": name,
-                    "content": json.dumps(raw_result),
+                    "content": raw_result,
                 }
 
             except Exception as err:

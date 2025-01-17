@@ -29,7 +29,6 @@ export function ChatPage({
       },
       initialMessages,
     });
-  console.log(JSON.stringify(messages, null, 2));
   const [showTools, setShowTools] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -66,6 +65,7 @@ export function ChatPage({
                       key={`${message.id}-${tool.toolCallId}`}
                       id={message.id}
                       type="tool"
+                      threadId={threadId}
                       tool={{
                         name: tool.toolName,
                         state: tool.state,
@@ -89,6 +89,7 @@ export function ChatPage({
                 key={message.id}
                 id={message.id}
                 type="ai"
+                threadId={threadId}
                 content={message.content}
               />
             )
@@ -97,6 +98,7 @@ export function ChatPage({
               key={message.id}
               id={message.id}
               type="human"
+              threadId={threadId}
               content={message.content}
             />
           ),
