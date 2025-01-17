@@ -2,22 +2,39 @@
 
 import json
 import logging
-from typing import Annotated, Any
+from typing import Annotated, Any, Literal
 
 from fastapi import APIRouter, Depends, HTTPException
-from pydantic import ValidationError
+from pydantic import BaseModel, ValidationError
 from sqlalchemy import desc, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from neuroagent.app.database.db_utils import get_thread
 from neuroagent.app.database.schemas import ToolCallSchema
 from neuroagent.app.database.sql_schemas import Entity, Messages, Threads, ToolCalls
-from neuroagent.app.dependencies import get_session, get_starting_agent
-from neuroagent.new_types import Agent, HILResponse, HILValidation
+from neuroagent.app.dependencies import (
+    get_context_variables,
+    get_session,
+    get_starting_agent,
+)
+from neuroagent.new_types import Agent, HILResponse, HILValidation, Result
 
 logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/tools", tags=["Tool's CRUD"])
+
+
+class ExecuteToolCallRequest(BaseModel):
+    """Request body for executing a tool call."""
+
+    validation: Literal["reject", "accept"]
+    args: str | None = None
+
+
+class ExecuteToolCallResponse(BaseModel):
+    """Response model for tool execution status."""
+
+    status: Literal["done"]
 
 
 @router.get("/{thread_id}/{message_id}")
@@ -195,3 +212,110 @@ async def validate_input(
         name=tool_call.name,
         arguments=json.loads(tool_call.arguments),
     )
+
+
+@router.patch("/{thread_id}/execute/{tool_call_id}")
+async def execute_tool_call(
+    thread_id: str,
+    tool_call_id: str,
+    request: ExecuteToolCallRequest,
+    _: Annotated[Threads, Depends(get_thread)],  # validates thread belongs to user
+    session: Annotated[AsyncSession, Depends(get_session)],
+    starting_agent: Annotated[Agent, Depends(get_starting_agent)],
+    context_variables: Annotated[dict[str, Any], Depends(get_context_variables)],
+) -> ExecuteToolCallResponse:
+    """Execute a specific tool call and update its status."""
+    # Get the tool call
+    tool_call = await session.get(ToolCalls, tool_call_id)
+    if not tool_call:
+        raise HTTPException(status_code=404, detail="Specified tool call not found.")
+
+    # Check if tool call has already been validated
+    if tool_call.validated is not None:
+        raise HTTPException(
+            status_code=403,
+            detail="The tool call has already been validated.",
+        )
+
+    # Update tool call validation status
+    tool_call.validated = request.validation == "accept"
+
+    # Update arguments if provided and accepted
+    if request.args and request.validation == "accept":
+        tool_call.arguments = request.args
+
+    # Add modified tool_call to session
+    session.add(tool_call)
+
+    # Handle rejection case
+    if request.validation == "reject":
+        message = {
+            "role": "tool",
+            "tool_call_id": tool_call.tool_call_id,
+            "tool_name": tool_call.name,
+            "content": "The tool call has been invalidated by the user.",
+        }
+    else:  # Handle acceptance case
+        # Get the tool from the agent's tools
+        tool_map = {tool.name: tool for tool in starting_agent.tools}
+        name = tool_call.name
+
+        if name not in tool_map:
+            message = {
+                "role": "tool",
+                "tool_call_id": tool_call.tool_call_id,
+                "tool_name": name,
+                "content": f"Error: Tool {name} not found.",
+            }
+        else:
+            tool = tool_map[name]
+            kwargs = json.loads(tool_call.arguments)
+
+            try:
+                # Validate input schema
+                input_schema = tool.__annotations__["input_schema"](**kwargs)
+
+                # Execute the tool
+                tool_metadata = tool.__annotations__["metadata"](**context_variables)
+                tool_instance = tool(input_schema=input_schema, metadata=tool_metadata)
+
+                raw_result = await tool_instance.arun()
+
+                # Simply JSON serialize the result
+                message = {
+                    "role": "tool",
+                    "tool_call_id": tool_call.tool_call_id,
+                    "tool_name": name,
+                    "content": json.dumps(raw_result),
+                }
+
+            except Exception as err:
+                message = {
+                    "role": "tool",
+                    "tool_call_id": tool_call.tool_call_id,
+                    "tool_name": name,
+                    "content": str(err),
+                }
+
+    # Add the tool response as a new message
+    new_message = Messages(
+        order=0,  # This will be set correctly below
+        thread_id=thread_id,
+        entity=Entity.TOOL,
+        content=json.dumps(message),
+    )
+
+    # Get the latest message order for this thread
+    latest_message = await session.execute(
+        select(Messages)
+        .where(Messages.thread_id == thread_id)
+        .order_by(desc(Messages.order))
+        .limit(1)
+    )
+    latest = latest_message.scalar_one_or_none()
+    new_message.order = (latest.order + 1) if latest else 0
+
+    session.add(new_message)
+    await session.commit()
+
+    return ExecuteToolCallResponse(status="done")
