@@ -103,17 +103,6 @@ class AgentsRoutine:
         except StopIteration:
             agent = None
 
-        hil_messages = [msg for msg in messages if isinstance(msg, HILResponse)]
-
-        # If a validation is required, return only this information
-        if hil_messages:
-            return Response(
-                messages=[],
-                agent=None,
-                context_variables=context_variables,
-                hil_messages=hil_messages,
-            )
-
         return Response(
             messages=messages, agent=agent, context_variables=context_variables
         )
@@ -125,6 +114,15 @@ class AgentsRoutine:
         context_variables: dict[str, Any],
     ) -> tuple[dict[str, str], Agent | None]:
         """Run individual tools."""
+        # Case where the tool call has been refused (HIL)
+        if tool_call.validated is not None and not tool_call.validated:
+            return {
+                "role": "tool",
+                "tool_call_id": tool_call.tool_call_id,
+                "tool_name": tool_call.name,
+                "content": "The tool call has been invalidated by the user.",
+            }, None
+
         tool_map = {tool.name: tool for tool in tools}
 
         name = tool_call.name
@@ -149,25 +147,6 @@ class AgentsRoutine:
                 "content": str(err),
             }
             return response, None
-
-        if tool.hil:
-            # Case where the tool call hasn't been validated yet
-            if tool_call.validated is None:
-                return HILResponse(
-                    message="Please validate the following inputs before proceeding.",
-                    inputs=input_schema.model_dump(),
-                    tool_call_id=tool_call.tool_call_id,
-                ), None
-
-            # Case where the tool call has been refused
-            if not tool_call.validated:
-                return {
-                    "role": "tool",
-                    "tool_call_id": tool_call.tool_call_id,
-                    "tool_name": name,
-                    "content": "The tool call has been invalidated by the user.",
-                }, None
-            # Else the tool call has been validated, we can proceed normally
 
         tool_metadata = tool.__annotations__["metadata"](**context_variables)
         tool_instance = tool(input_schema=input_schema, metadata=tool_metadata)
@@ -258,20 +237,24 @@ class AgentsRoutine:
             if not message.tool_calls:
                 break
 
+            # Check if any tool call requires hil, stop execution to get approval if so
+            hil_responses = check_validation_is_needed(
+                tool_calls=tool_calls, tools=agent.tools
+            )
+            if hil_responses:
+                return Response(
+                    messages=history[init_len:],
+                    agent=active_agent,
+                    context_variables=context_variables,
+                    hil_messages=hil_responses,
+                )
+
             # Handle function calls, updating context_variables, and switching agents
             partial_response = await self.execute_tool_calls(
                 messages[-1].tool_calls, active_agent.tools, context_variables
             )
 
             # If the tool call response contains HIL validation, do not update anything and return
-            if partial_response.hil_messages:
-                return Response(
-                    messages=history[init_len:],
-                    agent=active_agent,
-                    context_variables=context_variables,
-                    hil_messages=partial_response.hil_messages,
-                )
-
             history.extend(partial_response.messages)
             messages.extend(
                 [
@@ -389,38 +372,74 @@ class AgentsRoutine:
             if not messages[-1].tool_calls:
                 break
 
-            # handle function calls, updating context_variables, and switching agents
-            partial_response = await self.execute_tool_calls(
-                messages[-1].tool_calls, active_agent.tools, context_variables
+            hil_responses = check_validation_is_needed(
+                tool_calls=messages[-1].tool_calls, tools=agent.tools
             )
             # If the tool call response contains HIL validation, do not update anything and return
-            if partial_response.hil_messages:
+            if hil_responses:
                 yield Response(
                     messages=history[init_len:],
                     agent=active_agent,
                     context_variables=context_variables,
-                    hil_messages=partial_response.hil_messages,
+                    hil_messages=hil_responses,
                 )
                 break
+            else:
+                # handle function calls, updating context_variables, and switching agents
+                partial_response = await self.execute_tool_calls(
+                    messages[-1].tool_calls, active_agent.tools, context_variables
+                )
 
-            history.extend(partial_response.messages)
-            messages.extend(
-                [
-                    Messages(
-                        order=len(messages) + i,
-                        thread_id=messages[-1].thread_id,
-                        entity=Entity.TOOL,
-                        content=json.dumps(tool_response),
-                    )
-                    for i, tool_response in enumerate(partial_response.messages)
-                ]
-            )
-            context_variables.update(partial_response.context_variables)
-            if partial_response.agent:
-                active_agent = partial_response.agent
+                history.extend(partial_response.messages)
+                messages.extend(
+                    [
+                        Messages(
+                            order=len(messages) + i,
+                            thread_id=messages[-1].thread_id,
+                            entity=Entity.TOOL,
+                            content=json.dumps(tool_response),
+                        )
+                        for i, tool_response in enumerate(partial_response.messages)
+                    ]
+                )
+                context_variables.update(partial_response.context_variables)
+                if partial_response.agent:
+                    active_agent = partial_response.agent
 
         yield Response(
             messages=history[init_len - 1 :],
             agent=active_agent,
             context_variables=context_variables,
         )
+
+
+# Cannot put it in utils due to cyclic imports
+def check_validation_is_needed(
+    tool_calls: list[ToolCalls], tools: list[type[BaseTool]]
+) -> list[HILResponse] | None:
+    """Verify if tool calls are good to execute or need validation."""
+    # Get the tool classes from requested tool calls
+    tool_classes = [
+        tool_class
+        for tool_class in tools
+        if tool_class.name in [tool_call.name for tool_call in tool_calls]
+    ]
+
+    # Check if tools require validation (tool.hil = True + not validated yet)
+    validation_required = [
+        tool_call.validated is None and tool_class.hil
+        for tool_call, tool_class in zip(tool_calls, tool_classes)
+    ]
+    responses = [
+        HILResponse(
+            message="Please validate the following inputs before proceeding.",
+            name=tool_call.name,
+            inputs=tool.__annotations__["input_schema"](
+                **json.loads(tool_call.arguments)
+            ).model_dump(),
+            tool_call_id=tool_call.tool_call_id,
+        )
+        for tool_call, tool, required_val in zip(tool_calls, tools, validation_required)
+        if required_val
+    ]
+    return responses
