@@ -67,7 +67,11 @@ class Messages(Base):
     payload: Mapped[str] = mapped_column(String, nullable=False)
 
     thread_id: Mapped[str] = mapped_column(
-        String, ForeignKey("threads.thread_id"), nullable=False
+        String,
+        ForeignKey(
+            "threads.thread_id", ondelete="CASCADE", name="messages_thread_id_fkey"
+        ),
+        nullable=False,
     )
     thread: Mapped[Threads] = relationship("Threads", back_populates="messages")
     tool_calls: Mapped[list["ToolCalls"]] = relationship(
@@ -84,5 +88,10 @@ class ToolCalls(Base):
     arguments: Mapped[str] = mapped_column(String, nullable=False)
     validated: Mapped[bool] = mapped_column(Boolean, nullable=True)
 
-    message_id: Mapped[str] = mapped_column(String, ForeignKey("messages.message_id"))
+    message_id: Mapped[str] = mapped_column(
+        String,
+        ForeignKey(
+            "messages.message_id", ondelete="CASCADE", name="tool_calls_message_id_fkey"
+        ),
+    )
     message: Mapped[Messages] = relationship("Messages", back_populates="tool_calls")
