@@ -56,27 +56,12 @@ class AgentResponse(BaseModel):
     message: str = ""
 
 
-class ClientAttachment(BaseModel):
+class ClientRequest(BaseModel):
     """Vercel class."""
 
-    name: str
-    contentType: str
-    url: str
-
-
-class ClientMessage(BaseModel):
-    """Vercel class."""
-
-    role: str
     content: str
 
     model_config = ConfigDict(extra="ignore")
-
-
-class VercelRequest(BaseModel):
-    """Vercel class."""
-
-    messages: list[ClientMessage]
 
 
 class Result(BaseModel):

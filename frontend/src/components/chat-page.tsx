@@ -28,6 +28,12 @@ export function ChatPage({
         Authorization: `Bearer ${getSettings().token}`,
       },
       initialMessages,
+      experimental_prepareRequestBody: ({ messages }) => {
+        const lastMessage = messages[messages.length - 1];
+        return {
+          content: lastMessage.content,
+        };
+      },
     });
   const [showTools, setShowTools] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
