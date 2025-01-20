@@ -394,18 +394,10 @@ class AgentsRoutine:
                         merge_chunk(message, delta_json)
 
                 if chunk.choices == []:
-                    usage = chunk.usage
-                    prompt_tokens = usage.prompt_tokens
-                    completion_tokens = usage.completion_tokens
-
                     finish_data = {
                         "finishReason": "tool-calls"
                         if len(draft_tool_calls) > 0
                         else "stop",
-                        "usage": {
-                            "promptTokens": prompt_tokens,
-                            "completionTokens": completion_tokens,
-                        },
                     }
 
                 message["tool_calls"] = list(message.get("tool_calls", {}).values())
@@ -493,7 +485,6 @@ class AgentsRoutine:
 
         done_data = {
             "finishReason": "stop",
-            "usage": {"promptTokens": 0, "completionTokens": 0},
         }
         yield f"d:{json.dumps(done_data)}\n"
 
