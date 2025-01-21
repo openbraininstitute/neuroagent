@@ -127,7 +127,7 @@ class MorphologyFeatureTool(BaseTool):
         return features
 
     @staticmethod
-    def get_stats(array: list[int | float]) -> dict[str, int | np.float64]:
+    def get_stats(array: list[int | float]) -> dict[str, int | np.floating[Any]]:
         """Get summary stats for the array.
 
         Parameters
