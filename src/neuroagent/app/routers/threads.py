@@ -12,7 +12,12 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from neuroagent.app.app_utils import validate_project
 from neuroagent.app.config import Settings
 from neuroagent.app.database.db_utils import get_thread
-from neuroagent.app.database.schemas import MessagesRead, ThreadsRead, ThreadUpdate
+from neuroagent.app.database.schemas import (
+    MessagesRead,
+    ThreadCreate,
+    ThreadsRead,
+    ThreadUpdate,
+)
 from neuroagent.app.database.sql_schemas import Entity, Messages, Threads
 from neuroagent.app.dependencies import (
     get_httpx_client,
@@ -36,7 +41,7 @@ async def create_thread(
     project_id: str,
     session: Annotated[AsyncSession, Depends(get_session)],
     user_id: Annotated[str, Depends(get_user_id)],
-    title: str = "New chat",
+    body: ThreadCreate = ThreadCreate(),
 ) -> ThreadsRead:
     """Create thread."""
     # We first need to check if the combination thread/vlab/project is valid
@@ -49,7 +54,7 @@ async def create_thread(
     )
     new_thread = Threads(
         user_id=user_id,
-        title=title,
+        title=body.title,
         vlab_id=virtual_lab_id,
         project_id=project_id,
     )
