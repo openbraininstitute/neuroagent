@@ -46,10 +46,57 @@ export function ChatPage({
   });
   const [showTools, setShowTools] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const [processedToolInvocationMessages, setProcessedToolInvocationMessages] =
+    useState<string[]>([]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
+
+  useEffect(() => {
+    const lastMessage = messages[messages.length - 1];
+    if (lastMessage?.role === "assistant" && lastMessage.toolInvocations) {
+      // Skip if we've already processed this message
+      if (processedToolInvocationMessages.includes(lastMessage.id)) {
+        return;
+      }
+
+      const annotations =
+        (lastMessage.annotations as Array<{
+          toolCallId: string;
+          validated: string;
+        }>) || [];
+
+      // Count tools that were subject to HIL (accepted, rejected, or pending)
+      const validatedCount = annotations.filter((a) =>
+        ["accepted", "rejected", "pending"].includes(a.validated),
+      ).length;
+
+      // Count validated tools that also have results
+      const validatedWithResultCount = lastMessage.toolInvocations.filter(
+        (tool) => {
+          const annotation = annotations.find(
+            (a) => a.toolCallId === tool.toolCallId,
+          );
+          return (
+            (annotation?.validated === "accepted" ||
+              annotation?.validated === "rejected") &&
+            tool.state === "result"
+          );
+        },
+      ).length;
+
+      if (validatedCount > 0 && validatedCount === validatedWithResultCount) {
+        // Mark this message as processed
+        setProcessedToolInvocationMessages((prev) => [...prev, lastMessage.id]);
+
+        console.log(
+          "All validated tools have results, triggering empty message",
+        );
+        handleSubmit(new Event("submit") as any, { allowEmptySubmit: true });
+      }
+    }
+  }, [messages, handleSubmit, processedToolInvocationMessages]);
 
   if (error) {
     console.log("Error", error);
