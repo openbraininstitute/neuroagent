@@ -109,7 +109,8 @@ async def stream_chat_agent(
     context_variables["project_id"] = thread.project_id
 
     messages: list[Messages] = await thread.awaitable_attrs.messages
-    if not messages or messages[-1].entity != Entity.AI_TOOL:
+
+    if not messages or messages[-1].entity == Entity.AI_MESSAGE:
         messages.append(
             Messages(
                 order=len(messages),

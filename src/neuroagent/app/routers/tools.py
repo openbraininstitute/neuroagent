@@ -185,7 +185,9 @@ async def validate_input(
     if not tool_call:
         raise HTTPException(status_code=404, detail="Specified tool call not found.")
     if tool_call.validated is not None:
-        raise HTTPException(status_code=403, detail="The tool call has already been validated.")
+        raise HTTPException(
+            status_code=403, detail="The tool call has already been validated."
+        )
 
     tool_call.validated = user_request.is_validated  # Accepted or rejected
 

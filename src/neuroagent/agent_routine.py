@@ -328,109 +328,105 @@ class AgentsRoutine:
             }
 
             # get completion with current history, agent
-            if not messages or messages[-1].entity != Entity.AI_TOOL:
-                completion = await self.get_chat_completion(
-                    agent=active_agent,
-                    history=history,
-                    context_variables=context_variables,
-                    model_override=model_override,
-                    stream=True,
-                )
-                draft_tool_calls = []  # type: ignore
-                draft_tool_calls_index = -1
-                async for chunk in completion:  # type: ignore
-                    for choice in chunk.choices:
-                        if choice.finish_reason == "stop":
-                            continue
+            completion = await self.get_chat_completion(
+                agent=active_agent,
+                history=history,
+                context_variables=context_variables,
+                model_override=model_override,
+                stream=True,
+            )
+            draft_tool_calls = []  # type: ignore
+            draft_tool_calls_index = -1
+            async for chunk in completion:  # type: ignore
+                for choice in chunk.choices:
+                    if choice.finish_reason == "stop":
+                        continue
 
-                        elif choice.finish_reason == "tool_calls":
-                            for tool_call in draft_tool_calls:
-                                tool_call_data = {
-                                    "toolCallId": tool_call["id"],
-                                    "toolName": tool_call["name"],
-                                    "args": json.loads(tool_call["arguments"] or "{}"),
+                    elif choice.finish_reason == "tool_calls":
+                        for tool_call in draft_tool_calls:
+                            tool_call_data = {
+                                "toolCallId": tool_call["id"],
+                                "toolName": tool_call["name"],
+                                "args": json.loads(tool_call["arguments"] or "{}"),
+                            }
+                            yield f"9:{json.dumps(tool_call_data, separators=(',',':'))}\n"
+
+                    # Check for tool calls
+                    elif choice.delta.tool_calls:
+                        for tool_call in choice.delta.tool_calls:
+                            id = tool_call.id
+                            name = tool_call.function.name
+                            arguments = tool_call.function.arguments
+                            if id is not None:
+                                draft_tool_calls_index += 1
+                                draft_tool_calls.append(
+                                    {"id": id, "name": name, "arguments": ""}
+                                )
+                                tool_begin_data = {
+                                    "toolCallId": id,
+                                    "toolName": name,
                                 }
-                                yield f"9:{json.dumps(tool_call_data, separators=(',',':'))}\n"
+                                yield f"b:{json.dumps(tool_begin_data, separators=(',',':'))}\n"
 
-                        # Check for tool calls
-                        elif choice.delta.tool_calls:
-                            for tool_call in choice.delta.tool_calls:
-                                id = tool_call.id
-                                name = tool_call.function.name
-                                arguments = tool_call.function.arguments
-                                if id is not None:
-                                    draft_tool_calls_index += 1
-                                    draft_tool_calls.append(
-                                        {"id": id, "name": name, "arguments": ""}
-                                    )
-                                    tool_begin_data = {
-                                        "toolCallId": id,
-                                        "toolName": name,
-                                    }
-                                    yield f"b:{json.dumps(tool_begin_data, separators=(',',':'))}\n"
+                            if arguments:
+                                current_id = (
+                                    id or draft_tool_calls[draft_tool_calls_index]["id"]
+                                )
+                                args_data = {
+                                    "toolCallId": current_id,
+                                    "argsTextDelta": arguments,
+                                }
+                                yield f"c:{json.dumps(args_data, separators=(',',':'))}\n"
+                                draft_tool_calls[draft_tool_calls_index][
+                                    "arguments"
+                                ] += arguments
 
-                                if arguments:
-                                    current_id = (
-                                        id
-                                        or draft_tool_calls[draft_tool_calls_index][
-                                            "id"
-                                        ]
-                                    )
-                                    args_data = {
-                                        "toolCallId": current_id,
-                                        "argsTextDelta": arguments,
-                                    }
-                                    yield f"c:{json.dumps(args_data, separators=(',',':'))}\n"
-                                    draft_tool_calls[draft_tool_calls_index][
-                                        "arguments"
-                                    ] += arguments
+                    else:
+                        if choice.delta.content is not None:
+                            yield f"0:{json.dumps(choice.delta.content, separators=(',',':'))}\n"
 
-                        else:
-                            if choice.delta.content is not None:
-                                yield f"0:{json.dumps(choice.delta.content, separators=(',',':'))}\n"
+                    delta_json = choice.delta.model_dump()
+                    delta_json.pop("role", None)
+                    merge_chunk(message, delta_json)
 
-                        delta_json = choice.delta.model_dump()
-                        delta_json.pop("role", None)
-                        merge_chunk(message, delta_json)
+            if chunk.choices == []:
+                finish_data = {
+                    "finishReason": "tool-calls"
+                    if len(draft_tool_calls) > 0
+                    else "stop",
+                }
 
-                if chunk.choices == []:
-                    finish_data = {
-                        "finishReason": "tool-calls"
-                        if len(draft_tool_calls) > 0
-                        else "stop",
-                    }
+            message["tool_calls"] = list(message.get("tool_calls", {}).values())
+            if not message["tool_calls"]:
+                message["tool_calls"] = None
 
-                message["tool_calls"] = list(message.get("tool_calls", {}).values())
-                if not message["tool_calls"]:
-                    message["tool_calls"] = None
-
-                # If tool calls requested, instantiate them as an SQL compatible class
-                if message["tool_calls"]:
-                    tool_calls = [
-                        ToolCalls(
-                            tool_call_id=tool_call["id"],
-                            name=tool_call["function"]["name"],
-                            arguments=tool_call["function"]["arguments"],
-                        )
-                        for tool_call in message["tool_calls"]
-                    ]
-                else:
-                    tool_calls = []
-
-                # Append the history with the json version
-                history.append(copy.deepcopy(message))
-                message.pop("tool_calls")
-
-                # Stage the new message for addition to DB
-                messages.append(
-                    Messages(
-                        order=len(messages),
-                        thread_id=messages[-1].thread_id,
-                        entity=get_entity(message),
-                        content=json.dumps(message),
-                        tool_calls=tool_calls,
+            # If tool calls requested, instantiate them as an SQL compatible class
+            if message["tool_calls"]:
+                tool_calls = [
+                    ToolCalls(
+                        tool_call_id=tool_call["id"],
+                        name=tool_call["function"]["name"],
+                        arguments=tool_call["function"]["arguments"],
                     )
+                    for tool_call in message["tool_calls"]
+                ]
+            else:
+                tool_calls = []
+
+            # Append the history with the json version
+            history.append(copy.deepcopy(message))
+            message.pop("tool_calls")
+
+            # Stage the new message for addition to DB
+            messages.append(
+                Messages(
+                    order=len(messages),
+                    thread_id=messages[-1].thread_id,
+                    entity=get_entity(message),
+                    content=json.dumps(message),
+                    tool_calls=tool_calls,
                 )
+            )
 
             if not messages[-1].tool_calls:
                 yield f"e:{json.dumps(finish_data)}\n"
