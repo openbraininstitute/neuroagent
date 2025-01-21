@@ -29,6 +29,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Migrate LLM Evaluation logic to scripts and add tests
+- Query size limiter.
 
 ## [0.3.3] - 30.10.2024
 

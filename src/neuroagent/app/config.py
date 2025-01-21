@@ -205,6 +205,9 @@ class SettingsMisc(BaseModel):
     # comma separated entries, i.e. "value_1, value_2, ..."
     cors_origins: str = ""
 
+    # Query size limiter, in number of characters. (630 words ~= 5000 characters.)
+    query_max_size: int = 10000
+
     model_config = ConfigDict(frozen=True)
 
 
