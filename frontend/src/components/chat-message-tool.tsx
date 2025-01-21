@@ -38,12 +38,12 @@ export function ChatMessageTool({
 }: ChatMessageToolProps) {
   const [toolOpen, setToolOpen] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [hasProcessedResult, setHasProcessedResult] = useState(false);
   const [state, action, isPending] = useActionState(executeTool, null);
 
   useEffect(() => {
-    if (state?.success && !hasProcessedResult) {
-      setHasProcessedResult(true);
+    if (!state) return;
+
+    if (state.success) {
       setMessage((msg: Message) => {
         const updatedMsg = {
           ...msg,
@@ -64,7 +64,21 @@ export function ChatMessageTool({
         return updatedMsg;
       });
     }
-  }, [state?.success, tool.id, setMessage, state?.content, hasProcessedResult]);
+
+    if (state.error) {
+      setMessage((msg: Message) => {
+        return {
+          ...msg,
+          annotations: [
+            ...(msg.annotations || []).filter(
+              (a: any) => a.toolCallId !== tool.id,
+            ),
+            { toolCallId: tool.id, validated: "pending" },
+          ],
+        };
+      });
+    }
+  }, [isPending]);
 
   const renderToolStatus = () => {
     if (tool?.state === "result") {

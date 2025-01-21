@@ -12,7 +12,6 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { AlertCircle, Loader2 } from "lucide-react";
-import { ExecuteToolResponse } from "@/actions/execute-tool";
 import { Message } from "ai";
 
 type HumanValidationDialogProps = {
@@ -21,11 +20,9 @@ type HumanValidationDialogProps = {
   toolName: string;
   args?: Record<string, unknown>;
   className?: string;
-  action: (formData: FormData) => Promise<ExecuteToolResponse>;
+  action: (formData: FormData) => void;
   isOpen: boolean;
   setIsOpen: (open: boolean) => void;
-  setDecision: (decision: "accepted" | "rejected" | null) => void;
-  decision: "accepted" | "rejected" | null;
   setMessage: (updater: (msg: Message) => Message) => void;
 };
 
