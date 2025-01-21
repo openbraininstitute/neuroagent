@@ -15,7 +15,6 @@ from starlette.middleware.base import BaseHTTPMiddleware
 from neuroagent import __version__
 from neuroagent.app.app_utils import setup_engine
 from neuroagent.app.config import Settings
-from neuroagent.app.database.sql_schemas import Base
 from neuroagent.app.dependencies import (
     get_cell_types_kg_hierarchy,
     get_connection_string,
@@ -76,10 +75,6 @@ async def lifespan(fastapi_app: FastAPI) -> AsyncContextManager[None]:  # type: 
     prefix = app_settings.misc.application_prefix
     fastapi_app.openapi_url = f"{prefix}/openapi.json"
     fastapi_app.servers = [{"url": prefix}]
-
-    if engine:
-        async with engine.begin() as conn:
-            await conn.run_sync(Base.metadata.create_all)
 
     # Do not rely on the middleware order in the list "fastapi_app.user_middleware" since this is subject to changes.
     try:
