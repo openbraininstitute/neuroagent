@@ -105,17 +105,6 @@ class AgentsRoutine:
         except StopIteration:
             agent = None
 
-        hil_messages = [msg for msg in messages if isinstance(msg, HILResponse)]
-
-        # If a validation is required, return only this information
-        if hil_messages:
-            return Response(
-                messages=[],
-                agent=None,
-                context_variables=context_variables,
-                hil_messages=hil_messages,
-            )
-
         return Response(
             messages=messages, agent=agent, context_variables=context_variables
         )
@@ -151,26 +140,6 @@ class AgentsRoutine:
                 "content": str(err),
             }
             return response, None
-
-        if tool.hil:
-            # Case where the tool call hasn't been validated yet
-            if tool_call.validated is None:
-                return HILResponse(
-                    message="Please validate the following inputs before proceeding.",
-                    name=tool_call.name,
-                    inputs=input_schema.model_dump(),
-                    tool_call_id=tool_call.tool_call_id,
-                ), None
-
-            # Case where the tool call has been refused
-            if not tool_call.validated:
-                return {
-                    "role": "tool",
-                    "tool_call_id": tool_call.tool_call_id,
-                    "tool_name": name,
-                    "content": "The tool call has been invalidated by the user.",
-                }, None
-            # Else the tool call has been validated, we can proceed normally
 
         tool_metadata = tool.__annotations__["metadata"](**context_variables)
         tool_instance = tool(input_schema=input_schema, metadata=tool_metadata)
@@ -432,30 +401,28 @@ class AgentsRoutine:
                 yield f"e:{json.dumps(finish_data)}\n"
                 break
 
+            # kick out tool calls that require HIL
+            tool_map = {tool.name: tool for tool in agent.tools}
+
+            tool_calls_to_execute = [
+                tool_call
+                for tool_call in messages[-1].tool_calls
+                if not tool_map.get(tool_call.name).hil
+            ]
+
+            tool_calls_with_hil = [
+                tool_call
+                for tool_call in messages[-1].tool_calls
+                if tool_map.get(tool_call.name).hil
+            ]
+
             # handle function calls, updating context_variables, and switching agents
-            partial_response = await self.execute_tool_calls(
-                messages[-1].tool_calls, active_agent.tools, context_variables
+            tool_calls_executed = await self.execute_tool_calls(
+                tool_calls_to_execute, active_agent.tools, context_variables
             )
 
-            # If the tool call response contains HIL validation, do not update anything and return
-            if partial_response.hil_messages:
-                annotation_data = [
-                    {"toolCallId": msg.tool_call_id, "validated": "pending"}
-                    for msg in partial_response.hil_messages
-                ]
-
-                yield f"8:{json.dumps(annotation_data, separators=(',',':'))}\n"
-                yield Response(
-                    messages=[],
-                    agent=active_agent,
-                    context_variables=context_variables,
-                    hil_messages=partial_response.hil_messages,
-                )
-                yield f"e:{json.dumps(finish_data)}\n"
-                break
-
             # Before extending history, yield each tool response
-            for tool_response in partial_response.messages:
+            for tool_response in tool_calls_executed.messages:
                 response_data = {
                     "toolCallId": tool_response["tool_call_id"],
                     "result": tool_response["content"],
@@ -464,7 +431,6 @@ class AgentsRoutine:
 
             yield f"e:{json.dumps(finish_data)}\n"
 
-            history.extend(partial_response.messages)
             messages.extend(
                 [
                     Messages(
@@ -473,20 +439,27 @@ class AgentsRoutine:
                         entity=Entity.TOOL,
                         content=json.dumps(tool_response),
                     )
-                    for i, tool_response in enumerate(partial_response.messages)
+                    for i, tool_response in enumerate(tool_calls_executed.messages)
                 ]
             )
-            context_variables.update(partial_response.context_variables)
-            if partial_response.agent:
-                active_agent = partial_response.agent
+
+            # If the tool call response contains HIL validation, do not update anything and return
+            if tool_calls_with_hil:
+                annotation_data = [
+                    {"toolCallId": msg.tool_call_id, "validated": "pending"}
+                    for msg in tool_calls_with_hil
+                ]
+
+                yield f"8:{json.dumps(annotation_data, separators=(',',':'))}\n"
+                yield f"e:{json.dumps(finish_data)}\n"
+                break
+
+            history.extend(tool_calls_executed.messages)
+            context_variables.update(tool_calls_executed.context_variables)
+            if tool_calls_executed.agent:
+                active_agent = tool_calls_executed.agent
 
         done_data = {
             "finishReason": "stop",
         }
         yield f"d:{json.dumps(done_data)}\n"
-
-        yield Response(
-            messages=history[init_len - 1 :],
-            agent=active_agent,
-            context_variables=context_variables,
-        )
