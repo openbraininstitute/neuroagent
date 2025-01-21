@@ -4,7 +4,7 @@ import datetime
 import enum
 import uuid
 
-from sqlalchemy import Boolean, DateTime, Enum, ForeignKey, Integer, String
+from sqlalchemy import Boolean, DateTime, Enum, ForeignKey, Integer, MetaData, String
 from sqlalchemy.ext.asyncio import AsyncAttrs
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
@@ -24,6 +24,16 @@ class Role(enum.Enum):
 
 class Base(AsyncAttrs, DeclarativeBase):
     """Base declarative base for SQLAlchemy."""
+
+    metadata = MetaData(
+        naming_convention={
+            "ix": "ix_%(column_0_label)s",
+            "uq": "uq_%(table_name)s_%(column_0_name)s",
+            "ck": "ck_%(table_name)s_`%(constraint_name)s`",
+            "fk": "fk_%(table_name)s_%(column_0_name)s_%(referred_table_name)s",
+            "pk": "pk_%(table_name)s",
+        }
+    )
 
 
 class Threads(Base):
@@ -68,9 +78,7 @@ class Messages(Base):
 
     thread_id: Mapped[str] = mapped_column(
         String,
-        ForeignKey(
-            "threads.thread_id", ondelete="CASCADE", name="messages_thread_id_fkey"
-        ),
+        ForeignKey("threads.thread_id", ondelete="CASCADE"),
         nullable=False,
     )
     thread: Mapped[Threads] = relationship("Threads", back_populates="messages")
@@ -90,8 +98,6 @@ class ToolCalls(Base):
 
     message_id: Mapped[str] = mapped_column(
         String,
-        ForeignKey(
-            "messages.message_id", ondelete="CASCADE", name="tool_calls_message_id_fkey"
-        ),
+        ForeignKey("messages.message_id", ondelete="CASCADE"),
     )
     message: Mapped[Messages] = relationship("Messages", back_populates="tool_calls")
