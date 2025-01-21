@@ -417,9 +417,14 @@ class AgentsRoutine:
             ]
 
             # handle function calls, updating context_variables, and switching agents
-            tool_calls_executed = await self.execute_tool_calls(
-                tool_calls_to_execute, active_agent.tools, context_variables
-            )
+            if tool_calls_to_execute:
+                tool_calls_executed = await self.execute_tool_calls(
+                    tool_calls_to_execute, active_agent.tools, context_variables
+                )
+            else:
+                tool_calls_executed = Response(
+                    messages=[], agent=None, context_variables=context_variables
+                )
 
             # Before extending history, yield each tool response
             for tool_response in tool_calls_executed.messages:
