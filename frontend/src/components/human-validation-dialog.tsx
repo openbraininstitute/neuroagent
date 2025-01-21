@@ -26,7 +26,7 @@ type HumanValidationDialogProps = {
   setIsOpen: (open: boolean) => void;
   setDecision: (decision: "accepted" | "rejected" | null) => void;
   decision: "accepted" | "rejected" | null;
-  setMessage: (msg: Message) => Message;
+  setMessage: (updater: (msg: Message) => Message) => void;
 };
 
 export function HumanValidationDialog({
@@ -75,6 +75,17 @@ export function HumanValidationDialog({
           {
             toolCallId: toolId,
             validated: validation,
+          },
+        ],
+        toolInvocations: [
+          ...(msg.toolInvocations || []).filter(
+            (t: any) => t.toolCallId !== toolId,
+          ),
+          {
+            toolCallId: toolId,
+            toolName: toolName,
+            args: isEdited ? JSON.parse(editedArgs) : args,
+            state: "call" as const,
           },
         ],
       };
