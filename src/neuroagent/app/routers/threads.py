@@ -27,7 +27,7 @@ logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/threads", tags=["Threads' CRUD"])
 
 
-@router.post("/")
+@router.post("")
 async def create_thread(
     httpx_client: Annotated[AsyncClient, Depends(get_httpx_client)],
     settings: Annotated[Settings, Depends(get_settings)],
@@ -60,7 +60,7 @@ async def create_thread(
     return ThreadsRead(**new_thread.__dict__)
 
 
-@router.get("/")
+@router.get("")
 async def get_threads(
     session: Annotated[AsyncSession, Depends(get_session)],
     user_id: Annotated[str, Depends(get_user_id)],

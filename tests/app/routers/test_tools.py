@@ -61,7 +61,7 @@ async def test_get_tool_calls(
 
         # Create a thread
         create_output = app_client.post(
-            "/threads/?virtual_lab_id=test_vlab&project_id=test_project"
+            "/threads?virtual_lab_id=test_vlab&project_id=test_project"
         ).json()
         thread_id = create_output["thread_id"]
 
@@ -136,7 +136,7 @@ async def test_get_tool_output(
 
         # Create a thread
         create_output = app_client.post(
-            "/threads/?virtual_lab_id=test_vlab&project_id=test_project"
+            "/threads?virtual_lab_id=test_vlab&project_id=test_project"
         ).json()
         thread_id = create_output["thread_id"]
 

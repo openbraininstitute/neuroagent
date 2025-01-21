@@ -75,7 +75,7 @@ def test_run_chat_agent(app_client, httpx_mock, patch_required_env, db_connectio
     )
     with app_client as app_client:
         create_output = app_client.post(
-            "/threads/?virtual_lab_id=test_vlab&project_id=test_project"
+            "/threads?virtual_lab_id=test_vlab&project_id=test_project"
         ).json()
         response = app_client.post(
             f"/qa/chat/{create_output['thread_id']}",
@@ -157,7 +157,7 @@ def test_chat_streamed(app_client, httpx_mock, patch_required_env, db_connection
     )
     with app_client as app_client:
         create_output = app_client.post(
-            "/threads/?virtual_lab_id=test_vlab&project_id=test_project"
+            "/threads?virtual_lab_id=test_vlab&project_id=test_project"
         ).json()
         response = app_client.post(
             f"/qa/chat_streamed/{create_output['thread_id']}",
