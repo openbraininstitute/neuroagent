@@ -66,34 +66,6 @@ export function ChatMessageTool({
     }
   }, [state?.success, tool.id, setMessage, state?.content, hasProcessedResult]);
 
-  //   useEffect(() => {
-  //     console.log('Decision state changed:', decision);
-  //     if (decision) {
-  //       setMessage((msg: Message) => {
-  //         const existingAnnotation = msg.annotations?.find((a: any) => a.toolCallId === tool.id);
-  //         if (existingAnnotation) {
-  //           return msg;
-  //         }
-
-  //         const updatedMsg = {
-  //           ...msg,
-  //           annotations: [
-  //             ...(msg.annotations || []).filter((a: any) => a.toolCallId !== tool.id),
-  //             {
-  //               toolCallId: tool.id,
-  //               validated: decision,
-  //             },
-  //           ],
-  //         };
-  //         console.log('Message after validation:', JSON.stringify(updatedMsg, null, 2));
-  //         return updatedMsg;
-  //       });
-
-  //       // Close the dialog after the decision is processed
-  //       setDialogOpen(false);
-  //     }
-  //   }, [decision, setMessage, tool.id]);
-
   const renderToolStatus = () => {
     if (tool?.state === "result") {
       if (tool.hil === "rejected") {
