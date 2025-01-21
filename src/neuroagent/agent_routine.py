@@ -115,7 +115,7 @@ class AgentsRoutine:
     ) -> tuple[dict[str, str], Agent | None]:
         """Run individual tools."""
         # Case where the tool call has been refused (HIL)
-        if tool_call.validated is not None and not tool_call.validated:
+        if tool_call.validated is False:
             return {
                 "role": "tool",
                 "tool_call_id": tool_call.tool_call_id,
@@ -239,7 +239,7 @@ class AgentsRoutine:
 
             # Check if any tool call requires hil, stop execution to get approval if so
             hil_responses = check_validation_is_needed(
-                tool_calls=tool_calls, tools=agent.tools
+                tool_calls=messages[-1].tool_calls, tools=agent.tools
             )
             if hil_responses:
                 return Response(
