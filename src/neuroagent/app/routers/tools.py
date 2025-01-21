@@ -27,7 +27,7 @@ router = APIRouter(prefix="/tools", tags=["Tool's CRUD"])
 class ExecuteToolCallRequest(BaseModel):
     """Request body for executing a tool call."""
 
-    validation: Literal["reject", "accept"]
+    validation: Literal["rejected", "accepted"]
     args: str | None = None
 
 
@@ -35,6 +35,7 @@ class ExecuteToolCallResponse(BaseModel):
     """Response model for tool execution status."""
 
     status: Literal["done", "validation-error"]
+    content: str | None = None
 
 
 @router.get("/{thread_id}/{message_id}")
@@ -184,9 +185,7 @@ async def validate_input(
     if not tool_call:
         raise HTTPException(status_code=404, detail="Specified tool call not found.")
     if tool_call.validated is not None:
-        raise HTTPException(
-            status_code=403, detail="The tool call has already been validated."
-        )
+        raise HTTPException(status_code=403, detail="The tool call has already been validated.")
 
     tool_call.validated = user_request.is_validated  # Accepted or rejected
 
@@ -238,23 +237,24 @@ async def execute_tool_call(
         )
 
     # Update tool call validation status
-    tool_call.validated = request.validation == "accept"
+    tool_call.validated = request.validation == "accepted"
 
     # Update arguments if provided and accepted
-    if request.args and request.validation == "accept":
+    if request.args and request.validation == "accepted":
         tool_call.arguments = request.args
 
     # Add modified tool_call to session
     session.add(tool_call)
 
     # Handle rejection case
-    if request.validation == "reject":
+    if request.validation == "rejected":
         message = {
             "role": "tool",
             "tool_call_id": tool_call.tool_call_id,
             "tool_name": tool_call.name,
             "content": "The tool call has been invalidated by the user.",
         }
+        content = message["content"]
     else:  # Handle acceptance case
         # Get the tool from the agent's tools
         tool_map = {tool.name: tool for tool in starting_agent.tools}
@@ -267,6 +267,7 @@ async def execute_tool_call(
                 "tool_name": name,
                 "content": f"Error: Tool {name} not found.",
             }
+            content = message["content"]
         else:
             tool = tool_map[name]
             kwargs = json.loads(tool_call.arguments)
@@ -281,26 +282,32 @@ async def execute_tool_call(
 
                 raw_result = await tool_instance.arun()
 
-                # Simply JSON serialize the result
+                # Process the result
+                result = (
+                    raw_result
+                    if isinstance(raw_result, str)
+                    else json.dumps(raw_result)
+                )
                 message = {
                     "role": "tool",
                     "tool_call_id": tool_call.tool_call_id,
                     "tool_name": name,
-                    "content": raw_result
-                    if isinstance(raw_result, str)
-                    else json.dumps(raw_result),
+                    "content": result,
                 }
+                content = message["content"]
 
             except ValidationError:
                 # Return early with validation-error status without committing to DB
-                return ExecuteToolCallResponse(status="validation-error")
+                return ExecuteToolCallResponse(status="validation-error", content=None)
             except Exception as err:
+                error_message = str(err)
                 message = {
                     "role": "tool",
                     "tool_call_id": tool_call.tool_call_id,
                     "tool_name": name,
-                    "content": str(err),
+                    "content": error_message,
                 }
+                content = message["content"]
 
     # Add the tool response as a new message
     new_message = Messages(
@@ -323,4 +330,4 @@ async def execute_tool_call(
     session.add(new_message)
     await session.commit()
 
-    return ExecuteToolCallResponse(status="done")
+    return ExecuteToolCallResponse(status="done", content=content)

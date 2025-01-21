@@ -12,8 +12,8 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { AlertCircle, Loader2 } from "lucide-react";
-import { executeTool } from "@/actions/execute-tool";
-import { useActionState } from "react";
+import { ExecuteToolResponse } from "@/actions/execute-tool";
+import { Message } from "ai";
 
 type HumanValidationDialogProps = {
   threadId: string;
@@ -21,6 +21,12 @@ type HumanValidationDialogProps = {
   toolName: string;
   args?: Record<string, unknown>;
   className?: string;
+  action: (formData: FormData) => Promise<ExecuteToolResponse>;
+  isOpen: boolean;
+  setIsOpen: (open: boolean) => void;
+  setDecision: (decision: "accepted" | "rejected" | null) => void;
+  decision: "accepted" | "rejected" | null;
+  setMessage: (msg: Message) => Message;
 };
 
 export function HumanValidationDialog({
@@ -29,33 +35,53 @@ export function HumanValidationDialog({
   toolName,
   args,
   className,
+  action,
+  isOpen,
+  setIsOpen,
+  setMessage,
 }: HumanValidationDialogProps) {
-  const [isOpen, setIsOpen] = useState(false);
   const [editedArgs, setEditedArgs] = useState(JSON.stringify(args, null, 2));
   const [isEdited, setIsEdited] = useState(false);
-  const [state, action, isPending] = useActionState(executeTool, null);
 
   const handleArgsChange = (value: string) => {
     setEditedArgs(value);
     setIsEdited(value !== JSON.stringify(args, null, 2));
   };
 
-  // Handle dialog closure and revalidation after successful action
-  useEffect(() => {
-    if (state?.success) {
-      setIsOpen(false);
-      setEditedArgs(JSON.stringify(args, null, 2));
-      setIsEdited(false);
-    }
-  }, [state?.success, args, threadId]);
-
-  // Add handler for dialog open/close
   const handleOpenChange = (open: boolean) => {
     setIsOpen(open);
     if (!open) {
       setEditedArgs(JSON.stringify(args, null, 2));
       setIsEdited(false);
     }
+  };
+
+  const handleAction = async (formData: FormData) => {
+    const validation = formData.get("validation") as "accepted" | "rejected";
+
+    // Close dialog and set local decision immediately
+    setIsOpen(false);
+    // Execute the action asynchronously
+    action(formData);
+
+    // Process the decision immediately
+    setMessage((msg: Message) => {
+      const updatedMsg = {
+        ...msg,
+        annotations: [
+          ...(msg.annotations || []).filter(
+            (a: any) => a.toolCallId !== toolId,
+          ),
+          {
+            toolCallId: toolId,
+            validated: validation,
+          },
+        ],
+      };
+      return updatedMsg;
+    });
+
+    console.log("handleAction end");
   };
 
   return (
@@ -81,13 +107,10 @@ export function HumanValidationDialog({
               value={editedArgs}
               onChange={(e) => handleArgsChange(e.target.value)}
             />
-            {state?.error && (
-              <p className="text-sm text-red-500 mt-2">{state.error}</p>
-            )}
           </div>
         </div>
         <DialogFooter className="mt-4">
-          <form action={action} className="flex gap-2">
+          <form action={handleAction} className="flex gap-2">
             <input type="hidden" name="threadId" value={threadId} />
             <input type="hidden" name="toolCallId" value={toolId} />
             <input
@@ -98,23 +121,19 @@ export function HumanValidationDialog({
             <Button
               type="submit"
               name="validation"
-              value="reject"
+              value="rejected"
               variant="outline"
-              disabled={isPending}
+              disabled={!isOpen}
             >
               Reject
             </Button>
             <Button
               type="submit"
               name="validation"
-              value="accept"
-              disabled={isPending}
+              value="accepted"
+              disabled={!isOpen}
             >
-              {isPending ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                "Accept"
-              )}
+              Accept
             </Button>
           </form>
         </DialogFooter>

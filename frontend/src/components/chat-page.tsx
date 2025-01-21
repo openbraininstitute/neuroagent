@@ -6,7 +6,9 @@ import type { Message } from "ai/react";
 import { getSettings } from "@/lib/cookies-client";
 
 import { Button } from "@/components/ui/button";
-import { ChatMessage } from "@/components/chat-message";
+import { ChatMessageAI } from "@/components/chat-message-ai";
+import { ChatMessageHuman } from "@/components/chat-message-human";
+import { ChatMessageTool } from "@/components/chat-message-tool";
 
 type ChatPageProps = {
   threadId: string;
@@ -21,20 +23,27 @@ export function ChatPage({
   threadTitle,
   initialMessages,
 }: ChatPageProps) {
-  const { messages, input, handleInputChange, handleSubmit, error, isLoading } =
-    useChat({
-      api: `${BACKEND_URL}/${threadId}`,
-      headers: {
-        Authorization: `Bearer ${getSettings().token}`,
-      },
-      initialMessages,
-      experimental_prepareRequestBody: ({ messages }) => {
-        const lastMessage = messages[messages.length - 1];
-        return {
-          content: lastMessage.content,
-        };
-      },
-    });
+  const {
+    messages,
+    input,
+    handleInputChange,
+    handleSubmit,
+    error,
+    isLoading,
+    setMessages,
+  } = useChat({
+    api: `${BACKEND_URL}/${threadId}`,
+    headers: {
+      Authorization: `Bearer ${getSettings().token}`,
+    },
+    initialMessages,
+    experimental_prepareRequestBody: ({ messages }) => {
+      const lastMessage = messages[messages.length - 1];
+      return {
+        content: lastMessage.content,
+      };
+    },
+  });
   const [showTools, setShowTools] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -64,48 +73,68 @@ export function ChatPage({
         {messages.map((message) =>
           message.role === "assistant" ? (
             message.toolInvocations ? (
-              message.toolInvocations.map(
-                (tool) =>
-                  showTools && (
-                    <ChatMessage
-                      key={`${message.id}-${tool.toolCallId}`}
-                      id={message.id}
-                      type="tool"
-                      threadId={threadId}
-                      tool={{
-                        name: tool.toolName,
-                        state: tool.state,
-                        args: tool.args,
-                        result: "result" in tool ? tool.result : undefined,
-                        id: tool.toolCallId,
-                        hil:
-                          (
-                            message.annotations as Array<{
-                              toolCallId: string;
-                              validated: string;
-                            }>
-                          )?.find((a) => a.toolCallId === tool.toolCallId)
-                            ?.validated ?? "not_required",
-                      }}
-                    />
-                  ),
-              )
+              message.toolInvocations
+                .sort((a, b) => a.toolCallId.localeCompare(b.toolCallId))
+                .map(
+                  (tool) =>
+                    showTools && (
+                      <ChatMessageTool
+                        key={`${message.id}-${tool.toolCallId}`}
+                        id={message.id}
+                        threadId={threadId}
+                        tool={{
+                          name: tool.toolName,
+                          state: tool.state,
+                          args: tool.args,
+                          result: "result" in tool ? tool.result : undefined,
+                          id: tool.toolCallId,
+                          hil:
+                            (
+                              message.annotations as Array<{
+                                toolCallId: string;
+                                validated: string;
+                              }>
+                            )?.find((a) => a.toolCallId === tool.toolCallId)
+                              ?.validated ?? "not_required",
+                        }}
+                        setMessage={(updater) => {
+                          setMessages((messages) =>
+                            messages.map((msg) =>
+                              msg.id === message.id ? updater(msg) : msg,
+                            ),
+                          );
+                        }}
+                      />
+                    ),
+                )
             ) : (
-              <ChatMessage
+              <ChatMessageAI
                 key={message.id}
                 id={message.id}
-                type="ai"
                 threadId={threadId}
                 content={message.content}
+                setMessage={(updater) => {
+                  setMessages((messages) =>
+                    messages.map((msg) =>
+                      msg.id === message.id ? updater(msg) : msg,
+                    ),
+                  );
+                }}
               />
             )
           ) : (
-            <ChatMessage
+            <ChatMessageHuman
               key={message.id}
               id={message.id}
-              type="human"
               threadId={threadId}
               content={message.content}
+              setMessage={(updater) => {
+                setMessages((messages) =>
+                  messages.map((msg) =>
+                    msg.id === message.id ? updater(msg) : msg,
+                  ),
+                );
+              }}
             />
           ),
         )}

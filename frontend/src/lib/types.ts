@@ -20,6 +20,15 @@ export type BToolCall = {
   validated: "accepted" | "rejected" | "pending" | "not_required";
 };
 
+export type Tool = {
+  id: string;
+  name: string;
+  state: "partial-call" | "call" | "result";
+  args?: Record<string, unknown>;
+  result?: Record<string, unknown>;
+  hil?: BToolCall["validated"];
+};
+
 export type BMessageUser = {
   message_id: string;
   entity: "user";
