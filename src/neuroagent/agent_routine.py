@@ -451,6 +451,7 @@ class AgentsRoutine:
                     context_variables=context_variables,
                     hil_messages=partial_response.hil_messages,
                 )
+                yield f"e:{json.dumps(finish_data)}\n"
                 break
 
             # Before extending history, yield each tool response
