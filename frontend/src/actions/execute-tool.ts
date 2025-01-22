@@ -2,8 +2,6 @@
 
 import { env } from "@/lib/env";
 import { getSettings } from "@/lib/cookies-server";
-import { revalidatePath } from "next/cache";
-import { redirect } from "next/navigation";
 
 export type ExecuteToolResponse = {
   error?: string;

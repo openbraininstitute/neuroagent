@@ -9,7 +9,7 @@ type EnvSchema = z.infer<typeof envSchema>;
 function validateEnv(): EnvSchema {
   try {
     const parsed = envSchema.parse({
-      BACKEND_URL: process.env.BACKEND_URL,
+      BACKEND_URL: process.env.NEXT_PUBLIC_BACKEND_URL,
     });
 
     return parsed;

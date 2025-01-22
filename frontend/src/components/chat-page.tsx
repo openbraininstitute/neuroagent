@@ -4,6 +4,7 @@ import { useChat } from "ai/react";
 import { useEffect, useRef, useState } from "react";
 import type { Message } from "ai/react";
 import { getSettings } from "@/lib/cookies-client";
+import { env } from "@/lib/env";
 
 import { Button } from "@/components/ui/button";
 import { ChatMessageAI } from "@/components/chat-message-ai";
@@ -15,8 +16,6 @@ type ChatPageProps = {
   threadTitle: string;
   initialMessages: Message[];
 };
-
-const BACKEND_URL = "http://localhost:8000/qa/chat_streamed";
 
 export function ChatPage({
   threadId,
@@ -32,7 +31,7 @@ export function ChatPage({
     isLoading,
     setMessages,
   } = useChat({
-    api: `${BACKEND_URL}/${threadId}`,
+    api: `${env.BACKEND_URL}/qa/chat_streamed/${threadId}`,
     headers: {
       Authorization: `Bearer ${getSettings().token}`,
     },
