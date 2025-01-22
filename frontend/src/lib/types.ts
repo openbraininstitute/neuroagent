@@ -1,3 +1,5 @@
+import { Message } from "ai/react";
+
 export type BThread = {
   thread_id: string;
   user_id: string;
@@ -20,13 +22,9 @@ export type BToolCall = {
   validated: "accepted" | "rejected" | "pending" | "not_required";
 };
 
-export type Tool = {
-  id: string;
-  name: string;
-  state: "partial-call" | "call" | "result";
-  args?: Record<string, unknown>;
-  result?: Record<string, unknown>;
-  hil?: BToolCall["validated"];
+export type Annotation = {
+  toolCallId: string;
+  validated: "accepted" | "rejected" | "pending" | "not_required";
 };
 
 export type BMessageUser = {
@@ -92,3 +90,9 @@ export type BMessage =
   | BMessageAITool
   | BMessageTool
   | BMessageAIContent;
+
+// This explicitly overrides any existing 'annotations' property
+// The AI SDK make it more general by JSONValue[], but we need to be more specific
+export type MessageStrict = Omit<Message, "annotations"> & {
+  annotations?: Annotation[];
+};

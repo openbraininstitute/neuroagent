@@ -1,4 +1,3 @@
-import { Message } from "ai/react";
 import Markdown from "react-markdown";
 import { Card, CardContent } from "@/components/ui/card";
 
@@ -6,7 +5,6 @@ type ChatMessageAIProps = {
   id: string;
   content?: string;
   threadId: string;
-  setMessage: (updater: (msg: Message) => Message) => void;
 };
 
 export function ChatMessageAI({ content }: ChatMessageAIProps) {

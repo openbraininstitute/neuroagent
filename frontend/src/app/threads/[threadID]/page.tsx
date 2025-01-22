@@ -1,7 +1,6 @@
-import { BMessage } from "@/lib/types";
+import { BMessage, MessageStrict } from "@/lib/types";
 import { env } from "@/lib/env";
 import { getSettings } from "@/lib/cookies-server";
-import { Message } from "@ai-sdk/ui-utils";
 import { ChatPage } from "@/components/chat-page";
 
 async function getMessages(threadId: string): Promise<BMessage[]> {
@@ -45,8 +44,8 @@ async function getThread(threadId: string) {
   return response.json();
 }
 
-function convertToAiMessages(messages: BMessage[]): Message[] {
-  const output: Message[] = [];
+function convertToAiMessages(messages: BMessage[]): MessageStrict[] {
+  const output: MessageStrict[] = [];
 
   for (const message of messages) {
     if (message.entity === "user") {

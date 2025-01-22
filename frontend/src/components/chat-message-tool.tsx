@@ -1,5 +1,5 @@
 import { useRef, useState, useEffect } from "react";
-import { Message } from "ai/react";
+import { MessageStrict } from "@/lib/types";
 import { Check, Loader2, X, AlertCircle } from "lucide-react";
 import { Card, CardContent, CardFooter, CardTitle } from "@/components/ui/card";
 import {
@@ -8,15 +8,16 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import { HumanValidationDialog } from "@/components/human-validation-dialog";
-import { Tool } from "@/lib/types";
 import { useActionState } from "react";
 import { executeTool } from "@/actions/execute-tool";
+import { ToolInvocation } from "@ai-sdk/ui-utils";
 
 type ChatMessageToolProps = {
   content?: string;
   threadId: string;
-  tool: Tool;
-  setMessage: (updater: (msg: Message) => Message) => void;
+  tool: ToolInvocation;
+  validated: "pending" | "accepted" | "rejected" | "not_required";
+  setMessage: (updater: (msg: MessageStrict) => MessageStrict) => void;
 };
 
 function ScrollToBottom() {
@@ -33,6 +34,7 @@ export function ChatMessageTool({
   threadId,
   tool,
   setMessage,
+  validated,
 }: ChatMessageToolProps) {
   const [toolOpen, setToolOpen] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -51,16 +53,16 @@ export function ChatMessageTool({
     if (state.success) {
       setValidationError(null);
       setPreviousValidationFailed(false);
-      setMessage((msg: Message) => {
+      setMessage((msg) => {
         const updatedMsg = {
           ...msg,
           toolInvocations: [
             ...(msg.toolInvocations || []).filter(
-              (t: any) => t.toolCallId !== tool.id,
+              (t) => t.toolCallId !== tool.toolCallId,
             ),
             {
-              toolCallId: tool.id,
-              toolName: tool.name,
+              toolCallId: tool.toolCallId,
+              toolName: tool.toolName,
               args: tool.args,
               result: state.content,
               state: "result" as const,
@@ -78,14 +80,14 @@ export function ChatMessageTool({
       }
       setPreviousValidationFailed(true);
       setValidationError(state.error);
-      setMessage((msg: Message) => {
+      setMessage((msg) => {
         return {
           ...msg,
           annotations: [
             ...(msg.annotations || []).filter(
-              (a: any) => a.toolCallId !== tool.id,
+              (a) => a.toolCallId !== tool.toolCallId,
             ),
-            { toolCallId: tool.id, validated: "pending" },
+            { toolCallId: tool.toolCallId, validated: "pending" },
           ],
         };
       });
@@ -94,7 +96,7 @@ export function ChatMessageTool({
 
   const renderToolStatus = () => {
     if (tool?.state === "result") {
-      if (tool.hil === "rejected") {
+      if (validated === "rejected") {
         return (
           <div className="flex items-center">
             <X className="h-4 w-4 mr-2 text-red-500" />
@@ -111,7 +113,7 @@ export function ChatMessageTool({
     }
 
     if (tool?.state === "call") {
-      if (tool.hil === "pending") {
+      if (validated === "pending") {
         return (
           <div className="flex items-center">
             <AlertCircle
@@ -126,14 +128,14 @@ export function ChatMessageTool({
             )}
           </div>
         );
-      } else if (tool.hil === "accepted") {
+      } else if (validated === "accepted") {
         return (
           <div className="flex items-center">
             <Loader2 className="h-4 w-4 animate-spin mr-2" />
             <span className="text-xs text-gray-500">Executing</span>
           </div>
         );
-      } else if (tool.hil === "rejected") {
+      } else if (validated === "rejected") {
         return (
           <div className="flex items-center">
             <X className="h-4 w-4 mr-2 text-red-500" />
@@ -154,10 +156,10 @@ export function ChatMessageTool({
   return (
     <div className="border-r-2 p-8 border-white-300 border-solid">
       <HumanValidationDialog
-        key={tool.id}
+        key={tool.toolCallId}
         threadId={threadId}
-        toolId={tool.id}
-        toolName={tool.name}
+        toolId={tool.toolCallId}
+        toolName={tool.toolName}
         args={tool.args}
         action={action}
         isOpen={dialogOpen}
@@ -169,10 +171,10 @@ export function ChatMessageTool({
           <div className="flex items-center gap-4">
             <CollapsibleTrigger className="hover:scale-105 active:scale-[1.10]">
               <span className="text-sm p-4 truncate border-2 bg-blue-500 rounded-xl">
-                {tool?.name}
+                {tool?.toolName}
               </span>
             </CollapsibleTrigger>
-            {tool?.state === "call" && tool.hil === "pending" ? (
+            {tool?.state === "call" && validated === "pending" ? (
               <div className="flex items-center">
                 <AlertCircle
                   className="h-4 w-4 mr-2 text-red-500 cursor-pointer"
@@ -194,7 +196,7 @@ export function ChatMessageTool({
             <Card className="w-[32rem] mt-8 bg-transparent p-8">
               <CardTitle>
                 <span className="text-lg p-2 text-left truncate">
-                  {tool?.name}
+                  {tool?.toolName}
                 </span>
               </CardTitle>
               <CardContent>
@@ -226,7 +228,7 @@ export function ChatMessageTool({
                 )}
               </CardContent>
               <CardFooter>
-                <p className="text-xs p-2 text-left">ID: {tool?.id}</p>
+                <p className="text-xs p-2 text-left">ID: {tool?.toolCallId}</p>
               </CardFooter>
             </Card>
           </CollapsibleContent>

@@ -10,7 +10,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Message } from "ai";
+import { MessageStrict } from "@/lib/types";
 
 type HumanValidationDialogProps = {
   threadId: string;
@@ -20,7 +20,7 @@ type HumanValidationDialogProps = {
   action: (formData: FormData) => void;
   isOpen: boolean;
   setIsOpen: (open: boolean) => void;
-  setMessage: (updater: (msg: Message) => Message) => void;
+  setMessage: (updater: (msg: MessageStrict) => MessageStrict) => void;
 };
 
 export function HumanValidationDialog({
@@ -57,22 +57,18 @@ export function HumanValidationDialog({
     const validation = formData.get("validation") as "accepted" | "rejected";
 
     // Process the decision first
-    setMessage((msg: Message) => {
+    setMessage((msg: MessageStrict) => {
       const updatedMsg = {
         ...msg,
         annotations: [
-          ...(msg.annotations || []).filter(
-            (a: any) => a.toolCallId !== toolId,
-          ),
+          ...(msg.annotations || []).filter((a) => a.toolCallId !== toolId),
           {
             toolCallId: toolId,
             validated: validation,
           },
         ],
         toolInvocations: [
-          ...(msg.toolInvocations || []).filter(
-            (t: any) => t.toolCallId !== toolId,
-          ),
+          ...(msg.toolInvocations || []).filter((t) => t.toolCallId !== toolId),
           {
             toolCallId: toolId,
             toolName: toolName,

@@ -1,11 +1,9 @@
-import { Message } from "ai/react";
 import { Card, CardContent } from "@/components/ui/card";
 
 type ChatMessageHumanProps = {
   id: string;
   content?: string;
   threadId: string;
-  setMessage: (updater: (msg: Message) => Message) => void;
 };
 
 export function ChatMessageHuman({ content }: ChatMessageHumanProps) {

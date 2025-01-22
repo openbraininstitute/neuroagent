@@ -1,8 +1,8 @@
 "use client";
 
 import { useChat } from "ai/react";
-import { useEffect, useRef, useState, FormEvent } from "react";
-import type { Message } from "ai/react";
+import { useEffect, useRef, useState } from "react";
+import type { MessageStrict } from "@/lib/types";
 import { getSettings } from "@/lib/cookies-client";
 import { env } from "@/lib/env";
 
@@ -14,7 +14,7 @@ import { ChatMessageTool } from "@/components/chat-message-tool";
 type ChatPageProps = {
   threadId: string;
   threadTitle: string;
-  initialMessages: Message[];
+  initialMessages: MessageStrict[];
 };
 
 export function ChatPage({
@@ -23,13 +23,13 @@ export function ChatPage({
   initialMessages,
 }: ChatPageProps) {
   const {
-    messages,
+    messages: messagesRaw,
     input,
     handleInputChange,
     handleSubmit,
     error,
     isLoading,
-    setMessages,
+    setMessages: setMessagesRaw,
   } = useChat({
     api: `${env.BACKEND_URL}/qa/chat_streamed/${threadId}`,
     headers: {
@@ -43,6 +43,14 @@ export function ChatPage({
       };
     },
   });
+
+  const messages = messagesRaw as MessageStrict[];
+  const setMessages = setMessagesRaw as (
+    messages:
+      | MessageStrict[]
+      | ((messages: MessageStrict[]) => MessageStrict[]),
+  ) => void;
+
   const [showTools, setShowTools] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [processedToolInvocationMessages, setProcessedToolInvocationMessages] =
@@ -60,11 +68,7 @@ export function ChatPage({
         return;
       }
 
-      const annotations =
-        (lastMessage.annotations as Array<{
-          toolCallId: string;
-          validated: string;
-        }>) || [];
+      const annotations = lastMessage.annotations || [];
 
       // Count tools that were subject to HIL (accepted, rejected, or pending)
       const validatedCount = annotations.filter((a) =>
@@ -121,27 +125,19 @@ export function ChatPage({
             message.toolInvocations ? (
               message.toolInvocations
                 .sort((a, b) => a.toolCallId.localeCompare(b.toolCallId))
-                .map(
-                  (tool) =>
+                .map((tool) => {
+                  const validated =
+                    message.annotations?.find(
+                      (a) => a.toolCallId === tool.toolCallId,
+                    )?.validated ?? "not_required";
+
+                  return (
                     showTools && (
                       <ChatMessageTool
                         key={`${message.id}-${tool.toolCallId}`}
                         threadId={threadId}
-                        tool={{
-                          name: tool.toolName,
-                          state: tool.state,
-                          args: tool.args,
-                          result: "result" in tool ? tool.result : undefined,
-                          id: tool.toolCallId,
-                          hil:
-                            (
-                              message.annotations as Array<{
-                                toolCallId: string;
-                                validated: string;
-                              }>
-                            )?.find((a) => a.toolCallId === tool.toolCallId)
-                              ?.validated ?? "not_required",
-                        }}
+                        tool={tool}
+                        validated={validated}
                         setMessage={(updater) => {
                           setMessages((messages) =>
                             messages.map((msg) =>
@@ -150,21 +146,15 @@ export function ChatPage({
                           );
                         }}
                       />
-                    ),
-                )
+                    )
+                  );
+                })
             ) : (
               <ChatMessageAI
                 key={message.id}
                 id={message.id}
                 threadId={threadId}
                 content={message.content}
-                setMessage={(updater) => {
-                  setMessages((messages) =>
-                    messages.map((msg) =>
-                      msg.id === message.id ? updater(msg) : msg,
-                    ),
-                  );
-                }}
               />
             )
           ) : (
@@ -173,13 +163,6 @@ export function ChatPage({
               id={message.id}
               threadId={threadId}
               content={message.content}
-              setMessage={(updater) => {
-                setMessages((messages) =>
-                  messages.map((msg) =>
-                    msg.id === message.id ? updater(msg) : msg,
-                  ),
-                );
-              }}
             />
           ),
         )}
