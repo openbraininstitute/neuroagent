@@ -363,6 +363,10 @@ class AgentsRoutine:
                     if len(draft_tool_calls) > 0
                     else "stop",
                 }
+            else:
+                finish_data = {
+                    "finishReason": "stop"
+                }
 
             message["tool_calls"] = list(message.get("tool_calls", {}).values())
             if not message["tool_calls"]:
