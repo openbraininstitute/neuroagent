@@ -364,9 +364,7 @@ class AgentsRoutine:
                     else "stop",
                 }
             else:
-                finish_data = {
-                    "finishReason": "stop"
-                }
+                finish_data = {"finishReason": "stop"}
 
             message["tool_calls"] = list(message.get("tool_calls", {}).values())
             if not message["tool_calls"]:
