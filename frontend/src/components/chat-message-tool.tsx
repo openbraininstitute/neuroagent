@@ -39,11 +39,13 @@ export function ChatMessageTool({
   const [toolOpen, setToolOpen] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [state, action, isPending] = useActionState(executeTool, null);
+  const [validationError, setValidationError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!state) return;
 
     if (state.success) {
+      setValidationError(null);
       setMessage((msg: Message) => {
         const updatedMsg = {
           ...msg,
@@ -66,6 +68,7 @@ export function ChatMessageTool({
     }
 
     if (state.error) {
+      setValidationError(state.error);
       setMessage((msg: Message) => {
         return {
           ...msg,
@@ -114,6 +117,11 @@ export function ChatMessageTool({
               setMessage={setMessage}
             />
             <span className="text-xs text-red-500">Pending Validation</span>
+            {validationError && (
+              <span className="text-xs ml-2 text-red-500">
+                {` (Previous validation failed: ${validationError})`}
+              </span>
+            )}
           </div>
         );
       } else if (tool.hil === "accepted") {
