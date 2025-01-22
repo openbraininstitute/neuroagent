@@ -161,12 +161,12 @@ async def generate_title(
         json.loads(first_user_message.content),
     ]
     response = await openai_client.chat.completions.create(
-        messages=messages,  # type: ignore
+        messages=messages,
         model=settings.openai.model,
     )
 
     # Update the thread title and modified date + commit
-    thread.title = response.choices[0].message.content.strip('"')
+    thread.title = response.choices[0].message.content.strip('"')  # type: ignore
     thread.update_date = utc_now()
     await session.commit()
     await session.refresh(thread)
