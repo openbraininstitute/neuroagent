@@ -49,14 +49,11 @@ export async function executeTool(
       };
     }
 
-    console.log("Result:", JSON.stringify(result, null, 2));
-
     return {
       success: true,
       content: result.content,
     };
   } catch (error) {
-    console.error("Error executing tool:", error);
     return {
       error: error instanceof Error ? error.message : "Failed to execute tool",
     };

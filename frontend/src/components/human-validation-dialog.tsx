@@ -40,6 +40,10 @@ export function HumanValidationDialog({
   const [editedArgs, setEditedArgs] = useState(JSON.stringify(args, null, 2));
   const [isEdited, setIsEdited] = useState(false);
 
+  useEffect(() => {
+    setEditedArgs(JSON.stringify(args, null, 2));
+  }, [args]);
+
   const handleArgsChange = (value: string) => {
     setEditedArgs(value);
     setIsEdited(value !== JSON.stringify(args, null, 2));
@@ -53,15 +57,10 @@ export function HumanValidationDialog({
     }
   };
 
-  const handleAction = async (formData: FormData) => {
+  const handleAction = (formData: FormData) => {
     const validation = formData.get("validation") as "accepted" | "rejected";
 
-    // Close dialog and set local decision immediately
-    setIsOpen(false);
-    // Execute the action asynchronously
-    action(formData);
-
-    // Process the decision immediately
+    // Process the decision first
     setMessage((msg: Message) => {
       const updatedMsg = {
         ...msg,
@@ -89,16 +88,12 @@ export function HumanValidationDialog({
       return updatedMsg;
     });
 
-    console.log("handleAction end");
+    // Execute the action
+    action(formData);
   };
 
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
-      <DialogTrigger asChild>
-        <AlertCircle
-          className={`h-4 w-4 text-red-500 cursor-pointer ${className}`}
-        />
-      </DialogTrigger>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Human Validation Required</DialogTitle>

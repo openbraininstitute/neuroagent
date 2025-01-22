@@ -1,6 +1,6 @@
 import { useRef, useState, useEffect } from "react";
 import { Message } from "ai/react";
-import { Check, Loader2, X } from "lucide-react";
+import { Check, Loader2, X, AlertCircle } from "lucide-react";
 import { Card, CardContent, CardFooter, CardTitle } from "@/components/ui/card";
 import {
   Collapsible,
@@ -40,12 +40,19 @@ export function ChatMessageTool({
   const [dialogOpen, setDialogOpen] = useState(false);
   const [state, action, isPending] = useActionState(executeTool, null);
   const [validationError, setValidationError] = useState<string | null>(null);
+  const [previousValidationFailed, setPreviousValidationFailed] =
+    useState(false);
 
   useEffect(() => {
+    if (isPending) {
+      setDialogOpen(false);
+      setPreviousValidationFailed(false);
+    }
     if (!state) return;
 
     if (state.success) {
       setValidationError(null);
+      setPreviousValidationFailed(false);
       setMessage((msg: Message) => {
         const updatedMsg = {
           ...msg,
@@ -62,12 +69,16 @@ export function ChatMessageTool({
             },
           ],
         };
-        console.log("Message received");
         return updatedMsg;
       });
     }
 
     if (state.error) {
+      if (previousValidationFailed) {
+        // it takes time for state to update - you cannot re-validate
+        return;
+      }
+      setPreviousValidationFailed(true);
       setValidationError(state.error);
       setMessage((msg: Message) => {
         return {
@@ -105,16 +116,9 @@ export function ChatMessageTool({
       if (tool.hil === "pending") {
         return (
           <div className="flex items-center">
-            <HumanValidationDialog
-              threadId={threadId}
-              toolId={tool.id}
-              toolName={tool.name}
-              args={tool.args}
-              className="mr-2"
-              action={action}
-              isOpen={dialogOpen}
-              setIsOpen={setDialogOpen}
-              setMessage={setMessage}
+            <AlertCircle
+              className="h-4 w-4 mr-2 text-red-500 cursor-pointer"
+              onClick={() => setDialogOpen(true)}
             />
             <span className="text-xs text-red-500">Pending Validation</span>
             {validationError && (
@@ -151,6 +155,18 @@ export function ChatMessageTool({
 
   return (
     <div className="border-r-2 p-8 border-white-300 border-solid">
+      <HumanValidationDialog
+        key={tool.id}
+        threadId={threadId}
+        toolId={tool.id}
+        toolName={tool.name}
+        args={tool.args}
+        className="mr-2"
+        action={action}
+        isOpen={dialogOpen}
+        setIsOpen={setDialogOpen}
+        setMessage={setMessage}
+      />
       <div className="flex justify-start">
         <Collapsible open={toolOpen} onOpenChange={setToolOpen}>
           <div className="flex items-center gap-4">
@@ -159,7 +175,22 @@ export function ChatMessageTool({
                 {tool?.name}
               </span>
             </CollapsibleTrigger>
-            {renderToolStatus()}
+            {tool?.state === "call" && tool.hil === "pending" ? (
+              <div className="flex items-center">
+                <AlertCircle
+                  className="h-4 w-4 mr-2 text-red-500 cursor-pointer"
+                  onClick={() => setDialogOpen(true)}
+                />
+                <span className="text-xs text-red-500">Pending Validation</span>
+                {validationError && (
+                  <span className="text-xs ml-2 text-red-500">
+                    {` (Previous validation failed: ${validationError})`}
+                  </span>
+                )}
+              </div>
+            ) : (
+              renderToolStatus()
+            )}
           </div>
           <CollapsibleContent>
             <ScrollToBottom />
