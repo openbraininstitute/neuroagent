@@ -406,13 +406,13 @@ class AgentsRoutine:
             tool_calls_to_execute = [
                 tool_call
                 for tool_call in messages[-1].tool_calls
-                if not tool_map.get(tool_call.name).hil
+                if not tool_map[tool_call.name].hil
             ]
 
             tool_calls_with_hil = [
                 tool_call
                 for tool_call in messages[-1].tool_calls
-                if tool_map.get(tool_call.name).hil
+                if tool_map[tool_call.name].hil
             ]
 
             # handle function calls, updating context_variables, and switching agents
