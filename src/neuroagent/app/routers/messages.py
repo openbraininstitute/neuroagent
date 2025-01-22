@@ -2,22 +2,19 @@
 
 import json
 import logging
-from typing import Annotated, Any, Literal
 from datetime import datetime
-from enum import Enum
+from typing import Annotated, Any, Literal
 
 from fastapi import APIRouter, Depends
+from pydantic import BaseModel
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
-from pydantic import BaseModel, ConfigDict
 
 from neuroagent.app.database.db_utils import get_thread
-from neuroagent.app.database.schemas import MessagesRead
-from neuroagent.app.database.sql_schemas import Entity, Messages, Threads
-from neuroagent.app.dependencies import get_session
+from neuroagent.app.database.sql_schemas import Messages, Threads
+from neuroagent.app.dependencies import get_session, get_starting_agent
 from neuroagent.app.routers.threads import router as threads_router
-from neuroagent.app.dependencies import get_starting_agent
 from neuroagent.new_types import Agent
 
 logger = logging.getLogger(__name__)
@@ -27,6 +24,8 @@ router = APIRouter()
 
 
 class ToolCall(BaseModel):
+    """Tool call."""
+
     tool_call_id: str
     name: str
     arguments: str
@@ -34,6 +33,8 @@ class ToolCall(BaseModel):
 
 
 class MessageResponse(BaseModel):
+    """Message response."""
+
     message_id: str
     entity: str
     thread_id: str

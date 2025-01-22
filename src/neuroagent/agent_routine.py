@@ -13,7 +13,6 @@ from pydantic import ValidationError
 from neuroagent.app.database.sql_schemas import Entity, Messages, ToolCalls
 from neuroagent.new_types import (
     Agent,
-    HILResponse,
     Response,
     Result,
 )

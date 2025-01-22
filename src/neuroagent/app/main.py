@@ -24,7 +24,7 @@ from neuroagent.app.dependencies import (
     get_update_kg_hierarchy,
 )
 from neuroagent.app.middleware import strip_path_prefix
-from neuroagent.app.routers import qa, threads, tools, messages
+from neuroagent.app.routers import messages, qa, threads, tools
 
 LOGGING = {
     "version": 1,

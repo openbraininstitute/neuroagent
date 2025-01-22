@@ -17,7 +17,7 @@ from neuroagent.app.dependencies import (
     get_session,
     get_starting_agent,
 )
-from neuroagent.new_types import Agent, HILResponse, HILValidation, Result
+from neuroagent.new_types import Agent, HILResponse, HILValidation
 
 logger = logging.getLogger(__name__)
 

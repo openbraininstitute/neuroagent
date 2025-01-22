@@ -26,8 +26,8 @@ from neuroagent.new_types import (
     Agent,
     AgentRequest,
     AgentResponse,
-    HILResponse,
     ClientRequest,
+    HILResponse,
 )
 from neuroagent.stream import stream_agent_response
 

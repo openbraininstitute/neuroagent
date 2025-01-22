@@ -1,9 +1,9 @@
 """Weather tool for getting random weather data."""
 
+import asyncio
 import logging
 import random
 from typing import ClassVar
-import asyncio
 
 from pydantic import BaseModel, Field
 

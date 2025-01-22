@@ -19,12 +19,12 @@ from neuroagent.tools.morphology_features_tool import (
     MorphologyFeatureOutput,
     MorphologyFeatureTool,
 )
+from neuroagent.tools.now import NowTool
 from neuroagent.tools.resolve_entities_tool import (
     BRResolveOutput,
     ResolveEntitiesTool,
 )
 from neuroagent.tools.traces_tool import GetTracesTool, TracesOutput
-from neuroagent.tools.now import NowTool
 from neuroagent.tools.weather import WeatherTool
 
 __all__ = [

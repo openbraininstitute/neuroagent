@@ -1,6 +1,5 @@
 """Wrapper around streaming methods to reinitiate connections due to the way fastAPI StreamingResponse works."""
 
-import json
 from typing import Any, AsyncIterator
 
 from fastapi import Request

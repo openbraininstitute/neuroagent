@@ -1,6 +1,5 @@
 """Threads CRUDs."""
 
-import json
 import logging
 from typing import Annotated
 
