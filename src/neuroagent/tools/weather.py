@@ -51,6 +51,6 @@ class WeatherTool(BaseTool):
         await asyncio.sleep(4)
 
         conditions = ["sunny", "rainy", "cloudy", "partly cloudy", "stormy"]
-        temperature = round(random.uniform(-5, 35), 1)
+        temperature = round(random.uniform(-5, 35), 1)  # nosec B311
 
-        return {"temperature": temperature, "conditions": random.choice(conditions)}
+        return {"temperature": temperature, "conditions": random.choice(conditions)}  # nosec B311
