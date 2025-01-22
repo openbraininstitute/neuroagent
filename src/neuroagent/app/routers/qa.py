@@ -148,6 +148,6 @@ async def generate_title(
         {"role": "user", "content": user_request.query},
     ]
     return await openai_client.chat.completions.create(
-        messages=messages,
-        model=settings.openai.model,  # type: ignore
+        messages=messages,  # type: ignore
+        model=settings.openai.model,
     )  # Sending the entire response, use whatever you need.
