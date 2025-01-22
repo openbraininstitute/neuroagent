@@ -235,6 +235,11 @@ def test_generate_thread_title(
             json={"query": "This is my query"},
             headers={"x-virtual-lab-id": "test_vlab", "x-project-id": "test_project"},
         )
+        app_client.post(
+            f"/qa/chat/{thread_id}",
+            json={"query": "Second query, I'm sure OpenAI won't use me !"},
+            headers={"x-virtual-lab-id": "test_vlab", "x-project-id": "test_project"},
+        )
 
         # Generate title
         response = app_client.patch(f"/threads/{thread_id}/generate_title")
