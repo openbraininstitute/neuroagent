@@ -6,7 +6,7 @@ import { createThreadWithMessage } from "@/actions/create-thread";
 
 export function ChatInput() {
   const [input, setInput] = useState("");
-  const [state, formAction, isPending] = useActionState(
+  const [, formAction, isPending] = useActionState(
     createThreadWithMessage,
     null,
   );

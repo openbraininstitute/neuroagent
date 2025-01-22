@@ -7,11 +7,9 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { AlertCircle, Loader2 } from "lucide-react";
 import { Message } from "ai";
 
 type HumanValidationDialogProps = {
@@ -19,7 +17,6 @@ type HumanValidationDialogProps = {
   toolId: string;
   toolName: string;
   args?: Record<string, unknown>;
-  className?: string;
   action: (formData: FormData) => void;
   isOpen: boolean;
   setIsOpen: (open: boolean) => void;
@@ -31,7 +28,6 @@ export function HumanValidationDialog({
   toolId,
   toolName,
   args,
-  className,
   action,
   isOpen,
   setIsOpen,

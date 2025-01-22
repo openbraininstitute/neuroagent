@@ -20,14 +20,8 @@ import { useState } from "react";
 type ThreadCardSidebarProps = Thread;
 
 export function ThreadCardSidebar({ title, threadID }: ThreadCardSidebarProps) {
-  const [deleteState, deleteAction, isDeletePending] = useActionState(
-    deleteThread,
-    null,
-  );
-  const [editState, editAction, isEditPending] = useActionState(
-    editThread,
-    null,
-  );
+  const [, deleteAction, isDeletePending] = useActionState(deleteThread, null);
+  const [, editAction, isEditPending] = useActionState(editThread, null);
   const pathname = usePathname();
   const currentThreadId = pathname.split("/").pop();
   const [isDialogOpen, setIsDialogOpen] = useState(false);

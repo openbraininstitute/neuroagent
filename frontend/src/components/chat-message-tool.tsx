@@ -13,7 +13,6 @@ import { useActionState } from "react";
 import { executeTool } from "@/actions/execute-tool";
 
 type ChatMessageToolProps = {
-  id: string;
   content?: string;
   threadId: string;
   tool: Tool;
@@ -31,7 +30,6 @@ function ScrollToBottom() {
 }
 
 export function ChatMessageTool({
-  id,
   threadId,
   tool,
   setMessage,
@@ -161,7 +159,6 @@ export function ChatMessageTool({
         toolId={tool.id}
         toolName={tool.name}
         args={tool.args}
-        className="mr-2"
         action={action}
         isOpen={dialogOpen}
         setIsOpen={setDialogOpen}
@@ -219,7 +216,7 @@ export function ChatMessageTool({
                                 null,
                                 2,
                               );
-                            } catch (e) {
+                            } catch {
                               return tool?.result;
                             }
                           })()

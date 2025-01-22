@@ -1,7 +1,7 @@
 "use client";
 
 import { useChat } from "ai/react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, FormEvent } from "react";
 import type { Message } from "ai/react";
 import { getSettings } from "@/lib/cookies-client";
 import { env } from "@/lib/env";
@@ -92,7 +92,7 @@ export function ChatPage({
         console.log(
           "All validated tools have results, triggering empty message",
         );
-        handleSubmit(new Event("submit") as any, { allowEmptySubmit: true });
+        handleSubmit(undefined, { allowEmptySubmit: true });
       }
     }
   }, [messages, handleSubmit, processedToolInvocationMessages]);
@@ -126,7 +126,6 @@ export function ChatPage({
                     showTools && (
                       <ChatMessageTool
                         key={`${message.id}-${tool.toolCallId}`}
-                        id={message.id}
                         threadId={threadId}
                         tool={{
                           name: tool.toolName,
