@@ -47,6 +47,7 @@ export function ChatMessageTool({
     if (isPending) {
       setDialogOpen(false);
       setPreviousValidationFailed(false);
+      return;
     }
     if (!state) return;
 
@@ -92,6 +93,7 @@ export function ChatMessageTool({
         };
       });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isPending]);
 
   const renderToolStatus = () => {
