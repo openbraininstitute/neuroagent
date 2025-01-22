@@ -4,8 +4,9 @@ import json
 import logging
 from typing import Annotated
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from httpx import AsyncClient
+from openai import AsyncOpenAI
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -13,10 +14,11 @@ from neuroagent.app.app_utils import validate_project
 from neuroagent.app.config import Settings
 from neuroagent.app.database.db_utils import get_thread
 from neuroagent.app.database.schemas import MessagesRead, ThreadsRead, ThreadUpdate
-from neuroagent.app.database.sql_schemas import Entity, Messages, Threads
+from neuroagent.app.database.sql_schemas import Entity, Messages, Threads, utc_now
 from neuroagent.app.dependencies import (
     get_httpx_client,
     get_kg_token,
+    get_openai_client,
     get_session,
     get_settings,
     get_user_id,
@@ -112,6 +114,7 @@ async def update_thread_title(
     thread_data = update_thread.model_dump(exclude_unset=True)
     for key, value in thread_data.items():
         setattr(thread, key, value)
+    thread.update_date = utc_now()
     await session.commit()
     await session.refresh(thread)
     return ThreadsRead(**thread.__dict__)
@@ -126,3 +129,45 @@ async def delete_thread(
     await session.delete(thread)
     await session.commit()
     return {"Acknowledged": "true"}
+
+
+@router.patch("/{thread_id}/generate_title")
+async def generate_title(
+    session: Annotated[AsyncSession, Depends(get_session)],
+    openai_client: Annotated[AsyncOpenAI, Depends(get_openai_client)],
+    settings: Annotated[Settings, Depends(get_settings)],
+    thread: Annotated[Threads, Depends(get_thread)],
+) -> ThreadsRead:
+    """Generate a short thread title based on the user's first message and update thread's title."""
+    # Get the first user message from the DB
+    first_user_message_query = await session.execute(
+        select(Messages)
+        .where(Messages.entity == Entity.USER)
+        .order_by(Messages.order)
+        .limit(1)
+    )
+    first_user_message = first_user_message_query.scalar_one_or_none()
+    if not first_user_message:
+        raise HTTPException(
+            status_code=404, detail="No user message in this conversation"
+        )
+
+    # Send it to OpenAI longside with the system prompt asking for summary
+    messages = [
+        {
+            "role": "system",
+            "content": "Given the user's first message of a conversation, generate a short and descriptive title for this conversation.",
+        },
+        json.loads(first_user_message.content),
+    ]
+    response = await openai_client.chat.completions.create(
+        messages=messages,  # type: ignore
+        model=settings.openai.model,
+    )
+
+    # Update the thread title and modified date + commit
+    thread.title = response.choices[0].message.content.strip('"')
+    thread.update_date = utc_now()
+    await session.commit()
+    await session.refresh(thread)
+    return ThreadsRead(**thread.__dict__)
