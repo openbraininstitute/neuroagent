@@ -7,6 +7,7 @@ from typing import Annotated, Any
 from fastapi import APIRouter, Depends, Request
 from fastapi.responses import StreamingResponse
 from openai import AsyncOpenAI
+from openai.types.chat.chat_completion import ChatCompletion
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from neuroagent.agent_routine import AgentsRoutine
@@ -137,7 +138,7 @@ async def generate_title(
     user_request: AgentRequest,
     openai_client: Annotated[AsyncOpenAI, Depends(get_openai_client)],
     settings: Annotated[Settings, Depends(get_settings)],
-):
+) -> ChatCompletion:
     """Generate a short thread title based on the user's first message."""
     messages = [
         {
@@ -147,5 +148,6 @@ async def generate_title(
         {"role": "user", "content": user_request.query},
     ]
     return await openai_client.chat.completions.create(
-        messages=messages, model=settings.openai.model
+        messages=messages,
+        model=settings.openai.model,  # type: ignore
     )  # Sending the entire response, use whatever you need.
