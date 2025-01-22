@@ -190,8 +190,7 @@ export function ChatMessageTool({
                 )}
               </CardContent>
               <CardFooter>
-                <p className="text-xs p-2 text-left truncate">ID: {tool?.id}</p>
-                <div className="text-sm text-gray-500">{id}</div>
+                <p className="text-xs p-2 text-left">ID: {tool?.id}</p>
               </CardFooter>
             </Card>
           </CollapsibleContent>
