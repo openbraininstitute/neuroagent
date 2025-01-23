@@ -42,3 +42,17 @@ class ToolCallSchema(BaseModel):
     tool_call_id: str
     name: str
     arguments: dict[str, Any]
+
+
+class ExecuteToolCallRequest(BaseModel):
+    """Request body for executing a tool call."""
+
+    validation: Literal["rejected", "accepted"]
+    args: str | None = None
+
+
+class ExecuteToolCallResponse(BaseModel):
+    """Response model for tool execution status."""
+
+    status: Literal["done", "validation-error"]
+    content: str | None = None

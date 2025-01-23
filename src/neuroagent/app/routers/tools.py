@@ -10,7 +10,11 @@ from sqlalchemy import desc, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from neuroagent.app.database.db_utils import get_thread
-from neuroagent.app.database.schemas import ToolCallSchema
+from neuroagent.app.database.schemas import (
+    ExecuteToolCallRequest,
+    ExecuteToolCallResponse,
+    ToolCallSchema,
+)
 from neuroagent.app.database.sql_schemas import Entity, Messages, Threads, ToolCalls
 from neuroagent.app.dependencies import (
     get_context_variables,
@@ -22,20 +26,6 @@ from neuroagent.new_types import Agent, HILResponse, HILValidation
 logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/tools", tags=["Tool's CRUD"])
-
-
-class ExecuteToolCallRequest(BaseModel):
-    """Request body for executing a tool call."""
-
-    validation: Literal["rejected", "accepted"]
-    args: str | None = None
-
-
-class ExecuteToolCallResponse(BaseModel):
-    """Response model for tool execution status."""
-
-    status: Literal["done", "validation-error"]
-    content: str | None = None
 
 
 @router.get("/{thread_id}/{message_id}")
