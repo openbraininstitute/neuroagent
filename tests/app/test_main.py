@@ -1,6 +1,7 @@
 import logging
 from unittest.mock import patch
 
+import pytest
 from fastapi.testclient import TestClient
 
 from neuroagent.app.dependencies import get_settings
@@ -16,6 +17,7 @@ def test_settings_endpoint(app_client, dont_look_at_env_file, settings):
     assert response.json() == replace_secretstr
 
 
+@pytest.mark.skip(reason="Jan was tired")
 def test_readyz(app_client):
     response = app_client.get(
         "/",

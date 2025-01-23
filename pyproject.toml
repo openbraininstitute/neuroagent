@@ -19,7 +19,7 @@ dependencies = [
     "efel",
     "fastapi",
     "neurom",
-    "numpy==1.26.4",
+    "numpy<2",
     "openai",
     "psycopg2",
     "pydantic-settings",
