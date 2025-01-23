@@ -28,12 +28,10 @@ from neuroagent.tools import (
     MEModelGetAllTool,
     MEModelGetOneTool,
     MorphologyFeatureTool,
-    NowTool,
     ResolveEntitiesTool,
     SCSGetAllTool,
     SCSGetOneTool,
     SCSPostTool,
-    WeatherTool,
 )
 from neuroagent.utils import RegionMeta, get_file_from_KG
 
