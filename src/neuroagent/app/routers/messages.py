@@ -2,16 +2,15 @@
 
 import json
 import logging
-from datetime import datetime
-from typing import Annotated, Any, Literal
+from typing import Annotated
 
 from fastapi import APIRouter, Depends
-from pydantic import BaseModel
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
 
 from neuroagent.app.database.db_utils import get_thread
+from neuroagent.app.database.schemas import MessageResponse
 from neuroagent.app.database.sql_schemas import Messages, Threads
 from neuroagent.app.dependencies import get_session, get_starting_agent
 from neuroagent.app.routers.threads import router as threads_router
@@ -21,27 +20,6 @@ logger = logging.getLogger(__name__)
 
 # Create a messages router
 router = APIRouter()
-
-
-class ToolCall(BaseModel):
-    """Tool call."""
-
-    tool_call_id: str
-    name: str
-    arguments: str
-    validated: Literal["accepted", "rejected", "pending", "not_required"]
-
-
-class MessageResponse(BaseModel):
-    """Message response."""
-
-    message_id: str
-    entity: str
-    thread_id: str
-    order: int
-    creation_date: datetime
-    msg_content: dict[str, Any]
-    tool_calls: list[ToolCall]
 
 
 # Define your routes here
