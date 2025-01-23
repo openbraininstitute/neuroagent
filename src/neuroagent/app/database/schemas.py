@@ -24,7 +24,7 @@ class MessageResponse(BaseModel):
     entity: str
     thread_id: str
     order: int
-    creation_date: datetime
+    creation_date: datetime.datetime
     msg_content: dict[str, Any]
     tool_calls: list[ToolCall]
 
