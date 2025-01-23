@@ -253,8 +253,8 @@ def get_starting_agent(
             MorphologyFeatureTool,
             ResolveEntitiesTool,
             GetTracesTool,
-            NowTool,
-            WeatherTool,
+            # NowTool,
+            # WeatherTool,
         ],
         model=settings.openai.model,
     )
