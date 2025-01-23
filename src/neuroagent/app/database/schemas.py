@@ -8,6 +8,27 @@ from pydantic import BaseModel
 from neuroagent.app.database.sql_schemas import Entity
 
 
+class ToolCall(BaseModel):
+    """Tool call."""
+
+    tool_call_id: str
+    name: str
+    arguments: str
+    validated: Literal["accepted", "rejected", "pending", "not_required"]
+
+
+class MessageResponse(BaseModel):
+    """Message response."""
+
+    message_id: str
+    entity: str
+    thread_id: str
+    order: int
+    creation_date: datetime.datetime
+    msg_content: dict[str, Any]
+    tool_calls: list[ToolCall]
+
+
 class ThreadsRead(BaseModel):
     """Data class to read chatbot conversations in the db."""
 
@@ -48,3 +69,17 @@ class ToolCallSchema(BaseModel):
     tool_call_id: str
     name: str
     arguments: dict[str, Any]
+
+
+class ExecuteToolCallRequest(BaseModel):
+    """Request body for executing a tool call."""
+
+    validation: Literal["rejected", "accepted"]
+    args: str | None = None
+
+
+class ExecuteToolCallResponse(BaseModel):
+    """Response model for tool execution status."""
+
+    status: Literal["done", "validation-error"]
+    content: str | None = None
