@@ -9,7 +9,7 @@
     "start": "next start",
     "lint": "next lint",
     "format": "prettier . --write",
-    "test": "vitest",
+    "test": "vitest --run",
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
