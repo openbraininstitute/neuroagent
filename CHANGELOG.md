@@ -27,6 +27,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Tests for tool CRUD endpoints.
 - Human In the Loop.
 - Alembic in CI.
+- Vitest tests for frontend
 
 ### Fixed
 - Migrate LLM Evaluation logic to scripts and add tests
