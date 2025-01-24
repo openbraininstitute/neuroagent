@@ -1,57 +1,57 @@
-import { expect, test, vi, beforeEach } from "vitest";
+import { expect, test, vi } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import { ChatInput } from "@/components/chat-input";
+import { useActionState } from "react";
 
-// Mock the server action
+// Mock the server action to avoid env var requirements
 vi.mock("@/actions/create-thread", () => ({
   createThreadWithMessage: vi.fn(),
 }));
 
-let mockActionState = [null, vi.fn(), false];
-
-// Mock useActionState hook
+// Just provide the mock function without implementation
 vi.mock("react", async () => {
   const actual = await vi.importActual("react");
   return {
     ...actual,
-    useActionState: () => mockActionState,
+    useActionState: vi.fn(),
   };
 });
 
-beforeEach(() => {
-  // Reset all mocks before each test
-  vi.clearAllMocks();
-  mockActionState = [null, vi.fn(), false];
-});
-
 test("ChatInput renders and handles input", () => {
+  const mockFormAction = vi.fn();
+  vi.mocked(useActionState).mockImplementation(() => [
+    null,
+    mockFormAction,
+    false,
+  ]);
+
   render(<ChatInput />);
 
-  // Get the input element
   const input = screen.getByPlaceholderText("Message the AI...");
   expect(input).toBeDefined();
 
-  // Test input change
   fireEvent.change(input, { target: { value: "Hello AI" } });
   expect(input).toHaveValue("Hello AI");
 
-  // Test form submission on Enter
   const form = screen.getByTestId("chat-form");
   expect(form).toBeDefined();
 
   fireEvent.keyDown(input, { key: "Enter" });
+
+  expect(mockFormAction).toHaveBeenCalled();
+  const lastCall = mockFormAction.mock.calls[0][0];
+  expect(lastCall instanceof FormData).toBe(true);
+  expect(lastCall.get("content")).toBe("Hello AI");
 });
 
 test("ChatInput shows loading state", () => {
-  mockActionState = [null, vi.fn(), true];
+  vi.mocked(useActionState).mockImplementation(() => [null, vi.fn(), true]);
 
   render(<ChatInput />);
 
-  // Check if loading placeholder is shown
   const input = screen.getByPlaceholderText("Creating thread...");
   expect(input).toBeDefined();
 
-  // Check if loading spinner is visible
   const spinner = screen.getByTestId("loading-spinner");
   expect(spinner).toBeDefined();
 });
