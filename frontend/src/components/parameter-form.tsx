@@ -20,14 +20,12 @@ import { useRouter } from "next/navigation";
 const formSchema = z.object({
   projectID: z.string().min(1, { message: "Project ID is required" }),
   virtualLabID: z.string().min(1, { message: "Virtual Lab ID is required" }),
-  token: z.string().min(1, { message: "Token is required" }),
 });
 
 type ParameterFormProps = {
   initialValues?: {
     projectID: string;
     virtualLabID: string;
-    token: string;
   };
 };
 
@@ -35,7 +33,6 @@ export function ParameterForm({
   initialValues = {
     projectID: Cookies.get("projectID") || "",
     virtualLabID: Cookies.get("virtualLabID") || "",
-    token: Cookies.get("token") || "",
   },
 }: ParameterFormProps) {
   const router = useRouter();
@@ -48,7 +45,6 @@ export function ParameterForm({
     // Set cookies that will be accessible on the server
     Cookies.set("projectID", values.projectID, { expires: 30 }); // 30 days
     Cookies.set("virtualLabID", values.virtualLabID, { expires: 30 });
-    Cookies.set("token", values.token, { expires: 30 });
 
     // Refresh the client-side router
     router.refresh();
@@ -94,25 +90,6 @@ export function ParameterForm({
                   />
                 </FormControl>
                 <FormDescription>Your project identifier</FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="token"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Token</FormLabel>
-                <FormControl>
-                  <Input
-                    type="password"
-                    placeholder="Enter token"
-                    {...field}
-                    autoComplete="off"
-                  />
-                </FormControl>
-                <FormDescription>Your authentication token</FormDescription>
                 <FormMessage />
               </FormItem>
             )}

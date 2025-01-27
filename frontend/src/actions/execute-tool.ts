@@ -1,7 +1,7 @@
 "use server";
 
 import { env } from "@/lib/env";
-import { getSettings } from "@/lib/cookies-server";
+import { auth } from "@/app/api/auth/[...nextauth]/route";
 
 export type ExecuteToolResponse = {
   error?: string;
@@ -19,14 +19,17 @@ export async function executeTool(
   const args = formData.get("args") as string | null;
 
   try {
-    const { token } = await getSettings();
+    const session = await auth();
+    if (!session?.accessToken) {
+      return { error: "Not authenticated" };
+    }
 
     const response = await fetch(
       `${env.BACKEND_URL}/tools/${threadId}/execute/${toolCallId}`,
       {
         method: "PATCH",
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${session.accessToken}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify({

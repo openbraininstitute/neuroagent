@@ -1,9 +1,9 @@
 "use server";
 
 import { env } from "@/lib/env";
-import { getSettings } from "@/lib/cookies-server";
 import { revalidateTag } from "next/cache";
 import { redirect } from "next/navigation";
+import { auth } from "@/app/api/auth/[...nextauth]/route";
 
 export async function deleteThread(previousState: unknown, formData: FormData) {
   const threadId = formData.get("threadId") as string;
@@ -11,12 +11,15 @@ export async function deleteThread(previousState: unknown, formData: FormData) {
   const isOnThreadPage = currentThreadId === threadId;
 
   try {
-    const { token } = await getSettings();
+    const session = await auth();
+    if (!session?.accessToken) {
+      return { error: "Not authenticated" };
+    }
 
     const response = await fetch(`${env.BACKEND_URL}/threads/${threadId}`, {
       method: "DELETE",
       headers: {
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${session.accessToken}`,
       },
     });
 

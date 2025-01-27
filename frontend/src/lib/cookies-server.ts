@@ -5,6 +5,5 @@ export async function getSettings() {
   return {
     projectID: cookieStore.get("projectID")?.value ?? "",
     virtualLabID: cookieStore.get("virtualLabID")?.value ?? "",
-    token: cookieStore.get("token")?.value ?? "",
   };
 }
