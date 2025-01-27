@@ -37,7 +37,7 @@ export async function createThreadWithMessage(
       `${env.BACKEND_URL}/threads?virtual_lab_id=${encodedVirtualLabID}&project_id=${encodedProjectID}`,
       {
         method: "POST",
-        body: JSON.stringify({"title": encodedTitle}),
+        body: JSON.stringify({ title: encodedTitle }),
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
