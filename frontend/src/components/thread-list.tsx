@@ -1,15 +1,20 @@
 import { ThreadCardSidebar } from "@/components/thread-card-sidebar";
 import { env } from "@/lib/env";
-import { getSettings } from "@/lib/cookies-server";
+import { auth, authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { BThread } from "@/lib/types";
+import { getToken } from "next-auth/jwt";
+import { getServerSession } from "next-auth";
 
 async function getThreads(): Promise<BThread[]> {
   try {
-    const settings = await getSettings();
+    const session = await getServerSession(authOptions);
+    if (!session?.accessToken) {
+      return [];
+    }
 
     const response = await fetch(`${env.BACKEND_URL}/threads`, {
       headers: {
-        Authorization: `Bearer ${settings.token}`,
+        Authorization: `Bearer ${session.accessToken}`,
       },
       next: { tags: ["threads"] },
     });

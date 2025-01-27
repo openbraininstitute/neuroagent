@@ -1,4 +1,4 @@
-'use client'
+"use client";
 import { Settings } from "lucide-react";
 import Link from "next/link";
 import { useSession, signIn, signOut } from "next-auth/react";
@@ -12,23 +12,17 @@ export function Header() {
         <div>Loading...</div>
       ) : session ? (
         <>
-          <span>Hello, {session.user?.name || 'User'}!</span>
-          <button 
-            onClick={() => signOut()} 
-            className="hover:underline"
-          >
+          <span>Hello, {session.user?.name || "User"}!</span>
+          <button onClick={() => signOut()} className="hover:underline">
             Sign out
           </button>
         </>
       ) : (
-        <button 
-          onClick={() => signIn('keycloak')} 
-          className="hover:underline"
-        >
+        <button onClick={() => signIn("keycloak")} className="hover:underline">
           Sign in
         </button>
       )}
-      
+
       <Link href="/settings">
         <Settings className="hover:scale-[1.1] transition" />
       </Link>

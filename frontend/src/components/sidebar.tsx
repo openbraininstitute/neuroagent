@@ -18,7 +18,7 @@ export function Sidebar() {
       </div>
       <div className="border-b-2 opacity-50 my-4"></div>
       <div className="overflow-auto flex-1">
-        {/* <ThreadList /> */}
+        <ThreadList />
       </div>
     </div>
   );
