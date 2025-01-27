@@ -59,8 +59,8 @@ def get_settings() -> Settings:
 
 async def get_httpx_client(request: Request) -> AsyncIterator[AsyncClient]:
     """Manage the httpx client for the request."""
-    client = AsyncClient(
-        timeout=None,
+    client = AsyncClient(  # nosec B501
+        timeout=300.0,
         verify=False,
         headers={"x-request-id": request.headers["x-request-id"]},
     )
@@ -251,6 +251,8 @@ def get_starting_agent(
             MorphologyFeatureTool,
             ResolveEntitiesTool,
             GetTracesTool,
+            # NowTool,
+            # WeatherTool,
         ],
         model=settings.openai.model,
     )

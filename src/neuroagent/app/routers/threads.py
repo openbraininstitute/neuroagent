@@ -1,6 +1,5 @@
 """Threads CRUDs."""
 
-import json
 import logging
 from typing import Annotated
 
@@ -12,8 +11,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from neuroagent.app.app_utils import validate_project
 from neuroagent.app.config import Settings
 from neuroagent.app.database.db_utils import get_thread
-from neuroagent.app.database.schemas import MessagesRead, ThreadsRead, ThreadUpdate
-from neuroagent.app.database.sql_schemas import Entity, Messages, Threads
+from neuroagent.app.database.schemas import ThreadCreate, ThreadsRead, ThreadUpdate
+from neuroagent.app.database.sql_schemas import Threads
 from neuroagent.app.dependencies import (
     get_httpx_client,
     get_kg_token,
@@ -36,7 +35,7 @@ async def create_thread(
     project_id: str,
     session: Annotated[AsyncSession, Depends(get_session)],
     user_id: Annotated[str, Depends(get_user_id)],
-    title: str = "New chat",
+    body: ThreadCreate = ThreadCreate(),
 ) -> ThreadsRead:
     """Create thread."""
     # We first need to check if the combination thread/vlab/project is valid
@@ -49,7 +48,7 @@ async def create_thread(
     )
     new_thread = Threads(
         user_id=user_id,
-        title=title,
+        title=body.title,
         vlab_id=virtual_lab_id,
         project_id=project_id,
     )
@@ -71,35 +70,6 @@ async def get_threads(
     )
     threads = thread_result.scalars().all()
     return [ThreadsRead(**thread.__dict__) for thread in threads]
-
-
-@router.get("/{thread_id}")
-async def get_messages(
-    session: Annotated[AsyncSession, Depends(get_session)],
-    _: Annotated[Threads, Depends(get_thread)],  # to check if thread exist
-    thread_id: str,
-) -> list[MessagesRead]:
-    """Get all messages of the thread."""
-    messages_result = await session.execute(
-        select(Messages)
-        .where(
-            Messages.thread_id == thread_id,
-            Messages.entity.in_([Entity.USER, Entity.AI_MESSAGE]),
-        )
-        .order_by(Messages.order)
-    )
-    db_messages = messages_result.scalars().all()
-
-    messages = []
-    for msg in db_messages:
-        messages.append(
-            MessagesRead(
-                msg_content=json.loads(msg.content)["content"],
-                **msg.__dict__,
-            )
-        )
-
-    return messages
 
 
 @router.patch("/{thread_id}")
@@ -126,3 +96,11 @@ async def delete_thread(
     await session.delete(thread)
     await session.commit()
     return {"Acknowledged": "true"}
+
+
+@router.get("/{thread_id}")
+async def get_thread_by_id(
+    thread: Annotated[Threads, Depends(get_thread)],
+) -> ThreadsRead:
+    """Get a specific thread by ID."""
+    return ThreadsRead(**thread.__dict__)
