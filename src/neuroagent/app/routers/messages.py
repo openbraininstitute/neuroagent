@@ -4,7 +4,7 @@ import json
 import logging
 from typing import Annotated
 
-from fastapi import APIRouter, Depends
+from fastapi import Depends
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
@@ -18,12 +18,9 @@ from neuroagent.new_types import Agent
 
 logger = logging.getLogger(__name__)
 
-# Create a messages router
-router = APIRouter()
-
 
 # Define your routes here
-@router.get("/")
+@threads_router.get("/{thread_id}/messages")
 async def get_thread_messages(
     session: Annotated[AsyncSession, Depends(get_session)],
     _: Annotated[Threads, Depends(get_thread)],  # to check if thread exists
@@ -83,10 +80,3 @@ async def get_thread_messages(
         messages.append(MessageResponse(**message_data))
 
     return messages
-
-
-# Include the messages router under threads at the end of the file
-threads_router.include_router(
-    router,
-    prefix="/{thread_id}/messages",
-)
