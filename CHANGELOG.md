@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Return model dumps of DB schema objects.
 - Moved swarm_copy to neuroagent and delete old code.
+- Create thread now has a body.
 - Made streaming vercel compatible.
 
 ### Added
