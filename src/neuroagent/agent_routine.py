@@ -13,7 +13,6 @@ from pydantic import ValidationError
 from neuroagent.app.database.sql_schemas import Messages, Role, ToolCalls
 from neuroagent.new_types import (
     Agent,
-    HILResponse,
     Response,
     Result,
 )
@@ -55,6 +54,8 @@ class AgentsRoutine:
             "tool_choice": agent.tool_choice,
             "stream": stream,
         }
+        if stream:
+            create_params["stream_options"] = {"include_usage": True}  # type: ignore
 
         if tools:
             create_params["parallel_tool_calls"] = agent.parallel_tool_calls
@@ -103,17 +104,6 @@ class AgentsRoutine:
         except StopIteration:
             agent = None
 
-        hil_messages = [msg for msg in messages if isinstance(msg, HILResponse)]
-
-        # If a validation is required, return only this information
-        if hil_messages:
-            return Response(
-                messages=[],
-                agent=None,
-                context_variables=context_variables,
-                hil_messages=hil_messages,
-            )
-
         return Response(
             messages=messages, agent=agent, context_variables=context_variables
         )
@@ -149,25 +139,6 @@ class AgentsRoutine:
                 "content": str(err),
             }
             return response, None
-
-        if tool.hil:
-            # Case where the tool call hasn't been validated yet
-            if tool_call.validated is None:
-                return HILResponse(
-                    message="Please validate the following inputs before proceeding.",
-                    inputs=input_schema.model_dump(),
-                    tool_call_id=tool_call.tool_call_id,
-                ), None
-
-            # Case where the tool call has been refused
-            if not tool_call.validated:
-                return {
-                    "role": "tool",
-                    "tool_call_id": tool_call.tool_call_id,
-                    "tool_name": name,
-                    "content": "The tool call has been invalidated by the user.",
-                }, None
-            # Else the tool call has been validated, we can proceed normally
 
         tool_metadata = tool.__annotations__["metadata"](**context_variables)
         tool_instance = tool(input_schema=input_schema, metadata=tool_metadata)
@@ -221,6 +192,7 @@ class AgentsRoutine:
                     model_override=model_override,
                     stream=False,
                 )
+
                 message = completion.choices[0].message  # type: ignore
                 message.sender = active_agent.name
 
@@ -268,7 +240,7 @@ class AgentsRoutine:
             # If the tool call response contains HIL validation, do not update anything and return
             if partial_response.hil_messages:
                 return Response(
-                    messages=history[init_len:],
+                    messages=[],
                     agent=active_agent,
                     context_variables=context_variables,
                     hil_messages=partial_response.hil_messages,
@@ -311,7 +283,6 @@ class AgentsRoutine:
         content = await messages_to_openai_content(messages)
         history = copy.deepcopy(content)
         init_len = len(messages)
-        is_streaming = False
 
         while len(history) - init_len < max_turns:
             message: dict[str, Any] = {
@@ -329,87 +300,149 @@ class AgentsRoutine:
             }
 
             # get completion with current history, agent
-            if not messages or not messages[-1].has_tool_calls:
-                completion = await self.get_chat_completion(
-                    agent=active_agent,
-                    history=history,
-                    context_variables=context_variables,
-                    model_override=model_override,
-                    stream=True,
-                )
-                async for chunk in completion:  # type: ignore
-                    delta = json.loads(chunk.choices[0].delta.model_dump_json())
+            completion = await self.get_chat_completion(
+                agent=active_agent,
+                history=history,
+                context_variables=context_variables,
+                model_override=model_override,
+                stream=True,
+            )
+            draft_tool_calls = []  # type: ignore
+            draft_tool_calls_index = -1
+            async for chunk in completion:  # type: ignore
+                for choice in chunk.choices:
+                    if choice.finish_reason == "stop":
+                        continue
+
+                    elif choice.finish_reason == "tool_calls":
+                        for tool_call in draft_tool_calls:
+                            tool_call_data = {
+                                "toolCallId": tool_call["id"],
+                                "toolName": tool_call["name"],
+                                "args": json.loads(tool_call["arguments"] or "{}"),
+                            }
+                            yield f"9:{json.dumps(tool_call_data, separators=(',',':'))}\n"
 
                     # Check for tool calls
-                    if delta["tool_calls"]:
-                        tool = delta["tool_calls"][0]["function"]
-                        if tool["name"]:
-                            yield f"\nCalling tool : {tool['name']} with arguments : "
-                        if tool["arguments"]:
-                            yield tool["arguments"]
+                    elif choice.delta.tool_calls:
+                        for tool_call in choice.delta.tool_calls:
+                            id = tool_call.id
+                            name = tool_call.function.name
+                            arguments = tool_call.function.arguments
+                            if id is not None:
+                                draft_tool_calls_index += 1
+                                draft_tool_calls.append(
+                                    {"id": id, "name": name, "arguments": ""}
+                                )
+                                tool_begin_data = {
+                                    "toolCallId": id,
+                                    "toolName": name,
+                                }
+                                yield f"b:{json.dumps(tool_begin_data, separators=(',',':'))}\n"
 
-                    # Check for content
-                    if delta["content"]:
-                        if not is_streaming:
-                            yield "\n<begin_llm_response>\n"
-                            is_streaming = True
-                        yield delta["content"]
+                            if arguments:
+                                current_id = (
+                                    id or draft_tool_calls[draft_tool_calls_index]["id"]
+                                )
+                                args_data = {
+                                    "toolCallId": current_id,
+                                    "argsTextDelta": arguments,
+                                }
+                                yield f"c:{json.dumps(args_data, separators=(',',':'))}\n"
+                                draft_tool_calls[draft_tool_calls_index][
+                                    "arguments"
+                                ] += arguments
 
-                    delta.pop("role", None)
-                    merge_chunk(message, delta)
+                    else:
+                        if choice.delta.content is not None:
+                            yield f"0:{json.dumps(choice.delta.content, separators=(',',':'))}\n"
 
-                message["tool_calls"] = list(message.get("tool_calls", {}).values())
-                if not message["tool_calls"]:
-                    message["tool_calls"] = None
+                    delta_json = choice.delta.model_dump()
+                    delta_json.pop("role", None)
+                    merge_chunk(message, delta_json)
 
-                # If tool calls requested, instantiate them as an SQL compatible class
-                if message["tool_calls"]:
-                    tool_calls = [
-                        ToolCalls(
-                            tool_call_id=tool_call["id"],
-                            name=tool_call["function"]["name"],
-                            arguments=tool_call["function"]["arguments"],
-                        )
-                        for tool_call in message["tool_calls"]
-                    ]
-                else:
-                    tool_calls = []
+            if chunk.choices == []:
+                finish_data = {
+                    "finishReason": "tool-calls"
+                    if len(draft_tool_calls) > 0
+                    else "stop",
+                }
+            else:
+                finish_data = {"finishReason": "stop"}
 
-                # Append the history with the json version
-                history.append(copy.deepcopy(message))
-                message.pop("tool_calls")
+            message["tool_calls"] = list(message.get("tool_calls", {}).values())
+            if not message["tool_calls"]:
+                message["tool_calls"] = None
 
-                # Stage the new message for addition to DB
-                messages.append(
-                    Messages(
-                        order=len(messages),
-                        thread_id=messages[-1].thread_id,
-                        role=Role.ASSISTANT,
-                        has_content=bool(message["content"]),
-                        has_tool_calls=bool(history[-1]["tool_calls"]),
-                        payload=json.dumps(message),
-                        tool_calls=tool_calls,
+            # If tool calls requested, instantiate them as an SQL compatible class
+            if message["tool_calls"]:
+                tool_calls = [
+                    ToolCalls(
+                        tool_call_id=tool_call["id"],
+                        name=tool_call["function"]["name"],
+                        arguments=tool_call["function"]["arguments"],
                     )
+                    for tool_call in message["tool_calls"]
+                ]
+            else:
+                tool_calls = []
+
+            # Append the history with the json version
+            history.append(copy.deepcopy(message))
+            message.pop("tool_calls")
+
+            # Stage the new message for addition to DB
+            messages.append(
+                Messages(
+                    order=len(messages),
+                    thread_id=messages[-1].thread_id,
+                    entity=Role.ASSISTANT,
+                    has_content=bool(message["content"]),
+                    has_tool_calls=bool(tool_calls),
+                    payload=json.dumps(message),
+                    tool_calls=tool_calls,
                 )
+            )
 
             if not messages[-1].tool_calls:
+                yield f"e:{json.dumps(finish_data)}\n"
                 break
+
+            # kick out tool calls that require HIL
+            tool_map = {tool.name: tool for tool in agent.tools}
+
+            tool_calls_to_execute = [
+                tool_call
+                for tool_call in messages[-1].tool_calls
+                if not tool_map[tool_call.name].hil
+            ]
+
+            tool_calls_with_hil = [
+                tool_call
+                for tool_call in messages[-1].tool_calls
+                if tool_map[tool_call.name].hil
+            ]
 
             # handle function calls, updating context_variables, and switching agents
-            partial_response = await self.execute_tool_calls(
-                messages[-1].tool_calls, active_agent.tools, context_variables
-            )
-            # If the tool call response contains HIL validation, do not update anything and return
-            if partial_response.hil_messages:
-                yield Response(
-                    messages=history[init_len:],
-                    agent=active_agent,
-                    context_variables=context_variables,
-                    hil_messages=partial_response.hil_messages,
+            if tool_calls_to_execute:
+                tool_calls_executed = await self.execute_tool_calls(
+                    tool_calls_to_execute, active_agent.tools, context_variables
                 )
-                break
+            else:
+                tool_calls_executed = Response(
+                    messages=[], agent=None, context_variables=context_variables
+                )
 
-            history.extend(partial_response.messages)
+            # Before extending history, yield each tool response
+            for tool_response in tool_calls_executed.messages:
+                response_data = {
+                    "toolCallId": tool_response["tool_call_id"],
+                    "result": tool_response["content"],
+                }
+                yield f"a:{json.dumps(response_data, separators=(',',':'))}\n"
+
+            yield f"e:{json.dumps(finish_data)}\n"
+
             messages.extend(
                 [
                     Messages(
@@ -420,15 +453,27 @@ class AgentsRoutine:
                         has_tool_calls=False,
                         payload=json.dumps(tool_response),
                     )
-                    for i, tool_response in enumerate(partial_response.messages)
+                    for i, tool_response in enumerate(tool_calls_executed.messages)
                 ]
             )
-            context_variables.update(partial_response.context_variables)
-            if partial_response.agent:
-                active_agent = partial_response.agent
 
-        yield Response(
-            messages=history[init_len - 1 :],
-            agent=active_agent,
-            context_variables=context_variables,
-        )
+            # If the tool call response contains HIL validation, do not update anything and return
+            if tool_calls_with_hil:
+                annotation_data = [
+                    {"toolCallId": msg.tool_call_id, "validated": "pending"}
+                    for msg in tool_calls_with_hil
+                ]
+
+                yield f"8:{json.dumps(annotation_data, separators=(',',':'))}\n"
+                yield f"e:{json.dumps(finish_data)}\n"
+                break
+
+            history.extend(tool_calls_executed.messages)
+            context_variables.update(tool_calls_executed.context_variables)
+            if tool_calls_executed.agent:
+                active_agent = tool_calls_executed.agent
+
+        done_data = {
+            "finishReason": "stop",
+        }
+        yield f"d:{json.dumps(done_data)}\n"

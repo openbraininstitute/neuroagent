@@ -1,6 +1,5 @@
 """Wrapper around streaming methods to reinitiate connections due to the way fastAPI StreamingResponse works."""
 
-import json
 from typing import Any, AsyncIterator
 
 from fastapi import Request
@@ -31,8 +30,8 @@ async def stream_agent_response(
         connected_agents_routine = AgentsRoutine(client=None)
 
     # Restore the httpx client
-    httpx_client = AsyncClient(
-        timeout=None,
+    httpx_client = AsyncClient(  # nosec B501
+        timeout=300.0,
         verify=False,
         headers={
             "x-request-id": context_variables["httpx_client"].headers["x-request-id"]
@@ -50,11 +49,6 @@ async def stream_agent_response(
         # To stream to the user
         if not isinstance(chunk, Response):
             yield chunk
-        # Final chunk that contains the whole response
-        elif chunk.hil_messages:
-            yield json.dumps(
-                [hil_message.model_dump_json() for hil_message in chunk.hil_messages]
-            )
 
     # Save the new messages in DB
     thread.update_date = utc_now()
