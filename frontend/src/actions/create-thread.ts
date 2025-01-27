@@ -28,15 +28,16 @@ export async function createThreadWithMessage(
     })}`;
 
     // Prepare encoded query parameters
-    const encodedTitle = encodeURIComponent(randomTitle);
+    const encodedTitle = randomTitle;
     const encodedVirtualLabID = encodeURIComponent(virtualLabID);
     const encodedProjectID = encodeURIComponent(projectID);
 
     // Create thread
     const threadResponse = await fetch(
-      `${env.BACKEND_URL}/threads?title=${encodedTitle}&virtual_lab_id=${encodedVirtualLabID}&project_id=${encodedProjectID}`,
+      `${env.BACKEND_URL}/threads?virtual_lab_id=${encodedVirtualLabID}&project_id=${encodedProjectID}`,
       {
         method: "POST",
+        body: JSON.stringify({"title": encodedTitle}),
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
