@@ -5,7 +5,7 @@ const envSchema = z.object({
   KEYCLOAK_ID: z.string().min(1),
   KEYCLOAK_SECRET: z.string().min(1),
   KEYCLOAK_ISSUER: z.string().url().min(1),
-  NEXTAUTH_SECRET: z.string().min(1),
+  NEXTAUTH_SECRET: z.string().min(1).optional(), // optional since it's server-side only
   NEXTAUTH_URL: z.string().url().optional(), // optional for development
 });
 

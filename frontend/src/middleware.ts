@@ -1,7 +1,5 @@
-import { getToken } from "next-auth/jwt";
-import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server";
-import { env } from "@/lib/env";
+import nextAuthMiddleware, { NextRequestWithAuth } from "next-auth/middleware";
+import { NextRequest, NextResponse } from "next/server";
 
 export async function middleware(request: NextRequest) {
   // Get the pathname of the request
@@ -10,24 +8,14 @@ export async function middleware(request: NextRequest) {
   // Define public paths that don't require authentication
   const isPublicPath = path === "/login";
 
-  // Get the token from the session
-  const token = await getToken({
-    req: request,
-    secret: env.NEXTAUTH_SECRET,
-  });
-
-  // Redirect logic
-  if (!token && !isPublicPath) {
-    // Redirect unauthenticated users to login page
-    return NextResponse.redirect(new URL("/login", request.url));
+  // If it's a public path, allow access
+  if (isPublicPath) {
+    return NextResponse.next();
   }
 
-  if (token && isPublicPath) {
-    // Redirect authenticated users to home page if they try to access login
-    return NextResponse.redirect(new URL("/", request.url));
-  }
-
-  return NextResponse.next();
+  // For all other routes, use nextAuthMiddleware
+  // This will automatically redirect to /login if not authenticated
+  return nextAuthMiddleware(request as NextRequestWithAuth);
 }
 
 // Configure which paths the middleware will run on
