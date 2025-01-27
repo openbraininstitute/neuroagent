@@ -119,10 +119,10 @@ async def stream_chat_agent(
     settings: Annotated[Settings, Depends(get_settings)],
 ) -> StreamingResponse:
     """Run a single agent query in a streamed fashion."""
-    if len(user_request.query) > settings.misc.query_max_size:
+    if len(user_request.content) > settings.misc.query_max_size:
         raise HTTPException(
             status_code=413,
-            detail=f"Query string has {len(user_request.query)} characters. Maximum allowed is {settings.misc.query_max_size}.",
+            detail=f"Query string has {len(user_request.content)} characters. Maximum allowed is {settings.misc.query_max_size}.",
         )
     # Temporary solution
     context_variables["vlab_id"] = thread.vlab_id
