@@ -49,11 +49,11 @@ async def get_thread_messages(
         # Create a clean dict without SQLAlchemy attributes
         message_data = {
             "message_id": msg.message_id,
-            "entity": msg.entity.value,  # Convert enum to string
+            "entity": msg.role.value,  # Convert enum to string
             "thread_id": msg.thread_id,
             "order": msg.order,
             "creation_date": msg.creation_date.isoformat(),  # Convert datetime to string
-            "msg_content": json.loads(msg.content),
+            "msg_content": json.loads(msg.payload),
         }
 
         # Map validation status based on tool requirements
