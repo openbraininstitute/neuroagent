@@ -7,9 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Removed
+- Removed trailing slashes from endpoints.
+
 ### Changed
 - Return model dumps of DB schema objects.
 - Moved swarm_copy to neuroagent and delete old code.
+- Create thread now has a body.
 - Made streaming vercel compatible.
 
 ### Added
@@ -28,9 +32,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Human In the Loop.
 - Alembic in CI.
 - Vitest tests for frontend
+- Title generation endpoint.
 
 ### Fixed
 - Migrate LLM Evaluation logic to scripts and add tests
+- Fix /threads/messages endpoint.
 
 ## [0.3.3] - 30.10.2024
 

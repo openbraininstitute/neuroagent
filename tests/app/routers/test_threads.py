@@ -4,6 +4,7 @@ from neuroagent.agent_routine import Agent, AgentsRoutine
 from neuroagent.app.config import Settings
 from neuroagent.app.dependencies import (
     get_agents_routine,
+    get_openai_client,
     get_settings,
     get_starting_agent,
 )
@@ -22,7 +23,7 @@ def test_create_thread(patch_required_env, httpx_mock, app_client, db_connection
     with app_client as app_client:
         # Create a thread
         create_output = app_client.post(
-            "/threads/?virtual_lab_id=test_vlab&project_id=test_project"
+            "/threads?virtual_lab_id=test_vlab&project_id=test_project"
         ).json()
     assert create_output["thread_id"]
     assert create_output["title"] == "New chat"
@@ -40,15 +41,15 @@ def test_get_threads(patch_required_env, httpx_mock, app_client, db_connection):
         url=f"{test_settings.virtual_lab.get_project_url}/test_vlab/projects/test_project"
     )
     with app_client as app_client:
-        threads = app_client.get("/threads/").json()
+        threads = app_client.get("/threads").json()
         assert not threads
         create_output_1 = app_client.post(
-            "/threads/?virtual_lab_id=test_vlab&project_id=test_project"
+            "/threads?virtual_lab_id=test_vlab&project_id=test_project"
         ).json()
         create_output_2 = app_client.post(
-            "/threads/?virtual_lab_id=test_vlab&project_id=test_project"
+            "/threads?virtual_lab_id=test_vlab&project_id=test_project"
         ).json()
-        threads = app_client.get("/threads/").json()
+        threads = app_client.get("/threads").json()
 
     assert len(threads) == 2
     assert threads[0] == create_output_1
@@ -103,7 +104,7 @@ async def test_get_messages(
 
         # Create a thread
         create_output = app_client.post(
-            "/threads/?virtual_lab_id=test_vlab&project_id=test_project"
+            "/threads?virtual_lab_id=test_vlab&project_id=test_project"
         ).json()
         thread_id = create_output["thread_id"]
         empty_messages = app_client.get(f"/threads/{thread_id}").json()
@@ -143,7 +144,7 @@ def test_update_thread_title(patch_required_env, httpx_mock, app_client, db_conn
         url=f"{test_settings.virtual_lab.get_project_url}/test_vlab/projects/test_project"
     )
     with app_client as app_client:
-        threads = app_client.get("/threads/").json()
+        threads = app_client.get("/threads").json()
         assert not threads
 
         # Check when wrong thread id
@@ -154,7 +155,7 @@ def test_update_thread_title(patch_required_env, httpx_mock, app_client, db_conn
         assert wrong_response.json() == {"detail": {"detail": "Thread not found."}}
 
         create_thread_response = app_client.post(
-            "/threads/?virtual_lab_id=test_vlab&project_id=test_project"
+            "/threads?virtual_lab_id=test_vlab&project_id=test_project"
         ).json()
         thread_id = create_thread_response["thread_id"]
 
@@ -177,7 +178,7 @@ def test_delete_thread(patch_required_env, httpx_mock, app_client, db_connection
         url=f"{test_settings.virtual_lab.get_project_url}/test_vlab/projects/test_project"
     )
     with app_client as app_client:
-        threads = app_client.get("/threads/").json()
+        threads = app_client.get("/threads").json()
         assert not threads
 
         # Check when wrong thread id
@@ -186,16 +187,73 @@ def test_delete_thread(patch_required_env, httpx_mock, app_client, db_connection
         assert wrong_response.json() == {"detail": {"detail": "Thread not found."}}
 
         create_thread_response = app_client.post(
-            "/threads/?virtual_lab_id=test_vlab&project_id=test_project"
+            "/threads?virtual_lab_id=test_vlab&project_id=test_project"
         ).json()
         thread_id = create_thread_response["thread_id"]
 
-        threads = app_client.get("/threads/").json()
+        threads = app_client.get("/threads").json()
         assert len(threads) == 1
         assert threads[0]["thread_id"] == thread_id
 
         delete_response = app_client.delete(f"/threads/{thread_id}").json()
         assert delete_response["Acknowledged"] == "true"
 
+        threads = app_client.get("/threads").json()
+        assert not threads
+
+
+@pytest.mark.httpx_mock(can_send_already_matched_responses=True)
+def test_generate_thread_title(
+    patch_required_env, httpx_mock, app_client, db_connection, mock_openai_client
+):
+    test_settings = Settings(
+        db={"prefix": db_connection}, openai={"model": "great_model"}
+    )
+    mock_openai_client.set_response(
+        create_mock_response(
+            {"role": "assistant", "content": "sample response content"}
+        ),
+    )
+    app.dependency_overrides[get_settings] = lambda: test_settings
+    app.dependency_overrides[get_openai_client] = lambda: mock_openai_client
+
+    httpx_mock.add_response(
+        url=f"{test_settings.virtual_lab.get_project_url}/test_vlab/projects/test_project"
+    )
+    with app_client as app_client:
         threads = app_client.get("/threads/").json()
         assert not threads
+
+        # Create a thread
+        create_thread_response = app_client.post(
+            "/threads/?virtual_lab_id=test_vlab&project_id=test_project"
+        ).json()
+        thread_id = create_thread_response["thread_id"]
+
+        # Fill the thread
+        app_client.post(
+            f"/qa/chat/{thread_id}",
+            json={"query": "This is my query"},
+            headers={"x-virtual-lab-id": "test_vlab", "x-project-id": "test_project"},
+        )
+        app_client.post(
+            f"/qa/chat/{thread_id}",
+            json={"query": "Second query, I'm sure OpenAI won't use me !"},
+            headers={"x-virtual-lab-id": "test_vlab", "x-project-id": "test_project"},
+        )
+
+        # Generate title
+        response = app_client.patch(f"/threads/{thread_id}/generate_title")
+        assert response.json()["title"] == "sample response content"
+        mock_openai_client.assert_create_called_with(
+            **{
+                "messages": [
+                    {
+                        "role": "system",
+                        "content": "Given the user's first message of a conversation, generate a short and descriptive title for this conversation.",
+                    },
+                    {"role": "user", "content": "This is my query"},
+                ],
+                "model": "great_model",
+            }
+        )

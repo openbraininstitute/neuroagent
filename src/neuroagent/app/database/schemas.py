@@ -41,6 +41,12 @@ class ThreadsRead(BaseModel):
     update_date: datetime.datetime
 
 
+class ThreadCreate(BaseModel):
+    """Data class for the update of a thread."""
+
+    title: str = "New chat"
+
+
 class ThreadUpdate(BaseModel):
     """Data class for the update of a thread."""
 
