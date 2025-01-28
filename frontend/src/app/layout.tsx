@@ -41,7 +41,7 @@ export default function RootLayout({
               <Header />
               <div className="flex flex-1 flex-row overflow-hidden">
                 <Sidebar>
-                  <ThreadList/>
+                  <ThreadList />
                 </Sidebar>
                 <Body>{children}</Body>
               </div>
