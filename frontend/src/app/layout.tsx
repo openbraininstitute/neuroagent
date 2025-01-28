@@ -35,17 +35,16 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen`}
       >
         <AuthProvider>
-        <ThemeChanger>
-
-          <div className="flex flex-col h-screen">
-            <Header />
-            <div className="flex flex-1 flex-row overflow-hidden">
-              <Sidebar />
-              <Body>{children}</Body>
+          <ThemeChanger>
+            <div className="flex flex-col h-screen">
+              <Header />
+              <div className="flex flex-1 flex-row overflow-hidden">
+                <Sidebar />
+                <Body>{children}</Body>
+              </div>
+              <Footer />
             </div>
-            <Footer />
-          </div>
-        </ThemeChanger>
+          </ThemeChanger>
         </AuthProvider>
       </body>
     </html>
