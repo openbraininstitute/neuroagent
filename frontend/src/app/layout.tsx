@@ -8,6 +8,7 @@ import { Footer } from "@/components/footer";
 import { Header } from "@/components/header";
 import { Sidebar } from "@/components/sidebar";
 import { AuthProvider } from "@/components/auth-provider";
+import { ThreadList } from "@/components/thread-list";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -39,7 +40,9 @@ export default function RootLayout({
             <div className="flex flex-col h-screen">
               <Header />
               <div className="flex flex-1 flex-row overflow-hidden">
-                <Sidebar />
+                <Sidebar>
+                  <ThreadList/>
+                </Sidebar>
                 <Body>{children}</Body>
               </div>
               <Footer />
