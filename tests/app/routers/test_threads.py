@@ -4,6 +4,7 @@ from neuroagent.agent_routine import Agent, AgentsRoutine
 from neuroagent.app.config import Settings
 from neuroagent.app.dependencies import (
     get_agents_routine,
+    get_openai_client,
     get_settings,
     get_starting_agent,
 )
@@ -199,3 +200,60 @@ def test_delete_thread(patch_required_env, httpx_mock, app_client, db_connection
 
         threads = app_client.get("/threads").json()
         assert not threads
+
+
+@pytest.mark.httpx_mock(can_send_already_matched_responses=True)
+def test_generate_thread_title(
+    patch_required_env, httpx_mock, app_client, db_connection, mock_openai_client
+):
+    test_settings = Settings(
+        db={"prefix": db_connection}, openai={"model": "great_model"}
+    )
+    mock_openai_client.set_response(
+        create_mock_response(
+            {"role": "assistant", "content": "sample response content"}
+        ),
+    )
+    app.dependency_overrides[get_settings] = lambda: test_settings
+    app.dependency_overrides[get_openai_client] = lambda: mock_openai_client
+
+    httpx_mock.add_response(
+        url=f"{test_settings.virtual_lab.get_project_url}/test_vlab/projects/test_project"
+    )
+    with app_client as app_client:
+        threads = app_client.get("/threads/").json()
+        assert not threads
+
+        # Create a thread
+        create_thread_response = app_client.post(
+            "/threads/?virtual_lab_id=test_vlab&project_id=test_project"
+        ).json()
+        thread_id = create_thread_response["thread_id"]
+
+        # Fill the thread
+        app_client.post(
+            f"/qa/chat/{thread_id}",
+            json={"query": "This is my query"},
+            headers={"x-virtual-lab-id": "test_vlab", "x-project-id": "test_project"},
+        )
+        app_client.post(
+            f"/qa/chat/{thread_id}",
+            json={"query": "Second query, I'm sure OpenAI won't use me !"},
+            headers={"x-virtual-lab-id": "test_vlab", "x-project-id": "test_project"},
+        )
+
+        # Generate title
+        response = app_client.patch(f"/threads/{thread_id}/generate_title")
+        assert response.json()["title"] == "sample response content"
+        mock_openai_client.assert_create_called_with(
+            **{
+                "messages": [
+                    {
+                        "role": "system",
+                        "content": "Given the user's first message of a conversation, generate a short and descriptive title for this conversation.",
+                    },
+                    {"role": "user", "content": "This is my query"},
+                ],
+                "model": "great_model",
+            }
+        )
