@@ -1,4 +1,4 @@
-import NextAuth, { NextAuthOptions } from "next-auth";
+import NextAuth, { NextAuthOptions, Session, TokenSet } from "next-auth";
 import { env } from "@/lib/env";
 
 export const authOptions: NextAuthOptions = {
@@ -102,16 +102,25 @@ import type {
 } from "next";
 import { getServerSession } from "next-auth";
 
+// Define extended session type
+export interface ExtendedSession extends Session {
+  accessToken?: string;
+  expires: string;
+  user: {
+    username?: string;
+  } & Session["user"];
+}
+
 export function auth(
   ...args:
     | [GetServerSidePropsContext["req"], GetServerSidePropsContext["res"]]
     | [NextApiRequest, NextApiResponse]
     | []
-) {
+): Promise<ExtendedSession | null> {
   return getServerSession(...args, authOptions);
 }
 
-async function refreshAccessToken(token: any) {
+async function refreshAccessToken(token: TokenSet) {
   try {
     console.log("Refreshing access token");
     const response = await fetch(
@@ -125,7 +134,7 @@ async function refreshAccessToken(token: any) {
           client_id: env.KEYCLOAK_ID,
           client_secret: env.KEYCLOAK_SECRET,
           grant_type: "refresh_token",
-          refresh_token: token.refreshToken,
+          refresh_token: token.refreshToken as string,
         }),
       },
     );

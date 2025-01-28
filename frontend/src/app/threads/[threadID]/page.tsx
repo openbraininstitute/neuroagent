@@ -1,6 +1,5 @@
 import { BMessage, MessageStrict } from "@/lib/types";
 import { env } from "@/lib/env";
-import { getSettings } from "@/lib/cookies-server";
 import { ChatPage } from "@/components/chat-page";
 import { auth } from "@/app/api/auth/[...nextauth]/route";
 
