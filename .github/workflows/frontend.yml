@@ -35,6 +35,9 @@ jobs:
       - name: Type check
         run: npm run type-check
 
+      - name: Run tests
+        run: npm run test
+
       - name: Build application
         env:
           NEXT_PUBLIC_BACKEND_URL: "http://dummy-url-for-ci.example.com"
