@@ -4,6 +4,7 @@ import { env } from "@/lib/env";
 import { getSettings } from "@/lib/cookies-server";
 import { revalidateTag } from "next/cache";
 import { redirect } from "next/navigation";
+import { auth } from "@/lib/auth";
 
 export async function createThreadWithMessage(
   previousState: unknown,
@@ -17,7 +18,12 @@ export async function createThreadWithMessage(
   let thread_id: string;
 
   try {
-    const { token, projectID, virtualLabID } = await getSettings();
+    const session = await auth();
+    if (!session?.accessToken) {
+      return { success: false, error: "Not authenticated" };
+    }
+
+    const { projectID, virtualLabID } = await getSettings();
 
     // Generate a random title
     const randomTitle = `Thread ${new Date().toLocaleString("en-US", {
@@ -36,11 +42,13 @@ export async function createThreadWithMessage(
       `${env.BACKEND_URL}/threads?virtual_lab_id=${encodedVirtualLabID}&project_id=${encodedProjectID}`,
       {
         method: "POST",
-        body: JSON.stringify({ title: randomTitle }),
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${session.accessToken}`,
           "Content-Type": "application/json",
         },
+        body: JSON.stringify({
+          title: randomTitle,
+        }),
       },
     );
 
@@ -57,7 +65,7 @@ export async function createThreadWithMessage(
       {
         method: "POST",
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${session.accessToken}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify({

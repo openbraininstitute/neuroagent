@@ -1,16 +1,19 @@
 import { BMessage, MessageStrict } from "@/lib/types";
 import { env } from "@/lib/env";
-import { getSettings } from "@/lib/cookies-server";
 import { ChatPage } from "@/components/chat-page";
+import { auth } from "@/lib/auth";
 
 async function getMessages(threadId: string): Promise<BMessage[]> {
-  const settings = await getSettings();
+  const session = await auth();
+  if (!session?.accessToken) {
+    throw new Error("No session found");
+  }
 
   const response = await fetch(
     `${env.BACKEND_URL}/threads/${threadId}/messages`,
     {
       headers: {
-        Authorization: `Bearer ${settings.token}`,
+        Authorization: `Bearer ${session.accessToken}`,
       },
       next: {
         tags: [`thread/${threadId}/messages`],
@@ -26,11 +29,14 @@ async function getMessages(threadId: string): Promise<BMessage[]> {
 }
 
 async function getThread(threadId: string) {
-  const settings = await getSettings();
+  const session = await auth();
+  if (!session?.accessToken) {
+    throw new Error("No session found");
+  }
 
   const response = await fetch(`${env.BACKEND_URL}/threads/${threadId}`, {
     headers: {
-      Authorization: `Bearer ${settings.token}`,
+      Authorization: `Bearer ${session.accessToken}`,
     },
     next: {
       tags: [`thread/${threadId}`],

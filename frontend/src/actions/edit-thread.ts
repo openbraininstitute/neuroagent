@@ -1,8 +1,8 @@
 "use server";
 
 import { env } from "@/lib/env";
-import { getSettings } from "@/lib/cookies-server";
 import { revalidateTag } from "next/cache";
+import { auth } from "@/lib/auth";
 
 export async function editThread(previousState: unknown, formData: FormData) {
   const threadId = formData.get("threadId") as string;
@@ -13,12 +13,15 @@ export async function editThread(previousState: unknown, formData: FormData) {
   }
 
   try {
-    const { token } = await getSettings();
+    const session = await auth();
+    if (!session?.accessToken) {
+      return { error: "Not authenticated" };
+    }
 
     const response = await fetch(`${env.BACKEND_URL}/threads/${threadId}`, {
       method: "PATCH",
       headers: {
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${session.accessToken}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({ title }),

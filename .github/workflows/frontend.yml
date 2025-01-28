@@ -41,4 +41,7 @@ jobs:
       - name: Build application
         env:
           NEXT_PUBLIC_BACKEND_URL: "http://dummy-url-for-ci.example.com"
+          NEXT_PUBLIC_KEYCLOAK_ID: "dummy-keycloak-id"
+          NEXT_PUBLIC_KEYCLOAK_SECRET: "dummy-keycloak-secret"
+          NEXT_PUBLIC_KEYCLOAK_ISSUER: "http://dummy-keycloak-issuer.example.com"
         run: npm run build 
