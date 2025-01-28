@@ -19,14 +19,13 @@ export function Sidebar({ children }: { children: React.ReactNode }) {
             <div className="p-4">
               <PanelRightOpen
                 className="hover:scale-[1.1] transition"
-                size={24}
                 onClick={toggleSidebar}
               />
             </div>
             <div className="flex p-4 gap-4">
-              <Search className="hover:scale-[1.1] transition" size={24} />
+              <Search className="hover:scale-[1.1] transition" />
               <Link href="/">
-                <SquarePen className="hover:scale-[1.1] transition" size={24} />
+                <SquarePen className="hover:scale-[1.1] transition" />
               </Link>
             </div>
           </div>
