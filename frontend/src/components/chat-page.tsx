@@ -23,11 +23,6 @@ export function ChatPage({
   initialMessages,
 }: ChatPageProps) {
   const { data: session } = useSession();
-  console.log(JSON.stringify(session, null, 2));
-
-  if (!session) {
-    return <div>Please sign in to access the chat.</div>;
-  }
 
   const {
     messages: messagesRaw,
@@ -40,7 +35,7 @@ export function ChatPage({
   } = useChat({
     api: `${env.BACKEND_URL}/qa/chat_streamed/${threadId}`,
     headers: {
-      Authorization: `Bearer ${session.accessToken}`,
+      Authorization: `Bearer ${session?.accessToken}`,
     },
     initialMessages,
     experimental_prepareRequestBody: ({ messages }) => {
@@ -50,10 +45,6 @@ export function ChatPage({
       };
     },
   });
-
-  if (!session) {
-    return <div>Please sign in to access the chat.</div>;
-  }
 
   const messages = messagesRaw as MessageStrict[];
   const setMessages = setMessagesRaw as (
