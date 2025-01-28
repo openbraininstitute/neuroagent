@@ -7,6 +7,7 @@ import { Body } from "@/components/body";
 import { Footer } from "@/components/footer";
 import { Header } from "@/components/header";
 import { Sidebar } from "@/components/sidebar";
+import { AuthProvider } from "@/components/auth-provider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -33,7 +34,9 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen`}
       >
+        <AuthProvider>
         <ThemeChanger>
+
           <div className="flex flex-col h-screen">
             <Header />
             <div className="flex flex-1 flex-row overflow-hidden">
@@ -43,6 +46,7 @@ export default function RootLayout({
             <Footer />
           </div>
         </ThemeChanger>
+        </AuthProvider>
       </body>
     </html>
   );

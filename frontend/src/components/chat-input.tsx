@@ -24,6 +24,7 @@ export function ChatInput() {
         What can I help you with?
       </h1>
       <form
+        data-testid="chat-form"
         action={formAction}
         onSubmit={(e) => {
           if (!input.trim()) {
@@ -47,7 +48,10 @@ export function ChatInput() {
             disabled={isPending}
           />
           {isPending && (
-            <div className="absolute right-4 top-1/2 -translate-y-1/2">
+            <div
+              className="absolute right-4 top-1/2 -translate-y-1/2"
+              data-testid="loading-spinner"
+            >
               <div className="w-4 h-4 border-2 border-gray-500 border-t-transparent rounded-full animate-spin" />
             </div>
           )}

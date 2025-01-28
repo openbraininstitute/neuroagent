@@ -15,8 +15,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Moved swarm_copy to neuroagent and delete old code.
 - Create thread now has a body.
 - Made streaming vercel compatible.
+- [frontend] - Make human messages not span the entire width of the chat.
 
 ### Added
+- [frontend] Keycloak sign in
 - LLM evaluation logic
 - Integrated Alembic for managing chat history migrations
 - Tool implementations without langchain or langgraph dependencies
@@ -31,6 +33,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Tests for tool CRUD endpoints.
 - Human In the Loop.
 - Alembic in CI.
+- Vitest tests for frontend
+- Title generation endpoint.
 
 ### Fixed
 - Migrate LLM Evaluation logic to scripts and add tests

@@ -3,8 +3,9 @@
 import { useChat } from "ai/react";
 import { useEffect, useRef, useState } from "react";
 import type { MessageStrict } from "@/lib/types";
-import { getSettings } from "@/lib/cookies-client";
 import { env } from "@/lib/env";
+import { useSession } from "next-auth/react";
+import { ExtendedSession } from "@/lib/auth";
 
 import { Button } from "@/components/ui/button";
 import { ChatMessageAI } from "@/components/chat-message-ai";
@@ -22,6 +23,8 @@ export function ChatPage({
   threadTitle,
   initialMessages,
 }: ChatPageProps) {
+  const { data: session } = useSession() as { data: ExtendedSession | null };
+
   const {
     messages: messagesRaw,
     input,
@@ -33,7 +36,7 @@ export function ChatPage({
   } = useChat({
     api: `${env.BACKEND_URL}/qa/chat_streamed/${threadId}`,
     headers: {
-      Authorization: `Bearer ${getSettings().token}`,
+      Authorization: `Bearer ${session?.accessToken}`,
     },
     initialMessages,
     experimental_prepareRequestBody: ({ messages }) => {
