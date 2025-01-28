@@ -111,7 +111,7 @@ export function ChatPage({
 
   return (
     <div className="flex flex-col h-full">
-      <div className="relative flex justify-center items-center p-4 w-full border-b-2">
+      <div className="relative flex justify-center items-center p-6 w-full border-b-2">
         <h1 className="text-3xl absolute">{threadTitle}</h1>
         <Button
           className="hover:scale-105 active:scale-[1.10] ml-auto"
@@ -120,7 +120,6 @@ export function ChatPage({
           {showTools ? "Hide Tools" : "Show Tools"}
         </Button>
       </div>
-
       <div className="flex-1 flex flex-col overflow-y-auto my-4">
         {messages.map((message) =>
           message.role === "assistant" ? (

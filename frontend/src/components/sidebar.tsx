@@ -15,7 +15,7 @@ export function Sidebar({ children }: { children: React.ReactNode }) {
     <>
       {showSidebar ? (
         <div className="w-[16rem] border-r-2 flex flex-col md:w-[18rem] lg:w-[20rem]">
-          <div className="flex justify-between">
+          <div className="flex justify-between border-b-2 ">
             <div className="p-4">
               <PanelRightOpen
                 className="hover:scale-[1.1] transition"
@@ -29,7 +29,7 @@ export function Sidebar({ children }: { children: React.ReactNode }) {
               </Link>
             </div>
           </div>
-          <div className="border-b-2 opacity-50 my-4"></div>
+          <div className="opacity-50 my-4"></div>
           <div className="overflow-auto flex-1">{children}</div>
         </div>
       ) : (
