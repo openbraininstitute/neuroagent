@@ -8,14 +8,12 @@ type ChatMessageHumanProps = {
 
 export function ChatMessageHuman({ content }: ChatMessageHumanProps) {
   return (
-    <div className="border-r-2 p-8 border-white-300 border-solid">
-      <div className="flex justify-end">
-        <Card>
-          <CardContent>
-            <h1 className="text-lg pt-8 text-right">{content}</h1>
-          </CardContent>
-        </Card>
-      </div>
+    <div className="flex justify-end p-8 border-solid">
+      <Card className="max-w-[80%]">
+        <CardContent>
+          <h1 className="text-lg pt-8">{content}</h1>
+        </CardContent>
+      </Card>
     </div>
   );
 }
