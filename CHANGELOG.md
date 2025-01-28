@@ -35,6 +35,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Alembic in CI.
 - Vitest tests for frontend
 - Title generation endpoint.
+- [frontend] - Dark mode.
 
 ### Fixed
 - Migrate LLM Evaluation logic to scripts and add tests
