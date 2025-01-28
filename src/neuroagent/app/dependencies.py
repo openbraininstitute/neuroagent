@@ -32,6 +32,8 @@ from neuroagent.tools import (
     SCSGetAllTool,
     SCSGetOneTool,
     SCSPostTool,
+    WeatherTool,
+    NowTool,
 )
 from neuroagent.utils import RegionMeta, get_file_from_KG
 
@@ -251,8 +253,8 @@ def get_starting_agent(
             MorphologyFeatureTool,
             ResolveEntitiesTool,
             GetTracesTool,
-            # NowTool,
-            # WeatherTool,
+            NowTool,
+            WeatherTool,
         ],
         model=settings.openai.model,
     )
