@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Made streaming vercel compatible.
 
 ### Added
+- [frontend] Keycloak sign in
 - LLM evaluation logic
 - Integrated Alembic for managing chat history migrations
 - Tool implementations without langchain or langgraph dependencies
