@@ -2,7 +2,7 @@
 
 import { env } from "@/lib/env";
 import { revalidateTag } from "next/cache";
-import { auth } from "@/app/api/auth/[...nextauth]/route";
+import { auth } from "@/lib/auth";
 
 export async function editThread(previousState: unknown, formData: FormData) {
   const threadId = formData.get("threadId") as string;

@@ -1,7 +1,7 @@
 "use server";
 
 import { env } from "@/lib/env";
-import { auth } from "@/app/api/auth/[...nextauth]/route";
+import { auth } from "@/lib/auth";
 
 export type ExecuteToolResponse = {
   error?: string;

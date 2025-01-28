@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import type { MessageStrict } from "@/lib/types";
 import { env } from "@/lib/env";
 import { useSession } from "next-auth/react";
-import { ExtendedSession } from "@/app/api/auth/[...nextauth]/route";
+import { ExtendedSession } from "@/lib/auth";
 
 import { Button } from "@/components/ui/button";
 import { ChatMessageAI } from "@/components/chat-message-ai";

@@ -4,7 +4,7 @@ import { env } from "@/lib/env";
 import { getSettings } from "@/lib/cookies-server";
 import { revalidateTag } from "next/cache";
 import { redirect } from "next/navigation";
-import { auth } from "@/app/api/auth/[...nextauth]/route";
+import { auth } from "@/lib/auth";
 
 export async function createThreadWithMessage(
   previousState: unknown,

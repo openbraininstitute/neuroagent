@@ -1,6 +1,6 @@
 import { ThreadCardSidebar } from "@/components/thread-card-sidebar";
 import { env } from "@/lib/env";
-import { auth } from "@/app/api/auth/[...nextauth]/route";
+import { auth } from "@/lib/auth";
 import { BThread } from "@/lib/types";
 
 async function getThreads(): Promise<BThread[]> {
