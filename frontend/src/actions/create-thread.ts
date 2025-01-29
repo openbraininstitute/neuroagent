@@ -88,10 +88,16 @@ export async function createThreadWithMessage(
     }
 
     revalidateTag("threads");
+    await fetch(`${env.BACKEND_URL}/threads/${thread_id}/generate_title`, {
+      method: "PATCH",
+      headers: {
+        Authorization: `Bearer ${session.accessToken}`,
+        "Content-Type": "application/json",
+      },
+    });
   } catch (error) {
     console.error("Error creating thread with message:", error);
     return { success: false, error: "Failed to create thread with message" };
   }
-
   redirect(`/threads/${thread_id}`);
 }

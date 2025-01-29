@@ -122,6 +122,7 @@ async def generate_title(
     first_user_message_query = await session.execute(
         select(Messages)
         .where(Messages.entity == Entity.USER)
+        .where(Messages.thread_id == thread.thread_id)
         .order_by(Messages.order)
         .limit(1)
     )
@@ -135,7 +136,7 @@ async def generate_title(
     messages = [
         {
             "role": "system",
-            "content": "Given the user's first message of a conversation, generate a short and descriptive title for this conversation.",
+            "content": "Given the user's first message of a conversation, generate a short title for this conversation (max 5 words).",
         },
         json.loads(first_user_message.content),
     ]
