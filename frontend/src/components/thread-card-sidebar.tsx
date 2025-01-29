@@ -36,7 +36,7 @@ export function ThreadCardSidebar({ title, threadID }: ThreadCardSidebarProps) {
 
   return (
     <div
-      className={`group relative flex w-full items-center py-2 hover:bg-accent ${isDropdownOpen ? "bg-accent opacity-50" : ""}  ${currentThreadId === threadID ? "bg-accent opacity-100" : ""}`}
+      className={`group relative flex w-full items-center py-2 hover:bg-accent ${isDropdownOpen ? "bg-accent opacity-50" : ""}  ${currentThreadId === threadID ? "bg-accent" : ""}`}
     >
       <Link
         href={`/threads/${threadID}`}
@@ -136,82 +136,6 @@ export function ThreadCardSidebar({ title, threadID }: ThreadCardSidebarProps) {
             </DialogFooter>
           </DialogContent>
         </Dialog>
-
-        {/* Absolute positioning for the buttons
-      <div className="absolute right-2 top-1/2 transform -translate-y-1/2 flex gap-1 translate-x-[25%]">
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <form action={editAction}>
-            <input type="hidden" name="threadId" value={threadID} />
-            <input
-              type="text"
-              name="title"
-              className="hidden"
-              id={`edit-${threadID}`}
-              defaultValue={newTitle}
-            />
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              className="opacity-0 group-hover:opacity-100 transition-opacity"
-              disabled={isEditPending}
-              onClick={(e) => {
-                e.stopPropagation();
-                setIsDialogOpen(true);
-              }}
-            >
-              <Pencil
-                className={`h-4 w-4 ${isEditPending ? "animate-spin" : ""}`}
-              />
-            </Button>
-          </form>
-
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Edit Thread Title</DialogTitle>
-            </DialogHeader>
-            <Input
-              value={newTitle}
-              onChange={(e) => setNewTitle(e.target.value)}
-              placeholder="Enter new title"
-            />
-            <DialogFooter>
-              <Button
-                type="submit"
-                onClick={() => {
-                  const input = document.getElementById(
-                    `edit-${threadID}`,
-                  ) as HTMLInputElement;
-                  input.value = newTitle;
-                  input.form?.requestSubmit();
-                  setIsDialogOpen(false);
-                }}
-              >
-                Save Changes
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-
-        <form action={deleteAction}>
-          <input type="hidden" name="threadId" value={threadID} readOnly />
-          <input
-            type="hidden"
-            name="currentThreadId"
-            value={currentThreadId}
-            readOnly
-          />
-          <Button
-            type="submit"
-            variant="ghost"
-            size="icon"
-            className="opacity-0 group-hover:opacity-100 transition-opacity"
-            disabled={isDeletePending}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <X className={`h-4 w-4 ${isDeletePending ? "animate-spin" : ""}`} />
-          </Button>
-        </form> */}
       </div>
     </div>
   );

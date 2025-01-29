@@ -250,7 +250,7 @@ def test_generate_thread_title(
                 "messages": [
                     {
                         "role": "system",
-                        "content": "Given the user's first message of a conversation, generate a short and descriptive title for this conversation.",
+                        "content": "Given the user's first message of a conversation, generate a short title for this conversation (max 5 words).",
                     },
                     {"role": "user", "content": "This is my query"},
                 ],
