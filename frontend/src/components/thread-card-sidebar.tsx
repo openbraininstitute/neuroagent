@@ -24,7 +24,8 @@ export function ThreadCardSidebar({ title, threadID }: ThreadCardSidebarProps) {
   const [, editAction, isEditPending] = useActionState(editThread, null);
   const pathname = usePathname();
   const currentThreadId = pathname.split("/").pop();
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [newTitle, setNewTitle] = useState(title);
 
   return (
@@ -38,7 +39,7 @@ export function ThreadCardSidebar({ title, threadID }: ThreadCardSidebarProps) {
         </span>
       </Link>
       <div className="flex gap-1">
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
           <form action={editAction}>
             <input type="hidden" name="threadId" value={threadID} />
             <input
@@ -56,7 +57,7 @@ export function ThreadCardSidebar({ title, threadID }: ThreadCardSidebarProps) {
               disabled={isEditPending}
               onClick={(e) => {
                 e.stopPropagation();
-                setIsDialogOpen(true);
+                setIsEditDialogOpen(true);
               }}
             >
               <Pencil
@@ -83,7 +84,7 @@ export function ThreadCardSidebar({ title, threadID }: ThreadCardSidebarProps) {
                   ) as HTMLInputElement;
                   input.value = newTitle;
                   input.form?.requestSubmit();
-                  setIsDialogOpen(false);
+                  setIsEditDialogOpen(false);
                 }}
               >
                 Save Changes
@@ -92,25 +93,60 @@ export function ThreadCardSidebar({ title, threadID }: ThreadCardSidebarProps) {
           </DialogContent>
         </Dialog>
 
-        <form action={deleteAction}>
-          <input type="hidden" name="threadId" value={threadID} readOnly />
-          <input
-            type="hidden"
-            name="currentThreadId"
-            value={currentThreadId}
-            readOnly
-          />
+        <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
           <Button
-            type="submit"
+            type="button"
             variant="ghost"
             size="icon"
             className="opacity-0 group-hover:opacity-100 transition-opacity"
             disabled={isDeletePending}
-            onClick={(e) => e.stopPropagation()}
+            onClick={(e) => {
+              e.stopPropagation();
+              setIsDeleteDialogOpen(true);
+            }}
           >
             <X className={`h-4 w-4 ${isDeletePending ? "animate-spin" : ""}`} />
           </Button>
-        </form>
+
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Delete this thread ?</DialogTitle>
+            </DialogHeader>
+            <DialogFooter>
+              <Button
+                type="submit"
+                onClick={() => {
+                  setIsDeleteDialogOpen(false);
+                }}
+              >
+                Cancel
+              </Button>
+              <form action={deleteAction}>
+                <input
+                  type="hidden"
+                  name="threadId"
+                  value={threadID}
+                  readOnly
+                />
+                <input
+                  type="hidden"
+                  name="currentThreadId"
+                  value={currentThreadId}
+                  readOnly
+                />
+                <Button
+                  type="submit"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setIsDeleteDialogOpen(false);
+                  }}
+                >
+                  Delete
+                </Button>
+              </form>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );
