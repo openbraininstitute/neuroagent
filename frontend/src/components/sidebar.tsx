@@ -20,7 +20,7 @@ export function Sidebar({ children }: { children: React.ReactNode }) {
     <>
       <div className="relative">
         <div
-          className={`absolute top-0 left-0 h-full bg-white border-r-2 shadow-md transition-transform duration-300 ${
+          className={`absolute top-0 left-0 h-full border-r-2 shadow-md transition-transform duration-300 ${
             showSidebar ? "translate-x-0" : "-translate-x-full"
           }`}
         >
