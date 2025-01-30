@@ -5,10 +5,8 @@ services:
       dockerfile: Dockerfile
     ports:
       - "8078:8078"
-    env_file:
-      - .docker.secrets.env
     environment:
-      - NEUROAGENT_DB__PREFIX=postgresql+asyncpg://postgres:${POSTGRES_PASSWORD}@postgres:5432/neuroagent
+      - NEUROAGENT_DB__PREFIX=postgresql+asyncpg://postgres:pwd@postgres:5432/neuroagent
       - NEUROAGENT_KEYCLOAK__VALIDATE_TOKEN=true
       - NEUROAGENT_KEYCLOAK__ISSUER=https://openbluebrain.com/auth/realms/SBO
       - NEUROAGENT_TOOLS__LITERATURE__URL=https://whatever.com
@@ -24,12 +22,13 @@ services:
       dockerfile: Dockerfile
     ports:
       - "3000:3000"
-    env_file:
-      - .docker.secrets.env
     environment:
       - NEXT_PUBLIC_BACKEND_URL=http://localhost:8078
       - NEXT_PUBLIC_KEYCLOAK_ISSUER=https://openbluebrain.com/auth/realms/SBO
+      - NEXT_PUBLIC_KEYCLOAK_SECRET=aaa
+      - NEXT_PUBLIC_KEYCLOAK_ID=obp-core-web-app-dev
       - NEXTAUTH_URL=http://localhost:3000
+      - NEXTAUTH_SECRET=your-secret-key
     networks:
       - app-network
     depends_on:
@@ -37,10 +36,9 @@ services:
 
   postgres:
     image: postgres:15
-    env_file:
-      - .docker.secrets.env
     environment:
       - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=pwd
       - POSTGRES_DB=neuroagent
     ports:
       - "5432:5432"
