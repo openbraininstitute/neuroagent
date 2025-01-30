@@ -16,7 +16,10 @@ export function ChatInput() {
     return createThreadWithMessage();
   };
 
-  const [, formAction, isPending] = useActionState(storeMsgAndCreateThread, null);
+  const [, formAction, isPending] = useActionState(
+    storeMsgAndCreateThread,
+    null,
+  );
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
