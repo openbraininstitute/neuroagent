@@ -57,18 +57,24 @@ export function ChatPage({
 
   // Handle new conversations : add user message and trigger chat.
   const { newMessage, setNewMessage } = useStore();
-  if (initialMessages.length === 0 && newMessage !== "") {
-    setMessages([
-      ...messages,
-      {
-        id: "temp_id",
-        role: "user",
-        content: newMessage,
-      },
-    ]);
-    handleSubmit(undefined, { allowEmptySubmit: true });
-    setNewMessage("");
-  }
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      if (initialMessages.length === 0 && newMessage !== "") {
+        setMessages([
+          ...messages,
+          {
+            id: "temp_id",
+            role: "user",
+            content: newMessage,
+          },
+        ]);
+        handleSubmit(undefined, { allowEmptySubmit: true });
+        setNewMessage("");
+      }
+    }, 0); // This small delay is needed to not trigger twice in dev mode ...
+
+    return () => clearTimeout(timeout);
+  }); // needs to only be ran on mount.
 
   const [showTools, setShowTools] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
