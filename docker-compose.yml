@@ -8,13 +8,11 @@ services:
     env_file:
       - .docker.secrets.env
     environment:
-      - NEUROAGENT_DB__HOST=postgres
-      - NEUROAGENT_DB__PORT=5432
-      - NEUROAGENT_DB__NAME=neuroagent
-      - NEUROAGENT_DB__USER=postgres
-      - NEUROAGENT_DB__PREFIX=postgresql+asyncpg
+      - NEUROAGENT_DB__PREFIX=postgresql+asyncpg://postgres:${POSTGRES_PASSWORD}@postgres:5432/neuroagent
       - NEUROAGENT_KEYCLOAK__VALIDATE_TOKEN=true
       - NEUROAGENT_KEYCLOAK__ISSUER=https://openbluebrain.com/auth/realms/SBO
+      - NEUROAGENT_TOOLS__LITERATURE__URL=https://whatever.com
+      - NEUROAGENT_KNOWLEDGE_GRAPH__BASE_URL=https://whathever.com
     networks:
       - app-network
     depends_on:
