@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - [frontend] - Make human messages not span the entire width of the chat.
 
 ### Added
+- Docker compose for local development
 - [frontend] Keycloak sign in + documentation.
 - LLM evaluation logic
 - Integrated Alembic for managing chat history migrations

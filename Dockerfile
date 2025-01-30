@@ -13,4 +13,4 @@ RUN rm -rf /code
 WORKDIR /
 
 EXPOSE 8078
-CMD neuroagent-api --host 0.0.0.0 --port 8078
+CMD ["neuroagent-api", "--host", "0.0.0.0", "--port", "8078"]
