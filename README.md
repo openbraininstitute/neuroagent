@@ -25,3 +25,8 @@ The workflow is:
 2. When the release PR is merged, a new release tag will be automatically created on github.
 
 
+## Funding and Acknowledgement
+
+The development of this software was supported by funding to the Open Brain Institute, a research organization dedicated to open science and advancing neuroscience through collaborative innovation.
+
+Copyright &copy; 2025 Open Brain Institute
