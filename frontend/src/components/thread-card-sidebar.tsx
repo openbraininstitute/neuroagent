@@ -22,7 +22,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
-import { cn } from "@/lib/utils"
+import { cn } from "@/lib/utils";
 type ThreadCardSidebarProps = Thread;
 
 export function ThreadCardSidebar({ title, threadID }: ThreadCardSidebarProps) {
@@ -36,7 +36,13 @@ export function ThreadCardSidebar({ title, threadID }: ThreadCardSidebarProps) {
 
   return (
     <div
-      className={cn("group relative flex w-full items-center py-2 hover:bg-accent/50", {"bg-accent/50": isDropdownOpen, "bg-accent" : currentThreadId === threadID})}
+      className={cn(
+        "group relative flex w-full items-center py-2 hover:bg-accent/50",
+        {
+          "bg-accent/50": isDropdownOpen,
+          "bg-accent": currentThreadId === threadID,
+        },
+      )}
     >
       <Link
         href={`/threads/${threadID}`}
@@ -60,7 +66,7 @@ export function ThreadCardSidebar({ title, threadID }: ThreadCardSidebarProps) {
               size="icon"
               className="opacity-0 group-hover:opacity-100 transition-opacity"
             >
-              <Ellipsis/>
+              <Ellipsis />
             </Button>
           </DropdownMenuTrigger>
 
