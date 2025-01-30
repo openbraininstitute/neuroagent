@@ -3,7 +3,11 @@ FROM python:3.10
 ENV PYTHONUNBUFFERED=1
 
 RUN apt-get -y update
-RUN apt-get -y install curl
+RUN apt-get -y install curl \
+    cmake \
+    build-essential \
+    libhdf5-dev \
+    ninja-build
 
 RUN pip install --no-cache-dir --upgrade pip
 COPY ./ /code
