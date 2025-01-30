@@ -117,6 +117,7 @@ celerybeat.pid
 
 # Environments
 .env
+.docker.secrets.env
 .venv
 env/
 venv/

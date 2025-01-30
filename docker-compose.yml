@@ -1,0 +1,59 @@
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8078:8078"
+    env_file:
+      - .docker.secrets.env
+    environment:
+      - NEUROAGENT_DB__HOST=postgres
+      - NEUROAGENT_DB__PORT=5432
+      - NEUROAGENT_DB__NAME=neuroagent
+      - NEUROAGENT_DB__USER=postgres
+      - NEUROAGENT_DB__PREFIX=postgresql+asyncpg
+      - NEUROAGENT_KEYCLOAK__VALIDATE_TOKEN=true
+      - NEUROAGENT_KEYCLOAK__ISSUER=https://openbluebrain.com/auth/realms/SBO
+    networks:
+      - app-network
+    depends_on:
+      - postgres
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    env_file:
+      - .docker.secrets.env
+    environment:
+      - NEXT_PUBLIC_BACKEND_URL=http://localhost:8078
+      - NEXT_PUBLIC_KEYCLOAK_ISSUER=https://openbluebrain.com/auth/realms/SBO
+      - NEXTAUTH_URL=http://localhost:3000
+    networks:
+      - app-network
+    depends_on:
+      - backend
+
+  postgres:
+    image: postgres:15
+    env_file:
+      - .docker.secrets.env
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=neuroagent
+    ports:
+      - "5432:5432"
+    networks:
+      - app-network
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
+
+networks:
+  app-network:
+    driver: bridge 
