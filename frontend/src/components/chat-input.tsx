@@ -3,13 +3,20 @@
 import { useState } from "react";
 import { useActionState } from "react";
 import { createThreadWithMessage } from "@/actions/create-thread";
+import { useStore } from "@/lib/store";
 
 export function ChatInput() {
+  const { newMessage, setNewMessage } = useStore();
   const [input, setInput] = useState("");
-  const [, formAction, isPending] = useActionState(
-    createThreadWithMessage,
-    null,
-  );
+
+  const myPreAction = async () => {
+    if (newMessage === "" && input !== "") {
+      setNewMessage(input);
+    }
+    return createThreadWithMessage();
+  };
+
+  const [, formAction, isPending] = useActionState(myPreAction, null);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {

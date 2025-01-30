@@ -6,6 +6,7 @@ import type { MessageStrict } from "@/lib/types";
 import { env } from "@/lib/env";
 import { useSession } from "next-auth/react";
 import { ExtendedSession } from "@/lib/auth";
+import { useStore } from "@/lib/store";
 
 import { Button } from "@/components/ui/button";
 import { ChatMessageAI } from "@/components/chat-message-ai";
@@ -54,15 +55,32 @@ export function ChatPage({
       | ((messages: MessageStrict[]) => MessageStrict[]),
   ) => void;
 
+  // Handle new conversations : add user message and trigger chat.
+  const { newMessage, setNewMessage } = useStore();
+  if (initialMessages.length === 0 && newMessage !== "") {
+    setMessages([
+      ...messages,
+      {
+        id: "temp_id",
+        role: "user",
+        content: newMessage,
+      },
+    ]);
+    handleSubmit(undefined, { allowEmptySubmit: true });
+    setNewMessage("");
+  }
+
   const [showTools, setShowTools] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [processedToolInvocationMessages, setProcessedToolInvocationMessages] =
     useState<string[]>([]);
 
+  // Scroll to the end of the page when new messages are added
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
+  // Handle hil validations
   useEffect(() => {
     const lastMessage = messages[messages.length - 1];
     if (lastMessage?.role === "assistant" && lastMessage.toolInvocations) {
