@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Create thread now has a body.
 - Made streaming vercel compatible.
 - [frontend] - Make human messages not span the entire width of the chat.
+- Copyright and acknowledgement.
 
 ### Added
 - [frontend] Keycloak sign in + documentation.
