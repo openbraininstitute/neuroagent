@@ -9,17 +9,14 @@ export function ChatInput() {
   const { newMessage, setNewMessage } = useStore();
   const [input, setInput] = useState("");
 
-  const storeMsgAndCreateThread = async () => {
+  const [, action, isPending] = useActionState(createThreadWithMessage, null);
+
+  const actionWrapper = () => {
     if (newMessage === "" && input !== "") {
       setNewMessage(input);
     }
-    return createThreadWithMessage();
+    action();
   };
-
-  const [, formAction, isPending] = useActionState(
-    storeMsgAndCreateThread,
-    null,
-  );
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
@@ -35,7 +32,7 @@ export function ChatInput() {
       </h1>
       <form
         data-testid="chat-form"
-        action={formAction}
+        action={actionWrapper}
         onSubmit={(e) => {
           if (!input.trim()) {
             e.preventDefault();
