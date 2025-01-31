@@ -29,7 +29,6 @@ export function ChatPage({
   const requiresHandleSubmit = useRef(false);
 
   useEffect(() => {
-    console.log("Initial mount", initialMessages, newMessage);
     if (initialMessages.length === 0 && newMessage !== "") {
       initialMessages.push({
         id: "temp_id",
@@ -89,7 +88,6 @@ export function ChatPage({
     if (requiresHandleSubmit.current) {
       handleSubmit(undefined, { allowEmptySubmit: true });
       requiresHandleSubmit.current = false;
-      console.log("Auto-submitted single human message");
       return;
     }
 
@@ -134,7 +132,6 @@ export function ChatPage({
   }, [messages, handleSubmit, processedToolInvocationMessages]);
 
   if (error) {
-    console.log("Error", error);
     return null;
   }
 
