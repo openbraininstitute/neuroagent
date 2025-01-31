@@ -100,12 +100,14 @@ async def create_thread_with_generated_title(
         {"role": "user", "content": body.first_user_message},
     ]
     response = await openai_client.chat.completions.create(
-        messages=openai_message,
+        messages=openai_message,  # type: ignore
         model=settings.openai.model,
     )
     new_thread = Threads(
         user_id=user_id,
-        title=response.choices[0].message.content.strip('"'),
+        title=response.choices[0].message.content.strip('"')
+        if response.choices[0].message.content
+        else "New chat",
         vlab_id=virtual_lab_id,
         project_id=project_id,
     )
