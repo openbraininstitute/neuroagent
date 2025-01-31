@@ -8,9 +8,8 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import { HumanValidationDialog } from "@/components/human-validation-dialog";
-import { useActionState } from "react";
-import { executeTool } from "@/actions/execute-tool";
 import { ToolInvocation } from "@ai-sdk/ui-utils";
+import { useExecuteTool } from "@/hooks/tools";
 
 type ChatMessageToolProps = {
   content?: string;
@@ -38,63 +37,53 @@ export function ChatMessageTool({
 }: ChatMessageToolProps) {
   const [toolOpen, setToolOpen] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [state, action, isPending] = useActionState(executeTool, null);
   const [validationError, setValidationError] = useState<string | null>(null);
-  const [previousValidationFailed, setPreviousValidationFailed] =
-    useState(false);
+  const { mutate, isPending, isSuccess, data, status } = useExecuteTool();
 
   useEffect(() => {
     if (isPending) {
       setDialogOpen(false);
-      setPreviousValidationFailed(false);
       return;
     }
-    if (!state) return;
 
-    if (state.success) {
-      setValidationError(null);
-      setPreviousValidationFailed(false);
-      setMessage((msg) => {
-        const updatedMsg = {
-          ...msg,
-          toolInvocations: [
-            ...(msg.toolInvocations || []).filter(
-              (t) => t.toolCallId !== tool.toolCallId,
-            ),
-            {
-              toolCallId: tool.toolCallId,
-              toolName: tool.toolName,
-              args: tool.args,
-              result: state.content,
-              state: "result" as const,
-            },
-          ],
-        };
-        return updatedMsg;
-      });
-    }
-
-    if (state.error) {
-      if (previousValidationFailed) {
-        // it takes time for state to update - you cannot re-validate
-        return;
+    if (isSuccess && data) {
+      if (data.status === "done") {
+        setValidationError(null);
+        setMessage((msg) => {
+          const updatedMsg = {
+            ...msg,
+            toolInvocations: [
+              ...(msg.toolInvocations || []).filter(
+                (t) => t.toolCallId !== tool.toolCallId,
+              ),
+              {
+                toolCallId: tool.toolCallId,
+                toolName: tool.toolName,
+                args: tool.args,
+                result: data.content,
+                state: "result" as const,
+              },
+            ],
+          };
+          return updatedMsg;
+        });
+      } else if (data.status === "validation-error") {
+        setValidationError(data.content || "Validation failed");
+        setMessage((msg) => {
+          return {
+            ...msg,
+            annotations: [
+              ...(msg.annotations || []).filter(
+                (a) => a.toolCallId !== tool.toolCallId,
+              ),
+              { toolCallId: tool.toolCallId, validated: "pending" },
+            ],
+          };
+        });
       }
-      setPreviousValidationFailed(true);
-      setValidationError(state.error);
-      setMessage((msg) => {
-        return {
-          ...msg,
-          annotations: [
-            ...(msg.annotations || []).filter(
-              (a) => a.toolCallId !== tool.toolCallId,
-            ),
-            { toolCallId: tool.toolCallId, validated: "pending" },
-          ],
-        };
-      });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isPending]);
+  }, [status]);
 
   const renderToolStatus = () => {
     if (tool?.state === "result") {
@@ -163,10 +152,10 @@ export function ChatMessageTool({
         toolId={tool.toolCallId}
         toolName={tool.toolName}
         args={tool.args}
-        action={action}
         isOpen={dialogOpen}
         setIsOpen={setDialogOpen}
         setMessage={setMessage}
+        mutate={mutate}
       />
       <div className="flex justify-start">
         <Collapsible open={toolOpen} onOpenChange={setToolOpen}>

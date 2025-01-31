@@ -17,10 +17,15 @@ type HumanValidationDialogProps = {
   toolId: string;
   toolName: string;
   args?: Record<string, unknown>;
-  action: (formData: FormData) => void;
   isOpen: boolean;
   setIsOpen: (open: boolean) => void;
   setMessage: (updater: (msg: MessageStrict) => MessageStrict) => void;
+  mutate: (params: {
+    threadId: string;
+    toolCallId: string;
+    validation: "accepted" | "rejected";
+    args?: string;
+  }) => void;
 };
 
 export function HumanValidationDialog({
@@ -28,10 +33,10 @@ export function HumanValidationDialog({
   toolId,
   toolName,
   args,
-  action,
   isOpen,
   setIsOpen,
   setMessage,
+  mutate,
 }: HumanValidationDialogProps) {
   const [editedArgs, setEditedArgs] = useState(JSON.stringify(args, null, 2));
   const [isEdited, setIsEdited] = useState(false);
@@ -80,8 +85,13 @@ export function HumanValidationDialog({
       return updatedMsg;
     });
 
-    // Execute the action
-    action(formData);
+    // Execute using the passed mutate function
+    mutate({
+      threadId,
+      toolCallId: toolId,
+      validation,
+      args: isEdited ? editedArgs : JSON.stringify(args, null, 2),
+    });
   };
 
   return (
