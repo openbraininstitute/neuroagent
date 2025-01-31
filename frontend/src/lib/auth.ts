@@ -53,7 +53,6 @@ export const authOptions: NextAuthOptions = {
     async jwt({ token, account, user }) {
       // Initial sign in
       if (account && user) {
-        console.log("Initial sign in:", { user });
         return {
           ...token,
           accessToken: account.access_token,
@@ -69,19 +68,13 @@ export const authOptions: NextAuthOptions = {
 
       // Return previous token if the access token has not expired yet
       if (Date.now() < (token.accessTokenExpires as number)) {
-        console.log("Token still valid, reusing existing token");
         return token;
       }
 
-      console.log("Token expired, attempting refresh");
       // Access token has expired, try to refresh it
       return refreshAccessToken(token);
     },
     async session({ session, token }) {
-      console.log("Session callback:", {
-        username: token.sub,
-        expires: token.accessTokenExpires,
-      });
       return {
         ...session,
         user: {
@@ -107,7 +100,6 @@ export const authOptions: NextAuthOptions = {
 
 async function refreshAccessToken(token: TokenSet) {
   try {
-    console.log("Refreshing access token");
     const response = await fetch(
       `${env.KEYCLOAK_ISSUER}/protocol/openid-connect/token`,
       {

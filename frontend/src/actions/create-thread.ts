@@ -6,15 +6,7 @@ import { revalidateTag } from "next/cache";
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 
-export async function createThreadWithMessage(
-  previousState: unknown,
-  formData: FormData,
-) {
-  const content = formData.get("content");
-  if (!content || typeof content !== "string") {
-    return { success: false, error: "No content provided" };
-  }
-
+export async function createThreadWithMessage() {
   let thread_id: string;
 
   try {
@@ -58,34 +50,6 @@ export async function createThreadWithMessage(
 
     const { thread_id: newThreadId } = await threadResponse.json();
     thread_id = newThreadId;
-
-    // Send initial message
-    const messageResponse = await fetch(
-      `${env.BACKEND_URL}/qa/chat_streamed/${thread_id}`,
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${session.accessToken}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          content,
-        }),
-      },
-    );
-
-    if (!messageResponse.ok) {
-      throw new Error(`Failed to send message: ${messageResponse.statusText}`);
-    }
-
-    // Read and consume the entire stream
-    const reader = messageResponse.body?.getReader();
-    if (reader) {
-      while (true) {
-        const { done } = await reader.read();
-        if (done) break;
-      }
-    }
 
     revalidateTag("threads");
     await fetch(`${env.BACKEND_URL}/threads/${thread_id}/generate_title`, {
