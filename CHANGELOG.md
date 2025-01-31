@@ -37,6 +37,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Vitest tests for frontend
 - Title generation endpoint.
 - [frontend] - Dark mode.
+- [frontend] - Automatic title generation
 - [frontend] - Collapsible side bar.
 
 ### Fixed
