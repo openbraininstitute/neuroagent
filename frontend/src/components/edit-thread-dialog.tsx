@@ -10,22 +10,23 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { useState } from "react";
+import { useState, Dispatch, SetStateAction } from "react";
 
 type EditThreadProps = {
   title: string;
   threadID: string;
   editAction: (payload: FormData) => void;
-  isEditPending: boolean;
+  isDialogOpen: boolean
+  setIsDialogOpen: Dispatch<SetStateAction<boolean>>
 };
 
 export function EditThreadDialog({
   title,
   threadID,
   editAction,
-  isEditPending,
+  isDialogOpen,
+  setIsDialogOpen,
 }: EditThreadProps) {
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [newTitle, setNewTitle] = useState(title);
 
   return (
@@ -39,21 +40,6 @@ export function EditThreadDialog({
           id={`edit-${threadID}`}
           defaultValue={newTitle}
         />
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon"
-          className="opacity-0 group-hover:opacity-100 transition-opacity"
-          disabled={isEditPending}
-          onClick={(e) => {
-            e.stopPropagation();
-            setIsDialogOpen(true);
-          }}
-        >
-          <Pencil
-            className={`h-4 w-4 ${isEditPending ? "animate-spin" : ""}`}
-          />
-        </Button>
       </form>
 
       <DialogContent>

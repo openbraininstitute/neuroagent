@@ -11,11 +11,11 @@ export function ChatInput() {
 
   const [, action, isPending] = useActionState(createThreadWithMessage, null);
 
-  const actionWrapper = () => {
+  const actionWrapper = (formData: FormData) => {
     if (newMessage === "" && input !== "") {
       setNewMessage(input);
     }
-    action();
+    action(formData);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
