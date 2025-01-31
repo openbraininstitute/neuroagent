@@ -9,15 +9,6 @@ import { usePathname } from "next/navigation";
 import { EditThreadDialog } from "@/components/edit-thread-dialog";
 import { DeleteThreadDialog } from "@/components/delete-thread-dialog";
 import { Button } from "@/components/ui/button";
-
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import {
   DropdownMenu,
@@ -37,7 +28,6 @@ export function ThreadCardSidebar({ title, threadID }: ThreadCardSidebarProps) {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [newTitle, setNewTitle] = useState(title);
 
   return (
     <div
