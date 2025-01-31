@@ -13,8 +13,8 @@ type DeleteThreadProps = {
   threadID: string;
   currentThreadId: string | undefined;
   deleteAction: (payload: FormData) => void;
-  isDialogOpen: boolean
-  setIsDialogOpen: Dispatch<SetStateAction<boolean>>
+  isDialogOpen: boolean;
+  setIsDialogOpen: Dispatch<SetStateAction<boolean>>;
 };
 
 export function DeleteThreadDialog({
@@ -24,10 +24,9 @@ export function DeleteThreadDialog({
   isDialogOpen,
   setIsDialogOpen,
 }: DeleteThreadProps) {
-
   return (
     <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-      <DialogContent>
+      <DialogContent className="[&>button]:hidden">
         <DialogHeader>
           <DialogTitle>Delete this thread ?</DialogTitle>
         </DialogHeader>
@@ -49,6 +48,7 @@ export function DeleteThreadDialog({
               readOnly
             />
             <Button
+              variant="destructive"
               type="submit"
               onClick={(e) => {
                 e.stopPropagation();

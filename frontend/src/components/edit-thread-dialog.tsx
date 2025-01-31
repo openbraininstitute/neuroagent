@@ -16,8 +16,8 @@ type EditThreadProps = {
   title: string;
   threadID: string;
   editAction: (payload: FormData) => void;
-  isDialogOpen: boolean
-  setIsDialogOpen: Dispatch<SetStateAction<boolean>>
+  isDialogOpen: boolean;
+  setIsDialogOpen: Dispatch<SetStateAction<boolean>>;
 };
 
 export function EditThreadDialog({
@@ -42,7 +42,7 @@ export function EditThreadDialog({
         />
       </form>
 
-      <DialogContent>
+      <DialogContent className="[&>button]:hidden">
         <DialogHeader>
           <DialogTitle>Edit Thread Title</DialogTitle>
         </DialogHeader>
@@ -52,6 +52,14 @@ export function EditThreadDialog({
           placeholder="Enter new title"
         />
         <DialogFooter>
+          <Button
+            type="submit"
+            onClick={() => {
+              setIsDialogOpen(false);
+            }}
+          >
+            Cancel
+          </Button>
           <Button
             type="submit"
             onClick={() => {

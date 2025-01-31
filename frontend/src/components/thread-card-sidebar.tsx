@@ -76,7 +76,7 @@ export function ThreadCardSidebar({ title, threadID }: ThreadCardSidebarProps) {
           </DropdownMenuTrigger>
 
           <DropdownMenuContent className="flex flex-col min-w-fit -translate-y-[20%] translate-x-[50%] border-2">
-             {/* Edit Option  */}
+            {/* Edit Option  */}
             <DropdownMenuItem
               onClick={(e) => {
                 e.preventDefault();
@@ -84,36 +84,36 @@ export function ThreadCardSidebar({ title, threadID }: ThreadCardSidebarProps) {
                 setIsDropdownOpen(false);
               }}
             >
-              <Pencil/> Edit
+              <Pencil /> Edit
             </DropdownMenuItem>
             {/* Delete Option */}
             <DropdownMenuItem
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    setIsDeleteDialogOpen(true);
-                    setIsDropdownOpen(false);
-                  }}
-                >
-                  <X/>
-                  Delete
-              </DropdownMenuItem>
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsDeleteDialogOpen(true);
+                setIsDropdownOpen(false);
+              }}
+            >
+              <X />
+              Delete
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
 
         <EditThreadDialog
-              title={title}
-              threadID={threadID}
-              editAction={editAction}
-              isDialogOpen={isEditDialogOpen}
-              setIsDialogOpen={setIsEditDialogOpen}
-            />
+          title={title}
+          threadID={threadID}
+          editAction={editAction}
+          isDialogOpen={isEditDialogOpen}
+          setIsDialogOpen={setIsEditDialogOpen}
+        />
         <DeleteThreadDialog
-              threadID={threadID}
-              currentThreadId={currentThreadId}
-              deleteAction={deleteAction}
-              isDialogOpen={isDeleteDialogOpen}
-              setIsDialogOpen={setIsDeleteDialogOpen}
-            />
+          threadID={threadID}
+          currentThreadId={currentThreadId}
+          deleteAction={deleteAction}
+          isDialogOpen={isDeleteDialogOpen}
+          setIsDialogOpen={setIsDeleteDialogOpen}
+        />
       </div>
     </div>
   );
