@@ -25,6 +25,22 @@ export function ChatPage({
   initialMessages,
 }: ChatPageProps) {
   const { data: session } = useSession() as { data: ExtendedSession | null };
+  const { newMessage, setNewMessage } = useStore();
+  const requiresHandleSubmit = useRef(false);
+
+  useEffect(() => {
+    console.log("Initial mount", initialMessages, newMessage);
+    if (initialMessages.length === 0 && newMessage !== "") {
+      initialMessages.push({
+        id: "temp_id",
+        role: "user",
+        content: newMessage,
+      });
+      setNewMessage("");
+      requiresHandleSubmit.current = true;
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Empty dependency array means this runs once on mount
 
   const {
     messages: messagesRaw,
@@ -49,6 +65,7 @@ export function ChatPage({
   });
 
   const messages = messagesRaw as MessageStrict[];
+
   const setMessages = setMessagesRaw as (
     messages:
       | MessageStrict[]
@@ -56,26 +73,6 @@ export function ChatPage({
   ) => void;
 
   // Handle new conversations : add user message and trigger chat.
-  const { newMessage, setNewMessage } = useStore();
-  useEffect(() => {
-    const timeout = setTimeout(() => {
-      if (initialMessages.length === 0 && newMessage !== "") {
-        setMessages([
-          ...messages,
-          {
-            id: "temp_id",
-            role: "user",
-            content: newMessage,
-          },
-        ]);
-        handleSubmit(undefined, { allowEmptySubmit: true });
-        setNewMessage("");
-      }
-    }, 0); // This small delay is needed to not trigger twice in dev mode ...
-
-    return () => clearTimeout(timeout);
-  }); // needs to only be ran on mount.
-
   const [showTools, setShowTools] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [processedToolInvocationMessages, setProcessedToolInvocationMessages] =
@@ -86,8 +83,16 @@ export function ChatPage({
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  // Handle hil validations
+  // Handle auto-submit if there's a single human message or all tools have been validated
   useEffect(() => {
+    // Auto-submit if there's a single human message
+    if (requiresHandleSubmit.current) {
+      handleSubmit(undefined, { allowEmptySubmit: true });
+      requiresHandleSubmit.current = false;
+      console.log("Auto-submitted single human message");
+      return;
+    }
+
     const lastMessage = messages[messages.length - 1];
     if (lastMessage?.role === "assistant" && lastMessage.toolInvocations) {
       // Skip if we've already processed this message
