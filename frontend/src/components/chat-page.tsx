@@ -28,7 +28,6 @@ export function ChatPage({
   const { newMessage, setNewMessage } = useStore();
   const requiresHandleSubmit = useRef(false);
 
-  // Add useEffect to handle initial message
   useEffect(() => {
     console.log("Initial mount", initialMessages, newMessage);
     if (initialMessages.length === 0 && newMessage !== "") {
@@ -40,6 +39,7 @@ export function ChatPage({
       setNewMessage("");
       requiresHandleSubmit.current = true;
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // Empty dependency array means this runs once on mount
 
   const {
