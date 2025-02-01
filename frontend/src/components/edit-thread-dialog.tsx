@@ -17,6 +17,7 @@ type EditThreadProps = {
   editAction: (payload: FormData) => void;
   isDialogOpen: boolean;
   setIsDialogOpen: Dispatch<SetStateAction<boolean>>;
+  addOptimisticTitle: (action: string) => void;
 };
 
 export function EditThreadDialog({
@@ -25,12 +26,18 @@ export function EditThreadDialog({
   editAction,
   isDialogOpen,
   setIsDialogOpen,
+  addOptimisticTitle,
 }: EditThreadProps) {
   const [newTitle, setNewTitle] = useState(title);
 
   return (
     <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-      <form action={editAction}>
+      <form
+        action={async (formData) => {
+          addOptimisticTitle(formData.get("title") as string);
+          editAction(formData);
+        }}
+      >
         <input type="hidden" name="threadId" value={threadID} />
         <input
           type="text"

@@ -9,7 +9,7 @@ import { usePathname } from "next/navigation";
 import { EditThreadDialog } from "@/components/edit-thread-dialog";
 import { DeleteThreadDialog } from "@/components/delete-thread-dialog";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
+import { useState, useOptimistic } from "react";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -21,13 +21,19 @@ import { cn } from "@/lib/utils";
 type ThreadCardSidebarProps = Thread;
 
 export function ThreadCardSidebar({ title, threadID }: ThreadCardSidebarProps) {
-  const [, editAction, isEditPending] = useActionState(editThread, null);
+  const [, editAction] = useActionState(editThread, null);
   const [, deleteAction, isDeletePending] = useActionState(deleteThread, null);
   const pathname = usePathname();
   const currentThreadId = pathname.split("/").pop();
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [optimisticTitle, addOptimisticTitle] = useOptimistic(
+    title,
+    (title, newTitle: string) => {
+      return newTitle;
+    },
+  );
 
   return (
     <div
@@ -45,9 +51,9 @@ export function ThreadCardSidebar({ title, threadID }: ThreadCardSidebarProps) {
       >
         <MessageCircle />
         <span
-          className={`truncate max-w-[80%] ${isDeletePending || isEditPending || isDropdownOpen ? "opacity-50" : ""}`}
+          className={`truncate max-w-[80%] ${isDeletePending || isDropdownOpen ? "opacity-50" : ""}`}
         >
-          {title}
+          {optimisticTitle}
         </span>
       </Link>
 
@@ -96,6 +102,7 @@ export function ThreadCardSidebar({ title, threadID }: ThreadCardSidebarProps) {
           editAction={editAction}
           isDialogOpen={isEditDialogOpen}
           setIsDialogOpen={setIsEditDialogOpen}
+          addOptimisticTitle={addOptimisticTitle}
         />
         <DeleteThreadDialog
           threadID={threadID}
