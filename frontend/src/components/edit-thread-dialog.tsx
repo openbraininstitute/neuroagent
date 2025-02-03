@@ -30,6 +30,15 @@ export function EditThreadDialog({
 }: EditThreadProps) {
   const [newTitle, setNewTitle] = useState(title);
 
+  const handlsubmit = async () => {
+    const input = document.getElementById(
+      `edit-${threadID}`,
+    ) as HTMLInputElement;
+    input.value = newTitle;
+    input.form?.requestSubmit();
+    setIsDialogOpen(false);
+  };
+
   return (
     <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
       <form
@@ -56,6 +65,13 @@ export function EditThreadDialog({
           value={newTitle}
           onChange={(e) => setNewTitle(e.target.value)}
           placeholder="Enter new title"
+          onKeyDown={(e) => {
+              if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                handlsubmit();
+              }
+            }
+          }
         />
         <DialogFooter>
           <Button
@@ -68,14 +84,7 @@ export function EditThreadDialog({
           </Button>
           <Button
             type="submit"
-            onClick={() => {
-              const input = document.getElementById(
-                `edit-${threadID}`,
-              ) as HTMLInputElement;
-              input.value = newTitle;
-              input.form?.requestSubmit();
-              setIsDialogOpen(false);
-            }}
+            onClick={handlsubmit}
           >
             Save Changes
           </Button>
