@@ -28,7 +28,6 @@ services:
         - NEXT_PUBLIC_KEYCLOAK_ID=${KEYCLOAK_ID}
     environment:
       - NEXTAUTH_URL=http://localhost:3000
-      - NEXTAUTH_URL_INTERNAL=http://0.0.0.0:3000
       - NEXTAUTH_SECRET=${NEXTAUTH_SECRET}
     ports:
       - "3000:3000"
