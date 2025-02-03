@@ -50,8 +50,7 @@ export function DeleteThreadDialog({
             <Button
               variant="destructive"
               type="submit"
-              onClick={(e) => {
-                e.stopPropagation();
+              onClick={() => {
                 setIsDialogOpen(false);
               }}
             >

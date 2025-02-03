@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Made streaming vercel compatible.
 - [frontend] - Make human messages not span the entire width of the chat.
 - Copyright and acknowledgement.
+- pre-commit hooks for frontend.
 
 ### Added
 - [frontend] Keycloak sign in + documentation.
@@ -43,6 +44,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Migrate LLM Evaluation logic to scripts and add tests
+- Query size limiter.
 - Fix /threads/messages endpoint.
 - [frontend] - remove first message delay.
 
