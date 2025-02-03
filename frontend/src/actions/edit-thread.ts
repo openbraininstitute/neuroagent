@@ -33,8 +33,6 @@ export async function editThread(previousState: unknown, formData: FormData) {
 
     // Revalidate the same tags as delete for consistency
     revalidateTag("threads");
-    revalidateTag(`threads/${threadId}`);
-    revalidateTag(`threads/${threadId}/messages`);
 
     return { success: true };
   } catch (error) {
