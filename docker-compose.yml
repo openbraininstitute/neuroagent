@@ -20,15 +20,18 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+      args:
+        - NEXT_PUBLIC_BACKEND_URL=http://backend:8078
+        - NEXT_PUBLIC_KEYCLOAK_ISSUER=https://openbluebrain.com/auth/realms/SBO
+        - NEXT_PUBLIC_KEYCLOAK_SECRET=aaa
+        - NEXT_PUBLIC_KEYCLOAK_ID=obp-core-web-app-dev
+        - NEXTAUTH_URL=http://127.0.0.1:3000
+        - NEXTAUTH_SECRET=your-secret-key
+    environment:
+      - NEXTAUTH_URL=http://127.0.0.1:3000
+      - NEXTAUTH_SECRET=your-secret-key
     ports:
       - "3000:3000"
-    environment:
-      - NEXT_PUBLIC_BACKEND_URL=http://localhost:8078
-      - NEXT_PUBLIC_KEYCLOAK_ISSUER=https://openbluebrain.com/auth/realms/SBO
-      - NEXT_PUBLIC_KEYCLOAK_SECRET=aaa
-      - NEXT_PUBLIC_KEYCLOAK_ID=obp-core-web-app-dev
-      - NEXTAUTH_URL=http://localhost:3000
-      - NEXTAUTH_SECRET=your-secret-key
     networks:
       - app-network
     depends_on:

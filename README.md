@@ -7,6 +7,16 @@ LLM agent made to communicate with different neuroscience related tools. It allo
 2. [Funding and Acknowledgement](#funding-and-acknowledgement)
 
 
+
+## Running
+
+
+```bash
+$ docker compose up
+$ alembic -x url=postgresql://postgres:pwd@localhost:5432/neuroagent upgrade head
+
+```
+
 ## Release workflow
 
 Commits with a special prefix will be added to the CHANGELOG of the latest release PR.
