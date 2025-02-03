@@ -11,6 +11,7 @@ services:
       - NEUROAGENT_KEYCLOAK__ISSUER=https://openbluebrain.com/auth/realms/SBO
       - NEUROAGENT_TOOLS__LITERATURE__URL=https://whatever.com
       - NEUROAGENT_KNOWLEDGE_GRAPH__BASE_URL=https://whathever.com
+      - NEUROAGENT_OPENAI__TOKEN=${OPENAI_API_KEY}
     networks:
       - app-network
     depends_on:
@@ -23,8 +24,8 @@ services:
       args:
         - NEXT_PUBLIC_BACKEND_URL=http://backend:8078
         - NEXT_PUBLIC_KEYCLOAK_ISSUER=https://openbluebrain.com/auth/realms/SBO
-        - NEXT_PUBLIC_KEYCLOAK_SECRET=aaa
-        - NEXT_PUBLIC_KEYCLOAK_ID=obp-core-web-app-dev
+        - NEXT_PUBLIC_KEYCLOAK_SECRET=${KEYCLOAK_SECRET}
+        - NEXT_PUBLIC_KEYCLOAK_ID=${KEYCLOAK_ID}
         - NEXTAUTH_URL=http://127.0.0.1:3000
         - NEXTAUTH_SECRET=your-secret-key
     environment:
