@@ -66,12 +66,11 @@ export function EditThreadDialog({
           onChange={(e) => setNewTitle(e.target.value)}
           placeholder="Enter new title"
           onKeyDown={(e) => {
-              if (e.key === "Enter" && !e.shiftKey) {
-                e.preventDefault();
-                handlsubmit();
-              }
+            if (e.key === "Enter" && !e.shiftKey) {
+              e.preventDefault();
+              handlsubmit();
             }
-          }
+          }}
         />
         <DialogFooter>
           <Button
@@ -82,10 +81,7 @@ export function EditThreadDialog({
           >
             Cancel
           </Button>
-          <Button
-            type="submit"
-            onClick={handlsubmit}
-          >
+          <Button type="submit" onClick={handlsubmit}>
             Save Changes
           </Button>
         </DialogFooter>
