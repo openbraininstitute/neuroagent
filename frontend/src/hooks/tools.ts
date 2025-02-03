@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useFetcher } from "@/hooks/fetcher";
+import { useFetcher } from "@/hooks/fetch";
 import { BExecuteToolCallRequest, BExecuteToolCallResponse } from "@/lib/types";
 
 export function useExecuteTool() {

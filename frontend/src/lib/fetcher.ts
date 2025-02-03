@@ -1,6 +1,3 @@
-import { useSession } from "next-auth/react";
-import { ExtendedSession } from "@/lib/auth";
-import { useCallback } from "react";
 import { env } from "@/lib/env";
 
 type Method = "GET" | "PATCH" | "POST" | "PUT" | "DELETE";
@@ -11,24 +8,26 @@ type Headers = Record<string, string>;
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Body = Record<string, any>;
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-type ResponseBody = Record<string, any> | void;
+export type ResponseBody = Record<string, any>;
 
-type FetcherConfig = {
-  method: Method;
+export type FetcherConfig = {
+  method?: Method;
   path: Path;
   pathParams?: PathParams;
   queryParams?: QueryParams;
   body?: Body;
   headers?: Headers;
+  next?: NextFetchRequestConfig;
 };
 
-async function fetcher({
+export async function fetcher({
   method,
   path,
   pathParams,
   queryParams,
   body,
   headers,
+  next,
 }: FetcherConfig): Promise<ResponseBody> {
   let processedPath = path;
   if (pathParams) {
@@ -52,28 +51,11 @@ async function fetcher({
       ...(body && { "Content-Type": "application/json" }),
       ...headers,
     },
+    next,
   });
 
   if (!response.ok) {
     throw new Error("Failed to fetch data");
   }
   return await response.json();
-}
-
-export function useFetcher() {
-  const { data: session } = useSession() as { data: ExtendedSession | null };
-
-  return useCallback(
-    async (config: FetcherConfig): Promise<ResponseBody> => {
-      const authHeaders = {
-        ...config.headers,
-        Authorization: session?.accessToken
-          ? `Bearer ${session.accessToken}`
-          : "",
-      };
-
-      return fetcher({ ...config, headers: authHeaders });
-    },
-    [session?.accessToken],
-  );
 }

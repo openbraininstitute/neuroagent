@@ -2,6 +2,7 @@ import { ThreadCardSidebar } from "@/components/thread-card-sidebar";
 import { env } from "@/lib/env";
 import { auth } from "@/lib/auth";
 import { BThread } from "@/lib/types";
+import { fetcher } from "@/lib/fetcher";
 
 async function getThreads(): Promise<BThread[]> {
   try {
@@ -10,18 +11,12 @@ async function getThreads(): Promise<BThread[]> {
       return [];
     }
 
-    const response = await fetch(`${env.BACKEND_URL}/threads`, {
-      headers: {
-        Authorization: `Bearer ${session.accessToken}`,
-      },
+    const threads = (await fetcher({
+      path: `${env.BACKEND_URL}/threads`,
+      headers: { Authorization: `Bearer ${session.accessToken}` },
       next: { tags: ["threads"] },
-    });
+    })) as BThread[];
 
-    if (!response.ok) {
-      return [];
-    }
-
-    const threads = (await response.json()) as BThread[];
     // Sort threads by update_date in descending order (most recent first)
     return threads.sort(
       (a, b) =>

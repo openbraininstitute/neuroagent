@@ -2,6 +2,7 @@ import { BMessage, MessageStrict } from "@/lib/types";
 import { env } from "@/lib/env";
 import { ChatPage } from "@/components/chat-page";
 import { auth } from "@/lib/auth";
+import { fetcher } from "@/lib/fetcher";
 
 async function getMessages(threadId: string): Promise<BMessage[]> {
   const session = await auth();
@@ -9,23 +10,14 @@ async function getMessages(threadId: string): Promise<BMessage[]> {
     throw new Error("No session found");
   }
 
-  const response = await fetch(
-    `${env.BACKEND_URL}/threads/${threadId}/messages`,
-    {
-      headers: {
-        Authorization: `Bearer ${session.accessToken}`,
-      },
-      next: {
-        tags: [`thread/${threadId}/messages`],
-      },
-    },
-  );
+  const response = await fetcher({
+    path: `${env.BACKEND_URL}/threads/{threadId}/messages`,
+    pathParams: { threadId },
+    headers: { Authorization: `Bearer ${session.accessToken}` },
+    next: { tags: [`thread/${threadId}/messages`] },
+  });
 
-  if (!response.ok) {
-    throw new Error(`Failed to fetch messages: ${response.statusText}`);
-  }
-
-  return response.json();
+  return response as Promise<BMessage[]>;
 }
 
 async function getThread(threadId: string) {
@@ -34,20 +26,14 @@ async function getThread(threadId: string) {
     throw new Error("No session found");
   }
 
-  const response = await fetch(`${env.BACKEND_URL}/threads/${threadId}`, {
-    headers: {
-      Authorization: `Bearer ${session.accessToken}`,
-    },
-    next: {
-      tags: [`thread/${threadId}`],
-    },
+  const response = await fetcher({
+    path: `${env.BACKEND_URL}/threads/{threadId}`,
+    pathParams: { threadId },
+    headers: { Authorization: `Bearer ${session.accessToken}` },
+    next: { tags: [`thread/${threadId}`] },
   });
 
-  if (!response.ok) {
-    throw new Error(`Failed to fetch thread: ${response.statusText}`);
-  }
-
-  return response.json();
+  return response;
 }
 
 function convertToAiMessages(messages: BMessage[]): MessageStrict[] {

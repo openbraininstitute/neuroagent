@@ -10,6 +10,7 @@ import {
   TokenSet,
 } from "next-auth";
 import { env } from "@/lib/env";
+import { fetcher } from "@/lib/fetcher";
 
 // Define extended session type
 export interface ExtendedSession extends Session {
@@ -100,27 +101,17 @@ export const authOptions: NextAuthOptions = {
 
 async function refreshAccessToken(token: TokenSet) {
   try {
-    const response = await fetch(
-      `${env.KEYCLOAK_ISSUER}/protocol/openid-connect/token`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-        },
-        body: new URLSearchParams({
-          client_id: env.KEYCLOAK_ID,
-          client_secret: env.KEYCLOAK_SECRET,
-          grant_type: "refresh_token",
-          refresh_token: token.refreshToken as string,
-        }),
-      },
-    );
-
-    const refreshedTokens = await response.json();
-
-    if (!response.ok) {
-      throw refreshedTokens;
-    }
+    const refreshedTokens = await fetcher({
+      method: "POST",
+      path: `${env.KEYCLOAK_ISSUER}/protocol/openid-connect/token`,
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({
+        client_id: env.KEYCLOAK_ID,
+        client_secret: env.KEYCLOAK_SECRET,
+        grant_type: "refresh_token",
+        refresh_token: token.refreshToken as string,
+      }),
+    });
 
     return {
       ...token,
