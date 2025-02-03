@@ -26,11 +26,10 @@ services:
         - NEXT_PUBLIC_KEYCLOAK_ISSUER=https://openbluebrain.com/auth/realms/SBO
         - NEXT_PUBLIC_KEYCLOAK_SECRET=${KEYCLOAK_SECRET}
         - NEXT_PUBLIC_KEYCLOAK_ID=${KEYCLOAK_ID}
-        - NEXTAUTH_URL=http://127.0.0.1:3000
-        - NEXTAUTH_SECRET=your-secret-key
     environment:
-      - NEXTAUTH_URL=http://127.0.0.1:3000
-      - NEXTAUTH_SECRET=your-secret-key
+      - NEXTAUTH_URL=http://localhost:3000
+      - NEXTAUTH_URL_INTERNAL=http://0.0.0.0:3000
+      - NEXTAUTH_SECRET=${NEXTAUTH_SECRET}
     ports:
       - "3000:3000"
     networks:

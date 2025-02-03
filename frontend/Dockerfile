@@ -24,21 +24,17 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-# Add ARG statements for build-time variables
+# Add ARG statements for build-time variables (NEXT_PUBLIC_*)
 ARG NEXT_PUBLIC_BACKEND_URL
 ARG NEXT_PUBLIC_KEYCLOAK_ISSUER
 ARG NEXT_PUBLIC_KEYCLOAK_SECRET
 ARG NEXT_PUBLIC_KEYCLOAK_ID
-ARG NEXTAUTH_URL
-ARG NEXTAUTH_SECRET
 
-# Set them as environment variables during build
+# Set build-time environment variables
 ENV NEXT_PUBLIC_BACKEND_URL=$NEXT_PUBLIC_BACKEND_URL
 ENV NEXT_PUBLIC_KEYCLOAK_ISSUER=$NEXT_PUBLIC_KEYCLOAK_ISSUER
 ENV NEXT_PUBLIC_KEYCLOAK_SECRET=$NEXT_PUBLIC_KEYCLOAK_SECRET
 ENV NEXT_PUBLIC_KEYCLOAK_ID=$NEXT_PUBLIC_KEYCLOAK_ID
-ENV NEXTAUTH_URL=$NEXTAUTH_URL
-ENV NEXTAUTH_SECRET=$NEXTAUTH_SECRET
 
 # Next.js collects completely anonymous telemetry data about general usage.
 # Learn more here: https://nextjs.org/telemetry
