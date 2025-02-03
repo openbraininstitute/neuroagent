@@ -19,14 +19,6 @@ repos:
         args: [--fix]
       - id: ruff-format
 
-  - repo: local
-    hooks:
-      - id: mypy
-        name: mypy
-        files: ^src/
-        language: system
-        entry: bash -c 'mypy src/'
-
   - repo: https://github.com/PyCQA/bandit
     rev: 1.7.4
     hooks:
@@ -34,6 +26,14 @@ repos:
         args: [-c, pyproject.toml, -qr]
         files: ^src/
         additional_dependencies: ["bandit[toml]"]
+
+  - repo: local
+    hooks:
+      - id: mypy
+        name: mypy
+        files: ^src/
+        language: system
+        entry: bash -c 'mypy src/'
 
   - repo: local
     hooks:
