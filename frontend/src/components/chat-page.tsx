@@ -3,8 +3,10 @@
 import { useChat } from "ai/react";
 import { useEffect, useRef, useState } from "react";
 import type { MessageStrict } from "@/lib/types";
-import { getSettings } from "@/lib/cookies-client";
 import { env } from "@/lib/env";
+import { useSession } from "next-auth/react";
+import { ExtendedSession } from "@/lib/auth";
+import { useStore } from "@/lib/store";
 
 import { Button } from "@/components/ui/button";
 import { ChatMessageAI } from "@/components/chat-message-ai";
@@ -22,6 +24,23 @@ export function ChatPage({
   threadTitle,
   initialMessages,
 }: ChatPageProps) {
+  const { data: session } = useSession() as { data: ExtendedSession | null };
+  const { newMessage, setNewMessage } = useStore();
+  const requiresHandleSubmit = useRef(false);
+
+  useEffect(() => {
+    if (initialMessages.length === 0 && newMessage !== "") {
+      initialMessages.push({
+        id: "temp_id",
+        role: "user",
+        content: newMessage,
+      });
+      setNewMessage("");
+      requiresHandleSubmit.current = true;
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Empty dependency array means this runs once on mount
+
   const {
     messages: messagesRaw,
     input,
@@ -33,7 +52,7 @@ export function ChatPage({
   } = useChat({
     api: `${env.BACKEND_URL}/qa/chat_streamed/${threadId}`,
     headers: {
-      Authorization: `Bearer ${getSettings().token}`,
+      Authorization: `Bearer ${session?.accessToken}`,
     },
     initialMessages,
     experimental_prepareRequestBody: ({ messages }) => {
@@ -45,22 +64,33 @@ export function ChatPage({
   });
 
   const messages = messagesRaw as MessageStrict[];
+
   const setMessages = setMessagesRaw as (
     messages:
       | MessageStrict[]
       | ((messages: MessageStrict[]) => MessageStrict[]),
   ) => void;
 
+  // Handle new conversations : add user message and trigger chat.
   const [showTools, setShowTools] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [processedToolInvocationMessages, setProcessedToolInvocationMessages] =
     useState<string[]>([]);
 
+  // Scroll to the end of the page when new messages are added
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
+  // Handle auto-submit if there's a single human message or all tools have been validated
   useEffect(() => {
+    // Auto-submit if there's a single human message
+    if (requiresHandleSubmit.current) {
+      handleSubmit(undefined, { allowEmptySubmit: true });
+      requiresHandleSubmit.current = false;
+      return;
+    }
+
     const lastMessage = messages[messages.length - 1];
     if (lastMessage?.role === "assistant" && lastMessage.toolInvocations) {
       // Skip if we've already processed this message
@@ -102,22 +132,19 @@ export function ChatPage({
   }, [messages, handleSubmit, processedToolInvocationMessages]);
 
   if (error) {
-    console.log("Error", error);
     return null;
   }
 
   return (
     <div className="flex flex-col h-full">
-      <div className="flex justify-end items-center p-4">
+      <div className="relative flex justify-center items-center p-6 w-full">
+        <h1 className="text-3xl absolute">{threadTitle}</h1>
         <Button
-          className="hover:scale-105 active:scale-[1.10]"
+          className="hover:scale-105 active:scale-[1.10] ml-auto"
           onClick={() => setShowTools(!showTools)}
         >
           {showTools ? "Hide Tools" : "Show Tools"}
         </Button>
-      </div>
-      <div className="flex justify-center items-center border-b-2 p-4">
-        <h1 className="text-3xl">{threadTitle}</h1>
       </div>
       <div className="flex-1 flex flex-col overflow-y-auto my-4">
         {messages.map((message) =>

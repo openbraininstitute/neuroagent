@@ -4,28 +4,22 @@ import { env } from "@/lib/env";
 import { getSettings } from "@/lib/cookies-server";
 import { revalidateTag } from "next/cache";
 import { redirect } from "next/navigation";
+import { auth } from "@/lib/auth";
 
 export async function createThreadWithMessage(
   previousState: unknown,
   formData: FormData,
 ) {
-  const content = formData.get("content");
-  if (!content || typeof content !== "string") {
-    return { success: false, error: "No content provided" };
-  }
-
+  const initialMessage = formData.get("content");
   let thread_id: string;
 
   try {
-    const { token, projectID, virtualLabID } = await getSettings();
+    const session = await auth();
+    if (!session?.accessToken) {
+      return { success: false, error: "Not authenticated" };
+    }
 
-    // Generate a random title
-    const randomTitle = `Thread ${new Date().toLocaleString("en-US", {
-      month: "short",
-      day: "numeric",
-      hour: "numeric",
-      minute: "numeric",
-    })}`;
+    const { projectID, virtualLabID } = await getSettings();
 
     // Prepare encoded query parameters
     const encodedVirtualLabID = encodeURIComponent(virtualLabID);
@@ -33,14 +27,16 @@ export async function createThreadWithMessage(
 
     // Create thread
     const threadResponse = await fetch(
-      `${env.BACKEND_URL}/threads?virtual_lab_id=${encodedVirtualLabID}&project_id=${encodedProjectID}`,
+      `${env.BACKEND_URL}/threads/generated_title?virtual_lab_id=${encodedVirtualLabID}&project_id=${encodedProjectID}`,
       {
         method: "POST",
-        body: JSON.stringify({ title: randomTitle }),
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${session.accessToken}`,
           "Content-Type": "application/json",
         },
+        body: JSON.stringify({
+          first_user_message: initialMessage,
+        }),
       },
     );
 
@@ -51,39 +47,10 @@ export async function createThreadWithMessage(
     const { thread_id: newThreadId } = await threadResponse.json();
     thread_id = newThreadId;
 
-    // Send initial message
-    const messageResponse = await fetch(
-      `${env.BACKEND_URL}/qa/chat_streamed/${thread_id}`,
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          content,
-        }),
-      },
-    );
-
-    if (!messageResponse.ok) {
-      throw new Error(`Failed to send message: ${messageResponse.statusText}`);
-    }
-
-    // Read and consume the entire stream
-    const reader = messageResponse.body?.getReader();
-    if (reader) {
-      while (true) {
-        const { done } = await reader.read();
-        if (done) break;
-      }
-    }
-
     revalidateTag("threads");
   } catch (error) {
     console.error("Error creating thread with message:", error);
     return { success: false, error: "Failed to create thread with message" };
   }
-
   redirect(`/threads/${thread_id}`);
 }

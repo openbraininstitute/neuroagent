@@ -38,7 +38,7 @@ router = APIRouter(prefix="/qa", tags=["Run the agent"])
 logger = logging.getLogger(__name__)
 
 
-@router.post("/run/", response_model=AgentResponse)
+@router.post("/run", response_model=AgentResponse)
 async def run_simple_agent(
     user_request: AgentRequest,
     agent_routine: Annotated[AgentsRoutine, Depends(get_agents_routine)],

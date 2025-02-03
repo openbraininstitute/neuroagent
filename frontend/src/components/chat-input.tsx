@@ -3,13 +3,20 @@
 import { useState } from "react";
 import { useActionState } from "react";
 import { createThreadWithMessage } from "@/actions/create-thread";
+import { useStore } from "@/lib/store";
 
 export function ChatInput() {
+  const { newMessage, setNewMessage } = useStore();
   const [input, setInput] = useState("");
-  const [, formAction, isPending] = useActionState(
-    createThreadWithMessage,
-    null,
-  );
+
+  const [, action, isPending] = useActionState(createThreadWithMessage, null);
+
+  const actionWrapper = (formData: FormData) => {
+    if (newMessage === "" && input !== "") {
+      setNewMessage(input);
+    }
+    action(formData);
+  };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
@@ -24,7 +31,8 @@ export function ChatInput() {
         What can I help you with?
       </h1>
       <form
-        action={formAction}
+        data-testid="chat-form"
+        action={actionWrapper}
         onSubmit={(e) => {
           if (!input.trim()) {
             e.preventDefault();
@@ -47,7 +55,10 @@ export function ChatInput() {
             disabled={isPending}
           />
           {isPending && (
-            <div className="absolute right-4 top-1/2 -translate-y-1/2">
+            <div
+              className="absolute right-4 top-1/2 -translate-y-1/2"
+              data-testid="loading-spinner"
+            >
               <div className="w-4 h-4 border-2 border-gray-500 border-t-transparent rounded-full animate-spin" />
             </div>
           )}
