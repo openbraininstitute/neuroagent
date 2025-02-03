@@ -166,10 +166,10 @@ def get_kg_token(
         instance = KeycloakOpenID(
             server_url=settings.keycloak.server_url,
             realm_name=settings.keycloak.realm,
-            client_id=settings.keycloak.client_id,
+            client_id=settings.keycloak.client_id,  # type: ignore
         )
         return instance.token(
-            username=settings.keycloak.username,
+            username=settings.keycloak.username,  # type: ignore
             password=settings.keycloak.password.get_secret_value(),  # type: ignore
         )["access_token"]
 
