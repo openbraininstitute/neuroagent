@@ -1,21 +1,15 @@
 "use client";
-import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { MessageCircle, X, Pencil, Ellipsis } from "lucide-react";
 import { Thread } from "@/lib/types";
-import { deleteThread } from "@/actions/delete-thread";
 import { editThread } from "@/actions/edit-thread";
+import { deleteThread } from "@/actions/delete-thread";
 import { useActionState } from "react";
 import { usePathname } from "next/navigation";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { useState } from "react";
+import { EditThreadDialog } from "@/components/edit-thread-dialog";
+import { DeleteThreadDialog } from "@/components/delete-thread-dialog";
+import { Button } from "@/components/ui/button";
+import { useState, useOptimistic } from "react";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -23,16 +17,23 @@ import {
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
+
 type ThreadCardSidebarProps = Thread;
 
 export function ThreadCardSidebar({ title, threadID }: ThreadCardSidebarProps) {
+  const [, editAction] = useActionState(editThread, null);
   const [, deleteAction, isDeletePending] = useActionState(deleteThread, null);
-  const [, editAction, isEditPending] = useActionState(editThread, null);
   const pathname = usePathname();
   const currentThreadId = pathname.split("/").pop();
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [newTitle, setNewTitle] = useState(title);
+  const [optimisticTitle, addOptimisticTitle] = useOptimistic(
+    title,
+    (title, newTitle: string) => {
+      return newTitle;
+    },
+  );
 
   return (
     <div
@@ -50,9 +51,9 @@ export function ThreadCardSidebar({ title, threadID }: ThreadCardSidebarProps) {
       >
         <MessageCircle />
         <span
-          className={`truncate max-w-[80%] ${isDeletePending || isEditPending || isDropdownOpen ? "opacity-50" : ""}`}
+          className={`truncate max-w-[80%] ${isDeletePending || isDropdownOpen ? "opacity-50" : ""}`}
         >
-          {title}
+          {optimisticTitle}
         </span>
       </Link>
 
@@ -71,77 +72,45 @@ export function ThreadCardSidebar({ title, threadID }: ThreadCardSidebarProps) {
           </DropdownMenuTrigger>
 
           <DropdownMenuContent className="flex flex-col min-w-fit -translate-y-[20%] translate-x-[50%] border-2">
-            {/* Edit Option */}
+            {/* Edit Option  */}
             <DropdownMenuItem
               onClick={(e) => {
                 e.preventDefault();
-                setIsDialogOpen(true);
+                setIsEditDialogOpen(true);
                 setIsDropdownOpen(false);
               }}
             >
               <Pencil /> Edit
             </DropdownMenuItem>
-
             {/* Delete Option */}
-            <form action={deleteAction}>
-              <input type="hidden" name="threadId" value={threadID} readOnly />
-              <input
-                type="hidden"
-                name="currentThreadId"
-                value={currentThreadId}
-                readOnly
-              />
-              <DropdownMenuItem asChild>
-                <button
-                  className="w-[100%]"
-                  disabled={isDeletePending}
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <X />
-                  Delete
-                </button>
-              </DropdownMenuItem>
-            </form>
+            <DropdownMenuItem
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsDeleteDialogOpen(true);
+                setIsDropdownOpen(false);
+              }}
+            >
+              <X />
+              Delete
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
 
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <form action={editAction}>
-            <input type="hidden" name="threadId" value={threadID} />
-            <input
-              type="text"
-              name="title"
-              className="hidden"
-              id={`edit-${threadID}`}
-              defaultValue={newTitle}
-            />
-          </form>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Edit Thread Title</DialogTitle>
-            </DialogHeader>
-            <Input
-              value={newTitle}
-              onChange={(e) => setNewTitle(e.target.value)}
-              placeholder="Enter new title"
-            />
-            <DialogFooter>
-              <Button
-                type="submit"
-                onClick={() => {
-                  const input = document.getElementById(
-                    `edit-${threadID}`,
-                  ) as HTMLInputElement;
-                  input.value = newTitle;
-                  input.form?.requestSubmit();
-                  setIsDialogOpen(false);
-                }}
-              >
-                Save Changes
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+        <EditThreadDialog
+          title={title}
+          threadID={threadID}
+          editAction={editAction}
+          isDialogOpen={isEditDialogOpen}
+          setIsDialogOpen={setIsEditDialogOpen}
+          addOptimisticTitle={addOptimisticTitle}
+        />
+        <DeleteThreadDialog
+          threadID={threadID}
+          currentThreadId={currentThreadId}
+          deleteAction={deleteAction}
+          isDialogOpen={isDeleteDialogOpen}
+          setIsDialogOpen={setIsDeleteDialogOpen}
+        />
       </div>
     </div>
   );
