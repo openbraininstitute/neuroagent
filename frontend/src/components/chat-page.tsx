@@ -6,6 +6,7 @@ import type { MessageStrict } from "@/lib/types";
 import { env } from "@/lib/env";
 import { useSession } from "next-auth/react";
 import { ExtendedSession } from "@/lib/auth";
+import { useStore } from "@/lib/store";
 
 import { Button } from "@/components/ui/button";
 import { ChatMessageAI } from "@/components/chat-message-ai";
@@ -24,6 +25,21 @@ export function ChatPage({
   initialMessages,
 }: ChatPageProps) {
   const { data: session } = useSession() as { data: ExtendedSession | null };
+  const { newMessage, setNewMessage } = useStore();
+  const requiresHandleSubmit = useRef(false);
+
+  useEffect(() => {
+    if (initialMessages.length === 0 && newMessage !== "") {
+      initialMessages.push({
+        id: "temp_id",
+        role: "user",
+        content: newMessage,
+      });
+      setNewMessage("");
+      requiresHandleSubmit.current = true;
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Empty dependency array means this runs once on mount
 
   const {
     messages: messagesRaw,
@@ -48,22 +64,33 @@ export function ChatPage({
   });
 
   const messages = messagesRaw as MessageStrict[];
+
   const setMessages = setMessagesRaw as (
     messages:
       | MessageStrict[]
       | ((messages: MessageStrict[]) => MessageStrict[]),
   ) => void;
 
+  // Handle new conversations : add user message and trigger chat.
   const [showTools, setShowTools] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [processedToolInvocationMessages, setProcessedToolInvocationMessages] =
     useState<string[]>([]);
 
+  // Scroll to the end of the page when new messages are added
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
+  // Handle auto-submit if there's a single human message or all tools have been validated
   useEffect(() => {
+    // Auto-submit if there's a single human message
+    if (requiresHandleSubmit.current) {
+      handleSubmit(undefined, { allowEmptySubmit: true });
+      requiresHandleSubmit.current = false;
+      return;
+    }
+
     const lastMessage = messages[messages.length - 1];
     if (lastMessage?.role === "assistant" && lastMessage.toolInvocations) {
       // Skip if we've already processed this message
@@ -105,7 +132,6 @@ export function ChatPage({
   }, [messages, handleSubmit, processedToolInvocationMessages]);
 
   if (error) {
-    console.log("Error", error);
     return null;
   }
 

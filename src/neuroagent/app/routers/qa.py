@@ -4,11 +4,12 @@ import json
 import logging
 from typing import Annotated, Any
 
-from fastapi import APIRouter, Depends, Request
+from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import StreamingResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from neuroagent.agent_routine import AgentsRoutine
+from neuroagent.app.config import Settings
 from neuroagent.app.database.db_utils import get_thread
 from neuroagent.app.database.sql_schemas import (
     Entity,
@@ -20,6 +21,7 @@ from neuroagent.app.dependencies import (
     get_agents_routine,
     get_context_variables,
     get_session,
+    get_settings,
     get_starting_agent,
 )
 from neuroagent.new_types import (
@@ -42,8 +44,14 @@ async def run_simple_agent(
     agent_routine: Annotated[AgentsRoutine, Depends(get_agents_routine)],
     agent: Annotated[Agent, Depends(get_starting_agent)],
     context_variables: Annotated[dict[str, Any], Depends(get_context_variables)],
+    settings: Annotated[Settings, Depends(get_settings)],
 ) -> AgentResponse:
     """Run a single agent query."""
+    if len(user_request.query) > settings.misc.query_max_size:
+        raise HTTPException(
+            status_code=413,
+            detail=f"Query string has {len(user_request.query)} characters. Maximum allowed is {settings.misc.query_max_size}.",
+        )
     response = await agent_routine.arun(
         agent,
         [
@@ -67,8 +75,14 @@ async def run_chat_agent(
     context_variables: Annotated[dict[str, Any], Depends(get_context_variables)],
     session: Annotated[AsyncSession, Depends(get_session)],
     thread: Annotated[Threads, Depends(get_thread)],
+    settings: Annotated[Settings, Depends(get_settings)],
 ) -> AgentResponse | list[HILResponse]:
     """Run a single agent query."""
+    if len(user_request.query) > settings.misc.query_max_size:
+        raise HTTPException(
+            status_code=413,
+            detail=f"Query string has {len(user_request.query)} characters. Maximum allowed is {settings.misc.query_max_size}.",
+        )
     # Temporary solution
     context_variables["vlab_id"] = thread.vlab_id
     context_variables["project_id"] = thread.project_id
@@ -102,8 +116,14 @@ async def stream_chat_agent(
     agent: Annotated[Agent, Depends(get_starting_agent)],
     context_variables: Annotated[dict[str, Any], Depends(get_context_variables)],
     thread: Annotated[Threads, Depends(get_thread)],
+    settings: Annotated[Settings, Depends(get_settings)],
 ) -> StreamingResponse:
     """Run a single agent query in a streamed fashion."""
+    if len(user_request.content) > settings.misc.query_max_size:
+        raise HTTPException(
+            status_code=413,
+            detail=f"Query string has {len(user_request.content)} characters. Maximum allowed is {settings.misc.query_max_size}.",
+        )
     # Temporary solution
     context_variables["vlab_id"] = thread.vlab_id
     context_variables["project_id"] = thread.project_id

@@ -224,33 +224,19 @@ def test_generate_thread_title(
         threads = app_client.get("/threads/").json()
         assert not threads
 
-        # Create a thread
+        # Create a thread with generated title
         create_thread_response = app_client.post(
-            "/threads/?virtual_lab_id=test_vlab&project_id=test_project"
+            "/threads/generated_title?virtual_lab_id=test_vlab&project_id=test_project",
+            json={"first_user_message": "This is my query"},
         ).json()
-        thread_id = create_thread_response["thread_id"]
 
-        # Fill the thread
-        app_client.post(
-            f"/qa/chat/{thread_id}",
-            json={"query": "This is my query"},
-            headers={"x-virtual-lab-id": "test_vlab", "x-project-id": "test_project"},
-        )
-        app_client.post(
-            f"/qa/chat/{thread_id}",
-            json={"query": "Second query, I'm sure OpenAI won't use me !"},
-            headers={"x-virtual-lab-id": "test_vlab", "x-project-id": "test_project"},
-        )
-
-        # Generate title
-        response = app_client.patch(f"/threads/{thread_id}/generate_title")
-        assert response.json()["title"] == "sample response content"
+        assert create_thread_response["title"] == "sample response content"
         mock_openai_client.assert_create_called_with(
             **{
                 "messages": [
                     {
                         "role": "system",
-                        "content": "Given the user's first message of a conversation, generate a short and descriptive title for this conversation.",
+                        "content": "Given the user's first message of a conversation, generate a short title for this conversation (max 5 words).",
                     },
                     {"role": "user", "content": "This is my query"},
                 ],
