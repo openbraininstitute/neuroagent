@@ -9,7 +9,7 @@ type ChatMessageAIProps = {
 
 export function ChatMessageAI({ content }: ChatMessageAIProps) {
   return (
-    <div className="border-r-2 p-8 border-white-300 border-solid">
+    <div className="border-r-2 p-4 border-white-300 border-solid ">
       <div className="flex justify-start">
         <Card className="max-w-2xl bg-transparent shadow-none border-none">
           <CardContent>
