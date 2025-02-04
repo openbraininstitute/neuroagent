@@ -37,7 +37,7 @@ export async function fetcher({
   }
 
   const url = new URL(processedPath, env.BACKEND_URL);
-  console.log(url);
+
   if (queryParams) {
     Object.entries(queryParams).forEach(([key, value]) => {
       url.searchParams.set(key, String(value));
