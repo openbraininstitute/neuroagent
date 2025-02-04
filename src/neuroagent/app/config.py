@@ -229,6 +229,7 @@ class Settings(BaseSettings):
         env_prefix="NEUROAGENT_",
         env_nested_delimiter="__",
         frozen=True,
+        extra="ignore",
     )
 
     @model_validator(mode="after")
