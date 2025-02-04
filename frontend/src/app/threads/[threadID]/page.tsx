@@ -19,22 +19,6 @@ async function getMessages(threadId: string): Promise<BMessage[]> {
   return response as Promise<BMessage[]>;
 }
 
-async function getThread(threadId: string) {
-  const session = await auth();
-  if (!session?.accessToken) {
-    throw new Error("No session found");
-  }
-
-  const response = await fetcher({
-    path: "/threads/{threadId}",
-    pathParams: { threadId },
-    headers: { Authorization: `Bearer ${session.accessToken}` },
-    next: { tags: [`thread/${threadId}`] },
-  });
-
-  return response;
-}
-
 function convertToAiMessages(messages: BMessage[]): MessageStrict[] {
   const output: MessageStrict[] = [];
 
@@ -97,17 +81,8 @@ export default async function PageThread({
   const paramsAwaited = await params;
   const threadId = paramsAwaited?.threadID;
 
-  const [thread, messages] = await Promise.all([
-    getThread(threadId),
-    getMessages(threadId),
-  ]);
+  const messages = await getMessages(threadId);
   const convertedMessages = convertToAiMessages(messages);
 
-  return (
-    <ChatPage
-      threadId={threadId}
-      threadTitle={thread.title || `AI Discussion #${threadId}`}
-      initialMessages={convertedMessages}
-    />
-  );
+  return <ChatPage threadId={threadId} initialMessages={convertedMessages} />;
 }

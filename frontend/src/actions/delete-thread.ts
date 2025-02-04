@@ -24,7 +24,6 @@ export async function deleteThread(previousState: unknown, formData: FormData) {
     });
 
     revalidateTag("threads");
-    revalidateTag(`threads/${threadId}`);
     revalidateTag(`threads/${threadId}/messages`);
   } catch (error) {
     return {
