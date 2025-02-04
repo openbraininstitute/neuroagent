@@ -16,6 +16,7 @@ jobs:
     defaults:
       run:
         working-directory: backend
+
     steps:
       - name: Cancel previous workflows that are still running
         uses: styfle/cancel-workflow-action@0.8.0
@@ -46,8 +47,9 @@ jobs:
   unit-tests:
     runs-on: ${{ matrix.os }}
     defaults:
-    run:
-      working-directory: backend
+      run:
+        working-directory: backend
+
     services:
         postgres:
           image: postgres:latest
