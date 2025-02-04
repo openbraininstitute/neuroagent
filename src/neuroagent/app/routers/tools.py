@@ -9,6 +9,7 @@ from pydantic import ValidationError
 from sqlalchemy import desc, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from neuroagent.agent_routine import AgentsRoutine
 from neuroagent.app.database.db_utils import get_thread
 from neuroagent.app.database.schemas import (
     ExecuteToolCallRequest,
@@ -16,6 +17,7 @@ from neuroagent.app.database.schemas import (
 )
 from neuroagent.app.database.sql_schemas import Entity, Messages, Threads, ToolCalls
 from neuroagent.app.dependencies import (
+    get_agents_routine,
     get_context_variables,
     get_session,
     get_starting_agent,
@@ -36,6 +38,7 @@ async def execute_tool_call(
     session: Annotated[AsyncSession, Depends(get_session)],
     starting_agent: Annotated[Agent, Depends(get_starting_agent)],
     context_variables: Annotated[dict[str, Any], Depends(get_context_variables)],
+    agents_routine: Annotated[AgentsRoutine, Depends(get_agents_routine)],
 ) -> ExecuteToolCallResponse:
     """Execute a specific tool call and update its status."""
     # Get the tool call
@@ -57,9 +60,6 @@ async def execute_tool_call(
     if request.args and request.validation == "accepted":
         tool_call.arguments = request.args
 
-    # Add modified tool_call to session
-    session.add(tool_call)
-
     # Handle rejection case
     if request.validation == "rejected":
         message = {
@@ -68,68 +68,19 @@ async def execute_tool_call(
             "tool_name": tool_call.name,
             "content": "The tool call has been invalidated by the user.",
         }
-        content = message["content"]
     else:  # Handle acceptance case
-        # Get the tool from the agent's tools
-        tool_map = {tool.name: tool for tool in starting_agent.tools}
-        name = tool_call.name
-
-        if name not in tool_map:
-            message = {
-                "role": "tool",
-                "tool_call_id": tool_call.tool_call_id,
-                "tool_name": name,
-                "content": f"Error: Tool {name} not found.",
-            }
-            content = message["content"]
-        else:
-            tool = tool_map[name]
-            kwargs = json.loads(tool_call.arguments)
-
-            try:
-                # Validate input schema
-                input_schema = tool.__annotations__["input_schema"](**kwargs)
-
-                # Execute the tool
-                tool_metadata = tool.__annotations__["metadata"](**context_variables)
-                tool_instance = tool(input_schema=input_schema, metadata=tool_metadata)
-
-                raw_result = await tool_instance.arun()
-
-                # Process the result
-                result = (
-                    raw_result
-                    if isinstance(raw_result, str)
-                    else json.dumps(raw_result)
-                )
-                message = {
-                    "role": "tool",
-                    "tool_call_id": tool_call.tool_call_id,
-                    "tool_name": name,
-                    "content": result,
-                }
-                content = message["content"]
-
-            except ValidationError:
-                # Return early with validation-error status without committing to DB
-                return ExecuteToolCallResponse(status="validation-error", content=None)
-            except Exception as err:
-                error_message = str(err)
-                message = {
-                    "role": "tool",
-                    "tool_call_id": tool_call.tool_call_id,
-                    "tool_name": name,
-                    "content": error_message,
-                }
-                content = message["content"]
-
-    # Add the tool response as a new message
-    new_message = Messages(
-        order=0,  # This will be set correctly below
-        thread_id=thread_id,
-        entity=Entity.TOOL,
-        content=json.dumps(message),
-    )
+        try:
+            message = await agents_routine.handle_tool_call(
+                tool_call=tool_call,
+                tools=starting_agent.tools,
+                context_variables=context_variables,
+                raise_validation_errors=True,
+            )
+        except ValidationError:
+            # Return early with validation-error status without committing to DB
+            return ExecuteToolCallResponse(
+                status="validation-error", content=message["content"]
+            )
 
     # Get the latest message order for this thread
     latest_message = await session.execute(
@@ -138,10 +89,18 @@ async def execute_tool_call(
         .order_by(desc(Messages.order))
         .limit(1)
     )
-    latest = latest_message.scalar_one_or_none()
-    new_message.order = (latest.order + 1) if latest else 0
+    latest = latest_message.scalar_one()
 
+    # Add the tool response as a new message
+    new_message = Messages(
+        order=latest.order + 1,
+        thread_id=thread_id,
+        entity=Entity.TOOL,
+        content=json.dumps(message),
+    )
+
+    session.add(tool_call)
     session.add(new_message)
     await session.commit()
 
-    return ExecuteToolCallResponse(status="done", content=content)
+    return ExecuteToolCallResponse(status="done", content=message["content"])

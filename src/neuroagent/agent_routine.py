@@ -113,6 +113,7 @@ class AgentsRoutine:
         tool_call: ToolCalls,
         tools: list[type[BaseTool]],
         context_variables: dict[str, Any],
+        raise_validation_errors: bool = False,
     ) -> tuple[dict[str, str], Agent | None]:
         """Run individual tools."""
         tool_map = {tool.name: tool for tool in tools}
@@ -132,13 +133,18 @@ class AgentsRoutine:
         try:
             input_schema = tool.__annotations__["input_schema"](**kwargs)
         except ValidationError as err:
-            response = {
-                "role": "tool",
-                "tool_call_id": tool_call.tool_call_id,
-                "tool_name": name,
-                "content": str(err),
-            }
-            return response, None
+            # Raise validation error if requested
+            if raise_validation_errors:
+                raise err
+            else:
+                # Otherwise transforn it into an OpenAI response for the model to retry
+                response = {
+                    "role": "tool",
+                    "tool_call_id": tool_call.tool_call_id,
+                    "tool_name": name,
+                    "content": str(err),
+                }
+                return response, None
 
         tool_metadata = tool.__annotations__["metadata"](**context_variables)
         tool_instance = tool(input_schema=input_schema, metadata=tool_metadata)
