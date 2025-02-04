@@ -41,7 +41,7 @@ repos:
         name: prettier
         files: \.[jt]sx?$
         language: system
-        entry: bash -c 'cd frontend && exec npx prettier --check "**/*.{js,jsx,ts,tsx,json,md}"'
+        entry: bash -c 'cd frontend && exec npx prettier --write "**/*.{js,jsx,ts,tsx,json,md}"'
 
   - repo: local
     hooks:

@@ -1,9 +1,9 @@
 "use server";
 
-import { env } from "@/lib/env";
 import { revalidateTag } from "next/cache";
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
+import { fetcher } from "@/lib/fetcher";
 
 export async function deleteThread(previousState: unknown, formData: FormData) {
   const threadId = formData.get("threadId") as string;
@@ -16,19 +16,14 @@ export async function deleteThread(previousState: unknown, formData: FormData) {
       return { error: "Not authenticated" };
     }
 
-    const response = await fetch(`${env.BACKEND_URL}/threads/${threadId}`, {
+    await fetcher({
       method: "DELETE",
-      headers: {
-        Authorization: `Bearer ${session.accessToken}`,
-      },
+      path: "/threads/{threadId}",
+      pathParams: { threadId },
+      headers: { Authorization: `Bearer ${session.accessToken}` },
     });
 
-    if (!response.ok) {
-      throw new Error(`Failed to delete thread: ${response.statusText}`);
-    }
-
     revalidateTag("threads");
-    revalidateTag(`threads/${threadId}`);
     revalidateTag(`threads/${threadId}/messages`);
   } catch (error) {
     return {

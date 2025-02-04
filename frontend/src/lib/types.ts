@@ -96,3 +96,13 @@ export type BMessage =
 export type MessageStrict = Omit<Message, "annotations"> & {
   annotations?: Annotation[];
 };
+
+export type BExecuteToolCallRequest = {
+  validation: "rejected" | "accepted";
+  args?: string;
+};
+
+export type BExecuteToolCallResponse = {
+  status: "done" | "validation-error";
+  content: string | null;
+};
