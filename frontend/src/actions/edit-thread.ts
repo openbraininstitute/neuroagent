@@ -1,6 +1,5 @@
 "use server";
 
-import { env } from "@/lib/env";
 import { revalidateTag } from "next/cache";
 import { auth } from "@/lib/auth";
 import { fetcher } from "@/lib/fetcher";

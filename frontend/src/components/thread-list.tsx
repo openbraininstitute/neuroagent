@@ -1,5 +1,4 @@
 import { ThreadCardSidebar } from "@/components/thread-card-sidebar";
-import { env } from "@/lib/env";
 import { auth } from "@/lib/auth";
 import { BThread } from "@/lib/types";
 import { fetcher } from "@/lib/fetcher";

@@ -1,6 +1,5 @@
 "use server";
 
-import { env } from "@/lib/env";
 import { getSettings } from "@/lib/cookies-server";
 import { revalidateTag } from "next/cache";
 import { redirect } from "next/navigation";

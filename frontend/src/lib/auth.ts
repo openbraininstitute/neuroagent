@@ -122,7 +122,6 @@ async function refreshAccessToken(token: TokenSet) {
       throw refreshedTokens;
     }
 
-
     return {
       ...token,
       accessToken: refreshedTokens.access_token,
