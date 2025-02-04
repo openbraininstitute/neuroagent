@@ -34,32 +34,12 @@ class SettingsKeycloak(BaseModel):
     """Class retrieving keycloak info for authorization."""
 
     issuer: str = "https://openbluebrain.com/auth/realms/SBO"
-    # Useful only for service account (dev)
-    client_id: str | None = None
-    username: str | None = None
-    password: SecretStr | None = None
-
     model_config = ConfigDict(frozen=True)
-
-    @property
-    def token_endpoint(self) -> str | None:
-        """Define the token endpoint."""
-        return f"{self.issuer}/protocol/openid-connect/token"
 
     @property
     def user_info_endpoint(self) -> str | None:
         """Define the user_info endpoint."""
         return f"{self.issuer}/protocol/openid-connect/userinfo"
-
-    @property
-    def server_url(self) -> str:
-        """Server url."""
-        return self.issuer.split("/auth")[0] + "/auth/"
-
-    @property
-    def realm(self) -> str:
-        """Realm."""
-        return self.issuer.rpartition("/realms/")[-1]
 
 
 class SettingsLiterature(BaseModel):
@@ -116,7 +96,6 @@ class SettingsKnowledgeGraph(BaseModel):
     """Knowledge graph API settings."""
 
     base_url: str
-    download_hierarchy: bool = False
     br_saving_path: pathlib.Path | str = str(
         pathlib.Path(__file__).parent / "data" / "brainregion_hierarchy.json"
     )

@@ -10,7 +10,6 @@ from neuroagent.schemas import KGMetadata
 from neuroagent.utils import (
     RegionMeta,
     get_descendants_id,
-    get_file_from_KG,
     get_kg_data,
     is_lnmc,
     merge_chunk,
@@ -215,113 +214,6 @@ def test_RegionMeta_load_real_file(brain_region_json_path):
     assert RegionMeta_test.children_ids[23] == []
     assert RegionMeta_test.children_ids[670] == [2260827822, 3562104832]
     assert RegionMeta_test.children_ids[31] == [1053, 179, 227, 39, 48, 572, 739]
-
-
-@pytest.mark.asyncio
-async def test_get_file_from_KG_errors(httpx_mock):
-    file_url = "http://fake_url.com"
-    file_name = "fake_file"
-    view_url = "http://fake_url_view.com"
-    token = "fake_token"
-    client = AsyncClient()
-
-    # first response from KG is not a json
-    httpx_mock.add_response(url=view_url, text="not a json")
-
-    with pytest.raises(ValueError) as not_json:
-        await get_file_from_KG(
-            file_url=file_url,
-            file_name=file_name,
-            view_url=view_url,
-            token=token,
-            httpx_client=client,
-        )
-    assert not_json.value.args[0] == "url_response did not return a Json."
-
-    # no file url found in the KG
-    httpx_mock.add_response(
-        url=view_url, json={"head": {"vars": ["file_url"]}, "results": {"bindings": []}}
-    )
-
-    with pytest.raises(IndexError) as not_found:
-        await get_file_from_KG(
-            file_url=file_url,
-            file_name=file_name,
-            view_url=view_url,
-            token=token,
-            httpx_client=client,
-        )
-    assert not_found.value.args[0] == "No file url was found."
-
-    httpx_mock.reset()
-    # no file found corresponding to file_url
-    test_file_url = "http://test_url.com"
-    json_response = {
-        "head": {"vars": ["file_url"]},
-        "results": {
-            "bindings": [{"file_url": {"type": "uri", "value": test_file_url}}]
-        },
-    }
-
-    httpx_mock.add_response(url=view_url, json=json_response)
-    httpx_mock.add_response(url=test_file_url, status_code=401)
-
-    with pytest.raises(ValueError) as not_found:
-        await get_file_from_KG(
-            file_url=file_url,
-            file_name=file_name,
-            view_url=view_url,
-            token=token,
-            httpx_client=client,
-        )
-    assert not_found.value.args[0] == "Could not find the file, status code : 401"
-
-    # Problem finding the file url
-    httpx_mock.add_response(url=view_url, status_code=401)
-
-    with pytest.raises(ValueError) as not_found:
-        await get_file_from_KG(
-            file_url=file_url,
-            file_name=file_name,
-            view_url=view_url,
-            token=token,
-            httpx_client=client,
-        )
-    assert not_found.value.args[0] == "Could not find the file url, status code : 401"
-
-
-@pytest.mark.asyncio
-async def test_get_file_from_KG(httpx_mock):
-    file_url = "http://fake_url"
-    file_name = "fake_file"
-    view_url = "http://fake_url"
-    token = "fake_token"
-    test_file_url = "http://test_url"
-    client = AsyncClient()
-
-    json_response_url = {
-        "head": {"vars": ["file_url"]},
-        "results": {
-            "bindings": [{"file_url": {"type": "uri", "value": test_file_url}}]
-        },
-    }
-    with open(
-        Path(__file__).parent / "data" / "KG_brain_regions_hierarchy_test.json"
-    ) as fh:
-        json_response_file = json.load(fh)
-
-    httpx_mock.add_response(url=view_url, json=json_response_url)
-    httpx_mock.add_response(url=test_file_url, json=json_response_file)
-
-    response = await get_file_from_KG(
-        file_url=file_url,
-        file_name=file_name,
-        view_url=view_url,
-        token=token,
-        httpx_client=client,
-    )
-
-    assert response == json_response_file
 
 
 @pytest.mark.asyncio

@@ -12,7 +12,8 @@ from sqlalchemy import MetaData
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 
 from neuroagent.app.config import Settings
-from neuroagent.app.dependencies import Agent, get_kg_token, get_settings
+from neuroagent.app.database.sql_schemas import Entity, Messages, Threads, ToolCalls
+from neuroagent.app.dependencies import Agent, get_settings
 from neuroagent.app.main import app
 from neuroagent.tools.base_tool import BaseTool
 from tests.mock_client import MockOpenAIClient, create_mock_response
@@ -34,14 +35,8 @@ def client_fixture():
         openai={
             "token": "fake_token",
         },
-        keycloak={
-            "username": "fake_username",
-            "password": "fake_password",
-        },
     )
     app.dependency_overrides[get_settings] = lambda: test_settings
-    # mock keycloak authentication
-    app.dependency_overrides[get_kg_token] = lambda: "fake_token"
     yield app_client
     app.dependency_overrides.clear()
 
@@ -76,6 +71,7 @@ def fake_tool():
         description: ClassVar[str] = "Great description"
         metadata: FakeToolMetadata
         input_schema: FakeToolInput
+        hil: ClassVar[bool] = True
 
         async def arun(self):
             if self.metadata.planet:
@@ -123,8 +119,25 @@ def patch_required_env(monkeypatch):
         "NEUROAGENT_KNOWLEDGE_GRAPH__BASE_URL", "https://fake_url/api/nexus/v1"
     )
     monkeypatch.setenv("NEUROAGENT_OPENAI__TOKEN", "dummy")
-    monkeypatch.setenv("NEUROAGENT_KEYCLOAK__VALIDATE_TOKEN", "False")
-    monkeypatch.setenv("NEUROAGENT_KEYCLOAK__PASSWORD", "password")
+
+
+# Don't make it a fixture so that it doesn't trigger on skipped tests
+def mock_keycloak_user_identification(httpx_mock):
+    # set keycloak={"issuer": "https://great_issuer.com"} in your settings
+    fake_response = {
+        "sub": "12345",
+        "email_verified": False,
+        "name": "Machine Learning Test User",
+        "groups": [],
+        "preferred_username": "sbo-ml",
+        "given_name": "Machine Learning",
+        "family_name": "Test User",
+        "email": "email@epfl.ch",
+    }
+    httpx_mock.add_response(
+        url="https://great_issuer.com/protocol/openid-connect/userinfo",
+        json=fake_response,
+    )
 
 
 @pytest_asyncio.fixture(params=["sqlite", "postgresql"], name="db_connection")
@@ -172,6 +185,68 @@ def brain_region_json_path():
     return br_path
 
 
+@pytest_asyncio.fixture
+async def populate_db(db_connection):
+    engine = create_async_engine(db_connection)
+    session = AsyncSession(bind=engine)
+    # Create a dummy thread
+    thread = Threads(
+        user_id="12345",
+        vlab_id="430108e9-a81d-4b13-b7b6-afca00195908",  # default
+        project_id="eff09ea1-be16-47f0-91b6-52a3ea3ee575",  # default
+        title="Test Thread",
+    )
+
+    # Create four dummy messages associated with the thread
+    messages = [
+        Messages(
+            order=0,
+            entity=Entity.USER,
+            content=json.dumps({"content": "This is my query."}),
+            thread=thread,
+        ),
+        Messages(
+            order=1,
+            entity=Entity.AI_TOOL,
+            content=json.dumps({"content": ""}),
+            thread=thread,
+        ),
+        Messages(
+            order=2,
+            entity=Entity.TOOL,
+            content=json.dumps({"content": "It's sunny today."}),
+            thread=thread,
+        ),
+        Messages(
+            order=3,
+            entity=Entity.AI_MESSAGE,
+            content=json.dumps({"content": "sample response content."}),
+            thread=thread,
+        ),
+    ]
+
+    tool_call = ToolCalls(
+        tool_call_id="mock_id_tc",
+        name="get_weather",
+        arguments=json.dumps({"location": "Geneva"}),
+        validated=None,
+        message=messages[1],
+    )
+
+    # Add them to the session
+    session.add(thread)
+    session.add_all(messages)
+    session.add(tool_call)
+
+    # Commit the transaction to persist them in the test database
+    await session.commit()
+    await session.refresh(thread)
+    await session.refresh(tool_call)
+    # Return the created objects so they can be used in tests
+    yield {"thread": thread, "messages": messages, "tool_call": tool_call}, session
+    await session.close()
+
+
 @pytest.fixture(name="settings")
 def settings():
     return Settings(
@@ -185,9 +260,5 @@ def settings():
         },
         openai={
             "token": "fake_token",
-        },
-        keycloak={
-            "username": "fake_username",
-            "password": "fake_password",
         },
     )

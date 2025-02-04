@@ -12,7 +12,6 @@ from neuroagent.app.config import Settings
 
 @pytest.mark.asyncio
 async def test_validate_project(patch_required_env, httpx_mock, monkeypatch):
-    monkeypatch.setenv("NEUROAGENT_KEYCLOAK__VALIDATE_TOKEN", "true")
     httpx_client = AsyncClient()
     token = "fake_token"
     test_vp = {"vlab_id": "test_vlab_DB", "project_id": "project_id_DB"}
@@ -45,7 +44,7 @@ async def test_validate_project(patch_required_env, httpx_mock, monkeypatch):
         token=token,
         vlab_project_url=vlab_url,
     )
-    # we jsut want to assert that the httpx_mock was called.
+    # we just want to assert that the httpx_mock was called.
 
 
 @patch("neuroagent.app.app_utils.create_async_engine")

@@ -27,7 +27,7 @@ async def stream_agent_response(
             client=AsyncOpenAI(api_key=agents_routine.client.api_key)
         )
     else:
-        connected_agents_routine = AgentsRoutine()
+        connected_agents_routine = AgentsRoutine(client=agents_routine.client)
 
     # Restore the httpx client
     httpx_client = AsyncClient(  # nosec B501

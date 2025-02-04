@@ -70,17 +70,15 @@ async def execute_tool_call(
         }
     else:  # Handle acceptance case
         try:
-            message = await agents_routine.handle_tool_call(
+            message, _ = await agents_routine.handle_tool_call(
                 tool_call=tool_call,
                 tools=starting_agent.tools,
                 context_variables=context_variables,
                 raise_validation_errors=True,
             )
-        except ValidationError:
+        except ValidationError as err:
             # Return early with validation-error status without committing to DB
-            return ExecuteToolCallResponse(
-                status="validation-error", content=message["content"]
-            )
+            return ExecuteToolCallResponse(status="validation-error", content=str(err))
 
     # Get the latest message order for this thread
     latest_message = await session.execute(
