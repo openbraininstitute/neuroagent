@@ -27,6 +27,7 @@ export function ChatPage({
   const { data: session } = useSession() as { data: ExtendedSession | null };
   const { newMessage, setNewMessage } = useStore();
   const requiresHandleSubmit = useRef(false);
+  console.log("Inside chat-page.tsx");
 
   useEffect(() => {
     if (initialMessages.length === 0 && newMessage !== "") {
@@ -37,6 +38,8 @@ export function ChatPage({
       });
       setNewMessage("");
       requiresHandleSubmit.current = true;
+
+      console.log("Setting initial messages with new message");
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // Empty dependency array means this runs once on mount

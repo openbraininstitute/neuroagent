@@ -111,6 +111,7 @@ export default async function PageThread({
 }) {
   const paramsAwaited = await params;
   const threadId = paramsAwaited?.threadID;
+  console.log("Thread ID:", threadId);
 
   const [thread, messages] = await Promise.all([
     getThread(threadId),
