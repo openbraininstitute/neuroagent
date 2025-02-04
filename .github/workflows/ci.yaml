@@ -11,11 +11,11 @@ on:
         required: false
 
 jobs:
-  defaults:
-    run:
-      working-directory: backend
   linting:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
     steps:
       - name: Cancel previous workflows that are still running
         uses: styfle/cancel-workflow-action@0.8.0
@@ -45,6 +45,9 @@ jobs:
           ruff format --check src/ tests/
   unit-tests:
     runs-on: ${{ matrix.os }}
+    defaults:
+    run:
+      working-directory: backend
     services:
         postgres:
           image: postgres:latest

@@ -6,6 +6,9 @@ jobs:
   build:
     name: Build distribution 📦
     runs-on: ubuntu-latest
+    defaults:
+    run:
+      working-directory: backend
 
     steps:
     - uses: actions/checkout@v4
@@ -28,6 +31,9 @@ jobs:
         path: dist/
 
   publish-to-pypi:
+  defaults:
+    run:
+      working-directory: backend
     name: >-
       Publish Python 🐍 distribution 📦 to PyPI
     if: startsWith(github.ref, 'refs/tags/')  # only publish to PyPI on tag pushes
