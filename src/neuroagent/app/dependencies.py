@@ -7,17 +7,14 @@ from typing import Annotated, Any, AsyncIterator
 from fastapi import Depends, HTTPException, Request
 from fastapi.security import HTTPBearer
 from httpx import AsyncClient, HTTPStatusError
-from keycloak import KeycloakOpenID
 from openai import AsyncOpenAI
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession
 from starlette.status import HTTP_401_UNAUTHORIZED
 
 from neuroagent.agent_routine import AgentsRoutine
-from neuroagent.app.app_utils import validate_project
 from neuroagent.app.config import Settings
 from neuroagent.app.database.sql_schemas import Threads
-from neuroagent.cell_types import CellTypesMeta
 from neuroagent.new_types import Agent
 from neuroagent.tools import (
     ElectrophysFeatureTool,
@@ -33,7 +30,6 @@ from neuroagent.tools import (
     SCSGetOneTool,
     SCSPostTool,
 )
-from neuroagent.utils import RegionMeta, get_file_from_KG
 
 logger = logging.getLogger(__name__)
 
@@ -135,63 +131,33 @@ async def get_user_id(
     httpx_client: Annotated[AsyncClient, Depends(get_httpx_client)],
 ) -> str:
     """Validate JWT token and returns user ID."""
-    if settings.keycloak.validate_token:
-        if settings.keycloak.user_info_endpoint:
-            try:
-                response = await httpx_client.get(
-                    settings.keycloak.user_info_endpoint,
-                    headers={"Authorization": f"Bearer {token}"},
-                )
-                response.raise_for_status()
-                user_info = response.json()
-                return user_info["sub"]
-            except HTTPStatusError:
-                raise HTTPException(
-                    status_code=HTTP_401_UNAUTHORIZED, detail="Invalid token."
-                )
-        else:
-            raise HTTPException(status_code=404, detail="user info url not provided.")
+    if settings.keycloak.user_info_endpoint:
+        try:
+            response = await httpx_client.get(
+                settings.keycloak.user_info_endpoint,
+                headers={"Authorization": f"Bearer {token}"},
+            )
+            response.raise_for_status()
+            user_info = response.json()
+            return user_info["sub"]
+        except HTTPStatusError:
+            raise HTTPException(
+                status_code=HTTP_401_UNAUTHORIZED, detail="Invalid token."
+            )
     else:
-        return "dev"
-
-
-def get_kg_token(
-    settings: Annotated[Settings, Depends(get_settings)],
-    token: Annotated[str | None, Depends(auth)],
-) -> str:
-    """Get a Knowledge graph token using Keycloak."""
-    if token:
-        return token
-    else:
-        instance = KeycloakOpenID(
-            server_url=settings.keycloak.server_url,
-            realm_name=settings.keycloak.realm,
-            client_id=settings.keycloak.client_id,
-        )
-        return instance.token(
-            username=settings.keycloak.username,
-            password=settings.keycloak.password.get_secret_value(),  # type: ignore
-        )["access_token"]
+        raise HTTPException(status_code=404, detail="user info url not provided.")
 
 
 async def get_vlab_and_project(
     user_id: Annotated[str, Depends(get_user_id)],
     session: Annotated[AsyncSession, Depends(get_session)],
     request: Request,
-    settings: Annotated[Settings, Depends(get_settings)],
-    httpx_client: Annotated[AsyncClient, Depends(get_httpx_client)],
-    token: Annotated[str, Depends(get_kg_token)],
 ) -> dict[str, str]:
     """Get the current vlab and project ID."""
     if "x-project-id" in request.headers and "x-virtual-lab-id" in request.headers:
         vlab_and_project = {
             "vlab_id": request.headers["x-virtual-lab-id"],
             "project_id": request.headers["x-project-id"],
-        }
-    elif not settings.keycloak.validate_token:
-        vlab_and_project = {
-            "vlab_id": "32c83739-f39c-49d1-833f-58c981ebd2a2",
-            "project_id": "123251a1-be18-4146-87b5-5ca2f8bfaf48",
         }
     else:
         thread_id = request.path_params.get("thread_id")
@@ -217,18 +183,10 @@ async def get_vlab_and_project(
                 detail="thread not found when trying to validate project ID.",
             )
 
-    await validate_project(
-        httpx_client=httpx_client,
-        vlab_id=vlab_and_project["vlab_id"],
-        project_id=vlab_and_project["project_id"],
-        token=token,
-        vlab_project_url=settings.virtual_lab.get_project_url,
-    )
     return vlab_and_project
 
 
 def get_starting_agent(
-    _: Annotated[None, Depends(get_vlab_and_project)],
     settings: Annotated[Settings, Depends(get_settings)],
 ) -> Agent:
     """Get the starting agent."""
@@ -262,15 +220,16 @@ def get_starting_agent(
 def get_context_variables(
     settings: Annotated[Settings, Depends(get_settings)],
     starting_agent: Annotated[Agent, Depends(get_starting_agent)],
-    token: Annotated[str, Depends(get_kg_token)],
+    token: Annotated[str, Depends(auth)],
     httpx_client: Annotated[AsyncClient, Depends(get_httpx_client)],
+    vlab_proj: Annotated[dict[str, str], Depends(get_vlab_and_project)],
 ) -> dict[str, Any]:
     """Get the global context variables to feed the tool's metadata."""
     return {
         "starting_agent": starting_agent,
         "token": token,
-        "vlab_id": "32c83739-f39c-49d1-833f-58c981ebd2a2",  # New god account vlab. Replaced by actual id in endpoint for now. Meant for usage without history
-        "project_id": "123251a1-be18-4146-87b5-5ca2f8bfaf48",  # New god account proj. Replaced by actual id in endpoint for now. Meant for usage without history
+        "vlab_id": vlab_proj["vlab_id"],
+        "project_id": vlab_proj["project_id"],
         "retriever_k": settings.tools.literature.retriever_k,
         "reranker_k": settings.tools.literature.reranker_k,
         "use_reranker": settings.tools.literature.use_reranker,
@@ -294,43 +253,3 @@ def get_agents_routine(
 ) -> AgentsRoutine:
     """Get the AgentRoutine client."""
     return AgentsRoutine(openai)
-
-
-async def get_update_kg_hierarchy(
-    token: Annotated[str, Depends(get_kg_token)],
-    httpx_client: Annotated[AsyncClient, Depends(get_httpx_client)],
-    settings: Annotated[Settings, Depends(get_settings)],
-    file_name: str = "brainregion.json",
-) -> None:
-    """Query file from KG and update the local hierarchy file."""
-    file_url = f"<{settings.knowledge_graph.hierarchy_url}/brainregion>"
-    KG_hierarchy = await get_file_from_KG(
-        file_url=file_url,
-        file_name=file_name,
-        view_url=settings.knowledge_graph.sparql_url,
-        token=token,
-        httpx_client=httpx_client,
-    )
-    RegionMeta_temp = RegionMeta.from_KG_dict(KG_hierarchy)
-    RegionMeta_temp.save_config(settings.knowledge_graph.br_saving_path)
-    logger.info("Knowledge Graph Brain Regions Hierarchy file updated.")
-
-
-async def get_cell_types_kg_hierarchy(
-    token: Annotated[str, Depends(get_kg_token)],
-    httpx_client: Annotated[AsyncClient, Depends(get_httpx_client)],
-    settings: Annotated[Settings, Depends(get_settings)],
-    file_name: str = "celltypes.json",
-) -> None:
-    """Query file from KG and update the local hierarchy file."""
-    file_url = f"<{settings.knowledge_graph.hierarchy_url}/celltypes>"
-    hierarchy = await get_file_from_KG(
-        file_url=file_url,
-        file_name=file_name,
-        view_url=settings.knowledge_graph.sparql_url,
-        token=token,
-        httpx_client=httpx_client,
-    )
-    celltypesmeta = CellTypesMeta.from_dict(hierarchy)
-    celltypesmeta.save_config(settings.knowledge_graph.ct_saving_path)
-    logger.info("Knowledge Graph Cell Types Hierarchy file updated.")

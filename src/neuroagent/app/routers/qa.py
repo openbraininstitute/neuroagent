@@ -6,7 +6,6 @@ from typing import Annotated, Any
 
 from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import StreamingResponse
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from neuroagent.agent_routine import AgentsRoutine
 from neuroagent.app.config import Settings
@@ -15,97 +14,22 @@ from neuroagent.app.database.sql_schemas import (
     Entity,
     Messages,
     Threads,
-    utc_now,
 )
 from neuroagent.app.dependencies import (
     get_agents_routine,
     get_context_variables,
-    get_session,
     get_settings,
     get_starting_agent,
 )
 from neuroagent.new_types import (
     Agent,
-    AgentRequest,
-    AgentResponse,
     ClientRequest,
-    HILResponse,
 )
 from neuroagent.stream import stream_agent_response
 
 router = APIRouter(prefix="/qa", tags=["Run the agent"])
 
 logger = logging.getLogger(__name__)
-
-
-@router.post("/run", response_model=AgentResponse)
-async def run_simple_agent(
-    user_request: AgentRequest,
-    agent_routine: Annotated[AgentsRoutine, Depends(get_agents_routine)],
-    agent: Annotated[Agent, Depends(get_starting_agent)],
-    context_variables: Annotated[dict[str, Any], Depends(get_context_variables)],
-    settings: Annotated[Settings, Depends(get_settings)],
-) -> AgentResponse:
-    """Run a single agent query."""
-    if len(user_request.query) > settings.misc.query_max_size:
-        raise HTTPException(
-            status_code=413,
-            detail=f"Query string has {len(user_request.query)} characters. Maximum allowed is {settings.misc.query_max_size}.",
-        )
-    response = await agent_routine.arun(
-        agent,
-        [
-            Messages(
-                order=0,
-                thread_id="Dummy_thread_id",
-                entity=Entity.USER,
-                content=json.dumps({"role": "user", "content": user_request.query}),
-            )
-        ],
-        context_variables,
-    )
-    return AgentResponse(message=response.messages[-1]["content"])
-
-
-@router.post("/chat/{thread_id}")
-async def run_chat_agent(
-    user_request: AgentRequest,
-    agent_routine: Annotated[AgentsRoutine, Depends(get_agents_routine)],
-    agent: Annotated[Agent, Depends(get_starting_agent)],
-    context_variables: Annotated[dict[str, Any], Depends(get_context_variables)],
-    session: Annotated[AsyncSession, Depends(get_session)],
-    thread: Annotated[Threads, Depends(get_thread)],
-    settings: Annotated[Settings, Depends(get_settings)],
-) -> AgentResponse | list[HILResponse]:
-    """Run a single agent query."""
-    if len(user_request.query) > settings.misc.query_max_size:
-        raise HTTPException(
-            status_code=413,
-            detail=f"Query string has {len(user_request.query)} characters. Maximum allowed is {settings.misc.query_max_size}.",
-        )
-    # Temporary solution
-    context_variables["vlab_id"] = thread.vlab_id
-    context_variables["project_id"] = thread.project_id
-
-    messages: list[Messages] = await thread.awaitable_attrs.messages
-    if not messages or messages[-1].entity != Entity.AI_TOOL:
-        messages.append(
-            Messages(
-                order=len(messages),
-                thread_id=thread.thread_id,
-                entity=Entity.USER,
-                content=json.dumps({"role": "user", "content": user_request.query}),
-            )
-        )
-    response = await agent_routine.arun(agent, messages, context_variables)
-
-    # Save the new messages in DB
-    thread.update_date = utc_now()
-    await session.commit()
-
-    if response.hil_messages is not None:
-        return response.hil_messages
-    return AgentResponse(message=response.messages[-1]["content"])
 
 
 @router.post("/chat_streamed/{thread_id}")
@@ -124,9 +48,6 @@ async def stream_chat_agent(
             status_code=413,
             detail=f"Query string has {len(user_request.content)} characters. Maximum allowed is {settings.misc.query_max_size}.",
         )
-    # Temporary solution
-    context_variables["vlab_id"] = thread.vlab_id
-    context_variables["project_id"] = thread.project_id
 
     messages: list[Messages] = await thread.awaitable_attrs.messages
 

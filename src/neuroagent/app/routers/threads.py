@@ -23,8 +23,8 @@ from neuroagent.app.database.schemas import (
 )
 from neuroagent.app.database.sql_schemas import Messages, Threads, utc_now
 from neuroagent.app.dependencies import (
+    auth,
     get_httpx_client,
-    get_kg_token,
     get_openai_client,
     get_session,
     get_settings,
@@ -42,7 +42,7 @@ router = APIRouter(prefix="/threads", tags=["Threads' CRUD"])
 async def create_thread(
     httpx_client: Annotated[AsyncClient, Depends(get_httpx_client)],
     settings: Annotated[Settings, Depends(get_settings)],
-    token: Annotated[str, Depends(get_kg_token)],
+    token: Annotated[str, Depends(auth)],
     virtual_lab_id: str,
     project_id: str,
     session: Annotated[AsyncSession, Depends(get_session)],
@@ -75,7 +75,7 @@ async def create_thread(
 async def create_thread_with_generated_title(
     httpx_client: Annotated[AsyncClient, Depends(get_httpx_client)],
     settings: Annotated[Settings, Depends(get_settings)],
-    token: Annotated[str, Depends(get_kg_token)],
+    token: Annotated[str, Depends(auth)],
     virtual_lab_id: str,
     project_id: str,
     session: Annotated[AsyncSession, Depends(get_session)],

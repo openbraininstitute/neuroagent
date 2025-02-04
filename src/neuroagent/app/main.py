@@ -9,18 +9,14 @@ from uuid import uuid4
 from asgi_correlation_id import CorrelationIdMiddleware
 from fastapi import Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from httpx import AsyncClient
 from starlette.middleware.base import BaseHTTPMiddleware
 
 from neuroagent import __version__
 from neuroagent.app.app_utils import setup_engine
 from neuroagent.app.config import Settings
 from neuroagent.app.dependencies import (
-    get_cell_types_kg_hierarchy,
     get_connection_string,
-    get_kg_token,
     get_settings,
-    get_update_kg_hierarchy,
 )
 from neuroagent.app.middleware import strip_path_prefix
 from neuroagent.app.routers import qa, threads, tools
@@ -90,19 +86,6 @@ async def lifespan(fastapi_app: FastAPI) -> AsyncContextManager[None]:  # type: 
     logging.getLogger().setLevel(app_settings.logging.external_packages.upper())
     logging.getLogger("neuroagent").setLevel(app_settings.logging.level.upper())
     logging.getLogger("bluepyefe").setLevel("CRITICAL")
-
-    if app_settings.knowledge_graph.download_hierarchy:
-        # update KG hierarchy file if requested
-        await get_update_kg_hierarchy(
-            token=get_kg_token(app_settings, token=None),
-            httpx_client=AsyncClient(),
-            settings=app_settings,
-        )
-        await get_cell_types_kg_hierarchy(
-            token=get_kg_token(app_settings, token=None),
-            httpx_client=AsyncClient(),
-            settings=app_settings,
-        )
 
     yield
     if engine:

@@ -5,7 +5,7 @@ import pathlib
 from typing import Literal, Optional
 
 from dotenv import dotenv_values
-from pydantic import BaseModel, ConfigDict, SecretStr, model_validator
+from pydantic import BaseModel, ConfigDict, SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -34,7 +34,6 @@ class SettingsKeycloak(BaseModel):
     """Class retrieving keycloak info for authorization."""
 
     issuer: str = "https://openbluebrain.com/auth/realms/SBO"
-    validate_token: bool = False
     # Useful only for service account (dev)
     client_id: str | None = None
     username: str | None = None
@@ -45,18 +44,12 @@ class SettingsKeycloak(BaseModel):
     @property
     def token_endpoint(self) -> str | None:
         """Define the token endpoint."""
-        if self.validate_token:
-            return f"{self.issuer}/protocol/openid-connect/token"
-        else:
-            return None
+        return f"{self.issuer}/protocol/openid-connect/token"
 
     @property
     def user_info_endpoint(self) -> str | None:
         """Define the user_info endpoint."""
-        if self.validate_token:
-            return f"{self.issuer}/protocol/openid-connect/userinfo"
-        else:
-            return None
+        return f"{self.issuer}/protocol/openid-connect/userinfo"
 
     @property
     def server_url(self) -> str:
@@ -230,22 +223,6 @@ class Settings(BaseSettings):
         env_nested_delimiter="__",
         frozen=True,
     )
-
-    @model_validator(mode="after")
-    def check_consistency(self) -> "Settings":
-        """Check if consistent.
-
-        ATTENTION: Do not put model validators into the child settings. The
-        model validator is run during instantiation.
-
-        """
-        # If you don't enforce keycloak auth, you need a way to communicate with the APIs the tools leverage
-        if not self.keycloak.password and not self.keycloak.validate_token:
-            raise ValueError(
-                "Need an auth method for subsequent APIs called by the tools."
-            )
-
-        return self
 
 
 # Load the remaining variables into the environment
