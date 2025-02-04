@@ -14,9 +14,10 @@ type EnvSchema = z.infer<typeof envSchema>;
 function validateEnv(): EnvSchema {
   try {
     // Determine the backend URL based on context and available env vars
-    const backendUrl = typeof window === 'undefined' && process.env.SERVER_SIDE_BACKEND_URL
-      ? process.env.SERVER_SIDE_BACKEND_URL
-      : process.env.NEXT_PUBLIC_BACKEND_URL;
+    const backendUrl =
+      typeof window === "undefined" && process.env.SERVER_SIDE_BACKEND_URL
+        ? process.env.SERVER_SIDE_BACKEND_URL
+        : process.env.NEXT_PUBLIC_BACKEND_URL;
 
     const parsed = envSchema.parse({
       BACKEND_URL: backendUrl,
