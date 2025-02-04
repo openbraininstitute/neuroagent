@@ -8,13 +8,11 @@ from fastapi import Depends, HTTPException, Request
 from fastapi.security import HTTPBearer
 from httpx import AsyncClient, HTTPStatusError
 from openai import AsyncOpenAI
-from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession
 from starlette.status import HTTP_401_UNAUTHORIZED
 
 from neuroagent.agent_routine import AgentsRoutine
 from neuroagent.app.config import Settings
-from neuroagent.app.database.sql_schemas import Threads
 from neuroagent.new_types import Agent
 from neuroagent.tools import (
     ElectrophysFeatureTool,
@@ -148,44 +146,6 @@ async def get_user_id(
         raise HTTPException(status_code=404, detail="user info url not provided.")
 
 
-async def get_vlab_and_project(
-    user_id: Annotated[str, Depends(get_user_id)],
-    session: Annotated[AsyncSession, Depends(get_session)],
-    request: Request,
-) -> dict[str, str]:
-    """Get the current vlab and project ID."""
-    if "x-project-id" in request.headers and "x-virtual-lab-id" in request.headers:
-        vlab_and_project = {
-            "vlab_id": request.headers["x-virtual-lab-id"],
-            "project_id": request.headers["x-project-id"],
-        }
-    else:
-        thread_id = request.path_params.get("thread_id")
-        thread_result = await session.execute(
-            select(Threads).where(
-                Threads.user_id == user_id, Threads.thread_id == thread_id
-            )
-        )
-        thread = thread_result.scalars().one_or_none()
-        if not thread:
-            raise HTTPException(
-                status_code=404,
-                detail="Thread not found.",
-            )
-        if thread and thread.vlab_id and thread.project_id:
-            vlab_and_project = {
-                "vlab_id": thread.vlab_id,
-                "project_id": thread.project_id,
-            }
-        else:
-            raise HTTPException(
-                status_code=404,
-                detail="thread not found when trying to validate project ID.",
-            )
-
-    return vlab_and_project
-
-
 def get_starting_agent(
     settings: Annotated[Settings, Depends(get_settings)],
 ) -> Agent:
@@ -222,14 +182,11 @@ def get_context_variables(
     starting_agent: Annotated[Agent, Depends(get_starting_agent)],
     token: Annotated[str, Depends(auth)],
     httpx_client: Annotated[AsyncClient, Depends(get_httpx_client)],
-    vlab_proj: Annotated[dict[str, str], Depends(get_vlab_and_project)],
 ) -> dict[str, Any]:
     """Get the global context variables to feed the tool's metadata."""
     return {
         "starting_agent": starting_agent,
         "token": token,
-        "vlab_id": vlab_proj["vlab_id"],
-        "project_id": vlab_proj["project_id"],
         "retriever_k": settings.tools.literature.retriever_k,
         "reranker_k": settings.tools.literature.reranker_k,
         "use_reranker": settings.tools.literature.use_reranker,

@@ -174,7 +174,7 @@ class AgentsRoutine:
         context_variables: dict[str, Any] = {},
         model_override: str | None = None,
         max_turns: int | float = float("inf"),
-    ) -> AsyncIterator[str | Response]:
+    ) -> AsyncIterator[str]:
         """Stream the agent response."""
         active_agent = agent
         content = await messages_to_openai_content(messages)

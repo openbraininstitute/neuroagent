@@ -9,7 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from neuroagent.agent_routine import AgentsRoutine
 from neuroagent.app.database.sql_schemas import Messages, Threads, utc_now
-from neuroagent.new_types import Agent, Response
+from neuroagent.new_types import Agent
 
 
 async def stream_agent_response(
@@ -27,7 +27,7 @@ async def stream_agent_response(
             client=AsyncOpenAI(api_key=agents_routine.client.api_key)
         )
     else:
-        connected_agents_routine = AgentsRoutine(client=None)
+        connected_agents_routine = AgentsRoutine()
 
     # Restore the httpx client
     httpx_client = AsyncClient(  # nosec B501
@@ -46,9 +46,7 @@ async def stream_agent_response(
 
     iterator = connected_agents_routine.astream(agent, messages, context_variables)
     async for chunk in iterator:
-        # To stream to the user
-        if not isinstance(chunk, Response):
-            yield chunk
+        yield chunk
 
     # Save the new messages in DB
     thread.update_date = utc_now()

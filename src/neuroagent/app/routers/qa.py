@@ -21,11 +21,11 @@ from neuroagent.app.dependencies import (
     get_settings,
     get_starting_agent,
 )
+from neuroagent.app.stream import stream_agent_response
 from neuroagent.new_types import (
     Agent,
     ClientRequest,
 )
-from neuroagent.stream import stream_agent_response
 
 router = APIRouter(prefix="/qa", tags=["Run the agent"])
 
@@ -48,6 +48,11 @@ async def stream_chat_agent(
             status_code=413,
             detail=f"Query string has {len(user_request.content)} characters. Maximum allowed is {settings.misc.query_max_size}.",
         )
+
+    # Insert dynamically vlab and proj id to avoid over-validating in the dependencies
+    # and to avoid cyclic dependencies.
+    context_variables["vlab_id"] = thread.vlab_id
+    context_variables["project_id"] = thread.project_id
 
     messages: list[Messages] = await thread.awaitable_attrs.messages
 
