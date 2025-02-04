@@ -19,7 +19,7 @@ export async function deleteThread(previousState: unknown, formData: FormData) {
 
     await fetcher({
       method: "DELETE",
-      path: `${env.BACKEND_URL}/threads/{threadId}`,
+      path: "/threads/{threadId}",
       pathParams: { threadId },
       headers: { Authorization: `Bearer ${session.accessToken}` },
     });

@@ -11,7 +11,7 @@ async function getMessages(threadId: string): Promise<BMessage[]> {
   }
 
   const response = await fetcher({
-    path: `${env.BACKEND_URL}/threads/{threadId}/messages`,
+    path: "/threads/{threadId}/messages",
     pathParams: { threadId },
     headers: { Authorization: `Bearer ${session.accessToken}` },
     next: { tags: [`thread/${threadId}/messages`] },
@@ -27,7 +27,7 @@ async function getThread(threadId: string) {
   }
 
   const response = await fetcher({
-    path: `${env.BACKEND_URL}/threads/{threadId}`,
+    path: "/threads/{threadId}",
     pathParams: { threadId },
     headers: { Authorization: `Bearer ${session.accessToken}` },
     next: { tags: [`thread/${threadId}`] },

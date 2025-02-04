@@ -24,7 +24,7 @@ export async function createThreadWithMessage(
 
     const threadResponse = await fetcher({
       method: "POST",
-      path: `${env.BACKEND_URL}/threads/generated_title`,
+      path: "/threads/generated_title",
       queryParams: { project_id: projectID, virtual_lab_id: virtualLabID },
       body: { first_user_message: initialMessage },
       headers: { Authorization: `Bearer ${session.accessToken}` },

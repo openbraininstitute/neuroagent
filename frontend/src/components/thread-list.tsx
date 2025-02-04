@@ -12,7 +12,7 @@ async function getThreads(): Promise<BThread[]> {
     }
 
     const threads = (await fetcher({
-      path: `${env.BACKEND_URL}/threads`,
+      path: "/threads",
       headers: { Authorization: `Bearer ${session.accessToken}` },
       next: { tags: ["threads"] },
     })) as BThread[];

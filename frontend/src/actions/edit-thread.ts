@@ -21,7 +21,7 @@ export async function editThread(previousState: unknown, formData: FormData) {
 
     await fetcher({
       method: "PATCH",
-      path: `${env.BACKEND_URL}/threads/{threadId}`,
+      path: "/threads/{threadId}",
       pathParams: { threadId },
       body: { title },
       headers: { Authorization: `Bearer ${session.accessToken}` },
