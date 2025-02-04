@@ -8,11 +8,13 @@ from fastapi import Depends, HTTPException, Request
 from fastapi.security import HTTPBearer
 from httpx import AsyncClient, HTTPStatusError
 from openai import AsyncOpenAI
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession
 from starlette.status import HTTP_401_UNAUTHORIZED
 
 from neuroagent.agent_routine import AgentsRoutine
 from neuroagent.app.config import Settings
+from neuroagent.app.database.sql_schemas import Threads
 from neuroagent.new_types import Agent
 from neuroagent.tools import (
     ElectrophysFeatureTool,
@@ -177,11 +179,34 @@ def get_starting_agent(
     return agent
 
 
+async def get_thread(
+    user_id: Annotated[str, Depends(get_user_id)],
+    thread_id: str,
+    session: Annotated[AsyncSession, Depends(get_session)],
+) -> Threads:
+    """Check if the current thread / user matches."""
+    thread_result = await session.execute(
+        select(Threads).where(
+            Threads.user_id == user_id, Threads.thread_id == thread_id
+        )
+    )
+    thread = thread_result.scalars().one_or_none()
+    if not thread:
+        raise HTTPException(
+            status_code=404,
+            detail={
+                "detail": "Thread not found.",
+            },
+        )
+    return thread
+
+
 def get_context_variables(
     settings: Annotated[Settings, Depends(get_settings)],
     starting_agent: Annotated[Agent, Depends(get_starting_agent)],
     token: Annotated[str, Depends(auth)],
     httpx_client: Annotated[AsyncClient, Depends(get_httpx_client)],
+    thread: Annotated[Threads, Depends(get_thread)],
 ) -> dict[str, Any]:
     """Get the global context variables to feed the tool's metadata."""
     return {
@@ -189,6 +214,8 @@ def get_context_variables(
         "token": token,
         "retriever_k": settings.tools.literature.retriever_k,
         "reranker_k": settings.tools.literature.reranker_k,
+        "vlab_id": thread.vlab_id,
+        "project_id": thread.project_id,
         "use_reranker": settings.tools.literature.use_reranker,
         "literature_search_url": settings.tools.literature.url,
         "knowledge_graph_url": settings.knowledge_graph.url,

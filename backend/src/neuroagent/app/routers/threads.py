@@ -13,14 +13,6 @@ from sqlalchemy.orm import joinedload
 
 from neuroagent.app.app_utils import validate_project
 from neuroagent.app.config import Settings
-from neuroagent.app.database.db_utils import get_thread
-from neuroagent.app.database.schemas import (
-    MessageResponse,
-    ThreadCreate,
-    ThreadCreateWithGeneratedTitle,
-    ThreadsRead,
-    ThreadUpdate,
-)
 from neuroagent.app.database.sql_schemas import Messages, Threads, utc_now
 from neuroagent.app.dependencies import (
     auth,
@@ -29,7 +21,15 @@ from neuroagent.app.dependencies import (
     get_session,
     get_settings,
     get_starting_agent,
+    get_thread,
     get_user_id,
+)
+from neuroagent.app.schemas import (
+    MessageResponse,
+    ThreadCreate,
+    ThreadCreateWithGeneratedTitle,
+    ThreadsRead,
+    ThreadUpdate,
 )
 from neuroagent.new_types import Agent
 

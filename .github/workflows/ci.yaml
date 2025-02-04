@@ -11,6 +11,9 @@ on:
         required: false
 
 jobs:
+  defaults:
+    run:
+      working-directory: backend
   linting:
     runs-on: ubuntu-latest
     steps:

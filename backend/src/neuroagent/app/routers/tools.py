@@ -10,17 +10,17 @@ from sqlalchemy import desc, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from neuroagent.agent_routine import AgentsRoutine
-from neuroagent.app.database.db_utils import get_thread
-from neuroagent.app.database.schemas import (
-    ExecuteToolCallRequest,
-    ExecuteToolCallResponse,
-)
 from neuroagent.app.database.sql_schemas import Entity, Messages, Threads, ToolCalls
 from neuroagent.app.dependencies import (
     get_agents_routine,
     get_context_variables,
     get_session,
     get_starting_agent,
+    get_thread,
+)
+from neuroagent.app.schemas import (
+    ExecuteToolCallRequest,
+    ExecuteToolCallResponse,
 )
 from neuroagent.new_types import Agent
 
@@ -76,9 +76,9 @@ async def execute_tool_call(
                 context_variables=context_variables,
                 raise_validation_errors=True,
             )
-        except ValidationError as err:
+        except ValidationError:
             # Return early with validation-error status without committing to DB
-            return ExecuteToolCallResponse(status="validation-error", content=str(err))
+            return ExecuteToolCallResponse(status="validation-error", content=None)
 
     # Get the latest message order for this thread
     latest_message = await session.execute(

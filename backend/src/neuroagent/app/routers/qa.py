@@ -9,7 +9,6 @@ from fastapi.responses import StreamingResponse
 
 from neuroagent.agent_routine import AgentsRoutine
 from neuroagent.app.config import Settings
-from neuroagent.app.database.db_utils import get_thread
 from neuroagent.app.database.sql_schemas import (
     Entity,
     Messages,
@@ -20,6 +19,7 @@ from neuroagent.app.dependencies import (
     get_context_variables,
     get_settings,
     get_starting_agent,
+    get_thread,
 )
 from neuroagent.app.stream import stream_agent_response
 from neuroagent.new_types import (
@@ -48,11 +48,6 @@ async def stream_chat_agent(
             status_code=413,
             detail=f"Query string has {len(user_request.content)} characters. Maximum allowed is {settings.misc.query_max_size}.",
         )
-
-    # Insert dynamically vlab and proj id to avoid over-validating in the dependencies
-    # and to avoid cyclic dependencies.
-    context_variables["vlab_id"] = thread.vlab_id
-    context_variables["project_id"] = thread.project_id
 
     messages: list[Messages] = await thread.awaitable_attrs.messages
 
