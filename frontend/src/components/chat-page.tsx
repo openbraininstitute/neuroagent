@@ -20,7 +20,6 @@ type ChatPageProps = {
 
 export function ChatPage({ threadId, initialMessages }: ChatPageProps) {
   const { data: session } = useSession() as { data: ExtendedSession | null };
-  console.log(session);
   const { newMessage, setNewMessage } = useStore();
   const requiresHandleSubmit = useRef(false);
 
