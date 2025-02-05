@@ -1,8 +1,8 @@
 "use server";
 
-import { env } from "@/lib/env";
 import { revalidateTag } from "next/cache";
 import { auth } from "@/lib/auth";
+import { fetcher } from "@/lib/fetcher";
 
 export async function editThread(previousState: unknown, formData: FormData) {
   const threadId = formData.get("threadId") as string;
@@ -18,23 +18,16 @@ export async function editThread(previousState: unknown, formData: FormData) {
       return { error: "Not authenticated" };
     }
 
-    const response = await fetch(`${env.BACKEND_URL}/threads/${threadId}`, {
+    await fetcher({
       method: "PATCH",
-      headers: {
-        Authorization: `Bearer ${session.accessToken}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ title }),
+      path: "/threads/{threadId}",
+      pathParams: { threadId },
+      body: { title },
+      headers: { Authorization: `Bearer ${session.accessToken}` },
     });
-
-    if (!response.ok) {
-      throw new Error(`Failed to edit thread: ${response.statusText}`);
-    }
 
     // Revalidate the same tags as delete for consistency
     revalidateTag("threads");
-    revalidateTag(`threads/${threadId}`);
-    revalidateTag(`threads/${threadId}/messages`);
 
     return { success: true };
   } catch (error) {

@@ -15,15 +15,10 @@ import { ChatMessageTool } from "@/components/chat-message-tool";
 
 type ChatPageProps = {
   threadId: string;
-  threadTitle: string;
   initialMessages: MessageStrict[];
 };
 
-export function ChatPage({
-  threadId,
-  threadTitle,
-  initialMessages,
-}: ChatPageProps) {
+export function ChatPage({ threadId, initialMessages }: ChatPageProps) {
   const { data: session } = useSession() as { data: ExtendedSession | null };
   const { newMessage, setNewMessage } = useStore();
   const requiresHandleSubmit = useRef(false);
@@ -141,7 +136,7 @@ export function ChatPage({
   return (
     <div className="flex flex-col h-full">
       <div className="relative flex justify-center items-center p-6 w-full">
-        <h1 className="text-3xl absolute">{threadTitle}</h1>
+        <h1 className="text-3xl absolute"></h1>
         <Button
           className="hover:scale-105 active:scale-[1.10] ml-auto"
           onClick={() => setShowTools(!showTools)}
