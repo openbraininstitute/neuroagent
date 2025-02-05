@@ -7,8 +7,7 @@ services:
       - "8078:8078"
     environment:
       - NEUROAGENT_DB__PREFIX=postgresql+asyncpg://postgres:pwd@postgres:5432/neuroagent
-      - NEUROAGENT_KEYCLOAK__VALIDATE_TOKEN=true
-      - NEUROAGENT_KEYCLOAK__ISSUER=https://openbluebrain.com/auth/realms/SBO
+      - NEUROAGENT_KEYCLOAK__ISSUER=${KEYCLOAK_ISSUER}
       - NEUROAGENT_TOOLS__LITERATURE__URL=https://whatever.com
       - NEUROAGENT_KNOWLEDGE_GRAPH__BASE_URL=https://whathever.com
       - NEUROAGENT_OPENAI__TOKEN=${OPENAI_API_KEY}
@@ -27,7 +26,7 @@ services:
       - NEXTAUTH_URL=http://localhost:3000
       - NEXTAUTH_SECRET=${NEXTAUTH_SECRET}
       - SERVER_SIDE_BACKEND_URL=http://backend:8078
-      - KEYCLOAK_ISSUER=https://openbluebrain.com/auth/realms/SBO
+      - KEYCLOAK_ISSUER=${KEYCLOAK_ISSUER}
       - KEYCLOAK_SECRET=${KEYCLOAK_SECRET}
       - KEYCLOAK_ID=${KEYCLOAK_ID}
     ports:
