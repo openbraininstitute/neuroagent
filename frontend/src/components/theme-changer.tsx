@@ -12,17 +12,6 @@ export default function ThemeChanger({
 }: {
   children: React.ReactNode;
 }) {
-  const [mounted, setMounted] = useState(false);
-
-  // Had to be done to prevent Hydration error
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  if (!mounted) {
-    return <>{children}</>;
-  }
-
   return (
     <ThemeProvider
       attribute="class"
@@ -37,6 +26,14 @@ export default function ThemeChanger({
 
 export function ThemeToggle() {
   const { theme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Needed to prevent Hydration errors.
+  if (!mounted) return null;
 
   return (
     <button
