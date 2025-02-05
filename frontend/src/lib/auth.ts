@@ -26,17 +26,17 @@ export const authOptions: NextAuthOptions = {
       id: "keycloak",
       name: "Keycloak",
       type: "oauth",
-      clientId: env.KEYCLOAK_ID,
-      clientSecret: env.KEYCLOAK_SECRET,
-      wellKnown: `${env.KEYCLOAK_ISSUER}/.well-known/openid-configuration`,
+      clientId: env.NEXT_PUBLIC_KEYCLOAK_ID,
+      clientSecret: env.NEXT_PUBLIC_KEYCLOAK_SECRET,
+      wellKnown: `${env.NEXT_PUBLIC_KEYCLOAK_ISSUER}/.well-known/openid-configuration`,
       authorization: {
         params: {
           scope: "openid profile email",
           response_type: "code",
-          client_id: env.KEYCLOAK_ID,
+          client_id: env.NEXT_PUBLIC_KEYCLOAK_ID,
         },
       },
-      token: `${env.KEYCLOAK_ISSUER}/protocol/openid-connect/token`,
+      token: `${env.NEXT_PUBLIC_KEYCLOAK_ISSUER}/protocol/openid-connect/token`,
       idToken: true,
       checks: ["pkce", "state"],
       profile(profile) {
@@ -101,15 +101,15 @@ export const authOptions: NextAuthOptions = {
 async function refreshAccessToken(token: TokenSet) {
   try {
     const response = await fetch(
-      `${env.KEYCLOAK_ISSUER}/protocol/openid-connect/token`,
+      `${env.NEXT_PUBLIC_KEYCLOAK_ISSUER}/protocol/openid-connect/token`,
       {
         method: "POST",
         headers: {
           "Content-Type": "application/x-www-form-urlencoded",
         },
         body: new URLSearchParams({
-          client_id: env.KEYCLOAK_ID,
-          client_secret: env.KEYCLOAK_SECRET,
+          client_id: env.NEXT_PUBLIC_KEYCLOAK_ID,
+          client_secret: env.NEXT_PUBLIC_KEYCLOAK_SECRET,
           grant_type: "refresh_token",
           refresh_token: token.refreshToken as string,
         }),

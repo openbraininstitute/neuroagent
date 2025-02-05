@@ -20,6 +20,7 @@ type ChatPageProps = {
 
 export function ChatPage({ threadId, initialMessages }: ChatPageProps) {
   const { data: session } = useSession() as { data: ExtendedSession | null };
+  console.log(session);
   const { newMessage, setNewMessage } = useStore();
   const requiresHandleSubmit = useRef(false);
 
@@ -45,7 +46,7 @@ export function ChatPage({ threadId, initialMessages }: ChatPageProps) {
     isLoading,
     setMessages: setMessagesRaw,
   } = useChat({
-    api: `${env.BACKEND_URL}/qa/chat_streamed/${threadId}`,
+    api: `${env.NEXT_PUBLIC_BACKEND_URL}/qa/chat_streamed/${threadId}`,
     headers: {
       Authorization: `Bearer ${session?.accessToken}`,
     },

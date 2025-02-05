@@ -36,7 +36,7 @@ export async function fetcher({
     });
   }
 
-  const url = new URL(processedPath, env.BACKEND_URL);
+  const url = new URL(processedPath, env.NEXT_PUBLIC_BACKEND_URL);
 
   if (queryParams) {
     Object.entries(queryParams).forEach(([key, value]) => {
