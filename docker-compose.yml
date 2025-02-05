@@ -25,7 +25,6 @@ services:
         - NEXT_PUBLIC_BACKEND_URL=http://localhost:8078
     environment:
       - NEXTAUTH_URL=http://localhost:3000
-      - NEXTAUTH_URL_INTERNAL=http://frontend:3000
       - NEXTAUTH_SECRET=${NEXTAUTH_SECRET}
       - SERVER_SIDE_BACKEND_URL=http://backend:8078
       - KEYCLOAK_ISSUER=https://openbluebrain.com/auth/realms/SBO
