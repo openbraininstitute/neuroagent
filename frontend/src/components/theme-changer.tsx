@@ -3,7 +3,6 @@
 import { ThemeProvider } from "next-themes";
 import { useState, useEffect } from "react";
 
-import * as React from "react";
 import { Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
 
@@ -36,11 +35,24 @@ export function ThemeToggle() {
   if (!mounted) return null;
 
   return (
-    <button
-      className="hover:scale-[1.1] transition border-none"
-      onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-    >
-      {theme === "dark" ? <Sun /> : <Moon />}
-    </button>
+    <div className="flex items-center pt-0.5">
+      <label className="relative inline-block w-16 h-8">
+        <input
+          type="checkbox"
+          checked={theme === "dark"}
+          onChange={() => {
+            setTheme(theme === "dark" ? "light" : "dark");
+          }}
+          className="opacity-0 w-0 h-0"
+        />
+        <span className="absolute cursor-pointer inset-0 bg-gray-300 rounded-full flex items-center dark:bg-gray-600">
+          <span className="m-0.5 w-7 h-7 bg-white rounded-full shadow-md dark:translate-x-8 dark:bg-black">
+            <div className="flex justify-center items-center w-full h-full">
+              {theme === "dark" ? <Moon /> : <Sun />}
+            </div>
+          </span>
+        </span>
+      </label>
+    </div>
   );
 }
