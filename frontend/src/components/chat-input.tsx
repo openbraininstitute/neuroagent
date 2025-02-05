@@ -5,6 +5,8 @@ import { useActionState } from "react";
 import { createThreadWithMessage } from "@/actions/create-thread";
 import { useStore } from "@/lib/store";
 
+import ChatInputLoading from "@/components/chat-input-loading";
+
 export function ChatInput() {
   const { newMessage, setNewMessage } = useStore();
   const [input, setInput] = useState("");
@@ -25,8 +27,8 @@ export function ChatInput() {
     }
   };
 
-  return (
-    <div className="flex flex-col justify-center items-center gap-4">
+  return !isPending ? (
+    <div className="flex flex-col h-full justify-center items-center gap-4 ">
       <h1 className="text-2xl my-4 font-bold mb-6">
         What can I help you with?
       </h1>
@@ -54,16 +56,10 @@ export function ChatInput() {
             onKeyDown={handleKeyDown}
             disabled={isPending}
           />
-          {isPending && (
-            <div
-              className="absolute right-4 top-1/2 -translate-y-1/2"
-              data-testid="loading-spinner"
-            >
-              <div className="w-4 h-4 border-2 border-gray-500 border-t-transparent rounded-full animate-spin" />
-            </div>
-          )}
         </div>
       </form>
     </div>
+  ) : (
+    <ChatInputLoading newMessage={newMessage} />
   );
 }
