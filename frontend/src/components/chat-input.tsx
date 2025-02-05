@@ -1,21 +1,33 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useActionState } from "react";
 import { createThreadWithMessage } from "@/actions/create-thread";
 import { useStore } from "@/lib/store";
+import { useRouter } from "next/navigation";
 
 export function ChatInput() {
   const { newMessage, setNewMessage } = useStore();
   const [input, setInput] = useState("");
+  const router = useRouter();
 
-  const [, action, isPending] = useActionState(createThreadWithMessage, null);
+  const [state, action, isPending] = useActionState(
+    createThreadWithMessage,
+    null,
+  );
 
-  const actionWrapper = (formData: FormData) => {
+  // Watch for state changes and redirect when ready
+  useEffect(() => {
+    if (!isPending && state?.success && state.threadId) {
+      router.push(`/threads/${state.threadId}`);
+    }
+  }, [state, isPending, router]);
+
+  const actionWrapper = async (formData: FormData) => {
     if (newMessage === "" && input !== "") {
       setNewMessage(input);
     }
-    action(formData);
+    await action(formData);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
