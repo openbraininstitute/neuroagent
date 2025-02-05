@@ -13,7 +13,7 @@ export function ChatMessageAI({ content }: ChatMessageAIProps) {
       <div className="flex justify-start">
         <Card className="max-w-2xl bg-transparent shadow-none border-none">
           <CardContent>
-            <span className="prose text-lg pt-8 text-left dark:prose-invert prose-lg">
+            <span className="prose text-lg pt-8 text-left dark:prose-invert">
               <Markdown>{content}</Markdown>
             </span>
           </CardContent>
