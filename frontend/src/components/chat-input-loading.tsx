@@ -31,7 +31,6 @@ export default function ChatInputLoading({ newMessage }: ChatComponentProps) {
             readOnly
             className="border-2 border-gray-500 w-full p-4 rounded-full"
             name="prompt"
-            value={newMessage}
             placeholder="Message the AI..."
             autoComplete="off"
           />

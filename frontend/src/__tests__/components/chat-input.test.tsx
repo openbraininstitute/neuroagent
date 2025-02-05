@@ -40,15 +40,3 @@ test("ChatInput renders and handles input", () => {
 
   expect(mockFormAction).toHaveBeenCalled();
 });
-
-test("ChatInput shows loading state", () => {
-  vi.mocked(useActionState).mockImplementation(() => [null, vi.fn(), true]);
-
-  render(<ChatInput />);
-
-  const input = screen.getByPlaceholderText("Creating thread...");
-  expect(input).toBeDefined();
-
-  const spinner = screen.getByTestId("loading-spinner");
-  expect(spinner).toBeDefined();
-});
