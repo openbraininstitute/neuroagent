@@ -26,9 +26,9 @@ services:
       - NEXTAUTH_SECRET=${NEXTAUTH_SECRET}
       - SERVER_SIDE_BACKEND_URL=http://backend:8078
       - NEXT_PUBLIC_BACKEND_URL=http://localhost:8078
-      - NEXT_PUBLIC_KEYCLOAK_ISSUER=https://openbluebrain.com/auth/realms/SBO
-      - NEXT_PUBLIC_KEYCLOAK_SECRET=${KEYCLOAK_SECRET}
-      - NEXT_PUBLIC_KEYCLOAK_ID=${KEYCLOAK_ID}
+      - KEYCLOAK_ISSUER=https://openbluebrain.com/auth/realms/SBO
+      - KEYCLOAK_SECRET=${KEYCLOAK_SECRET}
+      - KEYCLOAK_ID=${KEYCLOAK_ID}
     ports:
       - "3000:3000"
     networks:
