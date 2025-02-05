@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 - Removed trailing slashes from endpoints.
+- Bunch of unused code
+- God account logic
+- Skipped tests (but astream)
 
 ### Changed
 - Return model dumps of DB schema objects.
