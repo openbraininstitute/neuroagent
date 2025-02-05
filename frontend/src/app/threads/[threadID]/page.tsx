@@ -80,7 +80,6 @@ export default async function PageThread({
 }) {
   const paramsAwaited = await params;
   const threadId = paramsAwaited?.threadID;
-  console.log("Thread ID:", threadId);
 
   const messages = await getMessages(threadId);
   const convertedMessages = convertToAiMessages(messages);

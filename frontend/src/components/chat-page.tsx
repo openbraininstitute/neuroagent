@@ -22,7 +22,6 @@ export function ChatPage({ threadId, initialMessages }: ChatPageProps) {
   const { data: session } = useSession() as { data: ExtendedSession | null };
   const { newMessage, setNewMessage } = useStore();
   const requiresHandleSubmit = useRef(false);
-  console.log("Inside chat-page.tsx");
 
   useEffect(() => {
     if (initialMessages.length === 0 && newMessage !== "") {
@@ -33,8 +32,6 @@ export function ChatPage({ threadId, initialMessages }: ChatPageProps) {
       });
       setNewMessage("");
       requiresHandleSubmit.current = true;
-
-      console.log("Setting initial messages with new message");
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // Empty dependency array means this runs once on mount
@@ -121,9 +118,6 @@ export function ChatPage({ threadId, initialMessages }: ChatPageProps) {
         // Mark this message as processed
         setProcessedToolInvocationMessages((prev) => [...prev, lastMessage.id]);
 
-        console.log(
-          "All validated tools have results, triggering empty message",
-        );
         handleSubmit(undefined, { allowEmptySubmit: true });
       }
     }
