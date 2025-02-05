@@ -8,7 +8,7 @@ LLM agent made to communicate with different neuroscience related tools. It allo
 
 
 
-## Running
+## Running (docker compose)
 
 
 ```bash
@@ -16,6 +16,10 @@ $ docker compose up
 $ alembic -x url=postgresql://postgres:pwd@localhost:5432/neuroagent upgrade head
 
 ```
+
+Note that the first time you run the docker compose command, it will take a while since it will have to build 2 images - `backend` and `frontend`. The next time you run it, it will be much faster.
+You can run `docker compose build frontend` or `docker compose build backend` to build the images separately (useful when you made modifications)
+
 
 ## Release workflow
 
