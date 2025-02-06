@@ -23,11 +23,11 @@ export function ChatInput() {
     }
   }, [state, isPending, router]);
 
-  const actionWrapper = async (formData: FormData) => {
+  const actionWrapper = (formData: FormData) => {
     if (newMessage === "" && input !== "") {
       setNewMessage(input);
     }
-    await action(formData);
+    action(formData);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
