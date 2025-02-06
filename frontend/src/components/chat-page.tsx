@@ -215,7 +215,7 @@ export function ChatPage({
         className="flex flex-col justify-center items-center gap-4 mb-4"
         onSubmit={handleSubmit}
       >
-        <div className="relative w-1/2">
+        <div className="flex flex-row-reverse items-center w-3/5">
           <input
             type="text"
             className="border-2 border-gray-500 w-full p-4 rounded-full"
@@ -231,22 +231,20 @@ export function ChatPage({
             }}
             autoComplete="off"
           />
-          <ToolSelectionDropdown
-            availableTools={availableTools}
-            checkedTools={checkedTools}
-            setCheckedTools={setCheckedTools}
-          />
-          {isLoading ? (
-            <div className="absolute right-4 top-1/2 -translate-y-1/2 -translate-x-[40%]">
+          <div className="flex justify-around items-center absolute w-max-[20%] gap-2 pr-5">
+            <ToolSelectionDropdown
+              availableTools={availableTools}
+              checkedTools={checkedTools}
+              setCheckedTools={setCheckedTools}
+            />
+            {isLoading ? (
               <div className="w-4 h-4 border-2 border-gray-500 border-t-transparent rounded-full animate-spin" />
-            </div>
-          ) : (
-            <div className="absolute right-4 top-1/2 -translate-y-[35%] -translate-x-[20%]">
+            ) : (
               <button type="submit">
                 <Send className="opacity-50" />
               </button>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </form>
     </div>

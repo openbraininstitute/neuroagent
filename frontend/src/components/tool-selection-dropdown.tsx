@@ -70,54 +70,49 @@ export function ToolSelectionDropdown({
   };
 
   return (
-    <div className="absolute top-5 right-5 w-6 opacity-60">
-      <DropdownMenu
-        open={isDropdownOpen}
-        onOpenChange={setIsDropdownOpen}
-        modal={false}
-      >
-        <DropdownMenuTrigger
-          asChild
-          className="-translate-x-[150%] -translate-y-[7%]"
-        >
-          <button>
-            <Wrench />
-          </button>
-        </DropdownMenuTrigger>
+    <DropdownMenu
+      open={isDropdownOpen}
+      onOpenChange={setIsDropdownOpen}
+      modal={false}
+    >
+      <DropdownMenuTrigger asChild className="opacity-50">
+        <button>
+          <Wrench />
+        </button>
+      </DropdownMenuTrigger>
 
-        <DropdownMenuContent className="-translate-x-[40%] border-2 md:max-h-[200px] overflow-y-auto">
-          <DropdownMenuItem
-            className="border-b-2"
-            onClick={(e) => {
-              e.preventDefault();
-            }}
-          >
-            <Checkbox
-              checked={checkedTools.allchecked}
-              onCheckedChange={handleCheckAll}
-              defaultChecked
-            />
-            Select all
-          </DropdownMenuItem>
-          {availableTools.map((tool_name) => {
-            return (
-              <DropdownMenuItem
-                key={tool_name}
-                onClick={(e) => {
-                  e.preventDefault();
-                }}
-              >
-                <Checkbox
-                  checked={checkedTools[tool_name]}
-                  onCheckedChange={() => handleCheckboxChange(tool_name)}
-                  defaultChecked
-                />{" "}
-                {tool_name}
-              </DropdownMenuItem>
-            );
-          })}
-        </DropdownMenuContent>
-      </DropdownMenu>
-    </div>
+      <DropdownMenuContent className="md:max-h-[200px] overflow-y-auto">
+        <DropdownMenuItem
+          className="border-b-2"
+          onClick={(e) => {
+            e.preventDefault();
+          }}
+        >
+          <Checkbox
+            checked={checkedTools.allchecked}
+            onCheckedChange={handleCheckAll}
+            defaultChecked
+          />
+          Select all
+        </DropdownMenuItem>
+        {availableTools.map((tool_name) => {
+          return (
+            <DropdownMenuItem
+              key={tool_name}
+              onClick={(e) => {
+                e.preventDefault();
+              }}
+            >
+              <Checkbox
+                checked={checkedTools[tool_name]}
+                onCheckedChange={() => handleCheckboxChange(tool_name)}
+                defaultChecked
+              />{" "}
+              {tool_name}
+            </DropdownMenuItem>
+          );
+        })}
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }

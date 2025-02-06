@@ -45,8 +45,8 @@ export function ChatInput({ availableTools }: ChatInputProps) {
   }, []); // Empty dependency array means this runs once on mount
 
   return (
-    <div className="flex flex-col justify-center items-center gap-4">
-      <h1 className="text-2xl my-4 font-bold mb-6">
+    <div className="flex flex-col items-center gap-4 pl-2 pr-2">
+      <h1 className="text-2xl font-bold mt-4 mb-6">
         What can I help you with?
       </h1>
       <form
@@ -61,40 +61,40 @@ export function ChatInput({ availableTools }: ChatInputProps) {
         }}
         className="w-full flex justify-center"
       >
-        <div className="absolute w-1/2">
+        {/* Outer container for the input and buttons */}
+        <div className="flex flex-row-reverse items-center w-3/5">
+          {/* Input field */}
           <input
             name="content"
             type="text"
             autoComplete="off"
-            className="border-2 border-gray-500 w-full p-4 rounded-full"
+            className="flex-grow border-2 border-gray-500 p-4 rounded-full pr-16 bg-transparent text-white" // Adjust right padding
             placeholder={isPending ? "Creating thread..." : "Message the AI..."}
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
             disabled={isPending}
           />
-          <ToolSelectionDropdown
-            availableTools={availableTools}
-            checkedTools={checkedTools}
-            setCheckedTools={setCheckedTools}
-          />
-          {isPending ? (
-            <div
-              className="absolute right-4 top-1/2 -translate-y-1/2 -translate-x-[40%]"
-              data-testid="loading-spinner"
-            >
-              <div className="w-4 h-4 border-2 border-gray-500 border-t-transparent rounded-full animate-spin" />
-            </div>
-          ) : (
-            <div
-              className="absolute right-4 top-1/2 -translate-y-[35%] -translate-x-[20%]"
-              data-testid="loading-spinner"
-            >
-              <button type="submit">
+
+          <div className="flex justify-around items-center absolute w-max-[20%] gap-2 pr-5">
+            {/* Wrench button */}
+            <ToolSelectionDropdown
+              availableTools={availableTools}
+              checkedTools={checkedTools}
+              setCheckedTools={setCheckedTools}
+            />
+            {/* Send button or spinner */}
+            {isPending ? (
+              <div
+                className="w-5 h-5 border-2 border-gray-500 border-t-transparent rounded-full animate-spin"
+                data-testid="loading-spinner"
+              />
+            ) : (
+              <button type="submit" data-testid="send-button" className="p-1">
                 <Send className="opacity-50" />
               </button>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </form>
     </div>
