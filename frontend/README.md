@@ -20,14 +20,16 @@ Please create a `.env.local` and define the following variables:
 
 ```bash
 NEXT_PUBLIC_BACKEND_URL=http://localhost:8000
-NEXT_PUBLIC_KEYCLOAK_ID=... // ask ML team
-NEXT_PUBLIC_KEYCLOAK_SECRET=... // ask ML team
-NEXT_PUBLIC_KEYCLOAK_ISSUER=... // ask ML team
+SERVER_SIDE_BACKEND_URL=http://localhost:8000
+
+KEYCLOAK_ID=... // ask ML team
+KEYCLOAK_SECRET=... // ask ML team
+KEYCLOAK_ISSUER=... // ask ML team
 NEXTAUTH_SECRET=... // ask ML team
 NEXTAUTH_URL=http://localhost:3000
 ```
 
-Make sure your backend is running on `http://localhost:8000` or change the `NEXT_PUBLIC_BACKEND_URL` to the correct URL.
+Make sure your backend is running on `http://localhost:8000` or change the `NEXT_PUBLIC_BACKEND_URL`/`SERVER_SIDE_BACKEND_URL` to the correct URL.
 
 You can then run the frontend with the following command:
 
