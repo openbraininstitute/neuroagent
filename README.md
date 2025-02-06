@@ -2,10 +2,8 @@
 
 LLM agent made to communicate with different neuroscience related tools. It allows to communicate in a ChatGPT like fashion to get information about brain regions, morphologies, electric traces and the scientific literature.
 
-
-1. [Release workflow](#release-workflow)
+1. [Running (Docker Compose)](#running-docker-compose)
 2. [Funding and Acknowledgement](#funding-and-acknowledgement)
-
 
 
 ## Running (docker compose)
