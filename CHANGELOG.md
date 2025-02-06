@@ -44,6 +44,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - [frontend] - Automatic title generation
 - [frontend] - Collapsible side bar.
 - [frontend] - Add confirmation box on thread deletion.
+- [frontend] - Possibility do dynamically chose available tools.
 
 ### Fixed
 - [frontend] - Parallel execution of tools
