@@ -31,6 +31,7 @@ Notes:
 - To rebuild individual services: `docker compose build frontend` or `docker compose build backend`
 - Database changes persist in `neuroagent_postgres_data` volume
 - To reset database: `docker volume rm neuroagent_postgres_data`
+- To stop all services: `docker compose down`
 
 ## Running (Frontend and Backend Separately)
 See instructions in `frontend/README.md` and `backend/README.md`.
