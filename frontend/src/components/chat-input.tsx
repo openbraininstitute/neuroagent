@@ -1,12 +1,19 @@
 "use client";
 
 import { useState } from "react";
-import { useActionState } from "react";
+import { useActionState, useEffect } from "react";
 import { createThreadWithMessage } from "@/actions/create-thread";
 import { useStore } from "@/lib/store";
+import { ToolSelectionDropdown } from "@/components/tool-selection-dropdown";
+import { Send } from "lucide-react";
 
-export function ChatInput() {
-  const { newMessage, setNewMessage } = useStore();
+type ChatInputProps = {
+  availableTools: string[];
+};
+
+export function ChatInput({ availableTools }: ChatInputProps) {
+  const { newMessage, setNewMessage, checkedTools, setCheckedTools } =
+    useStore();
   const [input, setInput] = useState("");
 
   const [, action, isPending] = useActionState(createThreadWithMessage, null);
@@ -24,6 +31,18 @@ export function ChatInput() {
       e.currentTarget.form?.requestSubmit();
     }
   };
+  useEffect(() => {
+    const initialCheckedTools = availableTools.reduce<Record<string, boolean>>(
+      (acc, tool) => {
+        acc[tool] = true;
+        return acc;
+      },
+      {},
+    );
+    initialCheckedTools["allchecked"] = true;
+    setCheckedTools(initialCheckedTools);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Empty dependency array means this runs once on mount
 
   return (
     <div className="flex flex-col justify-center items-center gap-4">
@@ -42,7 +61,7 @@ export function ChatInput() {
         }}
         className="w-full flex justify-center"
       >
-        <div className="relative w-1/2">
+        <div className="absolute w-1/2">
           <input
             name="content"
             type="text"
@@ -54,12 +73,26 @@ export function ChatInput() {
             onKeyDown={handleKeyDown}
             disabled={isPending}
           />
-          {isPending && (
+          <ToolSelectionDropdown
+            availableTools={availableTools}
+            checkedTools={checkedTools}
+            setCheckedTools={setCheckedTools}
+          />
+          {isPending ? (
             <div
-              className="absolute right-4 top-1/2 -translate-y-1/2"
+              className="absolute right-4 top-1/2 -translate-y-1/2 -translate-x-[40%]"
               data-testid="loading-spinner"
             >
               <div className="w-4 h-4 border-2 border-gray-500 border-t-transparent rounded-full animate-spin" />
+            </div>
+          ) : (
+            <div
+              className="absolute right-4 top-1/2 -translate-y-[35%] -translate-x-[20%]"
+              data-testid="loading-spinner"
+            >
+              <button type="submit">
+                <Send className="opacity-50" />
+              </button>
             </div>
           )}
         </div>

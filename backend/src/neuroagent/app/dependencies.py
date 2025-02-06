@@ -30,6 +30,7 @@ from neuroagent.tools import (
     SCSGetOneTool,
     SCSPostTool,
 )
+from neuroagent.tools.base_tool import BaseTool
 
 logger = logging.getLogger(__name__)
 
@@ -148,8 +149,42 @@ async def get_user_id(
         raise HTTPException(status_code=404, detail="user info url not provided.")
 
 
+def get_tool_list() -> list[type[BaseTool]]:
+    """Return a raw list of all of the available tools."""
+    return [
+        SCSGetAllTool,
+        SCSGetOneTool,
+        SCSPostTool,
+        MEModelGetAllTool,
+        MEModelGetOneTool,
+        LiteratureSearchTool,
+        ElectrophysFeatureTool,
+        GetMorphoTool,
+        KGMorphoFeatureTool,
+        MorphologyFeatureTool,
+        ResolveEntitiesTool,
+        GetTracesTool,
+        # NowTool,
+        # WeatherTool,
+    ]
+
+
+async def get_selected_tools(
+    request: Request, tool_list: Annotated[list[type[BaseTool]], Depends(get_tool_list)]
+) -> list[type[BaseTool]]:
+    """Get tools specified in the header from the frontend."""
+    body = await request.json()
+    if body.get("tool_selection") is None:
+        return tool_list
+    else:
+        tool_map = {tool.name: tool for tool in tool_list}
+        selected_tools = [tool_map[name] for name in body["tool_selection"]]
+        return selected_tools
+
+
 def get_starting_agent(
     settings: Annotated[Settings, Depends(get_settings)],
+    tool_list: Annotated[list[type[BaseTool]], Depends(get_selected_tools)],
 ) -> Agent:
     """Get the starting agent."""
     logger.info(f"Loading model {settings.openai.model}.")
@@ -158,22 +193,7 @@ def get_starting_agent(
         instructions="""You are a helpful assistant helping scientists with neuro-scientific questions.
                 You must always specify in your answers from which brain regions the information is extracted.
                 Do no blindly repeat the brain region requested by the user, use the output of the tools instead.""",
-        tools=[
-            SCSGetAllTool,
-            SCSGetOneTool,
-            SCSPostTool,
-            MEModelGetAllTool,
-            MEModelGetOneTool,
-            LiteratureSearchTool,
-            ElectrophysFeatureTool,
-            GetMorphoTool,
-            KGMorphoFeatureTool,
-            MorphologyFeatureTool,
-            ResolveEntitiesTool,
-            GetTracesTool,
-            # NowTool,
-            # WeatherTool,
-        ],
+        tools=tool_list,
         model=settings.openai.model,
     )
     return agent

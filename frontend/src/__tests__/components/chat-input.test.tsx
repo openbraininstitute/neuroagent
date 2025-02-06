@@ -25,7 +25,7 @@ test("ChatInput renders and handles input", () => {
     false,
   ]);
 
-  render(<ChatInput />);
+  render(<ChatInput availableTools={["fake-tool"]} />);
 
   const input = screen.getByPlaceholderText("Message the AI...");
   expect(input).toBeDefined();
@@ -44,7 +44,7 @@ test("ChatInput renders and handles input", () => {
 test("ChatInput shows loading state", () => {
   vi.mocked(useActionState).mockImplementation(() => [null, vi.fn(), true]);
 
-  render(<ChatInput />);
+  render(<ChatInput availableTools={["fake-tool"]} />);
 
   const input = screen.getByPlaceholderText("Creating thread...");
   expect(input).toBeDefined();

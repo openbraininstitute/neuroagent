@@ -7,20 +7,28 @@ import { env } from "@/lib/env";
 import { useSession } from "next-auth/react";
 import { ExtendedSession } from "@/lib/auth";
 import { useStore } from "@/lib/store";
+import { ToolSelectionDropdown } from "@/components/tool-selection-dropdown";
 
 import { Button } from "@/components/ui/button";
 import { ChatMessageAI } from "@/components/chat-message-ai";
 import { ChatMessageHuman } from "@/components/chat-message-human";
 import { ChatMessageTool } from "@/components/chat-message-tool";
+import { Send } from "lucide-react";
 
 type ChatPageProps = {
   threadId: string;
   initialMessages: MessageStrict[];
+  availableTools: string[];
 };
 
-export function ChatPage({ threadId, initialMessages }: ChatPageProps) {
+export function ChatPage({
+  threadId,
+  initialMessages,
+  availableTools,
+}: ChatPageProps) {
   const { data: session } = useSession() as { data: ExtendedSession | null };
-  const { newMessage, setNewMessage } = useStore();
+  const { newMessage, setNewMessage, checkedTools, setCheckedTools } =
+    useStore();
   const requiresHandleSubmit = useRef(false);
 
   useEffect(() => {
@@ -31,6 +39,17 @@ export function ChatPage({ threadId, initialMessages }: ChatPageProps) {
         content: newMessage,
       });
       setNewMessage("");
+      // If checkedTools is not initialized yet, initialize it
+      if (Object.keys(checkedTools).length === 0) {
+        const initialCheckedTools = availableTools.reduce<
+          Record<string, boolean>
+        >((acc, tool) => {
+          acc[tool] = true;
+          return acc;
+        }, {});
+        initialCheckedTools["allchecked"] = true;
+        setCheckedTools(initialCheckedTools);
+      }
       requiresHandleSubmit.current = true;
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -52,9 +71,10 @@ export function ChatPage({ threadId, initialMessages }: ChatPageProps) {
     initialMessages,
     experimental_prepareRequestBody: ({ messages }) => {
       const lastMessage = messages[messages.length - 1];
-      return {
-        content: lastMessage.content,
-      };
+      const selectedTools = Object.keys(checkedTools).filter(
+        (key) => key !== "allchecked" && checkedTools[key] === true,
+      );
+      return { content: lastMessage.content, tool_selection: selectedTools };
     },
   });
 
@@ -211,9 +231,20 @@ export function ChatPage({ threadId, initialMessages }: ChatPageProps) {
             }}
             autoComplete="off"
           />
-          {isLoading && (
-            <div className="absolute right-4 top-1/2 -translate-y-1/2">
+          <ToolSelectionDropdown
+            availableTools={availableTools}
+            checkedTools={checkedTools}
+            setCheckedTools={setCheckedTools}
+          />
+          {isLoading ? (
+            <div className="absolute right-4 top-1/2 -translate-y-1/2 -translate-x-[40%]">
               <div className="w-4 h-4 border-2 border-gray-500 border-t-transparent rounded-full animate-spin" />
+            </div>
+          ) : (
+            <div className="absolute right-4 top-1/2 -translate-y-[35%] -translate-x-[20%]">
+              <button type="submit">
+                <Send className="opacity-50" />
+              </button>
             </div>
           )}
         </div>
