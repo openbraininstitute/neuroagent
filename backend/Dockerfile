@@ -12,6 +12,9 @@ RUN apt-get -y install curl \
 RUN pip install --no-cache-dir --upgrade pip
 COPY ./ /code
 RUN pip install --no-cache-dir /code[api]
+
+RUN mv /code/alembic /alembic
+RUN mv /code/alembic.ini /alembic.ini
 RUN rm -rf /code
 
 WORKDIR /

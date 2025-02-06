@@ -13,6 +13,7 @@ dynamic = ["version"]
 dependencies = [
     "aiohttp",
     "aiosqlite",
+    "alembic",
     "asgi-correlation-id",
     "asyncpg",
     "bluepyefe",
@@ -31,7 +32,6 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = [
-    "alembic",
     "bandit[toml]",
     "mypy",
     "pytest",

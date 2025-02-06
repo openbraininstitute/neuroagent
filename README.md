@@ -13,7 +13,7 @@ LLM agent made to communicate with different neuroscience related tools. It allo
 
 ```bash
 $ docker compose up
-$ alembic -x url=postgresql://postgres:pwd@localhost:5432/neuroagent upgrade head
+$ docker exec -it neuroagent-backend-1 alembic -x url=postgresql://postgres:pwd@postgres:5432/neuroagent upgrade head
 
 ```
 
