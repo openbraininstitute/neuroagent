@@ -1,38 +1,35 @@
 # Frontend
 
 ## Installation
-
-To install only the production dependencies (recommended for non-developers), please run:
-
 ```bash
+# For production dependencies only
 npm install --omit=dev
-```
 
-If you are a developer and want to install both regular and development dependencies, please run:
-
-```bash
+# For development (includes all dependencies)
 npm install
 ```
 
-## Running locally
+## Running Locally
 
-Please create a `.env.local` and define the following variables:
-
+1. Create `.env.local` with required variables:
 ```bash
 NEXT_PUBLIC_BACKEND_URL=http://localhost:8000
 SERVER_SIDE_BACKEND_URL=http://localhost:8000
 
-KEYCLOAK_ID=... // ask ML team
-KEYCLOAK_SECRET=... // ask ML team
-KEYCLOAK_ISSUER=... // ask ML team
-NEXTAUTH_SECRET=... // ask ML team
+# Request these from ML team:
+KEYCLOAK_ID=...
+KEYCLOAK_SECRET=...
+KEYCLOAK_ISSUER=...
+NEXTAUTH_SECRET=...
+
 NEXTAUTH_URL=http://localhost:3000
 ```
 
-Make sure your backend is running on `http://localhost:8000` or change the `NEXT_PUBLIC_BACKEND_URL`/`SERVER_SIDE_BACKEND_URL` to the correct URL.
-
-You can then run the frontend with the following command:
-
+2. Start the development server:
 ```bash
 npm run dev
 ```
+
+The frontend will be available at `http://localhost:3000`
+
+Note: Ensure backend is running at `http://localhost:8000` or update BACKEND_URL variables accordingly.

@@ -1,19 +1,30 @@
-# Running locally
+# Backend
+
+## Installation
+```bash
+pip install -e .
+```
+
+## Running Locally
+
+1. Set up environment:
+   - Copy `.env.example` to `.env` and fill in required variables
+   - Set up database (SQLite or PostgreSQL)
+
+2. Initialize SQLite database (if using SQLite):
+```bash
+touch sqlite.db
+alembic -x url=sqlite:///sqlite.db upgrade head
+```
+
+3. Start the server:
+```bash
+neuroagent-api
+```
+
+The API will be available at `http://localhost:8000`
 
 
 ```bash
 $ pip install -e .
-```
-
-Make sure to define `.env`  - check `.env.example` to see what is required.
-
-Also, you will need to have a database running. Either sqlite or postgres. See below for instructions on how to set up sqlite.
-
-```bash
-$ touch sqlite.db
-$ alembic -x url=sqlite:///sqlite.db upgrade head
-```
-
-```bash
-$ neuroagent-api
 ```
