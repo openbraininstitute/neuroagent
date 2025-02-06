@@ -105,7 +105,7 @@ async def execute_tool_call(
 
 
 @router.get("")
-def get_tool_list(
+def get_available_tools(
     tool_list: Annotated[list[type[BaseTool]], Depends(get_tool_list)],
 ) -> list[str]:
     """Return the list of available tools."""
