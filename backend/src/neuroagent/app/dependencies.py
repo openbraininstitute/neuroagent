@@ -178,7 +178,9 @@ async def get_selected_tools(
         return tool_list
     else:
         tool_map = {tool.name: tool for tool in tool_list}
-        selected_tools = [tool_map[name] for name in body["tool_selection"]]
+        selected_tools = [
+            tool_map[name] for name in body["tool_selection"] if name in tool_map.keys()
+        ]
         return selected_tools
 
 
