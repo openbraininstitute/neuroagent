@@ -1,14 +1,15 @@
 # Neuroagent
 
-LLM agent made to communicate with different neuroscience related tools. It allows to communicate in a ChatGPT like fashion to get information about brain regions, morphologies, electric traces and the scientific literature.
+LLM agent for interacting with neuroscience tools. Enables ChatGPT-style interactions to query brain regions, morphologies, electrical traces, and scientific literature.
 
 1. [Running (Docker Compose)](#running-docker-compose)
 2. [Funding and Acknowledgement](#funding-and-acknowledgement)
 
+## Running (Docker Compose)
+The easiest way to run the project is with Docker Compose:
 
-## Running (docker compose)
-The simplest way to run the project is using docker compose. You will need to have docker and docker compose installed. Also, make sure to define `.env` and put the following variables inside
-
+1. Install Docker and Docker Compose
+2. Create `.env` file with required variables:
 ```bash
 OPENAI_API_KEY=...
 KEYCLOAK_ID=...
@@ -17,26 +18,26 @@ KEYCLOAK_ISSUER=...
 NEXTAUTH_SECRET=...
 ```
 
+3. Start the services and initialize the database:
 ```bash
-$ docker compose up
-$ docker exec -it neuroagent-backend-1 alembic -x url=postgresql://postgres:pwd@postgres:5432/neuroagent upgrade head
-
+docker compose up
+docker exec -it neuroagent-backend-1 alembic -x url=postgresql://postgres:pwd@postgres:5432/neuroagent upgrade head
 ```
 
-Fonally, open your browser and navigate to `http://localhost:3000`.
+4. Access the application at `http://localhost:3000`
 
-Note that the first time you run the `docker compose up` command, it will take a while since it will have to build 2 images - `backend` and `frontend`. The next time you run it, it will be much faster.
-You can run `docker compose build frontend` or `docker compose build backend` to build the images separately (useful when modifications to the source code are made).
+Notes:
+- First run will take longer to build frontend and backend images
+- To rebuild individual services: `docker compose build frontend` or `docker compose build backend`
+- Database changes persist in `neuroagent_postgres_data` volume
+- To reset database: `docker volume rm neuroagent_postgres_data`
 
-
-The second command will run the alembic migrations to create the database tables. Note that the you will only need to run this command once, the changes will be persisted inside the `neuroagent_postgres_data` volume. You can run `docker volume ls` to see the volumes created by docker compose and `docker volume rm neuroagent_postgres_data` to remove the volume and start from scratch.
-
-## Running (frontend and backend separately)
-You can find the instructions to run the frontend and backend separately in `frontend/README.md` and `backend/README.md` respectively.
+## Running (Frontend and Backend Separately)
+See instructions in `frontend/README.md` and `backend/README.md`.
 
 ## Funding and Acknowledgement
 
-The development of this software was supported by funding to the Blue Brain Project, a research center of the École polytechnique fédérale de Lausanne (EPFL), from the Swiss government’s ETH Board of the Swiss Federal Institutes of Technology.
+The development of this software was supported by funding to the Blue Brain Project, a research center of the École polytechnique fédérale de Lausanne (EPFL), from the Swiss government's ETH Board of the Swiss Federal Institutes of Technology.
 
 Copyright &copy; 2024 Blue Brain Project/EPFL<br>
 Copyright &copy; 2025 Open Brain Institute
