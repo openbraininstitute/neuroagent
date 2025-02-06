@@ -9,7 +9,7 @@ LLM agent made to communicate with different neuroscience related tools. It allo
 
 
 ## Running (docker compose)
-
+The simplest way to run the project is using docker compose. You will need to have docker and docker compose installed.
 
 ```bash
 $ docker compose up
@@ -17,22 +17,11 @@ $ docker exec -it neuroagent-backend-1 alembic -x url=postgresql://postgres:pwd@
 
 ```
 
-Note that the first time you run the docker compose command, it will take a while since it will have to build 2 images - `backend` and `frontend`. The next time you run it, it will be much faster.
+Note that the first time you run the `docker compose up` command, it will take a while since it will have to build 2 images - `backend` and `frontend`. The next time you run it, it will be much faster.
 You can run `docker compose build frontend` or `docker compose build backend` to build the images separately (useful when you made modifications)
 
 
-## Release workflow
-
-Commits with a special prefix will be added to the CHANGELOG of the latest release PR.
-The main prefixes can be found here:
-https://www.conventionalcommits.org/en/v1.0.0/#summary
-
-When a PR is merged into the main branch, a new release PR will be created if there is no open one. Otherwise all changes
-from the merged branch will be added to the latest existing release PR.
-
-The workflow is:
-1. When merging a PR, change the squashed commit message to one that contains one of the above prefixes. This will trigger the creation of a release PR if there isnt one. The commit message will be automatically added to the changelog.
-2. When the release PR is merged, a new release tag will be automatically created on github.
+The second command will run the alembic migrations to create the database tables. Note that the you will only need to run this command once, the changes will be persisted inside the `neuroagent_postgres_data` volume. You can run `docker volume ls` to see the volumes created by docker compose and `docker volume rm neuroagent_postgres_data` to remove the volume and start from scratch.
 
 
 ## Funding and Acknowledgement
