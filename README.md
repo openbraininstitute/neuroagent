@@ -25,12 +25,16 @@ $ docker exec -it neuroagent-backend-1 alembic -x url=postgresql://postgres:pwd@
 
 ```
 
+Fonally, open your browser and navigate to `http://localhost:3000`.
+
 Note that the first time you run the `docker compose up` command, it will take a while since it will have to build 2 images - `backend` and `frontend`. The next time you run it, it will be much faster.
 You can run `docker compose build frontend` or `docker compose build backend` to build the images separately (useful when modifications to the source code are made).
 
 
 The second command will run the alembic migrations to create the database tables. Note that the you will only need to run this command once, the changes will be persisted inside the `neuroagent_postgres_data` volume. You can run `docker volume ls` to see the volumes created by docker compose and `docker volume rm neuroagent_postgres_data` to remove the volume and start from scratch.
 
+## Running (frontend and backend separately)
+You can find the instructions to run the frontend and backend separately in `frontend/README.md` and `backend/README.md` respectively.
 
 ## Funding and Acknowledgement
 
