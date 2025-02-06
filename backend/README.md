@@ -23,8 +23,3 @@ neuroagent-api
 ```
 
 The API will be available at `http://localhost:8000`
-
-
-```bash
-$ pip install -e .
-```
