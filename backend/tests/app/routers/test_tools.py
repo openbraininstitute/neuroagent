@@ -2,10 +2,9 @@ import json
 
 import pytest
 
-from neuroagent.agent_routine import Agent
 from neuroagent.app.config import Settings
 from neuroagent.app.database.sql_schemas import Entity
-from neuroagent.app.dependencies import get_settings, get_starting_agent
+from neuroagent.app.dependencies import get_settings, get_tool_list
 from neuroagent.app.main import app
 from tests.conftest import mock_keycloak_user_identification
 
@@ -26,9 +25,7 @@ async def test_execute_tool_call_accepted(
     app.dependency_overrides[get_settings] = lambda: test_settings
     db_items, session = populate_db
     thread, _, tool_call = db_items.values()
-
-    agent = Agent(tools=[get_weather_tool])
-    app.dependency_overrides[get_starting_agent] = lambda: agent
+    app.dependency_overrides[get_tool_list] = lambda: [get_weather_tool]
 
     with app_client as app_client:
         response = app_client.patch(
@@ -60,8 +57,7 @@ async def test_execute_tool_call_rejected(
     db_items, session = populate_db
     thread, _, tool_call = db_items.values()
 
-    agent = Agent(tools=[get_weather_tool])
-    app.dependency_overrides[get_starting_agent] = lambda: agent
+    app.dependency_overrides[get_tool_list] = lambda: [get_weather_tool]
 
     with app_client as app_client:
         response = app_client.patch(
@@ -94,8 +90,7 @@ async def test_execute_tool_call_validation_error(
     db_items, session = populate_db
     thread, _, tool_call = db_items.values()
 
-    agent = Agent(tools=[get_weather_tool])
-    app.dependency_overrides[get_starting_agent] = lambda: agent
+    app.dependency_overrides[get_tool_list] = lambda: [get_weather_tool]
 
     with app_client as app_client:
         response = app_client.patch(

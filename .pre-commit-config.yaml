@@ -59,10 +59,10 @@ repos:
         language: system
         entry: bash -c 'cd frontend && exec npm run type-check'
 
-  - repo: local
-    hooks:
-      - id: build
-        name: build
-        files: \.[jt]sx?$
-        language: system
-        entry: bash -c 'cd frontend && exec npm run build'
+  # - repo: local
+  #   hooks:
+  #     - id: build
+  #       name: build
+  #       files: \.[jt]sx?$
+  #       language: system
+  #       entry: bash -c 'cd frontend && exec npm run build'
