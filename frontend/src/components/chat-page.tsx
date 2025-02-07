@@ -7,12 +7,11 @@ import { env } from "@/lib/env";
 import { useSession } from "next-auth/react";
 import { ExtendedSession } from "@/lib/auth";
 import { useStore } from "@/lib/store";
+import { Button } from "./ui/button";
 
-import { Button } from "@/components/ui/button";
 import { ChatMessageAI } from "@/components/chat-message-ai";
 import { ChatMessageHuman } from "@/components/chat-message-human";
 import { ChatMessageTool } from "@/components/chat-message-tool";
-import { Pickaxe } from "lucide-react";
 
 type ChatPageProps = {
   threadId: string;
@@ -25,6 +24,7 @@ export function ChatPage({ threadId, initialMessages }: ChatPageProps) {
   const requiresHandleSubmit = useRef(false);
   const [processedToolInvocationMessages, setProcessedToolInvocationMessages] =
     useState<string[]>([]);
+  const [showTools, setShowTools] = useState(true);
   const [collapsedTools, setCollapsedTools] = useState<Set<string>>(new Set());
 
   useEffect(() => {
@@ -116,13 +116,16 @@ export function ChatPage({ threadId, initialMessages }: ChatPageProps) {
         // Mark this message as processed
         setProcessedToolInvocationMessages((prev) => [...prev, lastMessage.id]);
 
+        console.log(
+          "All validated tools have results, triggering empty message",
+        );
         handleSubmit(undefined, { allowEmptySubmit: true });
       }
     }
   }, [messages, handleSubmit, processedToolInvocationMessages]);
 
   // to toggle the collapse of tools
-  function getMessagesBetween(messageID: string) {
+  function getMessageIndicesBetween(messageID: string) {
     const targetIndex = messages.findIndex((msg) => msg.id === messageID);
     if (targetIndex === -1) return [];
 
@@ -135,22 +138,19 @@ export function ChatPage({ threadId, initialMessages }: ChatPageProps) {
     }
 
     // If no previous user message is found, return from the start
-    return messages.slice(
-      prevUserIndex !== -1 ? prevUserIndex : 0,
-      targetIndex + 1,
-    );
+    return messages
+      .slice(prevUserIndex !== -1 ? prevUserIndex + 1 : 0, targetIndex)
+      .map((message) => message.id);
   }
 
-  const toggleCollapse = (messageId: string) => {
-    const messages_to_add = getMessagesBetween(messageId);
-
+  const toggleCollapse = (messageId: string[]) => {
     setCollapsedTools((prev) => {
       const newSet = new Set(prev); // Create a new Set to ensure reactivity
-      for (const msg of messages_to_add) {
-        if (newSet.has(msg.id)) {
-          newSet.delete(msg.id); // Remove from Set if collapsed
+      for (const id of messageId) {
+        if (newSet.has(id)) {
+          newSet.delete(id); // Remove from Set if collapsed
         } else {
-          newSet.add(msg.id); // Add to Set if expanded
+          newSet.add(id); // Add to Set if expanded
         }
       }
       return newSet;
@@ -163,9 +163,20 @@ export function ChatPage({ threadId, initialMessages }: ChatPageProps) {
 
   return (
     <div className="flex flex-col h-full">
+      <div className="relative flex justify-center items-center p-6 w-full">
+        <h1 className="text-3xl absolute"></h1>
+        <Button
+          className="hover:scale-105 active:scale-[1.10] ml-auto"
+          onClick={() => {
+            setShowTools(!showTools);
+          }}
+        >
+          {showTools ? "Hide Tools" : "Show Tools"}
+        </Button>
+      </div>
       {/* Mesages list */}
       <div className="flex-1 flex flex-col overflow-y-auto my-4">
-        {messages.map((message) =>
+        {messages.map((message, idx) =>
           message.role === "assistant" ? (
             message.toolInvocations ? (
               // Unpack the parralel tool calls
@@ -178,9 +189,8 @@ export function ChatPage({ threadId, initialMessages }: ChatPageProps) {
                     )?.validated ?? "not_required";
 
                   return (
-                    (collapsedTools.has(message.id) ||
-                      isLoading ||
-                      validated !== "not_required") && (
+                    ((showTools && !collapsedTools.has(message.id)) ||
+                      (isLoading && idx > initialMessages.length - 1)) && (
                       <ChatMessageTool
                         key={`${message.id}-${tool.toolCallId}`}
                         threadId={threadId}
@@ -198,22 +208,15 @@ export function ChatPage({ threadId, initialMessages }: ChatPageProps) {
                   );
                 })
             ) : (
-              <div key={`${message.id}-div`}>
-                {!isLoading && (
-                  <Button
-                    className="hover:scale-105 active:scale-[1.10] ml-14 bg-blue-500 rounded-full"
-                    onClick={() => toggleCollapse(message.id)}
-                  >
-                    <Pickaxe />
-                  </Button>
-                )}
-                <ChatMessageAI
-                  key={message.id}
-                  id={message.id}
-                  threadId={threadId}
-                  content={message.content}
-                />
-              </div>
+              <ChatMessageAI
+                key={message.id}
+                id={message.id}
+                threadId={threadId}
+                content={message.content}
+                isLoading={isLoading}
+                associatedToolsIncides={getMessageIndicesBetween(message.id)}
+                toggleCollapse={toggleCollapse}
+              />
             )
           ) : (
             <ChatMessageHuman
