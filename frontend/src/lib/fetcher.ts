@@ -1,5 +1,7 @@
 import { env } from "@/lib/env";
 
+const isServer = typeof window === "undefined";
+
 type Method = "GET" | "PATCH" | "POST" | "PUT" | "DELETE";
 type Path = string;
 type PathParams = Record<string, string | number | boolean>;
@@ -36,7 +38,10 @@ export async function fetcher({
     });
   }
 
-  const url = new URL(processedPath, env.BACKEND_URL);
+  const url = new URL(
+    processedPath,
+    isServer ? env.SERVER_SIDE_BACKEND_URL : env.NEXT_PUBLIC_BACKEND_URL,
+  );
 
   if (queryParams) {
     Object.entries(queryParams).forEach(([key, value]) => {

@@ -6,6 +6,7 @@ import { createThreadWithMessage } from "@/actions/create-thread";
 import { useStore } from "@/lib/store";
 import { ToolSelectionDropdown } from "@/components/tool-selection-dropdown";
 import { Send } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 type ChatInputProps = {
   availableTools: string[];
@@ -15,8 +16,19 @@ export function ChatInput({ availableTools }: ChatInputProps) {
   const { newMessage, setNewMessage, checkedTools, setCheckedTools } =
     useStore();
   const [input, setInput] = useState("");
+  const router = useRouter();
 
-  const [, action, isPending] = useActionState(createThreadWithMessage, null);
+  const [state, action, isPending] = useActionState(
+    createThreadWithMessage,
+    null,
+  );
+
+  // Watch for state changes and redirect when ready
+  useEffect(() => {
+    if (!isPending && state?.success && state.threadId) {
+      router.push(`/threads/${state.threadId}`);
+    }
+  }, [state, isPending, router]);
 
   const actionWrapper = (formData: FormData) => {
     if (newMessage === "" && input !== "") {
