@@ -66,7 +66,8 @@ async def execute_tool_call(
             "role": "tool",
             "tool_call_id": tool_call.tool_call_id,
             "tool_name": tool_call.name,
-            "content": "The tool call has been invalidated by the user.",
+            "content": request.feedback
+            or "The tool call has been invalidated by the user.",
         }
     else:  # Handle acceptance case
         try:

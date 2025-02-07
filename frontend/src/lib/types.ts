@@ -100,6 +100,7 @@ export type MessageStrict = Omit<Message, "annotations"> & {
 export type BExecuteToolCallRequest = {
   validation: "rejected" | "accepted";
   args?: string;
+  feedback?: string;
 };
 
 export type BExecuteToolCallResponse = {

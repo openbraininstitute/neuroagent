@@ -82,6 +82,7 @@ class ExecuteToolCallRequest(BaseModel):
 
     validation: Literal["rejected", "accepted"]
     args: str | None = None
+    feedback: str | None = None  # For refusal
 
 
 class ExecuteToolCallResponse(BaseModel):
