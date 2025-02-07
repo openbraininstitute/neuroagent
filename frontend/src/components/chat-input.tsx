@@ -1,15 +1,21 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useActionState } from "react";
+import { useState } from "react";
+import { useActionState, useEffect } from "react";
 import { createThreadWithMessage } from "@/actions/create-thread";
 import { useStore } from "@/lib/store";
+import { ToolSelectionDropdown } from "@/components/tool-selection-dropdown";
+import { Send } from "lucide-react";
+import ChatInputLoading from "@/components/chat-input-loading";
 import { useRouter } from "next/navigation";
 
-import ChatInputLoading from "@/components/chat-input-loading";
+type ChatInputProps = {
+  availableTools: string[];
+};
 
-export function ChatInput() {
-  const { newMessage, setNewMessage } = useStore();
+export function ChatInput({ availableTools }: ChatInputProps) {
+  const { newMessage, setNewMessage, checkedTools, setCheckedTools } =
+    useStore();
   const [input, setInput] = useState("");
   const router = useRouter();
 
@@ -38,10 +44,22 @@ export function ChatInput() {
       e.currentTarget.form?.requestSubmit();
     }
   };
+  useEffect(() => {
+    const initialCheckedTools = availableTools.reduce<Record<string, boolean>>(
+      (acc, tool) => {
+        acc[tool] = true;
+        return acc;
+      },
+      {},
+    );
+    initialCheckedTools["allchecked"] = true;
+    setCheckedTools(initialCheckedTools);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Empty dependency array means this runs once on mount
 
   return !(isPending || state) ? (
-    <div className="flex flex-col h-full justify-center items-center gap-4 ">
-      <h1 className="text-2xl my-4 font-bold mb-6">
+    <div className="flex flex-col items-center gap-4 pl-2 pr-2">
+      <h1 className="text-2xl font-bold mt-4 mb-6">
         What can I help you with?
       </h1>
       <form
@@ -56,18 +74,35 @@ export function ChatInput() {
         }}
         className="w-full flex justify-center"
       >
-        <div className="relative w-1/2">
+        <div className="flex items-center min-w-[70%] max-w-[100%] border-2 border-gray-500 rounded-full overflow-hidden">
           <input
             name="content"
             type="text"
             autoComplete="off"
-            className="border-2 border-gray-500 w-full p-4 rounded-full"
+            className="flex-grow p-4 outline-none bg-transparent"
             placeholder={isPending ? "Creating thread..." : "Message the AI..."}
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
             disabled={isPending}
           />
+          <div className="flex gap-2 mr-3">
+            <ToolSelectionDropdown
+              availableTools={availableTools}
+              checkedTools={checkedTools}
+              setCheckedTools={setCheckedTools}
+            />
+            {isPending ? (
+              <div
+                className="w-6 h-6 border-2 ml-2 p-1 border-gray-500 border-t-transparent rounded-full animate-spin"
+                data-testid="loading-spinner"
+              />
+            ) : (
+              <button type="submit" data-testid="send-button" className="p-1">
+                <Send className="opacity-50" />
+              </button>
+            )}
+          </div>
         </div>
       </form>
     </div>

@@ -20,8 +20,8 @@ from neuroagent.app.dependencies import (
     get_openai_client,
     get_session,
     get_settings,
-    get_starting_agent,
     get_thread,
+    get_tool_list,
     get_user_id,
 )
 from neuroagent.app.schemas import (
@@ -31,7 +31,7 @@ from neuroagent.app.schemas import (
     ThreadsRead,
     ThreadUpdate,
 )
-from neuroagent.new_types import Agent
+from neuroagent.tools.base_tool import BaseTool
 
 logger = logging.getLogger(__name__)
 
@@ -172,11 +172,11 @@ async def get_thread_messages(
     session: Annotated[AsyncSession, Depends(get_session)],
     _: Annotated[Threads, Depends(get_thread)],  # to check if thread exists
     thread_id: str,
-    starting_agent: Annotated[Agent, Depends(get_starting_agent)],
+    tool_list: Annotated[list[type[BaseTool]], Depends(get_tool_list)],
 ) -> list[MessageResponse]:
     """Get all messages of the thread."""
     # Create mapping of tool names to their HIL requirement
-    tool_hil_mapping = {tool.name: tool.hil for tool in starting_agent.tools}
+    tool_hil_mapping = {tool.name: tool.hil for tool in tool_list}
 
     messages_result = await session.execute(
         select(Messages)
