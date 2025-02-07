@@ -212,10 +212,10 @@ export function ChatPage({
         className="flex flex-col justify-center items-center gap-4 mb-4"
         onSubmit={handleSubmit}
       >
-        <div className="flex flex-row-reverse items-center w-3/5">
+        <div className="flex items-center min-w-[70%] max-w-[100%] border-2 border-gray-500 rounded-full overflow-hidden">
           <input
             type="text"
-            className="border-2 border-gray-500 w-full p-4 rounded-full"
+            className="flex-grow outline-none w-full p-4 bg-transparent text-white"
             name="prompt"
             placeholder="Message the AI..."
             value={input}
@@ -228,16 +228,16 @@ export function ChatPage({
             }}
             autoComplete="off"
           />
-          <div className="flex justify-around items-center absolute w-max-[20%] gap-2 pr-5">
+          <div className="flex gap-2 mr-3">
             <ToolSelectionDropdown
               availableTools={availableTools}
               checkedTools={checkedTools}
               setCheckedTools={setCheckedTools}
             />
             {isLoading ? (
-              <div className="w-4 h-4 border-2 border-gray-500 border-t-transparent rounded-full animate-spin" />
+              <div className="w-6 h-6 border-2 ml-2 p-1 border-gray-500 border-t-transparent rounded-full animate-spin" />
             ) : (
-              <button type="submit">
+              <button type="submit" data-testid="send-button" className="p-1">
                 <Send className="opacity-50" />
               </button>
             )}

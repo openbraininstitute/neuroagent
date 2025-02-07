@@ -73,14 +73,12 @@ export function ChatInput({ availableTools }: ChatInputProps) {
         }}
         className="w-full flex justify-center"
       >
-        {/* Outer container for the input and buttons */}
-        <div className="flex flex-row-reverse items-center w-3/5">
-          {/* Input field */}
+        <div className="flex items-center min-w-[70%] max-w-[100%] border-2 border-gray-500 rounded-full overflow-hidden">
           <input
             name="content"
             type="text"
             autoComplete="off"
-            className="flex-grow border-2 border-gray-500 p-4 rounded-full pr-16 bg-transparent text-white" // Adjust right padding
+            className="flex-grow p-4 outline-none bg-transparent text-white"
             placeholder={isPending ? "Creating thread..." : "Message the AI..."}
             value={input}
             onChange={(e) => setInput(e.target.value)}
@@ -88,17 +86,15 @@ export function ChatInput({ availableTools }: ChatInputProps) {
             disabled={isPending}
           />
 
-          <div className="flex justify-around items-center absolute w-max-[20%] gap-2 pr-5">
-            {/* Wrench button */}
+          <div className="flex gap-2 mr-3">
             <ToolSelectionDropdown
               availableTools={availableTools}
               checkedTools={checkedTools}
               setCheckedTools={setCheckedTools}
             />
-            {/* Send button or spinner */}
             {isPending ? (
               <div
-                className="w-5 h-5 border-2 border-gray-500 border-t-transparent rounded-full animate-spin"
+                className="w-6 h-6 border-2 ml-2 p-1 border-gray-500 border-t-transparent rounded-full animate-spin"
                 data-testid="loading-spinner"
               />
             ) : (
