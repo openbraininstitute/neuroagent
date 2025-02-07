@@ -7,7 +7,6 @@ import { env } from "@/lib/env";
 import { useSession } from "next-auth/react";
 import { ExtendedSession } from "@/lib/auth";
 import { useStore } from "@/lib/store";
-import { Button } from "./ui/button";
 
 import { ChatMessageAI } from "@/components/chat-message-ai";
 import { ChatMessageHuman } from "@/components/chat-message-human";
@@ -24,7 +23,6 @@ export function ChatPage({ threadId, initialMessages }: ChatPageProps) {
   const requiresHandleSubmit = useRef(false);
   const [processedToolInvocationMessages, setProcessedToolInvocationMessages] =
     useState<string[]>([]);
-  const [showTools, setShowTools] = useState(true);
   const [collapsedTools, setCollapsedTools] = useState<Set<string>>(new Set());
 
   useEffect(() => {
@@ -163,17 +161,6 @@ export function ChatPage({ threadId, initialMessages }: ChatPageProps) {
 
   return (
     <div className="flex flex-col h-full">
-      <div className="relative flex justify-center items-center p-6 w-full">
-        <h1 className="text-3xl absolute"></h1>
-        <Button
-          className="hover:scale-105 active:scale-[1.10] ml-auto"
-          onClick={() => {
-            setShowTools(!showTools);
-          }}
-        >
-          {showTools ? "Hide Tools" : "Show Tools"}
-        </Button>
-      </div>
       {/* Mesages list */}
       <div className="flex-1 flex flex-col overflow-y-auto my-4">
         {messages.map((message, idx) =>
@@ -189,7 +176,8 @@ export function ChatPage({ threadId, initialMessages }: ChatPageProps) {
                     )?.validated ?? "not_required";
 
                   return (
-                    ((showTools && !collapsedTools.has(message.id)) ||
+                    (collapsedTools.has(message.id) ||
+                      validated !== "not_required" ||
                       (isLoading && idx > initialMessages.length - 1)) && (
                       <ChatMessageTool
                         key={`${message.id}-${tool.toolCallId}`}
@@ -213,7 +201,7 @@ export function ChatPage({ threadId, initialMessages }: ChatPageProps) {
                 id={message.id}
                 threadId={threadId}
                 content={message.content}
-                isLoading={isLoading}
+                isLoading={isLoading && idx > initialMessages.length - 1}
                 associatedToolsIncides={getMessageIndicesBetween(message.id)}
                 toggleCollapse={toggleCollapse}
               />
