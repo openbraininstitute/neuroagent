@@ -73,6 +73,19 @@ function convertToAiMessages(messages: BMessage[]): MessageStrict[] {
   return output;
 }
 
+async function getToolList() {
+  const session = await auth();
+  if (!session?.accessToken) {
+    throw new Error("No session found");
+  }
+
+  const response = await fetcher({
+    path: "/tools",
+    headers: { Authorization: `Bearer ${session.accessToken}` },
+  });
+  return response as string[];
+}
+
 export default async function PageThread({
   params,
 }: {
@@ -83,6 +96,13 @@ export default async function PageThread({
 
   const messages = await getMessages(threadId);
   const convertedMessages = convertToAiMessages(messages);
+  const availableTools = await getToolList();
 
-  return <ChatPage threadId={threadId} initialMessages={convertedMessages} />;
+  return (
+    <ChatPage
+      threadId={threadId}
+      initialMessages={convertedMessages}
+      availableTools={availableTools}
+    />
+  );
 }

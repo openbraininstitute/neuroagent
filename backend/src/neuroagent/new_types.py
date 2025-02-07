@@ -60,6 +60,7 @@ class ClientRequest(BaseModel):
     """Vercel class."""
 
     content: str
+    tool_selection: list[str] | None = None
 
     model_config = ConfigDict(extra="ignore")
 

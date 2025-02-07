@@ -7,20 +7,28 @@ import { env } from "@/lib/env";
 import { useSession } from "next-auth/react";
 import { ExtendedSession } from "@/lib/auth";
 import { useStore } from "@/lib/store";
+import { ToolSelectionDropdown } from "@/components/tool-selection-dropdown";
 
 import { Button } from "@/components/ui/button";
 import { ChatMessageAI } from "@/components/chat-message-ai";
 import { ChatMessageHuman } from "@/components/chat-message-human";
 import { ChatMessageTool } from "@/components/chat-message-tool";
+import { Send } from "lucide-react";
 
 type ChatPageProps = {
   threadId: string;
   initialMessages: MessageStrict[];
+  availableTools: string[];
 };
 
-export function ChatPage({ threadId, initialMessages }: ChatPageProps) {
+export function ChatPage({
+  threadId,
+  initialMessages,
+  availableTools,
+}: ChatPageProps) {
   const { data: session } = useSession() as { data: ExtendedSession | null };
-  const { newMessage, setNewMessage } = useStore();
+  const { newMessage, setNewMessage, checkedTools, setCheckedTools } =
+    useStore();
   const requiresHandleSubmit = useRef(false);
 
   useEffect(() => {
@@ -31,6 +39,17 @@ export function ChatPage({ threadId, initialMessages }: ChatPageProps) {
         content: newMessage,
       });
       setNewMessage("");
+      // If checkedTools is not initialized yet, initialize it
+      if (Object.keys(checkedTools).length === 0) {
+        const initialCheckedTools = availableTools.reduce<
+          Record<string, boolean>
+        >((acc, tool) => {
+          acc[tool] = true;
+          return acc;
+        }, {});
+        initialCheckedTools["allchecked"] = true;
+        setCheckedTools(initialCheckedTools);
+      }
       requiresHandleSubmit.current = true;
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -52,9 +71,10 @@ export function ChatPage({ threadId, initialMessages }: ChatPageProps) {
     initialMessages,
     experimental_prepareRequestBody: ({ messages }) => {
       const lastMessage = messages[messages.length - 1];
-      return {
-        content: lastMessage.content,
-      };
+      const selectedTools = Object.keys(checkedTools).filter(
+        (key) => key !== "allchecked" && checkedTools[key] === true,
+      );
+      return { content: lastMessage.content, tool_selection: selectedTools };
     },
   });
 
@@ -192,10 +212,10 @@ export function ChatPage({ threadId, initialMessages }: ChatPageProps) {
         className="flex flex-col justify-center items-center gap-4 mb-4"
         onSubmit={handleSubmit}
       >
-        <div className="relative w-1/2">
+        <div className="flex items-center min-w-[70%] max-w-[100%] border-2 border-gray-500 rounded-full overflow-hidden">
           <input
             type="text"
-            className="border-2 border-gray-500 w-full p-4 rounded-full"
+            className="flex-grow outline-none w-full p-4 bg-transparent"
             name="prompt"
             placeholder="Message the AI..."
             value={input}
@@ -207,12 +227,22 @@ export function ChatPage({ threadId, initialMessages }: ChatPageProps) {
               }
             }}
             autoComplete="off"
+            disabled={isLoading}
           />
-          {isLoading && (
-            <div className="absolute right-4 top-1/2 -translate-y-1/2">
-              <div className="w-4 h-4 border-2 border-gray-500 border-t-transparent rounded-full animate-spin" />
-            </div>
-          )}
+          <div className="flex gap-2 mr-3">
+            <ToolSelectionDropdown
+              availableTools={availableTools}
+              checkedTools={checkedTools}
+              setCheckedTools={setCheckedTools}
+            />
+            {isLoading ? (
+              <div className="w-6 h-6 border-2 ml-2 p-1 border-gray-500 border-t-transparent rounded-full animate-spin" />
+            ) : (
+              <button type="submit" data-testid="send-button" className="p-1">
+                <Send className="opacity-50" />
+              </button>
+            )}
+          </div>
         </div>
       </form>
     </div>
