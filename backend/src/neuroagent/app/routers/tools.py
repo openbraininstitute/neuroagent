@@ -15,14 +15,15 @@ from neuroagent.app.dependencies import (
     get_agents_routine,
     get_context_variables,
     get_session,
-    get_starting_agent,
     get_thread,
+    get_tool_list,
+    get_user_id,
 )
 from neuroagent.app.schemas import (
     ExecuteToolCallRequest,
     ExecuteToolCallResponse,
 )
-from neuroagent.new_types import Agent
+from neuroagent.tools.base_tool import BaseTool
 
 logger = logging.getLogger(__name__)
 
@@ -36,7 +37,7 @@ async def execute_tool_call(
     request: ExecuteToolCallRequest,
     _: Annotated[Threads, Depends(get_thread)],  # validates thread belongs to user
     session: Annotated[AsyncSession, Depends(get_session)],
-    starting_agent: Annotated[Agent, Depends(get_starting_agent)],
+    tool_list: Annotated[list[type[BaseTool]], Depends(get_tool_list)],
     context_variables: Annotated[dict[str, Any], Depends(get_context_variables)],
     agents_routine: Annotated[AgentsRoutine, Depends(get_agents_routine)],
 ) -> ExecuteToolCallResponse:
@@ -67,13 +68,13 @@ async def execute_tool_call(
             "tool_call_id": tool_call.tool_call_id,
             "tool_name": tool_call.name,
             "content": request.feedback
-            or "The tool call has been invalidated by the user.",
+            or "This tool call has been refused and must not re-run unless explicitly prompted by the user.",
         }
     else:  # Handle acceptance case
         try:
             message, _ = await agents_routine.handle_tool_call(
                 tool_call=tool_call,
-                tools=starting_agent.tools,
+                tools=tool_list,
                 context_variables=context_variables,
                 raise_validation_errors=True,
             )
@@ -103,3 +104,13 @@ async def execute_tool_call(
     await session.commit()
 
     return ExecuteToolCallResponse(status="done", content=message["content"])
+
+
+@router.get("")
+def get_available_tools(
+    tool_list: Annotated[list[type[BaseTool]], Depends(get_tool_list)],
+    _: Annotated[str, Depends(get_user_id)],
+) -> list[str]:
+    """Return the list of available tools."""
+    # Trivial implementation for now, to be adressed in another PR
+    return [tool.name for tool in tool_list]

@@ -46,6 +46,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - [frontend] - Collapsible side bar.
 - [frontend] - Add confirmation box on thread deletion.
 - Feedback for HIL tool call refusal.
+- [frontend] - Possibility to dynamically chose available tools.
 
 ### Fixed
 - [frontend] - Parallel execution of tools
