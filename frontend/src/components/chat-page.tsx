@@ -227,6 +227,7 @@ export function ChatPage({
               }
             }}
             autoComplete="off"
+            disabled={isLoading}
           />
           <div className="flex gap-2 mr-3">
             <ToolSelectionDropdown
