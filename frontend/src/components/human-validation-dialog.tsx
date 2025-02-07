@@ -42,7 +42,9 @@ export function HumanValidationDialog({
 }: HumanValidationDialogProps) {
   const [editedArgs, setEditedArgs] = useState(JSON.stringify(args, null, 2));
   const [isEdited, setIsEdited] = useState(false);
-  const [isAccepted, setIsAccepted] = useState(false);
+  const [isAccepted, setIsAccepted] = useState<"accepted" | "rejected">(
+    "rejected",
+  );
   const [isRefusalDialogOpen, setIsRefusalDialogOpen] = useState(false);
   const [feedback, setFeedback] = useState<string>("");
   const formRef = useRef<HTMLFormElement>(null);
@@ -124,11 +126,7 @@ export function HumanValidationDialog({
           <form action={handleAction} className="flex gap-2" ref={formRef}>
             <input type="hidden" name="threadId" value={threadId} />
             <input type="hidden" name="toolCallId" value={toolId} />
-            <input
-              type="hidden"
-              name="validation"
-              value={isAccepted ? "accepted" : "rejected"}
-            />
+            <input type="hidden" name="validation" value={isAccepted} />
             <input
               type="hidden"
               name="args"
@@ -149,7 +147,7 @@ export function HumanValidationDialog({
             <Button
               type="submit"
               disabled={!isOpen}
-              onClick={() => setIsAccepted(true)}
+              onClick={() => setIsAccepted("accepted")}
             >
               Accept
             </Button>
