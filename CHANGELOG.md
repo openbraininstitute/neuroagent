@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 - Removed trailing slashes from endpoints.
+- Bunch of unused code
+- God account logic
+- Skipped tests (but astream)
 
 ### Changed
 - Return model dumps of DB schema objects.
@@ -20,6 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - pre-commit hooks for frontend.
 
 ### Added
+- Docker compose for local development
 - [frontend] Keycloak sign in + documentation.
 - LLM evaluation logic
 - Integrated Alembic for managing chat history migrations
@@ -48,6 +52,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Query size limiter.
 - Fix /threads/messages endpoint.
 - [frontend] - remove first message delay.
+- [frontend] - dark mode flickering.
 
 ## [0.3.3] - 30.10.2024
 

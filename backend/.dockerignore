@@ -1,0 +1,12 @@
+# Ignore all but src and alembic
+*
+!src/neuroagent/*
+!pyproject.toml
+
+!alembic/*
+!alembic.ini
+
+# Ignore the __pycache__ that are in the whitelisted folders.
+*/__pycache__/
+*/*/__pycache__/
+*/*/*/__pycache__/

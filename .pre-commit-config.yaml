@@ -23,8 +23,8 @@ repos:
     rev: 1.7.4
     hooks:
       - id: bandit
-        args: [-c, pyproject.toml, -qr]
-        files: ^src/
+        args: [-c, backend/pyproject.toml, -qr]
+        files: ^backend/src/
         additional_dependencies: ["bandit[toml]"]
 
   - repo: local
@@ -33,7 +33,7 @@ repos:
         name: mypy
         files: ^src/
         language: system
-        entry: bash -c 'mypy src/'
+        entry: bash -c 'cd backend && mypy src/'
 
   - repo: local
     hooks:
