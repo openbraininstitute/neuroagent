@@ -39,7 +39,7 @@ export function ChatInput() {
     }
   };
 
-  return !isPending ? (
+  return !(isPending || state) ? (
     <div className="flex flex-col h-full justify-center items-center gap-4 ">
       <h1 className="text-2xl my-4 font-bold mb-6">
         What can I help you with?
