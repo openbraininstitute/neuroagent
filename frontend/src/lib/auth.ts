@@ -129,7 +129,6 @@ async function refreshAccessToken(token: TokenSet) {
       refreshToken: refreshedTokens.refresh_token ?? token.refreshToken,
     };
   } catch (error) {
-    console.error("Error refreshing token:", error);
     throw error;
   }
 }

@@ -45,7 +45,7 @@ export function ChatPage({ threadId, initialMessages }: ChatPageProps) {
     isLoading,
     setMessages: setMessagesRaw,
   } = useChat({
-    api: `${env.BACKEND_URL}/qa/chat_streamed/${threadId}`,
+    api: `${env.NEXT_PUBLIC_BACKEND_URL}/qa/chat_streamed/${threadId}`,
     headers: {
       Authorization: `Bearer ${session?.accessToken}`,
     },
@@ -118,9 +118,6 @@ export function ChatPage({ threadId, initialMessages }: ChatPageProps) {
         // Mark this message as processed
         setProcessedToolInvocationMessages((prev) => [...prev, lastMessage.id]);
 
-        console.log(
-          "All validated tools have results, triggering empty message",
-        );
         handleSubmit(undefined, { allowEmptySubmit: true });
       }
     }

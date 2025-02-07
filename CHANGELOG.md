@@ -23,6 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - pre-commit hooks for frontend.
 
 ### Added
+- Docker compose for local development
 - [frontend] Keycloak sign in + documentation.
 - LLM evaluation logic
 - Integrated Alembic for managing chat history migrations
@@ -51,7 +52,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Query size limiter.
 - Fix /threads/messages endpoint.
 - [frontend] - remove first message delay.
-- [frontend] - imporove loading UI on first message.
+- [frontend] - improve loading UI on first message.
+- [frontend] - dark mode flickering.
 
 ## [0.3.3] - 30.10.2024
 
