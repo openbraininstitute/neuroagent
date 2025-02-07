@@ -1,4 +1,5 @@
 import Markdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import { Card, CardContent } from "@/components/ui/card";
 
 type ChatMessageAIProps = {
@@ -14,7 +15,7 @@ export function ChatMessageAI({ content }: ChatMessageAIProps) {
         <Card className="max-w-2xl bg-transparent shadow-none border-none">
           <CardContent>
             <span className="prose text-lg pt-8 text-left dark:prose-invert">
-              <Markdown>{content}</Markdown>
+              <Markdown remarkPlugins={[remarkGfm]}>{content}</Markdown>
             </span>
           </CardContent>
         </Card>
