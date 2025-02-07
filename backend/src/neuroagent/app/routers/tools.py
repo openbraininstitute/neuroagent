@@ -17,6 +17,7 @@ from neuroagent.app.dependencies import (
     get_session,
     get_thread,
     get_tool_list,
+    get_user_id,
 )
 from neuroagent.app.schemas import (
     ExecuteToolCallRequest,
@@ -107,6 +108,7 @@ async def execute_tool_call(
 @router.get("")
 def get_available_tools(
     tool_list: Annotated[list[type[BaseTool]], Depends(get_tool_list)],
+    _: Annotated[str, Depends(get_user_id)],
 ) -> list[str]:
     """Return the list of available tools."""
     # Trivial implementation for now, to be adressed in another PR

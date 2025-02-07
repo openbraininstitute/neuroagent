@@ -215,7 +215,7 @@ export function ChatPage({
         <div className="flex items-center min-w-[70%] max-w-[100%] border-2 border-gray-500 rounded-full overflow-hidden">
           <input
             type="text"
-            className="flex-grow outline-none w-full p-4 bg-transparent text-white"
+            className="flex-grow outline-none w-full p-4 bg-transparent"
             name="prompt"
             placeholder="Message the AI..."
             value={input}

@@ -78,7 +78,7 @@ export function ChatInput({ availableTools }: ChatInputProps) {
             name="content"
             type="text"
             autoComplete="off"
-            className="flex-grow p-4 outline-none bg-transparent text-white"
+            className="flex-grow p-4 outline-none bg-transparent"
             placeholder={isPending ? "Creating thread..." : "Message the AI..."}
             value={input}
             onChange={(e) => setInput(e.target.value)}
