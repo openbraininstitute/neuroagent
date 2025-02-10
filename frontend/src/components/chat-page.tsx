@@ -7,6 +7,7 @@ import { env } from "@/lib/env";
 import { useSession } from "next-auth/react";
 import { ExtendedSession } from "@/lib/auth";
 import { useStore } from "@/lib/store";
+import { Button } from "./ui/button";
 
 import { ChatMessageAI } from "@/components/chat-message-ai";
 import { ChatMessageHuman } from "@/components/chat-message-human";
@@ -134,25 +135,29 @@ export function ChatPage({ threadId, initialMessages }: ChatPageProps) {
         break;
       }
     }
-
-    // If no previous user message is found, return from the start
     return messages
       .slice(prevUserIndex !== -1 ? prevUserIndex + 1 : 0, targetIndex)
       .map((message) => message.id);
   }
 
-  const toggleCollapse = (messageId: string[]) => {
-    setCollapsedTools((prev) => {
-      const newSet = new Set(prev); // Create a new Set to ensure reactivity
-      for (const id of messageId) {
-        if (newSet.has(id)) {
-          newSet.delete(id); // Remove from Set if collapsed
-        } else {
-          newSet.add(id); // Add to Set if expanded
+  const toggleCollapse = (messageId: string[], setAll: boolean = false) => {
+    if (setAll) {
+      if (collapsedTools?.size > 0) {
+        setCollapsedTools(new Set());
+      } else setCollapsedTools(new Set(messageId));
+    } else {
+      setCollapsedTools((prev) => {
+        const newSet = new Set(prev);
+        for (const id of messageId) {
+          if (newSet.has(id)) {
+            newSet.delete(id);
+          } else {
+            newSet.add(id);
+          }
         }
-      }
-      return newSet;
-    });
+        return newSet;
+      });
+    }
   };
 
   if (error) {
@@ -161,8 +166,22 @@ export function ChatPage({ threadId, initialMessages }: ChatPageProps) {
 
   return (
     <div className="flex flex-col h-full">
+      <div className="relative flex justify-center items-center p-6 w-full">
+        <h1 className="text-3xl absolute"></h1>
+        <Button
+          className="hover:scale-105 active:scale-[1.10] ml-auto"
+          onClick={() =>
+            toggleCollapse(
+              messages.map((msg) => msg.id),
+              true,
+            )
+          }
+        >
+          {collapsedTools?.size > 0 ? "Show Tools" : "Hide Tools"}
+        </Button>
+      </div>
       {/* Mesages list */}
-      <div className="flex-1 flex flex-col overflow-y-auto my-4">
+      <div className="flex-1 flex flex-col overflow-y-auto">
         {messages.map((message, idx) =>
           message.role === "assistant" ? (
             message.toolInvocations ? (
@@ -176,9 +195,7 @@ export function ChatPage({ threadId, initialMessages }: ChatPageProps) {
                     )?.validated ?? "not_required";
 
                   return (
-                    (collapsedTools.has(message.id) ||
-                      validated !== "not_required" ||
-                      (isLoading && idx > initialMessages.length - 1)) && (
+                    !collapsedTools.has(message.id) && (
                       <ChatMessageTool
                         key={`${message.id}-${tool.toolCallId}`}
                         threadId={threadId}
@@ -203,6 +220,7 @@ export function ChatPage({ threadId, initialMessages }: ChatPageProps) {
                 content={message.content}
                 isLoading={isLoading && idx > initialMessages.length - 1}
                 associatedToolsIncides={getMessageIndicesBetween(message.id)}
+                collapsedTools={collapsedTools}
                 toggleCollapse={toggleCollapse}
               />
             )
