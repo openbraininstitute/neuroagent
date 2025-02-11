@@ -69,6 +69,12 @@ class GetMorphoTool(BaseTool):
     - The morphology name.
     - the morphology description.
     The morphology ID is in the form of an HTTP(S) link such as 'https://bbp.epfl.ch/neurosciencegraph/data/neuronmorphologies...'."""
+    description_frontend: ClassVar[str] = """Search and retrieve neuron morphologies. Use this tool to:
+    • Find neurons in specific brain regions
+    • Search by morphology type
+    • Access detailed morphological data
+    
+    Specify brain region and optional criteria to find relevant morphologies."""
     input_schema: GetMorphoInput
     metadata: GetMorphoMetadata
 

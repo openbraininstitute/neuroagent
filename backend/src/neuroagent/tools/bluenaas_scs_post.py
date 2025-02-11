@@ -93,6 +93,12 @@ class SCSPostTool(BaseTool):
     Optionally, the user can specify simulation parameters.
     Returns the id of the simulation along with metadatas to fetch the simulation result and analyse it at a later stage.
     """
+    description_frontend: ClassVar[str] = """Run new single-neuron simulations. This tool helps you:
+    • Set up and run neuron simulations
+    • Configure simulation parameters
+    • Test different stimulation protocols
+    
+    Specify the model and simulation parameters to start a new simulation run."""
     metadata: SCSPostMetadata
     input_schema: InputSCSPost
     hil: ClassVar[bool] = True

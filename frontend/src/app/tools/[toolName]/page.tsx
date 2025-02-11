@@ -97,9 +97,6 @@ export default async function ToolPage({
             <p className="text-muted-foreground whitespace-pre-wrap break-words">
               {tool.descriptionFrontend}
             </p>
-            <p className="text-sm text-muted-foreground whitespace-pre-wrap break-words">
-              {tool.description}
-            </p>
           </div>
         </div>
 

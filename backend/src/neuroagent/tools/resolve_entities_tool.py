@@ -84,6 +84,12 @@ class ResolveEntitiesTool(BaseTool):
     Brain region related outputs are stored in the class `BRResolveOutput` while the mtype related outputs are stored in the class `MTypeResolveOutput`."""
     input_schema: ResolveBRInput
     metadata: ResolveBRMetadata
+    description_frontend: ClassVar[str] = """Convert natural language descriptions to precise identifiers. This tool helps you:
+    • Find exact brain region IDs from names
+    • Match cell types to their formal identifiers
+    • Resolve scientific terminology
+    
+    Provide natural language descriptions to get corresponding technical identifiers."""
 
     async def arun(
         self,

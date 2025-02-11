@@ -192,6 +192,12 @@ class ElectrophysFeatureTool(BaseTool):
     - The amplitude is the total current injected in the cell when measuring the response.
     Specify those ONLY if the user specified them. Otherwise leave them as None.
     """
+    description_frontend: ClassVar[str] = """Analyze electrophysiological properties of neurons. This tool allows you to:
+    • Extract features from experimental traces
+    • Analyze neuron responses to stimuli
+    • Compare electrical properties across different protocols
+    
+    Provide a trace ID to analyze its electrophysiological features."""
     input_schema: ElectrophysInput
     metadata: ElectrophysMetadata
 

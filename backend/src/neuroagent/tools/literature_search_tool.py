@@ -50,6 +50,12 @@ class LiteratureSearchTool(BaseTool):
 
     name: ClassVar[str] = "literature-search-tool"
     name_frontend: ClassVar[str] = "Literature Search"
+    description_frontend: ClassVar[str] = """Search through scientific papers to find relevant information. This tool is particularly useful for:
+    • Finding scientific facts about neuroscience and medicine
+    • Getting information from peer-reviewed articles
+    • Accessing research findings and academic knowledge
+
+    The search will return relevant paragraphs from scientific papers along with their source information."""
     description: ClassVar[
         str
     ] = """Searches the scientific literature. The tool should be used to gather general scientific knowledge. It is best suited for questions about neuroscience and medicine that are not about morphologies.

@@ -185,6 +185,12 @@ class KGMorphoFeatureTool(BaseTool):
     - The morphology name.
     - The list of features of the morphology.
     If a given feature has multiple statistics (e.g. mean, min, max, median...), please return only its mean unless specified differently by the user."""
+    description_frontend: ClassVar[str] = """Search for neurons with specific morphological features. This tool helps you:
+    • Find neurons based on their structural properties
+    • Search by specific measurements or ranges
+    • Compare morphological features
+    
+    Specify the features and ranges you're interested in to find matching neurons."""
     input_schema: KGMorphoFeatureInput
     metadata: KGMorphoFeatureMetadata
 
