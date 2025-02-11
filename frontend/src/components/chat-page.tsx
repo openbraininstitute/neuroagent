@@ -7,7 +7,6 @@ import { env } from "@/lib/env";
 import { useSession } from "next-auth/react";
 import { ExtendedSession } from "@/lib/auth";
 import { useStore } from "@/lib/store";
-import { Button } from "./ui/button";
 import { ToolSelectionDropdown } from "@/components/tool-selection-dropdown";
 
 import { ChatMessageAI } from "@/components/chat-message-ai";
@@ -160,24 +159,18 @@ export function ChatPage({
       .map((message) => message.id);
   }
 
-  const toggleCollapse = (messageId: string[], setAll: boolean = false) => {
-    if (setAll) {
-      if (collapsedTools?.size > 0) {
-        setCollapsedTools(new Set());
-      } else setCollapsedTools(new Set(messageId));
-    } else {
-      setCollapsedTools((prev) => {
-        const newSet = new Set(prev);
-        for (const id of messageId) {
-          if (newSet.has(id)) {
-            newSet.delete(id);
-          } else {
-            newSet.add(id);
-          }
+  const toggleCollapse = (messageId: string[]) => {
+    setCollapsedTools((prev) => {
+      const newSet = new Set(prev);
+      for (const id of messageId) {
+        if (newSet.has(id)) {
+          newSet.delete(id);
+        } else {
+          newSet.add(id);
         }
-        return newSet;
-      });
-    }
+      }
+      return newSet;
+    });
   };
 
   if (error) {
@@ -186,20 +179,6 @@ export function ChatPage({
 
   return (
     <div className="flex flex-col h-full">
-      <div className="relative flex justify-center items-center p-6 w-full">
-        <h1 className="text-3xl absolute"></h1>
-        <Button
-          className="hover:scale-105 active:scale-[1.10] ml-auto"
-          onClick={() =>
-            toggleCollapse(
-              messages.map((msg) => msg.id),
-              true,
-            )
-          }
-        >
-          {collapsedTools?.size > 0 ? "Show Tools" : "Hide Tools"}
-        </Button>
-      </div>
       {/* Mesages list */}
       <div className="flex-1 flex flex-col overflow-y-auto">
         {messages.map((message, idx) =>
@@ -238,7 +217,7 @@ export function ChatPage({
                 id={message.id}
                 threadId={threadId}
                 content={message.content}
-                isLoading={isLoading && idx > initialMessages.length - 1}
+                isStreaming={isLoading && idx > initialMessages.length - 1}
                 associatedToolsIncides={getMessageIndicesBetween(message.id)}
                 collapsedTools={collapsedTools}
                 toggleCollapse={toggleCollapse}
