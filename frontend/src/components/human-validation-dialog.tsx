@@ -62,11 +62,15 @@ export function HumanValidationDialog({
 
   const handleOpenChange = (open: boolean) => {
     if (!open) {
-      setEditedArgs(JSON.stringify(args, null, 2));
-      setIsEdited(false);
-      setShowReviewDialog(true);
-      setShowFeedbackDialog(false);
-      setFeedback("");
+      // Reset the state when the dialog is closed
+      setTimeout(() => {
+        setEditedArgs(JSON.stringify(args, null, 2));
+        setIsEdited(false);
+        setShowReviewDialog(true);
+        setShowFeedbackDialog(false);
+        setFeedback("");
+        setDialogTransition(false);
+      }, 300); // Delay the reset to allow for closing animation
     }
     setIsOpen(open);
   };
