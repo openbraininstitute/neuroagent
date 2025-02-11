@@ -10,7 +10,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { MessageStrict } from "@/lib/types";
+import type { MessageStrict } from "@/lib/types";
 import { HilRefusalFeedbackDialog } from "@/components/hil-refusal-feedback-dialog";
 
 type HumanValidationDialogProps = {
@@ -45,7 +45,9 @@ export function HumanValidationDialog({
   const [isAccepted, setIsAccepted] = useState<"accepted" | "rejected">(
     "rejected",
   );
-  const [isRefusalDialogOpen, setIsRefusalDialogOpen] = useState(false);
+  const [showReviewDialog, setShowReviewDialog] = useState(true);
+  const [showFeedbackDialog, setShowFeedbackDialog] = useState(false);
+  const [dialogTransition, setDialogTransition] = useState(false);
   const [feedback, setFeedback] = useState<string>("");
   const formRef = useRef<HTMLFormElement>(null);
 
@@ -59,11 +61,23 @@ export function HumanValidationDialog({
   };
 
   const handleOpenChange = (open: boolean) => {
-    setIsOpen(open);
     if (!open) {
       setEditedArgs(JSON.stringify(args, null, 2));
       setIsEdited(false);
+      setShowReviewDialog(true);
+      setShowFeedbackDialog(false);
+      setFeedback("");
     }
+    setIsOpen(open);
+  };
+
+  const handleReject = () => {
+    setDialogTransition(true);
+    setTimeout(() => {
+      setShowReviewDialog(false);
+      setShowFeedbackDialog(true);
+      setDialogTransition(false);
+    }, 300);
   };
 
   const handleAction = (formData: FormData) => {
@@ -100,67 +114,81 @@ export function HumanValidationDialog({
       args: isEdited ? editedArgs : JSON.stringify(args, null, 2),
       feedback: feedback === "" ? undefined : feedback,
     });
+
+    setIsOpen(false);
   };
 
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Human Validation Required</DialogTitle>
-          <DialogDescription>
-            Please review the following tool execution
-          </DialogDescription>
-        </DialogHeader>
-        <div className="mt-4">
-          <div className="font-semibold">{toolName}</div>
-          <div className="mt-4">
-            <h3 className="text-sm font-medium">Arguments:</h3>
-            <textarea
-              className="mt-2 w-full h-32 font-mono text-sm rounded-md bg-slate-100 p-4 dark:bg-slate-800"
-              value={editedArgs}
-              onChange={(e) => handleArgsChange(e.target.value)}
-            />
+      <DialogContent className="sm:max-w-[425px]">
+        <form action={handleAction} ref={formRef}>
+          <input type="hidden" name="threadId" value={threadId} />
+          <input type="hidden" name="toolCallId" value={toolId} />
+          <input type="hidden" name="validation" value={isAccepted} />
+          <input
+            type="hidden"
+            name="args"
+            value={isEdited ? editedArgs : JSON.stringify(args, null, 2)}
+          />
+          <input type="hidden" name="feedback" value={feedback} />
+
+          <div className="space-y-4">
+            {showReviewDialog && (
+              <div
+                className={`transition-opacity duration-300 ${dialogTransition ? "opacity-0" : "opacity-100"}`}
+              >
+                <DialogHeader>
+                  <DialogTitle>Human Validation Required</DialogTitle>
+                  <DialogDescription>
+                    Please review the following tool execution
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="mt-4">
+                  <div className="font-semibold">{toolName}</div>
+                  <div className="mt-4">
+                    <h3 className="text-sm font-medium">Arguments:</h3>
+                    <textarea
+                      className="mt-2 w-full h-32 font-mono text-sm rounded-md bg-slate-100 p-4 dark:bg-slate-800"
+                      value={editedArgs}
+                      onChange={(e) => handleArgsChange(e.target.value)}
+                    />
+                  </div>
+                </div>
+                <DialogFooter className="mt-4">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={handleReject}
+                  >
+                    Reject
+                  </Button>
+                  <Button
+                    type="submit"
+                    onClick={() => setIsAccepted("accepted")}
+                  >
+                    Accept
+                  </Button>
+                </DialogFooter>
+              </div>
+            )}
+            {showFeedbackDialog && (
+              <HilRefusalFeedbackDialog
+                setIsAccepted={setIsAccepted}
+                feedback={feedback}
+                setFeedback={setFeedback}
+                onCancel={() => {
+                  setShowReviewDialog(true);
+                  setShowFeedbackDialog(false);
+                }}
+                onSubmit={() => {
+                  setIsAccepted("rejected");
+                  formRef.current?.requestSubmit();
+                }}
+                isTransitioning={dialogTransition}
+              />
+            )}
           </div>
-        </div>
-        <DialogFooter className="mt-4">
-          <form action={handleAction} className="flex gap-2" ref={formRef}>
-            <input type="hidden" name="threadId" value={threadId} />
-            <input type="hidden" name="toolCallId" value={toolId} />
-            <input type="hidden" name="validation" value={isAccepted} />
-            <input
-              type="hidden"
-              name="args"
-              value={isEdited ? editedArgs : JSON.stringify(args, null, 2)}
-            />
-            <input type="hidden" name="feedback" value={feedback} />
-            <Button
-              type="button"
-              variant="outline"
-              disabled={!isOpen}
-              onClick={(e) => {
-                e.preventDefault();
-                setIsRefusalDialogOpen(true);
-              }}
-            >
-              Reject
-            </Button>
-            <Button
-              type="submit"
-              disabled={!isOpen}
-              onClick={() => setIsAccepted("accepted")}
-            >
-              Accept
-            </Button>
-            <HilRefusalFeedbackDialog
-              isRefusalDialogOpen={isRefusalDialogOpen}
-              setIsRefusalDialogOpen={setIsRefusalDialogOpen}
-              setIsAccepted={setIsAccepted}
-              feedback={feedback}
-              setFeedback={setFeedback}
-              formRef={formRef}
-            />
-          </form>
-        </DialogFooter>
+        </form>
       </DialogContent>
     </Dialog>
   );

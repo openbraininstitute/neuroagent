@@ -69,7 +69,7 @@ async def execute_tool_call(
             "tool_name": tool_call.name,
             "content": f"Tool call refused. User's feedback: {request.feedback}"
             if request.feedback
-            else "This tool call has been refused. DO NOT re-run it unless explicitly asked by the user.",
+            else "This tool call has been refused by the user. DO NOT re-run it unless explicitly asked by the user.",
         }
     else:  # Handle acceptance case
         try:
