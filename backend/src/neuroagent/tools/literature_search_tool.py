@@ -117,7 +117,12 @@ class LiteratureSearchTool(BaseTool):
     @classmethod
     async def is_online(cls, *, httpx_client: AsyncClient, literature_search_url: str) -> bool:
         """Check if the tool is online."""
+        url = literature_search_url
+        if url.endswith("retrieval/"):
+            url = url[:-len("retrieval/")]
+        elif url.endswith("retrieval"):
+            url = url[:-len("retrieval")]
         response = await httpx_client.get(
-            literature_search_url,
+            url,
         )
         return response.status_code == 200
