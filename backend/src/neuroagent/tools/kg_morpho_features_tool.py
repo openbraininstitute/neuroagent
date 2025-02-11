@@ -172,7 +172,7 @@ class KGMorphoFeatureTool(BaseTool):
     """Class defining the Knowledge Graph logic."""
 
     name: ClassVar[str] = "kg-morpho-feature-tool"
-    name_frontend: ClassVar[str] = "Morphology Features"
+    name_frontend: ClassVar[str] = "Morphology Features (Precomputed)"
     description: ClassVar[
         str
     ] = """Searches a neuroscience based knowledge graph to retrieve neuron morphology features based on a brain region of interest.
