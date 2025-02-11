@@ -1,5 +1,6 @@
 """BlueNaaS single cell stimulation, simulation and synapse placement tool."""
 
+import json
 import logging
 from typing import Any, ClassVar
 
@@ -50,4 +51,15 @@ class SCSGetOneTool(BaseTool):
             headers={"Authorization": f"Bearer {self.metadata.token}"},
         )
 
-        return SimulationDetailsResponse(**response.json()).model_dump()
+        # Truncate the results.
+        result = response.json()
+        for key in result["results"].keys():
+            for el in result["results"][key]:
+                el["x"] = el["x"][:10]
+                el["y"] = el["y"][:10]
+
+        # sanity check
+        if len(json.dumps(result)) > 5000:
+            raise ValueError("return value is too long")
+
+        return SimulationDetailsResponse(**result).model_dump()
