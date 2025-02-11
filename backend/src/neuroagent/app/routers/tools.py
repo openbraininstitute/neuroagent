@@ -14,6 +14,7 @@ from neuroagent.app.database.sql_schemas import Entity, Messages, Threads, ToolC
 from neuroagent.app.dependencies import (
     get_agents_routine,
     get_context_variables,
+    get_context_variables_without_thread,
     get_session,
     get_thread,
     get_tool_list,
@@ -114,10 +115,7 @@ def get_available_tools(
 ) -> list[ToolMetadata]:
     """Return the list of available tools with their basic metadata."""
     return [
-        ToolMetadata(
-            name=tool.name,
-            name_frontend=tool.name_frontend
-        )
+        ToolMetadata(name=tool.name, name_frontend=tool.name_frontend)
         for tool in tool_list
     ]
 
@@ -126,11 +124,12 @@ def get_available_tools(
 async def get_tool_metadata(
     name: str,
     tool_list: Annotated[list[type[BaseTool]], Depends(get_tool_list)],
-    context_variables: Annotated[dict[str, Any], Depends(get_context_variables)],
+    context_variables: Annotated[
+        dict[str, Any], Depends(get_context_variables_without_thread)
+    ],
     _: Annotated[str, Depends(get_user_id)],
 ) -> ToolMetadataDetailed:
     """Return detailed metadata for a specific tool."""
-    # Find the tool class with matching name
     tool_class = next((tool for tool in tool_list if tool.name == name), None)
     if not tool_class:
         raise HTTPException(status_code=404, detail=f"Tool '{name}' not found")
@@ -143,7 +142,9 @@ async def get_tool_metadata(
         name_frontend=tool_class.name_frontend,
         description=tool_class.description,
         description_frontend=tool_class.description_frontend,
-        input_schema=json.dumps(tool_class.__annotations__["input_schema"].model_json_schema()),
+        input_schema=json.dumps(
+            tool_class.__annotations__["input_schema"].model_json_schema()
+        ),
         hil=tool_class.hil,
         is_online=is_online,
     )

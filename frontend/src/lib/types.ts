@@ -119,4 +119,5 @@ export type BToolMetadataDetailed = {
   description_frontend: string;
   input_schema: string;
   hil: boolean;
+  is_online: boolean;
 };

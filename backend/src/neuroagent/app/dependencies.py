@@ -173,6 +173,9 @@ async def get_selected_tools(
     request: Request, tool_list: Annotated[list[type[BaseTool]], Depends(get_tool_list)]
 ) -> list[type[BaseTool]]:
     """Get tools specified in the header from the frontend."""
+    if request.method == "GET":
+        return tool_list
+
     body = await request.json()
     if body.get("tool_selection") is None:
         return tool_list
@@ -223,21 +226,18 @@ async def get_thread(
     return thread
 
 
-def get_context_variables(
+def get_context_variables_without_thread(
     settings: Annotated[Settings, Depends(get_settings)],
     starting_agent: Annotated[Agent, Depends(get_starting_agent)],
     token: Annotated[str, Depends(auth)],
     httpx_client: Annotated[AsyncClient, Depends(get_httpx_client)],
-    thread: Annotated[Threads, Depends(get_thread)],
 ) -> dict[str, Any]:
-    """Get the global context variables to feed the tool's metadata."""
+    """Get the thread-independent context variables to feed the tool's metadata."""
     return {
         "starting_agent": starting_agent,
         "token": token,
         "retriever_k": settings.tools.literature.retriever_k,
         "reranker_k": settings.tools.literature.reranker_k,
-        "vlab_id": thread.vlab_id,
-        "project_id": thread.project_id,
         "use_reranker": settings.tools.literature.use_reranker,
         "literature_search_url": settings.tools.literature.url,
         "knowledge_graph_url": settings.knowledge_graph.url,
@@ -251,6 +251,18 @@ def get_context_variables(
         "kg_class_view_url": settings.knowledge_graph.class_view_url,
         "bluenaas_url": settings.tools.bluenaas.url,
         "httpx_client": httpx_client,
+    }
+
+
+def get_context_variables(
+    context: Annotated[dict[str, Any], Depends(get_context_variables_without_thread)],
+    thread: Annotated[Threads, Depends(get_thread)],
+) -> dict[str, Any]:
+    """Get the complete context variables including thread-specific data."""
+    return {
+        **context,
+        "vlab_id": thread.vlab_id,
+        "project_id": thread.project_id,
     }
 
 
