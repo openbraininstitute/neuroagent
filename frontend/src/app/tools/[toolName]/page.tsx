@@ -47,11 +47,20 @@ export default async function ToolPage({
   const toolName = paramsAwaited?.toolName;
   const tool = await getTool(toolName);
 
+  // Parse the input schema JSON
+  let parsedSchema;
+  try {
+    parsedSchema = JSON.parse(tool.inputSchema);
+  } catch (e) {
+    parsedSchema = tool.inputSchema; // Fallback to raw string if parsing fails
+  }
+
   return (
-    <div className="container mx-auto px-4 py-6">
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold">{tool.nameFrontend}</h1>
-        <div className="flex gap-2 items-center">
+    <div className="container mx-auto px-4 py-6 h-[calc(100vh-4rem)] overflow-y-auto">
+      <div className="flex flex-col items-center gap-4 mb-8">
+        <h1 className="text-3xl font-bold">{tool.nameFrontend}</h1>
+
+        <div className="flex gap-4 items-center">
           {tool.hil && (
             <div className="flex items-center gap-1 text-sm text-muted-foreground">
               <PersonStanding className="h-5 w-5" />
@@ -70,31 +79,24 @@ export default async function ToolPage({
             </div>
           )}
         </div>
+
+        <div className="text-sm text-muted-foreground">
+          Tool slug: {tool.name}
+        </div>
       </div>
 
-      <div className="grid gap-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>Description</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-muted-foreground">{tool.descriptionFrontend}</p>
-            <p className="mt-2 text-sm text-muted-foreground">
+      <div className="space-y-8 pb-6">
+        <div className="bg-muted/50 rounded-xl p-6">
+          <h2 className="text-xl font-semibold mb-4">Description</h2>
+          <div className="space-y-4">
+            <p className="text-muted-foreground whitespace-pre-wrap break-words">
+              {tool.descriptionFrontend}
+            </p>
+            <p className="text-sm text-muted-foreground whitespace-pre-wrap break-words">
               {tool.description}
             </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Input Schema</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <pre className="bg-muted p-4 rounded-lg overflow-x-auto">
-              {tool.inputSchema}
-            </pre>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       </div>
     </div>
   );
