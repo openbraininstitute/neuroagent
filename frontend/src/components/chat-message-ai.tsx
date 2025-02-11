@@ -1,4 +1,5 @@
 import Markdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Pickaxe, LoaderPinwheel, ChevronDown } from "lucide-react";
@@ -45,8 +46,8 @@ export function ChatMessageAI({
 
       <Card className="max-w-[70%] bg-transparent shadow-none border-none mt-1">
         <CardContent>
-          <span className="text-lg text-left">
-            <Markdown>{content}</Markdown>
+          <span className="prose text-lg pt-8 text-left dark:prose-invert">
+            <Markdown remarkPlugins={[remarkGfm]}>{content}</Markdown>
           </span>
         </CardContent>
       </Card>
