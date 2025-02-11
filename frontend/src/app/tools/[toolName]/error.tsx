@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import { useEffect } from 'react';
-import { Button } from '@/components/ui/button';
-import { useRouter } from 'next/navigation';
+import { useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { useRouter } from "next/navigation";
 
 export default function ToolError({
   error,
@@ -23,12 +23,11 @@ export default function ToolError({
       <div className="text-center space-y-4">
         <h2 className="text-2xl font-bold">Tool Not Found</h2>
         <p className="text-muted-foreground">
-          The requested tool could not be found or you may not have permission to access it.
+          The requested tool could not be found or you may not have permission
+          to access it.
         </p>
         <div className="flex gap-4 justify-center mt-6">
-          <Button onClick={() => router.push('/tools')}>
-            Return to Tools
-          </Button>
+          <Button onClick={() => router.push("/tools")}>Return to Tools</Button>
           <Button variant="outline" onClick={() => reset()}>
             Try again
           </Button>
@@ -36,4 +35,4 @@ export default function ToolError({
       </div>
     </div>
   );
-} 
+}
