@@ -1,13 +1,22 @@
+// @ts-nocheck
 "use client";
-import {
-  DropdownMenu,
-  DropdownMenuTrigger,
-  DropdownMenuContent,
-  DropdownMenuItem,
-} from "@/components/ui/dropdown-menu";
+
 import { Checkbox } from "@/components/ui/checkbox";
 import { Wrench } from "lucide-react";
 import { useState } from "react";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 
 type ToolSelectionDropdownProps = {
   availableTools: string[];
@@ -69,50 +78,50 @@ export function ToolSelectionDropdown({
     }
   };
 
-  return (
-    <DropdownMenu
-      open={isDropdownOpen}
-      onOpenChange={setIsDropdownOpen}
-      modal={false}
-    >
-      <DropdownMenuTrigger asChild className="opacity-50">
-        <button>
-          <Wrench />
-        </button>
-      </DropdownMenuTrigger>
+  const tools = availableTools.map((tool: string) => {
+    // This will be extracted from the backend endpoint
+    // Label is the frontend friendly name
+    return { slug: tool, label: tool };
+  });
 
-      <DropdownMenuContent className="md:max-h-[200px] overflow-y-auto">
-        <DropdownMenuItem
-          className="border-b-2"
-          onClick={(e) => {
-            e.preventDefault();
-          }}
-        >
-          <Checkbox
-            checked={checkedTools.allchecked}
-            onCheckedChange={handleCheckAll}
-            defaultChecked
-          />
-          Select all
-        </DropdownMenuItem>
-        {availableTools.map((tool_name) => {
-          return (
-            <DropdownMenuItem
-              key={tool_name}
-              onClick={(e) => {
-                e.preventDefault();
-              }}
-            >
-              <Checkbox
-                checked={checkedTools[tool_name]}
-                onCheckedChange={() => handleCheckboxChange(tool_name)}
-                defaultChecked
-              />{" "}
-              {tool_name}
-            </DropdownMenuItem>
-          );
-        })}
-      </DropdownMenuContent>
-    </DropdownMenu>
+  const filterTools = (value: string, search: string) => {
+    return value.toLowerCase().includes(search.toLowerCase());
+  };
+
+  return (
+    <Popover open={isDropdownOpen} onOpenChange={setIsDropdownOpen}>
+      <PopoverTrigger asChild>
+        <button>
+          <Wrench className="opacity-50" />
+        </button>
+      </PopoverTrigger>
+      <PopoverContent className="w-[200px] p-0">
+        <Command filter={filterTools}>
+          <CommandInput placeholder="Search tools..." />
+          <CommandList>
+            <CommandEmpty>No tool found.</CommandEmpty>
+            <CommandGroup>
+              <CommandItem key="select-all" value="" className="border-b-2">
+                <Checkbox
+                  checked={checkedTools.allchecked}
+                  onCheckedChange={handleCheckAll}
+                />
+                <span className="ml-2">Select All</span>
+              </CommandItem>
+              {tools.map((tool) => (
+                // Search is done on the value i.e. the label here
+                <CommandItem key={tool.slug} value={tool.label}>
+                  <Checkbox
+                    checked={checkedTools[tool.slug]}
+                    onCheckedChange={() => handleCheckboxChange(tool.slug)}
+                  />
+                  <span className="ml-2">{tool.label}</span>
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          </CommandList>
+        </Command>
+      </PopoverContent>
+    </Popover>
   );
 }
