@@ -70,7 +70,7 @@ export function HumanValidationDialog({
         setShowFeedbackDialog(false);
         setFeedback("");
         setDialogTransition(false);
-      }, 300); // Delay the reset to allow for closing animation
+      }, 300);
     }
     setIsOpen(open);
   };
