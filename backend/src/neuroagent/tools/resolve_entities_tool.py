@@ -4,6 +4,7 @@ import logging
 from typing import Any, ClassVar
 
 from pydantic import BaseModel, Field
+from httpx import AsyncClient
 
 from neuroagent.resolving import resolve_query
 from neuroagent.tools.base_tool import (
@@ -153,3 +154,23 @@ class ResolveEntitiesTool(BaseTool):
             )
 
         return output
+
+    @classmethod
+    async def is_online(
+        cls, 
+        *, 
+        httpx_client: AsyncClient, 
+        kg_sparql_url: str,
+        kg_class_view_url: str
+    ) -> bool:
+        """Check if the tool is online."""
+        # Check SPARQL endpoint
+        sparql_response = await httpx_client.get(
+            kg_sparql_url,
+        )
+        # Check class view endpoint
+        class_view_response = await httpx_client.get(
+            kg_class_view_url,
+        )
+        # Tool is online only if both endpoints are available
+        return sparql_response.status_code == 200 and class_view_response.status_code == 200

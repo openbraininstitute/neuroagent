@@ -61,3 +61,11 @@ class WeatherTool(BaseTool):
         temperature = round(random.uniform(-5, 35), 1)  # nosec B311
 
         return {"temperature": temperature, "conditions": random.choice(conditions)}  # nosec B311
+
+    @classmethod
+    async def is_online(cls) -> bool:
+        """Check if the tool is online.
+        
+        Always returns True as this is a mock tool that doesn't depend on external services.
+        """
+        return True

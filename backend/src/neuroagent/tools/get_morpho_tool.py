@@ -5,6 +5,7 @@ from pathlib import Path
 from typing import Any, ClassVar
 
 from pydantic import BaseModel, Field
+from httpx import AsyncClient
 
 from neuroagent.cell_types import get_celltypes_descendants
 from neuroagent.tools.base_tool import BaseMetadata, BaseTool
@@ -223,3 +224,11 @@ class GetMorphoTool(BaseTool):
             for res in output["hits"]["hits"]
         ]
         return formatted_output
+
+    @classmethod
+    async def is_online(cls, *, httpx_client: AsyncClient, knowledge_graph_url: str) -> bool:
+        """Check if the tool is online."""
+        response = await httpx_client.get(
+            knowledge_graph_url,
+        )
+        return response.status_code == 200

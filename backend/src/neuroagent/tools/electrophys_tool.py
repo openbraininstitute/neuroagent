@@ -8,6 +8,7 @@ from typing import Any, ClassVar, Literal
 from bluepyefe.extract import extract_efeatures
 from efel.units import get_unit
 from pydantic import BaseModel, Field
+from httpx import AsyncClient
 
 from neuroagent.tools.base_tool import BaseMetadata, BaseTool
 from neuroagent.utils import get_kg_data
@@ -337,3 +338,11 @@ class ElectrophysFeatureTool(BaseTool):
         return FeatureOutput(
             brain_region=metadata.brain_region, feature_dict=output_features
         ).model_dump()
+
+    @classmethod
+    async def is_online(cls, *, httpx_client: AsyncClient, knowledge_graph_url: str) -> bool:
+        """Check if the tool is online."""
+        response = await httpx_client.get(
+            knowledge_graph_url,
+        )
+        return response.status_code == 200

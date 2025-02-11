@@ -272,6 +272,8 @@ def get_healthcheck_variables(
         "literature_search_url": settings.tools.literature.url.rstrip('/') + '/',
         "knowledge_graph_url": settings.knowledge_graph.url.rstrip('/') + '/',
         "bluenaas_url": settings.tools.bluenaas.url.rstrip('/') + '/',
+        "kg_sparql_url": settings.knowledge_graph.sparql_url.rstrip('/') + '/',
+        "kg_class_view_url": settings.knowledge_graph.class_view_url.rstrip('/') + '/',
     }
 
 

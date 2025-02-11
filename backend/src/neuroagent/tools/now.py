@@ -49,3 +49,11 @@ class NowTool(BaseTool):
         """
         logger.info("Getting current UTC timestamp")
         return datetime.now(timezone.utc).isoformat()
+
+    @classmethod
+    async def is_online(cls) -> bool:
+        """Check if the tool is online.
+        
+        Always returns True as this tool doesn't depend on external services.
+        """
+        return True

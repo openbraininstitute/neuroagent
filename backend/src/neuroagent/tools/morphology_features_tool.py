@@ -7,6 +7,7 @@ import neurom
 import numpy as np
 from neurom import load_morphology
 from pydantic import BaseModel, Field
+from httpx import AsyncClient
 
 from neuroagent.tools.base_tool import BaseMetadata, BaseTool
 from neuroagent.utils import get_kg_data
@@ -154,3 +155,11 @@ class MorphologyFeatureTool(BaseTool):
             "min": np.min(array),
             "max": np.max(array),
         }
+
+    @classmethod
+    async def is_online(cls, *, httpx_client: AsyncClient, knowledge_graph_url: str) -> bool:
+        """Check if the tool is online."""
+        response = await httpx_client.get(
+            knowledge_graph_url,
+        )
+        return response.status_code == 200

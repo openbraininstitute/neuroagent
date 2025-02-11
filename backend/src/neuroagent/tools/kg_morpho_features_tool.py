@@ -5,6 +5,7 @@ from pathlib import Path
 from typing import Any, ClassVar, Literal
 
 from pydantic import BaseModel, Field, model_validator
+from httpx import AsyncClient
 
 from neuroagent.tools.base_tool import BaseMetadata, BaseTool
 from neuroagent.utils import get_descendants_id
@@ -359,3 +360,11 @@ class KGMorphoFeatureTool(BaseTool):
             )
 
         return formatted_output
+
+    @classmethod
+    async def is_online(cls, *, httpx_client: AsyncClient, knowledge_graph_url: str) -> bool:
+        """Check if the tool is online."""
+        response = await httpx_client.get(
+            knowledge_graph_url,
+        )
+        return response.status_code == 200

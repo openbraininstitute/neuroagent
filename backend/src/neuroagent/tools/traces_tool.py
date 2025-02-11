@@ -5,6 +5,7 @@ from pathlib import Path
 from typing import Any, ClassVar
 
 from pydantic import BaseModel, Field
+from httpx import AsyncClient
 
 from neuroagent.tools.base_tool import BaseMetadata, BaseTool
 from neuroagent.utils import get_descendants_id
@@ -201,3 +202,11 @@ class GetTracesTool(BaseTool):
             for res in output["hits"]["hits"]
         ]
         return results
+
+    @classmethod
+    async def is_online(cls, *, httpx_client: AsyncClient, knowledge_graph_url: str) -> bool:
+        """Check if the tool is online."""
+        response = await httpx_client.get(
+            knowledge_graph_url,
+        )
+        return response.status_code == 200
