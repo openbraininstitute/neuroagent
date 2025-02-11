@@ -14,7 +14,7 @@ async function getToolList() {
   });
 
   // Extract just the tool names from the ToolMetadata objects
-  return (response as Array<{ name: string }>).map(tool => tool.name);
+  return (response as Array<{ name: string }>).map((tool) => tool.name);
 }
 
 export default async function Home() {

@@ -84,7 +84,7 @@ async function getToolList() {
     headers: { Authorization: `Bearer ${session.accessToken}` },
   });
 
-  return (response as Array<{ name: string }>).map(tool => tool.name);
+  return (response as Array<{ name: string }>).map((tool) => tool.name);
 }
 
 export default async function PageThread({
