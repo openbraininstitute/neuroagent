@@ -1,8 +1,9 @@
 import { auth } from "@/lib/auth";
 import { fetcher } from "@/lib/fetcher";
 import { BToolMetadataDetailed } from "@/lib/types";
-import { PersonStanding, Wifi, WifiOff } from "lucide-react";
+import { PersonStanding, Wifi, WifiOff, ArrowLeft } from "lucide-react";
 import { ToolInputSchema } from "@/components/tool-input-schema";
+import Link from "next/link";
 
 type ToolDetailedMetadata = {
   name: string;
@@ -57,6 +58,14 @@ export default async function ToolPage({
 
   return (
     <div className="container mx-auto px-4 py-6 h-[calc(100vh-4rem)] overflow-y-auto">
+      <Link
+        href="/tools"
+        className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground mb-6"
+      >
+        <ArrowLeft className="h-4 w-4" />
+        Back to tools
+      </Link>
+
       <div className="flex flex-col items-center gap-4 mb-8">
         <h1 className="text-3xl font-bold">{tool.nameFrontend}</h1>
 
