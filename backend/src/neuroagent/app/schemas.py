@@ -92,17 +92,17 @@ class ExecuteToolCallResponse(BaseModel):
 
 
 class ToolMetadata(BaseModel):
-    """Data class for the metadata of a tool."""
+    """Data class for basic tool metadata."""
 
     name: str
     name_frontend: str
+
+
+class ToolMetadataDetailed(ToolMetadata):
+    """Data class for detailed tool metadata including online status."""
+
     description: str
     description_frontend: str
     input_schema: str
     hil: bool
-
-
-class ToolMetadataWithOnlineStatus(ToolMetadata):
-    """Data class for the metadata of a tool with online status."""
-
     is_online: bool

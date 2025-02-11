@@ -4,7 +4,6 @@ import {
   CardTitle,
   CardDescription,
 } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 import { BToolMetadata } from "@/lib/types";
 import { fetcher } from "@/lib/fetcher";

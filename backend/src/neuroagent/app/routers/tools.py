@@ -23,7 +23,7 @@ from neuroagent.app.schemas import (
     ExecuteToolCallRequest,
     ExecuteToolCallResponse,
     ToolMetadata,
-    ToolMetadataWithOnlineStatus,
+    ToolMetadataDetailed,
 )
 from neuroagent.tools.base_tool import BaseTool
 
@@ -112,15 +112,11 @@ def get_available_tools(
     tool_list: Annotated[list[type[BaseTool]], Depends(get_tool_list)],
     _: Annotated[str, Depends(get_user_id)],
 ) -> list[ToolMetadata]:
-    """Return the list of available tools with their metadata."""
+    """Return the list of available tools with their basic metadata."""
     return [
         ToolMetadata(
             name=tool.name,
-            name_frontend=tool.name_frontend,
-            description=tool.description,
-            description_frontend=tool.description_frontend,
-            input_schema=json.dumps(tool.__annotations__["input_schema"].model_json_schema()),
-            hil=tool.hil,
+            name_frontend=tool.name_frontend if tool.name_frontend else tool.name,
         )
         for tool in tool_list
     ]
@@ -132,8 +128,8 @@ async def get_tool_metadata(
     tool_list: Annotated[list[type[BaseTool]], Depends(get_tool_list)],
     context_variables: Annotated[dict[str, Any], Depends(get_context_variables)],
     _: Annotated[str, Depends(get_user_id)],
-) -> ToolMetadataWithOnlineStatus:
-    """Return metadata for a specific tool."""
+) -> ToolMetadataDetailed:
+    """Return detailed metadata for a specific tool."""
     # Find the tool class with matching name
     tool_class = next((tool for tool in tool_list if tool.name == name), None)
     if not tool_class:
@@ -142,9 +138,9 @@ async def get_tool_metadata(
     tool_metadata = tool_class.__annotations__["metadata"](**context_variables)
     is_online = await tool_class.is_online(tool_metadata)
 
-    return ToolMetadataWithOnlineStatus(
+    return ToolMetadataDetailed(
         name=tool_class.name,
-        name_frontend=tool_class.name_frontend,
+        name_frontend=tool_class.name_frontend if tool_class.name_frontend else tool_class.name,
         description=tool_class.description,
         description_frontend=tool_class.description_frontend,
         input_schema=json.dumps(tool_class.__annotations__["input_schema"].model_json_schema()),
