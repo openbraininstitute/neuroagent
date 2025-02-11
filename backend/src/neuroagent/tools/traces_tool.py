@@ -70,7 +70,9 @@ class GetTracesTool(BaseTool):
     - The subject species name.
     - The subject age.
     The trace ID is in the form of an HTTP(S) link such as 'https://bbp.epfl.ch/neurosciencegraph/data/traces...'."""
-    description_frontend: ClassVar[str] = """Search and access experimental neuron traces. This tool allows you to:
+    description_frontend: ClassVar[
+        str
+    ] = """Search and access experimental neuron traces. This tool allows you to:
     • Find experimental recordings from specific brain regions
     • Search by cell types and properties
     • Access detailed trace information
@@ -204,7 +206,9 @@ class GetTracesTool(BaseTool):
         return results
 
     @classmethod
-    async def is_online(cls, *, httpx_client: AsyncClient, knowledge_graph_url: str) -> bool:
+    async def is_online(
+        cls, *, httpx_client: AsyncClient, knowledge_graph_url: str
+    ) -> bool:
         """Check if the tool is online."""
         response = await httpx_client.get(
             knowledge_graph_url,

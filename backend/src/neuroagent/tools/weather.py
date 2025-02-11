@@ -36,7 +36,9 @@ class WeatherTool(BaseTool):
         "Returns weather information for a specified location (temperature in Celsius, "
         "conditions like 'sunny', 'rainy', etc.)"
     )
-    description_frontend: ClassVar[str] = """Get current weather information for any location. This tool provides:
+    description_frontend: ClassVar[
+        str
+    ] = """Get current weather information for any location. This tool provides:
     • Temperature readings in Celsius
     • Current weather conditions
     • Location-specific weather data
@@ -65,7 +67,7 @@ class WeatherTool(BaseTool):
     @classmethod
     async def is_online(cls) -> bool:
         """Check if the tool is online.
-        
+
         Always returns True as this is a mock tool that doesn't depend on external services.
         """
         return True

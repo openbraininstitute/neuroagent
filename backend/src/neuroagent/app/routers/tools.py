@@ -125,7 +125,9 @@ def get_available_tools(
 async def get_tool_metadata(
     name: str,
     tool_list: Annotated[list[type[BaseTool]], Depends(get_tool_list)],
-    healthcheck_variables: Annotated[dict[str, Any], Depends(get_healthcheck_variables)],
+    healthcheck_variables: Annotated[
+        dict[str, Any], Depends(get_healthcheck_variables)
+    ],
     _: Annotated[str, Depends(get_user_id)],
 ) -> ToolMetadataDetailed:
     """Return detailed metadata for a specific tool."""
@@ -144,19 +146,23 @@ async def get_tool_metadata(
     is_online = await tool_class.is_online(**is_online_kwargs)
 
     input_schema = {"parameters": []}
-    
+
     for name in tool_class.__annotations__["input_schema"].model_fields:
         field = tool_class.__annotations__["input_schema"].model_fields[name]
         is_required = field.is_required()
-        
+
         parameter = {
             "name": name,
             "required": is_required,
-            "default": None if is_required else str(field.default) if field.default is not None else None,
-            "description": field.description
+            "default": None
+            if is_required
+            else str(field.default)
+            if field.default is not None
+            else None,
+            "description": field.description,
         }
         input_schema["parameters"].append(parameter)
-    
+
     return ToolMetadataDetailed(
         name=tool_class.name,
         name_frontend=tool_class.name_frontend,

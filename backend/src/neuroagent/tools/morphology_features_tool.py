@@ -51,7 +51,9 @@ class MorphologyFeatureTool(BaseTool):
     ] = """Given a morphology ID, fetch data about the features of the morphology. You need to know a morphology ID to use this tool and they can only come from the 'get-morpho-tool'. Therefore this tool should only be used if you already called the 'knowledge-graph-tool'.
     Here is an exhaustive list of features that can be retrieved with this tool:
     Soma radius, Soma surface area, Number of neurites, Number of sections, Number of sections per neurite, Section lengths, Segment lengths, Section radial distance, Section path distance, Local bifurcation angles, Remote bifurcation angles."""
-    description_frontend: ClassVar[str] = """Analyze detailed features of neuron morphologies. This tool allows you to:
+    description_frontend: ClassVar[
+        str
+    ] = """Analyze detailed features of neuron morphologies. This tool allows you to:
     • Measure various morphological properties
     • Calculate statistical metrics
     • Analyze specific parts of neurons
@@ -157,7 +159,9 @@ class MorphologyFeatureTool(BaseTool):
         }
 
     @classmethod
-    async def is_online(cls, *, httpx_client: AsyncClient, knowledge_graph_url: str) -> bool:
+    async def is_online(
+        cls, *, httpx_client: AsyncClient, knowledge_graph_url: str
+    ) -> bool:
         """Check if the tool is online."""
         response = await httpx_client.get(
             knowledge_graph_url,

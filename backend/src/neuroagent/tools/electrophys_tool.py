@@ -193,7 +193,9 @@ class ElectrophysFeatureTool(BaseTool):
     - The amplitude is the total current injected in the cell when measuring the response.
     Specify those ONLY if the user specified them. Otherwise leave them as None.
     """
-    description_frontend: ClassVar[str] = """Analyze electrophysiological properties of neurons. This tool allows you to:
+    description_frontend: ClassVar[
+        str
+    ] = """Analyze electrophysiological properties of neurons. This tool allows you to:
     • Extract features from experimental traces
     • Analyze neuron responses to stimuli
     • Compare electrical properties across different protocols
@@ -340,7 +342,9 @@ class ElectrophysFeatureTool(BaseTool):
         ).model_dump()
 
     @classmethod
-    async def is_online(cls, *, httpx_client: AsyncClient, knowledge_graph_url: str) -> bool:
+    async def is_online(
+        cls, *, httpx_client: AsyncClient, knowledge_graph_url: str
+    ) -> bool:
         """Check if the tool is online."""
         response = await httpx_client.get(
             knowledge_graph_url,

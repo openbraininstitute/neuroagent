@@ -70,7 +70,9 @@ class GetMorphoTool(BaseTool):
     - The morphology name.
     - the morphology description.
     The morphology ID is in the form of an HTTP(S) link such as 'https://bbp.epfl.ch/neurosciencegraph/data/neuronmorphologies...'."""
-    description_frontend: ClassVar[str] = """Search and retrieve neuron morphologies. Use this tool to:
+    description_frontend: ClassVar[
+        str
+    ] = """Search and retrieve neuron morphologies. Use this tool to:
     • Find neurons in specific brain regions
     • Search by morphology type
     • Access detailed morphological data
@@ -226,7 +228,9 @@ class GetMorphoTool(BaseTool):
         return formatted_output
 
     @classmethod
-    async def is_online(cls, *, httpx_client: AsyncClient, knowledge_graph_url: str) -> bool:
+    async def is_online(
+        cls, *, httpx_client: AsyncClient, knowledge_graph_url: str
+    ) -> bool:
         """Check if the tool is online."""
         response = await httpx_client.get(
             knowledge_graph_url,

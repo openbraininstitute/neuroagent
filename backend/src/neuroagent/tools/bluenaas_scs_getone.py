@@ -38,7 +38,9 @@ class SCSGetOneTool(BaseTool):
         str
     ] = """Get one specific simulations from a user based on its id.
     The id can be retrieved using the 'scsgetall-tool' or directly specified by the user."""
-    description_frontend: ClassVar[str] = """Access detailed results of a specific simulation. Use this to:
+    description_frontend: ClassVar[
+        str
+    ] = """Access detailed results of a specific simulation. Use this to:
     • View complete simulation results
     • Access simulation parameters
     • Check simulation status and outputs

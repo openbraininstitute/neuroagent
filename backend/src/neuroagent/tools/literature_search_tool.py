@@ -50,7 +50,9 @@ class LiteratureSearchTool(BaseTool):
 
     name: ClassVar[str] = "literature-search-tool"
     name_frontend: ClassVar[str] = "Literature Search"
-    description_frontend: ClassVar[str] = """Search through scientific papers to find relevant information. This tool is particularly useful for:
+    description_frontend: ClassVar[
+        str
+    ] = """Search through scientific papers to find relevant information. This tool is particularly useful for:
     • Finding scientific facts about neuroscience and medicine
     • Getting information from peer-reviewed articles
     • Accessing research findings and academic knowledge
@@ -115,13 +117,15 @@ class LiteratureSearchTool(BaseTool):
         return paragraphs_metadata
 
     @classmethod
-    async def is_online(cls, *, httpx_client: AsyncClient, literature_search_url: str) -> bool:
+    async def is_online(
+        cls, *, httpx_client: AsyncClient, literature_search_url: str
+    ) -> bool:
         """Check if the tool is online."""
         url = literature_search_url
         if url.endswith("retrieval/"):
-            url = url[:-len("retrieval/")]
+            url = url[: -len("retrieval/")]
         elif url.endswith("retrieval"):
-            url = url[:-len("retrieval")]
+            url = url[: -len("retrieval")]
         response = await httpx_client.get(
             url,
         )

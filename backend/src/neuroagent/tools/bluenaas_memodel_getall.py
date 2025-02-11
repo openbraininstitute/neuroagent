@@ -45,7 +45,9 @@ class MEModelGetAllTool(BaseTool):
     Returns `page_size` ME-models that belong to the user's project.
     If the user requests an ME-model with specific criteria, use this tool
     to retrieve multiple of its ME-models and chose yourself the one(s) that fit the user's request."""
-    description_frontend: ClassVar[str] = """Browse through available neuron models in your project. This tool helps you:
+    description_frontend: ClassVar[
+        str
+    ] = """Browse through available neuron models in your project. This tool helps you:
     • List all your neuron models
     • Find models by type (single-neuron or synaptome)
     • Navigate through multiple models using pagination

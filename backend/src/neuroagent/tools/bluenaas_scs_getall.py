@@ -46,7 +46,9 @@ class SCSGetAllTool(BaseTool):
     ] = """Retrieve `page_size` simulations' metadata from a user's project.
     If the user requests a simulation with specific criteria, use this tool
     to retrieve multiple of its simulations and chose yourself the one(s) that fit the user's request."""
-    description_frontend: ClassVar[str] = """View all your single-neuron simulations. This tool allows you to:
+    description_frontend: ClassVar[
+        str
+    ] = """View all your single-neuron simulations. This tool allows you to:
     • List all your simulation runs
     • Filter simulations by type
     • Browse through simulation results using pagination
