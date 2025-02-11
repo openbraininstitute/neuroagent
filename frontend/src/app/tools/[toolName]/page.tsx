@@ -2,7 +2,7 @@ import { auth } from "@/lib/auth";
 import { fetcher } from "@/lib/fetcher";
 import { BToolMetadataDetailed } from "@/lib/types";
 import { PersonStanding, Wifi, WifiOff } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ToolInputSchema } from "@/components/tool-input-schema";
 
 type ToolDetailedMetadata = {
   name: string;
@@ -52,14 +52,14 @@ export default async function ToolPage({
   try {
     parsedSchema = JSON.parse(tool.inputSchema);
   } catch (e) {
-    parsedSchema = tool.inputSchema; // Fallback to raw string if parsing fails
+    parsedSchema = { parameters: [] }; // Fallback to empty parameters if parsing fails
   }
 
   return (
     <div className="container mx-auto px-4 py-6 h-[calc(100vh-4rem)] overflow-y-auto">
       <div className="flex flex-col items-center gap-4 mb-8">
         <h1 className="text-3xl font-bold">{tool.nameFrontend}</h1>
-        
+
         <div className="flex gap-4 items-center">
           {tool.hil && (
             <div className="flex items-center gap-1 text-sm text-muted-foreground">
@@ -79,7 +79,7 @@ export default async function ToolPage({
             </div>
           )}
         </div>
-        
+
         <div className="text-sm text-muted-foreground">
           Tool name: {tool.name}
         </div>
@@ -99,12 +99,8 @@ export default async function ToolPage({
         </div>
 
         <div className="bg-muted/50 rounded-lg p-6">
-          <h2 className="text-xl font-semibold mb-4">Input Schema</h2>
-          <div className="overflow-x-auto">
-            <pre className="bg-muted p-4 rounded-lg">
-              {JSON.stringify(parsedSchema, null, 2)}
-            </pre>
-          </div>
+          <h2 className="text-xl font-semibold mb-4">Input Parameters</h2>
+          <ToolInputSchema schema={parsedSchema} />
         </div>
       </div>
     </div>
