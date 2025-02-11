@@ -3,6 +3,7 @@
 import json
 import logging
 from typing import Annotated, Any
+import inspect
 
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import ValidationError
@@ -14,7 +15,7 @@ from neuroagent.app.database.sql_schemas import Entity, Messages, Threads, ToolC
 from neuroagent.app.dependencies import (
     get_agents_routine,
     get_context_variables,
-    get_context_variables_without_thread,
+    get_healthcheck_variables,
     get_session,
     get_thread,
     get_tool_list,
@@ -124,9 +125,7 @@ def get_available_tools(
 async def get_tool_metadata(
     name: str,
     tool_list: Annotated[list[type[BaseTool]], Depends(get_tool_list)],
-    context_variables: Annotated[
-        dict[str, Any], Depends(get_context_variables_without_thread)
-    ],
+    healthcheck_variables: Annotated[dict[str, Any], Depends(get_healthcheck_variables)],
     _: Annotated[str, Depends(get_user_id)],
 ) -> ToolMetadataDetailed:
     """Return detailed metadata for a specific tool."""
@@ -134,8 +133,15 @@ async def get_tool_metadata(
     if not tool_class:
         raise HTTPException(status_code=404, detail=f"Tool '{name}' not found")
 
-    tool_metadata = tool_class.__annotations__["metadata"](**context_variables)
-    is_online = await tool_class.is_online(tool_metadata)
+    # Get the parameters required by is_online
+    is_online_params = inspect.signature(tool_class.is_online).parameters
+    is_online_kwargs = {
+        param: healthcheck_variables[param]
+        for param in is_online_params
+        if param in healthcheck_variables
+    }
+
+    is_online = await tool_class.is_online(**is_online_kwargs)
 
     input_schema = {"parameters": []}
     

@@ -3,6 +3,7 @@
 import logging
 from typing import Any, ClassVar
 
+from httpx import AsyncClient
 from pydantic import BaseModel, ConfigDict, Field
 
 from neuroagent.tools.base_tool import BaseMetadata, BaseTool
@@ -106,3 +107,11 @@ class LiteratureSearchTool(BaseTool):
             for paragraph in output
         ]
         return paragraphs_metadata
+
+    @classmethod
+    async def is_online(cls, *, httpx_client: AsyncClient, literature_search_url: str) -> bool:
+        """Check if the tool is online."""
+        response = await httpx_client.get(
+            literature_search_url,
+        )
+        return response.status_code == 200

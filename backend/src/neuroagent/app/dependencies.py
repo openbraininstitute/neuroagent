@@ -226,13 +226,14 @@ async def get_thread(
     return thread
 
 
-def get_context_variables_without_thread(
+def get_context_variables(
     settings: Annotated[Settings, Depends(get_settings)],
     starting_agent: Annotated[Agent, Depends(get_starting_agent)],
     token: Annotated[str, Depends(auth)],
     httpx_client: Annotated[AsyncClient, Depends(get_httpx_client)],
+    thread: Annotated[Threads, Depends(get_thread)],
 ) -> dict[str, Any]:
-    """Get the thread-independent context variables to feed the tool's metadata."""
+    """Get the context variables to feed the tool's metadata."""
     return {
         "starting_agent": starting_agent,
         "token": token,
@@ -251,18 +252,21 @@ def get_context_variables_without_thread(
         "kg_class_view_url": settings.knowledge_graph.class_view_url,
         "bluenaas_url": settings.tools.bluenaas.url,
         "httpx_client": httpx_client,
+        "vlab_id": thread.vlab_id,
+        "project_id": thread.project_id,
     }
 
 
-def get_context_variables(
-    context: Annotated[dict[str, Any], Depends(get_context_variables_without_thread)],
-    thread: Annotated[Threads, Depends(get_thread)],
+def get_healthcheck_variables(
+    settings: Annotated[Settings, Depends(get_settings)],
+    httpx_client: Annotated[AsyncClient, Depends(get_httpx_client)],
 ) -> dict[str, Any]:
-    """Get the complete context variables including thread-specific data."""
+    """Get the variables needed for healthcheck endpoints."""
     return {
-        **context,
-        "vlab_id": thread.vlab_id,
-        "project_id": thread.project_id,
+        "httpx_client": httpx_client,
+        "literature_search_url": settings.tools.literature.url,
+        "knowledge_graph_url": settings.knowledge_graph.url,
+        "bluenaas_url": settings.tools.bluenaas.url,
     }
 
 

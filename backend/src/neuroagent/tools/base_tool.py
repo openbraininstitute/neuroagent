@@ -93,12 +93,11 @@ class BaseTool(BaseModel, ABC):
         """Run the tool."""
 
     @classmethod
-    async def is_online(cls, metadata: BaseMetadata) -> bool:
+    async def is_online(cls) -> bool:
         """Check if the tool is online.
 
         By default, we assume the tool is online.
-        This method can be overridden by the tool to check if it is online.
-
-        We assume the that the input parameters are not needed to check if the tool is online.
+        This method can be overridden by the tool to check if it is online. All the parameters
+        need to be inside the `get_healthcheck_variables` dependency.
         """
         return True
