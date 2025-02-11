@@ -22,6 +22,8 @@ from neuroagent.app.dependencies import (
 from neuroagent.app.schemas import (
     ExecuteToolCallRequest,
     ExecuteToolCallResponse,
+    ToolMetadata,
+    ToolMetadataWithOnlineStatus,
 )
 from neuroagent.tools.base_tool import BaseTool
 
@@ -109,7 +111,43 @@ async def execute_tool_call(
 def get_available_tools(
     tool_list: Annotated[list[type[BaseTool]], Depends(get_tool_list)],
     _: Annotated[str, Depends(get_user_id)],
-) -> list[str]:
-    """Return the list of available tools."""
-    # Trivial implementation for now, to be adressed in another PR
-    return [tool.name for tool in tool_list]
+) -> list[ToolMetadata]:
+    """Return the list of available tools with their metadata."""
+    return [
+        ToolMetadata(
+            name=tool.name,
+            name_frontend=tool.name_frontend,
+            description=tool.description,
+            description_frontend=tool.description_frontend,
+            input_schema=tool.__annotations__["input_schema"].model_json_schema(),
+            hil=tool.hil,
+        )
+        for tool in tool_list
+    ]
+
+
+@router.get("/{name}")
+async def get_tool_metadata(
+    name: str,
+    tool_list: Annotated[list[type[BaseTool]], Depends(get_tool_list)],
+    context_variables: Annotated[dict[str, Any], Depends(get_context_variables)],
+    _: Annotated[str, Depends(get_user_id)],
+) -> ToolMetadataWithOnlineStatus:
+    """Return metadata for a specific tool."""
+    # Find the tool class with matching name
+    tool_class = next((tool for tool in tool_list if tool.name == name), None)
+    if not tool_class:
+        raise HTTPException(status_code=404, detail=f"Tool '{name}' not found")
+
+    tool_metadata = tool_class.__annotations__["metadata"](**context_variables)
+    is_online = await tool_class.is_online(tool_metadata)
+
+    return ToolMetadataWithOnlineStatus(
+        name=tool_class.name,
+        name_frontend=tool_class.name_frontend,
+        description=tool_class.description,
+        description_frontend=tool_class.description_frontend,
+        input_schema=tool_class.__annotations__["input_schema"].model_json_schema(),
+        hil=tool_class.hil,
+        is_online=is_online,
+    )

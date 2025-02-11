@@ -91,3 +91,14 @@ class BaseTool(BaseModel, ABC):
     @abstractmethod
     async def arun(self) -> Any:
         """Run the tool."""
+
+    @classmethod
+    async def is_online(cls, metadata: BaseMetadata) -> bool:
+        """Check if the tool is online.
+
+        By default, we assume the tool is online.
+        This method can be overridden by the tool to check if it is online.
+
+        We assume the that the input parameters are not needed to check if the tool is online.
+        """
+        return True

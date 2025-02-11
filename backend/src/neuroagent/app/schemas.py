@@ -89,3 +89,20 @@ class ExecuteToolCallResponse(BaseModel):
 
     status: Literal["done", "validation-error"]
     content: str | None = None
+
+
+class ToolMetadata(BaseModel):
+    """Data class for the metadata of a tool."""
+
+    name: str
+    name_frontend: str
+    description: str
+    description_frontend: str
+    input_schema: str
+    hil: bool
+
+
+class ToolMetadataWithOnlineStatus(ToolMetadata):
+    """Data class for the metadata of a tool with online status."""
+
+    is_online: bool
