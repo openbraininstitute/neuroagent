@@ -4,6 +4,7 @@ import logging
 from typing import Any, ClassVar, Literal
 
 from pydantic import BaseModel, Field
+from httpx import AsyncClient
 
 from neuroagent.tools.base_tool import BaseMetadata, BaseTool
 
@@ -175,3 +176,11 @@ class SCSPostTool(BaseTool):
             "duration": conditions__max_time,
         }
         return json_api
+
+    @classmethod
+    async def is_online(cls, *, httpx_client: AsyncClient, bluenaas_url: str) -> bool:
+        """Check if the tool is online."""
+        response = await httpx_client.get(
+            bluenaas_url,
+        )
+        return response.status_code == 200

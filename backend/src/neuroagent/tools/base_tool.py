@@ -100,4 +100,4 @@ class BaseTool(BaseModel, ABC):
         This method can be overridden by the tool to check if it is online. All the parameters
         need to be inside the `get_healthcheck_variables` dependency.
         """
-        return True
+        return False

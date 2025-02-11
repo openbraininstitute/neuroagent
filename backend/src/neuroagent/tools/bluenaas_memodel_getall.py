@@ -4,6 +4,7 @@ import logging
 from typing import Any, ClassVar, Literal
 
 from pydantic import BaseModel, Field
+from httpx import AsyncClient
 
 from neuroagent.bluenaas_models import (
     PaginatedResponseUnionMEModelResponseSynaptomeModelResponse,
@@ -46,6 +47,14 @@ class MEModelGetAllTool(BaseTool):
     to retrieve multiple of its ME-models and chose yourself the one(s) that fit the user's request."""
     metadata: MEModelGetAllMetadata
     input_schema: InputMEModelGetAll
+
+    @classmethod
+    async def is_online(cls, *, httpx_client: AsyncClient, bluenaas_url: str) -> bool:
+        """Check if the tool is online."""
+        response = await httpx_client.get(
+            bluenaas_url,
+        )
+        return response.status_code == 200
 
     async def arun(self) -> dict[str, Any]:
         """Run the MEModelGetAll tool."""

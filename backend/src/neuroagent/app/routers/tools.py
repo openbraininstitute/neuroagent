@@ -157,8 +157,6 @@ async def get_tool_metadata(
         }
         input_schema["parameters"].append(parameter)
     
-    logger.info(f"Tool {name} input schema: {input_schema}")
-
     return ToolMetadataDetailed(
         name=tool_class.name,
         name_frontend=tool_class.name_frontend,

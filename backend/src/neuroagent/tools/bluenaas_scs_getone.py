@@ -4,6 +4,7 @@ import logging
 from typing import Any, ClassVar
 
 from pydantic import BaseModel, Field
+from httpx import AsyncClient
 
 from neuroagent.bluenaas_models import SimulationDetailsResponse
 from neuroagent.tools.base_tool import BaseMetadata, BaseTool
@@ -52,3 +53,11 @@ class SCSGetOneTool(BaseTool):
         )
 
         return SimulationDetailsResponse(**response.json()).model_dump()
+
+    @classmethod
+    async def is_online(cls, *, httpx_client: AsyncClient, bluenaas_url: str) -> bool:
+        """Check if the tool is online."""
+        response = await httpx_client.get(
+            bluenaas_url,
+        )
+        return response.status_code == 200

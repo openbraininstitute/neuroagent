@@ -261,12 +261,17 @@ def get_healthcheck_variables(
     settings: Annotated[Settings, Depends(get_settings)],
     httpx_client: Annotated[AsyncClient, Depends(get_httpx_client)],
 ) -> dict[str, Any]:
-    """Get the variables needed for healthcheck endpoints."""
+    """Get the variables needed for healthcheck endpoints.
+    
+    We need to add the trailing slash to the urls to make
+    sure the load balancer will route the requests to the
+    correct service.
+    """
     return {
         "httpx_client": httpx_client,
-        "literature_search_url": settings.tools.literature.url,
-        "knowledge_graph_url": settings.knowledge_graph.url,
-        "bluenaas_url": settings.tools.bluenaas.url,
+        "literature_search_url": settings.tools.literature.url.rstrip('/') + '/',
+        "knowledge_graph_url": settings.knowledge_graph.url.rstrip('/') + '/',
+        "bluenaas_url": settings.tools.bluenaas.url.rstrip('/') + '/',
     }
 
 
