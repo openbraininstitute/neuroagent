@@ -38,10 +38,14 @@ export async function fetcher({
     });
   }
 
-  const url = new URL(
-    processedPath,
-    isServer ? env.SERVER_SIDE_BACKEND_URL : env.NEXT_PUBLIC_BACKEND_URL,
-  );
+  const baseUrl = isServer
+    ? env.SERVER_SIDE_BACKEND_URL
+    : env.NEXT_PUBLIC_BACKEND_URL;
+  // Remove trailing slash from base and leading slash from path to avoid double slashes
+  const normalizedBase = baseUrl?.replace(/\/$/, "");
+  const normalizedPath = processedPath.replace(/^\//, "");
+
+  const url = new URL(`${normalizedBase}/${normalizedPath}`);
 
   if (queryParams) {
     Object.entries(queryParams).forEach(([key, value]) => {
