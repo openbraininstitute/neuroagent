@@ -6,6 +6,7 @@ import { createThreadWithMessage } from "@/actions/create-thread";
 import { useStore } from "@/lib/store";
 import { ToolSelectionDropdown } from "@/components/tool-selection-dropdown";
 import { Send } from "lucide-react";
+import ChatInputLoading from "@/components/chat-input-loading";
 import { useRouter } from "next/navigation";
 
 type ChatInputProps = {
@@ -56,7 +57,7 @@ export function ChatInput({ availableTools }: ChatInputProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // Empty dependency array means this runs once on mount
 
-  return (
+  return !(isPending || state) ? (
     <div className="flex flex-col items-center gap-4 pl-2 pr-2">
       <h1 className="text-2xl font-bold mt-4 mb-6">
         What can I help you with?
@@ -85,7 +86,6 @@ export function ChatInput({ availableTools }: ChatInputProps) {
             onKeyDown={handleKeyDown}
             disabled={isPending}
           />
-
           <div className="flex gap-2 mr-3">
             <ToolSelectionDropdown
               availableTools={availableTools}
@@ -106,5 +106,7 @@ export function ChatInput({ availableTools }: ChatInputProps) {
         </div>
       </form>
     </div>
+  ) : (
+    <ChatInputLoading newMessage={newMessage} />
   );
 }
