@@ -39,6 +39,7 @@ class MEModelGetAllTool(BaseTool):
     """Class defining the MEModelGetAll tool."""
 
     name: ClassVar[str] = "memodelgetall-tool"
+    name_frontend: ClassVar[str] = "Get All ME Models"
     description: ClassVar[str] = """Get multiple me models from the user.
     Returns `page_size` ME-models that belong to the user's project.
     If the user requests an ME-model with specific criteria, use this tool

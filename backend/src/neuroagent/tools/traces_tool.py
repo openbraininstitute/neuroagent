@@ -54,6 +54,7 @@ class GetTracesTool(BaseTool):
     """Class defining the logic to obtain traces ids."""
 
     name: ClassVar[str] = "get-traces-tool"
+    name_frontend: ClassVar[str] = "Traces"
     description: ClassVar[
         str
     ] = """Searches a neuroscience based knowledge graph to retrieve traces names, IDs and descriptions.

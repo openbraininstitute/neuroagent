@@ -39,6 +39,7 @@ class SCSGetAllTool(BaseTool):
     """Class defining the SCSGetAll tool."""
 
     name: ClassVar[str] = "scsgetall-tool"
+    name_frontend: ClassVar[str] = "Get All Single-Neuron Simulations"
     description: ClassVar[
         str
     ] = """Retrieve `page_size` simulations' metadata from a user's project.

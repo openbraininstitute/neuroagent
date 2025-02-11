@@ -32,6 +32,7 @@ class SCSGetOneTool(BaseTool):
     """Class defining the SCSGetOne tool."""
 
     name: ClassVar[str] = "scsgetone-tool"
+    name_frontend: ClassVar[str] = "Get Single-Neuron Simulation"
     description: ClassVar[
         str
     ] = """Get one specific simulations from a user based on its id.

@@ -27,6 +27,7 @@ class NowTool(BaseTool):
     """Tool that returns the current UTC timestamp."""
 
     name: ClassVar[str] = "now-tool"
+    name_frontend: ClassVar[str] = "Now"
     description: ClassVar[str] = (
         "Returns the current UTC timestamp as an ISO-8601 formatted string"
     )

@@ -26,10 +26,12 @@ async function getTools(): Promise<ToolMetadata[]> {
     headers: { Authorization: `Bearer ${session.accessToken}` },
   })) as BToolMetadata[];
 
-  return tools.map((tool) => ({
-    name: tool.name,
-    nameFrontend: tool.name_frontend,
-  }));
+  return tools
+    .map((tool) => ({
+      name: tool.name,
+      nameFrontend: tool.name_frontend,
+    }))
+    .sort((a, b) => a.nameFrontend.localeCompare(b.nameFrontend));
 }
 
 export default async function ToolsPage() {
@@ -38,7 +40,7 @@ export default async function ToolsPage() {
   return (
     <>
       <h1 className="text-2xl my-4 text-center font-bold mb-6">Tools</h1>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mx-4 p-4">
         {tools.map((tool) => (
           <Link key={tool.name} href={`/tools/${tool.name}`}>
             <Card className="text-center transition-colors hover:bg-muted cursor-pointer h-full">

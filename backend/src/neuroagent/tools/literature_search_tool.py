@@ -48,6 +48,7 @@ class LiteratureSearchTool(BaseTool):
     """Class defining the Literature Search logic."""
 
     name: ClassVar[str] = "literature-search-tool"
+    name_frontend: ClassVar[str] = "Literature Search"
     description: ClassVar[
         str
     ] = """Searches the scientific literature. The tool should be used to gather general scientific knowledge. It is best suited for questions about neuroscience and medicine that are not about morphologies.

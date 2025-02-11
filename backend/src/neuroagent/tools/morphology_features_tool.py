@@ -44,6 +44,7 @@ class MorphologyFeatureTool(BaseTool):
     """Class defining the morphology feature retrieval logic."""
 
     name: ClassVar[str] = "morpho-features-tool"
+    name_frontend: ClassVar[str] = "Morphology Features"
     description: ClassVar[
         str
     ] = """Given a morphology ID, fetch data about the features of the morphology. You need to know a morphology ID to use this tool and they can only come from the 'get-morpho-tool'. Therefore this tool should only be used if you already called the 'knowledge-graph-tool'.

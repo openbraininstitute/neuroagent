@@ -182,6 +182,7 @@ class ElectrophysFeatureTool(BaseTool):
     """Class defining the Electrophys Featyres Tool."""
 
     name: ClassVar[str] = "electrophys-features-tool"
+    name_frontend: ClassVar[str] = "Electrophysiology Features"
     description: ClassVar[
         str
     ] = """Given a trace ID, extract features from the trace for certain stimuli types and certain amplitudes.

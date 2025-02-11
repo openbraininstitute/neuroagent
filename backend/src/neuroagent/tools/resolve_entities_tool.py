@@ -74,6 +74,7 @@ class ResolveEntitiesTool(BaseTool):
     """Class defining the Brain Region Resolving logic."""
 
     name: ClassVar[str] = "resolve-entities-tool"
+    name_frontend: ClassVar[str] = "Resolve Entities"
     description: ClassVar[
         str
     ] = """From a brain region name written in natural english, search a knowledge graph to retrieve its corresponding ID.

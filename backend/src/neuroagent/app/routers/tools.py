@@ -116,7 +116,7 @@ def get_available_tools(
     return [
         ToolMetadata(
             name=tool.name,
-            name_frontend=tool.name_frontend if tool.name_frontend else tool.name,
+            name_frontend=tool.name_frontend
         )
         for tool in tool_list
     ]
@@ -140,7 +140,7 @@ async def get_tool_metadata(
 
     return ToolMetadataDetailed(
         name=tool_class.name,
-        name_frontend=tool_class.name_frontend if tool_class.name_frontend else tool_class.name,
+        name_frontend=tool_class.name_frontend,
         description=tool_class.description,
         description_frontend=tool_class.description_frontend,
         input_schema=json.dumps(tool_class.__annotations__["input_schema"].model_json_schema()),

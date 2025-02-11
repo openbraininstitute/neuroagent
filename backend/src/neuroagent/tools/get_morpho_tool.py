@@ -54,6 +54,7 @@ class GetMorphoTool(BaseTool):
     """Class defining the Get Morpho logic."""
 
     name: ClassVar[str] = "get-morpho-tool"
+    name_frontend: ClassVar[str] = "Morphologies"
     description: ClassVar[
         str
     ] = """Searches a neuroscience based knowledge graph to retrieve neuron morphology names, IDs and descriptions.
