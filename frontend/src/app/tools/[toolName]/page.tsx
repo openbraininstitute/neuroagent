@@ -51,7 +51,7 @@ export default async function ToolPage({
   let parsedSchema;
   try {
     parsedSchema = JSON.parse(tool.inputSchema);
-  } catch (e) {
+  } catch {
     parsedSchema = { parameters: [] }; // Fallback to empty parameters if parsing fails
   }
 
