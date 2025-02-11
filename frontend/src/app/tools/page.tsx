@@ -43,7 +43,7 @@ export default async function ToolsPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mx-4 p-4">
         {tools.map((tool) => (
           <Link key={tool.name} href={`/tools/${tool.name}`}>
-            <Card className="text-center transition-colors hover:bg-muted cursor-pointer h-full">
+            <Card className="text-center transition-all hover:bg-muted hover:scale-[1.02] hover:shadow-md cursor-pointer h-full">
               <CardHeader>
                 <CardTitle>{tool.nameFrontend}</CardTitle>
                 <CardDescription>{tool.name}</CardDescription>
