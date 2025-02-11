@@ -137,14 +137,28 @@ async def get_tool_metadata(
     tool_metadata = tool_class.__annotations__["metadata"](**context_variables)
     is_online = await tool_class.is_online(tool_metadata)
 
+    input_schema = {"parameters": []}
+    
+    for name in tool_class.__annotations__["input_schema"].model_fields:
+        field = tool_class.__annotations__["input_schema"].model_fields[name]
+        is_required = field.is_required()
+        
+        parameter = {
+            "name": name,
+            "required": is_required,
+            "default": None if is_required else str(field.default) if field.default is not None else None,
+            "description": field.description
+        }
+        input_schema["parameters"].append(parameter)
+    
+    logger.info(f"Tool {name} input schema: {input_schema}")
+
     return ToolMetadataDetailed(
         name=tool_class.name,
         name_frontend=tool_class.name_frontend,
         description=tool_class.description,
         description_frontend=tool_class.description_frontend,
-        input_schema=json.dumps(
-            tool_class.__annotations__["input_schema"].model_json_schema()
-        ),
+        input_schema=json.dumps(input_schema),
         hil=tool_class.hil,
         is_online=is_online,
     )

@@ -59,7 +59,7 @@ export default async function ToolPage({
     <div className="container mx-auto px-4 py-6 h-[calc(100vh-4rem)] overflow-y-auto">
       <div className="flex flex-col items-center gap-4 mb-8">
         <h1 className="text-3xl font-bold">{tool.nameFrontend}</h1>
-
+        
         <div className="flex gap-4 items-center">
           {tool.hil && (
             <div className="flex items-center gap-1 text-sm text-muted-foreground">
@@ -79,14 +79,14 @@ export default async function ToolPage({
             </div>
           )}
         </div>
-
+        
         <div className="text-sm text-muted-foreground">
-          Tool slug: {tool.name}
+          Tool name: {tool.name}
         </div>
       </div>
 
       <div className="space-y-8 pb-6">
-        <div className="bg-muted/50 rounded-xl p-6">
+        <div className="bg-muted/50 rounded-lg p-6">
           <h2 className="text-xl font-semibold mb-4">Description</h2>
           <div className="space-y-4">
             <p className="text-muted-foreground whitespace-pre-wrap break-words">
@@ -95,6 +95,15 @@ export default async function ToolPage({
             <p className="text-sm text-muted-foreground whitespace-pre-wrap break-words">
               {tool.description}
             </p>
+          </div>
+        </div>
+
+        <div className="bg-muted/50 rounded-lg p-6">
+          <h2 className="text-xl font-semibold mb-4">Input Schema</h2>
+          <div className="overflow-x-auto">
+            <pre className="bg-muted p-4 rounded-lg">
+              {JSON.stringify(parsedSchema, null, 2)}
+            </pre>
           </div>
         </div>
       </div>
