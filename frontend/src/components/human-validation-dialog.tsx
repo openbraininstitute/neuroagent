@@ -120,7 +120,7 @@ export function HumanValidationDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent>
         <form action={handleAction} ref={formRef}>
           <input type="hidden" name="threadId" value={threadId} />
           <input type="hidden" name="toolCallId" value={toolId} />
