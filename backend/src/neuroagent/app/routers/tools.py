@@ -67,7 +67,7 @@ async def execute_tool_call(
             "role": "tool",
             "tool_call_id": tool_call.tool_call_id,
             "tool_name": tool_call.name,
-            "content": f"Tool call refused. User's feedback: {request.feedback}"
+            "content": f"Tool call refused by the user. User's feedback: {request.feedback}"
             if request.feedback
             else "This tool call has been refused by the user. DO NOT re-run it unless explicitly asked by the user.",
         }
