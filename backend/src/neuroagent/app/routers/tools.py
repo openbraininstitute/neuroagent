@@ -119,7 +119,7 @@ def get_available_tools(
             name_frontend=tool.name_frontend,
             description=tool.description,
             description_frontend=tool.description_frontend,
-            input_schema=tool.__annotations__["input_schema"].model_json_schema(),
+            input_schema=json.dumps(tool.__annotations__["input_schema"].model_json_schema()),
             hil=tool.hil,
         )
         for tool in tool_list
@@ -147,7 +147,7 @@ async def get_tool_metadata(
         name_frontend=tool_class.name_frontend,
         description=tool_class.description,
         description_frontend=tool_class.description_frontend,
-        input_schema=tool_class.__annotations__["input_schema"].model_json_schema(),
+        input_schema=json.dumps(tool_class.__annotations__["input_schema"].model_json_schema()),
         hil=tool_class.hil,
         is_online=is_online,
     )
