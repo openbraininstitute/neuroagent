@@ -61,10 +61,15 @@ export default async function ToolPage({
         <h1 className="text-3xl font-bold">{tool.nameFrontend}</h1>
 
         <div className="flex gap-4 items-center">
-          {tool.hil && (
+          {tool.hil ? (
             <div className="flex items-center gap-1 text-sm text-muted-foreground">
               <PersonStanding className="h-5 w-5" />
               <span>Human in the Loop</span>
+            </div>
+          ) : (
+            <div className="flex items-center gap-1 text-sm text-muted-foreground">
+              <PersonStanding className="h-5 w-5 opacity-50" />
+              <span>No Human Permission Required</span>
             </div>
           )}
           {tool.isOnline ? (
@@ -81,7 +86,7 @@ export default async function ToolPage({
         </div>
 
         <div className="text-sm text-muted-foreground">
-          Tool name: {tool.name}
+          Tool slug: {tool.name}
         </div>
       </div>
 
