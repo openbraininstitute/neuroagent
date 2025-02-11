@@ -65,9 +65,9 @@ class BaseTool(BaseModel, ABC):
     """Base class for the tools."""
 
     name: ClassVar[str]
-    frontend_name: ClassVar[str] = ""
+    name_frontend: ClassVar[str] = ""
     description: ClassVar[str]
-    frontend_description: ClassVar[str] = ""
+    description_frontend: ClassVar[str] = ""
     metadata: BaseMetadata
     input_schema: BaseModel
     hil: ClassVar[bool] = False
