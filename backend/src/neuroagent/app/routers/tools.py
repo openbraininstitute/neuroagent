@@ -145,7 +145,7 @@ async def get_tool_metadata(
 
     is_online = await tool_class.is_online(**is_online_kwargs)
 
-    input_schema = {"parameters": []}
+    input_schema: dict[str, Any] = {"parameters": []}
 
     for name in tool_class.__annotations__["input_schema"].model_fields:
         field = tool_class.__annotations__["input_schema"].model_fields[name]
