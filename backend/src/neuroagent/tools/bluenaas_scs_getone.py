@@ -35,8 +35,8 @@ class SCSGetOneTool(BaseTool):
     name: ClassVar[str] = "scsgetone-tool"
     description: ClassVar[
         str
-    ] = """Get one specific simulations from a user based on its id.
-    The id can be retrieved using the 'scsgetall-tool' or directly specified by the user."""
+    ] = """Get one specific simulations from a user based on its id. This tool gets all the information about the simulation, more than `scs-getall-tool`.
+    The id can be retrieved using the 'scs-getall-tool', from the simulation report of `scs-post-tool` or directly specified by the user."""
     metadata: SCSGetOneMetadata
     input_schema: InputSCSGetOne
 
