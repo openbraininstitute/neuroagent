@@ -3,8 +3,8 @@
 import logging
 from typing import Any, ClassVar, Literal
 
-from pydantic import BaseModel, Field
 from httpx import AsyncClient
+from pydantic import BaseModel, Field
 
 from neuroagent.bluenaas_models import PaginatedResponseSimulationDetailsResponse
 from neuroagent.tools.base_tool import BaseMetadata, BaseTool

@@ -7,8 +7,8 @@ from typing import Any, ClassVar, Literal
 
 from bluepyefe.extract import extract_efeatures
 from efel.units import get_unit
-from pydantic import BaseModel, Field
 from httpx import AsyncClient
+from pydantic import BaseModel, Field
 
 from neuroagent.tools.base_tool import BaseMetadata, BaseTool
 from neuroagent.utils import get_kg_data

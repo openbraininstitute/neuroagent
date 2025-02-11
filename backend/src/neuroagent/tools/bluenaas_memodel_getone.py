@@ -4,8 +4,8 @@ import logging
 from typing import Any, ClassVar
 from urllib.parse import quote_plus
 
-from pydantic import BaseModel, Field
 from httpx import AsyncClient
+from pydantic import BaseModel, Field
 
 from neuroagent.bluenaas_models import MEModelResponse
 from neuroagent.tools.base_tool import BaseMetadata, BaseTool

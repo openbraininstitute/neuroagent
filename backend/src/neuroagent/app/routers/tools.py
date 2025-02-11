@@ -1,9 +1,9 @@
 """Conversation related CRUD operations."""
 
+import inspect
 import json
 import logging
 from typing import Annotated, Any
-import inspect
 
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import ValidationError

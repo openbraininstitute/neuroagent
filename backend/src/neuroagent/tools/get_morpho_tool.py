@@ -4,8 +4,8 @@ import logging
 from pathlib import Path
 from typing import Any, ClassVar
 
-from pydantic import BaseModel, Field
 from httpx import AsyncClient
+from pydantic import BaseModel, Field
 
 from neuroagent.cell_types import get_celltypes_descendants
 from neuroagent.tools.base_tool import BaseMetadata, BaseTool

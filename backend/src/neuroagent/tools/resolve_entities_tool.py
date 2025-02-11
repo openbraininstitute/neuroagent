@@ -3,8 +3,8 @@
 import logging
 from typing import Any, ClassVar
 
-from pydantic import BaseModel, Field
 from httpx import AsyncClient
+from pydantic import BaseModel, Field
 
 from neuroagent.resolving import resolve_query
 from neuroagent.tools.base_tool import (

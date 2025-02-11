@@ -5,9 +5,9 @@ from typing import Any, ClassVar
 
 import neurom
 import numpy as np
+from httpx import AsyncClient
 from neurom import load_morphology
 from pydantic import BaseModel, Field
-from httpx import AsyncClient
 
 from neuroagent.tools.base_tool import BaseMetadata, BaseTool
 from neuroagent.utils import get_kg_data
