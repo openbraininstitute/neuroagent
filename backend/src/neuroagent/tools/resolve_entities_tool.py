@@ -3,6 +3,7 @@
 import logging
 from typing import Any, ClassVar
 
+from httpx import AsyncClient
 from pydantic import BaseModel, Field
 
 from neuroagent.resolving import resolve_query
@@ -74,6 +75,7 @@ class ResolveEntitiesTool(BaseTool):
     """Class defining the Brain Region Resolving logic."""
 
     name: ClassVar[str] = "resolve-entities-tool"
+    name_frontend: ClassVar[str] = "Resolve Entities"
     description: ClassVar[
         str
     ] = """From a brain region name written in natural english, search a knowledge graph to retrieve its corresponding ID.
@@ -83,6 +85,14 @@ class ResolveEntitiesTool(BaseTool):
     Brain region related outputs are stored in the class `BRResolveOutput` while the mtype related outputs are stored in the class `MTypeResolveOutput`."""
     input_schema: ResolveBRInput
     metadata: ResolveBRMetadata
+    description_frontend: ClassVar[
+        str
+    ] = """Convert natural language descriptions to precise identifiers. This tool helps you:
+    • Find exact brain region IDs from names
+    • Match cell types to their formal identifiers
+    • Resolve scientific terminology
+    
+    Provide natural language descriptions to get corresponding technical identifiers."""
 
     async def arun(
         self,
@@ -146,3 +156,13 @@ class ResolveEntitiesTool(BaseTool):
             )
 
         return output
+
+    @classmethod
+    async def is_online(
+        cls, *, httpx_client: AsyncClient, knowledge_graph_url: str
+    ) -> bool:
+        """Check if the tool is online."""
+        response = await httpx_client.get(
+            f"{knowledge_graph_url.rstrip('/')}/version",
+        )
+        return response.status_code == 200

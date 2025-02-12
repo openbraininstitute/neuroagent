@@ -7,7 +7,7 @@ from typing import ClassVar
 import pytest
 import pytest_asyncio
 from fastapi.testclient import TestClient
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 from sqlalchemy import MetaData
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 
@@ -58,7 +58,7 @@ def fake_tool():
     """Fake get weather tool."""
 
     class FakeToolInput(BaseModel):
-        location: str
+        location: str = Field(..., description="The location to get the weather for")
 
     class FakeToolMetadata(
         BaseModel
@@ -68,7 +68,9 @@ def fake_tool():
 
     class FakeTool(BaseTool):
         name: ClassVar[str] = "get_weather"
+        name_frontend: ClassVar[str] = "Get Weather"
         description: ClassVar[str] = "Great description"
+        description_frontend: ClassVar[str] = "Great description frontend"
         metadata: FakeToolMetadata
         input_schema: FakeToolInput
         hil: ClassVar[bool] = True
@@ -77,6 +79,10 @@ def fake_tool():
             if self.metadata.planet:
                 return f"It's sunny today in {self.input_schema.location} from planet {self.metadata.planet}."
             return "It's sunny today."
+
+        @classmethod
+        async def is_online(cls):
+            return True
 
     return FakeTool
 

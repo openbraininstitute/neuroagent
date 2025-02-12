@@ -12,13 +12,15 @@ async function getToolList() {
     path: "/tools",
     headers: { Authorization: `Bearer ${session.accessToken}` },
   });
-  return response as string[];
+
+  // Extract just the tool names from the ToolMetadata objects
+  return (response as Array<{ name: string }>).map((tool) => tool.name);
 }
 
 export default async function Home() {
   const availableTools = await getToolList();
   return (
-    <div className="flex flex-col justify-center h-full m-4">
+    <div className="flex flex-col justify-center h-full">
       <ChatInput availableTools={availableTools} />
     </div>
   );

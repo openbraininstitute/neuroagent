@@ -1,5 +1,6 @@
 """Conversation related CRUD operations."""
 
+import inspect
 import json
 import logging
 from typing import Annotated, Any
@@ -14,6 +15,7 @@ from neuroagent.app.database.sql_schemas import Entity, Messages, Threads, ToolC
 from neuroagent.app.dependencies import (
     get_agents_routine,
     get_context_variables,
+    get_healthcheck_variables,
     get_session,
     get_thread,
     get_tool_list,
@@ -22,6 +24,8 @@ from neuroagent.app.dependencies import (
 from neuroagent.app.schemas import (
     ExecuteToolCallRequest,
     ExecuteToolCallResponse,
+    ToolMetadata,
+    ToolMetadataDetailed,
 )
 from neuroagent.tools.base_tool import BaseTool
 
@@ -109,7 +113,62 @@ async def execute_tool_call(
 def get_available_tools(
     tool_list: Annotated[list[type[BaseTool]], Depends(get_tool_list)],
     _: Annotated[str, Depends(get_user_id)],
-) -> list[str]:
-    """Return the list of available tools."""
-    # Trivial implementation for now, to be adressed in another PR
-    return [tool.name for tool in tool_list]
+) -> list[ToolMetadata]:
+    """Return the list of available tools with their basic metadata."""
+    return [
+        ToolMetadata(name=tool.name, name_frontend=tool.name_frontend)
+        for tool in tool_list
+    ]
+
+
+@router.get("/{name}")
+async def get_tool_metadata(
+    name: str,
+    tool_list: Annotated[list[type[BaseTool]], Depends(get_tool_list)],
+    healthcheck_variables: Annotated[
+        dict[str, Any], Depends(get_healthcheck_variables)
+    ],
+    _: Annotated[str, Depends(get_user_id)],
+) -> ToolMetadataDetailed:
+    """Return detailed metadata for a specific tool."""
+    tool_class = next((tool for tool in tool_list if tool.name == name), None)
+    if not tool_class:
+        raise HTTPException(status_code=404, detail=f"Tool '{name}' not found")
+
+    # Get the parameters required by is_online
+    is_online_params = inspect.signature(tool_class.is_online).parameters
+    is_online_kwargs = {
+        param: healthcheck_variables[param]
+        for param in is_online_params
+        if param in healthcheck_variables
+    }
+
+    is_online = await tool_class.is_online(**is_online_kwargs)
+
+    input_schema: dict[str, Any] = {"parameters": []}
+
+    for name in tool_class.__annotations__["input_schema"].model_fields:
+        field = tool_class.__annotations__["input_schema"].model_fields[name]
+        is_required = field.is_required()
+
+        parameter = {
+            "name": name,
+            "required": is_required,
+            "default": None
+            if is_required
+            else str(field.default)
+            if field.default is not None
+            else None,
+            "description": field.description,
+        }
+        input_schema["parameters"].append(parameter)
+
+    return ToolMetadataDetailed(
+        name=tool_class.name,
+        name_frontend=tool_class.name_frontend,
+        description=tool_class.description,
+        description_frontend=tool_class.description_frontend,
+        input_schema=json.dumps(input_schema),
+        hil=tool_class.hil,
+        is_online=is_online,
+    )

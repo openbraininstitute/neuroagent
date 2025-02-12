@@ -3,6 +3,7 @@
 import logging
 from typing import Any, ClassVar, Literal
 
+from httpx import AsyncClient
 from pydantic import BaseModel, Field
 
 from neuroagent.bluenaas_models import PaginatedResponseSimulationDetailsResponse
@@ -39,11 +40,20 @@ class SCSGetAllTool(BaseTool):
     """Class defining the SCSGetAll tool."""
 
     name: ClassVar[str] = "scsgetall-tool"
+    name_frontend: ClassVar[str] = "Get All Single-Neuron Simulations"
     description: ClassVar[
         str
     ] = """Retrieve `page_size` simulations' metadata from a user's project.
     If the user requests a simulation with specific criteria, use this tool
     to retrieve multiple of its simulations and chose yourself the one(s) that fit the user's request."""
+    description_frontend: ClassVar[
+        str
+    ] = """View all your single-neuron simulations. This tool allows you to:
+    • List all your simulation runs
+    • Filter simulations by type
+    • Browse through simulation results using pagination
+    
+    Returns a list of simulations with their status and metadata."""
     metadata: SCSGetAllMetadata
     input_schema: InputSCSGetAll
 
@@ -66,3 +76,11 @@ class SCSGetAllTool(BaseTool):
         return PaginatedResponseSimulationDetailsResponse(
             **response.json()
         ).model_dump()
+
+    @classmethod
+    async def is_online(cls, *, httpx_client: AsyncClient, bluenaas_url: str) -> bool:
+        """Check if the tool is online."""
+        response = await httpx_client.get(
+            bluenaas_url,
+        )
+        return response.status_code == 200

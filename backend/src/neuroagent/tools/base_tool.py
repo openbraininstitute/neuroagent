@@ -65,7 +65,9 @@ class BaseTool(BaseModel, ABC):
     """Base class for the tools."""
 
     name: ClassVar[str]
+    name_frontend: ClassVar[str] = ""
     description: ClassVar[str]
+    description_frontend: ClassVar[str] = ""
     metadata: BaseMetadata
     input_schema: BaseModel
     hil: ClassVar[bool] = False
@@ -89,3 +91,13 @@ class BaseTool(BaseModel, ABC):
     @abstractmethod
     async def arun(self) -> Any:
         """Run the tool."""
+
+    @classmethod
+    async def is_online(cls) -> bool:
+        """Check if the tool is online.
+
+        By default, we assume the tool is online.
+        This method can be overridden by the tool to check if it is online. All the parameters
+        need to be inside the `get_healthcheck_variables` dependency.
+        """
+        return False

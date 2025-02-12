@@ -4,6 +4,7 @@ import json
 import logging
 from typing import Any, ClassVar
 
+from httpx import AsyncClient
 from pydantic import BaseModel, Field
 
 from neuroagent.bluenaas_models import SimulationDetailsResponse
@@ -33,10 +34,20 @@ class SCSGetOneTool(BaseTool):
     """Class defining the SCSGetOne tool."""
 
     name: ClassVar[str] = "scsgetone-tool"
+    name_frontend: ClassVar[str] = "Get Single-Neuron Simulation"
     description: ClassVar[
         str
-    ] = """Get one specific simulations from a user based on its id. This tool gets all the information about the simulation, more than `scs-getall-tool`.
-    The id can be retrieved using the 'scs-getall-tool', from the simulation report of `scs-post-tool` or directly specified by the user."""
+    ] = """Get one specific simulations from a user based on its id. .
+    The id can be retrieved using the 'scs-getall-tool', from the simulation report of `scs-post-tool` or directly specified by the user.
+    This tool gets all the information about the simulation, a lot more than `scs-getall-tool`."""
+    description_frontend: ClassVar[
+        str
+    ] = """Access detailed results of a specific simulation. Use this to:
+    • View complete simulation results
+    • Access simulation parameters
+    • Check simulation status and outputs
+
+    Provide the simulation ID to get its detailed information."""
     metadata: SCSGetOneMetadata
     input_schema: InputSCSGetOne
 
@@ -55,11 +66,19 @@ class SCSGetOneTool(BaseTool):
         result = response.json()
         for key in result["results"].keys():
             for el in result["results"][key]:
-                el["x"] = el["x"][:10]
-                el["y"] = el["y"][:10]
+                del el["x"]
+                del el["y"]
 
         # sanity check
         if len(json.dumps(result)) > 5000:
             raise ValueError("return value is too long")
 
         return SimulationDetailsResponse(**result).model_dump()
+
+    @classmethod
+    async def is_online(cls, *, httpx_client: AsyncClient, bluenaas_url: str) -> bool:
+        """Check if the tool is online."""
+        response = await httpx_client.get(
+            bluenaas_url,
+        )
+        return response.status_code == 200
