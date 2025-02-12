@@ -270,10 +270,8 @@ def get_healthcheck_variables(
     return {
         "httpx_client": httpx_client,
         "literature_search_url": settings.tools.literature.url.rstrip("/") + "/",
-        "knowledge_graph_url": settings.knowledge_graph.url.rstrip("/") + "/",
+        "knowledge_graph_url": settings.knowledge_graph.base_url.rstrip("/") + "/",
         "bluenaas_url": settings.tools.bluenaas.url.rstrip("/") + "/",
-        "kg_sparql_url": settings.knowledge_graph.sparql_url.rstrip("/") + "/",
-        "kg_class_view_url": settings.knowledge_graph.class_view_url.rstrip("/") + "/",
     }
 
 

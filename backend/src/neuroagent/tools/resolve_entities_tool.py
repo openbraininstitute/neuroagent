@@ -159,19 +159,10 @@ class ResolveEntitiesTool(BaseTool):
 
     @classmethod
     async def is_online(
-        cls, *, httpx_client: AsyncClient, kg_sparql_url: str, kg_class_view_url: str
+        cls, *, httpx_client: AsyncClient, knowledge_graph_url: str
     ) -> bool:
         """Check if the tool is online."""
-        # Check SPARQL endpoint
-        sparql_response = await httpx_client.get(
-            kg_sparql_url,
+        response = await httpx_client.get(
+            f"{knowledge_graph_url.rstrip('/')}/version",
         )
-        # Check class view endpoint
-        class_view_response = await httpx_client.get(
-            kg_class_view_url,
-        )
-        # Tool is online only if both endpoints are available
-        return (
-            sparql_response.status_code == 200
-            and class_view_response.status_code == 200
-        )
+        return response.status_code == 200

@@ -233,6 +233,6 @@ class GetMorphoTool(BaseTool):
     ) -> bool:
         """Check if the tool is online."""
         response = await httpx_client.get(
-            knowledge_graph_url,
+            f"{knowledge_graph_url.rstrip('/')}/version",
         )
         return response.status_code == 200
