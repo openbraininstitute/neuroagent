@@ -145,7 +145,7 @@ export function ChatMessageTool({
   };
 
   return (
-    <div className="border-r-2 p-8 border-white-300 border-solid">
+    <div className="border-r-2 p-3.5 ml-5 border-white-300 border-solid">
       <HumanValidationDialog
         key={tool.toolCallId}
         threadId={threadId}
@@ -159,9 +159,9 @@ export function ChatMessageTool({
       />
       <div className="flex justify-start">
         <Collapsible open={toolOpen} onOpenChange={setToolOpen}>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
             <CollapsibleTrigger className="hover:scale-105 active:scale-[1.10]">
-              <span className="text-sm p-4 truncate border-2 bg-blue-500 rounded-xl">
+              <span className="text-sm p-3 truncate border-2 bg-blue-500 rounded-xl">
                 {tool?.toolName}
               </span>
             </CollapsibleTrigger>
