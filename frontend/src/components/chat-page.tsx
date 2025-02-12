@@ -9,7 +9,6 @@ import { ExtendedSession } from "@/lib/auth";
 import { useStore } from "@/lib/store";
 import { ToolSelectionDropdown } from "@/components/tool-selection-dropdown";
 
-import { Button } from "@/components/ui/button";
 import { ChatMessageAI } from "@/components/chat-message-ai";
 import { ChatMessageHuman } from "@/components/chat-message-human";
 import { ChatMessageTool } from "@/components/chat-message-tool";
@@ -30,6 +29,9 @@ export function ChatPage({
   const { newMessage, setNewMessage, checkedTools, setCheckedTools } =
     useStore();
   const requiresHandleSubmit = useRef(false);
+  const [processedToolInvocationMessages, setProcessedToolInvocationMessages] =
+    useState<string[]>([]);
+  const [collapsedTools, setCollapsedTools] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     if (initialMessages.length === 0 && newMessage !== "") {
@@ -79,20 +81,14 @@ export function ChatPage({
   });
 
   const messages = messagesRaw as MessageStrict[];
-
   const setMessages = setMessagesRaw as (
     messages:
       | MessageStrict[]
       | ((messages: MessageStrict[]) => MessageStrict[]),
   ) => void;
 
-  // Handle new conversations : add user message and trigger chat.
-  const [showTools, setShowTools] = useState(true);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-  const [processedToolInvocationMessages, setProcessedToolInvocationMessages] =
-    useState<string[]>([]);
-
   // Scroll to the end of the page when new messages are added
+  const messagesEndRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
@@ -138,10 +134,44 @@ export function ChatPage({
         // Mark this message as processed
         setProcessedToolInvocationMessages((prev) => [...prev, lastMessage.id]);
 
+        console.log(
+          "All validated tools have results, triggering empty message",
+        );
         handleSubmit(undefined, { allowEmptySubmit: true });
       }
     }
   }, [messages, handleSubmit, processedToolInvocationMessages]);
+
+  // to toggle the collapse of tools
+  function getMessageIndicesBetween(messageID: string) {
+    const targetIndex = messages.findIndex((msg) => msg.id === messageID);
+    if (targetIndex === -1) return [];
+
+    let prevUserIndex = -1;
+    for (let i = targetIndex - 1; i >= 0; i--) {
+      if (messages[i].role === "user") {
+        prevUserIndex = i;
+        break;
+      }
+    }
+    return messages
+      .slice(prevUserIndex !== -1 ? prevUserIndex + 1 : 0, targetIndex)
+      .map((message) => message.id);
+  }
+
+  const toggleCollapse = (messageId: string[]) => {
+    setCollapsedTools((prev) => {
+      const newSet = new Set(prev);
+      for (const id of messageId) {
+        if (newSet.has(id)) {
+          newSet.delete(id);
+        } else {
+          newSet.add(id);
+        }
+      }
+      return newSet;
+    });
+  };
 
   if (error) {
     return null;
@@ -149,19 +179,12 @@ export function ChatPage({
 
   return (
     <div className="flex flex-col h-full">
-      <div className="relative flex justify-center items-center p-6 w-full">
-        <h1 className="text-3xl absolute"></h1>
-        <Button
-          className="hover:scale-105 active:scale-[1.10] ml-auto"
-          onClick={() => setShowTools(!showTools)}
-        >
-          {showTools ? "Hide Tools" : "Show Tools"}
-        </Button>
-      </div>
-      <div className="flex-1 flex flex-col overflow-y-auto my-4">
+      {/* Mesages list */}
+      <div className="flex-1 flex flex-col overflow-y-auto">
         {messages.map((message) =>
           message.role === "assistant" ? (
             message.toolInvocations ? (
+              // Unpack the parralel tool calls
               message.toolInvocations
                 .sort((a, b) => a.toolCallId.localeCompare(b.toolCallId))
                 .map((tool) => {
@@ -171,7 +194,7 @@ export function ChatPage({
                     )?.validated ?? "not_required";
 
                   return (
-                    showTools && (
+                    !collapsedTools.has(message.id) && (
                       <ChatMessageTool
                         key={`${message.id}-${tool.toolCallId}`}
                         threadId={threadId}
@@ -194,6 +217,9 @@ export function ChatPage({
                 id={message.id}
                 threadId={threadId}
                 content={message.content}
+                associatedToolsIncides={getMessageIndicesBetween(message.id)}
+                collapsedTools={collapsedTools}
+                toggleCollapse={toggleCollapse}
               />
             )
           ) : (
@@ -208,6 +234,7 @@ export function ChatPage({
         <div ref={messagesEndRef} />
       </div>
 
+      {/* Input */}
       <form
         className="flex flex-col justify-center items-center gap-4 mb-4"
         onSubmit={handleSubmit}

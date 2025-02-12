@@ -91,6 +91,10 @@ plugins = [
   "pydantic.mypy", "sqlalchemy.ext.mypy.plugin"
 ]
 
+[[tool.mypy.overrides]]
+module = "neuroagent.tools.*"
+disable_error_code = ["override"]
+
 [tool.pytest.ini_options]
 minversion = "6.0"
 testpaths = [

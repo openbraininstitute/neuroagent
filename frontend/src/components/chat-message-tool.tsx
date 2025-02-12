@@ -1,6 +1,6 @@
 import { useRef, useState, useEffect } from "react";
 import { MessageStrict } from "@/lib/types";
-import { Check, Loader2, X, AlertCircle } from "lucide-react";
+import { Check, Loader2, X, AlertCircle, Info } from "lucide-react";
 import { Card, CardContent, CardFooter, CardTitle } from "@/components/ui/card";
 import {
   Collapsible,
@@ -145,7 +145,7 @@ export function ChatMessageTool({
   };
 
   return (
-    <div className="border-r-2 p-8 border-white-300 border-solid">
+    <div className="border-r-2 p-3.5 ml-5 border-white-300 border-solid">
       <HumanValidationDialog
         key={tool.toolCallId}
         threadId={threadId}
@@ -159,9 +159,9 @@ export function ChatMessageTool({
       />
       <div className="flex justify-start">
         <Collapsible open={toolOpen} onOpenChange={setToolOpen}>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
             <CollapsibleTrigger className="hover:scale-105 active:scale-[1.10]">
-              <span className="text-sm p-4 truncate border-2 bg-blue-500 rounded-xl">
+              <span className="text-sm p-3 truncate border-2 bg-blue-500 rounded-xl">
                 {tool?.toolName}
               </span>
             </CollapsibleTrigger>
@@ -186,9 +186,17 @@ export function ChatMessageTool({
             <ScrollToBottom />
             <Card className="w-[32rem] mt-8 bg-transparent p-8">
               <CardTitle>
-                <span className="text-lg p-2 text-left truncate">
-                  {tool?.toolName}
-                </span>
+                <div className="flex justify-between items-center">
+                  <span className="text-lg p-2 text-left truncate">
+                    {tool?.toolName}
+                  </span>
+                  <a
+                    href={`/tools/${tool?.toolName}`}
+                    className="p-2 hover:text-blue-500 transition-colors"
+                  >
+                    <Info className="h-5 w-5" />
+                  </a>
+                </div>
               </CardTitle>
               <CardContent>
                 <div className="flex flex-col mt-4">

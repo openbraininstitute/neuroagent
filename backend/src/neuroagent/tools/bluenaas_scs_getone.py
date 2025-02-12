@@ -3,6 +3,7 @@
 import logging
 from typing import Any, ClassVar
 
+from httpx import AsyncClient
 from pydantic import BaseModel, Field
 
 from neuroagent.bluenaas_models import SimulationDetailsResponse
@@ -32,10 +33,19 @@ class SCSGetOneTool(BaseTool):
     """Class defining the SCSGetOne tool."""
 
     name: ClassVar[str] = "scsgetone-tool"
+    name_frontend: ClassVar[str] = "Get Single-Neuron Simulation"
     description: ClassVar[
         str
     ] = """Get one specific simulations from a user based on its id.
     The id can be retrieved using the 'scsgetall-tool' or directly specified by the user."""
+    description_frontend: ClassVar[
+        str
+    ] = """Access detailed results of a specific simulation. Use this to:
+    • View complete simulation results
+    • Access simulation parameters
+    • Check simulation status and outputs
+    
+    Provide the simulation ID to get its detailed information."""
     metadata: SCSGetOneMetadata
     input_schema: InputSCSGetOne
 
@@ -51,3 +61,11 @@ class SCSGetOneTool(BaseTool):
         )
 
         return SimulationDetailsResponse(**response.json()).model_dump()
+
+    @classmethod
+    async def is_online(cls, *, httpx_client: AsyncClient, bluenaas_url: str) -> bool:
+        """Check if the tool is online."""
+        response = await httpx_client.get(
+            bluenaas_url,
+        )
+        return response.status_code == 200

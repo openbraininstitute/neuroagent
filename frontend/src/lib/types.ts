@@ -107,3 +107,18 @@ export type BExecuteToolCallResponse = {
   status: "done" | "validation-error";
   content: string | null;
 };
+
+export type BToolMetadata = {
+  name: string;
+  name_frontend: string;
+};
+
+export type BToolMetadataDetailed = {
+  name: string;
+  name_frontend: string;
+  description: string;
+  description_frontend: string;
+  input_schema: string;
+  hil: boolean;
+  is_online: boolean;
+};

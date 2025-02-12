@@ -12,6 +12,7 @@ from neuroagent.app.database.sql_schemas import Base, Threads
 from neuroagent.app.dependencies import (
     Settings,
     get_connection_string,
+    get_healthcheck_variables,
     get_httpx_client,
     get_session,
     get_settings,
@@ -203,3 +204,28 @@ async def test_get_thread_invalid_user_id(patch_required_env, db_connection):
     finally:
         await session.close()
         await engine.dispose()
+
+
+@pytest.mark.asyncio
+async def test_get_healthcheck_variables():
+    """Test that healthcheck variables are correctly returned with trailing slashes."""
+    # Mock the minimal required settings structure
+    settings = Mock(
+        tools=Mock(
+            literature=Mock(url="http://literature"),
+            bluenaas=Mock(url="http://bluenaas"),
+        ),
+        knowledge_graph=Mock(
+            base_url="http://kg",
+        ),
+    )
+    httpx_client = Mock()
+
+    result = get_healthcheck_variables(settings=settings, httpx_client=httpx_client)
+
+    assert result == {
+        "httpx_client": httpx_client,
+        "literature_search_url": "http://literature/",
+        "knowledge_graph_url": "http://kg/",
+        "bluenaas_url": "http://bluenaas/",
+    }
