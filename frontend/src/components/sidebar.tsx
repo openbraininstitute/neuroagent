@@ -27,15 +27,13 @@ export function Sidebar({ children }: { children: React.ReactNode }) {
     <>
       <div
         className={`
-        transition-all duration-300 ease-in-out shadow-md
+        transition-all duration-300 ease-in-out shadow-md min-w-10
         ${
           showSidebar ? "w-[16rem] md:w-[18rem] lg:w-[20rem]" : "w-[3.5rem]"
         } border-r-2 flex flex-col
       `}
       >
-        <div
-          className={`flex justify-between ${!showSidebar && "justify-center"}`}
-        >
+        <div className="flex justify-between">
           <div className="p-4">
             {showSidebar ? (
               <PanelRightOpen
