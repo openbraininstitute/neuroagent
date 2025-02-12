@@ -105,3 +105,28 @@ async def test_execute_tool_call_validation_error(
     assert response.json()["status"] == "validation-error"
     await session.refresh(tool_call)
     assert tool_call.validated is None
+
+
+@pytest.mark.asyncio
+async def test_get_available_tools(
+    patch_required_env,
+    httpx_mock,
+    app_client,
+    db_connection,
+    get_weather_tool,
+):
+    mock_keycloak_user_identification(httpx_mock)
+    test_settings = Settings(
+        db={"prefix": db_connection}, keycloak={"issuer": "https://great_issuer.com"}
+    )
+    app.dependency_overrides[get_settings] = lambda: test_settings
+
+    with app_client as app_client:
+        response = app_client.get("/tools")
+
+    assert response.status_code == 200
+    tools = response.json()
+    assert isinstance(tools, list)
+    assert len(tools) == 12
+
+    assert set(tools[0].keys()) == {"name", "name_frontend"}
