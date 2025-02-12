@@ -1,15 +1,12 @@
 import { ChatInput } from "@/components/chat-input";
 import { fetcher } from "@/lib/fetcher";
 import { auth } from "@/lib/auth";
-import { cookies } from "next/headers";
+import { getSettings } from "@/lib/cookies-server";
 import { redirect } from "next/navigation";
 
 async function isVlabAndProjectPopulated() {
-  const cookieStore = await cookies();
-  const vlabId = cookieStore.get("virtualLabID");
-  const projectId = cookieStore.get("projectID");
-
-  if (!(vlabId && projectId)) {
+  const { projectID, virtualLabID } = await getSettings();
+  if (!(projectID && virtualLabID)) {
     redirect("/settings");
   }
 }
