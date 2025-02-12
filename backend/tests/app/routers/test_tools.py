@@ -113,7 +113,6 @@ async def test_get_available_tools(
     httpx_mock,
     app_client,
     db_connection,
-    get_weather_tool,
 ):
     mock_keycloak_user_identification(httpx_mock)
     test_settings = Settings(
@@ -130,3 +129,61 @@ async def test_get_available_tools(
     assert len(tools) == 12
 
     assert set(tools[0].keys()) == {"name", "name_frontend"}
+
+
+@pytest.mark.asyncio
+async def test_get_tool_metadata(
+    patch_required_env,
+    httpx_mock,
+    app_client,
+    db_connection,
+    get_weather_tool,
+):
+    mock_keycloak_user_identification(httpx_mock)
+    test_settings = Settings(
+        db={"prefix": db_connection}, keycloak={"issuer": "https://great_issuer.com"}
+    )
+    app.dependency_overrides[get_settings] = lambda: test_settings
+    app.dependency_overrides[get_tool_list] = lambda: [get_weather_tool]
+
+    with app_client as app_client:
+        response = app_client.get(f"/tools/{get_weather_tool.name}")
+
+    assert response.status_code == 200
+    tool_metadata = response.json()
+
+    # Check all required fields are present
+    expected_fields = {
+        "name",
+        "name_frontend",
+        "description",
+        "description_frontend",
+        "input_schema",
+        "hil",
+        "is_online",
+    }
+    assert set(tool_metadata.keys()) == expected_fields
+
+    # Check specific values
+    assert tool_metadata["name"] == get_weather_tool.name
+    assert tool_metadata["name_frontend"] == get_weather_tool.name_frontend
+    assert tool_metadata["description"] == get_weather_tool.description
+    assert (
+        tool_metadata["description_frontend"] == get_weather_tool.description_frontend
+    )
+
+    assert isinstance(tool_metadata["input_schema"], str)
+    assert tool_metadata["is_online"]
+
+    # Verify input_schema is valid JSON and has expected structure
+    input_schema = json.loads(tool_metadata["input_schema"])
+    assert input_schema == {
+        "parameters": [
+            {
+                "name": "location",
+                "description": "The location to get the weather for",
+                "required": True,
+                "default": None,
+            }
+        ]
+    }
