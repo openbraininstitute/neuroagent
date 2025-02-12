@@ -13,7 +13,7 @@ import { usePathname } from "next/navigation";
 
 export function Sidebar({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const [showSidebar, setShowSidebar] = useState(true);
+  const [showSidebar, setShowSidebar] = useState(false);
 
   const toggleSidebar = () => {
     setShowSidebar(!showSidebar);
