@@ -181,7 +181,7 @@ export function ChatPage({
     <div className="flex flex-col h-full">
       {/* Mesages list */}
       <div className="flex-1 flex flex-col overflow-y-auto">
-        {messages.map((message, idx) =>
+        {messages.map((message) =>
           message.role === "assistant" ? (
             message.toolInvocations ? (
               // Unpack the parralel tool calls
@@ -217,7 +217,6 @@ export function ChatPage({
                 id={message.id}
                 threadId={threadId}
                 content={message.content}
-                isStreaming={isLoading && idx > initialMessages.length - 1}
                 associatedToolsIncides={getMessageIndicesBetween(message.id)}
                 collapsedTools={collapsedTools}
                 toggleCollapse={toggleCollapse}

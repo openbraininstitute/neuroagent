@@ -12,7 +12,6 @@ type ChatMessageAIProps = {
   id: string;
   content?: string;
   threadId: string;
-  isStreaming: boolean;
   associatedToolsIncides: string[];
   collapsedTools: Set<string>;
   toggleCollapse: (messageId: string[]) => void;
@@ -20,14 +19,13 @@ type ChatMessageAIProps = {
 
 export function ChatMessageAI({
   content,
-  isStreaming,
   associatedToolsIncides,
   collapsedTools,
   toggleCollapse,
 }: ChatMessageAIProps) {
   return (
     <div className="flex justify-start mt-4">
-      {associatedToolsIncides.length > 0 && !isStreaming ? (
+      {associatedToolsIncides.length > 0 ? (
         <Button
           className="hover:scale-105 active:scale-[1.10] ml-7 mr-1 mt-0.5 bg-blue-500 rounded-full p-2.5"
           onClick={() => toggleCollapse(associatedToolsIncides)}
