@@ -66,8 +66,8 @@ class SCSGetOneTool(BaseTool):
         result = response.json()
         for key in result["results"].keys():
             for el in result["results"][key]:
-                del el["x"]
-                del el["y"]
+                el.pop("x", None)
+                el.pop("y", None)
 
         # sanity check
         if len(json.dumps(result)) > 5000:
