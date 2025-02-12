@@ -24,7 +24,9 @@ async function getToolList() {
     path: "/tools",
     headers: { Authorization: `Bearer ${session.accessToken}` },
   });
-  return response as string[];
+
+  // Extract just the tool names from the ToolMetadata objects
+  return (response as Array<{ name: string }>).map((tool) => tool.name);
 }
 
 export default async function Home() {

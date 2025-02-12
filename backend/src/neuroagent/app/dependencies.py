@@ -173,6 +173,9 @@ async def get_selected_tools(
     request: Request, tool_list: Annotated[list[type[BaseTool]], Depends(get_tool_list)]
 ) -> list[type[BaseTool]]:
     """Get tools specified in the header from the frontend."""
+    if request.method == "GET":
+        return tool_list
+
     body = await request.json()
     if body.get("tool_selection") is None:
         return tool_list
@@ -230,14 +233,12 @@ def get_context_variables(
     httpx_client: Annotated[AsyncClient, Depends(get_httpx_client)],
     thread: Annotated[Threads, Depends(get_thread)],
 ) -> dict[str, Any]:
-    """Get the global context variables to feed the tool's metadata."""
+    """Get the context variables to feed the tool's metadata."""
     return {
         "starting_agent": starting_agent,
         "token": token,
         "retriever_k": settings.tools.literature.retriever_k,
         "reranker_k": settings.tools.literature.reranker_k,
-        "vlab_id": thread.vlab_id,
-        "project_id": thread.project_id,
         "use_reranker": settings.tools.literature.use_reranker,
         "literature_search_url": settings.tools.literature.url,
         "knowledge_graph_url": settings.knowledge_graph.url,
@@ -251,6 +252,26 @@ def get_context_variables(
         "kg_class_view_url": settings.knowledge_graph.class_view_url,
         "bluenaas_url": settings.tools.bluenaas.url,
         "httpx_client": httpx_client,
+        "vlab_id": thread.vlab_id,
+        "project_id": thread.project_id,
+    }
+
+
+def get_healthcheck_variables(
+    settings: Annotated[Settings, Depends(get_settings)],
+    httpx_client: Annotated[AsyncClient, Depends(get_httpx_client)],
+) -> dict[str, Any]:
+    """Get the variables needed for healthcheck endpoints.
+
+    We need to add the trailing slash to the urls to make
+    sure the load balancer will route the requests to the
+    correct service.
+    """
+    return {
+        "httpx_client": httpx_client,
+        "literature_search_url": settings.tools.literature.url.rstrip("/") + "/",
+        "knowledge_graph_url": settings.knowledge_graph.base_url.rstrip("/") + "/",
+        "bluenaas_url": settings.tools.bluenaas.url.rstrip("/") + "/",
     }
 
 
