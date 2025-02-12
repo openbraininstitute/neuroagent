@@ -26,9 +26,9 @@ export function ToolInputSchemaParameter({
       </CardHeader>
       <CardContent className="space-y-2">
         <p className="text-sm text-muted-foreground">{parameter.description}</p>
-        {parameter.default !== null && (
+        {!parameter.required && parameter.default !== undefined && (
           <p className="text-sm">
-            <span className="font-semibold">Default:</span> {parameter.default}
+            <span className="font-semibold">Default:</span> {parameter.default === null ? "null" : parameter.default}
           </p>
         )}
       </CardContent>
