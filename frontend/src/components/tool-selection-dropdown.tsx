@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
-// @ts-nocheck
 "use client";
 
 import { Checkbox } from "@/components/ui/checkbox";
@@ -86,7 +84,7 @@ export function ToolSelectionDropdown({
   });
 
   const filterTools = (value: string, search: string) => {
-    return value.toLowerCase().includes(search.toLowerCase());
+    return value.toLowerCase().includes(search.toLowerCase()) ? 1 : 0;
   };
 
   return (

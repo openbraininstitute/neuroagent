@@ -3,6 +3,7 @@
 import logging
 from typing import Any, ClassVar, Literal
 
+from httpx import AsyncClient
 from pydantic import BaseModel, Field
 
 from neuroagent.tools.base_tool import BaseMetadata, BaseTool
@@ -86,11 +87,20 @@ class SCSPostTool(BaseTool):
     """Class defining the SCSPost tool."""
 
     name: ClassVar[str] = "scspost-tool"
+    name_frontend: ClassVar[str] = "Run Single-Neuron Simulation"
     description: ClassVar[str] = """Runs a single-neuron simulation.
     Requires a "me_model_id" which must be fetched through the 'memodelgetall-tool' or directly provided by the user.
     Optionally, the user can specify simulation parameters.
     Returns the id of the simulation along with metadatas to fetch the simulation result and analyse it at a later stage.
     """
+    description_frontend: ClassVar[
+        str
+    ] = """Run new single-neuron simulations. This tool helps you:
+    • Set up and run neuron simulations
+    • Configure simulation parameters
+    • Test different stimulation protocols
+    
+    Specify the model and simulation parameters to start a new simulation run."""
     metadata: SCSPostMetadata
     input_schema: InputSCSPost
     hil: ClassVar[bool] = True
@@ -174,3 +184,11 @@ class SCSPostTool(BaseTool):
             "duration": conditions__max_time,
         }
         return json_api
+
+    @classmethod
+    async def is_online(cls, *, httpx_client: AsyncClient, bluenaas_url: str) -> bool:
+        """Check if the tool is online."""
+        response = await httpx_client.get(
+            bluenaas_url,
+        )
+        return response.status_code == 200

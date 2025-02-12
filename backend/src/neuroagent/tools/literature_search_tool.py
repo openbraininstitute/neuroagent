@@ -3,6 +3,7 @@
 import logging
 from typing import Any, ClassVar
 
+from httpx import AsyncClient
 from pydantic import BaseModel, ConfigDict, Field
 
 from neuroagent.tools.base_tool import BaseMetadata, BaseTool
@@ -48,6 +49,15 @@ class LiteratureSearchTool(BaseTool):
     """Class defining the Literature Search logic."""
 
     name: ClassVar[str] = "literature-search-tool"
+    name_frontend: ClassVar[str] = "Literature Search"
+    description_frontend: ClassVar[
+        str
+    ] = """Search through scientific papers to find relevant information. This tool is particularly useful for:
+    • Finding scientific facts about neuroscience and medicine
+    • Getting information from peer-reviewed articles
+    • Accessing research findings and academic knowledge
+
+    The search will return relevant paragraphs from scientific papers along with their source information."""
     description: ClassVar[
         str
     ] = """Searches the scientific literature. The tool should be used to gather general scientific knowledge. It is best suited for questions about neuroscience and medicine that are not about morphologies.
@@ -105,3 +115,18 @@ class LiteratureSearchTool(BaseTool):
             for paragraph in output
         ]
         return paragraphs_metadata
+
+    @classmethod
+    async def is_online(
+        cls, *, httpx_client: AsyncClient, literature_search_url: str
+    ) -> bool:
+        """Check if the tool is online."""
+        url = literature_search_url
+        if url.endswith("retrieval/"):
+            url = url[: -len("retrieval/")]
+        elif url.endswith("retrieval"):
+            url = url[: -len("retrieval")]
+        response = await httpx_client.get(
+            url,
+        )
+        return response.status_code == 200

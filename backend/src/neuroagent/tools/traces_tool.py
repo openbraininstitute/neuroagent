@@ -4,6 +4,7 @@ import logging
 from pathlib import Path
 from typing import Any, ClassVar
 
+from httpx import AsyncClient
 from pydantic import BaseModel, Field
 
 from neuroagent.tools.base_tool import BaseMetadata, BaseTool
@@ -54,6 +55,7 @@ class GetTracesTool(BaseTool):
     """Class defining the logic to obtain traces ids."""
 
     name: ClassVar[str] = "get-traces-tool"
+    name_frontend: ClassVar[str] = "Traces"
     description: ClassVar[
         str
     ] = """Searches a neuroscience based knowledge graph to retrieve traces names, IDs and descriptions.
@@ -68,6 +70,14 @@ class GetTracesTool(BaseTool):
     - The subject species name.
     - The subject age.
     The trace ID is in the form of an HTTP(S) link such as 'https://bbp.epfl.ch/neurosciencegraph/data/traces...'."""
+    description_frontend: ClassVar[
+        str
+    ] = """Search and access experimental neuron traces. This tool allows you to:
+    • Find experimental recordings from specific brain regions
+    • Search by cell types and properties
+    • Access detailed trace information
+    
+    Specify criteria to find relevant experimental recordings."""
     input_schema: GetTracesInput
     metadata: GetTracesMetadata
 
@@ -194,3 +204,13 @@ class GetTracesTool(BaseTool):
             for res in output["hits"]["hits"]
         ]
         return results
+
+    @classmethod
+    async def is_online(
+        cls, *, httpx_client: AsyncClient, knowledge_graph_url: str
+    ) -> bool:
+        """Check if the tool is online."""
+        response = await httpx_client.get(
+            f"{knowledge_graph_url.rstrip('/')}/version",
+        )
+        return response.status_code == 200

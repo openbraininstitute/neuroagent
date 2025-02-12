@@ -4,6 +4,7 @@ import logging
 from pathlib import Path
 from typing import Any, ClassVar, Literal
 
+from httpx import AsyncClient
 from pydantic import BaseModel, Field, model_validator
 
 from neuroagent.tools.base_tool import BaseMetadata, BaseTool
@@ -171,6 +172,7 @@ class KGMorphoFeatureTool(BaseTool):
     """Class defining the Knowledge Graph logic."""
 
     name: ClassVar[str] = "kg-morpho-feature-tool"
+    name_frontend: ClassVar[str] = "Morphology Features (Precomputed)"
     description: ClassVar[
         str
     ] = """Searches a neuroscience based knowledge graph to retrieve neuron morphology features based on a brain region of interest.
@@ -184,6 +186,14 @@ class KGMorphoFeatureTool(BaseTool):
     - The morphology name.
     - The list of features of the morphology.
     If a given feature has multiple statistics (e.g. mean, min, max, median...), please return only its mean unless specified differently by the user."""
+    description_frontend: ClassVar[
+        str
+    ] = """Search for neurons with specific morphological features. This tool helps you:
+    • Find neurons based on their structural properties
+    • Search by specific measurements or ranges
+    • Compare morphological features
+    
+    Specify the features and ranges you're interested in to find matching neurons."""
     input_schema: KGMorphoFeatureInput
     metadata: KGMorphoFeatureMetadata
 
@@ -352,3 +362,13 @@ class KGMorphoFeatureTool(BaseTool):
             )
 
         return formatted_output
+
+    @classmethod
+    async def is_online(
+        cls, *, httpx_client: AsyncClient, knowledge_graph_url: str
+    ) -> bool:
+        """Check if the tool is online."""
+        response = await httpx_client.get(
+            f"{knowledge_graph_url.rstrip('/')}/version",
+        )
+        return response.status_code == 200
