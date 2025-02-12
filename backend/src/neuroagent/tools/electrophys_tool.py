@@ -7,6 +7,7 @@ from typing import Any, ClassVar, Literal
 
 from bluepyefe.extract import extract_efeatures
 from efel.units import get_unit
+from httpx import AsyncClient
 from pydantic import BaseModel, Field
 
 from neuroagent.tools.base_tool import BaseMetadata, BaseTool
@@ -182,6 +183,7 @@ class ElectrophysFeatureTool(BaseTool):
     """Class defining the Electrophys Featyres Tool."""
 
     name: ClassVar[str] = "electrophys-features-tool"
+    name_frontend: ClassVar[str] = "Electrophysiology Features"
     description: ClassVar[
         str
     ] = """Given a trace ID, extract features from the trace for certain stimuli types and certain amplitudes.
@@ -191,6 +193,14 @@ class ElectrophysFeatureTool(BaseTool):
     - The amplitude is the total current injected in the cell when measuring the response.
     Specify those ONLY if the user specified them. Otherwise leave them as None.
     """
+    description_frontend: ClassVar[
+        str
+    ] = """Analyze electrophysiological properties of neurons. This tool allows you to:
+    • Extract features from experimental traces
+    • Analyze neuron responses to stimuli
+    • Compare electrical properties across different protocols
+    
+    Provide a trace ID to analyze its electrophysiological features."""
     input_schema: ElectrophysInput
     metadata: ElectrophysMetadata
 
@@ -330,3 +340,13 @@ class ElectrophysFeatureTool(BaseTool):
         return FeatureOutput(
             brain_region=metadata.brain_region, feature_dict=output_features
         ).model_dump()
+
+    @classmethod
+    async def is_online(
+        cls, *, httpx_client: AsyncClient, knowledge_graph_url: str
+    ) -> bool:
+        """Check if the tool is online."""
+        response = await httpx_client.get(
+            f"{knowledge_graph_url.rstrip('/')}/version",
+        )
+        return response.status_code == 200

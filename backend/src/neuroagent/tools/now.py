@@ -27,9 +27,18 @@ class NowTool(BaseTool):
     """Tool that returns the current UTC timestamp."""
 
     name: ClassVar[str] = "now-tool"
+    name_frontend: ClassVar[str] = "Now"
     description: ClassVar[str] = (
         "Returns the current UTC timestamp as an ISO-8601 formatted string"
     )
+    description_frontend: ClassVar[
+        str
+    ] = """Get the current time in UTC format. Use this tool to:
+    • Get precise timestamps
+    • Track when operations occur
+    • Record timing information
+    
+    Returns the current time in standardized UTC format."""
     input_schema: NowInput
     metadata: NowMetadata
 
@@ -42,3 +51,11 @@ class NowTool(BaseTool):
         """
         logger.info("Getting current UTC timestamp")
         return datetime.now(timezone.utc).isoformat()
+
+    @classmethod
+    async def is_online(cls) -> bool:
+        """Check if the tool is online.
+
+        Always returns True as this tool doesn't depend on external services.
+        """
+        return True

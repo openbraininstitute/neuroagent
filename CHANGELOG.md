@@ -47,6 +47,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - [frontend] - Add confirmation box on thread deletion.
 - [frontend] - Per message tool toggle.
 - [frontend] - Possibility to dynamically chose available tools.
+- Displaying tool metadata
 
 ### Fixed
 - [frontend] - Parallel execution of tools
