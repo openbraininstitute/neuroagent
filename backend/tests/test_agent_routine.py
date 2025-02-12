@@ -109,7 +109,11 @@ class TestAgentsRoutine:
                             "strict": False,
                             "parameters": {
                                 "properties": {
-                                    "location": {"title": "Location", "type": "string"}
+                                    "location": {
+                                        "title": "Location",
+                                        "type": "string",
+                                        "description": "The location to get the weather for",
+                                    }
                                 },
                                 "required": ["location"],
                                 "title": "FakeToolInput",
