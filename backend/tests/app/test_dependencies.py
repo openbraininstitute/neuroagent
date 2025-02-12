@@ -216,7 +216,7 @@ async def test_get_healthcheck_variables():
             bluenaas=Mock(url="http://bluenaas"),
         ),
         knowledge_graph=Mock(
-            url="http://kg", sparql_url="http://sparql", class_view_url="http://class"
+            base_url="http://kg",
         ),
     )
     httpx_client = Mock()
@@ -228,6 +228,4 @@ async def test_get_healthcheck_variables():
         "literature_search_url": "http://literature/",
         "knowledge_graph_url": "http://kg/",
         "bluenaas_url": "http://bluenaas/",
-        "kg_sparql_url": "http://sparql/",
-        "kg_class_view_url": "http://class/",
     }
