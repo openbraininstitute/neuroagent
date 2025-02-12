@@ -207,7 +207,7 @@ export function ChatMessageTool({
                 </div>
                 {tool?.state === "result" && (
                   <div className="flex flex-col mt-4">
-                    <h1>Result</h1>
+                    <h1>{validated === "rejected" ? "Feedback" : "Result"}</h1>
                     <pre className="text-sm p-2 mt-2 rounded-md overflow-auto bg-gray-100 dark:bg-slate-800">
                       {typeof tool?.result === "string"
                         ? (() => {
