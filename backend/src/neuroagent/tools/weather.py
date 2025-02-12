@@ -30,11 +30,20 @@ class WeatherTool(BaseTool):
     """Tool that returns random weather data for a given location."""
 
     name: ClassVar[str] = "weather-tool"
+    name_frontend: ClassVar[str] = "Weather"
     hil: ClassVar[bool] = True
     description: ClassVar[str] = (
         "Returns weather information for a specified location (temperature in Celsius, "
         "conditions like 'sunny', 'rainy', etc.)"
     )
+    description_frontend: ClassVar[
+        str
+    ] = """Get current weather information for any location. This tool provides:
+    • Temperature readings in Celsius
+    • Current weather conditions
+    • Location-specific weather data
+    
+    Simply specify a location to get its current weather information."""
     input_schema: WeatherInput
     metadata: WeatherMetadata
 
@@ -54,3 +63,11 @@ class WeatherTool(BaseTool):
         temperature = round(random.uniform(-5, 35), 1)  # nosec B311
 
         return {"temperature": temperature, "conditions": random.choice(conditions)}  # nosec B311
+
+    @classmethod
+    async def is_online(cls) -> bool:
+        """Check if the tool is online.
+
+        Always returns True as this is a mock tool that doesn't depend on external services.
+        """
+        return True

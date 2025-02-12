@@ -5,6 +5,7 @@ from typing import Any, ClassVar
 
 import neurom
 import numpy as np
+from httpx import AsyncClient
 from neurom import load_morphology
 from pydantic import BaseModel, Field
 
@@ -44,11 +45,20 @@ class MorphologyFeatureTool(BaseTool):
     """Class defining the morphology feature retrieval logic."""
 
     name: ClassVar[str] = "morpho-features-tool"
+    name_frontend: ClassVar[str] = "Morphology Features"
     description: ClassVar[
         str
     ] = """Given a morphology ID, fetch data about the features of the morphology. You need to know a morphology ID to use this tool and they can only come from the 'get-morpho-tool'. Therefore this tool should only be used if you already called the 'knowledge-graph-tool'.
     Here is an exhaustive list of features that can be retrieved with this tool:
     Soma radius, Soma surface area, Number of neurites, Number of sections, Number of sections per neurite, Section lengths, Segment lengths, Section radial distance, Section path distance, Local bifurcation angles, Remote bifurcation angles."""
+    description_frontend: ClassVar[
+        str
+    ] = """Analyze detailed features of neuron morphologies. This tool allows you to:
+    • Measure various morphological properties
+    • Calculate statistical metrics
+    • Analyze specific parts of neurons
+    
+    Provide a morphology ID to compute its detailed features."""
     input_schema: MorphologyFeatureInput
     metadata: MorphologyFeatureMetadata
 
@@ -147,3 +157,13 @@ class MorphologyFeatureTool(BaseTool):
             "min": np.min(array),
             "max": np.max(array),
         }
+
+    @classmethod
+    async def is_online(
+        cls, *, httpx_client: AsyncClient, knowledge_graph_url: str
+    ) -> bool:
+        """Check if the tool is online."""
+        response = await httpx_client.get(
+            f"{knowledge_graph_url.rstrip('/')}/version",
+        )
+        return response.status_code == 200

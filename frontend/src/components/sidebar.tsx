@@ -6,6 +6,7 @@ import {
   PanelRightClose,
   Search,
   SquarePen,
+  Wrench,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -51,6 +52,9 @@ export function Sidebar({ children }: { children: React.ReactNode }) {
           {showSidebar && (
             <div className="flex p-4 gap-4">
               <Search className="hover:scale-[1.1] transition" />
+              <Link href="/tools">
+                <Wrench className="hover:scale-[1.1] transition" />
+              </Link>
               <Link href="/">
                 <SquarePen className="hover:scale-[1.1] transition" />
               </Link>

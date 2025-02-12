@@ -4,6 +4,7 @@ import logging
 from pathlib import Path
 from typing import Any, ClassVar
 
+from httpx import AsyncClient
 from pydantic import BaseModel, Field
 
 from neuroagent.cell_types import get_celltypes_descendants
@@ -54,6 +55,7 @@ class GetMorphoTool(BaseTool):
     """Class defining the Get Morpho logic."""
 
     name: ClassVar[str] = "get-morpho-tool"
+    name_frontend: ClassVar[str] = "Morphologies"
     description: ClassVar[
         str
     ] = """Searches a neuroscience based knowledge graph to retrieve neuron morphology names, IDs and descriptions.
@@ -68,6 +70,14 @@ class GetMorphoTool(BaseTool):
     - The morphology name.
     - the morphology description.
     The morphology ID is in the form of an HTTP(S) link such as 'https://bbp.epfl.ch/neurosciencegraph/data/neuronmorphologies...'."""
+    description_frontend: ClassVar[
+        str
+    ] = """Search and retrieve neuron morphologies. Use this tool to:
+    • Find neurons in specific brain regions
+    • Search by morphology type
+    • Access detailed morphological data
+    
+    Specify brain region and optional criteria to find relevant morphologies."""
     input_schema: GetMorphoInput
     metadata: GetMorphoMetadata
 
@@ -216,3 +226,13 @@ class GetMorphoTool(BaseTool):
             for res in output["hits"]["hits"]
         ]
         return formatted_output
+
+    @classmethod
+    async def is_online(
+        cls, *, httpx_client: AsyncClient, knowledge_graph_url: str
+    ) -> bool:
+        """Check if the tool is online."""
+        response = await httpx_client.get(
+            f"{knowledge_graph_url.rstrip('/')}/version",
+        )
+        return response.status_code == 200
