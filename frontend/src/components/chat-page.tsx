@@ -281,7 +281,9 @@ export function ChatPage({
               }
             }}
             autoComplete="off"
-            disabled={isLoading}
+            disabled={
+              isLoading || (messages.at(-1)?.toolInvocations ?? []).length > 0
+            }
           />
           <div className="flex gap-2 mr-3">
             <ToolSelectionDropdown
