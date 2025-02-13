@@ -14,14 +14,15 @@ export function useExecuteTool() {
       toolCallId: string;
       validation: "accepted" | "rejected";
       args?: string;
+      feedback?: string;
     }
   >({
-    mutationFn: ({ threadId, toolCallId, validation, args }) => {
+    mutationFn: ({ threadId, toolCallId, validation, args, feedback }) => {
       const body: BExecuteToolCallRequest = {
         validation,
         args,
+        feedback,
       };
-
       return fetcher({
         method: "PATCH",
         path: "/tools/{threadId}/execute/{toolCallId}",
