@@ -92,23 +92,19 @@ export function ChatPage({
   const containerRef = useRef<HTMLDivElement>(null);
   const [isAutoScrollEnabled, setIsAutoScrollEnabled] = useState(true);
 
-  // Detect if user scrolls up
-  useEffect(() => {
-    const container = containerRef.current;
-    if (!container) return;
-
-    const handleScroll = () => {
+  const handleWheel = (event: React.WheelEvent) => {
+    if (event.deltaY < 0) {
+      setIsAutoScrollEnabled(false);
+    } else {
+      const container = containerRef.current;
+      if (!container) return;
       const isAtBottom =
         container.scrollHeight - container.scrollTop <=
         container.clientHeight + 200;
       setIsAutoScrollEnabled(isAtBottom);
-    };
+    }
+  };
 
-    container.addEventListener("scroll", handleScroll);
-    return () => container.removeEventListener("scroll", handleScroll);
-  }, []);
-
-  // Scroll when new messages arrive, but only if auto-scrolling is enabled
   useEffect(() => {
     if (isAutoScrollEnabled) {
       messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -202,7 +198,11 @@ export function ChatPage({
   return (
     <div className="flex flex-col h-full">
       {/* Mesages list */}
-      <div ref={containerRef} className="flex-1 flex flex-col overflow-y-auto">
+      <div
+        ref={containerRef}
+        onWheel={handleWheel}
+        className="flex-1 flex flex-col overflow-y-auto"
+      >
         {messages.map((message) =>
           message.role === "assistant" ? (
             message.toolInvocations ? (
@@ -259,7 +259,10 @@ export function ChatPage({
       {/* Input */}
       <form
         className="flex flex-col justify-center items-center gap-4 mb-4"
-        onSubmit={handleSubmit}
+        onSubmit={(e) => {
+          setIsAutoScrollEnabled(true);
+          handleSubmit(e);
+        }}
       >
         <div className="flex items-center min-w-[70%] max-w-[100%] border-2 border-gray-500 rounded-full overflow-hidden">
           <input
@@ -272,6 +275,7 @@ export function ChatPage({
             onKeyDown={(e) => {
               if (e.key === "Enter" && !e.shiftKey) {
                 e.preventDefault();
+                setIsAutoScrollEnabled(true);
                 handleSubmit(e);
               }
             }}
