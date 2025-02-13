@@ -150,7 +150,7 @@ class TestAgentsRoutine:
         # Raw result is a tool output (Typically dict/list dict)
         raw_result = [{"result_1": "Great result", "result_2": "Bad result"}]
         result = routine.handle_function_result(raw_result)
-        assert result == Result(value=str(raw_result))
+        assert result == Result(value=json.dumps(raw_result))
 
     @pytest.mark.asyncio
     async def test_execute_tool_calls_simple(

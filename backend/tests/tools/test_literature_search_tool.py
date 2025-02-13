@@ -1,5 +1,7 @@
 """Tests Literature Search tool."""
 
+import json
+
 import httpx
 import pytest
 
@@ -45,6 +47,7 @@ class TestLiteratureSearchTool:
             ),
         )
         response = await tool.arun()
-        assert isinstance(response, list)
+        assert isinstance(response, str)
+        response = json.loads(response)
         assert len(response) == reranker_k
         assert isinstance(response[0], dict)

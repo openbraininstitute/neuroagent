@@ -1,5 +1,7 @@
 """Test the revole_brain_region_tool."""
 
+import json
+
 import pytest
 from httpx import AsyncClient
 
@@ -68,6 +70,8 @@ async def test_arun(httpx_mock, get_resolve_query_output):
     )
 
     response = await tool.arun()
+    assert isinstance(response, str)
+    response = json.loads(response)
     assert response == [
         BRResolveOutput(
             brain_region_name="Field CA1",
