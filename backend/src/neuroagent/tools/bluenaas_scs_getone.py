@@ -1,6 +1,5 @@
 """BlueNaaS single cell stimulation, simulation and synapse placement tool."""
 
-import json
 import logging
 from typing import Any, ClassVar
 
@@ -68,10 +67,6 @@ class SCSGetOneTool(BaseTool):
             for el in result["results"][key]:
                 el.pop("x", None)
                 el.pop("y", None)
-
-        # sanity check
-        if len(json.dumps(result)) > 5000:
-            raise ValueError("return value is too long")
 
         return SimulationDetailsResponse(**result).model_dump()
 
