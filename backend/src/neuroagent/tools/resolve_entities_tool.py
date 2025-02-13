@@ -97,7 +97,7 @@ class ResolveEntitiesTool(BaseTool):
 
     async def arun(
         self,
-    ) -> list[dict[str, Any]]:
+    ) -> str:
         """Given a brain region in natural language, resolve its ID."""
         logger.info(
             f"Entering Brain Region resolver tool. Inputs: {self.input_schema.brain_region=}, "

@@ -1,7 +1,7 @@
 """BlueNaaS single cell stimulation, simulation and synapse placement tool."""
 
 import logging
-from typing import Any, ClassVar, Literal
+from typing import ClassVar, Literal
 
 from httpx import AsyncClient
 from pydantic import BaseModel, Field
@@ -64,7 +64,7 @@ class MEModelGetAllTool(BaseTool):
         )
         return response.status_code == 200
 
-    async def arun(self) -> dict[str, Any]:
+    async def arun(self) -> str:
         """Run the MEModelGetAll tool."""
         logger.info(
             f"Running MEModelGetAll tool with inputs {self.input_schema.model_dump()}"

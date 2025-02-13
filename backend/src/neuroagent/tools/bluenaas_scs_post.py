@@ -105,7 +105,7 @@ class SCSPostTool(BaseTool):
     input_schema: InputSCSPost
     hil: ClassVar[bool] = True
 
-    async def arun(self) -> dict[str, Any]:
+    async def arun(self) -> str:
         """Run the SCSPost tool."""
         logger.info(
             f"Running SCSPost tool with inputs {self.input_schema.model_dump()}"

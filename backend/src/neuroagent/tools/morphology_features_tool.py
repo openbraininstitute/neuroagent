@@ -63,7 +63,7 @@ class MorphologyFeatureTool(BaseTool):
     input_schema: MorphologyFeatureInput
     metadata: MorphologyFeatureMetadata
 
-    async def arun(self) -> list[dict[str, Any]]:
+    async def arun(self) -> str:
         """Give features about morphology."""
         logger.info(
             f"Entering morphology feature tool. Inputs: {self.input_schema.morphology_id=}"

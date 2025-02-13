@@ -82,7 +82,7 @@ class GetTracesTool(BaseTool):
     input_schema: GetTracesInput
     metadata: GetTracesMetadata
 
-    async def arun(self) -> list[dict[str, Any]]:
+    async def arun(self) -> str:
         """From a brain region ID, extract traces."""
         logger.info(
             f"Entering get trace tool. Inputs: {self.input_schema.brain_region_id=}, {self.input_schema.etype_id=}"
@@ -164,7 +164,7 @@ class GetTracesTool(BaseTool):
         return entire_query
 
     @staticmethod
-    def _process_output(output: Any) -> list[dict[str, Any]]:
+    def _process_output(output: Any) -> str:
         """Process output to fit the TracesOutput pydantic class defined above.
 
         Parameters

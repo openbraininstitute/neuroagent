@@ -204,7 +204,7 @@ class ElectrophysFeatureTool(BaseTool):
     input_schema: ElectrophysInput
     metadata: ElectrophysMetadata
 
-    async def arun(self) -> dict[str, Any]:
+    async def arun(self) -> str:
         """Give features about trace."""
         logger.info(
             f"Entering electrophys tool. Inputs: {self.input_schema.trace_id=}, {self.input_schema.calculated_feature=},"

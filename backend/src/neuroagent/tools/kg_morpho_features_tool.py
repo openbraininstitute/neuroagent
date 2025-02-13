@@ -198,7 +198,7 @@ class KGMorphoFeatureTool(BaseTool):
     input_schema: KGMorphoFeatureInput
     metadata: KGMorphoFeatureMetadata
 
-    async def arun(self) -> list[dict[str, Any]]:
+    async def arun(self) -> str:
         """Run the tool async.
 
         Returns
@@ -331,7 +331,7 @@ class KGMorphoFeatureTool(BaseTool):
         return entire_query
 
     @staticmethod
-    def _process_output(output: Any) -> list[dict[str, Any]]:
+    def _process_output(output: Any) -> str:
         """Process output.
 
         Parameters

@@ -1,7 +1,7 @@
 """BlueNaaS single cell stimulation, simulation and synapse placement tool."""
 
 import logging
-from typing import Any, ClassVar
+from typing import ClassVar
 from urllib.parse import quote_plus
 
 from httpx import AsyncClient
@@ -48,7 +48,7 @@ class MEModelGetOneTool(BaseTool):
     metadata: MEModelGetOneMetadata
     input_schema: InputMEModelGetOne
 
-    async def arun(self) -> dict[str, Any]:
+    async def arun(self) -> str:
         """Run the MEModelGetOne tool."""
         logger.info(
             f"Running MEModelGetOne tool with inputs {self.input_schema.model_dump()}"

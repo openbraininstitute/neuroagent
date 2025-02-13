@@ -48,7 +48,7 @@ class WeatherTool(BaseTool):
     input_schema: WeatherInput
     metadata: WeatherMetadata
 
-    async def arun(self) -> dict[str, str | float]:
+    async def arun(self) -> str:
         """Get random weather data for the specified location.
 
         Returns

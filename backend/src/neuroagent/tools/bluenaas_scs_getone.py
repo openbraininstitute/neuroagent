@@ -1,7 +1,7 @@
 """BlueNaaS single cell stimulation, simulation and synapse placement tool."""
 
 import logging
-from typing import Any, ClassVar
+from typing import ClassVar
 
 from httpx import AsyncClient
 from pydantic import BaseModel, Field
@@ -49,7 +49,7 @@ class SCSGetOneTool(BaseTool):
     metadata: SCSGetOneMetadata
     input_schema: InputSCSGetOne
 
-    async def arun(self) -> dict[str, Any]:
+    async def arun(self) -> str:
         """Run the SCSGetOne tool."""
         logger.info(
             f"Running SCSGetOne tool with inputs {self.input_schema.model_dump()}"
