@@ -89,9 +89,31 @@ export function ChatPage({
 
   // Scroll to the end of the page when new messages are added
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [isAutoScrollEnabled, setIsAutoScrollEnabled] = useState(true);
+
+  // Detect if user scrolls up
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+    const container = containerRef.current;
+    if (!container) return;
+
+    const handleScroll = () => {
+      const isAtBottom =
+        container.scrollHeight - container.scrollTop <=
+        container.clientHeight + 200;
+      setIsAutoScrollEnabled(isAtBottom);
+    };
+
+    container.addEventListener("scroll", handleScroll);
+    return () => container.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  // Scroll when new messages arrive, but only if auto-scrolling is enabled
+  useEffect(() => {
+    if (isAutoScrollEnabled) {
+      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [messages, isAutoScrollEnabled]);
 
   // Handle auto-submit if there's a single human message or all tools have been validated
   useEffect(() => {
@@ -180,7 +202,7 @@ export function ChatPage({
   return (
     <div className="flex flex-col h-full">
       {/* Mesages list */}
-      <div className="flex-1 flex flex-col overflow-y-auto">
+      <div ref={containerRef} className="flex-1 flex flex-col overflow-y-auto">
         {messages.map((message) =>
           message.role === "assistant" ? (
             message.toolInvocations ? (
