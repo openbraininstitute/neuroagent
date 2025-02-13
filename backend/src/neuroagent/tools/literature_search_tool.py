@@ -1,5 +1,6 @@
 """Literature Search tool."""
 
+import json
 import logging
 from typing import Any, ClassVar
 
@@ -71,7 +72,7 @@ class LiteratureSearchTool(BaseTool):
     input_schema: LiteratureSearchInput
     metadata: LiteratureSearchMetadata
 
-    async def arun(self) -> list[dict[str, Any]]:
+    async def arun(self) -> str:
         """Async search the scientific literature and returns citations.
 
         Returns
@@ -101,7 +102,7 @@ class LiteratureSearchTool(BaseTool):
         return self._process_output(response.json())
 
     @staticmethod
-    def _process_output(output: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    def _process_output(output: list[dict[str, Any]]) -> str:
         """Process output."""
         paragraphs_metadata = [
             ParagraphMetadata(
@@ -114,7 +115,7 @@ class LiteratureSearchTool(BaseTool):
             ).model_dump()
             for paragraph in output
         ]
-        return paragraphs_metadata
+        return json.dumps(paragraphs_metadata)
 
     @classmethod
     async def is_online(

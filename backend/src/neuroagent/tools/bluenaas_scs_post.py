@@ -99,13 +99,13 @@ class SCSPostTool(BaseTool):
     • Set up and run neuron simulations
     • Configure simulation parameters
     • Test different stimulation protocols
-    
+
     Specify the model and simulation parameters to start a new simulation run."""
     metadata: SCSPostMetadata
     input_schema: InputSCSPost
     hil: ClassVar[bool] = True
 
-    async def arun(self) -> dict[str, Any]:
+    async def arun(self) -> str:
         """Run the SCSPost tool."""
         logger.info(
             f"Running SCSPost tool with inputs {self.input_schema.model_dump()}"
@@ -137,7 +137,7 @@ class SCSPostTool(BaseTool):
             status=json_response["status"],
             name=json_response["name"],
             error=json_response["error"],
-        ).model_dump()
+        ).model_dump_json()
 
     @staticmethod
     def create_json_api(

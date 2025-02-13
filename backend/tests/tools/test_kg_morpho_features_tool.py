@@ -49,7 +49,8 @@ class TestKGMorphoFeaturesTool:
             ),
         )
         response = await tool.arun()
-        assert isinstance(response, list)
+        assert isinstance(response, str)
+        response = json.loads(response)
         assert len(response) == 2
         assert isinstance(response[0], dict)
 

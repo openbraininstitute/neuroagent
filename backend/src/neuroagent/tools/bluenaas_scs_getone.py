@@ -1,7 +1,7 @@
 """BlueNaaS single cell stimulation, simulation and synapse placement tool."""
 
 import logging
-from typing import Any, ClassVar
+from typing import ClassVar
 
 from httpx import AsyncClient
 from pydantic import BaseModel, Field
@@ -50,7 +50,7 @@ class SCSGetOneTool(BaseTool):
     metadata: SCSGetOneMetadata
     input_schema: InputSCSGetOne
 
-    async def arun(self) -> dict[str, Any]:
+    async def arun(self) -> str:
         """Run the SCSGetOne tool."""
         logger.info(
             f"Running SCSGetOne tool with inputs {self.input_schema.model_dump()}"
@@ -60,7 +60,6 @@ class SCSGetOneTool(BaseTool):
             url=f"{self.metadata.bluenaas_url}/simulation/single-neuron/{self.metadata.vlab_id}/{self.metadata.project_id}/{self.input_schema.simulation_id}",
             headers={"Authorization": f"Bearer {self.metadata.token}"},
         )
-
         # Truncate the results.
         result = response.json()
         for key in result["results"].keys():
@@ -68,7 +67,7 @@ class SCSGetOneTool(BaseTool):
                 el.pop("x", None)
                 el.pop("y", None)
 
-        return SimulationDetailsResponse(**result).model_dump()
+        return SimulationDetailsResponse(**result).model_dump_json()
 
     @classmethod
     async def is_online(cls, *, httpx_client: AsyncClient, bluenaas_url: str) -> bool:

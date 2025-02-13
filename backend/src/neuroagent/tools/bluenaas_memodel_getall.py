@@ -1,7 +1,7 @@
 """BlueNaaS single cell stimulation, simulation and synapse placement tool."""
 
 import logging
-from typing import Any, ClassVar, Literal
+from typing import ClassVar, Literal
 
 from httpx import AsyncClient
 from pydantic import BaseModel, Field
@@ -51,7 +51,7 @@ class MEModelGetAllTool(BaseTool):
     • List all your neuron models
     • Find models by type (single-neuron or synaptome)
     • Navigate through multiple models using pagination
-    
+
     The tool returns a list of models with their metadata and properties."""
     metadata: MEModelGetAllMetadata
     input_schema: InputMEModelGetAll
@@ -64,7 +64,7 @@ class MEModelGetAllTool(BaseTool):
         )
         return response.status_code == 200
 
-    async def arun(self) -> dict[str, Any]:
+    async def arun(self) -> str:
         """Run the MEModelGetAll tool."""
         logger.info(
             f"Running MEModelGetAll tool with inputs {self.input_schema.model_dump()}"
@@ -81,4 +81,4 @@ class MEModelGetAllTool(BaseTool):
         )
         return PaginatedResponseUnionMEModelResponseSynaptomeModelResponse(
             **response.json()
-        ).model_dump()
+        ).model_dump_json()

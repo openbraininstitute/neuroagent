@@ -52,6 +52,8 @@ class TestMorphologyFeatureTool:
         )
 
         response = await tool.arun()
+        assert isinstance(response, str)
+        response = json.loads(response)
         assert isinstance(response[0], dict)
         assert len(response[0]["feature_dict"]) == 23
 
