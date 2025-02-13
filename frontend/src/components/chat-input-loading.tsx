@@ -1,6 +1,5 @@
 import React from "react";
 import { ChatMessageHuman } from "./chat-message-human";
-import { Button } from "./ui/button";
 
 interface ChatComponentProps {
   newMessage: string;
@@ -9,13 +8,7 @@ interface ChatComponentProps {
 export default function ChatInputLoading({ newMessage }: ChatComponentProps) {
   return (
     <div className="flex flex-col h-full">
-      <div className="relative flex justify-center items-center p-6 w-full">
-        <h1 className="text-3xl absolute"></h1>
-        <Button className="hover:scale-105 active:scale-[1.10] ml-auto">
-          Hide Tools
-        </Button>
-      </div>
-      <div className="flex-1 flex flex-col overflow-y-auto my-4">
+      <div className="flex-1 flex flex-col overflow-y-auto">
         <ChatMessageHuman
           key="temp"
           id="temp"
