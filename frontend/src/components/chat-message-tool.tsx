@@ -15,6 +15,7 @@ type ChatMessageToolProps = {
   content?: string;
   threadId: string;
   tool: ToolInvocation;
+  availableTools: Array<{ slug: string; label: string }>;
   validated: "pending" | "accepted" | "rejected" | "not_required";
   setMessage: (updater: (msg: MessageStrict) => MessageStrict) => void;
 };
@@ -32,6 +33,7 @@ function ScrollToBottom() {
 export function ChatMessageTool({
   threadId,
   tool,
+  availableTools,
   setMessage,
   validated,
 }: ChatMessageToolProps) {
@@ -151,6 +153,7 @@ export function ChatMessageTool({
         threadId={threadId}
         toolId={tool.toolCallId}
         toolName={tool.toolName}
+        availableTools={availableTools}
         args={tool.args}
         isOpen={dialogOpen}
         setIsOpen={setDialogOpen}
@@ -161,8 +164,12 @@ export function ChatMessageTool({
         <Collapsible open={toolOpen} onOpenChange={setToolOpen}>
           <div className="flex items-center gap-2">
             <CollapsibleTrigger className="hover:scale-105 active:scale-[1.10]">
-              <span className="text-sm p-3 truncate border-2 bg-blue-500 rounded-xl">
-                {tool?.toolName}
+              <span className="text-sm p-4 truncate border-2 bg-blue-500 rounded-xl">
+                {
+                  availableTools.filter(
+                    (toolObj) => toolObj.slug === tool.toolName,
+                  )[0].label
+                }
               </span>
             </CollapsibleTrigger>
             {tool?.state === "call" && validated === "pending" ? (
@@ -188,7 +195,11 @@ export function ChatMessageTool({
               <CardTitle>
                 <div className="flex justify-between items-center">
                   <span className="text-lg p-2 text-left truncate">
-                    {tool?.toolName}
+                    {
+                      availableTools.filter(
+                        (toolObj) => toolObj.slug === tool.toolName,
+                      )[0].label
+                    }
                   </span>
                   <a
                     href={`/tools/${tool?.toolName}`}

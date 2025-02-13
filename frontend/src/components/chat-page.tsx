@@ -17,7 +17,7 @@ import { Send } from "lucide-react";
 type ChatPageProps = {
   threadId: string;
   initialMessages: MessageStrict[];
-  availableTools: string[];
+  availableTools: Array<{ slug: string; label: string }>;
 };
 
 export function ChatPage({
@@ -46,7 +46,7 @@ export function ChatPage({
         const initialCheckedTools = availableTools.reduce<
           Record<string, boolean>
         >((acc, tool) => {
-          acc[tool] = true;
+          acc[tool.slug] = true;
           return acc;
         }, {});
         initialCheckedTools["allchecked"] = true;
@@ -89,9 +89,27 @@ export function ChatPage({
 
   // Scroll to the end of the page when new messages are added
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [isAutoScrollEnabled, setIsAutoScrollEnabled] = useState(true);
+
+  const handleWheel = (event: React.WheelEvent) => {
+    if (event.deltaY < 0) {
+      setIsAutoScrollEnabled(false);
+    } else {
+      const container = containerRef.current;
+      if (!container) return;
+      const isAtBottom =
+        container.scrollHeight - container.scrollTop <=
+        container.clientHeight + 200;
+      setIsAutoScrollEnabled(isAtBottom);
+    }
+  };
+
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+    if (isAutoScrollEnabled) {
+      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [messages, isAutoScrollEnabled]);
 
   // Handle auto-submit if there's a single human message or all tools have been validated
   useEffect(() => {
@@ -180,7 +198,11 @@ export function ChatPage({
   return (
     <div className="flex flex-col h-full">
       {/* Mesages list */}
-      <div className="flex-1 flex flex-col overflow-y-auto">
+      <div
+        ref={containerRef}
+        onWheel={handleWheel}
+        className="flex-1 flex flex-col overflow-y-auto"
+      >
         {messages.map((message) =>
           message.role === "assistant" ? (
             message.toolInvocations ? (
@@ -199,6 +221,7 @@ export function ChatPage({
                         key={`${message.id}-${tool.toolCallId}`}
                         threadId={threadId}
                         tool={tool}
+                        availableTools={availableTools}
                         validated={validated}
                         setMessage={(updater) => {
                           setMessages((messages) =>
@@ -237,7 +260,10 @@ export function ChatPage({
       {/* Input */}
       <form
         className="flex flex-col justify-center items-center gap-4 mb-4"
-        onSubmit={handleSubmit}
+        onSubmit={(e) => {
+          setIsAutoScrollEnabled(true);
+          handleSubmit(e);
+        }}
       >
         <div className="flex items-center min-w-[70%] max-w-[100%] border-2 border-gray-500 rounded-full overflow-hidden">
           <input
@@ -250,6 +276,7 @@ export function ChatPage({
             onKeyDown={(e) => {
               if (e.key === "Enter" && !e.shiftKey) {
                 e.preventDefault();
+                setIsAutoScrollEnabled(true);
                 handleSubmit(e);
               }
             }}

@@ -6,7 +6,6 @@ import {
   PanelRightClose,
   Search,
   SquarePen,
-  Wrench,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -27,15 +26,13 @@ export function Sidebar({ children }: { children: React.ReactNode }) {
     <>
       <div
         className={`
-        transition-all duration-300 ease-in-out shadow-md
+        transition-all duration-300 ease-in-out shadow-md min-w-10
         ${
           showSidebar ? "w-[16rem] md:w-[18rem] lg:w-[20rem]" : "w-[3.5rem]"
         } border-r-2 flex flex-col
       `}
       >
-        <div
-          className={`flex justify-between ${!showSidebar && "justify-center"}`}
-        >
+        <div className="flex justify-between">
           <div className="p-4">
             {showSidebar ? (
               <PanelRightOpen
@@ -52,9 +49,6 @@ export function Sidebar({ children }: { children: React.ReactNode }) {
           {showSidebar && (
             <div className="flex p-4 gap-4">
               <Search className="hover:scale-[1.1] transition" />
-              <Link href="/tools">
-                <Wrench className="hover:scale-[1.1] transition" />
-              </Link>
               <Link href="/">
                 <SquarePen className="hover:scale-[1.1] transition" />
               </Link>

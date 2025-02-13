@@ -48,6 +48,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Feedback for HIL tool call refusal.
 - [frontend] - Per message tool toggle.
 - [frontend] - Possibility to dynamically chose available tools.
+- [frontend] - Search bar in tool list.
 - Displaying tool metadata
 
 ### Fixed
@@ -61,6 +62,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - [frontend] - dark mode flickering.
 - [frontend] - Concatenate base url and endpoint correctly.
 - Display the tool results as valid JSONs.
+- Do not return entire coordinates in `scs-get-one` tool.
+- [frontend] - Better Vlab and Project selection.
+- [frontend] - Fix long message overflowing.
+- [frontent] - Scrolling while streaming.
 
 ## [0.3.3] - 30.10.2024
 

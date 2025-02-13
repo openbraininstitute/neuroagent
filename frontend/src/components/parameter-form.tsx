@@ -47,7 +47,10 @@ export function ParameterForm({
     Cookies.set("virtualLabID", values.virtualLabID, { expires: 30 });
 
     // Refresh the client-side router
-    router.refresh();
+    if (values.projectID && values.virtualLabID) router.push("/");
+    else {
+      router.refresh();
+    }
   }
 
   return (

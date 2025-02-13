@@ -10,7 +10,7 @@ import ChatInputLoading from "@/components/chat-input-loading";
 import { useRouter } from "next/navigation";
 
 type ChatInputProps = {
-  availableTools: string[];
+  availableTools: Array<{ slug: string; label: string }>;
 };
 
 export function ChatInput({ availableTools }: ChatInputProps) {
@@ -47,7 +47,7 @@ export function ChatInput({ availableTools }: ChatInputProps) {
   useEffect(() => {
     const initialCheckedTools = availableTools.reduce<Record<string, boolean>>(
       (acc, tool) => {
-        acc[tool] = true;
+        acc[tool.slug] = true;
         return acc;
       },
       {},
