@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   Dialog,
   DialogContent,
@@ -10,7 +10,8 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { MessageStrict } from "@/lib/types";
+import type { MessageStrict } from "@/lib/types";
+import { HilRefusalFeedbackDialog } from "@/components/hil-refusal-feedback-dialog";
 
 type HumanValidationDialogProps = {
   threadId: string;
@@ -25,6 +26,7 @@ type HumanValidationDialogProps = {
     toolCallId: string;
     validation: "accepted" | "rejected";
     args?: string;
+    feedback?: string;
   }) => void;
 };
 
@@ -40,6 +42,14 @@ export function HumanValidationDialog({
 }: HumanValidationDialogProps) {
   const [editedArgs, setEditedArgs] = useState(JSON.stringify(args, null, 2));
   const [isEdited, setIsEdited] = useState(false);
+  const [isAccepted, setIsAccepted] = useState<"accepted" | "rejected">(
+    "rejected",
+  );
+  const [showReviewDialog, setShowReviewDialog] = useState(true);
+  const [showFeedbackDialog, setShowFeedbackDialog] = useState(false);
+  const [dialogTransition, setDialogTransition] = useState(false);
+  const [feedback, setFeedback] = useState<string>("");
+  const formRef = useRef<HTMLFormElement>(null);
 
   useEffect(() => {
     setEditedArgs(JSON.stringify(args, null, 2));
@@ -51,16 +61,31 @@ export function HumanValidationDialog({
   };
 
   const handleOpenChange = (open: boolean) => {
-    setIsOpen(open);
     if (!open) {
-      setEditedArgs(JSON.stringify(args, null, 2));
-      setIsEdited(false);
+      // Reset the state when the dialog is closed
+      setTimeout(() => {
+        setEditedArgs(JSON.stringify(args, null, 2));
+        setIsEdited(false);
+        setShowReviewDialog(true);
+        setShowFeedbackDialog(false);
+        setFeedback("");
+        setDialogTransition(false);
+      }, 300);
     }
+    setIsOpen(open);
+  };
+
+  const handleReject = () => {
+    setDialogTransition(true);
+    setTimeout(() => {
+      setShowReviewDialog(false);
+      setShowFeedbackDialog(true);
+      setDialogTransition(false);
+    }, 300);
   };
 
   const handleAction = (formData: FormData) => {
     const validation = formData.get("validation") as "accepted" | "rejected";
-
     // Process the decision first
     setMessage((msg: MessageStrict) => {
       const updatedMsg = {
@@ -91,57 +116,83 @@ export function HumanValidationDialog({
       toolCallId: toolId,
       validation,
       args: isEdited ? editedArgs : JSON.stringify(args, null, 2),
+      feedback: feedback === "" ? undefined : feedback,
     });
+
+    setIsOpen(false);
   };
 
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Human Validation Required</DialogTitle>
-          <DialogDescription>
-            Please review the following tool execution
-          </DialogDescription>
-        </DialogHeader>
-        <div className="mt-4">
-          <div className="font-semibold">{toolName}</div>
-          <div className="mt-4">
-            <h3 className="text-sm font-medium">Arguments:</h3>
-            <textarea
-              className="mt-2 w-full h-32 font-mono text-sm rounded-md bg-slate-100 p-4 dark:bg-slate-800"
-              value={editedArgs}
-              onChange={(e) => handleArgsChange(e.target.value)}
-            />
+        <form action={handleAction} ref={formRef}>
+          <input type="hidden" name="threadId" value={threadId} />
+          <input type="hidden" name="toolCallId" value={toolId} />
+          <input type="hidden" name="validation" value={isAccepted} />
+          <input
+            type="hidden"
+            name="args"
+            value={isEdited ? editedArgs : JSON.stringify(args, null, 2)}
+          />
+          <input type="hidden" name="feedback" value={feedback} />
+
+          <div className="space-y-4">
+            {showReviewDialog && (
+              <div
+                className={`transition-opacity duration-300 ${dialogTransition ? "opacity-0" : "opacity-100"}`}
+              >
+                <DialogHeader>
+                  <DialogTitle>Human Validation Required</DialogTitle>
+                  <DialogDescription>
+                    Please review the following tool execution
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="mt-4">
+                  <div className="font-semibold">{toolName}</div>
+                  <div className="mt-4">
+                    <h3 className="text-sm font-medium">Arguments:</h3>
+                    <textarea
+                      className="mt-2 w-full h-32 font-mono text-sm rounded-md bg-slate-100 p-4 dark:bg-slate-800"
+                      value={editedArgs}
+                      onChange={(e) => handleArgsChange(e.target.value)}
+                    />
+                  </div>
+                </div>
+                <DialogFooter className="mt-4">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={handleReject}
+                  >
+                    Reject
+                  </Button>
+                  <Button
+                    type="submit"
+                    onClick={() => setIsAccepted("accepted")}
+                  >
+                    Accept
+                  </Button>
+                </DialogFooter>
+              </div>
+            )}
+            {showFeedbackDialog && (
+              <HilRefusalFeedbackDialog
+                setIsAccepted={setIsAccepted}
+                feedback={feedback}
+                setFeedback={setFeedback}
+                onCancel={() => {
+                  setShowReviewDialog(true);
+                  setShowFeedbackDialog(false);
+                }}
+                onSubmit={() => {
+                  setIsAccepted("rejected");
+                  formRef.current?.requestSubmit();
+                }}
+                isTransitioning={dialogTransition}
+              />
+            )}
           </div>
-        </div>
-        <DialogFooter className="mt-4">
-          <form action={handleAction} className="flex gap-2">
-            <input type="hidden" name="threadId" value={threadId} />
-            <input type="hidden" name="toolCallId" value={toolId} />
-            <input
-              type="hidden"
-              name="args"
-              value={isEdited ? editedArgs : JSON.stringify(args, null, 2)}
-            />
-            <Button
-              type="submit"
-              name="validation"
-              value="rejected"
-              variant="outline"
-              disabled={!isOpen}
-            >
-              Reject
-            </Button>
-            <Button
-              type="submit"
-              name="validation"
-              value="accepted"
-              disabled={!isOpen}
-            >
-              Accept
-            </Button>
-          </form>
-        </DialogFooter>
+        </form>
       </DialogContent>
     </Dialog>
   );
