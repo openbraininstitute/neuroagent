@@ -1,16 +1,26 @@
 "use client";
-import {
-  DropdownMenu,
-  DropdownMenuTrigger,
-  DropdownMenuContent,
-  DropdownMenuItem,
-} from "@/components/ui/dropdown-menu";
+
 import { Checkbox } from "@/components/ui/checkbox";
-import { Wrench } from "lucide-react";
+import { Wrench, Info } from "lucide-react";
 import { useState } from "react";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+  CommandSeparator,
+} from "@/components/ui/command";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import Link from "next/link";
 
 type ToolSelectionDropdownProps = {
-  availableTools: string[];
+  availableTools: Array<{ slug: string; label: string }>;
   checkedTools: { [tool: string]: boolean };
   setCheckedTools: (checkedToolsObject: { [tool: string]: boolean }) => void;
 };
@@ -26,9 +36,8 @@ export function ToolSelectionDropdown({
     const newState = (prevState: { [tool: string]: boolean }) => {
       const newState = { ...prevState, [tool]: !prevState[tool] };
       const allToolsTrue = availableTools.every(
-        (tool) => newState[tool] === true,
+        (tool) => newState[tool.slug] === true,
       );
-      console.log(allToolsTrue);
       if (!allToolsTrue) {
         newState.allchecked = false;
       }
@@ -39,80 +48,76 @@ export function ToolSelectionDropdown({
 
   const handleCheckAll = (checked: boolean) => {
     if (checked) {
-      // When checked is true:
-      // Set every tool to true and mark allchecked as true.
       const newCheckedTools: { [tool: string]: boolean } = {};
       availableTools.forEach((tool) => {
-        newCheckedTools[tool] = true;
+        newCheckedTools[tool.slug] = true;
       });
       newCheckedTools.allchecked = true;
       setCheckedTools(newCheckedTools);
     } else {
-      // When checked is false:
-      // First, check if all tools (from availableTools) are currently true.
       const allToolsTrue = availableTools.every(
-        (tool) => checkedTools[tool] === true,
+        (tool) => checkedTools[tool.slug] === true,
       );
 
       if (allToolsTrue) {
-        // If all tools are checked, then uncheck all tools and set allchecked to false.
         const newCheckedTools: { [tool: string]: boolean } = {};
         availableTools.forEach((tool) => {
-          newCheckedTools[tool] = false;
+          newCheckedTools[tool.slug] = false;
         });
         newCheckedTools.allchecked = false;
         setCheckedTools(newCheckedTools);
       }
-
-      // If not all tools are checked, return the current state without modifying it.
-      return checkedTools;
     }
   };
 
-  return (
-    <DropdownMenu
-      open={isDropdownOpen}
-      onOpenChange={setIsDropdownOpen}
-      modal={false}
-    >
-      <DropdownMenuTrigger asChild className="opacity-50">
-        <button>
-          <Wrench />
-        </button>
-      </DropdownMenuTrigger>
+  const filterTools = (value: string, search: string) => {
+    return value.toLowerCase().includes(search.toLowerCase()) ? 1 : 0;
+  };
 
-      <DropdownMenuContent className="md:max-h-[200px] overflow-y-auto">
-        <DropdownMenuItem
-          className="border-b-2"
-          onClick={(e) => {
-            e.preventDefault();
-          }}
-        >
-          <Checkbox
-            checked={checkedTools.allchecked}
-            onCheckedChange={handleCheckAll}
-            defaultChecked
-          />
-          Select all
-        </DropdownMenuItem>
-        {availableTools.map((tool_name) => {
-          return (
-            <DropdownMenuItem
-              key={tool_name}
-              onClick={(e) => {
-                e.preventDefault();
-              }}
-            >
-              <Checkbox
-                checked={checkedTools[tool_name]}
-                onCheckedChange={() => handleCheckboxChange(tool_name)}
-                defaultChecked
-              />{" "}
-              {tool_name}
-            </DropdownMenuItem>
-          );
-        })}
-      </DropdownMenuContent>
-    </DropdownMenu>
+  return (
+    <Popover open={isDropdownOpen} onOpenChange={setIsDropdownOpen}>
+      <PopoverTrigger asChild>
+        <button>
+          <Wrench className="opacity-50" />
+        </button>
+      </PopoverTrigger>
+      <PopoverContent className="w-[200px] p-0">
+        <Command filter={filterTools}>
+          <CommandInput placeholder="Search tools..." />
+          <div className="max-h-[300px] overflow-y-auto">
+            <CommandList>
+              <CommandEmpty>No tool found.</CommandEmpty>
+              <CommandGroup>
+                <CommandItem key="select-all" value="" className="border-b-2">
+                  <Checkbox
+                    checked={checkedTools.allchecked}
+                    onCheckedChange={handleCheckAll}
+                  />
+                  <span className="ml-2">Select All</span>
+                </CommandItem>
+                {availableTools.map((tool) => (
+                  <CommandItem key={tool.slug} value={tool.label}>
+                    <Checkbox
+                      checked={checkedTools[tool.slug]}
+                      onCheckedChange={() => handleCheckboxChange(tool.slug)}
+                    />
+                    <span className="ml-2">{tool.label}</span>
+                  </CommandItem>
+                ))}
+              </CommandGroup>
+            </CommandList>
+          </div>
+          <CommandSeparator />
+          <CommandGroup>
+            <Link href="/tools">
+              <CommandItem>
+                <Info />
+                <span>Learn About Tools</span>
+              </CommandItem>
+            </Link>
+          </CommandGroup>
+        </Command>
+      </PopoverContent>
+    </Popover>
   );
 }

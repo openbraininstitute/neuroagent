@@ -17,7 +17,7 @@ import { Send } from "lucide-react";
 type ChatPageProps = {
   threadId: string;
   initialMessages: MessageStrict[];
-  availableTools: string[];
+  availableTools: Array<{ slug: string; label: string }>;
 };
 
 export function ChatPage({
@@ -46,7 +46,7 @@ export function ChatPage({
         const initialCheckedTools = availableTools.reduce<
           Record<string, boolean>
         >((acc, tool) => {
-          acc[tool] = true;
+          acc[tool.slug] = true;
           return acc;
         }, {});
         initialCheckedTools["allchecked"] = true;
@@ -221,6 +221,7 @@ export function ChatPage({
                         key={`${message.id}-${tool.toolCallId}`}
                         threadId={threadId}
                         tool={tool}
+                        availableTools={availableTools}
                         validated={validated}
                         setMessage={(updater) => {
                           setMessages((messages) =>

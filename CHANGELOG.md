@@ -48,6 +48,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Feedback for HIL tool call refusal.
 - [frontend] - Per message tool toggle.
 - [frontend] - Possibility to dynamically chose available tools.
+- [frontend] - Search bar in tool list.
 - Displaying tool metadata
 
 ### Fixed
