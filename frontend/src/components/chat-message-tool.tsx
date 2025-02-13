@@ -201,14 +201,14 @@ export function ChatMessageTool({
               <CardContent>
                 <div className="flex flex-col mt-4">
                   <h1>Args</h1>
-                  <pre className="text-sm p-2 my-2 rounded-md overflow-auto bg-gray-100 dark:bg-slate-800">
+                  <pre className="text-sm p-2 my-2 rounded-md overflow-auto bg-gray-100 dark:bg-slate-800 max-h-[300px]">
                     {JSON.stringify(tool?.args, null, 2)}
                   </pre>
                 </div>
                 {tool?.state === "result" && (
                   <div className="flex flex-col mt-4">
                     <h1>{validated === "rejected" ? "Feedback" : "Result"}</h1>
-                    <pre className="text-sm p-2 mt-2 rounded-md overflow-auto bg-gray-100 dark:bg-slate-800">
+                    <pre className="text-sm p-2 mt-2 rounded-md overflow-auto bg-gray-100 dark:bg-slate-800 max-h-[300px]">
                       {typeof tool?.result === "string"
                         ? (() => {
                             try {
