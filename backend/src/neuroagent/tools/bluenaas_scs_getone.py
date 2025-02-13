@@ -36,15 +36,16 @@ class SCSGetOneTool(BaseTool):
     name_frontend: ClassVar[str] = "Get Single-Neuron Simulation"
     description: ClassVar[
         str
-    ] = """Get one specific simulations from a user based on its id.
-    The id can be retrieved using the 'scsgetall-tool' or directly specified by the user."""
+    ] = """Get one specific simulations from a user based on its id. .
+    The id can be retrieved using the 'scs-getall-tool', from the simulation report of `scs-post-tool` or directly specified by the user.
+    This tool gets all the information about the simulation, a lot more than `scs-getall-tool`."""
     description_frontend: ClassVar[
         str
     ] = """Access detailed results of a specific simulation. Use this to:
     • View complete simulation results
     • Access simulation parameters
     • Check simulation status and outputs
-    
+
     Provide the simulation ID to get its detailed information."""
     metadata: SCSGetOneMetadata
     input_schema: InputSCSGetOne
@@ -60,7 +61,14 @@ class SCSGetOneTool(BaseTool):
             headers={"Authorization": f"Bearer {self.metadata.token}"},
         )
 
-        return SimulationDetailsResponse(**response.json()).model_dump()
+        # Truncate the results.
+        result = response.json()
+        for key in result["results"].keys():
+            for el in result["results"][key]:
+                el.pop("x", None)
+                el.pop("y", None)
+
+        return SimulationDetailsResponse(**result).model_dump()
 
     @classmethod
     async def is_online(cls, *, httpx_client: AsyncClient, bluenaas_url: str) -> bool:
