@@ -60,6 +60,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - [frontend] - MarkDown rendering.
 - [frontend] - dark mode flickering.
 - [frontend] - Concatenate base url and endpoint correctly.
+- [frontent] - Scrolling while streaming.
 
 ## [0.3.3] - 30.10.2024
 
