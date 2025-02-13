@@ -52,7 +52,7 @@ class SCSGetAllTool(BaseTool):
     • List all your simulation runs
     • Filter simulations by type
     • Browse through simulation results using pagination
-    
+
     Returns a list of simulations with their status and metadata."""
     metadata: SCSGetAllMetadata
     input_schema: InputSCSGetAll
@@ -75,7 +75,7 @@ class SCSGetAllTool(BaseTool):
 
         return PaginatedResponseSimulationDetailsResponse(
             **response.json()
-        ).model_dump()
+        ).model_dump_json()
 
     @classmethod
     async def is_online(cls, *, httpx_client: AsyncClient, bluenaas_url: str) -> bool:

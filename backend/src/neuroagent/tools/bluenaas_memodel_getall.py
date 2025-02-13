@@ -51,7 +51,7 @@ class MEModelGetAllTool(BaseTool):
     • List all your neuron models
     • Find models by type (single-neuron or synaptome)
     • Navigate through multiple models using pagination
-    
+
     The tool returns a list of models with their metadata and properties."""
     metadata: MEModelGetAllMetadata
     input_schema: InputMEModelGetAll
@@ -81,4 +81,4 @@ class MEModelGetAllTool(BaseTool):
         )
         return PaginatedResponseUnionMEModelResponseSynaptomeModelResponse(
             **response.json()
-        ).model_dump()
+        ).model_dump_json()

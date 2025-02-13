@@ -1,5 +1,6 @@
 """Literature Search tool."""
 
+import json
 import logging
 from typing import Any, ClassVar
 
@@ -114,7 +115,7 @@ class LiteratureSearchTool(BaseTool):
             ).model_dump()
             for paragraph in output
         ]
-        return paragraphs_metadata
+        return json.dumps(paragraphs_metadata)
 
     @classmethod
     async def is_online(

@@ -1,5 +1,6 @@
 """Morphology features tool."""
 
+import json
 import logging
 from typing import Any, ClassVar
 
@@ -57,7 +58,7 @@ class MorphologyFeatureTool(BaseTool):
     • Measure various morphological properties
     • Calculate statistical metrics
     • Analyze specific parts of neurons
-    
+
     Provide a morphology ID to compute its detailed features."""
     input_schema: MorphologyFeatureInput
     metadata: MorphologyFeatureMetadata
@@ -78,11 +79,13 @@ class MorphologyFeatureTool(BaseTool):
 
         # Extract the features from it
         features = self.get_features(morphology_content, metadata.file_extension)
-        return [
-            MorphologyFeatureOutput(
-                brain_region=metadata.brain_region, feature_dict=features
-            ).model_dump()
-        ]
+        return json.dumps(
+            [
+                MorphologyFeatureOutput(
+                    brain_region=metadata.brain_region, feature_dict=features
+                ).model_dump()
+            ]
+        )
 
     def get_features(self, morphology_content: bytes, reader: str) -> dict[str, Any]:
         """Get features from a morphology.

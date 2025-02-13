@@ -43,7 +43,7 @@ class MEModelGetOneTool(BaseTool):
     • Get complete details about a single model
     • Access model parameters and configurations
     • View model metadata
-    
+
     Provide the model ID to get its full information."""
     metadata: MEModelGetOneMetadata
     input_schema: InputMEModelGetOne
@@ -59,7 +59,7 @@ class MEModelGetOneTool(BaseTool):
             headers={"Authorization": f"Bearer {self.metadata.token}"},
         )
 
-        return MEModelResponse(**response.json()).model_dump()
+        return MEModelResponse(**response.json()).model_dump_json()
 
     @classmethod
     async def is_online(cls, *, httpx_client: AsyncClient, bluenaas_url: str) -> bool:

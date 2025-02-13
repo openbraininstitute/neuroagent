@@ -1,5 +1,6 @@
 """Tool to resolve the brain region from natural english to a KG ID."""
 
+import json
 import logging
 from typing import Any, ClassVar
 
@@ -91,7 +92,7 @@ class ResolveEntitiesTool(BaseTool):
     • Find exact brain region IDs from names
     • Match cell types to their formal identifiers
     • Resolve scientific terminology
-    
+
     Provide natural language descriptions to get corresponding technical identifiers."""
 
     async def arun(
@@ -155,7 +156,7 @@ class ResolveEntitiesTool(BaseTool):
                 ).model_dump()
             )
 
-        return output
+        return json.dumps(output)
 
     @classmethod
     async def is_online(

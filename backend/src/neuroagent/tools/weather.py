@@ -1,6 +1,7 @@
 """Weather tool for getting random weather data."""
 
 import asyncio
+import json
 import logging
 import random
 from typing import ClassVar
@@ -42,7 +43,7 @@ class WeatherTool(BaseTool):
     • Temperature readings in Celsius
     • Current weather conditions
     • Location-specific weather data
-    
+
     Simply specify a location to get its current weather information."""
     input_schema: WeatherInput
     metadata: WeatherMetadata
@@ -62,7 +63,9 @@ class WeatherTool(BaseTool):
         conditions = ["sunny", "rainy", "cloudy", "partly cloudy", "stormy"]
         temperature = round(random.uniform(-5, 35), 1)  # nosec B311
 
-        return {"temperature": temperature, "conditions": random.choice(conditions)}  # nosec B311
+        return json.dumps(
+            {"temperature": temperature, "conditions": random.choice(conditions)}  # nosec B311
+        )
 
     @classmethod
     async def is_online(cls) -> bool:

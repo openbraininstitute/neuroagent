@@ -44,7 +44,7 @@ class SCSGetOneTool(BaseTool):
     • View complete simulation results
     • Access simulation parameters
     • Check simulation status and outputs
-    
+
     Provide the simulation ID to get its detailed information."""
     metadata: SCSGetOneMetadata
     input_schema: InputSCSGetOne
@@ -60,7 +60,7 @@ class SCSGetOneTool(BaseTool):
             headers={"Authorization": f"Bearer {self.metadata.token}"},
         )
 
-        return SimulationDetailsResponse(**response.json()).model_dump()
+        return SimulationDetailsResponse(**response.json()).model_dump_json()
 
     @classmethod
     async def is_online(cls, *, httpx_client: AsyncClient, bluenaas_url: str) -> bool:

@@ -1,5 +1,6 @@
 """Get Morpho tool."""
 
+import json
 import logging
 from pathlib import Path
 from typing import Any, ClassVar
@@ -76,7 +77,7 @@ class GetMorphoTool(BaseTool):
     • Find neurons in specific brain regions
     • Search by morphology type
     • Access detailed morphological data
-    
+
     Specify brain region and optional criteria to find relevant morphologies."""
     input_schema: GetMorphoInput
     metadata: GetMorphoMetadata
@@ -225,7 +226,7 @@ class GetMorphoTool(BaseTool):
             ).model_dump()
             for res in output["hits"]["hits"]
         ]
-        return formatted_output
+        return json.dumps(formatted_output)
 
     @classmethod
     async def is_online(

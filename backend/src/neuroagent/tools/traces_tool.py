@@ -1,5 +1,6 @@
 """Traces tool."""
 
+import json
 import logging
 from pathlib import Path
 from typing import Any, ClassVar
@@ -76,7 +77,7 @@ class GetTracesTool(BaseTool):
     • Find experimental recordings from specific brain regions
     • Search by cell types and properties
     • Access detailed trace information
-    
+
     Specify criteria to find relevant experimental recordings."""
     input_schema: GetTracesInput
     metadata: GetTracesMetadata
@@ -203,7 +204,7 @@ class GetTracesTool(BaseTool):
             ).model_dump()
             for res in output["hits"]["hits"]
         ]
-        return results
+        return json.dumps(results)
 
     @classmethod
     async def is_online(
