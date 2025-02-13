@@ -16,6 +16,7 @@ type HumanValidationDialogProps = {
   threadId: string;
   toolId: string;
   toolName: string;
+  availableTools: Array<{ slug: string; label: string }>;
   args?: Record<string, unknown>;
   isOpen: boolean;
   setIsOpen: (open: boolean) => void;
@@ -32,6 +33,7 @@ export function HumanValidationDialog({
   threadId,
   toolId,
   toolName,
+  availableTools,
   args,
   isOpen,
   setIsOpen,
@@ -104,7 +106,12 @@ export function HumanValidationDialog({
           </DialogDescription>
         </DialogHeader>
         <div className="mt-4">
-          <div className="font-semibold">{toolName}</div>
+          <div className="font-semibold">
+            {
+              availableTools.filter((toolObj) => toolObj.slug === toolName)[0]
+                .label
+            }
+          </div>
           <div className="mt-4">
             <h3 className="text-sm font-medium">Arguments:</h3>
             <textarea

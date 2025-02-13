@@ -176,6 +176,7 @@ export function ChatPage({
                         key={`${message.id}-${tool.toolCallId}`}
                         threadId={threadId}
                         tool={tool}
+                        availableTools={availableTools}
                         validated={validated}
                         setMessage={(updater) => {
                           setMessages((messages) =>
