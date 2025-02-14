@@ -34,6 +34,7 @@ export function ChatPage({
   const [collapsedTools, setCollapsedTools] = useState<Set<string>>(new Set());
 
   useEffect(() => {
+    // debugger;
     if (initialMessages.length === 0 && newMessage !== "") {
       initialMessages.push({
         id: "temp_id",
@@ -41,18 +42,18 @@ export function ChatPage({
         content: newMessage,
       });
       setNewMessage("");
-      // If checkedTools is not initialized yet, initialize it
-      if (Object.keys(checkedTools).length === 0) {
-        const initialCheckedTools = availableTools.reduce<
-          Record<string, boolean>
-        >((acc, tool) => {
-          acc[tool.slug] = true;
-          return acc;
-        }, {});
-        initialCheckedTools["allchecked"] = true;
-        setCheckedTools(initialCheckedTools);
-      }
       requiresHandleSubmit.current = true;
+    }
+    // If checkedTools is not initialized yet, initialize it
+    if (Object.keys(checkedTools).length === 0) {
+      const initialCheckedTools = availableTools.reduce<
+        Record<string, boolean>
+      >((acc, tool) => {
+        acc[tool.slug] = true;
+        return acc;
+      }, {});
+      initialCheckedTools["allchecked"] = true;
+      setCheckedTools(initialCheckedTools);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // Empty dependency array means this runs once on mount
