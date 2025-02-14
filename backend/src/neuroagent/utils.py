@@ -78,10 +78,10 @@ def get_entity(message: dict[str, Any]) -> Entity:
         return Entity.USER
     elif message["role"] == "tool":
         return Entity.TOOL
-    elif message["role"] == "assistant" and message["content"]:
-        return Entity.AI_MESSAGE
-    elif message["role"] == "assistant" and not message["content"]:
+    elif message["role"] == "assistant" and message.get("tool_calls", False):
         return Entity.AI_TOOL
+    elif message["role"] == "assistant" and not message.get("tool_calls", False):
+        return Entity.AI_MESSAGE
     else:
         raise HTTPException(status_code=500, detail="Unknown message entity.")
 
