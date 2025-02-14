@@ -34,7 +34,6 @@ export function ChatPage({
   const [collapsedTools, setCollapsedTools] = useState<Set<string>>(new Set());
 
   useEffect(() => {
-    // debugger;
     if (initialMessages.length === 0 && newMessage !== "") {
       initialMessages.push({
         id: "temp_id",
