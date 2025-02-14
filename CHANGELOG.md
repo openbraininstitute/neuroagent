@@ -50,6 +50,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - [frontend] - Possibility to dynamically chose available tools.
 - [frontend] - Search bar in tool list.
 - Displaying tool metadata
+- GET threads depends on vlab+project_id.
 
 ### Fixed
 - [frontend] - Parallel execution of tools
