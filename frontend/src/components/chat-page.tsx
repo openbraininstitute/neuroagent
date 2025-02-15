@@ -1,12 +1,11 @@
 "use client";
 
 import { useChat } from "ai/react";
-import { useEffect, useRef, useState } from "react";
+import { RefObject, useEffect, useRef, useState } from "react";
 import type { MessageStrict } from "@/lib/types";
 import { env } from "@/lib/env";
 import { useSession } from "next-auth/react";
 import { ExtendedSession } from "@/lib/auth";
-import { useStore } from "@/lib/store";
 import { ToolSelectionDropdown } from "@/components/tool-selection-dropdown";
 
 import { ChatMessageAI } from "@/components/chat-message-ai";
@@ -18,44 +17,32 @@ type ChatPageProps = {
   threadId: string;
   initialMessages: MessageStrict[];
   availableTools: Array<{ slug: string; label: string }>;
+  requiresHandleSubmit?: RefObject<boolean>;
+  setCanRedirect?: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 export function ChatPage({
   threadId,
   initialMessages,
   availableTools,
+  requiresHandleSubmit,
+  setCanRedirect,
 }: ChatPageProps) {
+  const initialCheckedTools = availableTools.reduce<Record<string, boolean>>(
+    (acc, tool) => {
+      acc[tool.slug] = true;
+      return acc;
+    },
+    {},
+  );
+  initialCheckedTools["allchecked"] = true;
   const { data: session } = useSession() as { data: ExtendedSession | null };
-  const { newMessage, setNewMessage, checkedTools, setCheckedTools } =
-    useStore();
-  const requiresHandleSubmit = useRef(false);
+  const [checkedTools, setCheckedTools] = useState<{ [tool: string]: boolean }>(
+    initialCheckedTools,
+  );
   const [processedToolInvocationMessages, setProcessedToolInvocationMessages] =
     useState<string[]>([]);
   const [collapsedTools, setCollapsedTools] = useState<Set<string>>(new Set());
-
-  useEffect(() => {
-    if (initialMessages.length === 0 && newMessage !== "") {
-      initialMessages.push({
-        id: "temp_id",
-        role: "user",
-        content: newMessage,
-      });
-      setNewMessage("");
-      // If checkedTools is not initialized yet, initialize it
-      if (Object.keys(checkedTools).length === 0) {
-        const initialCheckedTools = availableTools.reduce<
-          Record<string, boolean>
-        >((acc, tool) => {
-          acc[tool.slug] = true;
-          return acc;
-        }, {});
-        initialCheckedTools["allchecked"] = true;
-        setCheckedTools(initialCheckedTools);
-      }
-      requiresHandleSubmit.current = true;
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // Empty dependency array means this runs once on mount
 
   const {
     messages: messagesRaw,
@@ -78,6 +65,7 @@ export function ChatPage({
       );
       return { content: lastMessage.content, tool_selection: selectedTools };
     },
+    onFinish: () => (setCanRedirect ? setCanRedirect(true) : null),
   });
 
   const messages = messagesRaw as MessageStrict[];
@@ -114,7 +102,7 @@ export function ChatPage({
   // Handle auto-submit if there's a single human message or all tools have been validated
   useEffect(() => {
     // Auto-submit if there's a single human message
-    if (requiresHandleSubmit.current) {
+    if (requiresHandleSubmit?.current) {
       handleSubmit(undefined, { allowEmptySubmit: true });
       requiresHandleSubmit.current = false;
       return;
@@ -158,7 +146,12 @@ export function ChatPage({
         handleSubmit(undefined, { allowEmptySubmit: true });
       }
     }
-  }, [messages, handleSubmit, processedToolInvocationMessages]);
+  }, [
+    messages,
+    handleSubmit,
+    processedToolInvocationMessages,
+    requiresHandleSubmit,
+  ]);
 
   // to toggle the collapse of tools
   function getMessageIndicesBetween(messageID: string) {
