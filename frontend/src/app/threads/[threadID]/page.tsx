@@ -2,6 +2,8 @@ import { BMessage, MessageStrict } from "@/lib/types";
 import { ChatPage } from "@/components/chat-page";
 import { auth } from "@/lib/auth";
 import { fetcher } from "@/lib/fetcher";
+import { Suspense } from "react";
+import { headers } from "next/headers";
 
 async function getMessages(threadId: string): Promise<BMessage[]> {
   const session = await auth();
@@ -91,7 +93,17 @@ async function getToolList() {
     .sort((a, b) => a.label.localeCompare(b.label));
 }
 
-export default async function PageThread({
+import { Loader2 } from "lucide-react";
+
+function Loading() {
+  return (
+    <div className="w-full h-[50vh] flex items-center justify-center">
+      <Loader2 className="h-12 w-12 animate-spin text-primary" />
+    </div>
+  );
+}
+
+async function ThreadContent({
   params,
 }: {
   params: Promise<{ threadID: string }>;
@@ -110,4 +122,23 @@ export default async function PageThread({
       availableTools={availableTools}
     />
   );
+}
+
+export default async function PageThread({
+  params,
+}: {
+  params: Promise<{ threadID: string }>;
+}) {
+  const heads = await headers();
+  const isNewThread = heads.get("referer")?.split("/").at(-1);
+  if (isNewThread === "NewChat") {
+    console.log("IUAGHWDSUYGQWEDUYGQWUYGVEUYVUEWVFDHUEWGHUIEWBUUYEWB");
+    return <ThreadContent params={params} />;
+  } else {
+    return (
+      <Suspense fallback={<Loading />}>
+        <ThreadContent params={params} />
+      </Suspense>
+    );
+  }
 }
