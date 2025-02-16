@@ -132,7 +132,6 @@ export default async function PageThread({
   const heads = await headers();
   const isNewThread = heads.get("referer")?.split("/").at(-1);
   if (isNewThread === "NewChat") {
-    console.log("IUAGHWDSUYGQWEDUYGQWUYGVEUYVUEWVFDHUEWGHUIEWBUUYEWB");
     return <ThreadContent params={params} />;
   } else {
     return (
