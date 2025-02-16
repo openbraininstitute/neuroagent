@@ -121,18 +121,19 @@ async def create_thread_with_generated_title(
 @router.get("")
 async def get_threads(
     session: Annotated[AsyncSession, Depends(get_session)],
-    virtual_lab_id: str,
-    project_id: str,
     user_id: Annotated[str, Depends(get_user_id)],
+    virtual_lab_id: str | None = None,
+    project_id: str | None = None,
 ) -> list[ThreadsRead]:
     """Get threads for a user."""
-    thread_result = await session.execute(
-        select(Threads).where(
-            Threads.user_id == user_id,
-            Threads.vlab_id == virtual_lab_id,
-            Threads.project_id == project_id,
-        )
-    )
+    base_query = select(Threads).where(Threads.user_id == user_id)
+
+    if virtual_lab_id is not None:
+        base_query = base_query.where(Threads.vlab_id == virtual_lab_id)
+    if project_id is not None:
+        base_query = base_query.where(Threads.project_id == project_id)
+
+    thread_result = await session.execute(base_query)
     threads = thread_result.scalars().all()
     return [ThreadsRead(**thread.__dict__) for thread in threads]
 
