@@ -126,14 +126,14 @@ async def get_threads(
     project_id: str | None = None,
 ) -> list[ThreadsRead]:
     """Get threads for a user."""
-    base_query = select(Threads).where(Threads.user_id == user_id)
+    query = select(Threads).where(Threads.user_id == user_id)
 
     if virtual_lab_id is not None:
-        base_query = base_query.where(Threads.vlab_id == virtual_lab_id)
+        query = query.where(Threads.vlab_id == virtual_lab_id)
     if project_id is not None:
-        base_query = base_query.where(Threads.project_id == project_id)
+        query = query.where(Threads.project_id == project_id)
 
-    thread_result = await session.execute(base_query)
+    thread_result = await session.execute(query)
     threads = thread_result.scalars().all()
     return [ThreadsRead(**thread.__dict__) for thread in threads]
 
