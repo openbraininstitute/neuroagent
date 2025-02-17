@@ -3,6 +3,9 @@ import { fetcher } from "@/lib/fetcher";
 import { auth } from "@/lib/auth";
 import { getSettings } from "@/lib/cookies-server";
 import { redirect } from "next/navigation";
+import Loader from "@/components/loader";
+import { headers } from "next/headers";
+import { Suspense } from "react";
 
 async function isVlabAndProjectPopulated() {
   const { projectID, virtualLabID } = await getSettings();
@@ -30,7 +33,7 @@ async function getToolList() {
     .sort((a, b) => a.label.localeCompare(b.label));
 }
 
-export default async function Home() {
+async function ContentHome() {
   await isVlabAndProjectPopulated();
   const availableTools = await getToolList();
   return (
@@ -38,4 +41,18 @@ export default async function Home() {
       <ChatInput availableTools={availableTools} />
     </div>
   );
+}
+
+export default async function Home() {
+  const heads = await headers();
+  const isNewThread = heads.get("referer")?.split("/").at(-1);
+  if (isNewThread === "NewChat") {
+    return <ContentHome />;
+  } else {
+    return (
+      <Suspense fallback={<Loader />}>
+        <ContentHome />
+      </Suspense>
+    );
+  }
 }

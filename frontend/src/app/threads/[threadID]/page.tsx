@@ -4,6 +4,7 @@ import { auth } from "@/lib/auth";
 import { fetcher } from "@/lib/fetcher";
 import { Suspense } from "react";
 import { headers } from "next/headers";
+import Loader from "@/components/loader";
 
 async function getMessages(threadId: string): Promise<BMessage[]> {
   const session = await auth();
@@ -93,16 +94,6 @@ async function getToolList() {
     .sort((a, b) => a.label.localeCompare(b.label));
 }
 
-import { Loader2 } from "lucide-react";
-
-function Loading() {
-  return (
-    <div className="w-full h-[50vh] flex items-center justify-center">
-      <Loader2 className="h-12 w-12 animate-spin text-primary" />
-    </div>
-  );
-}
-
 async function ThreadContent({
   params,
 }: {
@@ -135,7 +126,7 @@ export default async function PageThread({
     return <ThreadContent params={params} />;
   } else {
     return (
-      <Suspense fallback={<Loading />}>
+      <Suspense fallback={<Loader />}>
         <ThreadContent params={params} />
       </Suspense>
     );
