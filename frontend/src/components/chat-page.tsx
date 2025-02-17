@@ -7,6 +7,7 @@ import { env } from "@/lib/env";
 import { useSession } from "next-auth/react";
 import { ExtendedSession } from "@/lib/auth";
 import { ToolSelectionDropdown } from "@/components/tool-selection-dropdown";
+import { convert_tools_to_set } from "@/lib/utils";
 
 import { ChatMessageAI } from "@/components/chat-message-ai";
 import { ChatMessageHuman } from "@/components/chat-message-human";
@@ -28,17 +29,9 @@ export function ChatPage({
   requiresHandleSubmit,
   setCanRedirect,
 }: ChatPageProps) {
-  const initialCheckedTools = availableTools.reduce<Record<string, boolean>>(
-    (acc, tool) => {
-      acc[tool.slug] = true;
-      return acc;
-    },
-    {},
-  );
-  initialCheckedTools["allchecked"] = true;
   const { data: session } = useSession() as { data: ExtendedSession | null };
   const [checkedTools, setCheckedTools] = useState<{ [tool: string]: boolean }>(
-    initialCheckedTools,
+    convert_tools_to_set(availableTools),
   );
   const [processedToolInvocationMessages, setProcessedToolInvocationMessages] =
     useState<string[]>([]);

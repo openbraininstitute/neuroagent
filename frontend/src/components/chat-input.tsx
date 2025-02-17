@@ -8,22 +8,15 @@ import { Send } from "lucide-react";
 import { ChatPage } from "./chat-page";
 import { useRouter } from "next/navigation";
 import ChatInputLoading from "./chat-input-loading";
+import { convert_tools_to_set } from "@/lib/utils";
 
 type ChatInputProps = {
   availableTools: Array<{ slug: string; label: string }>;
 };
 
 export function ChatInput({ availableTools }: ChatInputProps) {
-  const initialCheckedTools = availableTools.reduce<Record<string, boolean>>(
-    (acc, tool) => {
-      acc[tool.slug] = true;
-      return acc;
-    },
-    {},
-  );
-  initialCheckedTools["allchecked"] = true;
   const [checkedTools, setCheckedTools] = useState<{ [tool: string]: boolean }>(
-    initialCheckedTools,
+    convert_tools_to_set(availableTools),
   );
   const [input, setInput] = useState("");
   const router = useRouter();
