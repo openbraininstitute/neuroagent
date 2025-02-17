@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState, useEffect, useState, useRef } from "react";
+import { useTransition } from "react";
 import { createThread } from "@/actions/create-thread";
 import { generateEditTitle } from "@/actions/generate-edit-thread";
 import { ToolSelectionDropdown } from "@/components/tool-selection-dropdown";
@@ -22,6 +23,7 @@ export function ChatInput({ availableTools }: ChatInputProps) {
   const router = useRouter();
   const requiresHandleSubmit = useRef(true);
   const [canRedirect, setCanRedirect] = useState(false);
+  const [transitionState, startTransition] = useTransition();
 
   const [state, action, isPending] = useActionState(createThread, null);
 
@@ -30,8 +32,6 @@ export function ChatInput({ availableTools }: ChatInputProps) {
     if (state?.threadId) {
       // First update the URL, then trigger the full redirect.
       if (!canRedirect) {
-        history.pushState({}, "", `/threads/NewChat`);
-        // SHOULD THIS NOT BE ASYNC ????
         generateEditTitle(null, state.threadId, input);
       } else {
         router.push(`/threads/${state.threadId}`);
@@ -45,18 +45,6 @@ export function ChatInput({ availableTools }: ChatInputProps) {
       e.currentTarget.form?.requestSubmit();
     }
   };
-  useEffect(() => {
-    const initialCheckedTools = availableTools.reduce<Record<string, boolean>>(
-      (acc, tool) => {
-        acc[tool.slug] = true;
-        return acc;
-      },
-      {},
-    );
-    initialCheckedTools["allchecked"] = true;
-    setCheckedTools(initialCheckedTools);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // Empty dependency array means this runs once on mount
 
   return !state?.threadId ? (
     !isPending ? (

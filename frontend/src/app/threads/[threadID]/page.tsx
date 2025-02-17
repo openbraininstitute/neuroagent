@@ -94,7 +94,7 @@ async function getToolList() {
     .sort((a, b) => a.label.localeCompare(b.label));
 }
 
-async function ThreadContent({
+export default async function PageThread({
   params,
 }: {
   params: Promise<{ threadID: string }>;
@@ -113,22 +113,4 @@ async function ThreadContent({
       availableTools={availableTools}
     />
   );
-}
-
-export default async function PageThread({
-  params,
-}: {
-  params: Promise<{ threadID: string }>;
-}) {
-  const heads = await headers();
-  const isNewThread = heads.get("referer")?.split("/").at(-1);
-  if (isNewThread === "NewChat") {
-    return <ThreadContent params={params} />;
-  } else {
-    return (
-      <Suspense fallback={<Loader />}>
-        <ThreadContent params={params} />
-      </Suspense>
-    );
-  }
 }

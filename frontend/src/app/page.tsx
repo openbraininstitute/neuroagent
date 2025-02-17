@@ -33,7 +33,7 @@ async function getToolList() {
     .sort((a, b) => a.label.localeCompare(b.label));
 }
 
-async function ContentHome() {
+export default async function Home() {
   await isVlabAndProjectPopulated();
   const availableTools = await getToolList();
   return (
@@ -41,18 +41,4 @@ async function ContentHome() {
       <ChatInput availableTools={availableTools} />
     </div>
   );
-}
-
-export default async function Home() {
-  const heads = await headers();
-  const isNewThread = heads.get("referer")?.split("/").at(-1);
-  if (isNewThread === "NewChat") {
-    return <ContentHome />;
-  } else {
-    return (
-      <Suspense fallback={<Loader />}>
-        <ContentHome />
-      </Suspense>
-    );
-  }
 }
