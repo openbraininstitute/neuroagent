@@ -11,10 +11,13 @@ services:
       - NEUROAGENT_TOOLS__LITERATURE__URL=https://whatever.com
       - NEUROAGENT_KNOWLEDGE_GRAPH__BASE_URL=https://whathever.com
       - NEUROAGENT_OPENAI__TOKEN=${OPENAI_API_KEY}
+      - NEUROAGENT_STORAGE__ENDPOINT_URL=http://minio:9000
+      - NEUROAGENT_STORAGE__ENDPOINT_URL_EXTERNAL=http://localhost:9000
     networks:
       - app-network
     depends_on:
       - postgres
+      - minio
 
   frontend:
     build:
@@ -49,8 +52,23 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
+  minio:
+    image: minio/minio
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      - MINIO_ROOT_USER=minioadmin
+      - MINIO_ROOT_PASSWORD=minioadmin
+    volumes:
+      - minio_data:/data
+    networks:
+      - app-network
+    command: server --console-address ":9001" /data
+
 volumes:
   postgres_data:
+  minio_data:
 
 networks:
   app-network:

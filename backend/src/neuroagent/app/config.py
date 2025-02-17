@@ -2,7 +2,7 @@
 
 import os
 import pathlib
-from typing import Literal, Optional
+from typing import Literal, Optional, Any
 
 from dotenv import dotenv_values
 from pydantic import BaseModel, ConfigDict, SecretStr
@@ -13,6 +13,19 @@ class SettingsAgent(BaseModel):
     """Agent setting."""
 
     model: Literal["simple", "multi"] = "simple"
+
+    model_config = ConfigDict(frozen=True)
+
+
+class SettingsStorage(BaseModel):
+    """Storage settings."""
+
+    endpoint_url: str = "http://minio:9000"
+    endpoint_url_external: str = "http://localhost:9000"
+    bucket_name: str = "neuroagent"
+    access_key: SecretStr = SecretStr("minioadmin")
+    secret_key: SecretStr = SecretStr("minioadmin")
+    expires_in: int = 600
 
     model_config = ConfigDict(frozen=True)
 
@@ -195,6 +208,7 @@ class Settings(BaseSettings):
     keycloak: SettingsKeycloak = SettingsKeycloak()  # has no required
     virtual_lab: SettingsVlab = SettingsVlab()  # has no required
     misc: SettingsMisc = SettingsMisc()  # has no required
+    storage: SettingsStorage = SettingsStorage()  # has no required
 
     model_config = SettingsConfigDict(
         env_file=".env",

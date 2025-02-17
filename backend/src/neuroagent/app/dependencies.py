@@ -11,6 +11,7 @@ from openai import AsyncOpenAI
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession
 from starlette.status import HTTP_401_UNAUTHORIZED
+import boto3
 
 from neuroagent.agent_routine import AgentsRoutine
 from neuroagent.app.config import Settings
@@ -25,6 +26,7 @@ from neuroagent.tools import (
     MEModelGetAllTool,
     MEModelGetOneTool,
     MorphologyFeatureTool,
+    RandomPlotGeneratorTool,
     ResolveEntitiesTool,
     SCSGetAllTool,
     SCSGetOneTool,
@@ -164,6 +166,7 @@ def get_tool_list() -> list[type[BaseTool]]:
         MorphologyFeatureTool,
         ResolveEntitiesTool,
         GetTracesTool,
+        RandomPlotGeneratorTool,
         # NowTool,
         # WeatherTool,
     ]
@@ -226,12 +229,26 @@ async def get_thread(
     return thread
 
 
+def get_s3_client(
+    settings: Annotated[Settings, Depends(get_settings)],
+) -> Any:
+    """Get the S3 client."""
+    return boto3.client(
+        "s3",
+        endpoint_url=settings.storage.endpoint_url,
+        aws_access_key_id=settings.storage.access_key.get_secret_value(),
+        aws_secret_access_key=settings.storage.secret_key.get_secret_value(),
+    )
+
+
 def get_context_variables(
     settings: Annotated[Settings, Depends(get_settings)],
     starting_agent: Annotated[Agent, Depends(get_starting_agent)],
     token: Annotated[str, Depends(auth)],
     httpx_client: Annotated[AsyncClient, Depends(get_httpx_client)],
     thread: Annotated[Threads, Depends(get_thread)],
+    s3_client: Annotated[Any, Depends(get_s3_client)],
+    user_id: Annotated[str, Depends(get_user_id)],
 ) -> dict[str, Any]:
     """Get the context variables to feed the tool's metadata."""
     return {
@@ -254,6 +271,9 @@ def get_context_variables(
         "httpx_client": httpx_client,
         "vlab_id": thread.vlab_id,
         "project_id": thread.project_id,
+        "s3_client": s3_client,
+        "bucket_name": settings.storage.bucket_name,
+        "user_id": user_id,
     }
 
 

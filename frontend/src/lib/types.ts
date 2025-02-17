@@ -122,3 +122,21 @@ export type BToolMetadataDetailed = {
   hil: boolean;
   is_online: boolean;
 };
+
+export type JSONPiechart = {
+  title: string;
+  description: string;
+  values: Record<string, number>;
+};
+
+export type JSONBarplot = {
+  title: string;
+  description: string;
+  values: [string, number][];
+};
+
+export type JSONScatterplot = {
+  title: string;
+  description: string;
+  values: [number, number][];
+};
