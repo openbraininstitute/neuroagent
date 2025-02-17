@@ -27,7 +27,7 @@ from neuroagent.app.dependencies import (
 from neuroagent.app.schemas import (
     MessageResponse,
     ThreadCreate,
-    ThreadCreateWithGeneratedTitle,
+    ThreadGeneratedTitle,
     ThreadsRead,
     ThreadUpdate,
 )
@@ -71,51 +71,33 @@ async def create_thread(
     return ThreadsRead(**new_thread.__dict__)
 
 
-@router.post("/generated_title")
-async def create_thread_with_generated_title(
-    httpx_client: Annotated[AsyncClient, Depends(get_httpx_client)],
-    settings: Annotated[Settings, Depends(get_settings)],
-    token: Annotated[str, Depends(auth)],
-    virtual_lab_id: str,
-    project_id: str,
+@router.patch("/{thread_id}/generate_title")
+async def generate_title(
     session: Annotated[AsyncSession, Depends(get_session)],
-    user_id: Annotated[str, Depends(get_user_id)],
     openai_client: Annotated[AsyncOpenAI, Depends(get_openai_client)],
-    body: ThreadCreateWithGeneratedTitle,
+    settings: Annotated[Settings, Depends(get_settings)],
+    thread: Annotated[Threads, Depends(get_thread)],
+    body: ThreadGeneratedTitle,
 ) -> ThreadsRead:
-    """Create thread."""
-    # We first need to check if the combination thread/vlab/project is valid
-    await validate_project(
-        httpx_client=httpx_client,
-        vlab_id=virtual_lab_id,
-        project_id=project_id,
-        token=token,
-        vlab_project_url=settings.virtual_lab.get_project_url,
-    )
-    openai_message = [
+    """Generate a short thread title based on the user's first message and update thread's title."""
+    # Send it to OpenAI longside with the system prompt asking for summary
+    messages = [
         {
             "role": "system",
-            "content": "Given the user's first message of a conversation, generate a short title for this conversation (max 5 words).",
+            "content": "Given the user's first message of a conversation, generate a short and descriptive title for this conversation.",
         },
         {"role": "user", "content": body.first_user_message},
     ]
     response = await openai_client.chat.completions.create(
-        messages=openai_message,  # type: ignore
+        messages=messages,
         model=settings.openai.model,
     )
-    new_thread = Threads(
-        user_id=user_id,
-        title=response.choices[0].message.content.strip('"')
-        if response.choices[0].message.content
-        else "New chat",
-        vlab_id=virtual_lab_id,
-        project_id=project_id,
-    )
-    session.add(new_thread)
+    # Update the thread title and modified date + commit
+    thread.title = response.choices[0].message.content.strip('"')  # type: ignore
+    thread.update_date = utc_now()
     await session.commit()
-    await session.refresh(new_thread)
-
-    return ThreadsRead(**new_thread.__dict__)
+    await session.refresh(thread)
+    return ThreadsRead(**thread.__dict__)
 
 
 @router.get("")

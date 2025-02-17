@@ -1,8 +1,8 @@
 "use client";
 
-import { useRef, useState } from "react";
-import { useActionState, useEffect } from "react";
-import { createThreadWithMessage } from "@/actions/create-thread";
+import { useActionState, useEffect, useState, useRef } from "react";
+import { createThread } from "@/actions/create-thread";
+import { generateEditTitle } from "@/actions/generate-edit-thread";
 import { ToolSelectionDropdown } from "@/components/tool-selection-dropdown";
 import { Send } from "lucide-react";
 import { ChatPage } from "./chat-page";
@@ -30,17 +30,16 @@ export function ChatInput({ availableTools }: ChatInputProps) {
   const requiresHandleSubmit = useRef(true);
   const [canRedirect, setCanRedirect] = useState(false);
 
-  const [state, action, isPending] = useActionState(
-    createThreadWithMessage,
-    null,
-  );
+  const [state, action, isPending] = useActionState(createThread, null);
+  const genTitle = generateEditTitle.bind(null);
 
   // Watch for state changes and redirect when ready
   useEffect(() => {
     if (state?.threadId) {
-      // First update the url, then trigger the full redirect.
+      // First update the URL, then trigger the full redirect.
       if (!canRedirect) {
         history.pushState({}, "", `/threads/NewChat`);
+        genTitle(null, state.threadId, input);
       } else {
         router.push(`/threads/${state.threadId}`);
       }
