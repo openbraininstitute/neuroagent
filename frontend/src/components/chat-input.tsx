@@ -31,7 +31,6 @@ export function ChatInput({ availableTools }: ChatInputProps) {
   const [canRedirect, setCanRedirect] = useState(false);
 
   const [state, action, isPending] = useActionState(createThread, null);
-  const genTitle = generateEditTitle.bind(null);
 
   // Watch for state changes and redirect when ready
   useEffect(() => {
@@ -39,7 +38,8 @@ export function ChatInput({ availableTools }: ChatInputProps) {
       // First update the URL, then trigger the full redirect.
       if (!canRedirect) {
         history.pushState({}, "", `/threads/NewChat`);
-        genTitle(null, state.threadId, input);
+        // SHOULD THIS NOT BE ASYNC ????
+        generateEditTitle(null, state.threadId, input);
       } else {
         router.push(`/threads/${state.threadId}`);
       }
