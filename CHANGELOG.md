@@ -66,6 +66,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - [frontend] - Better Vlab and Project selection.
 - [frontend] - Fix long message overflowing.
 - [frontent] - Scrolling while streaming.
+- Display the entire input json for tool calls.
 
 ## [0.3.3] - 30.10.2024
 
