@@ -13,30 +13,17 @@ import { Pie } from "react-chartjs-2";
 // Register the required Chart.js components
 ChartJS.register(ArcElement, Tooltip, Legend);
 
-// Function to generate colors dynamically
-function generateColors(count: number) {
-  const colors = [];
-  for (let i = 0; i < count; i++) {
-    const hue = (i * 360) / count;
-    colors.push(`hsla(${hue}, 70%, 60%, 0.5)`); // background colors
-  }
-  return {
-    backgroundColor: colors,
-    borderColor: colors.map((color) => color.replace("0.5", "1")), // border colors (more opaque)
-  };
-}
-
 type PiechartProps = {
   data: JSONPiechart;
 };
 
 export function Piechart({ data }: PiechartProps) {
-  const labels = data.values.map(value => value.category);
-  const values = data.values.map(value => value.value);
-  const backgroundColor = data.values.map(value => 
-    value.color || `hsla(${Math.random() * 360}, 70%, 60%, 0.5)`
+  const labels = data.values.map((value) => value.category);
+  const values = data.values.map((value) => value.value);
+  const backgroundColor = data.values.map(
+    (value) => value.color || `hsla(${Math.random() * 360}, 70%, 60%, 0.5)`,
   );
-  const borderColor = backgroundColor.map(color => color.replace("0.5", "1"));
+  const borderColor = backgroundColor.map((color) => color.replace("0.5", "1"));
 
   const chartData = {
     labels,
@@ -68,9 +55,9 @@ export function Piechart({ data }: PiechartProps) {
               (a: number, b: number) => a + b,
               0,
             );
-            const percentage = data.show_percentages 
+            const percentage = data.show_percentages
               ? ` (${((value / total) * 100).toFixed(1)}%)`
-              : '';
+              : "";
             return `${label}: ${value}${percentage}`;
           },
         },

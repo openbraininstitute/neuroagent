@@ -21,18 +21,19 @@ export function Scatterplot({ data }: ScatterplotProps) {
   const chartData = {
     datasets: [
       {
-        data: data.values.map(point => ({
+        data: data.values.map((point) => ({
           x: point.x,
           y: point.y,
           label: point.label,
         })),
-        backgroundColor: data.values.map(point => 
-          point.color || "rgba(75, 192, 192, 0.5)"
+        backgroundColor: data.values.map(
+          (point) => point.color || "rgba(75, 192, 192, 0.5)",
         ),
-        borderColor: data.values.map(point => 
-          point.color?.replace("0.5", "1") || "rgba(75, 192, 192, 1)"
+        borderColor: data.values.map(
+          (point) =>
+            point.color?.replace("0.5", "1") || "rgba(75, 192, 192, 1)",
         ),
-        pointRadius: data.values.map(point => point.size || 5),
+        pointRadius: data.values.map((point) => point.size || 5),
       },
     ],
   };

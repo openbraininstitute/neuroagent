@@ -26,10 +26,12 @@ type BarplotProps = {
 };
 
 export function Barplot({ data }: BarplotProps) {
-  const labels = data.values.map(value => value.category);
-  const values = data.values.map(value => value.value);
-  const backgroundColor = data.values.map(value => value.color || `hsla(${Math.random() * 360}, 70%, 60%, 0.5)`);
-  const borderColor = backgroundColor.map(color => color.replace("0.5", "1"));
+  const labels = data.values.map((value) => value.category);
+  const values = data.values.map((value) => value.value);
+  const backgroundColor = data.values.map(
+    (value) => value.color || `hsla(${Math.random() * 360}, 70%, 60%, 0.5)`,
+  );
+  const borderColor = backgroundColor.map((color) => color.replace("0.5", "1"));
 
   const chartData = {
     labels,
@@ -39,14 +41,14 @@ export function Barplot({ data }: BarplotProps) {
         backgroundColor,
         borderColor,
         borderWidth: 1,
-        error: data.values.map(value => value.error),
+        error: data.values.map((value) => value.error),
       },
     ],
   };
 
   const options = {
     responsive: true,
-    indexAxis: (data.orientation === 'horizontal' ? 'y' : 'x') as 'x' | 'y',
+    indexAxis: (data.orientation === "horizontal" ? "y" : "x") as "x" | "y",
     plugins: {
       legend: {
         display: false,

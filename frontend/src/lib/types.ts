@@ -128,30 +128,30 @@ type BaseObject = {
   description: string;
   x_label?: string;
   y_label?: string;
-}
+};
 
 type PiechartValue = {
   category: string;
   value: number;
   color?: string;
-}
+};
 
 export type JSONPiechart = BaseObject & {
   values: PiechartValue[];
   show_percentages?: boolean;
-}
+};
 
 type BarplotValue = {
   category: string;
   value: number;
   error?: number;
   color?: string;
-}
+};
 
 export type JSONBarplot = BaseObject & {
   values: BarplotValue[];
   orientation?: "vertical" | "horizontal";
-}
+};
 
 type ScatterplotValue = {
   x: number;
@@ -159,9 +159,9 @@ type ScatterplotValue = {
   label?: string;
   color?: string;
   size?: number;
-}
+};
 
 export type JSONScatterplot = BaseObject & {
   values: ScatterplotValue[];
   show_regression?: boolean;
-}
+};

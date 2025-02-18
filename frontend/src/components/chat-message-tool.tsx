@@ -42,7 +42,11 @@ export function ChatMessageTool({
   const [validationError, setValidationError] = useState<string | null>(null);
   const { mutate, isPending, isSuccess, data, status } = useExecuteTool();
 
-  const viewableTools = ["morpho-viewer-tool", "plot-generator", "random-plot-generator"];
+  const viewableTools = [
+    "morpho-viewer-tool",
+    "plot-generator",
+    "random-plot-generator",
+  ];
 
   useEffect(() => {
     if (isPending) {
