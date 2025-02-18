@@ -21,11 +21,18 @@ export function Scatterplot({ data }: ScatterplotProps) {
   const chartData = {
     datasets: [
       {
-        data: data.values.map(([x, y]) => ({ x, y })),
-        backgroundColor: "rgba(75, 192, 192, 0.5)",
-        borderColor: "rgba(75, 192, 192, 1)",
-        borderWidth: 1,
-        pointRadius: 5,
+        data: data.values.map(point => ({
+          x: point.x,
+          y: point.y,
+          label: point.label,
+        })),
+        backgroundColor: data.values.map(point => 
+          point.color || "rgba(75, 192, 192, 0.5)"
+        ),
+        borderColor: data.values.map(point => 
+          point.color?.replace("0.5", "1") || "rgba(75, 192, 192, 1)"
+        ),
+        pointRadius: data.values.map(point => point.size || 5),
       },
     ],
   };
@@ -44,9 +51,17 @@ export function Scatterplot({ data }: ScatterplotProps) {
     scales: {
       x: {
         beginAtZero: true,
+        title: {
+          display: !!data.x_label,
+          text: data.x_label,
+        },
       },
       y: {
         beginAtZero: true,
+        title: {
+          display: !!data.y_label,
+          text: data.y_label,
+        },
       },
     },
   };

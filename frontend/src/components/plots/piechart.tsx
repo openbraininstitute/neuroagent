@@ -31,15 +31,18 @@ type PiechartProps = {
 };
 
 export function Piechart({ data }: PiechartProps) {
-  const categories = Object.keys(data.values);
-  const { backgroundColor, borderColor } = generateColors(categories.length);
+  const labels = data.values.map(value => value.category);
+  const values = data.values.map(value => value.value);
+  const backgroundColor = data.values.map(value => 
+    value.color || `hsla(${Math.random() * 360}, 70%, 60%, 0.5)`
+  );
+  const borderColor = backgroundColor.map(color => color.replace("0.5", "1"));
 
-  // Convert the piechart data into Chart.js format
   const chartData = {
-    labels: categories,
+    labels,
     datasets: [
       {
-        data: Object.values(data.values),
+        data: values,
         backgroundColor,
         borderColor,
         borderWidth: 1,
@@ -65,8 +68,10 @@ export function Piechart({ data }: PiechartProps) {
               (a: number, b: number) => a + b,
               0,
             );
-            const percentage = ((value / total) * 100).toFixed(1);
-            return `${label}: ${value} (${percentage}%)`;
+            const percentage = data.show_percentages 
+              ? ` (${((value / total) * 100).toFixed(1)}%)`
+              : '';
+            return `${label}: ${value}${percentage}`;
           },
         },
       },

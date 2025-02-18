@@ -26,6 +26,7 @@ from neuroagent.tools import (
     MEModelGetAllTool,
     MEModelGetOneTool,
     MorphologyFeatureTool,
+    PlotGeneratorTool,
     RandomPlotGeneratorTool,
     ResolveEntitiesTool,
     SCSGetAllTool,
@@ -167,6 +168,7 @@ def get_tool_list() -> list[type[BaseTool]]:
         ResolveEntitiesTool,
         GetTracesTool,
         RandomPlotGeneratorTool,
+        PlotGeneratorTool,
         # NowTool,
         # WeatherTool,
     ]

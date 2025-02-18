@@ -6,6 +6,7 @@ from neuroagent.tools.bluenaas_scs_getall import SCSGetAllTool
 from neuroagent.tools.bluenaas_scs_getone import SCSGetOneTool
 from neuroagent.tools.bluenaas_scs_post import SCSPostTool
 from neuroagent.tools.electrophys_tool import ElectrophysFeatureTool, FeatureOutput
+from neuroagent.tools.generate_plot import PlotGeneratorTool
 from neuroagent.tools.generate_random_plot import RandomPlotGeneratorTool
 from neuroagent.tools.get_morpho_tool import GetMorphoTool, KnowledgeGraphOutput
 from neuroagent.tools.kg_morpho_features_tool import (
@@ -47,6 +48,7 @@ __all__ = [
     "MorphologyFeatureTool",
     "NowTool",
     "ParagraphMetadata",
+    "PlotGeneratorTool",
     "RandomPlotGeneratorTool",
     "ResolveEntitiesTool",
     "TracesOutput",

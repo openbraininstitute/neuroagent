@@ -9,7 +9,14 @@ from typing import Any, ClassVar, Literal
 import matplotlib.pyplot as plt
 from pydantic import BaseModel, Field
 
-from neuroagent.schemas import JSONBarplot, JSONPiechart, JSONScatterplot
+from neuroagent.schemas import (
+    BarplotValue,
+    JSONBarplot,
+    JSONPiechart,
+    JSONScatterplot,
+    PiechartValue,
+    ScatterplotValue,
+)
 from neuroagent.tools.base_tool import BaseMetadata, BaseTool
 from neuroagent.utils import save_to_storage
 
@@ -94,36 +101,47 @@ class RandomPlotGeneratorTool(BaseTool):
             return json.dumps(return_dict)
 
         elif self.input_schema.plot_type == "json-piechart":
-            plot_data_piechart = {
-                f"class_{i}": random.randint(0, 1000)  # nosec B311
+            values = [
+                PiechartValue(
+                    category=f"class_{i}",
+                    value=random.randint(0, 1000),  # nosec B311
+                )
                 for i in range(self.input_schema.n_points)
-            }
+            ]
             plot = JSONPiechart(
                 title=f"Random Piechart ({self.input_schema.n_points} classes)",
                 description="Randomly generated piechart data",
-                values=plot_data_piechart,
+                values=values,
+                show_percentages=True,
             )
 
         elif self.input_schema.plot_type == "json-barplot":
-            plot_data_barplot = [
-                (f"category_{i}", random.uniform(0, 100))  # nosec B311
+            values = [
+                BarplotValue(
+                    category=f"category_{i}",
+                    value=random.uniform(0, 100),  # nosec B311
+                )
                 for i in range(self.input_schema.n_points)
             ]
             plot = JSONBarplot(
                 title=f"Random Barplot ({self.input_schema.n_points} categories)",
                 description="Randomly generated barplot data",
-                values=plot_data_barplot,
+                values=values,
+                orientation="vertical",
             )
 
         else:  # json-scatterplot
-            plot_data_scatter = [
-                (random.uniform(-100, 100), random.uniform(-100, 100))  # nosec B311
+            values = [
+                ScatterplotValue(
+                    x=random.uniform(-100, 100),  # nosec B311
+                    y=random.uniform(-100, 100),  # nosec B311
+                )
                 for _ in range(self.input_schema.n_points)
             ]
             plot = JSONScatterplot(
                 title=f"Random Scatterplot ({self.input_schema.n_points} points)",
                 description="Randomly generated scatterplot data",
-                values=plot_data_scatter,
+                values=values,
             )
 
         # Save to storage

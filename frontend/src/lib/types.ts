@@ -123,20 +123,45 @@ export type BToolMetadataDetailed = {
   is_online: boolean;
 };
 
-export type JSONPiechart = {
+type BaseObject = {
   title: string;
   description: string;
-  values: Record<string, number>;
-};
+  x_label?: string;
+  y_label?: string;
+}
 
-export type JSONBarplot = {
-  title: string;
-  description: string;
-  values: [string, number][];
-};
+type PiechartValue = {
+  category: string;
+  value: number;
+  color?: string;
+}
 
-export type JSONScatterplot = {
-  title: string;
-  description: string;
-  values: [number, number][];
-};
+export type JSONPiechart = BaseObject & {
+  values: PiechartValue[];
+  show_percentages?: boolean;
+}
+
+type BarplotValue = {
+  category: string;
+  value: number;
+  error?: number;
+  color?: string;
+}
+
+export type JSONBarplot = BaseObject & {
+  values: BarplotValue[];
+  orientation?: "vertical" | "horizontal";
+}
+
+type ScatterplotValue = {
+  x: number;
+  y: number;
+  label?: string;
+  color?: string;
+  size?: number;
+}
+
+export type JSONScatterplot = BaseObject & {
+  values: ScatterplotValue[];
+  show_regression?: boolean;
+}

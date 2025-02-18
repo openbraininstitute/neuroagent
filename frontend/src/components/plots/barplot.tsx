@@ -21,26 +21,15 @@ ChartJS.register(
   Legend,
 );
 
-function generateColors(count: number) {
-  const colors = [];
-  for (let i = 0; i < count; i++) {
-    const hue = (i * 360) / count;
-    colors.push(`hsla(${hue}, 70%, 60%, 0.5)`);
-  }
-  return {
-    backgroundColor: colors,
-    borderColor: colors.map((color) => color.replace("0.5", "1")),
-  };
-}
-
 type BarplotProps = {
   data: JSONBarplot;
 };
 
 export function Barplot({ data }: BarplotProps) {
-  const labels = data.values.map(([label]) => label);
-  const values = data.values.map(([, value]) => value);
-  const { backgroundColor, borderColor } = generateColors(labels.length);
+  const labels = data.values.map(value => value.category);
+  const values = data.values.map(value => value.value);
+  const backgroundColor = data.values.map(value => value.color || `hsla(${Math.random() * 360}, 70%, 60%, 0.5)`);
+  const borderColor = backgroundColor.map(color => color.replace("0.5", "1"));
 
   const chartData = {
     labels,
@@ -50,12 +39,14 @@ export function Barplot({ data }: BarplotProps) {
         backgroundColor,
         borderColor,
         borderWidth: 1,
+        error: data.values.map(value => value.error),
       },
     ],
   };
 
   const options = {
     responsive: true,
+    indexAxis: (data.orientation === 'horizontal' ? 'y' : 'x') as 'x' | 'y',
     plugins: {
       legend: {
         display: false,
@@ -68,6 +59,16 @@ export function Barplot({ data }: BarplotProps) {
     scales: {
       y: {
         beginAtZero: true,
+        title: {
+          display: !!data.y_label,
+          text: data.y_label,
+        },
+      },
+      x: {
+        title: {
+          display: !!data.x_label,
+          text: data.x_label,
+        },
       },
     },
   };
