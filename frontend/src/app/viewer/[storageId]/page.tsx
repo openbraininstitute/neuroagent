@@ -18,11 +18,7 @@ export default async function ViewerPage({
   const category = response.headers.get("X-Amz-Meta-Category");
 
   if (category === "image") {
-    return (
-      <div>
-        <ImagePlot url={presignedUrl} />
-      </div>
-    );
+    return <ImagePlot url={presignedUrl} />;
   }
 
   // For JSON-based plots, parse the response
@@ -30,28 +26,12 @@ export default async function ViewerPage({
 
   switch (category) {
     case "json-piechart":
-      return (
-        <div>
-          <Piechart data={data as JSONPiechart} />
-        </div>
-      );
+      return <Piechart data={data as JSONPiechart} />;
     case "json-barplot":
-      return (
-        <div>
-          <Barplot data={data as JSONBarplot} />
-        </div>
-      );
+      return <Barplot data={data as JSONBarplot} />;
     case "json-scatterplot":
-      return (
-        <div>
-          <Scatterplot data={data as JSONScatterplot} />
-        </div>
-      );
+      return <Scatterplot data={data as JSONScatterplot} />;
     default:
-      return (
-        <div>
-          <p>Error: Unsupported file category: {category}</p>
-        </div>
-      );
+      return <p>Error: Unsupported file category: {category}</p>;
   }
 }

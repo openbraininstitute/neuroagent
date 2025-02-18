@@ -74,7 +74,7 @@ export function Barplot({ data }: BarplotProps) {
   };
 
   return (
-    <div className="w-full max-w-2xl mx-auto p-4">
+    <div className="w-full max-w-3xl mx-auto p-4 overflow-y-auto">
       <h2 className="text-xl font-bold mb-2">{data.title}</h2>
       {data.description && (
         <p className="text-gray-600 mb-4">{data.description}</p>
