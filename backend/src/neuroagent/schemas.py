@@ -21,7 +21,12 @@ class BaseObject(BaseModel):
     description: str
 
 
-Category = Literal["json-piechart", "json-barplot", "json-scatterplot"]
+Category = Literal[
+    "image",
+    "json-barplot",
+    "json-piechart",
+    "json-scatterplot",
+]
 
 
 class JSONPiechart(BaseObject):

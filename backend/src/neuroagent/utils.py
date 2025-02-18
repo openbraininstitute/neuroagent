@@ -498,7 +498,7 @@ def save_to_storage(
     key_parts = [user_id, identifier]
     filename = "/".join(key_parts)
 
-    metadata = {"category": category}
+    metadata: dict[str, str] = {"category": category}
 
     if thread_id is not None:
         metadata["thread_id"] = thread_id
