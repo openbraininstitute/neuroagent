@@ -1,7 +1,13 @@
 "use client";
 
 import { JSONPiechart } from "@/lib/types";
-import { Chart as ChartJS, ArcElement, Tooltip, Legend, TooltipItem } from "chart.js";
+import {
+  Chart as ChartJS,
+  ArcElement,
+  Tooltip,
+  Legend,
+  TooltipItem,
+} from "chart.js";
 import { Pie } from "react-chartjs-2";
 
 // Register the required Chart.js components
