@@ -23,7 +23,7 @@ async def generate_presigned_url(
     """Generate a presigned URL for file access."""
     s3_client = boto3.client(
         "s3",
-        endpoint_url=settings.storage.endpoint_url_external,
+        endpoint_url=settings.storage.endpoint_url,
         aws_access_key_id=settings.storage.access_key.get_secret_value(),
         aws_secret_access_key=settings.storage.secret_key.get_secret_value(),
         aws_session_token=None,

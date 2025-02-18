@@ -20,8 +20,7 @@ class SettingsAgent(BaseModel):
 class SettingsStorage(BaseModel):
     """Storage settings."""
 
-    endpoint_url: str = "http://minio:9000"
-    endpoint_url_external: str = "http://localhost:9000"
+    endpoint_url: str = "http://localhost:9000"
     bucket_name: str = "neuroagent"
     access_key: SecretStr = SecretStr("minioadmin")
     secret_key: SecretStr = SecretStr("minioadmin")
