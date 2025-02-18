@@ -3,14 +3,12 @@
 import json
 import logging
 import random
-import uuid
 from typing import Any, ClassVar, Literal
 
-import boto3
 from pydantic import BaseModel, Field
 
+from neuroagent.schemas import JSONBarplot, JSONPiechart, JSONScatterplot
 from neuroagent.tools.base_tool import BaseMetadata, BaseTool
-from neuroagent.schemas import JSONPiechart, JSONBarplot, JSONScatterplot
 from neuroagent.utils import save_to_storage
 
 logger = logging.getLogger(__name__)
@@ -59,8 +57,9 @@ class RandomPlotGeneratorTool(BaseTool):
 
         # Generate random plot data based on type
         if self.input_schema.plot_type == "matplotlib-scatterplot":
-            import matplotlib.pyplot as plt
             import io
+
+            import matplotlib.pyplot as plt
 
             # Create the scatter plot
             plt.figure(figsize=(10, 6))

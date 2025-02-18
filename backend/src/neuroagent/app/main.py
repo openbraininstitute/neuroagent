@@ -19,7 +19,7 @@ from neuroagent.app.dependencies import (
     get_settings,
 )
 from neuroagent.app.middleware import strip_path_prefix
-from neuroagent.app.routers import qa, threads, tools, storage
+from neuroagent.app.routers import qa, storage, threads, tools
 
 LOGGING = {
     "version": 1,

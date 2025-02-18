@@ -4,6 +4,7 @@ import logging
 from functools import cache
 from typing import Annotated, Any, AsyncIterator
 
+import boto3
 from fastapi import Depends, HTTPException, Request
 from fastapi.security import HTTPBearer
 from httpx import AsyncClient, HTTPStatusError
@@ -11,7 +12,6 @@ from openai import AsyncOpenAI
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession
 from starlette.status import HTTP_401_UNAUTHORIZED
-import boto3
 
 from neuroagent.agent_routine import AgentsRoutine
 from neuroagent.app.config import Settings

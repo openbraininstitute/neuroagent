@@ -2,7 +2,7 @@
 
 import os
 import pathlib
-from typing import Literal, Optional, Any
+from typing import Literal, Optional
 
 from dotenv import dotenv_values
 from pydantic import BaseModel, ConfigDict, SecretStr

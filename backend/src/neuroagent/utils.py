@@ -4,9 +4,9 @@ import json
 import logging
 import numbers
 import re
+import uuid
 from pathlib import Path
 from typing import Any, Iterator
-import uuid
 
 from fastapi import HTTPException
 from httpx import AsyncClient

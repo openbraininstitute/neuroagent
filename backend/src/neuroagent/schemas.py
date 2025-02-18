@@ -1,6 +1,7 @@
 """Pydantic Schemas."""
 
-from typing import ClassVar
+from typing import ClassVar, Literal
+
 from pydantic import BaseModel
 
 
