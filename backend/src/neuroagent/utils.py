@@ -6,12 +6,13 @@ import numbers
 import re
 from pathlib import Path
 from typing import Any, Iterator
+import uuid
 
 from fastapi import HTTPException
 from httpx import AsyncClient
 
 from neuroagent.app.database.sql_schemas import Entity, Messages
-from neuroagent.schemas import KGMetadata
+from neuroagent.schemas import Category, KGMetadata
 
 logger = logging.getLogger(__name__)
 
@@ -455,3 +456,60 @@ async def get_kg_data(
     # Return its content and the associated metadata
     object_content = content_response.content
     return object_content, KGMetadata(**metadata)
+
+
+def save_to_storage(
+    s3_client: Any,
+    bucket_name: str,
+    user_id: str,
+    content_type: str,
+    category: Category,
+    body: bytes | str,
+    thread_id: str | None = None,
+) -> str:
+    """Save content to S3 storage and return the storage ID.
+
+    Parameters
+    ----------
+    s3_client : Any
+        Boto3 S3 client instance
+    bucket_name : str
+        Name of the S3 bucket
+    user_id : str
+        User identifier
+    content_type : str
+        Content type of the object (e.g. 'image/png', 'application/json')
+    category : Category
+        Category metadata for the object
+    body : bytes | str
+        Content to store - can be bytes or string (for JSON)
+    thread_id : str | None
+        Optional thread identifier for grouping related objects
+
+    Returns
+    -------
+    str
+        Generated storage identifier
+    """
+    # Generate unique identifier
+    identifier = str(uuid.uuid4())
+
+    # Construct the full path including user_id
+    key_parts = [user_id, identifier]
+    filename = "/".join(key_parts)
+
+    metadata = {"category": category}
+
+    if thread_id is not None:
+        metadata["thread_id"] = thread_id
+
+    # Save to S3 with metadata
+    s3_client.put_object(
+        Bucket=bucket_name,
+        Key=filename,
+        Body=body,
+        ContentType=content_type,
+        Metadata=metadata,
+    )
+
+    return identifier

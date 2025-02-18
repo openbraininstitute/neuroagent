@@ -20,17 +20,22 @@ class BaseObject(BaseModel):
     description: str
 
 
+Category = Literal["json-piechart", "json-barplot", "json-scatterplot"]
+
+
 class JSONPiechart(BaseObject):
     """JSON piechart schema."""
 
     category: ClassVar[str] = "json-piechart"
     values: dict[str, int]
 
+
 class JSONBarplot(BaseObject):
     """JSON barplot schema."""
 
     category: ClassVar[str] = "json-barplot"
     values: list[tuple[str, float]]
+
 
 class JSONScatterplot(BaseObject):
     """JSON scatterplot schema."""

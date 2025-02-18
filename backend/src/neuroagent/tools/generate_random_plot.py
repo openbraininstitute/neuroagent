@@ -11,6 +11,7 @@ from pydantic import BaseModel, Field
 
 from neuroagent.tools.base_tool import BaseMetadata, BaseTool
 from neuroagent.schemas import JSONPiechart, JSONBarplot, JSONScatterplot
+from neuroagent.utils import save_to_storage
 
 logger = logging.getLogger(__name__)
 
@@ -18,9 +19,9 @@ logger = logging.getLogger(__name__)
 class RandomPlotInput(BaseModel):
     """Input schema for Random Plot Generator tool."""
 
-    plot_type: Literal["json-piechart", "json-barplot", "json-scatterplot", "matplotlib-scatterplot"] = Field(
-        description="Type of plot to generate"
-    )
+    plot_type: Literal[
+        "json-piechart", "json-barplot", "json-scatterplot", "matplotlib-scatterplot"
+    ] = Field(description="Type of plot to generate")
     n_points: int = Field(
         description="Number of data points for the plot", ge=1, le=100
     )
@@ -32,6 +33,7 @@ class RandomPlotMetadata(BaseMetadata):
     s3_client: Any  # boto3 client doesn't have type hints
     user_id: str
     bucket_name: str
+    thread_id: str
 
 
 class RandomPlotGeneratorTool(BaseTool):
@@ -42,16 +44,18 @@ class RandomPlotGeneratorTool(BaseTool):
     description: ClassVar[str] = (
         "Generates a random plot and saves it to internal storage. Returns the identifier of the saved plot."
     )
-    description_frontend: ClassVar[
-        str
-    ] = """Generate a random plot and save it to object storage."""
+    description_frontend: ClassVar[str] = (
+        """Generate a random plot and save it to object storage."""
+    )
 
     input_schema: RandomPlotInput
     metadata: RandomPlotMetadata
 
     async def arun(self) -> str:
         """Generate random plot and save to object storage."""
-        logger.info(f"Generating {self.input_schema.plot_type} with {self.input_schema.n_points} points")
+        logger.info(
+            f"Generating {self.input_schema.plot_type} with {self.input_schema.n_points} points"
+        )
 
         # Generate random plot data based on type
         if self.input_schema.plot_type == "matplotlib-scatterplot":
@@ -69,21 +73,19 @@ class RandomPlotGeneratorTool(BaseTool):
 
             # Save plot to bytes buffer
             buf = io.BytesIO()
-            plt.savefig(buf, format='png')
+            plt.savefig(buf, format="png")
             plt.close()
             buf.seek(0)
 
-            # Generate unique filename
-            identifier = str(uuid.uuid4())
-            filename = f"{self.metadata.user_id}/{identifier}"
-
-            # Save to S3 with metadata
-            self.metadata.s3_client.put_object(
-                Bucket=self.metadata.bucket_name,
-                Key=filename,
-                Body=buf,
-                ContentType="image/png",
-                Metadata={"category": "image"},
+            # Save to storage
+            identifier = save_to_storage(
+                s3_client=self.metadata.s3_client,
+                bucket_name=self.metadata.bucket_name,
+                user_id=self.metadata.user_id,
+                content_type="image/png",
+                category="image",
+                body=buf.getvalue(),
+                thread_id=self.metadata.thread_id,
             )
 
             return_dict = {
@@ -101,7 +103,7 @@ class RandomPlotGeneratorTool(BaseTool):
                 description="Randomly generated piechart data",
                 values=plot_data,
             )
-        
+
         elif self.input_schema.plot_type == "json-barplot":
             plot_data = [
                 (f"category_{i}", random.uniform(0, 100))
@@ -112,7 +114,7 @@ class RandomPlotGeneratorTool(BaseTool):
                 description="Randomly generated barplot data",
                 values=plot_data,
             )
-        
+
         else:  # json-scatterplot
             plot_data = [
                 (random.uniform(-100, 100), random.uniform(-100, 100))
@@ -124,17 +126,15 @@ class RandomPlotGeneratorTool(BaseTool):
                 values=plot_data,
             )
 
-        # Generate unique filename
-        identifier = str(uuid.uuid4())
-        filename = f"{self.metadata.user_id}/{identifier}"
-
-        # Save to S3 with metadata
-        self.metadata.s3_client.put_object(
-            Bucket=self.metadata.bucket_name,
-            Key=filename,
-            Body=plot.model_dump_json(),
-            ContentType="application/json",
-            Metadata={"category": plot.category},
+        # Save to storage
+        identifier = save_to_storage(
+            s3_client=self.metadata.s3_client,
+            bucket_name=self.metadata.bucket_name,
+            user_id=self.metadata.user_id,
+            content_type="application/json",
+            category=plot.category,
+            body=plot.model_dump_json(),
+            thread_id=self.metadata.thread_id,
         )
 
         return_dict = {

@@ -274,6 +274,7 @@ def get_context_variables(
         "s3_client": s3_client,
         "bucket_name": settings.storage.bucket_name,
         "user_id": user_id,
+        "thread_id": thread.thread_id,
     }
 
 

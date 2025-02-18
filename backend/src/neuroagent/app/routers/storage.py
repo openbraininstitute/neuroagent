@@ -35,20 +35,13 @@ async def generate_presigned_url(
 
     # Check if object exists first
     try:
-        s3_client.head_object(
-            Bucket=settings.storage.bucket_name,
-            Key=key
-        )
+        s3_client.head_object(Bucket=settings.storage.bucket_name, Key=key)
     except s3_client.exceptions.ClientError as e:
-        if e.response['Error']['Code'] == '404':
+        if e.response["Error"]["Code"] == "404":
             raise HTTPException(
-                status_code=404,
-                detail=f"File {file_identifier} not found"
+                status_code=404, detail=f"File {file_identifier} not found"
             )
-        raise HTTPException(
-            status_code=500,
-            detail="Error accessing the file"
-        )
+        raise HTTPException(status_code=500, detail="Error accessing the file")
 
     # Generate presigned URL that's valid for 10 minutes
     presigned_url = s3_client.generate_presigned_url(
