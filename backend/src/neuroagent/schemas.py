@@ -13,14 +13,6 @@ class KGMetadata(BaseModel):
     is_lnmc: bool = False
 
 
-class BaseObject(BaseModel):
-    """Base storage schema."""
-
-    category: ClassVar[str] = ""
-    title: str
-    description: str
-
-
 Category = Literal[
     "image",
     "json-barplot",
@@ -29,22 +21,30 @@ Category = Literal[
 ]
 
 
+class BaseObject(BaseModel):
+    """Base storage schema."""
+
+    category: ClassVar[Category]
+    title: str
+    description: str
+
+
 class JSONPiechart(BaseObject):
     """JSON piechart schema."""
 
-    category: ClassVar[str] = "json-piechart"
+    category: ClassVar[Category] = "json-piechart"
     values: dict[str, int]
 
 
 class JSONBarplot(BaseObject):
     """JSON barplot schema."""
 
-    category: ClassVar[str] = "json-barplot"
+    category: ClassVar[Category] = "json-barplot"
     values: list[tuple[str, float]]
 
 
 class JSONScatterplot(BaseObject):
     """JSON scatterplot schema."""
 
-    category: ClassVar[str] = "json-scatterplot"
+    category: ClassVar[Category] = "json-scatterplot"
     values: list[tuple[float, float]]
