@@ -513,3 +513,52 @@ def save_to_storage(
     )
 
     return identifier
+
+
+def delete_from_storage(
+    s3_client: Any,
+    bucket_name: str,
+    user_id: str,
+    thread_id: str,
+) -> None:
+    """Delete all objects from S3 storage that match the given user_id and thread_id.
+
+    Parameters
+    ----------
+    s3_client : Any
+        Boto3 S3 client instance
+    bucket_name : str
+        Name of the S3 bucket
+    user_id : str
+        User identifier
+    thread_id : str
+        Thread identifier for filtering objects to delete
+    """
+    # List all objects under the user's prefix
+    paginator = s3_client.get_paginator("list_objects_v2")
+    pages = paginator.paginate(Bucket=bucket_name, Prefix=f"{user_id}/")
+
+    # Collect objects to delete
+    objects_to_delete = []
+
+    for page in pages:
+        if "Contents" not in page:
+            continue
+
+        for obj in page["Contents"]:
+            # Get object metadata
+            head = s3_client.head_object(Bucket=bucket_name, Key=obj["Key"])
+            metadata = head.get("Metadata", {})
+
+            # Check if object has matching thread_id
+            if metadata.get("thread_id") == thread_id:
+                objects_to_delete.append({"Key": obj["Key"]})
+
+        # Delete in batches of 1000 (S3 limit)
+        if objects_to_delete:
+            for i in range(0, len(objects_to_delete), 1000):
+                batch = objects_to_delete[i : i + 1000]
+                s3_client.delete_objects(
+                    Bucket=bucket_name, Delete={"Objects": batch, "Quiet": True}
+                )
+            objects_to_delete = []
