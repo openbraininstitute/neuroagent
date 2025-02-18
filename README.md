@@ -22,6 +22,7 @@ NEXTAUTH_SECRET=...
 ```bash
 docker compose up
 docker exec -it neuroagent-backend-1 alembic -x url=postgresql://postgres:pwd@postgres:5432/neuroagent upgrade head
+docker exec -it neuroagent-minio-1 mc alias set myminio http://localhost:9000 minioadmin minioadmin && docker exec -it neuroagent-minio-1 mc mb myminio/neuroagent
 ```
 
 4. Access the application at `http://localhost:3000`
