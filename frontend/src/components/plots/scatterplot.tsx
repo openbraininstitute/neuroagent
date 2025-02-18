@@ -62,4 +62,4 @@ export function Scatterplot({ data }: ScatterplotProps) {
       </div>
     </div>
   );
-} 
+}

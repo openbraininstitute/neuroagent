@@ -18,7 +18,7 @@ ChartJS.register(
   BarElement,
   Title,
   Tooltip,
-  Legend
+  Legend,
 );
 
 function generateColors(count: number) {
@@ -83,4 +83,4 @@ export function Barplot({ data }: BarplotProps) {
       </div>
     </div>
   );
-} 
+}

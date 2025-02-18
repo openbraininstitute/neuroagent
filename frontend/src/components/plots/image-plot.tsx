@@ -24,4 +24,4 @@ export function ImagePlot({ url, title, description }: ImagePlotProps) {
       </div>
     </div>
   );
-} 
+}
