@@ -21,6 +21,7 @@ from neuroagent.tools.morphology_features_tool import (
     MorphologyFeatureOutput,
     MorphologyFeatureTool,
 )
+from neuroagent.tools.morphology_viewer import MorphologyViewerTool
 from neuroagent.tools.now import NowTool
 from neuroagent.tools.resolve_entities_tool import (
     BRResolveOutput,
@@ -46,6 +47,7 @@ __all__ = [
     "MEModelGetOneTool",
     "MorphologyFeatureOutput",
     "MorphologyFeatureTool",
+    "MorphologyViewerTool",
     "NowTool",
     "ParagraphMetadata",
     "PlotGeneratorTool",
