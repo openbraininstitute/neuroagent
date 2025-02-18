@@ -12,6 +12,9 @@ services:
       - NEUROAGENT_KNOWLEDGE_GRAPH__BASE_URL=https://whathever.com
       - NEUROAGENT_OPENAI__TOKEN=${OPENAI_API_KEY}
       - NEUROAGENT_STORAGE__ENDPOINT_URL=http://minio:9000
+      - NEUROAGENT_STORAGE__BUCKET_NAME=neuroagent
+      - NEUROAGENT_STORAGE__ACCESS_KEY=minioadmin
+      - NEUROAGENT_STORAGE__SECRET_KEY=minioadmin
       - NEUROAGENT_MISC__FRONTEND_URL=http://localhost:3000  # localhost because used for link generation in the browser
     networks:
       - app-network
