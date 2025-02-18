@@ -13,6 +13,7 @@ services:
       - NEUROAGENT_OPENAI__TOKEN=${OPENAI_API_KEY}
       - NEUROAGENT_STORAGE__ENDPOINT_URL=http://minio:9000
       - NEUROAGENT_STORAGE__ENDPOINT_URL_EXTERNAL=http://localhost:9000
+      - NEUROAGENT_MISC__FRONTEND_URL=http://localhost:3000
     networks:
       - app-network
     depends_on:
