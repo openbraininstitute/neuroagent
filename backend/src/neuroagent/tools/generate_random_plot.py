@@ -64,8 +64,8 @@ class RandomPlotGeneratorTool(BaseTool):
         if self.input_schema.plot_type == "matplotlib-scatterplot":
             # Create the scatter plot
             plt.figure(figsize=(10, 6))
-            x = [random.uniform(-100, 100) for _ in range(self.input_schema.n_points)]
-            y = [random.uniform(-100, 100) for _ in range(self.input_schema.n_points)]
+            x = [random.uniform(-100, 100) for _ in range(self.input_schema.n_points)]  # nosec B311
+            y = [random.uniform(-100, 100) for _ in range(self.input_schema.n_points)]  # nosec B311
             plt.scatter(x, y)
             plt.title(f"Random Scatterplot ({self.input_schema.n_points} points)")
             plt.xlabel("X axis")
@@ -95,7 +95,7 @@ class RandomPlotGeneratorTool(BaseTool):
 
         elif self.input_schema.plot_type == "json-piechart":
             plot_data_piechart = {
-                f"class_{i}": random.randint(0, 1000)
+                f"class_{i}": random.randint(0, 1000)  # nosec B311
                 for i in range(self.input_schema.n_points)
             }
             plot = JSONPiechart(
@@ -106,7 +106,7 @@ class RandomPlotGeneratorTool(BaseTool):
 
         elif self.input_schema.plot_type == "json-barplot":
             plot_data_barplot = [
-                (f"category_{i}", random.uniform(0, 100))
+                (f"category_{i}", random.uniform(0, 100))  # nosec B311
                 for i in range(self.input_schema.n_points)
             ]
             plot = JSONBarplot(
@@ -117,7 +117,7 @@ class RandomPlotGeneratorTool(BaseTool):
 
         else:  # json-scatterplot
             plot_data_scatter = [
-                (random.uniform(-100, 100), random.uniform(-100, 100))
+                (random.uniform(-100, 100), random.uniform(-100, 100))  # nosec B311
                 for _ in range(self.input_schema.n_points)
             ]
             plot = JSONScatterplot(
