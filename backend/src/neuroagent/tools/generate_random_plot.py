@@ -144,5 +144,5 @@ class RandomPlotGeneratorTool(BaseTool):
 
     @classmethod
     async def is_online(cls) -> bool:
-        """Check if S3 is accessible."""
+        """Check if generate random plot is accessible."""
         return True
