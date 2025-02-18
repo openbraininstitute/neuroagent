@@ -147,7 +147,7 @@ async def get_tool_metadata(
 
     try:
         is_online = await tool_class.is_online(**is_online_kwargs)
-    except:
+    except Exception:
         logger.exception(f"Error checking tool {tool_class.name} online status")
         is_online = False
 
