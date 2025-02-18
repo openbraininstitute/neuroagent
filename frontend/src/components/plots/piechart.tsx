@@ -1,7 +1,7 @@
 "use client";
 
 import { JSONPiechart } from "@/lib/types";
-import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
+import { Chart as ChartJS, ArcElement, Tooltip, Legend, TooltipItem } from "chart.js";
 import { Pie } from "react-chartjs-2";
 
 // Register the required Chart.js components
@@ -52,9 +52,9 @@ export function Piechart({ data }: PiechartProps) {
       },
       tooltip: {
         callbacks: {
-          label: (context: any) => {
+          label: (context: TooltipItem<"pie">) => {
             const label = context.label || "";
-            const value = context.raw || 0;
+            const value = Number(context.raw || 0);
             const total = context.dataset.data.reduce(
               (a: number, b: number) => a + b,
               0,
