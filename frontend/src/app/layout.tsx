@@ -4,6 +4,7 @@ import "./globals.css";
 import ThemeChanger from "@/components/theme-changer";
 import { QueryProvider } from "@/components/query-client-provider";
 import { AuthProvider } from "@/components/auth-provider";
+import NextTopLoader from "nextjs-toploader";
 
 import { Body } from "@/components/body";
 import { Footer } from "@/components/footer";
@@ -49,7 +50,10 @@ export default function RootLayout({
                   <Sidebar>
                     <ThreadList />
                   </Sidebar>
-                  <Body>{children}</Body>
+                  <Body>
+                    <NextTopLoader />
+                    {children}
+                  </Body>
                 </div>
                 <Footer />
               </div>

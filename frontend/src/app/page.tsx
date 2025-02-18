@@ -3,9 +3,6 @@ import { fetcher } from "@/lib/fetcher";
 import { auth } from "@/lib/auth";
 import { getSettings } from "@/lib/cookies-server";
 import { redirect } from "next/navigation";
-import Loader from "@/components/loader";
-import { headers } from "next/headers";
-import { Suspense } from "react";
 
 async function isVlabAndProjectPopulated() {
   const { projectID, virtualLabID } = await getSettings();

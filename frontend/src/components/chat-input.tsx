@@ -1,7 +1,6 @@
 "use client";
 
 import { useActionState, useEffect, useState, useRef } from "react";
-import { useTransition } from "react";
 import { createThread } from "@/actions/create-thread";
 import { generateEditTitle } from "@/actions/generate-edit-thread";
 import { ToolSelectionDropdown } from "@/components/tool-selection-dropdown";
@@ -23,20 +22,23 @@ export function ChatInput({ availableTools }: ChatInputProps) {
   const router = useRouter();
   const requiresHandleSubmit = useRef(true);
   const [canRedirect, setCanRedirect] = useState(false);
-  const [transitionState, startTransition] = useTransition();
 
   const [state, action, isPending] = useActionState(createThread, null);
 
   // Watch for state changes and redirect when ready
   useEffect(() => {
-    if (state?.threadId) {
-      // First update the URL, then trigger the full redirect.
-      if (!canRedirect) {
-        generateEditTitle(null, state.threadId, input);
-      } else {
-        router.push(`/threads/${state.threadId}`);
+    const updateTitleAndRedirect = async () => {
+      if (state?.threadId) {
+        if (!canRedirect) {
+          await generateEditTitle(null, state.threadId, input); // Await the async function
+        } else {
+          router.push(`/threads/${state.threadId}`);
+          router.refresh();
+        }
       }
-    }
+    };
+
+    updateTitleAndRedirect();
   }, [state, canRedirect, router]);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {

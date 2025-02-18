@@ -2,9 +2,6 @@ import { BMessage, MessageStrict } from "@/lib/types";
 import { ChatPage } from "@/components/chat-page";
 import { auth } from "@/lib/auth";
 import { fetcher } from "@/lib/fetcher";
-import { Suspense } from "react";
-import { headers } from "next/headers";
-import Loader from "@/components/loader";
 
 async function getMessages(threadId: string): Promise<BMessage[]> {
   const session = await auth();
