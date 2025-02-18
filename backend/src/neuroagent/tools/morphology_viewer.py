@@ -6,8 +6,8 @@ import logging
 from typing import Any, ClassVar, Literal
 
 import matplotlib.pyplot as plt
-from neurom import load_morphology, NeuriteType
-from neurom.view import plot_morph, plot_morph3d, plot_dendrogram
+from neurom import NeuriteType, load_morphology
+from neurom.view import plot_dendrogram, plot_morph, plot_morph3d
 from pydantic import BaseModel, Field
 
 from neuroagent.tools.base_tool import BaseMetadata, BaseTool

@@ -101,7 +101,7 @@ class RandomPlotGeneratorTool(BaseTool):
             return json.dumps(return_dict)
 
         elif self.input_schema.plot_type == "json-piechart":
-            values = [
+            values_piechart = [
                 PiechartValue(
                     category=f"class_{i}",
                     value=random.randint(0, 1000),  # nosec B311
@@ -111,12 +111,12 @@ class RandomPlotGeneratorTool(BaseTool):
             plot = JSONPiechart(
                 title=f"Random Piechart ({self.input_schema.n_points} classes)",
                 description="Randomly generated piechart data",
-                values=values,
+                values=values_piechart,
                 show_percentages=True,
             )
 
         elif self.input_schema.plot_type == "json-barplot":
-            values = [
+            values_barplot = [
                 BarplotValue(
                     category=f"category_{i}",
                     value=random.uniform(0, 100),  # nosec B311
@@ -126,12 +126,12 @@ class RandomPlotGeneratorTool(BaseTool):
             plot = JSONBarplot(
                 title=f"Random Barplot ({self.input_schema.n_points} categories)",
                 description="Randomly generated barplot data",
-                values=values,
+                values=values_barplot,
                 orientation="vertical",
             )
 
         else:  # json-scatterplot
-            values = [
+            values_scatter = [
                 ScatterplotValue(
                     x=random.uniform(-100, 100),  # nosec B311
                     y=random.uniform(-100, 100),  # nosec B311
@@ -141,7 +141,7 @@ class RandomPlotGeneratorTool(BaseTool):
             plot = JSONScatterplot(
                 title=f"Random Scatterplot ({self.input_schema.n_points} points)",
                 description="Randomly generated scatterplot data",
-                values=values,
+                values=values_scatter,
             )
 
         # Save to storage

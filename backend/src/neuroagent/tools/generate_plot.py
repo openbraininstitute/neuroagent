@@ -67,6 +67,8 @@ class PlotGeneratorTool(BaseTool):
         """Generate plot and save to storage."""
         logger.info(f"Generating {self.input_schema.plot_type}")
 
+        plot: JSONPiechart | JSONBarplot | JSONScatterplot
+
         if self.input_schema.plot_type == "json-piechart":
             if not self.input_schema.piechart_values:
                 raise ValueError("Piechart values are required for json-piechart")

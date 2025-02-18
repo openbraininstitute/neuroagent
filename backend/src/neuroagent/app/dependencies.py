@@ -26,13 +26,13 @@ from neuroagent.tools import (
     MEModelGetAllTool,
     MEModelGetOneTool,
     MorphologyFeatureTool,
+    MorphologyViewerTool,
     PlotGeneratorTool,
     RandomPlotGeneratorTool,
     ResolveEntitiesTool,
     SCSGetAllTool,
     SCSGetOneTool,
     SCSPostTool,
-    MorphologyViewerTool,
 )
 from neuroagent.tools.base_tool import BaseTool
 
