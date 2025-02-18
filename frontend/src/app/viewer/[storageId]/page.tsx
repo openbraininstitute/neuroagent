@@ -2,7 +2,7 @@ import { getPresignedUrl } from "@/lib/storage";
 import { Piechart } from "@/components/plots/piechart";
 import { Barplot } from "@/components/plots/barplot";
 import { Scatterplot } from "@/components/plots/scatterplot";
-import { ImagePlot } from "@/components/plots/image-plot";
+import { ImagePlot } from "@/components/plots/image";
 import { JSONPiechart, JSONBarplot, JSONScatterplot } from "@/lib/types";
 
 export default async function ViewerPage({
