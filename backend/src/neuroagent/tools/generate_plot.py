@@ -82,9 +82,14 @@ class PlotGeneratorTool(BaseTool):
     description: ClassVar[str] = (
         "Generates a plot from user-provided data and saves it to storage. Returns the identifier of the saved plot."
     )
-    description_frontend: ClassVar[str] = (
-        """Generate a plot from your data and save it to storage."""
-    )
+    description_frontend: ClassVar[
+        str
+    ] = """Generate a plot from your data and save it to storage. Available plot types:
+    • Pie charts - For displaying proportions of a whole
+    • Bar plots - For comparing quantities across categories
+    • Scatter plots - For showing relationships between two variables
+    • Histograms - For displaying distribution of numerical data
+    • Line charts - For showing trends over a continuous range"""
 
     input_schema: PlotInput
     metadata: PlotMetadata
