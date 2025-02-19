@@ -89,7 +89,7 @@ async def generate_title(
         {"role": "user", "content": body.first_user_message},
     ]
     response = await openai_client.chat.completions.create(
-        messages=messages,
+        messages=messages,  # type: ignore
         model=settings.openai.model,
     )
     # Update the thread title and modified date + commit
