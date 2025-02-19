@@ -84,7 +84,7 @@ async def generate_title(
     messages = [
         {
             "role": "system",
-            "content": "Given the user's first message of a conversation, generate a short and descriptive title for this conversation.",
+            "content": "Given the user's first message of a conversation, generate a short title for this conversation (max 5 words).",
         },
         {"role": "user", "content": body.first_user_message},
     ]
