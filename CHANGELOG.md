@@ -67,6 +67,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - [frontend] - Fix long message overflowing.
 - [frontend] - Scrolling while streaming.
 - [frontend] - Handle invalid json errors.
+- [frontend] - Tool selection is all checked when refreshing.
 
 ## [0.3.3] - 30.10.2024
 

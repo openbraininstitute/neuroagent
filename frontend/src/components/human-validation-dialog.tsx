@@ -73,6 +73,7 @@ export function HumanValidationDialog({
         setShowFeedbackDialog(false);
         setFeedback("");
         setDialogTransition(false);
+        setError("");
       }, 300);
     }
     setIsOpen(open);
@@ -116,8 +117,13 @@ export function HumanValidationDialog({
         };
         return updatedMsg;
       });
-    } catch (error) {
-      setError("Invalid JSON. Please check your input and try again.");
+    } catch {
+      // Timeout is here to have the flickering effect when clicking
+      // "Accept" multiple times on a malformed JSON.
+      setTimeout(() => {
+        setError("Invalid JSON. Please check your input and try again.");
+      }, 50);
+      return;
     }
 
     // Execute using the passed mutate function
