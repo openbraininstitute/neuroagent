@@ -4,7 +4,7 @@ import "./globals.css";
 import ThemeChanger from "@/components/theme-changer";
 import { QueryProvider } from "@/components/query-client-provider";
 import { AuthProvider } from "@/components/auth-provider";
-import NextTopLoader from "nextjs-toploader";
+import ProgressBar from "@/components/progress-bar";
 
 import { Body } from "@/components/body";
 import { Footer } from "@/components/footer";
@@ -51,7 +51,7 @@ export default function RootLayout({
                     <ThreadList />
                   </Sidebar>
                   <Body>
-                    <NextTopLoader />
+                    <ProgressBar />
                     {children}
                   </Body>
                 </div>
