@@ -3,7 +3,13 @@ import { Piechart } from "@/components/plots/piechart";
 import { Barplot } from "@/components/plots/barplot";
 import { Scatterplot } from "@/components/plots/scatterplot";
 import { ImagePlot } from "@/components/plots/image";
-import { JSONPiechart, JSONBarplot, JSONScatterplot } from "@/lib/types";
+import { Histogram } from "@/components/plots/histogram";
+import {
+  JSONPiechart,
+  JSONBarplot,
+  JSONScatterplot,
+  JSONHistogram,
+} from "@/lib/types";
 
 export default async function ViewerPage({
   params,
@@ -31,6 +37,8 @@ export default async function ViewerPage({
       return <Barplot data={data as JSONBarplot} />;
     case "json-scatterplot":
       return <Scatterplot data={data as JSONScatterplot} />;
+    case "json-histogram":
+      return <Histogram data={data as JSONHistogram} />;
     default:
       return <p>Error: Unsupported file category: {category}</p>;
   }

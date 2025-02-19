@@ -165,3 +165,9 @@ export type JSONScatterplot = BaseObject & {
   values: ScatterplotValue[];
   show_regression?: boolean;
 };
+
+export type JSONHistogram = BaseObject & {
+  values: number[]; // The raw values to bin
+  bins: number; // Number of bins to use
+  color?: string; // Optional color for the bars
+};

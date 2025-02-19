@@ -16,6 +16,7 @@ class KGMetadata(BaseModel):
 Category = Literal[
     "image",
     "json-barplot",
+    "json-histogram",
     "json-piechart",
     "json-scatterplot",
 ]
@@ -89,4 +90,15 @@ class JSONScatterplot(BaseObject):
     values: list[ScatterplotValue] = Field(description="List of points")
     show_regression: bool = Field(
         default=False, description="Whether to show regression line"
+    )
+
+
+class JSONHistogram(BaseObject):
+    """JSON histogram schema similar to numpy's histogram function."""
+
+    category: ClassVar[Category] = "json-histogram"
+    values: list[float] = Field(description="List of values to bin")
+    bins: int = Field(default=10, description="Number of equal-width bins", gt=0)
+    color: str | None = Field(
+        None, description="Optional hex color code for the histogram bars"
     )
