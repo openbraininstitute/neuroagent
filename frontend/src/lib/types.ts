@@ -171,3 +171,16 @@ export type JSONHistogram = BaseObject & {
   bins: number; // Number of bins to use
   color?: string; // Optional color for the bars
 };
+
+type LinechartValue = {
+  x: number;
+  y: number;
+  label?: string;
+};
+
+export type JSONLinechart = BaseObject & {
+  values: LinechartValue[];
+  show_points?: boolean;
+  line_style?: string;
+  line_color?: string;
+};

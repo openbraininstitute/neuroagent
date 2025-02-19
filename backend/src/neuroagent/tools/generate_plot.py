@@ -10,8 +10,10 @@ from neuroagent.schemas import (
     BarplotValue,
     JSONBarplot,
     JSONHistogram,
+    JSONLinechart,
     JSONPiechart,
     JSONScatterplot,
+    LinechartValue,
     PiechartValue,
     ScatterplotValue,
 )
@@ -25,7 +27,11 @@ class PlotInput(BaseModel):
     """Input schema for Plot Generator tool."""
 
     plot_type: Literal[
-        "json-piechart", "json-barplot", "json-scatterplot", "json-histogram"
+        "json-piechart",
+        "json-barplot",
+        "json-scatterplot",
+        "json-histogram",
+        "json-linechart",
     ] = Field(description="Type of plot to generate")
     title: str = Field(description="Title for the plot")
     description: str = Field(description="Description of the plot")
@@ -49,6 +55,14 @@ class PlotInput(BaseModel):
     histogram_color: str | None = Field(
         None, description="Optional hex color code for histogram bars"
     )
+    linechart_values: list[LinechartValue] | None = Field(
+        None, description="List of points for line charts"
+    )
+    line_style: str | None = Field(
+        default="solid",
+        description="Line style for line chart (e.g., 'solid', 'dashed', 'dotted')",
+    )
+    line_color: str | None = Field(None, description="Hex color code for line chart")
 
 
 class PlotMetadata(BaseMetadata):
@@ -79,7 +93,9 @@ class PlotGeneratorTool(BaseTool):
         """Generate plot and save to storage."""
         logger.info(f"Generating {self.input_schema.plot_type}")
 
-        plot: JSONPiechart | JSONBarplot | JSONScatterplot | JSONHistogram
+        plot: (
+            JSONPiechart | JSONBarplot | JSONScatterplot | JSONHistogram | JSONLinechart
+        )
 
         if self.input_schema.plot_type == "json-piechart":
             if not self.input_schema.piechart_values:
@@ -117,6 +133,20 @@ class PlotGeneratorTool(BaseTool):
                 color=self.input_schema.histogram_color,
                 x_label=self.input_schema.x_label,
                 y_label=self.input_schema.y_label,
+            )
+
+        elif self.input_schema.plot_type == "json-linechart":
+            if not self.input_schema.linechart_values:
+                raise ValueError("Line chart values are required for json-linechart")
+
+            plot = JSONLinechart(
+                title=self.input_schema.title,
+                description=self.input_schema.description,
+                values=self.input_schema.linechart_values,
+                x_label=self.input_schema.x_label,
+                y_label=self.input_schema.y_label,
+                line_style=self.input_schema.line_style,
+                line_color=self.input_schema.line_color,
             )
 
         else:  # json-scatterplot

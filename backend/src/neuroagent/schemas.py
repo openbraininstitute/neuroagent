@@ -102,3 +102,27 @@ class JSONHistogram(BaseObject):
     color: str | None = Field(
         None, description="Optional hex color code for the histogram bars"
     )
+
+
+class LinechartValue(BaseModel):
+    """Individual point for linechart."""
+
+    x: float = Field(description="X coordinate")
+    y: float = Field(description="Y coordinate")
+    label: str | None = Field(None, description="Optional point label")
+
+
+class JSONLinechart(BaseObject):
+    """JSON linechart schema for plotting line graphs."""
+
+    category: ClassVar[Category] = "json-linechart"
+    values: list[LinechartValue] = Field(
+        description="List of points to connect with lines"
+    )
+    show_points: bool = Field(
+        default=True, description="Whether to show individual points on the line"
+    )
+    line_style: str | None = Field(
+        default="solid", description="Line style (e.g., 'solid', 'dashed', 'dotted')"
+    )
+    line_color: str | None = Field(None, description="Hex color code for the line")
