@@ -224,13 +224,19 @@ class AgentsRoutine:
 
                     elif choice.finish_reason == "tool_calls":
                         for tool_call in draft_tool_calls:
-                            input_schema = tool_map[tool_call["name"]].__annotations__[
-                                "input_schema"
-                            ](**json.loads(tool_call["arguments"]))
+                            input_args = json.loads(tool_call["arguments"] or "{}")
+                            try:
+                                input_schema = (
+                                    tool_map[tool_call["name"]]
+                                    .__annotations__["input_schema"](**input_args)
+                                    .model_dump()
+                                )
+                            except ValidationError:
+                                input_schema = input_args
                             tool_call_data = {
                                 "toolCallId": tool_call["id"],
                                 "toolName": tool_call["name"],
-                                "args": input_schema.model_dump(),
+                                "args": input_schema,
                             }
                             yield f"9:{json.dumps(tool_call_data, separators=(',',':'))}\n"
 
