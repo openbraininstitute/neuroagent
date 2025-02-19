@@ -17,6 +17,7 @@ Category = Literal[
     "image",
     "json-barplot",
     "json-histogram",
+    "json-linechart",
     "json-piechart",
     "json-scatterplot",
 ]
