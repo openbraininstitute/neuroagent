@@ -190,6 +190,7 @@ class AgentsRoutine:
         content = await messages_to_openai_content(messages)
         history = copy.deepcopy(content)
         init_len = len(messages)
+        tool_map = {tool.name: tool for tool in agent.tools}
 
         while len(history) - init_len < max_turns:
             message: dict[str, Any] = {
@@ -223,10 +224,19 @@ class AgentsRoutine:
 
                     elif choice.finish_reason == "tool_calls":
                         for tool_call in draft_tool_calls:
+                            input_args = json.loads(tool_call["arguments"] or "{}")
+                            try:
+                                input_schema = (
+                                    tool_map[tool_call["name"]]
+                                    .__annotations__["input_schema"](**input_args)
+                                    .model_dump()
+                                )
+                            except ValidationError:
+                                input_schema = input_args
                             tool_call_data = {
                                 "toolCallId": tool_call["id"],
                                 "toolName": tool_call["name"],
-                                "args": json.loads(tool_call["arguments"] or "{}"),
+                                "args": input_schema,
                             }
                             yield f"9:{json.dumps(tool_call_data, separators=(',', ':'))}\n"
 
@@ -314,8 +324,6 @@ class AgentsRoutine:
                 break
 
             # kick out tool calls that require HIL
-            tool_map = {tool.name: tool for tool in agent.tools}
-
             tool_calls_to_execute = [
                 tool_call
                 for tool_call in messages[-1].tool_calls
