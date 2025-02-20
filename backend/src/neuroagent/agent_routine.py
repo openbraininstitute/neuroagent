@@ -306,7 +306,9 @@ class AgentsRoutine:
 
             # Append the history with the json version
             history.append(copy.deepcopy(message))
-            message["tool_calls"] = "tool_calls" in message
+
+            # We add a true / false to check if there were tool calls.
+            message["tool_calls"] = "tool_calls" in message and message["tool_calls"]
 
             # Stage the new message for addition to DB
             messages.append(
