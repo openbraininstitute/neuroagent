@@ -1,8 +1,11 @@
+from unittest.mock import Mock
+
 import pytest
 
 from neuroagent.app.config import Settings
 from neuroagent.app.dependencies import (
     get_openai_client,
+    get_s3_client,
     get_settings,
 )
 from neuroagent.app.main import app
@@ -139,12 +142,20 @@ def test_update_thread_title(patch_required_env, httpx_mock, app_client, db_conn
 
 
 @pytest.mark.httpx_mock(can_send_already_matched_responses=True)
-def test_delete_thread(patch_required_env, httpx_mock, app_client, db_connection):
+def test_delete_thread(
+    patch_required_env, httpx_mock, app_client, db_connection, monkeypatch
+):
     mock_keycloak_user_identification(httpx_mock)
     test_settings = Settings(
         db={"prefix": db_connection}, keycloak={"issuer": "https://great_issuer.com"}
     )
     app.dependency_overrides[get_settings] = lambda: test_settings
+    app.dependency_overrides[get_s3_client] = lambda: Mock()
+
+    fake_delete_from_storage = Mock()
+    monkeypatch.setattr(
+        "neuroagent.app.routers.threads.delete_from_storage", fake_delete_from_storage
+    )
 
     httpx_mock.add_response(
         url=f"{test_settings.virtual_lab.get_project_url}/test_vlab/projects/test_project"
@@ -172,6 +183,8 @@ def test_delete_thread(patch_required_env, httpx_mock, app_client, db_connection
 
         threads = app_client.get("/threads").json()
         assert not threads
+
+        assert fake_delete_from_storage.call_count == 1
 
 
 @pytest.mark.httpx_mock(can_send_already_matched_responses=True)
