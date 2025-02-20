@@ -204,7 +204,9 @@ def get_starting_agent(
                 Do no blindly repeat the brain region requested by the user, use the output of the tools instead."""
 
     storage_instructions = (
-        f"All files in storage can be viewed under {settings.misc.frontend_url}/viewer/storage_id"
+        f"All files in storage can be viewed under {settings.misc.frontend_url}/viewer/{{storage_id}}. "
+        "When referencing storage files, always replace {{storage_id}} with the actual storage ID. "
+        "Format the links as standard markdown links like: [Description](URL), do not try to embed them as images."
         if settings.misc.frontend_url
         else "Never try to generate links to internal storage ids"
     )
