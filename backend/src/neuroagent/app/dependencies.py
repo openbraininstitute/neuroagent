@@ -249,6 +249,8 @@ def get_s3_client(
         endpoint_url=settings.storage.endpoint_url,
         aws_access_key_id=settings.storage.access_key.get_secret_value(),
         aws_secret_access_key=settings.storage.secret_key.get_secret_value(),
+        aws_session_token=None,
+        config=boto3.session.Config(signature_version="s3v4"),
     )
 
 

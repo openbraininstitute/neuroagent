@@ -1,13 +1,13 @@
 """Storage related operations."""
 
 import logging
-from typing import Annotated
+from typing import Annotated, Any
 
-import boto3
+from botocore.exceptions import ClientError
 from fastapi import APIRouter, Depends, HTTPException
 
 from neuroagent.app.config import Settings
-from neuroagent.app.dependencies import get_settings, get_user_id
+from neuroagent.app.dependencies import get_s3_client, get_settings, get_user_id
 
 logger = logging.getLogger(__name__)
 
@@ -19,24 +19,16 @@ async def generate_presigned_url(
     file_identifier: str,
     user_id: Annotated[str, Depends(get_user_id)],
     settings: Annotated[Settings, Depends(get_settings)],
+    s3_client: Annotated[Any, Depends(get_s3_client)],
 ) -> str:
     """Generate a presigned URL for file access."""
-    s3_client = boto3.client(
-        "s3",
-        endpoint_url=settings.storage.endpoint_url,
-        aws_access_key_id=settings.storage.access_key.get_secret_value(),
-        aws_secret_access_key=settings.storage.secret_key.get_secret_value(),
-        aws_session_token=None,
-        config=boto3.session.Config(signature_version="s3v4"),
-    )
-
     # Construct the key with user-specific path (without bucket name)
     key = f"{user_id}/{file_identifier}"
 
     # Check if object exists first
     try:
         s3_client.head_object(Bucket=settings.storage.bucket_name, Key=key)
-    except s3_client.exceptions.ClientError as e:
+    except ClientError as e:
         if e.response["Error"]["Code"] == "404":
             raise HTTPException(
                 status_code=404, detail=f"File {file_identifier} not found"
