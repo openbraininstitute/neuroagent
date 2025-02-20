@@ -2,6 +2,7 @@
 
 import json
 from pathlib import Path
+from unittest.mock import Mock
 
 import pytest
 from httpx import AsyncClient
@@ -14,6 +15,7 @@ from neuroagent.utils import (
     is_lnmc,
     merge_chunk,
     merge_fields,
+    save_to_storage,
 )
 
 
@@ -403,3 +405,75 @@ async def test_get_kg_data(httpx_mock):
 )
 def test_is_lnmc(contributors, expected_bool):
     assert is_lnmc(contributors) is expected_bool
+
+
+def test_save_to_storage():
+    # Setup mock s3 client
+    mock_s3 = Mock()
+
+    # Test parameters
+    bucket_name = "test-bucket"
+    user_id = "test-user"
+    content_type = "application/json"
+    category = "json-barplot"  # Using a valid category from the Literal type
+    body = b"test content"
+    thread_id = "test-thread"
+
+    # Call function
+    identifier = save_to_storage(
+        s3_client=mock_s3,
+        bucket_name=bucket_name,
+        user_id=user_id,
+        content_type=content_type,
+        category=category,
+        body=body,
+        thread_id=thread_id,
+    )
+
+    # Verify the identifier is a valid UUID string
+    assert isinstance(identifier, str)
+
+    # Verify s3 client was called correctly
+    mock_s3.put_object.assert_called_once()
+    call_args = mock_s3.put_object.call_args[1]
+
+    assert call_args["Bucket"] == bucket_name
+    assert call_args["Key"].startswith(f"{user_id}/")
+    assert call_args["Body"] == body
+    assert call_args["ContentType"] == content_type
+    assert call_args["Metadata"] == {"category": category, "thread_id": thread_id}
+
+
+def test_save_to_storage_without_thread_id():
+    # Setup mock s3 client
+    mock_s3 = Mock()
+
+    # Test parameters
+    bucket_name = "test-bucket"
+    user_id = "test-user"
+    content_type = "image/png"
+    category = "image"  # Using another valid category from the Literal type
+    body = b"test content"
+
+    # Call function without thread_id
+    identifier = save_to_storage(
+        s3_client=mock_s3,
+        bucket_name=bucket_name,
+        user_id=user_id,
+        content_type=content_type,
+        category=category,
+        body=body,
+    )
+
+    # Verify the identifier is a valid UUID string
+    assert isinstance(identifier, str)
+
+    # Verify s3 client was called correctly
+    mock_s3.put_object.assert_called_once()
+    call_args = mock_s3.put_object.call_args[1]
+
+    assert call_args["Bucket"] == bucket_name
+    assert call_args["Key"].startswith(f"{user_id}/")
+    assert call_args["Body"] == body
+    assert call_args["ContentType"] == content_type
+    assert call_args["Metadata"] == {"category": category}
