@@ -438,7 +438,7 @@ def test_save_to_storage():
     call_args = mock_s3.put_object.call_args[1]
 
     assert call_args["Bucket"] == bucket_name
-    assert call_args["Key"].startswith(f"{user_id}/")
+    assert call_args["Key"] == f"{user_id}/{identifier}"  # Check exact key format
     assert call_args["Body"] == body
     assert call_args["ContentType"] == content_type
     assert call_args["Metadata"] == {"category": category, "thread_id": thread_id}
@@ -473,7 +473,44 @@ def test_save_to_storage_without_thread_id():
     call_args = mock_s3.put_object.call_args[1]
 
     assert call_args["Bucket"] == bucket_name
-    assert call_args["Key"].startswith(f"{user_id}/")
+    assert call_args["Key"] == f"{user_id}/{identifier}"  # Check exact key format
     assert call_args["Body"] == body
     assert call_args["ContentType"] == content_type
     assert call_args["Metadata"] == {"category": category}
+
+
+def test_save_to_storage_with_string_body():
+    # Setup mock s3 client
+    mock_s3 = Mock()
+
+    # Test parameters
+    bucket_name = "test-bucket"
+    user_id = "test-user"
+    content_type = "application/json"
+    category = "json-scatterplot"
+    body = '{"data": "test json string"}'  # String body (e.g. JSON)
+    thread_id = "test-thread"
+
+    # Call function
+    identifier = save_to_storage(
+        s3_client=mock_s3,
+        bucket_name=bucket_name,
+        user_id=user_id,
+        content_type=content_type,
+        category=category,
+        body=body,
+        thread_id=thread_id,
+    )
+
+    # Verify the identifier is a valid UUID string
+    assert isinstance(identifier, str)
+
+    # Verify s3 client was called correctly
+    mock_s3.put_object.assert_called_once()
+    call_args = mock_s3.put_object.call_args[1]
+
+    assert call_args["Bucket"] == bucket_name
+    assert call_args["Key"] == f"{user_id}/{identifier}"
+    assert call_args["Body"] == body
+    assert call_args["ContentType"] == content_type
+    assert call_args["Metadata"] == {"category": category, "thread_id": thread_id}
