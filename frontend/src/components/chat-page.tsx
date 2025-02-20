@@ -276,8 +276,13 @@ export function ChatPage({
             onKeyDown={(e) => {
               if (e.key === "Enter" && !e.shiftKey) {
                 e.preventDefault();
-                setIsAutoScrollEnabled(true);
-                handleSubmit(e);
+                if (
+                  isLoading ||
+                  (messages.at(-1)?.toolInvocations ?? []).length > 0
+                ) {
+                  setIsAutoScrollEnabled(true);
+                  handleSubmit(e);
+                }
               }
             }}
             autoComplete="off"
