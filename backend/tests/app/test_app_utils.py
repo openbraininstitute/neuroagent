@@ -19,7 +19,7 @@ async def test_validate_project(patch_required_env, httpx_mock, monkeypatch):
 
     # test with bad config
     httpx_mock.add_response(
-        url=f'{vlab_url}/{test_vp["vlab_id"]}/projects/{test_vp["project_id"]}',
+        url=f"{vlab_url}/{test_vp['vlab_id']}/projects/{test_vp['project_id']}",
         status_code=404,
     )
     with pytest.raises(HTTPException) as error:
@@ -34,7 +34,7 @@ async def test_validate_project(patch_required_env, httpx_mock, monkeypatch):
 
     # test with good config
     httpx_mock.add_response(
-        url=f'{vlab_url}/{test_vp["vlab_id"]}/projects/{test_vp["project_id"]}',
+        url=f"{vlab_url}/{test_vp['vlab_id']}/projects/{test_vp['project_id']}",
         json="test_project_ID",
     )
     await validate_project(

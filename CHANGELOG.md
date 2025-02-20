@@ -50,6 +50,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - [frontend] - Possibility to dynamically chose available tools.
 - [frontend] - Search bar in tool list.
 - Displaying tool metadata
+- Object storage + plotting logic
 
 ### Fixed
 - [frontend] - Parallel execution of tools
@@ -65,8 +66,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Do not return entire coordinates in `scs-get-one` tool.
 - [frontend] - Better Vlab and Project selection.
 - [frontend] - Fix long message overflowing.
-- [frontent] - Scrolling while streaming.
 - [frontend] - Text input disabled when HIL.
+- Tool + content is saved as `AI_tool` now.
+- [frontend] - Scrolling while streaming.
 - [frontend] - Tool selection is all checked when refreshing.
 
 ## [0.3.3] - 30.10.2024

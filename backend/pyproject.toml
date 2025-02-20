@@ -16,9 +16,11 @@ dependencies = [
     "alembic",
     "asgi-correlation-id",
     "asyncpg",
+    "boto3",
     "bluepyefe",
     "efel",
     "fastapi",
+    "matplotlib",
     "neurom",
     "numpy<2",
     "openai",
@@ -106,7 +108,8 @@ filterwarnings = [
     "ignore:Mean of empty slice:RuntimeWarning",
     "ignore:Degrees of freedom:RuntimeWarning",
     "ignore:Exception ignored in:pytest.PytestUnraisableExceptionWarning",
-    "ignore:The configuration option 'asyncio_default_fixture_loop_scope' is unset."
+    "ignore:The configuration option 'asyncio_default_fixture_loop_scope' is unset.",
+    "ignore:datetime.*is deprecated and scheduled for removal in a future version.:DeprecationWarning",
 ]
 
 addopts = "--cov=src/ -v --cov-report=term-missing --durations=20 --no-cov-on-fail"

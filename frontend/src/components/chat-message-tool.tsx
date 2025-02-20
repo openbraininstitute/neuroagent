@@ -1,6 +1,6 @@
 import { useRef, useState, useEffect } from "react";
 import { MessageStrict } from "@/lib/types";
-import { Check, Loader2, X, AlertCircle, Info } from "lucide-react";
+import { Check, Loader2, X, AlertCircle, Info, Eye } from "lucide-react";
 import { Card, CardContent, CardFooter, CardTitle } from "@/components/ui/card";
 import {
   Collapsible,
@@ -41,6 +41,12 @@ export function ChatMessageTool({
   const [dialogOpen, setDialogOpen] = useState(false);
   const [validationError, setValidationError] = useState<string | null>(null);
   const { mutate, isPending, isSuccess, data, status } = useExecuteTool();
+
+  const viewableTools = [
+    "morpho-viewer-tool",
+    "plot-generator",
+    "random-plot-generator",
+  ];
 
   useEffect(() => {
     if (isPending) {
@@ -201,12 +207,39 @@ export function ChatMessageTool({
                       )[0].label
                     }
                   </span>
-                  <a
-                    href={`/tools/${tool?.toolName}`}
-                    className="p-2 hover:text-blue-500 transition-colors"
-                  >
-                    <Info className="h-5 w-5" />
-                  </a>
+                  <div className="flex gap-2">
+                    {viewableTools.includes(tool?.toolName) &&
+                      tool?.state === "result" &&
+                      tool?.result &&
+                      (() => {
+                        try {
+                          console.log(tool.result);
+                          const result = JSON.parse(
+                            typeof tool.result === "string"
+                              ? tool.result
+                              : JSON.stringify(tool.result),
+                          );
+                          if (result.storage_id) {
+                            return (
+                              <a
+                                href={`/viewer/${result.storage_id}`}
+                                className="p-2 hover:text-blue-500 transition-colors"
+                              >
+                                <Eye className="h-5 w-5" />
+                              </a>
+                            );
+                          }
+                        } catch {
+                          return null;
+                        }
+                      })()}
+                    <a
+                      href={`/tools/${tool?.toolName}`}
+                      className="p-2 hover:text-blue-500 transition-colors"
+                    >
+                      <Info className="h-5 w-5" />
+                    </a>
+                  </div>
                 </div>
               </CardTitle>
               <CardContent>
