@@ -61,7 +61,8 @@ class TestElectrophysTool:
             ),
         )
         response = await tool.arun()
-        assert isinstance(response, dict)
+        assert isinstance(response, str)
+        response = json.loads(response)
         assert len(response["feature_dict"].keys()) == 1
         assert (
             len(response["feature_dict"]["step_0"].keys())
@@ -113,7 +114,8 @@ class TestElectrophysTool:
             ),
         )
         response = await tool.arun()
-        assert isinstance(response, dict)
+        assert isinstance(response, str)
+        response = json.loads(response)
         assert len(response["feature_dict"].keys()) == 1
         assert (
             len(response["feature_dict"]["step_0.25"].keys())
@@ -165,7 +167,8 @@ class TestElectrophysTool:
 
         # Without stimuli types and calculated features
         response = await tool.arun()
-        assert isinstance(response, dict)
+        assert isinstance(response, str)
+        response = json.loads(response)
         assert len(response["feature_dict"].keys()) == 1
         assert (
             len(response["feature_dict"]["step_0"].keys())

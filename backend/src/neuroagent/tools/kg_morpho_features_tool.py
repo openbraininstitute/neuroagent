@@ -1,5 +1,6 @@
 """KG Morpho Feature tool."""
 
+import json
 import logging
 from pathlib import Path
 from typing import Any, ClassVar, Literal
@@ -192,12 +193,12 @@ class KGMorphoFeatureTool(BaseTool):
     • Find neurons based on their structural properties
     • Search by specific measurements or ranges
     • Compare morphological features
-    
+
     Specify the features and ranges you're interested in to find matching neurons."""
     input_schema: KGMorphoFeatureInput
     metadata: KGMorphoFeatureMetadata
 
-    async def arun(self) -> list[dict[str, Any]]:
+    async def arun(self) -> str:
         """Run the tool async.
 
         Returns
@@ -330,7 +331,7 @@ class KGMorphoFeatureTool(BaseTool):
         return entire_query
 
     @staticmethod
-    def _process_output(output: Any) -> list[dict[str, Any]]:
+    def _process_output(output: Any) -> str:
         """Process output.
 
         Parameters
@@ -361,7 +362,7 @@ class KGMorphoFeatureTool(BaseTool):
                 ).model_dump()
             )
 
-        return formatted_output
+        return json.dumps(formatted_output)
 
     @classmethod
     async def is_online(

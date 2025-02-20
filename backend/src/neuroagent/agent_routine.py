@@ -75,9 +75,13 @@ class AgentsRoutine:
                 )
             case _:
                 try:
+                    return Result(
+                        value=result if isinstance(result, str) else json.dumps(result)
+                    )
+                except json.JSONDecodeError:
                     return Result(value=str(result))
                 except Exception as e:
-                    error_message = f"Failed to cast response to string: {result}. Make sure agent functions return a string or Result object. Error: {str(e)}"
+                    error_message = f"Failed to cast response to json: {result}. Make sure agent functions return a string or Result object. Error: {str(e)}"
                     raise TypeError(error_message)
 
     async def execute_tool_calls(
@@ -142,7 +146,7 @@ class AgentsRoutine:
                     "role": "tool",
                     "tool_call_id": tool_call.tool_call_id,
                     "tool_name": name,
-                    "content": str(err),
+                    "content": err.json(),
                 }
                 return response, None
 

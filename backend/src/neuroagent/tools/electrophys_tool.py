@@ -199,12 +199,12 @@ class ElectrophysFeatureTool(BaseTool):
     • Extract features from experimental traces
     • Analyze neuron responses to stimuli
     • Compare electrical properties across different protocols
-    
+
     Provide a trace ID to analyze its electrophysiological features."""
     input_schema: ElectrophysInput
     metadata: ElectrophysMetadata
 
-    async def arun(self) -> dict[str, Any]:
+    async def arun(self) -> str:
         """Give features about trace."""
         logger.info(
             f"Entering electrophys tool. Inputs: {self.input_schema.trace_id=}, {self.input_schema.calculated_feature=},"
@@ -339,7 +339,7 @@ class ElectrophysFeatureTool(BaseTool):
                 )
         return FeatureOutput(
             brain_region=metadata.brain_region, feature_dict=output_features
-        ).model_dump()
+        ).model_dump_json()
 
     @classmethod
     async def is_online(

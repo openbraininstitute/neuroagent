@@ -1,7 +1,7 @@
 """BlueNaaS single cell stimulation, simulation and synapse placement tool."""
 
 import logging
-from typing import Any, ClassVar, Literal
+from typing import ClassVar, Literal
 
 from httpx import AsyncClient
 from pydantic import BaseModel, Field
@@ -52,12 +52,12 @@ class SCSGetAllTool(BaseTool):
     • List all your simulation runs
     • Filter simulations by type
     • Browse through simulation results using pagination
-    
+
     Returns a list of simulations with their status and metadata."""
     metadata: SCSGetAllMetadata
     input_schema: InputSCSGetAll
 
-    async def arun(self) -> dict[str, Any]:
+    async def arun(self) -> str:
         """Run the SCSGetAll tool."""
         logger.info(
             f"Running SCSGetAll tool with inputs {self.input_schema.model_dump()}"
@@ -75,7 +75,7 @@ class SCSGetAllTool(BaseTool):
 
         return PaginatedResponseSimulationDetailsResponse(
             **response.json()
-        ).model_dump()
+        ).model_dump_json()
 
     @classmethod
     async def is_online(cls, *, httpx_client: AsyncClient, bluenaas_url: str) -> bool:
