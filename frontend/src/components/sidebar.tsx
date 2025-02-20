@@ -21,6 +21,7 @@ export function Sidebar({ children }: { children: React.ReactNode }) {
   if (pathname === "/login") {
     return null;
   }
+  console.log("Re-render sidebar");
 
   return (
     <>

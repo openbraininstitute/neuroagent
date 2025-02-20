@@ -15,7 +15,7 @@ const ProgressBar = () => {
       }}
     >
       <Progress>
-        <Bar className="!absolute z-[9999] !top-auto stroke-red-500"></Bar>
+        <Bar className="!absolute z-[9999] !top-auto"></Bar>
       </Progress>
     </ProgressProvider>
   );

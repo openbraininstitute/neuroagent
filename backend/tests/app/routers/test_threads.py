@@ -56,9 +56,13 @@ def test_generate_thread_title(
         threads = app_client.get("/threads/").json()
         assert not threads
 
+        create_output_1 = app_client.post(
+            "/threads?virtual_lab_id=test_vlab&project_id=test_project"
+        ).json()
+
         # Create a thread with generated title
-        create_thread_response = app_client.post(
-            "/threads/generated_title?virtual_lab_id=test_vlab&project_id=test_project",
+        create_thread_response = app_client.patch(
+            f'/threads/{create_output_1["thread_id"]}/generate_title',
             json={"first_user_message": "This is my query"},
         ).json()
 

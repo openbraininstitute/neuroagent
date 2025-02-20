@@ -13,6 +13,7 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
+    "@bprogress/next": "^3.0.4",
     "@hookform/resolvers": "^3.10.0",
     "@nanostores/react": "github:ai/react",
     "@radix-ui/react-checkbox": "^1.1.3",

@@ -8,6 +8,7 @@ import { useSession } from "next-auth/react";
 import { ExtendedSession } from "@/lib/auth";
 import { useStore } from "@/lib/store";
 import { ToolSelectionDropdown } from "@/components/tool-selection-dropdown";
+import { generateEditTitle } from "@/actions/generate-edit-thread";
 
 import { ChatMessageAI } from "@/components/chat-message-ai";
 import { ChatMessageHuman } from "@/components/chat-message-human";
@@ -40,6 +41,7 @@ export function ChatPage({
         role: "user",
         content: newMessage,
       });
+      generateEditTitle(null, threadId, newMessage);
       setNewMessage("");
       requiresHandleSubmit.current = true;
     }

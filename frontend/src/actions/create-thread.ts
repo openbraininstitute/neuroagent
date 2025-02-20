@@ -5,11 +5,7 @@ import { revalidateTag } from "next/cache";
 import { auth } from "@/lib/auth";
 import { fetcher } from "@/lib/fetcher";
 
-export async function createThreadWithMessage(
-  previousState: unknown,
-  formData: FormData,
-) {
-  const initialMessage = formData.get("content");
+export async function createThread() {
   let threadId: string;
 
   try {
@@ -22,9 +18,8 @@ export async function createThreadWithMessage(
 
     const threadResponse = await fetcher({
       method: "POST",
-      path: "/threads/generated_title",
+      path: "/threads",
       queryParams: { project_id: projectID, virtual_lab_id: virtualLabID },
-      body: { first_user_message: initialMessage },
       headers: { Authorization: `Bearer ${session.accessToken}` },
     });
 

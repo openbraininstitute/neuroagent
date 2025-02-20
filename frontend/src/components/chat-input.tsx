@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useActionState, useEffect } from "react";
-import { createThreadWithMessage } from "@/actions/create-thread";
+import { createThread } from "@/actions/create-thread";
 import { useStore } from "@/lib/store";
 import { ToolSelectionDropdown } from "@/components/tool-selection-dropdown";
 import { Send } from "lucide-react";
@@ -19,10 +19,14 @@ export function ChatInput({ availableTools }: ChatInputProps) {
   const [input, setInput] = useState("");
   const router = useRouter();
 
-  const [state, action, isPending] = useActionState(
-    createThreadWithMessage,
-    null,
-  );
+  const [state, action, isPending] = useActionState(createThread, null);
+
+  const actionWrapper = () => {
+    if (newMessage === "" && input !== "") {
+      setNewMessage(input);
+    }
+    action();
+  };
 
   // Watch for state changes and redirect when ready
   useEffect(() => {
@@ -30,13 +34,6 @@ export function ChatInput({ availableTools }: ChatInputProps) {
       router.push(`/threads/${state.threadId}`);
     }
   }, [state, isPending, router]);
-
-  const actionWrapper = (formData: FormData) => {
-    if (newMessage === "" && input !== "") {
-      setNewMessage(input);
-    }
-    action(formData);
-  };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
