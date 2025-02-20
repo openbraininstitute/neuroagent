@@ -17,7 +17,27 @@ touch sqlite.db
 alembic -x url=sqlite:///sqlite.db upgrade head
 ```
 
-3. Start the server:
+3. (Optional) Set up MinIO for storage:
+```bash
+docker run -d \
+  -p 9000:9000 \
+  -p 9001:9001 \
+  -e MINIO_ROOT_USER=minioadmin \
+  -e MINIO_ROOT_PASSWORD=minioadmin \
+  minio/minio server --console-address ":9001" /data
+```
+MinIO will be available at:
+- API: `http://localhost:9000`
+- Console: `http://localhost:9001`
+
+You'll need to create the `neuroagent` bucket. You can either:
+- Use the MinIO Console UI at `http://localhost:9001` (login with minioadmin/minioadmin)
+- Or use the MinIO CLI:
+```bash
+docker exec <container_id> mc mb /data/neuroagent
+```
+
+4. Start the server:
 ```bash
 neuroagent-api
 ```

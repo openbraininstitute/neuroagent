@@ -30,7 +30,7 @@ async def stream_agent_response(
         connected_agents_routine = AgentsRoutine(client=agents_routine.client)
 
     # Restore the httpx client
-    httpx_client = AsyncClient(  # nosec B501
+    httpx_client = AsyncClient(
         timeout=300.0,
         verify=False,
         headers={

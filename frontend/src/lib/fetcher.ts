@@ -10,7 +10,7 @@ type Headers = Record<string, string>;
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Body = Record<string, any>;
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type ResponseBody = Record<string, any>;
+export type ResponseBody = Record<string, any> | string;
 
 export type FetcherConfig = {
   method?: Method;
