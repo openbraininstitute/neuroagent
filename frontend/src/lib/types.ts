@@ -122,3 +122,65 @@ export type BToolMetadataDetailed = {
   hil: boolean;
   is_online: boolean;
 };
+
+type BaseObject = {
+  title: string;
+  description: string;
+  x_label?: string;
+  y_label?: string;
+};
+
+type PiechartValue = {
+  category: string;
+  value: number;
+  color?: string;
+};
+
+export type JSONPiechart = BaseObject & {
+  values: PiechartValue[];
+  show_percentages?: boolean;
+};
+
+type BarplotValue = {
+  category: string;
+  value: number;
+  error?: number;
+  color?: string;
+};
+
+export type JSONBarplot = BaseObject & {
+  values: BarplotValue[];
+  orientation?: "vertical" | "horizontal";
+};
+
+type ScatterplotValue = {
+  x: number;
+  y: number;
+  label?: string;
+  color?: string;
+  size?: number;
+};
+
+export type JSONScatterplot = BaseObject & {
+  values: ScatterplotValue[];
+  show_regression?: boolean;
+};
+
+export type JSONHistogram = BaseObject & {
+  values: number[]; // The raw values to bin
+  bins: number; // Number of bins to use
+  color?: string; // Optional color for the bars
+};
+
+type LinechartValue = {
+  x: number;
+  y: number;
+  label?: string;
+};
+
+export type JSONLinechart = BaseObject & {
+  values: LinechartValue[];
+  show_points?: boolean;
+  line_style?: string;
+  line_color?: string;
+};

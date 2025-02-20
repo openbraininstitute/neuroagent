@@ -20,13 +20,13 @@ export async function createThreadWithMessage(
 
     const { projectID, virtualLabID } = await getSettings();
 
-    const threadResponse = await fetcher({
+    const threadResponse = (await fetcher({
       method: "POST",
       path: "/threads/generated_title",
       queryParams: { project_id: projectID, virtual_lab_id: virtualLabID },
       body: { first_user_message: initialMessage },
       headers: { Authorization: `Bearer ${session.accessToken}` },
-    });
+    })) as { thread_id: string };
 
     const { thread_id: newThreadId } = threadResponse;
     threadId = newThreadId;
