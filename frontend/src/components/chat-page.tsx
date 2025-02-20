@@ -277,8 +277,10 @@ export function ChatPage({
               if (e.key === "Enter" && !e.shiftKey) {
                 e.preventDefault();
                 if (
-                  isLoading ||
-                  (messages.at(-1)?.toolInvocations ?? []).length > 0
+                  !(
+                    isLoading ||
+                    (messages.at(-1)?.toolInvocations ?? []).length > 0
+                  )
                 ) {
                   setIsAutoScrollEnabled(true);
                   handleSubmit(e);
@@ -286,9 +288,6 @@ export function ChatPage({
               }
             }}
             autoComplete="off"
-            disabled={
-              isLoading || (messages.at(-1)?.toolInvocations ?? []).length > 0
-            }
           />
           <div className="flex gap-2 mr-3">
             <ToolSelectionDropdown
@@ -299,7 +298,12 @@ export function ChatPage({
             {isLoading ? (
               <div className="w-6 h-6 border-2 ml-2 p-1 border-gray-500 border-t-transparent rounded-full animate-spin" />
             ) : (
-              <button type="submit" data-testid="send-button" className="p-1">
+              <button
+                type="submit"
+                data-testid="send-button"
+                className="p-1"
+                disabled={(messages.at(-1)?.toolInvocations ?? []).length > 0}
+              >
                 <Send className="opacity-50" />
               </button>
             )}
