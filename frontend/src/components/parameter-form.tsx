@@ -16,6 +16,8 @@ import {
 import { Input } from "@/components/ui/input";
 import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
+import { saveSettings } from "@/actions/save-settings";
+import { useActionState } from "react";
 
 const formSchema = z.object({
   projectID: z.string().min(1, { message: "Project ID is required" }),
@@ -40,27 +42,21 @@ export function ParameterForm({
     resolver: zodResolver(formSchema),
     defaultValues: initialValues,
   });
+  const [, action] = useActionState(saveSettings, null);
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    // Set cookies that will be accessible on the server
-    Cookies.set("projectID", values.projectID, { expires: 30 }); // 30 days
-    Cookies.set("virtualLabID", values.virtualLabID, { expires: 30 });
-
-    // Refresh the client-side router
-    if (values.projectID && values.virtualLabID) router.push("/");
-    else {
+  const actionWrapper = (formData: FormData) => {
+    action(formData);
+    if (formData.get("projectID") && formData.get("virtualLabID")) {
+      router.push("/");
+    } else {
       router.refresh();
     }
-  }
+  };
 
   return (
     <div className="flex flex-row justify-center">
       <Form {...form}>
-        <form
-          onSubmit={form.handleSubmit(onSubmit)}
-          className="w-1/2"
-          autoComplete="off"
-        >
+        <form action={actionWrapper} className="w-1/2" autoComplete="off">
           <FormField
             control={form.control}
             name="virtualLabID"
