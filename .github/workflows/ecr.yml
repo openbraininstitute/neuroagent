@@ -10,6 +10,9 @@ permissions:
   contents: read    # This is required for actions/checkout
 
 jobs:
+  defaults:
+    run:
+      working-directory: backend
 
   build:
     name: Build and Push Docker Images
@@ -23,22 +26,47 @@ jobs:
       run: |
         docker build -t temp:latest -f Dockerfile .
 
-    - name: Configure AWS credentials
+    # Staging
+    - name: Configure AWS Staging credentials
       uses: aws-actions/configure-aws-credentials@v1.7.0
 
       with:
-        role-to-assume: arn:aws:iam::671250183987:role/GitHub2ECR  # check terraform output
+        role-to-assume: arn:aws:iam::992382665735:role/GitHub2ECR
 
         role-session-name: GitHub_to_AWS_via_FederatedOIDC
         aws-region: us-east-1
 
-    - name: Login to Amazon ECR
-      id: login-ecr-management
+    - name: Login to Amazon ECR Staging
+      id: login-ecr-management-staging
       uses: aws-actions/amazon-ecr-login@v2
 
-    - name: Tag and Push Image to Amazon ECR
+    - name: Tag and Push Image to Amazon ECR Staging
       env:
-        ECR_REGISTRY: ${{ steps.login-ecr-management.outputs.registry }}
+        ECR_REGISTRY: ${{ steps.login-ecr-management-staging.outputs.registry }}
+        ECR_REPOSITORY: ml-repository
+        IMAGE_TAG: neuroagent-${{ github.ref_name }}
+      run: |
+        docker tag temp:latest $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+        docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+        docker tag $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG temp:latest
+
+    # Prod
+    - name: Configure AWS Prod credentials
+      uses: aws-actions/configure-aws-credentials@v1.7.0
+
+      with:
+        role-to-assume: arn:aws:iam::671250183987:role/GitHub2ECR
+
+        role-session-name: GitHub_to_AWS_via_FederatedOIDC
+        aws-region: us-east-1
+
+    - name: Login to Amazon ECR Prod
+      id: login-ecr-management-prod
+      uses: aws-actions/amazon-ecr-login@v2
+
+    - name: Tag and Push Image to Amazon ECR Prod
+      env:
+        ECR_REGISTRY: ${{ steps.login-ecr-management-prod.outputs.registry }}
         ECR_REPOSITORY: ml-repository
         IMAGE_TAG: neuroagent-${{ github.ref_name }}
       run: |

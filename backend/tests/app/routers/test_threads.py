@@ -1,8 +1,11 @@
+from unittest.mock import Mock
+
 import pytest
 
 from neuroagent.app.config import Settings
 from neuroagent.app.dependencies import (
     get_openai_client,
+    get_s3_client,
     get_settings,
 )
 from neuroagent.app.main import app
@@ -87,6 +90,9 @@ def test_get_threads(patch_required_env, httpx_mock, app_client, db_connection):
     httpx_mock.add_response(
         url=f"{test_settings.virtual_lab.get_project_url}/test_vlab/projects/test_project"
     )
+    httpx_mock.add_response(
+        url=f"{test_settings.virtual_lab.get_project_url}/test_vlab2/projects/test_project2"
+    )
     with app_client as app_client:
         threads = app_client.get("/threads").json()
         assert not threads
@@ -94,13 +100,36 @@ def test_get_threads(patch_required_env, httpx_mock, app_client, db_connection):
             "/threads?virtual_lab_id=test_vlab&project_id=test_project"
         ).json()
         create_output_2 = app_client.post(
-            "/threads?virtual_lab_id=test_vlab&project_id=test_project"
+            "/threads?virtual_lab_id=test_vlab2&project_id=test_project2"
         ).json()
         threads = app_client.get("/threads").json()
 
-    assert len(threads) == 2
-    assert threads[0] == create_output_1
-    assert threads[1] == create_output_2
+        assert len(threads) == 2
+        assert threads[0] == create_output_1
+        assert threads[1] == create_output_2
+
+        threads = app_client.get(
+            "/threads",
+            params={"virtual_lab_id": "test_vlab", "project_id": "test_project"},
+        ).json()
+
+        assert len(threads) == 1
+        assert threads[0] == create_output_1
+
+        threads = app_client.get(
+            "/threads",
+            params={"virtual_lab_id": "test_vlab2", "project_id": "test_project2"},
+        ).json()
+
+        assert len(threads) == 1
+        assert threads[0] == create_output_2
+
+        threads = app_client.get(
+            "/threads",
+            params={"virtual_lab_id": "test_vlab_wrong", "project_id": "test_project"},
+        ).json()
+
+        assert len(threads) == 0
 
 
 @pytest.mark.httpx_mock(can_send_already_matched_responses=True)
@@ -139,12 +168,20 @@ def test_update_thread_title(patch_required_env, httpx_mock, app_client, db_conn
 
 
 @pytest.mark.httpx_mock(can_send_already_matched_responses=True)
-def test_delete_thread(patch_required_env, httpx_mock, app_client, db_connection):
+def test_delete_thread(
+    patch_required_env, httpx_mock, app_client, db_connection, monkeypatch
+):
     mock_keycloak_user_identification(httpx_mock)
     test_settings = Settings(
         db={"prefix": db_connection}, keycloak={"issuer": "https://great_issuer.com"}
     )
     app.dependency_overrides[get_settings] = lambda: test_settings
+    app.dependency_overrides[get_s3_client] = lambda: Mock()
+
+    fake_delete_from_storage = Mock()
+    monkeypatch.setattr(
+        "neuroagent.app.routers.threads.delete_from_storage", fake_delete_from_storage
+    )
 
     httpx_mock.add_response(
         url=f"{test_settings.virtual_lab.get_project_url}/test_vlab/projects/test_project"
@@ -172,6 +209,8 @@ def test_delete_thread(patch_required_env, httpx_mock, app_client, db_connection
 
         threads = app_client.get("/threads").json()
         assert not threads
+
+        assert fake_delete_from_storage.call_count == 1
 
 
 @pytest.mark.httpx_mock(can_send_already_matched_responses=True)

@@ -238,7 +238,7 @@ class AgentsRoutine:
                                 "toolName": tool_call["name"],
                                 "args": input_schema,
                             }
-                            yield f"9:{json.dumps(tool_call_data, separators=(',',':'))}\n"
+                            yield f"9:{json.dumps(tool_call_data, separators=(',', ':'))}\n"
 
                     # Check for tool calls
                     elif choice.delta.tool_calls:
@@ -255,7 +255,7 @@ class AgentsRoutine:
                                     "toolCallId": id,
                                     "toolName": name,
                                 }
-                                yield f"b:{json.dumps(tool_begin_data, separators=(',',':'))}\n"
+                                yield f"b:{json.dumps(tool_begin_data, separators=(',', ':'))}\n"
 
                             if arguments:
                                 current_id = (
@@ -265,14 +265,14 @@ class AgentsRoutine:
                                     "toolCallId": current_id,
                                     "argsTextDelta": arguments,
                                 }
-                                yield f"c:{json.dumps(args_data, separators=(',',':'))}\n"
+                                yield f"c:{json.dumps(args_data, separators=(',', ':'))}\n"
                                 draft_tool_calls[draft_tool_calls_index][
                                     "arguments"
                                 ] += arguments
 
                     else:
                         if choice.delta.content is not None:
-                            yield f"0:{json.dumps(choice.delta.content, separators=(',',':'))}\n"
+                            yield f"0:{json.dumps(choice.delta.content, separators=(',', ':'))}\n"
 
                     delta_json = choice.delta.model_dump()
                     delta_json.pop("role", None)
@@ -306,7 +306,7 @@ class AgentsRoutine:
 
             # Append the history with the json version
             history.append(copy.deepcopy(message))
-            message.pop("tool_calls")
+            message["tool_calls"] = "tool_calls" in message
 
             # Stage the new message for addition to DB
             messages.append(
@@ -352,7 +352,7 @@ class AgentsRoutine:
                     "toolCallId": tool_response["tool_call_id"],
                     "result": tool_response["content"],
                 }
-                yield f"a:{json.dumps(response_data, separators=(',',':'))}\n"
+                yield f"a:{json.dumps(response_data, separators=(',', ':'))}\n"
 
             yield f"e:{json.dumps(finish_data)}\n"
 
@@ -375,7 +375,7 @@ class AgentsRoutine:
                     for msg in tool_calls_with_hil
                 ]
 
-                yield f"8:{json.dumps(annotation_data, separators=(',',':'))}\n"
+                yield f"8:{json.dumps(annotation_data, separators=(',', ':'))}\n"
                 yield f"e:{json.dumps(finish_data)}\n"
                 break
 
