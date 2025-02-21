@@ -2,7 +2,7 @@
 
 import json
 import logging
-from typing import Annotated
+from typing import Annotated, Any
 
 from fastapi import APIRouter, Depends
 from httpx import AsyncClient
@@ -18,6 +18,7 @@ from neuroagent.app.dependencies import (
     auth,
     get_httpx_client,
     get_openai_client,
+    get_s3_client,
     get_session,
     get_settings,
     get_thread,
@@ -32,6 +33,7 @@ from neuroagent.app.schemas import (
     ThreadUpdate,
 )
 from neuroagent.tools.base_tool import BaseTool
+from neuroagent.utils import delete_from_storage
 
 logger = logging.getLogger(__name__)
 
@@ -104,11 +106,18 @@ async def generate_title(
 async def get_threads(
     session: Annotated[AsyncSession, Depends(get_session)],
     user_id: Annotated[str, Depends(get_user_id)],
+    virtual_lab_id: str | None = None,
+    project_id: str | None = None,
 ) -> list[ThreadsRead]:
     """Get threads for a user."""
-    thread_result = await session.execute(
-        select(Threads).where(Threads.user_id == user_id)
-    )
+    query = select(Threads).where(Threads.user_id == user_id)
+
+    if virtual_lab_id is not None:
+        query = query.where(Threads.vlab_id == virtual_lab_id)
+    if project_id is not None:
+        query = query.where(Threads.project_id == project_id)
+
+    thread_result = await session.execute(query)
     threads = thread_result.scalars().all()
     return [ThreadsRead(**thread.__dict__) for thread in threads]
 
@@ -133,10 +142,26 @@ async def update_thread_title(
 async def delete_thread(
     session: Annotated[AsyncSession, Depends(get_session)],
     thread: Annotated[Threads, Depends(get_thread)],
+    s3_client: Annotated[Any, Depends(get_s3_client)],
+    settings: Annotated[Settings, Depends(get_settings)],
+    user_id: Annotated[str, Depends(get_user_id)],
 ) -> dict[str, str]:
-    """Delete the specified thread."""
+    """Delete the specified thread and its associated S3 objects."""
+    # Delete the thread from database
     await session.delete(thread)
     await session.commit()
+
+    # Delete associated S3 objects first
+    delete_from_storage(
+        s3_client=s3_client,
+        bucket_name=settings.storage.bucket_name,
+        user_id=user_id,
+        thread_id=thread.thread_id,
+    )
+
+    # note that the above is not atomic and if only one of the two operations fails, the other will still be executed
+    # if this becomes an issue, we can redisgn
+
     return {"Acknowledged": "true"}
 
 

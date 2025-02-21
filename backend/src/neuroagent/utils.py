@@ -4,6 +4,7 @@ import json
 import logging
 import numbers
 import re
+import uuid
 from pathlib import Path
 from typing import Any, Iterator
 
@@ -11,7 +12,7 @@ from fastapi import HTTPException
 from httpx import AsyncClient
 
 from neuroagent.app.database.sql_schemas import Entity, Messages
-from neuroagent.schemas import KGMetadata
+from neuroagent.schemas import Category, KGMetadata
 
 logger = logging.getLogger(__name__)
 
@@ -78,10 +79,10 @@ def get_entity(message: dict[str, Any]) -> Entity:
         return Entity.USER
     elif message["role"] == "tool":
         return Entity.TOOL
-    elif message["role"] == "assistant" and message["content"]:
-        return Entity.AI_MESSAGE
-    elif message["role"] == "assistant" and not message["content"]:
+    elif message["role"] == "assistant" and message.get("tool_calls", False):
         return Entity.AI_TOOL
+    elif message["role"] == "assistant" and not message.get("tool_calls", False):
+        return Entity.AI_MESSAGE
     else:
         raise HTTPException(status_code=500, detail="Unknown message entity.")
 
@@ -455,3 +456,109 @@ async def get_kg_data(
     # Return its content and the associated metadata
     object_content = content_response.content
     return object_content, KGMetadata(**metadata)
+
+
+def save_to_storage(
+    s3_client: Any,
+    bucket_name: str,
+    user_id: str,
+    content_type: str,
+    category: Category,
+    body: bytes | str,
+    thread_id: str | None = None,
+) -> str:
+    """Save content to S3 storage and return the storage ID.
+
+    Parameters
+    ----------
+    s3_client : Any
+        Boto3 S3 client instance
+    bucket_name : str
+        Name of the S3 bucket
+    user_id : str
+        User identifier
+    content_type : str
+        Content type of the object (e.g. 'image/png', 'application/json')
+    category : Category
+        Category metadata for the object
+    body : bytes | str
+        Content to store - can be bytes or string (for JSON)
+    thread_id : str | None
+        Optional thread identifier for grouping related objects
+
+    Returns
+    -------
+    str
+        Generated storage identifier
+    """
+    # Generate unique identifier
+    identifier = str(uuid.uuid4())
+
+    # Construct the full path including user_id
+    key_parts = [user_id, identifier]
+    filename = "/".join(key_parts)
+
+    metadata: dict[str, str] = {"category": category}
+
+    if thread_id is not None:
+        metadata["thread_id"] = thread_id
+
+    # Save to S3 with metadata
+    s3_client.put_object(
+        Bucket=bucket_name,
+        Key=filename,
+        Body=body,
+        ContentType=content_type,
+        Metadata=metadata,
+    )
+
+    return identifier
+
+
+def delete_from_storage(
+    s3_client: Any,
+    bucket_name: str,
+    user_id: str,
+    thread_id: str,
+) -> None:
+    """Delete all objects from S3 storage that match the given user_id and thread_id.
+
+    Parameters
+    ----------
+    s3_client : Any
+        Boto3 S3 client instance
+    bucket_name : str
+        Name of the S3 bucket
+    user_id : str
+        User identifier
+    thread_id : str
+        Thread identifier for filtering objects to delete
+    """
+    # List all objects under the user's prefix
+    paginator = s3_client.get_paginator("list_objects_v2")
+    pages = paginator.paginate(Bucket=bucket_name, Prefix=f"{user_id}/")
+
+    # Collect objects to delete
+    objects_to_delete = []
+
+    for page in pages:
+        if "Contents" not in page:
+            continue
+
+        for obj in page["Contents"]:
+            # Get object metadata
+            head = s3_client.head_object(Bucket=bucket_name, Key=obj["Key"])
+            metadata = head.get("Metadata", {})
+
+            # Check if object has matching thread_id
+            if metadata.get("thread_id") == thread_id:
+                objects_to_delete.append({"Key": obj["Key"]})
+
+        # Delete in batches of 1000 (S3 limit)
+        if objects_to_delete:
+            for i in range(0, len(objects_to_delete), 1000):
+                batch = objects_to_delete[i : i + 1000]
+                s3_client.delete_objects(
+                    Bucket=bucket_name, Delete={"Objects": batch, "Quiet": True}
+                )
+            objects_to_delete = []

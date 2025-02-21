@@ -47,6 +47,7 @@ export function HumanValidationDialog({
   const [isAccepted, setIsAccepted] = useState<"accepted" | "rejected">(
     "rejected",
   );
+  const [error, setError] = useState("");
   const [showReviewDialog, setShowReviewDialog] = useState(true);
   const [showFeedbackDialog, setShowFeedbackDialog] = useState(false);
   const [dialogTransition, setDialogTransition] = useState(false);
@@ -72,6 +73,7 @@ export function HumanValidationDialog({
         setShowFeedbackDialog(false);
         setFeedback("");
         setDialogTransition(false);
+        setError("");
       }, 300);
     }
     setIsOpen(open);
@@ -88,29 +90,41 @@ export function HumanValidationDialog({
 
   const handleAction = (formData: FormData) => {
     const validation = formData.get("validation") as "accepted" | "rejected";
+    setError("");
     // Process the decision first
-    setMessage((msg: MessageStrict) => {
-      const updatedMsg = {
-        ...msg,
-        annotations: [
-          ...(msg.annotations || []).filter((a) => a.toolCallId !== toolId),
-          {
-            toolCallId: toolId,
-            validated: validation,
-          },
-        ],
-        toolInvocations: [
-          ...(msg.toolInvocations || []).filter((t) => t.toolCallId !== toolId),
-          {
-            toolCallId: toolId,
-            toolName: toolName,
-            args: isEdited ? JSON.parse(editedArgs) : args,
-            state: "call" as const,
-          },
-        ],
-      };
-      return updatedMsg;
-    });
+    try {
+      setMessage((msg: MessageStrict) => {
+        const updatedMsg = {
+          ...msg,
+          annotations: [
+            ...(msg.annotations || []).filter((a) => a.toolCallId !== toolId),
+            {
+              toolCallId: toolId,
+              validated: validation,
+            },
+          ],
+          toolInvocations: [
+            ...(msg.toolInvocations || []).filter(
+              (t) => t.toolCallId !== toolId,
+            ),
+            {
+              toolCallId: toolId,
+              toolName: toolName,
+              args: isEdited ? JSON.parse(editedArgs) : args,
+              state: "call" as const,
+            },
+          ],
+        };
+        return updatedMsg;
+      });
+    } catch {
+      // Timeout is here to have the flickering effect when clicking
+      // "Accept" multiple times on a malformed JSON.
+      setTimeout(() => {
+        setError("Invalid JSON. Please check your input and try again.");
+      }, 50);
+      return;
+    }
 
     // Execute using the passed mutate function
     mutate({
@@ -164,6 +178,14 @@ export function HumanValidationDialog({
                       value={editedArgs}
                       onChange={(e) => handleArgsChange(e.target.value)}
                     />
+                    {error && (
+                      <p
+                        className="text-red-500 text-sm mt-1"
+                        aria-live="polite"
+                      >
+                        {error}
+                      </p>
+                    )}
                   </div>
                 </div>
                 <DialogFooter className="mt-4">

@@ -190,6 +190,7 @@ class AgentsRoutine:
         content = await messages_to_openai_content(messages)
         history = copy.deepcopy(content)
         init_len = len(messages)
+        tool_map = {tool.name: tool for tool in agent.tools}
 
         while len(history) - init_len < max_turns:
             message: dict[str, Any] = {
@@ -223,12 +224,21 @@ class AgentsRoutine:
 
                     elif choice.finish_reason == "tool_calls":
                         for tool_call in draft_tool_calls:
+                            input_args = json.loads(tool_call["arguments"] or "{}")
+                            try:
+                                input_schema = (
+                                    tool_map[tool_call["name"]]
+                                    .__annotations__["input_schema"](**input_args)
+                                    .model_dump()
+                                )
+                            except ValidationError:
+                                input_schema = input_args
                             tool_call_data = {
                                 "toolCallId": tool_call["id"],
                                 "toolName": tool_call["name"],
-                                "args": json.loads(tool_call["arguments"] or "{}"),
+                                "args": input_schema,
                             }
-                            yield f"9:{json.dumps(tool_call_data, separators=(',',':'))}\n"
+                            yield f"9:{json.dumps(tool_call_data, separators=(',', ':'))}\n"
 
                     # Check for tool calls
                     elif choice.delta.tool_calls:
@@ -245,7 +255,7 @@ class AgentsRoutine:
                                     "toolCallId": id,
                                     "toolName": name,
                                 }
-                                yield f"b:{json.dumps(tool_begin_data, separators=(',',':'))}\n"
+                                yield f"b:{json.dumps(tool_begin_data, separators=(',', ':'))}\n"
 
                             if arguments:
                                 current_id = (
@@ -255,14 +265,14 @@ class AgentsRoutine:
                                     "toolCallId": current_id,
                                     "argsTextDelta": arguments,
                                 }
-                                yield f"c:{json.dumps(args_data, separators=(',',':'))}\n"
+                                yield f"c:{json.dumps(args_data, separators=(',', ':'))}\n"
                                 draft_tool_calls[draft_tool_calls_index][
                                     "arguments"
                                 ] += arguments
 
                     else:
                         if choice.delta.content is not None:
-                            yield f"0:{json.dumps(choice.delta.content, separators=(',',':'))}\n"
+                            yield f"0:{json.dumps(choice.delta.content, separators=(',', ':'))}\n"
 
                     delta_json = choice.delta.model_dump()
                     delta_json.pop("role", None)
@@ -296,7 +306,9 @@ class AgentsRoutine:
 
             # Append the history with the json version
             history.append(copy.deepcopy(message))
-            message.pop("tool_calls")
+
+            # We add a true / false to check if there were tool calls.
+            message["tool_calls"] = "tool_calls" in message and message["tool_calls"]
 
             # Stage the new message for addition to DB
             messages.append(
@@ -314,8 +326,6 @@ class AgentsRoutine:
                 break
 
             # kick out tool calls that require HIL
-            tool_map = {tool.name: tool for tool in agent.tools}
-
             tool_calls_to_execute = [
                 tool_call
                 for tool_call in messages[-1].tool_calls
@@ -344,7 +354,7 @@ class AgentsRoutine:
                     "toolCallId": tool_response["tool_call_id"],
                     "result": tool_response["content"],
                 }
-                yield f"a:{json.dumps(response_data, separators=(',',':'))}\n"
+                yield f"a:{json.dumps(response_data, separators=(',', ':'))}\n"
 
             yield f"e:{json.dumps(finish_data)}\n"
 
@@ -367,7 +377,7 @@ class AgentsRoutine:
                     for msg in tool_calls_with_hil
                 ]
 
-                yield f"8:{json.dumps(annotation_data, separators=(',',':'))}\n"
+                yield f"8:{json.dumps(annotation_data, separators=(',', ':'))}\n"
                 yield f"e:{json.dumps(finish_data)}\n"
                 break
 

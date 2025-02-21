@@ -4,6 +4,7 @@ import logging
 from functools import cache
 from typing import Annotated, Any, AsyncIterator
 
+import boto3
 from fastapi import Depends, HTTPException, Request
 from fastapi.security import HTTPBearer
 from httpx import AsyncClient, HTTPStatusError
@@ -25,6 +26,8 @@ from neuroagent.tools import (
     MEModelGetAllTool,
     MEModelGetOneTool,
     MorphologyFeatureTool,
+    MorphologyViewerTool,
+    PlotGeneratorTool,
     ResolveEntitiesTool,
     SCSGetAllTool,
     SCSGetOneTool,
@@ -56,7 +59,7 @@ def get_settings() -> Settings:
 
 async def get_httpx_client(request: Request) -> AsyncIterator[AsyncClient]:
     """Manage the httpx client for the request."""
-    client = AsyncClient(  # nosec B501
+    client = AsyncClient(
         timeout=300.0,
         verify=False,
         headers={"x-request-id": request.headers["x-request-id"]},
@@ -164,8 +167,11 @@ def get_tool_list() -> list[type[BaseTool]]:
         MorphologyFeatureTool,
         ResolveEntitiesTool,
         GetTracesTool,
+        PlotGeneratorTool,
+        MorphologyViewerTool,
         # NowTool,
         # WeatherTool,
+        # RandomPlotGeneratorTool,
     ]
 
 
@@ -193,11 +199,21 @@ def get_starting_agent(
 ) -> Agent:
     """Get the starting agent."""
     logger.info(f"Loading model {settings.openai.model}.")
+    base_instructions = """You are a helpful assistant helping scientists with neuro-scientific questions.
+                You must always specify in your answers from which brain regions the information is extracted.
+                Do no blindly repeat the brain region requested by the user, use the output of the tools instead."""
+
+    storage_instructions = (
+        f"All files in storage can be viewed under {settings.misc.frontend_url}/viewer/{{storage_id}}. "
+        "When referencing storage files, always replace {{storage_id}} with the actual storage ID. "
+        "Format the links as standard markdown links like: [Description](URL), do not try to embed them as images."
+        if settings.misc.frontend_url
+        else "Never try to generate links to internal storage ids"
+    )
+
     agent = Agent(
         name="Agent",
-        instructions="""You are a helpful assistant helping scientists with neuro-scientific questions.
-                You must always specify in your answers from which brain regions the information is extracted.
-                Do no blindly repeat the brain region requested by the user, use the output of the tools instead.""",
+        instructions=f"{base_instructions}\n{storage_instructions}",
         tools=tool_list,
         model=settings.openai.model,
     )
@@ -226,12 +242,28 @@ async def get_thread(
     return thread
 
 
+def get_s3_client(
+    settings: Annotated[Settings, Depends(get_settings)],
+) -> Any:
+    """Get the S3 client."""
+    return boto3.client(
+        "s3",
+        endpoint_url=settings.storage.endpoint_url,
+        aws_access_key_id=settings.storage.access_key.get_secret_value(),
+        aws_secret_access_key=settings.storage.secret_key.get_secret_value(),
+        aws_session_token=None,
+        config=boto3.session.Config(signature_version="s3v4"),
+    )
+
+
 def get_context_variables(
     settings: Annotated[Settings, Depends(get_settings)],
     starting_agent: Annotated[Agent, Depends(get_starting_agent)],
     token: Annotated[str, Depends(auth)],
     httpx_client: Annotated[AsyncClient, Depends(get_httpx_client)],
     thread: Annotated[Threads, Depends(get_thread)],
+    s3_client: Annotated[Any, Depends(get_s3_client)],
+    user_id: Annotated[str, Depends(get_user_id)],
 ) -> dict[str, Any]:
     """Get the context variables to feed the tool's metadata."""
     return {
@@ -254,6 +286,10 @@ def get_context_variables(
         "httpx_client": httpx_client,
         "vlab_id": thread.vlab_id,
         "project_id": thread.project_id,
+        "s3_client": s3_client,
+        "bucket_name": settings.storage.bucket_name,
+        "user_id": user_id,
+        "thread_id": thread.thread_id,
     }
 
 

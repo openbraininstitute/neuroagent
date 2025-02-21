@@ -16,12 +16,12 @@ export async function createThread() {
 
     const { projectID, virtualLabID } = await getSettings();
 
-    const threadResponse = await fetcher({
+    const threadResponse = (await fetcher({
       method: "POST",
       path: "/threads",
       queryParams: { project_id: projectID, virtual_lab_id: virtualLabID },
       headers: { Authorization: `Bearer ${session.accessToken}` },
-    });
+    })) as { thread_id: string };
 
     const { thread_id: newThreadId } = threadResponse;
     threadId = newThreadId;

@@ -1,3 +1,4 @@
+import { getSettings } from "@/lib/cookies-server";
 import { ThreadCardSidebar } from "@/components/thread-card-sidebar";
 import { auth } from "@/lib/auth";
 import { BThread } from "@/lib/types";
@@ -10,8 +11,11 @@ async function getThreads(): Promise<BThread[]> {
       return [];
     }
 
+    const { projectID, virtualLabID } = await getSettings();
+
     const threads = (await fetcher({
       path: "/threads",
+      queryParams: { project_id: projectID, virtual_lab_id: virtualLabID },
       headers: { Authorization: `Bearer ${session.accessToken}` },
       next: { tags: ["threads"] },
     })) as BThread[];

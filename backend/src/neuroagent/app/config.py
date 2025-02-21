@@ -17,6 +17,18 @@ class SettingsAgent(BaseModel):
     model_config = ConfigDict(frozen=True)
 
 
+class SettingsStorage(BaseModel):
+    """Storage settings."""
+
+    endpoint_url: str = "http://localhost:9000"
+    bucket_name: str = "neuroagent"
+    access_key: SecretStr = SecretStr("minioadmin")
+    secret_key: SecretStr = SecretStr("minioadmin")
+    expires_in: int = 600
+
+    model_config = ConfigDict(frozen=True)
+
+
 class SettingsDB(BaseModel):
     """DB settings for retrieving history."""
 
@@ -180,6 +192,8 @@ class SettingsMisc(BaseModel):
     # Query size limiter, in number of characters. (630 words ~= 5000 characters.)
     query_max_size: int = 10000
 
+    frontend_url: str | None = "http://localhost:3000"
+
     model_config = ConfigDict(frozen=True)
 
 
@@ -195,6 +209,7 @@ class Settings(BaseSettings):
     keycloak: SettingsKeycloak = SettingsKeycloak()  # has no required
     virtual_lab: SettingsVlab = SettingsVlab()  # has no required
     misc: SettingsMisc = SettingsMisc()  # has no required
+    storage: SettingsStorage = SettingsStorage()  # has no required
 
     model_config = SettingsConfigDict(
         env_file=".env",
