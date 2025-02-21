@@ -7,11 +7,11 @@ import { env } from "@/lib/env";
 import { useSession } from "next-auth/react";
 import { ExtendedSession } from "@/lib/auth";
 import { useStore } from "@/lib/store";
-import { ToolSelectionDropdown } from "@/components/tool-selection-dropdown";
+import { ToolSelectionDropdown } from "@/components/chat/tool-selection-dropdown";
 
-import { ChatMessageAI } from "@/components/chat-message-ai";
-import { ChatMessageHuman } from "@/components/chat-message-human";
-import { ChatMessageTool } from "@/components/chat-message-tool";
+import { ChatMessageAI } from "@/components/chat/chat-message-ai";
+import { ChatMessageHuman } from "@/components/chat/chat-message-human";
+import { ChatMessageTool } from "@/components/chat/chat-message-tool";
 import { Send } from "lucide-react";
 
 type ChatPageProps = {

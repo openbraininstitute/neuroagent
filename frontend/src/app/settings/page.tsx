@@ -1,4 +1,4 @@
-import { ParameterForm } from "@/components/parameter-form";
+import { ParameterForm } from "@/components/general/parameter-form";
 
 export default function SettingsPage() {
   return (

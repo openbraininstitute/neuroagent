@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useSession, signIn, signOut } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 
-import { ThemeToggle } from "@/components/theme-changer";
+import { ThemeToggle } from "@/components/general/theme-changer";
 
 export function Header() {
   const { data: session, status } = useSession();
