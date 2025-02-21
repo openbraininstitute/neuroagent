@@ -8,6 +8,7 @@ import { ToolSelectionDropdown } from "@/components/tool-selection-dropdown";
 import { Send } from "lucide-react";
 import ChatInputLoading from "@/components/chat-input-loading";
 import { useRouter } from "next/navigation";
+import { convert_tools_to_set } from "@/lib/utils";
 
 type ChatInputProps = {
   availableTools: Array<{ slug: string; label: string }>;
@@ -42,15 +43,7 @@ export function ChatInput({ availableTools }: ChatInputProps) {
     }
   };
   useEffect(() => {
-    const initialCheckedTools = availableTools.reduce<Record<string, boolean>>(
-      (acc, tool) => {
-        acc[tool.slug] = true;
-        return acc;
-      },
-      {},
-    );
-    initialCheckedTools["allchecked"] = true;
-    setCheckedTools(initialCheckedTools);
+    setCheckedTools(convert_tools_to_set(availableTools));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // Empty dependency array means this runs once on mount
 
