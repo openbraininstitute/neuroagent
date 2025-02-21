@@ -8,6 +8,8 @@ import { useSession } from "next-auth/react";
 import { ExtendedSession } from "@/lib/auth";
 import { useStore } from "@/lib/store";
 import { ToolSelectionDropdown } from "@/components/tool-selection-dropdown";
+import { generateEditTitle } from "@/actions/generate-edit-thread";
+import { convert_tools_to_set } from "@/lib/utils";
 
 import { ChatMessageAI } from "@/components/chat-message-ai";
 import { ChatMessageHuman } from "@/components/chat-message-human";
@@ -40,19 +42,13 @@ export function ChatPage({
         role: "user",
         content: newMessage,
       });
+      generateEditTitle(null, threadId, newMessage);
       setNewMessage("");
       requiresHandleSubmit.current = true;
     }
     // If checkedTools is not initialized yet, initialize it
     if (Object.keys(checkedTools).length === 0) {
-      const initialCheckedTools = availableTools.reduce<
-        Record<string, boolean>
-      >((acc, tool) => {
-        acc[tool.slug] = true;
-        return acc;
-      }, {});
-      initialCheckedTools["allchecked"] = true;
-      setCheckedTools(initialCheckedTools);
+      setCheckedTools(convert_tools_to_set(availableTools));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // Empty dependency array means this runs once on mount

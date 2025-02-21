@@ -47,7 +47,7 @@ class ThreadCreate(BaseModel):
     title: str = "New chat"
 
 
-class ThreadCreateWithGeneratedTitle(BaseModel):
+class ThreadGeneratedTitle(BaseModel):
     """Data class for the update of a thread."""
 
     first_user_message: str
