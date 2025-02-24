@@ -2,7 +2,7 @@ import { MessageStrict } from "@/lib/types";
 import { ChatMessageAI } from "./chat-message-ai";
 import { ChatMessageHuman } from "./chat-message-human";
 import { ChatMessageTool } from "./chat-message-tool";
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 
 interface ChatMessagesInsideThreadProps {
   messages: MessageStrict[];
@@ -21,29 +21,7 @@ export function ChatMessagesInsideThread({
   availableTools,
   setMessages,
 }: ChatMessagesInsideThreadProps) {
-  const [isAutoScrollEnabled, setIsAutoScrollEnabled] = useState(true);
   const [collapsedTools, setCollapsedTools] = useState<Set<string>>(new Set());
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
-
-  const handleWheel = (event: React.WheelEvent) => {
-    if (event.deltaY < 0) {
-      setIsAutoScrollEnabled(false);
-    } else {
-      const container = containerRef.current;
-      if (!container) return;
-      const isAtBottom =
-        container.scrollHeight - container.scrollTop <=
-        container.clientHeight + 200;
-      setIsAutoScrollEnabled(isAtBottom);
-    }
-  };
-
-  useEffect(() => {
-    if (isAutoScrollEnabled) {
-      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-    }
-  }, [messages, isAutoScrollEnabled]);
 
   function getMessageIndicesBetween(messageID: string) {
     const targetIndex = messages.findIndex((msg) => msg.id === messageID);
@@ -76,11 +54,7 @@ export function ChatMessagesInsideThread({
   };
 
   return (
-    <div
-      ref={containerRef}
-      onWheel={handleWheel}
-      className="flex-1 flex flex-col overflow-y-auto"
-    >
+    <>
       {messages.map((message) =>
         message.role === "assistant" ? (
           message.toolInvocations ? (
@@ -124,7 +98,6 @@ export function ChatMessagesInsideThread({
           <ChatMessageHuman key={message.id} content={message.content} />
         ),
       )}
-      <div ref={messagesEndRef} />
-    </div>
+    </>
   );
 }

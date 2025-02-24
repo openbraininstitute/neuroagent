@@ -29,6 +29,9 @@ export function ChatPage({
   const setCheckedTools = useStore((state) => state.setCheckedTools);
   const [processedToolInvocationMessages, setProcessedToolInvocationMessages] =
     useState<string[]>([]);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const [isAutoScrollEnabled, setIsAutoScrollEnabled] = useState(true);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   const {
     messages: messagesRaw,
@@ -59,10 +62,6 @@ export function ChatPage({
       | MessageStrict[]
       | ((messages: MessageStrict[]) => MessageStrict[]),
   ) => void;
-
-  // Scroll to the end of the page when new messages are added
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-  const [isAutoScrollEnabled, setIsAutoScrollEnabled] = useState(true);
 
   // Moved useEffect here to group with other useEffect hooks
   useEffect(() => {
@@ -149,18 +148,38 @@ export function ChatPage({
     }
   };
 
+  const handleWheel = (event: React.WheelEvent) => {
+    if (event.deltaY < 0) {
+      setIsAutoScrollEnabled(false);
+    } else {
+      const container = containerRef.current;
+      if (!container) return;
+      const isAtBottom =
+        container.scrollHeight - container.scrollTop <=
+        container.clientHeight + 200;
+      setIsAutoScrollEnabled(isAtBottom);
+    }
+  };
+
   if (error) {
     return null;
   }
 
   return (
     <div className="flex flex-col h-full">
-      <ChatMessagesInsideThread
-        messages={messages}
-        threadId={threadId}
-        availableTools={availableTools}
-        setMessages={setMessages}
-      />
+      <div
+        ref={containerRef}
+        onWheel={handleWheel}
+        className="flex-1 flex flex-col overflow-y-auto"
+      >
+        <ChatMessagesInsideThread
+          messages={messages}
+          threadId={threadId}
+          availableTools={availableTools}
+          setMessages={setMessages}
+        />
+        <div ref={messagesEndRef} />
+      </div>
 
       <ChatInputInsideThread
         input={input}
