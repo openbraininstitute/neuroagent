@@ -1,3 +1,4 @@
+import { memo } from "react";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { Card, CardContent } from "@/components/ui/card";
@@ -10,25 +11,26 @@ function isSubset<T>(smallSet: Set<T>, largeSet: Set<T>): boolean {
 
 type ChatMessageAIProps = {
   content?: string;
-  associatedToolsIncides: string[];
+  associatedToolsIndices: string[];
   collapsedTools: Set<string>;
   toggleCollapse: (messageId: string[]) => void;
 };
 
-export function ChatMessageAI({
+export const ChatMessageAI = memo(function ChatMessageAI({
   content,
-  associatedToolsIncides,
+  associatedToolsIndices,
   collapsedTools,
   toggleCollapse,
 }: ChatMessageAIProps) {
+  console.log("ChatMessageAI", content?.slice(0, 10));
   return (
     <div className="flex justify-start mt-4">
-      {associatedToolsIncides.length > 0 ? (
+      {associatedToolsIndices.length > 0 ? (
         <Button
           className="hover:scale-105 active:scale-[1.10] ml-7 mr-1 mt-0.5 bg-blue-500 rounded-full p-2.5"
-          onClick={() => toggleCollapse(associatedToolsIncides)}
+          onClick={() => toggleCollapse(associatedToolsIndices)}
         >
-          {isSubset(new Set(associatedToolsIncides), collapsedTools) ? (
+          {isSubset(new Set(associatedToolsIndices), collapsedTools) ? (
             <Wrench />
           ) : (
             <ChevronDown />
@@ -49,4 +51,4 @@ export function ChatMessageAI({
       </Card>
     </div>
   );
-}
+});

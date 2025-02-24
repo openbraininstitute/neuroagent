@@ -239,7 +239,7 @@ export function ChatPage({
               <ChatMessageAI
                 key={message.id}
                 content={message.content}
-                associatedToolsIncides={getMessageIndicesBetween(message.id)}
+                associatedToolsIndices={getMessageIndicesBetween(message.id)}
                 collapsedTools={collapsedTools}
                 toggleCollapse={toggleCollapse}
               />
