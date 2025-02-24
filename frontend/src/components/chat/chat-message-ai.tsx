@@ -9,9 +9,7 @@ function isSubset<T>(smallSet: Set<T>, largeSet: Set<T>): boolean {
 }
 
 type ChatMessageAIProps = {
-  id: string;
   content?: string;
-  threadId: string;
   associatedToolsIncides: string[];
   collapsedTools: Set<string>;
   toggleCollapse: (messageId: string[]) => void;

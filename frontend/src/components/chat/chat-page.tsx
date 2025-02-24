@@ -237,8 +237,6 @@ export function ChatPage({
             ) : (
               <ChatMessageAI
                 key={message.id}
-                id={message.id}
-                threadId={threadId}
                 content={message.content}
                 associatedToolsIncides={getMessageIndicesBetween(message.id)}
                 collapsedTools={collapsedTools}
