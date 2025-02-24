@@ -14,8 +14,10 @@ type ChatInputProps = {
 };
 
 export function ChatInput({ availableTools }: ChatInputProps) {
-  const { newMessage, setNewMessage, checkedTools, setCheckedTools } =
-    useStore();
+  const newMessage = useStore((state) => state.newMessage);
+  const setNewMessage = useStore((state) => state.setNewMessage);
+  const checkedTools = useStore((state) => state.checkedTools);
+  const setCheckedTools = useStore((state) => state.setCheckedTools);
   const [input, setInput] = useState("");
   const router = useRouter();
 
