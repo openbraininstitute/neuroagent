@@ -287,6 +287,41 @@ class RegionMeta:
 
         return cls.from_KG_dict(KG_hierarchy)
 
+    @classmethod
+    def load_config_s3(cls, s3_client: Any, bucket_name: str, key: str) -> "RegionMeta":
+        """Load a configuration from a json file in S3 and return a 'RegionMeta' instance.
+
+        Parameters
+        ----------
+        s3_client : boto3.client
+            The initialized S3 client
+        bucket_name : str
+            Name of the S3 bucket
+        key : str
+            Key (path) to the JSON file in the S3 bucket
+
+        Returns
+        -------
+            RegionMeta class with pre-loaded hierarchy
+        """
+        response = s3_client.get_object(Bucket=bucket_name, Key=key)
+        to_load = json.load(response["Body"])
+
+        # Needed to convert json 'str' keys to int.
+        for k1 in to_load.keys():
+            if not isinstance(to_load[k1], int):
+                to_load[k1] = {int(k): v for k, v in to_load[k1].items()}
+
+        self = cls()
+
+        self.root_id = to_load["root_id"]
+        self.name_ = to_load["names"]
+        self.st_level = to_load["st_level"]
+        self.parent_id = to_load["parent_id"]
+        self.children_ids = to_load["children_ids"]
+
+        return self
+
 
 def get_descendants_id(brain_region_id: str, json_path: str | Path) -> set[str]:
     """Get all descendant of a brain region id.
@@ -322,6 +357,53 @@ def get_descendants_id(brain_region_id: str, json_path: str | Path) -> set[str]:
         hierarchy_ids = {brain_region_id}
     except IOError:
         logger.warning(f"The file {json_path} doesn't exist.")
+        hierarchy_ids = {brain_region_id}
+
+    return hierarchy_ids
+
+
+def get_descendants_id_s3(
+    brain_region_id: str, s3_client: Any, bucket_name: str, key: str
+) -> set[str]:
+    """Get all descendant of a brain region id using a json file in S3.
+
+    Parameters
+    ----------
+    brain_region_id : str
+        Brain region ID to find descendants for.
+    s3_client : boto3.client
+        The initialized S3 client
+    bucket_name : str
+        Name of the S3 bucket
+    key : str
+        Key (path) to the JSON file in the S3 bucket
+
+    Returns
+    -------
+        Set of descendants of a brain region
+    """
+    # Split a brain region ID of the form "http://api.brain-map.org/api/v2/data/Structure/123" into base + id.
+    id_base, _, brain_region_str = brain_region_id.rpartition("/")
+    try:
+        # Convert the id into an int
+        brain_region_int = int(brain_region_str)
+
+        # Get the descendant ids of this BR (as int).
+        region_meta = RegionMeta.load_config_s3(s3_client, bucket_name, key)
+        hierarchy = region_meta.descendants(brain_region_int)
+
+        # Recast the descendants into the form "http://api.brain-map.org/api/v2/data/Structure/123"
+        hierarchy_ids = {f"{id_base}/{h}" for h in hierarchy}
+    except ValueError:
+        logger.info(
+            f"The brain region {brain_region_id} didn't end with an int. Returning only"
+            " the parent one."
+        )
+        hierarchy_ids = {brain_region_id}
+    except Exception as e:
+        logger.warning(
+            f"Error accessing S3 file {key} in bucket {bucket_name}: {str(e)}"
+        )
         hierarchy_ids = {brain_region_id}
 
     return hierarchy_ids
