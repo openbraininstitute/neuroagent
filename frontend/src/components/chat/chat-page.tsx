@@ -35,30 +35,6 @@ export function ChatPage({
     useState<string[]>([]);
   const [collapsedTools, setCollapsedTools] = useState<Set<string>>(new Set());
 
-  useEffect(() => {
-    if (initialMessages.length === 0 && newMessage !== "") {
-      initialMessages.push({
-        id: "temp_id",
-        role: "user",
-        content: newMessage,
-      });
-      setNewMessage("");
-      handleSubmit(undefined, { allowEmptySubmit: true });
-    }
-    // If checkedTools is not initialized yet, initialize it
-    if (Object.keys(checkedTools).length === 0) {
-      const initialCheckedTools = availableTools.reduce<
-        Record<string, boolean>
-      >((acc, tool) => {
-        acc[tool.slug] = true;
-        return acc;
-      }, {});
-      initialCheckedTools["allchecked"] = true;
-      setCheckedTools(initialCheckedTools);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // Empty dependency array means this runs once on mount
-
   const {
     messages: messagesRaw,
     input,
@@ -93,6 +69,31 @@ export function ChatPage({
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [isAutoScrollEnabled, setIsAutoScrollEnabled] = useState(true);
+
+  // Moved useEffect here to group with other useEffect hooks
+  useEffect(() => {
+    if (initialMessages.length === 0 && newMessage !== "") {
+      initialMessages.push({
+        id: "temp_id",
+        role: "user",
+        content: newMessage,
+      });
+      setNewMessage("");
+      handleSubmit(undefined, { allowEmptySubmit: true });
+    }
+    // If checkedTools is not initialized yet, initialize it
+    if (Object.keys(checkedTools).length === 0) {
+      const initialCheckedTools = availableTools.reduce<
+        Record<string, boolean>
+      >((acc, tool) => {
+        acc[tool.slug] = true;
+        return acc;
+      }, {});
+      initialCheckedTools["allchecked"] = true;
+      setCheckedTools(initialCheckedTools);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Empty dependency array means this runs once on mount
 
   const handleWheel = (event: React.WheelEvent) => {
     if (event.deltaY < 0) {
