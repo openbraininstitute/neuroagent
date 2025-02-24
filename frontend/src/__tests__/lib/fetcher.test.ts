@@ -112,7 +112,7 @@ describe("fetcher", () => {
         method: "GET",
         path: "/api/test",
       }),
-    ).rejects.toThrow("Fetching Error : 404, Not Found.");
+    ).rejects.toThrow("Fetching Error : 404, Not found.");
   });
 
   test("handles backend URL with path suffix correctly", async () => {
