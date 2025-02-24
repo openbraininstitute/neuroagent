@@ -25,9 +25,12 @@ export function ChatPage({
   initialMessages,
   availableTools,
 }: ChatPageProps) {
+  console.log("ChatPage", threadId);
   const { data: session } = useSession() as { data: ExtendedSession | null };
-  const { newMessage, setNewMessage, checkedTools, setCheckedTools } =
-    useStore();
+  const newMessage = useStore((state) => state.newMessage);
+  const checkedTools = useStore((state) => state.checkedTools);
+  const setNewMessage = useStore((state) => state.setNewMessage);
+  const setCheckedTools = useStore((state) => state.setCheckedTools);
   const requiresHandleSubmit = useRef(false);
   const [processedToolInvocationMessages, setProcessedToolInvocationMessages] =
     useState<string[]>([]);
@@ -237,21 +240,14 @@ export function ChatPage({
             ) : (
               <ChatMessageAI
                 key={message.id}
-                id={message.id}
-                threadId={threadId}
                 content={message.content}
-                associatedToolsIncides={getMessageIndicesBetween(message.id)}
+                associatedToolsIndices={getMessageIndicesBetween(message.id)}
                 collapsedTools={collapsedTools}
                 toggleCollapse={toggleCollapse}
               />
             )
           ) : (
-            <ChatMessageHuman
-              key={message.id}
-              id={message.id}
-              threadId={threadId}
-              content={message.content}
-            />
+            <ChatMessageHuman key={message.id} content={message.content} />
           ),
         )}
         <div ref={messagesEndRef} />
