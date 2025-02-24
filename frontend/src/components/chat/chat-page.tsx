@@ -7,11 +7,8 @@ import { env } from "@/lib/env";
 import { useSession } from "next-auth/react";
 import { ExtendedSession } from "@/lib/auth";
 import { useStore } from "@/lib/store";
-
-import { ChatMessageAI } from "@/components/chat/chat-message-ai";
-import { ChatMessageHuman } from "@/components/chat/chat-message-human";
-import { ChatMessageTool } from "@/components/chat/chat-message-tool";
 import { ChatInputInsideThread } from "@/components/chat/chat-input-inside-thread";
+import { ChatMessagesInsideThread } from "@/components/chat/chat-messages-inside-thread";
 
 type ChatPageProps = {
   threadId: string;
@@ -32,7 +29,6 @@ export function ChatPage({
   const setCheckedTools = useStore((state) => state.setCheckedTools);
   const [processedToolInvocationMessages, setProcessedToolInvocationMessages] =
     useState<string[]>([]);
-  const [collapsedTools, setCollapsedTools] = useState<Set<string>>(new Set());
 
   const {
     messages: messagesRaw,
@@ -66,7 +62,6 @@ export function ChatPage({
 
   // Scroll to the end of the page when new messages are added
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
   const [isAutoScrollEnabled, setIsAutoScrollEnabled] = useState(true);
 
   // Moved useEffect here to group with other useEffect hooks
@@ -93,19 +88,6 @@ export function ChatPage({
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // Empty dependency array means this runs once on mount
-
-  const handleWheel = (event: React.WheelEvent) => {
-    if (event.deltaY < 0) {
-      setIsAutoScrollEnabled(false);
-    } else {
-      const container = containerRef.current;
-      if (!container) return;
-      const isAtBottom =
-        container.scrollHeight - container.scrollTop <=
-        container.clientHeight + 200;
-      setIsAutoScrollEnabled(isAtBottom);
-    }
-  };
 
   useEffect(() => {
     if (isAutoScrollEnabled) {
@@ -155,37 +137,6 @@ export function ChatPage({
     }
   }, [messages, handleSubmit, processedToolInvocationMessages]);
 
-  // to toggle the collapse of tools
-  function getMessageIndicesBetween(messageID: string) {
-    const targetIndex = messages.findIndex((msg) => msg.id === messageID);
-    if (targetIndex === -1) return [];
-
-    let prevUserIndex = -1;
-    for (let i = targetIndex - 1; i >= 0; i--) {
-      if (messages[i].role === "user") {
-        prevUserIndex = i;
-        break;
-      }
-    }
-    return messages
-      .slice(prevUserIndex !== -1 ? prevUserIndex + 1 : 0, targetIndex)
-      .map((message) => message.id);
-  }
-
-  const toggleCollapse = (messageId: string[]) => {
-    setCollapsedTools((prev) => {
-      const newSet = new Set(prev);
-      for (const id of messageId) {
-        if (newSet.has(id)) {
-          newSet.delete(id);
-        } else {
-          newSet.add(id);
-        }
-      }
-      return newSet;
-    });
-  };
-
   const hasOngoingToolInvocations =
     (messages.at(-1)?.toolInvocations ?? []).length > 0;
 
@@ -193,7 +144,6 @@ export function ChatPage({
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       if (!(isLoading || hasOngoingToolInvocations)) {
-        setIsAutoScrollEnabled(true);
         handleSubmit({ preventDefault: () => {} });
       }
     }
@@ -205,58 +155,12 @@ export function ChatPage({
 
   return (
     <div className="flex flex-col h-full">
-      {/* Mesages list */}
-      <div
-        ref={containerRef}
-        onWheel={handleWheel}
-        className="flex-1 flex flex-col overflow-y-auto"
-      >
-        {messages.map((message) =>
-          message.role === "assistant" ? (
-            message.toolInvocations ? (
-              // Unpack the parralel tool calls
-              message.toolInvocations
-                .sort((a, b) => a.toolCallId.localeCompare(b.toolCallId))
-                .map((tool) => {
-                  const validated =
-                    message.annotations?.find(
-                      (a) => a.toolCallId === tool.toolCallId,
-                    )?.validated ?? "not_required";
-
-                  return (
-                    !collapsedTools.has(message.id) && (
-                      <ChatMessageTool
-                        key={`${message.id}-${tool.toolCallId}`}
-                        threadId={threadId}
-                        tool={tool}
-                        availableTools={availableTools}
-                        validated={validated}
-                        setMessage={(updater) => {
-                          setMessages((messages) =>
-                            messages.map((msg) =>
-                              msg.id === message.id ? updater(msg) : msg,
-                            ),
-                          );
-                        }}
-                      />
-                    )
-                  );
-                })
-            ) : (
-              <ChatMessageAI
-                key={message.id}
-                content={message.content}
-                associatedToolsIndices={getMessageIndicesBetween(message.id)}
-                collapsedTools={collapsedTools}
-                toggleCollapse={toggleCollapse}
-              />
-            )
-          ) : (
-            <ChatMessageHuman key={message.id} content={message.content} />
-          ),
-        )}
-        <div ref={messagesEndRef} />
-      </div>
+      <ChatMessagesInsideThread
+        messages={messages}
+        threadId={threadId}
+        availableTools={availableTools}
+        setMessages={setMessages}
+      />
 
       <ChatInputInsideThread
         input={input}
@@ -267,8 +171,8 @@ export function ChatPage({
         handleInputChange={handleInputChange}
         handleSubmit={handleSubmit}
         handleKeyDown={handleKeyDown}
-        setIsAutoScrollEnabled={setIsAutoScrollEnabled}
         hasOngoingToolInvocations={hasOngoingToolInvocations}
+        setIsAutoScrollEnabled={setIsAutoScrollEnabled}
       />
     </div>
   );
