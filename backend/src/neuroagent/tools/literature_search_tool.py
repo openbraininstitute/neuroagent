@@ -22,6 +22,18 @@ class LiteratureSearchInput(BaseModel):
             " should be based on keywords to ensure maximal efficiency."
         )
     )
+    article_types: list[str] = Field(
+        default=None, description="List of allowed article types."
+    )
+    authors: list[str] = Field(default=None, description="List of allowed authors.")
+    journals: list[str] = Field(
+        default=None,
+        description="List of allowed journals. Should be the ISSN of the journal.",
+    )
+    date_from: str = Field(
+        default=None, description="Date lowerbound. Format YYYY-MM-DD"
+    )
+    date_to: str = Field(default=None, description="Date upperbound. Format YYYY-MM-DD")
 
 
 class LiteratureSearchMetadata(BaseMetadata):
@@ -62,13 +74,8 @@ class LiteratureSearchTool(BaseTool):
     description: ClassVar[
         str
     ] = """Searches the scientific literature. The tool should be used to gather general scientific knowledge. It is best suited for questions about neuroscience and medicine that are not about morphologies.
-    It returns a list of paragraphs fron scientific papers that match the query (in the sense of the bm25 algorithm), alongside with the metadata of the articles they were extracted from, such as:
-    - title
-    - authors
-    - paragraph_text
-    - section
-    - article_doi
-    - journal_issn"""
+    It takes a required `query` argument (it is only about the topci) and optinal filters (authors, article type, ...). Do not specify the filter parameters in 'query'.
+    It returns a list of paragraphs fron scientific papers that match the query (in the sense of the bm25 algorithm), alongside with the metadata of the articles they were extracted from."""
     input_schema: LiteratureSearchInput
     metadata: LiteratureSearchMetadata
 
@@ -84,13 +91,17 @@ class LiteratureSearchTool(BaseTool):
         )
 
         # Prepare the request's body
-        req_body = {
-            "query": self.input_schema.query,
-            "retriever_k": self.metadata.retriever_k,
-            "use_reranker": self.metadata.use_reranker,
-            "reranker_k": self.metadata.reranker_k,
-        }
-
+        req_body = self.create_query(
+            query=self.input_schema.query,
+            article_types=self.input_schema.article_types,
+            authors=self.input_schema.authors,
+            journals=self.input_schema.journals,
+            date_from=self.input_schema.date_from,
+            date_to=self.input_schema.date_to,
+            retriever_k=self.metadata.retriever_k,
+            use_reranker=self.metadata.use_reranker,
+            reranker_k=self.metadata.reranker_k,
+        )
         # Send the request
         response = await self.metadata.httpx_client.get(
             self.metadata.literature_search_url,
@@ -100,6 +111,33 @@ class LiteratureSearchTool(BaseTool):
         )
 
         return self._process_output(response.json())
+
+    @staticmethod
+    def create_query(
+        query: str,
+        article_types: list[str],
+        authors: list[str],
+        journals: list[str],
+        date_from: str,
+        date_to: str,
+        retriever_k: int,
+        reranker_k: int,
+        use_reranker: bool,
+    ):
+        """Create query for the Literature Search API."""
+        req_body = {
+            "query": query,
+            "article_types": article_types,
+            "authors": authors,
+            "journals": journals,
+            "date_from": date_from,
+            "date_to": date_to,
+            "retriever_k": retriever_k,
+            "use_reranker": use_reranker,
+            "reranker_k": reranker_k,
+        }
+
+        return {k: v for k, v in req_body.items() if v is not None}
 
     @staticmethod
     def _process_output(output: list[dict[str, Any]]) -> str:
