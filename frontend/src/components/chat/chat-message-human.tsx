@@ -1,9 +1,7 @@
 import { Card, CardContent } from "@/components/ui/card";
 
 type ChatMessageHumanProps = {
-  id: string;
   content?: string;
-  threadId: string;
 };
 
 export function ChatMessageHuman({ content }: ChatMessageHumanProps) {

@@ -246,12 +246,7 @@ export function ChatPage({
               />
             )
           ) : (
-            <ChatMessageHuman
-              key={message.id}
-              id={message.id}
-              threadId={threadId}
-              content={message.content}
-            />
+            <ChatMessageHuman key={message.id} content={message.content} />
           ),
         )}
         <div ref={messagesEndRef} />
