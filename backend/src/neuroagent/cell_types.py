@@ -167,6 +167,36 @@ class CellTypesMeta:
 
         return cls.from_dict(hierarchy)
 
+    @classmethod
+    def load_config_s3(cls, s3_client, bucket_name: str, key: str) -> "CellTypesMeta":
+        """Load a configuration from a json file in S3 and return a 'CellTypesMeta' instance.
+
+        Parameters
+        ----------
+        s3_client : boto3.client
+            The initialized S3 client
+        bucket_name : str
+            Name of the S3 bucket
+        key : str
+            Key (path) to the JSON file in the S3 bucket
+
+        Returns
+        -------
+            CellTypesMeta class with pre-loaded hierarchy
+        """
+        response = s3_client.get_object(Bucket=bucket_name, Key=key)
+        to_load = json.load(response["Body"])
+
+        descendants_ids = {}
+        for k, v in to_load["descendants_ids"].items():
+            descendants_ids[k] = set(v)
+
+        self = cls()
+
+        self.name_ = to_load["names"]
+        self.descendants_ids = descendants_ids
+        return self
+
 
 def get_celltypes_descendants(cell_type_id: str, json_path: str | Path) -> set[str]:
     """Get all descendant of a brain region id.
@@ -187,6 +217,38 @@ def get_celltypes_descendants(cell_type_id: str, json_path: str | Path) -> set[s
         hierarchy_ids = region_meta.descendants(cell_type_id)
     except IOError:
         logger.warning(f"The file {json_path} doesn't exist.")
+        hierarchy_ids = {cell_type_id}
+
+    return hierarchy_ids
+
+
+def get_celltypes_descendants_s3(
+    cell_type_id: str, s3_client: Any, bucket_name: str, key: str
+) -> set[str]:
+    """Get all descendant of a cell type id using a json file in S3.
+
+    Parameters
+    ----------
+    cell_type_id : str
+        Cell type ID for which to find the descendants list.
+    s3_client : boto3.client
+        The initialized S3 client
+    bucket_name : str
+        Name of the S3 bucket
+    key : str
+        Key (path) to the JSON file in the S3 bucket
+
+    Returns
+    -------
+        Set of descendants of a cell type
+    """
+    try:
+        region_meta = CellTypesMeta.load_config_s3(s3_client, bucket_name, key)
+        hierarchy_ids = region_meta.descendants(cell_type_id)
+    except Exception as e:
+        logger.warning(
+            f"Error accessing S3 file {key} in bucket {bucket_name}: {str(e)}"
+        )
         hierarchy_ids = {cell_type_id}
 
     return hierarchy_ids
