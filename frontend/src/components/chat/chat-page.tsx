@@ -27,10 +27,10 @@ export function ChatPage({
 }: ChatPageProps) {
   console.log("ChatPage", threadId);
   const { data: session } = useSession() as { data: ExtendedSession | null };
-  const newMessage = useStore(state => state.newMessage);
-  const checkedTools = useStore(state => state.checkedTools);
-  const setNewMessage = useStore(state => state.setNewMessage);
-  const setCheckedTools = useStore(state => state.setCheckedTools);
+  const newMessage = useStore((state) => state.newMessage);
+  const checkedTools = useStore((state) => state.checkedTools);
+  const setNewMessage = useStore((state) => state.setNewMessage);
+  const setCheckedTools = useStore((state) => state.setCheckedTools);
   const requiresHandleSubmit = useRef(false);
   const [processedToolInvocationMessages, setProcessedToolInvocationMessages] =
     useState<string[]>([]);
