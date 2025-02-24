@@ -22,18 +22,22 @@ class LiteratureSearchInput(BaseModel):
             " should be based on keywords to ensure maximal efficiency."
         )
     )
-    article_types: list[str] = Field(
+    article_types: list[str] | None = Field(
         default=None, description="List of allowed article types."
     )
-    authors: list[str] = Field(default=None, description="List of allowed authors.")
-    journals: list[str] = Field(
+    authors: list[str] | None = Field(
+        default=None, description="List of allowed authors."
+    )
+    journals: list[str] | None = Field(
         default=None,
         description="List of allowed journals. Should be the ISSN of the journal.",
     )
-    date_from: str = Field(
+    date_from: str | None = Field(
         default=None, description="Date lowerbound. Format YYYY-MM-DD"
     )
-    date_to: str = Field(default=None, description="Date upperbound. Format YYYY-MM-DD")
+    date_to: str | None = Field(
+        default=None, description="Date upperbound. Format YYYY-MM-DD"
+    )
 
 
 class LiteratureSearchMetadata(BaseMetadata):
@@ -106,7 +110,7 @@ class LiteratureSearchTool(BaseTool):
         response = await self.metadata.httpx_client.get(
             self.metadata.literature_search_url,
             headers={"Authorization": f"Bearer {self.metadata.token}"},
-            params=req_body,  # type: ignore
+            params=req_body,
             timeout=None,
         )
 
@@ -115,15 +119,15 @@ class LiteratureSearchTool(BaseTool):
     @staticmethod
     def create_query(
         query: str,
-        article_types: list[str],
-        authors: list[str],
-        journals: list[str],
-        date_from: str,
-        date_to: str,
+        article_types: list[str] | None,
+        authors: list[str] | None,
+        journals: list[str] | None,
+        date_from: str | None,
+        date_to: str | None,
         retriever_k: int,
         reranker_k: int,
         use_reranker: bool,
-    ):
+    ) -> dict[str, str | int | list[str]]:
         """Create query for the Literature Search API."""
         req_body = {
             "query": query,
