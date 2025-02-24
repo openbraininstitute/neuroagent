@@ -2,7 +2,7 @@ import { auth } from "@/lib/auth";
 import { fetcher } from "@/lib/fetcher";
 import { BToolMetadataDetailed } from "@/lib/types";
 import { PersonStanding, Wifi, WifiOff, ArrowLeft } from "lucide-react";
-import { ToolInputSchema } from "@/components/tool-input-schema";
+import { ToolInputSchema } from "@/components/tool-page/tool-input-schema";
 import Link from "next/link";
 
 type ToolDetailedMetadata = {

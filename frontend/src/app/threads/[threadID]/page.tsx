@@ -1,5 +1,5 @@
 import { BMessage, MessageStrict } from "@/lib/types";
-import { ChatPage } from "@/components/chat-page";
+import { ChatPage } from "@/components/chat/chat-page";
 import { auth } from "@/lib/auth";
 import { fetcher } from "@/lib/fetcher";
 

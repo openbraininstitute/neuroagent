@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import type { MessageStrict } from "@/lib/types";
-import { HilRefusalFeedbackDialog } from "@/components/hil-refusal-feedback-dialog";
+import { HilRefusalFeedbackDialog } from "@/components/chat/hil-refusal-feedback-dialog";
 
 type HumanValidationDialogProps = {
   threadId: string;

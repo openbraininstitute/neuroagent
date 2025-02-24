@@ -4,9 +4,9 @@ import { useState } from "react";
 import { useActionState, useEffect } from "react";
 import { createThreadWithMessage } from "@/actions/create-thread";
 import { useStore } from "@/lib/store";
-import { ToolSelectionDropdown } from "@/components/tool-selection-dropdown";
+import { ToolSelectionDropdown } from "@/components/chat/tool-selection-dropdown";
 import { Send } from "lucide-react";
-import ChatInputLoading from "@/components/chat-input-loading";
+import ChatInputLoading from "@/components/chat/chat-input-loading";
 import { useRouter } from "next/navigation";
 
 type ChatInputProps = {
