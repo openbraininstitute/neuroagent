@@ -22,6 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Copyright and acknowledgement.
 - pre-commit hooks for frontend.
 - Better system prompt
+- Sort components in folder.
 
 ### Added
 - Docker compose for local development

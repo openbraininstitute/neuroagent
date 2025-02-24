@@ -1,7 +1,7 @@
 "use client";
 import { Loader2 } from "lucide-react";
 import { useStore } from "@/lib/store";
-import ChatInputLoading from "@/components/chat-input-loading";
+import ChatInputLoading from "@/components/chat/chat-input-loading";
 
 export default function Loading() {
   const { newMessage } = useStore();

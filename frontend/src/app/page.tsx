@@ -1,4 +1,4 @@
-import { ChatInput } from "@/components/chat-input";
+import { ChatInput } from "@/components/chat/chat-input";
 import { fetcher } from "@/lib/fetcher";
 import { auth } from "@/lib/auth";
 import { getSettings } from "@/lib/cookies-server";

@@ -6,8 +6,8 @@ import { editThread } from "@/actions/edit-thread";
 import { deleteThread } from "@/actions/delete-thread";
 import { useActionState } from "react";
 import { usePathname } from "next/navigation";
-import { EditThreadDialog } from "@/components/edit-thread-dialog";
-import { DeleteThreadDialog } from "@/components/delete-thread-dialog";
+import { EditThreadDialog } from "@/components/sidebar/edit-thread-dialog";
+import { DeleteThreadDialog } from "@/components/sidebar/delete-thread-dialog";
 import { Button } from "@/components/ui/button";
 import { useState, useOptimistic } from "react";
 import {
