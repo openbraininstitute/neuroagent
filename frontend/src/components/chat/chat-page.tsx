@@ -7,12 +7,11 @@ import { env } from "@/lib/env";
 import { useSession } from "next-auth/react";
 import { ExtendedSession } from "@/lib/auth";
 import { useStore } from "@/lib/store";
-import { ToolSelectionDropdown } from "@/components/chat/tool-selection-dropdown";
 
 import { ChatMessageAI } from "@/components/chat/chat-message-ai";
 import { ChatMessageHuman } from "@/components/chat/chat-message-human";
 import { ChatMessageTool } from "@/components/chat/chat-message-tool";
-import { Send } from "lucide-react";
+import { ChatInputInsideThread } from "@/components/chat/chat-input-inside-thread";
 
 type ChatPageProps = {
   threadId: string;
@@ -187,6 +186,19 @@ export function ChatPage({
     });
   };
 
+  const hasOngoingToolInvocations =
+    (messages.at(-1)?.toolInvocations ?? []).length > 0;
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      if (!(isLoading || hasOngoingToolInvocations)) {
+        setIsAutoScrollEnabled(true);
+        handleSubmit({ preventDefault: () => {} });
+      }
+    }
+  };
+
   if (error) {
     return null;
   }
@@ -246,59 +258,18 @@ export function ChatPage({
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Input */}
-      <form
-        className="flex flex-col justify-center items-center gap-4 mb-4"
-        onSubmit={(e) => {
-          setIsAutoScrollEnabled(true);
-          handleSubmit(e);
-        }}
-      >
-        <div className="flex items-center min-w-[70%] max-w-[100%] border-2 border-gray-500 rounded-full overflow-hidden">
-          <input
-            type="text"
-            className="flex-grow outline-none w-full p-4 bg-transparent"
-            name="prompt"
-            placeholder="Message the AI..."
-            value={input}
-            onChange={handleInputChange}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" && !e.shiftKey) {
-                e.preventDefault();
-                if (
-                  !(
-                    isLoading ||
-                    (messages.at(-1)?.toolInvocations ?? []).length > 0
-                  )
-                ) {
-                  setIsAutoScrollEnabled(true);
-                  handleSubmit(e);
-                }
-              }
-            }}
-            autoComplete="off"
-          />
-          <div className="flex gap-2 mr-3">
-            <ToolSelectionDropdown
-              availableTools={availableTools}
-              checkedTools={checkedTools}
-              setCheckedTools={setCheckedTools}
-            />
-            {isLoading ? (
-              <div className="w-6 h-6 border-2 ml-2 p-1 border-gray-500 border-t-transparent rounded-full animate-spin" />
-            ) : (
-              <button
-                type="submit"
-                data-testid="send-button"
-                className="p-1"
-                disabled={(messages.at(-1)?.toolInvocations ?? []).length > 0}
-              >
-                <Send className="opacity-50" />
-              </button>
-            )}
-          </div>
-        </div>
-      </form>
+      <ChatInputInsideThread
+        input={input}
+        isLoading={isLoading}
+        availableTools={availableTools}
+        checkedTools={checkedTools}
+        setCheckedTools={setCheckedTools}
+        handleInputChange={handleInputChange}
+        handleSubmit={handleSubmit}
+        handleKeyDown={handleKeyDown}
+        setIsAutoScrollEnabled={setIsAutoScrollEnabled}
+        hasOngoingToolInvocations={hasOngoingToolInvocations}
+      />
     </div>
   );
 }
