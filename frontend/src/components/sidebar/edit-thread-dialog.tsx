@@ -31,7 +31,7 @@ export function EditThreadDialog({
   const [newTitle, setNewTitle] = useState(title);
   const formRef = useRef<HTMLFormElement>(null);
 
-  const handlsubmit = async () => {
+  const handleSubmit = async () => {
     formRef.current?.requestSubmit();
     setIsDialogOpen(false);
   };
@@ -58,9 +58,11 @@ export function EditThreadDialog({
             onChange={(e) => setNewTitle(e.target.value)}
             placeholder="Enter new title"
             onKeyDown={(e) => {
-              if (e.key === "Enter" && !e.shiftKey) {
+              if (e.key === "Enter") {
                 e.preventDefault();
-                handlsubmit();
+                if (!e.shiftKey) {
+                  handleSubmit();
+                }
               }
             }}
           />
@@ -74,7 +76,7 @@ export function EditThreadDialog({
           >
             Cancel
           </Button>
-          <Button type="submit" onClick={handlsubmit}>
+          <Button type="submit" onClick={handleSubmit}>
             Save Changes
           </Button>
         </DialogFooter>
