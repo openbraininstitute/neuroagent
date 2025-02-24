@@ -288,7 +288,7 @@ class RegionMeta:
         return cls.from_KG_dict(KG_hierarchy)
 
     @classmethod
-    def load_config_s3(cls, s3_client, bucket_name: str, key: str) -> "RegionMeta":
+    def load_config_s3(cls, s3_client: Any, bucket_name: str, key: str) -> "RegionMeta":
         """Load a configuration from a json file in S3 and return a 'RegionMeta' instance.
 
         Parameters

@@ -168,7 +168,7 @@ class CellTypesMeta:
         return cls.from_dict(hierarchy)
 
     @classmethod
-    def load_config_s3(cls, s3_client, bucket_name: str, key: str) -> "CellTypesMeta":
+    def load_config_s3(cls, s3_client: Any, bucket_name: str, key: str) -> "CellTypesMeta":
         """Load a configuration from a json file in S3 and return a 'CellTypesMeta' instance.
 
         Parameters
