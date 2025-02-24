@@ -25,6 +25,7 @@ export function ChatPage({
   initialMessages,
   availableTools,
 }: ChatPageProps) {
+  console.log("ChatPage", threadId);
   const { data: session } = useSession() as { data: ExtendedSession | null };
   const { newMessage, setNewMessage, checkedTools, setCheckedTools } =
     useStore();
