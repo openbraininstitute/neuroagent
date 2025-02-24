@@ -133,7 +133,7 @@ async def get_user_id(
     token: Annotated[str, Depends(auth)],
     settings: Annotated[Settings, Depends(get_settings)],
     httpx_client: Annotated[AsyncClient, Depends(get_httpx_client)],
-) -> str:
+) -> dict[str, str | list[str]]:
     """Validate JWT token and returns user ID."""
     if settings.keycloak.user_info_endpoint:
         try:
@@ -143,7 +143,7 @@ async def get_user_id(
             )
             response.raise_for_status()
             user_info = response.json()
-            return user_info["sub"]
+            return {"sub": user_info["sub"], "groups": user_info["groups"]}
         except HTTPStatusError:
             raise HTTPException(
                 status_code=HTTP_401_UNAUTHORIZED, detail="Invalid token."
