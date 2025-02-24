@@ -31,7 +31,6 @@ export function ChatPage({
   const checkedTools = useStore((state) => state.checkedTools);
   const setNewMessage = useStore((state) => state.setNewMessage);
   const setCheckedTools = useStore((state) => state.setCheckedTools);
-  const requiresHandleSubmit = useRef(false);
   const [processedToolInvocationMessages, setProcessedToolInvocationMessages] =
     useState<string[]>([]);
   const [collapsedTools, setCollapsedTools] = useState<Set<string>>(new Set());
@@ -44,7 +43,7 @@ export function ChatPage({
         content: newMessage,
       });
       setNewMessage("");
-      requiresHandleSubmit.current = true;
+      handleSubmit(undefined, { allowEmptySubmit: true });
     }
     // If checkedTools is not initialized yet, initialize it
     if (Object.keys(checkedTools).length === 0) {
@@ -116,13 +115,6 @@ export function ChatPage({
 
   // Handle auto-submit if there's a single human message or all tools have been validated
   useEffect(() => {
-    // Auto-submit if there's a single human message
-    if (requiresHandleSubmit.current) {
-      handleSubmit(undefined, { allowEmptySubmit: true });
-      requiresHandleSubmit.current = false;
-      return;
-    }
-
     const lastMessage = messages[messages.length - 1];
     if (lastMessage?.role === "assistant" && lastMessage.toolInvocations) {
       // Skip if we've already processed this message
