@@ -12,6 +12,7 @@ from neuroagent.utils import (
     RegionMeta,
     delete_from_storage,
     get_descendants_id,
+    get_descendants_id_s3,
     get_kg_data,
     is_lnmc,
     merge_chunk,
@@ -671,3 +672,100 @@ def test_delete_from_storage_large_batch():
     # Second batch should have 500 objects
     second_batch = mock_s3.delete_objects.call_args_list[1][1]
     assert len(second_batch["Delete"]["Objects"]) == 500
+
+
+@pytest.mark.parametrize(
+    "brain_region_id,expected_descendants",
+    [
+        ("brain-region-id/68", {"brain-region-id/68"}),
+        (
+            "another-brain-region-id/985",
+            {
+                "another-brain-region-id/320",
+                "another-brain-region-id/648",
+                "another-brain-region-id/844",
+                "another-brain-region-id/882",
+                "another-brain-region-id/943",
+                "another-brain-region-id/985",
+                "another-brain-region-id/3718675619",
+                "another-brain-region-id/1758306548",
+            },
+        ),
+        (
+            "another-brain-region-id/369",
+            {
+                "another-brain-region-id/450",
+                "another-brain-region-id/369",
+                "another-brain-region-id/1026",
+                "another-brain-region-id/854",
+                "another-brain-region-id/577",
+                "another-brain-region-id/625",
+                "another-brain-region-id/945",
+                "another-brain-region-id/1890964946",
+                "another-brain-region-id/3693772975",
+            },
+        ),
+        (
+            "another-brain-region-id/178",
+            {
+                "another-brain-region-id/316",
+                "another-brain-region-id/178",
+                "another-brain-region-id/300",
+                "another-brain-region-id/1043765183",
+            },
+        ),
+        ("brain-region-id/not-a-int", {"brain-region-id/not-a-int"}),
+    ],
+)
+def test_get_descendants_s3(
+    brain_region_id, expected_descendants, brain_region_json_path
+):
+    # Setup mock s3 client
+    mock_s3 = Mock()
+
+    # Mock the get_object response using the actual file content
+    with open(brain_region_json_path) as f:
+        brain_region_dict = json.load(f)
+
+    # Create a mock response object with a Body that can be loaded as JSON
+    class MockStreamingBody:
+        def read(self):
+            return json.dumps(brain_region_dict).encode()
+
+    s3_response = {"Body": MockStreamingBody()}
+
+    mock_s3.get_object.return_value = s3_response
+
+    descendants = get_descendants_id_s3(
+        brain_region_id=brain_region_id,
+        s3_client=mock_s3,
+        bucket_name="test-bucket",
+        key="test-key",
+    )
+
+    assert expected_descendants == descendants
+
+    if brain_region_id == "brain-region-id/not-a-int":
+        mock_s3.get_object.assert_not_called()
+    else:
+        mock_s3.get_object.assert_called_once_with(Bucket="test-bucket", Key="test-key")
+
+
+def test_get_descendants_s3_errors():
+    # Setup mock s3 client
+    mock_s3 = Mock()
+
+    # Test case: S3 client raises an exception
+    mock_s3.get_object.side_effect = Exception("S3 error")
+
+    brain_region_id = "brain-region-id/123"
+    descendants = get_descendants_id_s3(
+        brain_region_id=brain_region_id,
+        s3_client=mock_s3,
+        bucket_name="test-bucket",
+        key="test-key",
+    )
+
+    # Should return just the input ID when there's an error
+    assert descendants == {brain_region_id}
+    mock_s3.get_object.assert_called_once_with(Bucket="test-bucket", Key="test-key")

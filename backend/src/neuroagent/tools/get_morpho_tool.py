@@ -2,15 +2,16 @@
 
 import json
 import logging
-from pathlib import Path
 from typing import Any, ClassVar
 
 from httpx import AsyncClient
 from pydantic import BaseModel, Field
 
-from neuroagent.cell_types import get_celltypes_descendants
+from neuroagent.cell_types import (
+    get_celltypes_descendants_s3,
+)
 from neuroagent.tools.base_tool import BaseMetadata, BaseTool
-from neuroagent.utils import get_descendants_id
+from neuroagent.utils import get_descendants_id_s3
 
 logger = logging.getLogger(__name__)
 
@@ -33,8 +34,10 @@ class GetMorphoMetadata(BaseMetadata):
     knowledge_graph_url: str
     token: str
     morpho_search_size: int
-    brainregion_path: str | Path
-    celltypes_path: str | Path
+    bucket_name: str
+    brainregion_hierarchy_storage_key: str
+    celltypes_hierarchy_storage_key: str
+    s3_client: Any
 
 
 class KnowledgeGraphOutput(BaseModel):
@@ -93,16 +96,21 @@ class GetMorphoTool(BaseTool):
             f"Entering Get Morpho tool. Inputs: {self.input_schema.brain_region_id=}, {self.input_schema.mtype_id=}"
         )
         # From the brain region ID, get the descendants.
-        hierarchy_ids = get_descendants_id(
-            self.input_schema.brain_region_id,
-            json_path=self.metadata.brainregion_path,
+        hierarchy_ids = get_descendants_id_s3(
+            brain_region_id=self.input_schema.brain_region_id,
+            s3_client=self.metadata.s3_client,
+            bucket_name=self.metadata.bucket_name,
+            key=self.metadata.brainregion_hierarchy_storage_key,
         )
         logger.info(f"Found {len(list(hierarchy_ids))} children of the brain ontology.")
 
         # Create the ES query to query the KG.
         mtype_ids = (
-            get_celltypes_descendants(
-                self.input_schema.mtype_id, self.metadata.celltypes_path
+            get_celltypes_descendants_s3(
+                cell_type_id=self.input_schema.mtype_id,
+                s3_client=self.metadata.s3_client,
+                bucket_name=self.metadata.bucket_name,
+                key=self.metadata.celltypes_hierarchy_storage_key,
             )
             if self.input_schema.mtype_id
             else None
