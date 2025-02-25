@@ -1,9 +1,8 @@
 import { memo } from "react";
-import Markdown from "react-markdown";
-import remarkGfm from "remark-gfm";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { LoaderPinwheel, ChevronDown, Wrench } from "lucide-react";
+import { MemoizedMarkdown } from "@/components/memoized-markdown";
 
 type ChatMessageAIProps = {
   content?: string;
@@ -37,7 +36,10 @@ export const ChatMessageAI = memo(function ChatMessageAI({
       <Card className="max-w-[70%] bg-transparent shadow-none border-none mt-1">
         <CardContent>
           <span className="prose text-lg pt-8 text-left dark:prose-invert">
-            <Markdown remarkPlugins={[remarkGfm]}>{content}</Markdown>
+            <MemoizedMarkdown
+              content={content || ""}
+              id={content?.slice(0, 20) || "empty"}
+            />
           </span>
         </CardContent>
       </Card>
