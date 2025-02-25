@@ -2,6 +2,7 @@
 
 import json
 from pathlib import Path
+from unittest.mock import Mock
 
 import httpx
 import pytest
@@ -24,18 +25,37 @@ class TestTracesTool:
             json=get_traces_response,
         )
 
+        # Mock S3 client and response
+        mock_s3 = Mock()
+        with open(brain_region_json_path) as f:
+            brain_region_dict = json.load(f)
+
+        class MockStreamingBody:
+            def read(self):
+                return json.dumps(brain_region_dict).encode()
+
+        mock_s3.get_object.return_value = {"Body": MockStreamingBody()}
+
         tool = GetTracesTool(
             metadata=GetTracesMetadata(
                 knowledge_graph_url=url,
                 trace_search_size=2,
                 httpx_client=httpx.AsyncClient(),
                 token="fake_token",
-                brainregion_path=brain_region_json_path,
+                bucket_name="test-bucket",
+                brainregion_hierarchy_storage_key="test-br-key",
+                s3_client=mock_s3,
             ),
             input_schema=GetTracesInput(brain_region_id="brain_region_id_link/549"),
         )
 
         response = await tool.arun()
+
+        # Verify S3 get_object was called with correct parameters
+        mock_s3.get_object.assert_called_once_with(
+            Bucket="test-bucket", Key="test-br-key"
+        )
+
         assert isinstance(response, str)
         response = json.loads(response)
         assert len(response) == 2
@@ -55,19 +75,38 @@ class TestTracesTool:
             json=get_traces_response,
         )
 
+        # Mock S3 client and response
+        mock_s3 = Mock()
+        with open(brain_region_json_path) as f:
+            brain_region_dict = json.load(f)
+
+        class MockStreamingBody:
+            def read(self):
+                return json.dumps(brain_region_dict).encode()
+
+        mock_s3.get_object.return_value = {"Body": MockStreamingBody()}
+
         tool = GetTracesTool(
             metadata=GetTracesMetadata(
                 knowledge_graph_url=url,
                 trace_search_size=2,
                 httpx_client=httpx.AsyncClient(),
                 token="fake_token",
-                brainregion_path=brain_region_json_path,
+                bucket_name="test-bucket",
+                brainregion_hierarchy_storage_key="test-br-key",
+                s3_client=mock_s3,
             ),
             input_schema=GetTracesInput(
                 brain_region_id="brain_region_id_link/549", etype_id="bAC_id/123"
             ),
         )
         response = await tool.arun()
+
+        # Verify S3 get_object was called with correct parameters
+        mock_s3.get_object.assert_called_once_with(
+            Bucket="test-bucket", Key="test-br-key"
+        )
+
         assert isinstance(response, str)
         response = json.loads(response)
         assert len(response) == 2
@@ -83,18 +122,37 @@ class TestTracesTool:
             json={},
         )
 
+        # Mock S3 client and response
+        mock_s3 = Mock()
+        with open(brain_region_json_path) as f:
+            brain_region_dict = json.load(f)
+
+        class MockStreamingBody:
+            def read(self):
+                return json.dumps(brain_region_dict).encode()
+
+        mock_s3.get_object.return_value = {"Body": MockStreamingBody()}
+
         tool = GetTracesTool(
             metadata=GetTracesMetadata(
                 knowledge_graph_url=url,
                 trace_search_size=2,
                 httpx_client=httpx.AsyncClient(),
                 token="fake_token",
-                brainregion_path=brain_region_json_path,
+                bucket_name="test-bucket",
+                brainregion_hierarchy_storage_key="test-br-key",
+                s3_client=mock_s3,
             ),
             input_schema=GetTracesInput(brain_region_id="brain_region_id_link/549"),
         )
+
         with pytest.raises(KeyError) as tool_exception:
             await tool.arun()
+
+        # Verify S3 get_object was called with correct parameters
+        mock_s3.get_object.assert_called_once_with(
+            Bucket="test-bucket", Key="test-br-key"
+        )
 
         assert tool_exception.value.args[0] == "hits"
 
@@ -103,13 +161,26 @@ class TestTracesTool:
         etype_id = "bAC_id/123"
         url = "http://fake_url"
 
+        # Mock S3 client and response
+        mock_s3 = Mock()
+        with open(brain_region_json_path) as f:
+            brain_region_dict = json.load(f)
+
+        class MockStreamingBody:
+            def read(self):
+                return json.dumps(brain_region_dict).encode()
+
+        mock_s3.get_object.return_value = {"Body": MockStreamingBody()}
+
         tool = GetTracesTool(
             metadata=GetTracesMetadata(
                 knowledge_graph_url=url,
                 trace_search_size=2,
                 httpx_client=httpx.AsyncClient(),
                 token="fake_token",
-                brainregion_path=brain_region_json_path,
+                bucket_name="test-bucket",
+                brainregion_hierarchy_storage_key="test-br-key",
+                s3_client=mock_s3,
             ),
             input_schema=GetTracesInput(
                 brain_region_id="brain_region_id1", etype_id=etype_id
