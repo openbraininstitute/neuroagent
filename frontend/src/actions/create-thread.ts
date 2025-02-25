@@ -2,6 +2,7 @@
 
 import { getSettings } from "@/lib/cookies-server";
 import { revalidateTag } from "next/cache";
+import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { fetcher } from "@/lib/fetcher";
 
@@ -32,9 +33,9 @@ export async function createThreadWithMessage(
     threadId = newThreadId;
 
     revalidateTag("threads");
-    return { success: true, threadId };
   } catch (error) {
     console.error("Error creating thread with message:", error);
     return { success: false, error: "Failed to create thread with message" };
   }
+  redirect(`/threads/${threadId}`);
 }
