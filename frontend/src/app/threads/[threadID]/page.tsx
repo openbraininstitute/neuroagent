@@ -94,10 +94,10 @@ async function getToolList() {
 export default async function PageThread({
   params,
 }: {
-  params: Promise<{ threadID: string }>;
+  params: Promise<{ threadId: string }>;
 }) {
   const paramsAwaited = await params;
-  const threadId = paramsAwaited?.threadID;
+  const threadId = paramsAwaited?.threadId;
 
   const messages = await getMessages(threadId);
   const convertedMessages = convertToAiMessages(messages);

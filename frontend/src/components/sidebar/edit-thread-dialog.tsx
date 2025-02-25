@@ -13,7 +13,7 @@ import { useState, useRef, Dispatch, SetStateAction } from "react";
 
 type EditThreadProps = {
   title: string;
-  threadID: string;
+  threadId: string;
   editAction: (payload: FormData) => void;
   isDialogOpen: boolean;
   setIsDialogOpen: Dispatch<SetStateAction<boolean>>;
@@ -22,7 +22,7 @@ type EditThreadProps = {
 
 export function EditThreadDialog({
   title,
-  threadID,
+  threadId,
   editAction,
   isDialogOpen,
   setIsDialogOpen,
@@ -49,7 +49,7 @@ export function EditThreadDialog({
             editAction(formData);
           }}
         >
-          <input type="hidden" name="threadId" value={threadID} />
+          <input type="hidden" name="threadId" value={threadId} />
           <Input
             name="title"
             value={newTitle}

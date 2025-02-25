@@ -11,7 +11,7 @@ export type BThread = {
 };
 
 export type Thread = {
-  threadID: string;
+  threadId: string;
   title: string;
 };
 
