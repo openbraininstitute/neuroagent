@@ -22,7 +22,6 @@ export const ChatMessageTool = React.memo(function ChatMessageTool({
   setMessage,
   validated,
 }: ChatMessageToolProps) {
-  console.log("ChatMessageTool", tool.toolCallId);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [validationError, setValidationError] = useState<string | null>(null);
   const { mutate, isPending, isSuccess, data, status } = useExecuteTool();

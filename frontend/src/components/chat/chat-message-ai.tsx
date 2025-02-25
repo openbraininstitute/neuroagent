@@ -17,7 +17,6 @@ export const ChatMessageAI = memo(function ChatMessageAI({
   toolsCollapsed,
   toggleCollapse,
 }: ChatMessageAIProps) {
-  console.log("ChatMessageAI", content?.slice(0, 10));
   return (
     <div className="flex justify-start mt-4">
       {hasTools ? (

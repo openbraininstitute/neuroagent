@@ -8,7 +8,6 @@ type ChatMessageHumanProps = {
 export const ChatMessageHuman = memo(function ChatMessageHuman({
   content,
 }: ChatMessageHumanProps) {
-  console.log("ChatMessageHuman", content);
   return (
     <div className="flex justify-end p-8 border-solid break-all">
       <Card className="max-w-[70%]">
