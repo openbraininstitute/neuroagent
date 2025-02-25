@@ -2,14 +2,13 @@
 
 import json
 import logging
-from pathlib import Path
 from typing import Any, ClassVar
 
 from httpx import AsyncClient
 from pydantic import BaseModel, Field
 
 from neuroagent.tools.base_tool import BaseMetadata, BaseTool
-from neuroagent.utils import get_descendants_id
+from neuroagent.utils import get_descendants_id_s3
 
 logger = logging.getLogger(__name__)
 
@@ -49,7 +48,9 @@ class GetTracesMetadata(BaseMetadata):
     knowledge_graph_url: str
     token: str
     trace_search_size: int
-    brainregion_path: str | Path
+    bucket_name: str
+    brainregion_hierarchy_storage_key: str
+    s3_client: Any
 
 
 class GetTracesTool(BaseTool):
@@ -88,9 +89,11 @@ class GetTracesTool(BaseTool):
             f"Entering get trace tool. Inputs: {self.input_schema.brain_region_id=}, {self.input_schema.etype_id=}"
         )
         # Get descendants of the brain region specified as input
-        hierarchy_ids = get_descendants_id(
-            self.input_schema.brain_region_id,
-            json_path=self.metadata.brainregion_path,
+        hierarchy_ids = get_descendants_id_s3(
+            brain_region_id=self.input_schema.brain_region_id,
+            s3_client=self.metadata.s3_client,
+            bucket_name=self.metadata.bucket_name,
+            key=self.metadata.brainregion_hierarchy_storage_key,
         )
         logger.info(f"Found {len(list(hierarchy_ids))} children of the brain ontology.")
 

@@ -1,7 +1,7 @@
 import {
   ToolInputSchemaParameter,
   ToolParameter,
-} from "@/components/tool-input-schema-parameter";
+} from "@/components/tool-page/tool-input-schema-parameter";
 
 export type ToolInputSchema = {
   parameters: ToolParameter[];

@@ -1,5 +1,5 @@
 import { getSettings } from "@/lib/cookies-server";
-import { ThreadCardSidebar } from "@/components/thread-card-sidebar";
+import { ThreadCardSidebar } from "@/components/sidebar/thread-card-sidebar";
 import { auth } from "@/lib/auth";
 import { BThread } from "@/lib/types";
 import { fetcher } from "@/lib/fetcher";

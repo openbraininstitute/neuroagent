@@ -23,6 +23,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - pre-commit hooks for frontend.
 - [frontend] - Loading bar and better first message.
 - Better system prompt
+- Sort components in folder.
+- Brain region/cell hierarchies read from storage (not from local filesystem)
 
 ### Added
 - Docker compose for local development
