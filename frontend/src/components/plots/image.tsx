@@ -7,7 +7,6 @@ type ImagePlotProps = {
 };
 
 export function ImagePlot({ url, title, description }: ImagePlotProps) {
-  console.log(url);
   return (
     <div className="w-full max-w-2xl mx-auto p-4 overflow-y-auto">
       {title && <h2 className="text-xl font-bold mb-2">{title}</h2>}

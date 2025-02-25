@@ -1,12 +1,13 @@
 import { Card, CardContent } from "@/components/ui/card";
+import { memo } from "react";
 
 type ChatMessageHumanProps = {
-  id: string;
   content?: string;
-  threadId: string;
 };
 
-export function ChatMessageHuman({ content }: ChatMessageHumanProps) {
+export const ChatMessageHuman = memo(function ChatMessageHuman({
+  content,
+}: ChatMessageHumanProps) {
   return (
     <div className="flex justify-end p-8 border-solid break-all">
       <Card className="max-w-[70%]">
@@ -16,4 +17,4 @@ export function ChatMessageHuman({ content }: ChatMessageHumanProps) {
       </Card>
     </div>
   );
-}
+});
