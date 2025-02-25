@@ -4,6 +4,7 @@ import { HumanValidationDialog } from "@/components/chat/human-validation-dialog
 import { ToolInvocation } from "@ai-sdk/ui-utils";
 import { useExecuteTool } from "@/hooks/tools";
 import { ToolCallCollapsible } from "./tool-call-collapsible";
+import React from "react";
 
 type ChatMessageToolProps = {
   content?: string;
@@ -14,13 +15,14 @@ type ChatMessageToolProps = {
   setMessage: (updater: (msg: MessageStrict) => MessageStrict) => void;
 };
 
-export function ChatMessageTool({
+export const ChatMessageTool = React.memo(function ChatMessageTool({
   threadId,
   tool,
   availableTools,
   setMessage,
   validated,
 }: ChatMessageToolProps) {
+  console.log("ChatMessageTool", tool.toolCallId);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [validationError, setValidationError] = useState<string | null>(null);
   const { mutate, isPending, isSuccess, data, status } = useExecuteTool();
@@ -99,4 +101,4 @@ export function ChatMessageTool({
       </div>
     </div>
   );
-}
+});

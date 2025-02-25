@@ -70,6 +70,31 @@ export function ChatMessagesInsideThread({
     return functionMap;
   }, [messages, associatedTools]);
 
+  // Add this new memoized map of message updater functions
+  const messageUpdaters = useMemo(() => {
+    const updaterMap = new Map<
+      string,
+      (updater: (msg: MessageStrict) => MessageStrict) => void
+    >();
+
+    messages.forEach((message) => {
+      if (message.role === "assistant" && message.toolInvocations) {
+        updaterMap.set(
+          message.id,
+          (updater: (msg: MessageStrict) => MessageStrict) => {
+            setMessages((messages) =>
+              messages.map((msg) =>
+                msg.id === message.id ? updater(msg) : msg,
+              ),
+            );
+          },
+        );
+      }
+    });
+
+    return updaterMap;
+  }, [messages, setMessages]);
+
   return (
     <>
       {messages.map((message) =>
@@ -91,13 +116,7 @@ export function ChatMessagesInsideThread({
                       tool={tool}
                       availableTools={availableTools}
                       validated={validated}
-                      setMessage={(updater) => {
-                        setMessages((messages) =>
-                          messages.map((msg) =>
-                            msg.id === message.id ? updater(msg) : msg,
-                          ),
-                        );
-                      }}
+                      setMessage={messageUpdaters.get(message.id)!}
                     />
                   )
                 );
