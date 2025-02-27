@@ -39,7 +39,7 @@ export async function ThreadList() {
         <ThreadCardSidebar
           key={thread.thread_id}
           title={thread.title}
-          threadID={thread.thread_id}
+          threadId={thread.thread_id}
         />
       ))}
     </div>

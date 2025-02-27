@@ -270,16 +270,21 @@ export function ChatPage({
             value={input}
             onChange={handleInputChange}
             onKeyDown={(e) => {
-              if (e.key === "Enter" && !e.shiftKey) {
+              if (e.key === "Enter") {
                 e.preventDefault();
-                if (
-                  !(
-                    isLoading ||
-                    (messages.at(-1)?.toolInvocations ?? []).length > 0
-                  )
-                ) {
-                  setIsAutoScrollEnabled(true);
-                  handleSubmit(e);
+                if (!e.shiftKey) {
+                  if (
+                    !(
+                      // check for loading and if there are pending HIL.
+                      (
+                        isLoading ||
+                        (messages.at(-1)?.toolInvocations ?? []).length > 0
+                      )
+                    )
+                  ) {
+                    setIsAutoScrollEnabled(true);
+                    handleSubmit(e);
+                  }
                 }
               }
             }}

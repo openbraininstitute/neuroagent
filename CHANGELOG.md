@@ -55,7 +55,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - [frontend] - Search bar in tool list.
 - Displaying tool metadata
 - GET threads depends on vlab+project_id.
-- Object storage + plotting logic
+- Object storage + plotting logic.
+- [frontend] - bugfixes.
 
 ### Fixed
 - [frontend] - Parallel execution of tools
