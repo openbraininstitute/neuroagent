@@ -64,7 +64,9 @@ export async function fetcher({
   });
 
   if (!response.ok) {
-    throw new Error("Failed to fetch data");
+    throw new Error(
+      `Fetching Error : ${response.status}, ${response.statusText}`,
+    );
   }
   return await response.json();
 }
