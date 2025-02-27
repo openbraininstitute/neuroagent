@@ -2,11 +2,12 @@
 
 import { useState } from "react";
 import { useActionState, useEffect } from "react";
-import { createThreadWithMessage } from "@/actions/create-thread";
+import { createThread } from "@/actions/create-thread";
 import { useStore } from "@/lib/store";
 import { ToolSelectionDropdown } from "@/components/chat/tool-selection-dropdown";
 import { Send } from "lucide-react";
 import ChatInputLoading from "@/components/chat/chat-input-loading";
+import { convert_tools_to_set } from "@/lib/utils";
 
 type ChatInputProps = {
   availableTools: Array<{ slug: string; label: string }>;
@@ -17,31 +18,25 @@ export function ChatInput({ availableTools }: ChatInputProps) {
     useStore();
   const [input, setInput] = useState("");
 
-  const [, action, isPending] = useActionState(createThreadWithMessage, null);
+  const [, action, isPending] = useActionState(createThread, null);
 
-  const actionWrapper = (formData: FormData) => {
+  const actionWrapper = () => {
     if (newMessage === "" && input !== "") {
       setNewMessage(input);
     }
-    action(formData);
+    action();
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter" && !e.shiftKey) {
+    if (e.key === "Enter") {
       e.preventDefault();
-      e.currentTarget.form?.requestSubmit();
+      if (!e.shiftKey) {
+        e.currentTarget.form?.requestSubmit();
+      }
     }
   };
   useEffect(() => {
-    const initialCheckedTools = availableTools.reduce<Record<string, boolean>>(
-      (acc, tool) => {
-        acc[tool.slug] = true;
-        return acc;
-      },
-      {},
-    );
-    initialCheckedTools["allchecked"] = true;
-    setCheckedTools(initialCheckedTools);
+    setCheckedTools(convert_tools_to_set(availableTools));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // Empty dependency array means this runs once on mount
 
