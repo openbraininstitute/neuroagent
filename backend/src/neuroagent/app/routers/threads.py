@@ -25,7 +25,7 @@ from neuroagent.app.dependencies import (
 from neuroagent.app.schemas import (
     MessageResponse,
     ThreadCreate,
-    ThreadCreateWithGeneratedTitle,
+    ThreadGeneratedTitle,
     ThreadsRead,
     ThreadUpdate,
 )
@@ -63,21 +63,17 @@ async def create_thread(
     return ThreadsRead(**new_thread.__dict__)
 
 
-@router.post("/generated_title")
-async def create_thread_with_generated_title(
-    settings: Annotated[Settings, Depends(get_settings)],
-    virtual_lab_id: str,
-    project_id: str,
+@router.patch("/{thread_id}/generate_title")
+async def generate_title(
     session: Annotated[AsyncSession, Depends(get_session)],
-    user_info: Annotated[dict[str, Any], Depends(get_user_info)],
     openai_client: Annotated[AsyncOpenAI, Depends(get_openai_client)],
-    body: ThreadCreateWithGeneratedTitle,
+    settings: Annotated[Settings, Depends(get_settings)],
+    thread: Annotated[Threads, Depends(get_thread)],
+    body: ThreadGeneratedTitle,
 ) -> ThreadsRead:
-    """Create thread."""
-    validate_project(
-        virtual_lab_id=virtual_lab_id, project_id=project_id, groups=user_info["groups"]
-    )
-    openai_message = [
+    """Generate a short thread title based on the user's first message and update thread's title."""
+    # Send it to OpenAI longside with the system prompt asking for summary
+    messages = [
         {
             "role": "system",
             "content": "Given the user's first message of a conversation, generate a short title for this conversation (max 5 words).",
@@ -85,22 +81,15 @@ async def create_thread_with_generated_title(
         {"role": "user", "content": body.first_user_message},
     ]
     response = await openai_client.chat.completions.create(
-        messages=openai_message,  # type: ignore
+        messages=messages,  # type: ignore
         model=settings.openai.model,
     )
-    new_thread = Threads(
-        user_id=user_info["sub"],
-        title=response.choices[0].message.content.strip('"')
-        if response.choices[0].message.content
-        else "New chat",
-        vlab_id=virtual_lab_id,
-        project_id=project_id,
-    )
-    session.add(new_thread)
+    # Update the thread title and modified date + commit
+    thread.title = response.choices[0].message.content.strip('"')  # type: ignore
+    thread.update_date = utc_now()
     await session.commit()
-    await session.refresh(new_thread)
-
-    return ThreadsRead(**new_thread.__dict__)
+    await session.refresh(thread)
+    return ThreadsRead(**thread.__dict__)
 
 
 @router.get("")
