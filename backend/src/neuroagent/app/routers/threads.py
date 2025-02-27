@@ -42,7 +42,7 @@ async def create_thread(
     virtual_lab_id: str,
     project_id: str,
     session: Annotated[AsyncSession, Depends(get_session)],
-    user_info: Annotated[str, Depends(get_user_info)],
+    user_info: Annotated[dict[str, Any], Depends(get_user_info)],
     body: ThreadCreate = ThreadCreate(),
 ) -> ThreadsRead:
     """Create thread."""
@@ -69,7 +69,7 @@ async def create_thread_with_generated_title(
     virtual_lab_id: str,
     project_id: str,
     session: Annotated[AsyncSession, Depends(get_session)],
-    user_info: Annotated[str, Depends(get_user_info)],
+    user_info: Annotated[dict[str, Any], Depends(get_user_info)],
     openai_client: Annotated[AsyncOpenAI, Depends(get_openai_client)],
     body: ThreadCreateWithGeneratedTitle,
 ) -> ThreadsRead:
@@ -106,7 +106,7 @@ async def create_thread_with_generated_title(
 @router.get("")
 async def get_threads(
     session: Annotated[AsyncSession, Depends(get_session)],
-    user_info: Annotated[str, Depends(get_user_info)],
+    user_info: Annotated[dict[str, Any], Depends(get_user_info)],
     virtual_lab_id: str | None = None,
     project_id: str | None = None,
 ) -> list[ThreadsRead]:
@@ -150,7 +150,7 @@ async def delete_thread(
     thread: Annotated[Threads, Depends(get_thread)],
     s3_client: Annotated[Any, Depends(get_s3_client)],
     settings: Annotated[Settings, Depends(get_settings)],
-    user_info: Annotated[str, Depends(get_user_info)],
+    user_info: Annotated[dict[str, Any], Depends(get_user_info)],
 ) -> dict[str, str]:
     """Delete the specified thread and its associated S3 objects."""
     # Delete the thread from database

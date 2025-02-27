@@ -134,7 +134,7 @@ async def get_user_info(
     token: Annotated[str, Depends(auth)],
     settings: Annotated[Settings, Depends(get_settings)],
     httpx_client: Annotated[AsyncClient, Depends(get_httpx_client)],
-) -> dict[str, str | list[str]]:
+) -> dict[str, Any]:
     """Validate JWT token and returns user ID."""
     if settings.keycloak.user_info_endpoint:
         try:
@@ -221,7 +221,7 @@ def get_starting_agent(
 
 
 async def get_thread(
-    user_info: Annotated[str, Depends(get_user_info)],
+    user_info: Annotated[dict[str, Any], Depends(get_user_info)],
     thread_id: str,
     session: Annotated[AsyncSession, Depends(get_session)],
 ) -> Threads:
@@ -240,7 +240,9 @@ async def get_thread(
             },
         )
     validate_project(
-        user_info["groups"], virtual_lab_id=thread.vlab_id, project_id=thread.project_id
+        groups=user_info["groups"],
+        virtual_lab_id=thread.vlab_id,
+        project_id=thread.project_id,
     )
     return thread
 
@@ -266,7 +268,7 @@ def get_context_variables(
     httpx_client: Annotated[AsyncClient, Depends(get_httpx_client)],
     thread: Annotated[Threads, Depends(get_thread)],
     s3_client: Annotated[Any, Depends(get_s3_client)],
-    user_info: Annotated[str, Depends(get_user_info)],
+    user_info: Annotated[dict[str, Any], Depends(get_user_info)],
 ) -> dict[str, Any]:
     """Get the context variables to feed the tool's metadata."""
     return {

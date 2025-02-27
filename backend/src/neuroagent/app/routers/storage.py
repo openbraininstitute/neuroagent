@@ -17,7 +17,7 @@ router = APIRouter(prefix="/storage", tags=["Storage operations"])
 @router.get("/{file_identifier}/presigned-url")
 async def generate_presigned_url(
     file_identifier: str,
-    user_info: Annotated[str, Depends(get_user_info)],
+    user_info: Annotated[dict[str, Any], Depends(get_user_info)],
     settings: Annotated[Settings, Depends(get_settings)],
     s3_client: Annotated[Any, Depends(get_s3_client)],
 ) -> str:
