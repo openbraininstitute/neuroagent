@@ -7,7 +7,7 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
-import { HumanValidationDialog } from "@/components/human-validation-dialog";
+import { HumanValidationDialog } from "@/components/chat/human-validation-dialog";
 import { ToolInvocation } from "@ai-sdk/ui-utils";
 import { useExecuteTool } from "@/hooks/tools";
 

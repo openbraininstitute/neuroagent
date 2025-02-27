@@ -1,5 +1,5 @@
 import { getSettings } from "@/lib/cookies-server";
-import { ThreadCardSidebar } from "@/components/thread-card-sidebar";
+import { ThreadCardSidebar } from "@/components/sidebar/thread-card-sidebar";
 import { auth } from "@/lib/auth";
 import { BThread } from "@/lib/types";
 import { fetcher } from "@/lib/fetcher";
@@ -40,7 +40,7 @@ export async function ThreadList() {
         <ThreadCardSidebar
           key={thread.thread_id}
           title={thread.title}
-          threadID={thread.thread_id}
+          threadId={thread.thread_id}
         />
       ))}
     </div>

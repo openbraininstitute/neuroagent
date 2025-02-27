@@ -10,7 +10,7 @@ import {
 import { Dispatch, SetStateAction } from "react";
 
 type DeleteThreadProps = {
-  threadID: string;
+  threadId: string;
   currentThreadId: string | undefined;
   deleteAction: (payload: FormData) => void;
   isDialogOpen: boolean;
@@ -18,7 +18,7 @@ type DeleteThreadProps = {
 };
 
 export function DeleteThreadDialog({
-  threadID,
+  threadId,
   currentThreadId,
   deleteAction,
   isDialogOpen,
@@ -40,7 +40,7 @@ export function DeleteThreadDialog({
             Cancel
           </Button>
           <form action={deleteAction}>
-            <input type="hidden" name="threadId" value={threadID} readOnly />
+            <input type="hidden" name="threadId" value={threadId} readOnly />
             <input
               type="hidden"
               name="currentThreadId"

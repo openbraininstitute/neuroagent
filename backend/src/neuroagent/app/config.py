@@ -1,7 +1,6 @@
 """Configuration."""
 
 import os
-import pathlib
 from typing import Literal, Optional
 
 from dotenv import dotenv_values
@@ -25,6 +24,8 @@ class SettingsStorage(BaseModel):
     access_key: SecretStr = SecretStr("minioadmin")
     secret_key: SecretStr = SecretStr("minioadmin")
     expires_in: int = 600
+    brain_region_hierarchy_key: str = "shared/brainregion_hierarchy.json"
+    cell_type_hierarchy_key: str = "shared/celltypes_hierarchy.json"
 
     model_config = ConfigDict(frozen=True)
 
@@ -108,12 +109,6 @@ class SettingsKnowledgeGraph(BaseModel):
     """Knowledge graph API settings."""
 
     base_url: str
-    br_saving_path: pathlib.Path | str = str(
-        pathlib.Path(__file__).parent / "data" / "brainregion_hierarchy.json"
-    )
-    ct_saving_path: pathlib.Path | str = str(
-        pathlib.Path(__file__).parent / "data" / "celltypes_hierarchy.json"
-    )
     model_config = ConfigDict(frozen=True)
 
     @property

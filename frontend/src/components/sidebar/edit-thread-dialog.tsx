@@ -13,7 +13,7 @@ import { useState, useRef, Dispatch, SetStateAction } from "react";
 
 type EditThreadProps = {
   title: string;
-  threadID: string;
+  threadId: string;
   editAction: (payload: FormData) => void;
   isDialogOpen: boolean;
   setIsDialogOpen: Dispatch<SetStateAction<boolean>>;
@@ -22,7 +22,7 @@ type EditThreadProps = {
 
 export function EditThreadDialog({
   title,
-  threadID,
+  threadId,
   editAction,
   isDialogOpen,
   setIsDialogOpen,
@@ -31,7 +31,7 @@ export function EditThreadDialog({
   const [newTitle, setNewTitle] = useState(title);
   const formRef = useRef<HTMLFormElement>(null);
 
-  const handlsubmit = async () => {
+  const handleSubmit = async () => {
     formRef.current?.requestSubmit();
     setIsDialogOpen(false);
   };
@@ -49,7 +49,7 @@ export function EditThreadDialog({
             editAction(formData);
           }}
         >
-          <input type="hidden" name="threadId" value={threadID} />
+          <input type="hidden" name="threadId" value={threadId} />
           <Input
             name="title"
             value={newTitle}
@@ -58,9 +58,11 @@ export function EditThreadDialog({
             onChange={(e) => setNewTitle(e.target.value)}
             placeholder="Enter new title"
             onKeyDown={(e) => {
-              if (e.key === "Enter" && !e.shiftKey) {
+              if (e.key === "Enter") {
                 e.preventDefault();
-                handlsubmit();
+                if (!e.shiftKey) {
+                  handleSubmit();
+                }
               }
             }}
           />
@@ -74,7 +76,7 @@ export function EditThreadDialog({
           >
             Cancel
           </Button>
-          <Button type="submit" onClick={handlsubmit}>
+          <Button type="submit" onClick={handleSubmit}>
             Save Changes
           </Button>
         </DialogFooter>

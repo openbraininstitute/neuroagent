@@ -4,13 +4,13 @@ import Link from "next/link";
 import { useSession, signIn, signOut } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 
-import { ThemeToggle } from "@/components/theme-changer";
+import { ThemeToggle } from "@/components/layout/theme-changer";
 
 export function Header() {
   const { data: session, status } = useSession();
 
   return (
-    <header className="flex items-center justify-between p-4 text-center border-b-2">
+    <header className="flex items-center justify-between p-4 text-center border-b-2 h-16">
       <div>
         {status !== "loading" && session && (
           <span>Hello, {session.user?.name || "User"}!</span>
