@@ -9,8 +9,10 @@ services:
       - NEUROAGENT_DB__PREFIX=postgresql+asyncpg://postgres:pwd@postgres:5432/neuroagent
       - NEUROAGENT_KEYCLOAK__ISSUER=${KEYCLOAK_ISSUER}
       - NEUROAGENT_TOOLS__LITERATURE__URL=https://whatever.com
-      - NEUROAGENT_KNOWLEDGE_GRAPH__BASE_URL=https://whathever.com
+      - NEUROAGENT_KNOWLEDGE_GRAPH__BASE_URL=https://openbluebrain.com/api/nexus/v1
       - NEUROAGENT_OPENAI__TOKEN=${OPENAI_API_KEY}
+      - NEUROAGENT_OPENAI__BASE_URL=http://ollama:11434/v1
+      - NEUROAGENT_OPENAI__MODEL=llama3.2:1b
       - NEUROAGENT_STORAGE__ENDPOINT_URL=http://minio:9000
       - NEUROAGENT_STORAGE__BUCKET_NAME=neuroagent
       - NEUROAGENT_STORAGE__ACCESS_KEY=minioadmin
@@ -69,9 +71,22 @@ services:
       - app-network
     command: server --console-address ":9001" /data
 
+  ollama:
+    image: ollama/ollama
+    ports:
+      - "11434:11434"
+    # environment:
+    #   - OLLAMA_MODELS=/root/.ollama/models
+    #   - OLLAMA_HOST=127.0.0.1:11434
+    volumes:
+      - ollama_data:/root/.ollama
+    networks:
+      - app-network
+
 volumes:
   postgres_data:
   minio_data:
+  ollama_data:
 
 networks:
   app-network:

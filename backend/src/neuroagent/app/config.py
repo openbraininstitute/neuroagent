@@ -161,6 +161,7 @@ class SettingsOpenAI(BaseModel):
     model: str = "gpt-4o-mini"
     temperature: float = 0
     max_tokens: Optional[int] = None
+    base_url: str | None = None
 
     model_config = ConfigDict(frozen=True)
 

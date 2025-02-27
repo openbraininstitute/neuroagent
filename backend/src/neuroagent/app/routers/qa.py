@@ -67,6 +67,7 @@ async def stream_chat_agent(
         context_variables,
         thread,
         request,
+        base_url=settings.openai.base_url,
     )
     return StreamingResponse(
         stream_generator,
