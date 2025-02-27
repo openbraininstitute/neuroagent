@@ -20,7 +20,7 @@ from neuroagent.app.dependencies import (
     get_settings,
     get_thread,
     get_tool_list,
-    get_user_id,
+    get_user_info,
 )
 from neuroagent.app.schemas import (
     MessageResponse,
@@ -42,7 +42,7 @@ async def create_thread(
     virtual_lab_id: str,
     project_id: str,
     session: Annotated[AsyncSession, Depends(get_session)],
-    user_info: Annotated[str, Depends(get_user_id)],
+    user_info: Annotated[str, Depends(get_user_info)],
     body: ThreadCreate = ThreadCreate(),
 ) -> ThreadsRead:
     """Create thread."""
@@ -69,7 +69,7 @@ async def create_thread_with_generated_title(
     virtual_lab_id: str,
     project_id: str,
     session: Annotated[AsyncSession, Depends(get_session)],
-    user_info: Annotated[str, Depends(get_user_id)],
+    user_info: Annotated[str, Depends(get_user_info)],
     openai_client: Annotated[AsyncOpenAI, Depends(get_openai_client)],
     body: ThreadCreateWithGeneratedTitle,
 ) -> ThreadsRead:
@@ -106,17 +106,16 @@ async def create_thread_with_generated_title(
 @router.get("")
 async def get_threads(
     session: Annotated[AsyncSession, Depends(get_session)],
-    user_info: Annotated[str, Depends(get_user_id)],
+    user_info: Annotated[str, Depends(get_user_info)],
     virtual_lab_id: str | None = None,
     project_id: str | None = None,
 ) -> list[ThreadsRead]:
     """Get threads for a user."""
-    if virtual_lab_id and project_id:
-        validate_project(
-            virtual_lab_id=virtual_lab_id,
-            project_id=project_id,
-            groups=user_info["groups"],
-        )
+    validate_project(
+        virtual_lab_id=virtual_lab_id,
+        project_id=project_id,
+        groups=user_info["groups"],
+    )
     query = select(Threads).where(Threads.user_id == user_info["sub"])
 
     if virtual_lab_id is not None:
@@ -151,7 +150,7 @@ async def delete_thread(
     thread: Annotated[Threads, Depends(get_thread)],
     s3_client: Annotated[Any, Depends(get_s3_client)],
     settings: Annotated[Settings, Depends(get_settings)],
-    user_info: Annotated[str, Depends(get_user_id)],
+    user_info: Annotated[str, Depends(get_user_info)],
 ) -> dict[str, str]:
     """Delete the specified thread and its associated S3 objects."""
     # Delete the thread from database

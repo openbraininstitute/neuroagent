@@ -134,7 +134,12 @@ def mock_keycloak_user_identification(httpx_mock):
         "sub": "12345",
         "email_verified": False,
         "name": "Machine Learning Test User",
-        "groups": [],
+        "groups": [
+            "/proj/test_vlab/test_project/admin",
+            "/proj/test_vlab2/test_project2/member",
+            "/vlab/test_vlab/admin",
+            "/vlab/test_vlab2/member",
+        ],
         "preferred_username": "sbo-ml",
         "given_name": "Machine Learning",
         "family_name": "Test User",
@@ -198,8 +203,8 @@ async def populate_db(db_connection):
     # Create a dummy thread
     thread = Threads(
         user_id="12345",
-        vlab_id="430108e9-a81d-4b13-b7b6-afca00195908",  # default
-        project_id="eff09ea1-be16-47f0-91b6-52a3ea3ee575",  # default
+        vlab_id="test_vlab",  # default
+        project_id="test_project",  # default
         title="Test Thread",
     )
 

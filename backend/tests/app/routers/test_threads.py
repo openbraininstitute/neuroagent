@@ -20,9 +20,7 @@ def test_create_thread(patch_required_env, httpx_mock, app_client, db_connection
     )
 
     app.dependency_overrides[get_settings] = lambda: test_settings
-    httpx_mock.add_response(
-        url=f"{test_settings.virtual_lab.get_project_url}/test_vlab/projects/test_project"
-    )
+
     with app_client as app_client:
         # Create a thread
         create_output = app_client.post(
@@ -52,9 +50,6 @@ def test_generate_thread_title(
     app.dependency_overrides[get_settings] = lambda: test_settings
     app.dependency_overrides[get_openai_client] = lambda: mock_openai_client
 
-    httpx_mock.add_response(
-        url=f"{test_settings.virtual_lab.get_project_url}/test_vlab/projects/test_project"
-    )
     with app_client as app_client:
         threads = app_client.get("/threads/").json()
         assert not threads
@@ -87,12 +82,7 @@ def test_get_threads(patch_required_env, httpx_mock, app_client, db_connection):
         db={"prefix": db_connection}, keycloak={"issuer": "https://great_issuer.com"}
     )
     app.dependency_overrides[get_settings] = lambda: test_settings
-    httpx_mock.add_response(
-        url=f"{test_settings.virtual_lab.get_project_url}/test_vlab/projects/test_project"
-    )
-    httpx_mock.add_response(
-        url=f"{test_settings.virtual_lab.get_project_url}/test_vlab2/projects/test_project2"
-    )
+
     with app_client as app_client:
         threads = app_client.get("/threads").json()
         assert not threads
@@ -127,9 +117,9 @@ def test_get_threads(patch_required_env, httpx_mock, app_client, db_connection):
         threads = app_client.get(
             "/threads",
             params={"virtual_lab_id": "test_vlab_wrong", "project_id": "test_project"},
-        ).json()
+        )
 
-        assert len(threads) == 0
+        assert threads.status_code == 401
 
 
 @pytest.mark.httpx_mock(can_send_already_matched_responses=True)
@@ -140,9 +130,6 @@ def test_update_thread_title(patch_required_env, httpx_mock, app_client, db_conn
     )
     app.dependency_overrides[get_settings] = lambda: test_settings
 
-    httpx_mock.add_response(
-        url=f"{test_settings.virtual_lab.get_project_url}/test_vlab/projects/test_project"
-    )
     with app_client as app_client:
         threads = app_client.get("/threads").json()
         assert not threads
@@ -183,9 +170,6 @@ def test_delete_thread(
         "neuroagent.app.routers.threads.delete_from_storage", fake_delete_from_storage
     )
 
-    httpx_mock.add_response(
-        url=f"{test_settings.virtual_lab.get_project_url}/test_vlab/projects/test_project"
-    )
     with app_client as app_client:
         threads = app_client.get("/threads").json()
         assert not threads

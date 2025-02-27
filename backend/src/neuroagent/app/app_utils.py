@@ -41,7 +41,7 @@ def setup_engine(
         return None
 
 
-async def validate_project(
+def validate_project(
     groups: list[str],
     virtual_lab_id: str | None = None,
     project_id: str | None = None,
