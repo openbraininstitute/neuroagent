@@ -32,7 +32,6 @@ async function getThreads(): Promise<BThread[]> {
 
 export async function ThreadList() {
   const threads = await getThreads();
-  console.log(threads);
   return (
     <div className="flex flex-col gap-2 pl-3 pr-3">
       {threads.map((thread) => (
