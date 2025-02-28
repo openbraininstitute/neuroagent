@@ -4,7 +4,6 @@ import logging
 from typing import Any
 
 from fastapi import HTTPException
-from httpx import AsyncClient
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncEngine, create_async_engine
 from starlette.status import HTTP_401_UNAUTHORIZED
@@ -42,20 +41,34 @@ def setup_engine(
         return None
 
 
-async def validate_project(
-    httpx_client: AsyncClient,
-    vlab_id: str,
-    project_id: str,
-    token: str,
-    vlab_project_url: str,
+def validate_project(
+    groups: list[str],
+    virtual_lab_id: str | None = None,
+    project_id: str | None = None,
 ) -> None:
     """Check user appartenance to vlab and project before running agent."""
-    response = await httpx_client.get(
-        f"{vlab_project_url}/{vlab_id}/projects/{project_id}",
-        headers={"Authorization": f"Bearer {token}"},
-    )
-    if response.status_code != 200:
+    if virtual_lab_id and not project_id:
+        belongs_to_vlab = any([f"/vlab/{virtual_lab_id}" in group for group in groups])
+        if not belongs_to_vlab:
+            raise HTTPException(
+                status_code=HTTP_401_UNAUTHORIZED,
+                detail="User does not belong to the virtual-lab.",
+            )
+    elif virtual_lab_id and project_id:
+        # Certified approach by Bilal
+        belongs_to_vlab_and_project = any(
+            [f"/proj/{virtual_lab_id}/{project_id}" in group for group in groups]
+        )
+        if not belongs_to_vlab_and_project:
+            raise HTTPException(
+                status_code=HTTP_401_UNAUTHORIZED,
+                detail="User does not belong to the project.",
+            )
+    elif not virtual_lab_id and project_id:
         raise HTTPException(
             status_code=HTTP_401_UNAUTHORIZED,
-            detail="User does not belong to the project.",
+            detail="Virtual-lab ID must be provided when providing a project ID",
         )
+    else:
+        # No vlab nor project provided, nothing to do.
+        return

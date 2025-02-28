@@ -5,7 +5,6 @@ import logging
 from typing import Annotated, Any
 
 from fastapi import APIRouter, Depends
-from httpx import AsyncClient
 from openai import AsyncOpenAI
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -15,15 +14,13 @@ from neuroagent.app.app_utils import validate_project
 from neuroagent.app.config import Settings
 from neuroagent.app.database.sql_schemas import Messages, Threads, utc_now
 from neuroagent.app.dependencies import (
-    auth,
-    get_httpx_client,
     get_openai_client,
     get_s3_client,
     get_session,
     get_settings,
     get_thread,
     get_tool_list,
-    get_user_id,
+    get_user_info,
 )
 from neuroagent.app.schemas import (
     MessageResponse,
@@ -31,6 +28,7 @@ from neuroagent.app.schemas import (
     ThreadGeneratedTitle,
     ThreadsRead,
     ThreadUpdate,
+    UserInfo,
 )
 from neuroagent.tools.base_tool import BaseTool
 from neuroagent.utils import delete_from_storage
@@ -42,26 +40,19 @@ router = APIRouter(prefix="/threads", tags=["Threads' CRUD"])
 
 @router.post("")
 async def create_thread(
-    httpx_client: Annotated[AsyncClient, Depends(get_httpx_client)],
-    settings: Annotated[Settings, Depends(get_settings)],
-    token: Annotated[str, Depends(auth)],
     virtual_lab_id: str,
     project_id: str,
     session: Annotated[AsyncSession, Depends(get_session)],
-    user_id: Annotated[str, Depends(get_user_id)],
+    user_info: Annotated[UserInfo, Depends(get_user_info)],
     body: ThreadCreate = ThreadCreate(),
 ) -> ThreadsRead:
     """Create thread."""
     # We first need to check if the combination thread/vlab/project is valid
-    await validate_project(
-        httpx_client=httpx_client,
-        vlab_id=virtual_lab_id,
-        project_id=project_id,
-        token=token,
-        vlab_project_url=settings.virtual_lab.get_project_url,
+    validate_project(
+        virtual_lab_id=virtual_lab_id, project_id=project_id, groups=user_info.groups
     )
     new_thread = Threads(
-        user_id=user_id,
+        user_id=user_info.sub,
         title=body.title,
         vlab_id=virtual_lab_id,
         project_id=project_id,
@@ -105,12 +96,17 @@ async def generate_title(
 @router.get("")
 async def get_threads(
     session: Annotated[AsyncSession, Depends(get_session)],
-    user_id: Annotated[str, Depends(get_user_id)],
+    user_info: Annotated[UserInfo, Depends(get_user_info)],
     virtual_lab_id: str | None = None,
     project_id: str | None = None,
 ) -> list[ThreadsRead]:
     """Get threads for a user."""
-    query = select(Threads).where(Threads.user_id == user_id)
+    validate_project(
+        virtual_lab_id=virtual_lab_id,
+        project_id=project_id,
+        groups=user_info.groups,
+    )
+    query = select(Threads).where(Threads.user_id == user_info.sub)
 
     if virtual_lab_id is not None:
         query = query.where(Threads.vlab_id == virtual_lab_id)
@@ -144,7 +140,7 @@ async def delete_thread(
     thread: Annotated[Threads, Depends(get_thread)],
     s3_client: Annotated[Any, Depends(get_s3_client)],
     settings: Annotated[Settings, Depends(get_settings)],
-    user_id: Annotated[str, Depends(get_user_id)],
+    user_info: Annotated[UserInfo, Depends(get_user_info)],
 ) -> dict[str, str]:
     """Delete the specified thread and its associated S3 objects."""
     # Delete the thread from database
@@ -155,7 +151,7 @@ async def delete_thread(
     delete_from_storage(
         s3_client=s3_client,
         bucket_name=settings.storage.bucket_name,
-        user_id=user_id,
+        user_id=user_info.sub,
         thread_id=thread.thread_id,
     )
 

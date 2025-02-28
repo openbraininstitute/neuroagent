@@ -24,7 +24,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - [frontend] - Loading bar and better first message.
 - Better system prompt
 - Sort components in folder.
-- Brain region/cell hierarchies read from storage (not from local filesystem)
+- Brain region/cell hierarchies read from storage (not from local filesystem).
+- Authentication is done directly through keycloak.
 
 ### Added
 - Docker compose for local development
