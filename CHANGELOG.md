@@ -56,6 +56,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - GET threads depends on vlab+project_id.
 - Object storage + plotting logic.
 - [frontend] - bugfixes.
+- Ollama support
 
 ### Fixed
 - [frontend] - Parallel execution of tools
