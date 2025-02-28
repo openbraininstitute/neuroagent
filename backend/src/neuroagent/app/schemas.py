@@ -113,9 +113,9 @@ class UserInfo(BaseModel):
     """Keycloak related info of a user."""
 
     sub: str
+    groups: list[str]
     email_verified: bool | None = None
     name: str | None = None
-    groups: list[str]
     preferred_username: str | None = None
     given_name: str | None = None
     family_name: str | None = None
