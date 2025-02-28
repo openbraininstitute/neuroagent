@@ -220,6 +220,9 @@ class AgentsRoutine:
             async for chunk in completion:  # type: ignore
                 for choice in chunk.choices:
                     if choice.finish_reason == "stop":
+                        if choice.delta.content:
+                            # Ollama does return the stop and the content in the same chunk
+                            yield f"0:{json.dumps(choice.delta.content, separators=(',', ':'))}\n"
                         continue
 
                     elif choice.finish_reason == "tool_calls":

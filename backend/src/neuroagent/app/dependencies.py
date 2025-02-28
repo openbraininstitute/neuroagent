@@ -80,7 +80,10 @@ async def get_openai_client(
         yield None
     else:
         try:
-            client = AsyncOpenAI(api_key=settings.openai.token.get_secret_value())
+            client = AsyncOpenAI(
+                api_key=settings.openai.token.get_secret_value(),
+                base_url=settings.openai.base_url,
+            )
             yield client
         finally:
             await client.close()
