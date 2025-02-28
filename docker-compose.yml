@@ -11,8 +11,8 @@ services:
       - NEUROAGENT_TOOLS__LITERATURE__URL=https://whatever.com
       - NEUROAGENT_KNOWLEDGE_GRAPH__BASE_URL=https://openbluebrain.com/api/nexus/v1
       - NEUROAGENT_OPENAI__TOKEN=${OPENAI_API_KEY}
-      - NEUROAGENT_OPENAI__BASE_URL=http://ollama:11434/v1
-      - NEUROAGENT_OPENAI__MODEL=qwen2.5:0.5b
+      # - NEUROAGENT_OPENAI__BASE_URL=http://ollama:11434/v1
+      # - NEUROAGENT_OPENAI__MODEL=llama3.2:1b
       - NEUROAGENT_STORAGE__ENDPOINT_URL=http://minio:9000
       - NEUROAGENT_STORAGE__BUCKET_NAME=neuroagent
       - NEUROAGENT_STORAGE__ACCESS_KEY=minioadmin
@@ -73,11 +73,10 @@ services:
 
   ollama:
     image: ollama/ollama
+    profiles:
+      - localllm
     ports:
       - "11434:11434"
-    # environment:
-    #   - OLLAMA_MODELS=/root/.ollama/models
-    #   - OLLAMA_HOST=127.0.0.1:11434
     volumes:
       - ollama_data:/root/.ollama
     networks:
