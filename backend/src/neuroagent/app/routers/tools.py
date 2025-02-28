@@ -26,6 +26,7 @@ from neuroagent.app.schemas import (
     ExecuteToolCallResponse,
     ToolMetadata,
     ToolMetadataDetailed,
+    UserInfo,
 )
 from neuroagent.tools.base_tool import BaseTool
 
@@ -114,7 +115,7 @@ async def execute_tool_call(
 @router.get("")
 def get_available_tools(
     tool_list: Annotated[list[type[BaseTool]], Depends(get_tool_list)],
-    _: Annotated[str, Depends(get_user_info)],
+    _: Annotated[UserInfo, Depends(get_user_info)],
 ) -> list[ToolMetadata]:
     """Return the list of available tools with their basic metadata."""
     return [
@@ -130,7 +131,7 @@ async def get_tool_metadata(
     healthcheck_variables: Annotated[
         dict[str, Any], Depends(get_healthcheck_variables)
     ],
-    _: Annotated[str, Depends(get_user_info)],
+    _: Annotated[UserInfo, Depends(get_user_info)],
 ) -> ToolMetadataDetailed:
     """Return detailed metadata for a specific tool."""
     tool_class = next((tool for tool in tool_list if tool.name == name), None)

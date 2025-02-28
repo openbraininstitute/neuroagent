@@ -5,6 +5,7 @@ from botocore.exceptions import ClientError
 
 from neuroagent.app.dependencies import get_s3_client, get_settings, get_user_info
 from neuroagent.app.main import app
+from neuroagent.app.schemas import UserInfo
 
 
 @pytest.mark.httpx_mock
@@ -20,7 +21,7 @@ def test_generate_presigned_url(app_client):
         storage=Mock(bucket_name="test-bucket", expires_in=600),
         misc=Mock(application_prefix="whatever"),
     )
-    app.dependency_overrides[get_user_info] = lambda: {"sub": "12345"}
+    app.dependency_overrides[get_user_info] = lambda: UserInfo(sub="12345", groups=[])
 
     def make_request(filename):
         return app_client.get(f"/storage/{filename}/presigned-url")

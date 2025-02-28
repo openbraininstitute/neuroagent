@@ -20,6 +20,7 @@ from neuroagent.app.dependencies import (
     get_thread,
     get_user_info,
 )
+from neuroagent.app.schemas import UserInfo
 from neuroagent.new_types import Agent
 
 
@@ -64,7 +65,7 @@ async def test_get_user(httpx_mock, monkeypatch, patch_required_env):
     token = "eyJgreattoken"
     user_info = await get_user_info(token=token, settings=settings, httpx_client=client)
 
-    assert user_info == fake_response
+    assert user_info == UserInfo(**fake_response)
 
 
 def test_get_connection_string_full(monkeypatch, patch_required_env):
@@ -116,10 +117,12 @@ async def test_get_thread(patch_required_env, db_connection):
 
     try:
         thread = await get_thread(
-            user_info={
-                "sub": user_id,
-                "groups": ["/proj/test_vlab_DB/project_id_DB/admin"],
-            },
+            user_info=UserInfo(
+                **{
+                    "sub": user_id,
+                    "groups": ["/proj/test_vlab_DB/project_id_DB/admin"],
+                }
+            ),
             thread_id=valid_thread_id,
             session=session,
         )
@@ -159,10 +162,12 @@ async def test_get_thread_invalid_thread_id(patch_required_env, db_connection):
     try:
         with pytest.raises(HTTPException) as exc_info:
             await get_thread(
-                user_info={
-                    "sub": user_id,
-                    "groups": ["/proj/test_vlab_DB/project_id_DB/admin"],
-                },
+                user_info=UserInfo(
+                    **{
+                        "sub": user_id,
+                        "groups": ["/proj/test_vlab_DB/project_id_DB/admin"],
+                    }
+                ),
                 thread_id=invalid_thread_id,
                 session=session,
             )
@@ -200,10 +205,12 @@ async def test_get_thread_invalid_user_id(patch_required_env, db_connection):
     try:
         with pytest.raises(HTTPException) as exc_info:
             await get_thread(
-                user_info={
-                    "sub": "wrong_user",
-                    "groups": ["/proj/test_vlab_DB/project_id_DB/admin"],
-                },
+                user_info=UserInfo(
+                    **{
+                        "sub": "wrong_user",
+                        "groups": ["/proj/test_vlab_DB/project_id_DB/admin"],
+                    }
+                ),
                 thread_id=valid_thread_id,
                 session=session,
             )
