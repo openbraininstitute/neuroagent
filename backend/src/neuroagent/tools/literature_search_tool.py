@@ -17,26 +17,28 @@ class LiteratureSearchInput(BaseModel):
 
     query: str = Field(
         description=(
-            "Query to match against the text of paragraphs coming from scientific"
-            " articles. The matching is done using the bm25 algorithm, so the query"
-            " should be based on keywords to ensure maximal efficiency."
+            "Query to match against the text of paragraphs coming from the body of scientific"
+            " articles. The body does not contain the title nor the authors. The matching is done using the bm25 algorithm, so the query"
+            " should be based on relevant keywords to ensure maximal efficiency."
         )
     )
     article_types: list[str] | None = Field(
-        default=None, description="List of allowed article types."
+        default=None,
+        description="Filter that restricts the type of retrieved articles.",
     )
     authors: list[str] | None = Field(
-        default=None, description="List of allowed authors."
+        default=None,
+        description="Filter that restricts the authors of retrieved articles.",
     )
     journals: list[str] | None = Field(
         default=None,
-        description="List of allowed journals. Should be the ISSN of the journal.",
+        description="Filter that restricts the journal of publication of retrieved articles. Should be the ISSN of the journal.",
     )
     date_from: str | None = Field(
-        default=None, description="Date lowerbound. Format YYYY-MM-DD"
+        default=None, description="Publication date lowerbound. Format YYYY-MM-DD"
     )
     date_to: str | None = Field(
-        default=None, description="Date upperbound. Format YYYY-MM-DD"
+        default=None, description="Publication date upperbound. Format YYYY-MM-DD"
     )
 
 
@@ -78,7 +80,7 @@ class LiteratureSearchTool(BaseTool):
     description: ClassVar[
         str
     ] = """Searches the scientific literature. The tool should be used to gather general scientific knowledge. It is best suited for questions about neuroscience and medicine that are not about morphologies.
-    It takes a required `query` argument (it is only about the topci) and optinal filters (authors, article type, ...). Do not specify the filter parameters in 'query'.
+    It takes a required `query` argument and optional filters.
     It returns a list of paragraphs fron scientific papers that match the query (in the sense of the bm25 algorithm), alongside with the metadata of the articles they were extracted from."""
     input_schema: LiteratureSearchInput
     metadata: LiteratureSearchMetadata
