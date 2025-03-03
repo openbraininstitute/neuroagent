@@ -4,6 +4,7 @@ import "./globals.css";
 import ThemeChanger from "@/components/layout/theme-changer";
 import { QueryProvider } from "@/components/query-client-provider";
 import { AuthProvider } from "@/components/auth-provider";
+import ProgressBar from "@/components/progress-bar";
 
 import { Body } from "@/components/layout/body";
 import { Footer } from "@/components/layout/footer";
@@ -49,7 +50,10 @@ export default function RootLayout({
                   <Sidebar>
                     <ThreadList />
                   </Sidebar>
-                  <Body>{children}</Body>
+                  <Body>
+                    <ProgressBar />
+                    {children}
+                  </Body>
                 </div>
                 <Footer />
               </div>

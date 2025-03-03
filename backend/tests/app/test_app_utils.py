@@ -4,47 +4,49 @@ from unittest.mock import AsyncMock, patch
 
 import pytest
 from fastapi.exceptions import HTTPException
-from httpx import AsyncClient
 
 from neuroagent.app.app_utils import setup_engine, validate_project
 from neuroagent.app.config import Settings
 
 
 @pytest.mark.asyncio
-async def test_validate_project(patch_required_env, httpx_mock, monkeypatch):
-    httpx_client = AsyncClient()
-    token = "fake_token"
-    test_vp = {"vlab_id": "test_vlab_DB", "project_id": "project_id_DB"}
-    vlab_url = "https://openbluebrain.com/api/virtual-lab-manager/virtual-labs"
+async def test_validate_project():
+    vlab_id = "test_vlab"
+    proj_id = "test_project"
+    groups = [
+        "/proj/test_vlab/test_project/admin",
+        "/proj/test_vlab2/test_project2/member",
+        "/vlab/test_vlab/admin",
+        "/vlab/test_vlab2/member",
+    ]
+    # Don't specify anything
+    validate_project(groups=groups)
 
-    # test with bad config
-    httpx_mock.add_response(
-        url=f"{vlab_url}/{test_vp['vlab_id']}/projects/{test_vp['project_id']}",
-        status_code=404,
-    )
-    with pytest.raises(HTTPException) as error:
-        await validate_project(
-            httpx_client=httpx_client,
-            vlab_id=test_vp["vlab_id"],
-            project_id=test_vp["project_id"],
-            token=token,
-            vlab_project_url=vlab_url,
+    # Specify correct vlab + proj
+    validate_project(virtual_lab_id=vlab_id, project_id=proj_id, groups=groups)
+
+    # Specify only the correct vlab
+    validate_project(virtual_lab_id=vlab_id, groups=groups)
+
+    # Specify only the project
+    with pytest.raises(HTTPException):
+        validate_project(project_id=proj_id, groups=groups)
+
+    # Specify wrong vlab correct proj
+    with pytest.raises(HTTPException):
+        validate_project(virtual_lab_id="wrong_vlab", project_id=proj_id, groups=groups)
+
+    # Specify correct vlab wrong project
+    with pytest.raises(HTTPException):
+        validate_project(
+            virtual_lab_id=vlab_id, project_id="wrong_project", groups=groups
         )
-    assert error.value.status_code == 401
 
-    # test with good config
-    httpx_mock.add_response(
-        url=f"{vlab_url}/{test_vp['vlab_id']}/projects/{test_vp['project_id']}",
-        json="test_project_ID",
-    )
-    await validate_project(
-        httpx_client=httpx_client,
-        vlab_id=test_vp["vlab_id"],
-        project_id=test_vp["project_id"],
-        token=token,
-        vlab_project_url=vlab_url,
-    )
-    # we just want to assert that the httpx_mock was called.
+    # Specify wrong vlab wrong project
+    with pytest.raises(HTTPException):
+        validate_project(
+            virtual_lab_id="wrong_vlab", project_id="wrong_project", groups=groups
+        )
 
 
 @patch("neuroagent.app.app_utils.create_async_engine")

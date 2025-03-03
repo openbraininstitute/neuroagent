@@ -47,7 +47,7 @@ class ThreadCreate(BaseModel):
     title: str = "New chat"
 
 
-class ThreadCreateWithGeneratedTitle(BaseModel):
+class ThreadGeneratedTitle(BaseModel):
     """Data class for the update of a thread."""
 
     first_user_message: str
@@ -107,3 +107,16 @@ class ToolMetadataDetailed(ToolMetadata):
     input_schema: str
     hil: bool
     is_online: bool
+
+
+class UserInfo(BaseModel):
+    """Keycloak related info of a user."""
+
+    sub: str
+    groups: list[str]
+    email_verified: bool | None = None
+    name: str | None = None
+    preferred_username: str | None = None
+    given_name: str | None = None
+    family_name: str | None = None
+    email: str | None = None

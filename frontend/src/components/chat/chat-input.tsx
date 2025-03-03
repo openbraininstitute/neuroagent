@@ -2,12 +2,13 @@
 
 import { useState } from "react";
 import { useActionState, useEffect } from "react";
-import { createThreadWithMessage } from "@/actions/create-thread";
+import { createThread } from "@/actions/create-thread";
 import { useStore } from "@/lib/store";
 import { ToolSelectionDropdown } from "@/components/chat/tool-selection-dropdown";
 import { Send } from "lucide-react";
 import ChatInputLoading from "@/components/chat/chat-input-loading";
 import { useRouter } from "next/navigation";
+import { convert_tools_to_set } from "@/lib/utils";
 
 type ChatInputProps = {
   availableTools: Array<{ slug: string; label: string }>;
@@ -19,10 +20,14 @@ export function ChatInput({ availableTools }: ChatInputProps) {
   const [input, setInput] = useState("");
   const router = useRouter();
 
-  const [state, action, isPending] = useActionState(
-    createThreadWithMessage,
-    null,
-  );
+  const [state, action, isPending] = useActionState(createThread, null);
+
+  const actionWrapper = () => {
+    if (newMessage === "" && input !== "") {
+      setNewMessage(input);
+    }
+    action();
+  };
 
   // Watch for state changes and redirect when ready
   useEffect(() => {
@@ -30,13 +35,6 @@ export function ChatInput({ availableTools }: ChatInputProps) {
       router.push(`/threads/${state.threadId}`);
     }
   }, [state, isPending, router]);
-
-  const actionWrapper = (formData: FormData) => {
-    if (newMessage === "" && input !== "") {
-      setNewMessage(input);
-    }
-    action(formData);
-  };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
@@ -47,15 +45,7 @@ export function ChatInput({ availableTools }: ChatInputProps) {
     }
   };
   useEffect(() => {
-    const initialCheckedTools = availableTools.reduce<Record<string, boolean>>(
-      (acc, tool) => {
-        acc[tool.slug] = true;
-        return acc;
-      },
-      {},
-    );
-    initialCheckedTools["allchecked"] = true;
-    setCheckedTools(initialCheckedTools);
+    setCheckedTools(convert_tools_to_set(availableTools));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // Empty dependency array means this runs once on mount
 
