@@ -29,20 +29,20 @@ docker cp celltypes_hierarchy.json neuroagent-minio-1:/tmp/celltypes_hierarchy.j
 
    By default, the application uses OpenAI's API (requiring OPENAI_API_KEY in your .env file). If you want to use a local LLM instead:
 
-   a. Start the stack with the `localllm` profile:
+   a. In your docker-compose.yml, uncomment and adjust these environment variables in the backend service:
+   ```yaml
+   NEUROAGENT_OPENAI__BASE_URL=http://ollama:11434/v1
+   NEUROAGENT_OPENAI__MODEL=llama3.2:1b  # Can be any model available in Ollama
+   ```
+
+   b. Start the stack with the `localllm` profile:
    ```bash
    docker compose --profile localllm up
    ```
 
-   b. Pull your desired model (example using llama3.2:1b):
+   c. Pull your desired model (example using llama3.2:1b):
    ```bash
    docker exec -it neuroagent-ollama-1 ollama pull llama3.2:1b
-   ```
-
-   c. In your docker-compose.yml, uncomment and adjust these environment variables in the backend service:
-   ```yaml
-   NEUROAGENT_OPENAI__BASE_URL=http://ollama:11434/v1
-   NEUROAGENT_OPENAI__MODEL=llama3.2:1b  # Can be any model available in Ollama
    ```
 
 4. Access the application at `http://localhost:3000`
