@@ -20,12 +20,22 @@ class TestLiteratureSearchTool:
 
         fake_response = [
             {
-                "article_title": "Article title",
-                "article_authors": ["Author1", "Author2"],
-                "paragraph": "This is the paragraph",
-                "section": "fake_section",
-                "article_doi": "fake_doi",
-                "journal_issn": "fake_journal_issn",
+                "article_title": "great_title",
+                "article_authors": ["author1", "author2"],
+                "article_id": "super_id",
+                "article_doi": "magnigficent_doi",
+                "pubmed_id": "random_pubmed_id",
+                "date": "02/02/2022",
+                "article_type": "journal",
+                "journal_issn": "123123",
+                "journal_name": "wang",
+                "cited_by": "1",
+                "impact_factor": "12",
+                "abstract": "Hello I am an abstract.",
+                "paragraph": "This is some great content",
+                "ds_document_id": "78",
+                "section": "Introduction",
+                "context_id": "21",
             }
             for _ in range(reranker_k)
         ]
