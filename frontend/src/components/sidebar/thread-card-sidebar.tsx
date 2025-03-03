@@ -20,7 +20,7 @@ import { cn } from "@/lib/utils";
 
 type ThreadCardSidebarProps = Thread;
 
-export function ThreadCardSidebar({ title, threadID }: ThreadCardSidebarProps) {
+export function ThreadCardSidebar({ title, threadId }: ThreadCardSidebarProps) {
   const [, editAction] = useActionState(editThread, null);
   const [, deleteAction, isDeletePending] = useActionState(deleteThread, null);
   const pathname = usePathname();
@@ -41,12 +41,12 @@ export function ThreadCardSidebar({ title, threadID }: ThreadCardSidebarProps) {
         "group relative flex w-full items-center py-2 hover:bg-accent/50",
         {
           "bg-accent/50": isDropdownOpen,
-          "bg-accent": currentThreadId === threadID,
+          "bg-accent": currentThreadId === threadId,
         },
       )}
     >
       <Link
-        href={`/threads/${threadID}`}
+        href={`/threads/${threadId}`}
         className="flex gap-3 flex-1 w-[100%]"
       >
         <MessageCircle />
@@ -98,14 +98,14 @@ export function ThreadCardSidebar({ title, threadID }: ThreadCardSidebarProps) {
 
         <EditThreadDialog
           title={title}
-          threadID={threadID}
+          threadId={threadId}
           editAction={editAction}
           isDialogOpen={isEditDialogOpen}
           setIsDialogOpen={setIsEditDialogOpen}
           addOptimisticTitle={addOptimisticTitle}
         />
         <DeleteThreadDialog
-          threadID={threadID}
+          threadId={threadId}
           currentThreadId={currentThreadId}
           deleteAction={deleteAction}
           isDialogOpen={isDeleteDialogOpen}

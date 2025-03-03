@@ -21,9 +21,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - [frontend] - Make human messages not span the entire width of the chat.
 - Copyright and acknowledgement.
 - pre-commit hooks for frontend.
+- [frontend] - Loading bar and better first message.
 - Better system prompt
 - Sort components in folder.
-- Brain region/cell hierarchies read from storage (not from local filesystem)
+- Brain region/cell hierarchies read from storage (not from local filesystem).
+- Authentication is done directly through keycloak.
 
 ### Added
 - Docker compose for local development
@@ -56,6 +58,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - GET threads depends on vlab+project_id.
 - Object storage + plotting logic.
 - Keywords filtering for literature search.
+- [frontend] - bugfixes.
 
 ### Fixed
 - [frontend] - Parallel execution of tools

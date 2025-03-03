@@ -19,7 +19,6 @@ async function getThreads(): Promise<BThread[]> {
       headers: { Authorization: `Bearer ${session.accessToken}` },
       next: { tags: ["threads"] },
     })) as BThread[];
-
     // Sort threads by update_date in descending order (most recent first)
     return threads.sort(
       (a, b) =>
@@ -33,14 +32,13 @@ async function getThreads(): Promise<BThread[]> {
 
 export async function ThreadList() {
   const threads = await getThreads();
-
   return (
     <div className="flex flex-col gap-2 pl-3 pr-3">
       {threads.map((thread) => (
         <ThreadCardSidebar
           key={thread.thread_id}
           title={thread.title}
-          threadID={thread.thread_id}
+          threadId={thread.thread_id}
         />
       ))}
     </div>
