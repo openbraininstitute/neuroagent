@@ -74,7 +74,7 @@ class LiteratuSearchOutput(BaseModel):
 
     @field_validator("abstract", "paragraph", mode="before")
     @classmethod
-    def truncate_text(cls, text):
+    def truncate_text(cls, text: str) -> str:
         """Truncate long test."""
         max_length = 10000
         if isinstance(text, str) and len(text) > max_length:
@@ -169,7 +169,7 @@ class LiteratureSearchTool(BaseTool):
     def _process_output(output: list[dict[str, Any]]) -> str:
         """Process output."""
         paragraphs_metadata = [ParagraphMetadata(**paragraph) for paragraph in output]
-        paragraphs_metadata = [
+        paragraphs_output = [
             LiteratuSearchOutput(
                 article_title=paragraph.article_title,
                 article_authors=paragraph.article_authors,
@@ -187,7 +187,7 @@ class LiteratureSearchTool(BaseTool):
             ).model_dump()
             for paragraph in paragraphs_metadata
         ]
-        return json.dumps(paragraphs_metadata)
+        return json.dumps(paragraphs_output)
 
     @classmethod
     async def is_online(
