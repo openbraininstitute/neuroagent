@@ -20,6 +20,19 @@ export function convert_tools_to_set(
   return initialCheckedTools;
 }
 
+/**
+ * Maps AI responses to their associated tool-using messages.
+ *
+ * For each AI message without tools, looks backwards in the conversation
+ * until a user message is found, collecting IDs of AI messages that used tools.
+ * This creates a relationship between tool operations and their final response.
+ *
+ * Example conversation mapping:
+ * user: "What's the weather?"
+ * assistant: [uses weather tool] (id: "tool1")
+ * assistant: "The weather is sunny" (id: "response1")
+ * → Map: "response1" => Set(["tool1"])
+ */
 export function getAssociatedTools(messages: MessageStrict[]) {
   return messages.reduce((toolMap, message, index) => {
     if (message.role === "assistant" && !message.toolInvocations) {
