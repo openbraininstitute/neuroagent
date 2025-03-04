@@ -11,7 +11,6 @@ type ChatInputInsideThreadProps = {
   setCheckedTools: (tools: Record<string, boolean>) => void;
   handleInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   handleSubmit: (event?: { preventDefault?: () => void }) => void;
-  handleKeyDown: (e: React.KeyboardEvent) => void;
   setIsAutoScrollEnabled: (enabled: boolean) => void;
   hasOngoingToolInvocations: boolean;
 };
@@ -24,10 +23,21 @@ export function ChatInputInsideThread({
   setCheckedTools,
   handleInputChange,
   handleSubmit,
-  handleKeyDown,
   setIsAutoScrollEnabled,
   hasOngoingToolInvocations,
 }: ChatInputInsideThreadProps) {
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      if (!e.shiftKey) {
+        if (!isLoading && !hasOngoingToolInvocations) {
+          setIsAutoScrollEnabled(true);
+          handleSubmit(e);
+        }
+      }
+    }
+  };
+
   return (
     <form
       className="flex flex-col justify-center items-center gap-4 mb-4"

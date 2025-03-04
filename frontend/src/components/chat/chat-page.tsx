@@ -141,15 +141,6 @@ export function ChatPage({
   const hasOngoingToolInvocations =
     (messages.at(-1)?.toolInvocations ?? []).length > 0;
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      if (!(isLoading || hasOngoingToolInvocations)) {
-        handleSubmit({ preventDefault: () => {} });
-      }
-    }
-  };
-
   const handleWheel = (event: React.WheelEvent) => {
     if (event.deltaY < 0) {
       setIsAutoScrollEnabled(false);
@@ -191,7 +182,6 @@ export function ChatPage({
         setCheckedTools={setCheckedTools}
         handleInputChange={handleInputChange}
         handleSubmit={handleSubmit}
-        handleKeyDown={handleKeyDown}
         hasOngoingToolInvocations={hasOngoingToolInvocations}
         setIsAutoScrollEnabled={setIsAutoScrollEnabled}
       />
