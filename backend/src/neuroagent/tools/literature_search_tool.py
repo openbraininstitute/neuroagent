@@ -7,7 +7,7 @@ from typing import Any, ClassVar
 from httpx import AsyncClient
 from pydantic import BaseModel, ConfigDict, Field
 
-from neuroagent.tools.base_tool import BaseMetadata, BaseTool
+from neuroagent.tools.base_tool import AgentsNames, BaseMetadata, BaseTool
 
 logger = logging.getLogger(__name__)
 
@@ -69,6 +69,7 @@ class LiteratureSearchTool(BaseTool):
     - section
     - article_doi
     - journal_issn"""
+    agent: ClassVar[AgentsNames] = AgentsNames.EXPLORE_AGENT
     input_schema: LiteratureSearchInput
     metadata: LiteratureSearchMetadata
 

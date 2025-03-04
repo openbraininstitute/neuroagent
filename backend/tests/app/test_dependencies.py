@@ -16,8 +16,8 @@ from neuroagent.app.dependencies import (
     get_httpx_client,
     get_session,
     get_settings,
-    get_starting_agent,
     get_thread,
+    get_triage_agent,
     get_user_info,
 )
 from neuroagent.app.schemas import UserInfo
@@ -85,7 +85,7 @@ def test_get_connection_string_full(monkeypatch, patch_required_env):
 
 def test_get_starting_agent(patch_required_env, get_weather_tool):
     settings = Settings()
-    agent = get_starting_agent(settings, tool_list=[get_weather_tool])
+    agent = get_triage_agent(settings, tool_list=[get_weather_tool])
 
     assert isinstance(agent, Agent)
     assert agent.tools == [get_weather_tool]

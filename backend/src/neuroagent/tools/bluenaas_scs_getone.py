@@ -7,7 +7,7 @@ from httpx import AsyncClient
 from pydantic import BaseModel, Field
 
 from neuroagent.bluenaas_models import SimulationDetailsResponse
-from neuroagent.tools.base_tool import BaseMetadata, BaseTool
+from neuroagent.tools.base_tool import AgentsNames, BaseMetadata, BaseTool
 
 logger = logging.getLogger(__name__)
 
@@ -47,6 +47,7 @@ class SCSGetOneTool(BaseTool):
     • Check simulation status and outputs
 
     Provide the simulation ID to get its detailed information."""
+    agent: ClassVar[AgentsNames] = AgentsNames.SIMULATION_AGENT
     metadata: SCSGetOneMetadata
     input_schema: InputSCSGetOne
 

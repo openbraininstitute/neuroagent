@@ -9,7 +9,7 @@ from pydantic import BaseModel, Field
 from neuroagent.bluenaas_models import (
     PaginatedResponseUnionMEModelResponseSynaptomeModelResponse,
 )
-from neuroagent.tools.base_tool import BaseMetadata, BaseTool
+from neuroagent.tools.base_tool import AgentsNames, BaseMetadata, BaseTool
 
 logger = logging.getLogger(__name__)
 
@@ -53,6 +53,7 @@ class MEModelGetAllTool(BaseTool):
     • Navigate through multiple models using pagination
 
     The tool returns a list of models with their metadata and properties."""
+    agent: ClassVar[AgentsNames] = AgentsNames.SIMULATION_AGENT
     metadata: MEModelGetAllMetadata
     input_schema: InputMEModelGetAll
 

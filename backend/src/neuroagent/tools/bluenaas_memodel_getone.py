@@ -8,7 +8,7 @@ from httpx import AsyncClient
 from pydantic import BaseModel, Field
 
 from neuroagent.bluenaas_models import MEModelResponse
-from neuroagent.tools.base_tool import BaseMetadata, BaseTool
+from neuroagent.tools.base_tool import AgentsNames, BaseMetadata, BaseTool
 
 logger = logging.getLogger(__name__)
 
@@ -45,6 +45,7 @@ class MEModelGetOneTool(BaseTool):
     • View model metadata
 
     Provide the model ID to get its full information."""
+    agent: ClassVar[AgentsNames] = AgentsNames.SIMULATION_AGENT
     metadata: MEModelGetOneMetadata
     input_schema: InputMEModelGetOne
 

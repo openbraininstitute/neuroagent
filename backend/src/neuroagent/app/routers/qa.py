@@ -18,8 +18,8 @@ from neuroagent.app.dependencies import (
     get_agents_routine,
     get_context_variables,
     get_settings,
-    get_starting_agent,
     get_thread,
+    get_triage_agent,
 )
 from neuroagent.app.stream import stream_agent_response
 from neuroagent.new_types import (
@@ -37,7 +37,7 @@ async def stream_chat_agent(
     user_request: ClientRequest,
     request: Request,
     agents_routine: Annotated[AgentsRoutine, Depends(get_agents_routine)],
-    agent: Annotated[Agent, Depends(get_starting_agent)],
+    agent: Annotated[Agent, Depends(get_triage_agent)],
     context_variables: Annotated[dict[str, Any], Depends(get_context_variables)],
     thread: Annotated[Threads, Depends(get_thread)],
     settings: Annotated[Settings, Depends(get_settings)],

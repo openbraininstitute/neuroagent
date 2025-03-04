@@ -6,7 +6,7 @@ from typing import ClassVar
 
 from pydantic import BaseModel
 
-from neuroagent.tools.base_tool import BaseMetadata, BaseTool
+from neuroagent.tools.base_tool import AgentsNames, BaseMetadata, BaseTool
 
 logger = logging.getLogger(__name__)
 
@@ -37,8 +37,9 @@ class NowTool(BaseTool):
     • Get precise timestamps
     • Track when operations occur
     • Record timing information
-    
+
     Returns the current time in standardized UTC format."""
+    agent: ClassVar[AgentsNames] = AgentsNames.UTILITY_AGENT
     input_schema: NowInput
     metadata: NowMetadata
 

@@ -10,7 +10,7 @@ from neurom import NeuriteType, load_morphology
 from neurom.view import plot_dendrogram, plot_morph, plot_morph3d
 from pydantic import BaseModel, Field
 
-from neuroagent.tools.base_tool import BaseMetadata, BaseTool
+from neuroagent.tools.base_tool import AgentsNames, BaseMetadata, BaseTool
 from neuroagent.utils import get_kg_data, save_to_storage
 
 logger = logging.getLogger(__name__)
@@ -108,8 +108,9 @@ class MorphologyViewerTool(BaseTool):
     • 2D projection
     • 3D representation
     • Dendrogram (branching structure)
-    
+
     Provide a morphology ID to generate the visualization."""
+    agent: ClassVar[AgentsNames] = AgentsNames.EXPLORE_AGENT
     input_schema: MorphologyViewerInput
     metadata: MorphologyViewerMetadata
 

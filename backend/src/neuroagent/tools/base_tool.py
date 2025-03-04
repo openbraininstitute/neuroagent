@@ -2,6 +2,7 @@
 
 import logging
 from abc import ABC, abstractmethod
+from enum import Enum
 from typing import Any, ClassVar, Literal
 
 from httpx import AsyncClient
@@ -54,6 +55,15 @@ ETYPE_IDS = {
 }
 
 
+class AgentsNames(Enum):
+    """Type of agents available."""
+
+    EXPLORE_AGENT = "explore-agent"
+    SIMULATION_AGENT = "simulation-agent"
+    UTILITY_AGENT = "utility-agent"
+    TRIAGE_AGENT = "triage-agent"
+
+
 class BaseMetadata(BaseModel):
     """Base class for metadata."""
 
@@ -68,6 +78,7 @@ class BaseTool(BaseModel, ABC):
     name_frontend: ClassVar[str] = ""
     description: ClassVar[str]
     description_frontend: ClassVar[str] = ""
+    agent: ClassVar[AgentsNames]
     metadata: BaseMetadata
     input_schema: BaseModel
     hil: ClassVar[bool] = False

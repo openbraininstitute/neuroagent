@@ -8,7 +8,7 @@ from typing import ClassVar
 
 from pydantic import BaseModel, Field
 
-from neuroagent.tools.base_tool import BaseMetadata, BaseTool
+from neuroagent.tools.base_tool import AgentsNames, BaseMetadata, BaseTool
 
 logger = logging.getLogger(__name__)
 
@@ -45,6 +45,7 @@ class WeatherTool(BaseTool):
     • Location-specific weather data
 
     Simply specify a location to get its current weather information."""
+    agent: ClassVar[AgentsNames] = AgentsNames.UTILITY_AGENT
     input_schema: WeatherInput
     metadata: WeatherMetadata
 

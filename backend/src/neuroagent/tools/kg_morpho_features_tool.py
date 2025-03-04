@@ -8,7 +8,7 @@ from typing import Any, ClassVar, Literal
 from httpx import AsyncClient
 from pydantic import BaseModel, Field, model_validator
 
-from neuroagent.tools.base_tool import BaseMetadata, BaseTool
+from neuroagent.tools.base_tool import AgentsNames, BaseMetadata, BaseTool
 from neuroagent.utils import get_descendants_id
 
 logger = logging.getLogger(__name__)
@@ -195,6 +195,7 @@ class KGMorphoFeatureTool(BaseTool):
     • Compare morphological features
 
     Specify the features and ranges you're interested in to find matching neurons."""
+    agent: ClassVar[AgentsNames] = AgentsNames.EXPLORE_AGENT
     input_schema: KGMorphoFeatureInput
     metadata: KGMorphoFeatureMetadata
 

@@ -10,7 +10,7 @@ from httpx import AsyncClient
 from neurom import load_morphology
 from pydantic import BaseModel, Field
 
-from neuroagent.tools.base_tool import BaseMetadata, BaseTool
+from neuroagent.tools.base_tool import AgentsNames, BaseMetadata, BaseTool
 from neuroagent.utils import get_kg_data
 
 logger = logging.getLogger(__name__)
@@ -60,6 +60,7 @@ class MorphologyFeatureTool(BaseTool):
     • Analyze specific parts of neurons
 
     Provide a morphology ID to compute its detailed features."""
+    agent: ClassVar[AgentsNames] = AgentsNames.EXPLORE_AGENT
     input_schema: MorphologyFeatureInput
     metadata: MorphologyFeatureMetadata
 

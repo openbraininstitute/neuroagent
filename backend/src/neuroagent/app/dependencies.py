@@ -1,6 +1,7 @@
 """App dependencies."""
 
 import logging
+from collections import defaultdict
 from functools import cache
 from typing import Annotated, Any, AsyncIterator
 
@@ -35,7 +36,7 @@ from neuroagent.tools import (
     SCSGetOneTool,
     SCSPostTool,
 )
-from neuroagent.tools.base_tool import BaseTool
+from neuroagent.tools.base_tool import AgentsNames, BaseTool
 
 logger = logging.getLogger(__name__)
 
@@ -181,41 +182,50 @@ async def get_selected_tools(
 ) -> list[type[BaseTool]]:
     """Get tools specified in the header from the frontend."""
     if request.method == "GET":
-        return tool_list
+        selected_tools = tool_list
 
     body = await request.json()
     if body.get("tool_selection") is None:
-        return tool_list
+        selected_tools = tool_list
     else:
         tool_map = {tool.name: tool for tool in tool_list}
         selected_tools = [
             tool_map[name] for name in body["tool_selection"] if name in tool_map.keys()
         ]
-        return selected_tools
+
+    # Dispatch tools to their respective agent
+    agent_tool_mapping = defaultdict(list)
+
+    # Dispatch tools into their respective agent
+    for tool in selected_tools:
+        agent_tool_mapping[tool.agent].append(tool)
+    return agent_tool_mapping
 
 
-def get_starting_agent(
+def get_triage_agent(
     settings: Annotated[Settings, Depends(get_settings)],
     tool_list: Annotated[list[type[BaseTool]], Depends(get_selected_tools)],
 ) -> Agent:
     """Get the starting agent."""
     logger.info(f"Loading model {settings.openai.model}.")
+    # base_instructions = """You are a helpful assistant helping scientists with neuro-scientific questions.
+    #             You must always specify in your answers from which brain regions the information is extracted.
+    #             Do no blindly repeat the brain region requested by the user, use the output of the tools instead."""
+
+    # storage_instructions = (
+    #     f"All files in storage can be viewed under {settings.misc.frontend_url}/viewer/{{storage_id}}. "
+    #     "When referencing storage files, always replace {{storage_id}} with the actual storage ID. "
+    #     "Format the links as standard markdown links like: [Description](URL), do not try to embed them as images."
+    #     if settings.misc.frontend_url
+    #     else "Never try to generate links to internal storage ids"
+    # )
     base_instructions = """You are a helpful assistant helping scientists with neuro-scientific questions.
-                You must always specify in your answers from which brain regions the information is extracted.
-                Do no blindly repeat the brain region requested by the user, use the output of the tools instead."""
-
-    storage_instructions = (
-        f"All files in storage can be viewed under {settings.misc.frontend_url}/viewer/{{storage_id}}. "
-        "When referencing storage files, always replace {{storage_id}} with the actual storage ID. "
-        "Format the links as standard markdown links like: [Description](URL), do not try to embed them as images."
-        if settings.misc.frontend_url
-        else "Never try to generate links to internal storage ids"
-    )
-
+    Determine which agent is best suited to handle the user's request, and transfer the conversation to that agent.
+    Answer only very generic queries that do not require handing off to another agent."""
     agent = Agent(
-        name="Agent",
-        instructions=f"{base_instructions}\n{storage_instructions}",
-        tools=tool_list,
+        name=AgentsNames.TRIAGE_AGENT,
+        instructions=base_instructions,
+        tools=tool_list[AgentsNames.TRIAGE_AGENT],
         model=settings.openai.model,
     )
     return agent
@@ -264,7 +274,7 @@ def get_s3_client(
 
 def get_context_variables(
     settings: Annotated[Settings, Depends(get_settings)],
-    starting_agent: Annotated[Agent, Depends(get_starting_agent)],
+    starting_agent: Annotated[Agent, Depends(get_triage_agent)],
     token: Annotated[str, Depends(auth)],
     httpx_client: Annotated[AsyncClient, Depends(get_httpx_client)],
     thread: Annotated[Threads, Depends(get_thread)],

@@ -10,7 +10,7 @@ from efel.units import get_unit
 from httpx import AsyncClient
 from pydantic import BaseModel, Field
 
-from neuroagent.tools.base_tool import BaseMetadata, BaseTool
+from neuroagent.tools.base_tool import AgentsNames, BaseMetadata, BaseTool
 from neuroagent.utils import get_kg_data
 
 logger = logging.getLogger(__name__)
@@ -201,6 +201,7 @@ class ElectrophysFeatureTool(BaseTool):
     • Compare electrical properties across different protocols
 
     Provide a trace ID to analyze its electrophysiological features."""
+    agent: ClassVar[AgentsNames] = AgentsNames.EXPLORE_AGENT
     input_schema: ElectrophysInput
     metadata: ElectrophysMetadata
 

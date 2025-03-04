@@ -17,7 +17,7 @@ from neuroagent.schemas import (
     PiechartValue,
     ScatterplotValue,
 )
-from neuroagent.tools.base_tool import BaseMetadata, BaseTool
+from neuroagent.tools.base_tool import AgentsNames, BaseMetadata, BaseTool
 from neuroagent.utils import save_to_storage
 
 logger = logging.getLogger(__name__)
@@ -90,7 +90,7 @@ class PlotGeneratorTool(BaseTool):
     • Scatter plots - For showing relationships between two variables
     • Histograms - For displaying distribution of numerical data
     • Line charts - For showing trends over a continuous range"""
-
+    agent: ClassVar[AgentsNames] = AgentsNames.UTILITY_AGENT
     input_schema: PlotInput
     metadata: PlotMetadata
 

@@ -17,7 +17,7 @@ from neuroagent.schemas import (
     PiechartValue,
     ScatterplotValue,
 )
-from neuroagent.tools.base_tool import BaseMetadata, BaseTool
+from neuroagent.tools.base_tool import AgentsNames, BaseMetadata, BaseTool
 from neuroagent.utils import save_to_storage
 
 logger = logging.getLogger(__name__)
@@ -54,7 +54,7 @@ class RandomPlotGeneratorTool(BaseTool):
     description_frontend: ClassVar[str] = (
         """Generate a random plot and save it to object storage."""
     )
-
+    agent: ClassVar[AgentsNames] = AgentsNames.UTILITY_AGENT
     input_schema: RandomPlotInput
     metadata: RandomPlotMetadata
 

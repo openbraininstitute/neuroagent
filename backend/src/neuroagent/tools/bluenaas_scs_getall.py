@@ -7,7 +7,7 @@ from httpx import AsyncClient
 from pydantic import BaseModel, Field
 
 from neuroagent.bluenaas_models import PaginatedResponseSimulationDetailsResponse
-from neuroagent.tools.base_tool import BaseMetadata, BaseTool
+from neuroagent.tools.base_tool import AgentsNames, BaseMetadata, BaseTool
 
 logger = logging.getLogger(__name__)
 
@@ -54,6 +54,7 @@ class SCSGetAllTool(BaseTool):
     • Browse through simulation results using pagination
 
     Returns a list of simulations with their status and metadata."""
+    agent: ClassVar[AgentsNames] = AgentsNames.SIMULATION_AGENT
     metadata: SCSGetAllMetadata
     input_schema: InputSCSGetAll
 

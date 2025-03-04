@@ -5,13 +5,13 @@ from typing import Any, Callable
 # Third-party imports
 from pydantic import BaseModel, ConfigDict
 
-from neuroagent.tools.base_tool import BaseTool
+from neuroagent.tools.base_tool import AgentsNames, BaseTool
 
 
 class Agent(BaseModel):
     """Agent class."""
 
-    name: str = "Agent"
+    name: AgentsNames
     model: str = "gpt-4o-mini"
     instructions: str | Callable[[], str] = "You are a helpful agent."
     tools: list[type[BaseTool]] = []
