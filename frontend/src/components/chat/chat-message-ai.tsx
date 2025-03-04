@@ -8,6 +8,7 @@ type ChatMessageAIProps = {
   hasTools: boolean;
   toolsCollapsed: boolean;
   toggleCollapse: () => void;
+  messageId: string;
 };
 
 export const ChatMessageAI = function ChatMessageAI({
@@ -15,6 +16,7 @@ export const ChatMessageAI = function ChatMessageAI({
   hasTools,
   toolsCollapsed,
   toggleCollapse,
+  messageId,
 }: ChatMessageAIProps) {
   return (
     <div className="flex justify-start mt-4">
@@ -34,10 +36,7 @@ export const ChatMessageAI = function ChatMessageAI({
       <Card className="max-w-[70%] bg-transparent shadow-none border-none mt-1">
         <CardContent>
           <span className="prose text-lg pt-8 text-left dark:prose-invert">
-            <MemoizedMarkdown
-              content={content || ""}
-              id={content?.slice(0, 20) || "empty"}
-            />
+            <MemoizedMarkdown content={content || ""} id={messageId} />
           </span>
         </CardContent>
       </Card>

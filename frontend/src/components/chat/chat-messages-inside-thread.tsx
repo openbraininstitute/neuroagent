@@ -85,6 +85,7 @@ export function ChatMessagesInsideThread({
           ) : (
             <ChatMessageAI
               key={message.id}
+              messageId={message.id}
               content={message.content}
               hasTools={(associatedTools.get(message.id)?.size ?? 0) > 0}
               toolsCollapsed={Array.from(
