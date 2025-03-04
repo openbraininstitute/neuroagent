@@ -9,12 +9,7 @@ export default function ChatInputLoading({ newMessage }: ChatComponentProps) {
   return (
     <div className="flex flex-col h-full">
       <div className="flex-1 flex flex-col overflow-y-auto">
-        <ChatMessageHuman
-          key="temp"
-          id="temp"
-          threadId="temp"
-          content={newMessage}
-        />
+        <ChatMessageHuman key="temp" content={newMessage} />
       </div>
       <form className="flex flex-col justify-center items-center gap-4 mb-4">
         <div className="flex items-center min-w-[70%] max-w-[100%] border-2 border-gray-500 rounded-full overflow-hidden">
