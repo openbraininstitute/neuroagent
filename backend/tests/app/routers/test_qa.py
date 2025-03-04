@@ -67,9 +67,7 @@ def test_chat_streamed(app_client, httpx_mock, patch_required_env, db_connection
         b" thalamus}\n This is an amazingly well streamed response. I can't believe how"
         b" good it is!"
     )
-    httpx_mock.add_response(
-        url=f"{test_settings.virtual_lab.get_project_url}/test_vlab/projects/test_project"
-    )
+
     with app_client as app_client:
         create_output = app_client.post(
             "/threads?virtual_lab_id=test_vlab&project_id=test_project"

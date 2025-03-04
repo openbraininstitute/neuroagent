@@ -14,8 +14,10 @@ from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession
 from starlette.status import HTTP_401_UNAUTHORIZED
 
 from neuroagent.agent_routine import AgentsRoutine
+from neuroagent.app.app_utils import validate_project
 from neuroagent.app.config import Settings
 from neuroagent.app.database.sql_schemas import Threads
+from neuroagent.app.schemas import UserInfo
 from neuroagent.new_types import Agent
 from neuroagent.tools import (
     ElectrophysFeatureTool,
@@ -129,11 +131,11 @@ async def get_session(
         yield session
 
 
-async def get_user_id(
+async def get_user_info(
     token: Annotated[str, Depends(auth)],
     settings: Annotated[Settings, Depends(get_settings)],
     httpx_client: Annotated[AsyncClient, Depends(get_httpx_client)],
-) -> str:
+) -> UserInfo:
     """Validate JWT token and returns user ID."""
     if settings.keycloak.user_info_endpoint:
         try:
@@ -142,8 +144,7 @@ async def get_user_id(
                 headers={"Authorization": f"Bearer {token}"},
             )
             response.raise_for_status()
-            user_info = response.json()
-            return user_info["sub"]
+            return UserInfo(**response.json())
         except HTTPStatusError:
             raise HTTPException(
                 status_code=HTTP_401_UNAUTHORIZED, detail="Invalid token."
@@ -221,14 +222,14 @@ def get_starting_agent(
 
 
 async def get_thread(
-    user_id: Annotated[str, Depends(get_user_id)],
+    user_info: Annotated[UserInfo, Depends(get_user_info)],
     thread_id: str,
     session: Annotated[AsyncSession, Depends(get_session)],
 ) -> Threads:
     """Check if the current thread / user matches."""
     thread_result = await session.execute(
         select(Threads).where(
-            Threads.user_id == user_id, Threads.thread_id == thread_id
+            Threads.user_id == user_info.sub, Threads.thread_id == thread_id
         )
     )
     thread = thread_result.scalars().one_or_none()
@@ -239,6 +240,11 @@ async def get_thread(
                 "detail": "Thread not found.",
             },
         )
+    validate_project(
+        groups=user_info.groups,
+        virtual_lab_id=thread.vlab_id,
+        project_id=thread.project_id,
+    )
     return thread
 
 
@@ -263,7 +269,7 @@ def get_context_variables(
     httpx_client: Annotated[AsyncClient, Depends(get_httpx_client)],
     thread: Annotated[Threads, Depends(get_thread)],
     s3_client: Annotated[Any, Depends(get_s3_client)],
-    user_id: Annotated[str, Depends(get_user_id)],
+    user_info: Annotated[UserInfo, Depends(get_user_info)],
 ) -> dict[str, Any]:
     """Get the context variables to feed the tool's metadata."""
     return {
@@ -288,7 +294,7 @@ def get_context_variables(
         "vlab_id": thread.vlab_id,
         "project_id": thread.project_id,
         "s3_client": s3_client,
-        "user_id": user_id,
+        "user_id": user_info.sub,
         "thread_id": thread.thread_id,
     }
 

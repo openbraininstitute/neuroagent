@@ -50,9 +50,11 @@ export function HilRefusalFeedbackDialog({
           onChange={(e) => setFeedback(e.target.value)}
           placeholder="Please could you instead..."
           onKeyDown={(e) => {
-            if (e.key === "Enter" && !e.shiftKey) {
+            if (e.key === "Enter") {
               e.preventDefault();
-              handleSubmit();
+              if (!e.shiftKey) {
+                handleSubmit();
+              }
             }
           }}
           className="min-h-[100px]"
