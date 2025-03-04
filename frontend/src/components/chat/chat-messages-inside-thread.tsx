@@ -1,8 +1,9 @@
 import { MessageStrict } from "@/lib/types";
+import { getAssociatedTools } from "@/lib/utils";
 import { ChatMessageAI } from "./chat-message-ai";
 import { ChatMessageHuman } from "./chat-message-human";
 import { ChatMessageTool } from "./chat-message-tool";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
 
 interface ChatMessagesInsideThreadProps {
   messages: MessageStrict[];
@@ -23,54 +24,47 @@ export function ChatMessagesInsideThread({
 }: ChatMessagesInsideThreadProps) {
   const [collapsedTools, setCollapsedTools] = useState<Set<string>>(new Set());
 
-  // Memoize the associated tools computation
+  // Use the utility function in useMemo
   const associatedTools = useMemo(
-    () =>
-      messages.reduce((toolMap, message, index) => {
-        if (message.role === "assistant" && !message.toolInvocations) {
-          const toolIds = new Set<string>();
-          for (let i = index - 1; i >= 0; i--) {
-            if (messages[i].role === "user") break;
-            const msg = messages[i];
-            if (msg?.role === "assistant" && msg.toolInvocations?.length) {
-              msg.toolInvocations.forEach(() => toolIds.add(msg.id));
-            }
-          }
-          toolMap.set(message.id, toolIds);
-        }
-        return toolMap;
-      }, new Map<string, Set<string>>()),
+    () => getAssociatedTools(messages),
     [messages],
   );
 
+  // Create a callback for toggling tool visibility
+  const toggleToolVisibility = useCallback(
+    (messageId: string) => {
+      const toolsToToggle = associatedTools.get(messageId);
+      if (!toolsToToggle) return;
+
+      setCollapsedTools((prev) => {
+        const newSet = new Set(prev);
+        for (const id of toolsToToggle) {
+          if (newSet.has(id)) {
+            newSet.delete(id);
+          } else {
+            newSet.add(id);
+          }
+        }
+        return newSet;
+      });
+    },
+    [associatedTools],
+  );
+
+  // Create toggle functions map using the callback
   const toggleFunctions = useMemo(() => {
     const functionMap = new Map<string, () => void>();
-
     messages.forEach((message) => {
       if (message.role === "assistant" && !message.toolInvocations) {
-        const toolsToToggle = associatedTools.get(message.id);
-        if (!toolsToToggle) return;
-
-        functionMap.set(message.id, () => {
-          setCollapsedTools((prev) => {
-            const newSet = new Set(prev);
-            for (const id of toolsToToggle) {
-              if (newSet.has(id)) {
-                newSet.delete(id);
-              } else {
-                newSet.add(id);
-              }
-            }
-            return newSet;
-          });
-        });
+        if (associatedTools.has(message.id)) {
+          functionMap.set(message.id, () => toggleToolVisibility(message.id));
+        }
       }
     });
-
     return functionMap;
-  }, [messages, associatedTools]);
+  }, [messages, toggleToolVisibility]);
 
-  // Add this new memoized map of message updater functions
+  // Memoize message updaters
   const messageUpdaters = useMemo(() => {
     const updaterMap = new Map<
       string,
