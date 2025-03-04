@@ -1,11 +1,10 @@
 import { Card, CardContent } from "@/components/ui/card";
-import { memo } from "react";
 
 type ChatMessageHumanProps = {
   content?: string;
 };
 
-export const ChatMessageHuman = memo(function ChatMessageHuman({
+export const ChatMessageHuman = function ChatMessageHuman({
   content,
 }: ChatMessageHumanProps) {
   return (
@@ -17,4 +16,4 @@ export const ChatMessageHuman = memo(function ChatMessageHuman({
       </Card>
     </div>
   );
-});
+};

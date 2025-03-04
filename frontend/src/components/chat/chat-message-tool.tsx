@@ -15,7 +15,7 @@ type ChatMessageToolProps = {
   setMessage: (updater: (msg: MessageStrict) => MessageStrict) => void;
 };
 
-export const ChatMessageTool = React.memo(function ChatMessageTool({
+export const ChatMessageTool = function ChatMessageTool({
   threadId,
   tool,
   availableTools,
@@ -100,4 +100,4 @@ export const ChatMessageTool = React.memo(function ChatMessageTool({
       </div>
     </div>
   );
-});
+};

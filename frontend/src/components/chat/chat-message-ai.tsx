@@ -1,4 +1,3 @@
-import { memo } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { LoaderPinwheel, ChevronDown, Wrench } from "lucide-react";
@@ -11,7 +10,7 @@ type ChatMessageAIProps = {
   toggleCollapse: () => void;
 };
 
-export const ChatMessageAI = memo(function ChatMessageAI({
+export const ChatMessageAI = function ChatMessageAI({
   content,
   hasTools,
   toolsCollapsed,
@@ -44,4 +43,4 @@ export const ChatMessageAI = memo(function ChatMessageAI({
       </Card>
     </div>
   );
-});
+};
