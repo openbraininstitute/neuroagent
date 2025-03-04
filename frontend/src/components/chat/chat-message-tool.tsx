@@ -1,3 +1,5 @@
+"use client";
+
 import { useState, useEffect } from "react";
 import { MessageStrict } from "@/lib/types";
 import { HumanValidationDialog } from "@/components/chat/human-validation-dialog";

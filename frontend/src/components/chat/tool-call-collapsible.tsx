@@ -1,3 +1,5 @@
+"use client";
+
 import { useState } from "react";
 import { Eye, Info } from "lucide-react";
 import { Card, CardContent, CardFooter, CardTitle } from "@/components/ui/card";

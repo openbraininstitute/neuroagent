@@ -1,3 +1,5 @@
+"use client";
+
 import { MessageStrict } from "@/lib/types";
 import { getAssociatedTools } from "@/lib/utils";
 import { ChatMessageAI } from "./chat-message-ai";
