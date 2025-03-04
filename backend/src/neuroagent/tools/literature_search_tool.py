@@ -55,7 +55,7 @@ class LiteratureSearchMetadata(BaseMetadata):
     use_reranker: bool
 
 
-class LiteratuSearchOutput(BaseModel):
+class LiteratureSearchOutput(BaseModel):
     """Results of the Litterature Search API."""
 
     article_title: str
@@ -170,7 +170,7 @@ class LiteratureSearchTool(BaseTool):
         """Process output."""
         paragraphs_metadata = [ParagraphMetadata(**paragraph) for paragraph in output]
         paragraphs_output = [
-            LiteratuSearchOutput(
+            LiteratureSearchOutput(
                 article_title=paragraph.article_title,
                 article_authors=paragraph.article_authors,
                 paragraph=paragraph.paragraph,
