@@ -9,6 +9,7 @@ import { ExtendedSession } from "@/lib/auth";
 import { useStore } from "@/lib/store";
 import { ChatInputInsideThread } from "@/components/chat/chat-input-inside-thread";
 import { ChatMessagesInsideThread } from "@/components/chat/chat-messages-inside-thread";
+import { generateEditTitle } from "@/actions/generate-edit-thread";
 
 type ChatPageProps = {
   threadId: string;
@@ -71,6 +72,7 @@ export function ChatPage({
         role: "user",
         content: newMessage,
       });
+      generateEditTitle(null, threadId, newMessage);
       setNewMessage("");
       handleSubmit(undefined, { allowEmptySubmit: true });
     }
