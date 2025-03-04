@@ -3,7 +3,7 @@ import { getAssociatedTools } from "@/lib/utils";
 import { ChatMessageAI } from "./chat-message-ai";
 import { ChatMessageHuman } from "./chat-message-human";
 import { ChatMessageTool } from "./chat-message-tool";
-import { useState, useMemo, useCallback } from "react";
+import { useState } from "react";
 
 interface ChatMessagesInsideThreadProps {
   messages: MessageStrict[];
@@ -24,70 +24,33 @@ export function ChatMessagesInsideThread({
 }: ChatMessagesInsideThreadProps) {
   const [collapsedTools, setCollapsedTools] = useState<Set<string>>(new Set());
 
-  // Use the utility function in useMemo
-  const associatedTools = useMemo(
-    () => getAssociatedTools(messages),
-    [messages],
-  );
+  const associatedTools = getAssociatedTools(messages);
 
-  // Create a callback for toggling tool visibility
-  const toggleToolVisibility = useCallback(
-    (messageId: string) => {
-      const toolsToToggle = associatedTools.get(messageId);
-      if (!toolsToToggle) return;
+  const handleToggleCollapse = (messageId: string) => {
+    const toolsToToggle = associatedTools.get(messageId);
+    if (!toolsToToggle) return;
 
-      setCollapsedTools((prev) => {
-        const newSet = new Set(prev);
-        for (const id of toolsToToggle) {
-          if (newSet.has(id)) {
-            newSet.delete(id);
-          } else {
-            newSet.add(id);
-          }
-        }
-        return newSet;
-      });
-    },
-    [associatedTools],
-  );
-
-  // Create toggle functions map using the callback
-  const toggleFunctions = useMemo(() => {
-    const functionMap = new Map<string, () => void>();
-    messages.forEach((message) => {
-      if (message.role === "assistant" && !message.toolInvocations) {
-        if (associatedTools.has(message.id)) {
-          functionMap.set(message.id, () => toggleToolVisibility(message.id));
+    setCollapsedTools((prev) => {
+      const newSet = new Set(prev);
+      for (const id of toolsToToggle) {
+        if (newSet.has(id)) {
+          newSet.delete(id);
+        } else {
+          newSet.add(id);
         }
       }
+      return newSet;
     });
-    return functionMap;
-  }, [messages, toggleToolVisibility]);
+  };
 
-  // Memoize message updaters
-  const messageUpdaters = useMemo(() => {
-    const updaterMap = new Map<
-      string,
-      (updater: (msg: MessageStrict) => MessageStrict) => void
-    >();
-
-    messages.forEach((message) => {
-      if (message.role === "assistant" && message.toolInvocations) {
-        updaterMap.set(
-          message.id,
-          (updater: (msg: MessageStrict) => MessageStrict) => {
-            setMessages((messages) =>
-              messages.map((msg) =>
-                msg.id === message.id ? updater(msg) : msg,
-              ),
-            );
-          },
-        );
-      }
-    });
-
-    return updaterMap;
-  }, [messages, setMessages]);
+  const handleMessageUpdate = (
+    messageId: string,
+    updater: (msg: MessageStrict) => MessageStrict,
+  ) => {
+    setMessages((messages) =>
+      messages.map((msg) => (msg.id === messageId ? updater(msg) : msg)),
+    );
+  };
 
   return (
     <>
@@ -110,7 +73,9 @@ export function ChatMessagesInsideThread({
                       tool={tool}
                       availableTools={availableTools}
                       validated={validated}
-                      setMessage={messageUpdaters.get(message.id)!}
+                      setMessage={(updater) =>
+                        handleMessageUpdate(message.id, updater)
+                      }
                     />
                   )
                 );
@@ -123,7 +88,7 @@ export function ChatMessagesInsideThread({
               toolsCollapsed={Array.from(
                 associatedTools.get(message.id) || [],
               ).some((id) => collapsedTools.has(id))}
-              toggleCollapse={toggleFunctions.get(message.id) ?? (() => {})}
+              toggleCollapse={() => handleToggleCollapse(message.id)}
             />
           )
         ) : (
