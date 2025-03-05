@@ -55,6 +55,14 @@ class SettingsKeycloak(BaseModel):
         return f"{self.issuer}/protocol/openid-connect/userinfo"
 
 
+class SettingsSemanticScholar(BaseModel):
+    """Literature search API settings."""
+
+    semantic_scholar_api_key: SecretStr | None = None
+
+    model_config = ConfigDict(frozen=True)
+
+
 class SettingsWebSearch(BaseModel):
     """Literature search API settings."""
 
@@ -150,6 +158,7 @@ class SettingsTools(BaseModel):
     kg_morpho_features: SettingsKGMorpho = SettingsKGMorpho()
     me_model: SettingsGetMEModel = SettingsGetMEModel()
     web_search: SettingsWebSearch = SettingsWebSearch()
+    semantic_scholar: SettingsSemanticScholar = SettingsSemanticScholar()
 
     model_config = ConfigDict(frozen=True)
 

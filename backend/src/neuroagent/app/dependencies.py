@@ -301,6 +301,7 @@ def get_context_variables(
         "user_id": user_info.sub,
         "thread_id": thread.thread_id,
         "tavily_api_key": settings.tools.web_search.tavily_api_key,
+        "semantic_scholar_api_key": settings.tools.semantic_scholar.semantic_scholar_api_key,
     }
 
 
