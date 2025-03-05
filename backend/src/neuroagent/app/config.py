@@ -55,6 +55,14 @@ class SettingsKeycloak(BaseModel):
         return f"{self.issuer}/protocol/openid-connect/userinfo"
 
 
+class SettingsWebSearch(BaseModel):
+    """Literature search API settings."""
+
+    tavily_api_key: SecretStr | None = None
+
+    model_config = ConfigDict(frozen=True)
+
+
 class SettingsLiterature(BaseModel):
     """Literature search API settings."""
 
@@ -141,6 +149,7 @@ class SettingsTools(BaseModel):
     trace: SettingsTrace = SettingsTrace()
     kg_morpho_features: SettingsKGMorpho = SettingsKGMorpho()
     me_model: SettingsGetMEModel = SettingsGetMEModel()
+    web_search: SettingsWebSearch = SettingsWebSearch()
 
     model_config = ConfigDict(frozen=True)
 

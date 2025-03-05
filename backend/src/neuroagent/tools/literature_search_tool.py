@@ -58,7 +58,8 @@ class LiteratureSearchTool(BaseTool):
     • Getting information from peer-reviewed articles
     • Accessing research findings and academic knowledge
 
-    The search will return relevant paragraphs from scientific papers along with their source information."""
+    The search will return relevant paragraphs from scientific papers along with their source information.
+    When requested to list articles, list them by specifying their FULL title, authors, DOI and a summary that you will generate based on a mix of the abstract and the paragraph content."""
     description: ClassVar[
         str
     ] = """Searches the scientific literature. The tool should be used to gather general scientific knowledge. It is best suited for questions about neuroscience and medicine that are not about morphologies.
