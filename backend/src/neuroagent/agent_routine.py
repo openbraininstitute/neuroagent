@@ -187,7 +187,11 @@ class AgentsRoutine:
     ) -> AsyncIterator[str]:
         """Stream the agent response."""
         active_agent = agent
-        content = await messages_to_openai_content(messages)
+        content = (
+            messages
+            if isinstance(messages[0], dict)
+            else await messages_to_openai_content(messages)
+        )
         history = copy.deepcopy(content)
         init_len = len(messages)
         tool_map = {tool.name: tool for tool in agent.tools}
@@ -314,7 +318,9 @@ class AgentsRoutine:
             messages.append(
                 Messages(
                     order=len(messages),
-                    thread_id=messages[-1].thread_id,
+                    thread_id="temp"
+                    if isinstance(messages[-1], dict)
+                    else messages[-1].thread_id,
                     entity=get_entity(message),
                     content=json.dumps(message),
                     tool_calls=tool_calls,

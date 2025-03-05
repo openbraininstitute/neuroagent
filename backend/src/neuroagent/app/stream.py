@@ -17,8 +17,8 @@ async def stream_agent_response(
     agent: Agent,
     messages: list[Messages],
     context_variables: dict[str, Any],
-    thread: Threads,
     request: Request,
+    thread: Threads | None = None,
 ) -> AsyncIterator[str]:
     """Redefine fastAPI connections to enable streaming."""
     # Restore the OpenAI client
@@ -38,21 +38,23 @@ async def stream_agent_response(
         },
     )
     context_variables["httpx_client"] = httpx_client
-    # Restore the session
-    engine = request.app.state.engine
-    session = AsyncSession(engine)
-    # Need to rebind the messages to the session
-    session.add_all(messages)
+    if thread:
+        # Restore the session
+        engine = request.app.state.engine
+        session = AsyncSession(engine)
+        # Need to rebind the messages to the session
+        session.add_all(messages)
 
     iterator = connected_agents_routine.astream(agent, messages, context_variables)
     async for chunk in iterator:
         yield chunk
 
-    # Save the new messages in DB
-    thread.update_date = utc_now()
+    if thread:
+        # Save the new messages in DB
+        thread.update_date = utc_now()
 
-    # For some weird reason need to re-add messages, but only post validation ones
-    session.add_all(messages)
+        # For some weird reason need to re-add messages, but only post validation ones
+        session.add_all(messages)
 
-    await session.commit()
-    await session.close()
+        await session.commit()
+        await session.close()

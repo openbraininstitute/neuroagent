@@ -65,6 +65,41 @@ class ClientRequest(BaseModel):
     model_config = ConfigDict(extra="ignore")
 
 
+class ClientAttachment(BaseModel):
+    """Vercel class."""
+
+    name: str
+    contentType: str
+    url: str
+
+
+class ToolInvocation(BaseModel):
+    """Vercel class for one shot chat."""
+
+    toolCallId: str
+    toolName: str
+    args: dict
+    result: str
+    # state: str
+    # step: int
+
+
+class ClientMessage(BaseModel):
+    """Vercel class for one shot chat."""
+
+    role: str
+    content: str
+    experimental_attachments: list[ClientAttachment] | None = None
+    toolInvocations: list[ToolInvocation] | None = None
+
+
+class ClientRequestWithHistory(BaseModel):
+    """Vercel class for one shot chat."""
+
+    messages: list[ClientMessage]
+    tool_selection: list[str] | None = None
+
+
 class Result(BaseModel):
     """
     Encapsulates the possible return values for an agent function.

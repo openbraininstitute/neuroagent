@@ -1,5 +1,6 @@
 """App utilities functions."""
 
+import json
 import logging
 from typing import Any
 
@@ -9,6 +10,7 @@ from sqlalchemy.ext.asyncio import AsyncEngine, create_async_engine
 from starlette.status import HTTP_401_UNAUTHORIZED
 
 from neuroagent.app.config import Settings
+from neuroagent.new_types import ClientMessage
 
 logger = logging.getLogger(__name__)
 
@@ -72,3 +74,55 @@ def validate_project(
     else:
         # No vlab nor project provided, nothing to do.
         return
+
+
+def vercel_to_openai(messages: list[ClientMessage]):
+    """Turn vercel messages into openai format."""
+    openai_messages = []
+
+    for message in messages:
+        parts = []
+
+        parts.append({"type": "text", "text": message.content})
+
+        if message.experimental_attachments:
+            for attachment in message.experimental_attachments:
+                if attachment.contentType.startswith("image"):
+                    parts.append(
+                        {"type": "image_url", "image_url": {"url": attachment.url}}
+                    )
+
+                elif attachment.contentType.startswith("text"):
+                    parts.append({"type": "text", "text": attachment.url})
+
+        if message.toolInvocations:
+            tool_calls = [
+                {
+                    "id": tool_invocation.toolCallId,
+                    "type": "function",
+                    "function": {
+                        "name": tool_invocation.toolName,
+                        "arguments": json.dumps(tool_invocation.args),
+                    },
+                }
+                for tool_invocation in message.toolInvocations
+            ]
+
+            openai_messages.append({"role": "assistant", "tool_calls": tool_calls})
+
+            tool_results = [
+                {
+                    "role": "tool",
+                    "content": json.dumps(tool_invocation.result),
+                    "tool_call_id": tool_invocation.toolCallId,
+                }
+                for tool_invocation in message.toolInvocations
+            ]
+
+            openai_messages.extend(tool_results)
+
+            continue
+
+        openai_messages.append({"role": message.role, "content": parts})
+
+    return openai_messages
