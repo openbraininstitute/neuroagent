@@ -63,7 +63,7 @@ async def question_suggestions(
         response_format=QuestionsSuggestions,
     )
     return QuestionsSuggestions(
-        suggestions=response.choices[0].message.parsed.suggestions
+        suggestions=response.choices[0].message.parsed.suggestions  # type: ignore
     )
 
 
