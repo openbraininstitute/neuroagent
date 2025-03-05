@@ -120,3 +120,21 @@ class UserInfo(BaseModel):
     given_name: str | None = None
     family_name: str | None = None
     email: str | None = None
+
+
+class UserHistory(BaseModel):
+    """Complete recorded history of the user."""
+
+    history: list[list[list[str]]]
+
+
+class Question(BaseModel):
+    """One suggested question by the LLM."""
+
+    question: str
+
+
+class QuestionsSuggestions(BaseModel):
+    """All suggested questions by the LLM."""
+
+    suggestions: list[Question]
