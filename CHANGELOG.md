@@ -83,6 +83,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - [frontend] - Tool selection is all checked when refreshing.
 - Fix bug for AI + tool calls.
 - [frontend] - Refactor
+- Websearch tools.
 
 ## [0.3.3] - 30.10.2024
 
