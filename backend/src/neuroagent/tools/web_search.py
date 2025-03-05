@@ -52,7 +52,7 @@ class WebSearchTool(BaseTool):
     metadata: WebSearchMetadata
     input_schema: WebSearchInput
 
-    async def arun(self):
+    async def arun(self) -> str:
         """Run the tools."""
         client = AsyncTavilyClient(
             api_key=self.metadata.tavily_api_key.get_secret_value()

@@ -48,7 +48,7 @@ class SemanticScholarTool(BaseTool):
     metadata: SemanticScholarMetadata
     input_schema: SemanticScholarInput
 
-    async def arun(self):
+    async def arun(self) -> str:
         """Run the tool."""
         headers = (
             {"x-api-key": self.metadata.semantic_scholar_api_key.get_secret_value()}
