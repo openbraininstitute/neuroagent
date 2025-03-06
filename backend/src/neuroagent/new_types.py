@@ -78,10 +78,10 @@ class ToolInvocation(BaseModel):
 
     toolCallId: str
     toolName: str
-    args: dict[str, str]
+    args: dict[str, Any]
     result: str
-    # state: str
-    # step: int
+
+    model_config = ConfigDict(extra="ignore")
 
 
 class ClientMessage(BaseModel):
@@ -92,12 +92,16 @@ class ClientMessage(BaseModel):
     experimental_attachments: list[ClientAttachment] | None = None
     toolInvocations: list[ToolInvocation] | None = None
 
+    model_config = ConfigDict(extra="ignore")
+
 
 class ClientRequestWithHistory(BaseModel):
     """Vercel class for one shot chat."""
 
     messages: list[ClientMessage]
     tool_selection: list[str] | None = None
+
+    model_config = ConfigDict(extra="ignore")
 
 
 class Result(BaseModel):
