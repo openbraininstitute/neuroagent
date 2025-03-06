@@ -112,11 +112,6 @@ async def get_threads(
         Threads.project_id == project_id,
     )
 
-    # if virtual_lab_id is not None:
-    #     query = query.where(Threads.vlab_id == virtual_lab_id)
-    # if project_id is not None:
-    #     query = query.where(Threads.project_id == project_id)
-
     thread_result = await session.execute(query)
     threads = thread_result.scalars().all()
     return [ThreadsRead(**thread.__dict__) for thread in threads]
