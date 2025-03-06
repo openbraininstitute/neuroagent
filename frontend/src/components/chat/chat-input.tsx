@@ -7,7 +7,6 @@ import { useStore } from "@/lib/store";
 import { ToolSelectionDropdown } from "@/components/chat/tool-selection-dropdown";
 import { Send } from "lucide-react";
 import ChatInputLoading from "@/components/chat/chat-input-loading";
-import { useRouter } from "next/navigation";
 import { convert_tools_to_set } from "@/lib/utils";
 import { OpenUserJourneyButton } from "./user-journey-dialog";
 
@@ -21,9 +20,8 @@ export function ChatInput({ availableTools }: ChatInputProps) {
   const checkedTools = useStore((state) => state.checkedTools);
   const setCheckedTools = useStore((state) => state.setCheckedTools);
   const [input, setInput] = useState("");
-  const router = useRouter();
 
-  const [state, action, isPending] = useActionState(createThread, null);
+  const [, action, isPending] = useActionState(createThread, null);
 
   const actionWrapper = () => {
     if (newMessage === "" && input !== "") {
@@ -31,13 +29,6 @@ export function ChatInput({ availableTools }: ChatInputProps) {
     }
     action();
   };
-
-  // Watch for state changes and redirect when ready
-  useEffect(() => {
-    if (!isPending && state?.success && state.threadId) {
-      router.push(`/threads/${state.threadId}`);
-    }
-  }, [state, isPending, router]);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
@@ -52,7 +43,7 @@ export function ChatInput({ availableTools }: ChatInputProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // Empty dependency array means this runs once on mount
 
-  return !(isPending || state) ? (
+  return !isPending ? (
     <div className="flex flex-col items-center gap-4 pl-2 pr-2">
       <h1 className="text-2xl font-bold mt-4 mb-6">
         What can I help you with?
