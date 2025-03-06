@@ -37,6 +37,7 @@ logger = logging.getLogger(__name__)
 
 @router.post("/question_suggestions")
 async def question_suggestions(
+    # client_info: Annotated[UserInfo, Depends(get_user_info)],
     openai_client: Annotated[AsyncOpenAI, Depends(get_openai_client)],
     settings: Annotated[Settings, Depends(get_settings)],
     body: UserHistory,
@@ -46,7 +47,8 @@ async def question_suggestions(
     messages = [
         {
             "role": "system",
-            "content": "The user is navigating on a website, and we record all of his last clicks. "
+            "content": "We provide a description of the platform, the open brain platform allows an atlas driven exploration of the mouse brain with different artifacts related to experimental and model data and more specifically neuron morphology (neuron structure including axons, soma and dendrite), electrophysiological recording (ie the electrical behavior of the neuron), ion channel, neuron density, bouton density, synapses, connections, electrical models also referred to as e-models, me-models which is the model of neuron with a specific morphology and electrical type, and the synaptome dictating how neurons are connected together. The platform also allows user to explore and build digital brain models at different scales ranging from molecular level to single neuron and larger circuits and brain regions. Users can also customize the models or create their own ones and change the cellular composition, and then run simulation experiments and perform analysis."
+            "The user is navigating on a website, and we record all of his last clicks. "
             "user_click_history = [[['brain_region', 'example'], ['artifact', 'example'], ['artifact', 'example'], ['artifact', 'example']], [['brain_region', 'example'], ['artifact', 'example']]]"
             "'brain_region' casn be any region of the mouse brain."
             "'artifact' can be :  'Morphology','Electrophysiology','Neuron density','Bouton density','Synapse per connection','E-model','ME-model','Synaptome' "
@@ -59,9 +61,10 @@ async def question_suggestions(
     ]
     response = await openai_client.beta.chat.completions.parse(
         messages=messages,  # type: ignore
-        model=settings.openai.model,
+        model="o3-mini",
         response_format=QuestionsSuggestions,
     )
+
     return QuestionsSuggestions(
         suggestions=response.choices[0].message.parsed.suggestions  # type: ignore
     )

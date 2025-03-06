@@ -9,6 +9,7 @@ import { Send } from "lucide-react";
 import ChatInputLoading from "@/components/chat/chat-input-loading";
 import { useRouter } from "next/navigation";
 import { convert_tools_to_set } from "@/lib/utils";
+import { OpenUserJourneyButton } from "./user-journey-dialog";
 
 type ChatInputProps = {
   availableTools: Array<{ slug: string; label: string }>;
@@ -81,6 +82,7 @@ export function ChatInput({ availableTools }: ChatInputProps) {
             disabled={isPending}
           />
           <div className="flex gap-2 mr-3">
+            <OpenUserJourneyButton />
             <ToolSelectionDropdown
               availableTools={availableTools}
               checkedTools={checkedTools}
