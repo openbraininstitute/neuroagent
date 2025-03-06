@@ -57,6 +57,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Displaying tool metadata
 - GET threads depends on vlab+project_id.
 - Object storage + plotting logic.
+- Keywords filtering for literature search.
 - [frontend] - bugfixes.
 
 ### Fixed
@@ -82,6 +83,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - [frontend] - Tool selection is all checked when refreshing.
 - Fix bug for AI + tool calls.
 - [frontend] - Fix docker compose redirect bug.
+- [frontend] - Refactor
 
 ## [0.3.3] - 30.10.2024
 
