@@ -136,7 +136,6 @@ class AgentsRoutine:
         tool = tool_map[name]
         try:
             input_schema = tool.__annotations__["input_schema"](**kwargs)
-            tool_metadata = tool.__annotations__["metadata"](**context_variables)
         except ValidationError as err:
             # Raise validation error if requested
             if raise_validation_errors:
@@ -148,6 +147,22 @@ class AgentsRoutine:
                     "tool_call_id": tool_call.tool_call_id,
                     "tool_name": name,
                     "content": err.json(),
+                }
+                return response, None
+
+        try:
+            tool_metadata = tool.__annotations__["metadata"](**context_variables)
+        except ValidationError as err:
+            # Raise validation error if requested
+            if raise_validation_errors:
+                raise err
+            else:
+                # Otherwise transforn it into an OpenAI response for the model to retry
+                response = {
+                    "role": "tool",
+                    "tool_call_id": tool_call.tool_call_id,
+                    "tool_name": name,
+                    "content": "The user is not allowed to run this tool. Don't call it again.",
                 }
                 return response, None
 
