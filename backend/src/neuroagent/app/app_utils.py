@@ -76,12 +76,12 @@ def validate_project(
         return
 
 
-def vercel_to_openai(messages: list[ClientMessage]):
+def vercel_to_openai(messages: list[ClientMessage]) -> list[dict[str, Any]]:
     """Turn vercel messages into openai format."""
     openai_messages = []
 
     for message in messages:
-        parts = []
+        parts: list[dict[str, str | dict[str, str]]] = []
 
         parts.append({"type": "text", "text": message.content})
 
@@ -119,7 +119,7 @@ def vercel_to_openai(messages: list[ClientMessage]):
                 for tool_invocation in message.toolInvocations
             ]
 
-            openai_messages.extend(tool_results)
+            openai_messages.extend(tool_results)  # type: ignore
 
             continue
 

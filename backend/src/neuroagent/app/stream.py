@@ -15,7 +15,7 @@ from neuroagent.new_types import Agent
 async def stream_agent_response(
     agents_routine: AgentsRoutine,
     agent: Agent,
-    messages: list[Messages],
+    messages: list[Messages] | list[dict[str, Any]],
     context_variables: dict[str, Any],
     request: Request,
     thread: Threads | None = None,

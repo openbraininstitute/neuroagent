@@ -78,7 +78,7 @@ class ToolInvocation(BaseModel):
 
     toolCallId: str
     toolName: str
-    args: dict
+    args: dict[str, str]
     result: str
     # state: str
     # step: int

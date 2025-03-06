@@ -180,17 +180,17 @@ class AgentsRoutine:
     async def astream(
         self,
         agent: Agent,
-        messages: list[Messages],
+        messages: list[Messages] | list[dict[str, Any]],
         context_variables: dict[str, Any] = {},
         model_override: str | None = None,
         max_turns: int | float = float("inf"),
     ) -> AsyncIterator[str]:
         """Stream the agent response."""
         active_agent = agent
-        content = (
+        content: list[dict[str, Any]] = (
             messages
             if isinstance(messages[0], dict)
-            else await messages_to_openai_content(messages)
+            else await messages_to_openai_content(messages)  # type: ignore
         )
         history = copy.deepcopy(content)
         init_len = len(messages)
@@ -316,7 +316,7 @@ class AgentsRoutine:
 
             # Stage the new message for addition to DB
             messages.append(
-                Messages(
+                Messages(  # type: ignore
                     order=len(messages),
                     thread_id="temp"
                     if isinstance(messages[-1], dict)
@@ -327,20 +327,20 @@ class AgentsRoutine:
                 )
             )
 
-            if not messages[-1].tool_calls:
+            if not messages[-1].tool_calls:  # type: ignore
                 yield f"e:{json.dumps(finish_data)}\n"
                 break
 
             # kick out tool calls that require HIL
             tool_calls_to_execute = [
                 tool_call
-                for tool_call in messages[-1].tool_calls
+                for tool_call in messages[-1].tool_calls  # type: ignore
                 if not tool_map[tool_call.name].hil
             ]
 
             tool_calls_with_hil = [
                 tool_call
-                for tool_call in messages[-1].tool_calls
+                for tool_call in messages[-1].tool_calls  # type: ignore
                 if tool_map[tool_call.name].hil
             ]
 
@@ -368,7 +368,7 @@ class AgentsRoutine:
                 [
                     Messages(
                         order=len(messages) + i,
-                        thread_id=messages[-1].thread_id,
+                        thread_id=messages[-1].thread_id,  # type: ignore
                         entity=Entity.TOOL,
                         content=json.dumps(tool_response),
                     )
