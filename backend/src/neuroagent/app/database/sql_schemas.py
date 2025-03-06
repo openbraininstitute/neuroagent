@@ -35,10 +35,10 @@ class Threads(Base):
         String, primary_key=True, default=lambda: uuid.uuid4().hex
     )
     vlab_id: Mapped[str] = mapped_column(
-        String, default="430108e9-a81d-4b13-b7b6-afca00195908", nullable=False
+        String, nullable=True
     )  # only default for now !
     project_id: Mapped[str] = mapped_column(
-        String, default="eff09ea1-be16-47f0-91b6-52a3ea3ee575", nullable=False
+        String, nullable=True
     )  # only default for now !
     title: Mapped[str] = mapped_column(String, default="New chat")
     creation_date: Mapped[datetime.datetime] = mapped_column(DateTime, default=utc_now)

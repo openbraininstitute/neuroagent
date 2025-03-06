@@ -15,48 +15,37 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import Cookies from "js-cookie";
-import { useRouter } from "next/navigation";
 import { saveSettings } from "@/actions/save-settings";
 import { useActionState } from "react";
 
 const formSchema = z.object({
-  projectID: z.string().min(1, { message: "Project ID is required" }),
-  virtualLabID: z.string().min(1, { message: "Virtual Lab ID is required" }),
+  projectID: z.string().or(z.undefined()),
+  virtualLabID: z.string().or(z.undefined()),
 });
 
 type ParameterFormProps = {
   initialValues?: {
-    projectID: string;
-    virtualLabID: string;
+    projectID?: string;
+    virtualLabID?: string;
   };
 };
 
 export function ParameterForm({
   initialValues = {
-    projectID: Cookies.get("projectID") || "",
-    virtualLabID: Cookies.get("virtualLabID") || "",
+    projectID: Cookies.get("projectID"),
+    virtualLabID: Cookies.get("virtualLabID"),
   },
 }: ParameterFormProps) {
-  const router = useRouter();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: initialValues,
   });
   const [, action] = useActionState(saveSettings, null);
 
-  const actionWrapper = (formData: FormData) => {
-    action(formData);
-    if (formData.get("projectID") && formData.get("virtualLabID")) {
-      router.push("/");
-    } else {
-      router.refresh();
-    }
-  };
-
   return (
     <div className="flex flex-row justify-center">
       <Form {...form}>
-        <form action={actionWrapper} className="w-1/2" autoComplete="off">
+        <form action={action} className="w-1/2" autoComplete="off">
           <FormField
             control={form.control}
             name="virtualLabID"

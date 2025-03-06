@@ -136,6 +136,7 @@ class AgentsRoutine:
         tool = tool_map[name]
         try:
             input_schema = tool.__annotations__["input_schema"](**kwargs)
+            tool_metadata = tool.__annotations__["metadata"](**context_variables)
         except ValidationError as err:
             # Raise validation error if requested
             if raise_validation_errors:
@@ -150,7 +151,6 @@ class AgentsRoutine:
                 }
                 return response, None
 
-        tool_metadata = tool.__annotations__["metadata"](**context_variables)
         tool_instance = tool(input_schema=input_schema, metadata=tool_metadata)
         # pass context_variables to agent functions
         try:
