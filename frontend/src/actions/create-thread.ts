@@ -17,7 +17,7 @@ export async function createThread() {
 
     const { projectID, virtualLabID } = await getSettings();
 
-    let body: Record<string, string> = {};
+    const body: Record<string, string> = {};
     if (virtualLabID !== undefined) {
       body.virtual_lab_id = virtualLabID;
     }

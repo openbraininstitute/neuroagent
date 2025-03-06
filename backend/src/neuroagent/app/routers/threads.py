@@ -106,12 +106,16 @@ async def get_threads(
         project_id=project_id,
         groups=user_info.groups,
     )
-    query = select(Threads).where(Threads.user_id == user_info.sub)
+    query = select(Threads).where(
+        Threads.user_id == user_info.sub,
+        Threads.vlab_id == virtual_lab_id,
+        Threads.project_id == project_id,
+    )
 
-    if virtual_lab_id is not None:
-        query = query.where(Threads.vlab_id == virtual_lab_id)
-    if project_id is not None:
-        query = query.where(Threads.project_id == project_id)
+    # if virtual_lab_id is not None:
+    #     query = query.where(Threads.vlab_id == virtual_lab_id)
+    # if project_id is not None:
+    #     query = query.where(Threads.project_id == project_id)
 
     thread_result = await session.execute(query)
     threads = thread_result.scalars().all()

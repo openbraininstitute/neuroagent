@@ -13,7 +13,7 @@ async function getThreads(): Promise<BThread[]> {
 
     const { projectID, virtualLabID } = await getSettings();
 
-    let queryParams: Record<string, string> = {};
+    const queryParams: Record<string, string> = {};
     if (virtualLabID !== undefined) {
       queryParams.virtual_lab_id = virtualLabID;
     }

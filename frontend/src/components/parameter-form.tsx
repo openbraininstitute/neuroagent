@@ -19,8 +19,8 @@ import { saveSettings } from "@/actions/save-settings";
 import { useActionState } from "react";
 
 const formSchema = z.object({
-  projectID: z.string().or(z.undefined()),
-  virtualLabID: z.string().or(z.undefined()),
+  projectID: z.string(),
+  virtualLabID: z.string(),
 });
 
 type ParameterFormProps = {
@@ -32,8 +32,8 @@ type ParameterFormProps = {
 
 export function ParameterForm({
   initialValues = {
-    projectID: Cookies.get("projectID"),
-    virtualLabID: Cookies.get("virtualLabID"),
+    projectID: Cookies.get("projectID") || "",
+    virtualLabID: Cookies.get("virtualLabID") || "",
   },
 }: ParameterFormProps) {
   const form = useForm<z.infer<typeof formSchema>>({
