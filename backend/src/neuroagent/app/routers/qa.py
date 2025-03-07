@@ -24,7 +24,7 @@ from neuroagent.app.dependencies import (
     get_thread,
     get_user_info,
 )
-from neuroagent.app.schemas import QuestionsSuggestions, UserHistory, UserInfo
+from neuroagent.app.schemas import QuestionsSuggestions, UserClickHistory, UserInfo
 from neuroagent.app.stream import stream_agent_response
 from neuroagent.new_types import (
     Agent,
@@ -41,28 +41,34 @@ async def question_suggestions(
     client_info: Annotated[UserInfo, Depends(get_user_info)],
     openai_client: Annotated[AsyncOpenAI, Depends(get_openai_client)],
     settings: Annotated[Settings, Depends(get_settings)],
-    body: UserHistory,
+    body: UserClickHistory,
 ) -> QuestionsSuggestions:
     """Generate a short thread title based on the user's first message and update thread's title."""
     # Send it to OpenAI longside with the system prompt asking for summary
     messages = [
         {
             "role": "system",
-            "content": "We provide a description of the platform, the open brain platform allows an atlas driven exploration of the mouse brain with different artifacts related to experimental and model data and more specifically neuron morphology (neuron structure including axons, soma and dendrite), electrophysiological recording (ie the electrical behavior of the neuron), ion channel, neuron density, bouton density, synapses, connections, electrical models also referred to as e-models, me-models which is the model of neuron with a specific morphology and electrical type, and the synaptome dictating how neurons are connected together. The platform also allows user to explore and build digital brain models at different scales ranging from molecular level to single neuron and larger circuits and brain regions. Users can also customize the models or create their own ones and change the cellular composition, and then run simulation experiments and perform analysis."
-            "The user is navigating on a website, and we record all of his last clicks. "
-            "user_click_history = [[['brain_region', 'example'], ['artifact', 'example'], ['artifact', 'example'], ['artifact', 'example']], [['brain_region', 'example'], ['artifact', 'example']]]"
-            "'brain_region' casn be any region of the mouse brain."
+            "content": "We provide a description of the platform, the open brain platform allows an atlas driven exploration of the mouse brain with different artifacts "
+            "related to experimental and model data and more specifically neuron morphology (neuron structure including axons, soma and dendrite), electrophysiological recording "
+            "(ie the electrical behavior of the neuron), ion channel, neuron density, bouton density, synapses, connections, electrical models also referred to as e-models, me-models "
+            "which is the model of neuron with a specific morphology and electrical type, and the synaptome dictating how neurons are connected together. "
+            "The platform also allows user to explore and build digital brain models at different scales ranging from molecular level to single neuron and larger circuits and brain regions. "
+            "Users can also customize the models or create their own ones and change the cellular composition, and then run simulation experiments and perform analysis. "
+            "The user is navigating on the website, and we record the last elements he accessed on the website. Here is what the user's history will look like :"
+            "user_history = [[['brain_region', 'example'], ['artifact', 'example'], ['artifact', 'example'], ['artifact', 'example']], [['brain_region', 'example'], ['artifact', 'example']]]"
+            "'brain_region' can be any region of the mouse brain."
             "'artifact' can be :  'Morphology','Electrophysiology','Neuron density','Bouton density','Synapse per connection','E-model','ME-model','Synaptome' "
             "and 'data_type' can be 'Experimental data' or 'Model Data'"
-            "The first element of the list represents the last click of the user, so it should naturally be more relevant."  # THIS SHOULD BE CHECKED !!
-            "From these clicks, try to infer some potential questions the user might want to ask to a chatbot that is able to search for papers in the litterature."
+            "Every time the user clicks on a brain region, a new list is created where we record all the artifact he has clicked on while still browsing this region."
+            "The last element of the list represents the last click of the user, so it should naturally be more relevant."
+            "From the user history, try to infer the user's intent on the platform. From it generate some questions the user might want to ask to a chatbot that is able to search for papers in the literature."
             "The questions should only be about the litterature. Each question should be short and concise, no more than 20 words. In total there should not be more than 5 questions.",
         },
-        {"role": "user", "content": json.dumps(body.history)},
+        {"role": "user", "content": json.dumps(body.click_history)},
     ]
     response = await openai_client.beta.chat.completions.parse(
         messages=messages,  # type: ignore
-        model=settings.openai.model,
+        model=settings.openai.suggestion_model,
         response_format=QuestionsSuggestions,
     )
 

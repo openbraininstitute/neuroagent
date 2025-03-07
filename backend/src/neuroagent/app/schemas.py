@@ -122,10 +122,10 @@ class UserInfo(BaseModel):
     email: str | None = None
 
 
-class UserHistory(BaseModel):
+class UserClickHistory(BaseModel):
     """Complete recorded history of the user."""
 
-    history: list[list[list[str]]]
+    click_history: list[list[list[str]]]
 
 
 class Question(BaseModel):

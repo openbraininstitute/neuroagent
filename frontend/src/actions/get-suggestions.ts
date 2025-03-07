@@ -11,7 +11,7 @@ export async function getSuggestions(user_history: string[][][]) {
       return { success: false, error: "Not authenticated" };
     }
 
-    const bodyData = { history: user_history };
+    const bodyData = { click_history: user_history };
 
     const threadResponse = (await fetcher({
       method: "POST",
