@@ -4,7 +4,10 @@ import { auth } from "@/lib/auth";
 import { fetcher } from "@/lib/fetcher";
 import { SuggestedQuestions } from "@/lib/types";
 
-export async function getSuggestions(user_history: string[][][]) {
+export async function getSuggestions(
+  previousState: unknown,
+  user_history: string[][][],
+) {
   try {
     const session = await auth();
     if (!session?.accessToken) {
@@ -23,6 +26,6 @@ export async function getSuggestions(user_history: string[][][]) {
     return threadResponse;
   } catch (error) {
     console.error("Error while generating the question suggestions.", error);
-    return "";
+    return { success: false, error: "Failed to generate suggestions" };
   }
 }

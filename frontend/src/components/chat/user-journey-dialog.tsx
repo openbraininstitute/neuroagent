@@ -3,7 +3,6 @@
 import React, { useState } from "react";
 import { useTheme } from "next-themes";
 import { Plus } from "lucide-react";
-import { getSuggestions } from "@/actions/get-suggestions";
 import {
   JsonData,
   JsonEditor,
@@ -18,20 +17,17 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { SuggestedQuestions } from "@/lib/types";
 
 type UserJourneyDialogProps = {
   isDialogOpen: boolean;
   setIsDialogOpen: (open: boolean) => void;
-  setSuggestions: React.Dispatch<
-    React.SetStateAction<SuggestedQuestions | undefined>
-  >;
+  querySuggestions: (suggestionInput: string[][][]) => void;
 };
 
 export function UserJourneyDialog({
   isDialogOpen,
   setIsDialogOpen,
-  setSuggestions,
+  querySuggestions,
 }: UserJourneyDialogProps) {
   const defaultUserFlow = [
     [
@@ -52,10 +48,9 @@ export function UserJourneyDialog({
   const { theme } = useTheme();
   const isLightTheme = theme === "light";
 
-  const handleSubmit = async () => {
+  const handleSubmit = () => {
     setIsDialogOpen(false);
-    const questions = await getSuggestions(userFlowData);
-    setSuggestions(questions as SuggestedQuestions);
+    querySuggestions(userFlowData);
   };
 
   return (
@@ -101,13 +96,13 @@ export function UserJourneyDialog({
 }
 
 type UserJourneyButtonProp = {
-  setSuggestions: React.Dispatch<
-    React.SetStateAction<SuggestedQuestions | undefined>
-  >;
+  pendingSuggestions: boolean;
+  querySuggestions: (suggestionInput: string[][][]) => void;
 };
 
 export function OpenUserJourneyButton({
-  setSuggestions,
+  querySuggestions,
+  pendingSuggestions,
 }: UserJourneyButtonProp) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
@@ -118,12 +113,19 @@ export function OpenUserJourneyButton({
         className="mr-2"
         onClick={() => setIsDialogOpen(true)}
       >
-        <Plus className="opacity-50" />
+        {pendingSuggestions ? (
+          <div
+            className="w-6 h-6 border-2 ml-2 p-1 border-gray-500 border-t-transparent rounded-full animate-spin"
+            data-testid="loading-spinner"
+          />
+        ) : (
+          <Plus className="opacity-50" />
+        )}
       </button>
       <UserJourneyDialog
         isDialogOpen={isDialogOpen}
         setIsDialogOpen={setIsDialogOpen}
-        setSuggestions={setSuggestions}
+        querySuggestions={querySuggestions}
       />
     </>
   );

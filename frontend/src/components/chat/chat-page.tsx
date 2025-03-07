@@ -47,7 +47,6 @@ export function ChatPage({
       Authorization: `Bearer ${session?.accessToken}`,
     },
     initialMessages,
-    experimental_throttle: 100,
     experimental_prepareRequestBody: ({ messages }) => {
       const lastMessage = messages[messages.length - 1];
       const selectedTools = Object.keys(checkedTools).filter(

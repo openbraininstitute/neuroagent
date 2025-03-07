@@ -59,10 +59,9 @@ async def question_suggestions(
             "'brain_region' can be any region of the mouse brain."
             "'artifact' can be :  'Morphology','Electrophysiology','Neuron density','Bouton density','Synapse per connection','E-model','ME-model','Synaptome' "
             "and 'data_type' can be 'Experimental data' or 'Model Data'"
-            "Every time the user clicks on a brain region, a new list is created where we record all the artifact he has clicked on while still browsing this region."
             "The last element of the list represents the last click of the user, so it should naturally be more relevant."
             "From the user history, try to infer the user's intent on the platform. From it generate some questions the user might want to ask to a chatbot that is able to search for papers in the literature."
-            "The questions should only be about the litterature. Each question should be short and concise, no more than 20 words. In total there should not be more than 5 questions.",
+            "The questions should only be about the literature. Each question should be short and concise. In total there should not be more than 3 questions.",
         },
         {"role": "user", "content": json.dumps(body.click_history)},
     ]
