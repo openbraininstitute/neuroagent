@@ -10,16 +10,15 @@ type QuestionSuggestionCardsProps = {
 const defaultQuestions = {
   suggestions: [
     {
-      question:
-        "Do you want to see papers about neuron morphologies in brain stem?",
+      question: "Show me papers about neuron morphologies in the thalamus",
     },
     {
       question:
-        "Do you want to see papers about intracellular patch clamp data for cerebellum?",
+        "Show me papers about intracellular patch clamp data for the thalamus",
     },
     {
       question:
-        "Do you want to see papers comparing cell morphologies between neurons in thalamus?",
+        "Show me papers comparing cell morphologies between neurons in the thalamus",
     },
   ],
 };
@@ -30,12 +29,12 @@ export default function QuestionSuggestionCards({
 }: QuestionSuggestionCardsProps) {
   const suggestionsMap = suggestions ?? defaultQuestions;
   return (
-    <div className="flex flex-col gap-4 border-2 border-t-0 border-gray-500 border-opacity-50 rounded-b-xl w-[95%] mx-auto p-4">
+    <div className="flex flex-col item-center gap-4 border-t-0 border-gray-500 border-opacity-50 rounded-b-xl w-[95%] mx-auto p-4">
       {suggestionsMap?.suggestions?.map((q, index) => (
         <Card
           key={index}
           onClick={() => onSubmit(q.question)}
-          className="flex justify-center items-center p-5 hover:bg-muted hover:scale-[1.02] my-2 mx-4 hover:shadow-md cursor-pointer"
+          className="flex justify-center mx-auto min-w-[70%] items-center p-5 hover:bg-muted hover:scale-[1.02] hover:shadow-md cursor-pointer"
         >
           <p className="text-center">{q.question}</p>
         </Card>

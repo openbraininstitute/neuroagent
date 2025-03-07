@@ -33,10 +33,13 @@ export function UserJourneyDialog({
     [
       ["brain_region", "Brain stem"],
       ["artifact", "Neuron density"],
+      ["artifact", "Bouton density"],
+      ["artifact", "Synapse per connection"],
     ],
     [
       ["brain_region", "Cerebellum"],
       ["artifact", "Neuron density"],
+      ["artifact", "Bouton density"],
     ],
     [
       ["brain_region", "Brain stem"],
@@ -55,7 +58,7 @@ export function UserJourneyDialog({
 
   return (
     <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-      <DialogContent className="[&>button]:hidden">
+      <DialogContent className="[&>button]:hidden max-h-[80%] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Edit User Flow</DialogTitle>
         </DialogHeader>
