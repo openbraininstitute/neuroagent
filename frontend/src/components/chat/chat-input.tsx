@@ -27,7 +27,6 @@ export function ChatInput({ availableTools }: ChatInputProps) {
   const [, action, isPending] = useActionState(createThread, null);
 
   const actionWrapper = (suggestionInput?: string) => {
-    debugger;
     if (!suggestionInput) {
       if (newMessage === "" && input !== "") {
         setNewMessage(input);
