@@ -58,7 +58,7 @@ class SettingsKeycloak(BaseModel):
 class SettingsSemanticScholar(BaseModel):
     """Literature search API settings."""
 
-    semantic_scholar_api_key: SecretStr | None = None
+    api_key: SecretStr | None = None
 
     model_config = ConfigDict(frozen=True)
 

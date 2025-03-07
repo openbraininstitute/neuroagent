@@ -55,7 +55,6 @@ class SemanticScholarTool(BaseTool):
             if self.metadata.semantic_scholar_api_key
             else None
         )
-        breakpoint()
         request = await self.metadata.httpx_client.get(
             "https://api.semanticscholar.org/graph/v1/paper/search",
             params={
