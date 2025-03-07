@@ -34,8 +34,8 @@ class ThreadsRead(BaseModel):
 
     thread_id: str
     user_id: str
-    vlab_id: str
-    project_id: str
+    vlab_id: str | None
+    project_id: str | None
     title: str
     creation_date: datetime.datetime
     update_date: datetime.datetime
@@ -45,6 +45,8 @@ class ThreadCreate(BaseModel):
     """Data class for the update of a thread."""
 
     title: str = "New chat"
+    virtual_lab_id: str | None = None
+    project_id: str | None = None
 
 
 class ThreadGeneratedTitle(BaseModel):

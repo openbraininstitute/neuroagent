@@ -29,6 +29,7 @@ dependencies = [
     "python-dotenv",
     "python-keycloak",
     "sqlalchemy[asyncio]",
+    "tavily-python",
     "uvicorn",
     ]
 

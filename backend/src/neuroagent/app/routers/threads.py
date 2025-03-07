@@ -40,8 +40,6 @@ router = APIRouter(prefix="/threads", tags=["Threads' CRUD"])
 
 @router.post("")
 async def create_thread(
-    virtual_lab_id: str,
-    project_id: str,
     session: Annotated[AsyncSession, Depends(get_session)],
     user_info: Annotated[UserInfo, Depends(get_user_info)],
     body: ThreadCreate = ThreadCreate(),
@@ -49,13 +47,15 @@ async def create_thread(
     """Create thread."""
     # We first need to check if the combination thread/vlab/project is valid
     validate_project(
-        virtual_lab_id=virtual_lab_id, project_id=project_id, groups=user_info.groups
+        virtual_lab_id=body.virtual_lab_id,
+        project_id=body.project_id,
+        groups=user_info.groups,
     )
     new_thread = Threads(
         user_id=user_info.sub,
         title=body.title,
-        vlab_id=virtual_lab_id,
-        project_id=project_id,
+        vlab_id=body.virtual_lab_id,
+        project_id=body.project_id,
     )
     session.add(new_thread)
     await session.commit()
@@ -106,12 +106,11 @@ async def get_threads(
         project_id=project_id,
         groups=user_info.groups,
     )
-    query = select(Threads).where(Threads.user_id == user_info.sub)
-
-    if virtual_lab_id is not None:
-        query = query.where(Threads.vlab_id == virtual_lab_id)
-    if project_id is not None:
-        query = query.where(Threads.project_id == project_id)
+    query = select(Threads).where(
+        Threads.user_id == user_info.sub,
+        Threads.vlab_id == virtual_lab_id,
+        Threads.project_id == project_id,
+    )
 
     thread_result = await session.execute(query)
     threads = thread_result.scalars().all()
