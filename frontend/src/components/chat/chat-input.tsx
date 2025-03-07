@@ -74,7 +74,7 @@ export function ChatInput({ availableTools }: ChatInputProps) {
         className="w-full flex justify-center"
       >
         <div className="min-w-[70%] max-w-[100%]">
-          <div className="flex items-center border-2 border-gray-500 rounded-full overflow-hidden">
+          <div className="flex items-center border-2  border-gray-500 rounded-full overflow-hidden">
             <input
               name="content"
               type="text"

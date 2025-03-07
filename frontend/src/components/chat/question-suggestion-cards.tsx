@@ -30,7 +30,7 @@ export default function QuestionSuggestionCards({
 }: QuestionSuggestionCardsProps) {
   const suggestionsMap = suggestions ?? defaultQuestions;
   return (
-    <div className="grid grid-cols-1 border-2 border-t-0 border-gray-500 border-opacity-30 rounded-b-xl w-[95%] mx-auto">
+    <div className="flex flex-col gap-4 border-2 border-t-0 border-gray-500 border-opacity-50 rounded-b-xl w-[95%] mx-auto p-4">
       {suggestionsMap?.suggestions?.map((q, index) => (
         <Card
           key={index}
