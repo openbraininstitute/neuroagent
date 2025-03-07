@@ -40,7 +40,7 @@ export function ThemeToggle() {
           }}
           className="opacity-0 w-0 h-0"
         />
-        <span className="absolute cursor-pointer inset-0 bg-gray-300 rounded-full flex items-center dark:bg-gray-600 transition-colors duration-300 ease-in-out">
+        <span className="absolute cursor-pointer inset-0 bg-gray-300 rounded-full flex items-center dark:bg-gray-700 transition-colors duration-300 ease-in-out">
           <span className="m-0.5 w-7 h-7 bg-white rounded-full shadow-md dark:translate-x-8 dark:bg-black transition-transform duration-300 ease-in-out">
             <div className="flex justify-center items-center w-full h-full">
               {theme === "dark" ? <Moon /> : <Sun />}
