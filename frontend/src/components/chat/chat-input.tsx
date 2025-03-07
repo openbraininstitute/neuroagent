@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, startTransition } from "react";
 import { useActionState, useEffect } from "react";
 import { createThread } from "@/actions/create-thread";
 import { useStore } from "@/lib/store";
@@ -9,6 +9,8 @@ import { Send } from "lucide-react";
 import ChatInputLoading from "@/components/chat/chat-input-loading";
 import { convert_tools_to_set } from "@/lib/utils";
 import { OpenUserJourneyButton } from "./user-journey-dialog";
+import QuestionSuggestionCards from "./question-suggestion-cards";
+import { SuggestedQuestions } from "@/lib/types";
 
 type ChatInputProps = {
   availableTools: Array<{ slug: string; label: string }>;
@@ -20,14 +22,20 @@ export function ChatInput({ availableTools }: ChatInputProps) {
   const checkedTools = useStore((state) => state.checkedTools);
   const setCheckedTools = useStore((state) => state.setCheckedTools);
   const [input, setInput] = useState("");
+  const [suggestions, setSuggestions] = useState<SuggestedQuestions>();
 
   const [, action, isPending] = useActionState(createThread, null);
 
-  const actionWrapper = () => {
-    if (newMessage === "" && input !== "") {
-      setNewMessage(input);
+  const actionWrapper = (suggestionInput?: string) => {
+    debugger;
+    if (!suggestionInput) {
+      if (newMessage === "" && input !== "") {
+        setNewMessage(input);
+      }
+    } else {
+      setNewMessage(suggestionInput);
     }
-    action();
+    startTransition(action);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -50,7 +58,7 @@ export function ChatInput({ availableTools }: ChatInputProps) {
       </h1>
       <form
         data-testid="chat-form"
-        action={actionWrapper}
+        action={() => actionWrapper()}
         onSubmit={(e) => {
           if (!input.trim()) {
             e.preventDefault();
@@ -73,7 +81,7 @@ export function ChatInput({ availableTools }: ChatInputProps) {
             disabled={isPending}
           />
           <div className="flex gap-2 mr-3">
-            <OpenUserJourneyButton />
+            <OpenUserJourneyButton setSuggestions={setSuggestions} />
             <ToolSelectionDropdown
               availableTools={availableTools}
               checkedTools={checkedTools}
@@ -92,6 +100,10 @@ export function ChatInput({ availableTools }: ChatInputProps) {
           </div>
         </div>
       </form>
+      <QuestionSuggestionCards
+        suggestions={suggestions}
+        onSubmit={actionWrapper}
+      />
     </div>
   ) : (
     <ChatInputLoading newMessage={newMessage} />

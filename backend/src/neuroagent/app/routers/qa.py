@@ -22,8 +22,9 @@ from neuroagent.app.dependencies import (
     get_settings,
     get_starting_agent,
     get_thread,
+    get_user_info,
 )
-from neuroagent.app.schemas import QuestionsSuggestions, UserHistory
+from neuroagent.app.schemas import QuestionsSuggestions, UserHistory, UserInfo
 from neuroagent.app.stream import stream_agent_response
 from neuroagent.new_types import (
     Agent,
@@ -37,7 +38,7 @@ logger = logging.getLogger(__name__)
 
 @router.post("/question_suggestions")
 async def question_suggestions(
-    # client_info: Annotated[UserInfo, Depends(get_user_info)],
+    client_info: Annotated[UserInfo, Depends(get_user_info)],
     openai_client: Annotated[AsyncOpenAI, Depends(get_openai_client)],
     settings: Annotated[Settings, Depends(get_settings)],
     body: UserHistory,
@@ -61,7 +62,7 @@ async def question_suggestions(
     ]
     response = await openai_client.beta.chat.completions.parse(
         messages=messages,  # type: ignore
-        model="o3-mini",
+        model=settings.openai.model,
         response_format=QuestionsSuggestions,
     )
 

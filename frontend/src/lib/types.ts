@@ -184,3 +184,7 @@ export type JSONLinechart = BaseObject & {
   line_style?: string;
   line_color?: string;
 };
+
+export type SuggestedQuestions = {
+  suggestions?: { question: string }[];
+};
