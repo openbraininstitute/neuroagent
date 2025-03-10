@@ -6,7 +6,7 @@ from typing import Any, ClassVar, Literal
 from httpx import AsyncClient
 from pydantic import BaseModel, Field
 
-from neuroagent.tools.base_tool import BaseMetadata, BaseTool
+from neuroagent.base_types import AgentsNames, BaseMetadata, BaseTool
 
 logger = logging.getLogger(__name__)
 
@@ -101,6 +101,7 @@ class SCSPostTool(BaseTool):
     • Test different stimulation protocols
 
     Specify the model and simulation parameters to start a new simulation run."""
+    agents: ClassVar[list[str]] = [AgentsNames.SIMULATION_AGENT.value]
     metadata: SCSPostMetadata
     input_schema: InputSCSPost
     hil: ClassVar[bool] = True
