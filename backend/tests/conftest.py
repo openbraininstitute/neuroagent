@@ -13,9 +13,9 @@ from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 
 from neuroagent.app.config import Settings
 from neuroagent.app.database.sql_schemas import Entity, Messages, Threads, ToolCalls
-from neuroagent.app.dependencies import Agent, get_settings
+from neuroagent.app.dependencies import get_settings
 from neuroagent.app.main import app
-from neuroagent.base_types import BaseTool
+from neuroagent.base_types import Agent, AgentsNames, BaseTool
 from tests.mock_client import MockOpenAIClient, create_mock_response
 
 
@@ -71,6 +71,7 @@ def fake_tool():
         name_frontend: ClassVar[str] = "Get Weather"
         description: ClassVar[str] = "Great description"
         description_frontend: ClassVar[str] = "Great description frontend"
+        agents: ClassVar[list[str]] = [AgentsNames.TRIAGE_AGENT.value]
         metadata: FakeToolMetadata
         input_schema: FakeToolInput
         hil: ClassVar[bool] = True
@@ -103,6 +104,7 @@ def agent_handoff_tool():
     class HandoffTool(BaseTool):
         name: ClassVar[str] = "agent_handoff_tool"
         description: ClassVar[str] = "Handoff to another agent."
+        agents: ClassVar[list[str]] = [AgentsNames.TRIAGE_AGENT.value]
         metadata: HandoffToolMetadata
         input_schema: HandoffToolInput
 

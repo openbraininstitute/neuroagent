@@ -108,7 +108,7 @@ class BaseTool(BaseModel, ABC):
 class Agent(BaseModel):
     """Agent class."""
 
-    name: str
+    name: str = "Agent"
     model: str = "gpt-4o-mini"
     instructions: str | Callable[[], str] = "You are a helpful agent."
     tools: list[type[BaseTool]] = []
