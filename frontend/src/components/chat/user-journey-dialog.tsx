@@ -58,7 +58,7 @@ export function UserJourneyDialog({
 
   return (
     <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-      <DialogContent className="[&>button]:hidden max-h-[80%] overflow-y-auto">
+      <DialogContent className="[&>button]:hidden">
         <DialogHeader>
           <DialogTitle>Edit User Flow</DialogTitle>
         </DialogHeader>
@@ -66,6 +66,7 @@ export function UserJourneyDialog({
           <JsonEditor
             data={userFlowData}
             setData={(data: JsonData) => setUserFlowData(data as string[][][])}
+            className="max-h-[75vh] overflow-y-auto"
             theme={[
               isLightTheme ? monoLightTheme : monoDarkTheme,
               {

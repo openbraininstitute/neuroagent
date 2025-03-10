@@ -57,7 +57,7 @@ export function ChatInput({ availableTools }: ChatInputProps) {
   }, []); // Empty dependency array means this runs once on mount
 
   return !isPending ? (
-    <div className="flex flex-col items-center gap-4 pl-2 pr-2">
+    <div className="flex flex-col items-center gap-4 pl-2 pr-2 h-[100%] justify-center">
       <h1 className="text-2xl font-bold mt-4 mb-6">
         What can I help you with?
       </h1>
@@ -71,50 +71,46 @@ export function ChatInput({ availableTools }: ChatInputProps) {
           }
           setInput("");
         }}
-        className="w-full flex justify-center"
+        className="w-full flex flex-col w-[80%] justify-center"
       >
-        <div className="min-w-[70%] max-w-[100%]">
-          <div className="flex items-center border-2  border-gray-500 rounded-full overflow-hidden">
-            <input
-              name="content"
-              type="text"
-              autoComplete="off"
-              className="flex-grow p-4 outline-none bg-transparent"
-              placeholder={
-                isPending ? "Creating thread..." : "Message the AI..."
-              }
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={handleKeyDown}
-              disabled={isPending}
-            />
-            <div className="flex gap-2 mr-3">
-              <OpenUserJourneyButton
-                querySuggestions={suggestionActionWrapper}
-                pendingSuggestions={pendingSuggestions}
-              />
-              <ToolSelectionDropdown
-                availableTools={availableTools}
-                checkedTools={checkedTools}
-                setCheckedTools={setCheckedTools}
-              />
-              {isPending ? (
-                <div
-                  className="w-6 h-6 border-2 ml-2 p-1 border-gray-500 border-t-transparent rounded-full animate-spin"
-                  data-testid="loading-spinner"
-                />
-              ) : (
-                <button type="submit" data-testid="send-button" className="p-1">
-                  <Send className="opacity-50" />
-                </button>
-              )}
-            </div>
-          </div>
-          <QuestionSuggestionCards
-            suggestions={suggestionsState as SuggestedQuestions}
-            onSubmit={actionWrapper}
+        <div className="flex items-center border-2 border-gray-500 rounded-full overflow-hidden">
+          <input
+            name="content"
+            type="text"
+            autoComplete="off"
+            className="flex-grow p-4 outline-none bg-transparent"
+            placeholder={isPending ? "Creating thread..." : "Message the AI..."}
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={handleKeyDown}
+            disabled={isPending}
           />
+          <div className="flex gap-2 mr-3">
+            <OpenUserJourneyButton
+              querySuggestions={suggestionActionWrapper}
+              pendingSuggestions={pendingSuggestions}
+            />
+            <ToolSelectionDropdown
+              availableTools={availableTools}
+              checkedTools={checkedTools}
+              setCheckedTools={setCheckedTools}
+            />
+            {isPending ? (
+              <div
+                className="w-6 h-6 border-2 ml-2 p-1 border-gray-500 border-t-transparent rounded-full animate-spin"
+                data-testid="loading-spinner"
+              />
+            ) : (
+              <button type="submit" data-testid="send-button" className="p-1">
+                <Send className="opacity-50" />
+              </button>
+            )}
+          </div>
         </div>
+        <QuestionSuggestionCards
+          suggestions={suggestionsState as SuggestedQuestions}
+          onSubmit={actionWrapper}
+        />
       </form>
     </div>
   ) : (
