@@ -1,40 +1,47 @@
 "use client";
 
-import { useState } from "react";
+import { useState, startTransition } from "react";
 import { useActionState, useEffect } from "react";
 import { createThread } from "@/actions/create-thread";
 import { useStore } from "@/lib/store";
 import { ToolSelectionDropdown } from "@/components/chat/tool-selection-dropdown";
 import { Send } from "lucide-react";
 import ChatInputLoading from "@/components/chat/chat-input-loading";
-import { useRouter } from "next/navigation";
 import { convert_tools_to_set } from "@/lib/utils";
+import { OpenUserJourneyButton } from "./user-journey-dialog";
+import QuestionSuggestionCards from "./question-suggestion-cards";
+import { SuggestedQuestions } from "@/lib/types";
+import { getSuggestions } from "@/actions/get-suggestions";
 
 type ChatInputProps = {
   availableTools: Array<{ slug: string; label: string }>;
 };
 
 export function ChatInput({ availableTools }: ChatInputProps) {
-  const { newMessage, setNewMessage, checkedTools, setCheckedTools } =
-    useStore();
+  const newMessage = useStore((state) => state.newMessage);
+  const setNewMessage = useStore((state) => state.setNewMessage);
+  const checkedTools = useStore((state) => state.checkedTools);
+  const setCheckedTools = useStore((state) => state.setCheckedTools);
   const [input, setInput] = useState("");
-  const router = useRouter();
 
-  const [state, action, isPending] = useActionState(createThread, null);
+  const [, action, isPending] = useActionState(createThread, null);
+  const [suggestionsState, querySuggestions, pendingSuggestions] =
+    useActionState(getSuggestions, null);
 
-  const actionWrapper = () => {
-    if (newMessage === "" && input !== "") {
-      setNewMessage(input);
+  const actionWrapper = (suggestionInput?: string) => {
+    if (!suggestionInput) {
+      if (newMessage === "" && input !== "") {
+        setNewMessage(input);
+      }
+    } else {
+      setNewMessage(suggestionInput);
     }
-    action();
+    startTransition(action);
   };
 
-  // Watch for state changes and redirect when ready
-  useEffect(() => {
-    if (!isPending && state?.success && state.threadId) {
-      router.push(`/threads/${state.threadId}`);
-    }
-  }, [state, isPending, router]);
+  const suggestionActionWrapper = (suggestionInput: string[][][]) => {
+    startTransition(() => querySuggestions(suggestionInput));
+  };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
@@ -49,14 +56,14 @@ export function ChatInput({ availableTools }: ChatInputProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // Empty dependency array means this runs once on mount
 
-  return !(isPending || state) ? (
+  return !isPending ? (
     <div className="flex flex-col items-center gap-4 pl-2 pr-2">
       <h1 className="text-2xl font-bold mt-4 mb-6">
         What can I help you with?
       </h1>
       <form
         data-testid="chat-form"
-        action={actionWrapper}
+        action={() => actionWrapper()}
         onSubmit={(e) => {
           if (!input.trim()) {
             e.preventDefault();
@@ -66,35 +73,47 @@ export function ChatInput({ availableTools }: ChatInputProps) {
         }}
         className="w-full flex justify-center"
       >
-        <div className="flex items-center min-w-[70%] max-w-[100%] border-2 border-gray-500 rounded-full overflow-hidden">
-          <input
-            name="content"
-            type="text"
-            autoComplete="off"
-            className="flex-grow p-4 outline-none bg-transparent"
-            placeholder={isPending ? "Creating thread..." : "Message the AI..."}
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={handleKeyDown}
-            disabled={isPending}
-          />
-          <div className="flex gap-2 mr-3">
-            <ToolSelectionDropdown
-              availableTools={availableTools}
-              checkedTools={checkedTools}
-              setCheckedTools={setCheckedTools}
+        <div className="min-w-[70%] max-w-[100%]">
+          <div className="flex items-center border-2  border-gray-500 rounded-full overflow-hidden">
+            <input
+              name="content"
+              type="text"
+              autoComplete="off"
+              className="flex-grow p-4 outline-none bg-transparent"
+              placeholder={
+                isPending ? "Creating thread..." : "Message the AI..."
+              }
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={handleKeyDown}
+              disabled={isPending}
             />
-            {isPending ? (
-              <div
-                className="w-6 h-6 border-2 ml-2 p-1 border-gray-500 border-t-transparent rounded-full animate-spin"
-                data-testid="loading-spinner"
+            <div className="flex gap-2 mr-3">
+              <OpenUserJourneyButton
+                querySuggestions={suggestionActionWrapper}
+                pendingSuggestions={pendingSuggestions}
               />
-            ) : (
-              <button type="submit" data-testid="send-button" className="p-1">
-                <Send className="opacity-50" />
-              </button>
-            )}
+              <ToolSelectionDropdown
+                availableTools={availableTools}
+                checkedTools={checkedTools}
+                setCheckedTools={setCheckedTools}
+              />
+              {isPending ? (
+                <div
+                  className="w-6 h-6 border-2 ml-2 p-1 border-gray-500 border-t-transparent rounded-full animate-spin"
+                  data-testid="loading-spinner"
+                />
+              ) : (
+                <button type="submit" data-testid="send-button" className="p-1">
+                  <Send className="opacity-50" />
+                </button>
+              )}
+            </div>
           </div>
+          <QuestionSuggestionCards
+            suggestions={suggestionsState as SuggestedQuestions}
+            onSubmit={actionWrapper}
+          />
         </div>
       </form>
     </div>

@@ -24,7 +24,8 @@ def test_create_thread(patch_required_env, httpx_mock, app_client, db_connection
     with app_client as app_client:
         # Create a thread
         create_output = app_client.post(
-            "/threads?virtual_lab_id=test_vlab&project_id=test_project"
+            "/threads",
+            json={"virtual_lab_id": "test_vlab", "project_id": "test_project"},
         ).json()
     assert create_output["thread_id"]
     assert create_output["title"] == "New chat"
@@ -55,7 +56,8 @@ def test_generate_thread_title(
         assert not threads
 
         create_output_1 = app_client.post(
-            "/threads?virtual_lab_id=test_vlab&project_id=test_project"
+            "/threads",
+            json={"virtual_lab_id": "test_vlab", "project_id": "test_project"},
         ).json()
 
         # Create a thread with generated title
@@ -91,16 +93,18 @@ def test_get_threads(patch_required_env, httpx_mock, app_client, db_connection):
         threads = app_client.get("/threads").json()
         assert not threads
         create_output_1 = app_client.post(
-            "/threads?virtual_lab_id=test_vlab&project_id=test_project"
+            "/threads",
+            json={"virtual_lab_id": "test_vlab", "project_id": "test_project"},
         ).json()
         create_output_2 = app_client.post(
-            "/threads?virtual_lab_id=test_vlab2&project_id=test_project2"
+            "/threads",
+            json={"virtual_lab_id": "test_vlab2", "project_id": "test_project2"},
         ).json()
+        create_output_3 = app_client.post("/threads").json()
         threads = app_client.get("/threads").json()
 
-        assert len(threads) == 2
-        assert threads[0] == create_output_1
-        assert threads[1] == create_output_2
+        assert len(threads) == 1
+        assert threads[0] == create_output_3
 
         threads = app_client.get(
             "/threads",
@@ -146,7 +150,8 @@ def test_update_thread_title(patch_required_env, httpx_mock, app_client, db_conn
         assert wrong_response.json() == {"detail": {"detail": "Thread not found."}}
 
         create_thread_response = app_client.post(
-            "/threads?virtual_lab_id=test_vlab&project_id=test_project"
+            "/threads",
+            json={"virtual_lab_id": "test_vlab", "project_id": "test_project"},
         ).json()
         thread_id = create_thread_response["thread_id"]
 
@@ -184,11 +189,15 @@ def test_delete_thread(
         assert wrong_response.json() == {"detail": {"detail": "Thread not found."}}
 
         create_thread_response = app_client.post(
-            "/threads?virtual_lab_id=test_vlab&project_id=test_project"
+            "/threads",
+            json={"virtual_lab_id": "test_vlab", "project_id": "test_project"},
         ).json()
         thread_id = create_thread_response["thread_id"]
 
-        threads = app_client.get("/threads").json()
+        threads = app_client.get(
+            "/threads",
+            params={"virtual_lab_id": "test_vlab", "project_id": "test_project"},
+        ).json()
         assert len(threads) == 1
         assert threads[0]["thread_id"] == thread_id
 

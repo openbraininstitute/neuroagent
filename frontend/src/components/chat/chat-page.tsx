@@ -7,14 +7,9 @@ import { env } from "@/lib/env";
 import { useSession } from "next-auth/react";
 import { ExtendedSession } from "@/lib/auth";
 import { useStore } from "@/lib/store";
+import { ChatInputInsideThread } from "@/components/chat/chat-input-inside-thread";
+import { ChatMessagesInsideThread } from "@/components/chat/chat-messages-inside-thread";
 import { generateEditTitle } from "@/actions/generate-edit-thread";
-import { convert_tools_to_set } from "@/lib/utils";
-import { ToolSelectionDropdown } from "@/components/chat/tool-selection-dropdown";
-
-import { ChatMessageAI } from "@/components/chat/chat-message-ai";
-import { ChatMessageHuman } from "@/components/chat/chat-message-human";
-import { ChatMessageTool } from "@/components/chat/chat-message-tool";
-import { Send } from "lucide-react";
 
 type ChatPageProps = {
   threadId: string;
@@ -28,30 +23,15 @@ export function ChatPage({
   availableTools,
 }: ChatPageProps) {
   const { data: session } = useSession() as { data: ExtendedSession | null };
-  const { newMessage, setNewMessage, checkedTools, setCheckedTools } =
-    useStore();
-  const requiresHandleSubmit = useRef(false);
+  const newMessage = useStore((state) => state.newMessage);
+  const checkedTools = useStore((state) => state.checkedTools);
+  const setNewMessage = useStore((state) => state.setNewMessage);
+  const setCheckedTools = useStore((state) => state.setCheckedTools);
   const [processedToolInvocationMessages, setProcessedToolInvocationMessages] =
     useState<string[]>([]);
-  const [collapsedTools, setCollapsedTools] = useState<Set<string>>(new Set());
-
-  useEffect(() => {
-    if (initialMessages.length === 0 && newMessage !== "") {
-      initialMessages.push({
-        id: "temp_id",
-        role: "user",
-        content: newMessage,
-      });
-      generateEditTitle(null, threadId, newMessage);
-      setNewMessage("");
-      requiresHandleSubmit.current = true;
-    }
-    // If checkedTools is not initialized yet, initialize it
-    if (Object.keys(checkedTools).length === 0) {
-      setCheckedTools(convert_tools_to_set(availableTools));
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // Empty dependency array means this runs once on mount
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const [isAutoScrollEnabled, setIsAutoScrollEnabled] = useState(true);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   const {
     messages: messagesRaw,
@@ -83,23 +63,31 @@ export function ChatPage({
       | ((messages: MessageStrict[]) => MessageStrict[]),
   ) => void;
 
-  // Scroll to the end of the page when new messages are added
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [isAutoScrollEnabled, setIsAutoScrollEnabled] = useState(true);
-
-  const handleWheel = (event: React.WheelEvent) => {
-    if (event.deltaY < 0) {
-      setIsAutoScrollEnabled(false);
-    } else {
-      const container = containerRef.current;
-      if (!container) return;
-      const isAtBottom =
-        container.scrollHeight - container.scrollTop <=
-        container.clientHeight + 200;
-      setIsAutoScrollEnabled(isAtBottom);
+  // Moved useEffect here to group with other useEffect hooks
+  useEffect(() => {
+    if (initialMessages.length === 0 && newMessage !== "") {
+      initialMessages.push({
+        id: "temp_id",
+        role: "user",
+        content: newMessage,
+      });
+      generateEditTitle(null, threadId, newMessage);
+      setNewMessage("");
+      handleSubmit(undefined, { allowEmptySubmit: true });
     }
-  };
+    // If checkedTools is not initialized yet, initialize it
+    if (Object.keys(checkedTools).length === 0) {
+      const initialCheckedTools = availableTools.reduce<
+        Record<string, boolean>
+      >((acc, tool) => {
+        acc[tool.slug] = true;
+        return acc;
+      }, {});
+      initialCheckedTools["allchecked"] = true;
+      setCheckedTools(initialCheckedTools);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Empty dependency array means this runs once on mount
 
   useEffect(() => {
     if (isAutoScrollEnabled) {
@@ -109,13 +97,6 @@ export function ChatPage({
 
   // Handle auto-submit if there's a single human message or all tools have been validated
   useEffect(() => {
-    // Auto-submit if there's a single human message
-    if (requiresHandleSubmit.current) {
-      handleSubmit(undefined, { allowEmptySubmit: true });
-      requiresHandleSubmit.current = false;
-      return;
-    }
-
     const lastMessage = messages[messages.length - 1];
     if (lastMessage?.role === "assistant" && lastMessage.toolInvocations) {
       // Skip if we've already processed this message
@@ -156,35 +137,20 @@ export function ChatPage({
     }
   }, [messages, handleSubmit, processedToolInvocationMessages]);
 
-  // to toggle the collapse of tools
-  function getMessageIndicesBetween(messageID: string) {
-    const targetIndex = messages.findIndex((msg) => msg.id === messageID);
-    if (targetIndex === -1) return [];
+  const hasOngoingToolInvocations =
+    (messages.at(-1)?.toolInvocations ?? []).length > 0;
 
-    let prevUserIndex = -1;
-    for (let i = targetIndex - 1; i >= 0; i--) {
-      if (messages[i].role === "user") {
-        prevUserIndex = i;
-        break;
-      }
+  const handleWheel = (event: React.WheelEvent) => {
+    if (event.deltaY < 0) {
+      setIsAutoScrollEnabled(false);
+    } else {
+      const container = containerRef.current;
+      if (!container) return;
+      const isAtBottom =
+        container.scrollHeight - container.scrollTop <=
+        container.clientHeight + 200;
+      setIsAutoScrollEnabled(isAtBottom);
     }
-    return messages
-      .slice(prevUserIndex !== -1 ? prevUserIndex + 1 : 0, targetIndex)
-      .map((message) => message.id);
-  }
-
-  const toggleCollapse = (messageId: string[]) => {
-    setCollapsedTools((prev) => {
-      const newSet = new Set(prev);
-      for (const id of messageId) {
-        if (newSet.has(id)) {
-          newSet.delete(id);
-        } else {
-          newSet.add(id);
-        }
-      }
-      return newSet;
-    });
   };
 
   if (error) {
@@ -193,124 +159,31 @@ export function ChatPage({
 
   return (
     <div className="flex flex-col h-full">
-      {/* Mesages list */}
       <div
         ref={containerRef}
         onWheel={handleWheel}
         className="flex-1 flex flex-col overflow-y-auto"
       >
-        {messages.map((message) =>
-          message.role === "assistant" ? (
-            message.toolInvocations ? (
-              // Unpack the parralel tool calls
-              message.toolInvocations
-                .sort((a, b) => a.toolCallId.localeCompare(b.toolCallId))
-                .map((tool) => {
-                  const validated =
-                    message.annotations?.find(
-                      (a) => a.toolCallId === tool.toolCallId,
-                    )?.validated ?? "not_required";
-
-                  return (
-                    !collapsedTools.has(message.id) && (
-                      <ChatMessageTool
-                        key={`${message.id}-${tool.toolCallId}`}
-                        threadId={threadId}
-                        tool={tool}
-                        availableTools={availableTools}
-                        validated={validated}
-                        setMessage={(updater) => {
-                          setMessages((messages) =>
-                            messages.map((msg) =>
-                              msg.id === message.id ? updater(msg) : msg,
-                            ),
-                          );
-                        }}
-                      />
-                    )
-                  );
-                })
-            ) : (
-              <ChatMessageAI
-                key={message.id}
-                id={message.id}
-                threadId={threadId}
-                content={message.content}
-                associatedToolsIncides={getMessageIndicesBetween(message.id)}
-                collapsedTools={collapsedTools}
-                toggleCollapse={toggleCollapse}
-              />
-            )
-          ) : (
-            <ChatMessageHuman
-              key={message.id}
-              id={message.id}
-              threadId={threadId}
-              content={message.content}
-            />
-          ),
-        )}
+        <ChatMessagesInsideThread
+          messages={messages}
+          threadId={threadId}
+          availableTools={availableTools}
+          setMessages={setMessages}
+        />
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Input */}
-      <form
-        className="flex flex-col justify-center items-center gap-4 mb-4"
-        onSubmit={(e) => {
-          setIsAutoScrollEnabled(true);
-          handleSubmit(e);
-        }}
-      >
-        <div className="flex items-center min-w-[70%] max-w-[100%] border-2 border-gray-500 rounded-full overflow-hidden">
-          <input
-            type="text"
-            className="flex-grow outline-none w-full p-4 bg-transparent"
-            name="prompt"
-            placeholder="Message the AI..."
-            value={input}
-            onChange={handleInputChange}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                e.preventDefault();
-                if (!e.shiftKey) {
-                  if (
-                    !(
-                      // check for loading and if there are pending HIL.
-                      (
-                        isLoading ||
-                        (messages.at(-1)?.toolInvocations ?? []).length > 0
-                      )
-                    )
-                  ) {
-                    setIsAutoScrollEnabled(true);
-                    handleSubmit(e);
-                  }
-                }
-              }
-            }}
-            autoComplete="off"
-          />
-          <div className="flex gap-2 mr-3">
-            <ToolSelectionDropdown
-              availableTools={availableTools}
-              checkedTools={checkedTools}
-              setCheckedTools={setCheckedTools}
-            />
-            {isLoading ? (
-              <div className="w-6 h-6 border-2 ml-2 p-1 border-gray-500 border-t-transparent rounded-full animate-spin" />
-            ) : (
-              <button
-                type="submit"
-                data-testid="send-button"
-                className="p-1"
-                disabled={(messages.at(-1)?.toolInvocations ?? []).length > 0}
-              >
-                <Send className="opacity-50" />
-              </button>
-            )}
-          </div>
-        </div>
-      </form>
+      <ChatInputInsideThread
+        input={input}
+        isLoading={isLoading}
+        availableTools={availableTools}
+        checkedTools={checkedTools}
+        setCheckedTools={setCheckedTools}
+        handleInputChange={handleInputChange}
+        handleSubmit={handleSubmit}
+        hasOngoingToolInvocations={hasOngoingToolInvocations}
+        setIsAutoScrollEnabled={setIsAutoScrollEnabled}
+      />
     </div>
   );
 }

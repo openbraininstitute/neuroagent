@@ -13,9 +13,17 @@ async function getThreads(): Promise<BThread[]> {
 
     const { projectID, virtualLabID } = await getSettings();
 
+    const queryParams: Record<string, string> = {};
+    if (virtualLabID !== undefined) {
+      queryParams.virtual_lab_id = virtualLabID;
+    }
+    if (projectID !== undefined) {
+      queryParams.project_id = projectID;
+    }
+
     const threads = (await fetcher({
       path: "/threads",
-      queryParams: { project_id: projectID, virtual_lab_id: virtualLabID },
+      queryParams,
       headers: { Authorization: `Bearer ${session.accessToken}` },
       next: { tags: ["threads"] },
     })) as BThread[];

@@ -3,8 +3,8 @@ import { Message } from "ai/react";
 export type BThread = {
   thread_id: string;
   user_id: string;
-  vlab_id: string;
-  project_id: string;
+  vlab_id: string | null;
+  project_id: string | null;
   title: string;
   creation_date: string;
   update_date: string;
@@ -183,4 +183,8 @@ export type JSONLinechart = BaseObject & {
   show_points?: boolean;
   line_style?: string;
   line_color?: string;
+};
+
+export type SuggestedQuestions = {
+  suggestions?: { question: string }[];
 };

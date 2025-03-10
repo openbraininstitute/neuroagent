@@ -60,6 +60,7 @@ class AgentsNames(Enum):
 
     EXPLORE_AGENT = "explore-agent"
     SIMULATION_AGENT = "simulation-agent"
+    LITERATURE_AGENT = "literature-agent"
     UTILITY_AGENT = "utility-agent"
     TRIAGE_AGENT = "triage-agent"
 
@@ -78,7 +79,7 @@ class BaseTool(BaseModel, ABC):
     name_frontend: ClassVar[str] = ""
     description: ClassVar[str]
     description_frontend: ClassVar[str] = ""
-    agent: ClassVar[AgentsNames]
+    agent: ClassVar[list[AgentsNames]]
     metadata: BaseMetadata
     input_schema: BaseModel
     hil: ClassVar[bool] = False

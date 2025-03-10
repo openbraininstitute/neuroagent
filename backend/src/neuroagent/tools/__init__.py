@@ -27,8 +27,10 @@ from neuroagent.tools.resolve_entities_tool import (
     BRResolveOutput,
     ResolveEntitiesTool,
 )
+from neuroagent.tools.semantic_scholar import SemanticScholarTool
 from neuroagent.tools.traces_tool import GetTracesTool, TracesOutput
 from neuroagent.tools.weather import WeatherTool
+from neuroagent.tools.web_search import WebSearchTool
 
 __all__ = [
     "SCSGetAllTool",
@@ -53,6 +55,8 @@ __all__ = [
     "PlotGeneratorTool",
     "RandomPlotGeneratorTool",
     "ResolveEntitiesTool",
+    "SemanticScholarTool",
     "TracesOutput",
     "WeatherTool",
+    "WebSearchTool",
 ]

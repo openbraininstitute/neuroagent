@@ -35,6 +35,7 @@ services:
       - KEYCLOAK_ISSUER=${KEYCLOAK_ISSUER}
       - KEYCLOAK_SECRET=${KEYCLOAK_SECRET}
       - KEYCLOAK_ID=${KEYCLOAK_ID}
+      - NODE_OPTIONS=--dns-result-order=ipv4first
     ports:
       - "3000:3000"
     networks:
@@ -75,4 +76,4 @@ volumes:
 
 networks:
   app-network:
-    driver: bridge 
+    driver: bridge

@@ -35,6 +35,8 @@ from neuroagent.tools import (
     SCSGetAllTool,
     SCSGetOneTool,
     SCSPostTool,
+    SemanticScholarTool,
+    WebSearchTool,
 )
 from neuroagent.tools.base_tool import AgentsNames, BaseTool
 
@@ -151,7 +153,7 @@ async def get_user_info(
                 status_code=HTTP_401_UNAUTHORIZED, detail="Invalid token."
             )
     else:
-        raise HTTPException(status_code=404, detail="user info url not provided.")
+        raise HTTPException(status_code=404, detail="User info url not provided.")
 
 
 def get_tool_list() -> list[type[BaseTool]]:
@@ -171,6 +173,8 @@ def get_tool_list() -> list[type[BaseTool]]:
         GetTracesTool,
         PlotGeneratorTool,
         MorphologyViewerTool,
+        WebSearchTool,
+        SemanticScholarTool,
         # NowTool,
         # WeatherTool,
         # RandomPlotGeneratorTool,
@@ -306,6 +310,8 @@ def get_context_variables(
         "s3_client": s3_client,
         "user_id": user_info.sub,
         "thread_id": thread.thread_id,
+        "tavily_api_key": settings.tools.web_search.tavily_api_key,
+        "semantic_scholar_api_key": settings.tools.semantic_scholar.api_key,
     }
 
 

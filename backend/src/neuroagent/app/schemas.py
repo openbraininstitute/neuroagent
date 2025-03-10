@@ -34,8 +34,8 @@ class ThreadsRead(BaseModel):
 
     thread_id: str
     user_id: str
-    vlab_id: str
-    project_id: str
+    vlab_id: str | None
+    project_id: str | None
     title: str
     creation_date: datetime.datetime
     update_date: datetime.datetime
@@ -45,6 +45,8 @@ class ThreadCreate(BaseModel):
     """Data class for the update of a thread."""
 
     title: str = "New chat"
+    virtual_lab_id: str | None = None
+    project_id: str | None = None
 
 
 class ThreadGeneratedTitle(BaseModel):
@@ -120,3 +122,21 @@ class UserInfo(BaseModel):
     given_name: str | None = None
     family_name: str | None = None
     email: str | None = None
+
+
+class UserClickHistory(BaseModel):
+    """Complete recorded history of the user."""
+
+    click_history: list[list[list[str]]]
+
+
+class Question(BaseModel):
+    """One suggested question by the LLM."""
+
+    question: str
+
+
+class QuestionsSuggestions(BaseModel):
+    """All suggested questions by the LLM."""
+
+    suggestions: list[Question]
