@@ -9,7 +9,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { useState, useRef, Dispatch, SetStateAction } from "react";
+import { useState, useEffect, useRef, Dispatch, SetStateAction } from "react";
 
 type EditThreadProps = {
   title: string;
@@ -30,6 +30,11 @@ export function EditThreadDialog({
 }: EditThreadProps) {
   const [newTitle, setNewTitle] = useState(title);
   const formRef = useRef<HTMLFormElement>(null);
+
+  // This is needed because on mount the title is set to "NewChat" on a new thread.
+  useEffect(() => {
+    setNewTitle(title);
+  }, [title]);
 
   const handleSubmit = async () => {
     formRef.current?.requestSubmit();
