@@ -49,10 +49,16 @@ class ThreadCreate(BaseModel):
     project_id: str | None = None
 
 
-class ThreadGeneratedTitle(BaseModel):
-    """Data class for the update of a thread."""
+class ThreadGeneratBody(BaseModel):
+    """Data class for input of the thread generation."""
 
     first_user_message: str
+
+
+class ThreadGeneratedTitle(BaseModel):
+    """Data class for the thread generation."""
+
+    title: str
 
 
 class ThreadUpdate(BaseModel):
