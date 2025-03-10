@@ -6,6 +6,7 @@ import { createThread } from "@/actions/create-thread";
 import { useStore } from "@/lib/store";
 import { ToolSelectionDropdown } from "@/components/chat/tool-selection-dropdown";
 import { Send } from "lucide-react";
+import TextareaAutosize from "react-textarea-autosize";
 import ChatInputLoading from "@/components/chat/chat-input-loading";
 import { convert_tools_to_set } from "@/lib/utils";
 import { OpenUserJourneyButton } from "./user-journey-dialog";
@@ -43,7 +44,7 @@ export function ChatInput({ availableTools }: ChatInputProps) {
     startTransition(() => querySuggestions(suggestionInput));
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter") {
       e.preventDefault();
       if (!e.shiftKey) {
@@ -74,19 +75,19 @@ export function ChatInput({ availableTools }: ChatInputProps) {
         className="w-full flex justify-center"
       >
         <div className="min-w-[70%] max-w-[100%]">
-          <div className="flex items-center border-2  border-gray-500 rounded-full overflow-hidden">
-            <input
+          <div className="flex items-center border-2  border-gray-500 rounded-[3vw] overflow-hidden min-h-16">
+            <TextareaAutosize
               name="content"
-              type="text"
               autoComplete="off"
-              className="flex-grow p-4 outline-none bg-transparent"
+              className="flex-grow outline-none border-none bg-transparent pl-6 resize-none"
               placeholder={
                 isPending ? "Creating thread..." : "Message the AI..."
               }
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              onKeyDown={handleKeyDown}
+              onKeyDown={(e) => handleKeyDown(e)}
               disabled={isPending}
+              maxRows={10}
             />
             <div className="flex gap-2 mr-3">
               <OpenUserJourneyButton
