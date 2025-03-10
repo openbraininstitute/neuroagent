@@ -15,7 +15,7 @@ from neuroagent.app.config import Settings
 from neuroagent.app.database.sql_schemas import Entity, Messages, Threads, ToolCalls
 from neuroagent.app.dependencies import Agent, get_settings
 from neuroagent.app.main import app
-from neuroagent.tools.base_tool import BaseTool
+from neuroagent.base_types import BaseTool
 from tests.mock_client import MockOpenAIClient, create_mock_response
 
 

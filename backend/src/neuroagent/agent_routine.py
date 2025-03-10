@@ -11,12 +11,12 @@ from openai.types.chat import ChatCompletionMessage
 from pydantic import ValidationError
 
 from neuroagent.app.database.sql_schemas import Entity, Messages, ToolCalls
+from neuroagent.base_types import BaseTool
 from neuroagent.new_types import (
     Agent,
     Response,
     Result,
 )
-from neuroagent.tools.base_tool import BaseTool
 from neuroagent.utils import get_entity, merge_chunk, messages_to_openai_content
 
 
@@ -205,12 +205,13 @@ class AgentsRoutine:
         content = await messages_to_openai_content(messages)
         history = copy.deepcopy(content)
         init_len = len(messages)
-        tool_map = {tool.name: tool for tool in agent.tools}
 
         while len(history) - init_len < max_turns:
+            # Changes if agent changes
+            tool_map = {tool.name: tool for tool in active_agent.tools}
             message: dict[str, Any] = {
                 "content": "",
-                "sender": agent.name,
+                "sender": active_agent.name,
                 "role": "assistant",
                 "function_call": None,
                 "tool_calls": defaultdict(
@@ -222,7 +223,7 @@ class AgentsRoutine:
                 ),
             }
 
-            # get completion with current history, agent
+            # Get completion with current history, agent
             completion = await self.get_chat_completion(
                 agent=active_agent,
                 history=history,
@@ -335,12 +336,11 @@ class AgentsRoutine:
                     tool_calls=tool_calls,
                 )
             )
-
             if not messages[-1].tool_calls:
                 yield f"e:{json.dumps(finish_data)}\n"
                 break
 
-            # kick out tool calls that require HIL
+            # Kick out tool calls that require HIL
             tool_calls_to_execute = [
                 tool_call
                 for tool_call in messages[-1].tool_calls
@@ -353,7 +353,7 @@ class AgentsRoutine:
                 if tool_map[tool_call.name].hil
             ]
 
-            # handle function calls, updating context_variables, and switching agents
+            # Handle function calls, updating context_variables, and switching agents
             if tool_calls_to_execute:
                 tool_calls_executed = await self.execute_tool_calls(
                     tool_calls_to_execute, active_agent.tools, context_variables

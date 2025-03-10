@@ -30,7 +30,7 @@ from neuroagent.app.schemas import (
     ThreadUpdate,
     UserInfo,
 )
-from neuroagent.tools.base_tool import BaseTool
+from neuroagent.base_types import BaseTool
 from neuroagent.utils import delete_from_storage
 
 logger = logging.getLogger(__name__)

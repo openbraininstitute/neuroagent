@@ -7,10 +7,10 @@ from typing import Any, ClassVar
 from httpx import AsyncClient
 from pydantic import BaseModel, Field
 
+from neuroagent.base_types import AgentsNames, BaseMetadata, BaseTool
 from neuroagent.cell_types import (
     get_celltypes_descendants_s3,
 )
-from neuroagent.tools.base_tool import AgentsNames, BaseMetadata, BaseTool
 from neuroagent.utils import get_descendants_id_s3
 
 logger = logging.getLogger(__name__)
@@ -82,7 +82,7 @@ class GetMorphoTool(BaseTool):
     • Access detailed morphological data
 
     Specify brain region and optional criteria to find relevant morphologies."""
-    agent: ClassVar[AgentsNames] = AgentsNames.EXPLORE_AGENT
+    agents: ClassVar[list[str]] = [AgentsNames.EXPLORE_AGENT.value]
     input_schema: GetMorphoInput
     metadata: GetMorphoMetadata
 

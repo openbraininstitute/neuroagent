@@ -6,7 +6,7 @@ from typing import ClassVar, Literal
 from pydantic import BaseModel, Field, SecretStr
 from tavily import AsyncTavilyClient
 
-from neuroagent.tools.base_tool import BaseMetadata, BaseTool
+from neuroagent.base_types import AgentsNames, BaseMetadata, BaseTool
 
 
 class WebSearchMetadata(BaseMetadata):
@@ -49,6 +49,10 @@ class WebSearchTool(BaseTool):
         "Searches the web using Tavily Search. Use this tool to gather general knowledge when needed, but prioritize other more specialized tools first if they are available."
     )
     description_frontend: ClassVar[str] = "Searches the web using Tavily Search."
+    agents: ClassVar[list[str]] = [
+        AgentsNames.LITERATURE_AGENT.value,
+        AgentsNames.UTILITY_AGENT.value,
+    ]
     metadata: WebSearchMetadata
     input_schema: WebSearchInput
 

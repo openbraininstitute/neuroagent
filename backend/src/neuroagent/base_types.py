@@ -3,7 +3,7 @@
 import logging
 from abc import ABC, abstractmethod
 from enum import Enum
-from typing import Any, ClassVar, Literal
+from typing import Any, Callable, ClassVar, Literal
 
 from httpx import AsyncClient
 from pydantic import BaseModel, ConfigDict
@@ -55,16 +55,6 @@ ETYPE_IDS = {
 }
 
 
-class AgentsNames(Enum):
-    """Type of agents available."""
-
-    EXPLORE_AGENT = "explore-agent"
-    SIMULATION_AGENT = "simulation-agent"
-    LITERATURE_AGENT = "literature-agent"
-    UTILITY_AGENT = "utility-agent"
-    TRIAGE_AGENT = "triage-agent"
-
-
 class BaseMetadata(BaseModel):
     """Base class for metadata."""
 
@@ -79,7 +69,7 @@ class BaseTool(BaseModel, ABC):
     name_frontend: ClassVar[str] = ""
     description: ClassVar[str]
     description_frontend: ClassVar[str] = ""
-    agent: ClassVar[list[AgentsNames]]
+    agents: ClassVar[list[str]]
     metadata: BaseMetadata
     input_schema: BaseModel
     hil: ClassVar[bool] = False
@@ -113,3 +103,30 @@ class BaseTool(BaseModel, ABC):
         need to be inside the `get_healthcheck_variables` dependency.
         """
         return False
+
+
+class Agent(BaseModel):
+    """Agent class."""
+
+    name: str
+    model: str = "gpt-4o-mini"
+    instructions: str | Callable[[], str] = "You are a helpful agent."
+    tools: list[type[BaseTool]] = []
+    tool_choice: str | None = None
+    parallel_tool_calls: bool = True
+
+
+class AgentsNames(Enum):
+    """Type of agents available."""
+
+    # Here we use underscore in the value instead
+    # of dashes so that there is a 1-1 mapping
+    # between metadata variable name and
+    # agent name. This way it is straight
+    # forward to use this enum when setting
+    # the agents in the context variables.
+    EXPLORE_AGENT = "explore_agent"
+    SIMULATION_AGENT = "simulation_agent"
+    LITERATURE_AGENT = "literature_agent"
+    UTILITY_AGENT = "utility_agent"
+    TRIAGE_AGENT = "triage_agent"

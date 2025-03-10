@@ -16,16 +16,17 @@ from neuroagent.app.database.sql_schemas import (
     Threads,
 )
 from neuroagent.app.dependencies import (
+    get_agents,
     get_agents_routine,
     get_context_variables,
     get_openai_client,
     get_settings,
     get_thread,
-    get_triage_agent,
     get_user_info,
 )
 from neuroagent.app.schemas import QuestionsSuggestions, UserClickHistory, UserInfo
 from neuroagent.app.stream import stream_agent_response
+from neuroagent.base_types import AgentsNames
 from neuroagent.new_types import (
     Agent,
     ClientRequest,
@@ -81,7 +82,7 @@ async def stream_chat_agent(
     user_request: ClientRequest,
     request: Request,
     agents_routine: Annotated[AgentsRoutine, Depends(get_agents_routine)],
-    agent: Annotated[Agent, Depends(get_triage_agent)],
+    agents: Annotated[dict[str, Agent], Depends(get_agents)],
     context_variables: Annotated[dict[str, Any], Depends(get_context_variables)],
     thread: Annotated[Threads, Depends(get_thread)],
     settings: Annotated[Settings, Depends(get_settings)],
@@ -94,6 +95,23 @@ async def stream_chat_agent(
         )
 
     messages: list[Messages] = await thread.awaitable_attrs.messages
+
+    # Resume the conversation with the previous agent
+    if not messages:
+        agent = agents[AgentsNames.TRIAGE_AGENT.value]
+    else:
+        # Find the last message of type "AI_MESSAGE" or "AI_TOOL"
+        # These are the only ones containing the sender
+        last_sender_message = next(
+            (
+                message
+                for message in reversed(messages)
+                if message.entity == Entity.AI_MESSAGE
+                or message.entity == Entity.AI_TOOL
+            )
+        )
+        last_message_content = json.loads(last_sender_message.content)
+        agent = agents[last_message_content["sender"]]
 
     if not messages or messages[-1].entity == Entity.AI_MESSAGE:
         messages.append(

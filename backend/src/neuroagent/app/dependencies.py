@@ -19,11 +19,16 @@ from neuroagent.app.app_utils import validate_project
 from neuroagent.app.config import Settings
 from neuroagent.app.database.sql_schemas import Threads
 from neuroagent.app.schemas import UserInfo
-from neuroagent.new_types import Agent
+from neuroagent.base_types import Agent, AgentsNames, BaseTool
 from neuroagent.tools import (
     ElectrophysFeatureTool,
     GetMorphoTool,
     GetTracesTool,
+    HandoffToExploreTool,
+    HandoffToLiteratureTool,
+    HandoffToSimulationTool,
+    HandoffToTriageTool,
+    HandoffToUtilityTool,
     KGMorphoFeatureTool,
     LiteratureSearchTool,
     MEModelGetAllTool,
@@ -38,7 +43,6 @@ from neuroagent.tools import (
     SemanticScholarTool,
     WebSearchTool,
 )
-from neuroagent.tools.base_tool import AgentsNames, BaseTool
 
 logger = logging.getLogger(__name__)
 
@@ -175,6 +179,11 @@ def get_tool_list() -> list[type[BaseTool]]:
         MorphologyViewerTool,
         WebSearchTool,
         SemanticScholarTool,
+        HandoffToExploreTool,
+        HandoffToLiteratureTool,
+        HandoffToSimulationTool,
+        HandoffToTriageTool,
+        HandoffToUtilityTool,
         # NowTool,
         # WeatherTool,
         # RandomPlotGeneratorTool,
@@ -186,53 +195,116 @@ async def get_selected_tools(
 ) -> list[type[BaseTool]]:
     """Get tools specified in the header from the frontend."""
     if request.method == "GET":
-        selected_tools = tool_list
+        return tool_list
 
     body = await request.json()
     if body.get("tool_selection") is None:
-        selected_tools = tool_list
+        return tool_list
     else:
         tool_map = {tool.name: tool for tool in tool_list}
         selected_tools = [
             tool_map[name] for name in body["tool_selection"] if name in tool_map.keys()
         ]
+        return selected_tools
 
+
+def get_agents(
+    settings: Annotated[Settings, Depends(get_settings)],
+    selected_tools: Annotated[list[type[BaseTool]], Depends(get_selected_tools)],
+) -> dict[str, Agent]:
+    """Get a dictionary of agents."""
     # Dispatch tools to their respective agent
     agent_tool_mapping = defaultdict(list)
 
     # Dispatch tools into their respective agent
     for tool in selected_tools:
-        agent_tool_mapping[tool.agent].append(tool)
-    return agent_tool_mapping
+        for agent in tool.agents:
+            agent_tool_mapping[agent].append(tool)
 
+    storage_instructions = (
+        f"All files in storage can be viewed under {settings.misc.frontend_url}/viewer/{{storage_id}}. "
+        "When referencing storage files, always replace {{storage_id}} with the actual storage ID. "
+        "Format the links as standard markdown links like: [Description](URL), do not try to embed them as images."
+        if settings.misc.frontend_url
+        else "Never try to generate links to internal storage ids"
+    )
 
-def get_triage_agent(
-    settings: Annotated[Settings, Depends(get_settings)],
-    tool_list: Annotated[list[type[BaseTool]], Depends(get_selected_tools)],
-) -> Agent:
-    """Get the starting agent."""
-    logger.info(f"Loading model {settings.openai.model}.")
-    # base_instructions = """You are a helpful assistant helping scientists with neuro-scientific questions.
-    #             You must always specify in your answers from which brain regions the information is extracted.
-    #             Do no blindly repeat the brain region requested by the user, use the output of the tools instead."""
-
-    # storage_instructions = (
-    #     f"All files in storage can be viewed under {settings.misc.frontend_url}/viewer/{{storage_id}}. "
-    #     "When referencing storage files, always replace {{storage_id}} with the actual storage ID. "
-    #     "Format the links as standard markdown links like: [Description](URL), do not try to embed them as images."
-    #     if settings.misc.frontend_url
-    #     else "Never try to generate links to internal storage ids"
-    # )
-    base_instructions = """You are a helpful assistant helping scientists with neuro-scientific questions.
+    # Triage agent
+    base_instructions_triage = """You are a helpful assistant helping scientists with neuro-scientific questions.
     Determine which agent is best suited to handle the user's request, and transfer the conversation to that agent.
-    Answer only very generic queries that do not require handing off to another agent."""
-    agent = Agent(
-        name=AgentsNames.TRIAGE_AGENT,
-        instructions=base_instructions,
-        tools=tool_list[AgentsNames.TRIAGE_AGENT],
+    Other agents have the capability of handing off back to you. Therefore if a request requires multiple agents,
+    handoff to the first one, wait for him to handoff back to you, handoff to the second one etc...
+    You are the only agent allowed to talk and finish the chain of action. if you decide that either all of the actions are excuted or that you cannot proceed further, summarize the findings to the user."""
+    triage_agent = Agent(
+        name=AgentsNames.TRIAGE_AGENT.value,
+        instructions=f"{base_instructions_triage}\n{storage_instructions}",
+        tools=agent_tool_mapping[AgentsNames.TRIAGE_AGENT.value],
+        model=settings.openai.model,
+        parallel_tool_calls=False,
+    )
+
+    # Literature agent
+    base_instructions_literature = """You are the literature agent helping scientists to find neuro-science related papers in the literature.
+    As soon as you are in control of the conversation, execute the pending tasks that you can solve with your tools.
+    As soon as you are done, handoff back to the triage agent even if you could not fulfill some tasks. The triage agent is the ONLY agent allowed to talk and to finish the chain of actions.
+    You must ALWAYS handoff to the triage agent after Completing your task, or if you cannot complete it. ONLY CALL TOOLS, DO NOT TALK.
+    Given a literature related query from the user, extract only keywords and use them to query your literature search tools.
+    If your tools return content related to the full body of an article, use it to create a `summary` when answering the user.
+    It could come for instance from the abstract, a paragraph, an already existing summary, or a mix of everything."""
+    literature_agent = Agent(
+        name=AgentsNames.LITERATURE_AGENT.value,
+        instructions=base_instructions_literature,
+        tools=agent_tool_mapping[AgentsNames.LITERATURE_AGENT.value],
         model=settings.openai.model,
     )
-    return agent
+
+    # Explore agent
+    base_instructions_explore = """You are the explore agent which has tools connected to a neuro-science platform called the Open Brain Platform.
+    As soon as you are in control of the conversation, execute the pending tasks that you can solve with your tools.
+    As soon as you are done, handoff back to the triage agent even if you could not fulfill some tasks. The triage agent is the ONLY agent allowed to talk and to finish the chain of actions.
+    You must ALWAYS handoff to the triage agent after Completing your task, or if you cannot complete it. ONLY CALL TOOLS, DO NOT TALK.
+    You must ALWAYS specify in your answers from which brain regions the information is extracted.
+    Do no blindly repeat the brain region requested by the user, use the output of the tools instead."""
+
+    explore_agent = Agent(
+        name=AgentsNames.EXPLORE_AGENT.value,
+        instructions=base_instructions_explore,
+        tools=agent_tool_mapping[AgentsNames.EXPLORE_AGENT.value],
+        model=settings.openai.model,
+    )
+
+    # Simulation agent
+    base_instructions_simulation = """You are the simulation agent which has tools connected to a neuro-science platform called the Open Brain Platform.
+    As soon as you are in control of the conversation, execute the pending tasks that you can solve with your tools.
+    As soon as you are done, handoff back to the triage agent even if you could not fulfill some tasks. The triage agent is the ONLY agent allowed to talk and to finish the chain of actions.
+    You must ALWAYS handoff to the triage agent after Completing your task, or if you cannot complete it. ONLY CALL TOOLS, DO NOT TALK.
+    You must ALWAYS specify in your answers from which brain regions the information is extracted.
+    Do no blindly repeat the brain region requested by the user, use the output of the tools instead."""
+    simulation_agent = Agent(
+        name=AgentsNames.SIMULATION_AGENT.value,
+        instructions=base_instructions_simulation,
+        tools=agent_tool_mapping[AgentsNames.SIMULATION_AGENT.value],
+        model=settings.openai.model,
+    )
+
+    # Utility agent
+    base_instructions_utility = """You are the utility agent with general purpose tools.
+    As soon as you are in control of the conversation, execute the pending tasks that you can solve with your tools.
+    As soon as you are done, handoff back to the triage agent even if you could not fulfill some tasks. The triage agent is the ONLY agent allowed to talk and to finish the chain of actions.
+    You must ALWAYS handoff to the triage agent after completing your task, or if you cannot complete it. ONLY CALL TOOLS, DO NOT TALK."""
+    utility_agent = Agent(
+        name=AgentsNames.UTILITY_AGENT.value,
+        instructions=base_instructions_utility,
+        tools=agent_tool_mapping[AgentsNames.UTILITY_AGENT.value],
+        model=settings.openai.model,
+    )
+    return {
+        AgentsNames.TRIAGE_AGENT.value: triage_agent,
+        AgentsNames.LITERATURE_AGENT.value: literature_agent,
+        AgentsNames.EXPLORE_AGENT.value: explore_agent,
+        AgentsNames.SIMULATION_AGENT.value: simulation_agent,
+        AgentsNames.UTILITY_AGENT.value: utility_agent,
+    }
 
 
 async def get_thread(
@@ -278,7 +350,7 @@ def get_s3_client(
 
 def get_context_variables(
     settings: Annotated[Settings, Depends(get_settings)],
-    starting_agent: Annotated[Agent, Depends(get_triage_agent)],
+    agents: Annotated[dict[str, Agent], Depends(get_agents)],
     token: Annotated[str, Depends(auth)],
     httpx_client: Annotated[AsyncClient, Depends(get_httpx_client)],
     thread: Annotated[Threads, Depends(get_thread)],
@@ -287,7 +359,7 @@ def get_context_variables(
 ) -> dict[str, Any]:
     """Get the context variables to feed the tool's metadata."""
     return {
-        "starting_agent": starting_agent,
+        **agents,
         "token": token,
         "retriever_k": settings.tools.literature.retriever_k,
         "reranker_k": settings.tools.literature.reranker_k,
