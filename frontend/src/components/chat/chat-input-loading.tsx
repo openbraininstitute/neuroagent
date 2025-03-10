@@ -1,5 +1,6 @@
 import React from "react";
 import { ChatMessageHuman } from "./chat-message-human";
+import TextareaAutosize from "react-textarea-autosize";
 
 interface ChatComponentProps {
   newMessage: string;
@@ -12,11 +13,10 @@ export default function ChatInputLoading({ newMessage }: ChatComponentProps) {
         <ChatMessageHuman key="temp" content={newMessage} />
       </div>
       <form className="flex flex-col justify-center items-center gap-4 mb-4">
-        <div className="flex items-center min-w-[70%] max-w-[100%] border-2 border-gray-500 rounded-full overflow-hidden">
-          <input
-            type="text"
+        <div className="flex items-center min-w-[70%] max-w-[100%] border-2 border-gray-500 rounded-[3vw] overflow-hidden min-h-16">
+          <TextareaAutosize
             readOnly
-            className="flex-grow outline-none w-full p-4 bg-transparent"
+            className="flex-grow outline-none border-none bg-transparent pl-6 resize-none"
             name="prompt"
             placeholder="Message the AI..."
             autoComplete="off"

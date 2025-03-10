@@ -1,4 +1,5 @@
 import { env } from "@/lib/env";
+import { notFound } from "next/navigation";
 
 const isServer = typeof window === "undefined";
 
@@ -64,6 +65,9 @@ export async function fetcher({
   });
 
   if (!response.ok) {
+    if (response.status === 404) {
+      return notFound();
+    }
     throw new Error(
       `Fetching Error : ${response.status}, ${response.statusText}`,
     );

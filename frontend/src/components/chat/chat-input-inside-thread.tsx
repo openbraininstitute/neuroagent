@@ -2,6 +2,7 @@
 
 import { Send } from "lucide-react";
 import { ToolSelectionDropdown } from "@/components/chat/tool-selection-dropdown";
+import TextareaAutosize from "react-textarea-autosize";
 
 type ChatInputInsideThreadProps = {
   input: string;
@@ -9,7 +10,7 @@ type ChatInputInsideThreadProps = {
   availableTools: Array<{ slug: string; label: string }>;
   checkedTools: Record<string, boolean>;
   setCheckedTools: (tools: Record<string, boolean>) => void;
-  handleInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  handleInputChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
   handleSubmit: (event?: { preventDefault?: () => void }) => void;
   setIsAutoScrollEnabled: (enabled: boolean) => void;
   hasOngoingToolInvocations: boolean;
@@ -26,14 +27,15 @@ export function ChatInputInsideThread({
   setIsAutoScrollEnabled,
   hasOngoingToolInvocations,
 }: ChatInputInsideThreadProps) {
-  const handleKeyDown = (e: React.KeyboardEvent) => {
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter") {
+      if (e.shiftKey) {
+        return;
+      }
       e.preventDefault();
-      if (!e.shiftKey) {
-        if (!isLoading && !hasOngoingToolInvocations) {
-          setIsAutoScrollEnabled(true);
-          handleSubmit(e);
-        }
+      if (!isLoading && !hasOngoingToolInvocations) {
+        setIsAutoScrollEnabled(true);
+        handleSubmit(e);
       }
     }
   };
@@ -46,16 +48,16 @@ export function ChatInputInsideThread({
         handleSubmit(e);
       }}
     >
-      <div className="flex items-center min-w-[70%] max-w-[100%] border-2 border-gray-500 rounded-full overflow-hidden">
-        <input
-          type="text"
-          className="flex-grow outline-none w-full p-4 bg-transparent"
+      <div className="min-w-[70%] max-w-[100%] flex items-center  border-2  border-gray-500 rounded-[3vw] overflow-hidden min-h-16">
+        <TextareaAutosize
+          className="flex-grow outline-none border-none bg-transparent pl-6 resize-none"
           name="prompt"
           placeholder="Message the AI..."
           value={input}
           onChange={handleInputChange}
-          onKeyDown={handleKeyDown}
+          onKeyDown={(e) => handleKeyDown(e)}
           autoComplete="off"
+          maxRows={10}
         />
         <div className="flex gap-2 mr-3">
           <ToolSelectionDropdown

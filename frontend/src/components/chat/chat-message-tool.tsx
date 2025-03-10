@@ -78,7 +78,7 @@ export const ChatMessageTool = function ChatMessageTool({
   )[0].label;
 
   return (
-    <div className="border-r-2 p-3.5 ml-5 border-white-300 border-solid">
+    <div className="p-3.5 ml-5 border-white-300 border-solid">
       <HumanValidationDialog
         key={tool.toolCallId}
         threadId={threadId}

@@ -25,6 +25,7 @@ from neuroagent.app.dependencies import (
 from neuroagent.app.schemas import (
     MessageResponse,
     ThreadCreate,
+    ThreadGeneratBody,
     ThreadGeneratedTitle,
     ThreadsRead,
     ThreadUpdate,
@@ -70,7 +71,7 @@ async def generate_title(
     openai_client: Annotated[AsyncOpenAI, Depends(get_openai_client)],
     settings: Annotated[Settings, Depends(get_settings)],
     thread: Annotated[Threads, Depends(get_thread)],
-    body: ThreadGeneratedTitle,
+    body: ThreadGeneratBody,
 ) -> ThreadsRead:
     """Generate a short thread title based on the user's first message and update thread's title."""
     # Send it to OpenAI longside with the system prompt asking for summary
@@ -81,12 +82,14 @@ async def generate_title(
         },
         {"role": "user", "content": body.first_user_message},
     ]
-    response = await openai_client.chat.completions.create(
+    response = await openai_client.beta.chat.completions.parse(
         messages=messages,  # type: ignore
         model=settings.openai.model,
+        response_format=ThreadGeneratedTitle,
     )
+
     # Update the thread title and modified date + commit
-    thread.title = response.choices[0].message.content.strip('"')  # type: ignore
+    thread.title = response.choices[0].message.parsed.title  # type: ignore
     thread.update_date = utc_now()
     await session.commit()
     await session.refresh(thread)
