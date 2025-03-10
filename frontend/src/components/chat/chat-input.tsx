@@ -46,10 +46,11 @@ export function ChatInput({ availableTools }: ChatInputProps) {
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter") {
-      e.preventDefault();
-      if (!e.shiftKey) {
-        e.currentTarget.form?.requestSubmit();
+      if (e.shiftKey) {
+        return;
       }
+      e.preventDefault();
+      e.currentTarget.form?.requestSubmit();
     }
   };
   useEffect(() => {
