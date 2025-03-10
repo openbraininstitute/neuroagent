@@ -9,8 +9,9 @@ from neuroagent.app.dependencies import (
     get_settings,
 )
 from neuroagent.app.main import app
+from neuroagent.app.schemas import ThreadGeneratedTitle
 from tests.conftest import mock_keycloak_user_identification
-from tests.mock_client import create_mock_response
+from tests.mock_client import MockOpenAIClient, create_mock_response
 
 
 def test_create_thread(patch_required_env, httpx_mock, app_client, db_connection):
@@ -35,7 +36,10 @@ def test_create_thread(patch_required_env, httpx_mock, app_client, db_connection
 
 @pytest.mark.httpx_mock(can_send_already_matched_responses=True)
 def test_generate_thread_title(
-    patch_required_env, httpx_mock, app_client, db_connection, mock_openai_client
+    patch_required_env,
+    httpx_mock,
+    app_client,
+    db_connection,
 ):
     mock_keycloak_user_identification(httpx_mock)
     test_settings = Settings(
@@ -43,11 +47,16 @@ def test_generate_thread_title(
         openai={"model": "great_model"},
         keycloak={"issuer": "https://great_issuer.com"},
     )
-    mock_openai_client.set_response(
-        create_mock_response(
-            {"role": "assistant", "content": "sample response content"}
-        ),
+
+    mock_openai_client = MockOpenAIClient(is_structured_output=True)
+    mock_class_response = ThreadGeneratedTitle(title="Great Title")
+    mock_response = create_mock_response(
+        {"role": "assistant", "content": "sample response content"},
+        is_structured_output=True,
+        structured_output_class=mock_class_response,
     )
+    mock_openai_client.set_response(mock_response)
+
     app.dependency_overrides[get_settings] = lambda: test_settings
     app.dependency_overrides[get_openai_client] = lambda: mock_openai_client
 
@@ -66,7 +75,7 @@ def test_generate_thread_title(
             json={"first_user_message": "This is my query"},
         ).json()
 
-        assert create_thread_response["title"] == "sample response content"
+        assert create_thread_response["title"] == "Great Title"
         mock_openai_client.assert_create_called_with(
             **{
                 "messages": [
@@ -77,6 +86,7 @@ def test_generate_thread_title(
                     {"role": "user", "content": "This is my query"},
                 ],
                 "model": "great_model",
+                "response_format": ThreadGeneratedTitle,
             }
         )
 
