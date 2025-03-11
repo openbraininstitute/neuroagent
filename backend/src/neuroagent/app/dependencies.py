@@ -8,6 +8,7 @@ import boto3
 from fastapi import Depends, HTTPException, Request
 from fastapi.security import HTTPBearer
 from httpx import AsyncClient, HTTPStatusError
+from obp_accounting_sdk import AsyncAccountingSessionFactory
 from openai import AsyncOpenAI
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession
@@ -328,3 +329,8 @@ def get_agents_routine(
 ) -> AgentsRoutine:
     """Get the AgentRoutine client."""
     return AgentsRoutine(openai)
+
+
+def get_accounting_session_factory(request: Request) -> AsyncAccountingSessionFactory:
+    """Get the accounting session factory."""
+    return request.app.state.accounting_session_factory
