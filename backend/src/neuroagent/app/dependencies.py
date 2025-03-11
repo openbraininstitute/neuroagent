@@ -160,8 +160,21 @@ async def get_user_info(
         raise HTTPException(status_code=404, detail="User info url not provided.")
 
 
-def get_tool_list() -> list[type[BaseTool]]:
+def get_tool_list(
+    settings: Annotated[Settings, Depends(get_settings)],
+) -> list[type[BaseTool]]:
     """Return a raw list of all of the available tools."""
+    handoff_tools: list[type[BaseTool]] = (
+        [
+            HandoffToExploreTool,
+            HandoffToLiteratureTool,
+            HandoffToSimulationTool,
+            HandoffToTriageTool,
+            HandoffToUtilityTool,
+        ]
+        if settings.agent.composition == "multi"
+        else []
+    )
     return [
         SCSGetAllTool,
         SCSGetOneTool,
@@ -179,11 +192,7 @@ def get_tool_list() -> list[type[BaseTool]]:
         MorphologyViewerTool,
         WebSearchTool,
         SemanticScholarTool,
-        HandoffToExploreTool,
-        HandoffToLiteratureTool,
-        HandoffToSimulationTool,
-        HandoffToTriageTool,
-        HandoffToUtilityTool,
+        *handoff_tools,
         # NowTool,
         # WeatherTool,
         # RandomPlotGeneratorTool,
@@ -213,14 +222,6 @@ def get_agents(
     selected_tools: Annotated[list[type[BaseTool]], Depends(get_selected_tools)],
 ) -> dict[str, Agent]:
     """Get a dictionary of agents."""
-    # Dispatch tools to their respective agent
-    agent_tool_mapping = defaultdict(list)
-
-    # Dispatch tools into their respective agent
-    for tool in selected_tools:
-        for agent in tool.agents:
-            agent_tool_mapping[agent].append(tool)
-
     storage_instructions = (
         f"All files in storage can be viewed under {settings.misc.frontend_url}/viewer/{{storage_id}}. "
         "When referencing storage files, always replace {{storage_id}} with the actual storage ID. "
@@ -228,6 +229,28 @@ def get_agents(
         if settings.misc.frontend_url
         else "Never try to generate links to internal storage ids"
     )
+
+    # Simple agent
+    if settings.agent.composition == "simple":
+        base_instructions = """You are a helpful assistant helping scientists with neuro-scientific questions.
+                You must always specify in your answers from which brain regions the information is extracted.
+                Do no blindly repeat the brain region requested by the user, use the output of the tools instead."""
+
+        single_agent = Agent(
+            name="Agent",
+            instructions=f"{base_instructions}\n{storage_instructions}",
+            tools=selected_tools,
+            model=settings.openai.model,
+        )
+        return {"Agent": single_agent}
+
+    # Multi agent
+    agent_tool_mapping = defaultdict(list)
+
+    # Dispatch tools into their respective agent
+    for tool in selected_tools:
+        for agent in tool.agents:
+            agent_tool_mapping[agent].append(tool)
 
     # Triage agent
     base_instructions_triage = """You are a helpful assistant helping scientists with neuro-scientific questions.

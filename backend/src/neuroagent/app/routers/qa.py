@@ -26,7 +26,6 @@ from neuroagent.app.dependencies import (
 )
 from neuroagent.app.schemas import QuestionsSuggestions, UserClickHistory, UserInfo
 from neuroagent.app.stream import stream_agent_response
-from neuroagent.base_types import AgentsNames
 from neuroagent.new_types import (
     Agent,
     ClientRequest,
@@ -96,23 +95,6 @@ async def stream_chat_agent(
 
     messages: list[Messages] = await thread.awaitable_attrs.messages
 
-    # Resume the conversation with the previous agent
-    if not messages:
-        agent = agents[AgentsNames.TRIAGE_AGENT.value]
-    else:
-        # Find the last message of type "AI_MESSAGE" or "AI_TOOL"
-        # These are the only ones containing the sender
-        last_sender_message = next(
-            (
-                message
-                for message in reversed(messages)
-                if message.entity == Entity.AI_MESSAGE
-                or message.entity == Entity.AI_TOOL
-            )
-        )
-        last_message_content = json.loads(last_sender_message.content)
-        agent = agents[last_message_content["sender"]]
-
     if not messages or messages[-1].entity == Entity.AI_MESSAGE:
         messages.append(
             Messages(
@@ -123,12 +105,12 @@ async def stream_chat_agent(
             )
         )
     stream_generator = stream_agent_response(
-        agents_routine,
-        agent,
-        messages,
-        context_variables,
-        thread,
-        request,
+        agents_routine=agents_routine,
+        agent=agents[settings.agent.starting_agent],
+        messages=messages,
+        context_variables=context_variables,
+        thread=thread,
+        request=request,
     )
     return StreamingResponse(
         stream_generator,

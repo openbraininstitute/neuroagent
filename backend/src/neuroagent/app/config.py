@@ -4,14 +4,30 @@ import os
 from typing import Literal, Optional
 
 from dotenv import dotenv_values
-from pydantic import BaseModel, ConfigDict, SecretStr
+from pydantic import BaseModel, ConfigDict, SecretStr, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class SettingsAgent(BaseModel):
     """Agent setting."""
 
-    model: Literal["simple", "multi"] = "simple"
+    composition: Literal["simple", "multi"] = "multi"
+    starting_agent: Literal[
+        "triage_agent",
+        "explore_agent",
+        "simulation_agent",
+        "literature_agent",
+        "literature_agent",
+        "Agent",
+    ] = "triage_agent"
+
+    @model_validator(mode="before")
+    @classmethod
+    def assign_single_agent_name(cls, data: dict[str, str]) -> dict[str, str]:
+        """Set single agent's name if simple agent."""
+        if data.get("composition") == "simple":
+            data["starting_agent"] = "Agent"
+        return data
 
     model_config = ConfigDict(frozen=True)
 
