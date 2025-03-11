@@ -44,6 +44,7 @@ export function ThreadCardSidebar({ title, threadId }: ThreadCardSidebarProps) {
           "bg-accent": currentThreadId === threadId,
         },
       )}
+      title={title}
     >
       <Link
         href={`/threads/${threadId}`}
