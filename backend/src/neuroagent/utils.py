@@ -8,6 +8,7 @@ import uuid
 from pathlib import Path
 from typing import Any, Iterator
 
+import tiktoken
 from fastapi import HTTPException
 from httpx import AsyncClient
 
@@ -644,3 +645,30 @@ def delete_from_storage(
                     Bucket=bucket_name, Delete={"Objects": batch, "Quiet": True}
                 )
             objects_to_delete = []
+
+
+def count_tokens(text: str, model: str = "gpt-4") -> int:
+    """Count the number of tokens in a text string for a specific model.
+
+    Parameters
+    ----------
+    text : str
+        The input text to count tokens for
+    model : str, optional
+        The model to use for token counting (default: "gpt-4")
+
+    Returns
+    -------
+    int
+        The number of tokens in the text
+
+    Raises
+    ------
+    ValueError
+        If the specified model is not supported by tiktoken
+    """
+    try:
+        encoding = tiktoken.encoding_for_model(model)
+        return len(encoding.encode(text))
+    except KeyError:
+        raise ValueError(f"Model '{model}' is not supported by tiktoken")

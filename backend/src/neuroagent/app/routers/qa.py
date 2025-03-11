@@ -6,6 +6,8 @@ from typing import Annotated, Any
 
 from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import StreamingResponse
+from obp_accounting_sdk import AsyncAccountingSessionFactory
+from obp_accounting_sdk.constants import ServiceSubtype
 from openai import AsyncOpenAI
 
 from neuroagent.agent_routine import AgentsRoutine
@@ -16,6 +18,7 @@ from neuroagent.app.database.sql_schemas import (
     Threads,
 )
 from neuroagent.app.dependencies import (
+    get_accounting_session_factory,
     get_agents_routine,
     get_context_variables,
     get_openai_client,
@@ -30,6 +33,7 @@ from neuroagent.new_types import (
     Agent,
     ClientRequest,
 )
+from neuroagent.utils import count_tokens
 
 router = APIRouter(prefix="/qa", tags=["Run the agent"])
 
@@ -41,10 +45,12 @@ async def question_suggestions(
     client_info: Annotated[UserInfo, Depends(get_user_info)],
     openai_client: Annotated[AsyncOpenAI, Depends(get_openai_client)],
     settings: Annotated[Settings, Depends(get_settings)],
+    accounting_session_factory: Annotated[
+        AsyncAccountingSessionFactory, Depends(get_accounting_session_factory)
+    ],
     body: UserClickHistory,
 ) -> QuestionsSuggestions:
     """Generate a short thread title based on the user's first message and update thread's title."""
-    # Send it to OpenAI longside with the system prompt asking for summary
     messages = [
         {
             "role": "system",
@@ -65,11 +71,29 @@ async def question_suggestions(
         },
         {"role": "user", "content": json.dumps(body.click_history)},
     ]
-    response = await openai_client.beta.chat.completions.parse(
-        messages=messages,  # type: ignore
-        model=settings.openai.suggestion_model,
-        response_format=QuestionsSuggestions,
+
+    # Estimate initial token count
+    estimated_prompt_tokens = sum(
+        count_tokens(msg["content"], settings.openai.suggestion_model)
+        for msg in messages
     )
+
+    async with accounting_session_factory.oneshot_session(
+        subtype=ServiceSubtype.ML_LLM,
+        user_id=client_info.sub,
+        proj_id="placeholder",
+        count=estimated_prompt_tokens,
+    ) as acc_session:
+        response = await openai_client.beta.chat.completions.parse(
+            messages=messages,  # type: ignore
+            model=settings.openai.suggestion_model,
+            response_format=QuestionsSuggestions,
+        )
+
+        # Use the actual token counts from the response
+        prompt_tokens = response.usage.prompt_tokens
+        completion_tokens = response.usage.completion_tokens
+        acc_session.count = prompt_tokens + completion_tokens
 
     return QuestionsSuggestions(
         suggestions=response.choices[0].message.parsed.suggestions  # type: ignore
