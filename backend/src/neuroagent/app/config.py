@@ -202,6 +202,25 @@ class SettingsMisc(BaseModel):
     model_config = ConfigDict(frozen=True)
 
 
+class SettingsAccounting(BaseModel):
+    """Accounting settings."""
+
+    base_url: str | None = None
+    disabled: bool = False
+
+    @model_validator(mode="before")
+    @classmethod
+    def disable_if_no_url(cls, data: Any) -> Any:
+        """Disable accounting if no base URL is provided."""
+        if data is None:
+            return data
+
+        if data.get("base_url") is None:
+            data["disabled"] = True
+
+        return data
+
+
 class Settings(BaseSettings):
     """All settings."""
 
@@ -214,6 +233,7 @@ class Settings(BaseSettings):
     keycloak: SettingsKeycloak = SettingsKeycloak()  # has no required
     misc: SettingsMisc = SettingsMisc()  # has no required
     storage: SettingsStorage = SettingsStorage()  # has no required
+    accounting: SettingsAccounting = SettingsAccounting()  # has no required
 
     model_config = SettingsConfigDict(
         env_file=".env",
