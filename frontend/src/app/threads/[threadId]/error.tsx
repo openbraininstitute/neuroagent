@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@bprogress/next";
 
 export default function ThreadError({ error }: { error: Error }) {
   const router = useRouter();

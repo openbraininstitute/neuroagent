@@ -31,7 +31,11 @@ export function Header() {
           </>
         ) : (
           <Button
-            onClick={() => signIn("keycloak")}
+            onClick={() =>
+              signIn("keycloak", {
+                callbackUrl: "localhost:3000",
+              })
+            }
             variant="default"
             className="hover:scale-[1.1] transition"
           >
