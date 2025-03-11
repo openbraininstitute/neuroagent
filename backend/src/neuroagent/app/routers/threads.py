@@ -5,6 +5,8 @@ import logging
 from typing import Annotated, Any
 
 from fastapi import APIRouter, Depends
+from obp_accounting_sdk import AsyncAccountingSessionFactory
+from obp_accounting_sdk.constants import ServiceSubtype
 from openai import AsyncOpenAI
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -12,8 +14,13 @@ from sqlalchemy.orm import joinedload
 
 from neuroagent.app.app_utils import validate_project
 from neuroagent.app.config import Settings
-from neuroagent.app.database.sql_schemas import Messages, Threads, utc_now
+from neuroagent.app.database.sql_schemas import (
+    Messages,
+    Threads,
+    utc_now,
+)
 from neuroagent.app.dependencies import (
+    get_accounting_session_factory,
     get_openai_client,
     get_s3_client,
     get_session,
@@ -31,7 +38,7 @@ from neuroagent.app.schemas import (
     UserInfo,
 )
 from neuroagent.tools.base_tool import BaseTool
-from neuroagent.utils import delete_from_storage
+from neuroagent.utils import count_tokens, delete_from_storage
 
 logger = logging.getLogger(__name__)
 
@@ -70,10 +77,13 @@ async def generate_title(
     openai_client: Annotated[AsyncOpenAI, Depends(get_openai_client)],
     settings: Annotated[Settings, Depends(get_settings)],
     thread: Annotated[Threads, Depends(get_thread)],
+    accounting_session_factory: Annotated[
+        AsyncAccountingSessionFactory, Depends(get_accounting_session_factory)
+    ],
+    user_info: Annotated[UserInfo, Depends(get_user_info)],
     body: ThreadGeneratedTitle,
 ) -> ThreadsRead:
     """Generate a short thread title based on the user's first message and update thread's title."""
-    # Send it to OpenAI longside with the system prompt asking for summary
     messages = [
         {
             "role": "system",
@@ -81,10 +91,28 @@ async def generate_title(
         },
         {"role": "user", "content": body.first_user_message},
     ]
-    response = await openai_client.chat.completions.create(
-        messages=messages,  # type: ignore
-        model=settings.openai.model,
+
+    # Estimate initial token count
+    estimated_prompt_tokens = sum(
+        count_tokens(msg["content"], settings.openai.model) for msg in messages
     )
+
+    async with accounting_session_factory.oneshot_session(
+        subtype=ServiceSubtype.ML_LLM,
+        user_id=user_info.sub,
+        proj_id=thread.project_id or "placeholder",
+        count=estimated_prompt_tokens,
+    ) as acc_session:
+        response = await openai_client.chat.completions.create(
+            messages=messages,  # type: ignore
+            model=settings.openai.model,
+        )
+
+        # Update accounting with actual token usage
+        prompt_tokens = response.usage.prompt_tokens
+        completion_tokens = response.usage.completion_tokens
+        acc_session.count = prompt_tokens + completion_tokens
+
     # Update the thread title and modified date + commit
     thread.title = response.choices[0].message.content.strip('"')  # type: ignore
     thread.update_date = utc_now()
