@@ -35,7 +35,7 @@ export const ChatMessageAI = function ChatMessageAI({
 
       <Card className="max-w-[70%] bg-transparent shadow-none border-none mt-1">
         <CardContent>
-          <div className="prose text-lg pt-1 text-left dark:prose-invert overflow-y-auto">
+          <div className="prose max-w-none text-lg pt-1 text-left dark:prose-invert">
             <MemoizedMarkdown content={content || ""} id={messageId} />
           </div>
         </CardContent>
