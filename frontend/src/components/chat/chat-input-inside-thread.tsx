@@ -42,13 +42,13 @@ export function ChatInputInsideThread({
 
   return (
     <form
-      className="flex flex-col justify-center items-center gap-4 mb-4"
+      className="flex flex-col justify-center items-center gap-4 m-5"
       onSubmit={(e) => {
         setIsAutoScrollEnabled(true);
         handleSubmit(e);
       }}
     >
-      <div className="min-w-[70%] max-w-[100%] flex items-center  border-2  border-gray-500 rounded-[3vw] overflow-hidden min-h-16">
+      <div className="w-full max-w-[1200px] flex items-center  border-2  border-gray-500 rounded-[3vw] overflow-hidden min-h-16">
         <TextareaAutosize
           className="flex-grow outline-none border-none bg-transparent pl-6 resize-none"
           name="prompt"

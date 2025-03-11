@@ -88,6 +88,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - [frontend] - Refactor
 - Websearch tools.
 - Small bugfixes.
+- [frontend] - Fix suggestion UI.
 
 ## [0.3.3] - 30.10.2024
 

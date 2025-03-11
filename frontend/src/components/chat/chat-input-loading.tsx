@@ -12,8 +12,8 @@ export default function ChatInputLoading({ newMessage }: ChatComponentProps) {
       <div className="flex-1 flex flex-col overflow-y-auto">
         <ChatMessageHuman key="temp" content={newMessage} />
       </div>
-      <form className="flex flex-col justify-center items-center gap-4 mb-4">
-        <div className="flex items-center min-w-[70%] max-w-[100%] border-2 border-gray-500 rounded-[3vw] overflow-hidden min-h-16">
+      <form className="flex flex-col justify-center items-center gap-4 m-5">
+        <div className="flex items-center w-full max-w-[1200px] border-2 border-gray-500 rounded-[3vw] overflow-hidden min-h-16">
           <TextareaAutosize
             readOnly
             className="flex-grow outline-none border-none bg-transparent pl-6 resize-none"
