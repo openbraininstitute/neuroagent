@@ -61,6 +61,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - [frontend] - bugfixes.
 - Suggestion endpoint.
 - Support empty vlab+project in threads.
+- Integrate accounting sdk
 
 ### Fixed
 - [frontend] - Parallel execution of tools
