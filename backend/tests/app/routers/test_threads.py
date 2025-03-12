@@ -48,11 +48,10 @@ def test_generate_thread_title(
         keycloak={"issuer": "https://great_issuer.com"},
     )
 
-    mock_openai_client = MockOpenAIClient(is_structured_output=True)
+    mock_openai_client = MockOpenAIClient()
     mock_class_response = ThreadGeneratedTitle(title="Great Title")
     mock_response = create_mock_response(
         {"role": "assistant", "content": "sample response content"},
-        is_structured_output=True,
         structured_output_class=mock_class_response,
     )
     mock_openai_client.set_response(mock_response)
@@ -76,7 +75,7 @@ def test_generate_thread_title(
         ).json()
 
         assert create_thread_response["title"] == "Great Title"
-        mock_openai_client.assert_create_called_with(
+        mock_openai_client.assert_create_called_with_structure_output(
             **{
                 "messages": [
                     {
