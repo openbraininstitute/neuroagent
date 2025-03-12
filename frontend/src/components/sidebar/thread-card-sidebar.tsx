@@ -11,12 +11,6 @@ import { DeleteThreadDialog } from "@/components/sidebar/delete-thread-dialog";
 import { Button } from "@/components/ui/button";
 import { useState, useOptimistic } from "react";
 import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-import {
   DropdownMenu,
   DropdownMenuTrigger,
   DropdownMenuContent,
@@ -50,32 +44,19 @@ export function ThreadCardSidebar({ title, threadId }: ThreadCardSidebarProps) {
           "bg-accent": currentThreadId === threadId,
         },
       )}
+      title={title}
     >
-      <TooltipProvider delayDuration={500}>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Link
-              href={`/threads/${threadId}`}
-              className="flex gap-3 flex-1 w-full"
-            >
-              <MessageCircle />
-              <span
-                className={`truncate max-w-[80%] ${isDeletePending || isDropdownOpen ? "opacity-50" : ""}`}
-              >
-                {optimisticTitle}
-              </span>
-            </Link>
-          </TooltipTrigger>
-          <TooltipContent
-            side="bottom"
-            sideOffset={-10}
-            align="end"
-            className="z-50 opacity-90"
-          >
-            {title}
-          </TooltipContent>
-        </Tooltip>
-      </TooltipProvider>
+      <Link
+        href={`/threads/${threadId}`}
+        className="flex gap-3 flex-1 w-[100%]"
+      >
+        <MessageCircle />
+        <span
+          className={`truncate max-w-[80%] ${isDeletePending || isDropdownOpen ? "opacity-50" : ""}`}
+        >
+          {optimisticTitle}
+        </span>
+      </Link>
 
       {/* Dropdown Menu */}
       <div className="absolute right-2 top-1/2 transform -translate-y-1/2 translate-x-[10%]">
