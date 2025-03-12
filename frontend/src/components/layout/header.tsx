@@ -5,9 +5,11 @@ import { useSession, signIn, signOut } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 
 import { ThemeToggle } from "@/components/layout/theme-changer";
+import { useProgress } from "@bprogress/next";
 
 export function Header() {
   const { data: session, status } = useSession();
+  const { start } = useProgress();
 
   return (
     <header className="flex items-center justify-between p-4 text-center border-b-2 h-16">
@@ -31,11 +33,12 @@ export function Header() {
           </>
         ) : (
           <Button
-            onClick={() =>
+            onClick={() => {
+              start();
               signIn("keycloak", {
                 callbackUrl: "localhost:3000",
-              })
-            }
+              });
+            }}
             variant="default"
             className="hover:scale-[1.1] transition"
           >

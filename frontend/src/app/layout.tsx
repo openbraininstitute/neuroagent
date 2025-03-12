@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import ThemeChanger from "@/components/layout/theme-changer";
+import ThemeChangerProvider from "@/components/layout/theme-changer";
 import { QueryProvider } from "@/components/query-client-provider";
 import { AuthProvider } from "@/components/auth-provider";
-import ProgressBar from "@/components/progress-bar";
+import { ProgressBarProvider, ProgressBar } from "@/components/progress-bar";
 
 import { Body } from "@/components/layout/body";
 import { Footer } from "@/components/layout/footer";
@@ -43,21 +43,23 @@ export default function RootLayout({
       >
         <QueryProvider>
           <AuthProvider>
-            <ThemeChanger>
-              <div className="flex flex-col h-screen">
-                <Header />
-                <div className="flex flex-1 flex-row overflow-hidden">
-                  <Sidebar>
-                    <ThreadList />
-                  </Sidebar>
-                  <Body>
-                    <ProgressBar />
-                    {children}
-                  </Body>
+            <ThemeChangerProvider>
+              <ProgressBarProvider>
+                <div className="flex flex-col h-screen">
+                  <Header />
+                  <div className="flex flex-1 flex-row overflow-hidden">
+                    <Sidebar>
+                      <ThreadList />
+                    </Sidebar>
+                    <Body>
+                      <ProgressBar />
+                      {children}
+                    </Body>
+                  </div>
+                  <Footer />
                 </div>
-                <Footer />
-              </div>
-            </ThemeChanger>
+              </ProgressBarProvider>
+            </ThemeChangerProvider>
           </AuthProvider>
         </QueryProvider>
       </body>
