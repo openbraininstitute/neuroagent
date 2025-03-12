@@ -1,7 +1,16 @@
 "use client";
 
-import { useState } from "react";
-import { Eye, Info } from "lucide-react";
+import React, { useState } from "react";
+import {
+  Brain,
+  Cpu,
+  Eye,
+  Info,
+  LoaderPinwheel,
+  PocketKnife,
+  ScrollText,
+  Telescope,
+} from "lucide-react";
 import { Card, CardContent, CardFooter, CardTitle } from "@/components/ui/card";
 import {
   Collapsible,
@@ -14,6 +23,7 @@ import { ScrollToBottom } from "./scroll-to-bottom";
 
 type ToolCallCollapsibleProps = {
   tool: ToolInvocation;
+  sender: string;
   toolLabel: string;
   validated: "pending" | "accepted" | "rejected" | "not_required";
   validationError: string | null;
@@ -22,6 +32,7 @@ type ToolCallCollapsibleProps = {
 
 export function ToolCallCollapsible({
   tool,
+  sender,
   toolLabel,
   validated,
   validationError,
@@ -35,11 +46,23 @@ export function ToolCallCollapsible({
     "random-plot-generator",
   ];
 
+  const agentIconMapping: Record<string, React.JSX.Element> = {
+    Agent: <LoaderPinwheel />,
+    explore_agent: <Telescope />,
+    simulation_agent: <Cpu />,
+    literature_agent: <ScrollText />,
+    utility_agent: <PocketKnife />,
+    triage_agent: <Brain />,
+  } as const;
+
   return (
     <Collapsible open={toolOpen} onOpenChange={setToolOpen}>
       <div className="flex items-center gap-2">
         <CollapsibleTrigger className="hover:scale-105 active:scale-[1.10]">
-          <span className="text-sm p-4 truncate border-2 bg-blue-500 rounded-xl">
+          <span
+            className={`flex gap-3 justify-center items-center text-sm p-4 truncate border-2 bg-blue-500 rounded-xl`}
+          >
+            {agentIconMapping[sender]}
             {toolLabel}
           </span>
         </CollapsibleTrigger>

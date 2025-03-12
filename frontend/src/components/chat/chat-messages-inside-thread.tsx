@@ -73,6 +73,11 @@ export function ChatMessagesInsideThread({
                       key={`${message.id}-${tool.toolCallId}`}
                       threadId={threadId}
                       tool={tool}
+                      sender={
+                        message.annotations?.find(
+                          (obj) => obj.toolCallId === tool.toolCallId,
+                        )?.sender ?? "Agent"
+                      }
                       availableTools={availableTools}
                       validated={validated}
                       setMessage={(updater) =>

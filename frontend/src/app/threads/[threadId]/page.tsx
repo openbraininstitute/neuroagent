@@ -41,6 +41,7 @@ function convertToAiMessages(messages: BMessage[]): MessageStrict[] {
       const annotations = message.tool_calls.map((call) => ({
         toolCallId: call.tool_call_id,
         validated: call.validated,
+        sender: message.msg_content.sender,
       }));
 
       const toolInvocations = message.tool_calls.map((toolCall) => {

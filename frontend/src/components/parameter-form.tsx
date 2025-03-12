@@ -4,6 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "./ui/checkbox";
 import {
   Form,
   FormControl,
@@ -21,12 +22,14 @@ import { useActionState } from "react";
 const formSchema = z.object({
   projectID: z.string(),
   virtualLabID: z.string(),
+  debugMode: z.boolean(),
 });
 
 type ParameterFormProps = {
   initialValues?: {
     projectID?: string;
     virtualLabID?: string;
+    debugMode: boolean;
   };
 };
 
@@ -34,6 +37,7 @@ export function ParameterForm({
   initialValues = {
     projectID: Cookies.get("projectID") || "",
     virtualLabID: Cookies.get("virtualLabID") || "",
+    debugMode: Cookies.get("debugMode") === "true",
   },
 }: ParameterFormProps) {
   const form = useForm<z.infer<typeof formSchema>>({
@@ -43,7 +47,7 @@ export function ParameterForm({
   const [, action] = useActionState(saveSettings, null);
 
   return (
-    <div className="flex flex-row justify-center">
+    <div className="flex flex-row justify-center ">
       <Form {...form}>
         <form action={action} className="w-1/2" autoComplete="off">
           <FormField
@@ -82,6 +86,25 @@ export function ParameterForm({
               </FormItem>
             )}
           />
+          <FormField
+            control={form.control}
+            name="debugMode"
+            render={({ field }) => (
+              <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md p-4">
+                <FormControl>
+                  <Checkbox
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                    name="debugMode"
+                  />
+                </FormControl>
+                <div className="space-y-1 leading-none">
+                  <FormLabel>Enable debug mode</FormLabel>
+                </div>
+              </FormItem>
+            )}
+          />
+
           <Button className="hover:scale-[1.05] transition mt-4" type="submit">
             Save Settings
           </Button>

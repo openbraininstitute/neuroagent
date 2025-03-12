@@ -237,7 +237,6 @@ class AgentsRoutine:
                 for choice in chunk.choices:
                     if choice.finish_reason == "stop":
                         continue
-
                     elif choice.finish_reason == "tool_calls":
                         for tool_call in draft_tool_calls:
                             input_args = json.loads(tool_call["arguments"] or "{}")
@@ -271,6 +270,15 @@ class AgentsRoutine:
                                     "toolCallId": id,
                                     "toolName": name,
                                 }
+                                # Send annotation to link tool to its sender
+                                annotation_data_sender = [
+                                    {
+                                        "toolCallId": id,
+                                        "toolName": name,
+                                        "sender": active_agent.name,
+                                    }
+                                ]
+                                yield f"8:{json.dumps(annotation_data_sender, separators=(',', ':'))}\n"
                                 yield f"b:{json.dumps(tool_begin_data, separators=(',', ':'))}\n"
 
                             if arguments:

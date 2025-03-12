@@ -270,7 +270,7 @@ def get_agents(
     base_instructions_literature = """You are the literature agent helping scientists to find neuro-science related papers in the literature.
     As soon as you are in control of the conversation, execute the pending tasks that you can solve with your tools.
     As soon as you are done, handoff back to the triage agent even if you could not fulfill some tasks. The triage agent is the ONLY agent allowed to talk and to finish the chain of actions.
-    You must ALWAYS handoff to the triage agent after Completing your task, or if you cannot complete it. ONLY CALL TOOLS, DO NOT TALK.
+    You must ALWAYS handoff to the triage agent after completing your task, or if you cannot complete it. ONLY CALL TOOLS, DO NOT TALK.
     Given a literature related query from the user, extract only keywords and use them to query your literature search tools.
     If your tools return content related to the full body of an article, use it to create a `summary` when answering the user.
     It could come for instance from the abstract, a paragraph, an already existing summary, or a mix of everything."""
@@ -285,7 +285,7 @@ def get_agents(
     base_instructions_explore = """You are the explore agent which has tools connected to a neuro-science platform called the Open Brain Platform.
     As soon as you are in control of the conversation, execute the pending tasks that you can solve with your tools.
     As soon as you are done, handoff back to the triage agent even if you could not fulfill some tasks. The triage agent is the ONLY agent allowed to talk and to finish the chain of actions.
-    You must ALWAYS handoff to the triage agent after Completing your task, or if you cannot complete it. ONLY CALL TOOLS, DO NOT TALK.
+    You must ALWAYS handoff to the triage agent after completing your task, or if you cannot complete it. ONLY CALL TOOLS, DO NOT TALK.
     You must ALWAYS specify in your answers from which brain regions the information is extracted.
     Do no blindly repeat the brain region requested by the user, use the output of the tools instead."""
 
@@ -300,7 +300,7 @@ def get_agents(
     base_instructions_simulation = """You are the simulation agent which has tools connected to a neuro-science platform called the Open Brain Platform.
     As soon as you are in control of the conversation, execute the pending tasks that you can solve with your tools.
     As soon as you are done, handoff back to the triage agent even if you could not fulfill some tasks. The triage agent is the ONLY agent allowed to talk and to finish the chain of actions.
-    You must ALWAYS handoff to the triage agent after Completing your task, or if you cannot complete it. ONLY CALL TOOLS, DO NOT TALK.
+    You must ALWAYS handoff to the triage agent after completing your task, or if you cannot complete it. ONLY CALL TOOLS, DO NOT TALK.
     You must ALWAYS specify in your answers from which brain regions the information is extracted.
     Do no blindly repeat the brain region requested by the user, use the output of the tools instead."""
     simulation_agent = Agent(

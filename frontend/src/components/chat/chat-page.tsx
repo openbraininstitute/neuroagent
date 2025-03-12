@@ -108,7 +108,7 @@ export function ChatPage({
 
       // Count tools that were subject to HIL (accepted, rejected, or pending)
       const validatedCount = annotations.filter((a) =>
-        ["accepted", "rejected", "pending"].includes(a.validated),
+        ["accepted", "rejected", "pending"].includes(a.validated ?? ""),
       ).length;
 
       // Count validated tools that also have results

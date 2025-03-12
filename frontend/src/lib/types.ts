@@ -24,7 +24,9 @@ export type BToolCall = {
 
 export type Annotation = {
   toolCallId: string;
-  validated: "accepted" | "rejected" | "pending" | "not_required";
+  validated?: "accepted" | "rejected" | "pending" | "not_required";
+  sender?: string;
+  toolName?: string;
 };
 
 export type BMessageUser = {
