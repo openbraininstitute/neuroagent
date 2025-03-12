@@ -112,7 +112,7 @@ describe("fetcher", () => {
         method: "GET",
         path: "/api/test",
       }),
-    ).rejects.toThrow("Fetching Error : 401, Unauthorized.");
+    ).rejects.toThrow("Fetching Error : Unauthorized.");
   });
 
   test("handles backend URL with path suffix correctly", async () => {
