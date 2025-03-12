@@ -75,11 +75,11 @@ export function ChatInput({ availableTools }: ChatInputProps) {
         }}
         className="flex flex-col w-full max-w-[1200px] justify-center"
       >
-        <div className="flex items-center border-2  border-gray-500 rounded-[3vw] overflow-hidden min-h-16">
+        <div className="flex items-center border-2  border-gray-500 rounded-[3vw] overflow-hidden min-h-16 pl-9 pr-2">
           <TextareaAutosize
             name="content"
             autoComplete="off"
-            className="flex-grow outline-none border-none bg-transparent pl-6 resize-none"
+            className="flex-grow outline-none border-none bg-transparent resize-none"
             placeholder={isPending ? "Creating thread..." : "Message the AI..."}
             value={input}
             onChange={(e) => setInput(e.target.value)}
@@ -87,7 +87,7 @@ export function ChatInput({ availableTools }: ChatInputProps) {
             disabled={isPending}
             maxRows={10}
           />
-          <div className="flex gap-2 mr-3">
+          <div className="flex gap-3 mr-3">
             <OpenUserJourneyButton
               querySuggestions={suggestionActionWrapper}
               pendingSuggestions={pendingSuggestions}

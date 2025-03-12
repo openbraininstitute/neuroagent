@@ -48,9 +48,9 @@ export function ChatInputInsideThread({
         handleSubmit(e);
       }}
     >
-      <div className="w-full max-w-[1200px] flex items-center  border-2  border-gray-500 rounded-[3vw] overflow-hidden min-h-16">
+      <div className="w-full max-w-[1200px] flex items-center  border-2  border-gray-500 rounded-[3vw] overflow-hidden min-h-16 pl-9 pr-2">
         <TextareaAutosize
-          className="flex-grow outline-none border-none bg-transparent pl-6 resize-none"
+          className="flex-grow outline-none border-none bg-transparent resize-none"
           name="prompt"
           placeholder="Message the AI..."
           value={input}
@@ -59,7 +59,7 @@ export function ChatInputInsideThread({
           autoComplete="off"
           maxRows={10}
         />
-        <div className="flex gap-2 mr-3">
+        <div className="flex gap-3 mr-3">
           <ToolSelectionDropdown
             availableTools={availableTools}
             checkedTools={checkedTools}
