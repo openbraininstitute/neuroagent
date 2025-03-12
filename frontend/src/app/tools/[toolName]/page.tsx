@@ -3,7 +3,9 @@ import { fetcher } from "@/lib/fetcher";
 import { BToolMetadataDetailed } from "@/lib/types";
 import { PersonStanding, Wifi, WifiOff, ArrowLeft } from "lucide-react";
 import { ToolInputSchema } from "@/components/tool-page/tool-input-schema";
+import { notFound } from "next/navigation";
 import Link from "next/link";
+import { CustomError } from "@/lib/types";
 
 type ToolDetailedMetadata = {
   name: string;
@@ -21,22 +23,30 @@ async function getTool(toolName: string): Promise<ToolDetailedMetadata> {
     throw new Error("No session found");
   }
 
-  const tool = (await fetcher({
-    method: "GET",
-    path: "/tools/{name}",
-    pathParams: { name: toolName },
-    headers: { Authorization: `Bearer ${session.accessToken}` },
-  })) as BToolMetadataDetailed;
+  try {
+    const tool = (await fetcher({
+      method: "GET",
+      path: "/tools/{name}",
+      pathParams: { name: toolName },
+      headers: { Authorization: `Bearer ${session.accessToken}` },
+    })) as BToolMetadataDetailed;
 
-  return {
-    name: tool.name,
-    nameFrontend: tool.name_frontend,
-    description: tool.description,
-    descriptionFrontend: tool.description_frontend,
-    inputSchema: tool.input_schema,
-    hil: tool.hil,
-    isOnline: tool.is_online,
-  };
+    return {
+      name: tool.name,
+      nameFrontend: tool.name_frontend,
+      description: tool.description,
+      descriptionFrontend: tool.description_frontend,
+      inputSchema: tool.input_schema,
+      hil: tool.hil,
+      isOnline: tool.is_online,
+    };
+  } catch (error) {
+    if ((error as CustomError).statusCode === 404) {
+      notFound();
+    } else {
+      throw error;
+    }
+  }
 }
 
 export default async function ToolPage({

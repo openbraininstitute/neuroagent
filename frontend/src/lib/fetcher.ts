@@ -1,6 +1,5 @@
 import { env } from "@/lib/env";
-import { notFound } from "next/navigation";
-
+import { CustomError } from "@/lib/types";
 const isServer = typeof window === "undefined";
 
 type Method = "GET" | "PATCH" | "POST" | "PUT" | "DELETE";
@@ -65,11 +64,9 @@ export async function fetcher({
   });
 
   if (!response.ok) {
-    if (response.status === 404) {
-      return notFound();
-    }
-    throw new Error(
-      `Fetching Error : ${response.status}, ${response.statusText}`,
+    throw new CustomError(
+      `Fetching Error : ${response.statusText}`,
+      response.status,
     );
   }
   return await response.json();
