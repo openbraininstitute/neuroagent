@@ -42,10 +42,11 @@ async function getTool(toolName: string): Promise<ToolDetailedMetadata> {
 export default async function ToolPage({
   params,
 }: {
-  params: Promise<{ toolName: string }>;
+  params: Promise<{ toolName: string; agentName: string }>;
 }) {
   const paramsAwaited = await params;
   const toolName = paramsAwaited?.toolName;
+  const agentName = paramsAwaited?.agentName;
   const tool = await getTool(toolName);
 
   // Parse the input schema JSON
@@ -59,7 +60,7 @@ export default async function ToolPage({
   return (
     <div className="container mx-auto px-4 py-6 h-[calc(100vh-4rem)] overflow-y-auto">
       <Link
-        href="/tools"
+        href={`/agents/${agentName}`}
         className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground mb-6"
       >
         <ArrowLeft className="h-4 w-4" />

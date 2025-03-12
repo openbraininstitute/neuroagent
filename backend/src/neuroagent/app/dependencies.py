@@ -238,6 +238,8 @@ def get_agents(
 
         single_agent = Agent(
             name="Agent",
+            name_frontend="Agent",
+            description="A multi-task agent.",
             instructions=f"{base_instructions}\n{storage_instructions}",
             tools=selected_tools,
             model=settings.openai.model,
@@ -260,6 +262,8 @@ def get_agents(
     You are the only agent allowed to talk and finish the chain of action. if you decide that either all of the actions are excuted or that you cannot proceed further, summarize the findings to the user."""
     triage_agent = Agent(
         name=AgentsNames.TRIAGE_AGENT.value,
+        name_frontend="Triage Agent",
+        description="The mastermind of the operations. The triage agent is responsible for routing the workflow to the sub-agents.",
         instructions=f"{base_instructions_triage}\n{storage_instructions}",
         tools=agent_tool_mapping[AgentsNames.TRIAGE_AGENT.value],
         model=settings.openai.model,
@@ -276,6 +280,8 @@ def get_agents(
     It could come for instance from the abstract, a paragraph, an already existing summary, or a mix of everything."""
     literature_agent = Agent(
         name=AgentsNames.LITERATURE_AGENT.value,
+        name_frontend="Literature Agent",
+        description="The Literature Agent is your scientific buddy expert in technical papers. He is your guy when it comes to finding any type of information burried somewhere in the depth of a scientific journal.",
         instructions=base_instructions_literature,
         tools=agent_tool_mapping[AgentsNames.LITERATURE_AGENT.value],
         model=settings.openai.model,
@@ -291,6 +297,8 @@ def get_agents(
 
     explore_agent = Agent(
         name=AgentsNames.EXPLORE_AGENT.value,
+        name_frontend="Explore Agent",
+        description="The Explore Agent is the master of the Explore section from the Open Brain Platform. Aware of the data, he will guide you and help you dig the morphology you have always dreamed of.",
         instructions=base_instructions_explore,
         tools=agent_tool_mapping[AgentsNames.EXPLORE_AGENT.value],
         model=settings.openai.model,
@@ -305,6 +313,8 @@ def get_agents(
     Do no blindly repeat the brain region requested by the user, use the output of the tools instead."""
     simulation_agent = Agent(
         name=AgentsNames.SIMULATION_AGENT.value,
+        name_frontend="Simulation Agent",
+        description="The Explore Agent is the master of the Simulate section from the Open Brain Platform. Expert in all scale simulations, he will help you plan and configure them to ensure reaching their desired behavior at the speed of thoughts.",
         instructions=base_instructions_simulation,
         tools=agent_tool_mapping[AgentsNames.SIMULATION_AGENT.value],
         model=settings.openai.model,
@@ -317,6 +327,8 @@ def get_agents(
     You must ALWAYS handoff to the triage agent after completing your task, or if you cannot complete it. ONLY CALL TOOLS, DO NOT TALK."""
     utility_agent = Agent(
         name=AgentsNames.UTILITY_AGENT.value,
+        name_frontend="Utility Agent",
+        description="The Utility Agent is your beloved Swiss Knife Army agent. Equiped with generic tools for data fetching, transformation and display, he will be your to-go agent when inspiration is missing.",
         instructions=base_instructions_utility,
         tools=agent_tool_mapping[AgentsNames.UTILITY_AGENT.value],
         model=settings.openai.model,

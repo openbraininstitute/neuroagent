@@ -115,6 +115,14 @@ export type BToolMetadata = {
   name_frontend: string;
 };
 
+export type BAgentMetadata = BToolMetadata & {
+  description: string;
+};
+
+export type BDetailedAgentMetadata = BAgentMetadata & {
+  tools: BToolMetadata[];
+};
+
 export type BToolMetadataDetailed = {
   name: string;
   name_frontend: string;

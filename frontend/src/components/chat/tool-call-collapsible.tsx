@@ -1,16 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import {
-  Brain,
-  Cpu,
-  Eye,
-  Info,
-  LoaderPinwheel,
-  PocketKnife,
-  ScrollText,
-  Telescope,
-} from "lucide-react";
+import { Eye, Info } from "lucide-react";
 import { Card, CardContent, CardFooter, CardTitle } from "@/components/ui/card";
 import {
   Collapsible,
@@ -20,6 +11,7 @@ import {
 import { ToolCallStatus } from "./tool-call-status";
 import { ToolInvocation } from "@ai-sdk/ui-utils";
 import { ScrollToBottom } from "./scroll-to-bottom";
+import { agentIconMapping } from "@/app/agents/page";
 
 type ToolCallCollapsibleProps = {
   tool: ToolInvocation;
@@ -45,15 +37,6 @@ export function ToolCallCollapsible({
     "plot-generator",
     "random-plot-generator",
   ];
-
-  const agentIconMapping: Record<string, React.JSX.Element> = {
-    Agent: <LoaderPinwheel />,
-    explore_agent: <Telescope />,
-    simulation_agent: <Cpu />,
-    literature_agent: <ScrollText />,
-    utility_agent: <PocketKnife />,
-    triage_agent: <Brain />,
-  } as const;
 
   return (
     <Collapsible open={toolOpen} onOpenChange={setToolOpen}>

@@ -101,6 +101,18 @@ class ToolMetadata(BaseModel):
     name_frontend: str
 
 
+class AgentMetadata(ToolMetadata):
+    """Data class for basic agent metadata."""
+
+    description: str
+
+
+class AgentMetadataDetailed(AgentMetadata):
+    """Detailed agent metadata class."""
+
+    tools: list[ToolMetadata]
+
+
 class ToolMetadataDetailed(ToolMetadata):
     """Data class for detailed tool metadata including online status."""
 

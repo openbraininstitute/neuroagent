@@ -270,7 +270,7 @@ class AgentsRoutine:
                                     "toolCallId": id,
                                     "toolName": name,
                                 }
-                                # Send annotation to link tool to its sender
+                                # Send annotation to link tool to its sender.
                                 annotation_data_sender = [
                                     {
                                         "toolCallId": id,

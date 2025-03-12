@@ -41,6 +41,7 @@ class HandoffToTriageTool(BaseTool):
         """Run the tool."""
         return self.metadata.triage_agent
 
+    @classmethod
     async def is_online(cls) -> bool:
         """Check if tool is online."""
         return True
@@ -69,6 +70,7 @@ class HandoffToExploreTool(BaseTool):
         """Run the tool."""
         return self.metadata.explore_agent
 
+    @classmethod
     async def is_online(cls) -> bool:
         """Check if tool is online."""
         return True
@@ -97,6 +99,7 @@ class HandoffToSimulationTool(BaseTool):
         """Run the tool."""
         return self.metadata.simulation_agent
 
+    @classmethod
     async def is_online(cls) -> bool:
         """Check if tool is online."""
         return True
@@ -126,6 +129,7 @@ class HandoffToLiteratureTool(BaseTool):
         """Run the tool."""
         return self.metadata.literature_agent
 
+    @classmethod
     async def is_online(cls) -> bool:
         """Check if tool is online."""
         return True
@@ -155,6 +159,7 @@ class HandoffToUtilityTool(BaseTool):
         """Run the tool."""
         return self.metadata.utility_agent
 
+    @classmethod
     async def is_online(cls) -> bool:
         """Check if tool is online."""
         return True

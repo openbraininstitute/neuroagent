@@ -108,7 +108,7 @@ async def test_execute_tool_call_validation_error(
 
 
 @pytest.mark.asyncio
-async def test_get_available_tools(
+async def test_get_available_agents(
     patch_required_env,
     httpx_mock,
     app_client,

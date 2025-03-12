@@ -19,7 +19,7 @@ from neuroagent.app.dependencies import (
     get_settings,
 )
 from neuroagent.app.middleware import strip_path_prefix
-from neuroagent.app.routers import qa, storage, threads, tools
+from neuroagent.app.routers import agents, qa, storage, threads, tools
 
 LOGGING = {
     "version": 1,
@@ -123,6 +123,7 @@ app.include_router(qa.router)
 app.include_router(threads.router)
 app.include_router(tools.router)
 app.include_router(storage.router)
+app.include_router(agents.router)
 
 
 @app.get("/healthz")
