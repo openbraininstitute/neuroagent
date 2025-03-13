@@ -264,26 +264,21 @@ def get_agents(
     # Literature agent
     base_instructions_literature = """You are the literature agent helping scientists to find neuro-science related papers in the literature.
     As soon as you are in control of the conversation, execute the pending tasks that you can solve with your tools.
-    As soon as you are done, handoff back to the triage agent even if you could not fulfill some tasks. The triage agent is the ONLY agent allowed to talk and to finish the chain of actions.
-    You must ALWAYS handoff to the triage agent after completing your task, or if you cannot complete it. ONLY CALL TOOLS, DO NOT TALK.
-    Given a literature related query from the user, extract only keywords and use them to query your literature search tools.
-    If your tools return content related to the full body of an article, use it to create a `summary` when answering the user.
-    It could come for instance from the abstract, a paragraph, an already existing summary, or a mix of everything."""
+    Handoff back to the triage agent ONLY WHEN YOU ARE DONE EXECUTING OTHER RELEVANT TOOLS.
+    Given a literature related query from the user, extract only keywords and use them to query your literature search tools."""
     literature_agent = Agent(
         name=AgentsNames.LITERATURE_AGENT.value,
         name_frontend="Literature Agent",
         description="The Literature Agent is your scientific buddy expert in technical papers. He is your guy when it comes to finding any type of information burried somewhere in the depth of a scientific journal.",
         instructions=base_instructions_literature,
         tools=agent_tool_mapping[AgentsNames.LITERATURE_AGENT.value],
-        tool_choice="required",
         model=settings.openai.model,
     )
 
     # Explore agent
     base_instructions_explore = """You are the explore agent which has tools connected to a neuro-science platform called the Open Brain Platform.
     As soon as you are in control of the conversation, execute the pending tasks that you can solve with your tools.
-    As soon as you are done, handoff back to the triage agent even if you could not fulfill some tasks. The triage agent is the ONLY agent allowed to talk and to finish the chain of actions.
-    You must ALWAYS handoff to the triage agent after completing your task, or if you cannot complete it. ONLY CALL TOOLS, DO NOT TALK.
+    Handoff back to the triage agent ONLY WHEN YOU ARE DONE EXECUTING OTHER RELEVANT TOOLS.
     You must ALWAYS specify in your answers from which brain regions the information is extracted.
     Do no blindly repeat the brain region requested by the user, use the output of the tools instead."""
 
@@ -300,8 +295,7 @@ def get_agents(
     # Simulation agent
     base_instructions_simulation = """You are the simulation agent which has tools connected to a neuro-science platform called the Open Brain Platform.
     As soon as you are in control of the conversation, execute the pending tasks that you can solve with your tools.
-    As soon as you are done, handoff back to the triage agent even if you could not fulfill some tasks. The triage agent is the ONLY agent allowed to talk and to finish the chain of actions.
-    You must ALWAYS handoff to the triage agent after completing your task, or if you cannot complete it. ONLY CALL TOOLS, DO NOT TALK.
+    Handoff back to the triage agent ONLY WHEN YOU ARE DONE EXECUTING OTHER RELEVANT TOOLS.
     You must ALWAYS specify in your answers from which brain regions the information is extracted.
     Do no blindly repeat the brain region requested by the user, use the output of the tools instead."""
     simulation_agent = Agent(
@@ -310,31 +304,34 @@ def get_agents(
         description="The Explore Agent is the master of the Simulate section from the Open Brain Platform. Expert in all scale simulations, he will help you plan and configure them to ensure reaching their desired behavior at the speed of thoughts.",
         instructions=base_instructions_simulation,
         tools=agent_tool_mapping[AgentsNames.SIMULATION_AGENT.value],
-        tool_choice="required",
         model=settings.openai.model,
     )
 
     # Utility agent
     base_instructions_utility = """You are the utility agent with general purpose tools.
     As soon as you are in control of the conversation, execute the pending tasks that you can solve with your tools.
-    As soon as you are done, handoff back to the triage agent even if you could not fulfill some tasks. The triage agent is the ONLY agent allowed to talk and to finish the chain of actions.
-    You must ALWAYS handoff to the triage agent after completing your task, or if you cannot complete it. ONLY CALL TOOLS, DO NOT TALK."""
+    Handoff back to the triage agent ONLY WHEN YOU ARE DONE EXECUTING OTHER RELEVANT TOOLS."""
     utility_agent = Agent(
         name=AgentsNames.UTILITY_AGENT.value,
         name_frontend="Utility Agent",
         description="The Utility Agent is your beloved Swiss Knife Army agent. Equiped with generic tools for data fetching, transformation and display, he will be your to-go agent when inspiration is missing.",
         instructions=base_instructions_utility,
         tools=agent_tool_mapping[AgentsNames.UTILITY_AGENT.value],
-        tool_choice="required",
         model=settings.openai.model,
     )
-    return {
+    agent_dict = {
         AgentsNames.TRIAGE_AGENT.value: triage_agent,
         AgentsNames.LITERATURE_AGENT.value: literature_agent,
         AgentsNames.EXPLORE_AGENT.value: explore_agent,
         AgentsNames.SIMULATION_AGENT.value: simulation_agent,
         AgentsNames.UTILITY_AGENT.value: utility_agent,
     }
+    for agent_object in agent_dict.values():
+        agent_object.tool_choice = (
+            "auto" if agent_object.name == settings.agent.starting_agent else "required"
+        )
+
+    return agent_dict
 
 
 async def get_thread(

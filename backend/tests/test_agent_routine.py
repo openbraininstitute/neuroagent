@@ -37,7 +37,7 @@ class TestAgentsRoutine:
                     {"role": "user", "content": "Hello !"},
                 ],
                 "tools": None,
-                "tool_choice": None,
+                "tool_choice": "auto",
                 "stream": False,
             }
         )
@@ -72,7 +72,7 @@ class TestAgentsRoutine:
                     {"role": "user", "content": "Hello !"},
                 ],
                 "tools": None,
-                "tool_choice": None,
+                "tool_choice": "auto",
                 "stream": False,
             }
         )
@@ -123,7 +123,7 @@ class TestAgentsRoutine:
                         },
                     }
                 ],
-                "tool_choice": None,
+                "tool_choice": "auto",
                 "stream": False,
                 "parallel_tool_calls": True,
             }

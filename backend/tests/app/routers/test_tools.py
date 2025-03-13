@@ -108,7 +108,7 @@ async def test_execute_tool_call_validation_error(
 
 
 @pytest.mark.asyncio
-async def test_get_available_agents(
+async def test_get_all_tools(
     patch_required_env,
     httpx_mock,
     app_client,
@@ -122,6 +122,58 @@ async def test_get_available_agents(
 
     with app_client as app_client:
         response = app_client.get("/tools")
+
+    assert response.status_code == 200
+    tools = response.json()
+    assert isinstance(tools, list)
+    assert len(tools) == 21
+
+    assert set(tools[0].keys()) == {"name", "name_frontend"}
+
+
+@pytest.mark.asyncio
+async def test_get_available_tools_simple(
+    patch_required_env,
+    httpx_mock,
+    app_client,
+    db_connection,
+):
+    mock_keycloak_user_identification(httpx_mock)
+    test_settings = Settings(
+        db={"prefix": db_connection},
+        keycloak={"issuer": "https://great_issuer.com"},
+        agent={"composition": "simple"},
+    )
+    app.dependency_overrides[get_settings] = lambda: test_settings
+
+    with app_client as app_client:
+        response = app_client.get("/tools/available")
+
+    assert response.status_code == 200
+    tools = response.json()
+    assert isinstance(tools, list)
+    assert len(tools) == 16
+
+    assert set(tools[0].keys()) == {"name", "name_frontend"}
+
+
+@pytest.mark.asyncio
+async def test_get_available_tools_multi(
+    patch_required_env,
+    httpx_mock,
+    app_client,
+    db_connection,
+):
+    mock_keycloak_user_identification(httpx_mock)
+    test_settings = Settings(
+        db={"prefix": db_connection},
+        keycloak={"issuer": "https://great_issuer.com"},
+        agent={"composition": "multi"},
+    )
+    app.dependency_overrides[get_settings] = lambda: test_settings
+
+    with app_client as app_client:
+        response = app_client.get("/tools/available")
 
     assert response.status_code == 200
     tools = response.json()
