@@ -34,7 +34,7 @@ export default function QuestionSuggestionCards({
 }: QuestionSuggestionCardsProps) {
   const suggestionsMap = suggestions ?? defaultQuestions;
   return (
-    <div className="flex item-center bg-gray-600/15 gap-4 border-t-0 border-2 border-gray-500/50 rounded-b-xl mx-auto p-4 overflow-y-auto max-w-[90%] max-h-[20vh]">
+    <div className="flex item-center bg-gray-300/20 dark:bg-gray-600/15 gap-4 border-t-0 border-2 border-gray-500/50 rounded-b-xl mx-auto p-4 overflow-y-auto max-w-[90%] max-h-[20vh]">
       {suggestionsMap?.suggestions?.map((q, index) => (
         <Card
           key={index}
