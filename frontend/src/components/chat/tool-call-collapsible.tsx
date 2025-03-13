@@ -39,7 +39,10 @@ export function ToolCallCollapsible({
   ];
 
   return (
-    <Collapsible open={toolOpen} onOpenChange={setToolOpen}>
+    <Collapsible
+      open={toolOpen}
+      onOpenChange={validated === "pending" ? onValidationClick : setToolOpen}
+    >
       <div className="flex items-center gap-2">
         <CollapsibleTrigger className="hover:scale-105 active:scale-[1.10]">
           <span

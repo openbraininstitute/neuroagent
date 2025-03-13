@@ -2,6 +2,8 @@ import { BMessage, MessageStrict } from "@/lib/types";
 import { ChatPage } from "@/components/chat/chat-page";
 import { auth } from "@/lib/auth";
 import { fetcher } from "@/lib/fetcher";
+import { notFound } from "next/navigation";
+import { CustomError } from "@/lib/types";
 
 async function getMessages(threadId: string): Promise<BMessage[]> {
   const session = await auth();
@@ -9,14 +11,22 @@ async function getMessages(threadId: string): Promise<BMessage[]> {
     throw new Error("No session found");
   }
 
-  const response = await fetcher({
-    path: "/threads/{threadId}/messages",
-    pathParams: { threadId },
-    headers: { Authorization: `Bearer ${session.accessToken}` },
-    next: { tags: [`thread/${threadId}/messages`] },
-  });
+  try {
+    const response = await fetcher({
+      path: "/threads/{threadId}/messages",
+      pathParams: { threadId },
+      headers: { Authorization: `Bearer ${session.accessToken}` },
+      next: { tags: [`thread/${threadId}/messages`] },
+    });
 
-  return response as Promise<BMessage[]>;
+    return response as Promise<BMessage[]>;
+  } catch (error) {
+    if ((error as CustomError).statusCode === 404) {
+      notFound();
+    } else {
+      throw error;
+    }
+  }
 }
 
 function convertToAiMessages(messages: BMessage[]): MessageStrict[] {

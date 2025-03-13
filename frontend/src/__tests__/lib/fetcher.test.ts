@@ -103,8 +103,8 @@ describe("fetcher", () => {
   test("throws error for failed requests", async () => {
     (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
       ok: false,
-      status: 404,
-      statusText: "Not found.",
+      status: 401,
+      statusText: "Unauthorized.",
     });
 
     await expect(
@@ -112,7 +112,7 @@ describe("fetcher", () => {
         method: "GET",
         path: "/api/test",
       }),
-    ).rejects.toThrow("Fetching Error : 404, Not found.");
+    ).rejects.toThrow("Fetching Error : Unauthorized.");
   });
 
   test("handles backend URL with path suffix correctly", async () => {

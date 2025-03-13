@@ -10,21 +10,19 @@ import {
   CardContent,
 } from "@/components/ui/card";
 import { useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@bprogress/next";
+import { useProgress } from "@bprogress/next";
 
 export default function LoginPage() {
   const { status } = useSession();
   const router = useRouter();
+  const { start } = useProgress();
 
   useEffect(() => {
     if (status === "authenticated") {
       router.push("/");
     }
   }, [status, router]);
-
-  if (status === "loading") {
-    return <div>Loading...</div>;
-  }
 
   return (
     <div className="flex items-center justify-center min-h-screen">
@@ -36,11 +34,12 @@ export default function LoginPage() {
         <CardContent>
           <Button
             className="w-full"
-            onClick={() =>
+            onClick={() => {
+              start();
               signIn("keycloak", {
                 callbackUrl: "localhost:3000",
-              })
-            }
+              });
+            }}
           >
             Sign in with Keycloak
           </Button>

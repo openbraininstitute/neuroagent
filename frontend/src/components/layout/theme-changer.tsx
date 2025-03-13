@@ -6,7 +6,7 @@ import { useState, useEffect } from "react";
 import { Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
 
-export default function ThemeChanger({
+export default function ThemeChangerProvider({
   children,
 }: {
   children: React.ReactNode;

@@ -6,19 +6,27 @@ import {
   Bar,
 } from "@bprogress/next";
 
-const ProgressBar = () => {
+export function ProgressBarProvider({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <ProgressProvider
-      color="#2b7fff" // did not find how to do in tailwind ... this is blue-500
+      color="#2b7fff"
       options={{
         template: null,
       }}
     >
-      <Progress>
-        <Bar className="!absolute z-[9999] !top-auto"></Bar>
-      </Progress>
+      {children}
     </ProgressProvider>
   );
-};
+}
 
-export default ProgressBar;
+export const ProgressBar = () => {
+  return (
+    <Progress>
+      <Bar className="!absolute z-[9999] !top-auto fill-red-500"></Bar>
+    </Progress>
+  );
+};
