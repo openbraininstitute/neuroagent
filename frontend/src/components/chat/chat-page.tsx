@@ -117,7 +117,7 @@ export function ChatPage({
       const validatedWithResultCount = lastMessage.toolInvocations.filter(
         (tool) => {
           const annotation = annotations.find(
-            (a) => a.toolCallId === tool.toolCallId,
+            (a) => a.toolCallId === tool.toolCallId && "validated" in a,
           );
           return (
             (annotation?.validated === "accepted" ||
