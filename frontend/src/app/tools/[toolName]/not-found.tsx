@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 
-export default function NotFound({ reset }: { reset: () => void }) {
+export default function NotFound() {
   return (
     <div className="container mx-auto px-4 py-6 h-[calc(100vh-4rem)] flex flex-col items-center justify-center">
       <div className="text-center space-y-4">
@@ -15,9 +15,6 @@ export default function NotFound({ reset }: { reset: () => void }) {
           <Link href="/tools">
             <Button>Return to Tools</Button>
           </Link>
-          <Button variant="outline" onClick={() => reset()}>
-            Try again
-          </Button>
         </div>
       </div>
     </div>
