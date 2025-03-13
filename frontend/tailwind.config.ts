@@ -56,6 +56,18 @@ export default {
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
       },
+      // This will restrict the growth of the markdown tables and make them scrollable!
+      typography: {
+        DEFAULT: {
+          css: {
+            table: {
+              display: "block",
+              maxWidth: "70vw",
+              overflowX: "auto",
+            },
+          },
+        },
+      },
     },
   },
   plugins: [require("tailwindcss-animate"), require("@tailwindcss/typography")],

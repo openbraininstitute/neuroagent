@@ -10,19 +10,20 @@ type QuestionSuggestionCardsProps = {
 const defaultQuestions = {
   suggestions: [
     {
-      question: "Show me papers about neuron morphologies in the thalamus",
+      question:
+        "Show me papers about neuron morphologies in the thalamus of rodents",
     },
     {
       question:
-        "Show me papers about intracellular patch clamp data for the thalamus",
+        "Show me papers about intracellular patch clamp data for the thalamus of rodents",
     },
     {
       question:
-        "Show me papers comparing cell morphologies between neurons in the thalamus",
+        "Show me papers comparing cell morphologies between neurons in the thalamus of rodents",
     },
     {
       question:
-        "Show me papers about experimental electrophysiology data for the thalamus?",
+        "Show me papers about experimental electrophysiology data for the thalamus of rodents",
     },
   ],
 };

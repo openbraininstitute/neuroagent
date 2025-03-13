@@ -23,9 +23,7 @@ export async function generateEditTitle(
       headers: { Authorization: `Bearer ${session.accessToken}` },
     });
 
-    // Revalidate the same tags as delete for consistency
     revalidateTag("threads");
-
     return { success: true };
   } catch (error) {
     return {

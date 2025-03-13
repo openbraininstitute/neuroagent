@@ -6,6 +6,7 @@ import { createThread } from "@/actions/create-thread";
 import { useStore } from "@/lib/store";
 import { ToolSelectionDropdown } from "@/components/chat/tool-selection-dropdown";
 import { Send } from "lucide-react";
+import TextareaAutosize from "react-textarea-autosize";
 import ChatInputLoading from "@/components/chat/chat-input-loading";
 import { convert_tools_to_set } from "@/lib/utils";
 import { OpenUserJourneyButton } from "./user-journey-dialog";
@@ -43,12 +44,13 @@ export function ChatInput({ availableTools }: ChatInputProps) {
     startTransition(() => querySuggestions(suggestionInput));
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter") {
-      e.preventDefault();
-      if (!e.shiftKey) {
-        e.currentTarget.form?.requestSubmit();
+      if (e.shiftKey) {
+        return;
       }
+      e.preventDefault();
+      e.currentTarget.form?.requestSubmit();
     }
   };
   useEffect(() => {
@@ -57,7 +59,7 @@ export function ChatInput({ availableTools }: ChatInputProps) {
   }, []); // Empty dependency array means this runs once on mount
 
   return !isPending ? (
-    <div className="flex flex-col items-center gap-4 pl-2 pr-2 h-[100%] justify-center">
+    <div className="flex flex-col items-center gap-4 h-[100%] justify-center m-5">
       <h1 className="text-2xl font-bold mt-4 mb-6">
         What can I help you with?
       </h1>
@@ -71,21 +73,21 @@ export function ChatInput({ availableTools }: ChatInputProps) {
           }
           setInput("");
         }}
-        className="w-full flex flex-col w-[80%] justify-center"
+        className="flex flex-col w-full max-w-[1200px] justify-center"
       >
-        <div className="flex items-center border-2 border-gray-500 rounded-full overflow-hidden">
-          <input
+        <div className="flex items-center border-2  border-gray-500 rounded-[3vw] overflow-hidden min-h-16 pl-9 pr-2">
+          <TextareaAutosize
             name="content"
-            type="text"
             autoComplete="off"
-            className="flex-grow p-4 outline-none bg-transparent"
+            className="flex-grow outline-none border-none bg-transparent resize-none"
             placeholder={isPending ? "Creating thread..." : "Message the AI..."}
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            onKeyDown={handleKeyDown}
+            onKeyDown={(e) => handleKeyDown(e)}
             disabled={isPending}
+            maxRows={10}
           />
-          <div className="flex gap-2 mr-3">
+          <div className="flex gap-3 mr-3">
             <OpenUserJourneyButton
               querySuggestions={suggestionActionWrapper}
               pendingSuggestions={pendingSuggestions}
