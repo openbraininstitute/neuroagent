@@ -11,6 +11,7 @@ import {
 import { ToolCallStatus } from "./tool-call-status";
 import { ToolInvocation } from "@ai-sdk/ui-utils";
 import { ScrollToBottom } from "./scroll-to-bottom";
+import { viewableTools } from "@/lib/utils";
 
 type ToolCallCollapsibleProps = {
   tool: ToolInvocation;
@@ -28,12 +29,6 @@ export function ToolCallCollapsible({
   onValidationClick,
 }: ToolCallCollapsibleProps) {
   const [toolOpen, setToolOpen] = useState(false);
-
-  const viewableTools = [
-    "morpho-viewer-tool",
-    "plot-generator",
-    "random-plot-generator",
-  ];
 
   return (
     <Collapsible

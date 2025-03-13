@@ -24,9 +24,10 @@ ChartJS.register(
 
 type LinechartProps = {
   data: JSONLinechart;
+  isInChat?: boolean;
 };
 
-export function Linechart({ data }: LinechartProps) {
+export function Linechart({ data, isInChat = false }: LinechartProps) {
   const chartData = {
     labels: data.values.map((point) => point.x),
     datasets: [
@@ -89,7 +90,7 @@ export function Linechart({ data }: LinechartProps) {
   return (
     <div className="w-full max-w-3xl mx-auto p-4 overflow-y-auto">
       <h2 className="text-xl font-bold mb-2">{data.title}</h2>
-      {data.description && (
+      {data.description && isInChat && (
         <p className="text-gray-600 mb-4">{data.description}</p>
       )}
       <div className="aspect-square">

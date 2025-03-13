@@ -1,7 +1,7 @@
 "use client";
 
 import { MessageStrict } from "@/lib/types";
-import { getAssociatedTools } from "@/lib/utils";
+import { getAssociatedTools, getViewableToolStorageIds } from "@/lib/utils";
 import { ChatMessageAI } from "./chat-message-ai";
 import { ChatMessageHuman } from "./chat-message-human";
 import { ChatMessageTool } from "./chat-message-tool";
@@ -27,6 +27,10 @@ export function ChatMessagesInsideThread({
   const [collapsedTools, setCollapsedTools] = useState<Set<string>>(new Set());
 
   const associatedTools = getAssociatedTools(messages);
+  const associatedStorageID = getViewableToolStorageIds(
+    messages,
+    associatedTools,
+  );
 
   const handleToggleCollapse = (messageId: string) => {
     const toolsToToggle = associatedTools.get(messageId);
@@ -92,6 +96,9 @@ export function ChatMessagesInsideThread({
                 associatedTools.get(message.id) || [],
               ).some((id) => collapsedTools.has(id))}
               toggleCollapse={() => handleToggleCollapse(message.id)}
+              associatedStorage={Array.from(
+                associatedStorageID.get(message.id) || [],
+              )}
             />
           )
         ) : (

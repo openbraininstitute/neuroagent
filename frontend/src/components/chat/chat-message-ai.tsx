@@ -2,6 +2,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { LoaderPinwheel, ChevronDown, Wrench } from "lucide-react";
 import { MemoizedMarkdown } from "@/components/memoized-markdown";
+import PlotDisplayInChat from "@/components/chat/plot-in-chat";
 
 type ChatMessageAIProps = {
   content?: string;
@@ -9,6 +10,7 @@ type ChatMessageAIProps = {
   toolsCollapsed: boolean;
   toggleCollapse: () => void;
   messageId: string;
+  associatedStorage: Array<string>;
 };
 
 export const ChatMessageAI = function ChatMessageAI({
@@ -17,6 +19,7 @@ export const ChatMessageAI = function ChatMessageAI({
   toolsCollapsed,
   toggleCollapse,
   messageId,
+  associatedStorage,
 }: ChatMessageAIProps) {
   return (
     <div className="flex justify-start mt-4">
@@ -38,6 +41,7 @@ export const ChatMessageAI = function ChatMessageAI({
           <div className="prose max-w-none text-lg pt-1 text-left dark:prose-invert">
             <MemoizedMarkdown content={content || ""} id={messageId} />
           </div>
+          <PlotDisplayInChat storageIds={associatedStorage} />
         </CardContent>
       </Card>
     </div>

@@ -20,6 +20,12 @@ export function convert_tools_to_set(
   return initialCheckedTools;
 }
 
+export const viewableTools = [
+  "morpho-viewer-tool",
+  "plot-generator",
+  "random-plot-generator",
+];
+
 /**
  * Maps AI responses to their associated tool-using messages.
  *
@@ -48,4 +54,54 @@ export function getAssociatedTools(messages: MessageStrict[]) {
     }
     return toolMap;
   }, new Map<string, Set<string>>());
+}
+
+/**
+ * Maps final assistant response IDs to a set of storage IDs.
+ * For each associated tool message, it iterates over its tool invocations,
+ * and if the tool is viewable (its name is in viewableTools), its state is "result",
+ * and it contains a valid result with a storage_id, that storage_id is added.
+ */
+export function getViewableToolStorageIds(
+  messages: MessageStrict[],
+  associatedToolCalls: Map<string, Set<string>>,
+): Map<string, Array<string>> {
+  const storageIdsMap = new Map<string, Array<string>>();
+
+  for (const [responseId, toolIds] of associatedToolCalls.entries()) {
+    const storageIds = new Array<string>();
+
+    // For each associated tool call, find the corresponding message.
+    for (const toolId of toolIds) {
+      const toolMessage = messages.find((msg) => msg.id === toolId);
+      if (toolMessage && toolMessage.toolInvocations?.length) {
+        toolMessage.toolInvocations.forEach((invocation) => {
+          // Check if the tool's name is in viewableTools, its state is "result",
+          // and it has a result.
+          if (
+            viewableTools.includes(invocation.toolName) &&
+            invocation.state === "result" &&
+            invocation.result
+          ) {
+            try {
+              // Parse the result, which might be a string or an object.
+              const parsedResult = JSON.parse(
+                typeof invocation.result === "string"
+                  ? invocation.result
+                  : JSON.stringify(invocation.result),
+              );
+              if (parsedResult.storage_id) {
+                storageIds.push(parsedResult.storage_id);
+              }
+            } catch {
+              // If parsing fails, ignore this invocation.
+            }
+          }
+        });
+      }
+    }
+    storageIdsMap.set(responseId, storageIds);
+  }
+
+  return storageIdsMap;
 }
