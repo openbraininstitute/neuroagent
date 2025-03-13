@@ -25,7 +25,7 @@ class HandoffToTriageTool(BaseTool):
     name: ClassVar[str] = "handoff-to-triage-agent"
     name_frontend: ClassVar[str] = "To Triage Agent"
     description: ClassVar[str] = """Handoff back to the triage agent.
-    Return to the triage agent if you are not able to handle the user's request.
+    Return to the triage agent if you are not able to handle the user's request or if you are done.
     """
     description_frontend: ClassVar[str] = "Handoff to the Triage Agent."
     agents: ClassVar[list[str]] = [
@@ -60,7 +60,7 @@ class HandoffToExploreTool(BaseTool):
     name_frontend: ClassVar[str] = "To Explore Agent"
     description: ClassVar[str] = """Handoff to the explore agent.
     The explore agent is capable of handling requests about neuron morphologies and electrophysiology.
-    He has access to the Open Brain Platorm explore section, a section that contains a lot of morphology and trace data.
+    He has access to the Open Brain Platorm's explore section, a section that contains a lot of morphology and trace data.
     Do not handoff to this agent for literature related questions."""
     description_frontend: ClassVar[str] = "Handoff to the Explore Agent."
     agents: ClassVar[list[str]] = [AgentsNames.TRIAGE_AGENT.value]
@@ -89,7 +89,8 @@ class HandoffToSimulationTool(BaseTool):
     name: ClassVar[str] = "handoff-to-simulation-agent"
     name_frontend: ClassVar[str] = "To Simulation Agent"
     description: ClassVar[str] = """Handoff to the simulation agent.
-    The simulation agent is capable of getting models for simulations such as ME models, as well as starting amd listing simulations.
+    The simulation agent has access to the Open Brain Platorm's simulate section
+    The simulation agent is capable of getting models for simulations such as ME models, as well as starting and listing simulations.
     Do not handoff to this agent for literature related questions."""
     description_frontend: ClassVar[str] = "Handoff to the Simulation Agent."
     agents: ClassVar[list[str]] = [AgentsNames.TRIAGE_AGENT.value]

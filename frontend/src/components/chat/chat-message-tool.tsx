@@ -33,7 +33,6 @@ export const ChatMessageTool = function ChatMessageTool({
   const [debugMode, setDebugMode] = useState<boolean>(false);
 
   useEffect(() => {
-    // Now we're on the client and can access cookies.
     setDebugMode(Cookies.get("debugMode") === "true");
   }, []);
 

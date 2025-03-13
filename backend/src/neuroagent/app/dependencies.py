@@ -288,7 +288,6 @@ def get_agents(
         description="The Explore Agent is the master of the Explore section from the Open Brain Platform. Aware of the data, he will guide you and help you dig the morphology you have always dreamed of.",
         instructions=base_instructions_explore,
         tools=agent_tool_mapping[AgentsNames.EXPLORE_AGENT.value],
-        tool_choice="required",
         model=settings.openai.model,
     )
 
@@ -301,7 +300,7 @@ def get_agents(
     simulation_agent = Agent(
         name=AgentsNames.SIMULATION_AGENT.value,
         name_frontend="Simulation Agent",
-        description="The Explore Agent is the master of the Simulate section from the Open Brain Platform. Expert in all scale simulations, he will help you plan and configure them to ensure reaching their desired behavior at the speed of thoughts.",
+        description="The Simulation Agent is the master of the Simulate section from the Open Brain Platform. Expert in all scale simulations, he will help you plan and configure them to ensure reaching their desired behavior at the speed of thoughts.",
         instructions=base_instructions_simulation,
         tools=agent_tool_mapping[AgentsNames.SIMULATION_AGENT.value],
         model=settings.openai.model,
@@ -326,6 +325,8 @@ def get_agents(
         AgentsNames.SIMULATION_AGENT.value: simulation_agent,
         AgentsNames.UTILITY_AGENT.value: utility_agent,
     }
+
+    # Every agent is forced to call tool calls except for the starting agent.
     for agent_object in agent_dict.values():
         agent_object.tool_choice = (
             "auto" if agent_object.name == settings.agent.starting_agent else "required"
