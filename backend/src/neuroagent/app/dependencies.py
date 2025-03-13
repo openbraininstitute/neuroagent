@@ -160,21 +160,8 @@ async def get_user_info(
         raise HTTPException(status_code=404, detail="User info url not provided.")
 
 
-def get_tool_list(
-    settings: Annotated[Settings, Depends(get_settings)],
-) -> list[type[BaseTool]]:
+def get_tool_list() -> list[type[BaseTool]]:
     """Return a raw list of all of the available tools."""
-    handoff_tools: list[type[BaseTool]] = (
-        [
-            HandoffToExploreTool,
-            HandoffToLiteratureTool,
-            HandoffToSimulationTool,
-            HandoffToTriageTool,
-            HandoffToUtilityTool,
-        ]
-        if settings.agent.composition == "multi"
-        else []
-    )
     return [
         SCSGetAllTool,
         SCSGetOneTool,
@@ -192,7 +179,11 @@ def get_tool_list(
         MorphologyViewerTool,
         WebSearchTool,
         SemanticScholarTool,
-        *handoff_tools,
+        HandoffToExploreTool,
+        HandoffToLiteratureTool,
+        HandoffToSimulationTool,
+        HandoffToTriageTool,
+        HandoffToUtilityTool,
         # NowTool,
         # WeatherTool,
         # RandomPlotGeneratorTool,
@@ -241,7 +232,7 @@ def get_agents(
             name_frontend="Agent",
             description="A multi-task agent.",
             instructions=f"{base_instructions}\n{storage_instructions}",
-            tools=selected_tools,
+            tools=[tool for tool in selected_tools if "handoff-to" not in tool.name],
             model=settings.openai.model,
         )
         return {"Agent": single_agent}
@@ -284,6 +275,7 @@ def get_agents(
         description="The Literature Agent is your scientific buddy expert in technical papers. He is your guy when it comes to finding any type of information burried somewhere in the depth of a scientific journal.",
         instructions=base_instructions_literature,
         tools=agent_tool_mapping[AgentsNames.LITERATURE_AGENT.value],
+        tool_choice="required",
         model=settings.openai.model,
     )
 
@@ -301,6 +293,7 @@ def get_agents(
         description="The Explore Agent is the master of the Explore section from the Open Brain Platform. Aware of the data, he will guide you and help you dig the morphology you have always dreamed of.",
         instructions=base_instructions_explore,
         tools=agent_tool_mapping[AgentsNames.EXPLORE_AGENT.value],
+        tool_choice="required",
         model=settings.openai.model,
     )
 
@@ -317,6 +310,7 @@ def get_agents(
         description="The Explore Agent is the master of the Simulate section from the Open Brain Platform. Expert in all scale simulations, he will help you plan and configure them to ensure reaching their desired behavior at the speed of thoughts.",
         instructions=base_instructions_simulation,
         tools=agent_tool_mapping[AgentsNames.SIMULATION_AGENT.value],
+        tool_choice="required",
         model=settings.openai.model,
     )
 
@@ -331,6 +325,7 @@ def get_agents(
         description="The Utility Agent is your beloved Swiss Knife Army agent. Equiped with generic tools for data fetching, transformation and display, he will be your to-go agent when inspiration is missing.",
         instructions=base_instructions_utility,
         tools=agent_tool_mapping[AgentsNames.UTILITY_AGENT.value],
+        tool_choice="required",
         model=settings.openai.model,
     )
     return {

@@ -10,7 +10,7 @@ import { useState } from "react";
 interface ChatMessagesInsideThreadProps {
   messages: MessageStrict[];
   threadId: string;
-  availableTools: Array<{ slug: string; label: string }>;
+  toolList: Array<{ slug: string; label: string }>;
   setMessages: (
     messages:
       | MessageStrict[]
@@ -21,7 +21,7 @@ interface ChatMessagesInsideThreadProps {
 export function ChatMessagesInsideThread({
   messages,
   threadId,
-  availableTools,
+  toolList,
   setMessages,
 }: ChatMessagesInsideThreadProps) {
   const [collapsedTools, setCollapsedTools] = useState<Set<string>>(new Set());
@@ -78,7 +78,7 @@ export function ChatMessagesInsideThread({
                           (obj) => obj.toolCallId === tool.toolCallId,
                         )?.sender ?? "Agent"
                       }
-                      availableTools={availableTools}
+                      availableTools={toolList}
                       validated={validated}
                       setMessage={(updater) =>
                         handleMessageUpdate(message.id, updater)

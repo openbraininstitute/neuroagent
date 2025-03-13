@@ -10,7 +10,7 @@ import { fetcher } from "@/lib/fetcher";
 import { auth } from "@/lib/auth";
 import { AgentMetadata } from "../page";
 import { BDetailedAgentMetadata } from "@/lib/types";
-import { agentIconMapping } from "../page";
+import { agentIconMapping } from "@/lib/mappings";
 
 type ToolMetadata = {
   name: string;

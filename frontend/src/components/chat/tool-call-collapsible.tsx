@@ -11,7 +11,7 @@ import {
 import { ToolCallStatus } from "./tool-call-status";
 import { ToolInvocation } from "@ai-sdk/ui-utils";
 import { ScrollToBottom } from "./scroll-to-bottom";
-import { agentIconMapping } from "@/app/agents/page";
+import { agentIconMapping } from "@/lib/mappings";
 
 type ToolCallCollapsibleProps = {
   tool: ToolInvocation;

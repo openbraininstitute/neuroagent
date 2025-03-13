@@ -11,12 +11,14 @@ from sqlalchemy import desc, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from neuroagent.agent_routine import AgentsRoutine
+from neuroagent.app.config import Settings
 from neuroagent.app.database.sql_schemas import Entity, Messages, Threads, ToolCalls
 from neuroagent.app.dependencies import (
     get_agents_routine,
     get_context_variables,
     get_healthcheck_variables,
     get_session,
+    get_settings,
     get_thread,
     get_tool_list,
     get_user_info,
@@ -113,15 +115,35 @@ async def execute_tool_call(
 
 
 @router.get("")
-def get_available_tools(
+def get_all_tools(
     tool_list: Annotated[list[type[BaseTool]], Depends(get_tool_list)],
     _: Annotated[UserInfo, Depends(get_user_info)],
 ) -> list[ToolMetadata]:
-    """Return the list of available tools with their basic metadata."""
+    """Return the list of all tools with their basic metadata."""
     return [
         ToolMetadata(name=tool.name, name_frontend=tool.name_frontend)
         for tool in tool_list
     ]
+
+
+@router.get("/available")
+def get_available_tools(
+    tool_list: Annotated[list[type[BaseTool]], Depends(get_tool_list)],
+    _: Annotated[UserInfo, Depends(get_user_info)],
+    settings: Annotated[Settings, Depends(get_settings)],
+) -> list[ToolMetadata]:
+    """Return the list of available tools with their basic metadata."""
+    if settings.agent.composition == "multi":
+        return [
+            ToolMetadata(name=tool.name, name_frontend=tool.name_frontend)
+            for tool in tool_list
+        ]
+    else:
+        return [
+            ToolMetadata(name=tool.name, name_frontend=tool.name_frontend)
+            for tool in tool_list
+            if "handoff-to" not in tool.name
+        ]
 
 
 @router.get("/{name}")

@@ -9,29 +9,14 @@ import Link from "next/link";
 import { BAgentMetadata } from "@/lib/types";
 import { fetcher } from "@/lib/fetcher";
 import { auth } from "@/lib/auth";
-import {
-  Brain,
-  Cpu,
-  LoaderPinwheel,
-  PocketKnife,
-  ScrollText,
-  Telescope,
-} from "lucide-react";
+import { LoaderPinwheel } from "lucide-react";
+import { agentIconMapping } from "@/lib/mappings";
 
 export type AgentMetadata = {
   name: string;
   nameFrontend: string;
   description: string;
 };
-
-export const agentIconMapping: Record<string, React.JSX.Element> = {
-  Agent: <LoaderPinwheel />,
-  explore_agent: <Telescope />,
-  simulation_agent: <Cpu />,
-  literature_agent: <ScrollText />,
-  utility_agent: <PocketKnife />,
-  triage_agent: <Brain />,
-} as const;
 
 async function getAgents(): Promise<AgentMetadata[]> {
   const session = await auth();

@@ -9,7 +9,7 @@ async function getToolList() {
   }
 
   const response = await fetcher({
-    path: "/tools",
+    path: "/tools/available",
     headers: { Authorization: `Bearer ${session.accessToken}` },
   });
 

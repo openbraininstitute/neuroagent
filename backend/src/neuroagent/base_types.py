@@ -114,7 +114,7 @@ class Agent(BaseModel):
     model: str = "gpt-4o-mini"
     instructions: str | Callable[[], str] = "You are a helpful agent."
     tools: list[type[BaseTool]] = []
-    tool_choice: str | None = None
+    tool_choice: Literal["none", "auto", "required"] = "auto"
     parallel_tool_calls: bool = True
 
 
