@@ -64,7 +64,7 @@ export function ChatMessagesInsideThread({
               .map((tool) => {
                 const validated =
                   message.annotations?.find(
-                    (a) => a.toolCallId === tool.toolCallId,
+                    (a) => a.toolCallId === tool.toolCallId && !("sender" in a),
                   )?.validated ?? "not_required";
 
                 return (

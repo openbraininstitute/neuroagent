@@ -60,6 +60,7 @@ class HandoffToExploreTool(BaseTool):
     name_frontend: ClassVar[str] = "To Explore Agent"
     description: ClassVar[str] = """Handoff to the explore agent.
     The explore agent is capable of handling requests about neuron morphologies and electrophysiology.
+    He has access to the Open Brain Platorm explore section, a section that contains a lot of morphology and trace data.
     Do not handoff to this agent for literature related questions."""
     description_frontend: ClassVar[str] = "Handoff to the Explore Agent."
     agents: ClassVar[list[str]] = [AgentsNames.TRIAGE_AGENT.value]

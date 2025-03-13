@@ -58,7 +58,6 @@ export function ChatPage({
     },
   });
 
-  console.log(JSON.stringify(messagesRaw, null, 2));
   const messages = messagesRaw as MessageStrict[];
   const setMessages = setMessagesRaw as (
     messages:

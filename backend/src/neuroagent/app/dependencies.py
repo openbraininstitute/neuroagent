@@ -265,7 +265,7 @@ def get_agents(
     base_instructions_literature = """You are the literature agent helping scientists to find neuro-science related papers in the literature.
     As soon as you are in control of the conversation, execute the pending tasks that you can solve with your tools.
     Handoff back to the triage agent ONLY WHEN YOU ARE DONE EXECUTING OTHER RELEVANT TOOLS.
-    Given a literature related query from the user, extract only keywords and use them to query your literature search tools."""
+    Your task is to solve the literature related queries. As soon as the user asks for scientific information (with keywords such as find papers, show me articles etc...), use your tools to fulfill the request."""
     literature_agent = Agent(
         name=AgentsNames.LITERATURE_AGENT.value,
         name_frontend="Literature Agent",

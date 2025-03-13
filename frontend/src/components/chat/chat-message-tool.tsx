@@ -30,8 +30,12 @@ export const ChatMessageTool = function ChatMessageTool({
   const [dialogOpen, setDialogOpen] = useState(false);
   const [validationError, setValidationError] = useState<string | null>(null);
   const { mutate, isPending, isSuccess, data, status } = useExecuteTool();
+  const [debugMode, setDebugMode] = useState<boolean>(false);
 
-  // const settings = await getSettings()
+  useEffect(() => {
+    // Now we're on the client and can access cookies.
+    setDebugMode(Cookies.get("debugMode") === "true");
+  }, []);
 
   useEffect(() => {
     if (isPending) {
@@ -67,7 +71,7 @@ export const ChatMessageTool = function ChatMessageTool({
             ...msg,
             annotations: [
               ...(msg.annotations || []).filter(
-                (a) => a.toolCallId !== tool.toolCallId,
+                (a) => !(a.toolCallId === tool.toolCallId && "validated" in a),
               ),
               { toolCallId: tool.toolCallId, validated: "pending" },
             ],
@@ -84,9 +88,7 @@ export const ChatMessageTool = function ChatMessageTool({
 
   return (
     <>
-      {Cookies.get("debugMode") === "true" ||
-      (Cookies.get("debugMode") === "false" &&
-        !tool.toolName.includes("handoff-to")) ? (
+      {debugMode || (!debugMode && !tool.toolName.includes("handoff-to")) ? (
         <div className="p-0.5 ml-5 border-white-300 border-solid">
           <HumanValidationDialog
             key={tool.toolCallId}
