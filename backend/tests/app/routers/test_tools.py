@@ -108,7 +108,7 @@ async def test_execute_tool_call_validation_error(
 
 
 @pytest.mark.asyncio
-async def test_get_all_tools(
+async def test_get_tools(
     patch_required_env,
     httpx_mock,
     app_client,
@@ -213,6 +213,8 @@ async def test_get_tool_metadata(
         "input_schema",
         "hil",
         "is_online",
+        "agent_names",
+        "agent_names_frontend",
     }
     assert set(tool_metadata.keys()) == expected_fields
 

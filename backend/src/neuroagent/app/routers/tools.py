@@ -14,6 +14,7 @@ from neuroagent.agent_routine import AgentsRoutine
 from neuroagent.app.config import Settings
 from neuroagent.app.database.sql_schemas import Entity, Messages, Threads, ToolCalls
 from neuroagent.app.dependencies import (
+    get_agents,
     get_agents_routine,
     get_context_variables,
     get_healthcheck_variables,
@@ -30,7 +31,7 @@ from neuroagent.app.schemas import (
     ToolMetadataDetailed,
     UserInfo,
 )
-from neuroagent.base_types import BaseTool
+from neuroagent.base_types import Agent, BaseTool
 
 logger = logging.getLogger(__name__)
 
@@ -115,14 +116,16 @@ async def execute_tool_call(
 
 
 @router.get("")
-def get_all_tools(
+def get_tools(
     tool_list: Annotated[list[type[BaseTool]], Depends(get_tool_list)],
     _: Annotated[UserInfo, Depends(get_user_info)],
+    agent: str | None = None,
 ) -> list[ToolMetadata]:
     """Return the list of all tools with their basic metadata."""
     return [
         ToolMetadata(name=tool.name, name_frontend=tool.name_frontend)
         for tool in tool_list
+        if not agent or agent in tool.agents
     ]
 
 
@@ -150,6 +153,7 @@ def get_available_tools(
 async def get_tool_metadata(
     name: str,
     tool_list: Annotated[list[type[BaseTool]], Depends(get_tool_list)],
+    agents: Annotated[dict[str, Agent], Depends(get_agents)],
     healthcheck_variables: Annotated[
         dict[str, Any], Depends(get_healthcheck_variables)
     ],
@@ -191,7 +195,7 @@ async def get_tool_metadata(
             "description": field.description,
         }
         input_schema["parameters"].append(parameter)
-
+    agent_names_frontend = [agents[name].name_frontend for name in tool_class.agents]
     return ToolMetadataDetailed(
         name=tool_class.name,
         name_frontend=tool_class.name_frontend,
@@ -200,4 +204,6 @@ async def get_tool_metadata(
         input_schema=json.dumps(input_schema),
         hil=tool_class.hil,
         is_online=is_online,
+        agent_names=tool_class.agents,
+        agent_names_frontend=agent_names_frontend,
     )

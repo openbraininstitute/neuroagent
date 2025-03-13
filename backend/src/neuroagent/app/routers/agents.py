@@ -26,6 +26,7 @@ router = APIRouter(prefix="/agents", tags=["Agent's CRUD"])
 def list_agents(
     agents: Annotated[dict[str, Agent], Depends(get_agents)],
     _: Annotated[UserInfo, Depends(get_user_info)],
+    tool: str | None = None,
 ) -> dict[str, AgentMetadata]:
     """Return the list of available agents with tools and their basic metadata."""
     return {
@@ -35,6 +36,7 @@ def list_agents(
             description=agent.description,
         )
         for agent_name, agent in agents.items()
+        if not tool or tool in [agent_tool.name for agent_tool in agent.tools]
     }
 
 

@@ -131,6 +131,8 @@ export type BToolMetadataDetailed = {
   input_schema: string;
   hil: boolean;
   is_online: boolean;
+  agent_names: string[];
+  agent_names_frontend: string[];
 };
 
 type BaseObject = {

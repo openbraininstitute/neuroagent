@@ -18,15 +18,18 @@ export type AgentMetadata = {
   description: string;
 };
 
-async function getAgents(): Promise<AgentMetadata[]> {
+async function getAgents(
+  searchParams?: Record<string, string>,
+): Promise<AgentMetadata[]> {
   const session = await auth();
   if (!session?.accessToken) {
     throw new Error("No session found");
   }
-
+  console.log(searchParams);
   const agents = (await fetcher({
     method: "GET",
     path: "/agents",
+    queryParams: searchParams,
     headers: { Authorization: `Bearer ${session.accessToken}` },
   })) as Record<string, BAgentMetadata>;
 
@@ -39,9 +42,14 @@ async function getAgents(): Promise<AgentMetadata[]> {
     .sort((a, b) => a.name.localeCompare(b.name)); // Sorting by the name field
 }
 
-export default async function AgentsPage() {
-  const agents = await getAgents();
-  // Hardcoded for now. Feel free to unify later.
+export default async function AgentsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ tool?: string }>;
+}) {
+  const searchParamsAwaited = await searchParams;
+  console.log(searchParamsAwaited);
+  const agents = await getAgents(searchParamsAwaited);
 
   return (
     <>
@@ -51,7 +59,7 @@ export default async function AgentsPage() {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mx-6 p-6 max-h-[calc(100vh-8rem)] overflow-y-auto">
         {agents.map((agent) => (
-          <Link key={agent.name} href={`/agents/${agent.name}`} passHref>
+          <Link key={agent.name} href={`/tools?agent=${agent.name}`} passHref>
             <Card
               className="
             group

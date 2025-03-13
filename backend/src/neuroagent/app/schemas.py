@@ -127,6 +127,8 @@ class ToolMetadataDetailed(ToolMetadata):
     input_schema: str
     hil: bool
     is_online: bool
+    agent_names: list[str]
+    agent_names_frontend: list[str]
 
 
 class UserInfo(BaseModel):
