@@ -256,11 +256,21 @@ def get_s3_client(
     settings: Annotated[Settings, Depends(get_settings)],
 ) -> Any:
     """Get the S3 client."""
+    if settings.storage.access_key is None:
+        access_key = None
+    else:
+        access_key = settings.storage.access_key.get_secret_value()
+
+    if settings.storage.secret_key is None:
+        secret_key = None
+    else:
+        secret_key = settings.storage.secret_key.get_secret_value()
+
     return boto3.client(
         "s3",
         endpoint_url=settings.storage.endpoint_url,
-        aws_access_key_id=settings.storage.access_key.get_secret_value(),
-        aws_secret_access_key=settings.storage.secret_key.get_secret_value(),
+        aws_access_key_id=access_key,
+        aws_secret_access_key=secret_key,
         aws_session_token=None,
         config=boto3.session.Config(signature_version="s3v4"),
     )
