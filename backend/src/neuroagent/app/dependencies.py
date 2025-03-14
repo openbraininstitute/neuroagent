@@ -250,7 +250,8 @@ def get_agents(
     Determine which agent is best suited to handle the user's request, and transfer the conversation to that agent.
     Other agents have the capability of handing off back to you. Therefore if a request requires multiple agents,
     handoff to the first one, wait for him to handoff back to you, handoff to the second one etc...
-    You are the only agent allowed to talk and finish the chain of action. if you decide that either all of the actions are excuted or that you cannot proceed further, summarize the findings to the user."""
+    You are the only agent allowed to talk and finish the chain of action. if you decide that either all of the actions are excuted or that you cannot proceed further, summarize the findings to the user.
+    Do not talk if there are actions left to execute."""
     triage_agent = Agent(
         name=AgentsNames.TRIAGE_AGENT.value,
         name_frontend="Triage Agent",

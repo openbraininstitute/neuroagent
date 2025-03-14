@@ -58,6 +58,7 @@ export default async function ToolsPage({
       max-w-[90%]
       mx-auto
       items-stretch
+      overflow-y-auto
     "
       >
         {tools.map((tool) => (
