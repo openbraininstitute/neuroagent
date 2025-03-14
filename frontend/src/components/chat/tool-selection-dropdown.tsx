@@ -88,20 +88,38 @@ export function ToolSelectionDropdown({
             <CommandList>
               <CommandEmpty>No tool found.</CommandEmpty>
               <CommandGroup>
-                <CommandItem key="select-all" value="" className="border-b-2">
-                  <Checkbox
-                    checked={checkedTools.allchecked}
-                    onCheckedChange={handleCheckAll}
-                  />
-                  <span className="ml-2">Select All</span>
+                <CommandItem key="select-all" className="border-b-2" asChild>
+                  <label
+                    htmlFor="select-all-checkbox"
+                    className="cursor-pointer flex items-center w-full"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      handleCheckAll(!checkedTools.allchecked);
+                    }}
+                  >
+                    <Checkbox
+                      id="select-all-checkbox"
+                      checked={checkedTools.allchecked}
+                    />
+                    <span className="ml-2">Select All</span>
+                  </label>
                 </CommandItem>
                 {availableTools.map((tool) => (
-                  <CommandItem key={tool.slug} value={tool.label}>
-                    <Checkbox
-                      checked={checkedTools[tool.slug]}
-                      onCheckedChange={() => handleCheckboxChange(tool.slug)}
-                    />
-                    <span className="ml-2">{tool.label}</span>
+                  <CommandItem key={tool.slug} value={tool.label} asChild>
+                    <label
+                      htmlFor={tool.slug}
+                      className="cursor-pointer flex items-center w-full"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        handleCheckboxChange(tool.slug);
+                      }}
+                    >
+                      <Checkbox
+                        id={tool.slug}
+                        checked={checkedTools[tool.slug]}
+                      />
+                      <span className="ml-2">{tool.label}</span>
+                    </label>
                   </CommandItem>
                 ))}
               </CommandGroup>
