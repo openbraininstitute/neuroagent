@@ -93,9 +93,7 @@ export function ToolSelectionDropdown({
                     htmlFor="select-all-checkbox"
                     className="cursor-pointer flex items-center w-full"
                     onClick={(e) => {
-                      // Prevent any native label behavior.
                       e.preventDefault();
-                      // Call your handler with the current state.
                       handleCheckAll(!checkedTools.allchecked);
                     }}
                   >
