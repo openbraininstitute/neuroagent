@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v0.4.0] - 14.03.2025
+
 ### Removed
 - Removed trailing slashes from endpoints.
 - Bunch of unused code
