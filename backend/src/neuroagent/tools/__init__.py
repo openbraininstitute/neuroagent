@@ -9,6 +9,13 @@ from neuroagent.tools.electrophys_tool import ElectrophysFeatureTool, FeatureOut
 from neuroagent.tools.generate_plot import PlotGeneratorTool
 from neuroagent.tools.generate_random_plot import RandomPlotGeneratorTool
 from neuroagent.tools.get_morpho_tool import GetMorphoTool, KnowledgeGraphOutput
+from neuroagent.tools.handoffs import (
+    HandoffToExploreTool,
+    HandoffToLiteratureTool,
+    HandoffToSimulationTool,
+    HandoffToTriageTool,
+    HandoffToUtilityTool,
+)
 from neuroagent.tools.kg_morpho_features_tool import (
     KGMorphoFeatureOutput,
     KGMorphoFeatureTool,
@@ -41,6 +48,11 @@ __all__ = [
     "FeatureOutput",
     "GetMorphoTool",
     "GetTracesTool",
+    "HandoffToExploreTool",
+    "HandoffToLiteratureTool",
+    "HandoffToSimulationTool",
+    "HandoffToTriageTool",
+    "HandoffToUtilityTool",
     "KGMorphoFeatureOutput",
     "KGMorphoFeatureTool",
     "KnowledgeGraphOutput",

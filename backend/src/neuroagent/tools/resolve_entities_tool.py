@@ -7,13 +7,14 @@ from typing import Any, ClassVar
 from httpx import AsyncClient
 from pydantic import BaseModel, Field
 
-from neuroagent.resolving import resolve_query
-from neuroagent.tools.base_tool import (
+from neuroagent.base_types import (
     ETYPE_IDS,
+    AgentsNames,
     BaseMetadata,
     BaseTool,
     EtypesLiteral,
 )
+from neuroagent.resolving import resolve_query
 
 logger = logging.getLogger(__name__)
 
@@ -84,8 +85,6 @@ class ResolveEntitiesTool(BaseTool):
     You MUST use this tool when a brain region is specified in natural english because in that case the output of this tool is essential to other tools.
     returns a dictionary containing the brain region name, id and optionaly the mtype name and id.
     Brain region related outputs are stored in the class `BRResolveOutput` while the mtype related outputs are stored in the class `MTypeResolveOutput`."""
-    input_schema: ResolveBRInput
-    metadata: ResolveBRMetadata
     description_frontend: ClassVar[
         str
     ] = """Convert natural language descriptions to precise identifiers. This tool helps you:
@@ -94,6 +93,9 @@ class ResolveEntitiesTool(BaseTool):
     • Resolve scientific terminology
 
     Provide natural language descriptions to get corresponding technical identifiers."""
+    agents: ClassVar[list[str]] = [AgentsNames.EXPLORE_AGENT.value]
+    input_schema: ResolveBRInput
+    metadata: ResolveBRMetadata
 
     async def arun(
         self,

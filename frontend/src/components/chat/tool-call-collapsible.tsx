@@ -11,9 +11,11 @@ import {
 import { ToolCallStatus } from "./tool-call-status";
 import { ToolInvocation } from "@ai-sdk/ui-utils";
 import { ScrollToBottom } from "./scroll-to-bottom";
+import { agentIconMapping } from "@/lib/mappings";
 
 type ToolCallCollapsibleProps = {
   tool: ToolInvocation;
+  sender: string;
   toolLabel: string;
   validated: "pending" | "accepted" | "rejected" | "not_required";
   validationError: string | null;
@@ -22,6 +24,7 @@ type ToolCallCollapsibleProps = {
 
 export function ToolCallCollapsible({
   tool,
+  sender,
   toolLabel,
   validated,
   validationError,
@@ -42,7 +45,10 @@ export function ToolCallCollapsible({
     >
       <div className="flex items-center gap-2">
         <CollapsibleTrigger className="hover:scale-105 active:scale-[1.10]">
-          <span className="text-sm p-4 truncate border-2 bg-blue-500 rounded-xl">
+          <span
+            className={`flex gap-3 justify-center items-center text-sm p-4 truncate border-2 bg-blue-500 rounded-xl`}
+          >
+            {agentIconMapping[sender]}
             {toolLabel}
           </span>
         </CollapsibleTrigger>

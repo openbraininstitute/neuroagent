@@ -109,7 +109,7 @@ export function ToolSelectionDropdown({
           </div>
           <CommandSeparator />
           <CommandGroup>
-            <Link href="/tools">
+            <Link href="/agents">
               <CommandItem>
                 <Info />
                 <span>Learn About Tools</span>

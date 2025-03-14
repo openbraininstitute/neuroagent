@@ -24,7 +24,9 @@ export type BToolCall = {
 
 export type Annotation = {
   toolCallId: string;
-  validated: "accepted" | "rejected" | "pending" | "not_required";
+  validated?: "accepted" | "rejected" | "pending" | "not_required";
+  sender?: string;
+  toolName?: string;
 };
 
 export type BMessageUser = {
@@ -113,6 +115,14 @@ export type BToolMetadata = {
   name_frontend: string;
 };
 
+export type BAgentMetadata = BToolMetadata & {
+  description: string;
+};
+
+export type BDetailedAgentMetadata = BAgentMetadata & {
+  tools: BToolMetadata[];
+};
+
 export type BToolMetadataDetailed = {
   name: string;
   name_frontend: string;
@@ -121,6 +131,8 @@ export type BToolMetadataDetailed = {
   input_schema: string;
   hil: boolean;
   is_online: boolean;
+  agent_names: string[];
+  agent_names_frontend: string[];
 };
 
 type BaseObject = {
