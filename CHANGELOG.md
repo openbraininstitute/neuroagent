@@ -26,7 +26,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Sort components in folder.
 - Brain region/cell hierarchies read from storage (not from local filesystem).
 - Authentication is done directly through keycloak.
-- Don't assume we run minIO by default
+- Don't assume we run minIO by default and also add documentation.
 
 ### Added
 - Docker compose for local development
