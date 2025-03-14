@@ -37,6 +37,14 @@ You'll need to create the `neuroagent` bucket. You can either:
 docker exec <container_id> mc mb /data/neuroagent
 ```
 
+
+Please don't forget to update the `.env` file with the MinIO credentials.
+```bash
+NEUROAGENT_STORAGE__ENDPOINT_URL=http://localhost:9000
+NEUROAGENT_STORAGE__ACCESS_KEY=minioadmin
+NEUROAGENT_STORAGE__SECRET_KEY=minioadmin
+```
+
 4. Start the server:
 ```bash
 neuroagent-api

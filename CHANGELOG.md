@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v0.4.1] - 14.03.2025
+
+### Fixed
+- ECR action
+
+## [v0.4.0] - 14.03.2025
+
 ### Removed
 - Removed trailing slashes from endpoints.
 - Bunch of unused code
@@ -26,7 +33,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Sort components in folder.
 - Brain region/cell hierarchies read from storage (not from local filesystem).
 - Authentication is done directly through keycloak.
-- Don't assume we run minIO by default
+- Don't assume we run minIO by default and also add documentation.
 
 ### Added
 - Docker compose for local development
