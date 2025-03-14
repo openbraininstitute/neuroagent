@@ -115,6 +115,7 @@ async def execute_tool_call(
     return ExecuteToolCallResponse(status="done", content=message["content"])
 
 
+# Needed for compatibility between simple/multi agent threads
 @router.get("")
 def get_tools(
     tool_list: Annotated[list[type[BaseTool]], Depends(get_tool_list)],
@@ -134,12 +135,14 @@ def get_available_tools(
     tool_list: Annotated[list[type[BaseTool]], Depends(get_tool_list)],
     _: Annotated[UserInfo, Depends(get_user_info)],
     settings: Annotated[Settings, Depends(get_settings)],
+    agent: str | None = None,
 ) -> list[ToolMetadata]:
     """Return the list of available tools with their basic metadata."""
     if settings.agent.composition == "multi":
         return [
             ToolMetadata(name=tool.name, name_frontend=tool.name_frontend)
             for tool in tool_list
+            if not agent or agent in tool.agents
         ]
     else:
         return [
@@ -158,6 +161,7 @@ async def get_tool_metadata(
         dict[str, Any], Depends(get_healthcheck_variables)
     ],
     _: Annotated[UserInfo, Depends(get_user_info)],
+    settings: Annotated[Settings, Depends(get_settings)],
 ) -> ToolMetadataDetailed:
     """Return detailed metadata for a specific tool."""
     tool_class = next((tool for tool in tool_list if tool.name == name), None)
@@ -195,7 +199,14 @@ async def get_tool_metadata(
             "description": field.description,
         }
         input_schema["parameters"].append(parameter)
-    agent_names_frontend = [agents[name].name_frontend for name in tool_class.agents]
+    if settings.agent.composition == "multi":
+        agent_names = tool_class.agents
+        agent_names_frontend = [
+            agents[name].name_frontend for name in tool_class.agents
+        ]
+    else:
+        agent_names = [list(agents.keys())[0]]
+        agent_names_frontend = [list(agents.values())[0].name_frontend]
     return ToolMetadataDetailed(
         name=tool_class.name,
         name_frontend=tool_class.name_frontend,
@@ -204,6 +215,6 @@ async def get_tool_metadata(
         input_schema=json.dumps(input_schema),
         hil=tool_class.hil,
         is_online=is_online,
-        agent_names=tool_class.agents,
+        agent_names=agent_names,
         agent_names_frontend=agent_names_frontend,
     )

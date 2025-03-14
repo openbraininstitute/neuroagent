@@ -24,7 +24,7 @@ async function getTools(
 
   const tools = (await fetcher({
     method: "GET",
-    path: "/tools",
+    path: "/tools/available",
     queryParams: searchParams,
     headers: { Authorization: `Bearer ${session.accessToken}` },
   })) as BToolMetadata[];
