@@ -1,10 +1,4 @@
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  CardContent,
-} from "@/components/ui/card";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import Link from "next/link";
 import { BAgentMetadata } from "@/lib/types";
 import { fetcher } from "@/lib/fetcher";
@@ -81,7 +75,7 @@ export default async function AgentsPage({
             h-full
           "
             >
-              <CardHeader className="mb-4">
+              <CardHeader className="mb-2">
                 <div className="flex flex-col justify-center items-center">
                   <CardTitle className="flex items-center text-2xl font-extrabold">
                     <span className="mr-2 inline-flex items-center text-white group-hover:text-pink-300 transition-colors">
@@ -105,10 +99,6 @@ export default async function AgentsPage({
                       {agent.nameFrontend}
                     </span>
                   </CardTitle>
-
-                  <CardDescription className="text-gray-300 text-sm italic">
-                    {agent.name}
-                  </CardDescription>
                 </div>
               </CardHeader>
 
