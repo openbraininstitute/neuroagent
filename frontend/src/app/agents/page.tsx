@@ -59,7 +59,7 @@ export default async function AgentsPage({
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mx-6 p-6 max-h-[calc(100vh-8rem)] overflow-y-auto">
         {agents.map((agent) => (
-          <Link key={agent.name} href={`/tools?agent=${agent.name}`} passHref>
+          <Link key={agent.name} href={`/agents/${agent.name}`} passHref>
             <Card
               className="
             group
