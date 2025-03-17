@@ -10,6 +10,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Checkbox clickable all the way.
 
+### Added
+- Now tool.
+- Possibility to blacklist tools.
+
 ## [v0.4.1] - 14.03.2025
 
 ### Fixed
