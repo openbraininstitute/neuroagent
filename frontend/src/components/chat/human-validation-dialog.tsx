@@ -97,7 +97,9 @@ export function HumanValidationDialog({
         const updatedMsg = {
           ...msg,
           annotations: [
-            ...(msg.annotations || []).filter((a) => a.toolCallId !== toolId),
+            ...(msg.annotations || []).filter(
+              (a) => !(a.toolCallId === toolId && "validated" in a),
+            ),
             {
               toolCallId: toolId,
               validated: validation,

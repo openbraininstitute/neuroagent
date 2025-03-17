@@ -51,6 +51,8 @@ function convertToAiMessages(messages: BMessage[]): MessageStrict[] {
       const annotations = message.tool_calls.map((call) => ({
         toolCallId: call.tool_call_id,
         validated: call.validated,
+        sender: message.msg_content.sender,
+        toolName: call.name,
       }));
 
       const toolInvocations = message.tool_calls.map((toolCall) => {
@@ -101,6 +103,24 @@ async function getToolList() {
     .sort((a, b) => a.label.localeCompare(b.label));
 }
 
+async function getAvailableTools() {
+  const session = await auth();
+  if (!session?.accessToken) {
+    throw new Error("No session found");
+  }
+
+  const response = await fetcher({
+    path: "/tools/available",
+    headers: { Authorization: `Bearer ${session.accessToken}` },
+  });
+
+  return (response as Array<{ name: string; name_frontend: string }>)
+    .map((tool) => {
+      return { slug: tool.name, label: tool.name_frontend };
+    })
+    .sort((a, b) => a.label.localeCompare(b.label));
+}
+
 export default async function PageThread({
   params,
 }: {
@@ -111,13 +131,15 @@ export default async function PageThread({
 
   const messages = await getMessages(threadId);
   const convertedMessages = convertToAiMessages(messages);
-  const availableTools = await getToolList();
+  const toolList = await getToolList();
+  const availableTools = await getAvailableTools();
 
   return (
     <ChatPage
       threadId={threadId}
       initialMessages={convertedMessages}
       availableTools={availableTools}
+      toolList={toolList}
     />
   );
 }

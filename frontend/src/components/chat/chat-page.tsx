@@ -15,12 +15,14 @@ type ChatPageProps = {
   threadId: string;
   initialMessages: MessageStrict[];
   availableTools: Array<{ slug: string; label: string }>;
+  toolList: Array<{ slug: string; label: string }>;
 };
 
 export function ChatPage({
   threadId,
   initialMessages,
   availableTools,
+  toolList,
 }: ChatPageProps) {
   const { data: session } = useSession() as { data: ExtendedSession | null };
   const newMessage = useStore((state) => state.newMessage);
@@ -108,14 +110,14 @@ export function ChatPage({
 
       // Count tools that were subject to HIL (accepted, rejected, or pending)
       const validatedCount = annotations.filter((a) =>
-        ["accepted", "rejected", "pending"].includes(a.validated),
+        ["accepted", "rejected", "pending"].includes(a.validated ?? ""),
       ).length;
 
       // Count validated tools that also have results
       const validatedWithResultCount = lastMessage.toolInvocations.filter(
         (tool) => {
           const annotation = annotations.find(
-            (a) => a.toolCallId === tool.toolCallId,
+            (a) => a.toolCallId === tool.toolCallId && "validated" in a,
           );
           return (
             (annotation?.validated === "accepted" ||
@@ -167,7 +169,7 @@ export function ChatPage({
         <ChatMessagesInsideThread
           messages={messages}
           threadId={threadId}
-          availableTools={availableTools}
+          toolList={toolList}
           setMessages={setMessages}
         />
         <div ref={messagesEndRef} />

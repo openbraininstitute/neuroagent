@@ -7,11 +7,13 @@ import { ToolInvocation } from "@ai-sdk/ui-utils";
 import { useExecuteTool } from "@/hooks/tools";
 import { ToolCallCollapsible } from "./tool-call-collapsible";
 import React from "react";
+import Cookies from "js-cookie";
 
 type ChatMessageToolProps = {
   content?: string;
   threadId: string;
   tool: ToolInvocation;
+  sender: string;
   availableTools: Array<{ slug: string; label: string }>;
   validated: "pending" | "accepted" | "rejected" | "not_required";
   setMessage: (updater: (msg: MessageStrict) => MessageStrict) => void;
@@ -20,6 +22,7 @@ type ChatMessageToolProps = {
 export const ChatMessageTool = function ChatMessageTool({
   threadId,
   tool,
+  sender,
   availableTools,
   setMessage,
   validated,
@@ -27,6 +30,11 @@ export const ChatMessageTool = function ChatMessageTool({
   const [dialogOpen, setDialogOpen] = useState(false);
   const [validationError, setValidationError] = useState<string | null>(null);
   const { mutate, isPending, isSuccess, data, status } = useExecuteTool();
+  const [debugMode, setDebugMode] = useState<boolean>(false);
+
+  useEffect(() => {
+    setDebugMode(Cookies.get("debugMode") === "true");
+  }, []);
 
   useEffect(() => {
     if (isPending) {
@@ -62,7 +70,7 @@ export const ChatMessageTool = function ChatMessageTool({
             ...msg,
             annotations: [
               ...(msg.annotations || []).filter(
-                (a) => a.toolCallId !== tool.toolCallId,
+                (a) => !(a.toolCallId === tool.toolCallId && "validated" in a),
               ),
               { toolCallId: tool.toolCallId, validated: "pending" },
             ],
@@ -78,28 +86,33 @@ export const ChatMessageTool = function ChatMessageTool({
   )[0].label;
 
   return (
-    <div className="p-3.5 ml-5 border-white-300 border-solid">
-      <HumanValidationDialog
-        key={tool.toolCallId}
-        threadId={threadId}
-        toolId={tool.toolCallId}
-        toolName={tool.toolName}
-        availableTools={availableTools}
-        args={tool.args}
-        isOpen={dialogOpen}
-        setIsOpen={setDialogOpen}
-        setMessage={setMessage}
-        mutate={mutate}
-      />
-      <div className="flex justify-start">
-        <ToolCallCollapsible
-          tool={tool}
-          toolLabel={toolLabel}
-          validated={validated}
-          validationError={validationError}
-          onValidationClick={() => setDialogOpen(true)}
-        />
-      </div>
-    </div>
+    <>
+      {debugMode || (!debugMode && !tool.toolName.includes("handoff-to")) ? (
+        <div className="p-0.5 ml-5 border-white-300 border-solid">
+          <HumanValidationDialog
+            key={tool.toolCallId}
+            threadId={threadId}
+            toolId={tool.toolCallId}
+            toolName={tool.toolName}
+            availableTools={availableTools}
+            args={tool.args}
+            isOpen={dialogOpen}
+            setIsOpen={setDialogOpen}
+            setMessage={setMessage}
+            mutate={mutate}
+          />
+          <div className="flex justify-start">
+            <ToolCallCollapsible
+              tool={tool}
+              sender={sender}
+              toolLabel={toolLabel}
+              validated={validated}
+              validationError={validationError}
+              onValidationClick={() => setDialogOpen(true)}
+            />
+          </div>
+        </div>
+      ) : null}
+    </>
   );
 };
