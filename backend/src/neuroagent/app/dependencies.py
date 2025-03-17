@@ -29,6 +29,7 @@ from neuroagent.tools import (
     MEModelGetOneTool,
     MorphologyFeatureTool,
     MorphologyViewerTool,
+    NowTool,
     PlotGeneratorTool,
     ResolveEntitiesTool,
     SCSGetAllTool,
@@ -174,16 +175,24 @@ def get_tool_list() -> list[type[BaseTool]]:
         MorphologyViewerTool,
         WebSearchTool,
         SemanticScholarTool,
-        # NowTool,
+        NowTool,
         # WeatherTool,
         # RandomPlotGeneratorTool,
     ]
 
 
 async def get_selected_tools(
-    request: Request, tool_list: Annotated[list[type[BaseTool]], Depends(get_tool_list)]
+    request: Request,
+    tool_list: Annotated[list[type[BaseTool]], Depends(get_tool_list)],
+    settings: Annotated[Settings, Depends(get_settings)],
 ) -> list[type[BaseTool]]:
     """Get tools specified in the header from the frontend."""
+    tool_list = [
+        tool
+        for tool in tool_list
+        if settings.tools.blacklisted_tools is None
+        or tool.name not in settings.tools.blacklisted_tools
+    ]
     if request.method == "GET":
         return tool_list
 

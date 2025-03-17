@@ -1,10 +1,10 @@
 """Configuration."""
 
 import os
-from typing import Literal, Optional
+from typing import Any, Literal, Optional
 
 from dotenv import dotenv_values
-from pydantic import BaseModel, ConfigDict, SecretStr
+from pydantic import BaseModel, ConfigDict, SecretStr, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -159,8 +159,19 @@ class SettingsTools(BaseModel):
     me_model: SettingsGetMEModel = SettingsGetMEModel()
     web_search: SettingsWebSearch = SettingsWebSearch()
     semantic_scholar: SettingsSemanticScholar = SettingsSemanticScholar()
+    blacklisted_tools: list[str] | None = None
 
     model_config = ConfigDict(frozen=True)
+
+    @model_validator(mode="before")
+    @classmethod
+    def blacklisted_tools_to_list(cls, data: dict[str, Any]) -> dict[str, Any]:
+        """Parse the blacklisted tools and set them as a list."""
+        if data.get("blacklisted_tools") is not None:
+            data["blacklisted_tools"] = [
+                tool_name.strip() for tool_name in data["blacklisted_tools"].split(",")
+            ]
+        return data
 
 
 class SettingsOpenAI(BaseModel):
