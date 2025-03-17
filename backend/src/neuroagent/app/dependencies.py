@@ -186,7 +186,7 @@ async def get_selected_tools(
     tool_list: Annotated[list[type[BaseTool]], Depends(get_tool_list)],
     settings: Annotated[Settings, Depends(get_settings)],
 ) -> list[type[BaseTool]]:
-    """Get tools specified in the header from the frontend."""
+    """Filter tools selected from the request body."""
     tool_list = [
         tool
         for tool in tool_list
