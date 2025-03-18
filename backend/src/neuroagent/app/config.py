@@ -19,10 +19,10 @@ class SettingsAgent(BaseModel):
 class SettingsStorage(BaseModel):
     """Storage settings."""
 
-    endpoint_url: str = "http://localhost:9000"
+    endpoint_url: str | None = None
     bucket_name: str = "neuroagent"
-    access_key: SecretStr = SecretStr("minioadmin")
-    secret_key: SecretStr = SecretStr("minioadmin")
+    access_key: SecretStr | None = None
+    secret_key: SecretStr | None = None
     expires_in: int = 600
     brain_region_hierarchy_key: str = "shared/brainregion_hierarchy.json"
     cell_type_hierarchy_key: str = "shared/celltypes_hierarchy.json"
