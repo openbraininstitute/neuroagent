@@ -23,9 +23,11 @@ ChartJS.register(
 );
 
 import { useGetObjectFromStorage } from "@/hooks/get-storage-object";
-import { urlProp } from "@/lib/types";
+import { PlotProp } from "@/lib/types";
+import Link from "next/link";
+import { Link2 } from "lucide-react";
 
-export function Linechart({ presignedUrl }: urlProp) {
+export function Linechart({ presignedUrl, isInChat, storageId }: PlotProp) {
   const { data: response } = useGetObjectFromStorage(
     presignedUrl as string,
     presignedUrl != "",
@@ -63,10 +65,6 @@ export function Linechart({ presignedUrl }: urlProp) {
       legend: {
         display: false,
       },
-      title: {
-        display: true,
-        text: data.title,
-      },
       tooltip: {
         callbacks: {
           label: (context: TooltipItem<"line">) => {
@@ -96,8 +94,17 @@ export function Linechart({ presignedUrl }: urlProp) {
   };
 
   return (
-    <div className="w-full max-w-3xl mx-auto p-4 overflow-y-auto">
-      <h2 className="text-xl font-bold mb-2">{data.title}</h2>
+    <div
+      className={`w-full max-w-3xl p-4 overflow-y-auto ${!isInChat && "mx-auto"}`}
+    >
+      {isInChat ? (
+        <Link href={`/viewer/${storageId}`} className="flex gap-2">
+          <Link2 className="mt-0.5" />
+          <h2 className="text-xl font-bold mb-2 underline">{data.title}</h2>
+        </Link>
+      ) : (
+        <h2 className="text-xl font-bold mb-2">{data.title}</h2>
+      )}
       {data.description && (
         <p className="text-gray-600 mb-4">{data.description}</p>
       )}

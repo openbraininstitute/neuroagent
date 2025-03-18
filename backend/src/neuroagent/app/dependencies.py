@@ -206,19 +206,12 @@ def get_starting_agent(
     logger.info(f"Loading model {settings.openai.model}.")
     base_instructions = """You are a helpful assistant helping scientists with neuro-scientific questions.
                 You must always specify in your answers from which brain regions the information is extracted.
-                Do no blindly repeat the brain region requested by the user, use the output of the tools instead."""
-
-    storage_instructions = (
-        f"All files in storage can be viewed under {settings.misc.frontend_url}/viewer/{{storage_id}}. "
-        "When referencing storage files, always replace {{storage_id}} with the actual storage ID. "
-        "Format the links as standard markdown links like: [Description](URL), do not try to embed them as images."
-        if settings.misc.frontend_url
-        else "Never try to generate links to internal storage ids"
-    )
+                Do no blindly repeat the brain region requested by the user, use the output of the tools instead.
+                Never try to generate links to internal storage ids"""
 
     agent = Agent(
         name="Agent",
-        instructions=f"{base_instructions}\n{storage_instructions}",
+        instructions=f"{base_instructions}",
         tools=tool_list,
         model=settings.openai.model,
     )

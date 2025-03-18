@@ -18,10 +18,6 @@ export default async function ViewerPage({
   const response = await fetch(presignedUrl);
   const category = response.headers.get("X-Amz-Meta-Category");
 
-  if (category === "image") {
-    return <ImagePlot url={presignedUrl} />;
-  }
-
   switch (category) {
     case "image":
       return <ImagePlot url={presignedUrl} />;

@@ -2,6 +2,7 @@
 
 import { MessageStrict } from "@/lib/types";
 import { getAssociatedTools, getViewableToolStorageIds } from "@/lib/utils";
+import PlotsInChat from "./plot-in-chat";
 import { ChatMessageAI } from "./chat-message-ai";
 import { ChatMessageHuman } from "./chat-message-human";
 import { ChatMessageTool } from "./chat-message-tool";
@@ -87,19 +88,23 @@ export function ChatMessagesInsideThread({
                 );
               })
           ) : (
-            <ChatMessageAI
-              key={message.id}
-              messageId={message.id}
-              content={message.content}
-              hasTools={(associatedTools.get(message.id)?.size ?? 0) > 0}
-              toolsCollapsed={Array.from(
-                associatedTools.get(message.id) || [],
-              ).some((id) => collapsedTools.has(id))}
-              toggleCollapse={() => handleToggleCollapse(message.id)}
-              associatedStorage={Array.from(
-                associatedStorageID.get(message.id) || [],
-              )}
-            />
+            <div key={message.id}>
+              <ChatMessageAI
+                key={message.id}
+                messageId={message.id}
+                content={message.content}
+                hasTools={(associatedTools.get(message.id)?.size ?? 0) > 0}
+                toolsCollapsed={Array.from(
+                  associatedTools.get(message.id) || [],
+                ).some((id) => collapsedTools.has(id))}
+                toggleCollapse={() => handleToggleCollapse(message.id)}
+              />
+              <PlotsInChat
+                storageIds={Array.from(
+                  associatedStorageID.get(message.id) || [],
+                )}
+              />
+            </div>
           )
         ) : (
           <ChatMessageHuman key={message.id} content={message.content} />

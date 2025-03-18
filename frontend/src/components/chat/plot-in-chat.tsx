@@ -8,30 +8,23 @@ import { Histogram } from "@/components/plots/histogram";
 import { Linechart } from "@/components/plots/linechart";
 import { useGetPresignedUrl } from "@/hooks/get-presigned";
 import { useGetObjectFromStorage } from "@/hooks/get-storage-object";
+import { memo } from "react";
 
 interface PlotDisplayProps {
   storageIds: string[];
 }
 
-export default function PlotDisplayInChat({ storageIds }: PlotDisplayProps) {
+export default function PlotsInChat({ storageIds }: PlotDisplayProps) {
   if (storageIds.length === 0) {
     return null;
   }
 
-  if (storageIds.length === 1) {
-    return (
-      <div className="flex items-center min-h-80 justify-center">
-        <SinglePlotInChat storageId={storageIds[0]} />
-      </div>
-    );
-  }
-
   return (
-    <div className="grid grid-cols-2 gap-4">
+    <div className="ml-20 max-w-[70%] grid grid-cols-2 gap-4">
       {storageIds.map((storageId) => (
         <div
           key={storageId}
-          className="flex items-center min-h-80 justify-center"
+          className="flex items-center min-h-[27rem] justify-center"
         >
           <SinglePlotInChat key={storageId} storageId={storageId} />
         </div>
@@ -40,7 +33,7 @@ export default function PlotDisplayInChat({ storageIds }: PlotDisplayProps) {
   );
 }
 
-function SinglePlotInChat({ storageId }: { storageId: string }) {
+const SinglePlotInChat = memo(({ storageId }: { storageId: string }) => {
   const { data: presignedUrl, isPending } = useGetPresignedUrl(storageId);
   const { data: responseHeader } = useGetObjectFromStorage(
     presignedUrl as string,
@@ -51,7 +44,7 @@ function SinglePlotInChat({ storageId }: { storageId: string }) {
 
   if (!category) {
     return (
-      <div className="w-full flex justify-center items-center">
+      <div className="w-full h-full flex justify-center items-center border-4">
         <div className="w-6 h-6 border-2 p-1 border-gray-500 border-t-transparent rounded-full animate-spin" />
       </div>
     );
@@ -59,18 +52,50 @@ function SinglePlotInChat({ storageId }: { storageId: string }) {
 
   switch (category) {
     case "image":
-      return <ImagePlot url={presignedUrl ?? ""} />;
+      return <ImagePlot url={presignedUrl ?? ""} storageId={storageId} />;
     case "json-piechart":
-      return <Piechart presignedUrl={presignedUrl ?? ""} />;
+      return (
+        <Piechart
+          presignedUrl={presignedUrl ?? ""}
+          storageId={storageId}
+          isInChat={true}
+        />
+      );
     case "json-barplot":
-      return <Barplot presignedUrl={presignedUrl ?? ""} />;
+      return (
+        <Barplot
+          presignedUrl={presignedUrl ?? ""}
+          storageId={storageId}
+          isInChat={true}
+        />
+      );
     case "json-scatterplot":
-      return <Scatterplot presignedUrl={presignedUrl ?? ""} />;
+      return (
+        <Scatterplot
+          presignedUrl={presignedUrl ?? ""}
+          storageId={storageId}
+          isInChat={true}
+        />
+      );
     case "json-histogram":
-      return <Histogram presignedUrl={presignedUrl ?? ""} />;
+      return (
+        <Histogram
+          presignedUrl={presignedUrl ?? ""}
+          storageId={storageId}
+          isInChat={true}
+        />
+      );
     case "json-linechart":
-      return <Linechart presignedUrl={presignedUrl ?? ""} />;
+      return (
+        <Linechart
+          presignedUrl={presignedUrl ?? ""}
+          storageId={storageId}
+          isInChat={true}
+        />
+      );
     default:
       return <p>Error: Unsupported file category: {category}</p>;
   }
-}
+});
+
+SinglePlotInChat.displayName = "SinglePlotInChat";
