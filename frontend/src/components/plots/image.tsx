@@ -17,7 +17,7 @@ export function ImagePlot({ url, title, description }: ImagePlotProps) {
           alt={title || "Plot"}
           width={700}
           height={700}
-          className="object-contain"
+          className="object-contain dark:filter invert"
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
         />
       </div>

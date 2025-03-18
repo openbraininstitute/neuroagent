@@ -13,11 +13,20 @@ import { Scatter } from "react-chartjs-2";
 
 ChartJS.register(LinearScale, PointElement, LineElement, Tooltip, Legend);
 
-type ScatterplotProps = {
-  data: JSONScatterplot;
-};
+import { useGetObjectFromStorage } from "@/hooks/get-storage-object";
+import { urlProp } from "@/lib/types";
 
-export function Scatterplot({ data }: ScatterplotProps) {
+export function Scatterplot({ presignedUrl }: urlProp) {
+  const { data: response, isPending } = useGetObjectFromStorage(
+    presignedUrl as string,
+    presignedUrl != "",
+    false,
+  );
+  if (!response) {
+    return null;
+  }
+  const data = response as JSONScatterplot;
+
   const chartData = {
     datasets: [
       {
@@ -73,7 +82,7 @@ export function Scatterplot({ data }: ScatterplotProps) {
       {data.description && (
         <p className="text-gray-600 mb-4">{data.description}</p>
       )}
-      <div className="aspect-square">
+      <div>
         <Scatter data={chartData} options={options} />
       </div>
     </div>

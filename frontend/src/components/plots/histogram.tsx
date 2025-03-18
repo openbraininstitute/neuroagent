@@ -21,11 +21,20 @@ ChartJS.register(
   Legend,
 );
 
-type HistogramProps = {
-  data: JSONHistogram;
-};
+import { useGetObjectFromStorage } from "@/hooks/get-storage-object";
+import { urlProp } from "@/lib/types";
 
-export function Histogram({ data }: HistogramProps) {
+export function Histogram({ presignedUrl }: urlProp) {
+  const { data: response, isPending } = useGetObjectFromStorage(
+    presignedUrl as string,
+    presignedUrl != "",
+    false,
+  );
+  if (!response) {
+    return null;
+  }
+  const data = response as JSONHistogram;
+
   // Calculate min and max for the bin range
   const min = Math.min(...data.values);
   const max = Math.max(...data.values);
@@ -94,7 +103,7 @@ export function Histogram({ data }: HistogramProps) {
       {data.description && (
         <p className="text-gray-600 mb-4">{data.description}</p>
       )}
-      <div className="aspect-square">
+      <div>
         <Bar data={chartData} options={options} />
       </div>
     </div>

@@ -13,11 +13,20 @@ import { Pie } from "react-chartjs-2";
 // Register the required Chart.js components
 ChartJS.register(ArcElement, Tooltip, Legend);
 
-type PiechartProps = {
-  data: JSONPiechart;
-};
+import { useGetObjectFromStorage } from "@/hooks/get-storage-object";
+import { urlProp } from "@/lib/types";
 
-export function Piechart({ data }: PiechartProps) {
+export function Piechart({ presignedUrl }: urlProp) {
+  const { data: response, isPending } = useGetObjectFromStorage(
+    presignedUrl as string,
+    presignedUrl != "",
+    false,
+  );
+  if (!response) {
+    return null;
+  }
+  const data = response as JSONPiechart;
+
   const labels = data.values.map((value) => value.category);
   const values = data.values.map((value) => value.value);
   const backgroundColor = data.values.map(
@@ -71,7 +80,7 @@ export function Piechart({ data }: PiechartProps) {
       {data.description && (
         <p className="text-gray-600 mb-4">{data.description}</p>
       )}
-      <div className="aspect-square">
+      <div>
         <Pie data={chartData} options={options} />
       </div>
     </div>

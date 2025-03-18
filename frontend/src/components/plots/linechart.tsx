@@ -22,12 +22,20 @@ ChartJS.register(
   Legend,
 );
 
-type LinechartProps = {
-  data: JSONLinechart;
-  isInChat?: boolean;
-};
+import { useGetObjectFromStorage } from "@/hooks/get-storage-object";
+import { urlProp } from "@/lib/types";
 
-export function Linechart({ data, isInChat = false }: LinechartProps) {
+export function Linechart({ presignedUrl }: urlProp) {
+  const { data: response, isPending } = useGetObjectFromStorage(
+    presignedUrl as string,
+    presignedUrl != "",
+    false,
+  );
+  if (!response) {
+    return null;
+  }
+  const data = response as JSONLinechart;
+
   const chartData = {
     labels: data.values.map((point) => point.x),
     datasets: [
@@ -90,10 +98,10 @@ export function Linechart({ data, isInChat = false }: LinechartProps) {
   return (
     <div className="w-full max-w-3xl mx-auto p-4 overflow-y-auto">
       <h2 className="text-xl font-bold mb-2">{data.title}</h2>
-      {data.description && isInChat && (
+      {data.description && (
         <p className="text-gray-600 mb-4">{data.description}</p>
       )}
-      <div className="aspect-square">
+      <div>
         <Line data={chartData} options={options} />
       </div>
     </div>

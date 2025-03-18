@@ -20,12 +20,20 @@ ChartJS.register(
   Tooltip,
   Legend,
 );
+import { useGetObjectFromStorage } from "@/hooks/get-storage-object";
+import { urlProp } from "@/lib/types";
 
-type BarplotProps = {
-  data: JSONBarplot;
-};
+export function Barplot({ presignedUrl }: urlProp) {
+  const { data: response, isPending } = useGetObjectFromStorage(
+    presignedUrl as string,
+    presignedUrl != "",
+    false,
+  );
+  if (!response) {
+    return null;
+  }
+  const data = response as JSONBarplot;
 
-export function Barplot({ data }: BarplotProps) {
   const labels = data.values.map((value) => value.category);
   const values = data.values.map((value) => value.value);
   const backgroundColor = data.values.map(
@@ -81,7 +89,7 @@ export function Barplot({ data }: BarplotProps) {
       {data.description && (
         <p className="text-gray-600 mb-4">{data.description}</p>
       )}
-      <div className="aspect-square">
+      <div>
         <Bar data={chartData} options={options} />
       </div>
     </div>

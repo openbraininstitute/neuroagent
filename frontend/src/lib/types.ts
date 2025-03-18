@@ -123,6 +123,10 @@ export type BToolMetadataDetailed = {
   is_online: boolean;
 };
 
+export type urlProp = {
+  presignedUrl: string;
+};
+
 type BaseObject = {
   title: string;
   description: string;
