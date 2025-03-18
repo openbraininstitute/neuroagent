@@ -97,9 +97,9 @@ class LiteratureSearchTool(BaseTool):
     The search will return relevant paragraphs from scientific papers along with their source information."""
     description: ClassVar[
         str
-    ] = """Searches the scientific literature. The tool should be used to gather general scientific knowledge. It is best suited for questions about neuroscience and medicine that are not about morphologies.
+    ] = """Searches the scientific literature. The tool should be used to gather knowledge through scientific papers, articles, reviews etc...
     It takes a required `query` argument and optional filters.
-    It returns a list of paragraphs fron scientific papers that match the query (in the sense of the bm25 algorithm), alongside with the metadata of the articles they were extracted from.
+    It returns a list of paragraphs from scientific papers that match the query (in the sense of the bm25 algorithm), alongside with the metadata of the articles they were extracted from.
     Please generate a summary of the paper from the abstract + paragraph fields when displaying the article to the user."""
     input_schema: LiteratureSearchInput
     metadata: LiteratureSearchMetadata

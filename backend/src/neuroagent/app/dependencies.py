@@ -198,6 +198,11 @@ async def get_selected_tools(
         return selected_tools
 
 
+async def get_tool_embeddings(request: Request) -> dict[str, list[float]]:
+    """Get the tool embeddings."""
+    return request.app.state.tool_embeddings
+
+
 def get_starting_agent(
     settings: Annotated[Settings, Depends(get_settings)],
     tool_list: Annotated[list[type[BaseTool]], Depends(get_selected_tools)],

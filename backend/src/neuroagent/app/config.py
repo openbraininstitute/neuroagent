@@ -159,6 +159,7 @@ class SettingsTools(BaseModel):
     me_model: SettingsGetMEModel = SettingsGetMEModel()
     web_search: SettingsWebSearch = SettingsWebSearch()
     semantic_scholar: SettingsSemanticScholar = SettingsSemanticScholar()
+    max_tools: int = 10
 
     model_config = ConfigDict(frozen=True)
 
@@ -169,6 +170,8 @@ class SettingsOpenAI(BaseModel):
     token: Optional[SecretStr] = None
     model: str = "gpt-4o-mini"
     suggestion_model: str = "o3-mini"
+    embedding_model: str = "text-embedding-3-small"
+    embedding_dim: int = 1024
     temperature: float = 0
     max_tokens: Optional[int] = None
 

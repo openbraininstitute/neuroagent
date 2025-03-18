@@ -10,10 +10,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Checkbox clickable all the way.
 
+### Added
+- Tool retrieval using embeddings.
+
 ## [v0.4.1] - 14.03.2025
 
 ### Fixed
 - ECR action
+
+### Added
+- Tool selection through retrieval.
 
 ## [v0.4.0] - 14.03.2025
 

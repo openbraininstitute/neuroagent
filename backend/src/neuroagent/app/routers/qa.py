@@ -9,6 +9,7 @@ from fastapi.responses import StreamingResponse
 from openai import AsyncOpenAI
 
 from neuroagent.agent_routine import AgentsRoutine
+from neuroagent.app.app_utils import get_embeddings, retrieve_tools
 from neuroagent.app.config import Settings
 from neuroagent.app.database.sql_schemas import (
     Entity,
@@ -22,6 +23,7 @@ from neuroagent.app.dependencies import (
     get_settings,
     get_starting_agent,
     get_thread,
+    get_tool_embeddings,
     get_user_info,
 )
 from neuroagent.app.schemas import QuestionsSuggestions, UserClickHistory, UserInfo
@@ -85,6 +87,9 @@ async def stream_chat_agent(
     context_variables: Annotated[dict[str, Any], Depends(get_context_variables)],
     thread: Annotated[Threads, Depends(get_thread)],
     settings: Annotated[Settings, Depends(get_settings)],
+    tools_embedding_dict: Annotated[
+        dict[str, list[float]], Depends(get_tool_embeddings)
+    ],
 ) -> StreamingResponse:
     """Run a single agent query in a streamed fashion."""
     if len(user_request.content) > settings.misc.query_max_size:
@@ -94,6 +99,19 @@ async def stream_chat_agent(
         )
 
     messages: list[Messages] = await thread.awaitable_attrs.messages
+
+    query_embedding = await get_embeddings(
+        openai_client=agents_routine.client,
+        to_embed=user_request.content,
+        embedding_model=settings.openai.embedding_model,
+        embedding_dim=settings.openai.embedding_dim,
+    )
+    agent.tools = await retrieve_tools(
+        tools_embedding_dict=tools_embedding_dict,
+        embedded_query=query_embedding[0].embedding,
+        tool_list=agent.tools,
+        max_tools=settings.tools.max_tools,
+    )
 
     if not messages or messages[-1].entity == Entity.AI_MESSAGE:
         messages.append(
