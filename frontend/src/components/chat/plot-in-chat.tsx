@@ -6,13 +6,6 @@ import { Scatterplot } from "@/components/plots/scatterplot";
 import { ImagePlot } from "@/components/plots/image";
 import { Histogram } from "@/components/plots/histogram";
 import { Linechart } from "@/components/plots/linechart";
-import {
-  JSONPiechart,
-  JSONBarplot,
-  JSONScatterplot,
-  JSONHistogram,
-  JSONLinechart,
-} from "@/lib/types";
 import { useGetPresignedUrl } from "@/hooks/get-presigned";
 import { useGetObjectFromStorage } from "@/hooks/get-storage-object";
 

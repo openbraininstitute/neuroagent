@@ -5,13 +5,6 @@ import { Scatterplot } from "@/components/plots/scatterplot";
 import { ImagePlot } from "@/components/plots/image";
 import { Histogram } from "@/components/plots/histogram";
 import { Linechart } from "@/components/plots/linechart";
-import {
-  JSONPiechart,
-  JSONBarplot,
-  JSONScatterplot,
-  JSONHistogram,
-  JSONLinechart,
-} from "@/lib/types";
 
 export default async function ViewerPage({
   params,
@@ -29,20 +22,19 @@ export default async function ViewerPage({
     return <ImagePlot url={presignedUrl} />;
   }
 
-  // For JSON-based plots, parse the response
-  const data = await response.json();
-
   switch (category) {
+    case "image":
+      return <ImagePlot url={presignedUrl} />;
     case "json-piechart":
-      return <Piechart data={data as JSONPiechart} />;
+      return <Piechart presignedUrl={presignedUrl ?? ""} />;
     case "json-barplot":
-      return <Barplot data={data as JSONBarplot} />;
+      return <Barplot presignedUrl={presignedUrl ?? ""} />;
     case "json-scatterplot":
-      return <Scatterplot data={data as JSONScatterplot} />;
+      return <Scatterplot presignedUrl={presignedUrl ?? ""} />;
     case "json-histogram":
-      return <Histogram data={data as JSONHistogram} />;
+      return <Histogram presignedUrl={presignedUrl ?? ""} />;
     case "json-linechart":
-      return <Linechart data={data as JSONLinechart} />;
+      return <Linechart presignedUrl={presignedUrl ?? ""} />;
     default:
       return <p>Error: Unsupported file category: {category}</p>;
   }

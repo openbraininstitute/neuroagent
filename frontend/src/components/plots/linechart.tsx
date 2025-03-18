@@ -26,7 +26,7 @@ import { useGetObjectFromStorage } from "@/hooks/get-storage-object";
 import { urlProp } from "@/lib/types";
 
 export function Linechart({ presignedUrl }: urlProp) {
-  const { data: response, isPending } = useGetObjectFromStorage(
+  const { data: response } = useGetObjectFromStorage(
     presignedUrl as string,
     presignedUrl != "",
     false,
