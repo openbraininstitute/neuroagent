@@ -10,6 +10,7 @@ import {
   Legend,
 } from "chart.js";
 import { Scatter } from "react-chartjs-2";
+import { useTheme } from "next-themes";
 
 ChartJS.register(LinearScale, PointElement, LineElement, Tooltip, Legend);
 
@@ -19,6 +20,8 @@ import Link from "next/link";
 import { Link2 } from "lucide-react";
 
 export function Scatterplot({ presignedUrl, isInChat, storageId }: PlotProp) {
+  const { theme } = useTheme();
+
   const { data: response } = useGetObjectFromStorage(
     presignedUrl as string,
     presignedUrl != "",
@@ -28,6 +31,9 @@ export function Scatterplot({ presignedUrl, isInChat, storageId }: PlotProp) {
     return null;
   }
   const data = response as JSONScatterplot;
+
+  const darkGridColor = "rgba(255, 255, 255, 0.1)";
+  const gridColor = theme === "dark" ? darkGridColor : undefined;
 
   const chartData = {
     datasets: [
@@ -59,6 +65,9 @@ export function Scatterplot({ presignedUrl, isInChat, storageId }: PlotProp) {
     scales: {
       x: {
         beginAtZero: true,
+        grid: {
+          color: gridColor,
+        },
         title: {
           display: !!data.x_label,
           text: data.x_label,
@@ -66,6 +75,9 @@ export function Scatterplot({ presignedUrl, isInChat, storageId }: PlotProp) {
       },
       y: {
         beginAtZero: true,
+        grid: {
+          color: gridColor,
+        },
         title: {
           display: !!data.y_label,
           text: data.y_label,

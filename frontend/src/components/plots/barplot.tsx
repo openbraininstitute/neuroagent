@@ -23,8 +23,11 @@ import { useGetObjectFromStorage } from "@/hooks/get-storage-object";
 import { PlotProp } from "@/lib/types";
 import Link from "next/link";
 import { Link2 } from "lucide-react";
+import { useTheme } from "next-themes";
 
 export function Barplot({ presignedUrl, storageId, isInChat }: PlotProp) {
+  const { theme } = useTheme();
+
   const { data: response } = useGetObjectFromStorage(
     presignedUrl as string,
     presignedUrl != "",
@@ -34,6 +37,9 @@ export function Barplot({ presignedUrl, storageId, isInChat }: PlotProp) {
     return null;
   }
   const data = response as JSONBarplot;
+
+  const darkGridColor = "rgba(255, 255, 255, 0.1)";
+  const gridColor = theme === "dark" ? darkGridColor : undefined;
 
   const labels = data.values.map((value) => value.category);
   const values = data.values.map((value) => value.value);
@@ -66,12 +72,18 @@ export function Barplot({ presignedUrl, storageId, isInChat }: PlotProp) {
     scales: {
       y: {
         beginAtZero: true,
+        grid: {
+          color: gridColor,
+        },
         title: {
           display: !!data.y_label,
           text: data.y_label,
         },
       },
       x: {
+        grid: {
+          color: gridColor,
+        },
         title: {
           display: !!data.x_label,
           text: data.x_label,

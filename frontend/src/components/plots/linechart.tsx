@@ -12,6 +12,7 @@ import {
   TooltipItem,
 } from "chart.js";
 import { Line } from "react-chartjs-2";
+import { useTheme } from "next-themes";
 
 ChartJS.register(
   LinearScale,
@@ -28,6 +29,8 @@ import Link from "next/link";
 import { Link2 } from "lucide-react";
 
 export function Linechart({ presignedUrl, isInChat, storageId }: PlotProp) {
+  const { theme } = useTheme();
+
   const { data: response } = useGetObjectFromStorage(
     presignedUrl as string,
     presignedUrl != "",
@@ -37,6 +40,9 @@ export function Linechart({ presignedUrl, isInChat, storageId }: PlotProp) {
     return null;
   }
   const data = response as JSONLinechart;
+
+  const darkGridColor = "rgba(255, 255, 255, 0.1)";
+  const gridColor = theme === "dark" ? darkGridColor : undefined;
 
   const chartData = {
     labels: data.values.map((point) => point.x),
@@ -78,6 +84,9 @@ export function Linechart({ presignedUrl, isInChat, storageId }: PlotProp) {
       x: {
         type: "linear" as const,
         beginAtZero: true,
+        grid: {
+          color: gridColor,
+        },
         title: {
           display: !!data.x_label,
           text: data.x_label,
@@ -85,6 +94,9 @@ export function Linechart({ presignedUrl, isInChat, storageId }: PlotProp) {
       },
       y: {
         beginAtZero: true,
+        grid: {
+          color: gridColor,
+        },
         title: {
           display: !!data.y_label,
           text: data.y_label,

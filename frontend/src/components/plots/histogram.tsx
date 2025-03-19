@@ -11,6 +11,7 @@ import {
   Legend,
 } from "chart.js";
 import { Bar } from "react-chartjs-2";
+import { useTheme } from "next-themes";
 
 ChartJS.register(
   CategoryScale,
@@ -27,6 +28,8 @@ import Link from "next/link";
 import { Link2 } from "lucide-react";
 
 export function Histogram({ presignedUrl, storageId, isInChat }: PlotProp) {
+  const { theme } = useTheme();
+
   const { data: response } = useGetObjectFromStorage(
     presignedUrl as string,
     presignedUrl != "",
@@ -36,6 +39,9 @@ export function Histogram({ presignedUrl, storageId, isInChat }: PlotProp) {
     return null;
   }
   const data = response as JSONHistogram;
+
+  const darkGridColor = "rgba(255, 255, 255, 0.1)";
+  const gridColor = theme === "dark" ? darkGridColor : undefined;
 
   // Calculate min and max for the bin range
   const min = Math.min(...data.values);
@@ -81,12 +87,18 @@ export function Histogram({ presignedUrl, storageId, isInChat }: PlotProp) {
     scales: {
       y: {
         beginAtZero: true,
+        grid: {
+          color: gridColor,
+        },
         title: {
           display: !!data.y_label,
           text: data.y_label || "Frequency",
         },
       },
       x: {
+        grid: {
+          color: gridColor,
+        },
         title: {
           display: !!data.x_label,
           text: data.x_label || "Value",
