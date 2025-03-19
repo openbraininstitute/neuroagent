@@ -183,7 +183,7 @@ class SettingsOpenAI(BaseModel):
     model: str = "gpt-4o-mini"
     suggestion_model: str = "o3-mini"
     embedding_model: str = "text-embedding-3-small"
-    embedding_dim: int | None = None  # Uses base dim of the model if None
+    embedding_dim: int | None = None  # Uses default dim of the model if None
     temperature: float = 0
     max_tokens: Optional[int] = None
 
