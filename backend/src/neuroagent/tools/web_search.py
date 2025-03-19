@@ -6,7 +6,7 @@ from typing import ClassVar, Literal
 from pydantic import BaseModel, Field, SecretStr
 from tavily import AsyncTavilyClient
 
-from neuroagent.tools.base_tool import BaseMetadata, BaseTool
+from neuroagent.base_types import BaseMetadata, BaseTool
 
 
 class WebSearchMetadata(BaseMetadata):

@@ -6,7 +6,7 @@ from typing import ClassVar
 from httpx import AsyncClient
 from pydantic import BaseModel, Field, SecretStr
 
-from neuroagent.tools.base_tool import BaseMetadata, BaseTool
+from neuroagent.base_types import BaseMetadata, BaseTool
 
 
 class SemanticScholarMetadata(BaseMetadata):

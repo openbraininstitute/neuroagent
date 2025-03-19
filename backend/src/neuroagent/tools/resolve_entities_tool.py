@@ -7,13 +7,13 @@ from typing import Any, ClassVar
 from httpx import AsyncClient
 from pydantic import BaseModel, Field
 
-from neuroagent.resolving import resolve_query
-from neuroagent.tools.base_tool import (
+from neuroagent.base_types import (
     ETYPE_IDS,
     BaseMetadata,
     BaseTool,
     EtypesLiteral,
 )
+from neuroagent.resolving import resolve_query
 
 logger = logging.getLogger(__name__)
 

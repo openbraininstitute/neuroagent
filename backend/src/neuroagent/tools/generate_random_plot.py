@@ -9,6 +9,7 @@ from typing import Any, ClassVar, Literal
 import matplotlib.pyplot as plt
 from pydantic import BaseModel, Field
 
+from neuroagent.base_types import BaseMetadata, BaseTool
 from neuroagent.schemas import (
     BarplotValue,
     JSONBarplot,
@@ -17,7 +18,6 @@ from neuroagent.schemas import (
     PiechartValue,
     ScatterplotValue,
 )
-from neuroagent.tools.base_tool import BaseMetadata, BaseTool
 from neuroagent.utils import save_to_storage
 
 logger = logging.getLogger(__name__)

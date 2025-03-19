@@ -10,7 +10,7 @@ from httpx import AsyncClient
 from neurom import load_morphology
 from pydantic import BaseModel, Field
 
-from neuroagent.tools.base_tool import BaseMetadata, BaseTool
+from neuroagent.base_types import BaseMetadata, BaseTool
 from neuroagent.utils import get_kg_data
 
 logger = logging.getLogger(__name__)

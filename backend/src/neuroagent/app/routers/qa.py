@@ -9,7 +9,6 @@ from fastapi.responses import StreamingResponse
 from openai import AsyncOpenAI
 
 from neuroagent.agent_routine import AgentsRoutine
-from neuroagent.app.app_utils import get_embeddings, retrieve_tools
 from neuroagent.app.config import Settings
 from neuroagent.app.database.sql_schemas import (
     Entity,
@@ -28,10 +27,9 @@ from neuroagent.app.dependencies import (
 )
 from neuroagent.app.schemas import QuestionsSuggestions, UserClickHistory, UserInfo
 from neuroagent.app.stream import stream_agent_response
-from neuroagent.new_types import (
-    Agent,
-    ClientRequest,
-)
+from neuroagent.base_types import Agent, BaseTool
+from neuroagent.new_types import ClientRequest
+from neuroagent.utils import sample_tools
 
 router = APIRouter(prefix="/qa", tags=["Run the agent"])
 
@@ -40,7 +38,7 @@ logger = logging.getLogger(__name__)
 
 @router.post("/question_suggestions")
 async def question_suggestions(
-    client_info: Annotated[UserInfo, Depends(get_user_info)],
+    _: Annotated[UserInfo, Depends(get_user_info)],
     openai_client: Annotated[AsyncOpenAI, Depends(get_openai_client)],
     settings: Annotated[Settings, Depends(get_settings)],
     body: UserClickHistory,
@@ -88,7 +86,7 @@ async def stream_chat_agent(
     thread: Annotated[Threads, Depends(get_thread)],
     settings: Annotated[Settings, Depends(get_settings)],
     tools_embedding_dict: Annotated[
-        dict[str, list[float]], Depends(get_tool_embeddings)
+        dict[type[BaseTool], list[float]], Depends(get_tool_embeddings)
     ],
 ) -> StreamingResponse:
     """Run a single agent query in a streamed fashion."""
@@ -100,19 +98,6 @@ async def stream_chat_agent(
 
     messages: list[Messages] = await thread.awaitable_attrs.messages
 
-    query_embedding = await get_embeddings(
-        openai_client=agents_routine.client,
-        to_embed=user_request.content,
-        embedding_model=settings.openai.embedding_model,
-        embedding_dim=settings.openai.embedding_dim,
-    )
-    agent.tools = await retrieve_tools(
-        tools_embedding_dict=tools_embedding_dict,
-        embedded_query=query_embedding[0].embedding,
-        tool_list=agent.tools,
-        max_tools=settings.tools.max_tools,
-    )
-
     if not messages or messages[-1].entity == Entity.AI_MESSAGE:
         messages.append(
             Messages(
@@ -122,6 +107,21 @@ async def stream_chat_agent(
                 content=json.dumps({"role": "user", "content": user_request.content}),
             )
         )
+        current_content = user_request.content
+    else:
+        current_content = json.loads(messages[-1].content)["content"]
+
+    extra_tools = await sample_tools(
+        openai_client=agents_routine.client,
+        content=current_content,
+        tools_embedding_dict=tools_embedding_dict,
+        new_tool_size=settings.tools.max_tools - len(agent.tools),
+        embedding_model=settings.openai.embedding_model,
+        embedding_dim=settings.openai.embedding_dim,
+        fake_embeddings=settings.misc.is_dev,
+    )
+    agent.tools.extend(extra_tools)
+
     stream_generator = stream_agent_response(
         agents_routine,
         agent,

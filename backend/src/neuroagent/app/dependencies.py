@@ -18,6 +18,7 @@ from neuroagent.app.app_utils import validate_project
 from neuroagent.app.config import Settings
 from neuroagent.app.database.sql_schemas import Threads
 from neuroagent.app.schemas import UserInfo
+from neuroagent.base_types import BaseTool
 from neuroagent.new_types import Agent
 from neuroagent.tools import (
     ElectrophysFeatureTool,
@@ -30,6 +31,7 @@ from neuroagent.tools import (
     MorphologyFeatureTool,
     MorphologyViewerTool,
     PlotGeneratorTool,
+    ResampleTool,
     ResolveEntitiesTool,
     SCSGetAllTool,
     SCSGetOneTool,
@@ -37,7 +39,6 @@ from neuroagent.tools import (
     SemanticScholarTool,
     WebSearchTool,
 )
-from neuroagent.tools.base_tool import BaseTool
 
 logger = logging.getLogger(__name__)
 
@@ -174,6 +175,7 @@ def get_tool_list() -> list[type[BaseTool]]:
         MorphologyViewerTool,
         WebSearchTool,
         SemanticScholarTool,
+        ResampleTool,
         # NowTool,
         # WeatherTool,
         # RandomPlotGeneratorTool,
@@ -198,7 +200,7 @@ async def get_selected_tools(
         return selected_tools
 
 
-async def get_tool_embeddings(request: Request) -> dict[str, list[float]]:
+async def get_tool_embeddings(request: Request) -> dict[type[BaseTool], list[float]]:
     """Get the tool embeddings."""
     return request.app.state.tool_embeddings
 
@@ -221,10 +223,11 @@ def get_starting_agent(
         else "Never try to generate links to internal storage ids"
     )
 
+    # The agent starts with default tools. Extra tools are populated later.
     agent = Agent(
         name="Agent",
         instructions=f"{base_instructions}\n{storage_instructions}",
-        tools=tool_list,
+        tools=[tool for tool in tool_list if tool.name in settings.tools.default_tools],
         model=settings.openai.model,
     )
     return agent
@@ -285,6 +288,10 @@ def get_context_variables(
     settings: Annotated[Settings, Depends(get_settings)],
     starting_agent: Annotated[Agent, Depends(get_starting_agent)],
     token: Annotated[str, Depends(auth)],
+    openai_client: Annotated[AsyncClient, Depends(get_openai_client)],
+    tools_embedding_dict: Annotated[
+        dict[type[BaseTool], list[float]], Depends(get_tool_embeddings)
+    ],
     httpx_client: Annotated[AsyncClient, Depends(get_httpx_client)],
     thread: Annotated[Threads, Depends(get_thread)],
     s3_client: Annotated[Any, Depends(get_s3_client)],
@@ -292,31 +299,36 @@ def get_context_variables(
 ) -> dict[str, Any]:
     """Get the context variables to feed the tool's metadata."""
     return {
-        "starting_agent": starting_agent,
-        "token": token,
-        "retriever_k": settings.tools.literature.retriever_k,
-        "reranker_k": settings.tools.literature.reranker_k,
-        "use_reranker": settings.tools.literature.use_reranker,
-        "literature_search_url": settings.tools.literature.url,
-        "knowledge_graph_url": settings.knowledge_graph.url,
-        "me_model_search_size": settings.tools.me_model.search_size,
-        "bucket_name": settings.storage.bucket_name,
-        "brainregion_hierarchy_storage_key": settings.storage.brain_region_hierarchy_key,
-        "celltypes_hierarchy_storage_key": settings.storage.cell_type_hierarchy_key,
-        "morpho_search_size": settings.tools.morpho.search_size,
-        "kg_morpho_feature_search_size": settings.tools.kg_morpho_features.search_size,
-        "trace_search_size": settings.tools.trace.search_size,
-        "kg_sparql_url": settings.knowledge_graph.sparql_url,
-        "kg_class_view_url": settings.knowledge_graph.class_view_url,
         "bluenaas_url": settings.tools.bluenaas.url,
+        "brainregion_hierarchy_storage_key": settings.storage.brain_region_hierarchy_key,
+        "bucket_name": settings.storage.bucket_name,
+        "celltypes_hierarchy_storage_key": settings.storage.cell_type_hierarchy_key,
+        "embedding_dim": settings.openai.embedding_dim,
+        "embedding_model": settings.openai.embedding_model,
+        "fake_embeddings": settings.misc.is_dev,
         "httpx_client": httpx_client,
-        "vlab_id": thread.vlab_id,
+        "kg_class_view_url": settings.knowledge_graph.class_view_url,
+        "kg_morpho_feature_search_size": settings.tools.kg_morpho_features.search_size,
+        "kg_sparql_url": settings.knowledge_graph.sparql_url,
+        "knowledge_graph_url": settings.knowledge_graph.url,
+        "literature_search_url": settings.tools.literature.url,
+        "me_model_search_size": settings.tools.me_model.search_size,
+        "morpho_search_size": settings.tools.morpho.search_size,
+        "openai_client": openai_client,
         "project_id": thread.project_id,
+        "reranker_k": settings.tools.literature.reranker_k,
+        "retriever_k": settings.tools.literature.retriever_k,
         "s3_client": s3_client,
-        "user_id": user_info.sub,
-        "thread_id": thread.thread_id,
-        "tavily_api_key": settings.tools.web_search.tavily_api_key,
         "semantic_scholar_api_key": settings.tools.semantic_scholar.api_key,
+        "agent": starting_agent,
+        "tavily_api_key": settings.tools.web_search.tavily_api_key,
+        "thread_id": thread.thread_id,
+        "token": token,
+        "tools_embedding_dict": tools_embedding_dict,
+        "trace_search_size": settings.tools.trace.search_size,
+        "use_reranker": settings.tools.literature.use_reranker,
+        "user_id": user_info.sub,
+        "vlab_id": thread.vlab_id,
     }
 
 

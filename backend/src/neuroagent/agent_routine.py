@@ -11,12 +11,12 @@ from openai.types.chat import ChatCompletionMessage
 from pydantic import ValidationError
 
 from neuroagent.app.database.sql_schemas import Entity, Messages, ToolCalls
+from neuroagent.base_types import BaseTool
 from neuroagent.new_types import (
     Agent,
     Response,
     Result,
 )
-from neuroagent.tools.base_tool import BaseTool
 from neuroagent.utils import get_entity, merge_chunk, messages_to_openai_content
 
 
@@ -205,7 +205,6 @@ class AgentsRoutine:
         content = await messages_to_openai_content(messages)
         history = copy.deepcopy(content)
         init_len = len(messages)
-        tool_map = {tool.name: tool for tool in agent.tools}
 
         while len(history) - init_len < max_turns:
             message: dict[str, Any] = {
@@ -221,6 +220,7 @@ class AgentsRoutine:
                     }
                 ),
             }
+            tool_map = {tool.name: tool for tool in agent.tools}
 
             # get completion with current history, agent
             completion = await self.get_chat_completion(

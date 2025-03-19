@@ -28,7 +28,7 @@ async def stream_agent_response(
         )
     else:
         connected_agents_routine = AgentsRoutine(client=agents_routine.client)
-
+    context_variables["openai_client"] = connected_agents_routine.client
     # Restore the httpx client
     httpx_client = AsyncClient(
         timeout=300.0,

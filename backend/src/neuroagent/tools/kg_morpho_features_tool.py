@@ -8,7 +8,7 @@ from typing import Any, ClassVar, Literal
 from httpx import AsyncClient
 from pydantic import BaseModel, Field, model_validator
 
-from neuroagent.tools.base_tool import BaseMetadata, BaseTool
+from neuroagent.base_types import BaseMetadata, BaseTool
 from neuroagent.utils import get_descendants_id
 
 logger = logging.getLogger(__name__)

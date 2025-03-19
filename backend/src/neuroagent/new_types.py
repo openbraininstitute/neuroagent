@@ -1,22 +1,11 @@
 """New types."""
 
-from typing import Any, Callable
+from typing import Any
 
 # Third-party imports
 from pydantic import BaseModel, ConfigDict
 
-from neuroagent.tools.base_tool import BaseTool
-
-
-class Agent(BaseModel):
-    """Agent class."""
-
-    name: str = "Agent"
-    model: str = "gpt-4o-mini"
-    instructions: str | Callable[[], str] = "You are a helpful agent."
-    tools: list[type[BaseTool]] = []
-    tool_choice: str | None = None
-    parallel_tool_calls: bool = True
+from neuroagent.base_types import Agent
 
 
 class HILResponse(BaseModel):

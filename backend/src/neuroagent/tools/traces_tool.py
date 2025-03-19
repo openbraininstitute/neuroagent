@@ -7,7 +7,7 @@ from typing import Any, ClassVar
 from httpx import AsyncClient
 from pydantic import BaseModel, Field
 
-from neuroagent.tools.base_tool import BaseMetadata, BaseTool
+from neuroagent.base_types import BaseMetadata, BaseTool
 from neuroagent.utils import get_descendants_id_s3
 
 logger = logging.getLogger(__name__)
@@ -61,6 +61,7 @@ class GetTracesTool(BaseTool):
     description: ClassVar[
         str
     ] = """Searches a neuroscience based knowledge graph to retrieve traces names, IDs and descriptions.
+    This tool does not return scientific papers.
     Requires a 'brain_region_id' which is the ID of the brain region of interest as registered in the knowledge graph.
     Optionally accepts an e-type id.
     The output is a list of traces, containing:

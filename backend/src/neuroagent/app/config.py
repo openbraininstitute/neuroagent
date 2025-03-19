@@ -1,10 +1,10 @@
 """Configuration."""
 
 import os
-from typing import Literal, Optional
+from typing import Any, Literal, Optional
 
 from dotenv import dotenv_values
-from pydantic import BaseModel, ConfigDict, SecretStr
+from pydantic import BaseModel, ConfigDict, SecretStr, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -159,9 +159,21 @@ class SettingsTools(BaseModel):
     me_model: SettingsGetMEModel = SettingsGetMEModel()
     web_search: SettingsWebSearch = SettingsWebSearch()
     semantic_scholar: SettingsSemanticScholar = SettingsSemanticScholar()
+    # Pass as a comma separated string
+    default_tools: list[str] = ["tool-resampling"]
     max_tools: int = 10
 
     model_config = ConfigDict(frozen=True)
+
+    @model_validator(mode="before")
+    @classmethod
+    def parse_default_tools(cls, data: dict[str, Any]) -> dict[str, Any]:
+        """Turn default_tools into a list."""
+        if data.get("default_tools"):
+            data["default_tools"] = [
+                tool_name.strip() for tool_name in data["default_tools"].split(",")
+            ]
+        return data
 
 
 class SettingsOpenAI(BaseModel):
@@ -171,7 +183,7 @@ class SettingsOpenAI(BaseModel):
     model: str = "gpt-4o-mini"
     suggestion_model: str = "o3-mini"
     embedding_model: str = "text-embedding-3-small"
-    embedding_dim: int = 1024
+    embedding_dim: int | None = None  # Uses base dim of the model if None
     temperature: float = 0
     max_tokens: Optional[int] = None
 
@@ -201,6 +213,7 @@ class SettingsMisc(BaseModel):
     query_max_size: int = 10000
 
     frontend_url: str | None = "http://localhost:3000"
+    is_dev: bool = True
 
     model_config = ConfigDict(frozen=True)
 

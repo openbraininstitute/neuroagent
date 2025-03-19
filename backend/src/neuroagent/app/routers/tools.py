@@ -28,7 +28,7 @@ from neuroagent.app.schemas import (
     ToolMetadataDetailed,
     UserInfo,
 )
-from neuroagent.tools.base_tool import BaseTool
+from neuroagent.base_types import BaseTool
 
 logger = logging.getLogger(__name__)
 

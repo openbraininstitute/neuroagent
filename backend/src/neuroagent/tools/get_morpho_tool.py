@@ -7,10 +7,10 @@ from typing import Any, ClassVar
 from httpx import AsyncClient
 from pydantic import BaseModel, Field
 
+from neuroagent.base_types import BaseMetadata, BaseTool
 from neuroagent.cell_types import (
     get_celltypes_descendants_s3,
 )
-from neuroagent.tools.base_tool import BaseMetadata, BaseTool
 from neuroagent.utils import get_descendants_id_s3
 
 logger = logging.getLogger(__name__)
