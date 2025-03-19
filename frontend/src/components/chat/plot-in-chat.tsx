@@ -22,10 +22,7 @@ export default function PlotsInChat({ storageIds }: PlotDisplayProps) {
   return (
     <div className="ml-20 max-w-[70%] grid grid-cols-2 gap-4">
       {storageIds.map((storageId) => (
-        <div
-          key={storageId}
-          className="flex items-center min-h-[27rem] justify-center"
-        >
+        <div key={storageId} className="flex min-h-[27rem] justify-start">
           <SinglePlotInChat key={storageId} storageId={storageId} />
         </div>
       ))}
