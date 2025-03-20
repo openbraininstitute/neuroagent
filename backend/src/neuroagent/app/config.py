@@ -202,18 +202,6 @@ class SettingsMisc(BaseModel):
     model_config = ConfigDict(frozen=True)
 
 
-class RouteSpec(BaseModel):
-    """Per route settings."""
-
-    route: str  # Regex pattern for matching
-    normalized_path: str  # Clean path for Redis key
-    method: Literal["GET", "POST", "PUT", "PATCH", "DELETE"] = "GET"
-    limit: int = 100
-    expiry: int = 24 * 60 * 60  # seconds
-
-    model_config = ConfigDict(frozen=True)
-
-
 class SettingsRateLimiter(BaseModel):
     """Rate limiter settings."""
 
@@ -221,22 +209,11 @@ class SettingsRateLimiter(BaseModel):
     redis_port: int = 6379
     disabled: bool = False
 
-    routes: list[RouteSpec] = [
-        RouteSpec(
-            route=r"^/qa/chat_streamed/[^/]+$",
-            normalized_path="/qa/chat_streamed",  # Clean path without regex
-            method="POST",
-            limit=100,
-            expiry=24 * 60 * 60,
-        ),
-        RouteSpec(
-            route=r"^/qa/question_suggestions$",
-            normalized_path="/qa/question_suggestions",
-            method="POST",
-            limit=100,
-            expiry=24 * 60 * 60,
-        ),
-    ]
+    limit_chat: int = 30
+    expiry_chat: int = 24 * 60 * 60  # seconds
+
+    limit_suggestions: int = 100
+    expiry_suggestions: int = 24 * 60 * 60  # seconds
 
     model_config = ConfigDict(frozen=True)
 

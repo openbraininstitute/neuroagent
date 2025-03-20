@@ -1,7 +1,6 @@
 """App dependencies."""
 
 import logging
-import re
 from functools import cache
 from typing import Annotated, Any, AsyncIterator
 
@@ -350,10 +349,7 @@ async def rate_limit(
     user_info: Annotated[UserInfo, Depends(get_user_info)],
     thread: Annotated[Threads | None, Depends(get_thread)],
 ) -> None:
-    """Rate limit requests based on user and path.
-
-    Only applies rate limiting for users without a specific virtual lab and project.
-    """
+    """Rate limit requests based on user and route path."""
     # Skip if rate limiting is disabled
     if settings.rate_limiter.disabled:
         return
@@ -367,28 +363,27 @@ async def rate_limit(
     if redis is None:
         return
 
-    path = request.url.path
-    method = request.method
+    route_path = request.scope["route"].path
 
-    # Find matching route spec
-    matching_route = None
-    for route in settings.rate_limiter.routes:
-        if re.match(route.route, path) and route.method == method:
-            matching_route = route
-            break
+    # Set limits based on route path
+    if route_path == "/qa/chat_streamed/{thread_id}":
+        limit = settings.rate_limiter.limit_chat
+        expiry = settings.rate_limiter.expiry_chat
+    elif route_path == "/qa/question_suggestions":
+        limit = settings.rate_limiter.limit_suggestions
+        expiry = settings.rate_limiter.expiry_suggestions
+    else:
+        return ValueError(f"Rate limiting not configured for route: {route_path}")
 
-    if matching_route is None:
-        return
-
-    # Create key using normalized path and user sub
-    key = f"rate_limit:{user_info.sub}:{matching_route.normalized_path}:{method}"
+    # Create key using normalized route path and user sub
+    key = f"rate_limit:{user_info.sub}:{route_path}"
 
     # Get current count
     current = await redis.get(key)
     current = int(current) if current else 0
 
     if current > 0:
-        if current + 1 > matching_route.limit:
+        if current + 1 > limit:
             # Get remaining time
             ttl = await redis.pttl(key)
             raise HTTPException(
@@ -397,4 +392,4 @@ async def rate_limit(
             )
         await redis.incr(key)
     else:
-        await redis.set(key, 1, ex=matching_route.expiry)
+        await redis.set(key, 1, ex=expiry)
