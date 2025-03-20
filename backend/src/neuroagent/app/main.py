@@ -9,6 +9,7 @@ from uuid import uuid4
 from asgi_correlation_id import CorrelationIdMiddleware
 from fastapi import Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from openai import AsyncOpenAI
 from starlette.middleware.base import BaseHTTPMiddleware
 
 from neuroagent import __version__
@@ -17,9 +18,11 @@ from neuroagent.app.config import Settings
 from neuroagent.app.dependencies import (
     get_connection_string,
     get_settings,
+    get_tool_list,
 )
 from neuroagent.app.middleware import strip_path_prefix
 from neuroagent.app.routers import qa, storage, threads, tools
+from neuroagent.utils import get_embeddings
 
 LOGGING = {
     "version": 1,
@@ -62,7 +65,9 @@ logger = logging.getLogger(__name__)
 @asynccontextmanager  # type: ignore
 async def lifespan(fastapi_app: FastAPI) -> AsyncContextManager[None]:  # type: ignore
     """Read environment (settings of the application)."""
-    app_settings = fastapi_app.dependency_overrides.get(get_settings, get_settings)()
+    app_settings: Settings = fastapi_app.dependency_overrides.get(
+        get_settings, get_settings
+    )()
 
     # Get the sqlalchemy engine and store it in app state.
     engine = setup_engine(app_settings, get_connection_string(app_settings))
@@ -86,6 +91,35 @@ async def lifespan(fastapi_app: FastAPI) -> AsyncContextManager[None]:  # type: 
     logging.getLogger().setLevel(app_settings.logging.external_packages.upper())
     logging.getLogger("neuroagent").setLevel(app_settings.logging.level.upper())
     logging.getLogger("bluepyefe").setLevel("CRITICAL")
+
+    # Compute tool embeddings
+    openai_client = (
+        AsyncOpenAI(api_key=app_settings.openai.token.get_secret_value())
+        if app_settings.openai.token
+        else None
+    )
+
+    # Do not embed tools already present by default
+    tools_to_embed = [
+        tool
+        for tool in get_tool_list()
+        if tool.name not in app_settings.tools.default_tools
+    ]
+
+    # Compute tool embeddings
+    tool_embeddings = await get_embeddings(
+        openai_client=openai_client,
+        to_embed=[tool.description for tool in tools_to_embed],
+        embedding_model=app_settings.openai.embedding_model,
+        embedding_dim=app_settings.openai.embedding_dim,
+        fake_embeddings=app_settings.misc.is_dev,
+    )
+
+    # Set them in the app state
+    app.state.tool_embeddings = {
+        tool: tool_embedding.embedding
+        for tool, tool_embedding in zip(tools_to_embed, tool_embeddings)
+    }
 
     yield
     if engine:

@@ -6,12 +6,16 @@ import numbers
 import re
 import uuid
 from pathlib import Path
-from typing import Any, Iterator
+from typing import Any, Iterable, Iterator
 
 from fastapi import HTTPException
 from httpx import AsyncClient
+from openai import AsyncOpenAI
+from openai.types.embedding import Embedding
+from sklearn.metrics.pairwise import cosine_similarity
 
 from neuroagent.app.database.sql_schemas import Entity, Messages
+from neuroagent.base_types import BaseTool
 from neuroagent.schemas import Category, KGMetadata
 
 logger = logging.getLogger(__name__)
@@ -71,6 +75,97 @@ async def messages_to_openai_content(
                 messages.append(json.loads(msg.content))
 
     return messages
+
+
+async def get_embeddings(
+    openai_client: AsyncOpenAI | None,
+    to_embed: list[str],
+    embedding_model: str,
+    embedding_dim: int | None = None,
+    fake_embeddings: bool = False,
+) -> list[Embedding]:
+    """Embed given text."""
+    if not fake_embeddings and openai_client is not None:
+        embedding_params: dict[str, str | int | list[str]] = {
+            "input": to_embed,
+            "model": embedding_model,
+        }
+        if embedding_dim is not None:
+            embedding_params["dimensions"] = embedding_dim
+        embeddings = await openai_client.embeddings.create(**embedding_params)  # type: ignore
+        return embeddings.data
+    else:
+        simulated_embeddings = [
+            Embedding(embedding=[0.5, 0.5], index=i, object="embedding")
+            for i in range(len(to_embed))
+        ]
+        return simulated_embeddings
+
+
+async def retrieve_tools(
+    tools_embedding_dict: dict[type[BaseTool], list[float]],
+    embedded_query: list[float],
+    max_tools: int,
+) -> tuple[type[BaseTool]]:
+    """Get the top-k most relevant tools given a user query."""
+    # Get the cosine similarity between tools and query
+    tool_query_similarity = cosine_similarity(
+        [embedded_query], list(tools_embedding_dict.values())
+    ).squeeze(axis=0)
+
+    # Sort the tools based on their similarity with the query
+    sorted_tools, sorted_tool_scores = zip(
+        *sorted(
+            [
+                (tool, score)
+                for tool, score in zip(
+                    tools_embedding_dict.keys(), tool_query_similarity
+                )
+            ],
+            key=lambda x: x[1],
+            reverse=True,
+        )
+    )
+    logger.info(
+        f"Selected tools: {', '.join([tool.name for tool in sorted_tools[:max_tools]])} with score {sorted_tool_scores[:max_tools]}"
+    )
+    return sorted_tools[:max_tools]
+
+
+async def sample_tools(
+    openai_client: AsyncOpenAI,
+    content: str,
+    tools_embedding_dict: dict[type[BaseTool], list[float]],
+    new_tool_size: int,
+    embedding_model: str = "text-embedding-3-small",
+    embedding_dim: int | None = None,
+    fake_embeddings: bool = False,
+) -> Iterable[type[BaseTool]]:
+    """Sample tools based on a query."""
+    # Perform retrieval only if new tools requested and there are too many tools available
+    if new_tool_size > 0 and new_tool_size < len(tools_embedding_dict):
+        # Embed user's query
+        query_embedding = await get_embeddings(
+            openai_client=openai_client,
+            to_embed=[content],
+            embedding_model=embedding_model,
+            embedding_dim=embedding_dim,
+            fake_embeddings=fake_embeddings,
+        )
+
+        # Compute cosine similarity to get most relevant tools
+        return await retrieve_tools(
+            tools_embedding_dict=tools_embedding_dict,
+            embedded_query=query_embedding[0].embedding,
+            max_tools=new_tool_size,
+        )
+
+    # If we can use all tools available, simply use them all
+    elif new_tool_size >= len(tools_embedding_dict):
+        return tools_embedding_dict.keys()
+    # If we already have enough tools, no-op
+    else:
+        return []
 
 
 def get_entity(message: dict[str, Any]) -> Entity:

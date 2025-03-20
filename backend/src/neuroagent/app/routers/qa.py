@@ -26,10 +26,8 @@ from neuroagent.app.dependencies import (
 )
 from neuroagent.app.schemas import QuestionsSuggestions, UserClickHistory, UserInfo
 from neuroagent.app.stream import stream_agent_response
-from neuroagent.new_types import (
-    Agent,
-    ClientRequest,
-)
+from neuroagent.base_types import Agent
+from neuroagent.new_types import ClientRequest
 
 router = APIRouter(prefix="/qa", tags=["Run the agent"])
 
@@ -38,7 +36,7 @@ logger = logging.getLogger(__name__)
 
 @router.post("/question_suggestions")
 async def question_suggestions(
-    client_info: Annotated[UserInfo, Depends(get_user_info)],
+    _: Annotated[UserInfo, Depends(get_user_info)],
     openai_client: Annotated[AsyncOpenAI, Depends(get_openai_client)],
     settings: Annotated[Settings, Depends(get_settings)],
     body: UserClickHistory,
@@ -104,6 +102,7 @@ async def stream_chat_agent(
                 content=json.dumps({"role": "user", "content": user_request.content}),
             )
         )
+
     stream_generator = stream_agent_response(
         agents_routine,
         agent,

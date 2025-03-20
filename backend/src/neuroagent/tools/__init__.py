@@ -23,6 +23,7 @@ from neuroagent.tools.morphology_features_tool import (
 )
 from neuroagent.tools.morphology_viewer import MorphologyViewerTool
 from neuroagent.tools.now import NowTool
+from neuroagent.tools.resample_tools import ResampleTool
 from neuroagent.tools.resolve_entities_tool import (
     BRResolveOutput,
     ResolveEntitiesTool,
@@ -54,6 +55,7 @@ __all__ = [
     "ParagraphMetadata",
     "PlotGeneratorTool",
     "RandomPlotGeneratorTool",
+    "ResampleTool",
     "ResolveEntitiesTool",
     "SemanticScholarTool",
     "TracesOutput",
