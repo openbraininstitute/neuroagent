@@ -202,6 +202,42 @@ class SettingsMisc(BaseModel):
     model_config = ConfigDict(frozen=True)
 
 
+class RouteSpec(BaseModel):
+    """Per route settings."""
+
+    route: str
+    method: Literal["GET", "POST", "PUT", "PATCH", "DELETE"] = "GET"
+    limit: int = 100
+    expiry: int = 24 * 60 * 60  # seconds
+
+    model_config = ConfigDict(frozen=True)
+
+
+class SettingsRateLimiter(BaseModel):
+    """Rate limiter settings."""
+
+    redis_host: str = "localhost"
+    redis_port: int = 6379
+    disabled: bool = False
+
+    routes: list[RouteSpec] = [
+        RouteSpec(
+            route="/qa/chat_streamed/{thread_id}",
+            method="POST",
+            limit=100,
+            expiry=24 * 60 * 60,
+        ),
+        RouteSpec(
+            route="/qa/question_suggestions",
+            method="POST",
+            limit=100,
+            expiry=24 * 60 * 60,
+        ),
+    ]
+
+    model_config = ConfigDict(frozen=True)
+
+
 class Settings(BaseSettings):
     """All settings."""
 
