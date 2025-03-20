@@ -388,7 +388,7 @@ async def rate_limit(
             ttl = await redis.pttl(key)
             raise HTTPException(
                 status_code=429,
-                detail={"error": "Rate limit exceeded", "retry_after": ttl},
+                detail={"error": "Rate limit exceeded", "retry_after": ttl / 1000},
             )
         await redis.incr(key)
     else:

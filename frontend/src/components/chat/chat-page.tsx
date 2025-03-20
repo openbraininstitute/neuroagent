@@ -10,6 +10,7 @@ import { useStore } from "@/lib/store";
 import { ChatInputInsideThread } from "@/components/chat/chat-input-inside-thread";
 import { ChatMessagesInsideThread } from "@/components/chat/chat-messages-inside-thread";
 import { generateEditTitle } from "@/actions/generate-edit-thread";
+import { toast } from "sonner";
 
 type ChatPageProps = {
   threadId: string;
@@ -33,6 +34,32 @@ export function ChatPage({
   const [isAutoScrollEnabled, setIsAutoScrollEnabled] = useState(true);
   const containerRef = useRef<HTMLDivElement>(null);
 
+  const handleChatError = async (error: Error | Response) => {
+    if (error instanceof Response && error.status === 429) {
+      try {
+        const data = await error.json();
+        const retryAfterSeconds = data.detail.retry_after;
+        const retryAfterHours = Math.ceil(retryAfterSeconds / 3600);
+
+        toast.error("Rate Limit Exceeded", {
+          description: `Please try again in ${retryAfterHours} ${
+            retryAfterHours === 1 ? "hour" : "hours"
+          }.`,
+        });
+      } catch {
+        // Fallback if we can't parse the response
+        toast.error("Rate Limit Exceeded", {
+          description: "Please try again later.",
+        });
+      }
+    } else {
+      toast.error("Chat Error", {
+        description:
+          error instanceof Error ? error.message : "An unknown error occurred",
+      });
+    }
+  };
+
   const {
     messages: messagesRaw,
     input,
@@ -47,6 +74,7 @@ export function ChatPage({
       Authorization: `Bearer ${session?.accessToken}`,
     },
     initialMessages,
+    onError: handleChatError,
     experimental_prepareRequestBody: ({ messages }) => {
       const lastMessage = messages[messages.length - 1];
       const selectedTools = Object.keys(checkedTools).filter(
