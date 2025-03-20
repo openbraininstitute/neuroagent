@@ -312,6 +312,7 @@ def get_context_variables(
         "kg_sparql_url": settings.knowledge_graph.sparql_url,
         "knowledge_graph_url": settings.knowledge_graph.url,
         "literature_search_url": settings.tools.literature.url,
+        "max_tools": settings.tools.max_tools,
         "me_model_search_size": settings.tools.me_model.search_size,
         "morpho_search_size": settings.tools.morpho.search_size,
         "openai_client": openai_client,

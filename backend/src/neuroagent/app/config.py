@@ -160,7 +160,7 @@ class SettingsTools(BaseModel):
     web_search: SettingsWebSearch = SettingsWebSearch()
     semantic_scholar: SettingsSemanticScholar = SettingsSemanticScholar()
     # Pass as a comma separated string
-    default_tools: list[str] = ["tool-resampling"]
+    default_tools: list[str] = ["tool-resampling", "resolve-entities-tool"]
     max_tools: int = 10
 
     model_config = ConfigDict(frozen=True)

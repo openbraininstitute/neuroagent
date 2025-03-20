@@ -21,13 +21,15 @@ class ResampleToolMetadata(BaseMetadata):
     embedding_model: str
     embedding_dim: int | None
     fake_embeddings: bool
+    max_tools: int
 
 
 class ResampleToolInput(BaseModel):
     """Input of the tool resampling."""
 
     task_description: str = Field(
-        description="""Give a simple, general and input agnostic description of the task you have to fulfill. Four words MAXIMUM"""
+        description="""Give a 3 words MAXIMUM description of the task at hands.
+        Examples: Search the Literature, Retrieve morphology data, Simulate me-model, Search the web, Plot data, Retrieve electrophysiology data, Get simulations..."""
     )
 
 
@@ -57,11 +59,16 @@ class ResampleTool(BaseTool):
             openai_client=self.metadata.openai_client,
             content=self.input_schema.task_description,
             tools_embedding_dict=self.metadata.tools_embedding_dict,
-            new_tool_size=len(to_resample),
+            new_tool_size=self.metadata.max_tools
+            - len(
+                set(self.metadata.agent.tools)
+                - set(self.metadata.tools_embedding_dict.keys())
+            ),
             embedding_model=self.metadata.embedding_model,
             embedding_dim=self.metadata.embedding_dim,
             fake_embeddings=self.metadata.fake_embeddings,
         )
+
         self.metadata.agent.tools = list(
             set(self.metadata.agent.tools) - to_resample | set(new_tools)
         )

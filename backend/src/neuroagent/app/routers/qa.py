@@ -22,14 +22,12 @@ from neuroagent.app.dependencies import (
     get_settings,
     get_starting_agent,
     get_thread,
-    get_tool_embeddings,
     get_user_info,
 )
 from neuroagent.app.schemas import QuestionsSuggestions, UserClickHistory, UserInfo
 from neuroagent.app.stream import stream_agent_response
-from neuroagent.base_types import Agent, BaseTool
+from neuroagent.base_types import Agent
 from neuroagent.new_types import ClientRequest
-from neuroagent.utils import sample_tools
 
 router = APIRouter(prefix="/qa", tags=["Run the agent"])
 
@@ -85,9 +83,6 @@ async def stream_chat_agent(
     context_variables: Annotated[dict[str, Any], Depends(get_context_variables)],
     thread: Annotated[Threads, Depends(get_thread)],
     settings: Annotated[Settings, Depends(get_settings)],
-    tools_embedding_dict: Annotated[
-        dict[type[BaseTool], list[float]], Depends(get_tool_embeddings)
-    ],
 ) -> StreamingResponse:
     """Run a single agent query in a streamed fashion."""
     if len(user_request.content) > settings.misc.query_max_size:
@@ -107,20 +102,6 @@ async def stream_chat_agent(
                 content=json.dumps({"role": "user", "content": user_request.content}),
             )
         )
-        current_content = user_request.content
-    else:
-        current_content = json.loads(messages[-1].content)["content"]
-
-    extra_tools = await sample_tools(
-        openai_client=agents_routine.client,
-        content=current_content,
-        tools_embedding_dict=tools_embedding_dict,
-        new_tool_size=settings.tools.max_tools - len(agent.tools),
-        embedding_model=settings.openai.embedding_model,
-        embedding_dim=settings.openai.embedding_dim,
-        fake_embeddings=settings.misc.is_dev,
-    )
-    agent.tools.extend(extra_tools)
 
     stream_generator = stream_agent_response(
         agents_routine,

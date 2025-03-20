@@ -70,7 +70,7 @@ class AgentsRoutine:
 
             case Agent() as agent:
                 return Result(
-                    value=json.dumps({"assistant": agent.name}),
+                    value=json.dumps({"tools": [tool.name for tool in agent.tools]}),
                     agent=agent,
                 )
             case _:
