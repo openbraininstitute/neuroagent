@@ -19,7 +19,7 @@ from neuroagent.app.dependencies import (
     get_connection_string,
     get_settings,
 )
-from neuroagent.app.middleware import rate_limit, strip_path_prefix
+from neuroagent.app.middleware import strip_path_prefix
 from neuroagent.app.routers import qa, storage, threads, tools
 
 LOGGING = {
@@ -134,7 +134,6 @@ app.add_middleware(
     generator=lambda: uuid4().hex,
     transformer=lambda a: a,
 )
-app.add_middleware(BaseHTTPMiddleware, dispatch=rate_limit)
 app.add_middleware(BaseHTTPMiddleware, dispatch=strip_path_prefix)
 
 app.include_router(qa.router)

@@ -1,6 +1,7 @@
 """App dependencies."""
 
 import logging
+import re
 from functools import cache
 from typing import Annotated, Any, AsyncIterator
 
@@ -227,10 +228,13 @@ def get_starting_agent(
 
 async def get_thread(
     user_info: Annotated[UserInfo, Depends(get_user_info)],
-    thread_id: str,
     session: Annotated[AsyncSession, Depends(get_session)],
-) -> Threads:
+    thread_id: str | None = None,
+) -> Threads | None:
     """Check if the current thread / user matches."""
+    if thread_id is None:
+        return None
+
     thread_result = await session.execute(
         select(Threads).where(
             Threads.user_id == user_info.sub, Threads.thread_id == thread_id
@@ -338,3 +342,59 @@ def get_agents_routine(
 ) -> AgentsRoutine:
     """Get the AgentRoutine client."""
     return AgentsRoutine(openai)
+
+
+async def rate_limit(
+    request: Request,
+    settings: Annotated[Settings, Depends(get_settings)],
+    user_info: Annotated[UserInfo, Depends(get_user_info)],
+    thread: Annotated[Threads | None, Depends(get_thread)],
+) -> None:
+    """Rate limit requests based on user and path.
+
+    Only applies rate limiting for users without a specific virtual lab and project.
+    """
+    # Skip if rate limiting is disabled
+    if settings.rate_limiter.disabled:
+        return
+
+    # Skip rate limiting if user has specific virtual lab and project
+    if thread and thread.vlab_id and thread.project_id:
+        return
+
+    # Get Redis client from app state
+    redis = request.app.state.redis_client
+    if redis is None:
+        return
+
+    path = request.url.path
+    method = request.method
+
+    # Find matching route spec
+    matching_route = None
+    for route in settings.rate_limiter.routes:
+        if re.match(route.route, path) and route.method == method:
+            matching_route = route
+            break
+
+    if matching_route is None:
+        return
+
+    # Create key using normalized path and user sub
+    key = f"rate_limit:{user_info.sub}:{matching_route.normalized_path}:{method}"
+
+    # Get current count
+    current = await redis.get(key)
+    current = int(current) if current else 0
+
+    if current > 0:
+        if current + 1 > matching_route.limit:
+            # Get remaining time
+            ttl = await redis.pttl(key)
+            raise HTTPException(
+                status_code=429,
+                detail={"error": "Rate limit exceeded", "retry_after": ttl},
+            )
+        await redis.incr(key)
+    else:
+        await redis.set(key, 1, ex=matching_route.expiry)

@@ -23,6 +23,7 @@ from neuroagent.app.dependencies import (
     get_starting_agent,
     get_thread,
     get_user_info,
+    rate_limit,
 )
 from neuroagent.app.schemas import QuestionsSuggestions, UserClickHistory, UserInfo
 from neuroagent.app.stream import stream_agent_response
@@ -38,6 +39,7 @@ logger = logging.getLogger(__name__)
 
 @router.post("/question_suggestions")
 async def question_suggestions(
+    _: Annotated[None, Depends(rate_limit)],
     client_info: Annotated[UserInfo, Depends(get_user_info)],
     openai_client: Annotated[AsyncOpenAI, Depends(get_openai_client)],
     settings: Annotated[Settings, Depends(get_settings)],
@@ -78,6 +80,7 @@ async def question_suggestions(
 
 @router.post("/chat_streamed/{thread_id}")
 async def stream_chat_agent(
+    _: Annotated[None, Depends(rate_limit)],
     user_request: ClientRequest,
     request: Request,
     agents_routine: Annotated[AgentsRoutine, Depends(get_agents_routine)],
