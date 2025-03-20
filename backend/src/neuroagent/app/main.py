@@ -106,7 +106,7 @@ async def lifespan(fastapi_app: FastAPI) -> AsyncContextManager[None]:  # type: 
         await engine.dispose()
 
     if fastapi_app.state.redis_client is not None:
-        await fastapi_app.state.redis_client.close()
+        await fastapi_app.state.redis_client.aclose()
 
 
 app = FastAPI(
