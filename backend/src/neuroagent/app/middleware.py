@@ -1,5 +1,6 @@
 """Middleware."""
 
+import re
 from typing import Any, Callable
 
 from fastapi import Request, Response
@@ -45,15 +46,15 @@ async def rate_limit(request: Request, call_next: Callable[[Any], Any]) -> Respo
     # Find matching route spec
     matching_route = None
     for route in settings.rate_limiter.routes:
-        if route.route == path and route.method == method:
+        if re.match(route.route, path) and route.method == method:
             matching_route = route
             break
 
     if matching_route is None:
         return await call_next(request)
 
-    # Create unique key for this route
-    key = f"rate_limit:{path}:{method}"
+    # Create clean key using normalized path
+    key = f"rate_limit:{matching_route.normalized_path}:{method}"
 
     # Get current count
     current = await redis.get(key)

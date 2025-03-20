@@ -205,7 +205,8 @@ class SettingsMisc(BaseModel):
 class RouteSpec(BaseModel):
     """Per route settings."""
 
-    route: str
+    route: str  # Regex pattern for matching
+    normalized_path: str  # Clean path for Redis key
     method: Literal["GET", "POST", "PUT", "PATCH", "DELETE"] = "GET"
     limit: int = 100
     expiry: int = 24 * 60 * 60  # seconds
@@ -222,13 +223,15 @@ class SettingsRateLimiter(BaseModel):
 
     routes: list[RouteSpec] = [
         RouteSpec(
-            route="/qa/chat_streamed/{thread_id}",
+            route=r"^/qa/chat_streamed/[^/]+$",
+            normalized_path="/qa/chat_streamed",  # Clean path without regex
             method="POST",
             limit=100,
             expiry=24 * 60 * 60,
         ),
         RouteSpec(
-            route="/qa/question_suggestions",
+            route=r"^/qa/question_suggestions$",
+            normalized_path="/qa/question_suggestions",
             method="POST",
             limit=100,
             expiry=24 * 60 * 60,
@@ -250,6 +253,7 @@ class Settings(BaseSettings):
     keycloak: SettingsKeycloak = SettingsKeycloak()  # has no required
     misc: SettingsMisc = SettingsMisc()  # has no required
     storage: SettingsStorage = SettingsStorage()  # has no required
+    rate_limiter: SettingsRateLimiter = SettingsRateLimiter()  # has no required
 
     model_config = SettingsConfigDict(
         env_file=".env",
