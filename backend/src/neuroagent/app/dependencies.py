@@ -290,7 +290,6 @@ def get_context_variables(
         "starting_agent": starting_agent,
         "token": token,
         "retriever_k": settings.tools.literature.retriever_k,
-        "reranker_k": settings.tools.literature.reranker_k,
         "use_reranker": settings.tools.literature.use_reranker,
         "literature_search_url": settings.tools.literature.url,
         "knowledge_graph_url": settings.knowledge_graph.url,
