@@ -34,28 +34,27 @@ export function ChatPage({
   const [isAutoScrollEnabled, setIsAutoScrollEnabled] = useState(true);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const handleChatError = async (error: Error | Response) => {
-    if (error instanceof Response && error.status === 429) {
-      try {
-        const data = await error.json();
-        const retryAfterSeconds = data.detail.retry_after;
-        const retryAfterHours = Math.ceil(retryAfterSeconds / 3600);
+  const handleChatError = (error: Error) => {
+    let errorDetail;
+    try {
+      // Try to parse error message as JSON
+      errorDetail = JSON.parse(error.message);
+    } catch {
+      errorDetail = { message: error.message };
+    }
 
-        toast.error("Rate Limit Exceeded", {
-          description: `Please try again in ${retryAfterHours} ${
-            retryAfterHours === 1 ? "hour" : "hours"
-          }.`,
-        });
-      } catch {
-        // Fallback if we can't parse the response
-        toast.error("Rate Limit Exceeded", {
-          description: "Please try again later.",
-        });
-      }
+    if (errorDetail?.detail?.error === "Rate limit exceeded") {
+      const retryAfterSeconds = errorDetail.detail.retry_after;
+      const retryAfterHours = Math.ceil(retryAfterSeconds / 3600);
+
+      toast.error("Rate Limit Exceeded", {
+        description: `Please try again in ${retryAfterHours} ${
+          retryAfterHours === 1 ? "hour" : "hours"
+        }.`,
+      });
     } else {
       toast.error("Chat Error", {
-        description:
-          error instanceof Error ? error.message : "An unknown error occurred",
+        description: errorDetail.message || "An unknown error occurred",
       });
     }
   };
