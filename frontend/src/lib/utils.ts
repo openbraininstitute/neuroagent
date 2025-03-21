@@ -85,11 +85,10 @@ export function getViewableToolStorageIds(
           ) {
             try {
               // Parse the result, which might be a string or an object.
-              const parsedResult = JSON.parse(
+              const parsedResult =
                 typeof invocation.result === "string"
-                  ? invocation.result
-                  : JSON.stringify(invocation.result),
-              );
+                  ? JSON.parse(invocation.result)
+                  : invocation.result;
               if (parsedResult.storage_id) {
                 storageIds.push(parsedResult.storage_id);
               }

@@ -18,7 +18,11 @@ ChartJS.register(ArcElement, Tooltip, Legend);
 import { useGetObjectFromStorage } from "@/hooks/get-storage-object";
 import { PlotProp } from "@/lib/types";
 
+import Rand from "rand-seed";
+
 export function Piechart({ presignedUrl, isInChat, storageId }: PlotProp) {
+  const rand = new Rand("1234");
+
   const { data: response } = useGetObjectFromStorage(
     presignedUrl as string,
     presignedUrl != "",
@@ -32,7 +36,7 @@ export function Piechart({ presignedUrl, isInChat, storageId }: PlotProp) {
   const labels = data.values.map((value) => value.category);
   const values = data.values.map((value) => value.value);
   const backgroundColor = data.values.map(
-    (value) => value.color || `hsla(${Math.random() * 360}, 70%, 60%, 0.5)`,
+    (value) => value.color || `hsla(${rand.next() * 360}, 70%, 60%, 0.5)`,
   );
   const borderColor = backgroundColor.map((color) => color.replace("0.5", "1"));
 

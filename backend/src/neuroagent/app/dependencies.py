@@ -207,11 +207,11 @@ def get_starting_agent(
     base_instructions = """You are a helpful assistant helping scientists with neuro-scientific questions.
                 You must always specify in your answers from which brain regions the information is extracted.
                 Do no blindly repeat the brain region requested by the user, use the output of the tools instead.
-                Never try to generate links to internal storage ids"""
+                Never try to generate links to internal storage ids."""
 
     agent = Agent(
         name="Agent",
-        instructions=f"{base_instructions}",
+        instructions=base_instructions,
         tools=tool_list,
         model=settings.openai.model,
     )

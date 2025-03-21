@@ -62,11 +62,10 @@ export function ToolCallCollapsible({
                   tool?.result &&
                   (() => {
                     try {
-                      const result = JSON.parse(
+                      const result =
                         typeof tool.result === "string"
-                          ? tool.result
-                          : JSON.stringify(tool.result),
-                      );
+                          ? JSON.parse(tool.result)
+                          : tool.result;
                       if (result.storage_id) {
                         return (
                           <a

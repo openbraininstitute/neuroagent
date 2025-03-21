@@ -86,7 +86,6 @@ export function Histogram({ presignedUrl, storageId, isInChat }: PlotProp) {
     },
     scales: {
       y: {
-        beginAtZero: true,
         grid: {
           color: gridColor,
         },

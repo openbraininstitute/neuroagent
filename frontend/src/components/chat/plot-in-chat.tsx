@@ -10,9 +10,9 @@ import { useGetPresignedUrl } from "@/hooks/get-presigned";
 import { useGetObjectFromStorage } from "@/hooks/get-storage-object";
 import { memo } from "react";
 
-interface PlotDisplayProps {
+type PlotDisplayProps = {
   storageIds: string[];
-}
+};
 
 export default function PlotsInChat({ storageIds }: PlotDisplayProps) {
   if (storageIds.length === 0) {
