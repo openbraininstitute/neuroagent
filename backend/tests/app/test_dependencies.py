@@ -250,14 +250,14 @@ async def test_get_healthcheck_variables():
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
-    "route_path,limit,expiry",
+    "route_path,expiry",
     [
-        ("/qa/chat_streamed/{thread_id}", 10, 3600),  # 1 hour expiry for chat
-        ("/qa/question_suggestions", 100, 86400),  # 24 hour expiry for suggestions
+        ("/qa/chat_streamed/{thread_id}", 3600),  # 1 hour expiry for chat
+        ("/qa/question_suggestions", 86400),  # 24 hour expiry for suggestions
     ],
 )
-async def test_rate_limit_active(route_path, limit, expiry):
-    """Test basic rate limiting flow for different endpoints."""
+async def test_rate_limit_active_first_request(route_path, expiry):
+    """Test basic rate limiting flow for different endpoints on first request."""
     # Mock request
     request = Mock()
     request.scope = {"route": Mock(path=route_path)}
@@ -399,3 +399,96 @@ async def test_rate_limit_not_active_vlab_project_present():
     redis_mock.get.assert_not_called()
     redis_mock.set.assert_not_called()
     redis_mock.incr.assert_not_called()
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "route_path",
+    [
+        "/qa/chat_streamed/{thread_id}",  # chat endpoint
+        "/qa/question_suggestions",  # suggestions endpoint
+    ],
+)
+async def test_rate_limit_active_subsequent_request_below_limit(route_path):
+    """Test rate limiting when subsequent request is below the limit."""
+    # Mock request
+    request = Mock()
+    request.scope = {"route": Mock(path=route_path)}
+
+    settings = Mock(
+        rate_limiter=Mock(
+            disabled=False,
+            limit_chat=10,
+            expiry_chat=3600,
+            limit_suggestions=100,
+            expiry_suggestions=86400,
+            redis_host="localhost",
+            redis_port=6379,
+        )
+    )
+
+    user_info = Mock(sub="1234567890")
+    thread = Mock(vlab_id=None, project_id=None)
+
+    # Use AsyncMock for Redis client
+    redis_mock = AsyncMock()
+    redis_mock.get.return_value = "5"  # Simulate existing requests
+    redis_mock.incr.return_value = 6  # New count after increment
+    request.app = Mock()
+    request.app.state.redis_client = redis_mock
+
+    await rate_limit(request, settings, user_info, thread)
+
+    expected_key = f"rate_limit:{user_info.sub}:{route_path}"
+    redis_mock.get.assert_called_once_with(expected_key)
+    redis_mock.incr.assert_called_once_with(expected_key)
+    redis_mock.set.assert_not_called()  # Should not set new value for subsequent requests
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "route_path,limit",
+    [
+        ("/qa/chat_streamed/{thread_id}", 10),  # chat endpoint
+        ("/qa/question_suggestions", 100),  # suggestions endpoint
+    ],
+)
+async def test_rate_limit_active_subsequent_request_above_limit(route_path, limit):
+    """Test rate limiting when subsequent request exceeds the limit."""
+    # Mock request
+    request = Mock()
+    request.scope = {"route": Mock(path=route_path)}
+
+    settings = Mock(
+        rate_limiter=Mock(
+            disabled=False,
+            limit_chat=10,
+            expiry_chat=3600,
+            limit_suggestions=100,
+            expiry_suggestions=86400,
+            redis_host="localhost",
+            redis_port=6379,
+        )
+    )
+
+    user_info = Mock(sub="1234567890")
+    thread = Mock(vlab_id=None, project_id=None)
+
+    # Use AsyncMock for Redis client
+    redis_mock = AsyncMock()
+    redis_mock.get.return_value = str(limit)  # Current count at limit
+    redis_mock.pttl.return_value = 1000  # 1 second remaining
+    request.app = Mock()
+    request.app.state.redis_client = redis_mock
+
+    with pytest.raises(HTTPException) as exc_info:
+        await rate_limit(request, settings, user_info, thread)
+
+    assert exc_info.value.status_code == 429
+    assert exc_info.value.detail == {"error": "Rate limit exceeded", "retry_after": 1.0}
+
+    expected_key = f"rate_limit:{user_info.sub}:{route_path}"
+    redis_mock.get.assert_called_once_with(expected_key)
+    redis_mock.pttl.assert_called_once_with(expected_key)
+    redis_mock.incr.assert_not_called()  # Should not increment when over limit
+    redis_mock.set.assert_not_called()  # Should not set new value
