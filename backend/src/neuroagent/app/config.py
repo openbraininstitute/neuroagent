@@ -202,6 +202,22 @@ class SettingsMisc(BaseModel):
     model_config = ConfigDict(frozen=True)
 
 
+class SettingsRateLimiter(BaseModel):
+    """Rate limiter settings."""
+
+    redis_host: str = "localhost"
+    redis_port: int = 6379
+    disabled: bool = False
+
+    limit_chat: int = 20
+    expiry_chat: int = 24 * 60 * 60  # seconds
+
+    limit_suggestions: int = 100
+    expiry_suggestions: int = 24 * 60 * 60  # seconds
+
+    model_config = ConfigDict(frozen=True)
+
+
 class Settings(BaseSettings):
     """All settings."""
 
@@ -214,6 +230,7 @@ class Settings(BaseSettings):
     keycloak: SettingsKeycloak = SettingsKeycloak()  # has no required
     misc: SettingsMisc = SettingsMisc()  # has no required
     storage: SettingsStorage = SettingsStorage()  # has no required
+    rate_limiter: SettingsRateLimiter = SettingsRateLimiter()  # has no required
 
     model_config = SettingsConfigDict(
         env_file=".env",

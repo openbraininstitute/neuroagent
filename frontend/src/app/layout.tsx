@@ -5,6 +5,7 @@ import ThemeChangerProvider from "@/components/layout/theme-changer";
 import { QueryProvider } from "@/components/query-client-provider";
 import { AuthProvider } from "@/components/auth-provider";
 import { ProgressBarProvider, ProgressBar } from "@/components/progress-bar";
+import { Toaster } from "@/components/ui/toaster";
 
 import { Body } from "@/components/layout/body";
 import { Footer } from "@/components/layout/footer";
@@ -58,6 +59,7 @@ export default function RootLayout({
                   </div>
                   <Footer />
                 </div>
+                <Toaster />
               </ProgressBarProvider>
             </ThemeChangerProvider>
           </AuthProvider>
