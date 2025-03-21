@@ -25,11 +25,15 @@ export const ChatMessageAI = function ChatMessageAI({
           className="hover:scale-105 active:scale-[1.10] ml-8 mt-1 bg-blue-500 rounded-full p-2.5"
           onClick={toggleCollapse}
         >
-          {toolsCollapsed ? <Wrench /> : <ChevronDown />}
+          {toolsCollapsed ? (
+            <Wrench className="text-black dark:text-white" />
+          ) : (
+            <ChevronDown className="text-black dark:text-white" />
+          )}
         </Button>
       ) : (
         <Button className="ml-8 mt-1 bg-blue-500 rounded-full p-2.5 hover:bg-blue-500">
-          <LoaderPinwheel />
+          <LoaderPinwheel className="text-black dark:text-white" />
         </Button>
       )}
 

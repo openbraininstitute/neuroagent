@@ -15,7 +15,6 @@ services:
       - NEUROAGENT_STORAGE__BUCKET_NAME=neuroagent
       - NEUROAGENT_STORAGE__ACCESS_KEY=minioadmin
       - NEUROAGENT_STORAGE__SECRET_KEY=minioadmin
-      - NEUROAGENT_MISC__FRONTEND_URL=http://localhost:3000  # localhost because used for link generation in the browser
     networks:
       - app-network
     depends_on:
