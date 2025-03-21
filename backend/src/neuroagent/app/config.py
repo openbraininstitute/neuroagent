@@ -209,7 +209,7 @@ class SettingsRateLimiter(BaseModel):
     redis_port: int = 6379
     disabled: bool = False
 
-    limit_chat: int = 10
+    limit_chat: int = 20
     expiry_chat: int = 24 * 60 * 60  # seconds
 
     limit_suggestions: int = 100
