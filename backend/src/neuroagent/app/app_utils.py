@@ -76,7 +76,7 @@ def validate_project(
 
 
 async def rate_limit(
-    redis_client: aioredis.Redis,
+    redis_client: aioredis.Redis | None,
     route_path: str,
     limit: int,
     expiry: int,
