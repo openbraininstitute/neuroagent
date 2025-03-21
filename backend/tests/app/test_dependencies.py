@@ -252,8 +252,8 @@ async def test_get_healthcheck_variables():
 @pytest.mark.parametrize(
     "route_path,limit,expiry",
     [
-        ("/qa/chat_streamed/{thread_id}", 10, 86400),
-        ("/qa/question_suggestions", 100, 86400),
+        ("/qa/chat_streamed/{thread_id}", 10, 3600),  # 1 hour expiry for chat
+        ("/qa/question_suggestions", 100, 86400),  # 24 hour expiry for suggestions
     ],
 )
 async def test_rate_limit_active(route_path, limit, expiry):
@@ -266,9 +266,9 @@ async def test_rate_limit_active(route_path, limit, expiry):
         rate_limiter=Mock(
             disabled=False,
             limit_chat=10,
-            expiry_chat=86400,
+            expiry_chat=3600,  # 1 hour expiry for chat
             limit_suggestions=100,
-            expiry_suggestions=86400,
+            expiry_suggestions=86400,  # 24 hour expiry for suggestions
             redis_host="localhost",
             redis_port=6379,
         )
