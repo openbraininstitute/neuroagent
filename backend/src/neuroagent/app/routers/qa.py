@@ -7,6 +7,7 @@ from typing import Annotated, Any
 from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import StreamingResponse
 from openai import AsyncOpenAI
+from redis import asyncio as aioredis
 
 from neuroagent.agent_routine import AgentsRoutine
 from neuroagent.app.app_utils import rate_limit, validate_project
@@ -44,7 +45,7 @@ async def question_suggestions(
     settings: Annotated[Settings, Depends(get_settings)],
     body: UserClickHistory,
     user_info: Annotated[UserInfo, Depends(get_user_info)],
-    redis_client: Annotated[Any, Depends(get_redis_client)],
+    redis_client: Annotated[aioredis.Redis, Depends(get_redis_client)],
     vlab_id: str | None = None,
     project_id: str | None = None,
 ) -> QuestionsSuggestions:
@@ -100,7 +101,7 @@ async def question_suggestions(
 async def stream_chat_agent(
     request: Request,
     user_request: ClientRequest,
-    redis_client: Annotated[Any, Depends(get_redis_client)],
+    redis_client: Annotated[aioredis.Redis, Depends(get_redis_client)],
     settings: Annotated[Settings, Depends(get_settings)],
     user_info: Annotated[UserInfo, Depends(get_user_info)],
     thread: Annotated[Threads, Depends(get_thread)],

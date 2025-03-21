@@ -4,6 +4,7 @@ import logging
 from typing import Any
 
 from fastapi import HTTPException
+from redis import asyncio as aioredis
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncEngine, create_async_engine
 from starlette.status import HTTP_401_UNAUTHORIZED
@@ -75,7 +76,7 @@ def validate_project(
 
 
 async def rate_limit(
-    redis_client: Any,
+    redis_client: aioredis.Redis,
     route_path: str,
     limit: int,
     expiry: int,
@@ -85,7 +86,7 @@ async def rate_limit(
 
     Parameters
     ----------
-    redis_client : Any
+    redis_client : aioredis.Redis
         Redis client instance
     route_path : str
         Path of the route being accessed
