@@ -83,7 +83,6 @@ export function Linechart({ presignedUrl, isInChat, storageId }: PlotProp) {
     scales: {
       x: {
         type: "linear" as const,
-        beginAtZero: true,
         grid: {
           color: gridColor,
         },
@@ -93,7 +92,6 @@ export function Linechart({ presignedUrl, isInChat, storageId }: PlotProp) {
         },
       },
       y: {
-        beginAtZero: true,
         grid: {
           color: gridColor,
         },

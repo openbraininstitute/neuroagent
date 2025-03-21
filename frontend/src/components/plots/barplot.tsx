@@ -71,7 +71,6 @@ export function Barplot({ presignedUrl, storageId, isInChat }: PlotProp) {
     },
     scales: {
       y: {
-        beginAtZero: true,
         grid: {
           color: gridColor,
         },

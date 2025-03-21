@@ -64,7 +64,6 @@ export function Scatterplot({ presignedUrl, isInChat, storageId }: PlotProp) {
     },
     scales: {
       x: {
-        beginAtZero: true,
         grid: {
           color: gridColor,
         },
@@ -74,7 +73,6 @@ export function Scatterplot({ presignedUrl, isInChat, storageId }: PlotProp) {
         },
       },
       y: {
-        beginAtZero: true,
         grid: {
           color: gridColor,
         },
