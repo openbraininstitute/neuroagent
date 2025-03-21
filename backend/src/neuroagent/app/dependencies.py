@@ -228,8 +228,8 @@ def get_starting_agent(
 
 async def get_thread(
     user_info: Annotated[UserInfo, Depends(get_user_info)],
-    session: Annotated[AsyncSession, Depends(get_session)],
     thread_id: str,
+    session: Annotated[AsyncSession, Depends(get_session)],
 ) -> Threads:
     """Check if the current thread / user matches."""
     thread_result = await session.execute(
@@ -341,7 +341,7 @@ def get_agents_routine(
     return AgentsRoutine(openai)
 
 
-def get_redis_client(request: Request) -> aioredis.Redis:
+def get_redis_client(request: Request) -> aioredis.Redis | None:
     """Get the Redis client from app state.
 
     Parameters
@@ -351,7 +351,7 @@ def get_redis_client(request: Request) -> aioredis.Redis:
 
     Returns
     -------
-    Any
+    aioredis.Redis | None
         The Redis client instance or None if not configured
     """
     return request.app.state.redis_client
