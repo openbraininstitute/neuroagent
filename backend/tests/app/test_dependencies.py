@@ -1,7 +1,7 @@
 """Test dependencies."""
 
 from typing import AsyncIterator
-from unittest.mock import Mock
+from unittest.mock import AsyncMock, Mock
 
 import pytest
 from fastapi import HTTPException
@@ -19,6 +19,7 @@ from neuroagent.app.dependencies import (
     get_starting_agent,
     get_thread,
     get_user_info,
+    rate_limit,
 )
 from neuroagent.app.schemas import UserInfo
 from neuroagent.new_types import Agent
@@ -245,3 +246,156 @@ async def test_get_healthcheck_variables():
         "knowledge_graph_url": "http://kg/",
         "bluenaas_url": "http://bluenaas/",
     }
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "route_path,limit,expiry",
+    [
+        ("/qa/chat_streamed/{thread_id}", 10, 86400),
+        ("/qa/question_suggestions", 100, 86400),
+    ],
+)
+async def test_rate_limit_active(route_path, limit, expiry):
+    """Test basic rate limiting flow for different endpoints."""
+    # Mock request
+    request = Mock()
+    request.scope = {"route": Mock(path=route_path)}
+
+    settings = Mock(
+        rate_limiter=Mock(
+            disabled=False,
+            limit_chat=10,
+            expiry_chat=86400,
+            limit_suggestions=100,
+            expiry_suggestions=86400,
+            redis_host="localhost",
+            redis_port=6379,
+        )
+    )
+
+    user_info = Mock(
+        sub="1234567890",
+        email="test@example.com",
+        email_verified=False,
+        family_name="Doe",
+        given_name="John",
+        groups=["/proj/aaaaa/bbbb/admin", "/vlab/aaaaa/admin"],
+        name="John Doe",
+        preferred_username="whatever",
+    )
+
+    thread = Mock(vlab_id=None, project_id=None)
+
+    # Use AsyncMock for Redis client
+    redis_mock = AsyncMock()
+    redis_mock.get.return_value = None
+    redis_mock.set.return_value = True
+    redis_mock.incr.return_value = 1
+    redis_mock.pttl.return_value = 1000
+    request.app = Mock()
+    request.app.state.redis_client = redis_mock
+
+    await rate_limit(request, settings, user_info, thread)
+
+    expected_key = f"rate_limit:{user_info.sub}:{route_path}"
+    redis_mock.get.assert_called_once_with(expected_key)
+    redis_mock.set.assert_called_once_with(expected_key, 1, ex=expiry)
+
+
+@pytest.mark.asyncio
+async def test_rate_limit_not_active_disabled():
+    """Test rate limiting is skipped when disabled in settings."""
+    request = Mock()
+    request.scope = {"route": Mock(path="/qa/chat_streamed/{thread_id}")}
+
+    settings = Mock(
+        rate_limiter=Mock(
+            disabled=True,  # Rate limiting disabled
+            limit_chat=10,
+            expiry_chat=86400,
+            limit_suggestions=100,
+            expiry_suggestions=86400,
+            redis_host="localhost",
+            redis_port=6379,
+        )
+    )
+
+    user_info = Mock(sub="1234567890")
+    thread = Mock()
+
+    # Redis mock should not be called
+    redis_mock = AsyncMock()
+    request.app = Mock()
+    request.app.state.redis_client = redis_mock
+
+    await rate_limit(request, settings, user_info, thread)
+
+    # Verify no Redis operations were performed
+    redis_mock.get.assert_not_called()
+    redis_mock.set.assert_not_called()
+    redis_mock.incr.assert_not_called()
+
+
+@pytest.mark.asyncio
+async def test_rate_limit_not_active_no_redis():
+    """Test rate limiting is skipped when Redis client is not available."""
+    request = Mock()
+    request.scope = {"route": Mock(path="/qa/chat_streamed/{thread_id}")}
+
+    settings = Mock(
+        rate_limiter=Mock(
+            disabled=False,
+            limit_chat=10,
+            expiry_chat=86400,
+            limit_suggestions=100,
+            expiry_suggestions=86400,
+            redis_host="localhost",
+            redis_port=6379,
+        )
+    )
+
+    user_info = Mock(sub="1234567890")
+    thread = Mock()
+
+    # Set Redis client to None
+    request.app = Mock()
+    request.app.state.redis_client = None
+
+    # Should complete without error
+    await rate_limit(request, settings, user_info, thread)
+
+
+@pytest.mark.asyncio
+async def test_rate_limit_not_active_vlab_project_present():
+    """Test rate limiting is skipped when thread has vlab_id and project_id."""
+    request = Mock()
+    request.scope = {"route": Mock(path="/qa/chat_streamed/{thread_id}")}
+
+    settings = Mock(
+        rate_limiter=Mock(
+            disabled=False,
+            limit_chat=10,
+            expiry_chat=86400,
+            limit_suggestions=100,
+            expiry_suggestions=86400,
+            redis_host="localhost",
+            redis_port=6379,
+        )
+    )
+
+    user_info = Mock(sub="1234567890")
+    # Create thread with both vlab_id and project_id
+    thread = Mock(vlab_id="test_vlab", project_id="test_project")
+
+    # Redis mock should not be called
+    redis_mock = AsyncMock()
+    request.app = Mock()
+    request.app.state.redis_client = redis_mock
+
+    await rate_limit(request, settings, user_info, thread)
+
+    # Verify no Redis operations were performed
+    redis_mock.get.assert_not_called()
+    redis_mock.set.assert_not_called()
+    redis_mock.incr.assert_not_called()

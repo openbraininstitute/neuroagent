@@ -363,6 +363,7 @@ async def rate_limit(
     if redis is None:
         return
 
+    # Figure out endpoint route path (depends on the endpoint we are calling it from)
     route_path = request.scope["route"].path
 
     # Set limits based on route path
@@ -373,7 +374,7 @@ async def rate_limit(
         limit = settings.rate_limiter.limit_suggestions
         expiry = settings.rate_limiter.expiry_suggestions
     else:
-        return ValueError(f"Rate limiting not configured for route: {route_path}")
+        raise ValueError(f"Rate limiting not configured for route: {route_path}")
 
     # Create key using normalized route path and user sub
     key = f"rate_limit:{user_info.sub}:{route_path}"
