@@ -228,12 +228,9 @@ def get_starting_agent(
 async def get_thread(
     user_info: Annotated[UserInfo, Depends(get_user_info)],
     session: Annotated[AsyncSession, Depends(get_session)],
-    thread_id: str | None = None,
-) -> Threads | None:
+    thread_id: str,
+) -> Threads:
     """Check if the current thread / user matches."""
-    if thread_id is None:
-        return None
-
     thread_result = await session.execute(
         select(Threads).where(
             Threads.user_id == user_info.sub, Threads.thread_id == thread_id
@@ -343,54 +340,17 @@ def get_agents_routine(
     return AgentsRoutine(openai)
 
 
-async def rate_limit(
-    request: Request,
-    settings: Annotated[Settings, Depends(get_settings)],
-    user_info: Annotated[UserInfo, Depends(get_user_info)],
-    thread: Annotated[Threads | None, Depends(get_thread)],
-) -> None:
-    """Rate limit requests based on user and route path."""
-    # Skip if rate limiting is disabled
-    if settings.rate_limiter.disabled:
-        return
+def get_redis_client(request: Request) -> Any:
+    """Get the Redis client from app state.
 
-    # Skip rate limiting if user has specific virtual lab and project
-    if thread and thread.vlab_id and thread.project_id:
-        return
+    Parameters
+    ----------
+    request : Request
+        The FastAPI request object
 
-    # Get Redis client from app state
-    redis = request.app.state.redis_client
-    if redis is None:
-        return
-
-    # Figure out endpoint route path (depends on the endpoint we are calling it from)
-    route_path = request.scope["route"].path
-
-    # Set limits based on route path
-    if route_path == "/qa/chat_streamed/{thread_id}":
-        limit = settings.rate_limiter.limit_chat
-        expiry = settings.rate_limiter.expiry_chat
-    elif route_path == "/qa/question_suggestions":
-        limit = settings.rate_limiter.limit_suggestions
-        expiry = settings.rate_limiter.expiry_suggestions
-    else:
-        raise ValueError(f"Rate limiting not configured for route: {route_path}")
-
-    # Create key using normalized route path and user sub
-    key = f"rate_limit:{user_info.sub}:{route_path}"
-
-    # Get current count
-    current = await redis.get(key)
-    current = int(current) if current else 0
-
-    if current > 0:
-        if current + 1 > limit:
-            # Get remaining time
-            ttl = await redis.pttl(key)
-            raise HTTPException(
-                status_code=429,
-                detail={"error": "Rate limit exceeded", "retry_after": ttl / 1000},
-            )
-        await redis.incr(key)
-    else:
-        await redis.set(key, 1, ex=expiry)
+    Returns
+    -------
+    Any
+        The Redis client instance or None if not configured
+    """
+    return request.app.state.redis_client

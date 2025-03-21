@@ -9,6 +9,7 @@ from fastapi.responses import StreamingResponse
 from openai import AsyncOpenAI
 
 from neuroagent.agent_routine import AgentsRoutine
+from neuroagent.app.app_utils import rate_limit, validate_project
 from neuroagent.app.config import Settings
 from neuroagent.app.database.sql_schemas import (
     Entity,
@@ -19,11 +20,11 @@ from neuroagent.app.dependencies import (
     get_agents_routine,
     get_context_variables,
     get_openai_client,
+    get_redis_client,
     get_settings,
     get_starting_agent,
     get_thread,
     get_user_info,
-    rate_limit,
 )
 from neuroagent.app.schemas import QuestionsSuggestions, UserClickHistory, UserInfo
 from neuroagent.app.stream import stream_agent_response
@@ -39,13 +40,30 @@ logger = logging.getLogger(__name__)
 
 @router.post("/question_suggestions")
 async def question_suggestions(
-    _: Annotated[None, Depends(rate_limit)],
-    client_info: Annotated[UserInfo, Depends(get_user_info)],
     openai_client: Annotated[AsyncOpenAI, Depends(get_openai_client)],
     settings: Annotated[Settings, Depends(get_settings)],
     body: UserClickHistory,
+    user_info: Annotated[UserInfo, Depends(get_user_info)],
+    redis_client: Annotated[Any, Depends(get_redis_client)],
+    vlab_id: str | None = None,
+    project_id: str | None = None,
 ) -> QuestionsSuggestions:
     """Generate a short thread title based on the user's first message and update thread's title."""
+    if vlab_id is not None and project_id is not None:
+        validate_project(
+            groups=user_info.groups,
+            virtual_lab_id=vlab_id,
+            project_id=project_id,
+        )
+    else:
+        await rate_limit(
+            redis_client=redis_client,
+            route_path="/qa/question_suggestions",
+            limit=settings.rate_limiter.limit_suggestions,
+            expiry=settings.rate_limiter.expiry_suggestions,
+            user_sub=user_info.sub,
+        )
+
     # Send it to OpenAI longside with the system prompt asking for summary
     messages = [
         {
@@ -80,16 +98,26 @@ async def question_suggestions(
 
 @router.post("/chat_streamed/{thread_id}")
 async def stream_chat_agent(
-    _: Annotated[None, Depends(rate_limit)],
-    user_request: ClientRequest,
     request: Request,
+    user_request: ClientRequest,
+    redis_client: Annotated[Any, Depends(get_redis_client)],
+    settings: Annotated[Settings, Depends(get_settings)],
+    user_info: Annotated[UserInfo, Depends(get_user_info)],
+    thread: Annotated[Threads, Depends(get_thread)],
     agents_routine: Annotated[AgentsRoutine, Depends(get_agents_routine)],
     agent: Annotated[Agent, Depends(get_starting_agent)],
     context_variables: Annotated[dict[str, Any], Depends(get_context_variables)],
-    thread: Annotated[Threads, Depends(get_thread)],
-    settings: Annotated[Settings, Depends(get_settings)],
 ) -> StreamingResponse:
     """Run a single agent query in a streamed fashion."""
+    if thread.vlab_id is None or thread.project_id is None:
+        await rate_limit(
+            redis_client=redis_client,
+            route_path="/qa/chat_streamed/{thread_id}",
+            limit=settings.rate_limiter.limit_chat,
+            expiry=settings.rate_limiter.expiry_chat,
+            user_sub=user_info.sub,
+        )
+
     if len(user_request.content) > settings.misc.query_max_size:
         raise HTTPException(
             status_code=413,
