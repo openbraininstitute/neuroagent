@@ -8,6 +8,7 @@ import boto3
 from fastapi import Depends, HTTPException, Request
 from fastapi.security import HTTPBearer
 from httpx import AsyncClient, HTTPStatusError
+from obp_accounting_sdk import AsyncAccountingSessionFactory
 from openai import AsyncOpenAI
 from redis import asyncio as aioredis
 from sqlalchemy import select
@@ -354,3 +355,8 @@ def get_redis_client(request: Request) -> aioredis.Redis | None:
         The Redis client instance or None if not configured
     """
     return request.app.state.redis_client
+
+
+def get_accounting_session_factory(request: Request) -> AsyncAccountingSessionFactory:
+    """Get the accounting session factory."""
+    return request.app.state.accounting_session_factory
