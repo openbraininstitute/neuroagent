@@ -6,6 +6,7 @@ from typing import Annotated, Any
 
 from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import StreamingResponse
+from obp_accounting_sdk import AsyncAccountingSessionFactory
 from openai import AsyncOpenAI
 from redis import asyncio as aioredis
 
@@ -18,6 +19,7 @@ from neuroagent.app.database.sql_schemas import (
     Threads,
 )
 from neuroagent.app.dependencies import (
+    get_accounting_session_factory,
     get_agents_routine,
     get_context_variables,
     get_openai_client,
@@ -46,6 +48,9 @@ async def question_suggestions(
     body: UserClickHistory,
     user_info: Annotated[UserInfo, Depends(get_user_info)],
     redis_client: Annotated[aioredis.Redis | None, Depends(get_redis_client)],
+    accounting_session_factory: Annotated[
+        AsyncAccountingSessionFactory, Depends(get_accounting_session_factory)
+    ],
     vlab_id: str | None = None,
     project_id: str | None = None,
 ) -> QuestionsSuggestions:
