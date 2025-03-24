@@ -2,11 +2,13 @@
 
 import json
 import logging
+from contextlib import asynccontextmanager
 from typing import Annotated, Any
 
 from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import StreamingResponse
 from obp_accounting_sdk import AsyncAccountingSessionFactory
+from obp_accounting_sdk.constants import ServiceSubtype
 from openai import AsyncOpenAI
 from redis import asyncio as aioredis
 
@@ -39,6 +41,12 @@ from neuroagent.new_types import (
 router = APIRouter(prefix="/qa", tags=["Run the agent"])
 
 logger = logging.getLogger(__name__)
+
+
+@asynccontextmanager
+async def noop_accounting_context(*args, **kwargs):
+    """No-op context manager that accepts any arguments but does nothing."""
+    yield None
 
 
 @router.post("/question_suggestions")
@@ -74,7 +82,8 @@ async def question_suggestions(
     messages = [
         {
             "role": "system",
-            "content": "We provide a description of the platform, the open brain platform allows an atlas driven exploration of the mouse brain with different artifacts "
+            "content": 3
+            * "We provide a description of the platform, the open brain platform allows an atlas driven exploration of the mouse brain with different artifacts "
             "related to experimental and model data and more specifically neuron morphology (neuron structure including axons, soma and dendrite), electrophysiological recording "
             "(ie the electrical behavior of the neuron), ion channel, neuron density, bouton density, synapses, connections, electrical models also referred to as e-models, me-models "
             "which is the model of neuron with a specific morphology and electrical type, and the synaptome dictating how neurons are connected together. "
@@ -91,11 +100,53 @@ async def question_suggestions(
         },
         {"role": "user", "content": json.dumps(body.click_history)},
     ]
-    response = await openai_client.beta.chat.completions.parse(
-        messages=messages,  # type: ignore
-        model=settings.openai.suggestion_model,
-        response_format=QuestionsSuggestions,
+
+    # Choose the appropriate context managers based on vlab_id and project_id
+    accounting_context = (
+        accounting_session_factory.oneshot_session
+        if vlab_id is not None and project_id is not None
+        else noop_accounting_context
     )
+
+    # Initial cost estimate for each token type
+    cost_estimate = 100
+
+    async with (
+        accounting_context(
+            subtype=ServiceSubtype.ML_LLM_CACHED,
+            user_id=user_info.sub,
+            proj_id=project_id,
+            count=cost_estimate,
+        ) as cached_session,
+        accounting_context(
+            subtype=ServiceSubtype.ML_LLM_PROMPT,
+            user_id=user_info.sub,
+            proj_id=project_id,
+            count=cost_estimate,
+        ) as prompt_session,
+        accounting_context(
+            subtype=ServiceSubtype.ML_LLM_COMPLETION,
+            user_id=user_info.sub,
+            proj_id=project_id,
+            count=cost_estimate,
+        ) as completion_session,
+    ):
+        response = await openai_client.beta.chat.completions.parse(
+            messages=messages,  # type: ignore
+            model=settings.openai.suggestion_model,
+            response_format=QuestionsSuggestions,
+        )
+
+        # Update the token counts with actual usage
+        if cached_session is not None:  # Only update if we're using real accounting
+            input_tokens = response.usage.prompt_tokens
+            cached_tokens = response.usage.prompt_tokens_details.cached_tokens
+            prompt_tokens = input_tokens - cached_tokens
+            completion_tokens = response.usage.completion_tokens
+
+            cached_session.count = cached_tokens
+            prompt_session.count = prompt_tokens
+            completion_session.count = completion_tokens
 
     return QuestionsSuggestions(
         suggestions=response.choices[0].message.parsed.suggestions  # type: ignore
