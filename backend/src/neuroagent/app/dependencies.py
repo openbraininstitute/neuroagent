@@ -9,6 +9,7 @@ from fastapi import Depends, HTTPException, Request
 from fastapi.security import HTTPBearer
 from httpx import AsyncClient, HTTPStatusError
 from openai import AsyncOpenAI
+from redis import asyncio as aioredis
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession
 from starlette.status import HTTP_401_UNAUTHORIZED
@@ -337,3 +338,19 @@ def get_agents_routine(
 ) -> AgentsRoutine:
     """Get the AgentRoutine client."""
     return AgentsRoutine(openai)
+
+
+def get_redis_client(request: Request) -> aioredis.Redis | None:
+    """Get the Redis client from app state.
+
+    Parameters
+    ----------
+    request : Request
+        The FastAPI request object
+
+    Returns
+    -------
+    aioredis.Redis | None
+        The Redis client instance or None if not configured
+    """
+    return request.app.state.redis_client

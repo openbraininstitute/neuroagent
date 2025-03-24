@@ -9,6 +9,7 @@ from uuid import uuid4
 from asgi_correlation_id import CorrelationIdMiddleware
 from fastapi import Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from redis import asyncio as aioredis
 from starlette.middleware.base import BaseHTTPMiddleware
 
 from neuroagent import __version__
@@ -64,6 +65,17 @@ async def lifespan(fastapi_app: FastAPI) -> AsyncContextManager[None]:  # type: 
     """Read environment (settings of the application)."""
     app_settings = fastapi_app.dependency_overrides.get(get_settings, get_settings)()
 
+    # Initialize Redis client if rate limiting is enabled
+    if not app_settings.rate_limiter.disabled:
+        redis_client = aioredis.Redis(
+            host=app_settings.rate_limiter.redis_host,
+            port=app_settings.rate_limiter.redis_port,
+            decode_responses=True,
+        )
+        fastapi_app.state.redis_client = redis_client
+    else:
+        fastapi_app.state.redis_client = None
+
     # Get the sqlalchemy engine and store it in app state.
     engine = setup_engine(app_settings, get_connection_string(app_settings))
     fastapi_app.state.engine = engine
@@ -88,8 +100,13 @@ async def lifespan(fastapi_app: FastAPI) -> AsyncContextManager[None]:  # type: 
     logging.getLogger("bluepyefe").setLevel("CRITICAL")
 
     yield
+
+    # Cleanup connections
     if engine:
         await engine.dispose()
+
+    if fastapi_app.state.redis_client is not None:
+        await fastapi_app.state.redis_client.aclose()
 
 
 app = FastAPI(
