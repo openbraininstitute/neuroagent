@@ -1,10 +1,10 @@
 """Configuration."""
 
 import os
-from typing import Literal, Optional
+from typing import Any, Literal, Optional
 
 from dotenv import dotenv_values
-from pydantic import BaseModel, ConfigDict, SecretStr
+from pydantic import BaseModel, ConfigDict, SecretStr, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -218,6 +218,25 @@ class SettingsRateLimiter(BaseModel):
     model_config = ConfigDict(frozen=True)
 
 
+class SettingsAccounting(BaseModel):
+    """Accounting settings."""
+
+    base_url: str | None = None
+    disabled: bool = False
+
+    @model_validator(mode="before")
+    @classmethod
+    def disable_if_no_url(cls, data: Any) -> Any:
+        """Disable accounting if no base URL is provided."""
+        if data is None:
+            return data
+
+        if data.get("base_url") is None:
+            data["disabled"] = True
+
+        return data
+
+
 class Settings(BaseSettings):
     """All settings."""
 
@@ -231,6 +250,7 @@ class Settings(BaseSettings):
     misc: SettingsMisc = SettingsMisc()  # has no required
     storage: SettingsStorage = SettingsStorage()  # has no required
     rate_limiter: SettingsRateLimiter = SettingsRateLimiter()  # has no required
+    accounting: SettingsAccounting = SettingsAccounting()  # has no required
 
     model_config = SettingsConfigDict(
         env_file=".env",

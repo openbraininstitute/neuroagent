@@ -23,6 +23,7 @@ dependencies = [
     "matplotlib",
     "neurom",
     "numpy<2",
+    "obp-accounting-sdk",
     "openai",
     "psycopg2",
     "pydantic-settings",
