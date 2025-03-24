@@ -82,7 +82,7 @@ async def question_suggestions(
     messages = [
         {
             "role": "system",
-            "content": 3
+            "content": 1
             * "We provide a description of the platform, the open brain platform allows an atlas driven exploration of the mouse brain with different artifacts "
             "related to experimental and model data and more specifically neuron morphology (neuron structure including axons, soma and dendrite), electrophysiological recording "
             "(ie the electrical behavior of the neuron), ion channel, neuron density, bouton density, synapses, connections, electrical models also referred to as e-models, me-models "
@@ -109,23 +109,23 @@ async def question_suggestions(
     )
 
     # Initial cost estimate for each token type
-    cost_estimate = 100
+    cost_estimate = 1
 
     async with (
         accounting_context(
-            subtype=ServiceSubtype.ML_LLM_CACHED,
+            subtype=ServiceSubtype.ML_LLM,
             user_id=user_info.sub,
             proj_id=project_id,
             count=cost_estimate,
         ) as cached_session,
         accounting_context(
-            subtype=ServiceSubtype.ML_LLM_PROMPT,
+            subtype=ServiceSubtype.ML_RAG,
             user_id=user_info.sub,
             proj_id=project_id,
             count=cost_estimate,
         ) as prompt_session,
         accounting_context(
-            subtype=ServiceSubtype.ML_LLM_COMPLETION,
+            subtype=ServiceSubtype.ML_RETRIEVAL,
             user_id=user_info.sub,
             proj_id=project_id,
             count=cost_estimate,
