@@ -1,7 +1,6 @@
 """Wrapper around streaming methods to reinitiate connections due to the way fastAPI StreamingResponse works."""
 
 import json
-from contextlib import asynccontextmanager
 from typing import Any, AsyncIterator
 
 from fastapi import Request
@@ -12,14 +11,9 @@ from openai import AsyncOpenAI
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from neuroagent.agent_routine import AgentsRoutine
+from neuroagent.app.app_utils import get_accounting_context_manager
 from neuroagent.app.database.sql_schemas import Messages, Threads, utc_now
 from neuroagent.new_types import Agent
-
-
-@asynccontextmanager
-async def noop_accounting_context(*args, **kwargs):
-    """No-op context manager that accepts any arguments but does nothing."""
-    yield None
 
 
 async def stream_agent_response(
@@ -56,10 +50,10 @@ async def stream_agent_response(
     session.add_all(messages)
 
     # Choose the appropriate context managers based on vlab_id and project_id
-    accounting_context = (
-        accounting_session_factory.oneshot_session
-        if thread.vlab_id is not None and thread.project_id is not None
-        else noop_accounting_context
+    accounting_context = get_accounting_context_manager(
+        vlab_id=thread.vlab_id,
+        project_id=thread.project_id,
+        accounting_session_factory=accounting_session_factory,
     )
 
     # Initial cost estimate for each token type
@@ -101,9 +95,8 @@ async def stream_agent_response(
         # Update the token counts with actual usage
         chunk_dict = json.loads(chunk.strip("accounting:"))
         if cached_session is not None:  # Only update if we're using real accounting
-            input_tokens = chunk_dict["prompt_tokens"]
+            prompt_tokens = chunk_dict["prompt_tokens"]
             cached_tokens = chunk_dict["cached_tokens"]
-            prompt_tokens = input_tokens - cached_tokens
             completion_tokens = chunk_dict["completion_tokens"]
 
             cached_session.count = cached_tokens

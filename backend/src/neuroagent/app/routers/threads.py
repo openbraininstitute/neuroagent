@@ -2,7 +2,6 @@
 
 import json
 import logging
-from contextlib import asynccontextmanager
 from typing import Annotated, Any
 
 from fastapi import APIRouter, Depends
@@ -14,7 +13,11 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
 
-from neuroagent.app.app_utils import rate_limit, validate_project
+from neuroagent.app.app_utils import (
+    get_accounting_context_manager,
+    rate_limit,
+    validate_project,
+)
 from neuroagent.app.config import Settings
 from neuroagent.app.database.sql_schemas import Messages, Threads, utc_now
 from neuroagent.app.dependencies import (
@@ -43,12 +46,6 @@ from neuroagent.utils import delete_from_storage
 logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/threads", tags=["Threads' CRUD"])
-
-
-@asynccontextmanager
-async def noop_accounting_context(*args, **kwargs):
-    """No-op context manager that accepts any arguments but does nothing."""
-    yield None
 
 
 @router.post("")
@@ -108,10 +105,10 @@ async def generate_title(
         {"role": "user", "content": body.first_user_message},
     ]
     # Choose the appropriate context managers based on vlab_id and project_id
-    accounting_context = (
-        accounting_session_factory.oneshot_session
-        if thread.vlab_id is not None and thread.project_id is not None
-        else noop_accounting_context
+    accounting_context = get_accounting_context_manager(
+        vlab_id=thread.vlab_id,
+        project_id=thread.project_id,
+        accounting_session_factory=accounting_session_factory,
     )
     # Initial cost estimate for each token type
     max_spending_per_request = 0.03

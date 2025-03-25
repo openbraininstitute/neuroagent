@@ -2,7 +2,6 @@
 
 import json
 import logging
-from contextlib import asynccontextmanager
 from typing import Annotated, Any
 
 from fastapi import APIRouter, Depends, HTTPException, Request
@@ -13,7 +12,11 @@ from openai import AsyncOpenAI
 from redis import asyncio as aioredis
 
 from neuroagent.agent_routine import AgentsRoutine
-from neuroagent.app.app_utils import rate_limit, validate_project
+from neuroagent.app.app_utils import (
+    get_accounting_context_manager,
+    rate_limit,
+    validate_project,
+)
 from neuroagent.app.config import Settings
 from neuroagent.app.database.sql_schemas import (
     Entity,
@@ -41,12 +44,6 @@ from neuroagent.new_types import (
 router = APIRouter(prefix="/qa", tags=["Run the agent"])
 
 logger = logging.getLogger(__name__)
-
-
-@asynccontextmanager
-async def noop_accounting_context(*args, **kwargs):
-    """No-op context manager that accepts any arguments but does nothing."""
-    yield None
 
 
 @router.post("/question_suggestions")
@@ -100,13 +97,6 @@ async def question_suggestions(
         {"role": "user", "content": json.dumps(body.click_history)},
     ]
 
-    # Choose the appropriate context managers based on vlab_id and project_id
-    accounting_context = (
-        accounting_session_factory.oneshot_session
-        if vlab_id is not None and project_id is not None
-        else noop_accounting_context
-    )
-
     # Initial cost estimate for each token type
     max_spending_per_request = 0.03
     completion_cost_per_token = 6 * 1e-7
@@ -116,7 +106,11 @@ async def question_suggestions(
     max_completion_tokens = int(
         max_spending_per_request / completion_cost_per_token
     )  # = 50k
-
+    accounting_context = get_accounting_context_manager(
+        vlab_id=vlab_id,
+        project_id=project_id,
+        accounting_session_factory=accounting_session_factory,
+    )
     async with (
         accounting_context(
             subtype=ServiceSubtype.ML_LLM,

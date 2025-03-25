@@ -76,6 +76,11 @@ async def get_httpx_client(request: Request) -> AsyncIterator[AsyncClient]:
         await client.aclose()
 
 
+def get_accounting_session_factory(request: Request) -> AsyncAccountingSessionFactory:
+    """Get the accounting session factory."""
+    return request.app.state.accounting_session_factory
+
+
 async def get_openai_client(
     settings: Annotated[Settings, Depends(get_settings)],
 ) -> AsyncIterator[AsyncOpenAI | None]:
@@ -286,9 +291,13 @@ def get_context_variables(
     thread: Annotated[Threads, Depends(get_thread)],
     s3_client: Annotated[Any, Depends(get_s3_client)],
     user_info: Annotated[UserInfo, Depends(get_user_info)],
+    accounting_session: Annotated[
+        AsyncAccountingSessionFactory, Depends(get_accounting_session_factory)
+    ],
 ) -> dict[str, Any]:
     """Get the context variables to feed the tool's metadata."""
     return {
+        "accounting_session": accounting_session,
         "starting_agent": starting_agent,
         "token": token,
         "retriever_k": settings.tools.literature.retriever_k,
@@ -355,8 +364,3 @@ def get_redis_client(request: Request) -> aioredis.Redis | None:
         The Redis client instance or None if not configured
     """
     return request.app.state.redis_client
-
-
-def get_accounting_session_factory(request: Request) -> AsyncAccountingSessionFactory:
-    """Get the accounting session factory."""
-    return request.app.state.accounting_session_factory

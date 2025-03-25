@@ -3,9 +3,12 @@
 import json
 from typing import ClassVar, Literal
 
+from obp_accounting_sdk import AsyncAccountingSessionFactory
+from obp_accounting_sdk.constants import ServiceSubtype
 from pydantic import BaseModel, Field, SecretStr
 from tavily import AsyncTavilyClient
 
+from neuroagent.app.app_utils import get_accounting_context_manager
 from neuroagent.tools.base_tool import BaseMetadata, BaseTool
 
 
@@ -13,6 +16,10 @@ class WebSearchMetadata(BaseMetadata):
     """Metadata of the web search tool."""
 
     tavily_api_key: SecretStr
+    accounting_session: AsyncAccountingSessionFactory
+    vlab_id: str | None
+    project_id: str | None
+    user_id: str
 
 
 class WebSearchInput(BaseModel):
@@ -57,13 +64,24 @@ class WebSearchTool(BaseTool):
         client = AsyncTavilyClient(
             api_key=self.metadata.tavily_api_key.get_secret_value()
         )
-        search_result = await client.search(
-            query=self.input_schema.query,
-            max_results=self.input_schema.max_results,
-            include_domains=self.input_schema.include_domains,
-            exclude_domains=self.input_schema.exclude_domains,
-            time_range=self.input_schema.time_range,
+        accounting_context = get_accounting_context_manager(
+            vlab_id=self.metadata.vlab_id,
+            project_id=self.metadata.project_id,
+            accounting_session_factory=self.metadata.accounting_session,
         )
+        async with accounting_context(
+            subtype=ServiceSubtype.ML_LLM,
+            user_id=self.metadata.user_id,
+            proj_id=self.metadata.project_id,
+            count=1,
+        ):
+            search_result = await client.search(
+                query=self.input_schema.query,
+                max_results=self.input_schema.max_results,
+                include_domains=self.input_schema.include_domains,
+                exclude_domains=self.input_schema.exclude_domains,
+                time_range=self.input_schema.time_range,
+            )
         return json.dumps(search_result)
 
     @classmethod

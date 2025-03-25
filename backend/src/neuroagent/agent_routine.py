@@ -295,7 +295,6 @@ class AgentsRoutine:
 
             if chunk.choices == []:
                 usage = chunk.usage
-                breakpoint()
                 input_tokens = usage.prompt_tokens
                 cached_tokens = usage.prompt_tokens_details.cached_tokens
                 prompt_tokens = input_tokens - cached_tokens
