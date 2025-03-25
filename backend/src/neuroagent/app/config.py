@@ -215,6 +215,9 @@ class SettingsRateLimiter(BaseModel):
     limit_suggestions: int = 100
     expiry_suggestions: int = 24 * 60 * 60  # seconds
 
+    limit_title: int = 100
+    expiry_title: int = 24 * 60 * 60  # seconds
+
     model_config = ConfigDict(frozen=True)
 
 

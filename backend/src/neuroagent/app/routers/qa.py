@@ -165,7 +165,6 @@ async def stream_chat_agent(
     user_request: ClientRequest,
     redis_client: Annotated[aioredis.Redis | None, Depends(get_redis_client)],
     settings: Annotated[Settings, Depends(get_settings)],
-    user_info: Annotated[UserInfo, Depends(get_user_info)],
     thread: Annotated[Threads, Depends(get_thread)],
     agents_routine: Annotated[AgentsRoutine, Depends(get_agents_routine)],
     agent: Annotated[Agent, Depends(get_starting_agent)],
@@ -178,7 +177,7 @@ async def stream_chat_agent(
             route_path="/qa/chat_streamed/{thread_id}",
             limit=settings.rate_limiter.limit_chat,
             expiry=settings.rate_limiter.expiry_chat,
-            user_sub=user_info.sub,
+            user_sub=thread.user_id,
         )
 
     if len(user_request.content) > settings.misc.query_max_size:

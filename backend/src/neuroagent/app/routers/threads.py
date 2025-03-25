@@ -9,16 +9,18 @@ from fastapi import APIRouter, Depends
 from obp_accounting_sdk import AsyncAccountingSessionFactory
 from obp_accounting_sdk.constants import ServiceSubtype
 from openai import AsyncOpenAI
+from redis import asyncio as aioredis
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
 
-from neuroagent.app.app_utils import validate_project
+from neuroagent.app.app_utils import rate_limit, validate_project
 from neuroagent.app.config import Settings
 from neuroagent.app.database.sql_schemas import Messages, Threads, utc_now
 from neuroagent.app.dependencies import (
     get_accounting_session_factory,
     get_openai_client,
+    get_redis_client,
     get_s3_client,
     get_session,
     get_settings,
@@ -84,9 +86,19 @@ async def generate_title(
     accounting_session_factory: Annotated[
         AsyncAccountingSessionFactory, Depends(get_accounting_session_factory)
     ],
+    redis_client: Annotated[aioredis.Redis | None, Depends(get_redis_client)],
     body: ThreadGeneratBody,
 ) -> ThreadsRead:
     """Generate a short thread title based on the user's first message and update thread's title."""
+    if thread.vlab_id is None or thread.project_id is None:
+        await rate_limit(
+            redis_client=redis_client,
+            route_path="/threads/{thread_id}/generate_title",
+            limit=settings.rate_limiter.limit_title,
+            expiry=settings.rate_limiter.expiry_title,
+            user_sub=thread.user_id,
+        )
+
     # Send it to OpenAI longside with the system prompt asking for summary
     messages = [
         {
