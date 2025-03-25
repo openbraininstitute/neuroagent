@@ -82,8 +82,7 @@ async def question_suggestions(
     messages = [
         {
             "role": "system",
-            "content": 1
-            * "We provide a description of the platform, the open brain platform allows an atlas driven exploration of the mouse brain with different artifacts "
+            "content": "We provide a description of the platform, the open brain platform allows an atlas driven exploration of the mouse brain with different artifacts "
             "related to experimental and model data and more specifically neuron morphology (neuron structure including axons, soma and dendrite), electrophysiological recording "
             "(ie the electrical behavior of the neuron), ion channel, neuron density, bouton density, synapses, connections, electrical models also referred to as e-models, me-models "
             "which is the model of neuron with a specific morphology and electrical type, and the synaptome dictating how neurons are connected together. "
