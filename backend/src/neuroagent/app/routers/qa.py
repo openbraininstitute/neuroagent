@@ -108,26 +108,31 @@ async def question_suggestions(
     )
 
     # Initial cost estimate for each token type
-    cost_estimate = 1
+    max_spending_per_request = 0.03
+    completion_cost_per_token = 6 * 1e-7
+
+    # the below is way higher than the allowed max count of completion tokens, however
+    # it corresponds to the maximum spending per request
+    max_completion_tokens = int(max_spending_per_request / completion_cost_per_token)
 
     async with (
         accounting_context(
             subtype=ServiceSubtype.ML_LLM,
             user_id=user_info.sub,
             proj_id=project_id,
-            count=cost_estimate,
+            count=1,
         ) as cached_session,
         accounting_context(
             subtype=ServiceSubtype.ML_RAG,
             user_id=user_info.sub,
             proj_id=project_id,
-            count=cost_estimate,
+            count=1,
         ) as prompt_session,
         accounting_context(
             subtype=ServiceSubtype.ML_RETRIEVAL,
             user_id=user_info.sub,
             proj_id=project_id,
-            count=cost_estimate,
+            count=max_completion_tokens,
         ) as completion_session,
     ):
         response = await openai_client.beta.chat.completions.parse(
