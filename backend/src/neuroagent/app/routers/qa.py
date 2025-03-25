@@ -169,6 +169,9 @@ async def stream_chat_agent(
     agents_routine: Annotated[AgentsRoutine, Depends(get_agents_routine)],
     agent: Annotated[Agent, Depends(get_starting_agent)],
     context_variables: Annotated[dict[str, Any], Depends(get_context_variables)],
+    accounting_session_factory: Annotated[
+        AsyncAccountingSessionFactory, Depends(get_accounting_session_factory)
+    ],
 ) -> StreamingResponse:
     """Run a single agent query in a streamed fashion."""
     if thread.vlab_id is None or thread.project_id is None:
@@ -197,13 +200,15 @@ async def stream_chat_agent(
                 content=json.dumps({"role": "user", "content": user_request.content}),
             )
         )
+
     stream_generator = stream_agent_response(
-        agents_routine,
-        agent,
-        messages,
-        context_variables,
-        thread,
-        request,
+        agents_routine=agents_routine,
+        agent=agent,
+        messages=messages,
+        context_variables=context_variables,
+        thread=thread,
+        request=request,
+        accounting_session_factory=accounting_session_factory,
     )
     return StreamingResponse(
         stream_generator,

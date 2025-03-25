@@ -1,15 +1,25 @@
 """Wrapper around streaming methods to reinitiate connections due to the way fastAPI StreamingResponse works."""
 
+import json
+from contextlib import asynccontextmanager
 from typing import Any, AsyncIterator
 
 from fastapi import Request
 from httpx import AsyncClient
+from obp_accounting_sdk import AsyncAccountingSessionFactory
+from obp_accounting_sdk.constants import ServiceSubtype
 from openai import AsyncOpenAI
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from neuroagent.agent_routine import AgentsRoutine
 from neuroagent.app.database.sql_schemas import Messages, Threads, utc_now
 from neuroagent.new_types import Agent
+
+
+@asynccontextmanager
+async def noop_accounting_context(*args, **kwargs):
+    """No-op context manager that accepts any arguments but does nothing."""
+    yield None
 
 
 async def stream_agent_response(
@@ -19,6 +29,7 @@ async def stream_agent_response(
     context_variables: dict[str, Any],
     thread: Threads,
     request: Request,
+    accounting_session_factory: AsyncAccountingSessionFactory,
 ) -> AsyncIterator[str]:
     """Redefine fastAPI connections to enable streaming."""
     # Restore the OpenAI client
@@ -44,9 +55,60 @@ async def stream_agent_response(
     # Need to rebind the messages to the session
     session.add_all(messages)
 
-    iterator = connected_agents_routine.astream(agent, messages, context_variables)
-    async for chunk in iterator:
-        yield chunk
+    # Choose the appropriate context managers based on vlab_id and project_id
+    accounting_context = (
+        accounting_session_factory.oneshot_session
+        if thread.vlab_id is not None and thread.project_id is not None
+        else noop_accounting_context
+    )
+
+    # Initial cost estimate for each token type
+    max_spending_per_request = 0.03
+    completion_cost_per_token = 6 * 1e-7
+
+    # the below is way higher than the allowed max count of completion tokens, however
+    # it corresponds to the maximum spending per request
+    max_completion_tokens = int(
+        max_spending_per_request / completion_cost_per_token
+    )  # = 50k
+
+    async with (
+        accounting_context(
+            subtype=ServiceSubtype.ML_LLM,
+            user_id=thread.user_id,
+            proj_id=thread.project_id,
+            count=1,
+        ) as cached_session,
+        accounting_context(
+            subtype=ServiceSubtype.ML_RAG,
+            user_id=thread.user_id,
+            proj_id=thread.project_id,
+            count=1,
+        ) as prompt_session,
+        accounting_context(
+            subtype=ServiceSubtype.ML_RETRIEVAL,
+            user_id=thread.user_id,
+            proj_id=thread.project_id,
+            count=max_completion_tokens,  # The 5 should be replaced bu `max_turns` in the future
+        ) as completion_session,
+    ):
+        iterator = connected_agents_routine.astream(agent, messages, context_variables)
+        async for chunk in iterator:
+            if chunk.startswith("accounting:"):
+                break
+            yield chunk
+
+        # Update the token counts with actual usage
+        chunk_dict = json.loads(chunk.strip("accounting:"))
+        if cached_session is not None:  # Only update if we're using real accounting
+            input_tokens = chunk_dict["prompt_tokens"]
+            cached_tokens = chunk_dict["cached_tokens"]
+            prompt_tokens = input_tokens - cached_tokens
+            completion_tokens = chunk_dict["completion_tokens"]
+
+            cached_session.count = cached_tokens
+            prompt_session.count = prompt_tokens
+            completion_session.count = completion_tokens
 
     # Save the new messages in DB
     thread.update_date = utc_now()
