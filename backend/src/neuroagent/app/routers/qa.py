@@ -137,12 +137,13 @@ async def stream_chat_agent(
             )
         )
     stream_generator = stream_agent_response(
-        agents_routine,
-        agent,
-        messages,
-        context_variables,
-        thread,
-        request,
+        agents_routine=agents_routine,
+        agent=agent,
+        messages=messages,
+        context_variables=context_variables,
+        thread=thread,
+        request=request,
+        max_turns=settings.agent.max_turns,
     )
     return StreamingResponse(
         stream_generator,

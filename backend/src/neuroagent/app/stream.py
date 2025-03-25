@@ -19,6 +19,7 @@ async def stream_agent_response(
     context_variables: dict[str, Any],
     thread: Threads,
     request: Request,
+    max_turns: int = 10,
 ) -> AsyncIterator[str]:
     """Redefine fastAPI connections to enable streaming."""
     # Restore the OpenAI client
@@ -44,7 +45,12 @@ async def stream_agent_response(
     # Need to rebind the messages to the session
     session.add_all(messages)
 
-    iterator = connected_agents_routine.astream(agent, messages, context_variables)
+    iterator = connected_agents_routine.astream(
+        agent=agent,
+        messages=messages,
+        context_variables=context_variables,
+        max_turns=max_turns,
+    )
     async for chunk in iterator:
         yield chunk
 

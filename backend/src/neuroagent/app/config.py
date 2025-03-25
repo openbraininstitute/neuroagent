@@ -12,6 +12,7 @@ class SettingsAgent(BaseModel):
     """Agent setting."""
 
     model: Literal["simple", "multi"] = "simple"
+    max_turns: int = 10
 
     model_config = ConfigDict(frozen=True)
 
