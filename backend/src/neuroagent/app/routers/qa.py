@@ -113,7 +113,9 @@ async def question_suggestions(
 
     # the below is way higher than the allowed max count of completion tokens, however
     # it corresponds to the maximum spending per request
-    max_completion_tokens = int(max_spending_per_request / completion_cost_per_token)
+    max_completion_tokens = int(
+        max_spending_per_request / completion_cost_per_token
+    )  # = 50k
 
     async with (
         accounting_context(

@@ -2,9 +2,12 @@
 
 import json
 import logging
+from contextlib import asynccontextmanager
 from typing import Annotated, Any
 
 from fastapi import APIRouter, Depends
+from obp_accounting_sdk import AsyncAccountingSessionFactory
+from obp_accounting_sdk.constants import ServiceSubtype
 from openai import AsyncOpenAI
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -14,6 +17,7 @@ from neuroagent.app.app_utils import validate_project
 from neuroagent.app.config import Settings
 from neuroagent.app.database.sql_schemas import Messages, Threads, utc_now
 from neuroagent.app.dependencies import (
+    get_accounting_session_factory,
     get_openai_client,
     get_s3_client,
     get_session,
@@ -37,6 +41,12 @@ from neuroagent.utils import delete_from_storage
 logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/threads", tags=["Threads' CRUD"])
+
+
+@asynccontextmanager
+async def noop_accounting_context(*args, **kwargs):
+    """No-op context manager that accepts any arguments but does nothing."""
+    yield None
 
 
 @router.post("")
@@ -71,6 +81,9 @@ async def generate_title(
     openai_client: Annotated[AsyncOpenAI, Depends(get_openai_client)],
     settings: Annotated[Settings, Depends(get_settings)],
     thread: Annotated[Threads, Depends(get_thread)],
+    accounting_session_factory: Annotated[
+        AsyncAccountingSessionFactory, Depends(get_accounting_session_factory)
+    ],
     body: ThreadGeneratBody,
 ) -> ThreadsRead:
     """Generate a short thread title based on the user's first message and update thread's title."""
@@ -82,11 +95,58 @@ async def generate_title(
         },
         {"role": "user", "content": body.first_user_message},
     ]
-    response = await openai_client.beta.chat.completions.parse(
-        messages=messages,  # type: ignore
-        model=settings.openai.model,
-        response_format=ThreadGeneratedTitle,
+    # Choose the appropriate context managers based on vlab_id and project_id
+    accounting_context = (
+        accounting_session_factory.oneshot_session
+        if thread.vlab_id is not None and thread.project_id is not None
+        else noop_accounting_context
     )
+    # Initial cost estimate for each token type
+    max_spending_per_request = 0.03
+    completion_cost_per_token = 6 * 1e-7
+
+    # the below is way higher than the allowed max count of completion tokens, however
+    # it corresponds to the maximum spending per request
+    max_completion_tokens = int(
+        max_spending_per_request / completion_cost_per_token
+    )  # = 50k
+
+    async with (
+        accounting_context(
+            subtype=ServiceSubtype.ML_LLM,
+            user_id=thread.user_id,
+            proj_id=thread.project_id,
+            count=1,
+        ) as cached_session,
+        accounting_context(
+            subtype=ServiceSubtype.ML_RAG,
+            user_id=thread.user_id,
+            proj_id=thread.project_id,
+            count=1,
+        ) as prompt_session,
+        accounting_context(
+            subtype=ServiceSubtype.ML_RETRIEVAL,
+            user_id=thread.user_id,
+            proj_id=thread.project_id,
+            count=max_completion_tokens,
+        ) as completion_session,
+    ):
+        response = await openai_client.beta.chat.completions.parse(
+            messages=messages,  # type: ignore
+            model=settings.openai.model,
+            response_format=ThreadGeneratedTitle,
+        )
+
+        # Update the token counts with actual usage
+        if cached_session is not None:  # Only update if we're using real accounting
+            input_tokens = response.usage.prompt_tokens
+            cached_tokens = response.usage.prompt_tokens_details.cached_tokens
+            prompt_tokens = input_tokens - cached_tokens
+            completion_tokens = response.usage.completion_tokens
+
+            cached_session.count = cached_tokens
+            prompt_session.count = prompt_tokens
+            completion_session.count = completion_tokens
 
     # Update the thread title and modified date + commit
     thread.title = response.choices[0].message.parsed.title  # type: ignore
