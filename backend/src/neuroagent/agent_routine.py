@@ -206,6 +206,7 @@ class AgentsRoutine:
         history = copy.deepcopy(content)
         init_len = len(messages)
         tool_map = {tool.name: tool for tool in agent.tools}
+
         while len(history) - init_len < max_turns:
             message: dict[str, Any] = {
                 "content": "",
