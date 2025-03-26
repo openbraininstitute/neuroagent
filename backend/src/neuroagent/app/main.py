@@ -1,7 +1,7 @@
 """Main."""
 
 import logging
-from contextlib import asynccontextmanager
+from contextlib import aclosing, asynccontextmanager
 from logging.config import dictConfig
 from typing import Annotated, Any, AsyncContextManager
 from uuid import uuid4
@@ -9,8 +9,17 @@ from uuid import uuid4
 from asgi_correlation_id import CorrelationIdMiddleware
 from fastapi import Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from obp_accounting_sdk import AsyncAccountingSessionFactory
+from obp_accounting_sdk.errors import (
+    AccountingReservationError,
+    AccountingUsageError,
+    InsufficientFundsError,
+)
 from redis import asyncio as aioredis
+from starlette import status
 from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.requests import Request
+from starlette.responses import JSONResponse
 
 from neuroagent import __version__
 from neuroagent.app.app_utils import setup_engine
@@ -99,7 +108,15 @@ async def lifespan(fastapi_app: FastAPI) -> AsyncContextManager[None]:  # type: 
     logging.getLogger("neuroagent").setLevel(app_settings.logging.level.upper())
     logging.getLogger("bluepyefe").setLevel("CRITICAL")
 
-    yield
+    async with aclosing(
+        AsyncAccountingSessionFactory(
+            base_url=app_settings.accounting.base_url,
+            disabled=app_settings.accounting.disabled,
+        )
+    ) as session_factory:
+        fastapi_app.state.accounting_session_factory = session_factory
+
+        yield
 
     # Cleanup connections
     if engine:
@@ -140,6 +157,31 @@ app.include_router(qa.router)
 app.include_router(threads.router)
 app.include_router(tools.router)
 app.include_router(storage.router)
+
+
+@app.exception_handler(InsufficientFundsError)
+async def insufficient_funds_error_handler(
+    _request: Request, exc: InsufficientFundsError
+) -> JSONResponse:
+    """Handle insufficient funds errors."""
+    return JSONResponse(
+        status_code=status.HTTP_402_PAYMENT_REQUIRED,
+        content={"message": f"Error: {exc.__class__.__name__}"},
+    )
+
+
+@app.exception_handler(AccountingReservationError)
+@app.exception_handler(AccountingUsageError)
+async def accounting_error_handler(
+    _request: Request, exc: AccountingReservationError | AccountingUsageError
+) -> JSONResponse:
+    """Handle accounting errors."""
+    # forward the http error code from upstream
+    status_code = exc.http_status_code or status.HTTP_500_INTERNAL_SERVER_ERROR
+    return JSONResponse(
+        status_code=status_code,
+        content={"message": f"Error: {exc.__class__.__name__}"},
+    )
 
 
 @app.get("/healthz")

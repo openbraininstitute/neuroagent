@@ -36,6 +36,7 @@ def client_fixture():
             "token": "fake_token",
         },
         rate_limiter={"disabled": True},
+        accounting={"disabled": True},
     )
     app.dependency_overrides[get_settings] = lambda: test_settings
     yield app_client
@@ -274,4 +275,5 @@ def settings():
             "token": "fake_token",
         },
         rate_limiter={"disabled": True},
+        accounting={"disabled": True},
     )
