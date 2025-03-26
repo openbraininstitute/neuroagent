@@ -198,7 +198,7 @@ class AgentsRoutine:
         messages: list[Messages],
         context_variables: dict[str, Any] = {},
         model_override: str | None = None,
-        max_turns: int | float = float("inf"),
+        max_turns: int = 10,
     ) -> AsyncIterator[str]:
         """Stream the agent response."""
         active_agent = agent
