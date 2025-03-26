@@ -1,11 +1,9 @@
 """App utilities functions."""
 
 import logging
-from contextlib import asynccontextmanager
 from typing import Any
 
 from fastapi import HTTPException
-from obp_accounting_sdk import AsyncAccountingSessionFactory
 from redis import asyncio as aioredis
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncEngine, create_async_engine
@@ -125,24 +123,3 @@ async def rate_limit(
         await redis_client.incr(key)
     else:
         await redis_client.set(key, 1, ex=expiry)
-
-
-def get_accounting_context_manager(
-    vlab_id: str | None,
-    project_id: str | None,
-    accounting_session_factory: AsyncAccountingSessionFactory,
-) -> AsyncAccountingSessionFactory | None:
-    """Return conditional context manager for accounting."""
-
-    @asynccontextmanager
-    async def noop_accounting_context(*args, **kwargs):
-        """No-op context manager that accepts any arguments but does nothing."""
-        yield None
-
-    # Choose the appropriate context managers based on vlab_id and project_id
-    accounting_context = (
-        accounting_session_factory.oneshot_session
-        if vlab_id is not None and project_id is not None
-        else noop_accounting_context
-    )
-    return accounting_context

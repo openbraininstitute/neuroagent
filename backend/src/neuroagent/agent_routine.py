@@ -6,8 +6,8 @@ import json
 from collections import defaultdict
 from typing import Any, AsyncIterator
 
-from openai import AsyncOpenAI
-from openai.types.chat import ChatCompletionMessage
+from openai import AsyncOpenAI, AsyncStream
+from openai.types.chat.chat_completion_chunk import ChatCompletionChunk
 from pydantic import ValidationError
 
 from neuroagent.app.database.sql_schemas import Entity, Messages, ToolCalls
@@ -35,7 +35,7 @@ class AgentsRoutine:
         context_variables: dict[str, Any],
         model_override: str | None,
         stream: bool = False,
-    ) -> ChatCompletionMessage:
+    ) -> AsyncStream[ChatCompletionChunk]:
         """Send the OpenAI request."""
         context_variables = defaultdict(str, context_variables)
         instructions = (
@@ -230,27 +230,29 @@ class AgentsRoutine:
                 model_override=model_override,
                 stream=True,
             )
-            draft_tool_calls = []  # type: ignore
+            draft_tool_calls: list[dict[str, str]] = []
             draft_tool_calls_index = -1
-            async for chunk in completion:  # type: ignore
+            async for chunk in completion:
                 for choice in chunk.choices:
                     if choice.finish_reason == "stop":
                         continue
 
                     elif choice.finish_reason == "tool_calls":
-                        for tool_call in draft_tool_calls:
-                            input_args = json.loads(tool_call["arguments"] or "{}")
+                        for draft_tool_call in draft_tool_calls:
+                            input_args = json.loads(
+                                draft_tool_call["arguments"] or "{}"
+                            )
                             try:
                                 input_schema = (
-                                    tool_map[tool_call["name"]]
+                                    tool_map[draft_tool_call["name"]]
                                     .__annotations__["input_schema"](**input_args)
                                     .model_dump()
                                 )
                             except ValidationError:
                                 input_schema = input_args
                             tool_call_data = {
-                                "toolCallId": tool_call["id"],
-                                "toolName": tool_call["name"],
+                                "toolCallId": draft_tool_call["id"],
+                                "toolName": draft_tool_call["name"],
                                 "args": input_schema,
                             }
                             yield f"9:{json.dumps(tool_call_data, separators=(',', ':'))}\n"
@@ -258,13 +260,17 @@ class AgentsRoutine:
                     # Check for tool calls
                     elif choice.delta.tool_calls:
                         for tool_call in choice.delta.tool_calls:
+                            if tool_call is None:
+                                continue
+                            if tool_call.function is None:
+                                continue
                             id = tool_call.id
                             name = tool_call.function.name
                             arguments = tool_call.function.arguments
                             if id is not None:
                                 draft_tool_calls_index += 1
                                 draft_tool_calls.append(
-                                    {"id": id, "name": name, "arguments": ""}
+                                    {"id": id, "name": name, "arguments": ""}  # type: ignore
                                 )
                                 tool_begin_data = {
                                     "toolCallId": id,

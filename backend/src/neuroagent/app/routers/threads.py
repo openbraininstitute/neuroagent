@@ -5,8 +5,6 @@ import logging
 from typing import Annotated, Any
 
 from fastapi import APIRouter, Depends
-from obp_accounting_sdk import AsyncAccountingSessionFactory
-from obp_accounting_sdk.constants import ServiceSubtype
 from openai import AsyncOpenAI
 from redis import asyncio as aioredis
 from sqlalchemy import select
@@ -14,14 +12,12 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
 
 from neuroagent.app.app_utils import (
-    get_accounting_context_manager,
     rate_limit,
     validate_project,
 )
 from neuroagent.app.config import Settings
 from neuroagent.app.database.sql_schemas import Messages, Threads, utc_now
 from neuroagent.app.dependencies import (
-    get_accounting_session_factory,
     get_openai_client,
     get_redis_client,
     get_s3_client,
@@ -80,21 +76,17 @@ async def generate_title(
     openai_client: Annotated[AsyncOpenAI, Depends(get_openai_client)],
     settings: Annotated[Settings, Depends(get_settings)],
     thread: Annotated[Threads, Depends(get_thread)],
-    accounting_session_factory: Annotated[
-        AsyncAccountingSessionFactory, Depends(get_accounting_session_factory)
-    ],
     redis_client: Annotated[aioredis.Redis | None, Depends(get_redis_client)],
     body: ThreadGeneratBody,
 ) -> ThreadsRead:
     """Generate a short thread title based on the user's first message and update thread's title."""
-    if thread.vlab_id is None or thread.project_id is None:
-        await rate_limit(
-            redis_client=redis_client,
-            route_path="/threads/{thread_id}/generate_title",
-            limit=settings.rate_limiter.limit_title,
-            expiry=settings.rate_limiter.expiry_title,
-            user_sub=thread.user_id,
-        )
+    await rate_limit(
+        redis_client=redis_client,
+        route_path="/threads/{thread_id}/generate_title",
+        limit=settings.rate_limiter.limit_title,
+        expiry=settings.rate_limiter.expiry_title,
+        user_sub=thread.user_id,
+    )
 
     # Send it to OpenAI longside with the system prompt asking for summary
     messages = [
@@ -104,58 +96,12 @@ async def generate_title(
         },
         {"role": "user", "content": body.first_user_message},
     ]
-    # Choose the appropriate context managers based on vlab_id and project_id
-    accounting_context = get_accounting_context_manager(
-        vlab_id=thread.vlab_id,
-        project_id=thread.project_id,
-        accounting_session_factory=accounting_session_factory,
+
+    response = await openai_client.beta.chat.completions.parse(
+        messages=messages,  # type: ignore
+        model=settings.openai.model,
+        response_format=ThreadGeneratedTitle,
     )
-    # Initial cost estimate for each token type
-    max_spending_per_request = 0.03
-    completion_cost_per_token = 6 * 1e-7
-
-    # the below is way higher than the allowed max count of completion tokens, however
-    # it corresponds to the maximum spending per request
-    max_completion_tokens = int(
-        max_spending_per_request / completion_cost_per_token
-    )  # = 50k
-
-    async with (
-        accounting_context(
-            subtype=ServiceSubtype.ML_LLM,
-            user_id=thread.user_id,
-            proj_id=thread.project_id,
-            count=1,
-        ) as cached_session,
-        accounting_context(
-            subtype=ServiceSubtype.ML_RAG,
-            user_id=thread.user_id,
-            proj_id=thread.project_id,
-            count=1,
-        ) as prompt_session,
-        accounting_context(
-            subtype=ServiceSubtype.ML_RETRIEVAL,
-            user_id=thread.user_id,
-            proj_id=thread.project_id,
-            count=max_completion_tokens,
-        ) as completion_session,
-    ):
-        response = await openai_client.beta.chat.completions.parse(
-            messages=messages,  # type: ignore
-            model=settings.openai.model,
-            response_format=ThreadGeneratedTitle,
-        )
-
-        # Update the token counts with actual usage
-        if cached_session is not None:  # Only update if we're using real accounting
-            input_tokens = response.usage.prompt_tokens
-            cached_tokens = response.usage.prompt_tokens_details.cached_tokens
-            prompt_tokens = input_tokens - cached_tokens
-            completion_tokens = response.usage.completion_tokens
-
-            cached_session.count = cached_tokens
-            prompt_session.count = prompt_tokens
-            completion_session.count = completion_tokens
 
     # Update the thread title and modified date + commit
     thread.title = response.choices[0].message.parsed.title  # type: ignore

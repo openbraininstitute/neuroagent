@@ -212,10 +212,11 @@ class SettingsRateLimiter(BaseModel):
     limit_chat: int = 20
     expiry_chat: int = 24 * 60 * 60  # seconds
 
-    limit_suggestions: int = 100
+    limit_suggestions_outside: int = 100
+    limit_suggestions_inside: int = 500
     expiry_suggestions: int = 24 * 60 * 60  # seconds
 
-    limit_title: int = 100
+    limit_title: int = 10
     expiry_title: int = 24 * 60 * 60  # seconds
 
     model_config = ConfigDict(frozen=True)
