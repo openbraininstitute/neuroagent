@@ -8,6 +8,7 @@ import boto3
 from fastapi import Depends, HTTPException, Request
 from fastapi.security import HTTPBearer
 from httpx import AsyncClient, HTTPStatusError
+from obp_accounting_sdk import AsyncAccountingSessionFactory
 from openai import AsyncOpenAI
 from redis import asyncio as aioredis
 from sqlalchemy import select
@@ -73,6 +74,11 @@ async def get_httpx_client(request: Request) -> AsyncIterator[AsyncClient]:
         yield client
     finally:
         await client.aclose()
+
+
+def get_accounting_session_factory(request: Request) -> AsyncAccountingSessionFactory:
+    """Get the accounting session factory."""
+    return request.app.state.accounting_session_factory
 
 
 async def get_openai_client(
