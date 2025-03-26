@@ -108,7 +108,12 @@ async def lifespan(fastapi_app: FastAPI) -> AsyncContextManager[None]:  # type: 
     logging.getLogger("neuroagent").setLevel(app_settings.logging.level.upper())
     logging.getLogger("bluepyefe").setLevel("CRITICAL")
 
-    async with aclosing(AsyncAccountingSessionFactory()) as session_factory:
+    async with aclosing(
+        AsyncAccountingSessionFactory(
+            base_url=app_settings.accounting.base_url,
+            disabled=app_settings.accounting.disabled,
+        )
+    ) as session_factory:
         fastapi_app.state.accounting_session_factory = session_factory
 
         yield
