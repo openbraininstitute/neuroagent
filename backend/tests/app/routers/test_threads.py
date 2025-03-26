@@ -46,6 +46,7 @@ def test_generate_thread_title(
         db={"prefix": db_connection},
         openai={"model": "great_model"},
         keycloak={"issuer": "https://great_issuer.com"},
+        rate_limiter={"disabled": True},
     )
 
     mock_openai_client = MockOpenAIClient()
