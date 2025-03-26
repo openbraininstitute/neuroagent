@@ -206,7 +206,6 @@ class AgentsRoutine:
         history = copy.deepcopy(content)
         init_len = len(messages)
         tool_map = {tool.name: tool for tool in agent.tools}
-        tokens = {"prompt_tokens": 0, "cached_tokens": 0, "completion_tokens": 0}
         while len(history) - init_len < max_turns:
             message: dict[str, Any] = {
                 "content": "",
@@ -294,14 +293,6 @@ class AgentsRoutine:
                     merge_chunk(message, delta_json)
 
             if chunk.choices == []:
-                usage = chunk.usage
-                input_tokens = usage.prompt_tokens
-                cached_tokens = usage.prompt_tokens_details.cached_tokens
-                prompt_tokens = input_tokens - cached_tokens
-                completion_tokens = usage.completion_tokens
-                tokens["cached_tokens"] += cached_tokens
-                tokens["completion_tokens"] += completion_tokens
-                tokens["prompt_tokens"] += prompt_tokens
                 finish_data = {
                     "finishReason": "tool-calls"
                     if len(draft_tool_calls) > 0
@@ -413,4 +404,3 @@ class AgentsRoutine:
             "finishReason": "stop",
         }
         yield f"d:{json.dumps(done_data)}\n"
-        yield f"accounting:{json.dumps(tokens)}"

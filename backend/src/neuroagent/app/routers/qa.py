@@ -194,16 +194,27 @@ async def stream_chat_agent(
                 content=json.dumps({"role": "user", "content": user_request.content}),
             )
         )
-
-    stream_generator = stream_agent_response(
-        agents_routine=agents_routine,
-        agent=agent,
-        messages=messages,
-        context_variables=context_variables,
-        thread=thread,
-        request=request,
+    # Choose the appropriate context managers based on vlab_id and project_id
+    accounting_context = get_accounting_context_manager(
+        vlab_id=thread.vlab_id,
+        project_id=thread.project_id,
         accounting_session_factory=accounting_session_factory,
     )
+
+    async with accounting_context(
+        subtype=ServiceSubtype.ML_LLM,
+        user_id=thread.user_id,
+        proj_id=thread.project_id,
+        count=1,
+    ):
+        stream_generator = stream_agent_response(
+            agents_routine=agents_routine,
+            agent=agent,
+            messages=messages,
+            context_variables=context_variables,
+            thread=thread,
+            request=request,
+        )
     return StreamingResponse(
         stream_generator,
         media_type="text/event-stream",
