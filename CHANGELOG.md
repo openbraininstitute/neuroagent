@@ -7,11 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v0.4.3] - 26.03.2025
+
+### Added
+- Accounting
+
 ## [v0.4.2] - 24.03.2025
 
 ### Added
 - Rate limiting
-- Accounting
 
 ### Fixed
 - Checkbox clickable all the way.
