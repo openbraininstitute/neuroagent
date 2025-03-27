@@ -27,7 +27,7 @@ class LiteratureSearchInput(BaseModel):
         )
     )
     article_number: int = Field(
-        default=5, le=10, description="Number of articles to return."
+        default=5, ge=1, le=10, description="Number of articles to return."
     )
     article_types: list[str] | None = Field(
         default=None,
