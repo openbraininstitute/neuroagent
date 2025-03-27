@@ -175,6 +175,7 @@ async def stream_chat_agent(
             thread=thread,
             request=request,
             max_turns=settings.agent.max_turns,
+            max_parallel_tool_calls=settings.agent.max_parallel_tool_calls,
         )
     return StreamingResponse(
         stream_generator,

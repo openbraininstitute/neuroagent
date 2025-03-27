@@ -20,6 +20,7 @@ async def stream_agent_response(
     thread: Threads,
     request: Request,
     max_turns: int = 10,
+    max_parallel_tool_calls: int = 5,
 ) -> AsyncIterator[str]:
     """Redefine fastAPI connections to enable streaming."""
     # Restore the OpenAI client
@@ -50,6 +51,7 @@ async def stream_agent_response(
         messages=messages,
         context_variables=context_variables,
         max_turns=max_turns,
+        max_parallel_tool_calls=max_parallel_tool_calls,
     )
     async for chunk in iterator:
         yield chunk
