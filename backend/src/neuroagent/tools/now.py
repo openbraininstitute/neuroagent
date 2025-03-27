@@ -28,16 +28,19 @@ class NowTool(BaseTool):
 
     name: ClassVar[str] = "now-tool"
     name_frontend: ClassVar[str] = "Now"
-    description: ClassVar[str] = (
-        "Returns the current UTC timestamp as an ISO-8601 formatted string"
-    )
+    description: ClassVar[
+        str
+    ] = """Get the current date and time. Do not ever assume you know the current date, ALWAYS fetch it from this tool if you need it.
+        ALWAYS call it for questions mentioning relative time scales. They often contain fragments like "since the last 6 months", "from yesterday", "for the past week", "from today", "during the previous year" etc...).
+        When this tool is needed, ALWAYS call it first, before any other tool.
+        Returns the current UTC timestamp as an ISO-8601 formatted string."""
     description_frontend: ClassVar[
         str
     ] = """Get the current time in UTC format. Use this tool to:
     • Get precise timestamps
     • Track when operations occur
     • Record timing information
-    
+
     Returns the current time in standardized UTC format."""
     input_schema: NowInput
     metadata: NowMetadata
