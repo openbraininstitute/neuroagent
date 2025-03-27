@@ -31,6 +31,7 @@ from neuroagent.tools import (
     MEModelGetOneTool,
     MorphologyFeatureTool,
     MorphologyViewerTool,
+    NowTool,
     PlotGeneratorTool,
     ResolveEntitiesTool,
     SCSGetAllTool,
@@ -181,7 +182,7 @@ def get_tool_list() -> list[type[BaseTool]]:
         MorphologyViewerTool,
         WebSearchTool,
         SemanticScholarTool,
-        # NowTool,
+        NowTool,
         # WeatherTool,
         # RandomPlotGeneratorTool,
     ]
@@ -213,7 +214,7 @@ def get_starting_agent(
     logger.info(f"Loading model {settings.openai.model}.")
     base_instructions = """You are a helpful assistant helping scientists with neuro-scientific questions.
                 You must always specify in your answers from which brain regions the information is extracted.
-                Do no blindly repeat the brain region requested by the user, use the output of the tools instead. 
+                Do no blindly repeat the brain region requested by the user, use the output of the tools instead.
                 We provide a description of the platform, the open brain platform allows an atlas driven exploration of the mouse brain with different artifacts related to experimental and model data and more specifically neuron morphology
                 (neuron structure including axons, soma and dendrite), electrophysiological recording (ie the electrical behavior of the neuron), ion channel, neuron density, bouton density, synapses, connections, electrical models also referred to as e-models, me-models which is the model of neuron with a specific morphology and electrical type, and the synaptome dictating how neurons are connected together.
                 The platform also allows user to explore and build digital brain models at different scales ranging from molecular level to single neuron and larger circuits and brain regions.
