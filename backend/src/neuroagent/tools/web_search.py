@@ -27,6 +27,7 @@ class WebSearchInput(BaseModel):
     )
     max_results: int = Field(
         default=5,
+        ge=1,
         le=20,
         description="The maximum number of search results to return.",
     )
