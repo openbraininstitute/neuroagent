@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - Limit for sequential and parallel tool calls.
+- Platform description in prompt.
+
+### Fixed
+- Add LS and Web search guardrails.
 
 ## [v0.4.3] - 26.03.2025
 
