@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- Add LS and Web search guardrails.
+
 ## [v0.4.2] - 24.03.2025
 
 ### Added
