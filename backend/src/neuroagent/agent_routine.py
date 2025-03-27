@@ -59,7 +59,6 @@ class AgentsRoutine:
 
         if tools:
             create_params["parallel_tool_calls"] = agent.parallel_tool_calls
-
         return await self.client.chat.completions.create(**create_params)  # type: ignore
 
     def handle_function_result(self, result: Result | Agent) -> Result:
@@ -199,15 +198,23 @@ class AgentsRoutine:
         context_variables: dict[str, Any] = {},
         model_override: str | None = None,
         max_turns: int = 10,
+        max_parallel_tool_calls: int = 5,
     ) -> AsyncIterator[str]:
         """Stream the agent response."""
         active_agent = agent
         content = await messages_to_openai_content(messages)
         history = copy.deepcopy(content)
-        init_len = len(messages)
         tool_map = {tool.name: tool for tool in agent.tools}
+        turns = 0
 
-        while len(history) - init_len < max_turns:
+        while turns <= max_turns:
+            # Force an AI message once max turns reached.
+            # I.e. we do a total number of turns of max_turns + 1
+            # The +1 being the final AI message.
+            if turns == max_turns:
+                agent.tool_choice = "none"
+                agent.instructions = "You are a very nice assistant that is unable to further help the user due to rate limitng. The user just reached the maximum amount of turns he can take with you in a single query. Your one and only job is to let him know that in a nice way, and that the only way to continue the conversation is to send another message. Completely disregard his demand since you cannot fulfill it, simply state that he reached the limit."
+
             message: dict[str, Any] = {
                 "content": "",
                 "sender": agent.name,
@@ -230,6 +237,7 @@ class AgentsRoutine:
                 model_override=model_override,
                 stream=True,
             )
+            turns += 1
             draft_tool_calls: list[dict[str, str]] = []
             draft_tool_calls_index = -1
             async for chunk in completion:
@@ -362,7 +370,20 @@ class AgentsRoutine:
             # handle function calls, updating context_variables, and switching agents
             if tool_calls_to_execute:
                 tool_calls_executed = await self.execute_tool_calls(
-                    tool_calls_to_execute, active_agent.tools, context_variables
+                    tool_calls_to_execute[:max_parallel_tool_calls],
+                    active_agent.tools,
+                    context_variables,
+                )
+                tool_calls_executed.messages.extend(
+                    [
+                        {
+                            "role": "tool",
+                            "tool_call_id": call.tool_call_id,
+                            "tool_name": call.name,
+                            "content": f"The tool {call.name} with arguments {call.arguments} could not be executed due to rate limit. Call it again.",
+                        }
+                        for call in tool_calls_to_execute[max_parallel_tool_calls:]
+                    ]
                 )
             else:
                 tool_calls_executed = Response(
