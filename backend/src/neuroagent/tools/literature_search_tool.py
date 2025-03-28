@@ -206,7 +206,6 @@ class LiteratureSearchTool(BaseTool):
             if paragraph.article_id not in article_metadata:
                 article_metadata[paragraph.article_id] = paragraph
             i += 1
-
         paragraphs_output = [
             LiteratureSearchOutput(
                 article_title=article_metadata[article_id].article_title,

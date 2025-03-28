@@ -171,7 +171,7 @@ class SettingsTools(BaseModel):
     @classmethod
     def parse_default_tools(cls, data: dict[str, Any]) -> dict[str, Any]:
         """Turn default_tools into a list."""
-        if data.get("default_tools"):
+        if data.get("default_tools") and isinstance(data.get("default_tools"), str):
             data["default_tools"] = [
                 tool_name.strip() for tool_name in data["default_tools"].split(",")
             ]

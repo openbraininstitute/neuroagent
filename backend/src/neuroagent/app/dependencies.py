@@ -20,8 +20,7 @@ from neuroagent.app.app_utils import validate_project
 from neuroagent.app.config import Settings
 from neuroagent.app.database.sql_schemas import Threads
 from neuroagent.app.schemas import UserInfo
-from neuroagent.base_types import BaseTool
-from neuroagent.new_types import Agent
+from neuroagent.base_types import Agent, BaseTool
 from neuroagent.tools import (
     ElectrophysFeatureTool,
     GetMorphoTool,

@@ -9,7 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from neuroagent.agent_routine import AgentsRoutine
 from neuroagent.app.database.sql_schemas import Messages, Threads, utc_now
-from neuroagent.new_types import Agent
+from neuroagent.base_types import Agent
 
 
 async def stream_agent_response(
