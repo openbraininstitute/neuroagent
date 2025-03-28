@@ -29,6 +29,7 @@ class ResampleToolInput(BaseModel):
 
     task_description: str = Field(
         description="""Give a 3 words MAXIMUM description of the task at hands.
+        If you encounter multiple tasks, describe only the first task you need to execute.
         Examples: Search the Literature, Retrieve morphology data, Simulate me-model, Search the web, Plot data, Retrieve electrophysiology data, Get simulations..."""
     )
 

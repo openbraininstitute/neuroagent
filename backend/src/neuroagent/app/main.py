@@ -123,7 +123,7 @@ async def lifespan(fastapi_app: FastAPI) -> AsyncContextManager[None]:  # type: 
     # Do not embed tools already present by default
     tools_to_embed = [
         tool
-        for tool in get_tool_list()
+        for tool in fastapi_app.dependency_overrides.get(get_tool_list, get_tool_list)()
         if tool.name not in app_settings.tools.default_tools
     ]
 
