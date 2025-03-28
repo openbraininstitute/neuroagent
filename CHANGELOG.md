@@ -7,6 +7,41 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Mutli-agent workflow.
+
+## [v0.4.4] - 27.03.2025
+
+### Added
+- Limit for sequential and parallel tool calls.
+- Platform description in prompt.
+
+### Fixed
+- Add LS and Web search guardrails.
+
+## [v0.4.3] - 26.03.2025
+
+### Added
+- Accounting
+
+## [v0.4.2] - 24.03.2025
+
+### Added
+- Rate limiting
+
+### Fixed
+- Checkbox clickable all the way.
+
+### Changed
+- LS tool now returns articles instead of paragraphs.
+
+## [v0.4.1] - 14.03.2025
+
+### Fixed
+- ECR action
+
+## [v0.4.0] - 14.03.2025
+
 ### Removed
 - Removed trailing slashes from endpoints.
 - Bunch of unused code
@@ -26,6 +61,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Sort components in folder.
 - Brain region/cell hierarchies read from storage (not from local filesystem).
 - Authentication is done directly through keycloak.
+- Don't assume we run minIO by default and also add documentation.
 
 ### Added
 - Docker compose for local development
@@ -59,7 +95,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Object storage + plotting logic.
 - Keywords filtering for literature search.
 - [frontend] - bugfixes.
-- Mutli-agent workflow.
 - Suggestion endpoint.
 - Support empty vlab+project in threads.
 

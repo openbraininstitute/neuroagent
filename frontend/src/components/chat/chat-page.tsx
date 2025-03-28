@@ -10,6 +10,7 @@ import { useStore } from "@/lib/store";
 import { ChatInputInsideThread } from "@/components/chat/chat-input-inside-thread";
 import { ChatMessagesInsideThread } from "@/components/chat/chat-messages-inside-thread";
 import { generateEditTitle } from "@/actions/generate-edit-thread";
+import { toast } from "sonner";
 
 type ChatPageProps = {
   threadId: string;
@@ -40,9 +41,9 @@ export function ChatPage({
     input,
     handleInputChange,
     handleSubmit,
-    error,
     isLoading,
     setMessages: setMessagesRaw,
+    error,
   } = useChat({
     api: `${env.NEXT_PUBLIC_BACKEND_URL}/qa/chat_streamed/${threadId}`,
     headers: {
@@ -155,9 +156,38 @@ export function ChatPage({
     }
   };
 
-  if (error) {
-    return null;
-  }
+  // Handle chat errors
+  useEffect(() => {
+    if (!error) return;
+
+    // Remove the last message if it's from a human
+    if (messages.length > 0 && messages[messages.length - 1].role === "user") {
+      setMessages(messages.slice(0, -1));
+    }
+
+    let errorDetail;
+    try {
+      // Try to parse error message as JSON
+      errorDetail = JSON.parse(error.message);
+    } catch {
+      errorDetail = { message: error.message };
+    }
+
+    if (errorDetail?.detail?.error === "Rate limit exceeded") {
+      const retryAfterSeconds = errorDetail.detail.retry_after;
+      const retryAfterHours = Math.ceil(retryAfterSeconds / 3600);
+
+      toast.error("Rate Limit Exceeded", {
+        description: `Please try again in ${retryAfterHours} ${
+          retryAfterHours === 1 ? "hour" : "hours"
+        }.`,
+      });
+    } else {
+      toast.error("Chat Error", {
+        description: errorDetail.message || "An unknown error occurred",
+      });
+    }
+  }, [error, messages, setMessages]);
 
   return (
     <div className="flex flex-col h-full">

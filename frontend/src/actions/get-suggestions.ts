@@ -2,6 +2,7 @@
 
 import { auth } from "@/lib/auth";
 import { fetcher } from "@/lib/fetcher";
+import { getSettings } from "@/lib/cookies-server";
 import { SuggestedQuestions } from "@/lib/types";
 
 export async function getSuggestions(
@@ -14,13 +15,23 @@ export async function getSuggestions(
       return { success: false, error: "Not authenticated" };
     }
 
-    const bodyData = { click_history: user_history };
+    const { projectID, virtualLabID } = await getSettings();
+
+    // Add query parameters if vlab/project are present
+    const queryParams: Record<string, string> = {};
+    if (virtualLabID !== undefined) {
+      queryParams.vlab_id = virtualLabID;
+    }
+    if (projectID !== undefined) {
+      queryParams.project_id = projectID;
+    }
 
     const threadResponse = (await fetcher({
       method: "POST",
       path: "/qa/question_suggestions",
       headers: { Authorization: `Bearer ${session.accessToken}` },
-      body: bodyData,
+      body: { click_history: user_history },
+      queryParams,
     })) as SuggestedQuestions;
 
     return threadResponse;

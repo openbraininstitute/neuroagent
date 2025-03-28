@@ -6,8 +6,8 @@ import json
 from collections import defaultdict
 from typing import Any, AsyncIterator
 
-from openai import AsyncOpenAI
-from openai.types.chat import ChatCompletionMessage
+from openai import AsyncOpenAI, AsyncStream
+from openai.types.chat.chat_completion_chunk import ChatCompletionChunk
 from pydantic import ValidationError
 
 from neuroagent.app.database.sql_schemas import Entity, Messages, ToolCalls
@@ -35,7 +35,7 @@ class AgentsRoutine:
         context_variables: dict[str, Any],
         model_override: str | None,
         stream: bool = False,
-    ) -> ChatCompletionMessage:
+    ) -> AsyncStream[ChatCompletionChunk]:
         """Send the OpenAI request."""
         context_variables = defaultdict(str, context_variables)
         instructions = (
@@ -59,7 +59,6 @@ class AgentsRoutine:
 
         if tools:
             create_params["parallel_tool_calls"] = agent.parallel_tool_calls
-
         return await self.client.chat.completions.create(**create_params)  # type: ignore
 
     def handle_function_result(self, result: Result | Agent) -> Result:
@@ -198,16 +197,23 @@ class AgentsRoutine:
         messages: list[Messages],
         context_variables: dict[str, Any] = {},
         model_override: str | None = None,
-        max_turns: int | float = float("inf"),
+        max_turns: int = 10,
+        max_parallel_tool_calls: int = 5,
     ) -> AsyncIterator[str]:
         """Stream the agent response."""
         active_agent = agent
         content = await messages_to_openai_content(messages)
         history = copy.deepcopy(content)
-        init_len = len(messages)
+        turns = 0
 
-        while len(history) - init_len < max_turns:
-            # Changes if agent changes
+        while turns <= max_turns:
+            # Force an AI message once max turns reached.
+            # I.e. we do a total number of turns of max_turns + 1
+            # The +1 being the final AI message.
+            if turns == max_turns:
+                agent.tool_choice = "none"
+                agent.instructions = "You are a very nice assistant that is unable to further help the user due to rate limitng. The user just reached the maximum amount of turns he can take with you in a single query. Your one and only job is to let him know that in a nice way, and that the only way to continue the conversation is to send another message. Completely disregard his demand since you cannot fulfill it, simply state that he reached the limit."
+
             tool_map = {tool.name: tool for tool in active_agent.tools}
             message: dict[str, Any] = {
                 "content": "",
@@ -231,26 +237,29 @@ class AgentsRoutine:
                 model_override=model_override,
                 stream=True,
             )
-            draft_tool_calls = []  # type: ignore
+            turns += 1
+            draft_tool_calls: list[dict[str, str]] = []
             draft_tool_calls_index = -1
-            async for chunk in completion:  # type: ignore
+            async for chunk in completion:
                 for choice in chunk.choices:
                     if choice.finish_reason == "stop":
                         continue
                     elif choice.finish_reason == "tool_calls":
-                        for tool_call in draft_tool_calls:
-                            input_args = json.loads(tool_call["arguments"] or "{}")
+                        for draft_tool_call in draft_tool_calls:
+                            input_args = json.loads(
+                                draft_tool_call["arguments"] or "{}"
+                            )
                             try:
                                 input_schema = (
-                                    tool_map[tool_call["name"]]
+                                    tool_map[draft_tool_call["name"]]
                                     .__annotations__["input_schema"](**input_args)
                                     .model_dump()
                                 )
                             except ValidationError:
                                 input_schema = input_args
                             tool_call_data = {
-                                "toolCallId": tool_call["id"],
-                                "toolName": tool_call["name"],
+                                "toolCallId": draft_tool_call["id"],
+                                "toolName": draft_tool_call["name"],
                                 "args": input_schema,
                             }
                             yield f"9:{json.dumps(tool_call_data, separators=(',', ':'))}\n"
@@ -258,13 +267,17 @@ class AgentsRoutine:
                     # Check for tool calls
                     elif choice.delta.tool_calls:
                         for tool_call in choice.delta.tool_calls:
+                            if tool_call is None:
+                                continue
+                            if tool_call.function is None:
+                                continue
                             id = tool_call.id
                             name = tool_call.function.name
                             arguments = tool_call.function.arguments
                             if id is not None:
                                 draft_tool_calls_index += 1
                                 draft_tool_calls.append(
-                                    {"id": id, "name": name, "arguments": ""}
+                                    {"id": id, "name": name, "arguments": ""}  # type: ignore
                                 )
                                 tool_begin_data = {
                                     "toolCallId": id,
@@ -364,7 +377,20 @@ class AgentsRoutine:
             # Handle function calls, updating context_variables, and switching agents
             if tool_calls_to_execute:
                 tool_calls_executed = await self.execute_tool_calls(
-                    tool_calls_to_execute, active_agent.tools, context_variables
+                    tool_calls_to_execute[:max_parallel_tool_calls],
+                    active_agent.tools,
+                    context_variables,
+                )
+                tool_calls_executed.messages.extend(
+                    [
+                        {
+                            "role": "tool",
+                            "tool_call_id": call.tool_call_id,
+                            "tool_name": call.name,
+                            "content": f"The tool {call.name} with arguments {call.arguments} could not be executed due to rate limit. Call it again.",
+                        }
+                        for call in tool_calls_to_execute[max_parallel_tool_calls:]
+                    ]
                 )
             else:
                 tool_calls_executed = Response(

@@ -1,7 +1,7 @@
 """Configuration."""
 
 import os
-from typing import Literal, Optional
+from typing import Any, Literal, Optional
 
 from dotenv import dotenv_values
 from pydantic import BaseModel, ConfigDict, SecretStr, model_validator
@@ -20,6 +20,8 @@ class SettingsAgent(BaseModel):
         "literature_agent",
         "Agent",
     ] = "triage_agent"
+    max_turns: int = 10
+    max_parallel_tool_calls: int = 10
 
     @model_validator(mode="before")
     @classmethod
@@ -35,10 +37,10 @@ class SettingsAgent(BaseModel):
 class SettingsStorage(BaseModel):
     """Storage settings."""
 
-    endpoint_url: str = "http://localhost:9000"
+    endpoint_url: str | None = None
     bucket_name: str = "neuroagent"
-    access_key: SecretStr = SecretStr("minioadmin")
-    secret_key: SecretStr = SecretStr("minioadmin")
+    access_key: SecretStr | None = None
+    secret_key: SecretStr | None = None
     expires_in: int = 600
     brain_region_hierarchy_key: str = "shared/brainregion_hierarchy.json"
     cell_type_hierarchy_key: str = "shared/celltypes_hierarchy.json"
@@ -91,7 +93,7 @@ class SettingsLiterature(BaseModel):
     """Literature search API settings."""
 
     url: str
-    retriever_k: int = 500
+    retriever_k: int = 100
     use_reranker: bool = True
     reranker_k: int = 8
 
@@ -184,7 +186,7 @@ class SettingsOpenAI(BaseModel):
 
     token: Optional[SecretStr] = None
     model: str = "gpt-4o-mini"
-    suggestion_model: str = "o3-mini"
+    suggestion_model: str = "gpt-4o-mini"
     temperature: float = 0
     max_tokens: Optional[int] = None
 
@@ -218,6 +220,45 @@ class SettingsMisc(BaseModel):
     model_config = ConfigDict(frozen=True)
 
 
+class SettingsRateLimiter(BaseModel):
+    """Rate limiter settings."""
+
+    redis_host: str = "localhost"
+    redis_port: int = 6379
+    disabled: bool = False
+
+    limit_chat: int = 20
+    expiry_chat: int = 24 * 60 * 60  # seconds
+
+    limit_suggestions_outside: int = 100
+    limit_suggestions_inside: int = 500
+    expiry_suggestions: int = 24 * 60 * 60  # seconds
+
+    limit_title: int = 10
+    expiry_title: int = 24 * 60 * 60  # seconds
+
+    model_config = ConfigDict(frozen=True)
+
+
+class SettingsAccounting(BaseModel):
+    """Accounting settings."""
+
+    base_url: str | None = None
+    disabled: bool = False
+
+    @model_validator(mode="before")
+    @classmethod
+    def disable_if_no_url(cls, data: Any) -> Any:
+        """Disable accounting if no base URL is provided."""
+        if data is None:
+            return data
+
+        if data.get("base_url") is None:
+            data["disabled"] = True
+
+        return data
+
+
 class Settings(BaseSettings):
     """All settings."""
 
@@ -230,6 +271,8 @@ class Settings(BaseSettings):
     keycloak: SettingsKeycloak = SettingsKeycloak()  # has no required
     misc: SettingsMisc = SettingsMisc()  # has no required
     storage: SettingsStorage = SettingsStorage()  # has no required
+    rate_limiter: SettingsRateLimiter = SettingsRateLimiter()  # has no required
+    accounting: SettingsAccounting = SettingsAccounting()  # has no required
 
     model_config = SettingsConfigDict(
         env_file=".env",
