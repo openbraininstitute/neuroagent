@@ -59,6 +59,7 @@ def test_chat_streamed(app_client, httpx_mock, patch_required_env, db_connection
         db={"prefix": db_connection},
         keycloak={"issuer": "https://great_issuer.com"},
         accounting={"disabled": True},
+        rate_limiter={"disabled": True},
     )
     app.dependency_overrides[get_settings] = lambda: test_settings
     agent_routine = Mock()
