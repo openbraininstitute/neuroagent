@@ -1,15 +1,15 @@
 """App utilities functions."""
 
 import logging
-from typing import Any
 from math import ceil
+from typing import Any
 
 from fastapi import HTTPException
+from pydantic import BaseModel
 from redis import asyncio as aioredis
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncEngine, create_async_engine
 from starlette.status import HTTP_401_UNAUTHORIZED
-from pydantic import BaseModel
 
 from neuroagent.app.config import Settings
 
