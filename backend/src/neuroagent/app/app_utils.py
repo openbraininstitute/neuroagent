@@ -1,11 +1,9 @@
 """App utilities functions."""
 
 import logging
-from math import ceil
 from typing import Any
 
 from fastapi import HTTPException
-from pydantic import BaseModel
 from redis import asyncio as aioredis
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncEngine, create_async_engine
@@ -77,57 +75,51 @@ def validate_project(
         return
 
 
-class RateLimitInfo(BaseModel):
-    """Rate limit information returned in headers."""
-
-    x_ratelimit_limit: int
-    x_ratelimit_remaining: int
-    x_ratelimit_reset: int
-
-
 async def rate_limit(
     redis_client: aioredis.Redis | None,
     route_path: str,
     limit: int,
     expiry: int,
     user_sub: str,
-) -> RateLimitInfo:
+) -> None:
     """Check rate limiting for a given route and user.
 
-    When redis_client is None, returns -1 for all rate limit values to indicate
-    that rate limiting is disabled.
+    Parameters
+    ----------
+    redis_client : aioredis.Redis
+        Redis client instance
+    route_path : str
+        Path of the route being accessed
+    limit : int
+        Maximum number of requests allowed
+    expiry : int
+        Time in seconds before the rate limit resets
+    user_sub : str
+        User identifier
+
+    Raises
+    ------
+    HTTPException
+        When rate limit is exceeded, returns 429 status code with retry_after time
     """
     if redis_client is None:
-        return RateLimitInfo(
-            x_ratelimit_limit=-1, x_ratelimit_remaining=-1, x_ratelimit_reset=-1
-        )
+        return
 
     # Create key using normalized route path and user sub
     key = f"rate_limit:{user_sub}:{route_path}"
 
-    # Get current count and TTL
+    # Get current count
     current = await redis_client.get(key)
     current = int(current) if current else 0
-    ttl = ceil(await redis_client.pttl(key) / 1000)  # Convert to seconds and round up
 
     if current > 0:
         if current + 1 > limit:
+            # Get remaining time
+            ttl = await redis_client.pttl(key)
             raise HTTPException(
                 status_code=429,
-                detail={"error": "Rate limit exceeded", "retry_after": ttl},
-                headers={
-                    "X-RateLimit-Limit": str(limit),
-                    "X-RateLimit-Remaining": "0",
-                    "X-RateLimit-Reset": str(ttl),
-                },
+                detail={"error": "Rate limit exceeded", "retry_after": ttl / 1000},
             )
         await redis_client.incr(key)
     else:
         await redis_client.set(key, 1, ex=expiry)
-        ttl = expiry
-
-    return RateLimitInfo(
-        x_ratelimit_limit=limit,
-        x_ratelimit_remaining=limit - (current + 1),
-        x_ratelimit_reset=ttl,
-    )
