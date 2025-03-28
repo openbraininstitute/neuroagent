@@ -6,6 +6,7 @@ import { ToolInputSchema } from "@/components/tool-page/tool-input-schema";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { CustomError } from "@/lib/types";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 type ToolDetailedMetadata = {
   name: string;
@@ -15,6 +16,8 @@ type ToolDetailedMetadata = {
   inputSchema: string;
   hil: boolean;
   isOnline?: boolean; // Optional since it wasn't in the original type
+  agentNames: string[];
+  agentNamesFrontend: string[];
 };
 
 async function getTool(toolName: string): Promise<ToolDetailedMetadata> {
@@ -39,6 +42,8 @@ async function getTool(toolName: string): Promise<ToolDetailedMetadata> {
       inputSchema: tool.input_schema,
       hil: tool.hil,
       isOnline: tool.is_online,
+      agentNames: tool.agent_names,
+      agentNamesFrontend: tool.agent_names_frontend,
     };
   } catch (error) {
     if ((error as CustomError).statusCode === 404) {
@@ -52,7 +57,7 @@ async function getTool(toolName: string): Promise<ToolDetailedMetadata> {
 export default async function ToolPage({
   params,
 }: {
-  params: Promise<{ toolName: string }>;
+  params: Promise<{ toolName: string; agentName: string }>;
 }) {
   const paramsAwaited = await params;
   const toolName = paramsAwaited?.toolName;
@@ -69,11 +74,11 @@ export default async function ToolPage({
   return (
     <div className="container mx-auto px-4 py-6 h-[calc(100vh-4rem)] overflow-y-auto">
       <Link
-        href="/tools"
+        href={`/tools`}
         className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground mb-6"
       >
         <ArrowLeft className="h-4 w-4" />
-        Back to tools
+        Back to Tools
       </Link>
 
       <div className="flex flex-col items-center gap-4 mb-8">
@@ -107,6 +112,29 @@ export default async function ToolPage({
         <div className="text-sm text-muted-foreground">
           Tool slug: {tool.name}
         </div>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        {tool.agentNames.map((agent, index) => (
+          <Link
+            key={agent}
+            href={`/agents/${agent}`}
+            className="hover:scale-105 transition-transform"
+          >
+            <Card className="cursor-pointer bg-muted/50 hover:shadow-lg transition-shadow mb-8">
+              <CardHeader>
+                <CardTitle className="text-xl font-bold">
+                  {tool.agentNamesFrontend[index]}
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-muted-foreground">
+                  Explore tools related to the {tool.agentNamesFrontend[index]}.
+                </p>
+              </CardContent>
+            </Card>
+          </Link>
+        ))}
       </div>
 
       <div className="space-y-8 pb-6">

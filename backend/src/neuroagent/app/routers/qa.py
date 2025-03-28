@@ -25,12 +25,12 @@ from neuroagent.app.database.sql_schemas import (
 )
 from neuroagent.app.dependencies import (
     get_accounting_session_factory,
+    get_agents,
     get_agents_routine,
     get_context_variables,
     get_openai_client,
     get_redis_client,
     get_settings,
-    get_starting_agent,
     get_thread,
     get_user_info,
 )
@@ -121,7 +121,7 @@ async def stream_chat_agent(
     settings: Annotated[Settings, Depends(get_settings)],
     thread: Annotated[Threads, Depends(get_thread)],
     agents_routine: Annotated[AgentsRoutine, Depends(get_agents_routine)],
-    agent: Annotated[Agent, Depends(get_starting_agent)],
+    agents: Annotated[dict[str, Agent], Depends(get_agents)],
     context_variables: Annotated[dict[str, Any], Depends(get_context_variables)],
     accounting_session_factory: Annotated[
         AsyncAccountingSessionFactory, Depends(get_accounting_session_factory)
@@ -169,7 +169,7 @@ async def stream_chat_agent(
     ):
         stream_generator = stream_agent_response(
             agents_routine=agents_routine,
-            agent=agent,
+            agent=agents[settings.agent.starting_agent],
             messages=messages,
             context_variables=context_variables,
             thread=thread,

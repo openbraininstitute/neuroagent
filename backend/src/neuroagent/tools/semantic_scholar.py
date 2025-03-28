@@ -6,7 +6,7 @@ from typing import ClassVar
 from httpx import AsyncClient
 from pydantic import BaseModel, Field, SecretStr
 
-from neuroagent.tools.base_tool import BaseMetadata, BaseTool
+from neuroagent.base_types import AgentsNames, BaseMetadata, BaseTool
 
 
 class SemanticScholarMetadata(BaseMetadata):
@@ -45,6 +45,7 @@ class SemanticScholarTool(BaseTool):
     description_frontend: ClassVar[str] = (
         "Uses the Semantic Scholar API to search the literature"
     )
+    agents: ClassVar[list[str]] = [AgentsNames.LITERATURE_AGENT.value]
     metadata: SemanticScholarMetadata
     input_schema: SemanticScholarInput
 

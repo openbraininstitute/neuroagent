@@ -107,6 +107,18 @@ class ToolMetadata(BaseModel):
     name_frontend: str
 
 
+class AgentMetadata(ToolMetadata):
+    """Data class for basic agent metadata."""
+
+    description: str
+
+
+class AgentMetadataDetailed(AgentMetadata):
+    """Detailed agent metadata class."""
+
+    tools: list[ToolMetadata]
+
+
 class ToolMetadataDetailed(ToolMetadata):
     """Data class for detailed tool metadata including online status."""
 
@@ -115,6 +127,8 @@ class ToolMetadataDetailed(ToolMetadata):
     input_schema: str
     hil: bool
     is_online: bool
+    agent_names: list[str]
+    agent_names_frontend: list[str]
 
 
 class UserInfo(BaseModel):

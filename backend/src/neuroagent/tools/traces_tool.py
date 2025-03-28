@@ -7,7 +7,7 @@ from typing import Any, ClassVar
 from httpx import AsyncClient
 from pydantic import BaseModel, Field
 
-from neuroagent.tools.base_tool import BaseMetadata, BaseTool
+from neuroagent.base_types import AgentsNames, BaseMetadata, BaseTool
 from neuroagent.utils import get_descendants_id_s3
 
 logger = logging.getLogger(__name__)
@@ -80,6 +80,7 @@ class GetTracesTool(BaseTool):
     • Access detailed trace information
 
     Specify criteria to find relevant experimental recordings."""
+    agents: ClassVar[list[str]] = [AgentsNames.EXPLORE_AGENT.value]
     input_schema: GetTracesInput
     metadata: GetTracesMetadata
 

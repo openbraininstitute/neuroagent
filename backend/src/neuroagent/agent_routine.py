@@ -11,12 +11,12 @@ from openai.types.chat.chat_completion_chunk import ChatCompletionChunk
 from pydantic import ValidationError
 
 from neuroagent.app.database.sql_schemas import Entity, Messages, ToolCalls
+from neuroagent.base_types import BaseTool
 from neuroagent.new_types import (
     Agent,
     Response,
     Result,
 )
-from neuroagent.tools.base_tool import BaseTool
 from neuroagent.utils import get_entity, merge_chunk, messages_to_openai_content
 
 
@@ -204,7 +204,6 @@ class AgentsRoutine:
         active_agent = agent
         content = await messages_to_openai_content(messages)
         history = copy.deepcopy(content)
-        tool_map = {tool.name: tool for tool in agent.tools}
         turns = 0
 
         while turns <= max_turns:
@@ -215,9 +214,10 @@ class AgentsRoutine:
                 agent.tool_choice = "none"
                 agent.instructions = "You are a very nice assistant that is unable to further help the user due to rate limitng. The user just reached the maximum amount of turns he can take with you in a single query. Your one and only job is to let him know that in a nice way, and that the only way to continue the conversation is to send another message. Completely disregard his demand since you cannot fulfill it, simply state that he reached the limit."
 
+            tool_map = {tool.name: tool for tool in active_agent.tools}
             message: dict[str, Any] = {
                 "content": "",
-                "sender": agent.name,
+                "sender": active_agent.name,
                 "role": "assistant",
                 "function_call": None,
                 "tool_calls": defaultdict(
@@ -229,7 +229,7 @@ class AgentsRoutine:
                 ),
             }
 
-            # get completion with current history, agent
+            # Get completion with current history, agent
             completion = await self.get_chat_completion(
                 agent=active_agent,
                 history=history,
@@ -244,7 +244,6 @@ class AgentsRoutine:
                 for choice in chunk.choices:
                     if choice.finish_reason == "stop":
                         continue
-
                     elif choice.finish_reason == "tool_calls":
                         for draft_tool_call in draft_tool_calls:
                             input_args = json.loads(
@@ -284,6 +283,15 @@ class AgentsRoutine:
                                     "toolCallId": id,
                                     "toolName": name,
                                 }
+                                # Send annotation to link tool to its sender.
+                                annotation_data_sender = [
+                                    {
+                                        "toolCallId": id,
+                                        "toolName": name,
+                                        "sender": active_agent.name,
+                                    }
+                                ]
+                                yield f"8:{json.dumps(annotation_data_sender, separators=(',', ':'))}\n"
                                 yield f"b:{json.dumps(tool_begin_data, separators=(',', ':'))}\n"
 
                             if arguments:
@@ -349,12 +357,11 @@ class AgentsRoutine:
                     tool_calls=tool_calls,
                 )
             )
-
             if not messages[-1].tool_calls:
                 yield f"e:{json.dumps(finish_data)}\n"
                 break
 
-            # kick out tool calls that require HIL
+            # Kick out tool calls that require HIL
             tool_calls_to_execute = [
                 tool_call
                 for tool_call in messages[-1].tool_calls
@@ -367,7 +374,7 @@ class AgentsRoutine:
                 if tool_map[tool_call.name].hil
             ]
 
-            # handle function calls, updating context_variables, and switching agents
+            # Handle function calls, updating context_variables, and switching agents
             if tool_calls_to_execute:
                 tool_calls_executed = await self.execute_tool_calls(
                     tool_calls_to_execute[:max_parallel_tool_calls],
