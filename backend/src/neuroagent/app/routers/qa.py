@@ -128,7 +128,7 @@ async def stream_chat_agent(
     ],
 ) -> StreamingResponse:
     """Run a single agent query in a streamed fashion."""
-    if thread.vlab_id is None or thread.project_id is None:
+    try:
         await rate_limit(
             redis_client=redis_client,
             route_path="/qa/chat_streamed/{thread_id}",
@@ -136,6 +136,10 @@ async def stream_chat_agent(
             expiry=settings.rate_limiter.expiry_chat,
             user_sub=thread.user_id,
         )
+    except HTTPException:
+        # Only reraise the rate limit exception if we're outside vlab/project context
+        if thread.vlab_id is None or thread.project_id is None:
+            raise
 
     if len(user_request.content) > settings.misc.query_max_size:
         raise HTTPException(
