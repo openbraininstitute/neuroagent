@@ -2,7 +2,7 @@
 
 import logging
 from abc import ABC, abstractmethod
-from typing import Any, ClassVar, Literal
+from typing import Any, Callable, ClassVar, Literal
 
 from httpx import AsyncClient
 from pydantic import BaseModel, ConfigDict
@@ -101,3 +101,14 @@ class BaseTool(BaseModel, ABC):
         need to be inside the `get_healthcheck_variables` dependency.
         """
         return False
+
+
+class Agent(BaseModel):
+    """Agent class."""
+
+    name: str = "Agent"
+    model: str = "gpt-4o-mini"
+    instructions: str | Callable[[], str] = "You are a helpful agent."
+    tools: list[type[BaseTool]] = []
+    tool_choice: str | None = None
+    parallel_tool_calls: bool = True

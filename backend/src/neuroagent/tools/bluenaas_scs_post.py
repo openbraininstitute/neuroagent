@@ -6,7 +6,7 @@ from typing import Any, ClassVar, Literal
 from httpx import AsyncClient
 from pydantic import BaseModel, Field
 
-from neuroagent.tools.base_tool import BaseMetadata, BaseTool
+from neuroagent.base_types import BaseMetadata, BaseTool
 
 logger = logging.getLogger(__name__)
 

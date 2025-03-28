@@ -6,7 +6,7 @@ from typing import ClassVar
 
 from pydantic import BaseModel
 
-from neuroagent.tools.base_tool import BaseMetadata, BaseTool
+from neuroagent.base_types import BaseMetadata, BaseTool
 
 logger = logging.getLogger(__name__)
 

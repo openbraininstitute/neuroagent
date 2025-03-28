@@ -161,8 +161,21 @@ class SettingsTools(BaseModel):
     me_model: SettingsGetMEModel = SettingsGetMEModel()
     web_search: SettingsWebSearch = SettingsWebSearch()
     semantic_scholar: SettingsSemanticScholar = SettingsSemanticScholar()
+    # Pass as a comma separated string
+    default_tools: list[str] = ["tool-resampling", "resolve-entities-tool"]
+    max_tools: int = 10
 
     model_config = ConfigDict(frozen=True)
+
+    @model_validator(mode="before")
+    @classmethod
+    def parse_default_tools(cls, data: dict[str, Any]) -> dict[str, Any]:
+        """Turn default_tools into a list."""
+        if data.get("default_tools") and isinstance(data.get("default_tools"), str):
+            data["default_tools"] = [
+                tool_name.strip() for tool_name in data["default_tools"].split(",")
+            ]
+        return data
 
 
 class SettingsOpenAI(BaseModel):
@@ -170,6 +183,8 @@ class SettingsOpenAI(BaseModel):
 
     token: Optional[SecretStr] = None
     model: str = "gpt-4o-mini"
+    embedding_model: str = "text-embedding-3-small"
+    embedding_dim: int | None = None  # Uses default dim of the model if None
     suggestion_model: str = "gpt-4o-mini"
     temperature: float = 0
     max_tokens: Optional[int] = None
@@ -200,6 +215,7 @@ class SettingsMisc(BaseModel):
     query_max_size: int = 10000
 
     frontend_url: str | None = "http://localhost:3000"
+    is_dev: bool = True
 
     model_config = ConfigDict(frozen=True)
 

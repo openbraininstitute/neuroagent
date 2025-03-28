@@ -36,10 +36,8 @@ from neuroagent.app.dependencies import (
 )
 from neuroagent.app.schemas import QuestionsSuggestions, UserClickHistory, UserInfo
 from neuroagent.app.stream import stream_agent_response
-from neuroagent.new_types import (
-    Agent,
-    ClientRequest,
-)
+from neuroagent.base_types import Agent
+from neuroagent.new_types import ClientRequest
 
 router = APIRouter(prefix="/qa", tags=["Run the agent"])
 

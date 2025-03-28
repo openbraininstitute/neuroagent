@@ -30,6 +30,7 @@ dependencies = [
     "python-dotenv",
     "python-keycloak",
     "redis",
+    "scikit-learn",
     "sqlalchemy[asyncio]",
     "tavily-python",
     "uvicorn",

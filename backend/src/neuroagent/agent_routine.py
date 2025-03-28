@@ -11,12 +11,12 @@ from openai.types.chat.chat_completion_chunk import ChatCompletionChunk
 from pydantic import ValidationError
 
 from neuroagent.app.database.sql_schemas import Entity, Messages, ToolCalls
+from neuroagent.base_types import BaseTool
 from neuroagent.new_types import (
     Agent,
     Response,
     Result,
 )
-from neuroagent.tools.base_tool import BaseTool
 from neuroagent.utils import get_entity, merge_chunk, messages_to_openai_content
 
 
@@ -69,7 +69,7 @@ class AgentsRoutine:
 
             case Agent() as agent:
                 return Result(
-                    value=json.dumps({"assistant": agent.name}),
+                    value=json.dumps({"tools": [tool.name for tool in agent.tools]}),
                     agent=agent,
                 )
             case _:
@@ -204,7 +204,6 @@ class AgentsRoutine:
         active_agent = agent
         content = await messages_to_openai_content(messages)
         history = copy.deepcopy(content)
-        tool_map = {tool.name: tool for tool in agent.tools}
         turns = 0
 
         while turns <= max_turns:
@@ -215,6 +214,7 @@ class AgentsRoutine:
                 agent.tool_choice = "none"
                 agent.instructions = "You are a very nice assistant that is unable to further help the user due to rate limitng. The user just reached the maximum amount of turns he can take with you in a single query. Your one and only job is to let him know that in a nice way, and that the only way to continue the conversation is to send another message. Completely disregard his demand since you cannot fulfill it, simply state that he reached the limit."
 
+            tool_map = {tool.name: tool for tool in agent.tools}
             message: dict[str, Any] = {
                 "content": "",
                 "sender": agent.name,
@@ -228,6 +228,7 @@ class AgentsRoutine:
                     }
                 ),
             }
+            tool_map = {tool.name: tool for tool in agent.tools}
 
             # get completion with current history, agent
             completion = await self.get_chat_completion(

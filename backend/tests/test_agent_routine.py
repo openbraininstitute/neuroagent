@@ -144,7 +144,8 @@ class TestAgentsRoutine:
         raw_result = Agent(name="Test agent 2")
         result = routine.handle_function_result(raw_result)
         assert result == Result(
-            value=json.dumps({"assistant": raw_result.name}), agent=raw_result
+            value=json.dumps({"tools": [tool.name for tool in raw_result.tools]}),
+            agent=raw_result,
         )
 
         # Raw result is a tool output (Typically dict/list dict)
@@ -303,7 +304,7 @@ class TestAgentsRoutine:
                 "role": "tool",
                 "tool_call_id": tool_calls[0].id,
                 "tool_name": "agent_handoff_tool",
-                "content": json.dumps({"assistant": agent_2.name}),
+                "content": json.dumps({"tools": [tool.name for tool in agent_2.tools]}),
             }
         ]
         assert tool_calls_result.agent == agent_2
@@ -440,7 +441,7 @@ class TestAgentsRoutine:
                 "role": "tool",
                 "tool_call_id": tool_call.id,
                 "tool_name": "agent_handoff_tool",
-                "content": json.dumps({"assistant": agent_2.name}),
+                "content": json.dumps({"tools": [tool.name for tool in agent_2.tools]}),
             },
             agent_2,
         )
