@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v0.4.5] - 28.03.2025
+
+### Added
+- Combine rate limiting with accounting for chat
+
 ## [v0.4.4] - 27.03.2025
 
 ### Added
