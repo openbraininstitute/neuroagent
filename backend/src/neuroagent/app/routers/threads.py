@@ -6,15 +6,20 @@ from typing import Annotated, Any
 
 from fastapi import APIRouter, Depends
 from openai import AsyncOpenAI
+from redis import asyncio as aioredis
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
 
-from neuroagent.app.app_utils import validate_project
+from neuroagent.app.app_utils import (
+    rate_limit,
+    validate_project,
+)
 from neuroagent.app.config import Settings
 from neuroagent.app.database.sql_schemas import Messages, Threads, utc_now
 from neuroagent.app.dependencies import (
     get_openai_client,
+    get_redis_client,
     get_s3_client,
     get_session,
     get_settings,
@@ -71,9 +76,18 @@ async def generate_title(
     openai_client: Annotated[AsyncOpenAI, Depends(get_openai_client)],
     settings: Annotated[Settings, Depends(get_settings)],
     thread: Annotated[Threads, Depends(get_thread)],
+    redis_client: Annotated[aioredis.Redis | None, Depends(get_redis_client)],
     body: ThreadGeneratBody,
 ) -> ThreadsRead:
     """Generate a short thread title based on the user's first message and update thread's title."""
+    await rate_limit(
+        redis_client=redis_client,
+        route_path="/threads/{thread_id}/generate_title",
+        limit=settings.rate_limiter.limit_title,
+        expiry=settings.rate_limiter.expiry_title,
+        user_sub=thread.user_id,
+    )
+
     # Send it to OpenAI longside with the system prompt asking for summary
     messages = [
         {
@@ -82,6 +96,7 @@ async def generate_title(
         },
         {"role": "user", "content": body.first_user_message},
     ]
+
     response = await openai_client.beta.chat.completions.parse(
         messages=messages,  # type: ignore
         model=settings.openai.model,

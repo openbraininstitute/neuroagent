@@ -15,14 +15,15 @@ from neuroagent.tools.literature_search_tool import (
 class TestLiteratureSearchTool:
     @pytest.mark.asyncio
     async def test_arun(self, httpx_mock):
-        url = "http://fake_url?query=covid+19&retriever_k=100&use_reranker=true&reranker_k=5"
+        url = "http://fake_url?query=covid+19&retriever_k=100&use_reranker=true&reranker_k=100"
         reranker_k = 5
+        retriever_k = 100
 
         fake_response = [
             {
                 "article_title": "great_title",
                 "article_authors": ["author1", "author2"],
-                "article_id": "super_id",
+                "article_id": f"super_id_{i % 30}",
                 "article_doi": "magnigficent_doi",
                 "pubmed_id": "random_pubmed_id",
                 "date": "02/02/2022",
@@ -37,7 +38,7 @@ class TestLiteratureSearchTool:
                 "section": "Introduction",
                 "context_id": "21",
             }
-            for _ in range(reranker_k)
+            for i in range(retriever_k)
         ]
 
         httpx_mock.add_response(
@@ -46,14 +47,15 @@ class TestLiteratureSearchTool:
         )
 
         tool = LiteratureSearchTool(
-            input_schema=LiteratureSearchInput(query="covid 19"),
+            input_schema=LiteratureSearchInput(
+                query="covid 19", article_number=reranker_k
+            ),
             metadata=LiteratureSearchMetadata(
                 literature_search_url=url,
                 httpx_client=httpx.AsyncClient(),
                 token="fake_token",
-                retriever_k=100,
+                retriever_k=retriever_k,
                 use_reranker=True,
-                reranker_k=reranker_k,
             ),
         )
         response = await tool.arun()
@@ -65,14 +67,13 @@ class TestLiteratureSearchTool:
 
 class TestCreateQuery:
     tool = LiteratureSearchTool(
-        input_schema=LiteratureSearchInput(query="covid 19"),
+        input_schema=LiteratureSearchInput(query="covid 19", article_number=1),
         metadata=LiteratureSearchMetadata(
             literature_search_url="https://fake_url.com",
             httpx_client=httpx.AsyncClient(),
             token="fake_token",
             retriever_k=100,
             use_reranker=False,
-            reranker_k=1,
         ),
     )
 

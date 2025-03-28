@@ -46,6 +46,7 @@ def test_generate_thread_title(
         db={"prefix": db_connection},
         openai={"model": "great_model"},
         keycloak={"issuer": "https://great_issuer.com"},
+        rate_limiter={"disabled": True},
     )
 
     mock_openai_client = MockOpenAIClient()
@@ -70,7 +71,7 @@ def test_generate_thread_title(
 
         # Create a thread with generated title
         create_thread_response = app_client.patch(
-            f'/threads/{create_output_1["thread_id"]}/generate_title',
+            f"/threads/{create_output_1['thread_id']}/generate_title",
             json={"first_user_message": "This is my query"},
         ).json()
 

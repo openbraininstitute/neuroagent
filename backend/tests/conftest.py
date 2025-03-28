@@ -35,6 +35,8 @@ def client_fixture():
         openai={
             "token": "fake_token",
         },
+        rate_limiter={"disabled": True},
+        accounting={"disabled": True},
     )
     app.dependency_overrides[get_settings] = lambda: test_settings
     yield app_client
@@ -272,4 +274,6 @@ def settings():
         openai={
             "token": "fake_token",
         },
+        rate_limiter={"disabled": True},
+        accounting={"disabled": True},
     )

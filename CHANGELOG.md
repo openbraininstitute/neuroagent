@@ -7,11 +7,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Tool retrieval using embeddings.
+
+## [v0.4.4] - 27.03.2025
+
+### Added
+- Limit for sequential and parallel tool calls.
+- Platform description in prompt.
+
+### Fixed
+- Add LS and Web search guardrails.
+
+## [v0.4.3] - 26.03.2025
+
+### Added
+- Accounting
+
+## [v0.4.2] - 24.03.2025
+
+### Added
+- Rate limiting
+
 ### Fixed
 - Checkbox clickable all the way.
 
-### Added
-- Tool retrieval using embeddings.
+### Changed
+- LS tool now returns articles instead of paragraphs.
 
 ## [v0.4.1] - 14.03.2025
 

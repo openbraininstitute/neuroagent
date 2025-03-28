@@ -2,13 +2,21 @@
 
 import json
 import logging
-from typing import Annotated, Any
+from contextlib import asynccontextmanager
+from typing import Annotated, Any, AsyncIterator
 
 from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import StreamingResponse
+from obp_accounting_sdk import AsyncAccountingSessionFactory
+from obp_accounting_sdk.constants import ServiceSubtype
 from openai import AsyncOpenAI
+from redis import asyncio as aioredis
 
 from neuroagent.agent_routine import AgentsRoutine
+from neuroagent.app.app_utils import (
+    rate_limit,
+    validate_project,
+)
 from neuroagent.app.config import Settings
 from neuroagent.app.database.sql_schemas import (
     Entity,
@@ -16,9 +24,11 @@ from neuroagent.app.database.sql_schemas import (
     Threads,
 )
 from neuroagent.app.dependencies import (
+    get_accounting_session_factory,
     get_agents_routine,
     get_context_variables,
     get_openai_client,
+    get_redis_client,
     get_settings,
     get_starting_agent,
     get_thread,
@@ -34,14 +44,41 @@ router = APIRouter(prefix="/qa", tags=["Run the agent"])
 logger = logging.getLogger(__name__)
 
 
+@asynccontextmanager
+async def noop_accounting_context(*args: Any, **kwargs: Any) -> AsyncIterator[None]:
+    """No-op context manager that accepts any arguments but does nothing."""
+    yield None
+
+
 @router.post("/question_suggestions")
 async def question_suggestions(
-    _: Annotated[UserInfo, Depends(get_user_info)],
     openai_client: Annotated[AsyncOpenAI, Depends(get_openai_client)],
     settings: Annotated[Settings, Depends(get_settings)],
     body: UserClickHistory,
+    user_info: Annotated[UserInfo, Depends(get_user_info)],
+    redis_client: Annotated[aioredis.Redis | None, Depends(get_redis_client)],
+    vlab_id: str | None = None,
+    project_id: str | None = None,
 ) -> QuestionsSuggestions:
     """Generate a short thread title based on the user's first message and update thread's title."""
+    if vlab_id is not None and project_id is not None:
+        validate_project(
+            groups=user_info.groups,
+            virtual_lab_id=vlab_id,
+            project_id=project_id,
+        )
+        limit = settings.rate_limiter.limit_suggestions_inside
+    else:
+        limit = settings.rate_limiter.limit_suggestions_outside
+
+    await rate_limit(
+        redis_client=redis_client,
+        route_path="/qa/question_suggestions",
+        limit=limit,
+        expiry=settings.rate_limiter.expiry_suggestions,
+        user_sub=user_info.sub,
+    )
+
     # Send it to OpenAI longside with the system prompt asking for summary
     messages = [
         {
@@ -63,12 +100,12 @@ async def question_suggestions(
         },
         {"role": "user", "content": json.dumps(body.click_history)},
     ]
+
     response = await openai_client.beta.chat.completions.parse(
         messages=messages,  # type: ignore
         model=settings.openai.suggestion_model,
         response_format=QuestionsSuggestions,
     )
-
     return QuestionsSuggestions(
         suggestions=response.choices[0].message.parsed.suggestions  # type: ignore
     )
@@ -76,15 +113,28 @@ async def question_suggestions(
 
 @router.post("/chat_streamed/{thread_id}")
 async def stream_chat_agent(
-    user_request: ClientRequest,
     request: Request,
+    user_request: ClientRequest,
+    redis_client: Annotated[aioredis.Redis | None, Depends(get_redis_client)],
+    settings: Annotated[Settings, Depends(get_settings)],
+    thread: Annotated[Threads, Depends(get_thread)],
     agents_routine: Annotated[AgentsRoutine, Depends(get_agents_routine)],
     agent: Annotated[Agent, Depends(get_starting_agent)],
     context_variables: Annotated[dict[str, Any], Depends(get_context_variables)],
-    thread: Annotated[Threads, Depends(get_thread)],
-    settings: Annotated[Settings, Depends(get_settings)],
+    accounting_session_factory: Annotated[
+        AsyncAccountingSessionFactory, Depends(get_accounting_session_factory)
+    ],
 ) -> StreamingResponse:
     """Run a single agent query in a streamed fashion."""
+    if thread.vlab_id is None or thread.project_id is None:
+        await rate_limit(
+            redis_client=redis_client,
+            route_path="/qa/chat_streamed/{thread_id}",
+            limit=settings.rate_limiter.limit_chat,
+            expiry=settings.rate_limiter.expiry_chat,
+            user_sub=thread.user_id,
+        )
+
     if len(user_request.content) > settings.misc.query_max_size:
         raise HTTPException(
             status_code=413,
@@ -102,15 +152,29 @@ async def stream_chat_agent(
                 content=json.dumps({"role": "user", "content": user_request.content}),
             )
         )
-
-    stream_generator = stream_agent_response(
-        agents_routine,
-        agent,
-        messages,
-        context_variables,
-        thread,
-        request,
+    # Choose the appropriate context managers based on vlab_id and project_id
+    accounting_context = (
+        accounting_session_factory.oneshot_session
+        if thread.vlab_id is not None and thread.project_id is not None
+        else noop_accounting_context
     )
+
+    async with accounting_context(
+        subtype=ServiceSubtype.ML_LLM,
+        user_id=thread.user_id,
+        proj_id=thread.project_id,
+        count=1,
+    ):
+        stream_generator = stream_agent_response(
+            agents_routine=agents_routine,
+            agent=agent,
+            messages=messages,
+            context_variables=context_variables,
+            thread=thread,
+            request=request,
+            max_turns=settings.agent.max_turns,
+            max_parallel_tool_calls=settings.agent.max_parallel_tool_calls,
+        )
     return StreamingResponse(
         stream_generator,
         media_type="text/event-stream",
