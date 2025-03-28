@@ -136,10 +136,13 @@ async def stream_chat_agent(
             expiry=settings.rate_limiter.expiry_chat,
             user_sub=thread.user_id,
         )
+        accounting_context = noop_accounting_context
     except HTTPException:
         # Only reraise the rate limit exception if we're outside vlab/project context
         if thread.vlab_id is None or thread.project_id is None:
             raise
+        else:
+            accounting_context = accounting_session_factory.oneshot_session
 
     if len(user_request.content) > settings.misc.query_max_size:
         raise HTTPException(
@@ -158,12 +161,6 @@ async def stream_chat_agent(
                 content=json.dumps({"role": "user", "content": user_request.content}),
             )
         )
-    # Choose the appropriate context managers based on vlab_id and project_id
-    accounting_context = (
-        accounting_session_factory.oneshot_session
-        if thread.vlab_id is not None and thread.project_id is not None
-        else noop_accounting_context
-    )
 
     async with accounting_context(
         subtype=ServiceSubtype.ML_LLM,
