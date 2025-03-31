@@ -31,6 +31,10 @@ class InputSCSGetOne(BaseModel):
     )
 
 
+class SCSGetOneToolOutput(SimulationDetailsResponse):
+    """Rebranding."""
+
+
 class SCSGetOneTool(BaseTool):
     """Class defining the SCSGetOne tool."""
 
@@ -51,6 +55,7 @@ class SCSGetOneTool(BaseTool):
     Provide the simulation ID to get its detailed information."""
     metadata: SCSGetOneMetadata
     input_schema: InputSCSGetOne
+    output_schema: ClassVar[type[SCSGetOneToolOutput]] = SCSGetOneToolOutput
 
     async def arun(self) -> str:
         """Run the SCSGetOne tool."""
@@ -69,7 +74,7 @@ class SCSGetOneTool(BaseTool):
                 el.pop("x", None)
                 el.pop("y", None)
 
-        return SimulationDetailsResponse(**result).model_dump_json()
+        return SCSGetOneToolOutput(**result).model_dump_json()
 
     @classmethod
     async def is_online(cls, *, httpx_client: AsyncClient, bluenaas_url: str) -> bool:

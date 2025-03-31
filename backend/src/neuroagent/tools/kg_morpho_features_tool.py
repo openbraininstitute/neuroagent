@@ -1,6 +1,5 @@
 """KG Morpho Feature tool."""
 
-import json
 import logging
 from pathlib import Path
 from typing import Any, ClassVar, Literal
@@ -157,7 +156,7 @@ class KGMorphoFeatureMetadata(BaseMetadata):
     brainregion_path: str | Path
 
 
-class KGMorphoFeatureOutput(BaseModel):
+class KGOutput(BaseModel):
     """Output schema for the knowledge graph API."""
 
     brain_region_id: str
@@ -167,6 +166,12 @@ class KGMorphoFeatureOutput(BaseModel):
     morphology_name: str | None = None
 
     features: dict[str, str]
+
+
+class KGMorphoFeatureToolOutput(BaseModel):
+    """Output schema of the KGMorphoFeature tool."""
+
+    morphologies: list[KGOutput]
 
 
 class KGMorphoFeatureTool(BaseTool):
@@ -195,8 +200,9 @@ class KGMorphoFeatureTool(BaseTool):
     • Compare morphological features
 
     Specify the features and ranges you're interested in to find matching neurons."""
-    input_schema: KGMorphoFeatureInput
     metadata: KGMorphoFeatureMetadata
+    input_schema: KGMorphoFeatureInput
+    output_schema: ClassVar[type[KGMorphoFeatureToolOutput]] = KGMorphoFeatureToolOutput
 
     async def arun(self) -> str:
         """Run the tool async.
@@ -353,16 +359,18 @@ class KGMorphoFeatureTool(BaseTool):
                 for dic in morpho_source["featureSeries"]
             }
             formatted_output.append(
-                KGMorphoFeatureOutput(
+                KGOutput(
                     brain_region_id=morpho_source["brainRegion"]["@id"],
                     brain_region_label=morpho_source["brainRegion"].get("label"),
                     morphology_id=morpho_source["neuronMorphology"]["@id"],
                     morphology_name=morpho_source["neuronMorphology"].get("name"),
                     features=feature_output,
-                ).model_dump()
+                )
             )
 
-        return json.dumps(formatted_output)
+        return KGMorphoFeatureToolOutput(
+            morphologies=formatted_output
+        ).model_dump_json()
 
     @classmethod
     async def is_online(

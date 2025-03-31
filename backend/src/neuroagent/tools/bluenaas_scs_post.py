@@ -74,7 +74,7 @@ class InputSCSPost(BaseModel):
     conditions__seed: int = Field(default=100, description="Random seed")
 
 
-class SCSPostOutput(BaseModel):
+class SCSPostToolOutput(BaseModel):
     """Should return a successful POST request."""
 
     id: str
@@ -103,6 +103,7 @@ class SCSPostTool(BaseTool):
     Specify the model and simulation parameters to start a new simulation run."""
     metadata: SCSPostMetadata
     input_schema: InputSCSPost
+    output_schema: ClassVar[type[SCSPostToolOutput]] = SCSPostToolOutput
     hil: ClassVar[bool] = True
 
     async def arun(self) -> str:
@@ -132,7 +133,7 @@ class SCSPostTool(BaseTool):
             json=json_api,
         )
         json_response = response.json()
-        return SCSPostOutput(
+        return SCSPostToolOutput(
             id=json_response["id"],
             status=json_response["status"],
             name=json_response["name"],

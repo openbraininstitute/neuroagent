@@ -70,6 +70,7 @@ class BaseTool(BaseModel, ABC):
     description_frontend: ClassVar[str] = ""
     metadata: BaseMetadata
     input_schema: BaseModel
+    output_schema: ClassVar[type[BaseModel]]
     hil: ClassVar[bool] = False
 
     @classmethod

@@ -61,8 +61,8 @@ class TestLiteratureSearchTool:
         response = await tool.arun()
         assert isinstance(response, str)
         response = json.loads(response)
-        assert len(response) == reranker_k
-        assert isinstance(response[0], dict)
+        assert len(response["articles"]) == reranker_k
+        assert isinstance(response["articles"][0], dict)
 
 
 class TestCreateQuery:

@@ -9,6 +9,7 @@ from uuid import uuid4
 from asgi_correlation_id import CorrelationIdMiddleware
 from fastapi import Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.openapi.utils import get_openapi
 from obp_accounting_sdk import AsyncAccountingSessionFactory
 from obp_accounting_sdk.errors import (
     AccountingReservationError,
@@ -27,6 +28,7 @@ from neuroagent.app.config import Settings
 from neuroagent.app.dependencies import (
     get_connection_string,
     get_settings,
+    get_tool_list,
 )
 from neuroagent.app.middleware import strip_path_prefix
 from neuroagent.app.routers import qa, storage, threads, tools
@@ -128,10 +130,7 @@ async def lifespan(fastapi_app: FastAPI) -> AsyncContextManager[None]:  # type: 
 
 app = FastAPI(
     title="Agents",
-    summary=(
-        "Use an AI agent to answer queries based on the knowledge graph, literature"
-        " search and neuroM."
-    ),
+    summary="API of the agentic chatbot from the Open Brain Institute",
     version=__version__,
     swagger_ui_parameters={"tryItOutEnabled": True},
     lifespan=lifespan,
@@ -157,6 +156,42 @@ app.include_router(qa.router)
 app.include_router(threads.router)
 app.include_router(tools.router)
 app.include_router(storage.router)
+
+
+def custom_openapi() -> dict[str, Any]:
+    """Add tool outputs to the openapi."""
+    if app.openapi_schema:
+        return app.openapi_schema
+
+    openapi_schema = get_openapi(
+        title="Agents",
+        version=__version__,
+        summary="API of the agentic chatbot from the Open Brain Institute",
+        routes=app.routes,
+    )
+    # components = openapi_schema.setdefault("components", {}).setdefault("schemas", {})
+
+    tool_list = app.dependency_overrides.get(get_tool_list, get_tool_list)()
+    # for tool in tool_list:
+    # components[tool.output_schema.__name__] = tool.output_schema.model_json_schema(ref_template=REF_TEMPLATE)
+    for tool in tool_list:
+        tool_schema = tool.output_schema.model_json_schema(
+            ref_template="#/components/schemas/{model}"
+        )
+        defs = tool_schema.pop("$defs", None)
+
+        # Find nested models and define them as their own schemas instead of having nested '$defs'
+        if defs:
+            openapi_schema["components"]["schemas"].update(defs)
+        openapi_schema["components"]["schemas"][tool.output_schema.__name__] = (
+            tool_schema
+        )
+
+    app.openapi_schema = openapi_schema
+    return app.openapi_schema
+
+
+app.openapi = custom_openapi  # type: ignore
 
 
 @app.exception_handler(InsufficientFundsError)

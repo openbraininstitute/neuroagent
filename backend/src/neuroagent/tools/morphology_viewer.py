@@ -1,7 +1,6 @@
 """Morphology viewer tool."""
 
 import io
-import json
 import logging
 from typing import Any, ClassVar, Literal
 
@@ -90,6 +89,12 @@ class MorphologyViewerMetadata(BaseMetadata):
     thread_id: str
 
 
+class MorphologyViewerToolOutput(BaseModel):
+    """Output class for the morphology viewer tool."""
+
+    storage_id: str
+
+
 class MorphologyViewerTool(BaseTool):
     """Tool for visualizing neuron morphologies."""
 
@@ -108,10 +113,13 @@ class MorphologyViewerTool(BaseTool):
     • 2D projection
     • 3D representation
     • Dendrogram (branching structure)
-    
+
     Provide a morphology ID to generate the visualization."""
-    input_schema: MorphologyViewerInput
     metadata: MorphologyViewerMetadata
+    input_schema: MorphologyViewerInput
+    output_schema: ClassVar[type[MorphologyViewerToolOutput]] = (
+        MorphologyViewerToolOutput
+    )
 
     async def arun(self) -> str:
         """Generate visualization of the morphology."""
@@ -189,7 +197,7 @@ class MorphologyViewerTool(BaseTool):
             thread_id=self.metadata.thread_id,
         )
 
-        return json.dumps({"storage_id": identifier})
+        return MorphologyViewerToolOutput(storage_id=identifier).model_dump_json()
 
     @classmethod
     async def is_online(cls, *, httpx_client: Any, knowledge_graph_url: str) -> bool:

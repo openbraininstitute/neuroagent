@@ -30,6 +30,10 @@ class InputMEModelGetOne(BaseModel):
     )
 
 
+class MEModelGetOneToolOutput(MEModelResponse):
+    """Rebranding."""
+
+
 class MEModelGetOneTool(BaseTool):
     """Class defining the MEModelGetOne tool."""
 
@@ -47,6 +51,7 @@ class MEModelGetOneTool(BaseTool):
     Provide the model ID to get its full information."""
     metadata: MEModelGetOneMetadata
     input_schema: InputMEModelGetOne
+    output_schema: ClassVar[type[MEModelGetOneToolOutput]] = MEModelGetOneToolOutput
 
     async def arun(self) -> str:
         """Run the MEModelGetOne tool."""
@@ -59,7 +64,7 @@ class MEModelGetOneTool(BaseTool):
             headers={"Authorization": f"Bearer {self.metadata.token}"},
         )
 
-        return MEModelResponse(**response.json()).model_dump_json()
+        return MEModelGetOneToolOutput(**response.json()).model_dump_json()
 
     @classmethod
     async def is_online(cls, *, httpx_client: AsyncClient, bluenaas_url: str) -> bool:

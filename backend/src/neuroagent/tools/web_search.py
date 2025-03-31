@@ -1,6 +1,5 @@
 """Generic websearch tool."""
 
-import json
 from typing import ClassVar, Literal
 
 from pydantic import BaseModel, Field, SecretStr
@@ -41,6 +40,24 @@ class WebSearchInput(BaseModel):
     )
 
 
+class SingleSearchOutput(BaseModel):
+    """Single search result."""
+
+    title: str
+    url: str
+    content: str
+    score: float
+    raw_content: str | None
+
+
+class WebSearchToolOutput(BaseModel):
+    """Output of the Web Search tool."""
+
+    query: str
+    results: list[SingleSearchOutput]
+    response_time: str
+
+
 class WebSearchTool(BaseTool):
     """Perform a generic web search."""
 
@@ -52,6 +69,7 @@ class WebSearchTool(BaseTool):
     description_frontend: ClassVar[str] = "Searches the web using Tavily Search."
     metadata: WebSearchMetadata
     input_schema: WebSearchInput
+    output_schema: ClassVar[type[WebSearchToolOutput]] = WebSearchToolOutput
 
     async def arun(self) -> str:
         """Run the tools."""
@@ -65,7 +83,20 @@ class WebSearchTool(BaseTool):
             exclude_domains=self.input_schema.exclude_domains,
             time_range=self.input_schema.time_range,
         )
-        return json.dumps(search_result)
+        return WebSearchToolOutput(
+            query=search_result["query"],
+            response_time=search_result["response_time"],
+            results=[
+                SingleSearchOutput(
+                    title=result["title"],
+                    url=result["url"],
+                    content=result["content"],
+                    score=result["score"],
+                    raw_content=result.get("raw_content"),
+                )
+                for result in search_result["results"]
+            ],
+        ).model_dump_json()
 
     @classmethod
     async def is_online(cls) -> bool:

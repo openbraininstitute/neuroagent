@@ -36,6 +36,12 @@ class InputMEModelGetAll(BaseModel):
     )
 
 
+class MEModelGetAllToolOutput(
+    PaginatedResponseUnionMEModelResponseSynaptomeModelResponse
+):
+    """Rebranding."""
+
+
 class MEModelGetAllTool(BaseTool):
     """Class defining the MEModelGetAll tool."""
 
@@ -55,6 +61,7 @@ class MEModelGetAllTool(BaseTool):
     The tool returns a list of models with their metadata and properties."""
     metadata: MEModelGetAllMetadata
     input_schema: InputMEModelGetAll
+    output_schema: ClassVar[type[MEModelGetAllToolOutput]] = MEModelGetAllToolOutput
 
     @classmethod
     async def is_online(cls, *, httpx_client: AsyncClient, bluenaas_url: str) -> bool:
@@ -79,6 +86,4 @@ class MEModelGetAllTool(BaseTool):
             },
             headers={"Authorization": f"Bearer {self.metadata.token}"},
         )
-        return PaginatedResponseUnionMEModelResponseSynaptomeModelResponse(
-            **response.json()
-        ).model_dump_json()
+        return MEModelGetAllToolOutput(**response.json()).model_dump_json()

@@ -1,6 +1,5 @@
 """Get Morpho tool."""
 
-import json
 import logging
 from typing import Any, ClassVar
 
@@ -55,6 +54,12 @@ class KnowledgeGraphOutput(BaseModel):
     subject_age: str | None
 
 
+class GetMorphoToolOutput(BaseModel):
+    """Output schema for the Morpho tool."""
+
+    morphologies: list[KnowledgeGraphOutput]
+
+
 class GetMorphoTool(BaseTool):
     """Class defining the Get Morpho logic."""
 
@@ -82,8 +87,9 @@ class GetMorphoTool(BaseTool):
     • Access detailed morphological data
 
     Specify brain region and optional criteria to find relevant morphologies."""
-    input_schema: GetMorphoInput
     metadata: GetMorphoMetadata
+    input_schema: GetMorphoInput
+    output_schema: ClassVar[type[GetMorphoToolOutput]] = GetMorphoToolOutput
 
     async def arun(self) -> str:
         """From a brain region ID, extract morphologies.
@@ -231,10 +237,10 @@ class GetMorphoTool(BaseTool):
                     if "subjectAge" in res["_source"]
                     else None
                 ),
-            ).model_dump()
+            )
             for res in output["hits"]["hits"]
         ]
-        return json.dumps(formatted_output)
+        return GetMorphoToolOutput(morphologies=formatted_output).model_dump_json()
 
     @classmethod
     async def is_online(

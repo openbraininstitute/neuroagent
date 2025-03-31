@@ -1,7 +1,6 @@
 """Weather tool for getting random weather data."""
 
 import asyncio
-import json
 import logging
 import random
 from typing import ClassVar
@@ -27,6 +26,13 @@ class WeatherMetadata(BaseMetadata):
     pass
 
 
+class WeatherToolOutput(BaseModel):
+    """Output of the weather tool."""
+
+    temperature: str
+    conditions: str
+
+
 class WeatherTool(BaseTool):
     """Tool that returns random weather data for a given location."""
 
@@ -45,8 +51,9 @@ class WeatherTool(BaseTool):
     • Location-specific weather data
 
     Simply specify a location to get its current weather information."""
-    input_schema: WeatherInput
     metadata: WeatherMetadata
+    input_schema: WeatherInput
+    output_schema: ClassVar[type[WeatherToolOutput]] = WeatherToolOutput
 
     async def arun(self) -> str:
         """Get random weather data for the specified location.
@@ -62,10 +69,10 @@ class WeatherTool(BaseTool):
 
         conditions = ["sunny", "rainy", "cloudy", "partly cloudy", "stormy"]
         temperature = round(random.uniform(-5, 35), 1)  # nosec B311
-
-        return json.dumps(
-            {"temperature": temperature, "conditions": random.choice(conditions)}  # nosec B311
-        )
+        return WeatherToolOutput(
+            temperature=temperature,
+            conditions=random.choice(conditions),  # nosec B311
+        ).model_dump_json()
 
     @classmethod
     async def is_online(cls) -> bool:

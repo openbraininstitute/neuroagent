@@ -51,8 +51,8 @@ class TestKGMorphoFeaturesTool:
         response = await tool.arun()
         assert isinstance(response, str)
         response = json.loads(response)
-        assert len(response) == 2
-        assert isinstance(response[0], dict)
+        assert len(response["morphologies"]) == 2
+        assert isinstance(response["morphologies"][0], dict)
 
     @pytest.mark.asyncio
     async def test_arun_errors(self, httpx_mock, brain_region_json_path):

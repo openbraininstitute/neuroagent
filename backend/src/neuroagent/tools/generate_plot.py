@@ -1,6 +1,5 @@
 """Tool for generating plots with user-specified data and saving to storage."""
 
-import json
 import logging
 from typing import Any, ClassVar, Literal
 
@@ -74,6 +73,12 @@ class PlotMetadata(BaseMetadata):
     thread_id: str
 
 
+class PlotGeneratorToolOutput(BaseModel):
+    """Output class for the plot generator."""
+
+    storage_id: str
+
+
 class PlotGeneratorTool(BaseTool):
     """Tool that generates plots from user data and saves them to storage."""
 
@@ -91,8 +96,9 @@ class PlotGeneratorTool(BaseTool):
     • Histograms - For displaying distribution of numerical data
     • Line charts - For showing trends over a continuous range"""
 
-    input_schema: PlotInput
     metadata: PlotMetadata
+    input_schema: PlotInput
+    output_schema: ClassVar[type[PlotGeneratorToolOutput]] = PlotGeneratorToolOutput
 
     async def arun(self) -> str:
         """Generate plot and save to storage."""
@@ -176,10 +182,7 @@ class PlotGeneratorTool(BaseTool):
             thread_id=self.metadata.thread_id,
         )
 
-        return_dict = {
-            "storage_id": identifier,
-        }
-        return json.dumps(return_dict)
+        return PlotGeneratorToolOutput(storage_id=identifier).model_dump_json()
 
     @classmethod
     async def is_online(cls) -> bool:

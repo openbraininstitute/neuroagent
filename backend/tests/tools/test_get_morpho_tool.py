@@ -63,8 +63,8 @@ class TestGetMorphoTool:
         response = await tool.arun()
         assert isinstance(response, str)
         response = json.loads(response)
-        assert len(response) == 2
-        assert isinstance(response[0], dict)
+        assert len(response["morphologies"]) == 2
+        assert isinstance(response["morphologies"][0], dict)
 
         # Verify S3 was called correctly for brain region hierarchy - no cell type
         assert mock_s3.get_object.call_count == 1

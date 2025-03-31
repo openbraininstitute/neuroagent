@@ -43,6 +43,12 @@ class RandomPlotMetadata(BaseMetadata):
     thread_id: str
 
 
+class RandomPlotGeneratorToolOutput(BaseModel):
+    """Output class for the random plot generator tool."""
+
+    storage_id: str
+
+
 class RandomPlotGeneratorTool(BaseTool):
     """Tool that generates random plot data and saves it to object storage."""
 
@@ -54,9 +60,11 @@ class RandomPlotGeneratorTool(BaseTool):
     description_frontend: ClassVar[str] = (
         """Generate a random plot and save it to object storage."""
     )
-
-    input_schema: RandomPlotInput
     metadata: RandomPlotMetadata
+    input_schema: RandomPlotInput
+    output_schema: ClassVar[type[RandomPlotGeneratorToolOutput]] = (
+        RandomPlotGeneratorToolOutput
+    )
 
     async def arun(self) -> str:
         """Generate random plot and save to object storage."""
@@ -155,10 +163,7 @@ class RandomPlotGeneratorTool(BaseTool):
             thread_id=self.metadata.thread_id,
         )
 
-        return_dict = {
-            "storage_id": identifier,
-        }
-        return json.dumps(return_dict)
+        return RandomPlotGeneratorToolOutput(storage_id=identifier).model_dump_json()
 
     @classmethod
     async def is_online(cls) -> bool:

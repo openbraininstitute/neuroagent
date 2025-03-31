@@ -1,6 +1,5 @@
 """Traces tool."""
 
-import json
 import logging
 from typing import Any, ClassVar
 
@@ -27,7 +26,18 @@ class GetTracesInput(BaseModel):
     )
 
 
-class TracesOutput(BaseModel):
+class GetTracesMetadata(BaseMetadata):
+    """Metadata for GetTracesTool."""
+
+    knowledge_graph_url: str
+    token: str
+    trace_search_size: int
+    bucket_name: str
+    brainregion_hierarchy_storage_key: str
+    s3_client: Any
+
+
+class Trace(BaseModel):
     """Output schema for the traces."""
 
     trace_id: str
@@ -42,15 +52,10 @@ class TracesOutput(BaseModel):
     subject_age: str | None
 
 
-class GetTracesMetadata(BaseMetadata):
-    """Metadata for GetTracesTool."""
+class GetTracesToolOutput(BaseModel):
+    """Output schema for the trace tool."""
 
-    knowledge_graph_url: str
-    token: str
-    trace_search_size: int
-    bucket_name: str
-    brainregion_hierarchy_storage_key: str
-    s3_client: Any
+    traces: list[Trace]
 
 
 class GetTracesTool(BaseTool):
@@ -80,8 +85,9 @@ class GetTracesTool(BaseTool):
     • Access detailed trace information
 
     Specify criteria to find relevant experimental recordings."""
-    input_schema: GetTracesInput
     metadata: GetTracesMetadata
+    input_schema: GetTracesInput
+    output_schema: ClassVar[type[GetTracesToolOutput]] = GetTracesToolOutput
 
     async def arun(self) -> str:
         """From a brain region ID, extract traces."""
@@ -180,7 +186,7 @@ class GetTracesTool(BaseTool):
             list of TracesOutput to describe the trace and its metadata.
         """
         results = [
-            TracesOutput(
+            Trace(
                 trace_id=res["_source"]["@id"],
                 brain_region_id=res["_source"]["brainRegion"]["@id"],
                 brain_region_label=res["_source"]["brainRegion"]["label"],
@@ -204,10 +210,10 @@ class GetTracesTool(BaseTool):
                     if "subjectAge" in res["_source"]
                     else None
                 ),
-            ).model_dump()
+            )
             for res in output["hits"]["hits"]
         ]
-        return json.dumps(results)
+        return GetTracesToolOutput(traces=results).model_dump_json()
 
     @classmethod
     async def is_online(

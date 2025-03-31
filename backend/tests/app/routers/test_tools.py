@@ -126,7 +126,7 @@ async def test_get_available_tools(
     assert response.status_code == 200
     tools = response.json()
     assert isinstance(tools, list)
-    assert len(tools) == 17
+    assert len(tools) == 16
 
     assert set(tools[0].keys()) == {"name", "name_frontend"}
 

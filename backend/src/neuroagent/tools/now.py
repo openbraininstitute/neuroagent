@@ -23,6 +23,12 @@ class NowMetadata(BaseMetadata):
     pass
 
 
+class NowToolOutput(BaseModel):
+    """Output schema of the Now tool."""
+
+    timestamp: str
+
+
 class NowTool(BaseTool):
     """Tool that returns the current UTC timestamp."""
 
@@ -42,8 +48,9 @@ class NowTool(BaseTool):
     • Record timing information
 
     Returns the current time in standardized UTC format."""
-    input_schema: NowInput
     metadata: NowMetadata
+    input_schema: NowInput
+    output_schema: ClassVar[type[NowToolOutput]] = NowToolOutput
 
     async def arun(self) -> str:
         """Get current UTC timestamp.
@@ -53,7 +60,9 @@ class NowTool(BaseTool):
             Current UTC timestamp as ISO-8601 formatted string
         """
         logger.info("Getting current UTC timestamp")
-        return datetime.now(timezone.utc).isoformat()
+        return NowToolOutput(
+            timestamp=datetime.now(timezone.utc).isoformat()
+        ).model_dump_json()
 
     @classmethod
     async def is_online(cls) -> bool:

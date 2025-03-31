@@ -1,8 +1,7 @@
 """Tool to resolve the brain region from natural english to a KG ID."""
 
-import json
 import logging
-from typing import Any, ClassVar
+from typing import ClassVar
 
 from httpx import AsyncClient
 from pydantic import BaseModel, Field
@@ -43,6 +42,14 @@ class ResolveBRInput(BaseModel):
     )
 
 
+class ResolveBRMetadata(BaseMetadata):
+    """Metadata for ResolveEntitiesTool."""
+
+    token: str
+    kg_sparql_url: str
+    kg_class_view_url: str
+
+
 class BRResolveOutput(BaseModel):
     """Output schema for the Brain region resolver."""
 
@@ -57,19 +64,19 @@ class MTypeResolveOutput(BaseModel):
     mtype_id: str
 
 
-class EtypeResolveOutput(BaseModel):
+class ETypeResolveOutput(BaseModel):
     """Output schema for the Mtype resolver."""
 
     etype_name: str
     etype_id: str
 
 
-class ResolveBRMetadata(BaseMetadata):
-    """Metadata for ResolveEntitiesTool."""
+class ResolveEntitiesToolOutput(BaseModel):
+    """Output schema for the Resolve Entities tool."""
 
-    token: str
-    kg_sparql_url: str
-    kg_class_view_url: str
+    brain_regions: list[BRResolveOutput]
+    mtypes: list[MTypeResolveOutput] | None
+    etype: ETypeResolveOutput | None
 
 
 class ResolveEntitiesTool(BaseTool):
@@ -84,8 +91,6 @@ class ResolveEntitiesTool(BaseTool):
     You MUST use this tool when a brain region is specified in natural english because in that case the output of this tool is essential to other tools.
     returns a dictionary containing the brain region name, id and optionaly the mtype name and id.
     Brain region related outputs are stored in the class `BRResolveOutput` while the mtype related outputs are stored in the class `MTypeResolveOutput`."""
-    input_schema: ResolveBRInput
-    metadata: ResolveBRMetadata
     description_frontend: ClassVar[
         str
     ] = """Convert natural language descriptions to precise identifiers. This tool helps you:
@@ -94,6 +99,9 @@ class ResolveEntitiesTool(BaseTool):
     • Resolve scientific terminology
 
     Provide natural language descriptions to get corresponding technical identifiers."""
+    metadata: ResolveBRMetadata
+    input_schema: ResolveBRInput
+    output_schema: ClassVar[type[ResolveEntitiesToolOutput]] = ResolveEntitiesToolOutput
 
     async def arun(
         self,
@@ -103,11 +111,9 @@ class ResolveEntitiesTool(BaseTool):
             f"Entering Brain Region resolver tool. Inputs: {self.input_schema.brain_region=}, "
             f"{self.input_schema.mtype=}, {self.input_schema.etype=}"
         )
-        # Prepare the output list.
-        output: list[dict[str, Any]] = []
 
         # First resolve the brain regions.
-        brain_regions = await resolve_query(
+        brain_regions_results = await resolve_query(
             sparql_view_url=self.metadata.kg_sparql_url,
             token=self.metadata.token,
             query=self.input_schema.brain_region,
@@ -117,18 +123,14 @@ class ResolveEntitiesTool(BaseTool):
             es_view_url=self.metadata.kg_class_view_url,
         )
         # Extend the resolved BRs.
-        output.extend(
-            [
-                BRResolveOutput(
-                    brain_region_name=br["label"], brain_region_id=br["id"]
-                ).model_dump()
-                for br in brain_regions
-            ]
-        )
+        brain_regions = [
+            BRResolveOutput(brain_region_name=br["label"], brain_region_id=br["id"])
+            for br in brain_regions_results
+        ]
 
         # Optionally resolve the mtypes.
         if self.input_schema.mtype is not None:
-            mtypes = await resolve_query(
+            mtypes_results = await resolve_query(
                 sparql_view_url=self.metadata.kg_sparql_url,
                 token=self.metadata.token,
                 query=self.input_schema.mtype,
@@ -138,25 +140,25 @@ class ResolveEntitiesTool(BaseTool):
                 es_view_url=self.metadata.kg_class_view_url,
             )
             # Extend the resolved mtypes.
-            output.extend(
-                [
-                    MTypeResolveOutput(
-                        mtype_name=mtype["label"], mtype_id=mtype["id"]
-                    ).model_dump()
-                    for mtype in mtypes
-                ]
-            )
+            mtypes = [
+                MTypeResolveOutput(mtype_name=mtype["label"], mtype_id=mtype["id"])
+                for mtype in mtypes_results
+            ]
+        else:
+            mtypes = None
 
         # Optionally resolve the etype
         if self.input_schema.etype is not None:
-            output.append(
-                EtypeResolveOutput(
-                    etype_name=self.input_schema.etype,
-                    etype_id=ETYPE_IDS[self.input_schema.etype],
-                ).model_dump()
-            )
+            etype = ETypeResolveOutput(
+                etype_name=self.input_schema.etype,
+                etype_id=ETYPE_IDS[self.input_schema.etype],
+            ).model_dump()
+        else:
+            etype = None
 
-        return json.dumps(output)
+        return ResolveEntitiesToolOutput(
+            brain_regions=brain_regions, mtypes=mtypes, etype=etype
+        ).model_dump_json()
 
     @classmethod
     async def is_online(
