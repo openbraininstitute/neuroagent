@@ -169,11 +169,8 @@ def custom_openapi() -> dict[str, Any]:
         summary="API of the agentic chatbot from the Open Brain Institute",
         routes=app.routes,
     )
-    # components = openapi_schema.setdefault("components", {}).setdefault("schemas", {})
 
     tool_list = app.dependency_overrides.get(get_tool_list, get_tool_list)()
-    # for tool in tool_list:
-    # components[tool.output_schema.__name__] = tool.output_schema.model_json_schema(ref_template=REF_TEMPLATE)
     for tool in tool_list:
         tool_schema = tool.output_schema.model_json_schema(
             ref_template="#/components/schemas/{model}"

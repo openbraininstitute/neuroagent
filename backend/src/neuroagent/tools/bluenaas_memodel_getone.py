@@ -34,7 +34,7 @@ class InputMEModelGetOne(BaseModel):
 
 
 class MEModelGetOneToolOutput(BaseModel):
-    """Rebranding."""
+    """Output of the neuron model API of bluenaas."""
 
     object: MEModelResponse | SynaptomeModelResponse
 
