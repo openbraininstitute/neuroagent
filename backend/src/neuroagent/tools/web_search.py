@@ -55,7 +55,7 @@ class WebSearchToolOutput(BaseModel):
 
     query: str
     results: list[SingleSearchOutput]
-    response_time: str
+    response_time: float
 
 
 class WebSearchTool(BaseTool):

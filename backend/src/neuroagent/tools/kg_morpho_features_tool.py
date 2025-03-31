@@ -1,7 +1,6 @@
 """KG Morpho Feature tool."""
 
 import logging
-from pathlib import Path
 from typing import Any, ClassVar, Literal
 
 from httpx import AsyncClient
@@ -153,7 +152,7 @@ class KGMorphoFeatureMetadata(BaseMetadata):
     knowledge_graph_url: str
     token: str
     kg_morpho_feature_search_size: int
-    brainregion_path: str | Path
+    brainregion_hierarchy_storage_key: str
 
 
 class KGOutput(BaseModel):
@@ -218,7 +217,7 @@ class KGMorphoFeatureTool(BaseTool):
         # Get the descendants of the brain region specified as input
         hierarchy_ids = get_descendants_id(
             self.input_schema.brain_region_id,
-            json_path=self.metadata.brainregion_path,
+            json_path=self.metadata.brainregion_hierarchy_storage_key,
         )
         logger.info(f"Found {len(list(hierarchy_ids))} children of the brain ontology.")
 
