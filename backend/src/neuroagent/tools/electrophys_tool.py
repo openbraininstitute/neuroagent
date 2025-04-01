@@ -203,11 +203,11 @@ class ElectrophysFeatureTool(BaseTool):
     Provide a trace ID to analyze its electrophysiological features."""
     metadata: ElectrophysMetadata
     input_schema: ElectrophysInput
-    output_schema: ClassVar[type[ElectrophysFeatureToolOutput]] = (
+    output_type: ClassVar[type[ElectrophysFeatureToolOutput]] = (
         ElectrophysFeatureToolOutput
     )
 
-    async def arun(self) -> str:
+    async def arun(self) -> ElectrophysFeatureToolOutput:
         """Give features about trace."""
         logger.info(
             f"Entering electrophys tool. Inputs: {self.input_schema.trace_id=}, {self.input_schema.calculated_feature=},"
@@ -340,9 +340,9 @@ class ElectrophysFeatureTool(BaseTool):
                 output_features[protocol_name]["stimulus_current"] = (
                     f"{protocol_def['step']['amp']} nA"
                 )
-        return ElectrophysFeatureToolOutput(
+        return self.output_type(
             brain_region=metadata.brain_region, feature_dict=output_features
-        ).model_dump_json()
+        )
 
     @classmethod
     async def is_online(

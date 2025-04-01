@@ -69,9 +69,9 @@ class WebSearchTool(BaseTool):
     description_frontend: ClassVar[str] = "Searches the web using Tavily Search."
     metadata: WebSearchMetadata
     input_schema: WebSearchInput
-    output_schema: ClassVar[type[WebSearchToolOutput]] = WebSearchToolOutput
+    output_type: ClassVar[type[WebSearchToolOutput]] = WebSearchToolOutput
 
-    async def arun(self) -> str:
+    async def arun(self) -> WebSearchToolOutput:
         """Run the tools."""
         client = AsyncTavilyClient(
             api_key=self.metadata.tavily_api_key.get_secret_value()
@@ -83,7 +83,7 @@ class WebSearchTool(BaseTool):
             exclude_domains=self.input_schema.exclude_domains,
             time_range=self.input_schema.time_range,
         )
-        return WebSearchToolOutput(
+        return self.output_type(
             query=search_result["query"],
             response_time=search_result["response_time"],
             results=[
@@ -96,7 +96,7 @@ class WebSearchTool(BaseTool):
                 )
                 for result in search_result["results"]
             ],
-        ).model_dump_json()
+        )
 
     @classmethod
     async def is_online(cls) -> bool:

@@ -61,7 +61,7 @@ class MEModelGetAllTool(BaseTool):
     The tool returns a list of models with their metadata and properties."""
     metadata: MEModelGetAllMetadata
     input_schema: InputMEModelGetAll
-    output_schema: ClassVar[type[MEModelGetAllToolOutput]] = MEModelGetAllToolOutput
+    output_type: ClassVar[type[MEModelGetAllToolOutput]] = MEModelGetAllToolOutput
 
     @classmethod
     async def is_online(cls, *, httpx_client: AsyncClient, bluenaas_url: str) -> bool:
@@ -71,7 +71,7 @@ class MEModelGetAllTool(BaseTool):
         )
         return response.status_code == 200
 
-    async def arun(self) -> str:
+    async def arun(self) -> MEModelGetAllToolOutput:
         """Run the MEModelGetAll tool."""
         logger.info(
             f"Running MEModelGetAll tool with inputs {self.input_schema.model_dump()}"
@@ -86,4 +86,4 @@ class MEModelGetAllTool(BaseTool):
             },
             headers={"Authorization": f"Bearer {self.metadata.token}"},
         )
-        return MEModelGetAllToolOutput(**response.json()).model_dump_json()
+        return self.output_type(**response.json())

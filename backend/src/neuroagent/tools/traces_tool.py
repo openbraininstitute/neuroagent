@@ -87,9 +87,9 @@ class GetTracesTool(BaseTool):
     Specify criteria to find relevant experimental recordings."""
     metadata: GetTracesMetadata
     input_schema: GetTracesInput
-    output_schema: ClassVar[type[GetTracesToolOutput]] = GetTracesToolOutput
+    output_type: ClassVar[type[GetTracesToolOutput]] = GetTracesToolOutput
 
-    async def arun(self) -> str:
+    async def arun(self) -> GetTracesToolOutput:
         """From a brain region ID, extract traces."""
         logger.info(
             f"Entering get trace tool. Inputs: {self.input_schema.brain_region_id=}, {self.input_schema.etype_id=}"
@@ -172,8 +172,7 @@ class GetTracesTool(BaseTool):
         }
         return entire_query
 
-    @staticmethod
-    def _process_output(output: Any) -> str:
+    def _process_output(self, output: Any) -> GetTracesToolOutput:
         """Process output to fit the TracesOutput pydantic class defined above.
 
         Parameters
@@ -213,7 +212,7 @@ class GetTracesTool(BaseTool):
             )
             for res in output["hits"]["hits"]
         ]
-        return GetTracesToolOutput(traces=results).model_dump_json()
+        return self.output_type(traces=results)
 
     @classmethod
     async def is_online(

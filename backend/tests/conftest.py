@@ -81,7 +81,7 @@ def fake_tool():
         description_frontend: ClassVar[str] = "Great description frontend"
         metadata: FakeToolMetadata
         input_schema: FakeToolInput
-        output_schema: ClassVar[FakeToolOutput] = FakeToolOutput
+        output_type: ClassVar[FakeToolOutput] = FakeToolOutput
         hil: ClassVar[bool] = True
 
         async def arun(self):

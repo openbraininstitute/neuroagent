@@ -201,9 +201,9 @@ class KGMorphoFeatureTool(BaseTool):
     Specify the features and ranges you're interested in to find matching neurons."""
     metadata: KGMorphoFeatureMetadata
     input_schema: KGMorphoFeatureInput
-    output_schema: ClassVar[type[KGMorphoFeatureToolOutput]] = KGMorphoFeatureToolOutput
+    output_type: ClassVar[type[KGMorphoFeatureToolOutput]] = KGMorphoFeatureToolOutput
 
-    async def arun(self) -> str:
+    async def arun(self) -> KGMorphoFeatureToolOutput:
         """Run the tool async.
 
         Returns
@@ -335,8 +335,7 @@ class KGMorphoFeatureTool(BaseTool):
 
         return entire_query
 
-    @staticmethod
-    def _process_output(output: Any) -> str:
+    def _process_output(self, output: Any) -> KGMorphoFeatureToolOutput:
         """Process output.
 
         Parameters
@@ -367,9 +366,7 @@ class KGMorphoFeatureTool(BaseTool):
                 )
             )
 
-        return KGMorphoFeatureToolOutput(
-            morphologies=formatted_output
-        ).model_dump_json()
+        return self.output_type(morphologies=formatted_output)
 
     @classmethod
     async def is_online(

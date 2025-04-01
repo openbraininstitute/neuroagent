@@ -89,9 +89,9 @@ class GetMorphoTool(BaseTool):
     Specify brain region and optional criteria to find relevant morphologies."""
     metadata: GetMorphoMetadata
     input_schema: GetMorphoInput
-    output_schema: ClassVar[type[GetMorphoToolOutput]] = GetMorphoToolOutput
+    output_type: ClassVar[type[GetMorphoToolOutput]] = GetMorphoToolOutput
 
-    async def arun(self) -> str:
+    async def arun(self) -> GetMorphoToolOutput:
         """From a brain region ID, extract morphologies.
 
         Returns
@@ -200,8 +200,7 @@ class GetMorphoTool(BaseTool):
         }
         return entire_query
 
-    @staticmethod
-    def _process_output(output: Any) -> str:
+    def _process_output(self, output: Any) -> GetMorphoToolOutput:
         """Process output to fit the KnowledgeGraphOutput pydantic class defined above.
 
         Parameters
@@ -240,7 +239,7 @@ class GetMorphoTool(BaseTool):
             )
             for res in output["hits"]["hits"]
         ]
-        return GetMorphoToolOutput(morphologies=formatted_output).model_dump_json()
+        return self.output_type(morphologies=formatted_output)
 
     @classmethod
     async def is_online(

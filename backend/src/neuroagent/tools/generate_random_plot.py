@@ -1,7 +1,6 @@
 """Tool for generating random plot data and saving to S3."""
 
 import io
-import json
 import logging
 import random
 from typing import Any, ClassVar, Literal
@@ -62,11 +61,11 @@ class RandomPlotGeneratorTool(BaseTool):
     )
     metadata: RandomPlotMetadata
     input_schema: RandomPlotInput
-    output_schema: ClassVar[type[RandomPlotGeneratorToolOutput]] = (
+    output_type: ClassVar[type[RandomPlotGeneratorToolOutput]] = (
         RandomPlotGeneratorToolOutput
     )
 
-    async def arun(self) -> str:
+    async def arun(self) -> RandomPlotGeneratorToolOutput:
         """Generate random plot and save to object storage."""
         logger.info(
             f"Generating {self.input_schema.plot_type} with {self.input_schema.n_points} points"
@@ -103,10 +102,7 @@ class RandomPlotGeneratorTool(BaseTool):
                 thread_id=self.metadata.thread_id,
             )
 
-            return_dict = {
-                "storage_id": identifier,
-            }
-            return json.dumps(return_dict)
+            return self.output_type(storage_id=identifier)
 
         elif self.input_schema.plot_type == "json-piechart":
             values_piechart = [
@@ -163,7 +159,7 @@ class RandomPlotGeneratorTool(BaseTool):
             thread_id=self.metadata.thread_id,
         )
 
-        return RandomPlotGeneratorToolOutput(storage_id=identifier).model_dump_json()
+        return self.output_type(storage_id=identifier)
 
     @classmethod
     async def is_online(cls) -> bool:

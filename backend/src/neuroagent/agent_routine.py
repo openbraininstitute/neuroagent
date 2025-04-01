@@ -61,7 +61,7 @@ class AgentsRoutine:
             create_params["parallel_tool_calls"] = agent.parallel_tool_calls
         return await self.client.chat.completions.create(**create_params)  # type: ignore
 
-    def handle_function_result(self, result: Result | Agent) -> Result:
+    def handle_function_result(self, result: Result | Agent | str) -> Result:
         """Check if agent handoff or regular tool call."""
         match result:
             case Result() as result:
@@ -168,7 +168,8 @@ class AgentsRoutine:
         tool_instance = tool(input_schema=input_schema, metadata=tool_metadata)
         # pass context_variables to agent functions
         try:
-            raw_result = await tool_instance.arun()
+            tool_result = await tool_instance.arun()
+            raw_result = tool_result.model_dump_json()
         except Exception as err:
             response = {
                 "role": "tool",

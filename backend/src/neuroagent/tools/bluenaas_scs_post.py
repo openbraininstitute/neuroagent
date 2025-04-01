@@ -103,10 +103,10 @@ class SCSPostTool(BaseTool):
     Specify the model and simulation parameters to start a new simulation run."""
     metadata: SCSPostMetadata
     input_schema: InputSCSPost
-    output_schema: ClassVar[type[SCSPostToolOutput]] = SCSPostToolOutput
+    output_type: ClassVar[type[SCSPostToolOutput]] = SCSPostToolOutput
     hil: ClassVar[bool] = True
 
-    async def arun(self) -> str:
+    async def arun(self) -> SCSPostToolOutput:
         """Run the SCSPost tool."""
         logger.info(
             f"Running SCSPost tool with inputs {self.input_schema.model_dump()}"
@@ -133,12 +133,12 @@ class SCSPostTool(BaseTool):
             json=json_api,
         )
         json_response = response.json()
-        return SCSPostToolOutput(
+        return self.output_type(
             id=json_response["id"],
             status=json_response["status"],
             name=json_response["name"],
             error=json_response["error"],
-        ).model_dump_json()
+        )
 
     @staticmethod
     def create_json_api(

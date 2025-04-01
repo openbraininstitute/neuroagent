@@ -117,11 +117,9 @@ class MorphologyViewerTool(BaseTool):
     Provide a morphology ID to generate the visualization."""
     metadata: MorphologyViewerMetadata
     input_schema: MorphologyViewerInput
-    output_schema: ClassVar[type[MorphologyViewerToolOutput]] = (
-        MorphologyViewerToolOutput
-    )
+    output_type: ClassVar[type[MorphologyViewerToolOutput]] = MorphologyViewerToolOutput
 
-    async def arun(self) -> str:
+    async def arun(self) -> MorphologyViewerToolOutput:
         """Generate visualization of the morphology."""
         logger.info(
             f"Generating {self.input_schema.plot_type} view for morphology {self.input_schema.morphology_id}"
@@ -197,7 +195,7 @@ class MorphologyViewerTool(BaseTool):
             thread_id=self.metadata.thread_id,
         )
 
-        return MorphologyViewerToolOutput(storage_id=identifier).model_dump_json()
+        return self.output_type(storage_id=identifier)
 
     @classmethod
     async def is_online(cls, *, httpx_client: Any, knowledge_graph_url: str) -> bool:
