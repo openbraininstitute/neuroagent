@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Return only one suggestion.
 - Update system prompt.
 - Add current time and date in system prompt.
+### Added
+- Header containing rate limit info.
 
 ## [v0.4.5] - 28.03.2025
 
