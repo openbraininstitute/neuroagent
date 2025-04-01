@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Header containing rate limit info.
+
 ## [v0.4.5] - 28.03.2025
 
 ### Added
