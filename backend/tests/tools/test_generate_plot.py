@@ -1,6 +1,5 @@
 """Tests for the Plot Generator tool."""
 
-import json
 from unittest.mock import Mock
 
 import httpx
@@ -44,11 +43,9 @@ class TestPlotGeneratorTool:
 
         # Run the tool
         result = await tool.arun()
-        result_dict = json.loads(result)
 
         # Verify the results
-        assert "storage_id" in result_dict
-        assert result_dict["storage_id"] == "test-storage-id"
+        assert result.storage_id == "test-storage-id"
 
         # Verify save_to_storage was called with correct parameters
         save_args = mock_save_to_storage.call_args[1]
@@ -91,7 +88,7 @@ class TestPlotGeneratorTool:
         )
 
         result = await tool.arun()
-        assert json.loads(result)["storage_id"] == "test-storage-id"
+        assert result.storage_id == "test-storage-id"
 
     @pytest.mark.asyncio
     async def test_generate_histogram(self, monkeypatch):
@@ -124,7 +121,7 @@ class TestPlotGeneratorTool:
         )
 
         result = await tool.arun()
-        assert json.loads(result)["storage_id"] == "test-storage-id"
+        assert result.storage_id == "test-storage-id"
 
     @pytest.mark.asyncio
     async def test_generate_linechart(self, monkeypatch):
@@ -161,7 +158,7 @@ class TestPlotGeneratorTool:
         )
 
         result = await tool.arun()
-        assert json.loads(result)["storage_id"] == "test-storage-id"
+        assert result.storage_id == "test-storage-id"
 
     @pytest.mark.asyncio
     async def test_generate_scatterplot(self, monkeypatch):
@@ -195,7 +192,7 @@ class TestPlotGeneratorTool:
         )
 
         result = await tool.arun()
-        assert json.loads(result)["storage_id"] == "test-storage-id"
+        assert result.storage_id == "test-storage-id"
 
     @pytest.mark.asyncio
     async def test_missing_values_error(self):

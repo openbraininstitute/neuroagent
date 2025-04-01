@@ -33,8 +33,8 @@ def test_custom_openapi(app_client, get_weather_tool):
     assert "NestedPartialOutput" in openapi_json["components"]["schemas"]
     assert (
         openapi_json["components"]["schemas"]["FakeToolOutput"]["properties"]["output"][
-            "items"
-        ]["$ref"]
+            "$ref"
+        ]
         == "#/components/schemas/NestedPartialOutput"
     )
 

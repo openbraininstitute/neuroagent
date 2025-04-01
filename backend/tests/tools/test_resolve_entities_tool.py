@@ -69,40 +69,37 @@ async def test_arun(httpx_mock, get_resolve_query_output):
     )
 
     response = await tool.arun()
-    assert isinstance(response, str)
-    assert (
-        response
-        == ResolveEntitiesToolOutput(
-            brain_regions=[
-                BRResolveOutput(
-                    brain_region_name="Field CA1",
-                    brain_region_id="http://api.brain-map.org/api/v2/data/Structure/382",
-                ),
-                BRResolveOutput(
-                    brain_region_name="Field CA2",
-                    brain_region_id="http://api.brain-map.org/api/v2/data/Structure/423",
-                ),
-                BRResolveOutput(
-                    brain_region_name="Field CA3",
-                    brain_region_id="http://api.brain-map.org/api/v2/data/Structure/463",
-                ),
-            ],
-            mtypes=[
-                MTypeResolveOutput(
-                    mtype_name="Interneuron",
-                    mtype_id="https://neuroshapes.org/Interneuron",
-                ),
-                MTypeResolveOutput(
-                    mtype_name="Hippocampus CA3 Oriens Interneuron",
-                    mtype_id="http://uri.interlex.org/base/ilx_0105044",
-                ),
-                MTypeResolveOutput(
-                    mtype_name="Spinal Cord Ventral Horn Interneuron IA",
-                    mtype_id="http://uri.interlex.org/base/ilx_0110929",
-                ),
-            ],
-            etype=ETypeResolveOutput(
-                etype_name="bAC", etype_id="http://uri.interlex.org/base/ilx_0738199"
+    assert isinstance(response, tool.output_type)
+    assert response == ResolveEntitiesToolOutput(
+        brain_regions=[
+            BRResolveOutput(
+                brain_region_name="Field CA1",
+                brain_region_id="http://api.brain-map.org/api/v2/data/Structure/382",
             ),
-        ).model_dump_json()
+            BRResolveOutput(
+                brain_region_name="Field CA2",
+                brain_region_id="http://api.brain-map.org/api/v2/data/Structure/423",
+            ),
+            BRResolveOutput(
+                brain_region_name="Field CA3",
+                brain_region_id="http://api.brain-map.org/api/v2/data/Structure/463",
+            ),
+        ],
+        mtypes=[
+            MTypeResolveOutput(
+                mtype_name="Interneuron",
+                mtype_id="https://neuroshapes.org/Interneuron",
+            ),
+            MTypeResolveOutput(
+                mtype_name="Hippocampus CA3 Oriens Interneuron",
+                mtype_id="http://uri.interlex.org/base/ilx_0105044",
+            ),
+            MTypeResolveOutput(
+                mtype_name="Spinal Cord Ventral Horn Interneuron IA",
+                mtype_id="http://uri.interlex.org/base/ilx_0110929",
+            ),
+        ],
+        etype=ETypeResolveOutput(
+            etype_name="bAC", etype_id="http://uri.interlex.org/base/ilx_0738199"
+        ),
     )

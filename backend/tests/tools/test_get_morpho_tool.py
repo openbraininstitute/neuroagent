@@ -8,7 +8,11 @@ import httpx
 import pytest
 
 from neuroagent.tools import GetMorphoTool
-from neuroagent.tools.get_morpho_tool import GetMorphoInput, GetMorphoMetadata
+from neuroagent.tools.get_morpho_tool import (
+    GetMorphoInput,
+    GetMorphoMetadata,
+    KnowledgeGraphOutput,
+)
 
 
 class TestGetMorphoTool:
@@ -61,10 +65,9 @@ class TestGetMorphoTool:
         )
 
         response = await tool.arun()
-        assert isinstance(response, str)
-        response = json.loads(response)
-        assert len(response["morphologies"]) == 2
-        assert isinstance(response["morphologies"][0], dict)
+        assert isinstance(response, tool.output_type)
+        assert len(response.morphologies) == 2
+        assert isinstance(response.morphologies[0], KnowledgeGraphOutput)
 
         # Verify S3 was called correctly for brain region hierarchy - no cell type
         assert mock_s3.get_object.call_count == 1

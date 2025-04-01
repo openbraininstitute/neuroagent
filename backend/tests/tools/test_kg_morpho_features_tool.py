@@ -12,6 +12,7 @@ from neuroagent.tools.kg_morpho_features_tool import (
     KGFeatureInput,
     KGMorphoFeatureInput,
     KGMorphoFeatureMetadata,
+    KGOutput,
 )
 
 
@@ -49,10 +50,9 @@ class TestKGMorphoFeaturesTool:
             ),
         )
         response = await tool.arun()
-        assert isinstance(response, str)
-        response = json.loads(response)
-        assert len(response["morphologies"]) == 2
-        assert isinstance(response["morphologies"][0], dict)
+        assert isinstance(response, tool.output_type)
+        assert len(response.morphologies) == 2
+        assert isinstance(response.morphologies[0], KGOutput)
 
     @pytest.mark.asyncio
     async def test_arun_errors(self, httpx_mock, brain_region_json_path):

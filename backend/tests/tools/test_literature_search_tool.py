@@ -1,14 +1,14 @@
 """Tests Literature Search tool."""
 
-import json
-
 import httpx
 import pytest
 
 from neuroagent.tools import LiteratureSearchTool
 from neuroagent.tools.literature_search_tool import (
+    ArticleOutput,
     LiteratureSearchInput,
     LiteratureSearchMetadata,
+    ParagraphOutput,
 )
 
 
@@ -59,10 +59,10 @@ class TestLiteratureSearchTool:
             ),
         )
         response = await tool.arun()
-        assert isinstance(response, str)
-        response = json.loads(response)
-        assert len(response["articles"]) == reranker_k
-        assert isinstance(response["articles"][0], dict)
+        assert isinstance(response, tool.output_type)
+        assert len(response.articles) == reranker_k
+        assert isinstance(response.articles[0], ArticleOutput)
+        assert isinstance(response.articles[0].paragraphs[0], ParagraphOutput)
 
 
 class TestCreateQuery:
