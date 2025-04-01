@@ -108,10 +108,12 @@ async def rate_limit(
     user_sub : str
         User identifier
 
-    Raises
-    ------
-    HTTPException
-        When rate limit is exceeded, returns 429 status code with retry_after time
+    Returns
+    -------
+    RateLimitHeaders
+        Pydantic class detailing rate limit info and meant to be dumped in response headers.
+    rate_limited
+        Whether the user is rate limited. In parent endpoint raise error if True.
     """
     if redis_client is None:
         return RateLimitHeaders(
@@ -126,25 +128,25 @@ async def rate_limit(
     current = int(current) if current else 0
 
     if current > 0:
+        # Get the remaining time
         ttl = await redis_client.pttl(key)
         if current + 1 > limit:
-            # Get remaining time
+            # Rate limited
             return RateLimitHeaders(
                 x_ratelimit_limit=str(limit),
                 x_ratelimit_remaining="0",
                 x_ratelimit_reset=str(round(ttl / 1000)),
             ), True
-            # raise HTTPException(
-            #     status_code=429,
-            #     detail={"error": "Rate limit exceeded", "retry_after": ttl / 1000},
-            #     headers=headers.model_dump(by_alias=True)
-            # )
+
+        # Not rate limited
         await redis_client.incr(key)
         return RateLimitHeaders(
             x_ratelimit_limit=str(limit),
             x_ratelimit_remaining=str(limit - current - 1),
             x_ratelimit_reset=str(round(ttl / 1000)),
         ), False
+
+    # Key did not exist yet
     else:
         await redis_client.set(key, 1, ex=expiry)
         return RateLimitHeaders(
