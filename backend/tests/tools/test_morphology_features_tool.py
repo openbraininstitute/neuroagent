@@ -10,6 +10,7 @@ from neuroagent.tools import MorphologyFeatureTool
 from neuroagent.tools.morphology_features_tool import (
     MorphologyFeatureInput,
     MorphologyFeatureMetadata,
+    MorphologyFeatureToolOutput,
 )
 
 
@@ -52,7 +53,7 @@ class TestMorphologyFeatureTool:
         )
 
         response = await tool.arun()
-        assert isinstance(response, tool.output_type)
+        assert isinstance(response, MorphologyFeatureToolOutput)
         assert isinstance(response.feature_dict, dict)
         assert len(response.feature_dict) == 23
 

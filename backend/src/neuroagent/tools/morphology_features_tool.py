@@ -61,9 +61,6 @@ class MorphologyFeatureTool(BaseTool):
     Provide a morphology ID to compute its detailed features."""
     metadata: MorphologyFeatureMetadata
     input_schema: MorphologyFeatureInput
-    output_type: ClassVar[type[MorphologyFeatureToolOutput]] = (
-        MorphologyFeatureToolOutput
-    )
 
     async def arun(self) -> MorphologyFeatureToolOutput:
         """Give features about morphology."""
@@ -81,7 +78,7 @@ class MorphologyFeatureTool(BaseTool):
 
         # Extract the features from it
         features = self.get_features(morphology_content, metadata.file_extension)
-        return self.output_type(
+        return MorphologyFeatureToolOutput(
             brain_region=metadata.brain_region, feature_dict=features
         )
 

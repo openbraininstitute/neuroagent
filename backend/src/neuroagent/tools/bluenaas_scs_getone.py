@@ -55,7 +55,6 @@ class SCSGetOneTool(BaseTool):
     Provide the simulation ID to get its detailed information."""
     metadata: SCSGetOneMetadata
     input_schema: InputSCSGetOne
-    output_type: ClassVar[type[SCSGetOneToolOutput]] = SCSGetOneToolOutput
 
     async def arun(self) -> SCSGetOneToolOutput:
         """Run the SCSGetOne tool."""
@@ -74,7 +73,7 @@ class SCSGetOneTool(BaseTool):
                 el.pop("x", None)
                 el.pop("y", None)
 
-        return self.output_type(**result)
+        return SCSGetOneToolOutput(**result)
 
     @classmethod
     async def is_online(cls, *, httpx_client: AsyncClient, bluenaas_url: str) -> bool:

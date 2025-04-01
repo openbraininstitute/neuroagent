@@ -87,7 +87,6 @@ class GetTracesTool(BaseTool):
     Specify criteria to find relevant experimental recordings."""
     metadata: GetTracesMetadata
     input_schema: GetTracesInput
-    output_type: ClassVar[type[GetTracesToolOutput]] = GetTracesToolOutput
 
     async def arun(self) -> GetTracesToolOutput:
         """From a brain region ID, extract traces."""
@@ -212,7 +211,7 @@ class GetTracesTool(BaseTool):
             )
             for res in output["hits"]["hits"]
         ]
-        return self.output_type(traces=results)
+        return GetTracesToolOutput(traces=results)
 
     @classmethod
     async def is_online(

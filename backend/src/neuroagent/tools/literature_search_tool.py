@@ -124,7 +124,6 @@ class LiteratureSearchTool(BaseTool):
     It returns a list of scientific articles that have paragraphs matching the query (in the sense of the bm25 algorithm), alongside with the metadata of the articles they were extracted from."""
     metadata: LiteratureSearchMetadata
     input_schema: LiteratureSearchInput
-    output_type: ClassVar[type[LiteratureSearchToolOutput]] = LiteratureSearchToolOutput
 
     async def arun(self) -> LiteratureSearchToolOutput:
         """Async search the scientific literature and returns citations.
@@ -192,8 +191,9 @@ class LiteratureSearchTool(BaseTool):
 
         return {k: v for k, v in req_body.items() if v is not None}
 
+    @staticmethod
     def _process_output(
-        self, output: list[dict[str, Any]], article_number: int
+        output: list[dict[str, Any]], article_number: int
     ) -> LiteratureSearchToolOutput:
         """Process output."""
         paragraphs_metadata = [ParagraphMetadata(**paragraph) for paragraph in output]
@@ -231,7 +231,7 @@ class LiteratureSearchTool(BaseTool):
             )
             for article_id in articles.keys()
         ]
-        return self.output_type(articles=paragraphs_output)
+        return LiteratureSearchToolOutput(articles=paragraphs_output)
 
     @classmethod
     async def is_online(

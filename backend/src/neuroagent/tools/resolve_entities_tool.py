@@ -101,7 +101,6 @@ class ResolveEntitiesTool(BaseTool):
     Provide natural language descriptions to get corresponding technical identifiers."""
     metadata: ResolveBRMetadata
     input_schema: ResolveBRInput
-    output_type: ClassVar[type[ResolveEntitiesToolOutput]] = ResolveEntitiesToolOutput
 
     async def arun(
         self,
@@ -156,7 +155,9 @@ class ResolveEntitiesTool(BaseTool):
         else:
             etype = None
 
-        return self.output_type(brain_regions=brain_regions, mtypes=mtypes, etype=etype)
+        return ResolveEntitiesToolOutput(
+            brain_regions=brain_regions, mtypes=mtypes, etype=etype
+        )
 
     @classmethod
     async def is_online(

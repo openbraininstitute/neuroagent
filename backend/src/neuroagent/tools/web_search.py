@@ -69,7 +69,6 @@ class WebSearchTool(BaseTool):
     description_frontend: ClassVar[str] = "Searches the web using Tavily Search."
     metadata: WebSearchMetadata
     input_schema: WebSearchInput
-    output_type: ClassVar[type[WebSearchToolOutput]] = WebSearchToolOutput
 
     async def arun(self) -> WebSearchToolOutput:
         """Run the tools."""
@@ -83,7 +82,7 @@ class WebSearchTool(BaseTool):
             exclude_domains=self.input_schema.exclude_domains,
             time_range=self.input_schema.time_range,
         )
-        return self.output_type(
+        return WebSearchToolOutput(
             query=search_result["query"],
             response_time=search_result["response_time"],
             results=[

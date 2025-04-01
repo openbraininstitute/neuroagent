@@ -110,6 +110,7 @@ filterwarnings = [
     "ignore:Use get_feature_values:DeprecationWarning",
     "ignore:Mean of empty slice:RuntimeWarning",
     "ignore:Degrees of freedom:RuntimeWarning",
+    "ignore:Default value *:pydantic.json_schema.PydanticJsonSchemaWarning",
     "ignore:Exception ignored in:pytest.PytestUnraisableExceptionWarning",
     "ignore:The configuration option 'asyncio_default_fixture_loop_scope' is unset.",
     "ignore:datetime.*is deprecated and scheduled for removal in a future version.:DeprecationWarning",

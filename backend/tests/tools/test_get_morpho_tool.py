@@ -11,6 +11,7 @@ from neuroagent.tools import GetMorphoTool
 from neuroagent.tools.get_morpho_tool import (
     GetMorphoInput,
     GetMorphoMetadata,
+    GetMorphoToolOutput,
     KnowledgeGraphOutput,
 )
 
@@ -65,7 +66,7 @@ class TestGetMorphoTool:
         )
 
         response = await tool.arun()
-        assert isinstance(response, tool.output_type)
+        assert isinstance(response, GetMorphoToolOutput)
         assert len(response.morphologies) == 2
         assert isinstance(response.morphologies[0], KnowledgeGraphOutput)
 

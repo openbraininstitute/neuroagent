@@ -56,7 +56,6 @@ class MEModelGetOneTool(BaseTool):
     Provide the model ID to get its full information."""
     metadata: MEModelGetOneMetadata
     input_schema: InputMEModelGetOne
-    output_type: ClassVar[type[MEModelGetOneToolOutput]] = MEModelGetOneToolOutput
 
     async def arun(self) -> MEModelGetOneToolOutput:
         """Run the MEModelGetOne tool."""
@@ -72,7 +71,7 @@ class MEModelGetOneTool(BaseTool):
         if resp_json["type"] == "synaptome":
             return MEModelGetOneToolOutput(object=SynaptomeModelResponse(**resp_json))
         else:
-            return self.output_type(object=MEModelResponse(**response.json()))
+            return MEModelGetOneToolOutput(object=MEModelResponse(**response.json()))
 
     @classmethod
     async def is_online(cls, *, httpx_client: AsyncClient, bluenaas_url: str) -> bool:

@@ -203,9 +203,6 @@ class ElectrophysFeatureTool(BaseTool):
     Provide a trace ID to analyze its electrophysiological features."""
     metadata: ElectrophysMetadata
     input_schema: ElectrophysInput
-    output_type: ClassVar[type[ElectrophysFeatureToolOutput]] = (
-        ElectrophysFeatureToolOutput
-    )
 
     async def arun(self) -> ElectrophysFeatureToolOutput:
         """Give features about trace."""
@@ -340,7 +337,7 @@ class ElectrophysFeatureTool(BaseTool):
                 output_features[protocol_name]["stimulus_current"] = (
                     f"{protocol_def['step']['amp']} nA"
                 )
-        return self.output_type(
+        return ElectrophysFeatureToolOutput(
             brain_region=metadata.brain_region, feature_dict=output_features
         )
 

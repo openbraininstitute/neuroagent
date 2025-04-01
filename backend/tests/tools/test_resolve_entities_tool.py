@@ -69,7 +69,7 @@ async def test_arun(httpx_mock, get_resolve_query_output):
     )
 
     response = await tool.arun()
-    assert isinstance(response, tool.output_type)
+    assert isinstance(response, ResolveEntitiesToolOutput)
     assert response == ResolveEntitiesToolOutput(
         brain_regions=[
             BRResolveOutput(

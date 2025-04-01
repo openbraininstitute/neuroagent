@@ -8,7 +8,12 @@ import httpx
 import pytest
 
 from neuroagent.tools import GetTracesTool
-from neuroagent.tools.traces_tool import GetTracesInput, GetTracesMetadata, Trace
+from neuroagent.tools.traces_tool import (
+    GetTracesInput,
+    GetTracesMetadata,
+    GetTracesToolOutput,
+    Trace,
+)
 
 
 class TestTracesTool:
@@ -56,7 +61,7 @@ class TestTracesTool:
             Bucket="test-bucket", Key="test-br-key"
         )
 
-        assert isinstance(response, tool.output_type)
+        assert isinstance(response, GetTracesToolOutput)
         assert len(response.traces) == 2
         assert isinstance(response.traces[0], Trace)
 
@@ -105,7 +110,7 @@ class TestTracesTool:
             Bucket="test-bucket", Key="test-br-key"
         )
 
-        assert isinstance(response, tool.output_type)
+        assert isinstance(response, GetTracesToolOutput)
         assert len(response.traces) == 2
         assert isinstance(response.traces[0], Trace)
 

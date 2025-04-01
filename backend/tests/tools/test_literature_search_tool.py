@@ -8,6 +8,7 @@ from neuroagent.tools.literature_search_tool import (
     ArticleOutput,
     LiteratureSearchInput,
     LiteratureSearchMetadata,
+    LiteratureSearchToolOutput,
     ParagraphOutput,
 )
 
@@ -59,7 +60,7 @@ class TestLiteratureSearchTool:
             ),
         )
         response = await tool.arun()
-        assert isinstance(response, tool.output_type)
+        assert isinstance(response, LiteratureSearchToolOutput)
         assert len(response.articles) == reranker_k
         assert isinstance(response.articles[0], ArticleOutput)
         assert isinstance(response.articles[0].paragraphs[0], ParagraphOutput)

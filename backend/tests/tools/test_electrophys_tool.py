@@ -10,6 +10,7 @@ from neuroagent.tools import ElectrophysFeatureTool
 from neuroagent.tools.electrophys_tool import (
     CALCULATED_FEATURES,
     AmplitudeInput,
+    ElectrophysFeatureToolOutput,
     ElectrophysInput,
     ElectrophysMetadata,
 )
@@ -61,7 +62,7 @@ class TestElectrophysTool:
             ),
         )
         response = await tool.arun()
-        assert isinstance(response, tool.output_type)
+        assert isinstance(response, ElectrophysFeatureToolOutput)
         assert len(response.feature_dict.keys()) == 1
         assert (
             len(response.feature_dict["step_0"].keys())
@@ -113,7 +114,7 @@ class TestElectrophysTool:
             ),
         )
         response = await tool.arun()
-        assert isinstance(response, tool.output_type)
+        assert isinstance(response, ElectrophysFeatureToolOutput)
         assert len(response.feature_dict.keys()) == 1
         assert (
             len(response.feature_dict["step_0.25"].keys())
@@ -165,7 +166,7 @@ class TestElectrophysTool:
 
         # Without stimuli types and calculated features
         response = await tool.arun()
-        assert isinstance(response, tool.output_type)
+        assert isinstance(response, ElectrophysFeatureToolOutput)
         assert len(response.feature_dict.keys()) == 1
         assert (
             len(response.feature_dict["step_0"].keys())

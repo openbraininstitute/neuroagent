@@ -172,7 +172,8 @@ def custom_openapi() -> dict[str, Any]:
 
     tool_list = app.dependency_overrides.get(get_tool_list, get_tool_list)()
     for tool in tool_list:
-        tool_schema = tool.output_type.model_json_schema(
+        tool_output_type = tool.arun.__annotations__["return"]
+        tool_schema = tool_output_type.model_json_schema(
             ref_template="#/components/schemas/{model}"
         )
         defs = tool_schema.pop("$defs", None)
@@ -180,7 +181,7 @@ def custom_openapi() -> dict[str, Any]:
         # Find nested models and define them as their own schemas instead of having nested '$defs'
         if defs:
             openapi_schema["components"]["schemas"].update(defs)
-        openapi_schema["components"]["schemas"][tool.output_type.__name__] = tool_schema
+        openapi_schema["components"]["schemas"][tool_output_type.__name__] = tool_schema
 
     app.openapi_schema = openapi_schema
     return app.openapi_schema

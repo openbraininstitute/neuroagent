@@ -81,19 +81,16 @@ def fake_tool():
         description_frontend: ClassVar[str] = "Great description frontend"
         metadata: FakeToolMetadata
         input_schema: FakeToolInput
-        output_type: ClassVar[FakeToolOutput] = FakeToolOutput
         hil: ClassVar[bool] = True
 
-        async def arun(self):
+        async def arun(self) -> FakeToolOutput:
             if self.metadata.planet:
-                return self.output_type(
+                return FakeToolOutput(
                     output=NestedPartialOutput(
                         param=f"It's sunny today in {self.input_schema.location} from planet {self.metadata.planet}."
                     )
                 )
-            return self.output_type(
-                output=NestedPartialOutput(param="It's sunny today.")
-            )
+            return FakeToolOutput(output=NestedPartialOutput(param="It's sunny today."))
 
         @classmethod
         async def is_online(cls):

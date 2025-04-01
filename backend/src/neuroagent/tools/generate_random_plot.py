@@ -61,9 +61,6 @@ class RandomPlotGeneratorTool(BaseTool):
     )
     metadata: RandomPlotMetadata
     input_schema: RandomPlotInput
-    output_type: ClassVar[type[RandomPlotGeneratorToolOutput]] = (
-        RandomPlotGeneratorToolOutput
-    )
 
     async def arun(self) -> RandomPlotGeneratorToolOutput:
         """Generate random plot and save to object storage."""
@@ -102,7 +99,7 @@ class RandomPlotGeneratorTool(BaseTool):
                 thread_id=self.metadata.thread_id,
             )
 
-            return self.output_type(storage_id=identifier)
+            return RandomPlotGeneratorToolOutput(storage_id=identifier)
 
         elif self.input_schema.plot_type == "json-piechart":
             values_piechart = [
@@ -159,7 +156,7 @@ class RandomPlotGeneratorTool(BaseTool):
             thread_id=self.metadata.thread_id,
         )
 
-        return self.output_type(storage_id=identifier)
+        return RandomPlotGeneratorToolOutput(storage_id=identifier)
 
     @classmethod
     async def is_online(cls) -> bool:

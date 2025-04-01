@@ -12,6 +12,7 @@ from neuroagent.tools.kg_morpho_features_tool import (
     KGFeatureInput,
     KGMorphoFeatureInput,
     KGMorphoFeatureMetadata,
+    KGMorphoFeatureToolOutput,
     KGOutput,
 )
 
@@ -50,7 +51,7 @@ class TestKGMorphoFeaturesTool:
             ),
         )
         response = await tool.arun()
-        assert isinstance(response, tool.output_type)
+        assert isinstance(response, KGMorphoFeatureToolOutput)
         assert len(response.morphologies) == 2
         assert isinstance(response.morphologies[0], KGOutput)
 

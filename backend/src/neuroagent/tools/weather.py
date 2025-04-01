@@ -53,7 +53,6 @@ class WeatherTool(BaseTool):
     Simply specify a location to get its current weather information."""
     metadata: WeatherMetadata
     input_schema: WeatherInput
-    output_type: ClassVar[type[WeatherToolOutput]] = WeatherToolOutput
 
     async def arun(self) -> WeatherToolOutput:
         """Get random weather data for the specified location.
@@ -69,7 +68,7 @@ class WeatherTool(BaseTool):
 
         conditions = ["sunny", "rainy", "cloudy", "partly cloudy", "stormy"]
         temperature = round(random.uniform(-5, 35), 1)  # nosec B311
-        return self.output_type(
+        return WeatherToolOutput(
             temperature=temperature,
             conditions=random.choice(conditions),  # nosec B311
         )

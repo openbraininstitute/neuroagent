@@ -98,7 +98,6 @@ class PlotGeneratorTool(BaseTool):
 
     metadata: PlotMetadata
     input_schema: PlotInput
-    output_type: ClassVar[type[PlotGeneratorToolOutput]] = PlotGeneratorToolOutput
 
     async def arun(self) -> PlotGeneratorToolOutput:
         """Generate plot and save to storage."""
@@ -182,7 +181,7 @@ class PlotGeneratorTool(BaseTool):
             thread_id=self.metadata.thread_id,
         )
 
-        return self.output_type(storage_id=identifier)
+        return PlotGeneratorToolOutput(storage_id=identifier)
 
     @classmethod
     async def is_online(cls) -> bool:
