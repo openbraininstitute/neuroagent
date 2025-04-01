@@ -32,7 +32,6 @@ from neuroagent.tools import (
     MEModelGetOneTool,
     MorphologyFeatureTool,
     MorphologyViewerTool,
-    # NowTool,
     PlotGeneratorTool,
     ResolveEntitiesTool,
     SCSGetAllTool,
