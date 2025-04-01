@@ -5,7 +5,7 @@ import logging
 from contextlib import asynccontextmanager
 from typing import Annotated, Any, AsyncIterator
 
-from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi import APIRouter, Depends, HTTPException, Request, Response
 from fastapi.responses import StreamingResponse
 from obp_accounting_sdk import AsyncAccountingSessionFactory
 from obp_accounting_sdk.constants import ServiceSubtype
@@ -59,6 +59,7 @@ async def question_suggestions(
     body: UserClickHistory,
     user_info: Annotated[UserInfo, Depends(get_user_info)],
     redis_client: Annotated[aioredis.Redis | None, Depends(get_redis_client)],
+    response: Response,
     vlab_id: str | None = None,
     project_id: str | None = None,
 ) -> QuestionsSuggestions:
@@ -73,13 +74,20 @@ async def question_suggestions(
     else:
         limit = settings.rate_limiter.limit_suggestions_outside
 
-    await rate_limit(
+    limit_headers, rate_limited = await rate_limit(
         redis_client=redis_client,
         route_path="/qa/question_suggestions",
         limit=limit,
         expiry=settings.rate_limiter.expiry_suggestions,
         user_sub=user_info.sub,
     )
+    if rate_limited:
+        raise HTTPException(
+            status_code=429,
+            detail={"error": "Rate limit exceeded"},
+            headers=limit_headers.model_dump(by_alias=True),
+        )
+    response.headers.update(limit_headers.model_dump(by_alias=True))
 
     # Send it to OpenAI longside with the system prompt asking for summary
     messages = [
@@ -128,21 +136,27 @@ async def stream_chat_agent(
     ],
 ) -> StreamingResponse:
     """Run a single agent query in a streamed fashion."""
-    try:
-        await rate_limit(
-            redis_client=redis_client,
-            route_path="/qa/chat_streamed/{thread_id}",
-            limit=settings.rate_limiter.limit_chat,
-            expiry=settings.rate_limiter.expiry_chat,
-            user_sub=thread.user_id,
-        )
-        accounting_context = noop_accounting_context
-    except HTTPException:
-        # Only reraise the rate limit exception if we're outside vlab/project context
+    limit_headers, rate_limited = await rate_limit(
+        redis_client=redis_client,
+        route_path="/qa/chat_streamed/{thread_id}",
+        limit=settings.rate_limiter.limit_chat,
+        expiry=settings.rate_limiter.expiry_chat,
+        user_sub=thread.user_id,
+    )
+    if rate_limited:
+        # Outside of vlab, cannot send requests anymore
         if thread.vlab_id is None or thread.project_id is None:
-            raise
+            raise HTTPException(
+                status_code=429,
+                detail={"error": "Rate limit exceeded"},
+                headers=limit_headers.model_dump(by_alias=True),
+            )
+        # Inside of vlab, you start paying
         else:
             accounting_context = accounting_session_factory.oneshot_session
+    # Not rate limited, you don't pay
+    else:
+        accounting_context = noop_accounting_context
 
     if len(user_request.content) > settings.misc.query_max_size:
         raise HTTPException(
@@ -181,5 +195,8 @@ async def stream_chat_agent(
     return StreamingResponse(
         stream_generator,
         media_type="text/event-stream",
-        headers={"x-vercel-ai-data-stream": "v1"},
+        headers={
+            "x-vercel-ai-data-stream": "v1",
+            **limit_headers.model_dump(by_alias=True),
+        },
     )

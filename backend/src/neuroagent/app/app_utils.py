@@ -4,6 +4,7 @@ import logging
 from typing import Any
 
 from fastapi import HTTPException
+from pydantic import BaseModel, ConfigDict, Field
 from redis import asyncio as aioredis
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncEngine, create_async_engine
@@ -12,6 +13,16 @@ from starlette.status import HTTP_401_UNAUTHORIZED
 from neuroagent.app.config import Settings
 
 logger = logging.getLogger(__name__)
+
+
+class RateLimitHeaders(BaseModel):
+    """Headers for the rate limits."""
+
+    x_ratelimit_limit: str = Field(alias="x-ratelimit-limit")
+    x_ratelimit_remaining: str = Field(alias="x-ratelimit-remaining")
+    x_ratelimit_reset: str = Field(alias="x-ratelimit-reset")
+
+    model_config = ConfigDict(populate_by_name=True)
 
 
 def setup_engine(
@@ -81,7 +92,7 @@ async def rate_limit(
     limit: int,
     expiry: int,
     user_sub: str,
-) -> None:
+) -> tuple[RateLimitHeaders, bool]:
     """Check rate limiting for a given route and user.
 
     Parameters
@@ -103,7 +114,9 @@ async def rate_limit(
         When rate limit is exceeded, returns 429 status code with retry_after time
     """
     if redis_client is None:
-        return
+        return RateLimitHeaders(
+            x_ratelimit_limit="-1", x_ratelimit_remaining="-1", x_ratelimit_reset="-1"
+        ), False  # redis disabled
 
     # Create key using normalized route path and user sub
     key = f"rate_limit:{user_sub}:{route_path}"
@@ -113,13 +126,29 @@ async def rate_limit(
     current = int(current) if current else 0
 
     if current > 0:
+        ttl = await redis_client.pttl(key)
         if current + 1 > limit:
             # Get remaining time
-            ttl = await redis_client.pttl(key)
-            raise HTTPException(
-                status_code=429,
-                detail={"error": "Rate limit exceeded", "retry_after": ttl / 1000},
-            )
+            return RateLimitHeaders(
+                x_ratelimit_limit=str(limit),
+                x_ratelimit_remaining="0",
+                x_ratelimit_reset=str(round(ttl / 1000)),
+            ), True
+            # raise HTTPException(
+            #     status_code=429,
+            #     detail={"error": "Rate limit exceeded", "retry_after": ttl / 1000},
+            #     headers=headers.model_dump(by_alias=True)
+            # )
         await redis_client.incr(key)
+        return RateLimitHeaders(
+            x_ratelimit_limit=str(limit),
+            x_ratelimit_remaining=str(limit - current - 1),
+            x_ratelimit_reset=str(round(ttl / 1000)),
+        ), False
     else:
         await redis_client.set(key, 1, ex=expiry)
+        return RateLimitHeaders(
+            x_ratelimit_limit=str(limit),
+            x_ratelimit_remaining=str(limit - current - 1),
+            x_ratelimit_reset=str(expiry),
+        ), False
