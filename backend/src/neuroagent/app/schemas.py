@@ -145,6 +145,6 @@ class Question(BaseModel):
 class QuestionsSuggestions(BaseModel):
     """All suggested questions by the LLM."""
 
-    suggestions: type[list[Question]] = conlist(
+    suggestions: list[Question] = conlist(  # type: ignore
         item_type=Question, min_length=1, max_length=1
     )
