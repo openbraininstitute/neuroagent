@@ -36,6 +36,12 @@ class InputMEModelGetAll(BaseModel):
     )
 
 
+class MEModelGetAllToolOutput(
+    PaginatedResponseUnionMEModelResponseSynaptomeModelResponse
+):
+    """Rebranding."""
+
+
 class MEModelGetAllTool(BaseTool):
     """Class defining the MEModelGetAll tool."""
 
@@ -64,7 +70,7 @@ class MEModelGetAllTool(BaseTool):
         )
         return response.status_code == 200
 
-    async def arun(self) -> str:
+    async def arun(self) -> MEModelGetAllToolOutput:
         """Run the MEModelGetAll tool."""
         logger.info(
             f"Running MEModelGetAll tool with inputs {self.input_schema.model_dump()}"
@@ -79,6 +85,4 @@ class MEModelGetAllTool(BaseTool):
             },
             headers={"Authorization": f"Bearer {self.metadata.token}"},
         )
-        return PaginatedResponseUnionMEModelResponseSynaptomeModelResponse(
-            **response.json()
-        ).model_dump_json()
+        return MEModelGetAllToolOutput(**response.json())

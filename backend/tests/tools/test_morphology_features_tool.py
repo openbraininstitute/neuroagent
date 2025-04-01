@@ -10,6 +10,7 @@ from neuroagent.tools import MorphologyFeatureTool
 from neuroagent.tools.morphology_features_tool import (
     MorphologyFeatureInput,
     MorphologyFeatureMetadata,
+    MorphologyFeatureToolOutput,
 )
 
 
@@ -52,10 +53,9 @@ class TestMorphologyFeatureTool:
         )
 
         response = await tool.arun()
-        assert isinstance(response, str)
-        response = json.loads(response)
-        assert isinstance(response[0], dict)
-        assert len(response[0]["feature_dict"]) == 23
+        assert isinstance(response, MorphologyFeatureToolOutput)
+        assert isinstance(response.feature_dict, dict)
+        assert len(response.feature_dict) == 23
 
     @pytest.mark.asyncio
     async def test_arun_errors_404(self, httpx_mock):

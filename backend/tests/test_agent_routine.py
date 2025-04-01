@@ -10,6 +10,7 @@ from openai.types.chat.chat_completion_chunk import (
     ChoiceDeltaToolCall,
     ChoiceDeltaToolCallFunction,
 )
+from pydantic import BaseModel
 
 from neuroagent.agent_routine import AgentsRoutine
 from neuroagent.app.database.sql_schemas import Entity, Messages, ToolCalls
@@ -147,10 +148,26 @@ class TestAgentsRoutine:
             value=json.dumps({"assistant": raw_result.name}), agent=raw_result
         )
 
-        # Raw result is a tool output (Typically dict/list dict)
-        raw_result = [{"result_1": "Great result", "result_2": "Bad result"}]
+        # Raw result is a tool output (BaseModel)
+        class FakeOutput(BaseModel):
+            result_1: str
+            result_2: str
+
+        raw_result = FakeOutput(result_1="Great result", result_2="Bad result")
+
         result = routine.handle_function_result(raw_result)
-        assert result == Result(value=json.dumps(raw_result))
+        assert result == Result(value=raw_result.model_dump_json())
+
+        # Errors
+        with pytest.raises(TypeError):
+            routine.handle_function_result(["123"])
+        with pytest.raises(TypeError):
+            routine.handle_function_result(
+                [
+                    FakeOutput(result_1="Great result", result_2="Bad result"),
+                    FakeOutput(result_1="ads", result_2="test"),
+                ]
+            )
 
     @pytest.mark.asyncio
     async def test_execute_tool_calls_simple(
@@ -195,7 +212,7 @@ class TestAgentsRoutine:
                 "role": "tool",
                 "tool_call_id": tool_calls[0].id,
                 "tool_name": "get_weather",
-                "content": "It's sunny today.",
+                "content": '{"output":{"param":"It\'s sunny today."}}',
             }
         ]
         assert tool_calls_result.agent is None
@@ -246,13 +263,13 @@ class TestAgentsRoutine:
                 "role": "tool",
                 "tool_call_id": tool_calls[0].id,
                 "tool_name": "get_weather",
-                "content": "It's sunny today in Geneva from planet Earth.",
+                "content": '{"output":{"param":"It\'s sunny today in Geneva from planet Earth."}}',
             },
             {
                 "role": "tool",
                 "tool_call_id": tool_calls[1].id,
                 "tool_name": "get_weather",
-                "content": "It's sunny today in Lausanne from planet Earth.",
+                "content": '{"output":{"param":"It\'s sunny today in Lausanne from planet Earth."}}',
             },
         ]
         assert tool_calls_result.agent is None
@@ -349,7 +366,7 @@ class TestAgentsRoutine:
                 "role": "tool",
                 "tool_call_id": tool_call.id,
                 "tool_name": "get_weather",
-                "content": "It's sunny today.",
+                "content": '{"output":{"param":"It\'s sunny today."}}',
             },
             None,
         )
@@ -394,7 +411,7 @@ class TestAgentsRoutine:
                 "role": "tool",
                 "tool_call_id": tool_call.id,
                 "tool_name": "get_weather",
-                "content": "It's sunny today in Geneva from planet Earth.",
+                "content": '{"output":{"param":"It\'s sunny today in Geneva from planet Earth."}}',
             },
             None,
         )

@@ -172,7 +172,7 @@ class ElectrophysMetadata(BaseMetadata):
     token: str
 
 
-class FeatureOutput(BaseModel):
+class ElectrophysFeatureToolOutput(BaseModel):
     """Output schema for the neurom tool."""
 
     brain_region: str
@@ -201,10 +201,10 @@ class ElectrophysFeatureTool(BaseTool):
     • Compare electrical properties across different protocols
 
     Provide a trace ID to analyze its electrophysiological features."""
-    input_schema: ElectrophysInput
     metadata: ElectrophysMetadata
+    input_schema: ElectrophysInput
 
-    async def arun(self) -> str:
+    async def arun(self) -> ElectrophysFeatureToolOutput:
         """Give features about trace."""
         logger.info(
             f"Entering electrophys tool. Inputs: {self.input_schema.trace_id=}, {self.input_schema.calculated_feature=},"
@@ -337,9 +337,9 @@ class ElectrophysFeatureTool(BaseTool):
                 output_features[protocol_name]["stimulus_current"] = (
                     f"{protocol_def['step']['amp']} nA"
                 )
-        return FeatureOutput(
+        return ElectrophysFeatureToolOutput(
             brain_region=metadata.brain_region, feature_dict=output_features
-        ).model_dump_json()
+        )
 
     @classmethod
     async def is_online(
