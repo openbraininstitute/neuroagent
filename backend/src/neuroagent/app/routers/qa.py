@@ -59,7 +59,7 @@ async def question_suggestions(
     body: UserClickHistory,
     user_info: Annotated[UserInfo, Depends(get_user_info)],
     redis_client: Annotated[aioredis.Redis | None, Depends(get_redis_client)],
-    response: Response,
+    fastapi_response: Response,
     vlab_id: str | None = None,
     project_id: str | None = None,
 ) -> QuestionsSuggestions:
@@ -87,7 +87,7 @@ async def question_suggestions(
             detail={"error": "Rate limit exceeded"},
             headers=limit_headers.model_dump(by_alias=True),
         )
-    response.headers.update(limit_headers.model_dump(by_alias=True))
+    fastapi_response.headers.update(limit_headers.model_dump(by_alias=True))
 
     # Send it to OpenAI longside with the system prompt asking for summary
     messages = [

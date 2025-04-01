@@ -77,7 +77,7 @@ async def generate_title(
     settings: Annotated[Settings, Depends(get_settings)],
     thread: Annotated[Threads, Depends(get_thread)],
     redis_client: Annotated[aioredis.Redis | None, Depends(get_redis_client)],
-    response: Response,
+    fastapi_response: Response,
     body: ThreadGeneratBody,
 ) -> ThreadsRead:
     """Generate a short thread title based on the user's first message and update thread's title."""
@@ -94,7 +94,7 @@ async def generate_title(
             detail={"error": "Rate limit exceeded"},
             headers=limit_headers.model_dump(by_alias=True),
         )
-    response.headers.update(limit_headers.model_dump(by_alias=True))
+    fastapi_response.headers.update(limit_headers.model_dump(by_alias=True))
     # Send it to OpenAI longside with the system prompt asking for summary
     messages = [
         {

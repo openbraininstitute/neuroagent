@@ -22,7 +22,7 @@ class RateLimitHeaders(BaseModel):
     x_ratelimit_remaining: str = Field(alias="x-ratelimit-remaining")
     x_ratelimit_reset: str = Field(alias="x-ratelimit-reset")
 
-    model_config = ConfigDict(populate_by_name=True)
+    model_config = ConfigDict(validate_by_name=True, validate_by_alias=True)
 
 
 def setup_engine(
