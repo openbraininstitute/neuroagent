@@ -62,7 +62,7 @@ async def question_suggestions(
     fastapi_response: Response,
     vlab_id: str | None = None,
     project_id: str | None = None,
-) -> QuestionsSuggestions:
+) -> QuestionsSuggestions | None:
     """Generate a short thread title based on the user's first message and update thread's title."""
     if vlab_id is not None and project_id is not None:
         validate_project(
@@ -106,7 +106,7 @@ async def question_suggestions(
             "and 'data_type' can be 'Experimental data' or 'Model Data'"
             "The last element of the list represents the last click of the user, so it should naturally be more relevant."
             "From the user history, try to infer the user's intent on the platform. From it generate some questions the user might want to ask to a chatbot that is able to search for papers in the literature."
-            "The questions should only be about the literature. Each question should be short and concise. In total there should not be more than 3 questions.",
+            "The questions should only be about the literature. Each question should be short and concise. In total there should not be more than one question.",
         },
         {"role": "user", "content": json.dumps(body.click_history)},
     ]
@@ -116,9 +116,8 @@ async def question_suggestions(
         model=settings.openai.suggestion_model,
         response_format=QuestionsSuggestions,
     )
-    return QuestionsSuggestions(
-        suggestions=response.choices[0].message.parsed.suggestions  # type: ignore
-    )
+
+    return response.choices[0].message.parsed
 
 
 @router.post("/chat_streamed/{thread_id}")
