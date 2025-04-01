@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - Every tool output schema to the OpenAPI json + swagger.
+- Header containing rate limit info.
 
 ## [v0.4.5] - 28.03.2025
 
