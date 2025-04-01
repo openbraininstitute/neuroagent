@@ -68,6 +68,12 @@ def fake_tool():
         model_config = ConfigDict(extra="ignore", arbitrary_types_allowed=True)
         planet: str | None = None
 
+    class NestedPartialOutput(BaseModel):
+        param: str
+
+    class FakeToolOutput(BaseModel):
+        output: list[NestedPartialOutput]
+
     class FakeTool(BaseTool):
         name: ClassVar[str] = "get_weather"
         name_frontend: ClassVar[str] = "Get Weather"
@@ -75,6 +81,7 @@ def fake_tool():
         description_frontend: ClassVar[str] = "Great description frontend"
         metadata: FakeToolMetadata
         input_schema: FakeToolInput
+        output_schema: ClassVar[FakeToolOutput] = FakeToolOutput
         hil: ClassVar[bool] = True
 
         async def arun(self):

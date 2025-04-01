@@ -2,7 +2,7 @@ import logging
 
 from fastapi.testclient import TestClient
 
-from neuroagent.app.dependencies import get_settings
+from neuroagent.app.dependencies import get_settings, get_tool_list
 from neuroagent.app.main import app
 
 
@@ -22,6 +22,21 @@ def test_readyz(app_client):
     body = response.json()
     assert isinstance(body, dict)
     assert body["status"] == "ok"
+
+
+def test_custom_openapi(app_client, get_weather_tool):
+    app.dependency_overrides[get_tool_list] = lambda: [get_weather_tool]
+    with app_client as client:
+        openapi = client.get("/openapi.json")
+    openapi_json = openapi.json()
+    assert "FakeToolOutput" in openapi_json["components"]["schemas"]
+    assert "NestedPartialOutput" in openapi_json["components"]["schemas"]
+    assert (
+        openapi_json["components"]["schemas"]["FakeToolOutput"]["properties"]["output"][
+            "items"
+        ]["$ref"]
+        == "#/components/schemas/NestedPartialOutput"
+    )
 
 
 def test_lifespan(caplog, monkeypatch, patch_required_env, db_connection):
