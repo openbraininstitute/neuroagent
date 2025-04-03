@@ -10,7 +10,6 @@ export function useGetPresignedUrl(storageId: string) {
       path: "/storage/{storageId}/presigned-url",
       pathParams: { storageId },
     });
-    console.log(response);
     return response as string;
   };
 
