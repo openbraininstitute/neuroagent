@@ -74,7 +74,7 @@ class InputSCSPost(BaseModel):
     conditions__seed: int = Field(default=100, description="Random seed")
 
 
-class SCSPostOutput(BaseModel):
+class SCSPostToolOutput(BaseModel):
     """Should return a successful POST request."""
 
     id: str
@@ -105,7 +105,7 @@ class SCSPostTool(BaseTool):
     input_schema: InputSCSPost
     hil: ClassVar[bool] = True
 
-    async def arun(self) -> str:
+    async def arun(self) -> SCSPostToolOutput:
         """Run the SCSPost tool."""
         logger.info(
             f"Running SCSPost tool with inputs {self.input_schema.model_dump()}"
@@ -132,12 +132,12 @@ class SCSPostTool(BaseTool):
             json=json_api,
         )
         json_response = response.json()
-        return SCSPostOutput(
+        return SCSPostToolOutput(
             id=json_response["id"],
             status=json_response["status"],
             name=json_response["name"],
             error=json_response["error"],
-        ).model_dump_json()
+        )
 
     @staticmethod
     def create_json_api(

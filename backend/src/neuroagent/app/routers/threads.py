@@ -4,7 +4,7 @@ import json
 import logging
 from typing import Annotated, Any
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException, Response
 from openai import AsyncOpenAI
 from redis import asyncio as aioredis
 from sqlalchemy import select
@@ -77,17 +77,24 @@ async def generate_title(
     settings: Annotated[Settings, Depends(get_settings)],
     thread: Annotated[Threads, Depends(get_thread)],
     redis_client: Annotated[aioredis.Redis | None, Depends(get_redis_client)],
+    fastapi_response: Response,
     body: ThreadGeneratBody,
 ) -> ThreadsRead:
     """Generate a short thread title based on the user's first message and update thread's title."""
-    await rate_limit(
+    limit_headers, rate_limited = await rate_limit(
         redis_client=redis_client,
         route_path="/threads/{thread_id}/generate_title",
         limit=settings.rate_limiter.limit_title,
         expiry=settings.rate_limiter.expiry_title,
         user_sub=thread.user_id,
     )
-
+    if rate_limited:
+        raise HTTPException(
+            status_code=429,
+            detail={"error": "Rate limit exceeded"},
+            headers=limit_headers.model_dump(by_alias=True),
+        )
+    fastapi_response.headers.update(limit_headers.model_dump(by_alias=True))
     # Send it to OpenAI longside with the system prompt asking for summary
     messages = [
         {

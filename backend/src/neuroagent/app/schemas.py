@@ -3,7 +3,7 @@
 import datetime
 from typing import Any, Literal
 
-from pydantic import BaseModel
+from pydantic import BaseModel, conlist
 
 from neuroagent.app.database.sql_schemas import Entity
 
@@ -145,4 +145,6 @@ class Question(BaseModel):
 class QuestionsSuggestions(BaseModel):
     """All suggested questions by the LLM."""
 
-    suggestions: list[Question]
+    suggestions: list[Question] = conlist(  # type: ignore
+        item_type=Question, min_length=1, max_length=1
+    )

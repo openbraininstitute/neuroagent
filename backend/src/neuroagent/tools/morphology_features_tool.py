@@ -1,6 +1,5 @@
 """Morphology features tool."""
 
-import json
 import logging
 from typing import Any, ClassVar
 
@@ -14,13 +13,6 @@ from neuroagent.tools.base_tool import BaseMetadata, BaseTool
 from neuroagent.utils import get_kg_data
 
 logger = logging.getLogger(__name__)
-
-
-class MorphologyFeatureOutput(BaseModel):
-    """Output schema for the neurom tool."""
-
-    brain_region: str
-    feature_dict: dict[str, Any]
 
 
 class MorphologyFeatureInput(BaseModel):
@@ -42,6 +34,13 @@ class MorphologyFeatureMetadata(BaseMetadata):
     token: str
 
 
+class MorphologyFeatureToolOutput(BaseModel):
+    """Output schema for the neurom tool."""
+
+    brain_region: str
+    feature_dict: dict[str, Any]
+
+
 class MorphologyFeatureTool(BaseTool):
     """Class defining the morphology feature retrieval logic."""
 
@@ -60,10 +59,10 @@ class MorphologyFeatureTool(BaseTool):
     • Analyze specific parts of neurons
 
     Provide a morphology ID to compute its detailed features."""
-    input_schema: MorphologyFeatureInput
     metadata: MorphologyFeatureMetadata
+    input_schema: MorphologyFeatureInput
 
-    async def arun(self) -> str:
+    async def arun(self) -> MorphologyFeatureToolOutput:
         """Give features about morphology."""
         logger.info(
             f"Entering morphology feature tool. Inputs: {self.input_schema.morphology_id=}"
@@ -79,12 +78,8 @@ class MorphologyFeatureTool(BaseTool):
 
         # Extract the features from it
         features = self.get_features(morphology_content, metadata.file_extension)
-        return json.dumps(
-            [
-                MorphologyFeatureOutput(
-                    brain_region=metadata.brain_region, feature_dict=features
-                ).model_dump()
-            ]
+        return MorphologyFeatureToolOutput(
+            brain_region=metadata.brain_region, feature_dict=features
         )
 
     def get_features(self, morphology_content: bytes, reader: str) -> dict[str, Any]:

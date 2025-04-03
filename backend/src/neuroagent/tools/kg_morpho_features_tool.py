@@ -1,8 +1,6 @@
 """KG Morpho Feature tool."""
 
-import json
 import logging
-from pathlib import Path
 from typing import Any, ClassVar, Literal
 
 from httpx import AsyncClient
@@ -154,10 +152,10 @@ class KGMorphoFeatureMetadata(BaseMetadata):
     knowledge_graph_url: str
     token: str
     kg_morpho_feature_search_size: int
-    brainregion_path: str | Path
+    brainregion_hierarchy_storage_key: str
 
 
-class KGMorphoFeatureOutput(BaseModel):
+class KGOutput(BaseModel):
     """Output schema for the knowledge graph API."""
 
     brain_region_id: str
@@ -167,6 +165,12 @@ class KGMorphoFeatureOutput(BaseModel):
     morphology_name: str | None = None
 
     features: dict[str, str]
+
+
+class KGMorphoFeatureToolOutput(BaseModel):
+    """Output schema of the KGMorphoFeature tool."""
+
+    morphologies: list[KGOutput]
 
 
 class KGMorphoFeatureTool(BaseTool):
@@ -195,10 +199,10 @@ class KGMorphoFeatureTool(BaseTool):
     • Compare morphological features
 
     Specify the features and ranges you're interested in to find matching neurons."""
-    input_schema: KGMorphoFeatureInput
     metadata: KGMorphoFeatureMetadata
+    input_schema: KGMorphoFeatureInput
 
-    async def arun(self) -> str:
+    async def arun(self) -> KGMorphoFeatureToolOutput:
         """Run the tool async.
 
         Returns
@@ -212,7 +216,7 @@ class KGMorphoFeatureTool(BaseTool):
         # Get the descendants of the brain region specified as input
         hierarchy_ids = get_descendants_id(
             self.input_schema.brain_region_id,
-            json_path=self.metadata.brainregion_path,
+            json_path=self.metadata.brainregion_hierarchy_storage_key,
         )
         logger.info(f"Found {len(list(hierarchy_ids))} children of the brain ontology.")
 
@@ -331,7 +335,7 @@ class KGMorphoFeatureTool(BaseTool):
         return entire_query
 
     @staticmethod
-    def _process_output(output: Any) -> str:
+    def _process_output(output: Any) -> KGMorphoFeatureToolOutput:
         """Process output.
 
         Parameters
@@ -353,16 +357,16 @@ class KGMorphoFeatureTool(BaseTool):
                 for dic in morpho_source["featureSeries"]
             }
             formatted_output.append(
-                KGMorphoFeatureOutput(
+                KGOutput(
                     brain_region_id=morpho_source["brainRegion"]["@id"],
                     brain_region_label=morpho_source["brainRegion"].get("label"),
                     morphology_id=morpho_source["neuronMorphology"]["@id"],
                     morphology_name=morpho_source["neuronMorphology"].get("name"),
                     features=feature_output,
-                ).model_dump()
+                )
             )
 
-        return json.dumps(formatted_output)
+        return KGMorphoFeatureToolOutput(morphologies=formatted_output)
 
     @classmethod
     async def is_online(

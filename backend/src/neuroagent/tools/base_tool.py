@@ -89,7 +89,7 @@ class BaseTool(BaseModel, ABC):
         return new_retval
 
     @abstractmethod
-    async def arun(self) -> Any:
+    async def arun(self) -> BaseModel:
         """Run the tool."""
 
     @classmethod

@@ -8,7 +8,7 @@ from typing import Any, AsyncIterator
 
 from openai import AsyncOpenAI, AsyncStream
 from openai.types.chat.chat_completion_chunk import ChatCompletionChunk
-from pydantic import ValidationError
+from pydantic import BaseModel, ValidationError
 
 from neuroagent.app.database.sql_schemas import Entity, Messages, ToolCalls
 from neuroagent.new_types import (
@@ -61,7 +61,7 @@ class AgentsRoutine:
             create_params["parallel_tool_calls"] = agent.parallel_tool_calls
         return await self.client.chat.completions.create(**create_params)  # type: ignore
 
-    def handle_function_result(self, result: Result | Agent) -> Result:
+    def handle_function_result(self, result: Result | Agent | BaseModel) -> Result:
         """Check if agent handoff or regular tool call."""
         match result:
             case Result() as result:
@@ -72,16 +72,14 @@ class AgentsRoutine:
                     value=json.dumps({"assistant": agent.name}),
                     agent=agent,
                 )
-            case _:
+            case BaseModel() as model:
                 try:
-                    return Result(
-                        value=result if isinstance(result, str) else json.dumps(result)
-                    )
+                    return Result(value=model.model_dump_json())
                 except json.JSONDecodeError:
                     return Result(value=str(result))
-                except Exception as e:
-                    error_message = f"Failed to cast response to json: {result}. Make sure agent functions return a string or Result object. Error: {str(e)}"
-                    raise TypeError(error_message)
+            case _:
+                error_message = f"Failed to parse the result: {result}. Make sure the tool returns a pydantic BaseModel or Result object."
+                raise TypeError(error_message)
 
     async def execute_tool_calls(
         self,

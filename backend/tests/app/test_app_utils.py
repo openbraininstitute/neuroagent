@@ -83,7 +83,7 @@ async def test_rate_limit_first_request():
     redis_mock.get.return_value = None
     redis_mock.set.return_value = True
 
-    await rate_limit(
+    limit_headers, rate_limited = await rate_limit(
         redis_client=redis_mock,
         route_path="/test/path",
         limit=10,
@@ -94,6 +94,12 @@ async def test_rate_limit_first_request():
     expected_key = "rate_limit:test_user:/test/path"
     redis_mock.get.assert_called_once_with(expected_key)
     redis_mock.set.assert_called_once_with(expected_key, 1, ex=3600)
+    assert not rate_limited
+    assert limit_headers.model_dump(by_alias=True) == {
+        "x-ratelimit-limit": "10",
+        "x-ratelimit-remaining": "9",
+        "x-ratelimit-reset": "3600",
+    }
 
 
 @pytest.mark.asyncio
@@ -102,8 +108,9 @@ async def test_rate_limit_subsequent_request_below_limit():
     redis_mock = AsyncMock()
     redis_mock.get.return_value = "5"  # Simulate existing requests
     redis_mock.incr.return_value = 6  # New count after increment
+    redis_mock.pttl.return_value = 3599183  # New pttl
 
-    await rate_limit(
+    limit_headers, rate_limited = await rate_limit(
         redis_client=redis_mock,
         route_path="/test/path",
         limit=10,
@@ -115,6 +122,12 @@ async def test_rate_limit_subsequent_request_below_limit():
     redis_mock.get.assert_called_once_with(expected_key)
     redis_mock.incr.assert_called_once_with(expected_key)
     redis_mock.set.assert_not_called()  # Should not set new value for subsequent requests
+    assert not rate_limited
+    assert limit_headers.model_dump(by_alias=True) == {
+        "x-ratelimit-limit": "10",
+        "x-ratelimit-remaining": "4",
+        "x-ratelimit-reset": "3599",
+    }
 
 
 @pytest.mark.asyncio
@@ -124,23 +137,26 @@ async def test_rate_limit_subsequent_request_at_limit():
     redis_mock.get.return_value = "10"  # Current count at limit
     redis_mock.pttl.return_value = 1000  # 1 second remaining
 
-    with pytest.raises(HTTPException) as exc_info:
-        await rate_limit(
-            redis_client=redis_mock,
-            route_path="/test/path",
-            limit=10,
-            expiry=3600,
-            user_sub="test_user",
-        )
-
-    assert exc_info.value.status_code == 429
-    assert exc_info.value.detail == {"error": "Rate limit exceeded", "retry_after": 1.0}
+    limit_headers, rate_limited = await rate_limit(
+        redis_client=redis_mock,
+        route_path="/test/path",
+        limit=10,
+        expiry=3600,
+        user_sub="test_user",
+    )
 
     expected_key = "rate_limit:test_user:/test/path"
+    redis_mock.get.assert_called_once_with(expected_key)
     redis_mock.get.assert_called_once_with(expected_key)
     redis_mock.pttl.assert_called_once_with(expected_key)
     redis_mock.incr.assert_not_called()  # Should not increment when over limit
     redis_mock.set.assert_not_called()  # Should not set new value
+    assert rate_limited
+    assert limit_headers.model_dump(by_alias=True) == {
+        "x-ratelimit-limit": "10",
+        "x-ratelimit-remaining": "0",
+        "x-ratelimit-reset": "1",
+    }
 
 
 @pytest.mark.asyncio

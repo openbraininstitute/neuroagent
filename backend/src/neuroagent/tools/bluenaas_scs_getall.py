@@ -38,6 +38,10 @@ class InputSCSGetAll(BaseModel):
     )
 
 
+class SCSGetAllToolOutput(PaginatedResponseSimulationDetailsResponse):
+    """Rebranding."""
+
+
 class SCSGetAllTool(BaseTool):
     """Class defining the SCSGetAll tool."""
 
@@ -59,7 +63,7 @@ class SCSGetAllTool(BaseTool):
     metadata: SCSGetAllMetadata
     input_schema: InputSCSGetAll
 
-    async def arun(self) -> str:
+    async def arun(self) -> SCSGetAllToolOutput:
         """Run the SCSGetAll tool."""
         logger.info(
             f"Running SCSGetAll tool with inputs {self.input_schema.model_dump()}"
@@ -75,9 +79,7 @@ class SCSGetAllTool(BaseTool):
             headers={"Authorization": f"Bearer {self.metadata.token}"},
         )
 
-        return PaginatedResponseSimulationDetailsResponse(
-            **response.json()
-        ).model_dump_json()
+        return SCSGetAllToolOutput(**response.json())
 
     @classmethod
     async def is_online(cls, *, httpx_client: AsyncClient, bluenaas_url: str) -> bool:

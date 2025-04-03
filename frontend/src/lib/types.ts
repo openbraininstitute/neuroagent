@@ -192,7 +192,7 @@ export type JSONLinechart = BaseObject & {
 };
 
 export type SuggestedQuestions = {
-  suggestions?: { question: string }[];
+  suggestions: { question: string }[];
 };
 
 export class CustomError extends Error {

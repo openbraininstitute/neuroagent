@@ -1,6 +1,5 @@
 """Literature Search tool."""
 
-import json
 import logging
 from collections import defaultdict
 from typing import Any, ClassVar
@@ -74,7 +73,7 @@ class ParagraphOutput(BaseModel):
         return text
 
 
-class LiteratureSearchOutput(BaseModel):
+class ArticleOutput(BaseModel):
     """Results of the Litterature Search API."""
 
     article_title: str
@@ -100,6 +99,12 @@ class LiteratureSearchOutput(BaseModel):
         return text
 
 
+class LiteratureSearchToolOutput(BaseModel):
+    """Output schema for the literature search tool."""
+
+    articles: list[ArticleOutput]
+
+
 class LiteratureSearchTool(BaseTool):
     """Class defining the Literature Search logic."""
 
@@ -117,10 +122,10 @@ class LiteratureSearchTool(BaseTool):
         str
     ] = """Searches the scientific literature. The tool should be used to gather general scientific knowledge. It is best suited for questions about neuroscience and medicine that are not about morphologies.
     It returns a list of scientific articles that have paragraphs matching the query (in the sense of the bm25 algorithm), alongside with the metadata of the articles they were extracted from."""
-    input_schema: LiteratureSearchInput
     metadata: LiteratureSearchMetadata
+    input_schema: LiteratureSearchInput
 
-    async def arun(self) -> str:
+    async def arun(self) -> LiteratureSearchToolOutput:
         """Async search the scientific literature and returns citations.
 
         Returns
@@ -187,7 +192,9 @@ class LiteratureSearchTool(BaseTool):
         return {k: v for k, v in req_body.items() if v is not None}
 
     @staticmethod
-    def _process_output(output: list[dict[str, Any]], article_number: int) -> str:
+    def _process_output(
+        output: list[dict[str, Any]], article_number: int
+    ) -> LiteratureSearchToolOutput:
         """Process output."""
         paragraphs_metadata = [ParagraphMetadata(**paragraph) for paragraph in output]
 
@@ -208,7 +215,7 @@ class LiteratureSearchTool(BaseTool):
             i += 1
 
         paragraphs_output = [
-            LiteratureSearchOutput(
+            ArticleOutput(
                 article_title=article_metadata[article_id].article_title,
                 article_authors=article_metadata[article_id].article_authors,
                 paragraphs=articles[article_id],
@@ -221,10 +228,10 @@ class LiteratureSearchTool(BaseTool):
                 cited_by=article_metadata[article_id].cited_by,
                 impact_factor=article_metadata[article_id].impact_factor,
                 abstract=article_metadata[article_id].abstract,
-            ).model_dump()
+            )
             for article_id in articles.keys()
         ]
-        return json.dumps(paragraphs_output)
+        return LiteratureSearchToolOutput(articles=paragraphs_output)
 
     @classmethod
     async def is_online(

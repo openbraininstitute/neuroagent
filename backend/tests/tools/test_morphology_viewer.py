@@ -1,6 +1,5 @@
 """Tests for the Morphology Viewer tool."""
 
-import json
 from unittest.mock import AsyncMock, Mock
 
 import httpx
@@ -67,11 +66,9 @@ class TestMorphologyViewerTool:
 
         # Run the tool
         result = await tool.arun()
-        result_dict = json.loads(result)
 
         # Verify the results
-        assert "storage_id" in result_dict
-        assert result_dict["storage_id"] == "test-storage-id"
+        assert result.storage_id == "test-storage-id"
 
         # Verify the mocks were called correctly
         mock_get_kg_data.assert_called_once_with(
@@ -161,11 +158,9 @@ class TestMorphologyViewerTool:
 
         # Run the tool
         result = await tool.arun()
-        result_dict = json.loads(result)
 
         # Verify the results
-        assert "storage_id" in result_dict
-        assert result_dict["storage_id"] == "test-storage-id"
+        assert result.storage_id == "test-storage-id"
 
         # Verify mock_plot_morph3d was called with correct parameters
         call_args = mock_plot_morph3d.call_args[1]
@@ -223,11 +218,9 @@ class TestMorphologyViewerTool:
 
         # Run the tool
         result = await tool.arun()
-        result_dict = json.loads(result)
 
         # Verify the results
-        assert "storage_id" in result_dict
-        assert result_dict["storage_id"] == "test-storage-id"
+        assert result.storage_id == "test-storage-id"
 
         # Verify mock_plot_dendrogram was called with correct parameters
         call_args = mock_plot_dendrogram.call_args[1]

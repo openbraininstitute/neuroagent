@@ -68,6 +68,12 @@ def fake_tool():
         model_config = ConfigDict(extra="ignore", arbitrary_types_allowed=True)
         planet: str | None = None
 
+    class NestedPartialOutput(BaseModel):
+        param: str
+
+    class FakeToolOutput(BaseModel):
+        output: NestedPartialOutput
+
     class FakeTool(BaseTool):
         name: ClassVar[str] = "get_weather"
         name_frontend: ClassVar[str] = "Get Weather"
@@ -77,10 +83,14 @@ def fake_tool():
         input_schema: FakeToolInput
         hil: ClassVar[bool] = True
 
-        async def arun(self):
+        async def arun(self) -> FakeToolOutput:
             if self.metadata.planet:
-                return f"It's sunny today in {self.input_schema.location} from planet {self.metadata.planet}."
-            return "It's sunny today."
+                return FakeToolOutput(
+                    output=NestedPartialOutput(
+                        param=f"It's sunny today in {self.input_schema.location} from planet {self.metadata.planet}."
+                    )
+                )
+            return FakeToolOutput(output=NestedPartialOutput(param="It's sunny today."))
 
         @classmethod
         async def is_online(cls):
@@ -107,6 +117,7 @@ def agent_handoff_tool():
         description: ClassVar[str] = "Handoff to another agent."
         metadata: HandoffToolMetadata
         input_schema: HandoffToolInput
+        output_type: ClassVar[type[Agent]] = Agent
 
         async def arun(self):
             return self.metadata.to_agent
