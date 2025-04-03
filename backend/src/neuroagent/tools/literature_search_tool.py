@@ -1,7 +1,7 @@
 """Literature Search tool."""
 
-import json
 import logging
+from collections import defaultdict
 from typing import Any, ClassVar
 
 from httpx import AsyncClient
@@ -24,6 +24,9 @@ class LiteratureSearchInput(BaseModel):
             " articles. The body does not contain the title nor the authors. The matching is done using the bm25 algorithm, so the query"
             " should be based on relevant keywords to ensure maximal efficiency."
         )
+    )
+    article_number: int = Field(
+        default=5, ge=1, le=10, description="Number of articles to return."
     )
     article_types: list[str] | None = Field(
         default=None,
@@ -51,11 +54,26 @@ class LiteratureSearchMetadata(BaseMetadata):
     literature_search_url: str
     token: str
     retriever_k: int
-    reranker_k: int
     use_reranker: bool
 
 
-class LiteratureSearchOutput(BaseModel):
+class ParagraphOutput(BaseModel):
+    """Paragraph parameters."""
+
+    section: str | None
+    paragraph: str
+
+    @field_validator("paragraph", mode="before")
+    @classmethod
+    def truncate_paragraph(cls, text: str) -> str:
+        """Truncate long test."""
+        max_length = 10000
+        if isinstance(text, str) and len(text) > max_length:
+            return text[:max_length]
+        return text
+
+
+class ArticleOutput(BaseModel):
     """Results of the Litterature Search API."""
 
     article_title: str
@@ -69,10 +87,9 @@ class LiteratureSearchOutput(BaseModel):
     cited_by: int | None
     impact_factor: float | None
     abstract: str | None
-    paragraph: str
-    section: str | None
+    paragraphs: list[ParagraphOutput]
 
-    @field_validator("abstract", "paragraph", mode="before")
+    @field_validator("abstract", mode="before")
     @classmethod
     def truncate_text(cls, text: str) -> str:
         """Truncate long test."""
@@ -80,6 +97,12 @@ class LiteratureSearchOutput(BaseModel):
         if isinstance(text, str) and len(text) > max_length:
             return text[:max_length]
         return text
+
+
+class LiteratureSearchToolOutput(BaseModel):
+    """Output schema for the literature search tool."""
+
+    articles: list[ArticleOutput]
 
 
 class LiteratureSearchTool(BaseTool):
@@ -98,13 +121,11 @@ class LiteratureSearchTool(BaseTool):
     description: ClassVar[
         str
     ] = """Searches the scientific literature. The tool should be used to gather general scientific knowledge. It is best suited for questions about neuroscience and medicine that are not about morphologies.
-    It takes a required `query` argument and optional filters.
-    It returns a list of paragraphs fron scientific papers that match the query (in the sense of the bm25 algorithm), alongside with the metadata of the articles they were extracted from.
-    Please generate a summary of the paper from the abstract + paragraph fields when displaying the article to the user."""
-    input_schema: LiteratureSearchInput
+    It returns a list of scientific articles that have paragraphs matching the query (in the sense of the bm25 algorithm), alongside with the metadata of the articles they were extracted from."""
     metadata: LiteratureSearchMetadata
+    input_schema: LiteratureSearchInput
 
-    async def arun(self) -> str:
+    async def arun(self) -> LiteratureSearchToolOutput:
         """Async search the scientific literature and returns citations.
 
         Returns
@@ -125,7 +146,9 @@ class LiteratureSearchTool(BaseTool):
             date_to=self.input_schema.date_to,
             retriever_k=self.metadata.retriever_k,
             use_reranker=self.metadata.use_reranker,
-            reranker_k=self.metadata.reranker_k,
+            reranker_k=100
+            if self.metadata.retriever_k > 100
+            else self.metadata.retriever_k,  # LS allows for max 100 results for now
         )
         # Send the request
         response = await self.metadata.httpx_client.get(
@@ -137,7 +160,9 @@ class LiteratureSearchTool(BaseTool):
         if response.status_code != 200:
             return response.json()
         else:
-            return self._process_output(response.json())
+            return self._process_output(
+                output=response.json(), article_number=self.input_schema.article_number
+            )
 
     @staticmethod
     def create_query(
@@ -167,28 +192,46 @@ class LiteratureSearchTool(BaseTool):
         return {k: v for k, v in req_body.items() if v is not None}
 
     @staticmethod
-    def _process_output(output: list[dict[str, Any]]) -> str:
+    def _process_output(
+        output: list[dict[str, Any]], article_number: int
+    ) -> LiteratureSearchToolOutput:
         """Process output."""
         paragraphs_metadata = [ParagraphMetadata(**paragraph) for paragraph in output]
+
+        # Aggregate the paragraphs into articles
+        articles: dict[str, list[ParagraphOutput]] = defaultdict(list)
+        article_metadata: dict[str, ParagraphMetadata] = {}
+
+        i = 0
+        while len(articles) < article_number and i < len(paragraphs_metadata):
+            paragraph = paragraphs_metadata[i]
+            articles[paragraph.article_id].append(
+                ParagraphOutput(
+                    section=paragraph.section, paragraph=paragraph.paragraph
+                )
+            )
+            if paragraph.article_id not in article_metadata:
+                article_metadata[paragraph.article_id] = paragraph
+            i += 1
+
         paragraphs_output = [
-            LiteratureSearchOutput(
-                article_title=paragraph.article_title,
-                article_authors=paragraph.article_authors,
-                paragraph=paragraph.paragraph,
-                section=paragraph.section,
-                article_doi=paragraph.article_doi,
-                pubmed_id=paragraph.pubmed_id,
-                date=paragraph.date,
-                article_type=paragraph.article_type,
-                journal_issn=paragraph.journal_issn,
-                journal_name=paragraph.journal_name,
-                cited_by=paragraph.cited_by,
-                impact_factor=paragraph.impact_factor,
-                abstract=paragraph.abstract,
-            ).model_dump()
-            for paragraph in paragraphs_metadata
+            ArticleOutput(
+                article_title=article_metadata[article_id].article_title,
+                article_authors=article_metadata[article_id].article_authors,
+                paragraphs=articles[article_id],
+                article_doi=article_metadata[article_id].article_doi,
+                pubmed_id=article_metadata[article_id].pubmed_id,
+                date=article_metadata[article_id].date,
+                article_type=article_metadata[article_id].article_type,
+                journal_issn=article_metadata[article_id].journal_issn,
+                journal_name=article_metadata[article_id].journal_name,
+                cited_by=article_metadata[article_id].cited_by,
+                impact_factor=article_metadata[article_id].impact_factor,
+                abstract=article_metadata[article_id].abstract,
+            )
+            for article_id in articles.keys()
         ]
-        return json.dumps(paragraphs_output)
+        return LiteratureSearchToolOutput(articles=paragraphs_output)
 
     @classmethod
     async def is_online(

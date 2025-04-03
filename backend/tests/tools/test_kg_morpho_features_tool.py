@@ -12,6 +12,8 @@ from neuroagent.tools.kg_morpho_features_tool import (
     KGFeatureInput,
     KGMorphoFeatureInput,
     KGMorphoFeatureMetadata,
+    KGMorphoFeatureToolOutput,
+    KGOutput,
 )
 
 
@@ -44,15 +46,14 @@ class TestKGMorphoFeaturesTool:
                 knowledge_graph_url=url,
                 kg_morpho_feature_search_size=2,
                 token="fake_token",
-                brainregion_path=brain_region_json_path,
+                brainregion_hierarchy_storage_key=str(brain_region_json_path),
                 httpx_client=httpx.AsyncClient(),
             ),
         )
         response = await tool.arun()
-        assert isinstance(response, str)
-        response = json.loads(response)
-        assert len(response) == 2
-        assert isinstance(response[0], dict)
+        assert isinstance(response, KGMorphoFeatureToolOutput)
+        assert len(response.morphologies) == 2
+        assert isinstance(response.morphologies[0], KGOutput)
 
     @pytest.mark.asyncio
     async def test_arun_errors(self, httpx_mock, brain_region_json_path):
@@ -75,7 +76,7 @@ class TestKGMorphoFeaturesTool:
                 knowledge_graph_url=url,
                 kg_morpho_feature_search_size=2,
                 token="fake_token",
-                brainregion_path=brain_region_json_path,
+                brainregion_hierarchy_storage_key=str(brain_region_json_path),
                 httpx_client=httpx.AsyncClient(),
             ),
         )
@@ -102,7 +103,7 @@ class TestKGMorphoFeaturesTool:
                 knowledge_graph_url=url,
                 kg_morpho_feature_search_size=2,
                 token="fake_token",
-                brainregion_path=brain_region_json_path,
+                brainregion_hierarchy_storage_key=str(brain_region_json_path),
                 httpx_client=httpx.AsyncClient(),
             ),
         )
@@ -186,7 +187,7 @@ class TestKGMorphoFeaturesTool:
                 knowledge_graph_url=url,
                 kg_morpho_feature_search_size=2,
                 token="fake_token",
-                brainregion_path=brain_region_json_path,
+                brainregion_hierarchy_storage_key=str(brain_region_json_path),
                 httpx_client=httpx.AsyncClient(),
             ),
         )
@@ -279,7 +280,7 @@ class TestKGMorphoFeaturesTool:
                 knowledge_graph_url=url,
                 kg_morpho_feature_search_size=2,
                 token="fake_token",
-                brainregion_path=brain_region_json_path,
+                brainregion_hierarchy_storage_key=str(brain_region_json_path),
                 httpx_client=httpx.AsyncClient(),
             ),
         )
@@ -373,7 +374,7 @@ class TestKGMorphoFeaturesTool:
                 knowledge_graph_url=url,
                 kg_morpho_feature_search_size=2,
                 token="fake_token",
-                brainregion_path=brain_region_json_path,
+                brainregion_hierarchy_storage_key=str(brain_region_json_path),
                 httpx_client=httpx.AsyncClient(),
             ),
         )

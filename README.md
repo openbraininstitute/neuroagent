@@ -33,6 +33,8 @@ Notes:
 - First run will take longer to build frontend and backend images
 - To rebuild individual services: `docker compose build frontend` or `docker compose build backend`
 - Database changes persist in `neuroagent_postgres_data` volume
+- MinIO data persists in `neuroagent_minio_data` volume
+- Redis data persists in `neuroagent_redis_data` volume
 - To reset database: `docker volume rm neuroagent_postgres_data`
 - To stop all services: `docker compose down`
 

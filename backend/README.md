@@ -37,15 +37,28 @@ You'll need to create the `neuroagent` bucket. You can either:
 docker exec <container_id> mc mb /data/neuroagent
 ```
 
-
-Please don't forget to update the `.env` file with the MinIO credentials.
+4. (Optional) Set up Redis for rate limiting:
 ```bash
-NEUROAGENT_STORAGE__ENDPOINT_URL=http://localhost:9000
-NEUROAGENT_STORAGE__ACCESS_KEY=minioadmin
-NEUROAGENT_STORAGE__SECRET_KEY=minioadmin
+docker run -d -p 6379:6379 redis
 ```
 
-4. Start the server:
+Rate limiting can be configured in the `.env` file:
+```bash
+# Redis connection
+NEUROAGENT_RATE_LIMITER__REDIS_HOST=localhost
+NEUROAGENT_RATE_LIMITER__REDIS_PORT=6379
+
+# Rate limits (per 24h by default)
+NEUROAGENT_RATE_LIMITER__LIMIT_CHAT=10          # Max chat requests
+NEUROAGENT_RATE_LIMITER__LIMIT_SUGGESTIONS=100  # Max suggestion requests
+
+# Disable rate limiting entirely
+NEUROAGENT_RATE_LIMITER__DISABLED=true
+```
+
+Note: Rate limiting is skipped for users with specific virtual lab and project access.
+
+5. Start the server:
 ```bash
 neuroagent-api
 ```

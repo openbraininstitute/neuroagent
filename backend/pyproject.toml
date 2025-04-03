@@ -8,7 +8,7 @@ authors = [
 ]
 description = "Search agent for neuroscience."
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.11"
 dynamic = ["version"]
 dependencies = [
     "aiohttp",
@@ -23,11 +23,13 @@ dependencies = [
     "matplotlib",
     "neurom",
     "numpy<2",
+    "obp-accounting-sdk",
     "openai",
     "psycopg2",
     "pydantic-settings",
     "python-dotenv",
     "python-keycloak",
+    "redis",
     "sqlalchemy[asyncio]",
     "tavily-python",
     "uvicorn",
@@ -79,7 +81,7 @@ convention = "numpy"
 
 [tool.mypy]
 mypy_path = "src"
-python_version = "3.10"
+python_version = "3.11"
 ignore_missing_imports = true
 no_implicit_optional = true
 check_untyped_defs = true
@@ -108,6 +110,7 @@ filterwarnings = [
     "ignore:Use get_feature_values:DeprecationWarning",
     "ignore:Mean of empty slice:RuntimeWarning",
     "ignore:Degrees of freedom:RuntimeWarning",
+    "ignore:Default value *:pydantic.json_schema.PydanticJsonSchemaWarning",
     "ignore:Exception ignored in:pytest.PytestUnraisableExceptionWarning",
     "ignore:The configuration option 'asyncio_default_fixture_loop_scope' is unset.",
     "ignore:datetime.*is deprecated and scheduled for removal in a future version.:DeprecationWarning",

@@ -1,6 +1,7 @@
 """App dependencies."""
 
 import logging
+from datetime import datetime, timezone
 from functools import cache
 from typing import Annotated, Any, AsyncIterator
 
@@ -8,7 +9,9 @@ import boto3
 from fastapi import Depends, HTTPException, Request
 from fastapi.security import HTTPBearer
 from httpx import AsyncClient, HTTPStatusError
+from obp_accounting_sdk import AsyncAccountingSessionFactory
 from openai import AsyncOpenAI
+from redis import asyncio as aioredis
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession
 from starlette.status import HTTP_401_UNAUTHORIZED
@@ -34,7 +37,6 @@ from neuroagent.tools import (
     SCSGetAllTool,
     SCSGetOneTool,
     SCSPostTool,
-    SemanticScholarTool,
     WebSearchTool,
 )
 from neuroagent.tools.base_tool import BaseTool
@@ -72,6 +74,11 @@ async def get_httpx_client(request: Request) -> AsyncIterator[AsyncClient]:
         yield client
     finally:
         await client.aclose()
+
+
+def get_accounting_session_factory(request: Request) -> AsyncAccountingSessionFactory:
+    """Get the accounting session factory."""
+    return request.app.state.accounting_session_factory
 
 
 async def get_openai_client(
@@ -173,7 +180,6 @@ def get_tool_list() -> list[type[BaseTool]]:
         PlotGeneratorTool,
         MorphologyViewerTool,
         WebSearchTool,
-        SemanticScholarTool,
         # NowTool,
         # WeatherTool,
         # RandomPlotGeneratorTool,
@@ -204,9 +210,18 @@ def get_starting_agent(
 ) -> Agent:
     """Get the starting agent."""
     logger.info(f"Loading model {settings.openai.model}.")
-    base_instructions = """You are a helpful assistant helping scientists with neuro-scientific questions.
+    base_instructions = f"""You are a helpful assistant helping scientists with neuro-scientific questions.
+                The current date and time is {datetime.now(timezone.utc).isoformat()}.
                 You must always specify in your answers from which brain regions the information is extracted.
-                Do no blindly repeat the brain region requested by the user, use the output of the tools instead."""
+                Do not blindly repeat the brain region requested by the user, use the output of the tools instead.
+                You are embedded in a platform called the Open Brain Platform.
+                The Open Brain Platform allows an atlas driven exploration of mouse, rat and human brain data with different artifacts related to experimental and model data, more specifically: neuron morphology
+                (neuron structure including axons, soma and dendrite), electrophysiological recording (ie the electrical behavior of the neuron), ion channel, neuron density, bouton density, synapses, connections, electrical models also referred to as e-models, me-models which is the model of neuron with a specific morphology and electrical type, and the synaptome dictating how neurons are connected together.
+                The platform also allows users to explore and build digital brain models at different scales ranging from molecular level to single neuron and larger circuits and brain regions.
+                Users can also customize the models or create their own by changing the cellular composition, to then run simulation experiments and perform analysis.
+                The models currently available on the platform are the metabolism and NGV unit as a notebook, and the single neuron, synaptome simulation. The other models will be released later starting with microcircuits paired neurons and then brain region, brain system and whole brain.
+                The platform has many notebooks that can be downloaded and executed remotely for now. A feature to run them on the platform will be available soon.
+                The platform has an AI Assistant for literature search allowing users to identify articles related to the brain area and artifacts they are interested in. At a later stage, the AI assistant will be further developed to access specific tools on the platform."""
 
     storage_instructions = (
         f"All files in storage can be viewed under {settings.misc.frontend_url}/viewer/{{storage_id}}. "
@@ -290,7 +305,6 @@ def get_context_variables(
         "starting_agent": starting_agent,
         "token": token,
         "retriever_k": settings.tools.literature.retriever_k,
-        "reranker_k": settings.tools.literature.reranker_k,
         "use_reranker": settings.tools.literature.use_reranker,
         "literature_search_url": settings.tools.literature.url,
         "knowledge_graph_url": settings.knowledge_graph.url,
@@ -338,3 +352,19 @@ def get_agents_routine(
 ) -> AgentsRoutine:
     """Get the AgentRoutine client."""
     return AgentsRoutine(openai)
+
+
+def get_redis_client(request: Request) -> aioredis.Redis | None:
+    """Get the Redis client from app state.
+
+    Parameters
+    ----------
+    request : Request
+        The FastAPI request object
+
+    Returns
+    -------
+    aioredis.Redis | None
+        The Redis client instance or None if not configured
+    """
+    return request.app.state.redis_client

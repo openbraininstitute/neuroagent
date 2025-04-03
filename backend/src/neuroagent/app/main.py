@@ -1,7 +1,7 @@
 """Main."""
 
 import logging
-from contextlib import asynccontextmanager
+from contextlib import aclosing, asynccontextmanager
 from logging.config import dictConfig
 from typing import Annotated, Any, AsyncContextManager
 from uuid import uuid4
@@ -9,7 +9,18 @@ from uuid import uuid4
 from asgi_correlation_id import CorrelationIdMiddleware
 from fastapi import Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.openapi.utils import get_openapi
+from obp_accounting_sdk import AsyncAccountingSessionFactory
+from obp_accounting_sdk.errors import (
+    AccountingReservationError,
+    AccountingUsageError,
+    InsufficientFundsError,
+)
+from redis import asyncio as aioredis
+from starlette import status
 from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.requests import Request
+from starlette.responses import JSONResponse
 
 from neuroagent import __version__
 from neuroagent.app.app_utils import setup_engine
@@ -17,6 +28,7 @@ from neuroagent.app.config import Settings
 from neuroagent.app.dependencies import (
     get_connection_string,
     get_settings,
+    get_tool_list,
 )
 from neuroagent.app.middleware import strip_path_prefix
 from neuroagent.app.routers import qa, storage, threads, tools
@@ -64,6 +76,17 @@ async def lifespan(fastapi_app: FastAPI) -> AsyncContextManager[None]:  # type: 
     """Read environment (settings of the application)."""
     app_settings = fastapi_app.dependency_overrides.get(get_settings, get_settings)()
 
+    # Initialize Redis client if rate limiting is enabled
+    if not app_settings.rate_limiter.disabled:
+        redis_client = aioredis.Redis(
+            host=app_settings.rate_limiter.redis_host,
+            port=app_settings.rate_limiter.redis_port,
+            decode_responses=True,
+        )
+        fastapi_app.state.redis_client = redis_client
+    else:
+        fastapi_app.state.redis_client = None
+
     # Get the sqlalchemy engine and store it in app state.
     engine = setup_engine(app_settings, get_connection_string(app_settings))
     fastapi_app.state.engine = engine
@@ -87,17 +110,27 @@ async def lifespan(fastapi_app: FastAPI) -> AsyncContextManager[None]:  # type: 
     logging.getLogger("neuroagent").setLevel(app_settings.logging.level.upper())
     logging.getLogger("bluepyefe").setLevel("CRITICAL")
 
-    yield
+    async with aclosing(
+        AsyncAccountingSessionFactory(
+            base_url=app_settings.accounting.base_url,
+            disabled=app_settings.accounting.disabled,
+        )
+    ) as session_factory:
+        fastapi_app.state.accounting_session_factory = session_factory
+
+        yield
+
+    # Cleanup connections
     if engine:
         await engine.dispose()
+
+    if fastapi_app.state.redis_client is not None:
+        await fastapi_app.state.redis_client.aclose()
 
 
 app = FastAPI(
     title="Agents",
-    summary=(
-        "Use an AI agent to answer queries based on the knowledge graph, literature"
-        " search and neuroM."
-    ),
+    summary="API of the agentic chatbot from the Open Brain Institute",
     version=__version__,
     swagger_ui_parameters={"tryItOutEnabled": True},
     lifespan=lifespan,
@@ -123,6 +156,63 @@ app.include_router(qa.router)
 app.include_router(threads.router)
 app.include_router(tools.router)
 app.include_router(storage.router)
+
+
+def custom_openapi() -> dict[str, Any]:
+    """Add tool outputs to the openapi."""
+    if app.openapi_schema:
+        return app.openapi_schema
+
+    openapi_schema = get_openapi(
+        title="Agents",
+        version=__version__,
+        summary="API of the agentic chatbot from the Open Brain Institute",
+        routes=app.routes,
+    )
+
+    tool_list = app.dependency_overrides.get(get_tool_list, get_tool_list)()
+    for tool in tool_list:
+        tool_output_type = tool.arun.__annotations__["return"]
+        tool_schema = tool_output_type.model_json_schema(
+            ref_template="#/components/schemas/{model}"
+        )
+        defs = tool_schema.pop("$defs", None)
+
+        # Find nested models and define them as their own schemas instead of having nested '$defs'
+        if defs:
+            openapi_schema["components"]["schemas"].update(defs)
+        openapi_schema["components"]["schemas"][tool_output_type.__name__] = tool_schema
+
+    app.openapi_schema = openapi_schema
+    return app.openapi_schema
+
+
+app.openapi = custom_openapi  # type: ignore
+
+
+@app.exception_handler(InsufficientFundsError)
+async def insufficient_funds_error_handler(
+    _request: Request, exc: InsufficientFundsError
+) -> JSONResponse:
+    """Handle insufficient funds errors."""
+    return JSONResponse(
+        status_code=status.HTTP_402_PAYMENT_REQUIRED,
+        content={"message": f"Error: {exc.__class__.__name__}"},
+    )
+
+
+@app.exception_handler(AccountingReservationError)
+@app.exception_handler(AccountingUsageError)
+async def accounting_error_handler(
+    _request: Request, exc: AccountingReservationError | AccountingUsageError
+) -> JSONResponse:
+    """Handle accounting errors."""
+    # forward the http error code from upstream
+    status_code = exc.http_status_code or status.HTTP_500_INTERNAL_SERVER_ERROR
+    return JSONResponse(
+        status_code=status_code,
+        content={"message": f"Error: {exc.__class__.__name__}"},
+    )
 
 
 @app.get("/healthz")
