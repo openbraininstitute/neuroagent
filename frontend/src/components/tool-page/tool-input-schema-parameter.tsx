@@ -17,7 +17,7 @@ export function ToolInputSchemaParameter({
   return (
     <Card className="mb-4">
       <CardHeader>
-        <CardTitle className="text-lg flex items-center gap-2">
+        <CardTitle className="flex items-center gap-2 text-lg">
           <span>{parameter.name}</span>
           {parameter.required && (
             <span className="text-sm text-red-500">*required</span>

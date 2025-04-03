@@ -42,15 +42,15 @@ export function ChatInputInsideThread({
 
   return (
     <form
-      className="flex flex-col justify-center items-center gap-4 m-5"
+      className="m-5 flex flex-col items-center justify-center gap-4"
       onSubmit={(e) => {
         setIsAutoScrollEnabled(true);
         handleSubmit(e);
       }}
     >
-      <div className="w-full max-w-[1200px] flex items-center  border-2  border-gray-500 rounded-[3vw] overflow-hidden min-h-16 pl-9 pr-2">
+      <div className="flex min-h-16 w-full max-w-[1200px] items-center overflow-hidden rounded-[3vw] border-2 border-gray-500 pl-9 pr-2">
         <TextareaAutosize
-          className="flex-grow outline-none border-none bg-transparent resize-none"
+          className="h-6 flex-grow resize-none border-none bg-transparent outline-none"
           name="prompt"
           placeholder="Message the AI..."
           value={input}
@@ -59,14 +59,14 @@ export function ChatInputInsideThread({
           autoComplete="off"
           maxRows={10}
         />
-        <div className="flex gap-3 mr-3">
+        <div className="mr-3 flex gap-3">
           <ToolSelectionDropdown
             availableTools={availableTools}
             checkedTools={checkedTools}
             setCheckedTools={setCheckedTools}
           />
           {isLoading ? (
-            <div className="w-6 h-6 border-2 ml-2 p-1 border-gray-500 border-t-transparent rounded-full animate-spin" />
+            <div className="ml-2 h-6 w-6 animate-spin rounded-full border-2 border-gray-500 border-t-transparent p-1" />
           ) : (
             <button
               type="submit"

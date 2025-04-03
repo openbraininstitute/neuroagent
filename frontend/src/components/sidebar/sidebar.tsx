@@ -25,38 +25,35 @@ export function Sidebar({ children }: { children: React.ReactNode }) {
   return (
     <>
       <div
-        className={`
-        transition-all duration-300 ease-in-out shadow-md min-w-10
-        ${
+        className={`min-w-10 shadow-md transition-all duration-300 ease-in-out ${
           showSidebar ? "w-[16rem] md:w-[18rem] lg:w-[20rem]" : "w-[3.5rem]"
-        } border-r-2 flex flex-col
-      `}
+        } flex flex-col border-r-2`}
       >
         <div className="flex justify-between">
           <div className="p-4">
             {showSidebar ? (
               <PanelRightOpen
-                className="hover:scale-[1.1] transition"
+                className="transition hover:scale-[1.1]"
                 onClick={toggleSidebar}
               />
             ) : (
               <PanelRightClose
-                className="hover:scale-[1.1] transition"
+                className="transition hover:scale-[1.1]"
                 onClick={toggleSidebar}
               />
             )}
           </div>
           {showSidebar && (
-            <div className="flex p-4 gap-4">
-              <Search className="hover:scale-[1.1] transition" />
+            <div className="flex gap-4 p-4">
+              <Search className="transition hover:scale-[1.1]" />
               <Link href="/">
-                <SquarePen className="hover:scale-[1.1] transition" />
+                <SquarePen className="transition hover:scale-[1.1]" />
               </Link>
             </div>
           )}
         </div>
         {showSidebar && (
-          <div className="overflow-auto flex-1 pt-4">{children}</div>
+          <div className="flex-1 overflow-auto pt-4">{children}</div>
         )}
       </div>
     </>

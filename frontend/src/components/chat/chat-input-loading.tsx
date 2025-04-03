@@ -8,22 +8,22 @@ interface ChatComponentProps {
 
 export default function ChatInputLoading({ newMessage }: ChatComponentProps) {
   return (
-    <div className="flex flex-col h-full">
-      <div className="flex-1 flex flex-col overflow-y-auto">
+    <div className="flex h-full flex-col">
+      <div className="flex flex-1 flex-col overflow-y-auto">
         <ChatMessageHuman key="temp" content={newMessage} />
       </div>
-      <form className="flex flex-col justify-center items-center gap-4 m-5">
-        <div className="flex items-center w-full max-w-[1200px] border-2 border-gray-500 rounded-[3vw] overflow-hidden min-h-16 pl-9 pr-2">
+      <form className="m-5 flex flex-col items-center justify-center gap-4">
+        <div className="flex min-h-16 w-full max-w-[1200px] items-center overflow-hidden rounded-[3vw] border-2 border-gray-500 pl-9 pr-2">
           <TextareaAutosize
             readOnly
-            className="flex-grow outline-none border-none bg-transparent resize-none"
+            className="h-6 flex-grow resize-none border-none bg-transparent outline-none"
             name="prompt"
             placeholder="Message the AI..."
             autoComplete="off"
             disabled
           />
-          <div className="flex gap-3 mr-3">
-            <div className="w-6 h-6 border-2 ml-2 p-1 border-gray-500 border-t-transparent rounded-full animate-spin" />
+          <div className="mr-3 flex gap-3">
+            <div className="ml-2 h-6 w-6 animate-spin rounded-full border-2 border-gray-500 border-t-transparent p-1" />
           </div>
         </div>
       </form>

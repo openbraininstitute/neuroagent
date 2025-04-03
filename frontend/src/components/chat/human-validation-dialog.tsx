@@ -240,7 +240,7 @@ export function HumanValidationDialog({
                     />
                     {error && (
                       <p
-                        className="text-red-500 text-sm mt-1"
+                        className="mt-1 text-sm text-red-500"
                         aria-live="polite"
                       >
                         {error}

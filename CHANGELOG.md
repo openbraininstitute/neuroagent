@@ -7,11 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## Changed
+- Prettier automatic tailwind classes sorting.
+- Nicer HIL validation window.
+
+## Added
+- [frontend] - tool thunmbnail in chat.
+
+## [v0.4.6]
+
 ### Changed
 - Return only one suggestion.
 - Update system prompt.
 - Add current time and date in system prompt.
-- Nicer HIL validation window.
 
 ### Added
 - Every tool output schema to the OpenAPI json + swagger.

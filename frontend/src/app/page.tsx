@@ -24,7 +24,7 @@ async function getToolList() {
 export default async function Home() {
   const availableTools = await getToolList();
   return (
-    <div className="flex flex-col justify-center h-full">
+    <div className="flex h-full flex-col justify-center">
       <ChatInput availableTools={availableTools} />
     </div>
   );

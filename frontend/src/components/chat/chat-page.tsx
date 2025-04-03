@@ -188,11 +188,11 @@ export function ChatPage({
   }, [error, messages, setMessages]);
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex h-full flex-col">
       <div
         ref={containerRef}
         onWheel={handleWheel}
-        className="flex-1 flex flex-col overflow-y-auto"
+        className="flex flex-1 flex-col overflow-y-auto"
       >
         <ChatMessagesInsideThread
           messages={messages}

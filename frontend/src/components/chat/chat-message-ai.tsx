@@ -19,23 +19,27 @@ export const ChatMessageAI = function ChatMessageAI({
   messageId,
 }: ChatMessageAIProps) {
   return (
-    <div className="flex justify-start mt-4">
+    <div className="mt-4 flex justify-start">
       {hasTools ? (
         <Button
-          className="hover:scale-105 active:scale-[1.10] ml-8 mt-1 bg-blue-500 rounded-full p-2.5"
+          className="ml-8 mt-1 rounded-full bg-blue-500 p-2.5 hover:scale-105 active:scale-[1.10]"
           onClick={toggleCollapse}
         >
-          {toolsCollapsed ? <Wrench /> : <ChevronDown />}
+          {toolsCollapsed ? (
+            <Wrench className="text-black dark:text-white" />
+          ) : (
+            <ChevronDown className="text-black dark:text-white" />
+          )}
         </Button>
       ) : (
-        <Button className="ml-8 mt-1 bg-blue-500 rounded-full p-2.5 hover:bg-blue-500">
-          <LoaderPinwheel />
+        <Button className="ml-8 mt-1 rounded-full bg-blue-500 p-2.5 hover:bg-blue-500">
+          <LoaderPinwheel className="text-black dark:text-white" />
         </Button>
       )}
 
-      <Card className="max-w-[70%] bg-transparent shadow-none border-none mt-1">
+      <Card className="mt-1 max-w-[70%] border-none bg-transparent shadow-none">
         <CardContent>
-          <div className="prose max-w-none text-lg pt-1 text-left dark:prose-invert">
+          <div className="prose max-w-none pt-1 text-left text-lg dark:prose-invert">
             <MemoizedMarkdown content={content || ""} id={messageId} />
           </div>
         </CardContent>
