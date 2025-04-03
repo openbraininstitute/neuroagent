@@ -16,8 +16,7 @@ import {
   monoDarkTheme,
   monoLightTheme,
 } from "json-edit-react";
-import { scs_post_json } from "@/lib/json-schema";
-import Ajv from 'ajv'
+import { scsPostSchema } from "@/lib/zod-schemas";
 
 import { Button } from "@/components/ui/button";
 import type { MessageStrict } from "@/lib/types";
@@ -54,8 +53,6 @@ export function HumanValidationDialog({
 }: HumanValidationDialogProps) {
   const { theme } = useTheme();
   const isLightTheme = theme === "light";
-  const ajv = new Ajv()
-  const validate = ajv.compile(scs_post_json)
 
   const [editedArgs, setEditedArgs] = useState<JsonData>(args);
   const [isEdited, setIsEdited] = useState(false);
@@ -74,7 +71,7 @@ export function HumanValidationDialog({
   }, [args]);
 
   const handleArgsChange = (value: JsonData) => {
-    console.log(value)
+    console.log(value);
     setEditedArgs(value);
     setIsEdited(JSON.stringify(value) !== JSON.stringify(args));
   };
@@ -191,23 +188,20 @@ export function HumanValidationDialog({
                     <h3 className="text-sm font-medium">Arguments:</h3>
                     <JsonEditor
                       data={editedArgs}
-                      onUpdate={ ({ newData }) => {
-                        const valid = validate(newData)
-                        if (!valid) {
-                          console.log('Errors', validate.errors)
-                          const errorMessage = validate.errors
-                            ?.map((error) => `${error.instancePath}${error.instancePath ? ': ' : ''}${error.message}`)
-                            .join('\n')
-                          // Send detailed error message to an external UI element, such as a "Toast" notification
-                           alert({
-                            title: 'Not compliant with JSON Schema',
-                            description: errorMessage,
-                            status: 'error',
-                          })
-                          // This string returned to and displayed in json-edit-react UI
-                          return 'JSON Schema error'
+                      onUpdate={({ newData }) => {
+                        const result = scsPostSchema.safeParse(newData);
+                        if (!result.success) {
+                          const errorMessage = result.error.errors
+                            .map(
+                              (error) =>
+                                `${error.path.join(".")}${error.path.length ? ": " : ""}${error.message}`,
+                            )
+                            .join("\n");
+                          alert("Json validation error \n" + errorMessage);
+                          return "JSON Schema error";
                         }
-                        handleArgsChange(valid)
+
+                        handleArgsChange(result.data);
                       }}
                       setData={(data: JsonData) => handleArgsChange(data)}
                       className="max-h-[75vh] overflow-y-auto"
@@ -216,11 +210,24 @@ export function HumanValidationDialog({
                         {
                           styles: {
                             container: {
-                              backgroundColor: isLightTheme ? "#f1f1f1" : "#151515",
+                              backgroundColor: isLightTheme
+                                ? "#f1f1f1"
+                                : "#151515",
                               fontFamily: "Geist Mono",
                             },
-                            input: [isLightTheme ? "#575757" : "#a8a8a8"],
-                            inputHighlight: isLightTheme ? "#b3d8ff" : "#1c3a59",
+                            input: isLightTheme ? "#575757" : "#a8a8a8",
+                            inputHighlight: isLightTheme
+                              ? "#b3d8ff"
+                              : "#1c3a59",
+                            string: isLightTheme
+                              ? "rgb(8, 129, 215)"
+                              : "rgb(38, 139, 210)",
+                            number: isLightTheme
+                              ? "rgb(8, 129, 215)"
+                              : "rgb(38, 139, 210)",
+                            boolean: isLightTheme
+                              ? "rgb(8, 129, 215)"
+                              : "rgb(38, 139, 210)",
                           },
                         },
                       ]}
