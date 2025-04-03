@@ -39,11 +39,11 @@ export default async function ToolsPage() {
 
   return (
     <>
-      <h1 className="text-2xl my-4 text-center font-bold mb-6">Tools</h1>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mx-4 p-4 max-h-[calc(100vh-8rem)] overflow-y-auto">
+      <h1 className="my-4 mb-6 text-center text-2xl font-bold">Tools</h1>
+      <div className="mx-4 grid max-h-[calc(100vh-8rem)] grid-cols-1 gap-4 overflow-y-auto p-4 md:grid-cols-2 lg:grid-cols-3">
         {tools.map((tool) => (
           <Link key={tool.name} href={`/tools/${tool.name}`}>
-            <Card className="text-center transition-all hover:bg-muted hover:scale-[1.02] hover:shadow-md cursor-pointer h-full">
+            <Card className="h-full cursor-pointer text-center transition-all hover:scale-[1.02] hover:bg-muted hover:shadow-md">
               <CardHeader>
                 <CardTitle>{tool.nameFrontend}</CardTitle>
                 <CardDescription>{tool.name}</CardDescription>

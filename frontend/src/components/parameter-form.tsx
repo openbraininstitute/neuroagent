@@ -82,7 +82,7 @@ export function ParameterForm({
               </FormItem>
             )}
           />
-          <Button className="hover:scale-[1.05] transition mt-4" type="submit">
+          <Button className="mt-4 transition hover:scale-[1.05]" type="submit">
             Save Settings
           </Button>
         </form>

@@ -48,31 +48,31 @@ export function ThreadCardSidebar({ title, threadId }: ThreadCardSidebarProps) {
     >
       <Link
         href={`/threads/${threadId}`}
-        className="flex gap-3 flex-1 w-[100%]"
+        className="flex w-[100%] flex-1 gap-3"
       >
         <MessageCircle />
         <span
-          className={`truncate max-w-[80%] ${isDeletePending || isDropdownOpen ? "opacity-50" : ""}`}
+          className={`max-w-[80%] truncate ${isDeletePending || isDropdownOpen ? "opacity-50" : ""}`}
         >
           {optimisticTitle}
         </span>
       </Link>
 
       {/* Dropdown Menu */}
-      <div className="absolute right-2 top-1/2 transform -translate-y-1/2 translate-x-[10%]">
+      <div className="absolute right-2 top-1/2 -translate-y-1/2 translate-x-[10%] transform">
         <DropdownMenu open={isDropdownOpen} onOpenChange={setIsDropdownOpen}>
           <DropdownMenuTrigger asChild>
             <Button
               type="button"
               variant="outline"
               size="icon"
-              className="opacity-0 group-hover:opacity-100 transition-opacity"
+              className="opacity-0 transition-opacity group-hover:opacity-100"
             >
               <Ellipsis />
             </Button>
           </DropdownMenuTrigger>
 
-          <DropdownMenuContent className="flex flex-col min-w-fit -translate-y-[20%] translate-x-[50%] border-2">
+          <DropdownMenuContent className="flex min-w-fit -translate-y-[20%] translate-x-[50%] flex-col border-2">
             {/* Edit Option  */}
             <DropdownMenuItem
               onClick={(e) => {

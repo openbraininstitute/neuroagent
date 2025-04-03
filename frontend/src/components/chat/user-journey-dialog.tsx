@@ -119,7 +119,7 @@ export function OpenUserJourneyButton({
       >
         {pendingSuggestions ? (
           <div
-            className="w-6 h-6 border-2 ml-2 p-1 border-gray-500 border-t-transparent rounded-full animate-spin"
+            className="ml-2 h-6 w-6 animate-spin rounded-full border-2 border-gray-500 border-t-transparent p-1"
             data-testid="loading-spinner"
           />
         ) : (

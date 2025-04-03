@@ -8,10 +8,10 @@ export const ChatMessageHuman = function ChatMessageHuman({
   content,
 }: ChatMessageHumanProps) {
   return (
-    <div className="flex justify-end p-8 border-solid break-all">
+    <div className="flex justify-end break-all border-solid p-8">
       <Card className="max-w-[70%]">
         <CardContent>
-          <h1 className="text-lg pt-8 whitespace-pre-wrap">{content}</h1>
+          <h1 className="whitespace-pre-wrap pt-8 text-lg">{content}</h1>
         </CardContent>
       </Card>
     </div>
