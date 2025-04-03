@@ -174,13 +174,13 @@ export function HumanValidationDialog({
                   <div className="mt-4">
                     <h3 className="text-sm font-medium">Arguments:</h3>
                     <textarea
-                      className="mt-2 w-full h-32 font-mono text-sm rounded-md bg-slate-100 p-4 dark:bg-slate-800"
+                      className="mt-2 h-32 w-full rounded-md bg-slate-100 p-4 font-mono text-sm dark:bg-slate-800"
                       value={editedArgs}
                       onChange={(e) => handleArgsChange(e.target.value)}
                     />
                     {error && (
                       <p
-                        className="text-red-500 text-sm mt-1"
+                        className="mt-1 text-sm text-red-500"
                         aria-live="polite"
                       >
                         {error}

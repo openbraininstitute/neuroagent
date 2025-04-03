@@ -20,7 +20,7 @@ export default function PlotsInChat({ storageIds }: PlotDisplayProps) {
   }
 
   return (
-    <div className="ml-20 max-w-[70%] grid grid-cols-2 gap-4">
+    <div className="ml-20 grid max-w-[70%] grid-cols-2 gap-4">
       {storageIds.map((storageId) => (
         <div key={storageId} className="flex min-h-[27rem] justify-start">
           <SinglePlotInChat key={storageId} storageId={storageId} />
@@ -41,8 +41,8 @@ const SinglePlotInChat = memo(({ storageId }: { storageId: string }) => {
 
   if (!category) {
     return (
-      <div className="w-full h-full flex justify-center items-center border-4">
-        <div className="w-6 h-6 border-2 p-1 border-gray-500 border-t-transparent rounded-full animate-spin" />
+      <div className="flex h-full w-full items-center justify-center border-4">
+        <div className="h-6 w-6 animate-spin rounded-full border-2 border-gray-500 border-t-transparent p-1" />
       </div>
     );
   }

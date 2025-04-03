@@ -79,18 +79,18 @@ export function Piechart({ presignedUrl, isInChat, storageId }: PlotProp) {
 
   return (
     <div
-      className={`w-full p-4 max-w-2xl overflow-y-auto ${!isInChat && "mx-auto"}`}
+      className={`w-full max-w-2xl overflow-y-auto p-4 ${!isInChat && "mx-auto"}`}
     >
       {isInChat ? (
         <Link href={`/viewer/${storageId}`} className="flex gap-2">
           <Link2 className="mt-0.5" />
-          <h2 className="text-xl font-bold mb-2 underline">{data.title}</h2>
+          <h2 className="mb-2 text-xl font-bold underline">{data.title}</h2>
         </Link>
       ) : (
-        <h2 className="text-xl font-bold mb-2">{data.title}</h2>
+        <h2 className="mb-2 text-xl font-bold">{data.title}</h2>
       )}
       {data.description && (
-        <p className="text-gray-600 mb-4">{data.description}</p>
+        <p className="mb-4 text-gray-600">{data.description}</p>
       )}
       <div className={`flex ${isInChat ? "justify-center" : "justify-start"}`}>
         <div className={isInChat ? "max-w-sm" : "w-full"}>

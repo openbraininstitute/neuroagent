@@ -59,8 +59,8 @@ export function ChatInput({ availableTools }: ChatInputProps) {
   }, []); // Empty dependency array means this runs once on mount
 
   return !isPending ? (
-    <div className="flex flex-col items-center gap-4 h-[100%] justify-center m-5">
-      <h1 className="text-2xl font-bold mt-4 mb-6">
+    <div className="m-5 flex h-[100%] flex-col items-center justify-center gap-4">
+      <h1 className="mb-6 mt-4 text-2xl font-bold">
         What can I help you with?
       </h1>
       <form
@@ -73,13 +73,13 @@ export function ChatInput({ availableTools }: ChatInputProps) {
           }
           setInput("");
         }}
-        className="flex flex-col w-full max-w-[1200px] justify-center"
+        className="flex w-full max-w-[1200px] flex-col justify-center"
       >
-        <div className="flex items-center border-2  border-gray-500 rounded-[3vw] overflow-hidden min-h-16 pl-9 pr-2">
+        <div className="flex min-h-16 items-center overflow-hidden rounded-[3vw] border-2 border-gray-500 pl-9 pr-2">
           <TextareaAutosize
             name="content"
             autoComplete="off"
-            className="flex-grow h-6 outline-none border-none bg-transparent resize-none"
+            className="h-6 flex-grow resize-none border-none bg-transparent outline-none"
             placeholder={isPending ? "Creating thread..." : "Message the AI..."}
             value={input}
             onChange={(e) => setInput(e.target.value)}
@@ -87,7 +87,7 @@ export function ChatInput({ availableTools }: ChatInputProps) {
             disabled={isPending}
             maxRows={10}
           />
-          <div className="flex gap-3 mr-3">
+          <div className="mr-3 flex gap-3">
             <OpenUserJourneyButton
               querySuggestions={suggestionActionWrapper}
               pendingSuggestions={pendingSuggestions}
@@ -99,7 +99,7 @@ export function ChatInput({ availableTools }: ChatInputProps) {
             />
             {isPending ? (
               <div
-                className="w-6 h-6 border-2 ml-2 p-1 border-gray-500 border-t-transparent rounded-full animate-spin"
+                className="ml-2 h-6 w-6 animate-spin rounded-full border-2 border-gray-500 border-t-transparent p-1"
                 data-testid="loading-spinner"
               />
             ) : (

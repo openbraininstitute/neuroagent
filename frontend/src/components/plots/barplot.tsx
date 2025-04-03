@@ -96,17 +96,17 @@ export function Barplot({ presignedUrl, storageId, isInChat }: PlotProp) {
   };
 
   return (
-    <div className="w-full max-w-3xl mx-auto p-4 overflow-y-auto">
+    <div className="mx-auto w-full max-w-3xl overflow-y-auto p-4">
       {isInChat ? (
         <Link href={`/viewer/${storageId}`} className="flex gap-2">
           <Link2 className="mt-0.5" />
-          <h2 className="text-xl font-bold mb-2 underline">{data.title}</h2>
+          <h2 className="mb-2 text-xl font-bold underline">{data.title}</h2>
         </Link>
       ) : (
-        <h2 className="text-xl font-bold mb-2">{data.title}</h2>
+        <h2 className="mb-2 text-xl font-bold">{data.title}</h2>
       )}
       {data.description && (
-        <p className="text-gray-600 mb-4">{data.description}</p>
+        <p className="mb-4 text-gray-600">{data.description}</p>
       )}
       <div>
         <Bar data={chartData} options={options} />

@@ -40,13 +40,13 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen`}
+        className={`${geistSans.variable} ${geistMono.variable} min-h-screen antialiased`}
       >
         <QueryProvider>
           <AuthProvider>
             <ThemeChangerProvider>
               <ProgressBarProvider>
-                <div className="flex flex-col h-screen">
+                <div className="flex h-screen flex-col">
                   <Header />
                   <div className="flex flex-1 flex-row overflow-hidden">
                     <Sidebar>

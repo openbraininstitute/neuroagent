@@ -25,7 +25,7 @@ export default function LoginPage() {
   }, [status, router]);
 
   return (
-    <div className="flex items-center justify-center min-h-screen">
+    <div className="flex min-h-screen items-center justify-center">
       <Card className="w-[380px]">
         <CardHeader className="text-center">
           <CardTitle>Welcome to OBI Chat</CardTitle>

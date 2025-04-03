@@ -12,7 +12,7 @@ export function Header() {
   const { start } = useProgress();
 
   return (
-    <header className="flex items-center justify-between p-4 text-center border-b-2 h-16">
+    <header className="flex h-16 items-center justify-between border-b-2 p-4 text-center">
       <div>
         {status !== "loading" && session && (
           <span>Hello, {session.user?.name || "User"}!</span>
@@ -21,14 +21,14 @@ export function Header() {
       <div className="flex items-center gap-4">
         <ThemeToggle />
         {status === "loading" ? (
-          <div className="animate-spin h-5 w-5 border-2 border-gray-500 border-t-transparent rounded-full" />
+          <div className="h-5 w-5 animate-spin rounded-full border-2 border-gray-500 border-t-transparent" />
         ) : session ? (
           <>
             <Link href="/settings">
-              <Settings className="hover:scale-[1.1] transition" />
+              <Settings className="transition hover:scale-[1.1]" />
             </Link>
             <button onClick={() => signOut()}>
-              <LogOut className="hover:scale-[1.1] transition" />
+              <LogOut className="transition hover:scale-[1.1]" />
             </button>
           </>
         ) : (
@@ -40,7 +40,7 @@ export function Header() {
               });
             }}
             variant="default"
-            className="hover:scale-[1.1] transition"
+            className="transition hover:scale-[1.1]"
           >
             Sign in
           </Button>
