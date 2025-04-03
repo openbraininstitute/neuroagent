@@ -79,7 +79,7 @@ export function ChatInput({ availableTools }: ChatInputProps) {
           <TextareaAutosize
             name="content"
             autoComplete="off"
-            className="flex-grow outline-none border-none bg-transparent resize-none"
+            className="flex-grow h-6 outline-none border-none bg-transparent resize-none"
             placeholder={isPending ? "Creating thread..." : "Message the AI..."}
             value={input}
             onChange={(e) => setInput(e.target.value)}

@@ -16,7 +16,7 @@ export default function ChatInputLoading({ newMessage }: ChatComponentProps) {
         <div className="flex items-center w-full max-w-[1200px] border-2 border-gray-500 rounded-[3vw] overflow-hidden min-h-16 pl-9 pr-2">
           <TextareaAutosize
             readOnly
-            className="flex-grow outline-none border-none bg-transparent resize-none"
+            className="flex-grow h-6 outline-none border-none bg-transparent resize-none"
             name="prompt"
             placeholder="Message the AI..."
             autoComplete="off"

@@ -199,8 +199,6 @@ class SettingsMisc(BaseModel):
     # Query size limiter, in number of characters. (630 words ~= 5000 characters.)
     query_max_size: int = 10000
 
-    frontend_url: str | None = "http://localhost:3000"
-
     model_config = ConfigDict(frozen=True)
 
 

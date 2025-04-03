@@ -50,7 +50,7 @@ export function ChatInputInsideThread({
     >
       <div className="w-full max-w-[1200px] flex items-center  border-2  border-gray-500 rounded-[3vw] overflow-hidden min-h-16 pl-9 pr-2">
         <TextareaAutosize
-          className="flex-grow outline-none border-none bg-transparent resize-none"
+          className="flex-grow h-6 outline-none border-none bg-transparent resize-none"
           name="prompt"
           placeholder="Message the AI..."
           value={input}

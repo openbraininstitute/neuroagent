@@ -12,6 +12,7 @@ import {
   TooltipItem,
 } from "chart.js";
 import { Line } from "react-chartjs-2";
+import { useTheme } from "next-themes";
 
 ChartJS.register(
   LinearScale,
@@ -22,11 +23,27 @@ ChartJS.register(
   Legend,
 );
 
-type LinechartProps = {
-  data: JSONLinechart;
-};
+import { useGetObjectFromStorage } from "@/hooks/get-storage-object";
+import { PlotProp } from "@/lib/types";
+import Link from "next/link";
+import { Link2 } from "lucide-react";
 
-export function Linechart({ data }: LinechartProps) {
+export function Linechart({ presignedUrl, isInChat, storageId }: PlotProp) {
+  const { theme } = useTheme();
+
+  const { data: response } = useGetObjectFromStorage(
+    presignedUrl as string,
+    presignedUrl != "",
+    false,
+  );
+  if (!response) {
+    return null;
+  }
+  const data = response as JSONLinechart;
+
+  const darkGridColor = "rgba(255, 255, 255, 0.1)";
+  const gridColor = theme === "dark" ? darkGridColor : undefined;
+
   const chartData = {
     labels: data.values.map((point) => point.x),
     datasets: [
@@ -54,10 +71,6 @@ export function Linechart({ data }: LinechartProps) {
       legend: {
         display: false,
       },
-      title: {
-        display: true,
-        text: data.title,
-      },
       tooltip: {
         callbacks: {
           label: (context: TooltipItem<"line">) => {
@@ -70,14 +83,18 @@ export function Linechart({ data }: LinechartProps) {
     scales: {
       x: {
         type: "linear" as const,
-        beginAtZero: true,
+        grid: {
+          color: gridColor,
+        },
         title: {
           display: !!data.x_label,
           text: data.x_label,
         },
       },
       y: {
-        beginAtZero: true,
+        grid: {
+          color: gridColor,
+        },
         title: {
           display: !!data.y_label,
           text: data.y_label,
@@ -87,12 +104,21 @@ export function Linechart({ data }: LinechartProps) {
   };
 
   return (
-    <div className="w-full max-w-3xl mx-auto p-4 overflow-y-auto">
-      <h2 className="text-xl font-bold mb-2">{data.title}</h2>
+    <div
+      className={`w-full max-w-3xl p-4 overflow-y-auto ${!isInChat && "mx-auto"}`}
+    >
+      {isInChat ? (
+        <Link href={`/viewer/${storageId}`} className="flex gap-2">
+          <Link2 className="mt-0.5" />
+          <h2 className="text-xl font-bold mb-2 underline">{data.title}</h2>
+        </Link>
+      ) : (
+        <h2 className="text-xl font-bold mb-2">{data.title}</h2>
+      )}
       {data.description && (
         <p className="text-gray-600 mb-4">{data.description}</p>
       )}
-      <div className="aspect-square">
+      <div>
         <Line data={chartData} options={options} />
       </div>
     </div>

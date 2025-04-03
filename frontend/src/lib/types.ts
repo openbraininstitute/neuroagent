@@ -123,6 +123,12 @@ export type BToolMetadataDetailed = {
   is_online: boolean;
 };
 
+export type PlotProp = {
+  presignedUrl: string;
+  storageId?: string;
+  isInChat?: boolean;
+};
+
 type BaseObject = {
   title: string;
   description: string;
