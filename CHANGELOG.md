@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Return only one suggestion.
 - Update system prompt.
 - Add current time and date in system prompt.
+- Nicer HIL validation window.
+
 ### Added
 - Every tool output schema to the OpenAPI json + swagger.
 - Header containing rate limit info.
