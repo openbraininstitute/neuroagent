@@ -141,6 +141,53 @@ def test_get_threads(patch_required_env, httpx_mock, app_client, db_connection):
 
 
 @pytest.mark.httpx_mock(can_send_already_matched_responses=True)
+def test_get_threads_query_param(
+    patch_required_env, httpx_mock, app_client, db_connection
+):
+    mock_keycloak_user_identification(httpx_mock)
+    test_settings = Settings(
+        db={"prefix": db_connection}, keycloak={"issuer": "https://great_issuer.com"}
+    )
+    app.dependency_overrides[get_settings] = lambda: test_settings
+
+    with app_client as app_client:
+        threads = app_client.get("/threads").json()
+        assert not threads
+        # Create some threads
+        create_output_1 = app_client.post("/threads").json()
+        create_output_2 = app_client.post("/threads").json()
+        create_output_3 = app_client.post("/threads").json()
+        app_client.patch(
+            f"/threads/{create_output_2['thread_id']}", json={"title": "New chat"}
+        )
+
+        thread_ids = [
+            create_output_1["thread_id"],
+            create_output_2["thread_id"],
+            create_output_3["thread_id"],
+        ]
+        threads = app_client.get("/threads", params={"sort": "creation_date"}).json()
+        assert [thread["thread_id"] for thread in threads] == list(reversed(thread_ids))
+
+        threads = app_client.get("/threads", params={"sort": "-creation_date"}).json()
+        assert [thread["thread_id"] for thread in threads] == thread_ids
+
+        threads = app_client.get("/threads", params={"sort": "update_date"}).json()
+        assert [thread["thread_id"] for thread in threads] == [
+            thread_ids[1],
+            thread_ids[2],
+            thread_ids[0],
+        ]
+
+        threads = app_client.get("/threads", params={"sort": "-update_date"}).json()
+        assert [thread["thread_id"] for thread in threads] == [
+            thread_ids[0],
+            thread_ids[2],
+            thread_ids[1],
+        ]
+
+
+@pytest.mark.httpx_mock(can_send_already_matched_responses=True)
 def test_update_thread_title(patch_required_env, httpx_mock, app_client, db_connection):
     mock_keycloak_user_identification(httpx_mock)
     test_settings = Settings(
@@ -265,3 +312,71 @@ async def test_get_thread_messages(
     assert messages[3]["msg_content"] == {"content": "sample response content."}
     assert messages[3]["message_id"]
     assert messages[3]["creation_date"]
+
+
+@pytest.mark.httpx_mock(can_send_already_matched_responses=True)
+@pytest.mark.asyncio
+async def test_get_thread_messages_sort_and_filter(
+    patch_required_env,
+    httpx_mock,
+    app_client,
+    db_connection,
+    populate_db,
+):
+    # Setup settings and dependency overrides as in the other test
+    mock_keycloak_user_identification(httpx_mock)
+    test_settings = Settings(
+        db={"prefix": db_connection},
+        keycloak={"issuer": "https://great_issuer.com"},
+    )
+    app.dependency_overrides[get_settings] = lambda: test_settings
+
+    db_items, _ = populate_db
+    thread = db_items["thread"]
+
+    # Test sorting in ascending order (oldest first) and filtering for USER and TOOL messages.
+    with app_client as app_client:
+        response = app_client.get(
+            f"/threads/{thread.thread_id}/messages",
+            params={"sort": "creation_date", "entity": ["USER", "TOOL"]},
+        )
+        messages = response.json()
+
+    # Expecting only the messages that have the entities "user" and "tool".
+    # From the populate_db fixture these are:
+    # - The first message: entity "user", msg_content {"content": "This is my query."}
+    # - The third message: entity "tool", msg_content {"content": "It's sunny today."}
+    assert len(messages) == 2
+
+    # Check that messages are sorted in ascending order by creation_date.
+    assert messages[0]["creation_date"] >= messages[1]["creation_date"]
+
+    # Verify the filtering: first message should be from "user" and second from "tool"
+    assert messages[0]["entity"] == "tool"
+    assert messages[0]["msg_content"] == {"content": "It's sunny today."}
+    assert messages[1]["entity"] == "user"
+    assert messages[1]["msg_content"] == {"content": "This is my query."}
+
+    # Test sorting in descending order (newest first) and filtering for AI_TOOL and AI_MESSAGE messages.
+    with app_client as app_client:
+        response = app_client.get(
+            f"/threads/{thread.thread_id}/messages",
+            params={"sort": "-creation_date", "entity": ["AI_TOOL", "AI_MESSAGE"]},
+        )
+        messages = response.json()
+
+    # Expecting only the messages that have the entities "ai_tool" and "ai_message".
+    # According to populate_db these are:
+    # - The second message: entity "ai_tool", msg_content {"content": ""}
+    # - The fourth message: entity "ai_message", msg_content {"content": "sample response content."}
+    assert len(messages) == 2
+
+    # Check that messages are sorted in descending order by creation_date.
+    assert messages[0]["creation_date"] <= messages[1]["creation_date"]
+
+    # Verify the filtering:
+    # Assuming the newer message (by creation_date) is "ai_message"
+    assert messages[0]["entity"] == "ai_tool"
+    assert messages[0]["msg_content"] == {"content": ""}
+    assert messages[1]["entity"] == "ai_message"
+    assert messages[1]["msg_content"] == {"content": "sample response content."}
