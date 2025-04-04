@@ -7,7 +7,7 @@ from typing import Annotated, Any, Literal
 from fastapi import APIRouter, Depends, HTTPException, Query, Response
 from openai import AsyncOpenAI
 from redis import asyncio as aioredis
-from sqlalchemy import desc, or_, select
+from sqlalchemy import desc, or_, select, true
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
 
@@ -126,7 +126,7 @@ async def get_threads(
     project_id: str | None = None,
     sort: Literal[
         "update_date", "creation_date", "-update_date", "-creation_date"
-    ] = "update_date",
+    ] = "-update_date",
 ) -> list[ThreadsRead]:
     """Get threads for a user."""
     validate_project(
@@ -143,9 +143,9 @@ async def get_threads(
             Threads.project_id == project_id,
         )
         .order_by(
-            getattr(Threads, sort_column)
+            desc(getattr(Threads, sort_column))
             if sort.startswith("-")
-            else desc(getattr(Threads, sort_column))
+            else getattr(Threads, sort_column)
         )
     )
 
@@ -215,21 +215,21 @@ async def get_thread_messages(
     entity: list[Literal["USER", "AI_TOOL", "TOOL", "AI_MESSAGE"]] | None = Query(
         default=None
     ),
-    sort: Literal["creation_date", "-creation_date"] = "-creation_date",
+    sort: Literal["creation_date", "-creation_date"] = "creation_date",
 ) -> list[MessageResponse]:
     """Get all messages of the thread."""
     # Create mapping of tool names to their HIL requirement
     tool_hil_mapping = {tool.name: tool.hil for tool in tool_list}
 
     if entity:
-        entity_where = [Messages.entity == ent for ent in entity]
+        entity_where = or_(*[Messages.entity == ent for ent in entity])
     else:
-        entity_where = []
+        entity_where = true()
     messages_result = await session.execute(
         select(Messages)
-        .where(Messages.thread_id == thread_id, or_(*entity_where))
+        .where(Messages.thread_id == thread_id, entity_where)
         .options(joinedload(Messages.tool_calls))  # Eager load tool_calls
-        .order_by(Messages.order if sort.startswith("-") else desc(Messages.order))
+        .order_by(desc(Messages.order) if sort.startswith("-") else Messages.order)
     )
     db_messages = messages_result.unique().scalars().all()
 

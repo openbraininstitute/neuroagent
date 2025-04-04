@@ -166,20 +166,20 @@ def test_get_threads_query_param(
             create_output_2["thread_id"],
             create_output_3["thread_id"],
         ]
-        threads = app_client.get("/threads", params={"sort": "creation_date"}).json()
+        threads = app_client.get("/threads", params={"sort": "-creation_date"}).json()
         assert [thread["thread_id"] for thread in threads] == list(reversed(thread_ids))
 
-        threads = app_client.get("/threads", params={"sort": "-creation_date"}).json()
+        threads = app_client.get("/threads", params={"sort": "creation_date"}).json()
         assert [thread["thread_id"] for thread in threads] == thread_ids
 
-        threads = app_client.get("/threads", params={"sort": "update_date"}).json()
+        threads = app_client.get("/threads", params={"sort": "-update_date"}).json()
         assert [thread["thread_id"] for thread in threads] == [
             thread_ids[1],
             thread_ids[2],
             thread_ids[0],
         ]
 
-        threads = app_client.get("/threads", params={"sort": "-update_date"}).json()
+        threads = app_client.get("/threads", params={"sort": "update_date"}).json()
         assert [thread["thread_id"] for thread in threads] == [
             thread_ids[0],
             thread_ids[2],
@@ -338,7 +338,7 @@ async def test_get_thread_messages_sort_and_filter(
     with app_client as app_client:
         response = app_client.get(
             f"/threads/{thread.thread_id}/messages",
-            params={"sort": "creation_date", "entity": ["USER", "TOOL"]},
+            params={"sort": "-creation_date", "entity": ["USER", "TOOL"]},
         )
         messages = response.json()
 
@@ -361,7 +361,7 @@ async def test_get_thread_messages_sort_and_filter(
     with app_client as app_client:
         response = app_client.get(
             f"/threads/{thread.thread_id}/messages",
-            params={"sort": "-creation_date", "entity": ["AI_TOOL", "AI_MESSAGE"]},
+            params={"sort": "creation_date", "entity": ["AI_TOOL", "AI_MESSAGE"]},
         )
         messages = response.json()
 
