@@ -17,6 +17,7 @@ import {
   monoLightTheme,
 } from "json-edit-react";
 import { scsPostSchema } from "@/lib/zod-schemas";
+import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import type { MessageStrict } from "@/lib/types";
@@ -197,7 +198,12 @@ export function HumanValidationDialog({
                                 `${error.path.join(".")}${error.path.length ? ": " : ""}${error.message}`,
                             )
                             .join("\n");
-                          alert("Json validation error \n" + errorMessage);
+                          toast.error(
+                            <>
+                              <strong>JSON Validation Error</strong>
+                              <div>{errorMessage}</div>
+                            </>,
+                          );
                           return "JSON Schema error";
                         }
 
