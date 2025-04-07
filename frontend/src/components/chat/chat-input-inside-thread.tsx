@@ -1,6 +1,6 @@
 "use client";
 
-import { Send } from "lucide-react";
+import { Send, CircleStop } from "lucide-react";
 import { ToolSelectionDropdown } from "@/components/chat/tool-selection-dropdown";
 import TextareaAutosize from "react-textarea-autosize";
 
@@ -14,6 +14,7 @@ type ChatInputInsideThreadProps = {
   handleSubmit: (event?: { preventDefault?: () => void }) => void;
   setIsAutoScrollEnabled: (enabled: boolean) => void;
   hasOngoingToolInvocations: boolean;
+  onStop: () => void;
 };
 
 export function ChatInputInsideThread({
@@ -26,6 +27,7 @@ export function ChatInputInsideThread({
   handleSubmit,
   setIsAutoScrollEnabled,
   hasOngoingToolInvocations,
+  onStop,
 }: ChatInputInsideThreadProps) {
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter") {
@@ -66,7 +68,9 @@ export function ChatInputInsideThread({
             setCheckedTools={setCheckedTools}
           />
           {isLoading ? (
-            <div className="ml-2 h-6 w-6 animate-spin rounded-full border-2 border-gray-500 border-t-transparent p-1" />
+            <button type="submit" className="p-1" onClick={onStop}>
+              <CircleStop className="opacity-50" />
+            </button>
           ) : (
             <button
               type="submit"

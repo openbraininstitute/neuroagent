@@ -42,6 +42,7 @@ export function ChatPage({
     isLoading,
     setMessages: setMessagesRaw,
     error,
+    stop,
   } = useChat({
     api: `${env.NEXT_PUBLIC_BACKEND_URL}/qa/chat_streamed/${threadId}`,
     headers: {
@@ -213,6 +214,7 @@ export function ChatPage({
         handleSubmit={handleSubmit}
         hasOngoingToolInvocations={hasOngoingToolInvocations}
         setIsAutoScrollEnabled={setIsAutoScrollEnabled}
+        onStop={stop}
       />
     </div>
   );
