@@ -232,6 +232,7 @@ export function HumanValidationDialog({
                         },
                       ]}
                       maxWidth={1000}
+                      restrictTypeSelection={true}
                       rootName={"JSON"}
                       showStringQuotes={true}
                       showArrayIndices={false}
