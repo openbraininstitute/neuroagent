@@ -2,13 +2,11 @@
 
 from typing import Any, AsyncIterator
 
-from fastapi import Request
 from httpx import AsyncClient
 from openai import AsyncOpenAI
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from neuroagent.agent_routine import AgentsRoutine
-from neuroagent.app.database.sql_schemas import Messages, Threads, utc_now
+from neuroagent.app.database.sql_schemas import Messages
 from neuroagent.new_types import Agent
 
 
@@ -17,8 +15,6 @@ async def stream_agent_response(
     agent: Agent,
     messages: list[Messages],
     context_variables: dict[str, Any],
-    thread: Threads,
-    request: Request,
     max_turns: int = 10,
     max_parallel_tool_calls: int = 5,
 ) -> AsyncIterator[str]:
@@ -40,12 +36,6 @@ async def stream_agent_response(
         },
     )
     context_variables["httpx_client"] = httpx_client
-    # Restore the session
-    engine = request.app.state.engine
-    session = AsyncSession(engine)
-    # Need to rebind the messages to the session
-    session.add_all(messages)
-
     iterator = connected_agents_routine.astream(
         agent=agent,
         messages=messages,
@@ -55,12 +45,3 @@ async def stream_agent_response(
     )
     async for chunk in iterator:
         yield chunk
-
-    # Save the new messages in DB
-    thread.update_date = utc_now()
-
-    # For some weird reason need to re-add messages, but only post validation ones
-    session.add_all(messages)
-
-    await session.commit()
-    await session.close()

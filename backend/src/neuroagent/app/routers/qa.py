@@ -5,7 +5,14 @@ import logging
 from contextlib import asynccontextmanager
 from typing import Annotated, Any, AsyncIterator
 
-from fastapi import APIRouter, Depends, HTTPException, Request, Response
+from fastapi import (
+    APIRouter,
+    BackgroundTasks,
+    Depends,
+    HTTPException,
+    Request,
+    Response,
+)
 from fastapi.responses import StreamingResponse
 from obp_accounting_sdk import AsyncAccountingSessionFactory
 from obp_accounting_sdk.constants import ServiceSubtype
@@ -14,6 +21,7 @@ from redis import asyncio as aioredis
 
 from neuroagent.agent_routine import AgentsRoutine
 from neuroagent.app.app_utils import (
+    commit_messages,
     rate_limit,
     validate_project,
 )
@@ -133,6 +141,7 @@ async def stream_chat_agent(
     accounting_session_factory: Annotated[
         AsyncAccountingSessionFactory, Depends(get_accounting_session_factory)
     ],
+    background_tasks: BackgroundTasks,
 ) -> StreamingResponse:
     """Run a single agent query in a streamed fashion."""
     limit_headers, rate_limited = await rate_limit(
@@ -164,6 +173,7 @@ async def stream_chat_agent(
         )
 
     messages: list[Messages] = await thread.awaitable_attrs.messages
+    # Shared between bg task and generator
 
     if not messages or messages[-1].entity == Entity.AI_MESSAGE:
         messages.append(
@@ -172,9 +182,13 @@ async def stream_chat_agent(
                 thread_id=thread.thread_id,
                 entity=Entity.USER,
                 content=json.dumps({"role": "user", "content": user_request.content}),
+                is_complete=True,
             )
         )
-
+    breakpoint()
+    background_tasks.add_task(
+        commit_messages, request.app.state.engine, messages, thread
+    )
     async with accounting_context(
         subtype=ServiceSubtype.ML_LLM,
         user_id=thread.user_id,
@@ -186,8 +200,6 @@ async def stream_chat_agent(
             agent=agent,
             messages=messages,
             context_variables=context_variables,
-            thread=thread,
-            request=request,
             max_turns=settings.agent.max_turns,
             max_parallel_tool_calls=settings.agent.max_parallel_tool_calls,
         )

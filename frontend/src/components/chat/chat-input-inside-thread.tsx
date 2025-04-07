@@ -3,6 +3,7 @@
 import { Send, CircleStop } from "lucide-react";
 import { ToolSelectionDropdown } from "@/components/chat/tool-selection-dropdown";
 import TextareaAutosize from "react-textarea-autosize";
+import { FormEvent, useState } from "react";
 
 type ChatInputInsideThreadProps = {
   input: string;
@@ -29,15 +30,23 @@ export function ChatInputInsideThread({
   hasOngoingToolInvocations,
   onStop,
 }: ChatInputInsideThreadProps) {
+  const [stopped, setStopped] = useState(false);
+  const canSend = !hasOngoingToolInvocations || stopped;
+  const submitWrapper = (
+    e: React.KeyboardEvent<HTMLTextAreaElement> | FormEvent<HTMLFormElement>,
+  ) => {
+    setStopped(false);
+    handleSubmit(e);
+  };
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter") {
       if (e.shiftKey) {
         return;
       }
       e.preventDefault();
-      if (!isLoading && !hasOngoingToolInvocations) {
+      if (!isLoading && canSend) {
         setIsAutoScrollEnabled(true);
-        handleSubmit(e);
+        submitWrapper(e);
       }
     }
   };
@@ -47,7 +56,7 @@ export function ChatInputInsideThread({
       className="m-5 flex flex-col items-center justify-center gap-4"
       onSubmit={(e) => {
         setIsAutoScrollEnabled(true);
-        handleSubmit(e);
+        submitWrapper(e);
       }}
     >
       <div className="flex min-h-16 w-full max-w-[1200px] items-center overflow-hidden rounded-[3vw] border-2 border-gray-500 pl-9 pr-2">
@@ -68,7 +77,15 @@ export function ChatInputInsideThread({
             setCheckedTools={setCheckedTools}
           />
           {isLoading ? (
-            <button type="submit" className="p-1" onClick={onStop}>
+            <button
+              type="button"
+              className="p-1"
+              onClick={(e) => {
+                e.preventDefault();
+                onStop();
+                setStopped(true);
+              }}
+            >
               <CircleStop className="opacity-50" />
             </button>
           ) : (
@@ -76,7 +93,7 @@ export function ChatInputInsideThread({
               type="submit"
               data-testid="send-button"
               className="p-1"
-              disabled={hasOngoingToolInvocations}
+              disabled={!canSend}
             >
               <Send className="opacity-50" />
             </button>
