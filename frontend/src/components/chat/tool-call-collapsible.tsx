@@ -16,6 +16,7 @@ import { viewableTools } from "@/lib/utils";
 type ToolCallCollapsibleProps = {
   tool: ToolInvocation;
   toolLabel: string;
+  stopped: boolean;
   validated: "pending" | "accepted" | "rejected" | "not_required";
   validationError: string | null;
   onValidationClick: () => void;
@@ -24,6 +25,7 @@ type ToolCallCollapsibleProps = {
 export function ToolCallCollapsible({
   tool,
   toolLabel,
+  stopped,
   validated,
   validationError,
   onValidationClick,
@@ -44,6 +46,7 @@ export function ToolCallCollapsible({
         <ToolCallStatus
           state={tool.state}
           validated={validated}
+          stopped={stopped}
           validationError={validationError}
           onValidationClick={onValidationClick}
         />

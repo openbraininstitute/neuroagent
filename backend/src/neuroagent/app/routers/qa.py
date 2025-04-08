@@ -173,9 +173,20 @@ async def stream_chat_agent(
         )
 
     messages: list[Messages] = await thread.awaitable_attrs.messages
-    # Shared between bg task and generator
+    # Since the session is not reinstantiated in stream.py
+    # we need to lazy load the tool_calls in advance since in
+    # any case they will be needed to convert the db schema
+    # to OpenAI messages
+    for msg in messages:
+        if msg.entity == Entity.AI_TOOL:
+            # This awaits the lazy loading, ensuring tool_calls is populated now.
+            await msg.awaitable_attrs.tool_calls
 
-    if not messages or messages[-1].entity == Entity.AI_MESSAGE:
+    if (
+        not messages
+        or messages[-1].entity == Entity.AI_MESSAGE
+        or not messages[-1].is_complete
+    ):
         messages.append(
             Messages(
                 order=len(messages),
@@ -185,7 +196,7 @@ async def stream_chat_agent(
                 is_complete=True,
             )
         )
-    breakpoint()
+
     background_tasks.add_task(
         commit_messages, request.app.state.engine, messages, thread
     )

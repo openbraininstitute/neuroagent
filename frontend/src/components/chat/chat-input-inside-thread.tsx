@@ -3,7 +3,7 @@
 import { Send, CircleStop } from "lucide-react";
 import { ToolSelectionDropdown } from "@/components/chat/tool-selection-dropdown";
 import TextareaAutosize from "react-textarea-autosize";
-import { FormEvent, useState } from "react";
+import { Dispatch, FormEvent, SetStateAction } from "react";
 
 type ChatInputInsideThreadProps = {
   input: string;
@@ -16,6 +16,8 @@ type ChatInputInsideThreadProps = {
   setIsAutoScrollEnabled: (enabled: boolean) => void;
   hasOngoingToolInvocations: boolean;
   onStop: () => void;
+  stopped: boolean;
+  setStopped: Dispatch<SetStateAction<boolean>>;
 };
 
 export function ChatInputInsideThread({
@@ -29,14 +31,15 @@ export function ChatInputInsideThread({
   setIsAutoScrollEnabled,
   hasOngoingToolInvocations,
   onStop,
+  stopped,
+  setStopped,
 }: ChatInputInsideThreadProps) {
-  const [stopped, setStopped] = useState(false);
   const canSend = !hasOngoingToolInvocations || stopped;
   const submitWrapper = (
     e: React.KeyboardEvent<HTMLTextAreaElement> | FormEvent<HTMLFormElement>,
   ) => {
-    setStopped(false);
     handleSubmit(e);
+    setStopped(false);
   };
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter") {

@@ -33,6 +33,7 @@ export function ChatPage({
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [isAutoScrollEnabled, setIsAutoScrollEnabled] = useState(true);
   const containerRef = useRef<HTMLDivElement>(null);
+  const [stopped, setStopped] = useState(false);
 
   const {
     messages: messagesRaw,
@@ -88,6 +89,14 @@ export function ChatPage({
       initialCheckedTools["allchecked"] = true;
       setCheckedTools(initialCheckedTools);
     }
+    // To know if the chat should be disabled or not, check if last message was stopped
+    setStopped(
+      messages.length > 0
+        ? (messages[messages.length - 1].annotations?.some(
+            (annotation) => !annotation.isComplete,
+          ) ?? false)
+        : false,
+    );
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // Empty dependency array means this runs once on mount
 
@@ -110,7 +119,7 @@ export function ChatPage({
 
       // Count tools that were subject to HIL (accepted, rejected, or pending)
       const validatedCount = annotations.filter((a) =>
-        ["accepted", "rejected", "pending"].includes(a.validated),
+        ["accepted", "rejected", "pending"].includes(a.validated ?? ""),
       ).length;
 
       // Count validated tools that also have results
@@ -154,6 +163,19 @@ export function ChatPage({
       setIsAutoScrollEnabled(isAtBottom);
     }
   };
+
+  // Handle streaming interruption
+  useEffect(() => {
+    if (stopped) {
+      setMessages((prevState) => {
+        prevState[prevState.length - 1] = {
+          ...prevState[prevState.length - 1],
+          annotations: [{ isComplete: false }],
+        };
+        return prevState;
+      });
+    }
+  }, [stopped, setMessages]);
 
   // Handle chat errors
   useEffect(() => {
@@ -215,6 +237,8 @@ export function ChatPage({
         hasOngoingToolInvocations={hasOngoingToolInvocations}
         setIsAutoScrollEnabled={setIsAutoScrollEnabled}
         onStop={stop}
+        stopped={stopped}
+        setStopped={setStopped}
       />
     </div>
   );

@@ -49,7 +49,7 @@ async def messages_to_openai_content(
                 content = json.loads(msg.content)
 
                 # Get the associated tool calls
-                tool_calls = await msg.awaitable_attrs.tool_calls
+                tool_calls = msg.tool_calls
 
                 # Format it back into the json OpenAI expects
                 tool_calls_content = [
@@ -85,6 +85,61 @@ def get_entity(message: dict[str, Any]) -> Entity:
         return Entity.AI_MESSAGE
     else:
         raise HTTPException(status_code=500, detail="Unknown message entity.")
+
+
+def complete_partial_json(partial: str) -> str:
+    """Try to turn a partial json into a valid one."""
+    try:
+        # If the json is already valid, noop
+        json.loads(partial)
+        return partial
+    except json.JSONDecodeError:
+        pass
+
+    stack = []  # To track unmatched opening tokens ('{' or '[')
+    in_string = False
+    escape = False
+
+    # Process each character to build context.
+    for ch in partial:
+        if escape:
+            escape = False
+            continue
+        if ch == "\\":
+            escape = True
+            continue
+        if ch == '"':
+            in_string = not in_string
+            continue
+        if not in_string:
+            if ch in "{[":
+                stack.append(ch)
+            elif ch == "}":
+                if stack and stack[-1] == "{":
+                    stack.pop()
+            elif ch == "]":
+                if stack and stack[-1] == "[":
+                    stack.pop()
+
+    # If we're in a string context, close it first.
+    fixed = partial + ('"' if in_string else "")
+
+    # Append missing closing tokens in reverse order.
+    closing = ""
+    for elem in reversed(stack):
+        if elem == "{":
+            closing += "}"
+        elif elem == "[":
+            closing += "]"
+
+    fixed += closing
+    try:
+        # The fix worked
+        json.loads(fixed)
+        return fixed
+    except json.JSONDecodeError:
+        # The fix didn't work
+        return partial
 
 
 class RegionMeta:

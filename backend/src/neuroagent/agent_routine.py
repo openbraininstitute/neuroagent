@@ -17,7 +17,12 @@ from neuroagent.new_types import (
     Result,
 )
 from neuroagent.tools.base_tool import BaseTool
-from neuroagent.utils import get_entity, merge_chunk, messages_to_openai_content
+from neuroagent.utils import (
+    complete_partial_json,
+    get_entity,
+    merge_chunk,
+    messages_to_openai_content,
+)
 
 
 class AgentsRoutine:
@@ -438,12 +443,19 @@ class AgentsRoutine:
                 "finishReason": "stop",
             }
             yield f"d:{json.dumps(done_data)}\n"
+
+        # User interrupts streaming
         except asyncio.exceptions.CancelledError:
-            breakpoint()
             if isinstance(message["tool_calls"], defaultdict):
                 message["tool_calls"] = list(message.get("tool_calls", {}).values())
                 if not message["tool_calls"]:
                     message["tool_calls"] = None
+                else:
+                    # Attempt to fix partial JSONs if any
+                    for elem in message["tool_calls"]:
+                        elem["function"]["arguments"] = complete_partial_json(
+                            elem["function"]["arguments"]
+                        )
 
             if message["tool_calls"]:
                 tool_calls = [
@@ -458,18 +470,21 @@ class AgentsRoutine:
                 tool_calls = []
             # If the last message is not an AI_TOOL, append partial message
             if messages[-1].entity != Entity.AI_TOOL:
+                entity = get_entity(message)
                 messages.append(
                     Messages(
                         order=len(messages),
                         thread_id=messages[-1].thread_id,
-                        entity=get_entity(message),
+                        entity=entity,
                         content=json.dumps(message),
                         tool_calls=tool_calls,
                         is_complete=False,
                     )
                 )
-            # Tool call was triggered but didn't finish execution
-            else:
+
+            # Not written as else because in the previous if
+            # an extra AI_TOOL message could've been appended
+            if messages[-1].entity == Entity.AI_TOOL:
                 messages.extend(
                     [
                         Messages(
@@ -484,7 +499,6 @@ class AgentsRoutine:
                                     "content": "Tool execution aborted by the user.",
                                 }
                             ),
-                            tool_calls=tool_calls,
                             is_complete=False,
                         )
                         for call in tool_calls
