@@ -162,7 +162,6 @@ async def commit_messages(
 ) -> None:
     """Commit the messages in a bg task."""
     async with AsyncSession(engine) as session:
-        # merged_messages = [await session.merge(message) for message in messages]
         session.add_all(messages)
         thread.update_date = utc_now()
         await session.commit()

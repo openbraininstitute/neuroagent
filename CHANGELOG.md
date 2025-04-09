@@ -10,6 +10,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Changed
 - Prettier automatic tailwind classes sorting.
 
+## Added
+- Possibility to interrupt streaming.
+
 ## [v0.4.6]
 
 ### Changed

@@ -90,19 +90,21 @@ export function ChatPage({
       setCheckedTools(initialCheckedTools);
     }
     // To know if the chat should be disabled or not, check if last message was stopped
-    setStopped(
-      messages.length > 0
-        ? (messages[messages.length - 1].annotations?.some(
-            (annotation) => !annotation.isComplete,
-          ) ?? false)
-        : false,
-    );
+    const shouldBeStopped = () => {
+      const isLastMessageComplete =
+        messages.at(-1)?.annotations?.find(
+          (annotation) => "isComplete" in annotation, // Find the correct annotation
+        )?.isComplete ?? false;
+      return !isLastMessageComplete;
+    }; // If message complete, don't set stopped
+
+    setStopped(shouldBeStopped());
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // Empty dependency array means this runs once on mount
 
   useEffect(() => {
     if (isAutoScrollEnabled) {
-      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+      messagesEndRef.current?.scrollIntoView({ behavior: "instant" });
     }
   }, [messages, isAutoScrollEnabled]);
 

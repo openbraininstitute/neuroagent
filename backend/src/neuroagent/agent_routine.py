@@ -3,6 +3,7 @@
 import asyncio
 import copy
 import json
+import logging
 from collections import defaultdict
 from typing import Any, AsyncIterator
 
@@ -23,6 +24,8 @@ from neuroagent.utils import (
     merge_chunk,
     messages_to_openai_content,
 )
+
+logger = logging.getLogger(__name__)
 
 
 class AgentsRoutine:
@@ -448,14 +451,16 @@ class AgentsRoutine:
         except asyncio.exceptions.CancelledError:
             if isinstance(message["tool_calls"], defaultdict):
                 message["tool_calls"] = list(message.get("tool_calls", {}).values())
-                if not message["tool_calls"]:
-                    message["tool_calls"] = None
-                else:
-                    # Attempt to fix partial JSONs if any
-                    for elem in message["tool_calls"]:
-                        elem["function"]["arguments"] = complete_partial_json(
-                            elem["function"]["arguments"]
-                        )
+
+            if not message["tool_calls"]:
+                message["tool_calls"] = None
+            else:
+                # Attempt to fix partial JSONs if any
+                for elem in message["tool_calls"]:
+                    elem["function"]["arguments"] = complete_partial_json(
+                        elem["function"]["arguments"]
+                    )
+            logger.info(f"Stream interrupted. Partial message {message}")
 
             if message["tool_calls"]:
                 tool_calls = [
@@ -468,22 +473,24 @@ class AgentsRoutine:
                 ]
             else:
                 tool_calls = []
-            # If the last message is not an AI_TOOL, append partial message
-            if messages[-1].entity != Entity.AI_TOOL:
-                entity = get_entity(message)
+
+            # If the partial message hasn't been appended and the last message is not an AI_TOOL, append partial message
+            if (
+                json.dumps(message) != messages[-1].content
+                and messages[-1].entity != Entity.AI_TOOL
+            ):
                 messages.append(
                     Messages(
                         order=len(messages),
                         thread_id=messages[-1].thread_id,
-                        entity=entity,
+                        entity=get_entity(message),
                         content=json.dumps(message),
                         tool_calls=tool_calls,
                         is_complete=False,
                     )
                 )
 
-            # Not written as else because in the previous if
-            # an extra AI_TOOL message could've been appended
+            # Append default tool message to partial tool calls
             if messages[-1].entity == Entity.AI_TOOL:
                 messages.extend(
                     [

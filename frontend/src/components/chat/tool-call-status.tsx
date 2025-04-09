@@ -1,9 +1,8 @@
 import { Check, Loader2, X, AlertCircle } from "lucide-react";
 
 type ToolCallStatusProps = {
-  state: "call" | "partial-call" | "result";
+  state: "call" | "partial-call" | "result" | "aborted";
   validated: "pending" | "accepted" | "rejected" | "not_required";
-  stopped: boolean;
   validationError?: string | null;
   onValidationClick?: () => void;
 };
@@ -11,11 +10,10 @@ type ToolCallStatusProps = {
 export function ToolCallStatus({
   state,
   validated,
-  stopped,
   validationError,
   onValidationClick,
 }: ToolCallStatusProps) {
-  if (stopped) {
+  if (state === "aborted") {
     return (
       <div className="flex items-center">
         <X className="mr-2 h-4 w-4 text-red-500" />

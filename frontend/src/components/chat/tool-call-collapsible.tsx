@@ -35,7 +35,9 @@ export function ToolCallCollapsible({
   return (
     <Collapsible
       open={toolOpen}
-      onOpenChange={validated === "pending" ? onValidationClick : setToolOpen}
+      onOpenChange={
+        validated === "pending" && !stopped ? onValidationClick : setToolOpen
+      }
     >
       <div className="flex items-center gap-2">
         <CollapsibleTrigger className="hover:scale-105 active:scale-[1.10]">
@@ -44,9 +46,8 @@ export function ToolCallCollapsible({
           </span>
         </CollapsibleTrigger>
         <ToolCallStatus
-          state={tool.state}
+          state={stopped ? "aborted" : tool.state}
           validated={validated}
-          stopped={stopped}
           validationError={validationError}
           onValidationClick={onValidationClick}
         />

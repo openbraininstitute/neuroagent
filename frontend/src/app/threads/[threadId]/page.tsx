@@ -16,7 +16,9 @@ async function getMessages(threadId: string): Promise<BMessage[]> {
       path: "/threads/{threadId}/messages",
       pathParams: { threadId },
       headers: { Authorization: `Bearer ${session.accessToken}` },
-      next: { tags: [`thread/${threadId}/messages`] },
+      next: {
+        tags: [`thread/${threadId}/messages`],
+      },
     });
 
     return response as Promise<BMessage[]>;
@@ -59,16 +61,17 @@ function convertToAiMessages(messages: BMessage[]): MessageStrict[] {
       annotations.push({
         isComplete:
           message.is_complete &&
+          // For every tool, check if the associated answer is complete
           message.tool_calls.every((toolCall) => {
             const toolResponse = messages.find(
               (m) =>
                 m.entity === "tool" &&
                 m.msg_content.tool_call_id === toolCall.tool_call_id,
             );
-            return toolResponse?.is_complete;
+            return toolResponse?.is_complete ?? true; // undefined => pre-validation HIL messages => valid
           }),
       });
-      console.log(annotations);
+
       const toolInvocations = message.tool_calls.map((toolCall) => {
         const toolResponse = messages.find(
           (m) =>
@@ -132,12 +135,15 @@ export default async function PageThread({
   const paramsAwaited = await params;
   const threadId = paramsAwaited?.threadId;
 
-  const messages = await getMessages(threadId);
+  const [messages, availableTools] = await Promise.all([
+    getMessages(threadId),
+    getToolList(),
+  ]);
   const convertedMessages = convertToAiMessages(messages);
-  const availableTools = await getToolList();
 
   return (
     <ChatPage
+      key={JSON.stringify(convertedMessages.at(-1))}
       threadId={threadId}
       initialMessages={convertedMessages}
       availableTools={availableTools}

@@ -4,6 +4,7 @@ import { Send, CircleStop } from "lucide-react";
 import { ToolSelectionDropdown } from "@/components/chat/tool-selection-dropdown";
 import TextareaAutosize from "react-textarea-autosize";
 import { Dispatch, FormEvent, SetStateAction } from "react";
+import { useRouter } from "next/navigation";
 
 type ChatInputInsideThreadProps = {
   input: string;
@@ -35,9 +36,12 @@ export function ChatInputInsideThread({
   setStopped,
 }: ChatInputInsideThreadProps) {
   const canSend = !hasOngoingToolInvocations || stopped;
+  const router = useRouter();
+
   const submitWrapper = (
     e: React.KeyboardEvent<HTMLTextAreaElement> | FormEvent<HTMLFormElement>,
   ) => {
+    e.preventDefault();
     handleSubmit(e);
     setStopped(false);
   };
@@ -48,8 +52,7 @@ export function ChatInputInsideThread({
       }
       e.preventDefault();
       if (!isLoading && canSend) {
-        setIsAutoScrollEnabled(true);
-        submitWrapper(e);
+        e.currentTarget.form?.requestSubmit();
       }
     }
   };
@@ -58,6 +61,10 @@ export function ChatInputInsideThread({
     <form
       className="m-5 flex flex-col items-center justify-center gap-4"
       onSubmit={(e) => {
+        if (!input.trim()) {
+          e.preventDefault();
+          return;
+        }
         setIsAutoScrollEnabled(true);
         submitWrapper(e);
       }}
@@ -87,6 +94,7 @@ export function ChatInputInsideThread({
                 e.preventDefault();
                 onStop();
                 setStopped(true);
+                router.refresh();
               }}
             >
               <CircleStop className="opacity-50" />

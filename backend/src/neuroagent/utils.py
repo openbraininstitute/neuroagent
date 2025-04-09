@@ -89,19 +89,32 @@ def get_entity(message: dict[str, Any]) -> Entity:
 
 def complete_partial_json(partial: str) -> str:
     """Try to turn a partial json into a valid one."""
+    # if already valid, noop.
     try:
-        # If the json is already valid, noop
-        json.loads(partial)
-        return partial
+        return json.dumps(json.loads(partial))
     except json.JSONDecodeError:
         pass
 
-    stack = []  # To track unmatched opening tokens ('{' or '[')
+    # Trim trailing whitespace.
+    fixed = partial.rstrip()
+
+    # If the JSON ends with a colon (indicating a key that hasn't been assigned a value),
+    # append a default null value.
+    if re.search(r":\s*$", fixed):
+        fixed += " null"
+
+    # Remove any trailing commas immediately before a closing brace or bracket.
+    fixed = re.sub(r",\s*(\}|\])", r"\1", fixed)
+
+    # Fix truncated numbers like `3.` at end or before a closing char
+    fixed = re.sub(r"(\d+)\.(?=\s*[\},\]])?", r"\1", fixed)
+
+    # Track structural tokens.
+    stack = []
     in_string = False
     escape = False
 
-    # Process each character to build context.
-    for ch in partial:
+    for ch in fixed:
         if escape:
             escape = False
             continue
@@ -121,25 +134,35 @@ def complete_partial_json(partial: str) -> str:
                 if stack and stack[-1] == "[":
                     stack.pop()
 
-    # If we're in a string context, close it first.
-    fixed = partial + ('"' if in_string else "")
+    # If a string remains unclosed, add the missing quote.
+    if in_string:
+        fixed += '"'
 
-    # Append missing closing tokens in reverse order.
-    closing = ""
-    for elem in reversed(stack):
+    # Append missing closing tokens in the reverse order they were opened.
+    # Also, before closing an object, check if its last property ends in a colon.
+    while stack:
+        elem = stack.pop()
         if elem == "{":
-            closing += "}"
+            if re.search(r":\s*$", fixed):
+                fixed += " null"
+            fixed += "}"
         elif elem == "[":
-            closing += "]"
+            fixed += "]"
 
-    fixed += closing
+    # Remove any trailing commas that may have been introduced during processing.
+    fixed = re.sub(r",\s*(\}|\])", r"\1", fixed)
+
+    # Final attempt to parse: if it passes, we return the corrected JSON.
     try:
-        # The fix worked
-        json.loads(fixed)
-        return fixed
+        # Returning a consistently formatted version.
+        return json.dumps(json.loads(fixed))
     except json.JSONDecodeError:
-        # The fix didn't work
-        return partial
+        # As a last resort, check for unpaired keys
+        fixed = re.sub(r'("([^"]+)"\s*)}$', r'"\2": null}', fixed)
+        try:
+            return json.dumps(json.loads(fixed))
+        except json.JSONDecodeError:
+            return partial  # fallback to the fixed string even if not perfect
 
 
 class RegionMeta:
