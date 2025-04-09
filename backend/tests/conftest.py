@@ -187,9 +187,10 @@ async def setup_sql_db(request):
     session = AsyncSession(bind=engine)
     async with engine.begin() as conn:
         await conn.run_sync(metadata.reflect)
-        for table in reversed(metadata.tables.values()):
-            if table.name != "alembic_version":
-                await session.execute(table.delete())
+        tables = metadata.tables
+        await session.execute(tables["tool_calls"].delete())
+        await session.execute(tables["messages"].delete())
+        await session.execute(tables["threads"].delete())
 
     await session.commit()
     await engine.dispose()
