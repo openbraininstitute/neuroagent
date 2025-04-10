@@ -229,7 +229,11 @@ async def get_thread_messages(
         select(Messages)
         .where(Messages.thread_id == thread_id, entity_where)
         .options(joinedload(Messages.tool_calls))  # Eager load tool_calls
-        .order_by(desc(Messages.order) if sort.startswith("-") else Messages.order)
+        .order_by(
+            desc(Messages.creation_date)
+            if sort.startswith("-")
+            else Messages.creation_date
+        )
     )
     db_messages = messages_result.unique().scalars().all()
 
