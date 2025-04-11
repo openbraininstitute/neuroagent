@@ -5,6 +5,7 @@ import { Scatterplot } from "@/components/plots/scatterplot";
 import { ImagePlot } from "@/components/plots/image";
 import { Histogram } from "@/components/plots/histogram";
 import { Linechart } from "@/components/plots/linechart";
+import { MultiLinechart } from "@/components/plots/multi-linechart";
 
 export default async function ViewerPage({
   params,
@@ -31,6 +32,8 @@ export default async function ViewerPage({
       return <Histogram presignedUrl={presignedUrl ?? ""} />;
     case "json-linechart":
       return <Linechart presignedUrl={presignedUrl ?? ""} />;
+    case "json-multi-linechart":
+      return <MultiLinechart presignedUrl={presignedUrl ?? ""} />;
     default:
       return <p>Error: Unsupported file category: {category}</p>;
   }

@@ -69,9 +69,9 @@ export function MultiLinechart({
 
     let borderDash = undefined;
     if (data.line_style === "dashed") {
-      borderDash = [3, 3];
+      borderDash = [5, 5];
     } else if (data.line_style === "dotted") {
-      borderDash = [1, 1];
+      borderDash = [2, 2];
     }
 
     return {
@@ -79,9 +79,9 @@ export function MultiLinechart({
       data: series.data,
       borderColor,
       backgroundColor,
-      borderWidth: 2,
+      borderWidth: 1,
       tension: 0,
-      pointRadius: data.show_points ? 5 : 0,
+      pointRadius: data.show_points ? 2 : 0,
       borderDash,
       fill: false,
     };
@@ -100,7 +100,7 @@ export function MultiLinechart({
     plugins: {
       legend: {
         display: true,
-        position: "right",
+        position: "right" as const,
       },
       tooltip: {
         callbacks: {
@@ -122,8 +122,8 @@ export function MultiLinechart({
           color: gridColor,
         },
         title: {
-          display: !!(data as any).x_label,
-          text: (data as any).x_label,
+          display: !!data.x_label,
+          text: data.x_label,
         },
       },
       y: {
@@ -131,8 +131,8 @@ export function MultiLinechart({
           color: gridColor,
         },
         title: {
-          display: !!(data as any).y_label,
-          text: (data as any).y_label,
+          display: !!data.y_label,
+          text: data.y_label,
         },
       },
     },
@@ -145,15 +145,13 @@ export function MultiLinechart({
       {isInChat ? (
         <Link href={`/viewer/${storageId}`} className="flex gap-2">
           <Link2 className="mt-0.5" />
-          <h2 className="mb-2 text-xl font-bold underline">
-            {(data as any).title}
-          </h2>
+          <h2 className="mb-2 text-xl font-bold underline">{data.title}</h2>
         </Link>
       ) : (
-        <h2 className="mb-2 text-xl font-bold">{(data as any).title}</h2>
+        <h2 className="mb-2 text-xl font-bold">{data.title}</h2>
       )}
-      {(data as any).description && !isInChat && (
-        <p className="mb-4 text-gray-600">{(data as any).description}</p>
+      {data.description && !isInChat && (
+        <p className="mb-4 text-gray-600">{data.description}</p>
       )}
       <div>
         <Line data={chartData} options={options} />

@@ -71,15 +71,16 @@ class SCSPlotTool(BaseTool):
         # Plot the result.
         result = response.json()
         to_plot = []
-        for key in result["results"].keys():
-            for recording in result["results"][key]:
+        for recording in result["results"].keys():
+            for stimulus_amp in result["results"][recording]:
                 x_y_combined = [
                     LinechartValue(x=x, y=y)
-                    for x, y in zip(recording["x"], recording["y"])
+                    for x, y in zip(stimulus_amp["x"], stimulus_amp["y"])
                 ]
                 to_plot.append(
                     MutliLinechartSeries(
-                        series_label=recording["name"], data=x_y_combined
+                        series_label=f'{stimulus_amp["name"]} + {stimulus_amp["recording"]}',
+                        data=x_y_combined,
                     )
                 )
 
