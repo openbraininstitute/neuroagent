@@ -82,7 +82,7 @@ class SCSPlotTool(BaseTool):
                         series_label=recording["name"], data=x_y_combined
                     )
                 )
-        breakpoint()
+
         plot = JSONMultiLinechart(
             title=result["name"],
             description="",
