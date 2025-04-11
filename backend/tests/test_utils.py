@@ -10,6 +10,7 @@ from httpx import AsyncClient
 from neuroagent.schemas import KGMetadata
 from neuroagent.utils import (
     RegionMeta,
+    complete_partial_json,
     delete_from_storage,
     get_descendants_id,
     get_descendants_id_s3,
@@ -85,6 +86,31 @@ def test_merge_chunk():
             }
         ],
     }
+
+
+@pytest.mark.parametrize(
+    "partial",
+    [
+        '{"key',
+        '{"key1": "value1", "key',
+        '{"key1": "value1", "key2": "val',
+        '{"key1": "value1", "key2":',
+        '{"key1": "value1",',
+        '{"user": {"id": 123, "name": "Al',
+        '{"items": ["a", "b", "c"',
+        '{"items": ["a", "b", "c"',
+        '{"results": [{"x": 1}, {"x": 2},',
+        '{"a": 1, "b": 2,',
+        '{"arr": [1, 2, 3,',
+        '{"text": "hello',
+        '{"value": 3.',
+        '{"config": {"settings": ["a", "b"',
+        "{",
+    ],
+)
+def test_partial_json_completes(partial):
+    fixed = complete_partial_json(partial)
+    json.loads(fixed)
 
 
 @pytest.mark.parametrize(

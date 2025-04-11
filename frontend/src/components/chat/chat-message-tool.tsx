@@ -12,6 +12,7 @@ type ChatMessageToolProps = {
   content?: string;
   threadId: string;
   tool: ToolInvocation;
+  stopped: boolean;
   availableTools: Array<{ slug: string; label: string }>;
   validated: "pending" | "accepted" | "rejected" | "not_required";
   setMessage: (updater: (msg: MessageStrict) => MessageStrict) => void;
@@ -20,6 +21,7 @@ type ChatMessageToolProps = {
 export const ChatMessageTool = function ChatMessageTool({
   threadId,
   tool,
+  stopped,
   availableTools,
   setMessage,
   validated,
@@ -94,6 +96,7 @@ export const ChatMessageTool = function ChatMessageTool({
       <div className="flex justify-start">
         <ToolCallCollapsible
           tool={tool}
+          stopped={stopped}
           toolLabel={toolLabel}
           validated={validated}
           validationError={validationError}

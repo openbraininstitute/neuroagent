@@ -71,13 +71,19 @@ export function ChatMessagesInsideThread({
                   message.annotations?.find(
                     (a) => a.toolCallId === tool.toolCallId,
                   )?.validated ?? "not_required";
-
                 return (
                   !collapsedTools.has(message.id) && (
                     <ChatMessageTool
                       key={`${message.id}-${tool.toolCallId}`}
                       threadId={threadId}
                       tool={tool}
+                      stopped={
+                        message.annotations?.some(
+                          (annotation) =>
+                            annotation.isComplete !== undefined &&
+                            !annotation.isComplete,
+                        ) ?? false
+                      }
                       availableTools={availableTools}
                       validated={validated}
                       setMessage={(updater) =>

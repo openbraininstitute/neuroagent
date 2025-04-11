@@ -49,7 +49,7 @@ async def messages_to_openai_content(
                 content = json.loads(msg.content)
 
                 # Get the associated tool calls
-                tool_calls = await msg.awaitable_attrs.tool_calls
+                tool_calls = msg.tool_calls
 
                 # Format it back into the json OpenAI expects
                 tool_calls_content = [
@@ -85,6 +85,84 @@ def get_entity(message: dict[str, Any]) -> Entity:
         return Entity.AI_MESSAGE
     else:
         raise HTTPException(status_code=500, detail="Unknown message entity.")
+
+
+def complete_partial_json(partial: str) -> str:
+    """Try to turn a partial json into a valid one."""
+    # if already valid, noop.
+    try:
+        return json.dumps(json.loads(partial))
+    except json.JSONDecodeError:
+        pass
+
+    # Trim trailing whitespace.
+    fixed = partial.rstrip()
+
+    # If the JSON ends with a colon (indicating a key that hasn't been assigned a value),
+    # append a default null value.
+    if re.search(r":\s*$", fixed):
+        fixed += " null"
+
+    # Remove any trailing commas immediately before a closing brace or bracket.
+    fixed = re.sub(r",\s*(\}|\])", r"\1", fixed)
+
+    # Fix truncated numbers like `3.` at end or before a closing char
+    fixed = re.sub(r"(\d+)\.(?=\s*[\},\]])?", r"\1", fixed)
+
+    # Track structural tokens.
+    stack = []
+    in_string = False
+    escape = False
+
+    for ch in fixed:
+        if escape:
+            escape = False
+            continue
+        if ch == "\\":
+            escape = True
+            continue
+        if ch == '"':
+            in_string = not in_string
+            continue
+        if not in_string:
+            if ch in "{[":
+                stack.append(ch)
+            elif ch == "}":
+                if stack and stack[-1] == "{":
+                    stack.pop()
+            elif ch == "]":
+                if stack and stack[-1] == "[":
+                    stack.pop()
+
+    # If a string remains unclosed, add the missing quote.
+    if in_string:
+        fixed += '"'
+
+    # Append missing closing tokens in the reverse order they were opened.
+    # Also, before closing an object, check if its last property ends in a colon.
+    while stack:
+        elem = stack.pop()
+        if elem == "{":
+            if re.search(r":\s*$", fixed):
+                fixed += " null"
+            fixed += "}"
+        elif elem == "[":
+            fixed += "]"
+
+    # Remove any trailing commas that may have been introduced during processing.
+    fixed = re.sub(r",\s*(\}|\])", r"\1", fixed)
+
+    # Final attempt to parse: if it passes, we return the corrected JSON.
+    try:
+        # Returning a consistently formatted version.
+        return json.dumps(json.loads(fixed))
+    except json.JSONDecodeError:
+        # As a last resort, check for unpaired keys
+        fixed = re.sub(r'("([^"]+)"\s*)}$', r'"\2": null}', fixed)
+        try:
+            return json.dumps(json.loads(fixed))
+        except json.JSONDecodeError:
+            return partial  # fallback to the fixed string even if not perfect
 
 
 class RegionMeta:
