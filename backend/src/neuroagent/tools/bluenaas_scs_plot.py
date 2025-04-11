@@ -47,7 +47,7 @@ class SCSPlotTool(BaseTool):
     name_frontend: ClassVar[str] = "Plot Single-Neuron Simulation"
     description: ClassVar[str] = """Make a plot of the simulation, based on its id.
     The id can be retrieved using the 'scs-getall-tool', from the simulation report of `scs-post-tool` or directly specified by the user.
-    The plots will be shown after your message automatically. DO NOT mention the storage ids. DO NOT embed the plot in your message."""
+    The plots will be shown after your message automatically. DO NOT MENTION the storage id no the simulation ID. DO NOT EMBED the plot in your message."""
     description_frontend: ClassVar[
         str
     ] = """Make a plot from the result of your simulation.
@@ -82,10 +82,10 @@ class SCSPlotTool(BaseTool):
                         series_label=recording["name"], data=x_y_combined
                     )
                 )
-
+        breakpoint()
         plot = JSONMultiLinechart(
             title=result["name"],
-            description=result["description"],
+            description="",
             values=to_plot,
             x_label="Time [ms]",
             y_label="Voltage [mV]",
