@@ -1,7 +1,7 @@
 """remove order column
 
 Revision ID: 0ea274d7a584
-Revises: 818a9ba86187
+Revises: 08a638866869
 Create Date: 2025-04-14 15:10:13.695396
 
 """
@@ -14,7 +14,7 @@ from alembic import op
 
 # revision identifiers, used by Alembic.
 revision: str = "0ea274d7a584"
-down_revision: Union[str, None] = "818a9ba86187"
+down_revision: Union[str, None] = "08a638866869"
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
