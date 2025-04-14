@@ -167,7 +167,7 @@ def get_semantic_router(settings: Settings) -> SemanticRouter | None:
     """Set the semantic router object for basic guardrails."""
     # Load routes and utterances from yaml file
     try:
-        with Path("src/neuroagent/fixed_llm_responses.yml").open() as f:
+        with (Path().cwd().parent / "fixed_llm_responses.yml").open() as f:
             data = yaml.safe_load(f)
     except Exception:
         return None

@@ -62,7 +62,7 @@ where = ["src"]
 namespaces = false
 
 [tool.setuptools.package-data]
-mypkg = ["*.yml"]
+neuroagent = ["*.yml"]
 
 [tool.bandit]
 exclude_dirs = ["tests"]
