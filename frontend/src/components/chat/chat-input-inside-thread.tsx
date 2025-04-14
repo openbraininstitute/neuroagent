@@ -1,6 +1,6 @@
 "use client";
 
-import { Send, CircleStop } from "lucide-react";
+import { Send, OctagonX } from "lucide-react";
 import { ToolSelectionDropdown } from "@/components/chat/tool-selection-dropdown";
 import TextareaAutosize from "react-textarea-autosize";
 import { Dispatch, FormEvent, SetStateAction } from "react";
@@ -97,7 +97,7 @@ export function ChatInputInsideThread({
                 router.refresh();
               }}
             >
-              <CircleStop className="opacity-50" />
+              <OctagonX className="opacity-50" />
             </button>
           ) : (
             <button

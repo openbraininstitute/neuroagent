@@ -1,4 +1,4 @@
-import { Check, Loader2, X, AlertCircle } from "lucide-react";
+import { Check, Loader2, X, AlertCircle, OctagonX } from "lucide-react";
 
 type ToolCallStatusProps = {
   state: "call" | "partial-call" | "result" | "aborted";
@@ -16,7 +16,7 @@ export function ToolCallStatus({
   if (state === "aborted") {
     return (
       <div className="flex items-center">
-        <X className="mr-2 h-4 w-4 text-red-500" />
+        <OctagonX className="mr-2 h-4 w-4 text-red-500" />
         <span className="text-xs text-red-500">Aborted</span>
       </div>
     );

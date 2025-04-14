@@ -4,6 +4,7 @@ import { auth } from "@/lib/auth";
 import { fetcher } from "@/lib/fetcher";
 import { notFound } from "next/navigation";
 import { CustomError } from "@/lib/types";
+import { md5 } from "js-md5";
 
 async function getMessages(threadId: string): Promise<BMessage[]> {
   const session = await auth();
@@ -140,10 +141,13 @@ export default async function PageThread({
     getToolList(),
   ]);
   const convertedMessages = convertToAiMessages(messages);
+  const key = convertedMessages.at(-1)
+    ? md5(JSON.stringify(convertedMessages.at(-1)))
+    : null;
 
   return (
     <ChatPage
-      key={JSON.stringify(convertedMessages.at(-1))}
+      key={key}
       threadId={threadId}
       initialMessages={convertedMessages}
       availableTools={availableTools}

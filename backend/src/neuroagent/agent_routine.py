@@ -460,7 +460,7 @@ class AgentsRoutine:
                     elem["function"]["arguments"] = complete_partial_json(
                         elem["function"]["arguments"]
                     )
-            logger.info(f"Stream interrupted. Partial message {message}")
+            logger.debug(f"Stream interrupted. Partial message {message}")
 
             if message["tool_calls"]:
                 tool_calls = [
