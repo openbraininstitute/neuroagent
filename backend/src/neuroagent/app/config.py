@@ -1,6 +1,7 @@
 """Configuration."""
 
 import os
+from pathlib import Path
 from typing import Any, Literal, Optional
 
 from dotenv import dotenv_values
@@ -198,6 +199,8 @@ class SettingsMisc(BaseModel):
 
     # Query size limiter, in number of characters. (630 words ~= 5000 characters.)
     query_max_size: int = 10000
+
+    fixed_llm_responses_path: Path = Path("llm_fixed_responses.yml")
 
     model_config = ConfigDict(frozen=True)
 

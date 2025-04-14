@@ -29,9 +29,12 @@ dependencies = [
     "pydantic-settings",
     "python-dotenv",
     "python-keycloak",
+    "pyyaml",
     "redis",
+    "semantic-router",
     "sqlalchemy[asyncio]",
     "tavily-python",
+    "types-PyYAML",
     "uvicorn",
     ]
 
