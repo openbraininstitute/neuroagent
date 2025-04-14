@@ -23,6 +23,7 @@ class MessageResponse(BaseModel):
     message_id: str
     entity: str
     thread_id: str
+    is_complete: bool
     creation_date: datetime.datetime
     msg_content: dict[str, Any]
     tool_calls: list[ToolCall]

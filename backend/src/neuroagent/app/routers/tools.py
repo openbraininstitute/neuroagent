@@ -92,6 +92,7 @@ async def execute_tool_call(
         thread_id=thread_id,
         entity=Entity.TOOL,
         content=json.dumps(message),
+        is_complete=True,
     )
 
     session.add(tool_call)

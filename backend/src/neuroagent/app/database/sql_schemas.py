@@ -63,6 +63,7 @@ class Messages(Base):
     creation_date: Mapped[datetime.datetime] = mapped_column(DateTime, default=utc_now)
     entity: Mapped[Entity] = mapped_column(Enum(Entity), nullable=False)
     content: Mapped[str] = mapped_column(String, nullable=False)
+    is_complete: Mapped[bool] = mapped_column(Boolean)
 
     thread_id: Mapped[str] = mapped_column(
         String, ForeignKey("threads.thread_id"), nullable=False
