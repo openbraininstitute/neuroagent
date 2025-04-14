@@ -97,6 +97,7 @@ export function MultiLinechart({
       mode: "nearest" as const,
       intersect: false,
     },
+    animation: false as const,
     plugins: {
       legend: {
         display: true,

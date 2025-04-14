@@ -32,15 +32,13 @@ class InputSCSPlotTool(BaseModel):
     simulation_id: str = Field(
         description="ID of the simulation to retrieve. Should be an https link."
     )
-    simulation_label: str = Field(
-        description="label of the simulation plot. This is what will be used to refer to the plot."
-    )
 
 
 class SCSPlotToolOutput(BaseModel):
     """Output for the Bluenaas plot tool."""
 
-    storage_id: str
+    storage_id: list[str]
+    simulation_labels: list[str]
 
 
 class SCSPlotTool(BaseTool):
@@ -50,7 +48,7 @@ class SCSPlotTool(BaseTool):
     name_frontend: ClassVar[str] = "Plot Single-Neuron Simulation"
     description: ClassVar[str] = """Make a plot of the simulation, based on its id.
     The id can be retrieved using the 'scs-getall-tool', from the simulation report of `scs-post-tool` or directly specified by the user.
-    The plots will be shown after your message automatically. DO NOT MENTION the storage id nor the simulation ID. Use the simulaton label to refer to the plot."""
+    The plots will be shown after / below your message automatically.  Use the simulaton label to refer to the the plots. DO NOT MENTION the storage id nor the simulation ID. DO NOT EMBED the plots in the text."""
     description_frontend: ClassVar[
         str
     ] = """Make a plot from the result of your simulation.
@@ -73,8 +71,10 @@ class SCSPlotTool(BaseTool):
 
         # Plot the result.
         result = response.json()
-        to_plot = []
+        plots = []
+        titles = []
         for recording in result["results"].keys():
+            to_plot = []
             for stimulus_amp in result["results"][recording]:
                 x_y_combined = [
                     LinechartValue(x=x, y=y)
@@ -82,32 +82,37 @@ class SCSPlotTool(BaseTool):
                 ]
                 to_plot.append(
                     MutliLinechartSeries(
-                        series_label=f'{stimulus_amp["name"]} + {stimulus_amp["recording"]}',
+                        series_label=stimulus_amp["name"],
                         data=x_y_combined,
                     )
                 )
+            titles.append(f'{result["name"]}, recording: {recording}')
+            plots.append(
+                JSONMultiLinechart(
+                    title=f'{result["name"]}, recording: {recording}',
+                    description="",
+                    values=to_plot,
+                    x_label="Time [ms]",
+                    y_label="Voltage [mV]",
+                    line_style=None,  # self.input_schema.line_style,
+                    line_color=None,  # self.input_schema.line_color,
+                )
+            )
 
-        plot = JSONMultiLinechart(
-            title=self.input_schema.simulation_label,
-            description="",
-            values=to_plot,
-            x_label="Time [ms]",
-            y_label="Voltage [mV]",
-            line_style=None,  # self.input_schema.line_style,
-            line_color=None,  # self.input_schema.line_color,
-        )
+        identifiers = [
+            save_to_storage(
+                s3_client=self.metadata.s3_client,
+                bucket_name=self.metadata.bucket_name,
+                user_id=self.metadata.user_id,
+                content_type="application/json",
+                category=plot.category,
+                body=plot.model_dump_json(),
+                thread_id=self.metadata.thread_id,
+            )
+            for plot in plots
+        ]
 
-        identifier = save_to_storage(
-            s3_client=self.metadata.s3_client,
-            bucket_name=self.metadata.bucket_name,
-            user_id=self.metadata.user_id,
-            content_type="application/json",
-            category=plot.category,
-            body=plot.model_dump_json(),
-            thread_id=self.metadata.thread_id,
-        )
-
-        return SCSPlotToolOutput(storage_id=identifier)
+        return SCSPlotToolOutput(storage_id=identifiers, simulation_labels=titles)
 
     @classmethod
     async def is_online(cls, *, httpx_client: AsyncClient, bluenaas_url: str) -> bool:
