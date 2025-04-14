@@ -23,7 +23,7 @@ from starlette.requests import Request
 from starlette.responses import JSONResponse
 
 from neuroagent import __version__
-from neuroagent.app.app_utils import set_semantic_router, setup_engine
+from neuroagent.app.app_utils import get_semantic_router, setup_engine
 from neuroagent.app.config import Settings
 from neuroagent.app.dependencies import (
     get_connection_string,
@@ -110,7 +110,7 @@ async def lifespan(fastapi_app: FastAPI) -> AsyncContextManager[None]:  # type: 
     logging.getLogger("neuroagent").setLevel(app_settings.logging.level.upper())
     logging.getLogger("bluepyefe").setLevel("CRITICAL")
 
-    semantic_router = set_semantic_router(settings=app_settings)
+    semantic_router = get_semantic_router(settings=app_settings)
     app.state.semantic_router = semantic_router
 
     async with aclosing(

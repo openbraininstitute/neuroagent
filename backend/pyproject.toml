@@ -61,6 +61,9 @@ version = {attr = "neuroagent.__version__"}
 where = ["src"]
 namespaces = false
 
+[tool.setuptools.package-data]
+mypkg = ["*.yml"]
+
 [tool.bandit]
 exclude_dirs = ["tests"]
 

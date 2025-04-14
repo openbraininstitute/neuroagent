@@ -1,6 +1,7 @@
 """App utilities functions."""
 
 import logging
+from pathlib import Path
 from typing import Any
 
 import yaml
@@ -162,11 +163,11 @@ async def rate_limit(
         ), False
 
 
-def set_semantic_router(settings: Settings) -> SemanticRouter | None:
+def get_semantic_router(settings: Settings) -> SemanticRouter | None:
     """Set the semantic router object for basic guardrails."""
     # Load routes and utterances from yaml file
     try:
-        with settings.misc.fixed_llm_responses_path.open() as f:
+        with Path("src/neuroagent/fixed_llm_responses.yml").open() as f:
             data = yaml.safe_load(f)
     except Exception:
         return None

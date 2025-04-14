@@ -37,7 +37,6 @@ def client_fixture():
         },
         rate_limiter={"disabled": True},
         accounting={"disabled": True},
-        misc={"fixed_llm_responses_path": "fake_path.yml"},
     )
     app.dependency_overrides[get_settings] = lambda: test_settings
     yield app_client
@@ -291,7 +290,6 @@ def settings():
         openai={
             "token": "fake_token",
         },
-        misc={"fixed_llm_responses_path": "fake_path.yml"},
         rate_limiter={"disabled": True},
         accounting={"disabled": True},
     )
