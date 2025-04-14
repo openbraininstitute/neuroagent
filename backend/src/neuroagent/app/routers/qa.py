@@ -6,7 +6,14 @@ import logging
 from contextlib import asynccontextmanager
 from typing import Annotated, Any, AsyncIterator
 
-from fastapi import APIRouter, Depends, HTTPException, Request, Response
+from fastapi import (
+    APIRouter,
+    BackgroundTasks,
+    Depends,
+    HTTPException,
+    Request,
+    Response,
+)
 from fastapi.responses import StreamingResponse
 from obp_accounting_sdk import AsyncAccountingSessionFactory
 from obp_accounting_sdk.constants import ServiceSubtype
@@ -16,6 +23,7 @@ from semantic_router import SemanticRouter
 
 from neuroagent.agent_routine import AgentsRoutine
 from neuroagent.app.app_utils import (
+    commit_messages,
     rate_limit,
     validate_project,
 )
@@ -137,6 +145,7 @@ async def stream_chat_agent(
         AsyncAccountingSessionFactory, Depends(get_accounting_session_factory)
     ],
     semantic_router: Annotated[SemanticRouter | None, Depends(get_semantic_routes)],
+    background_tasks: BackgroundTasks,
 ) -> StreamingResponse:
     """Run a single agent query in a streamed fashion."""
     limit_headers, rate_limited = await rate_limit(
@@ -168,17 +177,33 @@ async def stream_chat_agent(
         )
 
     messages: list[Messages] = await thread.awaitable_attrs.messages
+    # Since the session is not reinstantiated in stream.py
+    # we need to lazy load the tool_calls in advance since in
+    # any case they will be needed to convert the db schema
+    # to OpenAI messages
+    for msg in messages:
+        if msg.entity == Entity.AI_TOOL:
+            # This awaits the lazy loading, ensuring tool_calls is populated now.
+            await msg.awaitable_attrs.tool_calls
 
-    if not messages or messages[-1].entity == Entity.AI_MESSAGE:
+    if (
+        not messages
+        or messages[-1].entity == Entity.AI_MESSAGE
+        or not messages[-1].is_complete
+    ):
         messages.append(
             Messages(
                 order=len(messages),
                 thread_id=thread.thread_id,
                 entity=Entity.USER,
                 content=json.dumps({"role": "user", "content": user_request.content}),
+                is_complete=True,
             )
         )
 
+    background_tasks.add_task(
+        commit_messages, request.app.state.engine, messages, thread
+    )
     async with accounting_context(
         subtype=ServiceSubtype.ML_LLM,
         user_id=thread.user_id,
@@ -202,6 +227,15 @@ async def stream_chat_agent(
                     for route in semantic_router.routes
                     if route.name == selected_route.name  # type: ignore
                 )
+                messages.append(
+                    Messages(
+                        order=len(messages),
+                        thread_id=thread.thread_id,
+                        entity=Entity.AI_MESSAGE,
+                        content=json.dumps({"role": "assistant", "content": response}),
+                        is_complete=True,
+                    )
+                )
                 return StreamingResponse(
                     yield_predefined_response(response),
                     media_type="text/event-stream",
@@ -216,8 +250,6 @@ async def stream_chat_agent(
             agent=agent,
             messages=messages,
             context_variables=context_variables,
-            thread=thread,
-            request=request,
             max_turns=settings.agent.max_turns,
             max_parallel_tool_calls=settings.agent.max_parallel_tool_calls,
         )

@@ -12,10 +12,11 @@ from semantic_router.encoders import OpenAIEncoder
 from semantic_router.index import LocalIndex
 from semantic_router.routers import SemanticRouter
 from sqlalchemy.exc import SQLAlchemyError
-from sqlalchemy.ext.asyncio import AsyncEngine, create_async_engine
+from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, create_async_engine
 from starlette.status import HTTP_401_UNAUTHORIZED
 
 from neuroagent.app.config import Settings
+from neuroagent.app.database.sql_schemas import Messages, Threads, utc_now
 
 logger = logging.getLogger(__name__)
 
@@ -194,3 +195,14 @@ def set_semantic_router(settings: Settings) -> SemanticRouter | None:
     return SemanticRouter(
         encoder=encoder, routes=routes, index=index, auto_sync="local"
     )
+
+
+async def commit_messages(
+    engine: AsyncEngine, messages: list[Messages], thread: Threads
+) -> None:
+    """Commit the messages in a bg task."""
+    async with AsyncSession(engine) as session:
+        session.add_all(messages)
+        thread.update_date = utc_now()
+        await session.commit()
+        await session.close()

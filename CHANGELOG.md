@@ -7,11 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## Changed
+### Added
+- Filter and sort get_thread and get_thread/messages.
+
+### Changed
 - Prettier automatic tailwind classes sorting.
 
 ## Added
 - Basic Guardrails.
+- Possibility to interrupt streaming.
 
 ## [v0.4.6]
 
