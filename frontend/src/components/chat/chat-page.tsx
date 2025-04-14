@@ -33,6 +33,7 @@ export function ChatPage({
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [isAutoScrollEnabled, setIsAutoScrollEnabled] = useState(true);
   const containerRef = useRef<HTMLDivElement>(null);
+  const [stopped, setStopped] = useState(false);
 
   const {
     messages: messagesRaw,
@@ -42,6 +43,7 @@ export function ChatPage({
     isLoading,
     setMessages: setMessagesRaw,
     error,
+    stop,
   } = useChat({
     api: `${env.NEXT_PUBLIC_BACKEND_URL}/qa/chat_streamed/${threadId}`,
     headers: {
@@ -87,12 +89,22 @@ export function ChatPage({
       initialCheckedTools["allchecked"] = true;
       setCheckedTools(initialCheckedTools);
     }
+    // To know if the chat should be disabled or not, check if last message was stopped
+    const shouldBeStopped = () => {
+      const isLastMessageComplete =
+        messages.at(-1)?.annotations?.find(
+          (annotation) => "isComplete" in annotation, // Find the correct annotation
+        )?.isComplete ?? false;
+      return !isLastMessageComplete;
+    }; // If message complete, don't set stopped
+
+    setStopped(shouldBeStopped());
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // Empty dependency array means this runs once on mount
 
   useEffect(() => {
     if (isAutoScrollEnabled) {
-      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+      messagesEndRef.current?.scrollIntoView({ behavior: "instant" });
     }
   }, [messages, isAutoScrollEnabled]);
 
@@ -109,7 +121,7 @@ export function ChatPage({
 
       // Count tools that were subject to HIL (accepted, rejected, or pending)
       const validatedCount = annotations.filter((a) =>
-        ["accepted", "rejected", "pending"].includes(a.validated),
+        ["accepted", "rejected", "pending"].includes(a.validated ?? ""),
       ).length;
 
       // Count validated tools that also have results
@@ -153,6 +165,19 @@ export function ChatPage({
       setIsAutoScrollEnabled(isAtBottom);
     }
   };
+
+  // Handle streaming interruption
+  useEffect(() => {
+    if (stopped) {
+      setMessages((prevState) => {
+        prevState[prevState.length - 1] = {
+          ...prevState[prevState.length - 1],
+          annotations: [{ isComplete: false }],
+        };
+        return prevState;
+      });
+    }
+  }, [stopped, setMessages]);
 
   // Handle chat errors
   useEffect(() => {
@@ -213,6 +238,9 @@ export function ChatPage({
         handleSubmit={handleSubmit}
         hasOngoingToolInvocations={hasOngoingToolInvocations}
         setIsAutoScrollEnabled={setIsAutoScrollEnabled}
+        onStop={stop}
+        stopped={stopped}
+        setStopped={setStopped}
       />
     </div>
   );

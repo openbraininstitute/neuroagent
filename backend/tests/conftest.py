@@ -180,9 +180,10 @@ async def setup_sql_db(request):
     session = AsyncSession(bind=engine)
     async with engine.begin() as conn:
         await conn.run_sync(metadata.reflect)
-        for table in reversed(metadata.tables.values()):
-            if table.name != "alembic_version":
-                await session.execute(table.delete())
+        tables = metadata.tables
+        await session.execute(tables["tool_calls"].delete())
+        await session.execute(tables["messages"].delete())
+        await session.execute(tables["threads"].delete())
 
     await session.commit()
     await engine.dispose()
@@ -221,24 +222,28 @@ async def populate_db(db_connection):
             entity=Entity.USER,
             content=json.dumps({"content": "This is my query."}),
             thread=thread,
+            is_complete=True,
         ),
         Messages(
             order=1,
             entity=Entity.AI_TOOL,
             content=json.dumps({"content": ""}),
             thread=thread,
+            is_complete=True,
         ),
         Messages(
             order=2,
             entity=Entity.TOOL,
             content=json.dumps({"content": "It's sunny today."}),
             thread=thread,
+            is_complete=True,
         ),
         Messages(
             order=3,
             entity=Entity.AI_MESSAGE,
             content=json.dumps({"content": "sample response content."}),
             thread=thread,
+            is_complete=True,
         ),
     ]
 

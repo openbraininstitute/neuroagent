@@ -245,6 +245,7 @@ async def get_thread_messages(
             "entity": msg.entity.value,  # Convert enum to string
             "thread_id": msg.thread_id,
             "order": msg.order,
+            "is_complete": msg.is_complete,
             "creation_date": msg.creation_date.isoformat(),  # Convert datetime to string
             "msg_content": json.loads(msg.content),
         }
