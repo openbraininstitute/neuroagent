@@ -18,12 +18,8 @@ logger = logging.getLogger(__name__)
 class LiteratureSearchInput(BaseModel):
     """Inputs of the literature search API."""
 
-    query: str = Field(
-        description=(
-            "Query to match against the text of paragraphs coming from the body of scientific"
-            " articles. The body does not contain the title nor the authors. The matching is done using the bm25 algorithm, so the query"
-            " should be based on relevant keywords to ensure maximal efficiency."
-        )
+    user_message: str = Field(
+        description=("Message of the user that triggered the tool call.")
     )
     article_number: int = Field(
         default=5, ge=1, le=10, description="Number of articles to return."
@@ -102,7 +98,8 @@ class ArticleOutput(BaseModel):
 class LiteratureSearchToolOutput(BaseModel):
     """Output schema for the literature search tool."""
 
-    articles: list[ArticleOutput]
+    articles: list[ArticleOutput] | None = None
+    error: str | None = None
 
 
 class LiteratureSearchTool(BaseTool):
@@ -121,7 +118,8 @@ class LiteratureSearchTool(BaseTool):
     description: ClassVar[
         str
     ] = """Searches the scientific literature. The tool should be used to gather general scientific knowledge. It is best suited for questions about neuroscience and medicine that are not about morphologies.
-    It returns a list of scientific articles that have paragraphs matching the query (in the sense of the bm25 algorithm), alongside with the metadata of the articles they were extracted from."""
+    It returns a list of scientific articles that have paragraphs matching the query alongside with the metadata of the articles they were extracted from.
+    When callin this tool, pass the user's message as it was written. ONLY RETURN ARTICLES YOU FIND RELEVANT, DO NOT HESITATE TO DISCARD IRRELEVANT ONES."""
     metadata: LiteratureSearchMetadata
     input_schema: LiteratureSearchInput
 
@@ -133,12 +131,12 @@ class LiteratureSearchTool(BaseTool):
             List of paragraphs and their metadata
         """
         logger.info(
-            f"Entering literature search tool. Inputs: {self.input_schema.query=}"
+            f"Entering literature search tool. Inputs: {self.input_schema.user_message=}"
         )
 
         # Prepare the request's body
         req_body = self.create_query(
-            query=self.input_schema.query,
+            query=self.input_schema.user_message,
             article_types=self.input_schema.article_types,
             authors=self.input_schema.authors,
             journals=self.input_schema.journals,
@@ -158,7 +156,7 @@ class LiteratureSearchTool(BaseTool):
             timeout=None,
         )
         if response.status_code != 200:
-            return response.json()
+            return LiteratureSearchToolOutput(error=response.text)
         else:
             return self._process_output(
                 output=response.json(), article_number=self.input_schema.article_number

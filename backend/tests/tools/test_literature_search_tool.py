@@ -49,7 +49,7 @@ class TestLiteratureSearchTool:
 
         tool = LiteratureSearchTool(
             input_schema=LiteratureSearchInput(
-                query="covid 19", article_number=reranker_k
+                user_message="covid 19", article_number=reranker_k
             ),
             metadata=LiteratureSearchMetadata(
                 literature_search_url=url,
@@ -68,7 +68,7 @@ class TestLiteratureSearchTool:
 
 class TestCreateQuery:
     tool = LiteratureSearchTool(
-        input_schema=LiteratureSearchInput(query="covid 19", article_number=1),
+        input_schema=LiteratureSearchInput(user_message="covid 19", article_number=1),
         metadata=LiteratureSearchMetadata(
             literature_search_url="https://fake_url.com",
             httpx_client=httpx.AsyncClient(),
