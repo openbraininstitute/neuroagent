@@ -136,7 +136,7 @@ async def stream_chat_agent(
     accounting_session_factory: Annotated[
         AsyncAccountingSessionFactory, Depends(get_accounting_session_factory)
     ],
-    semantic_router: Annotated[SemanticRouter, Depends(get_semantic_routes)],
+    semantic_router: Annotated[SemanticRouter | None, Depends(get_semantic_routes)],
 ) -> StreamingResponse:
     """Run a single agent query in a streamed fashion."""
     limit_headers, rate_limited = await rate_limit(
@@ -185,29 +185,31 @@ async def stream_chat_agent(
         proj_id=thread.project_id,
         count=1,
     ):
-        selected_route = await semantic_router.acall(user_request.content)
+        if semantic_router:
+            selected_route = await semantic_router.acall(user_request.content)
+            if selected_route.name:  # type: ignore
+                # If a predefined route is detected, return predefined response
+                async def yield_predefined_response(
+                    response: str,
+                ) -> AsyncIterator[str]:
+                    """Imitate the LLM streaming."""
+                    for chunk in response.split(" "):
+                        await asyncio.sleep(0.01)
+                        yield f"0:{json.dumps(chunk + ' ', separators=(',', ':'))}\n"
 
-        if selected_route.name:  # type: ignore
-            # If a predefined route is detected, return predefined response
-            async def yield_predefined_response(response: str) -> AsyncIterator[str]:
-                """Imitate an LLM streaming a response for the predefined ones."""
-                for chunk in response.split(" "):
-                    await asyncio.sleep(0.01)
-                    yield f"0:{json.dumps(chunk + ' ', separators=(',', ':'))}\n"
-
-            response = next(
-                route.metadata["response"]  # type: ignore
-                for route in semantic_router.routes
-                if route.name == selected_route.name  # type: ignore
-            )
-            return StreamingResponse(
-                yield_predefined_response(response),
-                media_type="text/event-stream",
-                headers={
-                    "x-vercel-ai-data-stream": "v1",
-                    **limit_headers.model_dump(by_alias=True),
-                },
-            )
+                response = next(
+                    route.metadata["response"]  # type: ignore
+                    for route in semantic_router.routes
+                    if route.name == selected_route.name  # type: ignore
+                )
+                return StreamingResponse(
+                    yield_predefined_response(response),
+                    media_type="text/event-stream",
+                    headers={
+                        "x-vercel-ai-data-stream": "v1",
+                        **limit_headers.model_dump(by_alias=True),
+                    },
+                )
 
         stream_generator = stream_agent_response(
             agents_routine=agents_routine,

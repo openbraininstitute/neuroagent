@@ -11,6 +11,9 @@ def test_settings_endpoint(app_client, dont_look_at_env_file, settings):
 
     replace_secretstr = settings.model_dump()
     replace_secretstr["openai"]["token"] = "**********"
+    replace_secretstr["misc"]["fixed_llm_responses_path"] = str(
+        replace_secretstr["misc"]["fixed_llm_responses_path"]
+    )
     assert response.json() == replace_secretstr
 
 

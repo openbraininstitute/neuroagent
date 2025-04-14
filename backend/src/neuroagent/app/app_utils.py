@@ -162,10 +162,15 @@ async def rate_limit(
 
 
 def set_semantic_router(settings: Settings) -> SemanticRouter | None:
-    """Set the semantic route object for basic guardrails."""
-    with settings.misc.fixed_llm_responses_path.open() as f:
-        data = yaml.safe_load(f)
+    """Set the semantic router object for basic guardrails."""
+    # Load routes and utterances from yaml file
+    try:
+        with settings.misc.fixed_llm_responses_path.open() as f:
+            data = yaml.safe_load(f)
+    except Exception:
+        return None
 
+    # Define the routes
     routes = [
         Route(
             name=route["name"],
@@ -175,7 +180,9 @@ def set_semantic_router(settings: Settings) -> SemanticRouter | None:
         for route in data["routes"]
     ]
 
-    if settings.openai.token:
+    if settings.openai.token and settings.openai.token.get_secret_value().startswith(
+        "sk-"
+    ):
         encoder = OpenAIEncoder(
             openai_api_key=settings.openai.token.get_secret_value(),
             name="text-embedding-3-small",
@@ -185,5 +192,5 @@ def set_semantic_router(settings: Settings) -> SemanticRouter | None:
 
     index = LocalIndex()
     return SemanticRouter(
-        encoder=encoder, routes=list(routes), index=index, auto_sync="local"
+        encoder=encoder, routes=routes, index=index, auto_sync="local"
     )

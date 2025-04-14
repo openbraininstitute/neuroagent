@@ -200,7 +200,7 @@ class SettingsMisc(BaseModel):
     # Query size limiter, in number of characters. (630 words ~= 5000 characters.)
     query_max_size: int = 10000
 
-    fixed_llm_responses_path: Path = Path("llm_fixed_responses.yml")
+    fixed_llm_responses_path: Path = Path("fixed_llm_responses.yml")
 
     model_config = ConfigDict(frozen=True)
 

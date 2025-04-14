@@ -10,6 +10,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Changed
 - Prettier automatic tailwind classes sorting.
 
+## Added
+- Basic Guardrails.
+
 ## [v0.4.6]
 
 ### Changed
