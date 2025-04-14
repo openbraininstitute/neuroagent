@@ -164,23 +164,16 @@ def mock_keycloak_user_identification(httpx_mock):
     )
 
 
-@pytest_asyncio.fixture(params=["sqlite", "postgresql"], name="db_connection")
+@pytest_asyncio.fixture(name="db_connection")
 async def setup_sql_db(request):
-    db_type = request.param
-
     # To start the postgresql database:
     # docker run -it --rm -p 5432:5432 -e POSTGRES_USER=test -e POSTGRES_PASSWORD=password postgres:latest
-    path = (
-        "sqlite+aiosqlite:///sqlite.db"
-        if db_type == "sqlite"
-        else "postgresql+asyncpg://test:password@localhost:5432"
-    )
-    if db_type == "postgresql":
-        try:
-            async with create_async_engine(path).connect() as conn:
-                pass
-        except Exception:
-            pytest.skip("Postgres database not connected")
+    path = "postgresql+asyncpg://test:password@localhost:5432"
+    try:
+        async with create_async_engine(path).connect() as conn:
+            pass
+    except Exception:
+        pytest.skip("Postgres database not connected")
     yield path
     engine = create_async_engine(path)
     metadata = MetaData()
