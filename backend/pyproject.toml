@@ -26,6 +26,7 @@ dependencies = [
     "obp-accounting-sdk",
     "openai",
     "psycopg2",
+    "pydantic>=2.11",
     "pydantic-settings",
     "python-dotenv",
     "python-keycloak",
