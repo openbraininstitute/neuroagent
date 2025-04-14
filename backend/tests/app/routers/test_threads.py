@@ -289,29 +289,29 @@ async def test_get_thread_messages(
         # Get the messages of the thread
         messages = app_client.get(f"/threads/{thread.thread_id}/messages").json()
 
-    assert messages[0]["order"] == 0
     assert messages[0]["entity"] == "user"
     assert messages[0]["msg_content"] == {"content": "This is my query."}
     assert messages[0]["message_id"]
     assert messages[0]["creation_date"]
 
-    assert messages[1]["order"] == 1
     assert messages[1]["entity"] == "ai_tool"
     assert messages[1]["msg_content"] == {"content": ""}
     assert messages[1]["message_id"]
     assert messages[1]["creation_date"]
 
-    assert messages[2]["order"] == 2
     assert messages[2]["entity"] == "tool"
     assert messages[2]["msg_content"] == {"content": "It's sunny today."}
     assert messages[2]["message_id"]
     assert messages[2]["creation_date"]
 
-    assert messages[3]["order"] == 3
     assert messages[3]["entity"] == "ai_message"
     assert messages[3]["msg_content"] == {"content": "sample response content."}
     assert messages[3]["message_id"]
     assert messages[3]["creation_date"]
+
+    assert messages[0]["creation_date"] < messages[1]["creation_date"]
+    assert messages[1]["creation_date"] < messages[2]["creation_date"]
+    assert messages[2]["creation_date"] < messages[3]["creation_date"]
 
 
 @pytest.mark.httpx_mock(can_send_already_matched_responses=True)

@@ -4,7 +4,7 @@ import datetime
 import enum
 import uuid
 
-from sqlalchemy import Boolean, DateTime, Enum, ForeignKey, Integer, String
+from sqlalchemy import Boolean, DateTime, Enum, ForeignKey, String
 from sqlalchemy.ext.asyncio import AsyncAttrs
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
@@ -48,7 +48,7 @@ class Threads(Base):
     messages: Mapped[list["Messages"]] = relationship(
         "Messages",
         back_populates="thread",
-        order_by="Messages.order",  # get messages in order.
+        order_by="Messages.creation_date",  # get messages in creation order.
         cascade="all, delete-orphan",
     )
 
@@ -60,7 +60,6 @@ class Messages(Base):
     message_id: Mapped[str] = mapped_column(
         String, primary_key=True, default=lambda: uuid.uuid4().hex
     )
-    order: Mapped[int] = mapped_column(Integer, nullable=False)
     creation_date: Mapped[datetime.datetime] = mapped_column(DateTime, default=utc_now)
     entity: Mapped[Entity] = mapped_column(Enum(Entity), nullable=False)
     content: Mapped[str] = mapped_column(String, nullable=False)

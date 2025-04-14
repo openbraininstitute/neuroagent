@@ -7,7 +7,6 @@ from typing import Annotated, Any
 
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import ValidationError
-from sqlalchemy import desc, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from neuroagent.agent_routine import AgentsRoutine
@@ -88,18 +87,8 @@ async def execute_tool_call(
             # Return early with validation-error status without committing to DB
             return ExecuteToolCallResponse(status="validation-error", content=None)
 
-    # Get the latest message order for this thread
-    latest_message = await session.execute(
-        select(Messages)
-        .where(Messages.thread_id == thread_id)
-        .order_by(desc(Messages.order))
-        .limit(1)
-    )
-    latest = latest_message.scalar_one()
-
     # Add the tool response as a new message
     new_message = Messages(
-        order=latest.order + 1,
         thread_id=thread_id,
         entity=Entity.TOOL,
         content=json.dumps(message),

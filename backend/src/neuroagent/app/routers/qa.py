@@ -168,7 +168,6 @@ async def stream_chat_agent(
     if not messages or messages[-1].entity == Entity.AI_MESSAGE:
         messages.append(
             Messages(
-                order=len(messages),
                 thread_id=thread.thread_id,
                 entity=Entity.USER,
                 content=json.dumps({"role": "user", "content": user_request.content}),

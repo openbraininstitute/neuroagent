@@ -340,7 +340,6 @@ class AgentsRoutine:
             # Stage the new message for addition to DB
             messages.append(
                 Messages(
-                    order=len(messages),
                     thread_id=messages[-1].thread_id,
                     entity=get_entity(message),
                     content=json.dumps(message),
@@ -401,7 +400,6 @@ class AgentsRoutine:
             messages.extend(
                 [
                     Messages(
-                        order=len(messages) + i,
                         thread_id=messages[-1].thread_id,
                         entity=Entity.TOOL,
                         content=json.dumps(tool_response),

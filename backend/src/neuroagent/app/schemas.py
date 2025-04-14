@@ -23,7 +23,6 @@ class MessageResponse(BaseModel):
     message_id: str
     entity: str
     thread_id: str
-    order: int
     creation_date: datetime.datetime
     msg_content: dict[str, Any]
     tool_calls: list[ToolCall]
@@ -71,7 +70,6 @@ class MessagesRead(BaseModel):
     """Output of the conversation listing crud."""
 
     message_id: str
-    order: int
     creation_date: datetime.datetime
     msg_content: str
     entity: Literal[Entity.USER, Entity.AI_MESSAGE]
