@@ -32,6 +32,9 @@ class InputSCSPlotTool(BaseModel):
     simulation_id: str = Field(
         description="ID of the simulation to retrieve. Should be an https link."
     )
+    simulation_label: str = Field(
+        description="label of the simulation plot. This is what will be used to refer to the plot."
+    )
 
 
 class SCSPlotToolOutput(BaseModel):
@@ -43,16 +46,16 @@ class SCSPlotToolOutput(BaseModel):
 class SCSPlotTool(BaseTool):
     """Class defining the SCSGetOne tool."""
 
-    name: ClassVar[str] = "scsgetone-plot"
+    name: ClassVar[str] = "scsplot-tool"
     name_frontend: ClassVar[str] = "Plot Single-Neuron Simulation"
     description: ClassVar[str] = """Make a plot of the simulation, based on its id.
     The id can be retrieved using the 'scs-getall-tool', from the simulation report of `scs-post-tool` or directly specified by the user.
-    The plots will be shown after your message automatically. DO NOT MENTION the storage id no the simulation ID. DO NOT EMBED the plot in your message."""
+    The plots will be shown after your message automatically. DO NOT MENTION the storage id nor the simulation ID. Use the simulaton label to refer to the plot."""
     description_frontend: ClassVar[
         str
     ] = """Make a plot from the result of your simulation.
 
-    Provide the simulation ID to get its detailed information."""
+    Provide the simulation ID to plot it."""
     metadata: SCSPlotToolMetadata
     input_schema: InputSCSPlotTool
 
@@ -85,7 +88,7 @@ class SCSPlotTool(BaseTool):
                 )
 
         plot = JSONMultiLinechart(
-            title=result["name"],
+            title=self.input_schema.simulation_label,
             description="",
             values=to_plot,
             x_label="Time [ms]",

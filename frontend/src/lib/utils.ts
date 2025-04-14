@@ -24,7 +24,7 @@ export const viewableTools = [
   "morpho-viewer-tool",
   "plot-generator",
   "random-plot-generator",
-  "scsgetone-plot",
+  "scsplot-tool",
 ];
 
 /**
