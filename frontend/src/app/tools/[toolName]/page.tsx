@@ -67,19 +67,19 @@ export default async function ToolPage({
   }
 
   return (
-    <div className="container mx-auto px-4 py-6 h-[calc(100vh-4rem)] overflow-y-auto">
+    <div className="container mx-auto h-[calc(100vh-4rem)] overflow-y-auto px-4 py-6">
       <Link
         href="/tools"
-        className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground mb-6"
+        className="mb-6 inline-flex items-center gap-2 text-muted-foreground hover:text-foreground"
       >
         <ArrowLeft className="h-4 w-4" />
         Back to tools
       </Link>
 
-      <div className="flex flex-col items-center gap-4 mb-8">
+      <div className="mb-8 flex flex-col items-center gap-4">
         <h1 className="text-3xl font-bold">{tool.nameFrontend}</h1>
 
-        <div className="flex gap-4 items-center">
+        <div className="flex items-center gap-4">
           {tool.hil ? (
             <div className="flex items-center gap-1 text-sm text-muted-foreground">
               <PersonStanding className="h-5 w-5" />
@@ -110,17 +110,17 @@ export default async function ToolPage({
       </div>
 
       <div className="space-y-8 pb-6">
-        <div className="bg-muted/50 rounded-lg p-6">
-          <h2 className="text-xl font-semibold mb-4">Description</h2>
+        <div className="rounded-lg bg-muted/50 p-6">
+          <h2 className="mb-4 text-xl font-semibold">Description</h2>
           <div className="space-y-4">
-            <p className="text-muted-foreground whitespace-pre-wrap break-words">
+            <p className="whitespace-pre-wrap break-words text-muted-foreground">
               {tool.descriptionFrontend}
             </p>
           </div>
         </div>
 
-        <div className="bg-muted/50 rounded-lg p-6">
-          <h2 className="text-xl font-semibold mb-4">Input Parameters</h2>
+        <div className="rounded-lg bg-muted/50 p-6">
+          <h2 className="mb-4 text-xl font-semibold">Input Parameters</h2>
           <ToolInputSchema schema={parsedSchema} />
         </div>
       </div>

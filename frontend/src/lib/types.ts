@@ -23,8 +23,9 @@ export type BToolCall = {
 };
 
 export type Annotation = {
-  toolCallId: string;
-  validated: "accepted" | "rejected" | "pending" | "not_required";
+  toolCallId?: string;
+  validated?: "accepted" | "rejected" | "pending" | "not_required";
+  isComplete?: boolean;
 };
 
 export type BMessageUser = {
@@ -33,6 +34,7 @@ export type BMessageUser = {
   thread_id: string;
   order: number;
   creation_date: string;
+  is_complete: true;
   msg_content: {
     role: "user";
     content: string;
@@ -46,6 +48,7 @@ export type BMessageAIContent = {
   thread_id: string;
   order: number;
   creation_date: string;
+  is_complete: boolean;
   msg_content: {
     content: string;
     sender: string;
@@ -61,6 +64,7 @@ export type BMessageAITool = {
   thread_id: string;
   order: number;
   creation_date: string;
+  is_complete: boolean;
   msg_content: {
     role: "assistant";
     content: string;
@@ -76,6 +80,7 @@ export type BMessageTool = {
   thread_id: string;
   order: number;
   creation_date: string;
+  is_complete: boolean;
   msg_content: {
     role: "assistant";
     tool_call_id: string;
@@ -121,6 +126,12 @@ export type BToolMetadataDetailed = {
   input_schema: string;
   hil: boolean;
   is_online: boolean;
+};
+
+export type PlotProp = {
+  presignedUrl: string;
+  storageId?: string;
+  isInChat?: boolean;
 };
 
 type BaseObject = {

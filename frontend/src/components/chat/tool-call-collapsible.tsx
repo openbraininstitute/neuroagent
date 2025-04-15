@@ -11,10 +11,12 @@ import {
 import { ToolCallStatus } from "./tool-call-status";
 import { ToolInvocation } from "@ai-sdk/ui-utils";
 import { ScrollToBottom } from "./scroll-to-bottom";
+import { viewableTools } from "@/lib/utils";
 
 type ToolCallCollapsibleProps = {
   tool: ToolInvocation;
   toolLabel: string;
+  stopped: boolean;
   validated: "pending" | "accepted" | "rejected" | "not_required";
   validationError: string | null;
   onValidationClick: () => void;
@@ -23,31 +25,28 @@ type ToolCallCollapsibleProps = {
 export function ToolCallCollapsible({
   tool,
   toolLabel,
+  stopped,
   validated,
   validationError,
   onValidationClick,
 }: ToolCallCollapsibleProps) {
   const [toolOpen, setToolOpen] = useState(false);
 
-  const viewableTools = [
-    "morpho-viewer-tool",
-    "plot-generator",
-    "random-plot-generator",
-  ];
-
   return (
     <Collapsible
       open={toolOpen}
-      onOpenChange={validated === "pending" ? onValidationClick : setToolOpen}
+      onOpenChange={
+        validated === "pending" && !stopped ? onValidationClick : setToolOpen
+      }
     >
       <div className="flex items-center gap-2">
         <CollapsibleTrigger className="hover:scale-105 active:scale-[1.10]">
-          <span className="text-sm p-4 truncate border-2 bg-blue-500 rounded-xl">
+          <span className="truncate rounded-xl border-2 bg-blue-500 p-4 text-sm">
             {toolLabel}
           </span>
         </CollapsibleTrigger>
         <ToolCallStatus
-          state={tool.state}
+          state={stopped ? "aborted" : tool.state}
           validated={validated}
           validationError={validationError}
           onValidationClick={onValidationClick}
@@ -55,10 +54,10 @@ export function ToolCallCollapsible({
       </div>
       <CollapsibleContent>
         <ScrollToBottom />
-        <Card className="w-[32rem] mt-8 bg-transparent p-8">
+        <Card className="mt-8 w-[32rem] bg-transparent p-8">
           <CardTitle>
-            <div className="flex justify-between items-center">
-              <span className="text-lg p-2 text-left truncate">
+            <div className="flex items-center justify-between">
+              <span className="truncate p-2 text-left text-lg">
                 {toolLabel}
               </span>
               <div className="flex gap-2">
@@ -67,16 +66,15 @@ export function ToolCallCollapsible({
                   tool?.result &&
                   (() => {
                     try {
-                      const result = JSON.parse(
+                      const result =
                         typeof tool.result === "string"
-                          ? tool.result
-                          : JSON.stringify(tool.result),
-                      );
+                          ? JSON.parse(tool.result)
+                          : tool.result;
                       if (result.storage_id) {
                         return (
                           <a
                             href={`/viewer/${result.storage_id}`}
-                            className="p-2 hover:text-blue-500 transition-colors"
+                            className="p-2 transition-colors hover:text-blue-500"
                           >
                             <Eye className="h-5 w-5" />
                           </a>
@@ -88,7 +86,7 @@ export function ToolCallCollapsible({
                   })()}
                 <a
                   href={`/tools/${tool?.toolName}`}
-                  className="p-2 hover:text-blue-500 transition-colors"
+                  className="p-2 transition-colors hover:text-blue-500"
                 >
                   <Info className="h-5 w-5" />
                 </a>
@@ -96,16 +94,16 @@ export function ToolCallCollapsible({
             </div>
           </CardTitle>
           <CardContent>
-            <div className="flex flex-col mt-4">
+            <div className="mt-4 flex flex-col">
               <h1>Args</h1>
-              <pre className="text-sm p-2 my-2 rounded-md overflow-auto bg-gray-100 dark:bg-slate-800 max-h-[300px]">
+              <pre className="my-2 max-h-[300px] overflow-auto rounded-md bg-gray-100 p-2 text-sm dark:bg-slate-800">
                 {JSON.stringify(tool?.args, null, 2)}
               </pre>
             </div>
             {tool?.state === "result" && (
-              <div className="flex flex-col mt-4">
+              <div className="mt-4 flex flex-col">
                 <h1>{validated === "rejected" ? "Feedback" : "Result"}</h1>
-                <pre className="text-sm p-2 mt-2 rounded-md overflow-auto bg-gray-100 dark:bg-slate-800 max-h-[300px]">
+                <pre className="mt-2 max-h-[300px] overflow-auto rounded-md bg-gray-100 p-2 text-sm dark:bg-slate-800">
                   {typeof tool?.result === "string"
                     ? (() => {
                         try {
@@ -124,7 +122,7 @@ export function ToolCallCollapsible({
             )}
           </CardContent>
           <CardFooter>
-            <p className="text-xs p-2 text-left">ID: {tool?.toolCallId}</p>
+            <p className="p-2 text-left text-xs">ID: {tool?.toolCallId}</p>
           </CardFooter>
         </Card>
       </CollapsibleContent>

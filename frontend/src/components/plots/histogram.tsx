@@ -11,6 +11,7 @@ import {
   Legend,
 } from "chart.js";
 import { Bar } from "react-chartjs-2";
+import { useTheme } from "next-themes";
 
 ChartJS.register(
   CategoryScale,
@@ -21,11 +22,27 @@ ChartJS.register(
   Legend,
 );
 
-type HistogramProps = {
-  data: JSONHistogram;
-};
+import { useGetObjectFromStorage } from "@/hooks/get-storage-object";
+import { PlotProp } from "@/lib/types";
+import Link from "next/link";
+import { Link2 } from "lucide-react";
 
-export function Histogram({ data }: HistogramProps) {
+export function Histogram({ presignedUrl, storageId, isInChat }: PlotProp) {
+  const { theme } = useTheme();
+
+  const { data: response } = useGetObjectFromStorage(
+    presignedUrl as string,
+    presignedUrl != "",
+    false,
+  );
+  if (!response) {
+    return null;
+  }
+  const data = response as JSONHistogram;
+
+  const darkGridColor = "rgba(255, 255, 255, 0.1)";
+  const gridColor = theme === "dark" ? darkGridColor : undefined;
+
   // Calculate min and max for the bin range
   const min = Math.min(...data.values);
   const max = Math.max(...data.values);
@@ -66,20 +83,21 @@ export function Histogram({ data }: HistogramProps) {
       legend: {
         display: false,
       },
-      title: {
-        display: true,
-        text: data.title,
-      },
     },
     scales: {
       y: {
-        beginAtZero: true,
+        grid: {
+          color: gridColor,
+        },
         title: {
           display: !!data.y_label,
           text: data.y_label || "Frequency",
         },
       },
       x: {
+        grid: {
+          color: gridColor,
+        },
         title: {
           display: !!data.x_label,
           text: data.x_label || "Value",
@@ -89,12 +107,21 @@ export function Histogram({ data }: HistogramProps) {
   };
 
   return (
-    <div className="w-full max-w-3xl mx-auto p-4 overflow-y-auto">
-      <h2 className="text-xl font-bold mb-2">{data.title}</h2>
-      {data.description && (
-        <p className="text-gray-600 mb-4">{data.description}</p>
+    <div
+      className={`w-full max-w-3xl overflow-y-auto p-4 ${!isInChat && "mx-auto"}`}
+    >
+      {isInChat ? (
+        <Link href={`/viewer/${storageId}`} className="flex gap-2">
+          <Link2 className="mt-0.5" />
+          <h2 className="mb-2 text-xl font-bold underline">{data.title}</h2>
+        </Link>
+      ) : (
+        <h2 className="mb-2 text-xl font-bold">{data.title}</h2>
       )}
-      <div className="aspect-square">
+      {data.description && (
+        <p className="mb-4 text-gray-600">{data.description}</p>
+      )}
+      <div>
         <Bar data={chartData} options={options} />
       </div>
     </div>

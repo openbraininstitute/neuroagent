@@ -26,7 +26,7 @@ export function ProgressBarProvider({
 export const ProgressBar = () => {
   return (
     <Progress>
-      <Bar className="!absolute z-[9999] !top-auto fill-red-500"></Bar>
+      <Bar className="!absolute !top-auto z-[9999] fill-red-500"></Bar>
     </Progress>
   );
 };

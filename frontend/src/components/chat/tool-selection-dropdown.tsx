@@ -91,7 +91,7 @@ export function ToolSelectionDropdown({
                 <CommandItem key="select-all" className="border-b-2" asChild>
                   <label
                     htmlFor="select-all-checkbox"
-                    className="cursor-pointer flex items-center w-full"
+                    className="flex w-full cursor-pointer items-center"
                     onClick={(e) => {
                       e.preventDefault();
                       handleCheckAll(!checkedTools.allchecked);
@@ -108,7 +108,7 @@ export function ToolSelectionDropdown({
                   <CommandItem key={tool.slug} value={tool.label} asChild>
                     <label
                       htmlFor={tool.slug}
-                      className="cursor-pointer flex items-center w-full"
+                      className="flex w-full cursor-pointer items-center"
                       onClick={(e) => {
                         e.preventDefault();
                         handleCheckboxChange(tool.slug);

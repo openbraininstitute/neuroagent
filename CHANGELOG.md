@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- Prettier automatic tailwind classes sorting.
+
+### Removed
+- `order` column in `messages` table + fixed.
+- SQLite support.
+
+## Added
+- Basic Guardrails.
+- Possibility to interrupt streaming.
+- Filter and sort get_thread and get_thread/messages.
+
 ## [v0.4.7] - 15.04.2025
 
 ### Fixed
@@ -115,6 +127,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - [frontend] - bugfixes.
 - Suggestion endpoint.
 - Support empty vlab+project in threads.
+- [frontend] - tool thunmbnail in chat.
 
 ### Fixed
 - [frontend] - Parallel execution of tools

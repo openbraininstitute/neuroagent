@@ -9,19 +9,34 @@ import {
   TooltipItem,
 } from "chart.js";
 import { Pie } from "react-chartjs-2";
+import Link from "next/link";
+import { Link2 } from "lucide-react";
 
 // Register the required Chart.js components
 ChartJS.register(ArcElement, Tooltip, Legend);
 
-type PiechartProps = {
-  data: JSONPiechart;
-};
+import { useGetObjectFromStorage } from "@/hooks/get-storage-object";
+import { PlotProp } from "@/lib/types";
 
-export function Piechart({ data }: PiechartProps) {
+import Rand from "rand-seed";
+
+export function Piechart({ presignedUrl, isInChat, storageId }: PlotProp) {
+  const rand = new Rand("1234");
+
+  const { data: response } = useGetObjectFromStorage(
+    presignedUrl as string,
+    presignedUrl != "",
+    false,
+  );
+  if (!response) {
+    return null;
+  }
+  const data = response as JSONPiechart;
+
   const labels = data.values.map((value) => value.category);
   const values = data.values.map((value) => value.value);
   const backgroundColor = data.values.map(
-    (value) => value.color || `hsla(${Math.random() * 360}, 70%, 60%, 0.5)`,
+    (value) => value.color || `hsla(${rand.next() * 360}, 70%, 60%, 0.5)`,
   );
   const borderColor = backgroundColor.map((color) => color.replace("0.5", "1"));
 
@@ -42,10 +57,7 @@ export function Piechart({ data }: PiechartProps) {
       legend: {
         position: "top" as const,
       },
-      title: {
-        display: true,
-        text: data.title,
-      },
+
       tooltip: {
         callbacks: {
           label: (context: TooltipItem<"pie">) => {
@@ -66,13 +78,24 @@ export function Piechart({ data }: PiechartProps) {
   };
 
   return (
-    <div className="w-full max-w-3xl mx-auto p-4 overflow-y-auto">
-      <h2 className="text-xl font-bold mb-2">{data.title}</h2>
-      {data.description && (
-        <p className="text-gray-600 mb-4">{data.description}</p>
+    <div
+      className={`w-full max-w-2xl overflow-y-auto p-4 ${!isInChat && "mx-auto"}`}
+    >
+      {isInChat ? (
+        <Link href={`/viewer/${storageId}`} className="flex gap-2">
+          <Link2 className="mt-0.5" />
+          <h2 className="mb-2 text-xl font-bold underline">{data.title}</h2>
+        </Link>
+      ) : (
+        <h2 className="mb-2 text-xl font-bold">{data.title}</h2>
       )}
-      <div className="aspect-square">
-        <Pie data={chartData} options={options} />
+      {data.description && (
+        <p className="mb-4 text-gray-600">{data.description}</p>
+      )}
+      <div className={`flex ${isInChat ? "justify-center" : "justify-start"}`}>
+        <div className={isInChat ? "max-w-sm" : "w-full"}>
+          <Pie data={chartData} options={options} />
+        </div>
       </div>
     </div>
   );

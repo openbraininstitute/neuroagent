@@ -1,8 +1,10 @@
 "use client";
 
-import { Send } from "lucide-react";
+import { Send, OctagonX } from "lucide-react";
 import { ToolSelectionDropdown } from "@/components/chat/tool-selection-dropdown";
 import TextareaAutosize from "react-textarea-autosize";
+import { Dispatch, FormEvent, SetStateAction } from "react";
+import { useRouter } from "next/navigation";
 
 type ChatInputInsideThreadProps = {
   input: string;
@@ -14,6 +16,9 @@ type ChatInputInsideThreadProps = {
   handleSubmit: (event?: { preventDefault?: () => void }) => void;
   setIsAutoScrollEnabled: (enabled: boolean) => void;
   hasOngoingToolInvocations: boolean;
+  onStop: () => void;
+  stopped: boolean;
+  setStopped: Dispatch<SetStateAction<boolean>>;
 };
 
 export function ChatInputInsideThread({
@@ -26,31 +31,47 @@ export function ChatInputInsideThread({
   handleSubmit,
   setIsAutoScrollEnabled,
   hasOngoingToolInvocations,
+  onStop,
+  stopped,
+  setStopped,
 }: ChatInputInsideThreadProps) {
+  const canSend = !hasOngoingToolInvocations || stopped;
+  const router = useRouter();
+
+  const submitWrapper = (
+    e: React.KeyboardEvent<HTMLTextAreaElement> | FormEvent<HTMLFormElement>,
+  ) => {
+    e.preventDefault();
+    handleSubmit(e);
+    setStopped(false);
+  };
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter") {
       if (e.shiftKey) {
         return;
       }
       e.preventDefault();
-      if (!isLoading && !hasOngoingToolInvocations) {
-        setIsAutoScrollEnabled(true);
-        handleSubmit(e);
+      if (!isLoading && canSend) {
+        e.currentTarget.form?.requestSubmit();
       }
     }
   };
 
   return (
     <form
-      className="flex flex-col justify-center items-center gap-4 m-5"
+      className="m-5 flex flex-col items-center justify-center gap-4"
       onSubmit={(e) => {
+        if (!input.trim()) {
+          e.preventDefault();
+          return;
+        }
         setIsAutoScrollEnabled(true);
-        handleSubmit(e);
+        submitWrapper(e);
       }}
     >
-      <div className="w-full max-w-[1200px] flex items-center  border-2  border-gray-500 rounded-[3vw] overflow-hidden min-h-16 pl-9 pr-2">
+      <div className="flex min-h-16 w-full max-w-[1200px] items-center overflow-hidden rounded-[3vw] border-2 border-gray-500 pl-9 pr-2">
         <TextareaAutosize
-          className="flex-grow outline-none border-none bg-transparent resize-none"
+          className="h-6 flex-grow resize-none border-none bg-transparent outline-none"
           name="prompt"
           placeholder="Message the AI..."
           value={input}
@@ -59,20 +80,31 @@ export function ChatInputInsideThread({
           autoComplete="off"
           maxRows={10}
         />
-        <div className="flex gap-3 mr-3">
+        <div className="mr-3 flex gap-3">
           <ToolSelectionDropdown
             availableTools={availableTools}
             checkedTools={checkedTools}
             setCheckedTools={setCheckedTools}
           />
           {isLoading ? (
-            <div className="w-6 h-6 border-2 ml-2 p-1 border-gray-500 border-t-transparent rounded-full animate-spin" />
+            <button
+              type="button"
+              className="p-1"
+              onClick={(e) => {
+                e.preventDefault();
+                onStop();
+                setStopped(true);
+                router.refresh();
+              }}
+            >
+              <OctagonX className="opacity-50" />
+            </button>
           ) : (
             <button
               type="submit"
               data-testid="send-button"
               className="p-1"
-              disabled={hasOngoingToolInvocations}
+              disabled={!canSend}
             >
               <Send className="opacity-50" />
             </button>

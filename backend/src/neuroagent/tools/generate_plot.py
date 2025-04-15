@@ -85,7 +85,8 @@ class PlotGeneratorTool(BaseTool):
     name: ClassVar[str] = "plot-generator"
     name_frontend: ClassVar[str] = "Plot Generator"
     description: ClassVar[str] = (
-        "Generates a plot from user-provided data and saves it to storage. Returns the identifier of the saved plot."
+        "Generates a plot from user-provided data. The plots will be shown after your message automatically."
+        " DO NOT mention the storage ids. You can mention the title to refer to the plots."
     )
     description_frontend: ClassVar[
         str
