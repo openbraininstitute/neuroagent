@@ -3,7 +3,7 @@
 import datetime
 from typing import Any, Literal
 
-from pydantic import BaseModel, conlist
+from pydantic import BaseModel, Field, conlist
 
 from neuroagent.app.database.sql_schemas import Entity
 
@@ -120,7 +120,7 @@ class UserInfo(BaseModel):
     """Keycloak related info of a user."""
 
     sub: str
-    groups: list[str]
+    groups: list[str] = Field(default_factory=list)
     email_verified: bool | None = None
     name: str | None = None
     preferred_username: str | None = None
