@@ -168,6 +168,7 @@ def mock_keycloak_user_identification(httpx_mock):
 async def setup_sql_db(request):
     # To start the postgresql database:
     # docker run -it --rm -p 5432:5432 -e POSTGRES_USER=test -e POSTGRES_PASSWORD=password postgres:latest
+    # alembic -x url=postgresql://test:password@localhost:5432 upgrade head
     path = "postgresql+asyncpg://test:password@localhost:5432"
     try:
         async with create_async_engine(path).connect() as conn:
@@ -218,28 +219,24 @@ async def populate_db(db_connection):
     # Create four dummy messages associated with the thread
     messages = [
         Messages(
-            order=0,
             entity=Entity.USER,
             content=json.dumps({"content": "This is my query."}),
             thread=thread,
             is_complete=True,
         ),
         Messages(
-            order=1,
             entity=Entity.AI_TOOL,
             content=json.dumps({"content": ""}),
             thread=thread,
             is_complete=True,
         ),
         Messages(
-            order=2,
             entity=Entity.TOOL,
             content=json.dumps({"content": "It's sunny today."}),
             thread=thread,
             is_complete=True,
         ),
         Messages(
-            order=3,
             entity=Entity.AI_MESSAGE,
             content=json.dumps({"content": "sample response content."}),
             thread=thread,

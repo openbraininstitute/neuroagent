@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Prettier automatic tailwind classes sorting.
 
 ### Removed
+- `order` column in `messages` table.
 - SQLite support.
 
 ## Added
