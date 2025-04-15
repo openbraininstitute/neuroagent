@@ -21,6 +21,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Basic Guardrails.
 - Possibility to interrupt streaming.
 
+### Fixed
+- Literature search points to right url.
+
 ## [v0.4.6]
 
 ### Changed
