@@ -152,7 +152,7 @@ class LiteratureSearchTool(BaseTool):
         )
         # Send the request
         response = await self.metadata.httpx_client.get(
-            self.metadata.literature_search_url,
+            self.metadata.literature_search_url + "/retrieval/",
             headers={"Authorization": f"Bearer {self.metadata.token}"},
             params=req_body,
             timeout=None,
@@ -238,12 +238,7 @@ class LiteratureSearchTool(BaseTool):
         cls, *, httpx_client: AsyncClient, literature_search_url: str
     ) -> bool:
         """Check if the tool is online."""
-        url = literature_search_url
-        if url.endswith("retrieval/"):
-            url = url[: -len("retrieval/")]
-        elif url.endswith("retrieval"):
-            url = url[: -len("retrieval")]
         response = await httpx_client.get(
-            url,
+            literature_search_url,
         )
         return response.status_code == 200
