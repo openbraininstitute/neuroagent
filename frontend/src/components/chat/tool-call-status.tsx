@@ -1,7 +1,7 @@
-import { Check, Loader2, X, AlertCircle } from "lucide-react";
+import { Check, Loader2, X, AlertCircle, OctagonX } from "lucide-react";
 
 type ToolCallStatusProps = {
-  state: "call" | "partial-call" | "result";
+  state: "call" | "partial-call" | "result" | "aborted";
   validated: "pending" | "accepted" | "rejected" | "not_required";
   validationError?: string | null;
   onValidationClick?: () => void;
@@ -13,6 +13,14 @@ export function ToolCallStatus({
   validationError,
   onValidationClick,
 }: ToolCallStatusProps) {
+  if (state === "aborted") {
+    return (
+      <div className="flex items-center">
+        <OctagonX className="mr-2 h-4 w-4 text-red-500" />
+        <span className="text-xs text-red-500">Aborted</span>
+      </div>
+    );
+  }
   if (state === "result") {
     if (validated === "rejected") {
       return (
@@ -29,7 +37,6 @@ export function ToolCallStatus({
       </div>
     );
   }
-
   if (state === "call") {
     if (validated === "pending") {
       return (

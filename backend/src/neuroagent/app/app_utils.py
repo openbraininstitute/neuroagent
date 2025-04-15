@@ -1,16 +1,23 @@
 """App utilities functions."""
 
 import logging
+from pathlib import Path
 from typing import Any
 
+import yaml
 from fastapi import HTTPException
 from pydantic import BaseModel, ConfigDict, Field
 from redis import asyncio as aioredis
+from semantic_router import Route
+from semantic_router.encoders import OpenAIEncoder
+from semantic_router.index import LocalIndex
+from semantic_router.routers import SemanticRouter
 from sqlalchemy.exc import SQLAlchemyError
-from sqlalchemy.ext.asyncio import AsyncEngine, create_async_engine
+from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, create_async_engine
 from starlette.status import HTTP_401_UNAUTHORIZED
 
 from neuroagent.app.config import Settings
+from neuroagent.app.database.sql_schemas import Messages, Threads, utc_now
 
 logger = logging.getLogger(__name__)
 
@@ -31,9 +38,6 @@ def setup_engine(
     """Get the SQL engine."""
     if connection_string:
         engine_kwargs: dict[str, Any] = {"url": connection_string}
-        if "sqlite" in settings.db.prefix:  # type: ignore
-            # https://fastapi.tiangolo.com/tutorial/sql-databases/#create-the-sqlalchemy-engine
-            engine_kwargs["connect_args"] = {"check_same_thread": False}
         engine = create_async_engine(**engine_kwargs)
     else:
         logger.warning("The SQL db_prefix needs to be set to use the SQL DB.")
@@ -154,3 +158,49 @@ async def rate_limit(
             x_ratelimit_remaining=str(limit - current - 1),
             x_ratelimit_reset=str(expiry),
         ), False
+
+
+def get_semantic_router(settings: Settings) -> SemanticRouter | None:
+    """Set the semantic router object for basic guardrails."""
+    # Load routes and utterances from yaml file
+    try:
+        with (Path(__file__).parent.parent / "fixed_llm_responses.yml").open() as f:
+            data = yaml.safe_load(f)
+    except Exception:
+        return None
+
+    # Define the routes
+    routes = [
+        Route(
+            name=route["name"],
+            utterances=route["utterances"],
+            metadata={"response": route["response"]},
+        )
+        for route in data["routes"]
+    ]
+
+    if settings.openai.token and settings.openai.token.get_secret_value().startswith(
+        "sk-"
+    ):
+        encoder = OpenAIEncoder(
+            openai_api_key=settings.openai.token.get_secret_value(),
+            name="text-embedding-3-small",
+        )
+    else:
+        return None
+
+    index = LocalIndex()
+    return SemanticRouter(
+        encoder=encoder, routes=routes, index=index, auto_sync="local"
+    )
+
+
+async def commit_messages(
+    engine: AsyncEngine, messages: list[Messages], thread: Threads
+) -> None:
+    """Commit the messages in a bg task."""
+    async with AsyncSession(engine) as session:
+        session.add_all(messages)
+        thread.update_date = utc_now()
+        await session.commit()
+        await session.close()
