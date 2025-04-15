@@ -32,9 +32,6 @@ def setup_engine(
     """Get the SQL engine."""
     if connection_string:
         engine_kwargs: dict[str, Any] = {"url": connection_string}
-        if "sqlite" in settings.db.prefix:  # type: ignore
-            # https://fastapi.tiangolo.com/tutorial/sql-databases/#create-the-sqlalchemy-engine
-            engine_kwargs["connect_args"] = {"check_same_thread": False}
         engine = create_async_engine(**engine_kwargs)
     else:
         logger.warning("The SQL db_prefix needs to be set to use the SQL DB.")

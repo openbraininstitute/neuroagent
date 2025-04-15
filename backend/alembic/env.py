@@ -40,15 +40,8 @@ else:
     db_name = os.getenv("NEUROAGENT_DB__NAME", "")
 
     # Set the SQLAlchemy URL dynamically
-    # Use synchronous SQLite for Alembic
-    if db_prefix.startswith("sqlite"):
-        db_prefix = db_prefix.replace("sqlite+aiosqlite", "sqlite")
-        sqlalchemy_url = f"{db_prefix}{db_name}"
-    elif db_prefix.startswith("postgresql"):
-        db_prefix = db_prefix.replace("postgresql+asyncpg", "postgresql")
-        sqlalchemy_url = (
-            f"{db_prefix}{db_user}:{db_password}@{db_host}:{db_port}/{db_name}"
-        )
+    db_prefix = db_prefix.replace("postgresql+asyncpg", "postgresql")
+    sqlalchemy_url = f"{db_prefix}{db_user}:{db_password}@{db_host}:{db_port}/{db_name}"
 
 config.set_main_option("sqlalchemy.url", sqlalchemy_url)
 print(f"Sql Alchemy Url was set to: {sqlalchemy_url}")
@@ -79,7 +72,6 @@ def run_migrations_offline() -> None:
         target_metadata=target_metadata,
         literal_binds=True,
         dialect_opts={"paramstyle": "named"},
-        render_as_batch=True,
     )
 
     with context.begin_transaction():
@@ -100,9 +92,7 @@ def run_migrations_online() -> None:
     )
 
     with connectable.connect() as connection:
-        context.configure(
-            connection=connection, target_metadata=target_metadata, render_as_batch=True
-        )
+        context.configure(connection=connection, target_metadata=target_metadata)
 
         with context.begin_transaction():
             context.run_migrations()
