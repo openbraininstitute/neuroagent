@@ -4,6 +4,7 @@ from neuroagent.tools.bluenaas_memodel_getall import MEModelGetAllTool
 from neuroagent.tools.bluenaas_memodel_getone import MEModelGetOneTool
 from neuroagent.tools.bluenaas_scs_getall import SCSGetAllTool
 from neuroagent.tools.bluenaas_scs_getone import SCSGetOneTool
+from neuroagent.tools.bluenaas_scs_plot import SCSPlotTool
 from neuroagent.tools.bluenaas_scs_post import SCSPostTool
 from neuroagent.tools.electrophys_tool import ElectrophysFeatureTool
 from neuroagent.tools.generate_plot import PlotGeneratorTool
@@ -25,6 +26,7 @@ from neuroagent.tools.web_search import WebSearchTool
 __all__ = [
     "SCSGetAllTool",
     "SCSGetOneTool",
+    "SCSPlotTool",
     "SCSPostTool",
     "ElectrophysFeatureTool",
     "GetMorphoTool",

@@ -24,6 +24,7 @@ export const viewableTools = [
   "morpho-viewer-tool",
   "plot-generator",
   "random-plot-generator",
+  "scsplot-tool",
 ];
 
 /**
@@ -90,7 +91,13 @@ export function getViewableToolStorageIds(
                   ? JSON.parse(invocation.result)
                   : invocation.result;
               if (parsedResult.storage_id) {
-                storageIds.push(parsedResult.storage_id);
+                if (Array.isArray(parsedResult.storage_id)) {
+                  parsedResult.storage_id.map((el: string) =>
+                    storageIds.push(el),
+                  );
+                } else {
+                  storageIds.push(parsedResult.storage_id);
+                }
               }
             } catch {
               // If parsing fails, ignore this invocation.

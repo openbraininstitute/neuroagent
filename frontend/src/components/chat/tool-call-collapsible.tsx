@@ -71,14 +71,16 @@ export function ToolCallCollapsible({
                           ? JSON.parse(tool.result)
                           : tool.result;
                       if (result.storage_id) {
-                        return (
-                          <a
-                            href={`/viewer/${result.storage_id}`}
-                            className="p-2 transition-colors hover:text-blue-500"
-                          >
-                            <Eye className="h-5 w-5" />
-                          </a>
-                        );
+                        if (!Array.isArray(result.storage_id)) {
+                          return (
+                            <a
+                              href={`/viewer/${result.storage_id}`}
+                              className="p-2 transition-colors hover:text-blue-500"
+                            >
+                              <Eye className="h-5 w-5" />
+                            </a>
+                          );
+                        } // For now I just remove the eye when there is multiple plots.
                       }
                     } catch {
                       return null;
