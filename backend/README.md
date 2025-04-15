@@ -9,12 +9,12 @@ pip install -e .
 
 1. Set up environment:
    - Copy `.env.example` to `.env` and fill in required variables
-   - Set up database (SQLite or PostgreSQL)
+   - Set up database (PostgreSQL)
 
-2. Initialize SQLite database (if using SQLite):
+2. Initialize PostgreSQL database:
 ```bash
-touch sqlite.db
-alembic -x url=sqlite:///sqlite.db upgrade head
+docker run -it --rm -p 5432:5432 -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=password postgres:latest
+alembic -x url=postgresql://postgres:password@localhost:5432 upgrade head
 ```
 
 3. (Optional) Set up MinIO for storage:

@@ -15,8 +15,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 - `order` column in `messages` table.
+- SQLite support.
 
 ## Added
+- Basic Guardrails.
 - Possibility to interrupt streaming.
 
 ## [v0.4.6]
