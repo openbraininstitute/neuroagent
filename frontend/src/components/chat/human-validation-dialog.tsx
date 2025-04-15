@@ -28,7 +28,7 @@ type HumanValidationDialogProps = {
   toolId: string;
   toolName: string;
   availableTools: Array<{ slug: string; label: string }>;
-  args: Record<string, unknown>;
+  args: JsonData;
   isOpen: boolean;
   setIsOpen: (open: boolean) => void;
   setMessage: (updater: (msg: MessageStrict) => MessageStrict) => void;
@@ -72,7 +72,6 @@ export function HumanValidationDialog({
   }, [args]);
 
   const handleArgsChange = (value: JsonData) => {
-    console.log(value);
     setEditedArgs(value);
     setIsEdited(JSON.stringify(value) !== JSON.stringify(args));
   };
