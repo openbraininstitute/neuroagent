@@ -28,9 +28,12 @@ dependencies = [
     "pydantic-settings",
     "python-dotenv",
     "python-keycloak",
+    "pyyaml",
     "redis",
+    "semantic-router",
     "sqlalchemy[asyncio]",
     "tavily-python",
+    "types-PyYAML",
     "uvicorn",
     ]
 
@@ -56,6 +59,9 @@ version = {attr = "neuroagent.__version__"}
 [tool.setuptools.packages.find]
 where = ["src"]
 namespaces = false
+
+[tool.setuptools.package-data]
+neuroagent = ["*.yml"]
 
 [tool.bandit]
 exclude_dirs = ["tests"]

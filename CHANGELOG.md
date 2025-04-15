@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - SQLite support.
 
 ## Added
+- Basic Guardrails.
 - Possibility to interrupt streaming.
 
 ## [v0.4.6]
