@@ -7,11 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- Prettier automatic tailwind classes sorting.
+
+### Removed
+- SQLite support.
+
 ## Added
+- Basic Guardrails.
+- Possibility to interrupt streaming.
+- Filter and sort get_thread and get_thread/messages.
 - Plots for the SCS simulations.
 
-## Changed
-- Prettier automatic tailwind classes sorting.
 
 ## [v0.4.6]
 
