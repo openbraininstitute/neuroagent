@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Basic Guardrails.
 - Possibility to interrupt streaming.
 - Filter and sort get_thread and get_thread/messages.
+- New semantic route.
 
 ## [v0.4.7] - 15.04.2025
 
