@@ -74,10 +74,9 @@ export const ChatMessageTool = function ChatMessageTool({
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [status]);
-
-  const toolLabel = availableTools.filter(
-    (toolObj) => toolObj.slug === tool.toolName,
-  )[0].label;
+  const toolLabel =
+    availableTools.filter((toolObj) => toolObj.slug === tool.toolName)?.[0]
+      ?.label ?? tool.toolName;
 
   return (
     <div className="border-white-300 ml-5 border-solid p-3.5">
