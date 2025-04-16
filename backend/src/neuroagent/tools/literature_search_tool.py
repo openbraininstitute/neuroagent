@@ -21,9 +21,6 @@ class LiteratureSearchInput(BaseModel):
     user_message: str = Field(
         description=("Message of the user that triggered the tool call.")
     )
-    article_number: int = Field(
-        default=5, ge=1, le=10, description="Number of articles to return."
-    )
     article_types: list[str] | None = Field(
         default=None,
         description="Filter that restricts the type of retrieved articles.",
@@ -51,6 +48,9 @@ class LiteratureSearchMetadata(BaseMetadata):
     token: str
     retriever_k: int
     use_reranker: bool
+    article_number: int = Field(
+        default=10, ge=1, le=50, description="Number of articles to return."
+    )
 
 
 class ParagraphOutput(BaseModel):
@@ -118,8 +118,15 @@ class LiteratureSearchTool(BaseTool):
     description: ClassVar[
         str
     ] = """Searches the scientific literature. The tool should be used to gather general scientific knowledge. It is best suited for questions about neuroscience and medicine that are not about morphologies.
-    It returns a list of scientific articles that have paragraphs matching the query alongside with the metadata of the articles they were extracted from.
-    When callin this tool, pass the user's message as it was written. ONLY RETURN ARTICLES YOU FIND RELEVANT, DO NOT HESITATE TO DISCARD IRRELEVANT ONES."""
+        It returns a list of scientific articles that have paragraphs matching the query alongside with the metadata of the articles they were extracted from.
+        For each selected article, provide:
+        - **Brain Region Reference:** Specify which brain region (or subregion) is mentioned in the article that matches the user's query.
+        - **Topic Relevance Explanation:** Describe briefly how the article's content is directly related to the requested topic.
+
+        Only include an article if it meets both criteria, and always limit the output to 5 or fewer articles."""
+    # It is VERY VERY important that you select YOURSELF the relevant articles in your output. A relevant article MUST mention either explicitly the brain region requested or a sub-region. If a sub region is mentioned, YOU MUST SPECIFY IN YOUR OUTPUT THAT THIS SUB-REGION IS PART OF THE REQUESTED BRAIN REGION.
+    # DO NOT CITE PAPERS THAT DON'T EXPLICITLY MENTION THE REQUESTED BRAIN REGION OR SUB BRAIN REGIONS. You WILL be presented with irrelevant papers. It is YOUR ROLE to disregard them and not mention them in your output.
+    # Unless specified differently in the query, cite ONLY 5 ARTICLES IN YOUR ANSWER."""
     metadata: LiteratureSearchMetadata
     input_schema: LiteratureSearchInput
 
@@ -135,7 +142,7 @@ class LiteratureSearchTool(BaseTool):
         )
 
         # Prepare the request's body
-        req_body = self.create_query(
+        params = self.create_query(
             query=self.input_schema.user_message,
             article_types=self.input_schema.article_types,
             authors=self.input_schema.authors,
@@ -152,14 +159,14 @@ class LiteratureSearchTool(BaseTool):
         response = await self.metadata.httpx_client.get(
             self.metadata.literature_search_url,
             headers={"Authorization": f"Bearer {self.metadata.token}"},
-            params=req_body,
+            params=params,
             timeout=None,
         )
         if response.status_code != 200:
             return LiteratureSearchToolOutput(error=response.text)
         else:
             return self._process_output(
-                output=response.json(), article_number=self.input_schema.article_number
+                output=response.json(), article_number=self.metadata.article_number
             )
 
     @staticmethod
@@ -175,7 +182,7 @@ class LiteratureSearchTool(BaseTool):
         use_reranker: bool | None,
     ) -> dict[str, str | int | list[str]]:
         """Create query for the Literature Search API."""
-        req_body = {
+        params = {
             "query": query,
             "article_types": article_types,
             "authors": authors,
@@ -187,7 +194,7 @@ class LiteratureSearchTool(BaseTool):
             "reranker_k": reranker_k,
         }
 
-        return {k: v for k, v in req_body.items() if v is not None}
+        return {k: v for k, v in params.items() if v is not None}
 
     @staticmethod
     def _process_output(
