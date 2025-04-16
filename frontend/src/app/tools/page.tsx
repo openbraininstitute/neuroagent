@@ -9,6 +9,12 @@ import { BToolMetadata } from "@/lib/types";
 import { fetcher } from "@/lib/fetcher";
 import { auth } from "@/lib/auth";
 
+export async function generateMetadata() {
+  return {
+    title: "Available tools",
+  };
+}
+
 type ToolMetadata = {
   name: string;
   nameFrontend: string;

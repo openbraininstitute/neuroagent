@@ -5,6 +5,21 @@ import { fetcher } from "@/lib/fetcher";
 import { notFound } from "next/navigation";
 import { CustomError } from "@/lib/types";
 import { md5 } from "js-md5";
+import { getThread, getToolList } from "@/lib/server-fetches";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ threadId: string }>;
+}) {
+  const { threadId } = await params;
+
+  const thread = await getThread(threadId);
+
+  return {
+    title: thread?.title,
+  };
+}
 
 async function getMessages(threadId: string): Promise<BMessage[]> {
   const session = await auth();
@@ -110,31 +125,12 @@ function convertToAiMessages(messages: BMessage[]): MessageStrict[] {
   return output;
 }
 
-async function getToolList() {
-  const session = await auth();
-  if (!session?.accessToken) {
-    throw new Error("No session found");
-  }
-
-  const response = await fetcher({
-    path: "/tools",
-    headers: { Authorization: `Bearer ${session.accessToken}` },
-  });
-
-  return (response as Array<{ name: string; name_frontend: string }>)
-    .map((tool) => {
-      return { slug: tool.name, label: tool.name_frontend };
-    })
-    .sort((a, b) => a.label.localeCompare(b.label));
-}
-
 export default async function PageThread({
   params,
 }: {
   params: Promise<{ threadId: string }>;
 }) {
-  const paramsAwaited = await params;
-  const threadId = paramsAwaited?.threadId;
+  const { threadId } = await params;
 
   const [messages, availableTools] = await Promise.all([
     getMessages(threadId),

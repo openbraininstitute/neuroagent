@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- Multiple small frontend fixes.
+
 ### Changed
 - Prettier automatic tailwind classes sorting.
 

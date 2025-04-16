@@ -17,6 +17,20 @@ type ToolDetailedMetadata = {
   isOnline?: boolean; // Optional since it wasn't in the original type
 };
 
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ toolName: string }>;
+}) {
+  const { toolName } = await params;
+
+  const tool = await getTool(toolName);
+
+  return {
+    title: tool?.nameFrontend,
+  };
+}
+
 async function getTool(toolName: string): Promise<ToolDetailedMetadata> {
   const session = await auth();
   if (!session?.accessToken) {
