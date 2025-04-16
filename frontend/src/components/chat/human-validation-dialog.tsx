@@ -165,11 +165,9 @@ export function HumanValidationDialog({
                 </DialogHeader>
                 <div className="mt-4">
                   <div className="font-semibold">
-                    {
-                      availableTools.filter(
-                        (toolObj) => toolObj.slug === toolName,
-                      )[0].label
-                    }
+                    {availableTools.filter(
+                      (toolObj) => toolObj.slug === toolName,
+                    )?.[0]?.label ?? toolName}
                   </div>
                   <div className="mt-4">
                     <h3 className="text-sm font-medium">Arguments:</h3>

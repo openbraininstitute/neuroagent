@@ -2,10 +2,10 @@
 
 import { MessageStrict } from "@/lib/types";
 import { getAssociatedTools, getViewableToolStorageIds } from "@/lib/utils";
-import PlotsInChat from "./plot-in-chat";
-import { ChatMessageAI } from "./chat-message-ai";
-import { ChatMessageHuman } from "./chat-message-human";
-import { ChatMessageTool } from "./chat-message-tool";
+import PlotsInChat from "@/components/chat/plot-in-chat";
+import { ChatMessageAI } from "@/components/chat/chat-message-ai";
+import { ChatMessageHuman } from "@/components/chat/chat-message-human";
+import { ChatMessageTool } from "@/components/chat/chat-message-tool";
 import { useState } from "react";
 
 interface ChatMessagesInsideThreadProps {
