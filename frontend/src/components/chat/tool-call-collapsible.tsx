@@ -8,9 +8,9 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
-import { ToolCallStatus } from "./tool-call-status";
+import { ToolCallStatus } from "@/components/chat/tool-call-status";
 import { ToolInvocation } from "@ai-sdk/ui-utils";
-import { ScrollToBottom } from "./scroll-to-bottom";
+import { ScrollToBottom } from "@/components/chat/scroll-to-bottom";
 import { viewableTools } from "@/lib/utils";
 
 type ToolCallCollapsibleProps = {

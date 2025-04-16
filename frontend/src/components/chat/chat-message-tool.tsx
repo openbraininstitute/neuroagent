@@ -5,7 +5,7 @@ import { MessageStrict } from "@/lib/types";
 import { HumanValidationDialog } from "@/components/chat/human-validation-dialog";
 import { ToolInvocation } from "@ai-sdk/ui-utils";
 import { useExecuteTool } from "@/hooks/tools";
-import { ToolCallCollapsible } from "./tool-call-collapsible";
+import { ToolCallCollapsible } from "@/components/chat/tool-call-collapsible";
 import React from "react";
 
 type ChatMessageToolProps = {
