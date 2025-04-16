@@ -471,7 +471,6 @@ class TestAgentsRoutine:
         agent_2 = Agent(name="Test Agent", tools=[get_weather_tool])
         messages = [
             Messages(
-                order=0,
                 thread_id="fake_id",
                 entity=Entity.USER,
                 content=json.dumps(
