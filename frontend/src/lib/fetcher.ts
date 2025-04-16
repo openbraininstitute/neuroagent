@@ -1,5 +1,4 @@
 import { env } from "@/lib/env";
-import { CustomError } from "@/lib/types";
 const isServer = typeof window === "undefined";
 
 type Method = "GET" | "PATCH" | "POST" | "PUT" | "DELETE";
@@ -9,8 +8,6 @@ type QueryParams = Record<string, string | number | boolean>;
 type Headers = Record<string, string>;
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Body = Record<string, any>;
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type ResponseBody = Record<string, any> | string;
 
 export type FetcherConfig = {
   method?: Method;
@@ -30,7 +27,7 @@ export async function fetcher({
   body,
   headers,
   next,
-}: FetcherConfig): Promise<ResponseBody> {
+}: FetcherConfig): Promise<Response> {
   let processedPath = path;
   if (pathParams) {
     Object.entries(pathParams).forEach(([key, value]) => {
@@ -63,11 +60,5 @@ export async function fetcher({
     next,
   });
 
-  if (!response.ok) {
-    throw new CustomError(
-      `Fetching Error : ${response.statusText}`,
-      response.status,
-    );
-  }
-  return await response.json();
+  return response;
 }

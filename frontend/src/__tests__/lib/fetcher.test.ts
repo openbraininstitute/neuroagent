@@ -22,10 +22,12 @@ describe("fetcher", () => {
       json: () => Promise.resolve(mockResponse),
     });
 
-    const result = await fetcher({
+    const response = await fetcher({
       method: "GET",
       path: "/api/test",
     });
+
+    const result = await response.json();
 
     expect(global.fetch).toHaveBeenCalledWith(
       "http://example.com:1234/api/test",
@@ -107,12 +109,12 @@ describe("fetcher", () => {
       statusText: "Unauthorized.",
     });
 
-    await expect(
-      fetcher({
-        method: "GET",
-        path: "/api/test",
-      }),
-    ).rejects.toThrow("Fetching Error : Unauthorized.");
+    const response = await fetcher({
+      method: "GET",
+      path: "/api/test",
+    });
+
+    expect(response.status).toEqual(401);
   });
 
   test("handles backend URL with path suffix correctly", async () => {

@@ -16,17 +16,24 @@ export async function deleteThread(previousState: unknown, formData: FormData) {
       return { error: "Not authenticated" };
     }
 
-    await fetcher({
+    const response = await fetcher({
       method: "DELETE",
       path: "/threads/{threadId}",
       pathParams: { threadId },
       headers: { Authorization: `Bearer ${session.accessToken}` },
     });
 
-    revalidateTag("threads");
-    revalidateTag(`threads/${threadId}/messages`);
+    if (response.ok) {
+      revalidateTag("threads");
+      revalidateTag(`threads/${threadId}/messages`);
+    } else {
+      throw new Error(
+        `Error while deleting thread. Status code:${response.status} , ${response.statusText}`,
+      );
+    }
   } catch (error) {
     return {
+      status: false,
       error: error instanceof Error ? error.message : "Failed to delete thread",
     };
   }

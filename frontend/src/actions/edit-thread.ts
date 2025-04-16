@@ -18,7 +18,7 @@ export async function editThread(previousState: unknown, formData: FormData) {
       return { error: "Not authenticated" };
     }
 
-    await fetcher({
+    const response = await fetcher({
       method: "PATCH",
       path: "/threads/{threadId}",
       pathParams: { threadId },
@@ -26,12 +26,19 @@ export async function editThread(previousState: unknown, formData: FormData) {
       headers: { Authorization: `Bearer ${session.accessToken}` },
     });
 
-    // Revalidate the same tags as delete for consistency
-    revalidateTag("threads");
+    if (response.ok) {
+      // Revalidate the same tags as delete for consistency
+      revalidateTag("threads");
+    } else {
+      throw new Error(
+        `Error while editing thread. Status code:${response.status} , ${response.statusText}`,
+      );
+    }
 
     return { success: true };
   } catch (error) {
     return {
+      status: false,
       error: error instanceof Error ? error.message : "Failed to edit thread",
     };
   }

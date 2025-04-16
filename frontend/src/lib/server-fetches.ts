@@ -6,7 +6,6 @@ import {
   BMessage,
   BToolMetadataDetailed,
   BToolMetadata,
-  CustomError,
   ToolDetailedMetadata,
   ToolMetadata,
 } from "@/lib/types";
@@ -28,19 +27,27 @@ export async function getThreads(): Promise<BThread[]> {
       queryParams.project_id = projectID;
     }
 
-    const threads = (await fetcher({
+    const threadsReponse = await fetcher({
       path: "/threads",
       queryParams,
       headers: { Authorization: `Bearer ${session.accessToken}` },
       next: { tags: ["threads"] },
-    })) as BThread[];
-    // Sort threads by update_date in descending order (most recent first)
-    return threads.sort(
-      (a, b) =>
-        new Date(b.update_date).getTime() - new Date(a.update_date).getTime(),
-    );
+    });
+
+    if (threadsReponse.ok) {
+      const threads = (await threadsReponse.json()) as BThread[];
+      // Sort threads by update_date in descending order (most recent first)
+      return threads.sort(
+        (a, b) =>
+          new Date(b.update_date).getTime() - new Date(a.update_date).getTime(),
+      );
+    } else {
+      throw new Error(
+        `Error getting thread list. Status code: ${threadsReponse.status} , ${threadsReponse.statusText}`,
+      );
+    }
   } catch (error) {
-    console.error("Error fetching threads:", error);
+    console.error(error);
     return [];
   }
 }
@@ -62,16 +69,22 @@ export async function getThread(threadId: string): Promise<BThread | null> {
       queryParams.project_id = projectID;
     }
 
-    const thread = (await fetcher({
+    const threadResponse = await fetcher({
       path: `/threads/${threadId}`,
       queryParams,
       headers: { Authorization: `Bearer ${session.accessToken}` },
       next: { tags: ["thread", threadId] },
-    })) as BThread;
-    // Sort threads by update_date in descending order (most recent first)
-    return thread;
+    });
+
+    if (threadResponse.ok) {
+      return (await threadResponse.json()) as BThread;
+    } else {
+      throw new Error(
+        `Error getting thread ${threadId}. Status code: ${threadResponse.status} , ${threadResponse.statusText}`,
+      );
+    }
   } catch (error) {
-    console.error(`Error fetching thread ${threadId}:`, error);
+    console.error(error);
     return null;
   }
 }
@@ -85,7 +98,7 @@ export async function getMessages(
   }
 
   try {
-    const response = await fetcher({
+    const messagesResponse = await fetcher({
       path: "/threads/{threadId}/messages",
       pathParams: { threadId },
       headers: { Authorization: `Bearer ${session.accessToken}` },
@@ -93,14 +106,16 @@ export async function getMessages(
         tags: [`thread/${threadId}/messages`],
       },
     });
-
-    return response as Promise<BMessage[]>;
-  } catch (error) {
-    if ((error as CustomError).statusCode === 404) {
-      return [];
+    if (messagesResponse.ok) {
+      return await messagesResponse.json();
     } else {
-      throw error;
+      throw new Error(
+        `Error getting messagse for thread: ${threadId}. Status code: ${messagesResponse.status} , ${messagesResponse.statusText}`,
+      );
     }
+  } catch (error) {
+    console.error(error);
+    return [];
   }
 }
 
@@ -110,18 +125,25 @@ export async function getTools(): Promise<ToolMetadata[]> {
     throw new Error("No session found");
   }
 
-  const tools = (await fetcher({
+  const toolsResponse = await fetcher({
     method: "GET",
     path: "/tools",
     headers: { Authorization: `Bearer ${session.accessToken}` },
-  })) as BToolMetadata[];
+  });
 
-  return tools
-    .map((tool) => ({
-      name: tool.name,
-      nameFrontend: tool.name_frontend,
-    }))
-    .sort((a, b) => a.nameFrontend.localeCompare(b.nameFrontend));
+  if (toolsResponse.ok) {
+    const tools = (await toolsResponse.json()) as BToolMetadata[];
+    return tools
+      .map((tool) => ({
+        name: tool.name,
+        nameFrontend: tool.name_frontend,
+      }))
+      .sort((a, b) => a.nameFrontend.localeCompare(b.nameFrontend));
+  } else {
+    throw new Error(
+      `Error getting all tools. Status code: ${toolsResponse.status} , ${toolsResponse.statusText}`,
+    );
+  }
 }
 
 export async function getToolList() {
@@ -130,16 +152,23 @@ export async function getToolList() {
     throw new Error("No session found");
   }
 
-  const response = await fetcher({
+  const toolListResponse = await fetcher({
     path: "/tools",
     headers: { Authorization: `Bearer ${session.accessToken}` },
   });
 
-  return (response as Array<{ name: string; name_frontend: string }>)
-    .map((tool) => {
-      return { slug: tool.name, label: tool.name_frontend };
-    })
-    .sort((a, b) => a.label.localeCompare(b.label));
+  if (toolListResponse.ok) {
+    const response = await toolListResponse.json();
+    return (response as Array<{ name: string; name_frontend: string }>)
+      .map((tool) => {
+        return { slug: tool.name, label: tool.name_frontend };
+      })
+      .sort((a, b) => a.label.localeCompare(b.label));
+  } else {
+    throw new Error(
+      `Error getting available tool list. Status code: ${toolListResponse.status} , ${toolListResponse.statusText}`,
+    );
+  }
 }
 
 export async function getTool(
@@ -151,27 +180,30 @@ export async function getTool(
   }
 
   try {
-    const tool = (await fetcher({
+    const toolResponse = await fetcher({
       method: "GET",
       path: "/tools/{name}",
       pathParams: { name: toolName },
       headers: { Authorization: `Bearer ${session.accessToken}` },
-    })) as BToolMetadataDetailed;
-
-    return {
-      name: tool.name,
-      nameFrontend: tool.name_frontend,
-      description: tool.description,
-      descriptionFrontend: tool.description_frontend,
-      inputSchema: tool.input_schema,
-      hil: tool.hil,
-      isOnline: tool.is_online,
-    };
-  } catch (error) {
-    if ((error as CustomError).statusCode === 404) {
-      return null;
+    });
+    if (toolResponse.ok) {
+      const tool = (await await toolResponse.json()) as BToolMetadataDetailed;
+      return {
+        name: tool.name,
+        nameFrontend: tool.name_frontend,
+        description: tool.description,
+        descriptionFrontend: tool.description_frontend,
+        inputSchema: tool.input_schema,
+        hil: tool.hil,
+        isOnline: tool.is_online,
+      };
     } else {
-      throw error;
+      throw new Error(
+        `Error getting tool ${toolName}. Status code: ${toolResponse.status} , ${toolResponse.statusText}`,
+      );
     }
+  } catch (error) {
+    console.error(error);
+    return null;
   }
 }

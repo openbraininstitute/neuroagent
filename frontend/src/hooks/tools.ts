@@ -17,18 +17,31 @@ export function useExecuteTool() {
       feedback?: string;
     }
   >({
-    mutationFn: ({ threadId, toolCallId, validation, args, feedback }) => {
+    mutationFn: async ({
+      threadId,
+      toolCallId,
+      validation,
+      args,
+      feedback,
+    }) => {
       const body: BExecuteToolCallRequest = {
         validation,
         args,
         feedback,
       };
-      return fetcher({
+      const response = await fetcher({
         method: "PATCH",
         path: "/tools/{threadId}/execute/{toolCallId}",
         pathParams: { threadId, toolCallId },
         body,
-      }) as Promise<BExecuteToolCallResponse>;
+      });
+      if (response.ok) {
+        return await response.json();
+      } else {
+        throw new Error(
+          `Error making tool call. Status code: ${response.status} , ${response.statusText}`,
+        );
+      }
     },
     onSuccess: (_, variables) => {
       // Invalidate relevant queries after successful execution

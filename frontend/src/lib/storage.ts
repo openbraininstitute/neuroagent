@@ -13,9 +13,11 @@ export async function getPresignedUrl(fileIdentifier: string): Promise<string> {
     headers: { Authorization: `Bearer ${session.accessToken}` },
   });
 
-  if (typeof response !== "string") {
-    throw new Error("Expected string response for presigned URL");
+  if (response.ok && typeof response === "string") {
+    return response;
+  } else {
+    throw new Error(
+      `Error getting presigned URL. Status code: ${response.status} , ${response.statusText}`,
+    );
   }
-
-  return response;
 }
