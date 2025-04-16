@@ -48,9 +48,7 @@ class LiteratureSearchMetadata(BaseMetadata):
     token: str
     retriever_k: int
     use_reranker: bool
-    article_number: int = Field(
-        default=10, ge=1, le=50, description="Number of articles to return."
-    )
+    article_number: int
 
 
 class ParagraphOutput(BaseModel):
@@ -58,6 +56,7 @@ class ParagraphOutput(BaseModel):
 
     section: str | None
     paragraph: str
+    reranking_score: float
 
     @field_validator("paragraph", mode="before")
     @classmethod
@@ -119,14 +118,24 @@ class LiteratureSearchTool(BaseTool):
         str
     ] = """Searches the scientific literature. The tool should be used to gather general scientific knowledge. It is best suited for questions about neuroscience and medicine that are not about morphologies.
         It returns a list of scientific articles that have paragraphs matching the query alongside with the metadata of the articles they were extracted from.
-        For each selected article, provide:
-        - **Brain Region Reference:** Specify which brain region (or subregion) is mentioned in the article that matches the user's query.
-        - **Topic Relevance Explanation:** Describe briefly how the article's content is directly related to the requested topic.
 
-        Only include an article if it meets both criteria, and always limit the output to 5 or fewer articles."""
-    # It is VERY VERY important that you select YOURSELF the relevant articles in your output. A relevant article MUST mention either explicitly the brain region requested or a sub-region. If a sub region is mentioned, YOU MUST SPECIFY IN YOUR OUTPUT THAT THIS SUB-REGION IS PART OF THE REQUESTED BRAIN REGION.
-    # DO NOT CITE PAPERS THAT DON'T EXPLICITLY MENTION THE REQUESTED BRAIN REGION OR SUB BRAIN REGIONS. You WILL be presented with irrelevant papers. It is YOUR ROLE to disregard them and not mention them in your output.
-    # Unless specified differently in the query, cite ONLY 5 ARTICLES IN YOUR ANSWER."""
+        You will receive multiple candidate articles. Your task is to review each candidate and select only those AND ONLY THOSE that meet both of the following conditions:
+                1. The article explicitly mentions the user-specified brain region or one of its recognized subregions. Parent brain regions CANNOT be the focus of the article. Articles mentioning specifically the target brain region or sub-region are MUCH MORE relevant than the ones mentioning other brain regions as well.
+                2. The article directly discusses the specific topic requested by the user.
+
+                Always select those and only those that satisfy these criteria and return 5 articles or less. Be very picky. If none meet both conditions, return an empty list along with a note stating that no highly relevant articles were found.
+                Order them by relevancy according to you. Always display them according to the following schema:
+                ```
+                Article Title: The title of the article
+                    - Authors: The list of authors of the article
+                    - DOI: The DOI of the article
+                    - Published Date: The publication date of the article
+                    - Citations: The citation count, if available.
+                    - Journal: The journal of publication, if available
+                    - Brain Region Reference: The specific brain region or subregion mentioned in the article.
+                    - Topic Relevance Explanation: A brief explanation of how the article's content relates directly to the requested topic.
+                ```
+                """
     metadata: LiteratureSearchMetadata
     input_schema: LiteratureSearchInput
 
@@ -212,7 +221,9 @@ class LiteratureSearchTool(BaseTool):
             paragraph = paragraphs_metadata[i]
             articles[paragraph.article_id].append(
                 ParagraphOutput(
-                    section=paragraph.section, paragraph=paragraph.paragraph
+                    section=paragraph.section,
+                    paragraph=paragraph.paragraph,
+                    reranking_score=paragraph.reranking_score,
                 )
             )
             if paragraph.article_id not in article_metadata:
