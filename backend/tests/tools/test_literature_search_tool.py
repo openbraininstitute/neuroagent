@@ -38,6 +38,7 @@ class TestLiteratureSearchTool:
                 "ds_document_id": "78",
                 "section": "Introduction",
                 "context_id": "21",
+                "reranking_score": "0.12345",
             }
             for i in range(retriever_k)
         ]
@@ -48,15 +49,14 @@ class TestLiteratureSearchTool:
         )
 
         tool = LiteratureSearchTool(
-            input_schema=LiteratureSearchInput(
-                user_message="covid 19", article_number=reranker_k
-            ),
+            input_schema=LiteratureSearchInput(user_message="covid 19"),
             metadata=LiteratureSearchMetadata(
                 literature_search_url=url,
                 httpx_client=httpx.AsyncClient(),
                 token="fake_token",
                 retriever_k=retriever_k,
                 use_reranker=True,
+                article_number=reranker_k,
             ),
         )
         response = await tool.arun()
@@ -68,13 +68,16 @@ class TestLiteratureSearchTool:
 
 class TestCreateQuery:
     tool = LiteratureSearchTool(
-        input_schema=LiteratureSearchInput(user_message="covid 19", article_number=1),
+        input_schema=LiteratureSearchInput(
+            user_message="covid 19",
+        ),
         metadata=LiteratureSearchMetadata(
             literature_search_url="https://fake_url.com",
             httpx_client=httpx.AsyncClient(),
             token="fake_token",
             retriever_k=100,
             use_reranker=False,
+            article_number=1,
         ),
     )
 
