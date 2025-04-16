@@ -5,39 +5,12 @@ import {
   CardDescription,
 } from "@/components/ui/card";
 import Link from "next/link";
-import { BToolMetadata } from "@/lib/types";
-import { fetcher } from "@/lib/fetcher";
-import { auth } from "@/lib/auth";
+import { getTools } from "@/lib/server-fetches";
 
 export async function generateMetadata() {
   return {
     title: "Available tools",
   };
-}
-
-type ToolMetadata = {
-  name: string;
-  nameFrontend: string;
-};
-
-async function getTools(): Promise<ToolMetadata[]> {
-  const session = await auth();
-  if (!session?.accessToken) {
-    throw new Error("No session found");
-  }
-
-  const tools = (await fetcher({
-    method: "GET",
-    path: "/tools",
-    headers: { Authorization: `Bearer ${session.accessToken}` },
-  })) as BToolMetadata[];
-
-  return tools
-    .map((tool) => ({
-      name: tool.name,
-      nameFrontend: tool.name_frontend,
-    }))
-    .sort((a, b) => a.nameFrontend.localeCompare(b.nameFrontend));
 }
 
 export default async function ToolsPage() {

@@ -1,21 +1,8 @@
-import { auth } from "@/lib/auth";
-import { fetcher } from "@/lib/fetcher";
-import { BToolMetadataDetailed } from "@/lib/types";
 import { PersonStanding, Wifi, WifiOff, ArrowLeft } from "lucide-react";
 import { ToolInputSchema } from "@/components/tool-page/tool-input-schema";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { CustomError } from "@/lib/types";
-
-type ToolDetailedMetadata = {
-  name: string;
-  nameFrontend: string;
-  description: string;
-  descriptionFrontend: string;
-  inputSchema: string;
-  hil: boolean;
-  isOnline?: boolean; // Optional since it wasn't in the original type
-};
+import { getTool } from "@/lib/server-fetches";
 
 export async function generateMetadata({
   params,
@@ -31,38 +18,6 @@ export async function generateMetadata({
   };
 }
 
-async function getTool(toolName: string): Promise<ToolDetailedMetadata> {
-  const session = await auth();
-  if (!session?.accessToken) {
-    throw new Error("No session found");
-  }
-
-  try {
-    const tool = (await fetcher({
-      method: "GET",
-      path: "/tools/{name}",
-      pathParams: { name: toolName },
-      headers: { Authorization: `Bearer ${session.accessToken}` },
-    })) as BToolMetadataDetailed;
-
-    return {
-      name: tool.name,
-      nameFrontend: tool.name_frontend,
-      description: tool.description,
-      descriptionFrontend: tool.description_frontend,
-      inputSchema: tool.input_schema,
-      hil: tool.hil,
-      isOnline: tool.is_online,
-    };
-  } catch (error) {
-    if ((error as CustomError).statusCode === 404) {
-      notFound();
-    } else {
-      throw error;
-    }
-  }
-}
-
 export default async function ToolPage({
   params,
 }: {
@@ -71,6 +26,10 @@ export default async function ToolPage({
   const paramsAwaited = await params;
   const toolName = paramsAwaited?.toolName;
   const tool = await getTool(toolName);
+
+  if (!tool) {
+    return notFound();
+  }
 
   // Parse the input schema JSON
   let parsedSchema;
