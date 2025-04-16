@@ -26,15 +26,22 @@ export async function getSuggestions(
       queryParams.project_id = projectID;
     }
 
-    const threadResponse = (await fetcher({
+    const threadResponse = await fetcher({
       method: "POST",
       path: "/qa/question_suggestions",
       headers: { Authorization: `Bearer ${session.accessToken}` },
       body: { click_history: user_history },
       queryParams,
-    })) as SuggestedQuestions;
+    });
 
-    return threadResponse;
+    if (threadResponse.ok) {
+      const result = (await threadResponse.json()) as SuggestedQuestions;
+      return result;
+    } else {
+      throw new Error(
+        `Error getting suggestions. Status code: ${threadResponse.status} , ${threadResponse.statusText}`,
+      );
+    }
   } catch (error) {
     console.error("Error while generating the question suggestions.", error);
     return { success: false, error: "Failed to generate suggestions" };

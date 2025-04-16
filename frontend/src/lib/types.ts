@@ -118,6 +118,11 @@ export type BToolMetadata = {
   name_frontend: string;
 };
 
+export type ToolMetadata = {
+  name: string;
+  nameFrontend: string;
+};
+
 export type BToolMetadataDetailed = {
   name: string;
   name_frontend: string;
@@ -126,6 +131,16 @@ export type BToolMetadataDetailed = {
   input_schema: string;
   hil: boolean;
   is_online: boolean;
+};
+
+export type ToolDetailedMetadata = {
+  name: string;
+  nameFrontend: string;
+  description: string;
+  descriptionFrontend: string;
+  inputSchema: string;
+  hil: boolean;
+  isOnline?: boolean; // Optional since it wasn't in the original type
 };
 
 export type PlotProp = {

@@ -25,20 +25,33 @@ export async function createThread() {
       body.project_id = projectID;
     }
 
-    const threadResponse = (await fetcher({
+    const threadResponse = await fetcher({
       method: "POST",
       path: "/threads",
       body,
       headers: { Authorization: `Bearer ${session.accessToken}` },
-    })) as { thread_id: string };
+    });
 
-    const { thread_id: newThreadId } = threadResponse;
-    threadId = newThreadId;
-
-    revalidateTag("threads");
+    if (threadResponse.ok) {
+      const { thread_id: newThreadId } = (await threadResponse.json()) as {
+        thread_id: string;
+      };
+      threadId = newThreadId;
+      revalidateTag("threads");
+    } else {
+      throw new Error(
+        `Error while creating thread. Status code:${threadResponse.status} , ${threadResponse.statusText}`,
+      );
+    }
   } catch (error) {
     console.error("Error creating thread with message:", error);
-    return { success: false, error: "Failed to create thread with message" };
+    return {
+      success: false,
+      error:
+        error instanceof Error
+          ? error.message
+          : "Failed to create thread with message",
+    };
   }
   redirect(`/threads/${threadId}`);
 }
