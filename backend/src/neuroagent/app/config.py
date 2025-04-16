@@ -48,7 +48,7 @@ class SettingsDB(BaseModel):
 class SettingsKeycloak(BaseModel):
     """Class retrieving keycloak info for authorization."""
 
-    issuer: str = "https://openbluebrain.com/auth/realms/SBO"
+    issuer: str = "https://www.openbraininstitute.org/auth/realms/SBO"
     model_config = ConfigDict(frozen=True)
 
     @property
@@ -76,7 +76,7 @@ class SettingsWebSearch(BaseModel):
 class SettingsLiterature(BaseModel):
     """Literature search API settings."""
 
-    url: str
+    url: str = "https://www.openbraininstitute.org/api/literature"
     retriever_k: int = 100
     use_reranker: bool = True
     reranker_k: int = 8
@@ -119,14 +119,14 @@ class SettingsGetMEModel(BaseModel):
 class SettingsBlueNaaS(BaseModel):
     """BlueNaaS settings."""
 
-    url: str = "https://openbluebrain.com/api/bluenaas"
+    url: str = "https://www.openbraininstitute.org/api/bluenaas"
     model_config = ConfigDict(frozen=True)
 
 
 class SettingsKnowledgeGraph(BaseModel):
     """Knowledge graph API settings."""
 
-    base_url: str
+    base_url: str = "https://www.openbraininstitute.org/api/nexus/v1"
     model_config = ConfigDict(frozen=True)
 
     @property

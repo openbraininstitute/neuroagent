@@ -25,6 +25,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Empty groups from keycloak.
 
+### Fixed
+- Literature search points to right url.
+
 ## [v0.4.6]
 
 ### Changed
