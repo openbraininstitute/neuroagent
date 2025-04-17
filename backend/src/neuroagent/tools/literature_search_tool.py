@@ -303,9 +303,18 @@ class LiteratureSearchTool(BaseTool):
             # if we are potentially missing articles keep appending
             if len(selected_articles) < article_number:
                 # Get the article that matches the current article_id
-                selected_articles.append(
-                    next((article for article in articles if article.source == output))
-                )
+                try:
+                    selected_articles.append(
+                        next(
+                            (
+                                article
+                                for article in articles
+                                if article.source == output
+                            )
+                        )
+                    )
+                except StopIteration:
+                    continue
 
             # When we have enough break
             else:
