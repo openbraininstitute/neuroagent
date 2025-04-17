@@ -180,7 +180,7 @@ class LiteratureSearchTool(BaseTool):
         if response.status_code != 200:
             return LiteratureSearchToolOutput(error=response.text)
 
-        articles = self._aggregate_paragraphs(output=response.json(), max_articles=15)
+        articles = self._aggregate_paragraphs(output=response.json(), max_articles=10)
         messages = [
             {
                 "role": "system",
