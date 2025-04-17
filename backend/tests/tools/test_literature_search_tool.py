@@ -54,16 +54,7 @@ class TestLiteratureSearchTool:
         )
         mock_openai_client = MockOpenAIClient()
         mock_openai_client = cast(AsyncOpenAI, mock_openai_client)
-        mock_class_response = ArticleSelection(
-            article_ids=[
-                "super_id_1",
-                "super_id_2",
-                "super_id_3",
-                "super_id_4",
-                "super_id_5",
-                "super_id_6",
-            ]
-        )
+        mock_class_response = ArticleSelection(sources=[0, 1, 2, 3, 4, 5])
         mock_response = create_mock_response(
             {"role": "assistant", "content": "sample response content"},
             structured_output_class=mock_class_response,
@@ -206,7 +197,7 @@ def test_aggregate_paragraphs_basic_limit_two():
     # first article
     art1 = result[0]
     assert isinstance(art1, ArticleOutput)
-    assert art1.article_id == "A1"
+    assert art1.source == 0
     # two paragraphs under A1
     assert [p.paragraph for p in art1.paragraphs] == ["P1", "P2"]
     assert [p.section for p in art1.paragraphs] == ["Intro", "Methods"]
@@ -216,7 +207,7 @@ def test_aggregate_paragraphs_basic_limit_two():
 
     # second article
     art2 = result[1]
-    assert art2.article_id == "A2"
+    assert art2.source == 1
     assert len(art2.paragraphs) == 1
     assert art2.paragraphs[0].paragraph == "P3"
 
@@ -228,13 +219,51 @@ def test_aggregate_paragraphs_no_limit_exceeding():
         make_paragraph("Y", "S2", "q", 0.5),
     ]
     result = LiteratureSearchTool._aggregate_paragraphs(input_data, max_articles=10)
-    assert {a.article_id for a in result} == {"X", "Y"}
+    assert {a.source for a in result} == {0, 1}
     # order must respect first-seen: X then Y
-    assert result[0].article_id == "X"
-    assert result[1].article_id == "Y"
+    assert result[0].source == 0
+    assert result[1].source == 1
 
 
 def test_aggregate_paragraphs_empty_input():
     # empty list => empty output
     result = LiteratureSearchTool._aggregate_paragraphs([], max_articles=5)
     assert result == []
+
+
+def test_process_output():
+    sample_articles = [
+        ArticleOutput(
+            article_title=f"Title a{i}",
+            article_authors=["Author A", "Author B"],
+            article_doi=None,
+            pubmed_id=None,
+            date=None,
+            article_type=None,
+            journal_issn=None,
+            journal_name=None,
+            cited_by=None,
+            impact_factor=None,
+            abstract=None,
+            paragraphs=[
+                ParagraphOutput(
+                    section="Example section",
+                    paragraph="Sample paragraph",
+                    reranking_score=0.1234,
+                )
+            ],
+            source=i,
+        )
+        for i in range(5)
+    ]
+    llm_output = ArticleSelection(sources=[1, 2, 0])
+    article_number = 2
+
+    result = LiteratureSearchTool._process_output(
+        llm_outputs=llm_output, articles=sample_articles, article_number=article_number
+    )
+
+    assert isinstance(result, LiteratureSearchToolOutput)
+    assert len(result.articles) == 2
+    assert result.articles[0].source == 1
+    assert result.articles[1].source == 2

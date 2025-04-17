@@ -59,7 +59,10 @@ class LiteratureSearchMetadata(BaseMetadata):
 class ArticleSelection(BaseModel):
     """Output class for the LLM."""
 
-    article_ids: list[str] = Field(default_factory=list)
+    sources: list[int] = Field(
+        default_factory=list,
+        description="List of selected articles, referenced by their field `source`.",
+    )
 
 
 class ParagraphOutput(BaseModel):
@@ -84,7 +87,6 @@ class ArticleOutput(BaseModel):
 
     article_title: str
     article_authors: list[str]
-    article_id: str
     article_doi: str | None
     pubmed_id: str | None
     date: str | None
@@ -95,6 +97,7 @@ class ArticleOutput(BaseModel):
     impact_factor: float | None
     abstract: str | None
     paragraphs: list[ParagraphOutput]
+    source: int
 
     @field_validator("abstract", mode="before")
     @classmethod
@@ -192,7 +195,7 @@ class LiteratureSearchTool(BaseTool):
             1. **Region match**: The article explicitly mentions the target brain region **or** one of its recognized subregions in relation to the query. Mentions of only a broader parent region does **not** count.
             2. **Topic match**: The article directly addresses the user’s requested topic.
 
-            **Output** an array of the selected article_ids, sorted by descending relevance.
+            **Output** an array of the sources from the selected articles (list of integer), sorted by descending relevance.
             Articles mentioning specifically the target brain region or sub-regions are more relevant than the ones mentioning other brain regions as well.
             If none qualify, return an empty array.
             Be very selective, only include articles that fully satisfy both conditions.""",
@@ -209,6 +212,7 @@ class LiteratureSearchTool(BaseTool):
             model="gpt-4o-mini",
             response_format=ArticleSelection,
         )
+
         return self._process_output(
             llm_outputs=llm_outputs.choices[0].message.parsed,  # type: ignore
             articles=articles,
@@ -271,7 +275,6 @@ class LiteratureSearchTool(BaseTool):
             ArticleOutput(
                 article_title=article_metadata[article_id].article_title,
                 article_authors=article_metadata[article_id].article_authors,
-                article_id=article_id,
                 paragraphs=articles[article_id],
                 article_doi=article_metadata[article_id].article_doi,
                 pubmed_id=article_metadata[article_id].pubmed_id,
@@ -282,8 +285,9 @@ class LiteratureSearchTool(BaseTool):
                 cited_by=article_metadata[article_id].cited_by,
                 impact_factor=article_metadata[article_id].impact_factor,
                 abstract=article_metadata[article_id].abstract,
+                source=i,
             )
-            for article_id in articles.keys()
+            for i, article_id in enumerate(articles.keys())
         ]
         return paragraphs_output
 
@@ -295,18 +299,12 @@ class LiteratureSearchTool(BaseTool):
     ) -> LiteratureSearchToolOutput:
         """Turn the LLM output into a tool output."""
         selected_articles: list[ArticleOutput] = []
-        for output in llm_outputs.article_ids:
+        for output in llm_outputs.sources:
             # if we are potentially missing articles keep appending
             if len(selected_articles) < article_number:
                 # Get the article that matches the current article_id
                 selected_articles.append(
-                    next(
-                        (
-                            article
-                            for article in articles
-                            if article.article_id == output
-                        )
-                    )
+                    next((article for article in articles if article.source == output))
                 )
 
             # When we have enough break
