@@ -1,16 +1,21 @@
 """Tests Literature Search tool."""
 
+from typing import cast
+
 import httpx
 import pytest
+from openai import AsyncOpenAI
 
 from neuroagent.tools import LiteratureSearchTool
 from neuroagent.tools.literature_search_tool import (
     ArticleOutput,
+    ArticleSelection,
     LiteratureSearchInput,
     LiteratureSearchMetadata,
     LiteratureSearchToolOutput,
     ParagraphOutput,
 )
+from tests.mock_client import MockOpenAIClient, create_mock_response
 
 
 class TestLiteratureSearchTool:
@@ -47,16 +52,35 @@ class TestLiteratureSearchTool:
             url=url,
             json=fake_response,
         )
+        mock_openai_client = MockOpenAIClient()
+        mock_openai_client = cast(AsyncOpenAI, mock_openai_client)
+        mock_class_response = ArticleSelection(
+            article_ids=[
+                "super_id_1",
+                "super_id_2",
+                "super_id_3",
+                "super_id_4",
+                "super_id_5",
+                "super_id_6",
+            ]
+        )
+        mock_response = create_mock_response(
+            {"role": "assistant", "content": "sample response content"},
+            structured_output_class=mock_class_response,
+        )
+        mock_openai_client.set_response(mock_response)
 
         tool = LiteratureSearchTool(
-            input_schema=LiteratureSearchInput(user_message="covid 19"),
+            input_schema=LiteratureSearchInput(
+                user_message="covid 19", article_number=reranker_k
+            ),
             metadata=LiteratureSearchMetadata(
                 literature_search_url=url,
                 httpx_client=httpx.AsyncClient(),
                 token="fake_token",
                 retriever_k=retriever_k,
                 use_reranker=True,
-                article_number=reranker_k,
+                openai_client=mock_openai_client,
             ),
         )
         response = await tool.arun()
@@ -67,22 +91,8 @@ class TestLiteratureSearchTool:
 
 
 class TestCreateQuery:
-    tool = LiteratureSearchTool(
-        input_schema=LiteratureSearchInput(
-            user_message="covid 19",
-        ),
-        metadata=LiteratureSearchMetadata(
-            literature_search_url="https://fake_url.com",
-            httpx_client=httpx.AsyncClient(),
-            token="fake_token",
-            retriever_k=100,
-            use_reranker=False,
-            article_number=1,
-        ),
-    )
-
     def test_create_query_all_values(self):
-        result = self.tool.create_query(
+        result = LiteratureSearchTool.create_query(
             query="machine learning",
             article_types=["research", "review"],
             authors=["John Doe"],
@@ -108,7 +118,7 @@ class TestCreateQuery:
 
     def test_create_query_with_none(self):
         # Build a query where some parameters are None, which should be filtered out.
-        result = self.tool.create_query(
+        result = LiteratureSearchTool.create_query(
             query="data science",
             article_types=None,
             authors=["Alice"],
@@ -131,7 +141,7 @@ class TestCreateQuery:
 
     def test_create_query_empty_values(self):
         # Test where empty strings and empty lists (which are not None) are provided.
-        result = self.tool.create_query(
+        result = LiteratureSearchTool.create_query(
             query="",
             article_types=[],
             authors=[],
@@ -154,3 +164,77 @@ class TestCreateQuery:
             "reranker_k": 0,
         }
         assert result == expected
+
+
+def make_paragraph(article_id, section, paragraph, reranking_score, **meta):
+    base = dict(
+        article_id=article_id,
+        section=section,
+        paragraph=paragraph,
+        reranking_score=reranking_score,
+        # metadata fields used in ArticleOutput
+        article_title=meta.get("article_title", f"Title {article_id}"),
+        article_authors=meta.get("article_authors", [f"Author {article_id}"]),
+        article_doi=meta.get("article_doi", f"10.0/{article_id}"),
+        pubmed_id=meta.get("pubmed_id", f"PMID{article_id}"),
+        date=meta.get("date", "2021-01-01"),
+        article_type=meta.get("article_type", "research"),
+        journal_issn=meta.get("journal_issn", "0000-0000"),
+        journal_name=meta.get("journal_name", f"Journal {article_id}"),
+        cited_by=meta.get("cited_by", 0),
+        impact_factor=meta.get("impact_factor", 1.0),
+        abstract=meta.get("abstract", f"Abstract {article_id}"),
+        ds_document_id="12345",
+        context_id=1,
+    )
+    return base
+
+
+def test_aggregate_paragraphs_basic_limit_two():
+    # Build input: 2 paras for A1, 1 para for A2, 1 para for A3
+    input_data = [
+        make_paragraph("A1", "Intro", "P1", 0.9),
+        make_paragraph("A1", "Methods", "P2", 0.8),
+        make_paragraph("A2", "Intro", "P3", 0.7),
+        make_paragraph("A3", "Intro", "P4", 0.6),
+    ]
+    # Only want up to 2 unique articles
+    result = LiteratureSearchTool._aggregate_paragraphs(input_data, max_articles=2)
+
+    # Expect two ArticleOutput objects for A1 then A2, in that insertion order
+    assert len(result) == 2
+    # first article
+    art1 = result[0]
+    assert isinstance(art1, ArticleOutput)
+    assert art1.article_id == "A1"
+    # two paragraphs under A1
+    assert [p.paragraph for p in art1.paragraphs] == ["P1", "P2"]
+    assert [p.section for p in art1.paragraphs] == ["Intro", "Methods"]
+    # metadata carried over
+    assert art1.article_title == "Title A1"
+    assert art1.abstract == "Abstract A1"
+
+    # second article
+    art2 = result[1]
+    assert art2.article_id == "A2"
+    assert len(art2.paragraphs) == 1
+    assert art2.paragraphs[0].paragraph == "P3"
+
+
+def test_aggregate_paragraphs_no_limit_exceeding():
+    # If max_articles >= unique articles, include all
+    input_data = [
+        make_paragraph("X", "S", "p", 1.0),
+        make_paragraph("Y", "S2", "q", 0.5),
+    ]
+    result = LiteratureSearchTool._aggregate_paragraphs(input_data, max_articles=10)
+    assert {a.article_id for a in result} == {"X", "Y"}
+    # order must respect first-seen: X then Y
+    assert result[0].article_id == "X"
+    assert result[1].article_id == "Y"
+
+
+def test_aggregate_paragraphs_empty_input():
+    # empty list => empty output
+    result = LiteratureSearchTool._aggregate_paragraphs([], max_articles=5)
+    assert result == []

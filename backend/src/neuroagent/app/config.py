@@ -71,7 +71,6 @@ class SettingsLiterature(BaseModel):
     url: str
     retriever_k: int = 100
     use_reranker: bool = True
-    article_number: int = 10
 
     model_config = ConfigDict(frozen=True)
 

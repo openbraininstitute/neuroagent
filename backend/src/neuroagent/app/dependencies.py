@@ -298,14 +298,15 @@ def get_context_variables(
     thread: Annotated[Threads, Depends(get_thread)],
     s3_client: Annotated[Any, Depends(get_s3_client)],
     user_info: Annotated[UserInfo, Depends(get_user_info)],
+    openai_client: Annotated[AsyncOpenAI, Depends(get_openai_client)],
 ) -> dict[str, Any]:
     """Get the context variables to feed the tool's metadata."""
     return {
         "starting_agent": starting_agent,
         "token": token,
+        "openai_client": openai_client,
         "retriever_k": settings.tools.literature.retriever_k,
         "use_reranker": settings.tools.literature.use_reranker,
-        "article_number": settings.tools.literature.article_number,
         "literature_search_url": settings.tools.literature.url,
         "knowledge_graph_url": settings.knowledge_graph.url,
         "me_model_search_size": settings.tools.me_model.search_size,
