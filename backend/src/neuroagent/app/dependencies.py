@@ -298,11 +298,13 @@ def get_context_variables(
     thread: Annotated[Threads, Depends(get_thread)],
     s3_client: Annotated[Any, Depends(get_s3_client)],
     user_info: Annotated[UserInfo, Depends(get_user_info)],
+    openai_client: Annotated[AsyncOpenAI, Depends(get_openai_client)],
 ) -> dict[str, Any]:
     """Get the context variables to feed the tool's metadata."""
     return {
         "starting_agent": starting_agent,
         "token": token,
+        "openai_client": openai_client,
         "retriever_k": settings.tools.literature.retriever_k,
         "use_reranker": settings.tools.literature.use_reranker,
         "literature_search_url": settings.tools.literature.url,
@@ -324,7 +326,6 @@ def get_context_variables(
         "user_id": user_info.sub,
         "thread_id": thread.thread_id,
         "tavily_api_key": settings.tools.web_search.tavily_api_key,
-        "semantic_scholar_api_key": settings.tools.semantic_scholar.api_key,
     }
 
 

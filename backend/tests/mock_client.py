@@ -1,6 +1,7 @@
 import json
 from unittest.mock import AsyncMock, Mock
 
+from openai import AsyncOpenAI
 from openai.types.chat.chat_completion import ChatCompletion
 from openai.types.chat.chat_completion_message_tool_call import (
     ChatCompletionMessageToolCall,
@@ -58,6 +59,11 @@ class MockOpenAIClient:
         self.beta = AsyncMock()
         self.beta.chat = AsyncMock()
         self.beta.chat.completions = AsyncMock()
+
+    @property
+    def __class__(self):
+        # pretend to be the real AsyncOpenAI
+        return AsyncOpenAI
 
     def set_response(self, response: ChatCompletion):
         """

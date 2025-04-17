@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Prettier automatic tailwind classes sorting.
+- Pass the entire message in LS input and let the LLM chose articles.
 
 ### Removed
 - `order` column in `messages` table + fixed.
