@@ -1,7 +1,7 @@
 """Pydantic schemas for the database operations."""
 
 import datetime
-from typing import Any, Literal
+from typing import Any, Generic, Literal, TypeVar
 
 from pydantic import BaseModel, Field, conlist
 
@@ -29,7 +29,14 @@ class MessageResponse(BaseModel):
     tool_calls: list[ToolCall]
 
 
-class ThreadsRead(BaseModel):
+class BaseRead(BaseModel):
+    """Base class for read schemas."""
+
+
+T = TypeVar("T", bound=BaseRead)
+
+
+class ThreadsRead(BaseRead):
     """Data class to read chatbot conversations in the db."""
 
     thread_id: str
@@ -67,7 +74,7 @@ class ThreadUpdate(BaseModel):
     title: str
 
 
-class MessagesRead(BaseModel):
+class MessagesRead(BaseRead):
     """Output of the conversation listing crud."""
 
     message_id: str
@@ -147,3 +154,19 @@ class QuestionsSuggestions(BaseModel):
     suggestions: list[Question] = conlist(  # type: ignore
         item_type=Question, min_length=1, max_length=1
     )
+
+
+class PaginatedParams(BaseModel):
+    """Input query parameters for paginated endpoints."""
+
+    page: int = Field(default=1, ge=1)
+    page_size: int = Field(default=10, ge=1)
+
+
+class PaginatedResponse(BaseModel, Generic[T]):
+    """Base class for paginated responses."""
+
+    page: int
+    page_size: int
+    total_pages: int
+    results: list[T]

@@ -2,12 +2,13 @@
 
 import json
 import logging
+from math import ceil
 from typing import Annotated, Any, Literal
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Response
 from openai import AsyncOpenAI
 from redis import asyncio as aioredis
-from sqlalchemy import desc, or_, select, true
+from sqlalchemy import desc, func, or_, select, true
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
 
@@ -29,6 +30,8 @@ from neuroagent.app.dependencies import (
 )
 from neuroagent.app.schemas import (
     MessageResponse,
+    PaginatedParams,
+    PaginatedResponse,
     ThreadCreate,
     ThreadGeneratBody,
     ThreadGeneratedTitle,
@@ -122,12 +125,13 @@ async def generate_title(
 async def get_threads(
     session: Annotated[AsyncSession, Depends(get_session)],
     user_info: Annotated[UserInfo, Depends(get_user_info)],
+    pagination_params: Annotated[PaginatedParams, Query()],
     virtual_lab_id: str | None = None,
     project_id: str | None = None,
     sort: Literal[
         "update_date", "creation_date", "-update_date", "-creation_date"
     ] = "-update_date",
-) -> list[ThreadsRead]:
+) -> PaginatedResponse[ThreadsRead]:
     """Get threads for a user."""
     validate_project(
         virtual_lab_id=virtual_lab_id,
@@ -136,7 +140,7 @@ async def get_threads(
     )
     sort_column = sort.lstrip("-")
     query = (
-        select(Threads)
+        select(Threads, func.count().over().label("total_count"))
         .where(
             Threads.user_id == user_info.sub,
             Threads.vlab_id == virtual_lab_id,
@@ -147,11 +151,21 @@ async def get_threads(
             if sort.startswith("-")
             else getattr(Threads, sort_column)
         )
+        .limit(pagination_params.page_size)
+        .offset((pagination_params.page - 1) * pagination_params.page_size)
     )
 
     thread_result = await session.execute(query)
-    threads = thread_result.scalars().all()
-    return [ThreadsRead(**thread.__dict__) for thread in threads]
+    threads = thread_result.fetchall()
+    total_pages = (
+        ceil(threads[0].total_count / pagination_params.page_size) if threads else 0
+    )
+    return PaginatedResponse(
+        page=pagination_params.page,
+        page_size=pagination_params.page_size,
+        total_pages=total_pages,
+        results=[ThreadsRead(**thread[0].__dict__) for thread in threads],
+    )
 
 
 @router.patch("/{thread_id}")

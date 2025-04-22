@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Possibility to interrupt streaming.
 - Filter and sort get_thread and get_thread/messages.
 - New semantic route.
+- Pagination for threads and messages.
 
 ## [v0.4.7] - 15.04.2025
 
