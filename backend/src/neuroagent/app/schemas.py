@@ -3,7 +3,7 @@
 import datetime
 from typing import Any, Literal
 
-from pydantic import BaseModel, conlist
+from pydantic import BaseModel, Field, conlist
 
 from neuroagent.app.database.sql_schemas import Entity
 
@@ -23,7 +23,6 @@ class MessageResponse(BaseModel):
     message_id: str
     entity: str
     thread_id: str
-    order: int
     is_complete: bool
     creation_date: datetime.datetime
     msg_content: dict[str, Any]
@@ -72,7 +71,6 @@ class MessagesRead(BaseModel):
     """Output of the conversation listing crud."""
 
     message_id: str
-    order: int
     creation_date: datetime.datetime
     msg_content: str
     entity: Literal[Entity.USER, Entity.AI_MESSAGE]
@@ -122,7 +120,7 @@ class UserInfo(BaseModel):
     """Keycloak related info of a user."""
 
     sub: str
-    groups: list[str]
+    groups: list[str] = Field(default_factory=list)
     email_verified: bool | None = None
     name: str | None = None
     preferred_username: str | None = None

@@ -193,7 +193,6 @@ async def stream_chat_agent(
     ):
         messages.append(
             Messages(
-                order=len(messages),
                 thread_id=thread.thread_id,
                 entity=Entity.USER,
                 content=json.dumps({"role": "user", "content": user_request.content}),
@@ -210,7 +209,7 @@ async def stream_chat_agent(
         proj_id=thread.project_id,
         count=1,
     ):
-        if semantic_router:
+        if semantic_router and user_request.content:
             selected_route = await semantic_router.acall(user_request.content)
             if selected_route.name:  # type: ignore
                 # If a predefined route is detected, return predefined response
@@ -229,7 +228,6 @@ async def stream_chat_agent(
                 )
                 messages.append(
                     Messages(
-                        order=len(messages),
                         thread_id=thread.thread_id,
                         entity=Entity.AI_MESSAGE,
                         content=json.dumps({"role": "assistant", "content": response}),

@@ -7,6 +7,7 @@ from fastapi.exceptions import HTTPException
 
 from neuroagent.app.app_utils import rate_limit, setup_engine, validate_project
 from neuroagent.app.config import Settings
+from neuroagent.app.schemas import UserInfo
 
 
 @pytest.mark.asyncio
@@ -47,6 +48,42 @@ async def test_validate_project():
         validate_project(
             virtual_lab_id="wrong_vlab", project_id="wrong_project", groups=groups
         )
+
+
+@pytest.mark.parametrize(
+    "vlab_id,proj_id",
+    [
+        ("test_vlab", "test_project"),
+        (None, "test_project"),
+        ("test_vlab", None),
+        (None, None),
+    ],
+)
+@pytest.mark.asyncio
+async def test_validate_project_empty_groups(vlab_id, proj_id):
+    # Groups are missing
+    keycloak_response = {
+        "sub": "1234greatsub-amazing",
+        "email_verified": True,
+        "name": "John Doe",
+        "preferred_username": "WonderJoe",
+        "given_name": "John",
+        "family_name": "Doe",
+        "email": "test.email@great.com",
+    }
+
+    user_info = UserInfo(**keycloak_response)
+    groups = user_info.groups
+
+    # Don't specify anything
+    validate_project(groups=groups)
+
+    # Specify vlab + proj but they are not in groups
+    if vlab_id or proj_id:
+        with pytest.raises(HTTPException):
+            validate_project(virtual_lab_id=vlab_id, project_id=proj_id, groups=groups)
+    else:
+        validate_project(virtual_lab_id=vlab_id, project_id=proj_id, groups=groups)
 
 
 @patch("neuroagent.app.app_utils.create_async_engine")
