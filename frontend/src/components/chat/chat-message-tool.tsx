@@ -5,7 +5,7 @@ import { MessageStrict } from "@/lib/types";
 import { HumanValidationDialog } from "@/components/chat/human-validation-dialog";
 import { ToolInvocation } from "@ai-sdk/ui-utils";
 import { useExecuteTool } from "@/hooks/tools";
-import { ToolCallCollapsible } from "./tool-call-collapsible";
+import { ToolCallCollapsible } from "@/components/chat/tool-call-collapsible";
 import React from "react";
 
 type ChatMessageToolProps = {
@@ -74,10 +74,9 @@ export const ChatMessageTool = function ChatMessageTool({
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [status]);
-
-  const toolLabel = availableTools.filter(
-    (toolObj) => toolObj.slug === tool.toolName,
-  )[0].label;
+  const toolLabel =
+    availableTools.filter((toolObj) => toolObj.slug === tool.toolName)?.[0]
+      ?.label ?? tool.toolName;
 
   return (
     <div className="border-white-300 ml-5 border-solid p-3.5">

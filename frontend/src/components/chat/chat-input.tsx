@@ -9,8 +9,8 @@ import { Send } from "lucide-react";
 import TextareaAutosize from "react-textarea-autosize";
 import ChatInputLoading from "@/components/chat/chat-input-loading";
 import { convert_tools_to_set } from "@/lib/utils";
-import { OpenUserJourneyButton } from "./user-journey-dialog";
-import QuestionSuggestionCards from "./question-suggestion-cards";
+import { OpenUserJourneyButton } from "@/components/chat/user-journey-dialog";
+import QuestionSuggestionCards from "@/components/chat/question-suggestion-cards";
 import { SuggestedQuestions } from "@/lib/types";
 import { getSuggestions } from "@/actions/get-suggestions";
 
