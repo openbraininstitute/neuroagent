@@ -131,6 +131,7 @@ class SCSPostTool(BaseTool):
             headers={"Authorization": f"Bearer {self.metadata.token}"},
             json=json_api,
         )
+        breakpoint()
         json_response = response.json()
         return SCSPostToolOutput(
             id=json_response["id"],

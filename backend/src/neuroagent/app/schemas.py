@@ -5,8 +5,6 @@ from typing import Any, Generic, Literal, TypeVar
 
 from pydantic import BaseModel, Field, conlist
 
-from neuroagent.app.database.sql_schemas import Entity
-
 
 class ToolCall(BaseModel):
     """Tool call."""
@@ -17,7 +15,14 @@ class ToolCall(BaseModel):
     validated: Literal["accepted", "rejected", "pending", "not_required"]
 
 
-class MessageResponse(BaseModel):
+class BaseRead(BaseModel):
+    """Base class for read schemas."""
+
+
+T = TypeVar("T", bound=BaseRead)
+
+
+class MessagesRead(BaseRead):
     """Message response."""
 
     message_id: str
@@ -27,13 +32,6 @@ class MessageResponse(BaseModel):
     creation_date: datetime.datetime
     msg_content: dict[str, Any]
     tool_calls: list[ToolCall]
-
-
-class BaseRead(BaseModel):
-    """Base class for read schemas."""
-
-
-T = TypeVar("T", bound=BaseRead)
 
 
 class ThreadsRead(BaseRead):
@@ -72,15 +70,6 @@ class ThreadUpdate(BaseModel):
     """Data class for the update of a thread."""
 
     title: str
-
-
-class MessagesRead(BaseRead):
-    """Output of the conversation listing crud."""
-
-    message_id: str
-    creation_date: datetime.datetime
-    msg_content: str
-    entity: Literal[Entity.USER, Entity.AI_MESSAGE]
 
 
 class ToolCallSchema(BaseModel):

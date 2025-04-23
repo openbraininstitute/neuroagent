@@ -10,7 +10,7 @@ from openai import AsyncOpenAI
 from redis import asyncio as aioredis
 from sqlalchemy import desc, func, or_, select, true
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import joinedload
+from sqlalchemy.orm import selectinload
 
 from neuroagent.app.app_utils import (
     rate_limit,
@@ -29,7 +29,7 @@ from neuroagent.app.dependencies import (
     get_user_info,
 )
 from neuroagent.app.schemas import (
-    MessageResponse,
+    MessagesRead,
     PaginatedParams,
     PaginatedResponse,
     ThreadCreate,
@@ -125,7 +125,7 @@ async def generate_title(
 async def get_threads(
     session: Annotated[AsyncSession, Depends(get_session)],
     user_info: Annotated[UserInfo, Depends(get_user_info)],
-    pagination_params: Annotated[PaginatedParams, Query()],
+    pagination_params: PaginatedParams = Depends(),
     virtual_lab_id: str | None = None,
     project_id: str | None = None,
     sort: Literal[
@@ -226,11 +226,12 @@ async def get_thread_messages(
     _: Annotated[Threads, Depends(get_thread)],  # to check if thread exists
     thread_id: str,
     tool_list: Annotated[list[type[BaseTool]], Depends(get_tool_list)],
+    pagination_params: PaginatedParams = Depends(),
     entity: list[Literal["USER", "AI_TOOL", "TOOL", "AI_MESSAGE"]] | None = Query(
         default=None
     ),
     sort: Literal["creation_date", "-creation_date"] = "creation_date",
-) -> list[MessageResponse]:
+) -> PaginatedResponse[MessagesRead]:
     """Get all messages of the thread."""
     # Create mapping of tool names to their HIL requirement
     tool_hil_mapping = {tool.name: tool.hil for tool in tool_list}
@@ -239,20 +240,35 @@ async def get_thread_messages(
         entity_where = or_(*[Messages.entity == ent for ent in entity])
     else:
         entity_where = true()
+
     messages_result = await session.execute(
-        select(Messages)
+        select(Messages, func.count().over().label("total_count"))
         .where(Messages.thread_id == thread_id, entity_where)
-        .options(joinedload(Messages.tool_calls))  # Eager load tool_calls
+        # .options(joinedload(Messages.tool_calls))  # Eager load tool_calls
         .order_by(
             desc(Messages.creation_date)
             if sort.startswith("-")
             else Messages.creation_date
         )
+        .limit(pagination_params.page_size)
+        .offset((pagination_params.page - 1) * pagination_params.page_size)
     )
-    db_messages = messages_result.unique().scalars().all()
+    db_messages = messages_result.fetchall()
+    total_pages = (
+        ceil(db_messages[0].total_count / pagination_params.page_size)
+        if db_messages
+        else 0
+    )
+    # Pagination needs to happen on non joined parent.
+    # Once we have them we can eager load the tool calls
+    await session.execute(
+        select(Messages)
+        .options(selectinload(Messages.tool_calls))
+        .where(Messages.message_id.in_([msg[0].message_id for msg in db_messages]))
+    )
 
     messages = []
-    for msg in db_messages:
+    for msg, _ in db_messages:
         # Create a clean dict without SQLAlchemy attributes
         message_data = {
             "message_id": msg.message_id,
@@ -287,6 +303,11 @@ async def get_thread_messages(
             )
 
         message_data["tool_calls"] = tool_calls_data
-        messages.append(MessageResponse(**message_data))
+        messages.append(MessagesRead(**message_data))
 
-    return messages
+    return PaginatedResponse(
+        page=pagination_params.page,
+        page_size=pagination_params.page_size,
+        total_pages=total_pages,
+        results=messages,
+    )
