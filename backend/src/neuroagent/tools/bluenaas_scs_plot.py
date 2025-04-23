@@ -36,7 +36,6 @@ class InputSCSPlotTool(BaseModel):
         default="solid",
         description="Line style for line chart (e.g., 'solid', 'dashed', 'dotted')",
     )
-    line_color: str | None = Field(None, description="Hex color code for line chart")
 
 
 class SCSPlotToolOutput(BaseModel):
@@ -93,16 +92,16 @@ class SCSPlotTool(BaseTool):
                         data=x_y_combined,
                     )
                 )
-            titles.append(f'{result["name"]}, recording: {recording}')
+            titles.append(f"Recording location: {recording}")
             plots.append(
                 JSONMultiLinechart(
-                    title=f'{result["name"]}, recording: {recording}',
+                    title=f"Recording location: {recording}",
                     description="",
                     values=to_plot,
                     x_label="Time [ms]",
                     y_label="Voltage [mV]",
                     line_style=self.input_schema.line_style,
-                    line_color=self.input_schema.line_color,
+                    line_color=None,  # Multiple plots so we make it default for now
                 )
             )
 
