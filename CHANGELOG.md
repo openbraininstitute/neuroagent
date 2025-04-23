@@ -7,15 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Added
-- Filter and sort get_thread and get_thread/messages.
-
 ### Changed
 - Prettier automatic tailwind classes sorting.
 - Nicer HIL validation window.
 
 ## Added
 - [frontend] - tool thunmbnail in chat.
+- Pass the entire message in LS input and let the LLM chose articles.
 
 ### Removed
 - `order` column in `messages` table + fixed.
@@ -24,6 +22,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Added
 - Basic Guardrails.
 - Possibility to interrupt streaming.
+- Filter and sort get_thread and get_thread/messages.
+- New semantic route.
+
+## [v0.4.7] - 15.04.2025
+
+### Fixed
+- Empty groups from keycloak.
+
+### Fixed
+- Literature search points to right url.
 
 ## [v0.4.6]
 
