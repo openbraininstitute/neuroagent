@@ -32,6 +32,11 @@ class InputSCSPlotTool(BaseModel):
     simulation_id: str = Field(
         description="ID of the simulation to retrieve. Should be an https link."
     )
+    line_style: str | None = Field(
+        default="solid",
+        description="Line style for line chart (e.g., 'solid', 'dashed', 'dotted')",
+    )
+    line_color: str | None = Field(None, description="Hex color code for line chart")
 
 
 class SCSPlotToolOutput(BaseModel):
@@ -42,16 +47,18 @@ class SCSPlotToolOutput(BaseModel):
 
 
 class SCSPlotTool(BaseTool):
-    """Class defining the SCSGetOne tool."""
+    """Class defining the SCSPlot tool."""
 
     name: ClassVar[str] = "scsplot-tool"
     name_frontend: ClassVar[str] = "Plot Single-Neuron Simulation"
-    description: ClassVar[str] = """Make a plot of the simulation, based on its id.
+    description: ClassVar[
+        str
+    ] = """Make a plot of the single cell simulation, based on its id.
     The id can be retrieved using the 'scs-getall-tool', from the simulation report of `scs-post-tool` or directly specified by the user.
-    The plots will be shown after / below your message automatically.  Use the simulaton label to refer to the the plots. DO NOT MENTION the storage id nor the simulation ID. DO NOT EMBED the plots in the text."""
+    The plots will be shown after / below your message automatically.  Use the simulaton label to refer to the plots. DO NOT MENTION the storage id nor the simulation ID. DO NOT EMBED the plots in the text."""
     description_frontend: ClassVar[
         str
-    ] = """Make a plot from the result of your simulation.
+    ] = """Make a plot from the result of your single cell simulation.
 
     Provide the simulation ID to plot it."""
     metadata: SCSPlotToolMetadata
@@ -94,8 +101,8 @@ class SCSPlotTool(BaseTool):
                     values=to_plot,
                     x_label="Time [ms]",
                     y_label="Voltage [mV]",
-                    line_style=None,  # self.input_schema.line_style,
-                    line_color=None,  # self.input_schema.line_color,
+                    line_style=self.input_schema.line_style,
+                    line_color=self.input_schema.line_color,
                 )
             )
 
