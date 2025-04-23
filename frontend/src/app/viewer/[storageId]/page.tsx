@@ -6,6 +6,12 @@ import { ImagePlot } from "@/components/plots/image";
 import { Histogram } from "@/components/plots/histogram";
 import { Linechart } from "@/components/plots/linechart";
 
+export async function generateMetadata() {
+  return {
+    title: "Plot viewing",
+  };
+}
+
 export default async function ViewerPage({
   params,
 }: {

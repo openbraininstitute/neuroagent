@@ -1,5 +1,11 @@
 import { ParameterForm } from "@/components/parameter-form";
 
+export async function generateMetadata() {
+  return {
+    title: "Settings",
+  };
+}
+
 export default function SettingsPage() {
   return (
     <>

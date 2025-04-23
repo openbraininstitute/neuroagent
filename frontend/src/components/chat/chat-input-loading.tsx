@@ -1,5 +1,5 @@
 import React from "react";
-import { ChatMessageHuman } from "./chat-message-human";
+import { ChatMessageHuman } from "@/components/chat/chat-message-human";
 import TextareaAutosize from "react-textarea-autosize";
 
 interface ChatComponentProps {

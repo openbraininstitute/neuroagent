@@ -7,8 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- Multiple small frontend fixes.
+
 ### Changed
 - Prettier automatic tailwind classes sorting.
+- Nicer HIL validation window.
+
+## Added
+- [frontend] - tool thunmbnail in chat.
 - Pass the entire message in LS input and let the LLM chose articles.
 
 ### Removed
@@ -133,7 +140,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - [frontend] - bugfixes.
 - Suggestion endpoint.
 - Support empty vlab+project in threads.
-- [frontend] - tool thunmbnail in chat.
 
 ### Fixed
 - [frontend] - Parallel execution of tools

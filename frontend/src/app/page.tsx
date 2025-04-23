@@ -1,24 +1,10 @@
 import { ChatInput } from "@/components/chat/chat-input";
-import { fetcher } from "@/lib/fetcher";
-import { auth } from "@/lib/auth";
+import { getToolList } from "@/lib/server-fetches";
 
-async function getToolList() {
-  const session = await auth();
-  if (!session?.accessToken) {
-    throw new Error("No session found");
-  }
-
-  const response = await fetcher({
-    path: "/tools",
-    headers: { Authorization: `Bearer ${session.accessToken}` },
-  });
-
-  // Extract just the tool names from the ToolMetadata objects
-  return (response as Array<{ name: string; name_frontend: string }>)
-    .map((tool) => {
-      return { slug: tool.name, label: tool.name_frontend };
-    })
-    .sort((a, b) => a.label.localeCompare(b.label));
+export async function generateMetadata() {
+  return {
+    title: "OBI chat",
+  };
 }
 
 export default async function Home() {
