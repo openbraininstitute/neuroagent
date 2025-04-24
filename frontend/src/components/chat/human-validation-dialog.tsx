@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import { useTheme } from "next-themes";
 import {
   Dialog,
   DialogContent,
@@ -9,6 +10,15 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
+import {
+  JsonData,
+  JsonEditor,
+  monoDarkTheme,
+  monoLightTheme,
+} from "json-edit-react";
+import { scsPostSchema } from "@/lib/zod-schemas";
+import { toast } from "sonner";
+
 import { Button } from "@/components/ui/button";
 import type { MessageStrict } from "@/lib/types";
 import { HilRefusalFeedbackDialog } from "@/components/chat/hil-refusal-feedback-dialog";
@@ -18,7 +28,7 @@ type HumanValidationDialogProps = {
   toolId: string;
   toolName: string;
   availableTools: Array<{ slug: string; label: string }>;
-  args?: Record<string, unknown>;
+  args: JsonData;
   isOpen: boolean;
   setIsOpen: (open: boolean) => void;
   setMessage: (updater: (msg: MessageStrict) => MessageStrict) => void;
@@ -42,7 +52,10 @@ export function HumanValidationDialog({
   setMessage,
   mutate,
 }: HumanValidationDialogProps) {
-  const [editedArgs, setEditedArgs] = useState(JSON.stringify(args, null, 2));
+  const { theme } = useTheme();
+  const isLightTheme = theme === "light";
+
+  const [editedArgs, setEditedArgs] = useState<JsonData>(args);
   const [isEdited, setIsEdited] = useState(false);
   const [isAccepted, setIsAccepted] = useState<"accepted" | "rejected">(
     "rejected",
@@ -55,19 +68,19 @@ export function HumanValidationDialog({
   const formRef = useRef<HTMLFormElement>(null);
 
   useEffect(() => {
-    setEditedArgs(JSON.stringify(args, null, 2));
+    setEditedArgs(args);
   }, [args]);
 
-  const handleArgsChange = (value: string) => {
+  const handleArgsChange = (value: JsonData) => {
     setEditedArgs(value);
-    setIsEdited(value !== JSON.stringify(args, null, 2));
+    setIsEdited(JSON.stringify(value) !== JSON.stringify(args));
   };
 
   const handleOpenChange = (open: boolean) => {
     if (!open) {
       // Reset the state when the dialog is closed
       setTimeout(() => {
-        setEditedArgs(JSON.stringify(args, null, 2));
+        setEditedArgs(args);
         setIsEdited(false);
         setShowReviewDialog(true);
         setShowFeedbackDialog(false);
@@ -110,7 +123,7 @@ export function HumanValidationDialog({
             {
               toolCallId: toolId,
               toolName: toolName,
-              args: isEdited ? JSON.parse(editedArgs) : args,
+              args: isEdited ? editedArgs : args,
               state: "call" as const,
             },
           ],
@@ -131,7 +144,7 @@ export function HumanValidationDialog({
       threadId,
       toolCallId: toolId,
       validation,
-      args: isEdited ? editedArgs : JSON.stringify(args, null, 2),
+      args: isEdited ? JSON.stringify(editedArgs) : JSON.stringify(args),
       feedback: feedback === "" ? undefined : feedback,
     });
 
@@ -140,7 +153,7 @@ export function HumanValidationDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
-      <DialogContent>
+      <DialogContent className="min-w-[50%]">
         <form action={handleAction} ref={formRef}>
           <input type="hidden" name="threadId" value={threadId} />
           <input type="hidden" name="toolCallId" value={toolId} />
@@ -148,7 +161,7 @@ export function HumanValidationDialog({
           <input
             type="hidden"
             name="args"
-            value={isEdited ? editedArgs : JSON.stringify(args, null, 2)}
+            value={isEdited ? JSON.stringify(editedArgs) : JSON.stringify(args)}
           />
           <input type="hidden" name="feedback" value={feedback} />
 
@@ -171,10 +184,63 @@ export function HumanValidationDialog({
                   </div>
                   <div className="mt-4">
                     <h3 className="text-sm font-medium">Arguments:</h3>
-                    <textarea
-                      className="mt-2 h-32 w-full rounded-md bg-slate-100 p-4 font-mono text-sm dark:bg-slate-800"
-                      value={editedArgs}
-                      onChange={(e) => handleArgsChange(e.target.value)}
+                    <JsonEditor
+                      data={editedArgs}
+                      onUpdate={({ newData }) => {
+                        const result = scsPostSchema.safeParse(newData);
+                        if (!result.success) {
+                          const errorMessage = result.error.errors
+                            .map(
+                              (error) =>
+                                `${error.path.join(".")}${error.path.length ? ": " : ""}${error.message}`,
+                            )
+                            .join("\n");
+                          toast.error(
+                            <>
+                              <strong>JSON Validation Error</strong>
+                              <div>{errorMessage}</div>
+                            </>,
+                          );
+                          return "JSON Schema error";
+                        }
+
+                        handleArgsChange(result.data);
+                      }}
+                      setData={(data: JsonData) => handleArgsChange(data)}
+                      className="max-h-[75vh] overflow-y-auto"
+                      theme={[
+                        isLightTheme ? monoLightTheme : monoDarkTheme,
+                        {
+                          styles: {
+                            container: {
+                              backgroundColor: isLightTheme
+                                ? "#f1f1f1"
+                                : "#151515",
+                              fontFamily: "Geist Mono",
+                            },
+                            input: isLightTheme ? "#575757" : "#a8a8a8",
+                            inputHighlight: isLightTheme
+                              ? "#b3d8ff"
+                              : "#1c3a59",
+                            string: isLightTheme
+                              ? "rgb(8, 129, 215)"
+                              : "rgb(38, 139, 210)",
+                            number: isLightTheme
+                              ? "rgb(8, 129, 215)"
+                              : "rgb(38, 139, 210)",
+                            boolean: isLightTheme
+                              ? "rgb(8, 129, 215)"
+                              : "rgb(38, 139, 210)",
+                          },
+                        },
+                      ]}
+                      maxWidth={1000}
+                      restrictTypeSelection={true}
+                      rootName={"JSON"}
+                      showStringQuotes={true}
+                      showArrayIndices={false}
+                      showCollectionCount={false}
+                      restrictDelete={true}
                     />
                     {error && (
                       <p

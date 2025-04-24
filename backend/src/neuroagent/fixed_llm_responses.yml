@@ -19,3 +19,13 @@ routes:
       - **Extracting Electrophysiological Features**: I will analyze electrophysiological traces and extract specific features based on your requirements.
 
       Stay tuned and in the meantime, if you have any specific questions or tasks in mind, feel free to ask!
+
+  - name: Human data
+    utterances:
+      - "Do you have human data in the platform?"
+      - "Can I find human morphologies in the platform?"
+      - "Do you have human electrophysiology data?"
+      - "Do you have human models in the platform?"
+    response: |
+      The Open Brain Platform provides neuronal morphology data from mouse, rat, and human specimens. Human morphological reconstructions from various laboratories can be easily found by filtering the species to **Homo sapiens**. 
+      As the platform continues to evolve, it will integrate an expanding collection of human anatomical, morphological, and electrophysiological data, along with computational models derived from these datasets.
