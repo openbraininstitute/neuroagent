@@ -9,13 +9,14 @@ import {
   CustomError,
   ToolDetailedMetadata,
   ToolMetadata,
+  BPaginatedResponse,
 } from "@/lib/types";
 
-export async function getThreads(): Promise<BThread[]> {
+export async function getThreads(): Promise<[BThread[], boolean?]> {
   try {
     const session = await auth();
     if (!session?.accessToken) {
-      return [];
+      return [[], undefined];
     }
 
     const { projectID, virtualLabID } = await getSettings();
@@ -27,21 +28,31 @@ export async function getThreads(): Promise<BThread[]> {
     if (projectID !== undefined) {
       queryParams.project_id = projectID;
     }
+    queryParams.page_size = "25";
+    queryParams.page = "1";
 
-    const threads = (await fetcher({
+    const paginatedResponseThreads = (await fetcher({
       path: "/threads",
       queryParams,
       headers: { Authorization: `Bearer ${session.accessToken}` },
       next: { tags: ["threads"] },
-    })) as BThread[];
+    })) as BPaginatedResponse;
     // Sort threads by update_date in descending order (most recent first)
-    return threads.sort(
-      (a, b) =>
-        new Date(b.update_date).getTime() - new Date(a.update_date).getTime(),
-    );
+
+    const threads = paginatedResponseThreads.results as BThread[];
+    const isLastPage =
+      paginatedResponseThreads.page >= paginatedResponseThreads.total_pages;
+
+    return [
+      threads.sort(
+        (a, b) =>
+          new Date(b.update_date).getTime() - new Date(a.update_date).getTime(),
+      ),
+      isLastPage,
+    ];
   } catch (error) {
     console.error("Error fetching threads:", error);
-    return [];
+    return [[], undefined];
   }
 }
 

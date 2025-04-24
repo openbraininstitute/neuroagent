@@ -1,5 +1,12 @@
 import { Message } from "ai/react";
 
+export type BPaginatedResponse = {
+  page: number;
+  page_size: number;
+  total_pages: number;
+  results: BThread[] | BMessage[];
+};
+
 export type BThread = {
   thread_id: string;
   user_id: string;

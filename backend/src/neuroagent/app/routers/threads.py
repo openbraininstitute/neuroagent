@@ -259,7 +259,7 @@ async def get_thread_messages(
         if db_messages
         else 0
     )
-    # Pagination needs to happen on non joined parent.
+    # Pagination needs to happen on non-joined parent.
     # Once we have them we can eager load the tool calls
     await session.execute(
         select(Messages)

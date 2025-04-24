@@ -144,7 +144,7 @@ class SettingsKnowledgeGraph(BaseModel):
 class SettingsTools(BaseModel):
     """Database settings."""
 
-    literature: SettingsLiterature
+    literature: SettingsLiterature = SettingsLiterature()
     bluenaas: SettingsBlueNaaS = SettingsBlueNaaS()
     morpho: SettingsGetMorpho = SettingsGetMorpho()
     trace: SettingsTrace = SettingsTrace()
@@ -234,8 +234,8 @@ class SettingsAccounting(BaseModel):
 class Settings(BaseSettings):
     """All settings."""
 
-    tools: SettingsTools
-    knowledge_graph: SettingsKnowledgeGraph
+    tools: SettingsTools = SettingsTools()
+    knowledge_graph: SettingsKnowledgeGraph = SettingsKnowledgeGraph()
     agent: SettingsAgent = SettingsAgent()  # has no required
     db: SettingsDB = SettingsDB()  # has no required
     openai: SettingsOpenAI = SettingsOpenAI()  # has no required
