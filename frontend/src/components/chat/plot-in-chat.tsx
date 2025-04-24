@@ -6,6 +6,7 @@ import { Scatterplot } from "@/components/plots/scatterplot";
 import { ImagePlot } from "@/components/plots/image";
 import { Histogram } from "@/components/plots/histogram";
 import { Linechart } from "@/components/plots/linechart";
+import { MultiLinechart } from "../plots/multi-linechart";
 import { useGetPresignedUrl } from "@/hooks/get-presigned";
 import { useGetObjectFromStorage } from "@/hooks/get-storage-object";
 import { memo } from "react";
@@ -85,6 +86,14 @@ const SinglePlotInChat = memo(({ storageId }: { storageId: string }) => {
     case "json-linechart":
       return (
         <Linechart
+          presignedUrl={presignedUrl ?? ""}
+          storageId={storageId}
+          isInChat={true}
+        />
+      );
+    case "json-multi-linechart":
+      return (
+        <MultiLinechart
           presignedUrl={presignedUrl ?? ""}
           storageId={storageId}
           isInChat={true}

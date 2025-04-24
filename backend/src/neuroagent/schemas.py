@@ -20,6 +20,7 @@ Category = Literal[
     "json-linechart",
     "json-piechart",
     "json-scatterplot",
+    "json-multi-linechart",
 ]
 
 
@@ -120,6 +121,27 @@ class JSONLinechart(BaseObject):
     values: list[LinechartValue] = Field(
         description="List of points to connect with lines"
     )
+    show_points: bool = Field(
+        default=True, description="Whether to show individual points on the line"
+    )
+    line_style: str | None = Field(
+        default="solid", description="Line style (e.g., 'solid', 'dashed', 'dotted')"
+    )
+    line_color: str | None = Field(None, description="Hex color code for the line")
+
+
+class MutliLinechartSeries(BaseModel):
+    """Individual point for linechart."""
+
+    data: list[LinechartValue] = Field(description="X and Y data to plot")
+    series_label: str | None = Field(None, description="series label")
+
+
+class JSONMultiLinechart(BaseObject):
+    """JSON linechart schema for plotting line graphs."""
+
+    category: ClassVar[Category] = "json-multi-linechart"
+    values: list[MutliLinechartSeries] = Field(description="data")
     show_points: bool = Field(
         default=True, description="Whether to show individual points on the line"
     )
