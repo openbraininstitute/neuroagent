@@ -7,6 +7,8 @@ routes:
       - "What can I do with you ?"
       - "What can I ask you ?"
       - "Who are you ?"
+      - "Tell me about your functions and abilities."
+    threshold: 0.4
     response: |
       I can assist you with various aspects of neuroscience research, including:
       - **Literature Search**: I can help you find relevant scientific articles and literature related to your topics of interest in neuroscience.
@@ -26,6 +28,7 @@ routes:
       - "Can I find human morphologies in the platform?"
       - "Do you have human electrophysiology data?"
       - "Do you have human models in the platform?"
+    threshold: 0.45
     response: |
-      The Open Brain Platform provides neuronal morphology data from mouse, rat, and human specimens. Human morphological reconstructions from various laboratories can be easily found by filtering the species to **Homo sapiens**. 
+      The Open Brain Platform provides neuronal morphology data from mouse, rat, and human specimens. Human morphological reconstructions from various laboratories can be easily found by filtering the species to **Homo sapiens**.
       As the platform continues to evolve, it will integrate an expanding collection of human anatomical, morphological, and electrophysiological data, along with computational models derived from these datasets.
