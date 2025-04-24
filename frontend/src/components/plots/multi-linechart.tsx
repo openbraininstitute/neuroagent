@@ -141,7 +141,7 @@ export function MultiLinechart({
 
   return (
     <div
-      className={`w-full max-w-3xl overflow-y-auto p-4 ${!isInChat && "mx-auto"}`}
+      className={`w-full overflow-y-auto p-4 ${!isInChat ? "mx-auto" : "max-w-3xl"}`}
     >
       {isInChat ? (
         <Link href={`/viewer/${storageId}`} className="flex gap-2">
