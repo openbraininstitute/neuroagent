@@ -175,6 +175,7 @@ def get_semantic_router(settings: Settings) -> SemanticRouter | None:
             name=route["name"],
             utterances=route["utterances"],
             metadata={"response": route["response"]},
+            score_threshold=route.get("threshold"),
         )
         for route in data["routes"]
     ]
