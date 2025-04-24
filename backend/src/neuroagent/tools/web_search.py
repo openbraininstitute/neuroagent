@@ -77,6 +77,7 @@ class WebSearchTool(BaseTool):
         )
         search_result = await client.search(
             query=self.input_schema.query,
+            search_depth="advanced",
             max_results=self.input_schema.max_results,
             include_domains=self.input_schema.include_domains,
             exclude_domains=self.input_schema.exclude_domains,
