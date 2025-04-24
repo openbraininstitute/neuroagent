@@ -12,34 +12,28 @@ export async function editThread(previousState: unknown, formData: FormData) {
     return { error: "Title is required" };
   }
 
-  try {
-    const session = await auth();
-    if (!session?.accessToken) {
-      return { error: "Not authenticated" };
-    }
+  const session = await auth();
+  if (!session?.accessToken) {
+    return { error: "Not authenticated" };
+  }
 
-    const response = await fetcher({
-      method: "PATCH",
-      path: "/threads/{threadId}",
-      pathParams: { threadId },
-      body: { title },
-      headers: { Authorization: `Bearer ${session.accessToken}` },
-    });
+  const response = await fetcher({
+    method: "PATCH",
+    path: "/threads/{threadId}",
+    pathParams: { threadId },
+    body: { title },
+    headers: { Authorization: `Bearer ${session.accessToken}` },
+  });
 
-    if (response.ok) {
-      // Revalidate the same tags as delete for consistency
-      revalidateTag("threads");
-    } else {
-      throw new Error(
-        `Error while editing thread. Status code:${response.status} , ${response.statusText}`,
-      );
-    }
-
-    return { success: true };
-  } catch (error) {
+  if (!response.ok) {
     return {
-      status: false,
-      error: error instanceof Error ? error.message : "Failed to edit thread",
+      succes: false,
+      error: `Error while editing thread. Status code:${response.status} , ${response.statusText}`,
     };
   }
+
+  // Revalidate the same tags as delete for consistency
+  revalidateTag("threads");
+
+  return { success: true };
 }

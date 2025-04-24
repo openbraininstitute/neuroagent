@@ -10,33 +10,27 @@ export async function deleteThread(previousState: unknown, formData: FormData) {
   const currentThreadId = formData.get("currentThreadId") as string;
   const isOnThreadPage = currentThreadId === threadId;
 
-  try {
-    const session = await auth();
-    if (!session?.accessToken) {
-      return { error: "Not authenticated" };
-    }
+  const session = await auth();
+  if (!session?.accessToken) {
+    return { error: "Not authenticated" };
+  }
 
-    const response = await fetcher({
-      method: "DELETE",
-      path: "/threads/{threadId}",
-      pathParams: { threadId },
-      headers: { Authorization: `Bearer ${session.accessToken}` },
-    });
+  const response = await fetcher({
+    method: "DELETE",
+    path: "/threads/{threadId}",
+    pathParams: { threadId },
+    headers: { Authorization: `Bearer ${session.accessToken}` },
+  });
 
-    if (response.ok) {
-      revalidateTag("threads");
-      revalidateTag(`threads/${threadId}/messages`);
-    } else {
-      throw new Error(
-        `Error while deleting thread. Status code:${response.status} , ${response.statusText}`,
-      );
-    }
-  } catch (error) {
+  if (!response.ok) {
     return {
-      status: false,
-      error: error instanceof Error ? error.message : "Failed to delete thread",
+      succes: false,
+      error: `Error while deleting thread. Status code:${response.status} , ${response.statusText}`,
     };
   }
+
+  revalidateTag("threads");
+  revalidateTag(`threads/${threadId}/messages`);
 
   // Check for redirect before returning success
   if (isOnThreadPage) {

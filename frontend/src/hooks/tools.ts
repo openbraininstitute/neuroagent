@@ -35,13 +35,15 @@ export function useExecuteTool() {
         pathParams: { threadId, toolCallId },
         body,
       });
-      if (response.ok) {
-        return await response.json();
-      } else {
-        throw new Error(
-          `Error making tool call. Status code: ${response.status} , ${response.statusText}`,
-        );
+
+      if (!response.ok) {
+        return {
+          succes: false,
+          error: `Error making tool call. Status code: ${response.status} , ${response.statusText}`,
+        };
       }
+
+      return await response.json();
     },
     onSuccess: (_, variables) => {
       // Invalidate relevant queries after successful execution
