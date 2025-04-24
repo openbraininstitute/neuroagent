@@ -10,7 +10,16 @@ export function useGetPresignedUrl(storageId: string) {
       path: "/storage/{storageId}/presigned-url",
       pathParams: { storageId },
     });
-    return response as string;
+
+    if (!response.ok) {
+      return {
+        succes: false,
+        error: `Error getting presigned URL. Status code: ${response.status} , ${response.statusText}`,
+      };
+    }
+
+    const preSignedUrl = (await response.json()) as string;
+    return preSignedUrl;
   };
 
   return useQuery({ queryKey: [storageId], queryFn: fetchPresignedUrl });

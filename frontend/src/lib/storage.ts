@@ -1,7 +1,7 @@
 import { auth } from "@/lib/auth";
 import { fetcher } from "@/lib/fetcher";
 
-export async function getPresignedUrl(fileIdentifier: string): Promise<string> {
+export async function getPresignedUrl(fileIdentifier: string) {
   const session = await auth();
   if (!session?.accessToken) {
     throw new Error("No session found");
@@ -13,8 +13,11 @@ export async function getPresignedUrl(fileIdentifier: string): Promise<string> {
     headers: { Authorization: `Bearer ${session.accessToken}` },
   });
 
-  if (typeof response !== "string") {
-    throw new Error("Expected string response for presigned URL");
+  if (!response.ok) {
+    return {
+      succes: false,
+      error: `Error getting presigned URL. Status code: ${response.status} , ${response.statusText}`,
+    };
   }
 
   return response;
