@@ -20,6 +20,8 @@ from obp_accounting_sdk.constants import ServiceSubtype
 from openai import AsyncOpenAI
 from redis import asyncio as aioredis
 from semantic_router import SemanticRouter
+from sqlalchemy import desc, select
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from neuroagent.agent_routine import AgentsRoutine
 from neuroagent.app.app_utils import (
@@ -40,6 +42,7 @@ from neuroagent.app.dependencies import (
     get_openai_client,
     get_redis_client,
     get_semantic_routes,
+    get_session,
     get_settings,
     get_starting_agent,
     get_thread,
@@ -120,6 +123,111 @@ async def question_suggestions(
             "The questions should only be about the literature. Each question should be short and concise. In total there should not be more than one question.",
         },
         {"role": "user", "content": json.dumps(body.click_history)},
+    ]
+
+    response = await openai_client.beta.chat.completions.parse(
+        messages=messages,  # type: ignore
+        model=settings.openai.suggestion_model,
+        response_format=QuestionsSuggestions,
+    )
+
+    return response.choices[0].message.parsed
+
+
+@router.post("/question_suggestions_in_chat")
+async def question_suggestions_in_chat(
+    openai_client: Annotated[AsyncOpenAI, Depends(get_openai_client)],
+    settings: Annotated[Settings, Depends(get_settings)],
+    body: UserClickHistory,
+    user_info: Annotated[UserInfo, Depends(get_user_info)],
+    redis_client: Annotated[aioredis.Redis | None, Depends(get_redis_client)],
+    fastapi_response: Response,
+    thread: Annotated[Threads, Depends(get_thread)],
+    session: Annotated[AsyncSession, Depends(get_session)],
+) -> QuestionsSuggestions | None:
+    """Generate a short thread title based on the user's first message and update thread's title."""
+    vlab_id = thread.vlab_id
+    project_id = thread.project_id
+    if vlab_id is not None and project_id is not None:
+        validate_project(
+            groups=user_info.groups,
+            virtual_lab_id=vlab_id,
+            project_id=project_id,
+        )
+        limit = settings.rate_limiter.limit_suggestions_inside
+    else:
+        limit = settings.rate_limiter.limit_suggestions_outside
+
+    limit_headers, rate_limited = await rate_limit(
+        redis_client=redis_client,
+        route_path="/qa/question_suggestions_in_chat",
+        limit=limit,
+        expiry=settings.rate_limiter.expiry_suggestions,
+        user_sub=user_info.sub,
+    )
+    if rate_limited:
+        raise HTTPException(
+            status_code=429,
+            detail={"error": "Rate limit exceeded"},
+            headers=limit_headers.model_dump(by_alias=True),
+        )
+    fastapi_response.headers.update(limit_headers.model_dump(by_alias=True))
+
+    # Get the meessages from the conversation :
+    messages_result = await session.execute(
+        select(Messages)
+        .where(
+            Messages.thread_id == thread.thread_id,
+            Messages.entity == Entity.USER or Messages.entity == Entity.AI_MESSAGE,
+        )
+        .order_by(desc(Messages.creation_date))
+    )
+    db_messages = messages_result.unique().scalars().all()
+
+    if not db_messages:
+        raise HTTPException(
+            status_code=404,
+            detail={"error": "No messages found in thread"},
+        )
+
+    messages = [
+        {
+            "role": "system",
+            "content": "You are a smart assistant that analyzes user behavior and chatbot conversation to suggest 3 helpful and engaging next questions the user might want to ask. "
+            "We provide a description of the platform, the open brain platform allows an atlas driven exploration of the mouse brain with different artifacts "
+            "related to experimental and model data and more specifically neuron morphology (neuron structure including axons, soma and dendrite), electrophysiological recording "
+            "(ie the electrical behavior of the neuron), ion channel, neuron density, bouton density, synapses, connections, electrical models also referred to as e-models, me-models "
+            "which is the model of neuron with a specific morphology and electrical type, and the synaptome dictating how neurons are connected together. "
+            "The platform also allows user to explore and build digital brain models at different scales ranging from molecular level to single neuron and larger circuits and brain regions. "
+            "Users can also customize the models or create their own ones and change the cellular composition, and then run simulation experiments and perform analysis. "
+            "The user is navigating on the website, and we record the last elements he accessed on the website. Here is what the user's history will look like :"
+            "user_history = [[['brain_region', 'example'], ['artifact', 'example'], ['artifact', 'example'], ['artifact', 'example']], [['brain_region', 'example'], ['artifact', 'example']]]"
+            "'brain_region' can be any region of the mouse brain."
+            "'artifact' can be :  'Morphology','Electrophysiology','Neuron density','Bouton density','Synapse per connection','E-model','ME-model','Synaptome' "
+            "and 'data_type' can be 'Experimental data' or 'Model Data'"
+            "The last element of the list represents the last click of the user, so it should naturally be more relevant.",
+        },
+        {
+            "role": "system",
+            "content": "Users journey : "
+            + json.dumps(body.click_history)
+            + "\n And here are the last user messages.",
+        },
+        *[
+            {
+                "role": "user"
+                if msg.entity == Entity.USER
+                else "assistant",  # since we filtered out the rest
+                "content": msg.content,
+            }
+            for msg in db_messages
+        ],
+        {
+            "role": "user",
+            "content": "From the user history and previous messages, try to infer the user's intent on the platform. "
+            "From it generate some questions the user might want to ask to a chatbot that is able to search for papers in the literature."
+            "The questions should only be about the literature. Each question should be short and concise. In total there should three questions.",
+        },
     ]
 
     response = await openai_client.beta.chat.completions.parse(
