@@ -35,6 +35,7 @@ from neuroagent.tools import (
     MorphologyViewerTool,
     PlotGeneratorTool,
     ResolveEntitiesTool,
+    SciteAITool,
     SCSGetAllTool,
     SCSGetOneTool,
     SCSPlotTool,
@@ -182,6 +183,7 @@ def get_tool_list() -> list[type[BaseTool]]:
         GetTracesTool,
         PlotGeneratorTool,
         MorphologyViewerTool,
+        SciteAITool,
         WebSearchTool,
         # NowTool,
         # WeatherTool,
@@ -325,6 +327,8 @@ def get_context_variables(
         "vlab_id": thread.vlab_id,
         "project_id": thread.project_id,
         "s3_client": s3_client,
+        "scite_url": settings.tools.scite_ai.url,
+        "scite_token": settings.tools.scite_ai.token,
         "user_id": user_info.sub,
         "thread_id": thread.thread_id,
         "tavily_api_key": settings.tools.web_search.tavily_api_key,
@@ -346,6 +350,7 @@ def get_healthcheck_variables(
         "literature_search_url": settings.tools.literature.url.rstrip("/") + "/",
         "knowledge_graph_url": settings.knowledge_graph.base_url.rstrip("/") + "/",
         "bluenaas_url": settings.tools.bluenaas.url.rstrip("/") + "/",
+        "scite_url": settings.tools.scite_ai.url.rstrip("/") + "/",
     }
 
 

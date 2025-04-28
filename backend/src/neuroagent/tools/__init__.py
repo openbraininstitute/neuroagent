@@ -19,6 +19,7 @@ from neuroagent.tools.morphology_features_tool import MorphologyFeatureTool
 from neuroagent.tools.morphology_viewer import MorphologyViewerTool
 from neuroagent.tools.now import NowTool
 from neuroagent.tools.resolve_entities_tool import ResolveEntitiesTool
+from neuroagent.tools.scite_tool import SciteAITool
 from neuroagent.tools.traces_tool import GetTracesTool
 from neuroagent.tools.weather import WeatherTool
 from neuroagent.tools.web_search import WebSearchTool
@@ -42,6 +43,7 @@ __all__ = [
     "PlotGeneratorTool",
     "RandomPlotGeneratorTool",
     "ResolveEntitiesTool",
+    "SciteAITool",
     "WeatherTool",
     "WebSearchTool",
 ]

@@ -75,6 +75,15 @@ class SettingsLiterature(BaseModel):
     model_config = ConfigDict(frozen=True)
 
 
+class SettingsScite(BaseModel):
+    """Scite Ai settings."""
+
+    url: str = "https://api.scite.ai"
+    token: str | None = None
+
+    model_config = ConfigDict(frozen=True)
+
+
 class SettingsTrace(BaseModel):
     """Trace tool settings."""
 
@@ -150,6 +159,7 @@ class SettingsTools(BaseModel):
     trace: SettingsTrace = SettingsTrace()
     kg_morpho_features: SettingsKGMorpho = SettingsKGMorpho()
     me_model: SettingsGetMEModel = SettingsGetMEModel()
+    scite_ai: SettingsScite = SettingsScite()
     web_search: SettingsWebSearch = SettingsWebSearch()
 
     model_config = ConfigDict(frozen=True)
@@ -234,7 +244,7 @@ class SettingsAccounting(BaseModel):
 class Settings(BaseSettings):
     """All settings."""
 
-    tools: SettingsTools
+    tools: SettingsTools = SettingsTools()
     knowledge_graph: SettingsKnowledgeGraph = SettingsKnowledgeGraph()
     agent: SettingsAgent = SettingsAgent()  # has no required
     db: SettingsDB = SettingsDB()  # has no required
