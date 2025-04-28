@@ -20,7 +20,7 @@ from obp_accounting_sdk.constants import ServiceSubtype
 from openai import AsyncOpenAI
 from redis import asyncio as aioredis
 from semantic_router import SemanticRouter
-from sqlalchemy import select
+from sqlalchemy import or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from neuroagent.agent_routine import AgentsRoutine
@@ -178,7 +178,10 @@ async def question_suggestions_in_chat(
         select(Messages)
         .where(
             Messages.thread_id == thread.thread_id,
-            Messages.entity == Entity.USER or Messages.entity == Entity.AI_MESSAGE,
+            or_(
+                Messages.entity == Entity.USER,
+                Messages.entity == Entity.AI_MESSAGE,
+            ),
         )
         .order_by(Messages.creation_date)
     )
@@ -205,31 +208,30 @@ async def question_suggestions_in_chat(
             "'brain_region' can be any region of the mouse brain."
             "'artifact' can be :  'Morphology','Electrophysiology','Neuron density','Bouton density','Synapse per connection','E-model','ME-model','Synaptome' "
             "and 'data_type' can be 'Experimental data' or 'Model Data'"
-            "The last element of the list represents the last click of the user, so it should naturally be more relevant.",
-        },
-        {
-            "role": "user",
-            "content": "Users journey : "
-            + json.dumps(body.click_history)
-            + "\n And here are the last user messages in chronological order (last message is the newest one) : ",
-        },
-        *[
-            {
-                "role": "user"
-                if msg.entity == Entity.USER
-                else "assistant",  # since we filtered out the rest
-                "content": msg.content,
-            }
-            for msg in db_messages
-        ],
-        {
-            "role": "user",
-            "content": "From the user history and previous messages, try to infer the user's intent on the platform. The messages should have more importance than the user journey."
+            "The last element of the list represents the last click of the user, so it should naturally be more relevant."
+            "From the user history and previous messages, try to infer the user's intent on the platform. The messages have a lot more importance than the user journey."
             "From it generate some questions the user might want to ask to a chatbot that is able to search for papers in the literature."
             "The questions should only be about the literature. Each question should be short and concise. In total there should three questions.",
         },
+        {
+            "role": "user",
+            "content": "Here is the users journey : \n"
+            + json.dumps(body.click_history)
+            + "\n And here are the last user messages in chronological order (last message is the newest one) : \n"
+            + json.dumps(
+                [
+                    {
+                        "role": "user"
+                        if msg.entity == Entity.USER
+                        else "assistant",  # since we filtered out the rest
+                        "content": json.loads(msg.content)["content"],
+                    }
+                    for msg in db_messages
+                ]
+            ),
+        },
     ]
-    # breakpoint()
+    breakpoint()
 
     response = await openai_client.beta.chat.completions.parse(
         messages=messages,  # type: ignore
