@@ -20,7 +20,7 @@ from obp_accounting_sdk.constants import ServiceSubtype
 from openai import AsyncOpenAI
 from redis import asyncio as aioredis
 from semantic_router import SemanticRouter
-from sqlalchemy import desc, select
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from neuroagent.agent_routine import AgentsRoutine
@@ -77,7 +77,7 @@ async def question_suggestions(
     vlab_id: str | None = None,
     project_id: str | None = None,
 ) -> QuestionsSuggestions | None:
-    """Generate a short thread title based on the user's first message and update thread's title."""
+    """Generate suggested question for the user before the first chat input."""
     if vlab_id is not None and project_id is not None:
         validate_project(
             groups=user_info.groups,
@@ -145,7 +145,7 @@ async def question_suggestions_in_chat(
     thread: Annotated[Threads, Depends(get_thread)],
     session: Annotated[AsyncSession, Depends(get_session)],
 ) -> QuestionsSuggestions | None:
-    """Generate a short thread title based on the user's first message and update thread's title."""
+    """Generate suggested question taking into account the user journey and the user previous messages."""
     vlab_id = thread.vlab_id
     project_id = thread.project_id
     if vlab_id is not None and project_id is not None:
@@ -180,7 +180,7 @@ async def question_suggestions_in_chat(
             Messages.thread_id == thread.thread_id,
             Messages.entity == Entity.USER or Messages.entity == Entity.AI_MESSAGE,
         )
-        .order_by(desc(Messages.creation_date))
+        .order_by(Messages.creation_date)
     )
     db_messages = messages_result.unique().scalars().all()
 
@@ -208,10 +208,10 @@ async def question_suggestions_in_chat(
             "The last element of the list represents the last click of the user, so it should naturally be more relevant.",
         },
         {
-            "role": "system",
+            "role": "user",
             "content": "Users journey : "
             + json.dumps(body.click_history)
-            + "\n And here are the last user messages.",
+            + "\n And here are the last user messages in chronological order (last message is the newest one) : ",
         },
         *[
             {
@@ -224,11 +224,12 @@ async def question_suggestions_in_chat(
         ],
         {
             "role": "user",
-            "content": "From the user history and previous messages, try to infer the user's intent on the platform. "
+            "content": "From the user history and previous messages, try to infer the user's intent on the platform. The messages should have more importance than the user journey."
             "From it generate some questions the user might want to ask to a chatbot that is able to search for papers in the literature."
             "The questions should only be about the literature. Each question should be short and concise. In total there should three questions.",
         },
     ]
+    # breakpoint()
 
     response = await openai_client.beta.chat.completions.parse(
         messages=messages,  # type: ignore
