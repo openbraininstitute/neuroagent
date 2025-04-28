@@ -2,51 +2,78 @@
 import { useRef, useEffect } from "react";
 import { ThreadCardSidebar } from "@/components/sidebar/thread-card-sidebar";
 import { BThread } from "@/lib/types";
-import { useGetThreadsNextPage } from "@/hooks/get-threads";
+import { useGetThreadsNextPage } from "@/hooks/get-thread-page";
 
 type ThreadListClientProps = {
   initialThreads: BThread[];
-  initialIsLastPage?: boolean;
+  initialNextPage?: number;
 };
 
 export function ThreadListClient({
   initialThreads,
-  initialIsLastPage,
+  initialNextPage,
 }: ThreadListClientProps) {
-  const observerRef = useRef<HTMLDivElement | null>(null);
-  const {
-    data,
-    isLoading,
-    isError,
-    fetchNextPage,
-    hasNextPage,
-    isFetchingNextPage,
-  } = useGetThreadsNextPage({
-    pages: [
-      {
-        threads: initialThreads,
-        nextPage: initialIsLastPage ? undefined : 2,
-      },
-    ],
-    pageParams: [1],
-  });
+  const listRef = useRef<HTMLDivElement | null>(null);
+  const scrollContainerRef = useRef<HTMLElement | null>(null);
 
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage } =
+    useGetThreadsNextPage({
+      pages: [
+        {
+          threads: initialThreads,
+          nextPage: initialNextPage,
+        },
+      ],
+      pageParams: [1],
+    });
+
+  // Flatten threads
+  const threads = data?.pages.flatMap((page) => page.threads) ?? [];
+
+  // Identify and store scroll container (second parent)
   useEffect(() => {
+    if (!listRef.current) return;
+    const container = listRef.current.parentElement?.parentElement;
+    if (container) scrollContainerRef.current = container as HTMLElement;
+  }, []);
+
+  // Attach scroll listener
+  useEffect(() => {
+    const scrollContainer = scrollContainerRef.current;
+    if (!scrollContainer) return;
+
     const onScroll = () => {
-      if (isLoading || !hasNextPage) return;
+      const { scrollTop, clientHeight, scrollHeight } = scrollContainer;
       if (
-        window.innerHeight + window.scrollY + 200 >=
-        document.body.offsetHeight
+        scrollTop + clientHeight >= scrollHeight - 50 &&
+        hasNextPage &&
+        !isFetchingNextPage
       ) {
         fetchNextPage();
       }
     };
-    window.addEventListener("scroll", onScroll);
-    return () => window.removeEventListener("scroll", onScroll);
-  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
-  const threads = data?.pages.flatMap((page) => page.threads) ?? [];
+
+    scrollContainer.addEventListener("scroll", onScroll);
+    return () => scrollContainer.removeEventListener("scroll", onScroll);
+  }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
+
+  // If container is not scrollable (tall screen), auto-fetch until it is or no more pages
+  useEffect(() => {
+    const scrollContainer = scrollContainerRef.current;
+    if (!scrollContainer) return;
+
+    const isScrollable =
+      scrollContainer.scrollHeight > scrollContainer.clientHeight;
+    if (!isScrollable && hasNextPage && !isFetchingNextPage) {
+      fetchNextPage();
+    }
+  }, [threads.length, fetchNextPage, hasNextPage, isFetchingNextPage]);
+
   return (
-    <div className="flex flex-col gap-2 px-3">
+    <div
+      ref={listRef}
+      className={`flex flex-col items-center gap-2 ${hasNextPage && "pb-12"}`}
+    >
       {threads.map((t) => (
         <ThreadCardSidebar
           key={t.thread_id}
@@ -54,9 +81,9 @@ export function ThreadListClient({
           threadId={t.thread_id}
         />
       ))}
-      {loadingRef.current && <p className="text-center">Loading…</p>}
-      {isLastPage && (
-        <p className="text-center text-sm">You’ve reached the end!</p>
+
+      {isFetchingNextPage && (
+        <div className="h-6 w-6 animate-spin rounded-full border-2 border-gray-500 border-t-transparent" />
       )}
     </div>
   );

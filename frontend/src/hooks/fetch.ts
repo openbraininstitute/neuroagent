@@ -14,7 +14,6 @@ export function useFetcher() {
           ? `Bearer ${session.accessToken}`
           : "",
       };
-
       return fetcher({ ...config, headers: authHeaders });
     },
     [session?.accessToken],

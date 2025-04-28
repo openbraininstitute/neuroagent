@@ -231,3 +231,6 @@ export class CustomError extends Error {
     Error.captureStackTrace(this, this.constructor);
   }
 }
+
+export const threadPageSize = "20";
+export const messagePageSize = "25";

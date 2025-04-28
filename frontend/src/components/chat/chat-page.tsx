@@ -11,16 +11,20 @@ import { ChatInputInsideThread } from "@/components/chat/chat-input-inside-threa
 import { ChatMessagesInsideThread } from "@/components/chat/chat-messages-inside-thread";
 import { generateEditTitle } from "@/actions/generate-edit-thread";
 import { toast } from "sonner";
+import { useGetMessageNextPage } from "@/hooks/get-message-page";
+import { useQueryClient } from "@tanstack/react-query";
 
 type ChatPageProps = {
   threadId: string;
   initialMessages: MessageStrict[];
+  initialNextPage?: number;
   availableTools: Array<{ slug: string; label: string }>;
 };
 
 export function ChatPage({
   threadId,
   initialMessages,
+  initialNextPage,
   availableTools,
 }: ChatPageProps) {
   const { data: session } = useSession() as { data: ExtendedSession | null };
@@ -35,6 +39,18 @@ export function ChatPage({
   const containerRef = useRef<HTMLDivElement>(null);
   const [stopped, setStopped] = useState(false);
 
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage } =
+    useGetMessageNextPage(threadId, {
+      pages: [
+        {
+          messages: initialMessages,
+          nextPage: initialNextPage,
+        },
+      ],
+      pageParams: [1],
+    });
+
+  const retrievedMessages = data?.pages.flatMap((page) => page.messages) ?? [];
   const {
     messages: messagesRaw,
     input,
@@ -49,7 +65,7 @@ export function ChatPage({
     headers: {
       Authorization: `Bearer ${session?.accessToken}`,
     },
-    initialMessages,
+    initialMessages: retrievedMessages,
     experimental_prepareRequestBody: ({ messages }) => {
       const lastMessage = messages[messages.length - 1];
       const selectedTools = Object.keys(checkedTools).filter(
@@ -59,6 +75,7 @@ export function ChatPage({
     },
   });
 
+  const queryClient = useQueryClient();
   const messages = messagesRaw as MessageStrict[];
   const setMessages = setMessagesRaw as (
     messages:
@@ -99,6 +116,9 @@ export function ChatPage({
     }; // If message complete, don't set stopped
 
     setStopped(shouldBeStopped());
+    queryClient.invalidateQueries({
+      queryKey: ["threads"],
+    });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // Empty dependency array means this runs once on mount
 

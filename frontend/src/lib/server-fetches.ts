@@ -11,25 +11,31 @@ import {
   ToolMetadata,
   BPaginatedResponse,
 } from "@/lib/types";
+import { convertToAiMessages } from "@/lib/utils";
+import { threadPageSize, messagePageSize } from "@/lib/types";
 
-export async function getThreads(): Promise<[BThread[], boolean?]> {
+export async function getThreads() {
   try {
     const session = await auth();
     if (!session?.accessToken) {
-      return [[], undefined];
+      return {
+        threads: [],
+        nextPage: undefined,
+      };
     }
 
     const { projectID, virtualLabID } = await getSettings();
 
-    const queryParams: Record<string, string> = {};
+    const queryParams: Record<string, string> = {
+      page_size: threadPageSize,
+      page: "1",
+    };
     if (virtualLabID !== undefined) {
       queryParams.virtual_lab_id = virtualLabID;
     }
     if (projectID !== undefined) {
       queryParams.project_id = projectID;
     }
-    queryParams.page_size = "25";
-    queryParams.page = "1";
 
     const paginatedResponseThreads = (await fetcher({
       path: "/threads",
@@ -37,22 +43,25 @@ export async function getThreads(): Promise<[BThread[], boolean?]> {
       headers: { Authorization: `Bearer ${session.accessToken}` },
       next: { tags: ["threads"] },
     })) as BPaginatedResponse;
-    // Sort threads by update_date in descending order (most recent first)
 
-    const threads = paginatedResponseThreads.results as BThread[];
+    const threads = (paginatedResponseThreads.results as BThread[]).sort(
+      (a, b) =>
+        new Date(b.update_date).getTime() - new Date(a.update_date).getTime(),
+    );
     const isLastPage =
       paginatedResponseThreads.page >= paginatedResponseThreads.total_pages;
 
-    return [
-      threads.sort(
-        (a, b) =>
-          new Date(b.update_date).getTime() - new Date(a.update_date).getTime(),
-      ),
-      isLastPage,
-    ];
+    // Sort threads by update_date in descending order (most recent first)
+    return {
+      threads,
+      nextPage: isLastPage ? undefined : 2,
+    };
   } catch (error) {
     console.error("Error fetching threads:", error);
-    return [[], undefined];
+    return {
+      threads: [],
+      nextPage: undefined,
+    };
   }
 }
 
@@ -87,28 +96,43 @@ export async function getThread(threadId: string): Promise<BThread | null> {
   }
 }
 
-export async function getMessages(
-  threadId: string,
-): Promise<BMessage[] | null> {
+export async function getMessages(threadId: string) {
   const session = await auth();
   if (!session?.accessToken) {
     throw new Error("No session found");
   }
 
   try {
-    const response = await fetcher({
+    const queryParams: Record<string, string> = {
+      page_size: messagePageSize,
+      page: "1",
+    };
+    const paginatedResponseMessages = (await fetcher({
       path: "/threads/{threadId}/messages",
       pathParams: { threadId },
+      queryParams,
       headers: { Authorization: `Bearer ${session.accessToken}` },
       next: {
         tags: [`thread/${threadId}/messages`],
       },
-    });
+    })) as BPaginatedResponse;
 
-    return response as Promise<BMessage[]>;
+    const messages = convertToAiMessages(
+      paginatedResponseMessages.results as BMessage[],
+    );
+    const isLastPage =
+      paginatedResponseMessages.page >= paginatedResponseMessages.total_pages;
+
+    return {
+      messages,
+      nextPage: isLastPage ? undefined : 2,
+    };
   } catch (error) {
     if ((error as CustomError).statusCode === 404) {
-      return [];
+      return {
+        messages: [],
+        nextPage: undefined,
+      };
     } else {
       throw error;
     }

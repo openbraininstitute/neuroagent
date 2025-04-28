@@ -3,7 +3,6 @@ import { md5 } from "js-md5";
 import { getThread, getToolList } from "@/lib/server-fetches";
 import { getMessages } from "@/lib/server-fetches";
 import { notFound } from "next/navigation";
-import { convertToAiMessages } from "@/lib/utils";
 
 export async function generateMetadata({
   params,
@@ -26,7 +25,7 @@ export default async function PageThread({
 }) {
   const { threadId } = await params;
 
-  const [messages, availableTools] = await Promise.all([
+  const [{ messages, nextPage }, availableTools] = await Promise.all([
     getMessages(threadId),
     getToolList(),
   ]);
@@ -35,16 +34,14 @@ export default async function PageThread({
     return notFound();
   }
 
-  const convertedMessages = convertToAiMessages(messages);
-  const key = convertedMessages.at(-1)
-    ? md5(JSON.stringify(convertedMessages.at(-1)))
-    : null;
+  const key = messages.at(-1) ? md5(JSON.stringify(messages.at(-1))) : null;
 
   return (
     <ChatPage
       key={key}
       threadId={threadId}
-      initialMessages={convertedMessages}
+      initialMessages={messages}
+      initialNextPage={nextPage}
       availableTools={availableTools}
     />
   );
