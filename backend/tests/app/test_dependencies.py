@@ -230,6 +230,7 @@ async def test_get_healthcheck_variables():
         tools=Mock(
             literature=Mock(url="http://literature"),
             bluenaas=Mock(url="http://bluenaas"),
+            scite_ai=Mock(url="http://scite"),
         ),
         knowledge_graph=Mock(
             base_url="http://kg",
@@ -244,4 +245,5 @@ async def test_get_healthcheck_variables():
         "literature_search_url": "http://literature/",
         "knowledge_graph_url": "http://kg/",
         "bluenaas_url": "http://bluenaas/",
+        "scite_url": "http://scite/",
     }
