@@ -1,4 +1,4 @@
-"""Now tool for getting current UTC timestamp."""
+"""Scite AI tool to get papers results."""
 
 import logging
 from typing import Any, ClassVar
@@ -12,9 +12,32 @@ logger = logging.getLogger(__name__)
 
 
 class SciteAIInput(BaseModel):
-    """Input schema for Scite AI tool (empty as no inputs needed)."""
+    """Input schema for Scite AI tool."""
 
     query: str = Field(description="Keyword search input to sciteAI.")
+    article_number: int = Field(
+        default=5, ge=1, le=10, description="Number of articles to return."
+    )
+    article_type: str | None = Field(
+        default=None,
+        description="Filter that restricts the type of retrieved articles.",
+    )
+    author: str | None = Field(
+        default=None,
+        description="Filter that restricts the author of retrieved articles.",
+    )
+    journal: str | None = Field(
+        default=None,
+        description="Filter that restricts the journal of publication of retrieved articles. Should be the ISSN of the journal.",
+    )
+    date_from: str | None = Field(
+        default=None,
+        description="Publication date lowerbound. Format YYYY-MM-DD or YYYY",
+    )
+    date_to: str | None = Field(
+        default=None,
+        description="Publication date upperbound. Format YYYY-MM-DD or YYYY",
+    )
 
 
 class SciteAIMetadata(BaseMetadata):
@@ -70,11 +93,42 @@ class SciteAITool(BaseTool):
         response = await self.metadata.httpx_client.get(
             self.metadata.scite_url + "/api_partner/search",
             headers={"Authorization": f"Bearer {self.metadata.scite_token}"},
-            params={"term": self.input_schema.query},
+            params=self.create_query(
+                query=self.input_schema.query,
+                article_type=self.input_schema.article_type,
+                author=self.input_schema.author,
+                journal=self.input_schema.journal,
+                date_from=self.input_schema.date_from,
+                date_to=self.input_schema.date_to,
+                article_number=self.input_schema.article_number,
+            ),
             timeout=None,
         )
 
         return self._process_output(response.json())
+
+    @staticmethod
+    def create_query(
+        query: str,
+        article_type: str | None,
+        author: str | None,
+        journal: str | None,
+        date_from: str | None,
+        date_to: str | None,
+        article_number: int,
+    ) -> dict[str, str | int]:
+        """Create query for the Literature Search API."""
+        params = {
+            "term": query,
+            "limit": article_number,
+            "author": author,
+            "journal": journal,
+            "paper_type": article_type,
+            "date_from": date_from,
+            "date_to": date_to,
+        }
+
+        return {k: v for k, v in params.items() if v is not None}  # type: ignore
 
     @staticmethod
     def _process_output(output: dict[str, Any]) -> SciteAIToolOutput:

@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Scite AI poc.
+
 ## [v0.5.0] - 24.04.2025
 
 ### Fixed
