@@ -7,8 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v0.5.0] - 24.04.2025
+
 ### Fixed
 - Multiple small frontend fixes.
+- Increased route threshold.
 
 ### Changed
 - Prettier automatic tailwind classes sorting.
@@ -26,16 +29,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Basic Guardrails.
 - Possibility to interrupt streaming.
 - Filter and sort get_thread and get_thread/messages.
+- Plots for the SCS simulations.
 - New semantic route.
 - Pagination for threads and messages.
+
+### Fixed
+- Literature search points to right url.
 
 ## [v0.4.7] - 15.04.2025
 
 ### Fixed
 - Empty groups from keycloak.
-
-### Fixed
-- Literature search points to right url.
 
 ## [v0.4.6]
 

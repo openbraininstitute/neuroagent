@@ -37,6 +37,7 @@ from neuroagent.tools import (
     ResolveEntitiesTool,
     SCSGetAllTool,
     SCSGetOneTool,
+    SCSPlotTool,
     SCSPostTool,
     WebSearchTool,
 )
@@ -168,6 +169,7 @@ def get_tool_list() -> list[type[BaseTool]]:
     return [
         SCSGetAllTool,
         SCSGetOneTool,
+        SCSPlotTool,
         SCSPostTool,
         MEModelGetAllTool,
         MEModelGetOneTool,

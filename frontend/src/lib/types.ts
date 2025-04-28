@@ -218,6 +218,18 @@ export type JSONLinechart = BaseObject & {
   line_color?: string;
 };
 
+export type MultiLinechartSeries = {
+  data: LinechartValue[];
+  series_label?: string | null;
+};
+
+export type JSONMultiLinechart = BaseObject & {
+  values: MultiLinechartSeries[];
+  show_points?: boolean;
+  line_style?: "solid" | "dashed" | "dotted" | string | null;
+  line_color?: string | null;
+};
+
 export type SuggestedQuestions = {
   suggestions: { question: string }[];
 };
