@@ -66,5 +66,6 @@ export function useGetThreadsNextPage(
     getNextPageParam: (lastPage) => lastPage.nextPage,
     initialPageParam: 1,
     initialData: initialData,
+    refetchOnWindowFocus: false,
   });
 }
