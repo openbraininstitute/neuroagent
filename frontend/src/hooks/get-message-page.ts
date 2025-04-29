@@ -22,7 +22,6 @@ async function fetchMessagePage({
   const queryParams: Record<string, string> = {
     page_size: messagePageSize,
     page: String(page),
-    threadId,
   };
 
   const paginatedResponseMessage = (await fetcher({
