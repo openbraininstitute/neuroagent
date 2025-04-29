@@ -72,7 +72,7 @@ export function ThreadListClient({
   return (
     <div
       ref={listRef}
-      className={`flex flex-col items-center gap-2 ${hasNextPage && "pb-12"}`}
+      className={`flex flex-col items-center gap-2 ${hasNextPage ? "pb-12" : ""}`}
     >
       {threads.map((t) => (
         <ThreadCardSidebar

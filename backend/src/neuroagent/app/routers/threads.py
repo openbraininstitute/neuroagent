@@ -244,7 +244,6 @@ async def get_thread_messages(
     messages_result = await session.execute(
         select(Messages, func.count().over().label("total_count"))
         .where(Messages.thread_id == thread_id, entity_where)
-        # .options(joinedload(Messages.tool_calls))  # Eager load tool_calls
         .order_by(
             desc(Messages.creation_date)
             if sort.startswith("-")

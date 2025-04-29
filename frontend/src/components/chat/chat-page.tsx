@@ -117,13 +117,13 @@ export function ChatPage({
     }; // If message complete, don't set stopped
 
     setStopped(shouldBeStopped());
+
+    // Ping the scroll mechanism to trigger page retrieval
+    // if not scrollable with first page
     const el = containerRef.current!;
-    // const prevHeight = el.scrollHeight + 40;
-    // If (scrolled to top OR window not full) AND more pages left AND not currently fetching
     if (el.scrollHeight <= el.clientHeight + 40) {
       handleScroll();
     }
-    // handleScroll()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // Empty dependency array means this runs once on mount
 
@@ -249,7 +249,7 @@ export function ChatPage({
   const handleScroll = async () => {
     const el = containerRef.current!;
 
-    // If (scrolled to top OR window not full) AND more pages left AND not currently fetching
+    // translates to: (scrolled to top OR window not full of messages) AND more pages left AND not currently fetching
     const shouldTryLoad =
       (el.scrollTop === 0 || el.scrollHeight <= el.clientHeight + 40) &&
       hasPreviousPage &&

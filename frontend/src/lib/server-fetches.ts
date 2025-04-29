@@ -43,14 +43,10 @@ export async function getThreads() {
       next: { tags: ["threads"] },
     })) as BPaginatedResponse;
 
-    const threads = (paginatedResponseThreads.results as BThread[]).sort(
-      (a, b) =>
-        new Date(b.update_date).getTime() - new Date(a.update_date).getTime(),
-    );
+    const threads = paginatedResponseThreads.results as BThread[];
     const isLastPage =
       paginatedResponseThreads.page >= paginatedResponseThreads.total_pages;
 
-    // Sort threads by update_date in descending order (most recent first)
     return {
       threads,
       nextPage: isLastPage ? undefined : 2,

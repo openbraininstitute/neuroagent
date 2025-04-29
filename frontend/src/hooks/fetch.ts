@@ -5,7 +5,7 @@ import { fetcher, ResponseBody, FetcherConfig } from "@/lib/fetcher";
 
 export function useFetcher() {
   return useCallback(async (config: FetcherConfig): Promise<ResponseBody> => {
-    // this promise blocks until the session is loaded
+    // Blocks until the session is loaded
     const sess = (await getSession()) as ExtendedSession | null;
     const token = sess?.accessToken ?? "";
 
