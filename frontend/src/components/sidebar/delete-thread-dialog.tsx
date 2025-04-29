@@ -8,6 +8,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Dispatch, SetStateAction } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 
 type DeleteThreadProps = {
   threadId: string;
@@ -24,6 +25,14 @@ export function DeleteThreadDialog({
   isDialogOpen,
   setIsDialogOpen,
 }: DeleteThreadProps) {
+  const queryClient = useQueryClient();
+
+  const deleteWrapper = (formData: FormData) => {
+    deleteAction(formData);
+    queryClient.invalidateQueries({
+      queryKey: ["threads"],
+    });
+  };
   return (
     <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
       <DialogContent className="[&>button]:hidden">
@@ -39,7 +48,7 @@ export function DeleteThreadDialog({
           >
             Cancel
           </Button>
-          <form action={deleteAction}>
+          <form action={deleteWrapper}>
             <input type="hidden" name="threadId" value={threadId} readOnly />
             <input
               type="hidden"

@@ -230,7 +230,7 @@ async def get_thread_messages(
     entity: list[Literal["USER", "AI_TOOL", "TOOL", "AI_MESSAGE"]] | None = Query(
         default=None
     ),
-    sort: Literal["creation_date", "-creation_date"] = "creation_date",
+    sort: Literal["creation_date", "-creation_date"] = "-creation_date",
 ) -> PaginatedResponse[MessagesRead]:
     """Get all messages of the thread."""
     # Create mapping of tool names to their HIL requirement

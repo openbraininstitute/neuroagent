@@ -1,11 +1,18 @@
 import { getThreads } from "@/lib/server-fetches";
 import { ThreadListClient } from "./thread-list-client";
+import { md5 } from "js-md5";
 
 export async function ThreadList() {
   const { threads, nextPage } = await getThreads();
   return (
     <div className="flex flex-col gap-2 pl-3 pr-3">
-      {<ThreadListClient initialThreads={threads} initialNextPage={nextPage} />}
+      {
+        <ThreadListClient
+          key={threads[0] ? md5(JSON.stringify(threads[0])) : null}
+          initialThreads={threads}
+          initialNextPage={nextPage}
+        />
+      }
     </div>
   );
 }

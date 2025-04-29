@@ -2,7 +2,7 @@
 
 import { useChat } from "ai/react";
 import { useEffect, useRef, useState } from "react";
-import type { MessageStrict } from "@/lib/types";
+import { BMessage, type MessageStrict } from "@/lib/types";
 import { env } from "@/lib/env";
 import { useSession } from "next-auth/react";
 import { ExtendedSession } from "@/lib/auth";
@@ -12,11 +12,11 @@ import { ChatMessagesInsideThread } from "@/components/chat/chat-messages-inside
 import { generateEditTitle } from "@/actions/generate-edit-thread";
 import { toast } from "sonner";
 import { useGetMessageNextPage } from "@/hooks/get-message-page";
-import { useQueryClient } from "@tanstack/react-query";
+import { convertToAiMessages } from "@/lib/utils";
 
 type ChatPageProps = {
   threadId: string;
-  initialMessages: MessageStrict[];
+  initialMessages: BMessage[];
   initialNextPage?: number;
   availableTools: Array<{ slug: string; label: string }>;
 };
@@ -39,7 +39,7 @@ export function ChatPage({
   const containerRef = useRef<HTMLDivElement>(null);
   const [stopped, setStopped] = useState(false);
 
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage } =
+  const { data, fetchPreviousPage, hasPreviousPage, isFetchingPreviousPage } =
     useGetMessageNextPage(threadId, {
       pages: [
         {
@@ -50,7 +50,9 @@ export function ChatPage({
       pageParams: [1],
     });
 
-  const retrievedMessages = data?.pages.flatMap((page) => page.messages) ?? [];
+  const retrievedMessages = convertToAiMessages(
+    data?.pages.flatMap((page) => page.messages) ?? [],
+  );
   const {
     messages: messagesRaw,
     input,
@@ -75,7 +77,6 @@ export function ChatPage({
     },
   });
 
-  const queryClient = useQueryClient();
   const messages = messagesRaw as MessageStrict[];
   const setMessages = setMessagesRaw as (
     messages:
@@ -85,8 +86,8 @@ export function ChatPage({
 
   // Moved useEffect here to group with other useEffect hooks
   useEffect(() => {
-    if (initialMessages.length === 0 && newMessage !== "") {
-      initialMessages.push({
+    if (retrievedMessages.length === 0 && newMessage !== "") {
+      retrievedMessages.push({
         id: "temp_id",
         role: "user",
         content: newMessage,
@@ -116,11 +117,23 @@ export function ChatPage({
     }; // If message complete, don't set stopped
 
     setStopped(shouldBeStopped());
-    queryClient.invalidateQueries({
-      queryKey: ["threads"],
-    });
+    const el = containerRef.current!;
+    // const prevHeight = el.scrollHeight + 40;
+    // If (scrolled to top OR window not full) AND more pages left AND not currently fetching
+    if (el.scrollHeight <= el.clientHeight + 40) {
+      handleScroll();
+    }
+    // handleScroll()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // Empty dependency array means this runs once on mount
+
+  useEffect(() => {
+    // Merge new pages with existing messages
+    setMessages((prevMessages) => {
+      const merged = [...retrievedMessages, ...prevMessages];
+      return Array.from(new Map(merged.map((msg) => [msg.id, msg])).values());
+    });
+  }, [retrievedMessages]);
 
   useEffect(() => {
     if (isAutoScrollEnabled) {
@@ -232,11 +245,44 @@ export function ChatPage({
     }
   }, [error, messages, setMessages]);
 
+  // Fetch next page and avoid jumping to earlier messages
+  const handleScroll = async () => {
+    const el = containerRef.current!;
+
+    // If (scrolled to top OR window not full) AND more pages left AND not currently fetching
+    const shouldTryLoad =
+      (el.scrollTop === 0 || el.scrollHeight <= el.clientHeight + 40) &&
+      hasPreviousPage &&
+      !isFetchingPreviousPage;
+
+    if (!shouldTryLoad) return;
+    let prevPageCount = data?.pages.length ?? 0;
+    while (true) {
+      const oldHeight = el.scrollHeight + 40;
+      const result = await fetchPreviousPage();
+      await new Promise(requestAnimationFrame);
+      // bump scroll so the user stays in place
+      el.scrollTop = el.scrollHeight - oldHeight;
+
+      // Check if we got a new page
+      const newPageCount = result.data?.pages.length ?? prevPageCount;
+      if (newPageCount === prevPageCount) break;
+      prevPageCount = newPageCount;
+
+      // Check if the container is tall enough
+      if (el.scrollHeight > el.clientHeight + 40) break;
+    }
+  };
+
   return (
     <div className="flex h-full flex-col">
+      {isFetchingPreviousPage && (
+        <div className="mx-auto mt-4 h-6 w-6 animate-spin rounded-full border-2 border-gray-500 border-t-transparent" />
+      )}
       <div
         ref={containerRef}
         onWheel={handleWheel}
+        onScroll={handleScroll}
         className="flex flex-1 flex-col overflow-y-auto"
       >
         <ChatMessagesInsideThread

@@ -11,7 +11,6 @@ import {
   ToolMetadata,
   BPaginatedResponse,
 } from "@/lib/types";
-import { convertToAiMessages } from "@/lib/utils";
 import { threadPageSize, messagePageSize } from "@/lib/types";
 
 export async function getThreads() {
@@ -117,9 +116,9 @@ export async function getMessages(threadId: string) {
       },
     })) as BPaginatedResponse;
 
-    const messages = convertToAiMessages(
-      paginatedResponseMessages.results as BMessage[],
-    );
+    const messages = (
+      paginatedResponseMessages.results as BMessage[]
+    ).reverse();
     const isLastPage =
       paginatedResponseMessages.page >= paginatedResponseMessages.total_pages;
 
