@@ -18,7 +18,9 @@ services:
       - NEUROAGENT_RATE_LIMITER__REDIS_HOST=redis
       - NEUROAGENT_RATE_LIMITER__REDIS_PORT=6379
     networks:
-      - app-network
+      app-network:
+        aliases:
+          - "minio"                   # Original service name
     depends_on:
       - postgres
       - minio
