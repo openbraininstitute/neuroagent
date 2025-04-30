@@ -18,9 +18,7 @@ services:
       - NEUROAGENT_RATE_LIMITER__REDIS_HOST=redis
       - NEUROAGENT_RATE_LIMITER__REDIS_PORT=6379
     networks:
-      app-network:
-        aliases:
-          - "minio"                   # Original service name
+      - app-network    # Simplified network config for backend
     depends_on:
       - postgres
       - minio
@@ -71,7 +69,9 @@ services:
     volumes:
       - minio_data:/data
     networks:
-      - app-network
+      app-network:
+        aliases:
+          - "minio"    # Alias belongs here with the minio service
     command: server --console-address ":9001" /data
 
   redis:
