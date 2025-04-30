@@ -18,7 +18,7 @@ services:
       - NEUROAGENT_RATE_LIMITER__REDIS_HOST=redis
       - NEUROAGENT_RATE_LIMITER__REDIS_PORT=6379
     networks:
-      - app-network    # Simplified network config for backend
+      - app-network
     depends_on:
       - postgres
       - minio
