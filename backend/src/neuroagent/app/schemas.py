@@ -142,8 +142,16 @@ class Question(BaseModel):
 
 
 class QuestionsSuggestions(BaseModel):
-    """All suggested questions by the LLM."""
+    """All suggested questions by the LLM before chatting."""
 
     suggestions: list[Question] = conlist(  # type: ignore
         item_type=Question, min_length=1, max_length=1
+    )
+
+
+class QuestionsSuggestionsInChat(BaseModel):
+    """All suggested questions by the LLM when there are already messages."""
+
+    suggestions: list[Question] = conlist(  # type: ignore
+        item_type=Question, min_length=3, max_length=3
     )

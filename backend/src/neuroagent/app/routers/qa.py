@@ -48,7 +48,12 @@ from neuroagent.app.dependencies import (
     get_thread,
     get_user_info,
 )
-from neuroagent.app.schemas import QuestionsSuggestions, UserClickHistory, UserInfo
+from neuroagent.app.schemas import (
+    QuestionsSuggestions,
+    QuestionsSuggestionsInChat,
+    UserClickHistory,
+    UserInfo,
+)
 from neuroagent.app.stream import stream_agent_response
 from neuroagent.new_types import (
     Agent,
@@ -144,7 +149,7 @@ async def question_suggestions_in_chat(
     fastapi_response: Response,
     thread: Annotated[Threads, Depends(get_thread)],
     session: Annotated[AsyncSession, Depends(get_session)],
-) -> QuestionsSuggestions | None:
+) -> QuestionsSuggestionsInChat | None:
     """Generate suggested question taking into account the user journey and the user previous messages."""
     vlab_id = thread.vlab_id
     project_id = thread.project_id
@@ -173,7 +178,7 @@ async def question_suggestions_in_chat(
         )
     fastapi_response.headers.update(limit_headers.model_dump(by_alias=True))
 
-    # Get the meessages from the conversation :
+    # Get the AI and User messages from the conversation :
     messages_result = await session.execute(
         select(Messages)
         .where(
@@ -231,12 +236,11 @@ async def question_suggestions_in_chat(
             ),
         },
     ]
-    breakpoint()
 
     response = await openai_client.beta.chat.completions.parse(
         messages=messages,  # type: ignore
         model=settings.openai.suggestion_model,
-        response_format=QuestionsSuggestions,
+        response_format=QuestionsSuggestionsInChat,
     )
 
     return response.choices[0].message.parsed
