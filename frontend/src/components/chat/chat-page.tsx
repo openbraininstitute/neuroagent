@@ -2,7 +2,7 @@
 
 import { useChat } from "ai/react";
 import { useEffect, useRef, useState } from "react";
-import { BMessage, type MessageStrict } from "@/lib/types";
+import { BMessage, BMessageUser, type MessageStrict } from "@/lib/types";
 import { env } from "@/lib/env";
 import { useSession } from "next-auth/react";
 import { ExtendedSession } from "@/lib/auth";
@@ -13,6 +13,7 @@ import { generateEditTitle } from "@/actions/generate-edit-thread";
 import { toast } from "sonner";
 import { useGetMessageNextPage } from "@/hooks/get-message-page";
 import { convertToAiMessages } from "@/lib/utils";
+import { md5 } from "js-md5";
 
 type ChatPageProps = {
   threadId: string;
@@ -67,7 +68,7 @@ export function ChatPage({
     headers: {
       Authorization: `Bearer ${session?.accessToken}`,
     },
-    initialMessages: retrievedMessages,
+    initialMessages: convertToAiMessages(initialMessages),
     experimental_prepareRequestBody: ({ messages }) => {
       const lastMessage = messages[messages.length - 1];
       const selectedTools = Object.keys(checkedTools).filter(
@@ -86,12 +87,19 @@ export function ChatPage({
 
   // Moved useEffect here to group with other useEffect hooks
   useEffect(() => {
-    if (retrievedMessages.length === 0 && newMessage !== "") {
-      retrievedMessages.push({
-        id: "temp_id",
-        role: "user",
-        content: newMessage,
-      });
+    if (initialMessages.length === 0 && newMessage !== "") {
+      initialMessages.push({
+        entity: "user",
+        message_id: "temp_id",
+        msg_content: {
+          role: "user",
+          content: newMessage,
+        },
+        creation_date: new Date().toString(),
+        thread_id: threadId,
+        is_complete: true,
+        tool_calls: [],
+      } as BMessageUser);
       generateEditTitle(null, threadId, newMessage);
       setNewMessage("");
       handleSubmit(undefined, { allowEmptySubmit: true });
@@ -129,11 +137,9 @@ export function ChatPage({
 
   useEffect(() => {
     // Merge new pages with existing messages
-    setMessages((prevMessages) => {
-      const merged = [...retrievedMessages, ...prevMessages];
-      return Array.from(new Map(merged.map((msg) => [msg.id, msg])).values());
-    });
-  }, [retrievedMessages]);
+    console.log(retrievedMessages.length);
+    setMessages(retrievedMessages);
+  }, [md5(JSON.stringify(retrievedMessages))]); // Rerun on content change
 
   useEffect(() => {
     if (isAutoScrollEnabled) {

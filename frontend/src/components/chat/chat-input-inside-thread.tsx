@@ -4,7 +4,7 @@ import { Send, OctagonX } from "lucide-react";
 import { ToolSelectionDropdown } from "@/components/chat/tool-selection-dropdown";
 import TextareaAutosize from "react-textarea-autosize";
 import { Dispatch, FormEvent, SetStateAction } from "react";
-import { useRouter } from "next/navigation";
+import { useQueryClient } from "@tanstack/react-query";
 
 type ChatInputInsideThreadProps = {
   input: string;
@@ -36,7 +36,7 @@ export function ChatInputInsideThread({
   setStopped,
 }: ChatInputInsideThreadProps) {
   const canSend = !hasOngoingToolInvocations || stopped;
-  const router = useRouter();
+  const queryClient = useQueryClient();
 
   const submitWrapper = (
     e: React.KeyboardEvent<HTMLTextAreaElement> | FormEvent<HTMLFormElement>,
@@ -94,7 +94,9 @@ export function ChatInputInsideThread({
                 e.preventDefault();
                 onStop();
                 setStopped(true);
-                router.refresh();
+                queryClient.invalidateQueries({
+                  queryKey: ["messages"],
+                });
               }}
             >
               <OctagonX className="opacity-50" />

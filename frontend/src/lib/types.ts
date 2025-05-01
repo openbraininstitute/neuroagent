@@ -39,7 +39,6 @@ export type BMessageUser = {
   message_id: string;
   entity: "user";
   thread_id: string;
-  order: number;
   creation_date: string;
   is_complete: true;
   msg_content: {
@@ -244,5 +243,5 @@ export class CustomError extends Error {
   }
 }
 
-export const threadPageSize = "20";
+export const threadPageSize = "25";
 export const messagePageSize = "25";

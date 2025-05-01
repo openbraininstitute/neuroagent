@@ -61,5 +61,6 @@ export function useGetMessageNextPage(
     initialPageParam: 1,
     initialData: initialData,
     refetchOnWindowFocus: false,
+    refetchOnMount: false,
   });
 }
