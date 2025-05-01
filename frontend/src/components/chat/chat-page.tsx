@@ -136,8 +136,7 @@ export function ChatPage({
   }, []); // Empty dependency array means this runs once on mount
 
   useEffect(() => {
-    // Merge new pages with existing messages
-    console.log(retrievedMessages.length);
+    // Set retrieved DB messaged as current messages
     setMessages(retrievedMessages);
   }, [md5(JSON.stringify(retrievedMessages))]); // Rerun on content change
 
