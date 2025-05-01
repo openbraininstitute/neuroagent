@@ -10,6 +10,7 @@ from neuroagent.tools.electrophys_tool import ElectrophysFeatureTool
 from neuroagent.tools.generate_plot import PlotGeneratorTool
 from neuroagent.tools.generate_random_plot import RandomPlotGeneratorTool
 from neuroagent.tools.get_morpho_tool import GetMorphoTool
+from neuroagent.tools.get_morpho_tool_old import GetMorphoToolOld
 from neuroagent.tools.kg_morpho_features_tool import KGMorphoFeatureTool
 from neuroagent.tools.literature_search_tool import (
     LiteratureSearchTool,
@@ -30,6 +31,7 @@ __all__ = [
     "SCSPostTool",
     "ElectrophysFeatureTool",
     "GetMorphoTool",
+    "GetMorphoToolOld",
     "GetTracesTool",
     "KGMorphoFeatureTool",
     "LiteratureSearchTool",
