@@ -58,7 +58,7 @@ class PaperOutput(BaseModel):
     journal_issn: str | list[str] | None
     journal_name: str | None
     abstract: str | None
-    paragraphs: list[str]
+    # paragraphs: list[str]
 
 
 class SciteAIToolOutput(BaseModel):
@@ -146,10 +146,10 @@ class SciteAITool(BaseTool):
                     journal_issn=paps.get("issns"),
                     journal_name=paps.get("publisher"),
                     abstract=paps.get("abstract"),
-                    paragraphs=[
-                        citation.get("snippet")
-                        for citation in paps.get("citations", [])
-                    ],
+                    # paragraphs=[
+                    #     citation.get("snippet")
+                    #     for citation in paps.get("citations", [])
+                    # ],
                 )
             )
 
