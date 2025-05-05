@@ -127,7 +127,7 @@ async def question_suggestions(
             "From the user history, try to infer the user's intent on the platform. From it generate some questions the user might want to ask to a chatbot that is able to search for papers in the literature."
             "The questions should only be about the literature. Each question should be short and concise. In total there should not be more than one question.",
         },
-        {"role": "user", "content": json.dumps(body.click_history)},
+        {"role": "user", "content": "USER JOURNEY: " + json.dumps(body.click_history)},
     ]
 
     response = await openai_client.beta.chat.completions.parse(
@@ -214,15 +214,15 @@ async def question_suggestions_in_chat(
             "'artifact' can be :  'Morphology','Electrophysiology','Neuron density','Bouton density','Synapse per connection','E-model','ME-model','Synaptome' "
             "and 'data_type' can be 'Experimental data' or 'Model Data'"
             "The last element of the list represents the last click of the user, so it should naturally be more relevant."
-            "From the user history and previous messages, try to infer the user's intent on the platform. The messages have a lot more importance than the user journey."
-            "From it generate some questions the user might want to ask to a chatbot that is able to search for papers in the literature."
+            "From the user history and previous messages, generate some questions the user might want to ask to a chatbot that is able to search for papers in the literature."
+            " The messages have a lot more importance than the user journey."
             "The questions should only be about the literature. Each question should be short and concise. In total there should three questions.",
         },
         {
             "role": "user",
-            "content": "Here is the users journey : \n"
+            "content": "USER JOURNEY : \n"
             + json.dumps(body.click_history)
-            + "\n And here are the last user messages in chronological order (last message is the newest one) : \n"
+            + "\n USER MESSAGES : \n"
             + json.dumps(
                 [
                     {
@@ -236,7 +236,7 @@ async def question_suggestions_in_chat(
             ),
         },
     ]
-
+    # breakpoint()
     response = await openai_client.beta.chat.completions.parse(
         messages=messages,  # type: ignore
         model=settings.openai.suggestion_model,
