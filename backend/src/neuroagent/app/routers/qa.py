@@ -112,20 +112,49 @@ async def question_suggestions(
     messages = [
         {
             "role": "system",
-            "content": "We provide a description of the platform, the open brain platform allows an atlas driven exploration of the mouse brain with different artifacts "
-            "related to experimental and model data and more specifically neuron morphology (neuron structure including axons, soma and dendrite), electrophysiological recording "
-            "(ie the electrical behavior of the neuron), ion channel, neuron density, bouton density, synapses, connections, electrical models also referred to as e-models, me-models "
-            "which is the model of neuron with a specific morphology and electrical type, and the synaptome dictating how neurons are connected together. "
-            "The platform also allows user to explore and build digital brain models at different scales ranging from molecular level to single neuron and larger circuits and brain regions. "
-            "Users can also customize the models or create their own ones and change the cellular composition, and then run simulation experiments and perform analysis. "
-            "The user is navigating on the website, and we record the last elements he accessed on the website. Here is what the user's history will look like :"
-            "user_history = [[['brain_region', 'example'], ['artifact', 'example'], ['artifact', 'example'], ['artifact', 'example']], [['brain_region', 'example'], ['artifact', 'example']]]"
-            "'brain_region' can be any region of the mouse brain."
-            "'artifact' can be :  'Morphology','Electrophysiology','Neuron density','Bouton density','Synapse per connection','E-model','ME-model','Synaptome' "
-            "and 'data_type' can be 'Experimental data' or 'Model Data'"
-            "The last element of the list represents the last click of the user, so it should naturally be more relevant."
-            "From the user history, try to infer the user's intent on the platform. From it generate some questions the user might want to ask to a chatbot that is able to search for papers in the literature."
-            "The questions should only be about the literature. Each question should be short and concise. In total there should not be more than one question.",
+            "content": """You are a smart assistant that analyzes user behavior to suggest one concise, engaging question the user might ask—specifically about finding relevant literature.
+
+    Platform Context:
+    The Open Brain Platform provides an atlas-driven exploration of the mouse brain, with access to:
+    - Neuron morphology (axon, soma, dendrite structures)
+    - Electrophysiology (electrical recordings of neuronal activity)
+    - Ion channels
+    - Neuron density
+    - Bouton density
+    - Synapse-per-connection counts
+    - Electrical models (“E-models”)
+    - Morpho-electrical models (“ME-models”)
+    - Synaptome (network of neuronal connections)
+
+    Users can:
+    1. Explore and build digital brain models at scales from molecular to whole-region circuits
+    2. Customize or create new cellular-composition models
+    3. Run simulations and perform data analyses
+    4. Access both Experimental and Model data
+
+    User History Format:
+    - user_history is a list of navigation sessions.
+    - Each session is a sequence of clicks:
+      * ['brain_region', <region_name>]
+      * ['artifact', <artifact_type>]
+      * ['data_type', <"Experimental data" | "Model Data">]
+    - Artifacts include:
+      * Morphology
+      * Electrophysiology
+      * Neuron density
+      * Bouton density
+      * Synapse per connection
+      * E-model
+      * ME-model
+      * Synaptome
+    - The last element in each session is the user’s most recent click and thus the most relevant.
+
+    Task:
+    Given the user’s navigation history and recent messages, generate one short, literature-focused question they might ask next. Prioritize their latest interactions. The question should be:
+    - Directly related to searching for scientific papers
+    - Engaging and motivate the user to interact with the chat.
+    - Clear and concise
+    - Focused on literature retrieval only""",
         },
         {"role": "user", "content": "USER JOURNEY: " + json.dumps(body.click_history)},
     ]
@@ -201,22 +230,48 @@ async def question_suggestions_in_chat(
     messages = [
         {
             "role": "system",
-            "content": "You are a smart assistant that analyzes user behavior and chatbot conversation to suggest 3 helpful and engaging next questions the user might want to ask. "
-            "We provide a description of the platform, the open brain platform allows an atlas driven exploration of the mouse brain with different artifacts "
-            "related to experimental and model data and more specifically neuron morphology (neuron structure including axons, soma and dendrite), electrophysiological recording "
-            "(ie the electrical behavior of the neuron), ion channel, neuron density, bouton density, synapses, connections, electrical models also referred to as e-models, me-models "
-            "which is the model of neuron with a specific morphology and electrical type, and the synaptome dictating how neurons are connected together. "
-            "The platform also allows user to explore and build digital brain models at different scales ranging from molecular level to single neuron and larger circuits and brain regions. "
-            "Users can also customize the models or create their own ones and change the cellular composition, and then run simulation experiments and perform analysis. "
-            "The user is navigating on the website, and we record the last elements he accessed on the website. Here is what the user's history will look like :"
-            "user_history = [[['brain_region', 'example'], ['artifact', 'example'], ['artifact', 'example'], ['artifact', 'example']], [['brain_region', 'example'], ['artifact', 'example']]]"
-            "'brain_region' can be any region of the mouse brain."
-            "'artifact' can be :  'Morphology','Electrophysiology','Neuron density','Bouton density','Synapse per connection','E-model','ME-model','Synaptome' "
-            "and 'data_type' can be 'Experimental data' or 'Model Data'"
-            "The last element of the list represents the last click of the user, so it should naturally be more relevant."
-            "From the user history and previous messages, generate some questions the user might want to ask to a chatbot that is able to search for papers in the literature."
-            " The messages have a lot more importance than the user journey."
-            "The questions should only be about the literature. Each question should be short and concise. In total there should three questions.",
+            "content": """You are a smart assistant that analyzes user behavior and conversation history to suggest three concise, engaging questions the user might next ask—specifically about finding relevant literature.
+
+            Platform Context:
+            The Open Brain Platform provides an atlas-driven exploration of the mouse brain, with access to:
+            - Neuron morphology (axon, soma, dendrite structures)
+            - Electrophysiology (electrical recordings of neuronal activity)
+            - Ion channels
+            - Neuron density
+            - Bouton density
+            - Synapse-per-connection counts
+            - Electrical models (“E-models”)
+            - Morpho-electrical models (“ME-models”)
+            - Synaptome (network of neuronal connections)
+
+            Users can:
+            1. Explore and build digital brain models at scales from molecular to whole-region circuits
+            2. Customize or create new cellular-composition models
+            3. Run simulations and perform data analyses
+            4. Access both Experimental and Model data
+
+            User History Format:
+            - user_history is a list of navigation sessions.
+            - Each session is a sequence of clicks:
+            * ['brain_region', <region_name>]
+            * ['artifact', <artifact_type>]
+            * ['data_type', <"Experimental data" | "Model Data">]
+            - Artifacts include:
+            * Morphology
+            * Electrophysiology
+            * Neuron density
+            * Bouton density
+            * Synapse per connection
+            * E-model
+            * ME-model
+            * Synaptome
+            - The last element in each session is the user’s most recent click and thus the most relevant.
+
+            Task:
+            Given the user’s navigation history and recent messages, generate three short, literature-focused questions they might ask next. Prioritize their latest interactions, but weigh the content of their messages more heavily than their click history. Each question should be:
+            - Directly related to searching for scientific papers
+            - Clear and concise
+            - Focused on literature retrieval only""",
         },
         {
             "role": "user",
@@ -226,17 +281,16 @@ async def question_suggestions_in_chat(
             + json.dumps(
                 [
                     {
-                        "role": "user"
-                        if msg.entity == Entity.USER
-                        else "assistant",  # since we filtered out the rest
-                        "content": json.loads(msg.content)["content"],
+                        k: v
+                        for k, v in json.loads(msg.content).items()
+                        if k in ["role", "content"]
                     }
                     for msg in db_messages
                 ]
             ),
         },
     ]
-    # breakpoint()
+
     response = await openai_client.beta.chat.completions.parse(
         messages=messages,  # type: ignore
         model=settings.openai.suggestion_model,
