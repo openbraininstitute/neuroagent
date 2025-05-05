@@ -72,9 +72,20 @@ class SciteAITool(BaseTool):
 
     name: ClassVar[str] = "scite-tool"
     name_frontend: ClassVar[str] = "SciteAI"
-    description: ClassVar[str] = (
-        """Use Scite AI to get results from the literature. Please cite your sources in the answer."""
-    )
+    description: ClassVar[
+        str
+    ] = """Use Scite AI to get results from the literature. Please cite your sources in the answer.
+         Always display the articles according to the following schema:
+                ```
+                Article Title: The title of the article
+                    - Authors: The list of authors of the article
+                    - DOI: The DOI of the article
+                    - Published Date: The publication date of the article
+                    - Citations: The citation count, if available.
+                    - Journal: The journal of publication, if available
+                    - Brain Region Reference: The specific brain region or subregion mentioned in the article.
+                    - Topic Relevance Explanation: A brief explanation of how the article's content relates directly to the requested topic.
+                ```"""
     description_frontend: ClassVar[str] = """Temp."""
     metadata: SciteAIMetadata
     input_schema: SciteAIInput
