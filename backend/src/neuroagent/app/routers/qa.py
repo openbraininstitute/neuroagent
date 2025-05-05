@@ -194,7 +194,7 @@ async def question_suggestions_in_chat(
 
     limit_headers, rate_limited = await rate_limit(
         redis_client=redis_client,
-        route_path="/qa/question_suggestions_in_chat",
+        route_path="/qa/question_suggestions",
         limit=limit,
         expiry=settings.rate_limiter.expiry_suggestions,
         user_sub=user_info.sub,
