@@ -41,7 +41,6 @@ class MorphologieOutput(BaseModel):
     """Output schema for the knowledge graph API."""
 
     morphology_id: str
-    legacy_id: str
     morphology_name: str | None
     morphology_description: str | None
     mtype: list[MtypeOutput] | None
@@ -128,8 +127,8 @@ class GetMorphoTool(BaseTool):
         """
         formatted_output = [
             MorphologieOutput(
-                morphology_id=res["id"],
-                legacy_id=res["legacy_id"][0],
+                # morphology_id=res["id"],   # We will switch to that one after.
+                morphology_id=res["legacy_id"][0],
                 morphology_name=res.get("name"),
                 morphology_description=res.get("description"),
                 mtype=[

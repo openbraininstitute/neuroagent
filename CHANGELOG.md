@@ -10,6 +10,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - get morpho tool now uses entitycore.
 
+### Fixed
+- Make `docker build` work on ARM
+
 ## [v0.5.0] - 24.04.2025
 
 ### Fixed
