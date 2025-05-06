@@ -14,7 +14,8 @@ logger = logging.getLogger(__name__)
 class GetMorphoInput(BaseModel):
     """Inputs of the knowledge graph API."""
 
-    brain_region_id: int = Field(description="ID of the brain region of interest.")
+    # brain_region_id: int = Field(description="ID of the brain region of interest.")
+    brain_region_id: str = Field(description="ID of the brain region of interest.")
     mtype_id: str | None = Field(
         default=None,
         description="ID of the M-type of interest.",
@@ -93,6 +94,11 @@ class GetMorphoTool(BaseTool):
         -------
             list of KnowledgeGraphOutput to describe the morphology and its metadata, or an error dict.
         """
+        # To be removed when we do the switch
+        self.input_schema.brain_region_id = self.input_schema.brain_region_id.split(
+            "/"
+        )[-1]
+
         logger.info(
             f"Entering Get Morpho tool. Inputs: {self.input_schema.brain_region_id=}, {self.input_schema.mtype_id=}"
         )
