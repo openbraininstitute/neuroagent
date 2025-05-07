@@ -27,8 +27,8 @@ export async function getThreads() {
 
     const queryParams: Record<string, string> = {
       page_size: threadPageSize,
-      page: "1",
     };
+
     if (virtualLabID !== undefined) {
       queryParams.virtual_lab_id = virtualLabID;
     }
@@ -44,12 +44,12 @@ export async function getThreads() {
     })) as BPaginatedResponse;
 
     const threads = paginatedResponseThreads.results as BThread[];
-    const isLastPage =
-      paginatedResponseThreads.page >= paginatedResponseThreads.total_pages;
 
     return {
       threads,
-      nextPage: isLastPage ? undefined : 2,
+      nextCursor: paginatedResponseThreads.has_more
+        ? paginatedResponseThreads.next_cursor
+        : undefined,
     };
   } catch (error) {
     console.error("Error fetching threads:", error);
@@ -100,7 +100,6 @@ export async function getMessages(threadId: string) {
   try {
     const queryParams: Record<string, string> = {
       page_size: messagePageSize,
-      page: "1",
     };
     const paginatedResponseMessages = (await fetcher({
       path: "/threads/{threadId}/messages",
@@ -115,12 +114,12 @@ export async function getMessages(threadId: string) {
     const messages = (
       paginatedResponseMessages.results as BMessage[]
     ).reverse();
-    const isLastPage =
-      paginatedResponseMessages.page >= paginatedResponseMessages.total_pages;
 
     return {
       messages,
-      nextPage: isLastPage ? undefined : 2,
+      nextCursor: paginatedResponseMessages.has_more
+        ? paginatedResponseMessages.next_cursor
+        : undefined,
     };
   } catch (error) {
     if ((error as CustomError).statusCode === 404) {

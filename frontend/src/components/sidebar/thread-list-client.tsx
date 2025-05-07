@@ -6,12 +6,12 @@ import { useGetThreadsNextPage } from "@/hooks/get-thread-page";
 
 type ThreadListClientProps = {
   initialThreads: BThread[];
-  initialNextPage?: number;
+  initialNextCursor?: string;
 };
 
 export function ThreadListClient({
   initialThreads,
-  initialNextPage,
+  initialNextCursor,
 }: ThreadListClientProps) {
   const listRef = useRef<HTMLDivElement | null>(null);
   const scrollContainerRef = useRef<HTMLElement | null>(null);
@@ -21,7 +21,7 @@ export function ThreadListClient({
       pages: [
         {
           threads: initialThreads,
-          nextPage: initialNextPage,
+          nextCursor: initialNextCursor,
         },
       ],
       pageParams: [1],

@@ -148,14 +148,14 @@ class QuestionsSuggestions(BaseModel):
 class PaginatedParams(BaseModel):
     """Input query parameters for paginated endpoints."""
 
-    page: int = Field(default=1, ge=1)
+    cursor: str | None = Field(default=None)
     page_size: int = Field(default=10, ge=1)
 
 
 class PaginatedResponse(BaseModel, Generic[T]):
     """Base class for paginated responses."""
 
-    page: int
+    next_cursor: datetime.datetime
+    has_more: bool
     page_size: int
-    total_pages: int
     results: list[T]

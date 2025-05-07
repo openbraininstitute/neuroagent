@@ -6,26 +6,28 @@ import { threadPageSize } from "@/lib/types";
 
 type ThreadsPage = {
   threads: BThread[];
-  nextPage?: number;
+  nextCursor?: string;
 };
 
 type FetchThreadsPageArgs = {
-  page: number;
+  cursor: string | null;
   fetcher: ReturnType<typeof useFetcher>;
   projectID?: string;
   virtualLabID?: string;
 };
 
 async function fetchThreadPage({
-  page,
+  cursor,
   fetcher,
   projectID,
   virtualLabID,
 }: FetchThreadsPageArgs) {
   const queryParams: Record<string, string> = {
     page_size: threadPageSize,
-    page: String(page),
   };
+  if (cursor !== null) {
+    queryParams.cursor = cursor;
+  }
   if (virtualLabID !== undefined) {
     queryParams.virtual_lab_id = virtualLabID;
   }
@@ -38,12 +40,12 @@ async function fetchThreadPage({
     queryParams,
   })) as BPaginatedResponse;
   const threads = paginatedResponseThreads.results as BThread[];
-  const isLastPage =
-    paginatedResponseThreads.page >= paginatedResponseThreads.total_pages;
 
   return {
     threads,
-    nextPage: isLastPage ? undefined : page + 1,
+    nextCursor: paginatedResponseThreads.has_more
+      ? paginatedResponseThreads.next_cursor
+      : undefined,
   };
 }
 
@@ -56,15 +58,15 @@ export function useGetThreadsNextPage(
 
   return useInfiniteQuery<ThreadsPage, Error>({
     queryKey: ["threads", projectID, virtualLabID],
-    queryFn: ({ pageParam = 1 }) =>
+    queryFn: ({ pageParam = null }) =>
       fetchThreadPage({
-        page: pageParam as number,
+        cursor: pageParam as string | null,
         fetcher,
         projectID,
         virtualLabID,
       }),
-    getNextPageParam: (lastPage) => lastPage.nextPage,
-    initialPageParam: 1,
+    getNextPageParam: (lastPage) => lastPage.nextCursor,
+    initialPageParam: initialData.pageParams,
     initialData: initialData,
     refetchOnWindowFocus: false,
   });

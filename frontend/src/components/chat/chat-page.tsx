@@ -18,14 +18,14 @@ import { md5 } from "js-md5";
 type ChatPageProps = {
   threadId: string;
   initialMessages: BMessage[];
-  initialNextPage?: number;
+  initialNextCursor?: string;
   availableTools: Array<{ slug: string; label: string }>;
 };
 
 export function ChatPage({
   threadId,
   initialMessages,
-  initialNextPage,
+  initialNextCursor,
   availableTools,
 }: ChatPageProps) {
   const { data: session } = useSession() as { data: ExtendedSession | null };
@@ -45,7 +45,7 @@ export function ChatPage({
       pages: [
         {
           messages: initialMessages,
-          nextPage: initialNextPage,
+          nextCursor: initialNextCursor,
         },
       ],
       pageParams: [1],
@@ -278,7 +278,8 @@ export function ChatPage({
       if (el.scrollHeight > el.clientHeight + 40) break;
     }
   };
-
+  console.log(retrievedMessages);
+  console.log(messages);
   return (
     <div className="flex h-full flex-col">
       {isFetchingPreviousPage && (

@@ -25,7 +25,7 @@ export default async function PageThread({
 }) {
   const { threadId } = await params;
 
-  const [{ messages, nextPage }, availableTools] = await Promise.all([
+  const [{ messages, nextCursor }, availableTools] = await Promise.all([
     getMessages(threadId),
     getToolList(),
   ]);
@@ -41,7 +41,7 @@ export default async function PageThread({
       key={key}
       threadId={threadId}
       initialMessages={messages}
-      initialNextPage={nextPage}
+      initialNextCursor={nextCursor}
       availableTools={availableTools}
     />
   );

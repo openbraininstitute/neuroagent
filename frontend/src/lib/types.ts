@@ -1,9 +1,9 @@
 import { Message } from "ai/react";
 
 export type BPaginatedResponse = {
-  page: number;
+  next_cursor: string;
+  has_more: boolean;
   page_size: number;
-  total_pages: number;
   results: BThread[] | BMessage[];
 };
 
@@ -243,5 +243,5 @@ export class CustomError extends Error {
   }
 }
 
-export const threadPageSize = "25";
-export const messagePageSize = "25";
+export const threadPageSize = "5";
+export const messagePageSize = "5";
