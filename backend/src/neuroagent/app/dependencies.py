@@ -176,6 +176,7 @@ def get_tool_list() -> list[type[BaseTool]]:
         LiteratureSearchTool,
         ElectrophysFeatureTool,
         GetMorphoTool,
+        # GetMorphoToolOld,
         KGMorphoFeatureTool,
         MorphologyFeatureTool,
         ResolveEntitiesTool,
@@ -304,30 +305,35 @@ def get_context_variables(
 ) -> dict[str, Any]:
     """Get the context variables to feed the tool's metadata."""
     return {
+        # User info
+        "user_id": user_info.sub,
+        "thread_id": thread.thread_id,
+        "vlab_id": thread.vlab_id,
+        "project_id": thread.project_id,
+        # General / Agent
         "starting_agent": starting_agent,
-        "token": token,
         "openai_client": openai_client,
-        "retriever_k": settings.tools.literature.retriever_k,
-        "use_reranker": settings.tools.literature.use_reranker,
-        "literature_search_url": settings.tools.literature.url,
-        "knowledge_graph_url": settings.knowledge_graph.url,
-        "me_model_search_size": settings.tools.me_model.search_size,
+        "httpx_client": httpx_client,
         "bucket_name": settings.storage.bucket_name,
+        "s3_client": s3_client,
         "brainregion_hierarchy_storage_key": settings.storage.brain_region_hierarchy_key,
         "celltypes_hierarchy_storage_key": settings.storage.cell_type_hierarchy_key,
+        # Tokens / keys
+        "token": token,
+        "tavily_api_key": settings.tools.web_search.tavily_api_key,
+        # Tools
+        "entitycore_url": settings.entitycore.url,
+        "literature_search_url": settings.tools.literature.url,
+        "retriever_k": settings.tools.literature.retriever_k,
+        "use_reranker": settings.tools.literature.use_reranker,
+        "knowledge_graph_url": settings.knowledge_graph.url,
+        "me_model_search_size": settings.tools.me_model.search_size,
         "morpho_search_size": settings.tools.morpho.search_size,
         "kg_morpho_feature_search_size": settings.tools.kg_morpho_features.search_size,
         "trace_search_size": settings.tools.trace.search_size,
         "kg_sparql_url": settings.knowledge_graph.sparql_url,
         "kg_class_view_url": settings.knowledge_graph.class_view_url,
         "bluenaas_url": settings.tools.bluenaas.url,
-        "httpx_client": httpx_client,
-        "vlab_id": thread.vlab_id,
-        "project_id": thread.project_id,
-        "s3_client": s3_client,
-        "user_id": user_info.sub,
-        "thread_id": thread.thread_id,
-        "tavily_api_key": settings.tools.web_search.tavily_api_key,
     }
 
 
