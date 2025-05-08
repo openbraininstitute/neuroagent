@@ -3,14 +3,16 @@
 import { Send, OctagonX } from "lucide-react";
 import { ToolSelectionDropdown } from "@/components/chat/tool-selection-dropdown";
 import TextareaAutosize from "react-textarea-autosize";
-import { Dispatch, FormEvent, SetStateAction } from "react";
+import { Dispatch, FormEvent, SetStateAction, startTransition } from "react";
 import { useQueryClient } from "@tanstack/react-query";
+import { resetInfiniteQueryPagination } from "@/hooks/get-message-page";
 
 type ChatInputInsideThreadProps = {
   input: string;
   isLoading: boolean;
   availableTools: Array<{ slug: string; label: string }>;
   checkedTools: Record<string, boolean>;
+  threadId: string;
   setCheckedTools: (tools: Record<string, boolean>) => void;
   handleInputChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
   handleSubmit: (event?: { preventDefault?: () => void }) => void;
@@ -19,6 +21,7 @@ type ChatInputInsideThreadProps = {
   onStop: () => void;
   stopped: boolean;
   setStopped: Dispatch<SetStateAction<boolean>>;
+  setIsInvalidating: Dispatch<SetStateAction<boolean>>;
 };
 
 export function ChatInputInsideThread({
@@ -26,6 +29,7 @@ export function ChatInputInsideThread({
   isLoading,
   availableTools,
   checkedTools,
+  threadId,
   setCheckedTools,
   handleInputChange,
   handleSubmit,
@@ -34,6 +38,7 @@ export function ChatInputInsideThread({
   onStop,
   stopped,
   setStopped,
+  setIsInvalidating,
 }: ChatInputInsideThreadProps) {
   const canSend = !hasOngoingToolInvocations || stopped;
   const queryClient = useQueryClient();
@@ -94,8 +99,12 @@ export function ChatInputInsideThread({
                 e.preventDefault();
                 onStop();
                 setStopped(true);
-                queryClient.invalidateQueries({
-                  queryKey: ["messages"],
+                startTransition(() => {
+                  resetInfiniteQueryPagination(
+                    queryClient,
+                    threadId,
+                    setIsInvalidating,
+                  );
                 });
               }}
             >

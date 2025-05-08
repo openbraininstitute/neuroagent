@@ -1,9 +1,14 @@
-import { useInfiniteQuery, InfiniteData } from "@tanstack/react-query";
+import {
+  useInfiniteQuery,
+  InfiniteData,
+  QueryClient,
+} from "@tanstack/react-query";
 import { useFetcher } from "@/hooks/fetch";
 import { BPaginatedResponse, BMessage } from "@/lib/types";
 import { messagePageSize } from "@/lib/types";
+import { Dispatch, SetStateAction } from "react";
 
-type MessagePage = {
+export type MessagePage = {
   messages: BMessage[];
   nextCursor?: string;
 };
@@ -59,10 +64,33 @@ export function useGetMessageNextPage(
       }),
     getPreviousPageParam: (lastPage) => lastPage.nextCursor,
     // we never want to load “newer” pages below, so just return undefined:
-    getNextPageParam: () => undefined,
-    initialPageParam: initialData.pageParams,
+    getNextPageParam: (lastPage) => lastPage.nextCursor,
+    initialPageParam: null,
     initialData: initialData,
     refetchOnWindowFocus: false,
     refetchOnMount: false,
   });
+}
+
+export async function resetInfiniteQueryPagination(
+  queryClient: QueryClient,
+  threadId: string,
+  setIsInvalidating: Dispatch<SetStateAction<boolean>>,
+) {
+  const queryKey = ["messages", threadId];
+  queryClient.setQueryData(
+    queryKey,
+    (oldData: InfiniteData<MessagePage, unknown>) => {
+      if (!oldData) return undefined;
+      setIsInvalidating(true);
+      return {
+        pages: oldData.pages.slice(-1),
+        pageParams: oldData.pageParams.slice(-1),
+      };
+    },
+  );
+  await queryClient.invalidateQueries({
+    queryKey,
+  });
+  setIsInvalidating(false);
 }

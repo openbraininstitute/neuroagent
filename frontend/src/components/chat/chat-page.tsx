@@ -39,21 +39,28 @@ export function ChatPage({
   const [isAutoScrollEnabled, setIsAutoScrollEnabled] = useState(true);
   const containerRef = useRef<HTMLDivElement>(null);
   const [stopped, setStopped] = useState(false);
+  const [isInvalidating, setIsInvalidating] = useState(false);
 
-  const { data, fetchPreviousPage, hasPreviousPage, isFetchingPreviousPage } =
-    useGetMessageNextPage(threadId, {
-      pages: [
-        {
-          messages: initialMessages,
-          nextCursor: initialNextCursor,
-        },
-      ],
-      pageParams: [1],
-    });
+  const {
+    data,
+    fetchPreviousPage,
+    hasPreviousPage,
+    isFetchingPreviousPage,
+    isFetching,
+  } = useGetMessageNextPage(threadId, {
+    pages: [
+      {
+        messages: initialMessages,
+        nextCursor: initialNextCursor,
+      },
+    ],
+    pageParams: [null],
+  });
 
   const retrievedMessages = convertToAiMessages(
     data?.pages.flatMap((page) => page.messages) ?? [],
   );
+
   const {
     messages: messagesRaw,
     input,
@@ -68,7 +75,7 @@ export function ChatPage({
     headers: {
       Authorization: `Bearer ${session?.accessToken}`,
     },
-    initialMessages: convertToAiMessages(initialMessages),
+    initialMessages: retrievedMessages,
     experimental_prepareRequestBody: ({ messages }) => {
       const lastMessage = messages[messages.length - 1];
       const selectedTools = Object.keys(checkedTools).filter(
@@ -136,8 +143,16 @@ export function ChatPage({
   }, []); // Empty dependency array means this runs once on mount
 
   useEffect(() => {
+    if (isInvalidating || isFetching) return;
     // Set retrieved DB messaged as current messages
-    setMessages(retrievedMessages);
+    if (!stopped) {
+      setMessages(() => [
+        ...retrievedMessages,
+        ...messages.filter((m) => m.id.length !== 32),
+      ]);
+    } else {
+      setMessages(retrievedMessages);
+    }
   }, [md5(JSON.stringify(retrievedMessages))]); // Rerun on content change
 
   useEffect(() => {
@@ -258,7 +273,8 @@ export function ChatPage({
     const shouldTryLoad =
       (el.scrollTop === 0 || el.scrollHeight <= el.clientHeight + 40) &&
       hasPreviousPage &&
-      !isFetchingPreviousPage;
+      !isFetchingPreviousPage &&
+      !isLoading;
 
     if (!shouldTryLoad) return;
     let prevPageCount = data?.pages.length ?? 0;
@@ -278,8 +294,7 @@ export function ChatPage({
       if (el.scrollHeight > el.clientHeight + 40) break;
     }
   };
-  console.log(retrievedMessages);
-  console.log(messages);
+
   return (
     <div className="flex h-full flex-col">
       {isFetchingPreviousPage && (
@@ -305,6 +320,7 @@ export function ChatPage({
         isLoading={isLoading}
         availableTools={availableTools}
         checkedTools={checkedTools}
+        threadId={threadId}
         setCheckedTools={setCheckedTools}
         handleInputChange={handleInputChange}
         handleSubmit={handleSubmit}
@@ -313,6 +329,7 @@ export function ChatPage({
         onStop={stop}
         stopped={stopped}
         setStopped={setStopped}
+        setIsInvalidating={setIsInvalidating}
       />
     </div>
   );

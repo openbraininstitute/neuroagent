@@ -66,7 +66,7 @@ export function useGetThreadsNextPage(
         virtualLabID,
       }),
     getNextPageParam: (lastPage) => lastPage.nextCursor,
-    initialPageParam: initialData.pageParams,
+    initialPageParam: null,
     initialData: initialData,
     refetchOnWindowFocus: false,
   });

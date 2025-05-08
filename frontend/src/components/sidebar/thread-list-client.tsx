@@ -24,7 +24,7 @@ export function ThreadListClient({
           nextCursor: initialNextCursor,
         },
       ],
-      pageParams: [1],
+      pageParams: [null],
     });
 
   // Flatten threads
