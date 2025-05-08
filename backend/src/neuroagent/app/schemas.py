@@ -155,7 +155,7 @@ class PaginatedParams(BaseModel):
 class PaginatedResponse(BaseModel, Generic[T]):
     """Base class for paginated responses."""
 
-    next_cursor: datetime.datetime
+    next_cursor: datetime.datetime | None
     has_more: bool
     page_size: int
     results: list[T]

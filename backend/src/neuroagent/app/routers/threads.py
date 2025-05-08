@@ -165,14 +165,13 @@ async def get_threads(
     thread_result = await session.execute(query)
     threads = thread_result.scalars().all()
     has_more = len(threads) > pagination_params.page_size
+    to_return = threads[:-1] if has_more else threads
 
     return PaginatedResponse(
-        next_cursor=getattr(threads[-2], sort_column)
-        if has_more
-        else getattr(threads[-1], sort_column),
+        next_cursor=getattr(to_return[-1], sort_column) if to_return else None,
         has_more=has_more,
         page_size=pagination_params.page_size,
-        results=[ThreadsRead(**thread.__dict__) for thread in threads[:-1]],
+        results=[ThreadsRead(**thread.__dict__) for thread in to_return],
     )
 
 

@@ -152,24 +152,34 @@ def test_get_threads_paginated(
 
     with app_client as app_client:
         threads = app_client.get("/threads").json()
-        assert set(threads.keys()) == {"page", "page_size", "total_pages", "results"}
+        assert set(threads.keys()) == {
+            "next_cursor",
+            "has_more",
+            "page_size",
+            "results",
+        }
 
-        app_client.post(
+        create_output_1 = app_client.post(
             "/threads",
         ).json()
         create_output_2 = app_client.post(
             "/threads",
         ).json()
         create_output_3 = app_client.post("/threads").json()
-        threads = app_client.get("/threads", params={"page": 1, "page_size": 2}).json()
+        threads = app_client.get("/threads", params={"page_size": 2}).json()
 
         assert threads["page_size"] == 2
-        assert threads["page"] == 1
-        assert threads["total_pages"] == 2
+        assert threads["next_cursor"] == create_output_2["update_date"]
+        assert threads["has_more"]
         assert len(threads["results"]) == 2
 
         assert threads["results"][0]["thread_id"] == create_output_3["thread_id"]
         assert threads["results"][1]["thread_id"] == create_output_2["thread_id"]
+
+        page_2 = app_client.get(
+            "/threads", params={"page_size": 2, "cursor": threads["next_cursor"]}
+        ).json()
+        assert page_2["results"][0] == create_output_1
 
 
 @pytest.mark.httpx_mock(can_send_already_matched_responses=True)
@@ -439,14 +449,18 @@ async def test_get_thread_messages_paginated(
     with app_client as app_client:
         # Get the messages of the thread
         messages = app_client.get(
-            f"/threads/{thread.thread_id}/messages", params={"page": 1, "page_size": 3}
+            f"/threads/{thread.thread_id}/messages", params={"page_size": 3}
+        ).json()
+        page_2 = app_client.get(
+            f"/threads/{thread.thread_id}/messages",
+            params={"page_size": 3, "cursor": messages["next_cursor"]},
         ).json()
 
-    assert set(messages.keys()) == {"page", "page_size", "total_pages", "results"}
+    assert set(messages.keys()) == {"next_cursor", "has_more", "page_size", "results"}
 
     assert messages["page_size"] == 3
-    assert messages["page"] == 1
-    assert messages["total_pages"] == 2
+    assert messages["next_cursor"] == messages["results"][-1]["creation_date"]
+    assert messages["has_more"]
     assert len(messages["results"]) == 3
 
     messages_results = messages["results"]
@@ -468,3 +482,5 @@ async def test_get_thread_messages_paginated(
 
     assert messages_results[0]["creation_date"] > messages_results[1]["creation_date"]
     assert messages_results[1]["creation_date"] > messages_results[2]["creation_date"]
+
+    assert len(page_2["results"]) == 1
