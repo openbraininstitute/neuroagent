@@ -7,7 +7,7 @@ import httpx
 import pytest
 
 from neuroagent.tools import MorphologyFeatureTool
-from neuroagent.tools.morphology_features_tool import (
+from neuroagent.tools.morphology_features_tool_old import (
     MorphologyFeatureInput,
     MorphologyFeatureMetadata,
     MorphologyFeatureToolOutput,

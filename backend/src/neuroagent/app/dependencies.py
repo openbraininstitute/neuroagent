@@ -31,8 +31,8 @@ from neuroagent.tools import (
     LiteratureSearchTool,
     MEModelGetAllTool,
     MEModelGetOneTool,
-    MorphologyFeatureTool,
     MorphologyViewerTool,
+    MorphoMetricsTool,
     PlotGeneratorTool,
     ResolveEntitiesTool,
     SCSGetAllTool,
@@ -177,7 +177,8 @@ def get_tool_list() -> list[type[BaseTool]]:
         ElectrophysFeatureTool,
         GetMorphoTool,
         KGMorphoFeatureTool,
-        MorphologyFeatureTool,
+        # MorphologyFeatureToolOld,
+        MorphoMetricsTool,
         ResolveEntitiesTool,
         GetTracesTool,
         PlotGeneratorTool,
@@ -328,6 +329,7 @@ def get_context_variables(
         "user_id": user_info.sub,
         "thread_id": thread.thread_id,
         "tavily_api_key": settings.tools.web_search.tavily_api_key,
+        "obi_one_url": settings.tools.obi_one.url,
     }
 
 
@@ -346,6 +348,7 @@ def get_healthcheck_variables(
         "literature_search_url": settings.tools.literature.url.rstrip("/") + "/",
         "knowledge_graph_url": settings.knowledge_graph.base_url.rstrip("/") + "/",
         "bluenaas_url": settings.tools.bluenaas.url.rstrip("/") + "/",
+        "obi_one_url": settings.tools.obi_one.url.rstrip("/") + "/",
     }
 
 

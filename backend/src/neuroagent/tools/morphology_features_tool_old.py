@@ -41,7 +41,7 @@ class MorphologyFeatureToolOutput(BaseModel):
     feature_dict: dict[str, Any]
 
 
-class MorphologyFeatureTool(BaseTool):
+class MorphologyFeatureToolOld(BaseTool):
     """Class defining the morphology feature retrieval logic."""
 
     name: ClassVar[str] = "morpho-features-tool"
