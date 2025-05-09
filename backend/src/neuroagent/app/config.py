@@ -57,6 +57,14 @@ class SettingsKeycloak(BaseModel):
         return f"{self.issuer}/protocol/openid-connect/userinfo"
 
 
+class SettingsObiOne(BaseModel):
+    """Settings of the OBI-One endpoints."""
+
+    url: str = "https://openbraininstitute.org/api/obi-one"
+
+    model_config = ConfigDict(frozen=True)
+
+
 class SettingsWebSearch(BaseModel):
     """Literature search API settings."""
 
@@ -145,6 +153,7 @@ class SettingsTools(BaseModel):
     """Database settings."""
 
     literature: SettingsLiterature = SettingsLiterature()
+    obi_one: SettingsObiOne = SettingsObiOne()
     bluenaas: SettingsBlueNaaS = SettingsBlueNaaS()
     morpho: SettingsGetMorpho = SettingsGetMorpho()
     trace: SettingsTrace = SettingsTrace()

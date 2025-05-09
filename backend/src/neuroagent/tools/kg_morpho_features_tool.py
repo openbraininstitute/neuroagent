@@ -183,7 +183,6 @@ class KGMorphoFeatureTool(BaseTool):
     ] = """Searches a neuroscience based knowledge graph to retrieve neuron morphology features based on a brain region of interest.
     Use this tool if and only if the user specifies explicitely certain features of morphology, and potentially the range of values expected.
     Requires a 'brain_region_id' and a dictionary with keys 'label' (and optionally 'compartment' and 'feat_range') describing the feature(s) specified by the user.
-    The morphology ID is in the form of an HTTP(S) link such as 'https://bbp.epfl.ch/neurosciencegraph/data/neuronmorphologies...'.
     The output is a list of morphologies, containing:
     - The brain region ID.
     - The brain region name.
