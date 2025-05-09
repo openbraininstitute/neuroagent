@@ -6,7 +6,7 @@ from pathlib import Path
 import httpx
 import pytest
 
-from neuroagent.tools import MorphologyFeatureTool
+from neuroagent.tools import MorphologyFeatureToolOld
 from neuroagent.tools.morphology_features_tool_old import (
     MorphologyFeatureInput,
     MorphologyFeatureMetadata,
@@ -43,7 +43,7 @@ class TestMorphologyFeatureTool:
             content=morphology_content,
         )
 
-        tool = MorphologyFeatureTool(
+        tool = MorphologyFeatureToolOld(
             metadata=MorphologyFeatureMetadata(
                 knowledge_graph_url=url,
                 httpx_client=httpx.AsyncClient(),
@@ -62,7 +62,7 @@ class TestMorphologyFeatureTool:
         url = "http://fake_url"
         morphology_id = "https://bbp.epfl.ch/neurosciencegraph/data/neuronmorphologies/046fb11c-8de8-42e8-9303-9d5a65ac04b9"
 
-        tool = MorphologyFeatureTool(
+        tool = MorphologyFeatureToolOld(
             metadata=MorphologyFeatureMetadata(
                 knowledge_graph_url=url,
                 httpx_client=httpx.AsyncClient(),
@@ -91,7 +91,7 @@ class TestMorphologyFeatureTool:
         url = "http://fake_url"
         morphology_id = "https://bbp.epfl.ch/neurosciencegraph/data/neuronmorphologies/046fb11c-8de8-42e8-9303-9d5a65ac04b9"
 
-        tool = MorphologyFeatureTool(
+        tool = MorphologyFeatureToolOld(
             metadata=MorphologyFeatureMetadata(
                 knowledge_graph_url=url,
                 httpx_client=httpx.AsyncClient(),
