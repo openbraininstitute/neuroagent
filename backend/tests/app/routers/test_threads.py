@@ -484,3 +484,36 @@ async def test_get_thread_messages_paginated(
     assert messages_results[1]["creation_date"] > messages_results[2]["creation_date"]
 
     assert len(page_2["results"]) == 1
+
+
+@pytest.mark.httpx_mock(can_send_already_matched_responses=True)
+@pytest.mark.asyncio
+async def test_get_thread_messages_empty_paginated(
+    patch_required_env,
+    httpx_mock,
+    app_client,
+    db_connection,
+):
+    mock_keycloak_user_identification(httpx_mock)
+    test_settings = Settings(
+        db={"prefix": db_connection}, keycloak={"issuer": "https://great_issuer.com"}
+    )
+    app.dependency_overrides[get_settings] = lambda: test_settings
+
+    with app_client as app_client:
+        # Create a thread
+        create_output = app_client.post(
+            "/threads",
+        ).json()
+        thread = create_output["thread_id"]
+        # Get the messages of the thread
+        messages = app_client.get(
+            f"/threads/{thread}/messages", params={"page_size": 3}
+        ).json()
+
+    assert set(messages.keys()) == {"next_cursor", "has_more", "page_size", "results"}
+
+    assert messages["page_size"] == 3
+    assert messages["next_cursor"] is None
+    assert not messages["has_more"]
+    assert len(messages["results"]) == 0

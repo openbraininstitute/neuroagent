@@ -244,4 +244,4 @@ export class CustomError extends Error {
 }
 
 export const threadPageSize = "25";
-export const messagePageSize = "10";
+export const messagePageSize = "25";

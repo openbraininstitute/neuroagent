@@ -271,6 +271,15 @@ async def get_thread_messages(
         .limit(pagination_params.page_size + 1)
     )
     db_messages = messages_result.scalars().all()
+
+    if not db_messages:
+        return PaginatedResponse(
+            next_cursor=None,
+            has_more=False,
+            page_size=pagination_params.page_size,
+            results=[],
+        )
+
     has_more = len(db_messages) > pagination_params.page_size
     db_messages = db_messages[:-1] if has_more else db_messages
 
