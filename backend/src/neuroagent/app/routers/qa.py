@@ -150,7 +150,7 @@ async def question_suggestions(
             - The last element in each session is the user’s most recent click and thus the most relevant.
 
             Task:
-            Given the user’s navigation history and recent messages, generate one short, literature-focused question they might ask next. Prioritize their latest interactions. The question should be:
+            Given the user’s navigation history, generate one short, literature-focused question they might ask next. Prioritize their latest interactions. The question should be:
             - Directly related to searching for scientific papers
             - Engaging and motivate the user to interact with the chat.
             - Clear and concise
