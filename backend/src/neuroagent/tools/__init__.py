@@ -16,7 +16,6 @@ from neuroagent.tools.literature_search_tool import (
     ParagraphMetadata,
 )
 from neuroagent.tools.morpho_metrics_tool import MorphoMetricsTool
-from neuroagent.tools.morphology_features_tool_old import MorphologyFeatureToolOld
 from neuroagent.tools.morphology_viewer import MorphologyViewerTool
 from neuroagent.tools.now import NowTool
 from neuroagent.tools.resolve_entities_tool import ResolveEntitiesTool
@@ -37,7 +36,6 @@ __all__ = [
     "MEModelGetAllTool",
     "MEModelGetOneTool",
     "MorphoMetricsTool",
-    "MorphologyFeatureToolOld",
     "MorphologyViewerTool",
     "NowTool",
     "ParagraphMetadata",

@@ -177,7 +177,6 @@ def get_tool_list() -> list[type[BaseTool]]:
         ElectrophysFeatureTool,
         GetMorphoTool,
         KGMorphoFeatureTool,
-        # MorphologyFeatureToolOld,
         MorphoMetricsTool,
         ResolveEntitiesTool,
         GetTracesTool,
