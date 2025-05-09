@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.1]
+
+### Added
+- Suggestions inside chat.
+
+### Fixed
+- Make `docker build` work on ARM
+
 ## [v0.5.0] - 24.04.2025
 
 ### Fixed
