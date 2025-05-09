@@ -2,7 +2,7 @@
 
 import { useChat } from "ai/react";
 import { useEffect, useRef, useState } from "react";
-import type { MessageStrict } from "@/lib/types";
+import { BMessage, BMessageUser, type MessageStrict } from "@/lib/types";
 import { env } from "@/lib/env";
 import { useSession } from "next-auth/react";
 import { ExtendedSession } from "@/lib/auth";
@@ -11,16 +11,21 @@ import { ChatInputInsideThread } from "@/components/chat/chat-input-inside-threa
 import { ChatMessagesInsideThread } from "@/components/chat/chat-messages-inside-thread";
 import { generateEditTitle } from "@/actions/generate-edit-thread";
 import { toast } from "sonner";
+import { useGetMessageNextPage } from "@/hooks/get-message-page";
+import { convertToAiMessages } from "@/lib/utils";
+import { md5 } from "js-md5";
 
 type ChatPageProps = {
   threadId: string;
-  initialMessages: MessageStrict[];
+  initialMessages: BMessage[];
+  initialNextCursor?: string;
   availableTools: Array<{ slug: string; label: string }>;
 };
 
 export function ChatPage({
   threadId,
   initialMessages,
+  initialNextCursor,
   availableTools,
 }: ChatPageProps) {
   const { data: session } = useSession() as { data: ExtendedSession | null };
@@ -34,6 +39,27 @@ export function ChatPage({
   const [isAutoScrollEnabled, setIsAutoScrollEnabled] = useState(true);
   const containerRef = useRef<HTMLDivElement>(null);
   const [stopped, setStopped] = useState(false);
+  const [isInvalidating, setIsInvalidating] = useState(false);
+
+  const {
+    data,
+    fetchPreviousPage,
+    hasPreviousPage,
+    isFetchingPreviousPage,
+    isFetching,
+  } = useGetMessageNextPage(threadId, {
+    pages: [
+      {
+        messages: initialMessages,
+        nextCursor: initialNextCursor,
+      },
+    ],
+    pageParams: [null],
+  });
+
+  const retrievedMessages = convertToAiMessages(
+    data?.pages.flatMap((page) => page.messages) ?? [],
+  );
 
   const {
     messages: messagesRaw,
@@ -49,7 +75,7 @@ export function ChatPage({
     headers: {
       Authorization: `Bearer ${session?.accessToken}`,
     },
-    initialMessages,
+    initialMessages: retrievedMessages,
     experimental_prepareRequestBody: ({ messages }) => {
       const lastMessage = messages[messages.length - 1];
       const selectedTools = Object.keys(checkedTools).filter(
@@ -70,10 +96,17 @@ export function ChatPage({
   useEffect(() => {
     if (initialMessages.length === 0 && newMessage !== "") {
       initialMessages.push({
-        id: "temp_id",
-        role: "user",
-        content: newMessage,
-      });
+        entity: "user",
+        message_id: "temp_id",
+        msg_content: {
+          role: "user",
+          content: newMessage,
+        },
+        creation_date: new Date().toString(),
+        thread_id: threadId,
+        is_complete: true,
+        tool_calls: [],
+      } as BMessageUser);
       generateEditTitle(null, threadId, newMessage);
       setNewMessage("");
       handleSubmit(undefined, { allowEmptySubmit: true });
@@ -99,8 +132,28 @@ export function ChatPage({
     }; // If message complete, don't set stopped
 
     setStopped(shouldBeStopped());
+
+    // Ping the scroll mechanism to trigger page retrieval
+    // if not scrollable with first page
+    const el = containerRef.current!;
+    if (el.scrollHeight <= el.clientHeight + 40) {
+      handleScroll();
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // Empty dependency array means this runs once on mount
+
+  useEffect(() => {
+    if (isInvalidating || isFetching) return;
+    // Set retrieved DB messaged as current messages
+    if (!stopped) {
+      setMessages(() => [
+        ...retrievedMessages,
+        ...messages.filter((m) => m.id.length !== 32),
+      ]);
+    } else {
+      setMessages(retrievedMessages);
+    }
+  }, [md5(JSON.stringify(retrievedMessages))]); // Rerun on content change
 
   useEffect(() => {
     if (isAutoScrollEnabled) {
@@ -212,11 +265,45 @@ export function ChatPage({
     }
   }, [error, messages, setMessages]);
 
+  // Fetch next page and avoid jumping to earlier messages
+  const handleScroll = async () => {
+    const el = containerRef.current!;
+
+    // translates to: (scrolled to top OR window not full of messages) AND more pages left AND not currently fetching
+    const shouldTryLoad =
+      (el.scrollTop === 0 || el.scrollHeight <= el.clientHeight + 40) &&
+      hasPreviousPage &&
+      !isFetchingPreviousPage &&
+      !isLoading;
+
+    if (!shouldTryLoad) return;
+    let prevPageCount = data?.pages.length ?? 0;
+    while (true) {
+      const oldHeight = el.scrollHeight + 40;
+      const result = await fetchPreviousPage();
+      await new Promise(requestAnimationFrame);
+      // bump scroll so the user stays in place
+      el.scrollTop = el.scrollHeight - oldHeight;
+
+      // Check if we got a new page
+      const newPageCount = result.data?.pages.length ?? prevPageCount;
+      if (newPageCount === prevPageCount) break;
+      prevPageCount = newPageCount;
+
+      // Check if the container is tall enough
+      if (el.scrollHeight > el.clientHeight + 40) break;
+    }
+  };
+
   return (
     <div className="flex h-full flex-col">
+      {isFetchingPreviousPage && (
+        <div className="mx-auto mt-4 h-6 w-6 animate-spin rounded-full border-2 border-gray-500 border-t-transparent" />
+      )}
       <div
         ref={containerRef}
         onWheel={handleWheel}
+        onScroll={handleScroll}
         className="flex flex-1 flex-col overflow-y-auto"
       >
         <ChatMessagesInsideThread
@@ -233,6 +320,7 @@ export function ChatPage({
         isLoading={isLoading}
         availableTools={availableTools}
         checkedTools={checkedTools}
+        threadId={threadId}
         setCheckedTools={setCheckedTools}
         handleInputChange={handleInputChange}
         handleSubmit={handleSubmit}
@@ -241,6 +329,7 @@ export function ChatPage({
         onStop={stop}
         stopped={stopped}
         setStopped={setStopped}
+        setIsInvalidating={setIsInvalidating}
       />
     </div>
   );
