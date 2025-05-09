@@ -15,7 +15,7 @@ from neuroagent.tools.literature_search_tool import (
     LiteratureSearchTool,
     ParagraphMetadata,
 )
-from neuroagent.tools.morphology_features_tool import MorphoMetricsTool
+from neuroagent.tools.morpho_metrics_tool import MorphoMetricsTool
 from neuroagent.tools.morphology_features_tool_old import MorphologyFeatureToolOld
 from neuroagent.tools.morphology_viewer import MorphologyViewerTool
 from neuroagent.tools.now import NowTool

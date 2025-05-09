@@ -31,9 +31,9 @@ class MorphoMetricsMetadata(BaseMetadata):
 
 
 class MorphoMetricsTool(BaseTool):
-    """Morphology feature computing tool."""
+    """Morphometrics tool."""
 
-    name: ClassVar[str] = "MorphoMetrics-tool"
+    name: ClassVar[str] = "morpho-metrics-tool"
     name_frontend: ClassVar[str] = "MorphoMetrics"
     description: ClassVar[str] = (
         """Given a morphology ID, fetch data about the features of the morphology."""
@@ -52,7 +52,7 @@ class MorphoMetricsTool(BaseTool):
     async def arun(self) -> MorphologyMetricsOutput:
         """Run the morphology feature extraction logic."""
         logger.info(
-            f"Entering morphology feature tool. Inputs: {self.input_schema.model_dump()}"
+            f"Entering MorphoMetrics tool. Inputs: {self.input_schema.model_dump()}"
         )
 
         morpho_metrics_response = await self.metadata.httpx_client.get(
@@ -64,18 +64,17 @@ class MorphoMetricsTool(BaseTool):
                         "virtual-lab-id": self.metadata.vlab_id,
                         "project-id": self.metadata.project_id,
                     }
-                    if self.metadata.vlab_id is not None
-                    and self.metadata.project_id is not None
+                    if self.metadata.vlab_id and self.metadata.project_id
                     else {}
                 ),
             },
         )
-        breakpoint()
+
         if morpho_metrics_response.status_code != 200:
             raise ValueError(
                 f"The morpho metrics endpoint returned a non 200 response code. Error: {morpho_metrics_response.text}"
             )
-
+        logger.info(morpho_metrics_response.json())
         return MorphologyMetricsOutput(**morpho_metrics_response.json())
 
     @classmethod
