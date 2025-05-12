@@ -70,7 +70,7 @@ async def noop_accounting_context(*args: Any, **kwargs: Any) -> AsyncIterator[No
     yield None
 
 
-@router.post("/question_suggestions/")
+@router.post("/question_suggestions")
 async def question_suggestions(
     openai_client: Annotated[AsyncOpenAI, Depends(get_openai_client)],
     settings: Annotated[Settings, Depends(get_settings)],
@@ -79,6 +79,8 @@ async def question_suggestions(
     fastapi_response: Response,
     session: Annotated[AsyncSession, Depends(get_session)],
     body: QuestionsSuggestionsRequest,
+    vlab_id: str | None = None,
+    project_id: str | None = None,
 ) -> QuestionsSuggestions:
     """Generate suggested question taking into account the user journey and the user previous messages."""
     if body.thread_id is None:
@@ -87,33 +89,33 @@ async def question_suggestions(
     else:
         # We have to call get_thread explicitely.
         thread = await get_thread(user_info, body.thread_id, session)
-        vlab_id = thread.vlab_id
-        project_id = thread.project_id
-        if vlab_id is not None and project_id is not None:
-            validate_project(
-                groups=user_info.groups,
-                virtual_lab_id=vlab_id,
-                project_id=project_id,
-            )
-            limit = settings.rate_limiter.limit_suggestions_inside
-        else:
-            limit = settings.rate_limiter.limit_suggestions_outside
 
-        limit_headers, rate_limited = await rate_limit(
-            redis_client=redis_client,
-            route_path="/qa/question_suggestions",
-            limit=limit,
-            expiry=settings.rate_limiter.expiry_suggestions,
-            user_sub=user_info.sub,
+    if vlab_id is not None and project_id is not None:
+        validate_project(
+            groups=user_info.groups,
+            virtual_lab_id=vlab_id,
+            project_id=project_id,
         )
-        if rate_limited:
-            raise HTTPException(
-                status_code=429,
-                detail={"error": "Rate limit exceeded"},
-                headers=limit_headers.model_dump(by_alias=True),
-            )
-        fastapi_response.headers.update(limit_headers.model_dump(by_alias=True))
+        limit = settings.rate_limiter.limit_suggestions_inside
+    else:
+        limit = settings.rate_limiter.limit_suggestions_outside
 
+    limit_headers, rate_limited = await rate_limit(
+        redis_client=redis_client,
+        route_path="/qa/question_suggestions",
+        limit=limit,
+        expiry=settings.rate_limiter.expiry_suggestions,
+        user_sub=user_info.sub,
+    )
+    if rate_limited:
+        raise HTTPException(
+            status_code=429,
+            detail={"error": "Rate limit exceeded"},
+            headers=limit_headers.model_dump(by_alias=True),
+        )
+    fastapi_response.headers.update(limit_headers.model_dump(by_alias=True))
+
+    if body.thread_id is not None:
         # Get the AI and User messages from the conversation :
         messages_result = await session.execute(
             select(Messages)
