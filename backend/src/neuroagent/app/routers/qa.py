@@ -130,72 +130,70 @@ async def question_suggestions(
     messages = [
         {
             "role": "system",
-            "content": f"""You are a smart assistant that analyzes user behavior
-        {"and conversation history" if is_in_chat else ""} to suggest {"three" if is_in_chat else "one"} concise, engaging {"questions" if is_in_chat else "question"}
-        the user might ask next—specifically about finding relevant literature.
+            "content": """You are a smart assistant that analyzes user behavior and, optionally, their conversation history to suggest three concise,
+            engaging questions the user might ask next—specifically about finding relevant scientific literature.
 
-        Platform Context:
-        The Open Brain Platform provides an atlas-driven exploration of the mouse brain, with access to:
-        - Neuron morphology (axon, soma, dendrite structures)
-        - Electrophysiology (electrical recordings of neuronal activity)
-        - Ion channels
-        - Neuron density
-        - Bouton density
-        - Synapse-per-connection counts
-        - Electrical models (“E-models”)
-        - Morpho-electrical models (“ME-models”)
-        - Synaptome (network of neuronal connections)
+            Platform Context:
+            The Open Brain Platform provides an atlas-driven exploration of the mouse brain, offering access to:
+            - Neuron morphology (axon, soma, dendrite structures)
+            - Electrophysiology (electrical recordings of neuronal activity)
+            - Ion channels
+            - Neuron density
+            - Bouton density
+            - Synapse-per-connection counts
+            - Electrical models (“E-models”)
+            - Morpho-electrical models (“ME-models”)
+            - Synaptome (network of neuronal connections)
 
-        Users can:
-        1. Explore and build digital brain models at scales from molecular to whole-region circuits
-        2. Customize or create new cellular-composition models
-        3. Run simulations and perform data analyses
-        4. Access both Experimental and Model data
+            User Capabilities:
+            - Explore and build digital brain models at scales ranging from molecular to whole-region circuits.
+            - Customize or create new cellular-composition models.
+            - Run simulations and perform data analyses.
+            - Access both experimental and model data.
 
-        User History Format:
-        - user_history is a list of navigation sessions.
-        - Each session is a sequence of clicks:
-        * ['brain_region', <region_name>]
-        * ['artifact', <artifact_type>]
-        * ['data_type', <"Experimental data" | "Model Data">]
-        - Artifacts include:
-        * Morphology
-        * Electrophysiology
-        * Neuron density
-        * Bouton density
-        * Synapse per connection
-        * E-model
-        * ME-model
-        * Synaptome
-        - The last element in each session is the user’s most recent click and thus the most relevant.
+            User Journey Format:
+            - User journey is a list of navigation sessions.
+            - Each session is a sequence of clicks:
+            * ['brain_region', <region_name>]
+            * ['artifact', <artifact_type>]
+            * ['data_type', <"Experimental data" | "Model Data">]
+            - Artifacts may include:
+            * Morphology
+            * Electrophysiology
+            * Neuron density
+            * Bouton density
+            * Synapse per connection
+            * E-model
+            * ME-model
+            * Synaptome
+            - The last element in each session is the user’s most recent click, making it the most relevant.
 
-        Task:
-        Given the user’s navigation history{" and recent messages" if is_in_chat else ""}, generate {"three" if is_in_chat else "one"} short,
-        literature-focused {"questions" if is_in_chat else "question"} they might ask next.
-        Prioritize their latest interactions{" but weigh the content of their messages more heavily than their click history" if is_in_chat else ""}.
+            Task:
+            Using the user’s navigation history and, if available, their recent messages, generate three short, literature-focused questions they might ask next.
+            - Prioritize the most recent user interactions.
+            - Weigh the content of their messages more heavily than their click history when messages are available.
+            - If the user messages are empty, rely solely on their navigation history.
 
-        Each question should be:
-        - Directly related to searching for scientific papers
-        - Clear and concise
-        - Focused on literature retrieval only""",
+            Each question must:
+            - Directly relate to searching for scientific papers.
+            - Be clear, concise, and easy to understand.
+            - Focus exclusively on literature retrieval.""",
         },
         {
             "role": "user",
             "content": "USER JOURNEY: "
             + json.dumps(body.click_history)
+            + "\n USER MESSAGES : \n"
             + (
-                (
-                    "\n USER MESSAGES : \n"
-                    + json.dumps(
-                        [
-                            {
-                                k: v
-                                for k, v in json.loads(msg.content).items()
-                                if k in ["role", "content"]
-                            }
-                            for msg in db_messages
-                        ]
-                    )
+                json.dumps(
+                    [
+                        {
+                            k: v
+                            for k, v in json.loads(msg.content).items()
+                            if k in ["role", "content"]
+                        }
+                        for msg in db_messages
+                    ]
                 )
                 if is_in_chat
                 else ""
