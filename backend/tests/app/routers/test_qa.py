@@ -13,7 +13,6 @@ from neuroagent.app.routers import qa
 from neuroagent.app.schemas import (
     Question,
     QuestionsSuggestions,
-    QuestionsSuggestionsInChat,
 )
 from tests.conftest import mock_keycloak_user_identification
 from tests.mock_client import MockOpenAIClient, create_mock_response
@@ -33,19 +32,21 @@ def test_question_suggestions(
     app.dependency_overrides[get_settings] = lambda: test_settings
     mock_openai_client = MockOpenAIClient()
 
-    # First we test the answer when there are no messages in DB (fresh thread)
-    mock_class_response_no_msg = QuestionsSuggestions(
+    mock_class_response = QuestionsSuggestions(
         suggestions=[
-            Question(question="Great question !"),
+            Question(question="Great question 1!"),
+            Question(question="Great question 2!"),
+            Question(question="Great question 3!"),
         ]
     )
-    mock_response_no_msg = create_mock_response(
+    mock_response = create_mock_response(
         {"role": "assistant", "content": "sample response content"},
-        structured_output_class=mock_class_response_no_msg,
+        structured_output_class=mock_class_response,
     )
-    mock_openai_client.set_response(mock_response_no_msg)
+    mock_openai_client.set_response(mock_response)
     app.dependency_overrides[get_openai_client] = lambda: mock_openai_client
 
+    # First we test the answer when there are no messages in DB (fresh thread)
     with app_client as app_client:
         create_output = app_client.post(
             "/threads",
@@ -59,16 +60,16 @@ def test_question_suggestions(
         )
 
     assert response.status_code == 200
-    assert response.json() == mock_class_response_no_msg.model_dump()
+    assert response.json() == mock_class_response.model_dump()
     mock_openai_client.beta.chat.completions.parse.assert_called_with(
         messages=[
             {
                 "role": "system",
-                "content": "You are a smart assistant that analyzes user behavior\n         to suggest one concise, engaging question\n        the user might ask next—specifically about finding relevant literature.\n\n        Platform Context:\n        The Open Brain Platform provides an atlas-driven exploration of the mouse brain, with access to:\n        - Neuron morphology (axon, soma, dendrite structures)\n        - Electrophysiology (electrical recordings of neuronal activity)\n        - Ion channels\n        - Neuron density\n        - Bouton density\n        - Synapse-per-connection counts\n        - Electrical models (“E-models”)\n        - Morpho-electrical models (“ME-models”)\n        - Synaptome (network of neuronal connections)\n\n        Users can:\n        1. Explore and build digital brain models at scales from molecular to whole-region circuits\n        2. Customize or create new cellular-composition models\n        3. Run simulations and perform data analyses\n        4. Access both Experimental and Model data\n\n        User History Format:\n        - user_history is a list of navigation sessions.\n        - Each session is a sequence of clicks:\n        * ['brain_region', <region_name>]\n        * ['artifact', <artifact_type>]\n        * ['data_type', <\"Experimental data\" | \"Model Data\">]\n        - Artifacts include:\n        * Morphology\n        * Electrophysiology\n        * Neuron density\n        * Bouton density\n        * Synapse per connection\n        * E-model\n        * ME-model\n        * Synaptome\n        - The last element in each session is the user’s most recent click and thus the most relevant.\n\n        Task:\n        Given the user’s navigation history, generate one short,\n        literature-focused question they might ask next.\n        Prioritize their latest interactions.\n\n        Each question should be:\n        - Directly related to searching for scientific papers\n        - Clear and concise\n        - Focused on literature retrieval only",
+                "content": "You are a smart assistant that analyzes user behavior and, optionally, their conversation history to suggest three concise,\n            engaging questions the user might ask next—specifically about finding relevant scientific literature.\n\n            Platform Context:\n            The Open Brain Platform provides an atlas-driven exploration of the mouse brain, offering access to:\n            - Neuron morphology (axon, soma, dendrite structures)\n            - Electrophysiology (electrical recordings of neuronal activity)\n            - Ion channels\n            - Neuron density\n            - Bouton density\n            - Synapse-per-connection counts\n            - Electrical models (“E-models”)\n            - Morpho-electrical models (“ME-models”)\n            - Synaptome (network of neuronal connections)\n\n            User Capabilities:\n            - Explore and build digital brain models at scales ranging from molecular to whole-region circuits.\n            - Customize or create new cellular-composition models.\n            - Run simulations and perform data analyses.\n            - Access both experimental and model data.\n\n            User Journey Format:\n            - User journey is a list of navigation sessions.\n            - Each session is a sequence of clicks:\n            * ['brain_region', <region_name>]\n            * ['artifact', <artifact_type>]\n            * ['data_type', <\"Experimental data\" | \"Model Data\">]\n            - Artifacts may include:\n            * Morphology\n            * Electrophysiology\n            * Neuron density\n            * Bouton density\n            * Synapse per connection\n            * E-model\n            * ME-model\n            * Synaptome\n            - The last element in each session is the user’s most recent click, making it the most relevant.\n\n            Task:\n            Using the user’s navigation history and, if available, their recent messages, generate three short, literature-focused questions they might ask next.\n            - Prioritize the most recent user interactions.\n            - Weigh the content of their messages more heavily than their click history when messages are available.\n            - If the user messages are empty, rely solely on their navigation history.\n\n            Each question must:\n            - Directly relate to searching for scientific papers.\n            - Be clear, concise, and easy to understand.\n            - Focus exclusively on literature retrieval.",
             },
             {
                 "role": "user",
-                "content": 'USER JOURNEY: [[["Amzing BR", "Super artifact"]]]',
+                "content": 'USER JOURNEY: \n[[["Amzing BR", "Super artifact"]]]\n USER MESSAGES : \n',
             },
         ],
         model="gpt-4o-mini",
@@ -76,20 +77,6 @@ def test_question_suggestions(
     )
 
     # Then we test with messages in the DB.
-    mock_class_response_with_msg = QuestionsSuggestionsInChat(
-        suggestions=[
-            Question(question="Great question 1!"),
-            Question(question="Great question 2!"),
-            Question(question="Great question 3!"),
-        ]
-    )
-    mock_response_with_msg = create_mock_response(
-        {"role": "assistant", "content": "sample response content"},
-        structured_output_class=mock_class_response_with_msg,
-    )
-    mock_openai_client.set_response(mock_response_with_msg)
-    app.dependency_overrides[get_openai_client] = lambda: mock_openai_client
-
     db_items, _ = populate_db
     thread = db_items["thread"]
 
@@ -102,20 +89,20 @@ def test_question_suggestions(
         )
 
     assert response.status_code == 200
-    assert response.json() == mock_class_response_with_msg.model_dump()
+    assert response.json() == mock_class_response.model_dump()
     mock_openai_client.beta.chat.completions.parse.assert_called_with(
         messages=[
             {
                 "role": "system",
-                "content": "You are a smart assistant that analyzes user behavior\n        and conversation history to suggest three concise, engaging questions\n        the user might ask next—specifically about finding relevant literature.\n\n        Platform Context:\n        The Open Brain Platform provides an atlas-driven exploration of the mouse brain, with access to:\n        - Neuron morphology (axon, soma, dendrite structures)\n        - Electrophysiology (electrical recordings of neuronal activity)\n        - Ion channels\n        - Neuron density\n        - Bouton density\n        - Synapse-per-connection counts\n        - Electrical models (“E-models”)\n        - Morpho-electrical models (“ME-models”)\n        - Synaptome (network of neuronal connections)\n\n        Users can:\n        1. Explore and build digital brain models at scales from molecular to whole-region circuits\n        2. Customize or create new cellular-composition models\n        3. Run simulations and perform data analyses\n        4. Access both Experimental and Model data\n\n        User History Format:\n        - user_history is a list of navigation sessions.\n        - Each session is a sequence of clicks:\n        * ['brain_region', <region_name>]\n        * ['artifact', <artifact_type>]\n        * ['data_type', <\"Experimental data\" | \"Model Data\">]\n        - Artifacts include:\n        * Morphology\n        * Electrophysiology\n        * Neuron density\n        * Bouton density\n        * Synapse per connection\n        * E-model\n        * ME-model\n        * Synaptome\n        - The last element in each session is the user’s most recent click and thus the most relevant.\n\n        Task:\n        Given the user’s navigation history and recent messages, generate three short,\n        literature-focused questions they might ask next.\n        Prioritize their latest interactions but weigh the content of their messages more heavily than their click history.\n\n        Each question should be:\n        - Directly related to searching for scientific papers\n        - Clear and concise\n        - Focused on literature retrieval only",
+                "content": "You are a smart assistant that analyzes user behavior and, optionally, their conversation history to suggest three concise,\n            engaging questions the user might ask next—specifically about finding relevant scientific literature.\n\n            Platform Context:\n            The Open Brain Platform provides an atlas-driven exploration of the mouse brain, offering access to:\n            - Neuron morphology (axon, soma, dendrite structures)\n            - Electrophysiology (electrical recordings of neuronal activity)\n            - Ion channels\n            - Neuron density\n            - Bouton density\n            - Synapse-per-connection counts\n            - Electrical models (“E-models”)\n            - Morpho-electrical models (“ME-models”)\n            - Synaptome (network of neuronal connections)\n\n            User Capabilities:\n            - Explore and build digital brain models at scales ranging from molecular to whole-region circuits.\n            - Customize or create new cellular-composition models.\n            - Run simulations and perform data analyses.\n            - Access both experimental and model data.\n\n            User Journey Format:\n            - User journey is a list of navigation sessions.\n            - Each session is a sequence of clicks:\n            * ['brain_region', <region_name>]\n            * ['artifact', <artifact_type>]\n            * ['data_type', <\"Experimental data\" | \"Model Data\">]\n            - Artifacts may include:\n            * Morphology\n            * Electrophysiology\n            * Neuron density\n            * Bouton density\n            * Synapse per connection\n            * E-model\n            * ME-model\n            * Synaptome\n            - The last element in each session is the user’s most recent click, making it the most relevant.\n\n            Task:\n            Using the user’s navigation history and, if available, their recent messages, generate three short, literature-focused questions they might ask next.\n            - Prioritize the most recent user interactions.\n            - Weigh the content of their messages more heavily than their click history when messages are available.\n            - If the user messages are empty, rely solely on their navigation history.\n\n            Each question must:\n            - Directly relate to searching for scientific papers.\n            - Be clear, concise, and easy to understand.\n            - Focus exclusively on literature retrieval.",
             },
             {
                 "role": "user",
-                "content": 'USER JOURNEY: [[["Amzing BR", "Super artifact"]]]\n USER MESSAGES : \n[{"content": "This is my query."}, {"content": "sample response content."}]',
+                "content": 'USER JOURNEY: \n[[["Amzing BR", "Super artifact"]]]\n USER MESSAGES : \n[{"content": "This is my query."}, {"content": "sample response content."}]',
             },
         ],
         model="gpt-4o-mini",
-        response_format=QuestionsSuggestionsInChat,
+        response_format=QuestionsSuggestions,
     )
 
 
