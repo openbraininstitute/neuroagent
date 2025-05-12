@@ -129,12 +129,6 @@ class UserInfo(BaseModel):
     email: str | None = None
 
 
-class UserClickHistory(BaseModel):
-    """Complete recorded history of the user."""
-
-    click_history: list[list[list[str]]]
-
-
 class Question(BaseModel):
     """One suggested question by the LLM."""
 
@@ -147,3 +141,10 @@ class QuestionsSuggestions(BaseModel):
     suggestions: list[Question] = conlist(  # type: ignore
         item_type=Question, min_length=3, max_length=3
     )
+
+
+class QuestionsSuggestionsRequest(BaseModel):
+    """Request for the suggestion endpoint."""
+
+    click_history: list[list[list[str]]]
+    thread_id: str | None = None

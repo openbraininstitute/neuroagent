@@ -50,7 +50,7 @@ from neuroagent.app.dependencies import (
 )
 from neuroagent.app.schemas import (
     QuestionsSuggestions,
-    UserClickHistory,
+    QuestionsSuggestionsRequest,
     UserInfo,
 )
 from neuroagent.app.stream import stream_agent_response
@@ -70,61 +70,65 @@ async def noop_accounting_context(*args: Any, **kwargs: Any) -> AsyncIterator[No
     yield None
 
 
-@router.post("/question_suggestions")
+@router.post("/question_suggestions/")
 async def question_suggestions(
     openai_client: Annotated[AsyncOpenAI, Depends(get_openai_client)],
     settings: Annotated[Settings, Depends(get_settings)],
-    body: UserClickHistory,
     user_info: Annotated[UserInfo, Depends(get_user_info)],
     redis_client: Annotated[aioredis.Redis | None, Depends(get_redis_client)],
     fastapi_response: Response,
-    thread: Annotated[Threads, Depends(get_thread)],
     session: Annotated[AsyncSession, Depends(get_session)],
+    body: QuestionsSuggestionsRequest,
 ) -> QuestionsSuggestions:
     """Generate suggested question taking into account the user journey and the user previous messages."""
-    vlab_id = thread.vlab_id
-    project_id = thread.project_id
-    if vlab_id is not None and project_id is not None:
-        validate_project(
-            groups=user_info.groups,
-            virtual_lab_id=vlab_id,
-            project_id=project_id,
-        )
-        limit = settings.rate_limiter.limit_suggestions_inside
+    if body.thread_id is None:
+        # if there is no thread ID, we simply go without messages.
+        is_in_chat = False
     else:
-        limit = settings.rate_limiter.limit_suggestions_outside
+        # We have to call get_thread explicitely.
+        thread = await get_thread(user_info, body.thread_id, session)
+        vlab_id = thread.vlab_id
+        project_id = thread.project_id
+        if vlab_id is not None and project_id is not None:
+            validate_project(
+                groups=user_info.groups,
+                virtual_lab_id=vlab_id,
+                project_id=project_id,
+            )
+            limit = settings.rate_limiter.limit_suggestions_inside
+        else:
+            limit = settings.rate_limiter.limit_suggestions_outside
 
-    limit_headers, rate_limited = await rate_limit(
-        redis_client=redis_client,
-        route_path="/qa/question_suggestions",
-        limit=limit,
-        expiry=settings.rate_limiter.expiry_suggestions,
-        user_sub=user_info.sub,
-    )
-    if rate_limited:
-        raise HTTPException(
-            status_code=429,
-            detail={"error": "Rate limit exceeded"},
-            headers=limit_headers.model_dump(by_alias=True),
+        limit_headers, rate_limited = await rate_limit(
+            redis_client=redis_client,
+            route_path="/qa/question_suggestions",
+            limit=limit,
+            expiry=settings.rate_limiter.expiry_suggestions,
+            user_sub=user_info.sub,
         )
-    fastapi_response.headers.update(limit_headers.model_dump(by_alias=True))
+        if rate_limited:
+            raise HTTPException(
+                status_code=429,
+                detail={"error": "Rate limit exceeded"},
+                headers=limit_headers.model_dump(by_alias=True),
+            )
+        fastapi_response.headers.update(limit_headers.model_dump(by_alias=True))
 
-    # Get the AI and User messages from the conversation :
-    messages_result = await session.execute(
-        select(Messages)
-        .where(
-            Messages.thread_id == thread.thread_id,
-            or_(
-                Messages.entity == Entity.USER,
-                Messages.entity == Entity.AI_MESSAGE,
-            ),
+        # Get the AI and User messages from the conversation :
+        messages_result = await session.execute(
+            select(Messages)
+            .where(
+                Messages.thread_id == thread.thread_id,
+                or_(
+                    Messages.entity == Entity.USER,
+                    Messages.entity == Entity.AI_MESSAGE,
+                ),
+            )
+            .order_by(Messages.creation_date)
         )
-        .order_by(Messages.creation_date)
-    )
-    db_messages = messages_result.unique().scalars().all()
+        db_messages = messages_result.unique().scalars().all()
 
-    # Depending if we are in chat or not, we change the prompt and output format.
-    is_in_chat = bool(db_messages)
+        is_in_chat = bool(db_messages)
 
     messages = [
         {
