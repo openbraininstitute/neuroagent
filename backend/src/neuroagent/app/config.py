@@ -114,6 +114,13 @@ class SettingsBlueNaaS(BaseModel):
     model_config = ConfigDict(frozen=True)
 
 
+class SettingsEntityCore(BaseModel):
+    """Entitycore settings."""
+
+    url: str = "https://staging.openbraininstitute.org/api/entitycore"
+    model_config = ConfigDict(frozen=True)
+
+
 class SettingsKnowledgeGraph(BaseModel):
     """Knowledge graph API settings."""
 
@@ -235,6 +242,7 @@ class Settings(BaseSettings):
     """All settings."""
 
     tools: SettingsTools
+    entitycore: SettingsEntityCore = SettingsEntityCore()
     knowledge_graph: SettingsKnowledgeGraph = SettingsKnowledgeGraph()
     agent: SettingsAgent = SettingsAgent()  # has no required
     db: SettingsDB = SettingsDB()  # has no required

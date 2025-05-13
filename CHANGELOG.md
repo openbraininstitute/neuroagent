@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- get morpho tool now uses entitycore.
+
 ## [0.5.3]
 
 ### Fixed

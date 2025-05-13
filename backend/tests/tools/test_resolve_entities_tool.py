@@ -1,5 +1,7 @@
 """Test the revole_brain_region_tool."""
 
+import json
+
 import pytest
 from httpx import AsyncClient
 
@@ -15,53 +17,27 @@ from neuroagent.tools.resolve_entities_tool import (
 
 
 @pytest.mark.asyncio
-async def test_arun(httpx_mock, get_resolve_query_output):
-    # Mock exact match to fail
-    httpx_mock.add_response(
-        url="http://fake_sparql_url.com/78",
-        json={
-            "head": {"vars": ["subject", "predicate", "object", "context"]},
-            "results": {"bindings": []},
-        },
-    )
+async def test_arun(httpx_mock):
+    with open("tests/data/entitycore_brain_region.json") as f:
+        reponse_brain_region = json.load(f)
 
-    # Hit fuzzy match
-    httpx_mock.add_response(
-        url="http://fake_sparql_url.com/78",
-        json=get_resolve_query_output[2],
-    )
+    with open("tests/data/entitycore_mtype.json") as f:
+        mtypes_region = json.load(f)
 
-    # Hit ES match
     httpx_mock.add_response(
-        url="http://fake_class_url.com/78",
-        json=get_resolve_query_output[4],
+        url="http://fake_entitycore_url.com/78/brain-region?page_size=500&name__ilike=Field",
+        json=reponse_brain_region,
     )
-
-    # Mock exact match to fail (mtype)
     httpx_mock.add_response(
-        url="http://fake_sparql_url.com/78",
-        json={
-            "head": {"vars": ["subject", "predicate", "object", "context"]},
-            "results": {"bindings": []},
-        },
-    )
-
-    # Hit fuzzy match (mtype)
-    httpx_mock.add_response(
-        url="http://fake_sparql_url.com/78",
-        json=get_resolve_query_output[3],
-    )
-    # Hit ES match (mtype).
-    httpx_mock.add_response(
-        url="http://fake_class_url.com/78", json=get_resolve_query_output[5]
+        url="http://fake_entitycore_url.com/78/mtype?page_size=100&pref_label=Interneu",
+        json=mtypes_region,
     )
 
     tool = ResolveEntitiesTool(
         metadata=ResolveBRMetadata(
             token="greattokenpleasedontexpire",
             httpx_client=AsyncClient(timeout=None),
-            kg_sparql_url="http://fake_sparql_url.com/78",
-            kg_class_view_url="http://fake_class_url.com/78",
+            entitycore_url="http://fake_entitycore_url.com/78",
         ),
         input_schema=ResolveBRInput(
             brain_region="Field", mtype="Interneu", etype="bAC"
@@ -73,33 +49,54 @@ async def test_arun(httpx_mock, get_resolve_query_output):
     assert response == ResolveEntitiesToolOutput(
         brain_regions=[
             BRResolveOutput(
-                brain_region_name="Field CA1",
-                brain_region_id="http://api.brain-map.org/api/v2/data/Structure/382",
+                brain_region_name="Thalamus",
+                brain_region_id="5b8d11ba-a0ec-4e5a-a487-8d19586d7f41",
             ),
             BRResolveOutput(
-                brain_region_name="Field CA2",
-                brain_region_id="http://api.brain-map.org/api/v2/data/Structure/423",
+                brain_region_name="Epithalamus",
+                brain_region_id="b934718f-2d49-4ca2-81f4-317df5141524",
             ),
             BRResolveOutput(
-                brain_region_name="Field CA3",
-                brain_region_id="http://api.brain-map.org/api/v2/data/Structure/463",
+                brain_region_name="Hypothalamus",
+                brain_region_id="b75db71e-a453-4fe9-b48f-653e7b1bcb6b",
+            ),
+            BRResolveOutput(
+                brain_region_name="Thalamus: Other",
+                brain_region_id="84caa7c8-a159-4b4f-b901-726fc421325a",
+            ),
+            BRResolveOutput(
+                brain_region_name="thalamus related",
+                brain_region_id="41a93f90-dc82-4527-9da3-b7e2cad6e514",
+            ),
+            BRResolveOutput(
+                brain_region_name="epithalamus related",
+                brain_region_id="fb82860d-eabc-48d0-b341-facdff0ac0f1",
+            ),
+            BRResolveOutput(
+                brain_region_name="Hypothalamus: Other",
+                brain_region_id="bad4c288-0bf5-4ed8-b93c-2989c399fd7f",
+            ),
+            BRResolveOutput(
+                brain_region_name="hypothalamus related",
+                brain_region_id="37176e84-d977-4993-bc49-d76fcfc6e625",
+            ),
+            BRResolveOutput(
+                brain_region_name="dorsal thalamus related",
+                brain_region_id="5f3f5638-3870-4a14-b490-b6081dfc8352",
+            ),
+            BRResolveOutput(
+                brain_region_name="Ethmoid nucleus of the thalamus",
+                brain_region_id="68adc28f-8463-416a-be65-6befe0efc989",
             ),
         ],
         mtypes=[
             MTypeResolveOutput(
-                mtype_name="Interneuron",
-                mtype_id="https://neuroshapes.org/Interneuron",
-            ),
-            MTypeResolveOutput(
-                mtype_name="Hippocampus CA3 Oriens Interneuron",
-                mtype_id="http://uri.interlex.org/base/ilx_0105044",
-            ),
-            MTypeResolveOutput(
-                mtype_name="Spinal Cord Ventral Horn Interneuron IA",
-                mtype_id="http://uri.interlex.org/base/ilx_0110929",
+                mtype_name="Pyramidal Neuron",
+                mtype_id="1a2b8f1f-f1fd-42a2-9755-d4c13a902931",
             ),
         ],
         etype=ETypeResolveOutput(
-            etype_name="bAC", etype_id="http://uri.interlex.org/base/ilx_0738199"
+            etype_name="bAC",
+            etype_id="http://uri.interlex.org/base/ilx_0738199",
         ),
     )
