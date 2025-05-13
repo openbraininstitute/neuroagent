@@ -10,6 +10,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - get morpho tool now uses entitycore.
 
+## [0.5.3]
+
+### Fixed
+- Suggestion enpoint.
+
+## [0.5.2]
+
+### Changed
+- Merge two suggestion endpoints.
+
+## [0.5.1]
+
+### Added
+- Suggestions inside chat.
+
 ### Fixed
 - Make `docker build` work on ARM
 

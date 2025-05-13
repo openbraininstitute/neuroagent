@@ -20,6 +20,8 @@ from obp_accounting_sdk.constants import ServiceSubtype
 from openai import AsyncOpenAI
 from redis import asyncio as aioredis
 from semantic_router import SemanticRouter
+from sqlalchemy import or_, select
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from neuroagent.agent_routine import AgentsRoutine
 from neuroagent.app.app_utils import (
@@ -40,12 +42,17 @@ from neuroagent.app.dependencies import (
     get_openai_client,
     get_redis_client,
     get_semantic_routes,
+    get_session,
     get_settings,
     get_starting_agent,
     get_thread,
     get_user_info,
 )
-from neuroagent.app.schemas import QuestionsSuggestions, UserClickHistory, UserInfo
+from neuroagent.app.schemas import (
+    QuestionsSuggestions,
+    QuestionsSuggestionsRequest,
+    UserInfo,
+)
 from neuroagent.app.stream import stream_agent_response
 from neuroagent.new_types import (
     Agent,
@@ -67,14 +74,22 @@ async def noop_accounting_context(*args: Any, **kwargs: Any) -> AsyncIterator[No
 async def question_suggestions(
     openai_client: Annotated[AsyncOpenAI, Depends(get_openai_client)],
     settings: Annotated[Settings, Depends(get_settings)],
-    body: UserClickHistory,
     user_info: Annotated[UserInfo, Depends(get_user_info)],
     redis_client: Annotated[aioredis.Redis | None, Depends(get_redis_client)],
     fastapi_response: Response,
+    session: Annotated[AsyncSession, Depends(get_session)],
+    body: QuestionsSuggestionsRequest,
     vlab_id: str | None = None,
     project_id: str | None = None,
-) -> QuestionsSuggestions | None:
-    """Generate a short thread title based on the user's first message and update thread's title."""
+) -> QuestionsSuggestions:
+    """Generate suggested question taking into account the user journey and the user previous messages."""
+    if body.thread_id is None:
+        # if there is no thread ID, we simply go without messages.
+        is_in_chat = False
+    else:
+        # We have to call get_thread explicitely.
+        thread = await get_thread(user_info, body.thread_id, session)
+
     if vlab_id is not None and project_id is not None:
         validate_project(
             groups=user_info.groups,
@@ -100,26 +115,95 @@ async def question_suggestions(
         )
     fastapi_response.headers.update(limit_headers.model_dump(by_alias=True))
 
-    # Send it to OpenAI longside with the system prompt asking for summary
+    if body.thread_id is not None:
+        # Get the AI and User messages from the conversation :
+        messages_result = await session.execute(
+            select(Messages)
+            .where(
+                Messages.thread_id == thread.thread_id,
+                or_(
+                    Messages.entity == Entity.USER,
+                    Messages.entity == Entity.AI_MESSAGE,
+                ),
+            )
+            .order_by(Messages.creation_date)
+        )
+        db_messages = messages_result.unique().scalars().all()
+
+        is_in_chat = bool(db_messages)
+
     messages = [
         {
             "role": "system",
-            "content": "We provide a description of the platform, the open brain platform allows an atlas driven exploration of the mouse brain with different artifacts "
-            "related to experimental and model data and more specifically neuron morphology (neuron structure including axons, soma and dendrite), electrophysiological recording "
-            "(ie the electrical behavior of the neuron), ion channel, neuron density, bouton density, synapses, connections, electrical models also referred to as e-models, me-models "
-            "which is the model of neuron with a specific morphology and electrical type, and the synaptome dictating how neurons are connected together. "
-            "The platform also allows user to explore and build digital brain models at different scales ranging from molecular level to single neuron and larger circuits and brain regions. "
-            "Users can also customize the models or create their own ones and change the cellular composition, and then run simulation experiments and perform analysis. "
-            "The user is navigating on the website, and we record the last elements he accessed on the website. Here is what the user's history will look like :"
-            "user_history = [[['brain_region', 'example'], ['artifact', 'example'], ['artifact', 'example'], ['artifact', 'example']], [['brain_region', 'example'], ['artifact', 'example']]]"
-            "'brain_region' can be any region of the mouse brain."
-            "'artifact' can be :  'Morphology','Electrophysiology','Neuron density','Bouton density','Synapse per connection','E-model','ME-model','Synaptome' "
-            "and 'data_type' can be 'Experimental data' or 'Model Data'"
-            "The last element of the list represents the last click of the user, so it should naturally be more relevant."
-            "From the user history, try to infer the user's intent on the platform. From it generate some questions the user might want to ask to a chatbot that is able to search for papers in the literature."
-            "The questions should only be about the literature. Each question should be short and concise. In total there should not be more than one question.",
+            "content": """You are a smart assistant that analyzes user behavior and, optionally, their conversation history to suggest three concise,
+            engaging questions the user might ask next—specifically about finding relevant scientific literature.
+
+            Platform Context:
+            The Open Brain Platform provides an atlas-driven exploration of the mouse brain, offering access to:
+            - Neuron morphology (axon, soma, dendrite structures)
+            - Electrophysiology (electrical recordings of neuronal activity)
+            - Ion channels
+            - Neuron density
+            - Bouton density
+            - Synapse-per-connection counts
+            - Electrical models (“E-models”)
+            - Morpho-electrical models (“ME-models”)
+            - Synaptome (network of neuronal connections)
+
+            User Capabilities:
+            - Explore and build digital brain models at scales ranging from molecular to whole-region circuits.
+            - Customize or create new cellular-composition models.
+            - Run simulations and perform data analyses.
+            - Access both experimental and model data.
+
+            User Journey Format:
+            - User journey is a list of navigation sessions.
+            - Each session is a sequence of clicks:
+            * ['brain_region', <region_name>]
+            * ['artifact', <artifact_type>]
+            * ['data_type', <"Experimental data" | "Model Data">]
+            - Artifacts may include:
+            * Morphology
+            * Electrophysiology
+            * Neuron density
+            * Bouton density
+            * Synapse per connection
+            * E-model
+            * ME-model
+            * Synaptome
+            - The last element in each session is the user’s most recent click, making it the most relevant.
+
+            Task:
+            Using the user’s navigation history and, if available, their recent messages, generate three short, literature-focused questions they might ask next.
+            - Prioritize the most recent user interactions.
+            - Weigh the content of their messages more heavily than their click history when messages are available.
+            - If the user messages are empty, rely solely on their navigation history.
+
+            Each question must:
+            - Directly relate to searching for scientific papers.
+            - Be clear, concise, and easy to understand.
+            - Focus exclusively on literature retrieval.""",
         },
-        {"role": "user", "content": json.dumps(body.click_history)},
+        {
+            "role": "user",
+            "content": "USER JOURNEY: \n"
+            + json.dumps(body.click_history)
+            + "\n USER MESSAGES : \n"
+            + (
+                json.dumps(
+                    [
+                        {
+                            k: v
+                            for k, v in json.loads(msg.content).items()
+                            if k in ["role", "content"]
+                        }
+                        for msg in db_messages
+                    ]
+                )
+                if is_in_chat
+                else ""
+            ),
+        },
     ]
 
     response = await openai_client.beta.chat.completions.parse(
@@ -128,7 +212,7 @@ async def question_suggestions(
         response_format=QuestionsSuggestions,
     )
 
-    return response.choices[0].message.parsed
+    return response.choices[0].message.parsed  # type: ignore
 
 
 @router.post("/chat_streamed/{thread_id}")
