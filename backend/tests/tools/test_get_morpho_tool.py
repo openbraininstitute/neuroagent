@@ -32,13 +32,14 @@ class TestGetMorphoTool:
 
         # Mock the KG API response
         httpx_mock.add_response(
-            url=url + "/reconstruction-morphology?brain_region_id=549&page_size=2",
+            url=url
+            + "/reconstruction-morphology?page_size=2&within_brain_region_hierachy_id=e3e70682-c209-4cac-a29f-6fbed82c07cd&within_brain_region_brain_region_id=random_UUID&within_brain_region_ascendants=false",
             json=entitycore_response,
         )
 
         tool = GetMorphoTool(
             input_schema=GetMorphoInput(
-                brain_region_id="brain_region_id_link/549",
+                brain_region_id="random_UUID",
                 mtype_id=None,
             ),
             metadata=GetMorphoMetadata(
@@ -51,7 +52,7 @@ class TestGetMorphoTool:
 
         response = await tool.arun()
         assert isinstance(response, GetMorphoToolOutput)
-        assert len(response.morphologies) == 6
+        assert len(response.morphologies) == 10
         assert isinstance(response.morphologies[0], MorphologieOutput)
 
     @pytest.mark.asyncio
@@ -60,7 +61,7 @@ class TestGetMorphoTool:
 
         httpx_mock.add_response(
             url=url
-            + "/reconstruction-morphology?brain_region_id=bad&page_size=2&mtype__id=brain_region_id_link%2Fsuperbad",
+            + "/reconstruction-morphology?page_size=2&within_brain_region_hierachy_id=e3e70682-c209-4cac-a29f-6fbed82c07cd&within_brain_region_brain_region_id=bad_UUID&within_brain_region_ascendants=false&mtype__id=superbad",
             json={},
         )
 
@@ -69,8 +70,8 @@ class TestGetMorphoTool:
 
         tool = GetMorphoTool(
             input_schema=GetMorphoInput(
-                brain_region_id="brain_region_id_link/bad",
-                mtype_id="brain_region_id_link/superbad",
+                brain_region_id="bad_UUID",
+                mtype_id="superbad",
             ),
             metadata=GetMorphoMetadata(
                 entitycore_url=url,

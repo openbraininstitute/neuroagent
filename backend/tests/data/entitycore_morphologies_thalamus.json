@@ -1,1 +1,1798 @@
-{"data": [{"assets": [{"path": "AA0753.swc", "full_path": "public/a98b7abc-fc46-4700-9e3d-37137812c730/0dbced5f-cc3d-488a-8c7f-cfb8ea039dc6/assets/reconstruction_morphology/75779f7b-1fa1-4a2b-917a-a4c34f3095ed/AA0753.swc", "is_directory": false, "content_type": "application/swc", "size": 126264, "sha256_digest": "fa4d6e80ab6510e2a1c28c0ee20bf0e29e61546518bd51786c72d9f903d6f550", "meta": {"legacy": {"name": "AA0753.swc", "@type": "DataDownload", "digest": {"value": "fa4d6e80ab6510e2a1c28c0ee20bf0e29e61546518bd51786c72d9f903d6f550", "algorithm": "SHA-256"}, "atLocation": {"@type": "Location", "store": {"@id": "nxv:diskStorageDefault", "_rev": 1, "@type": "DiskStorage"}}, "contentUrl": "https://bbp.epfl.ch/nexus/v1/files/bbp/mouselight/https%3A%2F%2Fbbp.epfl.ch%2Fneurosciencegraph%2Fdata%2F174ae592-769f-42ca-b8a0-27eab333ca8a", "contentSize": {"value": 126264, "unitCode": "bytes"}, "encodingFormat": "application/swc"}}, "id": "109b1fce-1af4-4922-9cde-033dc77e4f0a", "status": "created"}, {"path": "AA0753.asc", "full_path": "public/a98b7abc-fc46-4700-9e3d-37137812c730/0dbced5f-cc3d-488a-8c7f-cfb8ea039dc6/assets/reconstruction_morphology/75779f7b-1fa1-4a2b-917a-a4c34f3095ed/AA0753.asc", "is_directory": false, "content_type": "application/asc", "size": 263160, "sha256_digest": "fb029bcf918424472779c8a2580854788aca3994979808f3ea25144d4b206507", "meta": {"legacy": {"name": "AA0753.asc", "@type": "DataDownload", "digest": {"value": "fb029bcf918424472779c8a2580854788aca3994979808f3ea25144d4b206507", "algorithm": "SHA-256"}, "atLocation": {"@type": "Location", "store": {"@id": "nxv:diskStorageDefault", "_rev": 1, "@type": "DiskStorage"}}, "contentUrl": "https://bbp.epfl.ch/nexus/v1/files/bbp/mouselight/https%3A%2F%2Fbbp.epfl.ch%2Fneurosciencegraph%2Fdata%2F55146cf4-7900-476c-b143-33aebd141d56", "contentSize": {"value": 263160, "unitCode": "bytes"}, "encodingFormat": "application/asc"}}, "id": "107574e6-88c1-44cb-9af8-9891f1c28915", "status": "created"}, {"path": "AA0753.h5", "full_path": "public/a98b7abc-fc46-4700-9e3d-37137812c730/0dbced5f-cc3d-488a-8c7f-cfb8ea039dc6/assets/reconstruction_morphology/75779f7b-1fa1-4a2b-917a-a4c34f3095ed/AA0753.h5", "is_directory": false, "content_type": "application/h5", "size": 57448, "sha256_digest": "207dbd46011ab0edae039b1c4e11cd6893a3019764356e66d95c2ce87cc277ef", "meta": {"legacy": {"name": "AA0753.h5", "@type": "DataDownload", "digest": {"value": "207dbd46011ab0edae039b1c4e11cd6893a3019764356e66d95c2ce87cc277ef", "algorithm": "SHA-256"}, "atLocation": {"@type": "Location", "store": {"@id": "nxv:diskStorageDefault", "_rev": 1, "@type": "DiskStorage"}}, "contentUrl": "https://bbp.epfl.ch/nexus/v1/files/bbp/mouselight/https%3A%2F%2Fbbp.epfl.ch%2Fneurosciencegraph%2Fdata%2F342778fa-80c9-4c74-9ce6-5dc2ca0cf64e", "contentSize": {"value": 57448, "unitCode": "bytes"}, "encodingFormat": "application/h5"}}, "id": "73199764-ed81-485e-8698-0cdad07561d9", "status": "created"}], "authorized_project_id": "0dbced5f-cc3d-488a-8c7f-cfb8ea039dc6", "authorized_public": true, "license": {"id": "78e51061-7311-48a3-82ce-6f447ed4d57b", "creation_date": "2024-01-10T15:59:39.020534Z", "update_date": "2024-01-16T14:51:28.690684Z", "name": "https://creativecommons.org/licenses/by-nc/4.0/", "description": "Creative Commons Corporation (\"Creative Commons\") is not a law firm and does not provide legal services or legal advice. Distribution of Creative Commons public licenses does not create a lawyer-client or other relationship. Creative Commons makes its licenses and related information available on an \"as-is\" basis. Creative Commons gives no warranties regarding its licenses, any material licensed under their terms and conditions, or any related information. Creative Commons disclaims all liability for damages resulting from their use to the fullest extent possible.", "label": "CC BY-NC 4.0 Deed"}, "id": "75779f7b-1fa1-4a2b-917a-a4c34f3095ed", "creation_date": "2022-06-16T12:46:53.630000Z", "update_date": "2024-10-29T13:46:37.672666Z", "name": "AA0753", "description": "Annotation Space: CCFv3.0 Axes> X: Anterior-Posterior; Y: Inferior-Superior; Z:Left-Right", "location": {"x": 8798.874973, "y": 3811.39414175, "z": 7850.43269999999}, "legacy_id": ["https://bbp.epfl.ch/neurosciencegraph/data/neuronmorphologies/99f707b2-542d-420e-87e8-258d1f7f1c96"], "species": {"id": "0895fa61-fa6d-4674-9014-7300f9edf8da", "creation_date": "2025-04-28T09:11:58.130376Z", "update_date": "2025-04-28T09:11:58.130376Z", "name": "Mus musculus", "taxonomy_id": "NCBITaxon:10090"}, "strain": {"id": "0655599c-110d-4780-a1cb-be71dbfc735b", "creation_date": "2025-04-28T09:12:02.746791Z", "update_date": "2025-04-28T09:12:02.746791Z", "name": "C57BL/6N", "taxonomy_id": "https://phenome.jax.org/strains/138", "species_id": "0895fa61-fa6d-4674-9014-7300f9edf8da"}, "brain_region": {"creation_date": "2025-04-28T09:11:43.773337Z", "update_date": "2025-04-28T09:11:43.773337Z", "id": 549, "name": "Thalamus", "acronym": "TH", "children": [864, 856, 2614168502]}, "contributions": [{"id": "46db7bf0-74aa-472f-a4cd-dc42fb91eb3c", "creation_date": "2025-04-28T09:12:24.657511Z", "update_date": "2025-04-28T09:12:24.657511Z", "agent": {"id": "57670d2f-fee2-4d5e-9c2b-12ecd24c91c6", "creation_date": "2022-06-17T13:47:31.787000Z", "update_date": "2022-09-30T08:02:01.303000Z", "pref_label": "Janelia Research Campus", "alternative_name": "", "type": "organization"}, "role": {"id": "8b06e557-277b-4b0c-a439-bfb02d41927c", "creation_date": "2025-04-28T09:11:58.141207Z", "update_date": "2025-04-28T09:11:58.141207Z", "name": "unspecified", "role_id": "unspecified"}}], "mtypes": [{"creation_date": "2020-09-23T09:25:26.789000Z", "update_date": "2024-11-22T10:56:23.277102Z", "id": "cd447e35-b8b6-48fe-842e-3d437204e52d", "pref_label": "Interneuron", "alt_label": "Interneuron", "definition": "An interneuron is a type of neuron that acts as a connector or messenger between other neurons within the brain and spinal cord, and is often connected using inhibitory synapses. Interneurons process messages between neurons, helping to coordinate and integrate information within the nervous system."}]}, {"assets": [{"path": "AA0339.swc", "full_path": "public/a98b7abc-fc46-4700-9e3d-37137812c730/0dbced5f-cc3d-488a-8c7f-cfb8ea039dc6/assets/reconstruction_morphology/80a29d67-5216-4a12-8ebd-2eac59ca5897/AA0339.swc", "is_directory": false, "content_type": "application/swc", "size": 263151, "sha256_digest": "859a37ba32e1992cd93005ca213f993113167d0d3d3a3ed95623efd22a0c3b6b", "meta": {"legacy": {"name": "AA0339.swc", "@type": "DataDownload", "digest": {"value": "859a37ba32e1992cd93005ca213f993113167d0d3d3a3ed95623efd22a0c3b6b", "algorithm": "SHA-256"}, "atLocation": {"@type": "Location", "store": {"@id": "https://bbp.epfl.ch/neurosciencegraph/data/8dd2500e-09eb-4378-acf7-467de53a6b95", "_rev": 1, "@type": "RemoteDiskStorage"}, "location": "file:///gpfs/bbp.cscs.ch/data/project/proj125/nexus/28599960-827e-4622-add0-f7718e6806fb/f/8/4/b/6/9/3/8/AA0339.swc"}, "contentUrl": "https://bbp.epfl.ch/nexus/v1/files/public/thalamus/https%3A%2F%2Fbbp.epfl.ch%2Fneurosciencegraph%2Fdata%2F2e2a7e52-7781-4fe4-86e3-db6a06d86ed4", "contentSize": {"value": 263151, "unitCode": "bytes"}, "encodingFormat": "application/swc"}}, "id": "352472ca-c708-4ee0-a65c-07fec5c4c20e", "status": "created"}, {"path": "AA0339.asc", "full_path": "public/a98b7abc-fc46-4700-9e3d-37137812c730/0dbced5f-cc3d-488a-8c7f-cfb8ea039dc6/assets/reconstruction_morphology/80a29d67-5216-4a12-8ebd-2eac59ca5897/AA0339.asc", "is_directory": false, "content_type": "application/asc", "size": 481513, "sha256_digest": "92cdd4fd3465b172e74ab4896bbe7817ef64d97b5a4ecb34113048eb5d53ee23", "meta": {"legacy": {"name": "AA0339.asc", "@type": "DataDownload", "digest": {"value": "92cdd4fd3465b172e74ab4896bbe7817ef64d97b5a4ecb34113048eb5d53ee23", "algorithm": "SHA-256"}, "atLocation": {"@type": "Location", "store": {"@id": "https://bbp.epfl.ch/neurosciencegraph/data/8dd2500e-09eb-4378-acf7-467de53a6b95", "_rev": 1, "@type": "RemoteDiskStorage"}, "location": "file:///gpfs/bbp.cscs.ch/data/project/proj125/nexus/28599960-827e-4622-add0-f7718e6806fb/3/2/5/4/6/f/9/f/AA0339.asc"}, "contentUrl": "https://bbp.epfl.ch/nexus/v1/files/public/thalamus/https%3A%2F%2Fbbp.epfl.ch%2Fneurosciencegraph%2Fdata%2F2f735ee6-1a34-4291-81c2-15155f2d8a8f", "contentSize": {"value": 481513, "unitCode": "bytes"}, "encodingFormat": "application/asc"}}, "id": "92a5f5be-6ec7-4ace-a1ff-e70d11421892", "status": "created"}], "authorized_project_id": "0dbced5f-cc3d-488a-8c7f-cfb8ea039dc6", "authorized_public": true, "license": {"id": "78e51061-7311-48a3-82ce-6f447ed4d57b", "creation_date": "2024-01-10T15:59:39.020534Z", "update_date": "2024-01-16T14:51:28.690684Z", "name": "https://creativecommons.org/licenses/by-nc/4.0/", "description": "Creative Commons Corporation (\"Creative Commons\") is not a law firm and does not provide legal services or legal advice. Distribution of Creative Commons public licenses does not create a lawyer-client or other relationship. Creative Commons makes its licenses and related information available on an \"as-is\" basis. Creative Commons gives no warranties regarding its licenses, any material licensed under their terms and conditions, or any related information. Creative Commons disclaims all liability for damages resulting from their use to the fullest extent possible.", "label": "CC BY-NC 4.0 Deed"}, "id": "80a29d67-5216-4a12-8ebd-2eac59ca5897", "creation_date": "2021-03-31T13:19:55.310000Z", "update_date": "2024-10-29T13:37:41.781386Z", "name": "AA0339 in CCFv2.5", "description": "This is a morphology reconstruction of a mouse thalamus cell that was obtained from the Janelia Mouselight project http://ml-neuronbrowser.janelia.org/ and was used in part or in whole to construct some of the cells used in the circuit of (Iavarone, et al., 2023) https://doi.org/10.1016/j.celrep.2023.112200 . This morphology is positioned in the Mouselight custom \"CCFv2.5\" reference space, instead of the Allen Institute CCFv3 reference space.", "location": null, "legacy_id": ["https://bbp.epfl.ch/neurosciencegraph/data/593af8e8-5b0b-4c39-bde5-b737ad72be0f"], "species": {"id": "0895fa61-fa6d-4674-9014-7300f9edf8da", "creation_date": "2025-04-28T09:11:58.130376Z", "update_date": "2025-04-28T09:11:58.130376Z", "name": "Mus musculus", "taxonomy_id": "NCBITaxon:10090"}, "strain": null, "brain_region": {"creation_date": "2025-04-28T09:11:43.773337Z", "update_date": "2025-04-28T09:11:43.773337Z", "id": 549, "name": "Thalamus", "acronym": "TH", "children": [864, 856, 2614168502]}, "contributions": [{"id": "770c3ea0-fcba-4388-a1d0-7b6b4035efbd", "creation_date": "2025-04-28T09:12:41.386018Z", "update_date": "2025-04-28T09:12:41.386018Z", "agent": {"id": "62827e2b-827e-4ca2-98eb-c32d30a3e121", "creation_date": "2021-04-14T09:57:39.783000Z", "update_date": "2024-04-22T14:40:10.927467Z", "givenName": "Chandrashekarj", "familyName": "Jayaram", "pref_label": "Chandrashekarj Jayaram", "type": "person"}, "role": {"id": "8a9adc46-1599-4ccb-af8b-ca9771008ddd", "creation_date": "2025-04-28T09:12:18.789628Z", "update_date": "2025-04-28T09:12:18.789628Z", "name": "supervision role", "role_id": "http://purl.org/credit/ontology#CREDIT_00000010"}}, {"id": "a39f396a-9fc0-4a91-ad86-765a08b10342", "creation_date": "2025-04-28T09:12:41.388219Z", "update_date": "2025-04-28T09:12:41.388219Z", "agent": {"id": "5c0972b1-5822-4194-879b-38caf1509089", "creation_date": "2021-04-14T09:58:30.609000Z", "update_date": "2021-04-14T09:58:30.609000Z", "pref_label": "Howard Hughes Medical Institute", "alternative_name": "", "type": "organization"}, "role": {"id": "8b06e557-277b-4b0c-a439-bfb02d41927c", "creation_date": "2025-04-28T09:11:58.141207Z", "update_date": "2025-04-28T09:11:58.141207Z", "name": "unspecified", "role_id": "unspecified"}}], "mtypes": [{"creation_date": "2020-03-16T10:34:53.590000Z", "update_date": "2024-11-22T11:21:54.788367Z", "id": "f18dd1ee-d77c-46c0-884f-3dd6415af341", "pref_label": "TH_TC", "alt_label": "Thalamus thalamo-cortical cell", "definition": "Thalamocortical Cell, from the thalamus region (TH). Thalamocortical (TC) cells are the main neuron celltype of the excitatory nuclei (regions) of the thalamus. They project to the cortex, the reticular thalamic nucleus (RT), and elsewhere, and they receive inputs from cortex, RT, ascending sensory inputs, and elsewhere. The reconstructed morphologies belonging to this M-type may have been analyzed using the methods in (Iavarone, et al., 2019, https://doi.org/10.1371/journal.pcbi.1006753 ) and may have been used as a member of the 'VPL_TC' M-type in (Iavarone, et al., 2023, https://doi.org/10.1016/j.celrep.2023.112200 )."}]}, {"assets": [{"path": "AA0349.swc", "full_path": "public/a98b7abc-fc46-4700-9e3d-37137812c730/0dbced5f-cc3d-488a-8c7f-cfb8ea039dc6/assets/reconstruction_morphology/6112afd4-0237-46f7-8f02-d76a5fe7a817/AA0349.swc", "is_directory": false, "content_type": "application/swc", "size": 257041, "sha256_digest": "de1d3872038321eac52d478f0f4feb616c3f53142a05fb48fb176af17df887a1", "meta": {"legacy": {"name": "AA0349.swc", "@type": "DataDownload", "digest": {"value": "de1d3872038321eac52d478f0f4feb616c3f53142a05fb48fb176af17df887a1", "algorithm": "SHA-256"}, "atLocation": {"@type": "Location", "store": {"@id": "https://bbp.epfl.ch/neurosciencegraph/data/8dd2500e-09eb-4378-acf7-467de53a6b95", "_rev": 1, "@type": "RemoteDiskStorage"}, "location": "file:///gpfs/bbp.cscs.ch/data/project/proj125/nexus/28599960-827e-4622-add0-f7718e6806fb/d/3/8/8/0/f/3/f/AA0349.swc"}, "contentUrl": "https://bbp.epfl.ch/nexus/v1/files/public/thalamus/https%3A%2F%2Fbbp.epfl.ch%2Fneurosciencegraph%2Fdata%2F075fa81c-1cf5-4809-90c4-1cba990e2833", "contentSize": {"value": 257041, "unitCode": "bytes"}, "encodingFormat": "application/swc"}}, "id": "0271f61a-a8b0-46fe-9137-67d8e4103188", "status": "created"}, {"path": "AA0349.asc", "full_path": "public/a98b7abc-fc46-4700-9e3d-37137812c730/0dbced5f-cc3d-488a-8c7f-cfb8ea039dc6/assets/reconstruction_morphology/6112afd4-0237-46f7-8f02-d76a5fe7a817/AA0349.asc", "is_directory": false, "content_type": "application/asc", "size": 515471, "sha256_digest": "0a89614fe1863fe5f0f765def0c597d37bcbff1780aeec4b9a2149fd555673ca", "meta": {"legacy": {"name": "AA0349.asc", "@type": "DataDownload", "digest": {"value": "0a89614fe1863fe5f0f765def0c597d37bcbff1780aeec4b9a2149fd555673ca", "algorithm": "SHA-256"}, "atLocation": {"@type": "Location", "store": {"@id": "https://bbp.epfl.ch/neurosciencegraph/data/8dd2500e-09eb-4378-acf7-467de53a6b95", "_rev": 1, "@type": "RemoteDiskStorage"}, "location": "file:///gpfs/bbp.cscs.ch/data/project/proj125/nexus/28599960-827e-4622-add0-f7718e6806fb/b/f/e/d/0/a/e/5/AA0349.asc"}, "contentUrl": "https://bbp.epfl.ch/nexus/v1/files/public/thalamus/https%3A%2F%2Fbbp.epfl.ch%2Fneurosciencegraph%2Fdata%2F3a6e898c-9dda-4505-b1c3-5bb3228c62ad", "contentSize": {"value": 515471, "unitCode": "bytes"}, "encodingFormat": "application/asc"}}, "id": "e62eae23-acc4-472a-8e1a-54003f8a431a", "status": "created"}], "authorized_project_id": "0dbced5f-cc3d-488a-8c7f-cfb8ea039dc6", "authorized_public": true, "license": {"id": "78e51061-7311-48a3-82ce-6f447ed4d57b", "creation_date": "2024-01-10T15:59:39.020534Z", "update_date": "2024-01-16T14:51:28.690684Z", "name": "https://creativecommons.org/licenses/by-nc/4.0/", "description": "Creative Commons Corporation (\"Creative Commons\") is not a law firm and does not provide legal services or legal advice. Distribution of Creative Commons public licenses does not create a lawyer-client or other relationship. Creative Commons makes its licenses and related information available on an \"as-is\" basis. Creative Commons gives no warranties regarding its licenses, any material licensed under their terms and conditions, or any related information. Creative Commons disclaims all liability for damages resulting from their use to the fullest extent possible.", "label": "CC BY-NC 4.0 Deed"}, "id": "6112afd4-0237-46f7-8f02-d76a5fe7a817", "creation_date": "2021-03-31T13:19:55.169000Z", "update_date": "2024-10-29T13:37:52.867026Z", "name": "AA0349 in CCFv2.5", "description": "This is a morphology reconstruction of a mouse thalamus cell that was obtained from the Janelia Mouselight project http://ml-neuronbrowser.janelia.org/ and was used in part or in whole to construct some of the cells used in the circuit of (Iavarone, et al., 2023) https://doi.org/10.1016/j.celrep.2023.112200 . This morphology is positioned in the Mouselight custom \"CCFv2.5\" reference space, instead of the Allen Institute CCFv3 reference space.", "location": null, "legacy_id": ["https://bbp.epfl.ch/neurosciencegraph/data/54814393-857b-4602-bfcc-cf579fa946f8"], "species": {"id": "0895fa61-fa6d-4674-9014-7300f9edf8da", "creation_date": "2025-04-28T09:11:58.130376Z", "update_date": "2025-04-28T09:11:58.130376Z", "name": "Mus musculus", "taxonomy_id": "NCBITaxon:10090"}, "strain": null, "brain_region": {"creation_date": "2025-04-28T09:11:43.773337Z", "update_date": "2025-04-28T09:11:43.773337Z", "id": 549, "name": "Thalamus", "acronym": "TH", "children": [864, 856, 2614168502]}, "contributions": [{"id": "5ba9a68a-fe15-4f62-94cf-e26d81dd21c3", "creation_date": "2025-04-28T09:12:25.568501Z", "update_date": "2025-04-28T09:12:25.568501Z", "agent": {"id": "5c0972b1-5822-4194-879b-38caf1509089", "creation_date": "2021-04-14T09:58:30.609000Z", "update_date": "2021-04-14T09:58:30.609000Z", "pref_label": "Howard Hughes Medical Institute", "alternative_name": "", "type": "organization"}, "role": {"id": "8b06e557-277b-4b0c-a439-bfb02d41927c", "creation_date": "2025-04-28T09:11:58.141207Z", "update_date": "2025-04-28T09:11:58.141207Z", "name": "unspecified", "role_id": "unspecified"}}, {"id": "ae1caf27-9bb8-4488-a81c-bc94e88a7227", "creation_date": "2025-04-28T09:12:25.570571Z", "update_date": "2025-04-28T09:12:25.570571Z", "agent": {"id": "62827e2b-827e-4ca2-98eb-c32d30a3e121", "creation_date": "2021-04-14T09:57:39.783000Z", "update_date": "2024-04-22T14:40:10.927467Z", "givenName": "Chandrashekarj", "familyName": "Jayaram", "pref_label": "Chandrashekarj Jayaram", "type": "person"}, "role": {"id": "8a9adc46-1599-4ccb-af8b-ca9771008ddd", "creation_date": "2025-04-28T09:12:18.789628Z", "update_date": "2025-04-28T09:12:18.789628Z", "name": "supervision role", "role_id": "http://purl.org/credit/ontology#CREDIT_00000010"}}], "mtypes": [{"creation_date": "2020-03-16T10:34:53.590000Z", "update_date": "2024-11-22T11:21:54.788367Z", "id": "f18dd1ee-d77c-46c0-884f-3dd6415af341", "pref_label": "TH_TC", "alt_label": "Thalamus thalamo-cortical cell", "definition": "Thalamocortical Cell, from the thalamus region (TH). Thalamocortical (TC) cells are the main neuron celltype of the excitatory nuclei (regions) of the thalamus. They project to the cortex, the reticular thalamic nucleus (RT), and elsewhere, and they receive inputs from cortex, RT, ascending sensory inputs, and elsewhere. The reconstructed morphologies belonging to this M-type may have been analyzed using the methods in (Iavarone, et al., 2019, https://doi.org/10.1371/journal.pcbi.1006753 ) and may have been used as a member of the 'VPL_TC' M-type in (Iavarone, et al., 2023, https://doi.org/10.1016/j.celrep.2023.112200 )."}]}, {"assets": [{"path": "AA0580.asc", "full_path": "public/a98b7abc-fc46-4700-9e3d-37137812c730/0dbced5f-cc3d-488a-8c7f-cfb8ea039dc6/assets/reconstruction_morphology/ff3a76db-02bd-4300-9330-40c9c6965951/AA0580.asc", "is_directory": false, "content_type": "application/asc", "size": 338623, "sha256_digest": "a7a45f65823d17c9eed46b0786b4df7510057b4b5ebdf00a50eb2950d09694cf", "meta": {"legacy": {"name": "AA0580.asc", "@type": "DataDownload", "digest": {"value": "a7a45f65823d17c9eed46b0786b4df7510057b4b5ebdf00a50eb2950d09694cf", "algorithm": "SHA-256"}, "atLocation": {"@type": "Location", "store": {"@id": "https://bbp.epfl.ch/neurosciencegraph/data/8dd2500e-09eb-4378-acf7-467de53a6b95", "_rev": 1, "@type": "RemoteDiskStorage"}, "location": "file:///gpfs/bbp.cscs.ch/data/project/proj125/nexus/28599960-827e-4622-add0-f7718e6806fb/4/1/d/f/2/1/3/3/AA0580.asc"}, "contentUrl": "https://bbp.epfl.ch/nexus/v1/files/public/thalamus/https%3A%2F%2Fbbp.epfl.ch%2Fneurosciencegraph%2Fdata%2Faf7d1941-1d77-4ca8-b845-1428177ef1af", "contentSize": {"value": 338623, "unitCode": "bytes"}, "encodingFormat": "application/asc"}}, "id": "8194b9d0-35af-4526-bac2-76d9d9e0f98b", "status": "created"}, {"path": "AA0580.swc", "full_path": "public/a98b7abc-fc46-4700-9e3d-37137812c730/0dbced5f-cc3d-488a-8c7f-cfb8ea039dc6/assets/reconstruction_morphology/ff3a76db-02bd-4300-9330-40c9c6965951/AA0580.swc", "is_directory": false, "content_type": "application/swc", "size": 156751, "sha256_digest": "ddf366b9a22916bd00debf3f6ed6704d4a23cac7e77002201d7615c55be0631c", "meta": {"legacy": {"name": "AA0580.swc", "@type": "DataDownload", "digest": {"value": "ddf366b9a22916bd00debf3f6ed6704d4a23cac7e77002201d7615c55be0631c", "algorithm": "SHA-256"}, "atLocation": {"@type": "Location", "store": {"@id": "https://bbp.epfl.ch/neurosciencegraph/data/8dd2500e-09eb-4378-acf7-467de53a6b95", "_rev": 1, "@type": "RemoteDiskStorage"}, "location": "file:///gpfs/bbp.cscs.ch/data/project/proj125/nexus/28599960-827e-4622-add0-f7718e6806fb/9/a/8/4/8/1/2/6/AA0580.swc"}, "contentUrl": "https://bbp.epfl.ch/nexus/v1/files/public/thalamus/https%3A%2F%2Fbbp.epfl.ch%2Fneurosciencegraph%2Fdata%2F28b1aa5e-519b-49cd-9c17-9bbf37d3cade", "contentSize": {"value": 156751, "unitCode": "bytes"}, "encodingFormat": "application/swc"}}, "id": "cfe75fde-be4f-469d-bef2-c11d716a2425", "status": "created"}], "authorized_project_id": "0dbced5f-cc3d-488a-8c7f-cfb8ea039dc6", "authorized_public": true, "license": {"id": "78e51061-7311-48a3-82ce-6f447ed4d57b", "creation_date": "2024-01-10T15:59:39.020534Z", "update_date": "2024-01-16T14:51:28.690684Z", "name": "https://creativecommons.org/licenses/by-nc/4.0/", "description": "Creative Commons Corporation (\"Creative Commons\") is not a law firm and does not provide legal services or legal advice. Distribution of Creative Commons public licenses does not create a lawyer-client or other relationship. Creative Commons makes its licenses and related information available on an \"as-is\" basis. Creative Commons gives no warranties regarding its licenses, any material licensed under their terms and conditions, or any related information. Creative Commons disclaims all liability for damages resulting from their use to the fullest extent possible.", "label": "CC BY-NC 4.0 Deed"}, "id": "ff3a76db-02bd-4300-9330-40c9c6965951", "creation_date": "2021-03-31T13:19:51.771000Z", "update_date": "2024-10-29T13:37:57.471416Z", "name": "AA0580 in CCFv2.5", "description": "This is a morphology reconstruction of a mouse thalamus cell that was obtained from the Janelia Mouselight project http://ml-neuronbrowser.janelia.org/ and was used in part or in whole to construct some of the cells used in the circuit of (Iavarone, et al., 2023) https://doi.org/10.1016/j.celrep.2023.112200 . This morphology is positioned in the Mouselight custom \"CCFv2.5\" reference space, instead of the Allen Institute CCFv3 reference space.", "location": null, "legacy_id": ["https://bbp.epfl.ch/neurosciencegraph/data/7752b01e-4294-4550-befd-bd82d6009fd8"], "species": {"id": "0895fa61-fa6d-4674-9014-7300f9edf8da", "creation_date": "2025-04-28T09:11:58.130376Z", "update_date": "2025-04-28T09:11:58.130376Z", "name": "Mus musculus", "taxonomy_id": "NCBITaxon:10090"}, "strain": null, "brain_region": {"creation_date": "2025-04-28T09:11:43.773337Z", "update_date": "2025-04-28T09:11:43.773337Z", "id": 549, "name": "Thalamus", "acronym": "TH", "children": [864, 856, 2614168502]}, "contributions": [{"id": "80aaa064-75d6-41c4-a773-44166b4f56fd", "creation_date": "2025-04-28T09:12:41.532758Z", "update_date": "2025-04-28T09:12:41.532758Z", "agent": {"id": "5c0972b1-5822-4194-879b-38caf1509089", "creation_date": "2021-04-14T09:58:30.609000Z", "update_date": "2021-04-14T09:58:30.609000Z", "pref_label": "Howard Hughes Medical Institute", "alternative_name": "", "type": "organization"}, "role": {"id": "8b06e557-277b-4b0c-a439-bfb02d41927c", "creation_date": "2025-04-28T09:11:58.141207Z", "update_date": "2025-04-28T09:11:58.141207Z", "name": "unspecified", "role_id": "unspecified"}}, {"id": "b15a455c-0034-4be3-be6f-050352912692", "creation_date": "2025-04-28T09:12:41.534937Z", "update_date": "2025-04-28T09:12:41.534937Z", "agent": {"id": "62827e2b-827e-4ca2-98eb-c32d30a3e121", "creation_date": "2021-04-14T09:57:39.783000Z", "update_date": "2024-04-22T14:40:10.927467Z", "givenName": "Chandrashekarj", "familyName": "Jayaram", "pref_label": "Chandrashekarj Jayaram", "type": "person"}, "role": {"id": "8a9adc46-1599-4ccb-af8b-ca9771008ddd", "creation_date": "2025-04-28T09:12:18.789628Z", "update_date": "2025-04-28T09:12:18.789628Z", "name": "supervision role", "role_id": "http://purl.org/credit/ontology#CREDIT_00000010"}}], "mtypes": [{"creation_date": "2020-03-16T10:34:53.590000Z", "update_date": "2024-11-22T11:21:54.788367Z", "id": "f18dd1ee-d77c-46c0-884f-3dd6415af341", "pref_label": "TH_TC", "alt_label": "Thalamus thalamo-cortical cell", "definition": "Thalamocortical Cell, from the thalamus region (TH). Thalamocortical (TC) cells are the main neuron celltype of the excitatory nuclei (regions) of the thalamus. They project to the cortex, the reticular thalamic nucleus (RT), and elsewhere, and they receive inputs from cortex, RT, ascending sensory inputs, and elsewhere. The reconstructed morphologies belonging to this M-type may have been analyzed using the methods in (Iavarone, et al., 2019, https://doi.org/10.1371/journal.pcbi.1006753 ) and may have been used as a member of the 'VPL_TC' M-type in (Iavarone, et al., 2023, https://doi.org/10.1016/j.celrep.2023.112200 )."}]}, {"assets": [{"path": "AA0756.asc", "full_path": "public/a98b7abc-fc46-4700-9e3d-37137812c730/0dbced5f-cc3d-488a-8c7f-cfb8ea039dc6/assets/reconstruction_morphology/ee9eb274-1a47-4352-9431-48bf4a616c3e/AA0756.asc", "is_directory": false, "content_type": "application/asc", "size": 262314, "sha256_digest": "7b682be9c59e7be06e2fc8c401a7f12f6555952aa5980b911cc5d7287ee511ee", "meta": {"legacy": {"name": "AA0756.asc", "@type": "DataDownload", "digest": {"value": "7b682be9c59e7be06e2fc8c401a7f12f6555952aa5980b911cc5d7287ee511ee", "algorithm": "SHA-256"}, "atLocation": {"@type": "Location", "store": {"@id": "https://bbp.epfl.ch/neurosciencegraph/data/8dd2500e-09eb-4378-acf7-467de53a6b95", "_rev": 1, "@type": "RemoteDiskStorage"}, "location": "file:///gpfs/bbp.cscs.ch/data/project/proj125/nexus/28599960-827e-4622-add0-f7718e6806fb/8/a/d/4/a/7/8/c/AA0756.asc"}, "contentUrl": "https://bbp.epfl.ch/nexus/v1/files/public/thalamus/https%3A%2F%2Fbbp.epfl.ch%2Fneurosciencegraph%2Fdata%2Fb183a5c3-8969-4df4-be78-caac02c15fb6", "contentSize": {"value": 262314, "unitCode": "bytes"}, "encodingFormat": "application/asc"}}, "id": "6af544a3-7920-4042-a025-bb00c730eefa", "status": "created"}, {"path": "AA0756.swc", "full_path": "public/a98b7abc-fc46-4700-9e3d-37137812c730/0dbced5f-cc3d-488a-8c7f-cfb8ea039dc6/assets/reconstruction_morphology/ee9eb274-1a47-4352-9431-48bf4a616c3e/AA0756.swc", "is_directory": false, "content_type": "application/swc", "size": 136195, "sha256_digest": "81da7d18f6e16051082ff023f3a5c33bde24c10cfafabba4338b585254221f1a", "meta": {"legacy": {"name": "AA0756.swc", "@type": "DataDownload", "digest": {"value": "81da7d18f6e16051082ff023f3a5c33bde24c10cfafabba4338b585254221f1a", "algorithm": "SHA-256"}, "atLocation": {"@type": "Location", "store": {"@id": "https://bbp.epfl.ch/neurosciencegraph/data/8dd2500e-09eb-4378-acf7-467de53a6b95", "_rev": 1, "@type": "RemoteDiskStorage"}, "location": "file:///gpfs/bbp.cscs.ch/data/project/proj125/nexus/28599960-827e-4622-add0-f7718e6806fb/6/0/7/0/9/b/e/a/AA0756.swc"}, "contentUrl": "https://bbp.epfl.ch/nexus/v1/files/public/thalamus/https%3A%2F%2Fbbp.epfl.ch%2Fneurosciencegraph%2Fdata%2Fdacee8dd-3539-4320-b94f-56bce0b596bc", "contentSize": {"value": 136195, "unitCode": "bytes"}, "encodingFormat": "application/swc"}}, "id": "c7f9eaf0-9385-4e2f-9d08-e8813679d7a5", "status": "created"}], "authorized_project_id": "0dbced5f-cc3d-488a-8c7f-cfb8ea039dc6", "authorized_public": true, "license": {"id": "78e51061-7311-48a3-82ce-6f447ed4d57b", "creation_date": "2024-01-10T15:59:39.020534Z", "update_date": "2024-01-16T14:51:28.690684Z", "name": "https://creativecommons.org/licenses/by-nc/4.0/", "description": "Creative Commons Corporation (\"Creative Commons\") is not a law firm and does not provide legal services or legal advice. Distribution of Creative Commons public licenses does not create a lawyer-client or other relationship. Creative Commons makes its licenses and related information available on an \"as-is\" basis. Creative Commons gives no warranties regarding its licenses, any material licensed under their terms and conditions, or any related information. Creative Commons disclaims all liability for damages resulting from their use to the fullest extent possible.", "label": "CC BY-NC 4.0 Deed"}, "id": "ee9eb274-1a47-4352-9431-48bf4a616c3e", "creation_date": "2021-03-31T13:19:49.744000Z", "update_date": "2024-10-29T13:37:47.331309Z", "name": "AA0756 in CCFv2.5", "description": "This is a morphology reconstruction of a mouse thalamus cell that was obtained from the Janelia Mouselight project http://ml-neuronbrowser.janelia.org/ and was used in part or in whole to construct some of the cells used in the circuit of (Iavarone, et al., 2023) https://doi.org/10.1016/j.celrep.2023.112200 . This morphology is positioned in the Mouselight custom \"CCFv2.5\" reference space, instead of the Allen Institute CCFv3 reference space.", "location": null, "legacy_id": ["https://bbp.epfl.ch/neurosciencegraph/data/8cae6ac2-6df3-48d2-a616-3bea99f90a59"], "species": {"id": "0895fa61-fa6d-4674-9014-7300f9edf8da", "creation_date": "2025-04-28T09:11:58.130376Z", "update_date": "2025-04-28T09:11:58.130376Z", "name": "Mus musculus", "taxonomy_id": "NCBITaxon:10090"}, "strain": null, "brain_region": {"creation_date": "2025-04-28T09:11:43.773337Z", "update_date": "2025-04-28T09:11:43.773337Z", "id": 549, "name": "Thalamus", "acronym": "TH", "children": [864, 856, 2614168502]}, "contributions": [{"id": "7e3078e2-426b-4689-a6dc-18de64646812", "creation_date": "2025-04-28T09:12:41.425363Z", "update_date": "2025-04-28T09:12:41.425363Z", "agent": {"id": "62827e2b-827e-4ca2-98eb-c32d30a3e121", "creation_date": "2021-04-14T09:57:39.783000Z", "update_date": "2024-04-22T14:40:10.927467Z", "givenName": "Chandrashekarj", "familyName": "Jayaram", "pref_label": "Chandrashekarj Jayaram", "type": "person"}, "role": {"id": "8a9adc46-1599-4ccb-af8b-ca9771008ddd", "creation_date": "2025-04-28T09:12:18.789628Z", "update_date": "2025-04-28T09:12:18.789628Z", "name": "supervision role", "role_id": "http://purl.org/credit/ontology#CREDIT_00000010"}}, {"id": "cf8a4f4e-6b13-420a-b374-6eaa03db0817", "creation_date": "2025-04-28T09:12:41.427549Z", "update_date": "2025-04-28T09:12:41.427549Z", "agent": {"id": "5c0972b1-5822-4194-879b-38caf1509089", "creation_date": "2021-04-14T09:58:30.609000Z", "update_date": "2021-04-14T09:58:30.609000Z", "pref_label": "Howard Hughes Medical Institute", "alternative_name": "", "type": "organization"}, "role": {"id": "8b06e557-277b-4b0c-a439-bfb02d41927c", "creation_date": "2025-04-28T09:11:58.141207Z", "update_date": "2025-04-28T09:11:58.141207Z", "name": "unspecified", "role_id": "unspecified"}}], "mtypes": [{"creation_date": "2020-03-16T10:34:53.590000Z", "update_date": "2024-11-22T11:21:54.788367Z", "id": "f18dd1ee-d77c-46c0-884f-3dd6415af341", "pref_label": "TH_TC", "alt_label": "Thalamus thalamo-cortical cell", "definition": "Thalamocortical Cell, from the thalamus region (TH). Thalamocortical (TC) cells are the main neuron celltype of the excitatory nuclei (regions) of the thalamus. They project to the cortex, the reticular thalamic nucleus (RT), and elsewhere, and they receive inputs from cortex, RT, ascending sensory inputs, and elsewhere. The reconstructed morphologies belonging to this M-type may have been analyzed using the methods in (Iavarone, et al., 2019, https://doi.org/10.1371/journal.pcbi.1006753 ) and may have been used as a member of the 'VPL_TC' M-type in (Iavarone, et al., 2023, https://doi.org/10.1016/j.celrep.2023.112200 )."}]}, {"assets": [{"path": "AA0595.asc", "full_path": "public/a98b7abc-fc46-4700-9e3d-37137812c730/0dbced5f-cc3d-488a-8c7f-cfb8ea039dc6/assets/reconstruction_morphology/b5a1e8ef-97ab-448e-8517-f5e8d94f8f52/AA0595.asc", "is_directory": false, "content_type": "application/asc", "size": 538373, "sha256_digest": "c3ca34913b7c96943ddd7acddf1cd569c6b2aeda24e66b92dfbfc14a7022b17a", "meta": {"legacy": {"name": "AA0595.asc", "@type": "DataDownload", "digest": {"value": "c3ca34913b7c96943ddd7acddf1cd569c6b2aeda24e66b92dfbfc14a7022b17a", "algorithm": "SHA-256"}, "atLocation": {"@type": "Location", "store": {"@id": "https://bbp.epfl.ch/neurosciencegraph/data/8dd2500e-09eb-4378-acf7-467de53a6b95", "_rev": 1, "@type": "RemoteDiskStorage"}, "location": "file:///gpfs/bbp.cscs.ch/data/project/proj125/nexus/28599960-827e-4622-add0-f7718e6806fb/5/9/e/6/0/3/9/a/AA0595.asc"}, "contentUrl": "https://bbp.epfl.ch/nexus/v1/files/public/thalamus/https%3A%2F%2Fbbp.epfl.ch%2Fneurosciencegraph%2Fdata%2Fba28588d-32f4-4a4c-9199-7d9986861577", "contentSize": {"value": 538373, "unitCode": "bytes"}, "encodingFormat": "application/asc"}}, "id": "43ddfa99-1666-4949-9d29-cb7fe3c316ef", "status": "created"}, {"path": "AA0595.swc", "full_path": "public/a98b7abc-fc46-4700-9e3d-37137812c730/0dbced5f-cc3d-488a-8c7f-cfb8ea039dc6/assets/reconstruction_morphology/b5a1e8ef-97ab-448e-8517-f5e8d94f8f52/AA0595.swc", "is_directory": false, "content_type": "application/swc", "size": 241631, "sha256_digest": "3cfe45d019dd1fb8db5eae13073f0d01f7a469a9fe5b24a45c8f9ba724e86f92", "meta": {"legacy": {"name": "AA0595.swc", "@type": "DataDownload", "digest": {"value": "3cfe45d019dd1fb8db5eae13073f0d01f7a469a9fe5b24a45c8f9ba724e86f92", "algorithm": "SHA-256"}, "atLocation": {"@type": "Location", "store": {"@id": "https://bbp.epfl.ch/neurosciencegraph/data/8dd2500e-09eb-4378-acf7-467de53a6b95", "_rev": 1, "@type": "RemoteDiskStorage"}, "location": "file:///gpfs/bbp.cscs.ch/data/project/proj125/nexus/28599960-827e-4622-add0-f7718e6806fb/3/9/5/5/9/9/8/4/AA0595.swc"}, "contentUrl": "https://bbp.epfl.ch/nexus/v1/files/public/thalamus/https%3A%2F%2Fbbp.epfl.ch%2Fneurosciencegraph%2Fdata%2F4bca68bc-4d2d-489d-91e1-6fad94ae4e51", "contentSize": {"value": 241631, "unitCode": "bytes"}, "encodingFormat": "application/swc"}}, "id": "4ae10be7-27d8-45c0-818a-528f80421221", "status": "created"}], "authorized_project_id": "0dbced5f-cc3d-488a-8c7f-cfb8ea039dc6", "authorized_public": true, "license": {"id": "78e51061-7311-48a3-82ce-6f447ed4d57b", "creation_date": "2024-01-10T15:59:39.020534Z", "update_date": "2024-01-16T14:51:28.690684Z", "name": "https://creativecommons.org/licenses/by-nc/4.0/", "description": "Creative Commons Corporation (\"Creative Commons\") is not a law firm and does not provide legal services or legal advice. Distribution of Creative Commons public licenses does not create a lawyer-client or other relationship. Creative Commons makes its licenses and related information available on an \"as-is\" basis. Creative Commons gives no warranties regarding its licenses, any material licensed under their terms and conditions, or any related information. Creative Commons disclaims all liability for damages resulting from their use to the fullest extent possible.", "label": "CC BY-NC 4.0 Deed"}, "id": "b5a1e8ef-97ab-448e-8517-f5e8d94f8f52", "creation_date": "2021-03-31T13:19:48.869000Z", "update_date": "2024-10-29T13:37:07.171030Z", "name": "AA0595 in CCFv2.5", "description": "This is a morphology reconstruction of a mouse thalamus cell that was obtained from the Janelia Mouselight project http://ml-neuronbrowser.janelia.org/ and was used in part or in whole to construct some of the cells used in the circuit of (Iavarone, et al., 2023) https://doi.org/10.1016/j.celrep.2023.112200 . This morphology is positioned in the Mouselight custom \"CCFv2.5\" reference space, instead of the Allen Institute CCFv3 reference space.", "location": null, "legacy_id": ["https://bbp.epfl.ch/neurosciencegraph/data/d764b86c-2dda-4f55-9cb3-542866aa4817"], "species": {"id": "0895fa61-fa6d-4674-9014-7300f9edf8da", "creation_date": "2025-04-28T09:11:58.130376Z", "update_date": "2025-04-28T09:11:58.130376Z", "name": "Mus musculus", "taxonomy_id": "NCBITaxon:10090"}, "strain": null, "brain_region": {"creation_date": "2025-04-28T09:11:43.773337Z", "update_date": "2025-04-28T09:11:43.773337Z", "id": 549, "name": "Thalamus", "acronym": "TH", "children": [864, 856, 2614168502]}, "contributions": [{"id": "23de0956-80c3-4e34-a788-ec80aea99c66", "creation_date": "2025-04-28T09:12:40.603639Z", "update_date": "2025-04-28T09:12:40.603639Z", "agent": {"id": "5c0972b1-5822-4194-879b-38caf1509089", "creation_date": "2021-04-14T09:58:30.609000Z", "update_date": "2021-04-14T09:58:30.609000Z", "pref_label": "Howard Hughes Medical Institute", "alternative_name": "", "type": "organization"}, "role": {"id": "8b06e557-277b-4b0c-a439-bfb02d41927c", "creation_date": "2025-04-28T09:11:58.141207Z", "update_date": "2025-04-28T09:11:58.141207Z", "name": "unspecified", "role_id": "unspecified"}}, {"id": "8bbee902-48c6-43bf-bf4f-859d004ef0f4", "creation_date": "2025-04-28T09:12:40.605888Z", "update_date": "2025-04-28T09:12:40.605888Z", "agent": {"id": "62827e2b-827e-4ca2-98eb-c32d30a3e121", "creation_date": "2021-04-14T09:57:39.783000Z", "update_date": "2024-04-22T14:40:10.927467Z", "givenName": "Chandrashekarj", "familyName": "Jayaram", "pref_label": "Chandrashekarj Jayaram", "type": "person"}, "role": {"id": "8a9adc46-1599-4ccb-af8b-ca9771008ddd", "creation_date": "2025-04-28T09:12:18.789628Z", "update_date": "2025-04-28T09:12:18.789628Z", "name": "supervision role", "role_id": "http://purl.org/credit/ontology#CREDIT_00000010"}}], "mtypes": [{"creation_date": "2020-03-16T10:34:53.590000Z", "update_date": "2024-11-22T11:21:54.788367Z", "id": "f18dd1ee-d77c-46c0-884f-3dd6415af341", "pref_label": "TH_TC", "alt_label": "Thalamus thalamo-cortical cell", "definition": "Thalamocortical Cell, from the thalamus region (TH). Thalamocortical (TC) cells are the main neuron celltype of the excitatory nuclei (regions) of the thalamus. They project to the cortex, the reticular thalamic nucleus (RT), and elsewhere, and they receive inputs from cortex, RT, ascending sensory inputs, and elsewhere. The reconstructed morphologies belonging to this M-type may have been analyzed using the methods in (Iavarone, et al., 2019, https://doi.org/10.1371/journal.pcbi.1006753 ) and may have been used as a member of the 'VPL_TC' M-type in (Iavarone, et al., 2023, https://doi.org/10.1016/j.celrep.2023.112200 )."}]}], "pagination": {"page": 1, "page_size": 10, "total_items": 6}, "facets": null}
+{
+    "data": [
+        {
+            "type": "reconstruction_morphology",
+            "assets": [
+                {
+                    "path": "AA0047.swc",
+                    "full_path": "public/a98b7abc-fc46-4700-9e3d-37137812c730/0dbced5f-cc3d-488a-8c7f-cfb8ea039dc6/assets/reconstruction_morphology/827b864a-399b-4018-9da9-4858e78efb67/AA0047.swc",
+                    "is_directory": false,
+                    "content_type": "application/swc",
+                    "size": 294713,
+                    "sha256_digest": "51048bac8d9991c2073bb60055b729e4cd36fa67890ba6797c2fed3c3e261700",
+                    "meta": {
+                        "legacy": {
+                            "@id": "https://bbp.epfl.ch/data/bbp/mmb-point-neuron-framework-model/e28da00b-8972-4957-b7c9-d58c7f996dc3",
+                            "name": "AA0047.swc",
+                            "@type": "DataDownload",
+                            "digest": {
+                                "value": "51048bac8d9991c2073bb60055b729e4cd36fa67890ba6797c2fed3c3e261700",
+                                "algorithm": "SHA-256"
+                            },
+                            "atLocation": {
+                                "@type": "Location",
+                                "store": {
+                                    "@id": "https://bbp.epfl.ch/neurosciencegraph/data/10419671-da26-48d3-abf9-51eb54759ca4",
+                                    "_rev": 1,
+                                    "@type": "RemoteDiskStorage"
+                                },
+                                "location": "file:///gpfs/bbp.cscs.ch/data/project/proj134/nexus/bbp/mmb-point-neuron-framework-model/3/8/9/7/2/a/9/9/AA0047.swc"
+                            },
+                            "contentUrl": "https://bbp.epfl.ch/nexus/v1/files/bbp/mmb-point-neuron-framework-model/https:%2F%2Fbbp.epfl.ch%2Fdata%2Fbbp%2Fmmb-point-neuron-framework-model%2Fe28da00b-8972-4957-b7c9-d58c7f996dc3",
+                            "contentSize": {
+                                "value": 294713,
+                                "unitCode": "bytes"
+                            },
+                            "encodingFormat": "application/swc"
+                        }
+                    },
+                    "label": null,
+                    "id": "d8679b3e-a2d5-4bd3-96f1-4e357575fef6",
+                    "status": "created"
+                },
+                {
+                    "path": "AA0047.asc",
+                    "full_path": "public/a98b7abc-fc46-4700-9e3d-37137812c730/0dbced5f-cc3d-488a-8c7f-cfb8ea039dc6/assets/reconstruction_morphology/827b864a-399b-4018-9da9-4858e78efb67/AA0047.asc",
+                    "is_directory": false,
+                    "content_type": "application/asc",
+                    "size": 340992,
+                    "sha256_digest": "21ed3a2aeb1c71948dc2b8cd6cfe1032d98ad6a988cd97b2e1d440ca5f122fdb",
+                    "meta": {
+                        "legacy": {
+                            "@id": "https://bbp.epfl.ch/data/bbp/mmb-point-neuron-framework-model/0f798db9-84df-4ec1-8604-d59b09b4c183",
+                            "name": "AA0047.asc",
+                            "@type": "DataDownload",
+                            "digest": {
+                                "value": "21ed3a2aeb1c71948dc2b8cd6cfe1032d98ad6a988cd97b2e1d440ca5f122fdb",
+                                "algorithm": "SHA-256"
+                            },
+                            "atLocation": {
+                                "@type": "Location",
+                                "store": {
+                                    "@id": "https://bbp.epfl.ch/neurosciencegraph/data/10419671-da26-48d3-abf9-51eb54759ca4",
+                                    "_rev": 1,
+                                    "@type": "RemoteDiskStorage"
+                                },
+                                "location": "file:///gpfs/bbp.cscs.ch/data/project/proj134/nexus/bbp/mmb-point-neuron-framework-model/5/d/2/e/5/a/3/b/AA0047.asc"
+                            },
+                            "contentUrl": "https://bbp.epfl.ch/nexus/v1/files/bbp/mmb-point-neuron-framework-model/https:%2F%2Fbbp.epfl.ch%2Fdata%2Fbbp%2Fmmb-point-neuron-framework-model%2F0f798db9-84df-4ec1-8604-d59b09b4c183",
+                            "contentSize": {
+                                "value": 340992,
+                                "unitCode": "bytes"
+                            },
+                            "encodingFormat": "application/asc"
+                        }
+                    },
+                    "label": null,
+                    "id": "4d8cb2a5-f457-49ee-b131-e05c51bf8192",
+                    "status": "created"
+                },
+                {
+                    "path": "AA0047.h5",
+                    "full_path": "public/a98b7abc-fc46-4700-9e3d-37137812c730/0dbced5f-cc3d-488a-8c7f-cfb8ea039dc6/assets/reconstruction_morphology/827b864a-399b-4018-9da9-4858e78efb67/AA0047.h5",
+                    "is_directory": false,
+                    "content_type": "application/h5",
+                    "size": 79996,
+                    "sha256_digest": "b47b0328733df3aae51522ade0415e8fc4125feac907a48530e18ed1c022546e",
+                    "meta": {
+                        "legacy": {
+                            "@id": "https://bbp.epfl.ch/data/bbp/mmb-point-neuron-framework-model/424b1a13-6fc6-4f08-8c9a-6a107064dd43",
+                            "name": "AA0047.h5",
+                            "@type": "DataDownload",
+                            "digest": {
+                                "value": "b47b0328733df3aae51522ade0415e8fc4125feac907a48530e18ed1c022546e",
+                                "algorithm": "SHA-256"
+                            },
+                            "atLocation": {
+                                "@type": "Location",
+                                "store": {
+                                    "@id": "https://bbp.epfl.ch/neurosciencegraph/data/10419671-da26-48d3-abf9-51eb54759ca4",
+                                    "_rev": 1,
+                                    "@type": "RemoteDiskStorage"
+                                },
+                                "location": "file:///gpfs/bbp.cscs.ch/data/project/proj134/nexus/bbp/mmb-point-neuron-framework-model/3/4/f/d/d/b/5/4/AA0047.h5"
+                            },
+                            "contentUrl": "https://bbp.epfl.ch/nexus/v1/files/bbp/mmb-point-neuron-framework-model/https:%2F%2Fbbp.epfl.ch%2Fdata%2Fbbp%2Fmmb-point-neuron-framework-model%2F424b1a13-6fc6-4f08-8c9a-6a107064dd43",
+                            "contentSize": {
+                                "value": 79996,
+                                "unitCode": "bytes"
+                            },
+                            "encodingFormat": "application/h5"
+                        }
+                    },
+                    "label": null,
+                    "id": "53b660b0-0398-4ec4-95d8-565944b0d834",
+                    "status": "created"
+                }
+            ],
+            "authorized_project_id": "0dbced5f-cc3d-488a-8c7f-cfb8ea039dc6",
+            "authorized_public": true,
+            "license": {
+                "id": "78e51061-7311-48a3-82ce-6f447ed4d57b",
+                "creation_date": "2024-01-10T15:59:39.020534Z",
+                "update_date": "2024-01-16T14:51:28.690684Z",
+                "name": "https://creativecommons.org/licenses/by-nc/4.0/",
+                "description": "Creative Commons Corporation (\"Creative Commons\") is not a law firm and does not provide legal services or legal advice. Distribution of Creative Commons public licenses does not create a lawyer-client or other relationship. Creative Commons makes its licenses and related information available on an \"as-is\" basis. Creative Commons gives no warranties regarding its licenses, any material licensed under their terms and conditions, or any related information. Creative Commons disclaims all liability for damages resulting from their use to the fullest extent possible.",
+                "label": "CC BY-NC 4.0 Deed"
+            },
+            "id": "827b864a-399b-4018-9da9-4858e78efb67",
+            "creation_date": "2024-03-05T08:25:41.339084Z",
+            "update_date": "2024-11-04T15:41:29.384790Z",
+            "name": "AA0047 BBP Corrected",
+            "description": "Annotation Space: CCFv3.0 Axes> X: Anterior-Posterior; Y: Inferior-Superior; Z:Left-Right",
+            "location": {
+                "x": 7063.56914974999,
+                "y": 4563.42612625,
+                "z": 4981.09114
+            },
+            "legacy_id": [
+                "https://bbp.epfl.ch/data/bbp/mmb-point-neuron-framework-model/4d4b97b0-abd9-427f-bc80-b0781737e081"
+            ],
+            "species": {
+                "id": "f48a8b1f-9781-4d78-b562-27cafddb5885",
+                "creation_date": "2025-05-09T13:32:33.653338Z",
+                "update_date": "2025-05-09T13:32:33.653338Z",
+                "name": "Mus musculus",
+                "taxonomy_id": "NCBITaxon:10090"
+            },
+            "strain": {
+                "id": "f8c4a096-5650-4064-a315-7eda4cd8f8cd",
+                "creation_date": "2025-05-09T13:32:38.336998Z",
+                "update_date": "2025-05-09T13:32:38.336998Z",
+                "name": "C57BL/6J",
+                "taxonomy_id": "http://www.ebi.ac.uk/efo/EFO_0000606",
+                "species_id": "f48a8b1f-9781-4d78-b562-27cafddb5885"
+            },
+            "brain_region": {
+                "creation_date": "2025-05-09T13:32:18.034672Z",
+                "update_date": "2025-05-09T13:32:18.034672Z",
+                "id": "c5fee487-68ab-4281-968d-2bc2dac7c336",
+                "annotation_value": 907,
+                "name": "Paracentral nucleus",
+                "acronym": "PCN",
+                "color_hex_triplet": "FF909F",
+                "parent_structure_id": "e65d1c73-5b62-47c9-be38-01afd1a8d7b0",
+                "hierarchy_id": "e3e70682-c209-4cac-a29f-6fbed82c07cd"
+            },
+            "contributions": [
+                {
+                    "id": "11de6f8d-926e-414d-bdb1-270ed9fa6087",
+                    "creation_date": "2025-05-09T13:32:39.587446Z",
+                    "update_date": "2025-05-09T13:32:39.587446Z",
+                    "agent": {
+                        "id": "57670d2f-fee2-4d5e-9c2b-12ecd24c91c6",
+                        "creation_date": "2022-06-17T13:47:31.787000Z",
+                        "update_date": "2022-09-30T08:02:01.303000Z",
+                        "pref_label": "Janelia Research Campus",
+                        "alternative_name": "",
+                        "type": "organization"
+                    },
+                    "role": {
+                        "id": "934ef973-9e2d-4e6d-aca6-9df5fe41f89a",
+                        "creation_date": "2025-05-09T13:32:33.674795Z",
+                        "update_date": "2025-05-09T13:32:33.674795Z",
+                        "name": "unspecified",
+                        "role_id": "unspecified"
+                    }
+                },
+                {
+                    "id": "38d16716-25b7-4c37-be70-cd46582fa3fe",
+                    "creation_date": "2025-05-09T13:32:39.589589Z",
+                    "update_date": "2025-05-09T13:32:39.589589Z",
+                    "agent": {
+                        "id": "5c69467e-c692-4163-8a76-9e0ac9814899",
+                        "creation_date": "2023-04-13T09:24:12.189000Z",
+                        "update_date": "2025-05-09T13:32:28.725184Z",
+                        "givenName": "Lida",
+                        "familyName": "Kanari",
+                        "pref_label": "Lida Kanari",
+                        "type": "person"
+                    },
+                    "role": {
+                        "id": "934ef973-9e2d-4e6d-aca6-9df5fe41f89a",
+                        "creation_date": "2025-05-09T13:32:33.674795Z",
+                        "update_date": "2025-05-09T13:32:33.674795Z",
+                        "name": "unspecified",
+                        "role_id": "unspecified"
+                    }
+                }
+            ],
+            "mtypes": [
+                {
+                    "creation_date": "2020-09-23T09:25:28.774000Z",
+                    "update_date": "2024-11-22T11:20:49.693171Z",
+                    "id": "1a2b8f1f-f1fd-42a2-9755-d4c13a902931",
+                    "pref_label": "Pyramidal Neuron",
+                    "alt_label": "Pyramidal neuron",
+                    "definition": "A neuron with a pyramidal shaped soma and two distinct dendritic trees. The basal dendrites emerge from the base and the apical dendrites from the apex of the pyramidal cell body."
+                }
+            ]
+        },
+        {
+            "type": "reconstruction_morphology",
+            "assets": [
+                {
+                    "path": "AA1432.swc",
+                    "full_path": "public/a98b7abc-fc46-4700-9e3d-37137812c730/0dbced5f-cc3d-488a-8c7f-cfb8ea039dc6/assets/reconstruction_morphology/9386e761-5c36-4cf5-a625-9c583c874d99/AA1432.swc",
+                    "is_directory": false,
+                    "content_type": "application/swc",
+                    "size": 769646,
+                    "sha256_digest": "6ed4f472fb7cbe0c2da3df70f73b40b55785d90b2d8eb4b62279ca1930dd4e5f",
+                    "meta": {
+                        "legacy": {
+                            "@id": "https://bbp.epfl.ch/data/bbp/mmb-point-neuron-framework-model/26b3def8-b6c1-4ac5-bcca-a3da7c126415",
+                            "name": "AA1432.swc",
+                            "@type": "DataDownload",
+                            "digest": {
+                                "value": "6ed4f472fb7cbe0c2da3df70f73b40b55785d90b2d8eb4b62279ca1930dd4e5f",
+                                "algorithm": "SHA-256"
+                            },
+                            "atLocation": {
+                                "@type": "Location",
+                                "store": {
+                                    "@id": "https://bbp.epfl.ch/neurosciencegraph/data/10419671-da26-48d3-abf9-51eb54759ca4",
+                                    "_rev": 1,
+                                    "@type": "RemoteDiskStorage"
+                                },
+                                "location": "file:///gpfs/bbp.cscs.ch/data/project/proj134/nexus/bbp/mmb-point-neuron-framework-model/c/f/8/8/7/b/6/1/AA1432.swc"
+                            },
+                            "contentUrl": "https://bbp.epfl.ch/nexus/v1/files/bbp/mmb-point-neuron-framework-model/https:%2F%2Fbbp.epfl.ch%2Fdata%2Fbbp%2Fmmb-point-neuron-framework-model%2F26b3def8-b6c1-4ac5-bcca-a3da7c126415",
+                            "contentSize": {
+                                "value": 769646,
+                                "unitCode": "bytes"
+                            },
+                            "encodingFormat": "application/swc"
+                        }
+                    },
+                    "label": null,
+                    "id": "c3ff00e0-9cc7-473e-a860-c1017a06ef7d",
+                    "status": "created"
+                },
+                {
+                    "path": "AA1432.asc",
+                    "full_path": "public/a98b7abc-fc46-4700-9e3d-37137812c730/0dbced5f-cc3d-488a-8c7f-cfb8ea039dc6/assets/reconstruction_morphology/9386e761-5c36-4cf5-a625-9c583c874d99/AA1432.asc",
+                    "is_directory": false,
+                    "content_type": "application/asc",
+                    "size": 850917,
+                    "sha256_digest": "158edcffed6a27e93818d0bc3f550e643b80c0703891622764c12f9c3097e50c",
+                    "meta": {
+                        "legacy": {
+                            "@id": "https://bbp.epfl.ch/data/bbp/mmb-point-neuron-framework-model/6d9fcdcd-9cd5-4a56-965c-6d46e9805102",
+                            "name": "AA1432.asc",
+                            "@type": "DataDownload",
+                            "digest": {
+                                "value": "158edcffed6a27e93818d0bc3f550e643b80c0703891622764c12f9c3097e50c",
+                                "algorithm": "SHA-256"
+                            },
+                            "atLocation": {
+                                "@type": "Location",
+                                "store": {
+                                    "@id": "https://bbp.epfl.ch/neurosciencegraph/data/10419671-da26-48d3-abf9-51eb54759ca4",
+                                    "_rev": 1,
+                                    "@type": "RemoteDiskStorage"
+                                },
+                                "location": "file:///gpfs/bbp.cscs.ch/data/project/proj134/nexus/bbp/mmb-point-neuron-framework-model/f/5/8/7/d/c/8/6/AA1432.asc"
+                            },
+                            "contentUrl": "https://bbp.epfl.ch/nexus/v1/files/bbp/mmb-point-neuron-framework-model/https:%2F%2Fbbp.epfl.ch%2Fdata%2Fbbp%2Fmmb-point-neuron-framework-model%2F6d9fcdcd-9cd5-4a56-965c-6d46e9805102",
+                            "contentSize": {
+                                "value": 850917,
+                                "unitCode": "bytes"
+                            },
+                            "encodingFormat": "application/asc"
+                        }
+                    },
+                    "label": null,
+                    "id": "5be6fda7-0482-4eef-8b5c-2cdc507b043e",
+                    "status": "created"
+                },
+                {
+                    "path": "AA1432.h5",
+                    "full_path": "public/a98b7abc-fc46-4700-9e3d-37137812c730/0dbced5f-cc3d-488a-8c7f-cfb8ea039dc6/assets/reconstruction_morphology/9386e761-5c36-4cf5-a625-9c583c874d99/AA1432.h5",
+                    "is_directory": false,
+                    "content_type": "application/h5",
+                    "size": 169896,
+                    "sha256_digest": "4282f43684fcff39a1371e73335f9a1ed7df42eed5a775273db7162f24915211",
+                    "meta": {
+                        "legacy": {
+                            "@id": "https://bbp.epfl.ch/data/bbp/mmb-point-neuron-framework-model/bb8d9a75-aab7-47d3-8064-ea8e49fa4096",
+                            "name": "AA1432.h5",
+                            "@type": "DataDownload",
+                            "digest": {
+                                "value": "4282f43684fcff39a1371e73335f9a1ed7df42eed5a775273db7162f24915211",
+                                "algorithm": "SHA-256"
+                            },
+                            "atLocation": {
+                                "@type": "Location",
+                                "store": {
+                                    "@id": "https://bbp.epfl.ch/neurosciencegraph/data/10419671-da26-48d3-abf9-51eb54759ca4",
+                                    "_rev": 1,
+                                    "@type": "RemoteDiskStorage"
+                                },
+                                "location": "file:///gpfs/bbp.cscs.ch/data/project/proj134/nexus/bbp/mmb-point-neuron-framework-model/8/6/4/3/d/e/7/1/AA1432.h5"
+                            },
+                            "contentUrl": "https://bbp.epfl.ch/nexus/v1/files/bbp/mmb-point-neuron-framework-model/https:%2F%2Fbbp.epfl.ch%2Fdata%2Fbbp%2Fmmb-point-neuron-framework-model%2Fbb8d9a75-aab7-47d3-8064-ea8e49fa4096",
+                            "contentSize": {
+                                "value": 169896,
+                                "unitCode": "bytes"
+                            },
+                            "encodingFormat": "application/h5"
+                        }
+                    },
+                    "label": null,
+                    "id": "70863261-e541-4c06-84f5-77639087c277",
+                    "status": "created"
+                }
+            ],
+            "authorized_project_id": "0dbced5f-cc3d-488a-8c7f-cfb8ea039dc6",
+            "authorized_public": true,
+            "license": {
+                "id": "78e51061-7311-48a3-82ce-6f447ed4d57b",
+                "creation_date": "2024-01-10T15:59:39.020534Z",
+                "update_date": "2024-01-16T14:51:28.690684Z",
+                "name": "https://creativecommons.org/licenses/by-nc/4.0/",
+                "description": "Creative Commons Corporation (\"Creative Commons\") is not a law firm and does not provide legal services or legal advice. Distribution of Creative Commons public licenses does not create a lawyer-client or other relationship. Creative Commons makes its licenses and related information available on an \"as-is\" basis. Creative Commons gives no warranties regarding its licenses, any material licensed under their terms and conditions, or any related information. Creative Commons disclaims all liability for damages resulting from their use to the fullest extent possible.",
+                "label": "CC BY-NC 4.0 Deed"
+            },
+            "id": "9386e761-5c36-4cf5-a625-9c583c874d99",
+            "creation_date": "2024-03-05T08:20:16.397942Z",
+            "update_date": "2024-11-04T15:38:29.271171Z",
+            "name": "AA1432 BBP Corrected",
+            "description": "Annotation Space: CCFv3.0 Axes> X: Anterior-Posterior; Y: Inferior-Superior; Z:Left-Right",
+            "location": {
+                "x": 6168.50605162499,
+                "y": 4623.3338740625,
+                "z": 5691.93041
+            },
+            "legacy_id": [
+                "https://bbp.epfl.ch/data/bbp/mmb-point-neuron-framework-model/d007550d-7105-46b0-b627-06c6d1a8f047"
+            ],
+            "species": {
+                "id": "f48a8b1f-9781-4d78-b562-27cafddb5885",
+                "creation_date": "2025-05-09T13:32:33.653338Z",
+                "update_date": "2025-05-09T13:32:33.653338Z",
+                "name": "Mus musculus",
+                "taxonomy_id": "NCBITaxon:10090"
+            },
+            "strain": {
+                "id": "08afdd56-a31a-4161-9356-4427b98e4f32",
+                "creation_date": "2025-05-09T13:32:39.208418Z",
+                "update_date": "2025-05-09T13:32:39.208418Z",
+                "name": "HSD2-Cre",
+                "taxonomy_id": "http://bbp.epfl.ch/neurosciencegraph/ontologies/speciestaxonomy/HSD2Cre",
+                "species_id": "f48a8b1f-9781-4d78-b562-27cafddb5885"
+            },
+            "brain_region": {
+                "creation_date": "2025-05-09T13:32:18.034672Z",
+                "update_date": "2025-05-09T13:32:18.034672Z",
+                "id": "f7f1bb27-8066-4563-a0c3-0ce957ac59f2",
+                "annotation_value": 189,
+                "name": "Rhomboid nucleus",
+                "acronym": "RH",
+                "color_hex_triplet": "FF909F",
+                "parent_structure_id": "e65d1c73-5b62-47c9-be38-01afd1a8d7b0",
+                "hierarchy_id": "e3e70682-c209-4cac-a29f-6fbed82c07cd"
+            },
+            "contributions": [
+                {
+                    "id": "1f0f485b-917f-4479-9f73-5533f3c062fb",
+                    "creation_date": "2025-05-09T13:32:39.212203Z",
+                    "update_date": "2025-05-09T13:32:39.212203Z",
+                    "agent": {
+                        "id": "57670d2f-fee2-4d5e-9c2b-12ecd24c91c6",
+                        "creation_date": "2022-06-17T13:47:31.787000Z",
+                        "update_date": "2022-09-30T08:02:01.303000Z",
+                        "pref_label": "Janelia Research Campus",
+                        "alternative_name": "",
+                        "type": "organization"
+                    },
+                    "role": {
+                        "id": "934ef973-9e2d-4e6d-aca6-9df5fe41f89a",
+                        "creation_date": "2025-05-09T13:32:33.674795Z",
+                        "update_date": "2025-05-09T13:32:33.674795Z",
+                        "name": "unspecified",
+                        "role_id": "unspecified"
+                    }
+                },
+                {
+                    "id": "b83fc590-566f-4741-8069-a0faaf847031",
+                    "creation_date": "2025-05-09T13:32:39.214379Z",
+                    "update_date": "2025-05-09T13:32:39.214379Z",
+                    "agent": {
+                        "id": "5c69467e-c692-4163-8a76-9e0ac9814899",
+                        "creation_date": "2023-04-13T09:24:12.189000Z",
+                        "update_date": "2025-05-09T13:32:28.725184Z",
+                        "givenName": "Lida",
+                        "familyName": "Kanari",
+                        "pref_label": "Lida Kanari",
+                        "type": "person"
+                    },
+                    "role": {
+                        "id": "934ef973-9e2d-4e6d-aca6-9df5fe41f89a",
+                        "creation_date": "2025-05-09T13:32:33.674795Z",
+                        "update_date": "2025-05-09T13:32:33.674795Z",
+                        "name": "unspecified",
+                        "role_id": "unspecified"
+                    }
+                }
+            ],
+            "mtypes": [
+                {
+                    "creation_date": "2020-09-23T09:25:28.774000Z",
+                    "update_date": "2024-11-22T11:20:49.693171Z",
+                    "id": "1a2b8f1f-f1fd-42a2-9755-d4c13a902931",
+                    "pref_label": "Pyramidal Neuron",
+                    "alt_label": "Pyramidal neuron",
+                    "definition": "A neuron with a pyramidal shaped soma and two distinct dendritic trees. The basal dendrites emerge from the base and the apical dendrites from the apex of the pyramidal cell body."
+                }
+            ]
+        },
+        {
+            "type": "reconstruction_morphology",
+            "assets": [
+                {
+                    "path": "18872_00001.swc",
+                    "full_path": "public/a98b7abc-fc46-4700-9e3d-37137812c730/0dbced5f-cc3d-488a-8c7f-cfb8ea039dc6/assets/reconstruction_morphology/c5a537b8-190e-4c76-baef-1d81525c72a1/18872_00001.swc",
+                    "is_directory": false,
+                    "content_type": "application/swc",
+                    "size": 336553,
+                    "sha256_digest": "3ff92742585dded4b2d7c12cda27f5c0f8c34a9352462d491c993314ede787d1",
+                    "meta": {
+                        "legacy": {
+                            "name": "18872_00001.swc",
+                            "@type": "DataDownload",
+                            "digest": {
+                                "value": "3ff92742585dded4b2d7c12cda27f5c0f8c34a9352462d491c993314ede787d1",
+                                "algorithm": "SHA-256"
+                            },
+                            "atLocation": {
+                                "@type": "Location",
+                                "store": {
+                                    "@id": "https://bbp.epfl.ch/neurosciencegraph/data/storages/proj166_storage",
+                                    "_rev": 1,
+                                    "@type": "RemoteDiskStorage"
+                                },
+                                "location": "file:///gpfs/bbp.cscs.ch/data/project/proj166/nexus/bbp-external/seu/2/8/6/c/d/9/c/f/18872_00001.swc"
+                            },
+                            "contentUrl": "https://bbp.epfl.ch/nexus/v1/files/bbp-external/seu/https%3A%2F%2Fbbp.epfl.ch%2Fdata%2Fbbp-external%2Fseu%2F0eb30b73-bfba-47b1-b18f-5af0ed9d46d3",
+                            "contentSize": {
+                                "value": 336553,
+                                "unitCode": "bytes"
+                            },
+                            "encodingFormat": "application/swc"
+                        }
+                    },
+                    "label": null,
+                    "id": "cfe8e6bc-cbc9-4cc4-a5ee-bfc70b680cab",
+                    "status": "created"
+                },
+                {
+                    "path": "18872_00001.asc",
+                    "full_path": "public/a98b7abc-fc46-4700-9e3d-37137812c730/0dbced5f-cc3d-488a-8c7f-cfb8ea039dc6/assets/reconstruction_morphology/c5a537b8-190e-4c76-baef-1d81525c72a1/18872_00001.asc",
+                    "is_directory": false,
+                    "content_type": "application/asc",
+                    "size": 601035,
+                    "sha256_digest": "8cc8cadc3f9a49cd934c3c3f919093c8958cebd07a73259b0a4eb93941bcda33",
+                    "meta": {
+                        "legacy": {
+                            "name": "18872_00001.asc",
+                            "@type": "DataDownload",
+                            "digest": {
+                                "value": "8cc8cadc3f9a49cd934c3c3f919093c8958cebd07a73259b0a4eb93941bcda33",
+                                "algorithm": "SHA-256"
+                            },
+                            "atLocation": {
+                                "@type": "Location",
+                                "store": {
+                                    "@id": "https://bbp.epfl.ch/neurosciencegraph/data/storages/proj166_storage",
+                                    "_rev": 1,
+                                    "@type": "RemoteDiskStorage"
+                                },
+                                "location": "file:///gpfs/bbp.cscs.ch/data/project/proj166/nexus/bbp-external/seu/e/7/a/1/e/6/6/1/18872_00001.asc"
+                            },
+                            "contentUrl": "https://bbp.epfl.ch/nexus/v1/files/bbp-external/seu/https%3A%2F%2Fbbp.epfl.ch%2Fdata%2Fbbp-external%2Fseu%2Fe91d7b6e-f82a-45e7-b027-04566a0ee89a",
+                            "contentSize": {
+                                "value": 601035,
+                                "unitCode": "bytes"
+                            },
+                            "encodingFormat": "application/asc"
+                        }
+                    },
+                    "label": null,
+                    "id": "5a8fb22f-712c-49fa-a71b-7421f308162b",
+                    "status": "created"
+                },
+                {
+                    "path": "18872_00001.h5",
+                    "full_path": "public/a98b7abc-fc46-4700-9e3d-37137812c730/0dbced5f-cc3d-488a-8c7f-cfb8ea039dc6/assets/reconstruction_morphology/c5a537b8-190e-4c76-baef-1d81525c72a1/18872_00001.h5",
+                    "is_directory": false,
+                    "content_type": "application/h5",
+                    "size": 143532,
+                    "sha256_digest": "bca48db031d78fbba0334061e537424226b1d525d504555a4b39383a15bacc0e",
+                    "meta": {
+                        "legacy": {
+                            "name": "18872_00001.h5",
+                            "@type": "DataDownload",
+                            "digest": {
+                                "value": "bca48db031d78fbba0334061e537424226b1d525d504555a4b39383a15bacc0e",
+                                "algorithm": "SHA-256"
+                            },
+                            "atLocation": {
+                                "@type": "Location",
+                                "store": {
+                                    "@id": "https://bbp.epfl.ch/neurosciencegraph/data/storages/proj166_storage",
+                                    "_rev": 1,
+                                    "@type": "RemoteDiskStorage"
+                                },
+                                "location": "file:///gpfs/bbp.cscs.ch/data/project/proj166/nexus/bbp-external/seu/a/3/8/3/3/c/5/6/18872_00001.h5"
+                            },
+                            "contentUrl": "https://bbp.epfl.ch/nexus/v1/files/bbp-external/seu/https%3A%2F%2Fbbp.epfl.ch%2Fdata%2Fbbp-external%2Fseu%2F63d0ead5-5133-442f-ae74-21b7c459a10a",
+                            "contentSize": {
+                                "value": 143532,
+                                "unitCode": "bytes"
+                            },
+                            "encodingFormat": "application/h5"
+                        }
+                    },
+                    "label": null,
+                    "id": "fd17e867-7b7c-4981-a232-809f23f788b4",
+                    "status": "created"
+                }
+            ],
+            "authorized_project_id": "0dbced5f-cc3d-488a-8c7f-cfb8ea039dc6",
+            "authorized_public": true,
+            "license": null,
+            "id": "c5a537b8-190e-4c76-baef-1d81525c72a1",
+            "creation_date": "2024-02-12T15:50:05.746744Z",
+            "update_date": "2024-12-04T13:56:01.043356Z",
+            "name": "18872_00001",
+            "description": "Initial neuron morphology shared by provider",
+            "location": {
+                "x": 6964.625,
+                "y": 4170.625,
+                "z": 2996.875
+            },
+            "legacy_id": [
+                "https://bbp.epfl.ch/data/bbp-external/seu/5aa15d0c-001b-4d31-b975-f0d5c9366bde"
+            ],
+            "species": {
+                "id": "f48a8b1f-9781-4d78-b562-27cafddb5885",
+                "creation_date": "2025-05-09T13:32:33.653338Z",
+                "update_date": "2025-05-09T13:32:33.653338Z",
+                "name": "Mus musculus",
+                "taxonomy_id": "NCBITaxon:10090"
+            },
+            "strain": {
+                "id": "1fc9d32c-9047-4076-97ae-fcf47f8d4e7c",
+                "creation_date": "2025-05-09T13:32:35.409659Z",
+                "update_date": "2025-05-09T13:32:35.409659Z",
+                "name": "Th-Cre_FI172",
+                "taxonomy_id": "http://bbp.epfl.ch/neurosciencegraph/ontologies/speciestaxonomy/ThCreFI172",
+                "species_id": "f48a8b1f-9781-4d78-b562-27cafddb5885"
+            },
+            "brain_region": {
+                "creation_date": "2025-05-09T13:32:18.034672Z",
+                "update_date": "2025-05-09T13:32:18.034672Z",
+                "id": "22b3ce34-867a-4ac9-879b-e4e53a6e8f12",
+                "annotation_value": 262,
+                "name": "Reticular nucleus of the thalamus",
+                "acronym": "RT",
+                "color_hex_triplet": "FF909F",
+                "parent_structure_id": "e08c28eb-3218-4fbf-8dcc-bbedc0e0d55b",
+                "hierarchy_id": "e3e70682-c209-4cac-a29f-6fbed82c07cd"
+            },
+            "contributions": [
+                {
+                    "id": "7ecde3a9-3e60-4fe8-8d0a-c28219468292",
+                    "creation_date": "2025-05-09T13:32:35.413031Z",
+                    "update_date": "2025-05-09T13:32:35.413031Z",
+                    "agent": {
+                        "id": "2cd71c4a-d847-4872-878c-8b5f911eace3",
+                        "creation_date": "2020-08-28T11:43:59.117000Z",
+                        "update_date": "2022-04-11T08:28:04.176000Z",
+                        "pref_label": "Southeast University",
+                        "alternative_name": "",
+                        "type": "organization"
+                    },
+                    "role": {
+                        "id": "934ef973-9e2d-4e6d-aca6-9df5fe41f89a",
+                        "creation_date": "2025-05-09T13:32:33.674795Z",
+                        "update_date": "2025-05-09T13:32:33.674795Z",
+                        "name": "unspecified",
+                        "role_id": "unspecified"
+                    }
+                }
+            ],
+            "mtypes": []
+        },
+        {
+            "type": "reconstruction_morphology",
+            "assets": [
+                {
+                    "path": "18868_05469.swc",
+                    "full_path": "public/a98b7abc-fc46-4700-9e3d-37137812c730/0dbced5f-cc3d-488a-8c7f-cfb8ea039dc6/assets/reconstruction_morphology/a5313aa0-a950-456b-a6c9-f9e6f3de475f/18868_05469.swc",
+                    "is_directory": false,
+                    "content_type": "application/swc",
+                    "size": 275423,
+                    "sha256_digest": "6a940f79f7d89c4ecd8898747fc6c5f1100901b1bf2c668e25c235b34b047120",
+                    "meta": {
+                        "legacy": {
+                            "name": "18868_05469.swc",
+                            "@type": "DataDownload",
+                            "digest": {
+                                "value": "6a940f79f7d89c4ecd8898747fc6c5f1100901b1bf2c668e25c235b34b047120",
+                                "algorithm": "SHA-256"
+                            },
+                            "atLocation": {
+                                "@type": "Location",
+                                "store": {
+                                    "@id": "https://bbp.epfl.ch/neurosciencegraph/data/storages/proj166_storage",
+                                    "_rev": 1,
+                                    "@type": "RemoteDiskStorage"
+                                },
+                                "location": "file:///gpfs/bbp.cscs.ch/data/project/proj166/nexus/bbp-external/seu/9/a/e/9/e/f/2/f/18868_05469.swc"
+                            },
+                            "contentUrl": "https://bbp.epfl.ch/nexus/v1/files/bbp-external/seu/https%3A%2F%2Fbbp.epfl.ch%2Fdata%2Fbbp-external%2Fseu%2F2802f5c8-1484-4cef-9425-01e520ca64c8",
+                            "contentSize": {
+                                "value": 275423,
+                                "unitCode": "bytes"
+                            },
+                            "encodingFormat": "application/swc"
+                        }
+                    },
+                    "label": null,
+                    "id": "ae87f6a3-5a54-4caa-a136-d9e01d5a687e",
+                    "status": "created"
+                },
+                {
+                    "path": "18868_05469.asc",
+                    "full_path": "public/a98b7abc-fc46-4700-9e3d-37137812c730/0dbced5f-cc3d-488a-8c7f-cfb8ea039dc6/assets/reconstruction_morphology/a5313aa0-a950-456b-a6c9-f9e6f3de475f/18868_05469.asc",
+                    "is_directory": false,
+                    "content_type": "application/asc",
+                    "size": 487776,
+                    "sha256_digest": "a26e3d41a80142fe32be8895ea9f60ff97d3551c7d40e3e248119909f3c56e82",
+                    "meta": {
+                        "legacy": {
+                            "name": "18868_05469.asc",
+                            "@type": "DataDownload",
+                            "digest": {
+                                "value": "a26e3d41a80142fe32be8895ea9f60ff97d3551c7d40e3e248119909f3c56e82",
+                                "algorithm": "SHA-256"
+                            },
+                            "atLocation": {
+                                "@type": "Location",
+                                "store": {
+                                    "@id": "https://bbp.epfl.ch/neurosciencegraph/data/storages/proj166_storage",
+                                    "_rev": 1,
+                                    "@type": "RemoteDiskStorage"
+                                },
+                                "location": "file:///gpfs/bbp.cscs.ch/data/project/proj166/nexus/bbp-external/seu/c/b/0/9/7/c/5/a/18868_05469.asc"
+                            },
+                            "contentUrl": "https://bbp.epfl.ch/nexus/v1/files/bbp-external/seu/https%3A%2F%2Fbbp.epfl.ch%2Fdata%2Fbbp-external%2Fseu%2F87a347a2-0e16-4b6c-aba4-3faa9ca67608",
+                            "contentSize": {
+                                "value": 487776,
+                                "unitCode": "bytes"
+                            },
+                            "encodingFormat": "application/asc"
+                        }
+                    },
+                    "label": null,
+                    "id": "4481aa4c-2de1-4a27-b2c6-b672ae0cbdc0",
+                    "status": "created"
+                },
+                {
+                    "path": "18868_05469.h5",
+                    "full_path": "public/a98b7abc-fc46-4700-9e3d-37137812c730/0dbced5f-cc3d-488a-8c7f-cfb8ea039dc6/assets/reconstruction_morphology/a5313aa0-a950-456b-a6c9-f9e6f3de475f/18868_05469.h5",
+                    "is_directory": false,
+                    "content_type": "application/h5",
+                    "size": 118544,
+                    "sha256_digest": "e235c3e1b0acc3fd102108d6505ec9d0b75f06a709b5acbae7d3ffd498e23f54",
+                    "meta": {
+                        "legacy": {
+                            "name": "18868_05469.h5",
+                            "@type": "DataDownload",
+                            "digest": {
+                                "value": "e235c3e1b0acc3fd102108d6505ec9d0b75f06a709b5acbae7d3ffd498e23f54",
+                                "algorithm": "SHA-256"
+                            },
+                            "atLocation": {
+                                "@type": "Location",
+                                "store": {
+                                    "@id": "https://bbp.epfl.ch/neurosciencegraph/data/storages/proj166_storage",
+                                    "_rev": 1,
+                                    "@type": "RemoteDiskStorage"
+                                },
+                                "location": "file:///gpfs/bbp.cscs.ch/data/project/proj166/nexus/bbp-external/seu/9/4/2/9/4/e/8/b/18868_05469.h5"
+                            },
+                            "contentUrl": "https://bbp.epfl.ch/nexus/v1/files/bbp-external/seu/https%3A%2F%2Fbbp.epfl.ch%2Fdata%2Fbbp-external%2Fseu%2F058ab957-fb18-4651-951d-bc41623853eb",
+                            "contentSize": {
+                                "value": 118544,
+                                "unitCode": "bytes"
+                            },
+                            "encodingFormat": "application/h5"
+                        }
+                    },
+                    "label": null,
+                    "id": "983d20eb-b819-41db-9959-4a807d67f238",
+                    "status": "created"
+                }
+            ],
+            "authorized_project_id": "0dbced5f-cc3d-488a-8c7f-cfb8ea039dc6",
+            "authorized_public": true,
+            "license": null,
+            "id": "a5313aa0-a950-456b-a6c9-f9e6f3de475f",
+            "creation_date": "2024-02-12T15:49:36.776169Z",
+            "update_date": "2024-12-04T13:55:37.855937Z",
+            "name": "18868_05469",
+            "description": "Initial neuron morphology shared by provider",
+            "location": {
+                "x": 7120.79931640625,
+                "y": 3827.925048828125,
+                "z": 8216.474609375
+            },
+            "legacy_id": [
+                "https://bbp.epfl.ch/data/bbp-external/seu/fbf42479-1eec-4276-ad89-621361f70192"
+            ],
+            "species": {
+                "id": "f48a8b1f-9781-4d78-b562-27cafddb5885",
+                "creation_date": "2025-05-09T13:32:33.653338Z",
+                "update_date": "2025-05-09T13:32:33.653338Z",
+                "name": "Mus musculus",
+                "taxonomy_id": "NCBITaxon:10090"
+            },
+            "strain": {
+                "id": "741b6a4e-3a31-494a-8261-ff47502edf35",
+                "creation_date": "2025-05-09T13:32:33.843848Z",
+                "update_date": "2025-05-09T13:32:33.843848Z",
+                "name": "Pvalb-T2A-CreERT2",
+                "taxonomy_id": "http://bbp.epfl.ch/neurosciencegraph/ontologies/speciestaxonomy/RxoGvqCAmwBJS0E7RVI7qT",
+                "species_id": "f48a8b1f-9781-4d78-b562-27cafddb5885"
+            },
+            "brain_region": {
+                "creation_date": "2025-05-09T13:32:18.034672Z",
+                "update_date": "2025-05-09T13:32:18.034672Z",
+                "id": "22b3ce34-867a-4ac9-879b-e4e53a6e8f12",
+                "annotation_value": 262,
+                "name": "Reticular nucleus of the thalamus",
+                "acronym": "RT",
+                "color_hex_triplet": "FF909F",
+                "parent_structure_id": "e08c28eb-3218-4fbf-8dcc-bbedc0e0d55b",
+                "hierarchy_id": "e3e70682-c209-4cac-a29f-6fbed82c07cd"
+            },
+            "contributions": [
+                {
+                    "id": "da278b16-02f3-4412-90a4-ea5075ff93b7",
+                    "creation_date": "2025-05-09T13:32:35.321003Z",
+                    "update_date": "2025-05-09T13:32:35.321003Z",
+                    "agent": {
+                        "id": "2cd71c4a-d847-4872-878c-8b5f911eace3",
+                        "creation_date": "2020-08-28T11:43:59.117000Z",
+                        "update_date": "2022-04-11T08:28:04.176000Z",
+                        "pref_label": "Southeast University",
+                        "alternative_name": "",
+                        "type": "organization"
+                    },
+                    "role": {
+                        "id": "934ef973-9e2d-4e6d-aca6-9df5fe41f89a",
+                        "creation_date": "2025-05-09T13:32:33.674795Z",
+                        "update_date": "2025-05-09T13:32:33.674795Z",
+                        "name": "unspecified",
+                        "role_id": "unspecified"
+                    }
+                }
+            ],
+            "mtypes": []
+        },
+        {
+            "type": "reconstruction_morphology",
+            "assets": [
+                {
+                    "path": "18868_05467.swc",
+                    "full_path": "public/a98b7abc-fc46-4700-9e3d-37137812c730/0dbced5f-cc3d-488a-8c7f-cfb8ea039dc6/assets/reconstruction_morphology/758787d5-c03f-46ff-8a10-62d20b3e2a11/18868_05467.swc",
+                    "is_directory": false,
+                    "content_type": "application/swc",
+                    "size": 669320,
+                    "sha256_digest": "d67815327d863991fc13566a96472ea2f85485dfc21131aa28381cf69b58aa42",
+                    "meta": {
+                        "legacy": {
+                            "name": "18868_05467.swc",
+                            "@type": "DataDownload",
+                            "digest": {
+                                "value": "d67815327d863991fc13566a96472ea2f85485dfc21131aa28381cf69b58aa42",
+                                "algorithm": "SHA-256"
+                            },
+                            "atLocation": {
+                                "@type": "Location",
+                                "store": {
+                                    "@id": "https://bbp.epfl.ch/neurosciencegraph/data/storages/proj166_storage",
+                                    "_rev": 1,
+                                    "@type": "RemoteDiskStorage"
+                                },
+                                "location": "file:///gpfs/bbp.cscs.ch/data/project/proj166/nexus/bbp-external/seu/6/b/6/f/8/5/9/c/18868_05467.swc"
+                            },
+                            "contentUrl": "https://bbp.epfl.ch/nexus/v1/files/bbp-external/seu/https%3A%2F%2Fbbp.epfl.ch%2Fdata%2Fbbp-external%2Fseu%2Ff6e386a9-9b84-43f0-babe-1df7804802bf",
+                            "contentSize": {
+                                "value": 669320,
+                                "unitCode": "bytes"
+                            },
+                            "encodingFormat": "application/swc"
+                        }
+                    },
+                    "label": null,
+                    "id": "f2e86c9b-34df-4f8a-bebe-dd5fa8828af2",
+                    "status": "created"
+                },
+                {
+                    "path": "18868_05467.asc",
+                    "full_path": "public/a98b7abc-fc46-4700-9e3d-37137812c730/0dbced5f-cc3d-488a-8c7f-cfb8ea039dc6/assets/reconstruction_morphology/758787d5-c03f-46ff-8a10-62d20b3e2a11/18868_05467.asc",
+                    "is_directory": false,
+                    "content_type": "application/asc",
+                    "size": 1186903,
+                    "sha256_digest": "9cca938533f0ea12e3adce35c82c0ab9f3c77082f408436a7c83f4678b0778b2",
+                    "meta": {
+                        "legacy": {
+                            "name": "18868_05467.asc",
+                            "@type": "DataDownload",
+                            "digest": {
+                                "value": "9cca938533f0ea12e3adce35c82c0ab9f3c77082f408436a7c83f4678b0778b2",
+                                "algorithm": "SHA-256"
+                            },
+                            "atLocation": {
+                                "@type": "Location",
+                                "store": {
+                                    "@id": "https://bbp.epfl.ch/neurosciencegraph/data/storages/proj166_storage",
+                                    "_rev": 1,
+                                    "@type": "RemoteDiskStorage"
+                                },
+                                "location": "file:///gpfs/bbp.cscs.ch/data/project/proj166/nexus/bbp-external/seu/8/c/8/c/e/b/7/e/18868_05467.asc"
+                            },
+                            "contentUrl": "https://bbp.epfl.ch/nexus/v1/files/bbp-external/seu/https%3A%2F%2Fbbp.epfl.ch%2Fdata%2Fbbp-external%2Fseu%2F7f02459c-3ee9-4a2e-ac1e-10bff3eba921",
+                            "contentSize": {
+                                "value": 1186903,
+                                "unitCode": "bytes"
+                            },
+                            "encodingFormat": "application/asc"
+                        }
+                    },
+                    "label": null,
+                    "id": "cd824dc4-083e-4782-b574-bca788ae2c7e",
+                    "status": "created"
+                },
+                {
+                    "path": "18868_05467.h5",
+                    "full_path": "public/a98b7abc-fc46-4700-9e3d-37137812c730/0dbced5f-cc3d-488a-8c7f-cfb8ea039dc6/assets/reconstruction_morphology/758787d5-c03f-46ff-8a10-62d20b3e2a11/18868_05467.h5",
+                    "is_directory": false,
+                    "content_type": "application/h5",
+                    "size": 266484,
+                    "sha256_digest": "bbf71162ff72a479b54790124547294d9e3689e6d774d5d142c12f89c7a680dc",
+                    "meta": {
+                        "legacy": {
+                            "name": "18868_05467.h5",
+                            "@type": "DataDownload",
+                            "digest": {
+                                "value": "bbf71162ff72a479b54790124547294d9e3689e6d774d5d142c12f89c7a680dc",
+                                "algorithm": "SHA-256"
+                            },
+                            "atLocation": {
+                                "@type": "Location",
+                                "store": {
+                                    "@id": "https://bbp.epfl.ch/neurosciencegraph/data/storages/proj166_storage",
+                                    "_rev": 1,
+                                    "@type": "RemoteDiskStorage"
+                                },
+                                "location": "file:///gpfs/bbp.cscs.ch/data/project/proj166/nexus/bbp-external/seu/1/5/c/2/6/a/e/1/18868_05467.h5"
+                            },
+                            "contentUrl": "https://bbp.epfl.ch/nexus/v1/files/bbp-external/seu/https%3A%2F%2Fbbp.epfl.ch%2Fdata%2Fbbp-external%2Fseu%2F1c8db890-d459-4317-bebc-25b4c0347cac",
+                            "contentSize": {
+                                "value": 266484,
+                                "unitCode": "bytes"
+                            },
+                            "encodingFormat": "application/h5"
+                        }
+                    },
+                    "label": null,
+                    "id": "db7b74e6-7819-4026-a114-889b3fffc8b6",
+                    "status": "created"
+                }
+            ],
+            "authorized_project_id": "0dbced5f-cc3d-488a-8c7f-cfb8ea039dc6",
+            "authorized_public": true,
+            "license": null,
+            "id": "758787d5-c03f-46ff-8a10-62d20b3e2a11",
+            "creation_date": "2024-02-12T15:49:28.812853Z",
+            "update_date": "2024-12-04T13:56:08.791937Z",
+            "name": "18868_05467",
+            "description": "Initial neuron morphology shared by provider",
+            "location": {
+                "x": 7258.77490234375,
+                "y": 4185.875,
+                "z": 2901.449951171875
+            },
+            "legacy_id": [
+                "https://bbp.epfl.ch/data/bbp-external/seu/a194ad83-d0f4-4961-bd15-5fc3edaa751b"
+            ],
+            "species": {
+                "id": "f48a8b1f-9781-4d78-b562-27cafddb5885",
+                "creation_date": "2025-05-09T13:32:33.653338Z",
+                "update_date": "2025-05-09T13:32:33.653338Z",
+                "name": "Mus musculus",
+                "taxonomy_id": "NCBITaxon:10090"
+            },
+            "strain": {
+                "id": "741b6a4e-3a31-494a-8261-ff47502edf35",
+                "creation_date": "2025-05-09T13:32:33.843848Z",
+                "update_date": "2025-05-09T13:32:33.843848Z",
+                "name": "Pvalb-T2A-CreERT2",
+                "taxonomy_id": "http://bbp.epfl.ch/neurosciencegraph/ontologies/speciestaxonomy/RxoGvqCAmwBJS0E7RVI7qT",
+                "species_id": "f48a8b1f-9781-4d78-b562-27cafddb5885"
+            },
+            "brain_region": {
+                "creation_date": "2025-05-09T13:32:18.034672Z",
+                "update_date": "2025-05-09T13:32:18.034672Z",
+                "id": "22b3ce34-867a-4ac9-879b-e4e53a6e8f12",
+                "annotation_value": 262,
+                "name": "Reticular nucleus of the thalamus",
+                "acronym": "RT",
+                "color_hex_triplet": "FF909F",
+                "parent_structure_id": "e08c28eb-3218-4fbf-8dcc-bbedc0e0d55b",
+                "hierarchy_id": "e3e70682-c209-4cac-a29f-6fbed82c07cd"
+            },
+            "contributions": [
+                {
+                    "id": "00bb3d15-8d61-4a2b-8b2f-e477376c47bb",
+                    "creation_date": "2025-05-09T13:32:35.298505Z",
+                    "update_date": "2025-05-09T13:32:35.298505Z",
+                    "agent": {
+                        "id": "2cd71c4a-d847-4872-878c-8b5f911eace3",
+                        "creation_date": "2020-08-28T11:43:59.117000Z",
+                        "update_date": "2022-04-11T08:28:04.176000Z",
+                        "pref_label": "Southeast University",
+                        "alternative_name": "",
+                        "type": "organization"
+                    },
+                    "role": {
+                        "id": "934ef973-9e2d-4e6d-aca6-9df5fe41f89a",
+                        "creation_date": "2025-05-09T13:32:33.674795Z",
+                        "update_date": "2025-05-09T13:32:33.674795Z",
+                        "name": "unspecified",
+                        "role_id": "unspecified"
+                    }
+                }
+            ],
+            "mtypes": []
+        },
+        {
+            "type": "reconstruction_morphology",
+            "assets": [
+                {
+                    "path": "18454_01135.swc",
+                    "full_path": "public/a98b7abc-fc46-4700-9e3d-37137812c730/0dbced5f-cc3d-488a-8c7f-cfb8ea039dc6/assets/reconstruction_morphology/22a04e2a-7f70-48ee-9108-cf0fa663ee15/18454_01135.swc",
+                    "is_directory": false,
+                    "content_type": "application/swc",
+                    "size": 803367,
+                    "sha256_digest": "fab0cebaf92c94168eaecbab6b2a6d154bf373c431667848569f1925a9758111",
+                    "meta": {
+                        "legacy": {
+                            "name": "18454_01135.swc",
+                            "@type": "DataDownload",
+                            "digest": {
+                                "value": "fab0cebaf92c94168eaecbab6b2a6d154bf373c431667848569f1925a9758111",
+                                "algorithm": "SHA-256"
+                            },
+                            "atLocation": {
+                                "@type": "Location",
+                                "store": {
+                                    "@id": "https://bbp.epfl.ch/neurosciencegraph/data/storages/proj166_storage",
+                                    "_rev": 1,
+                                    "@type": "RemoteDiskStorage"
+                                },
+                                "location": "file:///gpfs/bbp.cscs.ch/data/project/proj166/nexus/bbp-external/seu/f/a/8/1/b/4/b/8/18454_01135.swc"
+                            },
+                            "contentUrl": "https://bbp.epfl.ch/nexus/v1/files/bbp-external/seu/https%3A%2F%2Fbbp.epfl.ch%2Fdata%2Fbbp-external%2Fseu%2F9fca27ff-c362-4c90-8734-18c58d47a24a",
+                            "contentSize": {
+                                "value": 803367,
+                                "unitCode": "bytes"
+                            },
+                            "encodingFormat": "application/swc"
+                        }
+                    },
+                    "label": null,
+                    "id": "e438573f-607c-4e9c-ae7a-cacaa846964f",
+                    "status": "created"
+                },
+                {
+                    "path": "18454_01135.asc",
+                    "full_path": "public/a98b7abc-fc46-4700-9e3d-37137812c730/0dbced5f-cc3d-488a-8c7f-cfb8ea039dc6/assets/reconstruction_morphology/22a04e2a-7f70-48ee-9108-cf0fa663ee15/18454_01135.asc",
+                    "is_directory": false,
+                    "content_type": "application/asc",
+                    "size": 1419509,
+                    "sha256_digest": "17a737d55d2aff63b68cad9c22941803e646632409325fd6caf9bb3035331cce",
+                    "meta": {
+                        "legacy": {
+                            "name": "18454_01135.asc",
+                            "@type": "DataDownload",
+                            "digest": {
+                                "value": "17a737d55d2aff63b68cad9c22941803e646632409325fd6caf9bb3035331cce",
+                                "algorithm": "SHA-256"
+                            },
+                            "atLocation": {
+                                "@type": "Location",
+                                "store": {
+                                    "@id": "https://bbp.epfl.ch/neurosciencegraph/data/storages/proj166_storage",
+                                    "_rev": 1,
+                                    "@type": "RemoteDiskStorage"
+                                },
+                                "location": "file:///gpfs/bbp.cscs.ch/data/project/proj166/nexus/bbp-external/seu/b/e/4/3/5/9/7/e/18454_01135.asc"
+                            },
+                            "contentUrl": "https://bbp.epfl.ch/nexus/v1/files/bbp-external/seu/https%3A%2F%2Fbbp.epfl.ch%2Fdata%2Fbbp-external%2Fseu%2Fcb50d4d1-b488-4d0e-85d2-66c465274bff",
+                            "contentSize": {
+                                "value": 1419509,
+                                "unitCode": "bytes"
+                            },
+                            "encodingFormat": "application/asc"
+                        }
+                    },
+                    "label": null,
+                    "id": "81660c3d-3ace-477a-982a-dac9b44176a1",
+                    "status": "created"
+                },
+                {
+                    "path": "18454_01135.h5",
+                    "full_path": "public/a98b7abc-fc46-4700-9e3d-37137812c730/0dbced5f-cc3d-488a-8c7f-cfb8ea039dc6/assets/reconstruction_morphology/22a04e2a-7f70-48ee-9108-cf0fa663ee15/18454_01135.h5",
+                    "is_directory": false,
+                    "content_type": "application/h5",
+                    "size": 312868,
+                    "sha256_digest": "60efd8a9cea4814f2884c6763d1774b4877b069115d2fe9d89564bf5b6619710",
+                    "meta": {
+                        "legacy": {
+                            "name": "18454_01135.h5",
+                            "@type": "DataDownload",
+                            "digest": {
+                                "value": "60efd8a9cea4814f2884c6763d1774b4877b069115d2fe9d89564bf5b6619710",
+                                "algorithm": "SHA-256"
+                            },
+                            "atLocation": {
+                                "@type": "Location",
+                                "store": {
+                                    "@id": "https://bbp.epfl.ch/neurosciencegraph/data/storages/proj166_storage",
+                                    "_rev": 1,
+                                    "@type": "RemoteDiskStorage"
+                                },
+                                "location": "file:///gpfs/bbp.cscs.ch/data/project/proj166/nexus/bbp-external/seu/8/9/a/9/4/8/0/5/18454_01135.h5"
+                            },
+                            "contentUrl": "https://bbp.epfl.ch/nexus/v1/files/bbp-external/seu/https%3A%2F%2Fbbp.epfl.ch%2Fdata%2Fbbp-external%2Fseu%2F2ce048cc-a822-406d-83a2-8ed3c27281bf",
+                            "contentSize": {
+                                "value": 312868,
+                                "unitCode": "bytes"
+                            },
+                            "encodingFormat": "application/h5"
+                        }
+                    },
+                    "label": null,
+                    "id": "a43c51a6-cef8-4ce0-9481-3f5e366e8137",
+                    "status": "created"
+                }
+            ],
+            "authorized_project_id": "0dbced5f-cc3d-488a-8c7f-cfb8ea039dc6",
+            "authorized_public": true,
+            "license": null,
+            "id": "22a04e2a-7f70-48ee-9108-cf0fa663ee15",
+            "creation_date": "2024-02-12T15:49:16.891450Z",
+            "update_date": "2024-12-04T13:56:00.344929Z",
+            "name": "18454_01135",
+            "description": "Initial neuron morphology shared by provider",
+            "location": {
+                "x": 7000.97509765625,
+                "y": 3499.275146484375,
+                "z": 7935.39990234375
+            },
+            "legacy_id": [
+                "https://bbp.epfl.ch/data/bbp-external/seu/38de7bac-2822-4fc5-a5d2-ec0072baa999"
+            ],
+            "species": {
+                "id": "f48a8b1f-9781-4d78-b562-27cafddb5885",
+                "creation_date": "2025-05-09T13:32:33.653338Z",
+                "update_date": "2025-05-09T13:32:33.653338Z",
+                "name": "Mus musculus",
+                "taxonomy_id": "NCBITaxon:10090"
+            },
+            "strain": {
+                "id": "c0fe77f4-cc8f-4435-8877-dcaf0212302d",
+                "creation_date": "2025-05-09T13:32:35.244142Z",
+                "update_date": "2025-05-09T13:32:35.244142Z",
+                "name": "Tnnt1-IRES2-CreERT2",
+                "taxonomy_id": "http://bbp.epfl.ch/neurosciencegraph/ontologies/speciestaxonomy/R7VSXBJ6dYm8vikkDPJqne8",
+                "species_id": "f48a8b1f-9781-4d78-b562-27cafddb5885"
+            },
+            "brain_region": {
+                "creation_date": "2025-05-09T13:32:18.034672Z",
+                "update_date": "2025-05-09T13:32:18.034672Z",
+                "id": "22b3ce34-867a-4ac9-879b-e4e53a6e8f12",
+                "annotation_value": 262,
+                "name": "Reticular nucleus of the thalamus",
+                "acronym": "RT",
+                "color_hex_triplet": "FF909F",
+                "parent_structure_id": "e08c28eb-3218-4fbf-8dcc-bbedc0e0d55b",
+                "hierarchy_id": "e3e70682-c209-4cac-a29f-6fbed82c07cd"
+            },
+            "contributions": [
+                {
+                    "id": "63b1ed78-9dc2-432a-b649-b8937c9ce14f",
+                    "creation_date": "2025-05-09T13:32:35.258785Z",
+                    "update_date": "2025-05-09T13:32:35.258785Z",
+                    "agent": {
+                        "id": "2cd71c4a-d847-4872-878c-8b5f911eace3",
+                        "creation_date": "2020-08-28T11:43:59.117000Z",
+                        "update_date": "2022-04-11T08:28:04.176000Z",
+                        "pref_label": "Southeast University",
+                        "alternative_name": "",
+                        "type": "organization"
+                    },
+                    "role": {
+                        "id": "934ef973-9e2d-4e6d-aca6-9df5fe41f89a",
+                        "creation_date": "2025-05-09T13:32:33.674795Z",
+                        "update_date": "2025-05-09T13:32:33.674795Z",
+                        "name": "unspecified",
+                        "role_id": "unspecified"
+                    }
+                }
+            ],
+            "mtypes": []
+        },
+        {
+            "type": "reconstruction_morphology",
+            "assets": [
+                {
+                    "path": "18454_01137.swc",
+                    "full_path": "public/a98b7abc-fc46-4700-9e3d-37137812c730/0dbced5f-cc3d-488a-8c7f-cfb8ea039dc6/assets/reconstruction_morphology/cbc86ebb-09f4-4200-b732-81bac3537283/18454_01137.swc",
+                    "is_directory": false,
+                    "content_type": "application/swc",
+                    "size": 660434,
+                    "sha256_digest": "9dda0e7c23fe8a1ce73b0986d3d786d7b6b5cfc89c5edbca7eaa9e304c09211f",
+                    "meta": {
+                        "legacy": {
+                            "name": "18454_01137.swc",
+                            "@type": "DataDownload",
+                            "digest": {
+                                "value": "9dda0e7c23fe8a1ce73b0986d3d786d7b6b5cfc89c5edbca7eaa9e304c09211f",
+                                "algorithm": "SHA-256"
+                            },
+                            "atLocation": {
+                                "@type": "Location",
+                                "store": {
+                                    "@id": "https://bbp.epfl.ch/neurosciencegraph/data/storages/proj166_storage",
+                                    "_rev": 1,
+                                    "@type": "RemoteDiskStorage"
+                                },
+                                "location": "file:///gpfs/bbp.cscs.ch/data/project/proj166/nexus/bbp-external/seu/c/4/a/d/5/9/b/b/18454_01137.swc"
+                            },
+                            "contentUrl": "https://bbp.epfl.ch/nexus/v1/files/bbp-external/seu/https%3A%2F%2Fbbp.epfl.ch%2Fdata%2Fbbp-external%2Fseu%2F54541fa0-37de-40b1-b89c-9c654409e8cb",
+                            "contentSize": {
+                                "value": 660434,
+                                "unitCode": "bytes"
+                            },
+                            "encodingFormat": "application/swc"
+                        }
+                    },
+                    "label": null,
+                    "id": "224d700e-6872-4450-bc62-d65eeafc3c71",
+                    "status": "created"
+                },
+                {
+                    "path": "18454_01137.asc",
+                    "full_path": "public/a98b7abc-fc46-4700-9e3d-37137812c730/0dbced5f-cc3d-488a-8c7f-cfb8ea039dc6/assets/reconstruction_morphology/cbc86ebb-09f4-4200-b732-81bac3537283/18454_01137.asc",
+                    "is_directory": false,
+                    "content_type": "application/asc",
+                    "size": 1145315,
+                    "sha256_digest": "a6648ce86c1a82903537fda02bccda02c4bcee5e8ce3dca747d28ba21561880d",
+                    "meta": {
+                        "legacy": {
+                            "name": "18454_01137.asc",
+                            "@type": "DataDownload",
+                            "digest": {
+                                "value": "a6648ce86c1a82903537fda02bccda02c4bcee5e8ce3dca747d28ba21561880d",
+                                "algorithm": "SHA-256"
+                            },
+                            "atLocation": {
+                                "@type": "Location",
+                                "store": {
+                                    "@id": "https://bbp.epfl.ch/neurosciencegraph/data/storages/proj166_storage",
+                                    "_rev": 1,
+                                    "@type": "RemoteDiskStorage"
+                                },
+                                "location": "file:///gpfs/bbp.cscs.ch/data/project/proj166/nexus/bbp-external/seu/3/c/b/b/4/e/1/7/18454_01137.asc"
+                            },
+                            "contentUrl": "https://bbp.epfl.ch/nexus/v1/files/bbp-external/seu/https%3A%2F%2Fbbp.epfl.ch%2Fdata%2Fbbp-external%2Fseu%2Fb31a5a69-f3a6-4733-bd3d-9e8daafbb710",
+                            "contentSize": {
+                                "value": 1145315,
+                                "unitCode": "bytes"
+                            },
+                            "encodingFormat": "application/asc"
+                        }
+                    },
+                    "label": null,
+                    "id": "5c25ca58-1a08-45f7-9d41-1d035739169d",
+                    "status": "created"
+                },
+                {
+                    "path": "18454_01137.h5",
+                    "full_path": "public/a98b7abc-fc46-4700-9e3d-37137812c730/0dbced5f-cc3d-488a-8c7f-cfb8ea039dc6/assets/reconstruction_morphology/cbc86ebb-09f4-4200-b732-81bac3537283/18454_01137.h5",
+                    "is_directory": false,
+                    "content_type": "application/h5",
+                    "size": 261280,
+                    "sha256_digest": "8e3f1ba10cf9a86e4cade6bd7ae7811c168bb23b69db774a911273a54d171bb3",
+                    "meta": {
+                        "legacy": {
+                            "name": "18454_01137.h5",
+                            "@type": "DataDownload",
+                            "digest": {
+                                "value": "8e3f1ba10cf9a86e4cade6bd7ae7811c168bb23b69db774a911273a54d171bb3",
+                                "algorithm": "SHA-256"
+                            },
+                            "atLocation": {
+                                "@type": "Location",
+                                "store": {
+                                    "@id": "https://bbp.epfl.ch/neurosciencegraph/data/storages/proj166_storage",
+                                    "_rev": 1,
+                                    "@type": "RemoteDiskStorage"
+                                },
+                                "location": "file:///gpfs/bbp.cscs.ch/data/project/proj166/nexus/bbp-external/seu/7/f/e/2/3/9/c/c/18454_01137.h5"
+                            },
+                            "contentUrl": "https://bbp.epfl.ch/nexus/v1/files/bbp-external/seu/https%3A%2F%2Fbbp.epfl.ch%2Fdata%2Fbbp-external%2Fseu%2Fea767fd6-8983-4e77-a9f2-61988715b64c",
+                            "contentSize": {
+                                "value": 261280,
+                                "unitCode": "bytes"
+                            },
+                            "encodingFormat": "application/h5"
+                        }
+                    },
+                    "label": null,
+                    "id": "bce22efe-bec8-4d1a-b099-05276ea170a5",
+                    "status": "created"
+                }
+            ],
+            "authorized_project_id": "0dbced5f-cc3d-488a-8c7f-cfb8ea039dc6",
+            "authorized_public": true,
+            "license": null,
+            "id": "cbc86ebb-09f4-4200-b732-81bac3537283",
+            "creation_date": "2024-02-12T15:49:15.391915Z",
+            "update_date": "2024-12-04T13:55:59.344101Z",
+            "name": "18454_01137",
+            "description": "Initial neuron morphology shared by provider",
+            "location": {
+                "x": 6750.64990234375,
+                "y": 3751.625,
+                "z": 8050.07568359375
+            },
+            "legacy_id": [
+                "https://bbp.epfl.ch/data/bbp-external/seu/50936442-f3b6-4283-b6f9-3f9445fb0abd"
+            ],
+            "species": {
+                "id": "f48a8b1f-9781-4d78-b562-27cafddb5885",
+                "creation_date": "2025-05-09T13:32:33.653338Z",
+                "update_date": "2025-05-09T13:32:33.653338Z",
+                "name": "Mus musculus",
+                "taxonomy_id": "NCBITaxon:10090"
+            },
+            "strain": {
+                "id": "c0fe77f4-cc8f-4435-8877-dcaf0212302d",
+                "creation_date": "2025-05-09T13:32:35.244142Z",
+                "update_date": "2025-05-09T13:32:35.244142Z",
+                "name": "Tnnt1-IRES2-CreERT2",
+                "taxonomy_id": "http://bbp.epfl.ch/neurosciencegraph/ontologies/speciestaxonomy/R7VSXBJ6dYm8vikkDPJqne8",
+                "species_id": "f48a8b1f-9781-4d78-b562-27cafddb5885"
+            },
+            "brain_region": {
+                "creation_date": "2025-05-09T13:32:18.034672Z",
+                "update_date": "2025-05-09T13:32:18.034672Z",
+                "id": "22b3ce34-867a-4ac9-879b-e4e53a6e8f12",
+                "annotation_value": 262,
+                "name": "Reticular nucleus of the thalamus",
+                "acronym": "RT",
+                "color_hex_triplet": "FF909F",
+                "parent_structure_id": "e08c28eb-3218-4fbf-8dcc-bbedc0e0d55b",
+                "hierarchy_id": "e3e70682-c209-4cac-a29f-6fbed82c07cd"
+            },
+            "contributions": [
+                {
+                    "id": "b8f0ef05-1d66-49b2-855c-ab91c5577b28",
+                    "creation_date": "2025-05-09T13:32:35.253453Z",
+                    "update_date": "2025-05-09T13:32:35.253453Z",
+                    "agent": {
+                        "id": "2cd71c4a-d847-4872-878c-8b5f911eace3",
+                        "creation_date": "2020-08-28T11:43:59.117000Z",
+                        "update_date": "2022-04-11T08:28:04.176000Z",
+                        "pref_label": "Southeast University",
+                        "alternative_name": "",
+                        "type": "organization"
+                    },
+                    "role": {
+                        "id": "934ef973-9e2d-4e6d-aca6-9df5fe41f89a",
+                        "creation_date": "2025-05-09T13:32:33.674795Z",
+                        "update_date": "2025-05-09T13:32:33.674795Z",
+                        "name": "unspecified",
+                        "role_id": "unspecified"
+                    }
+                }
+            ],
+            "mtypes": []
+        },
+        {
+            "type": "reconstruction_morphology",
+            "assets": [
+                {
+                    "path": "18454_01136.swc",
+                    "full_path": "public/a98b7abc-fc46-4700-9e3d-37137812c730/0dbced5f-cc3d-488a-8c7f-cfb8ea039dc6/assets/reconstruction_morphology/804a726c-49a4-41d0-8af1-d3c8b228f66a/18454_01136.swc",
+                    "is_directory": false,
+                    "content_type": "application/swc",
+                    "size": 641890,
+                    "sha256_digest": "7abd455287cac4c4f0e625803accd98b93787a478fda34969e3fd22fa85c892f",
+                    "meta": {
+                        "legacy": {
+                            "name": "18454_01136.swc",
+                            "@type": "DataDownload",
+                            "digest": {
+                                "value": "7abd455287cac4c4f0e625803accd98b93787a478fda34969e3fd22fa85c892f",
+                                "algorithm": "SHA-256"
+                            },
+                            "atLocation": {
+                                "@type": "Location",
+                                "store": {
+                                    "@id": "https://bbp.epfl.ch/neurosciencegraph/data/storages/proj166_storage",
+                                    "_rev": 1,
+                                    "@type": "RemoteDiskStorage"
+                                },
+                                "location": "file:///gpfs/bbp.cscs.ch/data/project/proj166/nexus/bbp-external/seu/d/d/3/2/9/e/3/c/18454_01136.swc"
+                            },
+                            "contentUrl": "https://bbp.epfl.ch/nexus/v1/files/bbp-external/seu/https%3A%2F%2Fbbp.epfl.ch%2Fdata%2Fbbp-external%2Fseu%2Fd330a273-ef4f-4e08-b42f-a9a0c08d7dfc",
+                            "contentSize": {
+                                "value": 641890,
+                                "unitCode": "bytes"
+                            },
+                            "encodingFormat": "application/swc"
+                        }
+                    },
+                    "label": null,
+                    "id": "7a6bf0b0-9525-4d68-94ad-daba15eee4fe",
+                    "status": "created"
+                },
+                {
+                    "path": "18454_01136.asc",
+                    "full_path": "public/a98b7abc-fc46-4700-9e3d-37137812c730/0dbced5f-cc3d-488a-8c7f-cfb8ea039dc6/assets/reconstruction_morphology/804a726c-49a4-41d0-8af1-d3c8b228f66a/18454_01136.asc",
+                    "is_directory": false,
+                    "content_type": "application/asc",
+                    "size": 1121146,
+                    "sha256_digest": "a4624fb83377dd9ce81666f355763efa58b0f0d591ba16aac17ed8f36a7989af",
+                    "meta": {
+                        "legacy": {
+                            "name": "18454_01136.asc",
+                            "@type": "DataDownload",
+                            "digest": {
+                                "value": "a4624fb83377dd9ce81666f355763efa58b0f0d591ba16aac17ed8f36a7989af",
+                                "algorithm": "SHA-256"
+                            },
+                            "atLocation": {
+                                "@type": "Location",
+                                "store": {
+                                    "@id": "https://bbp.epfl.ch/neurosciencegraph/data/storages/proj166_storage",
+                                    "_rev": 1,
+                                    "@type": "RemoteDiskStorage"
+                                },
+                                "location": "file:///gpfs/bbp.cscs.ch/data/project/proj166/nexus/bbp-external/seu/4/f/a/4/a/e/d/a/18454_01136.asc"
+                            },
+                            "contentUrl": "https://bbp.epfl.ch/nexus/v1/files/bbp-external/seu/https%3A%2F%2Fbbp.epfl.ch%2Fdata%2Fbbp-external%2Fseu%2F98ccb787-852a-41c8-a038-2c098704df1d",
+                            "contentSize": {
+                                "value": 1121146,
+                                "unitCode": "bytes"
+                            },
+                            "encodingFormat": "application/asc"
+                        }
+                    },
+                    "label": null,
+                    "id": "ae8a2c48-455f-4a0f-b4c8-bebd6e6ffcb9",
+                    "status": "created"
+                },
+                {
+                    "path": "18454_01136.h5",
+                    "full_path": "public/a98b7abc-fc46-4700-9e3d-37137812c730/0dbced5f-cc3d-488a-8c7f-cfb8ea039dc6/assets/reconstruction_morphology/804a726c-49a4-41d0-8af1-d3c8b228f66a/18454_01136.h5",
+                    "is_directory": false,
+                    "content_type": "application/h5",
+                    "size": 254112,
+                    "sha256_digest": "748a48fc2745cda667b2ec8dbfd63bb3a904c56875216ebc5c8933eeaa7ea175",
+                    "meta": {
+                        "legacy": {
+                            "name": "18454_01136.h5",
+                            "@type": "DataDownload",
+                            "digest": {
+                                "value": "748a48fc2745cda667b2ec8dbfd63bb3a904c56875216ebc5c8933eeaa7ea175",
+                                "algorithm": "SHA-256"
+                            },
+                            "atLocation": {
+                                "@type": "Location",
+                                "store": {
+                                    "@id": "https://bbp.epfl.ch/neurosciencegraph/data/storages/proj166_storage",
+                                    "_rev": 1,
+                                    "@type": "RemoteDiskStorage"
+                                },
+                                "location": "file:///gpfs/bbp.cscs.ch/data/project/proj166/nexus/bbp-external/seu/4/3/5/2/5/9/c/e/18454_01136.h5"
+                            },
+                            "contentUrl": "https://bbp.epfl.ch/nexus/v1/files/bbp-external/seu/https%3A%2F%2Fbbp.epfl.ch%2Fdata%2Fbbp-external%2Fseu%2F15759cc8-d816-477e-8514-e63cae5fb2a1",
+                            "contentSize": {
+                                "value": 254112,
+                                "unitCode": "bytes"
+                            },
+                            "encodingFormat": "application/h5"
+                        }
+                    },
+                    "label": null,
+                    "id": "15bd9c1e-a504-4b0a-8150-4bba4a9ee3fd",
+                    "status": "created"
+                }
+            ],
+            "authorized_project_id": "0dbced5f-cc3d-488a-8c7f-cfb8ea039dc6",
+            "authorized_public": true,
+            "license": null,
+            "id": "804a726c-49a4-41d0-8af1-d3c8b228f66a",
+            "creation_date": "2024-02-12T15:49:11.387139Z",
+            "update_date": "2024-12-04T13:55:58.027842Z",
+            "name": "18454_01136",
+            "description": "Initial neuron morphology shared by provider",
+            "location": {
+                "x": 6996.47509765625,
+                "y": 3499.324951171875,
+                "z": 7934.27490234375
+            },
+            "legacy_id": [
+                "https://bbp.epfl.ch/data/bbp-external/seu/8e11c112-950a-4e3d-837c-9b388a80be5b"
+            ],
+            "species": {
+                "id": "f48a8b1f-9781-4d78-b562-27cafddb5885",
+                "creation_date": "2025-05-09T13:32:33.653338Z",
+                "update_date": "2025-05-09T13:32:33.653338Z",
+                "name": "Mus musculus",
+                "taxonomy_id": "NCBITaxon:10090"
+            },
+            "strain": {
+                "id": "c0fe77f4-cc8f-4435-8877-dcaf0212302d",
+                "creation_date": "2025-05-09T13:32:35.244142Z",
+                "update_date": "2025-05-09T13:32:35.244142Z",
+                "name": "Tnnt1-IRES2-CreERT2",
+                "taxonomy_id": "http://bbp.epfl.ch/neurosciencegraph/ontologies/speciestaxonomy/R7VSXBJ6dYm8vikkDPJqne8",
+                "species_id": "f48a8b1f-9781-4d78-b562-27cafddb5885"
+            },
+            "brain_region": {
+                "creation_date": "2025-05-09T13:32:18.034672Z",
+                "update_date": "2025-05-09T13:32:18.034672Z",
+                "id": "22b3ce34-867a-4ac9-879b-e4e53a6e8f12",
+                "annotation_value": 262,
+                "name": "Reticular nucleus of the thalamus",
+                "acronym": "RT",
+                "color_hex_triplet": "FF909F",
+                "parent_structure_id": "e08c28eb-3218-4fbf-8dcc-bbedc0e0d55b",
+                "hierarchy_id": "e3e70682-c209-4cac-a29f-6fbed82c07cd"
+            },
+            "contributions": [
+                {
+                    "id": "d5f592ed-4481-484a-90b7-cfe6c3babd1c",
+                    "creation_date": "2025-05-09T13:32:35.247906Z",
+                    "update_date": "2025-05-09T13:32:35.247906Z",
+                    "agent": {
+                        "id": "2cd71c4a-d847-4872-878c-8b5f911eace3",
+                        "creation_date": "2020-08-28T11:43:59.117000Z",
+                        "update_date": "2022-04-11T08:28:04.176000Z",
+                        "pref_label": "Southeast University",
+                        "alternative_name": "",
+                        "type": "organization"
+                    },
+                    "role": {
+                        "id": "934ef973-9e2d-4e6d-aca6-9df5fe41f89a",
+                        "creation_date": "2025-05-09T13:32:33.674795Z",
+                        "update_date": "2025-05-09T13:32:33.674795Z",
+                        "name": "unspecified",
+                        "role_id": "unspecified"
+                    }
+                }
+            ],
+            "mtypes": []
+        },
+        {
+            "type": "reconstruction_morphology",
+            "assets": [
+                {
+                    "path": "18465_00350.swc",
+                    "full_path": "public/a98b7abc-fc46-4700-9e3d-37137812c730/0dbced5f-cc3d-488a-8c7f-cfb8ea039dc6/assets/reconstruction_morphology/46411b28-eec7-4ca6-97e5-c96168297e62/18465_00350.swc",
+                    "is_directory": false,
+                    "content_type": "application/swc",
+                    "size": 1439794,
+                    "sha256_digest": "01309140cf1ef703c0b22d22846da347bfdd2ce256b71869896a585df35aa690",
+                    "meta": {
+                        "legacy": {
+                            "name": "18465_00350.swc",
+                            "@type": "DataDownload",
+                            "digest": {
+                                "value": "01309140cf1ef703c0b22d22846da347bfdd2ce256b71869896a585df35aa690",
+                                "algorithm": "SHA-256"
+                            },
+                            "atLocation": {
+                                "@type": "Location",
+                                "store": {
+                                    "@id": "https://bbp.epfl.ch/neurosciencegraph/data/storages/proj166_storage",
+                                    "_rev": 1,
+                                    "@type": "RemoteDiskStorage"
+                                },
+                                "location": "file:///gpfs/bbp.cscs.ch/data/project/proj166/nexus/bbp-external/seu/a/7/0/0/4/d/6/e/18465_00350.swc"
+                            },
+                            "contentUrl": "https://bbp.epfl.ch/nexus/v1/files/bbp-external/seu/https%3A%2F%2Fbbp.epfl.ch%2Fdata%2Fbbp-external%2Fseu%2F7171253b-8dd6-4f51-aa88-fee3cf96b426",
+                            "contentSize": {
+                                "value": 1439794,
+                                "unitCode": "bytes"
+                            },
+                            "encodingFormat": "application/swc"
+                        }
+                    },
+                    "label": null,
+                    "id": "2f0b3c80-25ee-439d-985f-547fe9d80706",
+                    "status": "created"
+                }
+            ],
+            "authorized_project_id": "0dbced5f-cc3d-488a-8c7f-cfb8ea039dc6",
+            "authorized_public": true,
+            "license": null,
+            "id": "46411b28-eec7-4ca6-97e5-c96168297e62",
+            "creation_date": "2024-02-12T15:49:09.628553Z",
+            "update_date": "2024-12-04T13:55:57.038279Z",
+            "name": "18465_00350",
+            "description": "Initial neuron morphology shared by provider",
+            "location": {
+                "x": 6954.02490234375,
+                "y": 4835.625,
+                "z": 7798.32568359375
+            },
+            "legacy_id": [
+                "https://bbp.epfl.ch/data/bbp-external/seu/60603086-919b-4aee-ac57-57a49100f46b"
+            ],
+            "species": {
+                "id": "f48a8b1f-9781-4d78-b562-27cafddb5885",
+                "creation_date": "2025-05-09T13:32:33.653338Z",
+                "update_date": "2025-05-09T13:32:33.653338Z",
+                "name": "Mus musculus",
+                "taxonomy_id": "NCBITaxon:10090"
+            },
+            "strain": {
+                "id": "dad9a641-37be-43b9-a6af-de023a91acc0",
+                "creation_date": "2025-05-09T13:32:33.775352Z",
+                "update_date": "2025-05-09T13:32:33.775352Z",
+                "name": "Vipr2-IRES2-Cre-neo",
+                "taxonomy_id": "http://bbp.epfl.ch/neurosciencegraph/ontologies/speciestaxonomy/RCIhpGlEct4tnqzSfzEVqIs",
+                "species_id": "f48a8b1f-9781-4d78-b562-27cafddb5885"
+            },
+            "brain_region": {
+                "creation_date": "2025-05-09T13:32:18.034672Z",
+                "update_date": "2025-05-09T13:32:18.034672Z",
+                "id": "22b3ce34-867a-4ac9-879b-e4e53a6e8f12",
+                "annotation_value": 262,
+                "name": "Reticular nucleus of the thalamus",
+                "acronym": "RT",
+                "color_hex_triplet": "FF909F",
+                "parent_structure_id": "e08c28eb-3218-4fbf-8dcc-bbedc0e0d55b",
+                "hierarchy_id": "e3e70682-c209-4cac-a29f-6fbed82c07cd"
+            },
+            "contributions": [
+                {
+                    "id": "97421dcd-bda4-4e15-85f7-0c263bc5135a",
+                    "creation_date": "2025-05-09T13:32:35.240692Z",
+                    "update_date": "2025-05-09T13:32:35.240692Z",
+                    "agent": {
+                        "id": "2cd71c4a-d847-4872-878c-8b5f911eace3",
+                        "creation_date": "2020-08-28T11:43:59.117000Z",
+                        "update_date": "2022-04-11T08:28:04.176000Z",
+                        "pref_label": "Southeast University",
+                        "alternative_name": "",
+                        "type": "organization"
+                    },
+                    "role": {
+                        "id": "934ef973-9e2d-4e6d-aca6-9df5fe41f89a",
+                        "creation_date": "2025-05-09T13:32:33.674795Z",
+                        "update_date": "2025-05-09T13:32:33.674795Z",
+                        "name": "unspecified",
+                        "role_id": "unspecified"
+                    }
+                }
+            ],
+            "mtypes": []
+        },
+        {
+            "type": "reconstruction_morphology",
+            "assets": [
+                {
+                    "path": "201586_00001.swc",
+                    "full_path": "public/a98b7abc-fc46-4700-9e3d-37137812c730/0dbced5f-cc3d-488a-8c7f-cfb8ea039dc6/assets/reconstruction_morphology/8556394f-3177-4575-8f1f-d78964bff7b8/201586_00001.swc",
+                    "is_directory": false,
+                    "content_type": "application/swc",
+                    "size": 545183,
+                    "sha256_digest": "6289fae24e804064c22d9608bc062d69fbf0d8b28e4f8a2615e7b45e70150ee2",
+                    "meta": {
+                        "legacy": {
+                            "name": "201586_00001.swc",
+                            "@type": "DataDownload",
+                            "digest": {
+                                "value": "6289fae24e804064c22d9608bc062d69fbf0d8b28e4f8a2615e7b45e70150ee2",
+                                "algorithm": "SHA-256"
+                            },
+                            "atLocation": {
+                                "@type": "Location",
+                                "store": {
+                                    "@id": "https://bbp.epfl.ch/neurosciencegraph/data/storages/proj166_storage",
+                                    "_rev": 1,
+                                    "@type": "RemoteDiskStorage"
+                                },
+                                "location": "file:///gpfs/bbp.cscs.ch/data/project/proj166/nexus/bbp-external/seu/2/8/b/5/5/4/4/a/201586_00001.swc"
+                            },
+                            "contentUrl": "https://bbp.epfl.ch/nexus/v1/files/bbp-external/seu/https%3A%2F%2Fbbp.epfl.ch%2Fdata%2Fbbp-external%2Fseu%2F14a34716-cecb-45be-a250-a633f7f23da2",
+                            "contentSize": {
+                                "value": 545183,
+                                "unitCode": "bytes"
+                            },
+                            "encodingFormat": "application/swc"
+                        }
+                    },
+                    "label": null,
+                    "id": "a781202a-a547-4db8-b7f8-ea3a37e05227",
+                    "status": "created"
+                },
+                {
+                    "path": "201586_00001.asc",
+                    "full_path": "public/a98b7abc-fc46-4700-9e3d-37137812c730/0dbced5f-cc3d-488a-8c7f-cfb8ea039dc6/assets/reconstruction_morphology/8556394f-3177-4575-8f1f-d78964bff7b8/201586_00001.asc",
+                    "is_directory": false,
+                    "content_type": "application/asc",
+                    "size": 1064684,
+                    "sha256_digest": "d2a9b54a392abebd0fdd3b65ac0011e4435b4d1790d1e766b9f1b4f172fbefc0",
+                    "meta": {
+                        "legacy": {
+                            "name": "201586_00001.asc",
+                            "@type": "DataDownload",
+                            "digest": {
+                                "value": "d2a9b54a392abebd0fdd3b65ac0011e4435b4d1790d1e766b9f1b4f172fbefc0",
+                                "algorithm": "SHA-256"
+                            },
+                            "atLocation": {
+                                "@type": "Location",
+                                "store": {
+                                    "@id": "https://bbp.epfl.ch/neurosciencegraph/data/storages/proj166_storage",
+                                    "_rev": 1,
+                                    "@type": "RemoteDiskStorage"
+                                },
+                                "location": "file:///gpfs/bbp.cscs.ch/data/project/proj166/nexus/bbp-external/seu/5/9/b/2/6/9/2/d/201586_00001.asc"
+                            },
+                            "contentUrl": "https://bbp.epfl.ch/nexus/v1/files/bbp-external/seu/https%3A%2F%2Fbbp.epfl.ch%2Fdata%2Fbbp-external%2Fseu%2F3416ae55-2df6-4705-ab3b-3ffbc3ff5c6f",
+                            "contentSize": {
+                                "value": 1064684,
+                                "unitCode": "bytes"
+                            },
+                            "encodingFormat": "application/asc"
+                        }
+                    },
+                    "label": null,
+                    "id": "87a67f43-df89-44d3-9a3c-dec99fca4e4c",
+                    "status": "created"
+                },
+                {
+                    "path": "201586_00001.h5",
+                    "full_path": "public/a98b7abc-fc46-4700-9e3d-37137812c730/0dbced5f-cc3d-488a-8c7f-cfb8ea039dc6/assets/reconstruction_morphology/8556394f-3177-4575-8f1f-d78964bff7b8/201586_00001.h5",
+                    "is_directory": false,
+                    "content_type": "application/h5",
+                    "size": 224132,
+                    "sha256_digest": "3c21cce1696f9132dd5e647c415c0c5f647dbb791a841809005cc7f423d695b5",
+                    "meta": {
+                        "legacy": {
+                            "name": "201586_00001.h5",
+                            "@type": "DataDownload",
+                            "digest": {
+                                "value": "3c21cce1696f9132dd5e647c415c0c5f647dbb791a841809005cc7f423d695b5",
+                                "algorithm": "SHA-256"
+                            },
+                            "atLocation": {
+                                "@type": "Location",
+                                "store": {
+                                    "@id": "https://bbp.epfl.ch/neurosciencegraph/data/storages/proj166_storage",
+                                    "_rev": 1,
+                                    "@type": "RemoteDiskStorage"
+                                },
+                                "location": "file:///gpfs/bbp.cscs.ch/data/project/proj166/nexus/bbp-external/seu/e/3/4/a/1/7/6/e/201586_00001.h5"
+                            },
+                            "contentUrl": "https://bbp.epfl.ch/nexus/v1/files/bbp-external/seu/https%3A%2F%2Fbbp.epfl.ch%2Fdata%2Fbbp-external%2Fseu%2Fef8ade39-9cdb-4a69-ad67-39385ce00514",
+                            "contentSize": {
+                                "value": 224132,
+                                "unitCode": "bytes"
+                            },
+                            "encodingFormat": "application/h5"
+                        }
+                    },
+                    "label": null,
+                    "id": "03c5497f-cfb5-482b-a177-db1afbb37f9a",
+                    "status": "created"
+                }
+            ],
+            "authorized_project_id": "0dbced5f-cc3d-488a-8c7f-cfb8ea039dc6",
+            "authorized_public": true,
+            "license": null,
+            "id": "8556394f-3177-4575-8f1f-d78964bff7b8",
+            "creation_date": "2024-02-12T15:49:08.412352Z",
+            "update_date": "2024-12-04T13:55:55.670244Z",
+            "name": "201586_00001",
+            "description": "Initial neuron morphology shared by provider",
+            "location": {
+                "x": 6885.10009765625,
+                "y": 3436.050048828125,
+                "z": 7909.17431640625
+            },
+            "legacy_id": [
+                "https://bbp.epfl.ch/data/bbp-external/seu/1e74e388-f714-4dcd-aed4-15dd132a1c1e"
+            ],
+            "species": {
+                "id": "f48a8b1f-9781-4d78-b562-27cafddb5885",
+                "creation_date": "2025-05-09T13:32:33.653338Z",
+                "update_date": "2025-05-09T13:32:33.653338Z",
+                "name": "Mus musculus",
+                "taxonomy_id": "NCBITaxon:10090"
+            },
+            "strain": {
+                "id": "741b6a4e-3a31-494a-8261-ff47502edf35",
+                "creation_date": "2025-05-09T13:32:33.843848Z",
+                "update_date": "2025-05-09T13:32:33.843848Z",
+                "name": "Pvalb-T2A-CreERT2",
+                "taxonomy_id": "http://bbp.epfl.ch/neurosciencegraph/ontologies/speciestaxonomy/RxoGvqCAmwBJS0E7RVI7qT",
+                "species_id": "f48a8b1f-9781-4d78-b562-27cafddb5885"
+            },
+            "brain_region": {
+                "creation_date": "2025-05-09T13:32:18.034672Z",
+                "update_date": "2025-05-09T13:32:18.034672Z",
+                "id": "22b3ce34-867a-4ac9-879b-e4e53a6e8f12",
+                "annotation_value": 262,
+                "name": "Reticular nucleus of the thalamus",
+                "acronym": "RT",
+                "color_hex_triplet": "FF909F",
+                "parent_structure_id": "e08c28eb-3218-4fbf-8dcc-bbedc0e0d55b",
+                "hierarchy_id": "e3e70682-c209-4cac-a29f-6fbed82c07cd"
+            },
+            "contributions": [
+                {
+                    "id": "b213b921-5aea-4f56-8473-13f264675a60",
+                    "creation_date": "2025-05-09T13:32:35.235180Z",
+                    "update_date": "2025-05-09T13:32:35.235180Z",
+                    "agent": {
+                        "id": "2cd71c4a-d847-4872-878c-8b5f911eace3",
+                        "creation_date": "2020-08-28T11:43:59.117000Z",
+                        "update_date": "2022-04-11T08:28:04.176000Z",
+                        "pref_label": "Southeast University",
+                        "alternative_name": "",
+                        "type": "organization"
+                    },
+                    "role": {
+                        "id": "934ef973-9e2d-4e6d-aca6-9df5fe41f89a",
+                        "creation_date": "2025-05-09T13:32:33.674795Z",
+                        "update_date": "2025-05-09T13:32:33.674795Z",
+                        "name": "unspecified",
+                        "role_id": "unspecified"
+                    }
+                }
+            ],
+            "mtypes": []
+        }
+    ],
+    "pagination": {
+        "page": 1,
+        "page_size": 10,
+        "total_items": 602
+    },
+    "facets": null
+}

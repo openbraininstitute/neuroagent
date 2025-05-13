@@ -106,7 +106,7 @@ class ResolveEntitiesTool(BaseTool):
         """Given a brain region in natural language, resolve its ID."""
         logger.info(
             f"Entering Brain Region resolver tool. Inputs: {self.input_schema.brain_region=}, "
-            # f"{self.input_schema.mtype=}, {self.input_schema.etype=}"
+            f"{self.input_schema.mtype=}, {self.input_schema.etype=}"
         )
 
         br_response = await self.metadata.httpx_client.get(
@@ -130,7 +130,7 @@ class ResolveEntitiesTool(BaseTool):
 
         # Optionally resolve the mtypes.
         if self.input_schema.mtype is not None:
-            m_types_response = await self.metadata.httpx_client.get(
+            mtype_response = await self.metadata.httpx_client.get(
                 url=self.metadata.entitycore_url + "/mtype",
                 headers={"Authorization": f"Bearer {self.metadata.token}"},
                 params={
@@ -141,7 +141,7 @@ class ResolveEntitiesTool(BaseTool):
 
             mtypes = [
                 MTypeResolveOutput(mtype_name=mtype["pref_label"], mtype_id=mtype["id"])
-                for mtype in m_types_response.json()["data"]
+                for mtype in mtype_response.json()["data"]
             ]
         else:
             mtypes = None
