@@ -14,11 +14,13 @@ logger = logging.getLogger(__name__)
 class GetMorphoInput(BaseModel):
     """Inputs of the knowledge graph API."""
 
-    # brain_region_id: int = Field(description="ID of the brain region of interest.")
-    brain_region_id: str = Field(description="ID of the brain region of interest.")
+    brain_region_id: str = Field(
+        description="ID of the brain region of interest in UUID format. To find the ID use the resolve-entity-tool first."
+    )
+    page: int = Field(default=1, description="Page number for pagination.")
     mtype_id: str | None = Field(
         default=None,
-        description="ID of the M-type of interest.",
+        description="ID of the M-type of interest. To find the ID use the resolve-entity-tool first.",
     )
 
 
@@ -46,7 +48,7 @@ class MorphologieOutput(BaseModel):
     morphology_description: str | None
     mtype: list[MtypeOutput] | None
 
-    brain_region_id: int
+    brain_region_id: str
     brain_region_name: str | None
 
     subject_species_name: str | None
@@ -56,6 +58,9 @@ class GetMorphoToolOutput(BaseModel):
     """Output schema for the Morpho tool."""
 
     morphologies: list[MorphologieOutput]
+    current_page: int
+    page_size: int
+    total_items_found: int
 
 
 class GetMorphoTool(BaseTool):
@@ -94,20 +99,18 @@ class GetMorphoTool(BaseTool):
         -------
             list of KnowledgeGraphOutput to describe the morphology and its metadata, or an error dict.
         """
-        # To be removed when we do the switch
-        self.input_schema.brain_region_id = self.input_schema.brain_region_id.split(
-            "/"
-        )[-1]
-
         logger.info(
             f"Entering Get Morpho tool. Inputs: {self.input_schema.brain_region_id=}, {self.input_schema.mtype_id=}"
         )
+
         response = await self.metadata.httpx_client.get(
             url=self.metadata.entitycore_url + "/reconstruction-morphology",
             headers={"Authorization": f"Bearer {self.metadata.token}"},
             params={
-                "brain_region_id": self.input_schema.brain_region_id,
                 "page_size": self.metadata.morpho_search_size,
+                "within_brain_region_hierachy_id": "e3e70682-c209-4cac-a29f-6fbed82c07cd",  # TEMP for mouse brain
+                "within_brain_region_brain_region_id": self.input_schema.brain_region_id,
+                "within_brain_region_ascendants": False,
                 **(
                     {"mtype__id": self.input_schema.mtype_id}
                     if self.input_schema.mtype_id
@@ -133,8 +136,7 @@ class GetMorphoTool(BaseTool):
         """
         formatted_output = [
             MorphologieOutput(
-                # morphology_id=res["id"],   # We will switch to that one after.
-                morphology_id=res["legacy_id"][0],
+                morphology_id=res["id"],
                 morphology_name=res.get("name"),
                 morphology_description=res.get("description"),
                 mtype=[
@@ -151,14 +153,18 @@ class GetMorphoTool(BaseTool):
             )
             for res in output["data"]
         ]
-        return GetMorphoToolOutput(morphologies=formatted_output)
+        pagination_data = output["pagination"]
+        return GetMorphoToolOutput(
+            morphologies=formatted_output,
+            current_page=pagination_data["page"],
+            page_size=pagination_data["page_size"],
+            total_items_found=pagination_data["total_items"],
+        )
 
     @classmethod
-    async def is_online(
-        cls, *, httpx_client: AsyncClient, knowledge_graph_url: str
-    ) -> bool:
+    async def is_online(cls, *, httpx_client: AsyncClient, entitycore_url: str) -> bool:
         """Check if the tool is online."""
         response = await httpx_client.get(
-            f"{knowledge_graph_url.rstrip('/')}/version",
+            f"{entitycore_url.rstrip('/')}",
         )
         return response.status_code == 200
