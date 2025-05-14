@@ -23,7 +23,7 @@ class LiteratureSearchInput(BaseModel):
     user_message: str = Field(
         description=("Message of the user that triggered the tool call.")
     )
-    article_number: int = Field(
+    max_article_number: int = Field(
         default=5, ge=1, le=10, description="Maximum number of articles to return."
     )
     article_types: list[str] | None = Field(
@@ -191,7 +191,7 @@ class LiteratureSearchTool(BaseTool):
             • QUERY: the user’s question.
             • ARTICLES: a JSON array of candidate articles, each with at least “article_id”, “abstract” and some "paragraphs".
 
-            Your job is to pick **only** those articles (up to {self.input_schema.article_number}) that meet **both** of these criteria:
+            Your job is to pick **only** those articles (up to {self.input_schema.max_article_number}) that meet **both** of these criteria:
             1. **Region match**: The article explicitly mentions the target brain region **or** one of its recognized subregions in relation to the query. Mentions of only a broader parent region does **not** count.
             2. **Topic match**: The article directly addresses the user’s requested topic.
 
@@ -216,7 +216,7 @@ class LiteratureSearchTool(BaseTool):
         return self._process_output(
             llm_outputs=llm_outputs.choices[0].message.parsed,  # type: ignore
             articles=articles,
-            article_number=self.input_schema.article_number,
+            max_article_number=self.input_schema.max_article_number,
         )
 
     @staticmethod
@@ -295,13 +295,13 @@ class LiteratureSearchTool(BaseTool):
     def _process_output(
         llm_outputs: ArticleSelection,
         articles: list[ArticleOutput],
-        article_number: int,
+        max_article_number: int,
     ) -> LiteratureSearchToolOutput:
         """Turn the LLM output into a tool output."""
         selected_articles: list[ArticleOutput] = []
         for output in llm_outputs.sources:
             # if we are potentially missing articles keep appending
-            if len(selected_articles) < article_number:
+            if len(selected_articles) < max_article_number:
                 # Get the article that matches the current article_id
                 try:
                     selected_articles.append(
