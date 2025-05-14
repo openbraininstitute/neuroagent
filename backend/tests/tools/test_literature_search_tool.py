@@ -260,7 +260,9 @@ def test_process_output():
     max_article_number = 2
 
     result = LiteratureSearchTool._process_output(
-        llm_outputs=llm_output, articles=sample_articles, max_article_number=max_article_number
+        llm_outputs=llm_output,
+        articles=sample_articles,
+        max_article_number=max_article_number,
     )
 
     assert isinstance(result, LiteratureSearchToolOutput)
