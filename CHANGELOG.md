@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.4]
+
+### Fixed
+- Fixe (hopefully) hallucinations related to literature search.
+
 ## [0.5.3]
 
 ### Fixed
