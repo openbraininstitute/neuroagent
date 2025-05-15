@@ -3,10 +3,13 @@
   "version": "1.0.0",
   "description": "A TypeScript MCP server",
   "main": "dist/index.js",
+  "type": "module",
   "scripts": {
     "start": "ts-node index.ts",
     "build": "tsc",
-    "serve": "node dist/index.js"
+    "serve": "node dist/index.js",
+    "lint": "eslint . --ext .ts",
+    "format": "prettier --write \"**/*.ts\""
   },
   "keywords": [
     "typescript",
@@ -15,9 +18,20 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@eslint/js": "^9.26.0",
     "@types/node": "^20.0.0",
+    "@typescript-eslint/eslint-plugin": "^8.32.1",
+    "@typescript-eslint/parser": "^8.32.1",
+    "eslint": "^9.26.0",
+    "eslint-config-prettier": "^10.1.5",
+    "eslint-plugin-prettier": "^5.4.0",
+    "globals": "^16.1.0",
+    "prettier": "^3.5.3",
     "ts-node": "^10.9.2",
-    "typescript": "^5.0.0"
+    "typescript": "^5.0.0",
+    "typescript-eslint": "^8.32.1"
   },
-  "dependencies": {}
-} 
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.11.3"
+  }
+}
