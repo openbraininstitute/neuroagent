@@ -5,7 +5,7 @@ export const getBrainRegionsQueryParamsSchema = {
     .number()
     .int()
     .positive()
-    .optional()
+    .default(1)
     .describe("Page number for pagination (e.g., 1, 2)."),
   page_size: z
     .number()

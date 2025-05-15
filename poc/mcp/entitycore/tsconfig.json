@@ -15,5 +15,5 @@
     "sourceMap": true
   },
   "include": ["src/**/*.ts"],
-  "exclude": ["node_modules", "**/*.spec.ts", "build"]
+  "exclude": ["node_modules", "**/*.spec.ts", "build", "src/checkTypes.ts"]
 } 

@@ -35,9 +35,11 @@ server.tool("add", { a: z.number(), b: z.number() }, async ({ a, b }) => ({
 
 server.tool(
   "getBrainRegions",
-  "Retrieves a list of brain regions from the entitycore API. Supports filtering, pagination, and ordering.",
   getBrainRegionsQueryParamsSchema,
   async (params) => {
+    logger.info(
+      `Received parameters (getBrainRegions): ${JSON.stringify(params)}`
+    ); // Replaced console.log
     const queryParams = new URLSearchParams();
     for (const [key, value] of Object.entries(params)) {
       if (value !== undefined && value !== null) {
