@@ -4,7 +4,7 @@ import { z } from "zod";
 import { getBrainRegionsQueryParamsSchema } from "./zodSchemas.js"
 
 const ENTITYCORE_API_BASE = process.env.ENTITYCORE_API_BASE;
-const ENTITYCODE_BEARER_TOKEN = process.env.ENTITYCODE_BEARER_TOKEN;
+const ENTITYCORE_BEARER_TOKEN = process.env.ENTITYCORE_BEARER_TOKEN;
 
 // Create an MCP server
 const server = new McpServer({
@@ -30,14 +30,14 @@ server.tool(
     }
 
     const requestUrl = `${ENTITYCORE_API_BASE}/brain-region?${queryParams.toString()}`;
-    // console.log(`Requesting URL (getBrainRegions): ${requestUrl}`); // Uncomment for debugging
+    console.log(`Requesting URL (getBrainRegions): ${requestUrl}`); // Uncomment for debugging
 
     try {
       const response = await fetch(requestUrl, {
         method: "GET",
         headers: {
           "Accept": "application/json",
-          "Authorization": `Bearer ${ENTITYCODE_BEARER_TOKEN}`,
+          "Authorization": `Bearer ${ENTITYCORE_BEARER_TOKEN}`,
         },
       });
 
