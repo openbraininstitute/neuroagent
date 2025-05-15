@@ -1,7 +1,7 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
-import { getBrainRegionsQueryParamsSchema } from "./zodSchemas.js"
+import { getBrainRegionsQueryParamsSchema } from "./zodSchemas.js";
 
 const ENTITYCORE_API_BASE = process.env.ENTITYCORE_API_BASE;
 const ENTITYCORE_BEARER_TOKEN = process.env.ENTITYCORE_BEARER_TOKEN;
@@ -36,21 +36,26 @@ server.tool(
       const response = await fetch(requestUrl, {
         method: "GET",
         headers: {
-          "Accept": "application/json",
-          "Authorization": `Bearer ${ENTITYCORE_BEARER_TOKEN}`,
+          Accept: "application/json",
+          Authorization: `Bearer ${ENTITYCORE_BEARER_TOKEN}`,
         },
       });
 
       if (!response.ok) {
         let errorBody = "Failed to read error body from API response.";
         try {
-            errorBody = await response.text();
+          errorBody = await response.text();
         } catch (e) {
-            // Ignore if reading the error body fails
+          // Ignore if reading the error body fails
         }
         // console.error(`API Error (getBrainRegions) ${response.status}: ${errorBody}`); // Uncomment for debugging
         return {
-          content: [{ type: "text", text: `Error fetching brain regions: API request failed with status ${response.status}. Details: ${errorBody}` }],
+          content: [
+            {
+              type: "text",
+              text: `Error fetching brain regions: API request failed with status ${response.status}. Details: ${errorBody}`,
+            },
+          ],
         };
       }
 
@@ -58,10 +63,14 @@ server.tool(
       return {
         content: [{ type: "text", text: JSON.stringify(responseData) }],
       };
-
     } catch (error: any) {
       return {
-        content: [{ type: "text", text: `An unexpected error occurred while fetching brain regions: ${error.message}` }],
+        content: [
+          {
+            type: "text",
+            text: `An unexpected error occurred while fetching brain regions: ${error.message}`,
+          },
+        ],
       };
     }
   }
