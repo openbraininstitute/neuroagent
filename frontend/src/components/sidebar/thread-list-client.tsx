@@ -13,8 +13,7 @@ export function ThreadListClient({
   initialThreads,
   initialNextCursor,
 }: ThreadListClientProps) {
-  const listRef = useRef<HTMLDivElement | null>(null);
-  const scrollContainerRef = useRef<HTMLElement | null>(null);
+  const scrollContainerRef = useRef<HTMLDivElement | null>(null);
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage } =
     useGetThreadsNextPage({
@@ -29,13 +28,6 @@ export function ThreadListClient({
 
   // Flatten threads
   const threads = data?.pages.flatMap((page) => page.threads) ?? [];
-
-  // Identify and store scroll container (second parent)
-  useEffect(() => {
-    if (!listRef.current) return;
-    const container = listRef.current.parentElement?.parentElement;
-    if (container) scrollContainerRef.current = container as HTMLElement;
-  }, []);
 
   // Attach scroll listener
   useEffect(() => {
@@ -71,8 +63,8 @@ export function ThreadListClient({
 
   return (
     <div
-      ref={listRef}
-      className={`flex flex-col items-center gap-2 ${hasNextPage ? "pb-12" : ""}`}
+      ref={scrollContainerRef}
+      className={`flex flex-col items-center gap-2 overflow-y-auto pl-3 ${hasNextPage ? "pb-12" : ""}`}
     >
       {threads.map((t) => (
         <ThreadCardSidebar
@@ -83,7 +75,7 @@ export function ThreadListClient({
       ))}
 
       {isFetchingNextPage && (
-        <div className="h-6 w-6 animate-spin rounded-full border-2 border-gray-500 border-t-transparent" />
+        <div className="h-6 min-h-6 w-6 animate-spin rounded-full border-2 border-gray-500 border-t-transparent" />
       )}
     </div>
   );
