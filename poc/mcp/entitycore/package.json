@@ -1,7 +1,7 @@
 {
-  "name": "mcp-server",
+  "name": "entitycore-mcp-server",
   "version": "1.0.0",
-  "description": "A TypeScript MCP server",
+  "description": "A TypeScript MCP server for entitycore",
   "main": "dist/index.js",
   "type": "module",
   "scripts": {
