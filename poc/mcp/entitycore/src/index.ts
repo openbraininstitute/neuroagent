@@ -1,7 +1,11 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
-import { getBrainRegionsQueryParamsSchema } from "./zodSchemas.js";
+import {
+  getBrainRegionsQueryParamsSchema,
+  getBrainRegionsPathParamsSchema,
+  headersSchema,
+} from "./zodSchemas.js";
 import { logger, makeGetRequest } from "./helper.js";
 import { ENTITYCORE_API_BASE, ENTITYCORE_BEARER_TOKEN } from "./env.js";
 
@@ -18,14 +22,28 @@ server.tool("add", { a: z.number(), b: z.number() }, async ({ a, b }) => ({
 server.tool(
   "getBrainRegions",
   "Get brain regions with optional filtering and pagination",
-  getBrainRegionsQueryParamsSchema,
-  async (params) => {
+  {
+    ...getBrainRegionsQueryParamsSchema,
+    ...getBrainRegionsPathParamsSchema,
+    ...headersSchema,
+  },
+  async (params: Record<string, any>) => {
     logger.info("getBrainRegions");
+
+    // Parse each part of the params separately, ignoring extra fields
+    const queryParams = z
+      .object(getBrainRegionsQueryParamsSchema)
+      .parse(params);
+    const pathParams = z.object(getBrainRegionsPathParamsSchema).parse(params);
+    const headers = z.object(headersSchema).parse(params);
+
     const result = await makeGetRequest(
       "brain-region",
-      params,
-      ENTITYCORE_API_BASE!,
-      ENTITYCORE_BEARER_TOKEN!
+      queryParams,
+      pathParams,
+      headers,
+      ENTITYCORE_API_BASE,
+      ENTITYCORE_BEARER_TOKEN
     );
     return result;
   }

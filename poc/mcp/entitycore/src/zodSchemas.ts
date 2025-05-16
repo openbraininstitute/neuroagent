@@ -1,5 +1,22 @@
 import { z } from "zod";
 
+// Common headers schema
+export const headersSchema = {
+  "virtual-lab-id": z
+    .string()
+    .uuid()
+    .nullable()
+    .optional()
+    .describe("Virtual Lab ID in UUID4 format"),
+  "project-id": z
+    .string()
+    .uuid()
+    .nullable()
+    .optional()
+    .describe("Project ID in UUID4 format"),
+};
+
+// Brain Regions specific schemas
 export const getBrainRegionsQueryParamsSchema = {
   page: z
     .number()
@@ -67,10 +84,5 @@ export const getBrainRegionsQueryParamsSchema = {
     ),
 };
 
-// Infer the TypeScript type from the Zod schema for comparison purposes
-const getBrainRegionsQueryParamsZodObject = z.object(
-  getBrainRegionsQueryParamsSchema
-);
-export type InferredGetBrainRegionsQueryParams = z.infer<
-  typeof getBrainRegionsQueryParamsZodObject
->;
+// Brain Regions has no path parameters
+export const getBrainRegionsPathParamsSchema = {};

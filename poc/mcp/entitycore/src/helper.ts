@@ -20,29 +20,54 @@ export const logger = winston.createLogger({
 // Helper function for making GET requests with query parameters
 export async function makeGetRequest(
   endpoint: string,
-  params: Record<string, any>,
+  queryParams: Record<string, any>,
+  pathParams: Record<string, any>,
+  headers: Record<string, any>,
   apiBase: string,
   bearerToken: string
 ): Promise<CallToolResult> {
-  logger.info(`Received parameters for ${endpoint}: ${JSON.stringify(params)}`);
+  logger.info(`Received parameters for ${endpoint}:`, {
+    queryParams,
+    pathParams,
+    headers,
+  });
 
-  const queryParams = new URLSearchParams();
-  for (const [key, value] of Object.entries(params)) {
+  // Build URL with path parameters
+  let requestUrl = `${apiBase}/${endpoint}`;
+  Object.entries(pathParams).forEach(([key, value]) => {
+    requestUrl = requestUrl.replace(`{${key}}`, String(value));
+  });
+
+  // Add query parameters
+  const queryString = new URLSearchParams();
+  for (const [key, value] of Object.entries(queryParams)) {
     if (value !== undefined && value !== null) {
-      queryParams.append(key, String(value));
+      queryString.append(key, String(value));
     }
   }
+  if (queryString.toString()) {
+    requestUrl += `?${queryString.toString()}`;
+  }
 
-  const requestUrl = `${apiBase}/${endpoint}?${queryParams.toString()}`;
   logger.info(`Requesting URL for ${endpoint}: ${requestUrl}`);
 
   try {
+    // Prepare headers
+    const requestHeaders: Record<string, string> = {
+      Accept: "application/json",
+      Authorization: `Bearer ${bearerToken}`,
+    };
+
+    // Add all headers that exist
+    Object.entries(headers).forEach(([key, value]) => {
+      if (value !== undefined && value !== null) {
+        requestHeaders[key] = String(value);
+      }
+    });
+
     const response = await fetch(requestUrl, {
       method: "GET",
-      headers: {
-        Accept: "application/json",
-        Authorization: `Bearer ${bearerToken}`,
-      },
+      headers: requestHeaders,
     });
 
     if (!response.ok) {
