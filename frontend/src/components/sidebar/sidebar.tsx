@@ -52,9 +52,7 @@ export function Sidebar({ children }: { children: React.ReactNode }) {
             </div>
           )}
         </div>
-        {showSidebar && (
-          <div className="flex-1 overflow-auto pt-4">{children}</div>
-        )}
+        {showSidebar && <>{children}</>}
       </div>
     </>
   );

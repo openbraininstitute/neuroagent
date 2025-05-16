@@ -1,8 +1,8 @@
 "use client";
 
 import { useChat } from "ai/react";
-import { useEffect, useRef, useState } from "react";
-import type { MessageStrict } from "@/lib/types";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { BMessage, BMessageUser, type MessageStrict } from "@/lib/types";
 import { env } from "@/lib/env";
 import { useSession } from "next-auth/react";
 import { ExtendedSession } from "@/lib/auth";
@@ -11,16 +11,21 @@ import { ChatInputInsideThread } from "@/components/chat/chat-input-inside-threa
 import { ChatMessagesInsideThread } from "@/components/chat/chat-messages-inside-thread";
 import { generateEditTitle } from "@/actions/generate-edit-thread";
 import { toast } from "sonner";
+import { useGetMessageNextPage } from "@/hooks/get-message-page";
+import { convertToAiMessages } from "@/lib/utils";
+import { md5 } from "js-md5";
 
 type ChatPageProps = {
   threadId: string;
-  initialMessages: MessageStrict[];
+  initialMessages: BMessage[];
+  initialNextCursor?: string;
   availableTools: Array<{ slug: string; label: string }>;
 };
 
 export function ChatPage({
   threadId,
   initialMessages,
+  initialNextCursor,
   availableTools,
 }: ChatPageProps) {
   const { data: session } = useSession() as { data: ExtendedSession | null };
@@ -30,10 +35,34 @@ export function ChatPage({
   const setCheckedTools = useStore((state) => state.setCheckedTools);
   const [processedToolInvocationMessages, setProcessedToolInvocationMessages] =
     useState<string[]>([]);
+  const prevHeight = useRef(0);
+  const prevScroll = useRef(0);
+  const topSentinelRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [isAutoScrollEnabled, setIsAutoScrollEnabled] = useState(true);
   const containerRef = useRef<HTMLDivElement>(null);
   const [stopped, setStopped] = useState(false);
+  const [isInvalidating, setIsInvalidating] = useState(false);
+
+  const {
+    data,
+    fetchPreviousPage,
+    hasPreviousPage,
+    isFetchingPreviousPage,
+    isFetching,
+  } = useGetMessageNextPage(threadId, {
+    pages: [
+      {
+        messages: initialMessages,
+        nextCursor: initialNextCursor,
+      },
+    ],
+    pageParams: [null],
+  });
+
+  const retrievedMessages = convertToAiMessages(
+    data?.pages.flatMap((page) => page.messages) ?? [],
+  );
 
   const {
     messages: messagesRaw,
@@ -49,7 +78,7 @@ export function ChatPage({
     headers: {
       Authorization: `Bearer ${session?.accessToken}`,
     },
-    initialMessages,
+    initialMessages: retrievedMessages,
     experimental_prepareRequestBody: ({ messages }) => {
       const lastMessage = messages[messages.length - 1];
       const selectedTools = Object.keys(checkedTools).filter(
@@ -70,10 +99,17 @@ export function ChatPage({
   useEffect(() => {
     if (initialMessages.length === 0 && newMessage !== "") {
       initialMessages.push({
-        id: "temp_id",
-        role: "user",
-        content: newMessage,
-      });
+        entity: "user",
+        message_id: "temp_id",
+        msg_content: {
+          role: "user",
+          content: newMessage,
+        },
+        creation_date: new Date().toString(),
+        thread_id: threadId,
+        is_complete: true,
+        tool_calls: [],
+      } as BMessageUser);
       generateEditTitle(null, threadId, newMessage);
       setNewMessage("");
       handleSubmit(undefined, { allowEmptySubmit: true });
@@ -99,8 +135,22 @@ export function ChatPage({
     }; // If message complete, don't set stopped
 
     setStopped(shouldBeStopped());
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // Empty dependency array means this runs once on mount
+
+  useEffect(() => {
+    if (isInvalidating || isFetching) return;
+    // Set retrieved DB messaged as current messages
+    if (!stopped) {
+      setMessages(() => [
+        ...retrievedMessages,
+        ...messages.filter((m) => m.id.length !== 32),
+      ]);
+    } else {
+      setMessages(retrievedMessages);
+    }
+  }, [md5(JSON.stringify(retrievedMessages))]); // Rerun on content change
 
   useEffect(() => {
     if (isAutoScrollEnabled) {
@@ -212,13 +262,67 @@ export function ChatPage({
     }
   }, [error, messages, setMessages]);
 
+  useEffect(() => {
+    if (!hasPreviousPage) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        // If the sentinel is visible, load next page
+        if (
+          entries[0].isIntersecting &&
+          !isFetchingPreviousPage &&
+          !isLoading
+        ) {
+          const el = containerRef.current!;
+          prevHeight.current = el.scrollHeight;
+          prevScroll.current = el.scrollTop;
+          fetchPreviousPage();
+        }
+      },
+      {
+        root: containerRef.current,
+        rootMargin: "50px",
+        threshold: 0.5,
+      },
+    );
+
+    const sentinel = topSentinelRef.current;
+    if (sentinel) observer.observe(sentinel);
+
+    return () => {
+      if (sentinel) observer.unobserve(sentinel);
+      observer.disconnect();
+    };
+  }, [fetchPreviousPage, hasPreviousPage, isFetchingPreviousPage]);
+
+  useLayoutEffect(() => {
+    if (
+      !isAutoScrollEnabled &&
+      !isFetchingPreviousPage &&
+      !isLoading &&
+      prevHeight.current
+    ) {
+      const el = containerRef.current!;
+      const heightDiff = el.scrollHeight - prevHeight.current;
+      el.scrollTop = prevScroll.current + heightDiff;
+    }
+  }, [data, isFetchingPreviousPage, isLoading]);
+
   return (
     <div className="flex h-full flex-col">
+      {isFetchingPreviousPage && (
+        <div className="absolute left-0 right-0 top-0 mt-2 flex justify-center">
+          <div className="h-6 w-6 animate-spin rounded-full border-2 border-gray-500 border-t-transparent" />
+        </div>
+      )}
+
       <div
         ref={containerRef}
         onWheel={handleWheel}
         className="flex flex-1 flex-col overflow-y-auto"
       >
+        <div ref={topSentinelRef} className="border-white-100 bg-white-500" />
+
         <ChatMessagesInsideThread
           messages={messages}
           threadId={threadId}
@@ -233,6 +337,7 @@ export function ChatPage({
         isLoading={isLoading}
         availableTools={availableTools}
         checkedTools={checkedTools}
+        threadId={threadId}
         setCheckedTools={setCheckedTools}
         handleInputChange={handleInputChange}
         handleSubmit={handleSubmit}
@@ -241,6 +346,7 @@ export function ChatPage({
         onStop={stop}
         stopped={stopped}
         setStopped={setStopped}
+        setIsInvalidating={setIsInvalidating}
       />
     </div>
   );

@@ -9,18 +9,26 @@ import {
   CustomError,
   ToolDetailedMetadata,
   ToolMetadata,
+  BPaginatedResponse,
 } from "@/lib/types";
+import { threadPageSize, messagePageSize } from "@/lib/types";
 
-export async function getThreads(): Promise<BThread[]> {
+export async function getThreads() {
   try {
     const session = await auth();
     if (!session?.accessToken) {
-      return [];
+      return {
+        threads: [],
+        nextPage: undefined,
+      };
     }
 
     const { projectID, virtualLabID } = await getSettings();
 
-    const queryParams: Record<string, string> = {};
+    const queryParams: Record<string, string> = {
+      page_size: threadPageSize,
+    };
+
     if (virtualLabID !== undefined) {
       queryParams.virtual_lab_id = virtualLabID;
     }
@@ -28,20 +36,27 @@ export async function getThreads(): Promise<BThread[]> {
       queryParams.project_id = projectID;
     }
 
-    const threads = (await fetcher({
+    const paginatedResponseThreads = (await fetcher({
       path: "/threads",
       queryParams,
       headers: { Authorization: `Bearer ${session.accessToken}` },
       next: { tags: ["threads"] },
-    })) as BThread[];
-    // Sort threads by update_date in descending order (most recent first)
-    return threads.sort(
-      (a, b) =>
-        new Date(b.update_date).getTime() - new Date(a.update_date).getTime(),
-    );
+    })) as BPaginatedResponse;
+
+    const threads = paginatedResponseThreads.results as BThread[];
+
+    return {
+      threads,
+      nextCursor: paginatedResponseThreads.has_more
+        ? paginatedResponseThreads.next_cursor
+        : undefined,
+    };
   } catch (error) {
     console.error("Error fetching threads:", error);
-    return [];
+    return {
+      threads: [],
+      nextPage: undefined,
+    };
   }
 }
 
@@ -76,28 +91,42 @@ export async function getThread(threadId: string): Promise<BThread | null> {
   }
 }
 
-export async function getMessages(
-  threadId: string,
-): Promise<BMessage[] | null> {
+export async function getMessages(threadId: string) {
   const session = await auth();
   if (!session?.accessToken) {
     throw new Error("No session found");
   }
 
   try {
-    const response = await fetcher({
+    const queryParams: Record<string, string> = {
+      page_size: messagePageSize,
+    };
+    const paginatedResponseMessages = (await fetcher({
       path: "/threads/{threadId}/messages",
       pathParams: { threadId },
+      queryParams,
       headers: { Authorization: `Bearer ${session.accessToken}` },
       next: {
         tags: [`thread/${threadId}/messages`],
       },
-    });
+    })) as BPaginatedResponse;
 
-    return response as Promise<BMessage[]>;
+    const messages = (
+      paginatedResponseMessages.results as BMessage[]
+    ).reverse();
+
+    return {
+      messages,
+      nextCursor: paginatedResponseMessages.has_more
+        ? paginatedResponseMessages.next_cursor
+        : undefined,
+    };
   } catch (error) {
     if ((error as CustomError).statusCode === 404) {
-      return [];
+      return {
+        messages: [],
+        nextPage: undefined,
+      };
     } else {
       throw error;
     }
