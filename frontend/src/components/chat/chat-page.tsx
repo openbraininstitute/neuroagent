@@ -44,21 +44,16 @@ export function ChatPage({
   const [stopped, setStopped] = useState(false);
   const [isInvalidating, setIsInvalidating] = useState(false);
 
-  const {
-    data,
-    fetchPreviousPage,
-    hasPreviousPage,
-    isFetchingPreviousPage,
-    isFetching,
-  } = useGetMessageNextPage(threadId, {
-    pages: [
-      {
-        messages: initialMessages,
-        nextCursor: initialNextCursor,
-      },
-    ],
-    pageParams: [null],
-  });
+  const { data, fetchPreviousPage, isFetchingPreviousPage, isFetching } =
+    useGetMessageNextPage(threadId, {
+      pages: [
+        {
+          messages: initialMessages,
+          nextCursor: initialNextCursor,
+        },
+      ],
+      pageParams: [null],
+    });
 
   const retrievedMessages = convertToAiMessages(
     data?.pages.flatMap((page) => page.messages) ?? [],
@@ -206,6 +201,9 @@ export function ChatPage({
   const handleWheel = (event: React.WheelEvent) => {
     if (event.deltaY < 0) {
       setIsAutoScrollEnabled(false);
+      if (topSentinelRef.current) {
+        observerRef.current?.observe(topSentinelRef.current);
+      }
     } else {
       const container = containerRef.current;
       if (!container) return;
@@ -262,18 +260,21 @@ export function ChatPage({
     }
   }, [error, messages, setMessages]);
 
-  useEffect(() => {
-    if (!hasPreviousPage) return;
+  const observerRef = useRef<IntersectionObserver | null>(null);
 
-    const observer = new IntersectionObserver(
+  useEffect(() => {
+    observerRef.current = new IntersectionObserver(
       (entries) => {
-        // If the sentinel is visible, load next page
         if (
           entries[0].isIntersecting &&
           !isFetchingPreviousPage &&
           !isLoading
         ) {
           const el = containerRef.current!;
+          // remove observer to not double trigger, only if the content takes whole screen
+          if (topSentinelRef.current && el.scrollHeight <= el.clientHeight) {
+            observerRef.current?.unobserve(topSentinelRef.current);
+          }
           prevHeight.current = el.scrollHeight;
           prevScroll.current = el.scrollTop;
           fetchPreviousPage();
@@ -281,20 +282,19 @@ export function ChatPage({
       },
       {
         root: containerRef.current,
-        rootMargin: "50px",
-        threshold: 0.5,
       },
     );
-
     const sentinel = topSentinelRef.current;
-    if (sentinel) observer.observe(sentinel);
+    if (sentinel && observerRef.current) observerRef.current.observe(sentinel);
 
     return () => {
-      if (sentinel) observer.unobserve(sentinel);
-      observer.disconnect();
+      if (sentinel && observerRef.current)
+        observerRef.current.unobserve(sentinel);
+      if (observerRef.current) observerRef.current.disconnect();
     };
-  }, [fetchPreviousPage, hasPreviousPage, isFetchingPreviousPage]);
+  }, []);
 
+  // When not autoscroll or streaming, keep scroll distance on new data.
   useLayoutEffect(() => {
     if (
       !isAutoScrollEnabled &&
@@ -302,26 +302,27 @@ export function ChatPage({
       !isLoading &&
       prevHeight.current
     ) {
-      const el = containerRef.current!;
-      const heightDiff = el.scrollHeight - prevHeight.current;
-      el.scrollTop = prevScroll.current + heightDiff;
+      requestAnimationFrame(() => {
+        const el = containerRef.current;
+        if (!el) return;
+        const heightDiff = el.scrollHeight - prevHeight.current;
+        el.scrollTop = prevScroll.current + heightDiff - 40;
+      });
     }
   }, [data, isFetchingPreviousPage, isLoading]);
 
   return (
     <div className="flex h-full flex-col">
-      {isFetchingPreviousPage && (
-        <div className="absolute left-0 right-0 top-0 mt-2 flex justify-center">
-          <div className="h-6 w-6 animate-spin rounded-full border-2 border-gray-500 border-t-transparent" />
-        </div>
-      )}
-
       <div
         ref={containerRef}
         onWheel={handleWheel}
         className="flex flex-1 flex-col overflow-y-auto"
       >
-        <div ref={topSentinelRef} className="border-white-100 bg-white-500" />
+        <div ref={topSentinelRef} className="h-1 w-full" />
+
+        {isFetchingPreviousPage && (
+          <div className="z-50 mx-auto mt-4 h-6 min-h-6 w-6 animate-spin rounded-full border-2 border-gray-500 border-t-transparent" />
+        )}
 
         <ChatMessagesInsideThread
           messages={messages}
