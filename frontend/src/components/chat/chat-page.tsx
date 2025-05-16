@@ -1,7 +1,7 @@
 "use client";
 
 import { useChat } from "ai/react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { BMessage, BMessageUser, type MessageStrict } from "@/lib/types";
 import { env } from "@/lib/env";
 import { useSession } from "next-auth/react";
@@ -35,6 +35,9 @@ export function ChatPage({
   const setCheckedTools = useStore((state) => state.setCheckedTools);
   const [processedToolInvocationMessages, setProcessedToolInvocationMessages] =
     useState<string[]>([]);
+  const prevHeight = useRef(0);
+  const prevScroll = useRef(0);
+  const topSentinelRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [isAutoScrollEnabled, setIsAutoScrollEnabled] = useState(true);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -133,12 +136,6 @@ export function ChatPage({
 
     setStopped(shouldBeStopped());
 
-    // Ping the scroll mechanism to trigger page retrieval
-    // if not scrollable with first page
-    const el = containerRef.current!;
-    if (el.scrollHeight <= el.clientHeight + 40) {
-      handleScroll();
-    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // Empty dependency array means this runs once on mount
 
@@ -265,47 +262,67 @@ export function ChatPage({
     }
   }, [error, messages, setMessages]);
 
-  // Fetch next page and avoid jumping to earlier messages
-  const handleScroll = async () => {
-    const el = containerRef.current!;
+  useEffect(() => {
+    if (!hasPreviousPage) return;
 
-    // translates to: (scrolled to top OR window not full of messages) AND more pages left AND not currently fetching
-    const shouldTryLoad =
-      (el.scrollTop === 0 || el.scrollHeight <= el.clientHeight + 40) &&
-      hasPreviousPage &&
+    const observer = new IntersectionObserver(
+      (entries) => {
+        // If the sentinel is visible, load next page
+        if (
+          entries[0].isIntersecting &&
+          !isFetchingPreviousPage &&
+          !isLoading
+        ) {
+          const el = containerRef.current!;
+          prevHeight.current = el.scrollHeight;
+          prevScroll.current = el.scrollTop;
+          fetchPreviousPage();
+        }
+      },
+      {
+        root: containerRef.current,
+        rootMargin: "50px",
+        threshold: 0.5,
+      },
+    );
+
+    const sentinel = topSentinelRef.current;
+    if (sentinel) observer.observe(sentinel);
+
+    return () => {
+      if (sentinel) observer.unobserve(sentinel);
+      observer.disconnect();
+    };
+  }, [fetchPreviousPage, hasPreviousPage, isFetchingPreviousPage]);
+
+  useLayoutEffect(() => {
+    if (
+      !isAutoScrollEnabled &&
       !isFetchingPreviousPage &&
-      !isLoading;
-
-    if (!shouldTryLoad) return;
-    let prevPageCount = data?.pages.length ?? 0;
-    while (true) {
-      const oldHeight = el.scrollHeight + 40;
-      const result = await fetchPreviousPage();
-      await new Promise(requestAnimationFrame);
-      // bump scroll so the user stays in place
-      el.scrollTop = el.scrollHeight - oldHeight;
-
-      // Check if we got a new page
-      const newPageCount = result.data?.pages.length ?? prevPageCount;
-      if (newPageCount === prevPageCount) break;
-      prevPageCount = newPageCount;
-
-      // Check if the container is tall enough
-      if (el.scrollHeight > el.clientHeight + 40) break;
+      !isLoading &&
+      prevHeight.current
+    ) {
+      const el = containerRef.current!;
+      const heightDiff = el.scrollHeight - prevHeight.current;
+      el.scrollTop = prevScroll.current + heightDiff;
     }
-  };
+  }, [data, isFetchingPreviousPage, isLoading]);
 
   return (
     <div className="flex h-full flex-col">
       {isFetchingPreviousPage && (
-        <div className="mx-auto mt-4 h-6 w-6 animate-spin rounded-full border-2 border-gray-500 border-t-transparent" />
+        <div className="absolute left-0 right-0 top-0 mt-2 flex justify-center">
+          <div className="h-6 w-6 animate-spin rounded-full border-2 border-gray-500 border-t-transparent" />
+        </div>
       )}
+
       <div
         ref={containerRef}
         onWheel={handleWheel}
-        onScroll={handleScroll}
         className="flex flex-1 flex-col overflow-y-auto"
       >
+        <div ref={topSentinelRef} className="border-white-100 bg-white-500" />
+
         <ChatMessagesInsideThread
           messages={messages}
           threadId={threadId}

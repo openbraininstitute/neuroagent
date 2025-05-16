@@ -14,7 +14,7 @@ export function ThreadListClient({
   initialNextCursor,
 }: ThreadListClientProps) {
   const scrollContainerRef = useRef<HTMLDivElement | null>(null);
-  const loadMoreRef = useRef<HTMLDivElement>(null);
+  const bottomSentinelRef = useRef<HTMLDivElement>(null);
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage } =
     useGetThreadsNextPage({
@@ -43,9 +43,10 @@ export function ThreadListClient({
       {
         root: scrollContainerRef.current,
         rootMargin: "50px",
+        threshold: 0.3,
       },
     );
-    const sentinel = loadMoreRef.current;
+    const sentinel = bottomSentinelRef.current;
     if (sentinel) observer.observe(sentinel);
 
     return () => {
@@ -70,9 +71,9 @@ export function ThreadListClient({
       {isFetchingNextPage && (
         <div className="h-6 min-h-6 w-6 animate-spin rounded-full border-2 border-gray-500 border-t-transparent" />
       )}
-      {/* When this div enters on screen, it triggers additional fetches*/}
+
       {hasNextPage && (
-        <div ref={loadMoreRef} style={{ height: 1, width: "100%" }} />
+        <div ref={bottomSentinelRef} style={{ height: 1, width: "100%" }} />
       )}
     </div>
   );
