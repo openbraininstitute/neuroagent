@@ -14,6 +14,7 @@ export function ThreadListClient({
   initialNextCursor,
 }: ThreadListClientProps) {
   const scrollContainerRef = useRef<HTMLDivElement | null>(null);
+  const loadMoreRef = useRef<HTMLDivElement>(null);
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage } =
     useGetThreadsNextPage({
@@ -29,37 +30,29 @@ export function ThreadListClient({
   // Flatten threads
   const threads = data?.pages.flatMap((page) => page.threads) ?? [];
 
-  // Attach scroll listener
+  // Mounts sentinel to load additional threads.
   useEffect(() => {
-    const scrollContainer = scrollContainerRef.current;
-    if (!scrollContainer) return;
+    if (!hasNextPage) return;
 
-    const onScroll = () => {
-      const { scrollTop, clientHeight, scrollHeight } = scrollContainer;
-      if (
-        scrollTop + clientHeight >= scrollHeight - 50 &&
-        hasNextPage &&
-        !isFetchingNextPage
-      ) {
-        fetchNextPage();
-      }
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && !isFetchingNextPage) {
+          fetchNextPage(); // If the sentinel is visible, load next page
+        }
+      },
+      {
+        root: scrollContainerRef.current,
+        rootMargin: "50px",
+      },
+    );
+    const sentinel = loadMoreRef.current;
+    if (sentinel) observer.observe(sentinel);
+
+    return () => {
+      if (sentinel) observer.unobserve(sentinel);
+      observer.disconnect();
     };
-
-    scrollContainer.addEventListener("scroll", onScroll);
-    return () => scrollContainer.removeEventListener("scroll", onScroll);
   }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
-
-  // If container is not scrollable (tall screen), auto-fetch until it is or no more pages
-  useEffect(() => {
-    const scrollContainer = scrollContainerRef.current;
-    if (!scrollContainer) return;
-
-    const isScrollable =
-      scrollContainer.scrollHeight > scrollContainer.clientHeight;
-    if (!isScrollable && hasNextPage && !isFetchingNextPage) {
-      fetchNextPage();
-    }
-  }, [threads.length, fetchNextPage, hasNextPage, isFetchingNextPage]);
 
   return (
     <div
@@ -76,6 +69,10 @@ export function ThreadListClient({
 
       {isFetchingNextPage && (
         <div className="h-6 min-h-6 w-6 animate-spin rounded-full border-2 border-gray-500 border-t-transparent" />
+      )}
+      {/* When this div enters on screen, it triggers additional fetches*/}
+      {hasNextPage && (
+        <div ref={loadMoreRef} style={{ height: 1, width: "100%" }} />
       )}
     </div>
   );
