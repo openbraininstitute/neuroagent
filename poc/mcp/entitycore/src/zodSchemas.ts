@@ -86,3 +86,14 @@ export const getBrainRegionsQueryParamsSchema = {
 
 // Brain Regions has no path parameters
 export const getBrainRegionsPathParamsSchema = {};
+
+// Get specific brain region schemas
+export const getBrainRegionByIdPathParamsSchema = {
+  id_: z
+    .string()
+    .uuid()
+    .describe("The unique identifier (UUID) of the brain region to retrieve."),
+};
+
+// Get specific brain region has no query parameters
+export const getBrainRegionByIdQueryParamsSchema = {};

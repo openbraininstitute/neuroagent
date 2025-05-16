@@ -4,6 +4,8 @@ import { z } from "zod";
 import {
   getBrainRegionsQueryParamsSchema,
   getBrainRegionsPathParamsSchema,
+  getBrainRegionByIdQueryParamsSchema,
+  getBrainRegionByIdPathParamsSchema,
   headersSchema,
 } from "./zodSchemas.js";
 import { logger, makeGetRequest } from "./helper.js";
@@ -39,6 +41,38 @@ server.tool(
 
     const result = await makeGetRequest(
       "brain-region",
+      queryParams,
+      pathParams,
+      headers,
+      ENTITYCORE_API_BASE,
+      ENTITYCORE_BEARER_TOKEN
+    );
+    return result;
+  }
+);
+
+server.tool(
+  "getBrainRegionById",
+  "Get a specific brain region by its ID",
+  {
+    ...getBrainRegionByIdQueryParamsSchema,
+    ...getBrainRegionByIdPathParamsSchema,
+    ...headersSchema,
+  },
+  async (params: Record<string, any>) => {
+    logger.info("getBrainRegionById");
+
+    // Parse each part of the params separately, ignoring extra fields
+    const queryParams = z
+      .object(getBrainRegionByIdQueryParamsSchema)
+      .parse(params);
+    const pathParams = z
+      .object(getBrainRegionByIdPathParamsSchema)
+      .parse(params);
+    const headers = z.object(headersSchema).parse(params);
+
+    const result = await makeGetRequest(
+      "brain-region/{id_}",
       queryParams,
       pathParams,
       headers,
