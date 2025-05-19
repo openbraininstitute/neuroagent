@@ -74,6 +74,11 @@ class ResolveMtypeTool(BaseTool):
             },
         )
 
+        if mtype_response.status_code != 200:
+            raise ValueError(
+                f"The m-type endpoint returned a non 200 response code. Error: {mtype_response.text}"
+            )
+
         mtypes = [
             MType(mtype_name=mtype["pref_label"], mtype_id=mtype["id"])
             for mtype in mtype_response.json()["data"]
@@ -85,6 +90,6 @@ class ResolveMtypeTool(BaseTool):
     async def is_online(cls, *, httpx_client: AsyncClient, entitycore_url: str) -> bool:
         """Check if the tool is online."""
         response = await httpx_client.get(
-            f"{entitycore_url.rstrip('/')}",
+            f"{entitycore_url.rstrip('/')}/health",
         )
         return response.status_code == 200

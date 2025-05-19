@@ -46,7 +46,7 @@ class ResolveBrainRegionTool(BaseTool):
     """Class defining the Brain Region Resolving logic."""
 
     name: ClassVar[str] = "resolve-brain-region-tool"
-    name_frontend: ClassVar[str] = "Resolve Entities"
+    name_frontend: ClassVar[str] = "Resolve Brain Region"
     description: ClassVar[str] = (
         """From a brain region name written in natural english, retrieve its corresponding ID, formatted as UUID."""
     )
@@ -63,6 +63,7 @@ class ResolveBrainRegionTool(BaseTool):
         logger.info(
             f"Entering Brain Region resolver tool. Inputs: {self.input_schema.brain_region=}"
         )
+        breakpoint()
 
         br_response = await self.metadata.httpx_client.get(
             url=self.metadata.entitycore_url + "/brain-region",
@@ -72,6 +73,11 @@ class ResolveBrainRegionTool(BaseTool):
                 "name__ilike": self.input_schema.brain_region,
             },
         )
+
+        if br_response.status_code != 200:
+            raise ValueError(
+                f"The brain region endpoint returned a non 200 response code. Error: {br_response.text}"
+            )
 
         # Sort the brain region strings by string length
         br_list = br_response.json()["data"]
@@ -89,6 +95,6 @@ class ResolveBrainRegionTool(BaseTool):
     async def is_online(cls, *, httpx_client: AsyncClient, entitycore_url: str) -> bool:
         """Check if the tool is online."""
         response = await httpx_client.get(
-            f"{entitycore_url.rstrip('/')}",
+            f"{entitycore_url.rstrip('/')}/health",
         )
         return response.status_code == 200

@@ -312,7 +312,7 @@ def get_context_variables(
         "brainregion_hierarchy_storage_key": settings.storage.brain_region_hierarchy_key,
         "bucket_name": settings.storage.bucket_name,
         "celltypes_hierarchy_storage_key": settings.storage.cell_type_hierarchy_key,
-        "entitycore_url": settings.entitycore.url,
+        "entitycore_url": settings.tools.entitycore.url,
         "httpx_client": httpx_client,
         "kg_class_view_url": settings.knowledge_graph.class_view_url,
         "kg_morpho_feature_search_size": settings.tools.kg_morpho_features.search_size,
@@ -353,6 +353,7 @@ def get_healthcheck_variables(
         "knowledge_graph_url": settings.knowledge_graph.base_url.rstrip("/") + "/",
         "bluenaas_url": settings.tools.bluenaas.url.rstrip("/") + "/",
         "obi_one_url": settings.tools.obi_one.url.rstrip("/") + "/",
+        "entitycore_url": settings.tools.entitycore.url.rstrip("/") + "/",
     }
 
 

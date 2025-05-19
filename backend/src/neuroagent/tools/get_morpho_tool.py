@@ -165,6 +165,6 @@ class GetMorphoTool(BaseTool):
     async def is_online(cls, *, httpx_client: AsyncClient, entitycore_url: str) -> bool:
         """Check if the tool is online."""
         response = await httpx_client.get(
-            f"{entitycore_url.rstrip('/')}",
+            f"{entitycore_url.rstrip('/')}/health",
         )
         return response.status_code == 200

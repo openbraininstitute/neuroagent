@@ -125,7 +125,7 @@ class SettingsBlueNaaS(BaseModel):
 class SettingsEntityCore(BaseModel):
     """Entitycore settings."""
 
-    url: str = "https://staging.openbraininstitute.org/api/entitycore"
+    url: str = "https://openbraininstitute.org/api/entitycore"
     model_config = ConfigDict(frozen=True)
 
 
@@ -162,6 +162,7 @@ class SettingsTools(BaseModel):
     literature: SettingsLiterature = SettingsLiterature()
     obi_one: SettingsObiOne = SettingsObiOne()
     bluenaas: SettingsBlueNaaS = SettingsBlueNaaS()
+    entitycore: SettingsEntityCore = SettingsEntityCore()
     morpho: SettingsGetMorpho = SettingsGetMorpho()
     trace: SettingsTrace = SettingsTrace()
     kg_morpho_features: SettingsKGMorpho = SettingsKGMorpho()
@@ -251,7 +252,6 @@ class Settings(BaseSettings):
     """All settings."""
 
     tools: SettingsTools
-    entitycore: SettingsEntityCore = SettingsEntityCore()
     knowledge_graph: SettingsKnowledgeGraph = SettingsKnowledgeGraph()
     agent: SettingsAgent = SettingsAgent()  # has no required
     db: SettingsDB = SettingsDB()  # has no required
