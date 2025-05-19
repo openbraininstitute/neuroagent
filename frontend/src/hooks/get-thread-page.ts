@@ -4,7 +4,7 @@ import Cookies from "js-cookie";
 import { BPaginatedResponse, BThread } from "@/lib/types";
 import { threadPageSize } from "@/lib/types";
 
-type ThreadsPage = {
+export type ThreadsPage = {
   threads: BThread[];
   nextCursor?: string;
 };
@@ -36,6 +36,7 @@ async function fetchThreadPage({
   }
 
   const paginatedResponseThreads = (await fetcher({
+    next: { tags: ["threads"] },
     path: "/threads",
     queryParams,
   })) as BPaginatedResponse;
@@ -69,5 +70,6 @@ export function useGetThreadsNextPage(
     initialPageParam: null,
     initialData: initialData,
     refetchOnWindowFocus: false,
+    refetchOnMount: false,
   });
 }

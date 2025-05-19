@@ -2,7 +2,9 @@
 import { useRef, useEffect } from "react";
 import { ThreadCardSidebar } from "@/components/sidebar/thread-card-sidebar";
 import { BThread } from "@/lib/types";
-import { useGetThreadsNextPage } from "@/hooks/get-thread-page";
+import { useGetThreadsNextPage, ThreadsPage } from "@/hooks/get-thread-page";
+import Cookies from "js-cookie";
+import { useQueryClient, InfiniteData } from "@tanstack/react-query";
 
 type ThreadListClientProps = {
   initialThreads: BThread[];
@@ -16,6 +18,7 @@ export function ThreadListClient({
   const scrollContainerRef = useRef<HTMLDivElement | null>(null);
   const bottomSentinelRef = useRef<HTMLDivElement>(null);
   const observerRef = useRef<IntersectionObserver | null>(null);
+  const queryClient = useQueryClient();
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage } =
     useGetThreadsNextPage({
@@ -27,6 +30,25 @@ export function ThreadListClient({
       ],
       pageParams: [null],
     });
+
+  // On mount we have to set query, since initialData is considered to be always the latest data.
+  useEffect(() => {
+    const projectID = Cookies.get("projectID");
+    const virtualLabID = Cookies.get("virtualLabID");
+    const key = ["threads", projectID, virtualLabID] as const;
+
+    const initialData: InfiniteData<ThreadsPage, unknown> = {
+      pages: [
+        {
+          threads: initialThreads,
+          nextCursor: initialNextCursor,
+        },
+      ],
+      pageParams: [null],
+    };
+
+    queryClient.setQueryData(key, initialData);
+  }, []);
 
   // Flatten threads
   const threads = data?.pages.flatMap((page) => page.threads) ?? [];

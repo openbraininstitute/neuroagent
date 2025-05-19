@@ -49,6 +49,8 @@ export function ChatPage({
   const [stopped, setStopped] = useState(false);
   const [isInvalidating, setIsInvalidating] = useState(false);
 
+  console.log(initialMessages);
+
   const {
     data,
     fetchPreviousPage,
@@ -178,7 +180,7 @@ export function ChatPage({
     };
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // Empty dependency array means this runs once on mount
+  }, []);
 
   useEffect(() => {
     if (isInvalidating || isFetching) return;
