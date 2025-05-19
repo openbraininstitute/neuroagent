@@ -80,7 +80,7 @@ class GetMorphoTool(BaseTool):
     - The morphology ID.
     - The morphology name.
     - the morphology description.
-    The morphology ID is in the form of an HTTP(S) link such as 'https://bbp.epfl.ch/neurosciencegraph/data/neuronmorphologies...'."""
+    """
     description_frontend: ClassVar[
         str
     ] = """Search and retrieve neuron morphologies. Use this tool to:

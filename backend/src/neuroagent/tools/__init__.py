@@ -15,7 +15,7 @@ from neuroagent.tools.literature_search_tool import (
     LiteratureSearchTool,
     ParagraphMetadata,
 )
-from neuroagent.tools.morphology_features_tool import MorphologyFeatureTool
+from neuroagent.tools.morpho_metrics_tool import MorphoMetricsTool
 from neuroagent.tools.morphology_viewer import MorphologyViewerTool
 from neuroagent.tools.now import NowTool
 from neuroagent.tools.resolve_brain_region_tool import ResolveBrainRegionTool
@@ -37,7 +37,7 @@ __all__ = [
     "LiteratureSearchTool",
     "MEModelGetAllTool",
     "MEModelGetOneTool",
-    "MorphologyFeatureTool",
+    "MorphoMetricsTool",
     "MorphologyViewerTool",
     "NowTool",
     "ParagraphMetadata",

@@ -63,7 +63,7 @@ class TestLiteratureSearchTool:
 
         tool = LiteratureSearchTool(
             input_schema=LiteratureSearchInput(
-                user_message="covid 19", article_number=reranker_k
+                user_message="covid 19", max_article_number=reranker_k
             ),
             metadata=LiteratureSearchMetadata(
                 literature_search_url=url,
@@ -257,10 +257,12 @@ def test_process_output():
         for i in range(5)
     ]
     llm_output = ArticleSelection(sources=[1, 2, 0])
-    article_number = 2
+    max_article_number = 2
 
     result = LiteratureSearchTool._process_output(
-        llm_outputs=llm_output, articles=sample_articles, article_number=article_number
+        llm_outputs=llm_output,
+        articles=sample_articles,
+        max_article_number=max_article_number,
     )
 
     assert isinstance(result, LiteratureSearchToolOutput)

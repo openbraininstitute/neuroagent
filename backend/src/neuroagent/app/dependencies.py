@@ -31,8 +31,8 @@ from neuroagent.tools import (
     LiteratureSearchTool,
     MEModelGetAllTool,
     MEModelGetOneTool,
-    MorphologyFeatureTool,
     MorphologyViewerTool,
+    MorphoMetricsTool,
     PlotGeneratorTool,
     ResolveBrainRegionTool,
     ResolveETypeTool,
@@ -179,10 +179,10 @@ def get_tool_list() -> list[type[BaseTool]]:
         ElectrophysFeatureTool,
         GetMorphoTool,
         KGMorphoFeatureTool,
-        MorphologyFeatureTool,
         ResolveBrainRegionTool,
         ResolveMtypeTool,
         ResolveETypeTool,
+        MorphoMetricsTool,
         GetTracesTool,
         PlotGeneratorTool,
         MorphologyViewerTool,
@@ -229,7 +229,7 @@ def get_starting_agent(
                 Users can also customize the models or create their own by changing the cellular composition, to then run simulation experiments and perform analysis.
                 The models currently available on the platform are the metabolism and NGV unit as a notebook, and the single neuron, synaptome simulation. The other models will be released later starting with microcircuits paired neurons and then brain region, brain system and whole brain.
                 The platform has many notebooks that can be downloaded and executed remotely for now. A feature to run them on the platform will be available soon.
-                The platform has an AI Assistant for literature search allowing users to identify articles related to the brain area and artifacts they are interested in. At a later stage, the AI assistant will be further developed to access specific tools on the platform."""
+                The platform has an AI Assistant for literature search allowing users to identify articles related to the brain area and artifacts they are interested in. At a later stage, the AI assistant will be further developed to access specific tools on the platform. PLEASE ALWAYS RESPECT THE TOOL OUTPUTS AND DON'T INVENT INFORMATION NOT PRESENT IN THE OUTPUTS."""
 
     agent = Agent(
         name="Agent",
@@ -308,35 +308,32 @@ def get_context_variables(
 ) -> dict[str, Any]:
     """Get the context variables to feed the tool's metadata."""
     return {
-        # User info
-        "user_id": user_info.sub,
-        "thread_id": thread.thread_id,
-        "vlab_id": thread.vlab_id,
-        "project_id": thread.project_id,
-        # General / Agent
-        "starting_agent": starting_agent,
-        "openai_client": openai_client,
-        "httpx_client": httpx_client,
-        "bucket_name": settings.storage.bucket_name,
-        "s3_client": s3_client,
+        "bluenaas_url": settings.tools.bluenaas.url,
         "brainregion_hierarchy_storage_key": settings.storage.brain_region_hierarchy_key,
+        "bucket_name": settings.storage.bucket_name,
         "celltypes_hierarchy_storage_key": settings.storage.cell_type_hierarchy_key,
-        # Tokens / keys
-        "token": token,
-        "tavily_api_key": settings.tools.web_search.tavily_api_key,
-        # Tools
         "entitycore_url": settings.entitycore.url,
-        "literature_search_url": settings.tools.literature.url,
-        "retriever_k": settings.tools.literature.retriever_k,
-        "use_reranker": settings.tools.literature.use_reranker,
+        "httpx_client": httpx_client,
+        "kg_class_view_url": settings.knowledge_graph.class_view_url,
+        "kg_morpho_feature_search_size": settings.tools.kg_morpho_features.search_size,
+        "kg_sparql_url": settings.knowledge_graph.sparql_url,
         "knowledge_graph_url": settings.knowledge_graph.url,
+        "literature_search_url": settings.tools.literature.url,
         "me_model_search_size": settings.tools.me_model.search_size,
         "morpho_search_size": settings.tools.morpho.search_size,
-        "kg_morpho_feature_search_size": settings.tools.kg_morpho_features.search_size,
+        "obi_one_url": settings.tools.obi_one.url,
+        "openai_client": openai_client,
+        "project_id": thread.project_id,
+        "retriever_k": settings.tools.literature.retriever_k,
+        "s3_client": s3_client,
+        "starting_agent": starting_agent,
+        "thread_id": thread.thread_id,
+        "tavily_api_key": settings.tools.web_search.tavily_api_key,
+        "token": token,
         "trace_search_size": settings.tools.trace.search_size,
-        "kg_sparql_url": settings.knowledge_graph.sparql_url,
-        "kg_class_view_url": settings.knowledge_graph.class_view_url,
-        "bluenaas_url": settings.tools.bluenaas.url,
+        "use_reranker": settings.tools.literature.use_reranker,
+        "user_id": user_info.sub,
+        "vlab_id": thread.vlab_id,
     }
 
 
@@ -355,6 +352,7 @@ def get_healthcheck_variables(
         "literature_search_url": settings.tools.literature.url.rstrip("/") + "/",
         "knowledge_graph_url": settings.knowledge_graph.base_url.rstrip("/") + "/",
         "bluenaas_url": settings.tools.bluenaas.url.rstrip("/") + "/",
+        "obi_one_url": settings.tools.obi_one.url.rstrip("/") + "/",
     }
 
 

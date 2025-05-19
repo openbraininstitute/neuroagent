@@ -8,7 +8,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Changed
-- get morpho tool now uses entitycore.
+- get morpho tool and resolve entities now uses entitycore.
+
+### Added
+- Morphometrics tool using obi-one.
+
+## [0.5.4]
+
+### Fixed
+- Fixe (hopefully) hallucinations related to literature search.
 
 ## [0.5.3]
 
@@ -19,6 +27,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Merge two suggestion endpoints.
+
 
 ## [0.5.1]
 
