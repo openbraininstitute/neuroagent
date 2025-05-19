@@ -63,7 +63,6 @@ class ResolveBrainRegionTool(BaseTool):
         logger.info(
             f"Entering Brain Region resolver tool. Inputs: {self.input_schema.brain_region=}"
         )
-        breakpoint()
 
         br_response = await self.metadata.httpx_client.get(
             url=self.metadata.entitycore_url + "/brain-region",
