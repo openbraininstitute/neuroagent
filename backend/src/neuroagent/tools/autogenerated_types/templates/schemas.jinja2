@@ -1,0 +1,20 @@
+from __future__ import annotations
+
+from fastapi import FastAPI
+from pydantic import BaseModel, conint
+
+{{imports}}
+
+{% for operation in operations %}
+{% set class_name = operation.function_name.split('_') | map('title') | join('') + 'Params' %}
+{% set arg_list = operation.arguments_list %}
+class {{ class_name }}(BaseModel):
+    {%- if operation.summary %}
+    """{{ operation.summary }}."""
+    {% else %}
+    """Placeholder."""
+    {%- endif %}
+    {% for arg in arg_list -%}
+    {{ arg.argument }}
+    {% endfor %}
+{% endfor %}

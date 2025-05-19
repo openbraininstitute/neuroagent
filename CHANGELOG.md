@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Autogeneration of input schemas from APIs.
+
 ## [0.5.4]
 
 ### Fixed
