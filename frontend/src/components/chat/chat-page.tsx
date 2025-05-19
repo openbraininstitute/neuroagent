@@ -28,19 +28,24 @@ export function ChatPage({
   initialNextCursor,
   availableTools,
 }: ChatPageProps) {
+  // Auth and store data
   const { data: session } = useSession() as { data: ExtendedSession | null };
   const newMessage = useStore((state) => state.newMessage);
   const checkedTools = useStore((state) => state.checkedTools);
   const setNewMessage = useStore((state) => state.setNewMessage);
   const setCheckedTools = useStore((state) => state.setCheckedTools);
+  // Tool calls
   const [processedToolInvocationMessages, setProcessedToolInvocationMessages] =
     useState<string[]>([]);
+  // Scrolling and pagination
   const prevHeight = useRef(0);
   const prevScroll = useRef(0);
+  const observerRef = useRef<IntersectionObserver | null>(null);
   const topSentinelRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [isAutoScrollEnabled, setIsAutoScrollEnabled] = useState(true);
   const containerRef = useRef<HTMLDivElement>(null);
+  // Stopping streaming
   const [stopped, setStopped] = useState(false);
   const [isInvalidating, setIsInvalidating] = useState(false);
 
@@ -90,8 +95,9 @@ export function ChatPage({
       | ((messages: MessageStrict[]) => MessageStrict[]),
   ) => void;
 
-  // Moved useEffect here to group with other useEffect hooks
+  // Initial use effect that runs on mount
   useEffect(() => {
+    // Send new message when new chat.
     if (initialMessages.length === 0 && newMessage !== "") {
       initialMessages.push({
         entity: "user",
@@ -109,6 +115,7 @@ export function ChatPage({
       setNewMessage("");
       handleSubmit(undefined, { allowEmptySubmit: true });
     }
+
     // If checkedTools is not initialized yet, initialize it
     if (Object.keys(checkedTools).length === 0) {
       const initialCheckedTools = availableTools.reduce<
@@ -120,6 +127,7 @@ export function ChatPage({
       initialCheckedTools["allchecked"] = true;
       setCheckedTools(initialCheckedTools);
     }
+
     // To know if the chat should be disabled or not, check if last message was stopped
     const shouldBeStopped = () => {
       const isLastMessageComplete =
@@ -127,9 +135,41 @@ export function ChatPage({
           (annotation) => "isComplete" in annotation, // Find the correct annotation
         )?.isComplete ?? false;
       return !isLastMessageComplete;
-    }; // If message complete, don't set stopped
-
+    };
+    // If message complete, don't set stopped
     setStopped(shouldBeStopped());
+
+    // Setup listener for infinite scrolling
+    observerRef.current = new IntersectionObserver(
+      (entries) => {
+        if (
+          entries[0].isIntersecting &&
+          !isFetchingPreviousPage &&
+          !isLoading
+        ) {
+          const el = containerRef.current!;
+          // remove observer to not double trigger, only if the content takes whole screen
+          if (topSentinelRef.current && el.scrollHeight <= el.clientHeight) {
+            observerRef.current?.unobserve(topSentinelRef.current);
+          }
+          prevHeight.current = el.scrollHeight;
+          prevScroll.current = el.scrollTop;
+          fetchPreviousPage();
+        }
+      },
+      {
+        root: containerRef.current,
+      },
+    );
+    const sentinel = topSentinelRef.current;
+    if (sentinel && observerRef.current) observerRef.current.observe(sentinel);
+
+    // Remove intersection listener when unmounted
+    return () => {
+      if (sentinel && observerRef.current)
+        observerRef.current.unobserve(sentinel);
+      if (observerRef.current) observerRef.current.disconnect();
+    };
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // Empty dependency array means this runs once on mount
@@ -147,13 +187,7 @@ export function ChatPage({
     }
   }, [md5(JSON.stringify(retrievedMessages))]); // Rerun on content change
 
-  useEffect(() => {
-    if (isAutoScrollEnabled) {
-      messagesEndRef.current?.scrollIntoView({ behavior: "instant" });
-    }
-  }, [messages, isAutoScrollEnabled]);
-
-  // Handle auto-submit if there's a single human message or all tools have been validated
+  // Handle auto-submit if tools have been validated
   useEffect(() => {
     const lastMessage = messages[messages.length - 1];
     if (lastMessage?.role === "assistant" && lastMessage.toolInvocations) {
@@ -198,6 +232,14 @@ export function ChatPage({
   const hasOngoingToolInvocations =
     (messages.at(-1)?.toolInvocations ?? []).length > 0;
 
+  // Auto scroll when streaming
+  useEffect(() => {
+    if (isAutoScrollEnabled) {
+      messagesEndRef.current?.scrollIntoView({ behavior: "instant" });
+    }
+  }, [messages, isAutoScrollEnabled]);
+
+  // Check for user inputs
   const handleWheel = (event: React.WheelEvent) => {
     if (event.deltaY < 0) {
       setIsAutoScrollEnabled(false);
@@ -213,6 +255,23 @@ export function ChatPage({
       setIsAutoScrollEnabled(isAtBottom);
     }
   };
+
+  // When not autoscroll or streaming, keep scroll distance on new data.
+  useLayoutEffect(() => {
+    if (
+      !isAutoScrollEnabled &&
+      !isFetchingPreviousPage &&
+      !isLoading &&
+      prevHeight.current
+    ) {
+      requestAnimationFrame(() => {
+        const el = containerRef.current;
+        if (!el) return;
+        const heightDiff = el.scrollHeight - prevHeight.current;
+        el.scrollTop = prevScroll.current + heightDiff - 40;
+      });
+    }
+  }, [data, isFetchingPreviousPage, isLoading]);
 
   // Handle streaming interruption
   useEffect(() => {
@@ -259,57 +318,6 @@ export function ChatPage({
       });
     }
   }, [error, messages, setMessages]);
-
-  const observerRef = useRef<IntersectionObserver | null>(null);
-
-  useEffect(() => {
-    observerRef.current = new IntersectionObserver(
-      (entries) => {
-        if (
-          entries[0].isIntersecting &&
-          !isFetchingPreviousPage &&
-          !isLoading
-        ) {
-          const el = containerRef.current!;
-          // remove observer to not double trigger, only if the content takes whole screen
-          if (topSentinelRef.current && el.scrollHeight <= el.clientHeight) {
-            observerRef.current?.unobserve(topSentinelRef.current);
-          }
-          prevHeight.current = el.scrollHeight;
-          prevScroll.current = el.scrollTop;
-          fetchPreviousPage();
-        }
-      },
-      {
-        root: containerRef.current,
-      },
-    );
-    const sentinel = topSentinelRef.current;
-    if (sentinel && observerRef.current) observerRef.current.observe(sentinel);
-
-    return () => {
-      if (sentinel && observerRef.current)
-        observerRef.current.unobserve(sentinel);
-      if (observerRef.current) observerRef.current.disconnect();
-    };
-  }, []);
-
-  // When not autoscroll or streaming, keep scroll distance on new data.
-  useLayoutEffect(() => {
-    if (
-      !isAutoScrollEnabled &&
-      !isFetchingPreviousPage &&
-      !isLoading &&
-      prevHeight.current
-    ) {
-      requestAnimationFrame(() => {
-        const el = containerRef.current;
-        if (!el) return;
-        const heightDiff = el.scrollHeight - prevHeight.current;
-        el.scrollTop = prevScroll.current + heightDiff - 40;
-      });
-    }
-  }, [data, isFetchingPreviousPage, isLoading]);
 
   return (
     <div className="flex h-full flex-col">
