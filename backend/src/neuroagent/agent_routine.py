@@ -114,7 +114,7 @@ class AgentsRoutine:
             agent = None
 
         return Response(
-            messages=messages, agent=agent, context_variables=context_variables
+            messages=list(messages), agent=agent, context_variables=context_variables
         )
 
     async def handle_tool_call(

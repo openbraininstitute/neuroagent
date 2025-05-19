@@ -151,7 +151,7 @@ class ResolveEntitiesTool(BaseTool):
             etype = ETypeResolveOutput(
                 etype_name=self.input_schema.etype,
                 etype_id=ETYPE_IDS[self.input_schema.etype],
-            ).model_dump()
+            )
         else:
             etype = None
 
