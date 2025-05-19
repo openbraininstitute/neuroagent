@@ -225,7 +225,7 @@ def get_starting_agent(
                 Users can also customize the models or create their own by changing the cellular composition, to then run simulation experiments and perform analysis.
                 The models currently available on the platform are the metabolism and NGV unit as a notebook, and the single neuron, synaptome simulation. The other models will be released later starting with microcircuits paired neurons and then brain region, brain system and whole brain.
                 The platform has many notebooks that can be downloaded and executed remotely for now. A feature to run them on the platform will be available soon.
-                The platform has an AI Assistant for literature search allowing users to identify articles related to the brain area and artifacts they are interested in. At a later stage, the AI assistant will be further developed to access specific tools on the platform."""
+                The platform has an AI Assistant for literature search allowing users to identify articles related to the brain area and artifacts they are interested in. At a later stage, the AI assistant will be further developed to access specific tools on the platform. PLEASE ALWAYS RESPECT THE TOOL OUTPUTS AND DON'T INVENT INFORMATION NOT PRESENT IN THE OUTPUTS."""
 
     agent = Agent(
         name="Agent",
