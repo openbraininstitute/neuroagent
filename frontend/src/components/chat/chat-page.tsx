@@ -49,16 +49,21 @@ export function ChatPage({
   const [stopped, setStopped] = useState(false);
   const [isInvalidating, setIsInvalidating] = useState(false);
 
-  const { data, fetchPreviousPage, isFetchingPreviousPage, isFetching } =
-    useGetMessageNextPage(threadId, {
-      pages: [
-        {
-          messages: initialMessages,
-          nextCursor: initialNextCursor,
-        },
-      ],
-      pageParams: [null],
-    });
+  const {
+    data,
+    fetchPreviousPage,
+    isFetchingPreviousPage,
+    hasNextPage,
+    isFetching,
+  } = useGetMessageNextPage(threadId, {
+    pages: [
+      {
+        messages: initialMessages,
+        nextCursor: initialNextCursor,
+      },
+    ],
+    pageParams: [null],
+  });
 
   const retrievedMessages = convertToAiMessages(
     data?.pages.flatMap((page) => page.messages) ?? [],
@@ -154,6 +159,7 @@ export function ChatPage({
           }
           prevHeight.current = el.scrollHeight;
           prevScroll.current = el.scrollTop;
+          if (!hasNextPage) return;
           fetchPreviousPage();
         }
       },

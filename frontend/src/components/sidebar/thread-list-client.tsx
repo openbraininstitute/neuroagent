@@ -15,6 +15,7 @@ export function ThreadListClient({
 }: ThreadListClientProps) {
   const scrollContainerRef = useRef<HTMLDivElement | null>(null);
   const bottomSentinelRef = useRef<HTMLDivElement>(null);
+  const observerRef = useRef<IntersectionObserver | null>(null);
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage } =
     useGetThreadsNextPage({
@@ -32,11 +33,10 @@ export function ThreadListClient({
 
   // Mounts sentinel to load additional threads.
   useEffect(() => {
-    if (!hasNextPage) return;
-
-    const observer = new IntersectionObserver(
+    observerRef.current = new IntersectionObserver(
       (entries) => {
         if (entries[0].isIntersecting && !isFetchingNextPage) {
+          if (!hasNextPage) return;
           fetchNextPage(); // If the sentinel is visible, load next page
         }
       },
@@ -47,13 +47,14 @@ export function ThreadListClient({
       },
     );
     const sentinel = bottomSentinelRef.current;
-    if (sentinel) observer.observe(sentinel);
+    if (sentinel && observerRef.current) observerRef.current.observe(sentinel);
 
     return () => {
-      if (sentinel) observer.unobserve(sentinel);
-      observer.disconnect();
+      if (sentinel && observerRef.current)
+        observerRef.current.unobserve(sentinel);
+      if (observerRef.current) observerRef.current.disconnect();
     };
-  }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
+  }, []);
 
   return (
     <div
