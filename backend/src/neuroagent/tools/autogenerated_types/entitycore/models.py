@@ -13,211 +13,211 @@ from pydantic import UUID4, BaseModel, Field, PositiveFloat, RootModel
 
 
 class AgePeriod(Enum):
-    prenatal = 'prenatal'
-    postnatal = 'postnatal'
-    unknown = 'unknown'
+    prenatal = "prenatal"
+    postnatal = "postnatal"
+    unknown = "unknown"
 
 
 class Annotation(BaseModel):
-    creation_date: datetime = Field(..., title='Creation Date')
-    update_date: datetime = Field(..., title='Update Date')
-    id: UUID = Field(..., title='Id')
-    pref_label: str = Field(..., title='Pref Label')
-    alt_label: str = Field(..., title='Alt Label')
-    definition: str = Field(..., title='Definition')
+    creation_date: datetime = Field(..., title="Creation Date")
+    update_date: datetime = Field(..., title="Update Date")
+    id: UUID = Field(..., title="Id")
+    pref_label: str = Field(..., title="Pref Label")
+    alt_label: str = Field(..., title="Alt Label")
+    definition: str = Field(..., title="Definition")
 
 
 class ApiErrorCode(Enum):
-    GENERIC_ERROR = 'GENERIC_ERROR'
-    NOT_AUTHENTICATED = 'NOT_AUTHENTICATED'
-    NOT_AUTHORIZED = 'NOT_AUTHORIZED'
-    INVALID_REQUEST = 'INVALID_REQUEST'
-    ENTITY_NOT_FOUND = 'ENTITY_NOT_FOUND'
-    ENTITY_FORBIDDEN = 'ENTITY_FORBIDDEN'
-    ENTITY_DUPLICATED = 'ENTITY_DUPLICATED'
-    ASSET_NOT_FOUND = 'ASSET_NOT_FOUND'
-    ASSET_DUPLICATED = 'ASSET_DUPLICATED'
-    ASSET_INVALID_FILE = 'ASSET_INVALID_FILE'
-    ASSET_MISSING_PATH = 'ASSET_MISSING_PATH'
-    ASSET_INVALID_PATH = 'ASSET_INVALID_PATH'
-    ASSET_NOT_A_DIRECTORY = 'ASSET_NOT_A_DIRECTORY'
-    ASSET_INVALID_SCHEMA = 'ASSET_INVALID_SCHEMA'
-    ION_NAME_NOT_FOUND = 'ION_NAME_NOT_FOUND'
+    GENERIC_ERROR = "GENERIC_ERROR"
+    NOT_AUTHENTICATED = "NOT_AUTHENTICATED"
+    NOT_AUTHORIZED = "NOT_AUTHORIZED"
+    INVALID_REQUEST = "INVALID_REQUEST"
+    ENTITY_NOT_FOUND = "ENTITY_NOT_FOUND"
+    ENTITY_FORBIDDEN = "ENTITY_FORBIDDEN"
+    ENTITY_DUPLICATED = "ENTITY_DUPLICATED"
+    ASSET_NOT_FOUND = "ASSET_NOT_FOUND"
+    ASSET_DUPLICATED = "ASSET_DUPLICATED"
+    ASSET_INVALID_FILE = "ASSET_INVALID_FILE"
+    ASSET_MISSING_PATH = "ASSET_MISSING_PATH"
+    ASSET_INVALID_PATH = "ASSET_INVALID_PATH"
+    ASSET_NOT_A_DIRECTORY = "ASSET_NOT_A_DIRECTORY"
+    ASSET_INVALID_SCHEMA = "ASSET_INVALID_SCHEMA"
+    ION_NAME_NOT_FOUND = "ION_NAME_NOT_FOUND"
 
 
 class AssetLabel(Enum):
-    neurolucida = 'neurolucida'
-    swc = 'swc'
-    hdf5 = 'hdf5'
+    neurolucida = "neurolucida"
+    swc = "swc"
+    hdf5 = "hdf5"
 
 
 class AssetStatus(Enum):
-    created = 'created'
-    deleted = 'deleted'
+    created = "created"
+    deleted = "deleted"
 
 
 class BodyUploadEntityAssetEntityRouteEntityIdAssetsPost(BaseModel):
-    file: bytes = Field(..., title='File')
-    meta: Optional[Dict[str, Any]] = Field(None, title='Meta')
+    file: bytes = Field(..., title="File")
+    meta: Optional[Dict[str, Any]] = Field(None, title="Meta")
     label: Optional[AssetLabel] = None
 
 
 class BrainRegionHierarchyRead(BaseModel):
-    id: UUID = Field(..., title='Id')
-    creation_date: datetime = Field(..., title='Creation Date')
-    update_date: datetime = Field(..., title='Update Date')
-    name: str = Field(..., title='Name')
+    id: UUID = Field(..., title="Id")
+    creation_date: datetime = Field(..., title="Creation Date")
+    update_date: datetime = Field(..., title="Update Date")
+    name: str = Field(..., title="Name")
 
 
 class BrainRegionRead(BaseModel):
-    creation_date: datetime = Field(..., title='Creation Date')
-    update_date: datetime = Field(..., title='Update Date')
-    id: UUID = Field(..., title='Id')
-    annotation_value: int = Field(..., title='Annotation Value')
-    name: str = Field(..., title='Name')
-    acronym: str = Field(..., title='Acronym')
-    color_hex_triplet: str = Field(..., title='Color Hex Triplet')
-    parent_structure_id: Optional[UUID] = Field(..., title='Parent Structure Id')
-    hierarchy_id: UUID = Field(..., title='Hierarchy Id')
+    creation_date: datetime = Field(..., title="Creation Date")
+    update_date: datetime = Field(..., title="Update Date")
+    id: UUID = Field(..., title="Id")
+    annotation_value: int = Field(..., title="Annotation Value")
+    name: str = Field(..., title="Name")
+    acronym: str = Field(..., title="Acronym")
+    color_hex_triplet: str = Field(..., title="Color Hex Triplet")
+    parent_structure_id: Optional[UUID] = Field(..., title="Parent Structure Id")
+    hierarchy_id: UUID = Field(..., title="Hierarchy Id")
 
 
 class ContributionCreate(BaseModel):
-    agent_id: UUID = Field(..., title='Agent Id')
-    role_id: UUID = Field(..., title='Role Id')
-    entity_id: UUID = Field(..., title='Entity Id')
+    agent_id: UUID = Field(..., title="Agent Id")
+    role_id: UUID = Field(..., title="Role Id")
+    entity_id: UUID = Field(..., title="Entity Id")
 
 
 class EModelCreate(BaseModel):
-    authorized_public: Optional[bool] = Field(False, title='Authorized Public')
-    description: str = Field(..., title='Description')
-    name: str = Field(..., title='Name')
-    iteration: str = Field(..., title='Iteration')
-    score: float = Field(..., title='Score')
-    seed: int = Field(..., title='Seed')
-    species_id: UUID = Field(..., title='Species Id')
-    strain_id: Optional[UUID] = Field(None, title='Strain Id')
-    brain_region_id: UUID = Field(..., title='Brain Region Id')
-    exemplar_morphology_id: UUID = Field(..., title='Exemplar Morphology Id')
+    authorized_public: Optional[bool] = Field(False, title="Authorized Public")
+    description: str = Field(..., title="Description")
+    name: str = Field(..., title="Name")
+    iteration: str = Field(..., title="Iteration")
+    score: float = Field(..., title="Score")
+    seed: int = Field(..., title="Seed")
+    species_id: UUID = Field(..., title="Species Id")
+    strain_id: Optional[UUID] = Field(None, title="Strain Id")
+    brain_region_id: UUID = Field(..., title="Brain Region Id")
+    exemplar_morphology_id: UUID = Field(..., title="Exemplar Morphology Id")
 
 
 class ElectricalRecordingOrigin(Enum):
-    in_vivo = 'in_vivo'
-    in_vitro = 'in_vitro'
-    in_silico = 'in_silico'
-    unknown = 'unknown'
+    in_vivo = "in_vivo"
+    in_vitro = "in_vitro"
+    in_silico = "in_silico"
+    unknown = "unknown"
 
 
 class ElectricalRecordingStimulusShape(Enum):
-    cheops = 'cheops'
-    constant = 'constant'
-    pulse = 'pulse'
-    step = 'step'
-    ramp = 'ramp'
-    noise = 'noise'
-    sinusoidal = 'sinusoidal'
-    other = 'other'
-    two_steps = 'two_steps'
-    unknown = 'unknown'
+    cheops = "cheops"
+    constant = "constant"
+    pulse = "pulse"
+    step = "step"
+    ramp = "ramp"
+    noise = "noise"
+    sinusoidal = "sinusoidal"
+    other = "other"
+    two_steps = "two_steps"
+    unknown = "unknown"
 
 
 class ElectricalRecordingStimulusType(Enum):
-    voltage_clamp = 'voltage_clamp'
-    current_clamp = 'current_clamp'
-    conductance_clamp = 'conductance_clamp'
-    extracellular = 'extracellular'
-    other = 'other'
-    unknown = 'unknown'
+    voltage_clamp = "voltage_clamp"
+    current_clamp = "current_clamp"
+    conductance_clamp = "conductance_clamp"
+    extracellular = "extracellular"
+    other = "other"
+    unknown = "unknown"
 
 
 class ElectricalRecordingType(Enum):
-    intracellular = 'intracellular'
-    extracellular = 'extracellular'
-    both = 'both'
-    unknown = 'unknown'
+    intracellular = "intracellular"
+    extracellular = "extracellular"
+    both = "both"
+    unknown = "unknown"
 
 
 class EntityRoute(Enum):
-    age = 'age'
-    analysis_software_source_code = 'analysis-software-source-code'
-    emodel = 'emodel'
-    experimental_bouton_density = 'experimental-bouton-density'
-    experimental_neuron_density = 'experimental-neuron-density'
-    experimental_synapses_per_connection = 'experimental-synapses-per-connection'
-    memodel = 'memodel'
-    mesh = 'mesh'
-    reconstruction_morphology = 'reconstruction-morphology'
-    electrical_cell_recording = 'electrical-cell-recording'
-    electrical_recording_stimulus = 'electrical-recording-stimulus'
-    single_neuron_simulation = 'single-neuron-simulation'
-    single_neuron_synaptome = 'single-neuron-synaptome'
-    single_neuron_synaptome_simulation = 'single-neuron-synaptome-simulation'
-    ion_channel_model = 'ion-channel-model'
-    subject = 'subject'
-    synaptic_pathway = 'synaptic-pathway'
+    age = "age"
+    analysis_software_source_code = "analysis-software-source-code"
+    emodel = "emodel"
+    experimental_bouton_density = "experimental-bouton-density"
+    experimental_neuron_density = "experimental-neuron-density"
+    experimental_synapses_per_connection = "experimental-synapses-per-connection"
+    memodel = "memodel"
+    mesh = "mesh"
+    reconstruction_morphology = "reconstruction-morphology"
+    electrical_cell_recording = "electrical-cell-recording"
+    electrical_recording_stimulus = "electrical-recording-stimulus"
+    single_neuron_simulation = "single-neuron-simulation"
+    single_neuron_synaptome = "single-neuron-synaptome"
+    single_neuron_synaptome_simulation = "single-neuron-synaptome-simulation"
+    ion_channel_model = "ion-channel-model"
+    subject = "subject"
+    synaptic_pathway = "synaptic-pathway"
 
 
 class EntityType(Enum):
-    age = 'age'
-    analysis_software_source_code = 'analysis_software_source_code'
-    emodel = 'emodel'
-    experimental_bouton_density = 'experimental_bouton_density'
-    experimental_neuron_density = 'experimental_neuron_density'
-    experimental_synapses_per_connection = 'experimental_synapses_per_connection'
-    memodel = 'memodel'
-    mesh = 'mesh'
-    reconstruction_morphology = 'reconstruction_morphology'
-    electrical_cell_recording = 'electrical_cell_recording'
-    electrical_recording_stimulus = 'electrical_recording_stimulus'
-    single_neuron_simulation = 'single_neuron_simulation'
-    single_neuron_synaptome = 'single_neuron_synaptome'
-    single_neuron_synaptome_simulation = 'single_neuron_synaptome_simulation'
-    ion_channel_model = 'ion_channel_model'
-    subject = 'subject'
-    synaptic_pathway = 'synaptic_pathway'
+    age = "age"
+    analysis_software_source_code = "analysis_software_source_code"
+    emodel = "emodel"
+    experimental_bouton_density = "experimental_bouton_density"
+    experimental_neuron_density = "experimental_neuron_density"
+    experimental_synapses_per_connection = "experimental_synapses_per_connection"
+    memodel = "memodel"
+    mesh = "mesh"
+    reconstruction_morphology = "reconstruction_morphology"
+    electrical_cell_recording = "electrical_cell_recording"
+    electrical_recording_stimulus = "electrical_recording_stimulus"
+    single_neuron_simulation = "single_neuron_simulation"
+    single_neuron_synaptome = "single_neuron_synaptome"
+    single_neuron_synaptome_simulation = "single_neuron_synaptome_simulation"
+    ion_channel_model = "ion_channel_model"
+    subject = "subject"
+    synaptic_pathway = "synaptic_pathway"
 
 
 class ErrorResponse(BaseModel):
     error_code: ApiErrorCode
-    message: str = Field(..., title='Message')
-    details: Optional[Any] = Field(None, title='Details')
+    message: str = Field(..., title="Message")
+    details: Optional[Any] = Field(None, title="Details")
 
 
 class ExperimentalBoutonDensityCreate(BaseModel):
-    authorized_public: Optional[bool] = Field(False, title='Authorized Public')
-    license_id: Optional[UUID] = Field(None, title='License Id')
-    name: str = Field(..., title='Name')
-    description: str = Field(..., title='Description')
-    subject_id: UUID = Field(..., title='Subject Id')
-    brain_region_id: UUID = Field(..., title='Brain Region Id')
-    legacy_id: Optional[str] = Field(..., title='Legacy Id')
+    authorized_public: Optional[bool] = Field(False, title="Authorized Public")
+    license_id: Optional[UUID] = Field(None, title="License Id")
+    name: str = Field(..., title="Name")
+    description: str = Field(..., title="Description")
+    subject_id: UUID = Field(..., title="Subject Id")
+    brain_region_id: UUID = Field(..., title="Brain Region Id")
+    legacy_id: Optional[str] = Field(..., title="Legacy Id")
 
 
 class ExperimentalNeuronDensityCreate(BaseModel):
-    authorized_public: Optional[bool] = Field(False, title='Authorized Public')
-    license_id: Optional[UUID] = Field(None, title='License Id')
-    name: str = Field(..., title='Name')
-    description: str = Field(..., title='Description')
-    subject_id: UUID = Field(..., title='Subject Id')
-    brain_region_id: UUID = Field(..., title='Brain Region Id')
-    legacy_id: Optional[str] = Field(..., title='Legacy Id')
+    authorized_public: Optional[bool] = Field(False, title="Authorized Public")
+    license_id: Optional[UUID] = Field(None, title="License Id")
+    name: str = Field(..., title="Name")
+    description: str = Field(..., title="Description")
+    subject_id: UUID = Field(..., title="Subject Id")
+    brain_region_id: UUID = Field(..., title="Brain Region Id")
+    legacy_id: Optional[str] = Field(..., title="Legacy Id")
 
 
 class ExperimentalSynapsesPerConnectionCreate(BaseModel):
-    authorized_public: Optional[bool] = Field(False, title='Authorized Public')
-    license_id: Optional[UUID] = Field(None, title='License Id')
-    name: str = Field(..., title='Name')
-    description: str = Field(..., title='Description')
-    subject_id: UUID = Field(..., title='Subject Id')
-    brain_region_id: UUID = Field(..., title='Brain Region Id')
-    legacy_id: Optional[str] = Field(..., title='Legacy Id')
-    synaptic_pathway_id: UUID = Field(..., title='Synaptic Pathway Id')
+    authorized_public: Optional[bool] = Field(False, title="Authorized Public")
+    license_id: Optional[UUID] = Field(None, title="License Id")
+    name: str = Field(..., title="Name")
+    description: str = Field(..., title="Description")
+    subject_id: UUID = Field(..., title="Subject Id")
+    brain_region_id: UUID = Field(..., title="Brain Region Id")
+    legacy_id: Optional[str] = Field(..., title="Legacy Id")
+    synaptic_pathway_id: UUID = Field(..., title="Synaptic Pathway Id")
 
 
 class Facet(BaseModel):
-    id: Union[UUID, int] = Field(..., title='Id')
-    label: str = Field(..., title='Label')
-    count: int = Field(..., title='Count')
-    type: Optional[str] = Field(..., title='Type')
+    id: Union[UUID, int] = Field(..., title="Id")
+    label: str = Field(..., title="Label")
+    count: int = Field(..., title="Count")
+    type: Optional[str] = Field(..., title="Type")
 
 
 class Facets(RootModel[Optional[Dict[str, List[Facet]]]]):
@@ -225,261 +225,261 @@ class Facets(RootModel[Optional[Dict[str, List[Facet]]]]):
 
 
 class LicenseCreate(BaseModel):
-    name: str = Field(..., title='Name')
-    description: str = Field(..., title='Description')
-    label: str = Field(..., title='Label')
+    name: str = Field(..., title="Name")
+    description: str = Field(..., title="Description")
+    label: str = Field(..., title="Label")
 
 
 class LicenseRead(BaseModel):
-    id: UUID = Field(..., title='Id')
-    creation_date: datetime = Field(..., title='Creation Date')
-    update_date: datetime = Field(..., title='Update Date')
-    name: str = Field(..., title='Name')
-    description: str = Field(..., title='Description')
-    label: str = Field(..., title='Label')
+    id: UUID = Field(..., title="Id")
+    creation_date: datetime = Field(..., title="Creation Date")
+    update_date: datetime = Field(..., title="Update Date")
+    name: str = Field(..., title="Name")
+    description: str = Field(..., title="Description")
+    label: str = Field(..., title="Label")
 
 
 class MeasurableEntity(Enum):
-    reconstruction_morphology = 'reconstruction_morphology'
+    reconstruction_morphology = "reconstruction_morphology"
 
 
 class MeasurementStatistic(Enum):
-    mean = 'mean'
-    median = 'median'
-    mode = 'mode'
-    variance = 'variance'
-    data_point = 'data_point'
-    sample_size = 'sample_size'
-    standard_error = 'standard_error'
-    standard_deviation = 'standard_deviation'
-    raw = 'raw'
-    minimum = 'minimum'
-    maximum = 'maximum'
-    sum = 'sum'
+    mean = "mean"
+    median = "median"
+    mode = "mode"
+    variance = "variance"
+    data_point = "data_point"
+    sample_size = "sample_size"
+    standard_error = "standard_error"
+    standard_deviation = "standard_deviation"
+    raw = "raw"
+    minimum = "minimum"
+    maximum = "maximum"
+    sum = "sum"
 
 
 class MeasurementUnit(Enum):
-    dimensionless = 'dimensionless'
-    field_1_μm = '1/μm'
-    field_1_mm_ = '1/mm³'
-    μm = 'μm'
-    μm_ = 'μm²'
-    μm__1 = 'μm³'
-    radian = 'radian'
+    dimensionless = "dimensionless"
+    field_1_μm = "1/μm"
+    field_1_mm_ = "1/mm³"
+    μm = "μm"
+    μm_ = "μm²"
+    μm__1 = "μm³"
+    radian = "radian"
 
 
 class NestedSynaptome(BaseModel):
-    id: UUID = Field(..., title='Id')
-    creation_date: datetime = Field(..., title='Creation Date')
-    update_date: datetime = Field(..., title='Update Date')
-    name: str = Field(..., title='Name')
-    description: str = Field(..., title='Description')
-    seed: int = Field(..., title='Seed')
+    id: UUID = Field(..., title="Id")
+    creation_date: datetime = Field(..., title="Creation Date")
+    update_date: datetime = Field(..., title="Update Date")
+    name: str = Field(..., title="Name")
+    description: str = Field(..., title="Description")
+    seed: int = Field(..., title="Seed")
 
 
 class OrganizationCreate(BaseModel):
-    pref_label: str = Field(..., title='Pref Label')
-    alternative_name: Optional[str] = Field(None, title='Alternative Name')
-    legacy_id: Optional[str] = Field(None, title='Legacy Id')
+    pref_label: str = Field(..., title="Pref Label")
+    alternative_name: Optional[str] = Field(None, title="Alternative Name")
+    legacy_id: Optional[str] = Field(None, title="Legacy Id")
 
 
 class OrganizationRead(BaseModel):
-    id: UUID = Field(..., title='Id')
-    creation_date: datetime = Field(..., title='Creation Date')
-    update_date: datetime = Field(..., title='Update Date')
-    pref_label: str = Field(..., title='Pref Label')
-    alternative_name: Optional[str] = Field(None, title='Alternative Name')
-    type: str = Field(..., title='Type')
+    id: UUID = Field(..., title="Id")
+    creation_date: datetime = Field(..., title="Creation Date")
+    update_date: datetime = Field(..., title="Update Date")
+    pref_label: str = Field(..., title="Pref Label")
+    alternative_name: Optional[str] = Field(None, title="Alternative Name")
+    type: str = Field(..., title="Type")
 
 
 class PaginationResponse(BaseModel):
-    page: int = Field(..., title='Page')
-    page_size: int = Field(..., title='Page Size')
-    total_items: int = Field(..., title='Total Items')
+    page: int = Field(..., title="Page")
+    page_size: int = Field(..., title="Page Size")
+    total_items: int = Field(..., title="Total Items")
 
 
 class PersonCreate(BaseModel):
-    givenName: str = Field(..., title='Givenname')
-    familyName: str = Field(..., title='Familyname')
-    pref_label: str = Field(..., title='Pref Label')
-    legacy_id: Optional[str] = Field(None, title='Legacy Id')
+    givenName: str = Field(..., title="Givenname")
+    familyName: str = Field(..., title="Familyname")
+    pref_label: str = Field(..., title="Pref Label")
+    legacy_id: Optional[str] = Field(None, title="Legacy Id")
 
 
 class PersonRead(BaseModel):
-    id: UUID = Field(..., title='Id')
-    creation_date: datetime = Field(..., title='Creation Date')
-    update_date: datetime = Field(..., title='Update Date')
-    givenName: str = Field(..., title='Givenname')
-    familyName: str = Field(..., title='Familyname')
-    pref_label: str = Field(..., title='Pref Label')
-    type: str = Field(..., title='Type')
+    id: UUID = Field(..., title="Id")
+    creation_date: datetime = Field(..., title="Creation Date")
+    update_date: datetime = Field(..., title="Update Date")
+    givenName: str = Field(..., title="Givenname")
+    familyName: str = Field(..., title="Familyname")
+    pref_label: str = Field(..., title="Pref Label")
+    type: str = Field(..., title="Type")
 
 
 class PointLocationBase(BaseModel):
-    x: float = Field(..., title='X')
-    y: float = Field(..., title='Y')
-    z: float = Field(..., title='Z')
+    x: float = Field(..., title="X")
+    y: float = Field(..., title="Y")
+    z: float = Field(..., title="Z")
 
 
 class ReconstructionMorphologyCreate(BaseModel):
-    authorized_public: Optional[bool] = Field(False, title='Authorized Public')
-    license_id: Optional[UUID] = Field(None, title='License Id')
-    name: str = Field(..., title='Name')
-    description: str = Field(..., title='Description')
+    authorized_public: Optional[bool] = Field(False, title="Authorized Public")
+    license_id: Optional[UUID] = Field(None, title="License Id")
+    name: str = Field(..., title="Name")
+    description: str = Field(..., title="Description")
     location: Optional[PointLocationBase] = None
-    legacy_id: Optional[List[str]] = Field(None, title='Legacy Id')
-    species_id: UUID = Field(..., title='Species Id')
-    strain_id: Optional[UUID] = Field(None, title='Strain Id')
-    brain_region_id: UUID = Field(..., title='Brain Region Id')
+    legacy_id: Optional[List[str]] = Field(None, title="Legacy Id")
+    species_id: UUID = Field(..., title="Species Id")
+    strain_id: Optional[UUID] = Field(None, title="Strain Id")
+    brain_region_id: UUID = Field(..., title="Brain Region Id")
 
 
 class RoleCreate(BaseModel):
-    name: str = Field(..., title='Name')
-    role_id: str = Field(..., title='Role Id')
+    name: str = Field(..., title="Name")
+    role_id: str = Field(..., title="Role Id")
 
 
 class RoleRead(BaseModel):
-    id: UUID = Field(..., title='Id')
-    creation_date: datetime = Field(..., title='Creation Date')
-    update_date: datetime = Field(..., title='Update Date')
-    name: str = Field(..., title='Name')
-    role_id: str = Field(..., title='Role Id')
+    id: UUID = Field(..., title="Id")
+    creation_date: datetime = Field(..., title="Creation Date")
+    update_date: datetime = Field(..., title="Update Date")
+    name: str = Field(..., title="Name")
+    role_id: str = Field(..., title="Role Id")
 
 
 class Sex(Enum):
-    male = 'male'
-    female = 'female'
-    unknown = 'unknown'
+    male = "male"
+    female = "female"
+    unknown = "unknown"
 
 
 class SingleNeuronSimulationStatus(Enum):
-    started = 'started'
-    failure = 'failure'
-    success = 'success'
+    started = "started"
+    failure = "failure"
+    success = "success"
 
 
 class SingleNeuronSynaptomeCreate(BaseModel):
-    authorized_public: Optional[bool] = Field(False, title='Authorized Public')
-    name: str = Field(..., title='Name')
-    description: str = Field(..., title='Description')
-    seed: int = Field(..., title='Seed')
-    me_model_id: UUID = Field(..., title='Me Model Id')
-    brain_region_id: UUID = Field(..., title='Brain Region Id')
+    authorized_public: Optional[bool] = Field(False, title="Authorized Public")
+    name: str = Field(..., title="Name")
+    description: str = Field(..., title="Description")
+    seed: int = Field(..., title="Seed")
+    me_model_id: UUID = Field(..., title="Me Model Id")
+    brain_region_id: UUID = Field(..., title="Brain Region Id")
 
 
 class SingleNeuronSynaptomeSimulationCreate(BaseModel):
-    brain_region_id: UUID = Field(..., title='Brain Region Id')
-    authorized_public: Optional[bool] = Field(False, title='Authorized Public')
-    name: str = Field(..., title='Name')
-    description: str = Field(..., title='Description')
-    seed: int = Field(..., title='Seed')
+    brain_region_id: UUID = Field(..., title="Brain Region Id")
+    authorized_public: Optional[bool] = Field(False, title="Authorized Public")
+    name: str = Field(..., title="Name")
+    description: str = Field(..., title="Description")
+    seed: int = Field(..., title="Seed")
     status: SingleNeuronSimulationStatus
-    injectionLocation: List[str] = Field(..., title='Injectionlocation')
-    recordingLocation: List[str] = Field(..., title='Recordinglocation')
-    synaptome_id: UUID = Field(..., title='Synaptome Id')
+    injectionLocation: List[str] = Field(..., title="Injectionlocation")
+    recordingLocation: List[str] = Field(..., title="Recordinglocation")
+    synaptome_id: UUID = Field(..., title="Synaptome Id")
 
 
 class SingleNeuronSynaptomeSimulationRead(BaseModel):
     type: Optional[EntityType] = None
-    creation_date: datetime = Field(..., title='Creation Date')
-    update_date: datetime = Field(..., title='Update Date')
-    id: UUID = Field(..., title='Id')
-    authorized_project_id: UUID4 = Field(..., title='Authorized Project Id')
-    authorized_public: Optional[bool] = Field(False, title='Authorized Public')
+    creation_date: datetime = Field(..., title="Creation Date")
+    update_date: datetime = Field(..., title="Update Date")
+    id: UUID = Field(..., title="Id")
+    authorized_project_id: UUID4 = Field(..., title="Authorized Project Id")
+    authorized_public: Optional[bool] = Field(False, title="Authorized Public")
     brain_region: BrainRegionRead
-    name: str = Field(..., title='Name')
-    description: str = Field(..., title='Description')
-    seed: int = Field(..., title='Seed')
+    name: str = Field(..., title="Name")
+    description: str = Field(..., title="Description")
+    seed: int = Field(..., title="Seed")
     status: SingleNeuronSimulationStatus
-    injectionLocation: List[str] = Field(..., title='Injectionlocation')
-    recordingLocation: List[str] = Field(..., title='Recordinglocation')
+    injectionLocation: List[str] = Field(..., title="Injectionlocation")
+    recordingLocation: List[str] = Field(..., title="Recordinglocation")
     synaptome: NestedSynaptome
 
 
 class SpeciesCreate(BaseModel):
-    name: str = Field(..., title='Name')
-    taxonomy_id: str = Field(..., title='Taxonomy Id')
+    name: str = Field(..., title="Name")
+    taxonomy_id: str = Field(..., title="Taxonomy Id")
 
 
 class SpeciesRead(BaseModel):
-    id: UUID = Field(..., title='Id')
-    creation_date: datetime = Field(..., title='Creation Date')
-    update_date: datetime = Field(..., title='Update Date')
-    name: str = Field(..., title='Name')
-    taxonomy_id: str = Field(..., title='Taxonomy Id')
+    id: UUID = Field(..., title="Id")
+    creation_date: datetime = Field(..., title="Creation Date")
+    update_date: datetime = Field(..., title="Update Date")
+    name: str = Field(..., title="Name")
+    taxonomy_id: str = Field(..., title="Taxonomy Id")
 
 
 class StrainCreate(BaseModel):
-    name: str = Field(..., title='Name')
-    taxonomy_id: str = Field(..., title='Taxonomy Id')
-    species_id: UUID = Field(..., title='Species Id')
+    name: str = Field(..., title="Name")
+    taxonomy_id: str = Field(..., title="Taxonomy Id")
+    species_id: UUID = Field(..., title="Species Id")
 
 
 class StrainRead(BaseModel):
-    id: UUID = Field(..., title='Id')
-    creation_date: datetime = Field(..., title='Creation Date')
-    update_date: datetime = Field(..., title='Update Date')
-    name: str = Field(..., title='Name')
-    taxonomy_id: str = Field(..., title='Taxonomy Id')
-    species_id: UUID = Field(..., title='Species Id')
+    id: UUID = Field(..., title="Id")
+    creation_date: datetime = Field(..., title="Creation Date")
+    update_date: datetime = Field(..., title="Update Date")
+    name: str = Field(..., title="Name")
+    taxonomy_id: str = Field(..., title="Taxonomy Id")
+    species_id: UUID = Field(..., title="Species Id")
 
 
 class StructuralDomain(Enum):
-    apical_dendrite = 'apical_dendrite'
-    basal_dendrite = 'basal_dendrite'
-    axon = 'axon'
+    apical_dendrite = "apical_dendrite"
+    basal_dendrite = "basal_dendrite"
+    axon = "axon"
 
 
 class SubjectCreate(BaseModel):
-    name: str = Field(..., title='Name')
-    description: str = Field(..., title='Description')
-    sex: Sex = Field(..., description='Sex of the subject', title='Sex')
+    name: str = Field(..., title="Name")
+    description: str = Field(..., title="Description")
+    sex: Sex = Field(..., description="Sex of the subject", title="Sex")
     weight: Optional[PositiveFloat] = Field(
-        None, description='Weight in grams', title='Weight'
+        None, description="Weight in grams", title="Weight"
     )
     age_value: Optional[float] = Field(
-        None, description='Age value interval.', title='Age value'
+        None, description="Age value interval.", title="Age value"
     )
     age_min: Optional[float] = Field(
-        None, description='Minimum age range', title='Minimum age range'
+        None, description="Minimum age range", title="Minimum age range"
     )
     age_max: Optional[float] = Field(
-        None, description='Maximum age range', title='Maximum age range'
+        None, description="Maximum age range", title="Maximum age range"
     )
     age_period: Optional[AgePeriod] = None
-    authorized_public: Optional[bool] = Field(False, title='Authorized Public')
-    species_id: UUID = Field(..., title='Species Id')
+    authorized_public: Optional[bool] = Field(False, title="Authorized Public")
+    species_id: UUID = Field(..., title="Species Id")
 
 
 class SubjectRead(BaseModel):
-    id: UUID = Field(..., title='Id')
-    authorized_project_id: UUID4 = Field(..., title='Authorized Project Id')
-    authorized_public: Optional[bool] = Field(False, title='Authorized Public')
-    creation_date: datetime = Field(..., title='Creation Date')
-    update_date: datetime = Field(..., title='Update Date')
-    name: str = Field(..., title='Name')
-    description: str = Field(..., title='Description')
-    sex: Sex = Field(..., description='Sex of the subject')
+    id: UUID = Field(..., title="Id")
+    authorized_project_id: UUID4 = Field(..., title="Authorized Project Id")
+    authorized_public: Optional[bool] = Field(False, title="Authorized Public")
+    creation_date: datetime = Field(..., title="Creation Date")
+    update_date: datetime = Field(..., title="Update Date")
+    name: str = Field(..., title="Name")
+    description: str = Field(..., title="Description")
+    sex: Sex = Field(..., description="Sex of the subject")
     weight: Optional[PositiveFloat] = Field(
-        None, description='Weight in grams', title='Weight'
+        None, description="Weight in grams", title="Weight"
     )
     age_value: Optional[float] = Field(
-        None, description='Age value interval.', title='Age value'
+        None, description="Age value interval.", title="Age value"
     )
     age_min: Optional[float] = Field(
-        None, description='Minimum age range', title='Minimum age range'
+        None, description="Minimum age range", title="Minimum age range"
     )
     age_max: Optional[float] = Field(
-        None, description='Maximum age range', title='Maximum age range'
+        None, description="Maximum age range", title="Maximum age range"
     )
     age_period: Optional[AgePeriod] = None
     species: SpeciesRead
 
 
 class SynapticPathwayRead(BaseModel):
-    id: UUID = Field(..., title='Id')
-    creation_date: datetime = Field(..., title='Creation Date')
-    update_date: datetime = Field(..., title='Update Date')
+    id: UUID = Field(..., title="Id")
+    creation_date: datetime = Field(..., title="Creation Date")
+    update_date: datetime = Field(..., title="Update Date")
     pre_mtype: Annotation
     post_mtype: Annotation
     pre_region: BrainRegionRead
@@ -487,19 +487,19 @@ class SynapticPathwayRead(BaseModel):
 
 
 class UseIon(BaseModel):
-    ion_name: str = Field(..., title='Ion Name')
-    read: Optional[List[str]] = Field([], title='Read')
-    write: Optional[List[str]] = Field([], title='Write')
-    valence: Optional[int] = Field(None, title='Valence')
-    main_ion: Optional[bool] = Field(None, title='Main Ion')
+    ion_name: str = Field(..., title="Ion Name")
+    read: Optional[List[str]] = Field([], title="Read")
+    write: Optional[List[str]] = Field([], title="Write")
+    valence: Optional[int] = Field(None, title="Valence")
+    main_ion: Optional[bool] = Field(None, title="Main Ion")
 
 
 class ValidationStatus(Enum):
-    created = 'created'
-    initialized = 'initialized'
-    running = 'running'
-    done = 'done'
-    error = 'error'
+    created = "created"
+    initialized = "initialized"
+    running = "running"
+    done = "done"
+    error = "error"
 
 
 class HealthGetResponse(BaseModel):
@@ -511,681 +511,681 @@ class VersionGetResponse(BaseModel):
 
 
 class VirtualLabId(RootModel[Optional[UUID4]]):
-    root: Optional[UUID4] = Field(..., title='Virtual Lab Id')
+    root: Optional[UUID4] = Field(..., title="Virtual Lab Id")
 
 
 class ProjectId(RootModel[Optional[UUID4]]):
-    root: Optional[UUID4] = Field(..., title='Project Id')
+    root: Optional[UUID4] = Field(..., title="Project Id")
 
 
 class AssetPath(RootModel[Optional[str]]):
-    root: Optional[str] = Field(..., title='Asset Path')
+    root: Optional[str] = Field(..., title="Asset Path")
 
 
 class Name(RootModel[Optional[str]]):
-    root: Optional[str] = Field(..., title='Name')
+    root: Optional[str] = Field(..., title="Name")
 
 
 class NameIn(RootModel[Optional[str]]):
-    root: Optional[str] = Field(..., title='Name  In')
+    root: Optional[str] = Field(..., title="Name  In")
 
 
 class NameIlike(RootModel[Optional[str]]):
-    root: Optional[str] = Field(..., title='Name  Ilike')
+    root: Optional[str] = Field(..., title="Name  Ilike")
 
 
 class Id(RootModel[Optional[UUID]]):
-    root: Optional[UUID] = Field(..., title='Id')
+    root: Optional[UUID] = Field(..., title="Id")
 
 
 class Acronym(RootModel[Optional[str]]):
-    root: Optional[str] = Field(..., title='Acronym')
+    root: Optional[str] = Field(..., title="Acronym")
 
 
 class AnnotationValue(RootModel[Optional[int]]):
-    root: Optional[int] = Field(..., title='Annotation Value')
+    root: Optional[int] = Field(..., title="Annotation Value")
 
 
 class HierarchyId(RootModel[Optional[UUID]]):
-    root: Optional[UUID] = Field(..., title='Hierarchy Id')
+    root: Optional[UUID] = Field(..., title="Hierarchy Id")
 
 
 class OrderBy(RootModel[Optional[str]]):
-    root: Optional[str] = Field(..., title='Order By')
+    root: Optional[str] = Field(..., title="Order By")
 
 
 class IdIn(RootModel[Optional[str]]):
-    root: Optional[str] = Field(..., title='Id  In')
+    root: Optional[str] = Field(..., title="Id  In")
 
 
 class CreationDateLte(RootModel[Optional[datetime]]):
-    root: Optional[datetime] = Field(..., title='Creation Date  Lte')
+    root: Optional[datetime] = Field(..., title="Creation Date  Lte")
 
 
 class CreationDateGte(RootModel[Optional[datetime]]):
-    root: Optional[datetime] = Field(..., title='Creation Date  Gte')
+    root: Optional[datetime] = Field(..., title="Creation Date  Gte")
 
 
 class UpdateDateLte(RootModel[Optional[datetime]]):
-    root: Optional[datetime] = Field(..., title='Update Date  Lte')
+    root: Optional[datetime] = Field(..., title="Update Date  Lte")
 
 
 class UpdateDateGte(RootModel[Optional[datetime]]):
-    root: Optional[datetime] = Field(..., title='Update Date  Gte')
+    root: Optional[datetime] = Field(..., title="Update Date  Gte")
 
 
 class ContributionId(RootModel[Optional[UUID]]):
-    root: Optional[UUID] = Field(..., title='Contribution  Id')
+    root: Optional[UUID] = Field(..., title="Contribution  Id")
 
 
 class ContributionPrefLabel(RootModel[Optional[str]]):
-    root: Optional[str] = Field(..., title='Contribution  Pref Label')
+    root: Optional[str] = Field(..., title="Contribution  Pref Label")
 
 
 class ContributionPrefLabelIn(RootModel[Optional[str]]):
-    root: Optional[str] = Field(..., title='Contribution  Pref Label  In')
+    root: Optional[str] = Field(..., title="Contribution  Pref Label  In")
 
 
 class ContributionOrderBy(RootModel[Optional[str]]):
-    root: Optional[str] = Field(..., title='Contribution  Order By')
+    root: Optional[str] = Field(..., title="Contribution  Order By")
 
 
 class SubjectName(RootModel[Optional[str]]):
-    root: Optional[str] = Field(..., title='Subject  Name')
+    root: Optional[str] = Field(..., title="Subject  Name")
 
 
 class SubjectNameIn(RootModel[Optional[str]]):
-    root: Optional[str] = Field(..., title='Subject  Name  In')
+    root: Optional[str] = Field(..., title="Subject  Name  In")
 
 
 class SubjectNameIlike(RootModel[Optional[str]]):
-    root: Optional[str] = Field(..., title='Subject  Name  Ilike')
+    root: Optional[str] = Field(..., title="Subject  Name  Ilike")
 
 
 class SubjectSpeciesIdIn(RootModel[Optional[str]]):
-    root: Optional[str] = Field(..., title='Subject  Species Id In')
+    root: Optional[str] = Field(..., title="Subject  Species Id In")
 
 
 class SubjectId(RootModel[Optional[UUID]]):
-    root: Optional[UUID] = Field(..., title='Subject  Id')
+    root: Optional[UUID] = Field(..., title="Subject  Id")
 
 
 class SubjectOrderBy(RootModel[Optional[str]]):
-    root: Optional[str] = Field(..., title='Subject  Order By')
+    root: Optional[str] = Field(..., title="Subject  Order By")
 
 
 class SpeciesName(RootModel[Optional[str]]):
-    root: Optional[str] = Field(..., title='Species  Name')
+    root: Optional[str] = Field(..., title="Species  Name")
 
 
 class SpeciesNameIn(RootModel[Optional[str]]):
-    root: Optional[str] = Field(..., title='Species  Name  In')
+    root: Optional[str] = Field(..., title="Species  Name  In")
 
 
 class SpeciesNameIlike(RootModel[Optional[str]]):
-    root: Optional[str] = Field(..., title='Species  Name  Ilike')
+    root: Optional[str] = Field(..., title="Species  Name  Ilike")
 
 
 class SpeciesId(RootModel[Optional[UUID]]):
-    root: Optional[UUID] = Field(..., title='Species  Id')
+    root: Optional[UUID] = Field(..., title="Species  Id")
 
 
 class SpeciesOrderBy(RootModel[Optional[str]]):
-    root: Optional[str] = Field(..., title='Species  Order By')
+    root: Optional[str] = Field(..., title="Species  Order By")
 
 
 class StrainName(RootModel[Optional[str]]):
-    root: Optional[str] = Field(..., title='Strain  Name')
+    root: Optional[str] = Field(..., title="Strain  Name")
 
 
 class StrainNameIn(RootModel[Optional[str]]):
-    root: Optional[str] = Field(..., title='Strain  Name  In')
+    root: Optional[str] = Field(..., title="Strain  Name  In")
 
 
 class StrainNameIlike(RootModel[Optional[str]]):
-    root: Optional[str] = Field(..., title='Strain  Name  Ilike')
+    root: Optional[str] = Field(..., title="Strain  Name  Ilike")
 
 
 class StrainId(RootModel[Optional[UUID]]):
-    root: Optional[UUID] = Field(..., title='Strain  Id')
+    root: Optional[UUID] = Field(..., title="Strain  Id")
 
 
 class StrainOrderBy(RootModel[Optional[str]]):
-    root: Optional[str] = Field(..., title='Strain  Order By')
+    root: Optional[str] = Field(..., title="Strain  Order By")
 
 
 class BrainRegionName(RootModel[Optional[str]]):
-    root: Optional[str] = Field(..., title='Brain Region  Name')
+    root: Optional[str] = Field(..., title="Brain Region  Name")
 
 
 class BrainRegionNameIn(RootModel[Optional[str]]):
-    root: Optional[str] = Field(..., title='Brain Region  Name  In')
+    root: Optional[str] = Field(..., title="Brain Region  Name  In")
 
 
 class BrainRegionNameIlike(RootModel[Optional[str]]):
-    root: Optional[str] = Field(..., title='Brain Region  Name  Ilike')
+    root: Optional[str] = Field(..., title="Brain Region  Name  Ilike")
 
 
 class BrainRegionId(RootModel[Optional[int]]):
-    root: Optional[int] = Field(..., title='Brain Region  Id')
+    root: Optional[int] = Field(..., title="Brain Region  Id")
 
 
 class BrainRegionIdIn(RootModel[Optional[str]]):
-    root: Optional[str] = Field(..., title='Brain Region  Id  In')
+    root: Optional[str] = Field(..., title="Brain Region  Id  In")
 
 
 class BrainRegionAcronym(RootModel[Optional[str]]):
-    root: Optional[str] = Field(..., title='Brain Region  Acronym')
+    root: Optional[str] = Field(..., title="Brain Region  Acronym")
 
 
 class BrainRegionAcronymIn(RootModel[Optional[str]]):
-    root: Optional[str] = Field(..., title='Brain Region  Acronym  In')
+    root: Optional[str] = Field(..., title="Brain Region  Acronym  In")
 
 
 class BrainRegionOrderBy(RootModel[Optional[str]]):
-    root: Optional[str] = Field(..., title='Brain Region  Order By')
+    root: Optional[str] = Field(..., title="Brain Region  Order By")
 
 
 class Search(RootModel[Optional[str]]):
-    root: Optional[str] = Field(..., title='Search')
+    root: Optional[str] = Field(..., title="Search")
 
 
 class WithinBrainRegionHierachyId(RootModel[Optional[UUID]]):
-    root: Optional[UUID] = Field(..., title='Within Brain Region Hierachy Id')
+    root: Optional[UUID] = Field(..., title="Within Brain Region Hierachy Id")
 
 
 class WithinBrainRegionBrainRegionId(RootModel[Optional[UUID]]):
-    root: Optional[UUID] = Field(..., title='Within Brain Region Brain Region Id')
+    root: Optional[UUID] = Field(..., title="Within Brain Region Brain Region Id")
 
 
 class SpeciesIdIn(RootModel[Optional[str]]):
-    root: Optional[str] = Field(..., title='Species Id In')
+    root: Optional[str] = Field(..., title="Species Id In")
 
 
 class ScoreLte(RootModel[Optional[int]]):
-    root: Optional[int] = Field(..., title='Score  Lte')
+    root: Optional[int] = Field(..., title="Score  Lte")
 
 
 class ScoreGte(RootModel[Optional[int]]):
-    root: Optional[int] = Field(..., title='Score  Gte')
+    root: Optional[int] = Field(..., title="Score  Gte")
 
 
 class EtypeId(RootModel[Optional[UUID]]):
-    root: Optional[UUID] = Field(..., title='Etype  Id')
+    root: Optional[UUID] = Field(..., title="Etype  Id")
 
 
 class EtypePrefLabel(RootModel[Optional[str]]):
-    root: Optional[str] = Field(..., title='Etype  Pref Label')
+    root: Optional[str] = Field(..., title="Etype  Pref Label")
 
 
 class EtypePrefLabelIn(RootModel[Optional[str]]):
-    root: Optional[str] = Field(..., title='Etype  Pref Label  In')
+    root: Optional[str] = Field(..., title="Etype  Pref Label  In")
 
 
 class EtypeOrderBy(RootModel[Optional[str]]):
-    root: Optional[str] = Field(..., title='Etype  Order By')
+    root: Optional[str] = Field(..., title="Etype  Order By")
 
 
 class MtypeId(RootModel[Optional[UUID]]):
-    root: Optional[UUID] = Field(..., title='Mtype  Id')
+    root: Optional[UUID] = Field(..., title="Mtype  Id")
 
 
 class MtypePrefLabel(RootModel[Optional[str]]):
-    root: Optional[str] = Field(..., title='Mtype  Pref Label')
+    root: Optional[str] = Field(..., title="Mtype  Pref Label")
 
 
 class MtypePrefLabelIn(RootModel[Optional[str]]):
-    root: Optional[str] = Field(..., title='Mtype  Pref Label  In')
+    root: Optional[str] = Field(..., title="Mtype  Pref Label  In")
 
 
 class MtypeOrderBy(RootModel[Optional[str]]):
-    root: Optional[str] = Field(..., title='Mtype  Order By')
+    root: Optional[str] = Field(..., title="Mtype  Order By")
 
 
 class ExemplarMorphologyCreationDateLte(RootModel[Optional[datetime]]):
     root: Optional[datetime] = Field(
-        ..., title='Exemplar Morphology  Creation Date  Lte'
+        ..., title="Exemplar Morphology  Creation Date  Lte"
     )
 
 
 class ExemplarMorphologyCreationDateGte(RootModel[Optional[datetime]]):
     root: Optional[datetime] = Field(
-        ..., title='Exemplar Morphology  Creation Date  Gte'
+        ..., title="Exemplar Morphology  Creation Date  Gte"
     )
 
 
 class ExemplarMorphologyUpdateDateLte(RootModel[Optional[datetime]]):
-    root: Optional[datetime] = Field(..., title='Exemplar Morphology  Update Date  Lte')
+    root: Optional[datetime] = Field(..., title="Exemplar Morphology  Update Date  Lte")
 
 
 class ExemplarMorphologyUpdateDateGte(RootModel[Optional[datetime]]):
-    root: Optional[datetime] = Field(..., title='Exemplar Morphology  Update Date  Gte')
+    root: Optional[datetime] = Field(..., title="Exemplar Morphology  Update Date  Gte")
 
 
 class ExemplarMorphologyName(RootModel[Optional[str]]):
-    root: Optional[str] = Field(..., title='Exemplar Morphology  Name')
+    root: Optional[str] = Field(..., title="Exemplar Morphology  Name")
 
 
 class ExemplarMorphologyNameIn(RootModel[Optional[str]]):
-    root: Optional[str] = Field(..., title='Exemplar Morphology  Name  In')
+    root: Optional[str] = Field(..., title="Exemplar Morphology  Name  In")
 
 
 class ExemplarMorphologyNameIlike(RootModel[Optional[str]]):
-    root: Optional[str] = Field(..., title='Exemplar Morphology  Name  Ilike')
+    root: Optional[str] = Field(..., title="Exemplar Morphology  Name  Ilike")
 
 
 class ExemplarMorphologyId(RootModel[Optional[UUID]]):
-    root: Optional[UUID] = Field(..., title='Exemplar Morphology  Id')
+    root: Optional[UUID] = Field(..., title="Exemplar Morphology  Id")
 
 
 class ExemplarMorphologyIdIn(RootModel[Optional[str]]):
-    root: Optional[str] = Field(..., title='Exemplar Morphology  Id  In')
+    root: Optional[str] = Field(..., title="Exemplar Morphology  Id  In")
 
 
 class ExemplarMorphologySpeciesIdIn(RootModel[Optional[str]]):
-    root: Optional[str] = Field(..., title='Exemplar Morphology  Species Id In')
+    root: Optional[str] = Field(..., title="Exemplar Morphology  Species Id In")
 
 
 class ExemplarMorphologyOrderBy(RootModel[Optional[str]]):
-    root: Optional[str] = Field(..., title='Exemplar Morphology  Order By')
+    root: Optional[str] = Field(..., title="Exemplar Morphology  Order By")
 
 
 class MeasurementAnnotationCreationDateLte(RootModel[Optional[datetime]]):
     root: Optional[datetime] = Field(
-        ..., title='Measurement Annotation  Creation Date  Lte'
+        ..., title="Measurement Annotation  Creation Date  Lte"
     )
 
 
 class MeasurementAnnotationCreationDateGte(RootModel[Optional[datetime]]):
     root: Optional[datetime] = Field(
-        ..., title='Measurement Annotation  Creation Date  Gte'
+        ..., title="Measurement Annotation  Creation Date  Gte"
     )
 
 
 class MeasurementAnnotationUpdateDateLte(RootModel[Optional[datetime]]):
     root: Optional[datetime] = Field(
-        ..., title='Measurement Annotation  Update Date  Lte'
+        ..., title="Measurement Annotation  Update Date  Lte"
     )
 
 
 class MeasurementAnnotationUpdateDateGte(RootModel[Optional[datetime]]):
     root: Optional[datetime] = Field(
-        ..., title='Measurement Annotation  Update Date  Gte'
+        ..., title="Measurement Annotation  Update Date  Gte"
     )
 
 
 class MeasurementKindPrefLabel(RootModel[Optional[str]]):
-    root: Optional[str] = Field(..., title='Measurement Kind  Pref Label')
+    root: Optional[str] = Field(..., title="Measurement Kind  Pref Label")
 
 
 class MeasurementKindDefinition(RootModel[Optional[str]]):
-    root: Optional[str] = Field(..., title='Measurement Kind  Definition')
+    root: Optional[str] = Field(..., title="Measurement Kind  Definition")
 
 
 class MeasurementKindStructuralDomain(RootModel[Optional[StructuralDomain]]):
     root: Optional[StructuralDomain] = Field(
-        ..., title='Measurement Kind  Structural Domain'
+        ..., title="Measurement Kind  Structural Domain"
     )
 
 
 class MeasurementItemName(RootModel[Optional[MeasurementStatistic]]):
-    root: Optional[MeasurementStatistic] = Field(..., title='Measurement Item  Name')
+    root: Optional[MeasurementStatistic] = Field(..., title="Measurement Item  Name")
 
 
 class MeasurementItemUnit(RootModel[Optional[MeasurementUnit]]):
-    root: Optional[MeasurementUnit] = Field(..., title='Measurement Item  Unit')
+    root: Optional[MeasurementUnit] = Field(..., title="Measurement Item  Unit")
 
 
 class MeasurementItemValueGte(RootModel[Optional[float]]):
-    root: Optional[float] = Field(..., title='Measurement Item  Value  Gte')
+    root: Optional[float] = Field(..., title="Measurement Item  Value  Gte")
 
 
 class MeasurementItemValueLte(RootModel[Optional[float]]):
-    root: Optional[float] = Field(..., title='Measurement Item  Value  Lte')
+    root: Optional[float] = Field(..., title="Measurement Item  Value  Lte")
 
 
 class SynapticPathwayOrderBy(RootModel[Optional[str]]):
-    root: Optional[str] = Field(..., title='Synaptic Pathway  Order By')
+    root: Optional[str] = Field(..., title="Synaptic Pathway  Order By")
 
 
 class PreMtypeId(RootModel[Optional[UUID]]):
-    root: Optional[UUID] = Field(..., title='Pre Mtype  Id')
+    root: Optional[UUID] = Field(..., title="Pre Mtype  Id")
 
 
 class PreMtypePrefLabel(RootModel[Optional[str]]):
-    root: Optional[str] = Field(..., title='Pre Mtype  Pref Label')
+    root: Optional[str] = Field(..., title="Pre Mtype  Pref Label")
 
 
 class PreMtypePrefLabelIn(RootModel[Optional[str]]):
-    root: Optional[str] = Field(..., title='Pre Mtype  Pref Label  In')
+    root: Optional[str] = Field(..., title="Pre Mtype  Pref Label  In")
 
 
 class PreMtypeOrderBy(RootModel[Optional[str]]):
-    root: Optional[str] = Field(..., title='Pre Mtype  Order By')
+    root: Optional[str] = Field(..., title="Pre Mtype  Order By")
 
 
 class PostMtypeId(RootModel[Optional[UUID]]):
-    root: Optional[UUID] = Field(..., title='Post Mtype  Id')
+    root: Optional[UUID] = Field(..., title="Post Mtype  Id")
 
 
 class PostMtypePrefLabel(RootModel[Optional[str]]):
-    root: Optional[str] = Field(..., title='Post Mtype  Pref Label')
+    root: Optional[str] = Field(..., title="Post Mtype  Pref Label")
 
 
 class PostMtypePrefLabelIn(RootModel[Optional[str]]):
-    root: Optional[str] = Field(..., title='Post Mtype  Pref Label  In')
+    root: Optional[str] = Field(..., title="Post Mtype  Pref Label  In")
 
 
 class PostMtypeOrderBy(RootModel[Optional[str]]):
-    root: Optional[str] = Field(..., title='Post Mtype  Order By')
+    root: Optional[str] = Field(..., title="Post Mtype  Order By")
 
 
 class PreRegionName(RootModel[Optional[str]]):
-    root: Optional[str] = Field(..., title='Pre Region  Name')
+    root: Optional[str] = Field(..., title="Pre Region  Name")
 
 
 class PreRegionNameIn(RootModel[Optional[str]]):
-    root: Optional[str] = Field(..., title='Pre Region  Name  In')
+    root: Optional[str] = Field(..., title="Pre Region  Name  In")
 
 
 class PreRegionNameIlike(RootModel[Optional[str]]):
-    root: Optional[str] = Field(..., title='Pre Region  Name  Ilike')
+    root: Optional[str] = Field(..., title="Pre Region  Name  Ilike")
 
 
 class PreRegionId(RootModel[Optional[int]]):
-    root: Optional[int] = Field(..., title='Pre Region  Id')
+    root: Optional[int] = Field(..., title="Pre Region  Id")
 
 
 class PreRegionIdIn(RootModel[Optional[str]]):
-    root: Optional[str] = Field(..., title='Pre Region  Id  In')
+    root: Optional[str] = Field(..., title="Pre Region  Id  In")
 
 
 class PreRegionAcronym(RootModel[Optional[str]]):
-    root: Optional[str] = Field(..., title='Pre Region  Acronym')
+    root: Optional[str] = Field(..., title="Pre Region  Acronym")
 
 
 class PreRegionAcronymIn(RootModel[Optional[str]]):
-    root: Optional[str] = Field(..., title='Pre Region  Acronym  In')
+    root: Optional[str] = Field(..., title="Pre Region  Acronym  In")
 
 
 class PreRegionOrderBy(RootModel[Optional[str]]):
-    root: Optional[str] = Field(..., title='Pre Region  Order By')
+    root: Optional[str] = Field(..., title="Pre Region  Order By")
 
 
 class PostRegionName(RootModel[Optional[str]]):
-    root: Optional[str] = Field(..., title='Post Region  Name')
+    root: Optional[str] = Field(..., title="Post Region  Name")
 
 
 class PostRegionNameIn(RootModel[Optional[str]]):
-    root: Optional[str] = Field(..., title='Post Region  Name  In')
+    root: Optional[str] = Field(..., title="Post Region  Name  In")
 
 
 class PostRegionNameIlike(RootModel[Optional[str]]):
-    root: Optional[str] = Field(..., title='Post Region  Name  Ilike')
+    root: Optional[str] = Field(..., title="Post Region  Name  Ilike")
 
 
 class PostRegionId(RootModel[Optional[int]]):
-    root: Optional[int] = Field(..., title='Post Region  Id')
+    root: Optional[int] = Field(..., title="Post Region  Id")
 
 
 class PostRegionIdIn(RootModel[Optional[str]]):
-    root: Optional[str] = Field(..., title='Post Region  Id  In')
+    root: Optional[str] = Field(..., title="Post Region  Id  In")
 
 
 class PostRegionAcronym(RootModel[Optional[str]]):
-    root: Optional[str] = Field(..., title='Post Region  Acronym')
+    root: Optional[str] = Field(..., title="Post Region  Acronym")
 
 
 class PostRegionAcronymIn(RootModel[Optional[str]]):
-    root: Optional[str] = Field(..., title='Post Region  Acronym  In')
+    root: Optional[str] = Field(..., title="Post Region  Acronym  In")
 
 
 class PostRegionOrderBy(RootModel[Optional[str]]):
-    root: Optional[str] = Field(..., title='Post Region  Order By')
+    root: Optional[str] = Field(..., title="Post Region  Order By")
 
 
 class EntityId(RootModel[Optional[UUID]]):
-    root: Optional[UUID] = Field(..., title='Entity Id')
+    root: Optional[UUID] = Field(..., title="Entity Id")
 
 
 class EntityType1(RootModel[Optional[MeasurableEntity]]):
-    root: Optional[MeasurableEntity] = Field(..., title='Entity Type')
+    root: Optional[MeasurableEntity] = Field(..., title="Entity Type")
 
 
 class ValidationStatus1(RootModel[Optional[ValidationStatus]]):
-    root: Optional[ValidationStatus] = Field(..., title='Validation Status')
+    root: Optional[ValidationStatus] = Field(..., title="Validation Status")
 
 
 class MorphologyCreationDateLte(RootModel[Optional[datetime]]):
-    root: Optional[datetime] = Field(..., title='Morphology  Creation Date  Lte')
+    root: Optional[datetime] = Field(..., title="Morphology  Creation Date  Lte")
 
 
 class MorphologyCreationDateGte(RootModel[Optional[datetime]]):
-    root: Optional[datetime] = Field(..., title='Morphology  Creation Date  Gte')
+    root: Optional[datetime] = Field(..., title="Morphology  Creation Date  Gte")
 
 
 class MorphologyUpdateDateLte(RootModel[Optional[datetime]]):
-    root: Optional[datetime] = Field(..., title='Morphology  Update Date  Lte')
+    root: Optional[datetime] = Field(..., title="Morphology  Update Date  Lte")
 
 
 class MorphologyUpdateDateGte(RootModel[Optional[datetime]]):
-    root: Optional[datetime] = Field(..., title='Morphology  Update Date  Gte')
+    root: Optional[datetime] = Field(..., title="Morphology  Update Date  Gte")
 
 
 class MorphologyName(RootModel[Optional[str]]):
-    root: Optional[str] = Field(..., title='Morphology  Name')
+    root: Optional[str] = Field(..., title="Morphology  Name")
 
 
 class MorphologyNameIn(RootModel[Optional[str]]):
-    root: Optional[str] = Field(..., title='Morphology  Name  In')
+    root: Optional[str] = Field(..., title="Morphology  Name  In")
 
 
 class MorphologyNameIlike(RootModel[Optional[str]]):
-    root: Optional[str] = Field(..., title='Morphology  Name  Ilike')
+    root: Optional[str] = Field(..., title="Morphology  Name  Ilike")
 
 
 class MorphologyId(RootModel[Optional[UUID]]):
-    root: Optional[UUID] = Field(..., title='Morphology  Id')
+    root: Optional[UUID] = Field(..., title="Morphology  Id")
 
 
 class MorphologyIdIn(RootModel[Optional[str]]):
-    root: Optional[str] = Field(..., title='Morphology  Id  In')
+    root: Optional[str] = Field(..., title="Morphology  Id  In")
 
 
 class MorphologySpeciesIdIn(RootModel[Optional[str]]):
-    root: Optional[str] = Field(..., title='Morphology  Species Id In')
+    root: Optional[str] = Field(..., title="Morphology  Species Id In")
 
 
 class MorphologyOrderBy(RootModel[Optional[str]]):
-    root: Optional[str] = Field(..., title='Morphology  Order By')
+    root: Optional[str] = Field(..., title="Morphology  Order By")
 
 
 class EmodelSpeciesIdIn(RootModel[Optional[str]]):
-    root: Optional[str] = Field(..., title='Emodel  Species Id In')
+    root: Optional[str] = Field(..., title="Emodel  Species Id In")
 
 
 class EmodelCreationDateLte(RootModel[Optional[datetime]]):
-    root: Optional[datetime] = Field(..., title='Emodel  Creation Date  Lte')
+    root: Optional[datetime] = Field(..., title="Emodel  Creation Date  Lte")
 
 
 class EmodelCreationDateGte(RootModel[Optional[datetime]]):
-    root: Optional[datetime] = Field(..., title='Emodel  Creation Date  Gte')
+    root: Optional[datetime] = Field(..., title="Emodel  Creation Date  Gte")
 
 
 class EmodelUpdateDateLte(RootModel[Optional[datetime]]):
-    root: Optional[datetime] = Field(..., title='Emodel  Update Date  Lte')
+    root: Optional[datetime] = Field(..., title="Emodel  Update Date  Lte")
 
 
 class EmodelUpdateDateGte(RootModel[Optional[datetime]]):
-    root: Optional[datetime] = Field(..., title='Emodel  Update Date  Gte')
+    root: Optional[datetime] = Field(..., title="Emodel  Update Date  Gte")
 
 
 class EmodelName(RootModel[Optional[str]]):
-    root: Optional[str] = Field(..., title='Emodel  Name')
+    root: Optional[str] = Field(..., title="Emodel  Name")
 
 
 class EmodelNameIn(RootModel[Optional[str]]):
-    root: Optional[str] = Field(..., title='Emodel  Name  In')
+    root: Optional[str] = Field(..., title="Emodel  Name  In")
 
 
 class EmodelNameIlike(RootModel[Optional[str]]):
-    root: Optional[str] = Field(..., title='Emodel  Name  Ilike')
+    root: Optional[str] = Field(..., title="Emodel  Name  Ilike")
 
 
 class EmodelId(RootModel[Optional[UUID]]):
-    root: Optional[UUID] = Field(..., title='Emodel  Id')
+    root: Optional[UUID] = Field(..., title="Emodel  Id")
 
 
 class EmodelIdIn(RootModel[Optional[str]]):
-    root: Optional[str] = Field(..., title='Emodel  Id  In')
+    root: Optional[str] = Field(..., title="Emodel  Id  In")
 
 
 class EmodelScoreLte(RootModel[Optional[int]]):
-    root: Optional[int] = Field(..., title='Emodel  Score  Lte')
+    root: Optional[int] = Field(..., title="Emodel  Score  Lte")
 
 
 class EmodelScoreGte(RootModel[Optional[int]]):
-    root: Optional[int] = Field(..., title='Emodel  Score  Gte')
+    root: Optional[int] = Field(..., title="Emodel  Score  Gte")
 
 
 class EmodelOrderBy(RootModel[Optional[str]]):
-    root: Optional[str] = Field(..., title='Emodel  Order By')
+    root: Optional[str] = Field(..., title="Emodel  Order By")
 
 
 class Expand(RootModel[Optional[List[str]]]):
-    root: Optional[List[str]] = Field(..., title='Expand')
+    root: Optional[List[str]] = Field(..., title="Expand")
 
 
 class PrefLabel(RootModel[Optional[str]]):
-    root: Optional[str] = Field(..., title='Pref Label')
+    root: Optional[str] = Field(..., title="Pref Label")
 
 
 class PrefLabelIn(RootModel[Optional[str]]):
-    root: Optional[str] = Field(..., title='Pref Label  In')
+    root: Optional[str] = Field(..., title="Pref Label  In")
 
 
 class Status(RootModel[Optional[SingleNeuronSimulationStatus]]):
-    root: Optional[SingleNeuronSimulationStatus] = Field(..., title='Status')
+    root: Optional[SingleNeuronSimulationStatus] = Field(..., title="Status")
 
 
 class MeTypeCreationDateLte(RootModel[Optional[datetime]]):
-    root: Optional[datetime] = Field(..., title='Me Type  Creation Date  Lte')
+    root: Optional[datetime] = Field(..., title="Me Type  Creation Date  Lte")
 
 
 class MeTypeCreationDateGte(RootModel[Optional[datetime]]):
-    root: Optional[datetime] = Field(..., title='Me Type  Creation Date  Gte')
+    root: Optional[datetime] = Field(..., title="Me Type  Creation Date  Gte")
 
 
 class MeTypeUpdateDateLte(RootModel[Optional[datetime]]):
-    root: Optional[datetime] = Field(..., title='Me Type  Update Date  Lte')
+    root: Optional[datetime] = Field(..., title="Me Type  Update Date  Lte")
 
 
 class MeTypeUpdateDateGte(RootModel[Optional[datetime]]):
-    root: Optional[datetime] = Field(..., title='Me Type  Update Date  Gte')
+    root: Optional[datetime] = Field(..., title="Me Type  Update Date  Gte")
 
 
 class MeTypeName(RootModel[Optional[str]]):
-    root: Optional[str] = Field(..., title='Me Type  Name')
+    root: Optional[str] = Field(..., title="Me Type  Name")
 
 
 class MeTypeNameIn(RootModel[Optional[str]]):
-    root: Optional[str] = Field(..., title='Me Type  Name  In')
+    root: Optional[str] = Field(..., title="Me Type  Name  In")
 
 
 class MeTypeNameIlike(RootModel[Optional[str]]):
-    root: Optional[str] = Field(..., title='Me Type  Name  Ilike')
+    root: Optional[str] = Field(..., title="Me Type  Name  Ilike")
 
 
 class MeTypeId(RootModel[Optional[UUID]]):
-    root: Optional[UUID] = Field(..., title='Me Type  Id')
+    root: Optional[UUID] = Field(..., title="Me Type  Id")
 
 
 class MeTypeIdIn(RootModel[Optional[str]]):
-    root: Optional[str] = Field(..., title='Me Type  Id  In')
+    root: Optional[str] = Field(..., title="Me Type  Id  In")
 
 
 class MeTypeSpeciesIdIn(RootModel[Optional[str]]):
-    root: Optional[str] = Field(..., title='Me Type  Species Id In')
+    root: Optional[str] = Field(..., title="Me Type  Species Id In")
 
 
 class MeTypeValidationStatus(RootModel[Optional[ValidationStatus]]):
-    root: Optional[ValidationStatus] = Field(..., title='Me Type  Validation Status')
+    root: Optional[ValidationStatus] = Field(..., title="Me Type  Validation Status")
 
 
 class MeTypeOrderBy(RootModel[Optional[str]]):
-    root: Optional[str] = Field(..., title='Me Type  Order By')
+    root: Optional[str] = Field(..., title="Me Type  Order By")
 
 
 class SynaptomeCreationDateLte(RootModel[Optional[datetime]]):
-    root: Optional[datetime] = Field(..., title='Synaptome  Creation Date  Lte')
+    root: Optional[datetime] = Field(..., title="Synaptome  Creation Date  Lte")
 
 
 class SynaptomeCreationDateGte(RootModel[Optional[datetime]]):
-    root: Optional[datetime] = Field(..., title='Synaptome  Creation Date  Gte')
+    root: Optional[datetime] = Field(..., title="Synaptome  Creation Date  Gte")
 
 
 class SynaptomeUpdateDateLte(RootModel[Optional[datetime]]):
-    root: Optional[datetime] = Field(..., title='Synaptome  Update Date  Lte')
+    root: Optional[datetime] = Field(..., title="Synaptome  Update Date  Lte")
 
 
 class SynaptomeUpdateDateGte(RootModel[Optional[datetime]]):
-    root: Optional[datetime] = Field(..., title='Synaptome  Update Date  Gte')
+    root: Optional[datetime] = Field(..., title="Synaptome  Update Date  Gte")
 
 
 class SynaptomeName(RootModel[Optional[str]]):
-    root: Optional[str] = Field(..., title='Synaptome  Name')
+    root: Optional[str] = Field(..., title="Synaptome  Name")
 
 
 class SynaptomeNameIn(RootModel[Optional[str]]):
-    root: Optional[str] = Field(..., title='Synaptome  Name  In')
+    root: Optional[str] = Field(..., title="Synaptome  Name  In")
 
 
 class SynaptomeNameIlike(RootModel[Optional[str]]):
-    root: Optional[str] = Field(..., title='Synaptome  Name  Ilike')
+    root: Optional[str] = Field(..., title="Synaptome  Name  Ilike")
 
 
 class SynaptomeId(RootModel[Optional[UUID]]):
-    root: Optional[UUID] = Field(..., title='Synaptome  Id')
+    root: Optional[UUID] = Field(..., title="Synaptome  Id")
 
 
 class SynaptomeIdIn(RootModel[Optional[str]]):
-    root: Optional[str] = Field(..., title='Synaptome  Id  In')
+    root: Optional[str] = Field(..., title="Synaptome  Id  In")
 
 
 class SynaptomeOrderBy(RootModel[Optional[str]]):
-    root: Optional[str] = Field(..., title='Synaptome  Order By')
+    root: Optional[str] = Field(..., title="Synaptome  Order By")
 
 
 class NmodlSuffix(RootModel[Optional[str]]):
-    root: Optional[str] = Field(..., title='Nmodl Suffix')
+    root: Optional[str] = Field(..., title="Nmodl Suffix")
 
 
 class BrainRegionId10(RootModel[Optional[int]]):
-    root: Optional[int] = Field(..., title='Brain Region Id')
+    root: Optional[int] = Field(..., title="Brain Region Id")
 
 
 class SpeciesIdIn7(RootModel[Optional[str]]):
-    root: Optional[str] = Field(..., title='Species Id  In')
+    root: Optional[str] = Field(..., title="Species Id  In")
 
 
 class IsLjpCorrected(RootModel[Optional[bool]]):
-    root: Optional[bool] = Field(..., title='Is Ljp Corrected')
+    root: Optional[bool] = Field(..., title="Is Ljp Corrected")
 
 
 class IsTemperatureDependent(RootModel[Optional[bool]]):
-    root: Optional[bool] = Field(..., title='Is Temperature Dependent')
+    root: Optional[bool] = Field(..., title="Is Temperature Dependent")
 
 
 class TemperatureCelsiusLte(RootModel[Optional[int]]):
-    root: Optional[int] = Field(..., title='Temperature Celsius  Lte')
+    root: Optional[int] = Field(..., title="Temperature Celsius  Lte")
 
 
 class TemperatureCelsiusGte(RootModel[Optional[int]]):
-    root: Optional[int] = Field(..., title='Temperature Celsius  Gte')
+    root: Optional[int] = Field(..., title="Temperature Celsius  Gte")
 
 
 class IsStochastic(RootModel[Optional[bool]]):
-    root: Optional[bool] = Field(..., title='Is Stochastic')
+    root: Optional[bool] = Field(..., title="Is Stochastic")
 
 
 class AgentRead(RootModel[Union[PersonRead, OrganizationRead]]):
@@ -1193,282 +1193,282 @@ class AgentRead(RootModel[Union[PersonRead, OrganizationRead]]):
 
 
 class AssetRead(BaseModel):
-    path: str = Field(..., title='Path')
-    full_path: str = Field(..., title='Full Path')
-    is_directory: bool = Field(..., title='Is Directory')
-    content_type: str = Field(..., title='Content Type')
-    size: int = Field(..., title='Size')
-    sha256_digest: Optional[str] = Field(..., title='Sha256 Digest')
-    meta: Dict[str, Any] = Field(..., title='Meta')
+    path: str = Field(..., title="Path")
+    full_path: str = Field(..., title="Full Path")
+    is_directory: bool = Field(..., title="Is Directory")
+    content_type: str = Field(..., title="Content Type")
+    size: int = Field(..., title="Size")
+    sha256_digest: Optional[str] = Field(..., title="Sha256 Digest")
+    meta: Dict[str, Any] = Field(..., title="Meta")
     label: Optional[AssetLabel] = None
-    id: UUID = Field(..., title='Id')
+    id: UUID = Field(..., title="Id")
     status: AssetStatus
 
 
 class ContributionReadWithoutEntity(BaseModel):
-    id: UUID = Field(..., title='Id')
-    creation_date: datetime = Field(..., title='Creation Date')
-    update_date: datetime = Field(..., title='Update Date')
+    id: UUID = Field(..., title="Id")
+    creation_date: datetime = Field(..., title="Creation Date")
+    update_date: datetime = Field(..., title="Update Date")
     agent: AgentRead
     role: RoleRead
 
 
 class ElectricalCellRecordingCreate(BaseModel):
-    authorized_public: Optional[bool] = Field(False, title='Authorized Public')
-    license_id: Optional[UUID] = Field(None, title='License Id')
-    name: str = Field(..., title='Name')
-    description: str = Field(..., title='Description')
+    authorized_public: Optional[bool] = Field(False, title="Authorized Public")
+    license_id: Optional[UUID] = Field(None, title="License Id")
+    name: str = Field(..., title="Name")
+    description: str = Field(..., title="Description")
     ljp: Optional[float] = Field(
         0,
-        description='Correction applied to the voltage trace, in mV',
-        title='Liquid Junction Potential',
+        description="Correction applied to the voltage trace, in mV",
+        title="Liquid Junction Potential",
     )
     recording_location: List[str] = Field(
         ...,
-        description='Location on the cell where recording was performed, in hoc-compatible format.',
-        title='Recording Location',
+        description="Location on the cell where recording was performed, in hoc-compatible format.",
+        title="Recording Location",
     )
     recording_type: ElectricalRecordingType = Field(
         ...,
         description="Recording type. One of: [<ElectricalRecordingStimulusType.conductance_clamp: 'conductance_clamp'>, <ElectricalRecordingStimulusType.current_clamp: 'current_clamp'>, <ElectricalRecordingStimulusType.extracellular: 'extracellular'>, <ElectricalRecordingStimulusType.other: 'other'>, <ElectricalRecordingStimulusType.unknown: 'unknown'>, <ElectricalRecordingStimulusType.voltage_clamp: 'voltage_clamp'>]",
-        title='Recording Type',
+        title="Recording Type",
     )
     recording_origin: ElectricalRecordingOrigin = Field(
         ...,
         description="Recording origin. One of: [<ElectricalRecordingOrigin.in_silico: 'in_silico'>, <ElectricalRecordingOrigin.in_vitro: 'in_vitro'>, <ElectricalRecordingOrigin.in_vivo: 'in_vivo'>, <ElectricalRecordingOrigin.unknown: 'unknown'>]",
-        title='Recording Origin',
+        title="Recording Origin",
     )
     comment: Optional[str] = Field(
-        None, description='Comment with further details.', title='Comment'
+        None, description="Comment with further details.", title="Comment"
     )
-    legacy_id: Optional[List[str]] = Field(None, title='Legacy Id')
-    subject_id: UUID = Field(..., title='Subject Id')
-    brain_region_id: Optional[UUID] = Field(None, title='Brain Region Id')
+    legacy_id: Optional[List[str]] = Field(None, title="Legacy Id")
+    subject_id: UUID = Field(..., title="Subject Id")
+    brain_region_id: Optional[UUID] = Field(None, title="Brain Region Id")
 
 
 class ElectricalRecordingStimulusRead(BaseModel):
     type: Optional[EntityType] = None
-    id: UUID = Field(..., title='Id')
-    creation_date: datetime = Field(..., title='Creation Date')
-    update_date: datetime = Field(..., title='Update Date')
-    name: str = Field(..., title='Name')
-    description: str = Field(..., title='Description')
-    dt: Optional[float] = Field(None, title='Dt')
+    id: UUID = Field(..., title="Id")
+    creation_date: datetime = Field(..., title="Creation Date")
+    update_date: datetime = Field(..., title="Update Date")
+    name: str = Field(..., title="Name")
+    description: str = Field(..., title="Description")
+    dt: Optional[float] = Field(None, title="Dt")
     injection_type: ElectricalRecordingStimulusType
     shape: ElectricalRecordingStimulusShape
-    start_time: Optional[float] = Field(None, title='Start Time')
-    end_time: Optional[float] = Field(None, title='End Time')
+    start_time: Optional[float] = Field(None, title="Start Time")
+    end_time: Optional[float] = Field(None, title="End Time")
 
 
 class EntityRead(BaseModel):
-    id: UUID = Field(..., title='Id')
-    type: str = Field(..., title='Type')
+    id: UUID = Field(..., title="Id")
+    type: str = Field(..., title="Type")
     createdBy: Optional[AgentRead] = None
     updatedBy: Optional[AgentRead] = None
-    authorized_project_id: UUID4 = Field(..., title='Authorized Project Id')
-    authorized_public: bool = Field(..., title='Authorized Public')
+    authorized_project_id: UUID4 = Field(..., title="Authorized Project Id")
+    authorized_public: bool = Field(..., title="Authorized Public")
 
 
 class ExemplarMorphology(BaseModel):
-    id: UUID = Field(..., title='Id')
-    name: str = Field(..., title='Name')
-    description: str = Field(..., title='Description')
+    id: UUID = Field(..., title="Id")
+    name: str = Field(..., title="Name")
+    description: str = Field(..., title="Description")
     location: Optional[PointLocationBase] = None
-    legacy_id: Optional[List[str]] = Field(..., title='Legacy Id')
-    creation_date: datetime = Field(..., title='Creation Date')
-    update_date: datetime = Field(..., title='Update Date')
+    legacy_id: Optional[List[str]] = Field(..., title="Legacy Id")
+    creation_date: datetime = Field(..., title="Creation Date")
+    update_date: datetime = Field(..., title="Update Date")
 
 
 class ListResponseAnnotation(BaseModel):
-    data: List[Annotation] = Field(..., title='Data')
+    data: List[Annotation] = Field(..., title="Data")
     pagination: PaginationResponse
     facets: Optional[Facets] = None
 
 
 class ListResponseAssetRead(BaseModel):
-    data: List[AssetRead] = Field(..., title='Data')
+    data: List[AssetRead] = Field(..., title="Data")
     pagination: PaginationResponse
     facets: Optional[Facets] = None
 
 
 class ListResponseBrainRegionHierarchyRead(BaseModel):
-    data: List[BrainRegionHierarchyRead] = Field(..., title='Data')
+    data: List[BrainRegionHierarchyRead] = Field(..., title="Data")
     pagination: PaginationResponse
     facets: Optional[Facets] = None
 
 
 class ListResponseLicenseRead(BaseModel):
-    data: List[LicenseRead] = Field(..., title='Data')
+    data: List[LicenseRead] = Field(..., title="Data")
     pagination: PaginationResponse
     facets: Optional[Facets] = None
 
 
 class ListResponseOrganizationRead(BaseModel):
-    data: List[OrganizationRead] = Field(..., title='Data')
+    data: List[OrganizationRead] = Field(..., title="Data")
     pagination: PaginationResponse
     facets: Optional[Facets] = None
 
 
 class ListResponsePersonRead(BaseModel):
-    data: List[PersonRead] = Field(..., title='Data')
+    data: List[PersonRead] = Field(..., title="Data")
     pagination: PaginationResponse
     facets: Optional[Facets] = None
 
 
 class ListResponseRoleRead(BaseModel):
-    data: List[RoleRead] = Field(..., title='Data')
+    data: List[RoleRead] = Field(..., title="Data")
     pagination: PaginationResponse
     facets: Optional[Facets] = None
 
 
 class ListResponseSingleNeuronSynaptomeSimulationRead(BaseModel):
-    data: List[SingleNeuronSynaptomeSimulationRead] = Field(..., title='Data')
+    data: List[SingleNeuronSynaptomeSimulationRead] = Field(..., title="Data")
     pagination: PaginationResponse
     facets: Optional[Facets] = None
 
 
 class ListResponseSpeciesRead(BaseModel):
-    data: List[SpeciesRead] = Field(..., title='Data')
+    data: List[SpeciesRead] = Field(..., title="Data")
     pagination: PaginationResponse
     facets: Optional[Facets] = None
 
 
 class ListResponseStrainRead(BaseModel):
-    data: List[StrainRead] = Field(..., title='Data')
+    data: List[StrainRead] = Field(..., title="Data")
     pagination: PaginationResponse
     facets: Optional[Facets] = None
 
 
 class ListResponseSubjectRead(BaseModel):
-    data: List[SubjectRead] = Field(..., title='Data')
+    data: List[SubjectRead] = Field(..., title="Data")
     pagination: PaginationResponse
     facets: Optional[Facets] = None
 
 
 class MEModelCreate(BaseModel):
-    authorized_public: Optional[bool] = Field(False, title='Authorized Public')
-    name: str = Field(..., title='Name')
-    description: str = Field(..., title='Description')
-    validation_status: Optional[ValidationStatus] = 'created'
-    brain_region_id: UUID = Field(..., title='Brain Region Id')
-    morphology_id: UUID = Field(..., title='Morphology Id')
-    emodel_id: UUID = Field(..., title='Emodel Id')
-    species_id: UUID = Field(..., title='Species Id')
-    strain_id: Optional[UUID] = Field(None, title='Strain Id')
+    authorized_public: Optional[bool] = Field(False, title="Authorized Public")
+    name: str = Field(..., title="Name")
+    description: str = Field(..., title="Description")
+    validation_status: Optional[ValidationStatus] = "created"
+    brain_region_id: UUID = Field(..., title="Brain Region Id")
+    morphology_id: UUID = Field(..., title="Morphology Id")
+    emodel_id: UUID = Field(..., title="Emodel Id")
+    species_id: UUID = Field(..., title="Species Id")
+    strain_id: Optional[UUID] = Field(None, title="Strain Id")
 
 
 class MeasurementItem(BaseModel):
     name: Optional[MeasurementStatistic] = None
     unit: Optional[MeasurementUnit] = None
-    value: Optional[float] = Field(..., title='Value')
+    value: Optional[float] = Field(..., title="Value")
 
 
 class MeasurementKindCreate(BaseModel):
     structural_domain: Optional[StructuralDomain] = None
-    measurement_items: List[MeasurementItem] = Field(..., title='Measurement Items')
-    pref_label: str = Field(..., title='Pref Label')
+    measurement_items: List[MeasurementItem] = Field(..., title="Measurement Items")
+    pref_label: str = Field(..., title="Pref Label")
 
 
 class MeasurementKindRead(BaseModel):
     structural_domain: Optional[StructuralDomain] = None
-    measurement_items: List[MeasurementItem] = Field(..., title='Measurement Items')
-    pref_label: str = Field(..., title='Pref Label')
+    measurement_items: List[MeasurementItem] = Field(..., title="Measurement Items")
+    pref_label: str = Field(..., title="Pref Label")
 
 
 class MeasurementRead(BaseModel):
-    id: int = Field(..., title='Id')
-    name: str = Field(..., title='Name')
+    id: int = Field(..., title="Id")
+    name: str = Field(..., title="Name")
     unit: MeasurementUnit
-    value: float = Field(..., title='Value')
+    value: float = Field(..., title="Value")
 
 
 class NestedMEModel(BaseModel):
-    id: UUID = Field(..., title='Id')
-    creation_date: datetime = Field(..., title='Creation Date')
-    update_date: datetime = Field(..., title='Update Date')
-    name: str = Field(..., title='Name')
-    description: str = Field(..., title='Description')
-    validation_status: Optional[ValidationStatus] = 'created'
-    mtypes: Optional[List[Annotation]] = Field(..., title='Mtypes')
-    etypes: Optional[List[Annotation]] = Field(..., title='Etypes')
+    id: UUID = Field(..., title="Id")
+    creation_date: datetime = Field(..., title="Creation Date")
+    update_date: datetime = Field(..., title="Update Date")
+    name: str = Field(..., title="Name")
+    description: str = Field(..., title="Description")
+    validation_status: Optional[ValidationStatus] = "created"
+    mtypes: Optional[List[Annotation]] = Field(..., title="Mtypes")
+    etypes: Optional[List[Annotation]] = Field(..., title="Etypes")
 
 
 class NeuronBlock(BaseModel):
     global_: Optional[List[Dict[str, Optional[str]]]] = Field(
-        [], alias='global', title='Global'
+        [], alias="global", title="Global"
     )
-    range: Optional[List[Dict[str, Optional[str]]]] = Field([], title='Range')
-    useion: Optional[List[UseIon]] = Field([], title='Useion')
+    range: Optional[List[Dict[str, Optional[str]]]] = Field([], title="Range")
+    useion: Optional[List[UseIon]] = Field([], title="Useion")
     nonspecific: Optional[List[Dict[str, Optional[str]]]] = Field(
-        [], title='Nonspecific'
+        [], title="Nonspecific"
     )
 
 
 class ReconstructionMorphologyRead(BaseModel):
     type: Optional[EntityType] = None
-    assets: Optional[List[AssetRead]] = Field(..., title='Assets')
-    authorized_project_id: UUID4 = Field(..., title='Authorized Project Id')
-    authorized_public: Optional[bool] = Field(False, title='Authorized Public')
+    assets: Optional[List[AssetRead]] = Field(..., title="Assets")
+    authorized_project_id: UUID4 = Field(..., title="Authorized Project Id")
+    authorized_public: Optional[bool] = Field(False, title="Authorized Public")
     license: Optional[LicenseRead] = None
-    id: UUID = Field(..., title='Id')
-    creation_date: datetime = Field(..., title='Creation Date')
-    update_date: datetime = Field(..., title='Update Date')
-    name: str = Field(..., title='Name')
-    description: str = Field(..., title='Description')
+    id: UUID = Field(..., title="Id")
+    creation_date: datetime = Field(..., title="Creation Date")
+    update_date: datetime = Field(..., title="Update Date")
+    name: str = Field(..., title="Name")
+    description: str = Field(..., title="Description")
     location: Optional[PointLocationBase] = None
-    legacy_id: Optional[List[str]] = Field(..., title='Legacy Id')
+    legacy_id: Optional[List[str]] = Field(..., title="Legacy Id")
     species: SpeciesRead
     strain: Optional[StrainRead] = None
     brain_region: BrainRegionRead
     contributions: Optional[List[ContributionReadWithoutEntity]] = Field(
-        ..., title='Contributions'
+        ..., title="Contributions"
     )
-    mtypes: Optional[List[Annotation]] = Field(..., title='Mtypes')
+    mtypes: Optional[List[Annotation]] = Field(..., title="Mtypes")
 
 
 class SingleNeuronSimulationCreate(BaseModel):
-    brain_region_id: UUID = Field(..., title='Brain Region Id')
-    authorized_public: Optional[bool] = Field(False, title='Authorized Public')
-    name: str = Field(..., title='Name')
-    description: str = Field(..., title='Description')
-    seed: int = Field(..., title='Seed')
+    brain_region_id: UUID = Field(..., title="Brain Region Id")
+    authorized_public: Optional[bool] = Field(False, title="Authorized Public")
+    name: str = Field(..., title="Name")
+    description: str = Field(..., title="Description")
+    seed: int = Field(..., title="Seed")
     status: SingleNeuronSimulationStatus
-    injectionLocation: List[str] = Field(..., title='Injectionlocation')
-    recordingLocation: List[str] = Field(..., title='Recordinglocation')
-    me_model_id: UUID = Field(..., title='Me Model Id')
+    injectionLocation: List[str] = Field(..., title="Injectionlocation")
+    recordingLocation: List[str] = Field(..., title="Recordinglocation")
+    me_model_id: UUID = Field(..., title="Me Model Id")
 
 
 class SingleNeuronSimulationRead(BaseModel):
     type: Optional[EntityType] = None
-    creation_date: datetime = Field(..., title='Creation Date')
-    update_date: datetime = Field(..., title='Update Date')
-    id: UUID = Field(..., title='Id')
-    authorized_project_id: UUID4 = Field(..., title='Authorized Project Id')
-    authorized_public: Optional[bool] = Field(False, title='Authorized Public')
+    creation_date: datetime = Field(..., title="Creation Date")
+    update_date: datetime = Field(..., title="Update Date")
+    id: UUID = Field(..., title="Id")
+    authorized_project_id: UUID4 = Field(..., title="Authorized Project Id")
+    authorized_public: Optional[bool] = Field(False, title="Authorized Public")
     brain_region: BrainRegionRead
-    name: str = Field(..., title='Name')
-    description: str = Field(..., title='Description')
-    seed: int = Field(..., title='Seed')
+    name: str = Field(..., title="Name")
+    description: str = Field(..., title="Description")
+    seed: int = Field(..., title="Seed")
     status: SingleNeuronSimulationStatus
-    injectionLocation: List[str] = Field(..., title='Injectionlocation')
-    recordingLocation: List[str] = Field(..., title='Recordinglocation')
+    injectionLocation: List[str] = Field(..., title="Injectionlocation")
+    recordingLocation: List[str] = Field(..., title="Recordinglocation")
     me_model: NestedMEModel
 
 
 class SingleNeuronSynaptomeRead(BaseModel):
-    assets: Optional[List[AssetRead]] = Field(..., title='Assets')
+    assets: Optional[List[AssetRead]] = Field(..., title="Assets")
     type: Optional[EntityType] = None
     contributions: Optional[List[ContributionReadWithoutEntity]] = Field(
-        ..., title='Contributions'
+        ..., title="Contributions"
     )
-    creation_date: datetime = Field(..., title='Creation Date')
-    update_date: datetime = Field(..., title='Update Date')
-    id: UUID = Field(..., title='Id')
-    authorized_project_id: UUID4 = Field(..., title='Authorized Project Id')
-    authorized_public: Optional[bool] = Field(False, title='Authorized Public')
-    name: str = Field(..., title='Name')
-    description: str = Field(..., title='Description')
-    seed: int = Field(..., title='Seed')
+    creation_date: datetime = Field(..., title="Creation Date")
+    update_date: datetime = Field(..., title="Update Date")
+    id: UUID = Field(..., title="Id")
+    authorized_project_id: UUID4 = Field(..., title="Authorized Project Id")
+    authorized_public: Optional[bool] = Field(False, title="Authorized Public")
+    name: str = Field(..., title="Name")
+    description: str = Field(..., title="Description")
+    seed: int = Field(..., title="Seed")
     me_model: NestedMEModel
     brain_region: BrainRegionRead
     createdBy: Optional[AgentRead] = None
@@ -1476,200 +1476,200 @@ class SingleNeuronSynaptomeRead(BaseModel):
 
 
 class ContributionRead(BaseModel):
-    id: UUID = Field(..., title='Id')
-    creation_date: datetime = Field(..., title='Creation Date')
-    update_date: datetime = Field(..., title='Update Date')
+    id: UUID = Field(..., title="Id")
+    creation_date: datetime = Field(..., title="Creation Date")
+    update_date: datetime = Field(..., title="Update Date")
     agent: AgentRead
     role: RoleRead
     entity: EntityRead
 
 
 class EModelRead(BaseModel):
-    assets: Optional[List[AssetRead]] = Field(..., title='Assets')
+    assets: Optional[List[AssetRead]] = Field(..., title="Assets")
     type: Optional[EntityType] = None
-    authorized_project_id: UUID4 = Field(..., title='Authorized Project Id')
-    authorized_public: Optional[bool] = Field(False, title='Authorized Public')
-    creation_date: datetime = Field(..., title='Creation Date')
-    update_date: datetime = Field(..., title='Update Date')
-    description: str = Field(..., title='Description')
-    name: str = Field(..., title='Name')
-    iteration: str = Field(..., title='Iteration')
-    score: float = Field(..., title='Score')
-    seed: int = Field(..., title='Seed')
-    id: UUID = Field(..., title='Id')
+    authorized_project_id: UUID4 = Field(..., title="Authorized Project Id")
+    authorized_public: Optional[bool] = Field(False, title="Authorized Public")
+    creation_date: datetime = Field(..., title="Creation Date")
+    update_date: datetime = Field(..., title="Update Date")
+    description: str = Field(..., title="Description")
+    name: str = Field(..., title="Name")
+    iteration: str = Field(..., title="Iteration")
+    score: float = Field(..., title="Score")
+    seed: int = Field(..., title="Seed")
+    id: UUID = Field(..., title="Id")
     species: SpeciesRead
     strain: Optional[StrainRead] = None
     brain_region: BrainRegionRead
     contributions: Optional[List[ContributionReadWithoutEntity]] = Field(
-        ..., title='Contributions'
+        ..., title="Contributions"
     )
-    mtypes: Optional[List[Annotation]] = Field(..., title='Mtypes')
-    etypes: Optional[List[Annotation]] = Field(..., title='Etypes')
+    mtypes: Optional[List[Annotation]] = Field(..., title="Mtypes")
+    etypes: Optional[List[Annotation]] = Field(..., title="Etypes")
     exemplar_morphology: ExemplarMorphology
 
 
 class ElectricalCellRecordingRead(BaseModel):
     type: Optional[EntityType] = None
-    id: UUID = Field(..., title='Id')
-    authorized_project_id: UUID4 = Field(..., title='Authorized Project Id')
-    authorized_public: Optional[bool] = Field(False, title='Authorized Public')
+    id: UUID = Field(..., title="Id")
+    authorized_project_id: UUID4 = Field(..., title="Authorized Project Id")
+    authorized_public: Optional[bool] = Field(False, title="Authorized Public")
     license: Optional[LicenseRead] = None
-    creation_date: datetime = Field(..., title='Creation Date')
-    update_date: datetime = Field(..., title='Update Date')
-    name: str = Field(..., title='Name')
-    description: str = Field(..., title='Description')
+    creation_date: datetime = Field(..., title="Creation Date")
+    update_date: datetime = Field(..., title="Update Date")
+    name: str = Field(..., title="Name")
+    description: str = Field(..., title="Description")
     ljp: Optional[float] = Field(
         0,
-        description='Correction applied to the voltage trace, in mV',
-        title='Liquid Junction Potential',
+        description="Correction applied to the voltage trace, in mV",
+        title="Liquid Junction Potential",
     )
     recording_location: List[str] = Field(
         ...,
-        description='Location on the cell where recording was performed, in hoc-compatible format.',
-        title='Recording Location',
+        description="Location on the cell where recording was performed, in hoc-compatible format.",
+        title="Recording Location",
     )
     recording_type: ElectricalRecordingType = Field(
         ...,
         description="Recording type. One of: [<ElectricalRecordingStimulusType.conductance_clamp: 'conductance_clamp'>, <ElectricalRecordingStimulusType.current_clamp: 'current_clamp'>, <ElectricalRecordingStimulusType.extracellular: 'extracellular'>, <ElectricalRecordingStimulusType.other: 'other'>, <ElectricalRecordingStimulusType.unknown: 'unknown'>, <ElectricalRecordingStimulusType.voltage_clamp: 'voltage_clamp'>]",
-        title='Recording Type',
+        title="Recording Type",
     )
     recording_origin: ElectricalRecordingOrigin = Field(
         ...,
         description="Recording origin. One of: [<ElectricalRecordingOrigin.in_silico: 'in_silico'>, <ElectricalRecordingOrigin.in_vitro: 'in_vitro'>, <ElectricalRecordingOrigin.in_vivo: 'in_vivo'>, <ElectricalRecordingOrigin.unknown: 'unknown'>]",
-        title='Recording Origin',
+        title="Recording Origin",
     )
     comment: Optional[str] = Field(
-        None, description='Comment with further details.', title='Comment'
+        None, description="Comment with further details.", title="Comment"
     )
-    legacy_id: Optional[List[str]] = Field(None, title='Legacy Id')
+    legacy_id: Optional[List[str]] = Field(None, title="Legacy Id")
     subject: SubjectRead
     brain_region: BrainRegionRead
-    assets: Optional[List[AssetRead]] = Field(..., title='Assets')
+    assets: Optional[List[AssetRead]] = Field(..., title="Assets")
     stimuli: Optional[List[ElectricalRecordingStimulusRead]] = Field(
         None,
-        description='List of stimuli applied to the cell with their respective time steps',
-        title='Electrical Recording Stimuli',
+        description="List of stimuli applied to the cell with their respective time steps",
+        title="Electrical Recording Stimuli",
     )
 
 
 class ExperimentalBoutonDensityRead(BaseModel):
     type: Optional[EntityType] = None
-    authorized_project_id: UUID4 = Field(..., title='Authorized Project Id')
-    authorized_public: Optional[bool] = Field(False, title='Authorized Public')
+    authorized_project_id: UUID4 = Field(..., title="Authorized Project Id")
+    authorized_public: Optional[bool] = Field(False, title="Authorized Public")
     license: Optional[LicenseRead] = None
-    id: UUID = Field(..., title='Id')
-    creation_date: datetime = Field(..., title='Creation Date')
-    update_date: datetime = Field(..., title='Update Date')
-    name: str = Field(..., title='Name')
-    description: str = Field(..., title='Description')
+    id: UUID = Field(..., title="Id")
+    creation_date: datetime = Field(..., title="Creation Date")
+    update_date: datetime = Field(..., title="Update Date")
+    name: str = Field(..., title="Name")
+    description: str = Field(..., title="Description")
     subject: SubjectRead
     brain_region: BrainRegionRead
-    measurements: Optional[List[MeasurementRead]] = Field(..., title='Measurements')
-    assets: Optional[List[AssetRead]] = Field(..., title='Assets')
+    measurements: Optional[List[MeasurementRead]] = Field(..., title="Measurements")
+    assets: Optional[List[AssetRead]] = Field(..., title="Assets")
     contributions: Optional[List[ContributionReadWithoutEntity]] = Field(
-        ..., title='Contributions'
+        ..., title="Contributions"
     )
-    mtypes: Optional[List[Annotation]] = Field(..., title='Mtypes')
+    mtypes: Optional[List[Annotation]] = Field(..., title="Mtypes")
 
 
 class ExperimentalNeuronDensityRead(BaseModel):
     type: Optional[EntityType] = None
-    authorized_project_id: UUID4 = Field(..., title='Authorized Project Id')
-    authorized_public: Optional[bool] = Field(False, title='Authorized Public')
+    authorized_project_id: UUID4 = Field(..., title="Authorized Project Id")
+    authorized_public: Optional[bool] = Field(False, title="Authorized Public")
     license: Optional[LicenseRead] = None
-    id: UUID = Field(..., title='Id')
-    creation_date: datetime = Field(..., title='Creation Date')
-    update_date: datetime = Field(..., title='Update Date')
-    name: str = Field(..., title='Name')
-    description: str = Field(..., title='Description')
+    id: UUID = Field(..., title="Id")
+    creation_date: datetime = Field(..., title="Creation Date")
+    update_date: datetime = Field(..., title="Update Date")
+    name: str = Field(..., title="Name")
+    description: str = Field(..., title="Description")
     subject: SubjectRead
     brain_region: BrainRegionRead
-    measurements: Optional[List[MeasurementRead]] = Field(..., title='Measurements')
-    assets: Optional[List[AssetRead]] = Field(..., title='Assets')
+    measurements: Optional[List[MeasurementRead]] = Field(..., title="Measurements")
+    assets: Optional[List[AssetRead]] = Field(..., title="Assets")
     contributions: Optional[List[ContributionReadWithoutEntity]] = Field(
-        ..., title='Contributions'
+        ..., title="Contributions"
     )
-    mtypes: Optional[List[Annotation]] = Field(..., title='Mtypes')
-    etypes: Optional[List[Annotation]] = Field(..., title='Etypes')
+    mtypes: Optional[List[Annotation]] = Field(..., title="Mtypes")
+    etypes: Optional[List[Annotation]] = Field(..., title="Etypes")
 
 
 class ExperimentalSynapsesPerConnectionRead(BaseModel):
     type: Optional[EntityType] = None
-    authorized_project_id: UUID4 = Field(..., title='Authorized Project Id')
-    authorized_public: Optional[bool] = Field(False, title='Authorized Public')
+    authorized_project_id: UUID4 = Field(..., title="Authorized Project Id")
+    authorized_public: Optional[bool] = Field(False, title="Authorized Public")
     license: Optional[LicenseRead] = None
-    id: UUID = Field(..., title='Id')
-    creation_date: datetime = Field(..., title='Creation Date')
-    update_date: datetime = Field(..., title='Update Date')
-    name: str = Field(..., title='Name')
-    description: str = Field(..., title='Description')
+    id: UUID = Field(..., title="Id")
+    creation_date: datetime = Field(..., title="Creation Date")
+    update_date: datetime = Field(..., title="Update Date")
+    name: str = Field(..., title="Name")
+    description: str = Field(..., title="Description")
     subject: SubjectRead
     brain_region: BrainRegionRead
-    measurements: Optional[List[MeasurementRead]] = Field(..., title='Measurements')
-    assets: Optional[List[AssetRead]] = Field(..., title='Assets')
+    measurements: Optional[List[MeasurementRead]] = Field(..., title="Measurements")
+    assets: Optional[List[AssetRead]] = Field(..., title="Assets")
     contributions: Optional[List[ContributionReadWithoutEntity]] = Field(
-        ..., title='Contributions'
+        ..., title="Contributions"
     )
     synaptic_pathway: SynapticPathwayRead
 
 
 class IonChannelModelCreate(BaseModel):
-    authorized_public: Optional[bool] = Field(False, title='Authorized Public')
-    description: str = Field(..., title='Description')
-    name: str = Field(..., title='Name')
-    nmodl_suffix: str = Field(..., title='Nmodl Suffix')
-    is_ljp_corrected: Optional[bool] = Field(False, title='Is Ljp Corrected')
+    authorized_public: Optional[bool] = Field(False, title="Authorized Public")
+    description: str = Field(..., title="Description")
+    name: str = Field(..., title="Name")
+    nmodl_suffix: str = Field(..., title="Nmodl Suffix")
+    is_ljp_corrected: Optional[bool] = Field(False, title="Is Ljp Corrected")
     is_temperature_dependent: Optional[bool] = Field(
-        False, title='Is Temperature Dependent'
+        False, title="Is Temperature Dependent"
     )
-    temperature_celsius: int = Field(..., title='Temperature Celsius')
-    is_stochastic: Optional[bool] = Field(False, title='Is Stochastic')
+    temperature_celsius: int = Field(..., title="Temperature Celsius")
+    is_stochastic: Optional[bool] = Field(False, title="Is Stochastic")
     neuron_block: NeuronBlock
-    species_id: UUID = Field(..., title='Species Id')
-    strain_id: Optional[UUID] = Field(None, title='Strain Id')
-    brain_region_id: UUID = Field(..., title='Brain Region Id')
+    species_id: UUID = Field(..., title="Species Id")
+    strain_id: Optional[UUID] = Field(None, title="Strain Id")
+    brain_region_id: UUID = Field(..., title="Brain Region Id")
 
 
 class IonChannelModelExpanded(BaseModel):
-    assets: Optional[List[AssetRead]] = Field(..., title='Assets')
-    authorized_project_id: UUID4 = Field(..., title='Authorized Project Id')
-    authorized_public: Optional[bool] = Field(False, title='Authorized Public')
-    id: UUID = Field(..., title='Id')
-    creation_date: datetime = Field(..., title='Creation Date')
-    update_date: datetime = Field(..., title='Update Date')
-    description: str = Field(..., title='Description')
-    name: str = Field(..., title='Name')
-    nmodl_suffix: str = Field(..., title='Nmodl Suffix')
-    is_ljp_corrected: Optional[bool] = Field(False, title='Is Ljp Corrected')
+    assets: Optional[List[AssetRead]] = Field(..., title="Assets")
+    authorized_project_id: UUID4 = Field(..., title="Authorized Project Id")
+    authorized_public: Optional[bool] = Field(False, title="Authorized Public")
+    id: UUID = Field(..., title="Id")
+    creation_date: datetime = Field(..., title="Creation Date")
+    update_date: datetime = Field(..., title="Update Date")
+    description: str = Field(..., title="Description")
+    name: str = Field(..., title="Name")
+    nmodl_suffix: str = Field(..., title="Nmodl Suffix")
+    is_ljp_corrected: Optional[bool] = Field(False, title="Is Ljp Corrected")
     is_temperature_dependent: Optional[bool] = Field(
-        False, title='Is Temperature Dependent'
+        False, title="Is Temperature Dependent"
     )
-    temperature_celsius: int = Field(..., title='Temperature Celsius')
-    is_stochastic: Optional[bool] = Field(False, title='Is Stochastic')
+    temperature_celsius: int = Field(..., title="Temperature Celsius")
+    is_stochastic: Optional[bool] = Field(False, title="Is Stochastic")
     neuron_block: NeuronBlock
     species: SpeciesRead
     strain: Optional[StrainRead] = None
     brain_region: BrainRegionRead
     contributions: List[ContributionReadWithoutEntity] = Field(
-        ..., title='Contributions'
+        ..., title="Contributions"
     )
 
 
 class IonChannelModelRead(BaseModel):
-    authorized_project_id: UUID4 = Field(..., title='Authorized Project Id')
-    authorized_public: Optional[bool] = Field(False, title='Authorized Public')
-    id: UUID = Field(..., title='Id')
-    creation_date: datetime = Field(..., title='Creation Date')
-    update_date: datetime = Field(..., title='Update Date')
-    description: str = Field(..., title='Description')
-    name: str = Field(..., title='Name')
-    nmodl_suffix: str = Field(..., title='Nmodl Suffix')
-    is_ljp_corrected: Optional[bool] = Field(False, title='Is Ljp Corrected')
+    authorized_project_id: UUID4 = Field(..., title="Authorized Project Id")
+    authorized_public: Optional[bool] = Field(False, title="Authorized Public")
+    id: UUID = Field(..., title="Id")
+    creation_date: datetime = Field(..., title="Creation Date")
+    update_date: datetime = Field(..., title="Update Date")
+    description: str = Field(..., title="Description")
+    name: str = Field(..., title="Name")
+    nmodl_suffix: str = Field(..., title="Nmodl Suffix")
+    is_ljp_corrected: Optional[bool] = Field(False, title="Is Ljp Corrected")
     is_temperature_dependent: Optional[bool] = Field(
-        False, title='Is Temperature Dependent'
+        False, title="Is Temperature Dependent"
     )
-    temperature_celsius: int = Field(..., title='Temperature Celsius')
-    is_stochastic: Optional[bool] = Field(False, title='Is Stochastic')
+    temperature_celsius: int = Field(..., title="Temperature Celsius")
+    is_stochastic: Optional[bool] = Field(False, title="Is Stochastic")
     neuron_block: NeuronBlock
     species: SpeciesRead
     strain: Optional[StrainRead] = None
@@ -1677,21 +1677,21 @@ class IonChannelModelRead(BaseModel):
 
 
 class IonChannelModelWAssets(BaseModel):
-    assets: Optional[List[AssetRead]] = Field(..., title='Assets')
-    authorized_project_id: UUID4 = Field(..., title='Authorized Project Id')
-    authorized_public: Optional[bool] = Field(False, title='Authorized Public')
-    id: UUID = Field(..., title='Id')
-    creation_date: datetime = Field(..., title='Creation Date')
-    update_date: datetime = Field(..., title='Update Date')
-    description: str = Field(..., title='Description')
-    name: str = Field(..., title='Name')
-    nmodl_suffix: str = Field(..., title='Nmodl Suffix')
-    is_ljp_corrected: Optional[bool] = Field(False, title='Is Ljp Corrected')
+    assets: Optional[List[AssetRead]] = Field(..., title="Assets")
+    authorized_project_id: UUID4 = Field(..., title="Authorized Project Id")
+    authorized_public: Optional[bool] = Field(False, title="Authorized Public")
+    id: UUID = Field(..., title="Id")
+    creation_date: datetime = Field(..., title="Creation Date")
+    update_date: datetime = Field(..., title="Update Date")
+    description: str = Field(..., title="Description")
+    name: str = Field(..., title="Name")
+    nmodl_suffix: str = Field(..., title="Nmodl Suffix")
+    is_ljp_corrected: Optional[bool] = Field(False, title="Is Ljp Corrected")
     is_temperature_dependent: Optional[bool] = Field(
-        False, title='Is Temperature Dependent'
+        False, title="Is Temperature Dependent"
     )
-    temperature_celsius: int = Field(..., title='Temperature Celsius')
-    is_stochastic: Optional[bool] = Field(False, title='Is Stochastic')
+    temperature_celsius: int = Field(..., title="Temperature Celsius")
+    is_stochastic: Optional[bool] = Field(False, title="Is Stochastic")
     neuron_block: NeuronBlock
     species: SpeciesRead
     strain: Optional[StrainRead] = None
@@ -1699,124 +1699,124 @@ class IonChannelModelWAssets(BaseModel):
 
 
 class ListResponseContributionRead(BaseModel):
-    data: List[ContributionRead] = Field(..., title='Data')
+    data: List[ContributionRead] = Field(..., title="Data")
     pagination: PaginationResponse
     facets: Optional[Facets] = None
 
 
 class ListResponseEModelRead(BaseModel):
-    data: List[EModelRead] = Field(..., title='Data')
+    data: List[EModelRead] = Field(..., title="Data")
     pagination: PaginationResponse
     facets: Optional[Facets] = None
 
 
 class ListResponseElectricalCellRecordingRead(BaseModel):
-    data: List[ElectricalCellRecordingRead] = Field(..., title='Data')
+    data: List[ElectricalCellRecordingRead] = Field(..., title="Data")
     pagination: PaginationResponse
     facets: Optional[Facets] = None
 
 
 class ListResponseExperimentalBoutonDensityRead(BaseModel):
-    data: List[ExperimentalBoutonDensityRead] = Field(..., title='Data')
+    data: List[ExperimentalBoutonDensityRead] = Field(..., title="Data")
     pagination: PaginationResponse
     facets: Optional[Facets] = None
 
 
 class ListResponseExperimentalNeuronDensityRead(BaseModel):
-    data: List[ExperimentalNeuronDensityRead] = Field(..., title='Data')
+    data: List[ExperimentalNeuronDensityRead] = Field(..., title="Data")
     pagination: PaginationResponse
     facets: Optional[Facets] = None
 
 
 class ListResponseExperimentalSynapsesPerConnectionRead(BaseModel):
-    data: List[ExperimentalSynapsesPerConnectionRead] = Field(..., title='Data')
+    data: List[ExperimentalSynapsesPerConnectionRead] = Field(..., title="Data")
     pagination: PaginationResponse
     facets: Optional[Facets] = None
 
 
 class ListResponseIonChannelModelRead(BaseModel):
-    data: List[IonChannelModelRead] = Field(..., title='Data')
+    data: List[IonChannelModelRead] = Field(..., title="Data")
     pagination: PaginationResponse
     facets: Optional[Facets] = None
 
 
 class ListResponseReconstructionMorphologyRead(BaseModel):
-    data: List[ReconstructionMorphologyRead] = Field(..., title='Data')
+    data: List[ReconstructionMorphologyRead] = Field(..., title="Data")
     pagination: PaginationResponse
     facets: Optional[Facets] = None
 
 
 class ListResponseSingleNeuronSimulationRead(BaseModel):
-    data: List[SingleNeuronSimulationRead] = Field(..., title='Data')
+    data: List[SingleNeuronSimulationRead] = Field(..., title="Data")
     pagination: PaginationResponse
     facets: Optional[Facets] = None
 
 
 class ListResponseSingleNeuronSynaptomeRead(BaseModel):
-    data: List[SingleNeuronSynaptomeRead] = Field(..., title='Data')
+    data: List[SingleNeuronSynaptomeRead] = Field(..., title="Data")
     pagination: PaginationResponse
     facets: Optional[Facets] = None
 
 
 class MEModelRead(BaseModel):
     type: Optional[EntityType] = None
-    authorized_project_id: UUID4 = Field(..., title='Authorized Project Id')
-    authorized_public: Optional[bool] = Field(False, title='Authorized Public')
-    creation_date: datetime = Field(..., title='Creation Date')
-    update_date: datetime = Field(..., title='Update Date')
-    name: str = Field(..., title='Name')
-    description: str = Field(..., title='Description')
-    validation_status: Optional[ValidationStatus] = 'created'
-    id: UUID = Field(..., title='Id')
+    authorized_project_id: UUID4 = Field(..., title="Authorized Project Id")
+    authorized_public: Optional[bool] = Field(False, title="Authorized Public")
+    creation_date: datetime = Field(..., title="Creation Date")
+    update_date: datetime = Field(..., title="Update Date")
+    name: str = Field(..., title="Name")
+    description: str = Field(..., title="Description")
+    validation_status: Optional[ValidationStatus] = "created"
+    id: UUID = Field(..., title="Id")
     species: SpeciesRead
     strain: Optional[StrainRead] = None
     brain_region: BrainRegionRead
     contributions: Optional[List[ContributionReadWithoutEntity]] = Field(
-        ..., title='Contributions'
+        ..., title="Contributions"
     )
-    mtypes: Optional[List[Annotation]] = Field(..., title='Mtypes')
-    etypes: Optional[List[Annotation]] = Field(..., title='Etypes')
+    mtypes: Optional[List[Annotation]] = Field(..., title="Mtypes")
+    etypes: Optional[List[Annotation]] = Field(..., title="Etypes")
     morphology: ReconstructionMorphologyRead
     emodel: EModelRead
 
 
 class MeasurementAnnotationCreate(BaseModel):
-    entity_id: UUID = Field(..., title='Entity Id')
+    entity_id: UUID = Field(..., title="Entity Id")
     entity_type: MeasurableEntity
     measurement_kinds: List[MeasurementKindCreate] = Field(
-        ..., title='Measurement Kinds'
+        ..., title="Measurement Kinds"
     )
 
 
 class MeasurementAnnotationRead(BaseModel):
-    id: UUID = Field(..., title='Id')
-    creation_date: datetime = Field(..., title='Creation Date')
-    update_date: datetime = Field(..., title='Update Date')
-    entity_id: UUID = Field(..., title='Entity Id')
+    id: UUID = Field(..., title="Id")
+    creation_date: datetime = Field(..., title="Creation Date")
+    update_date: datetime = Field(..., title="Update Date")
+    entity_id: UUID = Field(..., title="Entity Id")
     entity_type: MeasurableEntity
-    measurement_kinds: List[MeasurementKindRead] = Field(..., title='Measurement Kinds')
+    measurement_kinds: List[MeasurementKindRead] = Field(..., title="Measurement Kinds")
 
 
 class ReconstructionMorphologyAnnotationExpandedRead(BaseModel):
     type: Optional[EntityType] = None
-    assets: Optional[List[AssetRead]] = Field(..., title='Assets')
-    authorized_project_id: UUID4 = Field(..., title='Authorized Project Id')
-    authorized_public: Optional[bool] = Field(False, title='Authorized Public')
+    assets: Optional[List[AssetRead]] = Field(..., title="Assets")
+    authorized_project_id: UUID4 = Field(..., title="Authorized Project Id")
+    authorized_public: Optional[bool] = Field(False, title="Authorized Public")
     license: Optional[LicenseRead] = None
-    id: UUID = Field(..., title='Id')
-    creation_date: datetime = Field(..., title='Creation Date')
-    update_date: datetime = Field(..., title='Update Date')
-    name: str = Field(..., title='Name')
-    description: str = Field(..., title='Description')
+    id: UUID = Field(..., title="Id")
+    creation_date: datetime = Field(..., title="Creation Date")
+    update_date: datetime = Field(..., title="Update Date")
+    name: str = Field(..., title="Name")
+    description: str = Field(..., title="Description")
     location: Optional[PointLocationBase] = None
-    legacy_id: Optional[List[str]] = Field(..., title='Legacy Id')
+    legacy_id: Optional[List[str]] = Field(..., title="Legacy Id")
     species: SpeciesRead
     strain: Optional[StrainRead] = None
     brain_region: BrainRegionRead
     contributions: Optional[List[ContributionReadWithoutEntity]] = Field(
-        ..., title='Contributions'
+        ..., title="Contributions"
     )
-    mtypes: Optional[List[Annotation]] = Field(..., title='Mtypes')
+    mtypes: Optional[List[Annotation]] = Field(..., title="Mtypes")
     measurement_annotation: Optional[MeasurementAnnotationRead] = None
 
 
@@ -1829,43 +1829,43 @@ class ReconstructionMorphologyIdGetResponse(
 ):
     root: Union[
         ReconstructionMorphologyRead, ReconstructionMorphologyAnnotationExpandedRead
-    ] = Field(..., title='Response Read One Reconstruction Morphology  Id   Get')
+    ] = Field(..., title="Response Read One Reconstruction Morphology  Id   Get")
 
 
 class EModelReadExpanded(BaseModel):
-    assets: Optional[List[AssetRead]] = Field(..., title='Assets')
+    assets: Optional[List[AssetRead]] = Field(..., title="Assets")
     type: Optional[EntityType] = None
-    authorized_project_id: UUID4 = Field(..., title='Authorized Project Id')
-    authorized_public: Optional[bool] = Field(False, title='Authorized Public')
-    creation_date: datetime = Field(..., title='Creation Date')
-    update_date: datetime = Field(..., title='Update Date')
-    description: str = Field(..., title='Description')
-    name: str = Field(..., title='Name')
-    iteration: str = Field(..., title='Iteration')
-    score: float = Field(..., title='Score')
-    seed: int = Field(..., title='Seed')
-    id: UUID = Field(..., title='Id')
+    authorized_project_id: UUID4 = Field(..., title="Authorized Project Id")
+    authorized_public: Optional[bool] = Field(False, title="Authorized Public")
+    creation_date: datetime = Field(..., title="Creation Date")
+    update_date: datetime = Field(..., title="Update Date")
+    description: str = Field(..., title="Description")
+    name: str = Field(..., title="Name")
+    iteration: str = Field(..., title="Iteration")
+    score: float = Field(..., title="Score")
+    seed: int = Field(..., title="Seed")
+    id: UUID = Field(..., title="Id")
     species: SpeciesRead
     strain: Optional[StrainRead] = None
     brain_region: BrainRegionRead
     contributions: Optional[List[ContributionReadWithoutEntity]] = Field(
-        ..., title='Contributions'
+        ..., title="Contributions"
     )
-    mtypes: Optional[List[Annotation]] = Field(..., title='Mtypes')
-    etypes: Optional[List[Annotation]] = Field(..., title='Etypes')
+    mtypes: Optional[List[Annotation]] = Field(..., title="Mtypes")
+    etypes: Optional[List[Annotation]] = Field(..., title="Etypes")
     exemplar_morphology: ExemplarMorphology
     ion_channel_models: List[IonChannelModelWAssets] = Field(
-        ..., title='Ion Channel Models'
+        ..., title="Ion Channel Models"
     )
 
 
 class ListResponseMEModelRead(BaseModel):
-    data: List[MEModelRead] = Field(..., title='Data')
+    data: List[MEModelRead] = Field(..., title="Data")
     pagination: PaginationResponse
     facets: Optional[Facets] = None
 
 
 class ListResponseMeasurementAnnotationRead(BaseModel):
-    data: List[MeasurementAnnotationRead] = Field(..., title='Data')
+    data: List[MeasurementAnnotationRead] = Field(..., title="Data")
     pagination: PaginationResponse
     facets: Optional[Facets] = None

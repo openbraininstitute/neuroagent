@@ -4,21 +4,18 @@
 
 from __future__ import annotations
 
-from typing import Any, Optional, Union
+from typing import Optional
 from uuid import UUID
 
-from fastapi import FastAPI, Header, UploadFile
+from fastapi import Header, UploadFile
 from pydantic import BaseModel, conint
 
 from .models import (
     Acronym,
-    Annotation,
     AnnotationValue,
     AssetPath,
-    AssetRead,
     BrainRegionAcronym,
     BrainRegionAcronymIn,
-    BrainRegionHierarchyRead,
     BrainRegionId,
     BrainRegionId10,
     BrainRegionIdIn,
@@ -26,17 +23,14 @@ from .models import (
     BrainRegionNameIlike,
     BrainRegionNameIn,
     BrainRegionOrderBy,
-    BrainRegionRead,
     ContributionCreate,
     ContributionId,
     ContributionOrderBy,
     ContributionPrefLabel,
     ContributionPrefLabelIn,
-    ContributionRead,
     CreationDateGte,
     CreationDateLte,
     ElectricalCellRecordingCreate,
-    ElectricalCellRecordingRead,
     EModelCreate,
     EmodelCreationDateGte,
     EmodelCreationDateLte,
@@ -46,8 +40,6 @@ from .models import (
     EmodelNameIlike,
     EmodelNameIn,
     EmodelOrderBy,
-    EModelRead,
-    EModelReadExpanded,
     EmodelScoreGte,
     EmodelScoreLte,
     EmodelSpeciesIdIn,
@@ -56,7 +48,6 @@ from .models import (
     EntityId,
     EntityRoute,
     EntityType1,
-    ErrorResponse,
     EtypeId,
     EtypeOrderBy,
     EtypePrefLabel,
@@ -74,50 +65,19 @@ from .models import (
     ExemplarMorphologyUpdateDateLte,
     Expand,
     ExperimentalBoutonDensityCreate,
-    ExperimentalBoutonDensityRead,
     ExperimentalNeuronDensityCreate,
-    ExperimentalNeuronDensityRead,
     ExperimentalSynapsesPerConnectionCreate,
-    ExperimentalSynapsesPerConnectionRead,
-    HealthGetResponse,
     HierarchyId,
     Id,
     IdIn,
     IonChannelModelCreate,
-    IonChannelModelExpanded,
-    IonChannelModelRead,
     IsLjpCorrected,
     IsStochastic,
     IsTemperatureDependent,
     LicenseCreate,
-    LicenseRead,
-    ListResponseAnnotation,
-    ListResponseAssetRead,
-    ListResponseBrainRegionHierarchyRead,
-    ListResponseContributionRead,
-    ListResponseElectricalCellRecordingRead,
-    ListResponseEModelRead,
-    ListResponseExperimentalBoutonDensityRead,
-    ListResponseExperimentalNeuronDensityRead,
-    ListResponseExperimentalSynapsesPerConnectionRead,
-    ListResponseIonChannelModelRead,
-    ListResponseLicenseRead,
-    ListResponseMeasurementAnnotationRead,
-    ListResponseMEModelRead,
-    ListResponseOrganizationRead,
-    ListResponsePersonRead,
-    ListResponseReconstructionMorphologyRead,
-    ListResponseRoleRead,
-    ListResponseSingleNeuronSimulationRead,
-    ListResponseSingleNeuronSynaptomeRead,
-    ListResponseSingleNeuronSynaptomeSimulationRead,
-    ListResponseSpeciesRead,
-    ListResponseStrainRead,
-    ListResponseSubjectRead,
     MeasurementAnnotationCreate,
     MeasurementAnnotationCreationDateGte,
     MeasurementAnnotationCreationDateLte,
-    MeasurementAnnotationRead,
     MeasurementAnnotationUpdateDateGte,
     MeasurementAnnotationUpdateDateLte,
     MeasurementItemName,
@@ -128,7 +88,6 @@ from .models import (
     MeasurementKindPrefLabel,
     MeasurementKindStructuralDomain,
     MEModelCreate,
-    MEModelRead,
     MeTypeCreationDateGte,
     MeTypeCreationDateLte,
     MeTypeId,
@@ -162,9 +121,7 @@ from .models import (
     NmodlSuffix,
     OrderBy,
     OrganizationCreate,
-    OrganizationRead,
     PersonCreate,
-    PersonRead,
     PostMtypeId,
     PostMtypeOrderBy,
     PostMtypePrefLabel,
@@ -193,19 +150,13 @@ from .models import (
     PreRegionOrderBy,
     ProjectId,
     ReconstructionMorphologyCreate,
-    ReconstructionMorphologyIdGetResponse,
-    ReconstructionMorphologyRead,
     RoleCreate,
-    RoleRead,
     ScoreGte,
     ScoreLte,
     Search,
     SingleNeuronSimulationCreate,
-    SingleNeuronSimulationRead,
     SingleNeuronSynaptomeCreate,
-    SingleNeuronSynaptomeRead,
     SingleNeuronSynaptomeSimulationCreate,
-    SingleNeuronSynaptomeSimulationRead,
     SpeciesCreate,
     SpeciesId,
     SpeciesIdIn,
@@ -214,7 +165,6 @@ from .models import (
     SpeciesNameIlike,
     SpeciesNameIn,
     SpeciesOrderBy,
-    SpeciesRead,
     Status,
     StrainCreate,
     StrainId,
@@ -222,14 +172,12 @@ from .models import (
     StrainNameIlike,
     StrainNameIn,
     StrainOrderBy,
-    StrainRead,
     SubjectCreate,
     SubjectId,
     SubjectName,
     SubjectNameIlike,
     SubjectNameIn,
     SubjectOrderBy,
-    SubjectRead,
     SubjectSpeciesIdIn,
     SynapticPathwayOrderBy,
     SynaptomeCreationDateGte,
@@ -247,7 +195,6 @@ from .models import (
     UpdateDateGte,
     UpdateDateLte,
     ValidationStatus1,
-    VersionGetResponse,
     VirtualLabId,
     WithinBrainRegionBrainRegionId,
     WithinBrainRegionHierachyId,
@@ -270,9 +217,9 @@ class ReadManyBrainRegionGetParams(BaseModel):
     acronym: Optional[Acronym] = None
     annotation_value: Optional[AnnotationValue] = None
     hierarchy_id: Optional[HierarchyId] = None
-    order_by: Optional[OrderBy] = 'name'
-    virtual_lab_id: Optional[VirtualLabId] = Header(None, alias='virtual-lab-id')
-    project_id: Optional[ProjectId] = Header(None, alias='project-id')
+    order_by: Optional[OrderBy] = "name"
+    virtual_lab_id: Optional[VirtualLabId] = Header(None, alias="virtual-lab-id")
+    project_id: Optional[ProjectId] = Header(None, alias="project-id")
 
 
 class ReadManyBrainRegionHierarchyGetParams(BaseModel):
@@ -285,40 +232,40 @@ class ReadManyBrainRegionHierarchyGetParams(BaseModel):
     name__ilike: Optional[NameIlike] = None
     id: Optional[Id] = None
     id__in: Optional[IdIn] = None
-    order_by: Optional[OrderBy] = 'name'
-    virtual_lab_id: Optional[VirtualLabId] = Header(None, alias='virtual-lab-id')
-    project_id: Optional[ProjectId] = Header(None, alias='project-id')
+    order_by: Optional[OrderBy] = "name"
+    virtual_lab_id: Optional[VirtualLabId] = Header(None, alias="virtual-lab-id")
+    project_id: Optional[ProjectId] = Header(None, alias="project-id")
 
 
 class ReadOneBrainRegionHierarchyIdGetParams(BaseModel):
     """Read One."""
 
     id_: UUID
-    virtual_lab_id: Optional[VirtualLabId] = Header(None, alias='virtual-lab-id')
-    project_id: Optional[ProjectId] = Header(None, alias='project-id')
+    virtual_lab_id: Optional[VirtualLabId] = Header(None, alias="virtual-lab-id")
+    project_id: Optional[ProjectId] = Header(None, alias="project-id")
 
 
 class ReadHierarchyBrainRegionHierarchyIdHierarchyGetParams(BaseModel):
     """Read Hierarchy."""
 
     id_: str
-    virtual_lab_id: Optional[VirtualLabId] = Header(None, alias='virtual-lab-id')
-    project_id: Optional[ProjectId] = Header(None, alias='project-id')
+    virtual_lab_id: Optional[VirtualLabId] = Header(None, alias="virtual-lab-id")
+    project_id: Optional[ProjectId] = Header(None, alias="project-id")
 
 
 class ReadOneBrainRegionIdGetParams(BaseModel):
     """Read One."""
 
     id_: UUID
-    virtual_lab_id: Optional[VirtualLabId] = Header(None, alias='virtual-lab-id')
-    project_id: Optional[ProjectId] = Header(None, alias='project-id')
+    virtual_lab_id: Optional[VirtualLabId] = Header(None, alias="virtual-lab-id")
+    project_id: Optional[ProjectId] = Header(None, alias="project-id")
 
 
 class GetCellCompositionGetParams(BaseModel):
     """Get."""
 
-    virtual_lab_id: Optional[VirtualLabId] = Header(None, alias='virtual-lab-id')
-    project_id: Optional[ProjectId] = Header(None, alias='project-id')
+    virtual_lab_id: Optional[VirtualLabId] = Header(None, alias="virtual-lab-id")
+    project_id: Optional[ProjectId] = Header(None, alias="project-id")
 
 
 class ReadManyContributionGetParams(BaseModel):
@@ -326,15 +273,15 @@ class ReadManyContributionGetParams(BaseModel):
 
     page: Optional[conint(ge=1)] = 1
     page_size: Optional[conint(ge=1)] = 100
-    virtual_lab_id: Optional[VirtualLabId] = Header(None, alias='virtual-lab-id')
-    project_id: Optional[ProjectId] = Header(None, alias='project-id')
+    virtual_lab_id: Optional[VirtualLabId] = Header(None, alias="virtual-lab-id")
+    project_id: Optional[ProjectId] = Header(None, alias="project-id")
 
 
 class CreateOneContributionPostParams(BaseModel):
     """Create One."""
 
-    virtual_lab_id: Optional[VirtualLabId] = Header(None, alias='virtual-lab-id')
-    project_id: Optional[ProjectId] = Header(None, alias='project-id')
+    virtual_lab_id: Optional[VirtualLabId] = Header(None, alias="virtual-lab-id")
+    project_id: Optional[ProjectId] = Header(None, alias="project-id")
     body: ContributionCreate = ...
 
 
@@ -342,8 +289,8 @@ class ReadOneContributionIdGetParams(BaseModel):
     """Read One."""
 
     id_: UUID
-    virtual_lab_id: Optional[VirtualLabId] = Header(None, alias='virtual-lab-id')
-    project_id: Optional[ProjectId] = Header(None, alias='project-id')
+    virtual_lab_id: Optional[VirtualLabId] = Header(None, alias="virtual-lab-id")
+    project_id: Optional[ProjectId] = Header(None, alias="project-id")
 
 
 class ReadManyElectricalCellRecordingGetParams(BaseModel):
@@ -360,27 +307,27 @@ class ReadManyElectricalCellRecordingGetParams(BaseModel):
     name__ilike: Optional[NameIlike] = None
     id: Optional[Id] = None
     id__in: Optional[IdIn] = None
-    order_by: Optional[OrderBy] = '-creation_date'
+    order_by: Optional[OrderBy] = "-creation_date"
     contribution__id: Optional[ContributionId] = None
     contribution__pref_label: Optional[ContributionPrefLabel] = None
     contribution__pref_label__in: Optional[ContributionPrefLabelIn] = None
-    contribution__order_by: Optional[ContributionOrderBy] = 'pref_label'
+    contribution__order_by: Optional[ContributionOrderBy] = "pref_label"
     subject__name: Optional[SubjectName] = None
     subject__name__in: Optional[SubjectNameIn] = None
     subject__name__ilike: Optional[SubjectNameIlike] = None
     subject__species_id_in: Optional[SubjectSpeciesIdIn] = None
     subject__id: Optional[SubjectId] = None
-    subject__order_by: Optional[SubjectOrderBy] = '-creation_date'
+    subject__order_by: Optional[SubjectOrderBy] = "-creation_date"
     species__name: Optional[SpeciesName] = None
     species__name__in: Optional[SpeciesNameIn] = None
     species__name__ilike: Optional[SpeciesNameIlike] = None
     species__id: Optional[SpeciesId] = None
-    species__order_by: Optional[SpeciesOrderBy] = 'name'
+    species__order_by: Optional[SpeciesOrderBy] = "name"
     strain__name: Optional[StrainName] = None
     strain__name__in: Optional[StrainNameIn] = None
     strain__name__ilike: Optional[StrainNameIlike] = None
     strain__id: Optional[StrainId] = None
-    strain__order_by: Optional[StrainOrderBy] = 'name'
+    strain__order_by: Optional[StrainOrderBy] = "name"
     brain_region__name: Optional[BrainRegionName] = None
     brain_region__name__in: Optional[BrainRegionNameIn] = None
     brain_region__name__ilike: Optional[BrainRegionNameIlike] = None
@@ -388,21 +335,21 @@ class ReadManyElectricalCellRecordingGetParams(BaseModel):
     brain_region__id__in: Optional[BrainRegionIdIn] = None
     brain_region__acronym: Optional[BrainRegionAcronym] = None
     brain_region__acronym__in: Optional[BrainRegionAcronymIn] = None
-    brain_region__order_by: Optional[BrainRegionOrderBy] = 'name'
+    brain_region__order_by: Optional[BrainRegionOrderBy] = "name"
     search: Optional[Search] = None
     with_facets: Optional[bool] = False
     within_brain_region_hierachy_id: Optional[WithinBrainRegionHierachyId] = None
     within_brain_region_brain_region_id: Optional[WithinBrainRegionBrainRegionId] = None
     within_brain_region_ascendants: Optional[bool] = False
-    virtual_lab_id: Optional[VirtualLabId] = Header(None, alias='virtual-lab-id')
-    project_id: Optional[ProjectId] = Header(None, alias='project-id')
+    virtual_lab_id: Optional[VirtualLabId] = Header(None, alias="virtual-lab-id")
+    project_id: Optional[ProjectId] = Header(None, alias="project-id")
 
 
 class CreateOneElectricalCellRecordingPostParams(BaseModel):
     """Create One."""
 
-    virtual_lab_id: Optional[VirtualLabId] = Header(None, alias='virtual-lab-id')
-    project_id: Optional[ProjectId] = Header(None, alias='project-id')
+    virtual_lab_id: Optional[VirtualLabId] = Header(None, alias="virtual-lab-id")
+    project_id: Optional[ProjectId] = Header(None, alias="project-id")
     body: ElectricalCellRecordingCreate = ...
 
 
@@ -410,8 +357,8 @@ class ReadOneElectricalCellRecordingIdGetParams(BaseModel):
     """Read One."""
 
     id_: UUID
-    virtual_lab_id: Optional[VirtualLabId] = Header(None, alias='virtual-lab-id')
-    project_id: Optional[ProjectId] = Header(None, alias='project-id')
+    virtual_lab_id: Optional[VirtualLabId] = Header(None, alias="virtual-lab-id")
+    project_id: Optional[ProjectId] = Header(None, alias="project-id")
 
 
 class ReadManyEmodelGetParams(BaseModel):
@@ -431,29 +378,29 @@ class ReadManyEmodelGetParams(BaseModel):
     id__in: Optional[IdIn] = None
     score__lte: Optional[ScoreLte] = None
     score__gte: Optional[ScoreGte] = None
-    order_by: Optional[OrderBy] = '-creation_date'
+    order_by: Optional[OrderBy] = "-creation_date"
     species__name: Optional[SpeciesName] = None
     species__name__in: Optional[SpeciesNameIn] = None
     species__name__ilike: Optional[SpeciesNameIlike] = None
     species__id: Optional[SpeciesId] = None
-    species__order_by: Optional[SpeciesOrderBy] = 'name'
+    species__order_by: Optional[SpeciesOrderBy] = "name"
     strain__name: Optional[StrainName] = None
     strain__name__in: Optional[StrainNameIn] = None
     strain__name__ilike: Optional[StrainNameIlike] = None
     strain__id: Optional[StrainId] = None
-    strain__order_by: Optional[StrainOrderBy] = 'name'
+    strain__order_by: Optional[StrainOrderBy] = "name"
     etype__id: Optional[EtypeId] = None
     etype__pref_label: Optional[EtypePrefLabel] = None
     etype__pref_label__in: Optional[EtypePrefLabelIn] = None
-    etype__order_by: Optional[EtypeOrderBy] = 'pref_label'
+    etype__order_by: Optional[EtypeOrderBy] = "pref_label"
     mtype__id: Optional[MtypeId] = None
     mtype__pref_label: Optional[MtypePrefLabel] = None
     mtype__pref_label__in: Optional[MtypePrefLabelIn] = None
-    mtype__order_by: Optional[MtypeOrderBy] = 'pref_label'
+    mtype__order_by: Optional[MtypeOrderBy] = "pref_label"
     contribution__id: Optional[ContributionId] = None
     contribution__pref_label: Optional[ContributionPrefLabel] = None
     contribution__pref_label__in: Optional[ContributionPrefLabelIn] = None
-    contribution__order_by: Optional[ContributionOrderBy] = 'pref_label'
+    contribution__order_by: Optional[ContributionOrderBy] = "pref_label"
     exemplar_morphology__creation_date__lte: Optional[
         ExemplarMorphologyCreationDateLte
     ] = None
@@ -473,7 +420,7 @@ class ReadManyEmodelGetParams(BaseModel):
     exemplar_morphology__id__in: Optional[ExemplarMorphologyIdIn] = None
     exemplar_morphology__species_id_in: Optional[ExemplarMorphologySpeciesIdIn] = None
     exemplar_morphology__order_by: Optional[ExemplarMorphologyOrderBy] = (
-        '-creation_date'
+        "-creation_date"
     )
     measurement_annotation__creation_date__lte: Optional[
         MeasurementAnnotationCreationDateLte
@@ -503,21 +450,21 @@ class ReadManyEmodelGetParams(BaseModel):
     brain_region__id__in: Optional[BrainRegionIdIn] = None
     brain_region__acronym: Optional[BrainRegionAcronym] = None
     brain_region__acronym__in: Optional[BrainRegionAcronymIn] = None
-    brain_region__order_by: Optional[BrainRegionOrderBy] = 'name'
+    brain_region__order_by: Optional[BrainRegionOrderBy] = "name"
     search: Optional[Search] = None
     with_facets: Optional[bool] = False
     within_brain_region_hierachy_id: Optional[WithinBrainRegionHierachyId] = None
     within_brain_region_brain_region_id: Optional[WithinBrainRegionBrainRegionId] = None
     within_brain_region_ascendants: Optional[bool] = False
-    virtual_lab_id: Optional[VirtualLabId] = Header(None, alias='virtual-lab-id')
-    project_id: Optional[ProjectId] = Header(None, alias='project-id')
+    virtual_lab_id: Optional[VirtualLabId] = Header(None, alias="virtual-lab-id")
+    project_id: Optional[ProjectId] = Header(None, alias="project-id")
 
 
 class CreateOneEmodelPostParams(BaseModel):
     """Create One."""
 
-    virtual_lab_id: Optional[VirtualLabId] = Header(None, alias='virtual-lab-id')
-    project_id: Optional[ProjectId] = Header(None, alias='project-id')
+    virtual_lab_id: Optional[VirtualLabId] = Header(None, alias="virtual-lab-id")
+    project_id: Optional[ProjectId] = Header(None, alias="project-id")
     body: EModelCreate = ...
 
 
@@ -525,8 +472,8 @@ class ReadOneEmodelIdGetParams(BaseModel):
     """Read One."""
 
     id_: UUID
-    virtual_lab_id: Optional[VirtualLabId] = Header(None, alias='virtual-lab-id')
-    project_id: Optional[ProjectId] = Header(None, alias='project-id')
+    virtual_lab_id: Optional[VirtualLabId] = Header(None, alias="virtual-lab-id")
+    project_id: Optional[ProjectId] = Header(None, alias="project-id")
 
 
 class ReadManyExperimentalBoutonDensityGetParams(BaseModel):
@@ -544,11 +491,11 @@ class ReadManyExperimentalBoutonDensityGetParams(BaseModel):
     name__ilike: Optional[NameIlike] = None
     id: Optional[Id] = None
     id__in: Optional[IdIn] = None
-    order_by: Optional[OrderBy] = '-creation_date'
+    order_by: Optional[OrderBy] = "-creation_date"
     mtype__id: Optional[MtypeId] = None
     mtype__pref_label: Optional[MtypePrefLabel] = None
     mtype__pref_label__in: Optional[MtypePrefLabelIn] = None
-    mtype__order_by: Optional[MtypeOrderBy] = 'pref_label'
+    mtype__order_by: Optional[MtypeOrderBy] = "pref_label"
     brain_region__name: Optional[BrainRegionName] = None
     brain_region__name__in: Optional[BrainRegionNameIn] = None
     brain_region__name__ilike: Optional[BrainRegionNameIlike] = None
@@ -556,35 +503,35 @@ class ReadManyExperimentalBoutonDensityGetParams(BaseModel):
     brain_region__id__in: Optional[BrainRegionIdIn] = None
     brain_region__acronym: Optional[BrainRegionAcronym] = None
     brain_region__acronym__in: Optional[BrainRegionAcronymIn] = None
-    brain_region__order_by: Optional[BrainRegionOrderBy] = 'name'
+    brain_region__order_by: Optional[BrainRegionOrderBy] = "name"
     species__name: Optional[SpeciesName] = None
     species__name__in: Optional[SpeciesNameIn] = None
     species__name__ilike: Optional[SpeciesNameIlike] = None
     species__id: Optional[SpeciesId] = None
-    species__order_by: Optional[SpeciesOrderBy] = 'name'
+    species__order_by: Optional[SpeciesOrderBy] = "name"
     strain__name: Optional[StrainName] = None
     strain__name__in: Optional[StrainNameIn] = None
     strain__name__ilike: Optional[StrainNameIlike] = None
     strain__id: Optional[StrainId] = None
-    strain__order_by: Optional[StrainOrderBy] = 'name'
+    strain__order_by: Optional[StrainOrderBy] = "name"
     contribution__id: Optional[ContributionId] = None
     contribution__pref_label: Optional[ContributionPrefLabel] = None
     contribution__pref_label__in: Optional[ContributionPrefLabelIn] = None
-    contribution__order_by: Optional[ContributionOrderBy] = 'pref_label'
+    contribution__order_by: Optional[ContributionOrderBy] = "pref_label"
     search: Optional[Search] = None
     with_facets: Optional[bool] = False
     within_brain_region_hierachy_id: Optional[WithinBrainRegionHierachyId] = None
     within_brain_region_brain_region_id: Optional[WithinBrainRegionBrainRegionId] = None
     within_brain_region_ascendants: Optional[bool] = False
-    virtual_lab_id: Optional[VirtualLabId] = Header(None, alias='virtual-lab-id')
-    project_id: Optional[ProjectId] = Header(None, alias='project-id')
+    virtual_lab_id: Optional[VirtualLabId] = Header(None, alias="virtual-lab-id")
+    project_id: Optional[ProjectId] = Header(None, alias="project-id")
 
 
 class CreateOneExperimentalBoutonDensityPostParams(BaseModel):
     """Create One."""
 
-    virtual_lab_id: Optional[VirtualLabId] = Header(None, alias='virtual-lab-id')
-    project_id: Optional[ProjectId] = Header(None, alias='project-id')
+    virtual_lab_id: Optional[VirtualLabId] = Header(None, alias="virtual-lab-id")
+    project_id: Optional[ProjectId] = Header(None, alias="project-id")
     body: ExperimentalBoutonDensityCreate = ...
 
 
@@ -592,8 +539,8 @@ class ReadOneExperimentalBoutonDensityIdGetParams(BaseModel):
     """Read One."""
 
     id_: UUID
-    virtual_lab_id: Optional[VirtualLabId] = Header(None, alias='virtual-lab-id')
-    project_id: Optional[ProjectId] = Header(None, alias='project-id')
+    virtual_lab_id: Optional[VirtualLabId] = Header(None, alias="virtual-lab-id")
+    project_id: Optional[ProjectId] = Header(None, alias="project-id")
 
 
 class ReadManyExperimentalNeuronDensityGetParams(BaseModel):
@@ -611,15 +558,15 @@ class ReadManyExperimentalNeuronDensityGetParams(BaseModel):
     name__ilike: Optional[NameIlike] = None
     id: Optional[Id] = None
     id__in: Optional[IdIn] = None
-    order_by: Optional[OrderBy] = '-creation_date'
+    order_by: Optional[OrderBy] = "-creation_date"
     etype__id: Optional[EtypeId] = None
     etype__pref_label: Optional[EtypePrefLabel] = None
     etype__pref_label__in: Optional[EtypePrefLabelIn] = None
-    etype__order_by: Optional[EtypeOrderBy] = 'pref_label'
+    etype__order_by: Optional[EtypeOrderBy] = "pref_label"
     mtype__id: Optional[MtypeId] = None
     mtype__pref_label: Optional[MtypePrefLabel] = None
     mtype__pref_label__in: Optional[MtypePrefLabelIn] = None
-    mtype__order_by: Optional[MtypeOrderBy] = 'pref_label'
+    mtype__order_by: Optional[MtypeOrderBy] = "pref_label"
     brain_region__name: Optional[BrainRegionName] = None
     brain_region__name__in: Optional[BrainRegionNameIn] = None
     brain_region__name__ilike: Optional[BrainRegionNameIlike] = None
@@ -627,35 +574,35 @@ class ReadManyExperimentalNeuronDensityGetParams(BaseModel):
     brain_region__id__in: Optional[BrainRegionIdIn] = None
     brain_region__acronym: Optional[BrainRegionAcronym] = None
     brain_region__acronym__in: Optional[BrainRegionAcronymIn] = None
-    brain_region__order_by: Optional[BrainRegionOrderBy] = 'name'
+    brain_region__order_by: Optional[BrainRegionOrderBy] = "name"
     species__name: Optional[SpeciesName] = None
     species__name__in: Optional[SpeciesNameIn] = None
     species__name__ilike: Optional[SpeciesNameIlike] = None
     species__id: Optional[SpeciesId] = None
-    species__order_by: Optional[SpeciesOrderBy] = 'name'
+    species__order_by: Optional[SpeciesOrderBy] = "name"
     strain__name: Optional[StrainName] = None
     strain__name__in: Optional[StrainNameIn] = None
     strain__name__ilike: Optional[StrainNameIlike] = None
     strain__id: Optional[StrainId] = None
-    strain__order_by: Optional[StrainOrderBy] = 'name'
+    strain__order_by: Optional[StrainOrderBy] = "name"
     contribution__id: Optional[ContributionId] = None
     contribution__pref_label: Optional[ContributionPrefLabel] = None
     contribution__pref_label__in: Optional[ContributionPrefLabelIn] = None
-    contribution__order_by: Optional[ContributionOrderBy] = 'pref_label'
+    contribution__order_by: Optional[ContributionOrderBy] = "pref_label"
     search: Optional[Search] = None
     with_facets: Optional[bool] = False
     within_brain_region_hierachy_id: Optional[WithinBrainRegionHierachyId] = None
     within_brain_region_brain_region_id: Optional[WithinBrainRegionBrainRegionId] = None
     within_brain_region_ascendants: Optional[bool] = False
-    virtual_lab_id: Optional[VirtualLabId] = Header(None, alias='virtual-lab-id')
-    project_id: Optional[ProjectId] = Header(None, alias='project-id')
+    virtual_lab_id: Optional[VirtualLabId] = Header(None, alias="virtual-lab-id")
+    project_id: Optional[ProjectId] = Header(None, alias="project-id")
 
 
 class CreateOneExperimentalNeuronDensityPostParams(BaseModel):
     """Create One."""
 
-    virtual_lab_id: Optional[VirtualLabId] = Header(None, alias='virtual-lab-id')
-    project_id: Optional[ProjectId] = Header(None, alias='project-id')
+    virtual_lab_id: Optional[VirtualLabId] = Header(None, alias="virtual-lab-id")
+    project_id: Optional[ProjectId] = Header(None, alias="project-id")
     body: ExperimentalNeuronDensityCreate = ...
 
 
@@ -663,8 +610,8 @@ class ReadOneExperimentalNeuronDensityIdGetParams(BaseModel):
     """Read One."""
 
     id_: UUID
-    virtual_lab_id: Optional[VirtualLabId] = Header(None, alias='virtual-lab-id')
-    project_id: Optional[ProjectId] = Header(None, alias='project-id')
+    virtual_lab_id: Optional[VirtualLabId] = Header(None, alias="virtual-lab-id")
+    project_id: Optional[ProjectId] = Header(None, alias="project-id")
 
 
 class ReadManyExperimentalSynapsesPerConnectionGetParams(BaseModel):
@@ -682,16 +629,16 @@ class ReadManyExperimentalSynapsesPerConnectionGetParams(BaseModel):
     name__ilike: Optional[NameIlike] = None
     id: Optional[Id] = None
     id__in: Optional[IdIn] = None
-    order_by: Optional[OrderBy] = '-creation_date'
-    synaptic_pathway__order_by: Optional[SynapticPathwayOrderBy] = '-creation_date'
+    order_by: Optional[OrderBy] = "-creation_date"
+    synaptic_pathway__order_by: Optional[SynapticPathwayOrderBy] = "-creation_date"
     pre_mtype__id: Optional[PreMtypeId] = None
     pre_mtype__pref_label: Optional[PreMtypePrefLabel] = None
     pre_mtype__pref_label__in: Optional[PreMtypePrefLabelIn] = None
-    pre_mtype__order_by: Optional[PreMtypeOrderBy] = 'pref_label'
+    pre_mtype__order_by: Optional[PreMtypeOrderBy] = "pref_label"
     post_mtype__id: Optional[PostMtypeId] = None
     post_mtype__pref_label: Optional[PostMtypePrefLabel] = None
     post_mtype__pref_label__in: Optional[PostMtypePrefLabelIn] = None
-    post_mtype__order_by: Optional[PostMtypeOrderBy] = 'pref_label'
+    post_mtype__order_by: Optional[PostMtypeOrderBy] = "pref_label"
     pre_region__name: Optional[PreRegionName] = None
     pre_region__name__in: Optional[PreRegionNameIn] = None
     pre_region__name__ilike: Optional[PreRegionNameIlike] = None
@@ -699,7 +646,7 @@ class ReadManyExperimentalSynapsesPerConnectionGetParams(BaseModel):
     pre_region__id__in: Optional[PreRegionIdIn] = None
     pre_region__acronym: Optional[PreRegionAcronym] = None
     pre_region__acronym__in: Optional[PreRegionAcronymIn] = None
-    pre_region__order_by: Optional[PreRegionOrderBy] = 'name'
+    pre_region__order_by: Optional[PreRegionOrderBy] = "name"
     post_region__name: Optional[PostRegionName] = None
     post_region__name__in: Optional[PostRegionNameIn] = None
     post_region__name__ilike: Optional[PostRegionNameIlike] = None
@@ -707,7 +654,7 @@ class ReadManyExperimentalSynapsesPerConnectionGetParams(BaseModel):
     post_region__id__in: Optional[PostRegionIdIn] = None
     post_region__acronym: Optional[PostRegionAcronym] = None
     post_region__acronym__in: Optional[PostRegionAcronymIn] = None
-    post_region__order_by: Optional[PostRegionOrderBy] = 'name'
+    post_region__order_by: Optional[PostRegionOrderBy] = "name"
     brain_region__name: Optional[BrainRegionName] = None
     brain_region__name__in: Optional[BrainRegionNameIn] = None
     brain_region__name__ilike: Optional[BrainRegionNameIlike] = None
@@ -715,35 +662,35 @@ class ReadManyExperimentalSynapsesPerConnectionGetParams(BaseModel):
     brain_region__id__in: Optional[BrainRegionIdIn] = None
     brain_region__acronym: Optional[BrainRegionAcronym] = None
     brain_region__acronym__in: Optional[BrainRegionAcronymIn] = None
-    brain_region__order_by: Optional[BrainRegionOrderBy] = 'name'
+    brain_region__order_by: Optional[BrainRegionOrderBy] = "name"
     species__name: Optional[SpeciesName] = None
     species__name__in: Optional[SpeciesNameIn] = None
     species__name__ilike: Optional[SpeciesNameIlike] = None
     species__id: Optional[SpeciesId] = None
-    species__order_by: Optional[SpeciesOrderBy] = 'name'
+    species__order_by: Optional[SpeciesOrderBy] = "name"
     strain__name: Optional[StrainName] = None
     strain__name__in: Optional[StrainNameIn] = None
     strain__name__ilike: Optional[StrainNameIlike] = None
     strain__id: Optional[StrainId] = None
-    strain__order_by: Optional[StrainOrderBy] = 'name'
+    strain__order_by: Optional[StrainOrderBy] = "name"
     contribution__id: Optional[ContributionId] = None
     contribution__pref_label: Optional[ContributionPrefLabel] = None
     contribution__pref_label__in: Optional[ContributionPrefLabelIn] = None
-    contribution__order_by: Optional[ContributionOrderBy] = 'pref_label'
+    contribution__order_by: Optional[ContributionOrderBy] = "pref_label"
     search: Optional[Search] = None
     with_facets: Optional[bool] = False
     within_brain_region_hierachy_id: Optional[WithinBrainRegionHierachyId] = None
     within_brain_region_brain_region_id: Optional[WithinBrainRegionBrainRegionId] = None
     within_brain_region_ascendants: Optional[bool] = False
-    virtual_lab_id: Optional[VirtualLabId] = Header(None, alias='virtual-lab-id')
-    project_id: Optional[ProjectId] = Header(None, alias='project-id')
+    virtual_lab_id: Optional[VirtualLabId] = Header(None, alias="virtual-lab-id")
+    project_id: Optional[ProjectId] = Header(None, alias="project-id")
 
 
 class CreateOneExperimentalSynapsesPerConnectionPostParams(BaseModel):
     """Create One."""
 
-    virtual_lab_id: Optional[VirtualLabId] = Header(None, alias='virtual-lab-id')
-    project_id: Optional[ProjectId] = Header(None, alias='project-id')
+    virtual_lab_id: Optional[VirtualLabId] = Header(None, alias="virtual-lab-id")
+    project_id: Optional[ProjectId] = Header(None, alias="project-id")
     body: ExperimentalSynapsesPerConnectionCreate = ...
 
 
@@ -751,8 +698,8 @@ class ReadOneExperimentalSynapsesPerConnectionIdGetParams(BaseModel):
     """Read One."""
 
     id_: UUID
-    virtual_lab_id: Optional[VirtualLabId] = Header(None, alias='virtual-lab-id')
-    project_id: Optional[ProjectId] = Header(None, alias='project-id')
+    virtual_lab_id: Optional[VirtualLabId] = Header(None, alias="virtual-lab-id")
+    project_id: Optional[ProjectId] = Header(None, alias="project-id")
 
 
 class HealthHealthGetParams(BaseModel):
@@ -778,24 +725,24 @@ class ReadManyIonChannelModelGetParams(BaseModel):
     temperature_celsius__lte: Optional[TemperatureCelsiusLte] = None
     temperature_celsius__gte: Optional[TemperatureCelsiusGte] = None
     is_stochastic: Optional[IsStochastic] = None
-    order_by: Optional[OrderBy] = '-creation_date'
+    order_by: Optional[OrderBy] = "-creation_date"
     species__name: Optional[SpeciesName] = None
     species__name__in: Optional[SpeciesNameIn] = None
     species__name__ilike: Optional[SpeciesNameIlike] = None
     species__id: Optional[SpeciesId] = None
-    species__order_by: Optional[SpeciesOrderBy] = 'name'
+    species__order_by: Optional[SpeciesOrderBy] = "name"
     within_brain_region_hierachy_id: Optional[WithinBrainRegionHierachyId] = None
     within_brain_region_brain_region_id: Optional[WithinBrainRegionBrainRegionId] = None
     within_brain_region_ascendants: Optional[bool] = False
-    virtual_lab_id: Optional[VirtualLabId] = Header(None, alias='virtual-lab-id')
-    project_id: Optional[ProjectId] = Header(None, alias='project-id')
+    virtual_lab_id: Optional[VirtualLabId] = Header(None, alias="virtual-lab-id")
+    project_id: Optional[ProjectId] = Header(None, alias="project-id")
 
 
 class CreateOneIonChannelModelPostParams(BaseModel):
     """Create One."""
 
-    virtual_lab_id: Optional[VirtualLabId] = Header(None, alias='virtual-lab-id')
-    project_id: Optional[ProjectId] = Header(None, alias='project-id')
+    virtual_lab_id: Optional[VirtualLabId] = Header(None, alias="virtual-lab-id")
+    project_id: Optional[ProjectId] = Header(None, alias="project-id")
     body: IonChannelModelCreate = ...
 
 
@@ -803,8 +750,8 @@ class ReadOneIonChannelModelIdGetParams(BaseModel):
     """Read One."""
 
     id_: UUID
-    virtual_lab_id: Optional[VirtualLabId] = Header(None, alias='virtual-lab-id')
-    project_id: Optional[ProjectId] = Header(None, alias='project-id')
+    virtual_lab_id: Optional[VirtualLabId] = Header(None, alias="virtual-lab-id")
+    project_id: Optional[ProjectId] = Header(None, alias="project-id")
 
 
 class ReadManyLicenseGetParams(BaseModel):
@@ -812,15 +759,15 @@ class ReadManyLicenseGetParams(BaseModel):
 
     page: Optional[conint(ge=1)] = 1
     page_size: Optional[conint(ge=1)] = 100
-    virtual_lab_id: Optional[VirtualLabId] = Header(None, alias='virtual-lab-id')
-    project_id: Optional[ProjectId] = Header(None, alias='project-id')
+    virtual_lab_id: Optional[VirtualLabId] = Header(None, alias="virtual-lab-id")
+    project_id: Optional[ProjectId] = Header(None, alias="project-id")
 
 
 class CreateOneLicensePostParams(BaseModel):
     """Create One."""
 
-    virtual_lab_id: Optional[VirtualLabId] = Header(None, alias='virtual-lab-id')
-    project_id: Optional[ProjectId] = Header(None, alias='project-id')
+    virtual_lab_id: Optional[VirtualLabId] = Header(None, alias="virtual-lab-id")
+    project_id: Optional[ProjectId] = Header(None, alias="project-id")
     body: LicenseCreate = ...
 
 
@@ -828,8 +775,8 @@ class ReadOneLicenseIdGetParams(BaseModel):
     """Read One."""
 
     id_: UUID
-    virtual_lab_id: Optional[VirtualLabId] = Header(None, alias='virtual-lab-id')
-    project_id: Optional[ProjectId] = Header(None, alias='project-id')
+    virtual_lab_id: Optional[VirtualLabId] = Header(None, alias="virtual-lab-id")
+    project_id: Optional[ProjectId] = Header(None, alias="project-id")
 
 
 class ReadManyMeasurementAnnotationGetParams(BaseModel):
@@ -842,7 +789,7 @@ class ReadManyMeasurementAnnotationGetParams(BaseModel):
     id__in: Optional[IdIn] = None
     entity_id: Optional[EntityId] = None
     entity_type: Optional[EntityType1] = None
-    order_by: Optional[OrderBy] = '-creation_date'
+    order_by: Optional[OrderBy] = "-creation_date"
     measurement_kind__pref_label: Optional[MeasurementKindPrefLabel] = None
     measurement_kind__definition: Optional[MeasurementKindDefinition] = None
     measurement_kind__structural_domain: Optional[MeasurementKindStructuralDomain] = (
@@ -857,15 +804,15 @@ class ReadManyMeasurementAnnotationGetParams(BaseModel):
     within_brain_region_hierachy_id: Optional[WithinBrainRegionHierachyId] = None
     within_brain_region_brain_region_id: Optional[WithinBrainRegionBrainRegionId] = None
     within_brain_region_ascendants: Optional[bool] = False
-    virtual_lab_id: Optional[VirtualLabId] = Header(None, alias='virtual-lab-id')
-    project_id: Optional[ProjectId] = Header(None, alias='project-id')
+    virtual_lab_id: Optional[VirtualLabId] = Header(None, alias="virtual-lab-id")
+    project_id: Optional[ProjectId] = Header(None, alias="project-id")
 
 
 class CreateOneMeasurementAnnotationPostParams(BaseModel):
     """Create One."""
 
-    virtual_lab_id: Optional[VirtualLabId] = Header(None, alias='virtual-lab-id')
-    project_id: Optional[ProjectId] = Header(None, alias='project-id')
+    virtual_lab_id: Optional[VirtualLabId] = Header(None, alias="virtual-lab-id")
+    project_id: Optional[ProjectId] = Header(None, alias="project-id")
     body: MeasurementAnnotationCreate = ...
 
 
@@ -873,16 +820,16 @@ class ReadOneMeasurementAnnotationIdGetParams(BaseModel):
     """Read One."""
 
     id_: UUID
-    virtual_lab_id: Optional[VirtualLabId] = Header(None, alias='virtual-lab-id')
-    project_id: Optional[ProjectId] = Header(None, alias='project-id')
+    virtual_lab_id: Optional[VirtualLabId] = Header(None, alias="virtual-lab-id")
+    project_id: Optional[ProjectId] = Header(None, alias="project-id")
 
 
 class DeleteOneMeasurementAnnotationIdDeleteParams(BaseModel):
     """Delete One."""
 
     id_: UUID
-    virtual_lab_id: Optional[VirtualLabId] = Header(None, alias='virtual-lab-id')
-    project_id: Optional[ProjectId] = Header(None, alias='project-id')
+    virtual_lab_id: Optional[VirtualLabId] = Header(None, alias="virtual-lab-id")
+    project_id: Optional[ProjectId] = Header(None, alias="project-id")
 
 
 class ReadManyMemodelGetParams(BaseModel):
@@ -901,29 +848,29 @@ class ReadManyMemodelGetParams(BaseModel):
     id__in: Optional[IdIn] = None
     species_id_in: Optional[SpeciesIdIn] = None
     validation_status: Optional[ValidationStatus1] = None
-    order_by: Optional[OrderBy] = '-creation_date'
+    order_by: Optional[OrderBy] = "-creation_date"
     etype__id: Optional[EtypeId] = None
     etype__pref_label: Optional[EtypePrefLabel] = None
     etype__pref_label__in: Optional[EtypePrefLabelIn] = None
-    etype__order_by: Optional[EtypeOrderBy] = 'pref_label'
+    etype__order_by: Optional[EtypeOrderBy] = "pref_label"
     mtype__id: Optional[MtypeId] = None
     mtype__pref_label: Optional[MtypePrefLabel] = None
     mtype__pref_label__in: Optional[MtypePrefLabelIn] = None
-    mtype__order_by: Optional[MtypeOrderBy] = 'pref_label'
+    mtype__order_by: Optional[MtypeOrderBy] = "pref_label"
     contribution__id: Optional[ContributionId] = None
     contribution__pref_label: Optional[ContributionPrefLabel] = None
     contribution__pref_label__in: Optional[ContributionPrefLabelIn] = None
-    contribution__order_by: Optional[ContributionOrderBy] = 'pref_label'
+    contribution__order_by: Optional[ContributionOrderBy] = "pref_label"
     species__name: Optional[SpeciesName] = None
     species__name__in: Optional[SpeciesNameIn] = None
     species__name__ilike: Optional[SpeciesNameIlike] = None
     species__id: Optional[SpeciesId] = None
-    species__order_by: Optional[SpeciesOrderBy] = 'name'
+    species__order_by: Optional[SpeciesOrderBy] = "name"
     strain__name: Optional[StrainName] = None
     strain__name__in: Optional[StrainNameIn] = None
     strain__name__ilike: Optional[StrainNameIlike] = None
     strain__id: Optional[StrainId] = None
-    strain__order_by: Optional[StrainOrderBy] = 'name'
+    strain__order_by: Optional[StrainOrderBy] = "name"
     morphology__creation_date__lte: Optional[MorphologyCreationDateLte] = None
     morphology__creation_date__gte: Optional[MorphologyCreationDateGte] = None
     morphology__update_date__lte: Optional[MorphologyUpdateDateLte] = None
@@ -934,7 +881,7 @@ class ReadManyMemodelGetParams(BaseModel):
     morphology__id: Optional[MorphologyId] = None
     morphology__id__in: Optional[MorphologyIdIn] = None
     morphology__species_id_in: Optional[MorphologySpeciesIdIn] = None
-    morphology__order_by: Optional[MorphologyOrderBy] = '-creation_date'
+    morphology__order_by: Optional[MorphologyOrderBy] = "-creation_date"
     measurement_annotation__creation_date__lte: Optional[
         MeasurementAnnotationCreationDateLte
     ] = None
@@ -963,7 +910,7 @@ class ReadManyMemodelGetParams(BaseModel):
     brain_region__id__in: Optional[BrainRegionIdIn] = None
     brain_region__acronym: Optional[BrainRegionAcronym] = None
     brain_region__acronym__in: Optional[BrainRegionAcronymIn] = None
-    brain_region__order_by: Optional[BrainRegionOrderBy] = 'name'
+    brain_region__order_by: Optional[BrainRegionOrderBy] = "name"
     emodel__species_id_in: Optional[EmodelSpeciesIdIn] = None
     emodel__creation_date__lte: Optional[EmodelCreationDateLte] = None
     emodel__creation_date__gte: Optional[EmodelCreationDateGte] = None
@@ -976,7 +923,7 @@ class ReadManyMemodelGetParams(BaseModel):
     emodel__id__in: Optional[EmodelIdIn] = None
     emodel__score__lte: Optional[EmodelScoreLte] = None
     emodel__score__gte: Optional[EmodelScoreGte] = None
-    emodel__order_by: Optional[EmodelOrderBy] = '-creation_date'
+    emodel__order_by: Optional[EmodelOrderBy] = "-creation_date"
     exemplar_morphology__creation_date__lte: Optional[
         ExemplarMorphologyCreationDateLte
     ] = None
@@ -996,22 +943,22 @@ class ReadManyMemodelGetParams(BaseModel):
     exemplar_morphology__id__in: Optional[ExemplarMorphologyIdIn] = None
     exemplar_morphology__species_id_in: Optional[ExemplarMorphologySpeciesIdIn] = None
     exemplar_morphology__order_by: Optional[ExemplarMorphologyOrderBy] = (
-        '-creation_date'
+        "-creation_date"
     )
     search: Optional[Search] = None
     with_facets: Optional[bool] = False
     within_brain_region_hierachy_id: Optional[WithinBrainRegionHierachyId] = None
     within_brain_region_brain_region_id: Optional[WithinBrainRegionBrainRegionId] = None
     within_brain_region_ascendants: Optional[bool] = False
-    virtual_lab_id: Optional[VirtualLabId] = Header(None, alias='virtual-lab-id')
-    project_id: Optional[ProjectId] = Header(None, alias='project-id')
+    virtual_lab_id: Optional[VirtualLabId] = Header(None, alias="virtual-lab-id")
+    project_id: Optional[ProjectId] = Header(None, alias="project-id")
 
 
 class CreateOneMemodelPostParams(BaseModel):
     """Create One."""
 
-    virtual_lab_id: Optional[VirtualLabId] = Header(None, alias='virtual-lab-id')
-    project_id: Optional[ProjectId] = Header(None, alias='project-id')
+    virtual_lab_id: Optional[VirtualLabId] = Header(None, alias="virtual-lab-id")
+    project_id: Optional[ProjectId] = Header(None, alias="project-id")
     body: MEModelCreate = ...
 
 
@@ -1019,8 +966,8 @@ class ReadOneMemodelIdGetParams(BaseModel):
     """Read One."""
 
     id_: UUID
-    virtual_lab_id: Optional[VirtualLabId] = Header(None, alias='virtual-lab-id')
-    project_id: Optional[ProjectId] = Header(None, alias='project-id')
+    virtual_lab_id: Optional[VirtualLabId] = Header(None, alias="virtual-lab-id")
+    project_id: Optional[ProjectId] = Header(None, alias="project-id")
 
 
 class ReadManyMtypeGetParams(BaseModel):
@@ -1031,17 +978,17 @@ class ReadManyMtypeGetParams(BaseModel):
     id: Optional[Id] = None
     pref_label: Optional[PrefLabel] = None
     pref_label__in: Optional[PrefLabelIn] = None
-    order_by: Optional[OrderBy] = 'pref_label'
-    virtual_lab_id: Optional[VirtualLabId] = Header(None, alias='virtual-lab-id')
-    project_id: Optional[ProjectId] = Header(None, alias='project-id')
+    order_by: Optional[OrderBy] = "pref_label"
+    virtual_lab_id: Optional[VirtualLabId] = Header(None, alias="virtual-lab-id")
+    project_id: Optional[ProjectId] = Header(None, alias="project-id")
 
 
 class ReadOneMtypeIdGetParams(BaseModel):
     """Read One."""
 
     id_: UUID
-    virtual_lab_id: Optional[VirtualLabId] = Header(None, alias='virtual-lab-id')
-    project_id: Optional[ProjectId] = Header(None, alias='project-id')
+    virtual_lab_id: Optional[VirtualLabId] = Header(None, alias="virtual-lab-id")
+    project_id: Optional[ProjectId] = Header(None, alias="project-id")
 
 
 class ReadManyOrganizationGetParams(BaseModel):
@@ -1049,15 +996,15 @@ class ReadManyOrganizationGetParams(BaseModel):
 
     page: Optional[conint(ge=1)] = 1
     page_size: Optional[conint(ge=1)] = 100
-    virtual_lab_id: Optional[VirtualLabId] = Header(None, alias='virtual-lab-id')
-    project_id: Optional[ProjectId] = Header(None, alias='project-id')
+    virtual_lab_id: Optional[VirtualLabId] = Header(None, alias="virtual-lab-id")
+    project_id: Optional[ProjectId] = Header(None, alias="project-id")
 
 
 class CreateOneOrganizationPostParams(BaseModel):
     """Create One."""
 
-    virtual_lab_id: Optional[VirtualLabId] = Header(None, alias='virtual-lab-id')
-    project_id: Optional[ProjectId] = Header(None, alias='project-id')
+    virtual_lab_id: Optional[VirtualLabId] = Header(None, alias="virtual-lab-id")
+    project_id: Optional[ProjectId] = Header(None, alias="project-id")
     body: OrganizationCreate = ...
 
 
@@ -1065,8 +1012,8 @@ class ReadOneOrganizationIdGetParams(BaseModel):
     """Read One."""
 
     id_: UUID
-    virtual_lab_id: Optional[VirtualLabId] = Header(None, alias='virtual-lab-id')
-    project_id: Optional[ProjectId] = Header(None, alias='project-id')
+    virtual_lab_id: Optional[VirtualLabId] = Header(None, alias="virtual-lab-id")
+    project_id: Optional[ProjectId] = Header(None, alias="project-id")
 
 
 class ReadManyPersonGetParams(BaseModel):
@@ -1074,15 +1021,15 @@ class ReadManyPersonGetParams(BaseModel):
 
     page: Optional[conint(ge=1)] = 1
     page_size: Optional[conint(ge=1)] = 100
-    virtual_lab_id: Optional[VirtualLabId] = Header(None, alias='virtual-lab-id')
-    project_id: Optional[ProjectId] = Header(None, alias='project-id')
+    virtual_lab_id: Optional[VirtualLabId] = Header(None, alias="virtual-lab-id")
+    project_id: Optional[ProjectId] = Header(None, alias="project-id")
 
 
 class CreateOnePersonPostParams(BaseModel):
     """Create One."""
 
-    virtual_lab_id: Optional[VirtualLabId] = Header(None, alias='virtual-lab-id')
-    project_id: Optional[ProjectId] = Header(None, alias='project-id')
+    virtual_lab_id: Optional[VirtualLabId] = Header(None, alias="virtual-lab-id")
+    project_id: Optional[ProjectId] = Header(None, alias="project-id")
     body: PersonCreate = ...
 
 
@@ -1090,8 +1037,8 @@ class ReadOnePersonIdGetParams(BaseModel):
     """Read One."""
 
     id_: UUID
-    virtual_lab_id: Optional[VirtualLabId] = Header(None, alias='virtual-lab-id')
-    project_id: Optional[ProjectId] = Header(None, alias='project-id')
+    virtual_lab_id: Optional[VirtualLabId] = Header(None, alias="virtual-lab-id")
+    project_id: Optional[ProjectId] = Header(None, alias="project-id")
 
 
 class ReadManyReconstructionMorphologyGetParams(BaseModel):
@@ -1109,11 +1056,11 @@ class ReadManyReconstructionMorphologyGetParams(BaseModel):
     id: Optional[Id] = None
     id__in: Optional[IdIn] = None
     species_id_in: Optional[SpeciesIdIn] = None
-    order_by: Optional[OrderBy] = '-creation_date'
+    order_by: Optional[OrderBy] = "-creation_date"
     contribution__id: Optional[ContributionId] = None
     contribution__pref_label: Optional[ContributionPrefLabel] = None
     contribution__pref_label__in: Optional[ContributionPrefLabelIn] = None
-    contribution__order_by: Optional[ContributionOrderBy] = 'pref_label'
+    contribution__order_by: Optional[ContributionOrderBy] = "pref_label"
     measurement_annotation__creation_date__lte: Optional[
         MeasurementAnnotationCreationDateLte
     ] = None
@@ -1138,17 +1085,17 @@ class ReadManyReconstructionMorphologyGetParams(BaseModel):
     mtype__id: Optional[MtypeId] = None
     mtype__pref_label: Optional[MtypePrefLabel] = None
     mtype__pref_label__in: Optional[MtypePrefLabelIn] = None
-    mtype__order_by: Optional[MtypeOrderBy] = 'pref_label'
+    mtype__order_by: Optional[MtypeOrderBy] = "pref_label"
     species__name: Optional[SpeciesName] = None
     species__name__in: Optional[SpeciesNameIn] = None
     species__name__ilike: Optional[SpeciesNameIlike] = None
     species__id: Optional[SpeciesId] = None
-    species__order_by: Optional[SpeciesOrderBy] = 'name'
+    species__order_by: Optional[SpeciesOrderBy] = "name"
     strain__name: Optional[StrainName] = None
     strain__name__in: Optional[StrainNameIn] = None
     strain__name__ilike: Optional[StrainNameIlike] = None
     strain__id: Optional[StrainId] = None
-    strain__order_by: Optional[StrainOrderBy] = 'name'
+    strain__order_by: Optional[StrainOrderBy] = "name"
     brain_region__name: Optional[BrainRegionName] = None
     brain_region__name__in: Optional[BrainRegionNameIn] = None
     brain_region__name__ilike: Optional[BrainRegionNameIlike] = None
@@ -1156,21 +1103,21 @@ class ReadManyReconstructionMorphologyGetParams(BaseModel):
     brain_region__id__in: Optional[BrainRegionIdIn] = None
     brain_region__acronym: Optional[BrainRegionAcronym] = None
     brain_region__acronym__in: Optional[BrainRegionAcronymIn] = None
-    brain_region__order_by: Optional[BrainRegionOrderBy] = 'name'
+    brain_region__order_by: Optional[BrainRegionOrderBy] = "name"
     search: Optional[Search] = None
     with_facets: Optional[bool] = False
     within_brain_region_hierachy_id: Optional[WithinBrainRegionHierachyId] = None
     within_brain_region_brain_region_id: Optional[WithinBrainRegionBrainRegionId] = None
     within_brain_region_ascendants: Optional[bool] = False
-    virtual_lab_id: Optional[VirtualLabId] = Header(None, alias='virtual-lab-id')
-    project_id: Optional[ProjectId] = Header(None, alias='project-id')
+    virtual_lab_id: Optional[VirtualLabId] = Header(None, alias="virtual-lab-id")
+    project_id: Optional[ProjectId] = Header(None, alias="project-id")
 
 
 class CreateOneReconstructionMorphologyPostParams(BaseModel):
     """Create One."""
 
-    virtual_lab_id: Optional[VirtualLabId] = Header(None, alias='virtual-lab-id')
-    project_id: Optional[ProjectId] = Header(None, alias='project-id')
+    virtual_lab_id: Optional[VirtualLabId] = Header(None, alias="virtual-lab-id")
+    project_id: Optional[ProjectId] = Header(None, alias="project-id")
     body: ReconstructionMorphologyCreate = ...
 
 
@@ -1179,8 +1126,8 @@ class ReadOneReconstructionMorphologyIdGetParams(BaseModel):
 
     id_: UUID
     expand: Optional[Expand] = None
-    virtual_lab_id: Optional[VirtualLabId] = Header(None, alias='virtual-lab-id')
-    project_id: Optional[ProjectId] = Header(None, alias='project-id')
+    virtual_lab_id: Optional[VirtualLabId] = Header(None, alias="virtual-lab-id")
+    project_id: Optional[ProjectId] = Header(None, alias="project-id")
 
 
 class ReadManyRoleGetParams(BaseModel):
@@ -1188,15 +1135,15 @@ class ReadManyRoleGetParams(BaseModel):
 
     page: Optional[conint(ge=1)] = 1
     page_size: Optional[conint(ge=1)] = 100
-    virtual_lab_id: Optional[VirtualLabId] = Header(None, alias='virtual-lab-id')
-    project_id: Optional[ProjectId] = Header(None, alias='project-id')
+    virtual_lab_id: Optional[VirtualLabId] = Header(None, alias="virtual-lab-id")
+    project_id: Optional[ProjectId] = Header(None, alias="project-id")
 
 
 class CreateOneRolePostParams(BaseModel):
     """Create One."""
 
-    virtual_lab_id: Optional[VirtualLabId] = Header(None, alias='virtual-lab-id')
-    project_id: Optional[ProjectId] = Header(None, alias='project-id')
+    virtual_lab_id: Optional[VirtualLabId] = Header(None, alias="virtual-lab-id")
+    project_id: Optional[ProjectId] = Header(None, alias="project-id")
     body: RoleCreate = ...
 
 
@@ -1204,8 +1151,8 @@ class ReadOneRoleIdGetParams(BaseModel):
     """Read One."""
 
     id_: UUID
-    virtual_lab_id: Optional[VirtualLabId] = Header(None, alias='virtual-lab-id')
-    project_id: Optional[ProjectId] = Header(None, alias='project-id')
+    virtual_lab_id: Optional[VirtualLabId] = Header(None, alias="virtual-lab-id")
+    project_id: Optional[ProjectId] = Header(None, alias="project-id")
 
 
 class ReadManySingleNeuronSimulationGetParams(BaseModel):
@@ -1223,7 +1170,7 @@ class ReadManySingleNeuronSimulationGetParams(BaseModel):
     id: Optional[Id] = None
     id__in: Optional[IdIn] = None
     status: Optional[Status] = None
-    order_by: Optional[OrderBy] = '-creation_date'
+    order_by: Optional[OrderBy] = "-creation_date"
     brain_region__name: Optional[BrainRegionName] = None
     brain_region__name__in: Optional[BrainRegionNameIn] = None
     brain_region__name__ilike: Optional[BrainRegionNameIlike] = None
@@ -1231,11 +1178,11 @@ class ReadManySingleNeuronSimulationGetParams(BaseModel):
     brain_region__id__in: Optional[BrainRegionIdIn] = None
     brain_region__acronym: Optional[BrainRegionAcronym] = None
     brain_region__acronym__in: Optional[BrainRegionAcronymIn] = None
-    brain_region__order_by: Optional[BrainRegionOrderBy] = 'name'
+    brain_region__order_by: Optional[BrainRegionOrderBy] = "name"
     contribution__id: Optional[ContributionId] = None
     contribution__pref_label: Optional[ContributionPrefLabel] = None
     contribution__pref_label__in: Optional[ContributionPrefLabelIn] = None
-    contribution__order_by: Optional[ContributionOrderBy] = 'pref_label'
+    contribution__order_by: Optional[ContributionOrderBy] = "pref_label"
     me_type__creation_date__lte: Optional[MeTypeCreationDateLte] = None
     me_type__creation_date__gte: Optional[MeTypeCreationDateGte] = None
     me_type__update_date__lte: Optional[MeTypeUpdateDateLte] = None
@@ -1247,25 +1194,25 @@ class ReadManySingleNeuronSimulationGetParams(BaseModel):
     me_type__id__in: Optional[MeTypeIdIn] = None
     me_type__species_id_in: Optional[MeTypeSpeciesIdIn] = None
     me_type__validation_status: Optional[MeTypeValidationStatus] = None
-    me_type__order_by: Optional[MeTypeOrderBy] = '-creation_date'
+    me_type__order_by: Optional[MeTypeOrderBy] = "-creation_date"
     etype__id: Optional[EtypeId] = None
     etype__pref_label: Optional[EtypePrefLabel] = None
     etype__pref_label__in: Optional[EtypePrefLabelIn] = None
-    etype__order_by: Optional[EtypeOrderBy] = 'pref_label'
+    etype__order_by: Optional[EtypeOrderBy] = "pref_label"
     mtype__id: Optional[MtypeId] = None
     mtype__pref_label: Optional[MtypePrefLabel] = None
     mtype__pref_label__in: Optional[MtypePrefLabelIn] = None
-    mtype__order_by: Optional[MtypeOrderBy] = 'pref_label'
+    mtype__order_by: Optional[MtypeOrderBy] = "pref_label"
     species__name: Optional[SpeciesName] = None
     species__name__in: Optional[SpeciesNameIn] = None
     species__name__ilike: Optional[SpeciesNameIlike] = None
     species__id: Optional[SpeciesId] = None
-    species__order_by: Optional[SpeciesOrderBy] = 'name'
+    species__order_by: Optional[SpeciesOrderBy] = "name"
     strain__name: Optional[StrainName] = None
     strain__name__in: Optional[StrainNameIn] = None
     strain__name__ilike: Optional[StrainNameIlike] = None
     strain__id: Optional[StrainId] = None
-    strain__order_by: Optional[StrainOrderBy] = 'name'
+    strain__order_by: Optional[StrainOrderBy] = "name"
     morphology__creation_date__lte: Optional[MorphologyCreationDateLte] = None
     morphology__creation_date__gte: Optional[MorphologyCreationDateGte] = None
     morphology__update_date__lte: Optional[MorphologyUpdateDateLte] = None
@@ -1276,7 +1223,7 @@ class ReadManySingleNeuronSimulationGetParams(BaseModel):
     morphology__id: Optional[MorphologyId] = None
     morphology__id__in: Optional[MorphologyIdIn] = None
     morphology__species_id_in: Optional[MorphologySpeciesIdIn] = None
-    morphology__order_by: Optional[MorphologyOrderBy] = '-creation_date'
+    morphology__order_by: Optional[MorphologyOrderBy] = "-creation_date"
     measurement_annotation__creation_date__lte: Optional[
         MeasurementAnnotationCreationDateLte
     ] = None
@@ -1310,7 +1257,7 @@ class ReadManySingleNeuronSimulationGetParams(BaseModel):
     emodel__id__in: Optional[EmodelIdIn] = None
     emodel__score__lte: Optional[EmodelScoreLte] = None
     emodel__score__gte: Optional[EmodelScoreGte] = None
-    emodel__order_by: Optional[EmodelOrderBy] = '-creation_date'
+    emodel__order_by: Optional[EmodelOrderBy] = "-creation_date"
     exemplar_morphology__creation_date__lte: Optional[
         ExemplarMorphologyCreationDateLte
     ] = None
@@ -1330,22 +1277,22 @@ class ReadManySingleNeuronSimulationGetParams(BaseModel):
     exemplar_morphology__id__in: Optional[ExemplarMorphologyIdIn] = None
     exemplar_morphology__species_id_in: Optional[ExemplarMorphologySpeciesIdIn] = None
     exemplar_morphology__order_by: Optional[ExemplarMorphologyOrderBy] = (
-        '-creation_date'
+        "-creation_date"
     )
     search: Optional[Search] = None
     within_brain_region_hierachy_id: Optional[WithinBrainRegionHierachyId] = None
     within_brain_region_brain_region_id: Optional[WithinBrainRegionBrainRegionId] = None
     within_brain_region_ascendants: Optional[bool] = False
     with_facets: Optional[bool] = False
-    virtual_lab_id: Optional[VirtualLabId] = Header(None, alias='virtual-lab-id')
-    project_id: Optional[ProjectId] = Header(None, alias='project-id')
+    virtual_lab_id: Optional[VirtualLabId] = Header(None, alias="virtual-lab-id")
+    project_id: Optional[ProjectId] = Header(None, alias="project-id")
 
 
 class CreateOneSingleNeuronSimulationPostParams(BaseModel):
     """Create One."""
 
-    virtual_lab_id: Optional[VirtualLabId] = Header(None, alias='virtual-lab-id')
-    project_id: Optional[ProjectId] = Header(None, alias='project-id')
+    virtual_lab_id: Optional[VirtualLabId] = Header(None, alias="virtual-lab-id")
+    project_id: Optional[ProjectId] = Header(None, alias="project-id")
     body: SingleNeuronSimulationCreate = ...
 
 
@@ -1353,8 +1300,8 @@ class ReadOneSingleNeuronSimulationIdGetParams(BaseModel):
     """Read One."""
 
     id_: UUID
-    virtual_lab_id: Optional[VirtualLabId] = Header(None, alias='virtual-lab-id')
-    project_id: Optional[ProjectId] = Header(None, alias='project-id')
+    virtual_lab_id: Optional[VirtualLabId] = Header(None, alias="virtual-lab-id")
+    project_id: Optional[ProjectId] = Header(None, alias="project-id")
 
 
 class ReadManySingleNeuronSynaptomeGetParams(BaseModel):
@@ -1371,11 +1318,11 @@ class ReadManySingleNeuronSynaptomeGetParams(BaseModel):
     name__ilike: Optional[NameIlike] = None
     id: Optional[Id] = None
     id__in: Optional[IdIn] = None
-    order_by: Optional[OrderBy] = '-creation_date'
+    order_by: Optional[OrderBy] = "-creation_date"
     contribution__id: Optional[ContributionId] = None
     contribution__pref_label: Optional[ContributionPrefLabel] = None
     contribution__pref_label__in: Optional[ContributionPrefLabelIn] = None
-    contribution__order_by: Optional[ContributionOrderBy] = 'pref_label'
+    contribution__order_by: Optional[ContributionOrderBy] = "pref_label"
     brain_region__name: Optional[BrainRegionName] = None
     brain_region__name__in: Optional[BrainRegionNameIn] = None
     brain_region__name__ilike: Optional[BrainRegionNameIlike] = None
@@ -1383,7 +1330,7 @@ class ReadManySingleNeuronSynaptomeGetParams(BaseModel):
     brain_region__id__in: Optional[BrainRegionIdIn] = None
     brain_region__acronym: Optional[BrainRegionAcronym] = None
     brain_region__acronym__in: Optional[BrainRegionAcronymIn] = None
-    brain_region__order_by: Optional[BrainRegionOrderBy] = 'name'
+    brain_region__order_by: Optional[BrainRegionOrderBy] = "name"
     me_type__creation_date__lte: Optional[MeTypeCreationDateLte] = None
     me_type__creation_date__gte: Optional[MeTypeCreationDateGte] = None
     me_type__update_date__lte: Optional[MeTypeUpdateDateLte] = None
@@ -1395,25 +1342,25 @@ class ReadManySingleNeuronSynaptomeGetParams(BaseModel):
     me_type__id__in: Optional[MeTypeIdIn] = None
     me_type__species_id_in: Optional[MeTypeSpeciesIdIn] = None
     me_type__validation_status: Optional[MeTypeValidationStatus] = None
-    me_type__order_by: Optional[MeTypeOrderBy] = '-creation_date'
+    me_type__order_by: Optional[MeTypeOrderBy] = "-creation_date"
     etype__id: Optional[EtypeId] = None
     etype__pref_label: Optional[EtypePrefLabel] = None
     etype__pref_label__in: Optional[EtypePrefLabelIn] = None
-    etype__order_by: Optional[EtypeOrderBy] = 'pref_label'
+    etype__order_by: Optional[EtypeOrderBy] = "pref_label"
     mtype__id: Optional[MtypeId] = None
     mtype__pref_label: Optional[MtypePrefLabel] = None
     mtype__pref_label__in: Optional[MtypePrefLabelIn] = None
-    mtype__order_by: Optional[MtypeOrderBy] = 'pref_label'
+    mtype__order_by: Optional[MtypeOrderBy] = "pref_label"
     species__name: Optional[SpeciesName] = None
     species__name__in: Optional[SpeciesNameIn] = None
     species__name__ilike: Optional[SpeciesNameIlike] = None
     species__id: Optional[SpeciesId] = None
-    species__order_by: Optional[SpeciesOrderBy] = 'name'
+    species__order_by: Optional[SpeciesOrderBy] = "name"
     strain__name: Optional[StrainName] = None
     strain__name__in: Optional[StrainNameIn] = None
     strain__name__ilike: Optional[StrainNameIlike] = None
     strain__id: Optional[StrainId] = None
-    strain__order_by: Optional[StrainOrderBy] = 'name'
+    strain__order_by: Optional[StrainOrderBy] = "name"
     morphology__creation_date__lte: Optional[MorphologyCreationDateLte] = None
     morphology__creation_date__gte: Optional[MorphologyCreationDateGte] = None
     morphology__update_date__lte: Optional[MorphologyUpdateDateLte] = None
@@ -1424,7 +1371,7 @@ class ReadManySingleNeuronSynaptomeGetParams(BaseModel):
     morphology__id: Optional[MorphologyId] = None
     morphology__id__in: Optional[MorphologyIdIn] = None
     morphology__species_id_in: Optional[MorphologySpeciesIdIn] = None
-    morphology__order_by: Optional[MorphologyOrderBy] = '-creation_date'
+    morphology__order_by: Optional[MorphologyOrderBy] = "-creation_date"
     measurement_annotation__creation_date__lte: Optional[
         MeasurementAnnotationCreationDateLte
     ] = None
@@ -1458,7 +1405,7 @@ class ReadManySingleNeuronSynaptomeGetParams(BaseModel):
     emodel__id__in: Optional[EmodelIdIn] = None
     emodel__score__lte: Optional[EmodelScoreLte] = None
     emodel__score__gte: Optional[EmodelScoreGte] = None
-    emodel__order_by: Optional[EmodelOrderBy] = '-creation_date'
+    emodel__order_by: Optional[EmodelOrderBy] = "-creation_date"
     exemplar_morphology__creation_date__lte: Optional[
         ExemplarMorphologyCreationDateLte
     ] = None
@@ -1478,22 +1425,22 @@ class ReadManySingleNeuronSynaptomeGetParams(BaseModel):
     exemplar_morphology__id__in: Optional[ExemplarMorphologyIdIn] = None
     exemplar_morphology__species_id_in: Optional[ExemplarMorphologySpeciesIdIn] = None
     exemplar_morphology__order_by: Optional[ExemplarMorphologyOrderBy] = (
-        '-creation_date'
+        "-creation_date"
     )
     search: Optional[Search] = None
     within_brain_region_hierachy_id: Optional[WithinBrainRegionHierachyId] = None
     within_brain_region_brain_region_id: Optional[WithinBrainRegionBrainRegionId] = None
     within_brain_region_ascendants: Optional[bool] = False
     with_facets: Optional[bool] = False
-    virtual_lab_id: Optional[VirtualLabId] = Header(None, alias='virtual-lab-id')
-    project_id: Optional[ProjectId] = Header(None, alias='project-id')
+    virtual_lab_id: Optional[VirtualLabId] = Header(None, alias="virtual-lab-id")
+    project_id: Optional[ProjectId] = Header(None, alias="project-id")
 
 
 class CreateOneSingleNeuronSynaptomePostParams(BaseModel):
     """Create One."""
 
-    virtual_lab_id: Optional[VirtualLabId] = Header(None, alias='virtual-lab-id')
-    project_id: Optional[ProjectId] = Header(None, alias='project-id')
+    virtual_lab_id: Optional[VirtualLabId] = Header(None, alias="virtual-lab-id")
+    project_id: Optional[ProjectId] = Header(None, alias="project-id")
     body: SingleNeuronSynaptomeCreate = ...
 
 
@@ -1512,7 +1459,7 @@ class ReadManySingleNeuronSynaptomeSimulationGetParams(BaseModel):
     id: Optional[Id] = None
     id__in: Optional[IdIn] = None
     status: Optional[Status] = None
-    order_by: Optional[OrderBy] = '-creation_date'
+    order_by: Optional[OrderBy] = "-creation_date"
     brain_region__name: Optional[BrainRegionName] = None
     brain_region__name__in: Optional[BrainRegionNameIn] = None
     brain_region__name__ilike: Optional[BrainRegionNameIlike] = None
@@ -1520,11 +1467,11 @@ class ReadManySingleNeuronSynaptomeSimulationGetParams(BaseModel):
     brain_region__id__in: Optional[BrainRegionIdIn] = None
     brain_region__acronym: Optional[BrainRegionAcronym] = None
     brain_region__acronym__in: Optional[BrainRegionAcronymIn] = None
-    brain_region__order_by: Optional[BrainRegionOrderBy] = 'name'
+    brain_region__order_by: Optional[BrainRegionOrderBy] = "name"
     contribution__id: Optional[ContributionId] = None
     contribution__pref_label: Optional[ContributionPrefLabel] = None
     contribution__pref_label__in: Optional[ContributionPrefLabelIn] = None
-    contribution__order_by: Optional[ContributionOrderBy] = 'pref_label'
+    contribution__order_by: Optional[ContributionOrderBy] = "pref_label"
     synaptome__creation_date__lte: Optional[SynaptomeCreationDateLte] = None
     synaptome__creation_date__gte: Optional[SynaptomeCreationDateGte] = None
     synaptome__update_date__lte: Optional[SynaptomeUpdateDateLte] = None
@@ -1534,7 +1481,7 @@ class ReadManySingleNeuronSynaptomeSimulationGetParams(BaseModel):
     synaptome__name__ilike: Optional[SynaptomeNameIlike] = None
     synaptome__id: Optional[SynaptomeId] = None
     synaptome__id__in: Optional[SynaptomeIdIn] = None
-    synaptome__order_by: Optional[SynaptomeOrderBy] = '-creation_date'
+    synaptome__order_by: Optional[SynaptomeOrderBy] = "-creation_date"
     me_type__creation_date__lte: Optional[MeTypeCreationDateLte] = None
     me_type__creation_date__gte: Optional[MeTypeCreationDateGte] = None
     me_type__update_date__lte: Optional[MeTypeUpdateDateLte] = None
@@ -1546,25 +1493,25 @@ class ReadManySingleNeuronSynaptomeSimulationGetParams(BaseModel):
     me_type__id__in: Optional[MeTypeIdIn] = None
     me_type__species_id_in: Optional[MeTypeSpeciesIdIn] = None
     me_type__validation_status: Optional[MeTypeValidationStatus] = None
-    me_type__order_by: Optional[MeTypeOrderBy] = '-creation_date'
+    me_type__order_by: Optional[MeTypeOrderBy] = "-creation_date"
     etype__id: Optional[EtypeId] = None
     etype__pref_label: Optional[EtypePrefLabel] = None
     etype__pref_label__in: Optional[EtypePrefLabelIn] = None
-    etype__order_by: Optional[EtypeOrderBy] = 'pref_label'
+    etype__order_by: Optional[EtypeOrderBy] = "pref_label"
     mtype__id: Optional[MtypeId] = None
     mtype__pref_label: Optional[MtypePrefLabel] = None
     mtype__pref_label__in: Optional[MtypePrefLabelIn] = None
-    mtype__order_by: Optional[MtypeOrderBy] = 'pref_label'
+    mtype__order_by: Optional[MtypeOrderBy] = "pref_label"
     species__name: Optional[SpeciesName] = None
     species__name__in: Optional[SpeciesNameIn] = None
     species__name__ilike: Optional[SpeciesNameIlike] = None
     species__id: Optional[SpeciesId] = None
-    species__order_by: Optional[SpeciesOrderBy] = 'name'
+    species__order_by: Optional[SpeciesOrderBy] = "name"
     strain__name: Optional[StrainName] = None
     strain__name__in: Optional[StrainNameIn] = None
     strain__name__ilike: Optional[StrainNameIlike] = None
     strain__id: Optional[StrainId] = None
-    strain__order_by: Optional[StrainOrderBy] = 'name'
+    strain__order_by: Optional[StrainOrderBy] = "name"
     morphology__creation_date__lte: Optional[MorphologyCreationDateLte] = None
     morphology__creation_date__gte: Optional[MorphologyCreationDateGte] = None
     morphology__update_date__lte: Optional[MorphologyUpdateDateLte] = None
@@ -1575,7 +1522,7 @@ class ReadManySingleNeuronSynaptomeSimulationGetParams(BaseModel):
     morphology__id: Optional[MorphologyId] = None
     morphology__id__in: Optional[MorphologyIdIn] = None
     morphology__species_id_in: Optional[MorphologySpeciesIdIn] = None
-    morphology__order_by: Optional[MorphologyOrderBy] = '-creation_date'
+    morphology__order_by: Optional[MorphologyOrderBy] = "-creation_date"
     measurement_annotation__creation_date__lte: Optional[
         MeasurementAnnotationCreationDateLte
     ] = None
@@ -1609,7 +1556,7 @@ class ReadManySingleNeuronSynaptomeSimulationGetParams(BaseModel):
     emodel__id__in: Optional[EmodelIdIn] = None
     emodel__score__lte: Optional[EmodelScoreLte] = None
     emodel__score__gte: Optional[EmodelScoreGte] = None
-    emodel__order_by: Optional[EmodelOrderBy] = '-creation_date'
+    emodel__order_by: Optional[EmodelOrderBy] = "-creation_date"
     exemplar_morphology__creation_date__lte: Optional[
         ExemplarMorphologyCreationDateLte
     ] = None
@@ -1629,22 +1576,22 @@ class ReadManySingleNeuronSynaptomeSimulationGetParams(BaseModel):
     exemplar_morphology__id__in: Optional[ExemplarMorphologyIdIn] = None
     exemplar_morphology__species_id_in: Optional[ExemplarMorphologySpeciesIdIn] = None
     exemplar_morphology__order_by: Optional[ExemplarMorphologyOrderBy] = (
-        '-creation_date'
+        "-creation_date"
     )
     search: Optional[Search] = None
     within_brain_region_hierachy_id: Optional[WithinBrainRegionHierachyId] = None
     within_brain_region_brain_region_id: Optional[WithinBrainRegionBrainRegionId] = None
     within_brain_region_ascendants: Optional[bool] = False
     with_facets: Optional[bool] = False
-    virtual_lab_id: Optional[VirtualLabId] = Header(None, alias='virtual-lab-id')
-    project_id: Optional[ProjectId] = Header(None, alias='project-id')
+    virtual_lab_id: Optional[VirtualLabId] = Header(None, alias="virtual-lab-id")
+    project_id: Optional[ProjectId] = Header(None, alias="project-id")
 
 
 class CreateOneSingleNeuronSynaptomeSimulationPostParams(BaseModel):
     """Create One."""
 
-    virtual_lab_id: Optional[VirtualLabId] = Header(None, alias='virtual-lab-id')
-    project_id: Optional[ProjectId] = Header(None, alias='project-id')
+    virtual_lab_id: Optional[VirtualLabId] = Header(None, alias="virtual-lab-id")
+    project_id: Optional[ProjectId] = Header(None, alias="project-id")
     body: SingleNeuronSynaptomeSimulationCreate = ...
 
 
@@ -1652,16 +1599,16 @@ class ReadOneSingleNeuronSynaptomeSimulationIdGetParams(BaseModel):
     """Read One."""
 
     id_: UUID
-    virtual_lab_id: Optional[VirtualLabId] = Header(None, alias='virtual-lab-id')
-    project_id: Optional[ProjectId] = Header(None, alias='project-id')
+    virtual_lab_id: Optional[VirtualLabId] = Header(None, alias="virtual-lab-id")
+    project_id: Optional[ProjectId] = Header(None, alias="project-id")
 
 
 class ReadOneSingleNeuronSynaptomeIdGetParams(BaseModel):
     """Read One."""
 
     id_: UUID
-    virtual_lab_id: Optional[VirtualLabId] = Header(None, alias='virtual-lab-id')
-    project_id: Optional[ProjectId] = Header(None, alias='project-id')
+    virtual_lab_id: Optional[VirtualLabId] = Header(None, alias="virtual-lab-id")
+    project_id: Optional[ProjectId] = Header(None, alias="project-id")
 
 
 class ReadManySpeciesGetParams(BaseModel):
@@ -1673,16 +1620,16 @@ class ReadManySpeciesGetParams(BaseModel):
     name__in: Optional[NameIn] = None
     name__ilike: Optional[NameIlike] = None
     id: Optional[Id] = None
-    order_by: Optional[OrderBy] = 'name'
-    virtual_lab_id: Optional[VirtualLabId] = Header(None, alias='virtual-lab-id')
-    project_id: Optional[ProjectId] = Header(None, alias='project-id')
+    order_by: Optional[OrderBy] = "name"
+    virtual_lab_id: Optional[VirtualLabId] = Header(None, alias="virtual-lab-id")
+    project_id: Optional[ProjectId] = Header(None, alias="project-id")
 
 
 class CreateOneSpeciesPostParams(BaseModel):
     """Create One."""
 
-    virtual_lab_id: Optional[VirtualLabId] = Header(None, alias='virtual-lab-id')
-    project_id: Optional[ProjectId] = Header(None, alias='project-id')
+    virtual_lab_id: Optional[VirtualLabId] = Header(None, alias="virtual-lab-id")
+    project_id: Optional[ProjectId] = Header(None, alias="project-id")
     body: SpeciesCreate = ...
 
 
@@ -1690,8 +1637,8 @@ class ReadOneSpeciesIdGetParams(BaseModel):
     """Read One."""
 
     id_: UUID
-    virtual_lab_id: Optional[VirtualLabId] = Header(None, alias='virtual-lab-id')
-    project_id: Optional[ProjectId] = Header(None, alias='project-id')
+    virtual_lab_id: Optional[VirtualLabId] = Header(None, alias="virtual-lab-id")
+    project_id: Optional[ProjectId] = Header(None, alias="project-id")
 
 
 class ReadManyStrainGetParams(BaseModel):
@@ -1703,16 +1650,16 @@ class ReadManyStrainGetParams(BaseModel):
     name__in: Optional[NameIn] = None
     name__ilike: Optional[NameIlike] = None
     id: Optional[Id] = None
-    order_by: Optional[OrderBy] = 'name'
-    virtual_lab_id: Optional[VirtualLabId] = Header(None, alias='virtual-lab-id')
-    project_id: Optional[ProjectId] = Header(None, alias='project-id')
+    order_by: Optional[OrderBy] = "name"
+    virtual_lab_id: Optional[VirtualLabId] = Header(None, alias="virtual-lab-id")
+    project_id: Optional[ProjectId] = Header(None, alias="project-id")
 
 
 class CreateOneStrainPostParams(BaseModel):
     """Create One."""
 
-    virtual_lab_id: Optional[VirtualLabId] = Header(None, alias='virtual-lab-id')
-    project_id: Optional[ProjectId] = Header(None, alias='project-id')
+    virtual_lab_id: Optional[VirtualLabId] = Header(None, alias="virtual-lab-id")
+    project_id: Optional[ProjectId] = Header(None, alias="project-id")
     body: StrainCreate = ...
 
 
@@ -1720,8 +1667,8 @@ class ReadOneStrainIdGetParams(BaseModel):
     """Read One."""
 
     id_: UUID
-    virtual_lab_id: Optional[VirtualLabId] = Header(None, alias='virtual-lab-id')
-    project_id: Optional[ProjectId] = Header(None, alias='project-id')
+    virtual_lab_id: Optional[VirtualLabId] = Header(None, alias="virtual-lab-id")
+    project_id: Optional[ProjectId] = Header(None, alias="project-id")
 
 
 class ReadManySubjectGetParams(BaseModel):
@@ -1734,32 +1681,32 @@ class ReadManySubjectGetParams(BaseModel):
     name__ilike: Optional[NameIlike] = None
     species_id_in: Optional[SpeciesIdIn] = None
     id: Optional[Id] = None
-    order_by: Optional[OrderBy] = '-creation_date'
+    order_by: Optional[OrderBy] = "-creation_date"
     species__name: Optional[SpeciesName] = None
     species__name__in: Optional[SpeciesNameIn] = None
     species__name__ilike: Optional[SpeciesNameIlike] = None
     species__id: Optional[SpeciesId] = None
-    species__order_by: Optional[SpeciesOrderBy] = 'name'
+    species__order_by: Optional[SpeciesOrderBy] = "name"
     strain__name: Optional[StrainName] = None
     strain__name__in: Optional[StrainNameIn] = None
     strain__name__ilike: Optional[StrainNameIlike] = None
     strain__id: Optional[StrainId] = None
-    strain__order_by: Optional[StrainOrderBy] = 'name'
+    strain__order_by: Optional[StrainOrderBy] = "name"
     contribution__id: Optional[ContributionId] = None
     contribution__pref_label: Optional[ContributionPrefLabel] = None
     contribution__pref_label__in: Optional[ContributionPrefLabelIn] = None
-    contribution__order_by: Optional[ContributionOrderBy] = 'pref_label'
+    contribution__order_by: Optional[ContributionOrderBy] = "pref_label"
     search: Optional[Search] = None
     with_facets: Optional[bool] = False
-    virtual_lab_id: Optional[VirtualLabId] = Header(None, alias='virtual-lab-id')
-    project_id: Optional[ProjectId] = Header(None, alias='project-id')
+    virtual_lab_id: Optional[VirtualLabId] = Header(None, alias="virtual-lab-id")
+    project_id: Optional[ProjectId] = Header(None, alias="project-id")
 
 
 class CreateOneSubjectPostParams(BaseModel):
     """Create One."""
 
-    virtual_lab_id: Optional[VirtualLabId] = Header(None, alias='virtual-lab-id')
-    project_id: Optional[ProjectId] = Header(None, alias='project-id')
+    virtual_lab_id: Optional[VirtualLabId] = Header(None, alias="virtual-lab-id")
+    project_id: Optional[ProjectId] = Header(None, alias="project-id")
     body: SubjectCreate = ...
 
 
@@ -1767,8 +1714,8 @@ class ReadOneSubjectIdGetParams(BaseModel):
     """Read One."""
 
     id_: UUID
-    virtual_lab_id: Optional[VirtualLabId] = Header(None, alias='virtual-lab-id')
-    project_id: Optional[ProjectId] = Header(None, alias='project-id')
+    virtual_lab_id: Optional[VirtualLabId] = Header(None, alias="virtual-lab-id")
+    project_id: Optional[ProjectId] = Header(None, alias="project-id")
 
 
 class VersionVersionGetParams(BaseModel):
@@ -1780,8 +1727,8 @@ class GetEntityAssetsEntityRouteEntityIdAssetsGetParams(BaseModel):
 
     entity_route: EntityRoute
     entity_id: UUID = ...
-    virtual_lab_id: Optional[VirtualLabId] = Header(None, alias='virtual-lab-id')
-    project_id: Optional[ProjectId] = Header(None, alias='project-id')
+    virtual_lab_id: Optional[VirtualLabId] = Header(None, alias="virtual-lab-id")
+    project_id: Optional[ProjectId] = Header(None, alias="project-id")
 
 
 class UploadEntityAssetEntityRouteEntityIdAssetsPostParams(BaseModel):
@@ -1789,8 +1736,8 @@ class UploadEntityAssetEntityRouteEntityIdAssetsPostParams(BaseModel):
 
     entity_route: EntityRoute
     entity_id: UUID = ...
-    virtual_lab_id: Optional[VirtualLabId] = Header(None, alias='virtual-lab-id')
-    project_id: Optional[ProjectId] = Header(None, alias='project-id')
+    virtual_lab_id: Optional[VirtualLabId] = Header(None, alias="virtual-lab-id")
+    project_id: Optional[ProjectId] = Header(None, alias="project-id")
     file: UploadFile = ...
 
 
@@ -1800,8 +1747,8 @@ class GetEntityAssetEntityRouteEntityIdAssetsAssetIdGetParams(BaseModel):
     entity_route: EntityRoute
     entity_id: UUID = ...
     asset_id: UUID = ...
-    virtual_lab_id: Optional[VirtualLabId] = Header(None, alias='virtual-lab-id')
-    project_id: Optional[ProjectId] = Header(None, alias='project-id')
+    virtual_lab_id: Optional[VirtualLabId] = Header(None, alias="virtual-lab-id")
+    project_id: Optional[ProjectId] = Header(None, alias="project-id")
 
 
 class DeleteEntityAssetEntityRouteEntityIdAssetsAssetIdDeleteParams(BaseModel):
@@ -1810,8 +1757,8 @@ class DeleteEntityAssetEntityRouteEntityIdAssetsAssetIdDeleteParams(BaseModel):
     entity_route: EntityRoute
     entity_id: UUID = ...
     asset_id: UUID = ...
-    virtual_lab_id: Optional[VirtualLabId] = Header(None, alias='virtual-lab-id')
-    project_id: Optional[ProjectId] = Header(None, alias='project-id')
+    virtual_lab_id: Optional[VirtualLabId] = Header(None, alias="virtual-lab-id")
+    project_id: Optional[ProjectId] = Header(None, alias="project-id")
 
 
 class DownloadEntityAssetEntityRouteEntityIdAssetsAssetIdDownloadGetParams(BaseModel):
@@ -1821,5 +1768,5 @@ class DownloadEntityAssetEntityRouteEntityIdAssetsAssetIdDownloadGetParams(BaseM
     entity_id: UUID = ...
     asset_id: UUID = ...
     asset_path: Optional[AssetPath] = None
-    virtual_lab_id: Optional[VirtualLabId] = Header(None, alias='virtual-lab-id')
-    project_id: Optional[ProjectId] = Header(None, alias='project-id')
+    virtual_lab_id: Optional[VirtualLabId] = Header(None, alias="virtual-lab-id")
+    project_id: Optional[ProjectId] = Header(None, alias="project-id")
