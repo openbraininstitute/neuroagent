@@ -42,7 +42,7 @@ class ResolveBROutput(BaseModel):
     brain_regions: list[BrainRegion]
 
 
-class ResolveBRTool(BaseTool):
+class ResolveBrainRegionTool(BaseTool):
     """Class defining the Brain Region Resolving logic."""
 
     name: ClassVar[str] = "resolve-brain-region-tool"

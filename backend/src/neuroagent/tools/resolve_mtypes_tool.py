@@ -42,7 +42,7 @@ class ResolveMtypeOutput(BaseModel):
     mtypes: list[MType]
 
 
-class ResolveEntitiesTool(BaseTool):
+class ResolveMtypeTool(BaseTool):
     """Class defining the m-types Resolving logic."""
 
     name: ClassVar[str] = "resolve-mtype-tool"

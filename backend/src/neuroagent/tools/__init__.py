@@ -18,7 +18,9 @@ from neuroagent.tools.literature_search_tool import (
 from neuroagent.tools.morphology_features_tool import MorphologyFeatureTool
 from neuroagent.tools.morphology_viewer import MorphologyViewerTool
 from neuroagent.tools.now import NowTool
-from neuroagent.tools.resolve_entities_tool import ResolveEntitiesTool
+from neuroagent.tools.resolve_brain_region_tool import ResolveBrainRegionTool
+from neuroagent.tools.resolve_etypes_tool import ResolveETypeTool
+from neuroagent.tools.resolve_mtypes_tool import ResolveMtypeTool
 from neuroagent.tools.traces_tool import GetTracesTool
 from neuroagent.tools.weather import WeatherTool
 from neuroagent.tools.web_search import WebSearchTool
@@ -41,7 +43,9 @@ __all__ = [
     "ParagraphMetadata",
     "PlotGeneratorTool",
     "RandomPlotGeneratorTool",
-    "ResolveEntitiesTool",
+    "ResolveBrainRegionTool",
+    "ResolveMtypeTool",
+    "ResolveETypeTool",
     "WeatherTool",
     "WebSearchTool",
 ]
