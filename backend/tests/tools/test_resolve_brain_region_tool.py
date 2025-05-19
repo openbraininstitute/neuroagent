@@ -19,17 +19,10 @@ async def test_arun(httpx_mock):
     with open("tests/data/entitycore_brain_region.json") as f:
         reponse_brain_region = json.load(f)
 
-    # with open("tests/data/entitycore_mtype.json") as f:
-    #     mtypes_region = json.load(f)
-
     httpx_mock.add_response(
         url="http://fake_entitycore_url.com/78/brain-region?page_size=500&name__ilike=Field",
         json=reponse_brain_region,
     )
-    # httpx_mock.add_response(
-    #     url="http://fake_entitycore_url.com/78/mtype?page_size=100&pref_label=Interneu",
-    #     json=mtypes_region,
-    # )
 
     tool = ResolveBrainRegionTool(
         metadata=ResolveBRMetadata(
@@ -38,7 +31,7 @@ async def test_arun(httpx_mock):
             entitycore_url="http://fake_entitycore_url.com/78",
         ),
         input_schema=ResolveBRInput(
-            brain_region="Field",  # mtype="Interneu", etype="bAC"
+            brain_region="Field",
         ),
     )
 
@@ -87,14 +80,4 @@ async def test_arun(httpx_mock):
                 brain_region_id="68adc28f-8463-416a-be65-6befe0efc989",
             ),
         ],
-        # mtypes=[
-        #     MTypeResolveOutput(
-        #         mtype_name="Pyramidal Neuron",
-        #         mtype_id="1a2b8f1f-f1fd-42a2-9755-d4c13a902931",
-        #     ),
-        # ],
-        # etype=ETypeResolveOutput(
-        #     etype_name="bAC",
-        #     etype_id="http://uri.interlex.org/base/ilx_0738199",
-        # ),
     )
