@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Morphometrics tool using obi-one.
+
 ## [0.5.4]
 
 ### Fixed
@@ -21,6 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Merge two suggestion endpoints.
+
 
 ## [0.5.1]
 
