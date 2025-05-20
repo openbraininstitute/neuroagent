@@ -31,7 +31,7 @@ export function ThreadListClient({
   // Flatten threads
   const threads = data?.pages.flatMap((page) => page.threads) ?? [];
 
-  // Mounts sentinel to load additional threads.
+  // Observer to load additional threads.
   useEffect(() => {
     observerRef.current = new IntersectionObserver(
       (entries) => {
@@ -54,7 +54,7 @@ export function ThreadListClient({
         observerRef.current.unobserve(sentinel);
       if (observerRef.current) observerRef.current.disconnect();
     };
-  }, []);
+  }, [data]);
 
   return (
     <div

@@ -149,39 +149,6 @@ export function ChatPage({
     // If message complete, don't set stopped
     setStopped(shouldBeStopped());
 
-    // Setup listener for infinite scrolling
-    observerRef.current = new IntersectionObserver(
-      (entries) => {
-        if (
-          entries[0].isIntersecting &&
-          !isFetchingPreviousPage &&
-          !isLoading
-        ) {
-          const el = containerRef.current!;
-          // remove observer to not double trigger, only if the content takes whole screen
-          if (topSentinelRef.current && el.scrollHeight <= el.clientHeight) {
-            observerRef.current?.unobserve(topSentinelRef.current);
-          }
-          prevHeight.current = el.scrollHeight;
-          prevScroll.current = el.scrollTop;
-          if (!hasNextPage) return;
-          fetchPreviousPage();
-        }
-      },
-      {
-        root: containerRef.current,
-      },
-    );
-    const sentinel = topSentinelRef.current;
-    if (sentinel && observerRef.current) observerRef.current.observe(sentinel);
-
-    // Remove intersection listener when unmounted
-    return () => {
-      if (sentinel && observerRef.current)
-        observerRef.current.unobserve(sentinel);
-      if (observerRef.current) observerRef.current.disconnect();
-    };
-
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -254,9 +221,6 @@ export function ChatPage({
   const handleWheel = (event: React.WheelEvent) => {
     if (event.deltaY < 0) {
       setIsAutoScrollEnabled(false);
-      if (topSentinelRef.current) {
-        observerRef.current?.observe(topSentinelRef.current);
-      }
     } else {
       const container = containerRef.current;
       if (!container) return;
@@ -266,6 +230,37 @@ export function ChatPage({
       setIsAutoScrollEnabled(isAtBottom);
     }
   };
+
+  // Observer to fetch new pages :
+  useEffect(() => {
+    observerRef.current = new IntersectionObserver(
+      (entries) => {
+        if (
+          entries[0].isIntersecting &&
+          !isFetchingPreviousPage &&
+          !isLoading
+        ) {
+          const el = containerRef.current!;
+          prevHeight.current = el.scrollHeight;
+          prevScroll.current = el.scrollTop;
+          if (!hasNextPage) return;
+          fetchPreviousPage();
+        }
+      },
+      {
+        root: containerRef.current,
+      },
+    );
+    const sentinel = topSentinelRef.current;
+    if (sentinel && observerRef.current) observerRef.current.observe(sentinel);
+
+    // Remove intersection listener when unmounted
+    return () => {
+      if (sentinel && observerRef.current)
+        observerRef.current.unobserve(sentinel);
+      if (observerRef.current) observerRef.current.disconnect();
+    };
+  }, [messages]);
 
   // When not autoscroll or streaming, keep scroll distance on new data.
   useLayoutEffect(() => {
