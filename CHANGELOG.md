@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Autogeneration of input schemas from APIs.
 - Morphometrics tool using obi-one.
+- Turn `neuroagent` into an MCP client.
 
 ## [0.5.4]
 
