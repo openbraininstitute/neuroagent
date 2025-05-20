@@ -260,7 +260,7 @@ export function ChatPage({
         observerRef.current.unobserve(sentinel);
       if (observerRef.current) observerRef.current.disconnect();
     };
-  }, [messages]);
+  }, [hasNextPage, isFetchingPreviousPage, isLoading, fetchPreviousPage]);
 
   // When not autoscroll or streaming, keep scroll distance on new data.
   useLayoutEffect(() => {

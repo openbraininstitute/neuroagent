@@ -54,7 +54,7 @@ export function ThreadListClient({
         observerRef.current.unobserve(sentinel);
       if (observerRef.current) observerRef.current.disconnect();
     };
-  }, [data]);
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   return (
     <div
