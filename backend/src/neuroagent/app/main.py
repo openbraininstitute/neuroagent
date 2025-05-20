@@ -122,6 +122,8 @@ async def lifespan(fastapi_app: FastAPI) -> AsyncContextManager[None]:  # type: 
     else:
         mcp_client = None
 
+    fastapi_app.state.mcp_client = mcp_client
+
     async with aclosing(
         AsyncAccountingSessionFactory(
             base_url=app_settings.accounting.base_url,
@@ -139,8 +141,8 @@ async def lifespan(fastapi_app: FastAPI) -> AsyncContextManager[None]:  # type: 
     if fastapi_app.state.redis_client is not None:
         await fastapi_app.state.redis_client.aclose()
 
-    if mcp_client is not None:
-        await mcp_client.cleanup()
+    if fastapi_app.state.mcp_client is not None:
+        await fastapi_app.state.mcp_client.cleanup()
 
 
 app = FastAPI(
