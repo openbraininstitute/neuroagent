@@ -99,7 +99,7 @@ jobs:
           alembic -x url=postgresql://test:password@localhost:5432 upgrade head
       - name: Running mypy and tests
         run: |
-          mypy src/
+          mypy
           # Include src/ directory in Python path to prioritize local files in pytest
           export PYTHONPATH=$(pwd)/src:$PYTHONPATH
           pytest --color=yes tests/
