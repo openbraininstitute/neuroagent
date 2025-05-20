@@ -10,6 +10,7 @@ from typing import Any, AsyncIterator
 from openai import AsyncOpenAI, AsyncStream
 from openai.types.chat.chat_completion_chunk import ChatCompletionChunk
 from pydantic import BaseModel, ValidationError
+from pydantic.json_schema import SkipJsonSchema
 
 from neuroagent.app.database.sql_schemas import Entity, Messages, ToolCalls
 from neuroagent.new_types import (
@@ -258,17 +259,28 @@ class AgentsRoutine:
                                     draft_tool_call["arguments"] or "{}"
                                 )
                                 try:
-                                    input_schema = (
-                                        tool_map[draft_tool_call["name"]]
-                                        .__annotations__["input_schema"](**input_args)
-                                        .model_dump()
+                                    # Remove the `SkipJsonSchema` arguments and dump entire schema
+                                    input_schema: type[BaseModel] = tool_map[
+                                        draft_tool_call["name"]
+                                    ].__annotations__["input_schema"]
+                                    to_exclude = {
+                                        name
+                                        for name, field in input_schema.model_fields.items()
+                                        if any(
+                                            isinstance(m, SkipJsonSchema)  # type: ignore
+                                            for m in field.metadata
+                                        )
+                                    }
+                                    breakpoint()
+                                    args = input_schema(**input_args).model_dump(
+                                        exclude=to_exclude
                                     )
                                 except ValidationError:
-                                    input_schema = input_args
+                                    args = input_args
                                 tool_call_data = {
                                     "toolCallId": draft_tool_call["id"],
                                     "toolName": draft_tool_call["name"],
-                                    "args": input_schema,
+                                    "args": args,
                                 }
                                 yield f"9:{json.dumps(tool_call_data, separators=(',', ':'))}\n"
 
