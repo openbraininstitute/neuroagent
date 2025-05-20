@@ -1,6 +1,7 @@
 """Configuration."""
 
 import os
+from pathlib import Path
 from typing import Any, Literal, Optional
 
 from dotenv import dotenv_values
@@ -240,6 +241,12 @@ class SettingsAccounting(BaseModel):
         return data
 
 
+class SettingsMCP(BaseModel):
+    """Settings for the MCP."""
+
+    config_path: Path | None = None
+
+
 class Settings(BaseSettings):
     """All settings."""
 
@@ -254,6 +261,7 @@ class Settings(BaseSettings):
     storage: SettingsStorage = SettingsStorage()  # has no required
     rate_limiter: SettingsRateLimiter = SettingsRateLimiter()  # has no required
     accounting: SettingsAccounting = SettingsAccounting()  # has no required
+    mcp: SettingsMCP = SettingsMCP()  # has no required
 
     model_config = SettingsConfigDict(
         env_file=".env",
