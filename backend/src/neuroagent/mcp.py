@@ -8,6 +8,7 @@ from pathlib import Path
 
 from mcp import ClientSession, StdioServerParameters
 from mcp.client.stdio import stdio_client
+from mcp.types import Tool
 from pydantic import BaseModel
 
 logger = logging.getLogger(__name__)
@@ -40,6 +41,7 @@ class MCPClient:
             name: AsyncExitStack() for name in self.config.servers.keys()
         }
         self.sessions: dict[str, ClientSession] = {}
+        self.tools: dict[str, list[Tool]] = {}
 
     async def connect_to_servers(self) -> None:
         """Connect to an MCP server
@@ -66,7 +68,8 @@ class MCPClient:
 
             # List available tools
             response = await self.sessions[name].list_tools()
-            tools = response.tools
+
+            self.tools[name] = response.tools
 
     async def cleanup(self) -> None:
         """Clean up resources"""

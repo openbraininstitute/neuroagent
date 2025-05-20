@@ -164,7 +164,20 @@ async def get_user_info(
         raise HTTPException(status_code=404, detail="User info url not provided.")
 
 
-def get_tool_list() -> list[type[BaseTool]]:
+def get_mcp_tool_list(request: Request) -> list[type[BaseTool]]:
+    """Get the list of tools from the MCP server."""
+
+    if request.app.state.mcp_client is None:
+        return []
+
+    breakpoint()
+
+    return []
+
+
+def get_tool_list(
+    mcp_tool_list: Annotated[list[type[BaseTool]], Depends(get_mcp_tool_list)],
+) -> list[type[BaseTool]]:
     """Return a raw list of all of the available tools."""
     return [
         SCSGetAllTool,
@@ -186,7 +199,7 @@ def get_tool_list() -> list[type[BaseTool]]:
         # NowTool,
         # WeatherTool,
         # RandomPlotGeneratorTool,
-    ]
+    ] + mcp_tool_list
 
 
 async def get_selected_tools(
