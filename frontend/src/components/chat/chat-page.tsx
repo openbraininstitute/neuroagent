@@ -49,8 +49,6 @@ export function ChatPage({
   const [stopped, setStopped] = useState(false);
   const [isInvalidating, setIsInvalidating] = useState(false);
 
-  console.log(initialMessages);
-
   const {
     data,
     fetchPreviousPage,
@@ -95,7 +93,12 @@ export function ChatPage({
     },
   });
 
-  const messages = messagesRaw as MessageStrict[];
+  // For some reason, sometimes useChat displayed duplicate IDs for a split second,
+  // and it raised an error which then broke everything. I filtered out by ID.
+  // I will make it better with the new use chat since I know the initial message behaviour is different.
+  const messages = messagesRaw.filter(
+    (msg, index, self) => index === self.findIndex((m) => m.id === msg.id),
+  ) as MessageStrict[];
   const setMessages = setMessagesRaw as (
     messages:
       | MessageStrict[]

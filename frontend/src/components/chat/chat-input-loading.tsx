@@ -9,7 +9,7 @@ interface ChatComponentProps {
 export default function ChatInputLoading({ newMessage }: ChatComponentProps) {
   return (
     <div className="flex h-full flex-col">
-      <div className="flex flex-1 flex-col overflow-y-auto">
+      <div className="flex flex-1 flex-col overflow-y-auto pt-1">
         <ChatMessageHuman key="temp" content={newMessage} />
       </div>
       <form className="m-5 flex flex-col items-center justify-center gap-4">

@@ -2,11 +2,12 @@ import {
   useInfiniteQuery,
   InfiniteData,
   QueryClient,
+  useQueryClient,
 } from "@tanstack/react-query";
 import { useFetcher } from "@/hooks/fetch";
 import { BPaginatedResponse, BMessage } from "@/lib/types";
 import { messagePageSize } from "@/lib/types";
-import { Dispatch, SetStateAction } from "react";
+import { Dispatch, SetStateAction, useEffect } from "react";
 
 export type MessagePage = {
   messages: BMessage[];
@@ -53,6 +54,18 @@ export function useGetMessageNextPage(
   initialData: InfiniteData<MessagePage, unknown>,
 ) {
   const fetcher = useFetcher();
+  const queryClient = useQueryClient();
+  const queryKey = ["messages", threadId] as const;
+
+  // On mount force update of initialData.
+  useEffect(() => {
+    if (initialData) {
+      queryClient.setQueryData<InfiniteData<MessagePage, unknown>>(
+        queryKey,
+        initialData,
+      );
+    }
+  }, []);
 
   return useInfiniteQuery<MessagePage, Error>({
     queryKey: ["messages", threadId],

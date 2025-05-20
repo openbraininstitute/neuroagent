@@ -1,8 +1,13 @@
-import { useInfiniteQuery, InfiniteData } from "@tanstack/react-query";
+import {
+  useInfiniteQuery,
+  InfiniteData,
+  useQueryClient,
+} from "@tanstack/react-query";
 import { useFetcher } from "@/hooks/fetch";
 import Cookies from "js-cookie";
 import { BPaginatedResponse, BThread } from "@/lib/types";
 import { threadPageSize } from "@/lib/types";
+import { useEffect } from "react";
 
 export type ThreadsPage = {
   threads: BThread[];
@@ -56,9 +61,21 @@ export function useGetThreadsNextPage(
   const projectID = Cookies.get("projectID");
   const virtualLabID = Cookies.get("virtualLabID");
   const fetcher = useFetcher();
+  const queryKey = ["threads", projectID, virtualLabID] as const;
+  const queryClient = useQueryClient();
+
+  // On mount force update of initialData.
+  useEffect(() => {
+    if (initialData) {
+      queryClient.setQueryData<InfiniteData<ThreadsPage, unknown>>(
+        queryKey,
+        initialData,
+      );
+    }
+  }, []);
 
   return useInfiniteQuery<ThreadsPage, Error>({
-    queryKey: ["threads", projectID, virtualLabID],
+    queryKey: queryKey,
     queryFn: ({ pageParam = null }) =>
       fetchThreadPage({
         cursor: pageParam as string | null,
