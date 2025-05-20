@@ -2,12 +2,15 @@
 
 import asyncio
 import json
+import logging
 from contextlib import AsyncExitStack
 from pathlib import Path
 
 from mcp import ClientSession, StdioServerParameters
 from mcp.client.stdio import stdio_client
 from pydantic import BaseModel
+
+logger = logging.getLogger(__name__)
 
 
 class MCPServerConfig(BaseModel):
@@ -45,7 +48,7 @@ class MCPClient:
             server_script_path: Path to the server script (.py or .js)
         """
         for name, server_config in self.config.servers.items():
-            print(f"Connecting to server: {name}")
+            logger.info(f"Connecting to server: {name}")
             server_params = StdioServerParameters(
                 command=server_config.command,
                 args=server_config.args or [],
@@ -64,15 +67,15 @@ class MCPClient:
             # List available tools
             response = await self.sessions[name].list_tools()
             tools = response.tools
-            print("\nConnected to server with tools:", [tool.name for tool in tools])
 
-    async def cleanup(self):
+    async def cleanup(self) -> None:
         """Clean up resources"""
-        # await self.exit_stack.aclose()
 
-        for name, stack in self.exit_stack.items():
-            print(f"Cleaning up server: {name}")
-            await stack.aclose()
+        # Unfortunately, the below code seems to have an issue
+
+        # for name, stack in self.exit_stack.items():
+        #     logger.info(f"Cleaning up server: {name}")
+        #     await stack.aclose()
 
 
 async def main():

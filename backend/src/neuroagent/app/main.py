@@ -23,6 +23,7 @@ from starlette.requests import Request
 from starlette.responses import JSONResponse
 
 from neuroagent import __version__
+from neuroagent.mcp import MCPClient
 from neuroagent.app.app_utils import get_semantic_router, setup_engine
 from neuroagent.app.config import Settings
 from neuroagent.app.dependencies import (
@@ -113,6 +114,14 @@ async def lifespan(fastapi_app: FastAPI) -> AsyncContextManager[None]:  # type: 
     semantic_router = get_semantic_router(settings=app_settings)
     app.state.semantic_router = semantic_router
 
+    if app_settings.mcp.config_path is not None:
+        mcp_client: MCPClient | None = MCPClient(
+            config_path=app_settings.mcp.config_path,
+        )
+        await mcp_client.connect_to_servers()
+    else:
+        mcp_client = None
+
     async with aclosing(
         AsyncAccountingSessionFactory(
             base_url=app_settings.accounting.base_url,
@@ -129,6 +138,9 @@ async def lifespan(fastapi_app: FastAPI) -> AsyncContextManager[None]:  # type: 
 
     if fastapi_app.state.redis_client is not None:
         await fastapi_app.state.redis_client.aclose()
+
+    if mcp_client is not None:
+        await mcp_client.cleanup()
 
 
 app = FastAPI(
