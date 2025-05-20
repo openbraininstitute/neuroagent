@@ -101,5 +101,5 @@ jobs:
         run: |
           # Include src/ directory in Python path to prioritize local files in pytest
           export PYTHONPATH=$(pwd)/src:$PYTHONPATH
-          mypy src/ --config-file=pyproject.toml
+          mypy src/
           pytest --color=yes tests/
