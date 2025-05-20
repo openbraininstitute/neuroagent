@@ -64,8 +64,8 @@ class MorphoMetricsTool(BaseTool):
         )
         params = NeuronMorphologyMetricsEndpointDeclaredNeuronMorphologyMetricsReconstructionMorphologyIdGetParams(
             reconstruction_morphology_id=self.input_schema.morphology_id,
-            virtual_lab_id=VirtualLabId(self.metadata.vlab_id),
-            project_id=ProjectId(self.metadata.project_id),
+            virtual_lab_id=VirtualLabId(root=self.metadata.vlab_id),
+            project_id=ProjectId(root=self.metadata.project_id),
         )
 
         morpho_metrics_response = await self.metadata.httpx_client.get(

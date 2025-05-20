@@ -271,7 +271,7 @@ class AgentsRoutine:
                                             for m in field.metadata
                                         )
                                     }
-                                    breakpoint()
+
                                     args = input_schema(**input_args).model_dump(
                                         exclude=to_exclude
                                     )

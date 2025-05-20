@@ -174,7 +174,9 @@ class LiteratureSearchTool(BaseTool):
             date_to=DateTo(root=self.input_schema.date_to),
             retriever_k=self.metadata.retriever_k,
             use_reranker=self.metadata.use_reranker,
-            reranker_k=100,
+            reranker_k=100
+            if self.metadata.retriever_k > 100
+            else self.metadata.retriever_k,  # LS allows for max 100 results for now
         )
 
         # Send the request
@@ -183,7 +185,7 @@ class LiteratureSearchTool(BaseTool):
             headers={"Authorization": f"Bearer {self.metadata.token}"},
             params={
                 k: v for k, v in params.model_dump().items() if v is not None
-            },  # .model_dump(exclude_none=True) doesn't work since root models are not BaseModel.
+            },  # .model_dump(exclude_none=True) doesn't work since root models is not BaseModel.
             timeout=None,
         )
         if response.status_code != 200:

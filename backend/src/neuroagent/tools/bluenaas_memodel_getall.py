@@ -78,7 +78,13 @@ class MEModelGetAllTool(BaseTool):
         )
         response = await self.metadata.httpx_client.get(
             url=f"{self.metadata.bluenaas_url}/neuron-model/{self.metadata.vlab_id}/{self.metadata.project_id}/me-models",
-            params={k: v for k, v in params.model_dump().items() if v is not None},
+            params={
+                k: v
+                for k, v in params.model_dump(
+                    exclude={"virtual_lab_id", "project_id"}
+                ).items()
+                if v is not None
+            },
             headers={"Authorization": f"Bearer {self.metadata.token}"},
         )
 
