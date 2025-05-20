@@ -91,7 +91,7 @@ jobs:
       - name: Set up environment
         run: |
           pip install --upgrade pip
-          pip install mypy==1.8.0
+          pip install mypy==1.15.0
           pip install ".[dev]"
       - name: Run alembic
         run: |
@@ -99,7 +99,7 @@ jobs:
           alembic -x url=postgresql://test:password@localhost:5432 upgrade head
       - name: Running mypy and tests
         run: |
-          mypy src/
           # Include src/ directory in Python path to prioritize local files in pytest
           export PYTHONPATH=$(pwd)/src:$PYTHONPATH
+          mypy src/
           pytest --color=yes tests/

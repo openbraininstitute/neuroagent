@@ -29,7 +29,7 @@ class WeatherMetadata(BaseMetadata):
 class WeatherToolOutput(BaseModel):
     """Output of the weather tool."""
 
-    temperature: str
+    temperature: float
     conditions: str
 
 

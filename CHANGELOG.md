@@ -11,6 +11,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Autogeneration of input schemas from APIs.
 - Morphometrics tool using obi-one.
 
+### Changed
+- Tools based on API calls adapted to new autogen tool.
+
 ## [0.5.4]
 
 ### Fixed

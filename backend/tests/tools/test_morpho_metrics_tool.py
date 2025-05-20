@@ -1,5 +1,7 @@
 """Tests Morphology features tool."""
 
+import uuid
+
 import httpx
 import pytest
 
@@ -60,8 +62,8 @@ class TestMorphoMetricsTool:
                 httpx_client=httpx.AsyncClient(),
                 obi_one_url="http://obione.org",
                 token="fake_token",
-                vlab_id="vlab_1234",
-                project_id="proj_3456",
+                vlab_id=uuid.uuid4(),
+                project_id=uuid.uuid4(),
             ),
             input_schema=MorphoMetricsInputs(morphology_id="1234"),
         )
