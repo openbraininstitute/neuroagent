@@ -17,6 +17,7 @@ from mcp import ClientSession, StdioServerParameters
 from mcp.client.stdio import stdio_client
 from mcp.types import CallToolResult, Tool
 from neuroagent.tools.base_tool import BaseTool, BaseMetadata
+from datamodel_code_generator.parser import LiteralType
 
 logger = logging.getLogger(__name__)
 
@@ -42,6 +43,10 @@ def jsonschema2pydantic(json_schema: str, output_path: Path) -> Type[BaseModel]:
         input_filename="schema.json",
         output=output_path,
         output_model_type=DataModelType.PydanticV2BaseModel,
+        enum_field_as_literal=LiteralType.All,
+        use_annotated=True,
+        reuse_model=True,
+        field_constraints=True,
     )
 
     # Load the generated module
@@ -186,8 +191,8 @@ def create_dynamic_tool(
 
     # Create the tool class
     class DynamicTool(BaseTool):
-        name: ClassVar[str] = f"{server_name}_{tool_name}"
-        name_frontend: ClassVar[str] = f"{server_name}_{tool_name}"
+        name: ClassVar[str] = f"mcp-{server_name}-{tool_name}"
+        name_frontend: ClassVar[str] = f"mcp-{server_name}-{tool_name}"
         description: ClassVar[str] = tool_description
         description_frontend: ClassVar[str] = tool_description
         input_schema: input_schema_cls
