@@ -119,7 +119,7 @@ async def lifespan(fastapi_app: FastAPI) -> AsyncContextManager[None]:  # type: 
         mcp_client: MCPClient | None = MCPClient(config=app_settings.mcp)
         # start mcp servers and autogenerate input schemas
 
-        await mcp_client.start()
+        await mcp_client.start()  # type: ignore[union-attr]
         # trigger dynamic tool generation - only done once - it is cached
         _ = fastapi_app.dependency_overrides.get(get_mcp_tool_list, get_mcp_tool_list)(
             mcp_client

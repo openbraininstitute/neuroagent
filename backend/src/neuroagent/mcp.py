@@ -7,7 +7,7 @@ import shutil
 import sys
 from contextlib import AsyncExitStack
 from pathlib import Path
-from typing import ClassVar, Type
+from typing import Any, ClassVar, Type
 
 from datamodel_code_generator import DataModelType, InputFileType, generate
 from datamodel_code_generator.parser import LiteralType
@@ -123,9 +123,11 @@ def jsonschema2pydantic(json_schema: str, output_path: Path) -> Type[BaseModel]:
 
     # Load the generated module
     spec = importlib.util.spec_from_file_location("generated_model", output_path)
+    if spec is None:
+        raise ValueError(f"Could not load module from {output_path}")
     module = importlib.util.module_from_spec(spec)
     sys.modules["generated_model"] = module
-    spec.loader.exec_module(module)
+    spec.loader.exec_module(module)  # type: ignore[union-attr]
 
     # Get the generated model class
     return getattr(module, "Model")
@@ -135,7 +137,7 @@ def create_dynamic_tool(
     server_name: str,
     tool_name: str,
     tool_description: str,
-    input_schema: dict,
+    input_schema_serialized: dict[str, Any],
     session: ClientSession,
 ) -> Type[BaseTool]:
     """Create a dynamic BaseTool subclass for an MCP tool.
@@ -148,7 +150,7 @@ def create_dynamic_tool(
         Name of the tool
     tool_description : str
         Description of the tool
-    input_schema : dict
+    input_schema_serialized : dict
         JSON schema for the tool's input
     session : ClientSession
         MCP client session for invoking the tool
@@ -167,7 +169,7 @@ def create_dynamic_tool(
     )
 
     # Generate the input schema model
-    input_schema_cls = jsonschema2pydantic(json.dumps(input_schema), output_path)
+    input_schema_cls = jsonschema2pydantic(json.dumps(input_schema_serialized), output_path)
 
     class DynamicMetadata(BaseMetadata):
         pass
@@ -178,14 +180,14 @@ def create_dynamic_tool(
         name_frontend: ClassVar[str] = f"mcp-{server_name}-{tool_name}"
         description: ClassVar[str] = tool_description
         description_frontend: ClassVar[str] = tool_description
-        input_schema: input_schema_cls
+        input_schema: input_schema_cls  # type: ignore[valid-type]
         metadata: DynamicMetadata
 
         async def arun(self) -> CallToolResult:
             """Run the tool."""
             # This will be implemented by the MCP client
             result = await session.call_tool(
-                tool_name, arguments=self.input_schema.model_dump()
+                tool_name, arguments=self.input_schema.model_dump()  # type: ignore[attr-defined]
             )
 
             return result

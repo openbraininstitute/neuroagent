@@ -191,8 +191,8 @@ def get_mcp_tool_list(
             dynamic_tool = create_dynamic_tool(
                 server_name=server_name,
                 tool_name=tool.name,
-                tool_description=tool.description,
-                input_schema=tool.inputSchema,
+                tool_description=tool.description if tool.description else "NO DESCRIPTION",
+                input_schema_serialized=tool.inputSchema,
                 session=mcp_client.sessions[server_name],
             )
             dynamic_tools.append(dynamic_tool)
