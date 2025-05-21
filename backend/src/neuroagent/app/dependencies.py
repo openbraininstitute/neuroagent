@@ -3,7 +3,7 @@
 import logging
 from datetime import datetime, timezone
 from functools import cache
-from typing import Annotated, Any, AsyncIterator
+from typing import Annotated, Any, AsyncIterator, Type
 
 import boto3
 from fastapi import Depends, HTTPException, Request
@@ -23,6 +23,7 @@ from neuroagent.app.config import Settings
 from neuroagent.app.database.sql_schemas import Threads
 from neuroagent.app.schemas import UserInfo
 from neuroagent.new_types import Agent
+from neuroagent.mcp import create_dynamic_tool
 from neuroagent.tools import (
     ElectrophysFeatureTool,
     GetMorphoTool,
@@ -41,7 +42,7 @@ from neuroagent.tools import (
     SCSPostTool,
     WebSearchTool,
 )
-from neuroagent.tools.base_tool import BaseTool
+from neuroagent.tools.base_tool import BaseTool, BaseMetadata
 
 logger = logging.getLogger(__name__)
 
@@ -164,15 +165,30 @@ async def get_user_info(
         raise HTTPException(status_code=404, detail="User info url not provided.")
 
 
+@cache
 def get_mcp_tool_list(request: Request) -> list[type[BaseTool]]:
     """Get the list of tools from the MCP server."""
 
     if request.app.state.mcp_client is None:
         return []
 
-    breakpoint()
+    mcp_client = request.app.state.mcp_client
+    dynamic_tools: list[type[BaseTool]] = []
 
-    return []
+    # Iterate through all tools from all servers
+    for server_name, tools in mcp_client.tools.items():
+        for tool in tools:
+            # Create a dynamic tool class for each MCP tool
+            dynamic_tool = create_dynamic_tool(
+                server_name=server_name,
+                tool_name=tool.name,
+                tool_description=tool.description,
+                input_schema=tool.inputSchema,
+                session=mcp_client.sessions[server_name],
+            )
+            dynamic_tools.append(dynamic_tool)
+
+    return dynamic_tools
 
 
 def get_tool_list(
