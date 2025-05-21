@@ -5,7 +5,7 @@ from pathlib import Path
 from typing import Any, Literal, Optional
 
 from dotenv import dotenv_values
-from pydantic import BaseModel, ConfigDict, SecretStr, model_validator
+from pydantic import BaseModel, ConfigDict, Field, SecretStr, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -241,10 +241,20 @@ class SettingsAccounting(BaseModel):
         return data
 
 
+class MCPServerConfig(BaseModel):
+    """Configuration for a single MCP server."""
+
+    command: str
+    args: list[str] | None = None
+    env: dict[str, SecretStr] | None = None
+
+
 class SettingsMCP(BaseModel):
     """Settings for the MCP."""
 
-    config_path: Path | None = None
+    servers: dict[str, MCPServerConfig] = Field(
+        default_factory=dict,
+    )
 
 
 class Settings(BaseSettings):

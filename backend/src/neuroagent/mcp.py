@@ -18,33 +18,15 @@ from mcp.client.stdio import stdio_client
 from mcp.types import CallToolResult, Tool
 from neuroagent.tools.base_tool import BaseTool, BaseMetadata
 from datamodel_code_generator.parser import LiteralType
+from neuroagent.app.config import SettingsMCP
 
 logger = logging.getLogger(__name__)
 
 
-class MCPServerConfig(BaseModel):
-    command: str
-    args: list[str] | None = None
-    env: dict[str, str] | None = None
-
-
-class MCPConfig(BaseModel):
-    servers: dict[str, MCPServerConfig]
-
-    @classmethod
-    def parse_file(cls, config_path: Path) -> "MCPConfig":
-        """Parse the configuration file and return an MCPConfig object."""
-        if not config_path.exists():
-            raise FileNotFoundError(f"Configuration file {config_path} does not exist.")
-        dct = json.loads(config_path.read_text())
-
-        return cls(**dct)
-
-
 class MCPClient:
-    def __init__(self, config_path: Path):
+    def __init__(self, config: SettingsMCP):
         # Initialize session and client objects
-        self.config = MCPConfig.parse_file(config_path)
+        self.config = config
         self.exit_stack: dict[str, AsyncExitStack] = {
             name: AsyncExitStack() for name in self.config.servers.keys()
         }
@@ -79,10 +61,14 @@ class MCPClient:
         """
         for name, server_config in self.config.servers.items():
             logger.info(f"Connecting to server: {name}")
+            if server_config.env:
+                env = {k: v.get_secret_value() for k, v in server_config.env.items()}
+            else:
+                env = None
             server_params = StdioServerParameters(
                 command=server_config.command,
                 args=server_config.args or [],
-                env=server_config.env or None,
+                env=env,
             )
 
             stdio_transport = await self.exit_stack[name].enter_async_context(

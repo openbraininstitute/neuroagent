@@ -115,10 +115,8 @@ async def lifespan(fastapi_app: FastAPI) -> AsyncContextManager[None]:  # type: 
     semantic_router = get_semantic_router(settings=app_settings)
     app.state.semantic_router = semantic_router
 
-    if app_settings.mcp.config_path is not None:
-        mcp_client: MCPClient | None = MCPClient(
-            config_path=app_settings.mcp.config_path,
-        )
+    if app_settings.mcp.servers:
+        mcp_client: MCPClient | None = MCPClient(config=app_settings.mcp)
         # start mcp servers and autogenerate input schemas
 
         await mcp_client.start()
