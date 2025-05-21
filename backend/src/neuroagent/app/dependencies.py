@@ -23,7 +23,7 @@ from neuroagent.app.config import Settings
 from neuroagent.app.database.sql_schemas import Threads
 from neuroagent.app.schemas import UserInfo
 from neuroagent.new_types import Agent
-from neuroagent.mcp import create_dynamic_tool
+from neuroagent.mcp import MCPClient, create_dynamic_tool
 from neuroagent.tools import (
     ElectrophysFeatureTool,
     GetMorphoTool,
@@ -166,13 +166,23 @@ async def get_user_info(
 
 
 @cache
-def get_mcp_tool_list(request: Request) -> list[type[BaseTool]]:
+def get_mcp_client(request: Request) -> MCPClient | None:
+    """Get the MCP client from the app state."""
+    if request.app.state.mcp_client is None:
+        return None
+    return request.app.state.mcp_client
+
+
+@cache
+def get_mcp_tool_list(
+    mcp_client: MCPClient | None = Depends(get_mcp_client),
+) -> list[type[BaseTool]]:
     """Get the list of tools from the MCP server."""
 
-    if request.app.state.mcp_client is None:
+    if mcp_client is None:
         return []
 
-    mcp_client = request.app.state.mcp_client
+    mcp_client = mcp_client
     dynamic_tools: list[type[BaseTool]] = []
 
     # Iterate through all tools from all servers
@@ -401,3 +411,16 @@ def get_redis_client(request: Request) -> aioredis.Redis | None:
         The Redis client instance or None if not configured
     """
     return request.app.state.redis_client
+
+
+async def initialize_mcp_client(request: Request):
+    """Initialize the MCP client."""
+    app_settings = get_settings()
+    if app_settings.mcp.config_path is not None:
+        mcp_client: MCPClient | None = MCPClient(
+            config_path=app_settings.mcp.config_path,
+        )
+        await mcp_client.start()
+    else:
+        mcp_client = None
+    request.app.state.mcp_client = mcp_client

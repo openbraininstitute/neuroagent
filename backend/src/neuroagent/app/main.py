@@ -29,6 +29,7 @@ from neuroagent.app.config import Settings
 from neuroagent.app.dependencies import (
     get_connection_string,
     get_settings,
+    get_mcp_tool_list,
     get_tool_list,
 )
 from neuroagent.app.middleware import strip_path_prefix
@@ -118,7 +119,14 @@ async def lifespan(fastapi_app: FastAPI) -> AsyncContextManager[None]:  # type: 
         mcp_client: MCPClient | None = MCPClient(
             config_path=app_settings.mcp.config_path,
         )
-        await mcp_client.connect_to_servers()
+        # start mcp servers and autogenerate input schemas
+
+        await mcp_client.start()
+        # trigger dynamic tool generation - only done once - it is cached
+        _ = fastapi_app.dependency_overrides.get(get_mcp_tool_list, get_mcp_tool_list)(
+            mcp_client
+        )
+
     else:
         mcp_client = None
 
