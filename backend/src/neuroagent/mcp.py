@@ -169,7 +169,9 @@ def create_dynamic_tool(
     )
 
     # Generate the input schema model
-    input_schema_cls = jsonschema2pydantic(json.dumps(input_schema_serialized), output_path)
+    input_schema_cls = jsonschema2pydantic(
+        json.dumps(input_schema_serialized), output_path
+    )
 
     class DynamicMetadata(BaseMetadata):
         pass
@@ -187,7 +189,8 @@ def create_dynamic_tool(
             """Run the tool."""
             # This will be implemented by the MCP client
             result = await session.call_tool(
-                tool_name, arguments=self.input_schema.model_dump()  # type: ignore[attr-defined]
+                tool_name,
+                arguments=self.input_schema.model_dump(),  # type: ignore[attr-defined]
             )
 
             return result
