@@ -65,12 +65,17 @@ def get_settings() -> Settings:
     return Settings()
 
 
-async def get_httpx_client(request: Request) -> AsyncIterator[AsyncClient]:
+async def get_httpx_client(
+    request: Request, token: Annotated[str, Depends(auth)]
+) -> AsyncIterator[AsyncClient]:
     """Manage the httpx client for the request."""
     client = AsyncClient(
         timeout=300.0,
         verify=False,
-        headers={"x-request-id": request.headers["x-request-id"]},
+        headers={
+            "x-request-id": request.headers["x-request-id"],
+            "Authorization": f"Bearer {token}",
+        },
     )
     try:
         yield client
@@ -150,10 +155,7 @@ async def get_user_info(
     """Validate JWT token and returns user ID."""
     if settings.keycloak.user_info_endpoint:
         try:
-            response = await httpx_client.get(
-                settings.keycloak.user_info_endpoint,
-                headers={"Authorization": f"Bearer {token}"},
-            )
+            response = await httpx_client.get(settings.keycloak.user_info_endpoint)
             response.raise_for_status()
             return UserInfo(**response.json())
         except HTTPStatusError:
@@ -293,6 +295,7 @@ def get_s3_client(
 
 
 def get_context_variables(
+    request: Request,
     settings: Annotated[Settings, Depends(get_settings)],
     starting_agent: Annotated[Agent, Depends(get_starting_agent)],
     token: Annotated[str, Depends(auth)],
@@ -329,6 +332,7 @@ def get_context_variables(
         "thread_id": thread.thread_id,
         "tavily_api_key": settings.tools.web_search.tavily_api_key,
         "obi_one_url": settings.tools.obi_one.url,
+        "br_embeddings": request.app.state.br_embeddings,
     }
 
 

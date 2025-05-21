@@ -149,3 +149,20 @@ class JSONMultiLinechart(BaseObject):
         default="solid", description="Line style (e.g., 'solid', 'dashed', 'dotted')"
     )
     line_color: str | None = Field(None, description="Hex color code for the line")
+
+
+class BrainRegion(BaseModel):
+    """Brain region schema."""
+
+    id: str
+    name: str
+    acronym: str
+    name_embedding: list[float] | None = None
+    acronym_embedding: list[float] | None = None
+
+
+class BrainRegions(BaseModel):
+    """Schema for dumping."""
+
+    regions: list[BrainRegion]
+    hierarchy_id: str
