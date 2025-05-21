@@ -264,12 +264,7 @@ export function ChatPage({
 
   // When not autoscroll or streaming, keep scroll distance on new data.
   useLayoutEffect(() => {
-    if (
-      !isAutoScrollEnabled &&
-      !isFetchingPreviousPage &&
-      !isLoading &&
-      prevHeight.current
-    ) {
+    if (!isFetchingPreviousPage && !isLoading && prevHeight.current) {
       requestAnimationFrame(() => {
         const el = containerRef.current;
         if (!el) return;
