@@ -22,43 +22,6 @@ from datamodel_code_generator.parser import LiteralType
 logger = logging.getLogger(__name__)
 
 
-def jsonschema2pydantic(json_schema: str, output_path: Path) -> Type[BaseModel]:
-    """Generate a Pydantic model from a JSON schema.
-
-    Parameters
-    ----------
-    json_schema : str
-        The JSON schema as a string
-    output_path : Path
-        Path where to save the generated model
-
-    Returns
-    -------
-    Type[BaseModel]
-        The generated Pydantic model class
-    """
-    generate(
-        json_schema,
-        input_file_type=InputFileType.JsonSchema,
-        input_filename="schema.json",
-        output=output_path,
-        output_model_type=DataModelType.PydanticV2BaseModel,
-        enum_field_as_literal=LiteralType.All,
-        use_annotated=True,
-        reuse_model=True,
-        field_constraints=True,
-    )
-
-    # Load the generated module
-    spec = importlib.util.spec_from_file_location("generated_model", output_path)
-    module = importlib.util.module_from_spec(spec)
-    sys.modules["generated_model"] = module
-    spec.loader.exec_module(module)
-
-    # Get the generated model class
-    return getattr(module, "Model")
-
-
 class MCPServerConfig(BaseModel):
     command: str
     args: list[str] | None = None
@@ -148,6 +111,43 @@ class MCPClient:
         #     await stack.aclose()
 
 
+def jsonschema2pydantic(json_schema: str, output_path: Path) -> Type[BaseModel]:
+    """Generate a Pydantic model from a JSON schema.
+
+    Parameters
+    ----------
+    json_schema : str
+        The JSON schema as a string
+    output_path : Path
+        Path where to save the generated model
+
+    Returns
+    -------
+    Type[BaseModel]
+        The generated Pydantic model class
+    """
+    generate(
+        json_schema,
+        input_file_type=InputFileType.JsonSchema,
+        input_filename="schema.json",
+        output=output_path,
+        output_model_type=DataModelType.PydanticV2BaseModel,
+        enum_field_as_literal=LiteralType.All,
+        use_annotated=True,
+        reuse_model=True,
+        field_constraints=True,
+    )
+
+    # Load the generated module
+    spec = importlib.util.spec_from_file_location("generated_model", output_path)
+    module = importlib.util.module_from_spec(spec)
+    sys.modules["generated_model"] = module
+    spec.loader.exec_module(module)
+
+    # Get the generated model class
+    return getattr(module, "Model")
+
+
 def create_dynamic_tool(
     server_name: str,
     tool_name: str,
@@ -216,24 +216,3 @@ def create_dynamic_tool(
             return True
 
     return DynamicTool
-
-
-async def main():
-    # Path to the configuration file
-    config_path = Path("mcp_config.json")
-
-    # Create an instance of MCPClient
-    mcp_client = MCPClient(config_path)
-
-    # Start the client
-    await mcp_client.start()
-
-    # Clean up resources
-    await mcp_client.cleanup()
-
-    while True:
-        pass
-
-
-if __name__ == "__main__":
-    asyncio.run(main())
