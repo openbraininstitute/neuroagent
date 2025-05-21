@@ -99,14 +99,6 @@ class SettingsKGMorpho(BaseModel):
     model_config = ConfigDict(frozen=True)
 
 
-class SettingsGetMorpho(BaseModel):
-    """Get Morpho settings."""
-
-    search_size: int = 10
-
-    model_config = ConfigDict(frozen=True)
-
-
 class SettingsGetMEModel(BaseModel):
     """Get ME Model settings."""
 
@@ -163,7 +155,6 @@ class SettingsTools(BaseModel):
     obi_one: SettingsObiOne = SettingsObiOne()
     bluenaas: SettingsBlueNaaS = SettingsBlueNaaS()
     entitycore: SettingsEntityCore = SettingsEntityCore()
-    morpho: SettingsGetMorpho = SettingsGetMorpho()
     trace: SettingsTrace = SettingsTrace()
     kg_morpho_features: SettingsKGMorpho = SettingsKGMorpho()
     me_model: SettingsGetMEModel = SettingsGetMEModel()

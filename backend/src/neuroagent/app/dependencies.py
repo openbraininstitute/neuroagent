@@ -35,7 +35,6 @@ from neuroagent.tools import (
     MorphoMetricsTool,
     PlotGeneratorTool,
     ResolveBrainRegionTool,
-    ResolveETypeTool,
     ResolveMtypeTool,
     SCSGetAllTool,
     SCSGetOneTool,
@@ -181,7 +180,6 @@ def get_tool_list() -> list[type[BaseTool]]:
         KGMorphoFeatureTool,
         ResolveBrainRegionTool,
         ResolveMtypeTool,
-        ResolveETypeTool,
         MorphoMetricsTool,
         GetTracesTool,
         PlotGeneratorTool,
@@ -320,15 +318,14 @@ def get_context_variables(
         "knowledge_graph_url": settings.knowledge_graph.url,
         "literature_search_url": settings.tools.literature.url,
         "me_model_search_size": settings.tools.me_model.search_size,
-        "morpho_search_size": settings.tools.morpho.search_size,
         "obi_one_url": settings.tools.obi_one.url,
         "openai_client": openai_client,
         "project_id": thread.project_id,
         "retriever_k": settings.tools.literature.retriever_k,
         "s3_client": s3_client,
         "starting_agent": starting_agent,
-        "thread_id": thread.thread_id,
         "tavily_api_key": settings.tools.web_search.tavily_api_key,
+        "thread_id": thread.thread_id,
         "token": token,
         "trace_search_size": settings.tools.trace.search_size,
         "use_reranker": settings.tools.literature.use_reranker,
@@ -348,12 +345,12 @@ def get_healthcheck_variables(
     correct service.
     """
     return {
-        "httpx_client": httpx_client,
-        "literature_search_url": settings.tools.literature.url.rstrip("/") + "/",
-        "knowledge_graph_url": settings.knowledge_graph.base_url.rstrip("/") + "/",
         "bluenaas_url": settings.tools.bluenaas.url.rstrip("/") + "/",
-        "obi_one_url": settings.tools.obi_one.url.rstrip("/") + "/",
         "entitycore_url": settings.tools.entitycore.url.rstrip("/") + "/",
+        "httpx_client": httpx_client,
+        "knowledge_graph_url": settings.knowledge_graph.base_url.rstrip("/") + "/",
+        "literature_search_url": settings.tools.literature.url.rstrip("/") + "/",
+        "obi_one_url": settings.tools.obi_one.url.rstrip("/") + "/",
     }
 
 

@@ -68,6 +68,7 @@ class ResolveBrainRegionTool(BaseTool):
             url=self.metadata.entitycore_url + "/brain-region",
             headers={"Authorization": f"Bearer {self.metadata.token}"},
             params={
+                "hierarchy_id": "e3e70682-c209-4cac-a29f-6fbed82c07cd",
                 "page_size": 500,
                 "name__ilike": self.input_schema.brain_region,
             },

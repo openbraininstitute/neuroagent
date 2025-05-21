@@ -69,7 +69,7 @@ class ResolveMtypeTool(BaseTool):
             url=self.metadata.entitycore_url + "/mtype",
             headers={"Authorization": f"Bearer {self.metadata.token}"},
             params={
-                "page_size": 100,
+                "page_size": 1,
                 "pref_label": self.input_schema.mtype,
             },
         )

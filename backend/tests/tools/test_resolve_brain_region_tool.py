@@ -20,7 +20,7 @@ async def test_arun(httpx_mock):
         reponse_brain_region = json.load(f)
 
     httpx_mock.add_response(
-        url="http://fake_entitycore_url.com/78/brain-region?page_size=500&name__ilike=Field",
+        url="http://fake_entitycore_url.com/78/brain-region?hierarchy_id=e3e70682-c209-4cac-a29f-6fbed82c07cd&page_size=500&name__ilike=Field",
         json=reponse_brain_region,
     )
 
