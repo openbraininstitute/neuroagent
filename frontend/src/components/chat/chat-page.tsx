@@ -1,7 +1,7 @@
 "use client";
 
 import { useChat } from "ai/react";
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { BMessage, BMessageUser, type MessageStrict } from "@/lib/types";
 import { env } from "@/lib/env";
 import { useSession } from "next-auth/react";
@@ -234,7 +234,7 @@ export function ChatPage({
   // Observer to fetch new pages :
   useEffect(() => {
     observerRef.current = new IntersectionObserver(
-      (entries) => {
+      async (entries) => {
         if (
           entries[0].isIntersecting &&
           !isFetchingPreviousPage &&
@@ -244,7 +244,13 @@ export function ChatPage({
           prevHeight.current = el.scrollHeight;
           prevScroll.current = el.scrollTop;
           if (!hasNextPage) return;
-          fetchPreviousPage();
+          await fetchPreviousPage();
+          if (!isFetchingPreviousPage && !isLoading && prevHeight.current) {
+            requestAnimationFrame(() => {
+              const heightDiff = el.scrollHeight - prevHeight.current;
+              el.scrollTop = prevScroll.current + heightDiff - 40;
+            });
+          }
         }
       },
       {
@@ -261,18 +267,6 @@ export function ChatPage({
       if (observerRef.current) observerRef.current.disconnect();
     };
   }, [hasNextPage, isFetchingPreviousPage, isLoading, fetchPreviousPage]);
-
-  // When not autoscroll or streaming, keep scroll distance on new data.
-  useLayoutEffect(() => {
-    if (!isFetchingPreviousPage && !isLoading && prevHeight.current) {
-      requestAnimationFrame(() => {
-        const el = containerRef.current;
-        if (!el) return;
-        const heightDiff = el.scrollHeight - prevHeight.current;
-        el.scrollTop = prevScroll.current + heightDiff - 40;
-      });
-    }
-  }, [data, isFetchingPreviousPage, isLoading]);
 
   // Handle streaming interruption
   useEffect(() => {
