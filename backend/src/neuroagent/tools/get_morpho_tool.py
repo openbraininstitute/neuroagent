@@ -37,14 +37,6 @@ class GetMorphoMetadata(BaseMetadata):
     project_id: str | None
 
 
-class MtypeOutput(BaseModel):
-    """Output class for M-types."""
-
-    mtype_id: str
-    pref_label: str | None
-    alt_label: str | None
-
-
 class GetMorphoTool(BaseTool):
     """Class defining the Get Morpho logic."""
 
