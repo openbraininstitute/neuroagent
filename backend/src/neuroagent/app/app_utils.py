@@ -210,7 +210,7 @@ async def commit_messages(
         await session.close()
 
 
-def get_br_embeddings(s3_client, bucket_name: str, folder: str):
+def get_br_embeddings(s3_client, bucket_name: str, folder: str) -> list[BrainRegions]:
     """Retrieve brain regions embeddings from s3."""
     file_list = s3_client.list_objects_v2(Bucket=bucket_name, Prefix=folder)
     pattern = re.compile(rf"^{folder}/.*_hierarchy_embeddings.json$")
@@ -223,4 +223,4 @@ def get_br_embeddings(s3_client, bucket_name: str, folder: str):
                 file_obj = s3_client.get_object(Bucket=bucket_name, Key=key)
                 content = json.loads(file_obj["Body"].read().decode("utf-8"))
                 output.append(BrainRegions(**content))
-    return content
+    return output
