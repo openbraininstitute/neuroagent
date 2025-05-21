@@ -411,16 +411,3 @@ def get_redis_client(request: Request) -> aioredis.Redis | None:
         The Redis client instance or None if not configured
     """
     return request.app.state.redis_client
-
-
-async def initialize_mcp_client(request: Request):
-    """Initialize the MCP client."""
-    app_settings = get_settings()
-    if app_settings.mcp.config_path is not None:
-        mcp_client: MCPClient | None = MCPClient(
-            config_path=app_settings.mcp.config_path,
-        )
-        await mcp_client.start()
-    else:
-        mcp_client = None
-    request.app.state.mcp_client = mcp_client
