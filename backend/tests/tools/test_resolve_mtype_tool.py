@@ -20,7 +20,7 @@ async def test_arun(httpx_mock):
         mtypes_region = json.load(f)
 
     httpx_mock.add_response(
-        url="http://fake_entitycore_url.com/78/mtype?page_size=100&pref_label=Interneu",
+        url="http://fake_entitycore_url.com/78/mtype?page_size=1&pref_label=Interneu",
         json=mtypes_region,
     )
 
