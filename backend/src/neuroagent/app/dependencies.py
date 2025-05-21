@@ -3,7 +3,7 @@
 import logging
 from datetime import datetime, timezone
 from functools import cache
-from typing import Annotated, Any, AsyncIterator, Type
+from typing import Annotated, Any, AsyncIterator
 
 import boto3
 from fastapi import Depends, HTTPException, Request
@@ -22,8 +22,8 @@ from neuroagent.app.app_utils import validate_project
 from neuroagent.app.config import Settings
 from neuroagent.app.database.sql_schemas import Threads
 from neuroagent.app.schemas import UserInfo
-from neuroagent.new_types import Agent
 from neuroagent.mcp import MCPClient, create_dynamic_tool
+from neuroagent.new_types import Agent
 from neuroagent.tools import (
     ElectrophysFeatureTool,
     GetMorphoTool,
@@ -42,7 +42,7 @@ from neuroagent.tools import (
     SCSPostTool,
     WebSearchTool,
 )
-from neuroagent.tools.base_tool import BaseTool, BaseMetadata
+from neuroagent.tools.base_tool import BaseTool
 
 logger = logging.getLogger(__name__)
 
@@ -178,7 +178,6 @@ def get_mcp_tool_list(
     mcp_client: MCPClient | None = Depends(get_mcp_client),
 ) -> list[type[BaseTool]]:
     """Get the list of tools from the MCP server."""
-
     if mcp_client is None:
         return []
 

@@ -23,17 +23,17 @@ from starlette.requests import Request
 from starlette.responses import JSONResponse
 
 from neuroagent import __version__
-from neuroagent.mcp import MCPClient
 from neuroagent.app.app_utils import get_semantic_router, setup_engine
 from neuroagent.app.config import Settings
 from neuroagent.app.dependencies import (
     get_connection_string,
-    get_settings,
     get_mcp_tool_list,
+    get_settings,
     get_tool_list,
 )
 from neuroagent.app.middleware import strip_path_prefix
 from neuroagent.app.routers import qa, storage, threads, tools
+from neuroagent.mcp import MCPClient
 
 LOGGING = {
     "version": 1,

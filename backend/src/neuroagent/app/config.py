@@ -1,7 +1,6 @@
 """Configuration."""
 
 import os
-from pathlib import Path
 from typing import Any, Literal, Optional
 
 from dotenv import dotenv_values

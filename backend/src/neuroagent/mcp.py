@@ -1,29 +1,30 @@
 """MCP client logic."""
 
-import asyncio
+import importlib.util
 import json
 import logging
 import shutil
+import sys
 from contextlib import AsyncExitStack
 from pathlib import Path
-from datamodel_code_generator import InputFileType, generate
-from datamodel_code_generator import DataModelType
-import importlib.util
-import sys
-from typing import Type, ClassVar
-from pydantic import BaseModel
+from typing import ClassVar, Type
 
+from datamodel_code_generator import DataModelType, InputFileType, generate
+from datamodel_code_generator.parser import LiteralType
 from mcp import ClientSession, StdioServerParameters
 from mcp.client.stdio import stdio_client
 from mcp.types import CallToolResult, Tool
-from neuroagent.tools.base_tool import BaseTool, BaseMetadata
-from datamodel_code_generator.parser import LiteralType
+from pydantic import BaseModel
+
 from neuroagent.app.config import SettingsMCP
+from neuroagent.tools.base_tool import BaseMetadata, BaseTool
 
 logger = logging.getLogger(__name__)
 
 
 class MCPClient:
+    """MCP client."""
+
     def __init__(self, config: SettingsMCP):
         # Initialize session and client objects
         self.config = config
@@ -54,11 +55,7 @@ class MCPClient:
         await self.connect_to_servers()
 
     async def connect_to_servers(self) -> None:
-        """Connect to an MCP server
-
-        Args:
-            server_script_path: Path to the server script (.py or .js)
-        """
+        """Connect to an MCP server."""
         for name, server_config in self.config.servers.items():
             logger.info(f"Connecting to server: {name}")
             if server_config.env:
@@ -86,7 +83,7 @@ class MCPClient:
             self.tools[name] = response.tools
 
     async def cleanup(self) -> None:
-        """Clean up resources"""
+        """Clean up resources."""
         # Clean up dynamic tools directory
         if self.dynamic_tools_dir.exists():
             shutil.rmtree(self.dynamic_tools_dir)
@@ -197,7 +194,7 @@ def create_dynamic_tool(
         async def is_online(cls) -> bool:
             """Check if the tool is online."""
             # the below would hang if the server is not online
-            result = await session.send_ping()
+            _ = await session.send_ping()
 
             return True
 
