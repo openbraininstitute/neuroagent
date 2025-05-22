@@ -1,14 +1,12 @@
 """Tool to resolve the brain region from natural english to its entitycore ID."""
 
-import asyncio
 import logging
 from typing import ClassVar
 
 from httpx import AsyncClient
 from openai import AsyncOpenAI
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import BaseModel, ConfigDict, Field
 from sklearn.metrics.pairwise import cosine_similarity
-from typing_extensions import Self
 
 from neuroagent.schemas import BrainRegions
 from neuroagent.tools.base_tool import (
@@ -22,28 +20,16 @@ logger = logging.getLogger(__name__)
 class ResolveBRInput(BaseModel):
     """Defines the input structure for the Resolve Brain Region tool."""
 
+    brain_region_name: str = Field(
+        description="Specifies the target brain region NAME provided by the user in natural language.",
+    )
     hierarchy_id: str = Field(
         default="e3e70682-c209-4cac-a29f-6fbed82c07cd",
         description="Id of the brain region hierarchy from which we resolve.",
     )
-    brain_region_name: str | None = Field(
-        default=None,
-        description="Specifies the target brain region NAME provided by the user in natural language.",
+    number_of_candidates: int = Field(
+        default=10, description="Number of candidate brain regions to return."
     )
-    brain_region_acronym: str | None = Field(
-        default=None,
-        description="Specifies the target brain region ACRONYM provided by the user in natural language.",
-    )
-    return_size: int = Field(default=10, description="Number of candidates to return")
-
-    @model_validator(mode="after")
-    def check_input_exists(self) -> Self:
-        """Ensure at least name or acronym is given."""
-        if not self.brain_region_name and not self.brain_region_name:
-            raise ValueError(
-                "Either brain_region_name or brain_region_acronym must be specified."
-            )
-        return self
 
 
 class ResolveBRMetadata(BaseMetadata):
@@ -56,8 +42,10 @@ class ResolveBRMetadata(BaseMetadata):
 class BRResolveOutput(BaseModel):
     """Output schema for the Brain region resolver."""
 
-    brain_region_name: str
-    brain_region_id: str
+    id: str
+    name: str
+    acronym: str
+    score: float
     model_config = ConfigDict(frozen=True)
 
 
@@ -72,9 +60,10 @@ class ResolveBrainRegionTool(BaseTool):
 
     name: ClassVar[str] = "resolve-brain-region-tool"
     name_frontend: ClassVar[str] = "Resolve Brain Region"
-    description: ClassVar[str] = (
-        """From a brain region name or acronym written in natural english, retrieve its corresponding ID, formatted as UUID."""
-    )
+    description: ClassVar[
+        str
+    ] = """Resolve a brain region's name or acronym to its UUID using semantic search.
+        Accepts natural language inputs containing the full or partial name, acronym, or both."""
     description_frontend: ClassVar[str] = (
         """Converts natural language brain region to its ID."""
     )
@@ -88,8 +77,8 @@ class ResolveBrainRegionTool(BaseTool):
         logger.info(
             f"Entering Brain Region resolver tool. Inputs: {self.input_schema.model_dump()}"
         )
+        # First we select the correct hierarchy with pre-computed embeddings
         try:
-            # Get the hierarchy corresponding to the requested one
             hierarchy = next(
                 (
                     region
@@ -100,88 +89,71 @@ class ResolveBrainRegionTool(BaseTool):
         except StopIteration:
             raise ValueError("Hierarchy ID not found in existing embeddings.")
 
-        # Prepare embedding tasks for name/acronyms
-        embedding_tasks = {}
-        if self.input_schema.brain_region_name:
-            task = asyncio.create_task(
-                self.metadata.openai_client.embeddings.create(
-                    input=self.input_schema.brain_region_name,
-                    model="text-embedding-3-small",
+        # Try name or acronym exact match before anything
+        try:
+            return next(
+                ResolveBrainRegionToolOutput(
+                    brain_regions=[
+                        BRResolveOutput(
+                            id=region.id,
+                            name=region.name,
+                            acronym=region.acronym,
+                            score=1,
+                        )
+                    ]
                 )
+                for region in hierarchy.regions
+                if region.name.lower() == self.input_schema.brain_region_name.lower()
+                or region.acronym.lower() == self.input_schema.brain_region_name.lower()
             )
-            embedding_tasks["name"] = task
-        if self.input_schema.brain_region_acronym:
-            task = asyncio.create_task(
-                self.metadata.openai_client.embeddings.create(
-                    input=self.input_schema.brain_region_acronym,
-                    model="text-embedding-3-small",
-                )
+        except StopIteration:
+            pass
+
+        # If exact match didn't work we perform semantic search
+        response = await self.metadata.openai_client.embeddings.create(
+            input=self.input_schema.brain_region_name,
+            model="text-embedding-3-small",
+        )
+        name_embedding = response.data[0].embedding
+
+        # Gather pre-computed name embeddings
+        br_name_embeddings = [
+            brain_region.name_embedding for brain_region in hierarchy.regions
+        ]
+        # Gather pre-computed acronym embeddings
+        br_acronym_embeddings = [
+            brain_region.acronym_embedding for brain_region in hierarchy.regions
+        ]
+
+        # Compute cosine similarity for names
+        input_name_region_name_similarity = cosine_similarity(
+            [name_embedding], br_name_embeddings
+        ).squeeze(axis=0)
+        # Compute cosine similarity for acronyms
+        input_acronym_region_acronym_similarity = cosine_similarity(
+            [name_embedding], br_acronym_embeddings
+        ).squeeze(axis=0)
+
+        # Assign best score to each brain region and prepare for output.
+        scored_regions = [
+            BRResolveOutput(
+                id=brain_region.id,
+                name=brain_region.name,
+                acronym=brain_region.acronym,
+                score=max(name_score, acronym_score),
             )
-            embedding_tasks["acronym"] = task
-
-        # Embed the inputs
-        results = await asyncio.gather(*embedding_tasks.values())
-        embeddings = {
-            key: results[i].data[0].embedding
-            for i, key in enumerate(embedding_tasks.keys())
-        }
-
-        region_best_scores = {}
-
-        # Process name embeddings if available
-        if embeddings.get("name"):
-            # Gather name embeddings
-            br_name_embeddings = [
-                brain_region.name_embedding for brain_region in hierarchy.regions
-            ]
-
-            # Compute cosine similarity for names
-            input_name_region_name_similarity = cosine_similarity(
-                [embeddings.get("name")], br_name_embeddings
-            ).squeeze(axis=0)
-
-            # Record the name similarity score for each brain region
-            for brain_region, score in zip(
-                hierarchy.regions, input_name_region_name_similarity
-            ):
-                region_best_scores[
-                    BRResolveOutput(
-                        brain_region_name=brain_region.name,
-                        brain_region_id=brain_region.id,
-                    )
-                ] = score
-
-        # Process acronym embeddings if available
-        if embeddings.get("acronym"):
-            # Gather acronym embeddings
-            br_acronym_embeddings = [
-                brain_region.acronym_embedding for brain_region in hierarchy.regions
-            ]
-
-            # Compute cosine similarity for acronyms
-            input_acronym_region_acronym_similarity = cosine_similarity(
-                [embeddings.get("acronym")], br_acronym_embeddings
-            ).squeeze(axis=0)
-
-            # Update each brain region's score if the acronym score is higher
-            for brain_region, score in zip(
-                hierarchy.regions, input_acronym_region_acronym_similarity
-            ):
-                current_score = region_best_scores.get(brain_region, 0)
-                region_best_scores[
-                    BRResolveOutput(
-                        brain_region_name=brain_region.name,
-                        brain_region_id=brain_region.id,
-                    )
-                ] = max(current_score, score)
+            for brain_region, name_score, acronym_score in zip(
+                hierarchy.regions,
+                input_name_region_name_similarity,
+                input_acronym_region_acronym_similarity,
+            )
+        ]
 
         # Sort brain regions by their best score
-        top_brain_regions, _ = zip(
-            *sorted(region_best_scores.items(), key=lambda x: x[1], reverse=True)
-        )
-
+        top_brain_regions = sorted(scored_regions, key=lambda x: x.score, reverse=True)
+        breakpoint()
         return ResolveBrainRegionToolOutput(
-            brain_regions=top_brain_regions[: self.input_schema.return_size]
+            brain_regions=top_brain_regions[: self.input_schema.number_of_candidates]
         )
 
     @classmethod

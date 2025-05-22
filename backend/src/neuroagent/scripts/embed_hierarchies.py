@@ -85,22 +85,25 @@ def get_parser() -> argparse.ArgumentParser:
     return parser
 
 
-def flatten_hierarchy(hierarchy: dict[str, Any]) -> BrainRegions:
-    """Extract flat brain regions from the hierarchy."""
-    brain_regions = BrainRegions(regions=[], hierarchy_id="temp")
+def flatten_hierarchy(hierarchy: dict[str, Any], level: int = 0) -> list[BrainRegion]:
+    """Recursively walk the hierarchy and return a flat list of all brain regions for every node."""
+    regions: list[BrainRegion] = []
 
-    for child in hierarchy.get("children", []):
-        partial_regions = flatten_hierarchy(child)
-        brain_regions.regions.extend(partial_regions.regions)
-
-    if not hierarchy.get("children"):
-        brain_regions.regions.append(
-            BrainRegion(
-                id=hierarchy["id"], name=hierarchy["name"], acronym=hierarchy["acronym"]
-            )
+    # 1. Add this node
+    regions.append(
+        BrainRegion(
+            id=hierarchy["id"],
+            name=hierarchy["name"],
+            acronym=hierarchy["acronym"],
+            hierarchy_level=level,
         )
+    )
 
-    return brain_regions
+    # 2. Recurse into any children
+    for child in hierarchy.get("children", []):
+        regions.extend(flatten_hierarchy(child, level=level + 1))
+
+    return regions
 
 
 async def push_embeddings_to_s3(
@@ -117,7 +120,7 @@ async def push_embeddings_to_s3(
     logger.info(f"Getting brain hierarchy {hierarchy_id} from Entity-Core.")
 
     hierarchy = await httpx_client.get(
-        f"{(entity_core_url or os.getenv('NEUROAGENT_TOOLS__ENTITYCORE__URL')).rstrip('/')}/brain-region-hierarchy/{hierarchy_id}/hierarchy",
+        f"{(entity_core_url or os.getenv('NEUROAGENT_TOOLS__ENTITYCORE__URL')).rstrip('/')}/brain-region-hierarchy/{hierarchy_id}/hierarchy",  # type: ignore
         headers={"Authorization": f"Bearer {token}"},
     )
     if hierarchy.status_code != 200:
@@ -126,8 +129,8 @@ async def push_embeddings_to_s3(
         )
 
     logger.info("Flattening the hierarchy.")
-    brain_regions = flatten_hierarchy(hierarchy=hierarchy.json())
-    brain_regions.hierarchy_id = hierarchy_id
+    flattened_hierarchy = flatten_hierarchy(hierarchy=hierarchy.json(), level=0)
+    brain_regions = BrainRegions(regions=flattened_hierarchy, hierarchy_id=hierarchy_id)
 
     # Gather the names and acronyms
     names = [brain_region.name for brain_region in brain_regions.regions]
@@ -175,8 +178,6 @@ async def push_embeddings_to_s3(
         Body=brain_regions.model_dump_json(),
         ContentType="application/json",
     )
-
-    return "ama"
 
 
 async def main() -> None:
