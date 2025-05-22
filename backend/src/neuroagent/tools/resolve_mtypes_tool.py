@@ -1,0 +1,95 @@
+"""Tool to resolve m-types to entitycore ID."""
+
+import logging
+from typing import ClassVar
+
+from httpx import AsyncClient
+from pydantic import BaseModel, Field
+
+from neuroagent.tools.base_tool import (
+    BaseMetadata,
+    BaseTool,
+)
+
+logger = logging.getLogger(__name__)
+
+
+class ResolveMtypeInput(BaseModel):
+    """Defines the input structure for the m-types resolving tool."""
+
+    mtype: str = Field(
+        description="Specifies the target M-type (Morphological type) as provided by the user in natural language. The value must match exactly, without case insensitivity.",
+    )
+
+
+class ResolveMtypeMetadata(BaseMetadata):
+    """Metadata for ResolveEntitiesTool."""
+
+    entitycore_url: str
+    token: str
+
+
+class MType(BaseModel):
+    """Output schema for the Mtype resolver."""
+
+    mtype_name: str
+    mtype_id: str
+
+
+class ResolveMtypeOutput(BaseModel):
+    """Output schema for the Resolve Entities tool."""
+
+    mtypes: list[MType]
+
+
+class ResolveMtypeTool(BaseTool):
+    """Class defining the m-types Resolving logic."""
+
+    name: ClassVar[str] = "resolve-mtype-tool"
+    name_frontend: ClassVar[str] = "Resolve m-types"
+    description: ClassVar[str] = (
+        """Resolve the mtype name from natural english to its corresponding ID too (formated ad UUID)."""
+    )
+    description_frontend: ClassVar[str] = (
+        """Convert natural language m-type to its ID."""
+    )
+    metadata: ResolveMtypeMetadata
+    input_schema: ResolveMtypeInput
+
+    async def arun(
+        self,
+    ) -> ResolveMtypeOutput:
+        """Given a brain region in natural language, resolve its ID."""
+        logger.info(
+            f"Entering Brain Region resolver tool. Inputs: "
+            f"{self.input_schema.mtype=}"
+        )
+
+        mtype_response = await self.metadata.httpx_client.get(
+            url=self.metadata.entitycore_url + "/mtype",
+            headers={"Authorization": f"Bearer {self.metadata.token}"},
+            params={
+                "page_size": 1,
+                "pref_label": self.input_schema.mtype,
+            },
+        )
+
+        if mtype_response.status_code != 200:
+            raise ValueError(
+                f"The m-type endpoint returned a non 200 response code. Error: {mtype_response.text}"
+            )
+
+        mtypes = [
+            MType(mtype_name=mtype["pref_label"], mtype_id=mtype["id"])
+            for mtype in mtype_response.json()["data"]
+        ]
+
+        return ResolveMtypeOutput(mtypes=mtypes)
+
+    @classmethod
+    async def is_online(cls, *, httpx_client: AsyncClient, entitycore_url: str) -> bool:
+        """Check if the tool is online."""
+        response = await httpx_client.get(
+            f"{entitycore_url.rstrip('/')}/health",
+        )
+        return response.status_code == 200
