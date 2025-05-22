@@ -156,10 +156,8 @@ class BrainRegion(BaseModel):
 
     id: str
     name: str
-    acronym: str
     hierarchy_level: int
     name_embedding: list[float] | None = None
-    acronym_embedding: list[float] | None = None
 
 
 class BrainRegions(BaseModel):

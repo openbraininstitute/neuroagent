@@ -15,6 +15,10 @@ from neuroagent.schemas import BrainRegion, BrainRegions
 
 load_dotenv()
 
+logging.basicConfig(
+    format="[%(levelname)s]  %(asctime)s %(name)s  %(message)s", level=logging.INFO
+)
+
 logger = logging.getLogger(__name__)
 
 
@@ -94,7 +98,6 @@ def flatten_hierarchy(hierarchy: dict[str, Any], level: int = 0) -> list[BrainRe
         BrainRegion(
             id=hierarchy["id"],
             name=hierarchy["name"],
-            acronym=hierarchy["acronym"],
             hierarchy_level=level,
         )
     )
@@ -132,35 +135,25 @@ async def push_embeddings_to_s3(
     flattened_hierarchy = flatten_hierarchy(hierarchy=hierarchy.json(), level=0)
     brain_regions = BrainRegions(regions=flattened_hierarchy, hierarchy_id=hierarchy_id)
 
-    # Gather the names and acronyms
+    # Gather the names
     names = [brain_region.name for brain_region in brain_regions.regions]
-    acronyms = [brain_region.acronym for brain_region in brain_regions.regions]
 
     # Embed them
-    logger.info("Embedding the names and acronyms.")
+    logger.info("Embedding the names.")
     openai_client = AsyncOpenAI(api_key=os.getenv("NEUROAGENT_OPENAI__TOKEN"))
-    tasks = [
-        asyncio.create_task(
-            openai_client.embeddings.create(input=names, model="text-embedding-3-small")
-        ),
-        asyncio.create_task(
-            openai_client.embeddings.create(
-                input=acronyms, model="text-embedding-3-small"
-            )
-        ),
-    ]
-    name_embeddings, acronym_embeddings = await asyncio.gather(*tasks)
+    name_embeddings = await openai_client.embeddings.create(
+        input=names, model="text-embedding-3-small"
+    )
 
-    # Set them back in the original class
-    for brain_region, name_embedding, acronym_embedding in zip(
-        brain_regions.regions, name_embeddings.data, acronym_embeddings.data
+    # Set the embeddings in the original class
+    for brain_region, name_embedding in zip(
+        brain_regions.regions, name_embeddings.data
     ):
         brain_region.name_embedding = name_embedding.embedding
-        brain_region.acronym_embedding = acronym_embedding.embedding
 
     # Put the result in the s3 bucket
     logger.info(
-        f"Saving the results in s3 bucket {s3_url or os.getenv('NEUROAGENT_STORAGE__ENDPOINT_URL')} at location {f'shared/{hierarchy_id}_hierarchy.json'}"
+        f"Saving the results in s3 bucket: {s3_url or os.getenv('NEUROAGENT_STORAGE__ENDPOINT_URL')} at location: {f'shared/{hierarchy_id}_hierarchy.json'}"
     )
     s3_client = boto3.client(
         "s3",

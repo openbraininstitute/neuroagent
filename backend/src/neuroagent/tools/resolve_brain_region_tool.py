@@ -5,7 +5,7 @@ from typing import ClassVar
 
 from httpx import AsyncClient
 from openai import AsyncOpenAI
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, Field
 from sklearn.metrics.pairwise import cosine_similarity
 
 from neuroagent.schemas import BrainRegions
@@ -44,9 +44,7 @@ class BRResolveOutput(BaseModel):
 
     id: str
     name: str
-    acronym: str
     score: float
-    model_config = ConfigDict(frozen=True)
 
 
 class ResolveBrainRegionToolOutput(BaseModel):
@@ -62,8 +60,8 @@ class ResolveBrainRegionTool(BaseTool):
     name_frontend: ClassVar[str] = "Resolve Brain Region"
     description: ClassVar[
         str
-    ] = """Resolve a brain region's name or acronym to its UUID using semantic search.
-        Accepts natural language inputs containing the full or partial name, acronym, or both."""
+    ] = """Resolve a brain region's name to its UUID using semantic search.
+        Accepts natural language inputs containing the full or partial name."""
     description_frontend: ClassVar[str] = (
         """Converts natural language brain region to its ID."""
     )
@@ -73,7 +71,7 @@ class ResolveBrainRegionTool(BaseTool):
     async def arun(
         self,
     ) -> ResolveBrainRegionToolOutput:
-        """Given a brain region in natural language, resolve its ID."""
+        """Given a brain region's name in natural language, resolve its ID."""
         logger.info(
             f"Entering Brain Region resolver tool. Inputs: {self.input_schema.model_dump()}"
         )
@@ -89,7 +87,7 @@ class ResolveBrainRegionTool(BaseTool):
         except StopIteration:
             raise ValueError("Hierarchy ID not found in existing embeddings.")
 
-        # Try name or acronym exact match before anything
+        # Try name exact match before anything
         try:
             return next(
                 ResolveBrainRegionToolOutput(
@@ -97,14 +95,12 @@ class ResolveBrainRegionTool(BaseTool):
                         BRResolveOutput(
                             id=region.id,
                             name=region.name,
-                            acronym=region.acronym,
                             score=1,
                         )
                     ]
                 )
                 for region in hierarchy.regions
                 if region.name.lower() == self.input_schema.brain_region_name.lower()
-                or region.acronym.lower() == self.input_schema.brain_region_name.lower()
             )
         except StopIteration:
             pass
@@ -120,38 +116,24 @@ class ResolveBrainRegionTool(BaseTool):
         br_name_embeddings = [
             brain_region.name_embedding for brain_region in hierarchy.regions
         ]
-        # Gather pre-computed acronym embeddings
-        br_acronym_embeddings = [
-            brain_region.acronym_embedding for brain_region in hierarchy.regions
-        ]
 
         # Compute cosine similarity for names
         input_name_region_name_similarity = cosine_similarity(
             [name_embedding], br_name_embeddings
         ).squeeze(axis=0)
-        # Compute cosine similarity for acronyms
-        input_acronym_region_acronym_similarity = cosine_similarity(
-            [name_embedding], br_acronym_embeddings
-        ).squeeze(axis=0)
 
         # Assign best score to each brain region and prepare for output.
         scored_regions = [
-            BRResolveOutput(
-                id=brain_region.id,
-                name=brain_region.name,
-                acronym=brain_region.acronym,
-                score=max(name_score, acronym_score),
-            )
-            for brain_region, name_score, acronym_score in zip(
+            BRResolveOutput(id=brain_region.id, name=brain_region.name, score=score)
+            for brain_region, score in zip(
                 hierarchy.regions,
                 input_name_region_name_similarity,
-                input_acronym_region_acronym_similarity,
             )
         ]
 
         # Sort brain regions by their best score
         top_brain_regions = sorted(scored_regions, key=lambda x: x.score, reverse=True)
-        breakpoint()
+
         return ResolveBrainRegionToolOutput(
             brain_regions=top_brain_regions[: self.input_schema.number_of_candidates]
         )
