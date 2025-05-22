@@ -1,7 +1,6 @@
 """Unit tests for the brain region embeddings script."""
 
 import json
-import os
 from unittest.mock import AsyncMock, Mock, patch
 
 import pytest
@@ -314,7 +313,7 @@ class TestPushEmbeddingsToS3:
 
     @patch("neuroagent.scripts.embed_hierarchies.AsyncOpenAI")
     @patch("neuroagent.scripts.embed_hierarchies.boto3.client")
-    @patch.dict(os.environ, {"NEUROAGENT_OPENAI__TOKEN": "test-openai-token"})
+    # @patch.dict(os.environ, {"NEUROAGENT_OPENAI__TOKEN": "test-openai-token"})
     @pytest.mark.asyncio
     async def test_successful_embedding_pipeline(
         self,

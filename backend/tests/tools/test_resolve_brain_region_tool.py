@@ -2,7 +2,10 @@
 
 from unittest.mock import AsyncMock, Mock, patch
 
+import numpy as np
 import pytest
+from httpx import AsyncClient
+from openai import AsyncOpenAI
 
 from neuroagent.schemas import EmbeddedBrainRegion, EmbeddedBrainRegions
 from neuroagent.tools import ResolveBrainRegionTool
@@ -59,14 +62,15 @@ class TestResolveBrainRegionTool:
     @pytest.fixture
     def mock_openai_client(self):
         """Mock OpenAI client for embedding generation."""
-        client = AsyncMock()
+        client = AsyncMock(spec=AsyncOpenAI)
+        client.embeddings = Mock()  # or AsyncMock, if `create` is async
+        client.embeddings.create = AsyncMock()
 
         # Mock embedding response for "thalamus" query
         mock_response = Mock()
         mock_response.data = [
             Mock(embedding=[0.85, 0.65, 0.75, 0.95, 0.55])
         ]  # Close to Thalamus embedding
-
         client.embeddings.create.return_value = mock_response
         return client
 
@@ -76,6 +80,7 @@ class TestResolveBrainRegionTool:
             metadata=ResolveBRMetadata(
                 brainregion_embeddings=[sample_brain_regions],
                 openai_client=mock_openai_client,
+                httpx_client=Mock(spec=AsyncClient),
             ),
             input_schema=ResolveBRInput(
                 brain_region_name="Thalamus",  # Exact match
@@ -104,6 +109,7 @@ class TestResolveBrainRegionTool:
             metadata=ResolveBRMetadata(
                 brainregion_embeddings=[sample_brain_regions],
                 openai_client=mock_openai_client,
+                httpx_client=Mock(spec=AsyncClient),
             ),
             input_schema=ResolveBRInput(
                 brain_region_name="THALAMUS",  # Different case
@@ -120,24 +126,29 @@ class TestResolveBrainRegionTool:
         assert response.brain_regions[0].name == "Thalamus"
         assert response.brain_regions[0].score == 1.0
 
-    @patch("sklearn.metrics.pairwise.cosine_similarity")
+    @patch("neuroagent.tools.resolve_brain_region_tool.cosine_similarity")
     async def test_semantic_search_fallback(
         self, mock_cosine_similarity, sample_brain_regions, mock_openai_client
     ):
         """Test semantic search when no exact match is found."""
         # Mock cosine similarity to return high similarity for Thalamus
-        mock_cosine_similarity.return_value = [
-            0.95,
-            0.80,
-            0.75,
-            0.30,
-            0.25,
-        ]  # Scores for each region
+        mock_cosine_similarity.return_value = np.array(
+            [
+                [
+                    0.95,
+                    0.80,
+                    0.75,
+                    0.30,
+                    0.25,
+                ]
+            ]
+        )  # Scores for each region
 
         tool = ResolveBrainRegionTool(
             metadata=ResolveBRMetadata(
                 brainregion_embeddings=[sample_brain_regions],
                 openai_client=mock_openai_client,
+                httpx_client=Mock(spec=AsyncClient),
             ),
             input_schema=ResolveBRInput(
                 brain_region_name="brain stem region",  # No exact match
@@ -180,6 +191,7 @@ class TestResolveBrainRegionTool:
             metadata=ResolveBRMetadata(
                 brainregion_embeddings=[sample_brain_regions],
                 openai_client=mock_openai_client,
+                httpx_client=Mock(spec=AsyncClient),
             ),
             input_schema=ResolveBRInput(
                 brain_region_name="Thalamus",
@@ -193,18 +205,29 @@ class TestResolveBrainRegionTool:
         ):
             await tool.arun()
 
-    @patch("sklearn.metrics.pairwise.cosine_similarity")
+    @patch("neuroagent.tools.resolve_brain_region_tool.cosine_similarity")
     async def test_number_of_candidates_limiting(
         self, mock_cosine_similarity, sample_brain_regions, mock_openai_client
     ):
         """Test that the number of returned candidates is properly limited."""
         # Mock similarity scores for all 5 regions
-        mock_cosine_similarity.return_value = [0.95, 0.90, 0.85, 0.80, 0.75]
+        mock_cosine_similarity.return_value = np.array(
+            [
+                [
+                    0.95,
+                    0.80,
+                    0.75,
+                    0.30,
+                    0.25,
+                ]
+            ]
+        )  # Scores for each region
 
         tool = ResolveBrainRegionTool(
             metadata=ResolveBRMetadata(
                 brainregion_embeddings=[sample_brain_regions],
                 openai_client=mock_openai_client,
+                httpx_client=Mock(spec=AsyncClient),
             ),
             input_schema=ResolveBRInput(
                 brain_region_name="cortex region",
@@ -220,7 +243,7 @@ class TestResolveBrainRegionTool:
 
         # Should return the top 2 scoring regions
         assert response.brain_regions[0].score == 0.95
-        assert response.brain_regions[1].score == 0.90
+        assert response.brain_regions[1].score == 0.80
 
     async def test_multiple_hierarchies_selection(self, mock_openai_client):
         """Test that the correct hierarchy is selected when multiple are available."""
@@ -253,6 +276,7 @@ class TestResolveBrainRegionTool:
             metadata=ResolveBRMetadata(
                 brainregion_embeddings=[hierarchy1, hierarchy2],
                 openai_client=mock_openai_client,
+                httpx_client=Mock(spec=AsyncClient),
             ),
             input_schema=ResolveBRInput(
                 brain_region_name="Region H2-1",  # Exact match in hierarchy-2

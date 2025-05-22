@@ -13,8 +13,6 @@ from openai import AsyncOpenAI
 
 from neuroagent.schemas import EmbeddedBrainRegion, EmbeddedBrainRegions
 
-load_dotenv()
-
 logging.basicConfig(
     format="[%(levelname)s]  %(asctime)s %(name)s  %(message)s", level=logging.INFO
 )
@@ -185,4 +183,5 @@ async def main() -> None:
 
 
 if __name__ == "__main__":
+    load_dotenv()
     asyncio.run(main())
