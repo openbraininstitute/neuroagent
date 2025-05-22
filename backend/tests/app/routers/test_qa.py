@@ -29,6 +29,7 @@ def test_question_suggestions(
         accounting={"disabled": True},
         rate_limiter={"disabled": True},
     )
+    breakpoint()
     app.dependency_overrides[get_settings] = lambda: test_settings
     mock_openai_client = MockOpenAIClient()
 

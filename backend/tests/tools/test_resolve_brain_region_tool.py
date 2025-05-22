@@ -1,83 +1,271 @@
-"""Test the revole_brain_region_tool."""
+"""Test the resolve_brain_region_tool."""
 
-import json
+from unittest.mock import AsyncMock, Mock, patch
 
 import pytest
-from httpx import AsyncClient
 
+from neuroagent.schemas import EmbeddedBrainRegion, EmbeddedBrainRegions
 from neuroagent.tools import ResolveBrainRegionTool
 from neuroagent.tools.resolve_brain_region_tool import (
-    BrainRegion,
+    ResolveBrainRegionToolOutput,
     ResolveBRInput,
     ResolveBRMetadata,
-    ResolveBROutput,
 )
 
 
 @pytest.mark.asyncio
-async def test_arun(httpx_mock):
-    with open("tests/data/entitycore_brain_region.json") as f:
-        reponse_brain_region = json.load(f)
+class TestResolveBrainRegionTool:
+    """Test suite for the ResolveBrainRegionTool."""
 
-    httpx_mock.add_response(
-        url="http://fake_entitycore_url.com/78/brain-region?hierarchy_id=e3e70682-c209-4cac-a29f-6fbed82c07cd&page_size=500&name__ilike=Field",
-        json=reponse_brain_region,
-    )
+    @pytest.fixture
+    def sample_brain_regions(self):
+        """Create sample brain regions for testing."""
+        return EmbeddedBrainRegions(
+            hierarchy_id="e3e70682-c209-4cac-a29f-6fbed82c07cd",
+            regions=[
+                EmbeddedBrainRegion(
+                    id="thalamus_001",
+                    name="Thalamus",
+                    hierarchy_level=0,
+                    name_embedding=[0.8, 0.6, 0.7, 0.9, 0.5],
+                ),
+                EmbeddedBrainRegion(
+                    id="epithalamus_001",
+                    name="Epithalamus",
+                    hierarchy_level=1,
+                    name_embedding=[0.7, 0.8, 0.6, 0.8, 0.4],
+                ),
+                EmbeddedBrainRegion(
+                    id="hypothalamus_001",
+                    name="Hypothalamus",
+                    hierarchy_level=1,
+                    name_embedding=[0.6, 0.7, 0.8, 0.7, 0.6],
+                ),
+                EmbeddedBrainRegion(
+                    id="visual_cortex_001",
+                    name="Primary Visual Cortex",
+                    hierarchy_level=2,
+                    name_embedding=[0.2, 0.3, 0.1, 0.4, 0.2],
+                ),
+                EmbeddedBrainRegion(
+                    id="motor_cortex_001",
+                    name="Primary Motor Cortex",
+                    hierarchy_level=2,
+                    name_embedding=[0.3, 0.2, 0.4, 0.1, 0.3],
+                ),
+            ],
+        )
 
-    tool = ResolveBrainRegionTool(
-        metadata=ResolveBRMetadata(
-            token="greattokenpleasedontexpire",
-            httpx_client=AsyncClient(timeout=None),
-            entitycore_url="http://fake_entitycore_url.com/78",
-        ),
-        input_schema=ResolveBRInput(
-            brain_region="Field",
-        ),
-    )
+    @pytest.fixture
+    def mock_openai_client(self):
+        """Mock OpenAI client for embedding generation."""
+        client = AsyncMock()
 
-    response = await tool.arun()
-    assert isinstance(response, ResolveBROutput)
-    assert response == ResolveBROutput(
-        brain_regions=[
-            BrainRegion(
+        # Mock embedding response for "thalamus" query
+        mock_response = Mock()
+        mock_response.data = [
+            Mock(embedding=[0.85, 0.65, 0.75, 0.95, 0.55])
+        ]  # Close to Thalamus embedding
+
+        client.embeddings.create.return_value = mock_response
+        return client
+
+    async def test_exact_match_found(self, sample_brain_regions, mock_openai_client):
+        """Test when an exact name match is found."""
+        tool = ResolveBrainRegionTool(
+            metadata=ResolveBRMetadata(
+                brainregion_embeddings=[sample_brain_regions],
+                openai_client=mock_openai_client,
+            ),
+            input_schema=ResolveBRInput(
+                brain_region_name="Thalamus",  # Exact match
+                hierarchy_id="e3e70682-c209-4cac-a29f-6fbed82c07cd",
+                number_of_candidates=5,
+            ),
+        )
+
+        response = await tool.arun()
+
+        # Should return exact match with score 1.0
+        assert isinstance(response, ResolveBrainRegionToolOutput)
+        assert len(response.brain_regions) == 1
+        assert response.brain_regions[0].id == "thalamus_001"
+        assert response.brain_regions[0].name == "Thalamus"
+        assert response.brain_regions[0].score == 1.0
+
+        # OpenAI client should not be called for exact matches
+        mock_openai_client.embeddings.create.assert_not_called()
+
+    async def test_case_insensitive_exact_match(
+        self, sample_brain_regions, mock_openai_client
+    ):
+        """Test case-insensitive exact matching."""
+        tool = ResolveBrainRegionTool(
+            metadata=ResolveBRMetadata(
+                brainregion_embeddings=[sample_brain_regions],
+                openai_client=mock_openai_client,
+            ),
+            input_schema=ResolveBRInput(
+                brain_region_name="THALAMUS",  # Different case
+                hierarchy_id="e3e70682-c209-4cac-a29f-6fbed82c07cd",
+                number_of_candidates=5,
+            ),
+        )
+
+        response = await tool.arun()
+
+        assert isinstance(response, ResolveBrainRegionToolOutput)
+        assert len(response.brain_regions) == 1
+        assert response.brain_regions[0].id == "thalamus_001"
+        assert response.brain_regions[0].name == "Thalamus"
+        assert response.brain_regions[0].score == 1.0
+
+    @patch("sklearn.metrics.pairwise.cosine_similarity")
+    async def test_semantic_search_fallback(
+        self, mock_cosine_similarity, sample_brain_regions, mock_openai_client
+    ):
+        """Test semantic search when no exact match is found."""
+        # Mock cosine similarity to return high similarity for Thalamus
+        mock_cosine_similarity.return_value = [
+            0.95,
+            0.80,
+            0.75,
+            0.30,
+            0.25,
+        ]  # Scores for each region
+
+        tool = ResolveBrainRegionTool(
+            metadata=ResolveBRMetadata(
+                brainregion_embeddings=[sample_brain_regions],
+                openai_client=mock_openai_client,
+            ),
+            input_schema=ResolveBRInput(
+                brain_region_name="brain stem region",  # No exact match
+                hierarchy_id="e3e70682-c209-4cac-a29f-6fbed82c07cd",
+                number_of_candidates=3,
+            ),
+        )
+
+        response = await tool.arun()
+
+        # Verify OpenAI embedding was called
+        mock_openai_client.embeddings.create.assert_called_once_with(
+            input="brain stem region", model="text-embedding-3-small"
+        )
+
+        # Verify cosine similarity was computed
+        mock_cosine_similarity.assert_called_once()
+
+        # Check response structure and ordering (should be sorted by score descending)
+        assert isinstance(response, ResolveBrainRegionToolOutput)
+        assert len(response.brain_regions) == 3  # Limited by number_of_candidates
+
+        # First result should be highest scoring (Thalamus with 0.95)
+        assert response.brain_regions[0].id == "thalamus_001"
+        assert response.brain_regions[0].score == 0.95
+
+        # Second result should be Epithalamus with 0.80
+        assert response.brain_regions[1].id == "epithalamus_001"
+        assert response.brain_regions[1].score == 0.80
+
+        # Third result should be Hypothalamus with 0.75
+        assert response.brain_regions[2].id == "hypothalamus_001"
+        assert response.brain_regions[2].score == 0.75
+
+    async def test_hierarchy_not_found_error(
+        self, sample_brain_regions, mock_openai_client
+    ):
+        """Test error handling when hierarchy ID is not found."""
+        tool = ResolveBrainRegionTool(
+            metadata=ResolveBRMetadata(
+                brainregion_embeddings=[sample_brain_regions],
+                openai_client=mock_openai_client,
+            ),
+            input_schema=ResolveBRInput(
                 brain_region_name="Thalamus",
-                brain_region_id="5b8d11ba-a0ec-4e5a-a487-8d19586d7f41",
+                hierarchy_id="nonexistent-hierarchy-id",  # Invalid hierarchy ID
+                number_of_candidates=5,
             ),
-            BrainRegion(
-                brain_region_name="Epithalamus",
-                brain_region_id="b934718f-2d49-4ca2-81f4-317df5141524",
+        )
+
+        with pytest.raises(
+            ValueError, match="Hierarchy ID not found in existing embeddings"
+        ):
+            await tool.arun()
+
+    @patch("sklearn.metrics.pairwise.cosine_similarity")
+    async def test_number_of_candidates_limiting(
+        self, mock_cosine_similarity, sample_brain_regions, mock_openai_client
+    ):
+        """Test that the number of returned candidates is properly limited."""
+        # Mock similarity scores for all 5 regions
+        mock_cosine_similarity.return_value = [0.95, 0.90, 0.85, 0.80, 0.75]
+
+        tool = ResolveBrainRegionTool(
+            metadata=ResolveBRMetadata(
+                brainregion_embeddings=[sample_brain_regions],
+                openai_client=mock_openai_client,
             ),
-            BrainRegion(
-                brain_region_name="Hypothalamus",
-                brain_region_id="b75db71e-a453-4fe9-b48f-653e7b1bcb6b",
+            input_schema=ResolveBRInput(
+                brain_region_name="cortex region",
+                hierarchy_id="e3e70682-c209-4cac-a29f-6fbed82c07cd",
+                number_of_candidates=2,  # Limit to 2 results
             ),
-            BrainRegion(
-                brain_region_name="Thalamus: Other",
-                brain_region_id="84caa7c8-a159-4b4f-b901-726fc421325a",
+        )
+
+        response = await tool.arun()
+
+        assert isinstance(response, ResolveBrainRegionToolOutput)
+        assert len(response.brain_regions) == 2  # Should be limited to 2
+
+        # Should return the top 2 scoring regions
+        assert response.brain_regions[0].score == 0.95
+        assert response.brain_regions[1].score == 0.90
+
+    async def test_multiple_hierarchies_selection(self, mock_openai_client):
+        """Test that the correct hierarchy is selected when multiple are available."""
+        # Create two different hierarchies
+        hierarchy1 = EmbeddedBrainRegions(
+            hierarchy_id="hierarchy-1",
+            regions=[
+                EmbeddedBrainRegion(
+                    id="region_h1_1",
+                    name="Region H1-1",
+                    hierarchy_level=0,
+                    name_embedding=[0.1, 0.2, 0.3, 0.4, 0.5],
+                ),
+            ],
+        )
+
+        hierarchy2 = EmbeddedBrainRegions(
+            hierarchy_id="hierarchy-2",
+            regions=[
+                EmbeddedBrainRegion(
+                    id="region_h2_1",
+                    name="Region H2-1",
+                    hierarchy_level=0,
+                    name_embedding=[0.6, 0.7, 0.8, 0.9, 1.0],
+                ),
+            ],
+        )
+
+        tool = ResolveBrainRegionTool(
+            metadata=ResolveBRMetadata(
+                brainregion_embeddings=[hierarchy1, hierarchy2],
+                openai_client=mock_openai_client,
             ),
-            BrainRegion(
-                brain_region_name="thalamus related",
-                brain_region_id="41a93f90-dc82-4527-9da3-b7e2cad6e514",
+            input_schema=ResolveBRInput(
+                brain_region_name="Region H2-1",  # Exact match in hierarchy-2
+                hierarchy_id="hierarchy-2",
+                number_of_candidates=5,
             ),
-            BrainRegion(
-                brain_region_name="epithalamus related",
-                brain_region_id="fb82860d-eabc-48d0-b341-facdff0ac0f1",
-            ),
-            BrainRegion(
-                brain_region_name="Hypothalamus: Other",
-                brain_region_id="bad4c288-0bf5-4ed8-b93c-2989c399fd7f",
-            ),
-            BrainRegion(
-                brain_region_name="hypothalamus related",
-                brain_region_id="37176e84-d977-4993-bc49-d76fcfc6e625",
-            ),
-            BrainRegion(
-                brain_region_name="dorsal thalamus related",
-                brain_region_id="5f3f5638-3870-4a14-b490-b6081dfc8352",
-            ),
-            BrainRegion(
-                brain_region_name="Ethmoid nucleus of the thalamus",
-                brain_region_id="68adc28f-8463-416a-be65-6befe0efc989",
-            ),
-        ],
-    )
+        )
+
+        response = await tool.arun()
+
+        # Should find the exact match in hierarchy-2
+        assert isinstance(response, ResolveBrainRegionToolOutput)
+        assert len(response.brain_regions) == 1
+        assert response.brain_regions[0].id == "region_h2_1"
+        assert response.brain_regions[0].name == "Region H2-1"
+        assert response.brain_regions[0].score == 1.0

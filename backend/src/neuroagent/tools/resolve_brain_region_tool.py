@@ -3,12 +3,11 @@
 import logging
 from typing import ClassVar
 
-from httpx import AsyncClient
 from openai import AsyncOpenAI
 from pydantic import BaseModel, Field
 from sklearn.metrics.pairwise import cosine_similarity
 
-from neuroagent.schemas import BrainRegions
+from neuroagent.schemas import EmbeddedBrainRegions
 from neuroagent.tools.base_tool import (
     BaseMetadata,
     BaseTool,
@@ -35,11 +34,11 @@ class ResolveBRInput(BaseModel):
 class ResolveBRMetadata(BaseMetadata):
     """Metadata for ResolveEntitiesTool."""
 
-    brainregion_embeddings: list[BrainRegions]
+    brainregion_embeddings: list[EmbeddedBrainRegions]
     openai_client: AsyncOpenAI
 
 
-class BRResolveOutput(BaseModel):
+class BrainRegion(BaseModel):
     """Output schema for the Brain region resolver."""
 
     id: str
@@ -50,7 +49,7 @@ class BRResolveOutput(BaseModel):
 class ResolveBrainRegionToolOutput(BaseModel):
     """Output schema for the Resolve Entities tool."""
 
-    brain_regions: list[BRResolveOutput]
+    brain_regions: list[BrainRegion]
 
 
 class ResolveBrainRegionTool(BaseTool):
@@ -92,7 +91,7 @@ class ResolveBrainRegionTool(BaseTool):
             return next(
                 ResolveBrainRegionToolOutput(
                     brain_regions=[
-                        BRResolveOutput(
+                        BrainRegion(
                             id=region.id,
                             name=region.name,
                             score=1,
@@ -124,7 +123,7 @@ class ResolveBrainRegionTool(BaseTool):
 
         # Assign best score to each brain region and prepare for output.
         scored_regions = [
-            BRResolveOutput(id=brain_region.id, name=brain_region.name, score=score)
+            BrainRegion(id=brain_region.id, name=brain_region.name, score=score)
             for brain_region, score in zip(
                 hierarchy.regions,
                 input_name_region_name_similarity,
@@ -139,9 +138,6 @@ class ResolveBrainRegionTool(BaseTool):
         )
 
     @classmethod
-    async def is_online(cls, *, httpx_client: AsyncClient, entitycore_url: str) -> bool:
+    async def is_online(cls) -> bool:
         """Check if the tool is online."""
-        response = await httpx_client.get(
-            f"{entitycore_url.rstrip('/')}/health",
-        )
-        return response.status_code == 200
+        return True

@@ -28,7 +28,6 @@ class TestFlattenHierarchy:
         assert len(result) == 1
         assert result[0].id == "brain_001"
         assert result[0].name == "Whole Brain"
-        assert result[0].acronym == "WB"
         assert result[0].hierarchy_level == 0
 
     def test_flatten_simple_parent_child(self):
@@ -64,7 +63,6 @@ class TestFlattenHierarchy:
         parent = result[0]
         assert parent.id == "ctx_001"
         assert parent.name == "Cerebral Cortex"
-        assert parent.acronym == "CTX"
         assert parent.hierarchy_level == 0
 
         # Check children
@@ -153,7 +151,6 @@ class TestFlattenHierarchy:
         # Verify specific regions at correct levels
         assert level_0[0].name == "Brain"
         assert any(r.name == "Hippocampus" for r in level_3)
-        assert any(r.acronym == "CA1" for r in level_4)
 
     def test_flatten_with_custom_starting_level(self):
         """Test flattening with a custom starting hierarchy level."""
@@ -366,13 +363,12 @@ class TestPushEmbeddingsToS3:
         assert "test-hierarchy-123" in str(request.url)
         assert request.headers["Authorization"] == "Bearer test-bearer-token"
 
-        # Verify OpenAI embedding calls (should be called twice: names and acronyms)
-        assert mock_embeddings_api.create.call_count == 2
+        # Verify OpenAI embedding calls
+        assert mock_embeddings_api.create.call_count == 1
 
         # Check the embedding calls
         embedding_calls = mock_embeddings_api.create.call_args_list
         names_call = embedding_calls[0]
-        acronyms_call = embedding_calls[1]
 
         # Verify names were embedded
         expected_names = [
@@ -383,11 +379,6 @@ class TestPushEmbeddingsToS3:
         ]
         assert names_call.kwargs["input"] == expected_names
         assert names_call.kwargs["model"] == "text-embedding-3-small"
-
-        # Verify acronyms were embedded
-        expected_acronyms = ["TBR", "TCR1", "TCR2", "TGCR1"]
-        assert acronyms_call.kwargs["input"] == expected_acronyms
-        assert acronyms_call.kwargs["model"] == "text-embedding-3-small"
 
         # Verify S3 upload
         mock_s3_instance.put_object.assert_called_once()
@@ -407,9 +398,7 @@ class TestPushEmbeddingsToS3:
         # Check that embeddings were properly assigned
         for region_data in uploaded_data["regions"]:
             assert region_data["name_embedding"] is not None
-            assert region_data["acronym_embedding"] is not None
             assert len(region_data["name_embedding"]) == 5  # Embedding dimension
-            assert len(region_data["acronym_embedding"]) == 5
 
     @pytest.mark.asyncio
     async def test_entity_core_api_error_handling(self, httpx_mock):

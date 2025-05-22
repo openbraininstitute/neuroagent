@@ -11,7 +11,7 @@ from dotenv import load_dotenv
 from httpx import AsyncClient
 from openai import AsyncOpenAI
 
-from neuroagent.schemas import BrainRegion, BrainRegions
+from neuroagent.schemas import EmbeddedBrainRegion, EmbeddedBrainRegions
 
 load_dotenv()
 
@@ -89,13 +89,15 @@ def get_parser() -> argparse.ArgumentParser:
     return parser
 
 
-def flatten_hierarchy(hierarchy: dict[str, Any], level: int = 0) -> list[BrainRegion]:
+def flatten_hierarchy(
+    hierarchy: dict[str, Any], level: int = 0
+) -> list[EmbeddedBrainRegion]:
     """Recursively walk the hierarchy and return a flat list of all brain regions for every node."""
-    regions: list[BrainRegion] = []
+    regions: list[EmbeddedBrainRegion] = []
 
     # 1. Add this node
     regions.append(
-        BrainRegion(
+        EmbeddedBrainRegion(
             id=hierarchy["id"],
             name=hierarchy["name"],
             hierarchy_level=level,
@@ -133,7 +135,9 @@ async def push_embeddings_to_s3(
 
     logger.info("Flattening the hierarchy.")
     flattened_hierarchy = flatten_hierarchy(hierarchy=hierarchy.json(), level=0)
-    brain_regions = BrainRegions(regions=flattened_hierarchy, hierarchy_id=hierarchy_id)
+    brain_regions = EmbeddedBrainRegions(
+        regions=flattened_hierarchy, hierarchy_id=hierarchy_id
+    )
 
     # Gather the names
     names = [brain_region.name for brain_region in brain_regions.regions]

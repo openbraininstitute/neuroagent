@@ -151,7 +151,7 @@ class JSONMultiLinechart(BaseObject):
     line_color: str | None = Field(None, description="Hex color code for the line")
 
 
-class BrainRegion(BaseModel):
+class EmbeddedBrainRegion(BaseModel):
     """Brain region schema."""
 
     id: str
@@ -160,8 +160,8 @@ class BrainRegion(BaseModel):
     name_embedding: list[float] | None = None
 
 
-class BrainRegions(BaseModel):
+class EmbeddedBrainRegions(BaseModel):
     """Schema for dumping."""
 
-    regions: list[BrainRegion]
+    regions: list[EmbeddedBrainRegion]
     hierarchy_id: str
