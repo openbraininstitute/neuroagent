@@ -86,7 +86,7 @@ class ResolveBrainRegionTool(BaseTool):
         except StopIteration:
             raise ValueError("Hierarchy ID not found in existing embeddings.")
 
-        # Try name exact match before anything
+        # Try exact match before anything
         try:
             return next(
                 ResolveBrainRegionToolOutput(
@@ -116,12 +116,12 @@ class ResolveBrainRegionTool(BaseTool):
             brain_region.name_embedding for brain_region in hierarchy.regions
         ]
 
-        # Compute cosine similarity for names
+        # Compute cosine similarity
         input_name_region_name_similarity = cosine_similarity(
             [name_embedding], br_name_embeddings
         ).squeeze(axis=0)
 
-        # Assign best score to each brain region and prepare for output.
+        # Assign score to each brain region and prepare for output.
         scored_regions = [
             BrainRegion(id=brain_region.id, name=brain_region.name, score=score)
             for brain_region, score in zip(
@@ -130,7 +130,7 @@ class ResolveBrainRegionTool(BaseTool):
             )
         ]
 
-        # Sort brain regions by their best score
+        # Sort brain regions by their score
         top_brain_regions = sorted(scored_regions, key=lambda x: x.score, reverse=True)
 
         return ResolveBrainRegionToolOutput(

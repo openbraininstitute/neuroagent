@@ -118,7 +118,7 @@ async def push_embeddings_to_s3(
     s3_bucket_name: str,
     token: str,
 ) -> None:
-    """Update the database with the latest brain regions and embeddings."""
+    """Compute and push embeddings to s3."""
     httpx_client = AsyncClient(timeout=None)
     logger.info(f"Getting brain hierarchy {hierarchy_id} from Entity-Core.")
 
