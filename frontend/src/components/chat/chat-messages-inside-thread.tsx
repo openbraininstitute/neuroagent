@@ -89,17 +89,19 @@ export function ChatMessagesInsideThread({
                 }
               })}
 
-            <ChatMessageAI
-              messageId={message.id}
-              content={message.content}
-              hasTools={
-                message.parts?.some(
-                  (part) => part.type === "tool-invocation",
-                ) ?? false
-              }
-              isToolsCollapsed={collapsedTools.has(message.id)}
-              toggleCollapse={() => handleToggleCollapse(message.id)}
-            />
+            {message.content && (
+              <ChatMessageAI
+                messageId={message.id}
+                content={message.content}
+                hasTools={
+                  message.parts?.some(
+                    (part) => part.type === "tool-invocation",
+                  ) ?? false
+                }
+                isToolsCollapsed={collapsedTools.has(message.id)}
+                toggleCollapse={() => handleToggleCollapse(message.id)}
+              />
+            )}
             <PlotsInChat
               storageIds={Array.from(associatedStorageID.get(message.id) || [])}
             />
