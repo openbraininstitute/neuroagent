@@ -1,8 +1,8 @@
 "use client";
 
-import { useChat } from "ai/react";
+import { useChat } from "@ai-sdk/react";
 import { useEffect, useRef, useState } from "react";
-import { BMessage, BMessageUser, type MessageStrict } from "@/lib/types";
+import { BMessage, type MessageStrict } from "@/lib/types";
 import { env } from "@/lib/env";
 import { useSession } from "next-auth/react";
 import { ExtendedSession } from "@/lib/auth";
@@ -30,10 +30,12 @@ export function ChatPage({
 }: ChatPageProps) {
   // Auth and store data
   const { data: session } = useSession() as { data: ExtendedSession | null };
-  const newMessage = useStore((state) => state.newMessage);
-  const checkedTools = useStore((state) => state.checkedTools);
-  const setNewMessage = useStore((state) => state.setNewMessage);
   const setCheckedTools = useStore((state) => state.setCheckedTools);
+  const checkedTools = useStore((state) => state.checkedTools);
+  // New conversation variables
+  const newMessage = useStore((state) => state.newMessage);
+  const setNewMessage = useStore((state) => state.setNewMessage);
+  const hasSendFirstMessage = useRef(false);
   // Tool calls
   const [processedToolInvocationMessages, setProcessedToolInvocationMessages] =
     useState<string[]>([]);
@@ -75,6 +77,7 @@ export function ChatPage({
     handleInputChange,
     handleSubmit,
     isLoading,
+    append,
     setMessages: setMessagesRaw,
     error,
     stop,
@@ -108,22 +111,19 @@ export function ChatPage({
   // Initial use effect that runs on mount
   useEffect(() => {
     // Send new message when new chat.
-    if (initialMessages.length === 0 && newMessage !== "") {
-      initialMessages.push({
-        entity: "user",
-        message_id: "temp_id",
-        msg_content: {
-          role: "user",
-          content: newMessage,
-        },
-        creation_date: new Date().toString(),
-        thread_id: threadId,
-        is_complete: true,
-        tool_calls: [],
-      } as BMessageUser);
+    if (
+      initialMessages.length === 0 &&
+      newMessage !== "" &&
+      !hasSendFirstMessage.current
+    ) {
+      hasSendFirstMessage.current = true;
+      append({
+        id: "temp_id",
+        role: "user",
+        content: newMessage,
+      });
       generateEditTitle(null, threadId, newMessage);
       setNewMessage("");
-      handleSubmit(undefined, { allowEmptySubmit: true });
     }
 
     // If checkedTools is not initialized yet, initialize it

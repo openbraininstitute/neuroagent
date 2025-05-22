@@ -1,4 +1,4 @@
-import { Message } from "ai/react";
+import { Message } from "@ai-sdk/react";
 
 export type BPaginatedResponse = {
   next_cursor: string;
@@ -244,4 +244,4 @@ export class CustomError extends Error {
 }
 
 export const threadPageSize = "25";
-export const messagePageSize = "5";
+export const messagePageSize = "25";
