@@ -66,17 +66,12 @@ def get_settings() -> Settings:
     return Settings()
 
 
-async def get_httpx_client(
-    request: Request, token: Annotated[str, Depends(auth)]
-) -> AsyncIterator[AsyncClient]:
+async def get_httpx_client(request: Request) -> AsyncIterator[AsyncClient]:
     """Manage the httpx client for the request."""
     client = AsyncClient(
         timeout=300.0,
         verify=False,
-        headers={
-            "x-request-id": request.headers["x-request-id"],
-            "Authorization": f"Bearer {token}",
-        },
+        headers={"x-request-id": request.headers["x-request-id"]},
     )
     try:
         yield client
@@ -156,7 +151,10 @@ async def get_user_info(
     """Validate JWT token and returns user ID."""
     if settings.keycloak.user_info_endpoint:
         try:
-            response = await httpx_client.get(settings.keycloak.user_info_endpoint)
+            response = await httpx_client.get(
+                settings.keycloak.user_info_endpoint,
+                headers={"Authorization": f"Bearer {token}"},
+            )
             response.raise_for_status()
             return UserInfo(**response.json())
         except HTTPStatusError:
