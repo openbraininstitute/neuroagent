@@ -20,11 +20,8 @@ class MCPClient:
     """MCP client."""
 
     def __init__(self, config: SettingsMCP):
-        # Initialize session and client objects
         self.config = config
-        self.exit_stack: dict[str, AsyncExitStack] = {
-            name: AsyncExitStack() for name in self.config.servers.keys()
-        }
+        self.exit_stack = AsyncExitStack()  # Single exit stack for all servers
         self.sessions: dict[str, ClientSession] = {}
         self.tools: dict[str, list[Tool]] = {}
 
@@ -42,26 +39,20 @@ class MCPClient:
                 env=env,
             )
 
-            stdio_transport = await self.exit_stack[name].enter_async_context(
+            stdio_transport = await self.exit_stack.enter_async_context(
                 stdio_client(server_params)
             )
-            self.sessions[name] = await self.exit_stack[name].enter_async_context(
+            self.sessions[name] = await self.exit_stack.enter_async_context(
                 ClientSession(*stdio_transport)
             )
 
             await self.sessions[name].initialize()
-
-            # List available tools
             response = await self.sessions[name].list_tools()
-
             self.tools[name] = response.tools
 
     async def cleanup(self) -> None:
         """Clean up resources."""
-        # Clean up server connections - for some reason does not work
-        # for name, stack in self.exit_stack.items():
-        #     logger.info(f"Cleaning up server: {name}")
-        #     await stack.aclose()
+        await self.exit_stack.aclose()
 
 
 def create_dynamic_tool(
