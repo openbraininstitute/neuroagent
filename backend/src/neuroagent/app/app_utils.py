@@ -1,6 +1,8 @@
 """App utilities functions."""
 
+import json
 import logging
+import re
 from pathlib import Path
 from typing import Any
 
@@ -18,6 +20,7 @@ from starlette.status import HTTP_401_UNAUTHORIZED
 
 from neuroagent.app.config import Settings
 from neuroagent.app.database.sql_schemas import Messages, Threads, utc_now
+from neuroagent.schemas import EmbeddedBrainRegions
 
 logger = logging.getLogger(__name__)
 
@@ -205,3 +208,21 @@ async def commit_messages(
         thread.update_date = utc_now()
         await session.commit()
         await session.close()
+
+
+def get_br_embeddings(
+    s3_client: Any, bucket_name: str, folder: str
+) -> list[EmbeddedBrainRegions]:
+    """Retrieve brain regions embeddings from s3."""
+    file_list = s3_client.list_objects_v2(Bucket=bucket_name, Prefix=folder)
+    pattern = re.compile(rf"^{folder}/.*_hierarchy_embeddings.json$")
+    output: list[EmbeddedBrainRegions] = []
+
+    if "Contents" in file_list:
+        for obj in file_list["Contents"]:
+            key = obj["Key"]
+            if pattern.match(key):
+                file_obj = s3_client.get_object(Bucket=bucket_name, Key=key)
+                content = json.loads(file_obj["Body"].read().decode("utf-8"))
+                output.append(EmbeddedBrainRegions(**content))
+    return output

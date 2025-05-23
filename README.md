@@ -27,6 +27,12 @@ docker cp brainregion_hierarchy.json neuroagent-minio-1:/tmp/brainregion_hierarc
 docker cp celltypes_hierarchy.json neuroagent-minio-1:/tmp/celltypes_hierarchy.json && docker exec -it neuroagent-minio-1 mc alias set myminio http://minio:9000 minioadmin minioadmin && docker exec -it neuroagent-minio-1 mc cp /tmp/celltypes_hierarchy.json myminio/neuroagent/shared/celltypes_hierarchy.json
 ```
 
+To enable the brain region resolving tool, retrieve your bearer token and make sure to run the following script:
+```bash
+python backend/src/neuroagent/scripts/embed_hierarchies.py $token -e https://staging.openbraininstitute.org/api/entitycore/ -u http://localhost:9000 -b neuroagent -a minioadmin -s minioadmin
+```
+which stores a json file in your minio/s3 instance.
+
 4. Access the application at `http://localhost:3000`
 
 Notes:

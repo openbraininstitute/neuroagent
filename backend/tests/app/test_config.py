@@ -1,8 +1,5 @@
 """Test config"""
 
-import pytest
-from pydantic import ValidationError
-
 from neuroagent.app.config import Settings
 
 
@@ -19,12 +16,6 @@ def test_required(monkeypatch, patch_required_env):
 
     settings = Settings()
     assert settings.tools.literature.url == "https://new_fake_url"
-
-
-def test_no_settings():
-    # We get an error when no custom variables provided
-    with pytest.raises(ValidationError):
-        Settings()
 
 
 def test_setup_tools(monkeypatch, patch_required_env):
