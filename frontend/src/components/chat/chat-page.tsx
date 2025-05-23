@@ -1,7 +1,7 @@
 "use client";
 
 import { useChat } from "@ai-sdk/react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { BMessage, type MessageStrict } from "@/lib/types";
 import { env } from "@/lib/env";
 import { useSession } from "next-auth/react";
@@ -67,9 +67,12 @@ export function ChatPage({
     pageParams: [null],
   });
 
-  const retrievedMessages = convertToAiMessages(
-    data?.pages.flatMap((page) => page.messages) ?? [],
-  );
+  //translate all messages to vercel, useMemo to fix infinite loop.
+  const retrievedMessages = useMemo(() => {
+    return convertToAiMessages(
+      data?.pages.flatMap((page) => page.messages) ?? [],
+    );
+  }, [data?.pages]);
 
   const {
     messages: messagesRaw,
@@ -96,12 +99,8 @@ export function ChatPage({
     },
   });
 
-  // For some reason, sometimes useChat displayed duplicate IDs for a split second,
-  // and it raised an error which then broke everything. I filtered out by ID.
-  // I will make it better with the new use chat since I know the initial message behaviour is different.
-  const messages = messagesRaw.filter(
-    (msg, index, self) => index === self.findIndex((m) => m.id === msg.id),
-  ) as MessageStrict[];
+  // Convert to our types.
+  const messages = messagesRaw as MessageStrict[];
   const setMessages = setMessagesRaw as (
     messages:
       | MessageStrict[]

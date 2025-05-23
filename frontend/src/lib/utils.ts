@@ -126,6 +126,7 @@ export function convertToAiMessages(messages: BMessage[]): MessageStrict[] {
         createdAt: new Date(message.creation_date),
         parts: [{ type: "text", text: message.content }],
       });
+
       // Ai messages require annotation change
     } else if (message.role === "ai_message") {
       // Compute tool calls and annotations
@@ -154,7 +155,7 @@ export function convertToAiMessages(messages: BMessage[]): MessageStrict[] {
         content: message.content,
         role: "assistant",
         createdAt: new Date(message.creation_date),
-        parts: tool_calls,
+        parts: [...tool_calls, { type: "text", text: message.content }],
         annotations: annotations,
       });
     }
