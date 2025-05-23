@@ -5,10 +5,10 @@ import json
 import logging
 from typing import Annotated, Any, Literal
 
-from fastapi import APIRouter, Depends, HTTPException, Query, Response
+from fastapi import APIRouter, Depends, HTTPException, Response
 from openai import AsyncOpenAI
 from redis import asyncio as aioredis
-from sqlalchemy import desc, or_, select, true
+from sqlalchemy import desc, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
@@ -17,7 +17,7 @@ from neuroagent.app.app_utils import (
     validate_project,
 )
 from neuroagent.app.config import Settings
-from neuroagent.app.database.sql_schemas import Messages, Threads, utc_now
+from neuroagent.app.database.sql_schemas import Entity, Messages, Threads, utc_now
 from neuroagent.app.dependencies import (
     get_openai_client,
     get_redis_client,
@@ -37,6 +37,7 @@ from neuroagent.app.schemas import (
     ThreadGeneratedTitle,
     ThreadsRead,
     ThreadUpdate,
+    ToolCall,
     UserInfo,
 )
 from neuroagent.tools.base_tool import BaseTool
@@ -226,7 +227,6 @@ async def get_thread_by_id(
     return ThreadsRead(**thread.__dict__)
 
 
-# Define your routes here
 @router.get("/{thread_id}/messages")
 async def get_thread_messages(
     session: Annotated[AsyncSession, Depends(get_session)],
@@ -234,45 +234,31 @@ async def get_thread_messages(
     thread_id: str,
     tool_list: Annotated[list[type[BaseTool]], Depends(get_tool_list)],
     pagination_params: PaginatedParams = Depends(),
-    entity: list[Literal["USER", "AI_TOOL", "TOOL", "AI_MESSAGE"]] | None = Query(
-        default=None
-    ),
-    sort: Literal["creation_date", "-creation_date"] = "-creation_date",
+    # sort: Literal["creation_date", "-creation_date"] = "-creation_date",
 ) -> PaginatedResponse[MessagesRead]:
     """Get all messages of the thread."""
     # Create mapping of tool names to their HIL requirement
     tool_hil_mapping = {tool.name: tool.hil for tool in tool_list}
 
-    if entity:
-        entity_where = or_(*[Messages.entity == ent for ent in entity])
-    else:
-        entity_where = true()
+    # We first get all User / AI_messages in the page
+    where_conditions = [
+        Messages.thread_id == thread_id,
+        Messages.entity.in_([Entity.USER, Entity.AI_MESSAGE]),
+    ]
+    if pagination_params.cursor:
+        # in descending mode we page backwards: only older than the cursor
+        where_conditions.append(Messages.creation_date < pagination_params.cursor)
 
-    where_conditions = [Messages.thread_id == thread_id, entity_where]
-
-    if pagination_params.cursor is not None:
-        comparison_op = (
-            Messages.creation_date
-            < datetime.datetime.fromisoformat(pagination_params.cursor)
-            if sort.startswith("-")
-            else Messages.creation_date
-            > datetime.datetime.fromisoformat(pagination_params.cursor)
-        )
-        where_conditions.append(comparison_op)
-
-    messages_result = await session.execute(
-        select(Messages)
+    creation_date_results = await session.execute(
+        select(Messages.creation_date)
         .where(*where_conditions)
-        .order_by(
-            desc(Messages.creation_date)
-            if sort.startswith("-")
-            else Messages.creation_date
-        )
+        .order_by(desc(Messages.creation_date))
         .limit(pagination_params.page_size + 1)
     )
-    db_messages = messages_result.scalars().all()
 
-    if not db_messages:
+    creation_dates = creation_date_results.scalars().all()
+
+    if not creation_dates:
         return PaginatedResponse(
             next_cursor=None,
             has_more=False,
@@ -280,54 +266,66 @@ async def get_thread_messages(
             results=[],
         )
 
-    has_more = len(db_messages) > pagination_params.page_size
-    db_messages = db_messages[:-1] if has_more else db_messages
+    has_more = len(creation_dates) > pagination_params.page_size
+    page_dates = creation_dates[:-1] if has_more else creation_dates
+    newest_msg_in_page, oldest_msg_in_page = page_dates[0], page_dates[-1]
 
-    # Pagination needs to happen on non-joined parent.
-    # Once we have them we can eager load the tool calls
-    await session.execute(
+    # Get all messages in page and eager load tool calls in one go.
+    all_msg_in_page_query = (
         select(Messages)
         .options(selectinload(Messages.tool_calls))
-        .where(Messages.message_id.in_([msg.message_id for msg in db_messages]))
+        .where(
+            Messages.thread_id == thread_id,
+            Messages.creation_date <= newest_msg_in_page,
+            Messages.creation_date >= oldest_msg_in_page,
+        )
+        .order_by(desc(Messages.creation_date))
     )
+    all_msg_in_page_result = await session.execute(all_msg_in_page_query)
+    db_messages = all_msg_in_page_result.scalars().all()
 
     messages = []
     for msg in db_messages:
-        # Create a clean dict without SQLAlchemy attributes
-        message_data = {
-            "message_id": msg.message_id,
-            "entity": msg.entity.value,  # Convert enum to string
-            "thread_id": msg.thread_id,
-            "is_complete": msg.is_complete,
-            "creation_date": msg.creation_date.isoformat(),  # Convert datetime to string
-            "msg_content": json.loads(msg.content),
-        }
+        role = "user" if msg.entity is Entity.USER else "assistant"
 
-        # Map validation status based on tool requirements
-        tool_calls_data = []
-        for tc in msg.tool_calls:
-            requires_validation = tool_hil_mapping.get(tc.name, False)
+        content = json.loads(msg.content)
 
-            if tc.validated is True:
-                validation_status = "accepted"
-            elif tc.validated is False:
-                validation_status = "rejected"
-            elif not requires_validation:
-                validation_status = "not_required"
-            else:
-                validation_status = "pending"
+        parts = []
+        if msg.entity is Entity.AI_MESSAGE:
+            for tc in msg.tool_calls:
+                requires_validation = tool_hil_mapping.get(tc.name, False)
 
-            tool_calls_data.append(
-                {
-                    "tool_call_id": tc.tool_call_id,
-                    "name": tc.name,
-                    "arguments": tc.arguments,
-                    "validated": validation_status,
-                }
+                if tc.validated is True:
+                    status = "accepted"
+                elif tc.validated is False:
+                    status = "rejected"
+                elif not requires_validation:
+                    status = "not_required"
+                else:
+                    status = "pending"
+
+                parts.append(
+                    ToolCall(
+                        tool_call_id=tc.tool_call_id,
+                        name=tc.name,
+                        arguments=tc.arguments,
+                        validation_status=status,
+                    )
+                )
+
+        parts_or_none = parts if parts else None
+
+        messages.append(
+            MessagesRead(
+                id=msg.message_id,
+                role=role,
+                thread_id=msg.thread_id,
+                is_complete=msg.is_complete,
+                created_at=msg.creation_date,
+                content=content,
+                parts=parts_or_none,
             )
-
-        message_data["tool_calls"] = tool_calls_data
-        messages.append(MessagesRead(**message_data))
+        )
 
     return PaginatedResponse(
         next_cursor=messages[-1].creation_date,

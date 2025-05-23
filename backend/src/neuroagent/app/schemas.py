@@ -25,13 +25,13 @@ T = TypeVar("T", bound=BaseRead)
 class MessagesRead(BaseRead):
     """Message response."""
 
-    message_id: str
-    entity: str
+    id: str
+    role: str
     thread_id: str
     is_complete: bool
-    creation_date: datetime.datetime
-    msg_content: dict[str, Any]
-    tool_calls: list[ToolCall]
+    created_at: datetime.datetime
+    content: str
+    parts: list[ToolCall] | None
 
 
 class ThreadsRead(BaseRead):
