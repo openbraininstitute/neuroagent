@@ -142,8 +142,8 @@ async def get_tool_metadata(
         logger.exception(f"Error checking tool {tool_class.name} online status")
         is_online = False
 
+    input_schema: dict[str, Any] = {"parameters": []}
     if tool_class.json_schema is not None:
-        input_schema: dict[str, Any] = {"parameters": []}
         json_schema = tool_class.json_schema
 
         # Extract parameters from JSON schema
@@ -157,8 +157,6 @@ async def get_tool_metadata(
                 }
                 input_schema["parameters"].append(parameter)
     else:
-        input_schema: dict[str, Any] = {"parameters": []}
-
         for name in tool_class.__annotations__["input_schema"].model_fields:
             field = tool_class.__annotations__["input_schema"].model_fields[name]
             is_required = field.is_required()

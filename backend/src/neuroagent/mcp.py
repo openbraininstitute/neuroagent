@@ -58,10 +58,6 @@ class MCPClient:
 
     async def cleanup(self) -> None:
         """Clean up resources."""
-        # Clean up dynamic tools directory
-        if self.dynamic_tools_dir.exists():
-            shutil.rmtree(self.dynamic_tools_dir)
-
         # Clean up server connections - for some reason does not work
         # for name, stack in self.exit_stack.items():
         #     logger.info(f"Cleaning up server: {name}")
@@ -126,7 +122,7 @@ def create_dynamic_tool(
             # This will be implemented by the MCP client
             result = await session.call_tool(
                 tool_name,
-                arguments=self.input_schema.model_dump(),  # type: ignore[attr-defined]
+                arguments=self.input_schema.model_dump(),
             )
 
             return result
