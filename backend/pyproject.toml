@@ -17,7 +17,6 @@ dependencies = [
     "asyncpg",
     "boto3",
     "bluepyefe",
-    "datamodel-code-generator",
     "efel",
     "fastapi",
     "matplotlib",
