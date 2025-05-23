@@ -1,16 +1,10 @@
 """MCP client logic."""
 
-import importlib.util
-import json
 import logging
 import shutil
-import sys
 from contextlib import AsyncExitStack
-from pathlib import Path
 from typing import Any, ClassVar, Type
 
-from datamodel_code_generator import DataModelType, InputFileType, generate
-from datamodel_code_generator.parser import LiteralType
 from mcp import ClientSession, StdioServerParameters
 from mcp.client.stdio import stdio_client
 from mcp.types import CallToolResult, Tool
