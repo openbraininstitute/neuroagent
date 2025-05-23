@@ -337,6 +337,7 @@ async def get_thread_messages(
                     {
                         "tool_call_id": tc.tool_call_id,
                         "name": tc.name,
+                        "is_complete": msg.is_complete,
                         "arguments": tc.arguments,
                         "validated": status,
                     }

@@ -1,4 +1,4 @@
-import { Message } from "@ai-sdk/react";
+import { UIMessage } from "@ai-sdk/ui-utils";
 
 export type BPaginatedResponse = {
   next_cursor: string;
@@ -26,7 +26,9 @@ export type BToolCall = {
   tool_call_id: string;
   name: string;
   arguments: string;
+  is_complete: boolean;
   validated: "accepted" | "rejected" | "pending" | "not_required";
+  results?: string;
 };
 
 export type Annotation = {
@@ -36,75 +38,30 @@ export type Annotation = {
 };
 
 export type BMessageUser = {
-  message_id: string;
-  entity: "user";
+  id: string;
+  role: "user";
   thread_id: string;
   creation_date: string;
   is_complete: true;
-  msg_content: {
-    role: "user";
-    content: string;
-  };
-  tool_calls: never[];
+  content: string;
+  parts: null;
 };
 
 export type BMessageAIContent = {
-  message_id: string;
-  entity: "ai_message";
+  id: string;
+  role: "ai_message";
   thread_id: string;
-  order: number;
   creation_date: string;
   is_complete: boolean;
-  msg_content: {
-    content: string;
-    sender: string;
-    role: "assistant";
-    function_call: null;
-  };
-  tool_calls: never[];
+  content: string;
+  parts: BToolCall[];
 };
 
-export type BMessageAITool = {
-  message_id: string;
-  entity: "ai_tool";
-  thread_id: string;
-  order: number;
-  creation_date: string;
-  is_complete: boolean;
-  msg_content: {
-    role: "assistant";
-    content: string;
-    sender: string;
-    function_call: null;
-  };
-  tool_calls: BToolCall[];
-};
-
-export type BMessageTool = {
-  message_id: string;
-  entity: "tool";
-  thread_id: string;
-  order: number;
-  creation_date: string;
-  is_complete: boolean;
-  msg_content: {
-    role: "assistant";
-    tool_call_id: string;
-    tool_name: string;
-    content: string;
-  };
-  tool_calls: never[];
-};
-
-export type BMessage =
-  | BMessageUser
-  | BMessageAITool
-  | BMessageTool
-  | BMessageAIContent;
+export type BMessage = BMessageUser | BMessageAIContent;
 
 // This explicitly overrides any existing 'annotations' property
 // The AI SDK make it more general by JSONValue[], but we need to be more specific
-export type MessageStrict = Omit<Message, "annotations"> & {
+export type MessageStrict = Omit<UIMessage, "annotations"> & {
   annotations?: Annotation[];
 };
 

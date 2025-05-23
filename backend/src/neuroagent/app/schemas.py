@@ -12,7 +12,9 @@ class ToolCall(BaseModel):
     tool_call_id: str
     name: str
     arguments: str
+    is_complete: bool
     validated: Literal["accepted", "rejected", "pending", "not_required"]
+    results: str
 
 
 class BaseRead(BaseModel):

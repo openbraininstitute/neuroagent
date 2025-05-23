@@ -1,6 +1,7 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 import { MessageStrict, BMessage, Annotation } from "@/lib/types";
+import { ToolInvocationUIPart } from "@ai-sdk/ui-utils";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -116,76 +117,47 @@ export function convertToAiMessages(messages: BMessage[]): MessageStrict[] {
   const output: MessageStrict[] = [];
 
   for (const message of messages) {
-    if (message.entity === "user") {
+    // User messages is a simple translation
+    if (message.role === "user") {
       output.push({
-        id: message.message_id,
-        content: message.msg_content.content,
+        id: message.id,
+        content: message.content,
         role: "user",
         createdAt: new Date(message.creation_date),
+        parts: [{ type: "text", text: message.content }],
       });
-    } else if (message.entity === "ai_message") {
-      output.push({
-        id: message.message_id,
-        content: message.msg_content.content,
-        role: "assistant",
-        createdAt: new Date(message.creation_date),
-      });
-    } else if (message.entity === "ai_tool") {
-      const annotations: Annotation[] = message.tool_calls.map((call) => ({
-        toolCallId: call.tool_call_id,
-        validated: call.validated,
-      }));
-      // Since openai sends all of the parallel tool calls together and we await all
-      // tool executions before proceeding anyway, it in theory cannot happen
-      // that one tool call of an ai_tool message is executed while
-      // others are aborted. Therefore completion is a message level annotation
-      annotations.push({
-        isComplete:
-          message.is_complete &&
-          // For every tool, check if the associated answer is complete
-          message.tool_calls.every((toolCall) => {
-            const toolResponse = messages.find(
-              (m) =>
-                m.entity === "tool" &&
-                m.msg_content.tool_call_id === toolCall.tool_call_id,
-            );
-            return toolResponse?.is_complete ?? true; // undefined => pre-validation HIL messages => valid
-          }),
-      });
-
-      const toolInvocations = message.tool_calls.map((toolCall) => {
-        const toolResponse = messages.find(
-          (m) =>
-            m.entity === "tool" &&
-            m.msg_content.tool_call_id === toolCall.tool_call_id,
-        );
-
-        // Interrupted streams might have partial json
-        let args: string;
-        try {
-          args = JSON.parse(toolCall.arguments);
-        } catch {
-          args = toolCall.arguments;
-        }
-        return {
-          toolCallId: toolCall.tool_call_id,
-          toolName: toolCall.name,
-          args: args,
-          state: toolResponse ? ("result" as const) : ("call" as const),
-          result: toolResponse?.msg_content.content ?? null,
-        };
-      });
+      // Ai messages require annotation change
+    } else if (message.role === "ai_message") {
+      // Compute tool calls and annotations
+      const tool_calls: ToolInvocationUIPart[] = [];
+      const annotations: Annotation[] = [];
+      for (const tc of message.parts) {
+        tool_calls.push({
+          type: "tool-invocation" as const,
+          toolInvocation: {
+            state: "result",
+            toolCallId: tc.tool_call_id,
+            toolName: tc.name,
+            args: tc.arguments,
+            result: tc.results,
+          },
+        });
+        annotations.push({
+          toolCallId: tc.tool_call_id,
+          validated: tc.validated,
+          isComplete: tc.is_complete,
+        });
+      }
 
       output.push({
-        id: message.message_id,
-        content: message.msg_content.content,
+        id: message.id,
+        content: message.content,
         role: "assistant",
         createdAt: new Date(message.creation_date),
-        toolInvocations,
-        annotations,
+        parts: tool_calls,
+        annotations: annotations,
       });
     }
   }
-
   return output;
 }
