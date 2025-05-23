@@ -163,8 +163,8 @@ class ElectrophysInput(BaseModel):
 class ElectrophysMetadata(BaseMetadata):
     """Metadata class for the electrophys tool."""
 
+    httpx_client: AsyncClient
     knowledge_graph_url: str
-    token: str
 
 
 class ElectrophysFeatureToolOutput(BaseModel):
@@ -226,7 +226,6 @@ class ElectrophysFeatureTool(BaseTool):
             object_id=self.input_schema.trace_id,
             httpx_client=self.metadata.httpx_client,
             url=self.metadata.knowledge_graph_url,
-            token=self.metadata.token,
             preferred_format="nwb",
         )
 

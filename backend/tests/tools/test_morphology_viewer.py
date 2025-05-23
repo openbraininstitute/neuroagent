@@ -55,7 +55,6 @@ class TestMorphologyViewerTool:
             ),
             metadata=MorphologyViewerMetadata(
                 knowledge_graph_url="http://test.url",
-                token="test_token",
                 s3_client=mock_s3,
                 user_id="test_user",
                 bucket_name="test_bucket",
@@ -75,7 +74,6 @@ class TestMorphologyViewerTool:
             object_id="test_morpho_id",
             httpx_client=mock_httpx_client,
             url="http://test.url",
-            token="test_token",
             preferred_format="swc",
         )
         mock_load_morphology.assert_called_once_with(

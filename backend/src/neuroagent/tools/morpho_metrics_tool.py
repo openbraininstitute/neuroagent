@@ -23,7 +23,6 @@ class MorphoMetricsInputs(BaseModel):
 class MorphoMetricsMetadata(BaseMetadata):
     """Metadata of the MorphoMetrics tool."""
 
-    token: str
     httpx_client: AsyncClient
     obi_one_url: str
     vlab_id: str | None
@@ -58,7 +57,6 @@ class MorphoMetricsTool(BaseTool):
         morpho_metrics_response = await self.metadata.httpx_client.get(
             url=f"{self.metadata.obi_one_url}/declared/neuron-morphology-metrics/{self.input_schema.morphology_id}",
             headers={
-                "Authorization": f"Bearer {self.metadata.token}",
                 **(
                     {
                         "virtual-lab-id": self.metadata.vlab_id,

@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 class SCSPostMetadata(BaseMetadata):
     """Metadata class for the get all simulations api."""
 
-    token: str
+    httpx_client: AsyncClient
     vlab_id: str
     project_id: str
     bluenaas_url: str
@@ -128,7 +128,6 @@ class SCSPostTool(BaseTool):
         response = await self.metadata.httpx_client.post(
             url=f"{self.metadata.bluenaas_url}/simulation/single-neuron/{self.metadata.vlab_id}/{self.metadata.project_id}/run",
             params={"model_id": self.input_schema.me_model_id, "realtime": "False"},
-            headers={"Authorization": f"Bearer {self.metadata.token}"},
             json=json_api,
         )
         json_response = response.json()

@@ -34,11 +34,16 @@ def test_get_settings(patch_required_env):
 async def test_get_httpx_client():
     request = Mock()
     request.headers = {"x-request-id": "greatid"}
-    httpx_client_iterator = get_httpx_client(request=request)
+    httpx_client_iterator = get_httpx_client(
+        request=request, token="eytwngmrtknorimawng78bbz"
+    )
     assert isinstance(httpx_client_iterator, AsyncIterator)
     async for httpx_client in httpx_client_iterator:
         assert isinstance(httpx_client, AsyncClient)
         assert httpx_client.headers["x-request-id"] == "greatid"
+        assert (
+            httpx_client.headers["Authorization"] == "Bearer eytwngmrtknorimawng78bbz"
+        )
 
 
 @pytest.mark.asyncio

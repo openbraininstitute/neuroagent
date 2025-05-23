@@ -511,8 +511,8 @@ async def get_kg_data(
     object_id: str,
     httpx_client: AsyncClient,
     url: str,
-    token: str,
     preferred_format: str,
+    token: str | None = None,
 ) -> tuple[bytes, KGMetadata]:
     """Download any knowledge graph object.
 
@@ -565,7 +565,7 @@ async def get_kg_data(
     # Retrieve the object of interest from KG
     response = await httpx_client.post(
         url=url,
-        headers={"Authorization": f"Bearer {token}"},
+        headers={"Authorization": f"Bearer {token}"} if token else {},
         json=query,
     )
 
@@ -610,7 +610,7 @@ async def get_kg_data(
     url = chosen_dist["contentUrl"]
     content_response = await httpx_client.get(
         url=url,
-        headers={"Authorization": f"Bearer {token}"},
+        headers={"Authorization": f"Bearer {token}"} if token else {},
     )
 
     # Return its content and the associated metadata

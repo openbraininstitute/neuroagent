@@ -149,8 +149,8 @@ class KGMorphoFeatureInput(BaseModel):
 class KGMorphoFeatureMetadata(BaseMetadata):
     """Metadata class for the morpho features tool."""
 
+    httpx_client: AsyncClient
     knowledge_graph_url: str
-    token: str
     kg_morpho_feature_search_size: int
     brainregion_hierarchy_storage_key: str
 
@@ -227,7 +227,6 @@ class KGMorphoFeatureTool(BaseTool):
         # Send the ES query to the KG
         response = await self.metadata.httpx_client.post(
             url=self.metadata.knowledge_graph_url,
-            headers={"Authorization": f"Bearer {self.metadata.token}"},
             json=entire_query,
         )
 

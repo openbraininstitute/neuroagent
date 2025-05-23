@@ -29,8 +29,8 @@ class GetTracesInput(BaseModel):
 class GetTracesMetadata(BaseMetadata):
     """Metadata for GetTracesTool."""
 
+    httpx_client: AsyncClient
     knowledge_graph_url: str
-    token: str
     trace_search_size: int
     bucket_name: str
     brainregion_hierarchy_storage_key: str
@@ -110,7 +110,6 @@ class GetTracesTool(BaseTool):
         # Send the query to the KG
         response = await self.metadata.httpx_client.post(
             url=self.metadata.knowledge_graph_url,
-            headers={"Authorization": f"Bearer {self.metadata.token}"},
             json=entire_query,
         )
         return self._process_output(response.json())
