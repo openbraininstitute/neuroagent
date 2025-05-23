@@ -242,7 +242,7 @@ class SettingsAccounting(BaseModel):
 class Settings(BaseSettings):
     """All settings."""
 
-    tools: SettingsTools
+    tools: SettingsTools = SettingsTools()
     knowledge_graph: SettingsKnowledgeGraph = SettingsKnowledgeGraph()
     agent: SettingsAgent = SettingsAgent()  # has no required
     db: SettingsDB = SettingsDB()  # has no required

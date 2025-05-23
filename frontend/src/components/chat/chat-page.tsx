@@ -1,8 +1,8 @@
 "use client";
 
-import { useChat } from "ai/react";
-import { useEffect, useRef, useState } from "react";
-import type { MessageStrict } from "@/lib/types";
+import { useChat } from "@ai-sdk/react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { BMessage, type MessageStrict } from "@/lib/types";
 import { env } from "@/lib/env";
 import { useSession } from "next-auth/react";
 import { ExtendedSession } from "@/lib/auth";
@@ -11,29 +11,68 @@ import { ChatInputInsideThread } from "@/components/chat/chat-input-inside-threa
 import { ChatMessagesInsideThread } from "@/components/chat/chat-messages-inside-thread";
 import { generateEditTitle } from "@/actions/generate-edit-thread";
 import { toast } from "sonner";
+import { useGetMessageNextPage } from "@/hooks/get-message-page";
+import { convertToAiMessages } from "@/lib/utils";
+import { md5 } from "js-md5";
 
 type ChatPageProps = {
   threadId: string;
-  initialMessages: MessageStrict[];
+  initialMessages: BMessage[];
+  initialNextCursor?: string;
   availableTools: Array<{ slug: string; label: string }>;
 };
 
 export function ChatPage({
   threadId,
   initialMessages,
+  initialNextCursor,
   availableTools,
 }: ChatPageProps) {
+  // Auth and store data
   const { data: session } = useSession() as { data: ExtendedSession | null };
-  const newMessage = useStore((state) => state.newMessage);
-  const checkedTools = useStore((state) => state.checkedTools);
-  const setNewMessage = useStore((state) => state.setNewMessage);
   const setCheckedTools = useStore((state) => state.setCheckedTools);
+  const checkedTools = useStore((state) => state.checkedTools);
+  // New conversation variables
+  const newMessage = useStore((state) => state.newMessage);
+  const setNewMessage = useStore((state) => state.setNewMessage);
+  const hasSendFirstMessage = useRef(false);
+  // Tool calls
   const [processedToolInvocationMessages, setProcessedToolInvocationMessages] =
     useState<string[]>([]);
+  // Scrolling and pagination
+  const prevHeight = useRef(0);
+  const prevScroll = useRef(0);
+  const observerRef = useRef<IntersectionObserver | null>(null);
+  const topSentinelRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [isAutoScrollEnabled, setIsAutoScrollEnabled] = useState(true);
   const containerRef = useRef<HTMLDivElement>(null);
+  // Stopping streaming
   const [stopped, setStopped] = useState(false);
+  const [isInvalidating, setIsInvalidating] = useState(false);
+
+  const {
+    data,
+    fetchPreviousPage,
+    isFetchingPreviousPage,
+    hasNextPage,
+    isFetching,
+  } = useGetMessageNextPage(threadId, {
+    pages: [
+      {
+        messages: initialMessages,
+        nextCursor: initialNextCursor,
+      },
+    ],
+    pageParams: [null],
+  });
+
+  //translate all messages to vercel, useMemo to fix infinite loop.
+  const retrievedMessages = useMemo(() => {
+    return convertToAiMessages(
+      data?.pages.flatMap((page) => page.messages) ?? [],
+    );
+  }, [data?.pages]);
 
   const {
     messages: messagesRaw,
@@ -41,6 +80,7 @@ export function ChatPage({
     handleInputChange,
     handleSubmit,
     isLoading,
+    append,
     setMessages: setMessagesRaw,
     error,
     stop,
@@ -49,7 +89,7 @@ export function ChatPage({
     headers: {
       Authorization: `Bearer ${session?.accessToken}`,
     },
-    initialMessages,
+    initialMessages: retrievedMessages,
     experimental_prepareRequestBody: ({ messages }) => {
       const lastMessage = messages[messages.length - 1];
       const selectedTools = Object.keys(checkedTools).filter(
@@ -59,6 +99,7 @@ export function ChatPage({
     },
   });
 
+  // Convert to our types.
   const messages = messagesRaw as MessageStrict[];
   const setMessages = setMessagesRaw as (
     messages:
@@ -66,18 +107,24 @@ export function ChatPage({
       | ((messages: MessageStrict[]) => MessageStrict[]),
   ) => void;
 
-  // Moved useEffect here to group with other useEffect hooks
+  // Initial use effect that runs on mount
   useEffect(() => {
-    if (initialMessages.length === 0 && newMessage !== "") {
-      initialMessages.push({
+    // Send new message when new chat.
+    if (
+      initialMessages.length === 0 &&
+      newMessage !== "" &&
+      !hasSendFirstMessage.current
+    ) {
+      hasSendFirstMessage.current = true;
+      append({
         id: "temp_id",
         role: "user",
         content: newMessage,
       });
       generateEditTitle(null, threadId, newMessage);
       setNewMessage("");
-      handleSubmit(undefined, { allowEmptySubmit: true });
     }
+
     // If checkedTools is not initialized yet, initialize it
     if (Object.keys(checkedTools).length === 0) {
       const initialCheckedTools = availableTools.reduce<
@@ -89,6 +136,7 @@ export function ChatPage({
       initialCheckedTools["allchecked"] = true;
       setCheckedTools(initialCheckedTools);
     }
+
     // To know if the chat should be disabled or not, check if last message was stopped
     const shouldBeStopped = () => {
       const isLastMessageComplete =
@@ -96,19 +144,27 @@ export function ChatPage({
           (annotation) => "isComplete" in annotation, // Find the correct annotation
         )?.isComplete ?? false;
       return !isLastMessageComplete;
-    }; // If message complete, don't set stopped
-
+    };
+    // If message complete, don't set stopped
     setStopped(shouldBeStopped());
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // Empty dependency array means this runs once on mount
+  }, []);
 
   useEffect(() => {
-    if (isAutoScrollEnabled) {
-      messagesEndRef.current?.scrollIntoView({ behavior: "instant" });
+    if (isInvalidating || isFetching) return;
+    // Set retrieved DB messaged as current messages
+    if (!stopped) {
+      setMessages(() => [
+        ...retrievedMessages,
+        ...messages.filter((m) => m.id.length !== 32),
+      ]);
+    } else {
+      setMessages(retrievedMessages);
     }
-  }, [messages, isAutoScrollEnabled]);
+  }, [md5(JSON.stringify(retrievedMessages))]); // Rerun on content change
 
-  // Handle auto-submit if there's a single human message or all tools have been validated
+  // Handle auto-submit if tools have been validated
   useEffect(() => {
     const lastMessage = messages[messages.length - 1];
     if (lastMessage?.role === "assistant" && lastMessage.toolInvocations) {
@@ -153,6 +209,14 @@ export function ChatPage({
   const hasOngoingToolInvocations =
     (messages.at(-1)?.toolInvocations ?? []).length > 0;
 
+  // Auto scroll when streaming
+  useEffect(() => {
+    if (isAutoScrollEnabled) {
+      messagesEndRef.current?.scrollIntoView({ behavior: "instant" });
+    }
+  }, [messages, isAutoScrollEnabled]);
+
+  // Check for user inputs
   const handleWheel = (event: React.WheelEvent) => {
     if (event.deltaY < 0) {
       setIsAutoScrollEnabled(false);
@@ -165,6 +229,43 @@ export function ChatPage({
       setIsAutoScrollEnabled(isAtBottom);
     }
   };
+
+  // Observer to fetch new pages :
+  useEffect(() => {
+    observerRef.current = new IntersectionObserver(
+      async (entries) => {
+        if (
+          entries[0].isIntersecting &&
+          !isFetchingPreviousPage &&
+          !isLoading
+        ) {
+          const el = containerRef.current!;
+          prevHeight.current = el.scrollHeight;
+          prevScroll.current = el.scrollTop;
+          if (!hasNextPage) return;
+          await fetchPreviousPage();
+          if (!isFetchingPreviousPage && !isLoading && prevHeight.current) {
+            requestAnimationFrame(() => {
+              const heightDiff = el.scrollHeight - prevHeight.current;
+              el.scrollTop = prevScroll.current + heightDiff - 40;
+            });
+          }
+        }
+      },
+      {
+        root: containerRef.current,
+      },
+    );
+    const sentinel = topSentinelRef.current;
+    if (sentinel && observerRef.current) observerRef.current.observe(sentinel);
+
+    // Remove intersection listener when unmounted
+    return () => {
+      if (sentinel && observerRef.current)
+        observerRef.current.unobserve(sentinel);
+      if (observerRef.current) observerRef.current.disconnect();
+    };
+  }, [hasNextPage, isFetchingPreviousPage, isLoading, fetchPreviousPage]);
 
   // Handle streaming interruption
   useEffect(() => {
@@ -219,6 +320,12 @@ export function ChatPage({
         onWheel={handleWheel}
         className="flex flex-1 flex-col overflow-y-auto"
       >
+        <div ref={topSentinelRef} className="h-1 w-full" />
+
+        {isFetchingPreviousPage && (
+          <div className="z-50 mx-auto mt-4 h-6 min-h-6 w-6 animate-spin rounded-full border-2 border-gray-500 border-t-transparent" />
+        )}
+
         <ChatMessagesInsideThread
           messages={messages}
           threadId={threadId}
@@ -233,6 +340,7 @@ export function ChatPage({
         isLoading={isLoading}
         availableTools={availableTools}
         checkedTools={checkedTools}
+        threadId={threadId}
         setCheckedTools={setCheckedTools}
         handleInputChange={handleInputChange}
         handleSubmit={handleSubmit}
@@ -241,6 +349,7 @@ export function ChatPage({
         onStop={stop}
         stopped={stopped}
         setStopped={setStopped}
+        setIsInvalidating={setIsInvalidating}
       />
     </div>
   );

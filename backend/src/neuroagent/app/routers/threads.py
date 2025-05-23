@@ -1,22 +1,23 @@
 """Threads CRUDs."""
 
+import datetime
 import json
 import logging
 from typing import Annotated, Any, Literal
 
-from fastapi import APIRouter, Depends, HTTPException, Query, Response
+from fastapi import APIRouter, Depends, HTTPException, Response
 from openai import AsyncOpenAI
 from redis import asyncio as aioredis
-from sqlalchemy import desc, or_, select, true
+from sqlalchemy import desc, select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import joinedload
+from sqlalchemy.orm import selectinload
 
 from neuroagent.app.app_utils import (
     rate_limit,
     validate_project,
 )
 from neuroagent.app.config import Settings
-from neuroagent.app.database.sql_schemas import Messages, Threads, utc_now
+from neuroagent.app.database.sql_schemas import Entity, Messages, Threads, utc_now
 from neuroagent.app.dependencies import (
     get_openai_client,
     get_redis_client,
@@ -28,12 +29,15 @@ from neuroagent.app.dependencies import (
     get_user_info,
 )
 from neuroagent.app.schemas import (
-    MessageResponse,
+    MessagesRead,
+    PaginatedParams,
+    PaginatedResponse,
     ThreadCreate,
     ThreadGeneratBody,
     ThreadGeneratedTitle,
     ThreadsRead,
     ThreadUpdate,
+    ToolCall,
     UserInfo,
 )
 from neuroagent.tools.base_tool import BaseTool
@@ -122,12 +126,13 @@ async def generate_title(
 async def get_threads(
     session: Annotated[AsyncSession, Depends(get_session)],
     user_info: Annotated[UserInfo, Depends(get_user_info)],
+    pagination_params: PaginatedParams = Depends(),
     virtual_lab_id: str | None = None,
     project_id: str | None = None,
     sort: Literal[
         "update_date", "creation_date", "-update_date", "-creation_date"
     ] = "-update_date",
-) -> list[ThreadsRead]:
+) -> PaginatedResponse[ThreadsRead]:
     """Get threads for a user."""
     validate_project(
         virtual_lab_id=virtual_lab_id,
@@ -135,23 +140,40 @@ async def get_threads(
         groups=user_info.groups,
     )
     sort_column = sort.lstrip("-")
+    column_attr = getattr(Threads, sort_column)
+
+    where_conditions = [
+        Threads.user_id == user_info.sub,
+        Threads.vlab_id == virtual_lab_id,
+        Threads.project_id == project_id,
+    ]
+
+    if pagination_params.cursor is not None:
+        comparison_op = (
+            column_attr < datetime.datetime.fromisoformat(pagination_params.cursor)
+            if sort.startswith("-")
+            else column_attr > datetime.datetime.fromisoformat(pagination_params.cursor)
+        )
+        where_conditions.append(comparison_op)
+
     query = (
         select(Threads)
-        .where(
-            Threads.user_id == user_info.sub,
-            Threads.vlab_id == virtual_lab_id,
-            Threads.project_id == project_id,
-        )
-        .order_by(
-            desc(getattr(Threads, sort_column))
-            if sort.startswith("-")
-            else getattr(Threads, sort_column)
-        )
+        .where(*where_conditions)
+        .order_by(desc(column_attr) if sort.startswith("-") else column_attr)
+        .limit(pagination_params.page_size + 1)
     )
 
     thread_result = await session.execute(query)
     threads = thread_result.scalars().all()
-    return [ThreadsRead(**thread.__dict__) for thread in threads]
+    has_more = len(threads) > pagination_params.page_size
+    to_return = threads[:-1] if has_more else threads
+
+    return PaginatedResponse(
+        next_cursor=getattr(to_return[-1], sort_column) if to_return else None,
+        has_more=has_more,
+        page_size=pagination_params.page_size,
+        results=[ThreadsRead(**thread.__dict__) for thread in to_return],
+    )
 
 
 @router.patch("/{thread_id}")
@@ -205,74 +227,144 @@ async def get_thread_by_id(
     return ThreadsRead(**thread.__dict__)
 
 
-# Define your routes here
 @router.get("/{thread_id}/messages")
 async def get_thread_messages(
     session: Annotated[AsyncSession, Depends(get_session)],
     _: Annotated[Threads, Depends(get_thread)],  # to check if thread exists
     thread_id: str,
     tool_list: Annotated[list[type[BaseTool]], Depends(get_tool_list)],
-    entity: list[Literal["USER", "AI_TOOL", "TOOL", "AI_MESSAGE"]] | None = Query(
-        default=None
-    ),
-    sort: Literal["creation_date", "-creation_date"] = "creation_date",
-) -> list[MessageResponse]:
+    pagination_params: PaginatedParams = Depends(),
+    sort: Literal["creation_date", "-creation_date"] = "-creation_date",
+) -> PaginatedResponse[MessagesRead]:
     """Get all messages of the thread."""
     # Create mapping of tool names to their HIL requirement
     tool_hil_mapping = {tool.name: tool.hil for tool in tool_list}
 
-    if entity:
-        entity_where = or_(*[Messages.entity == ent for ent in entity])
-    else:
-        entity_where = true()
-    messages_result = await session.execute(
-        select(Messages)
-        .where(Messages.thread_id == thread_id, entity_where)
-        .options(joinedload(Messages.tool_calls))  # Eager load tool_calls
-        .order_by(
-            desc(Messages.creation_date)
-            if sort.startswith("-")
-            else Messages.creation_date
+    is_order_descending = sort.startswith("-")
+
+    # Fetch boundary dates for pagination
+    where_conditions = [
+        Messages.thread_id == thread_id,
+        Messages.entity.in_([Entity.USER, Entity.AI_MESSAGE]),
+    ]
+
+    cursor = pagination_params.cursor
+    if cursor:
+        where_conditions.append(
+            Messages.creation_date < datetime.datetime.fromisoformat(cursor)
         )
+    order_clause = (
+        desc(Messages.creation_date) if is_order_descending else Messages.creation_date
     )
-    db_messages = messages_result.unique().scalars().all()
 
-    messages = []
-    for msg in db_messages:
-        # Create a clean dict without SQLAlchemy attributes
-        message_data = {
-            "message_id": msg.message_id,
-            "entity": msg.entity.value,  # Convert enum to string
-            "thread_id": msg.thread_id,
-            "is_complete": msg.is_complete,
-            "creation_date": msg.creation_date.isoformat(),  # Convert datetime to string
-            "msg_content": json.loads(msg.content),
-        }
+    creation_date_results = await session.execute(
+        select(Messages.creation_date)
+        .where(*where_conditions)
+        .order_by(order_clause)
+        .limit(pagination_params.page_size + 1)
+    )
+    creation_dates = creation_date_results.scalars().all()
 
-        # Map validation status based on tool requirements
-        tool_calls_data = []
-        for tc in msg.tool_calls:
-            requires_validation = tool_hil_mapping.get(tc.name, False)
+    if not creation_dates:
+        return PaginatedResponse(
+            next_cursor=None,
+            has_more=False,
+            page_size=pagination_params.page_size,
+            results=[],
+        )
 
-            if tc.validated is True:
-                validation_status = "accepted"
-            elif tc.validated is False:
-                validation_status = "rejected"
-            elif not requires_validation:
-                validation_status = "not_required"
-            else:
-                validation_status = "pending"
+    has_more = len(creation_dates) > pagination_params.page_size
+    page_dates = creation_dates[:-1] if has_more else creation_dates
 
-            tool_calls_data.append(
-                {
-                    "tool_call_id": tc.tool_call_id,
-                    "name": tc.name,
-                    "arguments": tc.arguments,
-                    "validated": validation_status,
-                }
+    # Fetch full Messages for the window and eager-load tool calls
+    if is_order_descending:
+        newest_msg_in_page = page_dates[0]
+        oldest_msg_in_page = page_dates[-1]
+    else:
+        newest_msg_in_page = page_dates[-1]
+        oldest_msg_in_page = page_dates[0]
+
+    all_msg_in_page_query = (
+        select(Messages)
+        .options(selectinload(Messages.tool_calls))
+        .where(
+            Messages.thread_id == thread_id,
+            Messages.creation_date <= newest_msg_in_page,
+            Messages.creation_date >= oldest_msg_in_page,
+        )
+        .order_by(order_clause)
+    )
+    all_msg_in_page_result = await session.execute(all_msg_in_page_query)
+    db_messages = all_msg_in_page_result.scalars().all()
+
+    # Format to MessagesRead / Vercel schema
+    messages: list[MessagesRead] = []
+    tool_call_buffer: list[dict] = []
+
+    for msg in reversed(db_messages) if is_order_descending else db_messages:
+        if msg.entity in [Entity.USER, Entity.AI_MESSAGE]:
+            message_data = {
+                "id": msg.message_id,
+                "role": msg.entity.value,
+                "thread_id": msg.thread_id,
+                "is_complete": msg.is_complete,
+                "created_at": msg.creation_date,
+                "content": json.loads(msg.content).get("content"),
+                "parts": None,
+            }
+            # add tool calls and reset buffer after attaching
+            if msg.entity == Entity.AI_MESSAGE:
+                message_data["parts"] = [
+                    ToolCall(**tool_call) for tool_call in tool_call_buffer
+                ]
+                tool_call_buffer = []
+            messages.append(MessagesRead(**message_data))
+
+        # Buffer tool calls until the next AI_MESSAGE
+        elif msg.entity == Entity.AI_TOOL:
+            for tc in msg.tool_calls:
+                requires_validation = tool_hil_mapping.get(tc.name, False)
+                if tc.validated is True:
+                    status = "accepted"
+                elif tc.validated is False:
+                    status = "rejected"
+                elif not requires_validation:
+                    status = "not_required"
+                else:
+                    status = "pending"
+
+                tool_call_buffer.append(
+                    {
+                        "tool_call_id": tc.tool_call_id,
+                        "name": tc.name,
+                        "is_complete": msg.is_complete,
+                        "arguments": tc.arguments,
+                        "validated": status,
+                    }
+                )
+
+        # Merge the actual tool result back into the buffered part
+        elif msg.entity == Entity.TOOL:
+            tool_call_id = json.loads(msg.content).get("tool_call_id")
+            tool_call = next(
+                (
+                    item
+                    for item in tool_call_buffer
+                    if item["tool_call_id"] == tool_call_id
+                ),
+                None,
             )
+            # Does this work ? it changes the reference in the list.
+            if tool_call:
+                tool_call["results"] = msg.content
 
-        message_data["tool_calls"] = tool_calls_data
-        messages.append(MessageResponse(**message_data))
+    # Reverse back to descending order and build next_cursor
+    ordered_messages = list(reversed(messages)) if is_order_descending else messages
+    next_cursor = ordered_messages[-1].created_at if has_more else None
 
-    return messages
+    return PaginatedResponse(
+        next_cursor=next_cursor,
+        has_more=has_more,
+        page_size=pagination_params.page_size,
+        results=ordered_messages,
+    )
