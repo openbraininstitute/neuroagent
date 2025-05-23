@@ -79,7 +79,7 @@ class BaseTool(BaseModel, ABC):
         if cls.json_schema is not None:
             parameters = cls.json_schema
         else:
-            parameters = cls.input_schema.model_json_schema()
+            parameters = cls.__annotations__["input_schema"].model_json_schema()
 
         new_retval: dict[str, Any] = {
             "type": "function",
