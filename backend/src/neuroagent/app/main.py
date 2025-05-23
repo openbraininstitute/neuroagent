@@ -27,11 +27,13 @@ from neuroagent.app.app_utils import get_semantic_router, setup_engine
 from neuroagent.app.config import Settings
 from neuroagent.app.dependencies import (
     get_connection_string,
+    get_mcp_tool_list,
     get_settings,
     get_tool_list,
 )
 from neuroagent.app.middleware import strip_path_prefix
 from neuroagent.app.routers import qa, storage, threads, tools
+from neuroagent.mcp import MCPClient
 
 LOGGING = {
     "version": 1,
@@ -113,6 +115,21 @@ async def lifespan(fastapi_app: FastAPI) -> AsyncContextManager[None]:  # type: 
     semantic_router = get_semantic_router(settings=app_settings)
     app.state.semantic_router = semantic_router
 
+    if app_settings.mcp.servers:
+        mcp_client: MCPClient | None = MCPClient(config=app_settings.mcp)
+        # start mcp servers and autogenerate input schemas
+
+        await mcp_client.start()  # type: ignore[union-attr]
+        # trigger dynamic tool generation - only done once - it is cached
+        _ = fastapi_app.dependency_overrides.get(get_mcp_tool_list, get_mcp_tool_list)(
+            mcp_client
+        )
+
+    else:
+        mcp_client = None
+
+    fastapi_app.state.mcp_client = mcp_client
+
     async with aclosing(
         AsyncAccountingSessionFactory(
             base_url=app_settings.accounting.base_url,
@@ -129,6 +146,9 @@ async def lifespan(fastapi_app: FastAPI) -> AsyncContextManager[None]:  # type: 
 
     if fastapi_app.state.redis_client is not None:
         await fastapi_app.state.redis_client.aclose()
+
+    if fastapi_app.state.mcp_client is not None:
+        await fastapi_app.state.mcp_client.cleanup()
 
 
 app = FastAPI(

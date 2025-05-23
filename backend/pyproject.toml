@@ -20,6 +20,7 @@ dependencies = [
     "efel",
     "fastapi",
     "matplotlib",
+    "mcp",
     "neurom",
     "numpy<2",
     "obp-accounting-sdk",
