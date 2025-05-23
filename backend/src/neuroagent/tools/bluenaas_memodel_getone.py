@@ -19,7 +19,7 @@ logger = logging.getLogger(__name__)
 class MEModelGetOneMetadata(BaseMetadata):
     """Metadata class for the get one me models api."""
 
-    token: str
+    httpx_client: AsyncClient
     vlab_id: str
     project_id: str
     bluenaas_url: str
@@ -65,7 +65,6 @@ class MEModelGetOneTool(BaseTool):
 
         response = await self.metadata.httpx_client.get(
             url=f"{self.metadata.bluenaas_url}/neuron-model/{self.metadata.vlab_id}/{self.metadata.project_id}/{quote_plus(self.input_schema.memodel_id)}",
-            headers={"Authorization": f"Bearer {self.metadata.token}"},
         )
         resp_json = response.json()
         if resp_json["type"] == "synaptome":

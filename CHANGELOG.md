@@ -8,7 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Changed
-- get morpho tool and resolve entities now uses entitycore.
+- Get morpho tool and resolve entities now uses entitycore.
+- Bearer token is propagated through the `httpx_client`.
 
 ### Added
 - Autogeneration of input schemas from APIs.

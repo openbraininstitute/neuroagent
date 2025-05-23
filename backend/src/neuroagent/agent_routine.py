@@ -146,7 +146,7 @@ class AgentsRoutine:
             if raise_validation_errors:
                 raise err
             else:
-                # Otherwise transforn it into an OpenAI response for the model to retry
+                # Otherwise transform it into an OpenAI response for the model to retry
                 response = {
                     "role": "tool",
                     "tool_call_id": tool_call.tool_call_id,

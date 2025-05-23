@@ -31,8 +31,8 @@ class GetMorphoInput(BaseModel):
 class GetMorphoMetadata(BaseMetadata):
     """Metadata class for GetMorphoTool."""
 
+    httpx_client: AsyncClient
     entitycore_url: str
-    token: str
     vlab_id: str | None
     project_id: str | None
 
@@ -80,7 +80,6 @@ class GetMorphoTool(BaseTool):
         response = await self.metadata.httpx_client.get(
             url=self.metadata.entitycore_url + "/reconstruction-morphology",
             headers={
-                "Authorization": f"Bearer {self.metadata.token}",
                 **(
                     {"virtual-lab-id": self.metadata.vlab_id}
                     if self.metadata.vlab_id is not None

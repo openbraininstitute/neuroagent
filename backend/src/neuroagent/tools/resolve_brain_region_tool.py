@@ -25,8 +25,8 @@ class ResolveBRInput(BaseModel):
 class ResolveBRMetadata(BaseMetadata):
     """Metadata for ResolveEntitiesTool."""
 
+    httpx_client: AsyncClient
     entitycore_url: str
-    token: str
 
 
 class BrainRegion(BaseModel):
@@ -63,10 +63,8 @@ class ResolveBrainRegionTool(BaseTool):
         logger.info(
             f"Entering Brain Region resolver tool. Inputs: {self.input_schema.brain_region=}"
         )
-
         br_response = await self.metadata.httpx_client.get(
             url=self.metadata.entitycore_url + "/brain-region",
-            headers={"Authorization": f"Bearer {self.metadata.token}"},
             params={
                 "hierarchy_id": "e3e70682-c209-4cac-a29f-6fbed82c07cd",
                 "page_size": 500,

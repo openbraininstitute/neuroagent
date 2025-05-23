@@ -49,8 +49,8 @@ class LiteratureSearchInput(BaseModel):
 class LiteratureSearchMetadata(BaseMetadata):
     """Metadata class for LiteratureSearchTool."""
 
+    httpx_client: AsyncClient
     literature_search_url: str
-    token: str
     retriever_k: int
     use_reranker: bool
     openai_client: AsyncOpenAI
@@ -176,7 +176,6 @@ class LiteratureSearchTool(BaseTool):
         # Send the request
         response = await self.metadata.httpx_client.get(
             self.metadata.literature_search_url + "/retrieval/",
-            headers={"Authorization": f"Bearer {self.metadata.token}"},
             params=params,
             timeout=None,
         )

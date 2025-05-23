@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 class MEModelGetAllMetadata(BaseMetadata):
     """Metadata class for the get all me models api."""
 
-    token: str
+    httpx_client: AsyncClient
     vlab_id: str
     project_id: str
     bluenaas_url: str
@@ -83,6 +83,5 @@ class MEModelGetAllTool(BaseTool):
                 "offset": self.input_schema.offset,
                 "page_size": self.input_schema.page_size,
             },
-            headers={"Authorization": f"Bearer {self.metadata.token}"},
         )
         return MEModelGetAllToolOutput(**response.json())

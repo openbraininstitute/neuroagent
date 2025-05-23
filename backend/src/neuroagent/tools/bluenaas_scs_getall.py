@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 class SCSGetAllMetadata(BaseMetadata):
     """Metadata class for the get all simulations api."""
 
-    token: str
+    httpx_client: AsyncClient
     vlab_id: str
     project_id: str
     bluenaas_url: str
@@ -76,7 +76,6 @@ class SCSGetAllTool(BaseTool):
                 "offset": self.input_schema.offset,
                 "page_size": self.input_schema.page_size,
             },
-            headers={"Authorization": f"Bearer {self.metadata.token}"},
         )
 
         return SCSGetAllToolOutput(**response.json())

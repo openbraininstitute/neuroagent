@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 class SCSGetOneMetadata(BaseMetadata):
     """Metadata class for the get all simulations api."""
 
-    token: str
+    httpx_client: AsyncClient
     vlab_id: str
     project_id: str
     bluenaas_url: str
@@ -64,7 +64,6 @@ class SCSGetOneTool(BaseTool):
 
         response = await self.metadata.httpx_client.get(
             url=f"{self.metadata.bluenaas_url}/simulation/single-neuron/{self.metadata.vlab_id}/{self.metadata.project_id}/{self.input_schema.simulation_id}",
-            headers={"Authorization": f"Bearer {self.metadata.token}"},
         )
         # Truncate the results.
         result = response.json()
