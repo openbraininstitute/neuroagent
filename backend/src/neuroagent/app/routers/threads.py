@@ -234,20 +234,22 @@ async def get_thread_messages(
     thread_id: str,
     tool_list: Annotated[list[type[BaseTool]], Depends(get_tool_list)],
     pagination_params: PaginatedParams = Depends(),
-    # sort: Literal["creation_date", "-creation_date"] = "-creation_date",
 ) -> PaginatedResponse[MessagesRead]:
     """Get all messages of the thread."""
     # Create mapping of tool names to their HIL requirement
     tool_hil_mapping = {tool.name: tool.hil for tool in tool_list}
 
-    # We first get all User / AI_messages in the page
+    # Fetch boundary dates for pagination
     where_conditions = [
         Messages.thread_id == thread_id,
         Messages.entity.in_([Entity.USER, Entity.AI_MESSAGE]),
     ]
-    if pagination_params.cursor:
-        # in descending mode we page backwards: only older than the cursor
-        where_conditions.append(Messages.creation_date < pagination_params.cursor)
+    # Ensure cursor is a datetime, not a string
+    cursor = pagination_params.cursor
+    if cursor:
+        where_conditions.append(
+            Messages.creation_date < datetime.datetime.fromisoformat(cursor)
+        )
 
     creation_date_results = await session.execute(
         select(Messages.creation_date)
@@ -255,7 +257,6 @@ async def get_thread_messages(
         .order_by(desc(Messages.creation_date))
         .limit(pagination_params.page_size + 1)
     )
-
     creation_dates = creation_date_results.scalars().all()
 
     if not creation_dates:
@@ -270,7 +271,7 @@ async def get_thread_messages(
     page_dates = creation_dates[:-1] if has_more else creation_dates
     newest_msg_in_page, oldest_msg_in_page = page_dates[0], page_dates[-1]
 
-    # Get all messages in page and eager load tool calls in one go.
+    # Fetch full Messages for the window and eager-load tool calls
     all_msg_in_page_query = (
         select(Messages)
         .options(selectinload(Messages.tool_calls))
@@ -284,17 +285,33 @@ async def get_thread_messages(
     all_msg_in_page_result = await session.execute(all_msg_in_page_query)
     db_messages = all_msg_in_page_result.scalars().all()
 
-    messages = []
-    for msg in db_messages:
-        role = "user" if msg.entity is Entity.USER else "assistant"
+    # Format to MessagesRead schema
+    messages: list[MessagesRead] = []
+    tool_call_buffer: list[dict] = []
 
-        content = json.loads(msg.content)
+    for msg in reversed(db_messages):
+        if msg.entity in [Entity.USER, Entity.AI_MESSAGE]:
+            message_data = {
+                "id": msg.message_id,
+                "role": msg.entity.value,
+                "thread_id": msg.thread_id,
+                "is_complete": msg.is_complete,
+                "created_at": msg.creation_date,
+                "content": json.loads(msg.content).get("content"),
+                "parts": None,
+            }
+            # add tool calls and reset buffer after attaching
+            if msg.entity == Entity.AI_MESSAGE:
+                message_data["parts"] = [
+                    ToolCall(**tool_call) for tool_call in tool_call_buffer
+                ]
+                tool_call_buffer = []
+            messages.append(MessagesRead(**message_data))
 
-        parts = []
-        if msg.entity is Entity.AI_MESSAGE:
+        # Buffer tool calls until the next AI_MESSAGE
+        elif msg.entity == Entity.AI_TOOL:
             for tc in msg.tool_calls:
                 requires_validation = tool_hil_mapping.get(tc.name, False)
-
                 if tc.validated is True:
                     status = "accepted"
                 elif tc.validated is False:
@@ -304,32 +321,37 @@ async def get_thread_messages(
                 else:
                     status = "pending"
 
-                parts.append(
-                    ToolCall(
-                        tool_call_id=tc.tool_call_id,
-                        name=tc.name,
-                        arguments=tc.arguments,
-                        validation_status=status,
-                    )
+                tool_call_buffer.append(
+                    {
+                        "tool_call_id": tc.tool_call_id,
+                        "name": tc.name,
+                        "arguments": tc.arguments,
+                        "validated": status,
+                    }
                 )
 
-        parts_or_none = parts if parts else None
-
-        messages.append(
-            MessagesRead(
-                id=msg.message_id,
-                role=role,
-                thread_id=msg.thread_id,
-                is_complete=msg.is_complete,
-                created_at=msg.creation_date,
-                content=content,
-                parts=parts_or_none,
+        # Merge the actual tool result back into the buffered part
+        elif msg.entity == Entity.TOOL:
+            tool_call_id = json.loads(msg.content).get("tool_call_id")
+            tool_call = next(
+                (
+                    item
+                    for item in tool_call_buffer
+                    if item["tool_call_id"] == tool_call_id
+                ),
+                None,
             )
-        )
+            # Does this work ? it changes the reference in the list.
+            if tool_call:
+                tool_call["results"] = msg.content
+
+    # Reverse back to descending order and build next_cursor
+    ordered = list(reversed(messages))
+    next_cursor = ordered[-1].created_at if has_more else None
 
     return PaginatedResponse(
-        next_cursor=messages[-1].creation_date,
+        next_cursor=next_cursor,
         has_more=has_more,
         page_size=pagination_params.page_size,
-        results=messages,
+        results=ordered,
     )
