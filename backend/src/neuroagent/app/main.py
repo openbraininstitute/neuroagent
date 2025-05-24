@@ -113,22 +113,20 @@ async def lifespan(fastapi_app: FastAPI) -> AsyncContextManager[None]:  # type: 
     logging.getLogger("bluepyefe").setLevel("CRITICAL")
 
     semantic_router = get_semantic_router(settings=app_settings)
-    app.state.semantic_router = semantic_router
+    fastapi_app.state.semantic_router = semantic_router
 
     if app_settings.mcp.servers:
-        mcp_client: MCPClient | None = MCPClient(config=app_settings.mcp)
-        # start mcp servers and autogenerate input schemas
+        mcp_client = MCPClient(config=app_settings.mcp)
+        await mcp_client.start()
 
-        await mcp_client.start()  # type: ignore[union-attr]
         # trigger dynamic tool generation - only done once - it is cached
         _ = fastapi_app.dependency_overrides.get(get_mcp_tool_list, get_mcp_tool_list)(
             mcp_client
         )
+        fastapi_app.state.mcp_client = mcp_client
 
     else:
-        mcp_client = None
-
-    fastapi_app.state.mcp_client = mcp_client
+        fastapi_app.state.mcp_client = None
 
     async with aclosing(
         AsyncAccountingSessionFactory(
@@ -137,7 +135,6 @@ async def lifespan(fastapi_app: FastAPI) -> AsyncContextManager[None]:  # type: 
         )
     ) as session_factory:
         fastapi_app.state.accounting_session_factory = session_factory
-
         yield
 
     # Cleanup connections
@@ -148,7 +145,7 @@ async def lifespan(fastapi_app: FastAPI) -> AsyncContextManager[None]:  # type: 
         await fastapi_app.state.redis_client.aclose()
 
     if fastapi_app.state.mcp_client is not None:
-        await fastapi_app.state.mcp_client.cleanup()
+        await fastapi_app.state.mcp_client.close()
 
 
 app = FastAPI(

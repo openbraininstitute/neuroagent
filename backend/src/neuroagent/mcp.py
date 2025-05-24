@@ -5,8 +5,8 @@ import shutil
 from contextlib import AsyncExitStack
 from typing import Any, ClassVar, Type
 
-from mcp import ClientSession, StdioServerParameters
-from mcp.client.stdio import stdio_client
+from mcp import ClientSession, StdioServerParameters, ClientSessionGroup
+from mcp.client.stdio import stdio_client, StdioServerParameters
 from mcp.types import CallToolResult, Tool
 from pydantic import BaseModel, ConfigDict
 
@@ -15,44 +15,57 @@ from neuroagent.tools.base_tool import BaseMetadata, BaseTool
 
 logger = logging.getLogger(__name__)
 
+SERVER_TOOL_SEPARATOR = "|||"
+
 
 class MCPClient:
     """MCP client."""
 
     def __init__(self, config: SettingsMCP):
         self.config = config
-        self.exit_stack = AsyncExitStack()  # Single exit stack for all servers
-        self.sessions: dict[str, ClientSession] = {}
-        self.tools: dict[str, list[Tool]] = {}
+        self.group_session: ClientSessionGroup = ClientSessionGroup(
+            component_name_hook=lambda name,
+            server_info: f"{(server_info.name)}{SERVER_TOOL_SEPARATOR}{name}"
+        )
 
-    async def start(self) -> None:
-        """Start the MCP client by connecting to servers."""
+        self.tools: dict[str, list[Tool]] = {}  # server -> tool list
+        self.sessions: dict[str, ClientSession] = {}  # server -> session
+
+    async def start(self) -> "MCPClient":
+        """Enter the async context manager."""
+        await self.group_session.__aenter__()
+
+        # Connect to each server
         for name, server_config in self.config.servers.items():
             logger.info(f"Connecting to server: {name}")
             if server_config.env:
                 env = {k: v.get_secret_value() for k, v in server_config.env.items()}
             else:
                 env = None
-            server_params = StdioServerParameters(
-                command=server_config.command,
-                args=server_config.args or [],
-                env=env,
-            )
 
-            stdio_transport = await self.exit_stack.enter_async_context(
-                stdio_client(server_params)
+            # Connect to server using the group session
+            await self.group_session.connect_to_server(
+                StdioServerParameters(
+                    command=server_config.command,
+                    args=server_config.args or [],
+                    env=env,
+                )
             )
-            self.sessions[name] = await self.exit_stack.enter_async_context(
-                ClientSession(*stdio_transport)
-            )
+        # Populate the tools and sessions dictionaries
+        for session, components in self.group_session._sessions.items():
+            tool_names = components.tools
+            server_name = next(iter(tool_names)).split(SERVER_TOOL_SEPARATOR)[0]
 
-            await self.sessions[name].initialize()
-            response = await self.sessions[name].list_tools()
-            self.tools[name] = response.tools
+            self.tools[server_name] = [
+                self.group_session._tools[tool_name] for tool_name in tool_names
+            ]
+            self.sessions[server_name] = session
 
-    async def cleanup(self) -> None:
-        """Clean up resources."""
-        await self.exit_stack.aclose()
+        return self
+
+    async def close(self) -> None:
+        """Exit the async context manager."""
+        await self.group_session.__aexit__()
 
 
 def create_dynamic_tool(
