@@ -31,8 +31,11 @@ class MCPClient:
         self.tools: dict[str, list[Tool]] = {}  # server -> tool list
         self.sessions: dict[str, ClientSession] = {}  # server -> session
 
-    async def start(self) -> "MCPClient":
+    async def __aenter__(self) -> "MCPClient | None":
         """Enter the async context manager."""
+        if not self.config.servers:
+            return None
+
         await self.group_session.__aenter__()
 
         # Connect to each server
@@ -63,9 +66,10 @@ class MCPClient:
 
         return self
 
-    async def close(self) -> None:
+    async def __aexit__(self, exc_type, exc_val, exc_tb) -> None:
         """Exit the async context manager."""
-        await self.group_session.__aexit__()
+        if self.config.servers:
+            await self.group_session.__aexit__(exc_type, exc_val, exc_tb)
 
 
 def create_dynamic_tool(

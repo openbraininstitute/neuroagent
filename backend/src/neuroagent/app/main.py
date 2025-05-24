@@ -115,19 +115,6 @@ async def lifespan(fastapi_app: FastAPI) -> AsyncContextManager[None]:  # type: 
     semantic_router = get_semantic_router(settings=app_settings)
     fastapi_app.state.semantic_router = semantic_router
 
-    if app_settings.mcp.servers:
-        mcp_client = MCPClient(config=app_settings.mcp)
-        await mcp_client.start()
-
-        # trigger dynamic tool generation - only done once - it is cached
-        _ = fastapi_app.dependency_overrides.get(get_mcp_tool_list, get_mcp_tool_list)(
-            mcp_client
-        )
-        fastapi_app.state.mcp_client = mcp_client
-
-    else:
-        fastapi_app.state.mcp_client = None
-
     async with aclosing(
         AsyncAccountingSessionFactory(
             base_url=app_settings.accounting.base_url,
@@ -135,7 +122,14 @@ async def lifespan(fastapi_app: FastAPI) -> AsyncContextManager[None]:  # type: 
         )
     ) as session_factory:
         fastapi_app.state.accounting_session_factory = session_factory
-        yield
+
+        async with MCPClient(config=app_settings.mcp) as mcp_client:
+            # trigger dynamic tool generation - only done once - it is cached
+            _ = fastapi_app.dependency_overrides.get(
+                get_mcp_tool_list, get_mcp_tool_list
+            )(mcp_client)
+            fastapi_app.state.mcp_client = mcp_client
+            yield
 
     # Cleanup connections
     if engine:
@@ -144,8 +138,7 @@ async def lifespan(fastapi_app: FastAPI) -> AsyncContextManager[None]:  # type: 
     if fastapi_app.state.redis_client is not None:
         await fastapi_app.state.redis_client.aclose()
 
-    if fastapi_app.state.mcp_client is not None:
-        await fastapi_app.state.mcp_client.close()
+    # MCP client cleanup is handled by the context manager
 
 
 app = FastAPI(
