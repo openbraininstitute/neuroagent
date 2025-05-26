@@ -15,6 +15,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Morphometrics tool using obi-one.
 - Custom brain region resolving.
 
+### Fix
+- Add forgotten `__init__.py`
+
 ## [0.5.4]
 
 ### Fixed
