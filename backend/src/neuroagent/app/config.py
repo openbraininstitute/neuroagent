@@ -99,14 +99,6 @@ class SettingsKGMorpho(BaseModel):
     model_config = ConfigDict(frozen=True)
 
 
-class SettingsGetMorpho(BaseModel):
-    """Get Morpho settings."""
-
-    search_size: int = 10
-
-    model_config = ConfigDict(frozen=True)
-
-
 class SettingsGetMEModel(BaseModel):
     """Get ME Model settings."""
 
@@ -119,6 +111,13 @@ class SettingsBlueNaaS(BaseModel):
     """BlueNaaS settings."""
 
     url: str = "https://www.openbraininstitute.org/api/bluenaas"
+    model_config = ConfigDict(frozen=True)
+
+
+class SettingsEntityCore(BaseModel):
+    """Entitycore settings."""
+
+    url: str = "https://openbraininstitute.org/api/entitycore"
     model_config = ConfigDict(frozen=True)
 
 
@@ -155,7 +154,7 @@ class SettingsTools(BaseModel):
     literature: SettingsLiterature = SettingsLiterature()
     obi_one: SettingsObiOne = SettingsObiOne()
     bluenaas: SettingsBlueNaaS = SettingsBlueNaaS()
-    morpho: SettingsGetMorpho = SettingsGetMorpho()
+    entitycore: SettingsEntityCore = SettingsEntityCore()
     trace: SettingsTrace = SettingsTrace()
     kg_morpho_features: SettingsKGMorpho = SettingsKGMorpho()
     me_model: SettingsGetMEModel = SettingsGetMEModel()
@@ -259,7 +258,7 @@ class SettingsMCP(BaseModel):
 class Settings(BaseSettings):
     """All settings."""
 
-    tools: SettingsTools
+    tools: SettingsTools = SettingsTools()
     knowledge_graph: SettingsKnowledgeGraph = SettingsKnowledgeGraph()
     agent: SettingsAgent = SettingsAgent()  # has no required
     db: SettingsDB = SettingsDB()  # has no required

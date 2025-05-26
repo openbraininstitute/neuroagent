@@ -121,12 +121,7 @@ class AmplitudeInput(BaseModel):
 class ElectrophysInput(BaseModel):
     """Inputs of the NeuroM API."""
 
-    trace_id: str = Field(
-        description=(
-            "ID of the trace of interest. The trace ID is in the form of an HTTP(S)"
-            " link such as 'https://bbp.epfl.ch/neurosciencegraph/data/traces...'."
-        )
-    )
+    trace_id: str = Field(description=("ID of the trace of interest."))
     stimuli_types: STIMULI_TYPES | None = Field(
         default=None,
         description=(

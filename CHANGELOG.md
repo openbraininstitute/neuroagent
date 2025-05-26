@@ -7,9 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- get morpho tool and resolve entities now uses entitycore.
+
 ### Added
 - Autogeneration of input schemas from APIs.
 - Morphometrics tool using obi-one.
+- Custom brain region resolving.
 - Turn `neuroagent` into an MCP client.
 
 ## [0.5.4]

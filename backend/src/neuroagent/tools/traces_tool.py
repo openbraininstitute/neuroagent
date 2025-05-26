@@ -76,7 +76,7 @@ class GetTracesTool(BaseTool):
     - The subject species ID.
     - The subject species name.
     - The subject age.
-    The trace ID is in the form of an HTTP(S) link such as 'https://bbp.epfl.ch/neurosciencegraph/data/traces...'."""
+"""
     description_frontend: ClassVar[
         str
     ] = """Search and access experimental neuron traces. This tool allows you to:

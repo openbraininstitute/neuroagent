@@ -23,11 +23,16 @@ from starlette.requests import Request
 from starlette.responses import JSONResponse
 
 from neuroagent import __version__
-from neuroagent.app.app_utils import get_semantic_router, setup_engine
+from neuroagent.app.app_utils import (
+    get_br_embeddings,
+    get_semantic_router,
+    setup_engine,
+)
 from neuroagent.app.config import Settings
 from neuroagent.app.dependencies import (
     get_connection_string,
     get_mcp_tool_list,
+    get_s3_client,
     get_settings,
     get_tool_list,
 )
@@ -76,7 +81,9 @@ logger = logging.getLogger(__name__)
 @asynccontextmanager  # type: ignore
 async def lifespan(fastapi_app: FastAPI) -> AsyncContextManager[None]:  # type: ignore
     """Read environment (settings of the application)."""
-    app_settings = fastapi_app.dependency_overrides.get(get_settings, get_settings)()
+    app_settings: Settings = fastapi_app.dependency_overrides.get(
+        get_settings, get_settings
+    )()
 
     # Initialize Redis client if rate limiting is enabled
     if not app_settings.rate_limiter.disabled:
@@ -114,6 +121,14 @@ async def lifespan(fastapi_app: FastAPI) -> AsyncContextManager[None]:  # type: 
 
     semantic_router = get_semantic_router(settings=app_settings)
     fastapi_app.state.semantic_router = semantic_router
+
+    s3_client = get_s3_client(app_settings)
+    br_embeddings = get_br_embeddings(
+        s3_client=s3_client,
+        bucket_name=app_settings.storage.bucket_name,
+        folder="shared",
+    )
+    fastapi_app.state.br_embeddings = br_embeddings
 
     async with aclosing(
         AsyncAccountingSessionFactory(

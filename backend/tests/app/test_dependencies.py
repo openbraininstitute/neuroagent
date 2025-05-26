@@ -231,6 +231,7 @@ async def test_get_healthcheck_variables():
             literature=Mock(url="http://literature"),
             bluenaas=Mock(url="http://bluenaas"),
             obi_one=Mock(url="http://kenoriz.com/"),
+            entitycore=Mock(url="http://twg-mrt.com/"),
         ),
         knowledge_graph=Mock(
             base_url="http://kg",
@@ -246,4 +247,5 @@ async def test_get_healthcheck_variables():
         "knowledge_graph_url": "http://kg/",
         "bluenaas_url": "http://bluenaas/",
         "obi_one_url": "http://kenoriz.com/",
+        "entitycore_url": "http://twg-mrt.com/",
     }

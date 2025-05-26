@@ -35,7 +35,8 @@ from neuroagent.tools import (
     MorphologyViewerTool,
     MorphoMetricsTool,
     PlotGeneratorTool,
-    ResolveEntitiesTool,
+    ResolveBrainRegionTool,
+    ResolveMtypeTool,
     SCSGetAllTool,
     SCSGetOneTool,
     SCSPlotTool,
@@ -217,8 +218,9 @@ def get_tool_list(
         ElectrophysFeatureTool,
         GetMorphoTool,
         KGMorphoFeatureTool,
+        ResolveBrainRegionTool,
+        ResolveMtypeTool,
         MorphoMetricsTool,
-        ResolveEntitiesTool,
         GetTracesTool,
         PlotGeneratorTool,
         MorphologyViewerTool,
@@ -333,6 +335,7 @@ def get_s3_client(
 
 
 def get_context_variables(
+    request: Request,
     settings: Annotated[Settings, Depends(get_settings)],
     starting_agent: Annotated[Agent, Depends(get_starting_agent)],
     token: Annotated[str, Depends(auth)],
@@ -344,31 +347,32 @@ def get_context_variables(
 ) -> dict[str, Any]:
     """Get the context variables to feed the tool's metadata."""
     return {
-        "starting_agent": starting_agent,
-        "token": token,
-        "openai_client": openai_client,
-        "retriever_k": settings.tools.literature.retriever_k,
-        "use_reranker": settings.tools.literature.use_reranker,
-        "literature_search_url": settings.tools.literature.url,
-        "knowledge_graph_url": settings.knowledge_graph.url,
-        "me_model_search_size": settings.tools.me_model.search_size,
-        "bucket_name": settings.storage.bucket_name,
-        "brainregion_hierarchy_storage_key": settings.storage.brain_region_hierarchy_key,
-        "celltypes_hierarchy_storage_key": settings.storage.cell_type_hierarchy_key,
-        "morpho_search_size": settings.tools.morpho.search_size,
-        "kg_morpho_feature_search_size": settings.tools.kg_morpho_features.search_size,
-        "trace_search_size": settings.tools.trace.search_size,
-        "kg_sparql_url": settings.knowledge_graph.sparql_url,
-        "kg_class_view_url": settings.knowledge_graph.class_view_url,
         "bluenaas_url": settings.tools.bluenaas.url,
+        "brainregion_embeddings": request.app.state.br_embeddings,
+        "brainregion_hierarchy_storage_key": settings.storage.brain_region_hierarchy_key,
+        "bucket_name": settings.storage.bucket_name,
+        "celltypes_hierarchy_storage_key": settings.storage.cell_type_hierarchy_key,
+        "entitycore_url": settings.tools.entitycore.url,
         "httpx_client": httpx_client,
-        "vlab_id": thread.vlab_id,
-        "project_id": thread.project_id,
-        "s3_client": s3_client,
-        "user_id": user_info.sub,
-        "thread_id": thread.thread_id,
-        "tavily_api_key": settings.tools.web_search.tavily_api_key,
+        "kg_class_view_url": settings.knowledge_graph.class_view_url,
+        "kg_morpho_feature_search_size": settings.tools.kg_morpho_features.search_size,
+        "kg_sparql_url": settings.knowledge_graph.sparql_url,
+        "knowledge_graph_url": settings.knowledge_graph.url,
+        "literature_search_url": settings.tools.literature.url,
+        "me_model_search_size": settings.tools.me_model.search_size,
         "obi_one_url": settings.tools.obi_one.url,
+        "openai_client": openai_client,
+        "project_id": thread.project_id,
+        "retriever_k": settings.tools.literature.retriever_k,
+        "s3_client": s3_client,
+        "starting_agent": starting_agent,
+        "tavily_api_key": settings.tools.web_search.tavily_api_key,
+        "thread_id": thread.thread_id,
+        "token": token,
+        "trace_search_size": settings.tools.trace.search_size,
+        "use_reranker": settings.tools.literature.use_reranker,
+        "user_id": user_info.sub,
+        "vlab_id": thread.vlab_id,
     }
 
 
@@ -383,10 +387,11 @@ def get_healthcheck_variables(
     correct service.
     """
     return {
-        "httpx_client": httpx_client,
-        "literature_search_url": settings.tools.literature.url.rstrip("/") + "/",
-        "knowledge_graph_url": settings.knowledge_graph.base_url.rstrip("/") + "/",
         "bluenaas_url": settings.tools.bluenaas.url.rstrip("/") + "/",
+        "entitycore_url": settings.tools.entitycore.url.rstrip("/") + "/",
+        "httpx_client": httpx_client,
+        "knowledge_graph_url": settings.knowledge_graph.base_url.rstrip("/") + "/",
+        "literature_search_url": settings.tools.literature.url.rstrip("/") + "/",
         "obi_one_url": settings.tools.obi_one.url.rstrip("/") + "/",
     }
 
