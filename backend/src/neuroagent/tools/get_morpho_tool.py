@@ -44,8 +44,8 @@ class GetMorphoMetadata(BaseMetadata):
 class GetMorphoQueryParams(ReadManyReconstructionMorphologyGetParams):
     """Query parameters for GetMorphoTool with skipped JSON schema for certain fields."""
 
-    virtual_lab_id: SkipJsonSchema[None] = None
-    project_id: SkipJsonSchema[None] = None
+    virtual_lab_id: SkipJsonSchema[str] = "placeholder"
+    project_id: SkipJsonSchema[str] = "placeholder"
 
 
 class GetMorphoTool(BaseTool):
