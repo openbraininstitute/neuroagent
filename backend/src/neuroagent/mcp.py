@@ -68,7 +68,7 @@ class MCPClient:
         if self.config.servers:
             try:
                 await self.group_session.__aexit__(exc_type, exc_val, exc_tb)
-            except Exception:
+            except Exception:  # nosec
                 # Issue with ClientSessionGroup cleanup when multiple servers are present
                 pass
 
