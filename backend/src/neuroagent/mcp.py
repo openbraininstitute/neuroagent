@@ -1,7 +1,8 @@
 """MCP client logic."""
 
 import logging
-from typing import Any, ClassVar, Type
+from types import TracebackType
+from typing import Any, ClassVar, Optional, Type
 
 from mcp import ClientSession, ClientSessionGroup, StdioServerParameters
 from mcp.types import CallToolResult, Tool
@@ -63,7 +64,12 @@ class MCPClient:
 
         return self
 
-    async def __aexit__(self, exc_type, exc_val, exc_tb) -> None:
+    async def __aexit__(
+        self,
+        exc_type: Optional[Type[BaseException]],
+        exc_val: Optional[BaseException],
+        exc_tb: Optional[TracebackType],
+    ) -> None:
         """Exit the async context manager."""
         if self.config.servers:
             try:
