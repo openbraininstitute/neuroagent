@@ -100,7 +100,7 @@ class JSONHistogram(BaseObject):
 
     category: ClassVar[Category] = "json-histogram"
     values: list[float] = Field(description="List of values to bin")
-    bins: int = Field(default=10, description="Number of equal-width bins", gt=0)
+    bins: int | None = Field(default=10, description="Number of equal-width bins", gt=0)
     color: str | None = Field(
         None, description="Optional hex color code for the histogram bars"
     )

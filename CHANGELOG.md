@@ -15,6 +15,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Morphometrics tool using obi-one.
 - Custom brain region resolving.
 
+### Changed
+- Tools based on API calls adapted to new autogen tool.
+
 ## [0.5.4]
 
 ### Fixed
