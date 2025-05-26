@@ -296,6 +296,7 @@ def get_s3_client(
 
 
 def get_context_variables(
+    request: Request,
     settings: Annotated[Settings, Depends(get_settings)],
     starting_agent: Annotated[Agent, Depends(get_starting_agent)],
     token: Annotated[str, Depends(auth)],
@@ -308,6 +309,7 @@ def get_context_variables(
     """Get the context variables to feed the tool's metadata."""
     return {
         "bluenaas_url": settings.tools.bluenaas.url,
+        "brainregion_embeddings": request.app.state.br_embeddings,
         "brainregion_hierarchy_storage_key": settings.storage.brain_region_hierarchy_key,
         "bucket_name": settings.storage.bucket_name,
         "celltypes_hierarchy_storage_key": settings.storage.cell_type_hierarchy_key,

@@ -3,9 +3,11 @@
 import logging
 from typing import ClassVar
 
-from httpx import AsyncClient
+from openai import AsyncOpenAI
 from pydantic import BaseModel, Field
+from sklearn.metrics.pairwise import cosine_similarity
 
+from neuroagent.schemas import EmbeddedBrainRegions
 from neuroagent.tools.base_tool import (
     BaseMetadata,
     BaseTool,
@@ -17,26 +19,34 @@ logger = logging.getLogger(__name__)
 class ResolveBRInput(BaseModel):
     """Defines the input structure for the Resolve Brain Region tool."""
 
-    brain_region: str = Field(
-        description="Specifies the target brain region provided by the user in natural language. The value is matched using a case-insensitive, SQL 'ilike' pattern matching.",
+    brain_region_name: str = Field(
+        description="Specifies the target brain region NAME provided by the user in natural language.",
+    )
+    hierarchy_id: str = Field(
+        default="e3e70682-c209-4cac-a29f-6fbed82c07cd",
+        description="Id of the brain region hierarchy from which we resolve.",
+    )
+    number_of_candidates: int = Field(
+        default=10, description="Number of candidate brain regions to return."
     )
 
 
 class ResolveBRMetadata(BaseMetadata):
     """Metadata for ResolveEntitiesTool."""
 
-    entitycore_url: str
-    token: str
+    brainregion_embeddings: list[EmbeddedBrainRegions]
+    openai_client: AsyncOpenAI
 
 
 class BrainRegion(BaseModel):
     """Output schema for the Brain region resolver."""
 
-    brain_region_name: str
-    brain_region_id: str
+    id: str
+    name: str
+    score: float
 
 
-class ResolveBROutput(BaseModel):
+class ResolveBrainRegionToolOutput(BaseModel):
     """Output schema for the Resolve Entities tool."""
 
     brain_regions: list[BrainRegion]
@@ -47,54 +57,87 @@ class ResolveBrainRegionTool(BaseTool):
 
     name: ClassVar[str] = "resolve-brain-region-tool"
     name_frontend: ClassVar[str] = "Resolve Brain Region"
-    description: ClassVar[str] = (
-        """From a brain region name written in natural english, retrieve its corresponding ID, formatted as UUID."""
-    )
+    description: ClassVar[
+        str
+    ] = """Resolve a brain region's name to its UUID using semantic search.
+        Accepts natural language inputs containing the full or partial name."""
     description_frontend: ClassVar[str] = (
-        """Convert natural language brain region to its ID."""
+        """Converts natural language brain region to its ID."""
     )
     metadata: ResolveBRMetadata
     input_schema: ResolveBRInput
 
     async def arun(
         self,
-    ) -> ResolveBROutput:
-        """Given a brain region in natural language, resolve its ID."""
+    ) -> ResolveBrainRegionToolOutput:
+        """Given a brain region's name in natural language, resolve its ID."""
         logger.info(
-            f"Entering Brain Region resolver tool. Inputs: {self.input_schema.brain_region=}"
+            f"Entering Brain Region resolver tool. Inputs: {self.input_schema.model_dump()}"
         )
-
-        br_response = await self.metadata.httpx_client.get(
-            url=self.metadata.entitycore_url + "/brain-region",
-            headers={"Authorization": f"Bearer {self.metadata.token}"},
-            params={
-                "hierarchy_id": "e3e70682-c209-4cac-a29f-6fbed82c07cd",
-                "page_size": 500,
-                "name__ilike": self.input_schema.brain_region,
-            },
-        )
-
-        if br_response.status_code != 200:
-            raise ValueError(
-                f"The brain region endpoint returned a non 200 response code. Error: {br_response.text}"
+        # First we select the correct hierarchy with pre-computed embeddings
+        try:
+            hierarchy = next(
+                (
+                    region
+                    for region in self.metadata.brainregion_embeddings
+                    if region.hierarchy_id == self.input_schema.hierarchy_id
+                )
             )
+        except StopIteration:
+            raise ValueError("Hierarchy ID not found in existing embeddings.")
 
-        # Sort the brain region strings by string length
-        br_list = br_response.json()["data"]
-        br_list.sort(key=lambda item: len(item["name"]))
+        # Try exact match before anything
+        try:
+            return next(
+                ResolveBrainRegionToolOutput(
+                    brain_regions=[
+                        BrainRegion(
+                            id=region.id,
+                            name=region.name,
+                            score=1,
+                        )
+                    ]
+                )
+                for region in hierarchy.regions
+                if region.name.lower() == self.input_schema.brain_region_name.lower()
+            )
+        except StopIteration:
+            pass
 
-        # Extend the resolved BRs.
-        brain_regions = [
-            BrainRegion(brain_region_name=br["name"], brain_region_id=br["id"])
-            for br in br_list[:10]
+        # If exact match didn't work we perform semantic search
+        response = await self.metadata.openai_client.embeddings.create(
+            input=self.input_schema.brain_region_name,
+            model="text-embedding-3-small",
+        )
+        name_embedding = response.data[0].embedding
+
+        # Gather pre-computed name embeddings
+        br_name_embeddings = [
+            brain_region.name_embedding for brain_region in hierarchy.regions
         ]
 
-        return ResolveBROutput(brain_regions=brain_regions)
+        # Compute cosine similarity
+        input_name_region_name_similarity = cosine_similarity(
+            [name_embedding], br_name_embeddings
+        ).squeeze(axis=0)
+
+        # Assign score to each brain region and prepare for output.
+        scored_regions = [
+            BrainRegion(id=brain_region.id, name=brain_region.name, score=score)
+            for brain_region, score in zip(
+                hierarchy.regions,
+                input_name_region_name_similarity,
+            )
+        ]
+
+        # Sort brain regions by their score
+        top_brain_regions = sorted(scored_regions, key=lambda x: x.score, reverse=True)
+
+        return ResolveBrainRegionToolOutput(
+            brain_regions=top_brain_regions[: self.input_schema.number_of_candidates]
+        )
 
     @classmethod
-    async def is_online(cls, *, httpx_client: AsyncClient, entitycore_url: str) -> bool:
+    async def is_online(cls) -> bool:
         """Check if the tool is online."""
-        response = await httpx_client.get(
-            f"{entitycore_url.rstrip('/')}/health",
-        )
-        return response.status_code == 200
+        return True
