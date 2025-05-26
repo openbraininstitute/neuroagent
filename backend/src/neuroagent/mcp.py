@@ -66,7 +66,11 @@ class MCPClient:
     async def __aexit__(self, exc_type, exc_val, exc_tb) -> None:
         """Exit the async context manager."""
         if self.config.servers:
-            await self.group_session.__aexit__(exc_type, exc_val, exc_tb)
+            try:
+                await self.group_session.__aexit__(exc_type, exc_val, exc_tb)
+            except Exception:
+                # Issue with ClientSessionGroup cleanup when multiple servers are present
+                pass
 
 
 def create_dynamic_tool(
