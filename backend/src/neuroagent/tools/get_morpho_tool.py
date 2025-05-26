@@ -52,6 +52,27 @@ class GetMorphoQueryParams(ReadManyReconstructionMorphologyGetParams):
     virtual_lab_id: SkipJsonSchema[None] = None
     project_id: SkipJsonSchema[None] = None
 
+    def custom_serialize(self) -> dict:
+        """Custom serialization that handles both regular attributes and Pydantic models."""
+        # First get all top-level attributes as a dict
+        result = dict(self)
+
+        # Remove skipped fields
+        result.pop("virtual_lab_id", None)
+        result.pop("project_id", None)
+
+        # Iterate through each attribute and handle Pydantic models
+        for key, value in result.items():
+            if hasattr(value, "model_dump"):  # Check if it's a Pydantic model
+                result[key] = value.model_dump()
+            elif hasattr(value, "root"):  # Handle root models
+                result[key] = value.root
+
+        # Remove any None values
+        result = {k: v for k, v in result.items() if v is not None}
+
+        return result
+
 
 class GetMorphoTool(BaseTool):
     """Class defining the Get Morpho logic."""
@@ -107,6 +128,7 @@ class GetMorphoTool(BaseTool):
             if self.input_schema.mtype_id
             else None,
         )
+        breakpoint()
 
         response = await self.metadata.httpx_client.get(
             url=self.metadata.entitycore_url.rstrip("/") + "/reconstruction-morphology",
@@ -123,7 +145,7 @@ class GetMorphoTool(BaseTool):
                     else {}
                 ),
             },
-            params=query_params.model_dump(exclude_none=True),
+            params=query_params.custom_serialize(),
         )
         if response.status_code != 200:
             raise ValueError(
