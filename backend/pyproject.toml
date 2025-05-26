@@ -123,6 +123,7 @@ filterwarnings = [
     "ignore:Exception ignored in:pytest.PytestUnraisableExceptionWarning",
     "ignore:The configuration option 'asyncio_default_fixture_loop_scope' is unset.",
     "ignore:datetime.*is deprecated and scheduled for removal in a future version.:DeprecationWarning",
+    "ignore:Support for class-based:pydantic.warnings.PydanticDeprecatedSince20",
 ]
 
 addopts = "--cov=src/ -v --cov-report=term-missing --durations=20 --no-cov-on-fail"
