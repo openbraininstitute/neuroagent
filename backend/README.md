@@ -37,6 +37,12 @@ You'll need to create the `neuroagent` bucket. You can either:
 docker exec <container_id> mc mb /data/neuroagent
 ```
 
+You can compute and push the brain region hierarchy embedding to minio:
+```bash
+python src/neuroagent/scripts/embed_hierarchies.py $token -e https://staging.openbraininstitute.org/api/entitycore/ -u http://localhost:9000 -b neuroagent -a minioadmin -s minioadmin
+```
+You need to insert your bearer token corresponding to the environment defined in the `-e` arg.
+
 4. (Optional) Set up Redis for rate limiting:
 ```bash
 docker run -d -p 6379:6379 redis
