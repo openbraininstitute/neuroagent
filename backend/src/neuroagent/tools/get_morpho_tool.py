@@ -74,11 +74,11 @@ class GetMorphoTool(BaseTool):
             list of KnowledgeGraphOutput to describe the morphology and its metadata, or an error dict.
         """
         logger.info(
-            f"Entering Get Morpho tool. Inputs: {self.input_schema.brain_region_id=}, {self.input_schema.mtype_id=}"
+            f"Entering Get Morpho tool. Inputs: {self.input_schema.model_dump()}"
         )
 
         response = await self.metadata.httpx_client.get(
-            url=self.metadata.entitycore_url + "/reconstruction-morphology",
+            url=self.metadata.entitycore_url.rstrip("/") + "/reconstruction-morphology",
             headers={
                 "Authorization": f"Bearer {self.metadata.token}",
                 **(
