@@ -18,6 +18,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Tools based on API calls adapted to new autogen tool.
 
+### Fixed
+- Handle breaking change in entitycore.
+
 ## [0.5.4]
 
 ### Fixed
