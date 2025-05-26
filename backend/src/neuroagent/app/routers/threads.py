@@ -234,33 +234,29 @@ async def get_thread_messages(
     thread_id: str,
     tool_list: Annotated[list[type[BaseTool]], Depends(get_tool_list)],
     pagination_params: PaginatedParams = Depends(),
-    sort: Literal["creation_date", "-creation_date"] = "-creation_date",
 ) -> PaginatedResponse[MessagesRead]:
     """Get all messages of the thread."""
     # Create mapping of tool names to their HIL requirement
     tool_hil_mapping = {tool.name: tool.hil for tool in tool_list}
 
-    is_order_descending = sort.startswith("-")
-
     # Fetch boundary dates for pagination
     where_conditions = [
         Messages.thread_id == thread_id,
-        Messages.entity.in_([Entity.USER, Entity.AI_MESSAGE]),
+        Messages.entity == Entity.USER,
     ]
+    # we only get "user" messages because we then filter on date.
+    # Since the tool calls associated are older than the AI_MESSAGE
 
     cursor = pagination_params.cursor
     if cursor:
         where_conditions.append(
             Messages.creation_date < datetime.datetime.fromisoformat(cursor)
         )
-    order_clause = (
-        desc(Messages.creation_date) if is_order_descending else Messages.creation_date
-    )
 
     creation_date_results = await session.execute(
         select(Messages.creation_date)
         .where(*where_conditions)
-        .order_by(order_clause)
+        .order_by(desc(Messages.creation_date))
         .limit(pagination_params.page_size + 1)
     )
     creation_dates = creation_date_results.scalars().all()
@@ -276,23 +272,22 @@ async def get_thread_messages(
     has_more = len(creation_dates) > pagination_params.page_size
     page_dates = creation_dates[:-1] if has_more else creation_dates
 
-    # Fetch full Messages for the window and eager-load tool calls
-    if is_order_descending:
-        newest_msg_in_page = page_dates[0]
-        oldest_msg_in_page = page_dates[-1]
-    else:
-        newest_msg_in_page = page_dates[-1]
-        oldest_msg_in_page = page_dates[0]
+    #  Fetch full Messages for the window and eager-load tool calls
+    #  (If cursor is none we want to get the most recent message.)
+    date_conditions = [
+        Messages.creation_date >= page_dates[-1],
+        *(
+            [Messages.creation_date < datetime.datetime.fromisoformat(cursor)]
+            if cursor
+            else []
+        ),
+    ]
 
     all_msg_in_page_query = (
         select(Messages)
         .options(selectinload(Messages.tool_calls))
-        .where(
-            Messages.thread_id == thread_id,
-            Messages.creation_date <= newest_msg_in_page,
-            Messages.creation_date >= oldest_msg_in_page,
-        )
-        .order_by(order_clause)
+        .where(Messages.thread_id == thread_id, *date_conditions)
+        .order_by(desc(Messages.creation_date))
     )
     all_msg_in_page_result = await session.execute(all_msg_in_page_query)
     db_messages = all_msg_in_page_result.scalars().all()
@@ -301,7 +296,7 @@ async def get_thread_messages(
     messages: list[MessagesRead] = []
     tool_call_buffer: list[dict] = []
 
-    for msg in reversed(db_messages) if is_order_descending else db_messages:
+    for msg in reversed(db_messages):
         if msg.entity in [Entity.USER, Entity.AI_MESSAGE]:
             message_data = {
                 "id": msg.message_id,
@@ -358,8 +353,24 @@ async def get_thread_messages(
             if tool_call:
                 tool_call["results"] = msg.content
 
+    # If the tool call buffer is not empty, we need to add a dummy AI message.
+    if tool_call_buffer:
+        messages.append(
+            MessagesRead(
+                **{
+                    "id": "temp_id",
+                    "role": Entity.AI_MESSAGE.value,
+                    "thread_id": messages[-1].thread_id,
+                    "is_complete": True,
+                    "created_at": messages[-1].created_at + datetime.timedelta(hours=1),
+                    "content": "",
+                    "parts": [ToolCall(**tool_call) for tool_call in tool_call_buffer],
+                }
+            )
+        )
+
     # Reverse back to descending order and build next_cursor
-    ordered_messages = list(reversed(messages)) if is_order_descending else messages
+    ordered_messages = list(reversed(messages))
     next_cursor = ordered_messages[-1].created_at if has_more else None
 
     return PaginatedResponse(

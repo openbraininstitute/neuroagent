@@ -107,6 +107,8 @@ export function ChatPage({
       | ((messages: MessageStrict[]) => MessageStrict[]),
   ) => void;
 
+  console.log(messages);
+
   // Initial use effect that runs on mount
   useEffect(() => {
     // Send new message when new chat.

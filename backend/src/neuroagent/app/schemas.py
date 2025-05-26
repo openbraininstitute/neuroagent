@@ -14,7 +14,7 @@ class ToolCall(BaseModel):
     arguments: str
     is_complete: bool
     validated: Literal["accepted", "rejected", "pending", "not_required"]
-    results: str
+    results: str | None = None
 
 
 class BaseRead(BaseModel):
