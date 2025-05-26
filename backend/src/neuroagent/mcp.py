@@ -1,12 +1,9 @@
 """MCP client logic."""
 
 import logging
-import shutil
-from contextlib import AsyncExitStack
 from typing import Any, ClassVar, Type
 
-from mcp import ClientSession, StdioServerParameters, ClientSessionGroup
-from mcp.client.stdio import stdio_client, StdioServerParameters
+from mcp import ClientSession, ClientSessionGroup, StdioServerParameters
 from mcp.types import CallToolResult, Tool
 from pydantic import BaseModel, ConfigDict
 
