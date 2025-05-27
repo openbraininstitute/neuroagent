@@ -3,6 +3,7 @@
 import datetime
 import json
 import logging
+import uuid
 from typing import Annotated, Any, Literal
 
 from fastapi import APIRouter, Depends, HTTPException, Response
@@ -282,7 +283,6 @@ async def get_thread_messages(
             else []
         ),
     ]
-
     all_msg_in_page_query = (
         select(Messages)
         .options(selectinload(Messages.tool_calls))
@@ -294,7 +294,7 @@ async def get_thread_messages(
 
     # Format to MessagesRead / Vercel schema
     messages: list[MessagesRead] = []
-    tool_call_buffer: list[dict] = []
+    tool_call_buffer: list[dict[str, str | Entity | datetime.date | bool]] = []
 
     for msg in reversed(db_messages):
         if msg.entity in [Entity.USER, Entity.AI_MESSAGE]:
@@ -312,6 +312,25 @@ async def get_thread_messages(
                 message_data["parts"] = [
                     ToolCall(**tool_call) for tool_call in tool_call_buffer
                 ]
+                tool_call_buffer = []
+            # If we encounter a user message with a non empty buffer we have to add a dummy ai message.
+            elif tool_call_buffer:
+                last_tool_call = tool_call_buffer[-1]
+                messages.append(
+                    MessagesRead(
+                        **{
+                            "id": uuid.uuid4().hex,
+                            "role": Entity.AI_MESSAGE.value,
+                            "thread_id": last_tool_call["thread_id"],
+                            "is_complete": last_tool_call["is_complete"],
+                            "created_at": last_tool_call["creation_date"],
+                            "content": "",
+                            "parts": [
+                                ToolCall(**tool_call) for tool_call in tool_call_buffer
+                            ],
+                        }
+                    )
+                )
                 tool_call_buffer = []
             messages.append(MessagesRead(**message_data))
 
@@ -335,6 +354,9 @@ async def get_thread_messages(
                         "is_complete": msg.is_complete,
                         "arguments": tc.arguments,
                         "validated": status,
+                        "message_id": msg.message_id,
+                        "thread_id": msg.thread_id,
+                        "creation_date": msg.creation_date,
                     }
                 )
 
@@ -355,14 +377,15 @@ async def get_thread_messages(
 
     # If the tool call buffer is not empty, we need to add a dummy AI message.
     if tool_call_buffer:
+        last_tool_call = tool_call_buffer[-1]
         messages.append(
             MessagesRead(
                 **{
-                    "id": "temp_id",
+                    "id": uuid.uuid4().hex,
                     "role": Entity.AI_MESSAGE.value,
-                    "thread_id": messages[-1].thread_id,
-                    "is_complete": True,
-                    "created_at": messages[-1].created_at + datetime.timedelta(hours=1),
+                    "thread_id": last_tool_call["thread_id"],
+                    "is_complete": last_tool_call["is_complete"],
+                    "created_at": last_tool_call["creation_date"],
                     "content": "",
                     "parts": [ToolCall(**tool_call) for tool_call in tool_call_buffer],
                 }

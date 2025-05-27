@@ -3,7 +3,7 @@
 import datetime
 from typing import Any, Generic, Literal, TypeVar
 
-from pydantic import BaseModel, Field, conlist
+from pydantic import BaseModel, ConfigDict, Field, conlist
 
 
 class ToolCall(BaseModel):
@@ -15,6 +15,8 @@ class ToolCall(BaseModel):
     is_complete: bool
     validated: Literal["accepted", "rejected", "pending", "not_required"]
     results: str | None = None
+
+    model_config = ConfigDict(extra="ignore")
 
 
 class BaseRead(BaseModel):
