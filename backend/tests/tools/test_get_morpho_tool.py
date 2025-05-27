@@ -66,19 +66,19 @@ class TestGetMorphoTool:
         self,
         httpx_mock,
     ):
+        random_uuid = str(uuid4())
         url = "http://fake_url"
 
         httpx_mock.add_response(
             url=url
-            + "/reconstruction-morphology?page_size=10&page=1&within_brain_region_hierachy_id=e3e70682-c209-4cac-a29f-6fbed82c07cd&within_brain_region_brain_region_id=bad_UUID&within_brain_region_ascendants=false&mtype__id=superbad",
+            + f"/reconstruction-morphology?page_size=10&within_brain_region_hierarchy_id=e3e70682-c209-4cac-a29f-6fbed82c07cd&within_brain_region_brain_region_id={random_uuid}",
             json="Not found",
             status_code=404,
         )
 
         tool = GetMorphoTool(
             input_schema=GetMorphoInput(
-                brain_region_id="bad_UUID",
-                mtype_id="superbad",
+                brain_region_id=str(random_uuid),
                 page_size=10,
                 page=1,
             ),
