@@ -2,6 +2,7 @@
 
 import json
 from pathlib import Path
+from uuid import uuid4
 
 import httpx
 import pytest
@@ -31,16 +32,17 @@ class TestGetMorphoTool:
         with open(json_path) as f:
             entitycore_response = json.load(f)
 
-        # Mock the KG API response
+        random_uuid = str(uuid4())
+        # Mock the entitycore API response - note that you cannot include default query parameters - e.g. (page=1)
         httpx_mock.add_response(
             url=url
-            + "/reconstruction-morphology?page_size=10&page=1&within_brain_region_hierachy_id=e3e70682-c209-4cac-a29f-6fbed82c07cd&within_brain_region_brain_region_id=random_UUID&within_brain_region_ascendants=false",
+            + f"/reconstruction-morphology?page_size=10&within_brain_region_hierarchy_id=e3e70682-c209-4cac-a29f-6fbed82c07cd&within_brain_region_brain_region_id={random_uuid}",
             json=entitycore_response,
         )
 
         tool = GetMorphoTool(
             input_schema=GetMorphoInput(
-                brain_region_id="random_UUID",
+                brain_region_id=random_uuid,
                 mtype_id=None,
                 page_size=10,
                 page=1,
@@ -64,19 +66,19 @@ class TestGetMorphoTool:
         self,
         httpx_mock,
     ):
+        random_uuid = str(uuid4())
         url = "http://fake_url"
 
         httpx_mock.add_response(
             url=url
-            + "/reconstruction-morphology?page_size=10&page=1&within_brain_region_hierachy_id=e3e70682-c209-4cac-a29f-6fbed82c07cd&within_brain_region_brain_region_id=bad_UUID&within_brain_region_ascendants=false&mtype__id=superbad",
+            + f"/reconstruction-morphology?page_size=10&within_brain_region_hierarchy_id=e3e70682-c209-4cac-a29f-6fbed82c07cd&within_brain_region_brain_region_id={random_uuid}",
             json="Not found",
             status_code=404,
         )
 
         tool = GetMorphoTool(
             input_schema=GetMorphoInput(
-                brain_region_id="bad_UUID",
-                mtype_id="superbad",
+                brain_region_id=str(random_uuid),
                 page_size=10,
                 page=1,
             ),
