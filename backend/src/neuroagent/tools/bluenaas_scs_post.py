@@ -148,13 +148,9 @@ class SCSPostTool(BaseTool):
 
         response = await self.metadata.httpx_client.post(
             url=f"{self.metadata.bluenaas_url}/simulation/single-neuron/{params.virtual_lab_id}/{params.project_id}/run",
-            params={
-                k: v
-                for k, v in params.model_dump(
-                    exclude={"virtual_lab_id", "project_id", "body"}
-                ).items()
-                if v is not None
-            },
+            params=params.model_dump(
+                exclude_defaults=True, exclude={"virtual_lab_id", "project_id", "body"}
+            ),
             headers={"Authorization": f"Bearer {self.metadata.token}"},
             json=params.body.model_dump(),
         )

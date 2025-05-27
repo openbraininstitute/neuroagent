@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - get morpho tool and resolve entities now uses entitycore.
+- Use `.model_dump(exclude_defaults=True)` for auto-generated classes dumping.
 
 ### Added
 - Autogeneration of input schemas from APIs.

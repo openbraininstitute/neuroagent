@@ -77,14 +77,10 @@ class MEModelGetAllTool(BaseTool):
             created_at_end=self.input_schema.created_at_end,
         )
         response = await self.metadata.httpx_client.get(
-            url=f"{self.metadata.bluenaas_url}/neuron-model/{self.metadata.vlab_id}/{self.metadata.project_id}/me-models",
-            params={
-                k: v
-                for k, v in params.model_dump(
-                    exclude={"virtual_lab_id", "project_id"}
-                ).items()
-                if v is not None
-            },
+            url=f"{self.metadata.bluenaas_url}/neuron-model/{params.virtual_lab_id}/{params.project_id}/me-models",
+            params=params.model_dump(
+                exclude_defaults=True, exclude={"virtual_lab_id", "project_id"}
+            ),
             headers={"Authorization": f"Bearer {self.metadata.token}"},
         )
 
