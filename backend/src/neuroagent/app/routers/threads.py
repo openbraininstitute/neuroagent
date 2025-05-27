@@ -374,6 +374,7 @@ async def get_thread_messages(
             # Does this work ? it changes the reference in the list.
             if tool_call:
                 tool_call["results"] = msg.content
+                tool_call["is_complete"] = msg.is_complete
 
     # If the tool call buffer is not empty, we need to add a dummy AI message.
     if tool_call_buffer:
