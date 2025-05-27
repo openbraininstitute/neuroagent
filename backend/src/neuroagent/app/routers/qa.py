@@ -86,6 +86,11 @@ async def question_suggestions(
     if body.thread_id is None:
         # if there is no thread ID, we simply go without messages.
         is_in_chat = False
+        if body.click_history is None:
+            raise HTTPException(
+                status_code=422,
+                detail="One of 'thread_id' or 'click_history' must be provided.",
+            )
     else:
         # We have to call get_thread explicitely.
         thread = await get_thread(user_info, body.thread_id, session)
@@ -131,12 +136,22 @@ async def question_suggestions(
         db_messages = messages_result.unique().scalars().all()
 
         is_in_chat = bool(db_messages)
+        if not is_in_chat and not body.click_history:
+            raise HTTPException(
+                status_code=404,
+                detail="The thread is empty and the 'click_history' wasn't provided.",
+            )
+
+    if is_in_chat:
+        content = f"CONVERSATION MESSAGES: \n{json.dumps([{k: v for k, v in json.loads(msg.content).items() if k in ['role', 'content']}for msg in db_messages])}"
+    else:
+        content = f"USER JOURNEY: \n{json.dumps(body.click_history)}"
 
     messages = [
         {
             "role": "system",
-            "content": """You are a smart assistant that analyzes user behavior and, optionally, their conversation history to suggest three concise,
-            engaging questions the user might ask next—specifically about finding relevant scientific literature.
+            "content": """You are a smart assistant that analyzes user behavior and conversation history to suggest three concise,
+            engaging questions the user might ask next, specifically about finding relevant scientific literature.
 
             Platform Context:
             The Open Brain Platform provides an atlas-driven exploration of the mouse brain, offering access to:
@@ -174,36 +189,16 @@ async def question_suggestions(
             - The last element in each session is the user’s most recent click, making it the most relevant.
 
             Task:
-            Using the user’s navigation history and, if available, their recent messages, generate three short, literature-focused questions they might ask next.
-            - Prioritize the most recent user interactions.
-            - Weigh the content of their messages more heavily than their click history when messages are available.
-            - If the user messages are empty, rely solely on their navigation history.
+            Using either the user’s navigation history or their recent messages, generate three short, literature-focused questions they might ask next. Prioritize the most recent user interactions.
 
             Each question must:
             - Directly relate to searching for scientific papers.
             - Be clear, concise, and easy to understand.
-            - Focus exclusively on literature retrieval.""",
+            - Focus exclusively on literature retrieval.
+
+            The upcoming user message will either prepend its content with 'CONVERSATION MESSAGES:' indicating that messages from the conversation are dumped, or 'USER JOURNEY:' indicating that the navigation history is dumped.""",
         },
-        {
-            "role": "user",
-            "content": "USER JOURNEY: \n"
-            + json.dumps(body.click_history)
-            + "\n USER MESSAGES : \n"
-            + (
-                json.dumps(
-                    [
-                        {
-                            k: v
-                            for k, v in json.loads(msg.content).items()
-                            if k in ["role", "content"]
-                        }
-                        for msg in db_messages
-                    ]
-                )
-                if is_in_chat
-                else ""
-            ),
-        },
+        {"role": "user", "content": content},
     ]
 
     response = await openai_client.beta.chat.completions.parse(
