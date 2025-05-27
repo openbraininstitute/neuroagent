@@ -96,15 +96,15 @@ def test_question_suggestions(
     call_list = mock_openai_client.beta.chat.completions.parse.call_args_list
     assert call_list[0].kwargs["messages"][1] == {
         "role": "user",
-        "content": 'USER JOURNEY: \n[[["Amzing BR", "Super artifact"]]]\n USER MESSAGES : \n',
+        "content": 'USER JOURNEY: \n[[["Amzing BR", "Super artifact"]]]',
     }
     assert call_list[1].kwargs["messages"][1] == {
         "role": "user",
-        "content": 'USER JOURNEY: \n[[["Amzing BR", "Super artifact"]]]\n USER MESSAGES : \n',
+        "content": 'USER JOURNEY: \n[[["Amzing BR", "Super artifact"]]]',
     }
     assert call_list[2].kwargs["messages"][1] == {
         "role": "user",
-        "content": 'USER JOURNEY: \n[[["Amzing BR", "Super artifact"]]]\n USER MESSAGES : \n[{"content": "This is my query."}, {"content": "sample response content."}]',
+        "content": 'CONVERSATION MESSAGES: \n[{"content": "This is my query."}, {"content": "sample response content."}]',
     }
 
 

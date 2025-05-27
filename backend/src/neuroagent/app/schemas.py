@@ -146,5 +146,5 @@ class QuestionsSuggestions(BaseModel):
 class QuestionsSuggestionsRequest(BaseModel):
     """Request for the suggestion endpoint."""
 
-    click_history: list[list[list[str]]]
+    click_history: list[list[list[str]]] | None = None
     thread_id: str | None = None
