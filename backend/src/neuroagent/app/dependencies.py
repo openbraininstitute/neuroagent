@@ -40,6 +40,7 @@ from neuroagent.tools import (
     SCSGetOneTool,
     SCSPlotTool,
     SCSPostTool,
+    WeatherTool,
     WebSearchTool,
 )
 from neuroagent.tools.base_tool import BaseTool
@@ -186,7 +187,7 @@ def get_tool_list() -> list[type[BaseTool]]:
         MorphologyViewerTool,
         WebSearchTool,
         # NowTool,
-        # WeatherTool,
+        WeatherTool,
         # RandomPlotGeneratorTool,
     ]
 

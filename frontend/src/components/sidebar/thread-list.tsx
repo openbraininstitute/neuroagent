@@ -1,17 +1,14 @@
-import { ThreadCardSidebar } from "@/components/sidebar/thread-card-sidebar";
 import { getThreads } from "@/lib/server-fetches";
+import { ThreadListClient } from "./thread-list-client";
+import { md5 } from "js-md5";
 
 export async function ThreadList() {
-  const threads = await getThreads();
+  const { threads, nextCursor } = await getThreads();
   return (
-    <div className="flex flex-col gap-2 pl-3 pr-3">
-      {threads.map((thread) => (
-        <ThreadCardSidebar
-          key={thread.thread_id}
-          title={thread.title}
-          threadId={thread.thread_id}
-        />
-      ))}
-    </div>
+    <ThreadListClient
+      key={threads ? md5(JSON.stringify(threads)) : null}
+      initialThreads={threads}
+      initialNextCursor={nextCursor}
+    />
   );
 }
