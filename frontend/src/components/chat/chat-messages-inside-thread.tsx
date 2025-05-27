@@ -1,7 +1,12 @@
 "use client";
 
 import { MessageStrict } from "@/lib/types";
-import { getAssociatedTools, getViewableToolStorageIds } from "@/lib/utils";
+import {
+  getAssociatedTools,
+  getStoppedStatus,
+  getValidationStatus,
+  getViewableToolStorageIds,
+} from "@/lib/utils";
 import PlotsInChat from "@/components/chat/plot-in-chat";
 import { ChatMessageAI } from "@/components/chat/chat-message-ai";
 import { ChatMessageHuman } from "@/components/chat/chat-message-human";
@@ -63,16 +68,15 @@ export function ChatMessagesInsideThread({
               message.parts?.map((part) => {
                 if (part.type == "tool-invocation") {
                   const validated =
-                    message.annotations?.find(
-                      (a) => a.toolCallId === part.toolInvocation.toolCallId,
-                    )?.validated ?? "not_required";
+                    getValidationStatus(
+                      message.annotations,
+                      part.toolInvocation.toolCallId,
+                    ) ?? "not_required";
                   const stopped =
-                    message.annotations?.some(
-                      (annotation) =>
-                        annotation.isComplete !== undefined &&
-                        !annotation.isComplete,
+                    getStoppedStatus(
+                      message.annotations,
+                      part.toolInvocation.toolCallId,
                     ) ?? false;
-
                   return (
                     <ChatMessageTool
                       key={`${message.id}-tool-${part.toolInvocation.toolCallId}`}

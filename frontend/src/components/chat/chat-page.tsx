@@ -12,7 +12,7 @@ import { ChatMessagesInsideThread } from "@/components/chat/chat-messages-inside
 import { generateEditTitle } from "@/actions/generate-edit-thread";
 import { toast } from "sonner";
 import { useGetMessageNextPage } from "@/hooks/get-message-page";
-import { convertToAiMessages } from "@/lib/utils";
+import { convertToAiMessages, isLastMessageComplete } from "@/lib/utils";
 import { md5 } from "js-md5";
 
 type ChatPageProps = {
@@ -67,7 +67,7 @@ export function ChatPage({
     pageParams: [null],
   });
 
-  //translate all messages to vercel, useMemo to fix infinite loop.
+  // translate all messages to vercel, useMemo to fix infinite loop.
   const retrievedMessages = useMemo(() => {
     return convertToAiMessages(
       data?.pages.flatMap((page) => page.messages) ?? [],
@@ -107,6 +107,8 @@ export function ChatPage({
       | ((messages: MessageStrict[]) => MessageStrict[]),
   ) => void;
 
+  console.log(messages);
+
   // Initial use effect that runs on mount
   useEffect(() => {
     // Send new message when new chat.
@@ -137,19 +139,24 @@ export function ChatPage({
       setCheckedTools(initialCheckedTools);
     }
 
-    // To know if the chat should be disabled or not, check if last message was stopped
-    const shouldBeStopped = () => {
-      const isLastMessageComplete =
-        messages.at(-1)?.annotations?.find(
-          (annotation) => "isComplete" in annotation, // Find the correct annotation
-        )?.isComplete ?? false;
-      return !isLastMessageComplete;
-    };
     // If message complete, don't set stopped
-    setStopped(shouldBeStopped());
+    setStopped(isLastMessageComplete(messages.at(-1)));
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Handle streaming interruption
+  useEffect(() => {
+    if (stopped) {
+      setMessages((prevState) => {
+        prevState[prevState.length - 1] = {
+          ...prevState[prevState.length - 1],
+          annotations: [{ isComplete: false }],
+        };
+        return prevState;
+      });
+    }
+  }, [stopped, setMessages]);
 
   useEffect(() => {
     if (isInvalidating || isFetching) return;
@@ -218,7 +225,7 @@ export function ChatPage({
     }
   }, [messages, isAutoScrollEnabled]);
 
-  // Check for user inputs
+  // Check for user inputs to stop auto scroll
   const handleWheel = (event: React.WheelEvent) => {
     if (event.deltaY < 0) {
       setIsAutoScrollEnabled(false);
@@ -268,19 +275,6 @@ export function ChatPage({
       if (observerRef.current) observerRef.current.disconnect();
     };
   }, [hasNextPage, isFetchingPreviousPage, isLoading, fetchPreviousPage]);
-
-  // Handle streaming interruption
-  useEffect(() => {
-    if (stopped) {
-      setMessages((prevState) => {
-        prevState[prevState.length - 1] = {
-          ...prevState[prevState.length - 1],
-          annotations: [{ isComplete: false }],
-        };
-        return prevState;
-      });
-    }
-  }, [stopped, setMessages]);
 
   // Handle chat errors
   useEffect(() => {

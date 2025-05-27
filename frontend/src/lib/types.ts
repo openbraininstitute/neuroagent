@@ -32,6 +32,7 @@ export type BToolCall = {
 };
 
 export type Annotation = {
+  message_id?: string;
   toolCallId?: string;
   validated?: "accepted" | "rejected" | "pending" | "not_required";
   isComplete?: boolean;

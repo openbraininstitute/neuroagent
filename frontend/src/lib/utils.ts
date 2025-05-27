@@ -113,6 +113,41 @@ export function getViewableToolStorageIds(
   return storageIdsMap;
 }
 
+// Small utility function to check if the last message has incomplete parts
+export function isLastMessageComplete(messages: MessageStrict | undefined) {
+  const annotations = messages?.annotations;
+  if (annotations?.length === 0) {
+    // No annotations → treat as “complete”
+    return true;
+  }
+  // If *any* annotation explicitly has isComplete === false, we’re incomplete
+  const hasIncomplete = annotations?.some(
+    (ann) => "isComplete" in ann && ann.isComplete === false,
+  );
+
+  return !hasIncomplete;
+}
+
+// Small utility function that finds the right tool call in annotations and returns its status
+export function getValidationStatus(
+  annotations: Annotation[] | undefined,
+  toolCallId: string,
+) {
+  const ann = annotations?.find((a) => a.toolCallId === toolCallId);
+  if (!ann) return undefined;
+  return ann.validated;
+}
+export function getStoppedStatus(
+  annotations: Annotation[] | undefined,
+  toolCallId: string,
+) {
+  const ann = annotations?.find((a) => a.toolCallId === toolCallId);
+  if (!ann) return undefined;
+  return !ann.isComplete;
+}
+
+// function to translate from snake to camel case, and handle the annotations.
+// We might want to do everythin in the backend if possible.
 export function convertToAiMessages(messages: BMessage[]): MessageStrict[] {
   const output: MessageStrict[] = [];
 
@@ -131,7 +166,9 @@ export function convertToAiMessages(messages: BMessage[]): MessageStrict[] {
     } else if (message.role === "ai_message") {
       // Compute tool calls and annotations
       const tool_calls: ToolInvocationUIPart[] = [];
-      const annotations: Annotation[] = [];
+      const annotations: Annotation[] = [
+        { message_id: message.id, isComplete: message.is_complete },
+      ];
       for (const tc of message.parts) {
         tool_calls.push({
           type: "tool-invocation" as const,

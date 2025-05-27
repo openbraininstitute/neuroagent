@@ -371,7 +371,6 @@ async def get_thread_messages(
                 ),
                 None,
             )
-            # Does this work ? it changes the reference in the list.
             if tool_call:
                 tool_call["results"] = msg.content
                 tool_call["is_complete"] = msg.is_complete
