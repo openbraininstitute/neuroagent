@@ -175,7 +175,7 @@ def get_mcp_client(request: Request) -> MCPClient | None:
 
 @cache
 def get_mcp_tool_list(
-    mcp_client: MCPClient | None = Depends(get_mcp_client),
+    mcp_client: Annotated[MCPClient | None, Depends(get_mcp_client)],
 ) -> list[type[BaseTool]]:
     """Get the list of tools from the MCP server."""
     if mcp_client is None:
