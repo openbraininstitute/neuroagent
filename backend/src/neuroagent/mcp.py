@@ -1,6 +1,7 @@
 """MCP client logic."""
 
 import logging
+import re
 from types import TracebackType
 from typing import Any, ClassVar, Optional, Type
 
@@ -125,7 +126,12 @@ def create_dynamic_tool(
     # Create the tool class
     class DynamicTool(BaseTool):
         name: ClassVar[str] = f"mcp-{server_name}-{tool_name}"
-        name_frontend: ClassVar[str] = f"mcp-{server_name}-{tool_name}"
+        name_frontend: ClassVar[str] = " ".join(
+            [
+                word.capitalize()
+                for word in re.split(r"[-/_=+*]", f"{server_name}-{tool_name}")
+            ]
+        )
         description: ClassVar[str] = tool_description
         description_frontend: ClassVar[str] = tool_description
         json_schema: ClassVar[dict[str, Any]] = input_schema_serialized

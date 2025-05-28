@@ -166,7 +166,6 @@ async def get_user_info(
         raise HTTPException(status_code=404, detail="User info url not provided.")
 
 
-@cache
 def get_mcp_client(request: Request) -> MCPClient | None:
     """Get the MCP client from the app state."""
     if request.app.state.mcp_client is None:
