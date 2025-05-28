@@ -30,7 +30,7 @@ class InputMEModelGetOne(BaseModel):
 class MEModelGetOneMetadata(BaseMetadata):
     """Metadata class for the get one me models api."""
 
-    token: str
+    httpx_client: AsyncClient
     vlab_id: str
     project_id: str
     bluenaas_url: str
@@ -72,7 +72,6 @@ class MEModelGetOneTool(BaseTool):
         )
         response = await self.metadata.httpx_client.get(
             url=f"{self.metadata.bluenaas_url}/neuron-model/{params.virtual_lab_id}/{params.project_id}/{quote_plus(params.model_id)}",
-            headers={"Authorization": f"Bearer {self.metadata.token}"},
         )
         resp_json = response.json()
         if resp_json["type"] == "synaptome":

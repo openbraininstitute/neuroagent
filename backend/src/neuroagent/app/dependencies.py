@@ -66,12 +66,17 @@ def get_settings() -> Settings:
     return Settings()
 
 
-async def get_httpx_client(request: Request) -> AsyncIterator[AsyncClient]:
+async def get_httpx_client(
+    request: Request, token: Annotated[str, Depends(auth)]
+) -> AsyncIterator[AsyncClient]:
     """Manage the httpx client for the request."""
     client = AsyncClient(
         timeout=300.0,
         verify=False,
-        headers={"x-request-id": request.headers["x-request-id"]},
+        headers={
+            "x-request-id": request.headers["x-request-id"],
+            "Authorization": f"Bearer {token}",
+        },
     )
     try:
         yield client
@@ -153,7 +158,6 @@ async def get_user_info(
         try:
             response = await httpx_client.get(
                 settings.keycloak.user_info_endpoint,
-                headers={"Authorization": f"Bearer {token}"},
             )
             response.raise_for_status()
             return UserInfo(**response.json())
@@ -298,7 +302,6 @@ def get_context_variables(
     request: Request,
     settings: Annotated[Settings, Depends(get_settings)],
     starting_agent: Annotated[Agent, Depends(get_starting_agent)],
-    token: Annotated[str, Depends(auth)],
     httpx_client: Annotated[AsyncClient, Depends(get_httpx_client)],
     thread: Annotated[Threads, Depends(get_thread)],
     s3_client: Annotated[Any, Depends(get_s3_client)],
@@ -328,7 +331,6 @@ def get_context_variables(
         "starting_agent": starting_agent,
         "tavily_api_key": settings.tools.web_search.tavily_api_key,
         "thread_id": thread.thread_id,
-        "token": token,
         "trace_search_size": settings.tools.trace.search_size,
         "use_reranker": settings.tools.literature.use_reranker,
         "user_id": user_info.sub,

@@ -4,7 +4,6 @@ import logging
 from abc import ABC, abstractmethod
 from typing import Any, ClassVar, Literal
 
-from httpx import AsyncClient
 from pydantic import BaseModel, ConfigDict
 
 logger = logging.getLogger(__name__)
@@ -57,7 +56,6 @@ ETYPE_IDS = {
 class BaseMetadata(BaseModel):
     """Base class for metadata."""
 
-    httpx_client: AsyncClient
     model_config = ConfigDict(extra="ignore", arbitrary_types_allowed=True)
 
 
