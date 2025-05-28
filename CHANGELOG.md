@@ -8,16 +8,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Changed
+- Use `.model_dump(exclude_defaults=True)` for auto-generated classes dumping.
 - Get morpho tool and resolve entities now uses entitycore.
 - Remove usage of user journey in suggestion after first message.
+- Tools based on API calls adapted to new autogen tool.
 
 ### Added
 - Autogeneration of input schemas from APIs.
 - Morphometrics tool using obi-one.
 - Custom brain region resolving.
-
-### Changed
-- Tools based on API calls adapted to new autogen tool.
 
 ### Fixed
 - Handle breaking change in entitycore.

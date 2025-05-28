@@ -21,7 +21,7 @@ from tests.mock_client import MockOpenAIClient, create_mock_response
 class TestLiteratureSearchTool:
     @pytest.mark.asyncio
     async def test_arun(self, httpx_mock):
-        url = "http://fake_url?query=covid+19&retriever_k=100&use_reranker=true&reranker_k=100"
+        url = "http://fake_url/retrieval/?query=covid+19&reranker_k=100"
         reranker_k = 5
         retriever_k = 100
 
@@ -66,7 +66,7 @@ class TestLiteratureSearchTool:
                 user_message="covid 19", max_article_number=reranker_k
             ),
             metadata=LiteratureSearchMetadata(
-                literature_search_url=url,
+                literature_search_url="http://fake_url",
                 httpx_client=httpx.AsyncClient(),
                 token="fake_token",
                 retriever_k=retriever_k,

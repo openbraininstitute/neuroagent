@@ -62,12 +62,16 @@ class MorphoMetricsTool(BaseTool):
         logger.info(
             f"Entering MorphoMetrics tool. Inputs: {self.input_schema.model_dump()}"
         )
+
         params = NeuronMorphologyMetricsEndpointDeclaredNeuronMorphologyMetricsReconstructionMorphologyIdGetParams(
             reconstruction_morphology_id=self.input_schema.morphology_id,
-            virtual_lab_id=VirtualLabId(root=self.metadata.vlab_id),
-            project_id=ProjectId(root=self.metadata.project_id),
+            virtual_lab_id=VirtualLabId(root=self.metadata.vlab_id)
+            if self.metadata.vlab_id
+            else None,
+            project_id=ProjectId(root=self.metadata.project_id)
+            if self.metadata.project_id
+            else None,
         )
-
         morpho_metrics_response = await self.metadata.httpx_client.get(
             url=f"{self.metadata.obi_one_url}/declared/neuron-morphology-metrics/{params.reconstruction_morphology_id}",
             headers={
@@ -75,9 +79,8 @@ class MorphoMetricsTool(BaseTool):
                 **{
                     k: str(v)
                     for k, v in params.model_dump(
-                        exclude={"reconstruction_morphology_id"}
+                        exclude_defaults=True, exclude={"reconstruction_morphology_id"}
                     ).items()
-                    if v is not None
                 },
             },
         )
