@@ -11,7 +11,7 @@ import ChatInputLoading from "@/components/chat/chat-input-loading";
 import { convert_tools_to_set } from "@/lib/utils";
 import { OpenUserJourneyButton } from "@/components/chat/user-journey-dialog";
 import QuestionSuggestionCards from "@/components/chat/question-suggestion-cards";
-import { SuggestedQuestions } from "@/lib/types";
+import { SuggestedQuestions, UserHistory } from "@/lib/types";
 import { getSuggestions } from "@/actions/get-suggestions";
 
 type ChatInputProps = {
@@ -40,7 +40,7 @@ export function ChatInput({ availableTools }: ChatInputProps) {
     startTransition(action);
   };
 
-  const suggestionActionWrapper = (suggestionInput: string[][][]) => {
+  const suggestionActionWrapper = (suggestionInput: UserHistory) => {
     startTransition(() => querySuggestions(suggestionInput));
   };
 

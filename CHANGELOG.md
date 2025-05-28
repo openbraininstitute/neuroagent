@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Get morpho tool and resolve entities now uses entitycore.
 - Remove usage of user journey in suggestion after first message.
 - Tools based on API calls adapted to new autogen tool.
+- Input schema of the suggestion endpoint.
 
 ### Added
 - Autogeneration of input schemas from APIs.
