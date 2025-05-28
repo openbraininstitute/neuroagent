@@ -17,6 +17,14 @@ from neuroagent.tools.base_tool import BaseMetadata, BaseTool
 logger = logging.getLogger(__name__)
 
 
+class InputSCSGetOne(BaseModel):
+    """Inputs for the BlueNaaS single-neuron simulation."""
+
+    simulation_id: str = Field(
+        description="ID of the simulation to retrieve. Should be an https link."
+    )
+
+
 class SCSGetOneMetadata(BaseMetadata):
     """Metadata class for the get all simulations api."""
 
@@ -24,14 +32,6 @@ class SCSGetOneMetadata(BaseMetadata):
     vlab_id: str
     project_id: str
     bluenaas_url: str
-
-
-class InputSCSGetOne(BaseModel):
-    """Inputs for the BlueNaaS single-neuron simulation."""
-
-    simulation_id: str = Field(
-        description="ID of the simulation to retrieve. Should be an https link."
-    )
 
 
 class SCSGetOneTool(BaseTool):
