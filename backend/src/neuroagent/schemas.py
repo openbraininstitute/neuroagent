@@ -100,7 +100,7 @@ class JSONHistogram(BaseObject):
 
     category: ClassVar[Category] = "json-histogram"
     values: list[float] = Field(description="List of values to bin")
-    bins: int = Field(default=10, description="Number of equal-width bins", gt=0)
+    bins: int | None = Field(default=10, description="Number of equal-width bins", gt=0)
     color: str | None = Field(
         None, description="Optional hex color code for the histogram bars"
     )
@@ -149,3 +149,19 @@ class JSONMultiLinechart(BaseObject):
         default="solid", description="Line style (e.g., 'solid', 'dashed', 'dotted')"
     )
     line_color: str | None = Field(None, description="Hex color code for the line")
+
+
+class EmbeddedBrainRegion(BaseModel):
+    """Brain region schema."""
+
+    id: str
+    name: str
+    hierarchy_level: int
+    name_embedding: list[float] | None = None
+
+
+class EmbeddedBrainRegions(BaseModel):
+    """Schema for dumping."""
+
+    regions: list[EmbeddedBrainRegion]
+    hierarchy_id: str

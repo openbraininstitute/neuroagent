@@ -21,7 +21,7 @@ from tests.mock_client import MockOpenAIClient, create_mock_response
 class TestLiteratureSearchTool:
     @pytest.mark.asyncio
     async def test_arun(self, httpx_mock):
-        url = "http://fake_url?query=covid+19&retriever_k=100&use_reranker=true&reranker_k=100"
+        url = "http://fake_url/retrieval/?query=covid+19&reranker_k=100"
         reranker_k = 5
         retriever_k = 100
 
@@ -66,7 +66,7 @@ class TestLiteratureSearchTool:
                 user_message="covid 19", max_article_number=reranker_k
             ),
             metadata=LiteratureSearchMetadata(
-                literature_search_url=url,
+                literature_search_url="http://fake_url",
                 httpx_client=httpx.AsyncClient(),
                 token="fake_token",
                 retriever_k=retriever_k,
@@ -79,82 +79,6 @@ class TestLiteratureSearchTool:
         assert len(response.articles) == reranker_k
         assert isinstance(response.articles[0], ArticleOutput)
         assert isinstance(response.articles[0].paragraphs[0], ParagraphOutput)
-
-
-class TestCreateQuery:
-    def test_create_query_all_values(self):
-        result = LiteratureSearchTool.create_query(
-            query="machine learning",
-            article_types=["research", "review"],
-            authors=["John Doe"],
-            journals=["IEEE"],
-            date_from="2020-01-01",
-            date_to="2020-12-31",
-            retriever_k=5,
-            reranker_k=3,
-            use_reranker=True,
-        )
-        expected = {
-            "query": "machine learning",
-            "article_types": ["research", "review"],
-            "authors": ["John Doe"],
-            "journals": ["IEEE"],
-            "date_from": "2020-01-01",
-            "date_to": "2020-12-31",
-            "retriever_k": 5,
-            "use_reranker": True,
-            "reranker_k": 3,
-        }
-        assert result == expected
-
-    def test_create_query_with_none(self):
-        # Build a query where some parameters are None, which should be filtered out.
-        result = LiteratureSearchTool.create_query(
-            query="data science",
-            article_types=None,
-            authors=["Alice"],
-            journals=None,
-            date_from=None,
-            date_to="2021-06-30",
-            retriever_k=10,
-            reranker_k=4,
-            use_reranker=False,
-        )
-        expected = {
-            "query": "data science",
-            "authors": ["Alice"],
-            "date_to": "2021-06-30",
-            "retriever_k": 10,
-            "use_reranker": False,
-            "reranker_k": 4,
-        }
-        assert result == expected
-
-    def test_create_query_empty_values(self):
-        # Test where empty strings and empty lists (which are not None) are provided.
-        result = LiteratureSearchTool.create_query(
-            query="",
-            article_types=[],
-            authors=[],
-            journals=[],
-            date_from="",
-            date_to="",
-            retriever_k=0,
-            reranker_k=0,
-            use_reranker=False,
-        )
-        expected = {
-            "query": "",
-            "article_types": [],
-            "authors": [],
-            "journals": [],
-            "date_from": "",
-            "date_to": "",
-            "retriever_k": 0,
-            "use_reranker": False,
-            "reranker_k": 0,
-        }
-        assert result == expected
 
 
 def make_paragraph(article_id, section, paragraph, reranking_score, **meta):

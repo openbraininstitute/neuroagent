@@ -9,6 +9,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { useQueryClient } from "@tanstack/react-query";
 import { useState, useEffect, useRef, Dispatch, SetStateAction } from "react";
 
 type EditThreadProps = {
@@ -41,19 +42,22 @@ export function EditThreadDialog({
     setIsDialogOpen(false);
   };
 
+  const queryClient = useQueryClient();
+
+  const editWrapper = (formData: FormData) => {
+    addOptimisticTitle(formData.get("title") as string);
+    editAction(formData);
+    queryClient.invalidateQueries({
+      queryKey: ["threads"],
+    });
+  };
   return (
     <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
       <DialogContent className="[&>button]:hidden">
         <DialogHeader>
           <DialogTitle>Edit Thread Title</DialogTitle>
         </DialogHeader>
-        <form
-          ref={formRef}
-          action={async (formData) => {
-            addOptimisticTitle(formData.get("title") as string);
-            editAction(formData);
-          }}
-        >
+        <form ref={formRef} action={editWrapper}>
           <input type="hidden" name="threadId" value={threadId} />
           <Input
             name="title"

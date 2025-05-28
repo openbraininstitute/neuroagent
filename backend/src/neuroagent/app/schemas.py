@@ -1,11 +1,9 @@
 """Pydantic schemas for the database operations."""
 
 import datetime
-from typing import Any, Literal
+from typing import Any, Generic, Literal, TypeVar
 
 from pydantic import BaseModel, Field, conlist
-
-from neuroagent.app.database.sql_schemas import Entity
 
 
 class ToolCall(BaseModel):
@@ -17,7 +15,14 @@ class ToolCall(BaseModel):
     validated: Literal["accepted", "rejected", "pending", "not_required"]
 
 
-class MessageResponse(BaseModel):
+class BaseRead(BaseModel):
+    """Base class for read schemas."""
+
+
+T = TypeVar("T", bound=BaseRead)
+
+
+class MessagesRead(BaseRead):
     """Message response."""
 
     message_id: str
@@ -29,7 +34,7 @@ class MessageResponse(BaseModel):
     tool_calls: list[ToolCall]
 
 
-class ThreadsRead(BaseModel):
+class ThreadsRead(BaseRead):
     """Data class to read chatbot conversations in the db."""
 
     thread_id: str
@@ -65,15 +70,6 @@ class ThreadUpdate(BaseModel):
     """Data class for the update of a thread."""
 
     title: str
-
-
-class MessagesRead(BaseModel):
-    """Output of the conversation listing crud."""
-
-    message_id: str
-    creation_date: datetime.datetime
-    msg_content: str
-    entity: Literal[Entity.USER, Entity.AI_MESSAGE]
 
 
 class ToolCallSchema(BaseModel):
@@ -135,8 +131,24 @@ class Question(BaseModel):
     question: str
 
 
+class PaginatedParams(BaseModel):
+    """Input query parameters for paginated endpoints."""
+
+    cursor: str | None = Field(default=None)
+    page_size: int = Field(default=10, ge=1)
+
+
+class PaginatedResponse(BaseModel, Generic[T]):
+    """Base class for paginated responses."""
+
+    next_cursor: datetime.datetime | None
+    has_more: bool
+    page_size: int
+    results: list[T]
+
+
 class QuestionsSuggestions(BaseModel):
-    """All suggested questions by the LLM before chatting."""
+    """All suggested questions by the LLM when there are already messages."""
 
     suggestions: list[Question] = conlist(  # type: ignore
         item_type=Question, min_length=3, max_length=3
@@ -146,5 +158,5 @@ class QuestionsSuggestions(BaseModel):
 class QuestionsSuggestionsRequest(BaseModel):
     """Request for the suggestion endpoint."""
 
-    click_history: list[list[list[str]]]
+    click_history: list[list[list[str]]] | None = None
     thread_id: str | None = None

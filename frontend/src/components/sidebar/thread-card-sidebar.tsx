@@ -4,12 +4,13 @@ import { MessageCircle, X, Pencil, Ellipsis } from "lucide-react";
 import { Thread } from "@/lib/types";
 import { editThread } from "@/actions/edit-thread";
 import { deleteThread } from "@/actions/delete-thread";
-import { useActionState } from "react";
+import { useActionState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { EditThreadDialog } from "@/components/sidebar/edit-thread-dialog";
 import { DeleteThreadDialog } from "@/components/sidebar/delete-thread-dialog";
 import { Button } from "@/components/ui/button";
 import { useState, useOptimistic } from "react";
+import { useIsFetching } from "@tanstack/react-query";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -25,6 +26,7 @@ export function ThreadCardSidebar({ title, threadId }: ThreadCardSidebarProps) {
   const [, deleteAction, isDeletePending] = useActionState(deleteThread, null);
   const pathname = usePathname();
   const currentThreadId = pathname.split("/").pop();
+  const [isFetchingDeletedThread, setIsFetchingDeletedThread] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -34,6 +36,15 @@ export function ThreadCardSidebar({ title, threadId }: ThreadCardSidebarProps) {
       return newTitle;
     },
   );
+  const isFetchingThreads = useIsFetching({ queryKey: ["threads"] });
+
+  useEffect(() => {
+    if (isDeletePending) {
+      setIsFetchingDeletedThread(true);
+    } else if (isFetchingThreads === 0) {
+      setIsFetchingDeletedThread(false);
+    }
+  }, [isDeletePending, isFetchingThreads]);
 
   return (
     <div
@@ -52,7 +63,7 @@ export function ThreadCardSidebar({ title, threadId }: ThreadCardSidebarProps) {
       >
         <MessageCircle />
         <span
-          className={`max-w-[80%] truncate ${isDeletePending || isDropdownOpen ? "opacity-50" : ""}`}
+          className={`max-w-[80%] truncate ${isFetchingDeletedThread || isDropdownOpen ? "opacity-50" : ""}`}
         >
           {optimisticTitle}
         </span>
