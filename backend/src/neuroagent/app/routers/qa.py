@@ -176,7 +176,7 @@ async def question_suggestions(
 
             User Journey Format:
             - User journey is a list of clicks performed by the user.
-            - Each click represent the brain region and artifact the user was viewing. The timestamp of the click is added
+            - Each click represent the brain region and artifact the user was viewing. The timestamp of the click is added.
             - Artifacts may include:
             * Morphology
             * Electrophysiology
@@ -186,7 +186,7 @@ async def question_suggestions(
             * E-model
             * ME-model
             * Synaptome
-            - The current date and time is {datetime.now(timezone.utc).isoformat()}. Weight the user clicks depending on old they are. The more recent clicks should be given a higher importance.
+            - The current date and time is {datetime.now(timezone.utc).isoformat()}. Weight the user clicks depending on how old they are. The more recent clicks should be given a higher importance.
 
             Task:
             Using either the user’s navigation history or their recent messages, generate three short, literature-focused questions they might ask next.
