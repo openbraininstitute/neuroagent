@@ -42,8 +42,6 @@ export function ThreadListClient({
       },
       {
         root: scrollContainerRef.current,
-        rootMargin: "50px",
-        threshold: 0.3,
       },
     );
     const sentinel = bottomSentinelRef.current;
@@ -59,7 +57,7 @@ export function ThreadListClient({
   return (
     <div
       ref={scrollContainerRef}
-      className={`flex flex-col items-center gap-2 overflow-y-auto pl-3 ${hasNextPage ? "pb-12" : ""}`}
+      className={`flex flex-col items-center gap-2 overflow-y-auto pl-3 ${hasNextPage ? "pb-2" : ""}`}
     >
       {threads.map((t) => (
         <ThreadCardSidebar
