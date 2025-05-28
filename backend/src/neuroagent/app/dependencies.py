@@ -181,7 +181,6 @@ def get_mcp_tool_list(
     if mcp_client is None:
         return []
 
-    mcp_client = mcp_client
     dynamic_tools: list[type[BaseTool]] = []
 
     # Iterate through all tools from all servers
