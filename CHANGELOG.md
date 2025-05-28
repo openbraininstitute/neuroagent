@@ -69,6 +69,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Filter and sort get_thread and get_thread/messages.
 - Plots for the SCS simulations.
 - New semantic route.
+- Pagination for threads and messages.
 
 ### Fixed
 - Literature search points to right url.

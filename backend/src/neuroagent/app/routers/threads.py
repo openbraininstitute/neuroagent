@@ -1,5 +1,6 @@
 """Threads CRUDs."""
 
+import datetime
 import json
 import logging
 from typing import Annotated, Any, Literal
@@ -9,7 +10,7 @@ from openai import AsyncOpenAI
 from redis import asyncio as aioredis
 from sqlalchemy import desc, or_, select, true
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import joinedload
+from sqlalchemy.orm import selectinload
 
 from neuroagent.app.app_utils import (
     rate_limit,
@@ -28,7 +29,9 @@ from neuroagent.app.dependencies import (
     get_user_info,
 )
 from neuroagent.app.schemas import (
-    MessageResponse,
+    MessagesRead,
+    PaginatedParams,
+    PaginatedResponse,
     ThreadCreate,
     ThreadGeneratBody,
     ThreadGeneratedTitle,
@@ -122,12 +125,13 @@ async def generate_title(
 async def get_threads(
     session: Annotated[AsyncSession, Depends(get_session)],
     user_info: Annotated[UserInfo, Depends(get_user_info)],
+    pagination_params: PaginatedParams = Depends(),
     virtual_lab_id: str | None = None,
     project_id: str | None = None,
     sort: Literal[
         "update_date", "creation_date", "-update_date", "-creation_date"
     ] = "-update_date",
-) -> list[ThreadsRead]:
+) -> PaginatedResponse[ThreadsRead]:
     """Get threads for a user."""
     validate_project(
         virtual_lab_id=virtual_lab_id,
@@ -135,23 +139,40 @@ async def get_threads(
         groups=user_info.groups,
     )
     sort_column = sort.lstrip("-")
+    column_attr = getattr(Threads, sort_column)
+
+    where_conditions = [
+        Threads.user_id == user_info.sub,
+        Threads.vlab_id == virtual_lab_id,
+        Threads.project_id == project_id,
+    ]
+
+    if pagination_params.cursor is not None:
+        comparison_op = (
+            column_attr < datetime.datetime.fromisoformat(pagination_params.cursor)
+            if sort.startswith("-")
+            else column_attr > datetime.datetime.fromisoformat(pagination_params.cursor)
+        )
+        where_conditions.append(comparison_op)
+
     query = (
         select(Threads)
-        .where(
-            Threads.user_id == user_info.sub,
-            Threads.vlab_id == virtual_lab_id,
-            Threads.project_id == project_id,
-        )
-        .order_by(
-            desc(getattr(Threads, sort_column))
-            if sort.startswith("-")
-            else getattr(Threads, sort_column)
-        )
+        .where(*where_conditions)
+        .order_by(desc(column_attr) if sort.startswith("-") else column_attr)
+        .limit(pagination_params.page_size + 1)
     )
 
     thread_result = await session.execute(query)
     threads = thread_result.scalars().all()
-    return [ThreadsRead(**thread.__dict__) for thread in threads]
+    has_more = len(threads) > pagination_params.page_size
+    to_return = threads[:-1] if has_more else threads
+
+    return PaginatedResponse(
+        next_cursor=getattr(to_return[-1], sort_column) if to_return else None,
+        has_more=has_more,
+        page_size=pagination_params.page_size,
+        results=[ThreadsRead(**thread.__dict__) for thread in to_return],
+    )
 
 
 @router.patch("/{thread_id}")
@@ -212,11 +233,12 @@ async def get_thread_messages(
     _: Annotated[Threads, Depends(get_thread)],  # to check if thread exists
     thread_id: str,
     tool_list: Annotated[list[type[BaseTool]], Depends(get_tool_list)],
+    pagination_params: PaginatedParams = Depends(),
     entity: list[Literal["USER", "AI_TOOL", "TOOL", "AI_MESSAGE"]] | None = Query(
         default=None
     ),
-    sort: Literal["creation_date", "-creation_date"] = "creation_date",
-) -> list[MessageResponse]:
+    sort: Literal["creation_date", "-creation_date"] = "-creation_date",
+) -> PaginatedResponse[MessagesRead]:
     """Get all messages of the thread."""
     # Create mapping of tool names to their HIL requirement
     tool_hil_mapping = {tool.name: tool.hil for tool in tool_list}
@@ -225,17 +247,49 @@ async def get_thread_messages(
         entity_where = or_(*[Messages.entity == ent for ent in entity])
     else:
         entity_where = true()
+
+    where_conditions = [Messages.thread_id == thread_id, entity_where]
+
+    if pagination_params.cursor is not None:
+        comparison_op = (
+            Messages.creation_date
+            < datetime.datetime.fromisoformat(pagination_params.cursor)
+            if sort.startswith("-")
+            else Messages.creation_date
+            > datetime.datetime.fromisoformat(pagination_params.cursor)
+        )
+        where_conditions.append(comparison_op)
+
     messages_result = await session.execute(
         select(Messages)
-        .where(Messages.thread_id == thread_id, entity_where)
-        .options(joinedload(Messages.tool_calls))  # Eager load tool_calls
+        .where(*where_conditions)
         .order_by(
             desc(Messages.creation_date)
             if sort.startswith("-")
             else Messages.creation_date
         )
+        .limit(pagination_params.page_size + 1)
     )
-    db_messages = messages_result.unique().scalars().all()
+    db_messages = messages_result.scalars().all()
+
+    if not db_messages:
+        return PaginatedResponse(
+            next_cursor=None,
+            has_more=False,
+            page_size=pagination_params.page_size,
+            results=[],
+        )
+
+    has_more = len(db_messages) > pagination_params.page_size
+    db_messages = db_messages[:-1] if has_more else db_messages
+
+    # Pagination needs to happen on non-joined parent.
+    # Once we have them we can eager load the tool calls
+    await session.execute(
+        select(Messages)
+        .options(selectinload(Messages.tool_calls))
+        .where(Messages.message_id.in_([msg.message_id for msg in db_messages]))
+    )
 
     messages = []
     for msg in db_messages:
@@ -273,6 +327,11 @@ async def get_thread_messages(
             )
 
         message_data["tool_calls"] = tool_calls_data
-        messages.append(MessageResponse(**message_data))
+        messages.append(MessagesRead(**message_data))
 
-    return messages
+    return PaginatedResponse(
+        next_cursor=messages[-1].creation_date,
+        has_more=has_more,
+        page_size=pagination_params.page_size,
+        results=messages,
+    )
