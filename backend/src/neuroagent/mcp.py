@@ -121,8 +121,6 @@ def create_dynamic_tool(
     class Metadata(BaseMetadata):
         """Metadata for the tool."""
 
-        model_config = ConfigDict(extra="ignore")
-
     # Create the tool class
     class DynamicTool(BaseTool):
         name: ClassVar[str] = f"mcp-{server_name}-{tool_name}"
@@ -140,7 +138,6 @@ def create_dynamic_tool(
 
         async def arun(self) -> CallToolResult:
             """Run the tool."""
-            # This will be implemented by the MCP client
             result = await session.call_tool(
                 tool_name,
                 arguments=self.input_schema.model_dump(),
