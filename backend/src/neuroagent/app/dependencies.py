@@ -22,6 +22,7 @@ from neuroagent.app.app_utils import validate_project
 from neuroagent.app.config import Settings
 from neuroagent.app.database.sql_schemas import Threads
 from neuroagent.app.schemas import UserInfo
+from neuroagent.mcp import MCPClient, create_dynamic_tool
 from neuroagent.new_types import Agent
 from neuroagent.tools import (
     ElectrophysFeatureTool,
@@ -169,9 +170,46 @@ async def get_user_info(
         raise HTTPException(status_code=404, detail="User info url not provided.")
 
 
-def get_tool_list() -> list[type[BaseTool]]:
+def get_mcp_client(request: Request) -> MCPClient | None:
+    """Get the MCP client from the app state."""
+    if request.app.state.mcp_client is None:
+        return None
+    return request.app.state.mcp_client
+
+
+@cache
+def get_mcp_tool_list(
+    mcp_client: Annotated[MCPClient | None, Depends(get_mcp_client)],
+) -> list[type[BaseTool]]:
+    """Get the list of tools from the MCP server."""
+    if mcp_client is None:
+        return []
+
+    dynamic_tools: list[type[BaseTool]] = []
+
+    # Iterate through all tools from all servers
+    for server_name, tools in mcp_client.tools.items():
+        for tool in tools:
+            # Create a dynamic tool class for each MCP tool
+            dynamic_tool = create_dynamic_tool(
+                server_name=server_name,
+                tool_name=tool.name,
+                tool_description=tool.description
+                if tool.description
+                else "NO DESCRIPTION",
+                input_schema_serialized=tool.inputSchema,
+                session=mcp_client.sessions[server_name],
+            )
+            dynamic_tools.append(dynamic_tool)
+
+    return dynamic_tools
+
+
+def get_tool_list(
+    mcp_tool_list: Annotated[list[type[BaseTool]], Depends(get_mcp_tool_list)],
+) -> list[type[BaseTool]]:
     """Return a raw list of all of the available tools."""
-    return [
+    internal_tool_list: list[type[BaseTool]] = [
         SCSGetAllTool,
         SCSGetOneTool,
         SCSPlotTool,
@@ -193,6 +231,10 @@ def get_tool_list() -> list[type[BaseTool]]:
         # WeatherTool,
         # RandomPlotGeneratorTool,
     ]
+
+    all_tools = internal_tool_list + mcp_tool_list
+
+    return all_tools
 
 
 async def get_selected_tools(
