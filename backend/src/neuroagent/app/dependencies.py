@@ -44,6 +44,7 @@ from neuroagent.tools import (
     SCSPostTool,
     WebSearchTool,
     EtypeGetAllTool,
+    EtypeGetOneTool,
 )
 from neuroagent.tools.base_tool import BaseTool
 
@@ -231,6 +232,7 @@ def get_tool_list(
         MorphologyViewerTool,
         WebSearchTool,
         EtypeGetAllTool,
+        EtypeGetOneTool,
         # NowTool,
         # WeatherTool,
         # RandomPlotGeneratorTool,

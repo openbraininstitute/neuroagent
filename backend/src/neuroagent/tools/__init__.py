@@ -7,6 +7,8 @@ from neuroagent.tools.bluenaas_scs_getone import SCSGetOneTool
 from neuroagent.tools.bluenaas_scs_plot import SCSPlotTool
 from neuroagent.tools.bluenaas_scs_post import SCSPostTool
 from neuroagent.tools.electrophys_tool import ElectrophysFeatureTool
+from neuroagent.tools.entitycore_etype_getall import EtypeGetAllTool
+from neuroagent.tools.entitycore_etype_getone import EtypeGetOneTool
 from neuroagent.tools.entitycore_morphology_getall import MorphologyGetAllTool
 from neuroagent.tools.entitycore_morphology_getone import MorphologyGetOneTool
 from neuroagent.tools.generate_plot import PlotGeneratorTool
@@ -24,7 +26,6 @@ from neuroagent.tools.resolve_mtypes_tool import ResolveMtypeTool
 from neuroagent.tools.traces_tool import GetTracesTool
 from neuroagent.tools.weather import WeatherTool
 from neuroagent.tools.web_search import WebSearchTool
-from neuroagent.tools.entitycore_etype_getall import EtypeGetAllTool
 
 __all__ = [
     "SCSGetAllTool",
@@ -50,4 +51,5 @@ __all__ = [
     "WeatherTool",
     "WebSearchTool",
     "EtypeGetAllTool",
+    "EtypeGetOneTool",
 ]
