@@ -56,7 +56,7 @@ class MorphologyGetAllTool(BaseTool):
     """Class defining the Get Morpho logic."""
 
     name: ClassVar[str] = "entitycore-morphology-getall"
-    name_frontend: ClassVar[str] = "Morphologies"
+    name_frontend: ClassVar[str] = "Get All Morphologies"
     description: ClassVar[
         str
     ] = """Searches a neuroscience based knowledge graph to retrieve neuron morphology names, IDs and descriptions.
