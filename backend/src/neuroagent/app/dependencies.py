@@ -26,6 +26,8 @@ from neuroagent.mcp import MCPClient, create_dynamic_tool
 from neuroagent.new_types import Agent
 from neuroagent.tools import (
     ElectrophysFeatureTool,
+    EtypeGetAllTool,
+    EtypeGetOneTool,
     GetTracesTool,
     KGMorphoFeatureTool,
     LiteratureSearchTool,
@@ -43,8 +45,6 @@ from neuroagent.tools import (
     SCSPlotTool,
     SCSPostTool,
     WebSearchTool,
-    EtypeGetAllTool,
-    EtypeGetOneTool,
 )
 from neuroagent.tools.base_tool import BaseTool
 
