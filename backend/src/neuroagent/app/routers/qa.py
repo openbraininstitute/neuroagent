@@ -4,6 +4,7 @@ import asyncio
 import json
 import logging
 from contextlib import asynccontextmanager
+from datetime import datetime, timezone
 from typing import Annotated, Any, AsyncIterator
 
 from fastapi import (
@@ -86,7 +87,7 @@ async def question_suggestions(
     if body.thread_id is None:
         # if there is no thread ID, we simply go without messages.
         is_in_chat = False
-        if body.click_history is None:
+        if not body.click_history:
             raise HTTPException(
                 status_code=422,
                 detail="One of 'thread_id' or 'click_history' must be provided.",
@@ -145,12 +146,14 @@ async def question_suggestions(
     if is_in_chat:
         content = f"CONVERSATION MESSAGES: \n{json.dumps([{k: v for k, v in json.loads(msg.content).items() if k in ['role', 'content']}for msg in db_messages])}"
     else:
-        content = f"USER JOURNEY: \n{json.dumps(body.click_history)}"
+        content = (
+            f"USER JOURNEY: \n{body.model_dump(exclude={'thread_id'})['click_history']}"
+        )
 
     messages = [
         {
             "role": "system",
-            "content": """You are a smart assistant that analyzes user behavior and conversation history to suggest three concise,
+            "content": f"""You are a smart assistant that analyzes user behavior and conversation history to suggest three concise,
             engaging questions the user might ask next, specifically about finding relevant scientific literature.
 
             Platform Context:
@@ -172,11 +175,8 @@ async def question_suggestions(
             - Access both experimental and model data.
 
             User Journey Format:
-            - User journey is a list of navigation sessions.
-            - Each session is a sequence of clicks:
-            * ['brain_region', <region_name>]
-            * ['artifact', <artifact_type>]
-            * ['data_type', <"Experimental data" | "Model Data">]
+            - User journey is a list of clicks performed by the user.
+            - Each click represent the brain region and artifact the user was viewing. The timestamp of the click is added.
             - Artifacts may include:
             * Morphology
             * Electrophysiology
@@ -186,10 +186,10 @@ async def question_suggestions(
             * E-model
             * ME-model
             * Synaptome
-            - The last element in each session is the user’s most recent click, making it the most relevant.
+            - The current date and time is {datetime.now(timezone.utc).isoformat()}. Weight the user clicks depending on how old they are. The more recent clicks should be given a higher importance.
 
             Task:
-            Using either the user’s navigation history or their recent messages, generate three short, literature-focused questions they might ask next. Prioritize the most recent user interactions.
+            Using either the user’s navigation history or their recent messages, generate three short, literature-focused questions they might ask next.
 
             Each question must:
             - Directly relate to searching for scientific papers.

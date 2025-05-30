@@ -143,22 +143,35 @@ async def get_tool_metadata(
         is_online = False
 
     input_schema: dict[str, Any] = {"parameters": []}
+    if tool_class.json_schema is not None:
+        json_schema = tool_class.json_schema
 
-    for name in tool_class.__annotations__["input_schema"].model_fields:
-        field = tool_class.__annotations__["input_schema"].model_fields[name]
-        is_required = field.is_required()
+        # Extract parameters from JSON schema
+        if "properties" in json_schema:
+            for name, prop in json_schema["properties"].items():
+                parameter = {
+                    "name": name,
+                    "required": name in json_schema.get("required", []),
+                    "default": str(prop.get("default")) if "default" in prop else None,
+                    "description": prop.get("description", ""),
+                }
+                input_schema["parameters"].append(parameter)
+    else:
+        for name in tool_class.__annotations__["input_schema"].model_fields:
+            field = tool_class.__annotations__["input_schema"].model_fields[name]
+            is_required = field.is_required()
 
-        parameter = {
-            "name": name,
-            "required": is_required,
-            "default": None
-            if is_required
-            else str(field.default)
-            if field.default is not None
-            else None,
-            "description": field.description,
-        }
-        input_schema["parameters"].append(parameter)
+            parameter = {
+                "name": name,
+                "required": is_required,
+                "default": None
+                if is_required
+                else str(field.default)
+                if field.default is not None
+                else None,
+                "description": field.description,
+            }
+            input_schema["parameters"].append(parameter)
 
     return ToolMetadataDetailed(
         name=tool_class.name,

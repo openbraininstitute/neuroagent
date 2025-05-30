@@ -14,11 +14,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Remove usage of user journey in suggestion after first message.
 - Tools based on API calls adapted to new autogen tool.
 - Autogen tool and ways to auto gen input parameters.
+- Input schema of the suggestion endpoint.
 
 ### Added
 - Autogeneration of input schemas from APIs.
 - Morphometrics tool using obi-one.
 - Custom brain region resolving.
+- Turn `neuroagent` into an MCP client.
 
 ### Fixed
 - Handle breaking change in entitycore.

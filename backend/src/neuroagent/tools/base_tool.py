@@ -69,17 +69,23 @@ class BaseTool(BaseModel, ABC):
     metadata: BaseMetadata
     input_schema: BaseModel
     hil: ClassVar[bool] = False
+    json_schema: ClassVar[dict[str, Any] | None] = None
 
     @classmethod
     def pydantic_to_openai_schema(cls) -> dict[str, Any]:
         """Convert pydantic schema to OpenAI json."""
+        if cls.json_schema is not None:
+            parameters = cls.json_schema
+        else:
+            parameters = cls.__annotations__["input_schema"].model_json_schema()
+
         new_retval: dict[str, Any] = {
             "type": "function",
             "function": {
                 "name": cls.name,
                 "description": cls.description,
                 "strict": False,
-                "parameters": cls.__annotations__["input_schema"].model_json_schema(),
+                "parameters": parameters,
             },
         }
         new_retval["function"]["parameters"]["additionalProperties"] = False
