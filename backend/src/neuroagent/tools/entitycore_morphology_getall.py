@@ -22,7 +22,7 @@ from neuroagent.tools.base_tool import BaseMetadata, BaseTool
 logger = logging.getLogger(__name__)
 
 
-class GetMorphoInput(BaseModel):
+class MorphologyGetAllInput(BaseModel):
     """Inputs of the knowledge graph API."""
 
     brain_region_id: str = Field(
@@ -36,8 +36,8 @@ class GetMorphoInput(BaseModel):
     )
 
 
-class GetMorphoMetadata(BaseMetadata):
-    """Metadata class for GetMorphoTool."""
+class MorphologyGetAllMetadata(BaseMetadata):
+    """Metadata class for MorphologyGetAllTool."""
 
     entitycore_url: str
     token: str
@@ -45,17 +45,17 @@ class GetMorphoMetadata(BaseMetadata):
     project_id: str | None
 
 
-class GetMorphoQueryParams(ReadManyReconstructionMorphologyGetParams):
-    """Query parameters for GetMorphoTool with skipped JSON schema for certain fields."""
+class MorphologyGetAllQueryParams(ReadManyReconstructionMorphologyGetParams):
+    """Query parameters for MorphologyGetAllTool with skipped JSON schema for certain fields."""
 
     virtual_lab_id: SkipJsonSchema[None] = None
     project_id: SkipJsonSchema[None] = None
 
 
-class GetMorphoTool(BaseTool):
+class MorphologyGetAllTool(BaseTool):
     """Class defining the Get Morpho logic."""
 
-    name: ClassVar[str] = "get-morpho-tool"
+    name: ClassVar[str] = "entitycore-morphology-getall"
     name_frontend: ClassVar[str] = "Morphologies"
     description: ClassVar[
         str
@@ -78,8 +78,8 @@ class GetMorphoTool(BaseTool):
     • Access detailed morphological data
 
     Specify brain region and optional criteria to find relevant morphologies."""
-    metadata: GetMorphoMetadata
-    input_schema: GetMorphoInput
+    metadata: MorphologyGetAllMetadata
+    input_schema: MorphologyGetAllInput
 
     async def arun(self) -> ListResponseReconstructionMorphologyRead:
         """From a brain region ID, extract morphologies.
@@ -92,7 +92,7 @@ class GetMorphoTool(BaseTool):
             f"Entering Get Morpho tool. Inputs: {self.input_schema.model_dump()}"
         )
 
-        query_params = GetMorphoQueryParams(
+        query_params = MorphologyGetAllQueryParams(
             page_size=self.input_schema.page_size,
             page=self.input_schema.page,
             within_brain_region_hierarchy_id=WithinBrainRegionHierarchyId(

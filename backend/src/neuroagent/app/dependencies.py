@@ -25,12 +25,12 @@ from neuroagent.app.schemas import UserInfo
 from neuroagent.new_types import Agent
 from neuroagent.tools import (
     ElectrophysFeatureTool,
-    GetMorphoTool,
     GetTracesTool,
     KGMorphoFeatureTool,
     LiteratureSearchTool,
     MEModelGetAllTool,
     MEModelGetOneTool,
+    MorphologyGetAllTool,
     MorphologyViewerTool,
     MorphoMetricsTool,
     PlotGeneratorTool,
@@ -176,7 +176,7 @@ def get_tool_list() -> list[type[BaseTool]]:
         MEModelGetOneTool,
         LiteratureSearchTool,
         ElectrophysFeatureTool,
-        GetMorphoTool,
+        MorphologyGetAllTool,
         KGMorphoFeatureTool,
         ResolveBrainRegionTool,
         ResolveMtypeTool,
