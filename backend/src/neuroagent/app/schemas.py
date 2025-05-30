@@ -155,8 +155,16 @@ class QuestionsSuggestions(BaseModel):
     )
 
 
+class UserJourney(BaseModel):
+    """Schema of the user's journey."""
+
+    timestamp: datetime.datetime
+    region: str
+    artifact: str | None = None
+
+
 class QuestionsSuggestionsRequest(BaseModel):
     """Request for the suggestion endpoint."""
 
-    click_history: list[list[list[str]]] | None = None
+    click_history: list[UserJourney] | None = None
     thread_id: str | None = None
