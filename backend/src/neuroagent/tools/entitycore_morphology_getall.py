@@ -66,7 +66,7 @@ class MorphologyGetAllTool(BaseTool):
     - The brain region ID.
     - The brain region name.
     - The subject species name.
-    - The morphology ID.
+    - The morphology ID (it is the `id` field in the response - ignore other IDs).
     - The morphology name.
     - the morphology description.
     """

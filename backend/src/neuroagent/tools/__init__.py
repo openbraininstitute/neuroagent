@@ -8,6 +8,7 @@ from neuroagent.tools.bluenaas_scs_plot import SCSPlotTool
 from neuroagent.tools.bluenaas_scs_post import SCSPostTool
 from neuroagent.tools.electrophys_tool import ElectrophysFeatureTool
 from neuroagent.tools.entitycore_morphology_getall import MorphologyGetAllTool
+from neuroagent.tools.entitycore_morphology_getone import MorphologyGetOneTool
 from neuroagent.tools.generate_plot import PlotGeneratorTool
 from neuroagent.tools.generate_random_plot import RandomPlotGeneratorTool
 from neuroagent.tools.kg_morpho_features_tool import KGMorphoFeatureTool
@@ -36,6 +37,7 @@ __all__ = [
     "MEModelGetAllTool",
     "MEModelGetOneTool",
     "MorphologyGetAllTool",
+    "MorphologyGetOneTool",
     "MorphoMetricsTool",
     "MorphologyViewerTool",
     "NowTool",
