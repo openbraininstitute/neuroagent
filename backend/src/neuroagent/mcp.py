@@ -148,7 +148,7 @@ def create_dynamic_tool(
         @classmethod
         async def is_online(cls) -> bool:
             """Check if the tool is online."""
-            # the below would hang if the server is not online
+            # The below will raise an exception if the session is not connected
             _ = await session.send_ping()
 
             return True
