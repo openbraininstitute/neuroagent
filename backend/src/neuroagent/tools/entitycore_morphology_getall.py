@@ -59,7 +59,7 @@ class MorphologyGetAllTool(BaseTool):
     name_frontend: ClassVar[str] = "Get All Morphologies"
     description: ClassVar[
         str
-    ] = """Searches a neuroscience based knowledge graph to retrieve neuron morphology names, IDs and descriptions.
+    ] = """Searches a neuroscience based knowledge graph to retrieve reconstruction morphologies.
     Requires a 'brain_region_id' which is the ID of the brain region of interest as registered in the knowledge graph.
     Optionally accepts an mtype_id.
     The output is a list of morphologies, containing:
@@ -69,6 +69,8 @@ class MorphologyGetAllTool(BaseTool):
     - The morphology ID (it is the `id` field in the response - ignore other IDs).
     - The morphology name.
     - the morphology description.
+
+    We explicitly exclude the assets and the legacy id but you can access them using the Get One Morphology tool.
     """
     description_frontend: ClassVar[
         str
@@ -128,7 +130,14 @@ class MorphologyGetAllTool(BaseTool):
             raise ValueError(
                 f"The morphology endpoint returned a non 200 response code. Error: {response.text}"
             )
-        return ListResponseReconstructionMorphologyRead(**response.json())
+
+        response_data = response.json()
+        # Set assets and legacy_id to empty lists for each morphology
+        for morphology in response_data["data"]:
+            morphology["assets"] = []
+            morphology["legacy_id"] = []
+
+        return ListResponseReconstructionMorphologyRead(**response_data)
 
     @classmethod
     async def is_online(cls, *, httpx_client: AsyncClient, entitycore_url: str) -> bool:
