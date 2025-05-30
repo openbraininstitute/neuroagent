@@ -205,7 +205,7 @@ def get_tool_list(
     mcp_tool_list: Annotated[list[type[BaseTool]], Depends(get_mcp_tool_list)],
 ) -> list[type[BaseTool]]:
     """Return a raw list of all of the available tools."""
-    internal_tools = [
+    internal_tool_list: list[type[BaseTool]] = [
         SCSGetAllTool,
         SCSGetOneTool,
         SCSPlotTool,
@@ -228,7 +228,7 @@ def get_tool_list(
         # RandomPlotGeneratorTool,
     ]
 
-    all_tools = internal_tools + mcp_tool_list
+    all_tools = internal_tool_list + mcp_tool_list
 
     return all_tools
 
