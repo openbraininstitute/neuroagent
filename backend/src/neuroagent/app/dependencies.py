@@ -26,6 +26,8 @@ from neuroagent.mcp import MCPClient, create_dynamic_tool
 from neuroagent.new_types import Agent
 from neuroagent.tools import (
     ElectrophysFeatureTool,
+    EModelGetAllTool,
+    EModelGetOneTool,
     EtypeGetAllTool,
     EtypeGetOneTool,
     GetTracesTool,
@@ -233,6 +235,8 @@ def get_tool_list(
         WebSearchTool,
         EtypeGetAllTool,
         EtypeGetOneTool,
+        EModelGetAllTool,
+        EModelGetOneTool,
         # NowTool,
         # WeatherTool,
         # RandomPlotGeneratorTool,
