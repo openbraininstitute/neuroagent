@@ -122,7 +122,7 @@ def create_dynamic_tool(
         """Metadata for the tool."""
 
     # Create the tool class
-    class DynamicTool(BaseTool):
+    class MCPDynamicTool(BaseTool):
         name: ClassVar[str] = f"mcp-{server_name}-{tool_name}"
         name_frontend: ClassVar[str] = " ".join(
             [
@@ -153,4 +153,4 @@ def create_dynamic_tool(
 
             return True
 
-    return DynamicTool
+    return MCPDynamicTool
