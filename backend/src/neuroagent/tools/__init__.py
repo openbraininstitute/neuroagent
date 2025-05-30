@@ -24,6 +24,7 @@ from neuroagent.tools.resolve_mtypes_tool import ResolveMtypeTool
 from neuroagent.tools.traces_tool import GetTracesTool
 from neuroagent.tools.weather import WeatherTool
 from neuroagent.tools.web_search import WebSearchTool
+from neuroagent.tools.entitycore_etype_getall import EtypeGetAllTool
 
 __all__ = [
     "SCSGetAllTool",
@@ -48,4 +49,5 @@ __all__ = [
     "ResolveMtypeTool",
     "WeatherTool",
     "WebSearchTool",
+    "EtypeGetAllTool",
 ]
