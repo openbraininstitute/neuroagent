@@ -3,11 +3,11 @@
 import { auth } from "@/lib/auth";
 import { fetcher } from "@/lib/fetcher";
 import { getSettings } from "@/lib/cookies-server";
-import { SuggestedQuestions } from "@/lib/types";
+import { SuggestedQuestions, UserHistory } from "@/lib/types";
 
 export async function getSuggestions(
   previousState: unknown,
-  user_history: string[][][],
+  user_history: UserHistory,
 ) {
   try {
     const session = await auth();

@@ -39,8 +39,8 @@ class MorphologyGetAllInput(BaseModel):
 class MorphologyGetAllMetadata(BaseMetadata):
     """Metadata class for MorphologyGetAllTool."""
 
+    httpx_client: AsyncClient
     entitycore_url: str
-    token: str
     vlab_id: str | None
     project_id: str | None
 
@@ -112,7 +112,6 @@ class MorphologyGetAllTool(BaseTool):
         response = await self.metadata.httpx_client.get(
             url=self.metadata.entitycore_url.rstrip("/") + "/reconstruction-morphology",
             headers={
-                "Authorization": f"Bearer {self.metadata.token}",
                 **(
                     {"virtual-lab-id": self.metadata.vlab_id}
                     if self.metadata.vlab_id is not None

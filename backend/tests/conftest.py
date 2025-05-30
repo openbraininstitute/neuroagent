@@ -194,13 +194,6 @@ async def setup_sql_db(request):
 
 
 @pytest.fixture
-def get_resolve_query_output():
-    with open("tests/data/resolve_query.json") as f:
-        outputs = json.loads(f.read())
-    return outputs
-
-
-@pytest.fixture
 def brain_region_json_path():
     br_path = Path(__file__).parent / "data" / "brainregion_hierarchy.json"
     return br_path

@@ -29,7 +29,7 @@ class InputSCSGetAll(
 class SCSGetAllMetadata(BaseMetadata):
     """Metadata class for the get all simulations api."""
 
-    token: str
+    httpx_client: AsyncClient
     vlab_id: str
     project_id: str
     bluenaas_url: str
@@ -81,7 +81,6 @@ class SCSGetAllTool(BaseTool):
             params=params.model_dump(
                 exclude_defaults=True, exclude={"virtual_lab_id", "project_id"}
             ),
-            headers={"Authorization": f"Bearer {self.metadata.token}"},
         )
 
         return SCSGetAllToolOutput(**response.json())

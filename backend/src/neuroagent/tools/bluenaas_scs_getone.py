@@ -28,7 +28,7 @@ class InputSCSGetOne(BaseModel):
 class SCSGetOneMetadata(BaseMetadata):
     """Metadata class for the get all simulations api."""
 
-    token: str
+    httpx_client: AsyncClient
     vlab_id: str
     project_id: str
     bluenaas_url: str
@@ -67,7 +67,6 @@ class SCSGetOneTool(BaseTool):
         )
         response = await self.metadata.httpx_client.get(
             url=f"{self.metadata.bluenaas_url}/simulation/single-neuron/{params.virtual_lab_id}/{params.project_id}/{params.simulation_id}",
-            headers={"Authorization": f"Bearer {self.metadata.token}"},
         )
         # Truncate the results.
         result = response.json()

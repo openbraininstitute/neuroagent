@@ -1,5 +1,12 @@
 import { Message } from "ai/react";
 
+export type BPaginatedResponse = {
+  next_cursor: string;
+  has_more: boolean;
+  page_size: number;
+  results: BThread[] | BMessage[];
+};
+
 export type BThread = {
   thread_id: string;
   user_id: string;
@@ -32,7 +39,6 @@ export type BMessageUser = {
   message_id: string;
   entity: "user";
   thread_id: string;
-  order: number;
   creation_date: string;
   is_complete: true;
   msg_content: {
@@ -236,3 +242,12 @@ export class CustomError extends Error {
     Error.captureStackTrace(this, this.constructor);
   }
 }
+
+export type UserHistory = Array<{
+  timestamp: number;
+  region: string;
+  artifact: string | null;
+}>;
+
+export const threadPageSize = "25";
+export const messagePageSize = "25";

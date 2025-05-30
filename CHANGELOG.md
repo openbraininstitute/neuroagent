@@ -8,15 +8,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Changed
+- Bearer token is propagated through the `httpx_client`.
 - Use `.model_dump(exclude_defaults=True)` for auto-generated classes dumping.
 - Get morpho tool and resolve entities now uses entitycore.
 - Remove usage of user journey in suggestion after first message.
 - Tools based on API calls adapted to new autogen tool.
+- Input schema of the suggestion endpoint.
 
 ### Added
 - Autogeneration of input schemas from APIs.
 - Morphometrics tool using obi-one.
 - Custom brain region resolving.
+- Turn `neuroagent` into an MCP client.
 - Tools for (most) GET endpoints of entitycore
 
 ### Fixed
@@ -70,6 +73,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Filter and sort get_thread and get_thread/messages.
 - Plots for the SCS simulations.
 - New semantic route.
+- Pagination for threads and messages.
 
 ### Fixed
 - Literature search points to right url.

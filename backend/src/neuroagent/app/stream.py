@@ -29,11 +29,7 @@ async def stream_agent_response(
 
     # Restore the httpx client
     httpx_client = AsyncClient(
-        timeout=300.0,
-        verify=False,
-        headers={
-            "x-request-id": context_variables["httpx_client"].headers["x-request-id"]
-        },
+        timeout=300.0, verify=False, headers=context_variables["httpx_client"].headers
     )
     context_variables["httpx_client"] = httpx_client
     context_variables["openai_client"] = openai_client

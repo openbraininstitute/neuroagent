@@ -31,12 +31,14 @@ from neuroagent.app.app_utils import (
 from neuroagent.app.config import Settings
 from neuroagent.app.dependencies import (
     get_connection_string,
+    get_mcp_tool_list,
     get_s3_client,
     get_settings,
     get_tool_list,
 )
 from neuroagent.app.middleware import strip_path_prefix
 from neuroagent.app.routers import qa, storage, threads, tools
+from neuroagent.mcp import MCPClient
 
 LOGGING = {
     "version": 1,
@@ -118,7 +120,7 @@ async def lifespan(fastapi_app: FastAPI) -> AsyncContextManager[None]:  # type: 
     logging.getLogger("bluepyefe").setLevel("CRITICAL")
 
     semantic_router = get_semantic_router(settings=app_settings)
-    app.state.semantic_router = semantic_router
+    fastapi_app.state.semantic_router = semantic_router
 
     s3_client = get_s3_client(app_settings)
     br_embeddings = get_br_embeddings(
@@ -136,7 +138,13 @@ async def lifespan(fastapi_app: FastAPI) -> AsyncContextManager[None]:  # type: 
     ) as session_factory:
         fastapi_app.state.accounting_session_factory = session_factory
 
-        yield
+        async with MCPClient(config=app_settings.mcp) as mcp_client:
+            # trigger dynamic tool generation - only done once - it is cached
+            _ = fastapi_app.dependency_overrides.get(
+                get_mcp_tool_list, get_mcp_tool_list
+            )(mcp_client)
+            fastapi_app.state.mcp_client = mcp_client
+            yield
 
     # Cleanup connections
     if engine:
@@ -144,6 +152,8 @@ async def lifespan(fastapi_app: FastAPI) -> AsyncContextManager[None]:  # type: 
 
     if fastapi_app.state.redis_client is not None:
         await fastapi_app.state.redis_client.aclose()
+
+    # MCP client cleanup is handled by the context manager
 
 
 app = FastAPI(
@@ -188,7 +198,8 @@ def custom_openapi() -> dict[str, Any]:
         routes=app.routes,
     )
 
-    tool_list = app.dependency_overrides.get(get_tool_list, get_tool_list)()
+    # TODO: Add the list of MCP tools as input of `get_tool_list`
+    tool_list = app.dependency_overrides.get(get_tool_list, get_tool_list)([])
     for tool in tool_list:
         tool_output_type = tool.arun.__annotations__["return"]
         tool_schema = tool_output_type.model_json_schema(

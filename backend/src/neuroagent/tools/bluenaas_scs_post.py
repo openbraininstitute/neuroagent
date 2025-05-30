@@ -24,7 +24,7 @@ logger = logging.getLogger(__name__)
 class SCSPostMetadata(BaseMetadata):
     """Metadata class for the get all simulations api."""
 
-    token: str
+    httpx_client: AsyncClient
     vlab_id: str
     project_id: str
     bluenaas_url: str
@@ -151,7 +151,6 @@ class SCSPostTool(BaseTool):
             params=params.model_dump(
                 exclude_defaults=True, exclude={"virtual_lab_id", "project_id", "body"}
             ),
-            headers={"Authorization": f"Bearer {self.metadata.token}"},
             json=params.body.model_dump(),
         )
         json_response = response.json()

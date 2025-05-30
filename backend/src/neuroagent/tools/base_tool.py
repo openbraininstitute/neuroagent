@@ -4,7 +4,6 @@ import logging
 from abc import ABC, abstractmethod
 from typing import Any, ClassVar, Literal
 
-from httpx import AsyncClient
 from pydantic import BaseModel, ConfigDict
 
 logger = logging.getLogger(__name__)
@@ -57,7 +56,6 @@ ETYPE_IDS = {
 class BaseMetadata(BaseModel):
     """Base class for metadata."""
 
-    httpx_client: AsyncClient
     model_config = ConfigDict(extra="ignore", arbitrary_types_allowed=True)
 
 
@@ -71,17 +69,23 @@ class BaseTool(BaseModel, ABC):
     metadata: BaseMetadata
     input_schema: BaseModel
     hil: ClassVar[bool] = False
+    json_schema: ClassVar[dict[str, Any] | None] = None
 
     @classmethod
     def pydantic_to_openai_schema(cls) -> dict[str, Any]:
         """Convert pydantic schema to OpenAI json."""
+        if cls.json_schema is not None:
+            parameters = cls.json_schema
+        else:
+            parameters = cls.__annotations__["input_schema"].model_json_schema()
+
         new_retval: dict[str, Any] = {
             "type": "function",
             "function": {
                 "name": cls.name,
                 "description": cls.description,
                 "strict": False,
-                "parameters": cls.__annotations__["input_schema"].model_json_schema(),
+                "parameters": parameters,
             },
         }
         new_retval["function"]["parameters"]["additionalProperties"] = False

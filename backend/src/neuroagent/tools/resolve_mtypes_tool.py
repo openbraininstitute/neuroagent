@@ -29,8 +29,8 @@ class ResolveMtypeInput(BaseModel):
 class ResolveMtypeMetadata(BaseMetadata):
     """Metadata for ResolveEntitiesTool."""
 
+    httpx_client: AsyncClient
     entitycore_url: str
-    token: str
 
 
 class MType(BaseModel):
@@ -71,7 +71,6 @@ class ResolveMtypeTool(BaseTool):
         params = ReadManyMtypeGetParams(pref_label=PrefLabel(self.input_schema.mtype))
         mtype_response = await self.metadata.httpx_client.get(
             url=self.metadata.entitycore_url + "/mtype",
-            headers={"Authorization": f"Bearer {self.metadata.token}"},
             params=params.model_dump(exclude_defaults=True),
         )
 
