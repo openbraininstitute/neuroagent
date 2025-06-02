@@ -27,6 +27,7 @@ class MorphologyGetOneMetadata(BaseMetadata):
     """Metadata class for MorphologyGetOneTool."""
 
     entitycore_url: str
+    httpx_client: AsyncClient
     vlab_id: str | None
     project_id: str | None
 
