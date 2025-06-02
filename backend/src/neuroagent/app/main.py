@@ -196,6 +196,7 @@ def custom_openapi() -> dict[str, Any]:
         version=__version__,
         summary="API of the agentic chatbot from the Open Brain Institute",
         routes=app.routes,
+        servers=app.servers,
     )
 
     # TODO: Add the list of MCP tools as input of `get_tool_list`
