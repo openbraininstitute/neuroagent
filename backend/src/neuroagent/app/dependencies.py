@@ -150,7 +150,6 @@ async def get_session(
 
 
 async def get_user_info(
-    token: Annotated[str, Depends(auth)],
     settings: Annotated[Settings, Depends(get_settings)],
     httpx_client: Annotated[AsyncClient, Depends(get_httpx_client)],
 ) -> UserInfo:
