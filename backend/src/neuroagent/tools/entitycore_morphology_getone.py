@@ -59,7 +59,7 @@ class MorphologyGetOneTool(BaseTool):
     metadata: MorphologyGetOneMetadata
     input_schema: MorphologyGetOneInput
 
-    async def arun(self) -> ReconstructionMorphologyIdGetResponse:
+    async def arun(self) -> ReadOneReconstructionMorphologyIdGetResponse:
         """From a morphology ID, extract detailed morphology information.
 
         Returns
