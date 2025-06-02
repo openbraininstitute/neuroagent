@@ -288,16 +288,19 @@ class Settings(BaseSettings):
             servers = f.read()
 
         # Replace placeholders with secret values in server config
-        for secret_key, secret_value in data["mcp"]["secrets"].items():
-            placeholder = f"NEUROAGENT_MCP__SECRETS__{secret_key.upper()}"
-            replacement = secret_value or ""
-            servers = servers.replace(placeholder, replacement)
+        if "mcp" in data.keys():
+            for secret_key, secret_value in data["mcp"].get("secrets", {}).items():
+                placeholder = f"NEUROAGENT_MCP__SECRETS__{secret_key.upper()}"
+                replacement = secret_value or ""
+                servers = servers.replace(placeholder, replacement)
 
-        # Update the mcp.servers field
-        data["mcp"]["servers"] = {
-            k: MCPServerConfig(**v) for k, v in json.loads(servers).items()
-        }
-        data["mcp"].pop("secrets")
+            # Update the mcp.servers field
+            data["mcp"] = {
+                "servers": {
+                    k: MCPServerConfig(**v) for k, v in json.loads(servers).items()
+                }
+            }
+            data["mcp"].pop("secrets")
 
         return data
 
