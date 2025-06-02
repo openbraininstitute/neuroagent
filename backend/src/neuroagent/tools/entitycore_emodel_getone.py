@@ -71,10 +71,6 @@ class EModelGetOneTool(BaseTool):
         -------
             EModelReadExpanded containing detailed e-model information, or an error dict.
         """
-        logger.info(
-            f"Entering Get One EModel tool. Inputs: {self.input_schema.model_dump()}"
-        )
-
         # Validate the UUID format
         emodel_id = UUID(self.input_schema.emodel_id)
 
