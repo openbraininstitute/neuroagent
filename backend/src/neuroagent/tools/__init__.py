@@ -6,7 +6,6 @@ from neuroagent.tools.bluenaas_scs_getall import SCSGetAllTool
 from neuroagent.tools.bluenaas_scs_getone import SCSGetOneTool
 from neuroagent.tools.bluenaas_scs_plot import SCSPlotTool
 from neuroagent.tools.bluenaas_scs_post import SCSPostTool
-from neuroagent.tools.electrophys_tool import ElectrophysFeatureTool
 from neuroagent.tools.entitycore_emodel_getall import EModelGetAllTool
 from neuroagent.tools.entitycore_emodel_getone import EModelGetOneTool
 from neuroagent.tools.entitycore_etype_getall import EtypeGetAllTool
@@ -31,7 +30,6 @@ __all__ = [
     "SCSGetOneTool",
     "SCSPlotTool",
     "SCSPostTool",
-    "ElectrophysFeatureTool",
     "LiteratureSearchTool",
     "MEModelGetAllTool",
     "MEModelGetOneTool",

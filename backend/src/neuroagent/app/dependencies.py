@@ -25,7 +25,6 @@ from neuroagent.app.schemas import UserInfo
 from neuroagent.mcp import MCPClient, create_dynamic_tool
 from neuroagent.new_types import Agent
 from neuroagent.tools import (
-    ElectrophysFeatureTool,
     EModelGetAllTool,
     EModelGetOneTool,
     EtypeGetAllTool,
@@ -219,7 +218,6 @@ def get_tool_list(
         MEModelGetAllTool,
         MEModelGetOneTool,
         LiteratureSearchTool,
-        ElectrophysFeatureTool,
         MorphologyGetAllTool,
         MorphologyGetOneTool,
         ResolveBrainRegionTool,
