@@ -66,8 +66,7 @@ async def test_get_user(httpx_mock, monkeypatch, patch_required_env):
 
     settings = Settings()
     client = AsyncClient()
-    token = "eyJgreattoken"
-    user_info = await get_user_info(token=token, settings=settings, httpx_client=client)
+    user_info = await get_user_info(settings=settings, httpx_client=client)
 
     assert user_info == UserInfo(**fake_response)
 

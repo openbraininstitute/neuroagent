@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- Fixed bug where fastapi servers were wrongly set.
+
+## [0.5.5] - 02.06.2025
+
 ### Changed
 - Bearer token is propagated through the `httpx_client`.
 - Use `.model_dump(exclude_defaults=True)` for auto-generated classes dumping.
@@ -25,6 +30,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Handle breaking change in entitycore.
+- Hallucinations of LS.
 
 ### Removed
 - Knowledge graph tools and utils
