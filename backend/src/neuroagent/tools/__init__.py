@@ -25,7 +25,6 @@ from neuroagent.tools.morphology_viewer import MorphologyViewerTool
 from neuroagent.tools.now import NowTool
 from neuroagent.tools.resolve_brain_region_tool import ResolveBrainRegionTool
 from neuroagent.tools.resolve_mtypes_tool import ResolveMtypeTool
-from neuroagent.tools.traces_tool import GetTracesTool
 from neuroagent.tools.weather import WeatherTool
 from neuroagent.tools.web_search import WebSearchTool
 
@@ -35,7 +34,6 @@ __all__ = [
     "SCSPlotTool",
     "SCSPostTool",
     "ElectrophysFeatureTool",
-    "GetTracesTool",
     "KGMorphoFeatureTool",
     "LiteratureSearchTool",
     "MEModelGetAllTool",
