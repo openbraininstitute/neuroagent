@@ -31,9 +31,6 @@ def client_fixture():
                 "url": "fake_literature_url",
             },
         },
-        knowledge_graph={
-            "base_url": "https://fake_url/api/nexus/v1",
-        },
         openai={
             "token": "fake_token",
         },
@@ -136,9 +133,6 @@ def dont_look_at_env_file():
 @pytest.fixture()
 def patch_required_env(monkeypatch):
     monkeypatch.setenv("NEUROAGENT_TOOLS__LITERATURE__URL", "https://fake_url")
-    monkeypatch.setenv(
-        "NEUROAGENT_KNOWLEDGE_GRAPH__BASE_URL", "https://fake_url/api/nexus/v1"
-    )
     monkeypatch.setenv("NEUROAGENT_OPENAI__TOKEN", "dummy")
 
 
@@ -268,9 +262,6 @@ def settings():
             "literature": {
                 "url": "fake_literature_url",
             },
-        },
-        knowledge_graph={
-            "base_url": "https://fake_url/api/nexus/v1",
         },
         openai={
             "token": "fake_token",
