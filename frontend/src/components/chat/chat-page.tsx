@@ -12,7 +12,11 @@ import { ChatMessagesInsideThread } from "@/components/chat/chat-messages-inside
 import { generateEditTitle } from "@/actions/generate-edit-thread";
 import { toast } from "sonner";
 import { useGetMessageNextPage } from "@/hooks/get-message-page";
-import { convertToAiMessages, isLastMessageComplete } from "@/lib/utils";
+import {
+  convertToAiMessages,
+  getToolInvocations,
+  isLastMessageComplete,
+} from "@/lib/utils";
 import { md5 } from "js-md5";
 
 type ChatPageProps = {
@@ -140,7 +144,7 @@ export function ChatPage({
     }
 
     // If message complete, don't set stopped
-    setStopped(isLastMessageComplete(messages.at(-1)));
+    setStopped(!isLastMessageComplete(messages.at(-1)));
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -173,50 +177,50 @@ export function ChatPage({
     }
   }, [md5(JSON.stringify(retrievedMessages))]); // Rerun on content change
 
-  // Handle auto-submit if tools have been validated
-  useEffect(() => {
-    const lastMessage = messages[messages.length - 1];
-    if (lastMessage?.role === "assistant" && lastMessage.toolInvocations) {
-      // Skip if we've already processed this message
-      if (processedToolInvocationMessages.includes(lastMessage.id)) {
-        return;
-      }
+  // // Handle auto-submit if tools have been validated
+  // useEffect(() => {
+  //   const lastMessage = messages.at(-1);
+  //   if (lastMessage?.role === "assistant" && getToolInvocations(lastMessage)) {
+  //     // Skip if we've already processed this message
+  //     if (processedToolInvocationMessages.includes(lastMessage.id)) {
+  //       return;
+  //     }
 
-      const annotations = lastMessage.annotations || [];
+  //     const annotations = lastMessage.annotations || [];
 
-      // Count tools that were subject to HIL (accepted, rejected, or pending)
-      const validatedCount = annotations.filter((a) =>
-        ["accepted", "rejected", "pending"].includes(a.validated ?? ""),
-      ).length;
+  //     // Count tools that were subject to HIL (accepted, rejected, or pending)
+  //     const validatedCount = annotations.filter((a) =>
+  //       ["accepted", "rejected", "pending"].includes(a.validated ?? ""),
+  //     ).length;
 
-      // Count validated tools that also have results
-      const validatedWithResultCount = lastMessage.toolInvocations.filter(
-        (tool) => {
-          const annotation = annotations.find(
-            (a) => a.toolCallId === tool.toolCallId,
-          );
-          return (
-            (annotation?.validated === "accepted" ||
-              annotation?.validated === "rejected") &&
-            tool.state === "result"
-          );
-        },
-      ).length;
+  //     // Count validated tools that also have results
+  //     const validatedWithResultCount = getToolInvocations(lastMessage).filter(
+  //       (tool) => {
+  //         const annotation = annotations.find(
+  //           (a) => a.toolCallId === tool.toolCallId,
+  //         );
+  //         return (
+  //           (annotation?.validated === "accepted" ||
+  //             annotation?.validated === "rejected") &&
+  //           tool.state === "result"
+  //         );
+  //       },
+  //     ).length;
 
-      if (validatedCount > 0 && validatedCount === validatedWithResultCount) {
-        // Mark this message as processed
-        setProcessedToolInvocationMessages((prev) => [...prev, lastMessage.id]);
+  //     if (validatedCount > 0 && validatedCount === validatedWithResultCount) {
+  //       // Mark this message as processed
+  //       setProcessedToolInvocationMessages((prev) => [...prev, lastMessage.id]);
 
-        console.log(
-          "All validated tools have results, triggering empty message",
-        );
-        handleSubmit(undefined, { allowEmptySubmit: true });
-      }
-    }
-  }, [messages, handleSubmit, processedToolInvocationMessages]);
+  //       console.log(
+  //         "All validated tools have results, triggering empty message",
+  //       );
+  //       handleSubmit(undefined, { allowEmptySubmit: true });
+  //     }
+  //   }
+  // }, [messages, handleSubmit, processedToolInvocationMessages]);
 
   const hasOngoingToolInvocations =
-    (messages.at(-1)?.toolInvocations ?? []).length > 0;
+    (getToolInvocations(messages.at(-1)) ?? []).length > 0;
 
   // Auto scroll when streaming
   useEffect(() => {

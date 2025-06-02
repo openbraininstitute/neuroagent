@@ -1,7 +1,7 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 import { MessageStrict, BMessage, Annotation } from "@/lib/types";
-import { ToolInvocationUIPart } from "@ai-sdk/ui-utils";
+import { ToolInvocation, ToolInvocationUIPart } from "@ai-sdk/ui-utils";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -117,15 +117,28 @@ export function getViewableToolStorageIds(
 export function isLastMessageComplete(messages: MessageStrict | undefined) {
   const annotations = messages?.annotations;
   if (annotations?.length === 0) {
-    // No annotations → treat as “complete”
     return true;
   }
-  // If *any* annotation explicitly has isComplete === false, we’re incomplete
   const hasIncomplete = annotations?.some(
     (ann) => "isComplete" in ann && ann.isComplete === false,
   );
 
   return !hasIncomplete;
+}
+
+// Utils to get all tool calls from an AI message
+export function getToolInvocations(
+  message: MessageStrict | undefined,
+): ToolInvocation[] {
+  return (
+    message?.parts
+      ?.filter(
+        (part): part is ToolInvocationUIPart =>
+          part.type === "tool-invocation" &&
+          typeof part.toolInvocation === "object",
+      )
+      .map((part) => part.toolInvocation) ?? []
+  );
 }
 
 // Small utility function that finds the right tool call in annotations and returns its status
@@ -142,8 +155,7 @@ export function getStoppedStatus(
   toolCallId: string,
 ) {
   const ann = annotations?.find((a) => a.toolCallId === toolCallId);
-  if (!ann) return undefined;
-  return !ann.isComplete;
+  return !(ann?.isComplete || true);
 }
 
 // function to translate from snake to camel case, and handle the annotations.
@@ -158,7 +170,7 @@ export function convertToAiMessages(messages: BMessage[]): MessageStrict[] {
         id: message.id,
         content: message.content,
         role: "user",
-        createdAt: new Date(message.creation_date),
+        createdAt: new Date(message.created_at),
         parts: [{ type: "text", text: message.content }],
       });
 
@@ -169,15 +181,16 @@ export function convertToAiMessages(messages: BMessage[]): MessageStrict[] {
       const annotations: Annotation[] = [
         { message_id: message.id, isComplete: message.is_complete },
       ];
+
       for (const tc of message.parts) {
         tool_calls.push({
           type: "tool-invocation" as const,
           toolInvocation: {
-            state: "result",
+            state: tc.results ? "result" : "call",
             toolCallId: tc.tool_call_id,
             toolName: tc.name,
-            args: tc.arguments,
-            result: tc.results,
+            args: JSON.parse(tc.arguments),
+            result: tc.results && JSON.parse(tc.results),
           },
         });
         annotations.push({
@@ -191,7 +204,7 @@ export function convertToAiMessages(messages: BMessage[]): MessageStrict[] {
         id: message.id,
         content: message.content,
         role: "assistant",
-        createdAt: new Date(message.creation_date),
+        createdAt: new Date(message.created_at),
         parts: [...tool_calls, { type: "text", text: message.content }],
         annotations: annotations,
       });

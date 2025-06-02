@@ -7,6 +7,7 @@ import { ToolInvocation } from "@ai-sdk/ui-utils";
 import { useExecuteTool } from "@/hooks/tools";
 import { ToolCallCollapsible } from "@/components/chat/tool-call-collapsible";
 import React from "react";
+import { getToolInvocations } from "@/lib/utils";
 
 type ChatMessageToolProps = {
   content?: string;
@@ -43,7 +44,7 @@ export const ChatMessageTool = function ChatMessageTool({
           const updatedMsg = {
             ...msg,
             toolInvocations: [
-              ...(msg.toolInvocations || []).filter(
+              ...(getToolInvocations(msg) || []).filter(
                 (t) => t.toolCallId !== tool.toolCallId,
               ),
               {
@@ -74,6 +75,7 @@ export const ChatMessageTool = function ChatMessageTool({
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [status]);
+
   const toolLabel =
     availableTools.filter((toolObj) => toolObj.slug === tool.toolName)?.[0]
       ?.label ?? tool.toolName;

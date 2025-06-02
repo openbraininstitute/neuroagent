@@ -42,7 +42,7 @@ export type BMessageUser = {
   id: string;
   role: "user";
   thread_id: string;
-  creation_date: string;
+  created_at: string;
   is_complete: true;
   content: string;
   parts: null;
@@ -52,7 +52,7 @@ export type BMessageAIContent = {
   id: string;
   role: "ai_message";
   thread_id: string;
-  creation_date: string;
+  created_at: string;
   is_complete: boolean;
   content: string;
   parts: BToolCall[];
