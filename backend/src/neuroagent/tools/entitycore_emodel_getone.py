@@ -48,7 +48,9 @@ class EModelGetOneTool(BaseTool):
     - The associated species
     - The associated brain region
     - The associated e-types and m-types
-    - Creation and update dates
+    - Creation and update date
+    - Assets
+    - Ion channel models
     """
     description_frontend: ClassVar[
         str
