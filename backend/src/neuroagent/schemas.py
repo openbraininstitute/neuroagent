@@ -4,15 +4,6 @@ from typing import ClassVar, Literal
 
 from pydantic import BaseModel, Field
 
-
-class KGMetadata(BaseModel):
-    """Knowledge Graph Metadata."""
-
-    file_extension: str
-    brain_region: str
-    is_lnmc: bool = False
-
-
 Category = Literal[
     "image",
     "json-barplot",
