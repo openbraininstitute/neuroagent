@@ -24,6 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Handle breaking change in entitycore.
+- Hallucinations of LS.
 
 ## [0.5.4]
 
