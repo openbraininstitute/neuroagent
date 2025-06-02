@@ -1,1 +1,0 @@
-{"tavily":{"command":"npx","args":["-y","tavily-mcp@0.2.0"],"env":{"TAVILY_API_KEY":"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"}},"sqlite":{"command":"uvx","args":["mcp-server-sqlite","--db-path","test.db"]}}
