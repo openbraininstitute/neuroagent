@@ -368,5 +368,3 @@ def test_delete_from_storage_large_batch():
     # Second batch should have 500 objects
     second_batch = mock_s3.delete_objects.call_args_list[1][1]
     assert len(second_batch["Delete"]["Objects"]) == 500
-
-
