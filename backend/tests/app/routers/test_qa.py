@@ -50,7 +50,15 @@ def test_question_suggestions(
     with app_client as app_client:
         response = app_client.post(
             "/qa/question_suggestions",
-            json={"click_history": [[["Amzing BR", "Super artifact"]]]},
+            json={
+                "click_history": [
+                    {
+                        "timestamp": 123456,
+                        "region": "Amzing BR",
+                        "artifact": "Super artifact",
+                    }
+                ]
+            },
             headers={"x-virtual-lab-id": "test_vlab", "x-project-id": "test_project"},
         )
 
@@ -66,7 +74,13 @@ def test_question_suggestions(
         response = app_client.post(
             "/qa/question_suggestions",
             json={
-                "click_history": [[["Amzing BR", "Super artifact"]]],
+                "click_history": [
+                    {
+                        "timestamp": 123456,
+                        "region": "Amzing BR",
+                        "artifact": "Super artifact",
+                    }
+                ],
                 "thread_id": create_output["thread_id"],
             },
             headers={"x-virtual-lab-id": "test_vlab", "x-project-id": "test_project"},
@@ -83,7 +97,13 @@ def test_question_suggestions(
         response = app_client.post(
             "/qa/question_suggestions",
             json={
-                "click_history": [[["Amzing BR", "Super artifact"]]],
+                "click_history": [
+                    {
+                        "timestamp": 123456,
+                        "region": "Amzing BR",
+                        "artifact": "Super artifact",
+                    }
+                ],
                 "thread_id": thread.thread_id,
             },
             headers={"x-virtual-lab-id": "test_vlab", "x-project-id": "test_project"},
@@ -96,11 +116,11 @@ def test_question_suggestions(
     call_list = mock_openai_client.beta.chat.completions.parse.call_args_list
     assert call_list[0].kwargs["messages"][1] == {
         "role": "user",
-        "content": 'USER JOURNEY: \n[[["Amzing BR", "Super artifact"]]]',
+        "content": "USER JOURNEY: \n[{'timestamp': datetime.datetime(1970, 1, 2, 10, 17, 36, tzinfo=TzInfo(UTC)), 'region': 'Amzing BR', 'artifact': 'Super artifact'}]",
     }
     assert call_list[1].kwargs["messages"][1] == {
         "role": "user",
-        "content": 'USER JOURNEY: \n[[["Amzing BR", "Super artifact"]]]',
+        "content": "USER JOURNEY: \n[{'timestamp': datetime.datetime(1970, 1, 2, 10, 17, 36, tzinfo=TzInfo(UTC)), 'region': 'Amzing BR', 'artifact': 'Super artifact'}]",
     }
     assert call_list[2].kwargs["messages"][1] == {
         "role": "user",

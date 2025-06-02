@@ -5,6 +5,7 @@ import logging
 from typing import Any, ClassVar, Literal
 
 import matplotlib.pyplot as plt
+from httpx import AsyncClient
 from neurom import NeuriteType, load_morphology
 from neurom.view import plot_dendrogram, plot_morph, plot_morph3d
 from pydantic import BaseModel, Field
@@ -81,8 +82,8 @@ class MorphologyViewerInput(BaseModel):
 class MorphologyViewerMetadata(BaseMetadata):
     """Metadata for MorphologyViewerTool."""
 
+    httpx_client: AsyncClient
     knowledge_graph_url: str
-    token: str
     s3_client: Any  # boto3 client
     user_id: str
     bucket_name: str
@@ -129,7 +130,6 @@ class MorphologyViewerTool(BaseTool):
             object_id=self.input_schema.morphology_id,
             httpx_client=self.metadata.httpx_client,
             url=self.metadata.knowledge_graph_url,
-            token=self.metadata.token,
             preferred_format="swc",
         )
 

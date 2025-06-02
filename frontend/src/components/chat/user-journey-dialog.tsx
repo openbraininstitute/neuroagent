@@ -17,11 +17,12 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { UserHistory } from "@/lib/types";
 
 type UserJourneyDialogProps = {
   isDialogOpen: boolean;
   setIsDialogOpen: (open: boolean) => void;
-  querySuggestions: (suggestionInput: string[][][]) => void;
+  querySuggestions: (suggestionInput: UserHistory) => void;
 };
 
 export function UserJourneyDialog({
@@ -29,22 +30,10 @@ export function UserJourneyDialog({
   setIsDialogOpen,
   querySuggestions,
 }: UserJourneyDialogProps) {
-  const defaultUserFlow = [
-    [
-      ["brain_region", "Brain stem"],
-      ["artifact", "Neuron density"],
-      ["artifact", "Bouton density"],
-      ["artifact", "Synapse per connection"],
-    ],
-    [
-      ["brain_region", "Cerebellum"],
-      ["artifact", "Neuron density"],
-      ["artifact", "Bouton density"],
-    ],
-    [
-      ["brain_region", "Brain stem"],
-      ["artifact", "Electrophysiology"],
-    ],
+  const defaultUserFlow: UserHistory = [
+    { timestamp: 2632758009, region: "Cerebellum", artifact: null },
+    { timestamp: 2632798440, region: "Cerebellum", artifact: "ME-Model" },
+    { timestamp: 2632840873, region: "Interbrain", artifact: "ME-Model" },
   ];
 
   const [userFlowData, setUserFlowData] = useState(defaultUserFlow);
@@ -65,7 +54,7 @@ export function UserJourneyDialog({
         <div className="p-4">
           <JsonEditor
             data={userFlowData}
-            setData={(data: JsonData) => setUserFlowData(data as string[][][])}
+            setData={(data: JsonData) => setUserFlowData(data as UserHistory)}
             className="max-h-[75vh] overflow-y-auto"
             theme={[
               isLightTheme ? monoLightTheme : monoDarkTheme,
@@ -101,7 +90,7 @@ export function UserJourneyDialog({
 
 type UserJourneyButtonProp = {
   pendingSuggestions: boolean;
-  querySuggestions: (suggestionInput: string[][][]) => void;
+  querySuggestions: (suggestionInput: UserHistory) => void;
 };
 
 export function OpenUserJourneyButton({

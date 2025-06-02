@@ -55,8 +55,8 @@ class LiteratureSearchInput(BaseModel):
 class LiteratureSearchMetadata(BaseMetadata):
     """Metadata class for LiteratureSearchTool."""
 
+    httpx_client: AsyncClient
     literature_search_url: str
-    token: str
     retriever_k: int
     use_reranker: bool
     openai_client: AsyncOpenAI
@@ -167,11 +167,21 @@ class LiteratureSearchTool(BaseTool):
 
         params = RetrievalRetrievalGetParams(
             query=self.input_schema.user_message,
-            article_types=ArticleTypes(root=self.input_schema.article_types),
-            authors=Authors(root=self.input_schema.authors),
-            journals=Journals(root=self.input_schema.journals),
-            date_from=DateFrom(root=self.input_schema.date_from),
-            date_to=DateTo(root=self.input_schema.date_to),
+            article_types=ArticleTypes(root=self.input_schema.article_types)
+            if self.input_schema.article_types
+            else None,
+            authors=Authors(root=self.input_schema.authors)
+            if self.input_schema.authors
+            else None,
+            journals=Journals(root=self.input_schema.journals)
+            if self.input_schema.journals
+            else None,
+            date_from=DateFrom(root=self.input_schema.date_from)
+            if self.input_schema.date_from
+            else None,
+            date_to=DateTo(root=self.input_schema.date_to)
+            if self.input_schema.date_to
+            else None,
             retriever_k=self.metadata.retriever_k,
             use_reranker=self.metadata.use_reranker,
             reranker_k=100
@@ -182,10 +192,7 @@ class LiteratureSearchTool(BaseTool):
         # Send the request
         response = await self.metadata.httpx_client.get(
             self.metadata.literature_search_url + "/retrieval/",
-            headers={"Authorization": f"Bearer {self.metadata.token}"},
-            params={
-                k: v for k, v in params.model_dump().items() if v is not None
-            },  # .model_dump(exclude_none=True) doesn't work since root models is not BaseModel.
+            params=params.model_dump(exclude_defaults=True),
             timeout=None,
         )
         if response.status_code != 200:

@@ -294,7 +294,7 @@ async def get_thread_messages(
 
     # Format to MessagesRead / Vercel schema
     messages: list[MessagesRead] = []
-    tool_call_buffer: list[dict[str, str | Entity | datetime.date | bool]] = []
+    tool_call_buffer: list[dict[str, Any]] = []
 
     for msg in reversed(db_messages):
         if msg.entity in [Entity.USER, Entity.AI_MESSAGE]:

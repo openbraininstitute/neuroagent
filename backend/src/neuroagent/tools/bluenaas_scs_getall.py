@@ -29,7 +29,7 @@ class InputSCSGetAll(
 class SCSGetAllMetadata(BaseMetadata):
     """Metadata class for the get all simulations api."""
 
-    token: str
+    httpx_client: AsyncClient
     vlab_id: str
     project_id: str
     bluenaas_url: str
@@ -78,14 +78,9 @@ class SCSGetAllTool(BaseTool):
 
         response = await self.metadata.httpx_client.get(
             url=f"{self.metadata.bluenaas_url}/simulation/single-neuron/{params.virtual_lab_id}/{params.project_id}",
-            params={
-                k: v
-                for k, v in params.model_dump(
-                    exclude={"virtual_lab_id", "project_id"}
-                ).items()
-                if v is not None
-            },
-            headers={"Authorization": f"Bearer {self.metadata.token}"},
+            params=params.model_dump(
+                exclude_defaults=True, exclude={"virtual_lab_id", "project_id"}
+            ),
         )
 
         return SCSGetAllToolOutput(**response.json())

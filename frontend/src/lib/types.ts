@@ -201,5 +201,11 @@ export class CustomError extends Error {
   }
 }
 
+export type UserHistory = Array<{
+  timestamp: number;
+  region: string;
+  artifact: string | null;
+}>;
+
 export const threadPageSize = "30";
 export const messagePageSize = "15";
