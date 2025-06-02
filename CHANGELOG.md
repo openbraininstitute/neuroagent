@@ -10,6 +10,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Fixed bug where fastapi servers were wrongly set.
 
+## Changed
+- Track mcp.json.
+
 ## [0.5.5] - 02.06.2025
 
 ### Changed

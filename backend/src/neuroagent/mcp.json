@@ -1,0 +1,20 @@
+{
+    "filesystem": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-filesystem",
+        "/Users/nfrank/Projects/neuroagent"
+      ]
+    },
+    "tavily": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "tavily-mcp@0.2.0"
+      ],
+      "env": {
+        "TAVILY_API_KEY": "NEUROAGENT_MCP__SECRETS__TAVILY_API_KEY"
+      }
+    }
+  }

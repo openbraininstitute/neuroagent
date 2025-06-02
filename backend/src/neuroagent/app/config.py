@@ -1,10 +1,12 @@
 """Configuration."""
 
+import json
 import os
+from pathlib import Path
 from typing import Any, Literal, Optional
 
 from dotenv import dotenv_values
-from pydantic import BaseModel, ConfigDict, Field, SecretStr, model_validator
+from pydantic import BaseModel, ConfigDict, SecretStr, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -250,9 +252,7 @@ class MCPServerConfig(BaseModel):
 class SettingsMCP(BaseModel):
     """Settings for the MCP."""
 
-    servers: dict[str, MCPServerConfig] = Field(
-        default_factory=dict,
-    )
+    servers: dict[str, MCPServerConfig] | None = None
 
 
 class Settings(BaseSettings):
@@ -278,6 +278,28 @@ class Settings(BaseSettings):
         frozen=True,
         extra="ignore",
     )
+
+    @model_validator(mode="before")
+    @classmethod
+    def parse_mcp_file(cls, data: Any) -> Any:
+        """Read the `mcp.json` file and parse mcp servers."""
+        # Read the server config
+        with (Path(__file__).parent.parent / "mcp.json").open() as f:
+            servers = f.read()
+
+        # Replace placeholders with secret values in server config
+        for secret_key, secret_value in data["mcp"]["secrets"].items():
+            placeholder = f"NEUROAGENT_MCP__SECRETS__{secret_key.upper()}"
+            replacement = secret_value or ""
+            servers = servers.replace(placeholder, replacement)
+
+        # Update the mcp.servers field
+        data["mcp"]["servers"] = {
+            k: MCPServerConfig(**v) for k, v in json.loads(servers).items()
+        }
+        data["mcp"].pop("secrets")
+
+        return data
 
 
 # Load the remaining variables into the environment
