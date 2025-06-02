@@ -20,7 +20,6 @@ from neuroagent.tools.literature_search_tool import (
     ParagraphMetadata,
 )
 from neuroagent.tools.morpho_metrics_tool import MorphoMetricsTool
-from neuroagent.tools.morphology_viewer import MorphologyViewerTool
 from neuroagent.tools.now import NowTool
 from neuroagent.tools.resolve_brain_region_tool import ResolveBrainRegionTool
 from neuroagent.tools.resolve_mtypes_tool import ResolveMtypeTool
@@ -39,7 +38,6 @@ __all__ = [
     "MorphologyGetAllTool",
     "MorphologyGetOneTool",
     "MorphoMetricsTool",
-    "MorphologyViewerTool",
     "NowTool",
     "ParagraphMetadata",
     "PlotGeneratorTool",
