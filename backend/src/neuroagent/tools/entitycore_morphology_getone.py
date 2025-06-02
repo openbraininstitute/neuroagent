@@ -47,6 +47,8 @@ class MorphologyGetOneTool(BaseTool):
     - Associated brain region information
     - Subject species information
     - Any additional metadata
+    - Assets
+    - Legacy ID
     """
     description_frontend: ClassVar[
         str
