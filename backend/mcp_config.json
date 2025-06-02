@@ -1,0 +1,19 @@
+{
+  "servers": {
+    "filesystem": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-filesystem",
+        "/Users/krepl/Documents"
+      ]
+    },
+    "tavily": {
+        "command": "npx",
+        "args": ["-y", "tavily-mcp@0.2.0"],
+        "env": {
+          "TAVILY_API_KEY": "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"
+        }
+    }
+  }
+}
