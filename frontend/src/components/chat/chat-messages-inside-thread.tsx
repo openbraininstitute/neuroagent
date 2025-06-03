@@ -74,11 +74,11 @@ export function ChatMessagesInsideThread({
                       message.annotations,
                       part.toolInvocation.toolCallId,
                     ) ?? "not_required";
-                  const stopped =
-                    getStoppedStatus(
-                      message.annotations,
-                      part.toolInvocation.toolCallId,
-                    ) ?? false;
+                  const stopped = getStoppedStatus(
+                    message.annotations,
+                    part.toolInvocation.toolCallId,
+                  );
+                  console.log("Message is stopped", stopped);
                   return (
                     <ChatMessageTool
                       key={`${message.id}-tool-${part.toolInvocation.toolCallId}`}

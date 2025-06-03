@@ -115,7 +115,7 @@ export function getStoppedStatus(
   toolCallId: string,
 ) {
   const ann = annotations?.find((a) => a.toolCallId === toolCallId);
-  return !(ann?.isComplete || true);
+  return !ann?.isComplete;
 }
 
 // function to translate from snake to camel case, and handle the annotations.

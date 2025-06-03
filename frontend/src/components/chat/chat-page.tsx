@@ -149,15 +149,20 @@ export function ChatPage({
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
+  console.log("stopped", stopped);
   // Handle streaming interruption
   useEffect(() => {
     if (stopped) {
       setMessages((prevState) => {
         prevState[prevState.length - 1] = {
           ...prevState[prevState.length - 1],
-          annotations: [{ isComplete: false }],
+          annotations: prevState
+            .at(-1)
+            ?.annotations?.map((ann) =>
+              !ann.toolCallId ? { isComplete: false } : ann,
+            ),
         };
+        // We only change the annotation at message level and keep the rest.
         return prevState;
       });
     }
@@ -178,48 +183,7 @@ export function ChatPage({
     }
   }, [md5(JSON.stringify(retrievedMessages))]); // Rerun on content change
 
-  // // Handle auto-submit if tools have been validated
-  // useEffect(() => {
-  //   const lastMessage = messages.at(-1);
-  //   if (lastMessage?.role === "assistant" && getToolInvocations(lastMessage)) {
-  //     // Skip if we've already processed this message
-  //     if (processedToolInvocationMessages.includes(lastMessage.id)) {
-  //       return;
-  //     }
-
-  //     const annotations = lastMessage.annotations || [];
-
-  //     // Count tools that were subject to HIL (accepted, rejected, or pending)
-  //     const validatedCount = annotations.filter((a) =>
-  //       ["accepted", "rejected", "pending"].includes(a.validated ?? ""),
-  //     ).length;
-
-  //     // Count validated tools that also have results
-  //     const validatedWithResultCount = getToolInvocations(lastMessage).filter(
-  //       (tool) => {
-  //         const annotation = annotations.find(
-  //           (a) => a.toolCallId === tool.toolCallId,
-  //         );
-  //         return (
-  //           (annotation?.validated === "accepted" ||
-  //             annotation?.validated === "rejected") &&
-  //           tool.state === "result"
-  //         );
-  //       },
-  //     ).length;
-
-  //     if (validatedCount > 0 && validatedCount === validatedWithResultCount) {
-  //       // Mark this message as processed
-  //       setProcessedToolInvocationMessages((prev) => [...prev, lastMessage.id]);
-
-  //       console.log(
-  //         "All validated tools have results, triggering empty message",
-  //       );
-  //       handleSubmit(undefined, { allowEmptySubmit: true });
-  //     }
-  //   }
-  // }, [messages, handleSubmit, processedToolInvocationMessages]);
-
+  // Constant to check if there are tool calls at the end of conv.
   const hasOngoingToolInvocations =
     (getToolInvocations(messages.at(-1)) ?? []).length > 0;
 
