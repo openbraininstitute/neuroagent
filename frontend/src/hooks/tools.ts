@@ -30,17 +30,5 @@ export function useExecuteTool() {
         body,
       }) as Promise<BExecuteToolCallResponse>;
     },
-    onSuccess: (_, variables) => {
-      // Invalidate relevant queries after successful execution
-      void queryClient.invalidateQueries({
-        queryKey: ["threads"],
-      });
-      void queryClient.invalidateQueries({
-        queryKey: ["threads", variables.threadId],
-      });
-      void queryClient.invalidateQueries({
-        queryKey: ["tools", variables.toolCallId],
-      });
-    },
   });
 }

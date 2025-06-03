@@ -41,22 +41,27 @@ export const ChatMessageTool = function ChatMessageTool({
       if (data.status === "done") {
         setValidationError(null);
         setMessage((msg) => {
-          const updatedMsg = {
-            ...msg,
-            toolInvocations: [
-              ...(getToolInvocations(msg) || []).filter(
-                (t) => t.toolCallId !== tool.toolCallId,
-              ),
-              {
+          const updatedParts = [
+            ...msg.parts.filter(
+              (t) =>
+                t.type === "tool-invocation" &&
+                t.toolInvocation.toolCallId !== tool.toolCallId,
+            ),
+            {
+              type: "tool-invocation" as const,
+              toolInvocation: {
+                state: "result" as const,
                 toolCallId: tool.toolCallId,
                 toolName: tool.toolName,
                 args: tool.args,
                 result: data.content,
-                state: "result" as const,
               },
-            ],
+            },
+          ];
+          return {
+            ...msg,
+            parts: updatedParts,
           };
-          return updatedMsg;
         });
       } else if (data.status === "validation-error") {
         setValidationError(data.content || "Validation failed");
