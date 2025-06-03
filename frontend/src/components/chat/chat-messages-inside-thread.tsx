@@ -2,10 +2,9 @@
 
 import { MessageStrict } from "@/lib/types";
 import {
-  getAssociatedTools,
   getStoppedStatus,
+  getStorageID,
   getValidationStatus,
-  getViewableToolStorageIds,
 } from "@/lib/utils";
 import PlotsInChat from "@/components/chat/plot-in-chat";
 import { ChatMessageAI } from "@/components/chat/chat-message-ai";
@@ -40,12 +39,6 @@ export function ChatMessagesInsideThread({
   setMessages,
 }: ChatMessagesInsideThreadProps) {
   const [collapsedTools, setCollapsedTools] = useState<Set<string>>(new Set());
-
-  const associatedTools = getAssociatedTools(messages);
-  const associatedStorageID = getViewableToolStorageIds(
-    messages,
-    associatedTools,
-  );
 
   const handleToggleCollapse = (messageId: string) => {
     setCollapsedTools((prev) => {
@@ -116,9 +109,7 @@ export function ChatMessagesInsideThread({
                 toggleCollapse={() => handleToggleCollapse(message.id)}
               />
             )}
-            <PlotsInChat
-              storageIds={Array.from(associatedStorageID.get(message.id) || [])}
-            />
+            <PlotsInChat storageIds={getStorageID(message) || []} />
           </div>
         ) : (
           <ChatMessageHuman key={message.id} content={message.content} />

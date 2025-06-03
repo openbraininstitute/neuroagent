@@ -28,89 +28,14 @@ export const viewableTools = [
   "scsplot-tool",
 ];
 
-/**
- * Maps AI responses to their associated tool-using messages.
- *
- * For each AI message without tools, looks backwards in the conversation
- * until a user message is found, collecting IDs of AI messages that used tools.
- * This creates a relationship between tool operations and their final response.
- *
- * Example conversation mapping:
- * user: "What's the weather?"
- * assistant: [uses weather tool] (id: "tool1")
- * assistant: "The weather is sunny" (id: "response1")
- * → Map: "response1" => Set(["tool1"])
- */
-export function getAssociatedTools(messages: MessageStrict[]) {
-  return messages.reduce((toolMap, message, index) => {
-    if (message.role === "assistant" && !message.toolInvocations) {
-      const toolIds = new Set<string>();
-      for (let i = index - 1; i >= 0; i--) {
-        if (messages[i].role === "user") break;
-        const msg = messages[i];
-        if (msg?.role === "assistant" && msg.toolInvocations?.length) {
-          msg.toolInvocations.forEach(() => toolIds.add(msg.id));
-        }
-      }
-      toolMap.set(message.id, toolIds);
-    }
-    return toolMap;
-  }, new Map<string, Set<string>>());
-}
-
-/**
- * Maps final assistant response IDs to a set of storage IDs.
- * For each associated tool message, it iterates over its tool invocations,
- * and if the tool is viewable (its name is in viewableTools), its state is "result",
- * and it contains a valid result with a storage_id, that storage_id is added.
- */
-export function getViewableToolStorageIds(
-  messages: MessageStrict[],
-  associatedToolCalls: Map<string, Set<string>>,
-): Map<string, Array<string>> {
-  const storageIdsMap = new Map<string, Array<string>>();
-
-  for (const [responseId, toolIds] of associatedToolCalls.entries()) {
-    const storageIds = new Array<string>();
-
-    // For each associated tool call, find the corresponding message.
-    for (const toolId of toolIds) {
-      const toolMessage = messages.find((msg) => msg.id === toolId);
-      if (toolMessage && toolMessage.toolInvocations?.length) {
-        toolMessage.toolInvocations.forEach((invocation) => {
-          // Check if the tool's name is in viewableTools, its state is "result",
-          // and it has a result.
-          if (
-            viewableTools.includes(invocation.toolName) &&
-            invocation.state === "result" &&
-            invocation.result
-          ) {
-            try {
-              // Parse the result, which might be a string or an object.
-              const parsedResult =
-                typeof invocation.result === "string"
-                  ? JSON.parse(invocation.result)
-                  : invocation.result;
-              if (parsedResult.storage_id) {
-                if (Array.isArray(parsedResult.storage_id)) {
-                  parsedResult.storage_id.map((el: string) =>
-                    storageIds.push(el),
-                  );
-                } else {
-                  storageIds.push(parsedResult.storage_id);
-                }
-              }
-            } catch {
-              // If parsing fails, ignore this invocation.
-            }
-          }
-        });
-      }
-    }
-    storageIdsMap.set(responseId, storageIds);
+// Function to safely parse JSONs
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function safeParse<T = any>(str: string): T | string {
+  try {
+    return JSON.parse(str) as T;
+  } catch {
+    return str;
   }
-
-  return storageIdsMap;
 }
 
 // Small utility function to check if the last message has incomplete parts
@@ -139,6 +64,41 @@ export function getToolInvocations(
       )
       .map((part) => part.toolInvocation) ?? []
   );
+}
+
+// Utils to get all storage ID from an AI message
+export function getStorageID(message: MessageStrict | undefined): string[] {
+  const toolCallsResults: string[] =
+    message?.parts
+      ?.filter(
+        (part): part is ToolInvocationUIPart =>
+          part.type === "tool-invocation" &&
+          typeof part.toolInvocation === "object",
+      )
+      .map(
+        (part) =>
+          part.toolInvocation.state == "result" && part.toolInvocation.result,
+      ) ?? [];
+  const storageIds: string[] = [];
+  toolCallsResults.forEach((rawResult) => {
+    try {
+      // If the result is a JSON string, parse it; otherwise assume it's already an object
+      const parsedResult =
+        typeof rawResult === "string" ? safeParse(rawResult) : rawResult;
+
+      const storageId = parsedResult.storage_id;
+      if (storageId) {
+        if (Array.isArray(storageId)) {
+          storageId.forEach((el: string) => storageIds.push(el));
+        } else {
+          storageIds.push(storageId);
+        }
+      }
+    } catch {
+      // ignore any parsing errors or unexpected shapes
+    }
+  });
+  return storageIds;
 }
 
 // Small utility function that finds the right tool call in annotations and returns its status
@@ -190,7 +150,7 @@ export function convertToAiMessages(messages: BMessage[]): MessageStrict[] {
             toolCallId: tc.tool_call_id,
             toolName: tc.name,
             args: JSON.parse(tc.arguments),
-            ...(tc.results ? { result: JSON.parse(tc.results) } : {}),
+            ...(tc.results ? { result: safeParse(tc.results) } : {}),
           } as ToolInvocation,
         });
         annotations.push({
