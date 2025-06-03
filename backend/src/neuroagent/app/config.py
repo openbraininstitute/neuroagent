@@ -300,7 +300,6 @@ class Settings(BaseSettings):
                     k: MCPServerConfig(**v) for k, v in json.loads(servers).items()
                 }
             }
-            data["mcp"].pop("secrets")
 
         return data
 

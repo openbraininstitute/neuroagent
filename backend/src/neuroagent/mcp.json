@@ -1,12 +1,4 @@
 {
-    "filesystem": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "@modelcontextprotocol/server-filesystem",
-        "/Users/nfrank/Projects/neuroagent"
-      ]
-    },
     "tavily": {
       "command": "npx",
       "args": [
