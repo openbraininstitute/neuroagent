@@ -14,6 +14,29 @@ Category = Literal[
     "json-multi-linechart",
 ]
 
+EntityRoute = Literal[
+    "analysis-software-source-code",
+    "brain-atlas",
+    "brain-atlas-region",
+    "emodel",
+    "cell-composition",
+    "experimental-bouton-density",
+    "experimental-neuron-density",
+    "experimental-synapses-per-connection",
+    "memodel",
+    "mesh",
+    "me-type-density",
+    "reconstruction-morphology",
+    "electrical-cell-recording",
+    "electrical-recording-stimulus",
+    "single-neuron-simulation",
+    "single-neuron-synaptome",
+    "single-neuron-synaptome-simulation",
+    "ion-channel-model",
+    "subject",
+    "validation-result",
+]
+
 
 class BaseObject(BaseModel):
     """Base storage schema for all plot types."""
