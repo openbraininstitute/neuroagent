@@ -7,8 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Tools for (most) GET endpoints of entitycore
+
 ### Fixed
 - Fixed bug where fastapi servers were wrongly set.
+
+### Removed
+- Knowledge graph tools and utils
 
 ## [0.5.5] - 02.06.2025
 
@@ -31,10 +37,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Handle breaking change in entitycore.
 - Hallucinations of LS.
-
-### Removed
-- Knowledge graph tools and utils
-
 
 ## [0.5.4]
 

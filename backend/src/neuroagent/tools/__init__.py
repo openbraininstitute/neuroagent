@@ -12,6 +12,8 @@ from neuroagent.tools.entitycore_etype_getall import EtypeGetAllTool
 from neuroagent.tools.entitycore_etype_getone import EtypeGetOneTool
 from neuroagent.tools.entitycore_morphology_getall import MorphologyGetAllTool
 from neuroagent.tools.entitycore_morphology_getone import MorphologyGetOneTool
+from neuroagent.tools.entitycore_mtype_getall import MtypeGetAllTool
+from neuroagent.tools.entitycore_mtype_getone import MtypeGetOneTool
 from neuroagent.tools.generate_plot import PlotGeneratorTool
 from neuroagent.tools.generate_random_plot import RandomPlotGeneratorTool
 from neuroagent.tools.literature_search_tool import (
@@ -48,4 +50,6 @@ __all__ = [
     "EtypeGetOneTool",
     "EModelGetAllTool",
     "EModelGetOneTool",
+    "MtypeGetAllTool",
+    "MtypeGetOneTool",
 ]
