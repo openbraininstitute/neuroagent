@@ -25,6 +25,7 @@ from neuroagent.app.schemas import UserInfo
 from neuroagent.mcp import MCPClient, create_dynamic_tool
 from neuroagent.new_types import Agent
 from neuroagent.tools import (
+    AssetDownloadOneTool,
     AssetGetAllTool,
     AssetGetOneTool,
     EModelGetAllTool,
@@ -216,6 +217,7 @@ def get_tool_list(
     internal_tool_list: list[type[BaseTool]] = [
         AssetGetAllTool,
         AssetGetOneTool,
+        AssetDownloadOneTool,
         SCSGetAllTool,
         SCSGetOneTool,
         SCSPlotTool,
