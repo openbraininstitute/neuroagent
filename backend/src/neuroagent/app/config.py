@@ -1,6 +1,7 @@
 """Configuration."""
 
 import json
+import logging
 import os
 from pathlib import Path
 from typing import Any, Literal, Optional
@@ -8,6 +9,8 @@ from typing import Any, Literal, Optional
 from dotenv import dotenv_values
 from pydantic import BaseModel, ConfigDict, SecretStr, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+logger = logging.getLogger(__name__)
 
 
 class SettingsAgent(BaseModel):
@@ -281,7 +284,7 @@ class Settings(BaseSettings):
 
     @model_validator(mode="before")
     @classmethod
-    def parse_mcp_file(cls, data: Any) -> Any:
+    def parse_mcp_servers(cls, data: Any) -> Any:
         """Read the `mcp.json` file and parse mcp servers."""
         # Read the server config
         with (Path(__file__).parent.parent / "mcp.json").open() as f:
@@ -294,12 +297,20 @@ class Settings(BaseSettings):
                 replacement = secret_value or ""
                 servers = servers.replace(placeholder, replacement)
 
-            # Update the mcp.servers field
-            data["mcp"] = {
-                "servers": {
-                    k: MCPServerConfig(**v) for k, v in json.loads(servers).items()
-                }
-            }
+        mcps: dict[str, dict[str, Any]] = {"servers": {}}
+        # Parse and set the mcp servers
+        for server, config in json.loads(servers).items():
+            # If a secret is not set, do not include the associated server
+            if config.get("env") and any(
+                "NEUROAGENT_MCP__SECRETS__" in value for value in config["env"].values()
+            ):
+                logger.warning(
+                    f"MCP server {server} deactivated because some of its secrets were not provided."
+                )
+                continue
+            mcps["servers"][server] = config
+
+        data["mcp"] = mcps
 
         return data
 

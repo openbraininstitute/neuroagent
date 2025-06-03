@@ -9,6 +9,8 @@ RUN apt-get -y update && \
     libhdf5-dev \
     ninja-build \
     wget \
+    nodejs \
+    npm \
     && rm -rf /var/lib/apt/lists/* \
     && wget https://github.com/Kitware/CMake/archive/refs/tags/v4.0.1.tar.gz -O cmake.tar.gz \
     && tar xzf cmake.tar.gz \
