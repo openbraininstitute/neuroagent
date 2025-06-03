@@ -75,10 +75,6 @@ class ElectricalCellRecordingGetOneTool(BaseTool):
         -------
             ElectricalCellRecordingRead containing detailed recording information, or an error dict.
         """
-        logger.info(
-            f"Entering Get One Electrical Cell Recording tool. Inputs: {self.input_schema.model_dump()}"
-        )
-
         # Validate the UUID format
         recording_id = UUID(self.input_schema.recording_id)
 
