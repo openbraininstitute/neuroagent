@@ -185,7 +185,8 @@ export function ChatPage({
 
   // Constant to check if there are tool calls at the end of conv.
   const hasOngoingToolInvocations =
-    (getToolInvocations(messages.at(-1)) ?? []).length > 0;
+    (getToolInvocations(messages.at(-1)) ?? []).length > 0 &&
+    messages.at(-1)?.content == "";
 
   // Auto scroll when streaming
   useEffect(() => {
