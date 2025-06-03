@@ -15,6 +15,13 @@ type ChatMessageToolProps = {
   tool: ToolInvocation;
   stopped: boolean;
   availableTools: Array<{ slug: string; label: string }>;
+  addToolResult: ({
+    toolCallId,
+    result,
+  }: {
+    toolCallId: string;
+    result: any;
+  }) => void;
   validated: "pending" | "accepted" | "rejected" | "not_required";
   setMessage: (updater: (msg: MessageStrict) => MessageStrict) => void;
 };
@@ -24,6 +31,7 @@ export const ChatMessageTool = function ChatMessageTool({
   tool,
   stopped,
   availableTools,
+  addToolResult,
   setMessage,
   validated,
 }: ChatMessageToolProps) {
@@ -32,37 +40,21 @@ export const ChatMessageTool = function ChatMessageTool({
   const { mutate, isPending, isSuccess, data, status } = useExecuteTool();
 
   useEffect(() => {
+    // If the request is loading, we wait and close the window
     if (isPending) {
       setDialogOpen(false);
       return;
     }
 
     if (isSuccess && data) {
+      // If the tool has successfully been called, we set the tool result.
       if (data.status === "done") {
         setValidationError(null);
-        setMessage((msg) => {
-          const updatedParts = [
-            ...msg.parts.filter(
-              (t) =>
-                t.type === "tool-invocation" &&
-                t.toolInvocation.toolCallId !== tool.toolCallId,
-            ),
-            {
-              type: "tool-invocation" as const,
-              toolInvocation: {
-                state: "result" as const,
-                toolCallId: tool.toolCallId,
-                toolName: tool.toolName,
-                args: tool.args,
-                result: data.content,
-              },
-            },
-          ];
-          return {
-            ...msg,
-            parts: updatedParts,
-          };
-        });
+        // We leverage the addToolResult from useChat to add results.
+        // It will also trigger the chat automatically when every tool has results !
+        addToolResult({ toolCallId: tool.toolCallId, result: data.content });
+
+        // If the tool had a validation error, we have to reset the annotation.
       } else if (data.status === "validation-error") {
         setValidationError(data.content || "Validation failed");
         setMessage((msg) => {

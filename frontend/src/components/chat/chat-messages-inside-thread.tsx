@@ -17,6 +17,13 @@ interface ChatMessagesInsideThreadProps {
   messages: MessageStrict[];
   threadId: string;
   availableTools: Array<{ slug: string; label: string }>;
+  addToolResult: ({
+    toolCallId,
+    result,
+  }: {
+    toolCallId: string;
+    result: any;
+  }) => void;
   setMessages: (
     messages:
       | MessageStrict[]
@@ -28,6 +35,7 @@ export function ChatMessagesInsideThread({
   messages,
   threadId,
   availableTools,
+  addToolResult,
   setMessages,
 }: ChatMessagesInsideThreadProps) {
   const [collapsedTools, setCollapsedTools] = useState<Set<string>>(new Set());
@@ -84,6 +92,7 @@ export function ChatMessagesInsideThread({
                       tool={part.toolInvocation}
                       stopped={stopped}
                       availableTools={availableTools}
+                      addToolResult={addToolResult}
                       validated={validated}
                       setMessage={(updater) =>
                         handleMessageUpdate(message.id, updater)

@@ -30,5 +30,6 @@ export function useExecuteTool() {
         body,
       }) as Promise<BExecuteToolCallResponse>;
     },
+    // Note that since we set the results of the tools we do not need to invalidate queries.
   });
 }

@@ -79,14 +79,15 @@ export function ChatPage({
   }, [data?.pages]);
 
   const {
+    addToolResult,
+    append,
+    error,
     messages: messagesRaw,
-    input,
     handleInputChange,
     handleSubmit,
-    isLoading,
-    append,
+    input,
     setMessages: setMessagesRaw,
-    error,
+    status,
     stop,
   } = useChat({
     api: `${env.NEXT_PUBLIC_BACKEND_URL}/qa/chat_streamed/${threadId}`,
@@ -102,6 +103,9 @@ export function ChatPage({
       return { content: lastMessage.content, tool_selection: selectedTools };
     },
   });
+
+  // This should probably be changed to be more granular, I just created the old behaviour here.
+  const isLoading = status == "streaming" || status == "submitted";
 
   // Convert to our types.
   const messages = messagesRaw as MessageStrict[];
@@ -330,6 +334,7 @@ export function ChatPage({
           messages={messages}
           threadId={threadId}
           availableTools={availableTools}
+          addToolResult={addToolResult}
           setMessages={setMessages}
         />
         <div ref={messagesEndRef} />

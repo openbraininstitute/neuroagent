@@ -190,8 +190,8 @@ export function convertToAiMessages(messages: BMessage[]): MessageStrict[] {
             toolCallId: tc.tool_call_id,
             toolName: tc.name,
             args: JSON.parse(tc.arguments),
-            result: tc.results && JSON.parse(tc.results),
-          },
+            ...(tc.results ? { result: JSON.parse(tc.results) } : {}),
+          } as ToolInvocation,
         });
         annotations.push({
           toolCallId: tc.tool_call_id,
