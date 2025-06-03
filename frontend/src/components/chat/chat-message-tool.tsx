@@ -7,7 +7,6 @@ import { ToolInvocation } from "@ai-sdk/ui-utils";
 import { useExecuteTool } from "@/hooks/tools";
 import { ToolCallCollapsible } from "@/components/chat/tool-call-collapsible";
 import React from "react";
-import { getToolInvocations } from "@/lib/utils";
 
 type ChatMessageToolProps = {
   content?: string;
@@ -20,6 +19,7 @@ type ChatMessageToolProps = {
     result,
   }: {
     toolCallId: string;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     result: any;
   }) => void;
   validated: "pending" | "accepted" | "rejected" | "not_required";

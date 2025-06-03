@@ -22,6 +22,7 @@ interface ChatMessagesInsideThreadProps {
     result,
   }: {
     toolCallId: string;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     result: any;
   }) => void;
   setMessages: (

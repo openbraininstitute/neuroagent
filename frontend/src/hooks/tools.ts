@@ -4,7 +4,6 @@ import { BExecuteToolCallRequest, BExecuteToolCallResponse } from "@/lib/types";
 
 export function useExecuteTool() {
   const fetcher = useFetcher();
-  const queryClient = useQueryClient();
 
   return useMutation<
     BExecuteToolCallResponse,

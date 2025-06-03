@@ -40,9 +40,6 @@ export function ChatPage({
   const newMessage = useStore((state) => state.newMessage);
   const setNewMessage = useStore((state) => state.setNewMessage);
   const hasSendFirstMessage = useRef(false);
-  // Tool calls
-  const [processedToolInvocationMessages, setProcessedToolInvocationMessages] =
-    useState<string[]>([]);
   // Scrolling and pagination
   const prevHeight = useRef(0);
   const prevScroll = useRef(0);
