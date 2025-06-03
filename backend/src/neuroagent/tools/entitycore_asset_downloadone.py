@@ -1,6 +1,5 @@
 """Download One Asset tool."""
 
-import logging
 from typing import ClassVar
 
 from httpx import AsyncClient
@@ -8,8 +7,6 @@ from pydantic import BaseModel, Field
 
 from neuroagent.schemas import EntityRoute
 from neuroagent.tools.base_tool import BaseMetadata, BaseTool
-
-logger = logging.getLogger(__name__)
 
 
 class AssetDownloadOneMetadata(BaseMetadata):
@@ -63,10 +60,6 @@ class AssetDownloadOneTool(BaseTool):
         -------
             Presigned URL for downloading the asset.
         """
-        logger.info(
-            f"Entering Download One Asset tool. Inputs: {self.input_schema.model_dump()}"
-        )
-
         headers: dict[str, str] = {}
         if self.metadata.vlab_id is not None:
             headers["virtual-lab-id"] = self.metadata.vlab_id
