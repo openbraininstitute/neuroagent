@@ -262,7 +262,7 @@ class AgentsRoutine:
                                         draft_tool_call["name"]
                                     ].__annotations__["input_schema"]
 
-                                    args = input_schema(**input_args).model_dump()
+                                    args = input_schema(**input_args).model_dump(mode="json")
                                 except ValidationError:
                                     args = input_args
                                 tool_call_data = {
