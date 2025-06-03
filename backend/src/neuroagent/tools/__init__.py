@@ -9,6 +9,12 @@ from neuroagent.tools.bluenaas_scs_post import SCSPostTool
 from neuroagent.tools.entitycore_asset_downloadone import AssetDownloadOneTool
 from neuroagent.tools.entitycore_asset_getall import AssetGetAllTool
 from neuroagent.tools.entitycore_asset_getone import AssetGetOneTool
+from neuroagent.tools.entitycore_electricalcellrecording_getall import (
+    ElectricalCellRecordingGetAllTool,
+)
+from neuroagent.tools.entitycore_electricalcellrecording_getone import (
+    ElectricalCellRecordingGetOneTool,
+)
 from neuroagent.tools.entitycore_emodel_getall import EModelGetAllTool
 from neuroagent.tools.entitycore_emodel_getone import EModelGetOneTool
 from neuroagent.tools.entitycore_etype_getall import EtypeGetAllTool
@@ -58,4 +64,6 @@ __all__ = [
     "AssetGetAllTool",
     "AssetGetOneTool",
     "AssetDownloadOneTool",
+    "ElectricalCellRecordingGetAllTool",
+    "ElectricalCellRecordingGetOneTool",
 ]
