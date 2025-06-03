@@ -148,6 +148,9 @@ class LiteratureSearchTool(BaseTool):
                     - Brain Region Reference: The specific brain region or subregion mentioned in the article.
                     - Topic Relevance Explanation: A brief explanation of how the article's content relates directly to the requested topic.
                 ```
+        If you list articles in the output, please respect their number and dont invent one. For instance, if you are given one article mention only one article which comes from the tool output.
+        If you are given two articles, mention only two articles i.e. the ones coming from the tool output.
+        etc...
                 """
     metadata: LiteratureSearchMetadata
     input_schema: LiteratureSearchInput
