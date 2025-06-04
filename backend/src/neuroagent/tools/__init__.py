@@ -19,6 +19,8 @@ from neuroagent.tools.entitycore_brainregionhierarchy_getall import (
 from neuroagent.tools.entitycore_brainregionhierarchy_getone import (
     BrainRegionHierarchyGetOneTool,
 )
+from neuroagent.tools.entitycore_contribution_getall import ContributionGetAllTool
+from neuroagent.tools.entitycore_contribution_getone import ContributionGetOneTool
 from neuroagent.tools.entitycore_electricalcellrecording_getall import (
     ElectricalCellRecordingGetAllTool,
 )
@@ -61,6 +63,10 @@ from neuroagent.tools.entitycore_measurementannotation_getone import (
 )
 from neuroagent.tools.entitycore_mtype_getall import MtypeGetAllTool
 from neuroagent.tools.entitycore_mtype_getone import MtypeGetOneTool
+from neuroagent.tools.entitycore_organization_getall import OrganizationGetAllTool
+from neuroagent.tools.entitycore_organization_getone import OrganizationGetOneTool
+from neuroagent.tools.entitycore_person_getall import PersonGetAllTool
+from neuroagent.tools.entitycore_person_getone import PersonGetOneTool
 from neuroagent.tools.entitycore_reconstructionmorphology_getall import (
     ReconstructionMorphologyGetAllTool,
 )
@@ -138,4 +144,10 @@ __all__ = [
     "StrainGetOneTool",
     "SubjectGetAllTool",
     "SubjectGetOneTool",
+    "ContributionGetAllTool",
+    "ContributionGetOneTool",
+    "OrganizationGetAllTool",
+    "OrganizationGetOneTool",
+    "PersonGetAllTool",
+    "PersonGetOneTool",
 ]
