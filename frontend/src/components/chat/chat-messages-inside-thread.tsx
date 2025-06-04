@@ -78,7 +78,6 @@ export function ChatMessagesInsideThread({
                     message.annotations,
                     part.toolInvocation.toolCallId,
                   );
-                  console.log("Message is stopped", stopped);
                   return (
                     <ChatMessageTool
                       key={`${message.id}-tool-${part.toolInvocation.toolCallId}`}

@@ -13,7 +13,6 @@ export function ToolCallStatus({
   validationError,
   onValidationClick,
 }: ToolCallStatusProps) {
-  console.log(state, validated);
   if (state === "aborted") {
     return (
       <div className="flex items-center">
