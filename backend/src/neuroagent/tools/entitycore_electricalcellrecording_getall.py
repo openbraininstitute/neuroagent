@@ -17,13 +17,13 @@ class ElectricalCellRecordingGetAllInput(
 ):
     """Inputs for the electrical cell recording get all tool."""
 
-    within_brain_region_brain_region_id: str | None = Field(
+    within_brain_region_brain_region_id: str | None = Field(  # type: ignore[assignment]
         default=None,
         description="ID of the brain region of interest in UUID format. To find the ID use the resolve-brain-region-tool first.",
     )
     within_brain_region_hierarchy_id: Literal[
         "e3e70682-c209-4cac-a29f-6fbed82c07cd"
-    ] = Field(
+    ] = Field(  # type: ignore[assignment]
         default="e3e70682-c209-4cac-a29f-6fbed82c07cd",
         description="The hierarchy ID for brain regions. This is fixed to ensure consistent results.",
     )
