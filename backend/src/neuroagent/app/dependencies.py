@@ -67,6 +67,8 @@ from neuroagent.tools import (
     SCSPostTool,
     SpeciesGetAllTool,
     SpeciesGetOneTool,
+    StrainGetAllTool,
+    StrainGetOneTool,
     WebSearchTool,
 )
 from neuroagent.tools.base_tool import BaseTool
@@ -278,6 +280,8 @@ def get_tool_list(
         MeasurementAnnotationGetOneTool,
         SpeciesGetAllTool,
         SpeciesGetOneTool,
+        StrainGetAllTool,
+        StrainGetOneTool,
         # NowTool,
         # WeatherTool,
         # RandomPlotGeneratorTool,
