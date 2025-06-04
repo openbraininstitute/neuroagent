@@ -47,6 +47,12 @@ from neuroagent.tools.entitycore_experimentalsynapsesperconnection_getall import
 from neuroagent.tools.entitycore_experimentalsynapsesperconnection_getone import (
     ExperimentalSynapsesPerConnectionGetOneTool,
 )
+from neuroagent.tools.entitycore_ionchannelmodel_getall import (
+    IonChannelModelGetAllTool,
+)
+from neuroagent.tools.entitycore_ionchannelmodel_getone import (
+    IonChannelModelGetOneTool,
+)
 from neuroagent.tools.entitycore_mtype_getall import MtypeGetAllTool
 from neuroagent.tools.entitycore_mtype_getone import MtypeGetOneTool
 from neuroagent.tools.entitycore_reconstructionmorphology_getall import (
@@ -110,4 +116,6 @@ __all__ = [
     "ExperimentalNeuronDensityGetOneTool",
     "ExperimentalSynapsesPerConnectionGetAllTool",
     "ExperimentalSynapsesPerConnectionGetOneTool",
+    "IonChannelModelGetAllTool",
+    "IonChannelModelGetOneTool",
 ]
