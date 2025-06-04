@@ -8,5 +8,12 @@
       "env": {
         "TAVILY_API_KEY": "NEUROAGENT_MCP__SECRETS__TAVILY_API_KEY"
       }
+    },
+    "exa": {
+      "command": "npx",
+      "args": ["-y", "exa-mcp-server", "--tools=web_search_exa,research_paper_search,crawling"],
+      "env": {
+        "EXA_API_KEY": "NEUROAGENT_MCP__SECRETS__EXA_API_KEY"
+      }
     }
   }
