@@ -9,6 +9,8 @@ from neuroagent.tools.bluenaas_scs_post import SCSPostTool
 from neuroagent.tools.entitycore_asset_downloadone import AssetDownloadOneTool
 from neuroagent.tools.entitycore_asset_getall import AssetGetAllTool
 from neuroagent.tools.entitycore_asset_getone import AssetGetOneTool
+from neuroagent.tools.entitycore_brainatlas_getall import BrainAtlasGetAllTool
+from neuroagent.tools.entitycore_brainatlas_getone import BrainAtlasGetOneTool
 from neuroagent.tools.entitycore_brainregion_getall import BrainRegionGetAllTool
 from neuroagent.tools.entitycore_brainregion_getone import BrainRegionGetOneTool
 from neuroagent.tools.entitycore_brainregionhierarchy_getall import (
@@ -72,6 +74,8 @@ __all__ = [
     "AssetGetAllTool",
     "AssetGetOneTool",
     "AssetDownloadOneTool",
+    "BrainAtlasGetAllTool",
+    "BrainAtlasGetOneTool",
     "BrainRegionGetAllTool",
     "BrainRegionGetOneTool",
     "BrainRegionHierarchyGetAllTool",
