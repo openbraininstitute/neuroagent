@@ -67,6 +67,8 @@ from neuroagent.tools.entitycore_reconstructionmorphology_getall import (
 from neuroagent.tools.entitycore_reconstructionmorphology_getone import (
     ReconstructionMorphologyGetOneTool,
 )
+from neuroagent.tools.entitycore_species_getall import SpeciesGetAllTool
+from neuroagent.tools.entitycore_species_getone import SpeciesGetOneTool
 from neuroagent.tools.generate_plot import PlotGeneratorTool
 from neuroagent.tools.generate_random_plot import RandomPlotGeneratorTool
 from neuroagent.tools.literature_search_tool import (
@@ -126,4 +128,6 @@ __all__ = [
     "IonChannelModelGetOneTool",
     "MeasurementAnnotationGetAllTool",
     "MeasurementAnnotationGetOneTool",
+    "SpeciesGetAllTool",
+    "SpeciesGetOneTool",
 ]
