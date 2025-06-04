@@ -11,6 +11,12 @@ from neuroagent.tools.entitycore_asset_getall import AssetGetAllTool
 from neuroagent.tools.entitycore_asset_getone import AssetGetOneTool
 from neuroagent.tools.entitycore_brainregion_getall import BrainRegionGetAllTool
 from neuroagent.tools.entitycore_brainregion_getone import BrainRegionGetOneTool
+from neuroagent.tools.entitycore_brainregionhierarchy_getall import (
+    BrainRegionHierarchyGetAllTool,
+)
+from neuroagent.tools.entitycore_brainregionhierarchy_getone import (
+    BrainRegionHierarchyGetOneTool,
+)
 from neuroagent.tools.entitycore_electricalcellrecording_getall import (
     ElectricalCellRecordingGetAllTool,
 )
@@ -68,6 +74,8 @@ __all__ = [
     "AssetDownloadOneTool",
     "BrainRegionGetAllTool",
     "BrainRegionGetOneTool",
+    "BrainRegionHierarchyGetAllTool",
+    "BrainRegionHierarchyGetOneTool",
     "ElectricalCellRecordingGetAllTool",
     "ElectricalCellRecordingGetOneTool",
 ]
