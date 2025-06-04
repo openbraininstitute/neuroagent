@@ -71,6 +71,8 @@ from neuroagent.tools.entitycore_species_getall import SpeciesGetAllTool
 from neuroagent.tools.entitycore_species_getone import SpeciesGetOneTool
 from neuroagent.tools.entitycore_strain_getall import StrainGetAllTool
 from neuroagent.tools.entitycore_strain_getone import StrainGetOneTool
+from neuroagent.tools.entitycore_subject_getall import SubjectGetAllTool
+from neuroagent.tools.entitycore_subject_getone import SubjectGetOneTool
 from neuroagent.tools.generate_plot import PlotGeneratorTool
 from neuroagent.tools.generate_random_plot import RandomPlotGeneratorTool
 from neuroagent.tools.literature_search_tool import (
@@ -134,4 +136,6 @@ __all__ = [
     "SpeciesGetOneTool",
     "StrainGetAllTool",
     "StrainGetOneTool",
+    "SubjectGetAllTool",
+    "SubjectGetOneTool",
 ]

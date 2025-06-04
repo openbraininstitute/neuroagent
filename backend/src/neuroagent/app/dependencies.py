@@ -69,6 +69,8 @@ from neuroagent.tools import (
     SpeciesGetOneTool,
     StrainGetAllTool,
     StrainGetOneTool,
+    SubjectGetAllTool,
+    SubjectGetOneTool,
     WebSearchTool,
 )
 from neuroagent.tools.base_tool import BaseTool
@@ -282,6 +284,8 @@ def get_tool_list(
         SpeciesGetOneTool,
         StrainGetAllTool,
         StrainGetOneTool,
+        SubjectGetAllTool,
+        SubjectGetOneTool,
         # NowTool,
         # WeatherTool,
         # RandomPlotGeneratorTool,
