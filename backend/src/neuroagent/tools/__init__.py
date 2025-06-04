@@ -29,6 +29,12 @@ from neuroagent.tools.entitycore_emodel_getall import EModelGetAllTool
 from neuroagent.tools.entitycore_emodel_getone import EModelGetOneTool
 from neuroagent.tools.entitycore_etype_getall import EtypeGetAllTool
 from neuroagent.tools.entitycore_etype_getone import EtypeGetOneTool
+from neuroagent.tools.entitycore_experimentalboutondensity_getall import (
+    ExperimentalBoutonDensityGetAllTool,
+)
+from neuroagent.tools.entitycore_experimentalboutondensity_getone import (
+    ExperimentalBoutonDensityGetOneTool,
+)
 from neuroagent.tools.entitycore_morphology_getall import MorphologyGetAllTool
 from neuroagent.tools.entitycore_morphology_getone import MorphologyGetOneTool
 from neuroagent.tools.entitycore_mtype_getall import MtypeGetAllTool
@@ -82,4 +88,6 @@ __all__ = [
     "BrainRegionHierarchyGetOneTool",
     "ElectricalCellRecordingGetAllTool",
     "ElectricalCellRecordingGetOneTool",
+    "ExperimentalBoutonDensityGetAllTool",
+    "ExperimentalBoutonDensityGetOneTool",
 ]
