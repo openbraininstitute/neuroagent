@@ -35,6 +35,12 @@ from neuroagent.tools.entitycore_experimentalboutondensity_getall import (
 from neuroagent.tools.entitycore_experimentalboutondensity_getone import (
     ExperimentalBoutonDensityGetOneTool,
 )
+from neuroagent.tools.entitycore_experimentalneurondensity_getall import (
+    ExperimentalNeuronDensityGetAllTool,
+)
+from neuroagent.tools.entitycore_experimentalneurondensity_getone import (
+    ExperimentalNeuronDensityGetOneTool,
+)
 from neuroagent.tools.entitycore_mtype_getall import MtypeGetAllTool
 from neuroagent.tools.entitycore_mtype_getone import MtypeGetOneTool
 from neuroagent.tools.entitycore_reconstructionmorphology_getall import (
@@ -94,4 +100,6 @@ __all__ = [
     "ElectricalCellRecordingGetOneTool",
     "ExperimentalBoutonDensityGetAllTool",
     "ExperimentalBoutonDensityGetOneTool",
+    "ExperimentalNeuronDensityGetAllTool",
+    "ExperimentalNeuronDensityGetOneTool",
 ]
