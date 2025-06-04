@@ -77,6 +77,9 @@ class ReconstructionMorphologyGetAllTool(BaseTool):
             list of KnowledgeGraphOutput to describe the morphology and its metadata, or an error dict.
         """
         query_params = self.input_schema.model_dump(exclude_defaults=True, mode="json")
+        query_params["within_brain_region_hierarchy_id"] = (
+            "e3e70682-c209-4cac-a29f-6fbed82c07cd"  # we need to explicitly add this since we exclude defaults
+        )
 
         headers: dict[str, str] = {}
         if self.metadata.vlab_id is not None:
