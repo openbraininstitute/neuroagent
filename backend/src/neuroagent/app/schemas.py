@@ -6,7 +6,7 @@ from typing import Any, Generic, Literal, TypeVar
 from pydantic import BaseModel, ConfigDict, Field, conlist
 
 
-class ToolCall(BaseModel):
+class ToolCallVercel(BaseModel):
     """Tool call."""
 
     tool_call_id: str
@@ -19,6 +19,15 @@ class ToolCall(BaseModel):
     model_config = ConfigDict(extra="ignore")
 
 
+class ToolCall(BaseModel):
+    """Tool call."""
+
+    tool_call_id: str
+    name: str
+    arguments: str
+    validated: Literal["accepted", "rejected", "pending", "not_required"]
+
+
 class BaseRead(BaseModel):
     """Base class for read schemas."""
 
@@ -26,7 +35,7 @@ class BaseRead(BaseModel):
 T = TypeVar("T", bound=BaseRead)
 
 
-class MessagesRead(BaseRead):
+class MessagesReadVercel(BaseRead):
     """Message response."""
 
     id: str
@@ -35,7 +44,19 @@ class MessagesRead(BaseRead):
     is_complete: bool
     created_at: datetime.datetime
     content: str
-    parts: list[ToolCall] | None
+    parts: list[ToolCallVercel] | None
+
+
+class MessagesRead(BaseRead):
+    """Message response."""
+
+    message_id: str
+    entity: str
+    thread_id: str
+    is_complete: bool
+    creation_date: datetime.datetime
+    msg_content: dict[str, Any]
+    tool_calls: list[ToolCall]
 
 
 class ThreadsRead(BaseRead):

@@ -3,6 +3,7 @@
 import json
 import logging
 import re
+import uuid
 from pathlib import Path
 from typing import Any
 
@@ -19,7 +20,13 @@ from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, create_async_engin
 from starlette.status import HTTP_401_UNAUTHORIZED
 
 from neuroagent.app.config import Settings
-from neuroagent.app.database.sql_schemas import Messages, Threads, utc_now
+from neuroagent.app.database.sql_schemas import Entity, Messages, Threads, utc_now
+from neuroagent.app.schemas import (
+    MessagesRead,
+    MessagesReadVercel,
+    PaginatedResponse,
+    ToolCallVercel,
+)
 from neuroagent.schemas import EmbeddedBrainRegions
 
 logger = logging.getLogger(__name__)
@@ -226,3 +233,177 @@ def get_br_embeddings(
                 content = json.loads(file_obj["Body"].read().decode("utf-8"))
                 output.append(EmbeddedBrainRegions(**content))
     return output
+
+
+def format_messages_output(
+    db_messages: list[Messages],
+    tool_hil_mapping: dict[str, bool],
+    has_more: bool,
+    page_size: int,
+) -> PaginatedResponse[MessagesRead]:
+    """Format db messages to regular output schema."""
+    messages = []
+    for msg in db_messages:
+        # Create a clean dict without SQLAlchemy attributes
+        message_data = {
+            "message_id": msg.message_id,
+            "entity": msg.entity.value,  # Convert enum to string
+            "thread_id": msg.thread_id,
+            "is_complete": msg.is_complete,
+            "creation_date": msg.creation_date.isoformat(),  # Convert datetime to string
+            "msg_content": json.loads(msg.content),
+        }
+
+        # Map validation status based on tool requirements
+        tool_calls_data = []
+        for tc in msg.tool_calls:
+            requires_validation = tool_hil_mapping.get(tc.name, False)
+
+            if tc.validated is True:
+                validation_status = "accepted"
+            elif tc.validated is False:
+                validation_status = "rejected"
+            elif not requires_validation:
+                validation_status = "not_required"
+            else:
+                validation_status = "pending"
+
+            tool_calls_data.append(
+                {
+                    "tool_call_id": tc.tool_call_id,
+                    "name": tc.name,
+                    "arguments": tc.arguments,
+                    "validated": validation_status,
+                }
+            )
+
+        message_data["tool_calls"] = tool_calls_data
+        messages.append(MessagesRead(**message_data))
+
+    return PaginatedResponse(
+        next_cursor=messages[-1].creation_date,
+        has_more=has_more,
+        page_size=page_size,
+        results=messages,
+    )
+
+
+def format_messages_vercel(
+    db_messages: list[Messages],
+    tool_hil_mapping: dict[str, bool],
+    has_more: bool,
+    page_size: int,
+) -> PaginatedResponse[MessagesReadVercel]:
+    """Format db messages to Vercel schema."""
+    messages: list[MessagesReadVercel] = []
+    tool_call_buffer: list[dict[str, Any]] = []
+
+    for msg in reversed(db_messages):
+        if msg.entity in [Entity.USER, Entity.AI_MESSAGE]:
+            message_data = {
+                "id": msg.message_id,
+                "role": msg.entity.value,
+                "thread_id": msg.thread_id,
+                "is_complete": msg.is_complete,
+                "created_at": msg.creation_date,
+                "content": json.loads(msg.content).get("content"),
+                "parts": None,
+            }
+            # add tool calls and reset buffer after attaching
+            if msg.entity == Entity.AI_MESSAGE:
+                message_data["parts"] = [
+                    ToolCallVercel(**tool_call) for tool_call in tool_call_buffer
+                ]
+                tool_call_buffer = []
+            # If we encounter a user message with a non empty buffer we have to add a dummy ai message.
+            elif tool_call_buffer:
+                last_tool_call = tool_call_buffer[-1]
+                messages.append(
+                    MessagesReadVercel(
+                        **{
+                            "id": uuid.uuid4().hex,
+                            "role": Entity.AI_MESSAGE.value,
+                            "thread_id": last_tool_call["thread_id"],
+                            "is_complete": last_tool_call["is_complete"],
+                            "created_at": last_tool_call["creation_date"],
+                            "content": "",
+                            "parts": [
+                                ToolCallVercel(**tool_call)
+                                for tool_call in tool_call_buffer
+                            ],
+                        }
+                    )
+                )
+                tool_call_buffer = []
+            messages.append(MessagesReadVercel(**message_data))
+
+        # Buffer tool calls until the next AI_MESSAGE
+        elif msg.entity == Entity.AI_TOOL:
+            for tc in msg.tool_calls:
+                requires_validation = tool_hil_mapping.get(tc.name, False)
+                if tc.validated is True:
+                    status = "accepted"
+                elif tc.validated is False:
+                    status = "rejected"
+                elif not requires_validation:
+                    status = "not_required"
+                else:
+                    status = "pending"
+
+                tool_call_buffer.append(
+                    {
+                        "tool_call_id": tc.tool_call_id,
+                        "name": tc.name,
+                        "is_complete": msg.is_complete,
+                        "arguments": tc.arguments,
+                        "validated": status,
+                        "message_id": msg.message_id,
+                        "thread_id": msg.thread_id,
+                        "creation_date": msg.creation_date,
+                    }
+                )
+
+        # Merge the actual tool result back into the buffered part
+        elif msg.entity == Entity.TOOL:
+            tool_call_id = json.loads(msg.content).get("tool_call_id")
+            tool_call = next(
+                (
+                    item
+                    for item in tool_call_buffer
+                    if item["tool_call_id"] == tool_call_id
+                ),
+                None,
+            )
+            if tool_call:
+                tool_call["results"] = json.loads(msg.content).get("content")
+                tool_call["is_complete"] = msg.is_complete
+
+    # If the tool call buffer is not empty, we need to add a dummy AI message.
+    if tool_call_buffer:
+        last_tool_call = tool_call_buffer[-1]
+        messages.append(
+            MessagesReadVercel(
+                **{
+                    "id": uuid.uuid4().hex,
+                    "role": Entity.AI_MESSAGE.value,
+                    "thread_id": last_tool_call["thread_id"],
+                    "is_complete": last_tool_call["is_complete"],
+                    "created_at": last_tool_call["creation_date"],
+                    "content": "",
+                    "parts": [
+                        ToolCallVercel(**tool_call) for tool_call in tool_call_buffer
+                    ],
+                }
+            )
+        )
+
+    # Reverse back to descending order and build next_cursor
+    ordered_messages = list(reversed(messages))
+    next_cursor = ordered_messages[-1].created_at if has_more else None
+
+    return PaginatedResponse(
+        next_cursor=next_cursor,
+        has_more=has_more,
+        page_size=page_size,
+        results=ordered_messages,
+    )

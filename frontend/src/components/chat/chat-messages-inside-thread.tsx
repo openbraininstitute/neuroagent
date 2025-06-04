@@ -3,7 +3,7 @@
 import { MessageStrict } from "@/lib/types";
 import {
   getStoppedStatus,
-  getStorageID,
+  getStorageIDs,
   getValidationStatus,
 } from "@/lib/utils";
 import PlotsInChat from "@/components/chat/plot-in-chat";
@@ -29,6 +29,7 @@ interface ChatMessagesInsideThreadProps {
       | MessageStrict[]
       | ((messages: MessageStrict[]) => MessageStrict[]),
   ) => void;
+  isLoading: boolean;
 }
 
 export function ChatMessagesInsideThread({
@@ -37,6 +38,7 @@ export function ChatMessagesInsideThread({
   availableTools,
   addToolResult,
   setMessages,
+  isLoading,
 }: ChatMessagesInsideThreadProps) {
   const [collapsedTools, setCollapsedTools] = useState<Set<string>>(new Set());
 
@@ -95,7 +97,7 @@ export function ChatMessagesInsideThread({
                 }
               })}
 
-            {message.content && (
+            {
               <ChatMessageAI
                 messageId={message.id}
                 content={message.content}
@@ -106,9 +108,10 @@ export function ChatMessagesInsideThread({
                 }
                 isToolsCollapsed={collapsedTools.has(message.id)}
                 toggleCollapse={() => handleToggleCollapse(message.id)}
+                isLoading={isLoading}
               />
-            )}
-            <PlotsInChat storageIds={getStorageID(message) || []} />
+            }
+            <PlotsInChat storageIds={getStorageIDs(message) || []} />
           </div>
         ) : (
           <ChatMessageHuman key={message.id} content={message.content} />

@@ -1,19 +1,19 @@
 """Threads CRUDs."""
 
 import datetime
-import json
 import logging
-import uuid
 from typing import Annotated, Any, Literal
 
-from fastapi import APIRouter, Depends, HTTPException, Response
+from fastapi import APIRouter, Depends, HTTPException, Query, Response
 from openai import AsyncOpenAI
 from redis import asyncio as aioredis
-from sqlalchemy import desc, select
+from sqlalchemy import desc, or_, select, true
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from neuroagent.app.app_utils import (
+    format_messages_output,
+    format_messages_vercel,
     rate_limit,
     validate_project,
 )
@@ -31,6 +31,7 @@ from neuroagent.app.dependencies import (
 )
 from neuroagent.app.schemas import (
     MessagesRead,
+    MessagesReadVercel,
     PaginatedParams,
     PaginatedResponse,
     ThreadCreate,
@@ -38,7 +39,6 @@ from neuroagent.app.schemas import (
     ThreadGeneratedTitle,
     ThreadsRead,
     ThreadUpdate,
-    ToolCall,
     UserInfo,
 )
 from neuroagent.tools.base_tool import BaseTool
@@ -228,6 +228,7 @@ async def get_thread_by_id(
     return ThreadsRead(**thread.__dict__)
 
 
+# Define your routes here
 @router.get("/{thread_id}/messages")
 async def get_thread_messages(
     session: Annotated[AsyncSession, Depends(get_session)],
@@ -235,34 +236,49 @@ async def get_thread_messages(
     thread_id: str,
     tool_list: Annotated[list[type[BaseTool]], Depends(get_tool_list)],
     pagination_params: PaginatedParams = Depends(),
-) -> PaginatedResponse[MessagesRead]:
+    entity: list[Literal["USER", "AI_TOOL", "TOOL", "AI_MESSAGE"]] | None = Query(
+        default=None
+    ),
+    sort: Literal["creation_date", "-creation_date"] = "-creation_date",
+    vercel_format: bool = Query(default=False),
+) -> PaginatedResponse[MessagesRead] | PaginatedResponse[MessagesReadVercel]:
     """Get all messages of the thread."""
     # Create mapping of tool names to their HIL requirement
     tool_hil_mapping = {tool.name: tool.hil for tool in tool_list}
 
-    # Fetch boundary dates for pagination
-    where_conditions = [
-        Messages.thread_id == thread_id,
-        Messages.entity == Entity.USER,
-    ]
-    # we only get "user" messages because we then filter on date.
-    # Since the tool calls associated are older than the AI_MESSAGE
+    if vercel_format:
+        entity = ["USER", "AI_MESSAGE"]
 
-    cursor = pagination_params.cursor
-    if cursor:
-        where_conditions.append(
-            Messages.creation_date < datetime.datetime.fromisoformat(cursor)
+    if entity:
+        entity_where = or_(*[Messages.entity == ent for ent in entity])
+    else:
+        entity_where = true()
+
+    where_conditions = [Messages.thread_id == thread_id, entity_where]
+
+    if pagination_params.cursor is not None:
+        comparison_op = (
+            Messages.creation_date
+            < datetime.datetime.fromisoformat(pagination_params.cursor)
+            if (sort.startswith("-") or vercel_format)
+            else Messages.creation_date
+            > datetime.datetime.fromisoformat(pagination_params.cursor)
         )
+        where_conditions.append(comparison_op)
 
-    creation_date_results = await session.execute(
-        select(Messages.creation_date)
+    messages_result = await session.execute(
+        select(Messages)
         .where(*where_conditions)
-        .order_by(desc(Messages.creation_date))
+        .order_by(
+            desc(Messages.creation_date)
+            if (sort.startswith("-") or vercel_format)
+            else Messages.creation_date
+        )
         .limit(pagination_params.page_size + 1)
     )
-    creation_dates = creation_date_results.scalars().all()
+    db_messages = messages_result.scalars().all()
 
-    if not creation_dates:
+    if not db_messages:
         return PaginatedResponse(
             next_cursor=None,
             has_more=False,
@@ -270,135 +286,57 @@ async def get_thread_messages(
             results=[],
         )
 
-    has_more = len(creation_dates) > pagination_params.page_size
-    page_dates = creation_dates[:-1] if has_more else creation_dates
+    has_more = len(db_messages) > pagination_params.page_size
+    if not vercel_format and has_more:
+        db_messages = db_messages[:-1]
 
-    #  Fetch full Messages for the window and eager-load tool calls
-    #  (If cursor is none we want to get the most recent message.)
-    date_conditions = [
-        Messages.creation_date >= page_dates[-1],
-        *(
-            [Messages.creation_date < datetime.datetime.fromisoformat(cursor)]
-            if cursor
-            else []
-        ),
-    ]
-    all_msg_in_page_query = (
-        select(Messages)
-        .options(selectinload(Messages.tool_calls))
-        .where(Messages.thread_id == thread_id, *date_conditions)
-        .order_by(desc(Messages.creation_date))
-    )
-    all_msg_in_page_result = await session.execute(all_msg_in_page_query)
-    db_messages = all_msg_in_page_result.scalars().all()
-
-    # Format to MessagesRead / Vercel schema
-    messages: list[MessagesRead] = []
-    tool_call_buffer: list[dict[str, Any]] = []
-
-    for msg in reversed(db_messages):
-        if msg.entity in [Entity.USER, Entity.AI_MESSAGE]:
-            message_data = {
-                "id": msg.message_id,
-                "role": msg.entity.value,
-                "thread_id": msg.thread_id,
-                "is_complete": msg.is_complete,
-                "created_at": msg.creation_date,
-                "content": json.loads(msg.content).get("content"),
-                "parts": None,
-            }
-            # add tool calls and reset buffer after attaching
-            if msg.entity == Entity.AI_MESSAGE:
-                message_data["parts"] = [
-                    ToolCall(**tool_call) for tool_call in tool_call_buffer
-                ]
-                tool_call_buffer = []
-            # If we encounter a user message with a non empty buffer we have to add a dummy ai message.
-            elif tool_call_buffer:
-                last_tool_call = tool_call_buffer[-1]
-                messages.append(
-                    MessagesRead(
-                        **{
-                            "id": uuid.uuid4().hex,
-                            "role": Entity.AI_MESSAGE.value,
-                            "thread_id": last_tool_call["thread_id"],
-                            "is_complete": last_tool_call["is_complete"],
-                            "created_at": last_tool_call["creation_date"],
-                            "content": "",
-                            "parts": [
-                                ToolCall(**tool_call) for tool_call in tool_call_buffer
-                            ],
-                        }
-                    )
-                )
-                tool_call_buffer = []
-            messages.append(MessagesRead(**message_data))
-
-        # Buffer tool calls until the next AI_MESSAGE
-        elif msg.entity == Entity.AI_TOOL:
-            for tc in msg.tool_calls:
-                requires_validation = tool_hil_mapping.get(tc.name, False)
-                if tc.validated is True:
-                    status = "accepted"
-                elif tc.validated is False:
-                    status = "rejected"
-                elif not requires_validation:
-                    status = "not_required"
-                else:
-                    status = "pending"
-
-                tool_call_buffer.append(
-                    {
-                        "tool_call_id": tc.tool_call_id,
-                        "name": tc.name,
-                        "is_complete": msg.is_complete,
-                        "arguments": tc.arguments,
-                        "validated": status,
-                        "message_id": msg.message_id,
-                        "thread_id": msg.thread_id,
-                        "creation_date": msg.creation_date,
-                    }
-                )
-
-        # Merge the actual tool result back into the buffered part
-        elif msg.entity == Entity.TOOL:
-            tool_call_id = json.loads(msg.content).get("tool_call_id")
-            tool_call = next(
+    if vercel_format:
+        # We set the most recent boudary to the cursor if it exists.
+        date_conditions = (
+            [
                 (
-                    item
-                    for item in tool_call_buffer
-                    if item["tool_call_id"] == tool_call_id
-                ),
-                None,
-            )
-            if tool_call:
-                tool_call["results"] = json.loads(msg.content).get("content")
-                tool_call["is_complete"] = msg.is_complete
-
-    # If the tool call buffer is not empty, we need to add a dummy AI message.
-    if tool_call_buffer:
-        last_tool_call = tool_call_buffer[-1]
-        messages.append(
-            MessagesRead(
-                **{
-                    "id": uuid.uuid4().hex,
-                    "role": Entity.AI_MESSAGE.value,
-                    "thread_id": last_tool_call["thread_id"],
-                    "is_complete": last_tool_call["is_complete"],
-                    "created_at": last_tool_call["creation_date"],
-                    "content": "",
-                    "parts": [ToolCall(**tool_call) for tool_call in tool_call_buffer],
-                }
-            )
+                    Messages.creation_date
+                    < datetime.datetime.fromisoformat(pagination_params.cursor)
+                )
+            ]
+            if pagination_params.cursor
+            else []
         )
 
-    # Reverse back to descending order and build next_cursor
-    ordered_messages = list(reversed(messages))
-    next_cursor = ordered_messages[-1].created_at if has_more else None
+        # If there are more messages we set the oldest bound for the messages.
+        if has_more:
+            if db_messages[-1].entity == Entity.AI_MESSAGE:
+                date_conditions.append(
+                    Messages.creation_date >= db_messages[-2].creation_date
+                )
+            else:
+                date_conditions.append(
+                    Messages.creation_date > db_messages[-1].creation_date
+                )
+                # This is a trick to include all tool from last AI.
 
-    return PaginatedResponse(
-        next_cursor=next_cursor,
-        has_more=has_more,
-        page_size=pagination_params.page_size,
-        results=ordered_messages,
-    )
+        # Get all messages in the date frame.
+        all_msg_in_page_query = (
+            select(Messages)
+            .options(selectinload(Messages.tool_calls))
+            .where(Messages.thread_id == thread_id, *date_conditions)
+            .order_by(desc(Messages.creation_date))
+        )
+        all_msg_in_page_result = await session.execute(all_msg_in_page_query)
+        db_messages = all_msg_in_page_result.scalars().all()
+    else:
+        # Pagination needs to happen on non-joined parent.
+        # Once we have them we can eager load the tool calls
+        await session.execute(
+            select(Messages)
+            .options(selectinload(Messages.tool_calls))
+            .where(Messages.message_id.in_([msg.message_id for msg in db_messages]))
+        )
+    if vercel_format:
+        return format_messages_vercel(
+            db_messages, tool_hil_mapping, has_more, pagination_params.page_size
+        )
+    else:
+        return format_messages_output(
+            db_messages, tool_hil_mapping, has_more, pagination_params.page_size
+        )

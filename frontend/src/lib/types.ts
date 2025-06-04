@@ -207,5 +207,5 @@ export type UserHistory = Array<{
   artifact: string | null;
 }>;
 
-export const threadPageSize = "30";
-export const messagePageSize = "15";
+export const threadPageSize = "25";
+export const messagePageSize = "25";

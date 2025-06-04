@@ -9,6 +9,7 @@ type ChatMessageAIProps = {
   isToolsCollapsed: boolean;
   toggleCollapse: () => void;
   messageId: string;
+  isLoading: boolean;
 };
 
 export const ChatMessageAI = function ChatMessageAI({
@@ -17,10 +18,11 @@ export const ChatMessageAI = function ChatMessageAI({
   isToolsCollapsed,
   toggleCollapse,
   messageId,
+  isLoading,
 }: ChatMessageAIProps) {
   return (
     <div className="mt-4 flex justify-start">
-      {hasTools ? (
+      {content && hasTools ? (
         <Button
           className="ml-8 mt-1 rounded-full bg-blue-500 p-2.5 hover:scale-105 active:scale-[1.10]"
           onClick={toggleCollapse}
@@ -32,9 +34,11 @@ export const ChatMessageAI = function ChatMessageAI({
           )}
         </Button>
       ) : (
-        <Button className="ml-8 mt-1 rounded-full bg-blue-500 p-2.5 hover:bg-blue-500">
-          <LoaderPinwheel className="text-black dark:text-white" />
-        </Button>
+        !isLoading && (
+          <Button className="ml-8 mt-1 rounded-full bg-blue-500 p-2.5 hover:bg-blue-500">
+            <LoaderPinwheel className="text-black dark:text-white" />
+          </Button>
+        )
       )}
 
       <Card className="mt-1 max-w-[70%] border-none bg-transparent shadow-none">

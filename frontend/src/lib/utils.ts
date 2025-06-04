@@ -67,7 +67,7 @@ export function getToolInvocations(
 }
 
 // Utils to get all storage ID from an AI message
-export function getStorageID(message: MessageStrict | undefined): string[] {
+export function getStorageIDs(message: MessageStrict | undefined): string[] {
   const toolCallsResults: string[] =
     message?.parts
       ?.filter(
