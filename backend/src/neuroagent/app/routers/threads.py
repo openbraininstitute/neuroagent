@@ -329,6 +329,11 @@ async def get_thread_messages(
             select(Messages)
             .options(selectinload(Messages.tool_calls))
             .where(Messages.message_id.in_([msg[0] for msg in db_cursor]))
+            .order_by(
+                desc(Messages.creation_date)
+                if sort.startswith("-")
+                else Messages.creation_date
+            )
         )
         db_messages = complete_messages_results.scalars().all()
     if vercel_format:
