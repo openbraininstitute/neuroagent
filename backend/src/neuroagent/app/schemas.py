@@ -11,9 +11,9 @@ class ToolCallVercel(BaseModel):
 
     toolCallId: str
     toolName: str
-    args: str
+    args: dict[str, Any]
     state: Literal["partial-call", "call", "result"]
-    results: str | None = None
+    result: str | None = None
 
     model_config = ConfigDict(extra="ignore")
 

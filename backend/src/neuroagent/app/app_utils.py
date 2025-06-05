@@ -312,11 +312,11 @@ def format_messages_vercel(
             # add tool calls and reset buffer after attaching
             if msg.entity == Entity.AI_MESSAGE:
                 message_data["parts"] = [
-                    TextPartVercel(text=text_content),
                     *[
                         ToolCallPartVercel(toolInvocation=ToolCallVercel(**tool_call))
                         for tool_call in tool_call_buffer
                     ],
+                    TextPartVercel(text=text_content),
                 ]
                 message_data["annotations"] = [
                     {"message_id": msg.message_id, "isComplete": msg.is_complete},
@@ -378,7 +378,7 @@ def format_messages_vercel(
                     {
                         "toolCallId": tc.tool_call_id,
                         "toolName": tc.name,
-                        "args": tc.arguments,
+                        "args": json.loads(tc.arguments),
                         "is_complete": msg.is_complete,
                         "state": "call",
                         # Needed for dummy messsages
@@ -399,7 +399,7 @@ def format_messages_vercel(
                 None,
             )
             if tool_call:
-                tool_call["results"] = json.loads(msg.content).get("content")
+                tool_call["result"] = json.loads(msg.content).get("content")
                 tool_call["state"] = "result"
                 tool_call["is_complete"] = msg.is_complete
 

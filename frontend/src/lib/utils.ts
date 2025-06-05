@@ -21,13 +21,6 @@ export function convert_tools_to_set(
   return initialCheckedTools;
 }
 
-export const viewableTools = [
-  "morpho-viewer-tool",
-  "plot-generator",
-  "random-plot-generator",
-  "scsplot-tool",
-];
-
 // Function to safely parse JSONs
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function safeParse<T = any>(str: string): T | string {
