@@ -51,8 +51,6 @@ class ReconstructionMorphologyGetAllTool(BaseTool):
     description: ClassVar[
         str
     ] = """Searches a neuroscience based knowledge graph to retrieve reconstruction morphologies.
-    Requires a 'brain_region_id' which is the ID of the brain region of interest as registered in the knowledge graph.
-    Optionally accepts an mtype_id.
     The output is a list of morphologies, containing:
     - The brain region ID.
     - The brain region name.

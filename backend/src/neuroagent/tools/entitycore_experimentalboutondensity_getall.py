@@ -51,7 +51,6 @@ class ExperimentalBoutonDensityGetAllTool(BaseTool):
     description: ClassVar[
         str
     ] = """Searches the entitycore database to retrieve experimental bouton densities.
-    Optionally accepts a brain_region__id to filter densities by brain region.
     The output is a list of experimental bouton densities, containing:
     - The brain region ID.
     - The brain region name.

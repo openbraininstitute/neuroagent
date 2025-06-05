@@ -51,7 +51,6 @@ class ExperimentalSynapsesPerConnectionGetAllTool(BaseTool):
     description: ClassVar[
         str
     ] = """Searches the entitycore database to retrieve experimental synapses per connection.
-    Optionally accepts a brain_region__id to filter connections by brain region.
     The output is a list of experimental synapses per connection, containing:
     - The brain region ID.
     - The brain region name.

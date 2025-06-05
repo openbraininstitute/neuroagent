@@ -49,7 +49,6 @@ class IonChannelModelGetAllTool(BaseTool):
     description: ClassVar[
         str
     ] = """Searches the entitycore database to retrieve ion channel models.
-    Optionally accepts a brain_region__id to filter models by brain region.
     The output is a list of ion channel models, containing:
     - The brain region ID.
     - The brain region name.

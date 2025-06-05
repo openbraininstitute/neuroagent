@@ -49,7 +49,6 @@ class MeasurementAnnotationGetAllTool(BaseTool):
     description: ClassVar[
         str
     ] = """Searches the entitycore database to retrieve measurement annotations.
-    Optionally accepts a brain_region__id to filter annotations by brain region.
     The output is a list of measurement annotations, containing:
     - The measurement annotation ID
     - The creation date

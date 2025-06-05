@@ -51,7 +51,6 @@ class ExperimentalNeuronDensityGetAllTool(BaseTool):
     description: ClassVar[
         str
     ] = """Searches a neuroscience based knowledge graph to retrieve experimental neuron densities.
-    Requires a 'brain_region_id' which is the ID of the brain region of interest as registered in the knowledge graph.
     The output is a list of experimental neuron densities, containing:
     - The brain region ID and name
     - The subject species name

@@ -51,7 +51,6 @@ class ElectricalCellRecordingGetAllTool(BaseTool):
     description: ClassVar[
         str
     ] = """Searches the entitycore database to retrieve electrical cell recordings.
-    Optionally accepts a brain_region__id to filter recordings by brain region.
     The output is a list of electrical cell recordings, containing:
     - The brain region ID.
     - The brain region name.
