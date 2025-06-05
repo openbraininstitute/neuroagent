@@ -1,6 +1,7 @@
 """Get All Electrical Cell Recordings tool."""
 
 from typing import ClassVar
+from uuid import UUID
 
 from httpx import AsyncClient
 from pydantic import Field
@@ -17,13 +18,19 @@ class ElectricalCellRecordingGetAllInput(
 ):
     """Inputs for the electrical cell recording get all tool."""
 
-    within_brain_region_brain_region_id: str | None = Field(  # type: ignore[assignment]
+    within_brain_region_brain_region_id: UUID | None = Field(
         default=None,
         description="ID of the brain region of interest in UUID format. To find the ID use the resolve-brain-region-tool first.",
     )
-    within_brain_region_hierarchy_id: str = Field(  # type: ignore[assignment]
-        default="e3e70682-c209-4cac-a29f-6fbed82c07cd",
+    within_brain_region_hierarchy_id: UUID = Field(
+        default=UUID("e3e70682-c209-4cac-a29f-6fbed82c07cd"),
         description="The hierarchy ID for brain regions. The default value is the most commonly used hierarchy ID.",
+    )
+    page_size: int = Field(
+        ge=1,
+        le=10,
+        default=5,
+        description="Number of items per page",
     )
 
 
@@ -83,6 +90,8 @@ class ElectricalCellRecordingGetAllTool(BaseTool):
             query_params["within_brain_region_hierarchy_id"] = (
                 "e3e70682-c209-4cac-a29f-6fbed82c07cd"
             )
+        if "page_size" not in query_params:
+            query_params["page_size"] = 5
 
         headers: dict[str, str] = {}
         if self.metadata.vlab_id is not None:
