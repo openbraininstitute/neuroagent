@@ -1,13 +1,31 @@
 """Test app utils."""
 
+import json
+from datetime import datetime
 from unittest.mock import AsyncMock, patch
 
 import pytest
 from fastapi.exceptions import HTTPException
 
-from neuroagent.app.app_utils import rate_limit, setup_engine, validate_project
+from neuroagent.app.app_utils import (
+    format_messages_output,
+    format_messages_vercel,
+    rate_limit,
+    setup_engine,
+    validate_project,
+)
 from neuroagent.app.config import Settings
-from neuroagent.app.schemas import UserInfo
+from neuroagent.app.database.sql_schemas import Entity, Messages, ToolCalls
+from neuroagent.app.schemas import (
+    MessagesRead,
+    MessagesReadVercel,
+    PaginatedResponse,
+    TextPartVercel,
+    ToolCall,
+    ToolCallPartVercel,
+    ToolCallVercel,
+    UserInfo,
+)
 
 
 @pytest.mark.asyncio
@@ -207,3 +225,210 @@ async def test_rate_limit_no_redis():
         expiry=3600,
         user_sub="test_user",
     )
+
+
+def test_format_messages_output():
+    """Test the output format conversion."""
+
+    msg1 = Messages(
+        creation_date=datetime(2025, 6, 4, 14, 4, 41),
+        entity=Entity.AI_MESSAGE,
+        is_complete=True,
+        message_id="359eeb212e94409594d9ca7d4ff22640",
+        content=json.dumps({"content": "DUMMY_AI_CONTENT"}),
+        thread_id="e2db8c7d11704762b42bfdcd08526735",
+        tool_calls=[],
+    )
+    msg2 = Messages(
+        creation_date=datetime(2025, 6, 4, 14, 4, 41),
+        entity=Entity.TOOL,
+        is_complete=True,
+        message_id="06c305de156243aaadeabeeeb53880a2",
+        content=json.dumps({"content": "DUMMY_RESULT"}),
+        thread_id="e2db8c7d11704762b42bfdcd08526735",
+        tool_calls=[],
+    )
+    dummy_tool_call = ToolCalls(
+        tool_call_id="1234",
+        arguments="{}",
+        name="dummy_tool",
+        validated="not_required",
+    )
+    msg3 = Messages(
+        creation_date=datetime(2025, 6, 4, 14, 4, 41),
+        entity=Entity.AI_TOOL,
+        is_complete=True,
+        message_id="e21d5f16855341819d25d1d935327ffc",
+        content=json.dumps({"content": "DUMMY_AI_TOOL_CONTENT"}),
+        thread_id="e2db8c7d11704762b42bfdcd08526735",
+        tool_calls=[dummy_tool_call],
+    )
+    msg4 = Messages(
+        creation_date=datetime(2025, 6, 4, 14, 4, 41),
+        entity=Entity.USER,
+        is_complete=True,
+        message_id="87866e27dc7848c2bd684ea395d5a466",
+        content=json.dumps({"content": "DUMMY_USER_TEXT"}),
+        thread_id="e2db8c7d11704762b42bfdcd08526735",
+        tool_calls=[],
+    )
+
+    fake_message_list = [msg1, msg2, msg3, msg4]
+
+    expected_output = PaginatedResponse(
+        next_cursor=datetime(2025, 6, 4, 14, 4, 41),
+        has_more=False,
+        page_size=10,
+        results=[
+            MessagesRead(
+                message_id="359eeb212e94409594d9ca7d4ff22640",
+                entity="ai_message",
+                thread_id="e2db8c7d11704762b42bfdcd08526735",
+                is_complete=True,
+                creation_date=datetime(2025, 6, 4, 14, 4, 41),
+                msg_content={"content": "DUMMY_AI_CONTENT"},
+                tool_calls=[],
+            ),
+            MessagesRead(
+                message_id="06c305de156243aaadeabeeeb53880a2",
+                entity="tool",
+                thread_id="e2db8c7d11704762b42bfdcd08526735",
+                is_complete=True,
+                creation_date=datetime(2025, 6, 4, 14, 4, 41),
+                msg_content={"content": "DUMMY_RESULT"},
+                tool_calls=[],
+            ),
+            MessagesRead(
+                message_id="e21d5f16855341819d25d1d935327ffc",
+                entity="ai_tool",
+                thread_id="e2db8c7d11704762b42bfdcd08526735",
+                is_complete=True,
+                creation_date=datetime(2025, 6, 4, 14, 4, 41),
+                msg_content={"content": "DUMMY_AI_TOOL_CONTENT"},
+                tool_calls=[
+                    ToolCall(
+                        tool_call_id="1234",
+                        name="dummy_tool",
+                        arguments="{}",
+                        validated="not_required",
+                    )
+                ],
+            ),
+            MessagesRead(
+                message_id="87866e27dc7848c2bd684ea395d5a466",
+                entity="user",
+                thread_id="e2db8c7d11704762b42bfdcd08526735",
+                is_complete=True,
+                creation_date=datetime(2025, 6, 4, 14, 4, 41),
+                msg_content={"content": "DUMMY_USER_TEXT"},
+                tool_calls=[],
+            ),
+        ],
+    )
+
+    fake_formated_response = format_messages_output(
+        fake_message_list, {"dummy_tool": False}, False, 10
+    )
+
+    assert fake_formated_response == expected_output
+
+
+def test_format_messages_vercel():
+    """Test the output format conversion to vercel."""
+
+    msg1 = Messages(
+        creation_date=datetime(2025, 6, 4, 14, 4, 41),
+        entity=Entity.AI_MESSAGE,
+        is_complete=True,
+        message_id="359eeb212e94409594d9ca7d4ff22640",
+        content=json.dumps({"content": "DUMMY_AI_CONTENT"}),
+        thread_id="e2db8c7d11704762b42bfdcd08526735",
+        tool_calls=[],
+    )
+    msg2 = Messages(
+        creation_date=datetime(2025, 6, 4, 14, 4, 41),
+        entity=Entity.TOOL,
+        is_complete=True,
+        message_id="06c305de156243aaadeabeeeb53880a2",
+        content=json.dumps({"content": "DUMMY_RESULT"}),
+        thread_id="e2db8c7d11704762b42bfdcd08526735",
+        tool_calls=[],
+    )
+    dummy_tool_call = ToolCalls(
+        tool_call_id="1234",
+        arguments="{}",
+        name="dummy_tool",
+        validated="not_required",
+    )
+    msg3 = Messages(
+        creation_date=datetime(2025, 6, 4, 14, 4, 41),
+        entity=Entity.AI_TOOL,
+        is_complete=True,
+        message_id="e21d5f16855341819d25d1d935327ffc",
+        content=json.dumps({"content": "DUMMY_AI_TOOL_CONTENT"}),
+        thread_id="e2db8c7d11704762b42bfdcd08526735",
+        tool_calls=[dummy_tool_call],
+    )
+    msg4 = Messages(
+        creation_date=datetime(2025, 6, 4, 14, 4, 41),
+        entity=Entity.USER,
+        is_complete=True,
+        message_id="87866e27dc7848c2bd684ea395d5a466",
+        content=json.dumps({"content": "DUMMY_USER_TEXT"}),
+        thread_id="e2db8c7d11704762b42bfdcd08526735",
+        tool_calls=[],
+    )
+
+    fake_message_list = [msg1, msg2, msg3, msg4]
+
+    expected_output = PaginatedResponse(
+        next_cursor=None,
+        has_more=False,
+        page_size=10,
+        results=[
+            MessagesReadVercel(
+                id="359eeb212e94409594d9ca7d4ff22640",
+                role="assistant",
+                createdAt=datetime(2025, 6, 4, 14, 4, 41),
+                content="DUMMY_AI_CONTENT",
+                parts=[
+                    TextPartVercel(type="text", text="DUMMY_AI_CONTENT"),
+                    ToolCallPartVercel(
+                        type="tool-invocation",
+                        toolInvocation=ToolCallVercel(
+                            toolCallId="1234",
+                            toolName="dummy_tool",
+                            args="{}",
+                            state="call",
+                            results=None,
+                        ),
+                    ),
+                ],
+                annotations=[
+                    {
+                        "message_id": "359eeb212e94409594d9ca7d4ff22640",
+                        "isComplete": True,
+                    },
+                    {
+                        "toolCallId": "1234",
+                        "validated": "not_required",
+                        "isComplete": True,
+                    },
+                ],
+            ),
+            MessagesReadVercel(
+                id="87866e27dc7848c2bd684ea395d5a466",
+                role="user",
+                createdAt=datetime(2025, 6, 4, 14, 4, 41),
+                content="DUMMY_USER_TEXT",
+                parts=None,
+                annotations=None,
+            ),
+        ],
+    )
+
+    fake_formated_response_vercel = format_messages_vercel(
+        fake_message_list, {"dummy_tool": False}, False, 10
+    )
+
+    assert fake_formated_response_vercel == expected_output

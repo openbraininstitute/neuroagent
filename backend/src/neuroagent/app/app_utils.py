@@ -431,7 +431,7 @@ def format_messages_vercel(
 
     # Reverse back to descending order and build next_cursor
     ordered_messages = list(reversed(messages))
-    next_cursor = ordered_messages[-1].createdAt if has_more else None
+    next_cursor = db_messages[-1].creation_date if has_more else None
 
     return PaginatedResponse(
         next_cursor=next_cursor,
