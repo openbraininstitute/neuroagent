@@ -1,6 +1,6 @@
 """Get All Ion Channel Models tool."""
 
-from typing import ClassVar, Literal
+from typing import ClassVar
 
 from httpx import AsyncClient
 from pydantic import Field
@@ -19,11 +19,9 @@ class IonChannelModelGetAllInput(ReadManyIonChannelModelGetParametersQuery):
         default=None,
         description="ID of the brain region of interest in UUID format. To find the ID use the resolve-brain-region-tool first.",
     )
-    within_brain_region_hierarchy_id: Literal[
-        "e3e70682-c209-4cac-a29f-6fbed82c07cd"
-    ] = Field(  # type: ignore[assignment]
+    within_brain_region_hierarchy_id: str = Field(  # type: ignore[assignment]
         default="e3e70682-c209-4cac-a29f-6fbed82c07cd",
-        description="The hierarchy ID for brain regions. This is fixed to ensure consistent results.",
+        description="The hierarchy ID for brain regions. The default value is the most commonly used hierarchy ID.",
     )
 
 
@@ -77,9 +75,10 @@ class IonChannelModelGetAllTool(BaseTool):
             list of IonChannelModelRead to describe the models and their metadata, or an error dict.
         """
         query_params = self.input_schema.model_dump(exclude_defaults=True, mode="json")
-        query_params["within_brain_region_hierarchy_id"] = (
-            "e3e70682-c209-4cac-a29f-6fbed82c07cd"  # we need to explicitly add this since we exclude defaults
-        )
+        if "within_brain_region_hierarchy_id" not in query_params:
+            query_params["within_brain_region_hierarchy_id"] = (
+                "e3e70682-c209-4cac-a29f-6fbed82c07cd"
+            )
 
         headers: dict[str, str] = {}
         if self.metadata.vlab_id is not None:
