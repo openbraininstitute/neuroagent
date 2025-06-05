@@ -1,128 +1,215 @@
-// import { describe, expect, test } from "vitest";
-// import { getAssociatedTools } from "@/lib/utils";
-// import { MessageStrict } from "@/lib/types";
-//
-// describe("getAssociatedTools", () => {
-//   test("correctly maps assistant messages to their associated tool messages", () => {
-//     const messages: MessageStrict[] = [
-//       {
-//         id: "613f26bfbffb484aa7253e72339ebd16",
-//         content: "Hello there",
-//         role: "user",
-//       },
-//       {
-//         id: "057fc19245d645af9268e6e1b3c3c185",
-//         content: "Hello! How can I assist you today?",
-//         role: "assistant",
-//       },
-//       {
-//         id: "215801619f974504bae059ed0c06769e",
-//         content: "Can you resolve the thalamus and cerebral cortex regions?",
-//         role: "user",
-//       },
-//       {
-//         id: "c473fd6288074bc384eb59c950341423",
-//         content: "",
-//         role: "assistant",
-//         toolInvocations: [
-//           {
-//             toolCallId: "call_26gh1E1k2hOLrZeWfo9MxKOh",
-//             toolName: "resolve-entities-tool",
-//             args: {
-//               brain_region: "cerebral cortex",
-//             },
-//             state: "result",
-//             result:
-//               '[{"brain_region_name": "Cerebral cortex", "brain_region_id": "http://api.brain-map.org/api/v2/data/Structure/688"}]',
-//           },
-//           {
-//             toolCallId: "call_ntyGLbl7OHIChwGyNpqangY1",
-//             toolName: "resolve-entities-tool",
-//             args: {
-//               brain_region: "thalamus",
-//             },
-//             state: "result",
-//             result:
-//               '[{"brain_region_name": "Thalamus", "brain_region_id": "http://api.brain-map.org/api/v2/data/Structure/549"}]',
-//           },
-//         ],
-//       },
-//       {
-//         id: "62aca6af88b24601b1a17f62081b19be",
-//         content: "I have resolved the thalamus and cerebral cortex regions...",
-//         role: "assistant",
-//       },
-//       {
-//         id: "OYl4Nf6xo4nxgYnM",
-//         content: "could please call the same tools but sequentially?",
-//         role: "user",
-//       },
-//       {
-//         id: "JPuQWKFIqYMtj0t9",
-//         role: "assistant",
-//         content: "",
-//         toolInvocations: [
-//           {
-//             state: "result",
-//             toolCallId: "call_PydXiotzuvJsvlMBl27Qfu2O",
-//             toolName: "resolve-entities-tool",
-//             args: {
-//               brain_region: "thalamus",
-//               mtype: null,
-//               etype: null,
-//             },
-//             result:
-//               '[{"brain_region_name": "Thalamus", "brain_region_id": "http://api.brain-map.org/api/v2/data/Structure/549"}]',
-//           },
-//         ],
-//       },
-//       {
-//         id: "hTwKQRFYRLvOCEZX",
-//         role: "assistant",
-//         content: "",
-//         toolInvocations: [
-//           {
-//             state: "result",
-//             toolCallId: "call_nUpLcdr8o8T2ouMguJK9IlC3",
-//             toolName: "resolve-entities-tool",
-//             args: {
-//               brain_region: "cerebral cortex",
-//               mtype: null,
-//               etype: null,
-//             },
-//             result:
-//               '[{"brain_region_name": "Cerebral cortex", "brain_region_id": "http://api.brain-map.org/api/v2/data/Structure/688"}]',
-//           },
-//         ],
-//       },
-//       {
-//         id: "ongzc5s1gR5nBEBU",
-//         role: "assistant",
-//         content: "Here are the resolved regions...",
-//       },
-//     ];
+import { describe, expect, test, beforeEach } from "vitest";
+import {
+  cn,
+  convert_tools_to_set,
+  isLastMessageComplete,
+  getToolInvocations,
+  getStorageIDs,
+  getValidationStatus,
+  getStoppedStatus,
+} from "@/lib/utils";
+import type { MessageStrict, Annotation } from "@/lib/types";
+import type { ToolInvocationUIPart } from "@ai-sdk/ui-utils";
 
-//     const result = getAssociatedTools(messages);
+describe("cn", () => {
+  test("merges class names with twMerge (e.g., overrides conflicting classes)", () => {
+    // If clsx produces "text-sm text-lg", twMerge should reduce to "text-lg"
+    const result = cn("text-sm", "text-lg");
+    expect(result).toBe("text-lg");
+  });
 
-//     // Testing each message in order
-//     expect(result.get("613f26bfbffb484aa7253e72339ebd16")).toBeUndefined(); // user
-//     expect(result.get("057fc19245d645af9268e6e1b3c3c185")?.size).toBe(0); // assistant
-//     expect(result.get("215801619f974504bae059ed0c06769e")).toBeUndefined(); // user
-//     expect(result.get("c473fd6288074bc384eb59c950341423")).toBeUndefined(); // assistant with tools
+  test("handles multiple inputs and falsy values correctly", () => {
+    const result = cn("p-2", false && "block", "m-4");
+    expect(result).toBe("p-2 m-4");
+  });
+});
 
-//     // First resolution
-//     const firstResolution = result.get("62aca6af88b24601b1a17f62081b19be");
-//     expect(firstResolution?.has("c473fd6288074bc384eb59c950341423")).toBe(true);
-//     expect(firstResolution?.size).toBe(1);
+describe("convert_tools_to_set", () => {
+  test("returns an object with each slug set to true and adds allchecked: true", () => {
+    const availableTools = [
+      { slug: "alpha", label: "Alpha Tool" },
+      { slug: "beta", label: "Beta Tool" },
+    ];
+    const result = convert_tools_to_set(availableTools);
+    expect(result).toEqual({
+      alpha: true,
+      beta: true,
+      allchecked: true,
+    });
+  });
 
-//     expect(result.get("OYl4Nf6xo4nxgYnM")).toBeUndefined(); // user
-//     expect(result.get("JPuQWKFIqYMtj0t9")).toBeUndefined(); // assistant with tool
-//     expect(result.get("hTwKQRFYRLvOCEZX")).toBeUndefined(); // assistant with tool
+  test("works for an empty array of availableTools", () => {
+    const result = convert_tools_to_set([]);
+    expect(result).toEqual({ allchecked: true });
+  });
+});
 
-//     // Sequential resolution
-//     const sequentialResolution = result.get("ongzc5s1gR5nBEBU");
-//     expect(sequentialResolution?.has("JPuQWKFIqYMtj0t9")).toBe(true);
-//     expect(sequentialResolution?.has("hTwKQRFYRLvOCEZX")).toBe(true);
-//     expect(sequentialResolution?.size).toBe(2);
-//   });
-// });
+describe("isLastMessageComplete", () => {
+  test("returns true when `messages` is undefined", () => {
+    expect(isLastMessageComplete(undefined)).toBe(true);
+  });
+
+  test("returns true when annotations array is empty", () => {
+    const msg = { annotations: [] } as unknown as MessageStrict;
+    expect(isLastMessageComplete(msg)).toBe(true);
+  });
+
+  test("returns false if any annotation has isComplete === false", () => {
+    const msg = {
+      annotations: [{ isComplete: true }, { isComplete: false }],
+    } as MessageStrict;
+    expect(isLastMessageComplete(msg)).toBe(false);
+  });
+
+  test("returns true if all annotations are complete", () => {
+    const msg = {
+      annotations: [{ isComplete: true }, { isComplete: true }],
+    } as MessageStrict;
+    expect(isLastMessageComplete(msg)).toBe(true);
+  });
+});
+
+describe("getToolInvocations", () => {
+  test("extracts toolInvocation objects from parts where type === 'tool-invocation'", () => {
+    // We force-cast to ToolInvocationUIPart via unknown to satisfy the compiler
+    const fakeInvocation = { id: "inv-1", name: "fake-tool" };
+    const part = {
+      type: "tool-invocation",
+      toolInvocation: fakeInvocation,
+    } as unknown as ToolInvocationUIPart;
+
+    // Similarly, cast the entire message to MessageStrict via unknown
+    const message = {
+      parts: [part, { type: "text", text: "just text" }],
+    } as unknown as MessageStrict;
+
+    const invocations = getToolInvocations(message);
+    expect(invocations).toEqual([fakeInvocation]);
+  });
+
+  test("returns an empty array when message or parts is undefined", () => {
+    expect(getToolInvocations(undefined)).toEqual([]);
+
+    // Cast through unknown so that MessageStrict with undefined parts compiles
+    const msgNoParts = { parts: undefined } as unknown as MessageStrict;
+    expect(getToolInvocations(msgNoParts)).toEqual([]);
+  });
+});
+
+describe("getStorageIDs", () => {
+  test("parses JSON strings and extracts single storage_id", () => {
+    const jsonResult = JSON.stringify({ storage_id: "abc-123" });
+    const message = {
+      parts: [
+        {
+          type: "tool-invocation",
+          toolInvocation: {
+            state: "result",
+            result: jsonResult,
+          },
+        } as ToolInvocationUIPart,
+      ],
+    } as unknown as MessageStrict;
+
+    const ids = getStorageIDs(message);
+    expect(ids).toEqual(["abc-123"]);
+  });
+
+  test("parses object results and extracts array of storage_id values", () => {
+    const message = {
+      parts: [
+        {
+          type: "tool-invocation",
+          toolInvocation: {
+            state: "result",
+            result: { storage_id: ["id1", "id2"] },
+          },
+        } as ToolInvocationUIPart,
+      ],
+    } as unknown as MessageStrict;
+
+    const ids = getStorageIDs(message);
+    expect(ids).toEqual(["id1", "id2"]);
+  });
+
+  test("ignores parts whose result is invalid JSON or has no storage_id field", () => {
+    const message = {
+      parts: [
+        {
+          type: "tool-invocation",
+          toolInvocation: {
+            state: "result",
+            result: "not a json",
+          },
+        } as ToolInvocationUIPart,
+        {
+          type: "tool-invocation",
+          toolInvocation: {
+            state: "result",
+            result: { some_other_field: "value" },
+          },
+        } as ToolInvocationUIPart,
+      ],
+    } as unknown as MessageStrict;
+
+    const ids = getStorageIDs(message);
+    expect(ids).toEqual([]);
+  });
+
+  test("returns empty array if message or parts is undefined", () => {
+    expect(getStorageIDs(undefined)).toEqual([]);
+    const msgNoParts = { parts: undefined } as unknown as MessageStrict;
+    expect(getStorageIDs(msgNoParts)).toEqual([]);
+  });
+});
+
+describe("getValidationStatus", () => {
+  let annotations: Annotation[];
+
+  beforeEach(() => {
+    annotations = [
+      { toolCallId: "toolA", validated: "accepted" } as Annotation,
+      { toolCallId: "toolB", validated: "rejected" } as Annotation,
+    ];
+  });
+
+  test("returns the correct validated value when annotation is found", () => {
+    expect(getValidationStatus(annotations, "toolA")).toBe("accepted");
+    expect(getValidationStatus(annotations, "toolB")).toBe("rejected");
+  });
+
+  test("returns undefined when annotation with given toolCallId does not exist", () => {
+    expect(getValidationStatus(annotations, "nonexistent")).toBeUndefined();
+  });
+
+  test("returns undefined when annotations array is undefined", () => {
+    expect(getValidationStatus(undefined, "toolA")).toBeUndefined();
+  });
+});
+
+describe("getStoppedStatus", () => {
+  let annotations: Annotation[];
+
+  beforeEach(() => {
+    annotations = [
+      { toolCallId: "tool1", isComplete: false } as Annotation,
+      { toolCallId: "tool2", isComplete: true } as Annotation,
+    ];
+  });
+
+  test("returns true when annotation.isComplete is false", () => {
+    expect(getStoppedStatus(annotations, "tool1")).toBe(true);
+  });
+
+  test("returns false when annotation.isComplete is true", () => {
+    expect(getStoppedStatus(annotations, "tool2")).toBe(false);
+  });
+
+  test("returns false when annotation is missing (undefined)", () => {
+    expect(getStoppedStatus(annotations, "missingTool")).toBe(false);
+  });
+
+  test("returns false when annotations array is undefined", () => {
+    expect(getStoppedStatus(undefined, "tool1")).toBe(false);
+  });
+});
