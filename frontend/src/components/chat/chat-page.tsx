@@ -1,7 +1,7 @@
 "use client";
 
 import { useChat } from "@ai-sdk/react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { BMessage, type MessageStrict } from "@/lib/types";
 import { env } from "@/lib/env";
 import { useSession } from "next-auth/react";
@@ -12,11 +12,7 @@ import { ChatMessagesInsideThread } from "@/components/chat/chat-messages-inside
 import { generateEditTitle } from "@/actions/generate-edit-thread";
 import { toast } from "sonner";
 import { useGetMessageNextPage } from "@/hooks/get-message-page";
-import {
-  convertToAiMessages,
-  getToolInvocations,
-  isLastMessageComplete,
-} from "@/lib/utils";
+import { getToolInvocations, isLastMessageComplete } from "@/lib/utils";
 import { md5 } from "js-md5";
 
 type ChatPageProps = {
@@ -68,12 +64,7 @@ export function ChatPage({
     pageParams: [null],
   });
 
-  // translate all messages to vercel, useMemo to fix infinite loop.
-  const retrievedMessages = useMemo(() => {
-    return convertToAiMessages(
-      data?.pages.flatMap((page) => page.messages) ?? [],
-    );
-  }, [data?.pages]);
+  const retrievedMessages = data?.pages.flatMap((page) => page.messages) ?? [];
 
   const {
     addToolResult,

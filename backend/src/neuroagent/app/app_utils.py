@@ -5,7 +5,7 @@ import logging
 import re
 import uuid
 from pathlib import Path
-from typing import Any
+from typing import Any, Sequence
 
 import yaml
 from fastapi import HTTPException
@@ -25,6 +25,8 @@ from neuroagent.app.schemas import (
     MessagesRead,
     MessagesReadVercel,
     PaginatedResponse,
+    TextPartVercel,
+    ToolCallPartVercel,
     ToolCallVercel,
 )
 from neuroagent.schemas import EmbeddedBrainRegions
@@ -236,7 +238,7 @@ def get_br_embeddings(
 
 
 def format_messages_output(
-    db_messages: list[Messages],
+    db_messages: Sequence[Messages],
     tool_hil_mapping: dict[str, bool],
     has_more: bool,
     page_size: int,
@@ -289,7 +291,7 @@ def format_messages_output(
 
 
 def format_messages_vercel(
-    db_messages: list[Messages],
+    db_messages: Sequence[Messages],
     tool_hil_mapping: dict[str, bool],
     has_more: bool,
     page_size: int,
@@ -300,19 +302,32 @@ def format_messages_vercel(
 
     for msg in reversed(db_messages):
         if msg.entity in [Entity.USER, Entity.AI_MESSAGE]:
+            text_content = json.loads(msg.content).get("content")
             message_data = {
                 "id": msg.message_id,
-                "role": msg.entity.value,
-                "thread_id": msg.thread_id,
-                "is_complete": msg.is_complete,
-                "created_at": msg.creation_date,
-                "content": json.loads(msg.content).get("content"),
-                "parts": None,
+                "role": "user" if msg.entity == Entity.USER else "assistant",
+                "createdAt": msg.creation_date,
+                "content": text_content,
             }
             # add tool calls and reset buffer after attaching
             if msg.entity == Entity.AI_MESSAGE:
                 message_data["parts"] = [
-                    ToolCallVercel(**tool_call) for tool_call in tool_call_buffer
+                    TextPartVercel(text=text_content),
+                    *[
+                        ToolCallPartVercel(toolInvocation=ToolCallVercel(**tool_call))
+                        for tool_call in tool_call_buffer
+                    ],
+                ]
+                message_data["annotations"] = [
+                    {"message_id": msg.message_id, "isComplete": msg.is_complete},
+                    *[
+                        {
+                            "toolCallId": tool_call["toolCallId"],
+                            "validated": tool_call["validated"],
+                            "isComplete": tool_call["is_complete"],
+                        }
+                        for tool_call in tool_call_buffer
+                    ],
                 ]
                 tool_call_buffer = []
             # If we encounter a user message with a non empty buffer we have to add a dummy ai message.
@@ -322,19 +337,28 @@ def format_messages_vercel(
                     MessagesReadVercel(
                         **{
                             "id": uuid.uuid4().hex,
-                            "role": Entity.AI_MESSAGE.value,
-                            "thread_id": last_tool_call["thread_id"],
-                            "is_complete": last_tool_call["is_complete"],
-                            "created_at": last_tool_call["creation_date"],
+                            "role": "assistant",
+                            "createdAt": last_tool_call["creation_date"],
                             "content": "",
                             "parts": [
-                                ToolCallVercel(**tool_call)
+                                ToolCallPartVercel(
+                                    toolInvocation=ToolCallVercel(**tool_call)
+                                )
+                                for tool_call in tool_call_buffer
+                            ],
+                            "annotations": [
+                                {
+                                    "toolCallId": tool_call["toolCallId"],
+                                    "validated": tool_call["validated"],
+                                    "isComplete": tool_call["is_complete"],
+                                }
                                 for tool_call in tool_call_buffer
                             ],
                         }
                     )
                 )
                 tool_call_buffer = []
+
             messages.append(MessagesReadVercel(**message_data))
 
         # Buffer tool calls until the next AI_MESSAGE
@@ -352,13 +376,13 @@ def format_messages_vercel(
 
                 tool_call_buffer.append(
                     {
-                        "tool_call_id": tc.tool_call_id,
-                        "name": tc.name,
+                        "toolCallId": tc.tool_call_id,
+                        "toolName": tc.name,
+                        "args": tc.arguments,
                         "is_complete": msg.is_complete,
-                        "arguments": tc.arguments,
+                        "state": "call",
+                        # Needed for dummy messsages
                         "validated": status,
-                        "message_id": msg.message_id,
-                        "thread_id": msg.thread_id,
                         "creation_date": msg.creation_date,
                     }
                 )
@@ -370,12 +394,13 @@ def format_messages_vercel(
                 (
                     item
                     for item in tool_call_buffer
-                    if item["tool_call_id"] == tool_call_id
+                    if item["toolCallId"] == tool_call_id
                 ),
                 None,
             )
             if tool_call:
                 tool_call["results"] = json.loads(msg.content).get("content")
+                tool_call["state"] = "result"
                 tool_call["is_complete"] = msg.is_complete
 
     # If the tool call buffer is not empty, we need to add a dummy AI message.
@@ -385,13 +410,20 @@ def format_messages_vercel(
             MessagesReadVercel(
                 **{
                     "id": uuid.uuid4().hex,
-                    "role": Entity.AI_MESSAGE.value,
-                    "thread_id": last_tool_call["thread_id"],
-                    "is_complete": last_tool_call["is_complete"],
-                    "created_at": last_tool_call["creation_date"],
+                    "role": "assistant",
+                    "createdAt": last_tool_call["creation_date"],
                     "content": "",
                     "parts": [
-                        ToolCallVercel(**tool_call) for tool_call in tool_call_buffer
+                        ToolCallPartVercel(toolInvocation=ToolCallVercel(**tool_call))
+                        for tool_call in tool_call_buffer
+                    ],
+                    "annotations": [
+                        {
+                            "toolCallId": tool_call["toolCallId"],
+                            "validated": tool_call["validated"],
+                            "isComplete": tool_call["is_complete"],
+                        }
+                        for tool_call in tool_call_buffer
                     ],
                 }
             )
@@ -399,7 +431,7 @@ def format_messages_vercel(
 
     # Reverse back to descending order and build next_cursor
     ordered_messages = list(reversed(messages))
-    next_cursor = ordered_messages[-1].created_at if has_more else None
+    next_cursor = ordered_messages[-1].createdAt if has_more else None
 
     return PaginatedResponse(
         next_cursor=next_cursor,

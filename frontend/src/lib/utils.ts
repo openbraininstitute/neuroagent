@@ -1,6 +1,6 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
-import { MessageStrict, BMessage, Annotation } from "@/lib/types";
+import { MessageStrict, Annotation } from "@/lib/types";
 import { ToolInvocation, ToolInvocationUIPart } from "@ai-sdk/ui-utils";
 
 export function cn(...inputs: ClassValue[]) {
@@ -116,59 +116,4 @@ export function getStoppedStatus(
 ) {
   const ann = annotations?.find((a) => a.toolCallId === toolCallId);
   return !(ann?.isComplete ?? true);
-}
-
-// function to translate from snake to camel case, and handle the annotations.
-// We might want to do everythin in the backend if possible.
-export function convertToAiMessages(messages: BMessage[]): MessageStrict[] {
-  const output: MessageStrict[] = [];
-
-  for (const message of messages) {
-    // User messages is a simple translation
-    if (message.role === "user") {
-      output.push({
-        id: message.id,
-        content: message.content,
-        role: "user",
-        createdAt: new Date(message.created_at),
-        parts: [{ type: "text", text: message.content }],
-      });
-
-      // Ai messages require annotation change
-    } else if (message.role === "ai_message") {
-      // Compute tool calls and annotations
-      const tool_calls: ToolInvocationUIPart[] = [];
-      const annotations: Annotation[] = [
-        { message_id: message.id, isComplete: message.is_complete },
-      ];
-
-      for (const tc of message.parts) {
-        tool_calls.push({
-          type: "tool-invocation" as const,
-          toolInvocation: {
-            state: tc.results ? "result" : "call",
-            toolCallId: tc.tool_call_id,
-            toolName: tc.name,
-            args: JSON.parse(tc.arguments),
-            ...(tc.results ? { result: safeParse(tc.results) } : {}),
-          } as ToolInvocation,
-        });
-        annotations.push({
-          toolCallId: tc.tool_call_id,
-          validated: tc.validated,
-          isComplete: tc.is_complete,
-        });
-      }
-
-      output.push({
-        id: message.id,
-        content: message.content,
-        role: "assistant",
-        createdAt: new Date(message.created_at),
-        parts: [...tool_calls, { type: "text", text: message.content }],
-        annotations: annotations,
-      });
-    }
-  }
-  return output;
 }

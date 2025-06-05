@@ -1,4 +1,4 @@
-import { UIMessage } from "@ai-sdk/ui-utils";
+import { TextUIPart, ToolInvocationUIPart, UIMessage } from "@ai-sdk/ui-utils";
 
 export type BPaginatedResponse = {
   next_cursor: string;
@@ -22,15 +22,6 @@ export type Thread = {
   title: string;
 };
 
-export type BToolCall = {
-  tool_call_id: string;
-  name: string;
-  arguments: string;
-  is_complete: boolean;
-  validated: "accepted" | "rejected" | "pending" | "not_required";
-  results?: string;
-};
-
 export type Annotation = {
   message_id?: string;
   toolCallId?: string;
@@ -38,24 +29,27 @@ export type Annotation = {
   isComplete?: boolean;
 };
 
+export type BTextPart = {
+  type: "text";
+  text: string;
+};
+
 export type BMessageUser = {
   id: string;
   role: "user";
-  thread_id: string;
-  created_at: string;
-  is_complete: true;
+  createdAt: Date;
   content: string;
-  parts: null;
+  parts: [];
+  annotation: [];
 };
 
 export type BMessageAIContent = {
   id: string;
-  role: "ai_message";
-  thread_id: string;
-  created_at: string;
-  is_complete: boolean;
+  role: "assistant";
+  createdAt: Date;
   content: string;
-  parts: BToolCall[];
+  parts: (TextUIPart | ToolInvocationUIPart)[];
+  annotations: Annotation[];
 };
 
 export type BMessage = BMessageUser | BMessageAIContent;

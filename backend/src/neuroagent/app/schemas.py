@@ -7,16 +7,29 @@ from pydantic import BaseModel, ConfigDict, Field, conlist
 
 
 class ToolCallVercel(BaseModel):
-    """Tool call."""
+    """Tool call in Vercel format."""
 
-    tool_call_id: str
-    name: str
-    arguments: str
-    is_complete: bool
-    validated: Literal["accepted", "rejected", "pending", "not_required"]
+    toolCallId: str
+    toolName: str
+    args: str
+    state: Literal["partial-call", "call", "result"]
     results: str | None = None
 
     model_config = ConfigDict(extra="ignore")
+
+
+class ToolCallPartVercel(BaseModel):
+    """Tool call part from Vercel."""
+
+    type: Literal["tool-invocation"] = "tool-invocation"
+    toolInvocation: ToolCallVercel
+
+
+class TextPartVercel(BaseModel):
+    """Text part of Vercel."""
+
+    type: Literal["text"] = "text"
+    text: str
 
 
 class ToolCall(BaseModel):
@@ -36,15 +49,14 @@ T = TypeVar("T", bound=BaseRead)
 
 
 class MessagesReadVercel(BaseRead):
-    """Message response."""
+    """Message response in Vercel format."""
 
     id: str
     role: str
-    thread_id: str
-    is_complete: bool
-    created_at: datetime.datetime
+    createdAt: datetime.datetime
     content: str
-    parts: list[ToolCallVercel] | None
+    parts: list[ToolCallPartVercel | TextPartVercel] | None = None
+    annotations: list[dict[str, Any]] | None = None
 
 
 class MessagesRead(BaseRead):

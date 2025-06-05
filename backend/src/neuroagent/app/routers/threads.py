@@ -228,7 +228,6 @@ async def get_thread_by_id(
     return ThreadsRead(**thread.__dict__)
 
 
-# Define your routes here
 @router.get("/{thread_id}/messages")
 async def get_thread_messages(
     session: Annotated[AsyncSession, Depends(get_session)],
@@ -266,8 +265,9 @@ async def get_thread_messages(
         )
         where_conditions.append(comparison_op)
 
+    # Only get the relevent info for output format, we will then make the full query after.
     messages_result = await session.execute(
-        select(Messages)
+        select(Messages.message_id, Messages.creation_date, Messages.entity)
         .where(*where_conditions)
         .order_by(
             desc(Messages.creation_date)
@@ -276,9 +276,10 @@ async def get_thread_messages(
         )
         .limit(pagination_params.page_size + 1)
     )
-    db_messages = messages_result.scalars().all()
+    # This is a list of tuples with (message_id, creation_date, entitty)
+    db_cursor = messages_result.all()
 
-    if not db_messages:
+    if not db_cursor:
         return PaginatedResponse(
             next_cursor=None,
             has_more=False,
@@ -286,9 +287,9 @@ async def get_thread_messages(
             results=[],
         )
 
-    has_more = len(db_messages) > pagination_params.page_size
+    has_more = len(db_cursor) > pagination_params.page_size
     if not vercel_format and has_more:
-        db_messages = db_messages[:-1]
+        db_cursor = db_cursor[:-1]
 
     if vercel_format:
         # We set the most recent boudary to the cursor if it exists.
@@ -305,14 +306,10 @@ async def get_thread_messages(
 
         # If there are more messages we set the oldest bound for the messages.
         if has_more:
-            if db_messages[-1].entity == Entity.AI_MESSAGE:
-                date_conditions.append(
-                    Messages.creation_date >= db_messages[-2].creation_date
-                )
+            if db_cursor[-2][2] == Entity.USER:
+                date_conditions.append(Messages.creation_date >= db_cursor[-2][1])
             else:
-                date_conditions.append(
-                    Messages.creation_date > db_messages[-1].creation_date
-                )
+                date_conditions.append(Messages.creation_date > db_cursor[-1][1])
                 # This is a trick to include all tool from last AI.
 
         # Get all messages in the date frame.
@@ -325,13 +322,15 @@ async def get_thread_messages(
         all_msg_in_page_result = await session.execute(all_msg_in_page_query)
         db_messages = all_msg_in_page_result.scalars().all()
     else:
+        # Here we simply get all messages with the ID found before.
         # Pagination needs to happen on non-joined parent.
         # Once we have them we can eager load the tool calls
-        await session.execute(
+        complete_messages_results = await session.execute(
             select(Messages)
             .options(selectinload(Messages.tool_calls))
-            .where(Messages.message_id.in_([msg.message_id for msg in db_messages]))
+            .where(Messages.message_id.in_([msg[0] for msg in db_cursor]))
         )
+        db_messages = complete_messages_results.scalars().all()
     if vercel_format:
         return format_messages_vercel(
             db_messages, tool_hil_mapping, has_more, pagination_params.page_size
