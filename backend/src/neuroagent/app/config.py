@@ -81,14 +81,6 @@ class SettingsLiterature(BaseModel):
     model_config = ConfigDict(frozen=True)
 
 
-class SettingsGetMEModel(BaseModel):
-    """Get ME Model settings."""
-
-    search_size: int = 10
-
-    model_config = ConfigDict(frozen=True)
-
-
 class SettingsBlueNaaS(BaseModel):
     """BlueNaaS settings."""
 
@@ -110,7 +102,6 @@ class SettingsTools(BaseModel):
     obi_one: SettingsObiOne = SettingsObiOne()
     bluenaas: SettingsBlueNaaS = SettingsBlueNaaS()
     entitycore: SettingsEntityCore = SettingsEntityCore()
-    me_model: SettingsGetMEModel = SettingsGetMEModel()
     web_search: SettingsWebSearch = SettingsWebSearch()
 
     model_config = ConfigDict(frozen=True)
