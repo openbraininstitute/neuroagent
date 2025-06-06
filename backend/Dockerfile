@@ -6,7 +6,9 @@ RUN apt-get -y update
 RUN apt-get -y install curl \
     build-essential \
     libhdf5-dev \
-    ninja-build
+    ninja-build \
+    nodejs \
+    npm
 
 RUN pip install --no-cache-dir --upgrade pip
 COPY ./ /code

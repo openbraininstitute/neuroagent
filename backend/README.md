@@ -62,9 +62,13 @@ NEUROAGENT_RATE_LIMITER__LIMIT_SUGGESTIONS=100  # Max suggestion requests
 NEUROAGENT_RATE_LIMITER__DISABLED=true
 ```
 
-Note: Rate limiting is skipped for users with specific virtual lab and project access.
+5. (Optional) MCP server secrets can also be configured in the `.env` file.
+Their keys follow the following naming convention:
+`NEUROAGENT_MCP__SECRETS__${secret_name}=${secret_value}`
+The servers in use are defined in the file `mcp.json`.
+The potential secrets that can be set are also displayed in this file.
 
-5. Start the server:
+6. Start the server:
 ```bash
 neuroagent-api
 ```
