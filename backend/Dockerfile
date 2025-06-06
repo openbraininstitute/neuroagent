@@ -8,7 +8,7 @@ RUN apt-get -y install curl \
     libhdf5-dev \
     ninja-build \
     nodejs \
-    npm \
+    npm
 
 RUN pip install --no-cache-dir --upgrade pip
 COPY ./ /code
