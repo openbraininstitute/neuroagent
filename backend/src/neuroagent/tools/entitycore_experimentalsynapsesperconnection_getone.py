@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 class ExperimentalSynapsesPerConnectionGetOneInput(BaseModel):
     """Inputs of the experimental synapses per connection get one tool."""
 
-    synapses_per_connection_id: str = Field(
+    synapses_per_connection_id: UUID = Field(
         description="ID of the experimental synapses per connection of interest in UUID format."
     )
 
@@ -72,9 +72,6 @@ class ExperimentalSynapsesPerConnectionGetOneTool(BaseTool):
         -------
             ExperimentalSynapsesPerConnectionRead containing detailed synapses per connection information, or an error dict.
         """
-        # Validate the UUID format
-        synapses_per_connection_id = UUID(self.input_schema.synapses_per_connection_id)
-
         headers: dict[str, str] = {}
         if self.metadata.vlab_id is not None:
             headers["virtual-lab-id"] = self.metadata.vlab_id
@@ -83,7 +80,7 @@ class ExperimentalSynapsesPerConnectionGetOneTool(BaseTool):
 
         response = await self.metadata.httpx_client.get(
             url=self.metadata.entitycore_url.rstrip("/")
-            + f"/experimental-synapses-per-connection/{synapses_per_connection_id}",
+            + f"/experimental-synapses-per-connection/{self.input_schema.synapses_per_connection_id}",
             headers=headers,
         )
         if response.status_code != 200:

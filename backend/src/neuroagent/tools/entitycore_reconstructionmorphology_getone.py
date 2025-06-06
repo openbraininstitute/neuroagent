@@ -15,7 +15,7 @@ from neuroagent.tools.base_tool import BaseMetadata, BaseTool
 class ReconstructionMorphologyGetOneInput(BaseModel):
     """Inputs of the knowledge graph API."""
 
-    morphology_id: str = Field(
+    morphology_id: UUID = Field(
         description="ID of the morphology of interest in UUID format."
     )
 
@@ -66,9 +66,6 @@ class ReconstructionMorphologyGetOneTool(BaseTool):
         -------
             ReconstructionMorphologyIdGetResponse containing detailed morphology information, or an error dict.
         """
-        # Validate the UUID format
-        morphology_id = UUID(self.input_schema.morphology_id)
-
         headers: dict[str, str] = {}
         if self.metadata.vlab_id is not None:
             headers["virtual-lab-id"] = self.metadata.vlab_id
@@ -77,7 +74,7 @@ class ReconstructionMorphologyGetOneTool(BaseTool):
 
         response = await self.metadata.httpx_client.get(
             url=self.metadata.entitycore_url.rstrip("/")
-            + f"/reconstruction-morphology/{morphology_id}",
+            + f"/reconstruction-morphology/{self.input_schema.morphology_id}",
             headers=headers,
         )
         if response.status_code != 200:

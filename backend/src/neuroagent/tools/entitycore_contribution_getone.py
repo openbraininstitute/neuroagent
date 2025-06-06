@@ -15,7 +15,7 @@ from neuroagent.tools.base_tool import BaseMetadata, BaseTool
 class ContributionGetOneInput(BaseModel):
     """Inputs of the knowledge graph API."""
 
-    contribution_id: str = Field(
+    contribution_id: UUID = Field(
         description="ID of the contribution of interest in UUID format."
     )
 
@@ -62,9 +62,6 @@ class ContributionGetOneTool(BaseTool):
         -------
             ContributionReadWithoutEntity containing detailed contribution information, or an error dict.
         """
-        # Validate the UUID format
-        contribution_id = UUID(self.input_schema.contribution_id)
-
         headers: dict[str, str] = {}
         if self.metadata.vlab_id is not None:
             headers["virtual-lab-id"] = self.metadata.vlab_id
@@ -73,7 +70,7 @@ class ContributionGetOneTool(BaseTool):
 
         response = await self.metadata.httpx_client.get(
             url=self.metadata.entitycore_url.rstrip("/")
-            + f"/contribution/{contribution_id}",
+            + f"/contribution/{self.input_schema.contribution_id}",
             headers=headers,
         )
         if response.status_code != 200:

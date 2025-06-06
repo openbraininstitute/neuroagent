@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 class ElectricalCellRecordingGetOneInput(BaseModel):
     """Inputs of the electrical cell recording get one tool."""
 
-    recording_id: str = Field(
+    recording_id: UUID = Field(
         description="ID of the electrical cell recording of interest in UUID format."
     )
 
@@ -75,9 +75,6 @@ class ElectricalCellRecordingGetOneTool(BaseTool):
         -------
             ElectricalCellRecordingRead containing detailed recording information, or an error dict.
         """
-        # Validate the UUID format
-        recording_id = UUID(self.input_schema.recording_id)
-
         headers: dict[str, str] = {}
         if self.metadata.vlab_id is not None:
             headers["virtual-lab-id"] = self.metadata.vlab_id
@@ -86,7 +83,7 @@ class ElectricalCellRecordingGetOneTool(BaseTool):
 
         response = await self.metadata.httpx_client.get(
             url=self.metadata.entitycore_url.rstrip("/")
-            + f"/electrical-cell-recording/{recording_id}",
+            + f"/electrical-cell-recording/{self.input_schema.recording_id}",
             headers=headers,
         )
         if response.status_code != 200:

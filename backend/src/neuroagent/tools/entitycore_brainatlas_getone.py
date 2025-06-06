@@ -15,7 +15,7 @@ from neuroagent.tools.base_tool import BaseMetadata, BaseTool
 class BrainAtlasGetOneInput(BaseModel):
     """Inputs of the knowledge graph API."""
 
-    brain_atlas_id: str = Field(
+    brain_atlas_id: UUID = Field(
         description="ID of the brain atlas of interest in UUID format."
     )
 
@@ -62,9 +62,6 @@ class BrainAtlasGetOneTool(BaseTool):
         -------
             BrainAtlasRead containing detailed brain atlas information, or an error dict.
         """
-        # Validate the UUID format
-        brain_atlas_id = UUID(self.input_schema.brain_atlas_id)
-
         headers: dict[str, str] = {}
         if self.metadata.vlab_id is not None:
             headers["virtual-lab-id"] = self.metadata.vlab_id
@@ -73,7 +70,7 @@ class BrainAtlasGetOneTool(BaseTool):
 
         response = await self.metadata.httpx_client.get(
             url=self.metadata.entitycore_url.rstrip("/")
-            + f"/brain-atlas/{brain_atlas_id}",
+            + f"/brain-atlas/{self.input_schema.brain_atlas_id}",
             headers=headers,
         )
         if response.status_code != 200:

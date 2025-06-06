@@ -15,7 +15,7 @@ from neuroagent.tools.base_tool import BaseMetadata, BaseTool
 class PersonGetOneInput(BaseModel):
     """Inputs of the knowledge graph API."""
 
-    person_id: str = Field(description="ID of the person of interest in UUID format.")
+    person_id: UUID = Field(description="ID of the person of interest in UUID format.")
 
 
 class PersonGetOneMetadata(BaseMetadata):
@@ -61,9 +61,6 @@ class PersonGetOneTool(BaseTool):
         -------
             PersonRead containing detailed person information, or an error dict.
         """
-        # Validate the UUID format
-        person_id = UUID(self.input_schema.person_id)
-
         headers: dict[str, str] = {}
         if self.metadata.vlab_id is not None:
             headers["virtual-lab-id"] = self.metadata.vlab_id
@@ -71,7 +68,8 @@ class PersonGetOneTool(BaseTool):
             headers["project-id"] = self.metadata.project_id
 
         response = await self.metadata.httpx_client.get(
-            url=self.metadata.entitycore_url.rstrip("/") + f"/person/{person_id}",
+            url=self.metadata.entitycore_url.rstrip("/")
+            + f"/person/{self.input_schema.person_id}",
             headers=headers,
         )
         if response.status_code != 200:

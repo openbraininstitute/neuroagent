@@ -15,7 +15,9 @@ from neuroagent.tools.base_tool import BaseMetadata, BaseTool
 class SpeciesGetOneInput(BaseModel):
     """Inputs of the knowledge graph API."""
 
-    species_id: str = Field(description="ID of the species of interest in UUID format.")
+    species_id: UUID = Field(
+        description="ID of the species of interest in UUID format."
+    )
 
 
 class SpeciesGetOneMetadata(BaseMetadata):
@@ -60,9 +62,6 @@ class SpeciesGetOneTool(BaseTool):
         -------
             SpeciesRead containing detailed species information, or an error dict.
         """
-        # Validate the UUID format
-        species_id = UUID(self.input_schema.species_id)
-
         headers: dict[str, str] = {}
         if self.metadata.vlab_id is not None:
             headers["virtual-lab-id"] = self.metadata.vlab_id
@@ -70,7 +69,8 @@ class SpeciesGetOneTool(BaseTool):
             headers["project-id"] = self.metadata.project_id
 
         response = await self.metadata.httpx_client.get(
-            url=self.metadata.entitycore_url.rstrip("/") + f"/species/{species_id}",
+            url=self.metadata.entitycore_url.rstrip("/")
+            + f"/species/{self.input_schema.species_id}",
             headers=headers,
         )
         if response.status_code != 200:

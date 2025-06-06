@@ -15,7 +15,7 @@ from neuroagent.tools.base_tool import BaseMetadata, BaseTool
 class BrainRegionHierarchyGetOneInput(BaseModel):
     """Inputs of the knowledge graph API."""
 
-    hierarchy_id: str = Field(
+    hierarchy_id: UUID = Field(
         description="ID of the brain region hierarchy of interest in UUID format."
     )
 
@@ -61,9 +61,6 @@ class BrainRegionHierarchyGetOneTool(BaseTool):
         -------
             BrainRegionHierarchyRead containing detailed hierarchy information, or an error dict.
         """
-        # Validate the UUID format
-        hierarchy_id = UUID(self.input_schema.hierarchy_id)
-
         headers: dict[str, str] = {}
         if self.metadata.vlab_id is not None:
             headers["virtual-lab-id"] = self.metadata.vlab_id
@@ -72,7 +69,7 @@ class BrainRegionHierarchyGetOneTool(BaseTool):
 
         response = await self.metadata.httpx_client.get(
             url=self.metadata.entitycore_url.rstrip("/")
-            + f"/brain-region-hierarchy/{hierarchy_id}",
+            + f"/brain-region-hierarchy/{self.input_schema.hierarchy_id}",
             headers=headers,
         )
         if response.status_code != 200:

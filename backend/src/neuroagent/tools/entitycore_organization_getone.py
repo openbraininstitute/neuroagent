@@ -15,7 +15,7 @@ from neuroagent.tools.base_tool import BaseMetadata, BaseTool
 class OrganizationGetOneInput(BaseModel):
     """Inputs of the knowledge graph API."""
 
-    organization_id: str = Field(
+    organization_id: UUID = Field(
         description="ID of the organization of interest in UUID format."
     )
 
@@ -62,9 +62,6 @@ class OrganizationGetOneTool(BaseTool):
         -------
             OrganizationRead containing detailed organization information, or an error dict.
         """
-        # Validate the UUID format
-        organization_id = UUID(self.input_schema.organization_id)
-
         headers: dict[str, str] = {}
         if self.metadata.vlab_id is not None:
             headers["virtual-lab-id"] = self.metadata.vlab_id
@@ -73,7 +70,7 @@ class OrganizationGetOneTool(BaseTool):
 
         response = await self.metadata.httpx_client.get(
             url=self.metadata.entitycore_url.rstrip("/")
-            + f"/organization/{organization_id}",
+            + f"/organization/{self.input_schema.organization_id}",
             headers=headers,
         )
         if response.status_code != 200:

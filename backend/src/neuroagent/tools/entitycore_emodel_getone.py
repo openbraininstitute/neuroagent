@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 class EModelGetOneInput(BaseModel):
     """Inputs of the knowledge graph API."""
 
-    emodel_id: str = Field(description="ID of the e-model of interest in UUID format.")
+    emodel_id: UUID = Field(description="ID of the e-model of interest in UUID format.")
 
 
 class EModelGetOneMetadata(BaseMetadata):
@@ -71,9 +71,6 @@ class EModelGetOneTool(BaseTool):
         -------
             EModelReadExpanded containing detailed e-model information, or an error dict.
         """
-        # Validate the UUID format
-        emodel_id = UUID(self.input_schema.emodel_id)
-
         headers: dict[str, str] = {}
         if self.metadata.vlab_id is not None:
             headers["virtual-lab-id"] = self.metadata.vlab_id
@@ -81,7 +78,8 @@ class EModelGetOneTool(BaseTool):
             headers["project-id"] = self.metadata.project_id
 
         response = await self.metadata.httpx_client.get(
-            url=self.metadata.entitycore_url.rstrip("/") + f"/emodel/{emodel_id}",
+            url=self.metadata.entitycore_url.rstrip("/")
+            + f"/emodel/{self.input_schema.emodel_id}",
             headers=headers,
         )
         if response.status_code != 200:

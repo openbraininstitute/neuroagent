@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 class MeasurementAnnotationGetOneInput(BaseModel):
     """Inputs of the measurement annotation get one tool."""
 
-    measurement_annotation_id: str = Field(
+    measurement_annotation_id: UUID = Field(
         description="ID of the measurement annotation of interest in UUID format."
     )
 
@@ -67,9 +67,6 @@ class MeasurementAnnotationGetOneTool(BaseTool):
         -------
             MeasurementAnnotationRead containing detailed measurement annotation information, or an error dict.
         """
-        # Validate the UUID format
-        measurement_annotation_id = UUID(self.input_schema.measurement_annotation_id)
-
         headers: dict[str, str] = {}
         if self.metadata.vlab_id is not None:
             headers["virtual-lab-id"] = self.metadata.vlab_id
@@ -78,7 +75,7 @@ class MeasurementAnnotationGetOneTool(BaseTool):
 
         response = await self.metadata.httpx_client.get(
             url=self.metadata.entitycore_url.rstrip("/")
-            + f"/measurement-annotation/{measurement_annotation_id}",
+            + f"/measurement-annotation/{self.input_schema.measurement_annotation_id}",
             headers=headers,
         )
         if response.status_code != 200:

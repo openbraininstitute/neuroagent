@@ -15,7 +15,7 @@ from neuroagent.tools.base_tool import BaseMetadata, BaseTool
 class StrainGetOneInput(BaseModel):
     """Inputs of the knowledge graph API."""
 
-    strain_id: str = Field(description="ID of the strain of interest in UUID format.")
+    strain_id: UUID = Field(description="ID of the strain of interest in UUID format.")
 
 
 class StrainGetOneMetadata(BaseMetadata):
@@ -61,9 +61,6 @@ class StrainGetOneTool(BaseTool):
         -------
             StrainRead containing detailed strain information, or an error dict.
         """
-        # Validate the UUID format
-        strain_id = UUID(self.input_schema.strain_id)
-
         headers: dict[str, str] = {}
         if self.metadata.vlab_id is not None:
             headers["virtual-lab-id"] = self.metadata.vlab_id
@@ -71,7 +68,8 @@ class StrainGetOneTool(BaseTool):
             headers["project-id"] = self.metadata.project_id
 
         response = await self.metadata.httpx_client.get(
-            url=self.metadata.entitycore_url.rstrip("/") + f"/strain/{strain_id}",
+            url=self.metadata.entitycore_url.rstrip("/")
+            + f"/strain/{self.input_schema.strain_id}",
             headers=headers,
         )
         if response.status_code != 200:

@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 class IonChannelModelGetOneInput(BaseModel):
     """Inputs of the ion channel model get one tool."""
 
-    ion_channel_model_id: str = Field(
+    ion_channel_model_id: UUID = Field(
         description="ID of the ion channel model of interest in UUID format."
     )
 
@@ -72,9 +72,6 @@ class IonChannelModelGetOneTool(BaseTool):
         -------
             IonChannelModelRead containing detailed ion channel model information, or an error dict.
         """
-        # Validate the UUID format
-        ion_channel_model_id = UUID(self.input_schema.ion_channel_model_id)
-
         headers: dict[str, str] = {}
         if self.metadata.vlab_id is not None:
             headers["virtual-lab-id"] = self.metadata.vlab_id
@@ -83,7 +80,7 @@ class IonChannelModelGetOneTool(BaseTool):
 
         response = await self.metadata.httpx_client.get(
             url=self.metadata.entitycore_url.rstrip("/")
-            + f"/ion-channel-model/{ion_channel_model_id}",
+            + f"/ion-channel-model/{self.input_schema.ion_channel_model_id}",
             headers=headers,
         )
         if response.status_code != 200:

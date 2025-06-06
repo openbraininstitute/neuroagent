@@ -15,7 +15,7 @@ from neuroagent.tools.base_tool import BaseMetadata, BaseTool
 class ExperimentalNeuronDensityGetOneInput(BaseModel):
     """Inputs of the knowledge graph API."""
 
-    density_id: str = Field(
+    density_id: UUID = Field(
         description="ID of the experimental neuron density of interest in UUID format."
     )
 
@@ -67,9 +67,6 @@ class ExperimentalNeuronDensityGetOneTool(BaseTool):
         -------
             ExperimentalNeuronDensityRead containing detailed density information, or an error dict.
         """
-        # Validate the UUID format
-        density_id = UUID(self.input_schema.density_id)
-
         headers: dict[str, str] = {}
         if self.metadata.vlab_id is not None:
             headers["virtual-lab-id"] = self.metadata.vlab_id
@@ -78,7 +75,7 @@ class ExperimentalNeuronDensityGetOneTool(BaseTool):
 
         response = await self.metadata.httpx_client.get(
             url=self.metadata.entitycore_url.rstrip("/")
-            + f"/experimental-neuron-density/{density_id}",
+            + f"/experimental-neuron-density/{self.input_schema.density_id}",
             headers=headers,
         )
         if response.status_code != 200:

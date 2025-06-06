@@ -15,7 +15,7 @@ from neuroagent.tools.base_tool import BaseMetadata, BaseTool
 class EtypeGetOneInput(BaseModel):
     """Inputs of the knowledge graph API."""
 
-    etype_id: str = Field(description="ID of the e-type of interest in UUID format.")
+    etype_id: UUID = Field(description="ID of the e-type of interest in UUID format.")
 
 
 class EtypeGetOneMetadata(BaseMetadata):
@@ -61,9 +61,6 @@ class EtypeGetOneTool(BaseTool):
         -------
             Annotation containing detailed e-type information, or an error dict.
         """
-        # Validate the UUID format
-        etype_id = UUID(self.input_schema.etype_id)
-
         headers: dict[str, str] = {}
         if self.metadata.vlab_id is not None:
             headers["virtual-lab-id"] = self.metadata.vlab_id
@@ -71,7 +68,8 @@ class EtypeGetOneTool(BaseTool):
             headers["project-id"] = self.metadata.project_id
 
         response = await self.metadata.httpx_client.get(
-            url=self.metadata.entitycore_url.rstrip("/") + f"/etype/{etype_id}",
+            url=self.metadata.entitycore_url.rstrip("/")
+            + f"/etype/{self.input_schema.etype_id}",
             headers=headers,
         )
         if response.status_code != 200:

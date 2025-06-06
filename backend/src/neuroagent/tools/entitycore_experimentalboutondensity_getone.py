@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 class ExperimentalBoutonDensityGetOneInput(BaseModel):
     """Inputs of the experimental bouton density get one tool."""
 
-    bouton_density_id: str = Field(
+    bouton_density_id: UUID = Field(
         description="ID of the experimental bouton density of interest in UUID format."
     )
 
@@ -72,9 +72,6 @@ class ExperimentalBoutonDensityGetOneTool(BaseTool):
         -------
             ExperimentalBoutonDensityRead containing detailed bouton density information, or an error dict.
         """
-        # Validate the UUID format
-        bouton_density_id = UUID(self.input_schema.bouton_density_id)
-
         headers: dict[str, str] = {}
         if self.metadata.vlab_id is not None:
             headers["virtual-lab-id"] = self.metadata.vlab_id
@@ -83,7 +80,7 @@ class ExperimentalBoutonDensityGetOneTool(BaseTool):
 
         response = await self.metadata.httpx_client.get(
             url=self.metadata.entitycore_url.rstrip("/")
-            + f"/experimental-bouton-density/{bouton_density_id}",
+            + f"/experimental-bouton-density/{self.input_schema.bouton_density_id}",
             headers=headers,
         )
         if response.status_code != 200:
