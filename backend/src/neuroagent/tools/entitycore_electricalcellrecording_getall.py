@@ -22,7 +22,7 @@ class ElectricalCellRecordingGetAllInput(
         default=None,
         description="ID of the brain region of interest in UUID format. To find the ID use the resolve-brain-region-tool first.",
     )
-    within_brain_region_hierarchy_id: UUID = Field(
+    within_brain_region_hierarchy_id: UUID | None = Field(
         default=UUID("e3e70682-c209-4cac-a29f-6fbed82c07cd"),
         description="The hierarchy ID for brain regions. The default value is the most commonly used hierarchy ID.",
     )
