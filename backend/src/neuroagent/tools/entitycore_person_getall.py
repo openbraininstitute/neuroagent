@@ -64,8 +64,7 @@ class PersonGetAllTool(BaseTool):
             list of persons and their metadata, or an error dict.
         """
         query_params = self.input_schema.model_dump(exclude_defaults=True, mode="json")
-        if "page_size" not in query_params:
-            query_params["page_size"] = 5
+        query_params["page_size"] = self.input_schema.page_size
 
         headers: dict[str, str] = {}
         if self.metadata.vlab_id is not None:

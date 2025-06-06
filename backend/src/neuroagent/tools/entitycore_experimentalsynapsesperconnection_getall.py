@@ -84,12 +84,10 @@ class ExperimentalSynapsesPerConnectionGetAllTool(BaseTool):
             list of ExperimentalSynapsesPerConnectionRead to describe the connections and their metadata, or an error dict.
         """
         query_params = self.input_schema.model_dump(exclude_defaults=True, mode="json")
-        if "within_brain_region_hierarchy_id" not in query_params:
-            query_params["within_brain_region_hierarchy_id"] = (
-                "e3e70682-c209-4cac-a29f-6fbed82c07cd"
-            )
-        if "page_size" not in query_params:
-            query_params["page_size"] = 5
+        query_params["page_size"] = self.input_schema.page_size
+        query_params["within_brain_region_hierarchy_id"] = (
+            self.input_schema.within_brain_region_hierarchy_id
+        )
 
         headers: dict[str, str] = {}
         if self.metadata.vlab_id is not None:
