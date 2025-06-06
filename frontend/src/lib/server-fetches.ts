@@ -100,6 +100,7 @@ export async function getMessages(threadId: string) {
   try {
     const queryParams: Record<string, string> = {
       page_size: messagePageSize,
+      vercel_format: "true",
     };
     const paginatedResponseMessages = (await fetcher({
       path: "/threads/{threadId}/messages",

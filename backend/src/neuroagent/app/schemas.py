@@ -3,7 +3,33 @@
 import datetime
 from typing import Any, Generic, Literal, TypeVar
 
-from pydantic import BaseModel, Field, conlist
+from pydantic import BaseModel, ConfigDict, Field, conlist
+
+
+class ToolCallVercel(BaseModel):
+    """Tool call in Vercel format."""
+
+    toolCallId: str
+    toolName: str
+    args: dict[str, Any]
+    state: Literal["partial-call", "call", "result"]
+    result: str | None = None
+
+    model_config = ConfigDict(extra="ignore")
+
+
+class ToolCallPartVercel(BaseModel):
+    """Tool call part from Vercel."""
+
+    type: Literal["tool-invocation"] = "tool-invocation"
+    toolInvocation: ToolCallVercel
+
+
+class TextPartVercel(BaseModel):
+    """Text part of Vercel."""
+
+    type: Literal["text"] = "text"
+    text: str
 
 
 class ToolCall(BaseModel):
@@ -20,6 +46,17 @@ class BaseRead(BaseModel):
 
 
 T = TypeVar("T", bound=BaseRead)
+
+
+class MessagesReadVercel(BaseRead):
+    """Message response in Vercel format."""
+
+    id: str
+    role: str
+    createdAt: datetime.datetime
+    content: str
+    parts: list[ToolCallPartVercel | TextPartVercel] | None = None
+    annotations: list[dict[str, Any]] | None = None
 
 
 class MessagesRead(BaseRead):

@@ -517,3 +517,98 @@ async def test_get_thread_messages_empty_paginated(
     assert messages["next_cursor"] is None
     assert not messages["has_more"]
     assert len(messages["results"]) == 0
+
+
+@pytest.mark.httpx_mock(can_send_already_matched_responses=True)
+@pytest.mark.asyncio
+async def test_get_thread_messages_vercel_format(
+    patch_required_env,
+    httpx_mock,
+    app_client,
+    db_connection,
+    populate_db,
+):
+    mock_keycloak_user_identification(httpx_mock)
+    test_settings = Settings(
+        db={"prefix": db_connection}, keycloak={"issuer": "https://great_issuer.com"}
+    )
+    app.dependency_overrides[get_settings] = lambda: test_settings
+
+    db_items, _ = populate_db
+    thread = db_items["thread"]
+
+    with app_client as app_client:
+        # Get the messages of the thread
+        messages = app_client.get(
+            f"/threads/{thread.thread_id}/messages",
+            params={"page_size": 1, "vercel_format": True},
+        ).json()
+        page_2 = app_client.get(
+            f"/threads/{thread.thread_id}/messages",
+            params={
+                "page_size": 2,
+                "cursor": messages["next_cursor"],
+                "vercel_format": True,
+            },
+        ).json()
+
+    # Assert the first page with al its attributes.
+    assert set(messages.keys()) == {"next_cursor", "has_more", "page_size", "results"}
+    assert messages["page_size"] == 1
+    assert messages["has_more"]
+    assert len(messages["results"]) == 1
+
+    messages_results = messages["results"]
+
+    assert isinstance(messages_results, list)
+    assert len(messages_results) == 1
+
+    item = messages_results[0]
+    assert isinstance(item, dict)
+    assert item["id"]
+    assert item["createdAt"]
+    assert item.get("role") == "assistant"
+    assert item.get("content") == "sample response content."
+
+    parts = item.get("parts")
+    assert isinstance(parts, list)
+    assert len(parts) == 2
+
+    first_part = parts[0]
+    assert first_part.get("type") == "tool-invocation"
+    tool_inv = first_part.get("toolInvocation")
+    assert isinstance(tool_inv, dict)
+    assert tool_inv.get("toolCallId") == "mock_id_tc"
+    assert tool_inv.get("toolName") == "get_weather"
+    assert tool_inv.get("args") == {"location": "Geneva"}
+    assert tool_inv.get("state") == "call"
+    assert tool_inv.get("results") is None
+
+    second_part = parts[1]
+    assert second_part.get("type") == "text"
+    assert second_part.get("text") == "sample response content."
+
+    annotations = item.get("annotations")
+    assert isinstance(annotations, list)
+    assert len(annotations) == 2
+
+    ann1 = annotations[0]
+    assert ann1["message_id"]
+    assert ann1.get("isComplete") is True
+
+    ann2 = annotations[1]
+    assert ann2.get("toolCallId") == "mock_id_tc"
+    assert ann2.get("validated") == "not_required"
+    assert ann2.get("isComplete") is True
+
+    # Assert the second page
+    assert len(page_2["results"]) == 1
+    assert page_2["has_more"] is False
+    assert page_2["next_cursor"] is None
+    assert page_2["page_size"] == 2
+
+    msg = page_2["results"][0]
+    assert msg["annotations"] is None
+    assert msg["content"] == "This is my query."
+    assert msg["parts"] is None
+    assert msg["role"] == "user"

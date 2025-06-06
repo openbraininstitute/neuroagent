@@ -22,6 +22,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import type { MessageStrict } from "@/lib/types";
 import { HilRefusalFeedbackDialog } from "@/components/chat/hil-refusal-feedback-dialog";
+import { getToolInvocations } from "@/lib/utils";
 
 type HumanValidationDialogProps = {
   threadId: string;
@@ -117,7 +118,7 @@ export function HumanValidationDialog({
             },
           ],
           toolInvocations: [
-            ...(msg.toolInvocations || []).filter(
+            ...(getToolInvocations(msg) || []).filter(
               (t) => t.toolCallId !== toolId,
             ),
             {
@@ -138,7 +139,6 @@ export function HumanValidationDialog({
       }, 50);
       return;
     }
-
     // Execute using the passed mutate function
     mutate({
       threadId,

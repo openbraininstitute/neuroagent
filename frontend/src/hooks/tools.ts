@@ -1,10 +1,9 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { useFetcher } from "@/hooks/fetch";
 import { BExecuteToolCallRequest, BExecuteToolCallResponse } from "@/lib/types";
 
 export function useExecuteTool() {
   const fetcher = useFetcher();
-  const queryClient = useQueryClient();
 
   return useMutation<
     BExecuteToolCallResponse,
@@ -30,17 +29,6 @@ export function useExecuteTool() {
         body,
       }) as Promise<BExecuteToolCallResponse>;
     },
-    onSuccess: (_, variables) => {
-      // Invalidate relevant queries after successful execution
-      void queryClient.invalidateQueries({
-        queryKey: ["threads"],
-      });
-      void queryClient.invalidateQueries({
-        queryKey: ["threads", variables.threadId],
-      });
-      void queryClient.invalidateQueries({
-        queryKey: ["tools", variables.toolCallId],
-      });
-    },
+    // Note that since we set the results of the tools we do not need to invalidate queries.
   });
 }

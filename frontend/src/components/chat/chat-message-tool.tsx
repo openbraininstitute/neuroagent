@@ -14,6 +14,14 @@ type ChatMessageToolProps = {
   tool: ToolInvocation;
   stopped: boolean;
   availableTools: Array<{ slug: string; label: string }>;
+  addToolResult: ({
+    toolCallId,
+    result,
+  }: {
+    toolCallId: string;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    result: any;
+  }) => void;
   validated: "pending" | "accepted" | "rejected" | "not_required";
   setMessage: (updater: (msg: MessageStrict) => MessageStrict) => void;
 };
@@ -23,6 +31,7 @@ export const ChatMessageTool = function ChatMessageTool({
   tool,
   stopped,
   availableTools,
+  addToolResult,
   setMessage,
   validated,
 }: ChatMessageToolProps) {
@@ -31,32 +40,21 @@ export const ChatMessageTool = function ChatMessageTool({
   const { mutate, isPending, isSuccess, data, status } = useExecuteTool();
 
   useEffect(() => {
+    // If the request is loading, we wait and close the window
     if (isPending) {
       setDialogOpen(false);
       return;
     }
 
     if (isSuccess && data) {
+      // If the tool has successfully been called, we set the tool result.
       if (data.status === "done") {
         setValidationError(null);
-        setMessage((msg) => {
-          const updatedMsg = {
-            ...msg,
-            toolInvocations: [
-              ...(msg.toolInvocations || []).filter(
-                (t) => t.toolCallId !== tool.toolCallId,
-              ),
-              {
-                toolCallId: tool.toolCallId,
-                toolName: tool.toolName,
-                args: tool.args,
-                result: data.content,
-                state: "result" as const,
-              },
-            ],
-          };
-          return updatedMsg;
-        });
+        // We leverage the addToolResult from useChat to add results.
+        // It will also trigger the chat automatically when every tool has results !
+        addToolResult({ toolCallId: tool.toolCallId, result: data.content });
+
+        // If the tool had a validation error, we have to reset the annotation.
       } else if (data.status === "validation-error") {
         setValidationError(data.content || "Validation failed");
         setMessage((msg) => {
@@ -74,6 +72,7 @@ export const ChatMessageTool = function ChatMessageTool({
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [status]);
+
   const toolLabel =
     availableTools.filter((toolObj) => toolObj.slug === tool.toolName)?.[0]
       ?.label ?? tool.toolName;
