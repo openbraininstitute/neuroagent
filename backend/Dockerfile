@@ -4,7 +4,6 @@ ENV PYTHONUNBUFFERED=1
 
 RUN apt-get -y update
 RUN apt-get -y install curl \
-    cmake \
     build-essential \
     libhdf5-dev \
     ninja-build
