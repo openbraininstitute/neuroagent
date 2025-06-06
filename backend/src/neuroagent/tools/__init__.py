@@ -80,7 +80,6 @@ from neuroagent.tools.entitycore_strain_getone import StrainGetOneTool
 from neuroagent.tools.entitycore_subject_getall import SubjectGetAllTool
 from neuroagent.tools.entitycore_subject_getone import SubjectGetOneTool
 from neuroagent.tools.generate_plot import PlotGeneratorTool
-from neuroagent.tools.generate_random_plot import RandomPlotGeneratorTool
 from neuroagent.tools.literature_search_tool import (
     LiteratureSearchTool,
     ParagraphMetadata,
@@ -106,7 +105,6 @@ __all__ = [
     "NowTool",
     "ParagraphMetadata",
     "PlotGeneratorTool",
-    "RandomPlotGeneratorTool",
     "ResolveBrainRegionTool",
     "ResolveMtypeTool",
     "WeatherTool",
