@@ -24,7 +24,6 @@ class AssetGetAllInputSchema(BaseModel):
 
     entity_route: EntityRoute = Field(..., description="The route of the entity")
     entity_id: str = Field(..., description="The ID of the entity")
-    asset_id: str | None = Field(None, description="Optional asset ID to filter by")
 
 
 class AssetGetAllTool(BaseTool):
