@@ -4,6 +4,7 @@ import logging
 from abc import ABC, abstractmethod
 from typing import Any, ClassVar, Literal
 
+from httpx import AsyncClient
 from pydantic import BaseModel, ConfigDict
 
 logger = logging.getLogger(__name__)
@@ -57,6 +58,15 @@ class BaseMetadata(BaseModel):
     """Base class for metadata."""
 
     model_config = ConfigDict(extra="ignore", arbitrary_types_allowed=True)
+
+
+class EntitycoreMetadata(BaseMetadata):
+    """Metadata class for for all Entitycore tools."""
+
+    httpx_client: AsyncClient
+    entitycore_url: str
+    vlab_id: str | None
+    project_id: str | None
 
 
 class BaseTool(BaseModel, ABC):

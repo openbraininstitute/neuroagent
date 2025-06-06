@@ -1,29 +1,21 @@
 """Download One Asset tool."""
 
 from typing import ClassVar
+from uuid import UUID
 
 from httpx import AsyncClient
 from pydantic import BaseModel, Field
 
 from neuroagent.schemas import EntityRoute
-from neuroagent.tools.base_tool import BaseMetadata, BaseTool
-
-
-class AssetDownloadOneMetadata(BaseMetadata):
-    """Metadata class for AssetDownloadOneTool."""
-
-    httpx_client: AsyncClient
-    entitycore_url: str
-    vlab_id: str | None
-    project_id: str | None
+from neuroagent.tools.base_tool import BaseTool, EntitycoreMetadata
 
 
 class AssetDownloadOneInputSchema(BaseModel):
     """Input schema for AssetDownloadOneTool."""
 
     entity_route: EntityRoute = Field(description="The route of the entity")
-    entity_id: str = Field(description="The ID of the entity")
-    asset_id: str = Field(description="The ID of the asset")
+    entity_id: UUID = Field(description="The ID of the entity")
+    asset_id: UUID = Field(description="The ID of the asset")
 
 
 class AssetDownloadOneOutput(BaseModel):
@@ -50,7 +42,7 @@ class AssetDownloadOneTool(BaseTool):
     • Access the asset content directly
 
     Specify the entity route and entity ID to get the download URL."""
-    metadata: AssetDownloadOneMetadata
+    metadata: EntitycoreMetadata
     input_schema: AssetDownloadOneInputSchema
 
     async def arun(self) -> AssetDownloadOneOutput:
