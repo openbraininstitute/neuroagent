@@ -22,8 +22,8 @@ class AssetGetAllMetadata(BaseMetadata):
 class AssetGetAllInputSchema(BaseModel):
     """Input schema for AssetGetAllTool."""
 
-    entity_route: EntityRoute = Field(..., description="The route of the entity")
-    entity_id: str = Field(..., description="The ID of the entity")
+    entity_route: EntityRoute = Field(description="The route of the entity")
+    entity_id: str = Field(description="The ID of the entity")
 
 
 class AssetGetAllTool(BaseTool):

@@ -59,7 +59,7 @@ def fake_tool():
     """Fake get weather tool."""
 
     class FakeToolInput(BaseModel):
-        location: str = Field(..., description="The location to get the weather for")
+        location: str = Field(description="The location to get the weather for")
 
     class FakeToolMetadata(
         BaseModel

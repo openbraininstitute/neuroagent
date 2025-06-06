@@ -22,9 +22,9 @@ class AssetGetOneMetadata(BaseMetadata):
 class AssetGetOneInputSchema(BaseModel):
     """Input schema for AssetGetOneTool."""
 
-    entity_route: EntityRoute = Field(..., description="The route of the entity")
-    entity_id: str = Field(..., description="The ID of the entity")
-    asset_id: str = Field(..., description="The ID of the asset")
+    entity_route: EntityRoute = Field(description="The route of the entity")
+    entity_id: str = Field(description="The ID of the entity")
+    asset_id: str = Field(description="The ID of the asset")
 
 
 class AssetGetOneTool(BaseTool):
