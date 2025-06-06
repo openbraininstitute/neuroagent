@@ -27,7 +27,6 @@ from neuroagent.new_types import Agent
 def test_get_settings(patch_required_env):
     settings = get_settings()
     assert settings.tools.literature.url == "https://fake_url"
-    assert settings.knowledge_graph.url == "https://fake_url/api/nexus/v1/search/query/"
 
 
 @pytest.mark.asyncio
@@ -237,9 +236,6 @@ async def test_get_healthcheck_variables():
             obi_one=Mock(url="http://kenoriz.com/"),
             entitycore=Mock(url="http://twg-mrt.com/"),
         ),
-        knowledge_graph=Mock(
-            base_url="http://kg",
-        ),
     )
     httpx_client = Mock()
 
@@ -248,7 +244,6 @@ async def test_get_healthcheck_variables():
     assert result == {
         "httpx_client": httpx_client,
         "literature_search_url": "http://literature/",
-        "knowledge_graph_url": "http://kg/",
         "bluenaas_url": "http://bluenaas/",
         "obi_one_url": "http://kenoriz.com/",
         "entitycore_url": "http://twg-mrt.com/",

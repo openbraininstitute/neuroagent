@@ -26,8 +26,6 @@ class SettingsStorage(BaseModel):
     access_key: SecretStr | None = None
     secret_key: SecretStr | None = None
     expires_in: int = 600
-    brain_region_hierarchy_key: str = "shared/brainregion_hierarchy.json"
-    cell_type_hierarchy_key: str = "shared/celltypes_hierarchy.json"
 
     model_config = ConfigDict(frozen=True)
 
@@ -83,30 +81,6 @@ class SettingsLiterature(BaseModel):
     model_config = ConfigDict(frozen=True)
 
 
-class SettingsTrace(BaseModel):
-    """Trace tool settings."""
-
-    search_size: int = 10
-
-    model_config = ConfigDict(frozen=True)
-
-
-class SettingsKGMorpho(BaseModel):
-    """KG Morpho settings."""
-
-    search_size: int = 3
-
-    model_config = ConfigDict(frozen=True)
-
-
-class SettingsGetMEModel(BaseModel):
-    """Get ME Model settings."""
-
-    search_size: int = 10
-
-    model_config = ConfigDict(frozen=True)
-
-
 class SettingsBlueNaaS(BaseModel):
     """BlueNaaS settings."""
 
@@ -121,33 +95,6 @@ class SettingsEntityCore(BaseModel):
     model_config = ConfigDict(frozen=True)
 
 
-class SettingsKnowledgeGraph(BaseModel):
-    """Knowledge graph API settings."""
-
-    base_url: str = "https://www.openbraininstitute.org/api/nexus/v1"
-    model_config = ConfigDict(frozen=True)
-
-    @property
-    def url(self) -> str:
-        """Knowledge graph search url."""
-        return f"{self.base_url}/search/query/"
-
-    @property
-    def sparql_url(self) -> str:
-        """Knowledge graph view for sparql query."""
-        return f"{self.base_url}/views/neurosciencegraph/datamodels/https%3A%2F%2Fbluebrain.github.io%2Fnexus%2Fvocabulary%2FdefaultSparqlIndex/sparql"
-
-    @property
-    def class_view_url(self) -> str:
-        """Knowledge graph view for ES class query."""
-        return f"{self.base_url}/views/neurosciencegraph/datamodels/https%3A%2F%2Fbbp.epfl.ch%2Fneurosciencegraph%2Fdata%2Fviews%2Fes%2Fdataset/_search"
-
-    @property
-    def hierarchy_url(self) -> str:
-        """Knowledge graph url for brainregion/celltype files."""
-        return "http://bbp.epfl.ch/neurosciencegraph/ontologies/core"
-
-
 class SettingsTools(BaseModel):
     """Database settings."""
 
@@ -155,9 +102,6 @@ class SettingsTools(BaseModel):
     obi_one: SettingsObiOne = SettingsObiOne()
     bluenaas: SettingsBlueNaaS = SettingsBlueNaaS()
     entitycore: SettingsEntityCore = SettingsEntityCore()
-    trace: SettingsTrace = SettingsTrace()
-    kg_morpho_features: SettingsKGMorpho = SettingsKGMorpho()
-    me_model: SettingsGetMEModel = SettingsGetMEModel()
     web_search: SettingsWebSearch = SettingsWebSearch()
 
     model_config = ConfigDict(frozen=True)
@@ -259,7 +203,6 @@ class Settings(BaseSettings):
     """All settings."""
 
     tools: SettingsTools = SettingsTools()
-    knowledge_graph: SettingsKnowledgeGraph = SettingsKnowledgeGraph()
     agent: SettingsAgent = SettingsAgent()  # has no required
     db: SettingsDB = SettingsDB()  # has no required
     openai: SettingsOpenAI = SettingsOpenAI()  # has no required
