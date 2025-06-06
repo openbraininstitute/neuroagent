@@ -1,7 +1,6 @@
 """Test configuration."""
 
 import json
-from pathlib import Path
 from typing import ClassVar
 from unittest.mock import Mock
 
@@ -185,7 +184,6 @@ async def setup_sql_db(request):
     await session.commit()
     await engine.dispose()
     await session.aclose()
-
 
 
 @pytest_asyncio.fixture
