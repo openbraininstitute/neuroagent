@@ -1,7 +1,6 @@
 """Test configuration."""
 
 import json
-from pathlib import Path
 from typing import ClassVar
 from unittest.mock import Mock
 
@@ -31,9 +30,6 @@ def client_fixture():
                 "url": "fake_literature_url",
             },
         },
-        knowledge_graph={
-            "base_url": "https://fake_url/api/nexus/v1",
-        },
         openai={
             "token": "fake_token",
         },
@@ -62,7 +58,7 @@ def fake_tool():
     """Fake get weather tool."""
 
     class FakeToolInput(BaseModel):
-        location: str = Field(..., description="The location to get the weather for")
+        location: str = Field(description="The location to get the weather for")
 
     class FakeToolMetadata(
         BaseModel
@@ -136,9 +132,6 @@ def dont_look_at_env_file():
 @pytest.fixture()
 def patch_required_env(monkeypatch):
     monkeypatch.setenv("NEUROAGENT_TOOLS__LITERATURE__URL", "https://fake_url")
-    monkeypatch.setenv(
-        "NEUROAGENT_KNOWLEDGE_GRAPH__BASE_URL", "https://fake_url/api/nexus/v1"
-    )
     monkeypatch.setenv("NEUROAGENT_OPENAI__TOKEN", "dummy")
 
 
@@ -191,12 +184,6 @@ async def setup_sql_db(request):
     await session.commit()
     await engine.dispose()
     await session.aclose()
-
-
-@pytest.fixture
-def brain_region_json_path():
-    br_path = Path(__file__).parent / "data" / "brainregion_hierarchy.json"
-    return br_path
 
 
 @pytest_asyncio.fixture
@@ -268,9 +255,6 @@ def settings():
             "literature": {
                 "url": "fake_literature_url",
             },
-        },
-        knowledge_graph={
-            "base_url": "https://fake_url/api/nexus/v1",
         },
         openai={
             "token": "fake_token",

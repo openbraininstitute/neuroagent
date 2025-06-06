@@ -68,7 +68,3 @@ def test_lifespan(caplog, monkeypatch, patch_required_env, db_connection):
         logging.getLevelName(logging.getLogger("fastapi").getEffectiveLevel())
         == "WARNING"
     )
-    assert (
-        logging.getLevelName(logging.getLogger("bluepyefe").getEffectiveLevel())
-        == "CRITICAL"
-    )
