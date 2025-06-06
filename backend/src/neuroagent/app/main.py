@@ -117,7 +117,6 @@ async def lifespan(fastapi_app: FastAPI) -> AsyncContextManager[None]:  # type: 
 
     logging.getLogger().setLevel(app_settings.logging.external_packages.upper())
     logging.getLogger("neuroagent").setLevel(app_settings.logging.level.upper())
-    logging.getLogger("bluepyefe").setLevel("CRITICAL")
 
     semantic_router = get_semantic_router(settings=app_settings)
     fastapi_app.state.semantic_router = semantic_router

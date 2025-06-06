@@ -16,20 +16,14 @@ dependencies = [
     "asgi-correlation-id",
     "asyncpg",
     "boto3",
-    "bluepyefe",
-    "efel",
     "fastapi",
-    "matplotlib",
     "mcp",
-    "neurom",
-    "numpy<2",
     "obp-accounting-sdk",
     "openai",
     "psycopg2",
     "pydantic>=2.11",
     "pydantic-settings",
     "python-dotenv",
-    "python-keycloak",
     "pyyaml",
     "redis",
     "semantic-router",
@@ -64,7 +58,7 @@ where = ["src"]
 namespaces = false
 
 [tool.setuptools.package-data]
-neuroagent = ["*.yml"]
+neuroagent = ["*.yml", "mcp.json"]
 
 [tool.bandit]
 exclude_dirs = ["tests"]

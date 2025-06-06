@@ -10,8 +10,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Update to new version of useChat.
 
+### Added
+- Tools for (most) GET endpoints of entitycore
+
 ### Fixed
 - Fixed bug where fastapi servers were wrongly set.
+
+## Changed
+- Track mcp.json.
+
+### Removed
+- Knowledge graph tools and utils
 
 ## [0.5.5] - 02.06.2025
 
@@ -29,6 +38,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Morphometrics tool using obi-one.
 - Custom brain region resolving.
 - Turn `neuroagent` into an MCP client.
+- Tools for (most) GET endpoints of entitycore
 
 ### Fixed
 - Handle breaking change in entitycore.
