@@ -187,11 +187,6 @@ async def setup_sql_db(request):
     await session.aclose()
 
 
-@pytest.fixture
-def brain_region_json_path():
-    br_path = Path(__file__).parent / "data" / "brainregion_hierarchy.json"
-    return br_path
-
 
 @pytest_asyncio.fixture
 async def populate_db(db_connection):

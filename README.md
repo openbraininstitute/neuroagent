@@ -23,8 +23,6 @@ NEXTAUTH_SECRET=...
 docker compose up
 docker exec -it neuroagent-backend-1 alembic -x url=postgresql://postgres:pwd@postgres:5432/neuroagent upgrade head
 docker exec -it neuroagent-minio-1 mc alias set myminio http://minio:9000 minioadmin minioadmin && docker exec -it neuroagent-minio-1 mc mb myminio/neuroagent
-docker cp brainregion_hierarchy.json neuroagent-minio-1:/tmp/brainregion_hierarchy.json && docker exec -it neuroagent-minio-1 mc alias set myminio http://minio:9000 minioadmin minioadmin && docker exec -it neuroagent-minio-1 mc cp /tmp/brainregion_hierarchy.json myminio/neuroagent/shared/brainregion_hierarchy.json
-docker cp celltypes_hierarchy.json neuroagent-minio-1:/tmp/celltypes_hierarchy.json && docker exec -it neuroagent-minio-1 mc alias set myminio http://minio:9000 minioadmin minioadmin && docker exec -it neuroagent-minio-1 mc cp /tmp/celltypes_hierarchy.json myminio/neuroagent/shared/celltypes_hierarchy.json
 ```
 
 To enable the brain region resolving tool, retrieve your bearer token and make sure to run the following script:
