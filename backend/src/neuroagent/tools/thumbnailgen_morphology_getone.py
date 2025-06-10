@@ -16,7 +16,7 @@ from neuroagent.utils import save_to_storage
 class PlotMorphologyGetOneInput(
     GetMorphologyPreviewApiThumbnailGenerationCoreReconstructionMorphologyPreviewGetParametersQuery
 ):
-    """Input of the MorphologyGetOneTool."""
+    """Input of the PlotMorphologyGetOneTool."""
 
     asset_id: UUID = Field(
         description="ID of the asset. You need to call the 'entitycore-reconstructionmorphology-getone' or the `entitycore-asset-getall` tool on the relevant morphology beforehand to get this parameter. The ID must always come from the `swc` asset, which is indicated by the `'content_type': 'application/swc'`."
@@ -37,13 +37,13 @@ class PlotMorphologyGetOneMetadata(BaseMetadata):
 
 
 class PlotMorphologyGetOneOutput(BaseModel):
-    """Output of the MorphologyGetOneTool."""
+    """Output of the PlotMorphologyGetOneTool."""
 
     storage_id: str
 
 
 class PlotMorphologyGetOneTool(BaseTool):
-    """Class defining the Get One Species logic."""
+    """Class defining the Get One Morphology Thumbnail logic."""
 
     name: ClassVar[str] = "thumbnail-generation-morphology-getone"
     name_frontend: ClassVar[str] = "Get Morphology Thumbnail"
