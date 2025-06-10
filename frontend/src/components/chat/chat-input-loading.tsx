@@ -1,6 +1,7 @@
 import React from "react";
 import { ChatMessageHuman } from "@/components/chat/chat-message-human";
 import TextareaAutosize from "react-textarea-autosize";
+import { ChatMessageLoading } from "./chat-message-loading";
 
 interface ChatComponentProps {
   newMessage: string;
@@ -11,6 +12,7 @@ export default function ChatInputLoading({ newMessage }: ChatComponentProps) {
     <div className="flex h-full flex-col">
       <div className="flex flex-1 flex-col overflow-y-auto pt-1">
         <ChatMessageHuman key="temp" content={newMessage} />
+        <ChatMessageLoading />
       </div>
       <form className="m-5 flex flex-col items-center justify-center gap-4">
         <div className="flex min-h-16 w-full max-w-[1200px] items-center overflow-hidden rounded-[3vw] border-2 border-gray-500 pl-9 pr-2">
