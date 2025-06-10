@@ -54,7 +54,7 @@ class PlotMorphologyGetOneTool(BaseTool):
         When the user asks to plot a morphology or requests more information about a morphology.
 
         **Inputs**:
-        entity_id: ID of the target entity. Retrieve using `entitycore-reconstructionmorphology-getall` or `entitycore-reconstructionmorphology-getone`.
+        entity_id: ID of the target entity.
         asset_id: ID of the specific morphology asset. Retrieve using `entitycore-reconstructionmorphology-getone` or `entitycore-asset-getall`.
 
         **Output**:
@@ -76,14 +76,13 @@ class PlotMorphologyGetOneTool(BaseTool):
 
         Returns
         -------
-            storage_id which locates the plot.
+            storage_id which locates the plot in the storage.
         """
         headers: dict[str, str] = {}
         if self.metadata.vlab_id is not None:
             headers["virtual-lab-id"] = self.metadata.vlab_id
         if self.metadata.project_id is not None:
             headers["project-id"] = self.metadata.project_id
-        headers["accept"] = "application/json"
 
         response = await self.metadata.httpx_client.get(
             url=self.metadata.thumbnail_generation_url.rstrip("/")
