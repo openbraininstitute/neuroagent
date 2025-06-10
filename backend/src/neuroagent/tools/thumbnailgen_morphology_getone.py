@@ -13,7 +13,7 @@ from neuroagent.tools.base_tool import BaseMetadata, BaseTool
 from neuroagent.utils import save_to_storage
 
 
-class MorphologyGetOneInput(
+class PlotMorphologyGetOneInput(
     GetMorphologyPreviewApiThumbnailGenerationCoreReconstructionMorphologyPreviewGetParametersQuery
 ):
     """Input of the MorphologyGetOneTool."""
@@ -23,7 +23,7 @@ class MorphologyGetOneInput(
     )
 
 
-class MorphologyGetOneMetadata(BaseMetadata):
+class PlotMorphologyGetOneMetadata(BaseMetadata):
     """Metadata class for the thumbnail generation of morphologies."""
 
     httpx_client: AsyncClient
@@ -36,13 +36,13 @@ class MorphologyGetOneMetadata(BaseMetadata):
     project_id: str | None
 
 
-class MorphologyGetOneOutput(BaseModel):
+class PlotMorphologyGetOneOutput(BaseModel):
     """Output of the MorphologyGetOneTool."""
 
     storage_id: str
 
 
-class MorphologyGetOneTool(BaseTool):
+class PlotMorphologyGetOneTool(BaseTool):
     """Class defining the Get One Species logic."""
 
     name: ClassVar[str] = "thumbnail-generation-morphology-getone"
@@ -68,10 +68,10 @@ class MorphologyGetOneTool(BaseTool):
     ] = """Plot the morphology of your choice to display a thumbnail in the chat.
 
     Use this tool to enhance the description of your target morphology by adding visuals."""
-    metadata: MorphologyGetOneMetadata
-    input_schema: MorphologyGetOneInput
+    metadata: PlotMorphologyGetOneMetadata
+    input_schema: PlotMorphologyGetOneInput
 
-    async def arun(self) -> MorphologyGetOneOutput:
+    async def arun(self) -> PlotMorphologyGetOneOutput:
         """From an Entity ID and an Asset ID, plot the visual of the morphology.
 
         Returns
@@ -107,7 +107,7 @@ class MorphologyGetOneTool(BaseTool):
             thread_id=self.metadata.thread_id,
         )
 
-        return MorphologyGetOneOutput(storage_id=identifier)
+        return PlotMorphologyGetOneOutput(storage_id=identifier)
 
     @classmethod
     async def is_online(cls, *, httpx_client: AsyncClient, entitycore_url: str) -> bool:
