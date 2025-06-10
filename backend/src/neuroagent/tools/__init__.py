@@ -88,6 +88,7 @@ from neuroagent.tools.morpho_metrics_tool import MorphoMetricsTool
 from neuroagent.tools.now import NowTool
 from neuroagent.tools.resolve_brain_region_tool import ResolveBrainRegionTool
 from neuroagent.tools.resolve_mtypes_tool import ResolveMtypeTool
+from neuroagent.tools.thumbnailgen_morphology_getone import MorphologyGetOneTool
 from neuroagent.tools.weather import WeatherTool
 from neuroagent.tools.web_search import WebSearchTool
 
@@ -136,6 +137,7 @@ __all__ = [
     "IonChannelModelGetOneTool",
     "MeasurementAnnotationGetAllTool",
     "MeasurementAnnotationGetOneTool",
+    "MorphologyGetOneTool",
     "SpeciesGetAllTool",
     "SpeciesGetOneTool",
     "StrainGetAllTool",

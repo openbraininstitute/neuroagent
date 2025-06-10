@@ -25,6 +25,7 @@ export const viewableTools = [
   "plot-generator",
   "random-plot-generator",
   "scsplot-tool",
+  "thumbnail-generation-morphology-getone",
 ];
 
 /**
