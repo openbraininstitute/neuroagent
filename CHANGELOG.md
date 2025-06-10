@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Fixed bug where fastapi servers were wrongly set.
+- Line break in ai message.
 
 ## Changed
 - Track mcp.json.
