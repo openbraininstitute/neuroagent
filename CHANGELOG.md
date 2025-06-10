@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - Tools for (most) GET endpoints of entitycore
+- Thumbnail generation tool.
 
 ### Fixed
 - Fixed bug where fastapi servers were wrongly set.
