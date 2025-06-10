@@ -1,4 +1,4 @@
-"""Get One Species tool."""
+"""Get One Morphology Thumbnail tool."""
 
 from typing import Any, ClassVar
 from uuid import UUID
