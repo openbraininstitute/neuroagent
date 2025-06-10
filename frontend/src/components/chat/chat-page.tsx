@@ -287,7 +287,7 @@ export function ChatPage({
           availableTools={availableTools}
           addToolResult={addToolResult}
           setMessages={setMessages}
-          isLoading={isLoading}
+          loadingStatus={status}
         />
         <div ref={messagesEndRef} />
       </div>

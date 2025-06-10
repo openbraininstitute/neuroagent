@@ -11,6 +11,7 @@ import { ChatMessageAI } from "@/components/chat/chat-message-ai";
 import { ChatMessageHuman } from "@/components/chat/chat-message-human";
 import { ChatMessageTool } from "@/components/chat/chat-message-tool";
 import { useState } from "react";
+import { ChatMessageLoading } from "./chat-message-loading";
 
 interface ChatMessagesInsideThreadProps {
   messages: MessageStrict[];
@@ -29,7 +30,7 @@ interface ChatMessagesInsideThreadProps {
       | MessageStrict[]
       | ((messages: MessageStrict[]) => MessageStrict[]),
   ) => void;
-  isLoading: boolean;
+  loadingStatus: "submitted" | "streaming" | "ready" | "error";
 }
 
 export function ChatMessagesInsideThread({
@@ -38,7 +39,7 @@ export function ChatMessagesInsideThread({
   availableTools,
   addToolResult,
   setMessages,
-  isLoading,
+  loadingStatus,
 }: ChatMessagesInsideThreadProps) {
   const [collapsedTools, setCollapsedTools] = useState<Set<string>>(new Set());
 
@@ -65,7 +66,7 @@ export function ChatMessagesInsideThread({
 
   return (
     <>
-      {messages.map((message) =>
+      {messages.map((message, idx) =>
         message.role === "assistant" ? (
           <div key={message.id}>
             {!collapsedTools.has(message.id) &&
@@ -108,7 +109,10 @@ export function ChatMessagesInsideThread({
                 }
                 isToolsCollapsed={collapsedTools.has(message.id)}
                 toggleCollapse={() => handleToggleCollapse(message.id)}
-                isLoading={isLoading}
+                isLoading={
+                  loadingStatus == "submitted" || loadingStatus == "streaming"
+                }
+                isLastMessage={idx === messages.length - 1}
               />
             }
             <PlotsInChat storageIds={getStorageIDs(message) || []} />
@@ -117,6 +121,7 @@ export function ChatMessagesInsideThread({
           <ChatMessageHuman key={message.id} content={message.content} />
         ),
       )}
+      {loadingStatus == "submitted" && <ChatMessageLoading />}
     </>
   );
 }
