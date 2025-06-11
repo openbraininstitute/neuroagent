@@ -116,7 +116,9 @@ async def test_get_available_tools(
 ):
     mock_keycloak_user_identification(httpx_mock)
     test_settings = Settings(
-        db={"prefix": db_connection}, keycloak={"issuer": "https://great_issuer.com"}
+        db={"prefix": db_connection},
+        keycloak={"issuer": "https://great_issuer.com"},
+        tools={"whitelisted_tool_regexes": ".*search.*"},
     )
     app.dependency_overrides[get_settings] = lambda: test_settings
 
