@@ -317,7 +317,7 @@ def get_tool_list(
             )
         ]
         if settings.tools.whitelisted_tool_regexes
-        else all_tools
+        else []
     )
 
 
