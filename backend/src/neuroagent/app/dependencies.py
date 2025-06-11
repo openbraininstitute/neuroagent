@@ -429,6 +429,7 @@ def get_context_variables(
         "entitycore_url": settings.tools.entitycore.url,
         "httpx_client": httpx_client,
         "literature_search_url": settings.tools.literature.url,
+        "mtype_embeddings": request.app.state.mtype_embeddings,
         "obi_one_url": settings.tools.obi_one.url,
         "openai_client": openai_client,
         "project_id": thread.project_id,

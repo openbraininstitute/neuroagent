@@ -6,6 +6,7 @@ import re
 from pathlib import Path
 from typing import Any
 
+import botocore
 import yaml
 from fastapi import HTTPException
 from pydantic import BaseModel, ConfigDict, Field
@@ -20,7 +21,7 @@ from starlette.status import HTTP_401_UNAUTHORIZED
 
 from neuroagent.app.config import Settings
 from neuroagent.app.database.sql_schemas import Messages, Threads, utc_now
-from neuroagent.schemas import EmbeddedBrainRegions
+from neuroagent.schemas import EmbeddedBrainRegions, EmbeddedMTypes
 
 logger = logging.getLogger(__name__)
 
@@ -226,3 +227,22 @@ def get_br_embeddings(
                 content = json.loads(file_obj["Body"].read().decode("utf-8"))
                 output.append(EmbeddedBrainRegions(**content))
     return output
+
+
+def get_mtype_embeddings(
+    s3_client: Any, bucket_name: str, folder: str
+) -> EmbeddedMTypes | None:
+    """Retrieve mtype embeddings from s3."""
+    try:
+        resp = s3_client.get_object(
+            Bucket=bucket_name, Key="shared/mtypes_embeddings.json"
+        )
+    except botocore.exceptions.ClientError as e:
+        error_code = e.response.get("Error", {}).get("Code", "")
+        if error_code in ("NoSuchKey", "404", "NotFound"):
+            return None
+        raise
+
+    payload = resp["Body"].read().decode("utf‑8")
+    data = json.loads(payload)
+    return EmbeddedMTypes(**data)
