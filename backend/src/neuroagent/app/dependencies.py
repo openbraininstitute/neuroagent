@@ -243,6 +243,7 @@ def get_mcp_tool_list(
 
 def get_tool_list(
     mcp_tool_list: Annotated[list[type[BaseTool]], Depends(get_mcp_tool_list)],
+    settings: Annotated[Settings, Depends(get_settings)],
 ) -> list[type[BaseTool]]:
     """Return a raw list of all of the available tools."""
     internal_tool_list: list[type[BaseTool]] = [
@@ -307,7 +308,17 @@ def get_tool_list(
 
     all_tools = internal_tool_list + mcp_tool_list
 
-    return all_tools
+    return (
+        [
+            tool
+            for tool in all_tools
+            if any(
+                rx.match(tool.name) for rx in settings.tools.whitelisted_tool_regexes
+            )
+        ]
+        if settings.tools.whitelisted_tool_regexes
+        else all_tools
+    )
 
 
 async def get_selected_tools(

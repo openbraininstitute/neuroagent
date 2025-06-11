@@ -3,6 +3,7 @@
 import json
 import logging
 import os
+import re
 from pathlib import Path
 from typing import Any, Literal, Optional
 
@@ -117,8 +118,20 @@ class SettingsTools(BaseModel):
     entitycore: SettingsEntityCore = SettingsEntityCore()
     web_search: SettingsWebSearch = SettingsWebSearch()
     thumbnail_generation: SettingsThumbnailGeneration = SettingsThumbnailGeneration()
+    whitelisted_tool_regexes: list[re.Pattern[str]] | None = None
 
     model_config = ConfigDict(frozen=True)
+
+    @model_validator(mode="before")
+    @classmethod
+    def parse_whitelisted_tool_regexes(cls, data: dict[str, Any]) -> dict[str, Any]:
+        """Parse the whitelisted tools regexes and set them as a list."""
+        if data.get("whitelisted_tool_regexes") is not None:
+            data["whitelisted_tool_regexes"] = [
+                re.compile(reg_exp.strip())
+                for reg_exp in data["whitelisted_tool_regexes"].split(",")
+            ]
+        return data
 
 
 class SettingsOpenAI(BaseModel):
