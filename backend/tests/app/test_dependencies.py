@@ -248,5 +248,5 @@ async def test_get_healthcheck_variables():
         "bluenaas_url": "http://bluenaas/",
         "obi_one_url": "http://kenoriz.com/",
         "entitycore_url": "http://twg-mrt.com/",
-        "thumbnail_generation": "http://thumbnail.com/",
+        "thumbnail_generation_url": "http://thumbnail.com/",
     }
