@@ -92,7 +92,7 @@ class PlotMorphologyGetOneTool(BaseTool):
         )
         if response.status_code != 200:
             raise ValueError(
-                f"The species endpoint returned a non 200 response code. Error: {response.text}"
+                f"The Morphology Thumbnail endpoint returned a non 200 response code. Error: {response.text}"
             )
 
         # Save to storage
@@ -109,9 +109,11 @@ class PlotMorphologyGetOneTool(BaseTool):
         return PlotMorphologyGetOneOutput(storage_id=identifier)
 
     @classmethod
-    async def is_online(cls, *, httpx_client: AsyncClient, entitycore_url: str) -> bool:
+    async def is_online(
+        cls, *, httpx_client: AsyncClient, thumbnail_generation_url: str
+    ) -> bool:
         """Check if the tool is online."""
         response = await httpx_client.get(
-            f"{entitycore_url.rstrip('/')}/health",
+            f"{thumbnail_generation_url.rstrip('/')}/health",
         )
         return response.status_code == 200

@@ -21,6 +21,13 @@ class BrainRegionGetAllInput(ReadManyBrainRegionGetParametersQuery):
         default=5,
         description="Number of items per page",
     )
+    name: str | None = Field(
+        default=None,
+        description="Name of the brain region. Will perform case sensitive exact match. Use for exact names only. The name MUST be capitalized.",
+    )
+    name__ilike: str | None = Field(
+        default=None, description="Case insensitive, partial name matching."
+    )
 
 
 class BrainRegionGetAllTool(BaseTool):
