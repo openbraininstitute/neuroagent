@@ -117,6 +117,7 @@ class SettingsTools(BaseModel):
     entitycore: SettingsEntityCore = SettingsEntityCore()
     web_search: SettingsWebSearch = SettingsWebSearch()
     thumbnail_generation: SettingsThumbnailGeneration = SettingsThumbnailGeneration()
+    whitelisted_tool_regex: str | None = None
 
     model_config = ConfigDict(frozen=True)
 

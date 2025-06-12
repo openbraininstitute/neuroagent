@@ -8,8 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
-- Tools for (most) GET endpoints of entitycore
+- Tools for (most) GET endpoints of entitycore.
 - Thumbnail generation tool.
+- Whitelisting of tools based on regex.
 
 ### Fixed
 - Fixed bug where fastapi servers were wrongly set.
@@ -21,7 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Prompt engineering on tools.
 
 ### Removed
-- Knowledge graph tools and utils
+- Knowledge graph tools and utils.
 
 ## [0.5.5] - 02.06.2025
 
