@@ -92,7 +92,7 @@ jobs:
       - name: Run alembic
         run: |
           export PYTHONPATH=$(pwd)/src:$PYTHONPATH
-          alembic -x url=postgresql://test:password@localhost:5432 upgrade head
+          uv run alembic -x url=postgresql://test:password@localhost:5432 upgrade head
       - name: Running mypy and tests
         run: |
           # Include src/ directory in Python path to prioritize local files in pytest
