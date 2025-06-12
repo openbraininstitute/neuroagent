@@ -25,7 +25,7 @@ def test_readyz(app_client):
 
 
 def test_custom_openapi(app_client, get_weather_tool):
-    app.dependency_overrides[get_tool_list] = lambda mcp_tools: [get_weather_tool]
+    app.dependency_overrides[get_tool_list] = lambda **kwargs: [get_weather_tool]
     with app_client as client:
         openapi = client.get("/openapi.json")
     openapi_json = openapi.json()
