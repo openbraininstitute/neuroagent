@@ -199,7 +199,9 @@ def custom_openapi() -> dict[str, Any]:
     )
 
     # TODO: Add the list of MCP tools as input of `get_tool_list`
-    tool_list = app.dependency_overrides.get(get_tool_list, get_tool_list)([])
+    tool_list = app.dependency_overrides.get(get_tool_list, get_tool_list)(
+        mcp_tool_list=[], settings=get_settings()
+    )
     for tool in tool_list:
         tool_output_type = tool.arun.__annotations__["return"]
         tool_schema = tool_output_type.model_json_schema(
