@@ -89,11 +89,6 @@ jobs:
         run: uv venv
       - name: Install dependencies
         run: uv sync
-      - name: Set up environment
-        run: |
-          uv pip install --upgrade pip
-          uv pip install mypy==1.15.0
-          uv pip sync
       - name: Run alembic
         run: |
           export PYTHONPATH=$(pwd)/src:$PYTHONPATH
