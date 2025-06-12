@@ -72,7 +72,7 @@ jobs:
         uses: astral-sh/setup-uv@v5
         with:
           enable-cache: true
-          cache-dependency-glob: "uv.lock"
+          cache-dependency-glob: "backend/uv.lock"
       - name: Install the project
         run: uv sync --locked --all-extras --dev
       - name: Run mypy
