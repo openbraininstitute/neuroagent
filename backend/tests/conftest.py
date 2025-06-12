@@ -15,7 +15,12 @@ from neuroagent.app.config import Settings
 from neuroagent.app.database.sql_schemas import Entity, Messages, Threads, ToolCalls
 from neuroagent.app.dependencies import Agent, get_settings
 from neuroagent.app.main import app
-from neuroagent.schemas import EmbeddedBrainRegion, EmbeddedBrainRegions
+from neuroagent.schemas import (
+    EmbeddedBrainRegion,
+    EmbeddedBrainRegions,
+    EmbeddedMType,
+    EmbeddedMTypes,
+)
 from neuroagent.tools.base_tool import BaseTool
 from tests.mock_client import MockOpenAIClient, create_mock_response
 
@@ -265,9 +270,9 @@ def settings():
 
 
 @pytest.fixture(autouse=True)
-def mock_br_embeddings(monkeypatch):
-    """Automatically mock br_embeddings for all tests"""
-    mock_embeddings = [
+def mock_s3_embeddings(monkeypatch):
+    """Automatically mock brain regions and m-type embeddings for all tests"""
+    mock_br_embeddings = [
         EmbeddedBrainRegions(
             regions=[EmbeddedBrainRegion(id="1234", name="test", hierarchy_level=0)],
             hierarchy_id="4567",
@@ -275,7 +280,17 @@ def mock_br_embeddings(monkeypatch):
     ]  # or whatever mock data you need
 
     def mock_get_br_embeddings(*args, **kwargs):
-        return mock_embeddings
+        return mock_br_embeddings
+
+    mock_mtype_embeddings = EmbeddedMTypes(
+        mtypes=[EmbeddedMType(id="fake_id", pref_label="fake_label")]
+    )
+
+    def mock_get_mtypes_embeddings(*args, **kwargs):
+        return mock_mtype_embeddings
 
     monkeypatch.setattr("neuroagent.app.main.get_br_embeddings", mock_get_br_embeddings)
+    monkeypatch.setattr(
+        "neuroagent.app.main.get_mtype_embeddings", mock_get_mtypes_embeddings
+    )
     monkeypatch.setattr("neuroagent.app.main.get_s3_client", lambda *params: Mock())
