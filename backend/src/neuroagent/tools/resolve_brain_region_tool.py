@@ -60,7 +60,8 @@ class ResolveBrainRegionTool(BaseTool):
     description: ClassVar[
         str
     ] = """Resolve a brain region's name to its UUID using semantic search.
-        Accepts natural language inputs containing the full or partial name."""
+        Accepts natural language inputs containing the full or partial name.
+        Use this tool as soon as you need the ID of a brain region for subsequent tasks."""
     description_frontend: ClassVar[str] = (
         """Converts natural language brain region to its ID."""
     )

@@ -462,6 +462,8 @@ def get_healthcheck_variables(
         "httpx_client": httpx_client,
         "literature_search_url": settings.tools.literature.url.rstrip("/") + "/",
         "obi_one_url": settings.tools.obi_one.url.rstrip("/") + "/",
+        "thumbnail_generation_url": settings.tools.thumbnail_generation.url.rstrip("/")
+        + "/",
     }
 
 
