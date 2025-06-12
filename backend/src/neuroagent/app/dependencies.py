@@ -1,6 +1,7 @@
 """App dependencies."""
 
 import logging
+import re
 from datetime import datetime, timezone
 from functools import cache
 from typing import Annotated, Any, AsyncIterator
@@ -312,11 +313,9 @@ def get_tool_list(
         [
             tool
             for tool in all_tools
-            if any(
-                rx.match(tool.name) for rx in settings.tools.whitelisted_tool_regexes
-            )
+            if re.match(settings.tools.whitelisted_tool_regex, tool.name)
         ]
-        if settings.tools.whitelisted_tool_regexes
+        if settings.tools.whitelisted_tool_regex
         else []
     )
 
