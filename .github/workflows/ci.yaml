@@ -44,27 +44,12 @@ jobs:
           bandit -qr -c pyproject.toml src/
           ruff check src/ tests/
           ruff format --check src/ tests/
-  unit-tests:
+
+  mypy:
     runs-on: ${{ matrix.os }}
     defaults:
       run:
         working-directory: backend
-
-    services:
-        postgres:
-          image: postgres:latest
-          env:
-            POSTGRES_USER: test
-            POSTGRES_PASSWORD: password
-          options: >-
-            --health-cmd "pg_isready -d postgres://test:password@localhost:5432"
-            --health-interval 10s
-            --health-timeout 5s
-            --health-retries 10
-          ports:
-            - 5432:5432
-    env:
-      PIP_CACHE_DIR: .cache/pip
     strategy:
       fail-fast: false
       matrix:
@@ -78,7 +63,7 @@ jobs:
       - name: Checkout latest commit
         uses: actions/checkout@v2
         with:
-          fetch-depth: 0 # fetch all history with version tags
+          fetch-depth: 0
       - name: Set up python ${{ matrix.python-version }}
         uses: actions/setup-python@v2
         with:
@@ -88,17 +73,61 @@ jobs:
         with:
           enable-cache: true
           cache-dependency-glob: "uv.lock"
-      - name: Create virtualenv
-        run: uv venv
+      - name: Install the project
+        run: uv sync --locked --all-extras --dev
+      - name: Run mypy
+        run: |
+          export PYTHONPATH=$(pwd)/src:$PYTHONPATH
+          uv run mypy src/
+
+  unit-tests:
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        working-directory: backend
+    services:
+      postgres:
+        image: postgres:latest
+        env:
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: password
+        options: >-
+          --health-cmd "pg_isready -d postgres://test:password@localhost:5432"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
+        ports:
+          - 5432:5432
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest]
+        python-version: ["3.11"]
+    steps:
+      - name: Cancel previous workflows that are still running
+        uses: styfle/cancel-workflow-action@0.8.0
+        with:
+          access_token: ${{ github.token }}
+      - name: Checkout latest commit
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Set up python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+          cache-dependency-glob: "uv.lock"
       - name: Install the project
         run: uv sync --locked --all-extras --dev
       - name: Run alembic
         run: |
           export PYTHONPATH=$(pwd)/src:$PYTHONPATH
           uv run alembic -x url=postgresql://test:password@localhost:5432 upgrade head
-      - name: Running mypy and tests
+      - name: Run tests
         run: |
-          # Include src/ directory in Python path to prioritize local files in pytest
           export PYTHONPATH=$(pwd)/src:$PYTHONPATH
-          uv run mypy src/
           uv run pytest --color=yes tests/
