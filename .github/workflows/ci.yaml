@@ -85,10 +85,13 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Install uv
         uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+          cache-dependency-glob: "uv.lock"
       - name: Create virtualenv
         run: uv venv
-      - name: Install dependencies
-        run: uv sync
+      - name: Install the project
+        run: uv sync --locked --all-extras --dev
       - name: Run alembic
         run: |
           export PYTHONPATH=$(pwd)/src:$PYTHONPATH
