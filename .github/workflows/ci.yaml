@@ -88,7 +88,7 @@ jobs:
       - name: Create virtualenv
         run: uv venv
       - name: Install dependencies
-        run: uv pip sync
+        run: uv sync
       - name: Set up environment
         run: |
           uv pip install --upgrade pip
