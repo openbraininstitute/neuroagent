@@ -37,7 +37,7 @@ dependencies = [
 [project.optional-dependencies]
 dev = [
     "bandit[toml]",
-    "mypy",
+    "mypy==1.15.0",
     "pytest",
     "pytest-asyncio",
     "pytest-cov",
