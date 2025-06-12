@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Eye, Info } from "lucide-react";
+import { Info } from "lucide-react";
 import { Card, CardContent, CardFooter, CardTitle } from "@/components/ui/card";
 import {
   Collapsible,
@@ -11,7 +11,6 @@ import {
 import { ToolCallStatus } from "@/components/chat/tool-call-status";
 import { ToolInvocation } from "@ai-sdk/ui-utils";
 import { ScrollToBottom } from "@/components/chat/scroll-to-bottom";
-import { viewableTools } from "@/lib/utils";
 
 type ToolCallCollapsibleProps = {
   tool: ToolInvocation;
@@ -61,31 +60,6 @@ export function ToolCallCollapsible({
                 {toolLabel}
               </span>
               <div className="flex gap-2">
-                {viewableTools.includes(tool?.toolName) &&
-                  tool?.state === "result" &&
-                  tool?.result &&
-                  (() => {
-                    try {
-                      const result =
-                        typeof tool.result === "string"
-                          ? JSON.parse(tool.result)
-                          : tool.result;
-                      if (result.storage_id) {
-                        if (!Array.isArray(result.storage_id)) {
-                          return (
-                            <a
-                              href={`/viewer/${result.storage_id}`}
-                              className="p-2 transition-colors hover:text-blue-500"
-                            >
-                              <Eye className="h-5 w-5" />
-                            </a>
-                          );
-                        } // For now I just remove the eye when there is multiple plots.
-                      }
-                    } catch {
-                      return null;
-                    }
-                  })()}
                 <a
                   href={`/tools/${tool?.toolName}`}
                   className="p-2 transition-colors hover:text-blue-500"

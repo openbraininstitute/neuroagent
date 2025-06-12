@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- Update to new version of useChat.
+
 ### Added
 - Tools for (most) GET endpoints of entitycore.
 - Thumbnail generation tool.

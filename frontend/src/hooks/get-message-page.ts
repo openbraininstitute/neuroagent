@@ -27,6 +27,7 @@ async function fetchMessagePage({
 }: FetchMessagePageArgs) {
   const queryParams: Record<string, string> = {
     page_size: messagePageSize,
+    vercel_format: "true",
   };
 
   if (cursor !== null) {
