@@ -102,7 +102,7 @@ async def push_mtype_embeddings_to_s3(
     logger.info("Getting list of all m-types from Entity-Core.")
 
     response = await httpx_client.get(
-        f"{(entity_core_url or os.getenv('NEUROAGENT_TOOLS__ENTITYCORE__URL')).rstrip('/')}/mtype",
+        f"{(entity_core_url or os.getenv('NEUROAGENT_TOOLS__ENTITYCORE__URL')).rstrip('/')}/mtype",  # type: ignore
         params={"page_size": page_size},
         headers={"Authorization": f"Bearer {token}"},
     )
@@ -141,7 +141,7 @@ async def push_mtype_embeddings_to_s3(
 
     # Put the result in the s3 bucket
     logger.info(
-        f"Saving the results in s3 bucket: {s3_url or os.getenv('NEUROAGENT_STORAGE__ENDPOINT_URL')} at location: {'shared/mtypes.json'}"
+        f"Saving the results in s3 bucket: {s3_url or os.getenv('NEUROAGENT_STORAGE__ENDPOINT_URL')} at location: {'shared/mtypes_embeddings.json'}"
     )
     s3_client = boto3.client(
         "s3",

@@ -56,8 +56,8 @@ class ResolveMtypeTool(BaseTool):
     name_frontend: ClassVar[str] = "Resolve m-types"
     description: ClassVar[
         str
-    ] = """Resolve the mtype name from natural english to its corresponding ID (formated ad UUID) using semantic search.
-        Accepts natural language inputs containing the full or partial name. If no exact match it will return the best scored candidates."""
+    ] = """Resolve the mtype pref label from natural english to its corresponding ID (formated ad UUID) using semantic search.
+        Accepts natural language inputs containing the full or partial name. If no exact match is found, returns the best scored candidates."""
     description_frontend: ClassVar[str] = (
         """Convert natural language m-type to its ID."""
     )
