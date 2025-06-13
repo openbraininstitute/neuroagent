@@ -11,7 +11,7 @@ import {
   ToolMetadata,
   BPaginatedResponse,
 } from "@/lib/types";
-import { threadPageSize, messagePageSize } from "@/lib/types";
+import { threadPageSize, messagePageSize, LLMModel } from "@/lib/types";
 
 export async function getThreads() {
   try {
@@ -200,6 +200,36 @@ export async function getTool(
   } catch (error) {
     if ((error as CustomError).statusCode === 404) {
       return null;
+    } else {
+      throw error;
+    }
+  }
+}
+
+export async function getModels(): Promise<Array<LLMModel>> {
+  try {
+    const response = await fetch("https://openrouter.ai/api/v1/models");
+    const models = await response.json();
+    console.log(models.data[0].pricing);
+    return models?.data
+      ?.filter(
+        (model: any) =>
+          model.architecture?.input_modalities?.includes("text") &&
+          model.architecture?.output_modalities?.includes("text") &&
+          model.supported_parameters?.includes("tools"),
+      )
+      .map((model: any) => {
+        const out_date = new Date(model.created * 1000);
+        return {
+          id: model.id,
+          name: model.name,
+          metadata: `${Math.round(model.pricing?.prompt * 1e8) / 100}$/M tokens, ${Math.round(model.context_length / 1000)}k context, ${out_date.getDate()}/${out_date.getMonth() + 1}/${out_date.getFullYear()}`,
+        };
+      })
+      .sort((a: LLMModel, b: LLMModel) => a.name.localeCompare(b.name));
+  } catch (error) {
+    if ((error as CustomError).statusCode === 404) {
+      return [];
     } else {
       throw error;
     }

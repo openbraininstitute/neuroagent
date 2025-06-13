@@ -132,11 +132,18 @@ async def get_openai_client(
     settings: Annotated[Settings, Depends(get_settings)],
 ) -> AsyncIterator[AsyncOpenAI | None]:
     """Get the OpenAi Async client."""
-    if not settings.openai.token:
+    if not settings.llm.openai_token and not settings.llm.open_router_token:
         yield None
     else:
         try:
-            client = AsyncOpenAI(api_key=settings.openai.token.get_secret_value())
+            client = (
+                AsyncOpenAI(
+                    api_key=settings.llm.open_router_token.get_secret_value(),
+                    base_url=settings.llm.base_url,
+                )
+                if settings.llm.base_url
+                else AsyncOpenAI(api_key=settings.llm.openai_token.get_secret_value())
+            )
             yield client
         finally:
             await client.close()
@@ -338,12 +345,12 @@ async def get_selected_tools(
         return selected_tools
 
 
-def get_starting_agent(
+async def get_starting_agent(
     settings: Annotated[Settings, Depends(get_settings)],
     tool_list: Annotated[list[type[BaseTool]], Depends(get_selected_tools)],
+    request: Request,
 ) -> Agent:
     """Get the starting agent."""
-    logger.info(f"Loading model {settings.openai.model}.")
     base_instructions = f"""You are a helpful assistant helping scientists with neuro-scientific questions.
                 The current date and time is {datetime.now(timezone.utc).isoformat()}.
                 You must always specify in your answers from which brain regions the information is extracted.
@@ -357,12 +364,13 @@ def get_starting_agent(
                 The models currently available on the platform are the metabolism and NGV unit as a notebook, and the single neuron, synaptome simulation. The other models will be released later starting with microcircuits paired neurons and then brain region, brain system and whole brain.
                 The platform has many notebooks that can be downloaded and executed remotely for now. A feature to run them on the platform will be available soon.
                 The platform has an AI Assistant for literature search allowing users to identify articles related to the brain area and artifacts they are interested in. At a later stage, the AI assistant will be further developed to access specific tools on the platform. PLEASE ALWAYS RESPECT THE TOOL OUTPUTS AND DON'T INVENT INFORMATION NOT PRESENT IN THE OUTPUTS."""
-
+    body = await request.json()
+    logger.info(f"Loading model {body["model"]}.")
     agent = Agent(
         name="Agent",
         instructions=base_instructions,
         tools=tool_list,
-        model=settings.openai.model,
+        model=body["model"],
     )
     return agent
 
