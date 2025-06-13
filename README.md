@@ -30,7 +30,7 @@ To enable the brain region and m-type resolving tools, retrieve your bearer toke
 python backend/src/neuroagent/scripts/embed_hierarchies.py $token -e https://staging.openbraininstitute.org/api/entitycore/ -u http://localhost:9000 -b neuroagent -a minioadmin -s minioadmin
 ```
 ```bash
-python src/neuroagent/scripts/embed_mtypes.py $token -e https://staging.openbraininstitute.org/api/entitycore/ -u http://localhost:9000 -b neuroagent -a minioadmin -s minioadmin -p 1000
+python backend/src/neuroagent/scripts/embed_mtypes.py $token -e https://staging.openbraininstitute.org/api/entitycore/ -u http://localhost:9000 -b neuroagent -a minioadmin -s minioadmin -p 1000
 ```
 which stores a json file in your minio/s3 instance.
 
