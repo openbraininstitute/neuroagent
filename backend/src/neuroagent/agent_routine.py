@@ -67,7 +67,6 @@ class AgentsRoutine:
 
         if tools:
             create_params["parallel_tool_calls"] = agent.parallel_tool_calls
-        breakpoint()
         return await self.client.chat.completions.create(**create_params)  # type: ignore
 
     def handle_function_result(self, result: Result | Agent | BaseModel) -> Result:
@@ -349,7 +348,7 @@ class AgentsRoutine:
 
                 # Append the history with the json version
                 history.append(copy.deepcopy(message))
-                breakpoint()
+
                 # We add a true / false to check if there were tool calls.
                 message["tool_calls"] = (
                     "tool_calls" in message and message["tool_calls"]

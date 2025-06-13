@@ -210,7 +210,7 @@ export async function getModels(): Promise<Array<LLMModel>> {
   try {
     const response = await fetch("https://openrouter.ai/api/v1/models");
     const models = await response.json();
-    console.log(models.data[0].pricing);
+
     return models?.data
       ?.filter(
         (model: any) =>

@@ -132,7 +132,9 @@ async def get_openai_client(
     settings: Annotated[Settings, Depends(get_settings)],
 ) -> AsyncIterator[AsyncOpenAI | None]:
     """Get the OpenAi Async client."""
-    if not settings.llm.openai_token and not settings.llm.open_router_token:
+    if not settings.llm.openai_token and (
+        not settings.llm.open_router_token or not settings.llm.base_url
+    ):
         yield None
     else:
         try:
@@ -141,12 +143,15 @@ async def get_openai_client(
                     api_key=settings.llm.open_router_token.get_secret_value(),
                     base_url=settings.llm.base_url,
                 )
-                if settings.llm.base_url
+                if settings.llm.base_url and settings.llm.open_router_token
                 else AsyncOpenAI(api_key=settings.llm.openai_token.get_secret_value())
+                if settings.llm.openai_token
+                else None
             )
             yield client
         finally:
-            await client.close()
+            if client:
+                await client.close()
 
 
 def get_connection_string(
