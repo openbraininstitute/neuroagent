@@ -1,6 +1,7 @@
 """App dependencies."""
 
 import logging
+import re
 from datetime import datetime, timezone
 from functools import cache
 from typing import Annotated, Any, AsyncIterator
@@ -63,6 +64,7 @@ from neuroagent.tools import (
     PersonGetAllTool,
     PersonGetOneTool,
     PlotGeneratorTool,
+    PlotMorphologyGetOneTool,
     ReconstructionMorphologyGetAllTool,
     ReconstructionMorphologyGetOneTool,
     ResolveBrainRegionTool,
@@ -242,6 +244,7 @@ def get_mcp_tool_list(
 
 def get_tool_list(
     mcp_tool_list: Annotated[list[type[BaseTool]], Depends(get_mcp_tool_list)],
+    settings: Annotated[Settings, Depends(get_settings)],
 ) -> list[type[BaseTool]]:
     """Return a raw list of all of the available tools."""
     internal_tool_list: list[type[BaseTool]] = [
@@ -292,6 +295,7 @@ def get_tool_list(
         IonChannelModelGetOneTool,
         MeasurementAnnotationGetAllTool,
         MeasurementAnnotationGetOneTool,
+        PlotMorphologyGetOneTool,
         SpeciesGetAllTool,
         SpeciesGetOneTool,
         StrainGetAllTool,
@@ -305,7 +309,15 @@ def get_tool_list(
 
     all_tools = internal_tool_list + mcp_tool_list
 
-    return all_tools
+    return (
+        [
+            tool
+            for tool in all_tools
+            if re.match(settings.tools.whitelisted_tool_regex, tool.name)
+        ]
+        if settings.tools.whitelisted_tool_regex
+        else []
+    )
 
 
 async def get_selected_tools(
@@ -438,6 +450,7 @@ def get_context_variables(
         "starting_agent": starting_agent,
         "tavily_api_key": settings.tools.web_search.tavily_api_key,
         "thread_id": thread.thread_id,
+        "thumbnail_generation_url": settings.tools.thumbnail_generation.url,
         "use_reranker": settings.tools.literature.use_reranker,
         "user_id": user_info.sub,
         "vlab_id": thread.vlab_id,
@@ -460,6 +473,8 @@ def get_healthcheck_variables(
         "httpx_client": httpx_client,
         "literature_search_url": settings.tools.literature.url.rstrip("/") + "/",
         "obi_one_url": settings.tools.obi_one.url.rstrip("/") + "/",
+        "thumbnail_generation_url": settings.tools.thumbnail_generation.url.rstrip("/")
+        + "/",
     }
 
 

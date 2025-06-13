@@ -60,6 +60,14 @@ class SettingsKeycloak(BaseModel):
         return f"{self.issuer}/protocol/openid-connect/userinfo"
 
 
+class SettingsThumbnailGeneration(BaseModel):
+    """Settings of the Thumbnail-Generation endpoints."""
+
+    url: str = "https://openbraininstitute.org/api/thumbnail-generation"
+
+    model_config = ConfigDict(frozen=True)
+
+
 class SettingsObiOne(BaseModel):
     """Settings of the OBI-One endpoints."""
 
@@ -108,6 +116,8 @@ class SettingsTools(BaseModel):
     bluenaas: SettingsBlueNaaS = SettingsBlueNaaS()
     entitycore: SettingsEntityCore = SettingsEntityCore()
     web_search: SettingsWebSearch = SettingsWebSearch()
+    thumbnail_generation: SettingsThumbnailGeneration = SettingsThumbnailGeneration()
+    whitelisted_tool_regex: str | None = None
 
     model_config = ConfigDict(frozen=True)
 

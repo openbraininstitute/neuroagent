@@ -1,8 +1,8 @@
 "use client";
 
-import { useChat } from "ai/react";
+import { useChat } from "@ai-sdk/react";
 import { useEffect, useRef, useState } from "react";
-import { BMessage, BMessageUser, type MessageStrict } from "@/lib/types";
+import { BMessage, type MessageStrict } from "@/lib/types";
 import { env } from "@/lib/env";
 import { useSession } from "next-auth/react";
 import { ExtendedSession } from "@/lib/auth";
@@ -12,7 +12,7 @@ import { ChatMessagesInsideThread } from "@/components/chat/chat-messages-inside
 import { generateEditTitle } from "@/actions/generate-edit-thread";
 import { toast } from "sonner";
 import { useGetMessageNextPage } from "@/hooks/get-message-page";
-import { convertToAiMessages } from "@/lib/utils";
+import { getToolInvocations, isLastMessageComplete } from "@/lib/utils";
 import { md5 } from "js-md5";
 
 type ChatPageProps = {
@@ -30,13 +30,12 @@ export function ChatPage({
 }: ChatPageProps) {
   // Auth and store data
   const { data: session } = useSession() as { data: ExtendedSession | null };
-  const newMessage = useStore((state) => state.newMessage);
-  const checkedTools = useStore((state) => state.checkedTools);
-  const setNewMessage = useStore((state) => state.setNewMessage);
   const setCheckedTools = useStore((state) => state.setCheckedTools);
-  // Tool calls
-  const [processedToolInvocationMessages, setProcessedToolInvocationMessages] =
-    useState<string[]>([]);
+  const checkedTools = useStore((state) => state.checkedTools);
+  // New conversation variables
+  const newMessage = useStore((state) => state.newMessage);
+  const setNewMessage = useStore((state) => state.setNewMessage);
+  const hasSendFirstMessage = useRef(false);
   // Scrolling and pagination
   const prevHeight = useRef(0);
   const prevScroll = useRef(0);
@@ -65,18 +64,18 @@ export function ChatPage({
     pageParams: [null],
   });
 
-  const retrievedMessages = convertToAiMessages(
-    data?.pages.flatMap((page) => page.messages) ?? [],
-  );
+  const retrievedMessages = data?.pages.flatMap((page) => page.messages) ?? [];
 
   const {
+    addToolResult,
+    append,
+    error,
     messages: messagesRaw,
-    input,
     handleInputChange,
     handleSubmit,
-    isLoading,
+    input,
     setMessages: setMessagesRaw,
-    error,
+    status,
     stop,
   } = useChat({
     api: `${env.NEXT_PUBLIC_BACKEND_URL}/qa/chat_streamed/${threadId}`,
@@ -93,12 +92,11 @@ export function ChatPage({
     },
   });
 
-  // For some reason, sometimes useChat displayed duplicate IDs for a split second,
-  // and it raised an error which then broke everything. I filtered out by ID.
-  // I will make it better with the new use chat since I know the initial message behaviour is different.
-  const messages = messagesRaw.filter(
-    (msg, index, self) => index === self.findIndex((m) => m.id === msg.id),
-  ) as MessageStrict[];
+  // This should probably be changed to be more granular, I just created the old behaviour here.
+  const isLoading = status == "streaming" || status == "submitted";
+
+  // Convert to our types.
+  const messages = messagesRaw as MessageStrict[];
   const setMessages = setMessagesRaw as (
     messages:
       | MessageStrict[]
@@ -108,22 +106,19 @@ export function ChatPage({
   // Initial use effect that runs on mount
   useEffect(() => {
     // Send new message when new chat.
-    if (initialMessages.length === 0 && newMessage !== "") {
-      initialMessages.push({
-        entity: "user",
-        message_id: "temp_id",
-        msg_content: {
-          role: "user",
-          content: newMessage,
-        },
-        creation_date: new Date().toString(),
-        thread_id: threadId,
-        is_complete: true,
-        tool_calls: [],
-      } as BMessageUser);
+    if (
+      initialMessages.length === 0 &&
+      newMessage !== "" &&
+      !hasSendFirstMessage.current
+    ) {
+      hasSendFirstMessage.current = true;
+      append({
+        id: "temp_id",
+        role: "user",
+        content: newMessage,
+      });
       generateEditTitle(null, threadId, newMessage);
       setNewMessage("");
-      handleSubmit(undefined, { allowEmptySubmit: true });
     }
 
     // If checkedTools is not initialized yet, initialize it
@@ -138,19 +133,29 @@ export function ChatPage({
       setCheckedTools(initialCheckedTools);
     }
 
-    // To know if the chat should be disabled or not, check if last message was stopped
-    const shouldBeStopped = () => {
-      const isLastMessageComplete =
-        messages.at(-1)?.annotations?.find(
-          (annotation) => "isComplete" in annotation, // Find the correct annotation
-        )?.isComplete ?? false;
-      return !isLastMessageComplete;
-    };
     // If message complete, don't set stopped
-    setStopped(shouldBeStopped());
+    setStopped(!isLastMessageComplete(messages.at(-1)));
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Handle streaming interruption
+  useEffect(() => {
+    if (stopped) {
+      setMessages((prevState) => {
+        prevState[prevState.length - 1] = {
+          ...prevState[prevState.length - 1],
+          annotations: prevState
+            .at(-1)
+            ?.annotations?.map((ann) =>
+              !ann.toolCallId ? { isComplete: false } : ann,
+            ),
+        };
+        // We only change the annotation at message level and keep the rest.
+        return prevState;
+      });
+    }
+  }, [stopped, setMessages]);
 
   useEffect(() => {
     if (isInvalidating || isFetching) return;
@@ -158,57 +163,19 @@ export function ChatPage({
     if (!stopped) {
       setMessages(() => [
         ...retrievedMessages,
-        ...messages.filter((m) => m.id.length !== 32),
+        ...messages.filter(
+          (m) => m.id.length !== 32 && !m.id.startsWith("temp"),
+        ),
       ]);
     } else {
       setMessages(retrievedMessages);
     }
   }, [md5(JSON.stringify(retrievedMessages))]); // Rerun on content change
 
-  // Handle auto-submit if tools have been validated
-  useEffect(() => {
-    const lastMessage = messages[messages.length - 1];
-    if (lastMessage?.role === "assistant" && lastMessage.toolInvocations) {
-      // Skip if we've already processed this message
-      if (processedToolInvocationMessages.includes(lastMessage.id)) {
-        return;
-      }
-
-      const annotations = lastMessage.annotations || [];
-
-      // Count tools that were subject to HIL (accepted, rejected, or pending)
-      const validatedCount = annotations.filter((a) =>
-        ["accepted", "rejected", "pending"].includes(a.validated ?? ""),
-      ).length;
-
-      // Count validated tools that also have results
-      const validatedWithResultCount = lastMessage.toolInvocations.filter(
-        (tool) => {
-          const annotation = annotations.find(
-            (a) => a.toolCallId === tool.toolCallId,
-          );
-          return (
-            (annotation?.validated === "accepted" ||
-              annotation?.validated === "rejected") &&
-            tool.state === "result"
-          );
-        },
-      ).length;
-
-      if (validatedCount > 0 && validatedCount === validatedWithResultCount) {
-        // Mark this message as processed
-        setProcessedToolInvocationMessages((prev) => [...prev, lastMessage.id]);
-
-        console.log(
-          "All validated tools have results, triggering empty message",
-        );
-        handleSubmit(undefined, { allowEmptySubmit: true });
-      }
-    }
-  }, [messages, handleSubmit, processedToolInvocationMessages]);
-
+  // Constant to check if there are tool calls at the end of conv.
   const hasOngoingToolInvocations =
-    (messages.at(-1)?.toolInvocations ?? []).length > 0;
+    (getToolInvocations(messages.at(-1)) ?? []).length > 0 &&
+    messages.at(-1)?.content == "";
 
   // Auto scroll when streaming
   useEffect(() => {
@@ -217,7 +184,7 @@ export function ChatPage({
     }
   }, [messages, isAutoScrollEnabled]);
 
-  // Check for user inputs
+  // Check for user inputs to stop auto scroll
   const handleWheel = (event: React.WheelEvent) => {
     if (event.deltaY < 0) {
       setIsAutoScrollEnabled(false);
@@ -267,19 +234,6 @@ export function ChatPage({
       if (observerRef.current) observerRef.current.disconnect();
     };
   }, [hasNextPage, isFetchingPreviousPage, isLoading, fetchPreviousPage]);
-
-  // Handle streaming interruption
-  useEffect(() => {
-    if (stopped) {
-      setMessages((prevState) => {
-        prevState[prevState.length - 1] = {
-          ...prevState[prevState.length - 1],
-          annotations: [{ isComplete: false }],
-        };
-        return prevState;
-      });
-    }
-  }, [stopped, setMessages]);
 
   // Handle chat errors
   useEffect(() => {
@@ -331,7 +285,9 @@ export function ChatPage({
           messages={messages}
           threadId={threadId}
           availableTools={availableTools}
+          addToolResult={addToolResult}
           setMessages={setMessages}
+          loadingStatus={status}
         />
         <div ref={messagesEndRef} />
       </div>

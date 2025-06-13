@@ -7,18 +7,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v0.6.1] - 12.06.2025
+
+## Fixed
+- Swagger issue.
+
+## [v0.6.0] - 12.06.2025
+
+### Changed
+- Update to new version of useChat.
+
 ### Added
-- Tools for (most) GET endpoints of entitycore
+- Tools for (most) GET endpoints of entitycore.
+- Thumbnail generation tool.
+- Whitelisting of tools based on regex.
 
 ### Fixed
 - Fixed bug where fastapi servers were wrongly set.
+- Line break in ai message.
 
 ## Changed
 - Track mcp.json.
+- Rerun autogen tool on entitycore.
+- Prompt engineering on tools.
 - mtype resolving now use embedddings.
 
 ### Removed
-- Knowledge graph tools and utils
+- Knowledge graph tools and utils.
 
 ## [0.5.5] - 02.06.2025
 

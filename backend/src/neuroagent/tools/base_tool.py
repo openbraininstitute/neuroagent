@@ -61,7 +61,7 @@ class BaseMetadata(BaseModel):
 
 
 class EntitycoreMetadata(BaseMetadata):
-    """Metadata class for for all Entitycore tools."""
+    """Metadata class for all Entitycore tools."""
 
     httpx_client: AsyncClient
     entitycore_url: str
