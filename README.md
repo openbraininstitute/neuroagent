@@ -25,9 +25,12 @@ docker exec -it neuroagent-backend-1 alembic -x url=postgresql://postgres:pwd@po
 docker exec -it neuroagent-minio-1 mc alias set myminio http://minio:9000 minioadmin minioadmin && docker exec -it neuroagent-minio-1 mc mb myminio/neuroagent
 ```
 
-To enable the brain region resolving tool, retrieve your bearer token and make sure to run the following script:
+To enable the brain region and m-type resolving tools, retrieve your bearer token and make sure to run the following scripts:
 ```bash
 python backend/src/neuroagent/scripts/embed_hierarchies.py $token -e https://staging.openbraininstitute.org/api/entitycore/ -u http://localhost:9000 -b neuroagent -a minioadmin -s minioadmin
+```
+```bash
+python src/neuroagent/scripts/embed_mtypes.py $token -e https://staging.openbraininstitute.org/api/entitycore/ -u http://localhost:9000 -b neuroagent -a minioadmin -s minioadmin -p 1000
 ```
 which stores a json file in your minio/s3 instance.
 
