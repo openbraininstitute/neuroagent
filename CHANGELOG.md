@@ -30,6 +30,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Track mcp.json.
 - Rerun autogen tool on entitycore.
 - Prompt engineering on tools.
+- mtype resolving now use embedddings.
 
 ### Removed
 - Knowledge graph tools and utils.
