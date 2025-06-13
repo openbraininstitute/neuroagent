@@ -6,14 +6,19 @@ import TextareaAutosize from "react-textarea-autosize";
 import { Dispatch, FormEvent, SetStateAction, startTransition } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { resetInfiniteQueryPagination } from "@/hooks/get-message-page";
+import { ModelSelectionDropdown } from "./model-selection";
+import { LLMModel } from "@/lib/types";
 
 type ChatInputInsideThreadProps = {
   input: string;
   isLoading: boolean;
   availableTools: Array<{ slug: string; label: string }>;
+  availableModels: Array<LLMModel>;
   checkedTools: Record<string, boolean>;
+  currentModel: LLMModel;
   threadId: string;
   setCheckedTools: (tools: Record<string, boolean>) => void;
+  setCurrentModel: (model: LLMModel) => void;
   handleInputChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
   handleSubmit: (event?: { preventDefault?: () => void }) => void;
   setIsAutoScrollEnabled: (enabled: boolean) => void;
@@ -28,9 +33,12 @@ export function ChatInputInsideThread({
   input,
   isLoading,
   availableTools,
+  availableModels,
   checkedTools,
+  currentModel,
   threadId,
   setCheckedTools,
+  setCurrentModel,
   handleInputChange,
   handleSubmit,
   setIsAutoScrollEnabled,
@@ -74,6 +82,13 @@ export function ChatInputInsideThread({
         submitWrapper(e);
       }}
     >
+      <div className="-mb-2 flex w-full max-w-[1200px] justify-end">
+        <ModelSelectionDropdown
+          currentModel={currentModel}
+          availableModels={availableModels}
+          setCurrentModel={setCurrentModel}
+        />
+      </div>
       <div className="flex min-h-16 w-full max-w-[1200px] items-center overflow-hidden rounded-[3vw] border-2 border-gray-500 pl-9 pr-2">
         <TextareaAutosize
           className="h-6 flex-grow resize-none border-none bg-transparent outline-none"

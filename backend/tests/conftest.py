@@ -30,8 +30,8 @@ def client_fixture():
                 "url": "fake_literature_url",
             },
         },
-        openai={
-            "token": "fake_token",
+        llm={
+            "openai_token": "fake_token",
         },
         rate_limiter={"disabled": True},
         accounting={"disabled": True},
@@ -132,7 +132,7 @@ def dont_look_at_env_file():
 @pytest.fixture()
 def patch_required_env(monkeypatch):
     monkeypatch.setenv("NEUROAGENT_TOOLS__LITERATURE__URL", "https://fake_url")
-    monkeypatch.setenv("NEUROAGENT_OPENAI__TOKEN", "dummy")
+    monkeypatch.setenv("NEUROAGENT_LLM__OPENAI_TOKEN", "dummy")
 
 
 # Don't make it a fixture so that it doesn't trigger on skipped tests
@@ -256,8 +256,8 @@ def settings():
                 "url": "fake_literature_url",
             },
         },
-        openai={
-            "token": "fake_token",
+        llm={
+            "openai_token": "fake_token",
         },
         rate_limiter={"disabled": True},
         accounting={"disabled": True},

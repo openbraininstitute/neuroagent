@@ -111,7 +111,7 @@ async def generate_title(
 
     response = await openai_client.beta.chat.completions.parse(
         messages=messages,  # type: ignore
-        model=settings.openai.model,
+        model=settings.llm.suggestion_model,
         response_format=ThreadGeneratedTitle,
     )
 

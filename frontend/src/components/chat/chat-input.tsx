@@ -11,18 +11,22 @@ import ChatInputLoading from "@/components/chat/chat-input-loading";
 import { convert_tools_to_set } from "@/lib/utils";
 import { OpenUserJourneyButton } from "@/components/chat/user-journey-dialog";
 import QuestionSuggestionCards from "@/components/chat/question-suggestion-cards";
-import { SuggestedQuestions, UserHistory } from "@/lib/types";
+import { LLMModel, SuggestedQuestions, UserHistory } from "@/lib/types";
 import { getSuggestions } from "@/actions/get-suggestions";
+import { ModelSelectionDropdown } from "./model-selection";
 
 type ChatInputProps = {
   availableTools: Array<{ slug: string; label: string }>;
+  availableModels: Array<LLMModel>;
 };
 
-export function ChatInput({ availableTools }: ChatInputProps) {
+export function ChatInput({ availableTools, availableModels }: ChatInputProps) {
   const newMessage = useStore((state) => state.newMessage);
   const setNewMessage = useStore((state) => state.setNewMessage);
   const checkedTools = useStore((state) => state.checkedTools);
   const setCheckedTools = useStore((state) => state.setCheckedTools);
+  const currentModel = useStore((state) => state.currentModel);
+  const setCurrentModel = useStore((state) => state.setCurrentModel);
   const [input, setInput] = useState("");
 
   const [, action, isPending] = useActionState(createThread, null);
@@ -75,6 +79,13 @@ export function ChatInput({ availableTools }: ChatInputProps) {
         }}
         className="flex w-full max-w-[1200px] flex-col justify-center"
       >
+        <div className="mb-2 flex justify-end">
+          <ModelSelectionDropdown
+            currentModel={currentModel}
+            availableModels={availableModels}
+            setCurrentModel={setCurrentModel}
+          />
+        </div>
         <div className="flex min-h-16 items-center overflow-hidden rounded-[3vw] border-2 border-gray-500 pl-9 pr-2">
           <TextareaAutosize
             name="content"

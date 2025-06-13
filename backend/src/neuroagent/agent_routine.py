@@ -244,6 +244,7 @@ class AgentsRoutine:
                     model_override=model_override,
                     stream=True,
                 )
+
                 turns += 1
                 draft_tool_calls: list[dict[str, str]] = []
                 draft_tool_calls_index = -1

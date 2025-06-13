@@ -203,7 +203,7 @@ async def question_suggestions(
 
     response = await openai_client.beta.chat.completions.parse(
         messages=messages,  # type: ignore
-        model=settings.openai.suggestion_model,
+        model=settings.llm.suggestion_model,
         response_format=QuestionsSuggestions,
     )
 

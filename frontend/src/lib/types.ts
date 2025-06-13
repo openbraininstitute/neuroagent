@@ -201,5 +201,11 @@ export type UserHistory = Array<{
   artifact: string | null;
 }>;
 
+export type LLMModel = {
+  id: string;
+  name: string;
+  metadata: string;
+};
+
 export const threadPageSize = "25";
 export const messagePageSize = "25";
