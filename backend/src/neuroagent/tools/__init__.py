@@ -1,7 +1,5 @@
 """Tools package."""
 
-from neuroagent.tools.bluenaas_memodel_getall import MEModelGetAllTool
-from neuroagent.tools.bluenaas_memodel_getone import MEModelGetOneTool
 from neuroagent.tools.bluenaas_scs_getall import SCSGetAllTool
 from neuroagent.tools.bluenaas_scs_getone import SCSGetOneTool
 from neuroagent.tools.bluenaas_scs_plot import SCSPlotTool
@@ -61,6 +59,8 @@ from neuroagent.tools.entitycore_measurementannotation_getall import (
 from neuroagent.tools.entitycore_measurementannotation_getone import (
     MeasurementAnnotationGetOneTool,
 )
+from neuroagent.tools.entitycore_memodel_getall import MeModelGetAllTool
+from neuroagent.tools.entitycore_memodel_getone import MeModelGetOneTool
 from neuroagent.tools.entitycore_mtype_getall import MtypeGetAllTool
 from neuroagent.tools.entitycore_mtype_getone import MtypeGetOneTool
 from neuroagent.tools.entitycore_organization_getall import OrganizationGetAllTool
@@ -98,8 +98,8 @@ __all__ = [
     "SCSPlotTool",
     "SCSPostTool",
     "LiteratureSearchTool",
-    "MEModelGetAllTool",
-    "MEModelGetOneTool",
+    "MeModelGetAllTool",
+    "MeModelGetOneTool",
     "ReconstructionMorphologyGetAllTool",
     "ReconstructionMorphologyGetOneTool",
     "MorphoMetricsTool",
