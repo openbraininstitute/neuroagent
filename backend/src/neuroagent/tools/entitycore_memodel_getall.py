@@ -60,7 +60,7 @@ class MEModelGetAllTool(BaseTool):
     These are models that are ready to be simulated. You will need the ID of the models to run the subsequent simulations."""
     description_frontend: ClassVar[
         str
-    ] = """Searches for Morphological Electric models (ME-Model) in the entitycore database. Use this tool ewhen you want to :
+    ] = """Searches for Morphological Electric models (ME-Model) in the entitycore database. Use this tool when you want to:
     • Find MeModels in specific brain regions
     • Filter by subject and species
     • Access detailed MeModels data before running a simulation."""
