@@ -7,10 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- Tool calls have a unique ID independent of the provider.
+
 ## [v0.6.1] - 12.06.2025
 
-## Fixed
+### Fixed
 - Swagger issue.
+
 
 ## [v0.6.0] - 12.06.2025
 

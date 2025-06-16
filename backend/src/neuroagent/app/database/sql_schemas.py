@@ -78,10 +78,13 @@ class ToolCalls(Base):
     """SQL table used for tool call parameters."""
 
     __tablename__ = "tool_calls"
-    tool_call_id: Mapped[str] = mapped_column(String, primary_key=True)
+    id: Mapped[str] = mapped_column(
+        String, primary_key=True, default=lambda: uuid.uuid4().hex
+    )
     name: Mapped[str] = mapped_column(String, nullable=False)
     arguments: Mapped[str] = mapped_column(String, nullable=False)
     validated: Mapped[bool] = mapped_column(Boolean, nullable=True)
+    provider_tc_id: Mapped[str] = mapped_column(String, nullable=False)
 
     message_id: Mapped[str] = mapped_column(String, ForeignKey("messages.message_id"))
     message: Mapped[Messages] = relationship("Messages", back_populates="tool_calls")
