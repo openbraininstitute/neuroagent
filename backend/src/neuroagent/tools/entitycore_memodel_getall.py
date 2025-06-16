@@ -16,8 +16,8 @@ from neuroagent.tools.base_tool import BaseTool, EntitycoreMetadata
 logger = logging.getLogger(__name__)
 
 
-class MeModelGetAllInput(ReadManyMemodelGetParametersQuery):
-    """Input for the me model get all tool."""
+class MEModelGetAllInput(ReadManyMemodelGetParametersQuery):
+    """Input for the ME-Model get all tool."""
 
     within_brain_region_brain_region_id: UUID | None = Field(
         default=None,
@@ -49,26 +49,26 @@ class MeModelGetAllInput(ReadManyMemodelGetParametersQuery):
     )
 
 
-class MeModelGetAllTool(BaseTool):
-    """Definition of the MeModel get all tool."""
+class MEModelGetAllTool(BaseTool):
+    """Definition of the ME-Model get all tool."""
 
     name: ClassVar[str] = "entitycore-memodel-getall"
-    name_frontend: ClassVar[str] = "Get all Me Model"
+    name_frontend: ClassVar[str] = "Get all ME-Models"
     description: ClassVar[
         str
-    ] = """Search the entitycore database to find Morphological Electric models (me-models).
+    ] = """Search the entitycore database to find Morphological Electric models (ME-Model).
     These are models that are ready to be simulated. You will need the ID of the models to run the subsequent simulations."""
     description_frontend: ClassVar[
         str
-    ] = """Searches for Morphological Electric models (me-models) in the entitycore database. Use this tool ewhen you want to :
+    ] = """Searches for Morphological Electric models (ME-Model) in the entitycore database. Use this tool ewhen you want to :
     • Find MeModels in specific brain regions
     • Filter by subject and species
     • Access detailed MeModels data before running a simulation."""
     metadata: EntitycoreMetadata
-    input_schema: MeModelGetAllInput
+    input_schema: MEModelGetAllInput
 
     async def arun(self) -> ListResponseMEModelRead:
-        """Get many MeModels from the database while allowing filtering.
+        """Get many ME-Model from the database while allowing filtering.
 
         Returns
         -------
@@ -93,7 +93,7 @@ class MeModelGetAllTool(BaseTool):
         )
         if response.status_code != 200:
             raise ValueError(
-                f"The me model endpoint returned a non 200 response code. Error: {response.text}"
+                f"The ME-Model endpoint returned a non 200 response code. Error: {response.text}"
             )
 
         response_data = response.json()

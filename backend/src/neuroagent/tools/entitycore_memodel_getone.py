@@ -1,4 +1,4 @@
-"""Get one Me-Models."""
+"""Get one Me-Model."""
 
 import logging
 from typing import ClassVar
@@ -13,34 +13,34 @@ from neuroagent.tools.base_tool import BaseTool, EntitycoreMetadata
 logger = logging.getLogger(__name__)
 
 
-class MeModelGetOneInput(BaseModel):
-    """Input for the me model get one tool."""
+class MEModelGetOneInput(BaseModel):
+    """Input for the ME-Model get one tool."""
 
     me_model_id: UUID = Field(
-        description=("""ID of the Me model of interest in UUID format."""),
+        description=("""ID of the ME-Model of interest in UUID format."""),
     )
 
 
-class MeModelGetOneTool(BaseTool):
+class MEModelGetOneTool(BaseTool):
     """Definition of the MeModel get one tool."""
 
     name: ClassVar[str] = "entitycore-memodel-getone"
-    name_frontend: ClassVar[str] = "Get one Me Model"
+    name_frontend: ClassVar[str] = "Get one ME-Model"
     description: ClassVar[str] = (
-        """Retrieve a single Me Model by its UUID from the EntityCore service. Retrieves more data than the correspoding get all endpoint."""
+        """Retrieve a single ME-Model by its UUID from the EntityCore service. Retrieves more data than the correspoding get all endpoint."""
     )
     description_frontend: ClassVar[str] = (
-        """Fetch a specific Me Model using its unique ID. Useful for accessing detailed Me Model data."""
+        """Fetch a specific ME-Model using its unique ID. Useful for accessing detailed ME-Model data."""
     )
     metadata: EntitycoreMetadata
-    input_schema: MeModelGetOneInput
+    input_schema: MEModelGetOneInput
 
     async def arun(self) -> MEModelRead:
-        """Get one me-model from the entitycore database.
+        """Get one ME-Model from the entitycore database.
 
         Returns
         -------
-            MEModelRead descibing the ME model and its metadata.
+            MEModelRead descibing the ME-Model and its metadata.
         """
         headers: dict[str, str] = {}
         if self.metadata.vlab_id is not None:
@@ -55,7 +55,7 @@ class MeModelGetOneTool(BaseTool):
         )
         if response.status_code != 200:
             raise ValueError(
-                f"The me-model endpoint returned a non 200 response code. Error: {response.text}"
+                f"The ME-Model endpoint returned a non 200 response code. Error: {response.text}"
             )
 
         return MEModelRead(**response.json())
