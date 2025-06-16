@@ -249,7 +249,8 @@ def test_format_messages_output():
         tool_calls=[],
     )
     dummy_tool_call = ToolCalls(
-        tool_call_id="1234",
+        id="id_1234",
+        provider_tc_id="1234",
         arguments="{}",
         name="dummy_tool",
         validated="not_required",
@@ -307,7 +308,8 @@ def test_format_messages_output():
                 msg_content={"content": "DUMMY_AI_TOOL_CONTENT"},
                 tool_calls=[
                     ToolCall(
-                        tool_call_id="1234",
+                        id="id_1234",
+                        provider_tc_id="1234",
                         name="dummy_tool",
                         arguments="{}",
                         validated="not_required",
@@ -355,7 +357,7 @@ def test_format_messages_vercel():
         tool_calls=[],
     )
     dummy_tool_call = ToolCalls(
-        tool_call_id="1234",
+        provider_tc_id="1234",
         arguments="{}",
         name="dummy_tool",
         validated="not_required",

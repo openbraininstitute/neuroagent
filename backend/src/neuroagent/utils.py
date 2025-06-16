@@ -55,7 +55,7 @@ async def messages_to_openai_content(
                             "arguments": tool_call.arguments,
                             "name": tool_call.name,
                         },
-                        "id": tool_call.tool_call_id,
+                        "id": tool_call.provider_tc_id,
                         "type": "function",
                     }
                     for tool_call in tool_calls

@@ -272,10 +272,11 @@ def format_messages_output(
 
             tool_calls_data.append(
                 {
-                    "tool_call_id": tc.tool_call_id,
+                    "id": tc.id,
                     "name": tc.name,
                     "arguments": tc.arguments,
                     "validated": validation_status,
+                    "provider_tc_id": tc.provider_tc_id,
                 }
             )
 
@@ -376,7 +377,7 @@ def format_messages_vercel(
 
                 tool_call_buffer.append(
                     {
-                        "toolCallId": tc.tool_call_id,
+                        "toolCallId": tc.provider_tc_id,
                         "toolName": tc.name,
                         "args": json.loads(tc.arguments),
                         "is_complete": msg.is_complete,
@@ -389,12 +390,12 @@ def format_messages_vercel(
 
         # Merge the actual tool result back into the buffered part
         elif msg.entity == Entity.TOOL:
-            tool_call_id = json.loads(msg.content).get("tool_call_id")
+            provider_tc_id = json.loads(msg.content).get("provider_tc_id")
             tool_call = next(
                 (
                     item
                     for item in tool_call_buffer
-                    if item["toolCallId"] == tool_call_id
+                    if item["toolCallId"] == provider_tc_id
                 ),
                 None,
             )

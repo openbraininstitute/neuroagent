@@ -34,10 +34,10 @@ logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/tools", tags=["Tool's CRUD"])
 
 
-@router.patch("/{thread_id}/execute/{tool_call_id}")
+@router.patch("/{thread_id}/execute/{id}")
 async def execute_tool_call(
     thread_id: str,
-    tool_call_id: str,
+    id: str,
     request: ExecuteToolCallRequest,
     _: Annotated[Threads, Depends(get_thread)],  # validates thread belongs to user
     session: Annotated[AsyncSession, Depends(get_session)],
@@ -47,7 +47,7 @@ async def execute_tool_call(
 ) -> ExecuteToolCallResponse:
     """Execute a specific tool call and update its status."""
     # Get the tool call
-    tool_call = await session.get(ToolCalls, tool_call_id)
+    tool_call = await session.get(ToolCalls, id)
     if not tool_call:
         raise HTTPException(status_code=404, detail="Specified tool call not found.")
 
@@ -69,7 +69,7 @@ async def execute_tool_call(
     if request.validation == "rejected":
         message = {
             "role": "tool",
-            "tool_call_id": tool_call.tool_call_id,
+            "tool_call_id": tool_call.provider_tc_id,
             "tool_name": tool_call.name,
             "content": f"Tool call refused by the user. User's feedback: {request.feedback}"
             if request.feedback

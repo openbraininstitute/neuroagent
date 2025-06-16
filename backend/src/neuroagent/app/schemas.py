@@ -35,7 +35,8 @@ class TextPartVercel(BaseModel):
 class ToolCall(BaseModel):
     """Tool call."""
 
-    tool_call_id: str
+    id: str
+    provider_tc_id: str
     name: str
     arguments: str
     validated: Literal["accepted", "rejected", "pending", "not_required"]
@@ -112,7 +113,8 @@ class ThreadUpdate(BaseModel):
 class ToolCallSchema(BaseModel):
     """Tool call crud's output."""
 
-    tool_call_id: str
+    id: str
+    provider_tc_id: str
     name: str
     arguments: dict[str, Any]
 

@@ -25,7 +25,7 @@ class HILResponse(BaseModel):
     message: str
     name: str
     inputs: dict[str, Any]
-    tool_call_id: str
+    provider_tool_call_id: str
 
 
 class HILValidation(BaseModel):

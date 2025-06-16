@@ -227,7 +227,7 @@ async def populate_db(db_connection):
     ]
 
     tool_call = ToolCalls(
-        tool_call_id="mock_id_tc",
+        provider_tc_id="mock_id_tc",
         name="get_weather",
         arguments=json.dumps({"location": "Geneva"}),
         validated=None,

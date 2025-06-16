@@ -132,7 +132,7 @@ class AgentsRoutine:
         if name not in tool_map:
             return {
                 "role": "tool",
-                "tool_call_id": tool_call.tool_call_id,
+                "tool_call_id": tool_call.provider_tc_id,
                 "tool_name": name,
                 "content": f"Error: Tool {name} not found.",
             }, None
@@ -149,7 +149,7 @@ class AgentsRoutine:
                 # Otherwise transform it into an OpenAI response for the model to retry
                 response = {
                     "role": "tool",
-                    "tool_call_id": tool_call.tool_call_id,
+                    "tool_call_id": tool_call.provider_tc_id,
                     "tool_name": name,
                     "content": err.json(),
                 }
@@ -165,7 +165,7 @@ class AgentsRoutine:
                 # Otherwise transforn it into an OpenAI response for the model to retry
                 response = {
                     "role": "tool",
-                    "tool_call_id": tool_call.tool_call_id,
+                    "tool_call_id": tool_call.provider_tc_id,
                     "tool_name": name,
                     "content": "The user is not allowed to run this tool. Don't call it again.",
                 }
@@ -178,7 +178,7 @@ class AgentsRoutine:
         except Exception as err:
             response = {
                 "role": "tool",
-                "tool_call_id": tool_call.tool_call_id,
+                "tool_call_id": tool_call.provider_tc_id,
                 "tool_name": name,
                 "content": str(err),
             }
@@ -187,7 +187,7 @@ class AgentsRoutine:
         result: Result = self.handle_function_result(raw_result)
         response = {
             "role": "tool",
-            "tool_call_id": tool_call.tool_call_id,
+            "tool_call_id": tool_call.provider_tc_id,
             "tool_name": name,
             "content": result.value,
         }
@@ -336,7 +336,7 @@ class AgentsRoutine:
                 if message["tool_calls"]:
                     tool_calls = [
                         ToolCalls(
-                            tool_call_id=tool_call["id"],
+                            provider_tc_id=tool_call["id"],
                             name=tool_call["function"]["name"],
                             arguments=tool_call["function"]["arguments"],
                         )
@@ -392,7 +392,7 @@ class AgentsRoutine:
                         [
                             {
                                 "role": "tool",
-                                "tool_call_id": call.tool_call_id,
+                                "tool_call_id": call.provider_tc_id,
                                 "tool_name": call.name,
                                 "content": f"The tool {call.name} with arguments {call.arguments} could not be executed due to rate limit. Call it again.",
                             }
@@ -429,7 +429,7 @@ class AgentsRoutine:
                 # If the tool call response contains HIL validation, do not update anything and return
                 if tool_calls_with_hil:
                     annotation_data = [
-                        {"toolCallId": msg.tool_call_id, "validated": "pending"}
+                        {"toolCallId": msg.provider_tc_id, "validated": "pending"}
                         for msg in tool_calls_with_hil
                     ]
 
@@ -465,7 +465,7 @@ class AgentsRoutine:
             if message["tool_calls"]:
                 tool_calls = [
                     ToolCalls(
-                        tool_call_id=tool_call["id"],
+                        provider_tc_id=tool_call["id"],
                         name=tool_call["function"]["name"],
                         arguments=tool_call["function"]["arguments"],
                     )
@@ -499,7 +499,7 @@ class AgentsRoutine:
                             content=json.dumps(
                                 {
                                     "role": "tool",
-                                    "tool_call_id": call.tool_call_id,
+                                    "tool_call_id": call.provider_tc_id,
                                     "tool_name": call.name,
                                     "content": "Tool execution aborted by the user.",
                                 }

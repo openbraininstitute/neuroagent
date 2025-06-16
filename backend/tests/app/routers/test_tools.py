@@ -29,7 +29,7 @@ async def test_execute_tool_call_accepted(
 
     with app_client as app_client:
         response = app_client.patch(
-            f"/tools/{thread.thread_id}/execute/{tool_call.tool_call_id}",
+            f"/tools/{thread.thread_id}/execute/{tool_call.id}",
             json={"validation": "accepted"},
         )
     assert response.json()["status"] == "done"
@@ -61,7 +61,7 @@ async def test_execute_tool_call_rejected(
 
     with app_client as app_client:
         response = app_client.patch(
-            f"/tools/{thread.thread_id}/execute/{tool_call.tool_call_id}",
+            f"/tools/{thread.thread_id}/execute/{tool_call.id}",
             json={"validation": "rejected"},
         )
 
@@ -94,7 +94,7 @@ async def test_execute_tool_call_validation_error(
 
     with app_client as app_client:
         response = app_client.patch(
-            f"/tools/{thread.thread_id}/execute/{tool_call.tool_call_id}",
+            f"/tools/{thread.thread_id}/execute/{tool_call.id}",
             json={
                 "validation": "accepted",
                 "args": json.dumps({"lction": "Zurich"}),

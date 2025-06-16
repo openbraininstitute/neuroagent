@@ -195,7 +195,7 @@ class TestAgentsRoutine:
         tool_calls = tool_call_message.choices[0].message.tool_calls
         tool_calls_db = [
             ToolCalls(
-                tool_call_id=tool_call.id,
+                provider_tc_id=tool_call.id,
                 name=tool_call.function.name,
                 arguments=tool_call.function.arguments,
             )
@@ -245,7 +245,7 @@ class TestAgentsRoutine:
         tool_calls = tool_call_message.choices[0].message.tool_calls
         tool_calls_db = [
             ToolCalls(
-                tool_call_id=tool_call.id,
+                provider_tc_id=tool_call.id,
                 name=tool_call.function.name,
                 arguments=tool_call.function.arguments,
             )
@@ -302,7 +302,7 @@ class TestAgentsRoutine:
         tool_calls = tool_call_message.choices[0].message.tool_calls
         tool_calls_db = [
             ToolCalls(
-                tool_call_id=tool_call.id,
+                provider_tc_id=tool_call.id,
                 name=tool_call.function.name,
                 arguments=tool_call.function.arguments,
             )
@@ -351,7 +351,7 @@ class TestAgentsRoutine:
         )
         tool_call = tool_call_message.choices[0].message.tool_calls[0]
         tool_call_db = ToolCalls(
-            tool_call_id=tool_call.id,
+            provider_tc_id=tool_call.id,
             name=tool_call.function.name,
             arguments=tool_call.function.arguments,
         )
@@ -396,7 +396,7 @@ class TestAgentsRoutine:
         )
         tool_call = tool_call_message.choices[0].message.tool_calls[0]
         tool_call_db = ToolCalls(
-            tool_call_id=tool_call.id,
+            provider_tc_id=tool_call.id,
             name=tool_call.function.name,
             arguments=tool_call.function.arguments,
         )
@@ -442,7 +442,7 @@ class TestAgentsRoutine:
         )
         tool_call = tool_call_message.choices[0].message.tool_calls[0]
         tool_call_db = ToolCalls(
-            tool_call_id=tool_call.id,
+            provider_tc_id=tool_call.id,
             name=tool_call.function.name,
             arguments=tool_call.function.arguments,
         )
