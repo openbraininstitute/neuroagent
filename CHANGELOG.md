@@ -12,6 +12,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Fixed
 - Swagger issue.
 
+## Changed
+- ME-Models are now fetched from entitycore.
+
 ## [v0.6.0] - 12.06.2025
 
 ### Changed
