@@ -179,3 +179,17 @@ class EmbeddedBrainRegions(BaseModel):
 
     regions: list[EmbeddedBrainRegion]
     hierarchy_id: str
+
+
+class EmbeddedMType(BaseModel):
+    """MType embedding schema."""
+
+    id: str
+    pref_label: str
+    pref_label_embedding: list[float] | None = None
+
+
+class EmbeddedMTypes(BaseModel):
+    """Schema for dumping."""
+
+    mtypes: list[EmbeddedMType]

@@ -25,6 +25,7 @@ from starlette.responses import JSONResponse
 from neuroagent import __version__
 from neuroagent.app.app_utils import (
     get_br_embeddings,
+    get_mtype_embeddings,
     get_semantic_router,
     setup_engine,
 )
@@ -127,7 +128,13 @@ async def lifespan(fastapi_app: FastAPI) -> AsyncContextManager[None]:  # type: 
         bucket_name=app_settings.storage.bucket_name,
         folder="shared",
     )
+    mtype_embeddings = get_mtype_embeddings(
+        s3_client=s3_client,
+        bucket_name=app_settings.storage.bucket_name,
+        folder="shared",
+    )
     fastapi_app.state.br_embeddings = br_embeddings
+    fastapi_app.state.mtype_embeddings = mtype_embeddings
 
     async with aclosing(
         AsyncAccountingSessionFactory(
