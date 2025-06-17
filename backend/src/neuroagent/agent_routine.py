@@ -252,13 +252,11 @@ class AgentsRoutine:
                 draft_tool_calls_index = -1
                 async for chunk in completion:
                     for choice in chunk.choices:
-                        # breakpoint()
                         if choice.finish_reason == "stop":
                             if choice.delta.content:
                                 yield f"0:{json.dumps(choice.delta.content, separators=(',', ':'))}\n"
 
                         elif choice.finish_reason == "tool_calls":
-                            # breakpoint()
                             # Some models stream the whole tool call in one chunk.
                             if not draft_tool_calls and choice.delta.tool_calls:
                                 for tc in choice.delta.tool_calls:
@@ -339,7 +337,6 @@ class AgentsRoutine:
                                     ] += arguments
 
                         else:
-                            # breakpoint()
                             if choice.delta.content is not None:
                                 yield f"0:{json.dumps(choice.delta.content, separators=(',', ':'))}\n"
 

@@ -4,7 +4,7 @@ import logging
 from typing import ClassVar
 
 from openai import AsyncOpenAI
-from pydantic import BaseModel, Field, SecretStr
+from pydantic import BaseModel, Field
 from sklearn.metrics.pairwise import cosine_similarity
 
 from neuroagent.schemas import EmbeddedBrainRegions
@@ -35,7 +35,7 @@ class ResolveBRMetadata(BaseMetadata):
     """Metadata for ResolveEntitiesTool."""
 
     brainregion_embeddings: list[EmbeddedBrainRegions]
-    openai_api_key: SecretStr | None
+    openai_client: AsyncOpenAI | None
 
 
 class BrainRegion(BaseModel):
@@ -104,17 +104,14 @@ class ResolveBrainRegionTool(BaseTool):
                 if region.name.lower() == self.input_schema.brain_region_name.lower()
             )
         except StopIteration:
-            if not self.metadata.openai_api_key:
+            if not self.metadata.openai_client:
                 raise ValueError(
-                    "Could not exact match the requested brain region. Please provide the OpenAI API key to perform semantic search."
+                    "Could not exact match the requested brain region. Please provide the OpenAI client to perform semantic search."
                 )
             pass
 
         # If exact match didn't work we perform semantic search
-        openai_client = AsyncOpenAI(
-            api_key=self.metadata.openai_api_key.get_secret_value()
-        )
-        response = await openai_client.embeddings.create(
+        response = await self.metadata.openai_client.embeddings.create(
             input=self.input_schema.brain_region_name,
             model="text-embedding-3-small",
         )

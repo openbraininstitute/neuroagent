@@ -132,26 +132,31 @@ async def get_openai_client(
     settings: Annotated[Settings, Depends(get_settings)],
 ) -> AsyncIterator[AsyncOpenAI | None]:
     """Get the OpenAi Async client."""
-    if not settings.llm.openai_token and (
-        not settings.llm.open_router_token or not settings.llm.base_url
-    ):
+    if not settings.llm.openai_token:
         yield None
     else:
         try:
-            client = (
-                AsyncOpenAI(
-                    api_key=settings.llm.open_router_token.get_secret_value(),
-                    base_url=settings.llm.base_url,
-                )
-                if settings.llm.base_url and settings.llm.open_router_token
-                else AsyncOpenAI(api_key=settings.llm.openai_token.get_secret_value())
-                if settings.llm.openai_token
-                else None
+            client = AsyncOpenAI(api_key=settings.llm.openai_token.get_secret_value())
+            yield client
+        finally:
+            await client.close()
+
+
+async def get_openrouter_client(
+    settings: Annotated[Settings, Depends(get_settings)],
+) -> AsyncIterator[AsyncOpenAI | None]:
+    """Get the OpenAi Async client."""
+    if not settings.llm.open_router_token or not settings.llm.base_url:
+        yield None
+    else:
+        try:
+            client = AsyncOpenAI(
+                api_key=settings.llm.open_router_token.get_secret_value(),
+                base_url=settings.llm.base_url,
             )
             yield client
         finally:
-            if client:
-                await client.close()
+            await client.close()
 
 
 def get_connection_string(
@@ -455,7 +460,6 @@ def get_context_variables(
         "literature_search_url": settings.tools.literature.url,
         "obi_one_url": settings.tools.obi_one.url,
         "openai_client": openai_client,
-        "openai_api_key": settings.llm.openai_token,
         "project_id": thread.project_id,
         "retriever_k": settings.tools.literature.retriever_k,
         "s3_client": s3_client,
@@ -490,10 +494,10 @@ def get_healthcheck_variables(
 
 
 def get_agents_routine(
-    openai: Annotated[AsyncOpenAI | None, Depends(get_openai_client)],
+    openrouter: Annotated[AsyncOpenAI | None, Depends(get_openrouter_client)],
 ) -> AgentsRoutine:
     """Get the AgentRoutine client."""
-    return AgentsRoutine(openai)
+    return AgentsRoutine(openrouter)
 
 
 def get_redis_client(request: Request) -> aioredis.Redis | None:
