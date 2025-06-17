@@ -10,6 +10,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Multi-model support with OpenRouter.
 
+### Changed
+- Use UV in CI.
+
 ## [v0.6.1] - 12.06.2025
 
 ## Fixed
