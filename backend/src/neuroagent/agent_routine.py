@@ -253,11 +253,9 @@ class AgentsRoutine:
                 async for chunk in completion:
                     for choice in chunk.choices:
                         # breakpoint()
-                        # breakpoint()
                         if choice.finish_reason == "stop":
                             if choice.delta.content:
                                 yield f"0:{json.dumps(choice.delta.content, separators=(',', ':'))}\n"
-                            continue
 
                         elif choice.finish_reason == "tool_calls":
                             # breakpoint()
