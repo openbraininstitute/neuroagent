@@ -18,6 +18,7 @@ repos:
       - id: ruff
         args: [--fix]
       - id: ruff-format
+        args: [backend/src/, backend/tests/]
 
   - repo: https://github.com/PyCQA/bandit
     rev: 1.7.4
