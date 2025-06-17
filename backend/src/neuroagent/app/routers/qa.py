@@ -321,6 +321,8 @@ async def stream_chat_agent(
                         **limit_headers.model_dump(by_alias=True),
                     },
                 )
+        agent.model = user_request.model
+        logger.info(f"Loading model {agent.model}.")
 
         stream_generator = stream_agent_response(
             agents_routine=agents_routine,

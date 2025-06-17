@@ -355,10 +355,8 @@ async def get_selected_tools(
         return selected_tools
 
 
-async def get_starting_agent(
-    settings: Annotated[Settings, Depends(get_settings)],
+def get_starting_agent(
     tool_list: Annotated[list[type[BaseTool]], Depends(get_selected_tools)],
-    request: Request,
 ) -> Agent:
     """Get the starting agent."""
     base_instructions = f"""You are a helpful assistant helping scientists with neuro-scientific questions.
@@ -374,13 +372,10 @@ async def get_starting_agent(
                 The models currently available on the platform are the metabolism and NGV unit as a notebook, and the single neuron, synaptome simulation. The other models will be released later starting with microcircuits paired neurons and then brain region, brain system and whole brain.
                 The platform has many notebooks that can be downloaded and executed remotely for now. A feature to run them on the platform will be available soon.
                 The platform has an AI Assistant for literature search allowing users to identify articles related to the brain area and artifacts they are interested in. At a later stage, the AI assistant will be further developed to access specific tools on the platform. PLEASE ALWAYS RESPECT THE TOOL OUTPUTS AND DON'T INVENT INFORMATION NOT PRESENT IN THE OUTPUTS."""
-    body = await request.json()
-    logger.info(f"Loading model {body['model']}.")
     agent = Agent(
         name="Agent",
         instructions=base_instructions,
         tools=tool_list,
-        model=body["model"],
     )
     return agent
 
