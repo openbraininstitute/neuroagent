@@ -370,7 +370,7 @@ async def get_starting_agent(
                 The platform has many notebooks that can be downloaded and executed remotely for now. A feature to run them on the platform will be available soon.
                 The platform has an AI Assistant for literature search allowing users to identify articles related to the brain area and artifacts they are interested in. At a later stage, the AI assistant will be further developed to access specific tools on the platform. PLEASE ALWAYS RESPECT THE TOOL OUTPUTS AND DON'T INVENT INFORMATION NOT PRESENT IN THE OUTPUTS."""
     body = await request.json()
-    logger.info(f"Loading model {body["model"]}.")
+    logger.info(f"Loading model {body['model']}.")
     agent = Agent(
         name="Agent",
         instructions=base_instructions,
