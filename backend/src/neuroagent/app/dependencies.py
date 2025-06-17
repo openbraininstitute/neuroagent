@@ -439,7 +439,6 @@ def get_s3_client(
 def get_context_variables(
     request: Request,
     settings: Annotated[Settings, Depends(get_settings)],
-    starting_agent: Annotated[Agent, Depends(get_starting_agent)],
     httpx_client: Annotated[AsyncClient, Depends(get_httpx_client)],
     thread: Annotated[Threads, Depends(get_thread)],
     s3_client: Annotated[Any, Depends(get_s3_client)],
@@ -460,7 +459,6 @@ def get_context_variables(
         "project_id": thread.project_id,
         "retriever_k": settings.tools.literature.retriever_k,
         "s3_client": s3_client,
-        "starting_agent": starting_agent,
         "tavily_api_key": settings.tools.web_search.tavily_api_key,
         "thread_id": thread.thread_id,
         "thumbnail_generation_url": settings.tools.thumbnail_generation.url,
