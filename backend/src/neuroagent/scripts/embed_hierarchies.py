@@ -119,7 +119,7 @@ async def push_embeddings_to_s3(
     token: str,
 ) -> None:
     """Compute and push embeddings to s3."""
-    httpx_client = AsyncClient(timeout=None)
+    httpx_client = AsyncClient(timeout=300.0)
     logger.info(f"Getting brain hierarchy {hierarchy_id} from Entity-Core.")
 
     hierarchy = await httpx_client.get(

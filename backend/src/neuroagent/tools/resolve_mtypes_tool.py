@@ -64,8 +64,7 @@ class ResolveMtypeTool(BaseTool):
     ) -> ResolveMtypeOutput:
         """Given a brain region in natural language, resolve its ID."""
         logger.info(
-            f"Entering Brain Region resolver tool. Inputs: "
-            f"{self.input_schema.mtype=}"
+            f"Entering Brain Region resolver tool. Inputs: {self.input_schema.mtype=}"
         )
         params = ReadManyMtypeGetParametersQuery(pref_label=self.input_schema.mtype)
         mtype_response = await self.metadata.httpx_client.get(
