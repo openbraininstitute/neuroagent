@@ -4,6 +4,7 @@ import asyncio
 import copy
 import json
 import logging
+import uuid
 from collections import defaultdict
 from typing import Any, AsyncIterator
 
@@ -250,10 +251,31 @@ class AgentsRoutine:
                 draft_tool_calls_index = -1
                 async for chunk in completion:
                     for choice in chunk.choices:
+                        # breakpoint()
+                        # breakpoint()
                         if choice.finish_reason == "stop":
+                            if choice.delta.content:
+                                yield f"0:{json.dumps(choice.delta.content, separators=(',', ':'))}\n"
                             continue
 
                         elif choice.finish_reason == "tool_calls":
+                            # breakpoint()
+                            # Some models stream the whole tool call in one chunk.
+                            if not draft_tool_calls and choice.delta.tool_calls:
+                                for tc in choice.delta.tool_calls:
+                                    tc.id = uuid.uuid4().hex
+                                    draft_tool_calls.append(
+                                        {
+                                            "arguments": tc.function.arguments or "{}"
+                                            if tc.function
+                                            else "{}",
+                                            "id": tc.id,
+                                            "name": tc.function.name or ""
+                                            if tc.function
+                                            else "",
+                                        }
+                                    )
+
                             for draft_tool_call in draft_tool_calls:
                                 input_args = json.loads(
                                     draft_tool_call["arguments"] or "{}"
@@ -282,6 +304,11 @@ class AgentsRoutine:
                                     continue
                                 if tool_call.function is None:
                                     continue
+                                if tool_call.id is not None:
+                                    tool_call.id = (
+                                        uuid.uuid4().hex
+                                    )  # Set provider_id to random uuid
+
                                 id = tool_call.id
                                 name = tool_call.function.name
                                 arguments = tool_call.function.arguments
@@ -313,6 +340,7 @@ class AgentsRoutine:
                                     ] += arguments
 
                         else:
+                            # breakpoint()
                             if choice.delta.content is not None:
                                 yield f"0:{json.dumps(choice.delta.content, separators=(',', ':'))}\n"
 

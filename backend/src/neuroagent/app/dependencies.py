@@ -456,6 +456,7 @@ def get_context_variables(
         "literature_search_url": settings.tools.literature.url,
         "obi_one_url": settings.tools.obi_one.url,
         "openai_client": openai_client,
+        "openai_api_key": settings.llm.openai_token,
         "project_id": thread.project_id,
         "retriever_k": settings.tools.literature.retriever_k,
         "s3_client": s3_client,
