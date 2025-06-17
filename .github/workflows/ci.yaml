@@ -36,7 +36,7 @@ jobs:
           enable-cache: true
           cache-dependency-glob: "backend/uv.lock"
       - name: Set up environment
-        run: uv pip bandit[toml] ruff
+        run: uv pip install bandit[toml] ruff
       - name: Linting check
         run: |
           uv run --no-sync bandit -qr -c pyproject.toml src/
