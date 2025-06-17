@@ -9,12 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Tool calls have a unique ID independent of the provider.
+- ME-Models are now fetched from entitycore.
 
 ## [v0.6.1] - 12.06.2025
 
 ### Fixed
 - Swagger issue.
-
 
 ## [v0.6.0] - 12.06.2025
 
