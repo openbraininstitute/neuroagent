@@ -35,11 +35,13 @@ jobs:
         with:
           enable-cache: true
           cache-dependency-glob: "backend/uv.lock"
+      - name: Set up environment
+        run: uv pip bandit[toml] ruff
       - name: Linting check
         run: |
-          uv run bandit -qr -c pyproject.toml src/
-          uv run ruff check src/ tests/
-          uv run ruff format --check src/ tests/
+          uv run --no-sync bandit -qr -c pyproject.toml src/
+          uv run --no-sync ruff check src/ tests/
+          uv run --no-sync ruff format --check src/ tests/
 
   mypy:
     runs-on: ${{ matrix.os }}
