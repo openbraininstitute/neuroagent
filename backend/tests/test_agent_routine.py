@@ -32,7 +32,7 @@ class TestAgentsRoutine:
         )
         mock_openai_client.assert_create_called_with(
             **{
-                "model": "gpt-4o-mini",
+                "model": "gpt-4.1-mini",
                 "messages": [
                     {"role": "system", "content": "You are a helpful agent."},
                     {"role": "user", "content": "Hello !"},
@@ -64,7 +64,7 @@ class TestAgentsRoutine:
         )
         mock_openai_client.assert_create_called_with(
             **{
-                "model": "gpt-4o-mini",
+                "model": "gpt-4.1-mini",
                 "messages": [
                     {
                         "role": "system",
@@ -96,7 +96,7 @@ class TestAgentsRoutine:
         )
         mock_openai_client.assert_create_called_with(
             **{
-                "model": "gpt-4o-mini",
+                "model": "gpt-4.1-mini",
                 "messages": [
                     {"role": "system", "content": "You are a helpful agent."},
                     {"role": "user", "content": "Hello !"},

@@ -12,7 +12,7 @@ class Agent(BaseModel):
     """Agent class."""
 
     name: str = "Agent"
-    model: str = "gpt-4o-mini"
+    model: str = "gpt-4.1-mini"
     instructions: str | Callable[[], str] = "You are a helpful agent."
     tools: list[type[BaseTool]] = []
     tool_choice: str | None = None

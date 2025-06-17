@@ -126,7 +126,7 @@ class SettingsOpenAI(BaseModel):
     """OpenAI settings."""
 
     token: Optional[SecretStr] = None
-    model: str = "gpt-4o-mini"
+    model: str = "gpt-4.1-mini"
     suggestion_model: str = "gpt-4o-mini"
     temperature: float = 0
     max_tokens: Optional[int] = None
