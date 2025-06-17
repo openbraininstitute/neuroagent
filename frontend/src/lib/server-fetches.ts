@@ -219,6 +219,7 @@ export async function getModels(): Promise<Array<LLMModel>> {
           ["google", "openai", "anthropic"].some((keyword) =>
             model.name?.toLowerCase().includes(keyword),
           ) &&
+          model.context_length > 70000 &&
           model.architecture?.input_modalities?.includes("text") &&
           model.architecture?.output_modalities?.includes("text") &&
           model.supported_parameters?.includes("tools"),
@@ -228,7 +229,7 @@ export async function getModels(): Promise<Array<LLMModel>> {
         return {
           id: model.id,
           name: model.name,
-          metadata: `${Math.round(Number(model.pricing?.prompt) * 1e8) / 100}$/M tokens, ${Math.round(model.context_length / 1000)}k context, ${out_date.getDate()}/${out_date.getMonth() + 1}/${out_date.getFullYear()}`,
+          metadata: `${Math.round(Number(model.pricing?.prompt) * 1e8) / 100}$/M tokens, ${Math.round(model.context_length / 1000)}k context length, ${out_date.getDate()}/${out_date.getMonth() + 1}/${out_date.getFullYear()}`,
         };
       })
       .sort((a: LLMModel, b: LLMModel) => a.name.localeCompare(b.name));
