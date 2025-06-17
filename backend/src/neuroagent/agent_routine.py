@@ -225,6 +225,7 @@ class AgentsRoutine:
 
                 message: dict[str, Any] = {
                     "content": "",
+                    "reasoning": "",
                     "sender": agent.name,
                     "role": "assistant",
                     "function_call": None,
