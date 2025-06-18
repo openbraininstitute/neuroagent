@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Use UV in CI.
+- Switch from VARCHAR to UUID where possible.
 
 ## [v0.6.1] - 12.06.2025
 

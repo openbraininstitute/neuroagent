@@ -165,11 +165,11 @@ def complete_partial_json(partial: str) -> str:
 def save_to_storage(
     s3_client: Any,
     bucket_name: str,
-    user_id: str,
+    user_id: uuid.UUID,
     content_type: str,
     category: Category,
     body: bytes | str,
-    thread_id: str | None = None,
+    thread_id: uuid.UUID | None = None,
 ) -> str:
     """Save content to S3 storage and return the storage ID.
 
@@ -199,13 +199,13 @@ def save_to_storage(
     identifier = str(uuid.uuid4())
 
     # Construct the full path including user_id
-    key_parts = [user_id, identifier]
+    key_parts = [str(user_id), identifier]
     filename = "/".join(key_parts)
 
     metadata: dict[str, str] = {"category": category}
 
     if thread_id is not None:
-        metadata["thread_id"] = thread_id
+        metadata["thread_id"] = str(thread_id)
 
     # Save to S3 with metadata
     s3_client.put_object(
@@ -222,8 +222,8 @@ def save_to_storage(
 def delete_from_storage(
     s3_client: Any,
     bucket_name: str,
-    user_id: str,
-    thread_id: str,
+    user_id: uuid.UUID,
+    thread_id: uuid.UUID,
 ) -> None:
     """Delete all objects from S3 storage that match the given user_id and thread_id.
 

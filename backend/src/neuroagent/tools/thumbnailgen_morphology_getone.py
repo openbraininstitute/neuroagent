@@ -29,11 +29,11 @@ class PlotMorphologyGetOneMetadata(BaseMetadata):
     httpx_client: AsyncClient
     thumbnail_generation_url: str
     s3_client: Any  # boto3 client
-    user_id: str
+    user_id: UUID
     bucket_name: str
-    thread_id: str
-    vlab_id: str | None
-    project_id: str | None
+    thread_id: UUID
+    vlab_id: UUID | None
+    project_id: UUID | None
 
 
 class PlotMorphologyGetOneOutput(BaseModel):
@@ -80,9 +80,9 @@ class PlotMorphologyGetOneTool(BaseTool):
         """
         headers: dict[str, str] = {}
         if self.metadata.vlab_id is not None:
-            headers["virtual-lab-id"] = self.metadata.vlab_id
+            headers["virtual-lab-id"] = str(self.metadata.vlab_id)
         if self.metadata.project_id is not None:
-            headers["project-id"] = self.metadata.project_id
+            headers["project-id"] = str(self.metadata.project_id)
 
         response = await self.metadata.httpx_client.get(
             url=self.metadata.thumbnail_generation_url.rstrip("/")

@@ -2,6 +2,7 @@
 
 import logging
 from typing import ClassVar
+from uuid import UUID
 
 from httpx import AsyncClient
 from pydantic import BaseModel, Field
@@ -26,8 +27,8 @@ class SCSGetOneMetadata(BaseMetadata):
     """Metadata class for the get all simulations api."""
 
     httpx_client: AsyncClient
-    vlab_id: str
-    project_id: str
+    vlab_id: UUID
+    project_id: UUID
     bluenaas_url: str
 
 

@@ -2,6 +2,7 @@
 
 import logging
 from typing import ClassVar
+from uuid import UUID
 
 from httpx import AsyncClient
 from pydantic import BaseModel, Field
@@ -27,8 +28,8 @@ class MorphoMetricsMetadata(BaseMetadata):
 
     httpx_client: AsyncClient
     obi_one_url: str
-    vlab_id: str | None
-    project_id: str | None
+    vlab_id: UUID | None
+    project_id: UUID | None
 
 
 class MorphoMetricsTool(BaseTool):
@@ -55,19 +56,15 @@ class MorphoMetricsTool(BaseTool):
         logger.info(
             f"Entering MorphoMetrics tool. Inputs: {self.input_schema.model_dump()}"
         )
+        headers: dict[str, str] = {}
+        if self.metadata.vlab_id is not None:
+            headers["virtual-lab-id"] = str(self.metadata.vlab_id)
+        if self.metadata.project_id is not None:
+            headers["project-id"] = str(self.metadata.project_id)
 
         morpho_metrics_response = await self.metadata.httpx_client.get(
             url=f"{self.metadata.obi_one_url}/declared/neuron-morphology-metrics/{self.input_schema.morphology_id}",
-            headers={
-                **{
-                    k: v
-                    for k, v in {
-                        "virtual_lab_id": self.metadata.vlab_id,
-                        "project_id": self.metadata.project_id,
-                    }.items()
-                    if v is not None
-                },
-            },
+            headers=headers,
         )
 
         if morpho_metrics_response.status_code != 200:
