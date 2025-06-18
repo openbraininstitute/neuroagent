@@ -3,6 +3,7 @@
 import asyncio
 import json
 import logging
+import re
 from contextlib import asynccontextmanager
 from datetime import datetime, timezone
 from typing import Annotated, Any, AsyncIterator
@@ -16,6 +17,7 @@ from fastapi import (
     Response,
 )
 from fastapi.responses import StreamingResponse
+from httpx import AsyncClient
 from obp_accounting_sdk import AsyncAccountingSessionFactory
 from obp_accounting_sdk.constants import ServiceSubtype
 from openai import AsyncOpenAI
@@ -40,6 +42,7 @@ from neuroagent.app.dependencies import (
     get_accounting_session_factory,
     get_agents_routine,
     get_context_variables,
+    get_httpx_client,
     get_openai_client,
     get_redis_client,
     get_semantic_routes,
@@ -50,6 +53,7 @@ from neuroagent.app.dependencies import (
     get_user_info,
 )
 from neuroagent.app.schemas import (
+    OpenRouterModelResponse,
     QuestionsSuggestions,
     QuestionsSuggestionsRequest,
     UserInfo,
@@ -208,6 +212,30 @@ async def question_suggestions(
     )
 
     return response.choices[0].message.parsed  # type: ignore
+
+
+@router.get("/models")
+async def get_available_LLM_models(
+    httpx_client: Annotated[AsyncClient, Depends(get_httpx_client)],
+    _: Annotated[UserInfo, Depends(get_user_info)],
+    settings: Annotated[Settings, Depends(get_settings)],
+) -> list[OpenRouterModelResponse]:
+    """Get available LLM models."""
+    response = await httpx_client.get("https://openrouter.ai/api/v1/models")
+    if response.status_code != 200:
+        raise HTTPException(
+            status_code=response.status_code,
+            detail={
+                "error": "Something went wrong. Could not retrieve list of models."
+            },
+        )
+    models = [OpenRouterModelResponse(**model) for model in response.json()["data"]]
+    filtered_models = [
+        model
+        for model in models
+        if re.match(settings.llm.whitelisted_model_ids_regex, model.id)
+    ]
+    return filtered_models
 
 
 @router.post("/chat_streamed/{thread_id}")

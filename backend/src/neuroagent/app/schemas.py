@@ -205,3 +205,46 @@ class QuestionsSuggestionsRequest(BaseModel):
 
     click_history: list[UserJourney] | None = None
     thread_id: str | None = None
+
+
+class Architecture(BaseModel):
+    """Model's architecture."""
+
+    input_modalities: list[str]
+    output_modalities: list[str]
+    tokenizer: str
+
+
+class TopProvider(BaseModel):
+    """Model's provider."""
+
+    is_moderated: bool
+
+
+class Pricing(BaseModel):
+    """Model's pricing."""
+
+    prompt: str
+    completion: str
+    image: str | None = None
+    request: str | None = None
+    input_cache_read: str | None = None
+    input_cache_write: str | None = None
+    web_search: str | None = None
+    internal_reasoning: str | None = None
+
+
+class OpenRouterModelResponse(BaseModel):
+    """Openrouter's model."""
+
+    id: str
+    name: str
+    created: int
+    description: str
+    architecture: Architecture
+    top_provider: TopProvider
+    pricing: Pricing
+    context_length: int
+    hugging_face_id: str | None = None
+    per_request_limits: dict[str, str] | None = None
+    supported_parameters: list[str]

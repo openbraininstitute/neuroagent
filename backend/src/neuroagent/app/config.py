@@ -125,12 +125,12 @@ class SettingsTools(BaseModel):
 class SettingsLLM(BaseModel):
     """OpenAI settings."""
 
-    base_url: str | None = None
     openai_token: SecretStr | None = None
     open_router_token: SecretStr | None = None
     suggestion_model: str = "gpt-4o-mini"
     temperature: float = 0
     max_tokens: int | None = None
+    whitelisted_model_ids_regex: str = "openai.*"
 
     model_config = ConfigDict(frozen=True)
 

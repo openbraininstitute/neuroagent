@@ -146,13 +146,13 @@ async def get_openrouter_client(
     settings: Annotated[Settings, Depends(get_settings)],
 ) -> AsyncIterator[AsyncOpenAI | None]:
     """Get the OpenAi Async client."""
-    if not settings.llm.open_router_token or not settings.llm.base_url:
+    if not settings.llm.open_router_token:
         yield None
     else:
         try:
             client = AsyncOpenAI(
                 api_key=settings.llm.open_router_token.get_secret_value(),
-                base_url=settings.llm.base_url,
+                base_url="https://openrouter.ai/api/v1",
             )
             yield client
         finally:

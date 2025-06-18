@@ -10,7 +10,7 @@ import {
   ToolDetailedMetadata,
   ToolMetadata,
   BPaginatedResponse,
-  OpenRouterListModelResponse,
+  BOpenRouterModelResponse,
 } from "@/lib/types";
 import { threadPageSize, messagePageSize, LLMModel } from "@/lib/types";
 
@@ -209,22 +209,19 @@ export async function getTool(
 
 export async function getModels(): Promise<Array<LLMModel>> {
   try {
-    const response = await fetch("https://openrouter.ai/api/v1/models");
-    const models = (await response.json()) as OpenRouterListModelResponse;
+    const session = await auth();
+    if (!session?.accessToken) {
+      throw new Error("No session found");
+    }
 
-    return models?.data
-      ?.filter(
-        (model) =>
-          // Include only one of the three providers
-          ["google", "openai", "anthropic"].some((keyword) =>
-            model.name?.toLowerCase().includes(keyword),
-          ) &&
-          model.context_length > 70000 &&
-          model.architecture?.input_modalities?.includes("text") &&
-          model.architecture?.output_modalities?.includes("text") &&
-          model.supported_parameters?.includes("tools"),
-      )
-      .map((model) => {
+    const models = (await fetcher({
+      method: "GET",
+      path: "/qa/models",
+      headers: { Authorization: `Bearer ${session.accessToken}` },
+    })) as Array<BOpenRouterModelResponse>;
+
+    return models
+      ?.map((model) => {
         const out_date = new Date(model.created * 1000);
         return {
           id: model.id,

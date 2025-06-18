@@ -207,7 +207,7 @@ export type LLMModel = {
   metadata: string;
 };
 
-type OpenRouterModelResponse = {
+export type BOpenRouterModelResponse = {
   id: string;
   name: string;
   created: number;
@@ -234,10 +234,6 @@ type OpenRouterModelResponse = {
   hugging_face_id: string;
   per_request_limits: Record<string, string>;
   supported_parameters: string[];
-};
-
-export type OpenRouterListModelResponse = {
-  data: OpenRouterModelResponse[];
 };
 
 export const threadPageSize = "25";
