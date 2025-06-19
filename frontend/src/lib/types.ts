@@ -27,6 +27,7 @@ export type Annotation = {
   toolCallId?: string;
   validated?: "accepted" | "rejected" | "pending" | "not_required";
   isComplete?: boolean;
+  model?: string;
 };
 
 export type BTextPart = {
