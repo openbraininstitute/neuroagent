@@ -3,7 +3,6 @@
 import asyncio
 import json
 import logging
-import re
 from contextlib import asynccontextmanager
 from datetime import datetime, timezone
 from typing import Annotated, Any, AsyncIterator
@@ -17,7 +16,6 @@ from fastapi import (
     Response,
 )
 from fastapi.responses import StreamingResponse
-from httpx import AsyncClient
 from obp_accounting_sdk import AsyncAccountingSessionFactory
 from obp_accounting_sdk.constants import ServiceSubtype
 from openai import AsyncOpenAI
@@ -42,8 +40,8 @@ from neuroagent.app.dependencies import (
     get_accounting_session_factory,
     get_agents_routine,
     get_context_variables,
-    get_httpx_client,
     get_openai_client,
+    get_openrouter_models,
     get_redis_client,
     get_semantic_routes,
     get_session,
@@ -216,26 +214,13 @@ async def question_suggestions(
 
 @router.get("/models")
 async def get_available_LLM_models(
-    httpx_client: Annotated[AsyncClient, Depends(get_httpx_client)],
+    filtererd_models: Annotated[
+        list[OpenRouterModelResponse], Depends(get_openrouter_models)
+    ],
     _: Annotated[UserInfo, Depends(get_user_info)],
-    settings: Annotated[Settings, Depends(get_settings)],
 ) -> list[OpenRouterModelResponse]:
     """Get available LLM models."""
-    response = await httpx_client.get("https://openrouter.ai/api/v1/models")
-    if response.status_code != 200:
-        raise HTTPException(
-            status_code=response.status_code,
-            detail={
-                "error": "Something went wrong. Could not retrieve list of models."
-            },
-        )
-    models = [OpenRouterModelResponse(**model) for model in response.json()["data"]]
-    filtered_models = [
-        model
-        for model in models
-        if re.match(settings.llm.whitelisted_model_ids_regex, model.id)
-    ]
-    return filtered_models
+    return filtererd_models
 
 
 @router.post("/chat_streamed/{thread_id}")
@@ -252,6 +237,9 @@ async def stream_chat_agent(
         AsyncAccountingSessionFactory, Depends(get_accounting_session_factory)
     ],
     semantic_router: Annotated[SemanticRouter | None, Depends(get_semantic_routes)],
+    filtered_models: Annotated[
+        list[OpenRouterModelResponse], Depends(get_openrouter_models)
+    ],
     background_tasks: BackgroundTasks,
 ) -> StreamingResponse:
     """Run a single agent query in a streamed fashion."""
@@ -281,6 +269,15 @@ async def stream_chat_agent(
         raise HTTPException(
             status_code=413,
             detail=f"Query string has {len(user_request.content)} characters. Maximum allowed is {settings.misc.query_max_size}.",
+        )
+
+    # Check that the requested model is authorized
+    if user_request.model in [model.id for model in filtered_models]:
+        agent.model = user_request.model
+        logger.info(f"Loading model {agent.model}.")
+    else:
+        raise HTTPException(
+            status_code=404, detail={"error": f"Model {user_request.model} not found."}
         )
 
     messages: list[Messages] = await thread.awaitable_attrs.messages
@@ -349,8 +346,6 @@ async def stream_chat_agent(
                         **limit_headers.model_dump(by_alias=True),
                     },
                 )
-        agent.model = user_request.model
-        logger.info(f"Loading model {agent.model}.")
 
         stream_generator = stream_agent_response(
             agents_routine=agents_routine,

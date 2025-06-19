@@ -91,6 +91,8 @@ class BaseTool(BaseModel, ABC):
 
         new_retval: dict[str, Any] = {
             "type": "function",
+            "name": cls.name,
+            "description": cls.description,
             "function": {
                 "name": cls.name,
                 "description": cls.description,

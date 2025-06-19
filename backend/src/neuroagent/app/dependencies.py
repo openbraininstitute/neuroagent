@@ -22,7 +22,7 @@ from neuroagent.agent_routine import AgentsRoutine
 from neuroagent.app.app_utils import validate_project
 from neuroagent.app.config import Settings
 from neuroagent.app.database.sql_schemas import Threads
-from neuroagent.app.schemas import UserInfo
+from neuroagent.app.schemas import OpenRouterModelResponse, UserInfo
 from neuroagent.mcp import MCPClient, create_dynamic_tool
 from neuroagent.new_types import Agent
 from neuroagent.tools import (
@@ -229,6 +229,30 @@ def get_mcp_client(request: Request) -> MCPClient | None:
     if request.app.state.mcp_client is None:
         return None
     return request.app.state.mcp_client
+
+
+async def get_openrouter_models(
+    settings: Annotated[Settings, Depends(get_settings)],
+    httpx_client: Annotated[AsyncClient, Depends(get_httpx_client)],
+) -> list[OpenRouterModelResponse]:
+    """Ping Openrouter to get available models."""
+    response = await httpx_client.get(
+        "https://openrouter.ai/api/v1/models", headers={"Authorization": ""}
+    )
+    if response.status_code != 200:
+        raise HTTPException(
+            status_code=response.status_code,
+            detail={
+                "error": "Something went wrong. Could not retrieve list of models."
+            },
+        )
+    models = [OpenRouterModelResponse(**model) for model in response.json()["data"]]
+    filtered_models = [
+        model
+        for model in models
+        if re.match(settings.llm.whitelisted_model_ids_regex, model.id)
+    ]
+    return filtered_models
 
 
 @cache
