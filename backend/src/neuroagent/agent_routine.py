@@ -387,6 +387,7 @@ class AgentsRoutine:
                         content=json.dumps(message),
                         tool_calls=tool_calls,
                         is_complete=True,
+                        model=agent.model,
                     )
                 )
 
@@ -447,6 +448,7 @@ class AgentsRoutine:
                             entity=Entity.TOOL,
                             content=json.dumps(tool_response),
                             is_complete=True,
+                            model=None,
                         )
                         for i, tool_response in enumerate(tool_calls_executed.messages)
                     ]
@@ -512,6 +514,7 @@ class AgentsRoutine:
                         content=json.dumps(message),
                         tool_calls=tool_calls,
                         is_complete=False,
+                        model=agent.model,
                     )
                 )
 
@@ -531,6 +534,7 @@ class AgentsRoutine:
                                 }
                             ),
                             is_complete=False,
+                            model=None,
                         )
                         for call in tool_calls
                     ]

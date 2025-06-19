@@ -13,8 +13,9 @@ from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 
 from neuroagent.app.config import Settings
 from neuroagent.app.database.sql_schemas import Entity, Messages, Threads, ToolCalls
-from neuroagent.app.dependencies import Agent, get_settings
+from neuroagent.app.dependencies import Agent, get_openrouter_models, get_settings
 from neuroagent.app.main import app
+from neuroagent.app.schemas import OpenRouterModelResponse
 from neuroagent.schemas import EmbeddedBrainRegion, EmbeddedBrainRegions
 from neuroagent.tools.base_tool import BaseTool
 from tests.mock_client import MockOpenAIClient, create_mock_response
@@ -37,6 +38,41 @@ def client_fixture():
         accounting={"disabled": True},
     )
     app.dependency_overrides[get_settings] = lambda: test_settings
+    app.dependency_overrides[get_openrouter_models] = lambda: [
+        OpenRouterModelResponse(
+            **{
+                "id": "openai/gpt-4o-mini",
+                "canonical_slug": "openai/gpt-4o-mini",
+                "hugging_face_id": None,
+                "name": "OpenAI: GPT-4o-mini",
+                "created": 1721260800,
+                "description": "Great model",
+                "context_length": 128000,
+                "architecture": {
+                    "modality": "text+image->text",
+                    "input_modalities": [
+                        "text",
+                    ],
+                    "output_modalities": ["text"],
+                    "tokenizer": "GPT",
+                    "instruct_type": None,
+                },
+                "pricing": {
+                    "prompt": "0.00000015",
+                    "completion": "0.0000006",
+                },
+                "top_provider": {
+                    "context_length": 128000,
+                    "max_completion_tokens": 16384,
+                    "is_moderated": True,
+                },
+                "per_request_limits": None,
+                "supported_parameters": [
+                    "tools",
+                ],
+            }
+        )
+    ]
     yield app_client
     app.dependency_overrides.clear()
 

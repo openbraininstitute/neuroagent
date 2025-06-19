@@ -301,6 +301,7 @@ async def stream_chat_agent(
                 entity=Entity.USER,
                 content=json.dumps({"role": "user", "content": user_request.content}),
                 is_complete=True,
+                model=None,
             )
         )
 
@@ -336,6 +337,7 @@ async def stream_chat_agent(
                         entity=Entity.AI_MESSAGE,
                         content=json.dumps({"role": "assistant", "content": response}),
                         is_complete=True,
+                        model=None,
                     )
                 )
                 return StreamingResponse(
