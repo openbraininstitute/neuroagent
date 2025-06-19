@@ -240,6 +240,7 @@ async def stream_chat_agent(
     filtered_models: Annotated[
         list[OpenRouterModelResponse], Depends(get_openrouter_models)
     ],
+    openai_client: Annotated[AsyncOpenAI, Depends(get_openai_client)],
     background_tasks: BackgroundTasks,
 ) -> StreamingResponse:
     """Run a single agent query in a streamed fashion."""
@@ -279,6 +280,11 @@ async def stream_chat_agent(
         raise HTTPException(
             status_code=404, detail={"error": f"Model {user_request.model} not found."}
         )
+
+    # For openai requests, ditch openrouter
+    if agent.model.startswith("openai/"):
+        agent.model = agent.model.lstrip("openai/")
+        agents_routine.client = openai_client
 
     messages: list[Messages] = await thread.awaitable_attrs.messages
     # Since the session is not reinstantiated in stream.py
