@@ -37,7 +37,9 @@ async def stream_agent_response(
         headers=context_variables["httpx_client"].headers,  # nosec: B501
     )
     context_variables["httpx_client"] = httpx_client
-    context_variables["openai_client"] = openai_client
+    context_variables["openai_client"] = AsyncOpenAI(
+        api_key=context_variables["openai_client"].api_key
+    )
     iterator = connected_agents_routine.astream(
         agent=agent,
         messages=messages,
