@@ -358,6 +358,7 @@ class AgentsRoutine:
                     message["tool_calls"] = None
 
                 # If tool calls requested, instantiate them as an SQL compatible class
+
                 if message["tool_calls"]:
                     tool_calls = [
                         ToolCalls(

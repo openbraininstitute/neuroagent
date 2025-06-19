@@ -17,7 +17,7 @@ export const useStore = create<StoreState>((set) => ({
   setCheckedTools: (checkedToolsObject) =>
     set({ checkedTools: checkedToolsObject }),
   currentModel: {
-    id: "gpt-4o-mini",
+    id: "openai/gpt-4o-mini",
     name: "OpenAI: GPT-4o-mini",
     metadata: "(0.15$/M tokens, 128k context, 16/07/2024)",
   },
