@@ -254,6 +254,7 @@ def format_messages_output(
             "thread_id": msg.thread_id,
             "is_complete": msg.is_complete,
             "creation_date": msg.creation_date.isoformat(),  # Convert datetime to string
+            "model": msg.model,
             "msg_content": json.loads(msg.content),
         }
 

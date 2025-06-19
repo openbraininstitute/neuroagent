@@ -68,6 +68,7 @@ class MessagesRead(BaseRead):
     is_complete: bool
     creation_date: datetime.datetime
     msg_content: dict[str, Any]
+    model: str | None = None
     tool_calls: list[ToolCall]
 
 
