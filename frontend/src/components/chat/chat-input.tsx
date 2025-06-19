@@ -57,10 +57,10 @@ export function ChatInput({ availableTools, availableModels }: ChatInputProps) {
       e.currentTarget.form?.requestSubmit();
     }
   };
+
   useEffect(() => {
     setCheckedTools(convert_tools_to_set(availableTools));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // Empty dependency array means this runs once on mount
+  }, []);
 
   return !isPending ? (
     <div className="m-5 flex h-[100%] flex-col items-center justify-center gap-4">
@@ -79,47 +79,59 @@ export function ChatInput({ availableTools, availableModels }: ChatInputProps) {
         }}
         className="flex w-full max-w-[1200px] flex-col justify-center"
       >
-        <div className="mb-2 flex justify-end">
-          <ModelSelectionDropdown
-            currentModel={currentModel}
-            availableModels={availableModels}
-            setCurrentModel={setCurrentModel}
-          />
-        </div>
-        <div className="flex min-h-16 items-center overflow-hidden rounded-[3vw] border-2 border-gray-500 pl-9 pr-2">
-          <TextareaAutosize
-            name="content"
-            autoComplete="off"
-            className="h-6 flex-grow resize-none border-none bg-transparent outline-none"
-            placeholder={isPending ? "Creating thread..." : "Message the AI..."}
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={(e) => handleKeyDown(e)}
-            disabled={isPending}
-            maxRows={10}
-          />
-          <div className="mr-3 flex gap-3">
-            <OpenUserJourneyButton
-              querySuggestions={suggestionActionWrapper}
-              pendingSuggestions={pendingSuggestions}
+        <div className="overflow-hidden rounded-[2rem] border-2 border-gray-500">
+          <div className="flex min-h-16 items-center px-6 pt-2">
+            <TextareaAutosize
+              name="content"
+              autoComplete="off"
+              className="h-6 w-full resize-none border-none bg-transparent text-base outline-none placeholder:text-gray-500 dark:text-white dark:placeholder:text-gray-400"
+              placeholder={
+                isPending ? "Creating thread..." : "Message the AI..."
+              }
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={(e) => handleKeyDown(e)}
+              disabled={isPending}
+              maxRows={10}
             />
-            <ToolSelectionDropdown
-              availableTools={availableTools}
-              checkedTools={checkedTools}
-              setCheckedTools={setCheckedTools}
-            />
-            {isPending ? (
-              <div
-                className="ml-2 h-6 w-6 animate-spin rounded-full border-2 border-gray-500 border-t-transparent p-1"
-                data-testid="loading-spinner"
+          </div>
+
+          <div className="flex items-center justify-between px-6 pb-3 pt-2">
+            <div className="flex items-center gap-2">
+              <OpenUserJourneyButton
+                querySuggestions={suggestionActionWrapper}
+                pendingSuggestions={pendingSuggestions}
               />
-            ) : (
-              <button type="submit" data-testid="send-button" className="p-1">
-                <Send className="opacity-50" />
-              </button>
-            )}
+              <ToolSelectionDropdown
+                availableTools={availableTools}
+                checkedTools={checkedTools}
+                setCheckedTools={setCheckedTools}
+              />
+            </div>
+            <div className="flex items-center gap-3">
+              <ModelSelectionDropdown
+                currentModel={currentModel}
+                availableModels={availableModels}
+                setCurrentModel={setCurrentModel}
+              />
+              {isPending ? (
+                <div
+                  className="ml-3 h-6 w-6 animate-spin rounded-full border-2 border-gray-500 border-t-transparent"
+                  data-testid="loading-spinner"
+                />
+              ) : (
+                <button
+                  type="submit"
+                  data-testid="send-button"
+                  className="ml-3 rounded-full bg-gray-100 p-3 text-gray-700 transition-all hover:bg-gray-400 hover:text-gray-800 dark:bg-gray-600/15 dark:text-gray-300 dark:hover:bg-gray-800"
+                >
+                  <Send className="h-5 w-5" />
+                </button>
+              )}
+            </div>
           </div>
         </div>
+
         <QuestionSuggestionCards
           suggestions={suggestionsState as SuggestedQuestions}
           onSubmit={actionWrapper}

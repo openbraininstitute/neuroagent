@@ -297,7 +297,7 @@ export function ChatPage({
           setMessages={setMessages}
           loadingStatus={status}
         />
-        <div ref={messagesEndRef} />
+        <div ref={messagesEndRef} className="pb-5" />
       </div>
 
       <ChatInputInsideThread
