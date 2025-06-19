@@ -9,7 +9,7 @@ from typing import Annotated, Any, AsyncIterator
 import boto3
 from fastapi import Depends, HTTPException, Request
 from fastapi.security import HTTPBearer
-from httpx import AsyncClient, HTTPStatusError
+from httpx import AsyncClient, HTTPStatusError, get
 from obp_accounting_sdk import AsyncAccountingSessionFactory
 from openai import AsyncOpenAI
 from redis import asyncio as aioredis
@@ -231,14 +231,11 @@ def get_mcp_client(request: Request) -> MCPClient | None:
     return request.app.state.mcp_client
 
 
-async def get_openrouter_models(
-    settings: Annotated[Settings, Depends(get_settings)],
-    httpx_client: Annotated[AsyncClient, Depends(get_httpx_client)],
-) -> list[OpenRouterModelResponse]:
+@cache
+def get_openrouter_models() -> list[OpenRouterModelResponse]:
     """Ping Openrouter to get available models."""
-    response = await httpx_client.get(
-        "https://openrouter.ai/api/v1/models", headers={"Authorization": ""}
-    )
+    settings = get_settings()
+    response = get("https://openrouter.ai/api/v1/models")
     if response.status_code != 200:
         raise HTTPException(
             status_code=response.status_code,
