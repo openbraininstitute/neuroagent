@@ -510,10 +510,14 @@ def get_healthcheck_variables(
 
 
 def get_agents_routine(
-    openrouter: Annotated[AsyncOpenAI | None, Depends(get_openrouter_client)],
+    openrouter_client: Annotated[AsyncOpenAI | None, Depends(get_openrouter_client)],
+    openai_client: Annotated[AsyncOpenAI | None, Depends(get_openai_client)],
 ) -> AgentsRoutine:
     """Get the AgentRoutine client."""
-    return AgentsRoutine(openrouter)
+    if openrouter_client:
+        return AgentsRoutine(openrouter_client)
+    else:
+        return AgentsRoutine(openai_client)
 
 
 def get_redis_client(request: Request) -> aioredis.Redis | None:
