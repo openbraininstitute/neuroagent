@@ -7,7 +7,7 @@ def test_required(monkeypatch, patch_required_env):
     settings = Settings()
 
     assert settings.tools.literature.url == "https://fake_url"
-    assert settings.openai.token.get_secret_value() == "dummy"
+    assert settings.llm.openai_token.get_secret_value() == "dummy"
 
     # make sure not case sensitive
     monkeypatch.delenv("NEUROAGENT_TOOLS__LITERATURE__URL")

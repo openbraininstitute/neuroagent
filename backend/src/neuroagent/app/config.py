@@ -4,7 +4,7 @@ import json
 import logging
 import os
 from pathlib import Path
-from typing import Any, Literal, Optional
+from typing import Any, Literal
 
 from dotenv import dotenv_values
 from pydantic import BaseModel, ConfigDict, SecretStr, model_validator
@@ -122,14 +122,15 @@ class SettingsTools(BaseModel):
     model_config = ConfigDict(frozen=True)
 
 
-class SettingsOpenAI(BaseModel):
+class SettingsLLM(BaseModel):
     """OpenAI settings."""
 
-    token: Optional[SecretStr] = None
-    model: str = "gpt-4o-mini"
+    openai_token: SecretStr | None = None
+    open_router_token: SecretStr | None = None
     suggestion_model: str = "gpt-4o-mini"
     temperature: float = 0
-    max_tokens: Optional[int] = None
+    max_tokens: int | None = None
+    whitelisted_model_ids_regex: str = "openai.*"
 
     model_config = ConfigDict(frozen=True)
 
@@ -218,7 +219,7 @@ class Settings(BaseSettings):
     tools: SettingsTools = SettingsTools()
     agent: SettingsAgent = SettingsAgent()  # has no required
     db: SettingsDB = SettingsDB()  # has no required
-    openai: SettingsOpenAI = SettingsOpenAI()  # has no required
+    llm: SettingsLLM = SettingsLLM()  # has no required
     logging: SettingsLogging = SettingsLogging()  # has no required
     keycloak: SettingsKeycloak = SettingsKeycloak()  # has no required
     misc: SettingsMisc = SettingsMisc()  # has no required

@@ -35,7 +35,7 @@ class ResolveBRMetadata(BaseMetadata):
     """Metadata for ResolveEntitiesTool."""
 
     brainregion_embeddings: list[EmbeddedBrainRegions]
-    openai_client: AsyncOpenAI
+    openai_client: AsyncOpenAI | None
 
 
 class BrainRegion(BaseModel):
@@ -75,6 +75,7 @@ class ResolveBrainRegionTool(BaseTool):
         logger.info(
             f"Entering Brain Region resolver tool. Inputs: {self.input_schema.model_dump()}"
         )
+
         # First we select the correct hierarchy with pre-computed embeddings
         try:
             hierarchy = next(
@@ -103,6 +104,10 @@ class ResolveBrainRegionTool(BaseTool):
                 if region.name.lower() == self.input_schema.brain_region_name.lower()
             )
         except StopIteration:
+            if not self.metadata.openai_client:
+                raise ValueError(
+                    "Could not exact match the requested brain region. Please provide the OpenAI client to perform semantic search."
+                )
             pass
 
         # If exact match didn't work we perform semantic search

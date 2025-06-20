@@ -142,7 +142,7 @@ async def push_embeddings_to_s3(
 
     # Embed them
     logger.info("Embedding the names.")
-    openai_client = AsyncOpenAI(api_key=os.getenv("NEUROAGENT_OPENAI__TOKEN"))
+    openai_client = AsyncOpenAI(api_key=os.getenv("NEUROAGENT_LLM__OPENAI_TOKEN"))
     name_embeddings = await openai_client.embeddings.create(
         input=names, model="text-embedding-3-small"
     )

@@ -20,7 +20,9 @@ async def test_execute_tool_call_accepted(
 ):
     mock_keycloak_user_identification(httpx_mock)
     test_settings = Settings(
-        db={"prefix": db_connection}, keycloak={"issuer": "https://great_issuer.com"}
+        db={"prefix": db_connection},
+        keycloak={"issuer": "https://great_issuer.com"},
+        llm={"base_url": "http://cool.com", "open_router_token": "sk-or-cool"},
     )
     app.dependency_overrides[get_settings] = lambda: test_settings
     db_items, session = populate_db
@@ -51,7 +53,9 @@ async def test_execute_tool_call_rejected(
 ):
     mock_keycloak_user_identification(httpx_mock)
     test_settings = Settings(
-        db={"prefix": db_connection}, keycloak={"issuer": "https://great_issuer.com"}
+        db={"prefix": db_connection},
+        keycloak={"issuer": "https://great_issuer.com"},
+        llm={"base_url": "http://cool.com", "open_router_token": "sk-or-cool"},
     )
     app.dependency_overrides[get_settings] = lambda: test_settings
     db_items, session = populate_db
@@ -84,7 +88,9 @@ async def test_execute_tool_call_validation_error(
 ):
     mock_keycloak_user_identification(httpx_mock)
     test_settings = Settings(
-        db={"prefix": db_connection}, keycloak={"issuer": "https://great_issuer.com"}
+        db={"prefix": db_connection},
+        keycloak={"issuer": "https://great_issuer.com"},
+        llm={"base_url": "http://cool.com", "open_router_token": "sk-or-cool"},
     )
     app.dependency_overrides[get_settings] = lambda: test_settings
     db_items, session = populate_db

@@ -14,18 +14,26 @@ export default function ChatInputLoading({ newMessage }: ChatComponentProps) {
         <ChatMessageHuman key="temp" content={newMessage} />
         <ChatMessageLoading />
       </div>
-      <form className="m-5 flex flex-col items-center justify-center gap-4">
-        <div className="flex min-h-16 w-full max-w-[1200px] items-center overflow-hidden rounded-[3vw] border-2 border-gray-500 pl-9 pr-2">
-          <TextareaAutosize
-            readOnly
-            className="h-6 flex-grow resize-none border-none bg-transparent outline-none"
-            name="prompt"
-            placeholder="Message the AI..."
-            autoComplete="off"
-            disabled
-          />
-          <div className="mr-3 flex gap-3">
-            <div className="ml-2 h-6 w-6 animate-spin rounded-full border-2 border-gray-500 border-t-transparent p-1" />
+      <form className="mx-auto flex w-full max-w-[1200px] flex-col justify-center pb-3">
+        <div className="overflow-hidden rounded-[2rem] border-2 border-gray-500">
+          <div className="flex min-h-16 items-center px-6 pt-2">
+            <TextareaAutosize
+              readOnly
+              className="h-6 w-full resize-none border-none bg-transparent text-base outline-none placeholder:text-gray-500 dark:text-white dark:placeholder:text-gray-400"
+              name="prompt"
+              placeholder="Message the AI..."
+              autoComplete="off"
+              maxRows={10}
+            />
+          </div>
+
+          <div className="flex items-center justify-between px-6 pb-3 pt-1">
+            <div />
+            <div className="flex items-center gap-3">
+              <button className="ml-3 rounded-full p-3">
+                <div className="ml-2 h-5 w-5 animate-spin rounded-full border-2 border-gray-500 border-t-transparent p-1" />
+              </button>
+            </div>
           </div>
         </div>
       </form>

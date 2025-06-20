@@ -9,7 +9,7 @@ from typing import Annotated, Any, AsyncIterator
 import boto3
 from fastapi import Depends, HTTPException, Request
 from fastapi.security import HTTPBearer
-from httpx import AsyncClient, HTTPStatusError
+from httpx import AsyncClient, HTTPStatusError, get
 from obp_accounting_sdk import AsyncAccountingSessionFactory
 from openai import AsyncOpenAI
 from redis import asyncio as aioredis
@@ -22,7 +22,7 @@ from neuroagent.agent_routine import AgentsRoutine
 from neuroagent.app.app_utils import validate_project
 from neuroagent.app.config import Settings
 from neuroagent.app.database.sql_schemas import Threads
-from neuroagent.app.schemas import UserInfo
+from neuroagent.app.schemas import OpenRouterModelResponse, UserInfo
 from neuroagent.mcp import MCPClient, create_dynamic_tool
 from neuroagent.new_types import Agent
 from neuroagent.tools import (
@@ -132,11 +132,28 @@ async def get_openai_client(
     settings: Annotated[Settings, Depends(get_settings)],
 ) -> AsyncIterator[AsyncOpenAI | None]:
     """Get the OpenAi Async client."""
-    if not settings.openai.token:
+    if not settings.llm.openai_token:
         yield None
     else:
         try:
-            client = AsyncOpenAI(api_key=settings.openai.token.get_secret_value())
+            client = AsyncOpenAI(api_key=settings.llm.openai_token.get_secret_value())
+            yield client
+        finally:
+            await client.close()
+
+
+async def get_openrouter_client(
+    settings: Annotated[Settings, Depends(get_settings)],
+) -> AsyncIterator[AsyncOpenAI | None]:
+    """Get the OpenAi Async client."""
+    if not settings.llm.open_router_token:
+        yield None
+    else:
+        try:
+            client = AsyncOpenAI(
+                api_key=settings.llm.open_router_token.get_secret_value(),
+                base_url="https://openrouter.ai/api/v1",
+            )
             yield client
         finally:
             await client.close()
@@ -212,6 +229,27 @@ def get_mcp_client(request: Request) -> MCPClient | None:
     if request.app.state.mcp_client is None:
         return None
     return request.app.state.mcp_client
+
+
+@cache
+def get_openrouter_models() -> list[OpenRouterModelResponse]:
+    """Ping Openrouter to get available models."""
+    settings = get_settings()
+    response = get("https://openrouter.ai/api/v1/models")
+    if response.status_code != 200:
+        raise HTTPException(
+            status_code=response.status_code,
+            detail={
+                "error": "Something went wrong. Could not retrieve list of models."
+            },
+        )
+    models = [OpenRouterModelResponse(**model) for model in response.json()["data"]]
+    filtered_models = [
+        model
+        for model in models
+        if re.match(settings.llm.whitelisted_model_ids_regex, model.id)
+    ]
+    return filtered_models
 
 
 @cache
@@ -339,11 +377,9 @@ async def get_selected_tools(
 
 
 def get_starting_agent(
-    settings: Annotated[Settings, Depends(get_settings)],
     tool_list: Annotated[list[type[BaseTool]], Depends(get_selected_tools)],
 ) -> Agent:
     """Get the starting agent."""
-    logger.info(f"Loading model {settings.openai.model}.")
     base_instructions = f"""You are a helpful assistant helping scientists with neuro-scientific questions.
                 The current date and time is {datetime.now(timezone.utc).isoformat()}.
                 You must always specify in your answers from which brain regions the information is extracted.
@@ -357,12 +393,10 @@ def get_starting_agent(
                 The models currently available on the platform are the metabolism and NGV unit as a notebook, and the single neuron, synaptome simulation. The other models will be released later starting with microcircuits paired neurons and then brain region, brain system and whole brain.
                 The platform has many notebooks that can be downloaded and executed remotely for now. A feature to run them on the platform will be available soon.
                 The platform has an AI Assistant for literature search allowing users to identify articles related to the brain area and artifacts they are interested in. At a later stage, the AI assistant will be further developed to access specific tools on the platform. PLEASE ALWAYS RESPECT THE TOOL OUTPUTS AND DON'T INVENT INFORMATION NOT PRESENT IN THE OUTPUTS."""
-
     agent = Agent(
         name="Agent",
         instructions=base_instructions,
         tools=tool_list,
-        model=settings.openai.model,
     )
     return agent
 
@@ -426,7 +460,6 @@ def get_s3_client(
 def get_context_variables(
     request: Request,
     settings: Annotated[Settings, Depends(get_settings)],
-    starting_agent: Annotated[Agent, Depends(get_starting_agent)],
     httpx_client: Annotated[AsyncClient, Depends(get_httpx_client)],
     thread: Annotated[Threads, Depends(get_thread)],
     s3_client: Annotated[Any, Depends(get_s3_client)],
@@ -446,7 +479,6 @@ def get_context_variables(
         "project_id": thread.project_id,
         "retriever_k": settings.tools.literature.retriever_k,
         "s3_client": s3_client,
-        "starting_agent": starting_agent,
         "tavily_api_key": settings.tools.web_search.tavily_api_key,
         "thread_id": thread.thread_id,
         "thumbnail_generation_url": settings.tools.thumbnail_generation.url,
@@ -478,10 +510,14 @@ def get_healthcheck_variables(
 
 
 def get_agents_routine(
-    openai: Annotated[AsyncOpenAI | None, Depends(get_openai_client)],
+    openrouter_client: Annotated[AsyncOpenAI | None, Depends(get_openrouter_client)],
+    openai_client: Annotated[AsyncOpenAI | None, Depends(get_openai_client)],
 ) -> AgentsRoutine:
     """Get the AgentRoutine client."""
-    return AgentsRoutine(openai)
+    if openrouter_client:
+        return AgentsRoutine(openrouter_client)
+    else:
+        return AgentsRoutine(openai_client)
 
 
 def get_redis_client(request: Request) -> aioredis.Redis | None:

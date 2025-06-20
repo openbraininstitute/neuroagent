@@ -4,6 +4,7 @@ import asyncio
 import copy
 import json
 import logging
+import uuid
 from collections import defaultdict
 from typing import Any, AsyncIterator
 
@@ -224,6 +225,7 @@ class AgentsRoutine:
 
                 message: dict[str, Any] = {
                     "content": "",
+                    "reasoning": "",
                     "sender": agent.name,
                     "role": "assistant",
                     "function_call": None,
@@ -244,15 +246,33 @@ class AgentsRoutine:
                     model_override=model_override,
                     stream=True,
                 )
+
                 turns += 1
                 draft_tool_calls: list[dict[str, str]] = []
                 draft_tool_calls_index = -1
                 async for chunk in completion:
                     for choice in chunk.choices:
                         if choice.finish_reason == "stop":
-                            continue
+                            if choice.delta.content:
+                                yield f"0:{json.dumps(choice.delta.content, separators=(',', ':'))}\n"
 
                         elif choice.finish_reason == "tool_calls":
+                            # Some models stream the whole tool call in one chunk.
+                            if not draft_tool_calls and choice.delta.tool_calls:
+                                for tc in choice.delta.tool_calls:
+                                    tc.id = uuid.uuid4().hex
+                                    draft_tool_calls.append(
+                                        {
+                                            "arguments": tc.function.arguments or "{}"
+                                            if tc.function
+                                            else "{}",
+                                            "id": tc.id,
+                                            "name": tc.function.name or ""
+                                            if tc.function
+                                            else "",
+                                        }
+                                    )
+
                             for draft_tool_call in draft_tool_calls:
                                 input_args = json.loads(
                                     draft_tool_call["arguments"] or "{}"
@@ -281,6 +301,11 @@ class AgentsRoutine:
                                     continue
                                 if tool_call.function is None:
                                     continue
+                                if tool_call.id is not None:
+                                    tool_call.id = (
+                                        uuid.uuid4().hex
+                                    )  # Set provider_id to random uuid
+
                                 id = tool_call.id
                                 name = tool_call.function.name
                                 arguments = tool_call.function.arguments
@@ -333,6 +358,7 @@ class AgentsRoutine:
                     message["tool_calls"] = None
 
                 # If tool calls requested, instantiate them as an SQL compatible class
+
                 if message["tool_calls"]:
                     tool_calls = [
                         ToolCalls(
@@ -361,6 +387,7 @@ class AgentsRoutine:
                         content=json.dumps(message),
                         tool_calls=tool_calls,
                         is_complete=True,
+                        model=agent.model,
                     )
                 )
 
@@ -421,6 +448,7 @@ class AgentsRoutine:
                             entity=Entity.TOOL,
                             content=json.dumps(tool_response),
                             is_complete=True,
+                            model=None,
                         )
                         for i, tool_response in enumerate(tool_calls_executed.messages)
                     ]
@@ -486,6 +514,7 @@ class AgentsRoutine:
                         content=json.dumps(message),
                         tool_calls=tool_calls,
                         is_complete=False,
+                        model=agent.model,
                     )
                 )
 
@@ -505,6 +534,7 @@ class AgentsRoutine:
                                 }
                             ),
                             is_complete=False,
+                            model=None,
                         )
                         for call in tool_calls
                     ]
