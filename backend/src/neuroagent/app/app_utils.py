@@ -336,7 +336,7 @@ def format_messages_vercel(
                 messages.append(
                     MessagesReadVercel(
                         **{
-                            "id": uuid.uuid4().hex,
+                            "id": uuid.uuid4(),
                             "role": "assistant",
                             "createdAt": last_tool_call["creation_date"],
                             "content": "",
@@ -409,7 +409,7 @@ def format_messages_vercel(
         messages.append(
             MessagesReadVercel(
                 **{
-                    "id": uuid.uuid4().hex,
+                    "id": uuid.uuid4(),
                     "role": "assistant",
                     "createdAt": last_tool_call["creation_date"],
                     "content": "",
