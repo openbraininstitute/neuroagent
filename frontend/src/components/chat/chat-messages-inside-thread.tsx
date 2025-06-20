@@ -12,6 +12,7 @@ import { ChatMessageHuman } from "@/components/chat/chat-message-human";
 import { ChatMessageTool } from "@/components/chat/chat-message-tool";
 import { useState } from "react";
 import { ChatMessageLoading } from "./chat-message-loading";
+import { ReasoningCollapsible } from "./reasoning-collapsible";
 
 interface ChatMessagesInsideThreadProps {
   messages: MessageStrict[];
@@ -69,59 +70,73 @@ export function ChatMessagesInsideThread({
       {messages.map((message, idx) =>
         message.role === "assistant" ? (
           <div key={message.id}>
-            {!collapsedTools.has(message.id) &&
-              message.parts?.map((part) => {
-                if (part.type == "tool-invocation") {
-                  const validated =
-                    getValidationStatus(
-                      message.annotations,
-                      part.toolInvocation.toolCallId,
-                    ) ?? "not_required";
-                  const stopped = getStoppedStatus(
+            {message.parts?.map((part, index) => {
+              if (part.type === "reasoning") {
+                return (
+                  <ReasoningCollapsible
+                    key={`${message.id}-reasoning-${index}`}
+                    reasoningText={part.reasoning}
+                    messageId={message.id}
+                    isReasoning={true}
+                    onComplete={() => handleToggleCollapse(message.id)}
+                  />
+                );
+              }
+              if (
+                !collapsedTools.has(message.id) &&
+                part.type === "tool-invocation"
+              ) {
+                const validated =
+                  getValidationStatus(
                     message.annotations,
                     part.toolInvocation.toolCallId,
-                  );
-                  return (
-                    <ChatMessageTool
-                      key={`${message.id}-tool-${part.toolInvocation.toolCallId}`}
-                      threadId={threadId}
-                      tool={part.toolInvocation}
-                      stopped={stopped}
-                      availableTools={availableTools}
-                      addToolResult={addToolResult}
-                      validated={validated}
-                      setMessage={(updater) =>
-                        handleMessageUpdate(message.id, updater)
-                      }
-                    />
-                  );
-                }
-              })}
+                  ) ?? "not_required";
+                const stopped = getStoppedStatus(
+                  message.annotations,
+                  part.toolInvocation.toolCallId,
+                );
+                return (
+                  <ChatMessageTool
+                    key={`${message.id}-tool-${part.toolInvocation.toolCallId}`}
+                    threadId={threadId}
+                    tool={part.toolInvocation}
+                    stopped={stopped}
+                    availableTools={availableTools}
+                    addToolResult={addToolResult}
+                    validated={validated}
+                    setMessage={(updater) =>
+                      handleMessageUpdate(message.id, updater)
+                    }
+                  />
+                );
+              }
+              return null;
+            })}
 
-            {
-              <ChatMessageAI
-                messageId={message.id}
-                content={message.content}
-                hasTools={
-                  message.parts?.some(
-                    (part) => part.type === "tool-invocation",
-                  ) ?? false
-                }
-                isToolsCollapsed={collapsedTools.has(message.id)}
-                toggleCollapse={() => handleToggleCollapse(message.id)}
-                isLoading={
-                  loadingStatus == "submitted" || loadingStatus == "streaming"
-                }
-                isLastMessage={idx === messages.length - 1}
-              />
-            }
+            <ChatMessageAI
+              messageId={message.id}
+              content={message.content}
+              hasTools={
+                message.parts?.some(
+                  (part) => part.type === "tool-invocation",
+                ) ?? false
+              }
+              isToolsCollapsed={collapsedTools.has(message.id)}
+              toggleCollapse={() => handleToggleCollapse(message.id)}
+              isLoading={
+                loadingStatus === "submitted" || loadingStatus === "streaming"
+              }
+              isLastMessage={idx === messages.length - 1}
+            />
+
+            {/* Render any plots */}
             <PlotsInChat storageIds={getStorageIDs(message) || []} />
           </div>
         ) : (
           <ChatMessageHuman key={message.id} content={message.content} />
         ),
       )}
-      {loadingStatus == "submitted" && <ChatMessageLoading />}
+      {loadingStatus === "submitted" && <ChatMessageLoading />}
     </>
   );
 }
