@@ -6,6 +6,7 @@ import logging
 from contextlib import asynccontextmanager
 from datetime import datetime, timezone
 from typing import Annotated, Any, AsyncIterator
+from uuid import UUID
 
 from fastapi import (
     APIRouter,
@@ -80,8 +81,8 @@ async def question_suggestions(
     fastapi_response: Response,
     session: Annotated[AsyncSession, Depends(get_session)],
     body: QuestionsSuggestionsRequest,
-    vlab_id: str | None = None,
-    project_id: str | None = None,
+    vlab_id: UUID | None = None,
+    project_id: UUID | None = None,
 ) -> QuestionsSuggestions:
     """Generate suggested question taking into account the user journey and the user previous messages."""
     if body.thread_id is None:

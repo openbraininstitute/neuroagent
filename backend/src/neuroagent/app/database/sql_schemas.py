@@ -4,7 +4,7 @@ import datetime
 import enum
 import uuid
 
-from sqlalchemy import Boolean, DateTime, Enum, ForeignKey, String
+from sqlalchemy import UUID, Boolean, DateTime, Enum, ForeignKey, String
 from sqlalchemy.ext.asyncio import AsyncAttrs
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
@@ -31,20 +31,20 @@ class Threads(Base):
     """SQL table for the users thread / conversations."""
 
     __tablename__ = "threads"
-    thread_id: Mapped[str] = mapped_column(
-        String, primary_key=True, default=lambda: uuid.uuid4().hex
+    thread_id: Mapped[uuid.UUID] = mapped_column(
+        UUID, primary_key=True, default=lambda: uuid.uuid4()
     )
-    vlab_id: Mapped[str] = mapped_column(
-        String, nullable=True
+    vlab_id: Mapped[uuid.UUID] = mapped_column(
+        UUID, nullable=True
     )  # only default for now !
-    project_id: Mapped[str] = mapped_column(
-        String, nullable=True
+    project_id: Mapped[uuid.UUID] = mapped_column(
+        UUID, nullable=True
     )  # only default for now !
     title: Mapped[str] = mapped_column(String, default="New chat")
     creation_date: Mapped[datetime.datetime] = mapped_column(DateTime, default=utc_now)
     update_date: Mapped[datetime.datetime] = mapped_column(DateTime, default=utc_now)
 
-    user_id: Mapped[str] = mapped_column(String, nullable=False)
+    user_id: Mapped[uuid.UUID] = mapped_column(UUID, nullable=False)
     messages: Mapped[list["Messages"]] = relationship(
         "Messages",
         back_populates="thread",
@@ -57,16 +57,16 @@ class Messages(Base):
     """SQL table for the messsages in the threads."""
 
     __tablename__ = "messages"
-    message_id: Mapped[str] = mapped_column(
-        String, primary_key=True, default=lambda: uuid.uuid4().hex
+    message_id: Mapped[uuid.UUID] = mapped_column(
+        UUID, primary_key=True, default=lambda: uuid.uuid4()
     )
     creation_date: Mapped[datetime.datetime] = mapped_column(DateTime, default=utc_now)
     entity: Mapped[Entity] = mapped_column(Enum(Entity), nullable=False)
     content: Mapped[str] = mapped_column(String, nullable=False)
     is_complete: Mapped[bool] = mapped_column(Boolean)
 
-    thread_id: Mapped[str] = mapped_column(
-        String, ForeignKey("threads.thread_id"), nullable=False
+    thread_id: Mapped[uuid.UUID] = mapped_column(
+        UUID, ForeignKey("threads.thread_id"), nullable=False
     )
     thread: Mapped[Threads] = relationship("Threads", back_populates="messages")
     tool_calls: Mapped[list["ToolCalls"]] = relationship(
@@ -83,5 +83,7 @@ class ToolCalls(Base):
     arguments: Mapped[str] = mapped_column(String, nullable=False)
     validated: Mapped[bool] = mapped_column(Boolean, nullable=True)
 
-    message_id: Mapped[str] = mapped_column(String, ForeignKey("messages.message_id"))
+    message_id: Mapped[uuid.UUID] = mapped_column(
+        UUID, ForeignKey("messages.message_id")
+    )
     message: Mapped[Messages] = relationship("Messages", back_populates="tool_calls")

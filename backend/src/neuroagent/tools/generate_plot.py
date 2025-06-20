@@ -2,6 +2,7 @@
 
 import logging
 from typing import Any, ClassVar, Literal
+from uuid import UUID
 
 from pydantic import BaseModel, Field
 
@@ -68,9 +69,9 @@ class PlotMetadata(BaseMetadata):
     """Metadata for Plot Generator tool."""
 
     s3_client: Any  # storage client doesn't have type hints
-    user_id: str
+    user_id: UUID
     bucket_name: str
-    thread_id: str
+    thread_id: UUID
 
 
 class PlotGeneratorToolOutput(BaseModel):

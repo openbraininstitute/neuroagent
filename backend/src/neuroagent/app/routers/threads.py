@@ -3,6 +3,7 @@
 import datetime
 import logging
 from typing import Annotated, Any, Literal
+from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Response
 from openai import AsyncOpenAI
@@ -128,8 +129,8 @@ async def get_threads(
     session: Annotated[AsyncSession, Depends(get_session)],
     user_info: Annotated[UserInfo, Depends(get_user_info)],
     pagination_params: PaginatedParams = Depends(),
-    virtual_lab_id: str | None = None,
-    project_id: str | None = None,
+    virtual_lab_id: UUID | None = None,
+    project_id: UUID | None = None,
     sort: Literal[
         "update_date", "creation_date", "-update_date", "-creation_date"
     ] = "-update_date",
