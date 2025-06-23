@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v0.6.2] - 23.06.2025
+
 ### Added
 - Multi-model support with OpenRouter.
 
