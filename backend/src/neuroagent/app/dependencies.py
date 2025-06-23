@@ -388,7 +388,7 @@ def get_starting_agent(
         1. ALWAYS specify brain regions from tool outputs - never repeat user's requested regions without verification
         2. ONLY use information from tool outputs - do not add external knowledge
         3. NEVER generate fake links or links to storage IDs
-        4. **MANDATORY**: Format ALL responses in Markdown with headers, lists, **bold**, *italics*, `code`, and tables
+        4. **MANDATORY**: Format ALL responses in Markdown with headers, lists, **bold**, *italics*
 
         ## Your Role:
         As the Open Brain Platform's neuroscience AI assistant, you will:
