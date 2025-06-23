@@ -30,7 +30,8 @@ class BrainRegionGetAllInput(ReadManyBrainRegionGetParametersQuery):
         description="Comma separated list of multiple brain regions. Each one of them must be capitalized. Does exact match on every single one.",
     )
     name__ilike: str | None = Field(
-        default=None, description="Case insensitive, partial name matching."
+        default=None,
+        description="Case insensitive, partial name matching. Will return results in alphabetical order.",
     )
 
 
