@@ -119,9 +119,21 @@ async def question_suggestions(
         raise HTTPException(
             status_code=429,
             detail={"error": "Rate limit exceeded"},
-            headers=limit_headers.model_dump(by_alias=True),
+            headers={
+                "Access-Control-Expose-Headers": ",".join(
+                    list(limit_headers.model_dump(by_alias=True).keys())
+                ),
+                **limit_headers.model_dump(by_alias=True),
+            },
         )
-    fastapi_response.headers.update(limit_headers.model_dump(by_alias=True))
+    fastapi_response.headers.update(
+        {
+            "Access-Control-Expose-Headers": ",".join(
+                list(limit_headers.model_dump(by_alias=True).keys())
+            ),
+            **limit_headers.model_dump(by_alias=True),
+        }
+    )
 
     if body.thread_id is not None:
         # Get the AI and User messages from the conversation :
@@ -257,7 +269,12 @@ async def stream_chat_agent(
             raise HTTPException(
                 status_code=429,
                 detail={"error": "Rate limit exceeded"},
-                headers=limit_headers.model_dump(by_alias=True),
+                headers={
+                    "Access-Control-Expose-Headers": ",".join(
+                        list(limit_headers.model_dump(by_alias=True).keys())
+                    ),
+                    **limit_headers.model_dump(by_alias=True),
+                },
             )
         # Inside of vlab, you start paying
         else:
@@ -368,6 +385,9 @@ async def stream_chat_agent(
         media_type="text/event-stream",
         headers={
             "x-vercel-ai-data-stream": "v1",
+            "Access-Control-Expose-Headers": ",".join(
+                list(limit_headers.model_dump(by_alias=True).keys())
+            ),
             **limit_headers.model_dump(by_alias=True),
         },
     )
