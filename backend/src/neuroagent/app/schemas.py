@@ -32,6 +32,13 @@ class TextPartVercel(BaseModel):
     text: str
 
 
+class ReasoningPartVercel(BaseModel):
+    """Text part of Vercel."""
+
+    type: Literal["reasoning"] = "reasoning"
+    reasoning: str
+
+
 class ToolCall(BaseModel):
     """Tool call."""
 
@@ -55,7 +62,7 @@ class MessagesReadVercel(BaseRead):
     role: str
     createdAt: datetime.datetime
     content: str
-    parts: list[ToolCallPartVercel | TextPartVercel] | None = None
+    parts: list[ToolCallPartVercel | TextPartVercel | ReasoningPartVercel] | None = None
     annotations: list[dict[str, Any]] | None = None
 
 

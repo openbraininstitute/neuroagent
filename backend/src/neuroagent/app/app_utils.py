@@ -25,6 +25,7 @@ from neuroagent.app.schemas import (
     MessagesRead,
     MessagesReadVercel,
     PaginatedResponse,
+    ReasoningPartVercel,
     TextPartVercel,
     ToolCallPartVercel,
     ToolCallVercel,
@@ -304,7 +305,9 @@ def format_messages_vercel(
 
     for msg in reversed(db_messages):
         if msg.entity in [Entity.USER, Entity.AI_MESSAGE]:
-            text_content = json.loads(msg.content).get("content")
+            content = json.loads(msg.content)
+            text_content = content.get("content")
+            reasoning_content = content.get("reasoning")
             message_data = {
                 "id": msg.message_id,
                 "role": "user" if msg.entity == Entity.USER else "assistant",
@@ -314,6 +317,7 @@ def format_messages_vercel(
             # add tool calls and reset buffer after attaching
             if msg.entity == Entity.AI_MESSAGE:
                 message_data["parts"] = [
+                    ReasoningPartVercel(reasoning=reasoning_content),
                     *[
                         ToolCallPartVercel(toolInvocation=ToolCallVercel(**tool_call))
                         for tool_call in tool_call_buffer
@@ -343,10 +347,13 @@ def format_messages_vercel(
                             "createdAt": last_tool_call["creation_date"],
                             "content": "",
                             "parts": [
-                                ToolCallPartVercel(
-                                    toolInvocation=ToolCallVercel(**tool_call)
-                                )
-                                for tool_call in tool_call_buffer
+                                ReasoningPartVercel(reasoning=reasoning_content),
+                                *[
+                                    ToolCallPartVercel(
+                                        toolInvocation=ToolCallVercel(**tool_call)
+                                    )
+                                    for tool_call in tool_call_buffer
+                                ],
                             ],
                             "annotations": [
                                 {
@@ -416,8 +423,13 @@ def format_messages_vercel(
                     "createdAt": last_tool_call["creation_date"],
                     "content": "",
                     "parts": [
-                        ToolCallPartVercel(toolInvocation=ToolCallVercel(**tool_call))
-                        for tool_call in tool_call_buffer
+                        ReasoningPartVercel(reasoning=reasoning_content),
+                        *[
+                            ToolCallPartVercel(
+                                toolInvocation=ToolCallVercel(**tool_call)
+                            )
+                            for tool_call in tool_call_buffer
+                        ],
                     ],
                     "annotations": [
                         {
