@@ -6,35 +6,27 @@ type ReasoningCollapsibleProps = {
   reasoningText: string;
   isReasoning: boolean;
   messageId: string;
-  onComplete?: () => void;
 };
 
 export function ReasoningCollapsible({
   reasoningText,
   isReasoning,
   messageId,
-  onComplete,
 }: ReasoningCollapsibleProps) {
-  const [isCollapsed, setIsCollapsed] = useState(true);
+  const [isCollapsed, setIsCollapsed] = useState(!isReasoning);
 
-  // Toggle collapse when reasoning state changes
   useEffect(() => {
-    if (isReasoning) {
-      setIsCollapsed(false);
-    } else {
+    if (!isReasoning) {
       setIsCollapsed(true);
-      onComplete?.();
     }
-  }, [isReasoning, onComplete]);
+  }, [isReasoning]);
 
   if (!reasoningText && !isReasoning) return null;
-
-  const toggle = () => setIsCollapsed((prev) => !prev);
 
   return (
     <div className="mb-4 ml-8">
       <button
-        onClick={toggle}
+        onClick={() => setIsCollapsed((prev) => !prev)}
         className="flex items-center space-x-2 text-sm text-gray-500 focus:outline-none"
       >
         {isCollapsed ? (

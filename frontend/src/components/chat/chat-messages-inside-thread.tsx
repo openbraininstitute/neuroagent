@@ -14,7 +14,7 @@ import { useState } from "react";
 import { ChatMessageLoading } from "./chat-message-loading";
 import { ReasoningCollapsible } from "./reasoning-collapsible";
 
-interface ChatMessagesInsideThreadProps {
+type ChatMessagesInsideThreadProps = {
   messages: MessageStrict[];
   threadId: string;
   availableTools: Array<{ slug: string; label: string }>;
@@ -32,7 +32,7 @@ interface ChatMessagesInsideThreadProps {
       | ((messages: MessageStrict[]) => MessageStrict[]),
   ) => void;
   loadingStatus: "submitted" | "streaming" | "ready" | "error";
-}
+};
 
 export function ChatMessagesInsideThread({
   messages,
@@ -70,18 +70,18 @@ export function ChatMessagesInsideThread({
       {messages.map((message, idx) =>
         message.role === "assistant" ? (
           <div key={message.id}>
-            {message.parts?.map((part, index) => {
-              if (part.type === "reasoning") {
-                return (
-                  <ReasoningCollapsible
-                    key={`${message.id}-reasoning-${index}`}
-                    reasoningText={part.reasoning}
-                    messageId={message.id}
-                    isReasoning={true}
-                    onComplete={() => handleToggleCollapse(message.id)}
-                  />
-                );
-              }
+            {message.parts.some((part) => part.type === "reasoning") && (
+              <ReasoningCollapsible
+                key={`${message.id}-reasoning`}
+                reasoningText={message.parts
+                  ?.filter((part) => part.type === "reasoning")
+                  .map((part) => part.reasoning)
+                  .join("\n")}
+                messageId={message.id}
+                isReasoning={message.parts.at(-1)?.type === "reasoning"}
+              />
+            )}
+            {message.parts?.map((part) => {
               if (
                 !collapsedTools.has(message.id) &&
                 part.type === "tool-invocation"
