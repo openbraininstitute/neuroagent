@@ -64,6 +64,7 @@ class Messages(Base):
     entity: Mapped[Entity] = mapped_column(Enum(Entity), nullable=False)
     content: Mapped[str] = mapped_column(String, nullable=False)
     is_complete: Mapped[bool] = mapped_column(Boolean)
+    model: Mapped[str] = mapped_column(String, nullable=True, default=None)
 
     thread_id: Mapped[str] = mapped_column(
         String, ForeignKey("threads.thread_id"), nullable=False

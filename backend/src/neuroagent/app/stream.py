@@ -21,7 +21,10 @@ async def stream_agent_response(
     """Redefine fastAPI connections to enable streaming."""
     # Restore the OpenAI client
     if isinstance(agents_routine.client, AsyncOpenAI):
-        openai_client = AsyncOpenAI(api_key=agents_routine.client.api_key)
+        openai_client = AsyncOpenAI(
+            api_key=agents_routine.client.api_key,
+            base_url=agents_routine.client.base_url,
+        )
         connected_agents_routine = AgentsRoutine(client=openai_client)
     else:
         openai_client = agents_routine.client
@@ -29,10 +32,14 @@ async def stream_agent_response(
 
     # Restore the httpx client
     httpx_client = AsyncClient(
-        timeout=300.0, verify=False, headers=context_variables["httpx_client"].headers
+        timeout=300.0,
+        verify=False,
+        headers=context_variables["httpx_client"].headers,  # nosec: B501
     )
     context_variables["httpx_client"] = httpx_client
-    context_variables["openai_client"] = openai_client
+    context_variables["openai_client"] = AsyncOpenAI(
+        api_key=context_variables["openai_client"].api_key
+    )
     iterator = connected_agents_routine.astream(
         agent=agent,
         messages=messages,

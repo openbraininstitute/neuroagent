@@ -81,14 +81,13 @@ def test_get_connection_string_full(monkeypatch, patch_required_env):
 
     settings = Settings()
     result = get_connection_string(settings)
-    assert (
-        result == "http://John:Doe@localhost:5000/test"
-    ), "must return fully formed connection string"
+    assert result == "http://John:Doe@localhost:5000/test", (
+        "must return fully formed connection string"
+    )
 
 
-def test_get_starting_agent(patch_required_env, get_weather_tool):
-    settings = Settings()
-    agent = get_starting_agent(settings, tool_list=[get_weather_tool])
+def test_get_starting_agent(get_weather_tool):
+    agent = get_starting_agent(tool_list=[get_weather_tool])
 
     assert isinstance(agent, Agent)
     assert agent.tools == [get_weather_tool]

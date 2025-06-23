@@ -119,7 +119,7 @@ async def push_embeddings_to_s3(
     token: str,
 ) -> None:
     """Compute and push embeddings to s3."""
-    httpx_client = AsyncClient(timeout=None)
+    httpx_client = AsyncClient(timeout=300.0)
     logger.info(f"Getting brain hierarchy {hierarchy_id} from Entity-Core.")
 
     hierarchy = await httpx_client.get(
@@ -142,7 +142,7 @@ async def push_embeddings_to_s3(
 
     # Embed them
     logger.info("Embedding the names.")
-    openai_client = AsyncOpenAI(api_key=os.getenv("NEUROAGENT_OPENAI__TOKEN"))
+    openai_client = AsyncOpenAI(api_key=os.getenv("NEUROAGENT_LLM__OPENAI_TOKEN"))
     name_embeddings = await openai_client.embeddings.create(
         input=names, model="text-embedding-3-small"
     )

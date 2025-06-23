@@ -61,6 +61,7 @@ class ClientRequest(BaseModel):
 
     content: str
     tool_selection: list[str] | None = None
+    model: str = "openai/gpt-4o-mini"
 
     model_config = ConfigDict(extra="ignore")
 

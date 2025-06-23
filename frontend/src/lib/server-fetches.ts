@@ -10,8 +10,9 @@ import {
   ToolDetailedMetadata,
   ToolMetadata,
   BPaginatedResponse,
+  BOpenRouterModelResponse,
 } from "@/lib/types";
-import { threadPageSize, messagePageSize } from "@/lib/types";
+import { threadPageSize, messagePageSize, LLMModel } from "@/lib/types";
 
 export async function getThreads() {
   try {
@@ -200,6 +201,38 @@ export async function getTool(
   } catch (error) {
     if ((error as CustomError).statusCode === 404) {
       return null;
+    } else {
+      throw error;
+    }
+  }
+}
+
+export async function getModels(): Promise<Array<LLMModel>> {
+  try {
+    const session = await auth();
+    if (!session?.accessToken) {
+      throw new Error("No session found");
+    }
+
+    const models = (await fetcher({
+      method: "GET",
+      path: "/qa/models",
+      headers: { Authorization: `Bearer ${session.accessToken}` },
+    })) as Array<BOpenRouterModelResponse>;
+
+    return models
+      ?.map((model) => {
+        const out_date = new Date(model.created * 1000);
+        return {
+          id: model.id,
+          name: model.name,
+          metadata: `${Math.round(Number(model.pricing?.prompt) * 1e8) / 100}$/M tokens, ${Math.round(model.context_length / 1000)}k context length, ${out_date.getDate()}/${out_date.getMonth() + 1}/${out_date.getFullYear()}`,
+        };
+      })
+      .sort((a: LLMModel, b: LLMModel) => a.name.localeCompare(b.name));
+  } catch (error) {
+    if ((error as CustomError).statusCode === 404) {
+      return [];
     } else {
       throw error;
     }
