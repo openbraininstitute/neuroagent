@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Ephys tool from obi-one.
+
 ## [v0.6.2] - 23.06.2025
 
 ### Added
