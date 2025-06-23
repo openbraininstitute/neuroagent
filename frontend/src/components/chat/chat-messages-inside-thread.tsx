@@ -76,9 +76,11 @@ export function ChatMessagesInsideThread({
                 reasoningText={message.parts
                   ?.filter((part) => part.type === "reasoning")
                   .map((part) => part.reasoning)
-                  .join("\n")}
+                  .join("\n\n")}
                 messageId={message.id}
-                isReasoning={message.parts.at(-1)?.type === "reasoning"}
+                isReasoning={
+                  !(loadingStatus === "ready") && idx === messages.length - 1
+                }
               />
             )}
             {message.parts?.map((part) => {

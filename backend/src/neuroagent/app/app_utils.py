@@ -4,6 +4,7 @@ import json
 import logging
 import re
 import uuid
+from collections import defaultdict
 from pathlib import Path
 from typing import Any, Sequence
 
@@ -301,13 +302,16 @@ def format_messages_vercel(
 ) -> PaginatedResponse[MessagesReadVercel]:
     """Format db messages to Vercel schema."""
     messages: list[MessagesReadVercel] = []
-    tool_call_buffer: list[dict[str, Any]] = []
+    buffer: dict[list[Any]] = defaultdict(list)
 
     for msg in reversed(db_messages):
         if msg.entity in [Entity.USER, Entity.AI_MESSAGE]:
             content = json.loads(msg.content)
             text_content = content.get("content")
             reasoning_content = content.get("reasoning")
+            if reasoning_content:
+                buffer["reasoning"].append(reasoning_content)
+
             message_data = {
                 "id": msg.message_id,
                 "role": "user" if msg.entity == Entity.USER else "assistant",
@@ -317,10 +321,13 @@ def format_messages_vercel(
             # add tool calls and reset buffer after attaching
             if msg.entity == Entity.AI_MESSAGE:
                 message_data["parts"] = [
-                    ReasoningPartVercel(reasoning=reasoning_content),
+                    *[
+                        ReasoningPartVercel(reasoning=reasoning)
+                        for reasoning in buffer["reasoning"]
+                    ],
                     *[
                         ToolCallPartVercel(toolInvocation=ToolCallVercel(**tool_call))
-                        for tool_call in tool_call_buffer
+                        for tool_call in buffer["tool_call"]
                     ],
                     TextPartVercel(text=text_content),
                 ]
@@ -332,13 +339,15 @@ def format_messages_vercel(
                             "validated": tool_call["validated"],
                             "isComplete": tool_call["is_complete"],
                         }
-                        for tool_call in tool_call_buffer
+                        for tool_call in buffer["tool_call"]
                     ],
                 ]
-                tool_call_buffer = []
+                buffer["tool_call"] = []
+                buffer["reasoning"] = []
+
             # If we encounter a user message with a non empty buffer we have to add a dummy ai message.
-            elif tool_call_buffer:
-                last_tool_call = tool_call_buffer[-1]
+            elif buffer["tool_call"]:
+                last_tool_call = buffer["tool_call"][-1]
                 messages.append(
                     MessagesReadVercel(
                         **{
@@ -347,12 +356,15 @@ def format_messages_vercel(
                             "createdAt": last_tool_call["creation_date"],
                             "content": "",
                             "parts": [
-                                ReasoningPartVercel(reasoning=reasoning_content),
+                                *[
+                                    ReasoningPartVercel(reasoning=reasoning)
+                                    for reasoning in buffer["reasoning"]
+                                ],
                                 *[
                                     ToolCallPartVercel(
                                         toolInvocation=ToolCallVercel(**tool_call)
                                     )
-                                    for tool_call in tool_call_buffer
+                                    for tool_call in buffer["tool_call"]
                                 ],
                             ],
                             "annotations": [
@@ -361,17 +373,18 @@ def format_messages_vercel(
                                     "validated": tool_call["validated"],
                                     "isComplete": tool_call["is_complete"],
                                 }
-                                for tool_call in tool_call_buffer
+                                for tool_call in buffer["tool_call"]
                             ],
                         }
                     )
                 )
-                tool_call_buffer = []
+                buffer["tool_call"] = []
 
             messages.append(MessagesReadVercel(**message_data))
 
         # Buffer tool calls until the next AI_MESSAGE
         elif msg.entity == Entity.AI_TOOL:
+            reasoning_content = json.loads(msg.content).get("reasoning")
             for tc in msg.tool_calls:
                 requires_validation = tool_hil_mapping.get(tc.name, False)
                 if tc.validated is True:
@@ -383,7 +396,10 @@ def format_messages_vercel(
                 else:
                     status = "pending"
 
-                tool_call_buffer.append(
+                if reasoning_content:
+                    buffer["reasoning"].append(reasoning_content)
+
+                buffer["tool_call"].append(
                     {
                         "toolCallId": tc.tool_call_id,
                         "toolName": tc.name,
@@ -402,7 +418,7 @@ def format_messages_vercel(
             tool_call = next(
                 (
                     item
-                    for item in tool_call_buffer
+                    for item in buffer["tool_call"]
                     if item["toolCallId"] == tool_call_id
                 ),
                 None,
@@ -413,8 +429,8 @@ def format_messages_vercel(
                 tool_call["is_complete"] = msg.is_complete
 
     # If the tool call buffer is not empty, we need to add a dummy AI message.
-    if tool_call_buffer:
-        last_tool_call = tool_call_buffer[-1]
+    if buffer["tool_call"]:
+        last_tool_call = buffer["tool_call"][-1]
         messages.append(
             MessagesReadVercel(
                 **{
@@ -423,12 +439,15 @@ def format_messages_vercel(
                     "createdAt": last_tool_call["creation_date"],
                     "content": "",
                     "parts": [
-                        ReasoningPartVercel(reasoning=reasoning_content),
+                        *[
+                            ReasoningPartVercel(reasoning=reasoning)
+                            for reasoning in buffer["reasoning"]
+                        ],
                         *[
                             ToolCallPartVercel(
                                 toolInvocation=ToolCallVercel(**tool_call)
                             )
-                            for tool_call in tool_call_buffer
+                            for tool_call in buffer["tool_call"]
                         ],
                     ],
                     "annotations": [
@@ -437,7 +456,7 @@ def format_messages_vercel(
                             "validated": tool_call["validated"],
                             "isComplete": tool_call["is_complete"],
                         }
-                        for tool_call in tool_call_buffer
+                        for tool_call in buffer["tool_call"]
                     ],
                 }
             )
