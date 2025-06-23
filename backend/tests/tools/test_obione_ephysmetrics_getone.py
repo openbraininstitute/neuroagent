@@ -20,16 +20,12 @@ class TestEphysMetricsGetOneTool:
             url="http://obione.org/declared/electrophysiology-metrics/1234",
             json={
                 "feature_dict": {
-                    "spike_frequency": {
-                        "avg": 15.5,
-                        "unit": "Hz",
-                        "num_traces": 3
-                    },
+                    "spike_frequency": {"avg": 15.5, "unit": "Hz", "num_traces": 3},
                     "resting_membrane_potential": {
                         "avg": -65.2,
                         "unit": "mV",
-                        "num_traces": 3
-                    }
+                        "num_traces": 3,
+                    },
                 }
             },
         )
@@ -53,16 +49,12 @@ class TestEphysMetricsGetOneTool:
             url="http://obione.org/declared/electrophysiology-metrics/1234",
             json={
                 "feature_dict": {
-                    "spike_frequency": {
-                        "avg": 15.5,
-                        "unit": "Hz",
-                        "num_traces": 3
-                    },
+                    "spike_frequency": {"avg": 15.5, "unit": "Hz", "num_traces": 3},
                     "resting_membrane_potential": {
                         "avg": -65.2,
                         "unit": "mV",
-                        "num_traces": 3
-                    }
+                        "num_traces": 3,
+                    },
                 }
             },
         )
@@ -105,4 +97,4 @@ class TestEphysMetricsGetOneTool:
         assert (
             tool_exception.value.args[0]
             == "The electrophysiology metrics endpoint returned a non 200 response code. Error: Resource not found."
-        ) 
+        )
