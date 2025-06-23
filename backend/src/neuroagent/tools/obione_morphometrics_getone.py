@@ -1,4 +1,4 @@
-"""MorphoMetrics tool."""
+"""ObiOne Morphometrics tool."""
 
 import logging
 from typing import ClassVar
@@ -14,16 +14,16 @@ from neuroagent.tools.base_tool import BaseMetadata, BaseTool
 logger = logging.getLogger(__name__)
 
 
-class MorphoMetricsInputs(BaseModel):
-    """Input class of the MorphoMetrics tool."""
+class MorphometricsGetOneInputs(BaseModel):
+    """Input class of the ObiOne Morphometrics tool."""
 
     morphology_id: str = Field(
         description="Id of the morphology from which features must be computed."
     )
 
 
-class MorphoMetricsMetadata(BaseMetadata):
-    """Metadata of the MorphoMetrics tool."""
+class MorphometricsGetOneMetadata(BaseMetadata):
+    """Metadata of the ObiOne Morphometrics tool."""
 
     httpx_client: AsyncClient
     obi_one_url: str
@@ -31,11 +31,11 @@ class MorphoMetricsMetadata(BaseMetadata):
     project_id: str | None
 
 
-class MorphoMetricsTool(BaseTool):
-    """Morphometrics tool."""
+class MorphometricsGetOneTool(BaseTool):
+    """ObiOne Morphometrics tool."""
 
-    name: ClassVar[str] = "morpho-metrics-tool"
-    name_frontend: ClassVar[str] = "MorphoMetrics"
+    name: ClassVar[str] = "obione-morphometrics-getone"
+    name_frontend: ClassVar[str] = "MorphometricsGetOne"
     description: ClassVar[str] = (
         """Given a morphology ID, fetch data about the features of the morphology."""
     )
@@ -47,13 +47,13 @@ class MorphoMetricsTool(BaseTool):
     • Analyze specific parts of neurons
 
     Provide a morphology ID to compute its detailed features."""
-    metadata: MorphoMetricsMetadata
-    input_schema: MorphoMetricsInputs
+    metadata: MorphometricsGetOneMetadata
+    input_schema: MorphometricsGetOneInputs
 
     async def arun(self) -> MorphologyMetricsOutput:
         """Run the morphology feature extraction logic."""
         logger.info(
-            f"Entering MorphoMetrics tool. Inputs: {self.input_schema.model_dump()}"
+            f"Entering ObiOne Morphometrics tool. Inputs: {self.input_schema.model_dump()}"
         )
 
         morpho_metrics_response = await self.metadata.httpx_client.get(
