@@ -97,9 +97,21 @@ async def generate_title(
         raise HTTPException(
             status_code=429,
             detail={"error": "Rate limit exceeded"},
-            headers=limit_headers.model_dump(by_alias=True),
+            headers={
+                "Access-Control-Expose-Headers": ",".join(
+                    list(limit_headers.model_dump(by_alias=True).keys())
+                ),
+                **limit_headers.model_dump(by_alias=True),
+            },
         )
-    fastapi_response.headers.update(limit_headers.model_dump(by_alias=True))
+    fastapi_response.headers.update(
+        {
+            "Access-Control-Expose-Headers": ",".join(
+                list(limit_headers.model_dump(by_alias=True).keys())
+            ),
+            **limit_headers.model_dump(by_alias=True),
+        }
+    )
     # Send it to OpenAI longside with the system prompt asking for summary
     messages = [
         {
