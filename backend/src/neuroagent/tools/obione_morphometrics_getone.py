@@ -56,18 +56,15 @@ class MorphometricsGetOneTool(BaseTool):
             f"Entering ObiOne Morphometrics tool. Inputs: {self.input_schema.model_dump()}"
         )
 
+        headers: dict[str, str] = {}
+        if self.metadata.vlab_id is not None:
+            headers["virtual_lab_id"] = self.metadata.vlab_id
+        if self.metadata.project_id is not None:
+            headers["project_id"] = self.metadata.project_id
+
         morpho_metrics_response = await self.metadata.httpx_client.get(
             url=f"{self.metadata.obi_one_url}/declared/neuron-morphology-metrics/{self.input_schema.morphology_id}",
-            headers={
-                **{
-                    k: v
-                    for k, v in {
-                        "virtual_lab_id": self.metadata.vlab_id,
-                        "project_id": self.metadata.project_id,
-                    }.items()
-                    if v is not None
-                },
-            },
+            headers=headers,
         )
 
         if morpho_metrics_response.status_code != 200:
