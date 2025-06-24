@@ -73,10 +73,9 @@ export function ChatMessagesInsideThread({
             {message.parts.some((part) => part.type === "reasoning") && (
               <ReasoningCollapsible
                 key={`${message.id}-reasoning`}
-                reasoningText={message.parts
+                reasoningSteps={message.parts
                   ?.filter((part) => part.type === "reasoning")
-                  .map((part) => part.reasoning)
-                  .join("\n\n")}
+                  .map((part) => part.reasoning)}
                 messageId={message.id}
                 isReasoning={
                   !(loadingStatus === "ready") && idx === messages.length - 1

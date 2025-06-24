@@ -302,7 +302,7 @@ def format_messages_vercel(
 ) -> PaginatedResponse[MessagesReadVercel]:
     """Format db messages to Vercel schema."""
     messages: list[MessagesReadVercel] = []
-    buffer: dict[list[Any]] = defaultdict(list)
+    buffer = defaultdict(list)
 
     for msg in reversed(db_messages):
         if msg.entity in [Entity.USER, Entity.AI_MESSAGE]:
@@ -385,6 +385,8 @@ def format_messages_vercel(
         # Buffer tool calls until the next AI_MESSAGE
         elif msg.entity == Entity.AI_TOOL:
             reasoning_content = json.loads(msg.content).get("reasoning")
+            if reasoning_content:
+                buffer["reasoning"].append(reasoning_content)
             for tc in msg.tool_calls:
                 requires_validation = tool_hil_mapping.get(tc.name, False)
                 if tc.validated is True:
@@ -395,9 +397,6 @@ def format_messages_vercel(
                     status = "not_required"
                 else:
                     status = "pending"
-
-                if reasoning_content:
-                    buffer["reasoning"].append(reasoning_content)
 
                 buffer["tool_call"].append(
                     {

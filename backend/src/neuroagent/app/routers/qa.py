@@ -299,9 +299,9 @@ async def stream_chat_agent(
         )
 
     # For openai requests, ditch openrouter
-    if agent.model.startswith("openai/"):
-        agent.model = agent.model.removeprefix("openai/")
-        agents_routine.client = openai_client
+    # if agent.model.startswith("openai/"):
+    #     agent.model = agent.model.removeprefix("openai/")
+    #     agents_routine.client = openai_client
 
     messages: list[Messages] = await thread.awaitable_attrs.messages
     # Since the session is not reinstantiated in stream.py
