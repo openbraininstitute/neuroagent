@@ -17,7 +17,7 @@ class TestEphysMetricsGetOneTool:
     @pytest.mark.asyncio
     async def test_arun(self, httpx_mock):
         httpx_mock.add_response(
-            url="http://obione.org/declared/electrophysiology-metrics/1234",
+            url="http://obione.org/declared/electrophysiologyrecording-metrics/1234",
             json={
                 "feature_dict": {
                     "step_0": {
@@ -154,7 +154,7 @@ class TestEphysMetricsGetOneTool:
     @pytest.mark.asyncio
     async def test_arun_vlab_proj(self, httpx_mock):
         httpx_mock.add_response(
-            url="http://obione.org/declared/electrophysiology-metrics/1234",
+            url="http://obione.org/declared/electrophysiologyrecording-metrics/1234",
             json={
                 "feature_dict": {
                     "step_0": {
@@ -303,7 +303,7 @@ class TestEphysMetricsGetOneTool:
         )
 
         httpx_mock.add_response(
-            url="http://obione.org/declared/electrophysiology-metrics/1234",
+            url="http://obione.org/declared/electrophysiologyrecording-metrics/1234",
             status_code=404,
             text="Resource not found.",
         )

@@ -35,7 +35,7 @@ class EphysMetricsGetOneTool(BaseTool):
     """ObiOne Electrophysiology Metrics tool."""
 
     name: ClassVar[str] = "obione-ephysmetrics-getone"
-    name_frontend: ClassVar[str] = "EphysMetricsGetOne"
+    name_frontend: ClassVar[str] = "Compute Electrophysiology Metrics"
     description: ClassVar[str] = (
         """Given an electrical cell recording ID, fetch data about the electrophysiological features."""
     )
@@ -63,7 +63,7 @@ class EphysMetricsGetOneTool(BaseTool):
             headers["project_id"] = self.metadata.project_id
 
         ephys_metrics_response = await self.metadata.httpx_client.get(
-            url=f"{self.metadata.obi_one_url}/declared/electrophysiology-metrics/{self.input_schema.electrical_cell_recording_id}",
+            url=f"{self.metadata.obi_one_url}/declared/electrophysiologyrecording-metrics/{self.input_schema.electrical_cell_recording_id}",
             headers=headers,
         )
 
