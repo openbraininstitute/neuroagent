@@ -4,7 +4,6 @@ import json
 import logging
 import re
 import uuid
-from collections import defaultdict
 from pathlib import Path
 from typing import Any, Sequence
 
@@ -23,6 +22,8 @@ from starlette.status import HTTP_401_UNAUTHORIZED
 from neuroagent.app.config import Settings
 from neuroagent.app.database.sql_schemas import Entity, Messages, Threads, utc_now
 from neuroagent.app.schemas import (
+    AnnotationMessageVercel,
+    AnnotationToolCallVercel,
     MessagesRead,
     MessagesReadVercel,
     PaginatedResponse,
@@ -302,15 +303,18 @@ def format_messages_vercel(
 ) -> PaginatedResponse[MessagesReadVercel]:
     """Format db messages to Vercel schema."""
     messages: list[MessagesReadVercel] = []
-    buffer = defaultdict(list)
+    parts: list[TextPartVercel | ToolCallPartVercel | ReasoningPartVercel] = []
+    annotations: list[AnnotationMessageVercel | AnnotationToolCallVercel] = []
 
     for msg in reversed(db_messages):
         if msg.entity in [Entity.USER, Entity.AI_MESSAGE]:
             content = json.loads(msg.content)
             text_content = content.get("content")
             reasoning_content = content.get("reasoning")
+
+            # Optional reasoning
             if reasoning_content:
-                buffer["reasoning"].append(reasoning_content)
+                parts.append(ReasoningPartVercel(reasoning=reasoning_content))
 
             message_data = {
                 "id": msg.message_id,
@@ -320,73 +324,45 @@ def format_messages_vercel(
             }
             # add tool calls and reset buffer after attaching
             if msg.entity == Entity.AI_MESSAGE:
-                message_data["parts"] = [
-                    *[
-                        ReasoningPartVercel(reasoning=reasoning)
-                        for reasoning in buffer["reasoning"]
-                    ],
-                    *[
-                        ToolCallPartVercel(toolInvocation=ToolCallVercel(**tool_call))
-                        for tool_call in buffer["tool_call"]
-                    ],
-                    TextPartVercel(text=text_content),
-                ]
-                message_data["annotations"] = [
-                    {"message_id": msg.message_id, "isComplete": msg.is_complete},
-                    *[
-                        {
-                            "toolCallId": tool_call["toolCallId"],
-                            "validated": tool_call["validated"],
-                            "isComplete": tool_call["is_complete"],
-                        }
-                        for tool_call in buffer["tool_call"]
-                    ],
-                ]
-                buffer["tool_call"] = []
-                buffer["reasoning"] = []
+                if text_content:
+                    parts.append(TextPartVercel(text=text_content))
 
-            # If we encounter a user message with a non empty buffer we have to add a dummy ai message.
-            elif buffer["tool_call"]:
-                last_tool_call = buffer["tool_call"][-1]
-                messages.append(
-                    MessagesReadVercel(
-                        **{
-                            "id": uuid.uuid4().hex,
-                            "role": "assistant",
-                            "createdAt": last_tool_call["creation_date"],
-                            "content": "",
-                            "parts": [
-                                *[
-                                    ReasoningPartVercel(reasoning=reasoning)
-                                    for reasoning in buffer["reasoning"]
-                                ],
-                                *[
-                                    ToolCallPartVercel(
-                                        toolInvocation=ToolCallVercel(**tool_call)
-                                    )
-                                    for tool_call in buffer["tool_call"]
-                                ],
-                            ],
-                            "annotations": [
-                                {
-                                    "toolCallId": tool_call["toolCallId"],
-                                    "validated": tool_call["validated"],
-                                    "isComplete": tool_call["is_complete"],
-                                }
-                                for tool_call in buffer["tool_call"]
-                            ],
-                        }
+                annotations.append(
+                    AnnotationMessageVercel(
+                        messageId=msg.message_id, isComplete=msg.is_complete
                     )
                 )
-                buffer["tool_call"] = []
 
+                message_data["parts"] = parts
+                message_data["annotations"] = annotations
+
+            # If we encounter a user message with a non empty buffer we have to add a dummy ai message.
+            elif parts:
+                messages.append(
+                    MessagesReadVercel(
+                        id=uuid.uuid4().hex,
+                        role="assistant",
+                        createdAt=msg.creation_date,
+                        content="",
+                        parts=parts,
+                        annotations=annotations,
+                    )
+                )
+
+            parts = []
+            annotations = []
             messages.append(MessagesReadVercel(**message_data))
 
         # Buffer tool calls until the next AI_MESSAGE
         elif msg.entity == Entity.AI_TOOL:
-            reasoning_content = json.loads(msg.content).get("reasoning")
+            content = json.loads(msg.content)
+            text_content = content.get("content")
+            reasoning_content = content.get("reasoning")
+
+            # Add optional reasoning
             if reasoning_content:
-                buffer["reasoning"].append(reasoning_content)
+                parts.append(ReasoningPartVercel(reasoning=reasoning_content))
+
             for tc in msg.tool_calls:
                 requires_validation = tool_hil_mapping.get(tc.name, False)
                 if tc.validated is True:
@@ -398,66 +374,64 @@ def format_messages_vercel(
                 else:
                     status = "pending"
 
-                buffer["tool_call"].append(
-                    {
-                        "toolCallId": tc.tool_call_id,
-                        "toolName": tc.name,
-                        "args": json.loads(tc.arguments),
-                        "is_complete": msg.is_complete,
-                        "state": "call",
-                        # Needed for dummy messsages
-                        "validated": status,
-                        "creation_date": msg.creation_date,
-                    }
+                parts.append(
+                    ToolCallPartVercel(
+                        toolInvocation=ToolCallVercel(
+                            toolCallId=tc.tool_call_id,
+                            toolName=tc.name,
+                            args=json.loads(tc.arguments),
+                            state="call",
+                        )
+                    )
                 )
+                annotations.append(
+                    AnnotationToolCallVercel(
+                        toolCallId=tc.tool_call_id,
+                        validated=status,  # type: ignore
+                        isComplete=msg.is_complete,
+                    )
+                )
+
+            parts.append(TextPartVercel(text=text_content or ""))
 
         # Merge the actual tool result back into the buffered part
         elif msg.entity == Entity.TOOL:
             tool_call_id = json.loads(msg.content).get("tool_call_id")
             tool_call = next(
                 (
-                    item
-                    for item in buffer["tool_call"]
-                    if item["toolCallId"] == tool_call_id
+                    part.toolInvocation
+                    for part in parts
+                    if isinstance(part, ToolCallPartVercel)
+                    and part.toolInvocation.toolCallId == tool_call_id
+                ),
+                None,
+            )
+            annotation = next(
+                (
+                    annotation
+                    for annotation in annotations
+                    if isinstance(annotation, AnnotationToolCallVercel)
+                    and annotation.toolCallId == tool_call_id
                 ),
                 None,
             )
             if tool_call:
-                tool_call["result"] = json.loads(msg.content).get("content")
-                tool_call["state"] = "result"
-                tool_call["is_complete"] = msg.is_complete
+                tool_call.result = json.loads(msg.content).get("content")
+                tool_call.state = "result"
+
+            if annotation:
+                annotation.isComplete = msg.is_complete
 
     # If the tool call buffer is not empty, we need to add a dummy AI message.
-    if buffer["tool_call"]:
-        last_tool_call = buffer["tool_call"][-1]
+    if parts:
         messages.append(
             MessagesReadVercel(
-                **{
-                    "id": uuid.uuid4().hex,
-                    "role": "assistant",
-                    "createdAt": last_tool_call["creation_date"],
-                    "content": "",
-                    "parts": [
-                        *[
-                            ReasoningPartVercel(reasoning=reasoning)
-                            for reasoning in buffer["reasoning"]
-                        ],
-                        *[
-                            ToolCallPartVercel(
-                                toolInvocation=ToolCallVercel(**tool_call)
-                            )
-                            for tool_call in buffer["tool_call"]
-                        ],
-                    ],
-                    "annotations": [
-                        {
-                            "toolCallId": tool_call["toolCallId"],
-                            "validated": tool_call["validated"],
-                            "isComplete": tool_call["is_complete"],
-                        }
-                        for tool_call in buffer["tool_call"]
-                    ],
-                }
+                id=uuid.uuid4().hex,
+                role="assistant",
+                createdAt=msg.creation_date,
+                content="",
+                parts=parts,
+                annotations=annotations,
             )
         )
 

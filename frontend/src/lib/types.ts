@@ -1,4 +1,9 @@
-import { TextUIPart, ToolInvocationUIPart, UIMessage } from "@ai-sdk/ui-utils";
+import {
+  ReasoningUIPart,
+  TextUIPart,
+  ToolInvocationUIPart,
+  UIMessage,
+} from "@ai-sdk/ui-utils";
 
 export type BPaginatedResponse = {
   next_cursor: string;
@@ -23,7 +28,7 @@ export type Thread = {
 };
 
 export type Annotation = {
-  message_id?: string;
+  messageId?: string;
   toolCallId?: string;
   validated?: "accepted" | "rejected" | "pending" | "not_required";
   isComplete?: boolean;
@@ -49,7 +54,7 @@ export type BMessageAIContent = {
   role: "assistant";
   createdAt: Date;
   content: string;
-  parts: (TextUIPart | ToolInvocationUIPart)[];
+  parts: (TextUIPart | ToolInvocationUIPart | ReasoningUIPart)[];
   annotations: Annotation[];
 };
 

@@ -39,6 +39,21 @@ class ReasoningPartVercel(BaseModel):
     reasoning: str
 
 
+class AnnotationMessageVercel(BaseModel):
+    """Annotation of vercel messages."""
+
+    messageId: str
+    isComplete: bool
+
+
+class AnnotationToolCallVercel(BaseModel):
+    """Annotation of vercel tool calls."""
+
+    toolCallId: str
+    validated: Literal["accepted", "rejected", "not_required", "pending"]
+    isComplete: bool
+
+
 class ToolCall(BaseModel):
     """Tool call."""
 
@@ -63,7 +78,7 @@ class MessagesReadVercel(BaseRead):
     createdAt: datetime.datetime
     content: str
     parts: list[ToolCallPartVercel | TextPartVercel | ReasoningPartVercel] | None = None
-    annotations: list[dict[str, Any]] | None = None
+    annotations: list[AnnotationMessageVercel | AnnotationToolCallVercel] | None = None
 
 
 class MessagesRead(BaseRead):

@@ -275,6 +275,7 @@ export function ChatPage({
       });
     }
   }, [error, messages, setMessages]);
+  console.log(messages);
   return (
     <div className="flex h-full flex-col">
       <div

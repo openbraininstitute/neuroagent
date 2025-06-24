@@ -339,7 +339,6 @@ class AgentsRoutine:
                             hasattr(choice.delta, "reasoning")
                             and choice.delta.reasoning
                         ):
-                            # breakpoint()
                             yield f"g:{json.dumps(choice.delta.reasoning, separators=(',', ':'))}\n\n"
 
                         else:
