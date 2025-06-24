@@ -14,7 +14,6 @@ export function ReasoningCollapsible({
   messageId,
 }: ReasoningCollapsibleProps) {
   const [isCollapsed, setIsCollapsed] = useState(!isReasoning);
-  const [, setIsAnimating] = useState(false);
   const [currentStepIndex, setCurrentStepIndex] = useState(
     reasoningSteps.length - 1,
   );
@@ -45,16 +44,6 @@ export function ReasoningCollapsible({
     }
   }, [reasoningSteps.length, currentStepIndex]);
 
-  const toggleCollapse = () => {
-    setIsAnimating(true);
-    setIsCollapsed((prev) => !prev);
-
-    // Reset animation state after transition completes
-    setTimeout(() => {
-      setIsAnimating(false);
-    }, 300);
-  };
-
   if (reasoningSteps.length === 0 && !isReasoning) return null;
 
   const currentStep = reasoningSteps[currentStepIndex] || "";
@@ -62,7 +51,7 @@ export function ReasoningCollapsible({
   return (
     <div className="mb-4 ml-8">
       <button
-        onClick={toggleCollapse}
+        onClick={() => setIsCollapsed((prev) => !prev)}
         className="flex items-center space-x-2 text-sm text-gray-500 transition-colors duration-200 hover:text-gray-700 focus:outline-none"
       >
         <div
@@ -77,11 +66,6 @@ export function ReasoningCollapsible({
               ? "Show reasoning"
               : "Hide reasoning"}
         </span>
-        {reasoningSteps.length > 1 && !isCollapsed && (
-          <span className="text-xs text-gray-400">
-            ({currentStepIndex + 1}/{reasoningSteps.length})
-          </span>
-        )}
       </button>
 
       <div
@@ -109,7 +93,6 @@ export function ReasoningCollapsible({
                 key={index}
                 onClick={() => {
                   if (index !== currentStepIndex) {
-                    console.log(index);
                     setIsTransitioning(true);
                     setTimeout(() => {
                       setCurrentStepIndex(index);

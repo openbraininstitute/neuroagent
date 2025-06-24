@@ -288,7 +288,7 @@ export function ChatPage({
         {isFetchingPreviousPage && (
           <div className="z-50 mx-auto mt-4 h-6 min-h-6 w-6 animate-spin rounded-full border-2 border-gray-500 border-t-transparent" />
         )}
-        {/* {console.log(messages)} */}
+
         <ChatMessagesInsideThread
           messages={messages}
           threadId={threadId}
