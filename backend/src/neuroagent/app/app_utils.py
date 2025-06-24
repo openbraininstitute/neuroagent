@@ -192,11 +192,12 @@ def get_semantic_router(settings: Settings) -> SemanticRouter | None:
         for route in data["routes"]
     ]
 
-    if settings.openai.token and settings.openai.token.get_secret_value().startswith(
-        "sk-"
+    if (
+        settings.llm.openai_token
+        and settings.llm.openai_token.get_secret_value().startswith("sk-")
     ):
         encoder = OpenAIEncoder(
-            openai_api_key=settings.openai.token.get_secret_value(),
+            openai_api_key=settings.llm.openai_token.get_secret_value(),
             name="text-embedding-3-small",
         )
     else:
@@ -253,6 +254,7 @@ def format_messages_output(
             "thread_id": msg.thread_id,
             "is_complete": msg.is_complete,
             "creation_date": msg.creation_date.isoformat(),  # Convert datetime to string
+            "model": msg.model,
             "msg_content": json.loads(msg.content),
         }
 

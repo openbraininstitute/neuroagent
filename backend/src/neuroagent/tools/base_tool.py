@@ -90,8 +90,13 @@ class BaseTool(BaseModel, ABC):
         else:
             parameters = cls.__annotations__["input_schema"].model_json_schema()
 
+        # The name and description are duplicated to accomodate for
+        # models compatible with flat and nested JSON schema.
+        # E.g. o3 is flattened JSON schema compatible only
         new_retval: dict[str, Any] = {
             "type": "function",
+            "name": cls.name,
+            "description": cls.description,
             "function": {
                 "name": cls.name,
                 "description": cls.description,

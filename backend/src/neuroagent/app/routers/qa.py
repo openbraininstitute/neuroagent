@@ -42,6 +42,7 @@ from neuroagent.app.dependencies import (
     get_agents_routine,
     get_context_variables,
     get_openai_client,
+    get_openrouter_models,
     get_redis_client,
     get_semantic_routes,
     get_session,
@@ -51,6 +52,7 @@ from neuroagent.app.dependencies import (
     get_user_info,
 )
 from neuroagent.app.schemas import (
+    OpenRouterModelResponse,
     QuestionsSuggestions,
     QuestionsSuggestionsRequest,
     UserInfo,
@@ -118,9 +120,21 @@ async def question_suggestions(
         raise HTTPException(
             status_code=429,
             detail={"error": "Rate limit exceeded"},
-            headers=limit_headers.model_dump(by_alias=True),
+            headers={
+                "Access-Control-Expose-Headers": ",".join(
+                    list(limit_headers.model_dump(by_alias=True).keys())
+                ),
+                **limit_headers.model_dump(by_alias=True),
+            },
         )
-    fastapi_response.headers.update(limit_headers.model_dump(by_alias=True))
+    fastapi_response.headers.update(
+        {
+            "Access-Control-Expose-Headers": ",".join(
+                list(limit_headers.model_dump(by_alias=True).keys())
+            ),
+            **limit_headers.model_dump(by_alias=True),
+        }
+    )
 
     if body.thread_id is not None:
         # Get the AI and User messages from the conversation :
@@ -204,11 +218,22 @@ async def question_suggestions(
 
     response = await openai_client.beta.chat.completions.parse(
         messages=messages,  # type: ignore
-        model=settings.openai.suggestion_model,
+        model=settings.llm.suggestion_model,
         response_format=QuestionsSuggestions,
     )
 
     return response.choices[0].message.parsed  # type: ignore
+
+
+@router.get("/models")
+async def get_available_LLM_models(
+    filtererd_models: Annotated[
+        list[OpenRouterModelResponse], Depends(get_openrouter_models)
+    ],
+    _: Annotated[UserInfo, Depends(get_user_info)],
+) -> list[OpenRouterModelResponse]:
+    """Get available LLM models."""
+    return filtererd_models
 
 
 @router.post("/chat_streamed/{thread_id}")
@@ -225,6 +250,10 @@ async def stream_chat_agent(
         AsyncAccountingSessionFactory, Depends(get_accounting_session_factory)
     ],
     semantic_router: Annotated[SemanticRouter | None, Depends(get_semantic_routes)],
+    filtered_models: Annotated[
+        list[OpenRouterModelResponse], Depends(get_openrouter_models)
+    ],
+    openai_client: Annotated[AsyncOpenAI, Depends(get_openai_client)],
     background_tasks: BackgroundTasks,
 ) -> StreamingResponse:
     """Run a single agent query in a streamed fashion."""
@@ -241,7 +270,12 @@ async def stream_chat_agent(
             raise HTTPException(
                 status_code=429,
                 detail={"error": "Rate limit exceeded"},
-                headers=limit_headers.model_dump(by_alias=True),
+                headers={
+                    "Access-Control-Expose-Headers": ",".join(
+                        list(limit_headers.model_dump(by_alias=True).keys())
+                    ),
+                    **limit_headers.model_dump(by_alias=True),
+                },
             )
         # Inside of vlab, you start paying
         else:
@@ -255,6 +289,20 @@ async def stream_chat_agent(
             status_code=413,
             detail=f"Query string has {len(user_request.content)} characters. Maximum allowed is {settings.misc.query_max_size}.",
         )
+
+    # Check that the requested model is authorized
+    if user_request.model in [model.id for model in filtered_models]:
+        agent.model = user_request.model
+        logger.info(f"Loading model {agent.model}.")
+    else:
+        raise HTTPException(
+            status_code=404, detail={"error": f"Model {user_request.model} not found."}
+        )
+
+    # For openai requests, ditch openrouter
+    if agent.model.startswith("openai/"):
+        agent.model = agent.model.removeprefix("openai/")
+        agents_routine.client = openai_client
 
     messages: list[Messages] = await thread.awaitable_attrs.messages
     # Since the session is not reinstantiated in stream.py
@@ -277,6 +325,7 @@ async def stream_chat_agent(
                 entity=Entity.USER,
                 content=json.dumps({"role": "user", "content": user_request.content}),
                 is_complete=True,
+                model=None,
             )
         )
 
@@ -312,6 +361,7 @@ async def stream_chat_agent(
                         entity=Entity.AI_MESSAGE,
                         content=json.dumps({"role": "assistant", "content": response}),
                         is_complete=True,
+                        model=None,
                     )
                 )
                 return StreamingResponse(
@@ -336,6 +386,9 @@ async def stream_chat_agent(
         media_type="text/event-stream",
         headers={
             "x-vercel-ai-data-stream": "v1",
+            "Access-Control-Expose-Headers": ",".join(
+                list(limit_headers.model_dump(by_alias=True).keys())
+            ),
             **limit_headers.model_dump(by_alias=True),
         },
     )

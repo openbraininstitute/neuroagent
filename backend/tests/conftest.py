@@ -14,8 +14,9 @@ from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 
 from neuroagent.app.config import Settings
 from neuroagent.app.database.sql_schemas import Entity, Messages, Threads, ToolCalls
-from neuroagent.app.dependencies import Agent, get_settings
+from neuroagent.app.dependencies import Agent, get_openrouter_models, get_settings
 from neuroagent.app.main import app
+from neuroagent.app.schemas import OpenRouterModelResponse
 from neuroagent.schemas import EmbeddedBrainRegion, EmbeddedBrainRegions
 from neuroagent.tools.base_tool import BaseTool
 from tests.mock_client import MockOpenAIClient, create_mock_response
@@ -31,13 +32,48 @@ def client_fixture():
                 "url": "fake_literature_url",
             },
         },
-        openai={
-            "token": "fake_token",
+        llm={
+            "openai_token": "fake_token",
         },
         rate_limiter={"disabled": True},
         accounting={"disabled": True},
     )
     app.dependency_overrides[get_settings] = lambda: test_settings
+    app.dependency_overrides[get_openrouter_models] = lambda: [
+        OpenRouterModelResponse(
+            **{
+                "id": "openai/gpt-4.1-mini",
+                "canonical_slug": "openai/gpt-4.1-mini",
+                "hugging_face_id": None,
+                "name": "OpenAI: GPT-4.1-mini",
+                "created": 1721260800,
+                "description": "Great model",
+                "context_length": 128000,
+                "architecture": {
+                    "modality": "text+image->text",
+                    "input_modalities": [
+                        "text",
+                    ],
+                    "output_modalities": ["text"],
+                    "tokenizer": "GPT",
+                    "instruct_type": None,
+                },
+                "pricing": {
+                    "prompt": "0.00000015",
+                    "completion": "0.0000006",
+                },
+                "top_provider": {
+                    "context_length": 128000,
+                    "max_completion_tokens": 16384,
+                    "is_moderated": True,
+                },
+                "per_request_limits": None,
+                "supported_parameters": [
+                    "tools",
+                ],
+            }
+        )
+    ]
     yield app_client
     app.dependency_overrides.clear()
 
@@ -133,7 +169,7 @@ def dont_look_at_env_file():
 @pytest.fixture()
 def patch_required_env(monkeypatch):
     monkeypatch.setenv("NEUROAGENT_TOOLS__LITERATURE__URL", "https://fake_url")
-    monkeypatch.setenv("NEUROAGENT_OPENAI__TOKEN", "dummy")
+    monkeypatch.setenv("NEUROAGENT_LLM__OPENAI_TOKEN", "dummy")
 
 
 @pytest.fixture(name="test_user_info")
@@ -268,8 +304,8 @@ def settings():
                 "url": "fake_literature_url",
             },
         },
-        openai={
-            "token": "fake_token",
+        llm={
+            "openai_token": "fake_token",
         },
         rate_limiter={"disabled": True},
         accounting={"disabled": True},

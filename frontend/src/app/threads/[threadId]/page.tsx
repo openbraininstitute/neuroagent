@@ -1,6 +1,6 @@
 import { ChatPage } from "@/components/chat/chat-page";
 import { md5 } from "js-md5";
-import { getThread, getToolList } from "@/lib/server-fetches";
+import { getModels, getThread, getToolList } from "@/lib/server-fetches";
 import { getMessages } from "@/lib/server-fetches";
 import { notFound } from "next/navigation";
 
@@ -25,10 +25,8 @@ export default async function PageThread({
 }) {
   const { threadId } = await params;
 
-  const [{ messages, nextCursor }, availableTools] = await Promise.all([
-    getMessages(threadId),
-    getToolList(),
-  ]);
+  const [{ messages, nextCursor }, availableTools, availableModels] =
+    await Promise.all([getMessages(threadId), getToolList(), getModels()]);
 
   if (!messages) {
     return notFound();
@@ -43,6 +41,7 @@ export default async function PageThread({
       initialMessages={messages}
       initialNextCursor={nextCursor}
       availableTools={availableTools}
+      availableModels={availableModels}
     />
   );
 }

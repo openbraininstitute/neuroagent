@@ -32,7 +32,7 @@ class TestAgentsRoutine:
         )
         mock_openai_client.assert_create_called_with(
             **{
-                "model": "gpt-4o-mini",
+                "model": "openai/gpt-4.1-mini",
                 "messages": [
                     {"role": "system", "content": "You are a helpful agent."},
                     {"role": "user", "content": "Hello !"},
@@ -64,7 +64,7 @@ class TestAgentsRoutine:
         )
         mock_openai_client.assert_create_called_with(
             **{
-                "model": "gpt-4o-mini",
+                "model": "openai/gpt-4.1-mini",
                 "messages": [
                     {
                         "role": "system",
@@ -96,7 +96,7 @@ class TestAgentsRoutine:
         )
         mock_openai_client.assert_create_called_with(
             **{
-                "model": "gpt-4o-mini",
+                "model": "openai/gpt-4.1-mini",
                 "messages": [
                     {"role": "system", "content": "You are a helpful agent."},
                     {"role": "user", "content": "Hello !"},
@@ -104,6 +104,8 @@ class TestAgentsRoutine:
                 "tools": [
                     {
                         "type": "function",
+                        "name": "get_weather",
+                        "description": "Great description",
                         "function": {
                             "name": "get_weather",
                             "description": "Great description",
@@ -111,9 +113,9 @@ class TestAgentsRoutine:
                             "parameters": {
                                 "properties": {
                                     "location": {
+                                        "description": "The location to get the weather for",
                                         "title": "Location",
                                         "type": "string",
-                                        "description": "The location to get the weather for",
                                     }
                                 },
                                 "required": ["location"],

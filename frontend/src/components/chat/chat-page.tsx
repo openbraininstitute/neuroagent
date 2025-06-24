@@ -2,7 +2,7 @@
 
 import { useChat } from "@ai-sdk/react";
 import { useEffect, useRef, useState } from "react";
-import { BMessage, type MessageStrict } from "@/lib/types";
+import { BMessage, LLMModel, type MessageStrict } from "@/lib/types";
 import { env } from "@/lib/env";
 import { useSession } from "next-auth/react";
 import { ExtendedSession } from "@/lib/auth";
@@ -20,6 +20,7 @@ type ChatPageProps = {
   initialMessages: BMessage[];
   initialNextCursor?: string;
   availableTools: Array<{ slug: string; label: string }>;
+  availableModels: Array<LLMModel>;
 };
 
 export function ChatPage({
@@ -27,11 +28,14 @@ export function ChatPage({
   initialMessages,
   initialNextCursor,
   availableTools,
+  availableModels,
 }: ChatPageProps) {
   // Auth and store data
   const { data: session } = useSession() as { data: ExtendedSession | null };
   const setCheckedTools = useStore((state) => state.setCheckedTools);
   const checkedTools = useStore((state) => state.checkedTools);
+  const setCurrentModel = useStore((state) => state.setCurrentModel);
+  const currentModel = useStore((state) => state.currentModel);
   // New conversation variables
   const newMessage = useStore((state) => state.newMessage);
   const setNewMessage = useStore((state) => state.setNewMessage);
@@ -88,7 +92,11 @@ export function ChatPage({
       const selectedTools = Object.keys(checkedTools).filter(
         (key) => key !== "allchecked" && checkedTools[key] === true,
       );
-      return { content: lastMessage.content, tool_selection: selectedTools };
+      return {
+        content: lastMessage.content,
+        tool_selection: selectedTools,
+        model: currentModel.id,
+      };
     },
   });
 
@@ -289,16 +297,19 @@ export function ChatPage({
           setMessages={setMessages}
           loadingStatus={status}
         />
-        <div ref={messagesEndRef} />
+        <div ref={messagesEndRef} className="pb-5" />
       </div>
 
       <ChatInputInsideThread
         input={input}
         isLoading={isLoading}
         availableTools={availableTools}
+        availableModels={availableModels}
         checkedTools={checkedTools}
+        currentModel={currentModel}
         threadId={threadId}
         setCheckedTools={setCheckedTools}
+        setCurrentModel={setCurrentModel}
         handleInputChange={handleInputChange}
         handleSubmit={handleSubmit}
         hasOngoingToolInvocations={hasOngoingToolInvocations}

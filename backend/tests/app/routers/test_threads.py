@@ -44,7 +44,7 @@ def test_generate_thread_title(
     mock_keycloak_user_identification(httpx_mock, test_user_info)
     test_settings = Settings(
         db={"prefix": db_connection},
-        openai={"model": "great_model"},
+        llm={"suggestion_model": "great_model"},
         keycloak={"issuer": "https://great_issuer.com"},
         rate_limiter={"disabled": True},
     )

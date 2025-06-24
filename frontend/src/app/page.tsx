@@ -1,5 +1,5 @@
 import { ChatInput } from "@/components/chat/chat-input";
-import { getToolList } from "@/lib/server-fetches";
+import { getModels, getToolList } from "@/lib/server-fetches";
 
 export async function generateMetadata() {
   return {
@@ -9,9 +9,13 @@ export async function generateMetadata() {
 
 export default async function Home() {
   const availableTools = await getToolList();
+  const availableModels = await getModels();
   return (
     <div className="flex h-full flex-col justify-center">
-      <ChatInput availableTools={availableTools} />
+      <ChatInput
+        availableTools={availableTools}
+        availableModels={availableModels}
+      />
     </div>
   );
 }

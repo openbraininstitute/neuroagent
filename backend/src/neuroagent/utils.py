@@ -30,8 +30,11 @@ def merge_chunk(final_response: dict[str, Any], delta: dict[str, Any]) -> None:
 
     tool_calls = delta.get("tool_calls")
     if tool_calls and len(tool_calls) > 0:
-        index = tool_calls[0].pop("index")
-        merge_fields(final_response["tool_calls"][index], tool_calls[0])
+        for tool_call in tool_calls:
+            index = tool_call.pop("index")
+            if final_response["tool_calls"][index]["type"]:
+                tool_call["type"] = None
+            merge_fields(final_response["tool_calls"][index], tool_call)
 
 
 async def messages_to_openai_content(
