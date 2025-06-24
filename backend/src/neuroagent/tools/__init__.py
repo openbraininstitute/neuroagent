@@ -84,8 +84,9 @@ from neuroagent.tools.literature_search_tool import (
     LiteratureSearchTool,
     ParagraphMetadata,
 )
-from neuroagent.tools.morpho_metrics_tool import MorphoMetricsTool
 from neuroagent.tools.now import NowTool
+from neuroagent.tools.obione_ephysmetrics_getone import EphysMetricsGetOneTool
+from neuroagent.tools.obione_morphometrics_getone import MorphometricsGetOneTool
 from neuroagent.tools.resolve_brain_region_tool import ResolveBrainRegionTool
 from neuroagent.tools.resolve_mtypes_tool import ResolveMtypeTool
 from neuroagent.tools.thumbnailgen_morphology_getone import PlotMorphologyGetOneTool
@@ -102,7 +103,8 @@ __all__ = [
     "MEModelGetOneTool",
     "ReconstructionMorphologyGetAllTool",
     "ReconstructionMorphologyGetOneTool",
-    "MorphoMetricsTool",
+    "MorphometricsGetOneTool",
+    "EphysMetricsGetOneTool",
     "NowTool",
     "ParagraphMetadata",
     "PlotGeneratorTool",
