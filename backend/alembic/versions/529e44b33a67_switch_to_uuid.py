@@ -1,7 +1,7 @@
 """Switch to uuid
 
 Revision ID: 529e44b33a67
-Revises: 0ea274d7a584
+Revises: 52d7f4485020
 Create Date: 2025-06-18 11:17:07.130078
 
 """
@@ -14,7 +14,7 @@ from alembic import op
 
 # revision identifiers, used by Alembic.
 revision: str = "529e44b33a67"
-down_revision: Union[str, None] = "0ea274d7a584"
+down_revision: Union[str, None] = "52d7f4485020"
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
