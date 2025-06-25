@@ -32,7 +32,7 @@ async def get_rate_limit(
             chat_streamed=RateLimitInfo(limit=-1, remaining=-1, reset_in=-1),
             question_suggestions=RateLimitInfo(limit=-1, remaining=-1, reset_in=-1),
             generate_title=RateLimitInfo(limit=-1, remaining=-1, reset_in=-1),
-        )  # Redis disabled
+        )
 
     # Validate that the user belongs to the project if provided and define limits
     user_sub = user_info.sub
@@ -62,14 +62,6 @@ async def get_rate_limit(
 
     # Match the results back to keys
     results = dict(zip(keys, completed))
-    # chat_streamed_key = next((key for key in keys if "chat_streamed" in key), None)
-    # remaining = max(0, limit_chat - int(results[chat_streamed_key][0]) or 0) if chat_streamed_key else limit_chat
-    # reset_in=round(results["chat_streamed_key"][1] / 1000) if chat_streamed_key and results[chat_streamed_key][1] > 0 else None
-    # chat_streamed_info = RateLimitInfo(
-    #         limit=limit_chat,
-    #         remaining=remaining,
-    #         reset_in=reset_in,
-    #     ),
 
     return RateLimitOutput(
         chat_streamed=parse_redis_data(
