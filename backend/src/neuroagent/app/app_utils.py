@@ -25,6 +25,7 @@ from neuroagent.app.schemas import (
     MessagesRead,
     MessagesReadVercel,
     PaginatedResponse,
+    RateLimitInfo,
     TextPartVercel,
     ToolCallPartVercel,
     ToolCallVercel,
@@ -440,4 +441,28 @@ def format_messages_vercel(
         has_more=has_more,
         page_size=page_size,
         results=ordered_messages,
+    )
+
+
+def parse_redis_data(
+    field: str, redis_info: dict[str, tuple[str | None, int]], limit: int
+) -> RateLimitInfo:
+    """From a dictionary containing redis key-value mappings, populate pydantic class."""
+    # Map the field to an actual redis key
+    redis_key = next((key for key in redis_info.keys() if field in key), None)
+
+    # Compute remaining and reset_in
+    remaining = (
+        max(0, limit - int(redis_info[redis_key][0] or 0)) if redis_key else limit
+    )
+    reset_in = (
+        round(redis_info[redis_key][1] / 1000)
+        if redis_key and redis_info[redis_key][1] > 0
+        else None
+    )
+
+    return RateLimitInfo(
+        limit=limit,
+        remaining=remaining,
+        reset_in=reset_in,
     )
