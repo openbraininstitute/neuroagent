@@ -552,7 +552,7 @@ async def test_get_thread_messages_vercel_format(
             },
         ).json()
 
-    # Assert the first page with al its attributes.
+    # Assert the first page with all its attributes.
     assert set(messages.keys()) == {"next_cursor", "has_more", "page_size", "results"}
     assert messages["page_size"] == 1
     assert messages["has_more"]
@@ -572,7 +572,7 @@ async def test_get_thread_messages_vercel_format(
 
     parts = item.get("parts")
     assert isinstance(parts, list)
-    assert len(parts) == 2
+    assert len(parts) == 3
 
     first_part = parts[0]
     assert first_part.get("type") == "tool-invocation"
@@ -586,6 +586,10 @@ async def test_get_thread_messages_vercel_format(
 
     second_part = parts[1]
     assert second_part.get("type") == "text"
+    assert second_part.get("text") == ""
+
+    second_part = parts[2]
+    assert second_part.get("type") == "text"
     assert second_part.get("text") == "sample response content."
 
     annotations = item.get("annotations")
@@ -593,12 +597,12 @@ async def test_get_thread_messages_vercel_format(
     assert len(annotations) == 2
 
     ann1 = annotations[0]
-    assert ann1["message_id"]
+    assert ann1.get("toolCallId") == "mock_id_tc"
+    assert ann1.get("validated") == "not_required"
     assert ann1.get("isComplete") is True
 
     ann2 = annotations[1]
-    assert ann2.get("toolCallId") == "mock_id_tc"
-    assert ann2.get("validated") == "not_required"
+    assert ann2["messageId"]
     assert ann2.get("isComplete") is True
 
     # Assert the second page

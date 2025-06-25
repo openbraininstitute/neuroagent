@@ -17,6 +17,8 @@ from neuroagent.app.app_utils import (
 from neuroagent.app.config import Settings
 from neuroagent.app.database.sql_schemas import Entity, Messages, ToolCalls
 from neuroagent.app.schemas import (
+    AnnotationMessageVercel,
+    AnnotationToolCallVercel,
     MessagesRead,
     MessagesReadVercel,
     PaginatedResponse,
@@ -402,18 +404,16 @@ def test_format_messages_vercel():
                             results=None,
                         ),
                     ),
+                    TextPartVercel(type="text", text="DUMMY_AI_TOOL_CONTENT"),
                     TextPartVercel(type="text", text="DUMMY_AI_CONTENT"),
                 ],
                 annotations=[
-                    {
-                        "message_id": "359eeb212e94409594d9ca7d4ff22640",
-                        "isComplete": True,
-                    },
-                    {
-                        "toolCallId": "1234",
-                        "validated": "not_required",
-                        "isComplete": True,
-                    },
+                    AnnotationToolCallVercel(
+                        toolCallId="1234", validated="not_required", isComplete=True
+                    ),
+                    AnnotationMessageVercel(
+                        messageId="359eeb212e94409594d9ca7d4ff22640", isComplete=True
+                    ),
                 ],
             ),
             MessagesReadVercel(
