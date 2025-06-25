@@ -49,7 +49,7 @@ export function ReasoningCollapsible({
   const currentStep = reasoningSteps[currentStepIndex] || "";
 
   return (
-    <div className="mb-4 ml-8">
+    <div className="mb-4 ml-12">
       <button
         onClick={() => setIsCollapsed((prev) => !prev)}
         className="flex items-center space-x-2 text-sm text-gray-500 transition-colors duration-200 hover:text-gray-700 focus:outline-none"
