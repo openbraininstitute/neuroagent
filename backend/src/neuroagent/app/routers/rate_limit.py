@@ -1,6 +1,5 @@
 """Rate limit related operations."""
 
-import asyncio
 import logging
 from typing import Annotated
 
@@ -53,15 +52,18 @@ async def get_rate_limit(
     keys = await redis_client.keys(f"*{user_sub}*")
 
     # Prepare the usage count and the ttl
-    tasks = [
-        asyncio.gather(redis_client.get(key), redis_client.pttl(key)) for key in keys
-    ]
+    async with redis_client.pipeline() as pipe:
+        for key in keys:
+            pipe.get(key)
+            pipe.pttl(key)
 
-    # Run all tasks async
-    completed = await asyncio.gather(*tasks)
+        # Run all tasks async
+        completed = await pipe.execute()
 
     # Match the results back to keys
-    results = dict(zip(keys, completed))
+    results = dict(
+        zip(keys, [completed[i : i + 2] for i in range(0, len(completed), 2)])
+    )
 
     return RateLimitOutput(
         chat_streamed=parse_redis_data(

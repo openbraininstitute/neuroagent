@@ -1,4 +1,5 @@
-from unittest.mock import AsyncMock
+from contextlib import asynccontextmanager
+from unittest.mock import AsyncMock, Mock
 
 import pytest
 
@@ -52,15 +53,26 @@ async def test_get_rate_limit_outside_project(app_client, httpx_mock):
     )
     app.dependency_overrides[get_settings] = lambda: test_settings
 
-    redis_mock = AsyncMock()
-    # Mock Redis responses for each category
-    redis_mock.keys.return_value = [
-        "rate_limit:20293-2467-9665-4678-203948573627:/qa/chat_streamed/{thread_id}",
-        "rate_limit:20293-2467-9665-4678-203948573627:/qa/question_suggestions",
-        "rate_limit:20293-2467-9665-4678-203948573627:/threads/{thread_id}/generate_title",
-    ]
-    redis_mock.get.side_effect = [5, 3, 2]  # Current usage counts
-    redis_mock.pttl.side_effect = [3600000, 1800000, 900000]  # TTL in milliseconds
+    # Create a proper mock for the pipeline
+    pipeline = AsyncMock()
+    pipeline.get = AsyncMock()
+    pipeline.pttl = AsyncMock()
+    pipeline.execute = AsyncMock(return_value=[5, 3600000, 3, 1800000, 2, 900000])
+
+    @asynccontextmanager
+    async def fake_pipeline():
+        yield pipeline
+
+    redis_mock = Mock()
+    # Mock Redis responses for keys
+    redis_mock.keys = AsyncMock(
+        return_value=[
+            "rate_limit:20293-2467-9665-4678-203948573627:/qa/chat_streamed/{thread_id}",
+            "rate_limit:20293-2467-9665-4678-203948573627:/qa/question_suggestions",
+            "rate_limit:20293-2467-9665-4678-203948573627:/threads/{thread_id}/generate_title",
+        ]
+    )
+    redis_mock.pipeline.return_value = fake_pipeline()
 
     app.dependency_overrides[get_redis_client] = lambda: redis_mock
 
@@ -70,8 +82,11 @@ async def test_get_rate_limit_outside_project(app_client, httpx_mock):
     assert response.status_code == 200
     results = response.json()
 
-    assert redis_mock.get.call_count == 3
-    assert redis_mock.pttl.call_count == 3
+    # Verify pipeline was used correctly
+    assert redis_mock.pipeline.called
+    assert pipeline.get.call_count == 3
+    assert pipeline.pttl.call_count == 3
+    assert pipeline.execute.called
 
     # Verify response structure and calculations
     assert results["chat_streamed"]["limit"] == 20
@@ -104,15 +119,25 @@ async def test_get_rate_limit_inside_project(app_client, httpx_mock):
     )
     app.dependency_overrides[get_settings] = lambda: test_settings
 
-    redis_mock = AsyncMock()
+    pipeline = AsyncMock()
+    pipeline.get = AsyncMock()
+    pipeline.pttl = AsyncMock()
+    pipeline.execute = AsyncMock(return_value=[None, -2, None, -2, None, -2])
+
+    @asynccontextmanager
+    async def fake_pipeline():
+        yield pipeline
+
+    redis_mock = Mock()
     # Mock Redis responses - no current usage
-    redis_mock.keys.return_value = [
-        "rate_limit:20293-2467-9665-4678-203948573627:/qa/chat_streamed/{thread_id}",
-        "rate_limit:20293-2467-9665-4678-203948573627:/qa/question_suggestions",
-        "rate_limit:20293-2467-9665-4678-203948573627:/threads/{thread_id}/generate_title",
-    ]
-    redis_mock.get.side_effect = [None, None, None]
-    redis_mock.pttl.side_effect = [-2, -2, -2]
+    redis_mock.keys = AsyncMock(
+        return_value=[
+            "rate_limit:20293-2467-9665-4678-203948573627:/qa/chat_streamed/{thread_id}",
+            "rate_limit:20293-2467-9665-4678-203948573627:/qa/question_suggestions",
+            "rate_limit:20293-2467-9665-4678-203948573627:/threads/{thread_id}/generate_title",
+        ]
+    )
+    redis_mock.pipeline.return_value = fake_pipeline()
     app.dependency_overrides[get_redis_client] = lambda: redis_mock
 
     with app_client as app_client:
@@ -153,15 +178,25 @@ async def test_get_rate_limit_with_ttl_values(app_client, httpx_mock):
     )
     app.dependency_overrides[get_settings] = lambda: test_settings
 
-    redis_mock = AsyncMock()
+    pipeline = AsyncMock()
+    pipeline.get = AsyncMock()
+    pipeline.pttl = AsyncMock()
+    pipeline.execute = AsyncMock(return_value=[1, 5432, 2, 2789, 3, 360000])
+
+    @asynccontextmanager
+    async def fake_pipeline():
+        yield pipeline
+
+    redis_mock = Mock()
     # Mock Redis responses with different TTL scenarios
-    redis_mock.keys.return_value = [
-        "rate_limit:20293-2467-9665-4678-203948573627:/qa/chat_streamed/{thread_id}",
-        "rate_limit:20293-2467-9665-4678-203948573627:/qa/question_suggestions",
-        "rate_limit:20293-2467-9665-4678-203948573627:/threads/{thread_id}/generate_title",
-    ]
-    redis_mock.get.side_effect = [1, 2, 3]
-    redis_mock.pttl.side_effect = [5432, 2789, 360000]
+    redis_mock.keys = AsyncMock(
+        return_value=[
+            "rate_limit:20293-2467-9665-4678-203948573627:/qa/chat_streamed/{thread_id}",
+            "rate_limit:20293-2467-9665-4678-203948573627:/qa/question_suggestions",
+            "rate_limit:20293-2467-9665-4678-203948573627:/threads/{thread_id}/generate_title",
+        ]
+    )
+    redis_mock.pipeline.return_value = fake_pipeline()
     app.dependency_overrides[get_redis_client] = lambda: redis_mock
 
     with app_client as app_client:
