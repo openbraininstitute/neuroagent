@@ -10,7 +10,6 @@ import PlotsInChat from "@/components/chat/plot-in-chat";
 import { ChatMessageAI } from "@/components/chat/chat-message-ai";
 import { ChatMessageHuman } from "@/components/chat/chat-message-human";
 import { ChatMessageTool } from "@/components/chat/chat-message-tool";
-import { useState } from "react";
 import { ChatMessageLoading } from "./chat-message-loading";
 import { ReasoningCollapsible } from "./reasoning-collapsible";
 
@@ -104,16 +103,6 @@ export function ChatMessagesInsideThread({
                     key={`${message.id}-text-${partId}`}
                     messageId={message.id}
                     content={part.text}
-                    hasTools={
-                      message.parts?.some(
-                        (part) => part.type === "tool-invocation",
-                      ) ?? false
-                    }
-                    isLoading={
-                      loadingStatus === "submitted" ||
-                      loadingStatus === "streaming"
-                    }
-                    isLastMessage={partId === message.parts.length - 1}
                   />
                 );
               }

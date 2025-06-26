@@ -4,7 +4,7 @@ import {
   convert_tools_to_set,
   isLastMessageComplete,
   getToolInvocations,
-  getStorageIDs,
+  getStorageID,
   getValidationStatus,
   getStoppedStatus,
 } from "@/lib/utils";
@@ -95,71 +95,75 @@ describe("getToolInvocations", () => {
     expect(getToolInvocations(msgNoParts)).toEqual([]);
   });
 });
+describe("getStorageID", () => {
+  test("extracts a single storage_id from a JSON string", () => {
+    const toolCall = {
+      type: "tool-invocation",
+      toolInvocation: {
+        state: "result",
+        result: JSON.stringify({ storage_id: "abc-123" }),
+      },
+    } as ToolInvocationUIPart;
 
-describe("getStorageIDs", () => {
-  test("parses JSON strings and extracts single storage_id", () => {
-    const jsonResult = JSON.stringify({ storage_id: "abc-123" });
-    const message = {
-      parts: [
-        {
-          type: "tool-invocation",
-          toolInvocation: {
-            state: "result",
-            result: jsonResult,
-          },
-        } as ToolInvocationUIPart,
-      ],
-    } as unknown as MessageStrict;
-
-    const ids = getStorageIDs(message);
+    const ids = getStorageID(toolCall);
     expect(ids).toEqual(["abc-123"]);
   });
 
-  test("parses object results and extracts array of storage_id values", () => {
-    const message = {
-      parts: [
-        {
-          type: "tool-invocation",
-          toolInvocation: {
-            state: "result",
-            result: { storage_id: ["id1", "id2"] },
-          },
-        } as ToolInvocationUIPart,
-      ],
-    } as unknown as MessageStrict;
+  test("extracts multiple storage_ids from an object", () => {
+    const toolCall = {
+      type: "tool-invocation",
+      toolInvocation: {
+        state: "result",
+        result: { storage_id: ["id1", "id2"] },
+      },
+    } as ToolInvocationUIPart;
 
-    const ids = getStorageIDs(message);
+    const ids = getStorageID(toolCall);
     expect(ids).toEqual(["id1", "id2"]);
   });
 
-  test("ignores parts whose result is invalid JSON or has no storage_id field", () => {
-    const message = {
-      parts: [
-        {
-          type: "tool-invocation",
-          toolInvocation: {
-            state: "result",
-            result: "not a json",
-          },
-        } as ToolInvocationUIPart,
-        {
-          type: "tool-invocation",
-          toolInvocation: {
-            state: "result",
-            result: { some_other_field: "value" },
-          },
-        } as ToolInvocationUIPart,
-      ],
-    } as unknown as MessageStrict;
+  test("returns an empty array if result is invalid JSON string", () => {
+    const toolCall = {
+      type: "tool-invocation",
+      toolInvocation: {
+        state: "result",
+        result: "not json",
+      },
+    } as ToolInvocationUIPart;
 
-    const ids = getStorageIDs(message);
+    const ids = getStorageID(toolCall);
     expect(ids).toEqual([]);
   });
 
-  test("returns empty array if message or parts is undefined", () => {
-    expect(getStorageIDs(undefined)).toEqual([]);
-    const msgNoParts = { parts: undefined } as unknown as MessageStrict;
-    expect(getStorageIDs(msgNoParts)).toEqual([]);
+  test("returns an empty array if storage_id is missing", () => {
+    const toolCall = {
+      type: "tool-invocation",
+      toolInvocation: {
+        state: "result",
+        result: { some_other_field: "value" },
+      },
+    } as ToolInvocationUIPart;
+
+    const ids = getStorageID(toolCall);
+    expect(ids).toEqual([]);
+  });
+
+  test("returns empty array if toolCall is undefined", () => {
+    const ids = getStorageID(undefined);
+    expect(ids).toEqual([]);
+  });
+
+  test("returns empty array if type is not 'tool-invocation'", () => {
+    const toolCall = {
+      type: "not-a-tool-invocation",
+      toolInvocation: {
+        state: "result",
+        result: { storage_id: "abc-123" },
+      },
+    } as unknown as ToolInvocationUIPart;
+
+    const ids = getStorageID(toolCall);
+    expect(ids).toEqual([]);
   });
 });
 

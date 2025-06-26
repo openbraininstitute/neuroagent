@@ -1,8 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Info, Check, X, Loader2, AlertCircle, OctagonX } from "lucide-react";
-import { Card, CardContent, CardFooter, CardTitle } from "@/components/ui/card";
+import { Info } from "lucide-react";
 import {
   Popover,
   PopoverContent,
@@ -11,7 +10,7 @@ import {
 import { ToolStatusBadge } from "@/components/chat/tool-call-status";
 import { ToolInvocation } from "@ai-sdk/ui-utils";
 
-type InlineToolBadgeProps = {
+type ToolCallCollapsibleProps = {
   tool: ToolInvocation;
   toolLabel: string;
   stopped: boolean;
@@ -27,7 +26,7 @@ export function ToolCallCollapsible({
   validated,
   validationError,
   onValidationClick,
-}: InlineToolBadgeProps) {
+}: ToolCallCollapsibleProps) {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
@@ -78,6 +77,17 @@ export function ToolCallCollapsible({
               {JSON.stringify(tool?.args, null, 2)}
             </pre>
           </div>
+
+          {validationError && (
+            <div>
+              <h5 className="mb-1 text-xs font-medium text-red-600">
+                Validation Error
+              </h5>
+              <div className="max-h-32 overflow-auto rounded bg-red-50 p-2 text-xs text-red-700 dark:bg-red-900/20 dark:text-red-400">
+                {validationError}
+              </div>
+            </div>
+          )}
 
           {tool?.state === "result" && (
             <div>
