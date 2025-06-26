@@ -10,6 +10,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Added
 - Reasoning component.
 
+## Changed
+- Allow for tool call + content in the UI.
+
 ## [v0.6.2] - 23.06.2025
 
 ### Added
