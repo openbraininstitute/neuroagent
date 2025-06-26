@@ -10,6 +10,7 @@ from fastapi.exceptions import HTTPException
 from neuroagent.app.app_utils import (
     format_messages_output,
     format_messages_vercel,
+    parse_redis_data,
     rate_limit,
     setup_engine,
     validate_project,
@@ -22,6 +23,7 @@ from neuroagent.app.schemas import (
     MessagesRead,
     MessagesReadVercel,
     PaginatedResponse,
+    RateLimitInfo,
     TextPartVercel,
     ToolCall,
     ToolCallPartVercel,
@@ -203,7 +205,6 @@ async def test_rate_limit_subsequent_request_at_limit():
     )
 
     expected_key = "rate_limit:test_user:/test/path"
-    redis_mock.get.assert_called_once_with(expected_key)
     redis_mock.get.assert_called_once_with(expected_key)
     redis_mock.pttl.assert_called_once_with(expected_key)
     redis_mock.incr.assert_not_called()  # Should not increment when over limit
@@ -432,3 +433,132 @@ def test_format_messages_vercel():
     )
 
     assert fake_formated_response_vercel == expected_output
+
+
+@pytest.fixture()
+def sample_redis_info():
+    return {
+        "rate_limit:3d202d5f-af32-48c8-bf0e-4080f53079d8:/qa/chat_streamed/{thread_id}": [
+            "3",
+            85501414,
+        ],
+        "rate_limit:3d202d5f-af32-48c8-bf0e-4080f53079d8:/qa/question_suggestions": [
+            None,
+            85513870,
+        ],
+        "rate_limit:3d202d5f-af32-48c8-bf0e-4080f53079d8:/threads/{thread_id}/generate_title": [
+            None,
+            -2,
+        ],
+    }
+
+
+def test_field_matches_existing_key(sample_redis_info):
+    """Test when field is a substring of an existing redis key."""
+    sample_redis_info = {
+        "rate_limit:3d202d5f-af32-48c8-bf0e-4080f53079d8:/qa/chat_streamed/{thread_id}": [
+            "3",
+            85501414,
+        ],
+        "rate_limit:3d202d5f-af32-48c8-bf0e-4080f53079d8:/qa/question_suggestions": [
+            None,
+            85513870,
+        ],
+        "rate_limit:3d202d5f-af32-48c8-bf0e-4080f53079d8:/threads/{thread_id}/generate_title": [
+            None,
+            -2,
+        ],
+    }
+    result = parse_redis_data("chat_streamed", sample_redis_info, 10)
+
+    expected = RateLimitInfo(limit=10, remaining=7, reset_in=85501)
+    assert result == expected
+
+
+def test_field_matches_key_with_none_count(sample_redis_info):
+    """Test when field matches key but count is None."""
+    result = parse_redis_data("question_suggestions", sample_redis_info, 5)
+
+    expected = RateLimitInfo(limit=5, remaining=5, reset_in=85514)
+    assert result == expected
+
+
+def test_field_matches_key_with_negative_timestamp(sample_redis_info):
+    """Test when field matches key but timestamp is negative."""
+    result = parse_redis_data("generate_title", sample_redis_info, 3)
+
+    expected = RateLimitInfo(limit=3, remaining=3, reset_in=None)
+    assert result == expected
+
+
+def test_field_not_found_in_keys(sample_redis_info):
+    """Test when field is not a substring of any redis key."""
+    result = parse_redis_data("nonexistent_endpoint", sample_redis_info, 8)
+
+    expected = RateLimitInfo(limit=8, remaining=8, reset_in=None)
+    assert result == expected
+
+
+def test_empty_redis_info():
+    """Test with empty redis_info dictionary."""
+    result = parse_redis_data("any_field", {}, 5)
+
+    expected = RateLimitInfo(limit=5, remaining=5, reset_in=None)
+    assert result == expected
+
+
+def test_usage_exceeds_limit():
+    """Test when usage count exceeds the limit (remaining should be 0)."""
+    redis_info = {"rate_limit:test_key": ["15", 123456789]}
+    result = parse_redis_data("test_key", redis_info, 10)
+
+    expected = RateLimitInfo(limit=10, remaining=0, reset_in=123457)
+    assert result == expected
+
+
+def test_usage_equals_limit():
+    """Test when usage count equals the limit."""
+    redis_info = {"rate_limit:test_key": ["10", 123456789]}
+    result = parse_redis_data("test_key", redis_info, 10)
+
+    expected = RateLimitInfo(limit=10, remaining=0, reset_in=123457)
+    assert result == expected
+
+
+def test_millisecond_to_second_conversion(sample_redis_info):
+    """Test that millisecond timestamps are correctly converted to seconds."""
+    redis_info = {
+        "rate_limit:test_key": ["1", 1500]  # 1.5 seconds in milliseconds
+    }
+    result = parse_redis_data("test_key", redis_info, 5)
+
+    expected = RateLimitInfo(limit=5, remaining=4, reset_in=2)  # rounded to 2
+    assert result == expected
+
+
+def test_partial_key_matching(sample_redis_info):
+    """Test that partial key matching works correctly."""
+    redis_info = {"rate_limit:user123:/api/v1/chat": ["4", 75000]}
+
+    # Test various partial matches
+    result1 = parse_redis_data("chat", redis_info, 10)
+    result2 = parse_redis_data("api", redis_info, 10)
+    result3 = parse_redis_data("user123", redis_info, 10)
+
+    expected = RateLimitInfo(limit=10, remaining=6, reset_in=75)
+    assert result1 == expected
+    assert result2 == expected
+    assert result3 == expected
+
+
+@pytest.mark.parametrize("limit_value", [0, 1, 100, 1000])
+def test_various_limit_values(sample_redis_info, limit_value):
+    """Test function with various limit values."""
+    redis_info = {"rate_limit:test_key": ["5", 123456]}
+    result = parse_redis_data("test_key", redis_info, limit_value)
+
+    expected_remaining = max(0, limit_value - 5)
+    expected = RateLimitInfo(
+        limit=limit_value, remaining=expected_remaining, reset_in=123
+    )
+    assert result == expected

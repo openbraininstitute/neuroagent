@@ -7,8 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## Added
+### Added
 - Reasoning component.
+- Rate limit endpoint.
 
 ## [v0.6.2] - 23.06.2025
 

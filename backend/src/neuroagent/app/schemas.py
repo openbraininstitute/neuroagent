@@ -271,3 +271,19 @@ class OpenRouterModelResponse(BaseModel):
     hugging_face_id: str | None = None
     per_request_limits: dict[str, str] | None = None
     supported_parameters: list[str]
+
+
+class RateLimitInfo(BaseModel):
+    """Information regarding the rate limit of a user for a single category."""
+
+    limit: int
+    remaining: int
+    reset_in: int | None = None
+
+
+class RateLimitOutput(BaseModel):
+    """Output of the GET rate_limit endpoint."""
+
+    chat_streamed: RateLimitInfo
+    question_suggestions: RateLimitInfo
+    generate_title: RateLimitInfo
