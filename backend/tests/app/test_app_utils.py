@@ -3,6 +3,7 @@
 import json
 from datetime import datetime
 from unittest.mock import AsyncMock, patch
+from uuid import UUID
 
 import pytest
 from fastapi.exceptions import HTTPException
@@ -33,14 +34,13 @@ from neuroagent.app.schemas import (
 
 
 @pytest.mark.asyncio
-async def test_validate_project():
-    vlab_id = "test_vlab"
-    proj_id = "test_project"
+async def test_validate_project(test_user_info):
+    _, vlab_id, proj_id = test_user_info
     groups = [
-        "/proj/test_vlab/test_project/admin",
-        "/proj/test_vlab2/test_project2/member",
-        "/vlab/test_vlab/admin",
-        "/vlab/test_vlab2/member",
+        f"/proj/{vlab_id}/{proj_id}/admin",
+        f"/proj/{str(vlab_id)[:-1] + '1'}/{str(proj_id)[:-1] + '1'}/member",
+        f"/vlab/{vlab_id}/admin",
+        f"/vlab/{str(vlab_id)[:-1] + '1'}/member",
     ]
     # Don't specify anything
     validate_project(groups=groups)
@@ -75,9 +75,12 @@ async def test_validate_project():
 @pytest.mark.parametrize(
     "vlab_id,proj_id",
     [
-        ("test_vlab", "test_project"),
-        (None, "test_project"),
-        ("test_vlab", None),
+        (
+            UUID("12315678-5123-4567-4053-890126456789"),
+            UUID("47939269-9123-4567-2934-918273640192"),
+        ),
+        (None, UUID("47939269-9123-4567-2934-918273640192")),
+        (UUID("12315678-5123-4567-4053-890126456789"), None),
         (None, None),
     ],
 )
@@ -85,7 +88,7 @@ async def test_validate_project():
 async def test_validate_project_empty_groups(vlab_id, proj_id):
     # Groups are missing
     keycloak_response = {
-        "sub": "1234greatsub-amazing",
+        "sub": "12345678-9123-4567-1234-890123456789",
         "email_verified": True,
         "name": "John Doe",
         "preferred_username": "WonderJoe",
@@ -237,18 +240,18 @@ def test_format_messages_output():
         creation_date=datetime(2025, 6, 4, 14, 4, 41),
         entity=Entity.AI_MESSAGE,
         is_complete=True,
-        message_id="359eeb212e94409594d9ca7d4ff22640",
+        message_id="359eeb21-2e94-4095-94d9-ca7d4ff22640",
         content=json.dumps({"content": "DUMMY_AI_CONTENT"}),
-        thread_id="e2db8c7d11704762b42bfdcd08526735",
+        thread_id="e2db8c7d-1170-4762-b42b-fdcd08526735",
         tool_calls=[],
     )
     msg2 = Messages(
         creation_date=datetime(2025, 6, 4, 14, 4, 41),
         entity=Entity.TOOL,
         is_complete=True,
-        message_id="06c305de156243aaadeabeeeb53880a2",
+        message_id="06c305de-1562-43aa-adea-beeeb53880a2",
         content=json.dumps({"content": "DUMMY_RESULT"}),
-        thread_id="e2db8c7d11704762b42bfdcd08526735",
+        thread_id="e2db8c7d-1170-4762-b42b-fdcd08526735",
         tool_calls=[],
     )
     dummy_tool_call = ToolCalls(
@@ -261,18 +264,18 @@ def test_format_messages_output():
         creation_date=datetime(2025, 6, 4, 14, 4, 41),
         entity=Entity.AI_TOOL,
         is_complete=True,
-        message_id="e21d5f16855341819d25d1d935327ffc",
+        message_id="e21d5f16-8553-4181-9d25-d1d935327ffc",
         content=json.dumps({"content": "DUMMY_AI_TOOL_CONTENT"}),
-        thread_id="e2db8c7d11704762b42bfdcd08526735",
+        thread_id="e2db8c7d-1170-4762-b42b-fdcd08526735",
         tool_calls=[dummy_tool_call],
     )
     msg4 = Messages(
         creation_date=datetime(2025, 6, 4, 14, 4, 41),
         entity=Entity.USER,
         is_complete=True,
-        message_id="87866e27dc7848c2bd684ea395d5a466",
+        message_id="87866e27-dc78-48c2-bd68-4ea395d5a466",
         content=json.dumps({"content": "DUMMY_USER_TEXT"}),
-        thread_id="e2db8c7d11704762b42bfdcd08526735",
+        thread_id="e2db8c7d-1170-4762-b42b-fdcd08526735",
         tool_calls=[],
     )
 
@@ -284,27 +287,27 @@ def test_format_messages_output():
         page_size=10,
         results=[
             MessagesRead(
-                message_id="359eeb212e94409594d9ca7d4ff22640",
+                message_id="359eeb21-2e94-4095-94d9-ca7d4ff22640",
                 entity="ai_message",
-                thread_id="e2db8c7d11704762b42bfdcd08526735",
+                thread_id="e2db8c7d-1170-4762-b42b-fdcd08526735",
                 is_complete=True,
                 creation_date=datetime(2025, 6, 4, 14, 4, 41),
                 msg_content={"content": "DUMMY_AI_CONTENT"},
                 tool_calls=[],
             ),
             MessagesRead(
-                message_id="06c305de156243aaadeabeeeb53880a2",
+                message_id="06c305de-1562-43aa-adea-beeeb53880a2",
                 entity="tool",
-                thread_id="e2db8c7d11704762b42bfdcd08526735",
+                thread_id="e2db8c7d-1170-4762-b42b-fdcd08526735",
                 is_complete=True,
                 creation_date=datetime(2025, 6, 4, 14, 4, 41),
                 msg_content={"content": "DUMMY_RESULT"},
                 tool_calls=[],
             ),
             MessagesRead(
-                message_id="e21d5f16855341819d25d1d935327ffc",
+                message_id="e21d5f16-8553-4181-9d25-d1d935327ffc",
                 entity="ai_tool",
-                thread_id="e2db8c7d11704762b42bfdcd08526735",
+                thread_id="e2db8c7d-1170-4762-b42b-fdcd08526735",
                 is_complete=True,
                 creation_date=datetime(2025, 6, 4, 14, 4, 41),
                 msg_content={"content": "DUMMY_AI_TOOL_CONTENT"},
@@ -318,9 +321,9 @@ def test_format_messages_output():
                 ],
             ),
             MessagesRead(
-                message_id="87866e27dc7848c2bd684ea395d5a466",
+                message_id="87866e27-dc78-48c2-bd68-4ea395d5a466",
                 entity="user",
-                thread_id="e2db8c7d11704762b42bfdcd08526735",
+                thread_id="e2db8c7d-1170-4762-b42b-fdcd08526735",
                 is_complete=True,
                 creation_date=datetime(2025, 6, 4, 14, 4, 41),
                 msg_content={"content": "DUMMY_USER_TEXT"},

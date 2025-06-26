@@ -11,6 +11,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Reasoning component.
 - Rate limit endpoint.
 
+## Changed
+- Switch from VARCHAR to UUID where possible.
+
 ## [v0.6.2] - 23.06.2025
 
 ### Added
