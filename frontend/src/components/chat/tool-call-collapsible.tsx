@@ -61,8 +61,8 @@ export function ToolCallCollapsible({
               onClick={handleTriggerClick}
               className={`h-auto gap-1.5 rounded-full p-1 pr-3 text-sm font-medium transition-all ${
                 isOpen
-                  ? "hover:border-current/20 border border-transparent bg-blue-100 text-blue-700 hover:bg-blue-200 dark:bg-blue-900/50 dark:text-blue-500 dark:hover:bg-blue-800"
-                  : "border-[0.5px] border-blue-300/40 bg-blue-100 text-blue-700 hover:border-gray-400 dark:border-blue-700/40 dark:bg-blue-900/50 dark:text-blue-500"
+                  ? "hover:border-current/20 border-[0.5px] border-blue-300/40 bg-blue-100 text-blue-700 hover:bg-blue-200 dark:border-blue-700/40 dark:bg-blue-900/40 dark:text-blue-500 dark:hover:bg-blue-800"
+                  : "border-[0.5px] border-blue-300/40 bg-blue-100 text-blue-700 hover:border-gray-400 dark:border-blue-700/40 dark:bg-blue-900/40 dark:text-blue-500"
               } `}
             >
               <ToolStatusBadge
