@@ -74,10 +74,10 @@ export function ToolStatusBadge({
 
   return (
     <span
-      className={`inline-flex items-center gap-1 rounded-full text-xs font-medium ${getStatusColor()} ${expanded && "px-2"}`}
+      className={`inline-flex items-center gap-1 rounded-full text-xs font-medium ${getStatusColor()} ${expanded && "px-1"}`}
     >
       {getStatusIcon()}
-      {expanded && <span>{getStatusText()}</span>}
+      {expanded && <span className="pr-2">{getStatusText()}</span>}
     </span>
   );
 }

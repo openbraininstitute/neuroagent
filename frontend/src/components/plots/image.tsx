@@ -19,7 +19,7 @@ export function ImagePlot({
 }: ImagePlotProps) {
   return (
     <div
-      className={`relative mx-auto max-h-screen w-full max-w-2xl overflow-auto ${!isInChat && "mx-auto"}`}
+      className={`relative mx-auto max-h-screen w-full max-w-2xl overflow-auto pb-2 ${!isInChat && "mx-auto"}`}
     >
       {isInChat ? (
         <Link href={`/viewer/${storageId}`} className="flex gap-2">

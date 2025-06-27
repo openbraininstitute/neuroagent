@@ -1,12 +1,15 @@
 "use client";
 
 import { useState } from "react";
-import { Info } from "lucide-react";
+import { Info, ChevronDown, ChevronRight } from "lucide-react";
+import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { ToolStatusBadge } from "@/components/chat/tool-call-status";
 import { ToolInvocation } from "@ai-sdk/ui-utils";
 
@@ -29,30 +32,58 @@ export function ToolCallCollapsible({
 }: ToolCallCollapsibleProps) {
   const [isOpen, setIsOpen] = useState(false);
 
-  return (
-    <Popover open={isOpen} onOpenChange={setIsOpen}>
-      <PopoverTrigger asChild>
-        <button
-          className="hover:border-current/20 inline-flex items-center gap-1.5 rounded-full border border-transparent bg-blue-100 p-1 pr-3 text-sm font-medium text-blue-700 transition-all hover:bg-blue-200 dark:bg-blue-900/50 dark:text-blue-500 dark:hover:bg-blue-800"
-          onClick={() => {
-            if (validated === "pending" && !stopped) {
-              onValidationClick();
-            }
-          }}
-        >
-          <ToolStatusBadge
-            state={tool.state}
-            validated={validated}
-            stopped={stopped}
-          />
-          <span className="max-w-[140px] truncate">{toolLabel}</span>
-        </button>
-      </PopoverTrigger>
+  const handleTriggerClick = () => {
+    if (validated === "pending" && !stopped) {
+      onValidationClick();
+    } else {
+      setIsOpen(!isOpen);
+    }
+  };
 
-      <PopoverContent className="w-96 p-3" align="start">
-        <div className="space-y-3">
-          <div className="flex items-center justify-between">
-            <h4 className="text-sm font-medium">{toolLabel}</h4>
+  return (
+    <Collapsible open={isOpen} onOpenChange={setIsOpen} className="w-fit">
+      <Card
+        className={`transition-all duration-200 ${
+          isOpen
+            ? "max-w-[30vw] border-blue-200 bg-blue-50/50 dark:border-blue-800 dark:bg-blue-950/30"
+            : "w-fit border-none bg-transparent shadow-none"
+        }`}
+      >
+        <CardTitle
+          className={`flex items-center gap-2 transition-all duration-200 ${
+            isOpen ? "justify-between p-4 pb-2" : "p-0"
+          }`}
+        >
+          <CollapsibleTrigger asChild>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleTriggerClick}
+              className={`h-auto gap-1.5 rounded-full p-1 pr-3 text-sm font-medium transition-all ${
+                isOpen
+                  ? "hover:border-current/20 border border-transparent bg-blue-100 text-blue-700 hover:bg-blue-200 dark:bg-blue-900/50 dark:text-blue-500 dark:hover:bg-blue-800"
+                  : "border-[0.5px] border-blue-300/40 bg-blue-100 text-blue-700 hover:border-gray-400 dark:border-blue-700/40 dark:bg-blue-900/50 dark:text-blue-500"
+              } `}
+            >
+              <ToolStatusBadge
+                state={tool.state}
+                validated={validated}
+                stopped={stopped}
+              />
+              <span className="max-w-[140px] truncate">{toolLabel}</span>
+              {validated !== "pending" && (
+                <div className="ml-1">
+                  {isOpen ? (
+                    <ChevronDown className="h-3 w-3" />
+                  ) : (
+                    <ChevronRight className="h-3 w-3" />
+                  )}
+                </div>
+              )}
+            </Button>
+          </CollapsibleTrigger>
+
+          {isOpen && (
             <div className="flex items-center gap-2">
               <ToolStatusBadge
                 state={tool.state}
@@ -60,63 +91,82 @@ export function ToolCallCollapsible({
                 stopped={stopped}
                 expanded={true}
               />
-              <a
-                href={`/tools/${tool?.toolName}`}
-                className="p-1 transition-colors hover:text-blue-500"
+              <Button
+                variant="ghost"
+                size="sm"
+                asChild
+                className="h-auto p-1 text-muted-foreground hover:text-blue-600 dark:hover:text-blue-400"
               >
-                <Info className="h-4 w-4" />
-              </a>
+                <a href={`/tools/${tool?.toolName}`}>
+                  <Info className="h-4 w-4" />
+                </a>
+              </Button>
             </div>
-          </div>
+          )}
+        </CardTitle>
 
-          <div>
-            <h5 className="mb-1 text-xs font-medium text-gray-600">
-              Arguments
-            </h5>
-            <pre className="max-h-32 overflow-auto rounded bg-gray-100 p-2 text-xs dark:bg-slate-800">
-              {JSON.stringify(tool?.args, null, 2)}
-            </pre>
-          </div>
-
-          {validationError && (
-            <div>
-              <h5 className="mb-1 text-xs font-medium text-red-600">
-                Validation Error
-              </h5>
-              <div className="max-h-32 overflow-auto rounded bg-red-50 p-2 text-xs text-red-700 dark:bg-red-900/20 dark:text-red-400">
-                {validationError}
+        {isOpen && (
+          <CollapsibleContent>
+            <CardContent className="space-y-4 px-4 pb-4">
+              {/* Arguments */}
+              <div className="space-y-2">
+                <Badge variant="secondary" className="text-xs">
+                  Arguments
+                </Badge>
+                <Card className="border-muted bg-muted/30">
+                  <CardContent className="p-3">
+                    <pre className="max-h-32 overflow-auto text-xs text-foreground">
+                      {JSON.stringify(tool?.args, null, 2)}
+                    </pre>
+                  </CardContent>
+                </Card>
               </div>
-            </div>
-          )}
 
-          {tool?.state === "result" && (
-            <div>
-              <h5 className="mb-1 text-xs font-medium text-gray-600">
-                {validated === "rejected" ? "Feedback" : "Result"}
-              </h5>
-              <pre className="max-h-32 overflow-auto rounded bg-gray-100 p-2 text-xs dark:bg-slate-800">
-                {typeof tool?.result === "string"
-                  ? (() => {
-                      try {
-                        return JSON.stringify(
-                          JSON.parse(tool?.result),
-                          null,
-                          2,
-                        );
-                      } catch {
-                        return tool?.result;
-                      }
-                    })()
-                  : JSON.stringify(tool?.result, null, 2)}
-              </pre>
-            </div>
-          )}
+              {validationError && (
+                <div className="space-y-2">
+                  <Badge variant="destructive" className="text-xs">
+                    Validation Error
+                  </Badge>
+                  <Card className="border-destructive/20 bg-destructive/5">
+                    <CardContent className="p-3">
+                      <div className="max-h-32 overflow-auto text-xs text-destructive">
+                        {validationError}
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+              )}
 
-          <div className="border-t pt-1">
-            <p className="text-xs text-gray-500">ID: {tool?.toolCallId}</p>
-          </div>
-        </div>
-      </PopoverContent>
-    </Popover>
+              {tool?.state === "result" && (
+                <div className="space-y-2">
+                  <Badge variant="secondary" className="text-xs">
+                    {validated === "rejected" ? "Feedback" : "Result"}
+                  </Badge>
+                  <Card className="border-muted bg-muted/30">
+                    <CardContent className="p-3">
+                      <pre className="max-h-32 overflow-auto text-xs text-foreground">
+                        {typeof tool?.result === "string"
+                          ? (() => {
+                              try {
+                                return JSON.stringify(
+                                  JSON.parse(tool?.result),
+                                  null,
+                                  2,
+                                );
+                              } catch {
+                                return tool?.result;
+                              }
+                            })()
+                          : JSON.stringify(tool?.result, null, 2)}
+                      </pre>
+                    </CardContent>
+                  </Card>
+                </div>
+              )}
+            </CardContent>
+          </CollapsibleContent>
+        )}
+      </Card>
+    </Collapsible>
   );
 }
