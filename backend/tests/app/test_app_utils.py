@@ -395,6 +395,7 @@ def test_format_messages_vercel():
                 createdAt=datetime(2025, 6, 4, 14, 4, 41),
                 content="DUMMY_AI_CONTENT",
                 parts=[
+                    TextPartVercel(type="text", text="DUMMY_AI_TOOL_CONTENT"),
                     ToolCallPartVercel(
                         type="tool-invocation",
                         toolInvocation=ToolCallVercel(
@@ -405,7 +406,6 @@ def test_format_messages_vercel():
                             results=None,
                         ),
                     ),
-                    TextPartVercel(type="text", text="DUMMY_AI_TOOL_CONTENT"),
                     TextPartVercel(type="text", text="DUMMY_AI_CONTENT"),
                 ],
                 annotations=[

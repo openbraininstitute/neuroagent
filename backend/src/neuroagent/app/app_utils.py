@@ -375,6 +375,7 @@ def format_messages_vercel(
                 else:
                     status = "pending"
 
+                parts.append(TextPartVercel(text=text_content or ""))
                 parts.append(
                     ToolCallPartVercel(
                         toolInvocation=ToolCallVercel(
@@ -392,8 +393,6 @@ def format_messages_vercel(
                         isComplete=msg.is_complete,
                     )
                 )
-
-            parts.append(TextPartVercel(text=text_content or ""))
 
         # Merge the actual tool result back into the buffered part
         elif msg.entity == Entity.TOOL:

@@ -19,7 +19,7 @@ export function ImagePlot({
 }: ImagePlotProps) {
   return (
     <div
-      className={`w-full max-w-2xl overflow-y-auto p-4 ${!isInChat && "mx-auto"}`}
+      className={`relative mx-auto max-h-screen w-full max-w-2xl overflow-auto pb-2 ${!isInChat && "mx-auto"}`}
     >
       {isInChat ? (
         <Link href={`/viewer/${storageId}`} className="flex gap-2">
@@ -30,14 +30,16 @@ export function ImagePlot({
         <h2 className="mb-2 text-xl font-bold">{title}</h2>
       )}
       {description && <p className="mb-4 text-gray-600">{description}</p>}
-      <div className="relative aspect-square">
+
+      <div className="relative h-[500px] w-full rounded-md bg-white p-3">
         <Image
           src={url}
           alt={title || "Plot"}
-          width={700}
-          height={700}
+          fill
           className="object-contain"
-          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+          sizes="(max-width: 500px) 100vw,
+                (max-width: 700px) 50vw,
+                33vw"
         />
       </div>
     </div>

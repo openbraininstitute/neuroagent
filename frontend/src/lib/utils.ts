@@ -59,38 +59,45 @@ export function getToolInvocations(
   );
 }
 
-// Utils to get all storage ID from an AI message
-export function getStorageIDs(message: MessageStrict | undefined): string[] {
-  const toolCallsResults: string[] =
-    message?.parts
-      ?.filter(
-        (part): part is ToolInvocationUIPart =>
-          part.type === "tool-invocation" &&
-          typeof part.toolInvocation === "object",
-      )
-      .map(
-        (part) =>
-          part.toolInvocation.state == "result" && part.toolInvocation.result,
-      ) ?? [];
-  const storageIds: string[] = [];
-  toolCallsResults.forEach((rawResult) => {
-    try {
-      // If the result is a JSON string, parse it; otherwise assume it's already an object
-      const parsedResult =
-        typeof rawResult === "string" ? safeParse(rawResult) : rawResult;
+// Utils to get all storage ID from a single tool call message
+export function getStorageID(
+  toolCall: ToolInvocationUIPart | undefined,
+): string[] {
+  if (
+    !toolCall ||
+    toolCall.type !== "tool-invocation" ||
+    !toolCall.toolInvocation
+  ) {
+    return [];
+  }
 
-      const storageId = parsedResult.storage_id;
-      if (storageId) {
-        if (Array.isArray(storageId)) {
-          storageId.forEach((el: string) => storageIds.push(el));
-        } else {
-          storageIds.push(storageId);
-        }
+  if (
+    toolCall.toolInvocation.state !== "result" ||
+    !toolCall.toolInvocation.result
+  ) {
+    return [];
+  }
+
+  const storageIds: string[] = [];
+  const rawResult = toolCall.toolInvocation.result;
+
+  try {
+    // If the result is a JSON string, parse it; otherwise assume it's already an object
+    const parsedResult =
+      typeof rawResult === "string" ? safeParse(rawResult) : rawResult;
+
+    const storageId = parsedResult.storage_id;
+    if (storageId) {
+      if (Array.isArray(storageId)) {
+        storageId.forEach((id: string) => storageIds.push(id));
+      } else {
+        storageIds.push(storageId);
       }
-    } catch {
-      // ignore any parsing errors or unexpected shapes
     }
-  });
+  } catch {
+    // ignore any parsing errors or unexpected shapes
+  }
+
   return storageIds;
 }
 
