@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Reasoning component.
 - Rate limit endpoint.
+- More entity core endpoints.
 
 ### Changed
 - Entitycore autogen 2025.6.8
