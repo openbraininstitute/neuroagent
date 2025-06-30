@@ -23,6 +23,10 @@ class EModelGetAllInput(ReadManyEmodelGetParametersQuery):
         default=UUID("e3e70682-c209-4cac-a29f-6fbed82c07cd"),
         description="The hierarchy ID for brain regions. The default value is the most commonly used hierarchy ID.",
     )
+    within_brain_region_brain_region_id: UUID | None = Field(
+        default=None,
+        description="ID of the brain region of interest in UUID format.",
+    )
     page_size: int = Field(
         ge=1,
         le=10,
