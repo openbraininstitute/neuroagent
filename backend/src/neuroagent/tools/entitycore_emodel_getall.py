@@ -1,6 +1,7 @@
 """Get EModel tool."""
 
 from typing import ClassVar
+from uuid import UUID
 
 from httpx import AsyncClient
 from pydantic import Field, SkipJsonSchema
@@ -17,6 +18,10 @@ class EModelGetAllInput(ReadManyEmodelGetParametersQuery):
 
     brain_region__id: SkipJsonSchema[None] = Field(default=None, exclude=True)
     brain_region__id__in: SkipJsonSchema[None] = Field(default=None, exclude=True)
+    within_brain_region_hierarchy_id: UUID | None = Field(
+        default=UUID("e3e70682-c209-4cac-a29f-6fbed82c07cd"),
+        description="The hierarchy ID for brain regions. The default value is the most commonly used hierarchy ID.",
+    )
     page_size: int = Field(
         ge=1,
         le=10,
@@ -67,6 +72,9 @@ class EModelGetAllTool(BaseTool):
         """
         query_params = self.input_schema.model_dump(exclude_defaults=True, mode="json")
         query_params["page_size"] = self.input_schema.page_size
+        query_params["within_brain_region_hierarchy_id"] = (
+            self.input_schema.within_brain_region_hierarchy_id
+        )
 
         headers: dict[str, str] = {}
         if self.metadata.vlab_id is not None:
