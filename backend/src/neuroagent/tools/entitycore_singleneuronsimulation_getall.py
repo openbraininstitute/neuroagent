@@ -20,6 +20,7 @@ class SingleNeuronSimulationGetAllInput(
     """Inputs for the single-neuron-simulation get all tool."""
 
     brain_region__id: SkipJsonSchema[None] = Field(default=None, exclude=True)
+    brain_region__id__in: SkipJsonSchema[None] = Field(default=None, exclude=True)
     within_brain_region_hierarchy_id: UUID | None = Field(
         default=UUID("e3e70682-c209-4cac-a29f-6fbed82c07cd"),
         description="The hierarchy ID for brain regions. The default value is the most commonly used hierarchy ID.",
