@@ -1,6 +1,7 @@
 """Get All SingleNeuronSynaptomeSimulation tool."""
 
 from typing import ClassVar
+from uuid import UUID
 
 from httpx import AsyncClient
 from pydantic import Field
@@ -17,6 +18,28 @@ class SingleNeuronSynaptomeSimulationGetAllInput(
 ):
     """Inputs for the single-neuron-synaptome-simulation get all tool."""
 
+    within_brain_region_brain_region_id: UUID | None = Field(
+        default=None,
+        description=(
+            """UUID of a brain region. Returns items in that region and **all its sub-regions**. "
+            Make an educated guess on whether the user wants to include sub-regions or not
+            and use this when you want a broad match including sub-regions.
+            To look up the UUID, first call the resolve-brain-region-tool."""
+        ),
+    )
+    within_brain_region_hierarchy_id: UUID | None = Field(
+        default=UUID("e3e70682-c209-4cac-a29f-6fbed82c07cd"),
+        description="The hierarchy ID for brain regions. The default value is the most commonly used hierarchy ID.",
+    )
+    brain_region__id: UUID | None = Field(
+        default=None,
+        description=(
+            """UUID of a brain region. Returns items **only** in that exact region (no sub-regions). "
+            Make an educated guess on whether the user wants to include sub-regions or not
+            and use this when you need a narrow, exact match.
+            To look up the UUID, first call the resolve-brain-region-tool."""
+        ),
+    )
     page_size: int = Field(
         ge=1,
         le=10,

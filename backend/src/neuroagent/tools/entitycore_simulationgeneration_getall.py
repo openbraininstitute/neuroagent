@@ -1,6 +1,7 @@
 """Get All SimulationGeneration tool."""
 
 from typing import ClassVar
+from uuid import UUID
 
 from httpx import AsyncClient
 from pydantic import Field
@@ -15,6 +16,10 @@ from neuroagent.tools.base_tool import BaseTool, EntitycoreMetadata
 class SimulationGenerationGetAllInput(ReadManySimulationGenerationGetParametersQuery):
     """Inputs for the simulation-generation get all tool."""
 
+    within_brain_region_hierarchy_id: UUID | None = Field(
+        default=UUID("e3e70682-c209-4cac-a29f-6fbed82c07cd"),
+        description="The hierarchy ID for brain regions. The default value is the most commonly used hierarchy ID.",
+    )
     page_size: int = Field(
         ge=1,
         le=10,
