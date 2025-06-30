@@ -18,10 +18,6 @@ class MeasurementAnnotationGetAllInput(ReadManyMeasurementAnnotationGetParameter
     """Inputs for the measurement annotation get all tool."""
 
     brain_region__id: SkipJsonSchema[None] = Field(default=None, exclude=True)
-    within_brain_region_brain_region_id: UUID | None = Field(
-        default=None,
-        description="ID of the brain region of interest in UUID format. To find the ID use the resolve-brain-region-tool first.",
-    )
     within_brain_region_hierarchy_id: UUID | None = Field(
         default=UUID("e3e70682-c209-4cac-a29f-6fbed82c07cd"),
         description="The hierarchy ID for brain regions. The default value is the most commonly used hierarchy ID.",
