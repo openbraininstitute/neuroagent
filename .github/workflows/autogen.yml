@@ -47,6 +47,7 @@ jobs:
 
           # Run datamodel-codegen for each service
           for service in "${!SERVICES[@]}"; do
+            echo $COMMON_ARGS
             datamodel-codegen $COMMON_ARGS \
               --url="${BASE_URL}/${service}/openapi.json" \
               --output="${OUTPUT_DIR}/${SERVICES[$service]}"
