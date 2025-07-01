@@ -165,7 +165,7 @@ async def get_tool_metadata(
                 tool_class.__annotations__["input_schema"].model_fields[name].metadata
             )
 
-            if len(metadata) == 1 and metadata[0] == SkipJsonSchema():
+            if len(metadata) == 1 and metadata[0] == SkipJsonSchema():  # type: ignore[type-arg]
                 continue
 
             is_required = field.is_required()
