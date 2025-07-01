@@ -69,7 +69,7 @@ jobs:
             # If, after dropping headers + timestamps, there's any +/– line, record it
             if git diff HEAD -- "$file" | \
                   grep -v '^[+-]#   timestamp:' | \
-                  grep -E '^[+-][^+-]' || true; then
+                  grep -E '^[+-][^+-]'; then
               REAL_DIFF_FILES="$REAL_DIFF_FILES
               - $file"
             fi
