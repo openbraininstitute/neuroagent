@@ -79,7 +79,7 @@ export function ToolCallCollapsible({
                 validated={validated}
                 stopped={stopped}
               />
-              <span className="max-w-[140px] truncate">{toolLabel}</span>
+              <span className="max-w-[240px] truncate">{toolLabel}</span>
               <div className="ml-1">
                 {isOpen ? (
                   <ChevronDown className="h-3 w-3" />
@@ -115,7 +115,6 @@ export function ToolCallCollapsible({
         {isOpen && (
           <CollapsibleContent>
             <CardContent className="space-y-4 px-4 pb-4">
-              {/* Arguments */}
               <div className="space-y-2">
                 <Badge variant="secondary" className="text-xs">
                   Arguments
