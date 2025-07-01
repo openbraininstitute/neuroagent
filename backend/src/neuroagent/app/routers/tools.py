@@ -7,6 +7,7 @@ from typing import Annotated, Any
 
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import ValidationError
+from pydantic.json_schema import SkipJsonSchema
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from neuroagent.agent_routine import AgentsRoutine
@@ -160,6 +161,13 @@ async def get_tool_metadata(
     else:
         for name in tool_class.__annotations__["input_schema"].model_fields:
             field = tool_class.__annotations__["input_schema"].model_fields[name]
+            metadata = (
+                tool_class.__annotations__["input_schema"].model_fields[name].metadata
+            )
+
+            if len(metadata) == 1 and metadata[0] == SkipJsonSchema():
+                continue
+
             is_required = field.is_required()
 
             parameter = {
