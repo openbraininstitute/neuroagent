@@ -29,22 +29,8 @@ jobs:
 
       - name: Run autogen commands
         run: |
-          # Define common parameters as an array
-          COMMON_ARGS=(
-            "--enum-field-as-literal=all"
-            "--target-python-version=3.11"
-            "--reuse-model"
-            "--field-constraints"
-            "--input-file-type=openapi"
-            "--output-model-type=pydantic_v2.BaseModel"
-            "--openapi-scopes"
-            "schemas,paths,parameters"
-            "--use-standard-collections"
-            "--use-union-operator"
-            "--use-default-kwarg"
-            "--use-operation-id-as-name"
-            "--extra-fields=forbid"
-          )
+          # Define common parameters
+          COMMON_ARGS="--enum-field-as-literal=all --target-python-version=3.11 --reuse-model --field-constraints --input-file-type=openapi --output-model-type=pydantic_v2.BaseModel --openapi-scopes=schemas,paths,parameters --use-standard-collections --use-union-operator --use-default-kwarg --use-operation-id-as-name --extra-fields=forbid"
 
           # Define base URL and output directory
           BASE_URL="https://staging.openbraininstitute.org/api"
@@ -53,7 +39,7 @@ jobs:
           # Array of services and their corresponding output files
           declare -A SERVICES=(
             ["entitycore"]="entitycore.py"
-            ["obione"]="obione.py"
+            ["obi-one"]="obione.py"
             ["literature"]="literature.py"
             ["bluenaas"]="bluenaas.py"
             ["thumbnail-generation"]="thumbnail_generation.py"
@@ -61,8 +47,11 @@ jobs:
 
           # Run datamodel-codegen for each service
           for service in "${!SERVICES[@]}"; do
-            echo "Running: datamodel-codegen ${COMMON_ARGS[@]} --url=${BASE_URL}/${service}/openapi.json --output=${OUTPUT_DIR}/${SERVICES[$service]}"
-            datamodel-codegen "${COMMON_ARGS[@]}" \
+            echo $COMMON_ARGS
+            echo datamodel-codegen $COMMON_ARGS \
+              --url="${BASE_URL}/${service}/openapi.json" \
+              --output="${OUTPUT_DIR}/${SERVICES[$service]}"
+            datamodel-codegen $COMMON_ARGS \
               --url="${BASE_URL}/${service}/openapi.json" \
               --output="${OUTPUT_DIR}/${SERVICES[$service]}"
           done
