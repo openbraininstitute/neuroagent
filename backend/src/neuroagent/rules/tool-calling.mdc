@@ -9,6 +9,7 @@ description: General tool calling
 
 ## Link and Reference Policies
 - **NEVER generate fake links** or links to storage IDs
+- **NEVER generate image embedding links** for storage IDs
 - **NEVER reference storage IDs** or create placeholder links
 - Only reference actual, valid URLs and resources
 
