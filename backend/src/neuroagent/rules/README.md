@@ -5,7 +5,7 @@ The rule logic is basically a copy of the same concept in Cursor - https://docs.
 
 # How to write rules
 
-Create a new `.mdc` file inside the `rules/` directory. The file name should be the name of the rule, and the content should be in Markdown format 
+Create a new `.mdc` file inside the `rules/` directory. The file name should be the name of the rule, and the content should be in Markdown format
 with a frontend matter header that contains the rule's metadata.
 
 
