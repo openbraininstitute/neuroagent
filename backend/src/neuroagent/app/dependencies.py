@@ -434,11 +434,7 @@ Current time: {datetime.now(timezone.utc).isoformat()}
 
     # Check if rules directory exists
     if not rules_dir.exists():
-        logger.warning(f"Rules directory not found: {rules_dir}")
-        return (
-            system_prompt
-            + "\n## NO RULES FOUND\nNo specific rules files were found in the rules directory."
-        )
+        return system_prompt
 
     # Find all .mdc files in the rules directory
     mdc_files = list(rules_dir.glob("*.mdc"))
