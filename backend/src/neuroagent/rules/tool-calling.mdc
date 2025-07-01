@@ -5,14 +5,12 @@ alwaysApply: false
 ---
 # Tool Calling Rules
 
-## Critical Guidelines for AI Assistant Tool Usage
-
-### Information Sources
+## Information Sources
 - **ONLY use information from tool outputs** - do not add external knowledge
 - Always verify and cite specific brain regions from results
 - Use only tool outputs as authoritative sources
 
-### Link and Reference Policies
+## Link and Reference Policies
 - **NEVER generate fake links** or links to storage IDs
 - **NEVER reference storage IDs** or create placeholder links
 - Only reference actual, valid URLs and resources

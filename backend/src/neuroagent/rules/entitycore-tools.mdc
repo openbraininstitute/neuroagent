@@ -1,8 +1,10 @@
 ---
 description: Entitycore tools
+globs: 
+alwaysApply: false
 ---
-## EntityCore Tool Guidelines
+# EntityCore Tool Guidelines
 
-### EntityCore Tool Parameters
+## EntityCore Tool Parameters
 - For entitycore tools, make sure to use the `within_brain_region_brain_region_id` parameter if the user asks for a specific brain region
 - The `brain_region__id` parameter is **not valid** and should not be used
