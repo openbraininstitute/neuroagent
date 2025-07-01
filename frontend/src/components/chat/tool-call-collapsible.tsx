@@ -32,12 +32,25 @@ export function ToolCallCollapsible({
 }: ToolCallCollapsibleProps) {
   const [isOpen, setIsOpen] = useState(false);
 
-  const handleTriggerClick = () => {
+  const handleTriggerClick = (e: React.MouseEvent) => {
+    e.preventDefault();
     if (validated === "pending" && !stopped) {
       onValidationClick();
     } else {
       setIsOpen(!isOpen);
     }
+  };
+
+  const getButtonStyling = () => {
+    if (validated === "pending") {
+      return isOpen
+        ? "hover:border-current/20 border-[0.5px] border-orange-300/40 bg-orange-100 text-orange-700 hover:bg-orange-200 dark:border-orange-700/40 dark:bg-orange-900/40 dark:text-orange-200 dark:hover:bg-orange-800"
+        : "border-[0.5px] border-orange-300/40 bg-orange-200 text-orange-700 hover:bg-orange-300 dark:border-orange-700/40 dark:bg-orange-800/90 dark:text-orange-200 dark:hover:bg-orange-700/90";
+    }
+
+    return isOpen
+      ? "hover:border-current/20 border-[0.5px] border-blue-300/40 bg-blue-100 text-blue-700 hover:bg-blue-200 dark:border-blue-700/40 dark:bg-blue-900/40 dark:text-blue-500 dark:hover:bg-blue-800"
+      : "border-[0.5px] border-blue-300/40 bg-blue-100 text-blue-700 hover:border-gray-400 dark:border-blue-700/40 dark:bg-blue-900/40 dark:text-blue-500";
   };
 
   return (
@@ -59,11 +72,7 @@ export function ToolCallCollapsible({
               variant="ghost"
               size="sm"
               onClick={handleTriggerClick}
-              className={`h-auto gap-1.5 rounded-full p-1 pr-3 text-sm font-medium transition-all ${
-                isOpen
-                  ? "hover:border-current/20 border-[0.5px] border-blue-300/40 bg-blue-100 text-blue-700 hover:bg-blue-200 dark:border-blue-700/40 dark:bg-blue-900/40 dark:text-blue-500 dark:hover:bg-blue-800"
-                  : "border-[0.5px] border-blue-300/40 bg-blue-100 text-blue-700 hover:border-gray-400 dark:border-blue-700/40 dark:bg-blue-900/40 dark:text-blue-500"
-              } `}
+              className={`h-auto gap-1.5 rounded-full p-1 pr-3 text-sm font-medium transition-all ${getButtonStyling()}`}
             >
               <ToolStatusBadge
                 state={tool.state}
@@ -71,15 +80,13 @@ export function ToolCallCollapsible({
                 stopped={stopped}
               />
               <span className="max-w-[140px] truncate">{toolLabel}</span>
-              {validated !== "pending" && (
-                <div className="ml-1">
-                  {isOpen ? (
-                    <ChevronDown className="h-3 w-3" />
-                  ) : (
-                    <ChevronRight className="h-3 w-3" />
-                  )}
-                </div>
-              )}
+              <div className="ml-1">
+                {isOpen ? (
+                  <ChevronDown className="h-3 w-3" />
+                ) : (
+                  <ChevronRight className="h-3 w-3" />
+                )}
+              </div>
             </Button>
           </CollapsibleTrigger>
 

@@ -28,12 +28,13 @@ export function ToolStatusBadge({
       return <Check className="m-1 h-3 w-3" />;
     }
     if (state === "call") {
-      if (validated === "pending") return <AlertCircle className="h-5 w-5" />;
+      if (validated === "pending")
+        return <AlertCircle className="m-1 h-5 w-5" />;
       if (validated === "accepted")
-        return <Loader2 className="h-5 w-5 animate-spin" />;
+        return <Loader2 className="m-1 h-5 w-5 animate-spin" />;
       if (validated === "rejected") return <X className="m-1 h-3 w-3" />;
     }
-    return <Loader2 className="h-5 w-5 animate-spin" />;
+    return <Loader2 className="m-1 h-5 w-5 animate-spin" />;
   };
 
   const getStatusColor = (): string => {
@@ -47,7 +48,7 @@ export function ToolStatusBadge({
     }
     if (state === "call") {
       if (validated === "pending")
-        return "text-orange-700 bg-orange-200 hover:bg-orange-300 dark:text-orange-200 dark:bg-orange-800/90 dark:hover:bg-orange-700/90";
+        return "text-orange-700 hover:bg-orange-300 dark:text-orange-200 dark:hover:bg-orange-700/90";
       if (validated === "accepted")
         return "text-green-700 bg-green-100 hover:bg-green-200 dark:text-green-200 dark:bg-green-800/70 dark:hover:bg-green-700/80";
       if (validated === "rejected")
