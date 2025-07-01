@@ -443,6 +443,7 @@ def get_starting_agent(
         - Verify and cite specific brain regions from results
         - Never reference storage IDs or create placeholder links
         - **REQUIRED**: Use markdown formatting
+        - For entitycore tools, make sure to use the `within_brain_region_brain_region_id` parameter if the user asks for a specific brain region. The `brain_region__id` is not valid.
 
         Your mission: Enable neuroscience research by connecting users with appropriate data, models, and analytical approaches while maintaining fidelity to available evidence."""
 
