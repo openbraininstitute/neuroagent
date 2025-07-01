@@ -30,7 +30,7 @@ jobs:
       - name: Run autogen commands
         run: |
           # Define common parameters
-          COMMON_ARGS="--enum-field-as-literal=all --target-python-version=3.11 --reuse-model --field-constraints --input-file-type=openapi --output-model-type=pydantic_v2.BaseModel --openapi-scopes '{schemas,paths,parameters}' --use-standard-collections --use-union-operator --use-default-kwarg --use-operation-id-as-name --extra-fields=forbid"
+          COMMON_ARGS="--enum-field-as-literal=all --target-python-version=3.11 --reuse-model --field-constraints --input-file-type=openapi --output-model-type=pydantic_v2.BaseModel --openapi-scopes schemas,paths,parameters --use-standard-collections --use-union-operator --use-default-kwarg --use-operation-id-as-name --extra-fields=forbid"
 
           # Define base URL and output directory
           BASE_URL="https://staging.openbraininstitute.org/api"
