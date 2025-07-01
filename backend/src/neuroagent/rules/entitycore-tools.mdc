@@ -1,7 +1,5 @@
 ---
 description: Entitycore tools
-globs: 
-alwaysApply: false
 ---
 # EntityCore Tool Guidelines
 

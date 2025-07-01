@@ -1,7 +1,5 @@
 ---
 description: General tool calling
-globs: 
-alwaysApply: false
 ---
 # Tool Calling Rules
 
