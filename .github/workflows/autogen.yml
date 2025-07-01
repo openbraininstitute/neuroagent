@@ -23,10 +23,9 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Install dependencies
+      - name: Install datamodel-code-generator
         run: |
-          pip install uv
-          uv pip install --system datamodel-code-generator
+          pip install datamodel-code-generator
 
       - name: Run autogen commands
         run: |
