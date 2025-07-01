@@ -5,7 +5,6 @@ description: General tool calling
 
 ## Information Sources
 - **ONLY use information from tool outputs** - do not add external knowledge
-- Always verify and cite specific brain regions from results
 - Use only tool outputs as authoritative sources
 
 ## Link and Reference Policies
