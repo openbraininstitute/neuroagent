@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Entitycore autogen 2025.6.8
 - Get rid of `brain_region__id` in entitycore tools
+- rerun obione autogen.
 
 ## [v0.6.2] - 23.06.2025
 
