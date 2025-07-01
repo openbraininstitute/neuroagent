@@ -22,7 +22,6 @@ class ArticleMetadata(BaseModel):
     article_authors: list[str] = Field(..., title='Article Authors')
     article_id: str = Field(..., title='Article Id')
     article_doi: str | None = Field(default=None, title='Article Doi')
-    pubmed_id: str | None = Field(default=None, title='Pubmed Id')
     date: str | None = Field(default=None, title='Date')
     article_type: str | None = Field(default=None, title='Article Type')
     journal_issn: str | None = Field(default=None, title='Journal Issn')
