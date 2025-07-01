@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## Added
+- Autogen diff CI.
+
 ## [v0.6.3] - 01.07.2025
 
 ### Added
