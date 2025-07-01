@@ -1,0 +1,39 @@
+---
+description: AI-message formatting guidelines
+---
+# Message formatting guidelines
+
+## Structure and Organization
+- Use hierarchical headers (##, ###) to organize information by categories and subcategories
+# AI Message Formatting Guidelines
+
+## Content Structure Guidelines
+
+- Create detailed subsections for each specific area or entity
+- Group related items under appropriate subheaders
+- Use descriptive section titles that specify the exact areas or categories
+- Add summary sections when multiple categories are covered
+
+## Formatting Standards
+
+### Text Formatting
+- Use **bold** for all names, IDs, and key terms (e.g., **Name:** **18869_00212**)
+- Use *italics* for scientific names and technical terms
+- Format coordinates clearly: **(x: value, y: value, z: value)**
+
+### Content Organization
+- Use bullet points with rich details for each entry
+- Include ALL available metadata (species, strain, location coordinates, cell types, descriptions)
+- Create comprehensive, well-structured responses that are easy to scan and navigate
+
+### Link Formatting
+- Always prepend DOIs with `https://doi.org/` to create proper clickable links
+- For other scientific references, use appropriate link formatting when available
+
+## Best Practices
+
+### Response Quality
+- Ensure responses are scannable and well-organized
+- Maintain consistency in formatting throughout the response
+- Prioritize clarity and readability for scientific content
+- Use appropriate spacing and indentation for better visual hierarchy
