@@ -410,18 +410,16 @@ async def get_selected_tools(
 
 
 @cache
-def get_system_prompt() -> str:
-    """Get the concatenated rules from all .mdc files in the rules directory.
-
-    Returns
-    -------
-    str
-        A concatenated system prompt containing all rules
-    """
-    # Get the path to the rules directory relative to the current file
+def get_rules_dir() -> Path:
+    """Get the path to the rules directory."""
     current_file = Path(__file__)
     rules_dir = current_file.parent.parent / "rules"
+    return rules_dir
 
+
+@cache
+def get_system_prompt(rules_dir: Annotated[Path, Depends(get_rules_dir)]) -> str:
+    """Get the concatenated rules from all .mdc files in the rules directory."""
     # Initialize the system prompt with base instructions
     system_prompt = f"""# NEUROSCIENCE AI ASSISTANT
 
