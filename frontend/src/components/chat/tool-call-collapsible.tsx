@@ -1,16 +1,17 @@
 "use client";
 
 import { useState } from "react";
-import { Info } from "lucide-react";
-import { Card, CardContent, CardFooter, CardTitle } from "@/components/ui/card";
+import { Info, ChevronDown, ChevronRight } from "lucide-react";
+import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
-import { ToolCallStatus } from "@/components/chat/tool-call-status";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { ToolStatusBadge } from "@/components/chat/tool-call-status";
 import { ToolInvocation } from "@ai-sdk/ui-utils";
-import { ScrollToBottom } from "@/components/chat/scroll-to-bottom";
 
 type ToolCallCollapsibleProps = {
   tool: ToolInvocation;
@@ -29,79 +30,149 @@ export function ToolCallCollapsible({
   validationError,
   onValidationClick,
 }: ToolCallCollapsibleProps) {
-  const [toolOpen, setToolOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
+
+  const handleTriggerClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (validated === "pending" && !stopped) {
+      onValidationClick();
+    } else {
+      setIsOpen(!isOpen);
+    }
+  };
+
+  const getButtonStyling = () => {
+    if (validated === "pending") {
+      return isOpen
+        ? "hover:border-current/20 border-[0.5px] border-orange-300/40 bg-orange-100 text-orange-700 hover:bg-orange-200 dark:border-orange-700/40 dark:bg-orange-900/40 dark:text-orange-200 dark:hover:bg-orange-800"
+        : "border-[0.5px] border-orange-300/40 bg-orange-200 text-orange-700 hover:bg-orange-300 dark:border-orange-700/40 dark:bg-orange-800/90 dark:text-orange-200 dark:hover:bg-orange-700/90";
+    }
+
+    return isOpen
+      ? "hover:border-current/20 border-[0.5px] border-blue-300/40 bg-blue-100 text-blue-700 hover:bg-blue-200 dark:border-blue-700/40 dark:bg-blue-900/40 dark:text-blue-500 dark:hover:bg-blue-800"
+      : "border-[0.5px] border-blue-300/40 bg-blue-100 text-blue-700 hover:border-gray-400 dark:border-blue-700/40 dark:bg-blue-900/40 dark:text-blue-500";
+  };
 
   return (
-    <Collapsible
-      open={toolOpen}
-      onOpenChange={
-        validated === "pending" && !stopped ? onValidationClick : setToolOpen
-      }
-    >
-      <div className="flex items-center gap-2">
-        <CollapsibleTrigger className="hover:scale-105 active:scale-[1.10]">
-          <span className="truncate rounded-xl border-2 bg-blue-500 p-4 text-sm">
-            {toolLabel}
-          </span>
-        </CollapsibleTrigger>
-        <ToolCallStatus
-          state={stopped ? "aborted" : tool.state}
-          validated={validated}
-          validationError={validationError}
-          onValidationClick={onValidationClick}
-        />
-      </div>
-      <CollapsibleContent>
-        <ScrollToBottom />
-        <Card className="mt-8 w-[32rem] bg-transparent p-8">
-          <CardTitle>
-            <div className="flex items-center justify-between">
-              <span className="truncate p-2 text-left text-lg">
-                {toolLabel}
-              </span>
-              <div className="flex gap-2">
-                <a
-                  href={`/tools/${tool?.toolName}`}
-                  className="p-2 transition-colors hover:text-blue-500"
-                >
-                  <Info className="h-5 w-5" />
+    <Collapsible open={isOpen} onOpenChange={setIsOpen} className="w-fit">
+      <Card
+        className={`transition-all duration-200 ${
+          isOpen
+            ? "max-w-[30vw] border-blue-200 bg-blue-50/50 dark:border-blue-800 dark:bg-blue-950/30"
+            : "w-fit border-none bg-transparent shadow-none"
+        }`}
+      >
+        <CardTitle
+          className={`flex items-center gap-2 transition-all duration-200 ${
+            isOpen ? "justify-between p-4 pb-2" : "p-0"
+          }`}
+        >
+          <CollapsibleTrigger asChild>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleTriggerClick}
+              className={`h-auto gap-1.5 rounded-full p-1 pr-3 text-sm font-medium transition-all ${getButtonStyling()}`}
+            >
+              <ToolStatusBadge
+                state={tool.state}
+                validated={validated}
+                stopped={stopped}
+              />
+              <span className="max-w-[240px] truncate">{toolLabel}</span>
+              <div className="ml-1">
+                {isOpen ? (
+                  <ChevronDown className="h-3 w-3" />
+                ) : (
+                  <ChevronRight className="h-3 w-3" />
+                )}
+              </div>
+            </Button>
+          </CollapsibleTrigger>
+
+          {isOpen && (
+            <div className="flex items-center gap-2">
+              <ToolStatusBadge
+                state={tool.state}
+                validated={validated}
+                stopped={stopped}
+                expanded={true}
+              />
+              <Button
+                variant="ghost"
+                size="sm"
+                asChild
+                className="h-auto p-1 text-muted-foreground hover:text-blue-600 dark:hover:text-blue-400"
+              >
+                <a href={`/tools/${tool?.toolName}`}>
+                  <Info className="h-4 w-4" />
                 </a>
-              </div>
+              </Button>
             </div>
-          </CardTitle>
-          <CardContent>
-            <div className="mt-4 flex flex-col">
-              <h1>Args</h1>
-              <pre className="my-2 max-h-[300px] overflow-auto rounded-md bg-gray-100 p-2 text-sm dark:bg-slate-800">
-                {JSON.stringify(tool?.args, null, 2)}
-              </pre>
-            </div>
-            {tool?.state === "result" && (
-              <div className="mt-4 flex flex-col">
-                <h1>{validated === "rejected" ? "Feedback" : "Result"}</h1>
-                <pre className="mt-2 max-h-[300px] overflow-auto rounded-md bg-gray-100 p-2 text-sm dark:bg-slate-800">
-                  {typeof tool?.result === "string"
-                    ? (() => {
-                        try {
-                          return JSON.stringify(
-                            JSON.parse(tool?.result),
-                            null,
-                            2,
-                          );
-                        } catch {
-                          return tool?.result;
-                        }
-                      })()
-                    : JSON.stringify(tool?.result, null, 2)}
-                </pre>
+          )}
+        </CardTitle>
+
+        {isOpen && (
+          <CollapsibleContent>
+            <CardContent className="space-y-4 px-4 pb-4">
+              <div className="space-y-2">
+                <Badge variant="secondary" className="text-xs">
+                  Arguments
+                </Badge>
+                <Card className="border-muted bg-muted/30">
+                  <CardContent className="p-3">
+                    <pre className="max-h-32 overflow-auto text-xs text-foreground">
+                      {JSON.stringify(tool?.args, null, 2)}
+                    </pre>
+                  </CardContent>
+                </Card>
               </div>
-            )}
-          </CardContent>
-          <CardFooter>
-            <p className="p-2 text-left text-xs">ID: {tool?.toolCallId}</p>
-          </CardFooter>
-        </Card>
-      </CollapsibleContent>
+
+              {validationError && (
+                <div className="space-y-2">
+                  <Badge variant="destructive" className="text-xs">
+                    Validation Error
+                  </Badge>
+                  <Card className="border-destructive/20 bg-destructive/5">
+                    <CardContent className="p-3">
+                      <div className="max-h-32 overflow-auto text-xs text-destructive">
+                        {validationError}
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+              )}
+
+              {tool?.state === "result" && (
+                <div className="space-y-2">
+                  <Badge variant="secondary" className="text-xs">
+                    {validated === "rejected" ? "Feedback" : "Result"}
+                  </Badge>
+                  <Card className="border-muted bg-muted/30">
+                    <CardContent className="p-3">
+                      <pre className="max-h-32 overflow-auto text-xs text-foreground">
+                        {typeof tool?.result === "string"
+                          ? (() => {
+                              try {
+                                return JSON.stringify(
+                                  JSON.parse(tool?.result),
+                                  null,
+                                  2,
+                                );
+                              } catch {
+                                return tool?.result;
+                              }
+                            })()
+                          : JSON.stringify(tool?.result, null, 2)}
+                      </pre>
+                    </CardContent>
+                  </Card>
+                </div>
+              )}
+            </CardContent>
+          </CollapsibleContent>
+        )}
+      </Card>
     </Collapsible>
   );
 }
