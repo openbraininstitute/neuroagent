@@ -417,7 +417,6 @@ def get_rules_dir() -> Path:
     return rules_dir
 
 
-@cache
 def get_system_prompt(rules_dir: Annotated[Path, Depends(get_rules_dir)]) -> str:
     """Get the concatenated rules from all .mdc files in the rules directory."""
     # Initialize the system prompt with base instructions
