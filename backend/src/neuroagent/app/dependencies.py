@@ -417,37 +417,7 @@ def get_rules_dir() -> Path:
     return rules_dir
 
 
-async def get_thread(
-    user_info: Annotated[UserInfo, Depends(get_user_info)],
-    thread_id: str,
-    session: Annotated[AsyncSession, Depends(get_session)],
-) -> Threads:
-    """Check if the current thread / user matches."""
-    thread_result = await session.execute(
-        select(Threads).where(
-            Threads.user_id == user_info.sub, Threads.thread_id == thread_id
-        )
-    )
-    thread = thread_result.scalars().one_or_none()
-    if not thread:
-        raise HTTPException(
-            status_code=404,
-            detail={
-                "detail": "Thread not found.",
-            },
-        )
-    validate_project(
-        groups=user_info.groups,
-        virtual_lab_id=thread.vlab_id,
-        project_id=thread.project_id,
-    )
-    return thread
-
-
-def get_system_prompt(
-    rules_dir: Annotated[Path, Depends(get_rules_dir)],
-    thread: Annotated[Threads, Depends(get_thread)],
-) -> str:
+def get_system_prompt(rules_dir: Annotated[Path, Depends(get_rules_dir)]) -> str:
     """Get the concatenated rules from all .mdc files in the rules directory."""
     # Initialize the system prompt with base instructions
     system_prompt = f"""# NEUROSCIENCE AI ASSISTANT
@@ -456,8 +426,6 @@ You are a neuroscience AI assistant for the Open Brain Platform.
 
 # CURRENT CONTEXT
 Current time: {datetime.now(timezone.utc).isoformat()}
-Current Virtual_lab_ID: {thread.vlab_id if thread.vlab_id else ""}
-Current Project_ID: {thread.project_id if thread.project_id else ""}
 
 """
 
@@ -511,6 +479,33 @@ def get_starting_agent(
         tools=tool_list,
     )
     return agent
+
+
+async def get_thread(
+    user_info: Annotated[UserInfo, Depends(get_user_info)],
+    thread_id: str,
+    session: Annotated[AsyncSession, Depends(get_session)],
+) -> Threads:
+    """Check if the current thread / user matches."""
+    thread_result = await session.execute(
+        select(Threads).where(
+            Threads.user_id == user_info.sub, Threads.thread_id == thread_id
+        )
+    )
+    thread = thread_result.scalars().one_or_none()
+    if not thread:
+        raise HTTPException(
+            status_code=404,
+            detail={
+                "detail": "Thread not found.",
+            },
+        )
+    validate_project(
+        groups=user_info.groups,
+        virtual_lab_id=thread.vlab_id,
+        project_id=thread.project_id,
+    )
+    return thread
 
 
 def get_semantic_routes(request: Request) -> SemanticRouter | None:

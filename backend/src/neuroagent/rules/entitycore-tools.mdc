@@ -8,6 +8,34 @@ description: Entitycore tools
 - The `brain_region__id` parameter is **not valid** and should not be used
 - To find a brain region id of a given brain region you can use the `entity-brainregion-getall` and provide the `name` parameter but make
 sure to capitalize the first letter of the brain region name.
+- If you have an ID always use the `within_brain_region_brain_region_id`, it contains way more regions than the other parmeters.
 
 ## EntityCore Tool Outputs
 - The only way to get a valid url for an asset is via `entitycore-asset-downloadone`. Anything else gives invalid urls and you should not display them
+
+### EntityCore Entities Links
+- Platform Entities include electrical traces, morphologies, me-models, and other experimental data.
+- MANDATORY : generate a link when referring to these Entites.
+
+**Entitycore Link Construction Rules:**
+1. **Base URL:**
+     ```
+     https://staging.openbraininstitute.org/app/virtual-lab/explore/interactive/experimental
+     ```
+
+2. **Entity Type Specification:**
+   Append the appropriate asset type:
+   - `morphology` - for reconstruction morphology data
+   - `electrophysiology` - for electrical traces
+   - `neuron-density` - for density measurements
+   - Other asset types as applicable
+
+3. **Entity ID:**
+   Conclude with the specific asset ID
+
+**Example Link:**
+- `https://staging.openbraininstitute.org/app/virtual-lab/explore/interactive/experimental/morphology/afa2434f-1ccc-4fff-a047-d399e59768c9`
+- `https://staging.openbraininstitute.org/app/virtual-lab/explore/interactive/experimental/electrophysiology/ee4918be-fae2-43d4-99fc-61fea360af0c`
+
+**Invalid Link:**
+-`https://staging.openbraininstitute.org/app/virtual-lab/explore/interactive/experimental/reconstruction-morphology/60a2de5f-fd95-420c-8c50-fcb14737e6a2`
