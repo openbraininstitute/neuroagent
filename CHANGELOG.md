@@ -7,9 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v0.6.3] - 01.07.2025
+
 ### Added
 - Reasoning component.
 - Rate limit endpoint.
+- More entity core endpoints.
+- Rules.
+
+### Changed
+- Entitycore autogen 2025.6.8
+- Get rid of `brain_region__id` in entitycore tools
+
+## Changed
+- Allow for tool call + content in the UI.
 
 ## Changed
 - Switch from VARCHAR to UUID where possible.

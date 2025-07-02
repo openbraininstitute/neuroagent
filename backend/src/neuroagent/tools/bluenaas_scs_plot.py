@@ -55,7 +55,7 @@ class SCSPlotTool(BaseTool):
         str
     ] = """Make a plot of the single cell simulation, based on its id.
     The id can be retrieved using the 'scs-getall-tool', from the simulation report of `scs-post-tool` or directly specified by the user.
-    The plots will be shown after / below your message automatically.  Use the simulaton label to refer to the plots. DO NOT MENTION the storage id nor the simulation ID. DO NOT EMBED the plots in the text."""
+    The plots will be shown before your message automatically.  Use the simulaton label to refer to the plots. DO NOT MENTION the storage id nor the simulation ID. DO NOT EMBED the plots in the text."""
     description_frontend: ClassVar[
         str
     ] = """Make a plot from the result of your single cell simulation.

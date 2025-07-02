@@ -1,8 +1,9 @@
 """Test dependencies."""
 
 import uuid
+from datetime import datetime, timezone
 from typing import AsyncIterator
-from unittest.mock import Mock
+from unittest.mock import Mock, patch
 
 import pytest
 from fastapi import HTTPException
@@ -18,6 +19,7 @@ from neuroagent.app.dependencies import (
     get_session,
     get_settings,
     get_starting_agent,
+    get_system_prompt,
     get_thread,
     get_user_info,
 )
@@ -88,7 +90,9 @@ def test_get_connection_string_full(monkeypatch, patch_required_env):
 
 
 def test_get_starting_agent(get_weather_tool):
-    agent = get_starting_agent(tool_list=[get_weather_tool])
+    agent = get_starting_agent(
+        tool_list=[get_weather_tool], system_prompt="Test prompt"
+    )
 
     assert isinstance(agent, Agent)
     assert agent.tools == [get_weather_tool]
@@ -254,3 +258,139 @@ async def test_get_healthcheck_variables():
         "entitycore_url": "http://twg-mrt.com/",
         "thumbnail_generation_url": "http://thumbnail.com/",
     }
+
+
+def test_get_system_prompt_with_mdc_files(tmp_path):
+    """Test get_system_prompt function with mock .mdc files."""
+    # Create mock .mdc files in tmp_path
+    rule1_content = """---
+description: Basic guidelines for neuroscience AI assistant
+---
+
+# Rule 1: Basic Guidelines
+
+This is the first rule file with some basic guidelines.
+It should be included in the system prompt.
+
+## Subsection
+- Point 1
+- Point 2"""
+
+    rule2_content = """---
+description: Advanced guidelines for tool usage
+---
+
+# Rule 2: Advanced Guidelines
+
+This rule has YAML frontmatter that should be removed.
+Only the content after the frontmatter should be included.
+
+## Features
+- Feature A
+- Feature B"""
+
+    # Write the mock files
+    rule1_file = tmp_path / "rule1.mdc"
+    rule2_file = tmp_path / "rule2.mdc"
+
+    rule1_file.write_text(rule1_content, encoding="utf-8")
+    rule2_file.write_text(rule2_content, encoding="utf-8")
+
+    # Mock datetime to have a predictable timestamp
+    fixed_time = datetime(2024, 1, 15, 12, 30, 45, tzinfo=timezone.utc)
+
+    with patch("neuroagent.app.dependencies.datetime") as mock_datetime:
+        mock_datetime.now.return_value = fixed_time
+
+        # Call the function with our mock rules directory
+        result = get_system_prompt(rules_dir=tmp_path)
+
+    # Expected result
+    expected_base = f"""# NEUROSCIENCE AI ASSISTANT
+
+You are a neuroscience AI assistant for the Open Brain Platform.
+
+# CURRENT CONTEXT
+Current time: {fixed_time.isoformat()}
+
+"""
+
+    expected_rule1 = """# Rule 1: Basic Guidelines
+
+This is the first rule file with some basic guidelines.
+It should be included in the system prompt.
+
+## Subsection
+- Point 1
+- Point 2"""
+
+    expected_rule2 = """# Rule 2: Advanced Guidelines
+
+This rule has YAML frontmatter that should be removed.
+Only the content after the frontmatter should be included.
+
+## Features
+- Feature A
+- Feature B"""
+
+    expected_result = f"{expected_base}\n{expected_rule1}\n\n\n{expected_rule2}\n\n"
+
+    assert result == expected_result
+
+
+def test_get_system_prompt_no_rules_directory(tmp_path):
+    """Test get_system_prompt function when rules directory doesn't exist."""
+    # Use a non-existent directory
+    non_existent_dir = tmp_path / "non_existent"
+
+    # Mock datetime to have a predictable timestamp
+    fixed_time = datetime(2024, 1, 15, 12, 30, 45, tzinfo=timezone.utc)
+
+    with patch("neuroagent.app.dependencies.datetime") as mock_datetime:
+        mock_datetime.now.return_value = fixed_time
+
+        # Call the function with non-existent directory
+        result = get_system_prompt(rules_dir=non_existent_dir)
+
+    # Should return only the base prompt
+    expected_result = f"""# NEUROSCIENCE AI ASSISTANT
+
+You are a neuroscience AI assistant for the Open Brain Platform.
+
+# CURRENT CONTEXT
+Current time: {fixed_time.isoformat()}
+
+"""
+
+    assert result == expected_result
+
+
+def test_get_system_prompt_empty_mdc_files(tmp_path):
+    """Test get_system_prompt function with empty .mdc files."""
+    # Create empty .mdc files
+    empty_file1 = tmp_path / "empty1.mdc"
+    empty_file2 = tmp_path / "empty2.mdc"
+
+    empty_file1.write_text("", encoding="utf-8")
+    empty_file2.write_text("   \n  \n  ", encoding="utf-8")  # Only whitespace
+
+    # Mock datetime to have a predictable timestamp
+    fixed_time = datetime(2024, 1, 15, 12, 30, 45, tzinfo=timezone.utc)
+
+    with patch("neuroagent.app.dependencies.datetime") as mock_datetime:
+        mock_datetime.now.return_value = fixed_time
+
+        # Call the function with empty files
+        result = get_system_prompt(rules_dir=tmp_path)
+
+    # Should return only the base prompt (empty files are ignored)
+    expected_result = f"""# NEUROSCIENCE AI ASSISTANT
+
+You are a neuroscience AI assistant for the Open Brain Platform.
+
+# CURRENT CONTEXT
+Current time: {fixed_time.isoformat()}
+
+"""
+
+    assert result == expected_result
