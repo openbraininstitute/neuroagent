@@ -73,6 +73,50 @@ from neuroagent.tools.entitycore_reconstructionmorphology_getall import (
 from neuroagent.tools.entitycore_reconstructionmorphology_getone import (
     ReconstructionMorphologyGetOneTool,
 )
+from neuroagent.tools.entitycore_simulation_getall import SimulationGetAllTool
+from neuroagent.tools.entitycore_simulation_getone import SimulationGetOneTool
+from neuroagent.tools.entitycore_simulationcampaign_getall import (
+    SimulationCampaignGetAllTool,
+)
+from neuroagent.tools.entitycore_simulationcampaign_getone import (
+    SimulationCampaignGetOneTool,
+)
+from neuroagent.tools.entitycore_simulationexecution_getall import (
+    SimulationExecutionGetAllTool,
+)
+from neuroagent.tools.entitycore_simulationexecution_getone import (
+    SimulationExecutionGetOneTool,
+)
+from neuroagent.tools.entitycore_simulationgeneration_getall import (
+    SimulationGenerationGetAllTool,
+)
+from neuroagent.tools.entitycore_simulationgeneration_getone import (
+    SimulationGenerationGetOneTool,
+)
+from neuroagent.tools.entitycore_simulationresult_getall import (
+    SimulationResultGetAllTool,
+)
+from neuroagent.tools.entitycore_simulationresult_getone import (
+    SimulationResultGetOneTool,
+)
+from neuroagent.tools.entitycore_singleneuronsimulation_getall import (
+    SingleNeuronSimulationGetAllTool,
+)
+from neuroagent.tools.entitycore_singleneuronsimulation_getone import (
+    SingleNeuronSimulationGetOneTool,
+)
+from neuroagent.tools.entitycore_singleneuronsynaptome_getall import (
+    SingleNeuronSynaptomeGetAllTool,
+)
+from neuroagent.tools.entitycore_singleneuronsynaptome_getone import (
+    SingleNeuronSynaptomeGetOneTool,
+)
+from neuroagent.tools.entitycore_singleneuronsynaptomesimulation_getall import (
+    SingleNeuronSynaptomeSimulationGetAllTool,
+)
+from neuroagent.tools.entitycore_singleneuronsynaptomesimulation_getone import (
+    SingleNeuronSynaptomeSimulationGetOneTool,
+)
 from neuroagent.tools.entitycore_species_getall import SpeciesGetAllTool
 from neuroagent.tools.entitycore_species_getone import SpeciesGetOneTool
 from neuroagent.tools.entitycore_strain_getall import StrainGetAllTool
@@ -140,6 +184,22 @@ __all__ = [
     "MeasurementAnnotationGetAllTool",
     "MeasurementAnnotationGetOneTool",
     "PlotMorphologyGetOneTool",
+    "SimulationCampaignGetAllTool",
+    "SimulationCampaignGetOneTool",
+    "SimulationExecutionGetAllTool",
+    "SimulationExecutionGetOneTool",
+    "SimulationGenerationGetAllTool",
+    "SimulationGenerationGetOneTool",
+    "SimulationGetAllTool",
+    "SimulationGetOneTool",
+    "SimulationResultGetAllTool",
+    "SimulationResultGetOneTool",
+    "SingleNeuronSimulationGetAllTool",
+    "SingleNeuronSimulationGetOneTool",
+    "SingleNeuronSynaptomeGetAllTool",
+    "SingleNeuronSynaptomeGetOneTool",
+    "SingleNeuronSynaptomeSimulationGetAllTool",
+    "SingleNeuronSynaptomeSimulationGetOneTool",
     "SpeciesGetAllTool",
     "SpeciesGetOneTool",
     "StrainGetAllTool",

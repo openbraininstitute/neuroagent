@@ -552,7 +552,7 @@ async def test_get_thread_messages_vercel_format(
             },
         ).json()
 
-    # Assert the first page with al its attributes.
+    # Assert the first page with all its attributes.
     assert set(messages.keys()) == {"next_cursor", "has_more", "page_size", "results"}
     assert messages["page_size"] == 1
     assert messages["has_more"]
@@ -572,11 +572,15 @@ async def test_get_thread_messages_vercel_format(
 
     parts = item.get("parts")
     assert isinstance(parts, list)
-    assert len(parts) == 2
+    assert len(parts) == 3
 
     first_part = parts[0]
-    assert first_part.get("type") == "tool-invocation"
-    tool_inv = first_part.get("toolInvocation")
+    assert first_part.get("type") == "text"
+    assert first_part.get("text") == ""
+
+    second_part = parts[1]
+    assert second_part.get("type") == "tool-invocation"
+    tool_inv = second_part.get("toolInvocation")
     assert isinstance(tool_inv, dict)
     assert tool_inv.get("toolCallId") == "mock_id_tc"
     assert tool_inv.get("toolName") == "get_weather"
@@ -584,21 +588,21 @@ async def test_get_thread_messages_vercel_format(
     assert tool_inv.get("state") == "call"
     assert tool_inv.get("results") is None
 
-    second_part = parts[1]
-    assert second_part.get("type") == "text"
-    assert second_part.get("text") == "sample response content."
+    third_part = parts[2]
+    assert third_part.get("type") == "text"
+    assert third_part.get("text") == "sample response content."
 
     annotations = item.get("annotations")
     assert isinstance(annotations, list)
     assert len(annotations) == 2
 
     ann1 = annotations[0]
-    assert ann1["message_id"]
+    assert ann1.get("toolCallId") == "mock_id_tc"
+    assert ann1.get("validated") == "not_required"
     assert ann1.get("isComplete") is True
 
     ann2 = annotations[1]
-    assert ann2.get("toolCallId") == "mock_id_tc"
-    assert ann2.get("validated") == "not_required"
+    assert ann2["messageId"]
     assert ann2.get("isComplete") is True
 
     # Assert the second page

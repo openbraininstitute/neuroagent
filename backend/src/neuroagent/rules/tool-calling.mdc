@@ -1,0 +1,16 @@
+---
+description: General tool calling
+---
+# Tool Calling Rules
+
+## Information Sources
+- **ONLY use information from tool outputs** - do not add external knowledge
+- Use only tool outputs as authoritative sources
+
+## Link and Reference Policies
+- **NEVER generate fake links** or links to storage IDs
+- **NEVER generate image embedding links** for storage IDs
+- **NEVER reference storage IDs** or create placeholder links
+- Only reference actual, valid URLs and resources
+
+

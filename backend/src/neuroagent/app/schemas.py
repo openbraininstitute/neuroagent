@@ -32,6 +32,28 @@ class TextPartVercel(BaseModel):
     text: str
 
 
+class ReasoningPartVercel(BaseModel):
+    """Text part of Vercel."""
+
+    type: Literal["reasoning"] = "reasoning"
+    reasoning: str
+
+
+class AnnotationMessageVercel(BaseModel):
+    """Annotation of vercel messages."""
+
+    messageId: str
+    isComplete: bool
+
+
+class AnnotationToolCallVercel(BaseModel):
+    """Annotation of vercel tool calls."""
+
+    toolCallId: str
+    validated: Literal["accepted", "rejected", "not_required", "pending"]
+    isComplete: bool
+
+
 class ToolCall(BaseModel):
     """Tool call."""
 
@@ -55,8 +77,8 @@ class MessagesReadVercel(BaseRead):
     role: str
     createdAt: datetime.datetime
     content: str
-    parts: list[ToolCallPartVercel | TextPartVercel] | None = None
-    annotations: list[dict[str, Any]] | None = None
+    parts: list[ToolCallPartVercel | TextPartVercel | ReasoningPartVercel] | None = None
+    annotations: list[AnnotationMessageVercel | AnnotationToolCallVercel] | None = None
 
 
 class MessagesRead(BaseRead):
@@ -249,3 +271,19 @@ class OpenRouterModelResponse(BaseModel):
     hugging_face_id: str | None = None
     per_request_limits: dict[str, str] | None = None
     supported_parameters: list[str]
+
+
+class RateLimitInfo(BaseModel):
+    """Information regarding the rate limit of a user for a single category."""
+
+    limit: int
+    remaining: int
+    reset_in: int | None = None
+
+
+class RateLimitOutput(BaseModel):
+    """Output of the GET rate_limit endpoint."""
+
+    chat_streamed: RateLimitInfo
+    question_suggestions: RateLimitInfo
+    generate_title: RateLimitInfo

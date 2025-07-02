@@ -335,6 +335,11 @@ class AgentsRoutine:
                                     draft_tool_calls[draft_tool_calls_index][
                                         "arguments"
                                     ] += arguments
+                        elif (
+                            hasattr(choice.delta, "reasoning")
+                            and choice.delta.reasoning
+                        ):
+                            yield f"g:{json.dumps(choice.delta.reasoning, separators=(',', ':'))}\n\n"
 
                         else:
                             if choice.delta.content is not None:

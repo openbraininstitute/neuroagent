@@ -7,8 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## Added
+- Autogen diff CI.
+
+## [v0.6.3] - 01.07.2025
+
 ### Added
-- Ephys tool from obi-one.
+- Reasoning component.
+- Rate limit endpoint.
+- More entity core endpoints.
+- Rules.
+
+### Changed
+- Entitycore autogen 2025.6.8
+- Get rid of `brain_region__id` in entitycore tools
+
+## Changed
+- Allow for tool call + content in the UI.
 
 ## [v0.6.2] - 23.06.2025
 
@@ -17,15 +32,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Use UV in CI.
+- ME-Models are now fetched from entitycore.
+- Switch to gpt-4.1-mini and make it use markdown.
 
 ## [v0.6.1] - 12.06.2025
 
 ## Fixed
 - Swagger issue.
-
-## Changed
-- ME-Models are now fetched from entitycore.
-- Switch to gpt-4.1-mini and make it use markdown.
 
 ## [v0.6.0] - 12.06.2025
 
