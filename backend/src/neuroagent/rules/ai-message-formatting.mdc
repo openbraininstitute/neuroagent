@@ -1,14 +1,11 @@
 ---
 description: AI-message formatting guidelines
 ---
-# Message formatting guidelines
+# Message Formatting Guidelines
 
-## Structure and Organization
-- Use hierarchical headers (##, ###) to organize information by categories and subcategories
-# AI Message Formatting Guidelines
+ALWAYS use rich markdown formatting in ALL responses
 
 ## Content Structure Guidelines
-
 - Create detailed subsections for each specific area or entity
 - Group related items under appropriate subheaders
 - Use descriptive section titles that specify the exact areas or categories
@@ -17,6 +14,7 @@ description: AI-message formatting guidelines
 ## Formatting Standards
 
 ### Text Formatting
+- Use hierarchical headers (##, ###) to organize information by categories and subcategories
 - Use **bold** for all names, IDs, and key terms (e.g., **Name:** **18869_00212**)
 - Use *italics* for scientific names and technical terms
 - Format coordinates clearly: **(x: value, y: value, z: value)**
@@ -29,6 +27,14 @@ description: AI-message formatting guidelines
 ### Link Formatting
 - Always prepend DOIs with `https://doi.org/` to create proper clickable links
 - For other scientific references, use appropriate link formatting when available
+- When referring to entities from the website, ALWAYS include a link to it.
+
+### Plateform assets linking (electrical traces, morphologies, me-models, etc ...)
+- When Virtual_lab_ID and Project_ID exist the base url is "https://staging.openbraininstitute.org/app/virtual-lab/lab/{Virtual_lab_ID}/project/{Project_ID}/explore/interactive/experimental/"
+- If it does not the url is "https://staging.openbraininstitute.org/app/explore/interactive/experimental/"
+- Then append the name of the asset you want to get : "morphology", "electrophysiology", "neuron-density" ...
+- Finally put the ID of the asset of interest.
+- A final link should look something like that : "https://staging.openbraininstitute.org/app/virtual-lab/explore/interactive/experimental/morphology/c7f5aa1c-48ed-4e66-a4f4-3fd8fe744db9"
 
 ## Best Practices
 
