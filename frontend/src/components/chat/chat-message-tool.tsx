@@ -78,7 +78,7 @@ export const ChatMessageTool = function ChatMessageTool({
       ?.label ?? tool.toolName;
 
   return (
-    <div className="border-white-300 ml-5 border-solid p-3.5">
+    <div className="border-white-300 ml-5 border-solid p-0.5">
       <HumanValidationDialog
         key={tool.toolCallId}
         threadId={threadId}
@@ -91,7 +91,7 @@ export const ChatMessageTool = function ChatMessageTool({
         setMessage={setMessage}
         mutate={mutate}
       />
-      <div className="flex justify-start">
+      <div className="ml-5 flex justify-start">
         <ToolCallCollapsible
           tool={tool}
           stopped={stopped}
