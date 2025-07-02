@@ -8,13 +8,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- False positive semantic route.
+
+## [v0.6.3] - 01.07.2025
+
+### Added
 - Reasoning component.
 - Rate limit endpoint.
 - More entity core endpoints.
-- False positive semantic route.
+- Rules.
 
 ### Changed
 - Entitycore autogen 2025.6.8
+- Get rid of `brain_region__id` in entitycore tools
 
 ## [v0.6.2] - 23.06.2025
 
