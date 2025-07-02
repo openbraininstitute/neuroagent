@@ -1,79 +1,84 @@
-import { Check, Loader2, X, AlertCircle, OctagonX } from "lucide-react";
+import { ReactElement } from "react";
+import { Check, X, Loader2, AlertCircle } from "lucide-react";
 
-type ToolCallStatusProps = {
-  state: "call" | "partial-call" | "result" | "aborted";
-  validated: "pending" | "accepted" | "rejected" | "not_required";
-  validationError?: string | null;
-  onValidationClick?: () => void;
-};
+export type ToolState = "call" | "result" | "partial-call";
+export type ValidationStatus =
+  | "pending"
+  | "accepted"
+  | "rejected"
+  | "not_required";
 
-export function ToolCallStatus({
+interface ToolStatusBadgeProps {
+  state: ToolState;
+  validated: ValidationStatus;
+  stopped: boolean;
+  expanded?: boolean;
+}
+
+export function ToolStatusBadge({
   state,
   validated,
-  validationError,
-  onValidationClick,
-}: ToolCallStatusProps) {
-  if (state === "aborted") {
-    return (
-      <div className="flex items-center">
-        <OctagonX className="mr-2 h-4 w-4 text-red-500" />
-        <span className="text-xs text-red-500">Aborted</span>
-      </div>
-    );
-  }
-  if (state === "result") {
-    if (validated === "rejected") {
-      return (
-        <div className="flex items-center">
-          <X className="mr-2 h-4 w-4 text-red-500" />
-          <span className="text-xs text-red-500">Rejected</span>
-        </div>
-      );
+  stopped,
+  expanded,
+}: ToolStatusBadgeProps): ReactElement {
+  const getStatusIcon = (): ReactElement => {
+    if (stopped) return <X className="m-1 h-3 w-3" />;
+    if (state === "result") {
+      if (validated === "rejected") return <X className="m-1 h-3 w-3" />;
+      return <Check className="m-1 h-3 w-3" />;
     }
-    return (
-      <div className="flex items-center">
-        <Check className="mr-2 h-4 w-4 text-green-500" />
-        <span className="text-xs text-green-500">Executed</span>
-      </div>
-    );
-  }
-  if (state === "call") {
-    if (validated === "pending") {
-      return (
-        <div className="flex items-center">
-          <AlertCircle
-            className="mr-2 h-4 w-4 cursor-pointer text-red-500"
-            onClick={onValidationClick}
-          />
-          <span className="text-xs text-red-500">Pending Validation</span>
-          {validationError && (
-            <span className="ml-2 text-xs text-red-500">
-              {` (Previous validation failed: ${validationError})`}
-            </span>
-          )}
-        </div>
-      );
-    } else if (validated === "accepted") {
-      return (
-        <div className="flex items-center">
-          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-          <span className="text-xs text-gray-500">Executing</span>
-        </div>
-      );
-    } else if (validated === "rejected") {
-      return (
-        <div className="flex items-center">
-          <X className="mr-2 h-4 w-4 text-red-500" />
-          <span className="text-xs text-red-500">Rejected</span>
-        </div>
-      );
+    if (state === "call") {
+      if (validated === "pending")
+        return <AlertCircle className="m-1 h-5 w-5" />;
+      if (validated === "accepted")
+        return <Loader2 className="m-1 h-5 w-5 animate-spin" />;
+      if (validated === "rejected") return <X className="m-1 h-3 w-3" />;
     }
-  }
+    return <Loader2 className="m-1 h-5 w-5 animate-spin" />;
+  };
+
+  const getStatusColor = (): string => {
+    if (stopped) {
+      return "text-red-700 bg-red-200 hover:bg-red-300 dark:text-red-200 dark:bg-red-800/90 dark:hover:bg-red-700/90";
+    }
+    if (state === "result") {
+      if (validated === "rejected")
+        return "text-red-700 bg-red-200 hover:bg-red-300 dark:text-red-200 dark:bg-red-800/90 dark:hover:bg-red-700/90";
+      return "text-green-800 bg-green-200 hover:bg-green-300 dark:text-green-200 dark:bg-green-800/90 dark:hover:bg-green-700/90";
+    }
+    if (state === "call") {
+      if (validated === "pending")
+        return "text-orange-700 hover:bg-orange-300 dark:text-orange-200 dark:hover:bg-orange-700/90";
+      if (validated === "accepted")
+        return "text-green-700 bg-green-100 hover:bg-green-200 dark:text-green-200 dark:bg-green-800/70 dark:hover:bg-green-700/80";
+      if (validated === "rejected")
+        return "text-red-700 bg-red-200 hover:bg-red-300 dark:text-red-200 dark:bg-red-800/90 dark:hover:bg-red-700/90";
+    }
+    return "text-blue-700 bg-blue-100 hover:bg-blue-200 dark:text-blue-200 dark:bg-blue-800/90 dark:hover:bg-blue-700/90";
+  };
+
+  const getStatusText = (): string => {
+    if (stopped) {
+      return "Stopped";
+    }
+    if (state === "result") {
+      if (validated === "rejected") return "Rejected";
+      return "Executed";
+    }
+    if (state === "call") {
+      if (validated === "pending") return "Running";
+      if (validated === "accepted") return "Validated";
+      if (validated === "rejected") return "Rejected";
+    }
+    return "Loading";
+  };
 
   return (
-    <div className="flex items-center">
-      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-      <span className="text-xs text-gray-500">Preparing call</span>
-    </div>
+    <span
+      className={`inline-flex items-center gap-1 rounded-full text-xs font-medium ${getStatusColor()} ${expanded && "px-1"}`}
+    >
+      {getStatusIcon()}
+      {expanded && <span className="pr-2">{getStatusText()}</span>}
+    </span>
   );
 }
