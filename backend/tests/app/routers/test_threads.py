@@ -1,3 +1,4 @@
+import uuid
 from unittest.mock import Mock
 
 import pytest
@@ -14,34 +15,33 @@ from tests.conftest import mock_keycloak_user_identification
 from tests.mock_client import MockOpenAIClient, create_mock_response
 
 
-def test_create_thread(patch_required_env, httpx_mock, app_client, db_connection):
-    mock_keycloak_user_identification(httpx_mock)
+def test_create_thread(
+    patch_required_env, httpx_mock, app_client, db_connection, test_user_info
+):
+    mock_keycloak_user_identification(httpx_mock, test_user_info)
     test_settings = Settings(
         db={"prefix": db_connection}, keycloak={"issuer": "https://great_issuer.com"}
     )
 
     app.dependency_overrides[get_settings] = lambda: test_settings
-
+    _, vlab, proj = test_user_info
     with app_client as app_client:
         # Create a thread
         create_output = app_client.post(
             "/threads",
-            json={"virtual_lab_id": "test_vlab", "project_id": "test_project"},
+            json={"virtual_lab_id": str(vlab), "project_id": str(proj)},
         ).json()
     assert create_output["thread_id"]
     assert create_output["title"] == "New chat"
-    assert create_output["vlab_id"] == "test_vlab"
-    assert create_output["project_id"] == "test_project"
+    assert create_output["vlab_id"] == str(vlab)
+    assert create_output["project_id"] == str(proj)
 
 
 @pytest.mark.httpx_mock(can_send_already_matched_responses=True)
 def test_generate_thread_title(
-    patch_required_env,
-    httpx_mock,
-    app_client,
-    db_connection,
+    patch_required_env, httpx_mock, app_client, db_connection, test_user_info
 ):
-    mock_keycloak_user_identification(httpx_mock)
+    mock_keycloak_user_identification(httpx_mock, test_user_info)
     test_settings = Settings(
         db={"prefix": db_connection},
         llm={"suggestion_model": "great_model"},
@@ -59,6 +59,7 @@ def test_generate_thread_title(
 
     app.dependency_overrides[get_settings] = lambda: test_settings
     app.dependency_overrides[get_openai_client] = lambda: mock_openai_client
+    _, vlab, proj = test_user_info
 
     with app_client as app_client:
         threads = app_client.get("/threads/").json()
@@ -66,7 +67,7 @@ def test_generate_thread_title(
 
         create_output_1 = app_client.post(
             "/threads",
-            json={"virtual_lab_id": "test_vlab", "project_id": "test_project"},
+            json={"virtual_lab_id": str(vlab), "project_id": str(proj)},
         ).json()
 
         # Create a thread with generated title
@@ -92,23 +93,29 @@ def test_generate_thread_title(
 
 
 @pytest.mark.httpx_mock(can_send_already_matched_responses=True)
-def test_get_threads(patch_required_env, httpx_mock, app_client, db_connection):
-    mock_keycloak_user_identification(httpx_mock)
+def test_get_threads(
+    patch_required_env, httpx_mock, app_client, db_connection, test_user_info
+):
+    mock_keycloak_user_identification(httpx_mock, test_user_info)
     test_settings = Settings(
         db={"prefix": db_connection}, keycloak={"issuer": "https://great_issuer.com"}
     )
     app.dependency_overrides[get_settings] = lambda: test_settings
+    _, vlab, proj = test_user_info
 
     with app_client as app_client:
         threads = app_client.get("/threads").json()
         assert not threads["results"]
         create_output_1 = app_client.post(
             "/threads",
-            json={"virtual_lab_id": "test_vlab", "project_id": "test_project"},
+            json={"virtual_lab_id": str(vlab), "project_id": str(proj)},
         ).json()
         create_output_2 = app_client.post(
             "/threads",
-            json={"virtual_lab_id": "test_vlab2", "project_id": "test_project2"},
+            json={
+                "virtual_lab_id": str(vlab)[:-1] + "1",
+                "project_id": str(proj)[:-1] + "1",
+            },
         ).json()
         create_output_3 = app_client.post("/threads").json()
         threads = app_client.get("/threads").json()
@@ -118,7 +125,7 @@ def test_get_threads(patch_required_env, httpx_mock, app_client, db_connection):
 
         threads = app_client.get(
             "/threads",
-            params={"virtual_lab_id": "test_vlab", "project_id": "test_project"},
+            params={"virtual_lab_id": str(vlab), "project_id": str(proj)},
         ).json()
 
         assert len(threads["results"]) == 1
@@ -126,7 +133,10 @@ def test_get_threads(patch_required_env, httpx_mock, app_client, db_connection):
 
         threads = app_client.get(
             "/threads",
-            params={"virtual_lab_id": "test_vlab2", "project_id": "test_project2"},
+            params={
+                "virtual_lab_id": str(vlab)[:-1] + "1",
+                "project_id": str(proj)[:-1] + "1",
+            },
         ).json()
 
         assert len(threads["results"]) == 1
@@ -134,7 +144,10 @@ def test_get_threads(patch_required_env, httpx_mock, app_client, db_connection):
 
         threads = app_client.get(
             "/threads",
-            params={"virtual_lab_id": "test_vlab_wrong", "project_id": "test_project"},
+            params={
+                "virtual_lab_id": str(vlab)[:-1] + "2",
+                "project_id": str(proj)[:-1] + "2",
+            },
         )
 
         assert threads.status_code == 401
@@ -142,9 +155,9 @@ def test_get_threads(patch_required_env, httpx_mock, app_client, db_connection):
 
 @pytest.mark.httpx_mock(can_send_already_matched_responses=True)
 def test_get_threads_paginated(
-    patch_required_env, httpx_mock, app_client, db_connection
+    patch_required_env, httpx_mock, app_client, db_connection, test_user_info
 ):
-    mock_keycloak_user_identification(httpx_mock)
+    mock_keycloak_user_identification(httpx_mock, test_user_info)
     test_settings = Settings(
         db={"prefix": db_connection}, keycloak={"issuer": "https://great_issuer.com"}
     )
@@ -184,9 +197,9 @@ def test_get_threads_paginated(
 
 @pytest.mark.httpx_mock(can_send_already_matched_responses=True)
 def test_get_threads_query_param(
-    patch_required_env, httpx_mock, app_client, db_connection
+    patch_required_env, httpx_mock, app_client, db_connection, test_user_info
 ):
-    mock_keycloak_user_identification(httpx_mock)
+    mock_keycloak_user_identification(httpx_mock, test_user_info)
     test_settings = Settings(
         db={"prefix": db_connection}, keycloak={"issuer": "https://great_issuer.com"}
     )
@@ -232,12 +245,15 @@ def test_get_threads_query_param(
 
 
 @pytest.mark.httpx_mock(can_send_already_matched_responses=True)
-def test_update_thread_title(patch_required_env, httpx_mock, app_client, db_connection):
-    mock_keycloak_user_identification(httpx_mock)
+def test_update_thread_title(
+    patch_required_env, httpx_mock, app_client, db_connection, test_user_info
+):
+    mock_keycloak_user_identification(httpx_mock, test_user_info)
     test_settings = Settings(
         db={"prefix": db_connection}, keycloak={"issuer": "https://great_issuer.com"}
     )
     app.dependency_overrides[get_settings] = lambda: test_settings
+    _, vlab, proj = test_user_info
 
     with app_client as app_client:
         threads = app_client.get("/threads").json()
@@ -245,14 +261,14 @@ def test_update_thread_title(patch_required_env, httpx_mock, app_client, db_conn
 
         # Check when wrong thread id
         wrong_response = app_client.patch(
-            "/threads/wrong_id", json={"title": "great_title"}
+            f"/threads/{uuid.uuid4()}", json={"title": "great_title"}
         )
         assert wrong_response.status_code == 404
         assert wrong_response.json() == {"detail": {"detail": "Thread not found."}}
 
         create_thread_response = app_client.post(
             "/threads",
-            json={"virtual_lab_id": "test_vlab", "project_id": "test_project"},
+            json={"virtual_lab_id": str(vlab), "project_id": str(proj)},
         ).json()
         thread_id = create_thread_response["thread_id"]
 
@@ -266,9 +282,14 @@ def test_update_thread_title(patch_required_env, httpx_mock, app_client, db_conn
 
 @pytest.mark.httpx_mock(can_send_already_matched_responses=True)
 def test_delete_thread(
-    patch_required_env, httpx_mock, app_client, db_connection, monkeypatch
+    patch_required_env,
+    httpx_mock,
+    app_client,
+    db_connection,
+    monkeypatch,
+    test_user_info,
 ):
-    mock_keycloak_user_identification(httpx_mock)
+    mock_keycloak_user_identification(httpx_mock, test_user_info)
     test_settings = Settings(
         db={"prefix": db_connection}, keycloak={"issuer": "https://great_issuer.com"}
     )
@@ -279,25 +300,26 @@ def test_delete_thread(
     monkeypatch.setattr(
         "neuroagent.app.routers.threads.delete_from_storage", fake_delete_from_storage
     )
+    _, vlab, proj = test_user_info
 
     with app_client as app_client:
         threads = app_client.get("/threads").json()
         assert not threads["results"]
 
         # Check when wrong thread id
-        wrong_response = app_client.delete("/threads/wrong_id")
+        wrong_response = app_client.delete(f"/threads/{uuid.uuid4()}")
         assert wrong_response.status_code == 404
         assert wrong_response.json() == {"detail": {"detail": "Thread not found."}}
 
         create_thread_response = app_client.post(
             "/threads",
-            json={"virtual_lab_id": "test_vlab", "project_id": "test_project"},
+            json={"virtual_lab_id": str(vlab), "project_id": str(proj)},
         ).json()
         thread_id = create_thread_response["thread_id"]
 
         threads = app_client.get(
             "/threads",
-            params={"virtual_lab_id": "test_vlab", "project_id": "test_project"},
+            params={"virtual_lab_id": str(vlab), "project_id": str(proj)},
         ).json()
         assert len(threads["results"]) == 1
         assert threads["results"][0]["thread_id"] == thread_id
@@ -319,8 +341,9 @@ async def test_get_thread_messages(
     app_client,
     db_connection,
     populate_db,
+    test_user_info,
 ):
-    mock_keycloak_user_identification(httpx_mock)
+    mock_keycloak_user_identification(httpx_mock, test_user_info)
     test_settings = Settings(
         db={"prefix": db_connection}, keycloak={"issuer": "https://great_issuer.com"}
     )
@@ -368,9 +391,10 @@ async def test_get_thread_messages_sort_and_filter(
     app_client,
     db_connection,
     populate_db,
+    test_user_info,
 ):
     # Setup settings and dependency overrides as in the other test
-    mock_keycloak_user_identification(httpx_mock)
+    mock_keycloak_user_identification(httpx_mock, test_user_info)
     test_settings = Settings(
         db={"prefix": db_connection},
         keycloak={"issuer": "https://great_issuer.com"},
@@ -436,8 +460,9 @@ async def test_get_thread_messages_paginated(
     app_client,
     db_connection,
     populate_db,
+    test_user_info,
 ):
-    mock_keycloak_user_identification(httpx_mock)
+    mock_keycloak_user_identification(httpx_mock, test_user_info)
     test_settings = Settings(
         db={"prefix": db_connection}, keycloak={"issuer": "https://great_issuer.com"}
     )
@@ -489,12 +514,9 @@ async def test_get_thread_messages_paginated(
 @pytest.mark.httpx_mock(can_send_already_matched_responses=True)
 @pytest.mark.asyncio
 async def test_get_thread_messages_empty_paginated(
-    patch_required_env,
-    httpx_mock,
-    app_client,
-    db_connection,
+    patch_required_env, httpx_mock, app_client, db_connection, test_user_info
 ):
-    mock_keycloak_user_identification(httpx_mock)
+    mock_keycloak_user_identification(httpx_mock, test_user_info)
     test_settings = Settings(
         db={"prefix": db_connection}, keycloak={"issuer": "https://great_issuer.com"}
     )
@@ -527,8 +549,9 @@ async def test_get_thread_messages_vercel_format(
     app_client,
     db_connection,
     populate_db,
+    test_user_info,
 ):
-    mock_keycloak_user_identification(httpx_mock)
+    mock_keycloak_user_identification(httpx_mock, test_user_info)
     test_settings = Settings(
         db={"prefix": db_connection}, keycloak={"issuer": "https://great_issuer.com"}
     )

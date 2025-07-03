@@ -2,6 +2,7 @@
 
 import datetime
 from typing import Any, Generic, Literal, TypeVar
+from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field, conlist
 
@@ -42,7 +43,7 @@ class ReasoningPartVercel(BaseModel):
 class AnnotationMessageVercel(BaseModel):
     """Annotation of vercel messages."""
 
-    messageId: str
+    messageId: UUID
     isComplete: bool
 
 
@@ -73,7 +74,7 @@ T = TypeVar("T", bound=BaseRead)
 class MessagesReadVercel(BaseRead):
     """Message response in Vercel format."""
 
-    id: str
+    id: UUID
     role: str
     createdAt: datetime.datetime
     content: str
@@ -84,9 +85,9 @@ class MessagesReadVercel(BaseRead):
 class MessagesRead(BaseRead):
     """Message response."""
 
-    message_id: str
+    message_id: UUID
     entity: str
-    thread_id: str
+    thread_id: UUID
     is_complete: bool
     creation_date: datetime.datetime
     msg_content: dict[str, Any]
@@ -97,10 +98,10 @@ class MessagesRead(BaseRead):
 class ThreadsRead(BaseRead):
     """Data class to read chatbot conversations in the db."""
 
-    thread_id: str
-    user_id: str
-    vlab_id: str | None
-    project_id: str | None
+    thread_id: UUID
+    user_id: UUID
+    vlab_id: UUID | None
+    project_id: UUID | None
     title: str
     creation_date: datetime.datetime
     update_date: datetime.datetime
@@ -110,8 +111,8 @@ class ThreadCreate(BaseModel):
     """Data class for the update of a thread."""
 
     title: str = "New chat"
-    virtual_lab_id: str | None = None
-    project_id: str | None = None
+    virtual_lab_id: UUID | None = None
+    project_id: UUID | None = None
 
 
 class ThreadGeneratBody(BaseModel):
@@ -175,7 +176,7 @@ class ToolMetadataDetailed(ToolMetadata):
 class UserInfo(BaseModel):
     """Keycloak related info of a user."""
 
-    sub: str
+    sub: UUID
     groups: list[str] = Field(default_factory=list)
     email_verified: bool | None = None
     name: str | None = None

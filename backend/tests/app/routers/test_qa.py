@@ -20,9 +20,14 @@ from tests.mock_client import MockOpenAIClient, create_mock_response
 
 @pytest.mark.httpx_mock(can_send_already_matched_responses=True)
 def test_question_suggestions(
-    app_client, httpx_mock, patch_required_env, db_connection, populate_db
+    app_client,
+    httpx_mock,
+    patch_required_env,
+    db_connection,
+    populate_db,
+    test_user_info,
 ):
-    mock_keycloak_user_identification(httpx_mock)
+    mock_keycloak_user_identification(httpx_mock, test_user_info)
     test_settings = Settings(
         db={"prefix": db_connection},
         keycloak={"issuer": "https://great_issuer.com"},
@@ -45,6 +50,7 @@ def test_question_suggestions(
     )
     mock_openai_client.set_response(mock_response)
     app.dependency_overrides[get_openai_client] = lambda: mock_openai_client
+    user_id, vlab, proj = test_user_info
 
     # First we test if no thread id is provided.
     with app_client as app_client:
@@ -59,7 +65,7 @@ def test_question_suggestions(
                     }
                 ]
             },
-            headers={"x-virtual-lab-id": "test_vlab", "x-project-id": "test_project"},
+            headers={"x-virtual-lab-id": str(vlab), "x-project-id": str(proj)},
         )
 
     assert response.status_code == 200
@@ -69,8 +75,9 @@ def test_question_suggestions(
     with app_client as app_client:
         create_output = app_client.post(
             "/threads",
-            json={"virtual_lab_id": "test_vlab", "project_id": "test_project"},
+            json={"virtual_lab_id": str(vlab), "project_id": str(proj)},
         ).json()
+
         response = app_client.post(
             "/qa/question_suggestions",
             json={
@@ -83,7 +90,7 @@ def test_question_suggestions(
                 ],
                 "thread_id": create_output["thread_id"],
             },
-            headers={"x-virtual-lab-id": "test_vlab", "x-project-id": "test_project"},
+            headers={"x-virtual-lab-id": str(vlab), "x-project-id": str(proj)},
         )
 
     assert response.status_code == 200
@@ -104,9 +111,9 @@ def test_question_suggestions(
                         "artifact": "Super artifact",
                     }
                 ],
-                "thread_id": thread.thread_id,
+                "thread_id": str(thread.thread_id),
             },
-            headers={"x-virtual-lab-id": "test_vlab", "x-project-id": "test_project"},
+            headers={"x-virtual-lab-id": str(vlab), "x-project-id": str(proj)},
         )
 
     assert response.status_code == 200
@@ -166,11 +173,14 @@ async def streamed_response():
 
 
 @pytest.mark.httpx_mock(can_send_already_matched_responses=True)
-def test_chat_streamed(app_client, httpx_mock, patch_required_env, db_connection):
+def test_chat_streamed(
+    app_client, httpx_mock, patch_required_env, db_connection, test_user_info
+):
     """Test the generative QA endpoint with a fake LLM."""
     qa.stream_agent_response = Mock()
     qa.stream_agent_response.return_value = streamed_response()
-    mock_keycloak_user_identification(httpx_mock)
+    mock_keycloak_user_identification(httpx_mock, test_user_info)
+    _, vlab, proj = test_user_info
     test_settings = Settings(
         db={"prefix": db_connection},
         keycloak={"issuer": "https://great_issuer.com"},
@@ -190,12 +200,12 @@ def test_chat_streamed(app_client, httpx_mock, patch_required_env, db_connection
     with app_client as app_client:
         create_output = app_client.post(
             "/threads",
-            json={"virtual_lab_id": "test_vlab", "project_id": "test_project"},
+            json={"virtual_lab_id": str(vlab), "project_id": str(proj)},
         ).json()
         response = app_client.post(
             f"/qa/chat_streamed/{create_output['thread_id']}",
             json={"content": "This is my query"},
-            headers={"x-virtual-lab-id": "test_vlab", "x-project-id": "test_project"},
+            headers={"x-virtual-lab-id": str(vlab), "x-project-id": str(proj)},
         )
     assert response.status_code == 200
     assert response.content == expected_tokens

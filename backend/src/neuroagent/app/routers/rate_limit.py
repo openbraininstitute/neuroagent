@@ -1,6 +1,7 @@
 """Rate limit related operations."""
 
 import logging
+import uuid
 from typing import Annotated
 
 from fastapi import APIRouter, Depends
@@ -21,8 +22,8 @@ async def get_rate_limit(
     user_info: Annotated[UserInfo, Depends(get_user_info)],
     redis_client: Annotated[aioredis.Redis, Depends(get_redis_client)],
     settings: Annotated[Settings, Depends(get_settings)],
-    vlab_id: str | None = None,
-    project_id: str | None = None,
+    vlab_id: uuid.UUID | None = None,
+    project_id: uuid.UUID | None = None,
 ) -> RateLimitOutput:
     """Let the user know about its current rate limits."""
     # Default response if redis is deactivated

@@ -9,13 +9,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - Auto alembic upgrade.
+- Circuit tools.
+
+### Changed
+- Switch from VARCHAR to UUID where possible.
 
 ## [v0.6.4] - 02.07.2025
 
 ### Added
 - False positive semantic route.
 - Autogen diff CI.
-- Circuit tools.
 
 ### Fixed
 - Distinction between entitycore and LS capabilities.

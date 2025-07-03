@@ -172,7 +172,7 @@ export function ChatPage({
       setMessages(() => [
         ...retrievedMessages,
         ...messages.filter(
-          (m) => m.id.length !== 32 && !m.id.startsWith("temp"),
+          (m) => m.id.length !== 36 && !m.id.startsWith("temp"),
         ),
       ]);
     } else {
