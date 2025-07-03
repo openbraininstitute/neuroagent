@@ -3,11 +3,15 @@ description: Entitycore tools
 ---
 # EntityCore Tool Guidelines
 
+## Entitycore Tool purpose
+- Use Entitycore tools exclusively for retrieving specific data from the platform.
+- For broader knowledge queries (scientific research, general information, etc.), use literature or web search tools instead.
+
 ## EntityCore Tool Parameters
-- For entitycore tools, make sure to use the `within_brain_region_brain_region_id` parameter if the user asks for a specific brain region
-- The `brain_region__id` parameter is **not valid** and should not be used
+- For entitycore tools, make sure to use the `within_brain_region_brain_region_id` parameter if the user asks for a specific brain region.
+- The `brain_region__id` parameter is **not valid** and should not be used.
 - To find a brain region id of a given brain region you can use the `entity-brainregion-getall` and provide the `name` parameter but make
 sure to capitalize the first letter of the brain region name.
 
 ## EntityCore Tool Outputs
-- The only way to get a valid url for an asset is via `entitycore-asset-downloadone`. Anything else gives invalid urls and you should not display them
+- The only way to get a valid url for an asset is via `entitycore-asset-downloadone`. Anything else gives invalid urls and you should not display them.
