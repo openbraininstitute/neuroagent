@@ -2,7 +2,7 @@
 
 import json
 from typing import ClassVar
-from unittest.mock import Mock
+from unittest.mock import Mock, mock_open, patch
 
 import pytest
 import pytest_asyncio
@@ -25,18 +25,22 @@ from tests.mock_client import MockOpenAIClient, create_mock_response
 def client_fixture():
     """Get client and clear app dependency_overrides."""
     app_client = TestClient(app)
-    test_settings = Settings(
-        tools={
-            "literature": {
-                "url": "fake_literature_url",
+    mock_file = mock_open(read_data="{}")
+
+    with patch("pathlib.Path.open", mock_file):
+        test_settings = Settings(
+            tools={
+                "literature": {
+                    "url": "fake_literature_url",
+                },
             },
-        },
-        llm={
-            "openai_token": "fake_token",
-        },
-        rate_limiter={"disabled": True},
-        accounting={"disabled": True},
-    )
+            llm={
+                "openai_token": "fake_token",
+            },
+            rate_limiter={"disabled": True},
+            accounting={"disabled": True},
+        )
+
     app.dependency_overrides[get_settings] = lambda: test_settings
     app.dependency_overrides[get_openrouter_models] = lambda: [
         OpenRouterModelResponse(
