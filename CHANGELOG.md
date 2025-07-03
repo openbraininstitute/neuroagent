@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - False positive semantic route.
 - Autogen diff CI.
+- Circuit tools.
 
 ### Fixed
 - Distinction between entitycore and LS capabilities.
