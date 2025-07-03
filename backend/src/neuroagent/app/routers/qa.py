@@ -340,7 +340,7 @@ async def stream_chat_agent(
     ):
         if semantic_router and user_request.content:
             selected_route = await semantic_router.acall(user_request.content)
-            if selected_route.name:  # type: ignore
+            if selected_route.name and selected_route.name != "False positive":  # type: ignore
                 # If a predefined route is detected, return predefined response
                 async def yield_predefined_response(
                     response: str,

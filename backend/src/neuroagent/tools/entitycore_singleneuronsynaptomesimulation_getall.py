@@ -89,6 +89,8 @@ class SingleNeuronSynaptomeSimulationGetAllTool(BaseTool):
             )
 
         response_data = response.json()
+        for simulation in response_data["data"]:
+            simulation["assets"] = []
         return ListResponseSingleNeuronSynaptomeSimulationRead(**response_data)
 
     @classmethod

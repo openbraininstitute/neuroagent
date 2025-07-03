@@ -88,6 +88,8 @@ class SingleNeuronSimulationGetAllTool(BaseTool):
             )
 
         response_data = response.json()
+        for simulation in response_data["data"]:
+            simulation["assets"] = []
         return ListResponseSingleNeuronSimulationRead(**response_data)
 
     @classmethod

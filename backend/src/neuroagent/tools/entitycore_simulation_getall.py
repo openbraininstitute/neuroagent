@@ -83,6 +83,8 @@ class SimulationGetAllTool(BaseTool):
             )
 
         response_data = response.json()
+        for simulation in response_data["data"]:
+            simulation["assets"] = []
         return ListResponseSimulationRead(**response_data)
 
     @classmethod

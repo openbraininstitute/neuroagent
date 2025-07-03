@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Auto alembic upgrade.
+
+## [v0.6.4] - 02.07.2025
+
+### Added
+- False positive semantic route.
+- Autogen diff CI.
+- Circuit tools.
+
+### Fixed
+- Distinction between entitycore and LS capabilities.
+
 ## [v0.6.3] - 01.07.2025
 
 ### Added
