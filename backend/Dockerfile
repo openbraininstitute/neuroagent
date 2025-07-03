@@ -16,9 +16,11 @@ RUN pip install --no-cache-dir /code[api]
 
 RUN mv /code/alembic /alembic
 RUN mv /code/alembic.ini /alembic.ini
+RUN mv /code/docker-entrypoint.sh /docker-entrypoint.sh
+RUN chmod +x /docker-entrypoint.sh
 RUN rm -rf /code
 
 WORKDIR /
 
 EXPOSE 8078
-CMD ["neuroagent-api", "--host", "0.0.0.0", "--port", "8078"]
+ENTRYPOINT ["./docker-entrypoint.sh"]
