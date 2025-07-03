@@ -5,6 +5,7 @@
 
 !alembic/*
 !alembic.ini
+!docker-entrypoint.sh
 
 # Ignore the __pycache__ that are in the whitelisted folders.
 */__pycache__/
