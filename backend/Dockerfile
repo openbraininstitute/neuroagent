@@ -10,6 +10,7 @@ RUN apt-get -y install curl \
     nodejs \
     npm
 
+RUN npm install -g deno
 RUN pip install --no-cache-dir --upgrade pip
 COPY ./ /code
 RUN pip install --no-cache-dir /code[api]

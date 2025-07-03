@@ -15,5 +15,9 @@
       "env": {
         "EXA_API_KEY": "NEUROAGENT_MCP__SECRETS__EXA_API_KEY"
       }
+    },
+    "run_python":{
+      "command": "deno",
+      "args": ["run", "-N", "-R=node_modules", "-W=node_modules", "--node-modules-dir=auto", "jsr:@pydantic/mcp-run-python", "stdio"]
     }
   }
