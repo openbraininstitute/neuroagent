@@ -2,6 +2,7 @@
 #   filename:  https://staging.openbraininstitute.org/api/obi-one/openapi.json
 #   timestamp: 2025-07-03T13:38:31+00:00
 
+
 from __future__ import annotations
 
 from typing import Any, Literal
