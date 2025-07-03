@@ -59,7 +59,9 @@ export function ChatInput({ availableTools, availableModels }: ChatInputProps) {
   };
 
   useEffect(() => {
-    setCheckedTools(convert_tools_to_set(availableTools));
+    if (Object.keys(checkedTools).length === 0) {
+      setCheckedTools(convert_tools_to_set(availableTools));
+    }
   }, []);
 
   return !isPending ? (
