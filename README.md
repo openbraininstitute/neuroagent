@@ -21,7 +21,6 @@ NEXTAUTH_SECRET=...
 3. Start the services and initialize the database:
 ```bash
 docker compose up
-docker exec -it neuroagent-backend-1 alembic -x url=postgresql://postgres:pwd@postgres:5432/neuroagent upgrade head
 docker exec -it neuroagent-minio-1 mc alias set myminio http://minio:9000 minioadmin minioadmin && docker exec -it neuroagent-minio-1 mc mb myminio/neuroagent
 ```
 
