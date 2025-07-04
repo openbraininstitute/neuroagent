@@ -27,6 +27,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Rate limit endpoint.
 - More entity core endpoints.
 - Rules.
+- New false positive utterances.
 
 ### Changed
 - Entitycore autogen 2025.6.8
