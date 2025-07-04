@@ -44,6 +44,7 @@ routes:
       - "Can you suggest some papers that talk about electrophysiology?"
       - "Find morphologies in the cerebrum and let me download their swc file"
       - "Get me a list of ME models"
+      - "How are you ?"
       - "How many in total are available ?"
       - "How many morphologies are in the platform?"
       - "List me some me models"
