@@ -54,7 +54,7 @@ class EModelGetAllTool(BaseTool):
     - The associated e-types and m-types
     - Creation and update dates
 
-    We explicitly exclude the assets and ion channel models but you can access them using the Get One E-Model tool.
+    We explicitly exclude the ion channel models but you can access them using the Get One E-Model tool.
     """
     description_frontend: ClassVar[
         str

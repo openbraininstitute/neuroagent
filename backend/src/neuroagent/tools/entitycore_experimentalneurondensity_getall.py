@@ -54,8 +54,6 @@ class ExperimentalNeuronDensityGetAllTool(BaseTool):
     - Associated measurements
     - Associated contributions
     - Associated mtypes and etypes
-
-    We explicitly exclude the assets but you can access them using the Get One Density tool.
     """
     description_frontend: ClassVar[
         str

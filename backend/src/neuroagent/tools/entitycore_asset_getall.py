@@ -15,7 +15,9 @@ class AssetGetAllInputSchema(BaseModel):
     """Input schema for AssetGetAllTool."""
 
     entity_route: EntityRoute = Field(description="The route of the entity")
-    entity_id: UUID = Field(description="The ID of the entity")
+    entity_id: UUID = Field(
+        description="The ID of the entity. Must be the UUID of the entity you want to retrieve the assets from."
+    )
 
 
 class AssetGetAllTool(BaseTool):

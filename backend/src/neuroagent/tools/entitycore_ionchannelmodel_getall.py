@@ -54,7 +54,7 @@ class IonChannelModelGetAllTool(BaseTool):
     - The mtypes.
     - Any additional metadata.
 
-    We explicitly exclude the assets and the contributions but you can access them using the Get One Ion Channel Model tool.
+    We explicitly exclude the contributions but you can access them using the Get One Ion Channel Model tool.
     """
     description_frontend: ClassVar[
         str

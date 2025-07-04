@@ -56,7 +56,7 @@ class ReconstructionMorphologyGetAllTool(BaseTool):
     - The mtypes.
     - Any additional metadata.
 
-    We explicitly exclude the assets and the contributions but you can access them using the `entitycore-reconstructionmorphology-getone` tool.
+    We explicitly exclude the legacy_id but you can access it using the `entitycore-reconstructionmorphology-getone` tool.
     """
     description_frontend: ClassVar[
         str

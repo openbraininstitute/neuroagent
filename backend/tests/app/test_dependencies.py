@@ -89,8 +89,11 @@ def test_get_connection_string_full(monkeypatch, patch_required_env):
 
 
 def test_get_starting_agent(get_weather_tool):
+    test_settings = Settings()
     agent = get_starting_agent(
-        tool_list=[get_weather_tool], system_prompt="Test prompt"
+        tool_list=[get_weather_tool],
+        system_prompt="Test prompt",
+        settings=test_settings,
     )
 
     assert isinstance(agent, Agent)
