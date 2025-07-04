@@ -58,7 +58,7 @@ class ElectricalCellRecordingGetAllTool(BaseTool):
     - The liquid junction potential.
     - Any additional metadata.
 
-    We explicitly exclude the assets and the legacy id but you can access them using the Get One Electrical Cell Recording tool.
+    We explicitly exclude the legacy id but you can access it using the Get One Electrical Cell Recording tool.
     """
     description_frontend: ClassVar[
         str

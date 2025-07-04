@@ -14,6 +14,7 @@ class Agent(BaseModel):
     name: str = "Agent"
     model: str = "openai/gpt-4.1-mini"
     instructions: str | Callable[[], str] = "You are a helpful agent."
+    temperature: float = 0
     tools: list[type[BaseTool]] = []
     tool_choice: str | None = None
     parallel_tool_calls: bool = True

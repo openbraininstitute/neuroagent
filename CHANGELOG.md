@@ -10,6 +10,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Auto alembic upgrade.
 
+### Changed
+- Prompt engineered the rules.
+- Revert suggestion model to 4o-mini.
+
+### Fixed
+- Propagate temperature to the api call and set the seed.
+
 ## [v0.6.4] - 02.07.2025
 
 ### Added
