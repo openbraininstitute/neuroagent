@@ -5,7 +5,7 @@ import re
 from datetime import datetime, timezone
 from functools import cache
 from pathlib import Path
-from typing import Annotated, Any, AsyncIterator
+from typing import Annotated, Any, AsyncIterator, Literal
 
 import boto3
 from fastapi import Depends, HTTPException, Request
@@ -13,6 +13,7 @@ from fastapi.security import HTTPBearer
 from httpx import AsyncClient, HTTPStatusError, get
 from obp_accounting_sdk import AsyncAccountingSessionFactory
 from openai import AsyncOpenAI
+from pydantic import BaseModel, Field
 from redis import asyncio as aioredis
 from semantic_router.routers import SemanticRouter
 from sqlalchemy import select
@@ -101,6 +102,7 @@ from neuroagent.tools import (
     WebSearchTool,
 )
 from neuroagent.tools.base_tool import BaseTool
+from neuroagent.utils import messages_to_openai_content
 
 logger = logging.getLogger(__name__)
 
@@ -241,6 +243,33 @@ async def get_user_info(
             )
     else:
         raise HTTPException(status_code=404, detail="User info url not provided.")
+
+
+async def get_thread(
+    user_info: Annotated[UserInfo, Depends(get_user_info)],
+    thread_id: str,
+    session: Annotated[AsyncSession, Depends(get_session)],
+) -> Threads:
+    """Check if the current thread / user matches."""
+    thread_result = await session.execute(
+        select(Threads).where(
+            Threads.user_id == user_info.sub, Threads.thread_id == thread_id
+        )
+    )
+    thread = thread_result.scalars().one_or_none()
+    if not thread:
+        raise HTTPException(
+            status_code=404,
+            detail={
+                "detail": "Thread not found.",
+            },
+        )
+    validate_project(
+        groups=user_info.groups,
+        virtual_lab_id=thread.vlab_id,
+        project_id=thread.project_id,
+    )
+    return thread
 
 
 def get_mcp_client(request: Request) -> MCPClient | None:
@@ -413,6 +442,65 @@ async def get_selected_tools(
         return selected_tools
 
 
+async def filtered_tools(
+    request: Request,
+    thread: Annotated[Threads, Depends(get_thread)],
+    session: Annotated[AsyncSession, Depends(get_session)],
+    tool_list: Annotated[list[type[BaseTool]], Depends(get_selected_tools)],
+    openai_client: Annotated[AsyncOpenAI, Depends(get_openai_client)],
+):
+    """Based on the current conversation, select relevant tools."""
+    if request.method == "GET":
+        return tool_list
+
+    # Awaiting here makes downstream call already loaded so no performance issue
+    messages = await thread.awaitable_attrs.messages
+    openai_messages = await messages_to_openai_content(messages)
+
+    # Remove the content of tool responses to save tokens
+    for message in openai_messages:
+        if message["role"] == "tool":
+            message["content"] = "..."
+
+    body = await request.json()
+    openai_messages.append({"role": "user", "content": body["content"]})
+
+    system_prompt = f"""TASK: Filter tools for AI agent based on conversation relevance.
+
+    AVAILABLE TOOLS:
+    {chr(10).join(f"{tool.name}: {tool.description}" for tool in tool_list)}
+
+    INSTRUCTIONS:
+    1. Analyze the conversation to identify required capabilities
+    2. Select up to 15 most relevant tools by name only
+    3. Output format: list of tool names
+    4. Do not respond to user queries - only filter tools
+
+    OUTPUT: [tool_name1, tool_name2, ...]"""
+
+    TOOL_NAMES = Literal[*[tool.name for tool in tool_list]]
+
+    class ToolSelection(BaseModel):
+        """All suggested questions by the LLM when there are already messages."""
+
+        selected_tools: list[TOOL_NAMES] = Field(
+            max_length=15,
+            min_length=10,
+            description="List of selected tool names, maximum 15 items",
+        )
+
+    # Rest of your code remains the same
+    response = await openai_client.beta.chat.completions.parse(
+        messages=[{"role": "system", "content": system_prompt}, *openai_messages],
+        model="gpt-4.1-nano",
+        response_format=ToolSelection,
+    )
+
+    selected_tools = response.choices[0].message.parsed.selected_tools
+    logger.info(selected_tools)
+    return [tool for tool in tool_list if tool.name in selected_tools]
+
+
 @cache
 def get_rules_dir() -> Path:
     """Get the path to the rules directory."""
@@ -474,7 +562,7 @@ Current time: {datetime.now(timezone.utc).isoformat()}
 
 
 def get_starting_agent(
-    tool_list: Annotated[list[type[BaseTool]], Depends(get_selected_tools)],
+    tool_list: Annotated[list[type[BaseTool]], Depends(filtered_tools)],
     system_prompt: Annotated[str, Depends(get_system_prompt)],
 ) -> Agent:
     """Get the starting agent."""
@@ -484,33 +572,6 @@ def get_starting_agent(
         tools=tool_list,
     )
     return agent
-
-
-async def get_thread(
-    user_info: Annotated[UserInfo, Depends(get_user_info)],
-    thread_id: str,
-    session: Annotated[AsyncSession, Depends(get_session)],
-) -> Threads:
-    """Check if the current thread / user matches."""
-    thread_result = await session.execute(
-        select(Threads).where(
-            Threads.user_id == user_info.sub, Threads.thread_id == thread_id
-        )
-    )
-    thread = thread_result.scalars().one_or_none()
-    if not thread:
-        raise HTTPException(
-            status_code=404,
-            detail={
-                "detail": "Thread not found.",
-            },
-        )
-    validate_project(
-        groups=user_info.groups,
-        virtual_lab_id=thread.vlab_id,
-        project_id=thread.project_id,
-    )
-    return thread
 
 
 def get_semantic_routes(request: Request) -> SemanticRouter | None:

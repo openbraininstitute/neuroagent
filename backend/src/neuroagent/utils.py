@@ -44,31 +44,7 @@ async def messages_to_openai_content(
     messages = []
     if db_messages:
         for msg in db_messages:
-            if msg.content and msg.entity == Entity.AI_TOOL:
-                # Load the base content
-                content = json.loads(msg.content)
-
-                # Get the associated tool calls
-                tool_calls = msg.tool_calls
-
-                # Format it back into the json OpenAI expects
-                tool_calls_content = [
-                    {
-                        "function": {
-                            "arguments": tool_call.arguments,
-                            "name": tool_call.name,
-                        },
-                        "id": tool_call.tool_call_id,
-                        "type": "function",
-                    }
-                    for tool_call in tool_calls
-                ]
-
-                # Assign it back to the main content
-                content["tool_calls"] = tool_calls_content
-                messages.append(content)
-            else:
-                messages.append(json.loads(msg.content))
+            messages.append(json.loads(msg.content))
 
     return messages
 
