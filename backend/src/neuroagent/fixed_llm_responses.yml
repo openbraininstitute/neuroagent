@@ -51,7 +51,9 @@ routes:
       - "Show me papers about intracellular patch clamp data for the thalamus of rodents"
       - "What are the key scientific papers on electrophysiology modeling in the mouse cerebrum?"
       - "What are the most cited review articles on electrophysiological modeling of mouse brain neurons?"
+      - "What are the most important publications on morpho-electrical (ME) models for modeling cortical microcircuits?"
       - "What recent papers combine electrophysiology and morphology data in mouse somatosensory cortex subregions?"
       - "What recent review articles provide comprehensive coverage of electrophysiological modeling methodologies in mouse brain research?"
+      - "Which papers detail morpho-electrical (ME) models for cortical microcircuits in mouse or human brain data?"
 
     response: null
