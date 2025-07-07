@@ -2,7 +2,6 @@
 #   filename:  https://staging.openbraininstitute.org/api/obi-one/openapi.json
 #   timestamp: 2025-07-03T13:38:31+00:00
 
-
 from __future__ import annotations
 
 from typing import Any, Literal
@@ -307,20 +306,20 @@ class Width(RootModel[float]):
     root: float = Field(
         ...,
         description='The length of time each pulse lasts. Given in milliseconds (ms).',
-        gt=0.0,
+        ge=1e-06,
         title='Pulse Width',
     )
 
 
 class WidthItem(RootModel[float]):
-    root: float = Field(..., gt=0.0)
+    root: float = Field(..., ge=1e-06)
 
 
 class Frequency(RootModel[float]):
     root: float = Field(
         ...,
         description='The frequency of pulse trains. Given in Hertz (Hz).',
-        gt=0.0,
+        ge=1e-06,
         title='Pulse Frequency',
     )
 
@@ -364,7 +363,7 @@ class Frequency1(RootModel[float]):
     root: float = Field(
         ...,
         description='Mean frequency (Hz) of the Poisson input.',
-        gt=0.0,
+        ge=1e-06,
         title='Frequency',
     )
 
@@ -537,7 +536,7 @@ class Frequency2(RootModel[float]):
     root: float = Field(
         ...,
         description='The frequency of the waveform. Given in Hertz (Hz).',
-        gt=0.0,
+        ge=1e-06,
         title='Frequency',
     )
 
@@ -546,20 +545,20 @@ class Dt(RootModel[float]):
     root: float = Field(
         ...,
         description='Timestep of generated signal in milliseconds (ms).',
-        gt=0.0,
+        ge=0.025,
         title='Timestep',
     )
 
 
-class DtItem(WidthItem):
-    pass
+class DtItem(RootModel[float]):
+    root: float = Field(..., ge=0.025)
 
 
 class Dt1(RootModel[float]):
     root: float = Field(
         ...,
         description='Interval between recording time steps in milliseconds (ms).',
-        gt=0.0,
+        ge=0.025,
         title='Timestep',
     )
 
@@ -749,14 +748,14 @@ class SimulationLength(RootModel[float]):
     root: float = Field(
         ...,
         description='Simulation length in milliseconds (ms).',
-        gt=0.0,
+        ge=1.0,
         le=100000.0,
         title='Duration',
     )
 
 
 class SimulationLength1Item(RootModel[float]):
-    root: float = Field(..., gt=0.0, le=100000.0)
+    root: float = Field(..., ge=1.0, le=100000.0)
 
 
 class SimulationLength1(RootModel[list[SimulationLength1Item]]):
