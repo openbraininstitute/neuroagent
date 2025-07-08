@@ -8,7 +8,6 @@ async function run() {
     const micropip = pyodide.pyimport("micropip");
 
     await micropip.install([
-    "typing-extensions",
     "pydantic",
     "numpy",
     ]);
