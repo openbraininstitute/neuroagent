@@ -37,6 +37,7 @@ routes:
     utterances:
       - "Can you get me 2 electrial cell recordings?"
       - "Can you get me more ?"
+      - "Can you compute electrophys metrics on it?"
       - "Can you help me find some morphologies in the platform?"
       - "can you only look for morphologies in this brain region?062ebc92-cebb-498a-a76d-b5e1bab02cf"
       - "Can you please find a me model and run a simulation on it?"
