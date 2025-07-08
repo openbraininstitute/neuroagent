@@ -20,14 +20,9 @@ RUN mv /code/alembic.ini /alembic.ini
 RUN mv /code/docker-entrypoint.sh /docker-entrypoint.sh
 
 # Create package.json and install pyodide locally
-WORKDIR /code
-RUN echo '{ "type": "module" }' > package.json
-RUN npm install pyodide
-RUN cp -r node_modules /node_modules
-RUN mv setup_pyodide.js /setup_pyodide.js && mv package.json /package.json
+RUN mv /code/setup_pyodide.mjs /setup_pyodide.mjs
 WORKDIR /
 RUN chmod +x /docker-entrypoint.sh
-RUN chmod +x /setup_pyodide.js
 RUN rm -rf /code
 
 

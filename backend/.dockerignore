@@ -6,7 +6,7 @@
 !alembic/*
 !alembic.ini
 !docker-entrypoint.sh
-!setup_pyodide.js
+!setup_pyodide.mjs
 
 # Ignore the __pycache__ that are in the whitelisted folders.
 */__pycache__/

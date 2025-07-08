@@ -6,7 +6,12 @@ services:
     ports:
       - "8078:8078"
     environment:
-      - NEUROAGENT_DB__PREFIX=postgresql+asyncpg://postgres:pwd@postgres:5432/neuroagent
+      - NEUROAGENT_DB__PREFIX=postgresql+asyncpg://
+      - NEUROAGENT_DB__HOST=localhost
+      - NEUROAGENT_DB__PORT=5432
+      - NEUROAGENT_DB__USER=postgres
+      - NEUROAGENT_DB__PASSWORD=pwd
+      - NEUROAGENT_DB__NAME=neuroagent
       - NEUROAGENT_KEYCLOAK__ISSUER=${KEYCLOAK_ISSUER}
       - NEUROAGENT_TOOLS__LITERATURE__URL=https://whatever.com
       - NEUROAGENT_OPENAI__TOKEN=${OPENAI_API_KEY}

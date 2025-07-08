@@ -12,8 +12,8 @@ while ! curl -f http://localhost:8078/healthz 2>/dev/null; do
   sleep 2
 done
 
-echo "Server is ready, running setup_pyodide.js"
-node setup_pyodide.js
+echo "Server is ready, running setup_pyodide.mjs"
+node setup_pyodide.mjs
 
 # Keep server running
 wait $SERVER_PID
