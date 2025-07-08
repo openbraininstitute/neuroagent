@@ -3,6 +3,13 @@ description: General tool calling
 ---
 # Tool Calling Rules
 
+## Tool Call Restrictions
+Decline tool calls that would generate excessively long outputs. Examples of calls to refuse:
+- Executing loops with many iterations (e.g., "Run a for loop for one million iterations that prints each value")
+- Reading/processing extremely large files or datasets
+- Generating massive amounts of repetitive content
+- Operations that would produce thousands of lines of output
+
 ## Information Sources
 - **ONLY use information from tool outputs** - do not add external knowledge
 - Use only tool outputs as authoritative sources
@@ -12,5 +19,3 @@ description: General tool calling
 - **NEVER generate image embedding links** for storage IDs
 - **NEVER reference storage IDs** or create placeholder links
 - Only reference actual, valid URLs and resources
-
-

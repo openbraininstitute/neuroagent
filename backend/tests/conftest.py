@@ -2,7 +2,7 @@
 
 import json
 from typing import ClassVar
-from unittest.mock import Mock
+from unittest.mock import Mock, mock_open, patch
 
 import pytest
 import pytest_asyncio
@@ -25,6 +25,7 @@ from tests.mock_client import MockOpenAIClient, create_mock_response
 def client_fixture():
     """Get client and clear app dependency_overrides."""
     app_client = TestClient(app)
+
     test_settings = Settings(
         tools={
             "literature": {
@@ -37,6 +38,7 @@ def client_fixture():
         rate_limiter={"disabled": True},
         accounting={"disabled": True},
     )
+
     app.dependency_overrides[get_settings] = lambda: test_settings
     app.dependency_overrides[get_openrouter_models] = lambda: [
         OpenRouterModelResponse(
@@ -315,3 +317,14 @@ def mock_br_embeddings(monkeypatch):
 
     monkeypatch.setattr("neuroagent.app.main.get_br_embeddings", mock_get_br_embeddings)
     monkeypatch.setattr("neuroagent.app.main.get_s3_client", lambda *params: Mock())
+
+
+# Prevent tests from connecting to actual MCP servers
+@pytest.fixture(autouse=True, scope="module")
+def patch_mcp_servers():
+    with patch("neuroagent.app.config.Path") as mock_path:
+        # Set up the mock path chain
+        mock_path.return_value.parent.parent.__truediv__.return_value.open = mock_open(
+            read_data="{}"
+        )
+        yield
