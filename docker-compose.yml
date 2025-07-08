@@ -7,7 +7,7 @@ services:
       - "8078:8078"
     environment:
       - NEUROAGENT_DB__PREFIX=postgresql+asyncpg://
-      - NEUROAGENT_DB__HOST=localhost
+      - NEUROAGENT_DB__HOST=postgres
       - NEUROAGENT_DB__PORT=5432
       - NEUROAGENT_DB__USER=postgres
       - NEUROAGENT_DB__PASSWORD=pwd
