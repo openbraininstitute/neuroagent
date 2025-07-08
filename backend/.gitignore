@@ -6,6 +6,7 @@
 .python-version
 .vscode
 .pypirc
+node_modules
 
 # Version file
 
