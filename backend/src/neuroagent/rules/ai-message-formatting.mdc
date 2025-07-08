@@ -3,12 +3,11 @@ description: AI-message formatting guidelines
 ---
 # Message formatting guidelines
 
-## Structure and Organization
-- Use hierarchical headers (##, ###) to organize information by categories and subcategories
-# AI Message Formatting Guidelines
+- Always use rich markdown formatting.
 
 ## Content Structure Guidelines
 
+- Use hierarchical headers (##, ###) to organize information by categories and subcategories
 - Create detailed subsections for each specific area or entity
 - Group related items under appropriate subheaders
 - Use descriptive section titles that specify the exact areas or categories
