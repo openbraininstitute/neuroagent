@@ -17,6 +17,8 @@ from neuroagent.tools.entitycore_brainregionhierarchy_getall import (
 from neuroagent.tools.entitycore_brainregionhierarchy_getone import (
     BrainRegionHierarchyGetOneTool,
 )
+from neuroagent.tools.entitycore_circuit_getall import CircuitGetAllTool
+from neuroagent.tools.entitycore_circuit_getone import CircuitGetOneTool
 from neuroagent.tools.entitycore_contribution_getall import ContributionGetAllTool
 from neuroagent.tools.entitycore_contribution_getone import ContributionGetOneTool
 from neuroagent.tools.entitycore_electricalcellrecording_getall import (
@@ -138,6 +140,8 @@ from neuroagent.tools.weather import WeatherTool
 from neuroagent.tools.web_search import WebSearchTool
 
 __all__ = [
+    "CircuitGetAllTool",
+    "CircuitGetOneTool",
     "SCSGetAllTool",
     "SCSGetOneTool",
     "SCSPlotTool",
