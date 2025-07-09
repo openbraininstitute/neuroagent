@@ -3,7 +3,7 @@
 import uuid
 from datetime import datetime, timezone
 from typing import AsyncIterator
-from unittest.mock import Mock, patch
+from unittest.mock import AsyncMock, MagicMock, Mock, patch
 
 import pytest
 from fastapi import HTTPException
@@ -263,7 +263,8 @@ async def test_get_healthcheck_variables():
     }
 
 
-def test_get_system_prompt_with_mdc_files(tmp_path):
+@pytest.mark.asyncio
+async def test_get_system_prompt_with_mdc_files(tmp_path):
     """Test get_system_prompt function with mock .mdc files."""
     # Create mock .mdc files in tmp_path
     rule1_content = """---
@@ -302,19 +303,34 @@ Only the content after the frontmatter should be included.
     # Mock datetime to have a predictable timestamp
     fixed_time = datetime(2024, 1, 15, 12, 30, 45, tzinfo=timezone.utc)
 
+    # Create mock request
+    mock_request = AsyncMock()
+    mock_request.json.return_value = {
+        "frontend_url": "https://example.com/page?param=value"
+    }
+
+    # Create mock thread
+    mock_thread = MagicMock()
+    mock_thread.vlab_id = "vlab123"
+    mock_thread.project_id = "project456"
+
     with patch("neuroagent.app.dependencies.datetime") as mock_datetime:
         mock_datetime.now.return_value = fixed_time
 
-        # Call the function with our mock rules directory
-        result = get_system_prompt(rules_dir=tmp_path)
+        # Call the function with our mock parameters
+        result = await get_system_prompt(mock_request, mock_thread, tmp_path)
 
-    # Expected result
+    # Expected result (you may need to adjust based on your parse_url_info function)
     expected_base = f"""# NEUROSCIENCE AI ASSISTANT
 
 You are a neuroscience AI assistant for the Open Brain Platform.
 
 # CURRENT CONTEXT
 Current time: {fixed_time.isoformat()}
+Current Virtual Lab ID: vlab123
+Current Project ID: project456
+Current website page: /page
+Current query parameters: param=value
 
 """
 
@@ -341,7 +357,8 @@ Only the content after the frontmatter should be included.
     assert result == expected_result
 
 
-def test_get_system_prompt_no_rules_directory(tmp_path):
+@pytest.mark.asyncio
+async def test_get_system_prompt_no_rules_directory(tmp_path):
     """Test get_system_prompt function when rules directory doesn't exist."""
     # Use a non-existent directory
     non_existent_dir = tmp_path / "non_existent"
@@ -349,11 +366,20 @@ def test_get_system_prompt_no_rules_directory(tmp_path):
     # Mock datetime to have a predictable timestamp
     fixed_time = datetime(2024, 1, 15, 12, 30, 45, tzinfo=timezone.utc)
 
+    # Create mock request with no frontend_url
+    mock_request = AsyncMock()
+    mock_request.json.return_value = {}
+
+    # Create mock thread with no IDs
+    mock_thread = MagicMock()
+    mock_thread.vlab_id = None
+    mock_thread.project_id = None
+
     with patch("neuroagent.app.dependencies.datetime") as mock_datetime:
         mock_datetime.now.return_value = fixed_time
 
         # Call the function with non-existent directory
-        result = get_system_prompt(rules_dir=non_existent_dir)
+        result = await get_system_prompt(mock_request, mock_thread, non_existent_dir)
 
     # Should return only the base prompt
     expected_result = f"""# NEUROSCIENCE AI ASSISTANT
@@ -368,7 +394,7 @@ Current time: {fixed_time.isoformat()}
     assert result == expected_result
 
 
-def test_get_system_prompt_empty_mdc_files(tmp_path):
+async def test_get_system_prompt_empty_mdc_files(tmp_path):
     """Test get_system_prompt function with empty .mdc files."""
     # Create empty .mdc files
     empty_file1 = tmp_path / "empty1.mdc"
@@ -380,11 +406,20 @@ def test_get_system_prompt_empty_mdc_files(tmp_path):
     # Mock datetime to have a predictable timestamp
     fixed_time = datetime(2024, 1, 15, 12, 30, 45, tzinfo=timezone.utc)
 
+    # Create mock request with no frontend_url
+    mock_request = AsyncMock()
+    mock_request.json.return_value = {}
+
+    # Create mock thread with no IDs
+    mock_thread = MagicMock()
+    mock_thread.vlab_id = None
+    mock_thread.project_id = None
+
     with patch("neuroagent.app.dependencies.datetime") as mock_datetime:
         mock_datetime.now.return_value = fixed_time
 
         # Call the function with empty files
-        result = get_system_prompt(rules_dir=tmp_path)
+        result = await get_system_prompt(mock_request, mock_thread, tmp_path)
 
     # Should return only the base prompt (empty files are ignored)
     expected_result = f"""# NEUROSCIENCE AI ASSISTANT
@@ -393,6 +428,43 @@ You are a neuroscience AI assistant for the Open Brain Platform.
 
 # CURRENT CONTEXT
 Current time: {fixed_time.isoformat()}
+
+"""
+
+    assert result == expected_result
+
+
+@pytest.mark.asyncio
+async def test_get_system_prompt_with_frontend_url_no_query_params(tmp_path):
+    """Test get_system_prompt function with frontend_url but no query parameters."""
+    # Mock datetime to have a predictable timestamp
+    fixed_time = datetime(2024, 1, 15, 12, 30, 45, tzinfo=timezone.utc)
+
+    # Create mock request with frontend_url but no query params
+    mock_request = AsyncMock()
+    mock_request.json.return_value = {"frontend_url": "https://example.com/dashboard"}
+
+    # Create mock thread
+    mock_thread = MagicMock()
+    mock_thread.vlab_id = "vlab123"
+    mock_thread.project_id = None
+
+    with patch("neuroagent.app.dependencies.datetime") as mock_datetime:
+        with patch("neuroagent.app.dependencies.parse_url_info") as mock_parse_url:
+            mock_parse_url.return_value = ("/dashboard", None)
+            mock_datetime.now.return_value = fixed_time
+
+            # Call the function
+            result = await get_system_prompt(mock_request, mock_thread, tmp_path)
+
+    expected_result = f"""# NEUROSCIENCE AI ASSISTANT
+
+You are a neuroscience AI assistant for the Open Brain Platform.
+
+# CURRENT CONTEXT
+Current time: {fixed_time.isoformat()}
+Current Virtual Lab ID: vlab123
+Current website page: /dashboard
 
 """
 

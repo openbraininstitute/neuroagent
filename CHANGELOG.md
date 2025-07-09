@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Auto alembic upgrade.
 - New utterances in false positive semantic route.
 - Ephys tool.
+- Pass frontend URL to `chat_streamed`
 
 ### Changed
 - Switch from VARCHAR to UUID where possible.
