@@ -8,7 +8,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- Python interpreter tool.
 - Auto alembic upgrade.
+- New utterances in false positive semantic route.
+- Ephys tool.
 
 ### Changed
 - Prompt engineered the rules.
@@ -34,6 +37,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Rate limit endpoint.
 - More entity core endpoints.
 - Rules.
+- New false positive utterances.
 
 ### Changed
 - Entitycore autogen 2025.6.8
