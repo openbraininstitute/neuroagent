@@ -91,7 +91,6 @@ class MEModelGetAllTool(BaseTool):
         for memodel in response_data["data"]:
             memodel["emodel"]["assets"] = []
             memodel["emodel"]["ion_channel_models"] = []
-            memodel["emodel"]["assets"] = []
             memodel["emodel"]["legacy_id"] = []
 
         return ListResponseMEModelRead(**response_data)
