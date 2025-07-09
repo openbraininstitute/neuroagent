@@ -500,9 +500,6 @@ async def filter_tools_by_conversation(
     -------
         List of filtered tools relevant to the conversation
     """
-    if not tool_list:
-        return []
-
     if len(tool_list) < min_tool_selection:
         return tool_list
 
