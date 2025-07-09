@@ -57,14 +57,16 @@ class AgentsRoutine:
         tools = [tool.pydantic_to_openai_schema() for tool in agent.tools]
 
         create_params = {
-            "model": model_override or agent.model,
             "messages": messages,
+            "model": model_override or agent.model,
+            "stream": stream,
+            "seed": 12008,
+            "temperature": agent.temperature,
             "tools": tools or None,
             "tool_choice": agent.tool_choice,
-            "stream": stream,
         }
         if stream:
-            create_params["stream_options"] = {"include_usage": True}  # type: ignore
+            create_params["stream_options"] = {"include_usage": True}
 
         if tools:
             create_params["parallel_tool_calls"] = agent.parallel_tool_calls

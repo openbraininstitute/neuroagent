@@ -15,9 +15,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Switch from VARCHAR to UUID where possible.
+- Prompt engineered the rules.
+- Revert suggestion model to 4o-mini.
 
 ### Fixed
 - Tool selection remains when switching between pages.
+- Propagate temperature to the api call and set the seed.
 
 ## [v0.6.4] - 02.07.2025
 

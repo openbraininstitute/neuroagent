@@ -478,12 +478,14 @@ Current time: {datetime.now(timezone.utc).isoformat()}
 def get_starting_agent(
     tool_list: Annotated[list[type[BaseTool]], Depends(get_selected_tools)],
     system_prompt: Annotated[str, Depends(get_system_prompt)],
+    settings: Annotated[Settings, Depends(get_settings)],
 ) -> Agent:
     """Get the starting agent."""
     agent = Agent(
         name="Agent",
         instructions=system_prompt,
         tools=tool_list,
+        temperature=settings.llm.temperature,
     )
     return agent
 
