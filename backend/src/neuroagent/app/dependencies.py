@@ -452,7 +452,7 @@ async def filtered_tools(
     settings: Annotated[Settings, Depends(get_settings)],
 ) -> list[type[BaseTool]]:
     """Based on the current conversation, select relevant tools."""
-    if request.method == "GET":
+    if request.method == "GET" or not tool_list:
         return tool_list
 
     # Awaiting here makes downstream calls already loaded so no performance issue
@@ -483,12 +483,12 @@ INSTRUCTIONS:
 OUTPUT: [tool_name1, tool_name2, ...]"""
 
     tool_names = [tool.name for tool in tool_list]
-    TOOL_NAMES_LITERAL = Literal[*tool_names] if len(tool_names) > 0 else str
+    TOOL_NAMES_LITERAL = Literal[*tool_names]  # type: ignore
 
     class ToolSelection(BaseModel):
         """Data class for tool selection by an LLM."""
 
-        selected_tools: list[TOOL_NAMES_LITERAL] = Field(  # type: ignore
+        selected_tools: list[TOOL_NAMES_LITERAL] = Field(
             min_length=min(len(tool_names), settings.tools.min_tool_selection),
             description=f"List of selected tool names, minimum {min(len(tool_names), settings.tools.min_tool_selection)} items. Must contain all of the tools relevant to the conversation.",
         )
