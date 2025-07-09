@@ -54,8 +54,6 @@ class ExperimentalNeuronDensityGetAllTool(BaseTool):
     - Associated measurements
     - Associated contributions
     - Associated mtypes and etypes
-
-    We explicitly exclude the assets but you can access them using the Get One Density tool.
     """
     description_frontend: ClassVar[
         str
@@ -83,9 +81,9 @@ class ExperimentalNeuronDensityGetAllTool(BaseTool):
 
         headers: dict[str, str] = {}
         if self.metadata.vlab_id is not None:
-            headers["virtual-lab-id"] = self.metadata.vlab_id
+            headers["virtual-lab-id"] = str(self.metadata.vlab_id)
         if self.metadata.project_id is not None:
-            headers["project-id"] = self.metadata.project_id
+            headers["project-id"] = str(self.metadata.project_id)
 
         response = await self.metadata.httpx_client.get(
             url=self.metadata.entitycore_url.rstrip("/")

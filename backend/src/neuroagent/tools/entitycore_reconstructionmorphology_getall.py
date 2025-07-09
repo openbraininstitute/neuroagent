@@ -56,7 +56,7 @@ class ReconstructionMorphologyGetAllTool(BaseTool):
     - The mtypes.
     - Any additional metadata.
 
-    We explicitly exclude the assets and the contributions but you can access them using the `entitycore-reconstructionmorphology-getone` tool.
+    We explicitly exclude the legacy_id but you can access it using the `entitycore-reconstructionmorphology-getone` tool.
     """
     description_frontend: ClassVar[
         str
@@ -84,9 +84,9 @@ class ReconstructionMorphologyGetAllTool(BaseTool):
 
         headers: dict[str, str] = {}
         if self.metadata.vlab_id is not None:
-            headers["virtual-lab-id"] = self.metadata.vlab_id
+            headers["virtual-lab-id"] = str(self.metadata.vlab_id)
         if self.metadata.project_id is not None:
-            headers["project-id"] = self.metadata.project_id
+            headers["project-id"] = str(self.metadata.project_id)
 
         response = await self.metadata.httpx_client.get(
             url=self.metadata.entitycore_url.rstrip("/") + "/reconstruction-morphology",

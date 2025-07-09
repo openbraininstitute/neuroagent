@@ -10,9 +10,9 @@ from tests.conftest import mock_keycloak_user_identification
 
 
 @pytest.mark.asyncio
-async def test_get_rate_limit_redis_disabled(app_client, httpx_mock):
+async def test_get_rate_limit_redis_disabled(app_client, httpx_mock, test_user_info):
     """Test rate limit endpoint when Redis is disabled (None)."""
-    mock_keycloak_user_identification(httpx_mock)
+    mock_keycloak_user_identification(httpx_mock, test_user_info)
     test_settings = Settings(
         keycloak={"issuer": "https://great_issuer.com"},
         accounting={"disabled": True},
@@ -42,10 +42,10 @@ async def test_get_rate_limit_redis_disabled(app_client, httpx_mock):
 
 
 @pytest.mark.asyncio
-async def test_get_rate_limit_outside_project(app_client, httpx_mock):
+async def test_get_rate_limit_outside_project(app_client, httpx_mock, test_user_info):
     """Test rate limit endpoint for requests outside a project."""
     # Mock dependencies
-    mock_keycloak_user_identification(httpx_mock)
+    mock_keycloak_user_identification(httpx_mock, test_user_info)
     test_settings = Settings(
         keycloak={"issuer": "https://great_issuer.com"},
         accounting={"disabled": True},
@@ -103,9 +103,9 @@ async def test_get_rate_limit_outside_project(app_client, httpx_mock):
 
 
 @pytest.mark.asyncio
-async def test_get_rate_limit_inside_project(app_client, httpx_mock):
+async def test_get_rate_limit_inside_project(app_client, httpx_mock, test_user_info):
     """Test rate limit endpoint for requests inside a project."""
-    mock_keycloak_user_identification(httpx_mock)
+    mock_keycloak_user_identification(httpx_mock, test_user_info)
     test_settings = Settings(
         keycloak={"issuer": "https://great_issuer.com"},
         accounting={"disabled": True},
@@ -142,7 +142,11 @@ async def test_get_rate_limit_inside_project(app_client, httpx_mock):
 
     with app_client as app_client:
         response = app_client.get(
-            "/rate_limit", params={"vlab_id": "test_vlab", "project_id": "test_project"}
+            "/rate_limit",
+            params={
+                "vlab_id": "12315678-5123-4567-4053-890126456789",
+                "project_id": "47939269-9123-4567-2934-918273640192",
+            },
         )
 
     assert response.status_code == 200
@@ -163,9 +167,9 @@ async def test_get_rate_limit_inside_project(app_client, httpx_mock):
 
 
 @pytest.mark.asyncio
-async def test_get_rate_limit_with_ttl_values(app_client, httpx_mock):
+async def test_get_rate_limit_with_ttl_values(app_client, httpx_mock, test_user_info):
     """Test rate limit endpoint with various TTL scenarios."""
-    mock_keycloak_user_identification(httpx_mock)
+    mock_keycloak_user_identification(httpx_mock, test_user_info)
     test_settings = Settings(
         keycloak={"issuer": "https://great_issuer.com"},
         accounting={"disabled": True},
@@ -205,7 +209,6 @@ async def test_get_rate_limit_with_ttl_values(app_client, httpx_mock):
     assert response.status_code == 200
     result = response.json()
 
-    # Verify TTL handling (note: there's a bug in the original code where all reset_in use chat_streamed TTL)
     assert result["chat_streamed"]["reset_in"] == 5
     assert result["question_suggestions"]["reset_in"] == 3
     assert result["generate_title"]["reset_in"] == 360

@@ -15,7 +15,9 @@ class AssetGetAllInputSchema(BaseModel):
     """Input schema for AssetGetAllTool."""
 
     entity_route: EntityRoute = Field(description="The route of the entity")
-    entity_id: UUID = Field(description="The ID of the entity")
+    entity_id: UUID = Field(
+        description="The ID of the entity. Must be the UUID of the entity you want to retrieve the assets from."
+    )
 
 
 class AssetGetAllTool(BaseTool):
@@ -54,9 +56,9 @@ class AssetGetAllTool(BaseTool):
         """
         headers: dict[str, str] = {}
         if self.metadata.vlab_id is not None:
-            headers["virtual-lab-id"] = self.metadata.vlab_id
+            headers["virtual-lab-id"] = str(self.metadata.vlab_id)
         if self.metadata.project_id is not None:
-            headers["project-id"] = self.metadata.project_id
+            headers["project-id"] = str(self.metadata.project_id)
 
         response = await self.metadata.httpx_client.get(
             url=f"{self.metadata.entitycore_url.rstrip('/')}/{self.input_schema.entity_route}/{self.input_schema.entity_id}/assets",

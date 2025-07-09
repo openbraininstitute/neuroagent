@@ -71,9 +71,9 @@ class MEModelGetAllTool(BaseTool):
 
         headers: dict[str, str] = {}
         if self.metadata.vlab_id is not None:
-            headers["virtual-lab-id"] = self.metadata.vlab_id
+            headers["virtual-lab-id"] = str(self.metadata.vlab_id)
         if self.metadata.project_id is not None:
-            headers["project-id"] = self.metadata.project_id
+            headers["project-id"] = str(self.metadata.project_id)
 
         response = await self.metadata.httpx_client.get(
             url=self.metadata.entitycore_url.rstrip("/") + "/memodel",
@@ -91,7 +91,6 @@ class MEModelGetAllTool(BaseTool):
         for memodel in response_data["data"]:
             memodel["emodel"]["assets"] = []
             memodel["emodel"]["ion_channel_models"] = []
-            memodel["emodel"]["assets"] = []
             memodel["emodel"]["legacy_id"] = []
 
         return ListResponseMEModelRead(**response_data)

@@ -3,6 +3,7 @@
 import json
 from typing import ClassVar
 from unittest.mock import Mock, mock_open, patch
+from uuid import UUID
 
 import pytest
 import pytest_asyncio
@@ -173,18 +174,28 @@ def patch_required_env(monkeypatch):
     monkeypatch.setenv("NEUROAGENT_LLM__OPENAI_TOKEN", "dummy")
 
 
+@pytest.fixture(name="test_user_info")
+def get_default_user_id_vlab_project():
+    return (
+        UUID("12345678-9123-4567-1234-890123456789"),
+        UUID("12315678-5123-4567-4053-890126456789"),
+        UUID("47939269-9123-4567-2934-918273640192"),
+    )
+
+
 # Don't make it a fixture so that it doesn't trigger on skipped tests
-def mock_keycloak_user_identification(httpx_mock):
+def mock_keycloak_user_identification(httpx_mock, test_user_info):
+    user_id, vlab, proj = test_user_info
     # set keycloak={"issuer": "https://great_issuer.com"} in your settings
     fake_response = {
-        "sub": "12345",
+        "sub": str(user_id),
         "email_verified": False,
         "name": "Machine Learning Test User",
         "groups": [
-            "/proj/test_vlab/test_project/admin",
-            "/proj/test_vlab2/test_project2/member",
-            "/vlab/test_vlab/admin",
-            "/vlab/test_vlab2/member",
+            f"/proj/{vlab}/{proj}/admin",
+            f"/proj/{str(vlab)[:-1] + '1'}/{str(proj)[:-1] + '1'}/member",
+            f"/vlab/{vlab}/admin",
+            f"/vlab/{str(vlab)[:-1] + '1'}/member",
         ],
         "preferred_username": "sbo-ml",
         "given_name": "Machine Learning",
@@ -225,14 +236,15 @@ async def setup_sql_db(request):
 
 
 @pytest_asyncio.fixture
-async def populate_db(db_connection):
+async def populate_db(db_connection, test_user_info):
     engine = create_async_engine(db_connection)
     session = AsyncSession(bind=engine)
+    user_id, vlab, proj = test_user_info
     # Create a dummy thread
     thread = Threads(
-        user_id="12345",
-        vlab_id="test_vlab",  # default
-        project_id="test_project",  # default
+        user_id=user_id,
+        vlab_id=vlab,  # default
+        project_id=proj,  # default
         title="Test Thread",
     )
 

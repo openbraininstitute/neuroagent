@@ -25,9 +25,9 @@ class BrainRegionGetAllInput(ReadManyBrainRegionGetParametersQuery):
         default=None,
         description="Name of the brain region. Will perform case sensitive exact match. Use for exact names only. The name MUST be capitalized.",
     )
-    name__in: str | None = Field(
+    name__in: list[str] | None = Field(
         default=None,
-        description="Comma separated list of multiple brain regions. Each one of them must be capitalized. Does exact match on every single one.",
+        description="List of multiple brain regions. Each one of them must be capitalized. Does exact match on every single one.",
     )
     name__ilike: str | None = Field(
         default=None,
@@ -74,9 +74,9 @@ class BrainRegionGetAllTool(BaseTool):
 
         headers: dict[str, str] = {}
         if self.metadata.vlab_id is not None:
-            headers["virtual-lab-id"] = self.metadata.vlab_id
+            headers["virtual-lab-id"] = str(self.metadata.vlab_id)
         if self.metadata.project_id is not None:
-            headers["project-id"] = self.metadata.project_id
+            headers["project-id"] = str(self.metadata.project_id)
 
         response = await self.metadata.httpx_client.get(
             url=self.metadata.entitycore_url.rstrip("/") + "/brain-region",

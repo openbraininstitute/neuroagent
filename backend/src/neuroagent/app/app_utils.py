@@ -76,8 +76,8 @@ def setup_engine(
 
 def validate_project(
     groups: list[str],
-    virtual_lab_id: str | None = None,
-    project_id: str | None = None,
+    virtual_lab_id: uuid.UUID | None = None,
+    project_id: uuid.UUID | None = None,
 ) -> None:
     """Check user appartenance to vlab and project before running agent."""
     if virtual_lab_id and not project_id:
@@ -112,7 +112,7 @@ async def rate_limit(
     route_path: str,
     limit: int,
     expiry: int,
-    user_sub: str,
+    user_sub: uuid.UUID,
 ) -> tuple[RateLimitHeaders, bool]:
     """Check rate limiting for a given route and user.
 
@@ -126,7 +126,7 @@ async def rate_limit(
         Maximum number of requests allowed
     expiry : int
         Time in seconds before the rate limit resets
-    user_sub : str
+    user_sub : uuid.UUID
         User identifier
 
     Returns
@@ -342,7 +342,7 @@ def format_messages_vercel(
             elif parts:
                 messages.append(
                     MessagesReadVercel(
-                        id=uuid.uuid4().hex,
+                        id=uuid.uuid4(),
                         role="assistant",
                         createdAt=msg.creation_date,
                         content="",
@@ -427,7 +427,7 @@ def format_messages_vercel(
     if parts:
         messages.append(
             MessagesReadVercel(
-                id=uuid.uuid4().hex,
+                id=uuid.uuid4(),
                 role="assistant",
                 createdAt=msg.creation_date,
                 content="",

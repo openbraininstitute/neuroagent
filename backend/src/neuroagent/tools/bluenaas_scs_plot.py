@@ -2,6 +2,7 @@
 
 import logging
 from typing import Any, ClassVar
+from uuid import UUID
 
 from httpx import AsyncClient
 from pydantic import BaseModel, Field
@@ -17,13 +18,13 @@ class SCSPlotToolMetadata(BaseMetadata):
     """Metadata class for the get all simulations api."""
 
     httpx_client: AsyncClient
-    vlab_id: str
-    project_id: str
+    vlab_id: UUID
+    project_id: UUID
     bluenaas_url: str
     s3_client: Any  # storage client doesn't have type hints
-    user_id: str
+    user_id: UUID
     bucket_name: str
-    thread_id: str
+    thread_id: UUID
 
 
 class InputSCSPlotTool(BaseModel):

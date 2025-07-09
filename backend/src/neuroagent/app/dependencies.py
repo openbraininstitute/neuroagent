@@ -44,6 +44,7 @@ from neuroagent.tools import (
     ElectricalCellRecordingGetOneTool,
     EModelGetAllTool,
     EModelGetOneTool,
+    EphysMetricsGetOneTool,
     EtypeGetAllTool,
     EtypeGetOneTool,
     ExperimentalBoutonDensityGetAllTool,
@@ -59,7 +60,7 @@ from neuroagent.tools import (
     MeasurementAnnotationGetOneTool,
     MEModelGetAllTool,
     MEModelGetOneTool,
-    MorphoMetricsTool,
+    MorphometricsGetOneTool,
     MtypeGetAllTool,
     MtypeGetOneTool,
     OrganizationGetAllTool,
@@ -327,7 +328,8 @@ def get_tool_list(
         ReconstructionMorphologyGetOneTool,
         ResolveBrainRegionTool,
         ResolveMtypeTool,
-        MorphoMetricsTool,
+        MorphometricsGetOneTool,
+        EphysMetricsGetOneTool,
         OrganizationGetAllTool,
         OrganizationGetOneTool,
         PersonGetAllTool,
@@ -520,12 +522,14 @@ You are a neuroscience AI assistant for the Open Brain Platform.
 def get_starting_agent(
     tool_list: Annotated[list[type[BaseTool]], Depends(get_selected_tools)],
     system_prompt: Annotated[str, Depends(get_system_prompt)],
+    settings: Annotated[Settings, Depends(get_settings)],
 ) -> Agent:
     """Get the starting agent."""
     agent = Agent(
         name="Agent",
         instructions=system_prompt,
         tools=tool_list,
+        temperature=settings.llm.temperature,
     )
     return agent
 
