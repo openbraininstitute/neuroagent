@@ -1,5 +1,6 @@
 """Tests for the Plot Generator tool."""
 
+import uuid
 from unittest.mock import Mock
 
 import httpx
@@ -11,7 +12,7 @@ from neuroagent.tools.generate_plot import PlotInput, PlotMetadata
 
 class TestPlotGeneratorTool:
     @pytest.mark.asyncio
-    async def test_generate_piechart(self, monkeypatch):
+    async def test_generate_piechart(self, monkeypatch, test_user_info):
         """Test generating a pie chart."""
         # Create mock for save_to_storage
         mock_s3 = Mock()
@@ -20,7 +21,7 @@ class TestPlotGeneratorTool:
         monkeypatch.setattr(
             "neuroagent.tools.generate_plot.save_to_storage", mock_save_to_storage
         )
-
+        thread_id = uuid.uuid4()
         # Create tool instance
         tool = PlotGeneratorTool(
             input_schema=PlotInput(
@@ -34,9 +35,9 @@ class TestPlotGeneratorTool:
             ),
             metadata=PlotMetadata(
                 s3_client=mock_s3,
-                user_id="test_user",
+                user_id=test_user_info[0],
                 bucket_name="test_bucket",
-                thread_id="test_thread",
+                thread_id=thread_id,
                 httpx_client=mock_httpx_client,
             ),
         )
@@ -51,13 +52,13 @@ class TestPlotGeneratorTool:
         save_args = mock_save_to_storage.call_args[1]
         assert save_args["s3_client"] == mock_s3
         assert save_args["bucket_name"] == "test_bucket"
-        assert save_args["user_id"] == "test_user"
+        assert save_args["user_id"] == test_user_info[0]
         assert save_args["content_type"] == "application/json"
         assert save_args["category"] == "json-piechart"
-        assert save_args["thread_id"] == "test_thread"
+        assert save_args["thread_id"] == thread_id
 
     @pytest.mark.asyncio
-    async def test_generate_barplot(self, monkeypatch):
+    async def test_generate_barplot(self, monkeypatch, test_user_info):
         """Test generating a bar plot."""
         mock_s3 = Mock()
         mock_httpx_client = Mock(spec=httpx.AsyncClient)
@@ -80,9 +81,9 @@ class TestPlotGeneratorTool:
             ),
             metadata=PlotMetadata(
                 s3_client=mock_s3,
-                user_id="test_user",
+                user_id=test_user_info[0],
                 bucket_name="test_bucket",
-                thread_id="test_thread",
+                thread_id=uuid.uuid4(),
                 httpx_client=mock_httpx_client,
             ),
         )
@@ -91,7 +92,7 @@ class TestPlotGeneratorTool:
         assert result.storage_id == "test-storage-id"
 
     @pytest.mark.asyncio
-    async def test_generate_histogram(self, monkeypatch):
+    async def test_generate_histogram(self, monkeypatch, test_user_info):
         """Test generating a histogram."""
         mock_s3 = Mock()
         mock_httpx_client = Mock(spec=httpx.AsyncClient)
@@ -113,9 +114,9 @@ class TestPlotGeneratorTool:
             ),
             metadata=PlotMetadata(
                 s3_client=mock_s3,
-                user_id="test_user",
+                user_id=test_user_info[0],
                 bucket_name="test_bucket",
-                thread_id="test_thread",
+                thread_id=uuid.uuid4(),
                 httpx_client=mock_httpx_client,
             ),
         )
@@ -124,7 +125,7 @@ class TestPlotGeneratorTool:
         assert result.storage_id == "test-storage-id"
 
     @pytest.mark.asyncio
-    async def test_generate_linechart(self, monkeypatch):
+    async def test_generate_linechart(self, monkeypatch, test_user_info):
         """Test generating a line chart."""
         mock_s3 = Mock()
         mock_httpx_client = Mock(spec=httpx.AsyncClient)
@@ -150,9 +151,9 @@ class TestPlotGeneratorTool:
             ),
             metadata=PlotMetadata(
                 s3_client=mock_s3,
-                user_id="test_user",
+                user_id=test_user_info[0],
                 bucket_name="test_bucket",
-                thread_id="test_thread",
+                thread_id=uuid.uuid4(),
                 httpx_client=mock_httpx_client,
             ),
         )
@@ -161,7 +162,7 @@ class TestPlotGeneratorTool:
         assert result.storage_id == "test-storage-id"
 
     @pytest.mark.asyncio
-    async def test_generate_scatterplot(self, monkeypatch):
+    async def test_generate_scatterplot(self, monkeypatch, test_user_info):
         """Test generating a scatter plot."""
         mock_s3 = Mock()
         mock_httpx_client = Mock(spec=httpx.AsyncClient)
@@ -184,9 +185,9 @@ class TestPlotGeneratorTool:
             ),
             metadata=PlotMetadata(
                 s3_client=mock_s3,
-                user_id="test_user",
+                user_id=test_user_info[0],
                 bucket_name="test_bucket",
-                thread_id="test_thread",
+                thread_id=uuid.uuid4(),
                 httpx_client=mock_httpx_client,
             ),
         )
@@ -195,7 +196,7 @@ class TestPlotGeneratorTool:
         assert result.storage_id == "test-storage-id"
 
     @pytest.mark.asyncio
-    async def test_missing_values_error(self):
+    async def test_missing_values_error(self, test_user_info):
         """Test that appropriate errors are raised when required values are missing."""
         mock_s3 = Mock()
 
@@ -209,9 +210,9 @@ class TestPlotGeneratorTool:
                 ),
                 metadata=PlotMetadata(
                     s3_client=mock_s3,
-                    user_id="test_user",
+                    user_id=test_user_info[0],
                     bucket_name="test_bucket",
-                    thread_id="test_thread",
+                    thread_id=uuid.uuid4(),
                     httpx_client=Mock(spec=httpx.AsyncClient),
                 ),
             )

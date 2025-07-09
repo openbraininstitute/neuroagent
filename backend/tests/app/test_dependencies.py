@@ -1,5 +1,6 @@
 """Test dependencies."""
 
+import uuid
 from datetime import datetime, timezone
 from typing import AsyncIterator
 from unittest.mock import Mock, patch
@@ -48,11 +49,11 @@ async def test_get_httpx_client():
 
 
 @pytest.mark.asyncio
-async def test_get_user(httpx_mock, monkeypatch, patch_required_env):
+async def test_get_user(httpx_mock, monkeypatch, patch_required_env, test_user_info):
     monkeypatch.setenv("NEUROAGENT_KEYCLOAK__ISSUER", "https://great_issuer.com")
 
     fake_response = {
-        "sub": "12345",
+        "sub": str(test_user_info[0]),
         "email_verified": False,
         "name": "Machine Learning Test User",
         "groups": [],
@@ -102,14 +103,14 @@ def test_get_starting_agent(get_weather_tool):
 
 @pytest.mark.asyncio
 @pytest.mark.httpx_mock(can_send_already_matched_responses=True)
-async def test_get_thread(patch_required_env, db_connection):
+async def test_get_thread(patch_required_env, db_connection, test_user_info):
     test_settings = Settings(
         db={"prefix": db_connection},
     )
     engine = setup_engine(test_settings, db_connection)
     session = await anext(get_session(engine))
-    user_id = "test_user"
-    valid_thread_id = "test_thread_id"
+    user_id, vlab, proj = test_user_info
+    valid_thread_id = uuid.uuid4()
 
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
@@ -117,8 +118,8 @@ async def test_get_thread(patch_required_env, db_connection):
     new_thread = Threads(
         user_id=user_id,
         thread_id=valid_thread_id,
-        vlab_id="test_vlab_DB",
-        project_id="project_id_DB",
+        vlab_id=vlab,
+        project_id=proj,
         title="test_title",
     )
     session.add(new_thread)
@@ -129,7 +130,7 @@ async def test_get_thread(patch_required_env, db_connection):
             user_info=UserInfo(
                 **{
                     "sub": user_id,
-                    "groups": ["/proj/test_vlab_DB/project_id_DB/admin"],
+                    "groups": [f"/proj/{vlab}/{proj}/admin"],
                 }
             ),
             thread_id=valid_thread_id,
@@ -145,15 +146,17 @@ async def test_get_thread(patch_required_env, db_connection):
 
 @pytest.mark.asyncio
 @pytest.mark.httpx_mock(can_send_already_matched_responses=True)
-async def test_get_thread_invalid_thread_id(patch_required_env, db_connection):
+async def test_get_thread_invalid_thread_id(
+    patch_required_env, db_connection, test_user_info
+):
     test_settings = Settings(
         db={"prefix": db_connection},
     )
     engine = setup_engine(test_settings, db_connection)
     session = await anext(get_session(engine))
-    user_id = "test_user"
-    valid_thread_id = "test_thread_id"
-    invalid_thread_id = "wrong_thread_id"
+    user_id, vlab, proj = test_user_info
+    valid_thread_id = uuid.uuid4()
+    invalid_thread_id = uuid.uuid4()
 
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
@@ -161,8 +164,8 @@ async def test_get_thread_invalid_thread_id(patch_required_env, db_connection):
     new_thread = Threads(
         user_id=user_id,
         thread_id=valid_thread_id,
-        vlab_id="test_vlab_DB",
-        project_id="project_id_DB",
+        vlab_id=vlab,
+        project_id=proj,
         title="test_title",
     )
     session.add(new_thread)
@@ -174,7 +177,7 @@ async def test_get_thread_invalid_thread_id(patch_required_env, db_connection):
                 user_info=UserInfo(
                     **{
                         "sub": user_id,
-                        "groups": ["/proj/test_vlab_DB/project_id_DB/admin"],
+                        "groups": [f"/proj/{vlab}/{proj}/admin"],
                     }
                 ),
                 thread_id=invalid_thread_id,
@@ -189,14 +192,16 @@ async def test_get_thread_invalid_thread_id(patch_required_env, db_connection):
 
 @pytest.mark.asyncio
 @pytest.mark.httpx_mock(can_send_already_matched_responses=True)
-async def test_get_thread_invalid_user_id(patch_required_env, db_connection):
+async def test_get_thread_invalid_user_id(
+    patch_required_env, db_connection, test_user_info
+):
     test_settings = Settings(
         db={"prefix": db_connection},
     )
     engine = setup_engine(test_settings, db_connection)
     session = await anext(get_session(engine))
-    user_id = "test_user"
-    valid_thread_id = "test_thread_id"
+    user_id, vlab, proj = test_user_info
+    valid_thread_id = uuid.uuid4()
 
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
@@ -204,8 +209,8 @@ async def test_get_thread_invalid_user_id(patch_required_env, db_connection):
     new_thread = Threads(
         user_id=user_id,
         thread_id=valid_thread_id,
-        vlab_id="test_vlab_DB",
-        project_id="project_id_DB",
+        vlab_id=vlab,
+        project_id=proj,
         title="test_title",
     )
     session.add(new_thread)
@@ -216,8 +221,8 @@ async def test_get_thread_invalid_user_id(patch_required_env, db_connection):
             await get_thread(
                 user_info=UserInfo(
                     **{
-                        "sub": "wrong_user",
-                        "groups": ["/proj/test_vlab_DB/project_id_DB/admin"],
+                        "sub": uuid.uuid4(),
+                        "groups": [f"/proj/{vlab}/{proj}/admin"],
                     }
                 ),
                 thread_id=valid_thread_id,
