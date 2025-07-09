@@ -68,7 +68,6 @@ class EphysMetricsGetOneTool(BaseTool):
         query_params = self.input_schema.model_dump(
             exclude_defaults=True, exclude={"electrical_cell_recording_id"}
         )
-        breakpoint()
 
         ephys_metrics_response = await self.metadata.httpx_client.get(
             url=f"{self.metadata.obi_one_url}/declared/electrophysiologyrecording-metrics/{self.input_schema.electrical_cell_recording_id}",
