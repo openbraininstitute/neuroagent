@@ -445,10 +445,9 @@ async def get_selected_tools(
 async def filtered_tools(
     request: Request,
     thread: Annotated[Threads, Depends(get_thread)],
-    session: Annotated[AsyncSession, Depends(get_session)],
     tool_list: Annotated[list[type[BaseTool]], Depends(get_selected_tools)],
     openai_client: Annotated[AsyncOpenAI, Depends(get_openai_client)],
-):
+) -> list[type[BaseTool]]:
     """Based on the current conversation, select relevant tools."""
     if request.method == "GET":
         return tool_list
@@ -472,33 +471,38 @@ async def filtered_tools(
 
     INSTRUCTIONS:
     1. Analyze the conversation to identify required capabilities
-    2. Select up to 15 most relevant tools by name only
-    3. Output format: list of tool names
-    4. Do not respond to user queries - only filter tools
+    2. Select at least 10 and up to 15 of the most relevant tools by name only
+    3. BIAS TOWARD INCLUSION: If uncertain about a tool's relevance, include it - better to provide too many tools than too few
+    4. Output format: comma-separated list of tool names
+    5. Do not respond to user queries - only filter tools
 
     OUTPUT: [tool_name1, tool_name2, ...]"""
 
-    TOOL_NAMES = Literal[*[tool.name for tool in tool_list]]
+    TOOL_NAMES = Literal[*[tool.name for tool in tool_list]]  # type: ignore
 
     class ToolSelection(BaseModel):
         """All suggested questions by the LLM when there are already messages."""
 
-        selected_tools: list[TOOL_NAMES] = Field(
-            max_length=15,
-            min_length=10,
-            description="List of selected tool names, maximum 15 items",
+        selected_tools: list[TOOL_NAMES] = Field(  # type: ignore
+            min_length=5,
+            description="List of selected tool names, minimum 5 items.",
         )
 
     # Rest of your code remains the same
     response = await openai_client.beta.chat.completions.parse(
-        messages=[{"role": "system", "content": system_prompt}, *openai_messages],
-        model="gpt-4.1-nano",
+        messages=[{"role": "system", "content": system_prompt}, *openai_messages],  # type: ignore
+        model="gpt-4o-mini",
         response_format=ToolSelection,
     )
 
-    selected_tools = response.choices[0].message.parsed.selected_tools
-    logger.info(selected_tools)
-    return [tool for tool in tool_list if tool.name in selected_tools]
+    if response.choices[0].message.parsed:
+        selected_tools = response.choices[0].message.parsed.selected_tools
+        logger.info(
+            f"QUERY: {body['content']}, #TOOLS: {len(selected_tools)}, SELECTED TOOLS: {selected_tools}"
+        )
+        return [tool for tool in tool_list if tool.name in selected_tools]
+    else:
+        return []
 
 
 @cache
