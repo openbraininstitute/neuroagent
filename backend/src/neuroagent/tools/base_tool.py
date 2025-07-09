@@ -3,6 +3,7 @@
 import logging
 from abc import ABC, abstractmethod
 from typing import Any, ClassVar
+from uuid import UUID
 
 from httpx import AsyncClient
 from pydantic import BaseModel, ConfigDict
@@ -21,8 +22,8 @@ class EntitycoreMetadata(BaseMetadata):
 
     httpx_client: AsyncClient
     entitycore_url: str
-    vlab_id: str | None
-    project_id: str | None
+    vlab_id: UUID | None
+    project_id: UUID | None
 
 
 class BaseTool(BaseModel, ABC):
