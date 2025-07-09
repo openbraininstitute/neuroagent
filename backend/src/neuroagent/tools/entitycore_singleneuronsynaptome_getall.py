@@ -87,6 +87,8 @@ class SingleNeuronSynaptomeGetAllTool(BaseTool):
             )
 
         response_data = response.json()
+        for synaptome in response_data["data"]:
+            synaptome["assets"] = []
         return ListResponseSingleNeuronSynaptomeRead(**response_data)
 
     @classmethod

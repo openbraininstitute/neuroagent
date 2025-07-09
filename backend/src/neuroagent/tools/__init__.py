@@ -17,6 +17,8 @@ from neuroagent.tools.entitycore_brainregionhierarchy_getall import (
 from neuroagent.tools.entitycore_brainregionhierarchy_getone import (
     BrainRegionHierarchyGetOneTool,
 )
+from neuroagent.tools.entitycore_circuit_getall import CircuitGetAllTool
+from neuroagent.tools.entitycore_circuit_getone import CircuitGetOneTool
 from neuroagent.tools.entitycore_contribution_getall import ContributionGetAllTool
 from neuroagent.tools.entitycore_contribution_getone import ContributionGetOneTool
 from neuroagent.tools.entitycore_electricalcellrecording_getall import (
@@ -128,8 +130,9 @@ from neuroagent.tools.literature_search_tool import (
     LiteratureSearchTool,
     ParagraphMetadata,
 )
-from neuroagent.tools.morpho_metrics_tool import MorphoMetricsTool
 from neuroagent.tools.now import NowTool
+from neuroagent.tools.obione_ephysmetrics_getone import EphysMetricsGetOneTool
+from neuroagent.tools.obione_morphometrics_getone import MorphometricsGetOneTool
 from neuroagent.tools.resolve_brain_region_tool import ResolveBrainRegionTool
 from neuroagent.tools.resolve_mtypes_tool import ResolveMtypeTool
 from neuroagent.tools.thumbnailgen_morphology_getone import PlotMorphologyGetOneTool
@@ -137,6 +140,8 @@ from neuroagent.tools.weather import WeatherTool
 from neuroagent.tools.web_search import WebSearchTool
 
 __all__ = [
+    "CircuitGetAllTool",
+    "CircuitGetOneTool",
     "SCSGetAllTool",
     "SCSGetOneTool",
     "SCSPlotTool",
@@ -146,7 +151,8 @@ __all__ = [
     "MEModelGetOneTool",
     "ReconstructionMorphologyGetAllTool",
     "ReconstructionMorphologyGetOneTool",
-    "MorphoMetricsTool",
+    "MorphometricsGetOneTool",
+    "EphysMetricsGetOneTool",
     "NowTool",
     "ParagraphMetadata",
     "PlotGeneratorTool",

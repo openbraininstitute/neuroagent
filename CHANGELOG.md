@@ -8,17 +8,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
-- Autogen diff CI.
+- Python interpreter tool.
+- Auto alembic upgrade.
+- New utterances in false positive semantic route.
+- Ephys tool.
 
 ### Fixed
-- Tool selection remains when going back to main page.
-- Auto alembic upgrade.
+- Tool selection remains when switching between pages.
 
 ## [v0.6.4] - 02.07.2025
 
 ### Added
 - False positive semantic route.
 - Autogen diff CI.
+- Circuit tools.
 
 ### Fixed
 - Distinction between entitycore and LS capabilities.
@@ -30,6 +33,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Rate limit endpoint.
 - More entity core endpoints.
 - Rules.
+- New false positive utterances.
 
 ### Changed
 - Entitycore autogen 2025.6.8
