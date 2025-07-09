@@ -483,12 +483,18 @@ async def filter_tools_by_conversation(
     """
     Filter tools based on conversation relevance.
 
-    Args:
-        openai_messages: List of OpenAI formatted messages
-        tool_list: List of available tools
-        user_content: Current user message content
-        openai_client: OpenAI client instance
-        settings: Application settings
+    Parameters
+    ----------
+    openai_messages:
+        List of OpenAI formatted messages
+    tool_list:
+        List of available tools
+    user_content:
+        Current user message content
+    openai_client:
+        OpenAI client instance
+    min_tool_selection:
+        Minimum numbers of tools the LLM should select
 
     Returns
     -------
