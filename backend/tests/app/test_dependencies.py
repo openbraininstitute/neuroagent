@@ -317,10 +317,8 @@ Only the content after the frontmatter should be included.
     with patch("neuroagent.app.dependencies.datetime") as mock_datetime:
         mock_datetime.now.return_value = fixed_time
 
-        # Call the function with our mock parameters
         result = await get_system_prompt(mock_request, mock_thread, tmp_path)
 
-    # Expected result (you may need to adjust based on your parse_url_info function)
     expected_base = f"""# NEUROSCIENCE AI ASSISTANT
 
 You are a neuroscience AI assistant for the Open Brain Platform.
@@ -330,8 +328,7 @@ Current time: {fixed_time.isoformat()}
 Current Virtual Lab ID: vlab123
 Current Project ID: project456
 Current website page: /page
-Current query parameters: param=value
-
+Current query parameters: {{"param": "value"}}
 """
 
     expected_rule1 = """# Rule 1: Basic Guidelines
@@ -378,22 +375,20 @@ async def test_get_system_prompt_no_rules_directory(tmp_path):
     with patch("neuroagent.app.dependencies.datetime") as mock_datetime:
         mock_datetime.now.return_value = fixed_time
 
-        # Call the function with non-existent directory
         result = await get_system_prompt(mock_request, mock_thread, non_existent_dir)
 
-    # Should return only the base prompt
     expected_result = f"""# NEUROSCIENCE AI ASSISTANT
 
 You are a neuroscience AI assistant for the Open Brain Platform.
 
 # CURRENT CONTEXT
 Current time: {fixed_time.isoformat()}
-
 """
 
     assert result == expected_result
 
 
+@pytest.mark.asyncio
 async def test_get_system_prompt_empty_mdc_files(tmp_path):
     """Test get_system_prompt function with empty .mdc files."""
     # Create empty .mdc files
@@ -418,17 +413,14 @@ async def test_get_system_prompt_empty_mdc_files(tmp_path):
     with patch("neuroagent.app.dependencies.datetime") as mock_datetime:
         mock_datetime.now.return_value = fixed_time
 
-        # Call the function with empty files
         result = await get_system_prompt(mock_request, mock_thread, tmp_path)
 
-    # Should return only the base prompt (empty files are ignored)
     expected_result = f"""# NEUROSCIENCE AI ASSISTANT
 
 You are a neuroscience AI assistant for the Open Brain Platform.
 
 # CURRENT CONTEXT
 Current time: {fixed_time.isoformat()}
-
 """
 
     assert result == expected_result
@@ -465,7 +457,6 @@ You are a neuroscience AI assistant for the Open Brain Platform.
 Current time: {fixed_time.isoformat()}
 Current Virtual Lab ID: vlab123
 Current website page: /dashboard
-
 """
 
     assert result == expected_result
