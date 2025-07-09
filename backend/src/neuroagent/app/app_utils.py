@@ -510,9 +510,6 @@ async def filter_tools_by_conversation(
 
     system_prompt = f"""TASK: Filter tools for AI agent based on conversation relevance.
 
-AVAILABLE TOOLS:
-{chr(10).join(f"{tool.name}: {tool.description}" for tool in tool_list)}
-
 INSTRUCTIONS:
 1. Analyze the conversation to identify required capabilities
 2. Select at least {min_tool_selection} of the most relevant tools by name only
@@ -522,7 +519,11 @@ INSTRUCTIONS:
 6. Do not respond to user queries - only filter tools
 7. Each tool must be selected only once.
 
-OUTPUT: [tool_name1, tool_name2, ...]"""
+OUTPUT: [tool_name1, tool_name2, ...]
+
+AVAILABLE TOOLS:
+{chr(10).join(f"{tool.name}: {tool.description}" for tool in tool_list)}
+"""
 
     tool_names = [tool.name for tool in tool_list]
     TOOL_NAMES_LITERAL = Literal[*tool_names]  # type: ignore
