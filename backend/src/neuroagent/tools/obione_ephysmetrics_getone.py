@@ -65,9 +65,15 @@ class EphysMetricsGetOneTool(BaseTool):
         if self.metadata.project_id is not None:
             headers["project_id"] = self.metadata.project_id
 
+        query_params = self.input_schema.model_dump(
+            exclude_defaults=True, exclude={"electrical_cell_recording_id"}
+        )
+        breakpoint()
+
         ephys_metrics_response = await self.metadata.httpx_client.get(
             url=f"{self.metadata.obi_one_url}/declared/electrophysiologyrecording-metrics/{self.input_schema.electrical_cell_recording_id}",
             headers=headers,
+            params=query_params,
         )
 
         if ephys_metrics_response.status_code != 200:

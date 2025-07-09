@@ -35,10 +35,11 @@ routes:
 
   - name: False positive
     utterances:
+      - "Can you compute electrophys metrics on it?"
       - "Can you get me 2 electrial cell recordings?"
       - "Can you get me more ?"
-      - "Can you compute electrophys metrics on it?"
       - "Can you help me find some morphologies in the platform?"
+      - "Can you now find all electrical cell recordings from that species?"
       - "can you only look for morphologies in this brain region?062ebc92-cebb-498a-a76d-b5e1bab02cf"
       - "Can you please find a me model and run a simulation on it?"
       - "Can you please make a plot of my simulation ?"
