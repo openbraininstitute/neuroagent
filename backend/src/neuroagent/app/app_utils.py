@@ -551,7 +551,7 @@ AVAILABLE TOOLS:
 
         if response.choices[0].message.parsed:
             selected_tools = response.choices[0].message.parsed.selected_tools
-            logger.info(
+            logger.debug(
                 f"QUERY: {user_content}, #TOOLS: {len(selected_tools)}, SELECTED TOOLS: {selected_tools}"
             )
             return [tool for tool in tool_list if tool.name in selected_tools]
