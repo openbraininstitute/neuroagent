@@ -1,12 +1,17 @@
+from typing import Annotated
 from unittest.mock import Mock
 
 import pytest
+from fastapi import Depends
 
 from neuroagent.app.config import Settings
+from neuroagent.app.database.sql_schemas import Threads
 from neuroagent.app.dependencies import (
+    filtered_tools,
     get_agents_routine,
     get_openai_client,
     get_settings,
+    get_thread,
 )
 from neuroagent.app.main import app
 from neuroagent.app.routers import qa
@@ -178,8 +183,17 @@ def test_chat_streamed(app_client, httpx_mock, patch_required_env, db_connection
         rate_limiter={"disabled": True},
     )
     app.dependency_overrides[get_settings] = lambda: test_settings
-    agent_routine = Mock()
-    app.dependency_overrides[get_agents_routine] = lambda: agent_routine
+    app.dependency_overrides[get_agents_routine] = lambda: Mock()
+
+    async def mock_dependency_with_lazy_loading(
+        thread: Annotated[Threads, Depends(get_thread)],
+    ):
+        # Thread is injected automatically
+        # Perform the lazy loading
+        await thread.awaitable_attrs.messages
+        return []
+
+    app.dependency_overrides[filtered_tools] = mock_dependency_with_lazy_loading
 
     expected_tokens = (
         b"Calling tool : resolve_entities_tool with arguments : {brain_region:"

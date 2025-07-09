@@ -467,27 +467,28 @@ async def filtered_tools(
 
     system_prompt = f"""TASK: Filter tools for AI agent based on conversation relevance.
 
-    AVAILABLE TOOLS:
-    {chr(10).join(f"{tool.name}: {tool.description}" for tool in tool_list)}
+AVAILABLE TOOLS:
+{chr(10).join(f"{tool.name}: {tool.description}" for tool in tool_list)}
 
-    INSTRUCTIONS:
-    1. Analyze the conversation to identify required capabilities
-    2. Select at least 5 of the most relevant tools by name only
-    3. BIAS TOWARD INCLUSION: If uncertain about a tool's relevance, include it - better to provide too many tools than too few
-    4. Only exclude tools that are clearly irrelevant to the conversation
-    5. Output format: comma-separated list of tool names
-    6. Do not respond to user queries - only filter tools
+INSTRUCTIONS:
+1. Analyze the conversation to identify required capabilities
+2. Select at least 5 of the most relevant tools by name only
+3. BIAS TOWARD INCLUSION: If uncertain about a tool's relevance, include it - better to provide too many tools than too few
+4. Only exclude tools that are clearly irrelevant to the conversation
+5. Output format: comma-separated list of tool names
+6. Do not respond to user queries - only filter tools
 
-    OUTPUT: [tool_name1, tool_name2, ...]"""
+OUTPUT: [tool_name1, tool_name2, ...]"""
 
-    TOOL_NAMES = Literal[*[tool.name for tool in tool_list]]  # type: ignore
+    tool_names = [tool.name for tool in tool_list]
+    TOOL_NAMES_LITERAL = Literal[*tool_names] if len(tool_names) > 0 else str
 
     class ToolSelection(BaseModel):
         """Data class for tool selection by an LLM."""
 
-        selected_tools: list[TOOL_NAMES] = Field(  # type: ignore
-            min_length=settings.tools.min_tool_selection,
-            description=f"List of selected tool names, minimum {settings.tools.min_tool_selection} items. Must contain all of the tools relevant to the conversation.",
+        selected_tools: list[TOOL_NAMES_LITERAL] = Field(  # type: ignore
+            min_length=min(len(tool_names), settings.tools.min_tool_selection),
+            description=f"List of selected tool names, minimum {min(len(tool_names), settings.tools.min_tool_selection)} items. Must contain all of the tools relevant to the conversation.",
         )
 
     # Rest of your code remains the same
