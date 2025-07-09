@@ -303,15 +303,8 @@ async def stream_chat_agent(
         agent.model = agent.model.removeprefix("openai/")
         agents_routine.client = openai_client
 
+    # No need to await since it has been awaited in tool filtering dependency
     messages: list[Messages] = thread.messages
-    # Since the session is not reinstantiated in stream.py
-    # we need to lazy load the tool_calls in advance since in
-    # any case they will be needed to convert the db schema
-    # to OpenAI messages
-    # for msg in messages:
-    #     if msg.entity == Entity.AI_TOOL:
-    #         # This awaits the lazy loading, ensuring tool_calls is populated now.
-    #         await msg.awaitable_attrs.tool_calls
 
     if (
         not messages

@@ -453,7 +453,7 @@ async def filtered_tools(
     if request.method == "GET":
         return tool_list
 
-    # Awaiting here makes downstream call already loaded so no performance issue
+    # Awaiting here makes downstream calls already loaded so no performance issue
     messages = await thread.awaitable_attrs.messages
     openai_messages = await messages_to_openai_content(messages)
 
@@ -472,21 +472,22 @@ async def filtered_tools(
 
     INSTRUCTIONS:
     1. Analyze the conversation to identify required capabilities
-    2. Select at least 10 and up to 15 of the most relevant tools by name only
+    2. Select at least 5 of the most relevant tools by name only
     3. BIAS TOWARD INCLUSION: If uncertain about a tool's relevance, include it - better to provide too many tools than too few
-    4. Output format: comma-separated list of tool names
-    5. Do not respond to user queries - only filter tools
+    4. Only exclude tools that are clearly irrelevant to the conversation
+    5. Output format: comma-separated list of tool names
+    6. Do not respond to user queries - only filter tools
 
     OUTPUT: [tool_name1, tool_name2, ...]"""
 
     TOOL_NAMES = Literal[*[tool.name for tool in tool_list]]  # type: ignore
 
     class ToolSelection(BaseModel):
-        """All suggested questions by the LLM when there are already messages."""
+        """Data class for tool selection by an LLM."""
 
         selected_tools: list[TOOL_NAMES] = Field(  # type: ignore
             min_length=settings.tools.min_tool_selection,
-            description="List of selected tool names, minimum 5 items.",
+            description=f"List of selected tool names, minimum {settings.tools.min_tool_selection} items. Must contain all of the tools relevant to the conversation.",
         )
 
     # Rest of your code remains the same
