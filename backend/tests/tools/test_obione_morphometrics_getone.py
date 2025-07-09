@@ -1,19 +1,19 @@
-"""Tests Morphology features tool."""
+"""Tests ObiOne Morphometrics tool."""
 
 import uuid
 
 import httpx
 import pytest
 
-from neuroagent.tools import MorphoMetricsTool
-from neuroagent.tools.morpho_metrics_tool import (
+from neuroagent.tools import MorphometricsGetOneTool
+from neuroagent.tools.obione_morphometrics_getone import (
     MorphologyMetricsOutput,
-    MorphoMetricsInputs,
-    MorphoMetricsMetadata,
+    MorphometricsGetOneInputs,
+    MorphometricsGetOneMetadata,
 )
 
 
-class TestMorphoMetricsTool:
+class TestMorphometricsGetOneTool:
     @pytest.mark.asyncio
     async def test_arun(self, httpx_mock):
         httpx_mock.add_response(
@@ -42,15 +42,15 @@ class TestMorphoMetricsTool:
                 "section_strahler_orders": [1, 2, 2, 1, 3],
             },
         )
-        tool = MorphoMetricsTool(
-            metadata=MorphoMetricsMetadata(
+        tool = MorphometricsGetOneTool(
+            metadata=MorphometricsGetOneMetadata(
                 httpx_client=httpx.AsyncClient(),
                 obi_one_url="http://obione.org",
                 token="fake_token",
                 vlab_id=None,
                 project_id=None,
             ),
-            input_schema=MorphoMetricsInputs(morphology_id="1234"),
+            input_schema=MorphometricsGetOneInputs(morphology_id="1234"),
         )
 
         response = await tool.arun()
@@ -85,15 +85,15 @@ class TestMorphoMetricsTool:
             },
         )
 
-        tool = MorphoMetricsTool(
-            metadata=MorphoMetricsMetadata(
+        tool = MorphometricsGetOneTool(
+            metadata=MorphometricsGetOneMetadata(
                 httpx_client=httpx.AsyncClient(),
                 obi_one_url="http://obione.org",
                 token="fake_token",
                 vlab_id=uuid.uuid4(),
                 project_id=uuid.uuid4(),
             ),
-            input_schema=MorphoMetricsInputs(morphology_id="1234"),
+            input_schema=MorphometricsGetOneInputs(morphology_id="1234"),
         )
 
         response = await tool.arun()
@@ -101,15 +101,15 @@ class TestMorphoMetricsTool:
 
     @pytest.mark.asyncio
     async def test_arun_errors(self, httpx_mock):
-        tool = MorphoMetricsTool(
-            metadata=MorphoMetricsMetadata(
+        tool = MorphometricsGetOneTool(
+            metadata=MorphometricsGetOneMetadata(
                 httpx_client=httpx.AsyncClient(),
                 obi_one_url="http://obione.org",
                 token="fake_token",
                 vlab_id=None,
                 project_id=None,
             ),
-            input_schema=MorphoMetricsInputs(morphology_id="1234"),
+            input_schema=MorphometricsGetOneInputs(morphology_id="1234"),
         )
 
         httpx_mock.add_response(
