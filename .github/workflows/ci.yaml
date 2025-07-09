@@ -27,7 +27,7 @@ jobs:
         with:
           fetch-depth: 0 # fetch all history with version tags
       - name: Set up python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v2
         with:
           python-version: "3.11"
       - name: Install uv
