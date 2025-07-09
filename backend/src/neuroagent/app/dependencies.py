@@ -452,11 +452,13 @@ async def filtered_tools(
     settings: Annotated[Settings, Depends(get_settings)],
 ) -> list[type[BaseTool]]:
     """Based on the current conversation, select relevant tools."""
-    if request.method == "GET" or not tool_list:
+    if request.method == "GET":
         return tool_list
 
     # Awaiting here makes downstream calls already loaded so no performance issue
     messages = await thread.awaitable_attrs.messages
+    if not tool_list:
+        return []
     openai_messages = await messages_to_openai_content(messages)
 
     # Remove the content of tool responses to save tokens
