@@ -447,6 +447,7 @@ async def filtered_tools(
     thread: Annotated[Threads, Depends(get_thread)],
     tool_list: Annotated[list[type[BaseTool]], Depends(get_selected_tools)],
     openai_client: Annotated[AsyncOpenAI, Depends(get_openai_client)],
+    settings: Annotated[Settings, Depends(get_settings)],
 ) -> list[type[BaseTool]]:
     """Based on the current conversation, select relevant tools."""
     if request.method == "GET":
@@ -484,7 +485,7 @@ async def filtered_tools(
         """All suggested questions by the LLM when there are already messages."""
 
         selected_tools: list[TOOL_NAMES] = Field(  # type: ignore
-            min_length=5,
+            min_length=settings.tools.min_tool_selection,
             description="List of selected tool names, minimum 5 items.",
         )
 
