@@ -6,6 +6,7 @@ import re
 import uuid
 from pathlib import Path
 from typing import Any, Sequence
+from urllib.parse import parse_qs, urlparse
 
 import yaml
 from fastapi import HTTPException
@@ -469,3 +470,41 @@ def parse_redis_data(
         remaining=remaining,
         reset_in=reset_in,
     )
+
+
+def parse_url_info(url: str) -> tuple[str, str]:
+    """Parse URL to extract meaningful path and query parameters."""
+    parsed = urlparse(url)
+
+    # Parse query parameters into a dictionary
+    query_params = parse_qs(parsed.query)
+
+    # parse_qs returns lists for values, so flatten single values
+    flattened_params = {}
+    for key, value_list in query_params.items():
+        if len(value_list) == 1:
+            flattened_params[key] = value_list[0]
+        else:
+            flattened_params[key] = json.dumps(value_list)
+    string_params = json.dumps(flattened_params)
+
+    # Extract meaningful path segments
+    path = parsed.path
+
+    # If we are in a project
+    if "/app/virtual-lab/lab/" in path and "/project/" in path:
+        # Extract everything after /project/{project_id}/
+        match = re.search(r"/app/virtual-lab/lab/[^/]+/project/[^/]+/(.+)", path)
+        if match:
+            meaningful_path = match.group(1)
+        else:
+            meaningful_path = ""
+    # If we are outside a vlab
+    elif "/app/virtual-lab/" in path:
+        # Extract everything after /app/virtual-lab/
+        match = re.search(r"/app/virtual-lab/(.+)", path)
+        meaningful_path = match.group(1) if match else ""
+    else:
+        meaningful_path = path
+
+    return meaningful_path, string_params

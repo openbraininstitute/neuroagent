@@ -20,7 +20,7 @@ from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession
 from starlette.status import HTTP_401_UNAUTHORIZED
 
 from neuroagent.agent_routine import AgentsRoutine
-from neuroagent.app.app_utils import validate_project
+from neuroagent.app.app_utils import parse_url_info, validate_project
 from neuroagent.app.config import Settings
 from neuroagent.app.database.sql_schemas import Threads
 from neuroagent.app.schemas import OpenRouterModelResponse, UserInfo
@@ -413,6 +413,33 @@ async def get_selected_tools(
         return selected_tools
 
 
+async def get_thread(
+    user_info: Annotated[UserInfo, Depends(get_user_info)],
+    thread_id: str,
+    session: Annotated[AsyncSession, Depends(get_session)],
+) -> Threads:
+    """Check if the current thread / user matches."""
+    thread_result = await session.execute(
+        select(Threads).where(
+            Threads.user_id == user_info.sub, Threads.thread_id == thread_id
+        )
+    )
+    thread = thread_result.scalars().one_or_none()
+    if not thread:
+        raise HTTPException(
+            status_code=404,
+            detail={
+                "detail": "Thread not found.",
+            },
+        )
+    validate_project(
+        groups=user_info.groups,
+        virtual_lab_id=thread.vlab_id,
+        project_id=thread.project_id,
+    )
+    return thread
+
+
 @cache
 def get_rules_dir() -> Path:
     """Get the path to the rules directory."""
@@ -421,17 +448,34 @@ def get_rules_dir() -> Path:
     return rules_dir
 
 
-@cache
-def get_system_prompt(rules_dir: Annotated[Path, Depends(get_rules_dir)]) -> str:
+async def get_system_prompt(
+    request: Request,
+    thread: Annotated[Threads, Depends(get_thread)],
+    rules_dir: Annotated[Path, Depends(get_rules_dir)],
+) -> str:
     """Get the concatenated rules from all .mdc files in the rules directory."""
-    # Initialize the system prompt with base instructions
+    body = await request.json()
+    frontend_url = body.get("frontend_url")
+    if frontend_url:
+        current_path, query_params = parse_url_info(frontend_url)
+
+    context_parts = [f"Current time: {datetime.now(timezone.utc).isoformat()}"]
+
+    if thread.vlab_id:
+        context_parts.append(f"Current Virtual Lab ID: {thread.vlab_id}")
+    if thread.project_id:
+        context_parts.append(f"Current Project ID: {thread.project_id}")
+    if frontend_url and current_path:
+        context_parts.append(f"Current website page: {current_path}")
+    if frontend_url and query_params:
+        context_parts.append(f"Current query parameters: {query_params}")
+
     system_prompt = f"""# NEUROSCIENCE AI ASSISTANT
 
 You are a neuroscience AI assistant for the Open Brain Platform.
 
 # CURRENT CONTEXT
-Current time: {datetime.now(timezone.utc).isoformat()}
-
+{chr(10).join(context_parts)}
 """
 
     # Check if rules directory exists
@@ -484,33 +528,6 @@ def get_starting_agent(
         tools=tool_list,
     )
     return agent
-
-
-async def get_thread(
-    user_info: Annotated[UserInfo, Depends(get_user_info)],
-    thread_id: str,
-    session: Annotated[AsyncSession, Depends(get_session)],
-) -> Threads:
-    """Check if the current thread / user matches."""
-    thread_result = await session.execute(
-        select(Threads).where(
-            Threads.user_id == user_info.sub, Threads.thread_id == thread_id
-        )
-    )
-    thread = thread_result.scalars().one_or_none()
-    if not thread:
-        raise HTTPException(
-            status_code=404,
-            detail={
-                "detail": "Thread not found.",
-            },
-        )
-    validate_project(
-        groups=user_info.groups,
-        virtual_lab_id=thread.vlab_id,
-        project_id=thread.project_id,
-    )
-    return thread
 
 
 def get_semantic_routes(request: Request) -> SemanticRouter | None:

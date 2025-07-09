@@ -60,8 +60,9 @@ class ClientRequest(BaseModel):
     """Vercel class."""
 
     content: str
-    tool_selection: list[str] | None = None
     model: str = "openai/gpt-4.1-mini"
+    tool_selection: list[str] | None = None
+    frontend_url: str | None = None
 
     model_config = ConfigDict(extra="ignore")
 
