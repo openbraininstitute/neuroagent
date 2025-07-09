@@ -56,7 +56,7 @@ class ExperimentalBoutonDensityGetAllTool(BaseTool):
     - The mtypes.
     - Any additional metadata.
 
-    We explicitly exclude the assets and the contributions but you can access them using the Get One Experimental Bouton Density tool.
+    We explicitly exclude the contributions but you can access them using the Get One Experimental Bouton Density tool.
     """
     description_frontend: ClassVar[
         str

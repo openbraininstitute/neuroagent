@@ -8,10 +8,16 @@ description: Entitycore tools
 - For broader knowledge queries (scientific research, general information, etc.), use literature or web search tools instead.
 
 ## EntityCore Tool Parameters
-- For entitycore tools, make sure to use the `within_brain_region_brain_region_id` parameter if the user asks for a specific brain region.
-- The `brain_region__id` parameter is **not valid** and should not be used.
-- To find a brain region id of a given brain region you can use the `entity-brainregion-getall` and provide the `name` parameter but make
-sure to capitalize the first letter of the brain region name.
+- To find a brain region ID: use `entitycore-brainregion-getall` with the `name` parameter (capitalize the first letter of the brain region name).
+- **MANDATORY**: Always resolve brain region names to their unique IDs before any data queries.
+- **CRITICAL RULE**: Once you have a brain region ID, you MUST use `within_brain_region_brain_region_id` with the UUID for ALL subsequent queries.
+- **STRICTLY FORBIDDEN**: Using `brain_region__name` or any name-based parameters when an ID is available.
+- **NEVER** fall back to name searches when you already have the ID in memory.
+- **INVALID PARAMETER**: `brain_region__id` does not exist and must not be used.
+
+## GET ALL Endpoint Guidelines
+- When calling `GET ALL` endpoints, please mention the `total_items` count and ask the user if they want to see additional data before using the `pagination` parameter to retrieve subsequent pages.
+- If a `GET ALL` endpoint returns an empty asset list, they can be accessed through the corresponding `GET ONE` endpoint or `GET ALL Assets` if needed.
 
 ## EntityCore Tool Outputs
 - The only way to get a valid url for an asset is via `entitycore-asset-downloadone`. Anything else gives invalid urls and you should not display them.

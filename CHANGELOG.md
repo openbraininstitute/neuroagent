@@ -13,8 +13,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - New utterances in false positive semantic route.
 - Ephys tool.
 
-## Changed
+### Changed
+- Prompt engineered the rules.
+- Revert suggestion model to 4o-mini.
 - Switch from VARCHAR to UUID where possible.
+
+### Fixed
+- Propagate temperature to the api call and set the seed.
 
 ## [v0.6.4] - 02.07.2025
 
