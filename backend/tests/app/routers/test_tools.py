@@ -17,8 +17,9 @@ async def test_execute_tool_call_accepted(
     db_connection,
     populate_db,
     get_weather_tool,
+    test_user_info,
 ):
-    mock_keycloak_user_identification(httpx_mock)
+    mock_keycloak_user_identification(httpx_mock, test_user_info)
     test_settings = Settings(
         db={"prefix": db_connection},
         keycloak={"issuer": "https://great_issuer.com"},
@@ -50,8 +51,9 @@ async def test_execute_tool_call_rejected(
     db_connection,
     populate_db,
     get_weather_tool,
+    test_user_info,
 ):
-    mock_keycloak_user_identification(httpx_mock)
+    mock_keycloak_user_identification(httpx_mock, test_user_info)
     test_settings = Settings(
         db={"prefix": db_connection},
         keycloak={"issuer": "https://great_issuer.com"},
@@ -85,8 +87,9 @@ async def test_execute_tool_call_validation_error(
     db_connection,
     populate_db,
     get_weather_tool,
+    test_user_info,
 ):
-    mock_keycloak_user_identification(httpx_mock)
+    mock_keycloak_user_identification(httpx_mock, test_user_info)
     test_settings = Settings(
         db={"prefix": db_connection},
         keycloak={"issuer": "https://great_issuer.com"},
@@ -119,8 +122,9 @@ async def test_get_available_tools(
     httpx_mock,
     app_client,
     db_connection,
+    test_user_info,
 ):
-    mock_keycloak_user_identification(httpx_mock)
+    mock_keycloak_user_identification(httpx_mock, test_user_info)
     test_settings = Settings(
         db={"prefix": db_connection},
         keycloak={"issuer": "https://great_issuer.com"},
@@ -145,8 +149,9 @@ async def test_get_tool_metadata(
     app_client,
     db_connection,
     get_weather_tool,
+    test_user_info,
 ):
-    mock_keycloak_user_identification(httpx_mock)
+    mock_keycloak_user_identification(httpx_mock, test_user_info)
     test_settings = Settings(
         db={"prefix": db_connection}, keycloak={"issuer": "https://great_issuer.com"}
     )

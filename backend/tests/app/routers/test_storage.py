@@ -9,7 +9,7 @@ from neuroagent.app.schemas import UserInfo
 
 
 @pytest.mark.httpx_mock
-def test_generate_presigned_url(app_client):
+def test_generate_presigned_url(app_client, test_user_info):
     """Test the presigned URL generation endpoint."""
     # Mock dependencies
     mock_s3 = Mock()
@@ -21,7 +21,9 @@ def test_generate_presigned_url(app_client):
         storage=Mock(bucket_name="test-bucket", expires_in=600),
         misc=Mock(application_prefix="whatever"),
     )
-    app.dependency_overrides[get_user_info] = lambda: UserInfo(sub="12345", groups=[])
+    app.dependency_overrides[get_user_info] = lambda: UserInfo(
+        sub=test_user_info[0], groups=[]
+    )
 
     def make_request(filename):
         return app_client.get(f"/storage/{filename}/presigned-url")
@@ -34,11 +36,11 @@ def test_generate_presigned_url(app_client):
     # Verify S3 client calls
     mock_s3.head_object.assert_called_once_with(
         Bucket="test-bucket",
-        Key="12345/test-file.txt",
+        Key=f"{test_user_info[0]}/test-file.txt",
     )
     mock_s3.generate_presigned_url.assert_called_once_with(
         "get_object",
-        Params={"Bucket": "test-bucket", "Key": "12345/test-file.txt"},
+        Params={"Bucket": "test-bucket", "Key": f"{test_user_info[0]}/test-file.txt"},
         ExpiresIn=600,
     )
 
