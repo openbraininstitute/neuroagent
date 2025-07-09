@@ -5,7 +5,7 @@ import re
 from datetime import datetime, timezone
 from functools import cache
 from pathlib import Path
-from typing import Annotated, Any, AsyncIterator, Literal
+from typing import Annotated, Any, AsyncIterator
 
 import boto3
 from fastapi import Depends, HTTPException, Request
@@ -13,7 +13,6 @@ from fastapi.security import HTTPBearer
 from httpx import AsyncClient, HTTPStatusError, get
 from obp_accounting_sdk import AsyncAccountingSessionFactory
 from openai import AsyncOpenAI
-from pydantic import BaseModel, Field
 from redis import asyncio as aioredis
 from semantic_router.routers import SemanticRouter
 from sqlalchemy import select
@@ -21,7 +20,7 @@ from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession
 from starlette.status import HTTP_401_UNAUTHORIZED
 
 from neuroagent.agent_routine import AgentsRoutine
-from neuroagent.app.app_utils import validate_project
+from neuroagent.app.app_utils import filter_tools_by_conversation, validate_project
 from neuroagent.app.config import Settings
 from neuroagent.app.database.sql_schemas import Threads
 from neuroagent.app.schemas import OpenRouterModelResponse, UserInfo
@@ -459,57 +458,19 @@ async def filtered_tools(
     messages = await thread.awaitable_attrs.messages
     if not tool_list:
         return []
+
     openai_messages = await messages_to_openai_content(messages)
 
-    # Remove the content of tool responses to save tokens
-    for message in openai_messages:
-        if message["role"] == "tool":
-            message["content"] = "..."
-
     body = await request.json()
-    openai_messages.append({"role": "user", "content": body["content"]})
+    user_content = body["content"]
 
-    system_prompt = f"""TASK: Filter tools for AI agent based on conversation relevance.
-
-AVAILABLE TOOLS:
-{chr(10).join(f"{tool.name}: {tool.description}" for tool in tool_list)}
-
-INSTRUCTIONS:
-1. Analyze the conversation to identify required capabilities
-2. Select at least 5 of the most relevant tools by name only
-3. BIAS TOWARD INCLUSION: If uncertain about a tool's relevance, include it - better to provide too many tools than too few
-4. Only exclude tools that are clearly irrelevant to the conversation
-5. Output format: comma-separated list of tool names
-6. Do not respond to user queries - only filter tools
-
-OUTPUT: [tool_name1, tool_name2, ...]"""
-
-    tool_names = [tool.name for tool in tool_list]
-    TOOL_NAMES_LITERAL = Literal[*tool_names]  # type: ignore
-
-    class ToolSelection(BaseModel):
-        """Data class for tool selection by an LLM."""
-
-        selected_tools: list[TOOL_NAMES_LITERAL] = Field(
-            min_length=min(len(tool_names), settings.tools.min_tool_selection),
-            description=f"List of selected tool names, minimum {min(len(tool_names), settings.tools.min_tool_selection)} items. Must contain all of the tools relevant to the conversation.",
-        )
-
-    # Rest of your code remains the same
-    response = await openai_client.beta.chat.completions.parse(
-        messages=[{"role": "system", "content": system_prompt}, *openai_messages],  # type: ignore
-        model="gpt-4o-mini",
-        response_format=ToolSelection,
+    return await filter_tools_by_conversation(
+        openai_messages=openai_messages,
+        tool_list=tool_list,
+        user_content=user_content,
+        openai_client=openai_client,
+        min_tool_selection=settings.tools.min_tool_selection,
     )
-
-    if response.choices[0].message.parsed:
-        selected_tools = response.choices[0].message.parsed.selected_tools
-        logger.info(
-            f"QUERY: {body['content']}, #TOOLS: {len(selected_tools)}, SELECTED TOOLS: {selected_tools}"
-        )
-        return [tool for tool in tool_list if tool.name in selected_tools]
-    else:
-        return []
 
 
 @cache
