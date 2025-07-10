@@ -73,7 +73,9 @@ class Messages(Base):
     tool_calls: Mapped[list["ToolCalls"]] = relationship(
         "ToolCalls", back_populates="message", cascade="all, delete-orphan"
     )
-    selected_tools: Mapped[list["ToolCalls"]] = relationship("ToolSelection")
+    selected_tools: Mapped[list["ToolSelection"]] = relationship(
+        "ToolSelection", cascade="all, delete-orphan"
+    )
 
 
 class ToolCalls(Base):
