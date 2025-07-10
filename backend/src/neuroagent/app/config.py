@@ -7,7 +7,7 @@ from pathlib import Path
 from typing import Any, Literal
 
 from dotenv import dotenv_values
-from pydantic import BaseModel, ConfigDict, SecretStr, model_validator
+from pydantic import BaseModel, ConfigDict, Field, SecretStr, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 logger = logging.getLogger(__name__)
@@ -117,7 +117,7 @@ class SettingsTools(BaseModel):
     entitycore: SettingsEntityCore = SettingsEntityCore()
     web_search: SettingsWebSearch = SettingsWebSearch()
     thumbnail_generation: SettingsThumbnailGeneration = SettingsThumbnailGeneration()
-    min_tool_selection: int = 10
+    min_tool_selection: int = Field(default=10, ge=0)
     whitelisted_tool_regex: str | None = None
 
     model_config = ConfigDict(frozen=True)
