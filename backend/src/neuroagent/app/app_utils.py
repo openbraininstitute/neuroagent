@@ -5,10 +5,11 @@ import logging
 import re
 import uuid
 from pathlib import Path
-from typing import Any, Sequence
+from typing import Any, Literal, Sequence
 
 import yaml
 from fastapi import HTTPException
+from openai import AsyncOpenAI
 from pydantic import BaseModel, ConfigDict, Field
 from redis import asyncio as aioredis
 from semantic_router import Route
@@ -34,6 +35,7 @@ from neuroagent.app.schemas import (
     ToolCallVercel,
 )
 from neuroagent.schemas import EmbeddedBrainRegions
+from neuroagent.tools.base_tool import BaseTool
 
 logger = logging.getLogger(__name__)
 
@@ -469,3 +471,90 @@ def parse_redis_data(
         remaining=remaining,
         reset_in=reset_in,
     )
+
+
+async def filter_tools_by_conversation(
+    openai_messages: list[dict[str, str]],
+    tool_list: list[type[BaseTool]],
+    user_content: str,
+    openai_client: AsyncOpenAI,
+    min_tool_selection: int,
+) -> list[type[BaseTool]]:
+    """
+    Filter tools based on conversation relevance.
+
+    Parameters
+    ----------
+    openai_messages:
+        List of OpenAI formatted messages
+    tool_list:
+        List of available tools
+    user_content:
+        Current user message content
+    openai_client:
+        OpenAI client instance
+    min_tool_selection:
+        Minimum numbers of tools the LLM should select
+
+    Returns
+    -------
+        List of filtered tools relevant to the conversation
+    """
+    if len(tool_list) <= min_tool_selection:
+        return tool_list
+
+    # Remove the content of tool responses to save tokens
+    for message in openai_messages:
+        if message["role"] == "tool":
+            message["content"] = "..."
+
+    # Add the current user message
+    openai_messages.append({"role": "user", "content": user_content})
+
+    system_prompt = f"""TASK: Filter tools for AI agent based on conversation relevance.
+
+INSTRUCTIONS:
+1. Analyze the conversation to identify required capabilities
+2. Select at least {min_tool_selection} of the most relevant tools by name only
+3. BIAS TOWARD INCLUSION: If uncertain about a tool's relevance, include it - better to provide too many tools than too few
+4. Only exclude tools that are clearly irrelevant to the conversation
+5. Output format: comma-separated list of tool names
+6. Do not respond to user queries - only filter tools
+7. Each tool must be selected only once.
+
+OUTPUT: [tool_name1, tool_name2, ...]
+
+AVAILABLE TOOLS:
+{chr(10).join(f"{tool.name}: {tool.description}" for tool in tool_list)}
+"""
+
+    tool_names = [tool.name for tool in tool_list]
+    TOOL_NAMES_LITERAL = Literal[*tool_names]  # type: ignore
+
+    class ToolSelection(BaseModel):
+        """Data class for tool selection by an LLM."""
+
+        selected_tools: list[TOOL_NAMES_LITERAL] = Field(
+            min_length=min_tool_selection,
+            description=f"List of selected tool names, minimum {min_tool_selection} items. Must contain all of the tools relevant to the conversation.",
+        )
+
+    try:
+        response = await openai_client.beta.chat.completions.parse(
+            messages=[{"role": "system", "content": system_prompt}, *openai_messages],  # type: ignore
+            model="gpt-4o-mini",
+            response_format=ToolSelection,
+        )
+
+        if response.choices[0].message.parsed:
+            selected_tools = response.choices[0].message.parsed.selected_tools
+            logger.debug(
+                f"QUERY: {user_content}, #TOOLS: {len(selected_tools)}, SELECTED TOOLS: {selected_tools}"
+            )
+            return [tool for tool in tool_list if tool.name in selected_tools]
+        else:
+            logger.warning("No parsed response from OpenAI, returning empty list")
+            return []
+    except Exception as e:
+        logger.error(f"Error filtering tools: {e}")
+        return []

@@ -32,11 +32,7 @@ from neuroagent.app.app_utils import (
     validate_project,
 )
 from neuroagent.app.config import Settings
-from neuroagent.app.database.sql_schemas import (
-    Entity,
-    Messages,
-    Threads,
-)
+from neuroagent.app.database.sql_schemas import Entity, Messages, Threads, ToolSelection
 from neuroagent.app.dependencies import (
     get_accounting_session_factory,
     get_agents_routine,
@@ -304,15 +300,8 @@ async def stream_chat_agent(
         agent.model = agent.model.removeprefix("openai/")
         agents_routine.client = openai_client
 
-    messages: list[Messages] = await thread.awaitable_attrs.messages
-    # Since the session is not reinstantiated in stream.py
-    # we need to lazy load the tool_calls in advance since in
-    # any case they will be needed to convert the db schema
-    # to OpenAI messages
-    for msg in messages:
-        if msg.entity == Entity.AI_TOOL:
-            # This awaits the lazy loading, ensuring tool_calls is populated now.
-            await msg.awaitable_attrs.tool_calls
+    # No need to await since it has been awaited in tool filtering dependency
+    messages: list[Messages] = thread.messages
 
     if (
         not messages
@@ -326,6 +315,9 @@ async def stream_chat_agent(
                 content=json.dumps({"role": "user", "content": user_request.content}),
                 is_complete=True,
                 model=None,
+                selected_tools=[
+                    ToolSelection(selected_tools=tool.name) for tool in agent.tools
+                ],
             )
         )
 

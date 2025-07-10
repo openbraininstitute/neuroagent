@@ -2,13 +2,16 @@
 
 import json
 from datetime import datetime
+from typing import Literal
 from unittest.mock import AsyncMock, patch
 from uuid import UUID
 
 import pytest
 from fastapi.exceptions import HTTPException
+from pydantic import BaseModel, Field
 
 from neuroagent.app.app_utils import (
+    filter_tools_by_conversation,
     format_messages_output,
     format_messages_vercel,
     parse_redis_data,
@@ -31,6 +34,7 @@ from neuroagent.app.schemas import (
     ToolCallVercel,
     UserInfo,
 )
+from tests.mock_client import MockOpenAIClient, create_mock_response
 
 
 @pytest.mark.asyncio
@@ -565,3 +569,54 @@ def test_various_limit_values(sample_redis_info, limit_value):
         limit=limit_value, remaining=expected_remaining, reset_in=123
     )
     assert result == expected
+
+
+@pytest.mark.asyncio
+async def test_filter_tools_empty_tool_list():
+    """Test that empty tool list returns empty list"""
+    result = await filter_tools_by_conversation(
+        openai_messages=[],
+        tool_list=[],
+        user_content="test",
+        openai_client=AsyncMock(),
+        min_tool_selection=1,
+    )
+    assert result == []
+
+
+@pytest.mark.asyncio
+async def test_filter_tools_successful_selection(get_weather_tool, agent_handoff_tool):
+    """Test successful tool filtering"""
+    # Mock OpenAI response
+    mock_openai_client = MockOpenAIClient()
+
+    class ToolSelection(BaseModel):
+        """Data class for tool selection by an LLM."""
+
+        selected_tools: list[Literal["agent_handoff_tool", "get_weather_tool"]] = Field(
+            min_length=1,
+            description="List of selected tool names, minimum 1 items. Must contain all of the tools relevant to the conversation.",
+        )
+
+    mock_openai_client.set_response(
+        create_mock_response(
+            {"role": "assistant", "content": ""},
+            structured_output_class=ToolSelection(
+                selected_tools=["agent_handoff_tool"]
+            ),
+        )
+    )
+
+    result = await filter_tools_by_conversation(
+        openai_messages=[
+            {"role": "user", "content": "Hello"},
+            {"role": "assistant", "content": "Hi there!"},
+        ],
+        tool_list=[get_weather_tool, agent_handoff_tool],
+        user_content="I need help with Agent handoff",
+        openai_client=mock_openai_client,
+        min_tool_selection=1,
+    )
+
+    assert len(result) == 1
+    assert result[0].name == "agent_handoff_tool"

@@ -20,7 +20,7 @@ from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession
 from starlette.status import HTTP_401_UNAUTHORIZED
 
 from neuroagent.agent_routine import AgentsRoutine
-from neuroagent.app.app_utils import validate_project
+from neuroagent.app.app_utils import filter_tools_by_conversation, validate_project
 from neuroagent.app.config import Settings
 from neuroagent.app.database.sql_schemas import Threads
 from neuroagent.app.schemas import OpenRouterModelResponse, UserInfo
@@ -102,6 +102,7 @@ from neuroagent.tools import (
     WebSearchTool,
 )
 from neuroagent.tools.base_tool import BaseTool
+from neuroagent.utils import messages_to_openai_content
 
 logger = logging.getLogger(__name__)
 
@@ -242,6 +243,33 @@ async def get_user_info(
             )
     else:
         raise HTTPException(status_code=404, detail="User info url not provided.")
+
+
+async def get_thread(
+    user_info: Annotated[UserInfo, Depends(get_user_info)],
+    thread_id: str,
+    session: Annotated[AsyncSession, Depends(get_session)],
+) -> Threads:
+    """Check if the current thread / user matches."""
+    thread_result = await session.execute(
+        select(Threads).where(
+            Threads.user_id == user_info.sub, Threads.thread_id == thread_id
+        )
+    )
+    thread = thread_result.scalars().one_or_none()
+    if not thread:
+        raise HTTPException(
+            status_code=404,
+            detail={
+                "detail": "Thread not found.",
+            },
+        )
+    validate_project(
+        groups=user_info.groups,
+        virtual_lab_id=thread.vlab_id,
+        project_id=thread.project_id,
+    )
+    return thread
 
 
 def get_mcp_client(request: Request) -> MCPClient | None:
@@ -415,6 +443,36 @@ async def get_selected_tools(
         return selected_tools
 
 
+async def filtered_tools(
+    request: Request,
+    thread: Annotated[Threads, Depends(get_thread)],
+    tool_list: Annotated[list[type[BaseTool]], Depends(get_selected_tools)],
+    openai_client: Annotated[AsyncOpenAI, Depends(get_openai_client)],
+    settings: Annotated[Settings, Depends(get_settings)],
+) -> list[type[BaseTool]]:
+    """Based on the current conversation, select relevant tools."""
+    if request.method == "GET":
+        return tool_list
+
+    # Awaiting here makes downstream calls already loaded so no performance issue
+    messages = await thread.awaitable_attrs.messages
+    if not tool_list:
+        return []
+
+    openai_messages = await messages_to_openai_content(messages)
+
+    body = await request.json()
+    user_content = body["content"]
+
+    return await filter_tools_by_conversation(
+        openai_messages=openai_messages,
+        tool_list=tool_list,
+        user_content=user_content,
+        openai_client=openai_client,
+        min_tool_selection=settings.tools.min_tool_selection,
+    )
+
+
 @cache
 def get_rules_dir() -> Path:
     """Get the path to the rules directory."""
@@ -476,7 +534,7 @@ Current time: {datetime.now(timezone.utc).isoformat()}
 
 
 def get_starting_agent(
-    tool_list: Annotated[list[type[BaseTool]], Depends(get_selected_tools)],
+    tool_list: Annotated[list[type[BaseTool]], Depends(filtered_tools)],
     system_prompt: Annotated[str, Depends(get_system_prompt)],
     settings: Annotated[Settings, Depends(get_settings)],
 ) -> Agent:
@@ -488,33 +546,6 @@ def get_starting_agent(
         temperature=settings.llm.temperature,
     )
     return agent
-
-
-async def get_thread(
-    user_info: Annotated[UserInfo, Depends(get_user_info)],
-    thread_id: str,
-    session: Annotated[AsyncSession, Depends(get_session)],
-) -> Threads:
-    """Check if the current thread / user matches."""
-    thread_result = await session.execute(
-        select(Threads).where(
-            Threads.user_id == user_info.sub, Threads.thread_id == thread_id
-        )
-    )
-    thread = thread_result.scalars().one_or_none()
-    if not thread:
-        raise HTTPException(
-            status_code=404,
-            detail={
-                "detail": "Thread not found.",
-            },
-        )
-    validate_project(
-        groups=user_info.groups,
-        virtual_lab_id=thread.vlab_id,
-        project_id=thread.project_id,
-    )
-    return thread
 
 
 def get_semantic_routes(request: Request) -> SemanticRouter | None:

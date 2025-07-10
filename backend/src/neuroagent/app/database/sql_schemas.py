@@ -73,6 +73,7 @@ class Messages(Base):
     tool_calls: Mapped[list["ToolCalls"]] = relationship(
         "ToolCalls", back_populates="message", cascade="all, delete-orphan"
     )
+    selected_tools: Mapped[list["ToolCalls"]] = relationship("ToolSelection")
 
 
 class ToolCalls(Base):
@@ -88,3 +89,16 @@ class ToolCalls(Base):
         UUID, ForeignKey("messages.message_id")
     )
     message: Mapped[Messages] = relationship("Messages", back_populates="tool_calls")
+
+
+class ToolSelection(Base):
+    """SQL table used for storing the tool selected for a query."""
+
+    __tablename__ = "tool_selection"
+    id: Mapped[uuid.UUID] = mapped_column(
+        UUID, primary_key=True, default=lambda: uuid.uuid4()
+    )
+    selected_tools: Mapped[str] = mapped_column(String, nullable=False)
+    message_id: Mapped[uuid.UUID] = mapped_column(
+        UUID, ForeignKey("messages.message_id")
+    )
