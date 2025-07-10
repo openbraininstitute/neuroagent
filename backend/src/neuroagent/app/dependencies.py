@@ -315,7 +315,6 @@ def get_mcp_tool_list(
         for tool in tools:
             # Create a dynamic tool class for each MCP tool
             dynamic_tool = create_dynamic_tool(
-                server_name=server_name,
                 tool_name=tool.name,
                 tool_description=tool.description
                 if tool.description

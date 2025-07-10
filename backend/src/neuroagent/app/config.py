@@ -200,12 +200,20 @@ class SettingsAccounting(BaseModel):
         return data
 
 
+class MCPToolMetadata(BaseModel):
+    """Metadata of the MCP tools. Overrides native ones."""
+
+    name: str | None = None
+    description: str | None = None
+
+
 class MCPServerConfig(BaseModel):
     """Configuration for a single MCP server."""
 
     command: str
     args: list[str] | None = None
     env: dict[str, SecretStr] | None = None
+    tool_metadata: dict[str, MCPToolMetadata] | None = None
 
 
 class SettingsMCP(BaseModel):

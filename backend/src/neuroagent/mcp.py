@@ -53,11 +53,34 @@ class MCPClient:
                     env=env,
                 )
             )
+
+        # Override tool name and description
+        # Iterate on each server defined in the settings
+        for server in self.config.servers.values():
+            # If the server has tool overriding defined
+            if server.tool_metadata:
+                # Get the list of tools that must be overriden
+                tools_to_override = server.tool_metadata.keys()
+
+                # For each tool that has an override defined
+                for tool_name in tools_to_override:
+                    # Find the corresponding Tool class in the group_session
+                    tool = next(
+                        tool
+                        for tool in self.group_session._tools.values()
+                        if tool.name == tool_name
+                    )
+
+                    # Perform the override
+                    tool.name = server.tool_metadata[tool_name].name or tool.name
+                    tool.description = (
+                        server.tool_metadata[tool_name].description or tool.description
+                    )
+
         # Populate the tools and sessions dictionaries
         for session, components in self.group_session._sessions.items():
             tool_names = components.tools
             server_name = next(iter(tool_names)).split(SERVER_TOOL_SEPARATOR)[0]
-
             self.tools[server_name] = [
                 self.group_session._tools[tool_name] for tool_name in tool_names
             ]
@@ -81,7 +104,6 @@ class MCPClient:
 
 
 def create_dynamic_tool(
-    server_name: str,
     tool_name: str,
     tool_description: str,
     input_schema_serialized: dict[str, Any],
@@ -123,12 +145,9 @@ def create_dynamic_tool(
 
     # Create the tool class
     class MCPDynamicTool(BaseTool):
-        name: ClassVar[str] = f"mcp-{server_name.replace(' ', '-')}-{tool_name}"
+        name: ClassVar[str] = tool_name
         name_frontend: ClassVar[str] = " ".join(
-            [
-                word.capitalize()
-                for word in re.split(r"[-/_=+*]", f"{server_name}-{tool_name}")
-            ]
+            [word.capitalize() for word in re.split(r"[-/_=+*]", tool_name)]
         )
         description: ClassVar[str] = tool_description
         description_frontend: ClassVar[str] = tool_description
