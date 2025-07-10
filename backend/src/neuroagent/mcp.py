@@ -65,11 +65,14 @@ class MCPClient:
                 # For each tool that has an override defined
                 for tool_name in tools_to_override:
                     # Find the corresponding Tool class in the group_session
-                    tool = next(
-                        tool
-                        for tool in self.group_session._tools.values()
-                        if tool.name == tool_name
-                    )
+                    try:
+                        tool = next(
+                            tool
+                            for tool in self.group_session._tools.values()
+                            if tool.name == tool_name
+                        )
+                    except StopIteration:
+                        raise ValueError(f"Tool {tool_name} not found")
 
                     # Perform the override
                     tool.name = server.tool_metadata[tool_name].name or tool.name
