@@ -456,8 +456,8 @@ async def filtered_tools(
 
     # Awaiting here makes downstream calls already loaded so no performance issue
     messages = await thread.awaitable_attrs.messages
-    if len(tool_list) <= settings.tools.min_tool_selection:
-        return tool_list
+    if not tool_list:
+        return []
 
     openai_messages = await messages_to_openai_content(messages)
 
