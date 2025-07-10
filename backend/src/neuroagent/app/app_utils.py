@@ -500,9 +500,6 @@ async def filter_tools_by_conversation(
     -------
         List of filtered tools relevant to the conversation
     """
-    if len(tool_list) <= min_tool_selection:
-        return tool_list
-
     # Remove the content of tool responses to save tokens
     for message in openai_messages:
         if message["role"] == "tool":
