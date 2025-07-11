@@ -177,9 +177,7 @@ def create_dynamic_tool(
         async def arun(self) -> CallToolResult:
             """Run the tool."""
             result = await session.call_tool(
-                tool_name_mapping[tool_name]
-                if tool_name in tool_name_mapping.keys()
-                else tool_name,
+                tool_name_mapping.get(tool_name) or tool_name,
                 arguments=self.input_schema.model_dump(),
             )
 
