@@ -14,10 +14,22 @@
       "args": ["-y", "exa-mcp-server", "--tools=web_search_exa,research_paper_search,crawling"],
       "env": {
         "EXA_API_KEY": "NEUROAGENT_MCP__SECRETS__EXA_API_KEY"
-      }
+      },
+      "tool_metadata": {
+        "crawling":{
+          "name": "read-paper",
+          "description": "Extract content from specific URLs using Exa AI - performs targeted crawling of web pages to retrieve their full content. Useful for reading articles, PDFs, or any web page when you have the exact URL. Typically used in combination with web_search_exa and research_paper_search when the user asks for more info about a paper/url. Returns the complete text content of the specified URL."
+          }
+        }
     },
     "run_python":{
       "command": "deno",
-      "args": ["run", "-R=node_modules", "--node-modules-dir=auto", "jsr:@pydantic/mcp-run-python", "stdio"]
+      "args": ["run", "-R=node_modules", "--node-modules-dir=auto", "jsr:@pydantic/mcp-run-python", "stdio"],
+      "tool_metadata": {
+        "run_python_code":{
+          "name": "execute-python-code",
+          "name_frontend": "Run Python"
+          }
+        }
     }
   }
