@@ -29,6 +29,9 @@ class MCPClient:
 
         self.tools: dict[str, list[Tool]] = {}  # server -> tool list
         self.tool_name_mapping: dict[str, str] = {}  # custom names -> original names
+        self.tool_name_frontend_mapping: dict[
+            str, str
+        ] = {}  # final name -> frontend name
         self.sessions: dict[str, ClientSession] = {}  # server -> session
 
     async def __aenter__(self) -> "MCPClient | None":
@@ -86,6 +89,11 @@ class MCPClient:
                         server.tool_metadata[tool_name].description or tool.description
                     )
 
+                    if server.tool_metadata[tool_name].name_frontend:
+                        self.tool_name_frontend_mapping[tool.name] = (
+                            server.tool_metadata[tool_name].name_frontend  # type: ignore
+                        )
+
         # Populate the tools and sessions dictionaries
         for session, components in self.group_session._sessions.items():
             tool_names = components.tools
@@ -118,6 +126,7 @@ def create_dynamic_tool(
     tool_description: str,
     input_schema_serialized: dict[str, Any],
     session: ClientSession,
+    tool_name_frontend: str | None = None,
 ) -> Type[BaseTool]:
     """Create a dynamic BaseTool subclass for an MCP tool.
 
@@ -156,7 +165,7 @@ def create_dynamic_tool(
     # Create the tool class
     class MCPDynamicTool(BaseTool):
         name: ClassVar[str] = tool_name
-        name_frontend: ClassVar[str] = " ".join(
+        name_frontend: ClassVar[str] = tool_name_frontend or " ".join(
             [word.capitalize() for word in re.split(r"[-/_=+*]", tool_name)]
         )
         description: ClassVar[str] = tool_description

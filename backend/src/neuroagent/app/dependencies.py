@@ -322,6 +322,7 @@ def get_mcp_tool_list(
                 else "NO DESCRIPTION",
                 input_schema_serialized=tool.inputSchema,
                 session=mcp_client.sessions[server_name],
+                tool_name_frontend=mcp_client.tool_name_frontend_mapping.get(tool.name),
             )
             dynamic_tools.append(dynamic_tool)
 

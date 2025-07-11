@@ -27,7 +27,8 @@
       "args": ["run", "-R=node_modules", "--node-modules-dir=auto", "jsr:@pydantic/mcp-run-python", "stdio"],
       "tool_metadata": {
         "run_python_code":{
-          "name": "execute-python-code"
+          "name": "execute-python-code",
+          "name_frontend": "Run Python"
           }
         }
     }

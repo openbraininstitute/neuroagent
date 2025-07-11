@@ -204,6 +204,7 @@ class MCPToolMetadata(BaseModel):
     """Metadata of the MCP tools. Overrides native ones."""
 
     name: str | None = None
+    name_frontend: str | None = None
     description: str | None = None
 
 
