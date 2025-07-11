@@ -27,7 +27,6 @@ dependencies = [
     "pyyaml",
     "redis",
     "semantic-router",
-    "scikit-learn",
     "sqlalchemy[asyncio]",
     "tavily-python",
     "types-PyYAML",
