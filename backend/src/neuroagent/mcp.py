@@ -28,6 +28,7 @@ class MCPClient:
         )
 
         self.tools: dict[str, list[Tool]] = {}  # server -> tool list
+        self.tool_name_mapping: dict[str, str] = {}  # custom names -> original names
         self.sessions: dict[str, ClientSession] = {}  # server -> session
 
     async def __aenter__(self) -> "MCPClient | None":
@@ -74,6 +75,11 @@ class MCPClient:
                     except StopIteration:
                         raise ValueError(f"Tool {tool_name} not found")
 
+                    # Store the original name for when we call the tool
+                    self.tool_name_mapping[
+                        server.tool_metadata[tool_name].name or tool.name
+                    ] = tool.name
+
                     # Perform the override
                     tool.name = server.tool_metadata[tool_name].name or tool.name
                     tool.description = (
@@ -108,6 +114,7 @@ class MCPClient:
 
 def create_dynamic_tool(
     tool_name: str,
+    tool_name_mapping: dict[str, str],
     tool_description: str,
     input_schema_serialized: dict[str, Any],
     session: ClientSession,
@@ -161,7 +168,9 @@ def create_dynamic_tool(
         async def arun(self) -> CallToolResult:
             """Run the tool."""
             result = await session.call_tool(
-                tool_name,
+                tool_name_mapping[tool_name]
+                if tool_name in tool_name_mapping.keys()
+                else tool_name,
                 arguments=self.input_schema.model_dump(),
             )
 
