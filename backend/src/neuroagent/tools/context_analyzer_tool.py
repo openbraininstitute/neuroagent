@@ -2,11 +2,9 @@
 
 from typing import ClassVar
 
-from pydantic import Field, BaseModel
-from pydantic.json_schema import SkipJsonSchema
+from pydantic import BaseModel
 
-
-from neuroagent.tools.base_tool import BaseTool
+from neuroagent.tools.base_tool import BaseMetadata, BaseTool
 
 
 class ContextAnalyzerInput(BaseModel):
@@ -15,7 +13,7 @@ class ContextAnalyzerInput(BaseModel):
     pass
 
 
-class ContextAnalyzerMetdata(BaseModel):
+class ContextAnalyzerMetdata(BaseMetadata):
     """Metadata for the Context Analyzer tool."""
 
     frontend_url: str
@@ -23,6 +21,8 @@ class ContextAnalyzerMetdata(BaseModel):
 
 class ContextAnalyzerOutput(BaseModel):
     """Output of the Context Analyzer tool."""
+
+    page_description: str
 
 
 class ContextAnalyzerTool(BaseTool):
@@ -39,17 +39,16 @@ class ContextAnalyzerTool(BaseTool):
     metadata: ContextAnalyzerMetdata
     input_schema: ContextAnalyzerInput
 
-    async def arun(self):
+    async def arun(self) -> ContextAnalyzerOutput:
         """From the current url, gives information on the current page.
 
         Returns
         -------
             Description of the current page the user is on, formatted as a string.
         """
-
-        return
+        return ContextAnalyzerOutput(page_description=self.metadata.frontend_url)
 
     @classmethod
-    async def is_online(frontend_url: str | None) -> bool:
+    async def is_online(cls, frontend_url: str | None) -> bool:
         """Check if the tool is online."""
         return frontend_url is not None
