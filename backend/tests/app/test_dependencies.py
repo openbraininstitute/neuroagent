@@ -29,7 +29,10 @@ from neuroagent.new_types import Agent
 
 def test_get_settings():
     settings = get_settings()
-    assert settings.tools.literature.url == "https://fake_url"
+    assert (
+        settings.tools.literature.url
+        == "https://www.openbraininstitute.org/api/literature"
+    )
 
 
 @pytest.mark.asyncio
