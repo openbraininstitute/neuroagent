@@ -100,7 +100,6 @@ from neuroagent.tools import (
     StrainGetOneTool,
     SubjectGetAllTool,
     SubjectGetOneTool,
-    WeatherTool,
     WebSearchTool,
 )
 from neuroagent.tools.base_tool import BaseTool
@@ -409,7 +408,7 @@ def get_tool_list(
         CircuitGetAllTool,
         CircuitGetOneTool,
         # NowTool,
-        WeatherTool,
+        # WeatherTool,
         # RandomPlotGeneratorTool,
     ]
 
@@ -493,8 +492,7 @@ async def filtered_tools(
             selected.tool_name
             for selected in await last_user_message.awaitable_attrs.tool_selection
         ]
-        test = [tool for tool in tool_list if tool.name in previously_selected_tools]
-        return test
+        return [tool for tool in tool_list if tool.name in previously_selected_tools]
 
 
 @cache
