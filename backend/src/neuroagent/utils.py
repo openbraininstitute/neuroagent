@@ -7,8 +7,15 @@ import uuid
 from typing import Any
 
 from fastapi import HTTPException
+from openai.types.completion_usage import CompletionUsage
 
-from neuroagent.app.database.sql_schemas import Entity, Messages
+from neuroagent.app.database.sql_schemas import (
+    Entity,
+    Messages,
+    Task,
+    TokenConsumption,
+    TokenType,
+)
 from neuroagent.schemas import Category
 
 logger = logging.getLogger(__name__)
@@ -245,3 +252,39 @@ def delete_from_storage(
                     Bucket=bucket_name, Delete={"Objects": batch, "Quiet": True}
                 )
             objects_to_delete = []
+
+
+def assign_token_count(
+    message: Messages, usage: CompletionUsage | None, model: str
+) -> None:
+    """Assign token count to a message given a usage chunk."""
+    # Parse usage to add to message's data
+    if usage:
+        # Compute input, input_cached, completion
+        input_tokens = usage.prompt_tokens
+        cached_tokens = (
+            usage.prompt_tokens_details.cached_tokens
+            if usage.prompt_tokens_details
+            else None
+        )
+        prompt_tokens = input_tokens - cached_tokens if cached_tokens else input_tokens
+        completion_tokens = usage.completion_tokens
+
+        # Assign to the sqlalchemy class
+        task = (
+            Task.TOOL_SELECTION
+            if message.entity == Entity.USER
+            else Task.CHAT_COMPLETION
+        )
+        token_consumption = [
+            TokenConsumption(type=token_type, task=task, count=count, model=model)
+            for token_type, count in [
+                (TokenType.INPUT_CACHED, cached_tokens),
+                (TokenType.INPUT_NONCACHED, prompt_tokens),
+                (TokenType.COMPLETION, completion_tokens),
+            ]
+            if count
+        ]
+
+        # Assign to message
+        message.token_consumption = token_consumption
