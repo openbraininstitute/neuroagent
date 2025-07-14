@@ -20,6 +20,7 @@ from neuroagent.new_types import (
 )
 from neuroagent.tools.base_tool import BaseTool
 from neuroagent.utils import (
+    assign_token_count,
     complete_partial_json,
     get_entity,
     merge_chunk,
@@ -394,10 +395,9 @@ class AgentsRoutine:
                         content=json.dumps(message),
                         tool_calls=tool_calls,
                         is_complete=True,
-                        model=agent.model,
                     )
                 )
-
+                assign_token_count(messages[-1], usage=chunk.usage, model=agent.model)
                 if not messages[-1].tool_calls:
                     yield f"e:{json.dumps(finish_data)}\n"
                     break
@@ -455,9 +455,8 @@ class AgentsRoutine:
                             entity=Entity.TOOL,
                             content=json.dumps(tool_response),
                             is_complete=True,
-                            model=None,
                         )
-                        for i, tool_response in enumerate(tool_calls_executed.messages)
+                        for tool_response in tool_calls_executed.messages
                     ]
                 )
 
@@ -521,7 +520,6 @@ class AgentsRoutine:
                         content=json.dumps(message),
                         tool_calls=tool_calls,
                         is_complete=False,
-                        model=agent.model,
                     )
                 )
 
@@ -541,7 +539,6 @@ class AgentsRoutine:
                                 }
                             ),
                             is_complete=False,
-                            model=None,
                         )
                         for call in tool_calls
                     ]

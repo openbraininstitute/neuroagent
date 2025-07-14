@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - New utterances in false positive semantic route.
 - Tool pre-selection.
 - Ephys tool.
+- Table to track token consumption.
 
 ### Changed
 - Switch from VARCHAR to UUID where possible.

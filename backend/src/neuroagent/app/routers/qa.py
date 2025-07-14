@@ -32,7 +32,7 @@ from neuroagent.app.app_utils import (
     validate_project,
 )
 from neuroagent.app.config import Settings
-from neuroagent.app.database.sql_schemas import Entity, Messages, Threads, ToolSelection
+from neuroagent.app.database.sql_schemas import Entity, Messages, Threads
 from neuroagent.app.dependencies import (
     get_accounting_session_factory,
     get_agents_routine,
@@ -303,24 +303,6 @@ async def stream_chat_agent(
     # No need to await since it has been awaited in tool filtering dependency
     messages: list[Messages] = thread.messages
 
-    if (
-        not messages
-        or messages[-1].entity == Entity.AI_MESSAGE
-        or not messages[-1].is_complete
-    ):
-        messages.append(
-            Messages(
-                thread_id=thread.thread_id,
-                entity=Entity.USER,
-                content=json.dumps({"role": "user", "content": user_request.content}),
-                is_complete=True,
-                model=None,
-                selected_tools=[
-                    ToolSelection(selected_tools=tool.name) for tool in agent.tools
-                ],
-            )
-        )
-
     background_tasks.add_task(
         commit_messages, request.app.state.engine, messages, thread
     )
@@ -353,7 +335,6 @@ async def stream_chat_agent(
                         entity=Entity.AI_MESSAGE,
                         content=json.dumps({"role": "assistant", "content": response}),
                         is_complete=True,
-                        model=None,
                     )
                 )
                 return StreamingResponse(
