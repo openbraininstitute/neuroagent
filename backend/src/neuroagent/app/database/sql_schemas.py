@@ -4,7 +4,7 @@ import datetime
 import enum
 import uuid
 
-from sqlalchemy import UUID, Boolean, DateTime, Enum, ForeignKey, String
+from sqlalchemy import UUID, Boolean, DateTime, Enum, ForeignKey, Integer, String
 from sqlalchemy.ext.asyncio import AsyncAttrs
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
@@ -21,6 +21,21 @@ class Entity(enum.Enum):
     AI_TOOL = "ai_tool"
     TOOL = "tool"
     AI_MESSAGE = "ai_message"
+
+
+class Task(enum.Enum):
+    """Type of request that generated token consumption."""
+
+    CHAT_COMPLETION = "chat-completion"
+    TOOL_SELECTION = "tool-selection"
+
+
+class TokenType(enum.Enum):
+    """Type of token consumed."""
+
+    INPUT_NONCACHED = "input-noncached"
+    INPUT_CACHED = "input-cached"
+    COMPLETION = "completion"
 
 
 class Base(AsyncAttrs, DeclarativeBase):
@@ -64,7 +79,6 @@ class Messages(Base):
     entity: Mapped[Entity] = mapped_column(Enum(Entity), nullable=False)
     content: Mapped[str] = mapped_column(String, nullable=False)
     is_complete: Mapped[bool] = mapped_column(Boolean)
-    model: Mapped[str] = mapped_column(String, nullable=True, default=None)
 
     thread_id: Mapped[uuid.UUID] = mapped_column(
         UUID, ForeignKey("threads.thread_id"), nullable=False
@@ -73,8 +87,11 @@ class Messages(Base):
     tool_calls: Mapped[list["ToolCalls"]] = relationship(
         "ToolCalls", back_populates="message", cascade="all, delete-orphan"
     )
-    selected_tools: Mapped[list["ToolSelection"]] = relationship(
+    tool_selection: Mapped[list["ToolSelection"]] = relationship(
         "ToolSelection", cascade="all, delete-orphan"
+    )
+    token_consumption: Mapped[list["TokenConsumption"]] = relationship(
+        "TokenConsumption", cascade="all, delete-orphan"
     )
 
 
@@ -100,7 +117,23 @@ class ToolSelection(Base):
     id: Mapped[uuid.UUID] = mapped_column(
         UUID, primary_key=True, default=lambda: uuid.uuid4()
     )
-    selected_tools: Mapped[str] = mapped_column(String, nullable=False)
+    tool_name: Mapped[str] = mapped_column(String, nullable=False)
     message_id: Mapped[uuid.UUID] = mapped_column(
         UUID, ForeignKey("messages.message_id")
     )
+
+
+class TokenConsumption(Base):
+    """SQL table to track token consumption of the LLMs."""
+
+    __tablename__ = "token_consumption"
+    id: Mapped[uuid.UUID] = mapped_column(
+        UUID, primary_key=True, default=lambda: uuid.uuid4()
+    )
+    message_id: Mapped[uuid.UUID] = mapped_column(
+        UUID, ForeignKey("messages.message_id")
+    )
+    type: Mapped[TokenType] = mapped_column(Enum(TokenType), nullable=False)
+    task: Mapped[Task] = mapped_column(Enum(Task), nullable=False)
+    count: Mapped[int] = mapped_column(Integer, nullable=False)
+    model: Mapped[str] = mapped_column(String, nullable=False)

@@ -7,12 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v0.7.0] - 14.07.2025
+
 ### Added
 - Python interpreter tool.
 - Auto alembic upgrade.
 - New utterances in false positive semantic route.
 - Tool pre-selection.
 - Ephys tool.
+- Support for MCP tool name/description override.
+- Table to track token consumption.
+- Optional exclusion of the empty threads.
 
 ### Changed
 - Switch from VARCHAR to UUID where possible.
@@ -23,6 +28,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Tool selection remains when switching between pages.
 - Propagate temperature to the api call and set the seed.
 - Make sure no .env is read in tests.
+
+### Removed
+- Brain region and mtype resolving.
 
 ## [v0.6.4] - 02.07.2025
 

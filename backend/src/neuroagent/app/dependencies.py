@@ -1,5 +1,6 @@
 """App dependencies."""
 
+import json
 import logging
 import re
 from datetime import datetime, timezone
@@ -22,7 +23,7 @@ from starlette.status import HTTP_401_UNAUTHORIZED
 from neuroagent.agent_routine import AgentsRoutine
 from neuroagent.app.app_utils import filter_tools_by_conversation, validate_project
 from neuroagent.app.config import Settings
-from neuroagent.app.database.sql_schemas import Threads
+from neuroagent.app.database.sql_schemas import Entity, Messages, Threads
 from neuroagent.app.schemas import OpenRouterModelResponse, UserInfo
 from neuroagent.mcp import MCPClient, create_dynamic_tool
 from neuroagent.new_types import Agent
@@ -71,8 +72,6 @@ from neuroagent.tools import (
     PlotMorphologyGetOneTool,
     ReconstructionMorphologyGetAllTool,
     ReconstructionMorphologyGetOneTool,
-    ResolveBrainRegionTool,
-    ResolveMtypeTool,
     SCSGetAllTool,
     SCSGetOneTool,
     SCSPlotTool,
@@ -102,7 +101,6 @@ from neuroagent.tools import (
     WebSearchTool,
 )
 from neuroagent.tools.base_tool import BaseTool
-from neuroagent.utils import messages_to_openai_content
 
 logger = logging.getLogger(__name__)
 
@@ -315,13 +313,14 @@ def get_mcp_tool_list(
         for tool in tools:
             # Create a dynamic tool class for each MCP tool
             dynamic_tool = create_dynamic_tool(
-                server_name=server_name,
                 tool_name=tool.name,
+                tool_name_mapping=mcp_client.tool_name_mapping,
                 tool_description=tool.description
                 if tool.description
                 else "NO DESCRIPTION",
                 input_schema_serialized=tool.inputSchema,
                 session=mcp_client.sessions[server_name],
+                tool_name_frontend=mcp_client.tool_name_frontend_mapping.get(tool.name),
             )
             dynamic_tools.append(dynamic_tool)
 
@@ -354,8 +353,6 @@ def get_tool_list(
         LiteratureSearchTool,
         ReconstructionMorphologyGetAllTool,
         ReconstructionMorphologyGetOneTool,
-        ResolveBrainRegionTool,
-        ResolveMtypeTool,
         MorphometricsGetOneTool,
         EphysMetricsGetOneTool,
         OrganizationGetAllTool,
@@ -454,23 +451,45 @@ async def filtered_tools(
     if request.method == "GET":
         return tool_list
 
-    # Awaiting here makes downstream calls already loaded so no performance issue
-    messages = await thread.awaitable_attrs.messages
-    if not tool_list:
-        return []
-
-    openai_messages = await messages_to_openai_content(messages)
-
     body = await request.json()
-    user_content = body["content"]
 
-    return await filter_tools_by_conversation(
-        openai_messages=openai_messages,
-        tool_list=tool_list,
-        user_content=user_content,
-        openai_client=openai_client,
-        min_tool_selection=settings.tools.min_tool_selection,
-    )
+    # Awaiting here makes downstream calls already loaded so no performance issue
+    messages: list[Messages] = await thread.awaitable_attrs.messages
+    if (
+        not messages
+        or messages[-1].entity == Entity.AI_MESSAGE
+        or not messages[-1].is_complete
+    ):
+        messages.append(
+            Messages(
+                thread_id=thread.thread_id,
+                entity=Entity.USER,
+                content=json.dumps({"role": "user", "content": body["content"]}),
+                is_complete=True,
+            )
+        )
+
+        if not tool_list:
+            return []
+
+        return await filter_tools_by_conversation(
+            messages=messages,
+            tool_list=tool_list,
+            openai_client=openai_client,
+            min_tool_selection=settings.tools.min_tool_selection,
+        )
+
+    # HIL
+    else:
+        # We reuse the tools selected for the previous USER message
+        last_user_message = next(
+            message for message in reversed(messages) if message.entity == Entity.USER
+        )
+        previously_selected_tools = [
+            selected.tool_name
+            for selected in await last_user_message.awaitable_attrs.tool_selection
+        ]
+        return [tool for tool in tool_list if tool.name in previously_selected_tools]
 
 
 @cache
@@ -578,7 +597,6 @@ def get_s3_client(
 
 
 def get_context_variables(
-    request: Request,
     settings: Annotated[Settings, Depends(get_settings)],
     httpx_client: Annotated[AsyncClient, Depends(get_httpx_client)],
     thread: Annotated[Threads, Depends(get_thread)],
@@ -589,7 +607,6 @@ def get_context_variables(
     """Get the context variables to feed the tool's metadata."""
     return {
         "bluenaas_url": settings.tools.bluenaas.url,
-        "brainregion_embeddings": request.app.state.br_embeddings,
         "bucket_name": settings.storage.bucket_name,
         "entitycore_url": settings.tools.entitycore.url,
         "httpx_client": httpx_client,

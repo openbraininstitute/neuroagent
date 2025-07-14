@@ -3,7 +3,7 @@
 import json
 import os
 from typing import ClassVar
-from unittest.mock import Mock, mock_open, patch
+from unittest.mock import mock_open, patch
 from uuid import UUID
 
 import pytest
@@ -18,7 +18,6 @@ from neuroagent.app.database.sql_schemas import Entity, Messages, Threads, ToolC
 from neuroagent.app.dependencies import Agent, get_openrouter_models, get_settings
 from neuroagent.app.main import app
 from neuroagent.app.schemas import OpenRouterModelResponse
-from neuroagent.schemas import EmbeddedBrainRegion, EmbeddedBrainRegions
 from neuroagent.tools.base_tool import BaseTool
 from tests.mock_client import MockOpenAIClient, create_mock_response
 
@@ -321,23 +320,6 @@ def settings():
         rate_limiter={"disabled": True},
         accounting={"disabled": True},
     )
-
-
-@pytest.fixture(autouse=True)
-def mock_br_embeddings(monkeypatch):
-    """Automatically mock br_embeddings for all tests"""
-    mock_embeddings = [
-        EmbeddedBrainRegions(
-            regions=[EmbeddedBrainRegion(id="1234", name="test", hierarchy_level=0)],
-            hierarchy_id="4567",
-        )
-    ]  # or whatever mock data you need
-
-    def mock_get_br_embeddings(*args, **kwargs):
-        return mock_embeddings
-
-    monkeypatch.setattr("neuroagent.app.main.get_br_embeddings", mock_get_br_embeddings)
-    monkeypatch.setattr("neuroagent.app.main.get_s3_client", lambda *params: Mock())
 
 
 # Prevent tests from connecting to actual MCP servers

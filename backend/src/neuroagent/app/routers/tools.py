@@ -94,7 +94,6 @@ async def execute_tool_call(
         entity=Entity.TOOL,
         content=json.dumps(message),
         is_complete=True,
-        model=None,
     )
 
     session.add(tool_call)

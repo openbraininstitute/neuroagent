@@ -235,7 +235,62 @@ def test_get_threads_query_param(httpx_mock, app_client, db_connection, test_use
 
 
 @pytest.mark.httpx_mock(can_send_already_matched_responses=True)
-def test_update_thread_title(httpx_mock, app_client, db_connection, test_user_info):
+def test_get_threads_exclude_empty(
+    patch_required_env,
+    httpx_mock,
+    app_client,
+    db_connection,
+    test_user_info,
+    populate_db,
+):
+    mock_keycloak_user_identification(httpx_mock, test_user_info)
+    test_settings = Settings(
+        db={"prefix": db_connection}, keycloak={"issuer": "https://great_issuer.com"}
+    )
+    app.dependency_overrides[get_settings] = lambda: test_settings
+
+    _, vlab, proj = test_user_info
+    with app_client as app_client:
+        threads = app_client.get("/threads").json()
+        assert not threads["results"]
+        # Create some threads
+        create_output_1 = app_client.post(
+            "/threads", json={"virtual_lab_id": str(vlab), "project_id": str(proj)}
+        ).json()
+        create_output_2 = app_client.post(
+            "/threads", json={"virtual_lab_id": str(vlab), "project_id": str(proj)}
+        ).json()
+        create_output_3 = app_client.post(
+            "/threads", json={"virtual_lab_id": str(vlab), "project_id": str(proj)}
+        ).json()
+
+        thread_ids = [
+            create_output_1["thread_id"],
+            create_output_2["thread_id"],
+            create_output_3["thread_id"],
+        ]
+
+        # Keep empty threads
+        threads = app_client.get(
+            "/threads", params={"virtual_lab_id": vlab, "project_id": proj}
+        ).json()
+        db_items, _ = populate_db
+        assert [thread["thread_id"] for thread in threads["results"]] == list(
+            reversed([str(db_items["thread"].thread_id)] + thread_ids)
+        )
+
+        # Remove empty threads
+        threads = app_client.get(
+            "/threads",
+            params={"exclude_empty": True, "virtual_lab_id": vlab, "project_id": proj},
+        ).json()
+        assert threads["results"][0]["thread_id"] == str(db_items["thread"].thread_id)
+
+
+@pytest.mark.httpx_mock(can_send_already_matched_responses=True)
+def test_update_thread_title(
+    httpx_mock, app_client, db_connection, test_user_info
+):
     mock_keycloak_user_identification(httpx_mock, test_user_info)
     test_settings = Settings(
         db={"prefix": db_connection}, keycloak={"issuer": "https://great_issuer.com"}
