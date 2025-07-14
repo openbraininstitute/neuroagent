@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v0.7.0] - 14.07.2025
+
 ### Added
 - Python interpreter tool.
 - Auto alembic upgrade.
