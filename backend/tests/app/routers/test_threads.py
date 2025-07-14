@@ -236,7 +236,6 @@ def test_get_threads_query_param(httpx_mock, app_client, db_connection, test_use
 
 @pytest.mark.httpx_mock(can_send_already_matched_responses=True)
 def test_get_threads_exclude_empty(
-    patch_required_env,
     httpx_mock,
     app_client,
     db_connection,
@@ -288,9 +287,7 @@ def test_get_threads_exclude_empty(
 
 
 @pytest.mark.httpx_mock(can_send_already_matched_responses=True)
-def test_update_thread_title(
-    httpx_mock, app_client, db_connection, test_user_info
-):
+def test_update_thread_title(httpx_mock, app_client, db_connection, test_user_info):
     mock_keycloak_user_identification(httpx_mock, test_user_info)
     test_settings = Settings(
         db={"prefix": db_connection}, keycloak={"issuer": "https://great_issuer.com"}
