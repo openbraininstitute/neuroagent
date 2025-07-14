@@ -4,6 +4,7 @@ from neuroagent.tools.bluenaas_scs_getall import SCSGetAllTool
 from neuroagent.tools.bluenaas_scs_getone import SCSGetOneTool
 from neuroagent.tools.bluenaas_scs_plot import SCSPlotTool
 from neuroagent.tools.bluenaas_scs_post import SCSPostTool
+from neuroagent.tools.context_analyzer_tool import ContextAnalyzerTool
 from neuroagent.tools.entitycore_asset_downloadone import AssetDownloadOneTool
 from neuroagent.tools.entitycore_asset_getall import AssetGetAllTool
 from neuroagent.tools.entitycore_asset_getone import AssetGetOneTool
@@ -140,6 +141,7 @@ from neuroagent.tools.weather import WeatherTool
 from neuroagent.tools.web_search import WebSearchTool
 
 __all__ = [
+    "ContextAnalyzerTool",
     "CircuitGetAllTool",
     "CircuitGetOneTool",
     "SCSGetAllTool",
