@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Tool pre-selection.
 - Ephys tool.
 - Support for MCP tool name/description override.
+- Optional exclusion of the empty threads.
 
 ### Changed
 - Switch from VARCHAR to UUID where possible.
@@ -23,6 +24,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Tool selection remains when switching between pages.
 - Propagate temperature to the api call and set the seed.
+
+### Removed
+- Brain region and mtype resolving.
 
 ## [v0.6.4] - 02.07.2025
 
