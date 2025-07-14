@@ -566,7 +566,7 @@ AVAILABLE TOOLS:
                 ToolSelection(tool_name=tool.name) for tool in filtered_tools
             ]
 
-            assign_token_count(messages[-1], usage=response.usage, model="gpt-4o-mini")
+            assign_token_count(messages[-1], usage=response.usage, model=model)
         else:
             logger.warning("No parsed response from OpenAI, returning empty list")
             filtered_tools = []
