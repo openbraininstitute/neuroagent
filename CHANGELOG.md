@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - New utterances in false positive semantic route.
 - Tool pre-selection.
 - Ephys tool.
+- Support for MCP tool name/description override.
 - Table to track token consumption.
 - Optional exclusion of the empty threads.
 

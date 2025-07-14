@@ -313,13 +313,14 @@ def get_mcp_tool_list(
         for tool in tools:
             # Create a dynamic tool class for each MCP tool
             dynamic_tool = create_dynamic_tool(
-                server_name=server_name,
                 tool_name=tool.name,
+                tool_name_mapping=mcp_client.tool_name_mapping,
                 tool_description=tool.description
                 if tool.description
                 else "NO DESCRIPTION",
                 input_schema_serialized=tool.inputSchema,
                 session=mcp_client.sessions[server_name],
+                tool_name_frontend=mcp_client.tool_name_frontend_mapping.get(tool.name),
             )
             dynamic_tools.append(dynamic_tool)
 
