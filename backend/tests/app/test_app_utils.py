@@ -575,9 +575,8 @@ def test_various_limit_values(sample_redis_info, limit_value):
 async def test_filter_tools_empty_tool_list():
     """Test that empty tool list returns empty list"""
     result = await filter_tools_by_conversation(
-        openai_messages=[],
+        messages=[],
         tool_list=[],
-        user_content="test",
         openai_client=AsyncMock(),
         min_tool_selection=1,
     )
@@ -585,7 +584,9 @@ async def test_filter_tools_empty_tool_list():
 
 
 @pytest.mark.asyncio
-async def test_filter_tools_successful_selection(get_weather_tool, agent_handoff_tool):
+async def test_filter_tools_successful_selection(
+    get_weather_tool, agent_handoff_tool, populate_db
+):
     """Test successful tool filtering"""
     # Mock OpenAI response
     mock_openai_client = MockOpenAIClient()
@@ -606,17 +607,38 @@ async def test_filter_tools_successful_selection(get_weather_tool, agent_handoff
             ),
         )
     )
+    messages = [
+        Messages(
+            entity=Entity.USER,
+            content=json.dumps({"role": "user", "content": "Hello"}),
+            thread_id=UUID("12345678-9123-4567-1234-890123456789"),
+            is_complete=True,
+        ),
+        Messages(
+            entity=Entity.AI_MESSAGE,
+            content=json.dumps({"role": "assistant", "content": "Hi there!"}),
+            thread_id=UUID("12345678-9123-4567-1234-890123456789"),
+            is_complete=True,
+        ),
+        Messages(
+            entity=Entity.USER,
+            content=json.dumps(
+                {"role": "user", "content": "I need help with Agent handoff"}
+            ),
+            thread_id=UUID("12345678-9123-4567-1234-890123456789"),
+            is_complete=True,
+        ),
+    ]
 
-    result = await filter_tools_by_conversation(
-        openai_messages=[
-            {"role": "user", "content": "Hello"},
-            {"role": "assistant", "content": "Hi there!"},
-        ],
-        tool_list=[get_weather_tool, agent_handoff_tool],
-        user_content="I need help with Agent handoff",
-        openai_client=mock_openai_client,
-        min_tool_selection=1,
-    )
+    with patch(
+        "neuroagent.app.app_utils.assign_token_count", lambda *args, **kargs: None
+    ):
+        result = await filter_tools_by_conversation(
+            messages=messages,
+            tool_list=[get_weather_tool, agent_handoff_tool],
+            openai_client=mock_openai_client,
+            min_tool_selection=1,
+        )
 
     assert len(result) == 1
     assert result[0].name == "agent_handoff_tool"

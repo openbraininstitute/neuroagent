@@ -456,7 +456,6 @@ async def filtered_tools(
         return tool_list
 
     body = await request.json()
-    user_content = body["content"]
 
     # Awaiting here makes downstream calls already loaded so no performance issue
     messages: list[Messages] = await thread.awaitable_attrs.messages
@@ -480,7 +479,6 @@ async def filtered_tools(
         return await filter_tools_by_conversation(
             messages=messages,
             tool_list=tool_list,
-            user_content=user_content,
             openai_client=openai_client,
             min_tool_selection=settings.tools.min_tool_selection,
         )

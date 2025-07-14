@@ -482,7 +482,6 @@ def parse_redis_data(
 async def filter_tools_by_conversation(
     messages: list[Messages],
     tool_list: list[type[BaseTool]],
-    user_content: str,
     openai_client: AsyncOpenAI,
     min_tool_selection: int,
 ) -> list[type[BaseTool]]:
@@ -558,7 +557,7 @@ AVAILABLE TOOLS:
         if response.choices[0].message.parsed:
             selected_tools = response.choices[0].message.parsed.selected_tools
             logger.debug(
-                f"QUERY: {user_content}, #TOOLS: {len(selected_tools)}, SELECTED TOOLS: {selected_tools}"
+                f"#TOOLS: {len(selected_tools)}, SELECTED TOOLS: {selected_tools}"
             )
 
             # Add selected tools into the message's data
