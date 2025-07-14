@@ -27,7 +27,6 @@ from tests.mock_client import MockOpenAIClient, create_mock_response
 def test_question_suggestions(
     app_client,
     httpx_mock,
-    patch_required_env,
     db_connection,
     populate_db,
     test_user_info,
@@ -178,9 +177,7 @@ async def streamed_response():
 
 
 @pytest.mark.httpx_mock(can_send_already_matched_responses=True)
-def test_chat_streamed(
-    app_client, httpx_mock, patch_required_env, db_connection, test_user_info
-):
+def test_chat_streamed(app_client, httpx_mock, db_connection, test_user_info):
     """Test the generative QA endpoint with a fake LLM."""
     qa.stream_agent_response = Mock()
     qa.stream_agent_response.return_value = streamed_response()

@@ -3,7 +3,7 @@
 from neuroagent.app.config import Settings
 
 
-def test_required(monkeypatch, patch_required_env):
+def test_required(monkeypatch):
     settings = Settings()
 
     assert settings.tools.literature.url == "https://fake_url"

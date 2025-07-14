@@ -39,7 +39,7 @@ def test_custom_openapi(app_client, get_weather_tool):
     )
 
 
-def test_lifespan(caplog, monkeypatch, patch_required_env, db_connection):
+def test_lifespan(caplog, monkeypatch, db_connection):
     get_settings.cache_clear()
     caplog.set_level(logging.INFO)
 

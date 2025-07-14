@@ -15,9 +15,7 @@ from tests.conftest import mock_keycloak_user_identification
 from tests.mock_client import MockOpenAIClient, create_mock_response
 
 
-def test_create_thread(
-    patch_required_env, httpx_mock, app_client, db_connection, test_user_info
-):
+def test_create_thread(httpx_mock, app_client, db_connection, test_user_info):
     mock_keycloak_user_identification(httpx_mock, test_user_info)
     test_settings = Settings(
         db={"prefix": db_connection}, keycloak={"issuer": "https://great_issuer.com"}
@@ -38,9 +36,7 @@ def test_create_thread(
 
 
 @pytest.mark.httpx_mock(can_send_already_matched_responses=True)
-def test_generate_thread_title(
-    patch_required_env, httpx_mock, app_client, db_connection, test_user_info
-):
+def test_generate_thread_title(httpx_mock, app_client, db_connection, test_user_info):
     mock_keycloak_user_identification(httpx_mock, test_user_info)
     test_settings = Settings(
         db={"prefix": db_connection},
@@ -93,9 +89,7 @@ def test_generate_thread_title(
 
 
 @pytest.mark.httpx_mock(can_send_already_matched_responses=True)
-def test_get_threads(
-    patch_required_env, httpx_mock, app_client, db_connection, test_user_info
-):
+def test_get_threads(httpx_mock, app_client, db_connection, test_user_info):
     mock_keycloak_user_identification(httpx_mock, test_user_info)
     test_settings = Settings(
         db={"prefix": db_connection}, keycloak={"issuer": "https://great_issuer.com"}
@@ -154,9 +148,7 @@ def test_get_threads(
 
 
 @pytest.mark.httpx_mock(can_send_already_matched_responses=True)
-def test_get_threads_paginated(
-    patch_required_env, httpx_mock, app_client, db_connection, test_user_info
-):
+def test_get_threads_paginated(httpx_mock, app_client, db_connection, test_user_info):
     mock_keycloak_user_identification(httpx_mock, test_user_info)
     test_settings = Settings(
         db={"prefix": db_connection}, keycloak={"issuer": "https://great_issuer.com"}
@@ -196,9 +188,7 @@ def test_get_threads_paginated(
 
 
 @pytest.mark.httpx_mock(can_send_already_matched_responses=True)
-def test_get_threads_query_param(
-    patch_required_env, httpx_mock, app_client, db_connection, test_user_info
-):
+def test_get_threads_query_param(httpx_mock, app_client, db_connection, test_user_info):
     mock_keycloak_user_identification(httpx_mock, test_user_info)
     test_settings = Settings(
         db={"prefix": db_connection}, keycloak={"issuer": "https://great_issuer.com"}
@@ -245,9 +235,7 @@ def test_get_threads_query_param(
 
 
 @pytest.mark.httpx_mock(can_send_already_matched_responses=True)
-def test_update_thread_title(
-    patch_required_env, httpx_mock, app_client, db_connection, test_user_info
-):
+def test_update_thread_title(httpx_mock, app_client, db_connection, test_user_info):
     mock_keycloak_user_identification(httpx_mock, test_user_info)
     test_settings = Settings(
         db={"prefix": db_connection}, keycloak={"issuer": "https://great_issuer.com"}
@@ -282,7 +270,6 @@ def test_update_thread_title(
 
 @pytest.mark.httpx_mock(can_send_already_matched_responses=True)
 def test_delete_thread(
-    patch_required_env,
     httpx_mock,
     app_client,
     db_connection,
@@ -336,7 +323,6 @@ def test_delete_thread(
 @pytest.mark.httpx_mock(can_send_already_matched_responses=True)
 @pytest.mark.asyncio
 async def test_get_thread_messages(
-    patch_required_env,
     httpx_mock,
     app_client,
     db_connection,
@@ -386,7 +372,6 @@ async def test_get_thread_messages(
 @pytest.mark.httpx_mock(can_send_already_matched_responses=True)
 @pytest.mark.asyncio
 async def test_get_thread_messages_sort_and_filter(
-    patch_required_env,
     httpx_mock,
     app_client,
     db_connection,
@@ -455,7 +440,6 @@ async def test_get_thread_messages_sort_and_filter(
 @pytest.mark.httpx_mock(can_send_already_matched_responses=True)
 @pytest.mark.asyncio
 async def test_get_thread_messages_paginated(
-    patch_required_env,
     httpx_mock,
     app_client,
     db_connection,
@@ -514,7 +498,7 @@ async def test_get_thread_messages_paginated(
 @pytest.mark.httpx_mock(can_send_already_matched_responses=True)
 @pytest.mark.asyncio
 async def test_get_thread_messages_empty_paginated(
-    patch_required_env, httpx_mock, app_client, db_connection, test_user_info
+    httpx_mock, app_client, db_connection, test_user_info
 ):
     mock_keycloak_user_identification(httpx_mock, test_user_info)
     test_settings = Settings(
@@ -544,7 +528,6 @@ async def test_get_thread_messages_empty_paginated(
 @pytest.mark.httpx_mock(can_send_already_matched_responses=True)
 @pytest.mark.asyncio
 async def test_get_thread_messages_vercel_format(
-    patch_required_env,
     httpx_mock,
     app_client,
     db_connection,

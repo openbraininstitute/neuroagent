@@ -116,7 +116,7 @@ async def test_validate_project_empty_groups(vlab_id, proj_id):
 
 
 @patch("neuroagent.app.app_utils.create_async_engine")
-def test_setup_engine(create_engine_mock, monkeypatch, patch_required_env):
+def test_setup_engine(create_engine_mock, monkeypatch):
     create_engine_mock.return_value = AsyncMock()
 
     monkeypatch.setenv("NEUROAGENT_DB__PREFIX", "prefix")
@@ -129,9 +129,7 @@ def test_setup_engine(create_engine_mock, monkeypatch, patch_required_env):
 
 
 @patch("neuroagent.app.app_utils.create_async_engine")
-def test_setup_engine_no_connection_string(
-    create_engine_mock, monkeypatch, patch_required_env
-):
+def test_setup_engine_no_connection_string(create_engine_mock, monkeypatch):
     create_engine_mock.return_value = AsyncMock()
 
     monkeypatch.setenv("NEUROAGENT_DB__PREFIX", "prefix")
