@@ -591,7 +591,7 @@ async def test_filter_tools_successful_selection(
     # Mock OpenAI response
     mock_openai_client = MockOpenAIClient()
 
-    class ToolSelection(BaseModel):
+    class ToolFiltering(BaseModel):
         """Data class for tool selection by an LLM."""
 
         selected_tools: list[Literal["agent_handoff_tool", "get_weather_tool"]] = Field(
@@ -602,7 +602,7 @@ async def test_filter_tools_successful_selection(
     mock_openai_client.set_response(
         create_mock_response(
             {"role": "assistant", "content": ""},
-            structured_output_class=ToolSelection(
+            structured_output_class=ToolFiltering(
                 selected_tools=["agent_handoff_tool"]
             ),
         )

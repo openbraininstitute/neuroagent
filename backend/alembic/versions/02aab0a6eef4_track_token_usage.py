@@ -27,7 +27,7 @@ def upgrade() -> None:
         sa.Column("message_id", sa.UUID(), nullable=False),
         sa.Column(
             "type",
-            sa.Enum("INPUT", "INPUT_CACHED", "COMPLETION", name="tokentype"),
+            sa.Enum("INPUT_NONCACHED", "INPUT_CACHED", "COMPLETION", name="tokentype"),
             nullable=False,
         ),
         sa.Column(

@@ -280,7 +280,7 @@ def assign_token_count(
             TokenConsumption(type=token_type, task=task, count=count, model=model)
             for token_type, count in [
                 (TokenType.INPUT_CACHED, cached_tokens),
-                (TokenType.INPUT, prompt_tokens),
+                (TokenType.INPUT_NONCACHED, prompt_tokens),
                 (TokenType.COMPLETION, completion_tokens),
             ]
             if count
