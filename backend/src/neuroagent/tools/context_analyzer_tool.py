@@ -5,7 +5,7 @@ from typing import Any, ClassVar
 from pydantic import BaseModel
 
 from neuroagent.tools.base_tool import BaseMetadata, BaseTool
-from neuroagent.utils import parse_frontend_url
+from neuroagent.utils import get_frontend_description
 
 
 class ContextAnalyzerInput(BaseModel):
@@ -34,9 +34,10 @@ class ContextAnalyzerTool(BaseTool):
 
     name: ClassVar[str] = "context-analyzer-tool"
     name_frontend: ClassVar[str] = "Context Analyzer"
-    description: ClassVar[str] = (
-        """Gets a description of the current page the user is on. Call this tool when the user needs guidance on the platform."""
-    )
+    description: ClassVar[
+        str
+    ] = """Gets a description of the current page the user is on. Call this tool when the user needs guidance on the platform.
+    If the user has a vague question about the website USE THIS TOOL."""
     description_frontend: ClassVar[str] = (
         """Allows to get the current page the user is navigating. This allows the Agent to help the user navigate the website."""
     )
@@ -50,7 +51,7 @@ class ContextAnalyzerTool(BaseTool):
         -------
             Description of the current page the user is on, formatted as a string.
         """
-        parsed_url = parse_frontend_url(self.metadata.frontend_url)
+        parsed_url = get_frontend_description(self.metadata.frontend_url)
         return ContextAnalyzerOutput(**parsed_url)
 
     @classmethod
