@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## Added
+- Copy token button in UI.
+
 ### Fixed
 - Make sure .env is not read in tests.
 
