@@ -1,10 +1,11 @@
 """From url gives back what is on the current page."""
 
-from typing import ClassVar
+from typing import Any, ClassVar
 
 from pydantic import BaseModel
 
 from neuroagent.tools.base_tool import BaseMetadata, BaseTool
+from neuroagent.utils import parse_frontend_url
 
 
 class ContextAnalyzerInput(BaseModel):
@@ -22,6 +23,9 @@ class ContextAnalyzerMetdata(BaseMetadata):
 class ContextAnalyzerOutput(BaseModel):
     """Output of the Context Analyzer tool."""
 
+    is_in_project: bool
+    full_page_path: str
+    query_params: dict[str, Any]
     page_description: str
 
 
@@ -46,7 +50,8 @@ class ContextAnalyzerTool(BaseTool):
         -------
             Description of the current page the user is on, formatted as a string.
         """
-        return ContextAnalyzerOutput(page_description=self.metadata.frontend_url)
+        parsed_url = parse_frontend_url(self.metadata.frontend_url)
+        return ContextAnalyzerOutput(**parsed_url)
 
     @classmethod
     async def is_online(cls, frontend_url: str | None) -> bool:

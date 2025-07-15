@@ -5,6 +5,7 @@ import logging
 import re
 import uuid
 from typing import Any
+from urllib.parse import parse_qs, urlparse
 
 from fastapi import HTTPException
 
@@ -245,3 +246,80 @@ def delete_from_storage(
                     Bucket=bucket_name, Delete={"Objects": batch, "Quiet": True}
                 )
             objects_to_delete = []
+
+
+def parse_frontend_url(url: str | None = None) -> dict:
+    """
+    Parse a Virtual Lab URL and extract relevant information
+
+    Args:
+        url: The URL to parse
+
+    Returns
+    -------
+        Dictionary containing parsed information with keys:
+        - is_in_project: bool
+        - full_page_path: str (page_path joined with '/')
+        - query_params: dict of query parameters
+        - page_description: str
+    """
+    parsed_url = urlparse(url)
+    query_params = parse_qs(parsed_url.query)
+
+    # Remove the base path and split into components
+    path = parsed_url.path
+    if not path.startswith("/app/virtual-lab/"):
+        raise ValueError("Invalid Virtual Lab URL")
+
+    # Remove base path
+    remaining_path = path[len("/app/virtual-lab/") :]
+    path_components = [comp for comp in remaining_path.split("/") if comp]
+
+    # Check if we're in a project or not
+    if (
+        len(path_components) >= 4
+        and path_components[0] == "lab"
+        and path_components[2] == "project"
+    ):
+        is_in_project = True
+        page_path = path_components[4:] if len(path_components) > 4 else []
+
+    elif len(path_components) >= 1 and path_components[0] == "explore":
+        is_in_project = False
+        page_path = path_components
+
+    else:
+        raise ValueError(f"Unrecognized URL pattern: {url}")
+
+    # Get page type and other derived information
+    page_type = page_path[0] if page_path else "unknown"
+    full_page_path = "/".join(page_path)
+
+    # Get the description of the current page
+    if page_type == "home":
+        page_description = ""
+    elif page_type == "library":
+        page_description = ""
+    elif page_type == "team":
+        page_description = ""
+    elif page_type == "activity":
+        page_description = ""
+    elif page_type == "notebooks":
+        page_description = ""
+    elif page_type == "explore":
+        page_description = ""
+    elif page_type == "build":
+        page_description = ""
+    elif page_type == "simulate":
+        page_description = ""
+    elif page_type == "admin":
+        page_description = """"""
+    else:
+        raise ValueError("Unknown page type.")
+
+    return {
+        "is_in_project": is_in_project,
+        "full_page_path": full_page_path,
+        "query_params": query_params,
+        "page_description": page_description,
+    }
