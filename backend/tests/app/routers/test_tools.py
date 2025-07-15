@@ -11,7 +11,6 @@ from tests.conftest import mock_keycloak_user_identification
 
 @pytest.mark.asyncio
 async def test_execute_tool_call_accepted(
-    patch_required_env,
     httpx_mock,
     app_client,
     db_connection,
@@ -45,7 +44,6 @@ async def test_execute_tool_call_accepted(
 
 @pytest.mark.asyncio
 async def test_execute_tool_call_rejected(
-    patch_required_env,
     httpx_mock,
     app_client,
     db_connection,
@@ -81,7 +79,6 @@ async def test_execute_tool_call_rejected(
 
 @pytest.mark.asyncio
 async def test_execute_tool_call_validation_error(
-    patch_required_env,
     httpx_mock,
     app_client,
     db_connection,
@@ -118,7 +115,6 @@ async def test_execute_tool_call_validation_error(
 
 @pytest.mark.asyncio
 async def test_get_available_tools(
-    patch_required_env,
     httpx_mock,
     app_client,
     db_connection,
@@ -144,7 +140,6 @@ async def test_get_available_tools(
 
 @pytest.mark.asyncio
 async def test_get_tool_metadata(
-    patch_required_env,
     httpx_mock,
     app_client,
     db_connection,

@@ -1,6 +1,7 @@
 """Test configuration."""
 
 import json
+import os
 from typing import ClassVar
 from unittest.mock import mock_open, patch
 from uuid import UUID
@@ -167,10 +168,18 @@ def dont_look_at_env_file():
     Settings.model_config["env_file"] = None
 
 
-@pytest.fixture()
-def patch_required_env(monkeypatch):
-    monkeypatch.setenv("NEUROAGENT_TOOLS__LITERATURE__URL", "https://fake_url")
-    monkeypatch.setenv("NEUROAGENT_LLM__OPENAI_TOKEN", "dummy")
+@pytest.fixture(autouse=True)
+def dont_look_at_os_environ(monkeypatch):
+    """Make sure that NEUROAGENT_* env vars are deleted from `os.environ`.
+
+    Note that the `dont_look_at_env_file` fixture makes sure we don't read them from the .env file.
+    This one is also important since `litellm` loads all variables from .env file
+    on import into `os.environ` and we don't want to use them in tests.
+    """
+    for env_var in os.environ:
+        if env_var.startswith("NEUROAGENT_"):
+            # Delete all NEUROAGENT_* env vars
+            monkeypatch.delenv(env_var, raising=False)
 
 
 @pytest.fixture(name="test_user_info")
