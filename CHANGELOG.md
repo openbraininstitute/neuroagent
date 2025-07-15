@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- Make sure .env is not read in tests.
+
 ## [v0.7.0] - 14.07.2025
 
 ### Added
@@ -27,6 +30,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Tool selection remains when switching between pages.
 - Propagate temperature to the api call and set the seed.
+- Make sure .env is not read in tests.
 
 ### Removed
 - Brain region and mtype resolving.
