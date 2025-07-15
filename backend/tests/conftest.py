@@ -1,8 +1,9 @@
 """Test configuration."""
 
 import json
+import os
 from typing import ClassVar
-from unittest.mock import Mock, mock_open, patch
+from unittest.mock import mock_open, patch
 from uuid import UUID
 
 import pytest
@@ -17,7 +18,6 @@ from neuroagent.app.database.sql_schemas import Entity, Messages, Threads, ToolC
 from neuroagent.app.dependencies import Agent, get_openrouter_models, get_settings
 from neuroagent.app.main import app
 from neuroagent.app.schemas import OpenRouterModelResponse
-from neuroagent.schemas import EmbeddedBrainRegion, EmbeddedBrainRegions
 from neuroagent.tools.base_tool import BaseTool
 from tests.mock_client import MockOpenAIClient, create_mock_response
 
@@ -168,10 +168,18 @@ def dont_look_at_env_file():
     Settings.model_config["env_file"] = None
 
 
-@pytest.fixture()
-def patch_required_env(monkeypatch):
-    monkeypatch.setenv("NEUROAGENT_TOOLS__LITERATURE__URL", "https://fake_url")
-    monkeypatch.setenv("NEUROAGENT_LLM__OPENAI_TOKEN", "dummy")
+@pytest.fixture(autouse=True)
+def dont_look_at_os_environ(monkeypatch):
+    """Make sure that NEUROAGENT_* env vars are deleted from `os.environ`.
+
+    Note that the `dont_look_at_env_file` fixture makes sure we don't read them from the .env file.
+    This one is also important since `litellm` loads all variables from .env file
+    on import into `os.environ` and we don't want to use them in tests.
+    """
+    for env_var in os.environ:
+        if env_var.startswith("NEUROAGENT_"):
+            # Delete all NEUROAGENT_* env vars
+            monkeypatch.delenv(env_var, raising=False)
 
 
 @pytest.fixture(name="test_user_info")
@@ -312,23 +320,6 @@ def settings():
         rate_limiter={"disabled": True},
         accounting={"disabled": True},
     )
-
-
-@pytest.fixture(autouse=True)
-def mock_br_embeddings(monkeypatch):
-    """Automatically mock br_embeddings for all tests"""
-    mock_embeddings = [
-        EmbeddedBrainRegions(
-            regions=[EmbeddedBrainRegion(id="1234", name="test", hierarchy_level=0)],
-            hierarchy_id="4567",
-        )
-    ]  # or whatever mock data you need
-
-    def mock_get_br_embeddings(*args, **kwargs):
-        return mock_embeddings
-
-    monkeypatch.setattr("neuroagent.app.main.get_br_embeddings", mock_get_br_embeddings)
-    monkeypatch.setattr("neuroagent.app.main.get_s3_client", lambda *params: Mock())
 
 
 # Prevent tests from connecting to actual MCP servers

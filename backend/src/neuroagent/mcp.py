@@ -28,6 +28,10 @@ class MCPClient:
         )
 
         self.tools: dict[str, list[Tool]] = {}  # server -> tool list
+        self.tool_name_mapping: dict[str, str] = {}  # custom names -> original names
+        self.tool_name_frontend_mapping: dict[
+            str, str
+        ] = {}  # final name -> frontend name
         self.sessions: dict[str, ClientSession] = {}  # server -> session
 
     async def __aenter__(self) -> "MCPClient | None":
@@ -53,11 +57,47 @@ class MCPClient:
                     env=env,
                 )
             )
+
+        # Override tool name and description
+        # Iterate on each server defined in the settings
+        for server in self.config.servers.values():
+            # If the server has tool overriding defined
+            if server.tool_metadata:
+                # Get the list of tools that must be overriden
+                tools_to_override = server.tool_metadata.keys()
+
+                # For each tool that has an override defined
+                for tool_name in tools_to_override:
+                    # Find the corresponding Tool class in the group_session
+                    try:
+                        tool = next(
+                            tool
+                            for tool in self.group_session._tools.values()
+                            if tool.name == tool_name
+                        )
+                    except StopIteration:
+                        raise ValueError(f"Tool {tool_name} not found")
+
+                    # Store the original name for when we call the tool
+                    self.tool_name_mapping[
+                        server.tool_metadata[tool_name].name or tool.name
+                    ] = tool.name
+
+                    # Perform the override
+                    tool.name = server.tool_metadata[tool_name].name or tool.name
+                    tool.description = (
+                        server.tool_metadata[tool_name].description or tool.description
+                    )
+
+                    if server.tool_metadata[tool_name].name_frontend:
+                        self.tool_name_frontend_mapping[tool.name] = (
+                            server.tool_metadata[tool_name].name_frontend  # type: ignore
+                        )
+
         # Populate the tools and sessions dictionaries
         for session, components in self.group_session._sessions.items():
             tool_names = components.tools
             server_name = next(iter(tool_names)).split(SERVER_TOOL_SEPARATOR)[0]
-
             self.tools[server_name] = [
                 self.group_session._tools[tool_name] for tool_name in tool_names
             ]
@@ -81,11 +121,12 @@ class MCPClient:
 
 
 def create_dynamic_tool(
-    server_name: str,
     tool_name: str,
+    tool_name_mapping: dict[str, str],
     tool_description: str,
     input_schema_serialized: dict[str, Any],
     session: ClientSession,
+    tool_name_frontend: str | None = None,
 ) -> Type[BaseTool]:
     """Create a dynamic BaseTool subclass for an MCP tool.
 
@@ -123,12 +164,9 @@ def create_dynamic_tool(
 
     # Create the tool class
     class MCPDynamicTool(BaseTool):
-        name: ClassVar[str] = f"mcp-{server_name.replace(' ', '-')}-{tool_name}"
-        name_frontend: ClassVar[str] = " ".join(
-            [
-                word.capitalize()
-                for word in re.split(r"[-/_=+*]", f"{server_name}-{tool_name}")
-            ]
+        name: ClassVar[str] = tool_name
+        name_frontend: ClassVar[str] = tool_name_frontend or " ".join(
+            [word.capitalize() for word in re.split(r"[-/_=+*]", tool_name)]
         )
         description: ClassVar[str] = tool_description
         description_frontend: ClassVar[str] = tool_description
@@ -139,7 +177,7 @@ def create_dynamic_tool(
         async def arun(self) -> CallToolResult:
             """Run the tool."""
             result = await session.call_tool(
-                tool_name,
+                tool_name_mapping.get(tool_name) or tool_name,
                 arguments=self.input_schema.model_dump(),
             )
 

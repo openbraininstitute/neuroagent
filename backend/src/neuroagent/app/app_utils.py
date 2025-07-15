@@ -2,7 +2,6 @@
 
 import json
 import logging
-import re
 import uuid
 from pathlib import Path
 from typing import Any, Literal, Sequence
@@ -21,7 +20,13 @@ from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, create_async_engin
 from starlette.status import HTTP_401_UNAUTHORIZED
 
 from neuroagent.app.config import Settings
-from neuroagent.app.database.sql_schemas import Entity, Messages, Threads, utc_now
+from neuroagent.app.database.sql_schemas import (
+    Entity,
+    Messages,
+    Threads,
+    ToolSelection,
+    utc_now,
+)
 from neuroagent.app.schemas import (
     AnnotationMessageVercel,
     AnnotationToolCallVercel,
@@ -34,8 +39,8 @@ from neuroagent.app.schemas import (
     ToolCallPartVercel,
     ToolCallVercel,
 )
-from neuroagent.schemas import EmbeddedBrainRegions
 from neuroagent.tools.base_tool import BaseTool
+from neuroagent.utils import assign_token_count, messages_to_openai_content
 
 logger = logging.getLogger(__name__)
 
@@ -226,24 +231,6 @@ async def commit_messages(
         await session.close()
 
 
-def get_br_embeddings(
-    s3_client: Any, bucket_name: str, folder: str
-) -> list[EmbeddedBrainRegions]:
-    """Retrieve brain regions embeddings from s3."""
-    file_list = s3_client.list_objects_v2(Bucket=bucket_name, Prefix=folder)
-    pattern = re.compile(rf"^{folder}/.*_hierarchy_embeddings.json$")
-    output: list[EmbeddedBrainRegions] = []
-
-    if "Contents" in file_list:
-        for obj in file_list["Contents"]:
-            key = obj["Key"]
-            if pattern.match(key):
-                file_obj = s3_client.get_object(Bucket=bucket_name, Key=key)
-                content = json.loads(file_obj["Body"].read().decode("utf-8"))
-                output.append(EmbeddedBrainRegions(**content))
-    return output
-
-
 def format_messages_output(
     db_messages: Sequence[Messages],
     tool_hil_mapping: dict[str, bool],
@@ -260,7 +247,6 @@ def format_messages_output(
             "thread_id": msg.thread_id,
             "is_complete": msg.is_complete,
             "creation_date": msg.creation_date.isoformat(),  # Convert datetime to string
-            "model": msg.model,
             "msg_content": json.loads(msg.content),
         }
 
@@ -474,9 +460,8 @@ def parse_redis_data(
 
 
 async def filter_tools_by_conversation(
-    openai_messages: list[dict[str, str]],
+    messages: list[Messages],
     tool_list: list[type[BaseTool]],
-    user_content: str,
     openai_client: AsyncOpenAI,
     min_tool_selection: int,
 ) -> list[type[BaseTool]]:
@@ -503,13 +488,12 @@ async def filter_tools_by_conversation(
     if len(tool_list) <= min_tool_selection:
         return tool_list
 
+    openai_messages = await messages_to_openai_content(messages)
+
     # Remove the content of tool responses to save tokens
     for message in openai_messages:
         if message["role"] == "tool":
             message["content"] = "..."
-
-    # Add the current user message
-    openai_messages.append({"role": "user", "content": user_content})
 
     system_prompt = f"""TASK: Filter tools for AI agent based on conversation relevance.
 
@@ -528,10 +512,11 @@ AVAILABLE TOOLS:
 {chr(10).join(f"{tool.name}: {tool.description}" for tool in tool_list)}
 """
 
+    # Prepare the dynamic pydantic output class
     tool_names = [tool.name for tool in tool_list]
     TOOL_NAMES_LITERAL = Literal[*tool_names]  # type: ignore
 
-    class ToolSelection(BaseModel):
+    class ToolFiltering(BaseModel):
         """Data class for tool selection by an LLM."""
 
         selected_tools: list[TOOL_NAMES_LITERAL] = Field(
@@ -540,21 +525,33 @@ AVAILABLE TOOLS:
         )
 
     try:
+        # Send the OpenAI request
+        model = "gpt-4o-mini"
         response = await openai_client.beta.chat.completions.parse(
             messages=[{"role": "system", "content": system_prompt}, *openai_messages],  # type: ignore
-            model="gpt-4o-mini",
-            response_format=ToolSelection,
+            model=model,
+            response_format=ToolFiltering,
         )
 
+        # Parse the output
         if response.choices[0].message.parsed:
             selected_tools = response.choices[0].message.parsed.selected_tools
             logger.debug(
-                f"QUERY: {user_content}, #TOOLS: {len(selected_tools)}, SELECTED TOOLS: {selected_tools}"
+                f"#TOOLS: {len(selected_tools)}, SELECTED TOOLS: {selected_tools}"
             )
-            return [tool for tool in tool_list if tool.name in selected_tools]
+
+            # Add selected tools into the message's data
+            filtered_tools = [tool for tool in tool_list if tool.name in selected_tools]
+            messages[-1].tool_selection = [
+                ToolSelection(tool_name=tool.name) for tool in filtered_tools
+            ]
+
+            assign_token_count(messages[-1], usage=response.usage, model=model)
         else:
             logger.warning("No parsed response from OpenAI, returning empty list")
-            return []
+            filtered_tools = []
+
+        return filtered_tools
     except Exception as e:
         logger.error(f"Error filtering tools: {e}")
         return []

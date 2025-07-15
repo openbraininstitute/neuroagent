@@ -8,7 +8,7 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException, Query, Response
 from openai import AsyncOpenAI
 from redis import asyncio as aioredis
-from sqlalchemy import desc, or_, select, true
+from sqlalchemy import desc, exists, or_, select, true
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
@@ -143,6 +143,7 @@ async def get_threads(
     pagination_params: PaginatedParams = Depends(),
     virtual_lab_id: UUID | None = None,
     project_id: UUID | None = None,
+    exclude_empty: bool = False,
     sort: Literal[
         "update_date", "creation_date", "-update_date", "-creation_date"
     ] = "-update_date",
@@ -161,6 +162,10 @@ async def get_threads(
         Threads.vlab_id == virtual_lab_id,
         Threads.project_id == project_id,
     ]
+
+    # Add condition to exclude empty threads if requested
+    if exclude_empty:
+        where_conditions.append(exists().where(Messages.thread_id == Threads.thread_id))
 
     if pagination_params.cursor is not None:
         comparison_op = (

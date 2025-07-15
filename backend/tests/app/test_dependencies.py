@@ -27,9 +27,12 @@ from neuroagent.app.schemas import UserInfo
 from neuroagent.new_types import Agent
 
 
-def test_get_settings(patch_required_env):
+def test_get_settings():
     settings = get_settings()
-    assert settings.tools.literature.url == "https://fake_url"
+    assert (
+        settings.tools.literature.url
+        == "https://www.openbraininstitute.org/api/literature"
+    )
 
 
 @pytest.mark.asyncio
@@ -49,7 +52,7 @@ async def test_get_httpx_client():
 
 
 @pytest.mark.asyncio
-async def test_get_user(httpx_mock, monkeypatch, patch_required_env, test_user_info):
+async def test_get_user(httpx_mock, monkeypatch, test_user_info):
     monkeypatch.setenv("NEUROAGENT_KEYCLOAK__ISSUER", "https://great_issuer.com")
 
     fake_response = {
@@ -74,7 +77,7 @@ async def test_get_user(httpx_mock, monkeypatch, patch_required_env, test_user_i
     assert user_info == UserInfo(**fake_response)
 
 
-def test_get_connection_string_full(monkeypatch, patch_required_env):
+def test_get_connection_string_full(monkeypatch):
     monkeypatch.setenv("NEUROAGENT_DB__PREFIX", "http://")
     monkeypatch.setenv("NEUROAGENT_DB__USER", "John")
     monkeypatch.setenv("NEUROAGENT_DB__PASSWORD", "Doe")
@@ -103,7 +106,7 @@ def test_get_starting_agent(get_weather_tool):
 
 @pytest.mark.asyncio
 @pytest.mark.httpx_mock(can_send_already_matched_responses=True)
-async def test_get_thread(patch_required_env, db_connection, test_user_info):
+async def test_get_thread(db_connection, test_user_info):
     test_settings = Settings(
         db={"prefix": db_connection},
     )
@@ -146,9 +149,7 @@ async def test_get_thread(patch_required_env, db_connection, test_user_info):
 
 @pytest.mark.asyncio
 @pytest.mark.httpx_mock(can_send_already_matched_responses=True)
-async def test_get_thread_invalid_thread_id(
-    patch_required_env, db_connection, test_user_info
-):
+async def test_get_thread_invalid_thread_id(db_connection, test_user_info):
     test_settings = Settings(
         db={"prefix": db_connection},
     )
@@ -192,9 +193,7 @@ async def test_get_thread_invalid_thread_id(
 
 @pytest.mark.asyncio
 @pytest.mark.httpx_mock(can_send_already_matched_responses=True)
-async def test_get_thread_invalid_user_id(
-    patch_required_env, db_connection, test_user_info
-):
+async def test_get_thread_invalid_user_id(db_connection, test_user_info):
     test_settings = Settings(
         db={"prefix": db_connection},
     )
