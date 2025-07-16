@@ -10,9 +10,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Added
 - Copy token button in UI.
 - Config generation tool for simulations.
+- New false positive utterances.
 
 ### Fixed
 - Make sure .env is not read in tests.
+- No AWS HTTP requests in unit tests.
 
 ## [v0.7.0] - 14.07.2025
 
