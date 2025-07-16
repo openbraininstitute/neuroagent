@@ -144,6 +144,8 @@ async def get_threads(
     virtual_lab_id: UUID | None = None,
     project_id: UUID | None = None,
     exclude_empty: bool = False,
+    creation_date_lte: datetime.datetime | None = None,
+    creation_date_gte: datetime.datetime | None = None,
     sort: Literal[
         "update_date", "creation_date", "-update_date", "-creation_date"
     ] = "-update_date",
@@ -166,6 +168,12 @@ async def get_threads(
     # Add condition to exclude empty threads if requested
     if exclude_empty:
         where_conditions.append(exists().where(Messages.thread_id == Threads.thread_id))
+
+    # Add creation date filters if provided
+    if creation_date_lte is not None:
+        where_conditions.append(Threads.creation_date <= creation_date_lte)
+    if creation_date_gte is not None:
+        where_conditions.append(Threads.creation_date >= creation_date_gte)
 
     if pagination_params.cursor is not None:
         comparison_op = (
