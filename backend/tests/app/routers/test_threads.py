@@ -705,6 +705,14 @@ def test_get_threads_creation_date_filters(
             response = raw_response.json()
             thread_responses.append(response)
 
+        # TODO: This behavior is temporary. In the future, the API should return timezone-aware
+        # creation dates (with UTC timezone). When that change is made, these assertions should be
+        # updated to expect tzinfo == timezone.utc directly from the response.
+        # Verify all results have naive datetime (no timezone info)
+        for resp in thread_responses:
+            date = datetime.fromisoformat(resp["creation_date"])
+            assert date.tzinfo is None  # Response dates should be naive
+
         # Convert all creation dates to datetime objects with UTC timezone
         creation_dates = []
         for resp in thread_responses:
@@ -807,11 +815,3 @@ def test_get_threads_creation_date_filters(
         )
         assert response.status_code == 422
         assert "timezone info" in response.json()["detail"][0]["msg"]
-
-        # Verify all results are naive (no timezone info)
-        for thread in threads["results"]:
-            date = datetime.fromisoformat(thread["creation_date"])
-            assert date.tzinfo is None  # Response dates should be naive
-            # But when we use them, we should add UTC timezone
-            date_utc = date.replace(tzinfo=timezone.utc)
-            assert date_utc.tzinfo == timezone.utc
