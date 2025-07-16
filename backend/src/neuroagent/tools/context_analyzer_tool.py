@@ -30,7 +30,7 @@ class ContextAnalyzerOutput(BaseModel):
 
 
 class ContextAnalyzerTool(BaseTool):
-    """."""
+    """Class for the context analyzer tool."""
 
     name: ClassVar[str] = "context-analyzer-tool"
     name_frontend: ClassVar[str] = "Context Analyzer"
