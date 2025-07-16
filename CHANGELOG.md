@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Make sure .env is not read in tests.
+- No AWS HTTP requests in unit tests.
 
 ## [v0.7.0] - 14.07.2025
 
