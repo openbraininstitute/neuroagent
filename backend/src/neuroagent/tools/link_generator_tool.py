@@ -10,8 +10,8 @@ from pydantic import BaseModel, Field
 from neuroagent.tools.base_tool import BaseMetadata, BaseTool
 
 
-class LinkGenerationInput(BaseModel):
-    """Input class for the Link Generation tool, empty since no inputs."""
+class EntityGeneration(BaseModel):
+    """."""
 
     entity_type: Literal[
         "reconstruction-morphology",
@@ -25,6 +25,14 @@ class LinkGenerationInput(BaseModel):
     )
 
 
+class LinkGenerationInput(BaseModel):
+    """."""
+
+    entities: list[EntityGeneration] = Field(
+        "List of entities you want to generate links to."
+    )
+
+
 class LinkGenerationMetdata(BaseMetadata):
     """Metadata for the Link Generation tool."""
 
@@ -34,15 +42,17 @@ class LinkGenerationMetdata(BaseMetadata):
 class LinkGenerationOutput(BaseModel):
     """Output of the Link Generation tool."""
 
-    url_link: str
+    url_links: list[str]
 
 
 class LinkGenerationTool(BaseTool):
     """."""
 
-    name: ClassVar[str] = "link-generation-tool"
+    name: ClassVar[str] = "entitycore-link-generation-tool"
     name_frontend: ClassVar[str] = "Link Generation"
-    description: ClassVar[str] = """"""
+    description: ClassVar[str] = (
+        """**CRITICAL** this tool needs to be used after every retreival from entitycore. Allows the generation of links to the objects retreived from entitycore."""
+    )
     description_frontend: ClassVar[str] = """"""
     metadata: LinkGenerationMetdata
     input_schema: LinkGenerationInput
@@ -89,38 +99,43 @@ class LinkGenerationTool(BaseTool):
             )
         )
 
-        if self.input_schema.entity_type == "reconstruction-morphology":
-            full_url = (
-                base_url
-                + "/explore/interactive/experimental/morphology/"
-                + self.input_schema.entity_id.hex
-            )
-        elif self.input_schema.entity_type == "electrical-cell-recording":
-            full_url = (
-                base_url
-                + "/explore/interactive/experimental/electrophysiology/"
-                + self.input_schema.entity_id.hex
-            )
-        elif self.input_schema.entity_type == "exprimental-neuron-density":
-            full_url = (
-                base_url
-                + "/explore/interactive/experimental/neuron-density/"
-                + self.input_schema.entity_id.hex
-            )
-        elif self.input_schema.entity_type == "exprimental-bouton-density":
-            full_url = (
-                base_url
-                + "/explore/interactive/experimental/bouton-density/"
-                + self.input_schema.entity_id.hex
-            )
-        elif self.input_schema.entity_type == "exprimental-synapse-per-connexion":
-            full_url = (
-                base_url
-                + "/explore/interactive/experimental/synapse-per-connection/"
-                + self.input_schema.entity_id.hex
-            )
+        links = []
 
-        return LinkGenerationOutput(url_link=full_url)
+        for entity in self.input_schema.entities:
+            entity_type = entity.entity_type
+            entity_id = entity.entity_id.hex
+            if entity_type == "reconstruction-morphology":
+                links.append(
+                    base_url
+                    + "/explore/interactive/experimental/morphology/"
+                    + entity_id
+                )
+            elif entity_type == "electrical-cell-recording":
+                links.append(
+                    base_url
+                    + "/explore/interactive/experimental/electrophysiology/"
+                    + entity_id
+                )
+            elif entity_type == "exprimental-neuron-density":
+                links.append(
+                    base_url
+                    + "/explore/interactive/experimental/neuron-density/"
+                    + entity_id
+                )
+            elif entity_type == "exprimental-bouton-density":
+                links.append(
+                    base_url
+                    + "/explore/interactive/experimental/bouton-density/"
+                    + entity_id
+                )
+            elif entity_type == "exprimental-synapse-per-connexion":
+                links.append(
+                    base_url
+                    + "/explore/interactive/experimental/synapse-per-connection/"
+                    + entity_id
+                )
+
+        return LinkGenerationOutput(url_links=links)
 
     @classmethod
     async def is_online(cls) -> bool:
