@@ -182,6 +182,17 @@ def dont_look_at_os_environ(monkeypatch):
             monkeypatch.delenv(env_var, raising=False)
 
 
+@pytest.fixture(autouse=True)
+def disable_boto_metadata_lookup(monkeypatch):
+    """When running tests, we don't wannt to make any requests to AWS.
+
+
+    boto3.client("service_name") will try to load metadata from the internet.
+    We disable this behavior to avoid network calls during tests.
+    """
+    monkeypatch.setenv("AWS_EC2_METADATA_DISABLED", "true")
+
+
 @pytest.fixture(name="test_user_info")
 def get_default_user_id_vlab_project():
     return (
