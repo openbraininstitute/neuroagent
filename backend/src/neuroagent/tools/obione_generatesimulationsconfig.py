@@ -87,6 +87,3 @@ Respond ONLY with valid JSON. Do not include explanations, comments, or addition
     async def is_online(cls) -> bool:
         """Check if the tool is online."""
         return True
-
-
-# NamedTupple
