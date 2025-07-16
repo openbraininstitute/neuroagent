@@ -55,6 +55,6 @@ class ContextAnalyzerTool(BaseTool):
         return ContextAnalyzerOutput(**parsed_url)
 
     @classmethod
-    async def is_online(cls, frontend_url: str | None) -> bool:
-        """Check if the tool is online."""
-        return frontend_url is not None
+    async def is_online(cls) -> bool:
+        """Check if the tool is online. Always online."""
+        return True

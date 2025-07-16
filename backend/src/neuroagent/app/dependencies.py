@@ -631,8 +631,7 @@ async def get_context_variables(
     }
 
 
-async def get_healthcheck_variables(
-    request: Request,
+def get_healthcheck_variables(
     settings: Annotated[Settings, Depends(get_settings)],
     httpx_client: Annotated[AsyncClient, Depends(get_httpx_client)],
 ) -> dict[str, Any]:
@@ -642,12 +641,9 @@ async def get_healthcheck_variables(
     sure the load balancer will route the requests to the
     correct service.
     """
-    body = await request.json()
-    url = body.get("frontend_url")
     return {
         "bluenaas_url": settings.tools.bluenaas.url.rstrip("/") + "/",
         "entitycore_url": settings.tools.entitycore.url.rstrip("/") + "/",
-        "frontend_url": url,
         "httpx_client": httpx_client,
         "literature_search_url": settings.tools.literature.url.rstrip("/") + "/",
         "obi_one_url": settings.tools.obi_one.url.rstrip("/") + "/",
