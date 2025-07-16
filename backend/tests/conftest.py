@@ -184,7 +184,7 @@ def dont_look_at_os_environ(monkeypatch):
 
 @pytest.fixture(autouse=True)
 def disable_boto_metadata_lookup(monkeypatch):
-    """When running tests, we don't wannt to make any requests to AWS.
+    """When running tests, we don't want to make any requests to AWS.
 
 
     boto3.client("service_name") will try to load metadata from the internet.
