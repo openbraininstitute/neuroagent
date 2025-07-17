@@ -28,11 +28,6 @@ def client_fixture():
     app_client = TestClient(app)
 
     test_settings = Settings(
-        tools={
-            "literature": {
-                "url": "fake_literature_url",
-            },
-        },
         llm={
             "openai_token": "fake_token",
         },
@@ -320,11 +315,6 @@ async def populate_db(db_connection, test_user_info):
 @pytest.fixture(name="settings")
 def settings():
     return Settings(
-        tools={
-            "literature": {
-                "url": "fake_literature_url",
-            },
-        },
         llm={
             "openai_token": "fake_token",
         },
