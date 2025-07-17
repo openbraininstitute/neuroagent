@@ -4,6 +4,7 @@ from neuroagent.tools.bluenaas_scs_getall import SCSGetAllTool
 from neuroagent.tools.bluenaas_scs_getone import SCSGetOneTool
 from neuroagent.tools.bluenaas_scs_plot import SCSPlotTool
 from neuroagent.tools.bluenaas_scs_post import SCSPostTool
+from neuroagent.tools.context_analyzer_tool import ContextAnalyzerTool
 from neuroagent.tools.entitycore_asset_downloadone import AssetDownloadOneTool
 from neuroagent.tools.entitycore_asset_getall import AssetGetAllTool
 from neuroagent.tools.entitycore_asset_getone import AssetGetOneTool
@@ -126,6 +127,7 @@ from neuroagent.tools.entitycore_strain_getone import StrainGetOneTool
 from neuroagent.tools.entitycore_subject_getall import SubjectGetAllTool
 from neuroagent.tools.entitycore_subject_getone import SubjectGetOneTool
 from neuroagent.tools.generate_plot import PlotGeneratorTool
+from neuroagent.tools.link_generator_tool import LinkGenerationTool
 from neuroagent.tools.literature_search_tool import (
     LiteratureSearchTool,
     ParagraphMetadata,
@@ -150,6 +152,7 @@ __all__ = [
     "CircuitGetOneTool",
     "ContributionGetAllTool",
     "ContributionGetOneTool",
+    "ContextAnalyzerTool",
     "ElectricalCellRecordingGetAllTool",
     "ElectricalCellRecordingGetOneTool",
     "EModelGetAllTool",
@@ -165,6 +168,7 @@ __all__ = [
     "ExperimentalSynapsesPerConnectionGetOneTool",
     "IonChannelModelGetAllTool",
     "IonChannelModelGetOneTool",
+    "LinkGenerationTool",
     "LiteratureSearchTool",
     "MeasurementAnnotationGetAllTool",
     "MeasurementAnnotationGetOneTool",

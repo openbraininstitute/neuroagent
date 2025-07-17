@@ -1,5 +1,6 @@
 "use client";
 
+import Cookies from "js-cookie";
 import { useChat } from "@ai-sdk/react";
 import { useEffect, useRef, useState } from "react";
 import { BMessage, LLMModel, type MessageStrict } from "@/lib/types";
@@ -51,6 +52,8 @@ export function ChatPage({
   // Stopping streaming
   const [stopped, setStopped] = useState(false);
   const [isInvalidating, setIsInvalidating] = useState(false);
+  // For frontend url
+  const frontendUrl = Cookies.get("frontendUrl") || "";
 
   const {
     data,
@@ -96,6 +99,7 @@ export function ChatPage({
         content: lastMessage.content,
         tool_selection: selectedTools,
         model: currentModel.id,
+        frontend_url: frontendUrl,
       };
     },
   });

@@ -4,7 +4,9 @@ import json
 import logging
 import re
 import uuid
+from pathlib import Path
 from typing import Any
+from urllib.parse import parse_qs, urlparse
 
 from fastapi import HTTPException
 from openai.types.completion_usage import CompletionUsage
@@ -288,3 +290,92 @@ def assign_token_count(
 
         # Assign to message
         message.token_consumption = token_consumption
+
+
+def get_frontend_description(url: str | None = None) -> dict[str, Any]:
+    """
+    Parse a Virtual Lab URL and extract relevant information.
+
+    Args:
+        url: The URL to parse
+
+    Returns
+    -------
+        Dictionary containing parsed information with keys:
+        - is_in_project: bool
+        - full_page_path: str (page_path joined with '/')
+        - query_params: dict of query parameters
+        - page_description: str
+    """
+    # retreive description
+    with (Path(__file__).parent / "platform_description.json").open() as f:
+        descriptions = json.load(f)
+
+    # Get url and query params
+    parsed_url = urlparse(url or "")
+    query_params = parse_qs(parsed_url.query)
+
+    # Remove the base path and split into components
+    path: str = parsed_url.path
+    if not path.startswith("/app/virtual-lab/"):
+        raise ValueError("Invalid Virtual Lab URL")
+
+    # Remove base path
+    remaining_path = path[len("/app/virtual-lab/") :]
+    path_components = [comp for comp in remaining_path.split("/") if comp]
+
+    # Check if we're in a project or not
+    if (
+        len(path_components) >= 4
+        and path_components[0] == "lab"
+        and path_components[2] == "project"
+    ):
+        is_in_project = True
+        page_path = path_components[4:] if len(path_components) > 4 else []
+
+    elif len(path_components) >= 1 and path_components[0] == "explore":
+        is_in_project = False
+        page_path = path_components
+
+    else:
+        raise ValueError(f"Unrecognized URL pattern: {url}")
+
+    # Get page type and other derived information
+    page_type = page_path[0] if page_path else "unknown"
+    full_page_path = "/".join(page_path)
+
+    # Get the description of the current page
+    page_description = "# Description of the curerent page \n\n"
+    page_description += (
+        descriptions["general"]
+        + descriptions["sidebar"]
+        + descriptions["page_selection"]
+    )  # + descriptions["chat"]
+
+    if page_type == "home":
+        page_description += descriptions["home"]
+    elif page_type == "library":
+        page_description += descriptions["library"]
+    elif page_type == "team":
+        page_description += descriptions["project_team"]
+    elif page_type == "activity":
+        page_description += descriptions["activity"]
+    elif page_type == "notebooks":
+        page_description += descriptions["notebooks"]
+    elif page_type == "explore":
+        page_description += descriptions["explore"]
+    elif page_type == "build":
+        page_description += descriptions["build"]
+    elif page_type == "simulate":
+        page_description += descriptions["Experiment"]
+    elif page_type == "admin":
+        page_description += descriptions["Admin"]
+    else:
+        raise ValueError("Unknown page type.")
+
+    return {
+        "is_in_project": is_in_project,
+        "full_page_path": full_page_path,
+        "query_params": query_params,
+        "page_description": page_description,
+    }
