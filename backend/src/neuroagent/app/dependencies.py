@@ -39,6 +39,7 @@ from neuroagent.tools import (
     BrainRegionHierarchyGetOneTool,
     CircuitGetAllTool,
     CircuitGetOneTool,
+    ContextAnalyzerTool,
     ContributionGetAllTool,
     ContributionGetOneTool,
     ElectricalCellRecordingGetAllTool,
@@ -342,6 +343,7 @@ def get_tool_list(
         BrainRegionGetOneTool,
         BrainRegionHierarchyGetAllTool,
         BrainRegionHierarchyGetOneTool,
+        ContextAnalyzerTool,
         ContributionGetAllTool,
         ContributionGetOneTool,
         SCSGetAllTool,
@@ -596,7 +598,8 @@ def get_s3_client(
     )
 
 
-def get_context_variables(
+async def get_context_variables(
+    request: Request,
     settings: Annotated[Settings, Depends(get_settings)],
     httpx_client: Annotated[AsyncClient, Depends(get_httpx_client)],
     thread: Annotated[Threads, Depends(get_thread)],
@@ -605,10 +608,13 @@ def get_context_variables(
     openai_client: Annotated[AsyncOpenAI, Depends(get_openai_client)],
 ) -> dict[str, Any]:
     """Get the context variables to feed the tool's metadata."""
+    body = await request.json()
+    url = body.get("frontend_url")
     return {
         "bluenaas_url": settings.tools.bluenaas.url,
         "bucket_name": settings.storage.bucket_name,
         "entitycore_url": settings.tools.entitycore.url,
+        "frontend_url": url,
         "httpx_client": httpx_client,
         "literature_search_url": settings.tools.literature.url,
         "obi_one_url": settings.tools.obi_one.url,
