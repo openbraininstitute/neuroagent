@@ -505,6 +505,7 @@ INSTRUCTIONS:
 5. Output format: comma-separated list of tool names
 6. Do not respond to user queries - only filter tools
 7. Each tool must be selected only once.
+8. When one entitycore tool is selected, also select `entitycore-link-generation-tool`.
 
 OUTPUT: [tool_name1, tool_name2, ...]
 

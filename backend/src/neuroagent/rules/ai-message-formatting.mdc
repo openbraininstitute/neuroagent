@@ -28,7 +28,7 @@ description: AI-message formatting guidelines
 ### Link Formatting
 - Always prepend DOIs with `https://doi.org/` to create proper clickable links
 - For other scientific references, use appropriate link formatting when available
-- ALWAYS generate links to entitycore objects and include them in the response.
+- ALWAYS generate links to entitycore objects. Make the entity name clickable.
 
 ## Best Practices
 

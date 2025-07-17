@@ -51,7 +51,7 @@ class LinkGenerationTool(BaseTool):
     name: ClassVar[str] = "entitycore-link-generation-tool"
     name_frontend: ClassVar[str] = "Link Generation"
     description: ClassVar[str] = (
-        """**CRITICAL** this tool needs to be used after every retreival from entitycore. Allows the generation of links to the objects retreived from entitycore."""
+        """This tool is after any entitycore tool is selected and used. Allows the generation of links to the objects retreived from entitycore."""
     )
     description_frontend: ClassVar[str] = """"""
     metadata: LinkGenerationMetdata

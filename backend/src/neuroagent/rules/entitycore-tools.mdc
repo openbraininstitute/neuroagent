@@ -21,4 +21,4 @@ description: Entitycore tools
 
 ## EntityCore Tool Outputs
 - The only way to get a valid url for an asset is via `entitycore-asset-downloadone`. Anything else gives invalid urls and you should not display them.
-- **MANDATORY** After a call to entitycire generate links to entities using `link-generation-tool`. ALWAYS include the link in the answer.
+- **MANDATORY** After a call to entitycire generate links to entities using `entitycore-link-generation-tool`. ALWAYS include the link in the answer.
