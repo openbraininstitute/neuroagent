@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Added
 - Copy token button in UI.
+- Config generation tool for simulations.
 - New false positive utterances.
 
 ### Fixed
