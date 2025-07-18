@@ -621,6 +621,7 @@ def get_context_variables(
         "tavily_api_key": settings.tools.web_search.tavily_api_key,
         "thread_id": thread.thread_id,
         "thumbnail_generation_url": settings.tools.thumbnail_generation.url,
+        "usage_dict": {},
         "use_reranker": settings.tools.literature.use_reranker,
         "user_id": user_info.sub,
         "vlab_id": thread.vlab_id,

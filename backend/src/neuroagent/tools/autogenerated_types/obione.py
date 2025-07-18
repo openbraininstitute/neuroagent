@@ -334,7 +334,7 @@ class NamedTuple(BaseModel):
     )
     type: Literal['NamedTuple'] = Field(..., title='Type')
     name: str = Field(..., title='Name')
-    elements: list = Field(..., title='Elements')
+    elements: list[str] = Field(..., title='Elements')
 
 
 class NeuronSetReference(BaseModel):
