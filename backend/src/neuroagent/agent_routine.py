@@ -399,16 +399,6 @@ class AgentsRoutine:
                 )
 
                 # Stage the new message for addition to DB
-                messages.append(
-                    Messages(
-                        thread_id=messages[-1].thread_id,
-                        entity=get_entity(message),
-                        content=json.dumps(message),
-                        tool_calls=tool_calls,
-                        is_complete=True,
-                    )
-                )
-
                 token_count = get_token_count(chunk.usage)
                 token_consumption = [
                     TokenConsumption(
@@ -424,8 +414,16 @@ class AgentsRoutine:
                     ]
                     if count
                 ]
-                # Assign to message
-                messages[-1].token_consumption = token_consumption
+                messages.append(
+                    Messages(
+                        thread_id=messages[-1].thread_id,
+                        entity=get_entity(message),
+                        content=json.dumps(message),
+                        tool_calls=tool_calls,
+                        is_complete=True,
+                        token_consumption=token_consumption,
+                    )
+                )
 
                 if not messages[-1].tool_calls:
                     yield f"e:{json.dumps(finish_data)}\n"
@@ -477,49 +475,53 @@ class AgentsRoutine:
 
                 yield f"e:{json.dumps(finish_data)}\n"
 
-                messages.extend(
-                    [
+                for tool_response in tool_calls_executed.messages:
+                    # Check if an LLM has been called inside of the tool
+                    if context_variables["usage_dict"].get(
+                        tool_response["tool_call_id"]
+                    ):
+                        # Get the consumption dict for the given tool
+                        tool_call_consumption = context_variables["usage_dict"][
+                            tool_response["tool_call_id"]
+                        ]
+
+                        # Set consumption in SQL classess
+                        token_consumption = [
+                            TokenConsumption(
+                                type=token_type,
+                                task=Task.CALL_WITHIN_TOOL,
+                                count=count,
+                                model=tool_call_consumption["model"],
+                            )
+                            for token_type, count in [
+                                (
+                                    TokenType.INPUT_CACHED,
+                                    tool_call_consumption["input_cached"],
+                                ),
+                                (
+                                    TokenType.INPUT_NONCACHED,
+                                    tool_call_consumption["input_noncached"],
+                                ),
+                                (
+                                    TokenType.COMPLETION,
+                                    tool_call_consumption["completion"],
+                                ),
+                            ]
+                            if count
+                        ]
+                    else:
+                        token_consumption = []
+
+                    messages.append(
                         Messages(
                             thread_id=messages[-1].thread_id,
                             entity=Entity.TOOL,
                             content=json.dumps(tool_response),
                             is_complete=True,
-                            token_consumption=[
-                                TokenConsumption(
-                                    type=token_type,
-                                    task=Task.CALL_WITHIN_TOOL,
-                                    count=count,
-                                    model=context_variables["usage_dict"][
-                                        tool_response["tool_call_id"]
-                                    ]["model"],
-                                )
-                                for token_type, count in [
-                                    (
-                                        TokenType.INPUT_CACHED,
-                                        context_variables["usage_dict"][
-                                            tool_response["tool_call_id"]
-                                        ]["input_cached"],
-                                    ),
-                                    (
-                                        TokenType.INPUT_NONCACHED,
-                                        context_variables["usage_dict"][
-                                            tool_response["tool_call_id"]
-                                        ]["input_noncached"],
-                                    ),
-                                    (
-                                        TokenType.COMPLETION,
-                                        context_variables["usage_dict"][
-                                            tool_response["tool_call_id"]
-                                        ]["completion"],
-                                    ),
-                                ]
-                                if count
-                            ],
+                            token_consumption=token_consumption,
                         )
-                        for tool_response in tool_calls_executed.messages
-                    ]
-                )
-                breakpoint()
+                    )
+
                 # If the tool call response contains HIL validation, do not update anything and return
                 if tool_calls_with_hil:
                     annotation_data = [

@@ -18,11 +18,10 @@ depends_on: Union[str, Sequence[str], None] = None
 
 
 def upgrade():
-    # Add the new enum value
     op.execute("ALTER TYPE task ADD VALUE IF NOT EXISTS 'CALL_WITHIN_TOOL'")
 
 
 def downgrade():
     # PostgreSQL doesn't support removing enum values directly
-    # You'd need to recreate the entire enum type, which is complex
+    # Noop shouldn't break anything
     pass
