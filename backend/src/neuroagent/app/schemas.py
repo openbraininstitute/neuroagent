@@ -4,7 +4,7 @@ import datetime
 from typing import Any, Generic, Literal, TypeVar
 from uuid import UUID
 
-from pydantic import BaseModel, ConfigDict, Field, conlist
+from pydantic import AwareDatetime, BaseModel, ConfigDict, Field, conlist
 
 
 class ToolCallVercel(BaseModel):
@@ -76,7 +76,7 @@ class MessagesReadVercel(BaseRead):
 
     id: UUID
     role: str
-    createdAt: datetime.datetime
+    createdAt: AwareDatetime
     content: str
     parts: list[ToolCallPartVercel | TextPartVercel | ReasoningPartVercel] | None = None
     annotations: list[AnnotationMessageVercel | AnnotationToolCallVercel] | None = None
@@ -89,7 +89,7 @@ class MessagesRead(BaseRead):
     entity: str
     thread_id: UUID
     is_complete: bool
-    creation_date: datetime.datetime
+    creation_date: AwareDatetime
     msg_content: dict[str, Any]
     model: str | None = None
     tool_calls: list[ToolCall]
@@ -103,8 +103,8 @@ class ThreadsRead(BaseRead):
     vlab_id: UUID | None
     project_id: UUID | None
     title: str
-    creation_date: datetime.datetime
-    update_date: datetime.datetime
+    creation_date: AwareDatetime
+    update_date: AwareDatetime
 
 
 class ThreadCreate(BaseModel):
@@ -195,14 +195,14 @@ class Question(BaseModel):
 class PaginatedParams(BaseModel):
     """Input query parameters for paginated endpoints."""
 
-    cursor: str | None = Field(default=None)
+    cursor: AwareDatetime | None = Field(default=None)
     page_size: int = Field(default=10, ge=1)
 
 
 class PaginatedResponse(BaseModel, Generic[T]):
     """Base class for paginated responses."""
 
-    next_cursor: datetime.datetime | None
+    next_cursor: AwareDatetime | None
     has_more: bool
     page_size: int
     results: list[T]

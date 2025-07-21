@@ -3,6 +3,7 @@ from datetime import datetime, timedelta, timezone
 from unittest.mock import Mock
 
 import pytest
+from dateutil import parser
 
 from neuroagent.app.config import Settings
 from neuroagent.app.dependencies import (
@@ -710,17 +711,16 @@ def test_get_threads_creation_date_filters(
         # updated to expect tzinfo == timezone.utc directly from the response.
         # Verify all results have naive datetime (no timezone info)
         for resp in thread_responses:
-            date = datetime.fromisoformat(resp["creation_date"])
-            assert date.tzinfo is None  # Response dates should be naive
+            date = parser.parse(resp["creation_date"])
+            assert date.utcoffset() == timezone.utc.utcoffset(
+                None
+            )  # Response dates should include timezone
 
         # Convert all creation dates to datetime objects with UTC timezone
         creation_dates = []
         for resp in thread_responses:
             # Response dates are naive (no timezone), so we add UTC
-            date = datetime.fromisoformat(resp["creation_date"]).replace(
-                tzinfo=timezone.utc
-            )
-            creation_dates.append(date)
+            creation_dates.append(resp["creation_date"])
 
         # Test creation_date_lte only
         middle_date = creation_dates[2]
@@ -729,16 +729,12 @@ def test_get_threads_creation_date_filters(
             params={
                 "virtual_lab_id": vlab,
                 "project_id": proj,
-                "creation_date_lte": middle_date.isoformat(),  # Convert to string only for API call
+                "creation_date_lte": middle_date,
                 "sort": "creation_date",  # Ascending order
             },
         ).json()
         assert len(threads["results"]) == 3  # Should get first 3 threads
-        # Response dates are naive (no timezone), so we add UTC
-        result_dates = [
-            datetime.fromisoformat(thread["creation_date"]).replace(tzinfo=timezone.utc)
-            for thread in threads["results"]
-        ]
+        result_dates = [thread["creation_date"] for thread in threads["results"]]
         assert all(date <= middle_date for date in result_dates)
 
         # Test creation_date_gte only
@@ -747,16 +743,13 @@ def test_get_threads_creation_date_filters(
             params={
                 "virtual_lab_id": vlab,
                 "project_id": proj,
-                "creation_date_gte": middle_date.isoformat(),  # Convert to string only for API call
+                "creation_date_gte": middle_date,
                 "sort": "creation_date",  # Ascending order
             },
         ).json()
         assert len(threads["results"]) == 3  # Should get last 3 threads
         # Response dates are naive (no timezone), so we add UTC
-        result_dates = [
-            datetime.fromisoformat(thread["creation_date"]).replace(tzinfo=timezone.utc)
-            for thread in threads["results"]
-        ]
+        result_dates = [thread["creation_date"] for thread in threads["results"]]
         assert all(date >= middle_date for date in result_dates)
 
         # Test both lte and gte (date range)
@@ -767,22 +760,19 @@ def test_get_threads_creation_date_filters(
             params={
                 "virtual_lab_id": vlab,
                 "project_id": proj,
-                "creation_date_gte": start_date.isoformat(),  # Convert to string only for API call
-                "creation_date_lte": end_date.isoformat(),  # Convert to string only for API call
+                "creation_date_gte": start_date,
+                "creation_date_lte": end_date,
                 "sort": "creation_date",  # Ascending order
             },
         ).json()
         assert len(threads["results"]) == 3  # Should get middle 3 threads
         # Response dates are naive (no timezone), so we add UTC
-        result_dates = [
-            datetime.fromisoformat(thread["creation_date"]).replace(tzinfo=timezone.utc)
-            for thread in threads["results"]
-        ]
+        result_dates = [thread["creation_date"] for thread in threads["results"]]
         assert all(start_date <= date <= end_date for date in result_dates)
 
         # Test with different timezone (UTC+2)
         tz_offset = timezone(timedelta(hours=2))
-        middle_date_plus2 = middle_date.astimezone(tz_offset)
+        middle_date_plus2 = datetime.fromisoformat(middle_date).astimezone(tz_offset)
 
         threads = app_client.get(
             "/threads",
@@ -796,10 +786,7 @@ def test_get_threads_creation_date_filters(
         # Should still get 3 threads since the UTC time is the same
         assert len(threads["results"]) == 3
         # Response dates are naive (no timezone), so we add UTC
-        result_dates = [
-            datetime.fromisoformat(thread["creation_date"]).replace(tzinfo=timezone.utc)
-            for thread in threads["results"]
-        ]
+        result_dates = [thread["creation_date"] for thread in threads["results"]]
         assert all(date <= middle_date for date in result_dates)
 
         # Test invalid date format (should fail with 422)
@@ -808,9 +795,9 @@ def test_get_threads_creation_date_filters(
             params={
                 "virtual_lab_id": vlab,
                 "project_id": proj,
-                "creation_date_lte": middle_date.replace(
-                    tzinfo=None
-                ).isoformat(),  # No timezone info
+                "creation_date_lte": datetime.fromisoformat(middle_date)
+                .replace(tzinfo=None)
+                .isoformat(),  # No timezone info
             },
         )
         assert response.status_code == 422
