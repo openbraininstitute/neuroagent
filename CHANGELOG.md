@@ -15,6 +15,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Make sure .env is not read in tests.
 - No AWS HTTP requests in unit tests.
 
+### Changed
+- Name of exa tools.
+- Description of run python tool.
+
+### Removed
+- LS related code.
+
 ## [v0.7.0] - 14.07.2025
 
 ### Added

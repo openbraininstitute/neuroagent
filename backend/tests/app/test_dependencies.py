@@ -17,7 +17,6 @@ from neuroagent.app.dependencies import (
     get_healthcheck_variables,
     get_httpx_client,
     get_session,
-    get_settings,
     get_starting_agent,
     get_system_prompt,
     get_thread,
@@ -25,14 +24,6 @@ from neuroagent.app.dependencies import (
 )
 from neuroagent.app.schemas import UserInfo
 from neuroagent.new_types import Agent
-
-
-def test_get_settings():
-    settings = get_settings()
-    assert (
-        settings.tools.literature.url
-        == "https://www.openbraininstitute.org/api/literature"
-    )
 
 
 @pytest.mark.asyncio
@@ -241,7 +232,6 @@ async def test_get_healthcheck_variables():
     # Mock the minimal required settings structure
     settings = Mock(
         tools=Mock(
-            literature=Mock(url="http://literature"),
             bluenaas=Mock(url="http://bluenaas"),
             obi_one=Mock(url="http://kenoriz.com/"),
             entitycore=Mock(url="http://twg-mrt.com/"),
@@ -254,7 +244,6 @@ async def test_get_healthcheck_variables():
 
     assert result == {
         "httpx_client": httpx_client,
-        "literature_search_url": "http://literature/",
         "bluenaas_url": "http://bluenaas/",
         "obi_one_url": "http://kenoriz.com/",
         "entitycore_url": "http://twg-mrt.com/",
