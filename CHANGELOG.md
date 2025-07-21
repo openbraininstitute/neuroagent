@@ -9,10 +9,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Added
 - Copy token button in UI.
+- New false positive utterances.
 
 ### Fixed
 - Make sure .env is not read in tests.
 - Make the Settings class hashable.
+- No AWS HTTP requests in unit tests.
+
+### Changed
+- Name of exa tools.
+- Description of run python tool.
+
+### Removed
+- LS related code.
 
 ## [v0.7.0] - 14.07.2025
 
