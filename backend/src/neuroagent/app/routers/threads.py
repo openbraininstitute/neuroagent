@@ -7,6 +7,7 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Response
 from openai import AsyncOpenAI
+from pydantic import AwareDatetime
 from redis import asyncio as aioredis
 from sqlalchemy import desc, exists, or_, select, true
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -144,6 +145,8 @@ async def get_threads(
     virtual_lab_id: UUID | None = None,
     project_id: UUID | None = None,
     exclude_empty: bool = False,
+    creation_date_lte: AwareDatetime | None = None,
+    creation_date_gte: AwareDatetime | None = None,
     sort: Literal[
         "update_date", "creation_date", "-update_date", "-creation_date"
     ] = "-update_date",
@@ -166,6 +169,18 @@ async def get_threads(
     # Add condition to exclude empty threads if requested
     if exclude_empty:
         where_conditions.append(exists().where(Messages.thread_id == Threads.thread_id))
+
+    # Add creation date filters if provided, converting to UTC and stripping timezone info
+    if creation_date_lte is not None:
+        where_conditions.append(
+            Threads.creation_date
+            <= creation_date_lte.astimezone(datetime.timezone.utc).replace(tzinfo=None)
+        )
+    if creation_date_gte is not None:
+        where_conditions.append(
+            Threads.creation_date
+            >= creation_date_gte.astimezone(datetime.timezone.utc).replace(tzinfo=None)
+        )
 
     if pagination_params.cursor is not None:
         comparison_op = (
