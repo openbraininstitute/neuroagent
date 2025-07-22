@@ -7,14 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## Added
-- Copy token button in UI.
+### Added
 - Config generation tool for simulations.
+
+## [v0.7.1] - 21.07.2025
+
+### Added
+- Copy token button in UI.
 - New false positive utterances.
+- Filtering on creation date of threads.
 
 ### Fixed
 - Make sure .env is not read in tests.
 - No AWS HTTP requests in unit tests.
+
+### Changed
+- Name of exa tools.
+- Description of run python tool.
+
+### Removed
+- LS related code.
 
 ## [v0.7.0] - 14.07.2025
 
@@ -64,7 +76,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Entitycore autogen 2025.6.8
 - Get rid of `brain_region__id` in entitycore tools
 
-## Changed
+### Changed
 - Allow for tool call + content in the UI.
 
 ## [v0.6.2] - 23.06.2025
@@ -79,7 +91,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [v0.6.1] - 12.06.2025
 
-## Fixed
+### Fixed
 - Swagger issue.
 
 ## [v0.6.0] - 12.06.2025
@@ -96,7 +108,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed bug where fastapi servers were wrongly set.
 - Line break in ai message.
 
-## Changed
+### Changed
 - Track mcp.json.
 - Rerun autogen tool on entitycore.
 - Prompt engineering on tools.
@@ -160,7 +172,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Prettier automatic tailwind classes sorting.
 - Nicer HIL validation window.
 
-## Added
+### Added
 - [frontend] - tool thunmbnail in chat.
 - Pass the entire message in LS input and let the LLM chose articles.
 
@@ -168,7 +180,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `order` column in `messages` table + fixed.
 - SQLite support.
 
-## Added
+### Added
 - Basic Guardrails.
 - Possibility to interrupt streaming.
 - Filter and sort get_thread and get_thread/messages.
