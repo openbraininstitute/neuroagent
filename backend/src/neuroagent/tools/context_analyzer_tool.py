@@ -1,10 +1,10 @@
 """From url gives back what is on the current page."""
 
-from typing import Any, ClassVar
+from typing import ClassVar
 
 from pydantic import BaseModel
 
-from neuroagent.tools.base_tool import BaseMetadata, BaseTool
+from neuroagent.tools.base_tool import BaseTool, EntitycoreMetadata
 from neuroagent.utils import get_frontend_description
 
 
@@ -14,7 +14,7 @@ class ContextAnalyzerInput(BaseModel):
     pass
 
 
-class ContextAnalyzerMetdata(BaseMetadata):
+class ContextAnalyzerMetdata(EntitycoreMetadata):
     """Metadata for the Context Analyzer tool."""
 
     frontend_url: str
@@ -25,7 +25,6 @@ class ContextAnalyzerOutput(BaseModel):
 
     is_in_project: bool
     full_page_path: str
-    query_params: dict[str, Any]
     page_description: str
 
 
@@ -51,7 +50,16 @@ class ContextAnalyzerTool(BaseTool):
         -------
             Description of the current page the user is on, formatted as a string.
         """
-        parsed_url = get_frontend_description(self.metadata.frontend_url)
+        if self.metadata.frontend_url:
+            parsed_url = await get_frontend_description(
+                url=self.metadata.frontend_url,
+                entitycore_url=self.metadata.entitycore_url,
+                vlab_id=self.metadata.vlab_id,
+                project_id=self.metadata.project_id,
+                httpx_client=self.metadata.httpx_client,
+            )
+        else:
+            raise ValueError("Please provide the current frontend url.")
         return ContextAnalyzerOutput(**parsed_url)
 
     @classmethod
