@@ -169,7 +169,7 @@ async def get_threads(
     if exclude_empty:
         where_conditions.append(exists().where(Messages.thread_id == Threads.thread_id))
 
-    # Add creation date filters if provided, converting to UTC and stripping timezone info
+    # Add creation date filters if provided
     if creation_date_lte is not None:
         where_conditions.append(Threads.creation_date <= creation_date_lte)
     if creation_date_gte is not None:

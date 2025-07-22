@@ -706,21 +706,13 @@ def test_get_threads_creation_date_filters(
             response = raw_response.json()
             thread_responses.append(response)
 
-        # TODO: This behavior is temporary. In the future, the API should return timezone-aware
-        # creation dates (with UTC timezone). When that change is made, these assertions should be
-        # updated to expect tzinfo == timezone.utc directly from the response.
-        # Verify all results have naive datetime (no timezone info)
         for resp in thread_responses:
             date = parser.parse(resp["creation_date"])
             assert date.utcoffset() == timezone.utc.utcoffset(
                 None
             )  # Response dates should include timezone
 
-        # Convert all creation dates to datetime objects with UTC timezone
-        creation_dates = []
-        for resp in thread_responses:
-            # Response dates are naive (no timezone), so we add UTC
-            creation_dates.append(resp["creation_date"])
+        creation_dates = [resp["creation_date"] for resp in thread_responses]
 
         # Test creation_date_lte only
         middle_date = creation_dates[2]
@@ -748,7 +740,6 @@ def test_get_threads_creation_date_filters(
             },
         ).json()
         assert len(threads["results"]) == 3  # Should get last 3 threads
-        # Response dates are naive (no timezone), so we add UTC
         result_dates = [thread["creation_date"] for thread in threads["results"]]
         assert all(date >= middle_date for date in result_dates)
 
@@ -766,7 +757,6 @@ def test_get_threads_creation_date_filters(
             },
         ).json()
         assert len(threads["results"]) == 3  # Should get middle 3 threads
-        # Response dates are naive (no timezone), so we add UTC
         result_dates = [thread["creation_date"] for thread in threads["results"]]
         assert all(start_date <= date <= end_date for date in result_dates)
 
@@ -785,7 +775,6 @@ def test_get_threads_creation_date_filters(
         ).json()
         # Should still get 3 threads since the UTC time is the same
         assert len(threads["results"]) == 3
-        # Response dates are naive (no timezone), so we add UTC
         result_dates = [thread["creation_date"] for thread in threads["results"]]
         assert all(date <= middle_date for date in result_dates)
 
