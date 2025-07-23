@@ -108,6 +108,19 @@ class SettingsEntityCore(BaseModel):
     model_config = ConfigDict(frozen=True)
 
 
+class SettingsSanity(BaseModel):
+    """Sanity settings."""
+
+    project_id: str = "fgi7eh1v"
+    dataset: Literal["staging", "production"] = "staging"
+    model_config = ConfigDict(frozen=True)
+
+    @property
+    def url(self) -> str:
+        """Define the url for the sanity API."""
+        return f"https://{self.project_id}.sanity.api.sanity.io/v2025-02-09/data/query/{self.dataset}"
+
+
 class SettingsTools(BaseModel):
     """Database settings."""
 
