@@ -616,6 +616,7 @@ def get_context_variables(
         "project_id": thread.project_id,
         "retriever_k": settings.tools.literature.retriever_k,
         "s3_client": s3_client,
+        "sanity_url": settings.tools.sanity.url,
         "tavily_api_key": settings.tools.web_search.tavily_api_key,
         "thread_id": thread.thread_id,
         "thumbnail_generation_url": settings.tools.thumbnail_generation.url,

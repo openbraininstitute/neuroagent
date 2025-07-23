@@ -128,6 +128,7 @@ class SettingsTools(BaseModel):
     obi_one: SettingsObiOne = SettingsObiOne()
     bluenaas: SettingsBlueNaaS = SettingsBlueNaaS()
     entitycore: SettingsEntityCore = SettingsEntityCore()
+    sanity: SettingsSanity = SettingsSanity()
     web_search: SettingsWebSearch = SettingsWebSearch()
     thumbnail_generation: SettingsThumbnailGeneration = SettingsThumbnailGeneration()
     min_tool_selection: int = Field(default=10, ge=0)
