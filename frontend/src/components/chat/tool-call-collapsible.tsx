@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Info, ChevronDown, ChevronRight } from "lucide-react";
+import { Info, ChevronDown, ChevronRight, Copy, Check } from "lucide-react";
 import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import {
   Collapsible,
@@ -31,6 +31,7 @@ export function ToolCallCollapsible({
   onValidationClick,
 }: ToolCallCollapsibleProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const [isClicked, setIsClicked] = useState(false);
 
   const handleTriggerClick = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -39,6 +40,12 @@ export function ToolCallCollapsible({
     } else {
       setIsOpen(!isOpen);
     }
+  };
+
+  const handleCopy = (toolResult: string) => {
+    navigator.clipboard.writeText(toolResult);
+    setIsClicked(true);
+    setTimeout(() => setIsClicked(false), 1500);
   };
 
   const getButtonStyling = () => {
@@ -145,9 +152,19 @@ export function ToolCallCollapsible({
 
               {tool?.state === "result" && (
                 <div className="space-y-2">
-                  <Badge variant="secondary" className="text-xs">
-                    {validated === "rejected" ? "Feedback" : "Result"}
-                  </Badge>
+                  <div className="flex justify-between">
+                    <Badge variant="secondary" className="text-xs">
+                      {validated === "rejected" ? "Feedback" : "Result"}
+                    </Badge>
+                    {isClicked ? (
+                      <Check className="mr-3 h-4 w-4" />
+                    ) : (
+                      <Copy
+                        className="mr-3 h-4 w-4 cursor-pointer opacity-50"
+                        onClick={() => handleCopy(tool?.result)}
+                      />
+                    )}
+                  </div>
                   <Card className="border-muted bg-muted/30">
                     <CardContent className="p-3">
                       <pre className="max-h-32 overflow-auto text-xs text-foreground">

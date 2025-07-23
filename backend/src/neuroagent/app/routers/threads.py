@@ -1,6 +1,5 @@
 """Threads CRUDs."""
 
-import datetime
 import logging
 from typing import Annotated, Any, Literal
 from uuid import UUID
@@ -170,23 +169,17 @@ async def get_threads(
     if exclude_empty:
         where_conditions.append(exists().where(Messages.thread_id == Threads.thread_id))
 
-    # Add creation date filters if provided, converting to UTC and stripping timezone info
+    # Add creation date filters if provided
     if creation_date_lte is not None:
-        where_conditions.append(
-            Threads.creation_date
-            <= creation_date_lte.astimezone(datetime.timezone.utc).replace(tzinfo=None)
-        )
+        where_conditions.append(Threads.creation_date <= creation_date_lte)
     if creation_date_gte is not None:
-        where_conditions.append(
-            Threads.creation_date
-            >= creation_date_gte.astimezone(datetime.timezone.utc).replace(tzinfo=None)
-        )
+        where_conditions.append(Threads.creation_date >= creation_date_gte)
 
     if pagination_params.cursor is not None:
         comparison_op = (
-            column_attr < datetime.datetime.fromisoformat(pagination_params.cursor)
+            column_attr < pagination_params.cursor
             if sort.startswith("-")
-            else column_attr > datetime.datetime.fromisoformat(pagination_params.cursor)
+            else column_attr > pagination_params.cursor
         )
         where_conditions.append(comparison_op)
 
@@ -290,11 +283,9 @@ async def get_thread_messages(
 
     if pagination_params.cursor is not None:
         comparison_op = (
-            Messages.creation_date
-            < datetime.datetime.fromisoformat(pagination_params.cursor)
+            Messages.creation_date < pagination_params.cursor
             if (sort.startswith("-") or vercel_format)
-            else Messages.creation_date
-            > datetime.datetime.fromisoformat(pagination_params.cursor)
+            else Messages.creation_date > pagination_params.cursor
         )
         where_conditions.append(comparison_op)
 
@@ -327,12 +318,7 @@ async def get_thread_messages(
     if vercel_format:
         # We set the most recent boudary to the cursor if it exists.
         date_conditions = (
-            [
-                (
-                    Messages.creation_date
-                    < datetime.datetime.fromisoformat(pagination_params.cursor)
-                )
-            ]
+            [(Messages.creation_date < pagination_params.cursor)]
             if pagination_params.cursor
             else []
         )

@@ -1,7 +1,7 @@
 """Test app utils."""
 
 import json
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Literal
 from unittest.mock import AsyncMock, patch
 from uuid import UUID
@@ -239,7 +239,7 @@ def test_format_messages_output():
     """Test the output format conversion."""
 
     msg1 = Messages(
-        creation_date=datetime(2025, 6, 4, 14, 4, 41),
+        creation_date=datetime(2025, 6, 4, 14, 4, 41, tzinfo=timezone.utc),
         entity=Entity.AI_MESSAGE,
         is_complete=True,
         message_id="359eeb21-2e94-4095-94d9-ca7d4ff22640",
@@ -248,7 +248,7 @@ def test_format_messages_output():
         tool_calls=[],
     )
     msg2 = Messages(
-        creation_date=datetime(2025, 6, 4, 14, 4, 41),
+        creation_date=datetime(2025, 6, 4, 14, 4, 41, tzinfo=timezone.utc),
         entity=Entity.TOOL,
         is_complete=True,
         message_id="06c305de-1562-43aa-adea-beeeb53880a2",
@@ -263,7 +263,7 @@ def test_format_messages_output():
         validated="not_required",
     )
     msg3 = Messages(
-        creation_date=datetime(2025, 6, 4, 14, 4, 41),
+        creation_date=datetime(2025, 6, 4, 14, 4, 41, tzinfo=timezone.utc),
         entity=Entity.AI_TOOL,
         is_complete=True,
         message_id="e21d5f16-8553-4181-9d25-d1d935327ffc",
@@ -272,7 +272,7 @@ def test_format_messages_output():
         tool_calls=[dummy_tool_call],
     )
     msg4 = Messages(
-        creation_date=datetime(2025, 6, 4, 14, 4, 41),
+        creation_date=datetime(2025, 6, 4, 14, 4, 41, tzinfo=timezone.utc),
         entity=Entity.USER,
         is_complete=True,
         message_id="87866e27-dc78-48c2-bd68-4ea395d5a466",
@@ -284,7 +284,7 @@ def test_format_messages_output():
     fake_message_list = [msg1, msg2, msg3, msg4]
 
     expected_output = PaginatedResponse(
-        next_cursor=datetime(2025, 6, 4, 14, 4, 41),
+        next_cursor=datetime(2025, 6, 4, 14, 4, 41, tzinfo=timezone.utc),
         has_more=False,
         page_size=10,
         results=[
@@ -293,7 +293,7 @@ def test_format_messages_output():
                 entity="ai_message",
                 thread_id="e2db8c7d-1170-4762-b42b-fdcd08526735",
                 is_complete=True,
-                creation_date=datetime(2025, 6, 4, 14, 4, 41),
+                creation_date=datetime(2025, 6, 4, 14, 4, 41, tzinfo=timezone.utc),
                 msg_content={"content": "DUMMY_AI_CONTENT"},
                 tool_calls=[],
             ),
@@ -302,7 +302,7 @@ def test_format_messages_output():
                 entity="tool",
                 thread_id="e2db8c7d-1170-4762-b42b-fdcd08526735",
                 is_complete=True,
-                creation_date=datetime(2025, 6, 4, 14, 4, 41),
+                creation_date=datetime(2025, 6, 4, 14, 4, 41, tzinfo=timezone.utc),
                 msg_content={"content": "DUMMY_RESULT"},
                 tool_calls=[],
             ),
@@ -311,7 +311,7 @@ def test_format_messages_output():
                 entity="ai_tool",
                 thread_id="e2db8c7d-1170-4762-b42b-fdcd08526735",
                 is_complete=True,
-                creation_date=datetime(2025, 6, 4, 14, 4, 41),
+                creation_date=datetime(2025, 6, 4, 14, 4, 41, tzinfo=timezone.utc),
                 msg_content={"content": "DUMMY_AI_TOOL_CONTENT"},
                 tool_calls=[
                     ToolCall(
@@ -327,7 +327,7 @@ def test_format_messages_output():
                 entity="user",
                 thread_id="e2db8c7d-1170-4762-b42b-fdcd08526735",
                 is_complete=True,
-                creation_date=datetime(2025, 6, 4, 14, 4, 41),
+                creation_date=datetime(2025, 6, 4, 14, 4, 41, tzinfo=timezone.utc),
                 msg_content={"content": "DUMMY_USER_TEXT"},
                 tool_calls=[],
             ),
@@ -345,7 +345,7 @@ def test_format_messages_vercel():
     """Test the output format conversion to vercel."""
 
     msg1 = Messages(
-        creation_date=datetime(2025, 6, 4, 14, 4, 41),
+        creation_date=datetime(2025, 6, 4, 14, 4, 41, tzinfo=timezone.utc),
         entity=Entity.AI_MESSAGE,
         is_complete=True,
         message_id="359eeb212e94409594d9ca7d4ff22640",
@@ -354,7 +354,7 @@ def test_format_messages_vercel():
         tool_calls=[],
     )
     msg2 = Messages(
-        creation_date=datetime(2025, 6, 4, 14, 4, 41),
+        creation_date=datetime(2025, 6, 4, 14, 4, 41, tzinfo=timezone.utc),
         entity=Entity.TOOL,
         is_complete=True,
         message_id="06c305de156243aaadeabeeeb53880a2",
@@ -369,7 +369,7 @@ def test_format_messages_vercel():
         validated="not_required",
     )
     msg3 = Messages(
-        creation_date=datetime(2025, 6, 4, 14, 4, 41),
+        creation_date=datetime(2025, 6, 4, 14, 4, 41, tzinfo=timezone.utc),
         entity=Entity.AI_TOOL,
         is_complete=True,
         message_id="e21d5f16855341819d25d1d935327ffc",
@@ -378,7 +378,7 @@ def test_format_messages_vercel():
         tool_calls=[dummy_tool_call],
     )
     msg4 = Messages(
-        creation_date=datetime(2025, 6, 4, 14, 4, 41),
+        creation_date=datetime(2025, 6, 4, 14, 4, 41, tzinfo=timezone.utc),
         entity=Entity.USER,
         is_complete=True,
         message_id="87866e27dc7848c2bd684ea395d5a466",
@@ -397,7 +397,7 @@ def test_format_messages_vercel():
             MessagesReadVercel(
                 id="359eeb212e94409594d9ca7d4ff22640",
                 role="assistant",
-                createdAt=datetime(2025, 6, 4, 14, 4, 41),
+                createdAt=datetime(2025, 6, 4, 14, 4, 41, tzinfo=timezone.utc),
                 content="DUMMY_AI_CONTENT",
                 parts=[
                     TextPartVercel(type="text", text="DUMMY_AI_TOOL_CONTENT"),
@@ -425,7 +425,7 @@ def test_format_messages_vercel():
             MessagesReadVercel(
                 id="87866e27dc7848c2bd684ea395d5a466",
                 role="user",
-                createdAt=datetime(2025, 6, 4, 14, 4, 41),
+                createdAt=datetime(2025, 6, 4, 14, 4, 41, tzinfo=timezone.utc),
                 content="DUMMY_USER_TEXT",
                 parts=None,
                 annotations=None,
