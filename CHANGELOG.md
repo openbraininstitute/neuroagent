@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Copy token button in UI.
 - New false positive utterances.
+- Copy button for tool output.
 - Filtering on creation date of threads.
 
 ### Fixed
