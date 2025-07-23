@@ -167,6 +167,8 @@ class SettingsAccounting(BaseModel):
     base_url: str | None = None
     disabled: bool = False
 
+    model_config = ConfigDict(frozen=True)
+
     @model_validator(mode="before")
     @classmethod
     def disable_if_no_url(cls, data: Any) -> Any:
@@ -187,6 +189,8 @@ class MCPToolMetadata(BaseModel):
     name_frontend: str | None = None
     description: str | None = None
 
+    model_config = ConfigDict(frozen=True)
+
 
 class MCPServerConfig(BaseModel):
     """Configuration for a single MCP server."""
@@ -196,11 +200,29 @@ class MCPServerConfig(BaseModel):
     env: dict[str, SecretStr] | None = None
     tool_metadata: dict[str, MCPToolMetadata] | None = None
 
+    model_config = ConfigDict(frozen=True)
+
 
 class SettingsMCP(BaseModel):
     """Settings for the MCP."""
 
     servers: dict[str, MCPServerConfig] | None = None
+
+    model_config = ConfigDict(frozen=True)
+
+    def __hash__(self) -> int:
+        """Hash the instance."""
+        dump = self.model_dump()
+        # Turn nested dicts/lists into a stable tuple form for hashing
+        return hash(self._freeze(dump))
+
+    @staticmethod
+    def _freeze(obj: Any) -> Any:
+        if isinstance(obj, dict):
+            return tuple(sorted((k, SettingsMCP._freeze(v)) for k, v in obj.items()))
+        if isinstance(obj, list):
+            return tuple(SettingsMCP._freeze(v) for v in obj)
+        return obj
 
 
 class Settings(BaseSettings):

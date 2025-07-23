@@ -276,9 +276,10 @@ def get_mcp_client(request: Request) -> MCPClient | None:
 
 
 @cache
-def get_openrouter_models() -> list[OpenRouterModelResponse]:
+def get_openrouter_models(
+    settings: Annotated[Settings, Depends(get_settings)],
+) -> list[OpenRouterModelResponse]:
     """Ping Openrouter to get available models."""
-    settings = get_settings()
     response = get("https://openrouter.ai/api/v1/models")
     if response.status_code != 200:
         raise HTTPException(
