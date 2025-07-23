@@ -239,7 +239,112 @@ class ContextAnalyzerTool(BaseTool):
                 page_description += f"## Current user view \n\n The user is currenly viewing information in brain region : {current_brain_region.name}, with ID : {current_brain_region.id}.\nComplete description : {current_brain_region.model_dump_json()}"
 
         elif page_type == "build":
-            page_description += descriptions["build"]
+            # Get headers for all entitycore calls
+            headers: dict[str, str] = {}
+            if self.metadata.vlab_id is not None:
+                headers["virtual-lab-id"] = str(self.metadata.vlab_id)
+            if self.metadata.project_id is not None:
+                headers["project-id"] = str(self.metadata.project_id)
+
+            # Get some information about the current brain region.
+            if "br_id" in query_params:
+                response = await self.metadata.httpx_client.get(
+                    url=self.metadata.entitycore_url.rstrip("/")
+                    + f"/brain-region/{query_params['br_id'][0]}",
+                    headers=headers,
+                )
+                if response.status_code != 200:
+                    raise ValueError(
+                        f"The brain region endpoint returned a non 200 response code. Error: {response.text}"
+                    )
+                current_brain_region = BrainRegionRead(**response.json())
+
+            page_description += f"## Current user view \n\n The user is currenly viewing information in brain region : {current_brain_region.name}, with ID : {current_brain_region.id}.\nComplete description : {current_brain_region.model_dump_json()}"
+
+            if len(page_path > 3):
+                if page_path[1] == "me-model":
+                    if len(page_path) == 3 and page_path[2] == "new":
+                        page_description += descriptions["build-me-model"]
+                    elif len(page_path) == 4 and page_path[3] == "configure":
+                        page_description += descriptions["build-me-model-details"]
+                    elif len(page_path) == 5:
+                        if page_path[4] == "morphology":
+                            if "br_id" in query_params:
+                                query_param = {
+                                    "page_size": "30",
+                                    "page": "1",
+                                    "order_by": "-creation_date",
+                                    "within_brain_region_hierarchy_id": "e3e70682-c209-4cac-a29f-6fbed82c07cd",
+                                    "within_brain_region_brain_region_id": query_params[
+                                        "br_id"
+                                    ][0],
+                                    "within_brain_region_ascendants": "false",
+                                    "with_facets": "true",
+                                }
+
+                                response = await self.metadata.httpx_client.get(
+                                    url=self.metadata.entitycore_url.rstrip("/")
+                                    + "reconstruction-morphology",
+                                    headers=headers,
+                                    params=query_param,
+                                )
+                                if response.status_code != 200:
+                                    raise ValueError(
+                                        f"The morphology endpoint returned a non 200 response code. Error: {response.text}"
+                                    )
+                                entity_resonse = [
+                                    f"Name : {entity['name']}, ID : {entity['id']}"
+                                    for entity in response.json()["data"]
+                                ]
+                                page_description += f"## Current user view \n\n The {entity_type} currently on screen are: {entity_resonse}\n"
+
+                            page_description += descriptions[
+                                "build-me-model-morphology-selection"
+                            ]
+
+                        elif page_path[4] == "e-model":
+                            if "br_id" in query_params:
+                                query_param = {
+                                    "page_size": "30",
+                                    "page": "1",
+                                    "order_by": "-creation_date",
+                                    "within_brain_region_hierarchy_id": "e3e70682-c209-4cac-a29f-6fbed82c07cd",
+                                    "within_brain_region_brain_region_id": query_params[
+                                        "br_id"
+                                    ][0],
+                                    "within_brain_region_ascendants": "false",
+                                    "with_facets": "true",
+                                }
+
+                                response = await self.metadata.httpx_client.get(
+                                    url=self.metadata.entitycore_url.rstrip("/")
+                                    + "/electrical-cell-recording",
+                                    headers=headers,
+                                    params=query_param,
+                                )
+                                if response.status_code != 200:
+                                    raise ValueError(
+                                        f"The electrical-cell-recording endpoint returned a non 200 response code. Error: {response.text}"
+                                    )
+                                entity_resonse = [
+                                    f"Name : {entity['name']}, ID : {entity['id']}"
+                                    for entity in response.json()["data"]
+                                ]
+                                page_description += f"## Current user view \n\n The {entity_type} currently on screen are: {entity_resonse}\n"
+                                page_description += descriptions[
+                                    "build-me-model-e-model-selection"
+                                ]
+
+                if page_path[1] == "synaptome":
+                    if len(page_path) == 3 and page_path[2] == "new":
+                        page_description += descriptions["build-synaptome"]
+                    elif len(page_path) == 4 and page_path[3] == "configure":
+                        page_description += descriptions["build-synaptome-details"]
+                    else:
+                        page_description += "This page has not be implemented yet."
+            else:
+                page_description += descriptions["build"]
+
         elif page_type == "simulate":
             page_description += descriptions["Experiment"]
         elif page_type == "admin":
