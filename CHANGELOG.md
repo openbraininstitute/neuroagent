@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- Datetimes are now offset-aware.
+
 ## [v0.7.1] - 21.07.2025
 
 ### Added
