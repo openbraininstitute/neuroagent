@@ -100,7 +100,7 @@ class SettingsSanity(BaseModel):
     @property
     def url(self) -> str:
         """Define the url for the sanity API."""
-        return f"https://{self.project_id}.sanity.api.sanity.io/v2025-02-09/data/query/{self.dataset}"
+        return f"https://{self.project_id}.api.sanity.io/v2025-02-19/data/query/{self.dataset}"
 
 
 class SettingsTools(BaseModel):

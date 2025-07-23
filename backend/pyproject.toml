@@ -20,6 +20,7 @@ dependencies = [
     "mcp",
     "obp-accounting-sdk",
     "openai",
+    "portabletext-html",
     "psycopg2",
     "pydantic>=2.11",
     "pydantic-settings",
