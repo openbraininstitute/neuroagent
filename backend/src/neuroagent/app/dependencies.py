@@ -56,7 +56,6 @@ from neuroagent.tools import (
     ExperimentalSynapsesPerConnectionGetOneTool,
     IonChannelModelGetAllTool,
     IonChannelModelGetOneTool,
-    LiteratureSearchTool,
     MeasurementAnnotationGetAllTool,
     MeasurementAnnotationGetOneTool,
     MEModelGetAllTool,
@@ -98,7 +97,6 @@ from neuroagent.tools import (
     StrainGetOneTool,
     SubjectGetAllTool,
     SubjectGetOneTool,
-    WebSearchTool,
 )
 from neuroagent.tools.base_tool import BaseTool
 
@@ -350,7 +348,6 @@ def get_tool_list(
         SCSPostTool,
         MEModelGetAllTool,
         MEModelGetOneTool,
-        LiteratureSearchTool,
         ReconstructionMorphologyGetAllTool,
         ReconstructionMorphologyGetOneTool,
         MorphometricsGetOneTool,
@@ -360,7 +357,6 @@ def get_tool_list(
         PersonGetAllTool,
         PersonGetOneTool,
         PlotGeneratorTool,
-        WebSearchTool,
         EtypeGetAllTool,
         EtypeGetOneTool,
         EModelGetAllTool,
@@ -610,17 +606,13 @@ def get_context_variables(
         "bucket_name": settings.storage.bucket_name,
         "entitycore_url": settings.tools.entitycore.url,
         "httpx_client": httpx_client,
-        "literature_search_url": settings.tools.literature.url,
         "obi_one_url": settings.tools.obi_one.url,
         "openai_client": openai_client,
         "project_id": thread.project_id,
-        "retriever_k": settings.tools.literature.retriever_k,
         "s3_client": s3_client,
         "sanity_url": settings.tools.sanity.url,
-        "tavily_api_key": settings.tools.web_search.tavily_api_key,
         "thread_id": thread.thread_id,
         "thumbnail_generation_url": settings.tools.thumbnail_generation.url,
-        "use_reranker": settings.tools.literature.use_reranker,
         "user_id": user_info.sub,
         "vlab_id": thread.vlab_id,
     }
@@ -640,7 +632,6 @@ def get_healthcheck_variables(
         "bluenaas_url": settings.tools.bluenaas.url.rstrip("/") + "/",
         "entitycore_url": settings.tools.entitycore.url.rstrip("/") + "/",
         "httpx_client": httpx_client,
-        "literature_search_url": settings.tools.literature.url.rstrip("/") + "/",
         "obi_one_url": settings.tools.obi_one.url.rstrip("/") + "/",
         "thumbnail_generation_url": settings.tools.thumbnail_generation.url.rstrip("/")
         + "/",

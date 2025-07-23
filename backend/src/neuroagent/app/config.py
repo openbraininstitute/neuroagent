@@ -76,24 +76,6 @@ class SettingsObiOne(BaseModel):
     model_config = ConfigDict(frozen=True)
 
 
-class SettingsWebSearch(BaseModel):
-    """Literature search API settings."""
-
-    tavily_api_key: SecretStr | None = None
-
-    model_config = ConfigDict(frozen=True)
-
-
-class SettingsLiterature(BaseModel):
-    """Literature search API settings."""
-
-    url: str = "https://www.openbraininstitute.org/api/literature"
-    retriever_k: int = 100
-    use_reranker: bool = True
-
-    model_config = ConfigDict(frozen=True)
-
-
 class SettingsBlueNaaS(BaseModel):
     """BlueNaaS settings."""
 
@@ -124,12 +106,10 @@ class SettingsSanity(BaseModel):
 class SettingsTools(BaseModel):
     """Database settings."""
 
-    literature: SettingsLiterature = SettingsLiterature()
     obi_one: SettingsObiOne = SettingsObiOne()
     bluenaas: SettingsBlueNaaS = SettingsBlueNaaS()
     entitycore: SettingsEntityCore = SettingsEntityCore()
     sanity: SettingsSanity = SettingsSanity()
-    web_search: SettingsWebSearch = SettingsWebSearch()
     thumbnail_generation: SettingsThumbnailGeneration = SettingsThumbnailGeneration()
     min_tool_selection: int = Field(default=10, ge=0)
     whitelisted_tool_regex: str | None = None

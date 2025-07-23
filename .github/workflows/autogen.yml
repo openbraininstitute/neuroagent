@@ -33,7 +33,6 @@ jobs:
           declare -A SERVICES=(
             ["entitycore"]="entitycore.py"
             ["obi-one"]="obione.py"
-            ["literature"]="literature.py"
             ["bluenaas"]="bluenaas.py"
             ["thumbnail-generation"]="thumbnail_generation.py"
           )
