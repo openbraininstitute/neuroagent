@@ -10,15 +10,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Sanity fetching tool.
 
+### Changed
+- Datetimes are now offset-aware.
+
 ## [v0.7.1] - 21.07.2025
 
 ### Added
 - Copy token button in UI.
 - New false positive utterances.
+- Copy button for tool output.
 - Filtering on creation date of threads.
 
 ### Fixed
 - Make sure .env is not read in tests.
+- Make the Settings class hashable.
 - No AWS HTTP requests in unit tests.
 
 ### Changed

@@ -56,8 +56,12 @@ class Threads(Base):
         UUID, nullable=True
     )  # only default for now !
     title: Mapped[str] = mapped_column(String, default="New chat")
-    creation_date: Mapped[datetime.datetime] = mapped_column(DateTime, default=utc_now)
-    update_date: Mapped[datetime.datetime] = mapped_column(DateTime, default=utc_now)
+    creation_date: Mapped[datetime.datetime] = mapped_column(
+        DateTime(timezone=True), default=utc_now
+    )
+    update_date: Mapped[datetime.datetime] = mapped_column(
+        DateTime(timezone=True), default=utc_now
+    )
 
     user_id: Mapped[uuid.UUID] = mapped_column(UUID, nullable=False)
     messages: Mapped[list["Messages"]] = relationship(
@@ -75,7 +79,9 @@ class Messages(Base):
     message_id: Mapped[uuid.UUID] = mapped_column(
         UUID, primary_key=True, default=lambda: uuid.uuid4()
     )
-    creation_date: Mapped[datetime.datetime] = mapped_column(DateTime, default=utc_now)
+    creation_date: Mapped[datetime.datetime] = mapped_column(
+        DateTime(timezone=True), default=utc_now
+    )
     entity: Mapped[Entity] = mapped_column(Enum(Entity), nullable=False)
     content: Mapped[str] = mapped_column(String, nullable=False)
     is_complete: Mapped[bool] = mapped_column(Boolean)
