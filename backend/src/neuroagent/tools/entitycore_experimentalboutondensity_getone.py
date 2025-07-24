@@ -23,6 +23,12 @@ class ExperimentalBoutonDensityGetOneInput(BaseModel):
     )
 
 
+class ExperimentalBoutonDensityGetOneOutput(ExperimentalBoutonDensityRead):
+    """Entitycore class modification, with added links."""
+
+    url_link: str
+
+
 class ExperimentalBoutonDensityGetOneTool(BaseTool):
     """Class defining the Get One Experimental Bouton Density logic."""
 
@@ -56,7 +62,7 @@ class ExperimentalBoutonDensityGetOneTool(BaseTool):
     metadata: EntitycoreMetadata
     input_schema: ExperimentalBoutonDensityGetOneInput
 
-    async def arun(self) -> ExperimentalBoutonDensityRead:
+    async def arun(self) -> ExperimentalBoutonDensityGetOneOutput:
         """From a bouton density ID, extract detailed bouton density information.
 
         Returns
@@ -78,7 +84,14 @@ class ExperimentalBoutonDensityGetOneTool(BaseTool):
             raise ValueError(
                 f"The experimental bouton density endpoint returned a non 200 response code. Error: {response.text}"
             )
-        return ExperimentalBoutonDensityRead(**response.json())
+        # Add the link
+        response_json = response.json()
+        response_json["url_link"] = (
+            self.metadata.entitycore_links_url
+            + "/bouton-density/"
+            + response_json["id"]
+        )
+        return ExperimentalBoutonDensityGetOneOutput(**response_json)
 
     @classmethod
     async def is_online(cls, *, httpx_client: AsyncClient, entitycore_url: str) -> bool:

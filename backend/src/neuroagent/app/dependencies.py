@@ -610,10 +610,17 @@ async def get_context_variables(
     """Get the context variables to feed the tool's metadata."""
     body = await request.json()
     url = body.get("frontend_url")
+    entitycore_link_url = (
+        re.match(
+            r"(https://[^/]+/app/virtual-lab/lab/[^/]+/project/[^/]+/)", url
+        ).group(1)
+        + "/explore/interactive/experimental"
+    )
     return {
         "bluenaas_url": settings.tools.bluenaas.url,
         "bucket_name": settings.storage.bucket_name,
         "entitycore_url": settings.tools.entitycore.url,
+        "entitycore_links_url": entitycore_link_url,
         "frontend_url": url,
         "httpx_client": httpx_client,
         "literature_search_url": settings.tools.literature.url,

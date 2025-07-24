@@ -24,6 +24,7 @@ class EntitycoreMetadata(BaseMetadata):
     entitycore_url: str
     vlab_id: UUID | None
     project_id: UUID | None
+    entitycore_links_url: str
 
 
 class BaseTool(BaseModel, ABC):
