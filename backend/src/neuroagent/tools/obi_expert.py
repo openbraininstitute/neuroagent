@@ -90,12 +90,18 @@ class SanityDocument(BaseModel):
     updated_at: str
 
     sanity_mapping: ClassVar[dict[str, str]] = {
+        # Maps pydantic model attribute names (keys) to Sanity document field names (values).
+        # All pydantic class attributes must be specified here to ensure proper extraction
+        # and consistent casing from Sanity documents.
         "id": "_id",
         "created_at": "_createdAt",
         "updated_at": "_updatedAt",
     }
 
-    portable_text_attributes: ClassVar[list[str]] = []
+    portable_text_attributes: ClassVar[list[str]] = [
+        # List of pydantic model attributes that contain Portable Text content.
+        # These fields will be flattened into plain text using the flatten_portable_text function.
+    ]
 
     @classmethod
     def get_model_for_type(cls, type_name: str) -> type["SanityDocument"]:
