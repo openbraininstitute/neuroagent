@@ -1,6 +1,7 @@
 """OBI Expert tool."""
 
 import asyncio
+import logging
 from typing import Any, ClassVar, Literal
 
 import httpx
@@ -8,6 +9,7 @@ from pydantic import BaseModel, Field
 
 from neuroagent.tools.base_tool import BaseMetadata, BaseTool
 
+logger = logging.getLogger(__name__)
 
 def flatten_portable_text(blocks: list[dict[str, Any]] | dict[str, Any]) -> str:
     """Recursively flatten Portable Text blocks into a single string.
@@ -325,6 +327,8 @@ class OBIExpertTool(BaseTool):
             document_type=self.input_schema.document_type,
             query=self.input_schema.query
         )
+
+        logger.debug(f"OBI Expert tool query: {results_query}")
 
         # Make both requests concurrently
         async with httpx.AsyncClient() as client:
