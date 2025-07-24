@@ -174,6 +174,46 @@ class OBIExpertTool(BaseTool):
     input_schema: OBIExpertInput
 
     @staticmethod
+    def _build_base_query(document_type: str, query: str | None = None) -> str:
+        """Build the base GROQ query with type filtering and text matching.
+
+        Parameters
+        ----------
+        document_type : str
+            Type of document to query for (e.g., "glossaryItem", "news")
+        query : str, optional
+            Text to match across all mapped fields, by default None
+
+        Returns
+        -------
+        str
+            Base GROQ query string with type filtering and text matching
+        """
+        # Get the corresponding model and its field mapping
+        model = SanityDocument.get_model_for_type(document_type)
+
+        # Base query with type filter
+        base_query = f'*[_type == "{document_type}"'
+
+        # Add text matching if query is provided
+        if query:
+            # Get all mapped fields except id, created_at, updated_at
+            searchable_fields = [
+                v for k, v in model.sanity_mapping.items()
+                if k not in ["id", "created_at", "updated_at"]
+            ]
+            # Build OR conditions for each field
+            match_conditions = [
+                f'{field} match "*{query}*"'
+                for field in searchable_fields
+            ]
+            base_query += f' && ({" || ".join(match_conditions)})'
+
+        # Close filter bracket
+        base_query += "]"
+        return base_query
+
+    @staticmethod
     def build_query(
         document_type: str,
         page: int,
@@ -194,7 +234,7 @@ class OBIExpertTool(BaseTool):
         sort : {"newest", "oldest"}
             Sort order for the results
         query : str, optional
-            Text to match in title or content fields, by default None
+            Text to match across all mapped fields, by default None
 
         Returns
         -------
@@ -205,20 +245,13 @@ class OBIExpertTool(BaseTool):
         -----
         The query includes:
         - Type filtering
-        - Optional text matching in title and content
+        - Optional text matching across all mapped fields
         - Sorting by creation or update date
         - Pagination
         - Field selection based on model's sanity_mapping
         """
-        # Base query with type filter
-        base_query = f'*[_type == "{document_type}"'
-
-        # Add text matching if query is provided
-        if query:
-            base_query += f' && (title match "*{query}*" || content match "*{query}*")'
-
-        # Close filter bracket
-        base_query += "]"
+        model = SanityDocument.get_model_for_type(document_type)
+        base_query = OBIExpertTool._build_base_query(document_type, query)
 
         # Add sorting
         sort_field = "_createdAt" if sort == "newest" else "_updatedAt"
@@ -228,9 +261,6 @@ class OBIExpertTool(BaseTool):
         # Add pagination
         start = (page - 1) * page_size
         base_query += f"[{start}...{start + page_size}]"
-
-        # Get the corresponding model and its field mapping
-        model = SanityDocument.get_model_for_type(document_type)
         
         # Convert to GROQ projection syntax using the model's sanity_mapping
         # Always include _type field
@@ -251,7 +281,7 @@ class OBIExpertTool(BaseTool):
         document_type : str
             Type of document to count (e.g., "glossaryItem", "news")
         query : str, optional
-            Text to match in title or content fields, by default None
+            Text to match across all mapped fields, by default None
 
         Returns
         -------
@@ -262,19 +292,13 @@ class OBIExpertTool(BaseTool):
         -----
         The count query applies the same filtering as the main query:
         - Type filtering
-        - Optional text matching in title and content
+        - Optional text matching across all mapped fields
         But excludes:
         - Sorting
         - Pagination
         - Field selection
         """
-        base_query = f'*[_type == "{document_type}"'
-
-        # Add text matching if query is provided
-        if query:
-            base_query += f' && (title match "*{query}*" || content match "*{query}*")'
-
-        base_query += "]"
+        base_query = OBIExpertTool._build_base_query(document_type, query)
         return f"count({base_query})"
 
     @staticmethod
