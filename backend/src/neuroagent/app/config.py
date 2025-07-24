@@ -95,12 +95,13 @@ class SettingsSanity(BaseModel):
 
     project_id: str = "fgi7eh1v"
     dataset: Literal["staging", "production"] = "staging"
+    version: str = "v2025-02-19"
     model_config = ConfigDict(frozen=True)
 
     @property
     def url(self) -> str:
         """Define the url for the sanity API."""
-        return f"https://{self.project_id}.api.sanity.io/v2025-02-19/data/query/{self.dataset}"
+        return f"https://{self.project_id}.api.sanity.io/{self.version}/data/query/{self.dataset}"
 
 
 class SettingsTools(BaseModel):
