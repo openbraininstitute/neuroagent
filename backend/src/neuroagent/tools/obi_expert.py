@@ -59,9 +59,9 @@ def flatten_portable_text(blocks: list[dict[str, Any]] | dict[str, Any]) -> str:
 class OBIExpertInput(BaseModel):
     """Inputs for the OBI Expert tool."""
 
-    document_type: Literal["futureFeaturesItem", "glossaryItem", "news", "tutorial"] = (
-        Field(description="Type of documents to retrieve")
-    )
+    document_type: Literal[
+        "futureFeaturesItem", "glossaryItem", "news", "publicProjects", "tutorial"
+    ] = Field(description="Type of documents to retrieve")
     page: int = Field(
         default=1, ge=1, description="Page number to retrieve (1-based index)"
     )
@@ -122,6 +122,7 @@ class SanityDocument(BaseModel):
             "glossaryItem": GlossaryItemDocument,
             "futureFeaturesItem": FutureFeature,
             "tutorial": Tutorial,
+            "publicProjects": PublicProject,
         }
         if type_name not in type_to_model:
             raise ValueError(f"Unsupported document type: {type_name}")
@@ -200,6 +201,29 @@ class Tutorial(SanityDocument):
     portable_text_attributes: ClassVar[list[str]] = ["transcript"]
 
 
+class PublicProject(SanityDocument):
+    """Schema for public project documents."""
+
+    name: str
+    introduction: str
+    description: str
+    videos_list: list[dict[str, Any]] | None
+    notebook: str | None
+    authors_list: list[dict[str, Any]]
+
+    sanity_mapping: ClassVar[dict[str, str]] = {
+        **SanityDocument.sanity_mapping,
+        "name": "name",
+        "introduction": "introduction",
+        "description": "description",
+        "videos_list": "videosList",
+        "notebook": "notebook",
+        "authors_list": "authorsList",
+    }
+
+    portable_text_attributes: ClassVar[list[str]] = ["description", "notebook"]
+
+
 class OBIExpertOutput(BaseModel):
     """Output schema for the OBI Expert tool."""
 
@@ -208,6 +232,7 @@ class OBIExpertOutput(BaseModel):
         | list[GlossaryItemDocument]
         | list[FutureFeature]
         | list[Tutorial]
+        | list[PublicProject]
     )
     total_items: int
 
