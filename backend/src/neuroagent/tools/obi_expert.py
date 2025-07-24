@@ -1,11 +1,10 @@
 """OBI Expert tool."""
 
 import asyncio
-from typing import Any, ClassVar, Literal, Optional
+from typing import Any, ClassVar, Literal
 
 import httpx
 from pydantic import BaseModel, Field
-
 
 from neuroagent.tools.base_tool import BaseMetadata, BaseTool
 
@@ -87,6 +86,36 @@ class SanityDocument(BaseModel):
     created_at: str
     updated_at: str
 
+    sanity_mapping: ClassVar[dict[str, str]] = {
+        "id": "_id",
+        "created_at": "_createdAt",
+        "updated_at": "_updatedAt",
+    }
+
+    portable_text_attributes: ClassVar[list[str]] = []
+
+    @classmethod
+    def get_model_for_type(cls, type_name: str) -> type["SanityDocument"]:
+        """Get the corresponding model class for a document type.
+        
+        Parameters
+        ----------
+        type_name : str
+            The Sanity document type name
+            
+        Returns
+        -------
+        type[SanityDocument]
+            The corresponding model class
+        """
+        type_to_model = {
+            "news": NewsDocument,
+            "glossaryItem": GlossaryItemDocument
+        }
+        if type_name not in type_to_model:
+            raise ValueError(f"Unsupported document type: {type_name}")
+        return type_to_model[type_name]
+
 
 class NewsDocument(SanityDocument):
     """Schema for news documents."""
@@ -95,12 +124,29 @@ class NewsDocument(SanityDocument):
     category: str
     content: str | None
 
+    sanity_mapping: ClassVar[dict[str, str]] = {
+        **SanityDocument.sanity_mapping,
+        "title": "title",
+        "category": "category",
+        "content": "content",
+    }
+
+    portable_text_attributes: ClassVar[list[str]] = ["content"]
+
 
 class GlossaryItemDocument(SanityDocument):
     """Schema for glossary item documents."""
 
     name: str
     description: str
+
+    sanity_mapping: ClassVar[dict[str, str]] = {
+        **SanityDocument.sanity_mapping,
+        "name": "Name",
+        "description": "Description",
+    }
+
+    portable_text_attributes: ClassVar[list[str]] = []
 
 
 class OBIExpertOutput(BaseModel):
@@ -132,7 +178,6 @@ class OBIExpertTool(BaseTool):
         page_size: int,
         sort: Literal["newest", "oldest"],
         query: str | None = None,
-        extra_keys: list[str] | None = None,
     ) -> str:
         """Build a GROQ query for retrieving documents with pagination and sorting.
 
@@ -148,8 +193,6 @@ class OBIExpertTool(BaseTool):
             Sort order for the results
         query : str, optional
             Text to match in title or content fields, by default None
-        extra_keys: list[str], optional
-            Additional fields to fetch from the document, by default None
 
         Returns
         -------
@@ -163,7 +206,7 @@ class OBIExpertTool(BaseTool):
         - Optional text matching in title and content
         - Sorting by creation or update date
         - Pagination
-        - Field selection including any extra keys requested
+        - Field selection based on model's sanity_mapping
         """
         # Base query with type filter
         base_query = f'*[_type == "{document_type}"'
@@ -184,24 +227,15 @@ class OBIExpertTool(BaseTool):
         start = (page - 1) * page_size
         base_query += f"[{start}...{start + page_size}]"
 
-        # Build field selection
-        base_fields = {
-            "id": "_id",
-            "created_at": "_createdAt",
-            "updated_at": "_updatedAt",
-            "content": "content",
-            "title": "title",
-            "category": "category",
-        }
-
-        # Add extra keys if provided
-        if extra_keys:
-            for key in extra_keys:
-                if key not in base_fields:
-                    base_fields[key] = key
-
-        # Convert to GROQ projection syntax
-        field_selection = ", ".join(f'"{k}": {v}' for k, v in base_fields.items())
+        # Get the corresponding model and its field mapping
+        model = SanityDocument.get_model_for_type(document_type)
+        
+        # Convert to GROQ projection syntax using the model's sanity_mapping
+        # Always include _type field
+        field_selection = ", ".join(
+            [f'"{k}": {v}' for k, v in model.sanity_mapping.items()] + 
+            ['"_type": _type']
+        )
         base_query += f" {{ {field_selection} }}"
 
         return base_query
@@ -242,13 +276,11 @@ class OBIExpertTool(BaseTool):
         return f"count({base_query})"
 
     @staticmethod
-    def parse_document(document_type: str, doc: dict[str, Any]) -> SanityDocument:
+    def parse_document(doc: dict[str, Any]) -> SanityDocument:
         """Parse a Sanity document into the appropriate Pydantic model.
 
         Parameters
         ----------
-        document_type : str
-            Type of document to parse (e.g., "glossaryItem", "news")
         doc : dict[str, Any]
             Raw document data from Sanity
 
@@ -259,39 +291,23 @@ class OBIExpertTool(BaseTool):
 
         Notes
         -----
-        - Handles Portable Text content flattening
-        - Maps document types to their corresponding Pydantic models
-        - Preserves all base fields (id, created_at, updated_at)
+        - Automatically detects document type from _type field
+        - Handles Portable Text content flattening based on model's portable_text_attributes
+        - Maps fields according to model's sanity_mapping
         """
-        # Base fields present in all documents
-        base_fields = {
-            "id": doc["id"],
-            "created_at": doc["created_at"],
-            "updated_at": doc["updated_at"],
-        }
+        # Get the appropriate model class based on document type
+        doc_type = doc["_type"]
+        model_class = SanityDocument.get_model_for_type(doc_type)
 
-        # Map document types to their corresponding models and required fields
-        if document_type == "news":
-            # Process Portable Text content if present
-            content_portable_text = doc.get("content")
-            if isinstance(content_portable_text, (dict, list)):
-                content = flatten_portable_text(content_portable_text)
-            else:
-                content = None
-            return NewsDocument(
-                **base_fields,
-                title=doc.get("title", ""),
-                category=doc.get("category", ""),
-                content=content,
-            )
-        elif document_type == "glossaryItem":
-            return GlossaryItemDocument(
-                **base_fields,
-                name=doc.get("name", ""),
-                description=doc.get("description", ""),
-            )
-        else:
-            raise ValueError(f"Unsupported document type: {document_type}")
+        # Process any portable text fields
+        processed_doc = doc.copy()
+        for field in model_class.portable_text_attributes:
+            field_value = doc.get(field)
+            if isinstance(field_value, (dict, list)):
+                processed_doc[field] = flatten_portable_text(field_value)
+
+        # Create model instance with processed data
+        return model_class(**processed_doc)
 
     async def arun(self) -> OBIExpertOutput:
         """Extract documents from Sanity."""
@@ -306,7 +322,8 @@ class OBIExpertTool(BaseTool):
 
         # Get total count
         count_query = self.build_count_query(
-            document_type=self.input_schema.document_type, query=self.input_schema.query
+            document_type=self.input_schema.document_type,
+            query=self.input_schema.query
         )
 
         # Make both requests concurrently
@@ -330,7 +347,7 @@ class OBIExpertTool(BaseTool):
 
         # Process results using the parse_document method
         processed_results = [
-            self.parse_document(self.input_schema.document_type, doc)
+            self.parse_document(doc)
             for doc in results_data.get("result", [])
         ]
 
