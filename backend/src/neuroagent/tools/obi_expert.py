@@ -11,6 +11,7 @@ from neuroagent.tools.base_tool import BaseMetadata, BaseTool
 
 logger = logging.getLogger(__name__)
 
+
 def flatten_portable_text(blocks: list[dict[str, Any]] | dict[str, Any]) -> str:
     """Recursively flatten Portable Text blocks into a single string.
 
@@ -58,8 +59,8 @@ def flatten_portable_text(blocks: list[dict[str, Any]] | dict[str, Any]) -> str:
 class OBIExpertInput(BaseModel):
     """Inputs for the OBI Expert tool."""
 
-    document_type: Literal["futureFeaturesItem", "glossaryItem", "news", "tutorial"] = Field(
-        description="Type of documents to retrieve"
+    document_type: Literal["futureFeaturesItem", "glossaryItem", "news", "tutorial"] = (
+        Field(description="Type of documents to retrieve")
     )
     page: int = Field(
         default=1, ge=1, description="Page number to retrieve (1-based index)"
@@ -99,12 +100,12 @@ class SanityDocument(BaseModel):
     @classmethod
     def get_model_for_type(cls, type_name: str) -> type["SanityDocument"]:
         """Get the corresponding model class for a document type.
-        
+
         Parameters
         ----------
         type_name : str
             The Sanity document type name
-            
+
         Returns
         -------
         type[SanityDocument]
@@ -114,7 +115,7 @@ class SanityDocument(BaseModel):
             "news": NewsDocument,
             "glossaryItem": GlossaryItemDocument,
             "futureFeaturesItem": FutureFeature,
-            "tutorial": Tutorial
+            "tutorial": Tutorial,
         }
         if type_name not in type_to_model:
             raise ValueError(f"Unsupported document type: {type_name}")
@@ -196,7 +197,12 @@ class Tutorial(SanityDocument):
 class OBIExpertOutput(BaseModel):
     """Output schema for the OBI Expert tool."""
 
-    results: list[SanityDocument]
+    results: (
+        list[NewsDocument]
+        | list[GlossaryItemDocument]
+        | list[FutureFeature]
+        | list[Tutorial]
+    )
     total_items: int
 
 
@@ -241,15 +247,15 @@ class OBIExpertTool(BaseTool):
         if query:
             # Get all mapped fields except id, created_at, updated_at
             searchable_fields = [
-                v for k, v in model.sanity_mapping.items()
+                v
+                for k, v in model.sanity_mapping.items()
                 if k not in ["id", "created_at", "updated_at"]
             ]
             # Build OR conditions for each field
             match_conditions = [
-                f'{field} match "*{query}*"'
-                for field in searchable_fields
+                f'{field} match "*{query}*"' for field in searchable_fields
             ]
-            base_query += f' && ({" || ".join(match_conditions)})'
+            base_query += f" && ({' || '.join(match_conditions)})"
 
         # Close filter bracket
         base_query += "]"
@@ -303,12 +309,12 @@ class OBIExpertTool(BaseTool):
         # Add pagination
         start = (page - 1) * page_size
         base_query += f"[{start}...{start + page_size}]"
-        
+
         # Convert to GROQ projection syntax using the model's sanity_mapping
         # Always include _type field
         field_selection = ", ".join(
-            [f'"{k}": {v}' for k, v in model.sanity_mapping.items()] + 
-            ['"_type": _type']
+            [f'"{k}": {v}' for k, v in model.sanity_mapping.items()]
+            + ['"_type": _type']
         )
         base_query += f" {{ {field_selection} }}"
 
@@ -390,8 +396,7 @@ class OBIExpertTool(BaseTool):
 
         # Get total count
         count_query = self.build_count_query(
-            document_type=self.input_schema.document_type,
-            query=self.input_schema.query
+            document_type=self.input_schema.document_type, query=self.input_schema.query
         )
 
         logger.debug(f"OBI Expert tool query: {results_query}")
@@ -417,8 +422,7 @@ class OBIExpertTool(BaseTool):
 
         # Process results using the parse_document method
         processed_results = [
-            self.parse_document(doc)
-            for doc in results_data.get("result", [])
+            self.parse_document(doc) for doc in results_data.get("result", [])
         ]
 
         return OBIExpertOutput(
