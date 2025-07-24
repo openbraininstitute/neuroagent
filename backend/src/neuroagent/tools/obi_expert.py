@@ -142,27 +142,27 @@ class GlossaryItemDocument(SanityDocument):
 
     name: str
     description: str
+    definition: str | None
 
     sanity_mapping: ClassVar[dict[str, str]] = {
         **SanityDocument.sanity_mapping,
         "name": "Name",
         "description": "Description",
+        "definition": "definition",
     }
 
-    portable_text_attributes: ClassVar[list[str]] = []
+    portable_text_attributes: ClassVar[list[str]] = ["definition"]
 
 
 class FutureFeature(SanityDocument):
     """Schema for future feature documents."""
 
-    status: str
     topic: str
     feature_title: str
     description: str
 
     sanity_mapping: ClassVar[dict[str, str]] = {
         **SanityDocument.sanity_mapping,
-        "status": "Status",
         "topic": "Topic",
         "feature_title": "Feature_title",
         "description": "Description",
