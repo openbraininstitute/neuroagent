@@ -208,7 +208,6 @@ class PublicProject(SanityDocument):
     introduction: str
     description: str
     videos_list: list[dict[str, Any]] | None
-    notebook: str | None
     authors_list: list[dict[str, Any]]
 
     sanity_mapping: ClassVar[dict[str, str]] = {
@@ -217,11 +216,10 @@ class PublicProject(SanityDocument):
         "introduction": "introduction",
         "description": "description",
         "videos_list": "videosList",
-        "notebook": "notebook",
         "authors_list": "authorsList",
     }
 
-    portable_text_attributes: ClassVar[list[str]] = ["description", "notebook"]
+    portable_text_attributes: ClassVar[list[str]] = ["description"]
 
 
 class OBIExpertOutput(BaseModel):
