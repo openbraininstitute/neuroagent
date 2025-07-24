@@ -160,12 +160,14 @@ class FutureFeature(SanityDocument):
     topic: str
     feature_title: str
     description: str
+    scale: str
 
     sanity_mapping: ClassVar[dict[str, str]] = {
         **SanityDocument.sanity_mapping,
         "topic": "Topic",
         "feature_title": "Feature_title",
         "description": "Description",
+        "scale": "Scale",
     }
 
     portable_text_attributes: ClassVar[list[str]] = []
