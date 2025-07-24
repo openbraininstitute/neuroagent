@@ -58,7 +58,7 @@ def flatten_portable_text(blocks: list[dict[str, Any]] | dict[str, Any]) -> str:
 class OBIExpertInput(BaseModel):
     """Inputs for the OBI Expert tool."""
 
-    document_type: Literal["glossaryItem", "news"] = Field(
+    document_type: Literal["futureFeaturesItem", "glossaryItem", "news"] = Field(
         description="Type of documents to retrieve"
     )
     page: int = Field(
@@ -112,7 +112,8 @@ class SanityDocument(BaseModel):
         """
         type_to_model = {
             "news": NewsDocument,
-            "glossaryItem": GlossaryItemDocument
+            "glossaryItem": GlossaryItemDocument,
+            "futureFeaturesItem": FutureFeature
         }
         if type_name not in type_to_model:
             raise ValueError(f"Unsupported document type: {type_name}")
@@ -151,10 +152,29 @@ class GlossaryItemDocument(SanityDocument):
     portable_text_attributes: ClassVar[list[str]] = []
 
 
+class FutureFeature(SanityDocument):
+    """Schema for future feature documents."""
+
+    status: str
+    topic: str
+    feature_title: str
+    description: str
+
+    sanity_mapping: ClassVar[dict[str, str]] = {
+        **SanityDocument.sanity_mapping,
+        "status": "Status",
+        "topic": "Topic",
+        "feature_title": "Feature_title",
+        "description": "Description",
+    }
+
+    portable_text_attributes: ClassVar[list[str]] = []
+
+
 class OBIExpertOutput(BaseModel):
     """Output schema for the OBI Expert tool."""
 
-    results: list[NewsDocument] | list[GlossaryItemDocument]
+    results: list[SanityDocument]
     total_items: int
 
 
