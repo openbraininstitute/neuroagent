@@ -1,6 +1,5 @@
 """Tests for the OBI Expert tool."""
 
-
 from neuroagent.tools.obi_expert import flatten_portable_text
 
 

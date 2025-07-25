@@ -465,7 +465,6 @@ class OBIExpertTool(BaseTool):
 
         results_data = results_response.json()
         count_data = count_response.json()
-        breakpoint()
 
         # Process results using the parse_document method
         processed_results = [
@@ -473,6 +472,6 @@ class OBIExpertTool(BaseTool):
         ]
 
         return OBIExpertOutput(
-            results=processed_results,
+            results=processed_results,  # type: ignore[arg-type]
             total_items=count_data.get("result", 0),
         )
