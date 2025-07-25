@@ -313,7 +313,7 @@ def build_count_query(document_type: str, query: str | None = None) -> str:
     return f"count({base_query})"
 
 
-def parse_document(doc: dict[str, Any]) -> "SanityDocument":
+def parse_document(doc: dict[str, Any]) -> SanityDocument:
     """Parse a Sanity document into the appropriate Pydantic model.
 
     Parameters
@@ -351,11 +351,7 @@ class OBIExpertInput(BaseModel):
     """Inputs for the OBI Expert tool."""
 
     document_type: Literal[
-        "futureFeaturesItem",
-        "glossaryItem",
-        "news",
-        "publicProjects",
-        "tutorial"
+        "futureFeaturesItem", "glossaryItem", "news", "publicProjects", "tutorial"
     ] = Field(description="Type of documents to retrieve")
     page: int = Field(
         default=1, ge=1, description="Page number to retrieve (1-based index)"
