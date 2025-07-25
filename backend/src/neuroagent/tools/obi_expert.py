@@ -173,27 +173,31 @@ def flatten_portable_text(blocks: list[dict[str, Any]] | dict[str, Any]) -> str:
 
     lines = []
     for block in blocks:
-        # Handle basic text blocks
-        if block.get("_type") == "block" and "children" in block:
+        # Handle blocks with children (spans)
+        if "children" in block:
             text = "".join(child.get("text", "") for child in block.get("children", []))
             if text:
                 lines.append(text)
+        
+        # Handle direct text content
+        elif "text" in block:
+            lines.append(block["text"])
+            
+        # Handle string content
+        elif isinstance(block.get("content"), str):
+            lines.append(block["content"])
 
-        # Recursively handle nested blocks
+        # Recursively handle nested content
         elif "content" in block and isinstance(block["content"], (list, dict)):
             nested_text = flatten_portable_text(block["content"])
             if nested_text:
                 lines.append(nested_text)
 
-        # Handle arrays of blocks
+        # Handle arrays
         elif isinstance(block, list):
             nested_text = flatten_portable_text(block)
             if nested_text:
                 lines.append(nested_text)
-
-        # Handle other block types that might contain text
-        elif "text" in block:
-            lines.append(block["text"])
 
     return "\n\n".join(filter(None, lines))
 
@@ -461,6 +465,7 @@ class OBIExpertTool(BaseTool):
 
         results_data = results_response.json()
         count_data = count_response.json()
+        breakpoint()
 
         # Process results using the parse_document method
         processed_results = [
