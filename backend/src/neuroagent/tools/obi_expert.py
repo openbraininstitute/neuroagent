@@ -127,10 +127,28 @@ class PublicProject(SanityDocument):
     portable_text_attributes: ClassVar[list[str]] = ["description"]
 
 
+class Page(SanityDocument):
+    """Schema for page documents."""
+
+    title: str
+    introduction: str
+    content: str | None
+
+    sanity_mapping: ClassVar[dict[str, str]] = {
+        **SanityDocument.sanity_mapping,
+        "title": "title",
+        "introduction": "introduction",
+        "content": "content",
+    }
+
+    portable_text_attributes: ClassVar[list[str]] = ["content"]
+
+
 SANITY_TYPE_TO_MODEL: dict[str, type[SanityDocument]] = {
     "futureFeaturesItem": FutureFeature,
     "glossaryItem": GlossaryItemDocument,
     "news": NewsDocument,
+    "pages": Page,
     "publicProjects": PublicProject,
     "tutorial": Tutorial,
 }
@@ -351,7 +369,12 @@ class OBIExpertInput(BaseModel):
     """Inputs for the OBI Expert tool."""
 
     document_type: Literal[
-        "futureFeaturesItem", "glossaryItem", "news", "publicProjects", "tutorial"
+        "futureFeaturesItem",
+        "glossaryItem",
+        "news",
+        "pages",
+        "publicProjects",
+        "tutorial",
     ] = Field(description="Type of documents to retrieve")
     page: int = Field(
         default=1, ge=1, description="Page number to retrieve (1-based index)"
@@ -380,6 +403,7 @@ class OBIExpertOutput(BaseModel):
         list[FutureFeature]
         | list[GlossaryItemDocument]
         | list[NewsDocument]
+        | list[Page]
         | list[PublicProject]
         | list[Tutorial]
     )
