@@ -178,11 +178,11 @@ def flatten_portable_text(blocks: list[dict[str, Any]] | dict[str, Any]) -> str:
             text = "".join(child.get("text", "") for child in block.get("children", []))
             if text:
                 lines.append(text)
-        
+
         # Handle direct text content
         elif "text" in block:
             lines.append(block["text"])
-            
+
         # Handle string content
         elif isinstance(block.get("content"), str):
             lines.append(block["content"])
