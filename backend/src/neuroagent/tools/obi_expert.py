@@ -384,7 +384,7 @@ class OBIExpertInput(BaseModel):
         default=1, ge=1, description="Page number to retrieve (1-based index)"
     )
     page_size: int = Field(
-        default=5, ge=1, le=100, description="Number of documents to retrieve per page"
+        default=5, ge=1, le=10, description="Number of documents to retrieve per page"
     )
     sort: Literal["newest", "oldest"] = Field(
         default="newest", description="Sort order of the documents"
@@ -422,6 +422,37 @@ class OBIExpertTool(BaseTool):
     description: ClassVar[
         str
     ] = """Search and retrieve documents from the OBI Sanity API. Use this tool to:
+
+    1. Find News Articles (document_type: "news")
+       - Access platform news and announcements
+       - Browse articles by category
+       - Get latest updates and content
+
+    2. Search Glossary Terms (document_type: "glossaryItem")
+       - Look up technical terms and definitions
+       - Find explanations of platform concepts
+       - Access detailed term descriptions
+
+    3. Explore Future Features (document_type: "futureFeaturesItem")
+       - Learn about upcoming platform capabilities
+       - View planned improvements by topic
+       - Track feature development progress
+
+    4. Access Tutorials (document_type: "tutorial")
+       - Find educational content and guides
+       - Get video-based learning materials
+       - Access tutorial transcripts when available
+
+    5. Browse Public Projects (document_type: "publicProjects")
+       - View showcase research projects
+       - Access project documentation and videos
+       - See project contributors and authors
+
+    6. Read Static Pages (document_type: "pages")
+       - Access platform information (About, Mission, Team)
+       - View legal documents (Privacy Policy, Terms)
+       - Find product information (Pricing, Resources)
+       - Get support information (Contact)
     """
     description_frontend: ClassVar[str] = (
         """Search and retrieve documents from the OBI Sanity API."""
