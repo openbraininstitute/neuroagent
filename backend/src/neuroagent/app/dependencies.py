@@ -39,7 +39,6 @@ from neuroagent.tools import (
     BrainRegionHierarchyGetOneTool,
     CircuitGetAllTool,
     CircuitGetOneTool,
-    ContextAnalyzerTool,
     ContributionGetAllTool,
     ContributionGetOneTool,
     ElectricalCellRecordingGetAllTool,
@@ -57,7 +56,6 @@ from neuroagent.tools import (
     ExperimentalSynapsesPerConnectionGetOneTool,
     IonChannelModelGetAllTool,
     IonChannelModelGetOneTool,
-    LiteratureSearchTool,
     MeasurementAnnotationGetAllTool,
     MeasurementAnnotationGetOneTool,
     MEModelGetAllTool,
@@ -99,7 +97,6 @@ from neuroagent.tools import (
     StrainGetOneTool,
     SubjectGetAllTool,
     SubjectGetOneTool,
-    WebSearchTool,
 )
 from neuroagent.tools.base_tool import BaseTool
 
@@ -343,7 +340,6 @@ def get_tool_list(
         BrainRegionGetOneTool,
         BrainRegionHierarchyGetAllTool,
         BrainRegionHierarchyGetOneTool,
-        ContextAnalyzerTool,
         ContributionGetAllTool,
         ContributionGetOneTool,
         SCSGetAllTool,
@@ -352,7 +348,6 @@ def get_tool_list(
         SCSPostTool,
         MEModelGetAllTool,
         MEModelGetOneTool,
-        LiteratureSearchTool,
         ReconstructionMorphologyGetAllTool,
         ReconstructionMorphologyGetOneTool,
         MorphometricsGetOneTool,
@@ -362,7 +357,6 @@ def get_tool_list(
         PersonGetAllTool,
         PersonGetOneTool,
         PlotGeneratorTool,
-        WebSearchTool,
         EtypeGetAllTool,
         EtypeGetOneTool,
         EModelGetAllTool,
