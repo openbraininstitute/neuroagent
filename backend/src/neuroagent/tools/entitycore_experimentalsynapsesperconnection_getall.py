@@ -125,7 +125,8 @@ class ExperimentalSynapsesPerConnectionGetAllTool(BaseTool):
 
             # Add the links to website
             connection["url_link"] = (
-                self.metadata.entitycore_links_url
+                self.metadata.entity_frontend_url
+                + "/explore/interactive/experimental"
                 + "/synapse-per-connection/"
                 + connection["id"]
             )

@@ -107,7 +107,10 @@ class ReconstructionMorphologyGetOneTool(BaseTool):
         # Add the link
         response_json = response.json()
         response_json["url_link"] = (
-            self.metadata.entitycore_links_url + "/morphology/" + response_json["id"]
+            self.metadata.entity_frontend_url
+            + "/explore/interactive/experimental"
+            + "/morphology/"
+            + response_json["id"]
         )
         return ReconstructionMorphologyGetOneOutput(**response_json)
 

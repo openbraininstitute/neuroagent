@@ -276,9 +276,10 @@ def get_mcp_client(request: Request) -> MCPClient | None:
 
 
 @cache
-def get_openrouter_models() -> list[OpenRouterModelResponse]:
+def get_openrouter_models(
+    settings: Annotated[Settings, Depends(get_settings)],
+) -> list[OpenRouterModelResponse]:
     """Ping Openrouter to get available models."""
-    settings = get_settings()
     response = get("https://openrouter.ai/api/v1/models")
     if response.status_code != 200:
         raise HTTPException(
@@ -593,7 +594,6 @@ def get_s3_client(
 
 
 async def get_context_variables(
-    request: Request,
     settings: Annotated[Settings, Depends(get_settings)],
     httpx_client: Annotated[AsyncClient, Depends(get_httpx_client)],
     thread: Annotated[Threads, Depends(get_thread)],
@@ -602,31 +602,30 @@ async def get_context_variables(
     openai_client: Annotated[AsyncOpenAI, Depends(get_openai_client)],
 ) -> dict[str, Any]:
     """Get the context variables to feed the tool's metadata."""
-    body = await request.json()
-    url = body.get("frontend_url")
-    entitycore_link_url = (
-        re.match(
-            r"(https://[^/]+/app/virtual-lab/lab/[^/]+/project/[^/]+/)", url
-        ).group(1)
-        + "/explore/interactive/experimental"
-    )
+    if thread.vlab_id and thread.project_id:
+        entity_frontend_url = (
+            settings.tools.frontend_base_url.rstrip("/")
+            + "/app/virtual-lab/lab/"
+            + str(thread.vlab_id)
+            + "/project/"
+            + str(thread.project_id)
+        )
+    else:
+        entity_frontend_url = (
+            settings.tools.frontend_base_url.rstrip("/") + "/app/virtual-lab"
+        )
     return {
         "bluenaas_url": settings.tools.bluenaas.url,
         "bucket_name": settings.storage.bucket_name,
         "entitycore_url": settings.tools.entitycore.url,
-        "entitycore_links_url": entitycore_link_url,
-        "frontend_url": url,
+        "entity_frontend_url": entity_frontend_url,
         "httpx_client": httpx_client,
-        "literature_search_url": settings.tools.literature.url,
         "obi_one_url": settings.tools.obi_one.url,
         "openai_client": openai_client,
         "project_id": thread.project_id,
-        "retriever_k": settings.tools.literature.retriever_k,
         "s3_client": s3_client,
-        "tavily_api_key": settings.tools.web_search.tavily_api_key,
         "thread_id": thread.thread_id,
         "thumbnail_generation_url": settings.tools.thumbnail_generation.url,
-        "use_reranker": settings.tools.literature.use_reranker,
         "user_id": user_info.sub,
         "vlab_id": thread.vlab_id,
     }
@@ -646,7 +645,6 @@ def get_healthcheck_variables(
         "bluenaas_url": settings.tools.bluenaas.url.rstrip("/") + "/",
         "entitycore_url": settings.tools.entitycore.url.rstrip("/") + "/",
         "httpx_client": httpx_client,
-        "literature_search_url": settings.tools.literature.url.rstrip("/") + "/",
         "obi_one_url": settings.tools.obi_one.url.rstrip("/") + "/",
         "thumbnail_generation_url": settings.tools.thumbnail_generation.url.rstrip("/")
         + "/",

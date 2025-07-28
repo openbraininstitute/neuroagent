@@ -89,7 +89,8 @@ class ExperimentalSynapsesPerConnectionGetOneTool(BaseTool):
         # Add the link
         response_json = response.json()
         response_json["url_link"] = (
-            self.metadata.entitycore_links_url
+            self.metadata.entity_frontend_url
+            + "/explore/interactive/experimental"
             + "/synapse-per-connection/"
             + response_json["id"]
         )

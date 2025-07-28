@@ -6,7 +6,6 @@ import { redirect } from "next/navigation";
 export async function saveSettings(previousState: unknown, formData: FormData) {
   const vlabId = formData.get("virtualLabID");
   const projId = formData.get("projectID");
-  const frontendUrl = formData.get("frontendUrl");
   const cookieStore = await cookies();
 
   // Set cookies that will be accessible on the server
@@ -19,11 +18,6 @@ export async function saveSettings(previousState: unknown, formData: FormData) {
     cookieStore.set("virtualLabID", vlabId, { maxAge: 60 * 60 * 24 * 30 }); // 30 days
   } else {
     cookieStore.delete("virtualLabID");
-  }
-  if (typeof frontendUrl === "string" && frontendUrl !== "") {
-    cookieStore.set("frontendUrl", frontendUrl, { maxAge: 60 * 60 * 24 * 30 }); // 30 days
-  } else {
-    cookieStore.delete("frontendUrl");
   }
   // Refresh the client-side router
   revalidateTag("threads");

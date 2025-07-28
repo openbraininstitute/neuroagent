@@ -90,7 +90,8 @@ class ElectricalCellRecordingGetOneTool(BaseTool):
         # Add the link
         response_json = response.json()
         response_json["url_link"] = (
-            self.metadata.entitycore_links_url
+            self.metadata.entity_frontend_url
+            + "/explore/interactive/experimental"
             + "/electrophysiology/"
             + response_json["id"]
         )

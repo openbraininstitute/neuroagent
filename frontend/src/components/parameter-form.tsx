@@ -21,14 +21,12 @@ import { useActionState } from "react";
 const formSchema = z.object({
   projectID: z.string(),
   virtualLabID: z.string(),
-  frontendUrl: z.string(),
 });
 
 type ParameterFormProps = {
   initialValues?: {
     projectID?: string;
     virtualLabID?: string;
-    frontendUrl?: string;
   };
 };
 
@@ -36,7 +34,6 @@ export function ParameterForm({
   initialValues = {
     projectID: Cookies.get("projectID") || "",
     virtualLabID: Cookies.get("virtualLabID") || "",
-    frontendUrl: Cookies.get("frontendUrl") || "",
   },
 }: ParameterFormProps) {
   const form = useForm<z.infer<typeof formSchema>>({
@@ -81,24 +78,6 @@ export function ParameterForm({
                   />
                 </FormControl>
                 <FormDescription>Your project identifier</FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="frontendUrl"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Frontend URL</FormLabel>
-                <FormControl>
-                  <Input
-                    placeholder="Enter frontend url"
-                    {...field}
-                    autoComplete="off"
-                  />
-                </FormControl>
-                <FormDescription>Your frontend url</FormDescription>
                 <FormMessage />
               </FormItem>
             )}

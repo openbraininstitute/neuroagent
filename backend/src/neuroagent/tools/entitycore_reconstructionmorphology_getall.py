@@ -119,7 +119,10 @@ class ReconstructionMorphologyGetAllTool(BaseTool):
 
             # Add the links to website
             morphology["url_link"] = (
-                self.metadata.entitycore_links_url + "/morphology/" + morphology["id"]
+                self.metadata.entity_frontend_url
+                + "/explore/interactive/experimental"
+                + "/morphology/"
+                + morphology["id"]
             )
 
         return ReconstructionMorphologyGetAllOutput(**response_data)
