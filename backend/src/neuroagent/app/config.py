@@ -76,24 +76,6 @@ class SettingsObiOne(BaseModel):
     model_config = ConfigDict(frozen=True)
 
 
-class SettingsWebSearch(BaseModel):
-    """Literature search API settings."""
-
-    tavily_api_key: SecretStr | None = None
-
-    model_config = ConfigDict(frozen=True)
-
-
-class SettingsLiterature(BaseModel):
-    """Literature search API settings."""
-
-    url: str = "https://www.openbraininstitute.org/api/literature"
-    retriever_k: int = 100
-    use_reranker: bool = True
-
-    model_config = ConfigDict(frozen=True)
-
-
 class SettingsBlueNaaS(BaseModel):
     """BlueNaaS settings."""
 
@@ -111,11 +93,9 @@ class SettingsEntityCore(BaseModel):
 class SettingsTools(BaseModel):
     """Database settings."""
 
-    literature: SettingsLiterature = SettingsLiterature()
     obi_one: SettingsObiOne = SettingsObiOne()
     bluenaas: SettingsBlueNaaS = SettingsBlueNaaS()
     entitycore: SettingsEntityCore = SettingsEntityCore()
-    web_search: SettingsWebSearch = SettingsWebSearch()
     thumbnail_generation: SettingsThumbnailGeneration = SettingsThumbnailGeneration()
     min_tool_selection: int = Field(default=10, ge=0)
     whitelisted_tool_regex: str | None = None
@@ -187,6 +167,8 @@ class SettingsAccounting(BaseModel):
     base_url: str | None = None
     disabled: bool = False
 
+    model_config = ConfigDict(frozen=True)
+
     @model_validator(mode="before")
     @classmethod
     def disable_if_no_url(cls, data: Any) -> Any:
@@ -207,6 +189,8 @@ class MCPToolMetadata(BaseModel):
     name_frontend: str | None = None
     description: str | None = None
 
+    model_config = ConfigDict(frozen=True)
+
 
 class MCPServerConfig(BaseModel):
     """Configuration for a single MCP server."""
@@ -216,11 +200,29 @@ class MCPServerConfig(BaseModel):
     env: dict[str, SecretStr] | None = None
     tool_metadata: dict[str, MCPToolMetadata] | None = None
 
+    model_config = ConfigDict(frozen=True)
+
 
 class SettingsMCP(BaseModel):
     """Settings for the MCP."""
 
     servers: dict[str, MCPServerConfig] | None = None
+
+    model_config = ConfigDict(frozen=True)
+
+    def __hash__(self) -> int:
+        """Hash the instance."""
+        dump = self.model_dump()
+        # Turn nested dicts/lists into a stable tuple form for hashing
+        return hash(self._freeze(dump))
+
+    @staticmethod
+    def _freeze(obj: Any) -> Any:
+        if isinstance(obj, dict):
+            return tuple(sorted((k, SettingsMCP._freeze(v)) for k, v in obj.items()))
+        if isinstance(obj, list):
+            return tuple(SettingsMCP._freeze(v) for v in obj)
+        return obj
 
 
 class Settings(BaseSettings):

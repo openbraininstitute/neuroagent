@@ -1,14 +1,4 @@
 {
-    "tavily": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "tavily-mcp@0.2.0"
-      ],
-      "env": {
-        "TAVILY_API_KEY": "NEUROAGENT_MCP__SECRETS__TAVILY_API_KEY"
-      }
-    },
     "exa": {
       "command": "npx",
       "args": ["-y", "exa-mcp-server", "--tools=web_search_exa,research_paper_search,crawling"],
@@ -16,10 +6,18 @@
         "EXA_API_KEY": "NEUROAGENT_MCP__SECRETS__EXA_API_KEY"
       },
       "tool_metadata": {
-        "crawling":{
+        "crawling": {
           "name": "read-paper",
-          "description": "Extract content from specific URLs using Exa AI - performs targeted crawling of web pages to retrieve their full content. Useful for reading articles, PDFs, or any web page when you have the exact URL. Typically used in combination with web_search_exa and research_paper_search when the user asks for more info about a paper/url. Returns the complete text content of the specified URL."
-          }
+          "description": "Extract content from specific URLs using Exa AI - performs targeted crawling of web pages to retrieve their full content. Useful for reading articles, PDFs, or any web page when you have the exact URL. Use in combination with literature-search-tool and web-search-tool when the user asks for more info about a paper/url. Returns the complete text content of the specified URL."
+          },
+        "research_paper_search": {
+          "name": "literature-search-tool",
+          "name_frontend": "Literature Search"
+        },
+        "web_search_exa": {
+          "name": "web-search-tool",
+          "name_frontend": "Web Search"
+        }
         }
     },
     "run_python":{
@@ -28,7 +26,8 @@
       "tool_metadata": {
         "run_python_code":{
           "name": "execute-python-code",
-          "name_frontend": "Run Python"
+          "name_frontend": "Run Python",
+          "description": "Tool to execute Python code and return stdout, stderr, and return value.\n\nThe code may be async, and the value on the last line will be returned as the return value.\n\nThe code will be executed with Python 3.12."
           }
         }
     }
