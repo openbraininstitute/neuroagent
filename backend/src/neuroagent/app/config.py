@@ -97,6 +97,7 @@ class SettingsTools(BaseModel):
     bluenaas: SettingsBlueNaaS = SettingsBlueNaaS()
     entitycore: SettingsEntityCore = SettingsEntityCore()
     thumbnail_generation: SettingsThumbnailGeneration = SettingsThumbnailGeneration()
+    frontend_base_url: str = "https://openbraininstitute.org"
     min_tool_selection: int = Field(default=10, ge=0)
     whitelisted_tool_regex: str | None = None
 
