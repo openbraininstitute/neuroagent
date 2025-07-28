@@ -39,6 +39,7 @@ from neuroagent.tools import (
     BrainRegionHierarchyGetOneTool,
     CircuitGetAllTool,
     CircuitGetOneTool,
+    ContextAnalyzerTool,
     ContributionGetAllTool,
     ContributionGetOneTool,
     ElectricalCellRecordingGetAllTool,
@@ -56,6 +57,7 @@ from neuroagent.tools import (
     ExperimentalSynapsesPerConnectionGetOneTool,
     IonChannelModelGetAllTool,
     IonChannelModelGetOneTool,
+    LiteratureSearchTool,
     MeasurementAnnotationGetAllTool,
     MeasurementAnnotationGetOneTool,
     MEModelGetAllTool,
@@ -97,6 +99,7 @@ from neuroagent.tools import (
     StrainGetOneTool,
     SubjectGetAllTool,
     SubjectGetOneTool,
+    WebSearchTool,
 )
 from neuroagent.tools.base_tool import BaseTool
 
@@ -276,10 +279,9 @@ def get_mcp_client(request: Request) -> MCPClient | None:
 
 
 @cache
-def get_openrouter_models(
-    settings: Annotated[Settings, Depends(get_settings)],
-) -> list[OpenRouterModelResponse]:
+def get_openrouter_models() -> list[OpenRouterModelResponse]:
     """Ping Openrouter to get available models."""
+    settings = get_settings()
     response = get("https://openrouter.ai/api/v1/models")
     if response.status_code != 200:
         raise HTTPException(
@@ -341,6 +343,7 @@ def get_tool_list(
         BrainRegionGetOneTool,
         BrainRegionHierarchyGetAllTool,
         BrainRegionHierarchyGetOneTool,
+        ContextAnalyzerTool,
         ContributionGetAllTool,
         ContributionGetOneTool,
         SCSGetAllTool,
@@ -349,6 +352,7 @@ def get_tool_list(
         SCSPostTool,
         MEModelGetAllTool,
         MEModelGetOneTool,
+        LiteratureSearchTool,
         ReconstructionMorphologyGetAllTool,
         ReconstructionMorphologyGetOneTool,
         MorphometricsGetOneTool,
@@ -358,6 +362,7 @@ def get_tool_list(
         PersonGetAllTool,
         PersonGetOneTool,
         PlotGeneratorTool,
+        WebSearchTool,
         EtypeGetAllTool,
         EtypeGetOneTool,
         EModelGetAllTool,
@@ -593,7 +598,8 @@ def get_s3_client(
     )
 
 
-def get_context_variables(
+async def get_context_variables(
+    request: Request,
     settings: Annotated[Settings, Depends(get_settings)],
     httpx_client: Annotated[AsyncClient, Depends(get_httpx_client)],
     thread: Annotated[Threads, Depends(get_thread)],
@@ -602,17 +608,31 @@ def get_context_variables(
     openai_client: Annotated[AsyncOpenAI, Depends(get_openai_client)],
 ) -> dict[str, Any]:
     """Get the context variables to feed the tool's metadata."""
+    body = await request.json()
+    url = body.get("frontend_url")
+    entitycore_link_url = (
+        re.match(
+            r"(https://[^/]+/app/virtual-lab/lab/[^/]+/project/[^/]+/)", url
+        ).group(1)
+        + "/explore/interactive/experimental"
+    )
     return {
         "bluenaas_url": settings.tools.bluenaas.url,
         "bucket_name": settings.storage.bucket_name,
         "entitycore_url": settings.tools.entitycore.url,
+        "entitycore_links_url": entitycore_link_url,
+        "frontend_url": url,
         "httpx_client": httpx_client,
+        "literature_search_url": settings.tools.literature.url,
         "obi_one_url": settings.tools.obi_one.url,
         "openai_client": openai_client,
         "project_id": thread.project_id,
+        "retriever_k": settings.tools.literature.retriever_k,
         "s3_client": s3_client,
+        "tavily_api_key": settings.tools.web_search.tavily_api_key,
         "thread_id": thread.thread_id,
         "thumbnail_generation_url": settings.tools.thumbnail_generation.url,
+        "use_reranker": settings.tools.literature.use_reranker,
         "user_id": user_info.sub,
         "vlab_id": thread.vlab_id,
     }
@@ -632,6 +652,7 @@ def get_healthcheck_variables(
         "bluenaas_url": settings.tools.bluenaas.url.rstrip("/") + "/",
         "entitycore_url": settings.tools.entitycore.url.rstrip("/") + "/",
         "httpx_client": httpx_client,
+        "literature_search_url": settings.tools.literature.url.rstrip("/") + "/",
         "obi_one_url": settings.tools.obi_one.url.rstrip("/") + "/",
         "thumbnail_generation_url": settings.tools.thumbnail_generation.url.rstrip("/")
         + "/",

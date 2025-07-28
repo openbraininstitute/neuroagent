@@ -23,6 +23,12 @@ class ElectricalCellRecordingGetOneInput(BaseModel):
     )
 
 
+class ElectricalCellRecordingGetOneOutput(ElectricalCellRecordingRead):
+    """Entitycore class modification, with added links."""
+
+    url_link: str
+
+
 class ElectricalCellRecordingGetOneTool(BaseTool):
     """Class defining the Get One Electrical Cell Recording logic."""
 
@@ -59,7 +65,7 @@ class ElectricalCellRecordingGetOneTool(BaseTool):
     metadata: EntitycoreMetadata
     input_schema: ElectricalCellRecordingGetOneInput
 
-    async def arun(self) -> ElectricalCellRecordingRead:
+    async def arun(self) -> ElectricalCellRecordingGetOneOutput:
         """From a recording ID, extract detailed recording information.
 
         Returns
@@ -81,7 +87,14 @@ class ElectricalCellRecordingGetOneTool(BaseTool):
             raise ValueError(
                 f"The electrical cell recording endpoint returned a non 200 response code. Error: {response.text}"
             )
-        return ElectricalCellRecordingRead(**response.json())
+        # Add the link
+        response_json = response.json()
+        response_json["url_link"] = (
+            self.metadata.entitycore_links_url
+            + "/electrophysiology/"
+            + response_json["id"]
+        )
+        return ElectricalCellRecordingGetOneOutput(**response_json)
 
     @classmethod
     async def is_online(cls, *, httpx_client: AsyncClient, entitycore_url: str) -> bool:
