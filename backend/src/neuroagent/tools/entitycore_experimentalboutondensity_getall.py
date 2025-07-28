@@ -47,7 +47,7 @@ class ExperimentalBoutonDensityReadExtended(ExperimentalBoutonDensityRead):
 class ExperimentalBoutonDensityGetAllOutput(ListResponseExperimentalBoutonDensityRead):
     """Entitycore class modification, with added links."""
 
-    data: list[ExperimentalBoutonDensityReadExtended]
+    data: list[ExperimentalBoutonDensityReadExtended]  # type: ignore
 
 
 class ExperimentalBoutonDensityGetAllTool(BaseTool):

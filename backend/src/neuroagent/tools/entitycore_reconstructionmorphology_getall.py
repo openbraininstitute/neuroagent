@@ -47,7 +47,7 @@ class ReconstructionMorphologyExtended(ReconstructionMorphologyRead):
 class ReconstructionMorphologyGetAllOutput(ListResponseReconstructionMorphologyRead):
     """Tool output class, with added links."""
 
-    data: list[ReconstructionMorphologyExtended]
+    data: list[ReconstructionMorphologyExtended]  # type: ignore
 
 
 class ReconstructionMorphologyGetAllTool(BaseTool):

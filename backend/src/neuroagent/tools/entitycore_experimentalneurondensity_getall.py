@@ -47,7 +47,7 @@ class ExperimentalNeuronDensityReadExtended(ExperimentalNeuronDensityRead):
 class ExperimentalNeuronDensityGetAllOutput(ListResponseExperimentalNeuronDensityRead):
     """Entitycore class modification, with added links."""
 
-    data: list[ExperimentalNeuronDensityReadExtended]
+    data: list[ExperimentalNeuronDensityReadExtended]  # type: ignore
 
 
 class ExperimentalNeuronDensityGetAllTool(BaseTool):

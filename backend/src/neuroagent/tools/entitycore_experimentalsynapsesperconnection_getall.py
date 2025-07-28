@@ -51,7 +51,7 @@ class ExperimentalSynapsesPerConnectionGetAllOutput(
 ):
     """Entitycore class modification, with added links."""
 
-    data: list[ExperimentalSynapsesPerConnectionReadExtended]
+    data: list[ExperimentalSynapsesPerConnectionReadExtended]  # type: ignore
 
 
 class ExperimentalSynapsesPerConnectionGetAllTool(BaseTool):

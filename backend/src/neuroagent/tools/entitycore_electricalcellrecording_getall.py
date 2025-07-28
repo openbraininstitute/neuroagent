@@ -47,7 +47,7 @@ class ElectricalCellRecordingOutput(ElectricalCellRecordingRead):
 class ElectricalCellRecordingGetAllOutput(ListResponseElectricalCellRecordingRead):
     """Entitycore class modification, with added links."""
 
-    data: list[ElectricalCellRecordingOutput]
+    data: list[ElectricalCellRecordingOutput]  # type: ignore
 
 
 class ElectricalCellRecordingGetAllTool(BaseTool):
