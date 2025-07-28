@@ -6,11 +6,11 @@
         "EXA_API_KEY": "NEUROAGENT_MCP__SECRETS__EXA_API_KEY"
       },
       "tool_metadata": {
-        "crawling": {
+        "crawling_exa": {
           "name": "read-paper",
           "description": "Extract content from specific URLs using Exa AI - performs targeted crawling of web pages to retrieve their full content. Useful for reading articles, PDFs, or any web page when you have the exact URL. Use in combination with literature-search-tool and web-search-tool when the user asks for more info about a paper/url. Returns the complete text content of the specified URL."
           },
-        "research_paper_search": {
+        "research_paper_search_exa": {
           "name": "literature-search-tool",
           "name_frontend": "Literature Search"
         },
