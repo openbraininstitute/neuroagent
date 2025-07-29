@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Datetimes are now offset-aware.
+- Pinned the exa mcp (for now).
 
 ## [v0.7.1] - 21.07.2025
 
