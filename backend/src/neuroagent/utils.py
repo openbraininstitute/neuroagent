@@ -12,9 +12,6 @@ from openai.types.completion_usage import CompletionUsage
 from neuroagent.app.database.sql_schemas import (
     Entity,
     Messages,
-    Task,
-    TokenConsumption,
-    TokenType,
 )
 from neuroagent.schemas import Category
 
@@ -254,9 +251,7 @@ def delete_from_storage(
             objects_to_delete = []
 
 
-def assign_token_count(
-    message: Messages, usage: CompletionUsage | None, model: str
-) -> None:
+def get_token_count(usage: CompletionUsage | None) -> dict[str, int | None]:
     """Assign token count to a message given a usage chunk."""
     # Parse usage to add to message's data
     if usage:
@@ -270,21 +265,10 @@ def assign_token_count(
         prompt_tokens = input_tokens - cached_tokens if cached_tokens else input_tokens
         completion_tokens = usage.completion_tokens
 
-        # Assign to the sqlalchemy class
-        task = (
-            Task.TOOL_SELECTION
-            if message.entity == Entity.USER
-            else Task.CHAT_COMPLETION
-        )
-        token_consumption = [
-            TokenConsumption(type=token_type, task=task, count=count, model=model)
-            for token_type, count in [
-                (TokenType.INPUT_CACHED, cached_tokens),
-                (TokenType.INPUT_NONCACHED, prompt_tokens),
-                (TokenType.COMPLETION, completion_tokens),
-            ]
-            if count
-        ]
-
-        # Assign to message
-        message.token_consumption = token_consumption
+        return {
+            "input_cached": cached_tokens,
+            "input_noncached": prompt_tokens,
+            "completion": completion_tokens,
+        }
+    else:
+        return {"input_cached": None, "input_noncached": None, "completion": None}
