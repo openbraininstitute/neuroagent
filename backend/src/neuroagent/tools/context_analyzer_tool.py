@@ -240,7 +240,7 @@ class ContextAnalyzerTool(BaseTool):
 
         elif page_type == "build":
             # Get headers for all entitycore calls
-            headers: dict[str, str] = {}
+            headers: dict[str, str] = {}  # type: ignore
             if self.metadata.vlab_id is not None:
                 headers["virtual-lab-id"] = str(self.metadata.vlab_id)
             if self.metadata.project_id is not None:
@@ -261,14 +261,15 @@ class ContextAnalyzerTool(BaseTool):
 
             page_description += f"## Current user view \n\n The user is currenly viewing information in brain region : {current_brain_region.name}, with ID : {current_brain_region.id}.\nComplete description : {current_brain_region.model_dump_json()}"
 
-            if len(page_path > 3):
+            if len(page_path) > 3:
                 if page_path[1] == "me-model":
                     if len(page_path) == 3 and page_path[2] == "new":
                         page_description += descriptions["build-me-model"]
                     elif len(page_path) == 4 and page_path[3] == "configure":
                         page_description += descriptions["build-me-model-details"]
                     elif len(page_path) == 5:
-                        if page_path[4] == "morphology":
+                        entity_type = page_path[4]
+                        if entity_type == "morphology":
                             if "br_id" in query_params:
                                 query_param = {
                                     "page_size": "30",
@@ -302,7 +303,7 @@ class ContextAnalyzerTool(BaseTool):
                                 "build-me-model-morphology-selection"
                             ]
 
-                        elif page_path[4] == "e-model":
+                        elif entity_type == "e-model":
                             if "br_id" in query_params:
                                 query_param = {
                                     "page_size": "30",
