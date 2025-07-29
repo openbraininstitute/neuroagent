@@ -28,6 +28,7 @@ class Task(enum.Enum):
 
     CHAT_COMPLETION = "chat-completion"
     TOOL_SELECTION = "tool-selection"
+    CALL_WITHIN_TOOL = "call-within-tool"
 
 
 class TokenType(enum.Enum):
