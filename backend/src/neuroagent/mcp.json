@@ -1,7 +1,7 @@
 {
     "exa": {
       "command": "npx",
-      "args": ["-y", "exa-mcp-server", "--tools=web_search_exa,research_paper_search,crawling"],
+      "args": ["-y", "exa-mcp-server", "--tools=web_search_exa,research_paper_search_exa,crawling_exa"],
       "env": {
         "EXA_API_KEY": "NEUROAGENT_MCP__SECRETS__EXA_API_KEY"
       },
