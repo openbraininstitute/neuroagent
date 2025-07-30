@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- Entitycore links in tool output.
 - Config generation tool for simulations.
 
 ### Changed

@@ -57,6 +57,7 @@ from neuroagent.tools import (
     GenerateSimulationsConfigTool,
     IonChannelModelGetAllTool,
     IonChannelModelGetOneTool,
+    LinkGenerationTool,
     MeasurementAnnotationGetAllTool,
     MeasurementAnnotationGetOneTool,
     MEModelGetAllTool,
@@ -363,6 +364,7 @@ def get_tool_list(
         EtypeGetOneTool,
         EModelGetAllTool,
         EModelGetOneTool,
+        LinkGenerationTool,
         MtypeGetAllTool,
         MtypeGetOneTool,
         ElectricalCellRecordingGetAllTool,
@@ -595,7 +597,7 @@ def get_s3_client(
     )
 
 
-def get_context_variables(
+async def get_context_variables(
     settings: Annotated[Settings, Depends(get_settings)],
     httpx_client: Annotated[AsyncClient, Depends(get_httpx_client)],
     thread: Annotated[Threads, Depends(get_thread)],
@@ -604,10 +606,23 @@ def get_context_variables(
     openai_client: Annotated[AsyncOpenAI, Depends(get_openai_client)],
 ) -> dict[str, Any]:
     """Get the context variables to feed the tool's metadata."""
+    if thread.vlab_id and thread.project_id:
+        entity_frontend_url = (
+            settings.tools.frontend_base_url.rstrip("/")
+            + "/app/virtual-lab/lab/"
+            + str(thread.vlab_id)
+            + "/project/"
+            + str(thread.project_id)
+        )
+    else:
+        entity_frontend_url = (
+            settings.tools.frontend_base_url.rstrip("/") + "/app/virtual-lab"
+        )
     return {
         "bluenaas_url": settings.tools.bluenaas.url,
         "bucket_name": settings.storage.bucket_name,
         "entitycore_url": settings.tools.entitycore.url,
+        "entity_frontend_url": entity_frontend_url,
         "httpx_client": httpx_client,
         "obi_one_url": settings.tools.obi_one.url,
         "openai_client": openai_client,

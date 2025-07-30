@@ -126,6 +126,7 @@ from neuroagent.tools.entitycore_strain_getone import StrainGetOneTool
 from neuroagent.tools.entitycore_subject_getall import SubjectGetAllTool
 from neuroagent.tools.entitycore_subject_getone import SubjectGetOneTool
 from neuroagent.tools.generate_plot import PlotGeneratorTool
+from neuroagent.tools.link_generator_tool import LinkGenerationTool
 from neuroagent.tools.obione_ephysmetrics_getone import EphysMetricsGetOneTool
 from neuroagent.tools.obione_generatesimulationsconfig import (
     GenerateSimulationsConfigTool,
@@ -164,6 +165,8 @@ __all__ = [
     "GenerateSimulationsConfigTool",
     "IonChannelModelGetAllTool",
     "IonChannelModelGetOneTool",
+    "LinkGenerationTool",
+    "LiteratureSearchTool",
     "MeasurementAnnotationGetAllTool",
     "MeasurementAnnotationGetOneTool",
     "MEModelGetAllTool",
@@ -173,6 +176,7 @@ __all__ = [
     "MtypeGetOneTool",
     "OrganizationGetAllTool",
     "OrganizationGetOneTool",
+    "ParagraphMetadata",
     "PersonGetAllTool",
     "PersonGetOneTool",
     "PlotGeneratorTool",
@@ -206,4 +210,5 @@ __all__ = [
     "SubjectGetAllTool",
     "SubjectGetOneTool",
     "WeatherTool",
+    "WebSearchTool",
 ]
