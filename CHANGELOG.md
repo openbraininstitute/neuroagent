@@ -9,9 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - Entitycore links in tool output.
+- Config generation tool for simulations.
 
 ### Changed
 - Datetimes are now offset-aware.
+- Pinned the exa mcp (for now).
 
 ## [v0.7.1] - 21.07.2025
 

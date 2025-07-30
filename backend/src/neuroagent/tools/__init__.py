@@ -128,6 +128,9 @@ from neuroagent.tools.entitycore_subject_getone import SubjectGetOneTool
 from neuroagent.tools.generate_plot import PlotGeneratorTool
 from neuroagent.tools.link_generator_tool import LinkGenerationTool
 from neuroagent.tools.obione_ephysmetrics_getone import EphysMetricsGetOneTool
+from neuroagent.tools.obione_generatesimulationsconfig import (
+    GenerateSimulationsConfigTool,
+)
 from neuroagent.tools.obione_morphometrics_getone import MorphometricsGetOneTool
 from neuroagent.tools.thumbnailgen_morphology_getone import PlotMorphologyGetOneTool
 from neuroagent.tools.weather import WeatherTool
@@ -159,6 +162,7 @@ __all__ = [
     "ExperimentalNeuronDensityGetOneTool",
     "ExperimentalSynapsesPerConnectionGetAllTool",
     "ExperimentalSynapsesPerConnectionGetOneTool",
+    "GenerateSimulationsConfigTool",
     "IonChannelModelGetAllTool",
     "IonChannelModelGetOneTool",
     "LinkGenerationTool",

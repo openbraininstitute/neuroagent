@@ -23,7 +23,10 @@ from neuroagent.app.config import Settings
 from neuroagent.app.database.sql_schemas import (
     Entity,
     Messages,
+    Task,
     Threads,
+    TokenConsumption,
+    TokenType,
     ToolSelection,
     utc_now,
 )
@@ -40,7 +43,7 @@ from neuroagent.app.schemas import (
     ToolCallVercel,
 )
 from neuroagent.tools.base_tool import BaseTool
-from neuroagent.utils import assign_token_count, messages_to_openai_content
+from neuroagent.utils import get_token_count, messages_to_openai_content
 
 logger = logging.getLogger(__name__)
 
@@ -547,7 +550,20 @@ AVAILABLE TOOLS:
                 ToolSelection(tool_name=tool.name) for tool in filtered_tools
             ]
 
-            assign_token_count(messages[-1], usage=response.usage, model=model)
+            token_count = get_token_count(response.usage)
+            token_consumption = [
+                TokenConsumption(
+                    type=token_type, task=Task.TOOL_SELECTION, count=count, model=model
+                )
+                for token_type, count in [
+                    (TokenType.INPUT_CACHED, token_count["input_cached"]),
+                    (TokenType.INPUT_NONCACHED, token_count["input_noncached"]),
+                    (TokenType.COMPLETION, token_count["completion"]),
+                ]
+                if count
+            ]
+            # Assign to message
+            messages[-1].token_consumption = token_consumption
         else:
             logger.warning("No parsed response from OpenAI, returning empty list")
             filtered_tools = []
