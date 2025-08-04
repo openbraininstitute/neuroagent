@@ -23,14 +23,6 @@ class ExperimentalSynapsesPerConnectionGetOneInput(BaseModel):
     )
 
 
-class ExperimentalSynapsesPerConnectionGetOneOutput(
-    ExperimentalSynapsesPerConnectionRead
-):
-    """Entitycore class modification, with added links."""
-
-    url_link: str
-
-
 class ExperimentalSynapsesPerConnectionGetOneTool(BaseTool):
     """Class defining the Get One Experimental Synapses Per Connection logic."""
 
@@ -64,7 +56,7 @@ class ExperimentalSynapsesPerConnectionGetOneTool(BaseTool):
     metadata: EntitycoreMetadata
     input_schema: ExperimentalSynapsesPerConnectionGetOneInput
 
-    async def arun(self) -> ExperimentalSynapsesPerConnectionGetOneOutput:
+    async def arun(self) -> ExperimentalSynapsesPerConnectionRead:
         """From a synapses per connection ID, extract detailed synapses per connection information.
 
         Returns
@@ -94,7 +86,7 @@ class ExperimentalSynapsesPerConnectionGetOneTool(BaseTool):
             + "/synapse-per-connection/"
             + response_json["id"]
         )
-        return ExperimentalSynapsesPerConnectionGetOneOutput(**response_json)
+        return ExperimentalSynapsesPerConnectionRead(**response_json)
 
     @classmethod
     async def is_online(cls, *, httpx_client: AsyncClient, entitycore_url: str) -> bool:

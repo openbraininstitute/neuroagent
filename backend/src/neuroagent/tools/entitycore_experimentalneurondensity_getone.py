@@ -20,12 +20,6 @@ class ExperimentalNeuronDensityGetOneInput(BaseModel):
     )
 
 
-class ExperimentalNeuronDensityGetOneOutput(ExperimentalNeuronDensityRead):
-    """Entitycore class modification, with added links."""
-
-    url_link: str
-
-
 class ExperimentalNeuronDensityGetOneTool(BaseTool):
     """Class defining the Get One Experimental Neuron Density logic."""
 
@@ -57,7 +51,7 @@ class ExperimentalNeuronDensityGetOneTool(BaseTool):
     metadata: EntitycoreMetadata
     input_schema: ExperimentalNeuronDensityGetOneInput
 
-    async def arun(self) -> ExperimentalNeuronDensityGetOneOutput:
+    async def arun(self) -> ExperimentalNeuronDensityRead:
         """From a density ID, extract detailed density information.
 
         Returns
@@ -87,7 +81,7 @@ class ExperimentalNeuronDensityGetOneTool(BaseTool):
             + "/neuron-density/"
             + response_json["id"]
         )
-        return ExperimentalNeuronDensityGetOneOutput(**response_json)
+        return ExperimentalNeuronDensityRead(**response_json)
 
     @classmethod
     async def is_online(cls, *, httpx_client: AsyncClient, entitycore_url: str) -> bool:
