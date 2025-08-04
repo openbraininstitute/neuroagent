@@ -104,6 +104,14 @@ class ReconstructionMorphologyGetAllTool(BaseTool):
             morphology["assets"] = []
             morphology["legacy_id"] = []
 
+            # Add the links to website
+            morphology["url_link"] = (
+                self.metadata.entity_frontend_url
+                + "/explore/interactive/experimental"
+                + "/morphology/"
+                + morphology["id"]
+            )
+
         return ListResponseReconstructionMorphologyRead(**response_data)
 
     @classmethod

@@ -75,7 +75,15 @@ class ReconstructionMorphologyGetOneTool(BaseTool):
             raise ValueError(
                 f"The morphology endpoint returned a non 200 response code. Error: {response.text}"
             )
-        return ReadOneReconstructionMorphologyIdGetResponse(**response.json())
+        # Add the link
+        response_json = response.json()
+        response_json["url_link"] = (
+            self.metadata.entity_frontend_url
+            + "/explore/interactive/experimental"
+            + "/morphology/"
+            + response_json["id"]
+        )
+        return ReadOneReconstructionMorphologyIdGetResponse(**response_json)
 
     @classmethod
     async def is_online(cls, *, httpx_client: AsyncClient, entitycore_url: str) -> bool:

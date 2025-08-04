@@ -78,7 +78,15 @@ class ExperimentalSynapsesPerConnectionGetOneTool(BaseTool):
             raise ValueError(
                 f"The experimental synapses per connection endpoint returned a non 200 response code. Error: {response.text}"
             )
-        return ExperimentalSynapsesPerConnectionRead(**response.json())
+        # Add the link
+        response_json = response.json()
+        response_json["url_link"] = (
+            self.metadata.entity_frontend_url
+            + "/explore/interactive/experimental"
+            + "/synapse-per-connection/"
+            + response_json["id"]
+        )
+        return ExperimentalSynapsesPerConnectionRead(**response_json)
 
     @classmethod
     async def is_online(cls, *, httpx_client: AsyncClient, entitycore_url: str) -> bool:

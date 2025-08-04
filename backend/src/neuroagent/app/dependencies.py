@@ -72,10 +72,6 @@ from neuroagent.tools import (
     PlotMorphologyGetOneTool,
     ReconstructionMorphologyGetAllTool,
     ReconstructionMorphologyGetOneTool,
-    SCSGetAllTool,
-    SCSGetOneTool,
-    SCSPlotTool,
-    SCSPostTool,
     SimulationCampaignGetAllTool,
     SimulationCampaignGetOneTool,
     SimulationExecutionGetAllTool,
@@ -344,10 +340,6 @@ def get_tool_list(
         BrainRegionHierarchyGetOneTool,
         ContributionGetAllTool,
         ContributionGetOneTool,
-        SCSGetAllTool,
-        SCSGetOneTool,
-        SCSPlotTool,
-        SCSPostTool,
         MEModelGetAllTool,
         MEModelGetOneTool,
         ReconstructionMorphologyGetAllTool,
@@ -604,10 +596,23 @@ def get_context_variables(
     openai_client: Annotated[AsyncOpenAI, Depends(get_openai_client)],
 ) -> dict[str, Any]:
     """Get the context variables to feed the tool's metadata."""
+    if thread.vlab_id and thread.project_id:
+        entity_frontend_url = (
+            settings.tools.frontend_base_url.rstrip("/")
+            + "/app/virtual-lab/lab/"
+            + str(thread.vlab_id)
+            + "/project/"
+            + str(thread.project_id)
+        )
+    else:
+        entity_frontend_url = (
+            settings.tools.frontend_base_url.rstrip("/") + "/app/virtual-lab"
+        )
     return {
         "bluenaas_url": settings.tools.bluenaas.url,
         "bucket_name": settings.storage.bucket_name,
         "entitycore_url": settings.tools.entitycore.url,
+        "entity_frontend_url": entity_frontend_url,
         "httpx_client": httpx_client,
         "obi_one_url": settings.tools.obi_one.url,
         "openai_client": openai_client,
