@@ -1,9 +1,5 @@
 """Tools package."""
 
-from neuroagent.tools.bluenaas_scs_getall import SCSGetAllTool
-from neuroagent.tools.bluenaas_scs_getone import SCSGetOneTool
-from neuroagent.tools.bluenaas_scs_plot import SCSPlotTool
-from neuroagent.tools.bluenaas_scs_post import SCSPostTool
 from neuroagent.tools.entitycore_asset_downloadone import AssetDownloadOneTool
 from neuroagent.tools.entitycore_asset_getall import AssetGetAllTool
 from neuroagent.tools.entitycore_asset_getone import AssetGetOneTool
@@ -179,10 +175,6 @@ __all__ = [
     "PlotMorphologyGetOneTool",
     "ReconstructionMorphologyGetAllTool",
     "ReconstructionMorphologyGetOneTool",
-    "SCSGetAllTool",
-    "SCSGetOneTool",
-    "SCSPlotTool",
-    "SCSPostTool",
     "SimulationCampaignGetAllTool",
     "SimulationCampaignGetOneTool",
     "SimulationExecutionGetAllTool",
