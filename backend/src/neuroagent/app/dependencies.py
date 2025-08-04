@@ -54,6 +54,7 @@ from neuroagent.tools import (
     ExperimentalNeuronDensityGetOneTool,
     ExperimentalSynapsesPerConnectionGetAllTool,
     ExperimentalSynapsesPerConnectionGetOneTool,
+    GenerateSimulationsConfigTool,
     IonChannelModelGetAllTool,
     IonChannelModelGetOneTool,
     MeasurementAnnotationGetAllTool,
@@ -401,6 +402,7 @@ def get_tool_list(
         SingleNeuronSynaptomeSimulationGetOneTool,
         CircuitGetAllTool,
         CircuitGetOneTool,
+        GenerateSimulationsConfigTool,
         # NowTool,
         # WeatherTool,
         # RandomPlotGeneratorTool,
@@ -626,6 +628,7 @@ async def get_context_variables(
         "s3_client": s3_client,
         "thread_id": thread.thread_id,
         "thumbnail_generation_url": settings.tools.thumbnail_generation.url,
+        "usage_dict": {},
         "user_id": user_info.sub,
         "vlab_id": thread.vlab_id,
     }
