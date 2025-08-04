@@ -53,9 +53,6 @@ class ContextAnalyzerTool(BaseTool):
         -------
             Description of the current page the user is on, formatted as a string.
         """
-        if not self.metadata.current_frontend_url:
-            raise ValueError("Please provide the current frontend url.")
-
         url = self.metadata.current_frontend_url
 
         # retreive description
