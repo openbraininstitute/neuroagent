@@ -587,7 +587,7 @@ def get_s3_client(
     )
 
 
-async def get_context_variables(
+def get_context_variables(
     settings: Annotated[Settings, Depends(get_settings)],
     httpx_client: Annotated[AsyncClient, Depends(get_httpx_client)],
     thread: Annotated[Threads, Depends(get_thread)],
