@@ -55,6 +55,7 @@ from neuroagent.tools import (
     ExperimentalNeuronDensityGetOneTool,
     ExperimentalSynapsesPerConnectionGetAllTool,
     ExperimentalSynapsesPerConnectionGetOneTool,
+    GenerateSimulationsConfigTool,
     IonChannelModelGetAllTool,
     IonChannelModelGetOneTool,
     MeasurementAnnotationGetAllTool,
@@ -72,10 +73,6 @@ from neuroagent.tools import (
     PlotMorphologyGetOneTool,
     ReconstructionMorphologyGetAllTool,
     ReconstructionMorphologyGetOneTool,
-    SCSGetAllTool,
-    SCSGetOneTool,
-    SCSPlotTool,
-    SCSPostTool,
     SimulationCampaignGetAllTool,
     SimulationCampaignGetOneTool,
     SimulationExecutionGetAllTool,
@@ -345,10 +342,6 @@ def get_tool_list(
         ContextAnalyzerTool,
         ContributionGetAllTool,
         ContributionGetOneTool,
-        SCSGetAllTool,
-        SCSGetOneTool,
-        SCSPlotTool,
-        SCSPostTool,
         MEModelGetAllTool,
         MEModelGetOneTool,
         ReconstructionMorphologyGetAllTool,
@@ -403,6 +396,7 @@ def get_tool_list(
         SingleNeuronSynaptomeSimulationGetOneTool,
         CircuitGetAllTool,
         CircuitGetOneTool,
+        GenerateSimulationsConfigTool,
         # NowTool,
         # WeatherTool,
         # RandomPlotGeneratorTool,
@@ -605,13 +599,28 @@ async def get_context_variables(
     openai_client: Annotated[AsyncOpenAI, Depends(get_openai_client)],
 ) -> dict[str, Any]:
     """Get the context variables to feed the tool's metadata."""
+    # Get the current frontend url
     body = await request.json()
-    url = body.get("frontend_url")
+    current_frontend_url = body.get("frontend_url")
+    # Get the url for entitycore links
+    if thread.vlab_id and thread.project_id:
+        entity_frontend_url = (
+            settings.tools.frontend_base_url.rstrip("/")
+            + "/app/virtual-lab/lab/"
+            + str(thread.vlab_id)
+            + "/project/"
+            + str(thread.project_id)
+        )
+    else:
+        entity_frontend_url = (
+            settings.tools.frontend_base_url.rstrip("/") + "/app/virtual-lab"
+        )
     return {
         "bluenaas_url": settings.tools.bluenaas.url,
         "bucket_name": settings.storage.bucket_name,
         "entitycore_url": settings.tools.entitycore.url,
-        "frontend_url": url,
+        "current_frontend_url": current_frontend_url,
+        "entity_frontend_url": entity_frontend_url,
         "httpx_client": httpx_client,
         "obi_one_url": settings.tools.obi_one.url,
         "openai_client": openai_client,
@@ -619,6 +628,7 @@ async def get_context_variables(
         "s3_client": s3_client,
         "thread_id": thread.thread_id,
         "thumbnail_generation_url": settings.tools.thumbnail_generation.url,
+        "usage_dict": {},
         "user_id": user_info.sub,
         "vlab_id": thread.vlab_id,
     }

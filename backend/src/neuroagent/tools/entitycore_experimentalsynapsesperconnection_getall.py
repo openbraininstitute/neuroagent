@@ -106,6 +106,14 @@ class ExperimentalSynapsesPerConnectionGetAllTool(BaseTool):
             connection["assets"] = []
             connection["contributions"] = []
 
+            # Add the links to website
+            connection["url_link"] = (
+                self.metadata.entity_frontend_url
+                + "/explore/interactive/experimental"
+                + "/synapse-per-connection/"
+                + connection["id"]
+            )
+
         return ListResponseExperimentalSynapsesPerConnectionRead(**response_data)
 
     @classmethod

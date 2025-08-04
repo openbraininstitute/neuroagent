@@ -582,9 +582,7 @@ async def test_filter_tools_empty_tool_list():
 
 
 @pytest.mark.asyncio
-async def test_filter_tools_successful_selection(
-    get_weather_tool, agent_handoff_tool, populate_db
-):
+async def test_filter_tools_successful_selection(get_weather_tool, agent_handoff_tool):
     """Test successful tool filtering"""
     # Mock OpenAI response
     mock_openai_client = MockOpenAIClient()
@@ -629,7 +627,12 @@ async def test_filter_tools_successful_selection(
     ]
 
     with patch(
-        "neuroagent.app.app_utils.assign_token_count", lambda *args, **kargs: None
+        "neuroagent.app.app_utils.get_token_count",
+        lambda *args, **kargs: {
+            "input_cached": None,
+            "input_noncached": None,
+            "completion": None,
+        },
     ):
         result = await filter_tools_by_conversation(
             messages=messages,
