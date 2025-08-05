@@ -175,7 +175,7 @@ def flatten_portable_text(blocks: list[dict[str, Any]] | dict[str, Any]) -> str:
     for block in blocks:
         # Handle blocks with children (spans)
         if "children" in block:
-            text = "".join(child.get("text", "") for child in block.get("children", []))
+            text = "".join(child.get("text", "") for child in block["children"])
             if text:
                 lines.append(text)
 
