@@ -396,6 +396,7 @@ def get_tool_list(
         CircuitGetAllTool,
         CircuitGetOneTool,
         GenerateSimulationsConfigTool,
+        OBIExpertTool,
         # NowTool,
         # WeatherTool,
         # RandomPlotGeneratorTool,
