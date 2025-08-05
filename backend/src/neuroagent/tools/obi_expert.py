@@ -12,6 +12,51 @@ from neuroagent.tools.base_tool import BaseMetadata, BaseTool
 logger = logging.getLogger(__name__)
 
 
+def flatten_portable_text(blocks: Any) -> Any:
+    """In-place function that takes an arbitrary Sanity document and recursively looks for block types.
+
+    When it finds a dict with `_type == "block"`, it flattens the block's children into a single string
+    by joining all the `text` fields from the children. This modifies the input data structure in-place.
+
+    Parameters
+    ----------
+    blocks : Any
+        The Sanity document or data structure to process (can be any type)
+
+    Returns
+    -------
+    Any
+        The processed data structure (modified in-place)
+    """
+    # Handle None or non-container types - return as is
+    if blocks is None or not isinstance(blocks, (list, dict)):
+        return blocks
+
+    # Handle list
+    if isinstance(blocks, list):
+        # Check if the first element is a dict with _type == "block"
+        if blocks and isinstance(blocks[0], dict) and blocks[0].get("_type") == "block":
+            # All elements are blocks, join them all together
+            text_parts = []
+            for block in blocks:
+                if "children" in block:
+                    for child in block["children"]:
+                        if isinstance(child, dict) and "text" in child:
+                            text_parts.append(child["text"])
+            return "".join(text_parts)
+        else:
+            # Regular list - iterate through all elements and call recursively
+            for i, item in enumerate(blocks):
+                blocks[i] = flatten_portable_text(item)
+            return blocks
+
+    # Handle dict - iterate through all values and call recursively
+    if isinstance(blocks, dict):
+        for key, value in blocks.items():
+            blocks[key] = flatten_portable_text(value)
+        return blocks
+
+
 class SanityDocument(BaseModel):
     """Shared schema for Sanity documents."""
 
@@ -310,51 +355,6 @@ SANITY_TYPE_TO_MODEL: dict[str, type[SanityDocument]] = {
     "publicProjects": PublicProject,
     "tutorial": Tutorial,
 }
-
-
-def flatten_portable_text(blocks: Any) -> Any:
-    """In-place function that takes an arbitrary Sanity document and recursively looks for block types.
-
-    When it finds a dict with `_type == "block"`, it flattens the block's children into a single string
-    by joining all the `text` fields from the children. This modifies the input data structure in-place.
-
-    Parameters
-    ----------
-    blocks : Any
-        The Sanity document or data structure to process (can be any type)
-
-    Returns
-    -------
-    Any
-        The processed data structure (modified in-place)
-    """
-    # Handle None or non-container types - return as is
-    if blocks is None or not isinstance(blocks, (list, dict)):
-        return blocks
-
-    # Handle list
-    if isinstance(blocks, list):
-        # Check if the first element is a dict with _type == "block"
-        if blocks and isinstance(blocks[0], dict) and blocks[0].get("_type") == "block":
-            # All elements are blocks, join them all together
-            text_parts = []
-            for block in blocks:
-                if "children" in block:
-                    for child in block["children"]:
-                        if isinstance(child, dict) and "text" in child:
-                            text_parts.append(child["text"])
-            return "".join(text_parts)
-        else:
-            # Regular list - iterate through all elements and call recursively
-            for i, item in enumerate(blocks):
-                blocks[i] = flatten_portable_text(item)
-            return blocks
-
-    # Handle dict - iterate through all values and call recursively
-    if isinstance(blocks, dict):
-        for key, value in blocks.items():
-            blocks[key] = flatten_portable_text(value)
-        return blocks
 
 
 def build_base_query(document_type: str, query: str | None = None) -> str:
