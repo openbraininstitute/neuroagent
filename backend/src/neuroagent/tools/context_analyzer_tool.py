@@ -39,7 +39,7 @@ class ContextAnalyzerTool(BaseTool):
     description: ClassVar[
         str
     ] = """Gets a description of the current page the user is on. Call this tool when the user needs guidance on the platform.
-    If the user has a vague question about the website USE THIS TOOL."""
+    If the user has a vague question about the website USE THIS TOOL. ALWAYS treat the values from this tool as obsolete and call the tool again."""
     description_frontend: ClassVar[str] = (
         """Allows to get the current page the user is navigating. This allows the Agent to help the user navigate the website."""
     )
@@ -55,7 +55,7 @@ class ContextAnalyzerTool(BaseTool):
         """
         url = self.metadata.current_frontend_url
 
-        # retreive description
+        # retrieve description
         with (Path(__file__).parent.parent / "platform_description.json").open() as f:
             descriptions = json.load(f)
 
@@ -132,7 +132,8 @@ class ContextAnalyzerTool(BaseTool):
                 )
                 if response.status_code == 200:
                     current_brain_region = BrainRegionRead(**response.json())
-
+            else:
+                current_brain_region = None
             # Handle explore sub-pages
             if (
                 len(page_path) > 2
@@ -190,7 +191,8 @@ class ContextAnalyzerTool(BaseTool):
                                 f"Name : {entity['name']}, ID : {entity['id']}"
                                 for entity in response.json()["data"]
                             ]
-                            page_description += f"## Current user view \n\n The user is currenly viewing information in brain region : {current_brain_region.name}, with ID : {current_brain_region.id}. The {entity_type} currently on screen are: {entity_resonse}\n"
+                            if current_brain_region:
+                                page_description += f"## Current user view \n\n The user is currenly viewing information in brain region : {current_brain_region.name}, with ID : {current_brain_region.id}. The {entity_type} currently on screen are: {entity_resonse}\n"
 
                 if len(page_path) > 4:
                     # artifacts details.
@@ -256,7 +258,7 @@ class ContextAnalyzerTool(BaseTool):
                     current_brain_region = BrainRegionRead(**response.json())
                     page_description += f"## Current user view \n\n The user is currenly viewing information this brain region : {current_brain_region.model_dump_json()}"
 
-            if len(page_path) > 3:
+            if len(page_path) >= 3:
                 if page_path[1] == "me-model":
                     if len(page_path) == 3 and page_path[2] == "new":
                         page_description += descriptions["build-me-model"]
@@ -280,7 +282,7 @@ class ContextAnalyzerTool(BaseTool):
 
                                 response = await self.metadata.httpx_client.get(
                                     url=self.metadata.entitycore_url.rstrip("/")
-                                    + "reconstruction-morphology",
+                                    + "/reconstruction-morphology",
                                     headers=headers,
                                     params=query_param,
                                 )
