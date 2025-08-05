@@ -39,6 +39,7 @@ routes:
       - "Can you compute morphometrics on it?"
       - "Can you get me 2 electrial cell recordings?"
       - "Can you get me more ?"
+      - "Can you get me some news about the platform?"
       - "Can you get me some random morphologies?"
       - "Can you help me find some morphologies in the platform?"
       - "Can you now find all electrical cell recordings from that species?"
