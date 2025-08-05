@@ -5,7 +5,7 @@ import logging
 from typing import Any, ClassVar, Literal
 
 import httpx
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 from neuroagent.tools.base_tool import BaseMetadata, BaseTool
 
@@ -28,11 +28,6 @@ class SanityDocument(BaseModel):
         "updated_at": "_updatedAt",
     }
 
-    portable_text_attributes: ClassVar[list[str]] = [
-        # List of pydantic model attributes that contain Portable Text content.
-        # These fields will be flattened into plain text using the flatten_portable_text function.
-    ]
-
 
 class NewsDocument(SanityDocument):
     """Schema for news documents."""
@@ -48,7 +43,39 @@ class NewsDocument(SanityDocument):
         "content": "content",
     }
 
-    portable_text_attributes: ClassVar[list[str]] = ["content"]
+    @field_validator("content", mode="before")
+    @classmethod
+    def flatten_content(cls, v: list[dict[str, Any]] | None) -> str | None:
+        """Flatten the content from a list of blocks into a single string."""
+        if v is None:
+            return None
+
+        # Use the existing flatten_portable_text function to process the content
+        flattened = flatten_portable_text(v)
+
+        # If the result is a string, return it directly
+        if isinstance(flattened, str):
+            return flattened
+
+        # If it's still a list, join all text elements together
+        if isinstance(flattened, list):
+            text_parts = []
+            for item in flattened:
+                if isinstance(item, str):
+                    text_parts.append(item)
+                elif isinstance(item, dict):
+                    # Extract text from various block types
+                    if "title" in item:
+                        text_parts.append(item["title"])
+                    elif "text" in item:
+                        text_parts.append(item["text"])
+                    elif "content" in item and isinstance(item["content"], str):
+                        text_parts.append(item["content"])
+
+            return " ".join(text_parts) if text_parts else ""
+
+        # Fallback: convert to string
+        return str(flattened) if flattened else ""
 
 
 class GlossaryItemDocument(SanityDocument):
@@ -65,7 +92,22 @@ class GlossaryItemDocument(SanityDocument):
         "definition": "definition",
     }
 
-    portable_text_attributes: ClassVar[list[str]] = ["definition"]
+    @field_validator("definition", mode="before")
+    @classmethod
+    def flatten_definition(cls, v: list[dict[str, Any]] | None) -> str | None:
+        """Flatten the definition from portable text blocks into a single string."""
+        if v is None:
+            return None
+
+        # Use the existing flatten_portable_text function to process the definition
+        flattened = flatten_portable_text(v)
+
+        # The flatten_portable_text function should return a string for portable text
+        if isinstance(flattened, str):
+            return flattened
+
+        # Fallback: convert to string
+        return str(flattened) if flattened else ""
 
 
 class FutureFeature(SanityDocument):
@@ -84,8 +126,6 @@ class FutureFeature(SanityDocument):
         "scale": "Scale",
     }
 
-    portable_text_attributes: ClassVar[list[str]] = []
-
 
 class Tutorial(SanityDocument):
     """Schema for tutorial documents."""
@@ -103,7 +143,22 @@ class Tutorial(SanityDocument):
         "video_url": "videoUrl",
     }
 
-    portable_text_attributes: ClassVar[list[str]] = ["transcript"]
+    @field_validator("transcript", mode="before")
+    @classmethod
+    def flatten_transcript(cls, v: list[dict[str, Any]] | None) -> str | None:
+        """Flatten the transcript from portable text blocks into a single string."""
+        if v is None:
+            return None
+
+        # Use the existing flatten_portable_text function to process the transcript
+        flattened = flatten_portable_text(v)
+
+        # The flatten_portable_text function should return a string for portable text
+        if isinstance(flattened, str):
+            return flattened
+
+        # Fallback: convert to string
+        return str(flattened) if flattened else ""
 
 
 class PublicProject(SanityDocument):
@@ -111,7 +166,7 @@ class PublicProject(SanityDocument):
 
     name: str
     introduction: str
-    description: str
+    description: str | None
     videos_list: list[dict[str, Any]] | None
     authors_list: list[dict[str, Any]]
 
@@ -124,7 +179,22 @@ class PublicProject(SanityDocument):
         "authors_list": "authorsList",
     }
 
-    portable_text_attributes: ClassVar[list[str]] = ["description"]
+    @field_validator("description", mode="before")
+    @classmethod
+    def flatten_description(cls, v: list[dict[str, Any]] | None) -> str | None:
+        """Flatten the description from portable text blocks into a single string."""
+        if v is None:
+            return None
+
+        # Use the existing flatten_portable_text function to process the description
+        flattened = flatten_portable_text(v)
+
+        # The flatten_portable_text function should return a string for portable text
+        if isinstance(flattened, str):
+            return flattened
+
+        # Fallback: convert to string
+        return str(flattened) if flattened else ""
 
 
 class Page(SanityDocument):
@@ -141,7 +211,95 @@ class Page(SanityDocument):
         "content": "content",
     }
 
-    portable_text_attributes: ClassVar[list[str]] = ["content"]
+    @field_validator("content", mode="before")
+    @classmethod
+    def flatten_content(cls, v: list[dict[str, Any]] | None) -> str | None:
+        """Flatten the content from various block types into a single string."""
+        if v is None:
+            return None
+
+        text_parts = []
+
+        for block in v:
+            if not isinstance(block, dict):
+                continue
+
+            block_type = block.get("_type")
+
+            if block_type == "titleHeadline":
+                # Extract title from titleHeadline blocks
+                if "title" in block:
+                    text_parts.append(block["title"])
+
+            elif block_type == "richContent":
+                # Extract text from richContent blocks
+                if "content" in block and isinstance(block["content"], list):
+                    for content_block in block["content"]:
+                        if (
+                            isinstance(content_block, dict)
+                            and content_block.get("_type") == "block"
+                        ):
+                            if "children" in content_block:
+                                for child in content_block["children"]:
+                                    if isinstance(child, dict) and "text" in child:
+                                        text_parts.append(child["text"])
+
+            elif block_type == "previewBlock":
+                # Extract title and text from previewBlock
+                if "title" in block:
+                    text_parts.append(block["title"])
+                if "text" in block and isinstance(block["text"], list):
+                    for text_block in block["text"]:
+                        if (
+                            isinstance(text_block, dict)
+                            and text_block.get("_type") == "block"
+                        ):
+                            if "children" in text_block:
+                                for child in text_block["children"]:
+                                    if isinstance(child, dict) and "text" in child:
+                                        text_parts.append(child["text"])
+
+            elif block_type == "bulletList":
+                # Extract content from bulletList items
+                if "content" in block and isinstance(block["content"], list):
+                    for bullet_item in block["content"]:
+                        if isinstance(bullet_item, dict):
+                            if "title" in bullet_item:
+                                text_parts.append(bullet_item["title"])
+                            if "content" in bullet_item:
+                                text_parts.append(bullet_item["content"])
+
+            elif block_type == "video":
+                # Extract caption and timestamp descriptions from video blocks
+                if "caption" in block:
+                    text_parts.append(block["caption"])
+                if "timestamps" in block and isinstance(block["timestamps"], list):
+                    for timestamp in block["timestamps"]:
+                        if isinstance(timestamp, dict):
+                            if "label" in timestamp:
+                                text_parts.append(timestamp["label"])
+                            if "description" in timestamp:
+                                text_parts.append(timestamp["description"])
+
+            elif block_type == "section":
+                # Extract name from section blocks
+                if "name" in block:
+                    text_parts.append(block["name"])
+
+            # For any other block types, try to extract common text fields
+            else:
+                for key in ["title", "text", "content", "description", "caption"]:
+                    if key in block:
+                        value = block[key]
+                        if isinstance(value, str):
+                            text_parts.append(value)
+                        elif isinstance(value, list):
+                            # Handle nested lists (like in richContent)
+                            for item in value:
+                                if isinstance(item, dict) and "text" in item:
+                                    text_parts.append(item["text"])
+
+        return " ".join(text_parts) if text_parts else ""
 
 
 SANITY_TYPE_TO_MODEL: dict[str, type[SanityDocument]] = {
@@ -154,52 +312,49 @@ SANITY_TYPE_TO_MODEL: dict[str, type[SanityDocument]] = {
 }
 
 
-def flatten_portable_text(blocks: list[dict[str, Any]] | dict[str, Any]) -> str:
-    """Recursively flatten Portable Text blocks into a single string.
+def flatten_portable_text(blocks: Any) -> Any:
+    """In-place function that takes an arbitrary Sanity document and recursively looks for block types.
+
+    When it finds a dict with `_type == "block"`, it flattens the block's children into a single string
+    by joining all the `text` fields from the children. This modifies the input data structure in-place.
 
     Parameters
     ----------
-    blocks : list[dict[str, Any]] | dict[str, Any]
-        A list of Portable Text blocks or a single block
+    blocks : Any
+        The Sanity document or data structure to process (can be any type)
 
     Returns
     -------
-    str
-        The flattened text content
+    Any
+        The processed data structure (modified in-place)
     """
-    # Handle single block case
+    # Handle None or non-container types - return as is
+    if blocks is None or not isinstance(blocks, (list, dict)):
+        return blocks
+
+    # Handle list
+    if isinstance(blocks, list):
+        # Check if the first element is a dict with _type == "block"
+        if blocks and isinstance(blocks[0], dict) and blocks[0].get("_type") == "block":
+            # All elements are blocks, join them all together
+            text_parts = []
+            for block in blocks:
+                if "children" in block:
+                    for child in block["children"]:
+                        if isinstance(child, dict) and "text" in child:
+                            text_parts.append(child["text"])
+            return "".join(text_parts)
+        else:
+            # Regular list - iterate through all elements and call recursively
+            for i, item in enumerate(blocks):
+                blocks[i] = flatten_portable_text(item)
+            return blocks
+
+    # Handle dict - iterate through all values and call recursively
     if isinstance(blocks, dict):
-        blocks = [blocks]
-
-    lines = []
-    for block in blocks:
-        # Handle blocks with children (spans)
-        if "children" in block:
-            text = "".join(child.get("text", "") for child in block["children"])
-            if text:
-                lines.append(text)
-
-        # Handle direct text content
-        elif "text" in block:
-            lines.append(block["text"])
-
-        # Handle string content
-        elif isinstance(block.get("content"), str):
-            lines.append(block["content"])
-
-        # Recursively handle nested content
-        elif "content" in block and isinstance(block["content"], (list, dict)):
-            nested_text = flatten_portable_text(block["content"])
-            if nested_text:
-                lines.append(nested_text)
-
-        # Handle arrays
-        elif isinstance(block, list):
-            nested_text = flatten_portable_text(block)
-            if nested_text:
-                lines.append(nested_text)
-
-    return "\n\n".join(filter(None, lines))
+        for key, value in blocks.items():
+            blocks[key] = flatten_portable_text(value)
+        return blocks
 
 
 def build_base_query(document_type: str, query: str | None = None) -> str:
@@ -351,22 +506,15 @@ def parse_document(doc: dict[str, Any]) -> SanityDocument:
     Notes
     -----
     - Automatically detects document type from _type field
-    - Handles Portable Text content flattening based on model's portable_text_attributes
     - Maps fields according to model's sanity_mapping
+    - Content flattening is handled by field validators in the model classes
     """
     # Get the appropriate model class based on document type
     doc_type = doc["_type"]
     model_class = SANITY_TYPE_TO_MODEL[doc_type]
 
-    # Process any portable text fields
-    processed_doc = doc.copy()
-    for field in model_class.portable_text_attributes:
-        field_value = doc.get(field)
-        if isinstance(field_value, (dict, list)):
-            processed_doc[field] = flatten_portable_text(field_value)
-
-    # Create model instance with processed data
-    return model_class(**processed_doc)
+    # Create model instance - field validators will handle content processing
+    return model_class(**doc)
 
 
 class OBIExpertInput(BaseModel):
