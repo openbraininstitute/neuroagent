@@ -8,10 +8,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
-- Sanity fetching tool.
+- Entitycore links in tool output.
+
+## [v0.7.2] - 30.07.2025
+
+### Added
+- Config generation tool for simulations.
 
 ### Changed
 - Datetimes are now offset-aware.
+- Pinned the exa mcp (for now).
 
 ## [v0.7.1] - 21.07.2025
 

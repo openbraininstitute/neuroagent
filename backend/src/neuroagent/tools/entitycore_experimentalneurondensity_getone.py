@@ -73,7 +73,15 @@ class ExperimentalNeuronDensityGetOneTool(BaseTool):
             raise ValueError(
                 f"The experimental neuron density endpoint returned a non 200 response code. Error: {response.text}"
             )
-        return ExperimentalNeuronDensityRead(**response.json())
+        # Add the link
+        response_json = response.json()
+        response_json["url_link"] = (
+            self.metadata.entity_frontend_url
+            + "/explore/interactive/experimental"
+            + "/neuron-density/"
+            + response_json["id"]
+        )
+        return ExperimentalNeuronDensityRead(**response_json)
 
     @classmethod
     async def is_online(cls, *, httpx_client: AsyncClient, entitycore_url: str) -> bool:

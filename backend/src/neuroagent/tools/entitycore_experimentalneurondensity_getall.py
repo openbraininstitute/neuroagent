@@ -101,6 +101,14 @@ class ExperimentalNeuronDensityGetAllTool(BaseTool):
         for density in response_data["data"]:
             density["assets"] = []
 
+            # Add the links to website
+            density["url_link"] = (
+                self.metadata.entity_frontend_url
+                + "/explore/interactive/experimental"
+                + "/neuron-density/"
+                + density["id"]
+            )
+
         return ListResponseExperimentalNeuronDensityRead(**response_data)
 
     @classmethod

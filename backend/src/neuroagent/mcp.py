@@ -57,7 +57,6 @@ class MCPClient:
                     env=env,
                 )
             )
-
         # Override tool name and description
         # Iterate on each server defined in the settings
         for server in self.config.servers.values():
