@@ -288,7 +288,7 @@ def build_query(
     base_query = build_base_query(document_type, query)
 
     # Add sorting
-    sort_field = "_createdAt" if sort == "newest" else "_updatedAt"
+    sort_field = "_createdAt"
     sort_order = "desc" if sort == "newest" else "asc"
     base_query += f" | order({sort_field} {sort_order})"
 
