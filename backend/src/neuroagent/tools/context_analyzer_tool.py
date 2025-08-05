@@ -65,6 +65,9 @@ class ContextAnalyzerTool(BaseTool):
 
         # Remove the base path and split into components
         path: str = parsed_url.path
+        # normalize to always start with a slash
+        if not path.startswith("/"):
+            path = "/" + path
         if not path.startswith("/app/virtual-lab/"):
             raise ValueError("Invalid Virtual Lab URL")
 
@@ -94,11 +97,10 @@ class ContextAnalyzerTool(BaseTool):
 
         # Get the description of the current page
         page_description = "# Description of the curerent page \n\n"
-        page_description += (
-            descriptions["general"]
-            + descriptions["sidebar"]
-            + descriptions["page_selection"]
-        )  # + descriptions["chat"]
+        page_description += descriptions["general"] + descriptions["sidebar"]
+        # Explore does not have the regular sidebar.
+        if page_type != "explore":
+            page_description += descriptions["page_selection"]
 
         if page_type == "home":
             page_description += descriptions["home"]
@@ -111,6 +113,9 @@ class ContextAnalyzerTool(BaseTool):
         elif page_type == "notebooks":
             page_description += descriptions["notebooks"]
         elif page_type == "explore":
+            # In explore we add the chat description for now
+            page_description += descriptions["chat"]
+
             # Get headers for all entitycore calls
             headers: dict[str, str] = {}
             if self.metadata.vlab_id is not None:
@@ -125,11 +130,8 @@ class ContextAnalyzerTool(BaseTool):
                     + f"/brain-region/{query_params['br_id'][0]}",
                     headers=headers,
                 )
-                if response.status_code != 200:
-                    raise ValueError(
-                        f"The brain region endpoint returned a non 200 response code. Error: {response.text}"
-                    )
-                current_brain_region = BrainRegionRead(**response.json())
+                if response.status_code == 200:
+                    current_brain_region = BrainRegionRead(**response.json())
 
             # Handle explore sub-pages
             if (
@@ -183,15 +185,11 @@ class ContextAnalyzerTool(BaseTool):
                             headers=headers,
                             params=query_param,
                         )
-                        if response.status_code != 200:
-                            raise ValueError(
-                                f"The morphology endpoint returned a non 200 response code. Error: {response.text}"
-                            )
-                        entity_resonse = [
-                            f"Name : {entity['name']}, ID : {entity['id']}"
-                            for entity in response.json()["data"]
-                        ]
-                        if current_brain_region:
+                        if response.status_code == 200:
+                            entity_resonse = [
+                                f"Name : {entity['name']}, ID : {entity['id']}"
+                                for entity in response.json()["data"]
+                            ]
                             page_description += f"## Current user view \n\n The user is currenly viewing information in brain region : {current_brain_region.name}, with ID : {current_brain_region.id}. The {entity_type} currently on screen are: {entity_resonse}\n"
 
                 if len(page_path) > 4:
@@ -199,16 +197,22 @@ class ContextAnalyzerTool(BaseTool):
                     entity_type = page_path[3]
                     match entity_type:
                         case "morphology":
-                            page_description += descriptions["explore-morphology"]
+                            page_description += descriptions[
+                                "explore-morphology-details"
+                            ]
                         case "electrophysiology":
                             page_description += descriptions[
-                                "explore-electrophysiology"
+                                "explore-electrophysiology-details"
                             ]
                         case "neuron-density":
-                            page_description += descriptions["explore-neuron-density"]
+                            page_description += descriptions[
+                                "explore-neuron-density-details"
+                            ]
                         case "bouton-density":
-                            page_description += descriptions["explore-bouton-density"]
-                        case "synapse-per-connection":
+                            page_description += descriptions[
+                                "explore-bouton-density-details"
+                            ]
+                        case "synapse-per-connection-details":
                             page_description += descriptions[
                                 "explore-synapse-per-connection"
                             ]
@@ -223,17 +227,15 @@ class ContextAnalyzerTool(BaseTool):
                             headers=headers,
                         )
 
-                        if response.status_code != 200:
-                            raise ValueError(
-                                f"The entity endpoint returned a non 200 response code. Error: {response.text}"
-                            )
-                        response_json = response.json()
-                        page_description += f"## Current user view \n\n The user is currenly viewing information about {entity_type}, with name : {response_json.get('name')}, with ID : {entity_id}.\n Complete description : {response_json}"
+                        if response.status_code == 200:
+                            response_json = response.json()
+                            page_description += f"## Current user view \n\n The user is currenly viewing information about {entity_type} : {response_json}"
 
             else:
                 # Base explore page description
                 page_description += descriptions["explore"]
-                page_description += f"## Current user view \n\n The user is currenly viewing information in brain region : {current_brain_region.name}, with ID : {current_brain_region.id}.\nComplete description : {current_brain_region.model_dump_json()}"
+                if current_brain_region:
+                    page_description += f"## Current user view \n\n The user is currenly viewing information this brain region : {current_brain_region.model_dump_json()}"
 
         elif page_type == "build":
             # Get headers for all entitycore calls
@@ -250,13 +252,9 @@ class ContextAnalyzerTool(BaseTool):
                     + f"/brain-region/{query_params['br_id'][0]}",
                     headers=headers,
                 )
-                if response.status_code != 200:
-                    raise ValueError(
-                        f"The brain region endpoint returned a non 200 response code. Error: {response.text}"
-                    )
-                current_brain_region = BrainRegionRead(**response.json())
-
-            page_description += f"## Current user view \n\n The user is currenly viewing information in brain region : {current_brain_region.name}, with ID : {current_brain_region.id}.\nComplete description : {current_brain_region.model_dump_json()}"
+                if response.status_code == 200:
+                    current_brain_region = BrainRegionRead(**response.json())
+                    page_description += f"## Current user view \n\n The user is currenly viewing information this brain region : {current_brain_region.model_dump_json()}"
 
             if len(page_path) > 3:
                 if page_path[1] == "me-model":
@@ -286,15 +284,12 @@ class ContextAnalyzerTool(BaseTool):
                                     headers=headers,
                                     params=query_param,
                                 )
-                                if response.status_code != 200:
-                                    raise ValueError(
-                                        f"The morphology endpoint returned a non 200 response code. Error: {response.text}"
-                                    )
-                                entity_resonse = [
-                                    f"Name : {entity['name']}, ID : {entity['id']}"
-                                    for entity in response.json()["data"]
-                                ]
-                                page_description += f"## Current user view \n\n The {entity_type} currently on screen are: {entity_resonse}\n"
+                                if response.status_code == 200:
+                                    entity_resonse = [
+                                        f"Name : {entity['name']}, ID : {entity['id']}"
+                                        for entity in response.json()["data"]
+                                    ]
+                                    page_description += f"## Current user view \n\n The {entity_type} currently on screen are: {entity_resonse}\n"
 
                             page_description += descriptions[
                                 "build-me-model-morphology-selection"
@@ -320,18 +315,15 @@ class ContextAnalyzerTool(BaseTool):
                                     headers=headers,
                                     params=query_param,
                                 )
-                                if response.status_code != 200:
-                                    raise ValueError(
-                                        f"The electrical-cell-recording endpoint returned a non 200 response code. Error: {response.text}"
-                                    )
-                                entity_resonse = [
-                                    f"Name : {entity['name']}, ID : {entity['id']}"
-                                    for entity in response.json()["data"]
-                                ]
-                                page_description += f"## Current user view \n\n The {entity_type} currently on screen are: {entity_resonse}\n"
-                                page_description += descriptions[
-                                    "build-me-model-e-model-selection"
-                                ]
+                                if response.status_code == 200:
+                                    entity_resonse = [
+                                        f"Name : {entity['name']}, ID : {entity['id']}"
+                                        for entity in response.json()["data"]
+                                    ]
+                                    page_description += f"## Current user view \n\n The {entity_type} currently on screen are: {entity_resonse}\n"
+                                    page_description += descriptions[
+                                        "build-me-model-e-model-selection"
+                                    ]
 
                 if page_path[1] == "synaptome":
                     if len(page_path) == 3 and page_path[2] == "new":

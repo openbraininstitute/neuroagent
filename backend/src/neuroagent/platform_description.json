@@ -8,7 +8,7 @@
   "project_team": "## Project Team Page\nTeam member management page where admins can add/remove project members.",
   "activity": "## Activity Page\nRecent project activities in table format with multiple tabs and neuroscience simulation tracking.",
   "notebooks": "## Notebooks Page\nScientific data management with searchable, sortable tables for computational neuroscience research.",
-  "explore": "## Explore Section\n3D brain atlas interface with hierarchical region selector, neuron counts, and data visualization.",
+  "explore": "## Explore Section\n3D brain atlas interface with hierarchical region selector on the left sidebar, neuron counts, and data visualization.",
   "explore-morphology": "## Explore Morphology List Page\nNeuron morphology browser with hierarchical regions, preview diagrams, and specimen metadata.",
   "explore-morphology-details": "## Morphology Details Page\nDetailed view of individual morphology reconstructions with 3D visualization and metadata.",
   "explore-electrophysiology": "## Electrophysiology List Page\nElectrophysiology data browser with chart previews and filtering by brain region.",
