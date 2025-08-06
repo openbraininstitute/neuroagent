@@ -1,6 +1,12 @@
 """Tests for the OBI Expert tool."""
 
-from neuroagent.tools.obi_expert import Page, flatten_portable_text
+from neuroagent.tools.obi_expert import (
+    GlossaryItemDocument,
+    NewsDocument,
+    Page,
+    Tutorial,
+    flatten_portable_text,
+)
 
 
 def test_flatten_portable_text_simple_blocks():
@@ -262,7 +268,6 @@ def test_page_sanity_document_instantiation():
 
 def test_glossary_item_sanity_document_instantiation():
     """Test instantiating a GlossaryItemDocument sanity document using sanity_mapping."""
-    from neuroagent.tools.obi_expert import GlossaryItemDocument
 
     # Raw JSON from Sanity
     raw_json = {
@@ -340,7 +345,6 @@ def test_glossary_item_sanity_document_instantiation():
 
 def test_news_document_sanity_document_instantiation():
     """Test instantiating a NewsDocument sanity document using sanity_mapping."""
-    from neuroagent.tools.obi_expert import NewsDocument
 
     # Raw JSON from Sanity
     raw_json = {
@@ -527,3 +531,91 @@ def test_news_document_sanity_document_instantiation():
     assert content is not None
     for part in expected_content_parts:
         assert part in content
+
+
+def test_tutorial_sanity_document_instantiation():
+    """Test instantiating a Tutorial sanity document using sanity_mapping."""
+
+    # Raw JSON from Sanity (shortened version)
+    raw_json = {
+        "_createdAt": "2025-05-20T15:16:17Z",
+        "_id": "dc9d626d-f5b3-414a-94c8-1e45b237c87b",
+        "_rev": "TErrISLPjz1kwp8q0XUZJD",
+        "_type": "tutorial",
+        "_updatedAt": "2025-07-15T09:27:52Z",
+        "description": "How to create your virtual lab, start your first project and transfer credits from your virtual lab into your many projects",
+        "title": "How to get started",
+        "transcript": [
+            {
+                "_key": "624ae55cf8c3",
+                "_type": "block",
+                "children": [
+                    {
+                        "_key": "880d4d809322",
+                        "_type": "span",
+                        "marks": [],
+                        "text": "In this video, we will learn how to create a Virtual Lab, a Project and how to transfer credits to your project so you can start building and simulating neuron models.",
+                    }
+                ],
+                "markDefs": [],
+                "style": "normal",
+            },
+            {
+                "_key": "83b7f0684880",
+                "_type": "block",
+                "children": [
+                    {
+                        "_key": "6ee91518529a",
+                        "_type": "span",
+                        "marks": [],
+                        "text": "Let's get started.",
+                    }
+                ],
+                "markDefs": [],
+                "style": "normal",
+            },
+            {
+                "_key": "5a90f7f8a080",
+                "_type": "block",
+                "children": [
+                    {
+                        "_key": "8fb124d17a57",
+                        "_type": "span",
+                        "marks": [],
+                        "text": "On the main homepage, click the Create your Virtual Lab button.",
+                    }
+                ],
+                "markDefs": [],
+                "style": "normal",
+            },
+        ],
+        "videoUrl": "https://player.vimeo.com/progressive_redirect/playback/1086084238/rendition/1080p/file.mp4?loc=external&log_user=0&signature=75d9815793616bde14f32a62c1a0308a68c6ba1937a3563d3e62f276fc05e697",
+    }
+
+    # Map the raw JSON using sanity_mapping
+    mapped_data = {}
+    for pydantic_field, sanity_field in Tutorial.sanity_mapping.items():
+        if sanity_field in raw_json:
+            mapped_data[pydantic_field] = raw_json[sanity_field]
+
+    # Instantiate the Tutorial document
+    tutorial_document = Tutorial(**mapped_data)
+
+    # Assert the mapped fields are correct
+    assert tutorial_document.id == "dc9d626d-f5b3-414a-94c8-1e45b237c87b"
+    assert tutorial_document.created_at == "2025-05-20T15:16:17Z"
+    assert tutorial_document.updated_at == "2025-07-15T09:27:52Z"
+    assert tutorial_document.title == "How to get started"
+    assert (
+        tutorial_document.description
+        == "How to create your virtual lab, start your first project and transfer credits from your virtual lab into your many projects"
+    )
+    assert (
+        tutorial_document.video_url
+        == "https://player.vimeo.com/progressive_redirect/playback/1086084238/rendition/1080p/file.mp4?loc=external&log_user=0&signature=75d9815793616bde14f32a62c1a0308a68c6ba1937a3563d3e62f276fc05e697"
+    )
+
+    # Test that transcript is flattened to a string
+    # The transcript should be flattened to extract text from portable text blocks
+    expected_transcript = "In this video, we will learn how to create a Virtual Lab, a Project and how to transfer credits to your project so you can start building and simulating neuron models.Let's get started.On the main homepage, click the Create your Virtual Lab button."
+    assert tutorial_document.transcript == expected_transcript
