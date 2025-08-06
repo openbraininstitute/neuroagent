@@ -18,6 +18,8 @@ def flatten_portable_text(blocks: Any) -> Any:
     When it finds a dict with `_type == "block"`, it flattens the block's children into a single string
     by joining all the `text` fields from the children. This modifies the input data structure in-place.
 
+    This is inspired by https://www.sanity.io/docs/developer-guides/presenting-block-text#ac67a867dd69
+
     Parameters
     ----------
     blocks : Any
