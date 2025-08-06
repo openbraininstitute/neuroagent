@@ -540,7 +540,9 @@ class OBIExpertInput(BaseModel):
         default="newest", description="Sort order of the documents"
     )
     query: str | None = Field(
-        default=None, description="Optional text to match in title or content"
+        default=None,
+        description="Optional single word to match in title or content",
+        pattern=r"^[a-zA-Z0-9_-]+$",
     )
 
 
