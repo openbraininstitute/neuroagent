@@ -1,6 +1,7 @@
 """Tests for the OBI Expert tool."""
 
 from neuroagent.tools.obi_expert import (
+    FutureFeature,
     GlossaryItemDocument,
     NewsDocument,
     Page,
@@ -729,3 +730,44 @@ def test_public_project_sanity_document_instantiation():
     assert public_project_document.authors_list[0]["firstName"] == "Darshan"
     assert public_project_document.authors_list[0]["lastName"] == "Whatever"
     assert public_project_document.authors_list[0]["email"] == "test@example.com"
+
+
+def test_future_feature_sanity_document_instantiation():
+    """Test instantiating a FutureFeature sanity document using sanity_mapping."""
+
+    # Raw JSON from Sanity
+    raw_json = {
+        "Description": "Combine reconstructed neuron morphologies and electrical cell models to create a neuron model that can be used in single cell simulations or circuit building",
+        "Feature_title": "Build simulatable single cell models",
+        "Scale": "Cellular",
+        "Status": "Available",
+        "Topic": "Model building",
+        "_createdAt": "2025-06-11T14:49:29Z",
+        "_id": "8TPE6fVL9bNEJtP0hT9oNW",
+        "_rev": "8TPE6fVL9bNEJtP0hT9oKw",
+        "_type": "futureFeaturesItem",
+        "_updatedAt": "2025-06-11T14:49:29Z",
+    }
+
+    # Map the raw JSON using sanity_mapping
+    mapped_data = {}
+    for pydantic_field, sanity_field in FutureFeature.sanity_mapping.items():
+        if sanity_field in raw_json:
+            mapped_data[pydantic_field] = raw_json[sanity_field]
+
+    # Instantiate the FutureFeature document
+    future_feature_document = FutureFeature(**mapped_data)
+
+    # Assert the mapped fields are correct
+    assert future_feature_document.id == "8TPE6fVL9bNEJtP0hT9oNW"
+    assert future_feature_document.created_at == "2025-06-11T14:49:29Z"
+    assert future_feature_document.updated_at == "2025-06-11T14:49:29Z"
+    assert future_feature_document.topic == "Model building"
+    assert (
+        future_feature_document.feature_title == "Build simulatable single cell models"
+    )
+    assert (
+        future_feature_document.description
+        == "Combine reconstructed neuron morphologies and electrical cell models to create a neuron model that can be used in single cell simulations or circuit building"
+    )
+    assert future_feature_document.scale == "Cellular"
