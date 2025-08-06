@@ -4,6 +4,7 @@ from neuroagent.tools.obi_expert import (
     GlossaryItemDocument,
     NewsDocument,
     Page,
+    PublicProject,
     Tutorial,
     flatten_portable_text,
 )
@@ -619,3 +620,112 @@ def test_tutorial_sanity_document_instantiation():
     # The transcript should be flattened to extract text from portable text blocks
     expected_transcript = "In this video, we will learn how to create a Virtual Lab, a Project and how to transfer credits to your project so you can start building and simulating neuron models.Let's get started.On the main homepage, click the Create your Virtual Lab button."
     assert tutorial_document.transcript == expected_transcript
+
+
+def test_public_project_sanity_document_instantiation():
+    """Test instantiating a PublicProject sanity document using sanity_mapping."""
+
+    # Raw JSON from Sanity (significantly shortened version)
+    raw_json = {
+        "_createdAt": "2025-03-27T14:47:16Z",
+        "_id": "8ef4560e-cf48-4685-98bd-033e4951af3f",
+        "_rev": "DP0Vy24TIobDs8Emkzl8Pj",
+        "_type": "publicProjects",
+        "_updatedAt": "2025-06-16T07:46:35Z",
+        "name": "Proximal vs. distal inhibition",
+        "introduction": "This project is a starting point and proof of concept for the study of proximal and distal inhibition.",
+        "description": [
+            {
+                "_key": "497475ca5ec9",
+                "_type": "block",
+                "children": [
+                    {
+                        "_key": "bc1d28b52520",
+                        "_type": "span",
+                        "marks": [],
+                        "text": "Introduction",
+                    }
+                ],
+                "markDefs": [],
+                "style": "h1",
+            },
+            {
+                "_key": "5978237cd5fd",
+                "_type": "block",
+                "children": [
+                    {
+                        "_key": "08a4437aee84",
+                        "_type": "span",
+                        "marks": [],
+                        "text": "This project is a starting point and proof of concept for the study of proximal and distal inhibition.",
+                    }
+                ],
+                "markDefs": [],
+                "style": "normal",
+            },
+        ],
+        "videosList": [
+            {
+                "_key": "60e15d52178a",
+                "_type": "video",
+                "alt": "Build Your Single Cell Model",
+                "hasCaption": False,
+                "title": "Build Your Single Cell Model",
+                "url": "https://player.vimeo.com/progressive_redirect/playback/1090505016/rendition/2160p/file.mp4?loc=external&log_user=0&signature=171a061e7dffa0691d8d7e3fb264513e2cdd4a41dbd9fcc99d1652f35cb6dd8c",
+                "useTimestamps": False,
+            }
+        ],
+        "authorsList": [
+            {
+                "_key": "71a0e94b3f94",
+                "_type": "author",
+                "email": "test@example.com",
+                "firstName": "Darshan",
+                "institution": "Open Brain Institute",
+                "lastName": "Whatever",
+            }
+        ],
+    }
+
+    # Map the raw JSON using sanity_mapping
+    mapped_data = {}
+    for pydantic_field, sanity_field in PublicProject.sanity_mapping.items():
+        if sanity_field in raw_json:
+            mapped_data[pydantic_field] = raw_json[sanity_field]
+
+    # Instantiate the PublicProject document
+    public_project_document = PublicProject(**mapped_data)
+
+    # Assert the mapped fields are correct
+    assert public_project_document.id == "8ef4560e-cf48-4685-98bd-033e4951af3f"
+    assert public_project_document.created_at == "2025-03-27T14:47:16Z"
+    assert public_project_document.updated_at == "2025-06-16T07:46:35Z"
+    assert public_project_document.name == "Proximal vs. distal inhibition"
+    assert (
+        public_project_document.introduction
+        == "This project is a starting point and proof of concept for the study of proximal and distal inhibition."
+    )
+
+    # Test that description is flattened to a string
+    # The description should be flattened to extract text from portable text blocks
+    expected_description = "IntroductionThis project is a starting point and proof of concept for the study of proximal and distal inhibition."
+    assert public_project_document.description == expected_description
+
+    # Test that videos_list and authors_list are preserved as lists
+    assert isinstance(public_project_document.videos_list, list)
+    assert len(public_project_document.videos_list) == 1
+    assert (
+        public_project_document.videos_list[0]["title"]
+        == "Build Your Single Cell Model"
+    )
+    assert (
+        public_project_document.videos_list[0]["alt"] == "Build Your Single Cell Model"
+    )
+    assert public_project_document.videos_list[0]["hasCaption"] is False
+    assert public_project_document.videos_list[0]["useTimestamps"] is False
+
+    assert isinstance(public_project_document.authors_list, list)
+    assert len(public_project_document.authors_list) == 1
+    assert public_project_document.authors_list[0]["firstName"] == "Darshan"
+    assert public_project_document.authors_list[0]["lastName"] == "Whatever"
+    assert public_project_document.authors_list[0]["email"] == "test@example.com"
