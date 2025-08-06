@@ -336,3 +336,194 @@ def test_glossary_item_sanity_document_instantiation():
     # The definition should be flattened to extract text from portable text blocks
     expected_definition = "An ME-model, or morphoelectric model, is a combination of an E-model with relevant morphology. ME-models can be simulated using BlueCellulab and can serve as essential elements in circuit building."
     assert glossary_document.definition == expected_definition
+
+
+def test_news_document_sanity_document_instantiation():
+    """Test instantiating a NewsDocument sanity document using sanity_mapping."""
+    from neuroagent.tools.obi_expert import NewsDocument
+
+    # Raw JSON from Sanity
+    raw_json = {
+        "_createdAt": "2025-02-18T15:14:00Z",
+        "_id": "0ac9dded-9906-432b-abfb-42c38d6af448",
+        "_rev": "PzJS4BgXWDkp40n0B6wCl1",
+        "_type": "news",
+        "_updatedAt": "2025-04-14T02:42:13Z",
+        "author": "The Blue Brain Project Team",
+        "category": "BBP news",
+        "content": [
+            {
+                "_key": "42d47c6bf24d",
+                "_type": "richContent",
+                "content": [
+                    {
+                        "_key": "10e5452ab7ad",
+                        "_type": "block",
+                        "children": [
+                            {
+                                "_key": "e1de840aa822",
+                                "_type": "span",
+                                "marks": [],
+                                "text": "This is dummy text for the first paragraph. It contains some basic content that will be processed by the flattening function.",
+                            },
+                            {
+                                "_key": "1cbae1fc0e64",
+                                "_type": "span",
+                                "marks": ["strong"],
+                                "text": "This is bold dummy text that should be included in the flattened content.",
+                            },
+                        ],
+                        "markDefs": [],
+                        "style": "normal",
+                    },
+                    {
+                        "_key": "fb11378dc76b",
+                        "_type": "block",
+                        "children": [
+                            {
+                                "_key": "885ccde8fdb5",
+                                "_type": "span",
+                                "marks": [],
+                                "text": "This is dummy text for the second paragraph. It provides additional content to test the flattening functionality.",
+                            }
+                        ],
+                        "markDefs": [],
+                        "style": "normal",
+                    },
+                ],
+            },
+            {
+                "_key": "3b63663fde33",
+                "_type": "titleHeadline",
+                "levelType": "h2",
+                "title": "First dummy headline",
+            },
+            {
+                "_key": "bb07debb94e8",
+                "_type": "titleHeadline",
+                "levelType": "h2",
+                "title": "Second dummy headline",
+            },
+            {
+                "_key": "3e56633849aa",
+                "_type": "richContent",
+                "content": [
+                    {
+                        "_key": "83d0c6f18f15",
+                        "_type": "block",
+                        "children": [
+                            {
+                                "_key": "261c56423a05",
+                                "_type": "span",
+                                "marks": [],
+                                "text": "This is dummy text for the third paragraph. It includes ",
+                            },
+                            {
+                                "_key": "1842d96cdb3a",
+                                "_type": "span",
+                                "marks": ["strong"],
+                                "text": "bold dummy text,",
+                            },
+                            {
+                                "_key": "88372b636801",
+                                "_type": "span",
+                                "marks": [],
+                                "text": " and regular dummy text to test mixed formatting.",
+                            },
+                        ],
+                        "markDefs": [],
+                        "style": "normal",
+                    }
+                ],
+            },
+            {
+                "_key": "eb73235e0cc0",
+                "_type": "titleHeadline",
+                "levelType": "h2",
+                "title": "Contact section",
+            },
+            {
+                "_key": "a35e771e526c",
+                "_type": "buttonBlock",
+                "email": "test1@example.com",
+                "hasAnImage": False,
+                "hasDescription": False,
+                "linkType": "email",
+                "title": "First dummy button",
+            },
+            {
+                "_key": "7e385e949754",
+                "_type": "buttonBlock",
+                "email": "test2@example.com",
+                "hasAnImage": False,
+                "hasDescription": False,
+                "linkType": "email",
+                "title": "Second dummy button",
+            },
+        ],
+        "customDate": "2021-02-16T15:14:00.000Z",
+        "externalLink": "https://example.com/dummy-article",
+        "hasASource": False,
+        "hasCustomDate": True,
+        "headerImage": {
+            "_type": "image",
+            "asset": {
+                "_ref": "image-dummy-header-1920x1080-jpg",
+                "_type": "reference",
+            },
+        },
+        "isBBPEPFLNews": True,
+        "isExternalLink": True,
+        "slug": {
+            "_type": "slug",
+            "current": "dummy-news-article",
+        },
+        "thumbnailImage": {
+            "_type": "image",
+            "asset": {
+                "_ref": "image-dummy-thumbnail-1920x1080-jpg",
+                "_type": "reference",
+            },
+        },
+        "thumbnailIntroduction": "This is dummy introduction text for the news article. It provides a brief overview of what the article contains.",
+        "title": "Dummy News Article Title",
+    }
+
+    # Map the raw JSON using sanity_mapping
+    mapped_data = {}
+    for pydantic_field, sanity_field in NewsDocument.sanity_mapping.items():
+        if sanity_field in raw_json:
+            mapped_data[pydantic_field] = raw_json[sanity_field]
+
+    # Instantiate the NewsDocument
+    news_document = NewsDocument(**mapped_data)
+
+    # Assert the mapped fields are correct
+    assert news_document.id == "0ac9dded-9906-432b-abfb-42c38d6af448"
+    assert news_document.created_at == "2025-02-18T15:14:00Z"
+    assert news_document.updated_at == "2025-04-14T02:42:13Z"
+    assert news_document.title == "Dummy News Article Title"
+    assert news_document.category == "BBP news"
+
+    # Test that content is flattened to a string
+    # The content should be flattened to extract text from various block types
+    # This includes richContent blocks with portable text, titleHeadline blocks, and buttonBlock blocks
+    expected_content_parts = [
+        "This is dummy text for the first paragraph. It contains some basic content that will be processed by the flattening function.",
+        "This is bold dummy text that should be included in the flattened content.",
+        "This is dummy text for the second paragraph. It provides additional content to test the flattening functionality.",
+        "First dummy headline",
+        "Second dummy headline",
+        "This is dummy text for the third paragraph. It includes ",
+        "bold dummy text,",
+        " and regular dummy text to test mixed formatting.",
+        "Contact section",
+        "First dummy button",
+        "Second dummy button",
+    ]
+
+    # The content should contain all the extracted text parts
+    content = news_document.content
+    assert content is not None
+    for part in expected_content_parts:
+        assert part in content
