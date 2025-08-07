@@ -598,6 +598,11 @@ class OBIExpertTool(BaseTool):
 
     name: ClassVar[str] = "obi-expert"
     name_frontend: ClassVar[str] = "OBI Expert"
+    utterances: ClassVar[list[str]] = [
+        "What's new in the platform?",
+        "Define synaptic plasticity",
+        "Show me tutorials for beginners",
+    ]
     description: ClassVar[
         str
     ] = """Search and retrieve documents from the OBI Sanity API. Use this tool to:

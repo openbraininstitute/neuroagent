@@ -28,6 +28,11 @@ class BrainAtlasGetAllTool(BaseTool):
 
     name: ClassVar[str] = "entitycore-brainatlas-getall"
     name_frontend: ClassVar[str] = "Get All Brain Atlases"
+    utterances: ClassVar[list[str]] = [
+        "Find brain atlases",
+        "Show me available brain atlases",
+        "What brain atlases are there?",
+    ]
     description: ClassVar[
         str
     ] = """Searches a neuroscience based knowledge graph to retrieve brain atlases.

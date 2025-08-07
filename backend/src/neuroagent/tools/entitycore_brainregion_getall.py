@@ -40,6 +40,11 @@ class BrainRegionGetAllTool(BaseTool):
 
     name: ClassVar[str] = "entitycore-brainregion-getall"
     name_frontend: ClassVar[str] = "Get All Brain Regions"
+    utterances: ClassVar[list[str]] = [
+        "Find brain regions",
+        "Show me available brain regions",
+        "What brain regions are there?",
+    ]
     description: ClassVar[
         str
     ] = """Searches a neuroscience based knowledge graph to retrieve brain regions.
