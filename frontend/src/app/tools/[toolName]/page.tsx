@@ -93,6 +93,15 @@ export default async function ToolPage({
         </div>
 
         <div className="rounded-lg bg-muted/50 p-6">
+          <h2 className="mb-4 text-xl font-semibold">Example Use-Cases</h2>
+          <div className="space-y-4"></div>
+          <p className="whitespace-pre-wrap break-words text-muted-foreground">
+            {"• " + tool.utterances.join("\n• ")}
+          </p>
+          <div />
+        </div>
+
+        <div className="rounded-lg bg-muted/50 p-6">
           <h2 className="mb-4 text-xl font-semibold">Input Parameters</h2>
           <ToolInputSchema schema={parsedSchema} />
         </div>

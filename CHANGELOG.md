@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - Entitycore links in tool output.
+- Utterance structure for tools.
 
 ### Changed
 - Description of plot generator.

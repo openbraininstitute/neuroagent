@@ -186,6 +186,7 @@ async def get_tool_metadata(
         name_frontend=tool_class.name_frontend,
         description=tool_class.description,
         description_frontend=tool_class.description_frontend,
+        utterances=tool_class.utterances,
         input_schema=json.dumps(input_schema),
         hil=tool_class.hil,
         is_online=is_online,

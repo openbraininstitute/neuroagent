@@ -125,6 +125,7 @@ def create_dynamic_tool(
     tool_description: str,
     input_schema_serialized: dict[str, Any],
     session: ClientSession,
+    utterance_list: list[str] | None = None,
     tool_name_frontend: str | None = None,
 ) -> Type[BaseTool]:
     """Create a dynamic BaseTool subclass for an MCP tool.
@@ -141,6 +142,10 @@ def create_dynamic_tool(
         JSON schema for the tool's input
     session : ClientSession
         MCP client session for invoking the tool
+    utterances: list[str] | None
+        List of utterances
+    tool_name_frontend: str | None
+        Frontend name of the tool
 
     Returns
     -------
@@ -169,6 +174,7 @@ def create_dynamic_tool(
         )
         description: ClassVar[str] = tool_description
         description_frontend: ClassVar[str] = tool_description
+        utterances: ClassVar[list[str]] = utterance_list or []
         json_schema: ClassVar[dict[str, Any]] = input_schema_serialized
         input_schema: InputSchema
         metadata: Metadata
