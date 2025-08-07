@@ -528,7 +528,7 @@ AVAILABLE TOOLS:
 
         selected_tools: list[TOOL_NAMES_LITERAL] = Field(
             min_length=min_tool_selection,
-            description=f"List of selected tool names, minimum {min_tool_selection} items. Must contain all of the tools relevant to the conversation.",
+            description=f"List of selected tool names, minimum {min_tool_selection} items. Must contain all of the tools relevant to the conversation. Must not contain duplicates.",
         )
 
     try:
@@ -542,7 +542,9 @@ AVAILABLE TOOLS:
 
         # Parse the output
         if response.choices[0].message.parsed:
-            selected_tools = response.choices[0].message.parsed.selected_tools
+            selected_tools = list(
+                set(response.choices[0].message.parsed.selected_tools)
+            )
             logger.debug(
                 f"#TOOLS: {len(selected_tools)}, SELECTED TOOLS: {selected_tools}"
             )
