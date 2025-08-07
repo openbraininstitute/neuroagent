@@ -122,8 +122,10 @@ class NewsDocument(SanityDocument):
 
             return " ".join(text_parts) if text_parts else ""
 
-        # Fallback: convert to string
-        return str(flattened) if flattened else ""
+        # If not a string, raise validation error
+        if not isinstance(flattened, str):
+            raise ValueError("Content must be a string")
+        return flattened
 
 
 class GlossaryItemDocument(SanityDocument):
@@ -155,8 +157,10 @@ class GlossaryItemDocument(SanityDocument):
         if isinstance(flattened, str):
             return flattened
 
-        # Fallback: convert to string
-        return str(flattened) if flattened else ""
+        # If not a string, raise validation error
+        if not isinstance(flattened, str):
+            raise ValueError("Definition must be a string")
+        return flattened
 
 
 class FutureFeature(SanityDocument):
@@ -207,8 +211,10 @@ class Tutorial(SanityDocument):
         if isinstance(flattened, str):
             return flattened
 
-        # Fallback: convert to string
-        return str(flattened) if flattened else ""
+        # If not a string, raise validation error
+        if not isinstance(flattened, str):
+            raise ValueError("Transcript must be a string")
+        return flattened
 
 
 class PublicProject(SanityDocument):
@@ -244,8 +250,10 @@ class PublicProject(SanityDocument):
         if isinstance(flattened, str):
             return flattened
 
-        # Fallback: convert to string
-        return str(flattened) if flattened else ""
+        # If not a string, raise validation error
+        if not isinstance(flattened, str):
+            raise ValueError("Description must be a string")
+        return flattened
 
 
 class Page(SanityDocument):
@@ -362,8 +370,10 @@ class Page(SanityDocument):
 
             return " ".join(text_parts) if text_parts else ""
 
-        # Fallback: convert to string
-        return str(flattened) if flattened else ""
+        # If not a string, raise validation error
+        if not isinstance(flattened, str):
+            raise ValueError("Content must be a string")
+        return flattened
 
 
 SANITY_TYPE_TO_MODEL: dict[str, type[SanityDocument]] = {
