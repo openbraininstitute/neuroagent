@@ -8,15 +8,30 @@
       "tool_metadata": {
         "crawling": {
           "name": "read-paper",
-          "description": "Extract content from specific URLs using Exa AI - performs targeted crawling of web pages to retrieve their full content. Useful for reading articles, PDFs, or any web page when you have the exact URL. Use in combination with literature-search-tool and web-search-tool when the user asks for more info about a paper/url. Returns the complete text content of the specified URL."
-          },
+          "description": "Extract content from specific URLs using Exa AI - performs targeted crawling of web pages to retrieve their full content. Useful for reading articles, PDFs, or any web page when you have the exact URL. Use in combination with literature-search-tool and web-search-tool when the user asks for more info about a paper/url. Returns the complete text content of the specified URL.",
+          "utterances": [
+            "Extract content from this URL",
+            "Get the full text of this article",
+            "Read this paper for me"
+          ]
+        },
         "research_paper_search": {
           "name": "literature-search-tool",
-          "name_frontend": "Literature Search"
+          "name_frontend": "Literature Search",
+          "utterances": [
+            "Find literature on this topic",
+            "Look up academic papers",
+            "Search for research papers"
+          ]
         },
         "web_search_exa": {
           "name": "web-search-tool",
-          "name_frontend": "Web Search"
+          "name_frontend": "Web Search",
+          "utterances": [
+            "Find information online",
+            "Look up this topic on the internet",
+            "Search the web for this"
+          ]
         }
         }
     },

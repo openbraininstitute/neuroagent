@@ -25,6 +25,11 @@ class BrainRegionGetOneTool(BaseTool):
 
     name: ClassVar[str] = "entitycore-brainregion-getone"
     name_frontend: ClassVar[str] = "Get One Brain Region"
+    utterances: ClassVar[list[str]] = [
+        "Get details for this brain region",
+        "Show me information about this region",
+        "What are the properties of this brain region?",
+    ]
     description: ClassVar[
         str
     ] = """Retrieves detailed information about a specific brain region from the knowledge graph.

@@ -25,6 +25,11 @@ class ExperimentalNeuronDensityGetOneTool(BaseTool):
 
     name: ClassVar[str] = "entitycore-experimentalneurondensity-getone"
     name_frontend: ClassVar[str] = "Get One Experimental Neuron Density"
+    utterances: ClassVar[list[str]] = [
+        "Get details for this neuron density",
+        "Show me information about this neuron density",
+        "What are the properties of this experimental neuron density?",
+    ]
     description: ClassVar[
         str
     ] = """Retrieves detailed information about a specific experimental neuron density from the knowledge graph.

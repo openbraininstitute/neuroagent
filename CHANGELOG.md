@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Entitycore links in tool output.
 - Utterance structure for tools.
 - OBIExpert tool.
+- Populate utterances for all tools.
 
 ### Changed
 - Description of plot generator.

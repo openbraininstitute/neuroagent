@@ -28,6 +28,11 @@ class SpeciesGetAllTool(BaseTool):
 
     name: ClassVar[str] = "entitycore-species-getall"
     name_frontend: ClassVar[str] = "Get All Species"
+    utterances: ClassVar[list[str]] = [
+        "Find species",
+        "Show me available species",
+        "What species are there?",
+    ]
     description: ClassVar[
         str
     ] = """Searches a neuroscience based knowledge graph to retrieve species.

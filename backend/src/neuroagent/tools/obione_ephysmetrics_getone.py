@@ -40,6 +40,11 @@ class EphysMetricsGetOneTool(BaseTool):
 
     name: ClassVar[str] = "obione-ephysmetrics-getone"
     name_frontend: ClassVar[str] = "Compute Electrophysiology Metrics"
+    utterances: ClassVar[list[str]] = [
+        "Analyze electrophysiological features",
+        "Compute metrics for this recording",
+        "Get electrophysiology data",
+    ]
     description: ClassVar[str] = (
         """Given an electrical cell recording ID, fetch data about the electrophysiological features."""
     )

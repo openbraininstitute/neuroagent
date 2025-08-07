@@ -40,6 +40,11 @@ class IonChannelModelGetAllTool(BaseTool):
 
     name: ClassVar[str] = "entitycore-ionchannelmodel-getall"
     name_frontend: ClassVar[str] = "Get All Ion Channel Models"
+    utterances: ClassVar[list[str]] = [
+        "Find ion channel models",
+        "Show me available ion channel models",
+        "What ion channel models are there?",
+    ]
     description: ClassVar[
         str
     ] = """Searches the entitycore database to retrieve ion channel models.

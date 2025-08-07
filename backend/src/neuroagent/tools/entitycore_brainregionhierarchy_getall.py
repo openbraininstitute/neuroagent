@@ -28,6 +28,11 @@ class BrainRegionHierarchyGetAllTool(BaseTool):
 
     name: ClassVar[str] = "entitycore-brainregionhierarchy-getall"
     name_frontend: ClassVar[str] = "Get All Brain Region Hierarchies"
+    utterances: ClassVar[list[str]] = [
+        "Find brain region hierarchies",
+        "Show me available hierarchies",
+        "What hierarchies are there?",
+    ]
     description: ClassVar[
         str
     ] = """Searches a neuroscience based knowledge graph to retrieve brain region hierarchies.

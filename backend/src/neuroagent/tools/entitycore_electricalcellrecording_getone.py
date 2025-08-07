@@ -28,6 +28,11 @@ class ElectricalCellRecordingGetOneTool(BaseTool):
 
     name: ClassVar[str] = "entitycore-electricalcellrecording-getone"
     name_frontend: ClassVar[str] = "Get One Electrical Cell Recording"
+    utterances: ClassVar[list[str]] = [
+        "Get details for this recording",
+        "Show me information about this recording",
+        "What are the properties of this electrical cell recording?",
+    ]
     description: ClassVar[
         str
     ] = """Retrieves detailed information about a specific electrical cell recording from the knowledge graph.

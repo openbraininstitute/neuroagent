@@ -25,6 +25,11 @@ class OrganizationGetOneTool(BaseTool):
 
     name: ClassVar[str] = "entitycore-organization-getone"
     name_frontend: ClassVar[str] = "Get One Organization"
+    utterances: ClassVar[list[str]] = [
+        "Get details for this organization",
+        "Show me information about this organization",
+        "What are the properties of this organization?",
+    ]
     description: ClassVar[
         str
     ] = """Retrieves detailed information about a specific organization from the knowledge graph.

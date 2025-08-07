@@ -28,6 +28,11 @@ class SubjectGetAllTool(BaseTool):
 
     name: ClassVar[str] = "entitycore-subject-getall"
     name_frontend: ClassVar[str] = "Get All Subjects"
+    utterances: ClassVar[list[str]] = [
+        "Find subjects",
+        "Show me available subjects",
+        "What subjects are there?",
+    ]
     description: ClassVar[
         str
     ] = """Searches a neuroscience based knowledge graph to retrieve subjects.

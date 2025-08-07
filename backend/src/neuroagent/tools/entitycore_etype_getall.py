@@ -28,6 +28,11 @@ class EtypeGetAllTool(BaseTool):
 
     name: ClassVar[str] = "entitycore-etype-getall"
     name_frontend: ClassVar[str] = "Get All E-types"
+    utterances: ClassVar[list[str]] = [
+        "Find e-types",
+        "Show me available e-types",
+        "What e-types are there?",
+    ]
     description: ClassVar[
         str
     ] = """Searches a neuroscience based knowledge graph to retrieve e-types.

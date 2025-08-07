@@ -28,6 +28,11 @@ class MeasurementAnnotationGetOneTool(BaseTool):
 
     name: ClassVar[str] = "entitycore-measurementannotation-getone"
     name_frontend: ClassVar[str] = "Get One Measurement Annotation"
+    utterances: ClassVar[list[str]] = [
+        "Get details for this measurement annotation",
+        "Show me information about this measurement annotation",
+        "What are the properties of this measurement annotation?",
+    ]
     description: ClassVar[
         str
     ] = """Retrieves detailed information about a specific measurement annotation from the knowledge graph.

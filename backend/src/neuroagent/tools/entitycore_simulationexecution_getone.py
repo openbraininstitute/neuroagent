@@ -25,6 +25,11 @@ class SimulationExecutionGetOneTool(BaseTool):
 
     name: ClassVar[str] = "entitycore-simulationexecution-getone"
     name_frontend: ClassVar[str] = "Get One Simulation Execution"
+    utterances: ClassVar[list[str]] = [
+        "Get details for this simulation execution",
+        "Show me information about this simulation execution",
+        "What are the properties of this simulation execution?",
+    ]
     description: ClassVar[
         str
     ] = """Retrieves detailed information about a specific simulation-execution from the knowledge graph.

@@ -25,6 +25,11 @@ class AssetGetAllTool(BaseTool):
 
     name: ClassVar[str] = "entitycore-asset-getall"
     name_frontend: ClassVar[str] = "Get All Assets"
+    utterances: ClassVar[list[str]] = [
+        "List all files for this entity",
+        "Show me all assets",
+        "What assets are available?",
+    ]
     description: ClassVar[str] = """Retrieves all assets from the entitycore service.
     The output contains a list of assets, each containing:
     - The asset path

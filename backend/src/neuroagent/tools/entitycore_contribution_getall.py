@@ -28,6 +28,11 @@ class ContributionGetAllTool(BaseTool):
 
     name: ClassVar[str] = "entitycore-contribution-getall"
     name_frontend: ClassVar[str] = "Get All Contributions"
+    utterances: ClassVar[list[str]] = [
+        "Find contributions",
+        "Show me available contributions",
+        "What contributions are there?",
+    ]
     description: ClassVar[
         str
     ] = """Searches a neuroscience based knowledge graph to retrieve contributions.

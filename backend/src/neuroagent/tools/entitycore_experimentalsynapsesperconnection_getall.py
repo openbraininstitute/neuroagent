@@ -42,6 +42,11 @@ class ExperimentalSynapsesPerConnectionGetAllTool(BaseTool):
 
     name: ClassVar[str] = "entitycore-experimentalsynapsesperconnection-getall"
     name_frontend: ClassVar[str] = "Get All Experimental Synapses Per Connection"
+    utterances: ClassVar[list[str]] = [
+        "Find experimental synapses per connection",
+        "Show me available synapses per connection",
+        "What synapses per connection are there?",
+    ]
     description: ClassVar[
         str
     ] = """Searches the entitycore database to retrieve experimental synapses per connection.

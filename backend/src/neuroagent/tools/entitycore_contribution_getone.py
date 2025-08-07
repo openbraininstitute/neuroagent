@@ -25,6 +25,11 @@ class ContributionGetOneTool(BaseTool):
 
     name: ClassVar[str] = "entitycore-contribution-getone"
     name_frontend: ClassVar[str] = "Get One Contribution"
+    utterances: ClassVar[list[str]] = [
+        "Get details for this contribution",
+        "Show me information about this contribution",
+        "What are the properties of this contribution?",
+    ]
     description: ClassVar[
         str
     ] = """Retrieves detailed information about a specific contribution from the knowledge graph.

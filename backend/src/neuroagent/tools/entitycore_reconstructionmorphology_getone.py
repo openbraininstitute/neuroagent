@@ -25,6 +25,11 @@ class ReconstructionMorphologyGetOneTool(BaseTool):
 
     name: ClassVar[str] = "entitycore-reconstructionmorphology-getone"
     name_frontend: ClassVar[str] = "Get One Reconstruction Morphology"
+    utterances: ClassVar[list[str]] = [
+        "Get details for this reconstruction morphology",
+        "Show me information about this reconstruction morphology",
+        "What are the properties of this reconstruction morphology?",
+    ]
     description: ClassVar[
         str
     ] = """Retrieves detailed information about a specific reconstruction morphology from the knowledge graph.

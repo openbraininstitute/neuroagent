@@ -23,6 +23,11 @@ class StrainGetOneTool(BaseTool):
 
     name: ClassVar[str] = "entitycore-strain-getone"
     name_frontend: ClassVar[str] = "Get One Strain"
+    utterances: ClassVar[list[str]] = [
+        "Get details for this strain",
+        "Show me information about this strain",
+        "What are the properties of this strain?",
+    ]
     description: ClassVar[
         str
     ] = """Retrieves detailed information about a specific strain from the knowledge graph.

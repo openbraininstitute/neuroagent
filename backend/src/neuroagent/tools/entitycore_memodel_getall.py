@@ -43,6 +43,11 @@ class MEModelGetAllTool(BaseTool):
 
     name: ClassVar[str] = "entitycore-memodel-getall"
     name_frontend: ClassVar[str] = "Get all ME-Models"
+    utterances: ClassVar[list[str]] = [
+        "Find ME-models",
+        "Show me available ME-models",
+        "What ME-models are there?",
+    ]
     description: ClassVar[
         str
     ] = """Search the entitycore database to find Morphological Electric models (ME-Model).

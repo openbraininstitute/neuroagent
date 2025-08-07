@@ -37,6 +37,11 @@ class SimulationResultGetAllTool(BaseTool):
 
     name: ClassVar[str] = "entitycore-simulationresult-getall"
     name_frontend: ClassVar[str] = "Get All Simulation Results"
+    utterances: ClassVar[list[str]] = [
+        "Find simulation results",
+        "Show me available simulation results",
+        "What simulation results are there?",
+    ]
     description: ClassVar[
         str
     ] = """Searches a neuroscience based knowledge graph to retrieve simulation-results.

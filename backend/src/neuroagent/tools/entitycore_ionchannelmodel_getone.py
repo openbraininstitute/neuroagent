@@ -28,6 +28,11 @@ class IonChannelModelGetOneTool(BaseTool):
 
     name: ClassVar[str] = "entitycore-ionchannelmodel-getone"
     name_frontend: ClassVar[str] = "Get One Ion Channel Model"
+    utterances: ClassVar[list[str]] = [
+        "Get details for this ion channel model",
+        "Show me information about this ion channel model",
+        "What are the properties of this ion channel model?",
+    ]
     description: ClassVar[
         str
     ] = """Retrieves detailed information about a specific ion channel model from the knowledge graph.
