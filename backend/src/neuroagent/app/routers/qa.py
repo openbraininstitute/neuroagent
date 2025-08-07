@@ -1,6 +1,5 @@
 """Endpoints for agent's question answering pipeline."""
 
-import asyncio
 import json
 import logging
 from contextlib import asynccontextmanager
@@ -21,7 +20,6 @@ from obp_accounting_sdk import AsyncAccountingSessionFactory
 from obp_accounting_sdk.constants import ServiceSubtype
 from openai import AsyncOpenAI
 from redis import asyncio as aioredis
-from semantic_router import SemanticRouter
 from sqlalchemy import or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -40,7 +38,6 @@ from neuroagent.app.dependencies import (
     get_openai_client,
     get_openrouter_models,
     get_redis_client,
-    get_semantic_routes,
     get_session,
     get_settings,
     get_starting_agent,
@@ -245,7 +242,6 @@ async def stream_chat_agent(
     accounting_session_factory: Annotated[
         AsyncAccountingSessionFactory, Depends(get_accounting_session_factory)
     ],
-    semantic_router: Annotated[SemanticRouter | None, Depends(get_semantic_routes)],
     filtered_models: Annotated[
         list[OpenRouterModelResponse], Depends(get_openrouter_models)
     ],
@@ -312,40 +308,6 @@ async def stream_chat_agent(
         proj_id=thread.project_id,
         count=1,
     ):
-        if semantic_router and user_request.content:
-            selected_route = await semantic_router.acall(user_request.content)
-            if selected_route.name and selected_route.name != "False positive":  # type: ignore
-                # If a predefined route is detected, return predefined response
-                async def yield_predefined_response(
-                    response: str,
-                ) -> AsyncIterator[str]:
-                    """Imitate the LLM streaming."""
-                    for chunk in response.split(" "):
-                        await asyncio.sleep(0.01)
-                        yield f"0:{json.dumps(chunk + ' ', separators=(',', ':'))}\n"
-
-                response = next(
-                    route.metadata["response"]  # type: ignore
-                    for route in semantic_router.routes
-                    if route.name == selected_route.name  # type: ignore
-                )
-                messages.append(
-                    Messages(
-                        thread_id=thread.thread_id,
-                        entity=Entity.AI_MESSAGE,
-                        content=json.dumps({"role": "assistant", "content": response}),
-                        is_complete=True,
-                    )
-                )
-                return StreamingResponse(
-                    yield_predefined_response(response),
-                    media_type="text/event-stream",
-                    headers={
-                        "x-vercel-ai-data-stream": "v1",
-                        **limit_headers.model_dump(by_alias=True),
-                    },
-                )
-
         stream_generator = stream_agent_response(
             agents_routine=agents_routine,
             agent=agent,

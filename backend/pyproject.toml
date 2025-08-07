@@ -26,7 +26,6 @@ dependencies = [
     "python-dotenv",
     "pyyaml",
     "redis",
-    "semantic-router",
     "sqlalchemy[asyncio]",
     "tavily-python",
     "types-PyYAML",
