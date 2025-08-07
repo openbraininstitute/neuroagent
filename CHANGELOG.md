@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Casing of get *O*ne ME-model.
+- Deduplicate tool selection on our side.
 
 ## [v0.7.2] - 30.07.2025
 
