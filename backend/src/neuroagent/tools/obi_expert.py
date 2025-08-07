@@ -599,9 +599,25 @@ class OBIExpertTool(BaseTool):
     name: ClassVar[str] = "obi-expert"
     name_frontend: ClassVar[str] = "OBI Expert"
     utterances: ClassVar[list[str]] = [
-        "What's new in the platform?",
+        "Any updates about features?",
         "Define synaptic plasticity",
+        "How do I build a model?",
+        "How do I contact support?",
+        "How do I simulate?",
+        "How much does it cost?",
+        "Show me example projects",
+        "Show me planned improvements",
+        "Show me recent announcements",
         "Show me tutorials for beginners",
+        "What can I do with this platform?",
+        "What does ME model mean?",
+        "What features are coming soon?",
+        "What is a brain region?",
+        "What is this platform about?",
+        "What research projects are available?",
+        "What's new in the platform?",
+        "When will brain region simulation be available?",
+        "Where can I learn about the platform?",
     ]
     description: ClassVar[
         str
@@ -611,38 +627,32 @@ class OBIExpertTool(BaseTool):
        - Access platform news and announcements
        - Browse articles by category
        - Get latest updates and content
-       Examples: "What's new in the platform?", "Show me recent announcements", "Any updates about features?"
 
     2. Search Glossary Terms (document_type: "glossaryItem")
        - Look up technical terms and definitions
        - Find explanations of platform concepts
        - Access detailed term descriptions
-       Examples: "What does ME model mean?", "Define synaptic plasticity", "What is a brain region?"
 
     3. Explore Future Features (document_type: "futureFeaturesItem")
        - Learn about upcoming platform capabilities
        - View planned improvements by topic
        - Track feature development progress
-       Examples: "When will brain region simulation be available?", "What features are coming soon?", "Show me planned improvements"
 
     4. Access Tutorials (document_type: "tutorial")
        - Find educational content and guides
        - Get video-based learning materials
        - Access tutorial transcripts when available
-       Examples: "How do I simulate?", "Show me tutorials for beginners", "Where can I learn about the platform?", "How do I build a model?"
 
     5. Browse Public Projects (document_type: "publicProjects")
        - View showcase research projects
        - Access project documentation and videos
        - See project contributors and authors
-       Examples: "What research projects are available?", "Show me example projects", "What can I do with this platform?"
 
     6. Read Static Pages (document_type: "pages")
        - Access platform information (About, Mission, Team)
        - View legal documents (Privacy Policy, Terms)
        - Find product information (Pricing, Resources)
        - Get support information (Contact)
-       Examples: "What is this platform about?", "How much does it cost?", "How do I contact support?"
     """
     description_frontend: ClassVar[str] = (
         """Search and retrieve documents from the OBI Sanity API."""
