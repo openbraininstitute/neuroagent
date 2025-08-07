@@ -40,6 +40,11 @@ class EModelGetAllTool(BaseTool):
 
     name: ClassVar[str] = "entitycore-emodel-getall"
     name_frontend: ClassVar[str] = "Get All E-Models"
+    utterances: ClassVar[list[str]] = [
+        "Find e-models",
+        "Show me available e-models",
+        "What e-models are there?",
+    ]
     description: ClassVar[
         str
     ] = """Searches a neuroscience based knowledge graph to retrieve e-models.

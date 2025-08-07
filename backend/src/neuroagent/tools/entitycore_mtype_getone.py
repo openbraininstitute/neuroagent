@@ -23,6 +23,11 @@ class MtypeGetOneTool(BaseTool):
 
     name: ClassVar[str] = "entitycore-mtype-getone"
     name_frontend: ClassVar[str] = "Get One M-type"
+    utterances: ClassVar[list[str]] = [
+        "Get details for this m-type",
+        "Show me information about this m-type",
+        "What are the properties of this m-type?",
+    ]
     description: ClassVar[
         str
     ] = """Retrieves detailed information about a specific m-type from the knowledge graph.

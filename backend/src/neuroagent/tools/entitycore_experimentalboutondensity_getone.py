@@ -28,6 +28,11 @@ class ExperimentalBoutonDensityGetOneTool(BaseTool):
 
     name: ClassVar[str] = "entitycore-experimentalboutondensity-getone"
     name_frontend: ClassVar[str] = "Get One Experimental Bouton Density"
+    utterances: ClassVar[list[str]] = [
+        "Get details for this bouton density",
+        "Show me information about this bouton density",
+        "What are the properties of this experimental bouton density?",
+    ]
     description: ClassVar[
         str
     ] = """Retrieves detailed information about a specific experimental bouton density from the knowledge graph.

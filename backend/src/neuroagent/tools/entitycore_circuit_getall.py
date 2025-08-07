@@ -40,6 +40,11 @@ class CircuitGetAllTool(BaseTool):
 
     name: ClassVar[str] = "entitycore-circuit-getall"
     name_frontend: ClassVar[str] = "Get All Circuits"
+    utterances: ClassVar[list[str]] = [
+        "Find circuits",
+        "Show me available circuits",
+        "What circuits are there?",
+    ]
     description: ClassVar[
         str
     ] = """Searches a neuroscience based knowledge graph to retrieve circuits.

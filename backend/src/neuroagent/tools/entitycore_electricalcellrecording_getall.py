@@ -42,6 +42,11 @@ class ElectricalCellRecordingGetAllTool(BaseTool):
 
     name: ClassVar[str] = "entitycore-electricalcellrecording-getall"
     name_frontend: ClassVar[str] = "Get All Electrical Cell Recordings"
+    utterances: ClassVar[list[str]] = [
+        "Find electrical cell recordings",
+        "Show me available recordings",
+        "What recordings are there?",
+    ]
     description: ClassVar[
         str
     ] = """Searches the entitycore database to retrieve electrical cell recordings.

@@ -42,6 +42,11 @@ class ExperimentalBoutonDensityGetAllTool(BaseTool):
 
     name: ClassVar[str] = "entitycore-experimentalboutondensity-getall"
     name_frontend: ClassVar[str] = "Get All Experimental Bouton Densities"
+    utterances: ClassVar[list[str]] = [
+        "Find experimental bouton densities",
+        "Show me available bouton densities",
+        "What bouton densities are there?",
+    ]
     description: ClassVar[
         str
     ] = """Searches the entitycore database to retrieve experimental bouton densities.

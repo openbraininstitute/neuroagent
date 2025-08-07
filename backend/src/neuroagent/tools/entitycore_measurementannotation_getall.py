@@ -39,6 +39,11 @@ class MeasurementAnnotationGetAllTool(BaseTool):
 
     name: ClassVar[str] = "entitycore-measurementannotation-getall"
     name_frontend: ClassVar[str] = "Get All Measurement Annotations"
+    utterances: ClassVar[list[str]] = [
+        "Find measurement annotations",
+        "Show me available measurement annotations",
+        "What measurement annotations are there?",
+    ]
     description: ClassVar[
         str
     ] = """Searches the entitycore database to retrieve measurement annotations.

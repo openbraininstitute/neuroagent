@@ -42,6 +42,11 @@ class ExperimentalNeuronDensityGetAllTool(BaseTool):
 
     name: ClassVar[str] = "entitycore-experimentalneurondensity-getall"
     name_frontend: ClassVar[str] = "Get All Experimental Neuron Densities"
+    utterances: ClassVar[list[str]] = [
+        "Find experimental neuron densities",
+        "Show me available neuron densities",
+        "What neuron densities are there?",
+    ]
     description: ClassVar[
         str
     ] = """Searches a neuroscience based knowledge graph to retrieve experimental neuron densities.

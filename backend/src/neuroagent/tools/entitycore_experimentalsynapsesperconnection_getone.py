@@ -28,6 +28,11 @@ class ExperimentalSynapsesPerConnectionGetOneTool(BaseTool):
 
     name: ClassVar[str] = "entitycore-experimentalsynapsesperconnection-getone"
     name_frontend: ClassVar[str] = "Get One Experimental Synapses Per Connection"
+    utterances: ClassVar[list[str]] = [
+        "Get details for this synapses per connection",
+        "Show me information about this synapses per connection",
+        "What are the properties of this experimental synapses per connection?",
+    ]
     description: ClassVar[
         str
     ] = """Retrieves detailed information about a specific experimental synapses per connection from the knowledge graph.

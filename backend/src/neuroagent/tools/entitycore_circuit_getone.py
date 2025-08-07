@@ -25,6 +25,11 @@ class CircuitGetOneTool(BaseTool):
 
     name: ClassVar[str] = "entitycore-circuit-getone"
     name_frontend: ClassVar[str] = "Get One Circuit"
+    utterances: ClassVar[list[str]] = [
+        "Get details for this circuit",
+        "Show me information about this circuit",
+        "What are the properties of this circuit?",
+    ]
     description: ClassVar[
         str
     ] = """Retrieves detailed information about a specific circuit from the knowledge graph.
