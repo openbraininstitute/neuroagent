@@ -47,6 +47,11 @@ class PlotMorphologyGetOneTool(BaseTool):
 
     name: ClassVar[str] = "thumbnail-generation-morphology-getone"
     name_frontend: ClassVar[str] = "Get Morphology Thumbnail"
+    utterances: ClassVar[list[str]] = [
+        "Show me a visualization of this morphology",
+        "Generate a thumbnail for this morphology",
+        "Create a visual representation",
+    ]
     description: ClassVar[str] = """**Purpose**:
         Generate a visual representation of a specified morphology.
 

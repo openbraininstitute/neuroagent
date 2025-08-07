@@ -86,6 +86,11 @@ class PlotGeneratorTool(BaseTool):
 
     name: ClassVar[str] = "plot-generator"
     name_frontend: ClassVar[str] = "Plot Generator"
+    utterances: ClassVar[list[str]] = [
+        "Can you plot the results?",
+        "Create a visualization of this data",
+        "Generate a chart for me",
+    ]
     description: ClassVar[str] = """Generates a plot from user-provided data.
         - This tool requires x-y coordinate data to create plots.
         - Never invent plot values - always obtain them from tools or prior conversation data.
@@ -101,11 +106,6 @@ class PlotGeneratorTool(BaseTool):
     • Scatter plots - For showing relationships between two variables
     • Histograms - For displaying distribution of numerical data
     • Line charts - For showing trends over a continuous range"""
-    utterances: ClassVar[list[str]] = [
-        "Can you plot the results ?",
-        "Make it a plot.",
-        "Plot a Gaussian distribution with mean 0 and std 1.",
-    ]
     metadata: PlotMetadata
     input_schema: PlotInput
 

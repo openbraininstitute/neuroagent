@@ -37,6 +37,11 @@ class MorphometricsGetOneTool(BaseTool):
 
     name: ClassVar[str] = "obione-morphometrics-getone"
     name_frontend: ClassVar[str] = "Compute Morphology Metrics"
+    utterances: ClassVar[list[str]] = [
+        "Analyze morphological features",
+        "Compute morphology metrics",
+        "Get morphology data",
+    ]
     description: ClassVar[str] = (
         """Given a morphology ID, fetch data about the features of the morphology."""
     )

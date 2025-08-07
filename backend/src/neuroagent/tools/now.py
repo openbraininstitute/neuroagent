@@ -34,6 +34,11 @@ class NowTool(BaseTool):
 
     name: ClassVar[str] = "now-tool"
     name_frontend: ClassVar[str] = "Now"
+    utterances: ClassVar[list[str]] = [
+        "What time is it?",
+        "Get the current date",
+        "What's today's date?",
+    ]
     description: ClassVar[
         str
     ] = """Get the current date and time. Do not ever assume you know the current date, ALWAYS fetch it from this tool if you need it.
