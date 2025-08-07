@@ -204,6 +204,7 @@ class MCPToolMetadata(BaseModel):
     name: str | None = None
     name_frontend: str | None = None
     description: str | None = None
+    utterances: list[str] | None = None
 
     model_config = ConfigDict(frozen=True)
 

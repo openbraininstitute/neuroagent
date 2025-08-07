@@ -91,6 +91,7 @@ export type BToolMetadataDetailed = {
   name_frontend: string;
   description: string;
   description_frontend: string;
+  utterances: string[];
   input_schema: string;
   hil: boolean;
   is_online: boolean;
@@ -101,6 +102,7 @@ export type ToolDetailedMetadata = {
   nameFrontend: string;
   description: string;
   descriptionFrontend: string;
+  utterances: string[];
   inputSchema: string;
   hil: boolean;
   isOnline?: boolean; // Optional since it wasn't in the original type

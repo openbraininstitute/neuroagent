@@ -101,7 +101,11 @@ class PlotGeneratorTool(BaseTool):
     • Scatter plots - For showing relationships between two variables
     • Histograms - For displaying distribution of numerical data
     • Line charts - For showing trends over a continuous range"""
-
+    utterances: ClassVar[list[str]] = [
+        "Can you plot the results ?",
+        "Make it a plot.",
+        "Plot a Gaussian distribution with mean 0 and std 1.",
+    ]
     metadata: PlotMetadata
     input_schema: PlotInput
 

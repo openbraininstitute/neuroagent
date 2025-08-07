@@ -500,6 +500,10 @@ async def filter_tools_by_conversation(
 
     system_prompt = f"""TASK: Filter tools for AI agent based on conversation relevance.
 
+TOOL DESCRIPTION FORMAT:
+tool_name: tool_description
+Example utterances: utterances
+
 INSTRUCTIONS:
 1. Analyze the conversation to identify required capabilities
 2. Select at least {min_tool_selection} of the most relevant tools by name only
@@ -512,7 +516,7 @@ INSTRUCTIONS:
 OUTPUT: [tool_name1, tool_name2, ...]
 
 AVAILABLE TOOLS:
-{chr(10).join(f"{tool.name}: {tool.description}" for tool in tool_list)}
+{(chr(10) * 2).join(f"{tool.name}: {tool.description + chr(10)}Example utterances: {chr(10) + '- ' + (chr(10) + '- ').join(utterance for utterance in tool.utterances)}" for tool in tool_list)}
 """
 
     # Prepare the dynamic pydantic output class

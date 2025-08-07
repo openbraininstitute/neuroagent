@@ -34,6 +34,7 @@ class BaseTool(BaseModel, ABC):
     name_frontend: ClassVar[str] = ""
     description: ClassVar[str]
     description_frontend: ClassVar[str] = ""
+    utterances: ClassVar[list[str]] = []
     metadata: BaseMetadata
     input_schema: BaseModel
     hil: ClassVar[bool] = False
