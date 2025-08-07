@@ -28,6 +28,11 @@ class StrainGetAllTool(BaseTool):
 
     name: ClassVar[str] = "entitycore-strain-getall"
     name_frontend: ClassVar[str] = "Get All Strains"
+    utterances: ClassVar[list[str]] = [
+        "Find strains",
+        "Show me available strains",
+        "What strains are there?",
+    ]
     description: ClassVar[
         str
     ] = """Searches the entitycore database to retrieve strains.

@@ -28,6 +28,11 @@ class PersonGetAllTool(BaseTool):
 
     name: ClassVar[str] = "entitycore-person-getall"
     name_frontend: ClassVar[str] = "Get All Persons"
+    utterances: ClassVar[list[str]] = [
+        "Find persons",
+        "Show me available persons",
+        "What persons are there?",
+    ]
     description: ClassVar[
         str
     ] = """Searches a neuroscience based knowledge graph to retrieve persons.

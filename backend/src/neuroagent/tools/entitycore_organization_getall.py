@@ -28,6 +28,11 @@ class OrganizationGetAllTool(BaseTool):
 
     name: ClassVar[str] = "entitycore-organization-getall"
     name_frontend: ClassVar[str] = "Get All Organizations"
+    utterances: ClassVar[list[str]] = [
+        "Find organizations",
+        "Show me available organizations",
+        "What organizations are there?",
+    ]
     description: ClassVar[
         str
     ] = """Searches a neuroscience based knowledge graph to retrieve organizations.

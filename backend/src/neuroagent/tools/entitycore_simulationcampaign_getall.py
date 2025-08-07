@@ -37,6 +37,11 @@ class SimulationCampaignGetAllTool(BaseTool):
 
     name: ClassVar[str] = "entitycore-simulationcampaign-getall"
     name_frontend: ClassVar[str] = "Get All Simulation Campaigns"
+    utterances: ClassVar[list[str]] = [
+        "Find simulation campaigns",
+        "Show me available simulation campaigns",
+        "What simulation campaigns are there?",
+    ]
     description: ClassVar[
         str
     ] = """Searches a neuroscience based knowledge graph to retrieve simulation-campaigns.

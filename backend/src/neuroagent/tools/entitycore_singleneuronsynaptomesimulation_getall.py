@@ -42,6 +42,11 @@ class SingleNeuronSynaptomeSimulationGetAllTool(BaseTool):
 
     name: ClassVar[str] = "entitycore-singleneuronsynaptomesimulation-getall"
     name_frontend: ClassVar[str] = "Get All Single Neuron Synaptome Simulations"
+    utterances: ClassVar[list[str]] = [
+        "Find single neuron synaptome simulations",
+        "Show me available single neuron synaptome simulations",
+        "What single neuron synaptome simulations are there?",
+    ]
     description: ClassVar[
         str
     ] = """Searches a neuroscience based knowledge graph to retrieve single-neuron-synaptome-simulations.

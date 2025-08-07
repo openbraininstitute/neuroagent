@@ -25,6 +25,11 @@ class SingleNeuronSynaptomeSimulationGetOneTool(BaseTool):
 
     name: ClassVar[str] = "entitycore-singleneuronsynaptomesimulation-getone"
     name_frontend: ClassVar[str] = "Get One Single Neuron Synaptome Simulation"
+    utterances: ClassVar[list[str]] = [
+        "Get details for this single neuron synaptome simulation",
+        "Show me information about this single neuron synaptome simulation",
+        "What are the properties of this single neuron synaptome simulation?",
+    ]
     description: ClassVar[
         str
     ] = """Retrieves detailed information about a specific single-neuron-synaptome-simulation from the knowledge graph.

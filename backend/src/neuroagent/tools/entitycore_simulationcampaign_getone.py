@@ -25,6 +25,11 @@ class SimulationCampaignGetOneTool(BaseTool):
 
     name: ClassVar[str] = "entitycore-simulationcampaign-getone"
     name_frontend: ClassVar[str] = "Get One Simulation Campaign"
+    utterances: ClassVar[list[str]] = [
+        "Get details for this simulation campaign",
+        "Show me information about this simulation campaign",
+        "What are the properties of this simulation campaign?",
+    ]
     description: ClassVar[
         str
     ] = """Retrieves detailed information about a specific simulation-campaign from the knowledge graph.

@@ -23,6 +23,11 @@ class PersonGetOneTool(BaseTool):
 
     name: ClassVar[str] = "entitycore-person-getone"
     name_frontend: ClassVar[str] = "Get One Person"
+    utterances: ClassVar[list[str]] = [
+        "Get details for this person",
+        "Show me information about this person",
+        "What are the properties of this person?",
+    ]
     description: ClassVar[
         str
     ] = """Retrieves detailed information about a specific person from the knowledge graph.

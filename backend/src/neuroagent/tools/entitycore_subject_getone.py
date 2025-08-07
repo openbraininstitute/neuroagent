@@ -25,6 +25,11 @@ class SubjectGetOneTool(BaseTool):
 
     name: ClassVar[str] = "entitycore-subject-getone"
     name_frontend: ClassVar[str] = "Get One Subject"
+    utterances: ClassVar[list[str]] = [
+        "Get details for this subject",
+        "Show me information about this subject",
+        "What are the properties of this subject?",
+    ]
     description: ClassVar[
         str
     ] = """Retrieves detailed information about a specific subject from the knowledge graph.

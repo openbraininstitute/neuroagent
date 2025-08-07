@@ -37,6 +37,11 @@ class SimulationGenerationGetAllTool(BaseTool):
 
     name: ClassVar[str] = "entitycore-simulationgeneration-getall"
     name_frontend: ClassVar[str] = "Get All Simulation Generations"
+    utterances: ClassVar[list[str]] = [
+        "Find simulation generations",
+        "Show me available simulation generations",
+        "What simulation generations are there?",
+    ]
     description: ClassVar[
         str
     ] = """Searches a neuroscience based knowledge graph to retrieve simulation-generations.

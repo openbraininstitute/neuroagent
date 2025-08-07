@@ -25,6 +25,11 @@ class SpeciesGetOneTool(BaseTool):
 
     name: ClassVar[str] = "entitycore-species-getone"
     name_frontend: ClassVar[str] = "Get One Species"
+    utterances: ClassVar[list[str]] = [
+        "Get details for this species",
+        "Show me information about this species",
+        "What are the properties of this species?",
+    ]
     description: ClassVar[
         str
     ] = """Retrieves detailed information about a specific species from the knowledge graph.
