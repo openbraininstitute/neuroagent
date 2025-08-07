@@ -307,8 +307,9 @@ def get_mcp_tool_list(
 
     # Iterate through all tools from all servers
     for server_name, tools in mcp_client.tools.items():
+        # Create a dynamic tool class for each MCP tool
         for tool in tools:
-            # Create a dynamic tool class for each MCP tool
+            # Find tool metadata associated to the current tool in the settings
             server_tool_metadata = settings.mcp.servers
             if server_tool_metadata:
                 for server in server_tool_metadata.values():
