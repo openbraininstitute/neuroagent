@@ -94,11 +94,12 @@ class NewsDocument(SanityDocument):
     @classmethod
     def flatten_content(cls, v: list[dict[str, Any]] | None) -> str | None:
         """Flatten the content from a list of blocks into a single string."""
-        if v is None:
-            return None
-
         # Use the existing flatten_portable_text function to process the content
         flattened = flatten_portable_text(v)
+
+        # If the result is None, return None
+        if flattened is None:
+            return None
 
         # If the result is a string, return it directly
         if isinstance(flattened, str):
@@ -143,11 +144,12 @@ class GlossaryItemDocument(SanityDocument):
     @classmethod
     def flatten_definition(cls, v: list[dict[str, Any]] | None) -> str | None:
         """Flatten the definition from portable text blocks into a single string."""
-        if v is None:
-            return None
-
         # Use the existing flatten_portable_text function to process the definition
         flattened = flatten_portable_text(v)
+
+        # If the result is None, return None
+        if flattened is None:
+            return None
 
         # The flatten_portable_text function should return a string for portable text
         if isinstance(flattened, str):
@@ -194,11 +196,12 @@ class Tutorial(SanityDocument):
     @classmethod
     def flatten_transcript(cls, v: list[dict[str, Any]] | None) -> str | None:
         """Flatten the transcript from portable text blocks into a single string."""
-        if v is None:
-            return None
-
         # Use the existing flatten_portable_text function to process the transcript
         flattened = flatten_portable_text(v)
+
+        # If the result is None, return None
+        if flattened is None:
+            return None
 
         # The flatten_portable_text function should return a string for portable text
         if isinstance(flattened, str):
@@ -230,11 +233,12 @@ class PublicProject(SanityDocument):
     @classmethod
     def flatten_description(cls, v: list[dict[str, Any]] | None) -> str | None:
         """Flatten the description from portable text blocks into a single string."""
-        if v is None:
-            return None
-
         # Use the existing flatten_portable_text function to process the description
         flattened = flatten_portable_text(v)
+
+        # If the result is None, return None
+        if flattened is None:
+            return None
 
         # The flatten_portable_text function should return a string for portable text
         if isinstance(flattened, str):
@@ -262,91 +266,104 @@ class Page(SanityDocument):
     @classmethod
     def flatten_content(cls, v: list[dict[str, Any]] | None) -> str | None:
         """Flatten the content from various block types into a single string."""
-        if v is None:
+        # Use the existing flatten_portable_text function to process the content
+        flattened = flatten_portable_text(v)
+
+        # If the result is None, return None
+        if flattened is None:
             return None
 
-        text_parts = []
+        # If the result is a string, return it directly
+        if isinstance(flattened, str):
+            return flattened
 
-        for block in v:
-            if not isinstance(block, dict):
-                continue
+        # If it's still a list, process it manually
+        if isinstance(flattened, list):
+            text_parts = []
 
-            block_type = block.get("_type")
+            for block in flattened:
+                if not isinstance(block, dict):
+                    continue
 
-            if block_type == "titleHeadline":
-                # Extract title from titleHeadline blocks
-                if "title" in block:
-                    text_parts.append(block["title"])
+                block_type = block.get("_type")
 
-            elif block_type == "richContent":
-                # Extract text from richContent blocks
-                if "content" in block and isinstance(block["content"], list):
-                    for content_block in block["content"]:
-                        if (
-                            isinstance(content_block, dict)
-                            and content_block.get("_type") == "block"
-                        ):
-                            if "children" in content_block:
-                                for child in content_block["children"]:
-                                    if isinstance(child, dict) and "text" in child:
-                                        text_parts.append(child["text"])
+                if block_type == "titleHeadline":
+                    # Extract title from titleHeadline blocks
+                    if "title" in block:
+                        text_parts.append(block["title"])
 
-            elif block_type == "previewBlock":
-                # Extract title and text from previewBlock
-                if "title" in block:
-                    text_parts.append(block["title"])
-                if "text" in block and isinstance(block["text"], list):
-                    for text_block in block["text"]:
-                        if (
-                            isinstance(text_block, dict)
-                            and text_block.get("_type") == "block"
-                        ):
-                            if "children" in text_block:
-                                for child in text_block["children"]:
-                                    if isinstance(child, dict) and "text" in child:
-                                        text_parts.append(child["text"])
+                elif block_type == "richContent":
+                    # Extract text from richContent blocks
+                    if "content" in block and isinstance(block["content"], list):
+                        for content_block in block["content"]:
+                            if (
+                                isinstance(content_block, dict)
+                                and content_block.get("_type") == "block"
+                            ):
+                                if "children" in content_block:
+                                    for child in content_block["children"]:
+                                        if isinstance(child, dict) and "text" in child:
+                                            text_parts.append(child["text"])
 
-            elif block_type == "bulletList":
-                # Extract content from bulletList items
-                if "content" in block and isinstance(block["content"], list):
-                    for bullet_item in block["content"]:
-                        if isinstance(bullet_item, dict):
-                            if "title" in bullet_item:
-                                text_parts.append(bullet_item["title"])
-                            if "content" in bullet_item:
-                                text_parts.append(bullet_item["content"])
+                elif block_type == "previewBlock":
+                    # Extract title and text from previewBlock
+                    if "title" in block:
+                        text_parts.append(block["title"])
+                    if "text" in block and isinstance(block["text"], list):
+                        for text_block in block["text"]:
+                            if (
+                                isinstance(text_block, dict)
+                                and text_block.get("_type") == "block"
+                            ):
+                                if "children" in text_block:
+                                    for child in text_block["children"]:
+                                        if isinstance(child, dict) and "text" in child:
+                                            text_parts.append(child["text"])
 
-            elif block_type == "video":
-                # Extract caption and timestamp descriptions from video blocks
-                if "caption" in block:
-                    text_parts.append(block["caption"])
-                if "timestamps" in block and isinstance(block["timestamps"], list):
-                    for timestamp in block["timestamps"]:
-                        if isinstance(timestamp, dict):
-                            if "label" in timestamp:
-                                text_parts.append(timestamp["label"])
-                            if "description" in timestamp:
-                                text_parts.append(timestamp["description"])
+                elif block_type == "bulletList":
+                    # Extract content from bulletList items
+                    if "content" in block and isinstance(block["content"], list):
+                        for bullet_item in block["content"]:
+                            if isinstance(bullet_item, dict):
+                                if "title" in bullet_item:
+                                    text_parts.append(bullet_item["title"])
+                                if "content" in bullet_item:
+                                    text_parts.append(bullet_item["content"])
 
-            elif block_type == "section":
-                # Extract name from section blocks
-                if "name" in block:
-                    text_parts.append(block["name"])
+                elif block_type == "video":
+                    # Extract caption and timestamp descriptions from video blocks
+                    if "caption" in block:
+                        text_parts.append(block["caption"])
+                    if "timestamps" in block and isinstance(block["timestamps"], list):
+                        for timestamp in block["timestamps"]:
+                            if isinstance(timestamp, dict):
+                                if "label" in timestamp:
+                                    text_parts.append(timestamp["label"])
+                                if "description" in timestamp:
+                                    text_parts.append(timestamp["description"])
 
-            # For any other block types, try to extract common text fields
-            else:
-                for key in ["title", "text", "content", "description", "caption"]:
-                    if key in block:
-                        value = block[key]
-                        if isinstance(value, str):
-                            text_parts.append(value)
-                        elif isinstance(value, list):
-                            # Handle nested lists (like in richContent)
-                            for item in value:
-                                if isinstance(item, dict) and "text" in item:
-                                    text_parts.append(item["text"])
+                elif block_type == "section":
+                    # Extract name from section blocks
+                    if "name" in block:
+                        text_parts.append(block["name"])
 
-        return " ".join(text_parts) if text_parts else ""
+                # For any other block types, try to extract common text fields
+                else:
+                    for key in ["title", "text", "content", "description", "caption"]:
+                        if key in block:
+                            value = block[key]
+                            if isinstance(value, str):
+                                text_parts.append(value)
+                            elif isinstance(value, list):
+                                # Handle nested lists (like in richContent)
+                                for item in value:
+                                    if isinstance(item, dict) and "text" in item:
+                                        text_parts.append(item["text"])
+
+            return " ".join(text_parts) if text_parts else ""
+
+        # Fallback: convert to string
+        return str(flattened) if flattened else ""
 
 
 SANITY_TYPE_TO_MODEL: dict[str, type[SanityDocument]] = {
