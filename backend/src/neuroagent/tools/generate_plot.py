@@ -56,7 +56,8 @@ class PlotInput(BaseModel):
         None, description="Optional hex color code for histogram bars"
     )
     linechart_values: list[LinechartValue] | None = Field(
-        None, description="List of points for line charts"
+        None,
+        description="List of points for line charts. 30 points max.",  # Not putting an explicit constraint on length
     )
     line_style: str | None = Field(
         default="solid",
@@ -85,10 +86,13 @@ class PlotGeneratorTool(BaseTool):
 
     name: ClassVar[str] = "plot-generator"
     name_frontend: ClassVar[str] = "Plot Generator"
-    description: ClassVar[str] = (
-        "Generates a plot from user-provided data. The plots will be shown before your message automatically."
-        " DO NOT mention the storage ids. You can mention the title to refer to the plots."
-    )
+    description: ClassVar[str] = """Generates a plot from user-provided data.
+        - This tool requires x-y coordinate data to create plots.
+        - Never invent plot values - always obtain them from tools or prior conversation data.
+        - For mathematical functions: FIRST use the `execute-python-code` tool to calculate the x-y values (NO matplotlib - just numpy calculations), THEN use this tool to plot them.
+        - Limit the number of plotted points, but ALWAYS CONSERVE THE FULL RANGE. For instance if a plot contains 1000 data points where the x-axis goes from -5 to 5, select only 30 evenly distributed points between -5 and 5.
+        - The plots will be shown before your message automatically.
+        - DO NOT mention storage ids. You can mention the title to refer to plots."""
     description_frontend: ClassVar[
         str
     ] = """Generate a plot from your data and save it to storage. Available plot types:

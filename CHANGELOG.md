@@ -11,6 +11,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Entitycore links in tool output.
 - OBIExpert tool.
 
+### Changed
+- Description of plot generator.
+
+### Fixed
+- Casing of get *O*ne ME-model.
+
 ## [v0.7.2] - 30.07.2025
 
 ### Added
