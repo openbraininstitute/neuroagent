@@ -3,18 +3,12 @@
 import json
 import logging
 import uuid
-from pathlib import Path
 from typing import Any, Literal, Sequence
 
-import yaml
 from fastapi import HTTPException
 from openai import AsyncOpenAI
 from pydantic import BaseModel, ConfigDict, Field
 from redis import asyncio as aioredis
-from semantic_router import Route
-from semantic_router.encoders import OpenAIEncoder
-from semantic_router.index import LocalIndex
-from semantic_router.routers import SemanticRouter
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, create_async_engine
 from starlette.status import HTTP_401_UNAUTHORIZED
@@ -184,43 +178,6 @@ async def rate_limit(
             x_ratelimit_remaining=str(limit - current - 1),
             x_ratelimit_reset=str(expiry),
         ), False
-
-
-def get_semantic_router(settings: Settings) -> SemanticRouter | None:
-    """Set the semantic router object for basic guardrails."""
-    # Load routes and utterances from yaml file
-    try:
-        with (Path(__file__).parent.parent / "fixed_llm_responses.yml").open() as f:
-            data = yaml.safe_load(f)
-    except Exception:
-        return None
-
-    # Define the routes
-    routes = [
-        Route(
-            name=route["name"],
-            utterances=route["utterances"],
-            metadata={"response": route["response"]},
-            score_threshold=route.get("threshold"),
-        )
-        for route in data["routes"]
-    ]
-
-    if (
-        settings.llm.openai_token
-        and settings.llm.openai_token.get_secret_value().startswith("sk-")
-    ):
-        encoder = OpenAIEncoder(
-            openai_api_key=settings.llm.openai_token.get_secret_value(),
-            name="text-embedding-3-small",
-        )
-    else:
-        return None
-
-    index = LocalIndex()
-    return SemanticRouter(
-        encoder=encoder, routes=routes, index=index, auto_sync="local"
-    )
 
 
 async def commit_messages(

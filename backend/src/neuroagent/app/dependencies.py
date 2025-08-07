@@ -15,7 +15,6 @@ from httpx import AsyncClient, HTTPStatusError, get
 from obp_accounting_sdk import AsyncAccountingSessionFactory
 from openai import AsyncOpenAI
 from redis import asyncio as aioredis
-from semantic_router.routers import SemanticRouter
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession
 from starlette.status import HTTP_401_UNAUTHORIZED
@@ -579,11 +578,6 @@ def get_starting_agent(
         temperature=settings.llm.temperature,
     )
     return agent
-
-
-def get_semantic_routes(request: Request) -> SemanticRouter | None:
-    """Get the semantic route object for basic guardrails."""
-    return request.app.state.semantic_router
 
 
 def get_s3_client(
