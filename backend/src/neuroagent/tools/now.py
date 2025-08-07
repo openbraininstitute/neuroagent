@@ -35,8 +35,8 @@ class NowTool(BaseTool):
     name: ClassVar[str] = "now-tool"
     name_frontend: ClassVar[str] = "Now"
     utterances: ClassVar[list[str]] = [
-        "What time is it?",
         "Get the current date",
+        "What time is it?",
         "What's today's date?",
     ]
     description: ClassVar[

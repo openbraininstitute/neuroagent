@@ -113,7 +113,7 @@ class SettingsTools(BaseModel):
     sanity: SettingsSanity = SettingsSanity()
     thumbnail_generation: SettingsThumbnailGeneration = SettingsThumbnailGeneration()
     frontend_base_url: str = "https://openbraininstitute.org"
-    min_tool_selection: int = Field(default=0, ge=0)
+    min_tool_selection: int = Field(default=10, ge=0)
     whitelisted_tool_regex: str | None = None
 
     model_config = ConfigDict(frozen=True)
@@ -135,7 +135,7 @@ class SettingsLLM(BaseModel):
 class SettingsLogging(BaseModel):
     """Metadata settings."""
 
-    level: Literal["debug", "info", "warning", "error", "critical"] = "debug"
+    level: Literal["debug", "info", "warning", "error", "critical"] = "info"
     external_packages: Literal["debug", "info", "warning", "error", "critical"] = (
         "warning"
     )
