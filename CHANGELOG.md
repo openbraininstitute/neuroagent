@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Description of plot generator.
+- Reverd obi-one to `extra=ignore`.
 
 ### Fixed
 - Casing of get *O*ne ME-model.
