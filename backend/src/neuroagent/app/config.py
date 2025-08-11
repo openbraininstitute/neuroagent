@@ -90,12 +90,27 @@ class SettingsEntityCore(BaseModel):
     model_config = ConfigDict(frozen=True)
 
 
+class SettingsSanity(BaseModel):
+    """Sanity settings."""
+
+    project_id: str = "fgi7eh1v"
+    dataset: Literal["staging", "production"] = "staging"
+    version: str = "v2025-02-19"
+    model_config = ConfigDict(frozen=True)
+
+    @property
+    def url(self) -> str:
+        """Define the url for the sanity API."""
+        return f"https://{self.project_id}.api.sanity.io/{self.version}/data/query/{self.dataset}"
+
+
 class SettingsTools(BaseModel):
     """Database settings."""
 
     obi_one: SettingsObiOne = SettingsObiOne()
     bluenaas: SettingsBlueNaaS = SettingsBlueNaaS()
     entitycore: SettingsEntityCore = SettingsEntityCore()
+    sanity: SettingsSanity = SettingsSanity()
     thumbnail_generation: SettingsThumbnailGeneration = SettingsThumbnailGeneration()
     frontend_base_url: str = "https://openbraininstitute.org"
     min_tool_selection: int = Field(default=10, ge=0)
@@ -189,6 +204,7 @@ class MCPToolMetadata(BaseModel):
     name: str | None = None
     name_frontend: str | None = None
     description: str | None = None
+    utterances: list[str] | None = None
 
     model_config = ConfigDict(frozen=True)
 

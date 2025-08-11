@@ -28,6 +28,11 @@ class MtypeGetAllTool(BaseTool):
 
     name: ClassVar[str] = "entitycore-mtype-getall"
     name_frontend: ClassVar[str] = "Get All M-types"
+    utterances: ClassVar[list[str]] = [
+        "Find m-types",
+        "Show me available m-types",
+        "What m-types are there?",
+    ]
     description: ClassVar[
         str
     ] = """Searches a neuroscience based knowledge graph to retrieve m-types.

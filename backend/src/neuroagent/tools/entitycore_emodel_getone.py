@@ -26,6 +26,11 @@ class EModelGetOneTool(BaseTool):
 
     name: ClassVar[str] = "entitycore-emodel-getone"
     name_frontend: ClassVar[str] = "Get One E-Model"
+    utterances: ClassVar[list[str]] = [
+        "Get details for this e-model",
+        "Show me information about this e-model",
+        "What are the properties of this e-model?",
+    ]
     description: ClassVar[
         str
     ] = """Retrieves detailed information about a specific e-model from the knowledge graph.

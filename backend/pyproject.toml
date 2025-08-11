@@ -26,7 +26,6 @@ dependencies = [
     "python-dotenv",
     "pyyaml",
     "redis",
-    "semantic-router",
     "sqlalchemy[asyncio]",
     "tavily-python",
     "types-PyYAML",
@@ -57,7 +56,7 @@ where = ["src"]
 namespaces = false
 
 [tool.setuptools.package-data]
-neuroagent = ["rules/*.mdc", "*.yml", "mcp.json", "platform_description.json"]
+neuroagent = ["rules/*.mdc", "mcp.json", "platform_description.json"]
 
 [tool.bandit]
 exclude_dirs = ["tests"]

@@ -8,15 +8,30 @@
       "tool_metadata": {
         "crawling": {
           "name": "read-paper",
-          "description": "Extract content from specific URLs using Exa AI - performs targeted crawling of web pages to retrieve their full content. Useful for reading articles, PDFs, or any web page when you have the exact URL. Use in combination with literature-search-tool and web-search-tool when the user asks for more info about a paper/url. Returns the complete text content of the specified URL."
-          },
+          "description": "Extract content from specific URLs using Exa AI - performs targeted crawling of web pages to retrieve their full content. Useful for reading articles, PDFs, or any web page when you have the exact URL. Use in combination with literature-search-tool and web-search-tool when the user asks for more info about a paper/url. Returns the complete text content of the specified URL.",
+          "utterances": [
+            "Extract content from this URL",
+            "Get the full text of this article",
+            "Read this paper for me"
+          ]
+        },
         "research_paper_search": {
           "name": "literature-search-tool",
-          "name_frontend": "Literature Search"
+          "name_frontend": "Literature Search",
+          "utterances": [
+            "Find literature on this topic",
+            "Look up academic papers",
+            "Search for research papers"
+          ]
         },
         "web_search_exa": {
           "name": "web-search-tool",
-          "name_frontend": "Web Search"
+          "name_frontend": "Web Search",
+          "utterances": [
+            "Find information online",
+            "Look up this topic on the internet",
+            "Search the web for this"
+          ]
         }
         }
     },
@@ -27,8 +42,9 @@
         "run_python_code":{
           "name": "execute-python-code",
           "name_frontend": "Run Python",
-          "description": "Tool to execute Python code and return stdout, stderr, and return value.\n\nThe code may be async, and the value on the last line will be returned as the return value.\n\nThe code will be executed with Python 3.12."
-          }
+          "description": "Tool to execute Python code and return stdout, stderr, and return value.\n\nThe code may be async, and the value on the last line will be returned as the return value.\n\nThe code will be executed with Python 3.12.\n\nAVAILABLE LIBRARIES:\n- Standard Python libraries (math, os, sys, json, datetime, etc.)\n- Numpy\n- Pydantic\n\nRESTRICTIONS:\n- No other libraries are available - do not attempt to import or install anything else\n- Attempting to use unavailable libraries will result in errors. Do not use this tool to plot directly, use it to get data points for a plot instead.",
+          "utterances": ["Compute the mean of the output", "Compute the numerical value of the integral of the function between -10 and 10.", "Plot a Gaussian distribution with mean 0 and std 1."]
+        }
         }
     }
   }

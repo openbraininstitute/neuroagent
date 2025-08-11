@@ -42,6 +42,12 @@ class ReconstructionMorphologyGetAllTool(BaseTool):
 
     name: ClassVar[str] = "entitycore-reconstructionmorphology-getall"
     name_frontend: ClassVar[str] = "Get All Reconstruction Morphologies"
+    utterances: ClassVar[list[str]] = [
+        "Find a morphology in the isocortex and give me its features",
+        "Find reconstruction morphologies",
+        "Show me available reconstruction morphologies",
+        "What reconstruction morphologies are there?",
+    ]
     description: ClassVar[
         str
     ] = """Searches the entitycore database to retrieve reconstruction morphologies.

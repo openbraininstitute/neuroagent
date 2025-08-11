@@ -165,6 +165,7 @@ async def test_get_tool_metadata(
         "name_frontend",
         "description",
         "description_frontend",
+        "utterances",
         "input_schema",
         "hil",
         "is_online",

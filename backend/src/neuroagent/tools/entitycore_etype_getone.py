@@ -23,6 +23,11 @@ class EtypeGetOneTool(BaseTool):
 
     name: ClassVar[str] = "entitycore-etype-getone"
     name_frontend: ClassVar[str] = "Get One E-type"
+    utterances: ClassVar[list[str]] = [
+        "Get details for this e-type",
+        "Show me information about this e-type",
+        "What are the properties of this e-type?",
+    ]
     description: ClassVar[
         str
     ] = """Retrieves detailed information about a specific e-type from the knowledge graph.

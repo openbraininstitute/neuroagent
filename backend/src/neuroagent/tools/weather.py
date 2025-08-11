@@ -39,6 +39,11 @@ class WeatherTool(BaseTool):
     name: ClassVar[str] = "weather-tool"
     name_frontend: ClassVar[str] = "Weather"
     hil: ClassVar[bool] = True
+    utterances: ClassVar[list[str]] = [
+        "Check the weather forecast",
+        "Get weather for this location",
+        "What's the weather like?",
+    ]
     description: ClassVar[str] = (
         "Returns weather information for a specified location (temperature in Celsius, "
         "conditions like 'sunny', 'rainy', etc.)"

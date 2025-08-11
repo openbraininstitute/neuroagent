@@ -31,6 +31,11 @@ class AssetDownloadOneTool(BaseTool):
 
     name: ClassVar[str] = "entitycore-asset-downloadone"
     name_frontend: ClassVar[str] = "Download One Asset"
+    utterances: ClassVar[list[str]] = [
+        "Download this asset",
+        "Get download link for the file",
+        "I need to download this data",
+    ]
     description: ClassVar[
         str
     ] = """Retrieves a presigned URL for downloading a single asset from the entitycore service.

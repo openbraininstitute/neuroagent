@@ -25,6 +25,11 @@ class BrainAtlasGetOneTool(BaseTool):
 
     name: ClassVar[str] = "entitycore-brainatlas-getone"
     name_frontend: ClassVar[str] = "Get One Brain Atlas"
+    utterances: ClassVar[list[str]] = [
+        "Get details for this brain atlas",
+        "Show me information about this atlas",
+        "What are the properties of this brain atlas?",
+    ]
     description: ClassVar[
         str
     ] = """Retrieves detailed information about a specific brain atlas from the knowledge graph.

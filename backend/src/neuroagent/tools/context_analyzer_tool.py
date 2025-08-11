@@ -36,6 +36,11 @@ class ContextAnalyzerTool(BaseTool):
 
     name: ClassVar[str] = "context-analyzer-tool"
     name_frontend: ClassVar[str] = "Context Analyzer"
+    utterances: ClassVar[list[str]] = [
+        "What can I do here?",
+        "Can you get me more info about the second morphology on screen",
+        "What do I see on the current page ?",
+    ]
     description: ClassVar[
         str
     ] = """Gets a description of the current page the user is on. Call this tool when the user needs guidance on the platform.

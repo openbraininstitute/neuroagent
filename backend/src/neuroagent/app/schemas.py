@@ -168,6 +168,7 @@ class ToolMetadataDetailed(ToolMetadata):
 
     description: str
     description_frontend: str
+    utterances: list[str]
     input_schema: str
     hil: bool
     is_online: bool

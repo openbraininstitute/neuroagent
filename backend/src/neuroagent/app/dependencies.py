@@ -15,7 +15,6 @@ from httpx import AsyncClient, HTTPStatusError, get
 from obp_accounting_sdk import AsyncAccountingSessionFactory
 from openai import AsyncOpenAI
 from redis import asyncio as aioredis
-from semantic_router.routers import SemanticRouter
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession
 from starlette.status import HTTP_401_UNAUTHORIZED
@@ -65,6 +64,7 @@ from neuroagent.tools import (
     MorphometricsGetOneTool,
     MtypeGetAllTool,
     MtypeGetOneTool,
+    OBIExpertTool,
     OrganizationGetAllTool,
     OrganizationGetOneTool,
     PersonGetAllTool,
@@ -298,6 +298,7 @@ def get_openrouter_models(
 @cache
 def get_mcp_tool_list(
     mcp_client: Annotated[MCPClient | None, Depends(get_mcp_client)],
+    settings: Annotated[Settings, Depends(get_settings)],
 ) -> list[type[BaseTool]]:
     """Get the list of tools from the MCP server."""
     if mcp_client is None:
@@ -307,8 +308,27 @@ def get_mcp_tool_list(
 
     # Iterate through all tools from all servers
     for server_name, tools in mcp_client.tools.items():
+        # Create a dynamic tool class for each MCP tool
         for tool in tools:
-            # Create a dynamic tool class for each MCP tool
+            # Find tool metadata associated to the current tool in the settings
+            server_tool_metadata = settings.mcp.servers
+            if server_tool_metadata:
+                for server in server_tool_metadata.values():
+                    tool_metadata = (
+                        next(
+                            (
+                                v
+                                for v in server.tool_metadata.values()
+                                if v.name == tool.name
+                            ),
+                            None,
+                        )
+                        if server.tool_metadata is not None
+                        else None
+                    )
+            else:
+                tool_metadata = None
+
             dynamic_tool = create_dynamic_tool(
                 tool_name=tool.name,
                 tool_name_mapping=mcp_client.tool_name_mapping,
@@ -317,6 +337,7 @@ def get_mcp_tool_list(
                 else "NO DESCRIPTION",
                 input_schema_serialized=tool.inputSchema,
                 session=mcp_client.sessions[server_name],
+                utterance_list=tool_metadata.utterances if tool_metadata else None,
                 tool_name_frontend=mcp_client.tool_name_frontend_mapping.get(tool.name),
             )
             dynamic_tools.append(dynamic_tool)
@@ -397,6 +418,7 @@ def get_tool_list(
         CircuitGetAllTool,
         CircuitGetOneTool,
         GenerateSimulationsConfigTool,
+        OBIExpertTool,
         # NowTool,
         # WeatherTool,
         # RandomPlotGeneratorTool,
@@ -560,11 +582,6 @@ def get_starting_agent(
     return agent
 
 
-def get_semantic_routes(request: Request) -> SemanticRouter | None:
-    """Get the semantic route object for basic guardrails."""
-    return request.app.state.semantic_router
-
-
 def get_s3_client(
     settings: Annotated[Settings, Depends(get_settings)],
 ) -> Any:
@@ -626,6 +643,7 @@ async def get_context_variables(
         "openai_client": openai_client,
         "project_id": thread.project_id,
         "s3_client": s3_client,
+        "sanity_url": settings.tools.sanity.url,
         "thread_id": thread.thread_id,
         "thumbnail_generation_url": settings.tools.thumbnail_generation.url,
         "usage_dict": {},

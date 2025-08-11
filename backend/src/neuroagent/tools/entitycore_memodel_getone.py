@@ -25,7 +25,12 @@ class MEModelGetOneTool(BaseTool):
     """Definition of the MeModel get one tool."""
 
     name: ClassVar[str] = "entitycore-memodel-getone"
-    name_frontend: ClassVar[str] = "Get one ME-Model"
+    name_frontend: ClassVar[str] = "Get One ME-Model"
+    utterances: ClassVar[list[str]] = [
+        "Get details for this ME-model",
+        "Show me information about this ME-model",
+        "What are the properties of this ME-model?",
+    ]
     description: ClassVar[str] = (
         """Retrieve a single ME-Model by its UUID from the EntityCore service. Retrieves more data than the correspoding get all endpoint."""
     )

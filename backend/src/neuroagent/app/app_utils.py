@@ -3,18 +3,12 @@
 import json
 import logging
 import uuid
-from pathlib import Path
 from typing import Any, Literal, Sequence
 
-import yaml
 from fastapi import HTTPException
 from openai import AsyncOpenAI
 from pydantic import BaseModel, ConfigDict, Field
 from redis import asyncio as aioredis
-from semantic_router import Route
-from semantic_router.encoders import OpenAIEncoder
-from semantic_router.index import LocalIndex
-from semantic_router.routers import SemanticRouter
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, create_async_engine
 from starlette.status import HTTP_401_UNAUTHORIZED
@@ -184,43 +178,6 @@ async def rate_limit(
             x_ratelimit_remaining=str(limit - current - 1),
             x_ratelimit_reset=str(expiry),
         ), False
-
-
-def get_semantic_router(settings: Settings) -> SemanticRouter | None:
-    """Set the semantic router object for basic guardrails."""
-    # Load routes and utterances from yaml file
-    try:
-        with (Path(__file__).parent.parent / "fixed_llm_responses.yml").open() as f:
-            data = yaml.safe_load(f)
-    except Exception:
-        return None
-
-    # Define the routes
-    routes = [
-        Route(
-            name=route["name"],
-            utterances=route["utterances"],
-            metadata={"response": route["response"]},
-            score_threshold=route.get("threshold"),
-        )
-        for route in data["routes"]
-    ]
-
-    if (
-        settings.llm.openai_token
-        and settings.llm.openai_token.get_secret_value().startswith("sk-")
-    ):
-        encoder = OpenAIEncoder(
-            openai_api_key=settings.llm.openai_token.get_secret_value(),
-            name="text-embedding-3-small",
-        )
-    else:
-        return None
-
-    index = LocalIndex()
-    return SemanticRouter(
-        encoder=encoder, routes=routes, index=index, auto_sync="local"
-    )
 
 
 async def commit_messages(
@@ -500,6 +457,10 @@ async def filter_tools_by_conversation(
 
     system_prompt = f"""TASK: Filter tools for AI agent based on conversation relevance.
 
+TOOL DESCRIPTION FORMAT:
+tool_name: tool_description
+Example utterances: utterances
+
 INSTRUCTIONS:
 1. Analyze the conversation to identify required capabilities
 2. Select at least {min_tool_selection} of the most relevant tools by name only
@@ -512,7 +473,7 @@ INSTRUCTIONS:
 OUTPUT: [tool_name1, tool_name2, ...]
 
 AVAILABLE TOOLS:
-{chr(10).join(f"{tool.name}: {tool.description}" for tool in tool_list)}
+{(chr(10) * 2).join(f"{tool.name}: {tool.description + chr(10)}Example utterances: {chr(10) + '- ' + (chr(10) + '- ').join(utterance for utterance in tool.utterances)}" for tool in tool_list)}
 """
 
     # Prepare the dynamic pydantic output class
@@ -524,7 +485,7 @@ AVAILABLE TOOLS:
 
         selected_tools: list[TOOL_NAMES_LITERAL] = Field(
             min_length=min_tool_selection,
-            description=f"List of selected tool names, minimum {min_tool_selection} items. Must contain all of the tools relevant to the conversation.",
+            description=f"List of selected tool names, minimum {min_tool_selection} items. Must contain all of the tools relevant to the conversation. Must not contain duplicates.",
         )
 
     try:
@@ -538,7 +499,9 @@ AVAILABLE TOOLS:
 
         # Parse the output
         if response.choices[0].message.parsed:
-            selected_tools = response.choices[0].message.parsed.selected_tools
+            selected_tools = list(
+                set(response.choices[0].message.parsed.selected_tools)
+            )
             logger.debug(
                 f"#TOOLS: {len(selected_tools)}, SELECTED TOOLS: {selected_tools}"
             )

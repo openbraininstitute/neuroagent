@@ -30,6 +30,11 @@ class GenerateSimulationsConfigTool(BaseTool):
 
     name: ClassVar[str] = "obi-one-generatesimulationsconfig"
     name_frontend: ClassVar[str] = "Generate Simulation Config"
+    utterances: ClassVar[list[str]] = [
+        "Create a simulation configuration",
+        "Generate a config for me",
+        "Set up simulation parameters",
+    ]
     description: ClassVar[
         str
     ] = """This tool generates JSON configurations for simulations based on natural language descriptions. It takes a user's request for a configuration (including modifications to existing configs) and uses an LLM with structured output to produce the corresponding JSON.

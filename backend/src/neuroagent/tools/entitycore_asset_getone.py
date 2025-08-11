@@ -24,6 +24,11 @@ class AssetGetOneTool(BaseTool):
 
     name: ClassVar[str] = "entitycore-asset-getone"
     name_frontend: ClassVar[str] = "Get One Asset"
+    utterances: ClassVar[list[str]] = [
+        "Get details for this asset",
+        "Show me information about this file",
+        "What are the properties of this asset?",
+    ]
     description: ClassVar[
         str
     ] = """Retrieves a single asset from the entitycore service.

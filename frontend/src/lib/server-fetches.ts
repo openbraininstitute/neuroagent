@@ -194,6 +194,7 @@ export async function getTool(
       nameFrontend: tool.name_frontend,
       description: tool.description,
       descriptionFrontend: tool.description_frontend,
+      utterances: tool.utterances,
       inputSchema: tool.input_schema,
       hil: tool.hil,
       isOnline: tool.is_online,
