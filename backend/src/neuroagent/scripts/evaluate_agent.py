@@ -185,14 +185,14 @@ def get_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument(
         "--dataset-path",
-        "-i",
+        "-d",
         type=Path,
         default="eval/eval_dataset.csv",
         help="Path where the evaluation samples are. Must have .csv extension,",
     )
     parser.add_argument(
         "--save-path",
-        "-p",
+        "-s",
         type=Path,
         default="eval/eval_results.csv",
         help="Path where to save the evaluation results. Must have .csv extension,",
