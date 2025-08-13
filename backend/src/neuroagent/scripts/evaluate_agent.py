@@ -395,7 +395,7 @@ async def run_eval(
     # Create dataset
     dataset = pd.read_csv(dataset_path)
     client = httpx.AsyncClient(
-        timeout=None, headers={"Authorization": f"Bearer {token}"}
+        timeout=6000, headers={"Authorization": f"Bearer {token}"}
     )
     semaphore = asyncio.Semaphore(concurrent_requests)
 
