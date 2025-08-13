@@ -16,6 +16,7 @@ dependencies = [
     "asgi-correlation-id",
     "asyncpg",
     "boto3",
+    "deepeval",
     "fastapi",
     "mcp",
     "obp-accounting-sdk",
@@ -36,6 +37,7 @@ dependencies = [
 dev = [
     "bandit[toml]",
     "mypy==1.15.0",
+    "pandas",
     "pytest",
     "pytest-asyncio",
     "pytest-cov",
