@@ -1,5 +1,6 @@
 """Threads CRUDs."""
 
+import json
 import logging
 from typing import Annotated, Any, Literal
 from uuid import UUID
@@ -52,63 +53,6 @@ logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/threads", tags=["Threads' CRUD"])
 
 
-@router.get("/search")
-async def search(
-    session: Annotated[AsyncSession, Depends(get_session)],
-    user_info: Annotated[UserInfo, Depends(get_user_info)],
-    query: str,
-    virtual_lab_id: UUID | None = None,
-    project_id: UUID | None = None,
-    limit: int = 20,
-) -> SearchMessagesList:
-    """Get threads for a user."""
-    validate_project(
-        virtual_lab_id=virtual_lab_id,
-        project_id=project_id,
-        groups=user_info.groups,
-    )
-
-    search_query = func.plainto_tsquery("english", query)
-
-    stmt = (
-        select(
-            Messages.thread_id,
-            Threads.title,
-            func.ts_headline(
-                "english",
-                Messages.content,
-                search_query,
-                "StartSel=<mark>, StopSel=</mark>, MaxWords=50, MinWords=20",
-            ).label("highlighted_content"),
-        )
-        .select_from(Messages)
-        .join(Threads, Messages.thread_id == Threads.thread_id)
-        .where(
-            Threads.user_id == user_info.sub,
-            Threads.vlab_id == virtual_lab_id,
-            Threads.project_id == project_id,
-            Messages.entity.in_(["USER", "AI_MESSAGE"]),
-            Messages.search_vector.op("@@")(search_query),
-        )
-        .order_by(
-            func.ts_rank(Messages.search_vector, search_query).desc(),
-            Messages.creation_date.desc(),
-        )
-        .limit(limit)
-    )
-
-    result = await session.execute(stmt)
-    results = result.fetchall()
-    return SearchMessagesList(
-        result_list=[
-            SearchMessagesResult(
-                thread_id=result[0], title=result[1], content=result[2]
-            )
-            for result in results
-        ]
-    )
-
-
 @router.post("")
 async def create_thread(
     session: Annotated[AsyncSession, Depends(get_session)],
@@ -133,6 +77,62 @@ async def create_thread(
     await session.refresh(new_thread)
 
     return ThreadsRead(**new_thread.__dict__)
+
+
+@router.get("/search")
+async def search(
+    session: Annotated[AsyncSession, Depends(get_session)],
+    user_info: Annotated[UserInfo, Depends(get_user_info)],
+    query: str,
+    virtual_lab_id: UUID | None = None,
+    project_id: UUID | None = None,
+    limit: int = 20,
+) -> SearchMessagesList:
+    """Get threads for a user."""
+    validate_project(
+        virtual_lab_id=virtual_lab_id,
+        project_id=project_id,
+        groups=user_info.groups,
+    )
+
+    search_query = func.plainto_tsquery("english", query)
+
+    sql_query = (
+        select(
+            Messages.thread_id,
+            Messages.message_id,
+            Threads.title,
+            Messages.content,
+        )
+        .select_from(Messages)
+        .join(Threads, Messages.thread_id == Threads.thread_id)
+        .where(
+            Threads.user_id == user_info.sub,
+            Threads.vlab_id == virtual_lab_id,
+            Threads.project_id == project_id,
+            Messages.entity.in_(["USER", "AI_MESSAGE"]),
+            Messages.search_vector.op("@@")(search_query),
+        )
+        .order_by(
+            func.ts_rank(Messages.search_vector, search_query).desc(),
+            Messages.creation_date.desc(),
+        )
+        .limit(limit)
+    )
+
+    result = await session.execute(sql_query)
+    results = result.fetchall()
+    return SearchMessagesList(
+        result_list=[
+            SearchMessagesResult(
+                thread_id=result[0],
+                message_id=result[1],
+                title=result[2],
+                content=json.loads(result[3])["content"],
+            )
+            for result in results
+        ]
+    )
 
 
 @router.patch("/{thread_id}/generate_title")

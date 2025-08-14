@@ -295,6 +295,7 @@ class SearchMessagesResult(BaseModel):
     """Class for the one result of the message search."""
 
     thread_id: UUID
+    message_id: UUID
     title: str
     content: str
 
