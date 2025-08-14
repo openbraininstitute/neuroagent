@@ -322,17 +322,18 @@ async def eval_sample(
             thread_id = response.json()["thread_id"]
         else:
             raise RuntimeError(f"Failed to create a thread. Reason: {response.text}")
-
-        # Send the request to chat_streamed using the previously created thread
-        response = await client.post(
-            f"{url}/qa/chat_streamed/{thread_id}", json={"content": sample["input"]}
-        )
-        # Delete the original thread
-        await client.delete(f"http://localhost:8000/threads/{thread_id}")
+        try:
+            # Send the request to chat_streamed using the previously created thread
+            response = await client.post(
+                f"{url}/qa/chat_streamed/{thread_id}", json={"content": sample["input"]}
+            )
+            # Delete the original thread
+        finally:
+            await client.delete(f"http://localhost:8000/threads/{thread_id}")
 
     # "unvercel" the response
     decoded = parse_ai_sdk_streaming_response(response.text)
-    breakpoint()
+
     # Remove default arguments from streamed tool calls,
     # i.e. we evaluate only the non-default args the LLM gave
     if "tool_calls" in decoded:
