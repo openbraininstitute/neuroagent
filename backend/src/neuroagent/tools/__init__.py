@@ -1,5 +1,6 @@
 """Tools package."""
 
+from neuroagent.tools.context_analyzer_tool import ContextAnalyzerTool
 from neuroagent.tools.entitycore_asset_downloadone import AssetDownloadOneTool
 from neuroagent.tools.entitycore_asset_getall import AssetGetAllTool
 from neuroagent.tools.entitycore_asset_getone import AssetGetOneTool
@@ -145,6 +146,7 @@ __all__ = [
     "CircuitGetOneTool",
     "ContributionGetAllTool",
     "ContributionGetOneTool",
+    "ContextAnalyzerTool",
     "ElectricalCellRecordingGetAllTool",
     "ElectricalCellRecordingGetOneTool",
     "EModelGetAllTool",

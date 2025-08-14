@@ -38,6 +38,7 @@ from neuroagent.tools import (
     BrainRegionHierarchyGetOneTool,
     CircuitGetAllTool,
     CircuitGetOneTool,
+    ContextAnalyzerTool,
     ContributionGetAllTool,
     ContributionGetOneTool,
     ElectricalCellRecordingGetAllTool,
@@ -359,6 +360,7 @@ def get_tool_list(
         BrainRegionGetOneTool,
         BrainRegionHierarchyGetAllTool,
         BrainRegionHierarchyGetOneTool,
+        ContextAnalyzerTool,
         ContributionGetAllTool,
         ContributionGetOneTool,
         MEModelGetAllTool,
@@ -604,7 +606,8 @@ def get_s3_client(
     )
 
 
-def get_context_variables(
+async def get_context_variables(
+    request: Request,
     settings: Annotated[Settings, Depends(get_settings)],
     httpx_client: Annotated[AsyncClient, Depends(get_httpx_client)],
     thread: Annotated[Threads, Depends(get_thread)],
@@ -613,6 +616,10 @@ def get_context_variables(
     openai_client: Annotated[AsyncOpenAI, Depends(get_openai_client)],
 ) -> dict[str, Any]:
     """Get the context variables to feed the tool's metadata."""
+    # Get the current frontend url
+    body = await request.json()
+    current_frontend_url = body.get("frontend_url")
+    # Get the url for entitycore links
     if thread.vlab_id and thread.project_id:
         entity_frontend_url = (
             settings.tools.frontend_base_url.rstrip("/")
@@ -629,6 +636,7 @@ def get_context_variables(
         "bluenaas_url": settings.tools.bluenaas.url,
         "bucket_name": settings.storage.bucket_name,
         "entitycore_url": settings.tools.entitycore.url,
+        "current_frontend_url": current_frontend_url,
         "entity_frontend_url": entity_frontend_url,
         "httpx_client": httpx_client,
         "obi_one_url": settings.tools.obi_one.url,

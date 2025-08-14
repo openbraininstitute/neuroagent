@@ -16,10 +16,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Description of plot generator.
+- Reverd obi-one to `extra=ignore`.
 
 ### Fixed
 - Casing of get *O*ne ME-model.
 - Deduplicate tool selection on our side.
+- Copy buttons in non https environments.
 
 ### Removed
 - Semantic router.
@@ -37,6 +39,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - Copy token button in UI.
+- Context analyzer tool.
 - New false positive utterances.
 - Copy button for tool output.
 - Filtering on creation date of threads.
