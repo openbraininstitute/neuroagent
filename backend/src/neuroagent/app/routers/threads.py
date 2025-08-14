@@ -113,7 +113,9 @@ async def search(
             Messages.entity.in_(["USER", "AI_MESSAGE"]),
             Messages.search_vector.op("@@")(search_query),
         )
+        .distinct(Messages.thread_id)
         .order_by(
+            Messages.thread_id,
             func.ts_rank(Messages.search_vector, search_query).desc(),
             Messages.creation_date.desc(),
         )

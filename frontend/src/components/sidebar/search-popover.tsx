@@ -33,17 +33,21 @@ function highlightSearchTermsReact(text: string, searchQuery: string) {
 
   const parts = text.split(regex);
 
-  return parts.map((part, idx) =>
-    regex.test(part) ? (
-      <mark
-        key={idx}
-        className="rounded bg-yellow-200 px-0.5 dark:bg-yellow-800"
-      >
-        {part}
-      </mark>
-    ) : (
-      part
-    ),
+  return (
+    <span>
+      {parts.map((part, idx) =>
+        regex.test(part) ? (
+          <mark
+            key={idx}
+            className="rounded bg-yellow-200 px-0.5 dark:bg-yellow-800"
+          >
+            {part}
+          </mark>
+        ) : (
+          part
+        ),
+      )}
+    </span>
   );
 }
 
@@ -136,7 +140,6 @@ export function SearchPopover({ debounceMs = 400 }: SearchPopoverProps) {
       onOpenChange={(open) => {
         setIsOpen(open);
         if (!open) {
-          // Abort in-flight and clear UI
           controllerRef.current?.abort();
           if (debounceRef.current) clearTimeout(debounceRef.current);
           setResults([]);
@@ -144,45 +147,56 @@ export function SearchPopover({ debounceMs = 400 }: SearchPopoverProps) {
       }}
     >
       <PopoverTrigger asChild>
-        <button className="rounded-md transition hover:scale-[1.1] hover:bg-gray-100 dark:hover:bg-gray-800">
+        <button className="rounded-md transition-transform duration-150 hover:scale-110">
           <Search />
         </button>
       </PopoverTrigger>
 
-      <PopoverContent className="w-[300px] p-0" side="right" align="start">
+      <PopoverContent
+        className="w-[400px] rounded-lg border-2 border-gray-400 p-0 shadow-lg dark:border-gray-700"
+        side="right"
+        align="start"
+        alignOffset={20}
+      >
         <Command shouldFilter={false}>
           <CommandInput
             placeholder="Search..."
-            className="h-9"
+            className="h-10 px-3"
             onValueChange={handleSearch}
             ref={inputRef}
           />
-          <CommandList className="max-h-[250px] overflow-y-auto">
-            {loading && <CommandEmpty>Searching...</CommandEmpty>}
-            {!loading && results.length === 0 && (
-              <CommandEmpty>No results found.</CommandEmpty>
+          <CommandList className="max-h-[260px] overflow-y-auto">
+            {inputRef.current?.value && results.length === 0 && (
+              <CommandEmpty>
+                {loading ? "Searching..." : "No results found."}
+              </CommandEmpty>
             )}
-            {!loading && results.length > 0 && (
+            {results.length > 0 && (
               <CommandGroup>
                 {results.map((res) => (
                   <CommandItem
                     key={res.message_id}
                     value={res.message_id}
-                    className="flex flex-col items-start p-2"
+                    className="flex flex-col items-start rounded-md p-3 transition hover:bg-gray-50 dark:hover:bg-gray-800"
                     asChild
                     onSelect={() => {
                       setIsOpen(false);
+                      setResults([]);
                     }}
                   >
                     <Link
                       href={`/threads/${res.thread_id}`}
                       className="block w-full"
                     >
-                      <div className="text-sm font-medium">{res.title}</div>
-                      {highlightSearchTermsReact(
-                        res.content,
-                        inputRef.current?.value || "",
-                      )}
+                      <div className="mb-1 line-clamp-1 text-sm font-semibold text-gray-900 dark:text-gray-100">
+                        {res.title}
+                      </div>
+                      <div className="line-clamp-2 text-xs text-gray-500 dark:text-gray-400">
+                        {highlightSearchTermsReact(
+                          res.content,
+                          inputRef.current?.value || "",
+                        )}
+                      </div>
                     </Link>
                   </CommandItem>
                 ))}
