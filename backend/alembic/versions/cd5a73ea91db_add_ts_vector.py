@@ -88,15 +88,9 @@ def upgrade() -> None:
         postgresql_using="gin",
     )
 
-    # Create separate index for thread_id and entity (without search_vector to avoid size limits)
-    op.create_index(
-        "ix_messages_thread_entity", "messages", ["thread_id", "entity"], unique=False
-    )
-
 
 def downgrade() -> None:
     # Drop indexes
-    op.drop_index("ix_messages_thread_entity", table_name="messages")
     op.drop_index(
         "ix_messages_search_vector", table_name="messages", postgresql_using="gin"
     )
