@@ -43,9 +43,20 @@ export function ToolCallCollapsible({
   };
 
   const handleCopy = (toolResult: string) => {
-    navigator.clipboard.writeText(toolResult);
-    setIsClicked(true);
-    setTimeout(() => setIsClicked(false), 1500);
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(toolResult);
+      setIsClicked(true);
+      setTimeout(() => setIsClicked(false), 1500);
+    } else {
+      const textarea = document.createElement("textarea");
+      textarea.value = toolResult;
+      document.body.appendChild(textarea);
+      textarea.select();
+      document.execCommand("copy");
+      setIsClicked(true);
+      document.body.removeChild(textarea);
+      setTimeout(() => setIsClicked(false), 1500);
+    }
   };
 
   const getButtonStyling = () => {
