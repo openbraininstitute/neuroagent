@@ -19,9 +19,20 @@ export function Header() {
   const accessToken = session?.accessToken;
 
   const handleCopy = (accessToken: string) => {
-    navigator.clipboard.writeText(accessToken);
-    setIsClicked(true);
-    setTimeout(() => setIsClicked(false), 1500);
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(accessToken);
+      setIsClicked(true);
+      setTimeout(() => setIsClicked(false), 1500);
+    } else {
+      const textarea = document.createElement("textarea");
+      textarea.value = accessToken;
+      document.body.appendChild(textarea);
+      textarea.select();
+      document.execCommand("copy");
+      setIsClicked(true);
+      document.body.removeChild(textarea);
+      setTimeout(() => setIsClicked(false), 1500);
+    }
   };
 
   return (
