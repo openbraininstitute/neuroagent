@@ -245,22 +245,6 @@ def parse_ai_sdk_streaming_response(streamed_data: str) -> dict[str, Any]:
             token = data.strip('"')
             response_tokens.append(token)
 
-        # Tool call metadata (start of a tool call)
-        elif prefix == "b":
-            tool_call_id = content.get("toolCallId")
-            tool_calls[tool_call_id] = {
-                "name": content.get("toolName"),
-                "arguments": {},  # Will be filled later
-            }
-
-        # Tool args (streamed incrementally)
-        elif prefix == "c":
-            tool_call_id = content.get("toolCallId")
-            delta = content.get("argsTextDelta", "")
-            if tool_call_id:
-                tool_args_buffer.setdefault(tool_call_id, "")
-                tool_args_buffer[tool_call_id] += delta
-
         # Final tool call object (can override partials)
         elif prefix == "9":
             tool_call_id = content.get("toolCallId")
@@ -348,7 +332,7 @@ async def eval_sample(
 
     # "unvercel" the response
     decoded = parse_ai_sdk_streaming_response(response.text)
-
+    breakpoint()
     # Remove default arguments from streamed tool calls,
     # i.e. we evaluate only the non-default args the LLM gave
     if "tool_calls" in decoded:
