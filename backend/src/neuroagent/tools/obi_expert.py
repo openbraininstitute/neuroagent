@@ -601,6 +601,7 @@ class OBIExpertTool(BaseTool):
     utterances: ClassVar[list[str]] = [
         "Any updates about features?",
         "Define synaptic plasticity",
+        "How can I simulate on the platform ?",
         "How do I build a model?",
         "How do I contact support?",
         "How do I simulate?",
