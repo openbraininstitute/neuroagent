@@ -4,7 +4,17 @@ import datetime
 import enum
 import uuid
 
-from sqlalchemy import UUID, Boolean, DateTime, Enum, ForeignKey, Integer, String
+from sqlalchemy import (
+    UUID,
+    Boolean,
+    DateTime,
+    Enum,
+    ForeignKey,
+    Index,
+    Integer,
+    String,
+)
+from sqlalchemy.dialects.postgresql import TSVECTOR
 from sqlalchemy.ext.asyncio import AsyncAttrs
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
@@ -99,6 +109,14 @@ class Messages(Base):
     )
     token_consumption: Mapped[list["TokenConsumption"]] = relationship(
         "TokenConsumption", cascade="all, delete-orphan"
+    )
+    search_vector: Mapped[str] = mapped_column(TSVECTOR, nullable=True)
+
+    __table_args__ = (
+        # GIN index for full-text search performance
+        Index("ix_messages_search_vector", "search_vector", postgresql_using="gin"),
+        # Separate index for filtering by thread and entity
+        Index("ix_messages_thread_entity", "thread_id", "entity"),
     )
 
 

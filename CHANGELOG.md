@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Utterance structure for tools.
 - OBIExpert tool.
 - Populate utterances for all tools.
+- Search functionality.
 
 ### Changed
 - Description of plot generator.

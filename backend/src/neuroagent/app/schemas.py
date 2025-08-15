@@ -289,3 +289,18 @@ class RateLimitOutput(BaseModel):
     chat_streamed: RateLimitInfo
     question_suggestions: RateLimitInfo
     generate_title: RateLimitInfo
+
+
+class SearchMessagesResult(BaseModel):
+    """Class for the one result of the message search."""
+
+    thread_id: UUID
+    message_id: UUID
+    title: str
+    content: str
+
+
+class SearchMessagesList(BaseModel):
+    """Class for the message search result list."""
+
+    result_list: list[SearchMessagesResult]

@@ -1,14 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import {
-  PanelRightOpen,
-  PanelRightClose,
-  Search,
-  SquarePen,
-} from "lucide-react";
+import { PanelRightOpen, PanelRightClose, SquarePen } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { SearchPopover } from "./search-popover";
 
 export function Sidebar({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -45,7 +41,7 @@ export function Sidebar({ children }: { children: React.ReactNode }) {
           </div>
           {showSidebar && (
             <div className="flex gap-4 p-4">
-              <Search className="transition hover:scale-[1.1]" />
+              <SearchPopover />
               <Link href="/">
                 <SquarePen className="transition hover:scale-[1.1]" />
               </Link>
