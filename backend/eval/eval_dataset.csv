@@ -1,5 +1,5 @@
-input,expected_output,expected_tool_calls
-Find the id of the thalamus,The id of the thalamus is 75e3944e-8dcd-4310-a3a2-258f93de63d6,"[{""name"": ""entitycore-brainregion-getall"", ""arguments"": {""name"": ""Thalamus""}}]"
+input,expected_output,expected_tool_calls,tags
+Find the id of the thalamus,The id of the thalamus is 75e3944e-8dcd-4310-a3a2-258f93de63d6,"[{""name"": ""entitycore-brainregion-getall"", ""arguments"": {""name"": ""Thalamus""}}]",entitycore
 How can I simulate on the platform ?,"Here is a tutorial on how to simulate on the platform, specifically for simulating a single neuron model:
 
 How to Simulate a Single Neuron Model on the Platform
@@ -40,6 +40,4 @@ Save recordings or save them to the library for later access.
 You can watch the full tutorial video here:
 How to simulate a single neuron model (Video)
 
-If you want, I can guide you through any specific step or help you start a simulation on the platform.
-
-","[{""name"": ""obi-expert"", ""arguments"": {""document_type"": ""tutorial"", ""query"": ""simulate""}}]"
+If you want, I can guide you through any specific step or help you start a simulation on the platform.","[{""name"": ""obi-expert"", ""arguments"": {""document_type"": ""tutorial"", ""query"": ""simulate""}}]",platform_description
