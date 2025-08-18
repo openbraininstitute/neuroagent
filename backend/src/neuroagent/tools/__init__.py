@@ -129,6 +129,9 @@ from neuroagent.tools.obione_generatesimulationsconfig import (
     GenerateSimulationsConfigTool,
 )
 from neuroagent.tools.obione_morphometrics_getone import MorphometricsGetOneTool
+from neuroagent.tools.thumbnailgen_electricalcellrecording_getone import (
+    PlotElectricalCellRecordingGetOneTool,
+)
 from neuroagent.tools.thumbnailgen_morphology_getone import PlotMorphologyGetOneTool
 from neuroagent.tools.weather import WeatherTool
 
@@ -175,6 +178,7 @@ __all__ = [
     "OrganizationGetOneTool",
     "PersonGetAllTool",
     "PersonGetOneTool",
+    "PlotElectricalCellRecordingGetOneTool",
     "PlotGeneratorTool",
     "PlotMorphologyGetOneTool",
     "ReconstructionMorphologyGetAllTool",
