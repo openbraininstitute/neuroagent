@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v0.8.0] - 18.08.2025
+
 ### Added
 - Entitycore links in tool output.
 - Utterance structure for tools.
@@ -18,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Description of plot generator.
 - Reverd obi-one to `extra=ignore`.
+- Put the date at the end in system prompt to maximize caching.
 
 ### Fixed
 - Casing of get *O*ne ME-model.
