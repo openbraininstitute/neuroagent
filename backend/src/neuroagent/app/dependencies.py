@@ -580,7 +580,6 @@ def get_starting_agent(
     settings: Annotated[Settings, Depends(get_settings)],
 ) -> Agent:
     """Get the starting agent."""
-    breakpoint()
     agent = Agent(
         name="Agent",
         instructions=system_prompt,
