@@ -148,11 +148,15 @@ def evaluation_result_to_csv(
 
     for test_result in evaluation_result.test_results:
         if test_result.metrics_data:
+            actual_tool_calls = test_result.additional_metadata["actual_tool_calls"]
+
             for metric in test_result.metrics_data:
                 row = {
                     "test_name": test_result.name,
                     "input": test_result.input,
-                    "actual_output": test_result.actual_output,
+                    "actual_output": test_result.actual_output
+                    if metric.name == "Correctness [GEval]"
+                    else actual_tool_calls,
                     "metric_name": metric.name,
                     "score": metric.score,
                     "success": metric.success,
@@ -227,6 +231,11 @@ async def eval_sample(
             ToolCall(name=tool["name"], input_parameters=tool["arguments"])
             for tool in json.loads(sample["expected_tool_calls"])
         ],
+        additional_metadata={
+            "actual_tool_calls": decoded["tool_calls"]
+            if "tool_calls" in decoded
+            else [],
+        },
     )
 
     return test_case
