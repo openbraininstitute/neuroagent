@@ -297,14 +297,15 @@ Only the content after the frontmatter should be included.
         result = get_system_prompt(rules_dir=tmp_path)
 
     # Expected result
-    expected_base = f"""# NEUROSCIENCE AI ASSISTANT
+    expected_base = """# NEUROSCIENCE AI ASSISTANT
 
 You are a neuroscience AI assistant for the Open Brain Platform.
 
-# CURRENT CONTEXT
-Current time: {fixed_time.isoformat()}
-
 """
+    expected_end = f"""
+# CURRENT CONTEXT
+
+Current time: {fixed_time.isoformat()}"""
 
     expected_rule1 = """# Rule 1: Basic Guidelines
 
@@ -324,7 +325,9 @@ Only the content after the frontmatter should be included.
 - Feature A
 - Feature B"""
 
-    expected_result = f"{expected_base}\n{expected_rule1}\n\n\n{expected_rule2}\n\n"
+    expected_result = (
+        f"{expected_base}\n{expected_rule1}\n\n\n{expected_rule2}\n\n{expected_end}"
+    )
 
     assert result == expected_result
 
@@ -348,10 +351,10 @@ def test_get_system_prompt_no_rules_directory(tmp_path):
 
 You are a neuroscience AI assistant for the Open Brain Platform.
 
-# CURRENT CONTEXT
-Current time: {fixed_time.isoformat()}
 
-"""
+# CURRENT CONTEXT
+
+Current time: {fixed_time.isoformat()}"""
 
     assert result == expected_result
 
@@ -379,9 +382,9 @@ def test_get_system_prompt_empty_mdc_files(tmp_path):
 
 You are a neuroscience AI assistant for the Open Brain Platform.
 
-# CURRENT CONTEXT
-Current time: {fixed_time.isoformat()}
 
-"""
+# CURRENT CONTEXT
+
+Current time: {fixed_time.isoformat()}"""
 
     assert result == expected_result
