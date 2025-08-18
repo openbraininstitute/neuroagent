@@ -216,7 +216,8 @@ async def eval_sample(
                 **tool_call["arguments"]
             )
             decoded["tool_calls"][i]["arguments"] = input_class.model_dump(
-                exclude_defaults=True
+                exclude_defaults=True,
+                mode="json",
             )
 
     test_case = LLMTestCase(
