@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - OBIExpert tool.
 - Populate utterances for all tools.
 - Evaluation framework.
+- Trace plotting tool.
 
 ### Changed
 - Description of plot generator.
