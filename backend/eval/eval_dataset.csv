@@ -41,3 +41,34 @@ You can watch the full tutorial video here:
 How to simulate a single neuron model (Video)
 
 If you want, I can guide you through any specific step or help you start a simulation on the platform.","[{""name"": ""obi-expert"", ""arguments"": {""document_type"": ""tutorial"", ""query"": ""simulate""}}]",platform_description
+What are some recent studies on neuron morphology in the cerebrum?,"Here are some recent studies on neuron morphology in the cerebrum:
+
+### 1. {{Key morphological features of human pyramidal neurons}}
+- **Published:** {{May 14, 2024}}
+- **Summary:** This study performed intracellular injections and 3D reconstructions of over 200 pyramidal neurons from the human occipital primary visual area and associative temporal cortex. It found that pyramidal neurons in the temporal cortex are larger, have more complex dendritic structures, and more spines compared to those in the primary sensory cortex.
+- **Link:** {{[PMC Article](https://pmc.ncbi.nlm.nih.gov/articles/PMC11094408/)}}
+
+### 2. {{What makes human cortical pyramidal neurons functionally complex}}
+- **Published:** {{December 17, 2024}}
+- **Author:** {{Ido Aizenbud et al.}}
+- **Summary:** This preprint explores the functional complexity of human cortical pyramidal neurons, focusing on their morphology and how it relates to their function.
+- **DOI:** {{https://doi.org/10.1101/2024.12.17.628883}}
+- **Link:** {{[biorxiv](https://www.biorxiv.org/content/10.1101/2024.12.17.628883v1.full)}}
+
+### 3. {{Neuronal wiring diagram of an adult brain}}
+- **Published:** {{October 1, 2024}}
+- **Summary:** This study provides a detailed wiring diagram of an adult brain, which includes morphological data relevant to neuron structure and connectivity.
+- **Link:** {{[UC Merced](https://escholarship.org/uc/item/8rh1t839)}}
+
+### 4. {{Neuronal diversity and stereotypy at multiple scales through whole brain morphometry}}
+- **Published:** {{November 26, 2024}}
+- **Summary:** This article discusses neuronal diversity and stereotypy using whole brain morphometry, providing insights into neuron morphology at multiple scales.
+- **Link:** {{[PMC Article](https://pmc.ncbi.nlm.nih.gov/articles/PMC11599929/)}}
+
+### 5. {{A Multi-Scale Neuron Morphometry Dataset from Peta-voxel Mouse Whole-Brain Images}}
+- **Published:** {{April 23, 2025}}
+- **Author:** {{Hanchuan Peng}}
+- **Summary:** This study presents a large-scale neuron morphometry dataset from whole-brain mouse images, offering a cloud-based platform for collaborative neuron morphology analysis.
+- **Link:** {{[Nature Article](https://www.nature.com/articles/s41597-025-04379-0)}}
+
+If you want more details on any of these studies or additional papers, please let me know!","[{""name"": ""literature-search-tool"", ""arguments"": {""query"": ""neuron morphology cerebrum"", ""numResults"": 5, ""maxCharacters"": 1000}}]",literature_search

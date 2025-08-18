@@ -152,7 +152,6 @@ def evaluation_result_to_csv(
                 row = {
                     "test_name": test_result.name,
                     "input": test_result.input,
-                    "expected_output": test_result.expected_output,
                     "actual_output": test_result.actual_output,
                     "metric_name": metric.name,
                     "score": metric.score,
@@ -263,7 +262,7 @@ async def run_eval(
     # 1. Answer Relevance (GEval)
     answer_relevance = GEval(
         name="Correctness",
-        criteria="Determine whether the actual output responds to the input, based on the input and the expected output. Evaluate the content of the output, not the styling.",
+        criteria="Determine whether the actual output responds to the input, based on the input and the expected output. Evaluate the content of the output, not the styling. Content wrapped in {{...}} may vary - ensure all relevant sections are provided without comparing specific information.",
         evaluation_params=[
             LLMTestCaseParams.INPUT,
             LLMTestCaseParams.ACTUAL_OUTPUT,
