@@ -22,6 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Casing of get *O*ne ME-model.
 - Deduplicate tool selection on our side.
 - Copy buttons in non https environments.
+- Bug that listed all token consumption as TOOL_SELECTION.
 
 ### Removed
 - Semantic router.
