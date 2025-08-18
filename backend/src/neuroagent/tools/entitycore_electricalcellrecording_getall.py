@@ -52,7 +52,7 @@ class ElectricalCellRecordingGetAllTool(BaseTool):
     description: ClassVar[
         str
     ] = """Searches the entitycore database to retrieve electrical cell recordings.
-    Often, electrical cell recordings are user interchangeably with the word 'trace'.
+    Often, electrical cell recordings are used interchangeably with the word 'trace'.
 
     The output is a list of electrical cell recordings (trace), containing:
     - The brain region ID.

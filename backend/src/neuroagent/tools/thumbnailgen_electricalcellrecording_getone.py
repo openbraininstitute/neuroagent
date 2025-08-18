@@ -59,7 +59,7 @@ class PlotElectricalCellRecordingGetOneTool(BaseTool):
         Generate a visual representation of a specified electrical cell recording.
 
         **When to Call**:
-        When the user asks to plot a electrical cell recording or requests more information about it.
+        When the user asks to plot a electrical cell recording (trace) or requests more information about it.
 
         **Inputs**:
         entity_id: ID of the target entity.
@@ -73,7 +73,7 @@ class PlotElectricalCellRecordingGetOneTool(BaseTool):
     """
     description_frontend: ClassVar[
         str
-    ] = """Plot the electrica cell recording of your choice to display a thumbnail in the chat.
+    ] = """Plot the electrical cell recording of your choice to display a thumbnail in the chat.
 
     Use this tool to enhance the description of your target electrical cell recording by adding visuals."""
     metadata: PlotElectricalCellRecordingGetOneMetadata
