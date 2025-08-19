@@ -220,22 +220,29 @@ async def eval_sample(
                 mode="json",
             )
 
+    # if no tool calls were made, we create a dummy one to avoid issues with the Tool Correctness Metric
+    tools_called = [
+        ToolCall(name=tool["name"], input_parameters=tool["arguments"])
+        for tool in decoded.get("tool_calls", [])
+    ]
+    if not tools_called:
+        tools_called = [ToolCall(name="no-tools-called", input_parameters={})]
+
+    expected_tool_calls = [
+        ToolCall(name=tool["name"], input_parameters=tool["arguments"])
+        for tool in json.loads(sample["expected_tool_calls"])
+    ]
+    if not expected_tool_calls:
+        expected_tool_calls = [ToolCall(name="no-tools-called", input_parameters={})]
+
     test_case = LLMTestCase(
         input=sample["input"],
         actual_output=decoded["response"],
         expected_output=sample["expected_output"],
-        tools_called=[
-            ToolCall(name=tool["name"], input_parameters=tool["arguments"])
-            for tool in decoded["tool_calls"]
-        ],
-        expected_tools=[
-            ToolCall(name=tool["name"], input_parameters=tool["arguments"])
-            for tool in json.loads(sample["expected_tool_calls"])
-        ],
+        tools_called=tools_called,
+        expected_tools=expected_tool_calls,
         additional_metadata={
-            "actual_tool_calls": decoded["tool_calls"]
-            if "tool_calls" in decoded
-            else [],
+            "actual_tool_calls": decoded.get("tool_calls", []),
         },
     )
 
