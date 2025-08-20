@@ -121,3 +121,32 @@ Show me morphologies from cerebellum,"Here are some neuronal morphologies from t
 If you want more morphologies or details on any specific one, please let me know!","[{""name"": ""entitycore-brainregion-getall"", ""arguments"": {""name"": ""Cerebellum""}}, {""name"": ""entitycore-reconstructionmorphology-getall"", ""arguments"": {""within_brain_region_brain_region_id"": ""062ebc92-cebb-498a-a76d-b5ef1baf02cf"", ""page_size"": 5}}]",entitycore;literature_search
 Can you please plot y=sin(x) from 0 to 2pi but just 8 points evenly spaced?,"Here is the scatter plot of y = sin(x) with 8 points evenly spaced from 0 to 2π. The points show the sine values at these specific x coordinates. If you want, I can also provide a line plot connecting these points. Would you like that?","[{""name"": ""execute-python-code"", ""arguments"": {""python_code"": ""import numpy as np\n\n# Generate 8 evenly spaced points from 0 to 2*pi\nx_values = np.linspace(0, 2 * np.pi, 8)\n# Calculate sin(x) for these points\ny_values = np.sin(x_values)\n\n# Prepare data for plotting\npoints = [{'x': float(x), 'y': float(y)} for x, y in zip(x_values, y_values)]\npoints""}}, {""name"": ""plot-generator"", ""arguments"": {""plot_type"": ""json-scatterplot"", ""title"": ""Plot of y = sin(x) with 8 evenly spaced points from 0 to 2π"", ""description"": ""This scatter plot shows the values of y = sin(x) at 8 points evenly spaced between 0 and 2π."", ""x_label"": ""x (radians)"", ""y_label"": ""sin(x)"", ""piechart_values"": null, ""barplot_values"": null, ""scatter_values"": [{""x"": 0, ""y"": 0, ""label"": null, ""color"": null, ""size"": null}, {""x"": 0.8975979010256552, ""y"": 0.7818314824680298, ""label"": null, ""color"": null, ""size"": null}, {""x"": 1.7951958020513104, ""y"": 0.9749279121818236, ""label"": null, ""color"": null, ""size"": null}, {""x"": 2.6927937030769655, ""y"": 0.43388373911755823, ""label"": null, ""color"": null, ""size"": null}, {""x"": 3.5903916041026207, ""y"": -0.433883739117558, ""label"": null, ""color"": null, ""size"": null}, {""x"": 4.487989505128276, ""y"": -0.9749279121818236, ""label"": null, ""color"": null, ""size"": null}, {""x"": 5.385587406153931, ""y"": -0.7818314824680299, ""label"": null, ""color"": null, ""size"": null}, {""x"": 6.283185307179586, ""y"": -2.4492935982947064e-16, ""label"": null, ""color"": null, ""size"": null}], ""histogram_values"": null, ""histogram_bins"": 10, ""histogram_color"": null, ""linechart_values"": null, ""line_style"": ""solid"", ""line_color"": null}}]",python;plotting
 Can you please generate a plot y=x^2 with matplotlib?,"I cannot generate plots directly with matplotlib here. However, I can generate the data points for the function y = x^2 and then create a plot using the platform's plot generator tool. Would you like me to proceed with that? If yes, please specify the range and number of points you want for the plot.","[]",python;plotting
+Can you check online who are some of the most impactful computational neuroscientists?,"{{Year}} Brain Prize Winners in Theoretical and Computational Neuroscience
+
+{{Name 1}} ({{Institution 1}})
+{{Name 2}} ({{Institution 2}})
+{{Name 3}} ({{Institution 3}})
+
+These three physicists have been recognized for pioneering work in modeling brain structure and function, applying physics and mathematics to neuroscience. They shared the {{Year}} Brain Prize, the largest award in neuroscience.
+
+{{Link 1}}
+
+Other Notable Figures
+
+{{Name 4}} ({{Institution 4}})
+Known for {{Achievement 1}} in neuroscience.
+
+{{Link 2}}
+
+{{Name 5}} ({{Institution 5}})
+A pioneer in {{Achievement 2}}. Developed {{Achievement 3}} and {{Achievement 4}}.
+
+{{Link 3}}
+{{Link 4}}
+
+{{Name 6}}
+Known for contributions to {{Achievement 5}} and {{Achievement 6}}. Co-founder of {{Company 1}}.
+
+{{Link 5}}
+
+If you want more detailed profiles or additional names, just let me know!","[{""name"": ""web-search-tool"", ""arguments"": {""query"": ""most impactful computational neuroscientists"", ""numResults"": 5}}]",web_search
