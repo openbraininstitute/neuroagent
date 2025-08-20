@@ -150,3 +150,34 @@ Known for contributions to {{Achievement 5}} and {{Achievement 6}}. Co-founder o
 {{Link 5}}
 
 If you want more detailed profiles or additional names, just let me know!","[{""name"": ""web-search-tool"", ""arguments"": {""query"": ""most impactful computational neuroscientists"", ""numResults"": 5}}]",web_search
+Can you get me the first 10 available species?,"Here are the available species in the database (total 9):
+
+Aquarana catesbeiana
+
+Taxonomy ID: NCBITaxon:8400
+Cricetulus griseus
+
+Taxonomy ID: NCBITaxon:10029
+Felis catus
+
+Taxonomy ID: NCBITaxon:9685
+Homo sapiens
+
+Taxonomy ID: NCBITaxon:9606
+Hybrid human-mouse
+
+Taxonomy ID: NA
+Loligo pealeii
+
+Taxonomy ID: NCBITaxon:6619
+Mus musculus
+
+Taxonomy ID: NCBITaxon:10090
+Rattus norvegicus
+
+Taxonomy ID: NCBITaxon:10116
+Xenopus laevis
+
+Taxonomy ID: NCBITaxon:8355
+
+If you want more details about any specific species or want to explore strains or subjects related to these species, please let me know!","[{""name"": ""entitycore-species-getall"", ""arguments"": {""page_size"": 10}}]",entitycore
