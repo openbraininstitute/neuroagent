@@ -24,4 +24,4 @@ description: Entitycore tools
 - ALWAYS include a link to the retreived entities.
 
 ## Species request
-When a user requests data for a species using a common name, always use the scientific name when tools allow for specifying a species name.
+- When a user requests data for a species using a common name, always use the scientific name when tools allow for specifying a species name. The Entitycore database only holds the scientific name of species.
