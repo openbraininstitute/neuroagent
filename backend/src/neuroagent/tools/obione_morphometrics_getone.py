@@ -74,7 +74,9 @@ class MorphometricsGetOneTool(BaseTool):
         morpho_metrics_response = await self.metadata.httpx_client.get(
             url=f"{self.metadata.obi_one_url}/declared/neuron-morphology-metrics/{self.input_schema.morphology_id}",
             headers=headers,
-            params=self.input_schema.model_dump(exclude={"morphology_id"}),
+            params=self.input_schema.model_dump(
+                exclude={"morphology_id"}, exclude_defaults=True
+            ),
         )
 
         if morpho_metrics_response.status_code != 200:
