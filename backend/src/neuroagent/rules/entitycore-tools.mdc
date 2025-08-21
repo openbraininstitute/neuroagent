@@ -24,7 +24,4 @@ description: Entitycore tools
 - ALWAYS include a link to the retreived entities.
 
 ## Species request
-When a user requests data for a species using a common name:
-1. If you're confident of the scientific name, use it directly in the `species__name` parameter
-2. If the API call returns not data, OR if you're uncertain about the scientific name, then call `entitycore-species-getall` with a large page size and NO OTHER PARAMETER to get the extensive list of available species.
-3. Use the retrieved species_id for subsequent queries
+When a user requests data for a species using a common name, always use the scientific name when tools allow for specifying a species name.
