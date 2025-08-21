@@ -19,7 +19,7 @@ class PlotMorphologyGetOneInput(
     """Input of the PlotMorphologyGetOneTool."""
 
     asset_id: UUID = Field(
-        description="ID of the asset. You need to call the 'entitycore-reconstructionmorphology-getone' or the `entitycore-asset-getall` tool on the relevant morphology beforehand to get this parameter. The ID must always come from the `swc` asset, which is indicated by the `'content_type': 'application/swc'`."
+        description="ID of the asset. You need to call either the `entitycore-reconstructionmorphology-getall`, the `entitycore-reconstructionmorphology-getone` or the `entitycore-asset-getall` tool on the relevant morphology beforehand to get this parameter. The ID must always come from the `swc` asset, which is indicated by the `'content_type': 'application/swc'`."
     )
 
 
@@ -60,7 +60,7 @@ class PlotMorphologyGetOneTool(BaseTool):
 
         **Inputs**:
         entity_id: ID of the target entity.
-        asset_id: ID of the specific morphology asset. Retrieve using `entitycore-reconstructionmorphology-getone` or `entitycore-asset-getall`.
+        asset_id: ID of the specific morphology asset. Retrieve using `entitycore-reconstructionmorphology-getall`,  `entitycore-reconstructionmorphology-getone` or `entitycore-asset-getall`.
 
         **Output**:
         storage_id: Identifier for where the generated plot is stored.
