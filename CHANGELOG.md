@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- Possibiliy to request specific metrics from morphometric tool.
+
 ## [v0.8.0] - 18.08.2025
 
 ### Added
