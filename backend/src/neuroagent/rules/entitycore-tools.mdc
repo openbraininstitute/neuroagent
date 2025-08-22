@@ -22,3 +22,8 @@ description: Entitycore tools
 ## EntityCore Tool Outputs
 - The only way to get a valid url for an asset is via `entitycore-asset-downloadone`. Anything else gives invalid urls and you should not display them.
 - ALWAYS include a link to the retreived entities.
+
+## Species request
+When a user requests data for a species using a common name:
+- Always use the scientific name when tools allow for specifying a species name. The Entitycore database only holds the scientific name of species.
+- Use the tool `entitycore-species-getall` to lookup species ID if needed.

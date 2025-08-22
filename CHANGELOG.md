@@ -8,6 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Changed
+- Make the agent use the scientific species name.
+- Added assets back in `getall` for eletrical recordings and reconstruction morphology.
 - Possibiliy to request specific metrics from morphometric tool.
 
 ## [v0.8.0] - 18.08.2025

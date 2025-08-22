@@ -107,7 +107,6 @@ class ReconstructionMorphologyGetAllTool(BaseTool):
         response_data = response.json()
         # Set assets and legacy_id to empty lists for each morphology
         for morphology in response_data["data"]:
-            morphology["assets"] = []
             morphology["legacy_id"] = []
 
             # Add the links to website

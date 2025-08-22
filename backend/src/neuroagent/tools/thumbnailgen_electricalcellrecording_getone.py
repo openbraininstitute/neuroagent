@@ -19,7 +19,7 @@ class PlotElectricalCellRecordingGetOneInput(
     """Input of the PlotElectricalCellRecording."""
 
     asset_id: UUID = Field(
-        description="ID of the asset. You need to call the 'entitycore-electricalcellrecording-getone' or the `entitycore-asset-getall` tool on the relevant electrical cell recording beforehand to get this parameter. The ID must always come from the `nwb` asset, which is indicated by the `'content_type': 'application/nwb'`."
+        description="ID of the asset. You need to call the `entitycore-electricalcellrecording-getall`, `entitycore-electricalcellrecording-getone` or the `entitycore-asset-getall` tool on the relevant electrical cell recording beforehand to get this parameter. The ID must always come from the `nwb` asset, which is indicated by the `'content_type': 'application/nwb'`."
     )
 
 
@@ -63,7 +63,7 @@ class PlotElectricalCellRecordingGetOneTool(BaseTool):
 
         **Inputs**:
         entity_id: ID of the target entity.
-        asset_id: ID of the specific electricalcellrecording asset. Retrieve using `entitycore-electricalcellrecording-getone` or `entitycore-asset-getall`.
+        asset_id: ID of the specific electricalcellrecording asset. Retrieve using `entitycore-electricalcellrecording-getall`, `entitycore-electricalcellrecording-getone` or `entitycore-asset-getall`.
 
         **Output**:
         storage_id: Identifier for where the generated plot is stored.
