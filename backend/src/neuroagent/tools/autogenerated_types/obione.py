@@ -935,8 +935,8 @@ class ObiOneScientificSimulationSimulationsSimulationsFormInitialize(BaseModel):
         extra='ignore',
     )
     type: Literal['SimulationsForm.Initialize'] = Field(..., title='Type')
-    circuit: Circuit | CircuitFromID | list[Circuit | CircuitFromID] = Field(
-        ..., discriminator='type', title='Circuit'
+    circuit: list[Circuit | CircuitFromID] = Field(
+        ..., title='Circuit'
     )
     node_set: NeuronSetReference = Field(
         ..., description='Neuron set to simulate.', title='Neuron Set'
