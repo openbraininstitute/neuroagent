@@ -35,7 +35,9 @@ dependencies = [
 [project.optional-dependencies]
 dev = [
     "bandit[toml]",
+    "deepeval",
     "mypy==1.15.0",
+    "pandas",
     "pytest",
     "pytest-asyncio",
     "pytest-cov",

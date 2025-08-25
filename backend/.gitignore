@@ -161,3 +161,5 @@ static
 
 # ignore csvs in root dir
 *.csv
+!eval_dataset.csv
+!eval_results.csv

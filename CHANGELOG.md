@@ -7,21 +7,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- Make the agent use the scientific species name.
+- Added assets back in `getall` for eletrical recordings and reconstruction morphology.
+- Possibiliy to request specific metrics from morphometric tool.
+
+## [v0.8.0] - 18.08.2025
+
 ### Added
 - Entitycore links in tool output.
 - Utterance structure for tools.
 - OBIExpert tool.
 - Populate utterances for all tools.
 - Search functionality.
+- Evaluation framework.
+- Trace plotting tool.
 
 ### Changed
 - Description of plot generator.
 - Reverd obi-one to `extra=ignore`.
+- Put the date at the end in system prompt to maximize caching.
 
 ### Fixed
 - Casing of get *O*ne ME-model.
 - Deduplicate tool selection on our side.
 - Copy buttons in non https environments.
+- Bug that listed all token consumption as TOOL_SELECTION.
 
 ### Removed
 - Semantic router.

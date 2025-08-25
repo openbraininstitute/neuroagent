@@ -69,6 +69,7 @@ from neuroagent.tools import (
     OrganizationGetOneTool,
     PersonGetAllTool,
     PersonGetOneTool,
+    PlotElectricalCellRecordingGetOneTool,
     PlotGeneratorTool,
     PlotMorphologyGetOneTool,
     ReconstructionMorphologyGetAllTool,
@@ -419,6 +420,7 @@ def get_tool_list(
         CircuitGetOneTool,
         GenerateSimulationsConfigTool,
         OBIExpertTool,
+        PlotElectricalCellRecordingGetOneTool,
         # NowTool,
         # WeatherTool,
         # RandomPlotGeneratorTool,
@@ -519,17 +521,18 @@ def get_rules_dir() -> Path:
 def get_system_prompt(rules_dir: Annotated[Path, Depends(get_rules_dir)]) -> str:
     """Get the concatenated rules from all .mdc files in the rules directory."""
     # Initialize the system prompt with base instructions
-    system_prompt = f"""# NEUROSCIENCE AI ASSISTANT
+    system_prompt = """# NEUROSCIENCE AI ASSISTANT
 
 You are a neuroscience AI assistant for the Open Brain Platform.
-
-# CURRENT CONTEXT
-Current time: {datetime.now(timezone.utc).isoformat()}
 
 """
 
     # Check if rules directory exists
     if not rules_dir.exists():
+        system_prompt += f"""
+# CURRENT CONTEXT
+
+Current time: {datetime.now(timezone.utc).isoformat()}"""
         return system_prompt
 
     # Find all .mdc files in the rules directory
@@ -564,6 +567,10 @@ Current time: {datetime.now(timezone.utc).isoformat()}
         except Exception as e:
             raise Exception(f"Failed to read rule file {mdc_file}: {e}")
 
+    system_prompt += f"""
+# CURRENT CONTEXT
+
+Current time: {datetime.now(timezone.utc).isoformat()}"""
     return system_prompt
 
 

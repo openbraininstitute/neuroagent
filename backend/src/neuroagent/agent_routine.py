@@ -403,7 +403,7 @@ class AgentsRoutine:
                 token_consumption = [
                     TokenConsumption(
                         type=token_type,
-                        task=Task.TOOL_SELECTION,
+                        task=Task.CHAT_COMPLETION,
                         count=count,
                         model=agent.model,
                     )

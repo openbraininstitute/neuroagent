@@ -46,11 +46,15 @@ class ElectricalCellRecordingGetAllTool(BaseTool):
         "Find electrical cell recordings",
         "Show me available recordings",
         "What recordings are there?",
+        "Find a trace in the isocortex",
+        "Show me traces in this region",
     ]
     description: ClassVar[
         str
     ] = """Searches the entitycore database to retrieve electrical cell recordings.
-    The output is a list of electrical cell recordings, containing:
+    Often, electrical cell recordings are used interchangeably with the word 'trace'.
+
+    The output is a list of electrical cell recordings (trace), containing:
     - The brain region ID.
     - The brain region name.
     - The subject species name.
@@ -108,7 +112,6 @@ class ElectricalCellRecordingGetAllTool(BaseTool):
         response_data = response.json()
         # Set assets and legacy_id to empty lists for each recording
         for recording in response_data["data"]:
-            recording["assets"] = []
             recording["legacy_id"] = []
 
             # Add the links to website
