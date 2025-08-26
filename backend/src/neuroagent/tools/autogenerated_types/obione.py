@@ -10,6 +10,10 @@ from uuid import UUID
 from pydantic import AwareDatetime, BaseModel, ConfigDict, Field, RootModel
 
 
+class AgePeriod(RootModel[Literal['prenatal', 'postnatal', 'unknown']]):
+    root: Literal['prenatal', 'postnatal', 'unknown'] = Field(..., title='AgePeriod')
+
+
 class SamplePercentage(RootModel[float]):
     root: float = Field(
         ...,
@@ -630,6 +634,10 @@ class ScientificArtifact(BaseModel):
     atlas_id: UUID | None = Field(default=None, title='Atlas Id')
 
 
+class Sex(RootModel[Literal['male', 'female', 'unknown']]):
+    root: Literal['male', 'female', 'unknown'] = Field(..., title='Sex')
+
+
 class SingleTimestamp(BaseModel):
     model_config = ConfigDict(
         extra='ignore',
@@ -710,8 +718,9 @@ class Subject(BaseModel):
     description: str | None = Field(
         default='', description='Subject description', title='Description'
     )
-    sex: Literal['male', 'female', 'unknown'] | None = Field(
-        default='unknown', description='Sex of the subject', title='Sex'
+    sex: Sex | None = Field(
+        default_factory=lambda: Sex.model_validate('unknown'),
+        description='Sex of the subject',
     )
     weight: Weight | None = Field(
         default=None, description='Weight in grams', title='Weight'
@@ -725,7 +734,7 @@ class Subject(BaseModel):
     age_max: timedelta | None = Field(
         default=None, description='Maximum age range', title='Maximum age range'
     )
-    age_period: Literal['prenatal', 'postnatal', 'unknown'] | None = 'unknown'
+    age_period: AgePeriod | None = 'unknown'
 
 
 class MagnesiumValue(RootModel[float]):
@@ -894,6 +903,10 @@ class ObiOneScientificMorphologyMetricsMorphologyMetricsMorphologyMetricsFormIni
     ) = Field(..., description='3. Morphology description', title='Morphology')
 
 
+class Circuit1(RootModel[Circuit | CircuitFromID]):
+    root: Circuit | CircuitFromID = Field(..., discriminator='type')
+
+
 class SimulationLength(RootModel[float]):
     root: float = Field(
         ...,
@@ -935,9 +948,7 @@ class ObiOneScientificSimulationSimulationsSimulationsFormInitialize(BaseModel):
         extra='ignore',
     )
     type: Literal['SimulationsForm.Initialize'] = Field(..., title='Type')
-    circuit: list[Circuit | CircuitFromID] = Field(
-        ..., title='Circuit'
-    )
+    circuit: Circuit | CircuitFromID | list[Circuit1] = Field(..., title='Circuit')
     node_set: NeuronSetReference = Field(
         ..., description='Neuron set to simulate.', title='Neuron Set'
     )
