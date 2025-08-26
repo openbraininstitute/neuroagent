@@ -1,5 +1,6 @@
 import { env } from "@/lib/env";
 import { CustomError } from "@/lib/types";
+
 const isServer = typeof window === "undefined";
 
 type Method = "GET" | "PATCH" | "POST" | "PUT" | "DELETE";
@@ -20,6 +21,7 @@ export type FetcherConfig = {
   body?: Body;
   headers?: Headers;
   next?: NextFetchRequestConfig;
+  signal?: AbortSignal;
 };
 
 export async function fetcher({
@@ -30,6 +32,7 @@ export async function fetcher({
   body,
   headers,
   next,
+  signal,
 }: FetcherConfig): Promise<ResponseBody> {
   let processedPath = path;
   if (pathParams) {
@@ -41,7 +44,7 @@ export async function fetcher({
   const baseUrl = isServer
     ? env.SERVER_SIDE_BACKEND_URL
     : env.NEXT_PUBLIC_BACKEND_URL;
-  // Remove trailing slash from base and leading slash from path to avoid double slashes
+
   const normalizedBase = baseUrl?.replace(/\/$/, "");
   const normalizedPath = processedPath.replace(/^\//, "");
 
@@ -61,6 +64,7 @@ export async function fetcher({
       ...headers,
     },
     next,
+    signal,
   });
 
   if (!response.ok) {
@@ -69,5 +73,6 @@ export async function fetcher({
       response.status,
     );
   }
+
   return await response.json();
 }
