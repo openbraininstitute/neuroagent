@@ -25,7 +25,7 @@ from neuroagent.new_types import (
     Response,
     Result,
 )
-from neuroagent.tools.base_tool import BaseMetadata, BaseTool
+from neuroagent.tools.base_tool import BaseTool
 from neuroagent.utils import (
     complete_partial_json,
     get_entity,
@@ -167,9 +167,7 @@ class AgentsRoutine:
                 return response, None
 
         try:
-            tool_metadata: BaseMetadata = tool.__annotations__["metadata"](
-                **context_variables
-            )
+            tool_metadata = tool.__annotations__["metadata"](**context_variables)
         except ValidationError as err:
             # Raise validation error if requested
             if raise_validation_errors:
