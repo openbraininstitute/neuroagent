@@ -62,9 +62,6 @@ class MorphometricsGetOneTool(BaseTool):
 
     async def arun(self) -> MorphologyMetricsOutput:
         """Run the morphology feature extraction logic."""
-        logger.info(
-            f"Entering ObiOne Morphometrics tool. Inputs: {self.input_schema.model_dump()}"
-        )
         headers: dict[str, str] = {}
         if self.metadata.vlab_id is not None:
             headers["virtual-lab-id"] = str(self.metadata.vlab_id)

@@ -66,8 +66,6 @@ class WeatherTool(BaseTool):
         -------
             Dictionary containing temperature and conditions
         """
-        logger.info(f"Getting weather for location: {self.input_schema.location}")
-
         # Add sleep to simulate API call
         await asyncio.sleep(4)
 

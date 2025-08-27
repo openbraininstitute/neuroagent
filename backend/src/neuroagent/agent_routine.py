@@ -25,7 +25,7 @@ from neuroagent.new_types import (
     Response,
     Result,
 )
-from neuroagent.tools.base_tool import BaseTool
+from neuroagent.tools.base_tool import BaseMetadata, BaseTool
 from neuroagent.utils import (
     complete_partial_json,
     get_entity,
@@ -151,7 +151,7 @@ class AgentsRoutine:
 
         tool = tool_map[name]
         try:
-            input_schema = tool.__annotations__["input_schema"](**kwargs)
+            input_schema: BaseModel = tool.__annotations__["input_schema"](**kwargs)
         except ValidationError as err:
             # Raise validation error if requested
             if raise_validation_errors:
@@ -167,7 +167,9 @@ class AgentsRoutine:
                 return response, None
 
         try:
-            tool_metadata = tool.__annotations__["metadata"](**context_variables)
+            tool_metadata: BaseMetadata = tool.__annotations__["metadata"](
+                **context_variables
+            )
         except ValidationError as err:
             # Raise validation error if requested
             if raise_validation_errors:
@@ -182,6 +184,9 @@ class AgentsRoutine:
                 }
                 return response, None
 
+        logger.info(
+            f"Entering {name}. Inputs: {input_schema.model_dump(exclude_defaults=True)}."
+        )
         tool_instance = tool(input_schema=input_schema, metadata=tool_metadata)
         # pass context_variables to agent functions
         try:
