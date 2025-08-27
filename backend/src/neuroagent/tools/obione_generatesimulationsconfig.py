@@ -49,7 +49,7 @@ class InitializeNoCircuit(
 ):
     """Simulation Initialize block without reference to the circuit."""
 
-    circuit: SkipJsonSchema[None] = Field(default=None, title="Circuit")  # type: ignore
+    circuit: SkipJsonSchema[None] = Field(default=None, title="Circuit", exclude=True)  # type: ignore
 
 
 class SimulationsFormModified(SimulationsForm):
@@ -75,7 +75,7 @@ class SimulationsFormModified(SimulationsForm):
 
 
 class TimestampNeuronSets(BaseModel):
-    """Pydantic class for generating timestamps via the LLM."""
+    """Pydantic class for generating timestamps and neuron sets via the LLM."""
 
     timestamps: dict[str, SingleTimestamp | RegularTimestamps] | None = Field(
         default=None,
@@ -154,6 +154,7 @@ Use this tool when users need to:
 - Modify existing configurations
 - Convert configuration requirements into structured JSON format
 
+Always call this tool to generate a simulation config, never attempt to generate one yourself.
 Do not try to generate a simulation config yourself if the tool fails.
     """
     description_frontend: ClassVar[
