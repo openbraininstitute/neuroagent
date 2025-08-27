@@ -49,7 +49,7 @@ class InitializeNoCircuit(
 ):
     """Simulation Initialize block without reference to the circuit."""
 
-    circuit: SkipJsonSchema[None] = Field(default=None, title="Circuit")
+    circuit: SkipJsonSchema[None] = Field(default=None, title="Circuit")  # type: ignore
 
 
 class SimulationsFormModified(SimulationsForm):
@@ -110,13 +110,13 @@ def replace_type_recursively(
 ) -> SimulationsFormModified:
     """Replace reference types recursively."""
     if isinstance(obj, target_type):
-        return replacement
-    elif isinstance(obj, BaseModel):
+        return replacement  # type: ignore
+    if isinstance(obj, BaseModel):
         updated_fields = {
             k: replace_type_recursively(v, target_type, replacement)
             for k, v in obj.__dict__.items()
         }
-        return obj.__class__(**updated_fields)
+        return obj.__class__(**updated_fields)  # type: ignore
     elif isinstance(obj, list):
         return [
             replace_type_recursively(item, target_type, replacement) for item in obj
@@ -201,6 +201,7 @@ Respond ONLY with valid JSON. Do not include explanations, comments, or addition
 3. **Best Practices**: Follow standard conventions for the type of configuration being requested
 4. **Reasonable Defaults**: When specific values aren't provided, use sensible defaults appropriate for the context or keep the default provided in the output class
 5. **Validation**: Ensure all required fields are present and values are appropriate for their intended use
+6. **Key Naming**: When a field requires to specify a dictionary, the key represents a name. Make it meaningful.
 
 **Output Format:**
 Respond ONLY with valid JSON. Do not include explanations, comments, or additional text outside the JSON structure.
@@ -208,7 +209,7 @@ Respond ONLY with valid JSON. Do not include explanations, comments, or addition
         model = "gpt-4o-mini"
 
         # OBI-one requires a two steps procedure: Generate stuff that can be refered to first
-        response = await self.metadata.openai_client.beta.chat.completions.parse(
+        response_step_1 = await self.metadata.openai_client.beta.chat.completions.parse(
             messages=[
                 {"role": "system", "content": system_prompt_timestamp_neuronset},
                 {"role": "user", "content": self.input_schema.config_request},
@@ -216,15 +217,15 @@ Respond ONLY with valid JSON. Do not include explanations, comments, or addition
             model=model,
             response_format=TimestampNeuronSets,
         )
-        if response.choices[0].message.parsed:
-            timestamps = response.choices[0].message.parsed.timestamps
-            neuron_sets = response.choices[0].message.parsed.neuron_sets
-            neuron_set_timestamps_usage = response.usage
+        if response_step_1.choices[0].message.parsed:
+            timestamps = response_step_1.choices[0].message.parsed.timestamps
+            neuron_sets = response_step_1.choices[0].message.parsed.neuron_sets
+            neuron_set_timestamps_usage = response_step_1.usage
         else:
             raise ValueError("Couldn't generate a valid simulation config.")
 
         # Then generate the global class and make the according references
-        response = await self.metadata.openai_client.beta.chat.completions.parse(
+        response_step_2 = await self.metadata.openai_client.beta.chat.completions.parse(
             messages=[
                 {"role": "system", "content": system_prompt_sim_form},
                 {"role": "user", "content": self.input_schema.config_request},
@@ -232,28 +233,36 @@ Respond ONLY with valid JSON. Do not include explanations, comments, or addition
             model=model,
             response_format=SimulationsFormModified,
         )
-        if response.choices[0].message.parsed:
+        if response_step_2.choices[0].message.parsed:
             # Get the output config
-            config = response.choices[0].message.parsed
-            neuron_set_reference = NeuronSetReference(
-                block_name=list(neuron_sets.keys())[0], type="NeuronSetReference"
+            config = response_step_2.choices[0].message.parsed
+
+            # Manually define the reference classes
+            neuron_sets_reference = NeuronSetReference(
+                block_name=list(neuron_sets.keys())[0],  # type: ignore
+                type="NeuronSetReference",
             )
             timestamps_reference = TimestampsReference(
-                block_name=list(timestamps.keys())[0], type="TimestampsReference"
+                block_name=list(timestamps.keys())[0],  # type: ignore
+                type="TimestampsReference",
             )
+
+            # Recursively insert the reference classes where expected
             config = replace_type_recursively(
                 obj=config,
                 target_type=NeuronSetReference,
-                replacement=neuron_set_reference,
+                replacement=neuron_sets_reference,
             )
             config = replace_type_recursively(
                 obj=config,
                 target_type=TimestampsReference,
                 replacement=timestamps_reference,
             )
-            config.initialize.circuit = [
-                CircuitFromID(id_str=self.input_schema.circuit_id, type="CircuitFromID")
-            ]
+
+            # Define manually the circuit class as being from ID
+            config.initialize.circuit = CircuitFromID(
+                id_str=self.input_schema.circuit_id, type="CircuitFromID"
+            )  # type: ignore
 
             # Gather everything in the OBI-One compatible class
             output_config = SimulationsForm(
@@ -266,15 +275,28 @@ Respond ONLY with valid JSON. Do not include explanations, comments, or addition
                 initialize=config.initialize,
                 info=config.info,
             )
+
             # Assign token usage
-            simulation_form_usage = response.usage
+            simulation_form_usage = response_step_2.usage
+
+            prompt_tokens = 0
+            completion_tokens = 0
+            total_tokens = 0
+
+            if neuron_set_timestamps_usage is not None:
+                prompt_tokens += neuron_set_timestamps_usage.prompt_tokens
+                completion_tokens += neuron_set_timestamps_usage.completion_tokens
+                total_tokens += neuron_set_timestamps_usage.total_tokens
+
+            if simulation_form_usage is not None:
+                prompt_tokens += simulation_form_usage.prompt_tokens
+                completion_tokens += simulation_form_usage.completion_tokens
+                total_tokens += simulation_form_usage.total_tokens
+
             total_usage = CompletionUsage(
-                prompt_tokens=neuron_set_timestamps_usage.prompt_tokens
-                + simulation_form_usage.prompt_tokens,
-                completion_tokens=neuron_set_timestamps_usage.completion_tokens
-                + simulation_form_usage.completion_tokens,
-                total_tokens=neuron_set_timestamps_usage.total_tokens
-                + simulation_form_usage.total_tokens,
+                prompt_tokens=prompt_tokens,
+                completion_tokens=completion_tokens,
+                total_tokens=total_tokens,
             )
             token_consumption = get_token_count(total_usage)
             self.metadata.token_consumption = {**token_consumption, "model": model}
