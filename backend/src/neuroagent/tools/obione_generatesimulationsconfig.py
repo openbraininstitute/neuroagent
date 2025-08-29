@@ -87,35 +87,11 @@ Simply specify in plain english what you want your configuration to achieve or w
 
     async def arun(self) -> SimulationsForm:
         """Run the tool."""
-        #         system_prompt_timestamp_neuronset = """You are a configuration generation specialist for neuroscience simulations. Your task is to convert natural language descriptions of neuroscience circuit configurations into meaningful Timestamp and NeuronSets objects.
-        #         The description of the configuration is going to be the first `user` message you receive.
-
-        # **Your Role:**
-        # - Take user descriptions of desired configurations and generate corresponding JSON
-        # - Ensure the JSON is valid, properly formatted, and follows best practices
-        # - Make reasonable assumptions for missing details based on common conventions
-        # - Create complete, functional configurations that match the user's intent
-
-        # **Guidelines:**
-        # 1. **JSON Structure**: Always output valid JSON with proper syntax, indentation, and data types
-        # 2. **Completeness**: Generate complete configurations, not partial snippets
-        # 3. **Best Practices**: Follow standard conventions for the type of configuration being requested
-        # 4. **Reasonable Defaults**: When specific values aren't provided, use sensible defaults appropriate for the context or keep the default provided in the output class
-        # 5. **Validation**: Ensure all required fields are present and values are appropriate for their intended use
-        # 6. **Extra Guideline**: Dictionary keys are going to be the name of the object. Make sure they are meaningful and unique.
-        # 7. **SImulation Target**: The first element of the `neuron_sets` dict must be the simulation target.
-
-        # **Output Format:**
-        # Respond ONLY with valid JSON. Do not include explanations, comments, or additional text outside the JSON structure.
-        # """
         system_prompt = """# Simulation Configuration Generator
 
 You are an expert at generating valid JSON simulation configurations following the SimulationsForm schema.
 The description of the required configuration is going to be the first `user` message you receive.
 To generate a meaningful simulation config, follow these critical rules:
-
-## Circuit and Initialization
-- Include required fields: type, circuit, node_set for initialize block
 
 ## Neuron Sets and References
 - Generate neuron sets in the "neuron_sets" dictionary with meaningful keys
