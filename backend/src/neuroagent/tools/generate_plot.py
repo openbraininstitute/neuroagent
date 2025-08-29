@@ -111,12 +111,9 @@ class PlotGeneratorTool(BaseTool):
 
     async def arun(self) -> PlotGeneratorToolOutput:
         """Generate plot and save to storage."""
-        logger.info(f"Generating {self.input_schema.plot_type}")
-
         plot: (
             JSONPiechart | JSONBarplot | JSONScatterplot | JSONHistogram | JSONLinechart
         )
-
         if self.input_schema.plot_type == "json-piechart":
             if not self.input_schema.piechart_values:
                 raise ValueError("Piechart values are required for json-piechart")
