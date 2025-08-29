@@ -83,6 +83,7 @@ Respond ONLY with valid JSON. Do not include explanations, comments, or addition
                 {"role": "user", "content": self.input_schema.config_request},
             ],
             model=model,
+            reasoning_effort="low",
             response_format=SimulationsForm,
         )
         if response.choices[0].message.parsed:

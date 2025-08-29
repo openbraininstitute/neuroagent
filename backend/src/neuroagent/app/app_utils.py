@@ -490,10 +490,11 @@ AVAILABLE TOOLS:
 
     try:
         # Send the OpenAI request
-        model = "gpt-4o-mini"
+        model = "gpt-5-nano"
         response = await openai_client.beta.chat.completions.parse(
             messages=[{"role": "system", "content": system_prompt}, *openai_messages],  # type: ignore
             model=model,
+            reasoning_effort="minimal",
             response_format=ToolFiltering,
         )
 

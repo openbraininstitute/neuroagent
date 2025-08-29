@@ -68,6 +68,7 @@ class AgentsRoutine:
             "messages": messages,
             "model": model_override or agent.model,
             "stream": stream,
+            "reasoning_effort": "minimal",
             "seed": 12008,
             "temperature": agent.temperature,
             "tools": tools or None,
