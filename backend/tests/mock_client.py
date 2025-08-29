@@ -12,7 +12,7 @@ from openai.types.chat.chat_completion_message_tool_call import (
 def create_mock_response(
     message,
     function_calls=[],
-    model="gpt-4.1-mini",
+    model="gpt-5-mini",
     structured_output_class=None,
 ):
     role = message.get("role", "assistant")

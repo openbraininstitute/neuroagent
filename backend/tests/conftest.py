@@ -39,10 +39,10 @@ def client_fixture():
     app.dependency_overrides[get_openrouter_models] = lambda: [
         OpenRouterModelResponse(
             **{
-                "id": "openai/gpt-4.1-mini",
-                "canonical_slug": "openai/gpt-4.1-mini",
+                "id": "openai/gpt-5-mini",
+                "canonical_slug": "openai/gpt-5-mini",
                 "hugging_face_id": None,
-                "name": "OpenAI: GPT-4.1-mini",
+                "name": "OpenAI: GPT-5-mini",
                 "created": 1721260800,
                 "description": "Great model",
                 "context_length": 128000,
