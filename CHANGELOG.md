@@ -14,7 +14,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Make the agent use the scientific species name.
 - Added assets back in `getall` for eletrical recordings and reconstruction morphology.
 - Possibiliy to request specific metrics from morphometric tool.
-- Switch to gpt-5-mini everywhere.
+- Switch to gpt-5-mini.
+- Simulation config iteration 2.
 - Logging of tool calls happens in the agent_routine, not directly in the tool.
 
 ## [v0.8.0] - 18.08.2025
