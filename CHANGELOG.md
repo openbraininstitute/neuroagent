@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added assets back in `getall` for eletrical recordings and reconstruction morphology.
 - Possibiliy to request specific metrics from morphometric tool.
 - Simulation config iteration 2.
+- Logging of tool calls happens in the agent_routine, not directly in the tool.
 
 ## [v0.8.0] - 18.08.2025
 
@@ -20,6 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Utterance structure for tools.
 - OBIExpert tool.
 - Populate utterances for all tools.
+- Search functionality.
 - Evaluation framework.
 - Trace plotting tool.
 
