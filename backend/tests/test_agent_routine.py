@@ -40,6 +40,7 @@ class TestAgentsRoutine:
                 "tools": None,
                 "tool_choice": None,
                 "stream": False,
+                "reasoning_effort": "minimal",
                 "temperature": 0,
                 "seed": 12008,
             }
@@ -77,6 +78,7 @@ class TestAgentsRoutine:
                 "tools": None,
                 "tool_choice": None,
                 "stream": False,
+                "reasoning_effort": "minimal",
                 "temperature": 0,
                 "seed": 12008,
             }
@@ -132,6 +134,7 @@ class TestAgentsRoutine:
                 ],
                 "tool_choice": None,
                 "stream": False,
+                "reasoning_effort": "minimal",
                 "parallel_tool_calls": True,
                 "temperature": 0,
                 "seed": 12008,
