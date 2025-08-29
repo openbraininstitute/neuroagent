@@ -76,7 +76,7 @@ Simply specify in plain english what you want your configuration to achieve or w
 **Output Format:**
 Respond ONLY with valid JSON. Do not include explanations, comments, or additional text outside the JSON structure.
 """
-        model = "gpt-4o-mini"
+        model = "gpt-5-mini"
         response = await self.metadata.openai_client.beta.chat.completions.parse(
             messages=[
                 {"role": "system", "content": system_prompt},
