@@ -1,12 +1,7 @@
 "use client";
 
 import { MessageStrict } from "@/lib/types";
-import {
-  getStoppedStatus,
-  getStorageID,
-  getValidationStatus,
-} from "@/lib/utils";
-import PlotsInChat from "@/components/chat/plot-in-chat";
+import { getStoppedStatus, getValidationStatus } from "@/lib/utils";
 import { ChatMessageAI } from "@/components/chat/chat-message-ai";
 import { ChatMessageHuman } from "@/components/chat/chat-message-human";
 import { ChatMessageTool } from "@/components/chat/chat-message-tool";
@@ -92,7 +87,6 @@ export function ChatMessagesInsideThread({
                         handleMessageUpdate(message.id, updater)
                       }
                     />
-                    <PlotsInChat storageIds={getStorageID(part) || []} />
                   </div>
                 );
               }
