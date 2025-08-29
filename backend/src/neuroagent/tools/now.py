@@ -63,7 +63,6 @@ class NowTool(BaseTool):
         -------
             Current UTC timestamp as ISO-8601 formatted string
         """
-        logger.info("Getting current UTC timestamp")
         return NowToolOutput(timestamp=datetime.now(timezone.utc).isoformat())
 
     @classmethod
