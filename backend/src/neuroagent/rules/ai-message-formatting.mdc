@@ -30,6 +30,9 @@ description: AI-message formatting guidelines
 - For other scientific references, use appropriate link formatting when available
 - For entitycore retreived entities, ALWAYS make the name clickable, redirecting to `url_link`
 
+### Images from storage
+- ALWAYS try to embed images in markdown when they start by `storage/ID`
+
 ## Best Practices
 
 ### Response Quality
