@@ -32,7 +32,7 @@ class TestAgentsRoutine:
         )
         mock_openai_client.assert_create_called_with(
             **{
-                "model": "gpt-5-mini",
+                "model": "openai/gpt-5-mini",
                 "messages": [
                     {"role": "system", "content": "You are a helpful agent."},
                     {"role": "user", "content": "Hello !"},
@@ -40,7 +40,6 @@ class TestAgentsRoutine:
                 "tools": None,
                 "tool_choice": None,
                 "stream": False,
-                "reasoning_effort": "minimal",
                 "temperature": 0,
                 "seed": 12008,
             }
@@ -67,7 +66,7 @@ class TestAgentsRoutine:
         )
         mock_openai_client.assert_create_called_with(
             **{
-                "model": "gpt-5-mini",
+                "model": "openai/gpt-5-mini",
                 "messages": [
                     {
                         "role": "system",
@@ -78,7 +77,6 @@ class TestAgentsRoutine:
                 "tools": None,
                 "tool_choice": None,
                 "stream": False,
-                "reasoning_effort": "minimal",
                 "temperature": 0,
                 "seed": 12008,
             }
@@ -102,7 +100,7 @@ class TestAgentsRoutine:
         )
         mock_openai_client.assert_create_called_with(
             **{
-                "model": "gpt-5-mini",
+                "model": "openai/gpt-5-mini",
                 "messages": [
                     {"role": "system", "content": "You are a helpful agent."},
                     {"role": "user", "content": "Hello !"},
@@ -134,7 +132,6 @@ class TestAgentsRoutine:
                 ],
                 "tool_choice": None,
                 "stream": False,
-                "reasoning_effort": "minimal",
                 "parallel_tool_calls": True,
                 "temperature": 0,
                 "seed": 12008,
