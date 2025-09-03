@@ -68,7 +68,6 @@ class AgentsRoutine:
             "messages": messages,
             "model": model_override or agent.model,
             "stream": stream,
-            "reasoning_effort": "minimal",
             "seed": 12008,
             "temperature": agent.temperature,
             "tools": tools or None,
@@ -76,6 +75,8 @@ class AgentsRoutine:
         }
         if stream:
             create_params["stream_options"] = {"include_usage": True}
+        if agent.model == "gpt-5-mini":
+            create_params["reasoning_effort"] = "minimal"
 
         if tools:
             create_params["parallel_tool_calls"] = agent.parallel_tool_calls
