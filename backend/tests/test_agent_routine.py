@@ -32,7 +32,7 @@ class TestAgentsRoutine:
         )
         mock_openai_client.assert_create_called_with(
             **{
-                "model": "openai/gpt-5-mini",
+                "model": "gpt-5-mini",
                 "messages": [
                     {"role": "system", "content": "You are a helpful agent."},
                     {"role": "user", "content": "Hello !"},
@@ -67,7 +67,7 @@ class TestAgentsRoutine:
         )
         mock_openai_client.assert_create_called_with(
             **{
-                "model": "openai/gpt-5-mini",
+                "model": "gpt-5-mini",
                 "messages": [
                     {
                         "role": "system",
@@ -102,7 +102,7 @@ class TestAgentsRoutine:
         )
         mock_openai_client.assert_create_called_with(
             **{
-                "model": "openai/gpt-5-mini",
+                "model": "gpt-5-mini",
                 "messages": [
                     {"role": "system", "content": "You are a helpful agent."},
                     {"role": "user", "content": "Hello !"},
