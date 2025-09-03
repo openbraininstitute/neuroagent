@@ -125,7 +125,7 @@ class SettingsLLM(BaseModel):
     openai_token: SecretStr | None = None
     open_router_token: SecretStr | None = None
     suggestion_model: str = "gpt-4o-mini"
-    temperature: float = 0
+    temperature: float = 1
     max_tokens: int | None = None
     whitelisted_model_ids_regex: str = "openai.*"
 
