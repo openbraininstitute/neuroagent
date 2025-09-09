@@ -626,6 +626,7 @@ async def get_context_variables(
     # Get the current frontend url
     body = await request.json()
     current_frontend_url = body.get("frontend_url")
+    shared_state = body.get("shared_state")
     # Get the url for entitycore links
     if thread.vlab_id and thread.project_id:
         entity_frontend_url = (
@@ -651,6 +652,7 @@ async def get_context_variables(
         "project_id": thread.project_id,
         "s3_client": s3_client,
         "sanity_url": settings.tools.sanity.url,
+        "shared_state": shared_state,
         "thread_id": thread.thread_id,
         "thumbnail_generation_url": settings.tools.thumbnail_generation.url,
         "usage_dict": {},

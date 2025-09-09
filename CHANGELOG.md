@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## Added
+- Diff mechanism for small circuit simulation config.
+
 ## [v0.8.1] - 01.09.2025
 
 ### Changed

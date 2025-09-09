@@ -15,6 +15,7 @@ import { toast } from "sonner";
 import { useGetMessageNextPage } from "@/hooks/get-message-page";
 import { getToolInvocations, isLastMessageComplete } from "@/lib/utils";
 import { md5 } from "js-md5";
+import { JsonSidebar } from "@/components/chat/collapsible-sidebar-json";
 
 type ChatPageProps = {
   threadId: string;
@@ -51,9 +52,13 @@ export function ChatPage({
   const containerRef = useRef<HTMLDivElement>(null);
   // Stopping streaming
   const [stopped, setStopped] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isInvalidating, setIsInvalidating] = useState(false);
   // For frontend url
   const frontendUrl = Cookies.get("frontendUrl") || "";
+  // Simulation config json
+  const simConfigJson = useStore((state) => state.simConfigJson);
+  const setSimConfigJson = useStore((state) => state.setSimConfigJson);
 
   const {
     data,
@@ -100,6 +105,7 @@ export function ChatPage({
         tool_selection: selectedTools,
         model: currentModel.id,
         frontend_url: frontendUrl,
+        shared_state: simConfigJson,
       };
     },
   });
@@ -280,6 +286,18 @@ export function ChatPage({
     }
   }, [error, messages, setMessages]);
 
+  // Conditionally open the side bar on the right
+  useEffect(() => {
+    const last_part = messages.at(-1)?.parts.at(-1);
+    if (
+      last_part?.type == "tool-invocation" &&
+      last_part?.toolInvocation.toolName ===
+        "obione-generatesimulationsconfig" &&
+      last_part?.toolInvocation.state === "partial-call"
+    )
+      setIsSidebarOpen(true);
+  }, [messages.at(-1)?.parts]);
+  console.log(messages);
   return (
     <div className="flex h-full flex-col">
       <div
@@ -322,6 +340,13 @@ export function ChatPage({
         stopped={stopped}
         setStopped={setStopped}
         setIsInvalidating={setIsInvalidating}
+      />
+
+      <JsonSidebar
+        isOpen={isSidebarOpen}
+        onClose={() => setIsSidebarOpen(false)}
+        jsonData={simConfigJson?.smc_simulation_config}
+        setJsonData={setSimConfigJson}
       />
     </div>
   );
