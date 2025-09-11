@@ -32,6 +32,9 @@ description: AI-message formatting guidelines
 - For entitycore retrieved entities, ALWAYS include the `url_link` as a properly formatted clickable link with descriptive text
 - Use descriptive clickable text in markdown link format `[Descriptive Text](URL)` instead of showing the raw URL
 
+### Images from storage
+- ALWAYS try to embed images in markdown when they start by `storage/ID`
+
 ## Best Practices
 
 ### Response Quality

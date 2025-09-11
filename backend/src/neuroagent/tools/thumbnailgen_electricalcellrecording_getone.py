@@ -40,6 +40,7 @@ class PlotElectricalCellRecordingGetOneOutput(BaseModel):
     """Output of the PlotElectricalCellRecordingGetOneTool."""
 
     storage_id: str
+    plot_link: str
 
 
 class PlotElectricalCellRecordingGetOneTool(BaseTool):
@@ -114,7 +115,9 @@ class PlotElectricalCellRecordingGetOneTool(BaseTool):
             thread_id=self.metadata.thread_id,
         )
 
-        return PlotElectricalCellRecordingGetOneOutput(storage_id=identifier)
+        return PlotElectricalCellRecordingGetOneOutput(
+            storage_id=identifier, plot_link=f"storage/{identifier}"
+        )
 
     @classmethod
     async def is_online(
