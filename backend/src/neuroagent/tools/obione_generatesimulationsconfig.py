@@ -130,6 +130,7 @@ Generate only the JSON configuration, ensuring all references are internally con
                 {"role": "user", "content": self.input_schema.config_request},
             ],
             model=model,
+            reasoning_effort="medium",
             response_format=SimulationsFormModified,
         )
         if response.choices[0].message.parsed:

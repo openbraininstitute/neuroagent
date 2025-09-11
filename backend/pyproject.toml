@@ -30,7 +30,7 @@ dependencies = [
     "tavily-python",
     "types-PyYAML",
     "uvicorn",
-    ]
+]
 
 [project.optional-dependencies]
 dev = [

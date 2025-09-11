@@ -7,7 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- Switch to gpt-5-mini.
+
 ## [v0.8.1] - 01.09.2025
+
+### Added
+- Search functionality.
 
 ### Changed
 - Make the agent use the scientific species name.
@@ -23,7 +29,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Utterance structure for tools.
 - OBIExpert tool.
 - Populate utterances for all tools.
-- Search functionality.
 - Evaluation framework.
 - Trace plotting tool.
 
