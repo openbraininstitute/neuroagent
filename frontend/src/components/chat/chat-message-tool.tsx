@@ -7,6 +7,15 @@ import { ToolInvocation } from "@ai-sdk/ui-utils";
 import { useExecuteTool } from "@/hooks/tools";
 import { ToolCallCollapsible } from "@/components/chat/tool-call-collapsible";
 import React from "react";
+import { JsonSidebar, PatchOperation } from "./collapsible-sidebar-json";
+import { Code } from "lucide-react";
+import { useStore } from "@/lib/store";
+import { toast } from "sonner";
+
+
+type PatchPayload = {
+  patches: PatchOperation[];
+};
 
 type ChatMessageToolProps = {
   content?: string;
@@ -37,7 +46,14 @@ export const ChatMessageTool = function ChatMessageTool({
 }: ChatMessageToolProps) {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [validationError, setValidationError] = useState<string | null>(null);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const { mutate, isPending, isSuccess, data, status } = useExecuteTool();
+
+  // Set shared JSON state when needed
+  useEffect(() => {
+  if (tool.toolName === "obione-generatesimulationsconfig" && tool.state === "result") {
+    }
+  }, [tool.state])
 
   useEffect(() => {
     // If the request is loading, we wait and close the window
@@ -77,6 +93,22 @@ export const ChatMessageTool = function ChatMessageTool({
     availableTools.filter((toolObj) => toolObj.slug === tool.toolName)?.[0]
       ?.label ?? tool.toolName;
 
+  const getPatches = (tool: ToolInvocation) => {
+    try {
+      const tool_result = tool.state === "result" ? JSON.parse(tool.result) as PatchPayload : undefined
+      const patches = tool_result?.patches
+      return patches
+      // setSimConfigJson(jsonpatch.applyPatch(simConfigJson, tool_result.patches).newDocument);
+      }
+      catch {
+        const patches = undefined
+        toast.error("JSON Edit Error", {
+          description: "The tool output is not a valid JSON",
+        });
+        return patches
+      }
+    }
+
   return (
     <div className="border-white-300 ml-5 border-solid p-0.5">
       <HumanValidationDialog
@@ -91,6 +123,7 @@ export const ChatMessageTool = function ChatMessageTool({
         setMessage={setMessage}
         mutate={mutate}
       />
+      <div className="flex item-center">
       <div className="ml-5 flex justify-start">
         <ToolCallCollapsible
           tool={tool}
@@ -101,6 +134,20 @@ export const ChatMessageTool = function ChatMessageTool({
           onValidationClick={() => setDialogOpen(true)}
         />
       </div>
+    {tool.toolName === "obione-generatesimulationsconfig" &&
+    <button
+          onClick={() => setIsSidebarOpen(prev => !prev)}
+          className="rounded-lg p-1 transition-colors hover:bg-gray-200 ml-2"
+          aria-label="Open/Close current JSON"
+        >
+          <Code className="h-5 w-5 text-blue-600" />
+          </button>}  
+    </div>
+    <JsonSidebar
+    isOpen={isSidebarOpen}
+    onClose={() => setIsSidebarOpen(false)}
+    patches={getPatches(tool)}
+    />
     </div>
   );
 };

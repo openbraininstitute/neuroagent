@@ -17,6 +17,7 @@ dependencies = [
     "asyncpg",
     "boto3",
     "fastapi",
+    "jsonpatch",
     "mcp",
     "obp-accounting-sdk",
     "openai",

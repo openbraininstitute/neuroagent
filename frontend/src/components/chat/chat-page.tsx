@@ -15,7 +15,7 @@ import { toast } from "sonner";
 import { useGetMessageNextPage } from "@/hooks/get-message-page";
 import { getToolInvocations, isLastMessageComplete } from "@/lib/utils";
 import { md5 } from "js-md5";
-import { JsonSidebar } from "@/components/chat/collapsible-sidebar-json";
+
 
 type ChatPageProps = {
   threadId: string;
@@ -52,7 +52,6 @@ export function ChatPage({
   const containerRef = useRef<HTMLDivElement>(null);
   // Stopping streaming
   const [stopped, setStopped] = useState(false);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isInvalidating, setIsInvalidating] = useState(false);
   // For frontend url
   const frontendUrl = Cookies.get("frontendUrl") || "";
@@ -286,18 +285,27 @@ export function ChatPage({
     }
   }, [error, messages, setMessages]);
 
-  // Conditionally open the side bar on the right
-  useEffect(() => {
-    const last_part = messages.at(-1)?.parts.at(-1);
-    if (
-      last_part?.type == "tool-invocation" &&
-      last_part?.toolInvocation.toolName ===
-        "obione-generatesimulationsconfig" &&
-      last_part?.toolInvocation.state === "partial-call"
-    )
-      setIsSidebarOpen(true);
-  }, [messages.at(-1)?.parts]);
-  console.log(messages);
+  // // // Conditionally open the side bar on the right
+  // useEffect(() => {
+  //   // Apply JSON patch when result available
+  //   if (
+  //     last_part?.type == "tool-invocation" &&
+  //     last_part?.toolInvocation.toolName ===
+  //       "obione-generatesimulationsconfig" &&
+  //     last_part?.toolInvocation.state === "result"
+  //   ) {
+  //   try {
+  //   const tool_result = JSON.parse(last_part.toolInvocation.result) as PatchPayload
+  //   setSimConfigJson(jsonpatch.applyPatch(simConfigJson, tool_result.patches).newDocument);
+  //   }
+  //   catch {
+  //     toast.error("JSON Edit Error", {
+  //       description: "The tool output is not a valid JSON",
+  //     });
+  //   }
+  //   }
+  // }, [messages.at(-1)?.parts]);
+
   return (
     <div className="flex h-full flex-col">
       <div
@@ -342,12 +350,12 @@ export function ChatPage({
         setIsInvalidating={setIsInvalidating}
       />
 
-      <JsonSidebar
+      {/* <JsonSidebar
         isOpen={isSidebarOpen}
         onClose={() => setIsSidebarOpen(false)}
-        jsonData={simConfigJson?.smc_simulation_config}
-        setJsonData={setSimConfigJson}
-      />
+        // jsonData={simConfigJson?.smc_simulation_config}
+        // setJsonData={setSimConfigJson}
+      /> */}
     </div>
   );
 }

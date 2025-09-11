@@ -13,6 +13,7 @@ interface StoreState {
   setCurrentModel: (model: LLMModel) => void;
   simConfigJson: Record<string, SimulationsForm>;
   setSimConfigJson: (json: Record<string, SimulationsForm>) => void;
+  
 }
 
 export const useStore = create<StoreState>((set) => ({
@@ -58,5 +59,5 @@ export const useStore = create<StoreState>((set) => ({
       },
     },
   },
-  setSimConfigJson: (json) => set({ simConfigJson: json }),
+  setSimConfigJson: (json) => set({ simConfigJson: json })
 }));
