@@ -1,12 +1,20 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { MessageStrict } from "@/lib/types";
+import { useState, useEffect, Dispatch, SetStateAction } from "react";
+import { MessageStrict, SimulationsForm } from "@/lib/types";
 import { HumanValidationDialog } from "@/components/chat/human-validation-dialog";
 import { ToolInvocation } from "@ai-sdk/ui-utils";
 import { useExecuteTool } from "@/hooks/tools";
 import { ToolCallCollapsible } from "@/components/chat/tool-call-collapsible";
 import React from "react";
+import { JsonSidebar, PatchOperation } from "./collapsible-sidebar-json";
+import { Code } from "lucide-react";
+import { toast } from "sonner";
+import * as jsonpatch from "fast-json-patch";
+
+type PatchPayload = {
+  patches: PatchOperation[];
+};
 
 type ChatMessageToolProps = {
   content?: string;
@@ -24,6 +32,8 @@ type ChatMessageToolProps = {
   }) => void;
   validated: "pending" | "accepted" | "rejected" | "not_required";
   setMessage: (updater: (msg: MessageStrict) => MessageStrict) => void;
+  simConfigJson: Record<string, SimulationsForm>;
+  setSimConfigJson: Dispatch<SetStateAction<Record<string, SimulationsForm>>>;
 };
 
 export const ChatMessageTool = function ChatMessageTool({
@@ -34,9 +44,12 @@ export const ChatMessageTool = function ChatMessageTool({
   addToolResult,
   setMessage,
   validated,
+  simConfigJson,
+  setSimConfigJson,
 }: ChatMessageToolProps) {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [validationError, setValidationError] = useState<string | null>(null);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const { mutate, isPending, isSuccess, data, status } = useExecuteTool();
 
   useEffect(() => {
@@ -77,6 +90,26 @@ export const ChatMessageTool = function ChatMessageTool({
     availableTools.filter((toolObj) => toolObj.slug === tool.toolName)?.[0]
       ?.label ?? tool.toolName;
 
+  // Check for state update when sim config tool
+  useEffect(() => {
+    if (
+      tool.toolName === "obione-generatesimulationsconfig" &&
+      tool.state === "result"
+    ) {
+      try {
+        const tool_result = JSON.parse(tool.result) as PatchPayload;
+        const patches = tool_result.patches;
+        setSimConfigJson(
+          jsonpatch.applyPatch(simConfigJson, patches).newDocument,
+        );
+      } catch {
+        toast.error("JSON Edit Error", {
+          description: "The tool output is not a valid JSON",
+        });
+      }
+    }
+  }, [tool.state]);
+
   return (
     <div className="border-white-300 ml-5 border-solid p-0.5">
       <HumanValidationDialog
@@ -91,16 +124,35 @@ export const ChatMessageTool = function ChatMessageTool({
         setMessage={setMessage}
         mutate={mutate}
       />
-      <div className="ml-5 flex justify-start">
-        <ToolCallCollapsible
-          tool={tool}
-          stopped={stopped}
-          toolLabel={toolLabel}
-          validated={validated}
-          validationError={validationError}
-          onValidationClick={() => setDialogOpen(true)}
-        />
+      <div className="item-center flex">
+        <div className="ml-5 flex justify-start">
+          <ToolCallCollapsible
+            tool={tool}
+            stopped={stopped}
+            toolLabel={toolLabel}
+            validated={validated}
+            validationError={validationError}
+            onValidationClick={() => setDialogOpen(true)}
+          />
+        </div>
+        {tool.toolName === "obione-generatesimulationsconfig" && (
+          <button
+            onClick={() => setIsSidebarOpen((prev) => !prev)}
+            className="ml-2 rounded-lg p-1 transition-colors hover:bg-gray-200"
+            aria-label="Open/Close current JSON"
+          >
+            <Code className="h-5 w-5 text-blue-600" />
+          </button>
+        )}
       </div>
+      {tool.toolName === "obione-generatesimulationsconfig" && (
+        <JsonSidebar
+          isOpen={isSidebarOpen}
+          onClose={() => setIsSidebarOpen(false)}
+          simConfigJson={simConfigJson}
+          setSimConfigJson={setSimConfigJson}
+        />
+      )}
     </div>
   );
 };

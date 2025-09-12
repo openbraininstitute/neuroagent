@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## Added
+- Diff mechanism for small circuit simulation config.
+
 ### Changed
 - Switch to gpt-5-mini.
 

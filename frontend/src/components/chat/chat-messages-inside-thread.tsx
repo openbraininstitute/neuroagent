@@ -1,6 +1,6 @@
 "use client";
 
-import { MessageStrict } from "@/lib/types";
+import { MessageStrict, SimulationsForm } from "@/lib/types";
 import {
   getStoppedStatus,
   getStorageID,
@@ -12,6 +12,7 @@ import { ChatMessageHuman } from "@/components/chat/chat-message-human";
 import { ChatMessageTool } from "@/components/chat/chat-message-tool";
 import { ChatMessageLoading } from "./chat-message-loading";
 import { ReasoningCollapsible } from "./reasoning-collapsible";
+import { Dispatch, SetStateAction } from "react";
 
 type ChatMessagesInsideThreadProps = {
   messages: MessageStrict[];
@@ -31,6 +32,8 @@ type ChatMessagesInsideThreadProps = {
       | ((messages: MessageStrict[]) => MessageStrict[]),
   ) => void;
   loadingStatus: "submitted" | "streaming" | "ready" | "error";
+  simConfigJson: Record<string, SimulationsForm>;
+  setSimConfigJson: Dispatch<SetStateAction<Record<string, SimulationsForm>>>;
 };
 
 export function ChatMessagesInsideThread({
@@ -40,6 +43,8 @@ export function ChatMessagesInsideThread({
   addToolResult,
   setMessages,
   loadingStatus,
+  simConfigJson,
+  setSimConfigJson,
 }: ChatMessagesInsideThreadProps) {
   const handleMessageUpdate = (
     messageId: string,
@@ -49,6 +54,7 @@ export function ChatMessagesInsideThread({
       messages.map((msg) => (msg.id === messageId ? updater(msg) : msg)),
     );
   };
+
   return (
     <>
       {messages.map((message, idx) =>
@@ -91,6 +97,8 @@ export function ChatMessagesInsideThread({
                       setMessage={(updater) =>
                         handleMessageUpdate(message.id, updater)
                       }
+                      simConfigJson={simConfigJson}
+                      setSimConfigJson={setSimConfigJson}
                     />
                     <PlotsInChat storageIds={getStorageID(part) || []} />
                   </div>
