@@ -1,3 +1,4 @@
+"use client";
 import React, {
   useRef,
   useState,
@@ -7,7 +8,7 @@ import React, {
   useCallback,
   useMemo,
 } from "react";
-import { X, Code } from "lucide-react";
+import { X, Code, Check, Copy } from "lucide-react";
 import {
   JsonData,
   JsonEditor,
@@ -38,6 +39,24 @@ export const JsonSidebar = React.memo(
     // Horizontal resizing state
     const [sidebarWidth, setSidebarWidth] = useState(500);
     const isResizingSidebar = useRef(false);
+    const [isClicked, setIsClicked] = useState(false);
+
+    const handleCopy = (SimForm: SimulationsForm) => {
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(JSON.stringify(SimForm));
+        setIsClicked(true);
+        setTimeout(() => setIsClicked(false), 1500);
+      } else {
+        const textarea = document.createElement("textarea");
+        textarea.value = JSON.stringify(SimForm);
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand("copy");
+        setIsClicked(true);
+        document.body.removeChild(textarea);
+        setTimeout(() => setIsClicked(false), 1500);
+      }
+    };
 
     // Memoize the resize handlers to prevent recreating them on every render
     const startSidebarResize = useCallback(() => {
@@ -139,19 +158,36 @@ export const JsonSidebar = React.memo(
 
           {/* Header */}
           <div className="flex items-center justify-between border-b border-gray-200 bg-gray-50 p-4 dark:bg-[#0A0A0A]">
+            {/* Left side - Title */}
             <div className="flex items-center gap-2">
               <Code className="h-5 w-5 text-blue-600" />
               <h2 className="text-lg font-semibold text-gray-800 dark:text-white">
                 Small Micro Circuit Simulation Configuration
               </h2>
             </div>
-            <button
-              onClick={onClose}
-              className="rounded-lg p-1 transition-colors hover:bg-gray-200"
-              aria-label="Close sidebar"
-            >
-              <X className="h-5 w-5 text-gray-600" />
-            </button>
+
+            {/* Right side - Copy/Check button and Close button */}
+            <div className="flex items-center gap-2">
+              {isClicked ? (
+                <Check className="h-4 w-4" />
+              ) : (
+                <div title="Copy configuration">
+                  <Copy
+                    className="h-4 w-4 cursor-pointer opacity-50"
+                    onClick={() =>
+                      handleCopy(simConfigJson.smc_simulation_config)
+                    }
+                  />
+                </div>
+              )}
+              <button
+                onClick={onClose}
+                className="rounded-lg p-1 transition-colors hover:bg-gray-200"
+                aria-label="Close sidebar"
+              >
+                <X className="h-5 w-5 text-gray-600" />
+              </button>
+            </div>
           </div>
 
           {/* Main Content + Footer (Resizable) */}
