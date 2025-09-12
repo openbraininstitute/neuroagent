@@ -1,6 +1,6 @@
 "use client";
 
-import { MessageStrict } from "@/lib/types";
+import { MessageStrict, SimulationsForm } from "@/lib/types";
 import {
   getStoppedStatus,
   getStorageID,
@@ -13,7 +13,6 @@ import { ChatMessageTool } from "@/components/chat/chat-message-tool";
 import { ChatMessageLoading } from "./chat-message-loading";
 import { ReasoningCollapsible } from "./reasoning-collapsible";
 import { Dispatch, SetStateAction } from "react";
-import { SimulationsForm } from "@/lib/store";
 
 type ChatMessagesInsideThreadProps = {
   messages: MessageStrict[];

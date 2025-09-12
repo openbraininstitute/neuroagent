@@ -4,6 +4,7 @@ import {
   ToolInvocationUIPart,
   UIMessage,
 } from "@ai-sdk/ui-utils";
+import { components } from "./obione";
 
 export type BPaginatedResponse = {
   next_cursor: string;
@@ -243,93 +244,7 @@ export type BOpenRouterModelResponse = {
   supported_parameters: string[];
 };
 
-// type RegularTimestamps = {
-//   type: "RegularTimestamps";
-//   start_time: number;
-//   interval: number;
-//   number_of_repetitions: number;
-// }
-
-// type TimestampsReference = {
-//   type: "TimestampsReference";
-//   block_dict_name: string;
-//   block_name: string;
-// }
-
-// type NeuronSetReference = {
-//   type: "NeuronSetReference";
-//   block_dict_name: string;
-//   block_name: string;
-// }
-
-// type ConstantCurrentClampSomaticStimulus = {
-//   type: "ConstantCurrentClampSomaticStimulus";
-//   timestamps: TimestampsReference;
-//   neuron_set: NeuronSetReference;
-//   timestamp_offset: number | null;
-//   duration: number;
-//   amplitude: number;
-// }
-
-// type SomaVoltageRecording = {
-//   type: "SomaVoltageRecording";
-//   neuron_set: NeuronSetReference;
-//   dt: number;
-// }
-
-// type ExcitatoryNeurons = {
-//   type: "ExcitatoryNeurons";
-//   sample_percentage: number;
-//   sample_seed: number;
-// }
-
-// type InhibitoryNeurons = {
-//   type: "InhibitoryNeurons";
-//   sample_percentage: number;
-//   sample_seed: number;
-// }
-
-// type AllNeurons = {
-//   type: "AllNeurons";
-//   sample_percentage: number;
-//   sample_seed: number;
-// }
-
-// export type SimulationsForm = {
-//   type: "SimulationsForm";
-//   timestamps: Record<string, RegularTimestamps | >
-//   stimuli: {
-//     exc_soma_current: ConstantCurrentClampSomaticStimulus;
-//     inh_soma_current: ConstantCurrentClampSomaticStimulus;
-//   };
-//   recordings: {
-//     exc_soma_recording: SomaVoltageRecording;
-//     inh_soma_recording: SomaVoltageRecording;
-//   };
-//   neuron_sets: {
-//     excitatory: ExcitatoryNeurons;
-//     inhibitory: InhibitoryNeurons;
-//     all_neurons: AllNeurons;
-//   };
-//   synaptic_manipulations: Record<string, unknown>; // empty object in your case
-//   initialize: {
-//     type: "SimulationsForm.Initialize";
-//     circuit: {
-//       id_str: string;
-//       type: "CircuitFromID";
-//     };
-//     node_set: NeuronSetReference;
-//     simulation_length: number;
-//     extracellular_calcium_concentration: number;
-//     v_init: number;
-//     random_seed: number;
-//   };
-//   info: {
-//     type: "Info";
-//     campaign_name: string;
-//     campaign_description: string;
-//   };
-// };
+export type SimulationsForm = components["schemas"]["SimulationsForm"];
 
 export const threadPageSize = "25";
 export const messagePageSize = "25";

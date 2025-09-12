@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, Dispatch, SetStateAction } from "react";
-import { MessageStrict } from "@/lib/types";
+import { MessageStrict, SimulationsForm } from "@/lib/types";
 import { HumanValidationDialog } from "@/components/chat/human-validation-dialog";
 import { ToolInvocation } from "@ai-sdk/ui-utils";
 import { useExecuteTool } from "@/hooks/tools";
@@ -9,7 +9,6 @@ import { ToolCallCollapsible } from "@/components/chat/tool-call-collapsible";
 import React from "react";
 import { JsonSidebar, PatchOperation } from "./collapsible-sidebar-json";
 import { Code } from "lucide-react";
-import { SimulationsForm } from "@/lib/store";
 import { toast } from "sonner";
 import * as jsonpatch from "fast-json-patch";
 
@@ -91,6 +90,7 @@ export const ChatMessageTool = function ChatMessageTool({
     availableTools.filter((toolObj) => toolObj.slug === tool.toolName)?.[0]
       ?.label ?? tool.toolName;
 
+  // Check for state update when sim config tool
   useEffect(() => {
     if (
       tool.toolName === "obione-generatesimulationsconfig" &&

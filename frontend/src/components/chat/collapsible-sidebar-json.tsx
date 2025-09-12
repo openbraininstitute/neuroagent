@@ -15,7 +15,7 @@ import {
   monoLightTheme,
 } from "json-edit-react";
 import { useTheme } from "next-themes";
-import { SimulationsForm } from "@/lib/store";
+import { SimulationsForm } from "@/lib/types";
 
 export type PatchOperation = {
   op: "add" | "replace" | "remove";

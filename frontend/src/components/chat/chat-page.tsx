@@ -3,11 +3,16 @@
 import Cookies from "js-cookie";
 import { useChat } from "@ai-sdk/react";
 import { useEffect, useRef, useState } from "react";
-import { BMessage, LLMModel, type MessageStrict } from "@/lib/types";
+import {
+  BMessage,
+  LLMModel,
+  SimulationsForm,
+  type MessageStrict,
+} from "@/lib/types";
 import { env } from "@/lib/env";
 import { useSession } from "next-auth/react";
 import { ExtendedSession } from "@/lib/auth";
-import { SimulationsForm, useStore } from "@/lib/store";
+import { useStore } from "@/lib/store";
 import { ChatInputInsideThread } from "@/components/chat/chat-input-inside-thread";
 import { ChatMessagesInsideThread } from "@/components/chat/chat-messages-inside-thread";
 import { generateEditTitle } from "@/actions/generate-edit-thread";
@@ -315,27 +320,6 @@ export function ChatPage({
     }
   }, [error, messages, setMessages]);
 
-  // // // Conditionally open the side bar on the right
-  // useEffect(() => {
-  //   // Apply JSON patch when result available
-  //   if (
-  //     last_part?.type == "tool-invocation" &&
-  //     last_part?.toolInvocation.toolName ===
-  //       "obione-generatesimulationsconfig" &&
-  //     last_part?.toolInvocation.state === "result"
-  //   ) {
-  //   try {
-  //   const tool_result = JSON.parse(last_part.toolInvocation.result) as PatchPayload
-  //   setSimConfigJson(jsonpatch.applyPatch(simConfigJson, tool_result.patches).newDocument);
-  //   }
-  //   catch {
-  //     toast.error("JSON Edit Error", {
-  //       description: "The tool output is not a valid JSON",
-  //     });
-  //   }
-  //   }
-  // }, [messages.at(-1)?.parts]);
-
   return (
     <div className="flex h-full flex-col">
       <div
@@ -381,13 +365,6 @@ export function ChatPage({
         setStopped={setStopped}
         setIsInvalidating={setIsInvalidating}
       />
-
-      {/* <JsonSidebar
-        isOpen={isSidebarOpen}
-        onClose={() => setIsSidebarOpen(false)}
-        // jsonData={simConfigJson?.smc_simulation_config}
-        // setJsonData={setSimConfigJson}
-      /> */}
     </div>
   );
 }

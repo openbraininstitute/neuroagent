@@ -1,8 +1,5 @@
 import { create } from "zustand";
 import { LLMModel } from "./types";
-import { components } from "@/lib/obione";
-
-export type SimulationsForm = components["schemas"]["SimulationsForm"];
 
 interface StoreState {
   newMessage: string;
