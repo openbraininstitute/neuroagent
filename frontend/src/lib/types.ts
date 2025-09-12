@@ -4,23 +4,30 @@ import {
   ToolInvocationUIPart,
   UIMessage,
 } from "@ai-sdk/ui-utils";
+import { components } from "./neuroagent_types";
 
-export type BPaginatedResponse = {
-  next_cursor: string;
-  has_more: boolean;
-  page_size: number;
-  results: BThread[] | BMessage[];
-};
+// export type BPaginatedResponse = {
+//   next_cursor: string;
+//   has_more: boolean;
+//   page_size: number;
+//   results: BThread[] | BMessage[];
+// };
+export type BPaginatedResponseThread =
+  components["schemas"]["PaginatedResponse_ThreadsRead_"];
+export type BPaginatedResponseMessage =
+  components["schemas"]["PaginatedResponse_MessagesReadVercel_"];
 
-export type BThread = {
-  thread_id: string;
-  user_id: string;
-  vlab_id: string | null;
-  project_id: string | null;
-  title: string;
-  creation_date: string;
-  update_date: string;
-};
+// export type BThread = {
+//   thread_id: string;
+//   user_id: string;
+//   vlab_id: string | null;
+//   project_id: string | null;
+//   title: string;
+//   creation_date: string;
+//   update_date: string;
+// };
+
+export type BThread = components["schemas"]["ThreadsRead"];
 
 export type Thread = {
   threadId: string;
@@ -34,28 +41,38 @@ export type Annotation = {
   isComplete?: boolean;
 };
 
-export type BTextPart = {
-  type: "text";
-  text: string;
-};
+// export type BTextPart = {
+//   type: "text";
+//   text: string;
+// };
+export type BTextPart = components["schemas"]["TextPartVercel"];
 
-export type BMessageUser = {
-  id: string;
-  role: "user";
-  createdAt: Date;
-  content: string;
-  parts: [];
-  annotation: [];
-};
+// export type BMessageUser = {
+//   id: string;
+//   role: "user";
+//   createdAt: Date;
+//   content: string;
+//   parts: [];
+//   annotation: [];
+// };
 
-export type BMessageAIContent = {
-  id: string;
-  role: "assistant";
-  createdAt: Date;
-  content: string;
-  parts: (TextUIPart | ToolInvocationUIPart | ReasoningUIPart)[];
-  annotations: Annotation[];
-};
+export type BMessageUser = Omit<
+  components["schemas"]["MessagesReadVercel"],
+  "role"
+> & { role: "user" };
+export type BMessageAIContent = Omit<
+  components["schemas"]["MessagesReadVercel"],
+  "role"
+> & { role: "assistant" };
+
+// export type BMessageAIContent = {
+//   id: string;
+//   role: "assistant";
+//   createdAt: Date;
+//   content: string;
+//   parts: (TextUIPart | ToolInvocationUIPart | ReasoningUIPart)[];
+//   annotations: Annotation[];
+// };
 
 export type BMessage = BMessageUser | BMessageAIContent;
 
@@ -65,37 +82,44 @@ export type MessageStrict = Omit<UIMessage, "annotations"> & {
   annotations?: Annotation[];
 };
 
-export type BExecuteToolCallRequest = {
-  validation: "rejected" | "accepted";
-  args?: string;
-  feedback?: string;
-};
+export type BExecuteToolCallRequest =
+  components["schemas"]["ExecuteToolCallRequest"];
+// export type BExecuteToolCallRequest = {
+//   validation: "rejected" | "accepted";
+//   args?: string;
+//   feedback?: string;
+// };
 
-export type BExecuteToolCallResponse = {
-  status: "done" | "validation-error";
-  content: string | null;
-};
+export type BExecuteToolCallResponse =
+  components["schemas"]["ExecuteToolCallResponse"];
+// export type BExecuteToolCallResponse = {
+//   status: "done" | "validation-error";
+//   content: string | null;
+// };
 
-export type BToolMetadata = {
-  name: string;
-  name_frontend: string;
-};
+// export type BToolMetadata = {
+//   name: string;
+//   name_frontend: string;
+// };
+export type BToolMetadata = components["schemas"]["ToolMetadata"];
 
 export type ToolMetadata = {
   name: string;
   nameFrontend: string;
 };
 
-export type BToolMetadataDetailed = {
-  name: string;
-  name_frontend: string;
-  description: string;
-  description_frontend: string;
-  utterances: string[];
-  input_schema: string;
-  hil: boolean;
-  is_online: boolean;
-};
+export type BToolMetadataDetailed =
+  components["schemas"]["ToolMetadataDetailed"];
+// export type BToolMetadataDetailed = {
+//   name: string;
+//   name_frontend: string;
+//   description: string;
+//   description_frontend: string;
+//   utterances: string[];
+//   input_schema: string;
+//   hil: boolean;
+//   is_online: boolean;
+// };
 
 export type ToolDetailedMetadata = {
   name: string;
@@ -188,9 +212,11 @@ export type JSONMultiLinechart = BaseObject & {
   line_color?: string | null;
 };
 
-export type SuggestedQuestions = {
-  suggestions: { question: string }[];
-};
+export type BQuestionsSuggestions =
+  components["schemas"]["QuestionsSuggestions"];
+// export type SuggestedQuestions = {
+//   suggestions: { question: string }[];
+// };
 
 export class CustomError extends Error {
   public statusCode: number;
@@ -202,11 +228,12 @@ export class CustomError extends Error {
   }
 }
 
-export type UserHistory = Array<{
-  timestamp: number;
-  region: string;
-  artifact: string | null;
-}>;
+export type UserHistory = Array<components["schemas"]["UserJourney"]>;
+// export type UserHistory = Array<{
+//   timestamp: number;
+//   region: string;
+//   artifact: string | null;
+// }>;
 
 export type LLMModel = {
   id: string;
@@ -214,34 +241,36 @@ export type LLMModel = {
   metadata: string;
 };
 
-export type BOpenRouterModelResponse = {
-  id: string;
-  name: string;
-  created: number;
-  description: string;
-  architecture: {
-    input_modalities: string[];
-    output_modalities: string[];
-    tokenizer: string;
-  };
-  top_provider: {
-    is_moderated: boolean;
-  };
-  pricing: {
-    prompt: string;
-    completion: string;
-    image: string;
-    request: string;
-    input_cache_read: string;
-    input_cache_write: string;
-    web_search: string;
-    internal_reasoning: string;
-  };
-  context_length: number;
-  hugging_face_id: string;
-  per_request_limits: Record<string, string>;
-  supported_parameters: string[];
-};
+export type BOpenRouterModelResponse =
+  components["schemas"]["OpenRouterModelResponse"];
+// export type BOpenRouterModelResponse = {
+//   id: string;
+//   name: string;
+//   created: number;
+//   description: string;
+//   architecture: {
+//     input_modalities: string[];
+//     output_modalities: string[];
+//     tokenizer: string;
+//   };
+//   top_provider: {
+//     is_moderated: boolean;
+//   };
+//   pricing: {
+//     prompt: string;
+//     completion: string;
+//     image: string;
+//     request: string;
+//     input_cache_read: string;
+//     input_cache_write: string;
+//     web_search: string;
+//     internal_reasoning: string;
+//   };
+//   context_length: number;
+//   hugging_face_id: string;
+//   per_request_limits: Record<string, string>;
+//   supported_parameters: string[];
+// };
 
 export const threadPageSize = "25";
 export const messagePageSize = "25";

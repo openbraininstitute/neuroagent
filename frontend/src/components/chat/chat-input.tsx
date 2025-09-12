@@ -11,7 +11,7 @@ import ChatInputLoading from "@/components/chat/chat-input-loading";
 import { convert_tools_to_set } from "@/lib/utils";
 import { OpenUserJourneyButton } from "@/components/chat/user-journey-dialog";
 import QuestionSuggestionCards from "@/components/chat/question-suggestion-cards";
-import { LLMModel, SuggestedQuestions, UserHistory } from "@/lib/types";
+import { LLMModel, BQuestionsSuggestions, BUserJourney } from "@/lib/types";
 import { getSuggestions } from "@/actions/get-suggestions";
 import { ModelSelectionDropdown } from "./model-selection";
 
@@ -44,7 +44,7 @@ export function ChatInput({ availableTools, availableModels }: ChatInputProps) {
     startTransition(action);
   };
 
-  const suggestionActionWrapper = (suggestionInput: UserHistory) => {
+  const suggestionActionWrapper = (suggestionInput: BUserJourney) => {
     startTransition(() => querySuggestions(suggestionInput));
   };
 
@@ -135,7 +135,7 @@ export function ChatInput({ availableTools, availableModels }: ChatInputProps) {
         </div>
 
         <QuestionSuggestionCards
-          suggestions={suggestionsState as SuggestedQuestions}
+          suggestions={suggestionsState as BQuestionsSuggestions}
           onSubmit={actionWrapper}
         />
       </form>
