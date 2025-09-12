@@ -464,7 +464,6 @@ class EntityRoute(
             'mesh',
             'memodel-calibration-result',
             'me-type-density',
-            'publication',
             'reconstruction-morphology',
             'simulation',
             'simulation-campaign',
@@ -498,7 +497,6 @@ class EntityRoute(
         'mesh',
         'memodel-calibration-result',
         'me-type-density',
-        'publication',
         'reconstruction-morphology',
         'simulation',
         'simulation-campaign',
@@ -534,7 +532,6 @@ class EntityType(
             'mesh',
             'memodel_calibration_result',
             'me_type_density',
-            'publication',
             'reconstruction_morphology',
             'simulation',
             'simulation_campaign',
@@ -568,7 +565,6 @@ class EntityType(
         'mesh',
         'memodel_calibration_result',
         'me_type_density',
-        'publication',
         'reconstruction_morphology',
         'simulation',
         'simulation_campaign',
@@ -1055,6 +1051,114 @@ class ReconstructionMorphologyCreate(BaseModel):
     species_id: UUID = Field(..., title='Species Id')
     strain_id: UUID | None = Field(default=None, title='Strain Id')
     brain_region_id: UUID = Field(..., title='Brain Region Id')
+
+
+class ResourceRoute(
+    RootModel[
+        Literal[
+            'analysis-software-source-code',
+            'brain-atlas',
+            'brain-atlas-region',
+            'brain-region',
+            'brain-region-hierarchy',
+            'cell-composition',
+            'circuit',
+            'consortium',
+            'contribution',
+            'derivation',
+            'electrical-cell-recording',
+            'electrical-recording-stimulus',
+            'emodel',
+            'etype',
+            'etype-classification',
+            'experimental-bouton-density',
+            'experimental-neuron-density',
+            'experimental-synapses-per-connection',
+            'external-url',
+            'ion',
+            'ion-channel-model',
+            'license',
+            'me-type-density',
+            'measurement-annotation',
+            'memodel',
+            'memodel-calibration-result',
+            'mesh',
+            'mtype',
+            'mtype-classification',
+            'organization',
+            'person',
+            'publication',
+            'reconstruction-morphology',
+            'role',
+            'scientific-artifact',
+            'scientific-artifact-external-url-link',
+            'scientific-artifact-publication-link',
+            'simulation',
+            'simulation-campaign',
+            'simulation-campaign-generation',
+            'simulation-execution',
+            'simulation-result',
+            'single-neuron-simulation',
+            'single-neuron-synaptome',
+            'single-neuron-synaptome-simulation',
+            'species',
+            'strain',
+            'subject',
+            'validation-result',
+        ]
+    ]
+):
+    root: Literal[
+        'analysis-software-source-code',
+        'brain-atlas',
+        'brain-atlas-region',
+        'brain-region',
+        'brain-region-hierarchy',
+        'cell-composition',
+        'circuit',
+        'consortium',
+        'contribution',
+        'derivation',
+        'electrical-cell-recording',
+        'electrical-recording-stimulus',
+        'emodel',
+        'etype',
+        'etype-classification',
+        'experimental-bouton-density',
+        'experimental-neuron-density',
+        'experimental-synapses-per-connection',
+        'external-url',
+        'ion',
+        'ion-channel-model',
+        'license',
+        'me-type-density',
+        'measurement-annotation',
+        'memodel',
+        'memodel-calibration-result',
+        'mesh',
+        'mtype',
+        'mtype-classification',
+        'organization',
+        'person',
+        'publication',
+        'reconstruction-morphology',
+        'role',
+        'scientific-artifact',
+        'scientific-artifact-external-url-link',
+        'scientific-artifact-publication-link',
+        'simulation',
+        'simulation-campaign',
+        'simulation-campaign-generation',
+        'simulation-execution',
+        'simulation-result',
+        'single-neuron-simulation',
+        'single-neuron-synaptome',
+        'single-neuron-synaptome-simulation',
+        'species',
+        'strain',
+        'subject',
+        'validation-result',
+    ] = Field(..., title='ResourceRoute')
 
 
 class RoleCreate(BaseModel):
@@ -1577,6 +1681,14 @@ class ReadCircuitHierarchyCircuitHierarchyGetParametersQuery(BaseModel):
 class ReadManyCircuitGetParametersQuery(BaseModel):
     page: int = Field(default=1, ge=1, title='Page')
     page_size: int = Field(default=100, ge=1, title='Page Size')
+    scale: CircuitScale | None = Field(default=None, title='Scale')
+    scale__in: list[CircuitScale] | None = Field(default=None, title='Scale  In')
+    build_category: CircuitBuildCategory | None = Field(
+        default=None, title='Build Category'
+    )
+    build_category__in: list[CircuitBuildCategory] | None = Field(
+        default=None, title='Build Category  In'
+    )
     name: str | None = Field(default=None, title='Name')
     name__in: list[str] | None = Field(default=None, title='Name  In')
     name__ilike: str | None = Field(default=None, title='Name  Ilike')
@@ -1624,12 +1736,6 @@ class ReadManyCircuitGetParametersQuery(BaseModel):
     number_connections__gte: int | None = Field(
         default=None, title='Number Connections  Gte'
     )
-    build_category: str | None = Field(default=None, title='Build Category')
-    build_category__in: list[str] | None = Field(
-        default=None, title='Build Category  In'
-    )
-    scale: str | None = Field(default=None, title='Scale')
-    scale__in: list[str] | None = Field(default=None, title='Scale  In')
     contribution__pref_label: str | None = Field(
         default=None, title='Contribution  Pref Label'
     )
@@ -2245,6 +2351,36 @@ class ReadManyEtypeGetParametersQuery(BaseModel):
     id: UUID | None = Field(default=None, title='Id')
     id__in: list[str] | None = Field(default=None, title='Id  In')
     order_by: list[str] = Field(default=['pref_label'], title='Order By')
+
+
+class ReadManyEtypeClassificationGetParametersQuery(BaseModel):
+    page: int = Field(default=1, ge=1, title='Page')
+    page_size: int = Field(default=100, ge=1, title='Page Size')
+    entity_id: UUID | None = Field(default=None, title='Entity Id')
+    etype_class_id: UUID | None = Field(default=None, title='Etype Class Id')
+    order_by: list[str] = Field(default=['-creation_date'], title='Order By')
+    created_by__pref_label: str | None = Field(
+        default=None, title='Created By  Pref Label'
+    )
+    created_by__pref_label__in: list[str] | None = Field(
+        default=None, title='Created By  Pref Label  In'
+    )
+    created_by__id: UUID | None = Field(default=None, title='Created By  Id')
+    created_by__id__in: list[str] | None = Field(
+        default=None, title='Created By  Id  In'
+    )
+    updated_by__pref_label: str | None = Field(
+        default=None, title='Updated By  Pref Label'
+    )
+    updated_by__pref_label__in: list[str] | None = Field(
+        default=None, title='Updated By  Pref Label  In'
+    )
+    updated_by__id: UUID | None = Field(default=None, title='Updated By  Id')
+    updated_by__id__in: list[str] | None = Field(
+        default=None, title='Updated By  Id  In'
+    )
+    search: str | None = Field(default=None, title='Search')
+    with_facets: bool = Field(default=False, title='With Facets')
 
 
 class ReadManyExperimentalBoutonDensityGetParametersQuery(BaseModel):
@@ -2875,6 +3011,7 @@ class ReadManyIonChannelModelGetParametersQuery(BaseModel):
 class ReadManyLicenseGetParametersQuery(BaseModel):
     page: int = Field(default=1, ge=1, title='Page')
     page_size: int = Field(default=100, ge=1, title='Page Size')
+    order_by: list[str] = Field(default=['-creation_date'], title='Order By')
 
 
 class ReadManyMeasurementAnnotationGetParametersQuery(BaseModel):
@@ -3394,6 +3531,36 @@ class ReadOneReconstructionMorphologyIdGetParametersQuery(BaseModel):
 ReadManyMtypeGetParametersQuery = ReadManyEtypeGetParametersQuery
 
 
+class ReadManyMtypeClassificationGetParametersQuery(BaseModel):
+    page: int = Field(default=1, ge=1, title='Page')
+    page_size: int = Field(default=100, ge=1, title='Page Size')
+    entity_id: UUID | None = Field(default=None, title='Entity Id')
+    mtype_class_id: UUID | None = Field(default=None, title='Mtype Class Id')
+    order_by: list[str] = Field(default=['-creation_date'], title='Order By')
+    created_by__pref_label: str | None = Field(
+        default=None, title='Created By  Pref Label'
+    )
+    created_by__pref_label__in: list[str] | None = Field(
+        default=None, title='Created By  Pref Label  In'
+    )
+    created_by__id: UUID | None = Field(default=None, title='Created By  Id')
+    created_by__id__in: list[str] | None = Field(
+        default=None, title='Created By  Id  In'
+    )
+    updated_by__pref_label: str | None = Field(
+        default=None, title='Updated By  Pref Label'
+    )
+    updated_by__pref_label__in: list[str] | None = Field(
+        default=None, title='Updated By  Pref Label  In'
+    )
+    updated_by__id: UUID | None = Field(default=None, title='Updated By  Id')
+    updated_by__id__in: list[str] | None = Field(
+        default=None, title='Updated By  Id  In'
+    )
+    search: str | None = Field(default=None, title='Search')
+    with_facets: bool = Field(default=False, title='With Facets')
+
+
 ReadManyOrganizationGetParametersQuery = ReadManyConsortiumGetParametersQuery
 
 
@@ -3706,21 +3873,21 @@ class ReadManySimulationGetParametersQuery(BaseModel):
     updated_by__id__in: list[str] | None = Field(
         default=None, title='Updated By  Id  In'
     )
+    circuit__scale: CircuitScale | None = Field(default=None, title='Circuit  Scale')
+    circuit__scale__in: list[CircuitScale] | None = Field(
+        default=None, title='Circuit  Scale  In'
+    )
+    circuit__build_category: CircuitBuildCategory | None = Field(
+        default=None, title='Circuit  Build Category'
+    )
+    circuit__build_category__in: list[CircuitBuildCategory] | None = Field(
+        default=None, title='Circuit  Build Category  In'
+    )
     circuit__name: str | None = Field(default=None, title='Circuit  Name')
     circuit__name__in: list[str] | None = Field(default=None, title='Circuit  Name  In')
     circuit__name__ilike: str | None = Field(default=None, title='Circuit  Name  Ilike')
     circuit__id: UUID | None = Field(default=None, title='Circuit  Id')
     circuit__id__in: list[str] | None = Field(default=None, title='Circuit  Id  In')
-    circuit__scale: str | None = Field(default=None, title='Circuit  Scale')
-    circuit__scale__in: list[str] | None = Field(
-        default=None, title='Circuit  Scale  In'
-    )
-    circuit__build_category: str | None = Field(
-        default=None, title='Circuit  Build Category'
-    )
-    circuit__build_category__in: list[str] | None = Field(
-        default=None, title='Circuit  Build Category  In'
-    )
     search: str | None = Field(default=None, title='Search')
     with_facets: bool = Field(default=False, title='With Facets')
     within_brain_region_hierarchy_id: UUID | None = Field(
@@ -3806,21 +3973,21 @@ class ReadManySimulationCampaignGetParametersQuery(BaseModel):
     simulation__entity_id__in: list[UUID] | None = Field(
         default=None, title='Simulation  Entity Id  In'
     )
+    circuit__scale: CircuitScale | None = Field(default=None, title='Circuit  Scale')
+    circuit__scale__in: list[CircuitScale] | None = Field(
+        default=None, title='Circuit  Scale  In'
+    )
+    circuit__build_category: CircuitBuildCategory | None = Field(
+        default=None, title='Circuit  Build Category'
+    )
+    circuit__build_category__in: list[CircuitBuildCategory] | None = Field(
+        default=None, title='Circuit  Build Category  In'
+    )
     circuit__name: str | None = Field(default=None, title='Circuit  Name')
     circuit__name__in: list[str] | None = Field(default=None, title='Circuit  Name  In')
     circuit__name__ilike: str | None = Field(default=None, title='Circuit  Name  Ilike')
     circuit__id: UUID | None = Field(default=None, title='Circuit  Id')
     circuit__id__in: list[str] | None = Field(default=None, title='Circuit  Id  In')
-    circuit__scale: str | None = Field(default=None, title='Circuit  Scale')
-    circuit__scale__in: list[str] | None = Field(
-        default=None, title='Circuit  Scale  In'
-    )
-    circuit__build_category: str | None = Field(
-        default=None, title='Circuit  Build Category'
-    )
-    circuit__build_category__in: list[str] | None = Field(
-        default=None, title='Circuit  Build Category  In'
-    )
     search: str | None = Field(default=None, title='Search')
     with_facets: bool = Field(default=False, title='With Facets')
     within_brain_region_hierarchy_id: UUID | None = Field(
@@ -5337,6 +5504,7 @@ class ETypeClassificationRead(BaseModel):
     )
     authorized_project_id: UUID4 = Field(..., title='Authorized Project Id')
     authorized_public: bool = Field(default=False, title='Authorized Public')
+    id: UUID = Field(..., title='Id')
     creation_date: AwareDatetime = Field(..., title='Creation Date')
     update_date: AwareDatetime = Field(..., title='Update Date')
     created_by: NestedPersonRead
@@ -5557,6 +5725,15 @@ class ListResponseContributionRead(BaseModel):
     facets: Facets | None = None
 
 
+class ListResponseETypeClassificationRead(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
+    data: list[ETypeClassificationRead] = Field(..., title='Data')
+    pagination: PaginationResponse
+    facets: Facets | None = None
+
+
 class ListResponseElectricalRecordingStimulusRead(BaseModel):
     model_config = ConfigDict(
         extra='allow',
@@ -5723,6 +5900,7 @@ class MTypeClassificationRead(BaseModel):
     )
     authorized_project_id: UUID4 = Field(..., title='Authorized Project Id')
     authorized_public: bool = Field(default=False, title='Authorized Public')
+    id: UUID = Field(..., title='Id')
     creation_date: AwareDatetime = Field(..., title='Creation Date')
     update_date: AwareDatetime = Field(..., title='Update Date')
     created_by: NestedPersonRead
@@ -6454,6 +6632,15 @@ class ListResponseMEModelCalibrationResultRead(BaseModel):
         extra='allow',
     )
     data: list[MEModelCalibrationResultRead] = Field(..., title='Data')
+    pagination: PaginationResponse
+    facets: Facets | None = None
+
+
+class ListResponseMTypeClassificationRead(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
+    data: list[MTypeClassificationRead] = Field(..., title='Data')
     pagination: PaginationResponse
     facets: Facets | None = None
 
