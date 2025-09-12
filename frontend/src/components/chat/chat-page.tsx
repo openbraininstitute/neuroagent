@@ -7,7 +7,7 @@ import { BMessage, LLMModel, type MessageStrict } from "@/lib/types";
 import { env } from "@/lib/env";
 import { useSession } from "next-auth/react";
 import { ExtendedSession } from "@/lib/auth";
-import { useStore } from "@/lib/store";
+import { SimulationsForm, useStore } from "@/lib/store";
 import { ChatInputInsideThread } from "@/components/chat/chat-input-inside-thread";
 import { ChatMessagesInsideThread } from "@/components/chat/chat-messages-inside-thread";
 import { generateEditTitle } from "@/actions/generate-edit-thread";
@@ -15,7 +15,6 @@ import { toast } from "sonner";
 import { useGetMessageNextPage } from "@/hooks/get-message-page";
 import { getToolInvocations, isLastMessageComplete } from "@/lib/utils";
 import { md5 } from "js-md5";
-
 
 type ChatPageProps = {
   threadId: string;
@@ -56,8 +55,39 @@ export function ChatPage({
   // For frontend url
   const frontendUrl = Cookies.get("frontendUrl") || "";
   // Simulation config json
-  const simConfigJson = useStore((state) => state.simConfigJson);
-  const setSimConfigJson = useStore((state) => state.setSimConfigJson);
+  const [simConfigJson, setSimConfigJson] = useState<
+    Record<string, SimulationsForm>
+  >({
+    smc_simulation_config: {
+      type: "SimulationsForm",
+      timestamps: {},
+      stimuli: {},
+      recordings: {},
+      neuron_sets: {},
+      synaptic_manipulations: {},
+      initialize: {
+        type: "SimulationsForm.Initialize",
+        circuit: {
+          type: "CircuitFromID",
+          id_str: "",
+        },
+        node_set: {
+          block_dict_name: "",
+          block_name: "",
+          type: "NeuronSetReference",
+        },
+        simulation_length: 1000,
+        extracellular_calcium_concentration: 1.1,
+        v_init: -80,
+        random_seed: 1,
+      },
+      info: {
+        type: "Info",
+        campaign_name: "name",
+        campaign_description: "description",
+      },
+    },
+  });
 
   const {
     data,
@@ -326,6 +356,8 @@ export function ChatPage({
           addToolResult={addToolResult}
           setMessages={setMessages}
           loadingStatus={status}
+          simConfigJson={simConfigJson}
+          setSimConfigJson={setSimConfigJson}
         />
         <div ref={messagesEndRef} className="pb-5" />
       </div>
