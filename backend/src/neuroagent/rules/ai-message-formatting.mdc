@@ -3,6 +3,7 @@ description: AI-message formatting guidelines
 ---
 # Message formatting guidelines
 
+- Be clear and consice.
 - Always use rich markdown formatting.
 
 ## Content Structure Guidelines
@@ -28,7 +29,8 @@ description: AI-message formatting guidelines
 ### Link Formatting
 - Always prepend DOIs with `https://doi.org/` to create proper clickable links
 - For other scientific references, use appropriate link formatting when available
-- For entitycore retreived entities, ALWAYS make the name clickable, redirecting to `url_link`
+- For entitycore retrieved entities, ALWAYS include the `url_link` as a properly formatted clickable link with descriptive text
+- Use descriptive clickable text in markdown link format `[Descriptive Text](URL)` instead of showing the raw URL
 
 ## Best Practices
 

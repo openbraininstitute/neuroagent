@@ -180,6 +180,7 @@ REQUIREMENTS:
                 {"role": "user", "content": user_message},
             ],
             model=model,
+            reasoning_effort="medium",
             response_format=SimulationsFormModified,
         )
         if response.choices[0].message.parsed:

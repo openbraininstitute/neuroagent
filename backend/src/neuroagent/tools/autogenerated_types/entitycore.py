@@ -458,6 +458,7 @@ class EntityRoute(
             'experimental-bouton-density',
             'experimental-neuron-density',
             'experimental-synapses-per-connection',
+            'external-url',
             'ion-channel-model',
             'memodel',
             'mesh',
@@ -491,6 +492,7 @@ class EntityRoute(
         'experimental-bouton-density',
         'experimental-neuron-density',
         'experimental-synapses-per-connection',
+        'external-url',
         'ion-channel-model',
         'memodel',
         'mesh',
@@ -526,6 +528,7 @@ class EntityType(
             'experimental_bouton_density',
             'experimental_neuron_density',
             'experimental_synapses_per_connection',
+            'external_url',
             'ion_channel_model',
             'memodel',
             'mesh',
@@ -559,6 +562,7 @@ class EntityType(
         'experimental_bouton_density',
         'experimental_neuron_density',
         'experimental_synapses_per_connection',
+        'external_url',
         'ion_channel_model',
         'memodel',
         'mesh',
@@ -663,6 +667,24 @@ class ExperimentalSynapsesPerConnectionCreate(BaseModel):
     post_mtype_id: UUID = Field(..., title='Post Mtype Id')
     pre_region_id: UUID = Field(..., title='Pre Region Id')
     post_region_id: UUID = Field(..., title='Post Region Id')
+
+
+class ExternalSource(RootModel[Literal['channelpedia', 'modeldb', 'icgenealogy']]):
+    root: Literal['channelpedia', 'modeldb', 'icgenealogy'] = Field(
+        ...,
+        description='External sources that can be used for external urls.',
+        title='ExternalSource',
+    )
+
+
+class ExternalUrlCreate(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
+    source: ExternalSource
+    url: AnyUrl = Field(..., title='Url')
+    name: str = Field(..., title='Name')
+    description: str = Field(..., title='Description')
 
 
 class Facet(BaseModel):
@@ -820,6 +842,18 @@ class NestedEntityRead(BaseModel):
     type: str = Field(..., title='Type')
     authorized_project_id: UUID4 = Field(..., title='Authorized Project Id')
     authorized_public: bool = Field(..., title='Authorized Public')
+
+
+class NestedExternalUrlRead(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
+    id: UUID = Field(..., title='Id')
+    source: ExternalSource
+    url: AnyUrl = Field(..., title='Url')
+    name: str = Field(..., title='Name')
+    description: str = Field(..., title='Description')
+    source_name: str = Field(..., title='Source Name')
 
 
 NestedOrganizationRead = NestedConsortiumRead
@@ -1040,6 +1074,25 @@ class RoleRead(BaseModel):
     update_date: AwareDatetime = Field(..., title='Update Date')
     name: str = Field(..., title='Name')
     role_id: str = Field(..., title='Role Id')
+
+
+class ScientificArtifactExternalUrlLinkCreate(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
+    external_url_id: UUID = Field(..., title='External Url Id')
+    scientific_artifact_id: UUID = Field(..., title='Scientific Artifact Id')
+
+
+class ScientificArtifactExternalUrlLinkRead(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
+    id: UUID = Field(..., title='Id')
+    created_by: NestedPersonRead
+    updated_by: NestedPersonRead
+    external_url: NestedExternalUrlRead
+    scientific_artifact: NestedScientificArtifactRead
 
 
 class ScientificArtifactPublicationLinkCreate(BaseModel):
@@ -1314,22 +1367,6 @@ class ValidationResultCreate(BaseModel):
         extra='allow',
     )
     authorized_public: bool = Field(default=False, title='Authorized Public')
-    name: str = Field(..., title='Name')
-    passed: bool = Field(..., title='Passed')
-    validated_entity_id: UUID = Field(..., title='Validated Entity Id')
-
-
-class ValidationResultRead(BaseModel):
-    model_config = ConfigDict(
-        extra='allow',
-    )
-    authorized_project_id: UUID4 = Field(..., title='Authorized Project Id')
-    authorized_public: bool = Field(default=False, title='Authorized Public')
-    created_by: NestedPersonRead
-    updated_by: NestedPersonRead
-    id: UUID = Field(..., title='Id')
-    creation_date: AwareDatetime = Field(..., title='Creation Date')
-    update_date: AwareDatetime = Field(..., title='Update Date')
     name: str = Field(..., title='Name')
     passed: bool = Field(..., title='Passed')
     validated_entity_id: UUID = Field(..., title='Validated Entity Id')
@@ -2639,15 +2676,16 @@ class ReadManyExperimentalSynapsesPerConnectionGetParametersQuery(BaseModel):
     )
 
 
-class ReadManyIonChannelModelGetParametersQuery(BaseModel):
+class ReadManyExternalUrlGetParametersQuery(BaseModel):
     page: int = Field(default=1, ge=1, title='Page')
     page_size: int = Field(default=100, ge=1, title='Page Size')
-    search: str | None = Field(default=None, title='Search')
-    species_id__in: list[UUID] | None = Field(default=None, title='Species Id  In')
-    authorized_public: bool | None = Field(default=None, title='Authorized Public')
-    authorized_project_id: UUID | None = Field(
-        default=None, title='Authorized Project Id'
-    )
+    name: str | None = Field(default=None, title='Name')
+    name__in: list[str] | None = Field(default=None, title='Name  In')
+    name__ilike: str | None = Field(default=None, title='Name  Ilike')
+    id: UUID | None = Field(default=None, title='Id')
+    id__in: list[str] | None = Field(default=None, title='Id  In')
+    source: ExternalSource | None = Field(default=None, title='Source')
+    url: str | None = Field(default=None, title='Url')
     creation_date__lte: AwareDatetime | None = Field(
         default=None, title='Creation Date  Lte'
     )
@@ -2660,6 +2698,73 @@ class ReadManyIonChannelModelGetParametersQuery(BaseModel):
     update_date__gte: AwareDatetime | None = Field(
         default=None, title='Update Date  Gte'
     )
+    order_by: list[str] = Field(default=['-creation_date'], title='Order By')
+    created_by__pref_label: str | None = Field(
+        default=None, title='Created By  Pref Label'
+    )
+    created_by__pref_label__in: list[str] | None = Field(
+        default=None, title='Created By  Pref Label  In'
+    )
+    created_by__id: UUID | None = Field(default=None, title='Created By  Id')
+    created_by__id__in: list[str] | None = Field(
+        default=None, title='Created By  Id  In'
+    )
+    updated_by__pref_label: str | None = Field(
+        default=None, title='Updated By  Pref Label'
+    )
+    updated_by__pref_label__in: list[str] | None = Field(
+        default=None, title='Updated By  Pref Label  In'
+    )
+    updated_by__id: UUID | None = Field(default=None, title='Updated By  Id')
+    updated_by__id__in: list[str] | None = Field(
+        default=None, title='Updated By  Id  In'
+    )
+    search: str | None = Field(default=None, title='Search')
+    with_facets: bool = Field(default=False, title='With Facets')
+    within_brain_region_hierarchy_id: UUID | None = Field(
+        default=None, title='Within Brain Region Hierarchy Id'
+    )
+    within_brain_region_brain_region_id: UUID | None = Field(
+        default=None, title='Within Brain Region Brain Region Id'
+    )
+    within_brain_region_ascendants: bool = Field(
+        default=False, title='Within Brain Region Ascendants'
+    )
+
+
+class ReadManyIonChannelModelGetParametersQuery(BaseModel):
+    page: int = Field(default=1, ge=1, title='Page')
+    page_size: int = Field(default=100, ge=1, title='Page Size')
+    search: str | None = Field(default=None, title='Search')
+    name: str | None = Field(default=None, title='Name')
+    name__in: list[str] | None = Field(default=None, title='Name  In')
+    name__ilike: str | None = Field(default=None, title='Name  Ilike')
+    creation_date__lte: AwareDatetime | None = Field(
+        default=None, title='Creation Date  Lte'
+    )
+    creation_date__gte: AwareDatetime | None = Field(
+        default=None, title='Creation Date  Gte'
+    )
+    update_date__lte: AwareDatetime | None = Field(
+        default=None, title='Update Date  Lte'
+    )
+    update_date__gte: AwareDatetime | None = Field(
+        default=None, title='Update Date  Gte'
+    )
+    authorized_public: bool | None = Field(default=None, title='Authorized Public')
+    authorized_project_id: UUID | None = Field(
+        default=None, title='Authorized Project Id'
+    )
+    id: UUID | None = Field(default=None, title='Id')
+    id__in: list[str] | None = Field(default=None, title='Id  In')
+    experiment_date__lte: AwareDatetime | None = Field(
+        default=None, title='Experiment Date  Lte'
+    )
+    experiment_date__gte: AwareDatetime | None = Field(
+        default=None, title='Experiment Date  Gte'
+    )
+    contact_email: str | None = Field(default=None, title='Contact Email')
+    order_by: list[str] = Field(default=['-creation_date'], title='Order By')
     nmodl_suffix: str | None = Field(default=None, title='Nmodl Suffix')
     is_ljp_corrected: bool | None = Field(default=None, title='Is Ljp Corrected')
     is_temperature_dependent: bool | None = Field(
@@ -2672,17 +2777,36 @@ class ReadManyIonChannelModelGetParametersQuery(BaseModel):
         default=None, title='Temperature Celsius  Gte'
     )
     is_stochastic: bool | None = Field(default=None, title='Is Stochastic')
-    order_by: list[str] = Field(default=['-creation_date'], title='Order By')
-    species__name: str | None = Field(default=None, title='Species  Name')
-    species__name__in: list[str] | None = Field(default=None, title='Species  Name  In')
-    species__name__ilike: str | None = Field(default=None, title='Species  Name  Ilike')
-    species__id: UUID | None = Field(default=None, title='Species  Id')
-    species__id__in: list[str] | None = Field(default=None, title='Species  Id  In')
-    strain__name: str | None = Field(default=None, title='Strain  Name')
-    strain__name__in: list[str] | None = Field(default=None, title='Strain  Name  In')
-    strain__name__ilike: str | None = Field(default=None, title='Strain  Name  Ilike')
-    strain__id: UUID | None = Field(default=None, title='Strain  Id')
-    strain__id__in: list[str] | None = Field(default=None, title='Strain  Id  In')
+    contribution__pref_label: str | None = Field(
+        default=None, title='Contribution  Pref Label'
+    )
+    contribution__pref_label__in: list[str] | None = Field(
+        default=None, title='Contribution  Pref Label  In'
+    )
+    contribution__id: UUID | None = Field(default=None, title='Contribution  Id')
+    contribution__id__in: list[str] | None = Field(
+        default=None, title='Contribution  Id  In'
+    )
+    created_by__pref_label: str | None = Field(
+        default=None, title='Created By  Pref Label'
+    )
+    created_by__pref_label__in: list[str] | None = Field(
+        default=None, title='Created By  Pref Label  In'
+    )
+    created_by__id: UUID | None = Field(default=None, title='Created By  Id')
+    created_by__id__in: list[str] | None = Field(
+        default=None, title='Created By  Id  In'
+    )
+    updated_by__pref_label: str | None = Field(
+        default=None, title='Updated By  Pref Label'
+    )
+    updated_by__pref_label__in: list[str] | None = Field(
+        default=None, title='Updated By  Pref Label  In'
+    )
+    updated_by__id: UUID | None = Field(default=None, title='Updated By  Id')
+    updated_by__id__in: list[str] | None = Field(
+        default=None, title='Updated By  Id  In'
+    )
     brain_region__name: str | None = Field(default=None, title='Brain Region  Name')
     brain_region__name__in: list[str] | None = Field(
         default=None, title='Brain Region  Name  In'
@@ -2699,6 +2823,42 @@ class ReadManyIonChannelModelGetParametersQuery(BaseModel):
     )
     brain_region__acronym__in: list[str] | None = Field(
         default=None, title='Brain Region  Acronym  In'
+    )
+    subject__name: str | None = Field(default=None, title='Subject  Name')
+    subject__name__in: list[str] | None = Field(default=None, title='Subject  Name  In')
+    subject__name__ilike: str | None = Field(default=None, title='Subject  Name  Ilike')
+    subject__id: UUID | None = Field(default=None, title='Subject  Id')
+    subject__id__in: list[str] | None = Field(default=None, title='Subject  Id  In')
+    subject__age_value: timedelta | None = Field(
+        default=None, title='Subject  Age Value'
+    )
+    subject__species__name: str | None = Field(
+        default=None, title='Subject  Species  Name'
+    )
+    subject__species__name__in: list[str] | None = Field(
+        default=None, title='Subject  Species  Name  In'
+    )
+    subject__species__name__ilike: str | None = Field(
+        default=None, title='Subject  Species  Name  Ilike'
+    )
+    subject__species__id: UUID | None = Field(
+        default=None, title='Subject  Species  Id'
+    )
+    subject__species__id__in: list[str] | None = Field(
+        default=None, title='Subject  Species  Id  In'
+    )
+    subject__strain__name: str | None = Field(
+        default=None, title='Subject  Strain  Name'
+    )
+    subject__strain__name__in: list[str] | None = Field(
+        default=None, title='Subject  Strain  Name  In'
+    )
+    subject__strain__name__ilike: str | None = Field(
+        default=None, title='Subject  Strain  Name  Ilike'
+    )
+    subject__strain__id: UUID | None = Field(default=None, title='Subject  Strain  Id')
+    subject__strain__id__in: list[str] | None = Field(
+        default=None, title='Subject  Strain  Id  In'
     )
     within_brain_region_hierarchy_id: UUID | None = Field(
         default=None, title='Within Brain Region Hierarchy Id'
@@ -3339,15 +3499,80 @@ class ReadManyPublicationGetParametersQuery(BaseModel):
 ReadManyRoleGetParametersQuery = ReadManyLicenseGetParametersQuery
 
 
+class ReadManyScientificArtifactExternalUrlLinkGetParametersQuery(BaseModel):
+    page: int = Field(default=1, ge=1, title='Page')
+    page_size: int = Field(default=100, ge=1, title='Page Size')
+    id: UUID | None = Field(default=None, title='Id')
+    id__in: list[str] | None = Field(default=None, title='Id  In')
+    order_by: list[str] = Field(default=['-creation_date'], title='Order By')
+    created_by__pref_label: str | None = Field(
+        default=None, title='Created By  Pref Label'
+    )
+    created_by__pref_label__in: list[str] | None = Field(
+        default=None, title='Created By  Pref Label  In'
+    )
+    created_by__id: UUID | None = Field(default=None, title='Created By  Id')
+    created_by__id__in: list[str] | None = Field(
+        default=None, title='Created By  Id  In'
+    )
+    updated_by__pref_label: str | None = Field(
+        default=None, title='Updated By  Pref Label'
+    )
+    updated_by__pref_label__in: list[str] | None = Field(
+        default=None, title='Updated By  Pref Label  In'
+    )
+    updated_by__id: UUID | None = Field(default=None, title='Updated By  Id')
+    updated_by__id__in: list[str] | None = Field(
+        default=None, title='Updated By  Id  In'
+    )
+    external_url__name: str | None = Field(default=None, title='External Url  Name')
+    external_url__name__in: list[str] | None = Field(
+        default=None, title='External Url  Name  In'
+    )
+    external_url__name__ilike: str | None = Field(
+        default=None, title='External Url  Name  Ilike'
+    )
+    external_url__id: UUID | None = Field(default=None, title='External Url  Id')
+    external_url__id__in: list[str] | None = Field(
+        default=None, title='External Url  Id  In'
+    )
+    external_url__source: ExternalSource | None = Field(
+        default=None, title='External Url  Source'
+    )
+    external_url__url: str | None = Field(default=None, title='External Url  Url')
+    scientific_artifact__id: UUID | None = Field(
+        default=None, title='Scientific Artifact  Id'
+    )
+    scientific_artifact__id__in: str | None = Field(
+        default=None, title='Scientific Artifact  Id  In'
+    )
+    scientific_artifact__experiment_date__lte: AwareDatetime | None = Field(
+        default=None, title='Scientific Artifact  Experiment Date  Lte'
+    )
+    scientific_artifact__experiment_date__gte: AwareDatetime | None = Field(
+        default=None, title='Scientific Artifact  Experiment Date  Gte'
+    )
+    scientific_artifact__contact_email: str | None = Field(
+        default=None, title='Scientific Artifact  Contact Email'
+    )
+    search: str | None = Field(default=None, title='Search')
+    with_facets: bool = Field(default=False, title='With Facets')
+    within_brain_region_hierarchy_id: UUID | None = Field(
+        default=None, title='Within Brain Region Hierarchy Id'
+    )
+    within_brain_region_brain_region_id: UUID | None = Field(
+        default=None, title='Within Brain Region Brain Region Id'
+    )
+    within_brain_region_ascendants: bool = Field(
+        default=False, title='Within Brain Region Ascendants'
+    )
+
+
 class ReadManyScientificArtifactPublicationLinkGetParametersQuery(BaseModel):
     page: int = Field(default=1, ge=1, title='Page')
     page_size: int = Field(default=100, ge=1, title='Page Size')
     id: UUID | None = Field(default=None, title='Id')
     id__in: list[str] | None = Field(default=None, title='Id  In')
-    name: str | None = Field(default=None, title='Name')
-    name__in: list[str] | None = Field(default=None, title='Name  In')
-    name__ilike: str | None = Field(default=None, title='Name  Ilike')
-    DOI: str | None = Field(default=None, title='Doi')
     order_by: list[str] = Field(default=['-creation_date'], title='Order By')
     publication_type: PublicationType | None = Field(
         default=None, title='Publication Type'
@@ -5226,6 +5451,22 @@ class ExemplarMorphology(BaseModel):
     update_date: AwareDatetime = Field(..., title='Update Date')
 
 
+class ExternalUrlRead(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
+    created_by: NestedPersonRead
+    updated_by: NestedPersonRead
+    creation_date: AwareDatetime = Field(..., title='Creation Date')
+    update_date: AwareDatetime = Field(..., title='Update Date')
+    id: UUID = Field(..., title='Id')
+    source: ExternalSource
+    url: AnyUrl = Field(..., title='Url')
+    name: str = Field(..., title='Name')
+    description: str = Field(..., title='Description')
+    source_name: str = Field(..., title='Source Name')
+
+
 class ListResponseAnnotation(BaseModel):
     model_config = ConfigDict(
         extra='allow',
@@ -5325,6 +5566,15 @@ class ListResponseElectricalRecordingStimulusRead(BaseModel):
     facets: Facets | None = None
 
 
+class ListResponseExternalUrlRead(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
+    data: list[ExternalUrlRead] = Field(..., title='Data')
+    pagination: PaginationResponse
+    facets: Facets | None = None
+
+
 class ListResponseLicenseRead(BaseModel):
     model_config = ConfigDict(
         extra='allow',
@@ -5366,6 +5616,15 @@ class ListResponseRoleRead(BaseModel):
         extra='allow',
     )
     data: list[RoleRead] = Field(..., title='Data')
+    pagination: PaginationResponse
+    facets: Facets | None = None
+
+
+class ListResponseScientificArtifactExternalUrlLinkRead(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
+    data: list[ScientificArtifactExternalUrlLinkRead] = Field(..., title='Data')
     pagination: PaginationResponse
     facets: Facets | None = None
 
@@ -5420,15 +5679,6 @@ class ListResponseValidationRead(BaseModel):
         extra='allow',
     )
     data: list[ValidationRead] = Field(..., title='Data')
-    pagination: PaginationResponse
-    facets: Facets | None = None
-
-
-class ListResponseValidationResultRead(BaseModel):
-    model_config = ConfigDict(
-        extra='allow',
-    )
-    data: list[ValidationResultRead] = Field(..., title='Data')
     pagination: PaginationResponse
     facets: Facets | None = None
 
@@ -5773,6 +6023,23 @@ class SingleNeuronSynaptomeSimulationRead(BaseModel):
     synaptome: NestedSynaptome
 
 
+class ValidationResultRead(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
+    assets: list[AssetRead] = Field(..., title='Assets')
+    authorized_project_id: UUID4 = Field(..., title='Authorized Project Id')
+    authorized_public: bool = Field(default=False, title='Authorized Public')
+    created_by: NestedPersonRead
+    updated_by: NestedPersonRead
+    id: UUID = Field(..., title='Id')
+    creation_date: AwareDatetime = Field(..., title='Creation Date')
+    update_date: AwareDatetime = Field(..., title='Update Date')
+    name: str = Field(..., title='Name')
+    passed: bool = Field(..., title='Passed')
+    validated_entity_id: UUID = Field(..., title='Validated Entity Id')
+
+
 class AssetAndPresignedURLS(BaseModel):
     model_config = ConfigDict(
         extra='allow',
@@ -6012,6 +6279,12 @@ class IonChannelModelCreate(BaseModel):
         extra='allow',
     )
     authorized_public: bool = Field(default=False, title='Authorized Public')
+    license_id: UUID | None = Field(default=None, title='License Id')
+    brain_region_id: UUID = Field(..., title='Brain Region Id')
+    subject_id: UUID = Field(..., title='Subject Id')
+    experiment_date: AwareDatetime | None = Field(default=None, title='Experiment Date')
+    contact_email: str | None = Field(default=None, title='Contact Email')
+    published_in: str | None = Field(default=None, title='Published In')
     description: str = Field(..., title='Description')
     name: str = Field(..., title='Name')
     nmodl_suffix: str = Field(..., title='Nmodl Suffix')
@@ -6022,9 +6295,6 @@ class IonChannelModelCreate(BaseModel):
     temperature_celsius: int = Field(..., title='Temperature Celsius')
     is_stochastic: bool = Field(default=False, title='Is Stochastic')
     neuron_block: NeuronBlock
-    species_id: UUID = Field(..., title='Species Id')
-    strain_id: UUID | None = Field(default=None, title='Strain Id')
-    brain_region_id: UUID = Field(..., title='Brain Region Id')
 
 
 class IonChannelModelExpanded(BaseModel):
@@ -6034,15 +6304,21 @@ class IonChannelModelExpanded(BaseModel):
     contributions: list[NestedContributionRead] | None = Field(
         ..., title='Contributions'
     )
-    created_by: NestedPersonRead
-    updated_by: NestedPersonRead
     assets: list[AssetRead] = Field(..., title='Assets')
-    type: EntityType | None = None
-    authorized_project_id: UUID4 = Field(..., title='Authorized Project Id')
-    authorized_public: bool = Field(default=False, title='Authorized Public')
-    id: UUID = Field(..., title='Id')
+    license: LicenseRead | None = None
     creation_date: AwareDatetime = Field(..., title='Creation Date')
     update_date: AwareDatetime = Field(..., title='Update Date')
+    created_by: NestedPersonRead
+    updated_by: NestedPersonRead
+    brain_region: BrainRegionRead
+    subject: NestedSubjectRead
+    authorized_project_id: UUID4 = Field(..., title='Authorized Project Id')
+    authorized_public: bool = Field(default=False, title='Authorized Public')
+    type: EntityType | None = None
+    id: UUID = Field(..., title='Id')
+    experiment_date: AwareDatetime | None = Field(default=None, title='Experiment Date')
+    contact_email: str | None = Field(default=None, title='Contact Email')
+    published_in: str | None = Field(default=None, title='Published In')
     description: str = Field(..., title='Description')
     name: str = Field(..., title='Name')
     nmodl_suffix: str = Field(..., title='Nmodl Suffix')
@@ -6053,21 +6329,23 @@ class IonChannelModelExpanded(BaseModel):
     temperature_celsius: int = Field(..., title='Temperature Celsius')
     is_stochastic: bool = Field(default=False, title='Is Stochastic')
     neuron_block: NeuronBlock
-    species: NestedSpeciesRead
-    strain: NestedStrainRead | None = None
-    brain_region: BrainRegionRead
 
 
 class IonChannelModelRead(BaseModel):
     model_config = ConfigDict(
         extra='allow',
     )
-    type: EntityType | None = None
-    authorized_project_id: UUID4 = Field(..., title='Authorized Project Id')
-    authorized_public: bool = Field(default=False, title='Authorized Public')
-    id: UUID = Field(..., title='Id')
     creation_date: AwareDatetime = Field(..., title='Creation Date')
     update_date: AwareDatetime = Field(..., title='Update Date')
+    brain_region: BrainRegionRead
+    subject: NestedSubjectRead
+    authorized_project_id: UUID4 = Field(..., title='Authorized Project Id')
+    authorized_public: bool = Field(default=False, title='Authorized Public')
+    type: EntityType | None = None
+    id: UUID = Field(..., title='Id')
+    experiment_date: AwareDatetime | None = Field(default=None, title='Experiment Date')
+    contact_email: str | None = Field(default=None, title='Contact Email')
+    published_in: str | None = Field(default=None, title='Published In')
     description: str = Field(..., title='Description')
     name: str = Field(..., title='Name')
     nmodl_suffix: str = Field(..., title='Nmodl Suffix')
@@ -6078,9 +6356,6 @@ class IonChannelModelRead(BaseModel):
     temperature_celsius: int = Field(..., title='Temperature Celsius')
     is_stochastic: bool = Field(default=False, title='Is Stochastic')
     neuron_block: NeuronBlock
-    species: NestedSpeciesRead
-    strain: NestedStrainRead | None = None
-    brain_region: BrainRegionRead
 
 
 class IonChannelModelWAssets(BaseModel):
@@ -6088,12 +6363,17 @@ class IonChannelModelWAssets(BaseModel):
         extra='allow',
     )
     assets: list[AssetRead] = Field(..., title='Assets')
-    type: EntityType | None = None
-    authorized_project_id: UUID4 = Field(..., title='Authorized Project Id')
-    authorized_public: bool = Field(default=False, title='Authorized Public')
-    id: UUID = Field(..., title='Id')
     creation_date: AwareDatetime = Field(..., title='Creation Date')
     update_date: AwareDatetime = Field(..., title='Update Date')
+    brain_region: BrainRegionRead
+    subject: NestedSubjectRead
+    authorized_project_id: UUID4 = Field(..., title='Authorized Project Id')
+    authorized_public: bool = Field(default=False, title='Authorized Public')
+    type: EntityType | None = None
+    id: UUID = Field(..., title='Id')
+    experiment_date: AwareDatetime | None = Field(default=None, title='Experiment Date')
+    contact_email: str | None = Field(default=None, title='Contact Email')
+    published_in: str | None = Field(default=None, title='Published In')
     description: str = Field(..., title='Description')
     name: str = Field(..., title='Name')
     nmodl_suffix: str = Field(..., title='Nmodl Suffix')
@@ -6104,9 +6384,6 @@ class IonChannelModelWAssets(BaseModel):
     temperature_celsius: int = Field(..., title='Temperature Celsius')
     is_stochastic: bool = Field(default=False, title='Is Stochastic')
     neuron_block: NeuronBlock
-    species: NestedSpeciesRead
-    strain: NestedStrainRead | None = None
-    brain_region: BrainRegionRead
 
 
 class ListResponseCellCompositionRead(BaseModel):
@@ -6249,6 +6526,15 @@ class ListResponseSingleNeuronSynaptomeSimulationRead(BaseModel):
         extra='allow',
     )
     data: list[SingleNeuronSynaptomeSimulationRead] = Field(..., title='Data')
+    pagination: PaginationResponse
+    facets: Facets | None = None
+
+
+class ListResponseValidationResultRead(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
+    data: list[ValidationResultRead] = Field(..., title='Data')
     pagination: PaginationResponse
     facets: Facets | None = None
 
