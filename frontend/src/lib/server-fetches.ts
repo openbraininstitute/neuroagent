@@ -9,8 +9,9 @@ import {
   CustomError,
   ToolDetailedMetadata,
   ToolMetadata,
-  BPaginatedResponse,
   BOpenRouterModelResponse,
+  BPaginatedResponseThread,
+  BPaginatedResponseMessage,
 } from "@/lib/types";
 import { threadPageSize, messagePageSize, LLMModel } from "@/lib/types";
 
@@ -42,7 +43,7 @@ export async function getThreads() {
       queryParams,
       headers: { Authorization: `Bearer ${session.accessToken}` },
       next: { tags: ["threads"] },
-    })) as BPaginatedResponse;
+    })) as BPaginatedResponseThread;
 
     const threads = paginatedResponseThreads.results as BThread[];
 
@@ -111,7 +112,7 @@ export async function getMessages(threadId: string) {
       next: {
         tags: [`thread/${threadId}/messages`],
       },
-    })) as BPaginatedResponse;
+    })) as BPaginatedResponseMessage;
 
     const messages = (
       paginatedResponseMessages.results as BMessage[]

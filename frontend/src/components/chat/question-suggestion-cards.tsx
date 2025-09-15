@@ -1,9 +1,9 @@
 import React from "react";
 import { Card } from "@/components/ui/card";
-import { SuggestedQuestions } from "@/lib/types";
+import { BQuestionsSuggestions } from "@/lib/types";
 
 type QuestionSuggestionCardsProps = {
-  suggestions: SuggestedQuestions | null;
+  suggestions: BQuestionsSuggestions | null;
   onSubmit: (suggestionInput?: string) => void;
 };
 
@@ -33,7 +33,7 @@ export default function QuestionSuggestionCards({
   onSubmit,
 }: QuestionSuggestionCardsProps) {
   const suggestionsMap =
-    suggestions !== null
+    suggestions !== null && suggestions.suggestions !== undefined
       ? {
           suggestions: [
             ...defaultQuestions.suggestions.slice(0, -1),

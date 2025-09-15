@@ -3,7 +3,7 @@
 import { auth } from "@/lib/auth";
 import { fetcher } from "@/lib/fetcher";
 import { getSettings } from "@/lib/cookies-server";
-import { SuggestedQuestions, UserHistory } from "@/lib/types";
+import { BQuestionsSuggestions, UserHistory } from "@/lib/types";
 
 export async function getSuggestions(
   previousState: unknown,
@@ -32,7 +32,7 @@ export async function getSuggestions(
       headers: { Authorization: `Bearer ${session.accessToken}` },
       body: { click_history: user_history },
       queryParams,
-    })) as SuggestedQuestions;
+    })) as BQuestionsSuggestions;
 
     return threadResponse;
   } catch (error) {

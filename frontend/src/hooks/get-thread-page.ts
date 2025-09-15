@@ -5,7 +5,7 @@ import {
 } from "@tanstack/react-query";
 import { useFetcher } from "@/hooks/fetch";
 import Cookies from "js-cookie";
-import { BPaginatedResponse, BThread } from "@/lib/types";
+import { BPaginatedResponseThread, BThread } from "@/lib/types";
 import { threadPageSize } from "@/lib/types";
 import { useEffect } from "react";
 
@@ -44,14 +44,15 @@ async function fetchThreadPage({
     next: { tags: ["threads"] },
     path: "/threads",
     queryParams,
-  })) as BPaginatedResponse;
+  })) as BPaginatedResponseThread;
   const threads = paginatedResponseThreads.results as BThread[];
 
   return {
     threads,
-    nextCursor: paginatedResponseThreads.has_more
-      ? paginatedResponseThreads.next_cursor
-      : undefined,
+    nextCursor:
+      paginatedResponseThreads.has_more && paginatedResponseThreads.next_cursor
+        ? paginatedResponseThreads.next_cursor
+        : undefined,
   };
 }
 

@@ -31,9 +31,9 @@ export function UserJourneyDialog({
   querySuggestions,
 }: UserJourneyDialogProps) {
   const defaultUserFlow: UserHistory = [
-    { timestamp: 2632758009, region: "Cerebellum", artifact: null },
-    { timestamp: 2632798440, region: "Cerebellum", artifact: "ME-Model" },
-    { timestamp: 2632840873, region: "Interbrain", artifact: "ME-Model" },
+    { timestamp: "2632758009", region: "Cerebellum", artifact: null },
+    { timestamp: "2632798440", region: "Cerebellum", artifact: "ME-Model" },
+    { timestamp: "2632840873", region: "Interbrain", artifact: "ME-Model" },
   ];
 
   const [userFlowData, setUserFlowData] = useState(defaultUserFlow);

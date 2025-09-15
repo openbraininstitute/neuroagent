@@ -39,7 +39,7 @@ export default async function PageThread({
       key={key}
       threadId={threadId}
       initialMessages={messages}
-      initialNextCursor={nextCursor}
+      initialNextCursor={nextCursor ? nextCursor : undefined}
       availableTools={availableTools}
       availableModels={availableModels}
     />

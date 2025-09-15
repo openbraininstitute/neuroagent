@@ -69,6 +69,7 @@
     "eslint": "^9",
     "eslint-config-next": "15.1.4",
     "jsdom": "^26.0.0",
+    "openapi-typescript": "^7.9.1",
     "postcss": "^8",
     "prettier": "^3.4.2",
     "prettier-plugin-tailwindcss": "^0.6.11",
