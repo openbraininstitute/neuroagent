@@ -8,7 +8,7 @@ export async function ThreadList() {
     <ThreadListClient
       key={threads ? md5(JSON.stringify(threads)) : null}
       initialThreads={threads}
-      initialNextCursor={nextCursor}
+      initialNextCursor={nextCursor ? nextCursor : undefined}
     />
   );
 }
