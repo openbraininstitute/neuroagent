@@ -35,7 +35,7 @@ class CircuitMetricGetOneToolMetadata(BaseMetadata):
 class CircuitMetricGetOneTool(BaseTool):
     """Tool to compute the circuit metrics."""
 
-    name: ClassVar[str] = "obione-ephysmetrics-getone"
+    name: ClassVar[str] = "obione-circuitmetrics-getone"
     name_frontend: ClassVar[str] = "Compute Circuit Metrics"
     utterances: ClassVar[list[str]] = [
         "Analyze the circuit features",
@@ -69,7 +69,7 @@ class CircuitMetricGetOneTool(BaseTool):
 
         if circuit_metrics_response.status_code != 200:
             raise ValueError(
-                f"The electrophysiology metrics endpoint returned a non 200 response code. Error: {circuit_metrics_response.text}"
+                f"The circuit metrics endpoint returned a non 200 response code. Error: {circuit_metrics_response.text}"
             )
         return CircuitMetricsOutput(**circuit_metrics_response.json())
 
