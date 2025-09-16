@@ -3,15 +3,10 @@
 
 from __future__ import annotations
 
-from datetime import timedelta
 from typing import Any, Literal
 from uuid import UUID
 
 from pydantic import AwareDatetime, BaseModel, ConfigDict, Field, RootModel
-
-
-class AgePeriod(RootModel[Literal['prenatal', 'postnatal', 'unknown']]):
-    root: Literal['prenatal', 'postnatal', 'unknown'] = Field(..., title='AgePeriod')
 
 
 class SamplePercentage(RootModel[float]):
@@ -96,6 +91,24 @@ class CircuitFromID(BaseModel):
     type: Literal['CircuitFromID'] = Field(..., title='Type')
 
 
+class CircuitNodesetsResponse(BaseModel):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    nodesets: list[str] = Field(..., title='Nodesets')
+
+
+class CircuitPopulationsResponse(BaseModel):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    populations: list[str] = Field(..., title='Populations')
+
+
+class CircuitStatsLevelOfDetail(RootModel[Literal[0, 1, 2, 3]]):
+    root: Literal[0, 1, 2, 3] = Field(..., title='CircuitStatsLevelOfDetail')
+
+
 class Duration(RootModel[float]):
     root: float = Field(
         ...,
@@ -113,7 +126,20 @@ class Contribution(BaseModel):
     model_config = ConfigDict(
         extra='ignore',
     )
-    name: str = Field(default='', description='Contribution name', title='Name')
+    agent_id: UUID | None = Field(default=None, title='Agent Id')
+    role_id: UUID | None = Field(default=None, title='Role Id')
+
+
+class DegreeTypes(
+    RootModel[Literal['indegree', 'outdegree', 'totaldegree', 'degreedifference']]
+):
+    root: Literal['indegree', 'outdegree', 'totaldegree', 'degreedifference'] = Field(
+        ..., title='DegreeTypes'
+    )
+
+
+class EdgePopulationType(RootModel[Literal['chemical', 'electrical']]):
+    root: Literal['chemical', 'electrical'] = Field(..., title='EdgePopulationType')
 
 
 class ElectrophysiologyMetricsOutput(BaseModel):
@@ -225,14 +251,6 @@ class InhibitoryNeurons(BaseModel):
     sample_seed: int | list[int] = Field(
         default=1, description='Seed for random sampling.', title='Sample Seed'
     )
-
-
-class Lic(BaseModel):
-    model_config = ConfigDict(
-        extra='ignore',
-    )
-    license_label: str = Field(..., title='License Label')
-    license_id: str = Field(..., title='License Id')
 
 
 class License(BaseModel):
@@ -366,14 +384,6 @@ class MorphologyMetricsOutput(BaseModel):
     )
 
 
-class Mty(BaseModel):
-    model_config = ConfigDict(
-        extra='ignore',
-    )
-    mtype_label: str = Field(..., title='Mtype Label')
-    mtype_id: str = Field(..., title='Mtype Id')
-
-
 class Width(RootModel[float]):
     root: float = Field(
         ...,
@@ -420,6 +430,10 @@ class NeuronSetReference(BaseModel):
     block_dict_name: str = Field(default='', title='Block Dict Name')
     block_name: str = Field(..., title='Block Name')
     type: Literal['NeuronSetReference'] = Field(..., title='Type')
+
+
+class NodePopulationType(RootModel[Literal['biophysical', 'virtual']]):
+    root: Literal['biophysical', 'virtual'] = Field(..., title='NodePopulationType')
 
 
 class Variance(RootModel[float]):
@@ -632,10 +646,6 @@ class ScientificArtifact(BaseModel):
     atlas_id: UUID | None = Field(default=None, title='Atlas Id')
 
 
-class Sex(RootModel[Literal['male', 'female', 'unknown']]):
-    root: Literal['male', 'female', 'unknown'] = Field(..., title='Sex')
-
-
 class SingleTimestamp(BaseModel):
     model_config = ConfigDict(
         extra='ignore',
@@ -694,45 +704,16 @@ class SomaVoltageRecording(BaseModel):
     )
 
 
-class Spec(BaseModel):
+class SpatialCoordinate(RootModel[Literal['x', 'y', 'z']]):
+    root: Literal['x', 'y', 'z'] = Field(..., title='SpatialCoordinate')
+
+
+class SubjectID(BaseModel):
     model_config = ConfigDict(
         extra='ignore',
     )
-    species_name: str = Field(..., title='Species Name')
-    species_id: str = Field(..., title='Species Id')
-    strains: dict[str, str] = Field(..., title='Strains')
-
-
-class Weight(RootModel[float]):
-    root: float = Field(..., description='Weight in grams', gt=0.0, title='Weight')
-
-
-class Subject(BaseModel):
-    model_config = ConfigDict(
-        extra='ignore',
-    )
-    type: Literal['Subject'] = Field(..., title='Type')
-    name: str = Field(default='', description='Subject name', title='Name')
-    description: str = Field(
-        default='', description='Subject description', title='Description'
-    )
-    sex: Sex = Field(
-        default_factory=lambda: Sex.model_validate('unknown'),
-        description='Sex of the subject',
-    )
-    weight: Weight | None = Field(
-        default=None, description='Weight in grams', title='Weight'
-    )
-    age_value: timedelta | None = Field(
-        default=None, description='Age value interval.', title='Age value'
-    )
-    age_min: timedelta | None = Field(
-        default=None, description='Minimum age range', title='Minimum age range'
-    )
-    age_max: timedelta | None = Field(
-        default=None, description='Maximum age range', title='Maximum age range'
-    )
-    age_period: AgePeriod | None = 'unknown'
+    type: Literal['SubjectID'] = Field(..., title='Type')
+    subject_id: UUID | None = Field(default=None, title='Subject Id')
 
 
 class MagnesiumValue(RootModel[float]):
@@ -1066,14 +1047,13 @@ class ElectrophysiologyrecordingMetricsEndpointDeclaredElectrophysiologyrecordin
             Literal[
                 'spontaneous',
                 'idrest',
-                'idthres',
+                'idthreshold',
                 'apwaveform',
                 'iv',
                 'step',
-                'spontaps',
+                'sponaps',
                 'firepattern',
-                'sponnohold30',
-                'sponhold30',
+                'spontaneousnohold',
                 'starthold',
                 'startnohold',
                 'delta',
@@ -1082,13 +1062,13 @@ class ElectrophysiologyrecordingMetricsEndpointDeclaredElectrophysiologyrecordin
                 'irdepol',
                 'irhyperpol',
                 'iddepol',
-                'ramp',
-                'ap_thresh',
+                'apthreshold',
                 'hyperdepol',
                 'negcheops',
                 'poscheops',
                 'spikerec',
                 'sinespec',
+                'genericstep',
             ]
         ]
         | None
@@ -1097,18 +1077,91 @@ class ElectrophysiologyrecordingMetricsEndpointDeclaredElectrophysiologyrecordin
     max_value: float | None = Field(default=None, title='Max Value')
 
 
-class GetSubjectDataApiSubjectDataGetResponse(RootModel[list[Spec]]):
-    root: list[Spec] = Field(
-        ..., title='Response Get Subject Data Api Subject Data Get'
+class CircuitMetricsEndpointDeclaredCircuitMetricsCircuitIdGetParametersQuery(
+    BaseModel
+):
+    level_of_detail_nodes: CircuitStatsLevelOfDetail = Field(
+        default=0, description='Level of detail for node populations analysis'
+    )
+    level_of_detail_edges: CircuitStatsLevelOfDetail = Field(
+        default=0, description='Level of detail for edge populations analysis'
     )
 
 
-class GetLicenseDataApiLicensesGetResponse(RootModel[list[Lic]]):
-    root: list[Lic] = Field(..., title='Response Get License Data Api Licenses Get')
+class CircuitMetricsEdgePopulation(BaseModel):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    number_of_edges: int = Field(..., title='Number Of Edges')
+    name: str = Field(..., title='Name')
+    population_type: EdgePopulationType
+    property_names: list[str] = Field(..., title='Property Names')
+    property_stats: dict[str, dict[str, float]] | None = Field(
+        ..., title='Property Stats'
+    )
+    degree_stats: dict[str, dict[str, float]] | None = Field(..., title='Degree Stats')
 
 
-class GetMtypeDataApiMtypesGetResponse(RootModel[list[Mty]]):
-    root: list[Mty] = Field(..., title='Response Get Mtype Data Api Mtypes Get')
+class CircuitMetricsNodePopulation(BaseModel):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    number_of_nodes: int = Field(..., title='Number Of Nodes')
+    name: str = Field(..., title='Name')
+    population_type: NodePopulationType
+    property_names: list[str] = Field(..., title='Property Names')
+    property_unique_values: dict[str, list[str]] = Field(
+        ..., title='Property Unique Values'
+    )
+    property_value_counts: dict[str, dict[str, int]] = Field(
+        ..., title='Property Value Counts'
+    )
+    node_location_info: dict[str, dict[str, float]] | None = Field(
+        ..., title='Node Location Info'
+    )
+
+
+class CircuitMetricsOutput(BaseModel):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    number_of_biophys_node_populations: int = Field(
+        ..., title='Number Of Biophys Node Populations'
+    )
+    number_of_virtual_node_populations: int = Field(
+        ..., title='Number Of Virtual Node Populations'
+    )
+    names_of_biophys_node_populations: list[str] = Field(
+        ..., title='Names Of Biophys Node Populations'
+    )
+    names_of_virtual_node_populations: list[str] = Field(
+        ..., title='Names Of Virtual Node Populations'
+    )
+    names_of_nodesets: list[str] = Field(..., title='Names Of Nodesets')
+    biophysical_node_populations: list[CircuitMetricsNodePopulation | None] = Field(
+        ..., title='Biophysical Node Populations'
+    )
+    virtual_node_populations: list[CircuitMetricsNodePopulation | None] = Field(
+        ..., title='Virtual Node Populations'
+    )
+    number_of_chemical_edge_populations: int = Field(
+        ..., title='Number Of Chemical Edge Populations'
+    )
+    number_of_electrical_edge_populations: int = Field(
+        ..., title='Number Of Electrical Edge Populations'
+    )
+    names_of_chemical_edge_populations: list[str] = Field(
+        ..., title='Names Of Chemical Edge Populations'
+    )
+    names_of_electrical_edge_populations: list[str] = Field(
+        ..., title='Names Of Electrical Edge Populations'
+    )
+    chemical_edge_populations: list[CircuitMetricsEdgePopulation | None] = Field(
+        ..., title='Chemical Edge Populations'
+    )
+    electrical_edge_populations: list[CircuitMetricsEdgePopulation | None] = Field(
+        ..., title='Electrical Edge Populations'
+    )
 
 
 class ConstantCurrentClampSomaticStimulus(BaseModel):
@@ -1153,11 +1206,13 @@ class ContributeMorphologyForm(BaseModel):
     morphology: ReconstructionMorphology | None = Field(
         default=None, description='Information about contributors.', title='Morphology'
     )
-    subject: Subject | None = Field(
-        default=None, description='Information about the subject.'
-    )
     publication: Publication | None = Field(
         default=None, description='Publication details.', title='Publication Details'
+    )
+    subject: SubjectID | None = Field(
+        default=None,
+        description='The subject from which the morphology was derived.',
+        title='Subject',
     )
     license: License | None = Field(default=None, description='The license used.')
     scientificartifact: ScientificArtifact | None = Field(
