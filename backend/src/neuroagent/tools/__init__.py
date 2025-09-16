@@ -124,6 +124,7 @@ from neuroagent.tools.entitycore_subject_getall import SubjectGetAllTool
 from neuroagent.tools.entitycore_subject_getone import SubjectGetOneTool
 from neuroagent.tools.generate_plot import PlotGeneratorTool
 from neuroagent.tools.obi_expert import OBIExpertTool
+from neuroagent.tools.obione_circuitmetrics_getone import CircuitMetricGetOneTool
 from neuroagent.tools.obione_ephysmetrics_getone import EphysMetricsGetOneTool
 from neuroagent.tools.obione_generatesimulationsconfig import (
     GenerateSimulationsConfigTool,
@@ -147,6 +148,7 @@ __all__ = [
     "BrainRegionHierarchyGetOneTool",
     "CircuitGetAllTool",
     "CircuitGetOneTool",
+    "CircuitMetricGetOneTool",
     "ContributionGetAllTool",
     "ContributionGetOneTool",
     "ContextAnalyzerTool",
