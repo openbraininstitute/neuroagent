@@ -14,8 +14,9 @@ from sqlalchemy import (
     Integer,
     String,
 )
-from sqlalchemy.dialects.postgresql import TSVECTOR
+from sqlalchemy.dialects.postgresql import JSONB, TSVECTOR
 from sqlalchemy.ext.asyncio import AsyncAttrs
+from sqlalchemy.ext.mutable import MutableDict
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
 
@@ -162,3 +163,13 @@ class TokenConsumption(Base):
     task: Mapped[Task] = mapped_column(Enum(Task), nullable=False)
     count: Mapped[int] = mapped_column(Integer, nullable=False)
     model: Mapped[str] = mapped_column(String, nullable=False)
+
+
+class State(Base):
+    """SQL table tracking the shared state backend/frontend."""
+
+    __tablename__ = "state"
+    user_id: Mapped[uuid.UUID] = mapped_column(
+        UUID, nullable=False, unique=True, primary_key=True
+    )
+    state: Mapped[JSONB] = mapped_column(MutableDict.as_mutable(JSONB), nullable=False)

@@ -300,7 +300,11 @@ async def stream_chat_agent(
     messages: list[Messages] = thread.messages
 
     background_tasks.add_task(
-        commit_messages, request.app.state.engine, messages, thread
+        commit_messages,
+        request.app.state.engine,
+        messages,
+        thread,
+        context_variables["state"],
     )
     async with accounting_context(
         subtype=ServiceSubtype.ML_LLM,

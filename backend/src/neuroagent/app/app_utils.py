@@ -17,6 +17,7 @@ from neuroagent.app.config import Settings
 from neuroagent.app.database.sql_schemas import (
     Entity,
     Messages,
+    State,
     Task,
     Threads,
     TokenConsumption,
@@ -181,11 +182,13 @@ async def rate_limit(
 
 
 async def commit_messages(
-    engine: AsyncEngine, messages: list[Messages], thread: Threads
+    engine: AsyncEngine, messages: list[Messages], thread: Threads, state: State
 ) -> None:
     """Commit the messages in a bg task."""
     async with AsyncSession(engine) as session:
+        breakpoint()
         session.add_all(messages)
+        session.add(state)
         thread.update_date = utc_now()
         await session.commit()
         await session.close()

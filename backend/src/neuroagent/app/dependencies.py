@@ -22,7 +22,7 @@ from starlette.status import HTTP_401_UNAUTHORIZED
 from neuroagent.agent_routine import AgentsRoutine
 from neuroagent.app.app_utils import filter_tools_by_conversation, validate_project
 from neuroagent.app.config import Settings
-from neuroagent.app.database.sql_schemas import Entity, Messages, Threads
+from neuroagent.app.database.sql_schemas import Entity, Messages, State, Threads
 from neuroagent.app.schemas import OpenRouterModelResponse, UserInfo
 from neuroagent.mcp import MCPClient, create_dynamic_tool
 from neuroagent.new_types import Agent
@@ -55,6 +55,7 @@ from neuroagent.tools import (
     ExperimentalSynapsesPerConnectionGetAllTool,
     ExperimentalSynapsesPerConnectionGetOneTool,
     GenerateSimulationsConfigTool,
+    # GenerateSimulationsConfigTool,
     IonChannelModelGetAllTool,
     IonChannelModelGetOneTool,
     MeasurementAnnotationGetAllTool,
@@ -613,6 +614,14 @@ def get_s3_client(
     )
 
 
+async def get_state(
+    user_info: Annotated[UserInfo, Depends(get_user_info)],
+    session: Annotated[AsyncSession, Depends(get_session)],
+) -> State | None:
+    """Retrieve the user's state to pass it to context variables."""
+    return await session.get(State, user_info.sub)
+
+
 async def get_context_variables(
     request: Request,
     settings: Annotated[Settings, Depends(get_settings)],
@@ -621,6 +630,7 @@ async def get_context_variables(
     s3_client: Annotated[Any, Depends(get_s3_client)],
     user_info: Annotated[UserInfo, Depends(get_user_info)],
     openai_client: Annotated[AsyncOpenAI, Depends(get_openai_client)],
+    state: Annotated[State, Depends(get_state)],
 ) -> dict[str, Any]:
     """Get the context variables to feed the tool's metadata."""
     # Get the current frontend url
@@ -651,6 +661,7 @@ async def get_context_variables(
         "project_id": thread.project_id,
         "s3_client": s3_client,
         "sanity_url": settings.tools.sanity.url,
+        "state": state,
         "thread_id": thread.thread_id,
         "thumbnail_generation_url": settings.tools.thumbnail_generation.url,
         "usage_dict": {},
