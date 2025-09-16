@@ -55,7 +55,6 @@ from neuroagent.tools import (
     ExperimentalSynapsesPerConnectionGetAllTool,
     ExperimentalSynapsesPerConnectionGetOneTool,
     GenerateSimulationsConfigTool,
-    # GenerateSimulationsConfigTool,
     IonChannelModelGetAllTool,
     IonChannelModelGetOneTool,
     MeasurementAnnotationGetAllTool,
@@ -473,6 +472,7 @@ async def filtered_tools(
 
     # Awaiting here makes downstream calls already loaded so no performance issue
     messages: list[Messages] = await thread.awaitable_attrs.messages
+    breakpoint()
     if (
         not messages
         or messages[-1].entity == Entity.AI_MESSAGE
@@ -489,7 +489,7 @@ async def filtered_tools(
 
         if not tool_list:
             return []
-
+        breakpoint()
         return await filter_tools_by_conversation(
             messages=messages,
             tool_list=tool_list,

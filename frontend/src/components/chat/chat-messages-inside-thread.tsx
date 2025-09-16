@@ -12,6 +12,8 @@ import { ChatMessageHuman } from "@/components/chat/chat-message-human";
 import { ChatMessageTool } from "@/components/chat/chat-message-tool";
 import { ChatMessageLoading } from "./chat-message-loading";
 import { ReasoningCollapsible } from "./reasoning-collapsible";
+import { JsonSidebar } from "./collapsible-sidebar-json";
+import { SetStateAction, useState } from "react";
 
 type ChatMessagesInsideThreadProps = {
   messages: MessageStrict[];
@@ -31,6 +33,7 @@ type ChatMessagesInsideThreadProps = {
       | ((messages: MessageStrict[]) => MessageStrict[]),
   ) => void;
   loadingStatus: "submitted" | "streaming" | "ready" | "error";
+  setIsSidebarOpen: (value: SetStateAction<boolean>) => void;
 };
 
 export function ChatMessagesInsideThread({
@@ -40,6 +43,7 @@ export function ChatMessagesInsideThread({
   addToolResult,
   setMessages,
   loadingStatus,
+  setIsSidebarOpen,
 }: ChatMessagesInsideThreadProps) {
   const handleMessageUpdate = (
     messageId: string,
@@ -49,6 +53,7 @@ export function ChatMessagesInsideThread({
       messages.map((msg) => (msg.id === messageId ? updater(msg) : msg)),
     );
   };
+
   return (
     <>
       {messages.map((message, idx) =>
@@ -91,6 +96,7 @@ export function ChatMessagesInsideThread({
                       setMessage={(updater) =>
                         handleMessageUpdate(message.id, updater)
                       }
+                      setIsSidebarOpen={setIsSidebarOpen}
                     />
                     <PlotsInChat storageIds={getStorageID(part) || []} />
                   </div>

@@ -1,12 +1,14 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, SetStateAction } from "react";
 import { MessageStrict } from "@/lib/types";
 import { HumanValidationDialog } from "@/components/chat/human-validation-dialog";
 import { ToolInvocation } from "@ai-sdk/ui-utils";
 import { useExecuteTool } from "@/hooks/tools";
 import { ToolCallCollapsible } from "@/components/chat/tool-call-collapsible";
 import React from "react";
+import { Code } from "lucide-react";
+import { JsonSidebar } from "./collapsible-sidebar-json";
 
 type ChatMessageToolProps = {
   content?: string;
@@ -24,6 +26,7 @@ type ChatMessageToolProps = {
   }) => void;
   validated: "pending" | "accepted" | "rejected" | "not_required";
   setMessage: (updater: (msg: MessageStrict) => MessageStrict) => void;
+  setIsSidebarOpen: (value: SetStateAction<boolean>) => void;
 };
 
 export const ChatMessageTool = function ChatMessageTool({
@@ -33,10 +36,12 @@ export const ChatMessageTool = function ChatMessageTool({
   availableTools,
   addToolResult,
   setMessage,
+  setIsSidebarOpen,
   validated,
 }: ChatMessageToolProps) {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [validationError, setValidationError] = useState<string | null>(null);
+
   const { mutate, isPending, isSuccess, data, status } = useExecuteTool();
 
   useEffect(() => {
@@ -91,15 +96,26 @@ export const ChatMessageTool = function ChatMessageTool({
         setMessage={setMessage}
         mutate={mutate}
       />
-      <div className="ml-5 flex justify-start">
-        <ToolCallCollapsible
-          tool={tool}
-          stopped={stopped}
-          toolLabel={toolLabel}
-          validated={validated}
-          validationError={validationError}
-          onValidationClick={() => setDialogOpen(true)}
-        />
+      <div className="item-center flex">
+        <div className="ml-5 flex justify-start">
+          <ToolCallCollapsible
+            tool={tool}
+            stopped={stopped}
+            toolLabel={toolLabel}
+            validated={validated}
+            validationError={validationError}
+            onValidationClick={() => setDialogOpen(true)}
+          />
+        </div>
+        {tool.toolName === "obione-generatesimulationsconfig" && (
+          <button
+            onClick={() => setIsSidebarOpen((prev) => !prev)}
+            className="ml-2 rounded-lg p-1 transition-colors hover:bg-gray-200"
+            aria-label="Open/Close current JSON"
+          >
+            <Code className="h-5 w-5 text-blue-600" />
+          </button>
+        )}
       </div>
     </div>
   );

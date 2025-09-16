@@ -360,4 +360,5 @@ class StateRead(BaseModel):
 class StatePatch(BaseModel):
     """Patch class for states."""
 
-    updated_json: SimulationsForm
+    key: str
+    new_state: SimulationsForm

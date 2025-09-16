@@ -235,10 +235,10 @@ async def stream_chat_agent(
     user_request: ClientRequest,
     redis_client: Annotated[aioredis.Redis | None, Depends(get_redis_client)],
     settings: Annotated[Settings, Depends(get_settings)],
+    context_variables: Annotated[dict[str, Any], Depends(get_context_variables)],
     thread: Annotated[Threads, Depends(get_thread)],
     agents_routine: Annotated[AgentsRoutine, Depends(get_agents_routine)],
     agent: Annotated[Agent, Depends(get_starting_agent)],
-    context_variables: Annotated[dict[str, Any], Depends(get_context_variables)],
     accounting_session_factory: Annotated[
         AsyncAccountingSessionFactory, Depends(get_accounting_session_factory)
     ],
@@ -298,7 +298,7 @@ async def stream_chat_agent(
 
     # No need to await since it has been awaited in tool filtering dependency
     messages: list[Messages] = thread.messages
-
+    breakpoint()
     background_tasks.add_task(
         commit_messages,
         request.app.state.engine,

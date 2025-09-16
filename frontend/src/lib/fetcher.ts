@@ -1,5 +1,5 @@
 import { env } from "@/lib/env";
-import { CustomError } from "@/lib/types";
+import { CustomError, SharedState } from "@/lib/types";
 
 const isServer = typeof window === "undefined";
 
@@ -9,7 +9,7 @@ type PathParams = Record<string, string | number | boolean>;
 type QueryParams = Record<string, string | number | boolean>;
 type Headers = Record<string, string>;
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-type Body = Record<string, any>;
+type Body = Record<string, any> | SharedState;
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type ResponseBody = Record<string, any> | string;
 

@@ -32,7 +32,6 @@ class GenerateSimulationsConfigMetadata(BaseMetadata):
 
     openai_client: AsyncOpenAI
     state: State
-    entity_frontend_url: str
     token_consumption: dict[str, str | int | None] | None = None
 
 

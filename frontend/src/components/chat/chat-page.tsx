@@ -15,6 +15,7 @@ import { toast } from "sonner";
 import { useGetMessageNextPage } from "@/hooks/get-message-page";
 import { getToolInvocations, isLastMessageComplete } from "@/lib/utils";
 import { md5 } from "js-md5";
+import { JsonSidebar } from "./collapsible-sidebar-json";
 
 type ChatPageProps = {
   threadId: string;
@@ -54,6 +55,8 @@ export function ChatPage({
   const [isInvalidating, setIsInvalidating] = useState(false);
   // For frontend url
   const frontendUrl = Cookies.get("frontendUrl") || "";
+  // State
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const {
     data,
@@ -300,6 +303,7 @@ export function ChatPage({
           addToolResult={addToolResult}
           setMessages={setMessages}
           loadingStatus={status}
+          setIsSidebarOpen={setIsSidebarOpen}
         />
         <div ref={messagesEndRef} className="pb-5" />
       </div>
@@ -322,6 +326,22 @@ export function ChatPage({
         stopped={stopped}
         setStopped={setStopped}
         setIsInvalidating={setIsInvalidating}
+      />
+      <JsonSidebar
+        isOpen={isSidebarOpen}
+        onClose={() => setIsSidebarOpen(false)}
+        stateKey={"smc_simulation_config"}
+        lastToolCall={
+          messages
+            .at(-1)
+            ?.parts.filter((part) => part.type === "tool-invocation")
+            .filter(
+              (part) =>
+                part.toolInvocation.toolName ==
+                "obione-generatesimulationsconfig",
+            )
+            .at(-1)?.toolInvocation
+        }
       />
     </div>
   );

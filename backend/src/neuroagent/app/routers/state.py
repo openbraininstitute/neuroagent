@@ -61,12 +61,11 @@ async def get_state(
 async def patch_state(
     session: Annotated[AsyncSession, Depends(get_session)],
     user_info: Annotated[UserInfo, Depends(get_user_info)],
-    key: str,
     patch_body: StatePatch,
 ) -> dict[str, str]:
     """Patch an existing key of the state."""
     # Create a dict with just the key to update
-    update_dict = {key: patch_body.updated_json.model_dump()}
+    update_dict = {patch_body.key: patch_body.new_state.model_dump()}
 
     await session.execute(
         update(State)

@@ -186,9 +186,9 @@ async def commit_messages(
 ) -> None:
     """Commit the messages in a bg task."""
     async with AsyncSession(engine) as session:
-        breakpoint()
         session.add_all(messages)
         session.add(state)
+        breakpoint()
         thread.update_date = utc_now()
         await session.commit()
         await session.close()
