@@ -1,0 +1,257 @@
+"""Tool to analyze circuit population Frames using natural language queries."""
+
+import os
+import tarfile
+import tempfile
+from typing import ClassVar
+from uuid import UUID
+
+import bluepysnap
+import duckdb
+from httpx import AsyncClient
+from openai import AsyncOpenAI
+from pandas import DataFrame
+from pydantic import BaseModel, Field
+
+from neuroagent.tools.base_tool import BaseTool, EntitycoreMetadata
+from neuroagent.utils import get_token_count
+
+
+class CircuitPopulationAnalysisInput(BaseModel):
+    """Inputs of the CircuitPopulationAnalysis tool."""
+
+    circuit_id: UUID = Field(description="ID of the circuit.")
+    sonata_asset_id: UUID = Field(
+        description="ID of the compressed_sonata_circuit asset: circuit.gz . Can be obtained by the `circuit-get-one` tool or the `get_asset` tool."
+    )
+    population_name: str = Field(
+        default="S1nonbarrel_neurons",
+        description="Name of the circuit's population of interest.",
+    )
+    question: str = Field(
+        description="Natural language question about the neurons in the circuit population (e.g., 'What is the amount of neurons with that type?', 'Give me all neurons from this specific brain region')"
+    )
+
+
+class CircuitPopulationAnalysisMetadata(EntitycoreMetadata):
+    """Metadata of the CircuitPopulationAnalysis tool."""
+
+    openai_client: AsyncOpenAI
+    httpx_client: AsyncClient
+    token_consumption: dict[str, str | int | None] | None = None
+
+
+class CircuitPopulationAnalysisOutput(BaseModel):
+    """Output of the CircuitPopulationAnalysis tool."""
+
+    result_data: str
+    query_executed: str
+
+
+class CircuitPopulationAnalysisTool(BaseTool):
+    """Class defining the CircuitPopulationAnalysis tool."""
+
+    name: ClassVar[str] = "circuit-population-data-analysis"
+    name_frontend: ClassVar[str] = "Analyze Circuit Population"
+    utterances: ClassVar[list[str]] = [
+        "Analyze the circuit population",
+        "Query neurons in the population",
+        "What neurons are in this brain region",
+        "Count neurons by type",
+        "Show me neurons with specific properties",
+        "Filter neurons by region",
+        "What is the distribution of neuron types",
+    ]
+    description: ClassVar[
+        str
+    ] = """This tool allows analyzing circuit population data using natural language questions about neurons.
+
+It converts natural language questions about neural circuit populations into SQL queries and executes them
+against the population Frame. The tool supports filtering neurons by properties like brain region,
+neuron type, morphology, and other cellular characteristics, as well as statistical analysis of populations.
+
+Input:
+- circuit_id: UUID of the circuit
+- sonata_asset_id: UUID of the compressed sonata circuit data
+- population_name: Name of the neural population to analyze
+- question: A natural language question about the neurons in the population
+
+Output: Analysis results showing neuron data based on the query
+"""
+
+    description_frontend: ClassVar[
+        str
+    ] = """Analyze neural circuit populations using natural language.
+Ask questions like "What is the amount of neurons with that type?" or "Give me all neurons from this specific brain region" and get detailed neuron data."""
+
+    metadata: CircuitPopulationAnalysisMetadata
+    input_schema: CircuitPopulationAnalysisInput
+
+    async def _download_and_extract_circuit(self, temp_dir: str) -> str:
+        """Download and extract circuit data, return path to config file."""
+        # Get pre-signed url
+        headers: dict[str, str] = {}
+        if self.metadata.vlab_id is not None:
+            headers["virtual-lab-id"] = str(self.metadata.vlab_id)
+        if self.metadata.project_id is not None:
+            headers["project-id"] = str(self.metadata.project_id)
+
+        response = await self.metadata.httpx_client.get(
+            url=f"{self.metadata.entitycore_url.rstrip('/')}/circuit/{self.input_schema.circuit_id}/assets/{self.input_schema.sonata_asset_id}/download",
+            headers=headers,
+            follow_redirects=False,
+        )
+        if response.status_code != 307:
+            raise ValueError(
+                f"The asset download endpoint returned a non 307 response code. Error: {response.text}"
+            )
+        presigned_url = response.headers["location"]
+
+        # Download the .gz file
+        print("DOWNLOADING FILE")
+        os.makedirs(temp_dir, exist_ok=True)
+        download_path = os.path.join(temp_dir, "circuit_data.gz")
+        extract_dir = os.path.join(temp_dir, "extracted")
+        os.makedirs(extract_dir, exist_ok=True)
+
+        # Stream the presigned URL to disk to avoid large memory usage
+        client = AsyncClient()
+        download_resp = await client.get(presigned_url, headers={}, timeout=None)
+        download_resp.raise_for_status()
+        with open(download_path, "wb") as fw:
+            fw.write(download_resp.content)
+
+        download_path = os.path.join(temp_dir, "circuit_data.gz")
+
+        # Extract the .gz file
+        print("EXTRACTING FILE")
+        extract_dir = os.path.join(temp_dir, "extracted")
+        os.makedirs(extract_dir, exist_ok=True)
+
+        with tarfile.open(download_path, "r:gz") as tar_ref:
+            # Determine the root folder
+            members = tar_ref.getnames()
+            root_folder = members[0].split("/")[0] if members else None
+            tar_ref.extractall(extract_dir)
+
+        if root_folder:
+            config_path = os.path.join(extract_dir, root_folder, "circuit_config.json")
+        else:
+            raise ValueError("no dir found")
+
+        return config_path
+
+    def _load_circuit_population_data(self, circuit_config_path: str) -> DataFrame:
+        """Load circuit population data and return the neuron dataframe."""
+        circuit = bluepysnap.Circuit(circuit_config_path)
+        nodes = circuit.nodes.get()
+
+        for node in nodes:
+            if node[0] == self.input_schema.population_name:
+                return node[1]
+
+        raise RuntimeError("Circuit population not found.")
+
+    def _is_safe_sql(self, sql: str) -> bool:
+        """Check if SQL is safe (only SELECT queries)."""
+        sql_upper = sql.upper().strip()
+        dangerous = ["DROP", "DELETE", "INSERT", "UPDATE", "CREATE", "ALTER", "EXEC"]
+        return sql_upper.startswith("SELECT") and not any(
+            word in sql_upper for word in dangerous
+        )
+
+    async def arun(self) -> CircuitPopulationAnalysisOutput:
+        """Run the circuit population analysis tool."""
+        try:
+            with tempfile.TemporaryDirectory() as temp_dir:
+                # Download and load the circuit population data
+                circuit_config_path = await self._download_and_extract_circuit(temp_dir)
+                population_dataframe = self._load_circuit_population_data(
+                    circuit_config_path
+                )
+
+                # Set up DuckDB connection
+                conn = duckdb.connect()
+                conn.register("neurons", population_dataframe)
+
+                # Get schema info for the LLM
+                columns = list(population_dataframe.columns)
+                dtypes = {
+                    col: str(dtype)
+                    for col, dtype in population_dataframe.dtypes.items()
+                }
+                sample = (
+                    population_dataframe.head().to_dict("records")
+                    if len(population_dataframe) > 0
+                    else []
+                )
+
+                system_prompt = """You are an expert SQL generator specializing in neural circuit analysis. Generate only valid SQL SELECT queries for analyzing neuron populations.
+    Rules:
+    - Only SELECT statements allowed
+    - Use table name 'neurons' (contains neuron data from circuit population)
+    - Return just the SQL query, no explanations
+    - End with semicolon
+    - Use proper SQL syntax for DuckDB
+    - Focus on neuron properties like types, regions, morphologies, and cellular characteristics"""
+
+                user_prompt = f"""Convert this neuroscience question about circuit population to a SQL SELECT query.
+
+    Table: 'neurons' (circuit population data)
+    Columns: {columns}
+     types: {dtypes}
+    Sample neuron records: {sample}
+
+    Question about neurons: {self.input_schema.question}
+
+    Generate the SQL query to analyze the neuron population:"""
+
+                # Get SQL from OpenAI
+                model = "gpt-4o-mini"
+
+                response = await self.metadata.openai_client.chat.completions.create(
+                    model=model,
+                    messages=[
+                        {"role": "system", "content": system_prompt},
+                        {"role": "user", "content": user_prompt},
+                    ],
+                )
+
+                if response.choices[0].message.content:
+                    sql = response.choices[0].message.content.strip()
+                else:
+                    raise ValueError("No content in chat completion.")
+
+                # Clean up response (remove markdown if present)
+                if "```" in sql:
+                    parts = sql.split("```")
+                    for part in parts:
+                        if "SELECT" in part.upper():
+                            sql = part.replace("sql", "").strip()
+                            break
+
+                # Security check
+                if not self._is_safe_sql(sql):
+                    raise ValueError("Generated SQL contains unsafe operations")
+
+                # Execute query on neuron population
+                result = conn.execute(sql).fetchdf()
+
+                # Track token usage
+                token_consumption = get_token_count(response.usage)
+                self.metadata.token_consumption = {**token_consumption, "model": model}
+
+                return CircuitPopulationAnalysisOutput(
+                    result_data=result.to_json(), query_executed=sql
+                )
+
+        except Exception as e:
+            raise Exception(f"Circuit population analysis failed: {str(e)}")
+        finally:
+            if "conn" in locals():
+                conn.close()
+
+    @classmethod
+    async def is_online(cls) -> bool:
+        """Check if the tool is online."""
+        return True
