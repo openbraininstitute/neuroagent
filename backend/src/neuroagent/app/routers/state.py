@@ -13,9 +13,11 @@ from neuroagent.app.dependencies import (
     get_user_info,
 )
 from neuroagent.app.schemas import (
+    SharedState,
     StateCreate,
     StatePatch,
     StateRead,
+    StateReset,
     UserInfo,
 )
 
@@ -66,6 +68,27 @@ async def patch_state(
     """Patch an existing key of the state."""
     # Create a dict with just the key to update
     update_dict = {patch_body.key: patch_body.new_state.model_dump()}
+
+    await session.execute(
+        update(State)
+        .where(State.user_id == user_info.sub)
+        .values(state=State.state.op("||")(update_dict))
+    )
+    await session.commit()
+
+    # We don't get the object for efficiency
+    return {"Acknowledged": "true"}
+
+
+@router.patch("/reset")
+async def reset_state(
+    session: Annotated[AsyncSession, Depends(get_session)],
+    user_info: Annotated[UserInfo, Depends(get_user_info)],
+    reset_body: StateReset,
+) -> dict[str, str]:
+    """Patch an existing key of the state."""
+    # Create a dict with just the key to update
+    update_dict = {reset_body.key: SharedState().model_dump()[reset_body.key]}
 
     await session.execute(
         update(State)

@@ -298,13 +298,12 @@ async def stream_chat_agent(
 
     # No need to await since it has been awaited in tool filtering dependency
     messages: list[Messages] = thread.messages
-    breakpoint()
+
     background_tasks.add_task(
         commit_messages,
         request.app.state.engine,
         messages,
         thread,
-        context_variables["state"],
     )
     async with accounting_context(
         subtype=ServiceSubtype.ML_LLM,
@@ -317,6 +316,7 @@ async def stream_chat_agent(
             agent=agent,
             messages=messages,
             context_variables=context_variables,
+            request=request,
             max_turns=settings.agent.max_turns,
             max_parallel_tool_calls=settings.agent.max_parallel_tool_calls,
         )

@@ -362,3 +362,9 @@ class StatePatch(BaseModel):
 
     key: str
     new_state: SimulationsForm
+
+
+class StateReset(BaseModel):
+    """Reset class for states."""
+
+    key: str

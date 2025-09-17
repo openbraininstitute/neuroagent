@@ -116,8 +116,6 @@ class Messages(Base):
     __table_args__ = (
         # GIN index for full-text search performance
         Index("ix_messages_search_vector", "search_vector", postgresql_using="gin"),
-        # Separate index for filtering by thread and entity
-        Index("ix_messages_thread_entity", "thread_id", "entity"),
     )
 
 

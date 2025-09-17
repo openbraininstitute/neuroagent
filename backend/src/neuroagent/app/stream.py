@@ -2,8 +2,10 @@
 
 from typing import Any, AsyncIterator
 
+from fastapi import Request
 from httpx import AsyncClient
 from openai import AsyncOpenAI
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from neuroagent.agent_routine import AgentsRoutine
 from neuroagent.app.database.sql_schemas import Messages
@@ -15,6 +17,7 @@ async def stream_agent_response(
     agent: Agent,
     messages: list[Messages],
     context_variables: dict[str, Any],
+    request: Request,
     max_turns: int = 10,
     max_parallel_tool_calls: int = 5,
 ) -> AsyncIterator[str]:
@@ -40,6 +43,12 @@ async def stream_agent_response(
     context_variables["openai_client"] = AsyncOpenAI(
         api_key=context_variables["openai_client"].api_key
     )
+
+    # Restore the session
+    engine = request.app.state.engine
+    session = AsyncSession(engine)
+    context_variables["session"] = session
+
     iterator = connected_agents_routine.astream(
         agent=agent,
         messages=messages,

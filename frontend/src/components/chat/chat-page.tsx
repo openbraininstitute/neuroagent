@@ -331,7 +331,7 @@ export function ChatPage({
         isOpen={isSidebarOpen}
         onClose={() => setIsSidebarOpen(false)}
         stateKey={"smc_simulation_config"}
-        lastToolCall={
+        toolRefetchState={
           messages
             .at(-1)
             ?.parts.filter((part) => part.type === "tool-invocation")

@@ -8,7 +8,6 @@ import { useExecuteTool } from "@/hooks/tools";
 import { ToolCallCollapsible } from "@/components/chat/tool-call-collapsible";
 import React from "react";
 import { Code } from "lucide-react";
-import { JsonSidebar } from "./collapsible-sidebar-json";
 
 type ChatMessageToolProps = {
   content?: string;

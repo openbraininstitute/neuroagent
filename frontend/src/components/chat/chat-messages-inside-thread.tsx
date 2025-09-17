@@ -12,8 +12,7 @@ import { ChatMessageHuman } from "@/components/chat/chat-message-human";
 import { ChatMessageTool } from "@/components/chat/chat-message-tool";
 import { ChatMessageLoading } from "./chat-message-loading";
 import { ReasoningCollapsible } from "./reasoning-collapsible";
-import { JsonSidebar } from "./collapsible-sidebar-json";
-import { SetStateAction, useState } from "react";
+import { SetStateAction } from "react";
 
 type ChatMessagesInsideThreadProps = {
   messages: MessageStrict[];
