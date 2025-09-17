@@ -24,7 +24,7 @@ class GenerateSimulationsConfigInput(BaseModel):
         description="UUID of the target circuit that has to be simulated."
     )
     config_request: str = Field(
-        description="A description of the desired simulation configuration that will be processed by an LLM to generate JSON. This should contain either: (1) a complete specification for a new configuration using only parameters and settings that have been explicitly mentioned in this conversation or shown in previous tool outputs, or (2) specific modifications to existing configurations (e.g., 'change simulation length to 5000ms', 'add stimulus for excitatory neurons', 'record only inhibitory neurons'). Be explicit about your approach but concise. IMPORTANT: Only use parameter names, settings, and configuration options that have been explicitly provided in the prompt, previous messages, or tool outputs within this conversation. Do not invent, create, or assume the existence of parameters that haven't been specifically shown to you - if you need a parameter that hasn't been mentioned, ask for clarification rather than guessing. The tool knows about reasonable defaults, don't specify them unless required."
+        description="Write a concise description (1–3 short sentences or compact bullets) of the desired simulation or change for the inner LLM to produce a simulation JSON. Include the objective, the scope/components, and only the parameters the user specified. The inner LLM may choose sensible defaults only for commonly expected fields — do not invent new parameter names nor specify imaginary actions (output path, simulator, parallelization etc...)."
     )
 
 
@@ -88,7 +88,7 @@ Use this tool when users need to:
 
 Always call this tool to generate a simulation config, never attempt to generate one yourself.
 Do not try to generate a simulation config yourself if the tool fails.
-Do not mention the new simulation config in the chat after running the tool. The update will be done directly in the frontend and exposed to the user. Simply mention that the changes have been made without being more specific.
+Do not mention the new simulation config in the chat after running the tool. The update will be done directly in the frontend and exposed to the user. Simply state that the update had been done.
 Do not propose "reasonable" parameters to the user unless you know for sure they are parameters that are being used here.
 """
     description_frontend: ClassVar[
