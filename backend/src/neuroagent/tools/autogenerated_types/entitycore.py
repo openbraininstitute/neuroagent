@@ -67,6 +67,8 @@ class ApiErrorCode(
             'ASSET_INVALID_CONTENT_TYPE',
             'ION_NAME_NOT_FOUND',
             'S3_CANNOT_CREATE_PRESIGNED_URL',
+            'OPENAI_API_KEY_MISSING',
+            'OPENAI_API_ERROR',
         ]
     ]
 ):
@@ -88,6 +90,8 @@ class ApiErrorCode(
         'ASSET_INVALID_CONTENT_TYPE',
         'ION_NAME_NOT_FOUND',
         'S3_CANNOT_CREATE_PRESIGNED_URL',
+        'OPENAI_API_KEY_MISSING',
+        'OPENAI_API_ERROR',
     ] = Field(..., description='API Error codes.', title='ApiErrorCode')
 
 
@@ -1970,6 +1974,7 @@ class ReadManyRegionBrainAtlasAtlasIdRegionsGetParametersQuery(BaseModel):
 
 
 class ReadManyBrainRegionGetParametersQuery(BaseModel):
+    semantic_search: str | None = Field(default=None, title='Semantic Search')
     page: int = Field(default=1, ge=1, title='Page')
     page_size: int = Field(default=100, ge=1, title='Page Size')
     name: str | None = Field(default=None, title='Name')
@@ -6102,6 +6107,7 @@ class ReadManySingleNeuronSynaptomeSimulationGetParametersQuery(BaseModel):
 
 
 class ReadManySpeciesGetParametersQuery(BaseModel):
+    semantic_search: str | None = Field(default=None, title='Semantic Search')
     page: int = Field(default=1, ge=1, title='Page')
     page_size: int = Field(default=100, ge=1, title='Page Size')
     name: str | None = Field(default=None, title='Name')
