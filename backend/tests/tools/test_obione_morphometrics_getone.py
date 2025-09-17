@@ -12,12 +12,14 @@ from neuroagent.tools.obione_morphometrics_getone import (
     MorphometricsGetOneMetadata,
 )
 
+random_uuid = uuid.UUID("06c87a93-48cd-4241-9d4e-1fb09315b00d")
+
 
 class TestMorphometricsGetOneTool:
     @pytest.mark.asyncio
     async def test_arun(self, httpx_mock):
         httpx_mock.add_response(
-            url="http://obione.org/declared/neuron-morphology-metrics/1234?requested_metrics=circularity&requested_metrics=soma_radius",
+            url=f"http://obione.org/declared/neuron-morphology-metrics/{random_uuid}?requested_metrics=circularity&requested_metrics=soma_radius",
             json={
                 "aspect_ratio": None,
                 "circularity": 0.78,
@@ -51,7 +53,8 @@ class TestMorphometricsGetOneTool:
                 project_id=None,
             ),
             input_schema=MorphometricsGetOneInputs(
-                morphology_id="1234", requested_metrics=["circularity", "soma_radius"]
+                morphology_id=random_uuid,
+                requested_metrics=["circularity", "soma_radius"],
             ),
         )
 
@@ -61,7 +64,7 @@ class TestMorphometricsGetOneTool:
     @pytest.mark.asyncio
     async def test_arun_vlab_proj(self, httpx_mock):
         httpx_mock.add_response(
-            url="http://obione.org/declared/neuron-morphology-metrics/1234?requested_metrics=circularity&requested_metrics=soma_radius",
+            url=f"http://obione.org/declared/neuron-morphology-metrics/{random_uuid}?requested_metrics=circularity&requested_metrics=soma_radius",
             json={
                 "aspect_ratio": None,
                 "circularity": 0.78,
@@ -96,7 +99,8 @@ class TestMorphometricsGetOneTool:
                 project_id=uuid.uuid4(),
             ),
             input_schema=MorphometricsGetOneInputs(
-                morphology_id="1234", requested_metrics=["circularity", "soma_radius"]
+                morphology_id=random_uuid,
+                requested_metrics=["circularity", "soma_radius"],
             ),
         )
 
@@ -113,11 +117,11 @@ class TestMorphometricsGetOneTool:
                 vlab_id=None,
                 project_id=None,
             ),
-            input_schema=MorphometricsGetOneInputs(morphology_id="1234"),
+            input_schema=MorphometricsGetOneInputs(morphology_id=random_uuid),
         )
 
         httpx_mock.add_response(
-            url="http://obione.org/declared/neuron-morphology-metrics/1234",
+            url=f"http://obione.org/declared/neuron-morphology-metrics/{random_uuid}",
             status_code=404,
             text="Resource not found.",
         )
