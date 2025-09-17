@@ -86,8 +86,8 @@ async def reset_state(
     user_info: Annotated[UserInfo, Depends(get_user_info)],
     reset_body: StateReset,
 ) -> dict[str, str]:
-    """Patch an existing key of the state."""
-    # Create a dict with just the key to update
+    """Reset an existing key of the state."""
+    # Create a dict with just the key to reset
     update_dict = {reset_body.key: SharedState().model_dump()[reset_body.key]}
 
     await session.execute(
@@ -107,6 +107,10 @@ async def delete_state(
     user_info: Annotated[UserInfo, Depends(get_user_info)],
 ) -> dict[str, str]:
     """Delete an existing state."""
+    if not await session.get(State, user_info.sub):
+        raise HTTPException(
+            status_code=500, detail=f"State for user {user_info.sub} doesn't exists."
+        )
     await session.execute(delete(State).where(State.user_id == user_info.sub))
     await session.commit()
 

@@ -94,7 +94,7 @@ Do not propose "reasonable" parameters to the user unless you know for sure they
     description_frontend: ClassVar[
         str
     ] = """Create or modify JSON configurations using natural language.
-Simply specify in plain english what you want your configuration to achieve or what changes you'd like to make."""
+Simply specify in plain english what you want your configuration to achieve or what changes you would like to make."""
     metadata: GenerateSimulationsConfigMetadata
     input_schema: GenerateSimulationsConfigInput
 
@@ -102,11 +102,13 @@ Simply specify in plain english what you want your configuration to achieve or w
         """Run the tool."""
         smc_simulation_config = self.metadata.state
         if smc_simulation_config is None:
-            initial_simulation_form = {}
-        else:
-            initial_simulation_form = smc_simulation_config.state[  # type: ignore
-                "smc_simulation_config"
+            raise ValueError("A state must be created fir the user.")
+        initial_simulation_form = (
+            smc_simulation_config.state[  # type: ignore
+                "smc_simulation_config"  # Is None if doesn't exist. this is JSONB not python dict
             ]
+            or {}
+        )
         system_prompt = """# Simulation Configuration Generator
 
 You are an expert at generating valid JSON simulation configurations following the SimulationsForm schema.
