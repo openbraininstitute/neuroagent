@@ -42,8 +42,8 @@ MOCK_PLATFORM_DESCRIPTIONS = {
     "build-me-model-e-model-selection": "E-model selection for ME model. ",
     "build-synaptome": "Synaptome building information. ",
     "build-synaptome-details": "Synaptome configuration details. ",
-    "Experiment": "Simulation/experiment page information. ",
-    "Admin": "Admin page information. ",
+    "experiment": "Simulation/experiment page information. ",
+    "admin": "Admin page information. ",
 }
 
 # Mock brain region response
