@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Switch to gpt-5-mini.
+- Use semantic search when available in Entitycore.
 
 ## [v0.8.1] - 01.09.2025
 
