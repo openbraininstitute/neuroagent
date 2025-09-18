@@ -29,7 +29,7 @@ class CircuitPopulationAnalysisInput(BaseModel):
         description="Name of the circuit's population of interest.",
     )
     question: str = Field(
-        description="Natural language question about the neurons in the circuit population (e.g., 'What is the amount of neurons with that type?', 'Give me all neurons from this specific brain region')"
+        description="Natural language question about the neurons in the circuit population. DO NOT mention the population name, it is already filtered by the `population_name` argument of this tool."
     )
 
 
@@ -80,8 +80,8 @@ morphological classifications, and circuit organization principles.
 Input:
 - circuit_id: UUID of the circuit
 - sonata_asset_id: UUID of the compressed sonata circuit data
-- population_name: Name of the neural population to analyze
-- question: A natural language question about the neurons in the population
+- population_name: Name of the neural population to analyze, it will only keep this particular population.
+- question: A natural language question about the neurons in the population, DO NOT MENTION the population name in the question.
 
 Output: Analysis results showing neuron data based on the query, formatted according to SONATA standards
 """
