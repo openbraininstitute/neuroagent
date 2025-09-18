@@ -75,6 +75,7 @@ class GenerateSimulationsConfigTool(BaseTool):
         str
     ] = """This tool updates an internal JSON configurations for simulations based on natural language descriptions. It accepts both complete configuration specifications and modification requests for existing configurations, using an LLM with structured output to produce the corresponding JSON.
     Always use a circuit ID with this tool. If you can't see a reference to an existing circuit in the chat, ask for clarifications.
+    if the user did not explicitly provide a circuit, he/she most likely is on the circuit page. Use the `context-analyzer-tool` to extract the circuit_id.
 
 For modifications, you can provide incremental change descriptions - the tool will interpret these in the context of the existing configuration. You don't need to describe the entire final state; focused modification requests are fully supported.
 

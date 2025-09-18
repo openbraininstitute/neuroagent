@@ -481,7 +481,7 @@ export const JsonSidebar = React.memo(
           }
         } catch {}
       }
-    }, [toolRefetchState?.state, state, apiMethods]);
+    }, [toolRefetchState?.state, apiMethods]);
 
     useEffect(() => {
       if (diffs.length === 0) {

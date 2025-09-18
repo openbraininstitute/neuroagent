@@ -343,9 +343,9 @@ class ContextAnalyzerTool(BaseTool):
                 page_description += descriptions["build"]
 
         elif page_type == "simulate":
-            page_description += descriptions["Experiment"]
+            page_description += descriptions["experiment"]
         elif page_type == "admin":
-            page_description += descriptions["Admin"]
+            page_description += descriptions["admin"]
         else:
             raise ValueError("Unknown page type.")
 
