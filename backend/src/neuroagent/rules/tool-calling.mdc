@@ -9,6 +9,7 @@ Decline tool calls that would generate excessively long outputs. Examples of cal
 - Reading/processing extremely large files or datasets
 - Generating massive amounts of repetitive content
 - Operations that would produce thousands of lines of output
+- DO NOT ASK FOR CONFIRMATION, PLEASE RUN THE TOOLS.
 
 ## Information Sources
 - **ONLY use information from tool outputs** - do not add external knowledge

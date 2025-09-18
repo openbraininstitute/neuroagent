@@ -22,7 +22,7 @@ class CircuitPopulationAnalysisInput(BaseModel):
 
     circuit_id: UUID = Field(description="ID of the circuit.")
     sonata_asset_id: UUID = Field(
-        description="ID of the compressed_sonata_circuit asset: circuit.gz . Can be obtained by the `circuit-get-one` tool or the `get_asset` tool."
+        description="ID of the COMPRESSED sonata_circuit. Take the `circuit.gz`, NOT THE DIRECTORY. Can be obtained by the `circuit-get-one` tool or the `get_asset` tool."
     )
     population_name: str = Field(
         default="S1nonbarrel_neurons",
@@ -54,21 +54,28 @@ class CircuitPopulationAnalysisTool(BaseTool):
     name: ClassVar[str] = "circuit-population-data-analysis"
     name_frontend: ClassVar[str] = "Analyze Circuit Population"
     utterances: ClassVar[list[str]] = [
-        "Analyze the circuit population",
-        "Query neurons in the population",
-        "What neurons are in this brain region",
-        "Count neurons by type",
-        "Show me neurons with specific properties",
-        "Filter neurons by region",
-        "What is the distribution of neuron types",
+        "What is the most common morphological type in the circuit?",
+        "What is the number of excitatory neurons in layer 3?",
+        "What is the distribution of cells per layer ",
+        "How many me-type combinations and what are number of each me-type combinations used in circuit?",
     ]
     description: ClassVar[
         str
-    ] = """This tool allows analyzing circuit population data using natural language questions about neurons.
+    ] = """This tool allows analyzing SONATA neural circuit population data using natural language questions about neurons.
 
 It converts natural language questions about neural circuit populations into SQL queries and executes them
-against the population Frame. The tool supports filtering neurons by properties like brain region,
-neuron type, morphology, and other cellular characteristics, as well as statistical analysis of populations.
+against the population DataFrame. The tool supports comprehensive analysis of neuron populations following
+the SONATA data format specification, including:
+
+- Filtering neurons by spatial properties (3D coordinates, layer, region, subregion)
+- Analyzing cell types (biophysical, point_neuron, single_compartment, virtual)
+- Examining morphological properties (mtype, morphology files, model templates)
+- Investigating electrical properties (etype, excitatory/inhibitory classification)
+- Statistical analysis of population distributions and characteristics
+- Spatial queries for neuron positioning and circuit topology
+
+The tool understands SONATA-specific terminology and data structures, including node types, model types,
+morphological classifications, and circuit organization principles.
 
 Input:
 - circuit_id: UUID of the circuit
@@ -76,14 +83,13 @@ Input:
 - population_name: Name of the neural population to analyze
 - question: A natural language question about the neurons in the population
 
-Output: Analysis results showing neuron data based on the query
+Output: Analysis results showing neuron data based on the query, formatted according to SONATA standards
 """
 
     description_frontend: ClassVar[
         str
-    ] = """Analyze neural circuit populations using natural language.
-Ask questions like "What is the amount of neurons with that type?" or "Give me all neurons from this specific brain region" and get detailed neuron data."""
-
+    ] = """Analyze SONATA neural circuit populations using natural language.
+Ask questions like "What is the most common morphological type?", "How many excitatory neurons are in layer 5?", "Show me all biophysical neurons in visual cortex", or "What morphologies are used by inhibitory cells?" and get detailed circuit analysis."""
     metadata: CircuitPopulationAnalysisMetadata
     input_schema: CircuitPopulationAnalysisInput
 
@@ -169,6 +175,7 @@ Ask questions like "What is the amount of neurons with that type?" or "Give me a
                 population_dataframe = self._load_circuit_population_data(
                     circuit_config_path
                 )
+                # population_dataframe = self._load_circuit_population_data("../nbS1-HEX1/circuit_config.json")
 
                 # Set up DuckDB connection
                 conn = duckdb.connect()
@@ -185,26 +192,97 @@ Ask questions like "What is the amount of neurons with that type?" or "Give me a
                     if len(population_dataframe) > 0
                     else []
                 )
+                system_prompt = """You are an expert SQL generator specializing in neural circuit analysis using the SONATA data format. Generate only valid SQL SELECT queries for analyzing neuron populations.
 
-                system_prompt = """You are an expert SQL generator specializing in neural circuit analysis. Generate only valid SQL SELECT queries for analyzing neuron populations.
-    Rules:
-    - Only SELECT statements allowed
-    - Use table name 'neurons' (contains neuron data from circuit population)
-    - Return just the SQL query, no explanations
-    - End with semicolon
-    - Use proper SQL syntax for DuckDB
-    - Focus on neuron properties like types, regions, morphologies, and cellular characteristics"""
+Rules:
+- Only SELECT statements allowed
+- Use table name 'neurons' (contains neuron data from circuit population)
+- Return just the SQL query, no explanations
+- End with semicolon
+- Use proper SQL syntax for DuckDB
+- Focus on neuron properties like types, regions, morphologies, and cellular characteristics
+
+Example Query Patterns:
+- Most common morphological type: SELECT mtype, COUNT(mtype) as freq FROM neurons GROUP BY mtype ORDER BY freq DESC LIMIT 1;
+- Count excitatory neurons in layer 3: SELECT COUNT(*) FROM neurons WHERE synapse_class='EXC' AND layer=3;
+- Unique morphologies count: SELECT COUNT(DISTINCT morphology) FROM neurons;
+- Cell distribution by m-type: SELECT mtype, COUNT(*) as cell_count FROM neurons GROUP BY mtype;
+
+SONATA Population Data Understanding:
+
+The 'neurons' table represents a population of neurons from a neural circuit. Each row is a single neuron with the following structure:
+
+Required Columns (Always Present):
+- node_id (INTEGER): Unique identifier for each neuron within this population
+- node_type_id (INTEGER): Links to node type definitions that specify shared properties
+- model_type (VARCHAR): Type of neuron model, valid values:
+  - 'biophysical' - Detailed compartmental neuron with morphology
+  - 'point_neuron' - Simplified point process neuron
+  - 'single_compartment' - Single compartment model
+  - 'virtual' - External input source (not simulated)
+
+Common Optional Columns:
+
+Spatial Properties:
+- x, y, z (FLOAT): 3D position coordinates of soma in micrometers
+- orientation (VARCHAR): Quaternion string for morphology rotation
+- rotation_angle_xaxis, rotation_angle_yaxis, rotation_angle_zaxis (FLOAT): Rotation angles in radians
+
+Model Properties:
+- morphology (VARCHAR): Name of morphology file (for biophysical neurons)
+- model_template (VARCHAR): Template defining electrophysical properties (format: "schema:resource")
+- model_processing (VARCHAR): Processing approach (e.g., 'fullaxon', 'axon_bbpv5')
+
+Biological Properties:
+- population (VARCHAR): Name of the population this neuron belongs to
+- layer (VARCHAR): Cortical layer (e.g., 'L1', 'L2/3', 'L4', 'L5', 'L6')
+- cell_type (VARCHAR): Cell type classification (e.g., 'PYR', 'INT', 'SST', 'PV')
+- mtype (VARCHAR): Morphological type
+- etype (VARCHAR): Electrical type
+- region (VARCHAR): Brain region
+- subregion (VARCHAR): Brain subregion
+
+Additional Common Columns:
+- ei (VARCHAR): Excitatory ('e') or Inhibitory ('i') classification
+- synapse_class (VARCHAR): Synaptic class
+- depth (FLOAT): Depth within cortical column
+- tuning_angle (FLOAT): Orientation tuning preference
+- dynamics_params (VARCHAR): JSON string of parameter overrides
+
+Query Patterns for Neural Analysis:
+
+Cell Type Analysis:
+- Count neurons by model_type, cell_type, layer
+- Filter excitatory vs inhibitory neurons
+- Analyze morphological diversity
+
+Spatial Analysis:
+- Distance calculations using SQRT((x1-x2)^2 + (y1-y2)^2 + (z1-z2)^2)
+- Neurons within spatial boundaries
+- Layer-specific distributions
+
+Circuit Composition:
+- Population statistics by region/layer
+- Cell type distributions
+- Morphology usage patterns
+
+Model Properties:
+- Group by model_template or model_processing
+- Filter biophysical vs point neurons
+- Virtual neuron identification
+
+Convert neuroscience questions about circuit populations to SQL queries that analyze neuron properties, spatial distributions, cell types, morphologies, and circuit composition using the SONATA data format understanding."""
 
                 user_prompt = f"""Convert this neuroscience question about circuit population to a SQL SELECT query.
 
-    Table: 'neurons' (circuit population data)
-    Columns: {columns}
-     types: {dtypes}
-    Sample neuron records: {sample}
+Table: 'neurons' (circuit population data)
+Columns: {columns}
+Types: {dtypes}
+Sample neuron records: {sample}
 
-    Question about neurons: {self.input_schema.question}
+Question about neurons: {self.input_schema.question}
 
-    Generate the SQL query to analyze the neuron population:"""
+Generate the SQL query to analyze the neuron population:"""
 
                 # Get SQL from OpenAI
                 model = "gpt-4o-mini"
