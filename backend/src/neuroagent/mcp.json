@@ -9,6 +9,7 @@
         "crawling": {
           "name": "read-paper",
           "description": "Extract content from specific URLs using Exa AI - performs targeted crawling of web pages to retrieve their full content. Useful for reading articles, PDFs, or any web page when you have the exact URL. Use in combination with literature-search-tool and web-search-tool when the user asks for more info about a paper/url. Returns the complete text content of the specified URL.",
+          "description_frontend": "Extract content from specific URLs. Performs targeted crawling of web pages to retrieve their full content. Useful for reading articles, PDFs, or any web page when you have the exact URL. Returns the complete text content of the specified URL.",
           "utterances": [
             "Extract content from this URL",
             "Get the full text of this article",
@@ -18,6 +19,8 @@
         "research_paper_search": {
           "name": "literature-search-tool",
           "name_frontend": "Literature Search",
+          "description": "Search across 100M+ research papers with full text access using Exa AI - performs targeted academic paper searches with deep research content coverage. Returns detailed information about relevant academic papers including titles, authors, publication dates, and full text excerpts. Control the number of results and character counts returned to balance comprehensiveness with conciseness based on your task requirements. Systematically embed ALL images returned by the tool in the chat.",
+          "description_frontend": "Search across 100M+ research papers with full text access. Performs targeted academic paper searches with deep research content coverage. Returns detailed information about relevant academic papers including titles, authors, publication dates, and full text excerpts. Control the number of results and character counts returned to balance comprehensiveness with conciseness based on your task requirements.",
           "utterances": [
             "Find literature on this topic",
             "Look up academic papers",
@@ -27,6 +30,7 @@
         "web_search_exa": {
           "name": "web-search-tool",
           "name_frontend": "Web Search",
+          "description_frontend": "Search the web. Performs real-time web searches and can scrape content from specific URLs. Supports configurable result counts and returns the content from the most relevant websites.",
           "utterances": [
             "Find information online",
             "Look up this topic on the internet",
@@ -43,6 +47,7 @@
           "name": "execute-python-code",
           "name_frontend": "Run Python",
           "description": "Tool to execute Python code and return stdout, stderr, and return value.\n\nThe code may be async, and the value on the last line will be returned as the return value.\n\nThe code will be executed with Python 3.12.\n\nAVAILABLE LIBRARIES:\n- Standard Python libraries (math, os, sys, json, datetime, etc.)\n- Numpy\n- Pydantic\n\nRESTRICTIONS:\n- No other libraries are available - do not attempt to import or install anything else\n- Attempting to use unavailable libraries will result in errors. Do not use this tool to plot directly, use it to get data points for a plot instead.",
+          "description_frontend": "Tool to execute Python code and return stdout, stderr, and return value.\n\nThe code may be async, and the value on the last line will be returned as the return value.\n\nThe code will be executed with Python 3.12.\n\nAVAILABLE LIBRARIES:\n- Standard Python libraries (math, os, sys, json, datetime, etc.)\n- Numpy\n- Pydantic.",
           "utterances": ["Compute the mean of the output", "Compute the numerical value of the integral of the function between -10 and 10.", "Plot a Gaussian distribution with mean 0 and std 1."]
         }
         }

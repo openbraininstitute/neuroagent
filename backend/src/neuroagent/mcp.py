@@ -29,9 +29,6 @@ class MCPClient:
 
         self.tools: dict[str, list[Tool]] = {}  # server -> tool list
         self.tool_name_mapping: dict[str, str] = {}  # custom names -> original names
-        self.tool_name_frontend_mapping: dict[
-            str, str
-        ] = {}  # final name -> frontend name
         self.sessions: dict[str, ClientSession] = {}  # server -> session
 
     async def __aenter__(self) -> "MCPClient | None":
@@ -83,15 +80,12 @@ class MCPClient:
                     ] = tool.name
 
                     # Perform the override
+                    # This could in theory not be needed and the new name
+                    # could be passed directly in the `create_dynamic_tool` method
+                    # in the dependencies, but since we need the mapping between
+                    # new and old tool it is better to keep one source of truth
+                    # in the tool definition itself
                     tool.name = server.tool_metadata[tool_name].name or tool.name
-                    tool.description = (
-                        server.tool_metadata[tool_name].description or tool.description
-                    )
-
-                    if server.tool_metadata[tool_name].name_frontend:
-                        self.tool_name_frontend_mapping[tool.name] = (
-                            server.tool_metadata[tool_name].name_frontend  # type: ignore
-                        )
 
         # Populate the tools and sessions dictionaries
         for session, components in self.group_session._sessions.items():
@@ -127,6 +121,7 @@ def create_dynamic_tool(
     session: ClientSession,
     utterance_list: list[str] | None = None,
     tool_name_frontend: str | None = None,
+    tool_description_frontend: str | None = None,
 ) -> Type[BaseTool]:
     """Create a dynamic BaseTool subclass for an MCP tool.
 
@@ -173,7 +168,9 @@ def create_dynamic_tool(
             [word.capitalize() for word in re.split(r"[-/_=+*]", tool_name)]
         )
         description: ClassVar[str] = tool_description
-        description_frontend: ClassVar[str] = tool_description
+        description_frontend: ClassVar[str] = (
+            tool_description_frontend or tool_description
+        )
         utterances: ClassVar[list[str]] = utterance_list or []
         json_schema: ClassVar[dict[str, Any]] = input_schema_serialized
         input_schema: InputSchema
