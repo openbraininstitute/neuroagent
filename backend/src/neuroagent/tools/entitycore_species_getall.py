@@ -24,7 +24,7 @@ class SpeciesGetAllInput(ReadManySpeciesGetParametersQuery):
     )
     semantic_search: str | None = Field(
         default=None,
-        title="Brain Region Name Search",
+        title="Species Name Search",
         description="Perform semantic search to find species by their names. Enter any text related to a species name (e.g., 'mouse', 'human', 'felis catus') and receive results ranked by semantic similarity to your query.",
     )
     name: SkipJsonSchema[None] = Field(default=None, exclude=True)
