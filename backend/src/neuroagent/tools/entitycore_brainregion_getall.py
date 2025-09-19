@@ -54,7 +54,7 @@ class BrainRegionGetAllTool(BaseTool):
     - The brain region color hex triplet
     - The brain region hierarchy information
 
-    Note: The semantic_search parameter will always return results even for irrelevant queries - critically evaluate whether returned brain regions are actually related to your search terms.
+    Note: The `semantic_search` parameter will always return results even for irrelevant queries - critically evaluate whether returned brain regions are actually related to your search terms.
     """
     description_frontend: ClassVar[
         str

@@ -51,7 +51,7 @@ class SpeciesGetAllTool(BaseTool):
     - The species taxonomy ID
     - Creation and update dates
 
-    Note: The semantic_search parameter will always return results even for irrelevant queries - critically evaluate whether returned species are actually related to your search terms.
+    Note: The `semantic_search` parameter will always return results even for irrelevant queries - critically evaluate whether returned species are actually related to your search terms.
     """
     description_frontend: ClassVar[
         str
