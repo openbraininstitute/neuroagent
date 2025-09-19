@@ -1,7 +1,9 @@
 """Tool to generate an obi-one compatible simulation config."""
 
 from typing import ClassVar
+from uuid import UUID
 
+from httpx import AsyncClient
 from openai import AsyncOpenAI
 from pydantic import BaseModel, Field
 from pydantic.json_schema import SkipJsonSchema
@@ -30,6 +32,10 @@ class GenerateSimulationsConfigMetadata(BaseMetadata):
     """Metadata of the GenerateSimulationsConfig tool."""
 
     openai_client: AsyncOpenAI
+    httpx_client: AsyncClient
+    obi_one_url: str
+    vlab_id: UUID | None
+    project_id: UUID | None
     token_consumption: dict[str, str | int | None] | None = None
 
 
@@ -87,19 +93,27 @@ Simply specify in plain english what you want your configuration to achieve or w
 
     async def arun(self) -> SimulationsForm:
         """Run the tool."""
-        system_prompt = """# Simulation Configuration Generator
+        # Get the available nodesest in the circuit
+        headers: dict[str, str] = {}
+        if self.metadata.vlab_id is not None:
+            headers["virtual-lab-id"] = str(self.metadata.vlab_id)
+        if self.metadata.project_id is not None:
+            headers["project-id"] = str(self.metadata.project_id)
+
+        circuit_node_set = await self.metadata.httpx_client.get(
+            self.metadata.obi_one_url.rstrip("/")
+            + f"/declared/circuit/{self.input_schema.circuit_id}/nodesets",
+            headers=headers,
+        )
+        if circuit_node_set.status_code != 200:
+            raise ValueError(
+                f"The nodesets endpoint returned a non 200 response code. Error: {circuit_node_set.text}"
+            )
+        system_prompt = f"""# Simulation Configuration Generator
 
 You are an expert at generating valid JSON simulation configurations following the SimulationsForm schema.
 The description of the required configuration is going to be the first `user` message you receive.
 To generate a meaningful simulation config, follow these critical rules:
-
-## Neuron Sets and References
-- Generate neuron sets in the "neuron_sets" dictionary with meaningful keys
-- **Only create neuron sets that will actually be used**
-- For references (NeuronSetReference, TimestampsReference):
-  - `block_name`: the dictionary key (e.g., "all_neurons")
-  - `block_dict_name`: the parent dictionary name (e.g., "neuron_sets", "timestamps")
-- Avoid duplicate or unused neuron sets unless specifically requested
 
 ## Timestamps and Stimuli Logic
 - **Only generate timestamps if stimuli will use them**
@@ -112,6 +126,16 @@ To generate a meaningful simulation config, follow these critical rules:
 - Use single values, not single-element lists (e.g., `"duration": 500.0` not `"duration": [500.0]`)
 - Lists indicate parameter sweeps - only use when scanning multiple values
 - For IDNeuronSet, include meaningful number of neurons (typically 50+ for populations)
+
+## Neuron Sets and References
+- Generate neuron sets in the "neuron_sets" dictionary with meaningful keys
+- **Only create neuron sets that will actually be used**
+- For references (NeuronSetReference, TimestampsReference):
+  - `block_name`: the dictionary key (e.g., "all_neurons")
+  - `block_dict_name`: the parent dictionary name (e.g., "neuron_sets", "timestamps")
+- Avoid duplicate or unused neuron sets unless specifically requested
+- Whenever you see a `circuit_property_type = CircuitNodeSet` in the schema of the neuron_sets you want to use, the string value within `node_set` must be one of the following: {circuit_node_set.json()}
+
 
 ## Validation Checklist
 Before outputting, verify:
