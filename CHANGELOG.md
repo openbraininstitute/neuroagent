@@ -7,8 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- `description_frontend` support for MCP tools.
+
 ### Changed
 - Switch to gpt-5-mini.
+- Description of LS tool to try to make the LLM embed images all the time.
+
+### Fixed
+- Bug in MCP declaration leading to `tool_metadata` not being found.
 
 ## [v0.8.1] - 01.09.2025
 
