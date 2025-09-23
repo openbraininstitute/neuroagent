@@ -1,6 +1,7 @@
 """Tool to generate an obi-one compatible simulation config."""
 
 from typing import ClassVar
+from uuid import UUID
 
 from openai import AsyncOpenAI
 from pydantic import BaseModel, Field
@@ -18,7 +19,7 @@ from neuroagent.utils import get_token_count
 class GenerateSimulationsConfigInput(BaseModel):
     """Inputs of the GenerateSimulationsConfig tool."""
 
-    circuit_id: str = Field(
+    circuit_id: UUID = Field(
         description="UUID of the target circuit that has to be simulated."
     )
     config_request: str = Field(
@@ -147,7 +148,7 @@ Generate only the JSON configuration, ensuring all references are internally con
                 synaptic_manipulations=config.synaptic_manipulations or {},
                 initialize=ObiOneScientificSimulationSimulationsSimulationsFormInitialize(
                     circuit=CircuitFromID(
-                        id_str=self.input_schema.circuit_id, type="CircuitFromID"
+                        id_str=str(self.input_schema.circuit_id), type="CircuitFromID"
                     ),
                     **config.initialize.model_dump(),
                 ),
