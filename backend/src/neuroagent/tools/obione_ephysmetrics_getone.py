@@ -21,7 +21,7 @@ class EphysMetricsGetOneInputs(
 ):
     """Input class of the ObiOne Electrophysiology Metrics tool."""
 
-    electrical_cell_recording_id: str = Field(
+    electrical_cell_recording_id: UUID = Field(
         description="Id of the electrical cell recording from which features must be computed."
     )
 
