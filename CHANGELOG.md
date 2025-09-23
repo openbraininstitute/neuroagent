@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v0.9.0] - 23.09.2025
+
 ### Added
 - `description_frontend` support for MCP tools.
 - New circuit endpoints from OBI-one.
