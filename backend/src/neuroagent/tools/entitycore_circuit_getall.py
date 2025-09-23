@@ -97,6 +97,7 @@ class CircuitGetAllTool(BaseTool):
         response_data = response.json()
         for circuit in response_data["data"]:
             circuit["assets"] = []
+            circuit["contributions"] = []
 
         return ListResponseCircuitRead(**response_data)
 

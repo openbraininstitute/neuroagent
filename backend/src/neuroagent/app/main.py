@@ -32,7 +32,7 @@ from neuroagent.app.dependencies import (
     get_tool_list,
 )
 from neuroagent.app.middleware import strip_path_prefix
-from neuroagent.app.routers import qa, rate_limit, storage, threads, tools
+from neuroagent.app.routers import qa, rate_limit, state, storage, threads, tools
 from neuroagent.mcp import MCPClient
 
 LOGGING = {
@@ -168,6 +168,7 @@ app.include_router(threads.router)
 app.include_router(tools.router)
 app.include_router(storage.router)
 app.include_router(rate_limit.router)
+app.include_router(state.router)
 
 
 def custom_openapi() -> dict[str, Any]:
