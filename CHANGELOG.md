@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v0.9.1] - 24.09.2025
+
+### Added
+- More options to pass to the Redis client
+
 ## [v0.9.0] - 23.09.2025
 
 ### Added

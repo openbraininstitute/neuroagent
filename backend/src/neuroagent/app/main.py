@@ -82,9 +82,16 @@ async def lifespan(fastapi_app: FastAPI) -> AsyncContextManager[None]:  # type: 
 
     # Initialize Redis client if rate limiting is enabled
     if not app_settings.rate_limiter.disabled:
+        redis_password = (
+            app_settings.rate_limiter.redis_password.get_secret_value()
+            if app_settings.rate_limiter.redis_password is not None
+            else None
+        )
         redis_client = aioredis.Redis(
             host=app_settings.rate_limiter.redis_host,
             port=app_settings.rate_limiter.redis_port,
+            password=redis_password,
+            ssl=app_settings.rate_limiter.redis_ssl,
             decode_responses=True,
         )
         fastapi_app.state.redis_client = redis_client
