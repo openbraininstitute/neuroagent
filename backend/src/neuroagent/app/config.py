@@ -162,6 +162,8 @@ class SettingsRateLimiter(BaseModel):
 
     redis_host: str = "localhost"
     redis_port: int = 6379
+    redis_password: SecretStr | None = None
+    redis_ssl: bool = False
     disabled: bool = False
 
     limit_chat: int = 20
