@@ -17,6 +17,12 @@ from neuroagent.tools.entitycore_brainregionhierarchy_getall import (
 from neuroagent.tools.entitycore_brainregionhierarchy_getone import (
     BrainRegionHierarchyGetOneTool,
 )
+from neuroagent.tools.entitycore_cellmorphology_getall import (
+    CellMorphologyGetAllTool,
+)
+from neuroagent.tools.entitycore_cellmorphology_getone import (
+    CellMorphologyGetOneTool,
+)
 from neuroagent.tools.entitycore_circuit_getall import CircuitGetAllTool
 from neuroagent.tools.entitycore_circuit_getone import CircuitGetOneTool
 from neuroagent.tools.entitycore_contribution_getall import ContributionGetAllTool
@@ -69,12 +75,6 @@ from neuroagent.tools.entitycore_organization_getall import OrganizationGetAllTo
 from neuroagent.tools.entitycore_organization_getone import OrganizationGetOneTool
 from neuroagent.tools.entitycore_person_getall import PersonGetAllTool
 from neuroagent.tools.entitycore_person_getone import PersonGetOneTool
-from neuroagent.tools.entitycore_reconstructionmorphology_getall import (
-    ReconstructionMorphologyGetAllTool,
-)
-from neuroagent.tools.entitycore_reconstructionmorphology_getone import (
-    ReconstructionMorphologyGetOneTool,
-)
 from neuroagent.tools.entitycore_simulation_getall import SimulationGetAllTool
 from neuroagent.tools.entitycore_simulation_getone import SimulationGetOneTool
 from neuroagent.tools.entitycore_simulationcampaign_getall import (
@@ -193,8 +193,8 @@ __all__ = [
     "PlotElectricalCellRecordingGetOneTool",
     "PlotGeneratorTool",
     "PlotMorphologyGetOneTool",
-    "ReconstructionMorphologyGetAllTool",
-    "ReconstructionMorphologyGetOneTool",
+    "CellMorphologyGetAllTool",
+    "CellMorphologyGetOneTool",
     "SimulationCampaignGetAllTool",
     "SimulationCampaignGetOneTool",
     "SimulationExecutionGetAllTool",

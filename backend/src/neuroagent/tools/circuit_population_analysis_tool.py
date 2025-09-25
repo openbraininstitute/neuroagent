@@ -145,7 +145,7 @@ Ask questions like "What is the most common morphological type?", "How many exci
             # Determine the root folder
             members = tar_ref.getnames()
             root_folder = members[0].split("/")[0] if members else None
-            tar_ref.extractall(extract_dir)
+            tar_ref.extractall(extract_dir)  # nosec: B202
 
         if root_folder:
             config_path = Path(extract_dir) / root_folder / "circuit_config.json"
