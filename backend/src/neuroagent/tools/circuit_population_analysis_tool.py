@@ -69,6 +69,7 @@ class CircuitPopulationAnalysisTool(BaseTool):
         "What is the number of excitatory neurons in layer 3?",
         "What is the distribution of cells per layer ",
         "How many me-type combinations and what are number of each me-type combinations used in circuit?",
+        "Give me the unique e-types of the population S1nonbarrel_neurons.",
     ]
     description: ClassVar[
         str
