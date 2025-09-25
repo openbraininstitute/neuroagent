@@ -73,7 +73,7 @@ class CellMorphologyGetOneTool(BaseTool):
 
         response = await self.metadata.httpx_client.get(
             url=self.metadata.entitycore_url.rstrip("/")
-            + f"/reconstruction-morphology/{self.input_schema.morphology_id}",
+            + f"/cell-morphology/{self.input_schema.morphology_id}",
             headers=headers,
         )
         if response.status_code != 200:

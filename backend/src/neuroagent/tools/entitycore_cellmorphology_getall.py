@@ -93,7 +93,7 @@ class CellMorphologyGetAllTool(BaseTool):
             headers["project-id"] = str(self.metadata.project_id)
 
         response = await self.metadata.httpx_client.get(
-            url=self.metadata.entitycore_url.rstrip("/") + "/reconstruction-morphology",
+            url=self.metadata.entitycore_url.rstrip("/") + "/cell-morphology",
             headers=headers,
             params=query_params,
         )
