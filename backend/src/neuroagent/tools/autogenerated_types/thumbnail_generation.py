@@ -29,7 +29,7 @@ class Dpi(RootModel[int]):
     root: int = Field(..., ge=10, le=600, title='Dpi')
 
 
-class GetMorphologyPreviewApiThumbnailGenerationCoreReconstructionMorphologyPreviewGetParametersQuery(
+class GetMorphologyPreviewApiThumbnailGenerationCoreCellMorphologyPreviewGetParametersQuery(
     BaseModel
 ):
     entity_id: UUID = Field(..., title='Entity Id')
@@ -37,7 +37,7 @@ class GetMorphologyPreviewApiThumbnailGenerationCoreReconstructionMorphologyPrev
     dpi: Dpi | None = Field(default=None, title='Dpi')
 
 
-GetEphysPreviewApiThumbnailGenerationCoreElectricalCellRecordingPreviewGetParametersQuery = GetMorphologyPreviewApiThumbnailGenerationCoreReconstructionMorphologyPreviewGetParametersQuery
+GetEphysPreviewApiThumbnailGenerationCoreElectricalCellRecordingPreviewGetParametersQuery = GetMorphologyPreviewApiThumbnailGenerationCoreCellMorphologyPreviewGetParametersQuery
 
 
 class GetModelTracePreviewApiThumbnailGenerationCoreModelTracePreviewGetParametersQuery(

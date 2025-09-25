@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v0.9.2] - 25.09.2025
+
+### Added
+- Circuit population analysis tool.
+
+### Fixed
+- Endpoint names in entitycore.
+
 ## [v0.9.1] - 24.09.2025
 
 ### Added

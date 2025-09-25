@@ -146,7 +146,7 @@ class ContextAnalyzerTool(BaseTool):
                 and page_path[2] == "experimental"
             ):
                 entity_mapping = {
-                    "morphology": "reconstruction-morphology",
+                    "morphology": "cell-morphology",
                     "electrophysiology": "electrical-cell-recording",
                     "neuron-density": "experimental-neuron-density",
                     "bouton-density": "experimental-bouton-density",
@@ -287,7 +287,7 @@ class ContextAnalyzerTool(BaseTool):
 
                                 response = await self.metadata.httpx_client.get(
                                     url=self.metadata.entitycore_url.rstrip("/")
-                                    + "/reconstruction-morphology",
+                                    + "/cell-morphology",
                                     headers=headers,
                                     params=query_param,
                                 )

@@ -230,7 +230,7 @@ class TestContextAnalyzerTool:
             status_code=200,
         )
         httpx_mock.add_response(
-            url=f"http://test-entitycore.com/reconstruction-morphology?{urlencode(QUERY_PARAMS)}",
+            url=f"http://test-entitycore.com/cell-morphology?{urlencode(QUERY_PARAMS)}",
             json=MOCK_MORPHOLOGY_ENTITIES,
             status_code=200,
         )
@@ -359,7 +359,7 @@ class TestContextAnalyzerTool:
         context_analyzer_tool.metadata.current_frontend_url = "app/virtual-lab/lab/4d3c5a1e-13a2-4fa7-87bb-4ea92b7c7a3d/project/9a8f4c5d-27e4-44a1-a7d2-9e5d69fdb1f6/explore/interactive/experimental/morphology/afa2434f-1ccc-4fff-a047-d399e59768c9"
 
         httpx_mock.add_response(
-            url="http://test-entitycore.com/reconstruction-morphology/afa2434f-1ccc-4fff-a047-d399e59768c9",
+            url="http://test-entitycore.com/cell-morphology/afa2434f-1ccc-4fff-a047-d399e59768c9",
             json=MOCK_DETAILED_ENTITY,
             status_code=200,
         )
@@ -448,7 +448,7 @@ class TestContextAnalyzerTool:
             status_code=200,
         )
         httpx_mock.add_response(
-            url=f"http://test-entitycore.com/reconstruction-morphology?{urlencode(QUERY_PARAMS)}",
+            url=f"http://test-entitycore.com/cell-morphology?{urlencode(QUERY_PARAMS)}",
             json=MOCK_MORPHOLOGY_ENTITIES,
             status_code=200,
         )

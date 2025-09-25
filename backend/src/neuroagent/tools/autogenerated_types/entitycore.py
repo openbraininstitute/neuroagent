@@ -117,6 +117,7 @@ class AssetLabel(
     RootModel[
         Literal[
             'morphology',
+            'morphology_with_spines',
             'cell_composition_summary',
             'cell_composition_volumes',
             'single_neuron_synaptome_config',
@@ -155,6 +156,7 @@ class AssetLabel(
 ):
     root: Literal[
         'morphology',
+        'morphology_with_spines',
         'cell_composition_summary',
         'cell_composition_volumes',
         'single_neuron_synaptome_config',
@@ -279,6 +281,32 @@ class CalibrationCreate(BaseModel):
     generated_ids: list[UUID] = Field(default=[], title='Generated Ids')
 
 
+class CellMorphologyGenerationType(
+    RootModel[
+        Literal[
+            'digital_reconstruction',
+            'modified_reconstruction',
+            'computationally_synthesized',
+            'placeholder',
+        ]
+    ]
+):
+    root: Literal[
+        'digital_reconstruction',
+        'modified_reconstruction',
+        'computationally_synthesized',
+        'placeholder',
+    ] = Field(..., title='CellMorphologyGenerationType')
+
+
+class CellMorphologyProtocolDesign(
+    RootModel[Literal['electron_microscopy', 'cell_patch', 'fluorophore']]
+):
+    root: Literal['electron_microscopy', 'cell_patch', 'fluorophore'] = Field(
+        ..., title='CellMorphologyProtocolDesign'
+    )
+
+
 class CircuitBuildCategory(
     RootModel[Literal['computational_model', 'em_reconstruction']]
 ):
@@ -336,6 +364,28 @@ class CircuitUserUpdate(BaseModel):
     build_category: CircuitBuildCategory | None = '<NOT_SET>'
     root_circuit_id: UUID | None = Field(default='<NOT_SET>', title='Root Circuit Id')
     atlas_id: UUID | None = Field(default='<NOT_SET>', title='Atlas Id')
+
+
+class ProtocolDocument(RootModel[AnyUrl]):
+    root: AnyUrl = Field(..., title='Protocol Document')
+
+
+class ComputationallySynthesizedCellMorphologyProtocolCreate(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
+    protocol_document: ProtocolDocument | None = Field(
+        default=None, title='Protocol Document'
+    )
+    protocol_design: CellMorphologyProtocolDesign
+    authorized_public: bool = Field(default=False, title='Authorized Public')
+    type: Literal['cell_morphology_protocol'] = Field(
+        default='cell_morphology_protocol', title='Type'
+    )
+    generation_type: Literal['computationally_synthesized'] = Field(
+        ..., title='Generation Type'
+    )
+    method_type: str = Field(..., title='Method Type')
 
 
 class ConsortiumCreate(BaseModel):
@@ -428,6 +478,14 @@ class DetailedFileList(BaseModel):
     files: dict[str, DetailedFile] = Field(..., title='Files')
 
 
+class Magnification(RootModel[float]):
+    root: float = Field(..., ge=0.0, title='Magnification')
+
+
+class TissueShrinkage(RootModel[float]):
+    root: float = Field(..., ge=0.0, title='Tissue Shrinkage')
+
+
 class DirectoryUpload(BaseModel):
     model_config = ConfigDict(
         extra='allow',
@@ -479,10 +537,6 @@ class EMCellMeshUserUpdate(BaseModel):
     em_dense_reconstruction_dataset_id: UUID | None = Field(
         default='<NOT_SET>', title='Em Dense Reconstruction Dataset Id'
     )
-
-
-class ProtocolDocument(RootModel[AnyUrl]):
-    root: AnyUrl = Field(..., title='Protocol Document')
 
 
 class EModelAdminUpdate(BaseModel):
@@ -640,6 +694,8 @@ class EntityRoute(
             'brain-atlas',
             'brain-atlas-region',
             'cell-composition',
+            'cell-morphology',
+            'cell-morphology-protocol',
             'electrical-cell-recording',
             'electrical-recording',
             'electrical-recording-stimulus',
@@ -654,7 +710,6 @@ class EntityRoute(
             'memodel',
             'memodel-calibration-result',
             'me-type-density',
-            'reconstruction-morphology',
             'simulation',
             'simulation-campaign',
             'simulation-campaign-generation',
@@ -677,6 +732,8 @@ class EntityRoute(
         'brain-atlas',
         'brain-atlas-region',
         'cell-composition',
+        'cell-morphology',
+        'cell-morphology-protocol',
         'electrical-cell-recording',
         'electrical-recording',
         'electrical-recording-stimulus',
@@ -691,7 +748,6 @@ class EntityRoute(
         'memodel',
         'memodel-calibration-result',
         'me-type-density',
-        'reconstruction-morphology',
         'simulation',
         'simulation-campaign',
         'simulation-campaign-generation',
@@ -716,6 +772,8 @@ class EntityType(
             'brain_atlas',
             'brain_atlas_region',
             'cell_composition',
+            'cell_morphology',
+            'cell_morphology_protocol',
             'electrical_cell_recording',
             'electrical_recording',
             'electrical_recording_stimulus',
@@ -730,7 +788,6 @@ class EntityType(
             'memodel',
             'memodel_calibration_result',
             'me_type_density',
-            'reconstruction_morphology',
             'simulation',
             'simulation_campaign',
             'simulation_campaign_generation',
@@ -753,6 +810,8 @@ class EntityType(
         'brain_atlas',
         'brain_atlas_region',
         'cell_composition',
+        'cell_morphology',
+        'cell_morphology_protocol',
         'electrical_cell_recording',
         'electrical_recording',
         'electrical_recording_stimulus',
@@ -767,7 +826,6 @@ class EntityType(
         'memodel',
         'memodel_calibration_result',
         'me_type_density',
-        'reconstruction_morphology',
         'simulation',
         'simulation_campaign',
         'simulation_campaign_generation',
@@ -790,6 +848,7 @@ class EntityTypeWithBrainRegion(
         Literal[
             'brain_atlas_region',
             'cell_composition',
+            'cell_morphology',
             'circuit',
             'electrical_cell_recording',
             'electrical_recording',
@@ -803,7 +862,6 @@ class EntityTypeWithBrainRegion(
             'ion_channel_recording',
             'me_type_density',
             'memodel',
-            'reconstruction_morphology',
             'scientific_artifact',
             'single_neuron_simulation',
             'single_neuron_synaptome',
@@ -814,6 +872,7 @@ class EntityTypeWithBrainRegion(
     root: Literal[
         'brain_atlas_region',
         'cell_composition',
+        'cell_morphology',
         'circuit',
         'electrical_cell_recording',
         'electrical_recording',
@@ -827,7 +886,6 @@ class EntityTypeWithBrainRegion(
         'ion_channel_recording',
         'me_type_density',
         'memodel',
-        'reconstruction_morphology',
         'scientific_artifact',
         'single_neuron_simulation',
         'single_neuron_synaptome',
@@ -1211,8 +1269,8 @@ class MTypeClassificationCreate(BaseModel):
     mtype_class_id: UUID = Field(..., title='Mtype Class Id')
 
 
-class MeasurableEntity(RootModel[Literal['reconstruction_morphology']]):
-    root: Literal['reconstruction_morphology'] = Field(..., title='MeasurableEntity')
+class MeasurableEntity(RootModel[Literal['cell_morphology']]):
+    root: Literal['cell_morphology'] = Field(..., title='MeasurableEntity')
 
 
 class MeasurementStatistic(
@@ -1255,6 +1313,50 @@ class MeasurementUnit(
     root: Literal['dimensionless', '1/μm', '1/mm³', 'μm', 'μm²', 'μm³', 'radian'] = (
         Field(..., title='MeasurementUnit')
     )
+
+
+class ModifiedMorphologyMethodType(
+    RootModel[Literal['cloned', 'mix_and_match', 'mousified', 'ratified']]
+):
+    root: Literal['cloned', 'mix_and_match', 'mousified', 'ratified'] = Field(
+        ..., title='ModifiedMorphologyMethodType'
+    )
+
+
+class ModifiedReconstructionCellMorphologyProtocolCreate(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
+    protocol_document: ProtocolDocument | None = Field(
+        default=None, title='Protocol Document'
+    )
+    protocol_design: CellMorphologyProtocolDesign
+    authorized_public: bool = Field(default=False, title='Authorized Public')
+    type: Literal['cell_morphology_protocol'] = Field(
+        default='cell_morphology_protocol', title='Type'
+    )
+    generation_type: Literal['modified_reconstruction'] = Field(
+        ..., title='Generation Type'
+    )
+    method_type: ModifiedMorphologyMethodType
+
+
+class NestedComputationallySynthesizedCellMorphologyProtocolRead(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
+    protocol_document: ProtocolDocument | None = Field(
+        default=None, title='Protocol Document'
+    )
+    protocol_design: CellMorphologyProtocolDesign
+    id: UUID = Field(..., title='Id')
+    type: Literal['cell_morphology_protocol'] = Field(
+        default='cell_morphology_protocol', title='Type'
+    )
+    generation_type: Literal['computationally_synthesized'] = Field(
+        ..., title='Generation Type'
+    )
+    method_type: str = Field(..., title='Method Type')
 
 
 class NestedConsortiumRead(BaseModel):
@@ -1317,6 +1419,24 @@ class NestedIonChannelRead(BaseModel):
     synonyms: list[str] = Field(..., title='Synonyms')
 
 
+class NestedModifiedReconstructionCellMorphologyProtocolRead(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
+    protocol_document: ProtocolDocument | None = Field(
+        default=None, title='Protocol Document'
+    )
+    protocol_design: CellMorphologyProtocolDesign
+    id: UUID = Field(..., title='Id')
+    type: Literal['cell_morphology_protocol'] = Field(
+        default='cell_morphology_protocol', title='Type'
+    )
+    generation_type: Literal['modified_reconstruction'] = Field(
+        ..., title='Generation Type'
+    )
+    method_type: ModifiedMorphologyMethodType
+
+
 NestedOrganizationRead = NestedConsortiumRead
 
 
@@ -1330,6 +1450,17 @@ class NestedPersonRead(BaseModel):
     pref_label: str = Field(..., title='Pref Label')
     type: str = Field(..., title='Type')
     sub_id: UUID | None = Field(..., title='Sub Id')
+
+
+class NestedPlaceholderCellMorphologyProtocolRead(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
+    id: UUID = Field(..., title='Id')
+    type: Literal['cell_morphology_protocol'] = Field(
+        default='cell_morphology_protocol', title='Type'
+    )
+    generation_type: Literal['placeholder'] = Field(..., title='Generation Type')
 
 
 class NestedPublicationRead(BaseModel):
@@ -1461,6 +1592,34 @@ class PersonRead(BaseModel):
     sub_id: UUID | None = Field(..., title='Sub Id')
 
 
+class PlaceholderCellMorphologyProtocolCreate(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
+    authorized_public: bool = Field(default=False, title='Authorized Public')
+    type: Literal['cell_morphology_protocol'] = Field(
+        default='cell_morphology_protocol', title='Type'
+    )
+    generation_type: Literal['placeholder'] = Field(..., title='Generation Type')
+
+
+class PlaceholderCellMorphologyProtocolRead(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
+    authorized_project_id: UUID4 = Field(..., title='Authorized Project Id')
+    authorized_public: bool = Field(default=False, title='Authorized Public')
+    created_by: NestedPersonRead
+    updated_by: NestedPersonRead
+    creation_date: AwareDatetime = Field(..., title='Creation Date')
+    update_date: AwareDatetime = Field(..., title='Update Date')
+    id: UUID = Field(..., title='Id')
+    type: Literal['cell_morphology_protocol'] = Field(
+        default='cell_morphology_protocol', title='Type'
+    )
+    generation_type: Literal['placeholder'] = Field(..., title='Generation Type')
+
+
 class PointLocationBase(BaseModel):
     model_config = ConfigDict(
         extra='allow',
@@ -1518,52 +1677,6 @@ class PublicationType(
     )
 
 
-class ReconstructionMorphologyAdminUpdate(BaseModel):
-    model_config = ConfigDict(
-        extra='allow',
-    )
-    authorized_public: bool | None = Field(
-        default='<NOT_SET>', title='Authorized Public'
-    )
-    license_id: UUID | None = Field(default='<NOT_SET>', title='License Id')
-    name: str | None = Field(default='<NOT_SET>', title='Name')
-    description: str | None = Field(default='<NOT_SET>', title='Description')
-    location: PointLocationBase | None = '<NOT_SET>'
-    legacy_id: list[str] | None = Field(default='<NOT_SET>', title='Legacy Id')
-    species_id: UUID | None = Field(default='<NOT_SET>', title='Species Id')
-    strain_id: UUID | None = Field(default='<NOT_SET>', title='Strain Id')
-    brain_region_id: UUID | None = Field(default='<NOT_SET>', title='Brain Region Id')
-
-
-class ReconstructionMorphologyCreate(BaseModel):
-    model_config = ConfigDict(
-        extra='allow',
-    )
-    authorized_public: bool = Field(default=False, title='Authorized Public')
-    license_id: UUID | None = Field(default=None, title='License Id')
-    name: str = Field(..., title='Name')
-    description: str = Field(..., title='Description')
-    location: PointLocationBase | None = None
-    legacy_id: list[str] | None = Field(default=None, title='Legacy Id')
-    species_id: UUID = Field(..., title='Species Id')
-    strain_id: UUID | None = Field(default=None, title='Strain Id')
-    brain_region_id: UUID = Field(..., title='Brain Region Id')
-
-
-class ReconstructionMorphologyUserUpdate(BaseModel):
-    model_config = ConfigDict(
-        extra='allow',
-    )
-    license_id: UUID | None = Field(default='<NOT_SET>', title='License Id')
-    name: str | None = Field(default='<NOT_SET>', title='Name')
-    description: str | None = Field(default='<NOT_SET>', title='Description')
-    location: PointLocationBase | None = '<NOT_SET>'
-    legacy_id: list[str] | None = Field(default='<NOT_SET>', title='Legacy Id')
-    species_id: UUID | None = Field(default='<NOT_SET>', title='Species Id')
-    strain_id: UUID | None = Field(default='<NOT_SET>', title='Strain Id')
-    brain_region_id: UUID | None = Field(default='<NOT_SET>', title='Brain Region Id')
-
-
 class ResourceRoute(
     RootModel[
         Literal[
@@ -1573,6 +1686,8 @@ class ResourceRoute(
             'brain-region',
             'brain-region-hierarchy',
             'cell-composition',
+            'cell-morphology',
+            'cell-morphology-protocol',
             'circuit',
             'consortium',
             'contribution',
@@ -1603,7 +1718,6 @@ class ResourceRoute(
             'organization',
             'person',
             'publication',
-            'reconstruction-morphology',
             'role',
             'scientific-artifact',
             'scientific-artifact-external-url-link',
@@ -1630,6 +1744,8 @@ class ResourceRoute(
         'brain-region',
         'brain-region-hierarchy',
         'cell-composition',
+        'cell-morphology',
+        'cell-morphology-protocol',
         'circuit',
         'consortium',
         'contribution',
@@ -1660,7 +1776,6 @@ class ResourceRoute(
         'organization',
         'person',
         'publication',
-        'reconstruction-morphology',
         'role',
         'scientific-artifact',
         'scientific-artifact-external-url-link',
@@ -2080,6 +2195,32 @@ class SpeciesRead(BaseModel):
     taxonomy_id: str = Field(..., title='Taxonomy Id')
 
 
+class StainingType(
+    RootModel[
+        Literal[
+            'golgi',
+            'nissl',
+            'luxol_fast_blue',
+            'fluorescent_nissl',
+            'fluorescent_dyes',
+            'fluorescent_protein_expression',
+            'immunohistochemistry',
+            'other',
+        ]
+    ]
+):
+    root: Literal[
+        'golgi',
+        'nissl',
+        'luxol_fast_blue',
+        'fluorescent_nissl',
+        'fluorescent_dyes',
+        'fluorescent_protein_expression',
+        'immunohistochemistry',
+        'other',
+    ] = Field(..., title='StainingType')
+
+
 class StorageType(RootModel[Literal['aws_s3_internal', 'aws_s3_open']]):
     root: Literal['aws_s3_internal', 'aws_s3_open'] = Field(
         ..., description='Storage type.', title='StorageType'
@@ -2303,6 +2444,9 @@ class GetEntityAssetsAdminEntityRouteEntityIdAssetsGetParametersQuery(BaseModel)
     order_by: list[str] = Field(default=['-creation_date'], title='Order By')
 
 
+AdminUpdateOneAdminCellMorphologyProtocolIdPatchRequest = HealthHealthGetResponse
+
+
 GetEntityAssetsEntityRouteEntityIdAssetsGetParametersQuery = (
     GetEntityAssetsAdminEntityRouteEntityIdAssetsGetParametersQuery
 )
@@ -2484,6 +2628,250 @@ class ReadManyCellCompositionGetParametersQuery(BaseModel):
         default=None, title='Updated By  Id  In'
     )
     search: str | None = Field(default=None, title='Search')
+
+
+class ReadManyCellMorphologyGetParametersQuery(BaseModel):
+    page: int = Field(default=1, ge=1, title='Page')
+    page_size: int = Field(default=100, ge=1, title='Page Size')
+    name: str | None = Field(default=None, title='Name')
+    name__in: list[str] | None = Field(default=None, title='Name  In')
+    name__ilike: str | None = Field(default=None, title='Name  Ilike')
+    creation_date__lte: AwareDatetime | None = Field(
+        default=None, title='Creation Date  Lte'
+    )
+    creation_date__gte: AwareDatetime | None = Field(
+        default=None, title='Creation Date  Gte'
+    )
+    update_date__lte: AwareDatetime | None = Field(
+        default=None, title='Update Date  Lte'
+    )
+    update_date__gte: AwareDatetime | None = Field(
+        default=None, title='Update Date  Gte'
+    )
+    authorized_public: bool | None = Field(default=None, title='Authorized Public')
+    authorized_project_id: UUID | None = Field(
+        default=None, title='Authorized Project Id'
+    )
+    id: UUID | None = Field(default=None, title='Id')
+    id__in: list[str] | None = Field(default=None, title='Id  In')
+    order_by: list[str] = Field(default=['-creation_date'], title='Order By')
+    measurement_annotation__creation_date__lte: AwareDatetime | None = Field(
+        default=None, title='Measurement Annotation  Creation Date  Lte'
+    )
+    measurement_annotation__creation_date__gte: AwareDatetime | None = Field(
+        default=None, title='Measurement Annotation  Creation Date  Gte'
+    )
+    measurement_annotation__update_date__lte: AwareDatetime | None = Field(
+        default=None, title='Measurement Annotation  Update Date  Lte'
+    )
+    measurement_annotation__update_date__gte: AwareDatetime | None = Field(
+        default=None, title='Measurement Annotation  Update Date  Gte'
+    )
+    measurement_kind__pref_label: str | None = Field(
+        default=None, title='Measurement Kind  Pref Label'
+    )
+    measurement_kind__definition: str | None = Field(
+        default=None, title='Measurement Kind  Definition'
+    )
+    measurement_kind__structural_domain: StructuralDomain | None = Field(
+        default=None, title='Measurement Kind  Structural Domain'
+    )
+    measurement_item__name: MeasurementStatistic | None = Field(
+        default=None, title='Measurement Item  Name'
+    )
+    measurement_item__unit: MeasurementUnit | None = Field(
+        default=None, title='Measurement Item  Unit'
+    )
+    measurement_item__value__gte: float | None = Field(
+        default=None, title='Measurement Item  Value  Gte'
+    )
+    measurement_item__value__lte: float | None = Field(
+        default=None, title='Measurement Item  Value  Lte'
+    )
+    mtype__pref_label: str | None = Field(default=None, title='Mtype  Pref Label')
+    mtype__pref_label__in: list[str] | None = Field(
+        default=None, title='Mtype  Pref Label  In'
+    )
+    mtype__id: UUID | None = Field(default=None, title='Mtype  Id')
+    mtype__id__in: list[str] | None = Field(default=None, title='Mtype  Id  In')
+    subject__name: str | None = Field(default=None, title='Subject  Name')
+    subject__name__in: list[str] | None = Field(default=None, title='Subject  Name  In')
+    subject__name__ilike: str | None = Field(default=None, title='Subject  Name  Ilike')
+    subject__id: UUID | None = Field(default=None, title='Subject  Id')
+    subject__id__in: list[str] | None = Field(default=None, title='Subject  Id  In')
+    subject__age_value: timedelta | None = Field(
+        default=None, title='Subject  Age Value'
+    )
+    subject__species__name: str | None = Field(
+        default=None, title='Subject  Species  Name'
+    )
+    subject__species__name__in: list[str] | None = Field(
+        default=None, title='Subject  Species  Name  In'
+    )
+    subject__species__name__ilike: str | None = Field(
+        default=None, title='Subject  Species  Name  Ilike'
+    )
+    subject__species__id: UUID | None = Field(
+        default=None, title='Subject  Species  Id'
+    )
+    subject__species__id__in: list[str] | None = Field(
+        default=None, title='Subject  Species  Id  In'
+    )
+    subject__strain__name: str | None = Field(
+        default=None, title='Subject  Strain  Name'
+    )
+    subject__strain__name__in: list[str] | None = Field(
+        default=None, title='Subject  Strain  Name  In'
+    )
+    subject__strain__name__ilike: str | None = Field(
+        default=None, title='Subject  Strain  Name  Ilike'
+    )
+    subject__strain__id: UUID | None = Field(default=None, title='Subject  Strain  Id')
+    subject__strain__id__in: list[str] | None = Field(
+        default=None, title='Subject  Strain  Id  In'
+    )
+    brain_region__name: str | None = Field(default=None, title='Brain Region  Name')
+    brain_region__name__in: list[str] | None = Field(
+        default=None, title='Brain Region  Name  In'
+    )
+    brain_region__name__ilike: str | None = Field(
+        default=None, title='Brain Region  Name  Ilike'
+    )
+    brain_region__id: UUID | None = Field(default=None, title='Brain Region  Id')
+    brain_region__id__in: list[str] | None = Field(
+        default=None, title='Brain Region  Id  In'
+    )
+    brain_region__acronym: str | None = Field(
+        default=None, title='Brain Region  Acronym'
+    )
+    brain_region__acronym__in: list[str] | None = Field(
+        default=None, title='Brain Region  Acronym  In'
+    )
+    contribution__pref_label: str | None = Field(
+        default=None, title='Contribution  Pref Label'
+    )
+    contribution__pref_label__in: list[str] | None = Field(
+        default=None, title='Contribution  Pref Label  In'
+    )
+    contribution__id: UUID | None = Field(default=None, title='Contribution  Id')
+    contribution__id__in: list[str] | None = Field(
+        default=None, title='Contribution  Id  In'
+    )
+    created_by__pref_label: str | None = Field(
+        default=None, title='Created By  Pref Label'
+    )
+    created_by__pref_label__in: list[str] | None = Field(
+        default=None, title='Created By  Pref Label  In'
+    )
+    created_by__id: UUID | None = Field(default=None, title='Created By  Id')
+    created_by__id__in: list[str] | None = Field(
+        default=None, title='Created By  Id  In'
+    )
+    updated_by__pref_label: str | None = Field(
+        default=None, title='Updated By  Pref Label'
+    )
+    updated_by__pref_label__in: list[str] | None = Field(
+        default=None, title='Updated By  Pref Label  In'
+    )
+    updated_by__id: UUID | None = Field(default=None, title='Updated By  Id')
+    updated_by__id__in: list[str] | None = Field(
+        default=None, title='Updated By  Id  In'
+    )
+    cell_morphology_protocol__id: UUID | None = Field(
+        default=None, title='Cell Morphology Protocol  Id'
+    )
+    cell_morphology_protocol__id__in: list[str] | None = Field(
+        default=None, title='Cell Morphology Protocol  Id  In'
+    )
+    cell_morphology_protocol__generation_type: CellMorphologyGenerationType | None = (
+        Field(default=None, title='Cell Morphology Protocol  Generation Type')
+    )
+    cell_morphology_protocol__generation_type__in: (
+        list[CellMorphologyGenerationType] | None
+    ) = Field(default=None, title='Cell Morphology Protocol  Generation Type  In')
+    search: str | None = Field(default=None, title='Search')
+    with_facets: bool = Field(default=False, title='With Facets')
+    within_brain_region_hierarchy_id: UUID | None = Field(
+        default=None, title='Within Brain Region Hierarchy Id'
+    )
+    within_brain_region_brain_region_id: UUID | None = Field(
+        default=None, title='Within Brain Region Brain Region Id'
+    )
+    within_brain_region_ascendants: bool = Field(
+        default=False, title='Within Brain Region Ascendants'
+    )
+
+
+class Expand(RootModel[list[str]]):
+    root: list[str] = Field(..., title='Expand')
+
+
+class ReadOneCellMorphologyIdGetParametersQuery(BaseModel):
+    expand: Expand | None = Field(default=None, title='Expand')
+
+
+class ReadManyCellMorphologyProtocolGetParametersQuery(BaseModel):
+    page: int = Field(default=1, ge=1, title='Page')
+    page_size: int = Field(default=100, ge=1, title='Page Size')
+    creation_date__lte: AwareDatetime | None = Field(
+        default=None, title='Creation Date  Lte'
+    )
+    creation_date__gte: AwareDatetime | None = Field(
+        default=None, title='Creation Date  Gte'
+    )
+    update_date__lte: AwareDatetime | None = Field(
+        default=None, title='Update Date  Lte'
+    )
+    update_date__gte: AwareDatetime | None = Field(
+        default=None, title='Update Date  Gte'
+    )
+    authorized_public: bool | None = Field(default=None, title='Authorized Public')
+    authorized_project_id: UUID | None = Field(
+        default=None, title='Authorized Project Id'
+    )
+    id: UUID | None = Field(default=None, title='Id')
+    id__in: list[str] | None = Field(default=None, title='Id  In')
+    generation_type: CellMorphologyGenerationType | None = Field(
+        default=None, title='Generation Type'
+    )
+    generation_type__in: list[CellMorphologyGenerationType] | None = Field(
+        default=None, title='Generation Type  In'
+    )
+    order_by: list[str] = Field(default=['-creation_date'], title='Order By')
+    contribution__pref_label: str | None = Field(
+        default=None, title='Contribution  Pref Label'
+    )
+    contribution__pref_label__in: list[str] | None = Field(
+        default=None, title='Contribution  Pref Label  In'
+    )
+    contribution__id: UUID | None = Field(default=None, title='Contribution  Id')
+    contribution__id__in: list[str] | None = Field(
+        default=None, title='Contribution  Id  In'
+    )
+    created_by__pref_label: str | None = Field(
+        default=None, title='Created By  Pref Label'
+    )
+    created_by__pref_label__in: list[str] | None = Field(
+        default=None, title='Created By  Pref Label  In'
+    )
+    created_by__id: UUID | None = Field(default=None, title='Created By  Id')
+    created_by__id__in: list[str] | None = Field(
+        default=None, title='Created By  Id  In'
+    )
+    updated_by__pref_label: str | None = Field(
+        default=None, title='Updated By  Pref Label'
+    )
+    updated_by__pref_label__in: list[str] | None = Field(
+        default=None, title='Updated By  Pref Label  In'
+    )
+    updated_by__id: UUID | None = Field(default=None, title='Updated By  Id')
+    updated_by__id__in: list[str] | None = Field(
+        default=None, title='Updated By  Id  In'
+    )
+    with_facets: bool = Field(default=False, title='With Facets')
+
+
+UpdateOneCellMorphologyProtocolIdPatchRequest = HealthHealthGetResponse
 
 
 class ReadCircuitHierarchyCircuitHierarchyGetParametersQuery(BaseModel):
@@ -3370,9 +3758,6 @@ class ReadManyEmodelGetParametersQuery(BaseModel):
     exemplar_morphology__id__in: list[str] | None = Field(
         default=None, title='Exemplar Morphology  Id  In'
     )
-    exemplar_morphology__species_id__in: list[UUID] | None = Field(
-        default=None, title='Exemplar Morphology  Species Id  In'
-    )
     morphology__brain_region__name: str | None = Field(
         default=None, title='Morphology  Brain Region  Name'
     )
@@ -3394,35 +3779,51 @@ class ReadManyEmodelGetParametersQuery(BaseModel):
     morphology__brain_region__acronym__in: list[str] | None = Field(
         default=None, title='Morphology  Brain Region  Acronym  In'
     )
-    morphology__species__name: str | None = Field(
-        default=None, title='Morphology  Species  Name'
+    morphology__subject__name: str | None = Field(
+        default=None, title='Morphology  Subject  Name'
     )
-    morphology__species__name__in: list[str] | None = Field(
-        default=None, title='Morphology  Species  Name  In'
+    morphology__subject__name__in: list[str] | None = Field(
+        default=None, title='Morphology  Subject  Name  In'
     )
-    morphology__species__name__ilike: str | None = Field(
-        default=None, title='Morphology  Species  Name  Ilike'
+    morphology__subject__name__ilike: str | None = Field(
+        default=None, title='Morphology  Subject  Name  Ilike'
     )
-    morphology__species__id: UUID | None = Field(
-        default=None, title='Morphology  Species  Id'
+    morphology__subject__id: UUID | None = Field(
+        default=None, title='Morphology  Subject  Id'
     )
-    morphology__species__id__in: list[str] | None = Field(
-        default=None, title='Morphology  Species  Id  In'
+    morphology__subject__id__in: list[str] | None = Field(
+        default=None, title='Morphology  Subject  Id  In'
     )
-    morphology__strain__name: str | None = Field(
-        default=None, title='Morphology  Strain  Name'
+    morphology__subject__age_value: timedelta | None = Field(
+        default=None, title='Morphology  Subject  Age Value'
     )
-    morphology__strain__name__in: list[str] | None = Field(
-        default=None, title='Morphology  Strain  Name  In'
+    subject__species__name: str | None = Field(
+        default=None, title='Subject  Species  Name'
     )
-    morphology__strain__name__ilike: str | None = Field(
-        default=None, title='Morphology  Strain  Name  Ilike'
+    subject__species__name__in: list[str] | None = Field(
+        default=None, title='Subject  Species  Name  In'
     )
-    morphology__strain__id: UUID | None = Field(
-        default=None, title='Morphology  Strain  Id'
+    subject__species__name__ilike: str | None = Field(
+        default=None, title='Subject  Species  Name  Ilike'
     )
-    morphology__strain__id__in: list[str] | None = Field(
-        default=None, title='Morphology  Strain  Id  In'
+    subject__species__id: UUID | None = Field(
+        default=None, title='Subject  Species  Id'
+    )
+    subject__species__id__in: list[str] | None = Field(
+        default=None, title='Subject  Species  Id  In'
+    )
+    subject__strain__name: str | None = Field(
+        default=None, title='Subject  Strain  Name'
+    )
+    subject__strain__name__in: list[str] | None = Field(
+        default=None, title='Subject  Strain  Name  In'
+    )
+    subject__strain__name__ilike: str | None = Field(
+        default=None, title='Subject  Strain  Name  Ilike'
+    )
+    subject__strain__id: UUID | None = Field(default=None, title='Subject  Strain  Id')
+    subject__strain__id__in: list[str] | None = Field(
+        default=None, title='Subject  Strain  Id  In'
     )
     morphology__mtype__pref_label: str | None = Field(
         default=None, title='Morphology  Mtype  Pref Label'
@@ -4491,9 +4892,6 @@ class ReadManyMemodelGetParametersQuery(BaseModel):
     morphology__id__in: list[str] | None = Field(
         default=None, title='Morphology  Id  In'
     )
-    morphology__species_id__in: list[UUID] | None = Field(
-        default=None, title='Morphology  Species Id  In'
-    )
     morphology__brain_region__name: str | None = Field(
         default=None, title='Morphology  Brain Region  Name'
     )
@@ -4515,35 +4913,51 @@ class ReadManyMemodelGetParametersQuery(BaseModel):
     morphology__brain_region__acronym__in: list[str] | None = Field(
         default=None, title='Morphology  Brain Region  Acronym  In'
     )
-    morphology__species__name: str | None = Field(
-        default=None, title='Morphology  Species  Name'
+    morphology__subject__name: str | None = Field(
+        default=None, title='Morphology  Subject  Name'
     )
-    morphology__species__name__in: list[str] | None = Field(
-        default=None, title='Morphology  Species  Name  In'
+    morphology__subject__name__in: list[str] | None = Field(
+        default=None, title='Morphology  Subject  Name  In'
     )
-    morphology__species__name__ilike: str | None = Field(
-        default=None, title='Morphology  Species  Name  Ilike'
+    morphology__subject__name__ilike: str | None = Field(
+        default=None, title='Morphology  Subject  Name  Ilike'
     )
-    morphology__species__id: UUID | None = Field(
-        default=None, title='Morphology  Species  Id'
+    morphology__subject__id: UUID | None = Field(
+        default=None, title='Morphology  Subject  Id'
     )
-    morphology__species__id__in: list[str] | None = Field(
-        default=None, title='Morphology  Species  Id  In'
+    morphology__subject__id__in: list[str] | None = Field(
+        default=None, title='Morphology  Subject  Id  In'
     )
-    morphology__strain__name: str | None = Field(
-        default=None, title='Morphology  Strain  Name'
+    morphology__subject__age_value: timedelta | None = Field(
+        default=None, title='Morphology  Subject  Age Value'
     )
-    morphology__strain__name__in: list[str] | None = Field(
-        default=None, title='Morphology  Strain  Name  In'
+    subject__species__name: str | None = Field(
+        default=None, title='Subject  Species  Name'
     )
-    morphology__strain__name__ilike: str | None = Field(
-        default=None, title='Morphology  Strain  Name  Ilike'
+    subject__species__name__in: list[str] | None = Field(
+        default=None, title='Subject  Species  Name  In'
     )
-    morphology__strain__id: UUID | None = Field(
-        default=None, title='Morphology  Strain  Id'
+    subject__species__name__ilike: str | None = Field(
+        default=None, title='Subject  Species  Name  Ilike'
     )
-    morphology__strain__id__in: list[str] | None = Field(
-        default=None, title='Morphology  Strain  Id  In'
+    subject__species__id: UUID | None = Field(
+        default=None, title='Subject  Species  Id'
+    )
+    subject__species__id__in: list[str] | None = Field(
+        default=None, title='Subject  Species  Id  In'
+    )
+    subject__strain__name: str | None = Field(
+        default=None, title='Subject  Strain  Name'
+    )
+    subject__strain__name__in: list[str] | None = Field(
+        default=None, title='Subject  Strain  Name  In'
+    )
+    subject__strain__name__ilike: str | None = Field(
+        default=None, title='Subject  Strain  Name  Ilike'
+    )
+    subject__strain__id: UUID | None = Field(default=None, title='Subject  Strain  Id')
+    subject__strain__id__in: list[str] | None = Field(
+        default=None, title='Subject  Strain  Id  In'
     )
     morphology__mtype__pref_label: str | None = Field(
         default=None, title='Morphology  Mtype  Pref Label'
@@ -4619,9 +5033,6 @@ class ReadManyMemodelGetParametersQuery(BaseModel):
     )
     emodel__exemplar_morphology__id__in: list[str] | None = Field(
         default=None, title='Emodel  Exemplar Morphology  Id  In'
-    )
-    emodel__exemplar_morphology__species_id__in: list[UUID] | None = Field(
-        default=None, title='Emodel  Exemplar Morphology  Species Id  In'
     )
     search: str | None = Field(default=None, title='Search')
     with_facets: bool = Field(default=False, title='With Facets')
@@ -4703,149 +5114,6 @@ class ReadManyMemodelCalibrationResultGetParametersQuery(BaseModel):
     within_brain_region_ascendants: bool = Field(
         default=False, title='Within Brain Region Ascendants'
     )
-
-
-class ReadManyReconstructionMorphologyGetParametersQuery(BaseModel):
-    page: int = Field(default=1, ge=1, title='Page')
-    page_size: int = Field(default=100, ge=1, title='Page Size')
-    name: str | None = Field(default=None, title='Name')
-    name__in: list[str] | None = Field(default=None, title='Name  In')
-    name__ilike: str | None = Field(default=None, title='Name  Ilike')
-    species_id__in: list[UUID] | None = Field(default=None, title='Species Id  In')
-    creation_date__lte: AwareDatetime | None = Field(
-        default=None, title='Creation Date  Lte'
-    )
-    creation_date__gte: AwareDatetime | None = Field(
-        default=None, title='Creation Date  Gte'
-    )
-    update_date__lte: AwareDatetime | None = Field(
-        default=None, title='Update Date  Lte'
-    )
-    update_date__gte: AwareDatetime | None = Field(
-        default=None, title='Update Date  Gte'
-    )
-    authorized_public: bool | None = Field(default=None, title='Authorized Public')
-    authorized_project_id: UUID | None = Field(
-        default=None, title='Authorized Project Id'
-    )
-    id: UUID | None = Field(default=None, title='Id')
-    id__in: list[str] | None = Field(default=None, title='Id  In')
-    order_by: list[str] = Field(default=['-creation_date'], title='Order By')
-    measurement_annotation__creation_date__lte: AwareDatetime | None = Field(
-        default=None, title='Measurement Annotation  Creation Date  Lte'
-    )
-    measurement_annotation__creation_date__gte: AwareDatetime | None = Field(
-        default=None, title='Measurement Annotation  Creation Date  Gte'
-    )
-    measurement_annotation__update_date__lte: AwareDatetime | None = Field(
-        default=None, title='Measurement Annotation  Update Date  Lte'
-    )
-    measurement_annotation__update_date__gte: AwareDatetime | None = Field(
-        default=None, title='Measurement Annotation  Update Date  Gte'
-    )
-    measurement_kind__pref_label: str | None = Field(
-        default=None, title='Measurement Kind  Pref Label'
-    )
-    measurement_kind__definition: str | None = Field(
-        default=None, title='Measurement Kind  Definition'
-    )
-    measurement_kind__structural_domain: StructuralDomain | None = Field(
-        default=None, title='Measurement Kind  Structural Domain'
-    )
-    measurement_item__name: MeasurementStatistic | None = Field(
-        default=None, title='Measurement Item  Name'
-    )
-    measurement_item__unit: MeasurementUnit | None = Field(
-        default=None, title='Measurement Item  Unit'
-    )
-    measurement_item__value__gte: float | None = Field(
-        default=None, title='Measurement Item  Value  Gte'
-    )
-    measurement_item__value__lte: float | None = Field(
-        default=None, title='Measurement Item  Value  Lte'
-    )
-    mtype__pref_label: str | None = Field(default=None, title='Mtype  Pref Label')
-    mtype__pref_label__in: list[str] | None = Field(
-        default=None, title='Mtype  Pref Label  In'
-    )
-    mtype__id: UUID | None = Field(default=None, title='Mtype  Id')
-    mtype__id__in: list[str] | None = Field(default=None, title='Mtype  Id  In')
-    species__name: str | None = Field(default=None, title='Species  Name')
-    species__name__in: list[str] | None = Field(default=None, title='Species  Name  In')
-    species__name__ilike: str | None = Field(default=None, title='Species  Name  Ilike')
-    species__id: UUID | None = Field(default=None, title='Species  Id')
-    species__id__in: list[str] | None = Field(default=None, title='Species  Id  In')
-    strain__name: str | None = Field(default=None, title='Strain  Name')
-    strain__name__in: list[str] | None = Field(default=None, title='Strain  Name  In')
-    strain__name__ilike: str | None = Field(default=None, title='Strain  Name  Ilike')
-    strain__id: UUID | None = Field(default=None, title='Strain  Id')
-    strain__id__in: list[str] | None = Field(default=None, title='Strain  Id  In')
-    brain_region__name: str | None = Field(default=None, title='Brain Region  Name')
-    brain_region__name__in: list[str] | None = Field(
-        default=None, title='Brain Region  Name  In'
-    )
-    brain_region__name__ilike: str | None = Field(
-        default=None, title='Brain Region  Name  Ilike'
-    )
-    brain_region__id: UUID | None = Field(default=None, title='Brain Region  Id')
-    brain_region__id__in: list[str] | None = Field(
-        default=None, title='Brain Region  Id  In'
-    )
-    brain_region__acronym: str | None = Field(
-        default=None, title='Brain Region  Acronym'
-    )
-    brain_region__acronym__in: list[str] | None = Field(
-        default=None, title='Brain Region  Acronym  In'
-    )
-    contribution__pref_label: str | None = Field(
-        default=None, title='Contribution  Pref Label'
-    )
-    contribution__pref_label__in: list[str] | None = Field(
-        default=None, title='Contribution  Pref Label  In'
-    )
-    contribution__id: UUID | None = Field(default=None, title='Contribution  Id')
-    contribution__id__in: list[str] | None = Field(
-        default=None, title='Contribution  Id  In'
-    )
-    created_by__pref_label: str | None = Field(
-        default=None, title='Created By  Pref Label'
-    )
-    created_by__pref_label__in: list[str] | None = Field(
-        default=None, title='Created By  Pref Label  In'
-    )
-    created_by__id: UUID | None = Field(default=None, title='Created By  Id')
-    created_by__id__in: list[str] | None = Field(
-        default=None, title='Created By  Id  In'
-    )
-    updated_by__pref_label: str | None = Field(
-        default=None, title='Updated By  Pref Label'
-    )
-    updated_by__pref_label__in: list[str] | None = Field(
-        default=None, title='Updated By  Pref Label  In'
-    )
-    updated_by__id: UUID | None = Field(default=None, title='Updated By  Id')
-    updated_by__id__in: list[str] | None = Field(
-        default=None, title='Updated By  Id  In'
-    )
-    search: str | None = Field(default=None, title='Search')
-    with_facets: bool = Field(default=False, title='With Facets')
-    within_brain_region_hierarchy_id: UUID | None = Field(
-        default=None, title='Within Brain Region Hierarchy Id'
-    )
-    within_brain_region_brain_region_id: UUID | None = Field(
-        default=None, title='Within Brain Region Brain Region Id'
-    )
-    within_brain_region_ascendants: bool = Field(
-        default=False, title='Within Brain Region Ascendants'
-    )
-
-
-class Expand(RootModel[list[str]]):
-    root: list[str] = Field(..., title='Expand')
-
-
-class ReadOneReconstructionMorphologyIdGetParametersQuery(BaseModel):
-    expand: Expand | None = Field(default=None, title='Expand')
 
 
 ReadManyMtypeGetParametersQuery = ReadManyEtypeGetParametersQuery
@@ -5605,9 +5873,6 @@ class ReadManySingleNeuronSimulationGetParametersQuery(BaseModel):
     me_model__morphology__id__in: list[str] | None = Field(
         default=None, title='Me Model  Morphology  Id  In'
     )
-    me_model__morphology__species_id__in: list[UUID] | None = Field(
-        default=None, title='Me Model  Morphology  Species Id  In'
-    )
     morphology__brain_region__name: str | None = Field(
         default=None, title='Morphology  Brain Region  Name'
     )
@@ -5629,35 +5894,51 @@ class ReadManySingleNeuronSimulationGetParametersQuery(BaseModel):
     morphology__brain_region__acronym__in: list[str] | None = Field(
         default=None, title='Morphology  Brain Region  Acronym  In'
     )
-    morphology__species__name: str | None = Field(
-        default=None, title='Morphology  Species  Name'
+    morphology__subject__name: str | None = Field(
+        default=None, title='Morphology  Subject  Name'
     )
-    morphology__species__name__in: list[str] | None = Field(
-        default=None, title='Morphology  Species  Name  In'
+    morphology__subject__name__in: list[str] | None = Field(
+        default=None, title='Morphology  Subject  Name  In'
     )
-    morphology__species__name__ilike: str | None = Field(
-        default=None, title='Morphology  Species  Name  Ilike'
+    morphology__subject__name__ilike: str | None = Field(
+        default=None, title='Morphology  Subject  Name  Ilike'
     )
-    morphology__species__id: UUID | None = Field(
-        default=None, title='Morphology  Species  Id'
+    morphology__subject__id: UUID | None = Field(
+        default=None, title='Morphology  Subject  Id'
     )
-    morphology__species__id__in: list[str] | None = Field(
-        default=None, title='Morphology  Species  Id  In'
+    morphology__subject__id__in: list[str] | None = Field(
+        default=None, title='Morphology  Subject  Id  In'
     )
-    morphology__strain__name: str | None = Field(
-        default=None, title='Morphology  Strain  Name'
+    morphology__subject__age_value: timedelta | None = Field(
+        default=None, title='Morphology  Subject  Age Value'
     )
-    morphology__strain__name__in: list[str] | None = Field(
-        default=None, title='Morphology  Strain  Name  In'
+    subject__species__name: str | None = Field(
+        default=None, title='Subject  Species  Name'
     )
-    morphology__strain__name__ilike: str | None = Field(
-        default=None, title='Morphology  Strain  Name  Ilike'
+    subject__species__name__in: list[str] | None = Field(
+        default=None, title='Subject  Species  Name  In'
     )
-    morphology__strain__id: UUID | None = Field(
-        default=None, title='Morphology  Strain  Id'
+    subject__species__name__ilike: str | None = Field(
+        default=None, title='Subject  Species  Name  Ilike'
     )
-    morphology__strain__id__in: list[str] | None = Field(
-        default=None, title='Morphology  Strain  Id  In'
+    subject__species__id: UUID | None = Field(
+        default=None, title='Subject  Species  Id'
+    )
+    subject__species__id__in: list[str] | None = Field(
+        default=None, title='Subject  Species  Id  In'
+    )
+    subject__strain__name: str | None = Field(
+        default=None, title='Subject  Strain  Name'
+    )
+    subject__strain__name__in: list[str] | None = Field(
+        default=None, title='Subject  Strain  Name  In'
+    )
+    subject__strain__name__ilike: str | None = Field(
+        default=None, title='Subject  Strain  Name  Ilike'
+    )
+    subject__strain__id: UUID | None = Field(default=None, title='Subject  Strain  Id')
+    subject__strain__id__in: list[str] | None = Field(
+        default=None, title='Subject  Strain  Id  In'
     )
     morphology__mtype__pref_label: str | None = Field(
         default=None, title='Morphology  Mtype  Pref Label'
@@ -5747,9 +6028,6 @@ class ReadManySingleNeuronSimulationGetParametersQuery(BaseModel):
     )
     emodel__exemplar_morphology__id__in: list[str] | None = Field(
         default=None, title='Emodel  Exemplar Morphology  Id  In'
-    )
-    emodel__exemplar_morphology__species_id__in: list[UUID] | None = Field(
-        default=None, title='Emodel  Exemplar Morphology  Species Id  In'
     )
     me_model__mtype__pref_label: str | None = Field(
         default=None, title='Me Model  Mtype  Pref Label'
@@ -5934,9 +6212,6 @@ class ReadManySingleNeuronSynaptomeGetParametersQuery(BaseModel):
     me_model__morphology__id__in: list[str] | None = Field(
         default=None, title='Me Model  Morphology  Id  In'
     )
-    me_model__morphology__species_id__in: list[UUID] | None = Field(
-        default=None, title='Me Model  Morphology  Species Id  In'
-    )
     morphology__brain_region__name: str | None = Field(
         default=None, title='Morphology  Brain Region  Name'
     )
@@ -5958,35 +6233,51 @@ class ReadManySingleNeuronSynaptomeGetParametersQuery(BaseModel):
     morphology__brain_region__acronym__in: list[str] | None = Field(
         default=None, title='Morphology  Brain Region  Acronym  In'
     )
-    morphology__species__name: str | None = Field(
-        default=None, title='Morphology  Species  Name'
+    morphology__subject__name: str | None = Field(
+        default=None, title='Morphology  Subject  Name'
     )
-    morphology__species__name__in: list[str] | None = Field(
-        default=None, title='Morphology  Species  Name  In'
+    morphology__subject__name__in: list[str] | None = Field(
+        default=None, title='Morphology  Subject  Name  In'
     )
-    morphology__species__name__ilike: str | None = Field(
-        default=None, title='Morphology  Species  Name  Ilike'
+    morphology__subject__name__ilike: str | None = Field(
+        default=None, title='Morphology  Subject  Name  Ilike'
     )
-    morphology__species__id: UUID | None = Field(
-        default=None, title='Morphology  Species  Id'
+    morphology__subject__id: UUID | None = Field(
+        default=None, title='Morphology  Subject  Id'
     )
-    morphology__species__id__in: list[str] | None = Field(
-        default=None, title='Morphology  Species  Id  In'
+    morphology__subject__id__in: list[str] | None = Field(
+        default=None, title='Morphology  Subject  Id  In'
     )
-    morphology__strain__name: str | None = Field(
-        default=None, title='Morphology  Strain  Name'
+    morphology__subject__age_value: timedelta | None = Field(
+        default=None, title='Morphology  Subject  Age Value'
     )
-    morphology__strain__name__in: list[str] | None = Field(
-        default=None, title='Morphology  Strain  Name  In'
+    subject__species__name: str | None = Field(
+        default=None, title='Subject  Species  Name'
     )
-    morphology__strain__name__ilike: str | None = Field(
-        default=None, title='Morphology  Strain  Name  Ilike'
+    subject__species__name__in: list[str] | None = Field(
+        default=None, title='Subject  Species  Name  In'
     )
-    morphology__strain__id: UUID | None = Field(
-        default=None, title='Morphology  Strain  Id'
+    subject__species__name__ilike: str | None = Field(
+        default=None, title='Subject  Species  Name  Ilike'
     )
-    morphology__strain__id__in: list[str] | None = Field(
-        default=None, title='Morphology  Strain  Id  In'
+    subject__species__id: UUID | None = Field(
+        default=None, title='Subject  Species  Id'
+    )
+    subject__species__id__in: list[str] | None = Field(
+        default=None, title='Subject  Species  Id  In'
+    )
+    subject__strain__name: str | None = Field(
+        default=None, title='Subject  Strain  Name'
+    )
+    subject__strain__name__in: list[str] | None = Field(
+        default=None, title='Subject  Strain  Name  In'
+    )
+    subject__strain__name__ilike: str | None = Field(
+        default=None, title='Subject  Strain  Name  Ilike'
+    )
+    subject__strain__id: UUID | None = Field(default=None, title='Subject  Strain  Id')
+    subject__strain__id__in: list[str] | None = Field(
+        default=None, title='Subject  Strain  Id  In'
     )
     morphology__mtype__pref_label: str | None = Field(
         default=None, title='Morphology  Mtype  Pref Label'
@@ -6076,9 +6367,6 @@ class ReadManySingleNeuronSynaptomeGetParametersQuery(BaseModel):
     )
     emodel__exemplar_morphology__id__in: list[str] | None = Field(
         default=None, title='Emodel  Exemplar Morphology  Id  In'
-    )
-    emodel__exemplar_morphology__species_id__in: list[UUID] | None = Field(
-        default=None, title='Emodel  Exemplar Morphology  Species Id  In'
     )
     me_model__mtype__pref_label: str | None = Field(
         default=None, title='Me Model  Mtype  Pref Label'
@@ -6300,9 +6588,6 @@ class ReadManySingleNeuronSynaptomeSimulationGetParametersQuery(BaseModel):
     me_model__morphology__id__in: list[str] | None = Field(
         default=None, title='Me Model  Morphology  Id  In'
     )
-    me_model__morphology__species_id__in: list[UUID] | None = Field(
-        default=None, title='Me Model  Morphology  Species Id  In'
-    )
     morphology__brain_region__name: str | None = Field(
         default=None, title='Morphology  Brain Region  Name'
     )
@@ -6324,35 +6609,51 @@ class ReadManySingleNeuronSynaptomeSimulationGetParametersQuery(BaseModel):
     morphology__brain_region__acronym__in: list[str] | None = Field(
         default=None, title='Morphology  Brain Region  Acronym  In'
     )
-    morphology__species__name: str | None = Field(
-        default=None, title='Morphology  Species  Name'
+    morphology__subject__name: str | None = Field(
+        default=None, title='Morphology  Subject  Name'
     )
-    morphology__species__name__in: list[str] | None = Field(
-        default=None, title='Morphology  Species  Name  In'
+    morphology__subject__name__in: list[str] | None = Field(
+        default=None, title='Morphology  Subject  Name  In'
     )
-    morphology__species__name__ilike: str | None = Field(
-        default=None, title='Morphology  Species  Name  Ilike'
+    morphology__subject__name__ilike: str | None = Field(
+        default=None, title='Morphology  Subject  Name  Ilike'
     )
-    morphology__species__id: UUID | None = Field(
-        default=None, title='Morphology  Species  Id'
+    morphology__subject__id: UUID | None = Field(
+        default=None, title='Morphology  Subject  Id'
     )
-    morphology__species__id__in: list[str] | None = Field(
-        default=None, title='Morphology  Species  Id  In'
+    morphology__subject__id__in: list[str] | None = Field(
+        default=None, title='Morphology  Subject  Id  In'
     )
-    morphology__strain__name: str | None = Field(
-        default=None, title='Morphology  Strain  Name'
+    morphology__subject__age_value: timedelta | None = Field(
+        default=None, title='Morphology  Subject  Age Value'
     )
-    morphology__strain__name__in: list[str] | None = Field(
-        default=None, title='Morphology  Strain  Name  In'
+    subject__species__name: str | None = Field(
+        default=None, title='Subject  Species  Name'
     )
-    morphology__strain__name__ilike: str | None = Field(
-        default=None, title='Morphology  Strain  Name  Ilike'
+    subject__species__name__in: list[str] | None = Field(
+        default=None, title='Subject  Species  Name  In'
     )
-    morphology__strain__id: UUID | None = Field(
-        default=None, title='Morphology  Strain  Id'
+    subject__species__name__ilike: str | None = Field(
+        default=None, title='Subject  Species  Name  Ilike'
     )
-    morphology__strain__id__in: list[str] | None = Field(
-        default=None, title='Morphology  Strain  Id  In'
+    subject__species__id: UUID | None = Field(
+        default=None, title='Subject  Species  Id'
+    )
+    subject__species__id__in: list[str] | None = Field(
+        default=None, title='Subject  Species  Id  In'
+    )
+    subject__strain__name: str | None = Field(
+        default=None, title='Subject  Strain  Name'
+    )
+    subject__strain__name__in: list[str] | None = Field(
+        default=None, title='Subject  Strain  Name  In'
+    )
+    subject__strain__name__ilike: str | None = Field(
+        default=None, title='Subject  Strain  Name  Ilike'
+    )
+    subject__strain__id: UUID | None = Field(default=None, title='Subject  Strain  Id')
+    subject__strain__id__in: list[str] | None = Field(
+        default=None, title='Subject  Strain  Id  In'
     )
     morphology__mtype__pref_label: str | None = Field(
         default=None, title='Morphology  Mtype  Pref Label'
@@ -6442,9 +6743,6 @@ class ReadManySingleNeuronSynaptomeSimulationGetParametersQuery(BaseModel):
     )
     emodel__exemplar_morphology__id__in: list[str] | None = Field(
         default=None, title='Emodel  Exemplar Morphology  Id  In'
-    )
-    emodel__exemplar_morphology__species_id__in: list[UUID] | None = Field(
-        default=None, title='Emodel  Exemplar Morphology  Species Id  In'
     )
     me_model__mtype__pref_label: str | None = Field(
         default=None, title='Me Model  Mtype  Pref Label'
@@ -6761,6 +7059,71 @@ CalibrationRead = SimulationGenerationRead
 CalibrationUserUpdate = SimulationGenerationUserUpdate
 
 
+class CellMorphologyAdminUpdate(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
+    authorized_public: bool | None = Field(
+        default='<NOT_SET>', title='Authorized Public'
+    )
+    license_id: UUID | None = Field(default='<NOT_SET>', title='License Id')
+    brain_region_id: UUID | None = Field(default='<NOT_SET>', title='Brain Region Id')
+    subject_id: UUID | None = Field(default='<NOT_SET>', title='Subject Id')
+    experiment_date: AwareDatetime | None = Field(
+        default='<NOT_SET>', title='Experiment Date'
+    )
+    contact_email: str | None = Field(default='<NOT_SET>', title='Contact Email')
+    published_in: str | None = Field(default='<NOT_SET>', title='Published In')
+    name: str | None = Field(default='<NOT_SET>', title='Name')
+    description: str | None = Field(default='<NOT_SET>', title='Description')
+    location: PointLocationBase | None = '<NOT_SET>'
+    legacy_id: list[str] | None = Field(default='<NOT_SET>', title='Legacy Id')
+    cell_morphology_protocol_id: UUID | None = Field(
+        default='<NOT_SET>', title='Cell Morphology Protocol Id'
+    )
+
+
+class CellMorphologyCreate(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
+    authorized_public: bool = Field(default=False, title='Authorized Public')
+    license_id: UUID | None = Field(default=None, title='License Id')
+    brain_region_id: UUID = Field(..., title='Brain Region Id')
+    subject_id: UUID = Field(..., title='Subject Id')
+    experiment_date: AwareDatetime | None = Field(default=None, title='Experiment Date')
+    contact_email: str | None = Field(default=None, title='Contact Email')
+    published_in: str | None = Field(default=None, title='Published In')
+    name: str = Field(..., title='Name')
+    description: str = Field(..., title='Description')
+    location: PointLocationBase | None = None
+    legacy_id: list[str] | None = Field(default=None, title='Legacy Id')
+    cell_morphology_protocol_id: UUID | None = Field(
+        default=None, title='Cell Morphology Protocol Id'
+    )
+
+
+class CellMorphologyUserUpdate(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
+    license_id: UUID | None = Field(default='<NOT_SET>', title='License Id')
+    brain_region_id: UUID | None = Field(default='<NOT_SET>', title='Brain Region Id')
+    subject_id: UUID | None = Field(default='<NOT_SET>', title='Subject Id')
+    experiment_date: AwareDatetime | None = Field(
+        default='<NOT_SET>', title='Experiment Date'
+    )
+    contact_email: str | None = Field(default='<NOT_SET>', title='Contact Email')
+    published_in: str | None = Field(default='<NOT_SET>', title='Published In')
+    name: str | None = Field(default='<NOT_SET>', title='Name')
+    description: str | None = Field(default='<NOT_SET>', title='Description')
+    location: PointLocationBase | None = '<NOT_SET>'
+    legacy_id: list[str] | None = Field(default='<NOT_SET>', title='Legacy Id')
+    cell_morphology_protocol_id: UUID | None = Field(
+        default='<NOT_SET>', title='Cell Morphology Protocol Id'
+    )
+
+
 class CircuitAdminUpdate(BaseModel):
     model_config = ConfigDict(
         extra='allow',
@@ -6825,6 +7188,30 @@ class CircuitCreate(BaseModel):
     atlas_id: UUID | None = Field(default=None, title='Atlas Id')
 
 
+class ComputationallySynthesizedCellMorphologyProtocolRead(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
+    protocol_document: ProtocolDocument | None = Field(
+        default=None, title='Protocol Document'
+    )
+    protocol_design: CellMorphologyProtocolDesign
+    authorized_project_id: UUID4 = Field(..., title='Authorized Project Id')
+    authorized_public: bool = Field(default=False, title='Authorized Public')
+    created_by: NestedPersonRead
+    updated_by: NestedPersonRead
+    creation_date: AwareDatetime = Field(..., title='Creation Date')
+    update_date: AwareDatetime = Field(..., title='Update Date')
+    id: UUID = Field(..., title='Id')
+    type: Literal['cell_morphology_protocol'] = Field(
+        default='cell_morphology_protocol', title='Type'
+    )
+    generation_type: Literal['computationally_synthesized'] = Field(
+        ..., title='Generation Type'
+    )
+    method_type: str = Field(..., title='Method Type')
+
+
 ConsortiumRead = OrganizationRead
 
 
@@ -6858,6 +7245,66 @@ class DerivationRead(BaseModel):
     used: BasicEntityRead
     generated: BasicEntityRead
     derivation_type: DerivationType
+
+
+class DigitalReconstructionCellMorphologyProtocolCreate(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
+    protocol_document: ProtocolDocument | None = Field(
+        default=None, title='Protocol Document'
+    )
+    protocol_design: CellMorphologyProtocolDesign
+    authorized_public: bool = Field(default=False, title='Authorized Public')
+    type: Literal['cell_morphology_protocol'] = Field(
+        default='cell_morphology_protocol', title='Type'
+    )
+    generation_type: Literal['digital_reconstruction'] = Field(
+        ..., title='Generation Type'
+    )
+    staining_type: StainingType | None = None
+    slicing_thickness: float = Field(..., ge=0.0, title='Slicing Thickness')
+    slicing_direction: SlicingDirectionType | None = None
+    magnification: Magnification | None = Field(default=None, title='Magnification')
+    tissue_shrinkage: TissueShrinkage | None = Field(
+        default=None, title='Tissue Shrinkage'
+    )
+    corrected_for_shrinkage: bool | None = Field(
+        default=None, title='Corrected For Shrinkage'
+    )
+
+
+class DigitalReconstructionCellMorphologyProtocolRead(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
+    protocol_document: ProtocolDocument | None = Field(
+        default=None, title='Protocol Document'
+    )
+    protocol_design: CellMorphologyProtocolDesign
+    authorized_project_id: UUID4 = Field(..., title='Authorized Project Id')
+    authorized_public: bool = Field(default=False, title='Authorized Public')
+    created_by: NestedPersonRead
+    updated_by: NestedPersonRead
+    creation_date: AwareDatetime = Field(..., title='Creation Date')
+    update_date: AwareDatetime = Field(..., title='Update Date')
+    id: UUID = Field(..., title='Id')
+    type: Literal['cell_morphology_protocol'] = Field(
+        default='cell_morphology_protocol', title='Type'
+    )
+    generation_type: Literal['digital_reconstruction'] = Field(
+        ..., title='Generation Type'
+    )
+    staining_type: StainingType | None = None
+    slicing_thickness: float = Field(..., ge=0.0, title='Slicing Thickness')
+    slicing_direction: SlicingDirectionType | None = None
+    magnification: Magnification | None = Field(default=None, title='Magnification')
+    tissue_shrinkage: TissueShrinkage | None = Field(
+        default=None, title='Tissue Shrinkage'
+    )
+    corrected_for_shrinkage: bool | None = Field(
+        default=None, title='Corrected For Shrinkage'
+    )
 
 
 class EMCellMeshCreate(BaseModel):
@@ -7108,7 +7555,7 @@ class ExemplarMorphology(BaseModel):
     name: str = Field(..., title='Name')
     description: str = Field(..., title='Description')
     location: PointLocationBase | None = None
-    legacy_id: list[str] | None = Field(..., title='Legacy Id')
+    legacy_id: list[str] | None = Field(default=None, title='Legacy Id')
     creation_date: AwareDatetime = Field(..., title='Creation Date')
     update_date: AwareDatetime = Field(..., title='Update Date')
 
@@ -7490,6 +7937,30 @@ class MeasurementRead(BaseModel):
     value: float = Field(..., title='Value')
 
 
+class ModifiedReconstructionCellMorphologyProtocolRead(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
+    protocol_document: ProtocolDocument | None = Field(
+        default=None, title='Protocol Document'
+    )
+    protocol_design: CellMorphologyProtocolDesign
+    authorized_project_id: UUID4 = Field(..., title='Authorized Project Id')
+    authorized_public: bool = Field(default=False, title='Authorized Public')
+    created_by: NestedPersonRead
+    updated_by: NestedPersonRead
+    creation_date: AwareDatetime = Field(..., title='Creation Date')
+    update_date: AwareDatetime = Field(..., title='Update Date')
+    id: UUID = Field(..., title='Id')
+    type: Literal['cell_morphology_protocol'] = Field(
+        default='cell_morphology_protocol', title='Type'
+    )
+    generation_type: Literal['modified_reconstruction'] = Field(
+        ..., title='Generation Type'
+    )
+    method_type: ModifiedMorphologyMethodType
+
+
 class NestedContributionRead(BaseModel):
     model_config = ConfigDict(
         extra='allow',
@@ -7497,6 +7968,33 @@ class NestedContributionRead(BaseModel):
     id: UUID = Field(..., title='Id')
     agent: AgentRead
     role: RoleRead
+
+
+class NestedDigitalReconstructionCellMorphologyProtocolRead(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
+    protocol_document: ProtocolDocument | None = Field(
+        default=None, title='Protocol Document'
+    )
+    protocol_design: CellMorphologyProtocolDesign
+    id: UUID = Field(..., title='Id')
+    type: Literal['cell_morphology_protocol'] = Field(
+        default='cell_morphology_protocol', title='Type'
+    )
+    generation_type: Literal['digital_reconstruction'] = Field(
+        ..., title='Generation Type'
+    )
+    staining_type: StainingType | None = None
+    slicing_thickness: float = Field(..., ge=0.0, title='Slicing Thickness')
+    slicing_direction: SlicingDirectionType | None = None
+    magnification: Magnification | None = Field(default=None, title='Magnification')
+    tissue_shrinkage: TissueShrinkage | None = Field(
+        default=None, title='Tissue Shrinkage'
+    )
+    corrected_for_shrinkage: bool | None = Field(
+        default=None, title='Corrected For Shrinkage'
+    )
 
 
 class NestedMEModel(BaseModel):
@@ -7550,33 +8048,6 @@ class NeuronBlock(BaseModel):
     range: list[dict[str, str | None]] = Field(default=[], title='Range')
     useion: list[UseIon] = Field(default=[], title='Useion')
     nonspecific: list[dict[str, str | None]] = Field(default=[], title='Nonspecific')
-
-
-class ReconstructionMorphologyRead(BaseModel):
-    model_config = ConfigDict(
-        extra='allow',
-    )
-    contributions: list[NestedContributionRead] | None = Field(
-        ..., title='Contributions'
-    )
-    created_by: NestedPersonRead
-    updated_by: NestedPersonRead
-    type: EntityType | None = None
-    assets: list[AssetRead] = Field(..., title='Assets')
-    authorized_project_id: UUID4 = Field(..., title='Authorized Project Id')
-    authorized_public: bool = Field(default=False, title='Authorized Public')
-    license: LicenseRead | None = None
-    id: UUID = Field(..., title='Id')
-    creation_date: AwareDatetime = Field(..., title='Creation Date')
-    update_date: AwareDatetime = Field(..., title='Update Date')
-    name: str = Field(..., title='Name')
-    description: str = Field(..., title='Description')
-    location: PointLocationBase | None = None
-    legacy_id: list[str] | None = Field(..., title='Legacy Id')
-    species: NestedSpeciesRead
-    strain: NestedStrainRead | None = None
-    brain_region: BrainRegionRead
-    mtypes: list[AnnotationRead] | None = Field(..., title='Mtypes')
 
 
 class SimulationCampaignRead(BaseModel):
@@ -7828,6 +8299,38 @@ class CellCompositionRead(BaseModel):
     update_date: AwareDatetime = Field(..., title='Update Date')
     name: str = Field(..., title='Name')
     description: str = Field(..., title='Description')
+
+
+class CellMorphologyProtocolCreate(
+    RootModel[
+        DigitalReconstructionCellMorphologyProtocolCreate
+        | ModifiedReconstructionCellMorphologyProtocolCreate
+        | ComputationallySynthesizedCellMorphologyProtocolCreate
+        | PlaceholderCellMorphologyProtocolCreate
+    ]
+):
+    root: (
+        DigitalReconstructionCellMorphologyProtocolCreate
+        | ModifiedReconstructionCellMorphologyProtocolCreate
+        | ComputationallySynthesizedCellMorphologyProtocolCreate
+        | PlaceholderCellMorphologyProtocolCreate
+    ) = Field(..., discriminator='generation_type')
+
+
+class CellMorphologyProtocolRead(
+    RootModel[
+        DigitalReconstructionCellMorphologyProtocolRead
+        | ModifiedReconstructionCellMorphologyProtocolRead
+        | ComputationallySynthesizedCellMorphologyProtocolRead
+        | PlaceholderCellMorphologyProtocolRead
+    ]
+):
+    root: (
+        DigitalReconstructionCellMorphologyProtocolRead
+        | ModifiedReconstructionCellMorphologyProtocolRead
+        | ComputationallySynthesizedCellMorphologyProtocolRead
+        | PlaceholderCellMorphologyProtocolRead
+    ) = Field(..., discriminator='generation_type')
 
 
 class CircuitRead(BaseModel):
@@ -8364,6 +8867,15 @@ class ListResponseCellCompositionRead(BaseModel):
     facets: Facets | None = None
 
 
+class ListResponseCellMorphologyProtocolRead(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
+    data: list[CellMorphologyProtocolRead] = Field(..., title='Data')
+    pagination: PaginationResponse
+    facets: Facets | None = None
+
+
 class ListResponseCircuitRead(BaseModel):
     model_config = ConfigDict(
         extra='allow',
@@ -8463,15 +8975,6 @@ class ListResponseMTypeClassificationRead(BaseModel):
     facets: Facets | None = None
 
 
-class ListResponseReconstructionMorphologyRead(BaseModel):
-    model_config = ConfigDict(
-        extra='allow',
-    )
-    data: list[ReconstructionMorphologyRead] = Field(..., title='Data')
-    pagination: PaginationResponse
-    facets: Facets | None = None
-
-
 class ListResponseSimulationCampaignRead(BaseModel):
     model_config = ConfigDict(
         extra='allow',
@@ -8544,36 +9047,6 @@ class ListResponseValidationResultRead(BaseModel):
     facets: Facets | None = None
 
 
-class MEModelRead(BaseModel):
-    model_config = ConfigDict(
-        extra='allow',
-    )
-    contributions: list[NestedContributionRead] | None = Field(
-        ..., title='Contributions'
-    )
-    created_by: NestedPersonRead
-    updated_by: NestedPersonRead
-    type: EntityType | None = None
-    authorized_project_id: UUID4 = Field(..., title='Authorized Project Id')
-    authorized_public: bool = Field(default=False, title='Authorized Public')
-    creation_date: AwareDatetime = Field(..., title='Creation Date')
-    update_date: AwareDatetime = Field(..., title='Update Date')
-    name: str = Field(..., title='Name')
-    description: str = Field(..., title='Description')
-    validation_status: ValidationStatus = Field(
-        default_factory=lambda: ValidationStatus.model_validate('created')
-    )
-    id: UUID = Field(..., title='Id')
-    species: NestedSpeciesRead
-    strain: NestedStrainRead | None = None
-    brain_region: BrainRegionRead
-    mtypes: list[AnnotationRead] | None = Field(..., title='Mtypes')
-    etypes: list[AnnotationRead] | None = Field(..., title='Etypes')
-    morphology: ReconstructionMorphologyRead
-    emodel: EModelRead
-    calibration_result: MEModelCalibrationResultRead | None = None
-
-
 class MeasurementAnnotationAdminUpdate(BaseModel):
     model_config = ConfigDict(
         extra='allow',
@@ -8611,42 +9084,81 @@ class MeasurementAnnotationRead(BaseModel):
 MeasurementAnnotationUserUpdate = MeasurementAnnotationAdminUpdate
 
 
-class ReconstructionMorphologyAnnotationExpandedRead(BaseModel):
+class NestedCellMorphologyProtocolRead(
+    RootModel[
+        NestedDigitalReconstructionCellMorphologyProtocolRead
+        | NestedModifiedReconstructionCellMorphologyProtocolRead
+        | NestedComputationallySynthesizedCellMorphologyProtocolRead
+        | NestedPlaceholderCellMorphologyProtocolRead
+    ]
+):
+    root: (
+        NestedDigitalReconstructionCellMorphologyProtocolRead
+        | NestedModifiedReconstructionCellMorphologyProtocolRead
+        | NestedComputationallySynthesizedCellMorphologyProtocolRead
+        | NestedPlaceholderCellMorphologyProtocolRead
+    ) = Field(..., discriminator='generation_type')
+
+
+class CellMorphologyAnnotationExpandedRead(BaseModel):
     model_config = ConfigDict(
         extra='allow',
     )
     contributions: list[NestedContributionRead] | None = Field(
         ..., title='Contributions'
     )
-    created_by: NestedPersonRead
-    updated_by: NestedPersonRead
-    type: EntityType | None = None
     assets: list[AssetRead] = Field(..., title='Assets')
-    authorized_project_id: UUID4 = Field(..., title='Authorized Project Id')
-    authorized_public: bool = Field(default=False, title='Authorized Public')
     license: LicenseRead | None = None
-    id: UUID = Field(..., title='Id')
     creation_date: AwareDatetime = Field(..., title='Creation Date')
     update_date: AwareDatetime = Field(..., title='Update Date')
+    created_by: NestedPersonRead
+    updated_by: NestedPersonRead
+    brain_region: BrainRegionRead
+    subject: NestedSubjectRead
+    authorized_project_id: UUID4 = Field(..., title='Authorized Project Id')
+    authorized_public: bool = Field(default=False, title='Authorized Public')
+    type: EntityType | None = None
+    id: UUID = Field(..., title='Id')
+    experiment_date: AwareDatetime | None = Field(default=None, title='Experiment Date')
+    contact_email: str | None = Field(default=None, title='Contact Email')
+    published_in: str | None = Field(default=None, title='Published In')
     name: str = Field(..., title='Name')
     description: str = Field(..., title='Description')
     location: PointLocationBase | None = None
-    legacy_id: list[str] | None = Field(..., title='Legacy Id')
-    species: NestedSpeciesRead
-    strain: NestedStrainRead | None = None
-    brain_region: BrainRegionRead
+    legacy_id: list[str] | None = Field(default=None, title='Legacy Id')
     mtypes: list[AnnotationRead] | None = Field(..., title='Mtypes')
+    cell_morphology_protocol: NestedCellMorphologyProtocolRead | None = None
     measurement_annotation: MeasurementAnnotationRead | None = None
 
 
-class ReadOneReconstructionMorphologyIdGetResponse(
-    RootModel[
-        ReconstructionMorphologyRead | ReconstructionMorphologyAnnotationExpandedRead
-    ]
-):
-    root: (
-        ReconstructionMorphologyRead | ReconstructionMorphologyAnnotationExpandedRead
-    ) = Field(..., title='Response Read One Reconstruction Morphology  Id   Get')
+class CellMorphologyRead(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
+    contributions: list[NestedContributionRead] | None = Field(
+        ..., title='Contributions'
+    )
+    assets: list[AssetRead] = Field(..., title='Assets')
+    license: LicenseRead | None = None
+    creation_date: AwareDatetime = Field(..., title='Creation Date')
+    update_date: AwareDatetime = Field(..., title='Update Date')
+    created_by: NestedPersonRead
+    updated_by: NestedPersonRead
+    brain_region: BrainRegionRead
+    subject: NestedSubjectRead
+    authorized_project_id: UUID4 = Field(..., title='Authorized Project Id')
+    authorized_public: bool = Field(default=False, title='Authorized Public')
+    type: EntityType | None = None
+    id: UUID = Field(..., title='Id')
+    experiment_date: AwareDatetime | None = Field(default=None, title='Experiment Date')
+    contact_email: str | None = Field(default=None, title='Contact Email')
+    published_in: str | None = Field(default=None, title='Published In')
+    name: str = Field(..., title='Name')
+    description: str = Field(..., title='Description')
+    location: PointLocationBase | None = None
+    legacy_id: list[str] | None = Field(default=None, title='Legacy Id')
+    mtypes: list[AnnotationRead] | None = Field(..., title='Mtypes')
+    cell_morphology_protocol: NestedCellMorphologyProtocolRead | None = None
 
 
 class EModelReadExpanded(BaseModel):
@@ -8681,6 +9193,15 @@ class EModelReadExpanded(BaseModel):
     )
 
 
+class ListResponseCellMorphologyRead(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
+    data: list[CellMorphologyRead] = Field(..., title='Data')
+    pagination: PaginationResponse
+    facets: Facets | None = None
+
+
 class ListResponseEModelReadExpanded(BaseModel):
     model_config = ConfigDict(
         extra='allow',
@@ -8690,20 +9211,58 @@ class ListResponseEModelReadExpanded(BaseModel):
     facets: Facets | None = None
 
 
-class ListResponseMEModelRead(BaseModel):
-    model_config = ConfigDict(
-        extra='allow',
-    )
-    data: list[MEModelRead] = Field(..., title='Data')
-    pagination: PaginationResponse
-    facets: Facets | None = None
-
-
 class ListResponseMeasurementAnnotationRead(BaseModel):
     model_config = ConfigDict(
         extra='allow',
     )
     data: list[MeasurementAnnotationRead] = Field(..., title='Data')
+    pagination: PaginationResponse
+    facets: Facets | None = None
+
+
+class MEModelRead(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
+    contributions: list[NestedContributionRead] | None = Field(
+        ..., title='Contributions'
+    )
+    created_by: NestedPersonRead
+    updated_by: NestedPersonRead
+    type: EntityType | None = None
+    authorized_project_id: UUID4 = Field(..., title='Authorized Project Id')
+    authorized_public: bool = Field(default=False, title='Authorized Public')
+    creation_date: AwareDatetime = Field(..., title='Creation Date')
+    update_date: AwareDatetime = Field(..., title='Update Date')
+    name: str = Field(..., title='Name')
+    description: str = Field(..., title='Description')
+    validation_status: ValidationStatus = Field(
+        default_factory=lambda: ValidationStatus.model_validate('created')
+    )
+    id: UUID = Field(..., title='Id')
+    species: NestedSpeciesRead
+    strain: NestedStrainRead | None = None
+    brain_region: BrainRegionRead
+    mtypes: list[AnnotationRead] | None = Field(..., title='Mtypes')
+    etypes: list[AnnotationRead] | None = Field(..., title='Etypes')
+    morphology: CellMorphologyRead
+    emodel: EModelRead
+    calibration_result: MEModelCalibrationResultRead | None = None
+
+
+class ReadOneCellMorphologyIdGetResponse(
+    RootModel[CellMorphologyRead | CellMorphologyAnnotationExpandedRead]
+):
+    root: CellMorphologyRead | CellMorphologyAnnotationExpandedRead = Field(
+        ..., title='Response Read One Cell Morphology  Id   Get'
+    )
+
+
+class ListResponseMEModelRead(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
+    data: list[MEModelRead] = Field(..., title='Data')
     pagination: PaginationResponse
     facets: Facets | None = None
 
