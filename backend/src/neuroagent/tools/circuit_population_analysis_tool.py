@@ -51,6 +51,14 @@ class CircuitPopulationAnalysisOutput(BaseModel):
     query_executed: str
 
 
+class SQLStatement(BaseModel):
+    """Output class for the structured output."""
+
+    sql_statement: str = Field(
+        description="SQL statement that must be executed to analyze the circuit population"
+    )
+
+
 class CircuitPopulationAnalysisTool(BaseTool):
     """Class defining the CircuitPopulationAnalysis tool."""
 
@@ -287,26 +295,21 @@ Generate the SQL query to analyze the neuron population:"""
                 # Get SQL from OpenAI
                 model = "gpt-4o-mini"
 
-                response = await self.metadata.openai_client.chat.completions.create(
-                    model=model,
-                    messages=[
-                        {"role": "system", "content": system_prompt},
-                        {"role": "user", "content": user_prompt},
-                    ],
+                response = (
+                    await self.metadata.openai_client.beta.chat.completions.parse(
+                        model=model,
+                        messages=[
+                            {"role": "system", "content": system_prompt},
+                            {"role": "user", "content": user_prompt},
+                        ],
+                        response_format=SQLStatement,
+                    )
                 )
 
-                if response.choices[0].message.content:
-                    sql = response.choices[0].message.content.strip()
+                if response.choices[0].message.parsed:
+                    sql = response.choices[0].message.parsed.sql_statement
                 else:
-                    raise ValueError("No content in chat completion.")
-
-                # Clean up response (remove markdown if present)
-                if "```" in sql:
-                    parts = sql.split("```")
-                    for part in parts:
-                        if "SELECT" in part.upper():
-                            sql = part.replace("sql", "").strip()
-                            break
+                    raise ValueError("Couldn't generate SQL statement.")
 
                 # Security check
                 if not self._is_safe_sql(sql):
