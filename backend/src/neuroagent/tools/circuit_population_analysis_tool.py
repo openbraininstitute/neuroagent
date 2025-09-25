@@ -1,8 +1,9 @@
 """Tool to analyze circuit population Frames using natural language queries."""
 
-import os
+import logging
 import tarfile
 import tempfile
+from pathlib import Path
 from typing import ClassVar
 from uuid import UUID
 
@@ -15,6 +16,8 @@ from pydantic import BaseModel, Field
 
 from neuroagent.tools.base_tool import BaseTool, EntitycoreMetadata
 from neuroagent.utils import get_token_count
+
+logger = logging.getLogger(__name__)
 
 
 class CircuitPopulationAnalysisInput(BaseModel):
@@ -93,7 +96,7 @@ Ask questions like "What is the most common morphological type?", "How many exci
     metadata: CircuitPopulationAnalysisMetadata
     input_schema: CircuitPopulationAnalysisInput
 
-    async def _download_and_extract_circuit(self, temp_dir: str) -> str:
+    async def _download_and_extract_circuit(self, temp_dir: str) -> Path:
         """Download and extract circuit data, return path to config file."""
         # Get pre-signed url
         headers: dict[str, str] = {}
@@ -114,11 +117,11 @@ Ask questions like "What is the most common morphological type?", "How many exci
         presigned_url = response.headers["location"]
 
         # Download the .gz file
-        print("DOWNLOADING FILE")
-        os.makedirs(temp_dir, exist_ok=True)
-        download_path = os.path.join(temp_dir, "circuit_data.gz")
-        extract_dir = os.path.join(temp_dir, "extracted")
-        os.makedirs(extract_dir, exist_ok=True)
+        logger.info("Downloading circuit.")
+        Path(temp_dir).mkdir(parents=True, exist_ok=True)
+        download_path = Path(temp_dir) / "circuit_data.gz"
+        extract_dir = Path(temp_dir) / "extracted"
+        Path(extract_dir).mkdir(parents=True, exist_ok=True)
 
         # Stream the presigned URL to disk to avoid large memory usage
         client = AsyncClient()
@@ -127,12 +130,8 @@ Ask questions like "What is the most common morphological type?", "How many exci
         with open(download_path, "wb") as fw:
             fw.write(download_resp.content)
 
-        download_path = os.path.join(temp_dir, "circuit_data.gz")
-
         # Extract the .gz file
-        print("EXTRACTING FILE")
-        extract_dir = os.path.join(temp_dir, "extracted")
-        os.makedirs(extract_dir, exist_ok=True)
+        logger.info("Extracting file.")
 
         with tarfile.open(download_path, "r:gz") as tar_ref:
             # Determine the root folder
@@ -141,13 +140,13 @@ Ask questions like "What is the most common morphological type?", "How many exci
             tar_ref.extractall(extract_dir)
 
         if root_folder:
-            config_path = os.path.join(extract_dir, root_folder, "circuit_config.json")
+            config_path = Path(extract_dir) / root_folder / "circuit_config.json"
         else:
             raise ValueError("no dir found")
 
         return config_path
 
-    def _load_circuit_population_data(self, circuit_config_path: str) -> DataFrame:
+    def _load_circuit_population_data(self, circuit_config_path: Path) -> DataFrame:
         """Load circuit population data and return the neuron dataframe."""
         circuit = bluepysnap.Circuit(circuit_config_path)
         nodes = circuit.nodes.get()
