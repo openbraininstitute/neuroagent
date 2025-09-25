@@ -10,7 +10,7 @@
   "notebooks": "## Notebooks Page\nScientific data management with searchable, sortable tables for computational neuroscience research.",
   "explore": "## Explore Section\n3D brain atlas interface with hierarchical region selector on the left sidebar, neuron counts, and data visualization.",
   "explore-morphology": "## Explore Morphology List Page\nNeuron morphology browser with hierarchical regions, preview diagrams, and specimen metadata.",
-  "explore-morphology-details": "## Morphology Details Page\nDetailed view of individual morphology reconstructions with 3D visualization and metadata.",
+  "explore-morphology-details": "## Morphology Details Page\nDetailed view of individual morphology cells with 3D visualization and metadata.",
   "explore-electrophysiology": "## Electrophysiology List Page\nElectrophysiology data browser with chart previews and filtering by brain region.",
   "explore-electrophysiology-details": "## Electrophysiology Details Page\nDetailed electrophysiology viewer with stimulus-response plots and interactive analysis.",
   "explore-neuron-density": "## Neuron Density List Page\nNeuron density data table with morphology types, measurements, and contributor information.",

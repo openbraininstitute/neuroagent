@@ -91,7 +91,7 @@ class PlotMorphologyGetOneTool(BaseTool):
 
         response = await self.metadata.httpx_client.get(
             url=self.metadata.thumbnail_generation_url.rstrip("/")
-            + "/core/reconstruction-morphology/preview",
+            + "/core/cell-morphology/preview",
             headers=headers,
             params=self.input_schema.model_dump(exclude_defaults=True, mode="json"),
         )

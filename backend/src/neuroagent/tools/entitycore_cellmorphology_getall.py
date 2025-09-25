@@ -1,4 +1,4 @@
-"""Get All Reconstruction Morphologies tool."""
+"""Get All Cell Morphologies tool."""
 
 from typing import ClassVar
 from uuid import UUID
@@ -15,7 +15,7 @@ from neuroagent.tools.base_tool import BaseTool, EntitycoreMetadata
 
 
 class CellMorphologyGetAllInput(ReadManyCellMorphologyGetParametersQuery):
-    """Inputs for the reconstruction morphology get all tool."""
+    """Inputs for the cell morphology get all tool."""
 
     brain_region__id: SkipJsonSchema[None] = Field(default=None, exclude=True)
     brain_region__id__in: SkipJsonSchema[None] = Field(default=None, exclude=True)
@@ -36,26 +36,26 @@ class CellMorphologyGetAllInput(ReadManyCellMorphologyGetParametersQuery):
 
 
 class CellMorphologyGetAllTool(BaseTool):
-    """Class defining the Get All Reconstruction Morphology logic."""
+    """Class defining the Get All Cell Morphology logic."""
 
     name: ClassVar[str] = "entitycore-cellmorphology-getall"
     name_frontend: ClassVar[str] = "Get All Cell Morphologies"
     utterances: ClassVar[list[str]] = [
         "Find a morphology in the isocortex and give me its features",
-        "Find reconstruction morphologies",
-        "Show me available reconstruction morphologies",
-        "What reconstruction morphologies are there?",
+        "Find cell morphologies",
+        "Show me available cell morphologies",
+        "What cell morphologies are there?",
     ]
     description: ClassVar[
         str
-    ] = """Searches the entitycore database to retrieve reconstruction morphologies.
-    The output is a list of reconstruction morphologies, containing:
+    ] = """Searches the entitycore database to retrieve cell morphologies.
+    The output is a list of cell morphologies, containing:
     - The brain region ID.
     - The brain region name.
     - The subject species name.
-    - The reconstruction morphology ID.
-    - The reconstruction morphology name.
-    - The reconstruction morphology description.
+    - The cell morphology ID.
+    - The cell morphology name.
+    - The cell morphology description.
     - The measurements.
     - The mtypes.
     - Any additional metadata.
@@ -64,7 +64,7 @@ class CellMorphologyGetAllTool(BaseTool):
     """
     description_frontend: ClassVar[
         str
-    ] = """Search and retrieve reconstruction morphologies. Use this tool to:
+    ] = """Search and retrieve cell morphologies. Use this tool to:
     • Find morphologies in specific brain regions
     • Filter by subject and species
     • Access detailed morphology data

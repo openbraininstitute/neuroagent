@@ -1,4 +1,4 @@
-"""Get One Reconstruction Morphology tool."""
+"""Get One Cell Morphology tool."""
 
 from typing import ClassVar
 from uuid import UUID
@@ -21,18 +21,18 @@ class CellMorphologyGetOneInput(BaseModel):
 
 
 class CellMorphologyGetOneTool(BaseTool):
-    """Class defining the Get One Reconstruction Morphology logic."""
+    """Class defining the Get One Cell Morphology logic."""
 
     name: ClassVar[str] = "entitycore-cellmorphology-getone"
-    name_frontend: ClassVar[str] = "Get One Reconstruction Morphology"
+    name_frontend: ClassVar[str] = "Get One Cell Morphology"
     utterances: ClassVar[list[str]] = [
-        "Get details for this reconstruction morphology",
-        "Show me information about this reconstruction morphology",
-        "What are the properties of this reconstruction morphology?",
+        "Get details for this cell morphology",
+        "Show me information about this cell morphology",
+        "What are the properties of this cell morphology?",
     ]
     description: ClassVar[
         str
-    ] = """Retrieves detailed information about a specific reconstruction morphology from the knowledge graph.
+    ] = """Retrieves detailed information about a specific cell morphology from the knowledge graph.
     Requires a 'morphology_id' which is the ID of the morphology of interest as registered in the knowledge graph.
     The output contains detailed information about the morphology, including:
     - The morphology ID
@@ -48,7 +48,7 @@ class CellMorphologyGetOneTool(BaseTool):
     """
     description_frontend: ClassVar[
         str
-    ] = """Get detailed information about a specific reconstruction morphology. Use this tool to:
+    ] = """Get detailed information about a specific cell morphology. Use this tool to:
     • View complete morphology details
     • Access associated metadata
     • Get brain region and subject information
