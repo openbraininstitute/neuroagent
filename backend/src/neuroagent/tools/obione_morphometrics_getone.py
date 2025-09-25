@@ -21,7 +21,7 @@ class MorphometricsGetOneInputs(
 ):
     """Input class of the ObiOne Morphometrics tool."""
 
-    morphology_id: str = Field(
+    morphology_id: UUID = Field(
         description="Id of the morphology from which features must be computed."
     )
 
