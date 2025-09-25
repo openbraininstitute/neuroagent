@@ -25,7 +25,7 @@ class CircuitPopulationAnalysisInput(BaseModel):
 
     circuit_id: UUID = Field(description="ID of the circuit.")
     sonata_asset_id: UUID = Field(
-        description="ID of the COMPRESSED sonata_circuit. Take the `circuit.gz`, NOT THE DIRECTORY. Can be obtained by the `circuit-get-one` tool or the `get_asset` tool."
+        description="ID of the COMPRESSED sonata_circuit. Take the `circuit.gz`, NOT THE DIRECTORY. Can be obtained by the `entitycore-circuit-getone` tool or the `entitycore-asset-getall` tool."
     )
     population_name: str = Field(
         default="S1nonbarrel_neurons",
@@ -157,7 +157,8 @@ Ask questions like "What is the most common morphological type?", "How many exci
 
         raise RuntimeError("Circuit population not found.")
 
-    def _is_safe_sql(self, sql: str) -> bool:
+    @staticmethod
+    def _is_safe_sql(sql: str) -> bool:
         """Check if SQL is safe (only SELECT queries)."""
         sql_upper = sql.upper().strip()
         dangerous = ["DROP", "DELETE", "INSERT", "UPDATE", "CREATE", "ALTER", "EXEC"]
