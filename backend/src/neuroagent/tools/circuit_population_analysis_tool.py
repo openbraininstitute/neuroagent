@@ -24,9 +24,6 @@ class CircuitPopulationAnalysisInput(BaseModel):
     """Inputs of the CircuitPopulationAnalysis tool."""
 
     circuit_id: UUID = Field(description="ID of the circuit.")
-    # sonata_asset_id: UUID = Field(
-    #     description="ID of the COMPRESSED sonata_circuit. Take the `circuit.gz`, NOT THE DIRECTORY. Can be obtained by the `entitycore-circuit-getone` tool or the `entitycore-asset-getall` tool."
-    # )
     population_name: str = Field(
         default="S1nonbarrel_neurons",
         description="Name of the circuit's population of interest.",
