@@ -712,8 +712,6 @@ class EntityRoute(
             'me-type-density',
             'simulation',
             'simulation-campaign',
-            'simulation-campaign-generation',
-            'simulation-execution',
             'simulation-result',
             'scientific-artifact',
             'single-neuron-simulation',
@@ -750,8 +748,6 @@ class EntityRoute(
         'me-type-density',
         'simulation',
         'simulation-campaign',
-        'simulation-campaign-generation',
-        'simulation-execution',
         'simulation-result',
         'scientific-artifact',
         'single-neuron-simulation',
@@ -790,8 +786,6 @@ class EntityType(
             'me_type_density',
             'simulation',
             'simulation_campaign',
-            'simulation_campaign_generation',
-            'simulation_execution',
             'simulation_result',
             'scientific_artifact',
             'single_neuron_simulation',
@@ -828,8 +822,6 @@ class EntityType(
         'me_type_density',
         'simulation',
         'simulation_campaign',
-        'simulation_campaign_generation',
-        'simulation_execution',
         'simulation_result',
         'scientific_artifact',
         'single_neuron_simulation',
@@ -1685,6 +1677,7 @@ class ResourceRoute(
             'brain-atlas-region',
             'brain-region',
             'brain-region-hierarchy',
+            'calibration',
             'cell-composition',
             'cell-morphology',
             'cell-morphology-protocol',
@@ -1724,8 +1717,8 @@ class ResourceRoute(
             'scientific-artifact-publication-link',
             'simulation',
             'simulation-campaign',
-            'simulation-campaign-generation',
             'simulation-execution',
+            'simulation-generation',
             'simulation-result',
             'single-neuron-simulation',
             'single-neuron-synaptome',
@@ -1733,6 +1726,7 @@ class ResourceRoute(
             'species',
             'strain',
             'subject',
+            'validation',
             'validation-result',
         ]
     ]
@@ -1743,6 +1737,7 @@ class ResourceRoute(
         'brain-atlas-region',
         'brain-region',
         'brain-region-hierarchy',
+        'calibration',
         'cell-composition',
         'cell-morphology',
         'cell-morphology-protocol',
@@ -1782,8 +1777,8 @@ class ResourceRoute(
         'scientific-artifact-publication-link',
         'simulation',
         'simulation-campaign',
-        'simulation-campaign-generation',
         'simulation-execution',
+        'simulation-generation',
         'simulation-result',
         'single-neuron-simulation',
         'single-neuron-synaptome',
@@ -1791,6 +1786,7 @@ class ResourceRoute(
         'species',
         'strain',
         'subject',
+        'validation',
         'validation-result',
     ] = Field(..., title='ResourceRoute')
 
@@ -4730,9 +4726,12 @@ class ReadManyIonChannelRecordingGetParametersQuery(BaseModel):
     )
 
 
-ReadManyLicenseGetParametersQuery = (
-    GetEntityAssetsAdminEntityRouteEntityIdAssetsGetParametersQuery
-)
+class ReadManyLicenseGetParametersQuery(BaseModel):
+    page: int = Field(default=1, ge=1, title='Page')
+    page_size: int = Field(default=100, ge=1, title='Page Size')
+    name: str | None = Field(default=None, title='Name')
+    label: str | None = Field(default=None, title='Label')
+    order_by: list[str] = Field(default=['-creation_date'], title='Order By')
 
 
 class ReadManyMeasurementAnnotationGetParametersQuery(BaseModel):
@@ -5251,9 +5250,12 @@ class ReadManyPublicationGetParametersQuery(BaseModel):
     )
 
 
-ReadManyRoleGetParametersQuery = (
-    GetEntityAssetsAdminEntityRouteEntityIdAssetsGetParametersQuery
-)
+class ReadManyRoleGetParametersQuery(BaseModel):
+    page: int = Field(default=1, ge=1, title='Page')
+    page_size: int = Field(default=100, ge=1, title='Page Size')
+    name: str | None = Field(default=None, title='Name')
+    role_id: str | None = Field(default=None, title='Role Id')
+    order_by: list[str] = Field(default=['-creation_date'], title='Order By')
 
 
 class ReadManyScientificArtifactExternalUrlLinkGetParametersQuery(BaseModel):
