@@ -24,9 +24,9 @@ class CircuitPopulationAnalysisInput(BaseModel):
     """Inputs of the CircuitPopulationAnalysis tool."""
 
     circuit_id: UUID = Field(description="ID of the circuit.")
-    sonata_asset_id: UUID = Field(
-        description="ID of the COMPRESSED sonata_circuit. Take the `circuit.gz`, NOT THE DIRECTORY. Can be obtained by the `entitycore-circuit-getone` tool or the `entitycore-asset-getall` tool."
-    )
+    # sonata_asset_id: UUID = Field(
+    #     description="ID of the COMPRESSED sonata_circuit. Take the `circuit.gz`, NOT THE DIRECTORY. Can be obtained by the `entitycore-circuit-getone` tool or the `entitycore-asset-getall` tool."
+    # )
     population_name: str = Field(
         default="S1nonbarrel_neurons",
         description="Name of the circuit's population of interest.",
@@ -91,7 +91,6 @@ morphological classifications, and circuit organization principles.
 
 Input:
 - circuit_id: UUID of the circuit
-- sonata_asset_id: UUID of the compressed sonata circuit data
 - population_name: Name of the neural population to analyze, it will only keep this particular population.
 - question: A natural language question about the neurons in the population, DO NOT MENTION the population name in the question.
 
@@ -107,7 +106,7 @@ Ask questions like "What is the most common morphological type?", "How many exci
 
     async def _download_and_extract_circuit(self, temp_dir: str) -> Path:
         """Download and extract circuit data, return path to config file."""
-        # Get pre-signed url
+        # Find the `circuit.gz` sonata asset
         headers: dict[str, str] = {}
         if self.metadata.vlab_id is not None:
             headers["virtual-lab-id"] = str(self.metadata.vlab_id)
@@ -115,7 +114,29 @@ Ask questions like "What is the most common morphological type?", "How many exci
             headers["project-id"] = str(self.metadata.project_id)
 
         response = await self.metadata.httpx_client.get(
-            url=f"{self.metadata.entitycore_url.rstrip('/')}/circuit/{self.input_schema.circuit_id}/assets/{self.input_schema.sonata_asset_id}/download",
+            url=self.metadata.entitycore_url.rstrip("/")
+            + f"/circuit/{self.input_schema.circuit_id}",
+            headers=headers,
+        )
+        if response.status_code != 200:
+            raise ValueError(
+                f"The circuit get one endpoint returned a non 200 response code. Error: {response.text}"
+            )
+
+        # Retrieve relevant asset's id
+        assets = response.json()["assets"]
+        circuit_gz_asset = next(
+            (asset for asset in assets if asset["path"] == "circuit.gz"), None
+        )
+        if not circuit_gz_asset:
+            raise ValueError(
+                f"Circuit {self.input_schema.circuit_id} doesn't have a 'circuit.gz' file to download."
+            )
+        sonata_asset_id = circuit_gz_asset["id"]
+
+        # Get pre-signed url
+        response = await self.metadata.httpx_client.get(
+            url=f"{self.metadata.entitycore_url.rstrip('/')}/circuit/{self.input_schema.circuit_id}/assets/{sonata_asset_id}/download",
             headers=headers,
             follow_redirects=False,
         )
