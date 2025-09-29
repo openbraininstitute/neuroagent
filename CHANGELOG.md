@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - `url_link` in tools that retrieve explore data.
+- Remove `sonata_asset_id` from circuit analysis tool dependency.
 
 ## [v0.9.2] - 25.09.2025
 
