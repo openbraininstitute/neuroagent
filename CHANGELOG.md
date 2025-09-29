@@ -10,6 +10,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Made the context analyzer an url analyzer instead.
 
+### Fixed
+- `url_link` in tools that retrieve explore data.
+
 ## [v0.9.2] - 25.09.2025
 
 ### Added
