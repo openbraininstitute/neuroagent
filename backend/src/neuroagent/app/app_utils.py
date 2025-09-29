@@ -2,6 +2,7 @@
 
 import json
 import logging
+import time
 import uuid
 from typing import Any, Literal, Sequence
 
@@ -491,6 +492,7 @@ AVAILABLE TOOLS:
     try:
         # Send the OpenAI request
         model = "gpt-4o-mini"
+        start_request = time.time()
         response = await openai_client.beta.chat.completions.parse(
             messages=[{"role": "system", "content": system_prompt}, *openai_messages],  # type: ignore
             model=model,
@@ -503,7 +505,7 @@ AVAILABLE TOOLS:
                 set(response.choices[0].message.parsed.selected_tools)
             )
             logger.debug(
-                f"#TOOLS: {len(selected_tools)}, SELECTED TOOLS: {selected_tools}"
+                f"#TOOLS: {len(selected_tools)}, SELECTED TOOLS: {selected_tools} in {(time.time() - start_request):.2f} s"
             )
 
             # Add selected tools into the message's data
