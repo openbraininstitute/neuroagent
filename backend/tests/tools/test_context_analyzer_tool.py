@@ -200,3 +200,63 @@ async def test_no_matching_entity_type():
 
     assert result.observed_entity_type is None
     assert result.raw_path == "unknown-route"
+
+
+@pytest.mark.asyncio
+async def test_url_with_multiple_uuid():
+    """Test URL parsing with entity ID."""
+    url = "https://example.com/app/virtual-lab/a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c5d/b2c3d4e5-f6a7-4b5c-9d0e-1f2a3b4c5d6e/cell-morphology/c3d4e5f6-a7b8-4c5d-0e1f-2a3b4c5d6e7f/a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c5d"
+
+    tool = ContextAnalyzerTool(
+        metadata=ContextAnalyzerMetdata(current_frontend_url=url),
+        input_schema=ContextAnalyzerInput(),
+    )
+
+    result = await tool.arun()
+
+    assert (
+        result.raw_path
+        == "cell-morphology/c3d4e5f6-a7b8-4c5d-0e1f-2a3b4c5d6e7f/a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c5d"
+    )
+    assert result.observed_entity_type == "cell-morphology"
+    assert str(result.current_entity_id) == "c3d4e5f6-a7b8-4c5d-0e1f-2a3b4c5d6e7f"
+
+
+@pytest.mark.asyncio
+async def test_url_with_simulation():
+    """Test URL parsing with entity ID."""
+    url = "https://example.com/app/virtual-lab/a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c5d/b2c3d4e5-f6a7-4b5c-9d0e-1f2a3b4c5d6e/small-microcircuit-simulation?br_id=4642cddb-4fbe-4aae-bbf7-0946d6ada066&br_av=8&group=simulations&view=flat"
+
+    tool = ContextAnalyzerTool(
+        metadata=ContextAnalyzerMetdata(current_frontend_url=url),
+        input_schema=ContextAnalyzerInput(),
+    )
+
+    result = await tool.arun()
+
+    assert result.raw_path == "small-microcircuit-simulation"
+    assert result.observed_entity_type == "simulation-campaign"
+    assert result.current_entity_id is None
+    assert result.query_params["br_id"] == ["4642cddb-4fbe-4aae-bbf7-0946d6ada066"]
+    assert result.query_params["br_av"] == ["8"]
+    assert result.query_params["group"] == ["simulations"]
+    assert result.query_params["view"] == ["flat"]
+    assert result.query_params["circuit__scale"] == ["small"]
+
+    url = "https://example.com/app/virtual-lab/a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c5d/b2c3d4e5-f6a7-4b5c-9d0e-1f2a3b4c5d6e/paired-neuron-circuit-simulation?br_id=4642cddb-4fbe-4aae-bbf7-0946d6ada066&br_av=8&group=simulations&view=flat"
+
+    tool = ContextAnalyzerTool(
+        metadata=ContextAnalyzerMetdata(current_frontend_url=url),
+        input_schema=ContextAnalyzerInput(),
+    )
+
+    result = await tool.arun()
+
+    assert result.raw_path == "paired-neuron-circuit-simulation"
+    assert result.observed_entity_type == "simulation-campaign"
+    assert result.current_entity_id is None
+    assert result.query_params["br_id"] == ["4642cddb-4fbe-4aae-bbf7-0946d6ada066"]
+    assert result.query_params["br_av"] == ["8"]
+    assert result.query_params["group"] == ["simulations"]
+    assert result.query_params["view"] == ["flat"]
+    assert result.query_params["circuit__scale"] == ["pair"]

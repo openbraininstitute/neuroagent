@@ -42,16 +42,19 @@ def is_uuid(string: str) -> bool:
 class ContextAnalyzerTool(BaseTool):
     """Class for the context analyzer tool."""
 
-    name: ClassVar[str] = "url-analyzer-tool"
-    name_frontend: ClassVar[str] = "Url Analyzer"
+    name: ClassVar[str] = "context-analyzer-tool"
+    name_frontend: ClassVar[str] = "Context Analyzer"
     utterances: ClassVar[list[str]] = [
         "What can I do here?",
         "Can you get me more info about the second morphology on screen",
         "What do I see on the current page ?",
+        "Compute the morphometrics of this morphology."
+        "Generate a simulation config for this circuit.",
     ]
     description: ClassVar[
         str
-    ] = """Extracts relevant info from the url of the page the user is on. Call this tool when you need to get context for the user request.
+    ] = """Extracts relevant info from the url of the page the user is on. Lets you know which entity the user is currently viewing.
+    Call this tool when you need to get context for the user request. It is fine to call it just in case "to be sure".
     If the user has a vague question about the website USE THIS TOOL. ALWAYS treat the values from this tool as obsolete and call the tool again."""
     description_frontend: ClassVar[str] = (
         """Allows to get the current page the user is navigating. This allows the Agent to help the user navigate the website."""
@@ -73,33 +76,51 @@ class ContextAnalyzerTool(BaseTool):
         query_params = parse_qs(parsed_url.query)
 
         # Remove the base path and split into components
-        path: str = parsed_url.path
+        path: str = parsed_url.path.lstrip("/")
 
-        if not path.lstrip("/").startswith("app/virtual-lab/"):
+        if not path.startswith("app/virtual-lab/"):
             raise ValueError("Invalid URL")
 
         # Variable path
         # [4:] skips 'app/virtual-lab/{vlab_id}/{proj_id}'
-        current_page = path.lstrip("/").split("/")[4:]
+        current_page = path.split("/")[4:]
 
-        observed_entity_type = next(
-            (
-                route
-                for route in reversed(current_page)
-                if route in get_args(EntityRoute.model_fields["root"].annotation)
-            ),
-            None,
+        # Get valid entity types
+        ec_types = get_args(EntityRoute.model_fields["root"].annotation)
+        # Frontend extends EC types
+        extended_types = (
+            "small-microcircuit-simulation",
+            "paired-neuron-circuit-simulation",
         )
-        current_entity_id = next(
-            (route for route in reversed(current_page) if is_uuid(route)), None
-        )
+
+        valid_entity_types = ec_types + extended_types
+
+        # Find entity type and ID (searching backwards for the last valid entity)
+        observed_entity_type = None
+        current_entity_id = None
+
+        # Locate the potential entity
+        for i in range(len(current_page) - 1, -1, -1):
+            if current_page[i] in valid_entity_types:
+                observed_entity_type = current_page[i]
+                # Check if next segment is a UUID
+                if i + 1 < len(current_page) and is_uuid(current_page[i + 1]):
+                    current_entity_id = current_page[i + 1]
+                break
+
+        # Map frontend types to ec native types to make it simpler for following tc
+        if observed_entity_type in extended_types:
+            query_params["circuit__scale"] = (
+                ["small"]
+                if observed_entity_type == "small-microcircuit-simulation"
+                else ["pair"]
+            )
+            observed_entity_type = "simulation-campaign"
 
         return ContextAnalyzerOutput(
             raw_path="/".join(current_page),
             query_params=query_params,
-            brain_region_id=query_params["br_id"][0]
-            if "br_id" in query_params
-            else None,
+            brain_region_id=query_params.get("br_id", [None])[0],
             observed_entity_type=observed_entity_type,
             current_entity_id=current_entity_id,
         )
