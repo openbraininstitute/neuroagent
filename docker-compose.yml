@@ -77,6 +77,19 @@ services:
           - "minio"    # Alias belongs here with the minio service
     command: server --console-address ":9001" /data
 
+  azurite:
+    image: mcr.microsoft.com/azure-storage/azurite
+    ports:
+      - "10000:10000"
+    volumes:
+      - azurite_data:/data
+    networks:
+      app-network:
+        aliases:
+          - "azurite"
+    command: azurite-blob --blobHost 0.0.0.0 -l /data
+
+
   redis:
     image: redis:7.4.2
     ports:
@@ -89,6 +102,7 @@ services:
 volumes:
   postgres_data:
   minio_data:
+  azurite_data:
   redis_data:
 
 networks:
