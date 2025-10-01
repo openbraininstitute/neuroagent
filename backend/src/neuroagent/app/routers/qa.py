@@ -155,9 +155,7 @@ async def question_suggestions(
     if is_in_chat:
         content = f"CONVERSATION MESSAGES: \n{json.dumps([{k: v for k, v in json.loads(msg.content).items() if k in ['role', 'content']} for msg in db_messages])}"
     else:
-        content = (
-            f"USER JOURNEY: \n{body.model_dump(exclude={'thread_id'})['click_history']}"
-        )
+        content = f"USER JOURNEY: \n{body.model_dump(exclude={'thread_id'}, mode='json')['click_history']}"
 
     messages = [
         {
@@ -194,10 +192,9 @@ User Journey Format:
   * E-model
   * ME-model
   * Synaptome
-- The current date and time is {datetime.now(timezone.utc).isoformat()}. Weight the user clicks depending on how old they are. The more recent clicks should be given a higher importance.
 
 Task:
-{"Using either the user's navigation history or their recent messages, generate three short, literature-focused questions they might ask next." if is_in_chat else "Based on the user's navigation history, generate a short, literature-focused question about the last brain region they visited."}
+{"Using the user's latest messages, generate three short, literature-focused questions they might ask next." if is_in_chat else "Based on the user's navigation history, generate a short, literature-focused question about the last brain region they visited."}
 
 Each question must:
 - Directly relate to searching for scientific papers.
@@ -205,7 +202,9 @@ Each question must:
 - Focus exclusively on literature retrieval.
 {"" if is_in_chat else "- Specifically focus on the most recently visited brain region in the user journey."}
 
-The upcoming user message will either prepend its content with 'CONVERSATION MESSAGES:' indicating that messages from the conversation are dumped, or 'USER JOURNEY:' indicating that the navigation history is dumped.""",
+The upcoming user message will either prepend its content with 'CONVERSATION MESSAGES:' indicating that messages from the conversation are dumped, or 'USER JOURNEY:' indicating that the navigation history is dumped.
+
+Important: Weight the user clicks depending on how old they are. The more recent clicks should be given a higher importance. The current date and time is {datetime.now(timezone.utc).isoformat()}.""",
         },
         {"role": "user", "content": content},
     ]
