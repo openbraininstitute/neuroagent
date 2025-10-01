@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Remove `sonata_asset_id` from circuit analysis tool dependency.
+- Switch to Flash models for tool selection.
 
 ## [v0.9.2] - 25.09.2025
 
