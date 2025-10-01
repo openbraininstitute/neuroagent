@@ -4,6 +4,7 @@ import {
   ToolInvocationUIPart,
   UIMessage,
 } from "@ai-sdk/ui-utils";
+import { components } from "./neuroagent_types";
 
 export type BPaginatedResponse = {
   next_cursor: string;
@@ -242,6 +243,9 @@ export type BOpenRouterModelResponse = {
   per_request_limits: Record<string, string>;
   supported_parameters: string[];
 };
+
+export type BStateRead = components["schemas"]["StateRead"];
+export type SharedState = components["schemas"]["SharedState"];
 
 export const threadPageSize = "25";
 export const messagePageSize = "25";
