@@ -42,7 +42,7 @@ async def stream_agent_response(
     context_variables["openai_client"] = AsyncOpenAI(
         api_key=context_variables["openai_client"].api_key,
         base_url=None
-        if "openrouter" in context_variables["openai_client"].base_url
+        if "openrouter" in str(context_variables["openai_client"].base_url)
         else context_variables["openai_client"].base_url,
     )
     iterator = connected_agents_routine.astream(
