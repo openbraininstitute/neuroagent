@@ -131,7 +131,7 @@ def test_question_suggestions(
     }
     assert call_list[1].kwargs["messages"][1] == {
         "role": "user",
-        "content": "USER JOURNEY: \n[{'timestamp': '1970-01-02T10:17:36Z', tzinfo=TzInfo(UTC)), 'region': 'Amzing BR', 'artifact': 'Super artifact'}]",
+        "content": "USER JOURNEY: \n[{'timestamp': '1970-01-02T10:17:36Z', 'region': 'Amzing BR', 'artifact': 'Super artifact'}]",
     }
     assert call_list[2].kwargs["messages"][1] == {
         "role": "user",

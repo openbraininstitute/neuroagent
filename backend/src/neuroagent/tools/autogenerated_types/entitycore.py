@@ -864,8 +864,8 @@ class ElectricalRecordingType(
     )
 
 
-class EntityCountRead(RootModel[dict[str, int]]):
-    root: dict[str, int]
+class EntityCountRead(RootModel[dict[str, int] | None]):
+    root: dict[str, int] | None = None
 
 
 class EntityRoute(
@@ -1224,8 +1224,8 @@ class Facet(BaseModel):
     type: str | None = Field(..., title='Type')
 
 
-class Facets(RootModel[dict[str, list[Facet]]]):
-    root: dict[str, list[Facet]]
+class Facets(RootModel[dict[str, list[Facet]] | None]):
+    root: dict[str, list[Facet]] | None = None
 
 
 class HierarchyNode(BaseModel):
@@ -4336,6 +4336,21 @@ class ReadManyEmodelGetParametersQuery(BaseModel):
     )
     morphology__mtype__id__in: list[str] | None = Field(
         default=None, title='Morphology  Mtype  Id  In'
+    )
+    ion_channel_model__name: str | None = Field(
+        default=None, title='Ion Channel Model  Name'
+    )
+    ion_channel_model__name__in: list[str] | None = Field(
+        default=None, title='Ion Channel Model  Name  In'
+    )
+    ion_channel_model__name__ilike: str | None = Field(
+        default=None, title='Ion Channel Model  Name  Ilike'
+    )
+    ion_channel_model__id: UUID | None = Field(
+        default=None, title='Ion Channel Model  Id'
+    )
+    ion_channel_model__id__in: list[str] | None = Field(
+        default=None, title='Ion Channel Model  Id  In'
     )
     search: str | None = Field(default=None, title='Search')
     with_facets: bool = Field(default=False, title='With Facets')
