@@ -864,8 +864,8 @@ class ElectricalRecordingType(
     )
 
 
-class EntityCountRead(RootModel[dict[str, int] | None]):
-    root: dict[str, int] | None = None
+class EntityCountRead(RootModel[dict[str, int]]):
+    root: dict[str, int]
 
 
 class EntityRoute(
@@ -1224,8 +1224,8 @@ class Facet(BaseModel):
     type: str | None = Field(..., title='Type')
 
 
-class Facets(RootModel[dict[str, list[Facet]] | None]):
-    root: dict[str, list[Facet]] | None = None
+class Facets(RootModel[dict[str, list[Facet]]]):
+    root: dict[str, list[Facet]]
 
 
 class HierarchyNode(BaseModel):
