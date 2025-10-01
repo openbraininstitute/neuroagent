@@ -10,6 +10,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Remove `stream.py` and assume connections are not closed on return.
 
+## [v0.9.4] - 01.10.2025
+
+### Changed
+- Hardocded minimal Deno version in Dockerfile.
+
 ## [v0.9.3] - 30.09.2025
 
 ### Added

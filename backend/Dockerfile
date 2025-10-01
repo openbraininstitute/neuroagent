@@ -10,7 +10,7 @@ RUN apt-get -y install curl \
     nodejs \
     npm
 
-RUN npm install -g deno
+RUN npm install -g deno@">=2.5.0"
 RUN pip install --no-cache-dir --upgrade pip
 COPY ./ /code
 RUN pip install --no-cache-dir /code[api]
