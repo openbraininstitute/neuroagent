@@ -123,6 +123,7 @@ class SettingsLLM(BaseModel):
     """OpenAI settings."""
 
     openai_token: SecretStr | None = None
+    openai_base_url: str | None = None
     open_router_token: SecretStr | None = None
     suggestion_model: str = "gpt-4o-mini"
     temperature: float = 1
