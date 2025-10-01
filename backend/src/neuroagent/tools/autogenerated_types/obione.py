@@ -3,10 +3,15 @@
 
 from __future__ import annotations
 
+from datetime import timedelta
 from typing import Any, Literal
 from uuid import UUID
 
 from pydantic import AwareDatetime, BaseModel, ConfigDict, Field, RootModel
+
+
+class AgePeriod(RootModel[Literal['prenatal', 'postnatal', 'unknown']]):
+    root: Literal['prenatal', 'postnatal', 'unknown'] = Field(..., title='AgePeriod')
 
 
 class SamplePercentage(RootModel[float]):
@@ -71,6 +76,37 @@ class Author(BaseModel):
     family_name: str | None = Field(default=None, title='Family Name')
 
 
+class BodyTestNeuronFileDeclaredTestNeuronFilePost(BaseModel):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    file: bytes = Field(
+        ..., description='Neuron file to upload (.swc, .h5, or .asc)', title='File'
+    )
+
+
+class CellMorphology(BaseModel):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    type: Literal['CellMorphology'] = Field(..., title='Type')
+    name: str = Field(..., description='Name of the morphology', title='Name')
+    description: str = Field(..., description='Description', title='Description')
+    species_id: UUID | None = Field(default=None, title='Species Id')
+    strain_id: UUID | None = Field(default=None, title='Strain Id')
+    brain_region_id: UUID | None = Field(default=None, title='Brain Region Id')
+
+
+class CellMorphologyFromID(BaseModel):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    id_str: str = Field(
+        ..., description='ID of the entity in string format.', title='Id Str'
+    )
+    type: Literal['CellMorphologyFromID'] = Field(..., title='Type')
+
+
 class Circuit(BaseModel):
     model_config = ConfigDict(
         extra='ignore',
@@ -96,13 +132,6 @@ class CircuitNodesetsResponse(BaseModel):
         extra='ignore',
     )
     nodesets: list[str] = Field(..., title='Nodesets')
-
-
-class CircuitPopulationsResponse(BaseModel):
-    model_config = ConfigDict(
-        extra='ignore',
-    )
-    populations: list[str] = Field(..., title='Populations')
 
 
 class CircuitStatsLevelOfDetail(RootModel[Literal[0, 1, 2, 3]]):
@@ -474,28 +503,6 @@ class Publication(BaseModel):
     abstract: str | None = Field(default='', title='Abstract')
 
 
-class ReconstructionMorphology(BaseModel):
-    model_config = ConfigDict(
-        extra='ignore',
-    )
-    type: Literal['ReconstructionMorphology'] = Field(..., title='Type')
-    name: str = Field(..., description='Name of the morphology', title='Name')
-    description: str = Field(..., description='Description', title='Description')
-    species_id: UUID | None = Field(default=None, title='Species Id')
-    strain_id: UUID | None = Field(default=None, title='Strain Id')
-    brain_region_id: UUID | None = Field(default=None, title='Brain Region Id')
-
-
-class ReconstructionMorphologyFromID(BaseModel):
-    model_config = ConfigDict(
-        extra='ignore',
-    )
-    id_str: str = Field(
-        ..., description='ID of the entity in string format.', title='Id Str'
-    )
-    type: Literal['ReconstructionMorphologyFromID'] = Field(..., title='Type')
-
-
 class StartTime(RootModel[float]):
     root: float = Field(
         ...,
@@ -646,6 +653,10 @@ class ScientificArtifact(BaseModel):
     atlas_id: UUID | None = Field(default=None, title='Atlas Id')
 
 
+class Sex(RootModel[Literal['male', 'female', 'unknown']]):
+    root: Literal['male', 'female', 'unknown'] = Field(..., title='Sex')
+
+
 class SingleTimestamp(BaseModel):
     model_config = ConfigDict(
         extra='ignore',
@@ -706,6 +717,40 @@ class SomaVoltageRecording(BaseModel):
 
 class SpatialCoordinate(RootModel[Literal['x', 'y', 'z']]):
     root: Literal['x', 'y', 'z'] = Field(..., title='SpatialCoordinate')
+
+
+class Weight(RootModel[float]):
+    root: float = Field(..., description='Weight in grams', gt=0.0, title='Weight')
+
+
+class Subject(BaseModel):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    type: Literal['Subject'] = Field(..., title='Type')
+    name: str = Field(..., description='Subject name', title='Name')
+    description: str = Field(
+        ..., description='Subject description', title='Description'
+    )
+    sex: Sex = Field(
+        default_factory=lambda: Sex.model_validate('unknown'),
+        description='Sex of the subject',
+    )
+    weight: Weight | None = Field(
+        default=None, description='Weight in grams', title='Weight'
+    )
+    age_value: timedelta = Field(..., description='Age value.', title='Age value')
+    age_min: timedelta | None = Field(
+        default=None,
+        description='Minimum age (of range)',
+        title='Minimum age (of range)',
+    )
+    age_max: timedelta | None = Field(
+        default=None, description='Maximum age range', title='Maximum age range'
+    )
+    age_period: AgePeriod | None = 'unknown'
+    species_id: UUID = Field(..., description='Species UUID', title='Species Id')
+    strain_id: UUID | None = Field(default=None, title='Strain Id')
 
 
 class SubjectID(BaseModel):
@@ -877,9 +922,9 @@ class ObiOneScientificMorphologyMetricsMorphologyMetricsMorphologyMetricsFormIni
         extra='ignore',
     )
     type: Literal['MorphologyMetricsForm.Initialize'] = Field(..., title='Type')
-    morphology: (
-        ReconstructionMorphologyFromID | list[ReconstructionMorphologyFromID]
-    ) = Field(..., description='3. Morphology description', title='Morphology')
+    morphology: CellMorphologyFromID | list[CellMorphologyFromID] = Field(
+        ..., description='3. Morphology description', title='Morphology'
+    )
 
 
 class Circuit1(RootModel[Circuit | CircuitFromID]):
@@ -966,7 +1011,7 @@ HealthHealthGetResponse = RootGetResponse
 VersionVersionGetResponse = RootGetResponse
 
 
-class NeuronMorphologyMetricsEndpointDeclaredNeuronMorphologyMetricsReconstructionMorphologyIdGetParametersQuery(
+class NeuronMorphologyMetricsEndpointDeclaredNeuronMorphologyMetricsCellMorphologyIdGetParametersQuery(
     BaseModel
 ):
     requested_metrics: (
@@ -1203,8 +1248,10 @@ class ContributeMorphologyForm(BaseModel):
     type: Literal['ContributeMorphologyForm'] = Field(..., title='Type')
     assets: Assets | None = Field(default=None, description='Morphology files.')
     contribution: Contribution | None = Field(default=None, description='Contributor.')
-    morphology: ReconstructionMorphology | None = Field(
-        default=None, description='Information about contributors.', title='Morphology'
+    morphology: CellMorphology | None = Field(
+        default=None,
+        description='Information about the morphology.',
+        title='Morphology',
     )
     publication: Publication | None = Field(
         default=None, description='Publication details.', title='Publication Details'
@@ -1222,6 +1269,16 @@ class ContributeMorphologyForm(BaseModel):
     )
     mtype: MTypeClassification | None = Field(
         default=None, description='The mtype.', title='Mtype Classification'
+    )
+
+
+class ContributeSubjectForm(BaseModel):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    type: Literal['ContributeSubjectForm'] = Field(..., title='Type')
+    subject: Subject | None = Field(
+        default=None, description='Information about the subject.'
     )
 
 
