@@ -18,7 +18,7 @@ dependencies = [
     "bluepysnap",
     "boto3",
     "duckdb",
-    "fastapi",
+    "fastapi>=0.118.0",
     "mcp",
     "obp-accounting-sdk",
     "openai",
