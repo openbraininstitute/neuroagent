@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v0.9.3] - 30.09.2025
+
+### Added
+- Possibility to change the OpenAI SDK base url via an env var.
+
 ### Changed
 - Remove `sonata_asset_id` from circuit analysis tool dependency.
 

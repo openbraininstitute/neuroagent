@@ -37,8 +37,13 @@ async def stream_agent_response(
         headers=context_variables["httpx_client"].headers,  # nosec: B501
     )
     context_variables["httpx_client"] = httpx_client
+
+    # make sure both azure and openai urls work
     context_variables["openai_client"] = AsyncOpenAI(
-        api_key=context_variables["openai_client"].api_key
+        api_key=context_variables["openai_client"].api_key,
+        base_url=None
+        if "openrouter" in str(context_variables["openai_client"].base_url)
+        else context_variables["openai_client"].base_url,
     )
     iterator = connected_agents_routine.astream(
         agent=agent,
