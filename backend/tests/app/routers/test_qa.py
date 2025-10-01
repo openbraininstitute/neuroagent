@@ -178,8 +178,6 @@ async def streamed_response():
 @pytest.mark.httpx_mock(can_send_already_matched_responses=True)
 def test_chat_streamed(app_client, httpx_mock, db_connection, test_user_info):
     """Test the generative QA endpoint with a fake LLM."""
-    # qa.AgentsRoutine.astream = Mock()
-    # qa.AgentsRoutine.astream.return_value = streamed_response()
     mock_keycloak_user_identification(httpx_mock, test_user_info)
     _, vlab, proj = test_user_info
     test_settings = Settings(
