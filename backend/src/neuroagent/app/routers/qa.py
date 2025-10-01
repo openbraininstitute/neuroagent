@@ -218,7 +218,7 @@ The upcoming user message will either prepend its content with 'CONVERSATION MES
         else QuestionSuggestionNoMessages,
     )
 
-    return response.choices[0].message.parsed
+    return response.choices[0].message.parsed  # type: ignore
 
 
 @router.get("/models")
