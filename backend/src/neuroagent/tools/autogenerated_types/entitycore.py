@@ -4337,6 +4337,21 @@ class ReadManyEmodelGetParametersQuery(BaseModel):
     morphology__mtype__id__in: list[str] | None = Field(
         default=None, title='Morphology  Mtype  Id  In'
     )
+    ion_channel_model__name: str | None = Field(
+        default=None, title='Ion Channel Model  Name'
+    )
+    ion_channel_model__name__in: list[str] | None = Field(
+        default=None, title='Ion Channel Model  Name  In'
+    )
+    ion_channel_model__name__ilike: str | None = Field(
+        default=None, title='Ion Channel Model  Name  Ilike'
+    )
+    ion_channel_model__id: UUID | None = Field(
+        default=None, title='Ion Channel Model  Id'
+    )
+    ion_channel_model__id__in: list[str] | None = Field(
+        default=None, title='Ion Channel Model  Id  In'
+    )
     search: str | None = Field(default=None, title='Search')
     with_facets: bool = Field(default=False, title='With Facets')
     within_brain_region_hierarchy_id: UUID | None = Field(
