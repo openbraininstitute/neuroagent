@@ -51,7 +51,6 @@ from neuroagent.app.schemas import (
     QuestionSuggestionNoMessages,
     UserInfo,
 )
-from neuroagent.app.stream import stream_agent_response
 from neuroagent.new_types import (
     Agent,
     ClientRequest,
@@ -248,6 +247,7 @@ async def stream_chat_agent(
         list[OpenRouterModelResponse], Depends(get_openrouter_models)
     ],
     openai_client: Annotated[AsyncOpenAI, Depends(get_openai_client)],
+    session: Annotated[AsyncSession, Depends(get_session)],
     background_tasks: BackgroundTasks,
 ) -> StreamingResponse:
     """Run a single agent query in a streamed fashion."""
@@ -301,17 +301,14 @@ async def stream_chat_agent(
     # No need to await since it has been awaited in tool filtering dependency
     messages: list[Messages] = thread.messages
 
-    background_tasks.add_task(
-        commit_messages, request.app.state.engine, messages, thread
-    )
+    background_tasks.add_task(commit_messages, session, messages, thread)
     async with accounting_context(
         subtype=ServiceSubtype.ML_LLM,
         user_id=thread.user_id,
         proj_id=thread.project_id,
         count=1,
     ):
-        stream_generator = stream_agent_response(
-            agents_routine=agents_routine,
+        stream_generator = agents_routine.astream(
             agent=agent,
             messages=messages,
             context_variables=context_variables,

@@ -14,7 +14,6 @@ from neuroagent.app.dependencies import (
     get_thread,
 )
 from neuroagent.app.main import app
-from neuroagent.app.routers import qa
 from neuroagent.app.schemas import (
     Question,
     QuestionsSuggestions,
@@ -179,8 +178,6 @@ async def streamed_response():
 @pytest.mark.httpx_mock(can_send_already_matched_responses=True)
 def test_chat_streamed(app_client, httpx_mock, db_connection, test_user_info):
     """Test the generative QA endpoint with a fake LLM."""
-    qa.stream_agent_response = Mock()
-    qa.stream_agent_response.return_value = streamed_response()
     mock_keycloak_user_identification(httpx_mock, test_user_info)
     _, vlab, proj = test_user_info
     test_settings = Settings(
@@ -190,7 +187,10 @@ def test_chat_streamed(app_client, httpx_mock, db_connection, test_user_info):
         rate_limiter={"disabled": True},
     )
     app.dependency_overrides[get_settings] = lambda: test_settings
-    app.dependency_overrides[get_agents_routine] = lambda: Mock()
+
+    mock_agents_routine = Mock()
+    mock_agents_routine.astream = Mock(return_value=streamed_response())
+    app.dependency_overrides[get_agents_routine] = lambda: mock_agents_routine
 
     async def mock_dependency_with_lazy_loading(
         thread: Annotated[Threads, Depends(get_thread)],
