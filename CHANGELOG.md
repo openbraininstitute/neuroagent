@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v0.10.0]
+
 ### Fixed
 - Remove `stream.py` and assume connections are not closed on return.
 
