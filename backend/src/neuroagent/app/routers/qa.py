@@ -48,6 +48,7 @@ from neuroagent.app.schemas import (
     OpenRouterModelResponse,
     QuestionsSuggestions,
     QuestionsSuggestionsRequest,
+    QuestionSuggestionNoMessages,
     UserInfo,
 )
 from neuroagent.app.stream import stream_agent_response
@@ -154,57 +155,56 @@ async def question_suggestions(
     if is_in_chat:
         content = f"CONVERSATION MESSAGES: \n{json.dumps([{k: v for k, v in json.loads(msg.content).items() if k in ['role', 'content']} for msg in db_messages])}"
     else:
-        content = (
-            f"USER JOURNEY: \n{body.model_dump(exclude={'thread_id'})['click_history']}"
-        )
+        content = f"USER JOURNEY: \n{body.model_dump(exclude={'thread_id'}, mode='json')['click_history']}"
 
     messages = [
         {
             "role": "system",
-            "content": f"""You are a smart assistant that analyzes user behavior and conversation history to suggest three concise,
-            engaging questions the user might ask next, specifically about finding relevant scientific literature.
+            "content": f"""You are a smart assistant that analyzes user behavior and conversation history to suggest {"three concise, engaging questions" if is_in_chat else "a concise, engaging question"} the user might ask next, specifically about finding relevant scientific literature.
 
-            Platform Context:
-            The Open Brain Platform provides an atlas-driven exploration of the mouse brain, offering access to:
-            - Neuron morphology (axon, soma, dendrite structures)
-            - Electrophysiology (electrical recordings of neuronal activity)
-            - Ion channels
-            - Neuron density
-            - Bouton density
-            - Synapse-per-connection counts
-            - Electrical models (“E-models”)
-            - Morpho-electrical models (“ME-models”)
-            - Synaptome (network of neuronal connections)
+Platform Context:
+The Open Brain Platform provides an atlas-driven exploration of the mouse brain, offering access to:
+- Neuron morphology (axon, soma, dendrite structures)
+- Electrophysiology (electrical recordings of neuronal activity)
+- Ion channels
+- Neuron density
+- Bouton density
+- Synapse-per-connection counts
+- Electrical models ("E-models")
+- Morpho-electrical models ("ME-models")
+- Synaptome (network of neuronal connections)
 
-            User Capabilities:
-            - Explore and build digital brain models at scales ranging from molecular to whole-region circuits.
-            - Customize or create new cellular-composition models.
-            - Run simulations and perform data analyses.
-            - Access both experimental and model data.
+User Capabilities:
+- Explore and build digital brain models at scales ranging from molecular to whole-region circuits.
+- Customize or create new cellular-composition models.
+- Run simulations and perform data analyses.
+- Access both experimental and model data.
 
-            User Journey Format:
-            - User journey is a list of clicks performed by the user.
-            - Each click represent the brain region and artifact the user was viewing. The timestamp of the click is added.
-            - Artifacts may include:
-            * Morphology
-            * Electrophysiology
-            * Neuron density
-            * Bouton density
-            * Synapse per connection
-            * E-model
-            * ME-model
-            * Synaptome
-            - The current date and time is {datetime.now(timezone.utc).isoformat()}. Weight the user clicks depending on how old they are. The more recent clicks should be given a higher importance.
+User Journey Format:
+- User journey is a list of clicks performed by the user.
+- Each click represent the brain region and artifact the user was viewing. The timestamp of the click is added.
+- Artifacts may include:
+  * Morphology
+  * Electrophysiology
+  * Neuron density
+  * Bouton density
+  * Synapse per connection
+  * E-model
+  * ME-model
+  * Synaptome
 
-            Task:
-            Using either the user’s navigation history or their recent messages, generate three short, literature-focused questions they might ask next.
+Task:
+{"Using the user's latest messages, generate three short, literature-focused questions they might ask next." if is_in_chat else "Based on the user's navigation history, generate a short, literature-focused question about the last brain region they visited."}
 
-            Each question must:
-            - Directly relate to searching for scientific papers.
-            - Be clear, concise, and easy to understand.
-            - Focus exclusively on literature retrieval.
+Each question must:
+- Directly relate to searching for scientific papers.
+- Be clear, concise, and easy to understand.
+- Focus exclusively on literature retrieval.
+{"" if is_in_chat else "- Specifically focus on the most recently visited brain region in the user journey."}
 
-            The upcoming user message will either prepend its content with 'CONVERSATION MESSAGES:' indicating that messages from the conversation are dumped, or 'USER JOURNEY:' indicating that the navigation history is dumped.""",
+The upcoming user message will either prepend its content with 'CONVERSATION MESSAGES:' indicating that messages from the conversation are dumped, or 'USER JOURNEY:' indicating that the navigation history is dumped.
+
+Important: Weight the user clicks depending on how old they are. The more recent clicks should be given a higher importance. The current date and time is {datetime.now(timezone.utc).isoformat()}.""",
         },
         {"role": "user", "content": content},
     ]
@@ -212,7 +212,9 @@ async def question_suggestions(
     response = await openai_client.beta.chat.completions.parse(
         messages=messages,  # type: ignore
         model=settings.llm.suggestion_model,
-        response_format=QuestionsSuggestions,
+        response_format=QuestionsSuggestions
+        if is_in_chat
+        else QuestionSuggestionNoMessages,
     )
 
     return response.choices[0].message.parsed  # type: ignore

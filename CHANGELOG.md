@@ -31,6 +31,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Endpoint names in entitycore.
+- Question suggestion return only one when not in chat.
 
 ## [v0.9.1] - 24.09.2025
 
