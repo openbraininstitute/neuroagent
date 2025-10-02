@@ -647,18 +647,8 @@ async def get_context_variables(
     body = await request.json()
     current_frontend_url = body.get("frontend_url")
     # Get the url for entitycore links
-    if thread.vlab_id and thread.project_id:
-        entity_frontend_url = (
-            settings.tools.frontend_base_url.rstrip("/")
-            + "/app/virtual-lab/lab/"
-            + str(thread.vlab_id)
-            + "/project/"
-            + str(thread.project_id)
-        )
-    else:
-        entity_frontend_url = (
-            settings.tools.frontend_base_url.rstrip("/") + "/app/virtual-lab"
-        )
+    entity_frontend_url = settings.tools.frontend_base_url.rstrip("/") + "/app/entity"
+
     return {
         "bluenaas_url": settings.tools.bluenaas.url,
         "bucket_name": settings.storage.bucket_name,

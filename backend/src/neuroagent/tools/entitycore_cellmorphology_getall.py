@@ -109,10 +109,7 @@ class CellMorphologyGetAllTool(BaseTool):
 
             # Add the links to website
             morphology["url_link"] = (
-                self.metadata.entity_frontend_url
-                + "/explore/interactive/experimental"
-                + "/morphology/"
-                + morphology["id"]
+                self.metadata.entity_frontend_url + "/" + morphology["id"]
             )
 
         return ListResponseCellMorphologyRead(**response_data)

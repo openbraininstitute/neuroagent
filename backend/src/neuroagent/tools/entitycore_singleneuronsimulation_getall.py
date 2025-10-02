@@ -95,6 +95,9 @@ class SingleNeuronSimulationGetAllTool(BaseTool):
         response_data = response.json()
         for simulation in response_data["data"]:
             simulation["assets"] = []
+            simulation["url_link"] = (
+                self.metadata.entity_frontend_url + "/" + simulation["id"]
+            )
         return ListResponseSingleNeuronSimulationRead(**response_data)
 
     @classmethod
