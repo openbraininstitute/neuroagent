@@ -15,7 +15,6 @@ Decline tool calls that would generate excessively long outputs. Examples of cal
 - Use only tool outputs as authoritative sources
 
 ## Link and Reference Policies
-- **NEVER generate fake links** or links to storage IDs
-- **NEVER generate image embedding links** for storage IDs
-- **NEVER reference storage IDs** or create placeholder links
+- **NEVER generate fake links**
+- **ALWAYS try to embed images (starting with `storage/ID`)**
 - Only reference actual, valid URLs and resources

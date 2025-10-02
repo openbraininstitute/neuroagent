@@ -2,6 +2,29 @@ import { marked } from "marked";
 import { memo, useMemo } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import PlotsInChat from "@/components/chat/plot-in-chat";
+
+const ConditionalImageRenderer = ({
+  src,
+  alt,
+  ...props
+}: {
+  src?: string;
+  alt?: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  [key: string]: any;
+}) => {
+  // Check if the src matches the storage pattern and extract the ID
+  const storageMatch = src?.match(/^storage\/(.+)$/);
+
+  if (storageMatch) {
+    const storageId = storageMatch[1]; // Extract the ID part
+    return <PlotsInChat storageIds={[storageId]} />;
+  }
+
+  // Render normal image for all other URLs
+  return <img src={src} alt={alt} {...props} />;
+};
 
 function parseMarkdownIntoBlocks(markdown: string): string[] {
   const tokens = marked.lexer(markdown);
@@ -10,7 +33,16 @@ function parseMarkdownIntoBlocks(markdown: string): string[] {
 
 const MemoizedMarkdownBlock = memo(
   ({ content }: { content: string }) => {
-    return <ReactMarkdown remarkPlugins={[remarkGfm]}>{content}</ReactMarkdown>;
+    return (
+      <ReactMarkdown
+        remarkPlugins={[remarkGfm]}
+        components={{
+          img: ConditionalImageRenderer,
+        }}
+      >
+        {content}
+      </ReactMarkdown>
+    );
   },
   (prevProps, nextProps) => {
     if (prevProps.content !== nextProps.content) return false;
