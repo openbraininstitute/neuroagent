@@ -490,7 +490,7 @@ AVAILABLE TOOLS:
 
     try:
         # Send the OpenAI request
-        model = "gpt-4o-mini"
+        model = "google/gemini-2.5-flash"
         start_request = time.time()
         response = await openai_client.beta.chat.completions.parse(
             messages=[{"role": "system", "content": system_prompt}, *openai_messages],  # type: ignore
