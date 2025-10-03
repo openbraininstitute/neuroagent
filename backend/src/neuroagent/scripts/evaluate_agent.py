@@ -148,12 +148,15 @@ def evaluation_result_to_csv(
 
     for test_result in evaluation_result.test_results:
         if test_result.metrics_data:
+            actual_tool_calls = test_result.additional_metadata["actual_tool_calls"]
+
             for metric in test_result.metrics_data:
                 row = {
                     "test_name": test_result.name,
                     "input": test_result.input,
-                    "expected_output": test_result.expected_output,
-                    "actual_output": test_result.actual_output,
+                    "actual_output": test_result.actual_output
+                    if metric.name == "Correctness [GEval]"
+                    else actual_tool_calls,
                     "metric_name": metric.name,
                     "score": metric.score,
                     "success": metric.success,
@@ -213,21 +216,27 @@ async def eval_sample(
                 **tool_call["arguments"]
             )
             decoded["tool_calls"][i]["arguments"] = input_class.model_dump(
-                exclude_defaults=True
+                exclude_defaults=True,
+                mode="json",
             )
 
+    tools_called = [
+        ToolCall(name=tool["name"], input_parameters=tool["arguments"])
+        for tool in decoded.get("tool_calls", [])
+    ]
+    expected_tool_calls = [
+        ToolCall(name=tool["name"], input_parameters=tool["arguments"])
+        for tool in json.loads(sample["expected_tool_calls"])
+    ]
     test_case = LLMTestCase(
         input=sample["input"],
         actual_output=decoded["response"],
         expected_output=sample["expected_output"],
-        tools_called=[
-            ToolCall(name=tool["name"], input_parameters=tool["arguments"])
-            for tool in decoded["tool_calls"]
-        ],
-        expected_tools=[
-            ToolCall(name=tool["name"], input_parameters=tool["arguments"])
-            for tool in json.loads(sample["expected_tool_calls"])
-        ],
+        tools_called=tools_called,
+        expected_tools=expected_tool_calls,
+        additional_metadata={
+            "actual_tool_calls": decoded.get("tool_calls", []),
+        },
     )
 
     return test_case
@@ -263,7 +272,7 @@ async def run_eval(
     # 1. Answer Relevance (GEval)
     answer_relevance = GEval(
         name="Correctness",
-        criteria="Determine whether the actual output responds to the input, based on the input and the expected output. Evaluate the content of the output, not the styling.",
+        criteria="Determine whether the actual output responds to the input, based on the input and the expected output. Evaluate the content of the output, not the styling. CRITICAL: Content wrapped in {{...}} placeholders represents variable information that WILL differ between runs - these are NOT meant to be exact matches. The evaluator must ignore differences in {{...}} placeholder content and only assess whether the overall structure, relevant sections, and non-placeholder content are present and appropriate.",
         evaluation_params=[
             LLMTestCaseParams.INPUT,
             LLMTestCaseParams.ACTUAL_OUTPUT,
