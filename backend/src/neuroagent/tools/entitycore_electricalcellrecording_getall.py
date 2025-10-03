@@ -112,15 +112,11 @@ class ElectricalCellRecordingGetAllTool(BaseTool):
         response_data = response.json()
         # Set assets and legacy_id to empty lists for each recording
         for recording in response_data["data"]:
-            recording["assets"] = []
             recording["legacy_id"] = []
 
             # Add the links to website
             recording["url_link"] = (
-                self.metadata.entity_frontend_url
-                + "/explore/interactive/experimental"
-                + "/electrophysiology/"
-                + recording["id"]
+                self.metadata.entity_frontend_url + "/" + recording["id"]
             )
 
         return ListResponseElectricalCellRecordingRead(**response_data)

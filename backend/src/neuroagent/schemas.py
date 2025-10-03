@@ -26,7 +26,7 @@ EntityRoute = Literal[
     "memodel",
     "mesh",
     "me-type-density",
-    "reconstruction-morphology",
+    "cell-morphology",
     "electrical-cell-recording",
     "electrical-recording-stimulus",
     "single-neuron-simulation",

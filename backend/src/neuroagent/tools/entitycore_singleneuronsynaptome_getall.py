@@ -94,6 +94,9 @@ class SingleNeuronSynaptomeGetAllTool(BaseTool):
         response_data = response.json()
         for synaptome in response_data["data"]:
             synaptome["assets"] = []
+            synaptome["url_link"] = (
+                self.metadata.entity_frontend_url + "/" + synaptome["id"]
+            )
         return ListResponseSingleNeuronSynaptomeRead(**response_data)
 
     @classmethod

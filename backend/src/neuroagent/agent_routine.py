@@ -75,6 +75,8 @@ class AgentsRoutine:
         }
         if stream:
             create_params["stream_options"] = {"include_usage": True}
+        if agent.model == "gpt-5-mini":
+            create_params["reasoning_effort"] = "minimal"
 
         if tools:
             create_params["parallel_tool_calls"] = agent.parallel_tool_calls
@@ -151,7 +153,7 @@ class AgentsRoutine:
 
         tool = tool_map[name]
         try:
-            input_schema = tool.__annotations__["input_schema"](**kwargs)
+            input_schema: BaseModel = tool.__annotations__["input_schema"](**kwargs)
         except ValidationError as err:
             # Raise validation error if requested
             if raise_validation_errors:
@@ -182,6 +184,9 @@ class AgentsRoutine:
                 }
                 return response, None
 
+        logger.info(
+            f"Entering {name}. Inputs: {input_schema.model_dump(exclude_defaults=True)}."
+        )
         tool_instance = tool(input_schema=input_schema, metadata=tool_metadata)
         # pass context_variables to agent functions
         try:

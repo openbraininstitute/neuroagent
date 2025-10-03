@@ -32,7 +32,7 @@ class TestAgentsRoutine:
         )
         mock_openai_client.assert_create_called_with(
             **{
-                "model": "openai/gpt-4.1-mini",
+                "model": "openai/gpt-5-mini",
                 "messages": [
                     {"role": "system", "content": "You are a helpful agent."},
                     {"role": "user", "content": "Hello !"},
@@ -66,7 +66,7 @@ class TestAgentsRoutine:
         )
         mock_openai_client.assert_create_called_with(
             **{
-                "model": "openai/gpt-4.1-mini",
+                "model": "openai/gpt-5-mini",
                 "messages": [
                     {
                         "role": "system",
@@ -100,7 +100,7 @@ class TestAgentsRoutine:
         )
         mock_openai_client.assert_create_called_with(
             **{
-                "model": "openai/gpt-4.1-mini",
+                "model": "openai/gpt-5-mini",
                 "messages": [
                     {"role": "system", "content": "You are a helpful agent."},
                     {"role": "user", "content": "Hello !"},
@@ -544,7 +544,7 @@ class TestAgentsRoutine:
                                 )
                             ],
                             created=1734017726,
-                            model="gpt-4o-mini-2024-07-18",
+                            model="gpt-5-mini-2024-07-18",
                             object="chat.completion.chunk",
                             system_fingerprint="fp_bba3c8e70b",
                         )
@@ -575,7 +575,7 @@ class TestAgentsRoutine:
                                 )
                             ],
                             created=1734017726,
-                            model="gpt-4o-mini-2024-07-18",
+                            model="gpt-5-mini-2024-07-18",
                             object="chat.completion.chunk",
                             system_fingerprint="fp_bba3c8e70b",
                         )
@@ -586,7 +586,7 @@ class TestAgentsRoutine:
                         Choice(delta=ChoiceDelta(), finish_reason="stop", index=0)
                     ],
                     created=1734017726,
-                    model="gpt-4o-mini-2024-07-18",
+                    model="gpt-5-mini-2024-07-18",
                     object="chat.completion.chunk",
                     system_fingerprint="fp_bba3c8e70b",
                 )

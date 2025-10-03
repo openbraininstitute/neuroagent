@@ -1,5 +1,8 @@
 """Tools package."""
 
+from neuroagent.tools.circuit_population_analysis_tool import (
+    CircuitPopulationAnalysisTool,
+)
 from neuroagent.tools.context_analyzer_tool import ContextAnalyzerTool
 from neuroagent.tools.entitycore_asset_downloadone import AssetDownloadOneTool
 from neuroagent.tools.entitycore_asset_getall import AssetGetAllTool
@@ -13,6 +16,12 @@ from neuroagent.tools.entitycore_brainregionhierarchy_getall import (
 )
 from neuroagent.tools.entitycore_brainregionhierarchy_getone import (
     BrainRegionHierarchyGetOneTool,
+)
+from neuroagent.tools.entitycore_cellmorphology_getall import (
+    CellMorphologyGetAllTool,
+)
+from neuroagent.tools.entitycore_cellmorphology_getone import (
+    CellMorphologyGetOneTool,
 )
 from neuroagent.tools.entitycore_circuit_getall import CircuitGetAllTool
 from neuroagent.tools.entitycore_circuit_getone import CircuitGetOneTool
@@ -66,12 +75,6 @@ from neuroagent.tools.entitycore_organization_getall import OrganizationGetAllTo
 from neuroagent.tools.entitycore_organization_getone import OrganizationGetOneTool
 from neuroagent.tools.entitycore_person_getall import PersonGetAllTool
 from neuroagent.tools.entitycore_person_getone import PersonGetOneTool
-from neuroagent.tools.entitycore_reconstructionmorphology_getall import (
-    ReconstructionMorphologyGetAllTool,
-)
-from neuroagent.tools.entitycore_reconstructionmorphology_getone import (
-    ReconstructionMorphologyGetOneTool,
-)
 from neuroagent.tools.entitycore_simulation_getall import SimulationGetAllTool
 from neuroagent.tools.entitycore_simulation_getone import SimulationGetOneTool
 from neuroagent.tools.entitycore_simulationcampaign_getall import (
@@ -124,6 +127,11 @@ from neuroagent.tools.entitycore_subject_getall import SubjectGetAllTool
 from neuroagent.tools.entitycore_subject_getone import SubjectGetOneTool
 from neuroagent.tools.generate_plot import PlotGeneratorTool
 from neuroagent.tools.obi_expert import OBIExpertTool
+from neuroagent.tools.obione_circuitmetrics_getone import CircuitMetricGetOneTool
+from neuroagent.tools.obione_circuitnodesets_getone import CircuitNodesetsGetOneTool
+from neuroagent.tools.obione_circuitpopulations_getone import (
+    CircuitPopulationGetOneTool,
+)
 from neuroagent.tools.obione_ephysmetrics_getone import EphysMetricsGetOneTool
 from neuroagent.tools.obione_generatesimulationsconfig import (
     GenerateSimulationsConfigTool,
@@ -145,11 +153,17 @@ __all__ = [
     "BrainRegionGetOneTool",
     "BrainRegionHierarchyGetAllTool",
     "BrainRegionHierarchyGetOneTool",
+    "CellMorphologyGetAllTool",
+    "CellMorphologyGetOneTool",
     "CircuitGetAllTool",
     "CircuitGetOneTool",
+    "CircuitMetricGetOneTool",
+    "CircuitNodesetsGetOneTool",
+    "CircuitPopulationGetOneTool",
     "ContributionGetAllTool",
     "ContributionGetOneTool",
     "ContextAnalyzerTool",
+    "CircuitPopulationAnalysisTool",
     "ElectricalCellRecordingGetAllTool",
     "ElectricalCellRecordingGetOneTool",
     "EModelGetAllTool",
@@ -181,8 +195,6 @@ __all__ = [
     "PlotElectricalCellRecordingGetOneTool",
     "PlotGeneratorTool",
     "PlotMorphologyGetOneTool",
-    "ReconstructionMorphologyGetAllTool",
-    "ReconstructionMorphologyGetOneTool",
     "SimulationCampaignGetAllTool",
     "SimulationCampaignGetOneTool",
     "SimulationExecutionGetAllTool",

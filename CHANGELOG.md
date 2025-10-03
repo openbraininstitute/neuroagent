@@ -10,6 +10,69 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - More evaluation cases.
 
+## [v0.10.0] - 2.10.2025
+
+### Fixed
+- Remove `stream.py` and assume connections are not closed on return.
+- `url_link` in tools that retrieve explore data.
+
+### Changed
+- Made the context analyzer an url analyzer instead.
+
+## [v0.9.4] - 01.10.2025
+
+### Changed
+- Hardocded minimal Deno version in Dockerfile.
+
+## [v0.9.3] - 30.09.2025
+
+### Added
+- Possibility to change the OpenAI SDK base url via an env var.
+
+### Fixed
+- Remove `sonata_asset_id` from circuit analysis tool dependency.
+
+
+## [v0.9.2] - 25.09.2025
+
+### Added
+- Circuit population analysis tool.
+
+### Fixed
+- Endpoint names in entitycore.
+- Question suggestion return only one when not in chat.
+
+## [v0.9.1] - 24.09.2025
+
+### Added
+- More options to pass to the Redis client
+
+## [v0.9.0] - 23.09.2025
+
+### Added
+- `description_frontend` support for MCP tools.
+- New circuit endpoints from OBI-one.
+
+### Changed
+- Switch to gpt-5-mini.
+- Description of LS tool to try to make the LLM embed images all the time.
+- Use semantic search when available in Entitycore.
+
+### Fixed
+- Bug in MCP declaration leading to `tool_metadata` not being found.
+
+## [v0.8.1] - 01.09.2025
+
+### Added
+- Search functionality.
+
+### Changed
+- Make the agent use the scientific species name.
+- Added assets back in `getall` for eletrical recordings and reconstruction morphology.
+- Possibiliy to request specific metrics from morphometric tool.
+- Simulation config iteration 2.
+- Logging of tool calls happens in the agent_routine, not directly in the tool.
+
 ## [v0.8.0] - 18.08.2025
 
 ### Added

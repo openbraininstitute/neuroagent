@@ -107,6 +107,9 @@ class IonChannelModelGetAllTool(BaseTool):
             model["assets"] = []
             model["contributions"] = []
 
+            # Add the links to website
+            model["url_link"] = self.metadata.entity_frontend_url + "/" + model["id"]
+
         return ListResponseIonChannelModelRead(**response_data)
 
     @classmethod

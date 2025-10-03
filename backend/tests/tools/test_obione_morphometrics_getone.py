@@ -12,34 +12,36 @@ from neuroagent.tools.obione_morphometrics_getone import (
     MorphometricsGetOneMetadata,
 )
 
+random_uuid = uuid.UUID("06c87a93-48cd-4241-9d4e-1fb09315b00d")
+
 
 class TestMorphometricsGetOneTool:
     @pytest.mark.asyncio
     async def test_arun(self, httpx_mock):
         httpx_mock.add_response(
-            url="http://obione.org/declared/neuron-morphology-metrics/1234",
+            url=f"http://obione.org/declared/neuron-morphology-metrics/{random_uuid}?requested_metrics=circularity&requested_metrics=soma_radius",
             json={
-                "aspect_ratio": 0.65,
+                "aspect_ratio": None,
                 "circularity": 0.78,
-                "length_fraction_above_soma": 0.54,
-                "max_radial_distance": 235.4,
-                "number_of_neurites": 5,
+                "length_fraction_above_soma": None,
+                "max_radial_distance": None,
+                "number_of_neurites": None,
                 "soma_radius": 6.8,
-                "soma_surface_area": 580.3,
-                "total_length": 2750.6,
-                "total_height": 160.5,
-                "total_depth": 190.7,
-                "total_area": 9100.2,
-                "total_volume": 6800.5,
-                "section_lengths": [73.2, 105.4, 87.3, 44.9, 67.1],
-                "segment_radii": [0.8, 1.1, 0.5, 1.3, 0.6],
-                "number_of_sections": 20,
-                "local_bifurcation_angles": [1.1, 1.7, 2.2, 0.9, 1.5],
-                "remote_bifurcation_angles": [1.2, 1.9, 2.5, 1.1, 1.6],
-                "section_path_distances": [105.0, 230.4, 145.3, 198.2, 112.7],
-                "section_radial_distances": [55.4, 175.3, 120.5, 142.6, 100.7],
-                "section_branch_orders": [1, 2, 3, 2, 1],
-                "section_strahler_orders": [1, 2, 2, 1, 3],
+                "soma_surface_area": None,
+                "total_length": None,
+                "total_height": None,
+                "total_depth": None,
+                "total_area": None,
+                "total_volume": None,
+                "section_lengths": None,
+                "segment_radii": None,
+                "number_of_sections": None,
+                "local_bifurcation_angles": None,
+                "remote_bifurcation_angles": None,
+                "section_path_distances": None,
+                "section_radial_distances": None,
+                "section_branch_orders": None,
+                "section_strahler_orders": None,
             },
         )
         tool = MorphometricsGetOneTool(
@@ -50,7 +52,10 @@ class TestMorphometricsGetOneTool:
                 vlab_id=None,
                 project_id=None,
             ),
-            input_schema=MorphometricsGetOneInputs(morphology_id="1234"),
+            input_schema=MorphometricsGetOneInputs(
+                morphology_id=random_uuid,
+                requested_metrics=["circularity", "soma_radius"],
+            ),
         )
 
         response = await tool.arun()
@@ -59,29 +64,29 @@ class TestMorphometricsGetOneTool:
     @pytest.mark.asyncio
     async def test_arun_vlab_proj(self, httpx_mock):
         httpx_mock.add_response(
-            url="http://obione.org/declared/neuron-morphology-metrics/1234",
+            url=f"http://obione.org/declared/neuron-morphology-metrics/{random_uuid}?requested_metrics=circularity&requested_metrics=soma_radius",
             json={
-                "aspect_ratio": 0.65,
+                "aspect_ratio": None,
                 "circularity": 0.78,
-                "length_fraction_above_soma": 0.54,
-                "max_radial_distance": 235.4,
-                "number_of_neurites": 5,
+                "length_fraction_above_soma": None,
+                "max_radial_distance": None,
+                "number_of_neurites": None,
                 "soma_radius": 6.8,
-                "soma_surface_area": 580.3,
-                "total_length": 2750.6,
-                "total_height": 160.5,
-                "total_depth": 190.7,
-                "total_area": 9100.2,
-                "total_volume": 6800.5,
-                "section_lengths": [73.2, 105.4, 87.3, 44.9, 67.1],
-                "segment_radii": [0.8, 1.1, 0.5, 1.3, 0.6],
-                "number_of_sections": 20,
-                "local_bifurcation_angles": [1.1, 1.7, 2.2, 0.9, 1.5],
-                "remote_bifurcation_angles": [1.2, 1.9, 2.5, 1.1, 1.6],
-                "section_path_distances": [105.0, 230.4, 145.3, 198.2, 112.7],
-                "section_radial_distances": [55.4, 175.3, 120.5, 142.6, 100.7],
-                "section_branch_orders": [1, 2, 3, 2, 1],
-                "section_strahler_orders": [1, 2, 2, 1, 3],
+                "soma_surface_area": None,
+                "total_length": None,
+                "total_height": None,
+                "total_depth": None,
+                "total_area": None,
+                "total_volume": None,
+                "section_lengths": None,
+                "segment_radii": None,
+                "number_of_sections": None,
+                "local_bifurcation_angles": None,
+                "remote_bifurcation_angles": None,
+                "section_path_distances": None,
+                "section_radial_distances": None,
+                "section_branch_orders": None,
+                "section_strahler_orders": None,
             },
         )
 
@@ -93,7 +98,10 @@ class TestMorphometricsGetOneTool:
                 vlab_id=uuid.uuid4(),
                 project_id=uuid.uuid4(),
             ),
-            input_schema=MorphometricsGetOneInputs(morphology_id="1234"),
+            input_schema=MorphometricsGetOneInputs(
+                morphology_id=random_uuid,
+                requested_metrics=["circularity", "soma_radius"],
+            ),
         )
 
         response = await tool.arun()
@@ -109,11 +117,11 @@ class TestMorphometricsGetOneTool:
                 vlab_id=None,
                 project_id=None,
             ),
-            input_schema=MorphometricsGetOneInputs(morphology_id="1234"),
+            input_schema=MorphometricsGetOneInputs(morphology_id=random_uuid),
         )
 
         httpx_mock.add_response(
-            url="http://obione.org/declared/neuron-morphology-metrics/1234",
+            url=f"http://obione.org/declared/neuron-morphology-metrics/{random_uuid}",
             status_code=404,
             text="Resource not found.",
         )

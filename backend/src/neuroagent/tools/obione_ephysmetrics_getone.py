@@ -21,7 +21,7 @@ class EphysMetricsGetOneInputs(
 ):
     """Input class of the ObiOne Electrophysiology Metrics tool."""
 
-    electrical_cell_recording_id: str = Field(
+    electrical_cell_recording_id: UUID = Field(
         description="Id of the electrical cell recording from which features must be computed."
     )
 
@@ -61,10 +61,6 @@ class EphysMetricsGetOneTool(BaseTool):
 
     async def arun(self) -> ElectrophysiologyMetricsOutput:
         """Run the electrophysiology feature extraction logic."""
-        logger.info(
-            f"Entering ObiOne Electrophysiology Metrics tool. Inputs: {self.input_schema.model_dump()}"
-        )
-
         headers: dict[str, str] = {}
         if self.metadata.vlab_id is not None:
             headers["virtual_lab_id"] = str(self.metadata.vlab_id)

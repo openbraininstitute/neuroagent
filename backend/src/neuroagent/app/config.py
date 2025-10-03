@@ -123,9 +123,10 @@ class SettingsLLM(BaseModel):
     """OpenAI settings."""
 
     openai_token: SecretStr | None = None
+    openai_base_url: str | None = None
     open_router_token: SecretStr | None = None
     suggestion_model: str = "gpt-4o-mini"
-    temperature: float = 0
+    temperature: float = 1
     max_tokens: int | None = None
     whitelisted_model_ids_regex: str = "openai.*"
 
@@ -162,6 +163,8 @@ class SettingsRateLimiter(BaseModel):
 
     redis_host: str = "localhost"
     redis_port: int = 6379
+    redis_password: SecretStr | None = None
+    redis_ssl: bool = False
     disabled: bool = False
 
     limit_chat: int = 20
@@ -204,6 +207,7 @@ class MCPToolMetadata(BaseModel):
     name: str | None = None
     name_frontend: str | None = None
     description: str | None = None
+    description_frontend: str | None = None
     utterances: list[str] | None = None
 
     model_config = ConfigDict(frozen=True)

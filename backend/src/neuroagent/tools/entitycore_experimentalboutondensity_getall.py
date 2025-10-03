@@ -112,10 +112,7 @@ class ExperimentalBoutonDensityGetAllTool(BaseTool):
 
             # Add the links to website
             density["url_link"] = (
-                self.metadata.entity_frontend_url
-                + "/explore/interactive/experimental"
-                + "/bouton-density/"
-                + density["id"]
+                self.metadata.entity_frontend_url + "/" + density["id"]
             )
 
         return ListResponseExperimentalBoutonDensityRead(**response_data)
