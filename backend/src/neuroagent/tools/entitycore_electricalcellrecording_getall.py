@@ -116,10 +116,7 @@ class ElectricalCellRecordingGetAllTool(BaseTool):
 
             # Add the links to website
             recording["url_link"] = (
-                self.metadata.entity_frontend_url
-                + "/explore/interactive/experimental"
-                + "/electrophysiology/"
-                + recording["id"]
+                self.metadata.entity_frontend_url + "/" + recording["id"]
             )
 
         return ListResponseElectricalCellRecordingRead(**response_data)

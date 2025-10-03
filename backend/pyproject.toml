@@ -18,7 +18,7 @@ dependencies = [
     "bluepysnap",
     "boto3",
     "duckdb",
-    "fastapi",
+    "fastapi>=0.118.0",
     "mcp",
     "obp-accounting-sdk",
     "openai",
@@ -60,7 +60,7 @@ where = ["src"]
 namespaces = false
 
 [tool.setuptools.package-data]
-neuroagent = ["rules/*.mdc", "mcp.json", "platform_description.json"]
+neuroagent = ["rules/*.mdc", "mcp.json"]
 
 [tool.bandit]
 exclude_dirs = ["tests"]

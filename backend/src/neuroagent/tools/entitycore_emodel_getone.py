@@ -84,6 +84,9 @@ class EModelGetOneTool(BaseTool):
             )
 
         response_data = response.json()
+        response_data["url_link"] = (
+            self.metadata.entity_frontend_url + "/" + response_data["id"]
+        )
 
         return EModelReadExpanded(**response_data)
 

@@ -182,14 +182,13 @@ async def rate_limit(
 
 
 async def commit_messages(
-    engine: AsyncEngine, messages: list[Messages], thread: Threads
+    session: AsyncSession, messages: list[Messages], thread: Threads
 ) -> None:
     """Commit the messages in a bg task."""
-    async with AsyncSession(engine) as session:
-        session.add_all(messages)
-        thread.update_date = utc_now()
-        await session.commit()
-        await session.close()
+    session.add_all(messages)
+    thread.update_date = utc_now()
+    await session.commit()
+    await session.close()
 
 
 def format_messages_output(
