@@ -14,7 +14,7 @@ from sqlalchemy import (
     Integer,
     String,
 )
-from sqlalchemy.dialects.postgresql import TSVECTOR
+from sqlalchemy.dialects.postgresql import JSONB, TSVECTOR
 from sqlalchemy.ext.asyncio import AsyncAttrs
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
@@ -110,6 +110,9 @@ class Messages(Base):
     token_consumption: Mapped[list["TokenConsumption"]] = relationship(
         "TokenConsumption", cascade="all, delete-orphan"
     )
+    variables: Mapped[list["Variables"]] = relationship(
+        "Variables", back_populates="message", cascade="all, delete-orphan"
+    )
     search_vector: Mapped[str] = mapped_column(TSVECTOR, nullable=True)
 
     __table_args__ = (
@@ -160,3 +163,15 @@ class TokenConsumption(Base):
     task: Mapped[Task] = mapped_column(Enum(Task), nullable=False)
     count: Mapped[int] = mapped_column(Integer, nullable=False)
     model: Mapped[str] = mapped_column(String, nullable=False)
+
+
+class Variables(Base):
+    """SQL table to track token consumption of the LLMs."""
+
+    __tablename__ = "variables"
+    id: Mapped[uuid.UUID] = mapped_column(UUID, primary_key=True)
+    message_id: Mapped[uuid.UUID] = mapped_column(
+        UUID, ForeignKey("messages.message_id")
+    )
+    value: Mapped[JSONB] = mapped_column(JSONB, nullable=False)
+    message: Mapped[Messages] = relationship("Messages", back_populates="variables")

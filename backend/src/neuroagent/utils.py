@@ -8,10 +8,13 @@ from typing import Any
 
 from fastapi import HTTPException
 from openai.types.completion_usage import CompletionUsage
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from neuroagent.app.database.sql_schemas import (
     Entity,
     Messages,
+    Variables,
 )
 from neuroagent.schemas import Category
 
@@ -272,3 +275,33 @@ def get_token_count(usage: CompletionUsage | None) -> dict[str, int | None]:
         }
     else:
         return {"input_cached": None, "input_noncached": None, "completion": None}
+
+
+def is_uuid(string: str) -> bool:
+    """Check if a given string is a UUID."""
+    try:
+        uuid.UUID(string)
+        return True
+    except (ValueError, AttributeError, TypeError):
+        return False
+
+
+async def fetch_variables(session: AsyncSession, tool_arguments_json: str) -> str:
+    """Transform variables in tool calls into actual values."""
+    uuid_pattern = r"\$\{([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})\}"
+
+    variables = re.findall(uuid_pattern, tool_arguments_json)
+
+    if not variables:
+        return tool_arguments_json
+
+    stmt = select(Variables.id, Variables.value).where(Variables.id.in_(variables))
+    response = await session.execute(stmt)
+    results = response.all()
+
+    for id_, value in results:
+        full_arg_json = tool_arguments_json.replace(
+            f'"${{{id_}}}"', value if isinstance(value, str) else json.dumps(value)
+        ).replace(f"${{{id_}}}", value if isinstance(value, str) else json.dumps(value))
+
+    return full_arg_json

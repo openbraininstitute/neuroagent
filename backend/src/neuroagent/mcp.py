@@ -10,7 +10,7 @@ from mcp.types import CallToolResult, Tool
 from pydantic import BaseModel, ConfigDict
 
 from neuroagent.app.config import SettingsMCP
-from neuroagent.tools.base_tool import BaseMetadata, BaseTool
+from neuroagent.tools.base_tool import BaseMetadata, BaseOutput, BaseTool
 
 logger = logging.getLogger(__name__)
 
@@ -161,6 +161,9 @@ def create_dynamic_tool(
     class Metadata(BaseMetadata):
         """Metadata for the tool."""
 
+    class MCPToolOutput(BaseOutput, CallToolResult):
+        """Output class for MCP tools."""
+
     # Create the tool class
     class MCPDynamicTool(BaseTool):
         name: ClassVar[str] = tool_name
@@ -176,14 +179,14 @@ def create_dynamic_tool(
         input_schema: InputSchema
         metadata: Metadata
 
-        async def arun(self) -> CallToolResult:
+        async def arun(self) -> MCPToolOutput:
             """Run the tool."""
             result = await session.call_tool(
                 tool_name_mapping.get(tool_name) or tool_name,
                 arguments=self.input_schema.model_dump(),
             )
 
-            return result
+            return MCPToolOutput(**result.model_dump())
 
         @classmethod
         async def is_online(cls) -> bool:

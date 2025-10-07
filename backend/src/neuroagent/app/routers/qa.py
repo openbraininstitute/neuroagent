@@ -12,7 +12,6 @@ from fastapi import (
     BackgroundTasks,
     Depends,
     HTTPException,
-    Request,
     Response,
 )
 from fastapi.responses import StreamingResponse
@@ -232,7 +231,6 @@ async def get_available_LLM_models(
 
 @router.post("/chat_streamed/{thread_id}")
 async def stream_chat_agent(
-    request: Request,
     user_request: ClientRequest,
     redis_client: Annotated[aioredis.Redis | None, Depends(get_redis_client)],
     settings: Annotated[Settings, Depends(get_settings)],
@@ -311,6 +309,7 @@ async def stream_chat_agent(
         stream_generator = agents_routine.astream(
             agent=agent,
             messages=messages,
+            session=session,
             context_variables=context_variables,
             max_turns=settings.agent.max_turns,
             max_parallel_tool_calls=settings.agent.max_parallel_tool_calls,

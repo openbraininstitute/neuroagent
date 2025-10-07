@@ -11,6 +11,7 @@ from typing import Any, AsyncIterator
 from openai import AsyncOpenAI, AsyncStream
 from openai.types.chat.chat_completion_chunk import ChatCompletionChunk
 from pydantic import BaseModel, ValidationError
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from neuroagent.app.database.sql_schemas import (
     Entity,
@@ -19,15 +20,17 @@ from neuroagent.app.database.sql_schemas import (
     TokenConsumption,
     TokenType,
     ToolCalls,
+    Variables,
 )
 from neuroagent.new_types import (
     Agent,
     Response,
     Result,
 )
-from neuroagent.tools.base_tool import BaseTool
+from neuroagent.tools.base_tool import BaseOutput, BaseTool
 from neuroagent.utils import (
     complete_partial_json,
+    fetch_variables,
     get_entity,
     get_token_count,
     merge_chunk,
@@ -82,7 +85,7 @@ class AgentsRoutine:
             create_params["parallel_tool_calls"] = agent.parallel_tool_calls
         return await self.client.chat.completions.create(**create_params)  # type: ignore
 
-    def handle_function_result(self, result: Result | Agent | BaseModel) -> Result:
+    def handle_function_result(self, result: Result | Agent | BaseOutput) -> Result:
         """Check if agent handoff or regular tool call."""
         match result:
             case Result() as result:
@@ -93,9 +96,12 @@ class AgentsRoutine:
                     value=json.dumps({"assistant": agent.name}),
                     agent=agent,
                 )
-            case BaseModel() as model:
+            case BaseOutput() as model:
                 try:
-                    return Result(value=model.model_dump_json())
+                    return Result(
+                        value=model.model_dump_json(exclude={"variables"}),
+                        tool_variables=model.variables,
+                    )
                 except json.JSONDecodeError:
                     return Result(value=str(result))
             case _:
@@ -106,6 +112,7 @@ class AgentsRoutine:
         self,
         tool_calls: list[ToolCalls],
         tools: list[type[BaseTool]],
+        session: AsyncSession,
         context_variables: dict[str, Any],
     ) -> Response:
         """Run async tool calls."""
@@ -114,42 +121,52 @@ class AgentsRoutine:
                 self.handle_tool_call(
                     tool_call=tool_call,
                     tools=tools,
+                    session=session,
                     context_variables=context_variables,
                 )
             )
             for tool_call in tool_calls
         ]
         results = await asyncio.gather(*tasks)
-        messages, agents = zip(*results)
+        messages, agents, tool_variables = zip(*results)
         try:
             agent = next((agent for agent in reversed(agents) if agent is not None))
         except StopIteration:
             agent = None
 
         return Response(
-            messages=list(messages), agent=agent, context_variables=context_variables
+            messages=list(messages),
+            agent=agent,
+            context_variables=context_variables,
+            tool_variables=list(tool_variables),
         )
 
     async def handle_tool_call(
         self,
         tool_call: ToolCalls,
         tools: list[type[BaseTool]],
+        session: AsyncSession,
         context_variables: dict[str, Any],
         raise_validation_errors: bool = False,
-    ) -> tuple[dict[str, str], Agent | None]:
+    ) -> tuple[dict[str, str], Agent | None, dict[uuid.UUID, Any] | None]:
         """Run individual tools."""
         tool_map = {tool.name: tool for tool in tools}
 
         name = tool_call.name
         # handle missing tool case, skip to next tool
         if name not in tool_map:
-            return {
-                "role": "tool",
-                "tool_call_id": tool_call.tool_call_id,
-                "tool_name": name,
-                "content": f"Error: Tool {name} not found.",
-            }, None
-        kwargs = json.loads(tool_call.arguments)
+            return (
+                {
+                    "role": "tool",
+                    "tool_call_id": tool_call.tool_call_id,
+                    "tool_name": name,
+                    "content": f"Error: Tool {name} not found.",
+                },
+                None,
+                {},
+            )
+        kwargs_json = await fetch_variables(session, tool_call.arguments)
+        kwargs = json.loads(kwargs_json)
 
         tool = tool_map[name]
         try:
@@ -166,7 +183,7 @@ class AgentsRoutine:
                     "tool_name": name,
                     "content": err.json(),
                 }
-                return response, None
+                return response, None, {}
 
         try:
             tool_metadata = tool.__annotations__["metadata"](**context_variables)
@@ -182,7 +199,7 @@ class AgentsRoutine:
                     "tool_name": name,
                     "content": "The user is not allowed to run this tool. Don't call it again.",
                 }
-                return response, None
+                return response, None, {}
 
         logger.info(
             f"Entering {name}. Inputs: {input_schema.model_dump(exclude_defaults=True)}."
@@ -202,7 +219,7 @@ class AgentsRoutine:
                 "tool_name": name,
                 "content": str(err),
             }
-            return response, None
+            return response, None, {}
 
         result: Result = self.handle_function_result(raw_result)
         response = {
@@ -215,12 +232,13 @@ class AgentsRoutine:
             agent = result.agent
         else:
             agent = None
-        return response, agent
+        return response, agent, result.tool_variables
 
     async def astream(
         self,
         agent: Agent,
         messages: list[Messages],
+        session: AsyncSession,
         context_variables: dict[str, Any] = {},
         model_override: str | None = None,
         max_turns: int = 10,
@@ -292,26 +310,27 @@ class AgentsRoutine:
                                         }
                                     )
 
-                            for draft_tool_call in draft_tool_calls:
-                                input_args = json.loads(
-                                    draft_tool_call["arguments"] or "{}"
-                                )
-                                try:
-                                    input_schema: type[BaseModel] = tool_map[
-                                        draft_tool_call["name"]
-                                    ].__annotations__["input_schema"]
+                            # for draft_tool_call in draft_tool_calls:
 
-                                    args = input_schema(**input_args).model_dump(
-                                        mode="json"
-                                    )
-                                except ValidationError:
-                                    args = input_args
-                                tool_call_data = {
-                                    "toolCallId": draft_tool_call["id"],
-                                    "toolName": draft_tool_call["name"],
-                                    "args": args,
-                                }
-                                yield f"9:{json.dumps(tool_call_data, separators=(',', ':'))}\n"
+                            #     input_args = json.loads(
+                            #         draft_tool_call["arguments"] or "{}"
+                            #     )
+                            #     try:
+                            #         input_schema: type[BaseModel] = tool_map[
+                            #             draft_tool_call["name"]
+                            #         ].__annotations__["input_schema"]
+
+                            #         args = input_schema(**input_args).model_dump(
+                            #             mode="json"
+                            #         )
+                            #     except ValidationError:
+                            #         args = input_args
+                            #     tool_call_data = {
+                            #         "toolCallId": draft_tool_call["id"],
+                            #         "toolName": draft_tool_call["name"],
+                            #         "args": args,
+                            #     }
+                            #     yield f"9:{json.dumps(tool_call_data, separators=(',', ':'))}\n"
 
                         # Check for tool calls
                         elif choice.delta.tool_calls:
@@ -450,9 +469,10 @@ class AgentsRoutine:
                 # handle function calls, updating context_variables, and switching agents
                 if tool_calls_to_execute:
                     tool_calls_executed = await self.execute_tool_calls(
-                        tool_calls_to_execute[:max_parallel_tool_calls],
-                        active_agent.tools,
-                        context_variables,
+                        tool_calls=tool_calls_to_execute[:max_parallel_tool_calls],
+                        tools=active_agent.tools,
+                        session=session,
+                        context_variables=context_variables,
                     )
                     tool_calls_executed.messages.extend(
                         [
@@ -467,7 +487,10 @@ class AgentsRoutine:
                     )
                 else:
                     tool_calls_executed = Response(
-                        messages=[], agent=None, context_variables=context_variables
+                        messages=[],
+                        agent=None,
+                        context_variables=context_variables,
+                        tool_variables=[],
                     )
 
                 # Before extending history, yield each tool response
@@ -480,7 +503,9 @@ class AgentsRoutine:
 
                 yield f"e:{json.dumps(finish_data)}\n"
 
-                for tool_response in tool_calls_executed.messages:
+                for tool_response, tool_variables in zip(
+                    tool_calls_executed.messages, tool_calls_executed.tool_variables
+                ):
                     # Check if an LLM has been called inside of the tool
                     if context_variables["usage_dict"].get(
                         tool_response["tool_call_id"]
@@ -524,6 +549,12 @@ class AgentsRoutine:
                             content=json.dumps(tool_response),
                             is_complete=True,
                             token_consumption=token_consumption,
+                            variables=[
+                                Variables(id=key, value=value)
+                                for key, value in tool_variables.items()
+                            ]
+                            if tool_variables is not None
+                            else [],
                         )
                     )
 

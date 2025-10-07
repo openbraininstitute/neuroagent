@@ -17,7 +17,7 @@ from neuroagent.schemas import (
     PiechartValue,
     ScatterplotValue,
 )
-from neuroagent.tools.base_tool import BaseMetadata, BaseTool
+from neuroagent.tools.base_tool import BaseMetadata, BaseOutput, BaseTool
 from neuroagent.utils import save_to_storage
 
 logger = logging.getLogger(__name__)
@@ -33,7 +33,9 @@ class PlotInput(BaseModel):
         "json-histogram",
         "json-linechart",
     ] = Field(description="Type of plot to generate")
-    title: str = Field(description="Title for the plot")
+    title: str = Field(
+        description="Title for the plot. Do not mention the variable name if you get one passed."
+    )
     description: str = Field(description="Description of the plot")
     x_label: str | None = Field(None, description="Optional label for x-axis")
     y_label: str | None = Field(None, description="Optional label for y-axis")
@@ -47,7 +49,7 @@ class PlotInput(BaseModel):
         None, description="List of points for scatter plots"
     )
     histogram_values: list[float] | None = Field(
-        None, description="List of values for histogram"
+        None, description="List of values for histogram. Accepts variables."
     )
     histogram_bins: int | None = Field(
         default=10, description="Number of bins for histogram"
@@ -75,7 +77,7 @@ class PlotMetadata(BaseMetadata):
     thread_id: UUID
 
 
-class PlotGeneratorToolOutput(BaseModel):
+class PlotGeneratorToolOutput(BaseOutput):
     """Output class for the plot generator."""
 
     storage_id: str

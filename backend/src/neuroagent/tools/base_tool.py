@@ -27,6 +27,12 @@ class EntitycoreMetadata(BaseMetadata):
     entity_frontend_url: str
 
 
+class BaseOutput(BaseModel):
+    """Base output class for tools."""
+
+    variables: dict[UUID, Any] | None = None
+
+
 class BaseTool(BaseModel, ABC):
     """Base class for the tools."""
 
@@ -67,7 +73,7 @@ class BaseTool(BaseModel, ABC):
         return new_retval
 
     @abstractmethod
-    async def arun(self) -> BaseModel:
+    async def arun(self) -> BaseOutput:
         """Run the tool."""
 
     @classmethod

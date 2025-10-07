@@ -1,6 +1,7 @@
 """New types."""
 
 from typing import Any, Callable
+from uuid import UUID
 
 # Third-party imports
 from pydantic import BaseModel, ConfigDict
@@ -41,6 +42,7 @@ class Response(BaseModel):
 
     messages: list[dict[str, Any]] = []
     agent: Agent | None = None
+    tool_variables: list[dict[UUID, Any] | None] = []
     context_variables: dict[str, Any] = {}
     hil_messages: list[HILResponse] | None = None
 
@@ -81,4 +83,5 @@ class Result(BaseModel):
 
     value: str = ""
     agent: Agent | None = None
+    tool_variables: dict[UUID, Any] | None = None
     context_variables: dict[str, Any] = {}
