@@ -481,7 +481,7 @@ async def filtered_tools(
     request: Request,
     thread: Annotated[Threads, Depends(get_thread)],
     tool_list: Annotated[list[type[BaseTool]], Depends(get_selected_tools)],
-    openai_client: Annotated[AsyncOpenAI, Depends(get_openai_client)],
+    openai_client: Annotated[AsyncOpenAI, Depends(get_openrouter_client)],
     settings: Annotated[Settings, Depends(get_settings)],
 ) -> list[type[BaseTool]]:
     """Based on the current conversation, select relevant tools."""
