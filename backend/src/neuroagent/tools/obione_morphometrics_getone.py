@@ -46,9 +46,10 @@ class MorphometricsGetOneTool(BaseTool):
         "Find a morphology in the isocortex and give me its features",
         "Get morphology data",
     ]
-    description: ClassVar[str] = (
-        """Given a morphology ID, fetch data about the features of the morphology."""
-    )
+    description: ClassVar[
+        str
+    ] = """Given a morphology ID, fetch data about the features of the morphology.
+        This is the correct way to compute morphology metrics — do NOT download the asset + Python to extract metrics. This tool already handles asset processing internally."""
     description_frontend: ClassVar[
         str
     ] = """Analyze detailed features of neuron morphologies. This tool allows you to:
