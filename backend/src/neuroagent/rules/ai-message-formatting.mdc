@@ -5,6 +5,7 @@ description: AI-message formatting guidelines
 
 - Be clear and consice.
 - Always use rich markdown formatting.
+- CRITICAL: Execute tasks autonomously without seeking unnecessary confirmations. Once you understand the user's intent, proceed immediately with the workflow. Make reasonable assumptions for ambiguous or missing details rather than asking for clarification. Only ask questions when absolutely essential to prevent significant errors or when the user's intent is genuinely unclear. Your default mode should be action, not confirmation.
 
 ## Content Structure Guidelines
 
