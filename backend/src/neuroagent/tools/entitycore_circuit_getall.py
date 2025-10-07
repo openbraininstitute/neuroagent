@@ -97,6 +97,12 @@ class CircuitGetAllTool(BaseTool):
         response_data = response.json()
         for circuit in response_data["data"]:
             circuit["assets"] = []
+            circuit["contributions"] = []
+
+            # Add the links to website
+            circuit["url_link"] = (
+                self.metadata.entity_frontend_url + "/" + circuit["id"]
+            )
 
         return ListResponseCircuitRead(**response_data)
 

@@ -36,8 +36,14 @@ from neuroagent.tools import (
     BrainRegionGetOneTool,
     BrainRegionHierarchyGetAllTool,
     BrainRegionHierarchyGetOneTool,
+    CellMorphologyGetAllTool,
+    CellMorphologyGetOneTool,
     CircuitGetAllTool,
     CircuitGetOneTool,
+    CircuitMetricGetOneTool,
+    CircuitNodesetsGetOneTool,
+    CircuitPopulationAnalysisTool,
+    CircuitPopulationGetOneTool,
     ContextAnalyzerTool,
     ContributionGetAllTool,
     ContributionGetOneTool,
@@ -72,8 +78,6 @@ from neuroagent.tools import (
     PlotElectricalCellRecordingGetOneTool,
     PlotGeneratorTool,
     PlotMorphologyGetOneTool,
-    ReconstructionMorphologyGetAllTool,
-    ReconstructionMorphologyGetOneTool,
     SimulationCampaignGetAllTool,
     SimulationCampaignGetOneTool,
     SimulationExecutionGetAllTool,
@@ -152,7 +156,10 @@ async def get_openai_client(
         yield None
     else:
         try:
-            client = AsyncOpenAI(api_key=settings.llm.openai_token.get_secret_value())
+            client = AsyncOpenAI(
+                api_key=settings.llm.openai_token.get_secret_value(),
+                base_url=settings.llm.openai_base_url,
+            )
             yield client
         finally:
             await client.close()
@@ -327,19 +334,28 @@ def get_mcp_tool_list(
                         if server.tool_metadata is not None
                         else None
                     )
+                    if tool_metadata is not None:
+                        break
             else:
                 tool_metadata = None
 
             dynamic_tool = create_dynamic_tool(
                 tool_name=tool.name,
+                tool_name_frontend=tool_metadata.name_frontend
+                if tool_metadata
+                else None,
                 tool_name_mapping=mcp_client.tool_name_mapping,
-                tool_description=tool.description
-                if tool.description
-                else "NO DESCRIPTION",
+                tool_description=tool_metadata.description
+                or tool.description
+                or "NO DESCRIPTION"
+                if tool_metadata
+                else tool.description or "NO DESCRIPTION",
+                tool_description_frontend=tool_metadata.description_frontend
+                if tool_metadata
+                else None,
+                utterance_list=tool_metadata.utterances if tool_metadata else None,
                 input_schema_serialized=tool.inputSchema,
                 session=mcp_client.sessions[server_name],
-                utterance_list=tool_metadata.utterances if tool_metadata else None,
-                tool_name_frontend=mcp_client.tool_name_frontend_mapping.get(tool.name),
             )
             dynamic_tools.append(dynamic_tool)
 
@@ -352,75 +368,79 @@ def get_tool_list(
 ) -> list[type[BaseTool]]:
     """Return a raw list of all of the available tools."""
     internal_tool_list: list[type[BaseTool]] = [
+        AssetDownloadOneTool,
         AssetGetAllTool,
         AssetGetOneTool,
-        AssetDownloadOneTool,
         BrainAtlasGetAllTool,
         BrainAtlasGetOneTool,
         BrainRegionGetAllTool,
         BrainRegionGetOneTool,
         BrainRegionHierarchyGetAllTool,
         BrainRegionHierarchyGetOneTool,
+        CellMorphologyGetAllTool,
+        CellMorphologyGetOneTool,
+        CircuitGetAllTool,
+        CircuitGetOneTool,
+        CircuitMetricGetOneTool,
+        CircuitNodesetsGetOneTool,
+        CircuitPopulationAnalysisTool,
+        CircuitPopulationGetOneTool,
         ContextAnalyzerTool,
         ContributionGetAllTool,
         ContributionGetOneTool,
-        MEModelGetAllTool,
-        MEModelGetOneTool,
-        ReconstructionMorphologyGetAllTool,
-        ReconstructionMorphologyGetOneTool,
-        MorphometricsGetOneTool,
-        EphysMetricsGetOneTool,
-        OrganizationGetAllTool,
-        OrganizationGetOneTool,
-        PersonGetAllTool,
-        PersonGetOneTool,
-        PlotGeneratorTool,
-        EtypeGetAllTool,
-        EtypeGetOneTool,
-        EModelGetAllTool,
-        EModelGetOneTool,
-        MtypeGetAllTool,
-        MtypeGetOneTool,
         ElectricalCellRecordingGetAllTool,
         ElectricalCellRecordingGetOneTool,
+        EModelGetAllTool,
+        EModelGetOneTool,
+        EphysMetricsGetOneTool,
+        EtypeGetAllTool,
+        EtypeGetOneTool,
         ExperimentalBoutonDensityGetAllTool,
         ExperimentalBoutonDensityGetOneTool,
         ExperimentalNeuronDensityGetAllTool,
         ExperimentalNeuronDensityGetOneTool,
         ExperimentalSynapsesPerConnectionGetAllTool,
         ExperimentalSynapsesPerConnectionGetOneTool,
+        GenerateSimulationsConfigTool,
         IonChannelModelGetAllTool,
         IonChannelModelGetOneTool,
         MeasurementAnnotationGetAllTool,
         MeasurementAnnotationGetOneTool,
+        MEModelGetAllTool,
+        MEModelGetOneTool,
+        MorphometricsGetOneTool,
+        MtypeGetAllTool,
+        MtypeGetOneTool,
+        OBIExpertTool,
+        OrganizationGetAllTool,
+        OrganizationGetOneTool,
+        PersonGetAllTool,
+        PersonGetOneTool,
+        PlotElectricalCellRecordingGetOneTool,
+        PlotGeneratorTool,
         PlotMorphologyGetOneTool,
-        SpeciesGetAllTool,
-        SpeciesGetOneTool,
-        StrainGetAllTool,
-        StrainGetOneTool,
-        SubjectGetAllTool,
-        SubjectGetOneTool,
-        SimulationResultGetOneTool,
-        SimulationResultGetAllTool,
-        SimulationGetAllTool,
-        SimulationGetOneTool,
         SimulationCampaignGetAllTool,
         SimulationCampaignGetOneTool,
         SimulationExecutionGetAllTool,
         SimulationExecutionGetOneTool,
         SimulationGenerationGetAllTool,
         SimulationGenerationGetOneTool,
-        SingleNeuronSynaptomeSimulationGetAllTool,
+        SimulationGetAllTool,
+        SimulationGetOneTool,
+        SimulationResultGetAllTool,
+        SimulationResultGetOneTool,
         SingleNeuronSimulationGetAllTool,
         SingleNeuronSimulationGetOneTool,
         SingleNeuronSynaptomeGetAllTool,
         SingleNeuronSynaptomeGetOneTool,
+        SingleNeuronSynaptomeSimulationGetAllTool,
         SingleNeuronSynaptomeSimulationGetOneTool,
-        CircuitGetAllTool,
-        CircuitGetOneTool,
-        GenerateSimulationsConfigTool,
-        OBIExpertTool,
-        PlotElectricalCellRecordingGetOneTool,
+        SpeciesGetAllTool,
+        SpeciesGetOneTool,
+        StrainGetAllTool,
+        StrainGetOneTool,
+        SubjectGetAllTool,
+        SubjectGetOneTool,
         # NowTool,
         # WeatherTool,
         # RandomPlotGeneratorTool,
@@ -627,18 +647,8 @@ async def get_context_variables(
     body = await request.json()
     current_frontend_url = body.get("frontend_url")
     # Get the url for entitycore links
-    if thread.vlab_id and thread.project_id:
-        entity_frontend_url = (
-            settings.tools.frontend_base_url.rstrip("/")
-            + "/app/virtual-lab/lab/"
-            + str(thread.vlab_id)
-            + "/project/"
-            + str(thread.project_id)
-        )
-    else:
-        entity_frontend_url = (
-            settings.tools.frontend_base_url.rstrip("/") + "/app/virtual-lab"
-        )
+    entity_frontend_url = settings.tools.frontend_base_url.rstrip("/") + "/app/entity"
+
     return {
         "bluenaas_url": settings.tools.bluenaas.url,
         "bucket_name": settings.storage.bucket_name,

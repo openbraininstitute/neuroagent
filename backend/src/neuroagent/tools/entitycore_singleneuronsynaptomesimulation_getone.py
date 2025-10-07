@@ -74,7 +74,12 @@ class SingleNeuronSynaptomeSimulationGetOneTool(BaseTool):
             raise ValueError(
                 f"The single-neuron-synaptome-simulation endpoint returned a non 200 response code. Error: {response.text}"
             )
-        return SingleNeuronSynaptomeSimulationRead(**response.json())
+
+        response_data = response.json()
+        response_data["url_link"] = (
+            self.metadata.entity_frontend_url + "/" + response_data["id"]
+        )
+        return SingleNeuronSynaptomeSimulationRead(**response_data)
 
     @classmethod
     async def is_online(cls, *, httpx_client: AsyncClient, entitycore_url: str) -> bool:
