@@ -241,6 +241,7 @@ class AssetLabel(
             'cell_surface_mesh',
             'jupyter_notebook',
             'requirements',
+            'ion_channel_model_figure',
         ]
     ]
 ):
@@ -282,6 +283,7 @@ class AssetLabel(
         'cell_surface_mesh',
         'jupyter_notebook',
         'requirements',
+        'ion_channel_model_figure',
     ] = Field(..., description='See docs/asset-labels.md.', title='AssetLabel')
 
 

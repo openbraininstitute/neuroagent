@@ -134,6 +134,13 @@ class CircuitNodesetsResponse(BaseModel):
     nodesets: list[str] = Field(..., title='Nodesets')
 
 
+class CircuitPopulationsResponse(BaseModel):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    populations: list[str] = Field(..., title='Populations')
+
+
 class CircuitStatsLevelOfDetail(RootModel[Literal[0, 1, 2, 3]]):
     root: Literal[0, 1, 2, 3] = Field(..., title='CircuitStatsLevelOfDetail')
 
