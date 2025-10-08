@@ -7,8 +7,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## Changed
+- Use typescript autogen for backend types in frontend.
+- Try to enforce using metric tools rather than downloading assets.
+- Rule to avoid overvalidating.
+
+## [v0.10.0] - 2.10.2025
+
+### Fixed
+- Remove `stream.py` and assume connections are not closed on return.
+- `url_link` in tools that retrieve explore data.
+
 ### Changed
+- Made the context analyzer an url analyzer instead.
+
+## [v0.9.4] - 01.10.2025
+
+### Changed
+- Hardocded minimal Deno version in Dockerfile.
+
+## [v0.9.3] - 30.09.2025
+
+### Added
+- Possibility to change the OpenAI SDK base url via an env var.
+
+### Fixed
 - Remove `sonata_asset_id` from circuit analysis tool dependency.
+- Switch to Flash models for tool selection.
+
 
 ## [v0.9.2] - 25.09.2025
 
@@ -17,6 +43,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Endpoint names in entitycore.
+- Question suggestion return only one when not in chat.
 
 ## [v0.9.1] - 24.09.2025
 

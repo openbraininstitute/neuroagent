@@ -120,7 +120,7 @@ class SettingsTools(BaseModel):
     sanity: SettingsSanity = SettingsSanity()
     thumbnail_generation: SettingsThumbnailGeneration = SettingsThumbnailGeneration()
     frontend_base_url: str = "https://openbraininstitute.org"
-    min_tool_selection: int = Field(default=10, ge=0)
+    min_tool_selection: int = Field(default=5, ge=0)
     whitelisted_tool_regex: str | None = None
 
     model_config = ConfigDict(frozen=True)
@@ -130,6 +130,7 @@ class SettingsLLM(BaseModel):
     """OpenAI settings."""
 
     openai_token: SecretStr | None = None
+    openai_base_url: str | None = None
     open_router_token: SecretStr | None = None
     suggestion_model: str = "gpt-4o-mini"
     temperature: float = 1

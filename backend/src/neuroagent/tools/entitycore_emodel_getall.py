@@ -109,6 +109,9 @@ class EModelGetAllTool(BaseTool):
             emodel["assets"] = []
             emodel["ion_channel_models"] = []
 
+            # Add the links to website
+            emodel["url_link"] = self.metadata.entity_frontend_url + "/" + emodel["id"]
+
         return ListResponseEModelReadExpanded(**response_data)
 
     @classmethod

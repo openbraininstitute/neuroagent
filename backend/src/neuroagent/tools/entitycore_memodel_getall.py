@@ -98,6 +98,11 @@ class MEModelGetAllTool(BaseTool):
             memodel["emodel"]["ion_channel_models"] = []
             memodel["emodel"]["legacy_id"] = []
 
+            # Add the links to website
+            memodel["url_link"] = (
+                self.metadata.entity_frontend_url + "/" + memodel["id"]
+            )
+
         return ListResponseMEModelRead(**response_data)
 
     @classmethod

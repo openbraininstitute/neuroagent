@@ -63,7 +63,11 @@ class MEModelGetOneTool(BaseTool):
                 f"The ME-Model endpoint returned a non 200 response code. Error: {response.text}"
             )
 
-        return MEModelRead(**response.json())
+        response_json = response.json()
+        response_json["url_link"] = (
+            self.metadata.entity_frontend_url + "/" + response_json["id"]
+        )
+        return MEModelRead(**response_json)
 
     @classmethod
     async def is_online(cls, *, httpx_client: AsyncClient, entitycore_url: str) -> bool:

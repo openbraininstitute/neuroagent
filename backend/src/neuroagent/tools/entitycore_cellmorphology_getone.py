@@ -83,10 +83,7 @@ class CellMorphologyGetOneTool(BaseTool):
         # Add the link
         response_json = response.json()
         response_json["url_link"] = (
-            self.metadata.entity_frontend_url
-            + "/explore/interactive/experimental"
-            + "/morphology/"
-            + response_json["id"]
+            self.metadata.entity_frontend_url + "/" + response_json["id"]
         )
         return ReadOneCellMorphologyIdGetResponse(**response_json)
 

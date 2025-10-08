@@ -156,7 +156,10 @@ async def get_openai_client(
         yield None
     else:
         try:
-            client = AsyncOpenAI(api_key=settings.llm.openai_token.get_secret_value())
+            client = AsyncOpenAI(
+                api_key=settings.llm.openai_token.get_secret_value(),
+                base_url=settings.llm.openai_base_url,
+            )
             yield client
         finally:
             await client.close()
@@ -478,7 +481,7 @@ async def filtered_tools(
     request: Request,
     thread: Annotated[Threads, Depends(get_thread)],
     tool_list: Annotated[list[type[BaseTool]], Depends(get_selected_tools)],
-    openai_client: Annotated[AsyncOpenAI, Depends(get_openai_client)],
+    openai_client: Annotated[AsyncOpenAI, Depends(get_openrouter_client)],
     settings: Annotated[Settings, Depends(get_settings)],
 ) -> list[type[BaseTool]]:
     """Based on the current conversation, select relevant tools."""
@@ -643,18 +646,8 @@ async def get_context_variables(
     body = await request.json()
     current_frontend_url = body.get("frontend_url")
     # Get the url for entitycore links
-    if thread.vlab_id and thread.project_id:
-        entity_frontend_url = (
-            settings.tools.frontend_base_url.rstrip("/")
-            + "/app/virtual-lab/lab/"
-            + str(thread.vlab_id)
-            + "/project/"
-            + str(thread.project_id)
-        )
-    else:
-        entity_frontend_url = (
-            settings.tools.frontend_base_url.rstrip("/") + "/app/virtual-lab"
-        )
+    entity_frontend_url = settings.tools.frontend_base_url.rstrip("/") + "/app/entity"
+
     return {
         "bluenaas_url": settings.tools.bluenaas.url,
         "bucket_name": settings.storage.bucket_name,

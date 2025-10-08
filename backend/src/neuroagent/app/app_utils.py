@@ -2,6 +2,7 @@
 
 import json
 import logging
+import time
 import uuid
 from typing import Any, Literal, Sequence
 
@@ -181,14 +182,13 @@ async def rate_limit(
 
 
 async def commit_messages(
-    engine: AsyncEngine, messages: list[Messages], thread: Threads
+    session: AsyncSession, messages: list[Messages], thread: Threads
 ) -> None:
     """Commit the messages in a bg task."""
-    async with AsyncSession(engine) as session:
-        session.add_all(messages)
-        thread.update_date = utc_now()
-        await session.commit()
-        await session.close()
+    session.add_all(messages)
+    thread.update_date = utc_now()
+    await session.commit()
+    await session.close()
 
 
 def format_messages_output(
@@ -490,7 +490,8 @@ AVAILABLE TOOLS:
 
     try:
         # Send the OpenAI request
-        model = "gpt-4o-mini"
+        model = "google/gemini-2.5-flash"
+        start_request = time.time()
         response = await openai_client.beta.chat.completions.parse(
             messages=[{"role": "system", "content": system_prompt}, *openai_messages],  # type: ignore
             model=model,
@@ -503,7 +504,7 @@ AVAILABLE TOOLS:
                 set(response.choices[0].message.parsed.selected_tools)
             )
             logger.debug(
-                f"#TOOLS: {len(selected_tools)}, SELECTED TOOLS: {selected_tools}"
+                f"#TOOLS: {len(selected_tools)}, SELECTED TOOLS: {selected_tools} in {(time.time() - start_request):.2f} s"
             )
 
             # Add selected tools into the message's data
