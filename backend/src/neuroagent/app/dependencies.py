@@ -8,7 +8,6 @@ from functools import cache
 from pathlib import Path
 from typing import Annotated, Any, AsyncIterator
 
-import boto3
 from fastapi import Depends, HTTPException, Request
 from fastapi.security import HTTPBearer
 from httpx import AsyncClient, HTTPStatusError, get
@@ -26,6 +25,7 @@ from neuroagent.app.database.sql_schemas import Entity, Messages, Threads
 from neuroagent.app.schemas import OpenRouterModelResponse, UserInfo
 from neuroagent.mcp import MCPClient, create_dynamic_tool
 from neuroagent.new_types import Agent
+from neuroagent.storage.s3_storage import S3StorageClient
 from neuroagent.tools import (
     AssetDownloadOneTool,
     AssetGetAllTool,
@@ -606,28 +606,27 @@ def get_starting_agent(
     return agent
 
 
-def get_s3_client(
+def get_storage_client(
     settings: Annotated[Settings, Depends(get_settings)],
 ) -> Any:
-    """Get the S3 client."""
-    if settings.storage.access_key is None:
-        access_key = None
-    else:
-        access_key = settings.storage.access_key.get_secret_value()
+    """Get the storage client."""
+    if settings.storage.provider == "s3":
+        access = (
+            settings.storage.access_key.get_secret_value()
+            if settings.storage.access_key
+            else None
+        )
+        secret = (
+            settings.storage.secret_key.get_secret_value()
+            if settings.storage.secret_key
+            else None
+        )
 
-    if settings.storage.secret_key is None:
-        secret_key = None
-    else:
-        secret_key = settings.storage.secret_key.get_secret_value()
-
-    return boto3.client(
-        "s3",
-        endpoint_url=settings.storage.endpoint_url,
-        aws_access_key_id=access_key,
-        aws_secret_access_key=secret_key,
-        aws_session_token=None,
-        config=boto3.session.Config(signature_version="s3v4"),
-    )
+        return S3StorageClient(
+            endpoint_url=settings.storage.endpoint_url,
+            access_key=access,
+            secret_key=secret,
+        )
 
 
 async def get_context_variables(
@@ -635,7 +634,7 @@ async def get_context_variables(
     settings: Annotated[Settings, Depends(get_settings)],
     httpx_client: Annotated[AsyncClient, Depends(get_httpx_client)],
     thread: Annotated[Threads, Depends(get_thread)],
-    s3_client: Annotated[Any, Depends(get_s3_client)],
+    storage_client: Annotated[Any, Depends(get_storage_client)],
     user_info: Annotated[UserInfo, Depends(get_user_info)],
     openai_client: Annotated[AsyncOpenAI, Depends(get_openai_client)],
 ) -> dict[str, Any]:
@@ -666,7 +665,7 @@ async def get_context_variables(
         "obi_one_url": settings.tools.obi_one.url,
         "openai_client": openai_client,
         "project_id": thread.project_id,
-        "s3_client": s3_client,
+        "storage_client": storage_client,
         "sanity_url": settings.tools.sanity.url,
         "thread_id": thread.thread_id,
         "thumbnail_generation_url": settings.tools.thumbnail_generation.url,

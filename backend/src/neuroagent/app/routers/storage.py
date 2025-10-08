@@ -7,7 +7,7 @@ from botocore.exceptions import ClientError
 from fastapi import APIRouter, Depends, HTTPException
 
 from neuroagent.app.config import Settings
-from neuroagent.app.dependencies import get_s3_client, get_settings, get_user_info
+from neuroagent.app.dependencies import get_settings, get_storage_client, get_user_info
 from neuroagent.app.schemas import UserInfo
 
 logger = logging.getLogger(__name__)
@@ -20,7 +20,7 @@ async def generate_presigned_url(
     file_identifier: str,
     user_info: Annotated[UserInfo, Depends(get_user_info)],
     settings: Annotated[Settings, Depends(get_settings)],
-    s3_client: Annotated[Any, Depends(get_s3_client)],
+    storage_client: Annotated[Any, Depends(get_storage_client)],
 ) -> str:
     """Generate a presigned URL for file access."""
     # Construct the key with user-specific path (without bucket name)
@@ -28,7 +28,7 @@ async def generate_presigned_url(
 
     # Check if object exists first
     try:
-        s3_client.head_object(Bucket=settings.storage.bucket_name, Key=key)
+        storage_client.head_object(Bucket=settings.storage.bucket_name, Key=key)
     except ClientError as e:
         if e.response["Error"]["Code"] == "404":
             raise HTTPException(
@@ -37,7 +37,7 @@ async def generate_presigned_url(
         raise HTTPException(status_code=500, detail="Error accessing the file")
 
     # Generate presigned URL that's valid for 10 minutes
-    presigned_url = s3_client.generate_presigned_url(
+    presigned_url = storage_client.generate_presigned_url(
         "get_object",
         Params={
             "Bucket": settings.storage.bucket_name,

@@ -28,7 +28,7 @@ class PlotElectricalCellRecordingGetOneMetadata(BaseMetadata):
 
     httpx_client: AsyncClient
     thumbnail_generation_url: str
-    s3_client: Any  # boto3 client
+    storage_client: Any  # boto3 client
     user_id: UUID
     bucket_name: str
     thread_id: UUID
@@ -105,7 +105,7 @@ class PlotElectricalCellRecordingGetOneTool(BaseTool):
 
         # Save to storage
         identifier = save_to_storage(
-            s3_client=self.metadata.s3_client,
+            storage_client=self.metadata.storage_client,
             bucket_name=self.metadata.bucket_name,
             user_id=self.metadata.user_id,
             content_type="image/png",

@@ -3,7 +3,7 @@ from unittest.mock import Mock
 import pytest
 from botocore.exceptions import ClientError
 
-from neuroagent.app.dependencies import get_s3_client, get_settings, get_user_info
+from neuroagent.app.dependencies import get_settings, get_storage_client, get_user_info
 from neuroagent.app.main import app
 from neuroagent.app.schemas import UserInfo
 
@@ -16,7 +16,7 @@ def test_generate_presigned_url(app_client, test_user_info):
     mock_s3.generate_presigned_url.return_value = "https://fake-presigned-url"
     mock_s3.head_object.return_value = True
 
-    app.dependency_overrides[get_s3_client] = lambda: mock_s3
+    app.dependency_overrides[get_storage_client] = lambda: mock_s3
     app.dependency_overrides[get_settings] = lambda: Mock(
         storage=Mock(bucket_name="test-bucket", expires_in=600),
         misc=Mock(application_prefix="whatever"),

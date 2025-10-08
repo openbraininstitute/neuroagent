@@ -119,7 +119,7 @@ def test_save_to_storage():
 
     # Call function
     identifier = save_to_storage(
-        s3_client=mock_s3,
+        storage_client=mock_s3,
         bucket_name=bucket_name,
         user_id=user_id,
         content_type=content_type,
@@ -155,7 +155,7 @@ def test_save_to_storage_without_thread_id():
 
     # Call function without thread_id
     identifier = save_to_storage(
-        s3_client=mock_s3,
+        storage_client=mock_s3,
         bucket_name=bucket_name,
         user_id=user_id,
         content_type=content_type,
@@ -191,7 +191,7 @@ def test_save_to_storage_with_string_body():
 
     # Call function
     identifier = save_to_storage(
-        s3_client=mock_s3,
+        storage_client=mock_s3,
         bucket_name=bucket_name,
         user_id=user_id,
         content_type=content_type,
@@ -251,7 +251,7 @@ def test_delete_from_storage():
 
     # Call function
     delete_from_storage(
-        s3_client=mock_s3,
+        storage_client=mock_s3,
         bucket_name=bucket_name,
         user_id=user_id,
         thread_id=thread_id,
@@ -313,7 +313,7 @@ def test_delete_from_storage_no_contents():
 
     # Call function
     delete_from_storage(
-        s3_client=mock_s3,
+        storage_client=mock_s3,
         bucket_name=bucket_name,
         user_id=user_id,
         thread_id=thread_id,
@@ -352,7 +352,7 @@ def test_delete_from_storage_large_batch():
 
     # Call function
     delete_from_storage(
-        s3_client=mock_s3,
+        storage_client=mock_s3,
         bucket_name=bucket_name,
         user_id=user_id,
         thread_id=thread_id,

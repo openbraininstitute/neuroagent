@@ -146,7 +146,7 @@ def complete_partial_json(partial: str) -> str:
 
 
 def save_to_storage(
-    s3_client: Any,
+    storage_client: Any,
     bucket_name: str,
     user_id: uuid.UUID,
     content_type: str,
@@ -158,8 +158,8 @@ def save_to_storage(
 
     Parameters
     ----------
-    s3_client : Any
-        Boto3 S3 client instance
+    storage_client : Any
+        S3 or Azure client instance
     bucket_name : str
         Name of the S3 bucket
     user_id : str
@@ -180,30 +180,22 @@ def save_to_storage(
     """
     # Generate unique identifier
     identifier = str(uuid.uuid4())
-
-    # Construct the full path including user_id
-    key_parts = [str(user_id), identifier]
-    filename = "/".join(key_parts)
-
-    metadata: dict[str, str] = {"category": category}
-
-    if thread_id is not None:
+    key = f"{user_id}/{identifier}"
+    metadata = {"category": str(category)}
+    if thread_id:
         metadata["thread_id"] = str(thread_id)
-
-    # Save to S3 with metadata
-    s3_client.put_object(
-        Bucket=bucket_name,
-        Key=filename,
-        Body=body,
-        ContentType=content_type,
-        Metadata=metadata,
+    storage_client.put_object(
+        container=bucket_name,
+        key=key,
+        body=body,
+        content_type=content_type,
+        metadata=metadata,
     )
-
     return identifier
 
 
 def delete_from_storage(
-    s3_client: Any,
+    storage_client: Any,
     bucket_name: str,
     user_id: uuid.UUID,
     thread_id: uuid.UUID,
@@ -222,33 +214,19 @@ def delete_from_storage(
         Thread identifier for filtering objects to delete
     """
     # List all objects under the user's prefix
-    paginator = s3_client.get_paginator("list_objects_v2")
-    pages = paginator.paginate(Bucket=bucket_name, Prefix=f"{user_id}/")
+    prefix = f"{user_id}/"
+    to_delete = []
 
-    # Collect objects to delete
-    objects_to_delete = []
+    # Collect matching objects
+    for key in storage_client.list_objects(container=bucket_name, prefix=prefix):
+        meta = storage_client.get_metadata(container=bucket_name, key=key) or {}
+        # metadata values are strings; compare to stringified thread_id
+        if meta.get("thread_id") == str(thread_id):
+            to_delete.append(key)
 
-    for page in pages:
-        if "Contents" not in page:
-            continue
-
-        for obj in page["Contents"]:
-            # Get object metadata
-            head = s3_client.head_object(Bucket=bucket_name, Key=obj["Key"])
-            metadata = head.get("Metadata", {})
-
-            # Check if object has matching thread_id
-            if metadata.get("thread_id") == thread_id:
-                objects_to_delete.append({"Key": obj["Key"]})
-
-        # Delete in batches of 1000 (S3 limit)
-        if objects_to_delete:
-            for i in range(0, len(objects_to_delete), 1000):
-                batch = objects_to_delete[i : i + 1000]
-                s3_client.delete_objects(
-                    Bucket=bucket_name, Delete={"Objects": batch, "Quiet": True}
-                )
-            objects_to_delete = []
+    # delete each (some providers support batch deletes; simple per-object delete here)
+    for key in to_delete:
+        storage_client.delete_object(container=bucket_name, key=key)
 
 
 def get_token_count(usage: CompletionUsage | None) -> dict[str, int | None]:

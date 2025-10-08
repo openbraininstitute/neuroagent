@@ -24,9 +24,9 @@ from neuroagent.app.database.sql_schemas import Entity, Messages, Threads, utc_n
 from neuroagent.app.dependencies import (
     get_openai_client,
     get_redis_client,
-    get_s3_client,
     get_session,
     get_settings,
+    get_storage_client,
     get_thread,
     get_tool_list,
     get_user_info,
@@ -284,7 +284,7 @@ async def update_thread_title(
 async def delete_thread(
     session: Annotated[AsyncSession, Depends(get_session)],
     thread: Annotated[Threads, Depends(get_thread)],
-    s3_client: Annotated[Any, Depends(get_s3_client)],
+    storage_client: Annotated[Any, Depends(get_storage_client)],
     settings: Annotated[Settings, Depends(get_settings)],
     user_info: Annotated[UserInfo, Depends(get_user_info)],
 ) -> dict[str, str]:
@@ -295,7 +295,7 @@ async def delete_thread(
 
     # Delete associated S3 objects first
     delete_from_storage(
-        s3_client=s3_client,
+        storage_client=storage_client,
         bucket_name=settings.storage.bucket_name,
         user_id=user_info.sub,
         thread_id=thread.thread_id,
