@@ -8,8 +8,6 @@ from functools import cache
 from pathlib import Path
 from typing import Annotated, Any, AsyncIterator
 
-from azure.core.credentials import AzureNamedKeyCredential
-from azure.storage.blob import BlobServiceClient
 from fastapi import Depends, HTTPException, Request
 from fastapi.security import HTTPBearer
 from httpx import AsyncClient, HTTPStatusError, get
@@ -643,20 +641,19 @@ def get_storage_client(
                 "Azure storage requires azure_account_name and azure_account_key"
             )
 
-        account_name = settings.storage.azure_account_name.get_secret_value()
-        account_key = settings.storage.azure_account_key.get_secret_value()
-        
         if settings.storage.azure_endpoint_url:
             # Local Azurite: use connection string format
             return AzureBlobStorageClient(
                 azure_endpoint_url=settings.storage.azure_endpoint_url,
-                account_name=account_name,
-                account_key=account_key,
-                container=settings.storage.container_name)
-        else: 
+                account_name=settings.storage.azure_account_name.get_secret_value(),
+                account_key=settings.storage.azure_account_key.get_secret_value(),
+                container=settings.storage.container_name,
+            )
+        else:
+            # Prod azure blob storage.
             return AzureBlobStorageClient(
-                account_name=account_name,
-                account_key=account_key,
+                account_name=settings.storage.azure_account_name.get_secret_value(),
+                account_key=settings.storage.azure_account_key.get_secret_value(),
                 container=settings.storage.container_name,
             )
 

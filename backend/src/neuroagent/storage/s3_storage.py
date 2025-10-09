@@ -1,6 +1,6 @@
 """S3 class for the storage."""
 
-from typing import Dict
+from typing import Any, Dict, Generator
 
 import boto3
 import botocore
@@ -44,7 +44,7 @@ class S3StorageClient(StorageClient):
         metadata: Dict[str, str] | None = None,
     ) -> None:
         """Upload an object to the specified S3 bucket."""
-        params = {
+        params: dict[str, Any] = {
             "Bucket": container,
             "Key": key,
             "Body": body,
@@ -58,7 +58,7 @@ class S3StorageClient(StorageClient):
         """Delete an object from the S3 bucket."""
         self.client.delete_object(Bucket=container, Key=key)
 
-    def list_objects(self, container: str, prefix: str):
+    def list_objects(self, container: str, prefix: str) -> Generator[str, None, None]:
         """List object keys in a bucket matching a given prefix."""
         paginator = self.client.get_paginator("list_objects_v2")
         for page in paginator.paginate(Bucket=container, Prefix=prefix):

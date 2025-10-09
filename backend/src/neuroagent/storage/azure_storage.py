@@ -3,13 +3,13 @@
 from datetime import datetime, timedelta
 from typing import Dict, Iterable, Optional
 
+from azure.core.credentials import AzureNamedKeyCredential
 from azure.core.exceptions import (
     HttpResponseError,
     ResourceExistsError,
     ResourceNotFoundError,
     ServiceRequestError,
 )
-from azure.core.credentials import AzureNamedKeyCredential
 from azure.storage.blob import (
     BlobSasPermissions,
     BlobServiceClient,
@@ -26,28 +26,26 @@ class AzureBlobStorageClient(StorageClient):
 
     def __init__(
         self,
-        azure_endpoint_url: str| None = None,
-        account_name: str | None = None,
-        account_key: str | None = None,
-        container: str | None = None,
+        account_name: str,
+        account_key: str,
+        container: str,
+        azure_endpoint_url: str | None = None,
     ):
         """
         Initialize an Azure storage client.
 
         Args:
-            connection_string (str, optional): for local storage, the endpoint url to generate the 
-                connection string.
-            account_name (str, optional): Azure account name. Required only for generating SAS tokens
-                if signing URLs is needed.
-            account_key (str, optional): Azure account key. Required only for generating SAS tokens
-                if signing URLs is needed.
-            container (str, optional): Name of the Azure container.
+
+            account_name (str): Azure account name. Required only for generating SAS tokens.
+            account_key (str): Azure account key. Required only for generating SAS tokens.
+            container (str): Name of the Azure container.
+            connection_string (str, optional): for local storage, the endpoint url to generate the connection string.
 
         Returns
         -------
             Any: An instance of the Azure storage class.
         """
-        if azure_endpoint_url: 
+        if azure_endpoint_url:
             connection_string = (
                 f"DefaultEndpointsProtocol=http;"
                 f"AccountName={account_name};"
@@ -55,7 +53,7 @@ class AzureBlobStorageClient(StorageClient):
                 f"BlobEndpoint={azure_endpoint_url};"
             )
             self.service = BlobServiceClient.from_connection_string(connection_string)
-        else : 
+        else:
             account_url = f"https://{account_name}.blob.core.windows.net"
             credential = AzureNamedKeyCredential(account_name, account_key)
             self.service = BlobServiceClient(
