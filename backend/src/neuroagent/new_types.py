@@ -79,6 +79,6 @@ class Result(BaseModel):
         context_variables (dict): A dictionary of context variables.
     """
 
-    value: str = ""
+    value: dict[str, Any]
     agent: Agent | None = None
     context_variables: dict[str, Any] = {}
