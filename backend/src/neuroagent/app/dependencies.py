@@ -645,32 +645,20 @@ def get_storage_client(
 
         account_name = settings.storage.azure_account_name.get_secret_value()
         account_key = settings.storage.azure_account_key.get_secret_value()
-
-        # Determine the account URL
+        
         if settings.storage.azure_endpoint_url:
-            # Local Azurite or custom endpoint
-            account_url = settings.storage.azure_endpoint_url
-        else:
-            # Production: standard Azure Blob Storage URL
-            account_url = f"https://{account_name}.blob.core.windows.net"
-
-        credential = AzureNamedKeyCredential(account_name, account_key)
-
-        svc = BlobServiceClient(
-            account_url=account_url,
-            credential=credential,
-            connection_timeout=3,
-            read_timeout=6,
-        )
-        svc = BlobServiceClient.from_connection_string(
-            "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://127.0.0.1:10000/devstoreaccount1;"
-        )
-        return AzureBlobStorageClient(
-            service_client=svc,
-            account_name=account_name,
-            account_key=account_key,
-            container=settings.storage.container_name,
-        )
+            # Local Azurite: use connection string format
+            return AzureBlobStorageClient(
+                azure_endpoint_url=settings.storage.azure_endpoint_url,
+                account_name=account_name,
+                account_key=account_key,
+                container=settings.storage.container_name)
+        else: 
+            return AzureBlobStorageClient(
+                account_name=account_name,
+                account_key=account_key,
+                container=settings.storage.container_name,
+            )
 
     raise ValueError("No storage provider defined.")
 

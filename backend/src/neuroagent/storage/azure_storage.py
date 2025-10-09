@@ -9,6 +9,7 @@ from azure.core.exceptions import (
     ResourceNotFoundError,
     ServiceRequestError,
 )
+from azure.core.credentials import AzureNamedKeyCredential
 from azure.storage.blob import (
     BlobSasPermissions,
     BlobServiceClient,
@@ -25,7 +26,7 @@ class AzureBlobStorageClient(StorageClient):
 
     def __init__(
         self,
-        service_client: BlobServiceClient,
+        azure_endpoint_url: str| None = None,
         account_name: str | None = None,
         account_key: str | None = None,
         container: str | None = None,
@@ -34,19 +35,34 @@ class AzureBlobStorageClient(StorageClient):
         Initialize an Azure storage client.
 
         Args:
-            service_client (BlobServiceClient): Instance created from a connection string or
-                account URL and credential.
+            connection_string (str, optional): for local storage, the endpoint url to generate the 
+                connection string.
             account_name (str, optional): Azure account name. Required only for generating SAS tokens
                 if signing URLs is needed.
             account_key (str, optional): Azure account key. Required only for generating SAS tokens
                 if signing URLs is needed.
-            container (str): Name of the Azure container.
+            container (str, optional): Name of the Azure container.
 
         Returns
         -------
             Any: An instance of the Azure storage class.
         """
-        self.service = service_client
+        if azure_endpoint_url: 
+            connection_string = (
+                f"DefaultEndpointsProtocol=http;"
+                f"AccountName={account_name};"
+                f"AccountKey={account_key};"
+                f"BlobEndpoint={azure_endpoint_url};"
+            )
+            self.service = BlobServiceClient.from_connection_string(connection_string)
+        else : 
+            account_url = f"https://{account_name}.blob.core.windows.net"
+            credential = AzureNamedKeyCredential(account_name, account_key)
+            self.service = BlobServiceClient(
+                account_url=account_url,
+                credential=credential,
+            )
+
         self.account_name = account_name
         self.account_key = account_key
         self.container = container
