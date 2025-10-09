@@ -38,7 +38,10 @@ const SinglePlotInChat = memo(({ storageId }: { storageId: string }) => {
     !isPending,
     true,
   );
-  const category = responseHeader?.get("X-Amz-Meta-Category");
+  const category =
+    responseHeader?.get("X-Amz-Meta-Category") ||
+    responseHeader?.get("x-ms-meta-category") ||
+    null;
 
   if (!category) {
     return (

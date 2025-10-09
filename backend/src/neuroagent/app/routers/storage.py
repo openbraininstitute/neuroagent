@@ -1,14 +1,14 @@
 """Storage related operations."""
 
 import logging
-from typing import Annotated, Any
+from typing import Annotated
 
-from botocore.exceptions import ClientError
 from fastapi import APIRouter, Depends, HTTPException
 
 from neuroagent.app.config import Settings
 from neuroagent.app.dependencies import get_settings, get_storage_client, get_user_info
 from neuroagent.app.schemas import UserInfo
+from neuroagent.storage.base_storage import StorageClient
 
 logger = logging.getLogger(__name__)
 
@@ -20,30 +20,42 @@ async def generate_presigned_url(
     file_identifier: str,
     user_info: Annotated[UserInfo, Depends(get_user_info)],
     settings: Annotated[Settings, Depends(get_settings)],
-    storage_client: Annotated[Any, Depends(get_storage_client)],
+    storage_client: Annotated[StorageClient, Depends(get_storage_client)],
 ) -> str:
-    """Generate a presigned URL for file access."""
-    # Construct the key with user-specific path (without bucket name)
+    """
+    Generate a presigned URL for file access using the storage abstraction.
+
+    Supports S3/MinIO and Azure/Azurite storage backends.
+
+    Returns
+    -------
+        str: The presigned URL for accessing the file.
+    """
+    # Build key from the authenticated user's id
     key = f"{user_info.sub}/{file_identifier}"
 
-    # Check if object exists first
-    try:
-        storage_client.head_object(Bucket=settings.storage.bucket_name, Key=key)
-    except ClientError as e:
-        if e.response["Error"]["Code"] == "404":
-            raise HTTPException(
-                status_code=404, detail=f"File {file_identifier} not found"
-            )
-        raise HTTPException(status_code=500, detail="Error accessing the file")
-
-    # Generate presigned URL that's valid for 10 minutes
-    presigned_url = storage_client.generate_presigned_url(
-        "get_object",
-        Params={
-            "Bucket": settings.storage.bucket_name,
-            "Key": key,
-        },
-        ExpiresIn=settings.storage.expires_in,
+    # Check existence with the abstracted method (provider-agnostic)
+    metadata = storage_client.get_metadata(
+        container=settings.storage.container_name, key=key
     )
+    if metadata is None:
+        raise HTTPException(status_code=404, detail=f"File {file_identifier} not found")
 
-    return presigned_url
+    # Ask the provider to build a presigned URL / SAS
+    try:
+        url = storage_client.generate_presigned_url(
+            container=settings.storage.container_name,
+            key=key,
+            expires_in=settings.storage.expires_in,
+        )
+    except NotImplementedError:
+        raise HTTPException(
+            status_code=501,
+            detail="Presigned URL generation not implemented for this provider",
+        )
+    except Exception as exc:
+        raise HTTPException(
+            status_code=500, detail=f"Error generating presigned URL: {exc}"
+        )
+
+    return url

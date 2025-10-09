@@ -30,7 +30,7 @@ class PlotElectricalCellRecordingGetOneMetadata(BaseMetadata):
     thumbnail_generation_url: str
     storage_client: Any  # boto3 client
     user_id: UUID
-    bucket_name: str
+    container_name: str
     thread_id: UUID
     vlab_id: UUID | None
     project_id: UUID | None
@@ -106,7 +106,7 @@ class PlotElectricalCellRecordingGetOneTool(BaseTool):
         # Save to storage
         identifier = save_to_storage(
             storage_client=self.metadata.storage_client,
-            bucket_name=self.metadata.bucket_name,
+            container_name=self.metadata.container_name,
             user_id=self.metadata.user_id,
             content_type="image/png",
             category="image",

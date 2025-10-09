@@ -9,6 +9,12 @@ const nextConfig: NextConfig = {
       {
         protocol: "http",
         hostname: "localhost",
+        port: "10000",
+        pathname: "/devstoreaccount1/**",
+      },
+      {
+        protocol: "http",
+        hostname: "localhost",
         port: "9000",
         pathname: "/**",
       },

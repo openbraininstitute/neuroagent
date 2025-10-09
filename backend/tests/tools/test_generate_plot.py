@@ -36,7 +36,7 @@ class TestPlotGeneratorTool:
             metadata=PlotMetadata(
                 storage_client=mock_s3,
                 user_id=test_user_info[0],
-                bucket_name="test_bucket",
+                container_name="test_bucket",
                 thread_id=thread_id,
                 httpx_client=mock_httpx_client,
             ),
@@ -51,7 +51,7 @@ class TestPlotGeneratorTool:
         # Verify save_to_storage was called with correct parameters
         save_args = mock_save_to_storage.call_args[1]
         assert save_args["storage_client"] == mock_s3
-        assert save_args["bucket_name"] == "test_bucket"
+        assert save_args["container_name"] == "test_bucket"
         assert save_args["user_id"] == test_user_info[0]
         assert save_args["content_type"] == "application/json"
         assert save_args["category"] == "json-piechart"
@@ -82,7 +82,7 @@ class TestPlotGeneratorTool:
             metadata=PlotMetadata(
                 storage_client=mock_s3,
                 user_id=test_user_info[0],
-                bucket_name="test_bucket",
+                container_name="test_bucket",
                 thread_id=uuid.uuid4(),
                 httpx_client=mock_httpx_client,
             ),
@@ -115,7 +115,7 @@ class TestPlotGeneratorTool:
             metadata=PlotMetadata(
                 storage_client=mock_s3,
                 user_id=test_user_info[0],
-                bucket_name="test_bucket",
+                container_name="test_bucket",
                 thread_id=uuid.uuid4(),
                 httpx_client=mock_httpx_client,
             ),
@@ -152,7 +152,7 @@ class TestPlotGeneratorTool:
             metadata=PlotMetadata(
                 storage_client=mock_s3,
                 user_id=test_user_info[0],
-                bucket_name="test_bucket",
+                container_name="test_bucket",
                 thread_id=uuid.uuid4(),
                 httpx_client=mock_httpx_client,
             ),
@@ -186,7 +186,7 @@ class TestPlotGeneratorTool:
             metadata=PlotMetadata(
                 storage_client=mock_s3,
                 user_id=test_user_info[0],
-                bucket_name="test_bucket",
+                container_name="test_bucket",
                 thread_id=uuid.uuid4(),
                 httpx_client=mock_httpx_client,
             ),
@@ -211,7 +211,7 @@ class TestPlotGeneratorTool:
                 metadata=PlotMetadata(
                     storage_client=mock_s3,
                     user_id=test_user_info[0],
-                    bucket_name="test_bucket",
+                    container_name="test_bucket",
                     thread_id=uuid.uuid4(),
                     httpx_client=Mock(spec=httpx.AsyncClient),
                 ),

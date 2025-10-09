@@ -8,6 +8,8 @@ from functools import cache
 from pathlib import Path
 from typing import Annotated, Any, AsyncIterator
 
+from azure.core.credentials import AzureNamedKeyCredential
+from azure.storage.blob import BlobServiceClient
 from fastapi import Depends, HTTPException, Request
 from fastapi.security import HTTPBearer
 from httpx import AsyncClient, HTTPStatusError, get
@@ -25,6 +27,8 @@ from neuroagent.app.database.sql_schemas import Entity, Messages, Threads
 from neuroagent.app.schemas import OpenRouterModelResponse, UserInfo
 from neuroagent.mcp import MCPClient, create_dynamic_tool
 from neuroagent.new_types import Agent
+from neuroagent.storage.azure_storage import AzureBlobStorageClient
+from neuroagent.storage.base_storage import StorageClient
 from neuroagent.storage.s3_storage import S3StorageClient
 from neuroagent.tools import (
     AssetDownloadOneTool,
@@ -611,25 +615,64 @@ def get_starting_agent(
 
 def get_storage_client(
     settings: Annotated[Settings, Depends(get_settings)],
-) -> Any:
+) -> StorageClient:
     """Get the storage client."""
     if settings.storage.provider == "s3":
         access = (
-            settings.storage.access_key.get_secret_value()
-            if settings.storage.access_key
+            settings.storage.s3_access_key.get_secret_value()
+            if settings.storage.s3_access_key
             else None
         )
         secret = (
-            settings.storage.secret_key.get_secret_value()
-            if settings.storage.secret_key
+            settings.storage.s3_secret_key.get_secret_value()
+            if settings.storage.s3_secret_key
             else None
         )
 
         return S3StorageClient(
-            endpoint_url=settings.storage.endpoint_url,
+            endpoint_url=settings.storage.s3_endpoint_url,
             access_key=access,
             secret_key=secret,
         )
+    if settings.storage.provider == "azure":
+        if (
+            not settings.storage.azure_account_name
+            or not settings.storage.azure_account_key
+        ):
+            raise RuntimeError(
+                "Azure storage requires azure_account_name and azure_account_key"
+            )
+
+        account_name = settings.storage.azure_account_name.get_secret_value()
+        account_key = settings.storage.azure_account_key.get_secret_value()
+
+        # Determine the account URL
+        if settings.storage.azure_endpoint_url:
+            # Local Azurite or custom endpoint
+            account_url = settings.storage.azure_endpoint_url
+        else:
+            # Production: standard Azure Blob Storage URL
+            account_url = f"https://{account_name}.blob.core.windows.net"
+
+        credential = AzureNamedKeyCredential(account_name, account_key)
+
+        svc = BlobServiceClient(
+            account_url=account_url,
+            credential=credential,
+            connection_timeout=3,
+            read_timeout=6,
+        )
+        svc = BlobServiceClient.from_connection_string(
+            "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://127.0.0.1:10000/devstoreaccount1;"
+        )
+        return AzureBlobStorageClient(
+            service_client=svc,
+            account_name=account_name,
+            account_key=account_key,
+            container=settings.storage.container_name,
+        )
+
+    raise ValueError("No storage provider defined.")
 
 
 async def get_context_variables(
@@ -650,7 +693,7 @@ async def get_context_variables(
 
     return {
         "bluenaas_url": settings.tools.bluenaas.url,
-        "bucket_name": settings.storage.bucket_name,
+        "container_name": settings.storage.container_name,
         "entitycore_url": settings.tools.entitycore.url,
         "current_frontend_url": current_frontend_url,
         "entity_frontend_url": entity_frontend_url,

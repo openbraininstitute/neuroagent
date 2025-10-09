@@ -14,6 +14,7 @@ from neuroagent.app.database.sql_schemas import (
     Messages,
 )
 from neuroagent.schemas import Category
+from neuroagent.storage.base_storage import StorageClient
 
 logger = logging.getLogger(__name__)
 
@@ -146,8 +147,8 @@ def complete_partial_json(partial: str) -> str:
 
 
 def save_to_storage(
-    storage_client: Any,
-    bucket_name: str,
+    storage_client: StorageClient,
+    container_name: str,
     user_id: uuid.UUID,
     content_type: str,
     category: Category,
@@ -158,9 +159,9 @@ def save_to_storage(
 
     Parameters
     ----------
-    storage_client : Any
+    storage_client : StorageClient
         S3 or Azure client instance
-    bucket_name : str
+    container_name : str
         Name of the S3 bucket
     user_id : str
         User identifier
@@ -185,7 +186,7 @@ def save_to_storage(
     if thread_id:
         metadata["thread_id"] = str(thread_id)
     storage_client.put_object(
-        container=bucket_name,
+        container=container_name,
         key=key,
         body=body,
         content_type=content_type,
@@ -195,8 +196,8 @@ def save_to_storage(
 
 
 def delete_from_storage(
-    storage_client: Any,
-    bucket_name: str,
+    storage_client: StorageClient,
+    container_name: str,
     user_id: uuid.UUID,
     thread_id: uuid.UUID,
 ) -> None:
@@ -204,9 +205,9 @@ def delete_from_storage(
 
     Parameters
     ----------
-    s3_client : Any
-        Boto3 S3 client instance
-    bucket_name : str
+    storage_client : StorageClient
+        S3 or Azure client instance
+    container_name : str
         Name of the S3 bucket
     user_id : str
         User identifier
@@ -218,15 +219,15 @@ def delete_from_storage(
     to_delete = []
 
     # Collect matching objects
-    for key in storage_client.list_objects(container=bucket_name, prefix=prefix):
-        meta = storage_client.get_metadata(container=bucket_name, key=key) or {}
+    for key in storage_client.list_objects(container=container_name, prefix=prefix):
+        meta = storage_client.get_metadata(container=container_name, key=key) or {}
         # metadata values are strings; compare to stringified thread_id
         if meta.get("thread_id") == str(thread_id):
             to_delete.append(key)
 
     # delete each (some providers support batch deletes; simple per-object delete here)
     for key in to_delete:
-        storage_client.delete_object(container=bucket_name, key=key)
+        storage_client.delete_object(container=container_name, key=key)
 
 
 def get_token_count(usage: CompletionUsage | None) -> dict[str, int | None]:

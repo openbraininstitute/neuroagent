@@ -71,7 +71,7 @@ class PlotMetadata(BaseMetadata):
 
     storage_client: Any  # storage client doesn't have type hints
     user_id: UUID
-    bucket_name: str
+    container_name: str
     thread_id: UUID
 
 
@@ -180,7 +180,7 @@ class PlotGeneratorTool(BaseTool):
 
         identifier = save_to_storage(
             storage_client=self.metadata.storage_client,
-            bucket_name=self.metadata.bucket_name,
+            container_name=self.metadata.container_name,
             user_id=self.metadata.user_id,
             content_type="application/json",
             category=plot.category,

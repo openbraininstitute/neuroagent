@@ -18,7 +18,7 @@ def test_generate_presigned_url(app_client, test_user_info):
 
     app.dependency_overrides[get_storage_client] = lambda: mock_s3
     app.dependency_overrides[get_settings] = lambda: Mock(
-        storage=Mock(bucket_name="test-bucket", expires_in=600),
+        storage=Mock(container_name="test-bucket", expires_in=600),
         misc=Mock(application_prefix="whatever"),
     )
     app.dependency_overrides[get_user_info] = lambda: UserInfo(

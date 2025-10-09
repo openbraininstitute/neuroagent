@@ -296,7 +296,7 @@ async def delete_thread(
     # Delete associated S3 objects first
     delete_from_storage(
         storage_client=storage_client,
-        bucket_name=settings.storage.bucket_name,
+        container_name=settings.storage.container_name,
         user_id=user_info.sub,
         thread_id=thread.thread_id,
     )
