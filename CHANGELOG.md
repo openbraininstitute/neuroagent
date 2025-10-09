@@ -12,6 +12,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Try to enforce using metric tools rather than downloading assets.
 - Rule to avoid overvalidating.
 
+## Added
+- Support for azure blob storage + azurite locally.
+
 ## [v0.10.0] - 2.10.2025
 
 ### Fixed
