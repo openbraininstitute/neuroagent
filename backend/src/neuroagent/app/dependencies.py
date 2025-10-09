@@ -1,6 +1,5 @@
 """App dependencies."""
 
-import json
 import logging
 import re
 from datetime import datetime, timezone
@@ -501,7 +500,7 @@ async def filtered_tools(
             Messages(
                 thread_id=thread.thread_id,
                 entity=Entity.USER,
-                content=json.dumps({"role": "user", "content": body["content"]}),
+                content={"role": "user", "content": body["content"]},
                 is_complete=True,
             )
         )

@@ -12,7 +12,7 @@ class ToolCallVercel(BaseModel):
 
     toolCallId: str
     toolName: str
-    args: dict[str, Any]
+    args: dict[str, Any] | str
     state: Literal["partial-call", "call", "result"]
     result: str | None = None
 
@@ -77,7 +77,7 @@ class MessagesReadVercel(BaseRead):
     id: UUID
     role: str
     createdAt: AwareDatetime
-    content: str
+    content: str | dict[str, Any]
     parts: list[ToolCallPartVercel | TextPartVercel | ReasoningPartVercel] | None = None
     annotations: list[AnnotationMessageVercel | AnnotationToolCallVercel] | None = None
 

@@ -207,7 +207,7 @@ def format_messages_output(
             "thread_id": msg.thread_id,
             "is_complete": msg.is_complete,
             "creation_date": msg.creation_date.isoformat(),  # Convert datetime to string
-            "msg_content": json.loads(msg.content),
+            "msg_content": msg.content,
         }
 
         # Map validation status based on tool requirements
@@ -257,7 +257,7 @@ def format_messages_vercel(
 
     for msg in reversed(db_messages):
         if msg.entity in [Entity.USER, Entity.AI_MESSAGE]:
-            content = json.loads(msg.content)
+            content = msg.content
             text_content = content.get("content")
             reasoning_content = content.get("reasoning")
 
@@ -304,7 +304,7 @@ def format_messages_vercel(
 
         # Buffer tool calls until the next AI_MESSAGE
         elif msg.entity == Entity.AI_TOOL:
-            content = json.loads(msg.content)
+            content = msg.content
             text_content = content.get("content")
             reasoning_content = content.get("reasoning")
 
@@ -324,12 +324,16 @@ def format_messages_vercel(
                     status = "pending"
 
                 parts.append(TextPartVercel(text=text_content or ""))
+                try:
+                    tc_args = json.loads(tc.arguments)
+                except json.JSONDecodeError:
+                    tc_args = tc.arguments
                 parts.append(
                     ToolCallPartVercel(
                         toolInvocation=ToolCallVercel(
                             toolCallId=tc.tool_call_id,
                             toolName=tc.name,
-                            args=json.loads(tc.arguments),
+                            args=tc_args,
                             state="call",
                         )
                     )
@@ -344,7 +348,7 @@ def format_messages_vercel(
 
         # Merge the actual tool result back into the buffered part
         elif msg.entity == Entity.TOOL:
-            tool_call_id = json.loads(msg.content).get("tool_call_id")
+            tool_call_id = msg.content.get("tool_call_id")
             tool_call = next(
                 (
                     part.toolInvocation
@@ -364,7 +368,8 @@ def format_messages_vercel(
                 None,
             )
             if tool_call:
-                tool_call.result = json.loads(msg.content).get("content")
+                msg_content = msg.content.get("content")
+                tool_call.result = json.dumps(msg_content) if msg_content else None
                 tool_call.state = "result"
 
             if annotation:
@@ -483,7 +488,7 @@ AVAILABLE TOOLS:
     class ToolFiltering(BaseModel):
         """Data class for tool selection by an LLM."""
 
-        selected_tools: list[TOOL_NAMES_LITERAL] = Field(
+        selected_tools: list[TOOL_NAMES_LITERAL] = Field(  # type: ignore[misc]
             min_length=min_tool_selection,
             description=f"List of selected tool names, minimum {min_tool_selection} items. Must contain all of the tools relevant to the conversation. Must not contain duplicates.",
         )

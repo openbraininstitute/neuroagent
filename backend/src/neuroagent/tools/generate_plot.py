@@ -47,7 +47,7 @@ class PlotInput(BaseModel):
         None, description="List of points for scatter plots"
     )
     histogram_values: list[float] | None = Field(
-        None, description="List of values for histogram"
+        None, description="List of values for histogram."
     )
     histogram_bins: int | None = Field(
         default=10, description="Number of bins for histogram"

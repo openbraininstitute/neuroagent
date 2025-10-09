@@ -163,3 +163,8 @@ class JSONMultiLinechart(BaseObject):
         default="solid", description="Line style (e.g., 'solid', 'dashed', 'dotted')"
     )
     line_color: str | None = Field(None, description="Hex color code for the line")
+
+
+# class ToolOutputReference(BaseModel):
+#     """Reference to a previous tool output. Supports JSONPath query language."""
+#     jsonpath_query: str

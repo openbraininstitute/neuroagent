@@ -82,7 +82,9 @@ class AgentsRoutine:
             create_params["parallel_tool_calls"] = agent.parallel_tool_calls
         return await self.client.chat.completions.create(**create_params)  # type: ignore
 
-    def handle_function_result(self, result: Result | Agent | BaseModel) -> Result:
+    def handle_function_result(
+        self, result: Result | Agent | BaseModel, tool_call_id: uuid.UUID
+    ) -> Result:
         """Check if agent handoff or regular tool call."""
         match result:
             case Result() as result:
@@ -95,7 +97,7 @@ class AgentsRoutine:
                 )
             case BaseModel() as model:
                 try:
-                    return Result(value=model.model_dump_json())
+                    return Result(value={tool_call_id: model.model_dump(mode="json")})
                 except json.JSONDecodeError:
                     return Result(value=str(result))
             case _:
@@ -204,7 +206,7 @@ class AgentsRoutine:
             }
             return response, None
 
-        result: Result = self.handle_function_result(raw_result)
+        result: Result = self.handle_function_result(raw_result, tool_call.tool_call_id)
         response = {
             "role": "tool",
             "tool_call_id": tool_call.tool_call_id,
@@ -423,7 +425,7 @@ class AgentsRoutine:
                     Messages(
                         thread_id=messages[-1].thread_id,
                         entity=get_entity(message),
-                        content=json.dumps(message),
+                        content=message,
                         tool_calls=tool_calls,
                         is_complete=True,
                         token_consumption=token_consumption,
@@ -474,7 +476,7 @@ class AgentsRoutine:
                 for tool_response in tool_calls_executed.messages:
                     response_data = {
                         "toolCallId": tool_response["tool_call_id"],
-                        "result": tool_response["content"],
+                        "result": json.dumps(tool_response["content"]),
                     }
                     yield f"a:{json.dumps(response_data, separators=(',', ':'))}\n"
 
@@ -521,7 +523,7 @@ class AgentsRoutine:
                         Messages(
                             thread_id=messages[-1].thread_id,
                             entity=Entity.TOOL,
-                            content=json.dumps(tool_response),
+                            content=tool_response,
                             is_complete=True,
                             token_consumption=token_consumption,
                         )
@@ -538,7 +540,17 @@ class AgentsRoutine:
                     yield f"e:{json.dumps(finish_data)}\n"
                     break
 
-                history.extend(tool_calls_executed.messages)
+                history.extend(
+                    [
+                        {
+                            **message,
+                            "content": message["content"]
+                            if isinstance(message["content"], str)
+                            else json.dumps(message["content"]),
+                        }
+                        for message in tool_calls_executed.messages
+                    ]
+                )
                 context_variables.update(tool_calls_executed.context_variables)
                 if tool_calls_executed.agent:
                     active_agent = tool_calls_executed.agent
@@ -584,7 +596,7 @@ class AgentsRoutine:
                     Messages(
                         thread_id=messages[-1].thread_id,
                         entity=get_entity(message),
-                        content=json.dumps(message),
+                        content=message,
                         tool_calls=tool_calls,
                         is_complete=False,
                     )
@@ -597,14 +609,14 @@ class AgentsRoutine:
                         Messages(
                             thread_id=messages[-1].thread_id,
                             entity=Entity.TOOL,
-                            content=json.dumps(
-                                {
-                                    "role": "tool",
-                                    "tool_call_id": call.tool_call_id,
-                                    "tool_name": call.name,
-                                    "content": "Tool execution aborted by the user.",
-                                }
-                            ),
+                            content={
+                                "role": "tool",
+                                "tool_call_id": call.tool_call_id,
+                                "tool_name": call.name,
+                                "content": {
+                                    call.tool_call_id: "Tool execution aborted by the user."
+                                },
+                            },
                             is_complete=False,
                         )
                         for call in tool_calls

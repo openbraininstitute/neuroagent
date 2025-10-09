@@ -48,7 +48,7 @@ async def messages_to_openai_content(
     messages = []
     if db_messages:
         for msg in db_messages:
-            messages.append(json.loads(msg.content))
+            messages.append(msg.content)
 
     return messages
 

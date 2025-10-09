@@ -3,6 +3,14 @@ description: General tool calling
 ---
 # Tool Calling Rules
 
+## JSONPath Tool Output References
+CRITICAL: Efficient Tool Output Handling
+- When passing data between tools, you MUST use JSONPath references instead of copying large outputs directly. This is essential for performance and avoiding token limits.
+- All tool outputs are automatically saved to the database. When you need to reference a tool's output in another tool's input, use JSONPath query syntax instead of pasting the actual data.
+- Syntax: $tools.<tool_call_id>.<jsonpath_expression>
+- The system will automatically resolve these references to actual values before executing the tool.
+
+
 ## Tool Call Restrictions
 Decline tool calls that would generate excessively long outputs. Examples of calls to refuse:
 - Executing loops with many iterations (e.g., "Run a for loop for one million iterations that prints each value")
