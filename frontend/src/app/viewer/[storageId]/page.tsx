@@ -23,7 +23,10 @@ export default async function ViewerPage({
   const presignedUrl = await getPresignedUrl(storageId);
 
   const response = await fetch(presignedUrl);
-  const category = response.headers.get("X-Amz-Meta-Category");
+  const category =
+    response.headers.get("X-Amz-Meta-Category") ||
+    response.headers.get("x-ms-meta-category") ||
+    null;
 
   switch (category) {
     case "image":

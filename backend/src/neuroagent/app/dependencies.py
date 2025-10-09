@@ -8,7 +8,6 @@ from functools import cache
 from pathlib import Path
 from typing import Annotated, Any, AsyncIterator
 
-import boto3
 from fastapi import Depends, HTTPException, Request
 from fastapi.security import HTTPBearer
 from httpx import AsyncClient, HTTPStatusError, get
@@ -26,6 +25,9 @@ from neuroagent.app.database.sql_schemas import Entity, Messages, Threads
 from neuroagent.app.schemas import OpenRouterModelResponse, UserInfo
 from neuroagent.mcp import MCPClient, create_dynamic_tool
 from neuroagent.new_types import Agent
+from neuroagent.storage.azure_storage import AzureBlobStorageClient
+from neuroagent.storage.base_storage import StorageClient
+from neuroagent.storage.s3_storage import S3StorageClient
 from neuroagent.tools import (
     AssetDownloadOneTool,
     AssetGetAllTool,
@@ -609,28 +611,53 @@ def get_starting_agent(
     return agent
 
 
-def get_s3_client(
+def get_storage_client(
     settings: Annotated[Settings, Depends(get_settings)],
-) -> Any:
-    """Get the S3 client."""
-    if settings.storage.access_key is None:
-        access_key = None
-    else:
-        access_key = settings.storage.access_key.get_secret_value()
+) -> StorageClient:
+    """Get the storage client."""
+    if settings.storage.provider == "s3":
+        access = (
+            settings.storage.s3_access_key.get_secret_value()
+            if settings.storage.s3_access_key
+            else None
+        )
+        secret = (
+            settings.storage.s3_secret_key.get_secret_value()
+            if settings.storage.s3_secret_key
+            else None
+        )
 
-    if settings.storage.secret_key is None:
-        secret_key = None
-    else:
-        secret_key = settings.storage.secret_key.get_secret_value()
+        return S3StorageClient(
+            endpoint_url=settings.storage.s3_endpoint_url,
+            access_key=access,
+            secret_key=secret,
+        )
+    if settings.storage.provider == "azure":
+        if (
+            not settings.storage.azure_account_name
+            or not settings.storage.azure_account_key
+        ):
+            raise RuntimeError(
+                "Azure storage requires azure_account_name and azure_account_key"
+            )
 
-    return boto3.client(
-        "s3",
-        endpoint_url=settings.storage.endpoint_url,
-        aws_access_key_id=access_key,
-        aws_secret_access_key=secret_key,
-        aws_session_token=None,
-        config=boto3.session.Config(signature_version="s3v4"),
-    )
+        if settings.storage.azure_endpoint_url:
+            # Local Azurite: use connection string format
+            return AzureBlobStorageClient(
+                azure_endpoint_url=settings.storage.azure_endpoint_url,
+                account_name=settings.storage.azure_account_name.get_secret_value(),
+                account_key=settings.storage.azure_account_key.get_secret_value(),
+                container=settings.storage.container_name,
+            )
+        else:
+            # Prod azure blob storage.
+            return AzureBlobStorageClient(
+                account_name=settings.storage.azure_account_name.get_secret_value(),
+                account_key=settings.storage.azure_account_key.get_secret_value(),
+                container=settings.storage.container_name,
+            )
+
+    raise ValueError("No storage provider defined.")
 
 
 async def get_context_variables(
@@ -638,7 +665,7 @@ async def get_context_variables(
     settings: Annotated[Settings, Depends(get_settings)],
     httpx_client: Annotated[AsyncClient, Depends(get_httpx_client)],
     thread: Annotated[Threads, Depends(get_thread)],
-    s3_client: Annotated[Any, Depends(get_s3_client)],
+    storage_client: Annotated[Any, Depends(get_storage_client)],
     user_info: Annotated[UserInfo, Depends(get_user_info)],
     openai_client: Annotated[AsyncOpenAI, Depends(get_openai_client)],
 ) -> dict[str, Any]:
@@ -651,7 +678,7 @@ async def get_context_variables(
 
     return {
         "bluenaas_url": settings.tools.bluenaas.url,
-        "bucket_name": settings.storage.bucket_name,
+        "container_name": settings.storage.container_name,
         "entitycore_url": settings.tools.entitycore.url,
         "current_frontend_url": current_frontend_url,
         "entity_frontend_url": entity_frontend_url,
@@ -659,7 +686,7 @@ async def get_context_variables(
         "obi_one_url": settings.tools.obi_one.url,
         "openai_client": openai_client,
         "project_id": thread.project_id,
-        "s3_client": s3_client,
+        "storage_client": storage_client,
         "sanity_url": settings.tools.sanity.url,
         "thread_id": thread.thread_id,
         "thumbnail_generation_url": settings.tools.thumbnail_generation.url,

@@ -242,6 +242,8 @@ class AssetLabel(
             'jupyter_notebook',
             'requirements',
             'ion_channel_model_figure',
+            'ion_channel_model_figure_summary_json',
+            'ion_channel_model_thumbnail',
         ]
     ]
 ):
@@ -284,6 +286,8 @@ class AssetLabel(
         'jupyter_notebook',
         'requirements',
         'ion_channel_model_figure',
+        'ion_channel_model_figure_summary_json',
+        'ion_channel_model_thumbnail',
     ] = Field(..., description='See docs/asset-labels.md.', title='AssetLabel')
 
 
@@ -1083,119 +1087,6 @@ class ErrorResponse(BaseModel):
     error_code: ApiErrorCode
     message: str = Field(..., title='Message')
     details: Any | None = Field(default=None, title='Details')
-
-
-class ExperimentalBoutonDensityAdminUpdate(BaseModel):
-    model_config = ConfigDict(
-        extra='allow',
-    )
-    authorized_public: bool | str | None = Field(
-        default='<NOT_SET>', title='Authorized Public'
-    )
-    license_id: UUID | str | None = Field(default='<NOT_SET>', title='License Id')
-    name: str | None = Field(default='<NOT_SET>', title='Name')
-    description: str | None = Field(default='<NOT_SET>', title='Description')
-    subject_id: UUID | str | None = Field(default='<NOT_SET>', title='Subject Id')
-    brain_region_id: UUID | str | None = Field(
-        default='<NOT_SET>', title='Brain Region Id'
-    )
-    legacy_id: str | None = Field(default='<NOT_SET>', title='Legacy Id')
-
-
-class ExperimentalBoutonDensityCreate(BaseModel):
-    model_config = ConfigDict(
-        extra='allow',
-    )
-    authorized_public: bool = Field(default=False, title='Authorized Public')
-    license_id: UUID | None = Field(default=None, title='License Id')
-    name: str = Field(..., title='Name')
-    description: str = Field(..., title='Description')
-    subject_id: UUID = Field(..., title='Subject Id')
-    brain_region_id: UUID = Field(..., title='Brain Region Id')
-    legacy_id: str | None = Field(..., title='Legacy Id')
-
-
-class ExperimentalBoutonDensityUserUpdate(BaseModel):
-    model_config = ConfigDict(
-        extra='allow',
-    )
-    license_id: UUID | str | None = Field(default='<NOT_SET>', title='License Id')
-    name: str | None = Field(default='<NOT_SET>', title='Name')
-    description: str | None = Field(default='<NOT_SET>', title='Description')
-    subject_id: UUID | str | None = Field(default='<NOT_SET>', title='Subject Id')
-    brain_region_id: UUID | str | None = Field(
-        default='<NOT_SET>', title='Brain Region Id'
-    )
-    legacy_id: str | None = Field(default='<NOT_SET>', title='Legacy Id')
-
-
-ExperimentalNeuronDensityAdminUpdate = ExperimentalBoutonDensityAdminUpdate
-
-
-ExperimentalNeuronDensityCreate = ExperimentalBoutonDensityCreate
-
-
-ExperimentalNeuronDensityUserUpdate = ExperimentalBoutonDensityUserUpdate
-
-
-class ExperimentalSynapsesPerConnectionAdminUpdate(BaseModel):
-    model_config = ConfigDict(
-        extra='allow',
-    )
-    authorized_public: bool | str | None = Field(
-        default='<NOT_SET>', title='Authorized Public'
-    )
-    license_id: UUID | str | None = Field(default='<NOT_SET>', title='License Id')
-    name: str | None = Field(default='<NOT_SET>', title='Name')
-    description: str | None = Field(default='<NOT_SET>', title='Description')
-    subject_id: UUID | str | None = Field(default='<NOT_SET>', title='Subject Id')
-    brain_region_id: UUID | str | None = Field(
-        default='<NOT_SET>', title='Brain Region Id'
-    )
-    legacy_id: str | None = Field(default='<NOT_SET>', title='Legacy Id')
-    pre_mtype_id: UUID | str | None = Field(default='<NOT_SET>', title='Pre Mtype Id')
-    post_mtype_id: UUID | str | None = Field(default='<NOT_SET>', title='Post Mtype Id')
-    pre_region_id: UUID | str | None = Field(default='<NOT_SET>', title='Pre Region Id')
-    post_region_id: UUID | str | None = Field(
-        default='<NOT_SET>', title='Post Region Id'
-    )
-
-
-class ExperimentalSynapsesPerConnectionCreate(BaseModel):
-    model_config = ConfigDict(
-        extra='allow',
-    )
-    authorized_public: bool = Field(default=False, title='Authorized Public')
-    license_id: UUID | None = Field(default=None, title='License Id')
-    name: str = Field(..., title='Name')
-    description: str = Field(..., title='Description')
-    subject_id: UUID = Field(..., title='Subject Id')
-    brain_region_id: UUID = Field(..., title='Brain Region Id')
-    legacy_id: str | None = Field(..., title='Legacy Id')
-    pre_mtype_id: UUID = Field(..., title='Pre Mtype Id')
-    post_mtype_id: UUID = Field(..., title='Post Mtype Id')
-    pre_region_id: UUID = Field(..., title='Pre Region Id')
-    post_region_id: UUID = Field(..., title='Post Region Id')
-
-
-class ExperimentalSynapsesPerConnectionUserUpdate(BaseModel):
-    model_config = ConfigDict(
-        extra='allow',
-    )
-    license_id: UUID | str | None = Field(default='<NOT_SET>', title='License Id')
-    name: str | None = Field(default='<NOT_SET>', title='Name')
-    description: str | None = Field(default='<NOT_SET>', title='Description')
-    subject_id: UUID | str | None = Field(default='<NOT_SET>', title='Subject Id')
-    brain_region_id: UUID | str | None = Field(
-        default='<NOT_SET>', title='Brain Region Id'
-    )
-    legacy_id: str | None = Field(default='<NOT_SET>', title='Legacy Id')
-    pre_mtype_id: UUID | str | None = Field(default='<NOT_SET>', title='Pre Mtype Id')
-    post_mtype_id: UUID | str | None = Field(default='<NOT_SET>', title='Post Mtype Id')
-    pre_region_id: UUID | str | None = Field(default='<NOT_SET>', title='Pre Region Id')
-    post_region_id: UUID | str | None = Field(
-        default='<NOT_SET>', title='Post Region Id'
-    )
 
 
 class ExternalSource(RootModel[Literal['channelpedia', 'modeldb', 'icgenealogy']]):
@@ -2774,6 +2665,10 @@ GetEntityAssetsEntityRouteEntityIdAssetsGetParametersQuery = (
 )
 
 
+class DeleteEntityAssetEntityRouteEntityIdAssetsAssetIdDeleteParametersQuery(BaseModel):
+    hard: bool = Field(default=False, title='Hard')
+
+
 class DownloadEntityAssetEntityRouteEntityIdAssetsAssetIdDownloadGetParametersQuery(
     BaseModel
 ):
@@ -3615,9 +3510,7 @@ class ReadManyContributionGetParametersQuery(BaseModel):
 
 
 class ReadManyEntityRouteEntityIdDerivedFromGetParametersQuery(BaseModel):
-    derivation_type: DerivationType | None = Field(
-        default=None, title='Derivation Type'
-    )
+    derivation_type: DerivationType
     page: int = Field(default=1, ge=1, title='Page')
     page_size: int = Field(default=100, ge=1, title='Page Size')
     type: EntityType | None = Field(default=None, title='Type')
@@ -8582,14 +8475,23 @@ class MeasurementKindCreate(BaseModel):
 MeasurementKindRead = MeasurementKindCreate
 
 
-class MeasurementRead(BaseModel):
+class MeasurementRecordCreate(BaseModel):
     model_config = ConfigDict(
         extra='allow',
     )
-    id: int = Field(..., title='Id')
-    name: str = Field(..., title='Name')
+    name: MeasurementStatistic
     unit: MeasurementUnit
     value: float = Field(..., title='Value')
+
+
+class MeasurementRecordRead(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
+    name: MeasurementStatistic
+    unit: MeasurementUnit
+    value: float = Field(..., title='Value')
+    id: int = Field(..., title='Id')
 
 
 class ModifiedReconstructionCellMorphologyProtocolRead(BaseModel):
@@ -9328,6 +9230,40 @@ class ElectricalCellRecordingRead(BaseModel):
     etypes: list[AnnotationRead] | None = Field(..., title='Etypes')
 
 
+class ExperimentalBoutonDensityAdminUpdate(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
+    authorized_public: bool | str | None = Field(
+        default='<NOT_SET>', title='Authorized Public'
+    )
+    license_id: UUID | str | None = Field(default='<NOT_SET>', title='License Id')
+    name: str | None = Field(default='<NOT_SET>', title='Name')
+    description: str | None = Field(default='<NOT_SET>', title='Description')
+    subject_id: UUID | str | None = Field(default='<NOT_SET>', title='Subject Id')
+    brain_region_id: UUID | str | None = Field(
+        default='<NOT_SET>', title='Brain Region Id'
+    )
+    legacy_id: str | None = Field(default='<NOT_SET>', title='Legacy Id')
+    measurements: list[MeasurementRecordCreate] | str | None = Field(
+        default='<NOT_SET>', title='Measurements'
+    )
+
+
+class ExperimentalBoutonDensityCreate(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
+    authorized_public: bool = Field(default=False, title='Authorized Public')
+    license_id: UUID | None = Field(default=None, title='License Id')
+    name: str = Field(..., title='Name')
+    description: str = Field(..., title='Description')
+    subject_id: UUID = Field(..., title='Subject Id')
+    brain_region_id: UUID = Field(..., title='Brain Region Id')
+    legacy_id: str | None = Field(..., title='Legacy Id')
+    measurements: list[MeasurementRecordCreate] = Field(..., title='Measurements')
+
+
 class ExperimentalBoutonDensityRead(BaseModel):
     model_config = ConfigDict(
         extra='allow',
@@ -9347,10 +9283,33 @@ class ExperimentalBoutonDensityRead(BaseModel):
     update_date: AwareDatetime = Field(..., title='Update Date')
     name: str = Field(..., title='Name')
     description: str = Field(..., title='Description')
-    measurements: list[MeasurementRead] | None = Field(..., title='Measurements')
-    assets: list[AssetRead] | None = Field(..., title='Assets')
+    measurements: list[MeasurementRecordRead] = Field(..., title='Measurements')
+    assets: list[AssetRead] = Field(..., title='Assets')
     brain_region: BrainRegionRead
     mtypes: list[AnnotationRead] | None = Field(..., title='Mtypes')
+
+
+class ExperimentalBoutonDensityUserUpdate(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
+    license_id: UUID | str | None = Field(default='<NOT_SET>', title='License Id')
+    name: str | None = Field(default='<NOT_SET>', title='Name')
+    description: str | None = Field(default='<NOT_SET>', title='Description')
+    subject_id: UUID | str | None = Field(default='<NOT_SET>', title='Subject Id')
+    brain_region_id: UUID | str | None = Field(
+        default='<NOT_SET>', title='Brain Region Id'
+    )
+    legacy_id: str | None = Field(default='<NOT_SET>', title='Legacy Id')
+    measurements: list[MeasurementRecordCreate] | str | None = Field(
+        default='<NOT_SET>', title='Measurements'
+    )
+
+
+ExperimentalNeuronDensityAdminUpdate = ExperimentalBoutonDensityAdminUpdate
+
+
+ExperimentalNeuronDensityCreate = ExperimentalBoutonDensityCreate
 
 
 class ExperimentalNeuronDensityRead(BaseModel):
@@ -9372,11 +9331,58 @@ class ExperimentalNeuronDensityRead(BaseModel):
     update_date: AwareDatetime = Field(..., title='Update Date')
     name: str = Field(..., title='Name')
     description: str = Field(..., title='Description')
-    measurements: list[MeasurementRead] | None = Field(..., title='Measurements')
-    assets: list[AssetRead] | None = Field(..., title='Assets')
+    measurements: list[MeasurementRecordRead] = Field(..., title='Measurements')
+    assets: list[AssetRead] = Field(..., title='Assets')
     brain_region: BrainRegionRead
     mtypes: list[AnnotationRead] | None = Field(..., title='Mtypes')
     etypes: list[AnnotationRead] | None = Field(..., title='Etypes')
+
+
+ExperimentalNeuronDensityUserUpdate = ExperimentalBoutonDensityUserUpdate
+
+
+class ExperimentalSynapsesPerConnectionAdminUpdate(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
+    authorized_public: bool | str | None = Field(
+        default='<NOT_SET>', title='Authorized Public'
+    )
+    license_id: UUID | str | None = Field(default='<NOT_SET>', title='License Id')
+    name: str | None = Field(default='<NOT_SET>', title='Name')
+    description: str | None = Field(default='<NOT_SET>', title='Description')
+    subject_id: UUID | str | None = Field(default='<NOT_SET>', title='Subject Id')
+    brain_region_id: UUID | str | None = Field(
+        default='<NOT_SET>', title='Brain Region Id'
+    )
+    legacy_id: str | None = Field(default='<NOT_SET>', title='Legacy Id')
+    measurements: list[MeasurementRecordCreate] | str | None = Field(
+        default='<NOT_SET>', title='Measurements'
+    )
+    pre_mtype_id: UUID | str | None = Field(default='<NOT_SET>', title='Pre Mtype Id')
+    post_mtype_id: UUID | str | None = Field(default='<NOT_SET>', title='Post Mtype Id')
+    pre_region_id: UUID | str | None = Field(default='<NOT_SET>', title='Pre Region Id')
+    post_region_id: UUID | str | None = Field(
+        default='<NOT_SET>', title='Post Region Id'
+    )
+
+
+class ExperimentalSynapsesPerConnectionCreate(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
+    authorized_public: bool = Field(default=False, title='Authorized Public')
+    license_id: UUID | None = Field(default=None, title='License Id')
+    name: str = Field(..., title='Name')
+    description: str = Field(..., title='Description')
+    subject_id: UUID = Field(..., title='Subject Id')
+    brain_region_id: UUID = Field(..., title='Brain Region Id')
+    legacy_id: str | None = Field(..., title='Legacy Id')
+    measurements: list[MeasurementRecordCreate] = Field(..., title='Measurements')
+    pre_mtype_id: UUID = Field(..., title='Pre Mtype Id')
+    post_mtype_id: UUID = Field(..., title='Post Mtype Id')
+    pre_region_id: UUID = Field(..., title='Pre Region Id')
+    post_region_id: UUID = Field(..., title='Post Region Id')
 
 
 class ExperimentalSynapsesPerConnectionRead(BaseModel):
@@ -9398,13 +9404,36 @@ class ExperimentalSynapsesPerConnectionRead(BaseModel):
     update_date: AwareDatetime = Field(..., title='Update Date')
     name: str = Field(..., title='Name')
     description: str = Field(..., title='Description')
-    measurements: list[MeasurementRead] | None = Field(..., title='Measurements')
-    assets: list[AssetRead] | None = Field(..., title='Assets')
+    measurements: list[MeasurementRecordRead] = Field(..., title='Measurements')
+    assets: list[AssetRead] = Field(..., title='Assets')
     brain_region: BrainRegionRead
     pre_mtype: AnnotationRead
     post_mtype: AnnotationRead
     pre_region: BrainRegionRead
     post_region: BrainRegionRead
+
+
+class ExperimentalSynapsesPerConnectionUserUpdate(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
+    license_id: UUID | str | None = Field(default='<NOT_SET>', title='License Id')
+    name: str | None = Field(default='<NOT_SET>', title='Name')
+    description: str | None = Field(default='<NOT_SET>', title='Description')
+    subject_id: UUID | str | None = Field(default='<NOT_SET>', title='Subject Id')
+    brain_region_id: UUID | str | None = Field(
+        default='<NOT_SET>', title='Brain Region Id'
+    )
+    legacy_id: str | None = Field(default='<NOT_SET>', title='Legacy Id')
+    measurements: list[MeasurementRecordCreate] | str | None = Field(
+        default='<NOT_SET>', title='Measurements'
+    )
+    pre_mtype_id: UUID | str | None = Field(default='<NOT_SET>', title='Pre Mtype Id')
+    post_mtype_id: UUID | str | None = Field(default='<NOT_SET>', title='Post Mtype Id')
+    pre_region_id: UUID | str | None = Field(default='<NOT_SET>', title='Pre Region Id')
+    post_region_id: UUID | str | None = Field(
+        default='<NOT_SET>', title='Post Region Id'
+    )
 
 
 class IonChannelModelAdminUpdate(BaseModel):

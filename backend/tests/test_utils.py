@@ -110,7 +110,7 @@ def test_save_to_storage():
     mock_s3 = Mock()
 
     # Test parameters
-    bucket_name = "test-bucket"
+    container_name = "test-bucket"
     user_id = "test-user"
     content_type = "application/json"
     category = "json-barplot"  # Using a valid category from the Literal type
@@ -119,8 +119,8 @@ def test_save_to_storage():
 
     # Call function
     identifier = save_to_storage(
-        s3_client=mock_s3,
-        bucket_name=bucket_name,
+        storage_client=mock_s3,
+        container_name=container_name,
         user_id=user_id,
         content_type=content_type,
         category=category,
@@ -135,7 +135,7 @@ def test_save_to_storage():
     mock_s3.put_object.assert_called_once()
     call_args = mock_s3.put_object.call_args[1]
 
-    assert call_args["Bucket"] == bucket_name
+    assert call_args["Bucket"] == container_name
     assert call_args["Key"] == f"{user_id}/{identifier}"  # Check exact key format
     assert call_args["Body"] == body
     assert call_args["ContentType"] == content_type
@@ -147,7 +147,7 @@ def test_save_to_storage_without_thread_id():
     mock_s3 = Mock()
 
     # Test parameters
-    bucket_name = "test-bucket"
+    container_name = "test-bucket"
     user_id = "test-user"
     content_type = "image/png"
     category = "image"  # Using another valid category from the Literal type
@@ -155,8 +155,8 @@ def test_save_to_storage_without_thread_id():
 
     # Call function without thread_id
     identifier = save_to_storage(
-        s3_client=mock_s3,
-        bucket_name=bucket_name,
+        storage_client=mock_s3,
+        container_name=container_name,
         user_id=user_id,
         content_type=content_type,
         category=category,
@@ -170,7 +170,7 @@ def test_save_to_storage_without_thread_id():
     mock_s3.put_object.assert_called_once()
     call_args = mock_s3.put_object.call_args[1]
 
-    assert call_args["Bucket"] == bucket_name
+    assert call_args["Bucket"] == container_name
     assert call_args["Key"] == f"{user_id}/{identifier}"  # Check exact key format
     assert call_args["Body"] == body
     assert call_args["ContentType"] == content_type
@@ -182,7 +182,7 @@ def test_save_to_storage_with_string_body():
     mock_s3 = Mock()
 
     # Test parameters
-    bucket_name = "test-bucket"
+    container_name = "test-bucket"
     user_id = "test-user"
     content_type = "application/json"
     category = "json-scatterplot"
@@ -191,8 +191,8 @@ def test_save_to_storage_with_string_body():
 
     # Call function
     identifier = save_to_storage(
-        s3_client=mock_s3,
-        bucket_name=bucket_name,
+        storage_client=mock_s3,
+        container_name=container_name,
         user_id=user_id,
         content_type=content_type,
         category=category,
@@ -207,7 +207,7 @@ def test_save_to_storage_with_string_body():
     mock_s3.put_object.assert_called_once()
     call_args = mock_s3.put_object.call_args[1]
 
-    assert call_args["Bucket"] == bucket_name
+    assert call_args["Bucket"] == container_name
     assert call_args["Key"] == f"{user_id}/{identifier}"
     assert call_args["Body"] == body
     assert call_args["ContentType"] == content_type
@@ -223,7 +223,7 @@ def test_delete_from_storage():
     mock_s3.get_paginator.return_value = mock_paginator
 
     # Test parameters
-    bucket_name = "test-bucket"
+    container_name = "test-bucket"
     user_id = "test-user"
     thread_id = "test-thread"
 
@@ -251,8 +251,8 @@ def test_delete_from_storage():
 
     # Call function
     delete_from_storage(
-        s3_client=mock_s3,
-        bucket_name=bucket_name,
+        storage_client=mock_s3,
+        container_name=container_name,
         user_id=user_id,
         thread_id=thread_id,
     )
@@ -260,16 +260,16 @@ def test_delete_from_storage():
     # Verify paginator was called correctly
     mock_s3.get_paginator.assert_called_once_with("list_objects_v2")
     mock_paginator.paginate.assert_called_once_with(
-        Bucket=bucket_name, Prefix=f"{user_id}/"
+        Bucket=container_name, Prefix=f"{user_id}/"
     )
 
     # Verify head_object was called for each object
     assert mock_s3.head_object.call_count == 3
     mock_s3.head_object.assert_has_calls(
         [
-            call(Bucket=bucket_name, Key=f"{user_id}/obj1"),
-            call(Bucket=bucket_name, Key=f"{user_id}/obj2"),
-            call(Bucket=bucket_name, Key=f"{user_id}/obj3"),
+            call(Bucket=container_name, Key=f"{user_id}/obj1"),
+            call(Bucket=container_name, Key=f"{user_id}/obj2"),
+            call(Bucket=container_name, Key=f"{user_id}/obj3"),
         ]
     )
 
@@ -278,14 +278,14 @@ def test_delete_from_storage():
     mock_s3.delete_objects.assert_has_calls(
         [
             call(
-                Bucket=bucket_name,
+                Bucket=container_name,
                 Delete={
                     "Objects": [{"Key": f"{user_id}/obj1"}],
                     "Quiet": True,
                 },
             ),
             call(
-                Bucket=bucket_name,
+                Bucket=container_name,
                 Delete={
                     "Objects": [{"Key": f"{user_id}/obj3"}],
                     "Quiet": True,
@@ -304,7 +304,7 @@ def test_delete_from_storage_no_contents():
     mock_s3.get_paginator.return_value = mock_paginator
 
     # Test parameters
-    bucket_name = "test-bucket"
+    container_name = "test-bucket"
     user_id = "test-user"
     thread_id = "test-thread"
 
@@ -313,8 +313,8 @@ def test_delete_from_storage_no_contents():
 
     # Call function
     delete_from_storage(
-        s3_client=mock_s3,
-        bucket_name=bucket_name,
+        storage_client=mock_s3,
+        container_name=container_name,
         user_id=user_id,
         thread_id=thread_id,
     )
@@ -322,7 +322,7 @@ def test_delete_from_storage_no_contents():
     # Verify paginator was called correctly
     mock_s3.get_paginator.assert_called_once_with("list_objects_v2")
     mock_paginator.paginate.assert_called_once_with(
-        Bucket=bucket_name, Prefix=f"{user_id}/"
+        Bucket=container_name, Prefix=f"{user_id}/"
     )
 
     # Verify no other methods were called
@@ -339,7 +339,7 @@ def test_delete_from_storage_large_batch():
     mock_s3.get_paginator.return_value = mock_paginator
 
     # Test parameters
-    bucket_name = "test-bucket"
+    container_name = "test-bucket"
     user_id = "test-user"
     thread_id = "test-thread"
 
@@ -352,8 +352,8 @@ def test_delete_from_storage_large_batch():
 
     # Call function
     delete_from_storage(
-        s3_client=mock_s3,
-        bucket_name=bucket_name,
+        storage_client=mock_s3,
+        container_name=container_name,
         user_id=user_id,
         thread_id=thread_id,
     )
