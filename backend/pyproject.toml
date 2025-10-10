@@ -20,6 +20,7 @@ dependencies = [
     "duckdb",
     "fastapi>=0.118.0",
     "mcp",
+    "mcp-run-python",
     "obp-accounting-sdk",
     "openai",
     "psycopg2",

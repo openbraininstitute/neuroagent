@@ -56,9 +56,9 @@ export function Linechart({ presignedUrl, isInChat, storageId }: PlotProp) {
         tension: 0,
         pointRadius: data.show_points ? 5 : 0,
         borderDash:
-          data.line_style === "dashed"
+          data.line_style === "--"
             ? [5, 5]
-            : data.line_style === "dotted"
+            : data.line_style === ":"
               ? [2, 2]
               : undefined,
       },

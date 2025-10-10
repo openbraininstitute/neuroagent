@@ -10,6 +10,7 @@ from asgi_correlation_id import CorrelationIdMiddleware
 from fastapi import Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.openapi.utils import get_openapi
+from mcp_run_python import code_sandbox
 from obp_accounting_sdk import AsyncAccountingSessionFactory
 from obp_accounting_sdk.errors import (
     AccountingReservationError,
@@ -128,7 +129,14 @@ async def lifespan(fastapi_app: FastAPI) -> AsyncContextManager[None]:  # type: 
     ) as session_factory:
         fastapi_app.state.accounting_session_factory = session_factory
 
-        async with MCPClient(config=app_settings.mcp) as mcp_client:
+        async with (
+            MCPClient(config=app_settings.mcp) as mcp_client,
+            code_sandbox(
+                dependencies=["pydantic", "numpy", "plotly", "pandas"],
+                allow_networking=False,
+            ) as sandbox,
+        ):
+            fastapi_app.state.python_sandbox = sandbox
             # trigger dynamic tool generation - only done once - it is cached
             _ = fastapi_app.dependency_overrides.get(
                 get_mcp_tool_list, get_mcp_tool_list

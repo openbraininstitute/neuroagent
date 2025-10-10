@@ -10,6 +10,7 @@ async function run() {
     await micropip.install([
     "pydantic",
     "numpy",
+    "matplotlib",
     ]);
     console.log("Packages installed.");
 }

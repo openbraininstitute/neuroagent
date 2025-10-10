@@ -42,8 +42,10 @@ class BaseObject(BaseModel):
     """Base storage schema for all plot types."""
 
     category: ClassVar[Category]
-    title: str = Field(description="Title of the plot")
-    description: str = Field(description="Description of what the plot represents")
+    title: str | None = Field(None, description="Title of the plot")
+    description: str | None = Field(
+        None, description="Description of what the plot represents"
+    )
     x_label: str | None = Field(None, description="Label for x-axis")
     y_label: str | None = Field(None, description="Label for y-axis")
 
@@ -139,7 +141,7 @@ class JSONLinechart(BaseObject):
         default=True, description="Whether to show individual points on the line"
     )
     line_style: str | None = Field(
-        default="solid", description="Line style (e.g., 'solid', 'dashed', 'dotted')"
+        default="-", description="Line style (e.g., '-', '--', ':')"
     )
     line_color: str | None = Field(None, description="Hex color code for the line")
 
@@ -148,6 +150,10 @@ class MutliLinechartSeries(BaseModel):
     """Individual point for linechart."""
 
     data: list[LinechartValue] = Field(description="X and Y data to plot")
+    line_style: str | None = Field(
+        default="solid", description="Line style (e.g., 'solid', 'dashed', 'dotted')"
+    )
+    line_color: str | None = Field(None, description="Hex color code for the line")
     series_label: str | None = Field(None, description="series label")
 
 
@@ -159,7 +165,3 @@ class JSONMultiLinechart(BaseObject):
     show_points: bool = Field(
         default=True, description="Whether to show individual points on the line"
     )
-    line_style: str | None = Field(
-        default="solid", description="Line style (e.g., 'solid', 'dashed', 'dotted')"
-    )
-    line_color: str | None = Field(None, description="Hex color code for the line")
