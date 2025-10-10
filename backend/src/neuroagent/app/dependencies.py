@@ -12,6 +12,7 @@ import boto3
 from fastapi import Depends, HTTPException, Request
 from fastapi.security import HTTPBearer
 from httpx import AsyncClient, HTTPStatusError, get
+from mcp_run_python.code_sandbox import CodeSandbox
 from obp_accounting_sdk import AsyncAccountingSessionFactory
 from openai import AsyncOpenAI
 from redis import asyncio as aioredis
@@ -76,8 +77,8 @@ from neuroagent.tools import (
     PersonGetAllTool,
     PersonGetOneTool,
     PlotElectricalCellRecordingGetOneTool,
-    PlotGeneratorTool,
     PlotMorphologyGetOneTool,
+    RunPythonTool,
     SimulationCampaignGetAllTool,
     SimulationCampaignGetOneTool,
     SimulationExecutionGetAllTool,
@@ -146,6 +147,11 @@ async def get_httpx_client(
 def get_accounting_session_factory(request: Request) -> AsyncAccountingSessionFactory:
     """Get the accounting session factory."""
     return request.app.state.accounting_session_factory
+
+
+def get_python_sandbox(request: Request) -> CodeSandbox:
+    """Get the python sandbox."""
+    return request.app.state.python_sandbox
 
 
 async def get_openai_client(
@@ -417,7 +423,6 @@ def get_tool_list(
         PersonGetAllTool,
         PersonGetOneTool,
         PlotElectricalCellRecordingGetOneTool,
-        PlotGeneratorTool,
         PlotMorphologyGetOneTool,
         SimulationCampaignGetAllTool,
         SimulationCampaignGetOneTool,
@@ -441,6 +446,7 @@ def get_tool_list(
         StrainGetOneTool,
         SubjectGetAllTool,
         SubjectGetOneTool,
+        RunPythonTool,
         # NowTool,
         # WeatherTool,
         # RandomPlotGeneratorTool,
@@ -641,6 +647,7 @@ async def get_context_variables(
     s3_client: Annotated[Any, Depends(get_s3_client)],
     user_info: Annotated[UserInfo, Depends(get_user_info)],
     openai_client: Annotated[AsyncOpenAI, Depends(get_openai_client)],
+    python_sandbox: Annotated[CodeSandbox, Depends(get_python_sandbox)],
 ) -> dict[str, Any]:
     """Get the context variables to feed the tool's metadata."""
     # Get the current frontend url
@@ -659,6 +666,7 @@ async def get_context_variables(
         "obi_one_url": settings.tools.obi_one.url,
         "openai_client": openai_client,
         "project_id": thread.project_id,
+        "python_sandbox": python_sandbox,
         "s3_client": s3_client,
         "sanity_url": settings.tools.sanity.url,
         "thread_id": thread.thread_id,

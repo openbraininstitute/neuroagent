@@ -162,7 +162,7 @@ export type MultiLinechartSeries = {
 export type JSONMultiLinechart = BaseObject & {
   values: MultiLinechartSeries[];
   show_points?: boolean;
-  line_style?: "solid" | "dashed" | "dotted" | string | null;
+  line_style?: "-" | "--" | ":" | string | null;
   line_color?: string | null;
 };
 
