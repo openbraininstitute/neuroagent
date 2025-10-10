@@ -137,6 +137,7 @@ from neuroagent.tools.obione_generatesimulationsconfig import (
     GenerateSimulationsConfigTool,
 )
 from neuroagent.tools.obione_morphometrics_getone import MorphometricsGetOneTool
+from neuroagent.tools.obi_graphql import ObiGraphQLTool
 from neuroagent.tools.thumbnailgen_electricalcellrecording_getone import (
     PlotElectricalCellRecordingGetOneTool,
 )
@@ -195,6 +196,7 @@ __all__ = [
     "PlotElectricalCellRecordingGetOneTool",
     "PlotGeneratorTool",
     "PlotMorphologyGetOneTool",
+    "ObiGraphQLTool",
     "SimulationCampaignGetAllTool",
     "SimulationCampaignGetOneTool",
     "SimulationExecutionGetAllTool",
