@@ -88,6 +88,8 @@ services:
       - "10000:10000"
     volumes:
       - azurite_data:/data
+    environment:
+    - AZURITE_ACCOUNTS=azuriteadmin:YXp1cml0ZQ==
     networks:
       app-network:
         aliases:

@@ -5,16 +5,12 @@ from typing import Dict, Iterable, Optional
 
 from azure.core.credentials import AzureNamedKeyCredential
 from azure.core.exceptions import (
-    HttpResponseError,
-    ResourceExistsError,
     ResourceNotFoundError,
-    ServiceRequestError,
 )
 from azure.storage.blob import (
     BlobSasPermissions,
     BlobServiceClient,
     ContentSettings,
-    CorsRule,
     generate_blob_sas,
 )
 
@@ -50,7 +46,7 @@ class AzureBlobStorageClient(StorageClient):
                 f"DefaultEndpointsProtocol=http;"
                 f"AccountName={account_name};"
                 f"AccountKey={account_key};"
-                f"BlobEndpoint={azure_endpoint_url};"
+                f"BlobEndpoint={azure_endpoint_url}/{account_name};"
             )
             self.service = BlobServiceClient.from_connection_string(connection_string)
         else:
@@ -64,29 +60,6 @@ class AzureBlobStorageClient(StorageClient):
         self.account_name = account_name
         self.account_key = account_key
         self.container = container
-
-        # Ensure container exists
-        container_client = self.service.get_container_client(container)
-        try:
-            container_client.create_container()
-        except ResourceExistsError:
-            pass
-
-        # CORS setup for local dev
-        try:
-            self.service.set_service_properties(
-                cors=[
-                    CorsRule(
-                        allowed_origins=["*"],
-                        allowed_methods=["GET", "PUT", "POST", "DELETE", "OPTIONS"],
-                        allowed_headers=["*"],
-                        exposed_headers=["*"],
-                        max_age_in_seconds=3600,
-                    )
-                ]
-            )
-        except (HttpResponseError, ServiceRequestError) as e:
-            raise ValueError("Warning: could not set CORS automatically:", e)
 
     def put_object(
         self,
