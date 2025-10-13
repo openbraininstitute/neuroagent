@@ -185,6 +185,7 @@ def test_chat_streamed(app_client, httpx_mock, db_connection, test_user_info):
         keycloak={"issuer": "https://great_issuer.com"},
         accounting={"disabled": True},
         rate_limiter={"disabled": True},
+        storage={"azure_account_name": "test_account", "azure_account_key": "test_key"},
     )
     app.dependency_overrides[get_settings] = lambda: test_settings
 

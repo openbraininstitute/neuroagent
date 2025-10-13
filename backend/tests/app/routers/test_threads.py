@@ -8,8 +8,8 @@ from dateutil import parser
 from neuroagent.app.config import Settings
 from neuroagent.app.dependencies import (
     get_openai_client,
-    get_s3_client,
     get_settings,
+    get_storage_client,
 )
 from neuroagent.app.main import app
 from neuroagent.app.schemas import ThreadGeneratedTitle
@@ -335,7 +335,7 @@ def test_delete_thread(
         db={"prefix": db_connection}, keycloak={"issuer": "https://great_issuer.com"}
     )
     app.dependency_overrides[get_settings] = lambda: test_settings
-    app.dependency_overrides[get_s3_client] = lambda: Mock()
+    app.dependency_overrides[get_storage_client] = lambda: Mock()
 
     fake_delete_from_storage = Mock()
     monkeypatch.setattr(

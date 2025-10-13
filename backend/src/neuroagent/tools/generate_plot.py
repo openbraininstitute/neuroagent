@@ -69,9 +69,9 @@ class PlotInput(BaseModel):
 class PlotMetadata(BaseMetadata):
     """Metadata for Plot Generator tool."""
 
-    s3_client: Any  # storage client doesn't have type hints
+    storage_client: Any  # storage client doesn't have type hints
     user_id: UUID
-    bucket_name: str
+    container_name: str
     thread_id: UUID
 
 
@@ -179,8 +179,8 @@ class PlotGeneratorTool(BaseTool):
             )
 
         identifier = save_to_storage(
-            s3_client=self.metadata.s3_client,
-            bucket_name=self.metadata.bucket_name,
+            storage_client=self.metadata.storage_client,
+            container_name=self.metadata.container_name,
             user_id=self.metadata.user_id,
             content_type="application/json",
             category=plot.category,

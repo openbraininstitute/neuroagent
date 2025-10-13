@@ -13,5 +13,12 @@ export function useGetPresignedUrl(storageId: string) {
     return response as string;
   };
 
-  return useQuery({ queryKey: [storageId], queryFn: fetchPresignedUrl });
+  return useQuery({
+    queryKey: ["presigned-url", storageId],
+    queryFn: fetchPresignedUrl,
+    staleTime: 500_000,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
+    refetchOnMount: false,
+  });
 }

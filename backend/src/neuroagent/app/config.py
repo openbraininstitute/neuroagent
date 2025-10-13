@@ -26,10 +26,17 @@ class SettingsAgent(BaseModel):
 class SettingsStorage(BaseModel):
     """Storage settings."""
 
-    endpoint_url: str | None = None
-    bucket_name: str = "neuroagent"
-    access_key: SecretStr | None = None
-    secret_key: SecretStr | None = None
+    provider: Literal["s3", "azure"] = "azure"
+    container_name: str = "neuroagent"
+    # Minio
+    s3_endpoint_url: str | None = None
+    s3_access_key: SecretStr | None = None
+    s3_secret_key: SecretStr | None = None
+    # Azurite
+    azure_endpoint_url: str | None = None
+    azure_account_name: SecretStr | None = None
+    azure_account_key: SecretStr | None = None
+    # presigned_url expiration
     expires_in: int = 600
 
     model_config = ConfigDict(frozen=True)

@@ -23,6 +23,7 @@ async def test_execute_tool_call_accepted(
         db={"prefix": db_connection},
         keycloak={"issuer": "https://great_issuer.com"},
         llm={"base_url": "http://cool.com", "open_router_token": "sk-or-cool"},
+        storage={"azure_account_name": "test_account", "azure_account_key": "test_key"},
     )
     app.dependency_overrides[get_settings] = lambda: test_settings
     db_items, session = populate_db
@@ -56,6 +57,7 @@ async def test_execute_tool_call_rejected(
         db={"prefix": db_connection},
         keycloak={"issuer": "https://great_issuer.com"},
         llm={"base_url": "http://cool.com", "open_router_token": "sk-or-cool"},
+        storage={"azure_account_name": "test_account", "azure_account_key": "test_key"},
     )
     app.dependency_overrides[get_settings] = lambda: test_settings
     db_items, session = populate_db
@@ -91,6 +93,7 @@ async def test_execute_tool_call_validation_error(
         db={"prefix": db_connection},
         keycloak={"issuer": "https://great_issuer.com"},
         llm={"base_url": "http://cool.com", "open_router_token": "sk-or-cool"},
+        storage={"azure_account_name": "test_account", "azure_account_key": "test_key"},
     )
     app.dependency_overrides[get_settings] = lambda: test_settings
     db_items, session = populate_db
