@@ -1,10 +1,12 @@
 """Test utility functions."""
 
 import json
-from unittest.mock import Mock, call
+import uuid
+from unittest.mock import MagicMock
 
 import pytest
 
+from neuroagent.storage.base_storage import StorageClient
 from neuroagent.utils import (
     complete_partial_json,
     delete_from_storage,
@@ -105,266 +107,259 @@ def test_partial_json_completes(partial):
     json.loads(fixed)
 
 
-def test_save_to_storage():
-    # Setup mock s3 client
-    mock_s3 = Mock()
+class TestSaveToStorage:
+    """Test suite for save_to_storage function."""
 
-    # Test parameters
-    container_name = "test-bucket"
-    user_id = "test-user"
-    content_type = "application/json"
-    category = "json-barplot"  # Using a valid category from the Literal type
-    body = b"test content"
-    thread_id = "test-thread"
+    @pytest.fixture
+    def mock_storage_client(self):
+        """Create a mock StorageClient."""
+        return MagicMock(spec=StorageClient)
 
-    # Call function
-    identifier = save_to_storage(
-        storage_client=mock_s3,
-        container_name=container_name,
-        user_id=user_id,
-        content_type=content_type,
-        category=category,
-        body=body,
-        thread_id=thread_id,
-    )
+    @pytest.fixture
+    def user_id(self):
+        """Generate a test user ID."""
+        return uuid.UUID("12345678-1234-5678-1234-567812345678")
 
-    # Verify the identifier is a valid UUID string
-    assert isinstance(identifier, str)
+    @pytest.fixture
+    def thread_id(self):
+        """Generate a test thread ID."""
+        return uuid.UUID("87654321-4321-8765-4321-876543218765")
 
-    # Verify s3 client was called correctly
-    mock_s3.put_object.assert_called_once()
-    call_args = mock_s3.put_object.call_args[1]
+    def test_save_to_storage(self, mock_storage_client, user_id, thread_id):
+        """Test saving content with all parameters including thread_id."""
+        container = "test-bucket"
+        content_type = "image/png"
+        category = "json-barplot"
+        body = b"fake image bytes"
 
-    assert call_args["Bucket"] == container_name
-    assert call_args["Key"] == f"{user_id}/{identifier}"  # Check exact key format
-    assert call_args["Body"] == body
-    assert call_args["ContentType"] == content_type
-    assert call_args["Metadata"] == {"category": category, "thread_id": thread_id}
+        result = save_to_storage(
+            storage_client=mock_storage_client,
+            container_name=container,
+            user_id=user_id,
+            content_type=content_type,
+            category=category,
+            body=body,
+            thread_id=thread_id,
+        )
 
+        # Verify a UUID was returned
+        assert isinstance(uuid.UUID(result), uuid.UUID)
 
-def test_save_to_storage_without_thread_id():
-    # Setup mock s3 client
-    mock_s3 = Mock()
+        # Verify put_object was called
+        mock_storage_client.put_object.assert_called_once()
+        call_kwargs = mock_storage_client.put_object.call_args.kwargs
 
-    # Test parameters
-    container_name = "test-bucket"
-    user_id = "test-user"
-    content_type = "image/png"
-    category = "image"  # Using another valid category from the Literal type
-    body = b"test content"
+        # Check parameters
+        assert call_kwargs["container"] == container
+        assert call_kwargs["key"] == f"{user_id}/{result}"
+        assert call_kwargs["body"] == body
+        assert call_kwargs["content_type"] == content_type
+        assert call_kwargs["metadata"]["category"] == str(category)
+        assert call_kwargs["metadata"]["thread_id"] == str(thread_id)
 
-    # Call function without thread_id
-    identifier = save_to_storage(
-        storage_client=mock_s3,
-        container_name=container_name,
-        user_id=user_id,
-        content_type=content_type,
-        category=category,
-        body=body,
-    )
+    def test_save_to_storage_without_thread_id(self, mock_storage_client, user_id):
+        """Test saving content without thread_id."""
+        container = "test-bucket"
+        content_type = "application/json"
+        category = "json-barplot"
+        body = b'{"data": "value"}'
 
-    # Verify the identifier is a valid UUID string
-    assert isinstance(identifier, str)
+        result = save_to_storage(
+            storage_client=mock_storage_client,
+            container_name=container,
+            user_id=user_id,
+            content_type=content_type,
+            category=category,
+            body=body,
+            thread_id=None,
+        )
 
-    # Verify s3 client was called correctly
-    mock_s3.put_object.assert_called_once()
-    call_args = mock_s3.put_object.call_args[1]
+        # Verify a UUID was returned
+        assert isinstance(uuid.UUID(result), uuid.UUID)
 
-    assert call_args["Bucket"] == container_name
-    assert call_args["Key"] == f"{user_id}/{identifier}"  # Check exact key format
-    assert call_args["Body"] == body
-    assert call_args["ContentType"] == content_type
-    assert call_args["Metadata"] == {"category": category}
+        # Verify metadata doesn't include thread_id
+        call_kwargs = mock_storage_client.put_object.call_args.kwargs
+        assert "thread_id" not in call_kwargs["metadata"]
+        assert call_kwargs["metadata"]["category"] == str(category)
 
+    def test_save_to_storage_with_string_body(self, mock_storage_client, user_id):
+        """Test saving content with string body instead of bytes."""
+        container = "test-bucket"
+        content_type = "application/json"
+        category = "json-barplot"
+        body = '{"key": "value", "nested": {"data": 123}}'
 
-def test_save_to_storage_with_string_body():
-    # Setup mock s3 client
-    mock_s3 = Mock()
+        result = save_to_storage(
+            storage_client=mock_storage_client,
+            container_name=container,
+            user_id=user_id,
+            content_type=content_type,
+            category=category,
+            body=body,
+        )
 
-    # Test parameters
-    container_name = "test-bucket"
-    user_id = "test-user"
-    content_type = "application/json"
-    category = "json-scatterplot"
-    body = '{"data": "test json string"}'  # String body (e.g. JSON)
-    thread_id = "test-thread"
+        # Verify a UUID was returned
+        assert isinstance(uuid.UUID(result), uuid.UUID)
 
-    # Call function
-    identifier = save_to_storage(
-        storage_client=mock_s3,
-        container_name=container_name,
-        user_id=user_id,
-        content_type=content_type,
-        category=category,
-        body=body,
-        thread_id=thread_id,
-    )
-
-    # Verify the identifier is a valid UUID string
-    assert isinstance(identifier, str)
-
-    # Verify s3 client was called correctly
-    mock_s3.put_object.assert_called_once()
-    call_args = mock_s3.put_object.call_args[1]
-
-    assert call_args["Bucket"] == container_name
-    assert call_args["Key"] == f"{user_id}/{identifier}"
-    assert call_args["Body"] == body
-    assert call_args["ContentType"] == content_type
-    assert call_args["Metadata"] == {"category": category, "thread_id": thread_id}
+        # Verify string body was passed correctly
+        call_kwargs = mock_storage_client.put_object.call_args.kwargs
+        assert call_kwargs["body"] == body
+        assert isinstance(call_kwargs["body"], str)
 
 
-def test_delete_from_storage():
-    # Setup mock s3 client
-    mock_s3 = Mock()
+class TestDeleteFromStorage:
+    """Test suite for delete_from_storage function."""
 
-    # Mock paginator and its paginate method
-    mock_paginator = Mock()
-    mock_s3.get_paginator.return_value = mock_paginator
+    @pytest.fixture
+    def mock_storage_client(self):
+        """Create a mock StorageClient."""
+        return MagicMock(spec=StorageClient)
 
-    # Test parameters
-    container_name = "test-bucket"
-    user_id = "test-user"
-    thread_id = "test-thread"
+    @pytest.fixture
+    def user_id(self):
+        """Generate a test user ID."""
+        return uuid.UUID("12345678-1234-5678-1234-567812345678")
 
-    # Test case 1: Multiple pages with matching objects
-    mock_paginator.paginate.return_value = [
-        {
-            "Contents": [
-                {"Key": f"{user_id}/obj1"},
-                {"Key": f"{user_id}/obj2"},
-            ]
-        },
-        {
-            "Contents": [
-                {"Key": f"{user_id}/obj3"},
-            ]
-        },
-    ]
+    @pytest.fixture
+    def thread_id(self):
+        """Generate a test thread ID."""
+        return uuid.UUID("87654321-4321-8765-4321-876543218765")
 
-    # Mock head_object responses for each object
-    mock_s3.head_object.side_effect = [
-        {"Metadata": {"thread_id": thread_id}},  # obj1
-        {"Metadata": {"thread_id": "other"}},  # obj2
-        {"Metadata": {"thread_id": thread_id}},  # obj3
-    ]
+    def test_delete_from_storage(self, mock_storage_client, user_id, thread_id):
+        """Test deleting objects that match user_id and thread_id."""
+        container = "test-bucket"
 
-    # Call function
-    delete_from_storage(
-        storage_client=mock_s3,
-        container_name=container_name,
-        user_id=user_id,
-        thread_id=thread_id,
-    )
-
-    # Verify paginator was called correctly
-    mock_s3.get_paginator.assert_called_once_with("list_objects_v2")
-    mock_paginator.paginate.assert_called_once_with(
-        Bucket=container_name, Prefix=f"{user_id}/"
-    )
-
-    # Verify head_object was called for each object
-    assert mock_s3.head_object.call_count == 3
-    mock_s3.head_object.assert_has_calls(
-        [
-            call(Bucket=container_name, Key=f"{user_id}/obj1"),
-            call(Bucket=container_name, Key=f"{user_id}/obj2"),
-            call(Bucket=container_name, Key=f"{user_id}/obj3"),
+        # Mock list_objects to return some keys
+        mock_storage_client.list_objects.return_value = [
+            f"{user_id}/file1.txt",
+            f"{user_id}/file2.json",
+            f"{user_id}/file3.png",
         ]
-    )
 
-    # Verify delete_objects was called for each page with correct objects
-    assert mock_s3.delete_objects.call_count == 2
-    mock_s3.delete_objects.assert_has_calls(
-        [
-            call(
-                Bucket=container_name,
-                Delete={
-                    "Objects": [{"Key": f"{user_id}/obj1"}],
-                    "Quiet": True,
-                },
-            ),
-            call(
-                Bucket=container_name,
-                Delete={
-                    "Objects": [{"Key": f"{user_id}/obj3"}],
-                    "Quiet": True,
-                },
-            ),
+        # Mock get_metadata to return matching thread_id for first two files
+        def mock_get_metadata(container, key):
+            if "file1" in key or "file2" in key:
+                return {"thread_id": str(thread_id), "category": "image"}
+            return {"thread_id": "different-thread-id", "category": "data"}
+
+        mock_storage_client.get_metadata.side_effect = mock_get_metadata
+
+        delete_from_storage(
+            storage_client=mock_storage_client,
+            container_name=container,
+            user_id=user_id,
+            thread_id=thread_id,
+        )
+
+        # Verify list_objects was called with correct prefix
+        mock_storage_client.list_objects.assert_called_once_with(
+            container=container, prefix=f"{user_id}/"
+        )
+
+        # Verify get_metadata was called for each file
+        assert mock_storage_client.get_metadata.call_count == 3
+
+        # Verify delete_object was called only for matching files
+        assert mock_storage_client.delete_object.call_count == 2
+        delete_calls = [
+            call.kwargs["key"]
+            for call in mock_storage_client.delete_object.call_args_list
         ]
-    )
+        assert f"{user_id}/file1.txt" in delete_calls
+        assert f"{user_id}/file2.json" in delete_calls
+        assert f"{user_id}/file3.png" not in delete_calls
 
+    def test_delete_from_storage_no_contents(
+        self, mock_storage_client, user_id, thread_id
+    ):
+        """Test deleting when no objects exist for the user."""
+        container = "test-bucket"
 
-def test_delete_from_storage_no_contents():
-    # Setup mock s3 client
-    mock_s3 = Mock()
+        # Mock list_objects to return empty list
+        mock_storage_client.list_objects.return_value = []
 
-    # Mock paginator and its paginate method
-    mock_paginator = Mock()
-    mock_s3.get_paginator.return_value = mock_paginator
+        delete_from_storage(
+            storage_client=mock_storage_client,
+            container_name=container,
+            user_id=user_id,
+            thread_id=thread_id,
+        )
 
-    # Test parameters
-    container_name = "test-bucket"
-    user_id = "test-user"
-    thread_id = "test-thread"
+        # Verify list_objects was called
+        mock_storage_client.list_objects.assert_called_once()
 
-    # Test case: Page with no contents
-    mock_paginator.paginate.return_value = [{}]
+        # Verify get_metadata was never called (no objects to check)
+        mock_storage_client.get_metadata.assert_not_called()
 
-    # Call function
-    delete_from_storage(
-        storage_client=mock_s3,
-        container_name=container_name,
-        user_id=user_id,
-        thread_id=thread_id,
-    )
+        # Verify delete_object was never called
+        mock_storage_client.delete_object.assert_not_called()
 
-    # Verify paginator was called correctly
-    mock_s3.get_paginator.assert_called_once_with("list_objects_v2")
-    mock_paginator.paginate.assert_called_once_with(
-        Bucket=container_name, Prefix=f"{user_id}/"
-    )
+    def test_delete_from_storage_no_matching_thread_id(
+        self, mock_storage_client, user_id, thread_id
+    ):
+        """Test deleting when objects exist but none match the thread_id."""
+        container = "test-bucket"
+        different_thread_id = uuid.uuid4()
 
-    # Verify no other methods were called
-    mock_s3.head_object.assert_not_called()
-    mock_s3.delete_objects.assert_not_called()
+        # Mock list_objects to return some keys
+        mock_storage_client.list_objects.return_value = [
+            f"{user_id}/file1.txt",
+            f"{user_id}/file2.json",
+        ]
 
+        # Mock get_metadata to return different thread_id
+        mock_storage_client.get_metadata.return_value = {
+            "thread_id": str(different_thread_id),
+            "category": "image",
+        }
 
-def test_delete_from_storage_large_batch():
-    # Setup mock s3 client
-    mock_s3 = Mock()
+        delete_from_storage(
+            storage_client=mock_storage_client,
+            container_name=container,
+            user_id=user_id,
+            thread_id=thread_id,
+        )
 
-    # Mock paginator and its paginate method
-    mock_paginator = Mock()
-    mock_s3.get_paginator.return_value = mock_paginator
+        # Verify get_metadata was called
+        assert mock_storage_client.get_metadata.call_count == 2
 
-    # Test parameters
-    container_name = "test-bucket"
-    user_id = "test-user"
-    thread_id = "test-thread"
+        # Verify delete_object was never called (no matching thread_id)
+        mock_storage_client.delete_object.assert_not_called()
 
-    # Create 1500 test objects (more than the 1000 batch limit)
-    test_objects = [{"Key": f"{user_id}/obj{i}"} for i in range(1500)]
-    mock_paginator.paginate.return_value = [{"Contents": test_objects}]
+    def test_delete_from_storage_large_batch(
+        self, mock_storage_client, user_id, thread_id
+    ):
+        """Test deleting a large batch of objects."""
+        container = "test-bucket"
+        num_files = 100
 
-    # Mock head_object to always return matching thread_id
-    mock_s3.head_object.return_value = {"Metadata": {"thread_id": thread_id}}
+        # Generate 100 file keys
+        file_keys = [f"{user_id}/file{i}.txt" for i in range(num_files)]
+        mock_storage_client.list_objects.return_value = file_keys
 
-    # Call function
-    delete_from_storage(
-        storage_client=mock_s3,
-        container_name=container_name,
-        user_id=user_id,
-        thread_id=thread_id,
-    )
+        # All files match the thread_id
+        mock_storage_client.get_metadata.return_value = {
+            "thread_id": str(thread_id),
+            "category": "data",
+        }
 
-    # Verify delete_objects was called twice (1000 objects, then 500)
-    assert mock_s3.delete_objects.call_count == 2
+        delete_from_storage(
+            storage_client=mock_storage_client,
+            container_name=container,
+            user_id=user_id,
+            thread_id=thread_id,
+        )
 
-    # First batch should have 1000 objects
-    first_batch = mock_s3.delete_objects.call_args_list[0][1]
-    assert len(first_batch["Delete"]["Objects"]) == 1000
+        # Verify get_metadata was called for each file
+        assert mock_storage_client.get_metadata.call_count == num_files
 
-    # Second batch should have 500 objects
-    second_batch = mock_s3.delete_objects.call_args_list[1][1]
-    assert len(second_batch["Delete"]["Objects"]) == 500
+        # Verify delete_object was called for each file
+        assert mock_storage_client.delete_object.call_count == num_files
+
+        # Verify all files were deleted
+        deleted_keys = [
+            call.kwargs["key"]
+            for call in mock_storage_client.delete_object.call_args_list
+        ]
+        assert len(deleted_keys) == num_files
+        assert set(deleted_keys) == set(file_keys)
