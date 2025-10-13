@@ -18,10 +18,21 @@ KEYCLOAK_ISSUER=...
 NEXTAUTH_SECRET=...
 ```
 
-3. Start the services and initialize the database:
+3. Start the services and initialize the database :
 ```bash
 docker compose up
+```
+Both AWS (minio locally) and Azure (azurite locally) are supported. Choose one option and initialise the storage.
+
+- AWS - Minio :
+```bash
 docker exec -it neuroagent-minio-1 mc alias set myminio http://minio:9000 minioadmin minioadmin && docker exec -it neuroagent-minio-1 mc mb myminio/neuroagent
+```
+
+- Azure - Azurite :
+```bash
+az storage container create --name neuroagent --connection-string "DefaultEndpointsProtocol=http;AccountName=azuriteadmin;AccountKey=YXp1cml0ZQ==;BlobEndpoint=http://127.0.0.1:10000/azuriteadmin;"
+az storage cors add --services b --origins '*' --methods GET PUT POST DELETE OPTIONS --allowed-headers '*' --exposed-headers '*' --connection-string "DefaultEndpointsProtocol=http;AccountName=azuriteadmin;AccountKey=YXp1cml0ZQ==;BlobEndpoint=http://127.0.0.1:10000/azuriteadmin;"
 ```
 
 4. Access the application at `http://localhost:3000`
