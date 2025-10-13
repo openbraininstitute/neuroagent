@@ -40,6 +40,7 @@ class PlotMorphologyGetOneOutput(BaseModel):
     """Output of the PlotMorphologyGetOneTool."""
 
     storage_id: str
+    plot_link: str
 
 
 class PlotMorphologyGetOneTool(BaseTool):
@@ -111,7 +112,9 @@ class PlotMorphologyGetOneTool(BaseTool):
             thread_id=self.metadata.thread_id,
         )
 
-        return PlotMorphologyGetOneOutput(storage_id=identifier)
+        return PlotMorphologyGetOneOutput(
+            storage_id=identifier, plot_link=f"storage/{identifier}"
+        )
 
     @classmethod
     async def is_online(

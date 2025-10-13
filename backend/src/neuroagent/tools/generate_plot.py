@@ -79,6 +79,7 @@ class PlotGeneratorToolOutput(BaseModel):
     """Output class for the plot generator."""
 
     storage_id: str
+    plot_link: str
 
 
 class PlotGeneratorTool(BaseTool):
@@ -188,7 +189,9 @@ class PlotGeneratorTool(BaseTool):
             thread_id=self.metadata.thread_id,
         )
 
-        return PlotGeneratorToolOutput(storage_id=identifier)
+        return PlotGeneratorToolOutput(
+            storage_id=identifier, plot_link=f"storage/{identifier}"
+        )
 
     @classmethod
     async def is_online(cls) -> bool:
