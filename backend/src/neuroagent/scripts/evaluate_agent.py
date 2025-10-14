@@ -242,7 +242,8 @@ def compute_overall_results(eval_dir: Path) -> dict[str, Any]:
     individual_dir = eval_dir / "individual"
     overall_results = {
         "total_tests": 0,
-        "metrics": {}
+        "metrics": {},
+        "created_at": datetime.now()
     }
     
     # Collect all test results

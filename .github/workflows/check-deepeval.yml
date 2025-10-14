@@ -1,0 +1,28 @@
+name: Check DeepEval
+on:
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  Check-DeepEval:
+    name: Check DeepEval
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Check if overall_results.json was updated
+        run: |
+          BASE_BRANCH=${GITHUB_BASE_REF:-main}
+          
+          if git diff --quiet origin/$BASE_BRANCH...HEAD -- backend/eval/aggregate/overall_results.json; then
+            echo "❌ overall_results.json was not updated in this PR!"
+            echo "Please run the evaluation script to update the results."
+            exit 1
+          else
+            echo "✅ overall_results.json has been updated"
+            echo "Current results:"
+            jq . backend/eval/aggregate/overall_results.json
+          fi
