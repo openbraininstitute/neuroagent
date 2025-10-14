@@ -43,22 +43,12 @@ class ToolCallModel(BaseModel):
     arguments: dict[str, Any] = Field(default_factory=dict)
 
 
-class ExpectedToolCalls(BaseModel):
-    """Model for expected_tool_calls.json files."""
+class ToolCalls(BaseModel):
+    """Model for tool calls (both expected and actual)."""
     tool_calls: list[ToolCallModel] = Field(default_factory=list)
     
     @classmethod
-    def from_list(cls, tool_calls_list: list[dict[str, Any]]) -> "ExpectedToolCalls":
-        """Create from list of tool call dictionaries."""
-        return cls(tool_calls=[ToolCallModel(**tc) for tc in tool_calls_list])
-
-
-class ActualToolCalls(BaseModel):
-    """Model for actual_tool_calls.json files."""
-    tool_calls: list[ToolCallModel] = Field(default_factory=list)
-    
-    @classmethod
-    def from_list(cls, tool_calls_list: list[dict[str, Any]]) -> "ActualToolCalls":
+    def from_list(cls, tool_calls_list: list[dict[str, Any]]) -> "ToolCalls":
         """Create from list of tool call dictionaries."""
         return cls(tool_calls=[ToolCallModel(**tc) for tc in tool_calls_list])
 
@@ -204,7 +194,7 @@ def load_test_cases(eval_dir: Path) -> list[dict[str, Any]]:
             # Load and validate expected tool calls
             with open(input_dir / "expected_tool_calls.json", "r") as f:
                 expected_tool_calls_data = json.load(f)
-            expected_tool_calls = ExpectedToolCalls.from_list(expected_tool_calls_data)
+            expected_tool_calls = ToolCalls.from_list(expected_tool_calls_data)
                 
             # Load and validate params
             with open(input_dir / "params.json", "r") as f:
@@ -237,7 +227,7 @@ def save_test_case_results(test_case: dict[str, Any], decoded_response: dict[str
         f.write(decoded_response["response"])
     
     # Save actual tool calls with validation
-    actual_tool_calls = ActualToolCalls.from_list(decoded_response.get("tool_calls", []))
+    actual_tool_calls = ToolCalls.from_list(decoded_response.get("tool_calls", []))
     with open(output_dir / "actual_tool_calls.json", "w") as f:
         json.dump(actual_tool_calls.model_dump(), f, indent=2)
     
@@ -338,8 +328,7 @@ async def eval_sample(
                     tool for tool in tool_list if tool.name == tool_call["name"]
                 )
             except StopIteration:
-                logger.warning(f"Tool {tool_call['name']} not found.")
-                continue
+                raise RuntimeError(f"Tool '{tool_call['name']}' not found in available tools.")
             input_class = tool_class.__annotations__["input_schema"](
                 **tool_call["arguments"]
             )
