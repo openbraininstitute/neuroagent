@@ -1,0 +1,10 @@
+{
+  "tool_calls": [
+    {
+      "name": "obi-expert",
+      "arguments": {
+        "document_type": "news"
+      }
+    }
+  ]
+}

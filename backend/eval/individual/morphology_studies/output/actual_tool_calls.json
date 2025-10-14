@@ -1,0 +1,12 @@
+{
+  "tool_calls": [
+    {
+      "name": "literature-search-tool",
+      "arguments": {
+        "query": "neuron morphology cerebrum recent studies 2020..2025 cortical neuron morphology review single-cell reconstructions mouse human cerebrum",
+        "numResults": 6,
+        "maxCharacters": 1500
+      }
+    }
+  ]
+}

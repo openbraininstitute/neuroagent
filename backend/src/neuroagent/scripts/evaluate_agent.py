@@ -6,16 +6,17 @@ import inspect
 import json
 import logging
 import os
+from datetime import datetime
 from pathlib import Path
 from typing import Any
 
 import httpx
-import pandas as pd
 from deepeval.evaluate import evaluate
 from deepeval.evaluate.types import EvaluationResult
 from deepeval.metrics import ArgumentCorrectnessMetric, GEval, ToolCorrectnessMetric
 from deepeval.test_case import LLMTestCase, LLMTestCaseParams, ToolCall
 from dotenv import load_dotenv
+from pydantic import BaseModel, Field
 
 import neuroagent.tools
 from neuroagent.tools.base_tool import BaseTool
@@ -28,6 +29,53 @@ logger = logging.getLogger(__name__)
 # NOTE: For now the MCP tools are not included.
 all_classes = inspect.getmembers(neuroagent.tools, inspect.isclass)
 tool_list: list[type[BaseTool]] = [cls for _, cls in all_classes]
+
+
+# Pydantic models for JSON validation
+class TestCaseParams(BaseModel):
+    """Model for params.json files."""
+    tags: list[str] = Field(default_factory=list)
+
+
+class ToolCallModel(BaseModel):
+    """Model for individual tool call."""
+    name: str
+    arguments: dict[str, Any] = Field(default_factory=dict)
+
+
+class ExpectedToolCalls(BaseModel):
+    """Model for expected_tool_calls.json files."""
+    tool_calls: list[ToolCallModel] = Field(default_factory=list)
+    
+    @classmethod
+    def from_list(cls, tool_calls_list: list[dict[str, Any]]) -> "ExpectedToolCalls":
+        """Create from list of tool call dictionaries."""
+        return cls(tool_calls=[ToolCallModel(**tc) for tc in tool_calls_list])
+
+
+class ActualToolCalls(BaseModel):
+    """Model for actual_tool_calls.json files."""
+    tool_calls: list[ToolCallModel] = Field(default_factory=list)
+    
+    @classmethod
+    def from_list(cls, tool_calls_list: list[dict[str, Any]]) -> "ActualToolCalls":
+        """Create from list of tool call dictionaries."""
+        return cls(tool_calls=[ToolCallModel(**tc) for tc in tool_calls_list])
+
+
+class MetricResult(BaseModel):
+    """Model for individual metric result."""
+    name: str
+    score: float
+    success: bool
+    threshold: float
+    reason: str
+
+
+class EvaluationResults(BaseModel):
+    """Model for results.json files."""
+    metrics: list[MetricResult] = Field(default_factory=list)
+    created_at: datetime = Field(default_factory=datetime.now)
 
 
 def get_parser() -> argparse.ArgumentParser:
@@ -48,18 +96,11 @@ def get_parser() -> argparse.ArgumentParser:
         help="URL of the neuroagent api.",
     )
     parser.add_argument(
-        "--dataset-path",
+        "--eval-dir",
         "-d",
         type=Path,
-        default="eval/eval_dataset.csv",
-        help="Path where the evaluation samples are. Must have .csv extension,",
-    )
-    parser.add_argument(
-        "--save-path",
-        "-s",
-        type=Path,
-        default="eval/eval_results.csv",
-        help="Path where to save the evaluation results. Must have .csv extension,",
+        default="eval",
+        help="Path to the evaluation directory containing individual/ and aggregate/ folders.",
     )
     parser.add_argument(
         "--concurrent-requests",
@@ -67,6 +108,13 @@ def get_parser() -> argparse.ArgumentParser:
         type=int,
         default=5,
         help="Number of async requests sent concurrently.",
+    )
+    parser.add_argument(
+        "--timeout",
+        "-t",
+        type=float,
+        default=60.0,
+        help="Timeout in seconds for HTTP requests.",
     )
     return parser
 
@@ -131,57 +179,137 @@ def parse_ai_sdk_streaming_response(streamed_data: str) -> dict[str, Any]:
     return {"response": final_output, "tool_calls": list(tool_calls.values())}
 
 
-def evaluation_result_to_csv(
-    evaluation_result: EvaluationResult, csv_path: str = "eval_result.csv"
-) -> None:
-    """
-    Convert a DeepEval EvaluationResult object into a flat pandas DataFrame and saves it as a CSV.
+def load_test_cases(eval_dir: Path) -> list[dict[str, Any]]:
+    """Load test cases from the individual/ folder structure."""
+    individual_dir = eval_dir / "individual"
+    test_cases = []
+    
+    for test_case_dir in individual_dir.iterdir():
+        if not test_case_dir.is_dir():
+            continue
+            
+        input_dir = test_case_dir / "input"
+        if not input_dir.exists():
+            logger.warning(f"No input directory found for {test_case_dir.name}")
+            continue
+            
+        # Load test case data
+        try:
+            with open(input_dir / "user.md", "r") as f:
+                input_text = f.read()
+            
+            with open(input_dir / "expected_output.md", "r") as f:
+                expected_output = f.read()
+                
+            # Load and validate expected tool calls
+            with open(input_dir / "expected_tool_calls.json", "r") as f:
+                expected_tool_calls_data = json.load(f)
+            expected_tool_calls = ExpectedToolCalls.from_list(expected_tool_calls_data)
+                
+            # Load and validate params
+            with open(input_dir / "params.json", "r") as f:
+                params_data = json.load(f)
+            params = TestCaseParams(**params_data)
+                
+            test_cases.append({
+                "name": test_case_dir.name,
+                "input": input_text,
+                "expected_output": expected_output,
+                "expected_tool_calls": expected_tool_calls_data,  # Keep as list for compatibility
+                "params": params,
+                "test_case_dir": test_case_dir
+            })
+            
+        except Exception as e:
+            logger.error(f"Error loading test case {test_case_dir.name}: {e}")
+            continue
+    
+    return test_cases
 
-    Parameters
-    ----------
-    evaluation_result (EvaluationResult):
-        The evaluation result object.
-    csv_path (str):
-        Output file path for the CSV.
-    """
-    rows = []
 
-    for test_result in evaluation_result.test_results:
-        if test_result.metrics_data:
-            actual_tool_calls = test_result.additional_metadata["actual_tool_calls"]
+def save_test_case_results(test_case: dict[str, Any], decoded_response: dict[str, Any], evaluation_results: dict[str, Any]) -> None:
+    """Save test case results to the output/ folder."""
+    output_dir = test_case["test_case_dir"] / "output"
+    output_dir.mkdir(exist_ok=True)
+    
+    # Save AI response
+    with open(output_dir / "ai.md", "w") as f:
+        f.write(decoded_response["response"])
+    
+    # Save actual tool calls with validation
+    actual_tool_calls = ActualToolCalls.from_list(decoded_response.get("tool_calls", []))
+    with open(output_dir / "actual_tool_calls.json", "w") as f:
+        json.dump(actual_tool_calls.model_dump(), f, indent=2)
+    
+    # Save evaluation results with validation and timestamp
+    eval_results = EvaluationResults(**evaluation_results)
+    with open(output_dir / "results.json", "w") as f:
+        json.dump(eval_results.model_dump(), f, indent=2, default=str)
 
-            for metric in test_result.metrics_data:
-                row = {
-                    "test_name": test_result.name,
-                    "input": test_result.input,
-                    "actual_output": test_result.actual_output
-                    if metric.name == "Correctness [GEval]"
-                    else actual_tool_calls,
-                    "metric_name": metric.name,
-                    "score": metric.score,
-                    "success": metric.success,
-                    "threshold": metric.threshold,
-                    "reason": metric.reason,
-                    "evaluation_model": metric.evaluation_model,
-                    "evaluation_cost": metric.evaluation_cost,
-                }
-                rows.append(row)
-        else:
-            raise RuntimeError("No computed metric found.")
 
-    df = pd.DataFrame(rows)
-    df.to_csv(csv_path, index=False, float_format="%.6f")
-    logger.info(f"Saved evaluation results to {csv_path}")
+def compute_overall_results(eval_dir: Path) -> dict[str, Any]:
+    """Compute overall results from all individual test cases."""
+    individual_dir = eval_dir / "individual"
+    overall_results = {
+        "total_tests": 0,
+        "metrics": {}
+    }
+    
+    # Collect all test results
+    test_results = []
+    
+    for test_case_dir in individual_dir.iterdir():
+        if not test_case_dir.is_dir():
+            continue
+            
+        output_dir = test_case_dir / "output"
+        results_file = output_dir / "results.json"
+        
+        if not results_file.exists():
+            logger.warning(f"No results found for {test_case_dir.name}")
+            continue
+            
+        try:
+            with open(results_file, "r") as f:
+                test_data = json.load(f)
+                
+            overall_results["total_tests"] += 1
+            
+            # Extract metrics for this test case
+            metrics = test_data.get("metrics", [])
+            for metric in metrics:
+                metric_name = metric.get("name", "Unknown")
+                score = metric.get("score", 0)
+                
+                if metric_name not in overall_results["metrics"]:
+                    overall_results["metrics"][metric_name] = []
+                
+                overall_results["metrics"][metric_name].append({
+                    "test_name": test_case_dir.name,
+                    "score": score
+                })
+                
+        except Exception as e:
+            logger.error(f"Error processing results for {test_case_dir.name}: {e}")
+            continue
+    
+    # Sort each metric's results by score (highest to lowest)
+    for metric_name in overall_results["metrics"]:
+        overall_results["metrics"][metric_name].sort(
+            key=lambda x: x["score"], reverse=True
+        )
+    
+    return overall_results
 
 
 async def eval_sample(
-    sample: pd.Series,
+    test_case: dict[str, Any],
     client: httpx.AsyncClient,
     semaphore: asyncio.Semaphore,
     url: str = "http://localhost:8000",
-) -> LLMTestCase:
-    """Run a single sample into our API."""
-    logger.info(f"Running sample: {sample['input']}")
+) -> tuple[LLMTestCase, dict[str, Any]]:
+    """Run a single test case against our API."""
+    logger.info(f"Running test case: {test_case['name']}")
     async with semaphore:
         # Create a thread to work with
         response = await client.post(f"{url}/threads")
@@ -192,7 +320,7 @@ async def eval_sample(
         try:
             # Send the request to chat_streamed using the previously created thread
             response = await client.post(
-                f"{url}/qa/chat_streamed/{thread_id}", json={"content": sample["input"]}
+                f"{url}/qa/chat_streamed/{thread_id}", json={"content": test_case["input"]}
             )
             # Delete the original thread
         finally:
@@ -226,12 +354,12 @@ async def eval_sample(
     ]
     expected_tool_calls = [
         ToolCall(name=tool["name"], input_parameters=tool["arguments"])
-        for tool in json.loads(sample["expected_tool_calls"])
+        for tool in test_case["expected_tool_calls"]
     ]
-    test_case = LLMTestCase(
-        input=sample["input"],
+    test_case_obj = LLMTestCase(
+        input=test_case["input"],
         actual_output=decoded["response"],
-        expected_output=sample["expected_output"],
+        expected_output=test_case["expected_output"],
         tools_called=tools_called,
         expected_tools=expected_tool_calls,
         additional_metadata={
@@ -239,33 +367,41 @@ async def eval_sample(
         },
     )
 
-    return test_case
+    return test_case_obj, decoded
 
 
 async def run_eval(
     token: str,
-    dataset_path: str = "eval_dataset.csv",
+    eval_dir: Path = Path("eval"),
     agent_url: str = "http://localhost:8000",
     concurrent_requests: int = 5,
-    save_path: str = "eval_result.csv",
+    timeout: float = 60.0,
 ) -> None:
-    """Run the evaluation on the dataset."""
-    # Create dataset
-    dataset = pd.read_csv(dataset_path)
+    """Run the evaluation on the test cases."""
+    # Load test cases from folder structure
+    test_cases = load_test_cases(eval_dir)
+    logger.info(f"Loaded {len(test_cases)} test cases")
+    
     client = httpx.AsyncClient(
-        timeout=6000, headers={"Authorization": f"Bearer {token}"}
+        timeout=timeout,
+        headers={"Authorization": f"Bearer {token}"}
     )
     semaphore = asyncio.Semaphore(concurrent_requests)
 
+    # Run evaluations in parallel
     tasks = [
         asyncio.create_task(
             eval_sample(
-                sample=sample, client=client, semaphore=semaphore, url=agent_url
+                test_case=test_case, client=client, semaphore=semaphore, url=agent_url
             )
         )
-        for _, sample in dataset.iterrows()
+        for test_case in test_cases
     ]
-    deepeval_test_cases = await asyncio.gather(*tasks)
+    results = await asyncio.gather(*tasks)
+    
+    # Separate the results
+    deepeval_test_cases = [result[0] for result in results]
+    decoded_responses = [result[1] for result in results]
 
     # === Define Metrics ===
 
@@ -289,7 +425,38 @@ async def run_eval(
     results = evaluate(
         deepeval_test_cases, [answer_relevance, tool_correctness, tool_arguments]
     )
-    evaluation_result_to_csv(results, save_path)
+    
+    # Save individual results
+    for i, (test_case, decoded) in enumerate(zip(test_cases, decoded_responses)):
+        # Extract evaluation results for this test case
+        test_result = results.test_results[i]
+        
+        # Create metrics
+        metrics = []
+        for metric in test_result.metrics_data:
+            metrics.append(MetricResult(
+                name=metric.name,
+                score=metric.score,
+                success=metric.success,
+                threshold=metric.threshold,
+                reason=metric.reason,
+            ))
+        
+        evaluation_results = {
+            "metrics": [metric.model_dump() for metric in metrics]
+        }
+        
+        save_test_case_results(test_case, decoded, evaluation_results)
+    
+    # Compute and save overall results
+    overall_results = compute_overall_results(eval_dir)
+    aggregate_dir = eval_dir / "aggregate"
+    aggregate_dir.mkdir(exist_ok=True)
+    
+    with open(aggregate_dir / "overall_results.json", "w") as f:
+        json.dump(overall_results, f, indent=2)
+    
+    logger.info(f"Evaluation complete! Processed {overall_results['total_tests']} test cases")
 
 
 if __name__ == "__main__":

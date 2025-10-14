@@ -1,0 +1,10 @@
+{
+  "tool_calls": [
+    {
+      "name": "entitycore-species-getall",
+      "arguments": {
+        "page_size": 10
+      }
+    }
+  ]
+}

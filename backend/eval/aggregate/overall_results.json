@@ -1,0 +1,119 @@
+{
+  "total_tests": 9,
+  "metrics": {
+    "Correctness [GEval]": [
+      {
+        "test_name": "thalamus_id",
+        "score": 0.6389596429861681
+      },
+      {
+        "test_name": "simulation_tutorial",
+        "score": 0.5673886163958227
+      },
+      {
+        "test_name": "species_list",
+        "score": 0.5486391131741672
+      },
+      {
+        "test_name": "platform_news",
+        "score": 0.45440410057763597
+      },
+      {
+        "test_name": "morphology_studies",
+        "score": 0.44260043016628303
+      },
+      {
+        "test_name": "neuroscientists_search",
+        "score": 0.34898941142307593
+      },
+      {
+        "test_name": "matplotlib_plot",
+        "score": 0.3483482654344209
+      },
+      {
+        "test_name": "cerebellum_morphologies",
+        "score": 0.3217042654392415
+      },
+      {
+        "test_name": "sin_plot",
+        "score": 0.3002059548055903
+      }
+    ],
+    "Tool Correctness": [
+      {
+        "test_name": "platform_news",
+        "score": 1.0
+      },
+      {
+        "test_name": "species_list",
+        "score": 1.0
+      },
+      {
+        "test_name": "morphology_studies",
+        "score": 1.0
+      },
+      {
+        "test_name": "thalamus_id",
+        "score": 1.0
+      },
+      {
+        "test_name": "simulation_tutorial",
+        "score": 1.0
+      },
+      {
+        "test_name": "neuroscientists_search",
+        "score": 0.5
+      },
+      {
+        "test_name": "cerebellum_morphologies",
+        "score": 0.0
+      },
+      {
+        "test_name": "matplotlib_plot",
+        "score": 0.0
+      },
+      {
+        "test_name": "sin_plot",
+        "score": 0.0
+      }
+    ],
+    "Argument Correctness": [
+      {
+        "test_name": "platform_news",
+        "score": 1.0
+      },
+      {
+        "test_name": "species_list",
+        "score": 1.0
+      },
+      {
+        "test_name": "cerebellum_morphologies",
+        "score": 1.0
+      },
+      {
+        "test_name": "matplotlib_plot",
+        "score": 1.0
+      },
+      {
+        "test_name": "sin_plot",
+        "score": 1.0
+      },
+      {
+        "test_name": "thalamus_id",
+        "score": 1.0
+      },
+      {
+        "test_name": "neuroscientists_search",
+        "score": 1.0
+      },
+      {
+        "test_name": "simulation_tutorial",
+        "score": 1.0
+      },
+      {
+        "test_name": "morphology_studies",
+        "score": 0.0
+      }
+    ]
+  }
+}

@@ -1,0 +1,1 @@
+## Thalamus \u2014 Brain Region ID\n\n- **Name:** **Thalamus**  \n- **ID:** **75e3944e-8dcd-4310-a3a2-258f93de63d6**  \n- **Acronym:** **TH**  \n- **Annotation value:** **549**\n\nWould you like me to retrieve detailed information for this region (use the ID) or list subregions/nuclei within the thalamus?
