@@ -10,6 +10,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - More evaluation cases.
 
+## Changed
+- Use typescript autogen for backend types in frontend.
+- Try to enforce using metric tools rather than downloading assets.
+- Rule to avoid overvalidating.
+
 ## [v0.10.0] - 2.10.2025
 
 ### Fixed
@@ -31,6 +36,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Remove `sonata_asset_id` from circuit analysis tool dependency.
+- Switch to Flash models for tool selection.
 
 
 ## [v0.9.2] - 25.09.2025
