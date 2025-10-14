@@ -2,25 +2,25 @@
   "metrics": [
     {
       "name": "Correctness [GEval]",
-      "score": 0.7992265056117926,
-      "success": true,
+      "score": 0.2686854909383182,
+      "success": false,
       "threshold": 0.5,
-      "reason": "The actual output provides a detailed summary of recent news about the Open Brain Platform, which aligns well with the request for news. It includes key components such as titles, categories, creation dates, and summaries for each news item, fulfilling the requirement to address the input. However, it deviates from the expected output format by including specific metadata and summaries instead of placeholders, which slightly affects the overall structure. Despite this, the logical flow and coherence are maintained, justifying a high score."
+      "reason": "The actual output provides a detailed list of influential computational neuroscientists, which partially aligns with the input request. However, it fails to match the expected output structure, which includes specific sections and placeholders for names, institutions, and achievements. The actual output lacks the concise summary and the specific format requested, leading to significant discrepancies in structure and completeness."
     },
     {
       "name": "Tool Correctness",
-      "score": 1.0,
-      "success": true,
-      "threshold": 0.5,
-      "reason": "Correct ordering: all expected tools ['obi-expert'] were called in the correct order."
-    },
-    {
-      "name": "Argument Correctness",
       "score": 0.0,
       "success": false,
       "threshold": 0.5,
-      "reason": "The score is 0.00 because there was no input parameter provided to specify the platform for news."
+      "reason": "Incorrect tool usage: missing tools ['web-search-tool'] and out-of-order tools ['web-search-tool']; expected ['web-search-tool'], called ['literature-search-tool']. See more details above."
+    },
+    {
+      "name": "Argument Correctness",
+      "score": 1.0,
+      "success": true,
+      "threshold": 0.5,
+      "reason": "The score is 1.00 because there were no incorrect tool calls, indicating that the input was handled perfectly."
     }
   ],
-  "created_at": "2025-10-14 16:20:14.008338"
+  "created_at": "2025-10-14 17:00:17.388902"
 }

@@ -3,57 +3,13 @@
     {
       "name": "execute-python-code",
       "arguments": {
-        "python_code": "import numpy as np\nxs = np.linspace(0, 2*np.pi, 8)\nys = np.sin(xs)\npoints = [{'x': float(x), 'y': float(y)} for x,y in zip(xs, ys)]\nprint({'points': points})\npoints"
+        "python_code": "import numpy as np\nxs = np.linspace(0, 2*np.pi, 8)\nys = np.sin(xs)\nlist_x = xs.tolist()\nlist_y = ys.tolist()\nprint({'x': list_x, 'y': list_y})\n"
       }
     },
     {
       "name": "execute-python-code",
       "arguments": {
-        "python_code": "import math\nxs = [i*(2*math.pi)/7 for i in range(8)]\nys = [math.sin(x) for x in xs]\npoints = [{'x': x, 'y': y} for x,y in zip(xs, ys)]\npoints"
-      }
-    },
-    {
-      "name": "plot-generator",
-      "arguments": {
-        "plot_type": "json-scatterplot",
-        "title": "y = sin(x) (8 evenly spaced points)",
-        "description": "Scatter plot of y=sin(x) sampled at 8 evenly spaced points between 0 and 2\u03c0.",
-        "x_label": "x (radians)",
-        "y_label": "sin(x)",
-        "scatter_values": [
-          {
-            "x": 0.0,
-            "y": 0.0
-          },
-          {
-            "x": 0.8975979010256552,
-            "y": 0.7821723252010948
-          },
-          {
-            "x": 1.7951958020513104,
-            "y": 0.9749279121818236
-          },
-          {
-            "x": 2.6927937030769655,
-            "y": 0.4338837391175581
-          },
-          {
-            "x": 3.5903916041026207,
-            "y": -0.4338837391175577
-          },
-          {
-            "x": 4.487989505128275,
-            "y": -0.9749279121818234
-          },
-          {
-            "x": 5.38558740615393,
-            "y": -0.7821723252010951
-          },
-          {
-            "x": 6.283185307179586,
-            "y": -2.4492935982947064e-16
-          }
-        ]
+        "python_code": "import math\nxs = [i*(2*math.pi)/7 for i in range(8)]\nys = [math.sin(x) for x in xs]\nprint({'x': xs, 'y': ys})\n"
       }
     }
   ]

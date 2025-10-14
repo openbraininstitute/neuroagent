@@ -68,6 +68,13 @@ class EvaluationResults(BaseModel):
     created_at: datetime = Field(default_factory=datetime.now)
 
 
+class OverallResults(BaseModel):
+    """Model for overall_results.json files."""
+    total_tests: int = 0
+    metrics: dict[str, list[dict[str, Any]]] = Field(default_factory=dict)
+    created_at: datetime = Field(default_factory=datetime.now)
+
+
 def get_parser() -> argparse.ArgumentParser:
     """Get parser for command line arguments."""
     parser = argparse.ArgumentParser(
@@ -237,14 +244,10 @@ def save_test_case_results(test_case: dict[str, Any], decoded_response: dict[str
         json.dump(eval_results.model_dump(), f, indent=2, default=str)
 
 
-def compute_overall_results(eval_dir: Path) -> dict[str, Any]:
+def compute_overall_results(eval_dir: Path) -> OverallResults:
     """Compute overall results from all individual test cases."""
     individual_dir = eval_dir / "individual"
-    overall_results = {
-        "total_tests": 0,
-        "metrics": {},
-        "created_at": datetime.now()
-    }
+    overall_results = OverallResults()
     
     # Collect all test results
     test_results = []
@@ -264,7 +267,7 @@ def compute_overall_results(eval_dir: Path) -> dict[str, Any]:
             with open(results_file, "r") as f:
                 test_data = json.load(f)
                 
-            overall_results["total_tests"] += 1
+            overall_results.total_tests += 1
             
             # Extract metrics for this test case
             metrics = test_data.get("metrics", [])
@@ -272,10 +275,10 @@ def compute_overall_results(eval_dir: Path) -> dict[str, Any]:
                 metric_name = metric.get("name", "Unknown")
                 score = metric.get("score", 0)
                 
-                if metric_name not in overall_results["metrics"]:
-                    overall_results["metrics"][metric_name] = []
+                if metric_name not in overall_results.metrics:
+                    overall_results.metrics[metric_name] = []
                 
-                overall_results["metrics"][metric_name].append({
+                overall_results.metrics[metric_name].append({
                     "test_name": test_case_dir.name,
                     "score": score
                 })
@@ -285,8 +288,8 @@ def compute_overall_results(eval_dir: Path) -> dict[str, Any]:
             continue
     
     # Sort each metric's results by score (highest to lowest)
-    for metric_name in overall_results["metrics"]:
-        overall_results["metrics"][metric_name].sort(
+    for metric_name in overall_results.metrics:
+        overall_results.metrics[metric_name].sort(
             key=lambda x: x["score"], reverse=True
         )
     
@@ -446,9 +449,9 @@ async def run_eval(
     aggregate_dir.mkdir(exist_ok=True)
     
     with open(aggregate_dir / "overall_results.json", "w") as f:
-        json.dump(overall_results, f, indent=2)
+        json.dump(overall_results.model_dump(), f, indent=2, default=str)
     
-    logger.info(f"Evaluation complete! Processed {overall_results['total_tests']} test cases")
+    logger.info(f"Evaluation complete! Processed {overall_results.total_tests} test cases")
 
 
 if __name__ == "__main__":

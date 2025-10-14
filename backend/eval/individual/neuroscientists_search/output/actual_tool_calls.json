@@ -1,9 +1,11 @@
 {
   "tool_calls": [
     {
-      "name": "web-search-tool",
+      "name": "literature-search-tool",
       "arguments": {
-        "query": "most impactful computational neuroscientists list influential computational neuroscientists prominent names 2024"
+        "query": "most impactful computational neuroscientists list influential computational neuroscientists top figures",
+        "numResults": 5,
+        "maxCharacters": 1000
       }
     }
   ]
