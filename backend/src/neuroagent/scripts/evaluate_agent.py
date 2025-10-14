@@ -328,7 +328,9 @@ async def eval_sample(
                     tool for tool in tool_list if tool.name == tool_call["name"]
                 )
             except StopIteration:
-                raise RuntimeError(f"Tool '{tool_call['name']}' not found in available tools.")
+                logger.warning(f"Tool '{tool_call['name']}' not found in available tools.")
+                # Keep the original tool call with all arguments intact
+                continue
             input_class = tool_class.__annotations__["input_schema"](
                 **tool_call["arguments"]
             )

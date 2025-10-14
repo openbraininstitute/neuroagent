@@ -2,25 +2,25 @@
   "metrics": [
     {
       "name": "Correctness [GEval]",
-      "score": 0.5486391131741672,
-      "success": true,
+      "score": 0.44926042342300115,
+      "success": false,
       "threshold": 0.5,
-      "reason": "The actual output provides a comprehensive summary of recent studies on neuron morphology in the cerebrum, including citations, summaries, and links, which aligns with the input request. However, it deviates from the expected output format by including detailed information such as publication years and authors, rather than the placeholder format specified. While the content is relevant and informative, it does not fully adhere to the expected structure, which impacts the overall alignment."
+      "reason": "The actual output provides detailed information about cerebellum morphologies, including specific neuronal types and descriptions, which aligns with the input request. However, it deviates significantly from the expected output structure, which emphasizes a more simplified format with placeholders for morphology details. The actual output includes excessive detail and additional content not present in the expected output, leading to a lack of coherence with the expected format."
     },
     {
       "name": "Tool Correctness",
-      "score": 1.0,
+      "score": 0.5,
       "success": true,
       "threshold": 0.5,
-      "reason": "Correct ordering: all expected tools ['literature-search-tool'] were called in the correct order."
+      "reason": "Incorrect tool usage: missing tools ['entitycore-reconstructionmorphology-getall'] and out-of-order tools ['entitycore-reconstructionmorphology-getall']; expected ['entitycore-brainregion-getall', 'entitycore-reconstructionmorphology-getall'], called ['entitycore-brainregion-getall', 'entitycore-cellmorphology-getall']. See more details above."
     },
     {
       "name": "Argument Correctness",
       "score": 1.0,
       "success": true,
       "threshold": 0.5,
-      "reason": "The score is 1.00 because there were no incorrect tool calls, indicating that the input was handled perfectly."
+      "reason": "The score is 1.00 because there were no incorrect tool calls and the input was clear and specific."
     }
   ],
-  "created_at": "2025-10-14 13:42:14.439588"
+  "created_at": "2025-10-14 16:20:14.002026"
 }

@@ -2,25 +2,25 @@
   "metrics": [
     {
       "name": "Correctness [GEval]",
-      "score": 0.44260043016628303,
+      "score": 0.3089230356679065,
       "success": false,
       "threshold": 0.5,
-      "reason": "The actual output provides detailed news items about the Open Brain Platform, which aligns with the request for news. However, it does not follow the expected output structure, which includes placeholders for titles and descriptions. The actual output is overly detailed and does not summarize the news items as requested, leading to a significant discrepancy in format and completeness."
+      "reason": "The actual output provides a detailed list of influential computational neuroscientists and their contributions, which partially aligns with the request for impactful figures. However, it fails to follow the expected output structure, lacking the specified sections such as 'Year Brain Prize Winners' and 'Other Notable Figures.' Additionally, it does not include the required links or concise achievements for each scientist as outlined in the expected output."
     },
     {
       "name": "Tool Correctness",
       "score": 1.0,
       "success": true,
       "threshold": 0.5,
-      "reason": "Correct ordering: all expected tools ['obi-expert'] were called in the correct order."
+      "reason": "Correct ordering: all expected tools ['web-search-tool'] were called in the correct order."
     },
     {
       "name": "Argument Correctness",
-      "score": 0.0,
-      "success": false,
+      "score": 1.0,
+      "success": true,
       "threshold": 0.5,
-      "reason": "The score is 0.00 because there was no input parameter provided to specify the platform for news."
+      "reason": "The score is 1.00 because there were no incorrect tool calls, indicating that the input was handled perfectly."
     }
   ],
-  "created_at": "2025-10-14 13:42:14.449540"
+  "created_at": "2025-10-14 16:20:14.003494"
 }

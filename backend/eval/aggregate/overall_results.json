@@ -4,39 +4,39 @@
     "Correctness [GEval]": [
       {
         "test_name": "thalamus_id",
-        "score": 0.6389596429861681
-      },
-      {
-        "test_name": "simulation_tutorial",
-        "score": 0.5673886163958227
-      },
-      {
-        "test_name": "species_list",
-        "score": 0.5486391131741672
+        "score": 0.7992265056117926
       },
       {
         "test_name": "platform_news",
-        "score": 0.45440410057763597
-      },
-      {
-        "test_name": "morphology_studies",
-        "score": 0.44260043016628303
-      },
-      {
-        "test_name": "neuroscientists_search",
-        "score": 0.34898941142307593
-      },
-      {
-        "test_name": "matplotlib_plot",
-        "score": 0.3483482654344209
-      },
-      {
-        "test_name": "cerebellum_morphologies",
-        "score": 0.3217042654392415
+        "score": 0.6439032797039387
       },
       {
         "test_name": "sin_plot",
-        "score": 0.3002059548055903
+        "score": 0.6411586821269235
+      },
+      {
+        "test_name": "neuroscientists_search",
+        "score": 0.5472200999933381
+      },
+      {
+        "test_name": "cerebellum_morphologies",
+        "score": 0.5395610943967911
+      },
+      {
+        "test_name": "simulation_tutorial",
+        "score": 0.4763464136458001
+      },
+      {
+        "test_name": "species_list",
+        "score": 0.44926042342300115
+      },
+      {
+        "test_name": "matplotlib_plot",
+        "score": 0.36836479691391544
+      },
+      {
+        "test_name": "morphology_studies",
+        "score": 0.3089230356679065
       }
     ],
     "Tool Correctness": [
@@ -45,7 +45,7 @@
         "score": 1.0
       },
       {
-        "test_name": "species_list",
+        "test_name": "cerebellum_morphologies",
         "score": 1.0
       },
       {
@@ -53,27 +53,27 @@
         "score": 1.0
       },
       {
+        "test_name": "sin_plot",
+        "score": 1.0
+      },
+      {
         "test_name": "thalamus_id",
         "score": 1.0
       },
       {
-        "test_name": "simulation_tutorial",
+        "test_name": "neuroscientists_search",
         "score": 1.0
       },
       {
-        "test_name": "neuroscientists_search",
+        "test_name": "species_list",
         "score": 0.5
-      },
-      {
-        "test_name": "cerebellum_morphologies",
-        "score": 0.0
       },
       {
         "test_name": "matplotlib_plot",
         "score": 0.0
       },
       {
-        "test_name": "sin_plot",
+        "test_name": "simulation_tutorial",
         "score": 0.0
       }
     ],
@@ -91,6 +91,10 @@
         "score": 1.0
       },
       {
+        "test_name": "morphology_studies",
+        "score": 1.0
+      },
+      {
         "test_name": "matplotlib_plot",
         "score": 1.0
       },
@@ -99,19 +103,15 @@
         "score": 1.0
       },
       {
-        "test_name": "thalamus_id",
-        "score": 1.0
-      },
-      {
         "test_name": "neuroscientists_search",
         "score": 1.0
       },
       {
-        "test_name": "simulation_tutorial",
-        "score": 1.0
+        "test_name": "thalamus_id",
+        "score": 0.0
       },
       {
-        "test_name": "morphology_studies",
+        "test_name": "simulation_tutorial",
         "score": 0.0
       }
     ]

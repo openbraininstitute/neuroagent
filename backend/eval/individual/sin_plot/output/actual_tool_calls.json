@@ -3,25 +3,31 @@
     {
       "name": "execute-python-code",
       "arguments": {
-        "python_code": "import math\nimport numpy as np\n# generate 8 evenly spaced points from 0 to 2*pi\nx = np.linspace(0, 2*math.pi, 8)\ny = np.sin(x)\n# prepare list of tuples\npoints = [(float(xi), float(yi)) for xi, yi in zip(x, y)]\nimport json\nprint(json.dumps(points))"
+        "python_code": "import numpy as np\nxs = np.linspace(0, 2*np.pi, 8)\nys = np.sin(xs)\npoints = [{'x': float(x), 'y': float(y)} for x,y in zip(xs, ys)]\nprint({'points': points})\npoints"
+      }
+    },
+    {
+      "name": "execute-python-code",
+      "arguments": {
+        "python_code": "import math\nxs = [i*(2*math.pi)/7 for i in range(8)]\nys = [math.sin(x) for x in xs]\npoints = [{'x': x, 'y': y} for x,y in zip(xs, ys)]\npoints"
       }
     },
     {
       "name": "plot-generator",
       "arguments": {
-        "plot_type": "json-linechart",
+        "plot_type": "json-scatterplot",
         "title": "y = sin(x) (8 evenly spaced points)",
-        "description": "Sine function sampled at 8 evenly spaced points from 0 to 2\u03c0.",
+        "description": "Scatter plot of y=sin(x) sampled at 8 evenly spaced points between 0 and 2\u03c0.",
         "x_label": "x (radians)",
-        "y_label": "y = sin(x)",
-        "linechart_values": [
+        "y_label": "sin(x)",
+        "scatter_values": [
           {
             "x": 0.0,
             "y": 0.0
           },
           {
             "x": 0.8975979010256552,
-            "y": 0.7818314824680298
+            "y": 0.7821723252010948
           },
           {
             "x": 1.7951958020513104,
@@ -29,26 +35,25 @@
           },
           {
             "x": 2.6927937030769655,
-            "y": 0.43388373911755823
+            "y": 0.4338837391175581
           },
           {
             "x": 3.5903916041026207,
-            "y": -0.433883739117558
+            "y": -0.4338837391175577
           },
           {
-            "x": 4.487989505128276,
-            "y": -0.9749279121818236
+            "x": 4.487989505128275,
+            "y": -0.9749279121818234
           },
           {
-            "x": 5.385587406153931,
-            "y": -0.7818314824680299
+            "x": 5.38558740615393,
+            "y": -0.7821723252010951
           },
           {
             "x": 6.283185307179586,
             "y": -2.4492935982947064e-16
           }
-        ],
-        "line_color": "#1f77b4"
+        ]
       }
     }
   ]
