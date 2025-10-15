@@ -580,7 +580,7 @@ wheels = [
 
 [[package]]
 name = "deepeval"
-version = "3.4.2"
+version = "3.6.6"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "aiohttp" },
@@ -588,6 +588,7 @@ dependencies = [
     { name = "click" },
     { name = "google-genai" },
     { name = "grpcio" },
+    { name = "jinja2" },
     { name = "nest-asyncio" },
     { name = "ollama" },
     { name = "openai" },
@@ -596,12 +597,15 @@ dependencies = [
     { name = "opentelemetry-sdk" },
     { name = "portalocker" },
     { name = "posthog" },
+    { name = "pydantic" },
+    { name = "pydantic-settings" },
     { name = "pyfiglet" },
     { name = "pytest" },
     { name = "pytest-asyncio" },
     { name = "pytest-repeat" },
     { name = "pytest-rerunfailures" },
     { name = "pytest-xdist" },
+    { name = "python-dotenv" },
     { name = "requests" },
     { name = "rich" },
     { name = "sentry-sdk" },
@@ -612,9 +616,9 @@ dependencies = [
     { name = "typer" },
     { name = "wheel" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/4a/cb/3d2e4ec5048ec0d678d745fb7e7ae165e480042e583be6592bfc53a9333a/deepeval-3.4.2.tar.gz", hash = "sha256:897e0d5cb91013cb44ba980daa1ec398e0ab4128e0cba0c4c7cb4d538c843841", size = 376141, upload-time = "2025-08-29T14:35:23.752Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/ba/21/888e266a86efaa2796e9cc60589fec424efd776450acf52d98724304b84f/deepeval-3.6.6.tar.gz", hash = "sha256:18bd0c167fc3586512c301ce8c38b8ea1488933e9caaec0db1afaee04b5d7761", size = 433824, upload-time = "2025-10-08T18:34:55.172Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/8b/27/c8c9d52e6c1e865f975f0c3078a0ffc921211f48aff60ff21047542984a9/deepeval-3.4.2-py3-none-any.whl", hash = "sha256:7896cd751e9899b6eba526505c3e11da917060c2f96a49c63de8d20e4a509a89", size = 559411, upload-time = "2025-08-29T14:35:20.457Z" },
+    { url = "https://files.pythonhosted.org/packages/1f/b2/43276ed47c0f15a29106fb44b25b6f72a9b094264741a58f4b4a22daf898/deepeval-3.6.6-py3-none-any.whl", hash = "sha256:9233363f6ec03b41c6c75c31cc931c0835abccbf4bb65fa59b7cc47313661844", size = 627653, upload-time = "2025-10-08T18:34:53.218Z" },
 ]
 
 [[package]]
@@ -1056,6 +1060,18 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/f2/97/ebf4da567aa6827c909642694d71c9fcf53e5b504f2d96afea02718862f3/iniconfig-2.1.0.tar.gz", hash = "sha256:3abbd2e30b36733fee78f9c7f7308f2d0050e88f0087fd25c2645f63c773e1c7", size = 4793, upload-time = "2025-03-19T20:09:59.721Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/2c/e1/e6716421ea10d38022b952c159d5161ca1193197fb744506875fbb87ea7b/iniconfig-2.1.0-py3-none-any.whl", hash = "sha256:9deba5723312380e77435581c6bf4935c94cbfab9b1ed33ef8d238ea168eb760", size = 6050, upload-time = "2025-03-19T20:10:01.071Z" },
+]
+
+[[package]]
+name = "jinja2"
+version = "3.1.6"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "markupsafe" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/df/bf/f7da0350254c0ed7c72f3e33cef02e048281fec7ecec5f032d4aac52226b/jinja2-3.1.6.tar.gz", hash = "sha256:0137fb05990d35f1275a587e9aee6d56da821fc83491a0fb838183be43f66d6d", size = 245115, upload-time = "2025-03-05T20:05:02.478Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/62/a1/3d680cbfd5f4b8f15abc1d571870c5fc3e594bb582bc3b64ea099db13e56/jinja2-3.1.6-py3-none-any.whl", hash = "sha256:85ece4451f492d0c13c5dd7c13a64681a86afae63a5f347908daf103ce6d2f67", size = 134899, upload-time = "2025-03-05T20:05:00.369Z" },
 ]
 
 [[package]]
@@ -1634,6 +1650,7 @@ dependencies = [
     { name = "asyncpg" },
     { name = "bluepysnap" },
     { name = "boto3" },
+    { name = "deepeval" },
     { name = "duckdb" },
     { name = "fastapi" },
     { name = "mcp" },
@@ -1675,6 +1692,7 @@ requires-dist = [
     { name = "bandit", extras = ["toml"], marker = "extra == 'dev'" },
     { name = "bluepysnap" },
     { name = "boto3" },
+    { name = "deepeval", specifier = ">=3.6.6" },
     { name = "deepeval", marker = "extra == 'dev'" },
     { name = "duckdb" },
     { name = "fastapi", specifier = ">=0.118.0" },
