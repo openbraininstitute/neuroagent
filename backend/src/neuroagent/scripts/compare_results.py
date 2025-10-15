@@ -19,44 +19,12 @@ def load_results(file_path: Path) -> tuple[pd.DataFrame, dict]:
         "created_at": data.get("created_at", "Unknown"),
     }
 
-    # Handle both new format (metrics_df) and old format (metrics)
-    if "metrics_df" in data:
-        # New format - DataFrame as list of records
-        metrics_data = data.get("metrics_df", [])
-        if metrics_data:
-            df = pd.DataFrame(metrics_data)
-            # Ensure test_name is the index for easier merging
-            df = df.set_index("test_name")
-        else:
-            df = pd.DataFrame()
-    elif "metrics" in data:
-        # Old format - convert to DataFrame
-        metrics_dict = data.get("metrics", {})
-        if metrics_dict:
-            # Convert old format to DataFrame
-            test_cases = set()
-            for metric_name, metric_data in metrics_dict.items():
-                for item in metric_data:
-                    test_cases.add(item["test_name"])
-
-            # Create DataFrame
-            df_data = []
-            for test_name in test_cases:
-                row = {"test_name": test_name}
-                for metric_name, metric_data in metrics_dict.items():
-                    # Find score for this test case
-                    score = 0
-                    for item in metric_data:
-                        if item["test_name"] == test_name:
-                            score = item["score"]
-                            break
-                    row[metric_name] = score
-                df_data.append(row)
-
-            df = pd.DataFrame(df_data)
-            df = df.set_index("test_name")
-        else:
-            df = pd.DataFrame()
+    # Load DataFrame from metrics_df
+    metrics_data = data.get("metrics_df", [])
+    if metrics_data:
+        df = pd.DataFrame(metrics_data)
+        # Ensure test_name is the index for easier merging
+        df = df.set_index("test_name")
     else:
         df = pd.DataFrame()
 
@@ -94,11 +62,11 @@ def print_table(df: pd.DataFrame, title: str, show_averages: bool = True) -> Non
 
     # Format numeric columns
     for col in display_df.columns:
-        if col != "test_name" and pd.api.types.is_numeric_dtype(display_df[col]):
+        if pd.api.types.is_numeric_dtype(display_df[col]):
             display_df[col] = display_df[col].apply(lambda x: format_score(x))
 
-    # Print the table
-    print(display_df.to_string())
+    # Print the table using markdown format
+    print(display_df.to_markdown(tablefmt="grid"))
 
     if show_averages:
         print(f"\n{'─'*60}")
@@ -111,7 +79,7 @@ def print_table(df: pd.DataFrame, title: str, show_averages: bool = True) -> Non
                 avg_row[col] = "N/A"
 
         avg_df = pd.DataFrame([avg_row])
-        print(avg_df.to_string(index=False))
+        print(avg_df.to_markdown(tablefmt="grid", index=False))
 
 
 def print_comparison_table(
@@ -171,7 +139,7 @@ def print_comparison_table(
 
             # Format the comparison
             if old_score == 0 and new_score == 0:
-                row_data[metric_name] = "0.000"
+                row_data[metric_name] = "0.000 → 0.000 (±0.000)"
             elif old_score == 0:
                 row_data[metric_name] = f"0.000 → {format_score(new_score)}"
             elif new_score == 0:
@@ -187,7 +155,7 @@ def print_comparison_table(
     comparison_df = pd.DataFrame(comparison_data)
     comparison_df = comparison_df.set_index("test_name")
 
-    print(comparison_df.to_string())
+    print(comparison_df.to_markdown(tablefmt="grid"))
 
     # Print averages comparison
     print(f"\n{'─'*80}")
@@ -210,7 +178,7 @@ def print_comparison_table(
         new_avg = combined_df[new_col].mean() if new_col in combined_df.columns else 0
 
         if old_avg == 0 and new_avg == 0:
-            avg_comparison[metric_name] = "0.000"
+            avg_comparison[metric_name] = "0.000 → 0.000 (±0.000)"
         elif old_avg == 0:
             avg_comparison[metric_name] = f"0.000 → {format_score(new_avg)}"
         elif new_avg == 0:
@@ -222,7 +190,7 @@ def print_comparison_table(
             )
 
     avg_df = pd.DataFrame([avg_comparison])
-    print(avg_df.to_string(index=False))
+    print(avg_df.to_markdown(tablefmt="grid", index=False))
 
 
 def main():
