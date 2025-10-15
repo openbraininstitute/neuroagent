@@ -106,7 +106,7 @@ def get_parser() -> argparse.ArgumentParser:
         "-d",
         type=Path,
         default=DEFAULT_EVAL_DIR,
-        help="Path to the evaluation directory containing individual/ and aggregate/ folders.",
+        help="Path to the evaluation directory containing input/ and output/ folders.",
     )
     parser.add_argument(
         "--concurrent-requests",
@@ -186,33 +186,28 @@ def parse_ai_sdk_streaming_response(streamed_data: str) -> dict[str, Any]:
 
 
 def load_test_cases(eval_dir: Path) -> list[dict[str, Any]]:
-    """Load test cases from the individual/ folder structure."""
-    individual_dir = eval_dir / "individual"
+    """Load test cases from the input/ folder structure."""
+    input_dir = eval_dir / "input"
     test_cases = []
 
-    for test_case_dir in individual_dir.iterdir():
+    for test_case_dir in input_dir.iterdir():
         if not test_case_dir.is_dir():
             continue
 
-        input_dir = test_case_dir / "input"
-        if not input_dir.exists():
-            logger.warning(f"No input directory found for {test_case_dir.name}")
-            continue
-
-        # Load test case data
+        # Load test case data directly from test_case_dir (no nested input/ folder)
         try:
-            with open(input_dir / "user.md", "r") as f:
+            with open(test_case_dir / "user.md", "r") as f:
                 input_text = f.read()
 
-            with open(input_dir / "expected_output.md", "r") as f:
+            with open(test_case_dir / "expected_output.md", "r") as f:
                 expected_output = f.read()
 
             # Load and validate expected tool calls
-            with open(input_dir / "expected_tool_calls.json", "r") as f:
+            with open(test_case_dir / "expected_tool_calls.json", "r") as f:
                 expected_tool_calls_data = json.load(f)
 
             # Load and validate params
-            with open(input_dir / "params.json", "r") as f:
+            with open(test_case_dir / "params.json", "r") as f:
                 params_data = json.load(f)
             params = TestCaseParams(**params_data)
 
@@ -234,71 +229,47 @@ def load_test_cases(eval_dir: Path) -> list[dict[str, Any]]:
     return test_cases
 
 
-def save_test_case_results(
+def collect_test_case_results(
     test_case: dict[str, Any],
     decoded_response: dict[str, Any],
     evaluation_results: dict[str, Any],
-) -> None:
-    """Save test case results to the output/ folder."""
-    output_dir = test_case["test_case_dir"] / "output"
-    output_dir.mkdir(exist_ok=True)
-
-    # Save AI response
-    with open(output_dir / "ai.md", "w") as f:
-        f.write(decoded_response["response"])
-
-    # Save actual tool calls with validation
+) -> dict[str, Any]:
+    """Collect test case results for consolidation into detailed.json."""
+    # Prepare actual tool calls with validation
     actual_tool_calls = ToolCalls.from_list(decoded_response.get("tool_calls", []))
-    with open(output_dir / "actual_tool_calls.json", "w") as f:
-        json.dump(actual_tool_calls.model_dump(), f, indent=2)
-
-    # Save evaluation results with validation and timestamp
+    
+    # Prepare evaluation results with validation and timestamp
     eval_results = EvaluationResults(**evaluation_results)
-    with open(output_dir / "results.json", "w") as f:
-        json.dump(eval_results.model_dump(), f, indent=2, default=str)
+    
+    return {
+        "ai_response": decoded_response["response"],
+        "actual_tool_calls": actual_tool_calls.model_dump(),
+        "results": eval_results.model_dump()
+    }
 
 
-def compute_overall_results(eval_dir: Path) -> OverallResults:
-    """Compute overall results from all individual test cases."""
-    individual_dir = eval_dir / "individual"
+def compute_overall_results(detailed_results: dict[str, Any]) -> OverallResults:
+    """Compute overall results from detailed results data."""
     overall_results = OverallResults()
 
     # Collect all data for DataFrame creation
     test_case_data = []
     metric_names = set()
 
-    for test_case_dir in individual_dir.iterdir():
-        if not test_case_dir.is_dir():
-            continue
+    for test_name, test_data in detailed_results.items():
+        overall_results.total_tests += 1
 
-        output_dir = test_case_dir / "output"
-        results_file = output_dir / "results.json"
+        # Extract metrics for this test case
+        metrics = test_data.get("results", {}).get("metrics", [])
+        test_case_row = {"test_name": test_name}
 
-        if not results_file.exists():
-            logger.warning(f"No results found for {test_case_dir.name}")
-            continue
+        for metric in metrics:
+            metric_name = metric.get("name", "Unknown")
+            score = metric.get("score", 0)
+            test_case_row[metric_name] = score
+            metric_names.add(metric_name)
 
-        try:
-            with open(results_file, "r") as f:
-                test_data = json.load(f)
-
-            overall_results.total_tests += 1
-
-            # Extract metrics for this test case
-            metrics = test_data.get("metrics", [])
-            test_case_row = {"test_name": test_case_dir.name}
-
-            for metric in metrics:
-                metric_name = metric.get("name", "Unknown")
-                score = metric.get("score", 0)
-                test_case_row[metric_name] = score
-                metric_names.add(metric_name)
-
-            test_case_data.append(test_case_row)
-
-        except Exception as e:
-            logger.error(f"Error processing results for {test_case_dir.name}: {e}")
-            continue
+        test_case_data.append(test_case_row)
 
     # Create DataFrame
     if test_case_data:
@@ -443,7 +414,8 @@ async def run_eval(
         deepeval_test_cases, [answer_relevance, tool_correctness, tool_arguments]
     )
 
-    # Save individual results
+    # Collect individual results for detailed.json
+    detailed_results = {}
     for i, (test_case, decoded) in enumerate(zip(test_cases, decoded_responses)):
         # Extract evaluation results for this test case
         test_result = results.test_results[i]
@@ -463,14 +435,22 @@ async def run_eval(
 
         evaluation_results = {"metrics": [metric.model_dump() for metric in metrics]}
 
-        save_test_case_results(test_case, decoded, evaluation_results)
+        # Collect results instead of saving individually
+        detailed_results[test_case["name"]] = collect_test_case_results(
+            test_case, decoded, evaluation_results
+        )
 
-    # Compute and save overall results
-    overall_results = compute_overall_results(eval_dir)
-    aggregate_dir = eval_dir / "aggregate"
-    aggregate_dir.mkdir(exist_ok=True)
+    # Save detailed results
+    output_dir = eval_dir / "output"
+    output_dir.mkdir(exist_ok=True)
+    
+    with open(output_dir / "detailed.json", "w") as f:
+        json.dump(detailed_results, f, indent=2, default=str)
 
-    with open(aggregate_dir / "overall_results.json", "w") as f:
+    # Compute and save overall results (scores.json)
+    overall_results = compute_overall_results(detailed_results)
+
+    with open(output_dir / "scores.json", "w") as f:
         json.dump(overall_results.model_dump(), f, indent=2, default=str)
 
     logger.info(
