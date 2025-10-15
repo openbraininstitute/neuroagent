@@ -6,6 +6,61 @@ import json
 from pathlib import Path
 
 import pandas as pd
+from colorama import Fore, Style, init
+
+# Initialize colorama for cross-platform color support
+init(autoreset=True)
+
+
+def get_score_color(score: float) -> str:
+    """Get color for a score value (0=red, 1=green, spectrum in between)."""
+    if score == 0:
+        return Fore.RED
+    elif score == 1:
+        return Fore.GREEN
+    elif score >= 0.8:
+        return Fore.LIGHTGREEN_EX
+    elif score >= 0.6:
+        return Fore.YELLOW
+    elif score >= 0.4:
+        return Fore.LIGHTYELLOW_EX
+    elif score >= 0.2:
+        return Fore.LIGHTRED_EX
+    else:
+        return Fore.RED
+
+
+def get_diff_color(diff: float) -> str:
+    """Get color for a difference value (positive=green, negative=red)."""
+    if diff > 0:
+        return Fore.GREEN
+    elif diff < 0:
+        return Fore.RED
+    else:
+        return Fore.WHITE
+
+
+def format_score_with_color(score: float, precision: int = 3) -> str:
+    """Format score with color based on value."""
+    color = get_score_color(score)
+    return f"{color}{score:.{precision}f}{Style.RESET_ALL}"
+
+
+def format_diff_with_color(
+    old_score: float, new_score: float, precision: int = 3
+) -> str:
+    """Format difference with color based on improvement/regression."""
+    diff = new_score - old_score
+    diff_color = get_diff_color(diff)
+
+    if diff > 0:
+        diff_str = f"+{diff:.{precision}f}"
+    elif diff < 0:
+        diff_str = f"{diff:.{precision}f}"
+    else:
+        diff_str = f"±{diff:.{precision}f}"
+
+    return f"{diff_color}{diff_str}{Style.RESET_ALL}"
 
 
 def load_results(file_path: Path) -> tuple[pd.DataFrame, dict]:
@@ -60,10 +115,12 @@ def print_table(df: pd.DataFrame, title: str, show_averages: bool = True) -> Non
     # Format the DataFrame for display
     display_df = df.copy()
 
-    # Format numeric columns
+    # Format numeric columns with colors
     for col in display_df.columns:
         if pd.api.types.is_numeric_dtype(display_df[col]):
-            display_df[col] = display_df[col].apply(lambda x: format_score(x))
+            display_df[col] = display_df[col].apply(
+                lambda x: format_score_with_color(x)
+            )
 
     # Print the table using markdown format
     print(display_df.to_markdown(tablefmt="grid"))
@@ -74,7 +131,7 @@ def print_table(df: pd.DataFrame, title: str, show_averages: bool = True) -> Non
         avg_row = {}
         for col in df.columns:
             if pd.api.types.is_numeric_dtype(df[col]):
-                avg_row[col] = format_score(df[col].mean())
+                avg_row[col] = format_score_with_color(df[col].mean())
             else:
                 avg_row[col] = "N/A"
 
@@ -137,19 +194,25 @@ def print_comparison_table(
             old_score = combined_df.loc[test_name, old_col] if old_exists else None
             new_score = combined_df.loc[test_name, new_col] if new_exists else None
 
-            # Format the comparison
+            # Format the comparison with colors
             if not old_exists and not new_exists:
-                row_data[metric_name] = "null → null"
+                row_data[metric_name] = f"{Fore.WHITE}null → null{Style.RESET_ALL}"
             elif not old_exists:
-                row_data[metric_name] = f"null → {format_score(new_score)}"
-            elif not new_exists:
-                row_data[metric_name] = f"{format_score(old_score)} → null"
-            elif old_score == 0 and new_score == 0:
-                row_data[metric_name] = "0.000 → 0.000 (±0.000)"
-            else:
-                diff_str = format_diff(old_score, new_score)
                 row_data[metric_name] = (
-                    f"{format_score(old_score)} → {format_score(new_score)} ({diff_str})"
+                    f"{Fore.WHITE}null → {format_score_with_color(new_score)}{Style.RESET_ALL}"
+                )
+            elif not new_exists:
+                row_data[metric_name] = (
+                    f"{format_score_with_color(old_score)} → {Fore.WHITE}null{Style.RESET_ALL}"
+                )
+            elif old_score == 0 and new_score == 0:
+                row_data[metric_name] = (
+                    f"{format_score_with_color(old_score)} → {format_score_with_color(new_score)} ({Fore.WHITE}±0.000{Style.RESET_ALL})"
+                )
+            else:
+                diff_str = format_diff_with_color(old_score, new_score)
+                row_data[metric_name] = (
+                    f"{format_score_with_color(old_score)} → {format_score_with_color(new_score)} ({diff_str})"
                 )
 
         comparison_data.append(row_data)
@@ -189,17 +252,23 @@ def print_comparison_table(
             new_avg = new_data.mean() if len(new_data) > 0 else None
 
         if old_avg is None and new_avg is None:
-            avg_comparison[metric_name] = "null → null"
+            avg_comparison[metric_name] = f"{Fore.WHITE}null → null{Style.RESET_ALL}"
         elif old_avg is None:
-            avg_comparison[metric_name] = f"null → {format_score(new_avg)}"
-        elif new_avg is None:
-            avg_comparison[metric_name] = f"{format_score(old_avg)} → null"
-        elif old_avg == 0 and new_avg == 0:
-            avg_comparison[metric_name] = "0.000 → 0.000 (±0.000)"
-        else:
-            diff_str = format_diff(old_avg, new_avg)
             avg_comparison[metric_name] = (
-                f"{format_score(old_avg)} → {format_score(new_avg)} ({diff_str})"
+                f"{Fore.WHITE}null → {format_score_with_color(new_avg)}{Style.RESET_ALL}"
+            )
+        elif new_avg is None:
+            avg_comparison[metric_name] = (
+                f"{format_score_with_color(old_avg)} → {Fore.WHITE}null{Style.RESET_ALL}"
+            )
+        elif old_avg == 0 and new_avg == 0:
+            avg_comparison[metric_name] = (
+                f"{format_score_with_color(old_avg)} → {format_score_with_color(new_avg)} ({Fore.WHITE}±0.000{Style.RESET_ALL})"
+            )
+        else:
+            diff_str = format_diff_with_color(old_avg, new_avg)
+            avg_comparison[metric_name] = (
+                f"{format_score_with_color(old_avg)} → {format_score_with_color(new_avg)} ({diff_str})"
             )
 
     avg_df = pd.DataFrame([avg_comparison])

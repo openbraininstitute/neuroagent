@@ -17,6 +17,7 @@ dependencies = [
     "asyncpg",
     "bluepysnap",
     "boto3",
+    "colorama>=0.4.6",
     "deepeval>=3.6.6",
     "duckdb",
     "fastapi>=0.118.0",

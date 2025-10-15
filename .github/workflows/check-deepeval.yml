@@ -29,7 +29,7 @@ jobs:
         run: |
           cd backend
           python -m pip install --upgrade pip
-          pip install pandas httpx deepeval python-dotenv pydantic
+          pip install pandas httpx deepeval python-dotenv pydantic colorama
       
       - name: Compare evaluation results with main branch
         run: |
