@@ -17,8 +17,6 @@ dependencies = [
     "asyncpg",
     "bluepysnap",
     "boto3",
-    "colorama>=0.4.6",
-    "deepeval>=3.6.6",
     "duckdb",
     "fastapi>=0.118.0",
     "mcp",
@@ -39,7 +37,8 @@ dependencies = [
 [project.optional-dependencies]
 dev = [
     "bandit[toml]",
-    "deepeval",
+    "colorama>=0.4.6",
+    "deepeval>=3.6.6",
     "mypy==1.15.0",
     "pandas",
     "pytest",
@@ -49,7 +48,7 @@ dev = [
     "responses",
     "ruff",
     "types-requests",
-    ]
+]
 
 [project.scripts]
 neuroagent-api = "neuroagent.scripts.neuroagent_api:main"
@@ -129,3 +128,6 @@ filterwarnings = [
 ]
 
 addopts = "--cov=src/ -v --cov-report=term-missing --durations=20 --no-cov-on-fail"
+
+[dependency-groups]
+dev = []

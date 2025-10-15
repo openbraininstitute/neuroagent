@@ -1650,8 +1650,6 @@ dependencies = [
     { name = "asyncpg" },
     { name = "bluepysnap" },
     { name = "boto3" },
-    { name = "colorama" },
-    { name = "deepeval" },
     { name = "duckdb" },
     { name = "fastapi" },
     { name = "mcp" },
@@ -1672,6 +1670,7 @@ dependencies = [
 [package.optional-dependencies]
 dev = [
     { name = "bandit" },
+    { name = "colorama" },
     { name = "deepeval" },
     { name = "mypy" },
     { name = "pandas" },
@@ -1693,9 +1692,8 @@ requires-dist = [
     { name = "bandit", extras = ["toml"], marker = "extra == 'dev'" },
     { name = "bluepysnap" },
     { name = "boto3" },
-    { name = "colorama", specifier = ">=0.4.6" },
-    { name = "deepeval", specifier = ">=3.6.6" },
-    { name = "deepeval", marker = "extra == 'dev'" },
+    { name = "colorama", marker = "extra == 'dev'", specifier = ">=0.4.6" },
+    { name = "deepeval", marker = "extra == 'dev'", specifier = ">=3.6.6" },
     { name = "duckdb" },
     { name = "fastapi", specifier = ">=0.118.0" },
     { name = "mcp" },
@@ -1722,6 +1720,9 @@ requires-dist = [
     { name = "uvicorn" },
 ]
 provides-extras = ["dev"]
+
+[package.metadata.requires-dev]
+dev = []
 
 [[package]]
 name = "neurom"
