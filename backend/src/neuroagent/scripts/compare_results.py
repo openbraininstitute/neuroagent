@@ -257,11 +257,7 @@ def main():
         print(f"Total tests: {metadata2['total_tests']}")
         print(f"Created at: {metadata2['created_at']}")
 
-        # Show individual tables
-        print_table(df1, f"OLD RESULTS: {args.file1.name}")
-        print_table(df2, f"NEW RESULTS: {args.file2.name}")
-
-        # Show comparison table
+        # Show only comparison table (skip individual tables)
         print_comparison_table(
             df1, df2, f"COMPARISON: {args.file1.name} vs {args.file2.name}"
         )
