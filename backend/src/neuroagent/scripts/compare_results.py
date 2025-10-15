@@ -106,9 +106,9 @@ def format_diff(old_score: float, new_score: float, precision: int = 3) -> str:
 
 def print_table(df: pd.DataFrame, title: str, show_averages: bool = True) -> None:
     """Print a formatted table."""
-    print(f"\n{'='*60}")
+    print(f"\n{'=' * 60}")
     print(f"{title}")
-    print(f"{'='*60}")
+    print(f"{'=' * 60}")
 
     if df.empty:
         print("No data available.")
@@ -128,7 +128,7 @@ def print_table(df: pd.DataFrame, title: str, show_averages: bool = True) -> Non
     print(display_df.to_markdown(tablefmt="grid"))
 
     if show_averages:
-        print(f"\n{'─'*60}")
+        print(f"\n{'─' * 60}")
         print("AVERAGES:")
         avg_row = {}
         for col in df.columns:
@@ -145,9 +145,9 @@ def print_comparison_table(
     old_df: pd.DataFrame, new_df: pd.DataFrame, title: str
 ) -> None:
     """Print a comparison table showing differences."""
-    print(f"\n{'='*80}")
+    print(f"\n{'=' * 80}")
     print(f"{title}")
-    print(f"{'='*80}")
+    print(f"{'=' * 80}")
 
     if old_df.empty and new_df.empty:
         print("No data available for comparison.")
@@ -225,7 +225,7 @@ def print_comparison_table(
     print(comparison_df.to_markdown(tablefmt="grid"))
 
     # Print averages comparison
-    print(f"\n{'─'*80}")
+    print(f"\n{'─' * 80}")
     print("AVERAGE COMPARISON:")
 
     avg_comparison = {}
