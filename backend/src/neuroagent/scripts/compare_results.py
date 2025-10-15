@@ -9,7 +9,8 @@ import pandas as pd
 from colorama import Fore, Style, init
 
 # Initialize colorama for cross-platform color support
-init(autoreset=True)
+# Force colors even in non-TTY environments (like GitHub Actions)
+init(autoreset=True, strip=False)
 
 
 def get_score_color(score: float) -> str:

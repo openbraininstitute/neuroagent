@@ -32,6 +32,9 @@ jobs:
           pip install pandas httpx deepeval python-dotenv pydantic colorama
       
       - name: Compare evaluation results with main branch
+        env:
+          PY_COLORS: '1'
+          FORCE_COLOR: '1'
         run: |
           BASE_BRANCH=${GITHUB_BASE_REF:-main}
           
