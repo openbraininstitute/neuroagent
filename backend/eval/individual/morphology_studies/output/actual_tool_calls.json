@@ -3,7 +3,7 @@
     {
       "name": "literature-search-tool",
       "arguments": {
-        "query": "neuron morphology cerebrum recent studies 2022 2023 2024 2025 cortical neuron morphology review single-cell reconstruction pyramidal interneuron morphology cerebrum",
+        "query": "neuron morphology cerebrum recent studies 2022 2023 2024 review papers single-cell morphology cortex neocortex human mouse rat 2022..2025",
         "numResults": 6,
         "maxCharacters": 1200
       }

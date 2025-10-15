@@ -23,6 +23,30 @@ jobs:
             exit 1
           else
             echo "✅ overall_results.json has been updated"
-            echo "Current results:"
-            jq . backend/eval/aggregate/overall_results.json
+          fi
+      
+      - name: Install Python dependencies
+        run: |
+          cd backend
+          python -m pip install --upgrade pip
+          pip install pandas httpx deepeval python-dotenv pydantic
+      
+      - name: Compare evaluation results with main branch
+        run: |
+          BASE_BRANCH=${GITHUB_BASE_REF:-main}
+          
+          # Check if main branch has overall_results.json
+          if git show origin/$BASE_BRANCH:backend/eval/aggregate/overall_results.json > /dev/null 2>&1; then
+            echo "📊 Comparing evaluation results with main branch..."
+            
+            # Get the main branch version
+            git show origin/$BASE_BRANCH:backend/eval/aggregate/overall_results.json > main_results.json
+            
+            # Run comparison
+            cd backend
+            python src/neuroagent/scripts/compare_results.py ../main_results.json eval/aggregate/overall_results.json
+          else
+            echo "📊 No previous results found on main branch, showing current results:"
+            cd backend
+            python src/neuroagent/scripts/compare_results.py eval/aggregate/overall_results.json
           fi

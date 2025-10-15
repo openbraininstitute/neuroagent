@@ -2,25 +2,25 @@
   "metrics": [
     {
       "name": "Correctness [GEval]",
-      "score": 0.6258884755254728,
+      "score": 0.5282681550817767,
       "success": true,
       "threshold": 0.5,
-      "reason": "The actual output provides the 8 evenly spaced x values and their corresponding sine values, which aligns with the input request. However, it fails to deliver a scatter plot directly, instead offering to generate one later, which detracts from the completeness of the response. The expected output clearly states that a scatter plot should be presented, and while the actual output mentions it, the lack of immediate execution results in a partial fulfillment of the request."
+      "reason": "The actual output provides detailed news about the Open Brain Platform, which aligns with the request for news. However, it deviates from the expected output format by including specific details instead of placeholders for titles and descriptions. While it contains relevant information, it lacks the concise structure requested in the expected output, which affects its overall alignment."
     },
     {
       "name": "Tool Correctness",
-      "score": 0.5,
-      "success": true,
-      "threshold": 0.5,
-      "reason": "Incorrect tool usage: missing tools ['plot-generator'] and out-of-order tools ['plot-generator']; expected ['execute-python-code', 'plot-generator'], called ['execute-python-code', 'execute-python-code']. See more details above."
-    },
-    {
-      "name": "Argument Correctness",
       "score": 1.0,
       "success": true,
       "threshold": 0.5,
-      "reason": "The score is 1.00 because the input request is clear and correctly specifies the task of plotting 8 evenly spaced points for the function y=sin(x) from 0 to 2pi."
+      "reason": "Correct ordering: all expected tools ['obi-expert'] were called in the correct order."
+    },
+    {
+      "name": "Argument Correctness",
+      "score": 0.0,
+      "success": false,
+      "threshold": 0.5,
+      "reason": "The score is 0.00 because there was no input parameter provided to specify the platform for news."
     }
   ],
-  "created_at": "2025-10-14 17:00:17.386606"
+  "created_at": "2025-10-15 14:15:26.919624"
 }

@@ -1,120 +1,60 @@
 {
   "total_tests": 9,
-  "metrics": {
-    "Correctness [GEval]": [
-      {
-        "test_name": "cerebellum_morphologies",
-        "score": 0.6258884755254728
-      },
-      {
-        "test_name": "sin_plot",
-        "score": 0.576743324876442
-      },
-      {
-        "test_name": "neuroscientists_search",
-        "score": 0.5112832441070598
-      },
-      {
-        "test_name": "platform_news",
-        "score": 0.45998426565955225
-      },
-      {
-        "test_name": "matplotlib_plot",
-        "score": 0.447973454083897
-      },
-      {
-        "test_name": "simulation_tutorial",
-        "score": 0.39783873605370307
-      },
-      {
-        "test_name": "species_list",
-        "score": 0.38530009579506413
-      },
-      {
-        "test_name": "morphology_studies",
-        "score": 0.33449752338441013
-      },
-      {
-        "test_name": "thalamus_id",
-        "score": 0.2686854909383182
-      }
-    ],
-    "Tool Correctness": [
-      {
-        "test_name": "platform_news",
-        "score": 1.0
-      },
-      {
-        "test_name": "sin_plot",
-        "score": 1.0
-      },
-      {
-        "test_name": "neuroscientists_search",
-        "score": 1.0
-      },
-      {
-        "test_name": "simulation_tutorial",
-        "score": 1.0
-      },
-      {
-        "test_name": "cerebellum_morphologies",
-        "score": 0.5
-      },
-      {
-        "test_name": "matplotlib_plot",
-        "score": 0.5
-      },
-      {
-        "test_name": "species_list",
-        "score": 0.0
-      },
-      {
-        "test_name": "morphology_studies",
-        "score": 0.0
-      },
-      {
-        "test_name": "thalamus_id",
-        "score": 0.0
-      }
-    ],
-    "Argument Correctness": [
-      {
-        "test_name": "species_list",
-        "score": 1.0
-      },
-      {
-        "test_name": "cerebellum_morphologies",
-        "score": 1.0
-      },
-      {
-        "test_name": "morphology_studies",
-        "score": 1.0
-      },
-      {
-        "test_name": "matplotlib_plot",
-        "score": 1.0
-      },
-      {
-        "test_name": "sin_plot",
-        "score": 1.0
-      },
-      {
-        "test_name": "thalamus_id",
-        "score": 1.0
-      },
-      {
-        "test_name": "neuroscientists_search",
-        "score": 1.0
-      },
-      {
-        "test_name": "platform_news",
-        "score": 0.0
-      },
-      {
-        "test_name": "simulation_tutorial",
-        "score": 0.0
-      }
-    ]
-  },
-  "created_at": "2025-10-14 17:00:17.390522"
+  "metrics_df": [
+    {
+      "test_name": "cerebellum_morphologies",
+      "Correctness [GEval]": 0.5282681550817767,
+      "Tool Correctness": 1.0,
+      "Argument Correctness": 0.0
+    },
+    {
+      "test_name": "matplotlib_plot",
+      "Correctness [GEval]": 0.37575058409855044,
+      "Tool Correctness": 0.0,
+      "Argument Correctness": 1.0
+    },
+    {
+      "test_name": "morphology_studies",
+      "Correctness [GEval]": 0.47894137548290744,
+      "Tool Correctness": 0.0,
+      "Argument Correctness": 1.0
+    },
+    {
+      "test_name": "neuroscientists_search",
+      "Correctness [GEval]": 0.7347564072358977,
+      "Tool Correctness": 1.0,
+      "Argument Correctness": 1.0
+    },
+    {
+      "test_name": "platform_news",
+      "Correctness [GEval]": 0.5494445654891371,
+      "Tool Correctness": 1.0,
+      "Argument Correctness": 1.0
+    },
+    {
+      "test_name": "simulation_tutorial",
+      "Correctness [GEval]": 0.5567600431027795,
+      "Tool Correctness": 1.0,
+      "Argument Correctness": 1.0
+    },
+    {
+      "test_name": "sin_plot",
+      "Correctness [GEval]": 0.6041980106791737,
+      "Tool Correctness": 0.5,
+      "Argument Correctness": 1.0
+    },
+    {
+      "test_name": "species_list",
+      "Correctness [GEval]": 0.20953981048548997,
+      "Tool Correctness": 1.0,
+      "Argument Correctness": 1.0
+    },
+    {
+      "test_name": "thalamus_id",
+      "Correctness [GEval]": 0.5611298160001905,
+      "Tool Correctness": 0.5,
+      "Argument Correctness": 1.0
+    }
+  ],
+  "created_at": "2025-10-15 14:15:26.922957"
 }

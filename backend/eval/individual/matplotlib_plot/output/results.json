@@ -2,25 +2,25 @@
   "metrics": [
     {
       "name": "Correctness [GEval]",
-      "score": 0.447973454083897,
+      "score": 0.37575058409855044,
       "success": false,
       "threshold": 0.5,
-      "reason": "The actual output provides detailed information about cerebellum morphologies, including names, IDs, descriptions, and licenses, which partially aligns with the expected output's structure. However, it lacks the specified sections for contributors and morphological types, which are essential components in the expected output. Additionally, the actual output includes more entries than the expected output suggests, which may lead to a mismatch in the overall structure and coherence."
+      "reason": "The actual output provides a detailed guide on simulating various types of models on the Open Brain Platform, which partially addresses the input question. However, it lacks a focused response specifically for simulating a single neuron model, as outlined in the expected output. Key components such as accessing the virtual lab, managing projects, and specific steps for building and simulating a single neuron model are missing or generalized, leading to a significant discrepancy in completeness and relevance."
     },
     {
       "name": "Tool Correctness",
-      "score": 0.5,
-      "success": true,
+      "score": 0.0,
+      "success": false,
       "threshold": 0.5,
-      "reason": "Incorrect tool usage: missing tools ['entitycore-reconstructionmorphology-getall'] and out-of-order tools ['entitycore-reconstructionmorphology-getall']; expected ['entitycore-brainregion-getall', 'entitycore-reconstructionmorphology-getall'], called ['entitycore-brainregion-getall', 'entitycore-cellmorphology-getall']. See more details above."
+      "reason": "Incorrect tool usage: missing tools ['obi-expert'] and out-of-order tools ['obi-expert']; expected ['obi-expert'], called []. See more details above."
     },
     {
       "name": "Argument Correctness",
       "score": 1.0,
       "success": true,
       "threshold": 0.5,
-      "reason": "The score is 1.00 because there were no incorrect tool calls and the input was clear and specific."
+      "reason": "No tool calls provided"
     }
   ],
-  "created_at": "2025-10-14 17:00:17.387996"
+  "created_at": "2025-10-15 14:15:26.920787"
 }

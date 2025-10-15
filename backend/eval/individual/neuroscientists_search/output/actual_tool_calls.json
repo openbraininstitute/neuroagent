@@ -1,11 +1,10 @@
 {
   "tool_calls": [
     {
-      "name": "literature-search-tool",
+      "name": "web-search-tool",
       "arguments": {
-        "query": "most impactful computational neuroscientists list influential computational neuroscientists top figures",
-        "numResults": 5,
-        "maxCharacters": 1000
+        "query": "most impactful computational neuroscientists list influential computational neuroscientists Alan Turing David Marr Tomaso Poggio Horace Barlow influential modern computational neuroscientists review articles",
+        "numResults": 5
       }
     }
   ]

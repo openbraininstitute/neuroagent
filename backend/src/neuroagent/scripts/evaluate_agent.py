@@ -11,6 +11,7 @@ from pathlib import Path
 from typing import Any
 
 import httpx
+import pandas as pd
 from deepeval.evaluate import evaluate
 from deepeval.metrics import ArgumentCorrectnessMetric, GEval, ToolCorrectnessMetric
 from deepeval.test_case import LLMTestCase, LLMTestCaseParams, ToolCall
@@ -21,7 +22,7 @@ import neuroagent.tools
 from neuroagent.tools.base_tool import BaseTool
 
 # Default evaluation directory relative to this script
-DEFAULT_EVAL_DIR = Path(__file__).parent.parent.parent / "eval"
+DEFAULT_EVAL_DIR = Path(__file__).parent.parent.parent.parent / "eval"
 
 logging.basicConfig(
     format="[%(levelname)s]  %(asctime)s %(name)s  %(message)s", level=logging.INFO
@@ -79,7 +80,7 @@ class OverallResults(BaseModel):
     """Model for overall_results.json files."""
 
     total_tests: int = 0
-    metrics: dict[str, list[dict[str, Any]]] = Field(default_factory=dict)
+    metrics_df: dict[str, Any] = Field(default_factory=dict)  # pandas DataFrame as dict
     created_at: datetime = Field(default_factory=datetime.now)
 
 
@@ -262,6 +263,10 @@ def compute_overall_results(eval_dir: Path) -> OverallResults:
     individual_dir = eval_dir / "individual"
     overall_results = OverallResults()
 
+    # Collect all data for DataFrame creation
+    test_case_data = []
+    metric_names = set()
+
     for test_case_dir in individual_dir.iterdir():
         if not test_case_dir.is_dir():
             continue
@@ -281,26 +286,32 @@ def compute_overall_results(eval_dir: Path) -> OverallResults:
 
             # Extract metrics for this test case
             metrics = test_data.get("metrics", [])
+            test_case_row = {"test_name": test_case_dir.name}
+
             for metric in metrics:
                 metric_name = metric.get("name", "Unknown")
                 score = metric.get("score", 0)
+                test_case_row[metric_name] = score
+                metric_names.add(metric_name)
 
-                if metric_name not in overall_results.metrics:
-                    overall_results.metrics[metric_name] = []
-
-                overall_results.metrics[metric_name].append(
-                    {"test_name": test_case_dir.name, "score": score}
-                )
+            test_case_data.append(test_case_row)
 
         except Exception as e:
             logger.error(f"Error processing results for {test_case_dir.name}: {e}")
             continue
 
-    # Sort each metric's results by score (highest to lowest)
-    for metric_name in overall_results.metrics:
-        overall_results.metrics[metric_name].sort(
-            key=lambda x: x["score"], reverse=True
-        )
+    # Create DataFrame
+    if test_case_data:
+        df = pd.DataFrame(test_case_data)
+        # Fill NaN values with 0 for missing metrics
+        df = df.fillna(0)
+        # Sort by test_name for consistency
+        df = df.sort_values("test_name").reset_index(drop=True)
+
+        # Convert DataFrame to dict for JSON serialization
+        overall_results.metrics_df = df.to_dict("records")
+    else:
+        overall_results.metrics_df = []
 
     return overall_results
 

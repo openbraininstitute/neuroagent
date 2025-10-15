@@ -3,13 +3,13 @@
     {
       "name": "execute-python-code",
       "arguments": {
-        "python_code": "import numpy as np\nxs = np.linspace(0, 2*np.pi, 8)\nys = np.sin(xs)\nlist_x = xs.tolist()\nlist_y = ys.tolist()\nprint({'x': list_x, 'y': list_y})\n"
+        "python_code": "import numpy as np\nxs = np.linspace(0, 2*np.pi, 8)\nys = np.sin(xs)\npoints = [(float(x), float(y)) for x,y in zip(xs, ys)]\nprint(points)\npoints"
       }
     },
     {
       "name": "execute-python-code",
       "arguments": {
-        "python_code": "import math\nxs = [i*(2*math.pi)/7 for i in range(8)]\nys = [math.sin(x) for x in xs]\nprint({'x': xs, 'y': ys})\n"
+        "python_code": "import math\nxs = [i*(2*math.pi)/7 for i in range(8)]\nys = [math.sin(x) for x in xs]\npoints = [{'x': x, 'y': y} for x,y in zip(xs, ys)]\npoints"
       }
     }
   ]
