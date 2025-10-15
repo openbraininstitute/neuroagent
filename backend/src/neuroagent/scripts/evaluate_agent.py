@@ -237,14 +237,20 @@ def collect_test_case_results(
     """Collect test case results for consolidation into detailed.json."""
     # Prepare actual tool calls with validation
     actual_tool_calls = ToolCalls.from_list(decoded_response.get("tool_calls", []))
-    
+
     # Prepare evaluation results with validation and timestamp
     eval_results = EvaluationResults(**evaluation_results)
-    
+
     return {
+        # Input data
+        "user": test_case["input"],
+        "expected_output": test_case["expected_output"],
+        "expected_tool_calls": test_case["expected_tool_calls"],
+        "params": test_case["params"].model_dump(),
+        # Output data
         "ai_response": decoded_response["response"],
         "actual_tool_calls": actual_tool_calls.model_dump(),
-        "results": eval_results.model_dump()
+        "results": eval_results.model_dump(),
     }
 
 
@@ -443,7 +449,7 @@ async def run_eval(
     # Save detailed results
     output_dir = eval_dir / "output"
     output_dir.mkdir(exist_ok=True)
-    
+
     with open(output_dir / "detailed.json", "w") as f:
         json.dump(detailed_results, f, indent=2, default=str)
 
