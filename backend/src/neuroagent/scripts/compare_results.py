@@ -96,7 +96,7 @@ def print_comparison_table(
 
     # Perform outer join to include all test cases
     combined_df = old_df.join(new_df, how="outer", rsuffix="_new", lsuffix="_old")
-    combined_df = combined_df.fillna(0)
+    # Don't fill NaN with 0 - we want to distinguish between missing values and actual 0 scores
 
     # Create comparison DataFrame
     comparison_data = []
@@ -126,24 +126,26 @@ def print_comparison_table(
                 else metric_name
             )
 
-            old_score = (
+            # Check if scores exist in the data
+            old_exists = old_col in combined_df.columns and not pd.isna(
                 combined_df.loc[test_name, old_col]
-                if old_col in combined_df.columns
-                else 0
             )
-            new_score = (
+            new_exists = new_col in combined_df.columns and not pd.isna(
                 combined_df.loc[test_name, new_col]
-                if new_col in combined_df.columns
-                else 0
             )
 
+            old_score = combined_df.loc[test_name, old_col] if old_exists else None
+            new_score = combined_df.loc[test_name, new_col] if new_exists else None
+
             # Format the comparison
-            if old_score == 0 and new_score == 0:
+            if not old_exists and not new_exists:
+                row_data[metric_name] = "null → null"
+            elif not old_exists:
+                row_data[metric_name] = f"null → {format_score(new_score)}"
+            elif not new_exists:
+                row_data[metric_name] = f"{format_score(old_score)} → null"
+            elif old_score == 0 and new_score == 0:
                 row_data[metric_name] = "0.000 → 0.000 (±0.000)"
-            elif old_score == 0:
-                row_data[metric_name] = f"0.000 → {format_score(new_score)}"
-            elif new_score == 0:
-                row_data[metric_name] = f"{format_score(old_score)} → 0.000"
             else:
                 diff_str = format_diff(old_score, new_score)
                 row_data[metric_name] = (
@@ -174,15 +176,26 @@ def print_comparison_table(
             else metric_name
         )
 
-        old_avg = combined_df[old_col].mean() if old_col in combined_df.columns else 0
-        new_avg = combined_df[new_col].mean() if new_col in combined_df.columns else 0
+        # Calculate averages, handling missing columns
+        old_avg = None
+        new_avg = None
 
-        if old_avg == 0 and new_avg == 0:
+        if old_col in combined_df.columns:
+            old_data = combined_df[old_col].dropna()
+            old_avg = old_data.mean() if len(old_data) > 0 else None
+
+        if new_col in combined_df.columns:
+            new_data = combined_df[new_col].dropna()
+            new_avg = new_data.mean() if len(new_data) > 0 else None
+
+        if old_avg is None and new_avg is None:
+            avg_comparison[metric_name] = "null → null"
+        elif old_avg is None:
+            avg_comparison[metric_name] = f"null → {format_score(new_avg)}"
+        elif new_avg is None:
+            avg_comparison[metric_name] = f"{format_score(old_avg)} → null"
+        elif old_avg == 0 and new_avg == 0:
             avg_comparison[metric_name] = "0.000 → 0.000 (±0.000)"
-        elif old_avg == 0:
-            avg_comparison[metric_name] = f"0.000 → {format_score(new_avg)}"
-        elif new_avg == 0:
-            avg_comparison[metric_name] = f"{format_score(old_avg)} → 0.000"
         else:
             diff_str = format_diff(old_avg, new_avg)
             avg_comparison[metric_name] = (
