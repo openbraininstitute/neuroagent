@@ -209,7 +209,6 @@ def load_test_cases(eval_dir: Path) -> list[dict[str, Any]]:
             # Load and validate expected tool calls
             with open(input_dir / "expected_tool_calls.json", "r") as f:
                 expected_tool_calls_data = json.load(f)
-            expected_tool_calls = ToolCalls.from_list(expected_tool_calls_data)
 
             # Load and validate params
             with open(input_dir / "params.json", "r") as f:
@@ -262,9 +261,6 @@ def compute_overall_results(eval_dir: Path) -> OverallResults:
     """Compute overall results from all individual test cases."""
     individual_dir = eval_dir / "individual"
     overall_results = OverallResults()
-
-    # Collect all test results
-    test_results = []
 
     for test_case_dir in individual_dir.iterdir():
         if not test_case_dir.is_dir():
