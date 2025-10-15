@@ -80,7 +80,9 @@ class OverallResults(BaseModel):
     """Model for overall_results.json files."""
 
     total_tests: int = 0
-    metrics_df: dict[str, Any] = Field(default_factory=dict)  # pandas DataFrame as dict
+    metrics_df: list[dict[str, Any]] = Field(
+        default_factory=list
+    )  # pandas DataFrame as list of records
     created_at: datetime = Field(default_factory=datetime.now)
 
 
@@ -424,7 +426,7 @@ async def run_eval(
     detailed_results = {}
     for i, (test_case, decoded) in enumerate(zip(test_cases, decoded_responses)):
         # Extract evaluation results for this test case
-        test_result = results.test_results[i]
+        test_result = results[i]
 
         # Create metrics
         metrics = []

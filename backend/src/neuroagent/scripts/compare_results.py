@@ -4,6 +4,7 @@
 import argparse
 import json
 from pathlib import Path
+from typing import Any
 
 import pandas as pd
 from colorama import Fore, Style, init
@@ -64,7 +65,7 @@ def format_diff_with_color(
     return f"{diff_color}{diff_str}{Style.RESET_ALL}"
 
 
-def load_results(file_path: Path) -> tuple[pd.DataFrame, dict]:
+def load_results(file_path: Path) -> tuple[pd.DataFrame, dict[str, Any]]:
     """Load results from JSON file and return DataFrame and metadata."""
     with open(file_path, "r") as f:
         data = json.load(f)
@@ -256,7 +257,7 @@ def print_comparison_table(
             avg_comparison[metric_name] = f"{Fore.WHITE}null → null{Style.RESET_ALL}"
         elif old_avg is None:
             avg_comparison[metric_name] = (
-                f"{Fore.WHITE}null → {format_score_with_color(new_avg)}{Style.RESET_ALL}"
+                f"{Fore.WHITE}null → {format_score_with_color(new_avg or 0.0)}{Style.RESET_ALL}"
             )
         elif new_avg is None:
             avg_comparison[metric_name] = (
@@ -276,7 +277,7 @@ def print_comparison_table(
     print(avg_df.to_markdown(tablefmt="grid", index=False))
 
 
-def main():
+def main() -> int:
     """Run main function."""
     parser = argparse.ArgumentParser(
         description="Compare evaluation results between two versions",
