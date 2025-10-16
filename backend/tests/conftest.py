@@ -2,8 +2,9 @@
 
 import json
 import os
+import typing
 from typing import ClassVar
-from unittest.mock import mock_open, patch
+from unittest.mock import AsyncMock, mock_open, patch
 from uuid import UUID
 
 import pytest
@@ -12,14 +13,26 @@ from fastapi.testclient import TestClient
 from pydantic import BaseModel, ConfigDict, Field
 from sqlalchemy import MetaData
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
+from typing_extensions import TypedDict as _TypedDict
 
-from neuroagent.app.config import Settings
-from neuroagent.app.database.sql_schemas import Entity, Messages, Threads, ToolCalls
-from neuroagent.app.dependencies import Agent, get_openrouter_models, get_settings
-from neuroagent.app.main import app
-from neuroagent.app.schemas import OpenRouterModelResponse
-from neuroagent.tools.base_tool import BaseTool
-from tests.mock_client import MockOpenAIClient, create_mock_response
+typing.TypedDict = _TypedDict
+
+from neuroagent.app.config import Settings  # noqa: E402
+from neuroagent.app.database.sql_schemas import (  # noqa: E402
+    Entity,
+    Messages,
+    Threads,
+    ToolCalls,
+)
+from neuroagent.app.dependencies import (  # noqa: E402
+    Agent,
+    get_openrouter_models,
+    get_settings,
+)
+from neuroagent.app.main import app  # noqa: E402
+from neuroagent.app.schemas import OpenRouterModelResponse  # noqa: E402
+from neuroagent.tools.base_tool import BaseTool  # noqa: E402
+from tests.mock_client import MockOpenAIClient, create_mock_response  # noqa: E402
 
 
 @pytest.fixture(name="app_client")
@@ -331,4 +344,14 @@ def patch_mcp_servers():
         mock_path.return_value.parent.parent.__truediv__.return_value.open = mock_open(
             read_data="{}"
         )
+        yield
+
+
+@pytest.fixture(autouse=True)
+def patch_code_sandbox():
+    mock_cm = AsyncMock()
+    mock_cm.__aenter__.return_value = None
+    mock_cm.__aexit__.return_value = None
+
+    with patch("neuroagent.app.main.code_sandbox", return_value=mock_cm):
         yield
