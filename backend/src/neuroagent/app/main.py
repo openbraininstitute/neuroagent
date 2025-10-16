@@ -1,8 +1,6 @@
 """Main."""
 
 import logging
-
-# Required for mcp_run_python since we don't run python 3.12
 import typing
 from contextlib import aclosing, asynccontextmanager
 from logging.config import dictConfig
@@ -27,23 +25,24 @@ from starlette.responses import JSONResponse
 from typing_extensions import TypedDict as _TypedDict
 
 from neuroagent import __version__
-from neuroagent.app.app_utils import setup_engine
-from neuroagent.app.config import Settings
-from neuroagent.app.dependencies import (
+
+# Required for mcp_run_python since we don't run python 3.12
+# This must run before any pydantic import
+typing.TypedDict = _TypedDict
+from mcp_run_python import code_sandbox  # noqa: E402
+
+# ----------------------------------------------------------
+from neuroagent.app.app_utils import setup_engine  # noqa: E402
+from neuroagent.app.config import Settings  # noqa: E402
+from neuroagent.app.dependencies import (  # noqa: E402
     get_connection_string,
     get_mcp_tool_list,
     get_settings,
     get_tool_list,
 )
-from neuroagent.app.middleware import strip_path_prefix
-from neuroagent.app.routers import qa, rate_limit, storage, threads, tools
-from neuroagent.mcp import MCPClient
-
-typing.TypedDict = _TypedDict
-from mcp_run_python import code_sandbox  # noqa: E402
-
-# ----------------------------------------------------------
-
+from neuroagent.app.middleware import strip_path_prefix  # noqa: E402
+from neuroagent.app.routers import qa, rate_limit, storage, threads, tools  # noqa: E402
+from neuroagent.mcp import MCPClient  # noqa: E402
 
 LOGGING = {
     "version": 1,
