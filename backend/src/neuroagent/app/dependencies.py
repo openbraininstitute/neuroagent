@@ -457,7 +457,6 @@ def get_tool_list(
         RunPythonTool,
         # NowTool,
         # WeatherTool,
-        # RandomPlotGeneratorTool,
     ]
 
     all_tools = internal_tool_list + mcp_tool_list

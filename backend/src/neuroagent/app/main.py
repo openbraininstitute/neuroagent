@@ -1,6 +1,9 @@
 """Main."""
 
 import logging
+
+# Required for mcp_run_python since we don't run python 3.12
+import typing
 from contextlib import aclosing, asynccontextmanager
 from logging.config import dictConfig
 from typing import Annotated, Any, AsyncContextManager
@@ -10,7 +13,6 @@ from asgi_correlation_id import CorrelationIdMiddleware
 from fastapi import Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.openapi.utils import get_openapi
-from mcp_run_python import code_sandbox
 from obp_accounting_sdk import AsyncAccountingSessionFactory
 from obp_accounting_sdk.errors import (
     AccountingReservationError,
@@ -22,6 +24,7 @@ from starlette import status
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
 from starlette.responses import JSONResponse
+from typing_extensions import TypedDict as _TypedDict
 
 from neuroagent import __version__
 from neuroagent.app.app_utils import setup_engine
@@ -35,6 +38,12 @@ from neuroagent.app.dependencies import (
 from neuroagent.app.middleware import strip_path_prefix
 from neuroagent.app.routers import qa, rate_limit, storage, threads, tools
 from neuroagent.mcp import MCPClient
+
+typing.TypedDict = _TypedDict
+from mcp_run_python import code_sandbox  # noqa: E402
+
+# ----------------------------------------------------------
+
 
 LOGGING = {
     "version": 1,
@@ -132,8 +141,15 @@ async def lifespan(fastapi_app: FastAPI) -> AsyncContextManager[None]:  # type: 
         async with (
             MCPClient(config=app_settings.mcp) as mcp_client,
             code_sandbox(
-                dependencies=["pydantic", "numpy", "plotly", "pandas"],
-                allow_networking=False,
+                dependencies=[
+                    "numpy",
+                    "pandas",
+                    "plotly",
+                    "pydantic",
+                    "scikit-learn",
+                    "scipy",
+                ],
+                allow_networking=True,
             ) as sandbox,
         ):
             fastapi_app.state.python_sandbox = sandbox

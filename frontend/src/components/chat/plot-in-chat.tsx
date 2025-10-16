@@ -1,12 +1,7 @@
 "use client";
 
-import { Piechart } from "@/components/plots/piechart";
-import { Barplot } from "@/components/plots/barplot";
-import { Scatterplot } from "@/components/plots/scatterplot";
 import { ImagePlot } from "@/components/plots/image";
-import { Histogram } from "@/components/plots/histogram";
-import { Linechart } from "@/components/plots/linechart";
-import { MultiLinechart } from "../plots/multi-linechart";
+import { Plots } from "../plots/plotly";
 import { useGetPresignedUrl } from "@/hooks/get-presigned";
 import { useGetObjectFromStorage } from "@/hooks/get-storage-object";
 import { memo } from "react";
@@ -21,7 +16,7 @@ export default function PlotsInChat({ storageIds }: PlotDisplayProps) {
   }
 
   return (
-    <div className="ml-20 grid max-w-[70%] grid-cols-2 gap-4">
+    <div className="max-w ml-20 grid grid-cols-2 gap-4">
       {storageIds.map((storageId) => (
         <div key={storageId} className="flex min-h-[27rem] justify-start">
           <SinglePlotInChat key={storageId} storageId={storageId} />
@@ -51,56 +46,14 @@ const SinglePlotInChat = memo(({ storageId }: { storageId: string }) => {
   switch (category) {
     case "image":
       return <ImagePlot url={presignedUrl ?? ""} storageId={storageId} />;
-    case "json-piechart":
+    case "json":
       return (
-        <Piechart
+        <Plots
           presignedUrl={presignedUrl ?? ""}
           storageId={storageId}
           isInChat={true}
         />
       );
-    case "json-barplot":
-      return (
-        <Barplot
-          presignedUrl={presignedUrl ?? ""}
-          storageId={storageId}
-          isInChat={true}
-        />
-      );
-    case "json-scatterplot":
-      return (
-        <Scatterplot
-          presignedUrl={presignedUrl ?? ""}
-          storageId={storageId}
-          isInChat={true}
-        />
-      );
-    case "json-histogram":
-      return (
-        <Histogram
-          presignedUrl={presignedUrl ?? ""}
-          storageId={storageId}
-          isInChat={true}
-        />
-      );
-    case "json-linechart":
-      return (
-        <Linechart
-          presignedUrl={presignedUrl ?? ""}
-          storageId={storageId}
-          isInChat={true}
-        />
-      );
-    case "json-multi-linechart":
-      return (
-        <MultiLinechart
-          presignedUrl={presignedUrl ?? ""}
-          storageId={storageId}
-          isInChat={true}
-        />
-      );
-    default:
-      return <p>Error: Unsupported file category: {category}</p>;
   }
 });
 
