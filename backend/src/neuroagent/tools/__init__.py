@@ -125,7 +125,6 @@ from neuroagent.tools.entitycore_strain_getall import StrainGetAllTool
 from neuroagent.tools.entitycore_strain_getone import StrainGetOneTool
 from neuroagent.tools.entitycore_subject_getall import SubjectGetAllTool
 from neuroagent.tools.entitycore_subject_getone import SubjectGetOneTool
-from neuroagent.tools.generate_plot import PlotGeneratorTool
 from neuroagent.tools.obi_expert import OBIExpertTool
 from neuroagent.tools.obione_circuitmetrics_getone import CircuitMetricGetOneTool
 from neuroagent.tools.obione_circuitnodesets_getone import CircuitNodesetsGetOneTool
@@ -194,7 +193,6 @@ __all__ = [
     "PersonGetAllTool",
     "PersonGetOneTool",
     "PlotElectricalCellRecordingGetOneTool",
-    "PlotGeneratorTool",
     "PlotMorphologyGetOneTool",
     "RunPythonTool",
     "SimulationCampaignGetAllTool",

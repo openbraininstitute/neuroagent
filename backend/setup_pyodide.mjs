@@ -8,10 +8,9 @@ async function run() {
     const micropip = pyodide.pyimport("micropip");
 
     await micropip.install([
-    "pydantic",
-    "numpy",
-    "matplotlib",
+    "plotly",
     ]);
+    console.log(micropip.list())
     console.log("Packages installed.");
 }
 run()
