@@ -200,18 +200,26 @@ def print_comparison_table(
             if not old_exists and not new_exists:
                 row_data[metric_name] = f"{Fore.WHITE}null → null{Style.RESET_ALL}"
             elif not old_exists:
+                # new_score is guaranteed to be not None here due to new_exists check
+                assert new_score is not None
                 row_data[metric_name] = (
                     f"{Fore.WHITE}null → {format_score_with_color(new_score)}{Style.RESET_ALL}"
                 )
             elif not new_exists:
+                # old_score is guaranteed to be not None here due to old_exists check
+                assert old_score is not None
                 row_data[metric_name] = (
                     f"{format_score_with_color(old_score)} → {Fore.WHITE}null{Style.RESET_ALL}"
                 )
             elif old_score == 0 and new_score == 0:
+                # Both scores are guaranteed to be not None here due to exists checks
+                assert old_score is not None and new_score is not None
                 row_data[metric_name] = (
                     f"{format_score_with_color(old_score)} → {format_score_with_color(new_score)} ({Fore.WHITE}±0.000{Style.RESET_ALL})"
                 )
             else:
+                # Both scores are guaranteed to be not None here due to exists checks
+                assert old_score is not None and new_score is not None
                 diff_str = format_diff_with_color(old_score, new_score)
                 row_data[metric_name] = (
                     f"{format_score_with_color(old_score)} → {format_score_with_color(new_score)} ({diff_str})"
@@ -256,18 +264,26 @@ def print_comparison_table(
         if old_avg is None and new_avg is None:
             avg_comparison[metric_name] = f"{Fore.WHITE}null → null{Style.RESET_ALL}"
         elif old_avg is None:
+            # new_avg is guaranteed to be not None here
+            assert new_avg is not None
             avg_comparison[metric_name] = (
-                f"{Fore.WHITE}null → {format_score_with_color(new_avg or 0.0)}{Style.RESET_ALL}"
+                f"{Fore.WHITE}null → {format_score_with_color(new_avg)}{Style.RESET_ALL}"
             )
         elif new_avg is None:
+            # old_avg is guaranteed to be not None here
+            assert old_avg is not None
             avg_comparison[metric_name] = (
                 f"{format_score_with_color(old_avg)} → {Fore.WHITE}null{Style.RESET_ALL}"
             )
         elif old_avg == 0 and new_avg == 0:
+            # Both averages are guaranteed to be not None here
+            assert old_avg is not None and new_avg is not None
             avg_comparison[metric_name] = (
                 f"{format_score_with_color(old_avg)} → {format_score_with_color(new_avg)} ({Fore.WHITE}±0.000{Style.RESET_ALL})"
             )
         else:
+            # Both averages are guaranteed to be not None here
+            assert old_avg is not None and new_avg is not None
             diff_str = format_diff_with_color(old_avg, new_avg)
             avg_comparison[metric_name] = (
                 f"{format_score_with_color(old_avg)} → {format_score_with_color(new_avg)} ({diff_str})"

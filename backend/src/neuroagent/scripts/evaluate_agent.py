@@ -423,11 +423,12 @@ async def run_eval(
     detailed_results = {}
     for i, test_case in enumerate(test_cases):
         # Get decoded response from the test case's additional_metadata
+        additional_metadata = deepeval_test_cases[i].additional_metadata
         decoded = {
             "response": deepeval_test_cases[i].actual_output,
-            "tool_calls": deepeval_test_cases[i].additional_metadata.get(
-                "actual_tool_calls", []
-            ),
+            "tool_calls": additional_metadata.get("actual_tool_calls", [])
+            if additional_metadata
+            else [],
         }
         # Extract evaluation results for this test case
         # !!The result test case order is not guaranteed to match the input order
@@ -439,16 +440,18 @@ async def run_eval(
 
         # Create metrics
         metrics = []
-        for metric in test_result.metrics_data:
-            metrics.append(
-                MetricResult(
-                    name=metric.name,
-                    score=metric.score,
-                    success=metric.success,
-                    threshold=metric.threshold,
-                    reason=metric.reason,
+        metrics_data = test_result.metrics_data
+        if metrics_data:
+            for metric in metrics_data:
+                metrics.append(
+                    MetricResult(
+                        name=metric.name,
+                        score=metric.score if metric.score is not None else 0.0,
+                        success=metric.success,
+                        threshold=metric.threshold,
+                        reason=metric.reason if metric.reason is not None else "",
+                    )
                 )
-            )
 
         evaluation_results = {"metrics": [metric.model_dump() for metric in metrics]}
 
