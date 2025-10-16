@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- More evaluation cases.
+
 ## Changed
 - Use typescript autogen for backend types in frontend.
 - Try to enforce using metric tools rather than downloading assets.

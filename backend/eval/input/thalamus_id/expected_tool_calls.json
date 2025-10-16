@@ -1,0 +1,8 @@
+[
+  {
+    "name": "entitycore-brainregion-getall",
+    "arguments": {
+      "name": "Thalamus"
+    }
+  }
+]

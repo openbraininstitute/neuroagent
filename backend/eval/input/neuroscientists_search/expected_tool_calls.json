@@ -1,0 +1,9 @@
+[
+  {
+    "name": "web-search-tool",
+    "arguments": {
+      "query": "most impactful computational neuroscientists",
+      "numResults": 5
+    }
+  }
+]

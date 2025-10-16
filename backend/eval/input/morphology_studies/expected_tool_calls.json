@@ -1,0 +1,10 @@
+[
+  {
+    "name": "literature-search-tool",
+    "arguments": {
+      "query": "neuron morphology cerebrum",
+      "numResults": 5,
+      "maxCharacters": 1000
+    }
+  }
+]
