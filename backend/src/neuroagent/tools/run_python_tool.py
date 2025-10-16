@@ -17,25 +17,27 @@ JsonData: TypeAlias = Any
 
 
 class RunPythonInput(BaseModel):
-    """Input schema for Plot Generator tool."""
+    """Input schema for RunPython tool."""
 
     python_script: str = Field(description="Python code to run")
+    global_variables: dict[str, Any] | None = Field(
+        default=None,
+        description="Map of global variables in context when the code is executed",
+    )
 
 
 class RunPythonMetadata(BaseMetadata):
-    """Metadata for Plot Generator tool."""
+    """Metadata for RunPython tool."""
 
     python_sandbox: CodeSandbox
     s3_client: Any  # boto3 client
     user_id: UUID
     bucket_name: str
     thread_id: UUID
-    vlab_id: UUID | None
-    project_id: UUID | None
 
 
 class RunPythonOutput(BaseModel):
-    """Output class for the plot generator."""
+    """Output class for the RunPython tool."""
 
     result: RunSuccess | RunError
     storage_id: list[str]
@@ -47,9 +49,11 @@ class RunPythonTool(BaseTool):
     name: ClassVar[str] = "run-python"
     name_frontend: ClassVar[str] = "Run Python"
     utterances: ClassVar[list[str]] = [
-        "Compute the mean of the output",
+        "Compute the mean of the output.",
         "Compute the numerical value of the integral of the function between -10 and 10.",
         "Plot a Gaussian distribution with mean 0 and std 1.",
+        "Plot its distribution.",
+        "Plot functions.",
     ]
     description: ClassVar[
         str
@@ -69,9 +73,9 @@ class RunPythonTool(BaseTool):
     If another available library offers plotting utilities, regenerate the plot in Plotly instead.
     Figures defined in plotly will automatically be shown in the chat. Do not save them to disk.
     Only the plotly library is able to plot in the chat.
-    The images can be downloaded directly in chat. as plotly offers a download button.
+    The images can be downloaded directly in chat as plotly offers a download button next to the displayed image.
     You are not able to export anything. Don't pretend like you can.
-    The user can read the code from this tool's input. DO NOT re-write the code in chat you just executed."""
+    The user can read the code from this tool's input. DO NOT re-write the code you just executed in chat."""
     description_frontend: ClassVar[
         str
     ] = """Tool to execute Python code and return stdout, stderr, and return value.
@@ -99,7 +103,9 @@ AVAILABLE LIBRARIES:
         code = self.inject_user_script(self.input_schema.python_script)
 
         # Run the entire code
-        result = await self.metadata.python_sandbox.eval(code)
+        result = await self.metadata.python_sandbox.eval(
+            code, globals=self.input_schema.global_variables
+        )
 
         identifiers = []
         # Check if we have images, upload them to the store if so
@@ -136,7 +142,7 @@ AVAILABLE LIBRARIES:
 
     @staticmethod
     def inject_user_script(script: str) -> str:
-        """Inject user's script with custom logic."""
+        """Inject user's script with custom logic for plotting."""
         # This code allows to tranfer the figures to the tool for frontend displaying.
         pre_injected_code = '''
 import gc
@@ -184,5 +190,5 @@ serialize_figures()
 
     @classmethod
     async def is_online(cls) -> bool:
-        """Check if plot generator is accessible."""
+        """Check if RunPython tool is accessible."""
         return True

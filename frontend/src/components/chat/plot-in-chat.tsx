@@ -1,7 +1,7 @@
 "use client";
 
 import { ImagePlot } from "@/components/plots/image";
-import { Plots } from "../plots/plotly";
+import { Plots } from "@/components/plots/plotly";
 import { useGetPresignedUrl } from "@/hooks/get-presigned";
 import { useGetObjectFromStorage } from "@/hooks/get-storage-object";
 import { memo } from "react";

@@ -6,25 +6,35 @@ RUN apt-get -y update
 RUN apt-get -y install curl \
     build-essential \
     libhdf5-dev \
+    libboost-all-dev \
     ninja-build \
     nodejs \
-    npm
+    npm \
+    wget \
+    && rm -rf /var/lib/apt/lists/* \
+    && wget https://github.com/Kitware/CMake/archive/refs/tags/v4.0.1.tar.gz -O cmake.tar.gz \
+    && tar xzf cmake.tar.gz \
+    && cd CMake-4.0.1 \
+    && ./bootstrap --parallel=$(nproc) \
+    && make -j$(nproc) \
+    && make install \
+    && cd .. \
+    && rm -rf CMake-4.0.1 cmake.tar.gz \
+    && rm -rf /var/lib/apt/lists/*
 
-RUN npm install -g deno@">=2.5.0"
+ENV CMAKE=/usr/local/bin/cmake
+ENV CMAKE_POLICY_VERSION_MINIMUM=3.5
+RUN which cmake && cmake --version
+
 RUN pip install --no-cache-dir --upgrade pip
 COPY ./ /code
 RUN pip install --no-cache-dir /code[api]
 
 RUN mv /code/alembic /alembic
 RUN mv /code/alembic.ini /alembic.ini
-RUN mv /code/docker-entrypoint.sh /docker-entrypoint.sh
-
-# Create package.json and install pyodide locally
-RUN mv /code/setup_pyodide.mjs /setup_pyodide.mjs
-WORKDIR /
-RUN chmod +x /docker-entrypoint.sh
 RUN rm -rf /code
 
+WORKDIR /
 
 EXPOSE 8078
-ENTRYPOINT ["./docker-entrypoint.sh"]
+ENTRYPOINT ["neuroagent-api", "--host", "0.0.0.0", "--port", "8078"]

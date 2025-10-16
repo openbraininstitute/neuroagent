@@ -23,13 +23,12 @@ export function Plots({ presignedUrl, isInChat, storageId }: PlotProp) {
   }
 
   // Merge theme-aware layout with the response layout
-  console.log(response);
   const title = response.layout.title;
   const themedLayout = {
     ...response.layout,
     paper_bgcolor: "rgba(0,0,0,0)", // Transparent background
     plot_bgcolor: "rgba(0,0,0,0)", // Transparent plot area
-    title: null,
+    title: null, // Title goes with link, not on the figure
     modebar: {
       orientation: "h",
     },
@@ -80,7 +79,6 @@ export function Plots({ presignedUrl, isInChat, storageId }: PlotProp) {
         <h2 className="text-xl font-bold">{title?.text || title}</h2>
       )}
 
-      {/* Flexible container for the plot */}
       <div className={"plot-container h-full w-full overflow-y-auto"}>
         <Plot
           data={response.data}
