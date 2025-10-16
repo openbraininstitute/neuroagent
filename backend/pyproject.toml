@@ -38,6 +38,7 @@ dependencies = [
 dev = [
     "bandit[toml]",
     "colorama>=0.4.6",
+    "datamodel-code-generator>=0.35.0",
     "deepeval>=3.6.6",
     "mypy==1.15.0",
     "pandas",
