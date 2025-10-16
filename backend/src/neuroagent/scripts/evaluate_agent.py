@@ -300,7 +300,7 @@ async def eval_sample(
     client: httpx.AsyncClient,
     semaphore: asyncio.Semaphore,
     url: str = "http://localhost:8000",
-) -> tuple[LLMTestCase, dict[str, Any]]:
+) -> LLMTestCase:
     """Run a single test case against our API."""
     logger.info(f"Running test case: {test_case['name']}")
     async with semaphore:
@@ -354,6 +354,7 @@ async def eval_sample(
         for tool in test_case["expected_tool_calls"]
     ]
     test_case_obj = LLMTestCase(
+        name=test_case["name"],
         input=test_case["input"],
         actual_output=decoded["response"],
         expected_output=test_case["expected_output"],
@@ -364,7 +365,7 @@ async def eval_sample(
         },
     )
 
-    return test_case_obj, decoded
+    return test_case_obj
 
 
 async def run_eval(
@@ -393,11 +394,7 @@ async def run_eval(
         )
         for test_case in test_cases
     ]
-    results = await asyncio.gather(*tasks)
-
-    # Separate the results
-    deepeval_test_cases = [result[0] for result in results]
-    decoded_responses = [result[1] for result in results]
+    deepeval_test_cases = await asyncio.gather(*tasks)
 
     # === Define Metrics ===
 
@@ -424,9 +421,21 @@ async def run_eval(
 
     # Collect individual results for detailed.json
     detailed_results = {}
-    for i, (test_case, decoded) in enumerate(zip(test_cases, decoded_responses)):
+    for i, test_case in enumerate(test_cases):
+        # Get decoded response from the test case's additional_metadata
+        decoded = {
+            "response": deepeval_test_cases[i].actual_output,
+            "tool_calls": deepeval_test_cases[i].additional_metadata.get(
+                "actual_tool_calls", []
+            ),
+        }
         # Extract evaluation results for this test case
-        test_result = results[i]
+        # !!The result test case order is not guaranteed to match the input order
+        test_result = next(
+            result
+            for result in results.test_results
+            if result.name == test_case["name"]
+        )
 
         # Create metrics
         metrics = []
