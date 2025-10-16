@@ -15,6 +15,7 @@ import { toast } from "sonner";
 import { useGetMessageNextPage } from "@/hooks/get-message-page";
 import { getToolInvocations, isLastMessageComplete } from "@/lib/utils";
 import { md5 } from "js-md5";
+import { DefaultChatTransport } from "ai";
 
 type ChatPageProps = {
   threadId: string;
@@ -75,34 +76,43 @@ export function ChatPage({
 
   const {
     addToolResult,
-    append,
     error,
     messages: messagesRaw,
-    handleInputChange,
-    handleSubmit,
-    input,
     setMessages: setMessagesRaw,
+    sendMessage,
     status,
     stop,
   } = useChat({
-    api: `${env.NEXT_PUBLIC_BACKEND_URL}/qa/chat_streamed/${threadId}`,
-    headers: {
-      Authorization: `Bearer ${session?.accessToken}`,
-    },
-    initialMessages: retrievedMessages,
-    experimental_prepareRequestBody: ({ messages }) => {
-      const lastMessage = messages[messages.length - 1];
-      const selectedTools = Object.keys(checkedTools).filter(
-        (key) => key !== "allchecked" && checkedTools[key] === true,
-      );
-      return {
-        content: lastMessage.content,
-        tool_selection: selectedTools,
-        model: currentModel.id,
-        frontend_url: frontendUrl,
-      };
-    },
+    messages: retrievedMessages,
+    transport: new DefaultChatTransport({
+      api: `${env.NEXT_PUBLIC_BACKEND_URL}/qa/chat_streamed/${threadId}`,
+      headers: {
+        Authorization: `Bearer ${session?.accessToken}`,
+      },
+      prepareSendMessagesRequest: ({ messages }) => {
+        return {
+          body: {
+            content: messages[messages.length - 1].parts.findLast(
+              (e) => e.type == "text",
+            )?.text,
+            tool_selection: Object.keys(checkedTools).filter(
+              (key) => key !== "allchecked" && checkedTools[key] === true,
+            ),
+            model: currentModel.id,
+            frontend_url: frontendUrl,
+          },
+        };
+      },
+    }),
   });
+
+  // Handle chat inputs.
+  const [input, setInput] = useState("");
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    sendMessage({ text: input });
+    setInput("");
+  };
 
   // This should probably be changed to be more granular, I just created the old behaviour here.
   const isLoading = status == "streaming" || status == "submitted";
@@ -124,11 +134,7 @@ export function ChatPage({
       !hasSendFirstMessage.current
     ) {
       hasSendFirstMessage.current = true;
-      append({
-        id: "temp_id",
-        role: "user",
-        content: newMessage,
-      });
+      sendMessage({ text: newMessage });
       generateEditTitle(null, threadId, newMessage);
       setNewMessage("");
     }
@@ -314,7 +320,7 @@ export function ChatPage({
         threadId={threadId}
         setCheckedTools={setCheckedTools}
         setCurrentModel={setCurrentModel}
-        handleInputChange={handleInputChange}
+        handleInputChange={setInput}
         handleSubmit={handleSubmit}
         hasOngoingToolInvocations={hasOngoingToolInvocations}
         setIsAutoScrollEnabled={setIsAutoScrollEnabled}

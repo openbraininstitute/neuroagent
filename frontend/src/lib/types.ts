@@ -1,9 +1,4 @@
-import {
-  ReasoningUIPart,
-  TextUIPart,
-  ToolInvocationUIPart,
-  UIMessage,
-} from "@ai-sdk/ui-utils";
+import { ReasoningUIPart, TextUIPart, ToolUIPart, UIMessage } from "ai";
 import { components } from "./neuroagent_types";
 
 export type BPaginatedResponseThread =
@@ -47,7 +42,7 @@ export type BMessageAIContent = {
   role: "assistant";
   createdAt: Date;
   content: string;
-  parts: (TextUIPart | ToolInvocationUIPart | ReasoningUIPart)[];
+  parts: (TextUIPart | ToolUIPart | ReasoningUIPart)[];
   annotations: Annotation[];
 };
 

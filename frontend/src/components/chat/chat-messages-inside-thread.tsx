@@ -59,7 +59,7 @@ export function ChatMessagesInsideThread({
                 key={`${message.id}-reasoning`}
                 reasoningSteps={message.parts
                   ?.filter((part) => part.type === "reasoning")
-                  .map((part) => part.reasoning)}
+                  .map((part) => part.text)}
                 messageId={message.id}
                 isReasoning={
                   !(loadingStatus === "ready") && idx === messages.length - 1
@@ -109,7 +109,10 @@ export function ChatMessagesInsideThread({
             })}
           </div>
         ) : (
-          <ChatMessageHuman key={message.id} content={message.content} />
+          <ChatMessageHuman
+            key={message.id}
+            content={message.parts.findLast((e) => e.type == "text")?.text}
+          />
         ),
       )}
       {loadingStatus !== "ready" && <ChatMessageLoading />}
