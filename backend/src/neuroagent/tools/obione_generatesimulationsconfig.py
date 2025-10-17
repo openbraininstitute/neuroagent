@@ -34,9 +34,7 @@ class GenerateSimulationsConfigMetadata(BaseMetadata):
     token_consumption: dict[str, str | int | None] | None = None
 
 
-class InitializeNoCircuit(
-    ObiOneScientificUnionsAliasesSimulationsFormInitialize
-):
+class InitializeNoCircuit(ObiOneScientificUnionsAliasesSimulationsFormInitialize):
     """Simulation Initialize block without reference to the circuit."""
 
     circuit: SkipJsonSchema[None] = Field(default=None, title="Circuit", exclude=True)  # type: ignore
