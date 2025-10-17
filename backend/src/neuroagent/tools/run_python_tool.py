@@ -2,34 +2,28 @@
 
 import json
 import logging
-from typing import Any, ClassVar, TypeAlias
+from typing import Any, ClassVar
 from uuid import UUID
 
-from mcp_run_python.code_sandbox import CodeSandbox, RunError, RunSuccess
 from pydantic import BaseModel, Field
 
+from neuroagent.executor import FailureOutput, SuccessOutput, WasmExecutor
 from neuroagent.tools.base_tool import BaseMetadata, BaseTool
 from neuroagent.utils import save_to_storage
 
 logger = logging.getLogger(__name__)
-
-JsonData: TypeAlias = Any
 
 
 class RunPythonInput(BaseModel):
     """Input schema for RunPython tool."""
 
     python_script: str = Field(description="Python code to run")
-    global_variables: dict[str, Any] | None = Field(
-        default=None,
-        description="Map of global variables in context when the code is executed",
-    )
 
 
 class RunPythonMetadata(BaseMetadata):
     """Metadata for RunPython tool."""
 
-    python_sandbox: CodeSandbox
+    python_sandbox: WasmExecutor
     s3_client: Any  # boto3 client
     user_id: UUID
     bucket_name: str
@@ -39,7 +33,7 @@ class RunPythonMetadata(BaseMetadata):
 class RunPythonOutput(BaseModel):
     """Output class for the RunPython tool."""
 
-    result: RunSuccess | RunError
+    result: SuccessOutput | FailureOutput
     storage_id: list[str]
 
 
@@ -103,42 +97,38 @@ AVAILABLE LIBRARIES:
         code = self.inject_user_script(self.input_schema.python_script)
 
         # Run the entire code
-        result = await self.metadata.python_sandbox.eval(
-            code, globals=self.input_schema.global_variables
-        )
+        result = self.metadata.python_sandbox.run_code(code)
 
         identifiers = []
         # Check if we have images, upload them to the store if so
         # Get the plot stdout for parsing
         fig_list = []
-        for i, elem in enumerate(result["output"]):
-            try:
-                output = json.loads(elem)
-                if "_plots" in output:
-                    fig_list = output["_plots"]
-                    result["output"].pop(i)
-                    break
-            except json.JSONDecodeError:
-                continue
-        if fig_list:
-            # Save images to storage
-            for plot_json in fig_list:
-                identifiers.append(
-                    save_to_storage(
-                        s3_client=self.metadata.s3_client,
-                        bucket_name=self.metadata.bucket_name,
-                        user_id=self.metadata.user_id,
-                        content_type="application/json",
-                        body=plot_json,
-                        category="json",
-                        thread_id=self.metadata.thread_id,
+        if result.status == "success":
+            for i, elem in enumerate(result.output):
+                try:
+                    output = json.loads(elem)
+                    if "_plots" in output:
+                        fig_list = output["_plots"]
+                        result.output.pop(i)
+                        break
+                except json.JSONDecodeError:
+                    continue
+            if fig_list:
+                # Save images to storage
+                for plot_json in fig_list:
+                    identifiers.append(
+                        save_to_storage(
+                            s3_client=self.metadata.s3_client,
+                            bucket_name=self.metadata.bucket_name,
+                            user_id=self.metadata.user_id,
+                            content_type="application/json",
+                            body=plot_json,
+                            category="json",
+                            thread_id=self.metadata.thread_id,
+                        )
                     )
-                )
-        if result["status"] == "success":
-            out_class: RunSuccess | RunError = RunSuccess(**result)
-        else:
-            out_class = RunError(**result)
-        return RunPythonOutput(result=out_class, storage_id=identifiers)
+
+        return RunPythonOutput(result=result, storage_id=identifiers)
 
     @staticmethod
     def inject_user_script(script: str) -> str:
@@ -163,25 +153,6 @@ def serialize_figures() -> None:
     if figures:
         serialized = {"_plots": [fig.to_json() for fig in figures]}
         print(json.dumps(serialized, separators=(",", ":")))
-
-
-    # Deep-clean and destroy figures
-    for fig in figures:
-        try:
-            fig.data = ()
-            fig.layout = {}
-            fig.frames = []
-            fig._grid_ref = None
-            fig._data_objs = []
-            fig._layout_obj = None
-
-            # Attempt to remove from globals (if reachable there)
-            for name, val in globals().items():
-                if val is fig:
-                    globals()[name] = None
-        except Exception as e:
-            pass
-
 '''
         post_injected_code = """
 serialize_figures()
