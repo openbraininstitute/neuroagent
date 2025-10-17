@@ -31,7 +31,6 @@ export type BMessageUser = {
   id: string;
   role: "user";
   createdAt: Date;
-  content: string;
   parts: [];
   annotation: [];
 };
@@ -41,7 +40,6 @@ export type BMessageAIContent = {
   id: string;
   role: "assistant";
   createdAt: Date;
-  content: string;
   parts: (TextUIPart | ToolUIPart | ReasoningUIPart)[];
   annotations: Annotation[];
 };

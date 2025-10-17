@@ -319,7 +319,7 @@ async def stream_chat_agent(
         stream_generator,
         media_type="text/event-stream",
         headers={
-            "x-vercel-ai-data-stream": "v1",
+            "x-vercel-ai-ui-message-stream": "v1",
             "Access-Control-Expose-Headers": ",".join(
                 list(limit_headers.model_dump(by_alias=True).keys())
             ),

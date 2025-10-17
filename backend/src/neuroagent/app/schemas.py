@@ -77,7 +77,6 @@ class MessagesReadVercel(BaseRead):
     id: UUID
     role: str
     createdAt: AwareDatetime
-    content: str
     parts: list[ToolCallPartVercel | TextPartVercel | ReasoningPartVercel] | None = None
     annotations: list[AnnotationMessageVercel | AnnotationToolCallVercel] | None = None
 

@@ -108,7 +108,7 @@ export function ChatPage({
 
   // Handle chat inputs.
   const [input, setInput] = useState("");
-  const handleSubmit = (e) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     sendMessage({ text: input });
     setInput("");

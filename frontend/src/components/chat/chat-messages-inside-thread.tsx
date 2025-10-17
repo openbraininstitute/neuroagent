@@ -49,6 +49,7 @@ export function ChatMessagesInsideThread({
       messages.map((msg) => (msg.id === messageId ? updater(msg) : msg)),
     );
   };
+  console.log(messages);
   return (
     <>
       {messages.map((message, idx) =>
@@ -69,21 +70,17 @@ export function ChatMessagesInsideThread({
             {message.parts?.map((part, partId) => {
               if (part.type === "tool-invocation") {
                 const validated =
-                  getValidationStatus(
-                    message.annotations,
-                    part.toolInvocation.toolCallId,
-                  ) ?? "not_required";
+                  getValidationStatus(message.annotations, part.toolCallId) ??
+                  "not_required";
                 const stopped = getStoppedStatus(
                   message.annotations,
-                  part.toolInvocation.toolCallId,
+                  part.toolCallId,
                 );
                 return (
-                  <div
-                    key={`${message.id}-tool-${part.toolInvocation.toolCallId}`}
-                  >
+                  <div key={`${message.id}-tool-${part.toolCallId}`}>
                     <ChatMessageTool
                       threadId={threadId}
-                      tool={part.toolInvocation}
+                      tool={part}
                       stopped={stopped}
                       availableTools={availableTools}
                       addToolResult={addToolResult}

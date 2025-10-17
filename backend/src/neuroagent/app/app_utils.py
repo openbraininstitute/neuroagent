@@ -261,20 +261,18 @@ def format_messages_vercel(
             text_content = content.get("content")
             reasoning_content = content.get("reasoning")
 
-            # Optional reasoning
-            if reasoning_content:
-                parts.append(ReasoningPartVercel(reasoning=reasoning_content))
-
             message_data = {
                 "id": msg.message_id,
                 "role": "user" if msg.entity == Entity.USER else "assistant",
                 "createdAt": msg.creation_date,
-                "content": text_content,
             }
+
             # add tool calls and reset buffer after attaching
             if msg.entity == Entity.AI_MESSAGE:
                 if text_content:
                     parts.append(TextPartVercel(text=text_content))
+                if reasoning_content:
+                    parts.append(ReasoningPartVercel(reasoning=reasoning_content))
 
                 annotations.append(
                     AnnotationMessageVercel(
@@ -282,7 +280,6 @@ def format_messages_vercel(
                     )
                 )
 
-                message_data["parts"] = parts
                 message_data["annotations"] = annotations
 
             # If we encounter a user message with a non empty buffer we have to add a dummy ai message.
@@ -292,12 +289,16 @@ def format_messages_vercel(
                         id=uuid.uuid4(),
                         role="assistant",
                         createdAt=msg.creation_date,
-                        content="",
                         parts=parts,
                         annotations=annotations,
                     )
                 )
+            # Normal User message (with empty buffer)
+            else:
+                if text_content:
+                    parts.append(TextPartVercel(text=text_content))
 
+            message_data["parts"] = parts
             parts = []
             annotations = []
             messages.append(MessagesReadVercel(**message_data))
@@ -377,7 +378,6 @@ def format_messages_vercel(
                 id=uuid.uuid4(),
                 role="assistant",
                 createdAt=msg.creation_date,
-                content="",
                 parts=parts,
                 annotations=annotations,
             )

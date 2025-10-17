@@ -11,7 +11,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ToolStatusBadge } from "@/components/chat/tool-call-status";
-import { ToolInvocation } from "@ai-sdk/ui-utils";
+import { ToolInvocation } from "ai";
 
 type ToolCallCollapsibleProps = {
   tool: ToolInvocation;
