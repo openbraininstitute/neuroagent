@@ -19,8 +19,8 @@ type ChatInputInsideThreadProps = {
   threadId: string;
   setCheckedTools: (tools: Record<string, boolean>) => void;
   setCurrentModel: (model: LLMModel) => void;
-  handleInputChange: Dispatch<SetStateAction<string>>;
-  handleSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
+  handleInputChange: Dispatch<SetStateAction<string>>
+  handleSubmit: (e: React.FormEvent<HTMLFormElement | HTMLTextAreaElement>) => void;
   setIsAutoScrollEnabled: (enabled: boolean) => void;
   hasOngoingToolInvocations: boolean;
   onStop: () => void;
@@ -89,7 +89,7 @@ export function ChatInputInsideThread({
             name="prompt"
             placeholder="Message the AI..."
             value={input}
-            onChange={handleInputChange}
+            onChange={(e) => handleInputChange(e.target.value)}
             onKeyDown={(e) => handleKeyDown(e)}
             autoComplete="off"
             maxRows={10}
