@@ -1,7 +1,6 @@
 """Main."""
 
 import logging
-import typing
 from contextlib import aclosing, asynccontextmanager
 from logging.config import dictConfig
 from typing import Annotated, Any, AsyncContextManager
@@ -22,27 +21,20 @@ from starlette import status
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
 from starlette.responses import JSONResponse
-from typing_extensions import TypedDict as _TypedDict
 
 from neuroagent import __version__
-
-# Required for mcp_run_python since we don't run python 3.12
-# This must run before any pydantic import
-typing.TypedDict = _TypedDict
-from mcp_run_python import code_sandbox  # noqa: E402
-
-# ----------------------------------------------------------
-from neuroagent.app.app_utils import setup_engine  # noqa: E402
-from neuroagent.app.config import Settings  # noqa: E402
-from neuroagent.app.dependencies import (  # noqa: E402
+from neuroagent.app.app_utils import setup_engine
+from neuroagent.app.config import Settings
+from neuroagent.app.dependencies import (
     get_connection_string,
     get_mcp_tool_list,
     get_settings,
     get_tool_list,
 )
-from neuroagent.app.middleware import strip_path_prefix  # noqa: E402
-from neuroagent.app.routers import qa, rate_limit, storage, threads, tools  # noqa: E402
-from neuroagent.mcp import MCPClient  # noqa: E402
+from neuroagent.app.middleware import strip_path_prefix
+from neuroagent.app.routers import qa, rate_limit, storage, threads, tools
+from neuroagent.executor import WasmExecutor
+from neuroagent.mcp import MCPClient
 
 LOGGING = {
     "version": 1,
@@ -137,27 +129,24 @@ async def lifespan(fastapi_app: FastAPI) -> AsyncContextManager[None]:  # type: 
     ) as session_factory:
         fastapi_app.state.accounting_session_factory = session_factory
 
-        async with (
-            MCPClient(config=app_settings.mcp) as mcp_client,
-            code_sandbox(
-                dependencies=[
+        async with MCPClient(config=app_settings.mcp) as mcp_client:
+            with WasmExecutor(
+                additional_imports=[
                     "numpy",
                     "pandas",
-                    "plotly",
+                    "file:./node_modules/pyodide/plotly-6.3.1-py3-none-any.whl",
                     "pydantic",
                     "scikit-learn",
                     "scipy",
-                ],
-                allow_networking=True,
-            ) as sandbox,
-        ):
-            fastapi_app.state.python_sandbox = sandbox
-            # trigger dynamic tool generation - only done once - it is cached
-            _ = fastapi_app.dependency_overrides.get(
-                get_mcp_tool_list, get_mcp_tool_list
-            )(mcp_client, app_settings)
-            fastapi_app.state.mcp_client = mcp_client
-            yield
+                ]
+            ) as sandbox:
+                fastapi_app.state.python_sandbox = sandbox
+                # trigger dynamic tool generation - only done once - it is cached
+                _ = fastapi_app.dependency_overrides.get(
+                    get_mcp_tool_list, get_mcp_tool_list
+                )(mcp_client, app_settings)
+                fastapi_app.state.mcp_client = mcp_client
+                yield
 
     # Cleanup connections
     if engine:
