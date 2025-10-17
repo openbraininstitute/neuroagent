@@ -67,7 +67,7 @@ class CircuitConnectivityMetricsGetOneTool(BaseTool):
         connectivity_metrics_response = await self.metadata.httpx_client.post(
             url=f"{self.metadata.obi_one_url}/declared/connectivity-metrics/{self.input_schema.circuit_id}",
             headers=headers,
-            data=query_params,
+            data=request_body,
         )
 
         if connectivity_metrics_response.status_code != 200:
