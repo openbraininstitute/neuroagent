@@ -68,7 +68,7 @@ class ObiGraphQLTool(BaseTool):
     ]
     description: ClassVar[
         str
-    ] = f"""Execute GraphQL queries against the ObiOne API. This tool allows you to run GraphQL queries to fetch data from the ObiOne service. The schema includes detailed information about morphology metrics and other available data structures.
+    ] = f"""Execute GraphQL queries against the ObiOne API. This tool allows you to run GraphQL queries to fetch data from the ObiOne service. The schema includes detailed information about morphology metrics and other available data structures. Attention, the `values` fiels will contain large arrays so only query it when the user specifically requests it.
 
 GraphQL Schema:
 {GRAPHQL_SCHEMA}"""
