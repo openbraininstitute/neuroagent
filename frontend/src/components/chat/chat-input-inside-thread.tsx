@@ -19,8 +19,8 @@ type ChatInputInsideThreadProps = {
   threadId: string;
   setCheckedTools: (tools: Record<string, boolean>) => void;
   setCurrentModel: (model: LLMModel) => void;
-  handleInputChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
-  handleSubmit: (event?: { preventDefault?: () => void }) => void;
+  handleInputChange: Dispatch<SetStateAction<string>>;
+  handleSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
   setIsAutoScrollEnabled: (enabled: boolean) => void;
   hasOngoingToolInvocations: boolean;
   onStop: () => void;

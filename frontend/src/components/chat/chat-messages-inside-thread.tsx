@@ -2,9 +2,11 @@
 
 import { MessageStrict } from "@/lib/types";
 import {
+  getLastText,
   getStoppedStatus,
   getStorageID,
   getValidationStatus,
+  isToolPart,
 } from "@/lib/utils";
 import PlotsInChat from "@/components/chat/plot-in-chat";
 import { ChatMessageAI } from "@/components/chat/chat-message-ai";
@@ -68,7 +70,7 @@ export function ChatMessagesInsideThread({
               />
             )}
             {message.parts?.map((part, partId) => {
-              if (part.type === "tool-invocation") {
+              if (isToolPart(part)) {
                 const validated =
                   getValidationStatus(message.annotations, part.toolCallId) ??
                   "not_required";
@@ -106,10 +108,7 @@ export function ChatMessagesInsideThread({
             })}
           </div>
         ) : (
-          <ChatMessageHuman
-            key={message.id}
-            content={message.parts.findLast((e) => e.type == "text")?.text}
-          />
+          <ChatMessageHuman key={message.id} content={getLastText(message)} />
         ),
       )}
       {loadingStatus !== "ready" && <ChatMessageLoading />}

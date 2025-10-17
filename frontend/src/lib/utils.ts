@@ -1,7 +1,7 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 import { MessageStrict, Annotation } from "@/lib/types";
-import { ToolInvocation, ToolInvocationUIPart } from "@ai-sdk/ui-utils";
+import { UIMessagePart, ToolUIPart, UITools, UIDataTypes } from "ai";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -31,6 +31,14 @@ function safeParse<T = any>(str: string): T | string {
   }
 }
 
+// check if the part od the message is a tool.
+export function isToolPart<
+  DATA_TYPES extends UIDataTypes,
+  TOOLS extends UITools,
+>(part: UIMessagePart<DATA_TYPES, TOOLS>): part is ToolUIPart<TOOLS> {
+  return part.type.startsWith("tool-");
+}
+
 // Small utility function to check if the last message has incomplete parts
 export function isLastMessageComplete(messages: MessageStrict | undefined) {
   const annotations = messages?.annotations;
@@ -44,18 +52,19 @@ export function isLastMessageComplete(messages: MessageStrict | undefined) {
   return !hasIncomplete;
 }
 
+// Util to get the last text part
+export function getLastText(message: MessageStrict | undefined): string {
+  return message?.parts.findLast((e) => e.type == "text")?.text || "";
+}
+
 // Utils to get all tool calls from an AI message
 export function getToolInvocations(
   message: MessageStrict | undefined,
-): ToolInvocation[] {
+): ToolUIPart[] {
   return (
     message?.parts
-      ?.filter(
-        (part): part is ToolInvocationUIPart =>
-          part.type === "tool-invocation" &&
-          typeof part.toolInvocation === "object",
-      )
-      .map((part) => part.toolInvocation) ?? []
+      ?.filter((part): part is ToolUIPart => part.type.startsWith("tool-"))
+      .map((part) => part) ?? []
   );
 }
 

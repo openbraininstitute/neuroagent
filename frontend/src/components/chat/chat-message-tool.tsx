@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { MessageStrict } from "@/lib/types";
 import { HumanValidationDialog } from "@/components/chat/human-validation-dialog";
-import { ToolInvocation } from "@ai-sdk/ui-utils";
+import { ToolUIPart } from "ai";
 import { useExecuteTool } from "@/hooks/tools";
 import { ToolCallCollapsible } from "@/components/chat/tool-call-collapsible";
 import React from "react";
@@ -11,7 +11,7 @@ import React from "react";
 type ChatMessageToolProps = {
   content?: string;
   threadId: string;
-  tool: ToolInvocation;
+  tool: ToolUIPart;
   stopped: boolean;
   availableTools: Array<{ slug: string; label: string }>;
   addToolResult: ({
@@ -74,8 +74,8 @@ export const ChatMessageTool = function ChatMessageTool({
   }, [status]);
 
   const toolLabel =
-    availableTools.filter((toolObj) => toolObj.slug === tool.toolName)?.[0]
-      ?.label ?? tool.toolName;
+    availableTools.filter((toolObj) => toolObj.slug === tool.type.slice(5))?.[0]
+      ?.label ?? tool.type;
 
   return (
     <div className="border-white-300 ml-5 border-solid p-0.5">
@@ -83,9 +83,9 @@ export const ChatMessageTool = function ChatMessageTool({
         key={tool.toolCallId}
         threadId={threadId}
         toolId={tool.toolCallId}
-        toolName={tool.toolName}
+        toolName={tool.type.slice(5)}
         availableTools={availableTools}
-        args={tool.args}
+        args={tool.input}
         isOpen={dialogOpen}
         setIsOpen={setDialogOpen}
         setMessage={setMessage}

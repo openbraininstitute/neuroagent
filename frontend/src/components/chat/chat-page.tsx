@@ -13,7 +13,11 @@ import { ChatMessagesInsideThread } from "@/components/chat/chat-messages-inside
 import { generateEditTitle } from "@/actions/generate-edit-thread";
 import { toast } from "sonner";
 import { useGetMessageNextPage } from "@/hooks/get-message-page";
-import { getToolInvocations, isLastMessageComplete } from "@/lib/utils";
+import {
+  getLastText,
+  getToolInvocations,
+  isLastMessageComplete,
+} from "@/lib/utils";
 import { md5 } from "js-md5";
 import { DefaultChatTransport } from "ai";
 
@@ -193,7 +197,7 @@ export function ChatPage({
   // Constant to check if there are tool calls at the end of conv.
   const hasOngoingToolInvocations =
     (getToolInvocations(messages.at(-1)) ?? []).length > 0 &&
-    messages.at(-1)?.content == "";
+    getLastText(messages.at(-1)) == "";
 
   // Auto scroll when streaming
   useEffect(() => {

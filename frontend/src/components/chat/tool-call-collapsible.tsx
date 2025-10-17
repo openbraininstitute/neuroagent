@@ -11,10 +11,10 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ToolStatusBadge } from "@/components/chat/tool-call-status";
-import { ToolInvocation } from "ai";
+import { ToolUIPart } from "ai";
 
 type ToolCallCollapsibleProps = {
-  tool: ToolInvocation;
+  tool: ToolUIPart;
   toolLabel: string;
   stopped: boolean;
   validated: "pending" | "accepted" | "rejected" | "not_required";
@@ -122,7 +122,7 @@ export function ToolCallCollapsible({
                 asChild
                 className="h-auto p-1 text-muted-foreground hover:text-blue-600 dark:hover:text-blue-400"
               >
-                <a href={`/tools/${tool?.toolName}`}>
+                <a href={`/tools/${tool?.type.slice(5)}`}>
                   <Info className="h-4 w-4" />
                 </a>
               </Button>
@@ -140,7 +140,7 @@ export function ToolCallCollapsible({
                 <Card className="border-muted bg-muted/30">
                   <CardContent className="p-3">
                     <pre className="max-h-32 overflow-auto text-xs text-foreground">
-                      {JSON.stringify(tool?.args, null, 2)}
+                      {JSON.stringify(tool?.input, null, 2)}
                     </pre>
                   </CardContent>
                 </Card>
@@ -161,7 +161,7 @@ export function ToolCallCollapsible({
                 </div>
               )}
 
-              {tool?.state === "result" && (
+              {tool?.state === "output-available" && (
                 <div className="space-y-2">
                   <div className="flex justify-between">
                     <Badge variant="secondary" className="text-xs">
@@ -172,26 +172,26 @@ export function ToolCallCollapsible({
                     ) : (
                       <Copy
                         className="mr-3 h-4 w-4 cursor-pointer opacity-50"
-                        onClick={() => handleCopy(tool?.result)}
+                        onClick={() => handleCopy(tool?.output as string)}
                       />
                     )}
                   </div>
                   <Card className="border-muted bg-muted/30">
                     <CardContent className="p-3">
                       <pre className="max-h-32 overflow-auto text-xs text-foreground">
-                        {typeof tool?.result === "string"
+                        {typeof tool?.output === "string"
                           ? (() => {
                               try {
                                 return JSON.stringify(
-                                  JSON.parse(tool?.result),
+                                  JSON.parse(tool?.output),
                                   null,
                                   2,
                                 );
                               } catch {
-                                return tool?.result;
+                                return tool?.output;
                               }
                             })()
-                          : JSON.stringify(tool?.result, null, 2)}
+                          : JSON.stringify(tool?.output, null, 2)}
                       </pre>
                     </CardContent>
                   </Card>
