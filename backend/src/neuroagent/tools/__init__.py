@@ -127,6 +127,7 @@ from neuroagent.tools.entitycore_subject_getall import SubjectGetAllTool
 from neuroagent.tools.entitycore_subject_getone import SubjectGetOneTool
 from neuroagent.tools.generate_plot import PlotGeneratorTool
 from neuroagent.tools.obi_expert import OBIExpertTool
+from neuroagent.tools.obi_graphql import ObiGraphQLTool
 from neuroagent.tools.obione_circuitmetrics_getone import CircuitMetricGetOneTool
 from neuroagent.tools.obione_circuitnodesets_getone import CircuitNodesetsGetOneTool
 from neuroagent.tools.obione_circuitpopulations_getone import (
@@ -137,7 +138,6 @@ from neuroagent.tools.obione_generatesimulationsconfig import (
     GenerateSimulationsConfigTool,
 )
 from neuroagent.tools.obione_morphometrics_getone import MorphometricsGetOneTool
-from neuroagent.tools.obi_graphql import ObiGraphQLTool
 from neuroagent.tools.thumbnailgen_electricalcellrecording_getone import (
     PlotElectricalCellRecordingGetOneTool,
 )

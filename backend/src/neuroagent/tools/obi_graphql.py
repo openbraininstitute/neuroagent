@@ -29,7 +29,7 @@ GRAPHQL_SCHEMA = _load_graphql_schema()
 
 class GraphQLResponse(BaseModel):
     """Response model for GraphQL queries."""
-    
+
     model_config = ConfigDict(extra="allow")
 
 
@@ -38,6 +38,10 @@ class ObiGraphQLInputs(BaseModel):
 
     graphql_query: str = Field(
         description="The GraphQL query string to execute against the ObiOne API."
+    )
+    variables: dict | None = Field(
+        description="Optional variables for the GraphQL query.",
+        default=None,
     )
 
 
@@ -90,7 +94,8 @@ GraphQL Schema:
 
         # Prepare GraphQL request payload
         payload = {
-            "query": self.input_schema.graphql_query
+            "query": self.input_schema.graphql_query,
+            "variables": self.input_schema.variables or {},
         }
 
         graphql_response = await self.metadata.httpx_client.post(
@@ -103,12 +108,10 @@ GraphQL Schema:
             raise ValueError(
                 f"The GraphQL endpoint returned a non 200 response code. Error: {graphql_response.text}"
             )
-        
+
         response_data = graphql_response.json()
-        
-        return GraphQLResponse(
-            **response_data
-        )
+
+        return GraphQLResponse(**response_data)
 
     @classmethod
     async def is_online(cls, *, httpx_client: AsyncClient, obi_one_url: str) -> bool:
