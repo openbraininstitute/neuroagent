@@ -233,6 +233,7 @@ class AgentsRoutine:
             history = copy.deepcopy(content)
             tool_map = {tool.name: tool for tool in agent.tools}
             turns = 0
+            annotation_data = []
 
             yield f"data: {json.dumps({'type': 'start', 'messageId': f'msg_{uuid.uuid4().hex}'})}\n\n"
 
@@ -534,7 +535,6 @@ class AgentsRoutine:
                         for msg in tool_calls_with_hil
                     ]
 
-                    yield f"8:{json.dumps(annotation_data, separators=(',', ':'))}\n"
                     yield f"data: {json.dumps({'type': 'finish-step'})}\n\n"
                     break
 
@@ -543,7 +543,7 @@ class AgentsRoutine:
                 if tool_calls_executed.agent:
                     active_agent = tool_calls_executed.agent
 
-            yield f"data: {json.dumps({'type': 'finish'})}\n\n"
+            yield f"data: {json.dumps({'type': 'finish', 'messageMetadata': annotation_data})}\n\n"
             yield "data: [DONE]\n\n"
 
         # User interrupts streaming

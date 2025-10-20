@@ -26,7 +26,6 @@ from neuroagent.app.database.sql_schemas import (
     utc_now,
 )
 from neuroagent.app.schemas import (
-    AnnotationMessageVercel,
     AnnotationToolCallVercel,
     MessagesRead,
     MessagesReadVercel,
@@ -252,7 +251,7 @@ def format_messages_vercel(
     """Format db messages to Vercel schema."""
     messages: list[MessagesReadVercel] = []
     parts: list[TextPartVercel | ToolCallPartVercel | ReasoningPartVercel] = []
-    annotations: list[AnnotationMessageVercel | AnnotationToolCallVercel] = []
+    metadata: list[AnnotationToolCallVercel] = []
 
     for msg in reversed(db_messages):
         if msg.entity in [Entity.USER, Entity.AI_MESSAGE]:
@@ -264,6 +263,7 @@ def format_messages_vercel(
                 "id": msg.message_id,
                 "role": "user" if msg.entity == Entity.USER else "assistant",
                 "createdAt": msg.creation_date,
+                "isComplete": msg.is_complete,
             }
 
             # add tool calls and reset buffer after attaching
@@ -273,13 +273,7 @@ def format_messages_vercel(
                 if reasoning_content:
                     parts.append(ReasoningPartVercel(text=reasoning_content))
 
-                annotations.append(
-                    AnnotationMessageVercel(
-                        messageId=msg.message_id, isComplete=msg.is_complete
-                    )
-                )
-
-                message_data["annotations"] = annotations
+                message_data["metadata"] = metadata
 
             else:
                 if parts:
@@ -290,7 +284,7 @@ def format_messages_vercel(
                             role="assistant",
                             createdAt=msg.creation_date,
                             parts=parts,
-                            annotations=annotations,
+                            metadata=metadata,
                         )
                     )
                 # Normal User message (with empty buffer)
@@ -299,7 +293,7 @@ def format_messages_vercel(
 
             message_data["parts"] = parts
             parts = []
-            annotations = []
+            metadata = []
             messages.append(MessagesReadVercel(**message_data))
 
         # Buffer tool calls until the next AI_MESSAGE
@@ -333,7 +327,7 @@ def format_messages_vercel(
                         state="input-available",
                     )
                 )
-                annotations.append(
+                metadata.append(
                     AnnotationToolCallVercel(
                         toolCallId=tc.tool_call_id,
                         validated=status,  # type: ignore
@@ -353,12 +347,12 @@ def format_messages_vercel(
                 ),
                 None,
             )
-            annotation = next(
+            metadata = next(
                 (
-                    annotation
-                    for annotation in annotations
-                    if isinstance(annotation, AnnotationToolCallVercel)
-                    and annotation.toolCallId == tool_call_id
+                    metadata
+                    for met in metadata
+                    if isinstance(met, AnnotationToolCallVercel)
+                    and met.toolCallId == tool_call_id
                 ),
                 None,
             )
@@ -366,8 +360,8 @@ def format_messages_vercel(
                 tool_call.output = json.loads(msg.content).get("content")
                 tool_call.state = "output-available"
 
-            if annotation:
-                annotation.isComplete = msg.is_complete
+            if metadata:
+                metadata.isComplete = msg.is_complete
 
     # If the tool call buffer is not empty, we need to add a dummy AI message.
     if parts:
@@ -377,7 +371,8 @@ def format_messages_vercel(
                 role="assistant",
                 createdAt=msg.creation_date,
                 parts=parts,
-                annotations=annotations,
+                metadata=metadata,
+                isComplete=False,
             )
         )
 

@@ -72,10 +72,10 @@ export function ChatMessagesInsideThread({
             {message.parts?.map((part, partId) => {
               if (isToolPart(part)) {
                 const validated =
-                  getValidationStatus(message.annotations, part.toolCallId) ??
+                  getValidationStatus(message.metadata, part.toolCallId) ??
                   "not_required";
                 const stopped = getStoppedStatus(
-                  message.annotations,
+                  message.metadata,
                   part.toolCallId,
                 );
                 return (
