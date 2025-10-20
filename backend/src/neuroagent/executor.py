@@ -203,9 +203,9 @@ class WasmExecutor:
                 raise ValueError("Could not retrieve outputs of the python script.")
 
             if process.stderr:
-                return FailureOutput(
-                    error_type="install-error", error=process.stderr.read()
-                )
+                js_error = process.stderr.read()
+                if js_error:
+                    return FailureOutput(error_type="install-error", error=js_error)
 
             python_outcome = events[-1]  # Last line of the js logs is the python output
             try:
@@ -268,7 +268,22 @@ async function execute(code) {{
   try {{
     // Execute the code
     return_value = await pyodide.runPythonAsync(code);
-    console.log(return_value)
+
+    // Grab figures if present.
+    pyodide.runPython(`
+    import gc
+    import json
+
+    import plotly.graph_objects as go
+
+    # Use garbage collector to find all Figure objects in memory
+    figures = [obj for obj in gc.get_objects() if isinstance(obj, go.Figure)]
+
+    # Serialize all figures
+    if figures:
+        serialized = {{"_plots": [fig.to_json() for fig in figures]}}
+        print(json.dumps(serialized, separators=(",", ":")))
+    `)
 
     // Get captured stdout
     output = pyodide.runPython("sys.stdout.getvalue().splitlines()");
