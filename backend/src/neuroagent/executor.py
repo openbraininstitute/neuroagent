@@ -82,7 +82,7 @@ class WasmExecutor:
         if deno_permissions is None:
             # Use minimal permissions for Deno execution
             deno_permissions = [
-                "allow-read=./node_modules",
+                "allow-read=./node_modules,./cached_wheels",
                 "node-modules-dir=auto",
             ]
         self.deno_permissions = [f"--{perm}" for perm in deno_permissions]
@@ -113,7 +113,7 @@ class WasmExecutor:
                     "pypi.org:443,files.pythonhosted.org:443",  # allow pyodide install packages from PyPI
                 ]
             ),
-            "allow-read=./node_modules",
+            "allow-read=./node_modules,./cached_wheels",
             "allow-write=./node_modules",
             "node-modules-dir=auto",
         ]
