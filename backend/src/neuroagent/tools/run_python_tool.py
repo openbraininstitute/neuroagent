@@ -54,6 +54,8 @@ class RunPythonTool(BaseTool):
     ] = """Tool to execute Python code and return stdout, stderr, and return value.
     The code may be async, and the value on the last line will be returned as the return value.
     The code will be executed with Python 3.12.
+    If the last statement in the Python code is an expression (and the code doesn't end with a semicolon), the value of the expression is returned.
+    You will have access to the stdout of the script.
     AVAILABLE LIBRARIES:
     - Standard Python libraries (math, os, sys, json, datetime, etc.)
     - Numpy
@@ -93,11 +95,8 @@ AVAILABLE LIBRARIES:
 
     async def arun(self) -> RunPythonOutput:
         """Run arbitrary python code."""
-        # inject figure parsing code
-        code = self.inject_user_script(self.input_schema.python_script)
-
         # Run the entire code
-        result = self.metadata.python_sandbox.run_code(code)
+        result = self.metadata.python_sandbox.run_code(self.input_schema.python_script)
 
         identifiers = []
         # Check if we have images, upload them to the store if so
@@ -129,35 +128,6 @@ AVAILABLE LIBRARIES:
                     )
 
         return RunPythonOutput(result=result, storage_id=identifiers)
-
-    @staticmethod
-    def inject_user_script(script: str) -> str:
-        """Inject user's script with custom logic for plotting."""
-        # This code allows to tranfer the figures to the tool for frontend displaying.
-        pre_injected_code = '''
-import gc
-import json
-
-import plotly.graph_objects as go
-import plotly.io as pio
-
-pio.renderers.default = None
-
-
-def serialize_figures() -> None:
-    """Fetches and serializes plotly figures."""
-    # Use garbage collector to find all Figure objects in memory
-    figures = [obj for obj in gc.get_objects() if isinstance(obj, go.Figure)]
-
-    # Serialize all figures
-    if figures:
-        serialized = {"_plots": [fig.to_json() for fig in figures]}
-        print(json.dumps(serialized, separators=(",", ":")))
-'''
-        post_injected_code = """
-serialize_figures()
-"""
-        return pre_injected_code + script + post_injected_code
 
     @classmethod
     async def is_online(cls) -> bool:
