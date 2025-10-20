@@ -273,6 +273,8 @@ class AgentsRoutine:
                 draft_tool_calls_index = -1
                 text_id = f"text_{uuid.uuid4().hex}"
                 text_started = False
+                reasoning_id = f"text_{uuid.uuid4().hex}"
+                reasoning_started = False
                 async for chunk in completion:
                     for choice in chunk.choices:
                         if choice.finish_reason == "stop":
@@ -353,7 +355,11 @@ class AgentsRoutine:
                             hasattr(choice.delta, "reasoning")
                             and choice.delta.reasoning
                         ):
-                            yield f"g:{json.dumps(choice.delta.reasoning, separators=(',', ':'))}\n\n"
+                            if not reasoning_started:
+                                yield f"data: {json.dumps({'type': 'reasoning-start', 'id': reasoning_id})}\n\n"
+                                reasoning_started = True
+
+                            yield f"data: {json.dumps({'type': 'reasoning-delta', 'id': reasoning_id, 'delta': choice.delta.reasoning})}\n\n"
 
                         else:
                             if choice.delta.content is not None:
@@ -366,6 +372,10 @@ class AgentsRoutine:
                         delta_json = choice.delta.model_dump()
                         delta_json.pop("role", None)
                         merge_chunk(message, delta_json)
+
+                if reasoning_started:
+                    yield f"data: {json.dumps({'type': 'reasoning-end', 'id': reasoning_id})}\n\n"
+                    reasoning_started = False
 
                 if text_started:
                     yield f"data: {json.dumps({'type': 'text-end', 'id': text_id})}\n\n"

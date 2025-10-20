@@ -88,6 +88,7 @@ export function ChatPage({
     stop,
   } = useChat({
     messages: retrievedMessages,
+    experimental_throttle: 50,
     transport: new DefaultChatTransport({
       api: `${env.NEXT_PUBLIC_BACKEND_URL}/qa/chat_streamed/${threadId}`,
       headers: {
