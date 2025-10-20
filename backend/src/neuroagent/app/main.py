@@ -3,6 +3,7 @@
 import logging
 from contextlib import aclosing, asynccontextmanager
 from logging.config import dictConfig
+from pathlib import Path
 from typing import Annotated, Any, AsyncContextManager
 from uuid import uuid4
 
@@ -107,6 +108,28 @@ async def lifespan(fastapi_app: FastAPI) -> AsyncContextManager[None]:  # type: 
     fastapi_app.openapi_url = f"{prefix}/openapi.json"
     fastapi_app.servers = [{"url": prefix}]
 
+    plotly_wheel_list = list(Path("./cached_wheels").glob("plotly-*.whl"))
+    if plotly_wheel_list:
+        plotly_wheel = plotly_wheel_list[0]
+        logger.info(f"Found plotly wheel at {plotly_wheel}")
+        additional_imports = [
+            "numpy",
+            "pandas",
+            f"file:{plotly_wheel.absolute()}",
+            "pydantic",
+            "scikit-learn",
+            "scipy",
+        ]
+    else:
+        logger.info("Didn't find plotly wheel")
+        additional_imports = [
+            "numpy",
+            "pandas",
+            "pydantic",
+            "scikit-learn",
+            "scipy",
+        ]
+
     # Do not rely on the middleware order in the list "fastapi_app.user_middleware" since this is subject to changes.
     try:
         cors_middleware = filter(
@@ -130,16 +153,7 @@ async def lifespan(fastapi_app: FastAPI) -> AsyncContextManager[None]:  # type: 
         fastapi_app.state.accounting_session_factory = session_factory
 
         async with MCPClient(config=app_settings.mcp) as mcp_client:
-            with WasmExecutor(
-                additional_imports=[
-                    "numpy",
-                    "pandas",
-                    "file:./node_modules/pyodide/plotly-6.3.1-py3-none-any.whl",
-                    "pydantic",
-                    "scikit-learn",
-                    "scipy",
-                ]
-            ) as sandbox:
+            with WasmExecutor(additional_imports=additional_imports) as sandbox:
                 fastapi_app.state.python_sandbox = sandbox
                 # trigger dynamic tool generation - only done once - it is cached
                 _ = fastapi_app.dependency_overrides.get(

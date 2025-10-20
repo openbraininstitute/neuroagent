@@ -12,7 +12,6 @@ import boto3
 from fastapi import Depends, HTTPException, Request
 from fastapi.security import HTTPBearer
 from httpx import AsyncClient, HTTPStatusError, get
-from mcp_run_python.code_sandbox import CodeSandbox
 from obp_accounting_sdk import AsyncAccountingSessionFactory
 from openai import AsyncOpenAI
 from redis import asyncio as aioredis
@@ -25,6 +24,7 @@ from neuroagent.app.app_utils import filter_tools_by_conversation, validate_proj
 from neuroagent.app.config import Settings
 from neuroagent.app.database.sql_schemas import Entity, Messages, Threads
 from neuroagent.app.schemas import OpenRouterModelResponse, UserInfo
+from neuroagent.executor import WasmExecutor
 from neuroagent.mcp import MCPClient, create_dynamic_tool
 from neuroagent.new_types import Agent
 from neuroagent.tools import (
@@ -149,7 +149,7 @@ def get_accounting_session_factory(request: Request) -> AsyncAccountingSessionFa
     return request.app.state.accounting_session_factory
 
 
-def get_python_sandbox(request: Request) -> CodeSandbox:
+def get_python_sandbox(request: Request) -> WasmExecutor:
     """Get the python sandbox."""
     return request.app.state.python_sandbox
 
@@ -646,7 +646,7 @@ async def get_context_variables(
     s3_client: Annotated[Any, Depends(get_s3_client)],
     user_info: Annotated[UserInfo, Depends(get_user_info)],
     openai_client: Annotated[AsyncOpenAI, Depends(get_openai_client)],
-    python_sandbox: Annotated[CodeSandbox, Depends(get_python_sandbox)],
+    python_sandbox: Annotated[WasmExecutor, Depends(get_python_sandbox)],
 ) -> dict[str, Any]:
     """Get the context variables to feed the tool's metadata."""
     # Get the current frontend url
