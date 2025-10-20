@@ -35,7 +35,6 @@ from neuroagent.app.schemas import (
     ReasoningPartVercel,
     TextPartVercel,
     ToolCallPartVercel,
-    ToolCallVercel,
 )
 from neuroagent.tools.base_tool import BaseTool
 from neuroagent.utils import get_token_count, messages_to_openai_content
@@ -272,7 +271,7 @@ def format_messages_vercel(
                 if text_content:
                     parts.append(TextPartVercel(text=text_content))
                 if reasoning_content:
-                    parts.append(ReasoningPartVercel(reasoning=reasoning_content))
+                    parts.append(ReasoningPartVercel(text=reasoning_content))
 
                 annotations.append(
                     AnnotationMessageVercel(
@@ -282,19 +281,19 @@ def format_messages_vercel(
 
                 message_data["annotations"] = annotations
 
-            # If we encounter a user message with a non empty buffer we have to add a dummy ai message.
-            elif parts:
-                messages.append(
-                    MessagesReadVercel(
-                        id=uuid.uuid4(),
-                        role="assistant",
-                        createdAt=msg.creation_date,
-                        parts=parts,
-                        annotations=annotations,
-                    )
-                )
-            # Normal User message (with empty buffer)
             else:
+                if parts:
+                    # If we encounter a user message with a non empty buffer we have to add a dummy ai message.
+                    messages.append(
+                        MessagesReadVercel(
+                            id=uuid.uuid4(),
+                            role="assistant",
+                            createdAt=msg.creation_date,
+                            parts=parts,
+                            annotations=annotations,
+                        )
+                    )
+                # Normal User message (with empty buffer)
                 if text_content:
                     parts.append(TextPartVercel(text=text_content))
 
@@ -311,7 +310,7 @@ def format_messages_vercel(
 
             # Add optional reasoning
             if reasoning_content:
-                parts.append(ReasoningPartVercel(reasoning=reasoning_content))
+                parts.append(ReasoningPartVercel(text=reasoning_content))
 
             for tc in msg.tool_calls:
                 requires_validation = tool_hil_mapping.get(tc.name, False)
@@ -324,15 +323,14 @@ def format_messages_vercel(
                 else:
                     status = "pending"
 
-                parts.append(TextPartVercel(text=text_content or ""))
+                if text_content:
+                    parts.append(TextPartVercel(text=text_content))
                 parts.append(
                     ToolCallPartVercel(
-                        toolInvocation=ToolCallVercel(
-                            toolCallId=tc.tool_call_id,
-                            toolName=tc.name,
-                            args=json.loads(tc.arguments),
-                            state="call",
-                        )
+                        toolCallId=tc.tool_call_id,
+                        type=f"tool-{tc.name}",
+                        input=json.loads(tc.arguments),
+                        state="input-available",
                     )
                 )
                 annotations.append(
@@ -348,10 +346,10 @@ def format_messages_vercel(
             tool_call_id = json.loads(msg.content).get("tool_call_id")
             tool_call = next(
                 (
-                    part.toolInvocation
+                    part
                     for part in parts
                     if isinstance(part, ToolCallPartVercel)
-                    and part.toolInvocation.toolCallId == tool_call_id
+                    and part.toolCallId == tool_call_id
                 ),
                 None,
             )
@@ -365,8 +363,8 @@ def format_messages_vercel(
                 None,
             )
             if tool_call:
-                tool_call.result = json.loads(msg.content).get("content")
-                tool_call.state = "result"
+                tool_call.output = json.loads(msg.content).get("content")
+                tool_call.state = "output-available"
 
             if annotation:
                 annotation.isComplete = msg.is_complete

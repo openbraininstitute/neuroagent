@@ -31,7 +31,6 @@ from neuroagent.app.schemas import (
     TextPartVercel,
     ToolCall,
     ToolCallPartVercel,
-    ToolCallVercel,
     UserInfo,
 )
 from tests.mock_client import MockOpenAIClient, create_mock_response
