@@ -108,28 +108,6 @@ async def lifespan(fastapi_app: FastAPI) -> AsyncContextManager[None]:  # type: 
     fastapi_app.openapi_url = f"{prefix}/openapi.json"
     fastapi_app.servers = [{"url": prefix}]
 
-    plotly_wheel_list = list(Path("./cached_wheels").glob("plotly-*.whl"))
-    if plotly_wheel_list:
-        plotly_wheel = plotly_wheel_list[0]
-        logger.info(f"Found plotly wheel at {plotly_wheel}")
-        additional_imports = [
-            "numpy",
-            "pandas",
-            f"file:{plotly_wheel.absolute()}",
-            "pydantic",
-            "scikit-learn",
-            "scipy",
-        ]
-    else:
-        logger.info("Didn't find plotly wheel")
-        additional_imports = [
-            "numpy",
-            "pandas",
-            "pydantic",
-            "scikit-learn",
-            "scipy",
-        ]
-
     # Do not rely on the middleware order in the list "fastapi_app.user_middleware" since this is subject to changes.
     try:
         cors_middleware = filter(
@@ -152,8 +130,25 @@ async def lifespan(fastapi_app: FastAPI) -> AsyncContextManager[None]:  # type: 
     ) as session_factory:
         fastapi_app.state.accounting_session_factory = session_factory
 
+        # Prepare imports for python sandbox
+        imports = [
+            "numpy",
+            "pandas",
+            "pydantic",
+            "scikit-learn",
+            "scipy",
+        ]
+
+        # Fetch manually downloaded wheels + use micropip notation
+        extra_wheel_list = list(Path("./cached_wheels").glob("*.whl"))
+        if extra_wheel_list:
+            logger.info(
+                f"Found the following extra wheels: {', '.join([wheel.name for wheel in extra_wheel_list])}"
+            )
+            imports += [f"file:{wheel.absolute()}" for wheel in extra_wheel_list]
+
         async with MCPClient(config=app_settings.mcp) as mcp_client:
-            with WasmExecutor(additional_imports=additional_imports) as sandbox:
+            with WasmExecutor(additional_imports=imports) as sandbox:
                 fastapi_app.state.python_sandbox = sandbox
                 # trigger dynamic tool generation - only done once - it is cached
                 _ = fastapi_app.dependency_overrides.get(
