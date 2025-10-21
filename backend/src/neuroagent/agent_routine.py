@@ -235,7 +235,7 @@ class AgentsRoutine:
             turns = 0
             metadata_data = []
 
-            if messages[-1].entity != Entity.TOOL:
+            if messages[-1].entity == Entity.USER:
                 yield f"data: {json.dumps({'type': 'start', 'messageId': f'msg_{uuid.uuid4().hex}'})}\n\n"
 
             while turns <= max_turns:

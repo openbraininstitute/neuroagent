@@ -91,7 +91,10 @@ export function ChatMessagesInsideThread({
                     <ChatMessageTool
                       threadId={threadId}
                       tool={part}
-                      stopped={message.isComplete}
+                      stopped={
+                        message.metadata?.some((e) => e.isComplete === false) ??
+                        false
+                      }
                       availableTools={availableTools}
                       addToolResult={addToolResult}
                       validated={validated}

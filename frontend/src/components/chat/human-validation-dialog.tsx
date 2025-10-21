@@ -106,28 +106,28 @@ export function HumanValidationDialog({
     // Process the decision first
     try {
       setMessage((msg: MessageStrict) => {
-        const updatedMsg = {
+        const updatedParts = (getToolInvocations(msg) || []).map((t) =>
+          t.toolCallId === toolId
+            ? {
+                ...t,
+                input: isEdited ? editedArgs : args,
+                state: "input-available" as const,
+                output: undefined,
+                errorText: undefined,
+              }
+            : t,
+        );
+
+        const updatedMetadata = [
+          ...(msg.metadata || []).filter((a) => a.toolCallId !== toolId),
+          { toolCallId: toolId, validated: validation },
+        ];
+
+        return {
           ...msg,
-          metadata: [
-            ...(msg.metadata || []).filter((a) => a.toolCallId !== toolId),
-            {
-              toolCallId: toolId,
-              validated: validation,
-            },
-          ],
-          parts: [
-            ...(getToolInvocations(msg) || []).filter(
-              (t) => t.toolCallId !== toolId,
-            ),
-            {
-              toolCallId: toolId,
-              type: `tool-${toolName}`,
-              input: isEdited ? editedArgs : args,
-              state: "input-available" as const,
-            },
-          ],
+          metadata: updatedMetadata,
+          parts: updatedParts,
         };
-        return updatedMsg;
       });
     } catch {
       // Timeout is here to have the flickering effect when clicking

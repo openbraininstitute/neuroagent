@@ -66,7 +66,12 @@ export const ChatMessageTool = function ChatMessageTool({
         setValidationError(null);
         // We leverage the addToolResult from useChat to add results.
         // It will also trigger the chat automatically when every tool has results !
-        addToolResult({ toolCallId: tool.toolCallId, output: data.content });
+        addToolResult({
+          state: "output-available",
+          tool: tool.type,
+          toolCallId: tool.toolCallId,
+          output: data.content,
+        });
 
         // If the tool had a validation error, we have to reset the metadata.
       } else if (data.status === "validation-error") {
