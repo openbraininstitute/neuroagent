@@ -2,7 +2,7 @@
 
 import json
 import logging
-from unittest.mock import Mock, mock_open, patch
+from unittest.mock import AsyncMock, Mock, mock_open, patch
 
 import pytest
 
@@ -100,12 +100,12 @@ class TestWasmExecutor:
         mock_tempdir_instance.__exit__.assert_called()
 
     @patch("subprocess.run")
-    @patch("subprocess.Popen")
+    @patch("asyncio.create_subprocess_exec")
     @patch("tempfile.TemporaryDirectory")
     @patch("builtins.open", new_callable=mock_open)
     @pytest.mark.asyncio
     async def test_run_code_success(
-        self, mock_file, mock_tempdir, mock_popen, mock_run
+        self, mock_file, mock_tempdir, mock_create_subproc_exec, mock_run
     ):
         """Test successful code execution."""
         # Mock TemporaryDirectory context manager
@@ -115,20 +115,31 @@ class TestWasmExecutor:
         mock_tempdir.return_value = mock_tempdir_instance
 
         # Mock successful execution
-        mock_process = Mock()
-        mock_process.stdout = [
-            "Loading packages...",
+        mock_process = AsyncMock()
+        mock_stdout_lines = [
+            "Loading packages...".encode(),
             json.dumps(
                 {
                     "output": ["Hello, World!"],
                     "return_value": 42,
                     "error": None,
                 }
-            ),
+            ).encode(),
         ]
-        mock_process.stderr.read.return_value = ""
-        mock_process.wait.return_value = None
-        mock_popen.return_value = mock_process
+        # Simulate async iteration over stdout lines
+        mock_process.stdout.__aiter__.return_value = (
+            line for line in mock_stdout_lines
+        )
+        mock_process.wait = AsyncMock(return_value=None)
+
+        # Configure stderr.read to return empty bytes/string
+        mock_stderr = Mock()
+        # emulate an async read method that returns empty bytes
+        mock_stderr.read = AsyncMock(return_value=b"")
+        mock_process.stderr = mock_stderr
+
+        # Make the patched create_subprocess_exec return our mock_process
+        mock_create_subproc_exec.return_value = mock_process
 
         executor = WasmExecutor(additional_imports=[])
         result = await executor.run_code("print('Hello, World!')")
@@ -139,8 +150,8 @@ class TestWasmExecutor:
         assert result.return_value == 42
 
         # Verify Popen was called with correct structure
-        mock_popen.assert_called_once()
-        call_args = mock_popen.call_args[0][0]
+        mock_create_subproc_exec.assert_called_once()
+        call_args = mock_create_subproc_exec.call_args[0]
         assert call_args[0] == "deno"
         assert call_args[1] == "run"
 
@@ -148,12 +159,12 @@ class TestWasmExecutor:
         mock_tempdir_instance.__exit__.assert_called()
 
     @patch("subprocess.run")
-    @patch("subprocess.Popen")
+    @patch("asyncio.create_subprocess_exec")
     @patch("tempfile.TemporaryDirectory")
     @patch("builtins.open", new_callable=mock_open)
     @pytest.mark.asyncio
     async def test_run_code_python_error(
-        self, mock_file, mock_tempdir, mock_popen, mock_run
+        self, mock_file, mock_tempdir, mock_create_subproc_exec, mock_run
     ):
         """Test code execution with Python error."""
         # Mock TemporaryDirectory context manager
@@ -163,8 +174,8 @@ class TestWasmExecutor:
         mock_tempdir.return_value = mock_tempdir_instance
 
         # Mock execution with Python error
-        mock_process = Mock()
-        mock_process.stdout = [
+        mock_process = AsyncMock()
+        mock_stdout_lines = [
             json.dumps(
                 {
                     "output": [],
@@ -174,11 +185,22 @@ class TestWasmExecutor:
                         "message": "name 'undefined_var' is not defined",
                     },
                 }
-            ),
+            ).encode(),
         ]
-        mock_process.stderr.read.return_value = ""
-        mock_process.wait.return_value = None
-        mock_popen.return_value = mock_process
+        # Simulate async iteration over stdout lines
+        mock_process.stdout.__aiter__.return_value = (
+            line for line in mock_stdout_lines
+        )
+        mock_process.wait = AsyncMock(return_value=None)
+
+        # Configure stderr.read to return empty bytes/string
+        mock_stderr = Mock()
+        # emulate an async read method that returns empty bytes
+        mock_stderr.read = AsyncMock(return_value=b"")
+        mock_process.stderr = mock_stderr
+
+        # Make the patched create_subprocess_exec return our mock_process
+        mock_create_subproc_exec.return_value = mock_process
 
         executor = WasmExecutor(additional_imports=[])
         result = await executor.run_code("print(undefined_var)")
@@ -190,12 +212,12 @@ class TestWasmExecutor:
         assert result.error.name == "NameError"
 
     @patch("subprocess.run")
-    @patch("subprocess.Popen")
+    @patch("asyncio.create_subprocess_exec")
     @patch("tempfile.TemporaryDirectory")
     @patch("builtins.open", new_callable=mock_open)
     @pytest.mark.asyncio
     async def test_run_code_install_error(
-        self, mock_file, mock_tempdir, mock_popen, mock_run
+        self, mock_file, mock_tempdir, mock_create_subproc_exec, mock_run
     ):
         """Test code execution with installation error."""
         # Mock TemporaryDirectory context manager
@@ -205,11 +227,21 @@ class TestWasmExecutor:
         mock_tempdir.return_value = mock_tempdir_instance
 
         # Mock execution with JS/installation error
-        mock_process = Mock()
-        mock_process.stdout = []
-        mock_process.stderr.read.return_value = "Failed to load package numpy"
-        mock_process.wait.return_value = None
-        mock_popen.return_value = mock_process
+        mock_process = AsyncMock()
+        mock_process.stdout.__aiter__.return_value = []
+        mock_process.wait = AsyncMock(return_value=None)
+
+        # Configure stderr.read to return empty bytes/string
+        mock_stderr = Mock()
+
+        # emulate an async read method that returns the error
+        mock_stderr.read = AsyncMock(
+            return_value="Failed to load package numpy".encode()
+        )
+        mock_process.stderr = mock_stderr
+
+        # Make the patched create_subprocess_exec return our mock_process
+        mock_create_subproc_exec.return_value = mock_process
 
         executor = WasmExecutor(additional_imports=["numpy"])
         result = await executor.run_code("import numpy")
@@ -220,12 +252,12 @@ class TestWasmExecutor:
         assert result.error == "Failed to load package numpy"
 
     @patch("subprocess.run")
-    @patch("subprocess.Popen")
+    @patch("asyncio.create_subprocess_exec")
     @patch("tempfile.TemporaryDirectory")
     @patch("builtins.open", new_callable=mock_open)
     @pytest.mark.asyncio
     async def test_run_code_invalid_json_output(
-        self, mock_file, mock_tempdir, mock_popen, mock_run
+        self, mock_file, mock_tempdir, mock_create_subproc_exec, mock_run
     ):
         """Test code execution with invalid JSON output."""
         # Mock TemporaryDirectory context manager
@@ -235,11 +267,15 @@ class TestWasmExecutor:
         mock_tempdir.return_value = mock_tempdir_instance
 
         # Mock execution with invalid JSON
-        mock_process = Mock()
-        mock_process.stdout = ["invalid json output"]
-        mock_process.stderr.read.return_value = ""
-        mock_process.wait.return_value = None
-        mock_popen.return_value = mock_process
+        mock_process = AsyncMock()
+        mock_process.stdout.__aiter__.return_value = ["invalid json output".encode()]
+        # Configure stderr.read to return empty bytes/string
+        mock_stderr = Mock()
+        # emulate an async read method that returns empty bytes
+        mock_stderr.read = AsyncMock(return_value=b"")
+        mock_process.stderr = mock_stderr
+        mock_process.wait = AsyncMock(return_value=None)
+        mock_create_subproc_exec.return_value = mock_process
 
         executor = WasmExecutor(additional_imports=[])
 
@@ -247,12 +283,12 @@ class TestWasmExecutor:
             await executor.run_code("print('test')")
 
     @patch("subprocess.run")
-    @patch("subprocess.Popen")
+    @patch("asyncio.create_subprocess_exec")
     @patch("tempfile.TemporaryDirectory")
     @patch("builtins.open", new_callable=mock_open)
     @pytest.mark.asyncio
     async def test_run_code_no_stdout(
-        self, mock_file, mock_tempdir, mock_popen, mock_run
+        self, mock_file, mock_tempdir, mock_create_subproc_exec, mock_run
     ):
         """Test code execution when stdout is None."""
         # Mock TemporaryDirectory context manager
@@ -262,10 +298,15 @@ class TestWasmExecutor:
         mock_tempdir.return_value = mock_tempdir_instance
 
         # Mock execution with no stdout
-        mock_process = Mock()
-        mock_process.stdout = None
-        mock_process.stderr.read.return_value = None
-        mock_popen.return_value = mock_process
+        mock_process = AsyncMock()
+        mock_process.stdout.__aiter__.return_value = []
+        mock_process.wait = AsyncMock(return_value=None)
+        # Configure stderr.read to return empty bytes/string
+        mock_stderr = Mock()
+        # emulate an async read method that returns empty bytes
+        mock_stderr.read = AsyncMock(return_value=b"")
+        mock_process.stderr = mock_stderr
+        mock_create_subproc_exec.return_value = mock_process
 
         executor = WasmExecutor(additional_imports=[])
 
@@ -273,12 +314,12 @@ class TestWasmExecutor:
             await executor.run_code("print('test')")
 
     @patch("subprocess.run")
-    @patch("subprocess.Popen")
+    @patch("asyncio.create_subprocess_exec")
     @patch("tempfile.TemporaryDirectory")
     @patch("builtins.open", new_callable=mock_open)
     @pytest.mark.asyncio
     async def test_run_code_with_logger(
-        self, mock_file, mock_tempdir, mock_popen, mock_run
+        self, mock_file, mock_tempdir, mock_create_subproc_exec, mock_run
     ):
         """Test code execution with logger."""
         # Mock TemporaryDirectory context manager
@@ -290,21 +331,30 @@ class TestWasmExecutor:
         mock_logger = Mock(spec=logging.Logger)
 
         # Mock successful execution
-        mock_process = Mock()
-        mock_process.stdout = [
-            "Debug line 1",
-            "Debug line 2",
+        mock_process = AsyncMock()
+        mock_stdout_lines = [
+            "Debug line 1".encode(),
+            "Debug line 2".encode(),
             json.dumps(
                 {
                     "output": ["result"],
                     "return_value": None,
                     "error": None,
                 }
-            ),
+            ).encode(),
         ]
-        mock_process.stderr.read.return_value = ""
-        mock_process.wait.return_value = None
-        mock_popen.return_value = mock_process
+        mock_process.stdout.__aiter__.return_value = (
+            line for line in mock_stdout_lines
+        )
+        mock_process.wait = AsyncMock(return_value=None)
+        # Configure stderr.read to return empty bytes/string
+        mock_stderr = Mock()
+        # emulate an async read method that returns empty bytes
+        mock_stderr.read = AsyncMock(return_value=b"")
+        mock_process.stderr = mock_stderr
+
+        # Make the patched create_subprocess_exec return our mock_process
+        mock_create_subproc_exec.return_value = mock_process
 
         executor = WasmExecutor(additional_imports=[], logger=mock_logger)
         result = await executor.run_code("print('test')")
@@ -314,12 +364,12 @@ class TestWasmExecutor:
         assert mock_logger.debug.call_count == 3
 
     @patch("subprocess.run")
-    @patch("subprocess.Popen")
+    @patch("asyncio.create_subprocess_exec")
     @patch("tempfile.TemporaryDirectory")
     @patch("builtins.open", new_callable=mock_open)
     @pytest.mark.asyncio
     async def test_run_code_cleanup_on_error(
-        self, mock_file, mock_tempdir, mock_popen, mock_run
+        self, mock_file, mock_tempdir, mock_create_subproc_exec, mock_run
     ):
         """Test cleanup happens even when execution fails."""
         # Mock TemporaryDirectory context manager
@@ -328,9 +378,17 @@ class TestWasmExecutor:
         mock_tempdir_instance.__exit__ = Mock(return_value=None)
         mock_tempdir.return_value = mock_tempdir_instance
 
-        mock_process = Mock()
-        mock_process.stdout = None
-        mock_popen.return_value = mock_process
+        mock_process = AsyncMock()
+        mock_process.stdout.__aiter__.return_value = []
+        mock_process.wait = AsyncMock(return_value=None)
+        # Configure stderr.read to return empty bytes/string
+        mock_stderr = Mock()
+        # emulate an async read method that returns empty bytes
+        mock_stderr.read = AsyncMock(return_value=b"")
+        mock_process.stderr = mock_stderr
+
+        # Make the patched create_subprocess_exec return our mock_process
+        mock_create_subproc_exec.return_value = mock_process
 
         executor = WasmExecutor(additional_imports=[])
 
@@ -341,12 +399,12 @@ class TestWasmExecutor:
         mock_tempdir_instance.__exit__.assert_called()
 
     @patch("subprocess.run")
-    @patch("subprocess.Popen")
+    @patch("asyncio.create_subprocess_exec")
     @patch("tempfile.TemporaryDirectory")
     @patch("builtins.open", new_callable=mock_open)
     @pytest.mark.asyncio
     async def test_no_network_requests_made(
-        self, mock_file, mock_tempdir, mock_popen, mock_run
+        self, mock_file, mock_tempdir, mock_create_subproc_exec, mock_run
     ):
         """Test that no actual network requests are made during execution."""
         # Mock TemporaryDirectory context manager
@@ -356,19 +414,29 @@ class TestWasmExecutor:
         mock_tempdir.return_value = mock_tempdir_instance
 
         # Mock successful execution
-        mock_process = Mock()
-        mock_process.stdout = [
+        mock_process = AsyncMock()
+        mock_stdout_lines = [
             json.dumps(
                 {
                     "output": [],
                     "return_value": None,
                     "error": None,
                 }
-            ),
+            ).encode(),
         ]
-        mock_process.stderr.read.return_value = ""
-        mock_process.wait.return_value = None
-        mock_popen.return_value = mock_process
+        # Simulate async iteration over stdout lines
+        mock_process.stdout.__aiter__.return_value = (
+            line for line in mock_stdout_lines
+        )
+        mock_process.wait = AsyncMock(return_value=None)
+        # Configure stderr.read to return empty bytes/string
+        mock_stderr = Mock()
+        # emulate an async read method that returns empty bytes
+        mock_stderr.read = AsyncMock(return_value=b"")
+        mock_process.stderr = mock_stderr
+
+        # Make the patched create_subprocess_exec return our mock_process
+        mock_create_subproc_exec.return_value = mock_process
 
         # Test with packages that would normally trigger network requests
         executor = WasmExecutor(additional_imports=["numpy", "pandas", "matplotlib"])
@@ -378,7 +446,7 @@ class TestWasmExecutor:
 
         # Verify that Popen was called (subprocess execution)
         # but ensure it's mocked and not making real requests
-        mock_popen.assert_called_once()
+        mock_create_subproc_exec.assert_called_once()
 
         # Verify the JavaScript file content contains the packages
         written_content = mock_file().write.call_args[0][0]
