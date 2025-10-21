@@ -14,14 +14,28 @@ type ChatMessageToolProps = {
   tool: ToolUIPart;
   stopped: boolean;
   availableTools: Array<{ slug: string; label: string }>;
-  addToolResult: ({
+  addToolResult: <TOOL extends string>({
+    state,
+    tool,
     toolCallId,
-    result,
-  }: {
-    toolCallId: string;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    result: any;
-  }) => void;
+    output,
+    errorText,
+  }:
+    | {
+        state?: "output-available";
+        tool: TOOL;
+        toolCallId: string;
+        output: unknown;
+        errorText?: never;
+      }
+    | {
+        state: "output-error";
+        tool: TOOL;
+        toolCallId: string;
+        output?: never;
+        errorText: string;
+      }) => Promise<void>;
+
   validated: "pending" | "accepted" | "rejected" | "not_required";
   setMessage: (updater: (msg: MessageStrict) => MessageStrict) => void;
 };
@@ -52,16 +66,16 @@ export const ChatMessageTool = function ChatMessageTool({
         setValidationError(null);
         // We leverage the addToolResult from useChat to add results.
         // It will also trigger the chat automatically when every tool has results !
-        addToolResult({ toolCallId: tool.toolCallId, result: data.content });
+        addToolResult({ toolCallId: tool.toolCallId, output: data.content });
 
-        // If the tool had a validation error, we have to reset the annotation.
+        // If the tool had a validation error, we have to reset the metadata.
       } else if (data.status === "validation-error") {
         setValidationError(data.content || "Validation failed");
         setMessage((msg) => {
           return {
             ...msg,
-            annotations: [
-              ...(msg.annotations || []).filter(
+            metadata: [
+              ...(msg.metadata || []).filter(
                 (a) => a.toolCallId !== tool.toolCallId,
               ),
               { toolCallId: tool.toolCallId, validated: "pending" },

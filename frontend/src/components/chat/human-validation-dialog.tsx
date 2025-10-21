@@ -16,8 +16,6 @@ import {
   monoDarkTheme,
   monoLightTheme,
 } from "json-edit-react";
-import { scsPostSchema } from "@/lib/zod-schemas";
-import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import type { MessageStrict } from "@/lib/types";
@@ -110,22 +108,22 @@ export function HumanValidationDialog({
       setMessage((msg: MessageStrict) => {
         const updatedMsg = {
           ...msg,
-          annotations: [
-            ...(msg.annotations || []).filter((a) => a.toolCallId !== toolId),
+          metadata: [
+            ...(msg.metadata || []).filter((a) => a.toolCallId !== toolId),
             {
               toolCallId: toolId,
               validated: validation,
             },
           ],
-          toolInvocations: [
+          parts: [
             ...(getToolInvocations(msg) || []).filter(
               (t) => t.toolCallId !== toolId,
             ),
             {
               toolCallId: toolId,
-              toolName: toolName,
-              args: isEdited ? editedArgs : args,
-              state: "call" as const,
+              type: `tool-${toolName}`,
+              input: isEdited ? editedArgs : args,
+              state: "input-available" as const,
             },
           ],
         };
@@ -186,26 +184,6 @@ export function HumanValidationDialog({
                     <h3 className="text-sm font-medium">Arguments:</h3>
                     <JsonEditor
                       data={editedArgs}
-                      onUpdate={({ newData }) => {
-                        const result = scsPostSchema.safeParse(newData);
-                        if (!result.success) {
-                          const errorMessage = result.error.errors
-                            .map(
-                              (error) =>
-                                `${error.path.join(".")}${error.path.length ? ": " : ""}${error.message}`,
-                            )
-                            .join("\n");
-                          toast.error(
-                            <>
-                              <strong>JSON Validation Error</strong>
-                              <div>{errorMessage}</div>
-                            </>,
-                          );
-                          return "JSON Schema error";
-                        }
-
-                        handleArgsChange(result.data);
-                      }}
                       setData={(data: JsonData) => handleArgsChange(data)}
                       className="max-h-[75vh] overflow-y-auto"
                       theme={[

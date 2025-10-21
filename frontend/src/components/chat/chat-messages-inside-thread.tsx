@@ -3,7 +3,6 @@
 import { MessageStrict } from "@/lib/types";
 import {
   getLastText,
-  getStoppedStatus,
   getStorageID,
   getValidationStatus,
   isToolPart,
@@ -19,14 +18,27 @@ type ChatMessagesInsideThreadProps = {
   messages: MessageStrict[];
   threadId: string;
   availableTools: Array<{ slug: string; label: string }>;
-  addToolResult: ({
+  addToolResult: <TOOL extends string>({
+    state,
+    tool,
     toolCallId,
-    result,
-  }: {
-    toolCallId: string;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    result: any;
-  }) => void;
+    output,
+    errorText,
+  }:
+    | {
+        state?: "output-available";
+        tool: TOOL;
+        toolCallId: string;
+        output: unknown;
+        errorText?: never;
+      }
+    | {
+        state: "output-error";
+        tool: TOOL;
+        toolCallId: string;
+        output?: never;
+        errorText: string;
+      }) => Promise<void>;
   setMessages: (
     messages:
       | MessageStrict[]
@@ -74,16 +86,12 @@ export function ChatMessagesInsideThread({
                 const validated =
                   getValidationStatus(message.metadata, part.toolCallId) ??
                   "not_required";
-                const stopped = getStoppedStatus(
-                  message.metadata,
-                  part.toolCallId,
-                );
                 return (
                   <div key={`${message.id}-tool-${part.toolCallId}`}>
                     <ChatMessageTool
                       threadId={threadId}
                       tool={part}
-                      stopped={stopped}
+                      stopped={message.isComplete}
                       availableTools={availableTools}
                       addToolResult={addToolResult}
                       validated={validated}

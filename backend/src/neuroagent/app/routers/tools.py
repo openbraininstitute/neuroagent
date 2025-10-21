@@ -47,6 +47,7 @@ async def execute_tool_call(
     agents_routine: Annotated[AgentsRoutine, Depends(get_agents_routine)],
 ) -> ExecuteToolCallResponse:
     """Execute a specific tool call and update its status."""
+    breakpoint()
     # Get the tool call
     tool_call = await session.get(ToolCalls, tool_call_id)
     if not tool_call:

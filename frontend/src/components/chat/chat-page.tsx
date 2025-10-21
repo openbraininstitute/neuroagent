@@ -14,9 +14,11 @@ import { generateEditTitle } from "@/actions/generate-edit-thread";
 import { toast } from "sonner";
 import { useGetMessageNextPage } from "@/hooks/get-message-page";
 import {
+  getLastMessageText,
   getLastText,
   getToolInvocations,
   isLastMessageComplete,
+  lastAssistantHasAllToolOutputs,
 } from "@/lib/utils";
 import { md5 } from "js-md5";
 import { DefaultChatTransport } from "ai";
@@ -89,6 +91,7 @@ export function ChatPage({
   } = useChat({
     messages: retrievedMessages,
     experimental_throttle: 50,
+    sendAutomaticallyWhen: lastAssistantHasAllToolOutputs,
     transport: new DefaultChatTransport({
       api: `${env.NEXT_PUBLIC_BACKEND_URL}/qa/chat_streamed/${threadId}`,
       headers: {
@@ -97,9 +100,7 @@ export function ChatPage({
       prepareSendMessagesRequest: ({ messages }) => {
         return {
           body: {
-            content: messages[messages.length - 1].parts.findLast(
-              (e) => e.type == "text",
-            )?.text,
+            content: getLastMessageText(messages),
             tool_selection: Object.keys(checkedTools).filter(
               (key) => key !== "allchecked" && checkedTools[key] === true,
             ),
@@ -170,13 +171,9 @@ export function ChatPage({
       setMessages((prevState) => {
         prevState[prevState.length - 1] = {
           ...prevState[prevState.length - 1],
-          annotations: prevState
-            .at(-1)
-            ?.annotations?.map((ann) =>
-              !ann.toolCallId ? { isComplete: false } : ann,
-            ),
+          isComplete: false,
         };
-        // We only change the annotation at message level and keep the rest.
+        // We only change the metadata at message level and keep the rest.
         return prevState;
       });
     }
@@ -189,7 +186,7 @@ export function ChatPage({
       setMessages(() => [
         ...retrievedMessages,
         ...messages.filter(
-          (m) => m.id.length !== 36 && !m.id.startsWith("temp"),
+          (m) => m.id.length !== 36 && !m.id.startsWith("msg"),
         ),
       ]);
     } else {

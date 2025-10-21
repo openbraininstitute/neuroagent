@@ -233,9 +233,10 @@ class AgentsRoutine:
             history = copy.deepcopy(content)
             tool_map = {tool.name: tool for tool in agent.tools}
             turns = 0
-            annotation_data = []
+            metadata_data = []
 
-            yield f"data: {json.dumps({'type': 'start', 'messageId': f'msg_{uuid.uuid4().hex}'})}\n\n"
+            if messages[-1].entity != Entity.TOOL:
+                yield f"data: {json.dumps({'type': 'start', 'messageId': f'msg_{uuid.uuid4().hex}'})}\n\n"
 
             while turns <= max_turns:
                 # Force an AI message once max turns reached.
@@ -530,7 +531,7 @@ class AgentsRoutine:
 
                 # If the tool call response contains HIL validation, do not update anything and return
                 if tool_calls_with_hil:
-                    annotation_data = [
+                    metadata_data = [
                         {"toolCallId": msg.tool_call_id, "validated": "pending"}
                         for msg in tool_calls_with_hil
                     ]
@@ -543,7 +544,10 @@ class AgentsRoutine:
                 if tool_calls_executed.agent:
                     active_agent = tool_calls_executed.agent
 
-            yield f"data: {json.dumps({'type': 'finish', 'messageMetadata': annotation_data})}\n\n"
+            if metadata_data:
+                yield f"data: {json.dumps({'type': 'finish', 'messageMetadata': metadata_data})}\n\n"
+            else:
+                yield f"data: {json.dumps({'type': 'finish'})}\n\n"
             yield "data: [DONE]\n\n"
 
         # User interrupts streaming

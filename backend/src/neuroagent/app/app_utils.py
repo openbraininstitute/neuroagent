@@ -347,21 +347,21 @@ def format_messages_vercel(
                 ),
                 None,
             )
-            metadata = next(
+            if tool_call:
+                tool_call.output = json.loads(msg.content).get("content")
+                tool_call.state = "output-available"
+
+            met = next(
                 (
-                    metadata
+                    met
                     for met in metadata
                     if isinstance(met, AnnotationToolCallVercel)
                     and met.toolCallId == tool_call_id
                 ),
                 None,
             )
-            if tool_call:
-                tool_call.output = json.loads(msg.content).get("content")
-                tool_call.state = "output-available"
-
-            if metadata:
-                metadata.isComplete = msg.is_complete
+            if met:
+                met.isComplete = msg.is_complete
 
     # If the tool call buffer is not empty, we need to add a dummy AI message.
     if parts:

@@ -1,4 +1,11 @@
-import { ReasoningUIPart, TextUIPart, ToolUIPart, UIMessage } from "ai";
+import {
+  ReasoningUIPart,
+  TextUIPart,
+  ToolUIPart,
+  UIMessage,
+  UITools,
+  UIDataTypes,
+} from "ai";
 import { components } from "./neuroagent_types";
 
 export type BPaginatedResponseThread =
@@ -17,7 +24,7 @@ export type Thread = {
   title: string;
 };
 
-export type Annotation = {
+export type MessageMetadata = {
   messageId?: string;
   toolCallId?: string;
   validated?: "accepted" | "rejected" | "pending" | "not_required";
@@ -32,7 +39,8 @@ export type BMessageUser = {
   role: "user";
   createdAt: Date;
   parts: [];
-  annotation: [];
+  metadata: [];
+  isComplete: boolean;
 };
 
 // This type needs to use native vercel AI types which are not defined the backend
@@ -41,15 +49,19 @@ export type BMessageAIContent = {
   role: "assistant";
   createdAt: Date;
   parts: (TextUIPart | ToolUIPart | ReasoningUIPart)[];
-  annotations: Annotation[];
+  metadata: MessageMetadata[];
+  isComplete: boolean;
 };
 
 export type BMessage = BMessageUser | BMessageAIContent;
 
-// This explicitly overrides any existing 'annotations' property
-// The AI SDK make it more general by JSONValue[], but we need to be more specific
-export type MessageStrict = Omit<UIMessage, "annotations"> & {
-  annotations?: Annotation[];
+// Extends the type of UIMessage from Vercel AI.
+export type MessageStrict<
+  DATA_PARTS extends UIDataTypes = UIDataTypes,
+  TOOLS extends UITools = UITools,
+> = Omit<UIMessage<unknown, DATA_PARTS, TOOLS>, "metadata"> & {
+  metadata?: MessageMetadata[];
+  isComplete: boolean;
 };
 
 export type BExecuteToolCallRequest =
