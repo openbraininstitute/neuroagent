@@ -3,7 +3,6 @@
 import json
 import logging
 import os
-import shutil
 import subprocess  # nosec: B404
 import tempfile
 from textwrap import dedent
@@ -63,18 +62,10 @@ class WasmExecutor:
         deno_path: str = "deno",
         deno_permissions: list[str] | None = None,
         timeout: int = 60,
-    ):
+    ) -> None:
+        """Init."""
         self.additional_imports = additional_imports
         self.logger = logger
-
-        # Check if Deno is installed
-        try:
-            subprocess.run([deno_path, "--version"], capture_output=True, check=True)  # nosec: B603
-        except (subprocess.SubprocessError, FileNotFoundError):
-            raise RuntimeError(
-                "Deno is not installed or not found in PATH. Please install Deno from https://deno.land/"
-            )
-
         self.deno_path = deno_path
         self.timeout = timeout
 
@@ -90,36 +81,35 @@ class WasmExecutor:
     def __enter__(self) -> "WasmExecutor":
         """Install provided dependencies. Use the class as a context manager to cache the wheels.
 
-        Only built-in pyodide packages are downloaded and cached, PyPi wheels need to be manually downloaded and added to the
-        ./node_modules/pyodide folder if you plan running without net access.
-        Built in pyodide packages can be references as the package name,
-        while pure python 3 wheels from PyPi that have been manually added must be referenced through micropip's reference mechanism:
+        Only built-in pyodide packages (see https://pyodide.org/en/stable/usage/packages-in-pyodide.html) are downloaded and cached.
+        PyPi wheels need to be manually downloaded and added to the `./cached_wheels` folder if you plan running without net access.
+        With net access, no need for manual download. Built in pyodide packages can be references by package name.
+        Pure python 3 wheels from PyPi that have been manually added must be referenced through micropip's reference mechanism:
         file:/path/to/the/wheel.whl.
         Example:
         ```python
-            with WasmExecutor(additional_imports=["numpy", "file:/path/to/plotly-wheel.wlh"]) as executor:
+            with WasmExecutor(additional_imports=["numpy", "file:./cached_wheels/plotly-wheel.wlh"]) as executor:
                 code = \"""import plotly; print('Hello world')\"""
                 executed = executor.run_code(code)
         ```
-        The example assumes I have manually downloaded the plotly wheel and put it in the forlder /path/to/plotly-wheel.wlh
+        The example assumes the plotly wheel has been manually downloaded and put it in the folder ./cached_wheels/plotly-wheel.wlh
         """  # noqa: D300
-        self.runner_dir = tempfile.mkdtemp(prefix="pyodide_deno_")
-        self.runner_path = os.path.join(self.runner_dir, "pyodide_runner.js")
-        deno_permissions = [  # Allow fetching + caching packages
-            "allow-net="
-            + ",".join(
-                [
-                    "cdn.jsdelivr.net:443",  # allow loading pyodide packages
-                    "pypi.org:443,files.pythonhosted.org:443",  # allow pyodide install packages from PyPI
-                ]
-            ),
-            "allow-read=./node_modules,./cached_wheels",
-            "allow-write=./node_modules",
-            "node-modules-dir=auto",
-        ]
-        try:
+        with tempfile.TemporaryDirectory(prefix="pyodide_deno_") as runner_dir:
+            runner_path = os.path.join(runner_dir, "pyodide_runner.js")
+            deno_permissions = [  # Allow fetching + caching packages
+                "allow-net="
+                + ",".join(
+                    [
+                        "cdn.jsdelivr.net:443",  # allow loading pyodide packages
+                        "pypi.org:443,files.pythonhosted.org:443",  # allow pyodide install packages from PyPI
+                    ]
+                ),
+                "allow-read=./node_modules,./cached_wheels",
+                "allow-write=./node_modules",
+                "node-modules-dir=auto",
+            ]
             # Create the JavaScript runner file
-            with open(self.runner_path, "w") as f:
+            with open(runner_path, "w") as f:
                 f.write(
                     self.JS_CODE.format(
                         packages=self.additional_imports, code=json.dumps("")
@@ -129,7 +119,7 @@ class WasmExecutor:
             cmd = (
                 [self.deno_path, "run"]
                 + [f"--{perm}" for perm in deno_permissions]
-                + [self.runner_path]
+                + [runner_path]
             )
 
             # Start the server process
@@ -141,10 +131,6 @@ class WasmExecutor:
                 timeout=self.timeout,
             )
             return self
-        finally:
-            # Cleanup temp dir
-            if hasattr(self, "runner_dir") and os.path.exists(self.runner_dir):
-                shutil.rmtree(self.runner_dir)
 
     def __exit__(
         self,
@@ -153,8 +139,6 @@ class WasmExecutor:
         traceback: TracebackType | None,
     ) -> Literal[False]:
         """Exit context manager."""
-        if hasattr(self, "runner_dir") and os.path.exists(self.runner_dir):
-            shutil.rmtree(self.runner_dir)
         return False
 
     def run_code(self, code: str) -> SuccessOutput | FailureOutput:
@@ -168,18 +152,17 @@ class WasmExecutor:
         -------
             `CodeOutput`: Code output containing the result, logs, and whether it is the final answer.
         """
-        self.runner_dir = tempfile.mkdtemp(prefix="pyodide_deno_")
-        self.runner_path = os.path.join(self.runner_dir, "pyodide_runner.js")
-        try:
+        with tempfile.TemporaryDirectory(prefix="pyodide_deno_") as runner_dir:
+            runner_path = os.path.join(runner_dir, "pyodide_runner.js")
             # Create the JavaScript runner file
-            with open(self.runner_path, "w") as f:
+            with open(runner_path, "w") as f:
                 f.write(
                     self.JS_CODE.format(
                         packages=self.additional_imports, code=json.dumps(code)
                     )
                 )
 
-            cmd = [self.deno_path, "run"] + self.deno_permissions + [self.runner_path]
+            cmd = [self.deno_path, "run"] + self.deno_permissions + [runner_path]
 
             # Start the server process
             process = subprocess.Popen(  # nosec: B603
@@ -190,7 +173,6 @@ class WasmExecutor:
             )
 
             # Process the result
-            # Check for execution errors
             events = []
             if process.stdout:
                 for line in process.stdout:
@@ -198,14 +180,18 @@ class WasmExecutor:
                     if self.logger:
                         # Funnel the logging to your logger as a debug log.
                         self.logger.debug(line)
-                process.wait(timeout=self.timeout)
-            else:
-                raise ValueError("Could not retrieve outputs of the python script.")
 
+            # Wait for the process to finish or timeout
+            process.wait(timeout=self.timeout)
+
+            # Check for execution errors
             if process.stderr:
                 js_error = process.stderr.read()
                 if js_error:
                     return FailureOutput(error_type="install-error", error=js_error)
+
+            if not events:
+                raise ValueError("Could not retrieve outputs of the python script.")
 
             python_outcome = events[-1]  # Last line of the js logs is the python output
             try:
@@ -224,10 +210,6 @@ class WasmExecutor:
                 output=result_json["output"],
                 return_value=result_json.get("return_value"),
             )
-        finally:
-            # Cleanup temp dir
-            if hasattr(self, "runner_dir") and os.path.exists(self.runner_dir):
-                shutil.rmtree(self.runner_dir)
 
     JS_CODE = dedent("""\
 // pyodide_runner.js - Runs Python code in Pyodide within Deno
