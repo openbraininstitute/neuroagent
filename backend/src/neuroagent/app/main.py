@@ -130,7 +130,7 @@ async def lifespan(fastapi_app: FastAPI) -> AsyncContextManager[None]:  # type: 
     ) as session_factory:
         fastapi_app.state.accounting_session_factory = session_factory
 
-        # Prepare imports for python sandbox
+        # Built in pyodide packages
         imports = [
             "numpy",
             "pandas",

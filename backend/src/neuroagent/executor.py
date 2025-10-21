@@ -85,7 +85,7 @@ class WasmExecutor:
         PyPi wheels need to be manually downloaded and added to the `./cached_wheels` folder if you plan running without net access.
         With net access, no need for manual download. Built in pyodide packages can be references by package name.
         Pure python 3 wheels from PyPi that have been manually added must be referenced through micropip's reference mechanism:
-        file:/path/to/the/wheel.whl.
+        "file:/path/to/the/wheel.whl."
         Example:
         ```python
             with WasmExecutor(additional_imports=["numpy", "file:./cached_wheels/plotly-wheel.wlh"]) as executor:
@@ -145,12 +145,13 @@ class WasmExecutor:
         """
         Execute Python code in the Pyodide environment and return the result.
 
-        Args:
+        Parameters
+        ----------
             code (`str`): Python code to execute.
 
         Returns
         -------
-            `CodeOutput`: Code output containing the result, logs, and whether it is the final answer.
+            `SuccessOutput | FailureOutput`: Code output containing the result and logs or potential errors.
         """
         with tempfile.TemporaryDirectory(prefix="pyodide_deno_") as runner_dir:
             runner_path = os.path.join(runner_dir, "pyodide_runner.js")
@@ -190,6 +191,7 @@ class WasmExecutor:
                 if js_error:
                     return FailureOutput(error_type="install-error", error=js_error)
 
+            # No error + no stdout = Houston we have a problem
             if not events:
                 raise ValueError("Could not retrieve outputs of the python script.")
 
@@ -251,6 +253,9 @@ async function execute(code) {{
     // Execute the code
     return_value = await pyodide.runPythonAsync(code);
 
+    // For now this code is ran everytime.
+    // Feel free to protest if you think it
+    // should conditionally run.
     // Grab figures if present.
     pyodide.runPython(`
     import gc

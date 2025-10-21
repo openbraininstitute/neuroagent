@@ -54,8 +54,6 @@ class RunPythonTool(BaseTool):
     ] = """Tool to execute Python code and return stdout, stderr, and return value.
     The code may be async, and the value on the last line will be returned as the return value.
     The code will be executed with Python 3.12.
-    If the last statement in the Python code is an expression (and the code doesn't end with a semicolon), the value of the expression is returned.
-    You will have access to the stdout of the script.
     AVAILABLE LIBRARIES:
     - Standard Python libraries (math, os, sys, json, datetime, etc.)
     - Numpy
@@ -104,16 +102,23 @@ AVAILABLE LIBRARIES:
         fig_list = []
         if result.status == "success":
             for i, elem in enumerate(result.output):
+                # Stdout lines are not necessarily valid jsons
                 try:
+                    # Load every element of the stdout until we find our fig dict
                     output = json.loads(elem)
-                    if "_plots" in output:
+
+                    # Not only dicts can be valid json, gotta be careful
+                    if isinstance(output, dict) and "_plots" in output:
                         fig_list = output["_plots"]
-                        result.output.pop(i)
+                        result.output.pop(i)  # Do not pollute stdout
                         break
+
                 except json.JSONDecodeError:
                     continue
+
+            # If we have figures, save them to the storage
             if fig_list:
-                # Save images to storage
+                # Save individual jsons to storage
                 for plot_json in fig_list:
                     identifiers.append(
                         save_to_storage(
