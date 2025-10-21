@@ -94,7 +94,9 @@ AVAILABLE LIBRARIES:
     async def arun(self) -> RunPythonOutput:
         """Run arbitrary python code."""
         # Run the entire code
-        result = self.metadata.python_sandbox.run_code(self.input_schema.python_script)
+        result = await self.metadata.python_sandbox.run_code(
+            self.input_schema.python_script
+        )
 
         identifiers = []
         # Check if we have images, upload them to the store if so
@@ -115,7 +117,7 @@ AVAILABLE LIBRARIES:
 
                 except json.JSONDecodeError:
                     continue
-
+            breakpoint()
             # If we have figures, save them to the storage
             if fig_list:
                 # Save individual jsons to storage

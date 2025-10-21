@@ -103,7 +103,10 @@ class TestWasmExecutor:
     @patch("subprocess.Popen")
     @patch("tempfile.TemporaryDirectory")
     @patch("builtins.open", new_callable=mock_open)
-    def test_run_code_success(self, mock_file, mock_tempdir, mock_popen, mock_run):
+    @pytest.mark.asyncio
+    async def test_run_code_success(
+        self, mock_file, mock_tempdir, mock_popen, mock_run
+    ):
         """Test successful code execution."""
         # Mock TemporaryDirectory context manager
         mock_tempdir_instance = Mock()
@@ -128,7 +131,7 @@ class TestWasmExecutor:
         mock_popen.return_value = mock_process
 
         executor = WasmExecutor(additional_imports=[])
-        result = executor.run_code("print('Hello, World!')")
+        result = await executor.run_code("print('Hello, World!')")
 
         assert isinstance(result, SuccessOutput)
         assert result.status == "success"
@@ -148,7 +151,10 @@ class TestWasmExecutor:
     @patch("subprocess.Popen")
     @patch("tempfile.TemporaryDirectory")
     @patch("builtins.open", new_callable=mock_open)
-    def test_run_code_python_error(self, mock_file, mock_tempdir, mock_popen, mock_run):
+    @pytest.mark.asyncio
+    async def test_run_code_python_error(
+        self, mock_file, mock_tempdir, mock_popen, mock_run
+    ):
         """Test code execution with Python error."""
         # Mock TemporaryDirectory context manager
         mock_tempdir_instance = Mock()
@@ -175,7 +181,7 @@ class TestWasmExecutor:
         mock_popen.return_value = mock_process
 
         executor = WasmExecutor(additional_imports=[])
-        result = executor.run_code("print(undefined_var)")
+        result = await executor.run_code("print(undefined_var)")
 
         assert isinstance(result, FailureOutput)
         assert result.status == "error"
@@ -187,7 +193,8 @@ class TestWasmExecutor:
     @patch("subprocess.Popen")
     @patch("tempfile.TemporaryDirectory")
     @patch("builtins.open", new_callable=mock_open)
-    def test_run_code_install_error(
+    @pytest.mark.asyncio
+    async def test_run_code_install_error(
         self, mock_file, mock_tempdir, mock_popen, mock_run
     ):
         """Test code execution with installation error."""
@@ -205,7 +212,7 @@ class TestWasmExecutor:
         mock_popen.return_value = mock_process
 
         executor = WasmExecutor(additional_imports=["numpy"])
-        result = executor.run_code("import numpy")
+        result = await executor.run_code("import numpy")
 
         assert isinstance(result, FailureOutput)
         assert result.status == "error"
@@ -216,7 +223,8 @@ class TestWasmExecutor:
     @patch("subprocess.Popen")
     @patch("tempfile.TemporaryDirectory")
     @patch("builtins.open", new_callable=mock_open)
-    def test_run_code_invalid_json_output(
+    @pytest.mark.asyncio
+    async def test_run_code_invalid_json_output(
         self, mock_file, mock_tempdir, mock_popen, mock_run
     ):
         """Test code execution with invalid JSON output."""
@@ -236,13 +244,16 @@ class TestWasmExecutor:
         executor = WasmExecutor(additional_imports=[])
 
         with pytest.raises(ValueError, match="invalid output"):
-            executor.run_code("print('test')")
+            await executor.run_code("print('test')")
 
     @patch("subprocess.run")
     @patch("subprocess.Popen")
     @patch("tempfile.TemporaryDirectory")
     @patch("builtins.open", new_callable=mock_open)
-    def test_run_code_no_stdout(self, mock_file, mock_tempdir, mock_popen, mock_run):
+    @pytest.mark.asyncio
+    async def test_run_code_no_stdout(
+        self, mock_file, mock_tempdir, mock_popen, mock_run
+    ):
         """Test code execution when stdout is None."""
         # Mock TemporaryDirectory context manager
         mock_tempdir_instance = Mock()
@@ -259,13 +270,16 @@ class TestWasmExecutor:
         executor = WasmExecutor(additional_imports=[])
 
         with pytest.raises(ValueError, match="Could not retrieve outputs"):
-            executor.run_code("print('test')")
+            await executor.run_code("print('test')")
 
     @patch("subprocess.run")
     @patch("subprocess.Popen")
     @patch("tempfile.TemporaryDirectory")
     @patch("builtins.open", new_callable=mock_open)
-    def test_run_code_with_logger(self, mock_file, mock_tempdir, mock_popen, mock_run):
+    @pytest.mark.asyncio
+    async def test_run_code_with_logger(
+        self, mock_file, mock_tempdir, mock_popen, mock_run
+    ):
         """Test code execution with logger."""
         # Mock TemporaryDirectory context manager
         mock_tempdir_instance = Mock()
@@ -293,7 +307,7 @@ class TestWasmExecutor:
         mock_popen.return_value = mock_process
 
         executor = WasmExecutor(additional_imports=[], logger=mock_logger)
-        result = executor.run_code("print('test')")
+        result = await executor.run_code("print('test')")
 
         assert isinstance(result, SuccessOutput)
         # Verify logger was called for each line
@@ -303,7 +317,8 @@ class TestWasmExecutor:
     @patch("subprocess.Popen")
     @patch("tempfile.TemporaryDirectory")
     @patch("builtins.open", new_callable=mock_open)
-    def test_run_code_cleanup_on_error(
+    @pytest.mark.asyncio
+    async def test_run_code_cleanup_on_error(
         self, mock_file, mock_tempdir, mock_popen, mock_run
     ):
         """Test cleanup happens even when execution fails."""
@@ -320,7 +335,7 @@ class TestWasmExecutor:
         executor = WasmExecutor(additional_imports=[])
 
         with pytest.raises(ValueError):
-            executor.run_code("print('test')")
+            await executor.run_code("print('test')")
 
         # Verify TemporaryDirectory cleanup was called via __exit__
         mock_tempdir_instance.__exit__.assert_called()
@@ -329,7 +344,8 @@ class TestWasmExecutor:
     @patch("subprocess.Popen")
     @patch("tempfile.TemporaryDirectory")
     @patch("builtins.open", new_callable=mock_open)
-    def test_no_network_requests_made(
+    @pytest.mark.asyncio
+    async def test_no_network_requests_made(
         self, mock_file, mock_tempdir, mock_popen, mock_run
     ):
         """Test that no actual network requests are made during execution."""
@@ -356,7 +372,7 @@ class TestWasmExecutor:
 
         # Test with packages that would normally trigger network requests
         executor = WasmExecutor(additional_imports=["numpy", "pandas", "matplotlib"])
-        result = executor.run_code("import numpy")
+        result = await executor.run_code("import numpy")
 
         assert isinstance(result, SuccessOutput)
 

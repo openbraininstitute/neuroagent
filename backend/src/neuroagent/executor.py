@@ -1,5 +1,6 @@
 """Sandboxed python executor."""
 
+import asyncio
 import json
 import logging
 import os
@@ -88,9 +89,11 @@ class WasmExecutor:
         "file:/path/to/the/wheel.whl."
         Example:
         ```python
-            with WasmExecutor(additional_imports=["numpy", "file:./cached_wheels/plotly-wheel.wlh"]) as executor:
-                code = \"""import plotly; print('Hello world')\"""
-                executed = executor.run_code(code)
+        import asyncio
+
+        with WasmExecutor(additional_imports=["numpy", "file:./cached_wheels/plotly-wheel.wlh"]) as executor:
+            code = \"""import plotly; print('Hello world')\"""
+            executed = asyncio.run(executor.run_code(code))
         ```
         The example assumes the plotly wheel has been manually downloaded and put it in the folder ./cached_wheels/plotly-wheel.wlh
         """  # noqa: D300
@@ -122,7 +125,7 @@ class WasmExecutor:
                 + [runner_path]
             )
 
-            # Start the server process
+            # Run the cmd in a subprocess
             subprocess.run(  # nosec: B603
                 cmd,
                 stdout=subprocess.PIPE,
@@ -141,7 +144,7 @@ class WasmExecutor:
         """Exit context manager."""
         return False
 
-    def run_code(self, code: str) -> SuccessOutput | FailureOutput:
+    async def run_code(self, code: str) -> SuccessOutput | FailureOutput:
         """
         Execute Python code in the Pyodide environment and return the result.
 
@@ -165,31 +168,32 @@ class WasmExecutor:
 
             cmd = [self.deno_path, "run"] + self.deno_permissions + [runner_path]
 
-            # Start the server process
-            process = subprocess.Popen(  # nosec: B603
-                cmd,
+            # Run the cmd in a subprocess
+            process = await asyncio.create_subprocess_exec(  # nosec: B603
+                *cmd,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
-                text=True,
             )
 
             # Process the result
             events = []
             if process.stdout:
-                for line in process.stdout:
-                    events.append(line.strip())
+                async for line in process.stdout:
+                    events.append(line.decode().strip())
                     if self.logger:
                         # Funnel the logging to your logger as a debug log.
                         self.logger.debug(line)
 
             # Wait for the process to finish or timeout
-            process.wait(timeout=self.timeout)
+            await asyncio.wait_for(process.wait(), timeout=self.timeout)
 
             # Check for execution errors
             if process.stderr:
-                js_error = process.stderr.read()
+                js_error = await process.stderr.read()
                 if js_error:
-                    return FailureOutput(error_type="install-error", error=js_error)
+                    return FailureOutput(
+                        error_type="install-error", error=js_error.decode()
+                    )
 
             # No error + no stdout = Houston we have a problem
             if not events:
