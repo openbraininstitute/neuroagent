@@ -54,6 +54,8 @@ const SinglePlotInChat = memo(({ storageId }: { storageId: string }) => {
           isInChat={true}
         />
       );
+    default:
+      return <p>Error: Unsupported file category: {category}</p>;
   }
 });
 
