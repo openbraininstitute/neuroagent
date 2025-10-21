@@ -117,7 +117,7 @@ AVAILABLE LIBRARIES:
 
                 except json.JSONDecodeError:
                     continue
-            breakpoint()
+
             # If we have figures, save them to the storage
             if fig_list:
                 # Save individual jsons to storage
