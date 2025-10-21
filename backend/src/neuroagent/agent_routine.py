@@ -235,6 +235,7 @@ class AgentsRoutine:
             turns = 0
             metadata_data = []
 
+            # In case of HIL, the start steps breaks Vercel and adds a new part.
             if messages[-1].entity == Entity.USER:
                 yield f"data: {json.dumps({'type': 'start', 'messageId': f'msg_{uuid.uuid4().hex}'})}\n\n"
 

@@ -285,6 +285,7 @@ def format_messages_vercel(
                             createdAt=msg.creation_date,
                             parts=parts,
                             metadata=metadata,
+                            isComplete=False,
                         )
                     )
                 # Normal User message (with empty buffer)
