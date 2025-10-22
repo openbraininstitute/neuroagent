@@ -696,28 +696,6 @@ class MTypeClassification(BaseModel):
     )
 
 
-class MorphologyLocationsBlock(BaseModel):
-    model_config = ConfigDict(
-        extra='ignore',
-    )
-    type: Literal['MorphologyLocationsBlock'] = Field(..., title='Type')
-    random_seed: int | list[int] = Field(
-        default=0,
-        description='Seed for the random generation of locations',
-        title='Random Seed',
-    )
-    number_of_locations: int | list[int] = Field(
-        default=1,
-        description='Number of locations to generate on morphology',
-        title='Number Of Locations',
-    )
-    section_types: list[int] | list[list[int]] | None = Field(
-        default=None,
-        description='Types of sections to generate locations on. 2: axon, 3: basal, 4: apical',
-        title='Section Types',
-    )
-
-
 class MorphologyMetricsOutput(BaseModel):
     model_config = ConfigDict(
         extra='ignore',
@@ -935,6 +913,71 @@ class VarianceItem(DurationItem):
     pass
 
 
+class SamplePercentage10(SamplePercentage):
+    pass
+
+
+class SamplePercentage11Item(SamplePercentage1Item):
+    pass
+
+
+class SamplePercentage11(RootModel[list[SamplePercentage11Item]]):
+    root: list[SamplePercentage11Item] = Field(
+        ...,
+        description='Percentage of neurons to sample between 0 and 100%',
+        min_length=1,
+        title='Sample (Percentage)',
+    )
+
+
+class PairMotifNeuronSet(BaseModel):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    type: Literal['PairMotifNeuronSet'] = Field(..., title='Type')
+    sample_percentage: SamplePercentage10 | SamplePercentage11 = Field(
+        default=100.0,
+        description='Percentage of neurons to sample between 0 and 100%',
+        title='Sample (Percentage)',
+    )
+    sample_seed: int | list[int] = Field(
+        default=1, description='Seed for random sampling.', title='Sample Seed'
+    )
+    node_population: str | list[str] | None = Field(
+        default=None, title='Node Population'
+    )
+    neuron1_filter: dict[str, Any] | list[dict[str, Any]] = Field(
+        default={},
+        description='Filter for first neuron in a pair',
+        title='Neuron1 Filter',
+    )
+    neuron2_filter: dict[str, Any] | list[dict[str, Any]] = Field(
+        default={},
+        description='Filter for second neuron in a pair',
+        title='Neuron2 Filter',
+    )
+    conn_ff_filter: dict[str, Any] | list[dict[str, Any]] = Field(
+        default={},
+        description='Filter for feedforward connections from the first to the second neuron in a pair',
+        title='Conn Ff Filter',
+    )
+    conn_fb_filter: dict[str, Any] | list[dict[str, Any]] = Field(
+        default={},
+        description='Filter for feedback connections from the second to the first neuron in a pair',
+        title='Conn Fb Filter',
+    )
+    pair_selection: dict[str, Any] | list[dict[str, Any]] = Field(
+        default={},
+        description='Selection of pairs among all potential pairs',
+        title='Pair Selection',
+    )
+    node_set_list_op: Literal['union', 'intersect'] = Field(
+        default='union',
+        description="Operation how to combine lists of node sets; can be 'union' or 'intersect'.",
+        title='Node Set List Op',
+    )
+
+
 class PathDistanceMorphologyLocations(BaseModel):
     model_config = ConfigDict(
         extra='ignore',
@@ -996,16 +1039,16 @@ class PositiveIntRange(BaseModel):
     end: int = Field(..., gt=0, title='End')
 
 
-class SamplePercentage10(SamplePercentage):
+class SamplePercentage12(SamplePercentage):
     pass
 
 
-class SamplePercentage11Item(SamplePercentage1Item):
+class SamplePercentage13Item(SamplePercentage1Item):
     pass
 
 
-class SamplePercentage11(RootModel[list[SamplePercentage11Item]]):
-    root: list[SamplePercentage11Item] = Field(
+class SamplePercentage13(RootModel[list[SamplePercentage13Item]]):
+    root: list[SamplePercentage13Item] = Field(
         ...,
         description='Percentage of neurons to sample between 0 and 100%',
         min_length=1,
@@ -1030,7 +1073,7 @@ class PredefinedNeuronSet(BaseModel):
         extra='ignore',
     )
     type: Literal['PredefinedNeuronSet'] = Field(..., title='Type')
-    sample_percentage: SamplePercentage10 | SamplePercentage11 = Field(
+    sample_percentage: SamplePercentage12 | SamplePercentage13 = Field(
         default=100.0,
         description='Percentage of neurons to sample between 0 and 100%',
         title='Sample (Percentage)',
@@ -1041,16 +1084,16 @@ class PredefinedNeuronSet(BaseModel):
     node_set: NodeSet1 | NodeSet2 = Field(..., title='Node Set')
 
 
-class SamplePercentage12(SamplePercentage):
+class SamplePercentage14(SamplePercentage):
     pass
 
 
-class SamplePercentage13Item(SamplePercentage1Item):
+class SamplePercentage15Item(SamplePercentage1Item):
     pass
 
 
-class SamplePercentage13(RootModel[list[SamplePercentage13Item]]):
-    root: list[SamplePercentage13Item] = Field(
+class SamplePercentage15(RootModel[list[SamplePercentage15Item]]):
+    root: list[SamplePercentage15Item] = Field(
         ...,
         description='Percentage of neurons to sample between 0 and 100%',
         min_length=1,
@@ -1075,7 +1118,7 @@ class PropertyNeuronSet(BaseModel):
         extra='ignore',
     )
     type: Literal['PropertyNeuronSet'] = Field(..., title='Type')
-    sample_percentage: SamplePercentage12 | SamplePercentage13 = Field(
+    sample_percentage: SamplePercentage14 | SamplePercentage15 = Field(
         default=100.0,
         description='Percentage of neurons to sample between 0 and 100%',
         title='Sample (Percentage)',
@@ -1345,16 +1388,16 @@ class SigFitMTau(BaseModel):
     equation_key: str = Field(default='sig_fit_mtau', title='Equation Key')
 
 
-class SamplePercentage14(SamplePercentage):
+class SamplePercentage16(SamplePercentage):
     pass
 
 
-class SamplePercentage15Item(SamplePercentage1Item):
+class SamplePercentage17Item(SamplePercentage1Item):
     pass
 
 
-class SamplePercentage15(RootModel[list[SamplePercentage15Item]]):
-    root: list[SamplePercentage15Item] = Field(
+class SamplePercentage17(RootModel[list[SamplePercentage17Item]]):
+    root: list[SamplePercentage17Item] = Field(
         ...,
         description='Percentage of neurons to sample between 0 and 100%',
         min_length=1,
@@ -1375,7 +1418,7 @@ class SimplexMembershipBasedNeuronSet(BaseModel):
         extra='ignore',
     )
     type: Literal['SimplexMembershipBasedNeuronSet'] = Field(..., title='Type')
-    sample_percentage: SamplePercentage14 | SamplePercentage15 = Field(
+    sample_percentage: SamplePercentage16 | SamplePercentage17 = Field(
         default=100.0,
         description='Percentage of neurons to sample between 0 and 100%',
         title='Sample (Percentage)',
@@ -1440,16 +1483,16 @@ class SimplexMembershipBasedNeuronSet(BaseModel):
     )
 
 
-class SamplePercentage16(SamplePercentage):
+class SamplePercentage18(SamplePercentage):
     pass
 
 
-class SamplePercentage17Item(SamplePercentage1Item):
+class SamplePercentage19Item(SamplePercentage1Item):
     pass
 
 
-class SamplePercentage17(RootModel[list[SamplePercentage17Item]]):
-    root: list[SamplePercentage17Item] = Field(
+class SamplePercentage19(RootModel[list[SamplePercentage19Item]]):
+    root: list[SamplePercentage19Item] = Field(
         ...,
         description='Percentage of neurons to sample between 0 and 100%',
         min_length=1,
@@ -1470,7 +1513,7 @@ class SimplexNeuronSet(BaseModel):
         extra='ignore',
     )
     type: Literal['SimplexNeuronSet'] = Field(..., title='Type')
-    sample_percentage: SamplePercentage16 | SamplePercentage17 = Field(
+    sample_percentage: SamplePercentage18 | SamplePercentage19 = Field(
         default=100.0,
         description='Percentage of neurons to sample between 0 and 100%',
         title='Sample (Percentage)',
@@ -1737,16 +1780,16 @@ class ValidationError(BaseModel):
     type: str = Field(..., title='Error Type')
 
 
-class SamplePercentage18(SamplePercentage):
+class SamplePercentage20(SamplePercentage):
     pass
 
 
-class SamplePercentage19Item(SamplePercentage1Item):
+class SamplePercentage21Item(SamplePercentage1Item):
     pass
 
 
-class SamplePercentage19(RootModel[list[SamplePercentage19Item]]):
-    root: list[SamplePercentage19Item] = Field(
+class SamplePercentage21(RootModel[list[SamplePercentage21Item]]):
+    root: list[SamplePercentage21Item] = Field(
         ...,
         description='Percentage of neurons to sample between 0 and 100%',
         min_length=1,
@@ -1789,7 +1832,7 @@ class VolumetricCountNeuronSet(BaseModel):
         extra='ignore',
     )
     type: Literal['VolumetricCountNeuronSet'] = Field(..., title='Type')
-    sample_percentage: SamplePercentage18 | SamplePercentage19 = Field(
+    sample_percentage: SamplePercentage20 | SamplePercentage21 = Field(
         default=100.0,
         description='Percentage of neurons to sample between 0 and 100%',
         title='Sample (Percentage)',
@@ -1829,16 +1872,16 @@ class VolumetricCountNeuronSet(BaseModel):
     )
 
 
-class SamplePercentage20(SamplePercentage):
+class SamplePercentage22(SamplePercentage):
     pass
 
 
-class SamplePercentage21Item(SamplePercentage1Item):
+class SamplePercentage23Item(SamplePercentage1Item):
     pass
 
 
-class SamplePercentage21(RootModel[list[SamplePercentage21Item]]):
-    root: list[SamplePercentage21Item] = Field(
+class SamplePercentage23(RootModel[list[SamplePercentage23Item]]):
+    root: list[SamplePercentage23Item] = Field(
         ...,
         description='Percentage of neurons to sample between 0 and 100%',
         min_length=1,
@@ -1869,7 +1912,7 @@ class VolumetricRadiusNeuronSet(BaseModel):
         extra='ignore',
     )
     type: Literal['VolumetricRadiusNeuronSet'] = Field(..., title='Type')
-    sample_percentage: SamplePercentage20 | SamplePercentage21 = Field(
+    sample_percentage: SamplePercentage22 | SamplePercentage23 = Field(
         default=100.0,
         description='Percentage of neurons to sample between 0 and 100%',
         title='Sample (Percentage)',
@@ -1911,38 +1954,6 @@ class VolumetricRadiusNeuronSet(BaseModel):
     )
 
 
-class SamplePercentage22(SamplePercentage):
-    pass
-
-
-class SamplePercentage23Item(SamplePercentage1Item):
-    pass
-
-
-class SamplePercentage23(RootModel[list[SamplePercentage23Item]]):
-    root: list[SamplePercentage23Item] = Field(
-        ...,
-        description='Percentage of neurons to sample between 0 and 100%',
-        min_length=1,
-        title='Sample (Percentage)',
-    )
-
-
-class NbS1POmInputs(BaseModel):
-    model_config = ConfigDict(
-        extra='ignore',
-    )
-    type: Literal['nbS1POmInputs'] = Field(..., title='Type')
-    sample_percentage: SamplePercentage22 | SamplePercentage23 = Field(
-        default=100.0,
-        description='Percentage of neurons to sample between 0 and 100%',
-        title='Sample (Percentage)',
-    )
-    sample_seed: int | list[int] = Field(
-        default=1, description='Seed for random sampling.', title='Sample Seed'
-    )
-
-
 class SamplePercentage24(SamplePercentage):
     pass
 
@@ -1960,12 +1971,44 @@ class SamplePercentage25(RootModel[list[SamplePercentage25Item]]):
     )
 
 
+class NbS1POmInputs(BaseModel):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    type: Literal['nbS1POmInputs'] = Field(..., title='Type')
+    sample_percentage: SamplePercentage24 | SamplePercentage25 = Field(
+        default=100.0,
+        description='Percentage of neurons to sample between 0 and 100%',
+        title='Sample (Percentage)',
+    )
+    sample_seed: int | list[int] = Field(
+        default=1, description='Seed for random sampling.', title='Sample Seed'
+    )
+
+
+class SamplePercentage26(SamplePercentage):
+    pass
+
+
+class SamplePercentage27Item(SamplePercentage1Item):
+    pass
+
+
+class SamplePercentage27(RootModel[list[SamplePercentage27Item]]):
+    root: list[SamplePercentage27Item] = Field(
+        ...,
+        description='Percentage of neurons to sample between 0 and 100%',
+        min_length=1,
+        title='Sample (Percentage)',
+    )
+
+
 class NbS1VPMInputs(BaseModel):
     model_config = ConfigDict(
         extra='ignore',
     )
     type: Literal['nbS1VPMInputs'] = Field(..., title='Type')
-    sample_percentage: SamplePercentage24 | SamplePercentage25 = Field(
+    sample_percentage: SamplePercentage26 | SamplePercentage27 = Field(
         default=100.0,
         description='Percentage of neurons to sample between 0 and 100%',
         title='Sample (Percentage)',
@@ -2422,16 +2465,16 @@ class ObiOneScientificUnionsAliasesSimulationsFormInitialize(BaseModel):
     )
 
 
-class SamplePercentage26(SamplePercentage):
+class SamplePercentage28(SamplePercentage):
     pass
 
 
-class SamplePercentage27Item(SamplePercentage1Item):
+class SamplePercentage29Item(SamplePercentage1Item):
     pass
 
 
-class SamplePercentage27(RootModel[list[SamplePercentage27Item]]):
-    root: list[SamplePercentage27Item] = Field(
+class SamplePercentage29(RootModel[list[SamplePercentage29Item]]):
+    root: list[SamplePercentage29Item] = Field(
         ...,
         description='Percentage of neurons to sample between 0 and 100%',
         min_length=1,
@@ -2444,7 +2487,7 @@ class RCA1CA3Inputs(BaseModel):
         extra='ignore',
     )
     type: Literal['rCA1CA3Inputs'] = Field(..., title='Type')
-    sample_percentage: SamplePercentage26 | SamplePercentage27 = Field(
+    sample_percentage: SamplePercentage28 | SamplePercentage29 = Field(
         default=100.0,
         description='Percentage of neurons to sample between 0 and 100%',
         title='Sample (Percentage)',
@@ -3007,7 +3050,6 @@ class MorphologyLocationsScanConfig(BaseModel):
         ClusteredGroupedMorphologyLocations
         | ClusteredMorphologyLocations
         | ClusteredPathDistanceMorphologyLocations
-        | MorphologyLocationsBlock
         | PathDistanceMorphologyLocations
         | RandomGroupedMorphologyLocations
         | RandomMorphologyLocations
@@ -3351,6 +3393,7 @@ class CircuitExtractionScanConfig(BaseModel):
         | IDNeuronSet
         | PredefinedNeuronSet
         | PropertyNeuronSet
+        | PairMotifNeuronSet
         | VolumetricCountNeuronSet
         | VolumetricRadiusNeuronSet
         | SimplexNeuronSet
@@ -3382,12 +3425,12 @@ class CircuitSimulationScanConfig(BaseModel):
         dict[
             str,
             IDNeuronSet
-            | NbS1VPMInputs
-            | NbS1POmInputs
             | AllNeurons
             | ExcitatoryNeurons
             | InhibitoryNeurons
-            | PredefinedNeuronSet,
+            | PredefinedNeuronSet
+            | NbS1VPMInputs
+            | NbS1POmInputs,
         ]
         | None
     ) = Field(
@@ -3481,12 +3524,12 @@ class SimulationsForm(BaseModel):
         dict[
             str,
             IDNeuronSet
-            | NbS1VPMInputs
-            | NbS1POmInputs
             | AllNeurons
             | ExcitatoryNeurons
             | InhibitoryNeurons
-            | PredefinedNeuronSet,
+            | PredefinedNeuronSet
+            | NbS1VPMInputs
+            | NbS1POmInputs,
         ]
         | None
     ) = Field(
