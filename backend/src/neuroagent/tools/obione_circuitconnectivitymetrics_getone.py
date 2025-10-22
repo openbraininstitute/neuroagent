@@ -84,7 +84,25 @@ The tool output contains two keys:
 - `connection_probability`: DataFrame serialized as JSON containing connection probability data
 - `mean_number_of_synapses`: DataFrame serialized as JSON containing mean synapse count data
 
-Both outputs are the result of `df.to_json()` serialization of pandas DataFrames."""
+Both outputs are the result of `df.to_dict()` serialization of pandas DataFrames.
+The data represents a cartesian product of groups × groups, showing connectivity metrics from each pre-synaptic group to each post-synaptic group.
+
+Example output structure (showing 2×2 groups):
+```json
+{
+  "connection_probability": {
+    "pre": {"0": "L23_CHC", "1": "L23_CHC", "2": "L23_LBC", "3": "L23_LBC"},
+    "post": {"0": "L23_CHC", "1": "L23_LBC", "2": "L23_CHC", "3": "L23_LBC"},
+    "data": {"0": 100.0, "1": 0.0, "2": 16.67, "3": 0.0}
+  },
+  "mean_number_of_synapses": {
+    "pre": {"0": "L23_CHC", "1": "L23_CHC", "2": "L23_LBC", "3": "L23_LBC"},
+    "post": {"0": "L23_CHC", "1": "L23_LBC", "2": "L23_CHC", "3": "L23_LBC"},
+    "data": {"0": 15.0, "1": 0.0, "2": 33.0, "3": 0.0}
+  }
+}
+```
+Each row represents connectivity from one pre-synaptic group to one post-synaptic group."""
     metadata: CircuitConnectivityMetricsGetOneToolMetadata
     input_schema: CircuitConnectivityMetricsGetOneToolInput
 
