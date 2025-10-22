@@ -44,7 +44,7 @@ class MetadataToolCallVercel(BaseModel):
     isComplete: bool
 
 
-class HILDict(BaseModel):
+class ToolMetadataDict(BaseModel):
     """Dict for HIL Annotations."""
 
     toolCalls: list[MetadataToolCallVercel]
@@ -74,7 +74,7 @@ class MessagesReadVercel(BaseRead):
     createdAt: AwareDatetime
     isComplete: bool
     parts: list[ToolCallPartVercel | TextPartVercel | ReasoningPartVercel] | None = None
-    metadata: HILDict | None = None
+    metadata: ToolMetadataDict | None = None
 
 
 class MessagesRead(BaseRead):

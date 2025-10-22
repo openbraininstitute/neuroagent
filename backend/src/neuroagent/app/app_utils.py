@@ -34,6 +34,7 @@ from neuroagent.app.schemas import (
     ReasoningPartVercel,
     TextPartVercel,
     ToolCallPartVercel,
+    ToolMetadataDict,
 )
 from neuroagent.tools.base_tool import BaseTool
 from neuroagent.utils import get_token_count, messages_to_openai_content
@@ -259,7 +260,7 @@ def format_messages_vercel(
             text_content = content.get("content")
             reasoning_content = content.get("reasoning")
 
-            message_data = {
+            message_data: dict[str, Any] = {
                 "id": msg.message_id,
                 "role": "user" if msg.entity == Entity.USER else "assistant",
                 "createdAt": msg.creation_date,
@@ -284,7 +285,7 @@ def format_messages_vercel(
                             role="assistant",
                             createdAt=msg.creation_date,
                             parts=parts,
-                            metadata={"toolCalls": metadata},
+                            metadata=ToolMetadataDict(toolCalls=metadata),
                             isComplete=False,
                         )
                     )
@@ -372,7 +373,7 @@ def format_messages_vercel(
                 role="assistant",
                 createdAt=msg.creation_date,
                 parts=parts,
-                metadata={"toolCalls": metadata},
+                metadata=ToolMetadataDict(toolCalls=metadata),
                 isComplete=False,
             )
         )
