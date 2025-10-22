@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - More evaluation cases.
+- Circuit connectivity metrics tool
 
 ## Changed
 - Running deepeval github action also on main

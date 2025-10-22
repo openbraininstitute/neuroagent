@@ -2276,10 +2276,6 @@ class DeleteEntityAssetEntityRouteEntityIdAssetsAssetIdDeleteParametersQuery(Bas
     hard: bool = Field(default=False, title='Hard')
 
 
-class DeleteEntityAssetEntityRouteEntityIdAssetsAssetIdDeleteParametersQuery(BaseModel):
-    hard: bool = Field(default=False, title='Hard')
-
-
 class DownloadEntityAssetEntityRouteEntityIdAssetsAssetIdDownloadGetParametersQuery(
     BaseModel
 ):

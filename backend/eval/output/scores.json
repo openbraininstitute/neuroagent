@@ -3,58 +3,58 @@
   "metrics_df": [
     {
       "test_name": "cerebellum_morphologies",
-      "Correctness [GEval]": 0.3958142179388102,
+      "Correctness [GEval]": 0.3924519425643179,
       "Tool Correctness": 1.0,
-      "Argument Correctness": 0.5
+      "Argument Correctness": 1.0
     },
     {
       "test_name": "matplotlib_plot",
-      "Correctness [GEval]": 0.5964667427407626,
+      "Correctness [GEval]": 0.5935372033080822,
       "Tool Correctness": 1.0,
       "Argument Correctness": 1.0
     },
     {
       "test_name": "morphology_studies",
-      "Correctness [GEval]": 0.6075584166832548,
-      "Tool Correctness": 1.0,
+      "Correctness [GEval]": 0.7129847615512295,
+      "Tool Correctness": 0.0,
       "Argument Correctness": 1.0
     },
     {
       "test_name": "neuroscientists_search",
-      "Correctness [GEval]": 0.27124050611376227,
+      "Correctness [GEval]": 0.2818492952308148,
       "Tool Correctness": 1.0,
       "Argument Correctness": 1.0
     },
     {
       "test_name": "platform_news",
-      "Correctness [GEval]": 0.4013076972307501,
+      "Correctness [GEval]": 0.6713711500206156,
       "Tool Correctness": 1.0,
       "Argument Correctness": 0.0
     },
     {
       "test_name": "simulation_tutorial",
-      "Correctness [GEval]": 0.2907979306214406,
+      "Correctness [GEval]": 0.4227694813744109,
       "Tool Correctness": 0.0,
       "Argument Correctness": 1.0
     },
     {
       "test_name": "sin_plot",
-      "Correctness [GEval]": 0.6426174799203984,
+      "Correctness [GEval]": 0.5740857770325247,
       "Tool Correctness": 1.0,
       "Argument Correctness": 1.0
     },
     {
       "test_name": "species_list",
-      "Correctness [GEval]": 0.5797286837527855,
+      "Correctness [GEval]": 0.5761538342967303,
       "Tool Correctness": 1.0,
       "Argument Correctness": 1.0
     },
     {
       "test_name": "thalamus_id",
-      "Correctness [GEval]": 0.4513161482521121,
+      "Correctness [GEval]": 0.47941959366693443,
       "Tool Correctness": 1.0,
       "Argument Correctness": 1.0
     }
   ],
-  "created_at": "2025-10-22 14:33:19.153299"
+  "created_at": "2025-10-22 15:05:19.826540"
 }
