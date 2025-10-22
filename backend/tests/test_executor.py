@@ -115,7 +115,6 @@ class TestWasmExecutor:
         mock_tempdir.return_value = mock_tempdir_instance
 
         # Mock successful execution
-        mock_process = AsyncMock()
         mock_stdout_lines = [
             "Loading packages...".encode(),
             json.dumps(
@@ -126,19 +125,35 @@ class TestWasmExecutor:
                 }
             ).encode(),
         ]
-        # Simulate async iteration over stdout lines
-        mock_process.stdout.__aiter__.return_value = (
-            line for line in mock_stdout_lines
-        )
-        mock_process.wait = AsyncMock(return_value=None)
+
+        # Simulate the read() method returning chunks
+        mock_stdout_data = b"\n".join(mock_stdout_lines) + b"\n"
+
+        # Create an iterator that returns chunks
+        chunks = [
+            mock_stdout_data[i : i + 4096]
+            for i in range(0, len(mock_stdout_data), 4096)
+        ]
+        chunk_iter = iter(chunks + [b""])  # Add empty bytes at the end for EOF
+
+        async def mock_read(size):
+            """Mock read that returns data in chunks"""
+            return next(chunk_iter)
+
+        mock_stdout = Mock()
+        mock_stdout.read = mock_read
 
         # Configure stderr.read to return empty bytes/string
         mock_stderr = Mock()
         # emulate an async read method that returns empty bytes
         mock_stderr.read = AsyncMock(return_value=b"")
-        mock_process.stderr = mock_stderr
 
         # Make the patched create_subprocess_exec return our mock_process
+        mock_process = AsyncMock()
+        mock_process.stderr = mock_stderr
+        mock_process.stdout = mock_stdout
+        mock_process.wait = AsyncMock(return_value=None)
+
         mock_create_subproc_exec.return_value = mock_process
 
         executor = WasmExecutor(additional_imports=[])
@@ -173,8 +188,7 @@ class TestWasmExecutor:
         mock_tempdir_instance.__exit__ = Mock(return_value=None)
         mock_tempdir.return_value = mock_tempdir_instance
 
-        # Mock execution with Python error
-        mock_process = AsyncMock()
+        # Mock successful execution
         mock_stdout_lines = [
             json.dumps(
                 {
@@ -187,21 +201,36 @@ class TestWasmExecutor:
                 }
             ).encode(),
         ]
-        # Simulate async iteration over stdout lines
-        mock_process.stdout.__aiter__.return_value = (
-            line for line in mock_stdout_lines
-        )
-        mock_process.wait = AsyncMock(return_value=None)
+
+        # Simulate the read() method returning chunks
+        mock_stdout_data = b"\n".join(mock_stdout_lines) + b"\n"
+
+        # Create an iterator that returns chunks
+        chunks = [
+            mock_stdout_data[i : i + 4096]
+            for i in range(0, len(mock_stdout_data), 4096)
+        ]
+        chunk_iter = iter(chunks + [b""])  # Add empty bytes at the end for EOF
+
+        async def mock_read(size):
+            """Mock read that returns data in chunks"""
+            return next(chunk_iter)
+
+        mock_stdout = Mock()
+        mock_stdout.read = mock_read
 
         # Configure stderr.read to return empty bytes/string
         mock_stderr = Mock()
         # emulate an async read method that returns empty bytes
         mock_stderr.read = AsyncMock(return_value=b"")
-        mock_process.stderr = mock_stderr
 
         # Make the patched create_subprocess_exec return our mock_process
-        mock_create_subproc_exec.return_value = mock_process
+        mock_process = AsyncMock()
+        mock_process.stderr = mock_stderr
+        mock_process.stdout = mock_stdout
+        mock_process.wait = AsyncMock(return_value=None)
 
+        mock_create_subproc_exec.return_value = mock_process
         executor = WasmExecutor(additional_imports=[])
         result = await executor.run_code("print(undefined_var)")
 
@@ -226,21 +255,38 @@ class TestWasmExecutor:
         mock_tempdir_instance.__exit__ = Mock(return_value=None)
         mock_tempdir.return_value = mock_tempdir_instance
 
-        # Mock execution with JS/installation error
-        mock_process = AsyncMock()
-        mock_process.stdout.__aiter__.return_value = []
-        mock_process.wait = AsyncMock(return_value=None)
+        # Mock successful execution
+        mock_stdout_lines = []
+
+        # # Simulate the read() method returning chunks
+        mock_stdout_data = b"\n".join(mock_stdout_lines) + b"\n"
+
+        # # Create an iterator that returns chunks
+        chunks = [
+            mock_stdout_data[i : i + 4096]
+            for i in range(0, len(mock_stdout_data), 4096)
+        ]
+        chunk_iter = iter(chunks + [b""])  # Add empty bytes at the end for EOF
+
+        async def mock_read(size):
+            """Mock read that returns data in chunks"""
+            return next(chunk_iter)
+
+        mock_stdout = Mock()
+        mock_stdout.read = mock_read
 
         # Configure stderr.read to return empty bytes/string
         mock_stderr = Mock()
-
-        # emulate an async read method that returns the error
         mock_stderr.read = AsyncMock(
             return_value="Failed to load package numpy".encode()
         )
-        mock_process.stderr = mock_stderr
 
         # Make the patched create_subprocess_exec return our mock_process
+        mock_process = AsyncMock()
+        mock_process.stderr = mock_stderr
+        mock_process.stdout = mock_stdout
+        mock_process.wait = AsyncMock(return_value=None)
+
         mock_create_subproc_exec.return_value = mock_process
 
         executor = WasmExecutor(additional_imports=["numpy"])
@@ -267,12 +313,31 @@ class TestWasmExecutor:
         mock_tempdir.return_value = mock_tempdir_instance
 
         # Mock execution with invalid JSON
+        # Mock successful execution
+        mock_stdout_lines = ["invalid json output".encode()]
+
+        # # Simulate the read() method returning chunks
+        mock_stdout_data = b"\n".join(mock_stdout_lines) + b"\n"
+
+        # # Create an iterator that returns chunks
+        chunks = [
+            mock_stdout_data[i : i + 4096]
+            for i in range(0, len(mock_stdout_data), 4096)
+        ]
+        chunk_iter = iter(chunks + [b""])  # Add empty bytes at the end for EOF
+
+        async def mock_read(size):
+            """Mock read that returns data in chunks"""
+            return next(chunk_iter)
+
+        mock_stdout = Mock()
+        mock_stdout.read = mock_read
         mock_process = AsyncMock()
-        mock_process.stdout.__aiter__.return_value = ["invalid json output".encode()]
         # Configure stderr.read to return empty bytes/string
         mock_stderr = Mock()
         # emulate an async read method that returns empty bytes
         mock_stderr.read = AsyncMock(return_value=b"")
+        mock_process.stdout = mock_stdout
         mock_process.stderr = mock_stderr
         mock_process.wait = AsyncMock(return_value=None)
         mock_create_subproc_exec.return_value = mock_process
@@ -297,15 +362,33 @@ class TestWasmExecutor:
         mock_tempdir_instance.__exit__ = Mock(return_value=None)
         mock_tempdir.return_value = mock_tempdir_instance
 
-        # Mock execution with no stdout
+        # Mock successful execution
+        mock_stdout_lines = []
+
+        # # Simulate the read() method returning chunks
+        mock_stdout_data = b"\n".join(mock_stdout_lines)
+
+        # # Create an iterator that returns chunks
+        chunks = [
+            mock_stdout_data[i : i + 4096]
+            for i in range(0, len(mock_stdout_data), 4096)
+        ]
+        chunk_iter = iter(chunks + [b""])  # Add empty bytes at the end for EOF
+
+        async def mock_read(size):
+            """Mock read that returns data in chunks"""
+            return next(chunk_iter)
+
+        mock_stdout = Mock()
+        mock_stdout.read = mock_read
         mock_process = AsyncMock()
-        mock_process.stdout.__aiter__.return_value = []
-        mock_process.wait = AsyncMock(return_value=None)
         # Configure stderr.read to return empty bytes/string
         mock_stderr = Mock()
         # emulate an async read method that returns empty bytes
         mock_stderr.read = AsyncMock(return_value=b"")
+        mock_process.stdout = mock_stdout
         mock_process.stderr = mock_stderr
+        mock_process.wait = AsyncMock(return_value=None)
         mock_create_subproc_exec.return_value = mock_process
 
         executor = WasmExecutor(additional_imports=[])
@@ -331,7 +414,6 @@ class TestWasmExecutor:
         mock_logger = Mock(spec=logging.Logger)
 
         # Mock successful execution
-        mock_process = AsyncMock()
         mock_stdout_lines = [
             "Debug line 1".encode(),
             "Debug line 2".encode(),
@@ -343,17 +425,31 @@ class TestWasmExecutor:
                 }
             ).encode(),
         ]
-        mock_process.stdout.__aiter__.return_value = (
-            line for line in mock_stdout_lines
-        )
-        mock_process.wait = AsyncMock(return_value=None)
+
+        # # Simulate the read() method returning chunks
+        mock_stdout_data = b"\n".join(mock_stdout_lines)
+
+        # # Create an iterator that returns chunks
+        chunks = [
+            mock_stdout_data[i : i + 4096]
+            for i in range(0, len(mock_stdout_data), 4096)
+        ]
+        chunk_iter = iter(chunks + [b""])  # Add empty bytes at the end for EOF
+
+        async def mock_read(size):
+            """Mock read that returns data in chunks"""
+            return next(chunk_iter)
+
+        mock_stdout = Mock()
+        mock_stdout.read = mock_read
+        mock_process = AsyncMock()
         # Configure stderr.read to return empty bytes/string
         mock_stderr = Mock()
         # emulate an async read method that returns empty bytes
         mock_stderr.read = AsyncMock(return_value=b"")
+        mock_process.stdout = mock_stdout
         mock_process.stderr = mock_stderr
-
-        # Make the patched create_subprocess_exec return our mock_process
+        mock_process.wait = AsyncMock(return_value=None)
         mock_create_subproc_exec.return_value = mock_process
 
         executor = WasmExecutor(additional_imports=[], logger=mock_logger)
@@ -378,16 +474,33 @@ class TestWasmExecutor:
         mock_tempdir_instance.__exit__ = Mock(return_value=None)
         mock_tempdir.return_value = mock_tempdir_instance
 
+        # Mock successful execution
+        mock_stdout_lines = []
+
+        # # Simulate the read() method returning chunks
+        mock_stdout_data = b"\n".join(mock_stdout_lines)
+
+        # # Create an iterator that returns chunks
+        chunks = [
+            mock_stdout_data[i : i + 4096]
+            for i in range(0, len(mock_stdout_data), 4096)
+        ]
+        chunk_iter = iter(chunks + [b""])  # Add empty bytes at the end for EOF
+
+        async def mock_read(size):
+            """Mock read that returns data in chunks"""
+            return next(chunk_iter)
+
+        mock_stdout = Mock()
+        mock_stdout.read = mock_read
         mock_process = AsyncMock()
-        mock_process.stdout.__aiter__.return_value = []
-        mock_process.wait = AsyncMock(return_value=None)
         # Configure stderr.read to return empty bytes/string
         mock_stderr = Mock()
         # emulate an async read method that returns empty bytes
         mock_stderr.read = AsyncMock(return_value=b"")
+        mock_process.stdout = mock_stdout
         mock_process.stderr = mock_stderr
-
-        # Make the patched create_subprocess_exec return our mock_process
+        mock_process.wait = AsyncMock(return_value=None)
         mock_create_subproc_exec.return_value = mock_process
 
         executor = WasmExecutor(additional_imports=[])
@@ -414,7 +527,6 @@ class TestWasmExecutor:
         mock_tempdir.return_value = mock_tempdir_instance
 
         # Mock successful execution
-        mock_process = AsyncMock()
         mock_stdout_lines = [
             json.dumps(
                 {
@@ -424,18 +536,31 @@ class TestWasmExecutor:
                 }
             ).encode(),
         ]
-        # Simulate async iteration over stdout lines
-        mock_process.stdout.__aiter__.return_value = (
-            line for line in mock_stdout_lines
-        )
-        mock_process.wait = AsyncMock(return_value=None)
+
+        # # Simulate the read() method returning chunks
+        mock_stdout_data = b"\n".join(mock_stdout_lines)
+
+        # # Create an iterator that returns chunks
+        chunks = [
+            mock_stdout_data[i : i + 4096]
+            for i in range(0, len(mock_stdout_data), 4096)
+        ]
+        chunk_iter = iter(chunks + [b""])  # Add empty bytes at the end for EOF
+
+        async def mock_read(size):
+            """Mock read that returns data in chunks"""
+            return next(chunk_iter)
+
+        mock_stdout = Mock()
+        mock_stdout.read = mock_read
+        mock_process = AsyncMock()
         # Configure stderr.read to return empty bytes/string
         mock_stderr = Mock()
         # emulate an async read method that returns empty bytes
         mock_stderr.read = AsyncMock(return_value=b"")
+        mock_process.stdout = mock_stdout
         mock_process.stderr = mock_stderr
-
-        # Make the patched create_subprocess_exec return our mock_process
+        mock_process.wait = AsyncMock(return_value=None)
         mock_create_subproc_exec.return_value = mock_process
 
         # Test with packages that would normally trigger network requests

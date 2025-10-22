@@ -148,7 +148,11 @@ async def lifespan(fastapi_app: FastAPI) -> AsyncContextManager[None]:  # type: 
             imports += [f"file:{wheel.absolute()}" for wheel in extra_wheel_list]
 
         async with MCPClient(config=app_settings.mcp) as mcp_client:
-            with WasmExecutor(additional_imports=imports) as sandbox:
+            with WasmExecutor(
+                additional_imports=imports,
+                allocated_memory=app_settings.tools.deno_allocated_memory,
+                logger=logger,
+            ) as sandbox:
                 fastapi_app.state.python_sandbox = sandbox
                 # trigger dynamic tool generation - only done once - it is cached
                 _ = fastapi_app.dependency_overrides.get(

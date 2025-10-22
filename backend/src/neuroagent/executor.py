@@ -62,6 +62,7 @@ class WasmExecutor:
         logger: logging.Logger | None = None,
         deno_path: str = "deno",
         deno_permissions: list[str] | None = None,
+        allocated_memory: int | None = None,
         timeout: int = 60,
     ) -> None:
         """Init."""
@@ -78,6 +79,10 @@ class WasmExecutor:
                 "node-modules-dir=auto",
             ]
         self.deno_permissions = [f"--{perm}" for perm in deno_permissions]
+        if allocated_memory:
+            self.deno_permissions.append(
+                f"--v8-flags=--max-old-space-size={allocated_memory}"
+            )
 
     def __enter__(self) -> "WasmExecutor":
         """Install provided dependencies. Use the class as a context manager to cache the wheels.
@@ -177,12 +182,29 @@ class WasmExecutor:
 
             # Process the result
             events = []
+            buffer = ""
             if process.stdout:
-                async for line in process.stdout:
-                    events.append(line.decode().strip())
-                    if self.logger:
-                        # Funnel the logging to your logger as a debug log.
-                        self.logger.debug(line)
+                while True:
+                    chunk = await process.stdout.read(4096)
+                    if not chunk:
+                        # Add any remaining data in buffer as the last line
+                        if buffer:
+                            events.append(buffer)
+                            if self.logger:
+                                self.logger.debug(buffer)
+                        break
+
+                    buffer += chunk.decode()
+                    # Split on newlines but keep the last incomplete line in buffer
+                    lines = buffer.split("\n")
+                    buffer = lines[-1]  # Keep the last (potentially incomplete) line
+
+                    # Process all complete lines
+                    for line in lines[:-1]:
+                        text = line.rstrip("\r")
+                        events.append(text)
+                        if self.logger:
+                            self.logger.debug(text)
 
             # Wait for the process to finish or timeout
             await asyncio.wait_for(process.wait(), timeout=self.timeout)
@@ -276,8 +298,26 @@ async function execute(code) {{
         print(json.dumps(serialized, separators=(",", ":")))
     `)
 
+    // Try to mitigate issues related to js proxies being destroyed immediately
+    if (return_value && typeof return_value.toJs === "function") {{
+    try {{
+        // Convert the PyProxy into a plain JS structure
+        const jsValue = return_value.toJs({{ dicts: true }});
+        // destroy the proxy to avoid memory leak
+        return_value.destroy?.();
+        return_value = jsValue;
+    }} catch (e) {{
+        return_value = null
+    }}
+    }}
     // Get captured stdout
-    output = pyodide.runPython("sys.stdout.getvalue().splitlines()");
+    const stdout_json = pyodide.runPython("import json;json.dumps(sys.stdout.getvalue().splitlines())");
+    try {{
+    output = JSON.parse(stdout_json);
+    }} catch (e) {{
+    // fallback to raw string
+    output = [pyodide.runPython("sys.stdout.getvalue().splitlines()")];
+    }}
   }} catch (e) {{
     error = {{
       name: e.constructor.name,
