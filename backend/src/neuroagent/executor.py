@@ -185,7 +185,7 @@ class WasmExecutor:
             buffer = ""
             if process.stdout:
                 while True:
-                    chunk = await process.stdout.read(4096)
+                    chunk = await process.stdout.read(32768)
                     if not chunk:
                         # Add any remaining data in buffer as the last line
                         if buffer:
