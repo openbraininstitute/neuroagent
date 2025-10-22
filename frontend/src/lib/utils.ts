@@ -49,10 +49,10 @@ export function isToolPart<
 // Small utility function to check if the last message has incomplete parts
 export function isLastMessageComplete(messages: MessageStrict | undefined) {
   const metadata = messages?.metadata;
-  if (metadata?.length === 0) {
+  if (metadata?.hil.length === 0) {
     return true;
   }
-  const hasIncomplete = metadata?.some(
+  const hasIncomplete = metadata?.hil?.some(
     (met) => "isComplete" in met && met.isComplete === false,
   );
 
@@ -115,10 +115,10 @@ export function getStorageID(toolCall: ToolUIPart | undefined): string[] {
 
 // Small utility function that finds the right tool call in metadata and returns its status
 export function getValidationStatus(
-  metadata: MessageMetadata[] | undefined,
+  metadata: MessageMetadata | undefined,
   toolCallId: string,
 ) {
-  const met = metadata?.find((a) => a.toolCallId === toolCallId);
+  const met = metadata?.hil?.find((a) => a.toolCallId === toolCallId);
   if (!met) return undefined;
   return met.validated;
 }

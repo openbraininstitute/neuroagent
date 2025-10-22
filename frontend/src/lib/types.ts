@@ -25,10 +25,11 @@ export type Thread = {
 };
 
 export type MessageMetadata = {
-  messageId?: string;
-  toolCallId?: string;
-  validated?: "accepted" | "rejected" | "pending" | "not_required";
-  isComplete?: boolean;
+  hil: {
+    toolCallId?: string;
+    validated?: "accepted" | "rejected" | "pending" | "not_required";
+    isComplete?: boolean;
+  }[];
 };
 
 export type BTextPart = components["schemas"]["TextPartVercel"];
@@ -39,7 +40,7 @@ export type BMessageUser = {
   role: "user";
   createdAt: Date;
   parts: [];
-  metadata: [];
+  metadata: undefined;
   isComplete: boolean;
 };
 
@@ -49,7 +50,7 @@ export type BMessageAIContent = {
   role: "assistant";
   createdAt: Date;
   parts: (TextUIPart | ToolUIPart | ReasoningUIPart)[];
-  metadata: MessageMetadata[];
+  metadata: MessageMetadata;
   isComplete: boolean;
 };
 
@@ -60,7 +61,7 @@ export type MessageStrict<
   DATA_PARTS extends UIDataTypes = UIDataTypes,
   TOOLS extends UITools = UITools,
 > = Omit<UIMessage<unknown, DATA_PARTS, TOOLS>, "metadata"> & {
-  metadata?: MessageMetadata[];
+  metadata?: MessageMetadata;
   isComplete: boolean;
 };
 

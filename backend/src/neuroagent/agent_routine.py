@@ -546,7 +546,7 @@ class AgentsRoutine:
                     active_agent = tool_calls_executed.agent
 
             if metadata_data:
-                yield f"data: {json.dumps({'type': 'finish', 'messageMetadata': metadata_data})}\n\n"
+                yield f"data: {json.dumps({'type': 'finish', 'messageMetadata': {'hil': metadata_data}})}\n\n"
             else:
                 yield f"data: {json.dumps({'type': 'finish'})}\n\n"
             yield "data: [DONE]\n\n"

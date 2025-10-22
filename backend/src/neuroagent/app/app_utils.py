@@ -26,9 +26,9 @@ from neuroagent.app.database.sql_schemas import (
     utc_now,
 )
 from neuroagent.app.schemas import (
-    AnnotationToolCallVercel,
     MessagesRead,
     MessagesReadVercel,
+    MetadataHILToolCallVercel,
     PaginatedResponse,
     RateLimitInfo,
     ReasoningPartVercel,
@@ -251,7 +251,7 @@ def format_messages_vercel(
     """Format db messages to Vercel schema."""
     messages: list[MessagesReadVercel] = []
     parts: list[TextPartVercel | ToolCallPartVercel | ReasoningPartVercel] = []
-    metadata: list[AnnotationToolCallVercel] = []
+    metadata: list[MetadataHILToolCallVercel] = []
 
     for msg in reversed(db_messages):
         if msg.entity in [Entity.USER, Entity.AI_MESSAGE]:
@@ -273,7 +273,7 @@ def format_messages_vercel(
                 if reasoning_content:
                     parts.append(ReasoningPartVercel(text=reasoning_content))
 
-                message_data["metadata"] = metadata
+                message_data["metadata"] = {"hil": metadata}
 
             else:
                 if parts:
@@ -284,7 +284,7 @@ def format_messages_vercel(
                             role="assistant",
                             createdAt=msg.creation_date,
                             parts=parts,
-                            metadata=metadata,
+                            metadata={"hil": metadata},
                             isComplete=False,
                         )
                     )
@@ -329,7 +329,7 @@ def format_messages_vercel(
                     )
                 )
                 metadata.append(
-                    AnnotationToolCallVercel(
+                    MetadataHILToolCallVercel(
                         toolCallId=tc.tool_call_id,
                         validated=status,  # type: ignore
                         isComplete=msg.is_complete,
@@ -356,7 +356,7 @@ def format_messages_vercel(
                 (
                     met
                     for met in metadata
-                    if isinstance(met, AnnotationToolCallVercel)
+                    if isinstance(met, MetadataHILToolCallVercel)
                     and met.toolCallId == tool_call_id
                 ),
                 None,
@@ -372,7 +372,7 @@ def format_messages_vercel(
                 role="assistant",
                 createdAt=msg.creation_date,
                 parts=parts,
-                metadata=metadata,
+                metadata={"hil": metadata},
                 isComplete=False,
             )
         )

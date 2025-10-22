@@ -36,19 +36,18 @@ class ReasoningPartVercel(BaseModel):
     text: str
 
 
-class AnnotationMessageVercel(BaseModel):
-    """Annotation of vercel messages."""
-
-    messageId: UUID
-    isComplete: bool
-
-
-class AnnotationToolCallVercel(BaseModel):
+class MetadataHILToolCallVercel(BaseModel):
     """Annotation of vercel tool calls."""
 
     toolCallId: str
     validated: Literal["accepted", "rejected", "not_required", "pending"]
     isComplete: bool
+
+
+class HILDict(BaseModel):
+    """Dict for HIL Annotations."""
+
+    hil: list[MetadataHILToolCallVercel]
 
 
 class ToolCall(BaseModel):
@@ -75,7 +74,7 @@ class MessagesReadVercel(BaseRead):
     createdAt: AwareDatetime
     isComplete: bool
     parts: list[ToolCallPartVercel | TextPartVercel | ReasoningPartVercel] | None = None
-    metadata: list[AnnotationMessageVercel | AnnotationToolCallVercel] | None = None
+    metadata: HILDict | None = None
 
 
 class MessagesRead(BaseRead):

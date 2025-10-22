@@ -118,10 +118,12 @@ export function HumanValidationDialog({
             : t,
         );
 
-        const updatedMetadata = [
-          ...(msg.metadata || []).filter((a) => a.toolCallId !== toolId),
-          { toolCallId: toolId, validated: validation },
-        ];
+        const updatedMetadata = {
+          hil: [
+            ...(msg.metadata?.hil || []).filter((a) => a.toolCallId !== toolId),
+            { toolCallId: toolId, validated: validation },
+          ],
+        };
 
         return {
           ...msg,

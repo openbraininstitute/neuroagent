@@ -79,12 +79,14 @@ export const ChatMessageTool = function ChatMessageTool({
         setMessage((msg) => {
           return {
             ...msg,
-            metadata: [
-              ...(msg.metadata || []).filter(
-                (a) => a.toolCallId !== tool.toolCallId,
-              ),
-              { toolCallId: tool.toolCallId, validated: "pending" },
-            ],
+            metadata: {
+              hil: [
+                ...(msg.metadata?.hil || []).filter(
+                  (a) => a.toolCallId !== tool.toolCallId,
+                ),
+                { toolCallId: tool.toolCallId, validated: "pending" },
+              ],
+            },
           };
         });
       }
