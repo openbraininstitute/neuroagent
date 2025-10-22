@@ -23,7 +23,7 @@ jobs:
           if git diff --quiet origin/$BASE_BRANCH...HEAD -- backend/eval/output/scores.json; then
             echo "❌ scores.json was not updated in this PR!"
             echo "Please run the evaluation script to update the results."
-            echo "python -m neuroagent.scripts.evaluate_agent  $TOKEN"
+            echo "python -m neuroagent.scripts.evaluate_agent \$TOKEN"
             exit 1
           else
             echo "✅ scores.json has been updated"
