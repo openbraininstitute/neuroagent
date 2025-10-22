@@ -1,23 +1,21 @@
-input,expected_output,expected_tool_calls
-Find the id of the thalamus,The id of the thalamus is 75e3944e-8dcd-4310-a3a2-258f93de63d6,"[{""name"": ""entitycore-brainregion-getall"", ""arguments"": {""name"": ""Thalamus""}}]"
-How can I simulate on the platform ?,"Here is a tutorial on how to simulate on the platform, specifically for simulating a single neuron model:
+Here is a tutorial on how to simulate on the platform, specifically for simulating a single neuron model:
 
 How to Simulate a Single Neuron Model on the Platform
 Access Virtual Lab:
 
-From the homepage, click the ""Go to Virtual Lab"" button.
+From the homepage, click the "Go to Virtual Lab" button.
 Manage Projects:
 
-Click on ""Projects"" in the left menu to see your projects.
+Click on "Projects" in the left menu to see your projects.
 Create a project if none exists.
 Ensure you have credits in your project; transfer credits from your virtual lab if needed.
 Build a Single Neuron Model:
 
-Click on the ""Build"" column in the left panel.
-Click the ""Build"" button in the single neuron tile.
+Click on the "Build" column in the left panel.
+Click the "Build" button in the single neuron tile.
 Name your model, optionally add a description.
 Select the brain region (e.g., primary somatosensory area).
-Click ""Start building.""
+Click "Start building."
 Select a 3D reconstructed morphology (M model) and an existing electrical model (E model).
 Filter morphologies by type (e.g., L5 TPC-A for thick tufted layer 5 pyramidal neuron).
 Select the appropriate E model matching the morphology.
@@ -25,21 +23,19 @@ Save the created morph-electric model (M E model).
 Simulate the Neuron Model:
 
 Go back to your project homepage.
-Click on the ""Simulate"" tab, then ""Single Neuron.""
+Click on the "Simulate" tab, then "Single Neuron."
 Find your neuron model or search by name.
-Click your model and press ""New Simulation.""
+Click your model and press "New Simulation."
 In the simulation window, pan, rotate, and zoom the neuron morphology.
 Set experiment and simulation parameters.
 Choose predefined current injection protocols or customize current steps.
-Add multiple recording locations by clicking on the morphology or using the ""Add Recording"" button.
-Press ""Simulate"" to run the simulation.
+Add multiple recording locations by clicking on the morphology or using the "Add Recording" button.
+Press "Simulate" to run the simulation.
 View and Save Results:
 
-The ""Results"" tab will display recordings from selected locations.
+The "Results" tab will display recordings from selected locations.
 Save recordings or save them to the library for later access.
 You can watch the full tutorial video here:
 How to simulate a single neuron model (Video)
 
 If you want, I can guide you through any specific step or help you start a simulation on the platform.
-
-","[{""name"": ""obi-expert"", ""arguments"": {""document_type"": ""tutorial"", ""query"": ""simulate""}}]"
