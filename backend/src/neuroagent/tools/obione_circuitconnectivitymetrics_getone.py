@@ -42,7 +42,18 @@ class CircuitConnectivityMetricsGetOneTool(BaseTool):
         "Analyze synaptic connections in this circuit",
     ]
     description: ClassVar[str] = (
-        "Given a circuit ID and edge population, compute the connectivity metrics of it."
+        "Given a circuit ID and edge population, compute the connectivity metrics of it. To be able to provide the rest of the parameters, you need to call the `obione-circuitmetrics-getone` tool first with `level_of_detail_nodes=1`.\n\n"
+        "Example parameters:\n"
+        "{\n"
+        '  "circuit_id": "PLACEHOLDER_CIRCUIT_ID",\n'
+        '  "edge_population": "S1nonbarrel_neurons__S1nonbarrel_neurons__chemical",\n'
+        '  "pre_selection": {"layer": "2"},\n'
+        '  "pre_node_set": "Inhibitory",\n'
+        '  "post_selection": {"layer": ["2", "3"]},\n'
+        '  "post_node_set": "Excitatory",\n'
+        '  "group_by": "mtype",\n'
+        '  "max_distance": null\n'
+        "}"
     )
     description_frontend: ClassVar[str] = (
         """Analyze a circuit's connectivity patterns, including connection probabilities and synapse counts."""
