@@ -8,9 +8,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
-- Circuit connectivity metrics tool
+- More evaluation cases.
 
 ## Changed
+- Running deepeval github action also on main
 - Use typescript autogen for backend types in frontend.
 - Try to enforce using metric tools rather than downloading assets.
 - Rule to avoid overvalidating.

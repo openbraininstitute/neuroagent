@@ -1,0 +1,893 @@
+{
+  "platform_news": {
+    "user": "Please get me some news about the platform\n",
+    "expected_output": "Here are some recent news highlights about the Open Brain Platform:\n\n1. {{News Title 1}} ({{Date 1}})\n{{News Description 1}}\n\n2. {{News Title 2}} ({{Date 2}})\n{{News Description 2}}\n\n3. {{News Title 3}} ({{Date 3}})\n{{News Description 3}}\n\n4. {{News Title 4}} ({{Date 4}})\n{{News Description 4}}\n\n5. {{News Title 5}} ({{Date 5}})\n{{News Description 5}}\n\nIf you want details or full articles on any of these news items, please let me know!\n",
+    "expected_tool_calls": [
+      {
+        "name": "obi-expert",
+        "arguments": {
+          "document_type": "news"
+        }
+      }
+    ],
+    "params": {
+      "tags": [
+        "platform_description"
+      ]
+    },
+    "ai_response": "## Summary \\u2014 Latest News on the Open Brain Platform\\n\\nBelow are the most recent news items from the platform (newest first). Each entry includes full metadata and a short extract so you can scan quickly.\\n\\n### 1) **ID:** **1c4fe446-c83c-4764-a341-d0cc870d252e**  \\n- **Title:** **Join us for hands-on tutorials and live demos**  \\n- **Category:** **Event**  \\n- **Created At:** **2025-06-16T06:26:01Z**  \\n- **Updated At:** **2025-07-04T14:46:43Z**  \\n- **Summary / Key Points:**  \\n  - Announcement of Open Brain Institute participation at CNS 2025 (Florence, Italy) with an in-depth interactive program showcasing the Open Brain Platform.  \\n  - Hands-on sessions covering biophysical modeling, connectomics, morphological analysis, single-cell biophysical modeling, atlas-based cortical/hippocampal circuits, and demos on dendritic inhibition.  \\n  - Full program schedule and instructors listed (Lida Kanari, Darshan Mandge, Idan Segev, James Isbister, Armando Romani, Alexandre Guet-McCreight).  \\n  - Required materials: internet-connected laptop.  \\n- **Contact / Instructors:** Listed with emails in the announcement.\\n\\n### 2) **ID:** **783a9989-ae2f-405f-92c0-77e2cebf4dce**  \\n- **Title:** **Breakdown and repair of metabolism in the aging brain**  \\n- **Category:** **Paper release**  \\n- **Created At:** **2025-03-25T16:03:08Z**  \\n- **Updated At:** **2025-04-14T02:42:13Z**  \\n- **Summary / Key Points:**  \\n  - Frontiers in Science released a comprehensive open-source *neuro-glia-vascular* brain metabolism model aimed at accelerating dementia and neurodegeneration research.  \\n  - Integrates neuronal electrical behavior, energy metabolism, and blood flow with ~16,800 biochemical interactions.  \\n  - The model is freely available through the Open Brain Institute resources.\\n\\n### 3) **ID:** **86bd2ea7-993e-4306-9c86-7aa565c3ba94**  \\n- **Title:** **The Open Brain Institute Announces the Dawn of a New Frontier in Neuroscience**  \\n- **Category:** **Milestone**  \\n- **Created At:** **2025-03-17T11:52:16Z**  \\n- **Updated At:** **2025-04-14T02:42:13Z**  \\n- **Summary / Key Points:**  \\n  - High-level milestone announcement (content not provided in the retrieved item).\\n\\n### 4) **ID:** **ff67b304-b633-402a-b414-390da4c8c8a8**  \\n- **Title:** **Neurons warp space and time**  \\n- **Category:** **BBP news**  \\n- **Created At:** **2025-02-19T09:28:08Z**  \\n- **Updated At:** **2025-04-14T02:42:13Z**  \\n- **Summary / Key Points:**  \\n  - Summary of a Nature Scientific Reports paper describing \\u201ctime-warping\\u201d of multi-neuron spike sequences: spike timing compression/stretch depends on cortical excitability.  \\n  - Implications for neural coding and in vivo \\u21c4 in silico model validation; lead researcher James Isbister mentioned.\\n\\n### 5) **ID:** **7cee6c7d-6098-43d1-955d-92aa712f9a2a**  \\n- **Title:** **Blue Brain Builds Neurons with Mathematics**  \\n- **Category:** **BBP news**  \\n- **Created At:** **2025-02-19T09:18:36Z**  \\n- **Updated At:** **2025-04-14T02:42:13Z**  \\n- **Summary / Key Points:**  \\n  - Reports on the Topological Neuronal Synthesis (TNS) algorithm (Kanari et al.) for automatically synthesizing realistic neuronal morphologies using algebraic topology.  \\n  - Enables rapid generation of millions of unique neurons, aids digital reconstruction of brain regions, and is implemented in open-source software.  \\n  - Includes citation: Kanari et al., Cell Reports. DOI link available in the original article.\\n\\n---\\n\\nTotal news items available: **57**. Would you like me to:\\n- Show the next page of news (next 5 items), or\\n- Open any of the above items in full (I can retrieve the full content for a specific news ID), or\\n- Filter news by category (Events, Paper release, BBP news, Milestone, etc.)?",
+    "actual_tool_calls": {
+      "tool_calls": [
+        {
+          "name": "obi-expert",
+          "arguments": {
+            "document_type": "news"
+          }
+        }
+      ]
+    },
+    "results": {
+      "metrics": [
+        {
+          "name": "Correctness [GEval]",
+          "score": 0.4013076972307501,
+          "success": false,
+          "threshold": 0.5,
+          "reason": "The actual output provides detailed news items about the Open Brain Platform, which aligns with the request for news. However, it deviates significantly from the expected output format, which calls for a simpler structure with placeholders for titles and descriptions. The actual output includes excessive detail and metadata that were not requested, leading to a lack of alignment with the expected structure."
+        },
+        {
+          "name": "Tool Correctness",
+          "score": 1.0,
+          "success": true,
+          "threshold": 0.5,
+          "reason": "Correct ordering: all expected tools ['obi-expert'] were called in the correct order."
+        },
+        {
+          "name": "Argument Correctness",
+          "score": 0.0,
+          "success": false,
+          "threshold": 0.5,
+          "reason": "The score is 0.00 because there was no input parameter provided to specify the platform for news."
+        }
+      ],
+      "created_at": "2025-10-22 14:33:19.149537"
+    }
+  },
+  "species_list": {
+    "user": "Can you get me the first 10 available species?\n",
+    "expected_output": "Here are the available species in the database (total 9):\n\nAquarana catesbeiana\n\nTaxonomy ID: NCBITaxon:8400\nCricetulus griseus\n\nTaxonomy ID: NCBITaxon:10029\nFelis catus\n\nTaxonomy ID: NCBITaxon:9685\nHomo sapiens\n\nTaxonomy ID: NCBITaxon:9606\nHybrid human-mouse\n\nTaxonomy ID: NA\nLoligo pealeii\n\nTaxonomy ID: NCBITaxon:6619\nMus musculus\n\nTaxonomy ID: NCBITaxon:10090\nRattus norvegicus\n\nTaxonomy ID: NCBITaxon:10116\nXenopus laevis\n\nTaxonomy ID: NCBITaxon:8355\n\nIf you want more details about any specific species or want to explore strains or subjects related to these species, please let me know!\n",
+    "expected_tool_calls": [
+      {
+        "name": "entitycore-species-getall",
+        "arguments": {
+          "page_size": 10
+        }
+      }
+    ],
+    "params": {
+      "tags": [
+        "entitycore"
+      ]
+    },
+    "ai_response": "## Species \\u2014 first 10 available (page 1)\\n\\nTotal items returned: **9**\\n\\n- **Name:** **Aquarana catesbeiana**  \\n  - **ID:** **d322a735-3ead-4efe-840e-2b4fda9c025a**  \\n  - **Taxonomy ID:** **NCBITaxon:8400**  \\n  - **Created:** **2025-06-27T11:10:28.715311Z**  \\n  - **Updated:** **2025-06-27T11:10:28.715312Z**\\n\\n- **Name:** **Cricetulus griseus**  \\n  - **ID:** **9779ac1f-45e9-4d32-8c85-5fdfa7251af0**  \\n  - **Taxonomy ID:** **NCBITaxon:10029**  \\n  - **Created:** **2025-06-27T11:10:28.715307Z**  \\n  - **Updated:** **2025-06-27T11:10:28.715308Z**\\n\\n- **Name:** **Felis catus**  \\n  - **ID:** **ea748db9-e020-407a-aeb6-db2c3a038a70**  \\n  - **Taxonomy ID:** **NCBITaxon:9685**  \\n  - **Created:** **2025-06-27T11:10:28.715308Z**  \\n  - **Updated:** **2025-06-27T11:10:28.715309Z**\\n\\n- **Name:** **Homo sapiens**  \\n  - **ID:** **ff3fe32a-30ff-44ee-90a7-bd04e85bfcdd**  \\n  - **Taxonomy ID:** **NCBITaxon:9606**  \\n  - **Created:** **2025-06-27T11:10:28.715304Z**  \\n  - **Updated:** **2025-06-27T11:10:28.715305Z**\\n\\n- **Name:** **Hybrid human-mouse**  \\n  - **ID:** **0f756132-e16d-4e72-b18e-859835e1f291**  \\n  - **Taxonomy ID:** **NA**  \\n  - **Created:** **2025-06-27T11:10:28.715312Z**  \\n  - **Updated:** **2025-06-27T11:10:28.715313Z**\\n\\n- **Name:** **Loligo pealeii**  \\n  - **ID:** **22f1a831-85b9-4f5f-811e-60de1b343f52**  \\n  - **Taxonomy ID:** **NCBITaxon:6619**  \\n  - **Created:** **2025-06-27T11:10:28.715310Z**  \\n  - **Updated:** **2025-06-27T11:10:28.715310Z**\\n\\n- **Name:** **Mus musculus**  \\n  - **ID:** **b7ad4cca-4ac2-4095-9781-37fb68fe9ca1**  \\n  - **Taxonomy ID:** **NCBITaxon:10090**  \\n  - **Created:** **2025-06-27T11:10:53.183929Z**  \\n  - **Updated:** **2025-06-27T11:10:53.183929Z**\\n\\n- **Name:** **Rattus norvegicus**  \\n  - **ID:** **3b1c2a25-b4fb-468d-98d2-d2d431ac8b4a**  \\n  - **Taxonomy ID:** **NCBITaxon:10116**  \\n  - **Created:** **2025-06-27T11:11:57.148444Z**  \\n  - **Updated:** **2025-06-27T11:11:57.148444Z**\\n\\n- **Name:** **Xenopus laevis**  \\n  - **ID:** **930cdbd3-0f0a-42a8-9b2d-19a2beaa14a7**  \\n  - **Taxonomy ID:** **NCBITaxon:8355**  \\n  - **Created:** **2025-06-27T11:10:28.715306Z**  \\n  - **Updated:** **2025-06-27T11:10:28.715306Z**\\n\\nSummary: 9 species are available on page 1 (requested page size 10). Would you like me to fetch the next page or retrieve full details for any specific species (by ID)?",
+    "actual_tool_calls": {
+      "tool_calls": [
+        {
+          "name": "entitycore-species-getall",
+          "arguments": {
+            "page_size": 10
+          }
+        }
+      ]
+    },
+    "results": {
+      "metrics": [
+        {
+          "name": "Correctness [GEval]",
+          "score": 0.5797286837527855,
+          "success": true,
+          "threshold": 0.5,
+          "reason": "The actual output provides a list of 9 species, which aligns with the input request for the first 10 available species. However, it fails to meet the expected output format, which presents species names and taxonomy IDs in a more straightforward manner without additional details like IDs and timestamps. The summary at the end is a helpful addition, but the overall structure and presentation deviate from the expected output, leading to a partial misalignment."
+        },
+        {
+          "name": "Tool Correctness",
+          "score": 1.0,
+          "success": true,
+          "threshold": 0.5,
+          "reason": "Correct ordering: all expected tools ['entitycore-species-getall'] were called in the correct order."
+        },
+        {
+          "name": "Argument Correctness",
+          "score": 1.0,
+          "success": true,
+          "threshold": 0.5,
+          "reason": "The score is 1.00 because there are no incorrect tool calls and the input is clear and straightforward."
+        }
+      ],
+      "created_at": "2025-10-22 14:33:19.149826"
+    }
+  },
+  "cerebellum_morphologies": {
+    "user": "Show me morphologies from cerebellum\n",
+    "expected_output": "Here are some neuronal morphologies from the **Cerebellum** in rodents (Mus musculus):\n\n---\n\n### 1. **{{Morphology 1}}**\n- **Description:** {{Description 1}}\n- **Morphological Type:** {{Type 1}}\n- **Contributors:** {{Contributor 1}}\n- **License:** {{License 1}}\n\n---\n\n### 2. **{{Morphology 2}}**\n- **Description:** {{Description 2}}\n- **Morphological Type:** {{Type 2}}\n- **Contributors:** {{Contributor 2}}\n- **License:** {{License 2}}\n\n---\n\n### 3. **{{Morphology 3}}**\n- **Description:** {{Description 3}}\n- **Morphological Type:** {{Type 3}}\n- **Contributors:** {{Contributor 3}}\n- **License:** {{License 3}}\n\n---\n\n### 4. **{{Morphology 4}}**\n- **Description:** {{Description 4}}\n- **Morphological Type:** {{Type 4}}\n- **Contributors:** {{Contributor 4}}\n- **License:** {{License 4}}\n\n---\n\n### 5. **{{Morphology 5}}**\n- **Description:** {{Description 5}}\n- **Morphological Type:** {{Type 5}}\n- **Contributors:** {{Contributor 5}}\n- **License:** {{License 5}}\n\n---\n\nIf you want more morphologies or details on any specific one, please let me know!\n",
+    "expected_tool_calls": [
+      {
+        "name": "entitycore-brainregion-getall",
+        "arguments": {
+          "name": "Cerebellum"
+        }
+      },
+      {
+        "name": "entitycore-cellmorphology-getall",
+        "arguments": {
+          "within_brain_region_brain_region_id": "062ebc92-cebb-498a-a76d-b5ef1baf02cf",
+          "page_size": 5
+        }
+      }
+    ],
+    "params": {
+      "tags": [
+        "entitycore",
+        "literature_search"
+      ]
+    },
+    "ai_response": "## Summary \\u2014 Cerebellum morphologies (first page)\\n- **Brain region searched:** **Cerebellum** (**ID:** **062ebc92-cebb-498a-a76d-b5ef1baf02cf**)\\n- **Total morphologies found (page 1):** **10** of **50** total_items\\n- I list the first 10 morphologies returned for the cerebellum. For each entry I include all available metadata and the clickable entity URL.\\n\\n---\\n\\n### 1) **Name:** **soma_10c** \\u2014 **ID:** **e892fa95-c724-457a-8dc6-176f5d6cc5d9**\\n- **URL:** [OpenBrain \\u2014 soma_10c](https://openbraininstitute.org/app/entity/e892fa95-c724-457a-8dc6-176f5d6cc5d9)\\n- **Brain region:** **Cerebellum** (**062ebc92-cebb-498a-a76d-b5ef1baf02cf**)\\n- **Subject:** **Generic Mus musculus** (species: **Mus musculus**)\\n- **Mtype(s):**\\n  - **CBXpu_PuC** \\u2014 *Cerebellum Purkinje Cell*\\n- **Description:** Soma flask-like (~7.5 \\u00b5m), located in Purkinje cell layer; large flat dendritic tree in molecular layer; single long axon to white matter.\\n- **Assets (morphology):**\\n  - **soma_10c.swc** \\u2014 **asset id:** **85f98df0-c8a1-4d37-b9af-dca010d4a8fe** (content_type: application/swc, size: 261,156)\\n  - **soma_10c.h5** \\u2014 **e8008d5c-2c1a-417b-9d08-233cbdedb15e** (application/x-hdf5, size: 67,916)\\n  - **soma_10c.asc** \\u2014 **0cc31dd9-2ab2-4f8b-946e-7335c65631cb** (application/asc, size: 235,841)\\n- **License:** CC BY-NC-SA 4.0\\n- **Public:** yes\\n- **Created:** 2024-04-08\\n\\n---\\n\\n### 2) **Name:** **01bc** \\u2014 **ID:** **d083a0bd-00a4-4594-b52f-950a5dd3ec70**\\n- **URL:** [OpenBrain \\u2014 01bc](https://openbraininstitute.org/app/entity/d083a0bd-00a4-4594-b52f-950a5dd3ec70)\\n- **Brain region:** **Cerebellum**\\n- **Subject:** **Generic Mus musculus**\\n- **Mtype(s):**\\n  - **CBXmo_BC** \\u2014 *Cerebellum Basket Cell*\\n- **Description:** Soma pyramidal/oval (~6 \\u00b5m), located inner 1/3 molecular layer. Long dendrites upward; axon runs parallel to Purkinje layer with descending & ascending collaterals.\\n- **Assets (morphology):**\\n  - **01bc.swc** \\u2014 **34723c67-7ead-41c9-bf43-f196299f1b97** (application/swc, size: 532,460)\\n  - **01bc.h5** \\u2014 **743d29ba-ce48-4a85-aacd-beb9225146f4** (h5, size: 113,904)\\n  - **01bc.asc** \\u2014 **4636bd08-0907-44af-bfea-9b563f75318b** (asc, size: 351,031)\\n- **License:** CC BY-NC-SA 4.0\\n- **Public:** yes\\n- **Created:** 2024-04-08\\n\\n---\\n\\n### 3) **Name:** **stellate** \\u2014 **ID:** **00ba95d3-13e4-4703-ad85-3df816febf53**\\n- **URL:** [OpenBrain \\u2014 stellate](https://openbraininstitute.org/app/entity/00ba95d3-13e4-4703-ad85-3df816febf53)\\n- **Brain region:** **Cerebellum**\\n- **Subject:** **Generic Mus musculus**\\n- **Mtype(s):**\\n  - **CBXmo_StC** \\u2014 *Cerebellum Stellate Cell*\\n- **Description:** Small fusiform soma (~4 \\u00b5m) in outer 2/3 molecular layer; long thin aspinous dendrites branching in all directions; axon branches immediately.\\n- **Assets (morphology):**\\n  - **stellate.swc** \\u2014 **4503498e-f4cb-4c97-92fa-f111d457d8df** (swc, size: 268,036)\\n  - **stellate.h5** \\u2014 **f4c3a51a-4604-4b88-b405-ec5b2fb6e40a** (h5, size: 62,432)\\n  - **stellate.asc** \\u2014 **27067b0b-15a6-47a1-a67a-8839170b75f4** (asc, size: 215,552)\\n- **License:** CC BY-NC-SA 4.0\\n- **Public:** yes\\n- **Created:** 2024-04-08\\n\\n---\\n\\n### 4) **Name:** **pair-140514-C2-1_split_1** \\u2014 **ID:** **cb635d11-f5f4-4ec5-8c6e-3e5af6d4eb6c**\\n- **URL:** [OpenBrain \\u2014 pair-140514-C2-1_split_1](https://openbraininstitute.org/app/entity/cb635d11-f5f4-4ec5-8c6e-3e5af6d4eb6c)\\n- **Brain region:** **Cerebellum**\\n- **Subject:** **Generic Mus musculus**\\n- **Mtype(s):**\\n  - **CBXgr_GoC** \\u2014 *Cerebellum Golgi Cell*\\n- **Description:** Soma round/polygonal (~8 \\u00b5m) in granular layer; 4\\u201310 dendrites split into basal (in granular layer) and apical (fan-shaped into molecular layer); axon forms dense plexus in granular layer.\\n- **Assets (morphology):**\\n  - **pair-140514-C2-1_split_1.swc** \\u2014 **e0546c06-9ceb-424d-b0ed-9664ba5e1f8b** (swc, size: 417,063)\\n  - **pair-140514-C2-1_split_1.h5** \\u2014 **e5eafb9f-f87a-43eb-be77-91f32941c255** (h5, size: 92,596)\\n  - **pair-140514-C2-1_split_1.asc** \\u2014 **8061bc5d-1dbd-4e89-b4b1-56bba967f077** (asc, size: 282,119)\\n- **License:** CC BY-NC-SA 4.0\\n- **Public:** yes\\n- **Created:** 2024-04-08\\n\\n---\\n\\n### 5) **Name:** **GrC2018** \\u2014 **ID:** **b03ceac9-d657-488c-a43c-01be275d0861**\\n- **URL:** [OpenBrain \\u2014 GrC2018](https://openbraininstitute.org/app/entity/b03ceac9-d657-488c-a43c-01be275d0861)\\n- **Brain region:** **Cerebellum**\\n- **Subject:** **Generic Mus musculus**\\n- **Mtype(s):**\\n  - **CBXgr_GrC** \\u2014 *Cerebellum Granule Cell*\\n- **Description:** Very small soma (~2.5 \\u00b5m) in granular layer; 4\\u20135 dendrites ending in claw-like appendages; axon ascends then bifurcates into parallel fibers in molecular layer.\\n- **Assets (morphology):**\\n  - **GrC2018.swc** \\u2014 **d3ae41fb-db8c-40d7-8738-714510ed066d** (swc, size: 9,899)\\n  - **GrC2018.h5** \\u2014 **0c8df779-67be-4cf9-80b7-34462184b745** (h5, size: 12,672)\\n  - **GrC2018.asc** \\u2014 **1c653554-9327-499e-9d4f-b84456493c53** (asc, size: 8,228)\\n- **License:** CC BY-NC-SA 4.0\\n- **Public:** yes\\n- **Created:** 2024-04-05\\n\\n---\\n\\n### 6) **Name:** **AA0429** \\u2014 **ID:** **30f380b4-a4cc-43ed-aa78-3cd280e2a1ba**\\n- **URL:** [OpenBrain \\u2014 AA0429](https://openbraininstitute.org/app/entity/30f380b4-a4cc-43ed-aa78-3cd280e2a1ba)\\n- **Brain region:** **Fastigial nucleus** (sub-region of cerebellum)\\n- **Subject:** Generic Mus musculus / C57BL/6N\\n- **Location (CCF coords):** **(x: 11612.26288025, y: 3684.60603275, z: 6781.33770050001)**\\n- **Mtype(s):** Interneuron\\n- **Description:** Annotation space noted; interneuron; assets available.\\n- **Assets (morphology):**\\n  - **AA0429.swc** \\u2014 **c0d05d50-04e0-4853-bf0c-1ba95669ebfd** (swc, size: 158,481)\\n  - **AA0429.h5** \\u2014 **690d5be7-78af-406b-b808-5fa72381273b** (h5, size: 63,460)\\n  - **AA0429.asc** \\u2014 **9a125661-3745-41a5-ac3e-89bda2247264** (asc, size: 258,683)\\n- **License:** CC BY-NC 4.0\\n- **Public:** yes\\n- **Created:** 2022-06-16\\n\\n---\\n\\n### 7) **Name:** **AA0961** \\u2014 **ID:** **103f79d4-9727-46a0-a3ec-92b72d08e3af**\\n- **URL:** [OpenBrain \\u2014 AA0961](https://openbraininstitute.org/app/entity/103f79d4-9727-46a0-a3ec-92b72d08e3af)\\n- **Brain region:** **Lobule III** (cerebellar sub-region)\\n- **Subject:** Generic Mus musculus / Sim1-Cre\\n- **Location (CCF coords):** **(x: 10568.224396375, y: 4012.292652375, z: 7711.01079499999)**\\n- **Mtype(s):** Interneuron\\n- **Assets (morphology):**\\n  - **AA0961.swc** \\u2014 **7d7e9766-7144-43b9-899a-ca94ec32a56d** (swc, size: 33,142)\\n  - **AA0961.h5** \\u2014 **8b54ff63-f65a-4c26-ab82-f98ea4e59f5c** (h5, size: 27,516)\\n  - **AA0961.asc** \\u2014 **83a8c1dd-0d10-44fb-a5bf-63ee89dd8863** (asc, size: 83,811)\\n- **License:** CC BY-NC 4.0\\n- **Public:** yes\\n- **Created:** 2022-06-16\\n\\n---\\n\\n### 8) **Name:** **AA0962** \\u2014 **ID:** **4dab5e68-5813-4498-a024-a3fb59b5a007**\\n- **URL:** [OpenBrain \\u2014 AA0962](https://openbraininstitute.org/app/entity/4dab5e68-5813-4498-a024-a3fb59b5a007)\\n- **Brain region:** **Flocculus** (cerebellar sub-region)\\n- **Subject:** Generic Mus musculus / Sim1-Cre\\n- **Location (CCF coords):** **(x: 10437.001301625, y: 5024.352592375, z: 9253.08903250001)**\\n- **Mtype(s):** Interneuron\\n- **Assets (morphology):**\\n  - **AA0962.swc** \\u2014 **7d7e9766-7144-43b9-899a-ca94ec32a56d** *(note: asset ids differ per entry; see full entry above)* \\u2014 **74634552-9c9f-4ef2-b289-aa1af747d981** (swc, size: 33,142)\\n  - **AA0962.h5** \\u2014 **3379c812-18ef-45db-9b50-4cf59e3423a2** (h5, size: 26,520)\\n  - **AA0962.asc** \\u2014 **83a8c1dd-0d10-44fb-a5bf-63ee89dd8863** (asc, size: 83,811)\\n- **License:** CC BY-NC 4.0\\n- **Public:** yes\\n- **Created:** 2022-06-16\\n\\n---\\n\\n### 9) **Name:** **AA0963** \\u2014 **ID:** **fedb7511-675c-4da1-a611-783e9d098d33**\\n- **URL:** [OpenBrain \\u2014 AA0963](https://openbraininstitute.org/app/entity/fedb7511-675c-4da1-a611-783e9d098d33)\\n- **Brain region:** **Flocculus**\\n- **Subject:** Generic Mus musculus / Sim1-Cre\\n- **Location (CCF coords):** **(x: 10566.088845875, y: 5060.9030804375, z: 8841.41647350001)**\\n- **Mtype(s):** Interneuron\\n- **Assets (morphology):**\\n  - **AA0963.swc** \\u2014 **8b29bb2f-c24b-4329-915d-0dc752c7dc61** (swc, size: 33,142)\\n  - **AA0963.h5** \\u2014 **28017a8b-fcfb-489c-ab71-92fe40feb5d8** (h5, size: 24,404)\\n  - **AA0963.asc** \\u2014 **7a62a53e-4188-48a1-8c53-93a0fb12993a** (asc, size: 76,633)\\n- **License:** CC BY-NC 4.0\\n- **Public:** yes\\n- **Created:** 2022-06-16\\n\\n---\\n\\n### 10) **Name:** **AA0964** \\u2014 **ID:** **d782a23c-076e-4d6f-96e7-765c8a7196d8**\\n- **URL:** [OpenBrain \\u2014 AA0964](https://openbraininstitute.org/app/entity/d782a23c-076e-4d6f-96e7-765c8a7196d8)\\n- **Brain region:** **Copula pyramidis** (cerebellar sub-region)\\n- **Subject:** Generic Mus musculus / Sim1-Cre\\n- **Location (CCF coords):** **(x: 13511.74285325, y: 4706.51322125, z: 5588.4656215)**\\n- **Mtype(s):** Interneuron\\n- **Assets (morphology):**\\n  - **AA0964.swc** \\u2014 **9765d79a-2640-4fc9-b231-dc94dd8efdce** (swc, size: 43,223)\\n  - **AA0964.h5** \\u2014 **8dc55864-f6a0-4985-9226-b09282c84926** (h5, size: 28,800)\\n  - **AA0964.asc** \\u2014 **625337da-584d-4b40-b60d-9841c492b407** (asc, size: 102,409)\\n- **License:** CC BY-NC 4.0\\n- **Public:** yes\\n- **Created:** 2022-06-16\\n\\n---\\n\\n## Next steps \\u2014 what I can do for you\\n- Show the next page of cerebellum morphologies (there are **50** total; I returned page 1 of 10). Do you want page 2?\\n- Generate morphology thumbnails for any specific morphology asset (I can call the thumbnail generator if you pick an entity + the **.swc asset id**).\\n- Download a specific asset (I can fetch a valid download link if you tell me which morphology ID and which asset id you want).\\n- Filter results by mtype (e.g., show only *Purkinje cells* or only *Granule cells*).\\n\\nWhich would you like next?",
+    "actual_tool_calls": {
+      "tool_calls": [
+        {
+          "name": "entitycore-brainregion-getall",
+          "arguments": {
+            "semantic_search": "cerebellum",
+            "page_size": 10
+          }
+        },
+        {
+          "name": "entitycore-cellmorphology-getall",
+          "arguments": {
+            "page_size": 10,
+            "within_brain_region_brain_region_id": "062ebc92-cebb-498a-a76d-b5ef1baf02cf"
+          }
+        }
+      ]
+    },
+    "results": {
+      "metrics": [
+        {
+          "name": "Correctness [GEval]",
+          "score": 0.3958142179388102,
+          "success": false,
+          "threshold": 0.5,
+          "reason": "The actual output provides detailed information about cerebellum morphologies, including names, IDs, descriptions, and asset links, which partially aligns with the expected output's request for neuronal morphologies. However, it lacks the specified structure of listing contributors and morphological types, and it does not use placeholders as indicated in the expected output. Additionally, the actual output includes more entries than the expected five, which deviates from the expected format."
+        },
+        {
+          "name": "Tool Correctness",
+          "score": 1.0,
+          "success": true,
+          "threshold": 0.5,
+          "reason": "Correct ordering: all expected tools ['entitycore-brainregion-getall', 'entitycore-cellmorphology-getall'] were called in the correct order."
+        },
+        {
+          "name": "Argument Correctness",
+          "score": 0.5,
+          "success": true,
+          "threshold": 0.5,
+          "reason": "The score is 0.50 because the input did not specify the brain region ID correctly related to the cerebellum, which is essential for accurate tool calls. This limitation prevents a higher score, but the request shows a clear interest in exploring cerebellum morphologies."
+        }
+      ],
+      "created_at": "2025-10-22 14:33:19.149869"
+    }
+  },
+  "morphology_studies": {
+    "user": "What are some recent studies on neuron morphology in the cerebrum?\n",
+    "expected_output": "Here are some recent studies on neuron morphology in the cerebrum:\n\n### 1. {{Title 1}}\n- **Published:** {{Date 1}}\n- **Author:** {{Author 1}}\n- **Summary:** {{Summary 1}}\n- **Link:** {{Link 1}}\n\n### 2. {{Title 2}}\n- **Published:** {{Date 2}}\n- **Author:** {{Author 2}}\n- **Summary:** {{Summary 2}}\n- **Link:** {{Link 2}}\n\n### 3. {{Title 3}}\n- **Published:** {{Date 3}}\n- **Author:** {{Author 3}}\n- **Summary:** {{Summary 3}}\n- **Link:** {{Link 3}}\n\n### 4. {{Title 4}}\n- **Published:** {{Date 4}}\n- **Author:** {{Author 4}}\n- **Summary:** {{Summary 4}}\n- **Link:** {{Link 4}}\n\n### 5. {{Title 5}}\n- **Published:** {{Date 5}}\n- **Author:** {{Author 5}}\n- **Summary:** {{Summary 5}}\n- **Link:** {{Link 5}}\n\nIf you want more details on any of these studies or additional papers, please let me know!\n",
+    "expected_tool_calls": [
+      {
+        "name": "literature-search-tool",
+        "arguments": {
+          "query": "neuron morphology cerebrum",
+          "numResults": 5,
+          "maxCharacters": 1000
+        }
+      }
+    ],
+    "params": {
+      "tags": [
+        "literature_search"
+      ]
+    },
+    "ai_response": "## Summary \\u2014 recent notable studies on neuron morphology in the cerebrum\\nBelow are recent (2023\\u20132025) high\\u2011impact or comprehensive studies focused on neuronal morphology in cerebral cortex / cerebrum, with short descriptions and links to the papers.\\n\\n### 1) Key morphological features of human pyramidal neurons (Benavides\\u2011Piccione et al., 2024)\\n- **Focus:** Detailed morphological characterization of human cortical pyramidal neurons (layer-specific features, dendritic arborization, soma and apical/basal distinctions).\\n- **Why it matters:** Integrates high\\u2011resolution reconstructions to define human\\u2011specific morphological attributes relevant to computation and scaling from rodents to humans.\\n- **Link:** [Key morphological features of human pyramidal neurons \\u2014 Cerebral Cortex (2024)](https://pmc.ncbi.nlm.nih.gov/articles/PMC11094408/)  \\n  - DOI in article: https://doi.org/10.1093/cercor/bhae180\\n\\n### 2) What makes human cortical pyramidal neurons functionally complex (preprint / review, 2024)\\n- **Focus:** Mechanistic and morphological contributors to functional complexity of human cortical pyramidal neurons (dendritic integration, spine distributions, ion channel complement interacting with morphology).\\n- **Why it matters:** Conceptual synthesis linking morphology to functional specializations in human cortex.\\n- **Link:** [Preprint on PMC \\u2014 What makes human cortical pyramidal neurons functionally complex (2024)](https://pmc.ncbi.nlm.nih.gov/articles/PMC11702691/)\\n\\n### 3) Comprehensive analysis of human dendritic spine morphology and density (Koch et al., 2024\\u20132025)\\n- **Focus:** Large\\u2011scale quantitative analysis of dendritic spine shapes, sizes and densities across human cortical samples; aims to map diversity of spine morphologies and their distribution on pyramidal dendrites.\\n- **Why it matters:** Spine morphology is directly linked to synaptic strength and plasticity; study provides reference datasets for human cortex.\\n- **Links:**  \\n  - Preprint / bioRxiv (Dec 2024): [Comprehensive Analysis of Human Dendritic Spine Morphology and Density \\u2014 bioRxiv](https://www.biorxiv.org/content/10.1101/2024.12.18.629169v1.full)  \\n  - Journal article version referenced (Journal of Neurophysiology / related): [Comprehensive analysis of human dendritic spine morphology and density (2025)](https://journals.physiology.org/doi/full/10.1152/jn.00622.2024)\\n\\n### 4) Of mice and men: Dendritic architecture differentiates human from mice neuronal networks (Kanari et al., 2023/2024 preprint \\u2192 2024 reports)\\n- **Focus:** Comparative dendritic architecture analysis across mouse and human cortical neurons; quantifies differences in branching, length, and resultant network implications.\\n- **Why it matters:** Helps interpret translational limits of rodent models and how morphology scales between species to affect connectivity and computation.\\n- **Link:** [Of mice and men \\u2014 bioRxiv (2023 preprint)](https://www.biorxiv.org/content/10.1101/2023.09.11.557170v3.full)  \\n  - DOI presented in preprint: https://doi.org/10.1101/2023.09.11.557170\\n\\n## Short guidance for next steps\\n- If you want, I can:\\n  - Retrieve full PDFs or PubMed citations and extract key figures / methods (summaries of sample sizes, reconstruction methods, species, cortical areas).\\n  - Search specifically for rodent cortical morphology studies (mouse, rat) or for particular cortical areas (e.g., prefrontal cortex, primary visual cortex).\\n  - Compile a reference list in BibTeX or APA format.\\n\\nWhich of these would you like me to do next?",
+    "actual_tool_calls": {
+      "tool_calls": [
+        {
+          "name": "literature-search-tool",
+          "arguments": {
+            "query": "neuron morphology cerebrum recent studies 2022 2023 2024 review pyramidal neurons cortical morphology dendritic spine morphology human mouse rat",
+            "numResults": 5,
+            "maxCharacters": 1200
+          }
+        }
+      ]
+    },
+    "results": {
+      "metrics": [
+        {
+          "name": "Correctness [GEval]",
+          "score": 0.6075584166832548,
+          "success": true,
+          "threshold": 0.5,
+          "reason": "The actual output provides detailed information on recent studies related to neuron morphology in the cerebrum, which aligns with the input request. However, it deviates from the expected output format by including specific details such as authors, publication years, and summaries instead of the placeholder format. While the content is relevant and informative, it lacks the structured presentation of titles and placeholders as specified in the expected output, leading to a partial misalignment."
+        },
+        {
+          "name": "Tool Correctness",
+          "score": 1.0,
+          "success": true,
+          "threshold": 0.5,
+          "reason": "Correct ordering: all expected tools ['literature-search-tool'] were called in the correct order."
+        },
+        {
+          "name": "Argument Correctness",
+          "score": 1.0,
+          "success": true,
+          "threshold": 0.5,
+          "reason": "The score is 1.00 because there were no incorrect tool calls and the input was clear and relevant."
+        }
+      ],
+      "created_at": "2025-10-22 14:33:19.149902"
+    }
+  },
+  "matplotlib_plot": {
+    "user": "Can you please generate a plot y=x^2 with matplotlib?\n",
+    "expected_output": "## Plot: y = x^2\\\\n\\\\nI generated a plot of y = x^2 using 30 evenly spaced points between x = -5 and x = 5 (per plotting tool requirements). The plot is shown above.\\\\n\\\\nData used (30 points):\\\\n- **x**: [-5.0, -4.66, -4.32, -3.97, -3.63, -3.28, -2.94, -2.59, -2.25, -1.9, -1.56, -1.21, -0.87, -0.52, -0.18, 0.17, 0.51, 0.86, 1.2, 1.55, 1.89, 2.24, 2.58, 2.93, 3.27, 3.62, 3.96, 4.31, 4.65, 5.0)\\\\n- **y**: [25.0, 21.7156, 18.6624, 15.7609, 13.1769, 10.7584, 8.6436, 6.7081, 5.0625, 3.61, 2.4336, 1.4641, 0.7569, 0.2704, 0.0324, 0.0289, 0.2601, 0.7396, 1.44, 2.4025, 3.5721, 5.0176, 6.6564, 8.5849, 10.6929, 13.1044, 15.6816, 18.5761, 21.6225, 25.0)\\\\n\\\\nIf you need:\\\\n- A higher-resolution plot (more points),\\\\n- The Python/matplotlib code used to create the figure locally,\\\\n- A different x-range or styling (labels, grid, markers),\\\\ntell me which option and I will generate it.\",\n\n",
+    "expected_tool_calls": [
+      {
+        "name": "execute-python-code",
+        "arguments": {
+          "python_code": "import numpy as np\n# generate 1001 x values from -5 to 5\nx = np.linspace(-5,5,1001)\ny = x**2\n# reduce to 30 evenly spaced points for plotting per tool requirement\nindices = np.linspace(0, len(x)-1, 30, dtype=int)\nx_small = x[indices].tolist()\ny_small = y[indices].tolist()\nprint({'x': x_small, 'y': y_small})"
+        }
+      },
+      {
+        "name": "plot-generator",
+        "arguments": {
+          "plot_type": "json-linechart",
+          "title": "y = x^2 (sampled)",
+          "description": "Plot of y = x^2 using 30 evenly spaced points between x=-5 and x=5 (per plotting tool requirement).",
+          "x_label": "x",
+          "y_label": "y",
+          "linechart_values": [
+            {
+              "x": -5.0,
+              "y": 25.0
+            },
+            {
+              "x": -4.66,
+              "y": 21.7156
+            },
+            {
+              "x": -4.32,
+              "y": 18.6624
+            },
+            {
+              "x": -3.97,
+              "y": 15.7609
+            },
+            {
+              "x": -3.63,
+              "y": 13.1769
+            },
+            {
+              "x": -3.28,
+              "y": 10.7584
+            },
+            {
+              "x": -2.94,
+              "y": 8.6436
+            },
+            {
+              "x": -2.59,
+              "y": 6.708099999999999
+            },
+            {
+              "x": -2.25,
+              "y": 5.0625
+            },
+            {
+              "x": -1.9,
+              "y": 3.61
+            },
+            {
+              "x": -1.56,
+              "y": 2.4336
+            },
+            {
+              "x": -1.21,
+              "y": 1.4641
+            },
+            {
+              "x": -0.87,
+              "y": 0.7569
+            },
+            {
+              "x": -0.52,
+              "y": 0.27039999999999953
+            },
+            {
+              "x": -0.18,
+              "y": 0.0323999999999999
+            },
+            {
+              "x": 0.17,
+              "y": 0.028899999999999974
+            },
+            {
+              "x": 0.51,
+              "y": 0.2600999999999998
+            },
+            {
+              "x": 0.86,
+              "y": 0.7396000000000006
+            },
+            {
+              "x": 1.2,
+              "y": 1.44
+            },
+            {
+              "x": 1.55,
+              "y": 2.4024999999999994
+            },
+            {
+              "x": 1.89,
+              "y": 3.572100000000002
+            },
+            {
+              "x": 2.24,
+              "y": 5.017600000000001
+            },
+            {
+              "x": 2.58,
+              "y": 6.6564000000000005
+            },
+            {
+              "x": 2.93,
+              "y": 8.584900000000003
+            },
+            {
+              "x": 3.27,
+              "y": 10.692899999999998
+            },
+            {
+              "x": 3.62,
+              "y": 13.104400000000007
+            },
+            {
+              "x": 3.96,
+              "y": 15.681600000000007
+            },
+            {
+              "x": 4.31,
+              "y": 18.576100000000004
+            },
+            {
+              "x": 4.65,
+              "y": 21.622500000000002
+            },
+            {
+              "x": 5.0,
+              "y": 25.0
+            }
+          ],
+          "line_color": "#1f77b4"
+        }
+      }
+    ],
+    "params": {
+      "tags": [
+        "python",
+        "plotting"
+      ]
+    },
+    "ai_response": "## Plot: **y = x^2**\\n\\n- Description: Plot of **y = x^2** using 30 evenly spaced points between **x = -5** and **x = 5**.\\n- Axes: **x** (horizontal), **y** (vertical)\\n\\nThe plot is shown above. If you want:\\n- the full-resolution data (all 1001 points),\\n- a PNG/SVG file download,\\n- or different x-range / more points / styling (colors, markers, log scale), tell me which and I will generate it.",
+    "actual_tool_calls": {
+      "tool_calls": [
+        {
+          "name": "execute-python-code",
+          "arguments": {
+            "python_code": "import numpy as np\n# generate 1001 x values from -5 to 5\nx = np.linspace(-5,5,1001)\ny = x**2\n# reduce to 30 evenly spaced points for plotting per tool requirement\nindices = np.linspace(0, len(x)-1, 30, dtype=int)\nline_values = [{'x': float(x[i]), 'y': float(y[i])} for i in indices]\nprint({'linechart_values': line_values})\n"
+          }
+        },
+        {
+          "name": "plot-generator",
+          "arguments": {
+            "plot_type": "json-linechart",
+            "title": "y = x^2",
+            "description": "Plot of y = x^2 using 30 evenly spaced points between -5 and 5",
+            "x_label": "x",
+            "y_label": "y",
+            "linechart_values": [
+              {
+                "x": -5.0,
+                "y": 25.0
+              },
+              {
+                "x": -4.66,
+                "y": 21.715600000000002
+              },
+              {
+                "x": -4.32,
+                "y": 18.6624
+              },
+              {
+                "x": -3.97,
+                "y": 15.760899999999998
+              },
+              {
+                "x": -3.63,
+                "y": 13.1769
+              },
+              {
+                "x": -3.28,
+                "y": 10.758400000000002
+              },
+              {
+                "x": -2.94,
+                "y": 8.6436
+              },
+              {
+                "x": -2.59,
+                "y": 6.708099999999999
+              },
+              {
+                "x": -2.25,
+                "y": 5.0625
+              },
+              {
+                "x": -1.9,
+                "y": 3.61
+              },
+              {
+                "x": -1.56,
+                "y": 2.4336
+              },
+              {
+                "x": -1.21,
+                "y": 1.4641
+              },
+              {
+                "x": -0.87,
+                "y": 0.7569000000000002
+              },
+              {
+                "x": -0.52,
+                "y": 0.27039999999999953
+              },
+              {
+                "x": -0.18,
+                "y": 0.0323999999999999
+              },
+              {
+                "x": 0.17,
+                "y": 0.028899999999999974
+              },
+              {
+                "x": 0.51,
+                "y": 0.2600999999999998
+              },
+              {
+                "x": 0.86,
+                "y": 0.7396000000000006
+              },
+              {
+                "x": 1.2,
+                "y": 1.4400000000000004
+              },
+              {
+                "x": 1.55,
+                "y": 2.4024999999999994
+              },
+              {
+                "x": 1.89,
+                "y": 3.572100000000002
+              },
+              {
+                "x": 2.24,
+                "y": 5.017600000000001
+              },
+              {
+                "x": 2.58,
+                "y": 6.6564000000000005
+              },
+              {
+                "x": 2.93,
+                "y": 8.584900000000003
+              },
+              {
+                "x": 3.27,
+                "y": 10.692899999999998
+              },
+              {
+                "x": 3.62,
+                "y": 13.104400000000007
+              },
+              {
+                "x": 3.96,
+                "y": 15.681600000000007
+              },
+              {
+                "x": 4.31,
+                "y": 18.576100000000004
+              },
+              {
+                "x": 4.65,
+                "y": 21.622500000000002
+              },
+              {
+                "x": 5.0,
+                "y": 25.0
+              }
+            ],
+            "line_color": "#1f77b4"
+          }
+        }
+      ]
+    },
+    "results": {
+      "metrics": [
+        {
+          "name": "Correctness [GEval]",
+          "score": 0.5964667427407626,
+          "success": true,
+          "threshold": 0.5,
+          "reason": "The actual output provides a clear description of the plot and mentions the use of 30 points, which aligns with the input request. However, it lacks the specific data points for x and y that are present in the expected output, which is a critical component. Additionally, while it offers options for further customization, it does not fully match the expected structure and detail level, resulting in a moderate score."
+        },
+        {
+          "name": "Tool Correctness",
+          "score": 1.0,
+          "success": true,
+          "threshold": 0.5,
+          "reason": "Correct ordering: all expected tools ['execute-python-code', 'plot-generator'] were called in the correct order."
+        },
+        {
+          "name": "Argument Correctness",
+          "score": 1.0,
+          "success": true,
+          "threshold": 0.5,
+          "reason": "The score is 1.00 because there are no incorrect tool calls and the input request is clear and appropriate for generating a plot."
+        }
+      ],
+      "created_at": "2025-10-22 14:33:19.149949"
+    }
+  },
+  "sin_plot": {
+    "user": "Can you please plot y=sin(x) from 0 to 2pi but just 8 points evenly spaced?\n",
+    "expected_output": "Here is the scatter plot of y = sin(x) with 8 points evenly spaced from 0 to 2\u03c0. The points show the sine values at these specific x coordinates. If you want, I can also provide a line plot connecting these points. Would you like that?\n",
+    "expected_tool_calls": [
+      {
+        "name": "execute-python-code",
+        "arguments": {
+          "python_code": "import numpy as np\n\n# Generate 8 evenly spaced points from 0 to 2*pi\nx_values = np.linspace(0, 2 * np.pi, 8)\n# Calculate sin(x) for these points\ny_values = np.sin(x_values)\n\n# Prepare data for plotting\npoints = [{'x': float(x), 'y': float(y)} for x, y in zip(x_values, y_values)]\npoints"
+        }
+      },
+      {
+        "name": "plot-generator",
+        "arguments": {
+          "plot_type": "json-scatterplot",
+          "title": "Plot of y = sin(x) with 8 evenly spaced points from 0 to 2\u03c0",
+          "description": "This scatter plot shows the values of y = sin(x) at 8 points evenly spaced between 0 and 2\u03c0.",
+          "x_label": "x (radians)",
+          "y_label": "sin(x)",
+          "piechart_values": null,
+          "barplot_values": null,
+          "scatter_values": [
+            {
+              "x": 0,
+              "y": 0,
+              "label": null,
+              "color": null,
+              "size": null
+            },
+            {
+              "x": 0.8975979010256552,
+              "y": 0.7818314824680298,
+              "label": null,
+              "color": null,
+              "size": null
+            },
+            {
+              "x": 1.7951958020513104,
+              "y": 0.9749279121818236,
+              "label": null,
+              "color": null,
+              "size": null
+            },
+            {
+              "x": 2.6927937030769655,
+              "y": 0.43388373911755823,
+              "label": null,
+              "color": null,
+              "size": null
+            },
+            {
+              "x": 3.5903916041026207,
+              "y": -0.433883739117558,
+              "label": null,
+              "color": null,
+              "size": null
+            },
+            {
+              "x": 4.487989505128276,
+              "y": -0.9749279121818236,
+              "label": null,
+              "color": null,
+              "size": null
+            },
+            {
+              "x": 5.385587406153931,
+              "y": -0.7818314824680299,
+              "label": null,
+              "color": null,
+              "size": null
+            },
+            {
+              "x": 6.283185307179586,
+              "y": -2.4492935982947064e-16,
+              "label": null,
+              "color": null,
+              "size": null
+            }
+          ],
+          "histogram_values": null,
+          "histogram_bins": 10,
+          "histogram_color": null,
+          "linechart_values": null,
+          "line_style": "solid",
+          "line_color": null
+        }
+      }
+    ],
+    "params": {
+      "tags": [
+        "python",
+        "plotting"
+      ]
+    },
+    "ai_response": "## Plot: **y = sin(x)** sampled at 8 evenly spaced points from 0 to 2\\u03c0\\n\\n- **Points used (x, y):**\\n  - **(x: 0.0, y: 0.0)**\\n  - **(x: 0.8975979010256552, y: 0.7818314824680298)**\\n  - **(x: 1.7951958020513104, y: 0.9749279121818236)**\\n  - **(x: 2.6927937030769655, y: 0.43388373911755823)**\\n  - **(x: 3.5903916041026207, y: -0.433883739117558)**\\n  - **(x: 4.487989505128276, y: -0.9749279121818236)**\\n  - **(x: 5.385587406153931, y: -0.7818314824680299)**\\n  - **(x: 6.283185307179586, y: -2.4492935982947064e-16)**\\n\\nThe plot is shown above. If you want:\\n- a scatter-only plot (points without connecting lines),\\n- the numeric values in a downloadable CSV,\\n- or more points (e.g., 16, 32), tell me which and I\\u2019ll generate it.",
+    "actual_tool_calls": {
+      "tool_calls": [
+        {
+          "name": "execute-python-code",
+          "arguments": {
+            "python_code": "import numpy as np\nxs = np.linspace(0, 2*np.pi, 8)\nys = np.sin(xs)\n# prepare list of points\npoints = list(map(lambda a: {'x': float(a[0]), 'y': float(a[1])}, zip(xs, ys)))\nprint({'points': points})\npoints\n"
+          }
+        },
+        {
+          "name": "plot-generator",
+          "arguments": {
+            "plot_type": "json-linechart",
+            "title": "y = sin(x) sampled at 8 points between 0 and 2\u03c0",
+            "description": "Sine function sampled at 8 evenly spaced x values from 0 to 2\u03c0.",
+            "x_label": "x",
+            "y_label": "sin(x)",
+            "linechart_values": [
+              {
+                "x": 0.0,
+                "y": 0.0
+              },
+              {
+                "x": 0.8975979010256552,
+                "y": 0.7818314824680298
+              },
+              {
+                "x": 1.7951958020513104,
+                "y": 0.9749279121818236
+              },
+              {
+                "x": 2.6927937030769655,
+                "y": 0.43388373911755823
+              },
+              {
+                "x": 3.5903916041026207,
+                "y": -0.433883739117558
+              },
+              {
+                "x": 4.487989505128276,
+                "y": -0.9749279121818236
+              },
+              {
+                "x": 5.385587406153931,
+                "y": -0.7818314824680299
+              },
+              {
+                "x": 6.283185307179586,
+                "y": -2.4492935982947064e-16
+              }
+            ],
+            "line_color": "#2b8cbe"
+          }
+        }
+      ]
+    },
+    "results": {
+      "metrics": [
+        {
+          "name": "Correctness [GEval]",
+          "score": 0.6426174799203984,
+          "success": true,
+          "threshold": 0.5,
+          "reason": "The actual output provides the correct points for the sine function sampled at 8 evenly spaced intervals, which aligns with the input request. However, it lacks a visual representation of the plot, which is a key component of the expected output. Additionally, while it offers options for further customization, it does not directly address the request for a scatter plot, which diminishes its completeness and relevance."
+        },
+        {
+          "name": "Tool Correctness",
+          "score": 1.0,
+          "success": true,
+          "threshold": 0.5,
+          "reason": "Correct ordering: all expected tools ['execute-python-code', 'plot-generator'] were called in the correct order."
+        },
+        {
+          "name": "Argument Correctness",
+          "score": 1.0,
+          "success": true,
+          "threshold": 0.5,
+          "reason": "The score is 1.00 because the input request is clear and correctly specifies the task of plotting the sine function with the desired parameters."
+        }
+      ],
+      "created_at": "2025-10-22 14:33:19.150012"
+    }
+  },
+  "thalamus_id": {
+    "user": "Find the id of the thalamus\n",
+    "expected_output": "The id of the thalamus is 75e3944e-8dcd-4310-a3a2-258f93de63d6\n",
+    "expected_tool_calls": [
+      {
+        "name": "entitycore-brainregion-getall",
+        "arguments": {
+          "name": "Thalamus"
+        }
+      }
+    ],
+    "params": {
+      "tags": [
+        "entitycore"
+      ]
+    },
+    "ai_response": "## Thalamus \\u2014 brain region ID\\n\\n- **Name:** **Thalamus**  \\n- **ID:** **75e3944e-8dcd-4310-a3a2-258f93de63d6**  \\n- **Acronym:** **TH**  \\n- **Annotation value:** **549**  \\n- **Color hex:** **FF7080**\\n\\nSummary: I searched the atlas for \\thalamus\\ and resolved the canonical **Thalamus** region to UUID **75e3944e-8dcd-4310-a3a2-258f93de63d6**. Would you like me to use this ID to retrieve child nuclei, anatomical hierarchy, or associated assets?",
+    "actual_tool_calls": {
+      "tool_calls": [
+        {
+          "name": "entitycore-brainregion-getall",
+          "arguments": {
+            "semantic_search": "thalamus",
+            "page_size": 10
+          }
+        }
+      ]
+    },
+    "results": {
+      "metrics": [
+        {
+          "name": "Correctness [GEval]",
+          "score": 0.4513161482521121,
+          "success": false,
+          "threshold": 0.5,
+          "reason": "The actual output provides the correct ID for the thalamus and includes additional details such as the name, acronym, and color hex, which are not present in the expected output. However, it fails to directly answer the input question in a straightforward manner, as the expected output is a simple statement of the ID, while the actual output is more verbose and includes unnecessary context. This affects the clarity and directness of the response."
+        },
+        {
+          "name": "Tool Correctness",
+          "score": 1.0,
+          "success": true,
+          "threshold": 0.5,
+          "reason": "Correct ordering: all expected tools ['entitycore-brainregion-getall'] were called in the correct order."
+        },
+        {
+          "name": "Argument Correctness",
+          "score": 1.0,
+          "success": true,
+          "threshold": 0.5,
+          "reason": "The score is 1.00 because the input is clear and correctly asks for the identification of the thalamus without any incorrect tool calls."
+        }
+      ],
+      "created_at": "2025-10-22 14:33:19.150077"
+    }
+  },
+  "neuroscientists_search": {
+    "user": "Can you check online who are some of the most impactful computational neuroscientists?\n",
+    "expected_output": "{{Year}} Brain Prize Winners in Theoretical and Computational Neuroscience\n\n{{Name 1}} ({{Institution 1}})\n{{Name 2}} ({{Institution 2}})\n{{Name 3}} ({{Institution 3}})\n\nThese three physicists have been recognized for pioneering work in modeling brain structure and function, applying physics and mathematics to neuroscience. They shared the {{Year}} Brain Prize, the largest award in neuroscience.\n\n{{Link 1}}\n\nOther Notable Figures\n\n{{Name 4}} ({{Institution 4}})\nKnown for {{Achievement 1}} in neuroscience.\n\n{{Link 2}}\n\n{{Name 5}} ({{Institution 5}})\nA pioneer in {{Achievement 2}}. Developed {{Achievement 3}} and {{Achievement 4}}.\n\n{{Link 3}}\n{{Link 4}}\n\n{{Name 6}}\nKnown for contributions to {{Achievement 5}} and {{Achievement 6}}. Co-founder of {{Company 1}}.\n\n{{Link 5}}\n\nIf you want more detailed profiles or additional names, just let me know!\n",
+    "expected_tool_calls": [
+      {
+        "name": "web-search-tool",
+        "arguments": {
+          "query": "most impactful computational neuroscientists",
+          "numResults": 5
+        }
+      }
+    ],
+    "params": {
+      "tags": [
+        "web_search"
+      ]
+    },
+    "ai_response": "## Overview \\u2014 goal\\nBelow is a concise, curated list of some of the most impactful computational neuroscientists (historical and contemporary). I used recent web sources to identify widely recognized leaders and pioneers across theory, modeling, machine learning & neuroscience bridges, and systems-level computation.\\n\\nFor each person I give: **Name**, short impact statement, representative topics/achievements, and a link to a reliable online profile or summary.\\n\\n---\\n\\n### Foundational pioneers & theorists\\n- **David Marr**  \\n  - Impact: Introduced the influential \\u201clevels of analysis\\u201d framework and formalized computational approaches to vision and memory.  \\n  - Topics: computational theory of vision, representation and algorithmic level analysis.  \\n  - Read more: [David Marr \\u2014 Wikipedia](https://en.wikipedia.org/wiki/David_Marr)\\n\\n- **Alan Hodgkin** and **Andrew Huxley**  \\n  - Impact: Developed the Hodgkin\\u2013Huxley formalism \\u2014 a quantitative, biophysical model of action potentials that underpins much of computational neurophysiology.  \\n  - Topics: ionic mechanisms of neural excitability, conductance-based models.  \\n  - Read more: [Hodgkin and Huxley \\u2014 Nobel and historical sources (e.g., Wikipedia)](https://en.wikipedia.org/wiki/Alan_Lloyd_Hodgkin)\\n\\n- **Wilfrid Rall**  \\n  - Impact: Pioneered compartmental modeling of dendritic trees, connecting morphology to electrical behavior.  \\n  - Topics: cable theory, multi-compartment neuron models.  \\n  - Read more: [Wilfrid Rall \\u2014 overview (Wikipedia)](https://en.wikipedia.org/wiki/Wilfrid_Rall)\\n\\n---\\n\\n### Modern theory, networks & dynamics\\n- **Haim Sompolinsky**  \\n  - Impact: Key contributions to the theory of chaotic dynamics and high-dimensional network behavior; influential work on random neural networks and population dynamics.  \\n  - Topics: network dynamics, chaos in neural networks, statistical mechanics approaches.  \\n  - Read more: [Haim Sompolinsky \\u2014 profile (Weizmann/Google Scholar summaries/Wikipedia)](https://en.wikipedia.org/wiki/Haim_Sompolinsky)\\n\\n- **Larry F. Abbott**  \\n  - Impact: Major contributions to theoretical neuroscience, synaptic plasticity theory, and network models; co-author of canonical texts and influential models of cortical circuits.  \\n  - Topics: synaptic plasticity, network theory, balanced networks, computational theory.  \\n  - Read more: [Larry Abbott \\u2014 Wikipedia](https://en.wikipedia.org/wiki/Larry_Abbott)\\n\\n- **Emery N. Brown**  \\n  - Impact: Combines statistical signal processing and neuroscience; influential in neural data analysis, anesthesia neuroscience, and brain state dynamics.  \\n  - Topics: time-series methods, neural decoding, clinical neuroscience applications.  \\n  - Read more: [Emery Brown \\u2014 Wikipedia / Harvard profile](https://en.wikipedia.org/wiki/Emery_N._Brown)\\n\\n- **Eve Marder**  \\n  - Impact: Pioneered use of small circuits as models for understanding variability, neuromodulation, and the robustness of circuit dynamics.  \\n  - Topics: central pattern generators, neuromodulation, computational-experimental integration.  \\n  - Read more: [Eve Marder \\u2014 Wikipedia](https://en.wikipedia.org/wiki/Eve_Marder)\\n\\n---\\n\\n### Computational/machine-learning & neuroscience bridges\\n- **Tomaso Poggio**  \\n  - Impact: Influential in computational vision, learning theory, and bridging machine learning with biological vision systems. Director of CBMM (Brains, Minds & Machines).  \\n  - Topics: vision, learning theory, hierarchical models.  \\n  - Read more: [Tomaso Poggio \\u2014 Edge / MIT profiles](https://www.edge.org/memberbio/tomaso_poggio)\\n\\n- **Terrence (Terry) Sejnowski**  \\n  - Impact: Pioneering computational & theoretical neuroscientist; early neural network models and later work connecting learning, representation, and brain data.  \\n  - Topics: neural networks, learning rules, neural data analysis.  \\n  - Read more: [Terry Sejnowski \\u2014 Salk/UCSD/Wikipedia](https://en.wikipedia.org/wiki/Terrence_Sejnowski)\\n\\n- **Peter Dayan**  \\n  - Impact: Central figure in computational reinforcement learning in neuroscience; influential textbooks and models of learning and decision-making.  \\n  - Topics: reinforcement learning, probabilistic models, learning theory.  \\n  - Read more: [Peter Dayan \\u2014 Wikipedia / UCL profile](https://en.wikipedia.org/wiki/Peter_Dayan)\\n\\n- **Karl Friston**  \\n  - Impact: Developed the *free energy principle* and predictive coding frameworks that have strongly influenced theoretical and computational approaches to brain function.  \\n  - Topics: predictive coding, dynamic causal modeling, Bayesian brain theories.  \\n  - Read more: [Karl Friston \\u2014 Wikipedia](https://en.wikipedia.org/wiki/Karl_Friston)\\n\\n---\\n\\n### Data-driven & large-scale modeling leaders\\n- **Nicholas (Nick) Brunel**  \\n  - Impact: Theoretical studies of spiking networks and balanced states; influential in understanding irregular cortical activity.  \\n  - Topics: spiking networks, network statistics, dynamics.  \\n  - Read more: [Nick Brunel \\u2014 publications and profiles (searchable)](https://scholar.google.com/scholar?q=Nick+Brunel)\\n\\n- **Henry (H. Sebastian) Seung**  \\n  - Impact: Early computational connectomics and learning in networks; works on interpreting connectivity and function.  \\n  - Topics: connectomics, learning rules, theory of representation.  \\n  - Read more: [Sebastian Seung \\u2014 MIT/Princeton/Wikipedia](https://en.wikipedia.org/wiki/Sebastian_Seung)\\n\\n- **Terry J. Sejnowski** (also listed above) \\u2014 included here because of contributions spanning neural data, learning, and large-scale computational efforts (e.g., Brain Imaging & Machine Learning links).\\n\\n---\\n\\n### Emerging & highly influential contemporary figures\\n- **Larry Abbott** and colleagues (listed under theory) continue to be central; other emerging/high-impact contemporary names include:\\n  - **Bruno Olshausen** \\u2014 sparse coding and representation in visual cortex. [Profile](https://en.wikipedia.org/wiki/Bruno_Olshausen)  \\n  - **Konrad Kording** \\u2014 computational approaches to learning and neural data analysis; brain-machine interfaces. [Profile](https://en.wikipedia.org/wiki/Konrad_P._Kording)  \\n  - **Gavriel (Ari) Goldstein / others** \\u2014 (note: many newer influential researchers \\u2014 I can expand with a focused list by subfield on request)\\n\\n---\\n\\n## Quick summaries by subfield\\n- Theoretical & mathematical: **Hodgkin & Huxley, Rall, Marr, Sompolinsky, Abbott, Brunel**\\n- Learning & ML-links: **Poggio, Sejnowski, Dayan, Friston, Olshausen**\\n- Systems & circuits: **Eve Marder, Sompolinsky, Abbott**\\n- Data analysis & neural signal processing: **Emery Brown, Kording**\\n- Connectomics & large-scale modelling: **Sebastian Seung, Poggio**\\n\\n---\\n\\n## Next steps / do you want:\\n- A focused \\u201ctop 20\\u201d ranked list with short bios and major papers/DOIs?  \\n- A list filtered by subfield (vision, learning, dynamics, connectomics, data-analysis)?  \\n- Exportable references (with DOIs and clickable links) for each scientist?\\n\\nTell me which of the above you prefer and I\\u2019ll proceed \\u2014 I can immediately produce a detailed, sourced top-20 with links and key papers.",
+    "actual_tool_calls": {
+      "tool_calls": [
+        {
+          "name": "web-search-tool",
+          "arguments": {
+            "query": "most impactful computational neuroscientists list influential computational neuroscientists Alan Hodgkin Andrew Huxley David Marr Terry Sejnowski Peter Dayan Tomaso Poggio Larry Abbott Haim Sompolinsky Karl Friston influential computational neuroscience pioneers"
+          }
+        }
+      ]
+    },
+    "results": {
+      "metrics": [
+        {
+          "name": "Correctness [GEval]",
+          "score": 0.27124050611376227,
+          "success": false,
+          "threshold": 0.5,
+          "reason": "The actual output provides a detailed list of influential computational neuroscientists, which partially aligns with the input request. However, it fails to match the expected output structure, which specifically calls for a list of Brain Prize winners and their institutions, along with a brief description of their achievements. The actual output lacks the required format and does not mention the Brain Prize, leading to significant discrepancies in content and intent."
+        },
+        {
+          "name": "Tool Correctness",
+          "score": 1.0,
+          "success": true,
+          "threshold": 0.5,
+          "reason": "Correct ordering: all expected tools ['web-search-tool'] were called in the correct order."
+        },
+        {
+          "name": "Argument Correctness",
+          "score": 1.0,
+          "success": true,
+          "threshold": 0.5,
+          "reason": "The score is 1.00 because there were no incorrect tool calls and the input was clear and relevant."
+        }
+      ],
+      "created_at": "2025-10-22 14:33:19.150124"
+    }
+  },
+  "simulation_tutorial": {
+    "user": "How can I simulate on the platform ?\n",
+    "expected_output": "Here is a tutorial on how to simulate on the platform, specifically for simulating a single neuron model:\n\nHow to Simulate a Single Neuron Model on the Platform\nAccess Virtual Lab:\n\nFrom the homepage, click the \"Go to Virtual Lab\" button.\nManage Projects:\n\nClick on \"Projects\" in the left menu to see your projects.\nCreate a project if none exists.\nEnsure you have credits in your project; transfer credits from your virtual lab if needed.\nBuild a Single Neuron Model:\n\nClick on the \"Build\" column in the left panel.\nClick the \"Build\" button in the single neuron tile.\nName your model, optionally add a description.\nSelect the brain region (e.g., primary somatosensory area).\nClick \"Start building.\"\nSelect a 3D reconstructed morphology (M model) and an existing electrical model (E model).\nFilter morphologies by type (e.g., L5 TPC-A for thick tufted layer 5 pyramidal neuron).\nSelect the appropriate E model matching the morphology.\nSave the created morph-electric model (M E model).\nSimulate the Neuron Model:\n\nGo back to your project homepage.\nClick on the \"Simulate\" tab, then \"Single Neuron.\"\nFind your neuron model or search by name.\nClick your model and press \"New Simulation.\"\nIn the simulation window, pan, rotate, and zoom the neuron morphology.\nSet experiment and simulation parameters.\nChoose predefined current injection protocols or customize current steps.\nAdd multiple recording locations by clicking on the morphology or using the \"Add Recording\" button.\nPress \"Simulate\" to run the simulation.\nView and Save Results:\n\nThe \"Results\" tab will display recordings from selected locations.\nSave recordings or save them to the library for later access.\nYou can watch the full tutorial video here:\nHow to simulate a single neuron model (Video)\n\nIf you want, I can guide you through any specific step or help you start a simulation on the platform.\n",
+    "expected_tool_calls": [
+      {
+        "name": "obi-expert",
+        "arguments": {
+          "document_type": "tutorial",
+          "query": "simulate"
+        }
+      }
+    ],
+    "params": {
+      "tags": [
+        "platform_description"
+      ]
+    },
+    "ai_response": "## Overview \\u2014 How to simulate on the Open Brain Platform\\n\\nBelow I summarize the end-to-end workflow to run simulations on the platform and list the main options, prerequisites, and typical steps. I\\u2019ll assume you want to run an atlas\\u2011driven neuronal or circuit simulation (single neuron \\u2192 microcircuit \\u2192 region/whole-brain) using available artifacts (morphologies, e\\u2011models, me\\u2011models, synaptome, etc.). If you want a different scale or a specific notebook/circuit, I will prepare a concrete config and run it for you.\\n\\n---\\n\\n### 1) Choose simulation scale and objective\\n- **Scale options**\\n  - **Single neuron** \\u2014 test ion channels, e\\u2011model electrophysiology, current injections.\\n  - **Pair/small circuit** \\u2014 2 to ~20 neurons with specific connectivity motifs.\\n  - **Microcircuit/region/system/whole_brain** \\u2014 atlas\\u2011driven circuits using region-level densities and synaptome.\\n- **Typical objectives**\\n  - Reproduce published electrophysiology (patch) recordings\\n  - Test effect of channel modulation or drug\\n  - Measure population firing, LFP, connectivity patterns\\n  - Parameter sweep or sensitivity analysis\\n\\n---\\n\\n### 2) Gather required assets (data & models)\\n- **Neuronal elements**\\n  - **Morphologies** (reconstructed neurons)\\n  - **E\\u2011models** (electrical models; ion channel sets)\\n  - **Me\\u2011models** (morphology + e\\u2011model)\\n- **Connectivity**\\n  - **Synaptome** (probabilistic connectivity rules)\\n  - **Bouton/synapse density** and connection rules\\n- **Other artifacts**\\n  - Stimuli protocols (current injections, synaptic inputs, sensory patterns)\\n  - External inputs (background Poisson, thalamic drives)\\n  - Recording targets (voltage traces, spikes, LFP)\\n- On the platform you can browse and attach these assets to your circuit. If you want, I can fetch matching assets for a chosen brain region \\u2014 tell me which region and species.\\n\\n---\\n\\n### 3) Build or pick a circuit\\n- Options:\\n  - **Use an existing circuit** (public microcircuit or region) \\u2014 fastest.\\n  - **Create a new circuit**:\\n    - Define cell populations (types, counts or densities)\\n    - Assign me\\u2011models to populations\\n    - Define intrinsic connectivity (within-circuit) and extrinsic inputs\\n    - Set spatial layout (atlas coordinates/region volumes)\\n- The platform supports atlas\\u2011driven placement and automated connection generation using the synaptome.\\n\\n---\\n\\n### 4) Configure simulation parameters\\n- **Core settings**\\n  - Simulation duration, dt (time step)\\n  - Temperature (if applicable), initial conditions\\n  - Random seeds / reproducibility\\n- **Recording/config outputs**\\n  - Which variables (Vm, spike times, synaptic currents)\\n  - Sampling rate and file format\\n- **Compute settings**\\n  - Single node vs distributed, expected runtime, memory\\n  - Number of trials / parameter sweeps\\n\\nNote: The platform requires simulation configurations in its JSON schema. If you want, I can generate a complete simulation configuration JSON for a given circuit (I will use the platform generator tool to produce the config).\\n\\n---\\n\\n### 5) Run simulation\\n- Submit the configuration to the platform\\u2019s simulation engine.\\n- Monitor execution status (created \\u2192 running \\u2192 done).\\n- Retrieve outputs (traces, spike rasters, summary metrics).\\n\\nI can prepare a simulation config and submit it for you if you provide:\\n  - Which circuit (existing circuit ID or description for a new circuit)\\n  - Scale (single, pair, small, microcircuit, region, etc.)\\n  - Main experimental protocol (e.g., 500 ms current injection of X pA to cell type Y; 10 s network with Poisson background \\u03bb=...)\\n  - Any assets you want included (or allow me to choose reasonable defaults)\\n\\n---\\n\\n### 6) Analyze results\\n- Standard analyses: spike raster, firing rate, PSTH, Vm traces, power spectra, connectivity changes.\\n- Export data for offline analysis (CSV/NPZ/HDF5).\\n- The platform also offers notebooks for common analyses that you can run or download.\\n\\n---\\n\\n## Quick example workflows (pick one)\\n- **Quick single\\u2011cell test**\\n  - Choose an e\\u2011model or me\\u2011model, apply step current, record Vm.\\n  - Use default dt = 0.025 ms, duration = 1000 ms.\\n- **Small network exploratory run**\\n  - 50 neurons across 3 cell types, random connectivity following synaptome rules, 5 s simulation with background Poisson.\\n- **Atlas region simulation**\\n  - Use atlas volume of (choose region), place neurons by density, connect using synaptome, run for network activity and compute LFP.\\n\\nIf you pick one, I will:\\n1. Generate the complete simulation JSON config for the specified circuit using the platform config generator.\\n2. (Optional) Submit and run the simulation and monitor execution.\\n3. Retrieve and present results and analysis.\\n\\n---\\n\\n## Next steps \\u2014 what I need from you (reasonable defaults will be used if you skip)\\n- Which simulation scale do you want? (single | pair | small | microcircuit | region | system | whole_brain)\\n- If region/microcircuit: species and brain region name (I can resolve IDs and assets).\\n- Brief protocol: stimulus type, duration, recordings required.\\n- Do you want me to generate the JSON config only, or also submit and run it?\\n\\nReply with your choices and I\\u2019ll proceed immediately.",
+    "actual_tool_calls": {
+      "tool_calls": []
+    },
+    "results": {
+      "metrics": [
+        {
+          "name": "Correctness [GEval]",
+          "score": 0.2907979306214406,
+          "success": false,
+          "threshold": 0.5,
+          "reason": "The actual output provides a detailed overview of simulating on the Open Brain Platform, but it diverges significantly from the expected output, which focuses specifically on simulating a single neuron model. While it includes relevant steps and components, it lacks the concise structure and specific instructions outlined in the expected output. The logical flow is present, but the content is overly broad and does not directly address the input's request for a simulation tutorial for a single neuron model."
+        },
+        {
+          "name": "Tool Correctness",
+          "score": 0.0,
+          "success": false,
+          "threshold": 0.5,
+          "reason": "Incorrect tool usage: missing tools ['obi-expert'] and out-of-order tools ['obi-expert']; expected ['obi-expert'], called []. See more details above."
+        },
+        {
+          "name": "Argument Correctness",
+          "score": 1.0,
+          "success": true,
+          "threshold": 0.5,
+          "reason": "No tool calls provided"
+        }
+      ],
+      "created_at": "2025-10-22 14:33:19.150151"
+    }
+  }
+}
