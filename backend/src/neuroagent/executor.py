@@ -170,8 +170,17 @@ class WasmExecutor:
                         packages=self.additional_imports, code=json.dumps(code)
                     )
                 )
+            # Add read permission to tempdir
+            permission = []
+            for perm in self.deno_permissions:
+                if "--allow-read" in perm:
+                    allowed_read_dir = perm.split("=")[-1].split(",")
+                    allowed_read_dir.append(runner_dir)
+                    permission.append(f"--allow-read={','.join(allowed_read_dir)}")
+                else:
+                    permission.append(perm)
 
-            cmd = [self.deno_path, "run"] + self.deno_permissions + [runner_path]
+            cmd = [self.deno_path, "run"] + permission + [runner_path]
 
             # Run the cmd in a subprocess
             process = await asyncio.create_subprocess_exec(  # nosec: B603
