@@ -1,1 +1,1 @@
-Can you please generate a plot y=x^2 with matplotlib?
+Can you please generate a plot of y=x^2?
