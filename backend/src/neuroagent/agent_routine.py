@@ -196,7 +196,6 @@ class AgentsRoutine:
                     tool_instance.metadata.token_consumption
                 )
         except Exception as err:
-            breakpoint()
             response = {
                 "role": "tool",
                 "tool_call_id": tool_call.tool_call_id,
