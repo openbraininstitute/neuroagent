@@ -2,6 +2,8 @@ name: Check DeepEval
 on:
   pull_request:
     branches: [ main ]
+  push:
+    branches: [ main ]
 
 jobs:
   Check-DeepEval:
@@ -13,7 +15,8 @@ jobs:
         with:
           fetch-depth: 0
       
-      - name: Check if scores.json was updated
+      - name: Check if scores.json was updated (PR only)
+        if: github.event_name == 'pull_request'
         run: |
           BASE_BRANCH=${GITHUB_BASE_REF:-main}
           
@@ -32,25 +35,31 @@ jobs:
           python -m pip install --upgrade pip
           pip install pandas httpx deepeval python-dotenv pydantic colorama
       
-      - name: Compare evaluation results with main branch
+      - name: Show evaluation results
         env:
           PY_COLORS: '1'
           FORCE_COLOR: '1'
         run: |
-          BASE_BRANCH=${GITHUB_BASE_REF:-main}
-          
-          # Check if main branch has scores.json
-          if git show origin/$BASE_BRANCH:backend/eval/output/scores.json > /dev/null 2>&1; then
-            echo "📊 Comparing evaluation results with main branch..."
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            BASE_BRANCH=${GITHUB_BASE_REF:-main}
             
-            # Get the main branch version
-            git show origin/$BASE_BRANCH:backend/eval/output/scores.json > main_results.json
-            
-            # Run comparison
-            cd backend
-            python src/neuroagent/scripts/compare_results.py ../main_results.json eval/output/scores.json
+            # Check if main branch has scores.json
+            if git show origin/$BASE_BRANCH:backend/eval/output/scores.json > /dev/null 2>&1; then
+              echo "📊 Comparing evaluation results with main branch..."
+              
+              # Get the main branch version
+              git show origin/$BASE_BRANCH:backend/eval/output/scores.json > main_results.json
+              
+              # Run comparison
+              cd backend
+              python src/neuroagent/scripts/compare_results.py ../main_results.json eval/output/scores.json
+            else
+              echo "📊 No previous results found on main branch, showing current results:"
+              cd backend
+              python src/neuroagent/scripts/compare_results.py eval/output/scores.json
+            fi
           else
-            echo "📊 No previous results found on main branch, showing current results:"
+            echo "📊 Showing current evaluation results:"
             cd backend
             python src/neuroagent/scripts/compare_results.py eval/output/scores.json
           fi
