@@ -49,10 +49,10 @@ export function isToolPart<
 // Small utility function to check if the last message has incomplete parts
 export function isLastMessageComplete(messages: MessageStrict | undefined) {
   const metadata = messages?.metadata;
-  if (metadata?.hil.length === 0) {
+  if (metadata?.toolCalls.length === 0) {
     return true;
   }
-  const hasIncomplete = metadata?.hil?.some(
+  const hasIncomplete = metadata?.toolCalls?.some(
     (met) => "isComplete" in met && met.isComplete === false,
   );
 
@@ -118,7 +118,7 @@ export function getValidationStatus(
   metadata: MessageMetadata | undefined,
   toolCallId: string,
 ) {
-  const met = metadata?.hil?.find((a) => a.toolCallId === toolCallId);
+  const met = metadata?.toolCalls?.find((a) => a.toolCallId === toolCallId);
   if (!met) return undefined;
   return met.validated;
 }

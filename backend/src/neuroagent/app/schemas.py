@@ -36,7 +36,7 @@ class ReasoningPartVercel(BaseModel):
     text: str
 
 
-class MetadataHILToolCallVercel(BaseModel):
+class MetadataToolCallVercel(BaseModel):
     """Annotation of vercel tool calls."""
 
     toolCallId: str
@@ -47,7 +47,7 @@ class MetadataHILToolCallVercel(BaseModel):
 class HILDict(BaseModel):
     """Dict for HIL Annotations."""
 
-    hil: list[MetadataHILToolCallVercel]
+    toolCalls: list[MetadataToolCallVercel]
 
 
 class ToolCall(BaseModel):

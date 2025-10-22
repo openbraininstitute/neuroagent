@@ -25,7 +25,7 @@ export type Thread = {
 };
 
 export type MessageMetadata = {
-  hil: {
+  toolCalls: {
     toolCallId?: string;
     validated?: "accepted" | "rejected" | "pending" | "not_required";
     isComplete?: boolean;

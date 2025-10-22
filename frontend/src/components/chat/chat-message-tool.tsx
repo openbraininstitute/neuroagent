@@ -80,8 +80,8 @@ export const ChatMessageTool = function ChatMessageTool({
           return {
             ...msg,
             metadata: {
-              hil: [
-                ...(msg.metadata?.hil || []).filter(
+              toolCalls: [
+                ...(msg.metadata?.toolCalls || []).filter(
                   (a) => a.toolCallId !== tool.toolCallId,
                 ),
                 { toolCallId: tool.toolCallId, validated: "pending" },
