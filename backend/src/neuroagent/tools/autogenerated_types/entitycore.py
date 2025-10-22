@@ -43,29 +43,6 @@ class AgePeriod(RootModel[Literal['prenatal', 'postnatal', 'unknown']]):
     root: Literal['prenatal', 'postnatal', 'unknown'] = Field(..., title='AgePeriod')
 
 
-class AnalysisNotebookExecutionAdminUpdate(BaseModel):
-    model_config = ConfigDict(
-        extra='allow',
-    )
-    authorized_public: bool | str | None = Field(
-        default='<NOT_SET>', title='Authorized Public'
-    )
-    start_time: AwareDatetime | str | None = Field(
-        default='<NOT_SET>', title='Start Time'
-    )
-    end_time: AwareDatetime | str | None = Field(default='<NOT_SET>', title='End Time')
-    used_ids: list[UUID] | str | None = Field(default='<NOT_SET>', title='Used Ids')
-    generated_ids: list[UUID] | str | None = Field(
-        default='<NOT_SET>', title='Generated Ids'
-    )
-    analysis_notebook_template_id: UUID | str | None = Field(
-        default='<NOT_SET>', title='Analysis Notebook Template Id'
-    )
-    analysis_notebook_environment_id: UUID | str | None = Field(
-        default='<NOT_SET>', title='Analysis Notebook Environment Id'
-    )
-
-
 class AnalysisNotebookExecutionCreate(BaseModel):
     model_config = ConfigDict(
         extra='allow',
@@ -81,17 +58,6 @@ class AnalysisNotebookExecutionCreate(BaseModel):
     analysis_notebook_environment_id: UUID = Field(
         ..., title='Analysis Notebook Environment Id'
     )
-
-
-class AnalysisNotebookResultAdminUpdate(BaseModel):
-    model_config = ConfigDict(
-        extra='allow',
-    )
-    authorized_public: bool | str | None = Field(
-        default='<NOT_SET>', title='Authorized Public'
-    )
-    name: str | None = Field(default='<NOT_SET>', title='Name')
-    description: str | None = Field(default='<NOT_SET>', title='Description')
 
 
 class AnalysisNotebookResultCreate(BaseModel):
@@ -242,6 +208,8 @@ class AssetLabel(
             'jupyter_notebook',
             'requirements',
             'ion_channel_model_figure',
+            'ion_channel_model_figure_summary_json',
+            'ion_channel_model_thumbnail',
         ]
     ]
 ):
@@ -284,6 +252,8 @@ class AssetLabel(
         'jupyter_notebook',
         'requirements',
         'ion_channel_model_figure',
+        'ion_channel_model_figure_summary_json',
+        'ion_channel_model_thumbnail',
     ] = Field(..., description='See docs/asset-labels.md.', title='AssetLabel')
 
 
@@ -351,23 +321,6 @@ class BrainRegionRead(BaseModel):
     color_hex_triplet: str = Field(..., title='Color Hex Triplet')
     parent_structure_id: UUID | None = Field(default=None, title='Parent Structure Id')
     hierarchy_id: UUID = Field(..., title='Hierarchy Id')
-
-
-class CalibrationAdminUpdate(BaseModel):
-    model_config = ConfigDict(
-        extra='allow',
-    )
-    authorized_public: bool | str | None = Field(
-        default='<NOT_SET>', title='Authorized Public'
-    )
-    start_time: AwareDatetime | str | None = Field(
-        default='<NOT_SET>', title='Start Time'
-    )
-    end_time: AwareDatetime | str | None = Field(default='<NOT_SET>', title='End Time')
-    used_ids: list[UUID] | str | None = Field(default='<NOT_SET>', title='Used Ids')
-    generated_ids: list[UUID] | str | None = Field(
-        default='<NOT_SET>', title='Generated Ids'
-    )
 
 
 class CalibrationCreate(BaseModel):
@@ -711,28 +664,6 @@ class EMCellMeshUserUpdate(BaseModel):
     )
     em_dense_reconstruction_dataset_id: UUID | str | None = Field(
         default='<NOT_SET>', title='Em Dense Reconstruction Dataset Id'
-    )
-
-
-class EModelAdminUpdate(BaseModel):
-    model_config = ConfigDict(
-        extra='allow',
-    )
-    authorized_public: bool | str | None = Field(
-        default='<NOT_SET>', title='Authorized Public'
-    )
-    description: str | None = Field(default='<NOT_SET>', title='Description')
-    name: str | None = Field(default='<NOT_SET>', title='Name')
-    iteration: str | None = Field(default='<NOT_SET>', title='Iteration')
-    score: float | str | None = Field(default='<NOT_SET>', title='Score')
-    seed: int | str | None = Field(default='<NOT_SET>', title='Seed')
-    species_id: UUID | str | None = Field(default='<NOT_SET>', title='Species Id')
-    strain_id: UUID | str | None = Field(default='<NOT_SET>', title='Strain Id')
-    brain_region_id: UUID | str | None = Field(
-        default='<NOT_SET>', title='Brain Region Id'
-    )
-    exemplar_morphology_id: UUID | str | None = Field(
-        default='<NOT_SET>', title='Exemplar Morphology Id'
     )
 
 
@@ -1085,119 +1016,6 @@ class ErrorResponse(BaseModel):
     details: Any | None = Field(default=None, title='Details')
 
 
-class ExperimentalBoutonDensityAdminUpdate(BaseModel):
-    model_config = ConfigDict(
-        extra='allow',
-    )
-    authorized_public: bool | str | None = Field(
-        default='<NOT_SET>', title='Authorized Public'
-    )
-    license_id: UUID | str | None = Field(default='<NOT_SET>', title='License Id')
-    name: str | None = Field(default='<NOT_SET>', title='Name')
-    description: str | None = Field(default='<NOT_SET>', title='Description')
-    subject_id: UUID | str | None = Field(default='<NOT_SET>', title='Subject Id')
-    brain_region_id: UUID | str | None = Field(
-        default='<NOT_SET>', title='Brain Region Id'
-    )
-    legacy_id: str | None = Field(default='<NOT_SET>', title='Legacy Id')
-
-
-class ExperimentalBoutonDensityCreate(BaseModel):
-    model_config = ConfigDict(
-        extra='allow',
-    )
-    authorized_public: bool = Field(default=False, title='Authorized Public')
-    license_id: UUID | None = Field(default=None, title='License Id')
-    name: str = Field(..., title='Name')
-    description: str = Field(..., title='Description')
-    subject_id: UUID = Field(..., title='Subject Id')
-    brain_region_id: UUID = Field(..., title='Brain Region Id')
-    legacy_id: str | None = Field(..., title='Legacy Id')
-
-
-class ExperimentalBoutonDensityUserUpdate(BaseModel):
-    model_config = ConfigDict(
-        extra='allow',
-    )
-    license_id: UUID | str | None = Field(default='<NOT_SET>', title='License Id')
-    name: str | None = Field(default='<NOT_SET>', title='Name')
-    description: str | None = Field(default='<NOT_SET>', title='Description')
-    subject_id: UUID | str | None = Field(default='<NOT_SET>', title='Subject Id')
-    brain_region_id: UUID | str | None = Field(
-        default='<NOT_SET>', title='Brain Region Id'
-    )
-    legacy_id: str | None = Field(default='<NOT_SET>', title='Legacy Id')
-
-
-ExperimentalNeuronDensityAdminUpdate = ExperimentalBoutonDensityAdminUpdate
-
-
-ExperimentalNeuronDensityCreate = ExperimentalBoutonDensityCreate
-
-
-ExperimentalNeuronDensityUserUpdate = ExperimentalBoutonDensityUserUpdate
-
-
-class ExperimentalSynapsesPerConnectionAdminUpdate(BaseModel):
-    model_config = ConfigDict(
-        extra='allow',
-    )
-    authorized_public: bool | str | None = Field(
-        default='<NOT_SET>', title='Authorized Public'
-    )
-    license_id: UUID | str | None = Field(default='<NOT_SET>', title='License Id')
-    name: str | None = Field(default='<NOT_SET>', title='Name')
-    description: str | None = Field(default='<NOT_SET>', title='Description')
-    subject_id: UUID | str | None = Field(default='<NOT_SET>', title='Subject Id')
-    brain_region_id: UUID | str | None = Field(
-        default='<NOT_SET>', title='Brain Region Id'
-    )
-    legacy_id: str | None = Field(default='<NOT_SET>', title='Legacy Id')
-    pre_mtype_id: UUID | str | None = Field(default='<NOT_SET>', title='Pre Mtype Id')
-    post_mtype_id: UUID | str | None = Field(default='<NOT_SET>', title='Post Mtype Id')
-    pre_region_id: UUID | str | None = Field(default='<NOT_SET>', title='Pre Region Id')
-    post_region_id: UUID | str | None = Field(
-        default='<NOT_SET>', title='Post Region Id'
-    )
-
-
-class ExperimentalSynapsesPerConnectionCreate(BaseModel):
-    model_config = ConfigDict(
-        extra='allow',
-    )
-    authorized_public: bool = Field(default=False, title='Authorized Public')
-    license_id: UUID | None = Field(default=None, title='License Id')
-    name: str = Field(..., title='Name')
-    description: str = Field(..., title='Description')
-    subject_id: UUID = Field(..., title='Subject Id')
-    brain_region_id: UUID = Field(..., title='Brain Region Id')
-    legacy_id: str | None = Field(..., title='Legacy Id')
-    pre_mtype_id: UUID = Field(..., title='Pre Mtype Id')
-    post_mtype_id: UUID = Field(..., title='Post Mtype Id')
-    pre_region_id: UUID = Field(..., title='Pre Region Id')
-    post_region_id: UUID = Field(..., title='Post Region Id')
-
-
-class ExperimentalSynapsesPerConnectionUserUpdate(BaseModel):
-    model_config = ConfigDict(
-        extra='allow',
-    )
-    license_id: UUID | str | None = Field(default='<NOT_SET>', title='License Id')
-    name: str | None = Field(default='<NOT_SET>', title='Name')
-    description: str | None = Field(default='<NOT_SET>', title='Description')
-    subject_id: UUID | str | None = Field(default='<NOT_SET>', title='Subject Id')
-    brain_region_id: UUID | str | None = Field(
-        default='<NOT_SET>', title='Brain Region Id'
-    )
-    legacy_id: str | None = Field(default='<NOT_SET>', title='Legacy Id')
-    pre_mtype_id: UUID | str | None = Field(default='<NOT_SET>', title='Pre Mtype Id')
-    post_mtype_id: UUID | str | None = Field(default='<NOT_SET>', title='Post Mtype Id')
-    pre_region_id: UUID | str | None = Field(default='<NOT_SET>', title='Pre Region Id')
-    post_region_id: UUID | str | None = Field(
-        default='<NOT_SET>', title='Post Region Id'
-    )
-
-
 class ExternalSource(RootModel[Literal['channelpedia', 'modeldb', 'icgenealogy']]):
     root: Literal['channelpedia', 'modeldb', 'icgenealogy'] = Field(
         ...,
@@ -1270,44 +1088,6 @@ class IonChannelCreate(BaseModel):
     label: str = Field(..., title='Label')
     gene: str = Field(..., title='Gene')
     synonyms: list[str] = Field(..., title='Synonyms')
-
-
-class IonChannelRecordingAdminUpdate(BaseModel):
-    model_config = ConfigDict(
-        extra='allow',
-    )
-    authorized_public: bool | str | None = Field(
-        default='<NOT_SET>', title='Authorized Public'
-    )
-    license_id: UUID | str | None = Field(default='<NOT_SET>', title='License Id')
-    brain_region_id: UUID | str | None = Field(
-        default='<NOT_SET>', title='Brain Region Id'
-    )
-    subject_id: UUID | str | None = Field(default='<NOT_SET>', title='Subject Id')
-    experiment_date: AwareDatetime | str | None = Field(
-        default='<NOT_SET>', title='Experiment Date'
-    )
-    contact_email: str | None = Field(default='<NOT_SET>', title='Contact Email')
-    published_in: str | None = Field(default='<NOT_SET>', title='Published In')
-    name: str | None = Field(default='<NOT_SET>', title='Name')
-    description: str | None = Field(default='<NOT_SET>', title='Description')
-    ljp: float | str | None = Field(default='<NOT_SET>', title='Ljp')
-    recording_location: list[str] | str | None = Field(
-        default='<NOT_SET>', title='Recording Location'
-    )
-    recording_type: ElectricalRecordingType | str | None = Field(
-        default='<NOT_SET>', title='Recording Type'
-    )
-    recording_origin: ElectricalRecordingOrigin | str | None = Field(
-        default='<NOT_SET>', title='Recording Origin'
-    )
-    temperature: float | str | None = Field(default='<NOT_SET>', title='Temperature')
-    comment: str | None = Field(default='<NOT_SET>', title='Comment')
-    legacy_id: list[str] | str | None = Field(default='<NOT_SET>', title='Legacy Id')
-    cell_line: str | None = Field(default='<NOT_SET>', title='Cell Line')
-    ion_channel_id: UUID | str | None = Field(
-        default='<NOT_SET>', title='Ion Channel Id'
-    )
 
 
 class IonChannelRecordingCreate(BaseModel):
@@ -1427,25 +1207,6 @@ class LicenseRead(BaseModel):
     name: str = Field(..., title='Name')
     description: str = Field(..., title='Description')
     label: str = Field(..., title='Label')
-
-
-class MEModelCalibrationResultAdminUpdate(BaseModel):
-    model_config = ConfigDict(
-        extra='allow',
-    )
-    authorized_public: bool | str | None = Field(
-        default='<NOT_SET>', title='Authorized Public'
-    )
-    holding_current: float | str | None = Field(
-        default='<NOT_SET>', title='Holding Current'
-    )
-    threshold_current: float | str | None = Field(
-        default='<NOT_SET>', title='Threshold Current'
-    )
-    rin: float | str | None = Field(default='<NOT_SET>', title='Rin')
-    calibrated_entity_id: UUID | str | None = Field(
-        default='<NOT_SET>', title='Calibrated Entity Id'
-    )
 
 
 class MEModelCalibrationResultCreate(BaseModel):
@@ -1961,136 +1722,6 @@ class PythonRuntimeInfo(BaseModel):
     )
 
 
-class ResourceRoute(
-    RootModel[
-        Literal[
-            'analysis-notebook-environment',
-            'analysis-notebook-execution',
-            'analysis-notebook-result',
-            'analysis-notebook-template',
-            'analysis-software-source-code',
-            'brain-atlas',
-            'brain-atlas-region',
-            'brain-region',
-            'brain-region-hierarchy',
-            'calibration',
-            'cell-composition',
-            'cell-morphology',
-            'cell-morphology-protocol',
-            'circuit',
-            'consortium',
-            'contribution',
-            'derivation',
-            'electrical-cell-recording',
-            'electrical-recording',
-            'electrical-recording-stimulus',
-            'em-cell-mesh',
-            'em-dense-reconstruction-dataset',
-            'emodel',
-            'etype',
-            'etype-classification',
-            'experimental-bouton-density',
-            'experimental-neuron-density',
-            'experimental-synapses-per-connection',
-            'external-url',
-            'ion',
-            'ion-channel',
-            'ion-channel-model',
-            'ion-channel-recording',
-            'license',
-            'me-type-density',
-            'measurement-annotation',
-            'memodel',
-            'memodel-calibration-result',
-            'mtype',
-            'mtype-classification',
-            'organization',
-            'person',
-            'publication',
-            'role',
-            'scientific-artifact',
-            'scientific-artifact-external-url-link',
-            'scientific-artifact-publication-link',
-            'simulation',
-            'simulation-campaign',
-            'simulation-execution',
-            'simulation-generation',
-            'simulation-result',
-            'single-neuron-simulation',
-            'single-neuron-synaptome',
-            'single-neuron-synaptome-simulation',
-            'species',
-            'strain',
-            'subject',
-            'validation',
-            'validation-result',
-        ]
-    ]
-):
-    root: Literal[
-        'analysis-notebook-environment',
-        'analysis-notebook-execution',
-        'analysis-notebook-result',
-        'analysis-notebook-template',
-        'analysis-software-source-code',
-        'brain-atlas',
-        'brain-atlas-region',
-        'brain-region',
-        'brain-region-hierarchy',
-        'calibration',
-        'cell-composition',
-        'cell-morphology',
-        'cell-morphology-protocol',
-        'circuit',
-        'consortium',
-        'contribution',
-        'derivation',
-        'electrical-cell-recording',
-        'electrical-recording',
-        'electrical-recording-stimulus',
-        'em-cell-mesh',
-        'em-dense-reconstruction-dataset',
-        'emodel',
-        'etype',
-        'etype-classification',
-        'experimental-bouton-density',
-        'experimental-neuron-density',
-        'experimental-synapses-per-connection',
-        'external-url',
-        'ion',
-        'ion-channel',
-        'ion-channel-model',
-        'ion-channel-recording',
-        'license',
-        'me-type-density',
-        'measurement-annotation',
-        'memodel',
-        'memodel-calibration-result',
-        'mtype',
-        'mtype-classification',
-        'organization',
-        'person',
-        'publication',
-        'role',
-        'scientific-artifact',
-        'scientific-artifact-external-url-link',
-        'scientific-artifact-publication-link',
-        'simulation',
-        'simulation-campaign',
-        'simulation-execution',
-        'simulation-generation',
-        'simulation-result',
-        'single-neuron-simulation',
-        'single-neuron-synaptome',
-        'single-neuron-synaptome-simulation',
-        'species',
-        'strain',
-        'subject',
-        'validation',
-        'validation-result',
-    ] = Field(..., title='ResourceRoute')
-
-
 class RoleAdminUpdate(BaseModel):
     model_config = ConfigDict(
         extra='allow',
@@ -2172,39 +1803,6 @@ class Sex(RootModel[Literal['male', 'female', 'unknown']]):
     root: Literal['male', 'female', 'unknown'] = Field(..., title='Sex')
 
 
-class SimulationAdminUpdate(BaseModel):
-    model_config = ConfigDict(
-        extra='allow',
-    )
-    authorized_public: bool | str | None = Field(
-        default='<NOT_SET>', title='Authorized Public'
-    )
-    name: str | None = Field(default='<NOT_SET>', title='Name')
-    description: str | None = Field(default='<NOT_SET>', title='Description')
-    simulation_campaign_id: UUID | str | None = Field(
-        default='<NOT_SET>', title='Simulation Campaign Id'
-    )
-    entity_id: UUID | str | None = Field(default='<NOT_SET>', title='Entity Id')
-    scan_parameters: dict[str, Any] | str | None = Field(
-        default='<NOT_SET>', title='Scan Parameters'
-    )
-
-
-class SimulationCampaignAdminUpdate(BaseModel):
-    model_config = ConfigDict(
-        extra='allow',
-    )
-    authorized_public: bool | str | None = Field(
-        default='<NOT_SET>', title='Authorized Public'
-    )
-    name: str | None = Field(default='<NOT_SET>', title='Name')
-    description: str | None = Field(default='<NOT_SET>', title='Description')
-    scan_parameters: dict[str, Any] | str | None = Field(
-        default='<NOT_SET>', title='Scan Parameters'
-    )
-    entity_id: UUID | str | None = Field(default='<NOT_SET>', title='Entity Id')
-
-
 class SimulationCampaignCreate(BaseModel):
     model_config = ConfigDict(
         extra='allow',
@@ -2264,9 +1862,6 @@ class SimulationExecutionUserUpdate(BaseModel):
     status: SimulationExecutionStatus | None = None
 
 
-SimulationGenerationAdminUpdate = CalibrationAdminUpdate
-
-
 SimulationGenerationCreate = CalibrationCreate
 
 
@@ -2301,18 +1896,6 @@ class SimulationGenerationUserUpdate(BaseModel):
     generated_ids: list[UUID] | NotSet | None = Field(
         default='<NOT_SET>', title='Generated Ids'
     )
-
-
-class SimulationResultAdminUpdate(BaseModel):
-    model_config = ConfigDict(
-        extra='allow',
-    )
-    authorized_public: bool | str | None = Field(
-        default='<NOT_SET>', title='Authorized Public'
-    )
-    name: str | None = Field(default='<NOT_SET>', title='Name')
-    description: str | None = Field(default='<NOT_SET>', title='Description')
-    simulation_id: UUID | str | None = Field(default='<NOT_SET>', title='Simulation Id')
 
 
 class SimulationResultCreate(BaseModel):
@@ -2377,22 +1960,6 @@ class SingleNeuronSimulationUserUpdate(BaseModel):
     me_model_id: UUID | str | None = Field(default='<NOT_SET>', title='Me Model Id')
 
 
-class SingleNeuronSynaptomeAdminUpdate(BaseModel):
-    model_config = ConfigDict(
-        extra='allow',
-    )
-    authorized_public: bool | str | None = Field(
-        default='<NOT_SET>', title='Authorized Public'
-    )
-    name: str | None = Field(default='<NOT_SET>', title='Name')
-    description: str | None = Field(default='<NOT_SET>', title='Description')
-    seed: int | str | None = Field(default='<NOT_SET>', title='Seed')
-    me_model_id: UUID | str | None = Field(default='<NOT_SET>', title='Me Model Id')
-    brain_region_id: UUID | str | None = Field(
-        default='<NOT_SET>', title='Brain Region Id'
-    )
-
-
 class SingleNeuronSynaptomeCreate(BaseModel):
     model_config = ConfigDict(
         extra='allow',
@@ -2403,31 +1970,6 @@ class SingleNeuronSynaptomeCreate(BaseModel):
     seed: int = Field(..., title='Seed')
     me_model_id: UUID = Field(..., title='Me Model Id')
     brain_region_id: UUID = Field(..., title='Brain Region Id')
-
-
-class SingleNeuronSynaptomeSimulationAdminUpdate(BaseModel):
-    model_config = ConfigDict(
-        extra='allow',
-    )
-    brain_region_id: UUID | str | None = Field(
-        default='<NOT_SET>', title='Brain Region Id'
-    )
-    authorized_public: bool | str | None = Field(
-        default='<NOT_SET>', title='Authorized Public'
-    )
-    name: str | None = Field(default='<NOT_SET>', title='Name')
-    description: str | None = Field(default='<NOT_SET>', title='Description')
-    seed: int | str | None = Field(default='<NOT_SET>', title='Seed')
-    status: SingleNeuronSimulationStatus | str | None = Field(
-        default='<NOT_SET>', title='Status'
-    )
-    injection_location: list[str] | str | None = Field(
-        default='<NOT_SET>', title='Injection Location'
-    )
-    recording_location: list[str] | str | None = Field(
-        default='<NOT_SET>', title='Recording Location'
-    )
-    synaptome_id: UUID | str | None = Field(default='<NOT_SET>', title='Synaptome Id')
 
 
 class SingleNeuronSynaptomeSimulationCreate(BaseModel):
@@ -2593,25 +2135,6 @@ class StructuralDomain(
     ] = Field(..., title='StructuralDomain')
 
 
-class SubjectAdminUpdate(BaseModel):
-    model_config = ConfigDict(
-        extra='allow',
-    )
-    name: str | None = Field(default='<NOT_SET>', title='Name')
-    description: str | None = Field(default='<NOT_SET>', title='Description')
-    sex: Sex | str | None = Field(default='<NOT_SET>', title='Sex')
-    weight: float | str | None = Field(default='<NOT_SET>', title='Weight')
-    age_value: timedelta | str | None = Field(default='<NOT_SET>', title='Age Value')
-    age_min: timedelta | str | None = Field(default='<NOT_SET>', title='Age Min')
-    age_max: timedelta | str | None = Field(default='<NOT_SET>', title='Age Max')
-    age_period: AgePeriod | str | None = Field(default='<NOT_SET>', title='Age Period')
-    authorized_public: bool | str | None = Field(
-        default='<NOT_SET>', title='Authorized Public'
-    )
-    species_id: UUID | str | None = Field(default='<NOT_SET>', title='Species Id')
-    strain_id: UUID | str | None = Field(default='<NOT_SET>', title='Strain Id')
-
-
 class SubjectCreate(BaseModel):
     model_config = ConfigDict(
         extra='allow',
@@ -2695,27 +2218,10 @@ class UseIon(BaseModel):
     main_ion: bool | None = Field(default=None, title='Main Ion')
 
 
-ValidationAdminUpdate = CalibrationAdminUpdate
-
-
 ValidationCreate = CalibrationCreate
 
 
 ValidationRead = SimulationGenerationRead
-
-
-class ValidationResultAdminUpdate(BaseModel):
-    model_config = ConfigDict(
-        extra='allow',
-    )
-    authorized_public: bool | str | None = Field(
-        default='<NOT_SET>', title='Authorized Public'
-    )
-    name: str | None = Field(default='<NOT_SET>', title='Name')
-    passed: bool | str | None = Field(default='<NOT_SET>', title='Passed')
-    validated_entity_id: UUID | str | None = Field(
-        default='<NOT_SET>', title='Validated Entity Id'
-    )
 
 
 class ValidationResultCreate(BaseModel):
@@ -2760,18 +2266,14 @@ class HealthHealthGetResponse(BaseModel):
 VersionVersionGetResponse = HealthHealthGetResponse
 
 
-class GetEntityAssetsAdminEntityRouteEntityIdAssetsGetParametersQuery(BaseModel):
+class GetEntityAssetsEntityRouteEntityIdAssetsGetParametersQuery(BaseModel):
     page: int = Field(default=1, ge=1, title='Page')
     page_size: int = Field(default=100, ge=1, title='Page Size')
     order_by: list[str] = Field(default=['-creation_date'], title='Order By')
 
 
-AdminUpdateOneAdminCellMorphologyProtocolIdPatchRequest = HealthHealthGetResponse
-
-
-GetEntityAssetsEntityRouteEntityIdAssetsGetParametersQuery = (
-    GetEntityAssetsAdminEntityRouteEntityIdAssetsGetParametersQuery
-)
+class DeleteEntityAssetEntityRouteEntityIdAssetsAssetIdDeleteParametersQuery(BaseModel):
+    hard: bool = Field(default=False, title='Hard')
 
 
 class DownloadEntityAssetEntityRouteEntityIdAssetsAssetIdDownloadGetParametersQuery(
@@ -2800,7 +2302,7 @@ class ReadManyAnalysisNotebookEnvironmentGetParametersQuery(BaseModel):
         default=None, title='Authorized Project Id'
     )
     id: UUID | None = Field(default=None, title='Id')
-    id__in: list[str] | None = Field(default=None, title='Id  In')
+    id__in: list[UUID] | None = Field(default=None, title='Id  In')
     order_by: list[str] = Field(default=['-creation_date'], title='Order By')
     contribution__pref_label: str | None = Field(
         default=None, title='Contribution  Pref Label'
@@ -2808,8 +2310,11 @@ class ReadManyAnalysisNotebookEnvironmentGetParametersQuery(BaseModel):
     contribution__pref_label__in: list[str] | None = Field(
         default=None, title='Contribution  Pref Label  In'
     )
+    contribution__pref_label__ilike: str | None = Field(
+        default=None, title='Contribution  Pref Label  Ilike'
+    )
     contribution__id: UUID | None = Field(default=None, title='Contribution  Id')
-    contribution__id__in: list[str] | None = Field(
+    contribution__id__in: list[UUID] | None = Field(
         default=None, title='Contribution  Id  In'
     )
     created_by__pref_label: str | None = Field(
@@ -2818,8 +2323,11 @@ class ReadManyAnalysisNotebookEnvironmentGetParametersQuery(BaseModel):
     created_by__pref_label__in: list[str] | None = Field(
         default=None, title='Created By  Pref Label  In'
     )
+    created_by__pref_label__ilike: str | None = Field(
+        default=None, title='Created By  Pref Label  Ilike'
+    )
     created_by__id: UUID | None = Field(default=None, title='Created By  Id')
-    created_by__id__in: list[str] | None = Field(
+    created_by__id__in: list[UUID] | None = Field(
         default=None, title='Created By  Id  In'
     )
     updated_by__pref_label: str | None = Field(
@@ -2828,8 +2336,11 @@ class ReadManyAnalysisNotebookEnvironmentGetParametersQuery(BaseModel):
     updated_by__pref_label__in: list[str] | None = Field(
         default=None, title='Updated By  Pref Label  In'
     )
+    updated_by__pref_label__ilike: str | None = Field(
+        default=None, title='Updated By  Pref Label  Ilike'
+    )
     updated_by__id: UUID | None = Field(default=None, title='Updated By  Id')
-    updated_by__id__in: list[str] | None = Field(
+    updated_by__id__in: list[UUID] | None = Field(
         default=None, title='Updated By  Id  In'
     )
     search: str | None = Field(default=None, title='Search')
@@ -2852,7 +2363,7 @@ class ReadManyAnalysisNotebookExecutionGetParametersQuery(BaseModel):
         default=None, title='Update Date  Gte'
     )
     id: UUID | None = Field(default=None, title='Id')
-    id__in: list[str] | None = Field(default=None, title='Id  In')
+    id__in: list[UUID] | None = Field(default=None, title='Id  In')
     start_time: AwareDatetime | None = Field(default=None, title='Start Time')
     end_time: AwareDatetime | None = Field(default=None, title='End Time')
     order_by: list[str] = Field(default=['-creation_date'], title='Order By')
@@ -2863,8 +2374,11 @@ class ReadManyAnalysisNotebookExecutionGetParametersQuery(BaseModel):
     created_by__pref_label__in: list[str] | None = Field(
         default=None, title='Created By  Pref Label  In'
     )
+    created_by__pref_label__ilike: str | None = Field(
+        default=None, title='Created By  Pref Label  Ilike'
+    )
     created_by__id: UUID | None = Field(default=None, title='Created By  Id')
-    created_by__id__in: list[str] | None = Field(
+    created_by__id__in: list[UUID] | None = Field(
         default=None, title='Created By  Id  In'
     )
     updated_by__pref_label: str | None = Field(
@@ -2873,15 +2387,20 @@ class ReadManyAnalysisNotebookExecutionGetParametersQuery(BaseModel):
     updated_by__pref_label__in: list[str] | None = Field(
         default=None, title='Updated By  Pref Label  In'
     )
+    updated_by__pref_label__ilike: str | None = Field(
+        default=None, title='Updated By  Pref Label  Ilike'
+    )
     updated_by__id: UUID | None = Field(default=None, title='Updated By  Id')
-    updated_by__id__in: list[str] | None = Field(
+    updated_by__id__in: list[UUID] | None = Field(
         default=None, title='Updated By  Id  In'
     )
     used__id: UUID | None = Field(default=None, title='Used  Id')
-    used__id__in: list[str] | None = Field(default=None, title='Used  Id  In')
+    used__id__in: list[UUID] | None = Field(default=None, title='Used  Id  In')
     used__type: str | None = Field(default=None, title='Used  Type')
     generated__id: UUID | None = Field(default=None, title='Generated  Id')
-    generated__id__in: list[str] | None = Field(default=None, title='Generated  Id  In')
+    generated__id__in: list[UUID] | None = Field(
+        default=None, title='Generated  Id  In'
+    )
     generated__type: str | None = Field(default=None, title='Generated  Type')
     search: str | None = Field(default=None, title='Search')
     with_facets: bool = Field(default=False, title='With Facets')
@@ -2919,7 +2438,7 @@ class ReadManyAnalysisNotebookResultGetParametersQuery(BaseModel):
         default=None, title='Authorized Project Id'
     )
     id: UUID | None = Field(default=None, title='Id')
-    id__in: list[str] | None = Field(default=None, title='Id  In')
+    id__in: list[UUID] | None = Field(default=None, title='Id  In')
     order_by: list[str] = Field(default=['-creation_date'], title='Order By')
     contribution__pref_label: str | None = Field(
         default=None, title='Contribution  Pref Label'
@@ -2927,8 +2446,11 @@ class ReadManyAnalysisNotebookResultGetParametersQuery(BaseModel):
     contribution__pref_label__in: list[str] | None = Field(
         default=None, title='Contribution  Pref Label  In'
     )
+    contribution__pref_label__ilike: str | None = Field(
+        default=None, title='Contribution  Pref Label  Ilike'
+    )
     contribution__id: UUID | None = Field(default=None, title='Contribution  Id')
-    contribution__id__in: list[str] | None = Field(
+    contribution__id__in: list[UUID] | None = Field(
         default=None, title='Contribution  Id  In'
     )
     created_by__pref_label: str | None = Field(
@@ -2937,8 +2459,11 @@ class ReadManyAnalysisNotebookResultGetParametersQuery(BaseModel):
     created_by__pref_label__in: list[str] | None = Field(
         default=None, title='Created By  Pref Label  In'
     )
+    created_by__pref_label__ilike: str | None = Field(
+        default=None, title='Created By  Pref Label  Ilike'
+    )
     created_by__id: UUID | None = Field(default=None, title='Created By  Id')
-    created_by__id__in: list[str] | None = Field(
+    created_by__id__in: list[UUID] | None = Field(
         default=None, title='Created By  Id  In'
     )
     updated_by__pref_label: str | None = Field(
@@ -2947,8 +2472,11 @@ class ReadManyAnalysisNotebookResultGetParametersQuery(BaseModel):
     updated_by__pref_label__in: list[str] | None = Field(
         default=None, title='Updated By  Pref Label  In'
     )
+    updated_by__pref_label__ilike: str | None = Field(
+        default=None, title='Updated By  Pref Label  Ilike'
+    )
     updated_by__id: UUID | None = Field(default=None, title='Updated By  Id')
-    updated_by__id__in: list[str] | None = Field(
+    updated_by__id__in: list[UUID] | None = Field(
         default=None, title='Updated By  Id  In'
     )
     search: str | None = Field(default=None, title='Search')
@@ -2968,25 +2496,25 @@ class ReadManyBrainAtlasGetParametersQuery(BaseModel):
     name__in: list[str] | None = Field(default=None, title='Name  In')
     name__ilike: str | None = Field(default=None, title='Name  Ilike')
     id: UUID | None = Field(default=None, title='Id')
-    id__in: list[str] | None = Field(default=None, title='Id  In')
+    id__in: list[UUID] | None = Field(default=None, title='Id  In')
     order_by: list[str] = Field(default=['name'], title='Order By')
     species__name: str | None = Field(default=None, title='Species  Name')
     species__name__in: list[str] | None = Field(default=None, title='Species  Name  In')
     species__name__ilike: str | None = Field(default=None, title='Species  Name  Ilike')
     species__id: UUID | None = Field(default=None, title='Species  Id')
-    species__id__in: list[str] | None = Field(default=None, title='Species  Id  In')
+    species__id__in: list[UUID] | None = Field(default=None, title='Species  Id  In')
     strain__name: str | None = Field(default=None, title='Strain  Name')
     strain__name__in: list[str] | None = Field(default=None, title='Strain  Name  In')
     strain__name__ilike: str | None = Field(default=None, title='Strain  Name  Ilike')
     strain__id: UUID | None = Field(default=None, title='Strain  Id')
-    strain__id__in: list[str] | None = Field(default=None, title='Strain  Id  In')
+    strain__id__in: list[UUID] | None = Field(default=None, title='Strain  Id  In')
 
 
 class ReadManyRegionBrainAtlasAtlasIdRegionsGetParametersQuery(BaseModel):
     page: int = Field(default=1, ge=1, title='Page')
     page_size: int = Field(default=100, ge=1, title='Page Size')
     id: UUID | None = Field(default=None, title='Id')
-    id__in: list[str] | None = Field(default=None, title='Id  In')
+    id__in: list[UUID] | None = Field(default=None, title='Id  In')
     order_by: list[str] = Field(default=['-creation_date'], title='Order By')
 
 
@@ -3011,7 +2539,7 @@ class ReadManyBrainRegionHierarchyGetParametersQuery(BaseModel):
     name__in: list[str] | None = Field(default=None, title='Name  In')
     name__ilike: str | None = Field(default=None, title='Name  Ilike')
     id: UUID | None = Field(default=None, title='Id')
-    id__in: list[str] | None = Field(default=None, title='Id  In')
+    id__in: list[UUID] | None = Field(default=None, title='Id  In')
     order_by: list[str] = Field(default=['name'], title='Order By')
 
 
@@ -3031,7 +2559,7 @@ class ReadManyCalibrationGetParametersQuery(BaseModel):
         default=None, title='Update Date  Gte'
     )
     id: UUID | None = Field(default=None, title='Id')
-    id__in: list[str] | None = Field(default=None, title='Id  In')
+    id__in: list[UUID] | None = Field(default=None, title='Id  In')
     start_time: AwareDatetime | None = Field(default=None, title='Start Time')
     end_time: AwareDatetime | None = Field(default=None, title='End Time')
     order_by: list[str] = Field(default=['-creation_date'], title='Order By')
@@ -3041,8 +2569,11 @@ class ReadManyCalibrationGetParametersQuery(BaseModel):
     created_by__pref_label__in: list[str] | None = Field(
         default=None, title='Created By  Pref Label  In'
     )
+    created_by__pref_label__ilike: str | None = Field(
+        default=None, title='Created By  Pref Label  Ilike'
+    )
     created_by__id: UUID | None = Field(default=None, title='Created By  Id')
-    created_by__id__in: list[str] | None = Field(
+    created_by__id__in: list[UUID] | None = Field(
         default=None, title='Created By  Id  In'
     )
     updated_by__pref_label: str | None = Field(
@@ -3051,15 +2582,20 @@ class ReadManyCalibrationGetParametersQuery(BaseModel):
     updated_by__pref_label__in: list[str] | None = Field(
         default=None, title='Updated By  Pref Label  In'
     )
+    updated_by__pref_label__ilike: str | None = Field(
+        default=None, title='Updated By  Pref Label  Ilike'
+    )
     updated_by__id: UUID | None = Field(default=None, title='Updated By  Id')
-    updated_by__id__in: list[str] | None = Field(
+    updated_by__id__in: list[UUID] | None = Field(
         default=None, title='Updated By  Id  In'
     )
     used__id: UUID | None = Field(default=None, title='Used  Id')
-    used__id__in: list[str] | None = Field(default=None, title='Used  Id  In')
+    used__id__in: list[UUID] | None = Field(default=None, title='Used  Id  In')
     used__type: str | None = Field(default=None, title='Used  Type')
     generated__id: UUID | None = Field(default=None, title='Generated  Id')
-    generated__id__in: list[str] | None = Field(default=None, title='Generated  Id  In')
+    generated__id__in: list[UUID] | None = Field(
+        default=None, title='Generated  Id  In'
+    )
     generated__type: str | None = Field(default=None, title='Generated  Type')
     search: str | None = Field(default=None, title='Search')
     with_facets: bool = Field(default=False, title='With Facets')
@@ -3097,7 +2633,7 @@ class ReadManyCellCompositionGetParametersQuery(BaseModel):
         default=None, title='Authorized Project Id'
     )
     id: UUID | None = Field(default=None, title='Id')
-    id__in: list[str] | None = Field(default=None, title='Id  In')
+    id__in: list[UUID] | None = Field(default=None, title='Id  In')
     order_by: list[str] = Field(default=['-creation_date'], title='Order By')
     contribution__pref_label: str | None = Field(
         default=None, title='Contribution  Pref Label'
@@ -3105,8 +2641,11 @@ class ReadManyCellCompositionGetParametersQuery(BaseModel):
     contribution__pref_label__in: list[str] | None = Field(
         default=None, title='Contribution  Pref Label  In'
     )
+    contribution__pref_label__ilike: str | None = Field(
+        default=None, title='Contribution  Pref Label  Ilike'
+    )
     contribution__id: UUID | None = Field(default=None, title='Contribution  Id')
-    contribution__id__in: list[str] | None = Field(
+    contribution__id__in: list[UUID] | None = Field(
         default=None, title='Contribution  Id  In'
     )
     created_by__pref_label: str | None = Field(
@@ -3115,8 +2654,11 @@ class ReadManyCellCompositionGetParametersQuery(BaseModel):
     created_by__pref_label__in: list[str] | None = Field(
         default=None, title='Created By  Pref Label  In'
     )
+    created_by__pref_label__ilike: str | None = Field(
+        default=None, title='Created By  Pref Label  Ilike'
+    )
     created_by__id: UUID | None = Field(default=None, title='Created By  Id')
-    created_by__id__in: list[str] | None = Field(
+    created_by__id__in: list[UUID] | None = Field(
         default=None, title='Created By  Id  In'
     )
     updated_by__pref_label: str | None = Field(
@@ -3125,8 +2667,11 @@ class ReadManyCellCompositionGetParametersQuery(BaseModel):
     updated_by__pref_label__in: list[str] | None = Field(
         default=None, title='Updated By  Pref Label  In'
     )
+    updated_by__pref_label__ilike: str | None = Field(
+        default=None, title='Updated By  Pref Label  Ilike'
+    )
     updated_by__id: UUID | None = Field(default=None, title='Updated By  Id')
-    updated_by__id__in: list[str] | None = Field(
+    updated_by__id__in: list[UUID] | None = Field(
         default=None, title='Updated By  Id  In'
     )
     search: str | None = Field(default=None, title='Search')
@@ -3155,7 +2700,7 @@ class ReadManyCellMorphologyGetParametersQuery(BaseModel):
         default=None, title='Authorized Project Id'
     )
     id: UUID | None = Field(default=None, title='Id')
-    id__in: list[str] | None = Field(default=None, title='Id  In')
+    id__in: list[UUID] | None = Field(default=None, title='Id  In')
     order_by: list[str] = Field(default=['-creation_date'], title='Order By')
     measurement_annotation__creation_date__lte: AwareDatetime | None = Field(
         default=None, title='Measurement Annotation  Creation Date  Lte'
@@ -3194,13 +2739,16 @@ class ReadManyCellMorphologyGetParametersQuery(BaseModel):
     mtype__pref_label__in: list[str] | None = Field(
         default=None, title='Mtype  Pref Label  In'
     )
+    mtype__pref_label__ilike: str | None = Field(
+        default=None, title='Mtype  Pref Label  Ilike'
+    )
     mtype__id: UUID | None = Field(default=None, title='Mtype  Id')
-    mtype__id__in: list[str] | None = Field(default=None, title='Mtype  Id  In')
+    mtype__id__in: list[UUID] | None = Field(default=None, title='Mtype  Id  In')
     subject__name: str | None = Field(default=None, title='Subject  Name')
     subject__name__in: list[str] | None = Field(default=None, title='Subject  Name  In')
     subject__name__ilike: str | None = Field(default=None, title='Subject  Name  Ilike')
     subject__id: UUID | None = Field(default=None, title='Subject  Id')
-    subject__id__in: list[str] | None = Field(default=None, title='Subject  Id  In')
+    subject__id__in: list[UUID] | None = Field(default=None, title='Subject  Id  In')
     subject__age_value: timedelta | None = Field(
         default=None, title='Subject  Age Value'
     )
@@ -3216,7 +2764,7 @@ class ReadManyCellMorphologyGetParametersQuery(BaseModel):
     subject__species__id: UUID | None = Field(
         default=None, title='Subject  Species  Id'
     )
-    subject__species__id__in: list[str] | None = Field(
+    subject__species__id__in: list[UUID] | None = Field(
         default=None, title='Subject  Species  Id  In'
     )
     subject__strain__name: str | None = Field(
@@ -3229,7 +2777,7 @@ class ReadManyCellMorphologyGetParametersQuery(BaseModel):
         default=None, title='Subject  Strain  Name  Ilike'
     )
     subject__strain__id: UUID | None = Field(default=None, title='Subject  Strain  Id')
-    subject__strain__id__in: list[str] | None = Field(
+    subject__strain__id__in: list[UUID] | None = Field(
         default=None, title='Subject  Strain  Id  In'
     )
     brain_region__name: str | None = Field(default=None, title='Brain Region  Name')
@@ -3240,7 +2788,7 @@ class ReadManyCellMorphologyGetParametersQuery(BaseModel):
         default=None, title='Brain Region  Name  Ilike'
     )
     brain_region__id: UUID | None = Field(default=None, title='Brain Region  Id')
-    brain_region__id__in: list[str] | None = Field(
+    brain_region__id__in: list[UUID] | None = Field(
         default=None, title='Brain Region  Id  In'
     )
     brain_region__acronym: str | None = Field(
@@ -3255,8 +2803,11 @@ class ReadManyCellMorphologyGetParametersQuery(BaseModel):
     contribution__pref_label__in: list[str] | None = Field(
         default=None, title='Contribution  Pref Label  In'
     )
+    contribution__pref_label__ilike: str | None = Field(
+        default=None, title='Contribution  Pref Label  Ilike'
+    )
     contribution__id: UUID | None = Field(default=None, title='Contribution  Id')
-    contribution__id__in: list[str] | None = Field(
+    contribution__id__in: list[UUID] | None = Field(
         default=None, title='Contribution  Id  In'
     )
     created_by__pref_label: str | None = Field(
@@ -3265,8 +2816,11 @@ class ReadManyCellMorphologyGetParametersQuery(BaseModel):
     created_by__pref_label__in: list[str] | None = Field(
         default=None, title='Created By  Pref Label  In'
     )
+    created_by__pref_label__ilike: str | None = Field(
+        default=None, title='Created By  Pref Label  Ilike'
+    )
     created_by__id: UUID | None = Field(default=None, title='Created By  Id')
-    created_by__id__in: list[str] | None = Field(
+    created_by__id__in: list[UUID] | None = Field(
         default=None, title='Created By  Id  In'
     )
     updated_by__pref_label: str | None = Field(
@@ -3275,14 +2829,17 @@ class ReadManyCellMorphologyGetParametersQuery(BaseModel):
     updated_by__pref_label__in: list[str] | None = Field(
         default=None, title='Updated By  Pref Label  In'
     )
+    updated_by__pref_label__ilike: str | None = Field(
+        default=None, title='Updated By  Pref Label  Ilike'
+    )
     updated_by__id: UUID | None = Field(default=None, title='Updated By  Id')
-    updated_by__id__in: list[str] | None = Field(
+    updated_by__id__in: list[UUID] | None = Field(
         default=None, title='Updated By  Id  In'
     )
     cell_morphology_protocol__id: UUID | None = Field(
         default=None, title='Cell Morphology Protocol  Id'
     )
-    cell_morphology_protocol__id__in: list[str] | None = Field(
+    cell_morphology_protocol__id__in: list[UUID] | None = Field(
         default=None, title='Cell Morphology Protocol  Id  In'
     )
     cell_morphology_protocol__generation_type: CellMorphologyGenerationType | None = (
@@ -3332,7 +2889,7 @@ class ReadManyCellMorphologyProtocolGetParametersQuery(BaseModel):
         default=None, title='Authorized Project Id'
     )
     id: UUID | None = Field(default=None, title='Id')
-    id__in: list[str] | None = Field(default=None, title='Id  In')
+    id__in: list[UUID] | None = Field(default=None, title='Id  In')
     generation_type: CellMorphologyGenerationType | None = Field(
         default=None, title='Generation Type'
     )
@@ -3346,8 +2903,11 @@ class ReadManyCellMorphologyProtocolGetParametersQuery(BaseModel):
     contribution__pref_label__in: list[str] | None = Field(
         default=None, title='Contribution  Pref Label  In'
     )
+    contribution__pref_label__ilike: str | None = Field(
+        default=None, title='Contribution  Pref Label  Ilike'
+    )
     contribution__id: UUID | None = Field(default=None, title='Contribution  Id')
-    contribution__id__in: list[str] | None = Field(
+    contribution__id__in: list[UUID] | None = Field(
         default=None, title='Contribution  Id  In'
     )
     created_by__pref_label: str | None = Field(
@@ -3356,8 +2916,11 @@ class ReadManyCellMorphologyProtocolGetParametersQuery(BaseModel):
     created_by__pref_label__in: list[str] | None = Field(
         default=None, title='Created By  Pref Label  In'
     )
+    created_by__pref_label__ilike: str | None = Field(
+        default=None, title='Created By  Pref Label  Ilike'
+    )
     created_by__id: UUID | None = Field(default=None, title='Created By  Id')
-    created_by__id__in: list[str] | None = Field(
+    created_by__id__in: list[UUID] | None = Field(
         default=None, title='Created By  Id  In'
     )
     updated_by__pref_label: str | None = Field(
@@ -3366,8 +2929,11 @@ class ReadManyCellMorphologyProtocolGetParametersQuery(BaseModel):
     updated_by__pref_label__in: list[str] | None = Field(
         default=None, title='Updated By  Pref Label  In'
     )
+    updated_by__pref_label__ilike: str | None = Field(
+        default=None, title='Updated By  Pref Label  Ilike'
+    )
     updated_by__id: UUID | None = Field(default=None, title='Updated By  Id')
-    updated_by__id__in: list[str] | None = Field(
+    updated_by__id__in: list[UUID] | None = Field(
         default=None, title='Updated By  Id  In'
     )
     with_facets: bool = Field(default=False, title='With Facets')
@@ -3411,7 +2977,7 @@ class ReadManyCircuitGetParametersQuery(BaseModel):
         default=None, title='Authorized Project Id'
     )
     id: UUID | None = Field(default=None, title='Id')
-    id__in: list[str] | None = Field(default=None, title='Id  In')
+    id__in: list[UUID] | None = Field(default=None, title='Id  In')
     experiment_date__lte: AwareDatetime | None = Field(
         default=None, title='Experiment Date  Lte'
     )
@@ -3444,8 +3010,11 @@ class ReadManyCircuitGetParametersQuery(BaseModel):
     contribution__pref_label__in: list[str] | None = Field(
         default=None, title='Contribution  Pref Label  In'
     )
+    contribution__pref_label__ilike: str | None = Field(
+        default=None, title='Contribution  Pref Label  Ilike'
+    )
     contribution__id: UUID | None = Field(default=None, title='Contribution  Id')
-    contribution__id__in: list[str] | None = Field(
+    contribution__id__in: list[UUID] | None = Field(
         default=None, title='Contribution  Id  In'
     )
     created_by__pref_label: str | None = Field(
@@ -3454,8 +3023,11 @@ class ReadManyCircuitGetParametersQuery(BaseModel):
     created_by__pref_label__in: list[str] | None = Field(
         default=None, title='Created By  Pref Label  In'
     )
+    created_by__pref_label__ilike: str | None = Field(
+        default=None, title='Created By  Pref Label  Ilike'
+    )
     created_by__id: UUID | None = Field(default=None, title='Created By  Id')
-    created_by__id__in: list[str] | None = Field(
+    created_by__id__in: list[UUID] | None = Field(
         default=None, title='Created By  Id  In'
     )
     updated_by__pref_label: str | None = Field(
@@ -3464,8 +3036,11 @@ class ReadManyCircuitGetParametersQuery(BaseModel):
     updated_by__pref_label__in: list[str] | None = Field(
         default=None, title='Updated By  Pref Label  In'
     )
+    updated_by__pref_label__ilike: str | None = Field(
+        default=None, title='Updated By  Pref Label  Ilike'
+    )
     updated_by__id: UUID | None = Field(default=None, title='Updated By  Id')
-    updated_by__id__in: list[str] | None = Field(
+    updated_by__id__in: list[UUID] | None = Field(
         default=None, title='Updated By  Id  In'
     )
     brain_region__name: str | None = Field(default=None, title='Brain Region  Name')
@@ -3476,7 +3051,7 @@ class ReadManyCircuitGetParametersQuery(BaseModel):
         default=None, title='Brain Region  Name  Ilike'
     )
     brain_region__id: UUID | None = Field(default=None, title='Brain Region  Id')
-    brain_region__id__in: list[str] | None = Field(
+    brain_region__id__in: list[UUID] | None = Field(
         default=None, title='Brain Region  Id  In'
     )
     brain_region__acronym: str | None = Field(
@@ -3489,7 +3064,7 @@ class ReadManyCircuitGetParametersQuery(BaseModel):
     subject__name__in: list[str] | None = Field(default=None, title='Subject  Name  In')
     subject__name__ilike: str | None = Field(default=None, title='Subject  Name  Ilike')
     subject__id: UUID | None = Field(default=None, title='Subject  Id')
-    subject__id__in: list[str] | None = Field(default=None, title='Subject  Id  In')
+    subject__id__in: list[UUID] | None = Field(default=None, title='Subject  Id  In')
     subject__age_value: timedelta | None = Field(
         default=None, title='Subject  Age Value'
     )
@@ -3505,7 +3080,7 @@ class ReadManyCircuitGetParametersQuery(BaseModel):
     subject__species__id: UUID | None = Field(
         default=None, title='Subject  Species  Id'
     )
-    subject__species__id__in: list[str] | None = Field(
+    subject__species__id__in: list[UUID] | None = Field(
         default=None, title='Subject  Species  Id  In'
     )
     subject__strain__name: str | None = Field(
@@ -3518,7 +3093,7 @@ class ReadManyCircuitGetParametersQuery(BaseModel):
         default=None, title='Subject  Strain  Name  Ilike'
     )
     subject__strain__id: UUID | None = Field(default=None, title='Subject  Strain  Id')
-    subject__strain__id__in: list[str] | None = Field(
+    subject__strain__id__in: list[UUID] | None = Field(
         default=None, title='Subject  Strain  Id  In'
     )
     search: str | None = Field(default=None, title='Search')
@@ -3539,8 +3114,9 @@ class ReadManyConsortiumGetParametersQuery(BaseModel):
     page_size: int = Field(default=100, ge=1, title='Page Size')
     pref_label: str | None = Field(default=None, title='Pref Label')
     pref_label__in: list[str] | None = Field(default=None, title='Pref Label  In')
+    pref_label__ilike: str | None = Field(default=None, title='Pref Label  Ilike')
     id: UUID | None = Field(default=None, title='Id')
-    id__in: list[str] | None = Field(default=None, title='Id  In')
+    id__in: list[UUID] | None = Field(default=None, title='Id  In')
     order_by: list[str] = Field(default=['-creation_date'], title='Order By')
     alternative_name: str | None = Field(default=None, title='Alternative Name')
     created_by__pref_label: str | None = Field(
@@ -3549,8 +3125,11 @@ class ReadManyConsortiumGetParametersQuery(BaseModel):
     created_by__pref_label__in: list[str] | None = Field(
         default=None, title='Created By  Pref Label  In'
     )
+    created_by__pref_label__ilike: str | None = Field(
+        default=None, title='Created By  Pref Label  Ilike'
+    )
     created_by__id: UUID | None = Field(default=None, title='Created By  Id')
-    created_by__id__in: list[str] | None = Field(
+    created_by__id__in: list[UUID] | None = Field(
         default=None, title='Created By  Id  In'
     )
     updated_by__pref_label: str | None = Field(
@@ -3559,8 +3138,11 @@ class ReadManyConsortiumGetParametersQuery(BaseModel):
     updated_by__pref_label__in: list[str] | None = Field(
         default=None, title='Updated By  Pref Label  In'
     )
+    updated_by__pref_label__ilike: str | None = Field(
+        default=None, title='Updated By  Pref Label  Ilike'
+    )
     updated_by__id: UUID | None = Field(default=None, title='Updated By  Id')
-    updated_by__id__in: list[str] | None = Field(
+    updated_by__id__in: list[UUID] | None = Field(
         default=None, title='Updated By  Id  In'
     )
 
@@ -3579,7 +3161,7 @@ class ReadManyContributionGetParametersQuery(BaseModel):
         default=None, title='Update Date  Gte'
     )
     id: UUID | None = Field(default=None, title='Id')
-    id__in: list[str] | None = Field(default=None, title='Id  In')
+    id__in: list[UUID] | None = Field(default=None, title='Id  In')
     order_by: list[str] = Field(default=['-creation_date'], title='Order By')
     created_by__pref_label: str | None = Field(
         default=None, title='Created By  Pref Label'
@@ -3587,8 +3169,11 @@ class ReadManyContributionGetParametersQuery(BaseModel):
     created_by__pref_label__in: list[str] | None = Field(
         default=None, title='Created By  Pref Label  In'
     )
+    created_by__pref_label__ilike: str | None = Field(
+        default=None, title='Created By  Pref Label  Ilike'
+    )
     created_by__id: UUID | None = Field(default=None, title='Created By  Id')
-    created_by__id__in: list[str] | None = Field(
+    created_by__id__in: list[UUID] | None = Field(
         default=None, title='Created By  Id  In'
     )
     updated_by__pref_label: str | None = Field(
@@ -3597,27 +3182,31 @@ class ReadManyContributionGetParametersQuery(BaseModel):
     updated_by__pref_label__in: list[str] | None = Field(
         default=None, title='Updated By  Pref Label  In'
     )
+    updated_by__pref_label__ilike: str | None = Field(
+        default=None, title='Updated By  Pref Label  Ilike'
+    )
     updated_by__id: UUID | None = Field(default=None, title='Updated By  Id')
-    updated_by__id__in: list[str] | None = Field(
+    updated_by__id__in: list[UUID] | None = Field(
         default=None, title='Updated By  Id  In'
     )
     agent__pref_label: str | None = Field(default=None, title='Agent  Pref Label')
     agent__pref_label__in: list[str] | None = Field(
         default=None, title='Agent  Pref Label  In'
     )
+    agent__pref_label__ilike: str | None = Field(
+        default=None, title='Agent  Pref Label  Ilike'
+    )
     agent__id: UUID | None = Field(default=None, title='Agent  Id')
-    agent__id__in: list[str] | None = Field(default=None, title='Agent  Id  In')
+    agent__id__in: list[UUID] | None = Field(default=None, title='Agent  Id  In')
     entity__id: UUID | None = Field(default=None, title='Entity  Id')
-    entity__id__in: list[str] | None = Field(default=None, title='Entity  Id  In')
+    entity__id__in: list[UUID] | None = Field(default=None, title='Entity  Id  In')
     entity__type: str | None = Field(default=None, title='Entity  Type')
     page: int = Field(default=1, ge=1, title='Page')
     page_size: int = Field(default=100, ge=1, title='Page Size')
 
 
 class ReadManyEntityRouteEntityIdDerivedFromGetParametersQuery(BaseModel):
-    derivation_type: DerivationType | None = Field(
-        default=None, title='Derivation Type'
-    )
+    derivation_type: DerivationType
     page: int = Field(default=1, ge=1, title='Page')
     page_size: int = Field(default=100, ge=1, title='Page Size')
     type: EntityType | None = Field(default=None, title='Type')
@@ -3647,7 +3236,7 @@ class ReadManyElectricalCellRecordingGetParametersQuery(BaseModel):
         default=None, title='Authorized Project Id'
     )
     id: UUID | None = Field(default=None, title='Id')
-    id__in: list[str] | None = Field(default=None, title='Id  In')
+    id__in: list[UUID] | None = Field(default=None, title='Id  In')
     experiment_date__lte: AwareDatetime | None = Field(
         default=None, title='Experiment Date  Lte'
     )
@@ -3672,16 +3261,22 @@ class ReadManyElectricalCellRecordingGetParametersQuery(BaseModel):
     etype__pref_label__in: list[str] | None = Field(
         default=None, title='Etype  Pref Label  In'
     )
+    etype__pref_label__ilike: str | None = Field(
+        default=None, title='Etype  Pref Label  Ilike'
+    )
     etype__id: UUID | None = Field(default=None, title='Etype  Id')
-    etype__id__in: list[str] | None = Field(default=None, title='Etype  Id  In')
+    etype__id__in: list[UUID] | None = Field(default=None, title='Etype  Id  In')
     contribution__pref_label: str | None = Field(
         default=None, title='Contribution  Pref Label'
     )
     contribution__pref_label__in: list[str] | None = Field(
         default=None, title='Contribution  Pref Label  In'
     )
+    contribution__pref_label__ilike: str | None = Field(
+        default=None, title='Contribution  Pref Label  Ilike'
+    )
     contribution__id: UUID | None = Field(default=None, title='Contribution  Id')
-    contribution__id__in: list[str] | None = Field(
+    contribution__id__in: list[UUID] | None = Field(
         default=None, title='Contribution  Id  In'
     )
     created_by__pref_label: str | None = Field(
@@ -3690,8 +3285,11 @@ class ReadManyElectricalCellRecordingGetParametersQuery(BaseModel):
     created_by__pref_label__in: list[str] | None = Field(
         default=None, title='Created By  Pref Label  In'
     )
+    created_by__pref_label__ilike: str | None = Field(
+        default=None, title='Created By  Pref Label  Ilike'
+    )
     created_by__id: UUID | None = Field(default=None, title='Created By  Id')
-    created_by__id__in: list[str] | None = Field(
+    created_by__id__in: list[UUID] | None = Field(
         default=None, title='Created By  Id  In'
     )
     updated_by__pref_label: str | None = Field(
@@ -3700,8 +3298,11 @@ class ReadManyElectricalCellRecordingGetParametersQuery(BaseModel):
     updated_by__pref_label__in: list[str] | None = Field(
         default=None, title='Updated By  Pref Label  In'
     )
+    updated_by__pref_label__ilike: str | None = Field(
+        default=None, title='Updated By  Pref Label  Ilike'
+    )
     updated_by__id: UUID | None = Field(default=None, title='Updated By  Id')
-    updated_by__id__in: list[str] | None = Field(
+    updated_by__id__in: list[UUID] | None = Field(
         default=None, title='Updated By  Id  In'
     )
     brain_region__name: str | None = Field(default=None, title='Brain Region  Name')
@@ -3712,7 +3313,7 @@ class ReadManyElectricalCellRecordingGetParametersQuery(BaseModel):
         default=None, title='Brain Region  Name  Ilike'
     )
     brain_region__id: UUID | None = Field(default=None, title='Brain Region  Id')
-    brain_region__id__in: list[str] | None = Field(
+    brain_region__id__in: list[UUID] | None = Field(
         default=None, title='Brain Region  Id  In'
     )
     brain_region__acronym: str | None = Field(
@@ -3725,7 +3326,7 @@ class ReadManyElectricalCellRecordingGetParametersQuery(BaseModel):
     subject__name__in: list[str] | None = Field(default=None, title='Subject  Name  In')
     subject__name__ilike: str | None = Field(default=None, title='Subject  Name  Ilike')
     subject__id: UUID | None = Field(default=None, title='Subject  Id')
-    subject__id__in: list[str] | None = Field(default=None, title='Subject  Id  In')
+    subject__id__in: list[UUID] | None = Field(default=None, title='Subject  Id  In')
     subject__age_value: timedelta | None = Field(
         default=None, title='Subject  Age Value'
     )
@@ -3741,7 +3342,7 @@ class ReadManyElectricalCellRecordingGetParametersQuery(BaseModel):
     subject__species__id: UUID | None = Field(
         default=None, title='Subject  Species  Id'
     )
-    subject__species__id__in: list[str] | None = Field(
+    subject__species__id__in: list[UUID] | None = Field(
         default=None, title='Subject  Species  Id  In'
     )
     subject__strain__name: str | None = Field(
@@ -3754,7 +3355,7 @@ class ReadManyElectricalCellRecordingGetParametersQuery(BaseModel):
         default=None, title='Subject  Strain  Name  Ilike'
     )
     subject__strain__id: UUID | None = Field(default=None, title='Subject  Strain  Id')
-    subject__strain__id__in: list[str] | None = Field(
+    subject__strain__id__in: list[UUID] | None = Field(
         default=None, title='Subject  Strain  Id  In'
     )
     search: str | None = Field(default=None, title='Search')
@@ -3793,7 +3394,7 @@ class ReadManyElectricalRecordingStimulusGetParametersQuery(BaseModel):
         default=None, title='Authorized Project Id'
     )
     id: UUID | None = Field(default=None, title='Id')
-    id__in: list[str] | None = Field(default=None, title='Id  In')
+    id__in: list[UUID] | None = Field(default=None, title='Id  In')
     order_by: list[str] = Field(default=['-creation_date'], title='Order By')
     shape: ElectricalRecordingStimulusShape | None = Field(default=None, title='Shape')
     injection_type: ElectricalRecordingStimulusType | None = Field(
@@ -3807,8 +3408,11 @@ class ReadManyElectricalRecordingStimulusGetParametersQuery(BaseModel):
     contribution__pref_label__in: list[str] | None = Field(
         default=None, title='Contribution  Pref Label  In'
     )
+    contribution__pref_label__ilike: str | None = Field(
+        default=None, title='Contribution  Pref Label  Ilike'
+    )
     contribution__id: UUID | None = Field(default=None, title='Contribution  Id')
-    contribution__id__in: list[str] | None = Field(
+    contribution__id__in: list[UUID] | None = Field(
         default=None, title='Contribution  Id  In'
     )
     created_by__pref_label: str | None = Field(
@@ -3817,8 +3421,11 @@ class ReadManyElectricalRecordingStimulusGetParametersQuery(BaseModel):
     created_by__pref_label__in: list[str] | None = Field(
         default=None, title='Created By  Pref Label  In'
     )
+    created_by__pref_label__ilike: str | None = Field(
+        default=None, title='Created By  Pref Label  Ilike'
+    )
     created_by__id: UUID | None = Field(default=None, title='Created By  Id')
-    created_by__id__in: list[str] | None = Field(
+    created_by__id__in: list[UUID] | None = Field(
         default=None, title='Created By  Id  In'
     )
     updated_by__pref_label: str | None = Field(
@@ -3827,8 +3434,11 @@ class ReadManyElectricalRecordingStimulusGetParametersQuery(BaseModel):
     updated_by__pref_label__in: list[str] | None = Field(
         default=None, title='Updated By  Pref Label  In'
     )
+    updated_by__pref_label__ilike: str | None = Field(
+        default=None, title='Updated By  Pref Label  Ilike'
+    )
     updated_by__id: UUID | None = Field(default=None, title='Updated By  Id')
-    updated_by__id__in: list[str] | None = Field(
+    updated_by__id__in: list[UUID] | None = Field(
         default=None, title='Updated By  Id  In'
     )
     search: str | None = Field(default=None, title='Search')
@@ -3865,7 +3475,7 @@ class ReadManyEmCellMeshGetParametersQuery(BaseModel):
         default=None, title='Authorized Project Id'
     )
     id: UUID | None = Field(default=None, title='Id')
-    id__in: list[str] | None = Field(default=None, title='Id  In')
+    id__in: list[UUID] | None = Field(default=None, title='Id  In')
     experiment_date__lte: AwareDatetime | None = Field(
         default=None, title='Experiment Date  Lte'
     )
@@ -3886,8 +3496,11 @@ class ReadManyEmCellMeshGetParametersQuery(BaseModel):
     contribution__pref_label__in: list[str] | None = Field(
         default=None, title='Contribution  Pref Label  In'
     )
+    contribution__pref_label__ilike: str | None = Field(
+        default=None, title='Contribution  Pref Label  Ilike'
+    )
     contribution__id: UUID | None = Field(default=None, title='Contribution  Id')
-    contribution__id__in: list[str] | None = Field(
+    contribution__id__in: list[UUID] | None = Field(
         default=None, title='Contribution  Id  In'
     )
     created_by__pref_label: str | None = Field(
@@ -3896,8 +3509,11 @@ class ReadManyEmCellMeshGetParametersQuery(BaseModel):
     created_by__pref_label__in: list[str] | None = Field(
         default=None, title='Created By  Pref Label  In'
     )
+    created_by__pref_label__ilike: str | None = Field(
+        default=None, title='Created By  Pref Label  Ilike'
+    )
     created_by__id: UUID | None = Field(default=None, title='Created By  Id')
-    created_by__id__in: list[str] | None = Field(
+    created_by__id__in: list[UUID] | None = Field(
         default=None, title='Created By  Id  In'
     )
     updated_by__pref_label: str | None = Field(
@@ -3906,8 +3522,11 @@ class ReadManyEmCellMeshGetParametersQuery(BaseModel):
     updated_by__pref_label__in: list[str] | None = Field(
         default=None, title='Updated By  Pref Label  In'
     )
+    updated_by__pref_label__ilike: str | None = Field(
+        default=None, title='Updated By  Pref Label  Ilike'
+    )
     updated_by__id: UUID | None = Field(default=None, title='Updated By  Id')
-    updated_by__id__in: list[str] | None = Field(
+    updated_by__id__in: list[UUID] | None = Field(
         default=None, title='Updated By  Id  In'
     )
     brain_region__name: str | None = Field(default=None, title='Brain Region  Name')
@@ -3918,7 +3537,7 @@ class ReadManyEmCellMeshGetParametersQuery(BaseModel):
         default=None, title='Brain Region  Name  Ilike'
     )
     brain_region__id: UUID | None = Field(default=None, title='Brain Region  Id')
-    brain_region__id__in: list[str] | None = Field(
+    brain_region__id__in: list[UUID] | None = Field(
         default=None, title='Brain Region  Id  In'
     )
     brain_region__acronym: str | None = Field(
@@ -3931,7 +3550,7 @@ class ReadManyEmCellMeshGetParametersQuery(BaseModel):
     subject__name__in: list[str] | None = Field(default=None, title='Subject  Name  In')
     subject__name__ilike: str | None = Field(default=None, title='Subject  Name  Ilike')
     subject__id: UUID | None = Field(default=None, title='Subject  Id')
-    subject__id__in: list[str] | None = Field(default=None, title='Subject  Id  In')
+    subject__id__in: list[UUID] | None = Field(default=None, title='Subject  Id  In')
     subject__age_value: timedelta | None = Field(
         default=None, title='Subject  Age Value'
     )
@@ -3947,7 +3566,7 @@ class ReadManyEmCellMeshGetParametersQuery(BaseModel):
     subject__species__id: UUID | None = Field(
         default=None, title='Subject  Species  Id'
     )
-    subject__species__id__in: list[str] | None = Field(
+    subject__species__id__in: list[UUID] | None = Field(
         default=None, title='Subject  Species  Id  In'
     )
     subject__strain__name: str | None = Field(
@@ -3960,7 +3579,7 @@ class ReadManyEmCellMeshGetParametersQuery(BaseModel):
         default=None, title='Subject  Strain  Name  Ilike'
     )
     subject__strain__id: UUID | None = Field(default=None, title='Subject  Strain  Id')
-    subject__strain__id__in: list[str] | None = Field(
+    subject__strain__id__in: list[UUID] | None = Field(
         default=None, title='Subject  Strain  Id  In'
     )
     em_dense_reconstruction_dataset__name: str | None = Field(
@@ -3993,7 +3612,7 @@ class ReadManyEmCellMeshGetParametersQuery(BaseModel):
     em_dense_reconstruction_dataset__id: UUID | None = Field(
         default=None, title='Em Dense Reconstruction Dataset  Id'
     )
-    em_dense_reconstruction_dataset__id__in: list[str] | None = Field(
+    em_dense_reconstruction_dataset__id__in: list[UUID] | None = Field(
         default=None, title='Em Dense Reconstruction Dataset  Id  In'
     )
     em_dense_reconstruction_dataset__experiment_date__lte: AwareDatetime | None = Field(
@@ -4044,7 +3663,7 @@ class ReadManyEmDenseReconstructionDatasetGetParametersQuery(BaseModel):
         default=None, title='Authorized Project Id'
     )
     id: UUID | None = Field(default=None, title='Id')
-    id__in: list[str] | None = Field(default=None, title='Id  In')
+    id__in: list[UUID] | None = Field(default=None, title='Id  In')
     experiment_date__lte: AwareDatetime | None = Field(
         default=None, title='Experiment Date  Lte'
     )
@@ -4059,8 +3678,11 @@ class ReadManyEmDenseReconstructionDatasetGetParametersQuery(BaseModel):
     contribution__pref_label__in: list[str] | None = Field(
         default=None, title='Contribution  Pref Label  In'
     )
+    contribution__pref_label__ilike: str | None = Field(
+        default=None, title='Contribution  Pref Label  Ilike'
+    )
     contribution__id: UUID | None = Field(default=None, title='Contribution  Id')
-    contribution__id__in: list[str] | None = Field(
+    contribution__id__in: list[UUID] | None = Field(
         default=None, title='Contribution  Id  In'
     )
     created_by__pref_label: str | None = Field(
@@ -4069,8 +3691,11 @@ class ReadManyEmDenseReconstructionDatasetGetParametersQuery(BaseModel):
     created_by__pref_label__in: list[str] | None = Field(
         default=None, title='Created By  Pref Label  In'
     )
+    created_by__pref_label__ilike: str | None = Field(
+        default=None, title='Created By  Pref Label  Ilike'
+    )
     created_by__id: UUID | None = Field(default=None, title='Created By  Id')
-    created_by__id__in: list[str] | None = Field(
+    created_by__id__in: list[UUID] | None = Field(
         default=None, title='Created By  Id  In'
     )
     updated_by__pref_label: str | None = Field(
@@ -4079,8 +3704,11 @@ class ReadManyEmDenseReconstructionDatasetGetParametersQuery(BaseModel):
     updated_by__pref_label__in: list[str] | None = Field(
         default=None, title='Updated By  Pref Label  In'
     )
+    updated_by__pref_label__ilike: str | None = Field(
+        default=None, title='Updated By  Pref Label  Ilike'
+    )
     updated_by__id: UUID | None = Field(default=None, title='Updated By  Id')
-    updated_by__id__in: list[str] | None = Field(
+    updated_by__id__in: list[UUID] | None = Field(
         default=None, title='Updated By  Id  In'
     )
     brain_region__name: str | None = Field(default=None, title='Brain Region  Name')
@@ -4091,7 +3719,7 @@ class ReadManyEmDenseReconstructionDatasetGetParametersQuery(BaseModel):
         default=None, title='Brain Region  Name  Ilike'
     )
     brain_region__id: UUID | None = Field(default=None, title='Brain Region  Id')
-    brain_region__id__in: list[str] | None = Field(
+    brain_region__id__in: list[UUID] | None = Field(
         default=None, title='Brain Region  Id  In'
     )
     brain_region__acronym: str | None = Field(
@@ -4104,7 +3732,7 @@ class ReadManyEmDenseReconstructionDatasetGetParametersQuery(BaseModel):
     subject__name__in: list[str] | None = Field(default=None, title='Subject  Name  In')
     subject__name__ilike: str | None = Field(default=None, title='Subject  Name  Ilike')
     subject__id: UUID | None = Field(default=None, title='Subject  Id')
-    subject__id__in: list[str] | None = Field(default=None, title='Subject  Id  In')
+    subject__id__in: list[UUID] | None = Field(default=None, title='Subject  Id  In')
     subject__age_value: timedelta | None = Field(
         default=None, title='Subject  Age Value'
     )
@@ -4120,7 +3748,7 @@ class ReadManyEmDenseReconstructionDatasetGetParametersQuery(BaseModel):
     subject__species__id: UUID | None = Field(
         default=None, title='Subject  Species  Id'
     )
-    subject__species__id__in: list[str] | None = Field(
+    subject__species__id__in: list[UUID] | None = Field(
         default=None, title='Subject  Species  Id  In'
     )
     subject__strain__name: str | None = Field(
@@ -4133,7 +3761,7 @@ class ReadManyEmDenseReconstructionDatasetGetParametersQuery(BaseModel):
         default=None, title='Subject  Strain  Name  Ilike'
     )
     subject__strain__id: UUID | None = Field(default=None, title='Subject  Strain  Id')
-    subject__strain__id__in: list[str] | None = Field(
+    subject__strain__id__in: list[UUID] | None = Field(
         default=None, title='Subject  Strain  Id  In'
     )
     within_brain_region_hierarchy_id: UUID | None = Field(
@@ -4172,7 +3800,7 @@ class ReadManyEmodelGetParametersQuery(BaseModel):
         default=None, title='Authorized Project Id'
     )
     id: UUID | None = Field(default=None, title='Id')
-    id__in: list[str] | None = Field(default=None, title='Id  In')
+    id__in: list[UUID] | None = Field(default=None, title='Id  In')
     score__lte: float | None = Field(default=None, title='Score  Lte')
     score__gte: float | None = Field(default=None, title='Score  Gte')
     order_by: list[str] = Field(default=['-creation_date'], title='Order By')
@@ -4180,32 +3808,41 @@ class ReadManyEmodelGetParametersQuery(BaseModel):
     species__name__in: list[str] | None = Field(default=None, title='Species  Name  In')
     species__name__ilike: str | None = Field(default=None, title='Species  Name  Ilike')
     species__id: UUID | None = Field(default=None, title='Species  Id')
-    species__id__in: list[str] | None = Field(default=None, title='Species  Id  In')
+    species__id__in: list[UUID] | None = Field(default=None, title='Species  Id  In')
     strain__name: str | None = Field(default=None, title='Strain  Name')
     strain__name__in: list[str] | None = Field(default=None, title='Strain  Name  In')
     strain__name__ilike: str | None = Field(default=None, title='Strain  Name  Ilike')
     strain__id: UUID | None = Field(default=None, title='Strain  Id')
-    strain__id__in: list[str] | None = Field(default=None, title='Strain  Id  In')
+    strain__id__in: list[UUID] | None = Field(default=None, title='Strain  Id  In')
     etype__pref_label: str | None = Field(default=None, title='Etype  Pref Label')
     etype__pref_label__in: list[str] | None = Field(
         default=None, title='Etype  Pref Label  In'
     )
+    etype__pref_label__ilike: str | None = Field(
+        default=None, title='Etype  Pref Label  Ilike'
+    )
     etype__id: UUID | None = Field(default=None, title='Etype  Id')
-    etype__id__in: list[str] | None = Field(default=None, title='Etype  Id  In')
+    etype__id__in: list[UUID] | None = Field(default=None, title='Etype  Id  In')
     mtype__pref_label: str | None = Field(default=None, title='Mtype  Pref Label')
     mtype__pref_label__in: list[str] | None = Field(
         default=None, title='Mtype  Pref Label  In'
     )
+    mtype__pref_label__ilike: str | None = Field(
+        default=None, title='Mtype  Pref Label  Ilike'
+    )
     mtype__id: UUID | None = Field(default=None, title='Mtype  Id')
-    mtype__id__in: list[str] | None = Field(default=None, title='Mtype  Id  In')
+    mtype__id__in: list[UUID] | None = Field(default=None, title='Mtype  Id  In')
     contribution__pref_label: str | None = Field(
         default=None, title='Contribution  Pref Label'
     )
     contribution__pref_label__in: list[str] | None = Field(
         default=None, title='Contribution  Pref Label  In'
     )
+    contribution__pref_label__ilike: str | None = Field(
+        default=None, title='Contribution  Pref Label  Ilike'
+    )
     contribution__id: UUID | None = Field(default=None, title='Contribution  Id')
-    contribution__id__in: list[str] | None = Field(
+    contribution__id__in: list[UUID] | None = Field(
         default=None, title='Contribution  Id  In'
     )
     created_by__pref_label: str | None = Field(
@@ -4214,8 +3851,11 @@ class ReadManyEmodelGetParametersQuery(BaseModel):
     created_by__pref_label__in: list[str] | None = Field(
         default=None, title='Created By  Pref Label  In'
     )
+    created_by__pref_label__ilike: str | None = Field(
+        default=None, title='Created By  Pref Label  Ilike'
+    )
     created_by__id: UUID | None = Field(default=None, title='Created By  Id')
-    created_by__id__in: list[str] | None = Field(
+    created_by__id__in: list[UUID] | None = Field(
         default=None, title='Created By  Id  In'
     )
     updated_by__pref_label: str | None = Field(
@@ -4224,8 +3864,11 @@ class ReadManyEmodelGetParametersQuery(BaseModel):
     updated_by__pref_label__in: list[str] | None = Field(
         default=None, title='Updated By  Pref Label  In'
     )
+    updated_by__pref_label__ilike: str | None = Field(
+        default=None, title='Updated By  Pref Label  Ilike'
+    )
     updated_by__id: UUID | None = Field(default=None, title='Updated By  Id')
-    updated_by__id__in: list[str] | None = Field(
+    updated_by__id__in: list[UUID] | None = Field(
         default=None, title='Updated By  Id  In'
     )
     brain_region__name: str | None = Field(default=None, title='Brain Region  Name')
@@ -4236,7 +3879,7 @@ class ReadManyEmodelGetParametersQuery(BaseModel):
         default=None, title='Brain Region  Name  Ilike'
     )
     brain_region__id: UUID | None = Field(default=None, title='Brain Region  Id')
-    brain_region__id__in: list[str] | None = Field(
+    brain_region__id__in: list[UUID] | None = Field(
         default=None, title='Brain Region  Id  In'
     )
     brain_region__acronym: str | None = Field(
@@ -4257,7 +3900,7 @@ class ReadManyEmodelGetParametersQuery(BaseModel):
     exemplar_morphology__id: UUID | None = Field(
         default=None, title='Exemplar Morphology  Id'
     )
-    exemplar_morphology__id__in: list[str] | None = Field(
+    exemplar_morphology__id__in: list[UUID] | None = Field(
         default=None, title='Exemplar Morphology  Id  In'
     )
     morphology__brain_region__name: str | None = Field(
@@ -4272,7 +3915,7 @@ class ReadManyEmodelGetParametersQuery(BaseModel):
     morphology__brain_region__id: UUID | None = Field(
         default=None, title='Morphology  Brain Region  Id'
     )
-    morphology__brain_region__id__in: list[str] | None = Field(
+    morphology__brain_region__id__in: list[UUID] | None = Field(
         default=None, title='Morphology  Brain Region  Id  In'
     )
     morphology__brain_region__acronym: str | None = Field(
@@ -4293,7 +3936,7 @@ class ReadManyEmodelGetParametersQuery(BaseModel):
     morphology__subject__id: UUID | None = Field(
         default=None, title='Morphology  Subject  Id'
     )
-    morphology__subject__id__in: list[str] | None = Field(
+    morphology__subject__id__in: list[UUID] | None = Field(
         default=None, title='Morphology  Subject  Id  In'
     )
     morphology__subject__age_value: timedelta | None = Field(
@@ -4311,7 +3954,7 @@ class ReadManyEmodelGetParametersQuery(BaseModel):
     subject__species__id: UUID | None = Field(
         default=None, title='Subject  Species  Id'
     )
-    subject__species__id__in: list[str] | None = Field(
+    subject__species__id__in: list[UUID] | None = Field(
         default=None, title='Subject  Species  Id  In'
     )
     subject__strain__name: str | None = Field(
@@ -4324,7 +3967,7 @@ class ReadManyEmodelGetParametersQuery(BaseModel):
         default=None, title='Subject  Strain  Name  Ilike'
     )
     subject__strain__id: UUID | None = Field(default=None, title='Subject  Strain  Id')
-    subject__strain__id__in: list[str] | None = Field(
+    subject__strain__id__in: list[UUID] | None = Field(
         default=None, title='Subject  Strain  Id  In'
     )
     morphology__mtype__pref_label: str | None = Field(
@@ -4333,10 +3976,13 @@ class ReadManyEmodelGetParametersQuery(BaseModel):
     morphology__mtype__pref_label__in: list[str] | None = Field(
         default=None, title='Morphology  Mtype  Pref Label  In'
     )
+    morphology__mtype__pref_label__ilike: str | None = Field(
+        default=None, title='Morphology  Mtype  Pref Label  Ilike'
+    )
     morphology__mtype__id: UUID | None = Field(
         default=None, title='Morphology  Mtype  Id'
     )
-    morphology__mtype__id__in: list[str] | None = Field(
+    morphology__mtype__id__in: list[UUID] | None = Field(
         default=None, title='Morphology  Mtype  Id  In'
     )
     ion_channel_model__name: str | None = Field(
@@ -4351,7 +3997,7 @@ class ReadManyEmodelGetParametersQuery(BaseModel):
     ion_channel_model__id: UUID | None = Field(
         default=None, title='Ion Channel Model  Id'
     )
-    ion_channel_model__id__in: list[str] | None = Field(
+    ion_channel_model__id__in: list[UUID] | None = Field(
         default=None, title='Ion Channel Model  Id  In'
     )
     search: str | None = Field(default=None, title='Search')
@@ -4387,8 +4033,9 @@ class ReadManyEtypeGetParametersQuery(BaseModel):
     page_size: int = Field(default=100, ge=1, title='Page Size')
     pref_label: str | None = Field(default=None, title='Pref Label')
     pref_label__in: list[str] | None = Field(default=None, title='Pref Label  In')
+    pref_label__ilike: str | None = Field(default=None, title='Pref Label  Ilike')
     id: UUID | None = Field(default=None, title='Id')
-    id__in: list[str] | None = Field(default=None, title='Id  In')
+    id__in: list[UUID] | None = Field(default=None, title='Id  In')
     order_by: list[str] = Field(default=['pref_label'], title='Order By')
 
 
@@ -4404,8 +4051,11 @@ class ReadManyEtypeClassificationGetParametersQuery(BaseModel):
     created_by__pref_label__in: list[str] | None = Field(
         default=None, title='Created By  Pref Label  In'
     )
+    created_by__pref_label__ilike: str | None = Field(
+        default=None, title='Created By  Pref Label  Ilike'
+    )
     created_by__id: UUID | None = Field(default=None, title='Created By  Id')
-    created_by__id__in: list[str] | None = Field(
+    created_by__id__in: list[UUID] | None = Field(
         default=None, title='Created By  Id  In'
     )
     updated_by__pref_label: str | None = Field(
@@ -4414,8 +4064,11 @@ class ReadManyEtypeClassificationGetParametersQuery(BaseModel):
     updated_by__pref_label__in: list[str] | None = Field(
         default=None, title='Updated By  Pref Label  In'
     )
+    updated_by__pref_label__ilike: str | None = Field(
+        default=None, title='Updated By  Pref Label  Ilike'
+    )
     updated_by__id: UUID | None = Field(default=None, title='Updated By  Id')
-    updated_by__id__in: list[str] | None = Field(
+    updated_by__id__in: list[UUID] | None = Field(
         default=None, title='Updated By  Id  In'
     )
     search: str | None = Field(default=None, title='Search')
@@ -4445,19 +4098,22 @@ class ReadManyExperimentalBoutonDensityGetParametersQuery(BaseModel):
         default=None, title='Authorized Project Id'
     )
     id: UUID | None = Field(default=None, title='Id')
-    id__in: list[str] | None = Field(default=None, title='Id  In')
+    id__in: list[UUID] | None = Field(default=None, title='Id  In')
     order_by: list[str] = Field(default=['-creation_date'], title='Order By')
     mtype__pref_label: str | None = Field(default=None, title='Mtype  Pref Label')
     mtype__pref_label__in: list[str] | None = Field(
         default=None, title='Mtype  Pref Label  In'
     )
+    mtype__pref_label__ilike: str | None = Field(
+        default=None, title='Mtype  Pref Label  Ilike'
+    )
     mtype__id: UUID | None = Field(default=None, title='Mtype  Id')
-    mtype__id__in: list[str] | None = Field(default=None, title='Mtype  Id  In')
+    mtype__id__in: list[UUID] | None = Field(default=None, title='Mtype  Id  In')
     subject__name: str | None = Field(default=None, title='Subject  Name')
     subject__name__in: list[str] | None = Field(default=None, title='Subject  Name  In')
     subject__name__ilike: str | None = Field(default=None, title='Subject  Name  Ilike')
     subject__id: UUID | None = Field(default=None, title='Subject  Id')
-    subject__id__in: list[str] | None = Field(default=None, title='Subject  Id  In')
+    subject__id__in: list[UUID] | None = Field(default=None, title='Subject  Id  In')
     subject__age_value: timedelta | None = Field(
         default=None, title='Subject  Age Value'
     )
@@ -4473,7 +4129,7 @@ class ReadManyExperimentalBoutonDensityGetParametersQuery(BaseModel):
     subject__species__id: UUID | None = Field(
         default=None, title='Subject  Species  Id'
     )
-    subject__species__id__in: list[str] | None = Field(
+    subject__species__id__in: list[UUID] | None = Field(
         default=None, title='Subject  Species  Id  In'
     )
     subject__strain__name: str | None = Field(
@@ -4486,7 +4142,7 @@ class ReadManyExperimentalBoutonDensityGetParametersQuery(BaseModel):
         default=None, title='Subject  Strain  Name  Ilike'
     )
     subject__strain__id: UUID | None = Field(default=None, title='Subject  Strain  Id')
-    subject__strain__id__in: list[str] | None = Field(
+    subject__strain__id__in: list[UUID] | None = Field(
         default=None, title='Subject  Strain  Id  In'
     )
     brain_region__name: str | None = Field(default=None, title='Brain Region  Name')
@@ -4497,7 +4153,7 @@ class ReadManyExperimentalBoutonDensityGetParametersQuery(BaseModel):
         default=None, title='Brain Region  Name  Ilike'
     )
     brain_region__id: UUID | None = Field(default=None, title='Brain Region  Id')
-    brain_region__id__in: list[str] | None = Field(
+    brain_region__id__in: list[UUID] | None = Field(
         default=None, title='Brain Region  Id  In'
     )
     brain_region__acronym: str | None = Field(
@@ -4512,8 +4168,11 @@ class ReadManyExperimentalBoutonDensityGetParametersQuery(BaseModel):
     contribution__pref_label__in: list[str] | None = Field(
         default=None, title='Contribution  Pref Label  In'
     )
+    contribution__pref_label__ilike: str | None = Field(
+        default=None, title='Contribution  Pref Label  Ilike'
+    )
     contribution__id: UUID | None = Field(default=None, title='Contribution  Id')
-    contribution__id__in: list[str] | None = Field(
+    contribution__id__in: list[UUID] | None = Field(
         default=None, title='Contribution  Id  In'
     )
     created_by__pref_label: str | None = Field(
@@ -4522,8 +4181,11 @@ class ReadManyExperimentalBoutonDensityGetParametersQuery(BaseModel):
     created_by__pref_label__in: list[str] | None = Field(
         default=None, title='Created By  Pref Label  In'
     )
+    created_by__pref_label__ilike: str | None = Field(
+        default=None, title='Created By  Pref Label  Ilike'
+    )
     created_by__id: UUID | None = Field(default=None, title='Created By  Id')
-    created_by__id__in: list[str] | None = Field(
+    created_by__id__in: list[UUID] | None = Field(
         default=None, title='Created By  Id  In'
     )
     updated_by__pref_label: str | None = Field(
@@ -4532,8 +4194,11 @@ class ReadManyExperimentalBoutonDensityGetParametersQuery(BaseModel):
     updated_by__pref_label__in: list[str] | None = Field(
         default=None, title='Updated By  Pref Label  In'
     )
+    updated_by__pref_label__ilike: str | None = Field(
+        default=None, title='Updated By  Pref Label  Ilike'
+    )
     updated_by__id: UUID | None = Field(default=None, title='Updated By  Id')
-    updated_by__id__in: list[str] | None = Field(
+    updated_by__id__in: list[UUID] | None = Field(
         default=None, title='Updated By  Id  In'
     )
     search: str | None = Field(default=None, title='Search')
@@ -4572,25 +4237,31 @@ class ReadManyExperimentalNeuronDensityGetParametersQuery(BaseModel):
         default=None, title='Authorized Project Id'
     )
     id: UUID | None = Field(default=None, title='Id')
-    id__in: list[str] | None = Field(default=None, title='Id  In')
+    id__in: list[UUID] | None = Field(default=None, title='Id  In')
     order_by: list[str] = Field(default=['-creation_date'], title='Order By')
     etype__pref_label: str | None = Field(default=None, title='Etype  Pref Label')
     etype__pref_label__in: list[str] | None = Field(
         default=None, title='Etype  Pref Label  In'
     )
+    etype__pref_label__ilike: str | None = Field(
+        default=None, title='Etype  Pref Label  Ilike'
+    )
     etype__id: UUID | None = Field(default=None, title='Etype  Id')
-    etype__id__in: list[str] | None = Field(default=None, title='Etype  Id  In')
+    etype__id__in: list[UUID] | None = Field(default=None, title='Etype  Id  In')
     mtype__pref_label: str | None = Field(default=None, title='Mtype  Pref Label')
     mtype__pref_label__in: list[str] | None = Field(
         default=None, title='Mtype  Pref Label  In'
     )
+    mtype__pref_label__ilike: str | None = Field(
+        default=None, title='Mtype  Pref Label  Ilike'
+    )
     mtype__id: UUID | None = Field(default=None, title='Mtype  Id')
-    mtype__id__in: list[str] | None = Field(default=None, title='Mtype  Id  In')
+    mtype__id__in: list[UUID] | None = Field(default=None, title='Mtype  Id  In')
     subject__name: str | None = Field(default=None, title='Subject  Name')
     subject__name__in: list[str] | None = Field(default=None, title='Subject  Name  In')
     subject__name__ilike: str | None = Field(default=None, title='Subject  Name  Ilike')
     subject__id: UUID | None = Field(default=None, title='Subject  Id')
-    subject__id__in: list[str] | None = Field(default=None, title='Subject  Id  In')
+    subject__id__in: list[UUID] | None = Field(default=None, title='Subject  Id  In')
     subject__age_value: timedelta | None = Field(
         default=None, title='Subject  Age Value'
     )
@@ -4606,7 +4277,7 @@ class ReadManyExperimentalNeuronDensityGetParametersQuery(BaseModel):
     subject__species__id: UUID | None = Field(
         default=None, title='Subject  Species  Id'
     )
-    subject__species__id__in: list[str] | None = Field(
+    subject__species__id__in: list[UUID] | None = Field(
         default=None, title='Subject  Species  Id  In'
     )
     subject__strain__name: str | None = Field(
@@ -4619,7 +4290,7 @@ class ReadManyExperimentalNeuronDensityGetParametersQuery(BaseModel):
         default=None, title='Subject  Strain  Name  Ilike'
     )
     subject__strain__id: UUID | None = Field(default=None, title='Subject  Strain  Id')
-    subject__strain__id__in: list[str] | None = Field(
+    subject__strain__id__in: list[UUID] | None = Field(
         default=None, title='Subject  Strain  Id  In'
     )
     brain_region__name: str | None = Field(default=None, title='Brain Region  Name')
@@ -4630,7 +4301,7 @@ class ReadManyExperimentalNeuronDensityGetParametersQuery(BaseModel):
         default=None, title='Brain Region  Name  Ilike'
     )
     brain_region__id: UUID | None = Field(default=None, title='Brain Region  Id')
-    brain_region__id__in: list[str] | None = Field(
+    brain_region__id__in: list[UUID] | None = Field(
         default=None, title='Brain Region  Id  In'
     )
     brain_region__acronym: str | None = Field(
@@ -4645,8 +4316,11 @@ class ReadManyExperimentalNeuronDensityGetParametersQuery(BaseModel):
     contribution__pref_label__in: list[str] | None = Field(
         default=None, title='Contribution  Pref Label  In'
     )
+    contribution__pref_label__ilike: str | None = Field(
+        default=None, title='Contribution  Pref Label  Ilike'
+    )
     contribution__id: UUID | None = Field(default=None, title='Contribution  Id')
-    contribution__id__in: list[str] | None = Field(
+    contribution__id__in: list[UUID] | None = Field(
         default=None, title='Contribution  Id  In'
     )
     created_by__pref_label: str | None = Field(
@@ -4655,8 +4329,11 @@ class ReadManyExperimentalNeuronDensityGetParametersQuery(BaseModel):
     created_by__pref_label__in: list[str] | None = Field(
         default=None, title='Created By  Pref Label  In'
     )
+    created_by__pref_label__ilike: str | None = Field(
+        default=None, title='Created By  Pref Label  Ilike'
+    )
     created_by__id: UUID | None = Field(default=None, title='Created By  Id')
-    created_by__id__in: list[str] | None = Field(
+    created_by__id__in: list[UUID] | None = Field(
         default=None, title='Created By  Id  In'
     )
     updated_by__pref_label: str | None = Field(
@@ -4665,8 +4342,11 @@ class ReadManyExperimentalNeuronDensityGetParametersQuery(BaseModel):
     updated_by__pref_label__in: list[str] | None = Field(
         default=None, title='Updated By  Pref Label  In'
     )
+    updated_by__pref_label__ilike: str | None = Field(
+        default=None, title='Updated By  Pref Label  Ilike'
+    )
     updated_by__id: UUID | None = Field(default=None, title='Updated By  Id')
-    updated_by__id__in: list[str] | None = Field(
+    updated_by__id__in: list[UUID] | None = Field(
         default=None, title='Updated By  Id  In'
     )
     search: str | None = Field(default=None, title='Search')
@@ -4705,13 +4385,13 @@ class ReadManyExperimentalSynapsesPerConnectionGetParametersQuery(BaseModel):
         default=None, title='Authorized Project Id'
     )
     id: UUID | None = Field(default=None, title='Id')
-    id__in: list[str] | None = Field(default=None, title='Id  In')
+    id__in: list[UUID] | None = Field(default=None, title='Id  In')
     order_by: list[str] = Field(default=['-creation_date'], title='Order By')
     subject__name: str | None = Field(default=None, title='Subject  Name')
     subject__name__in: list[str] | None = Field(default=None, title='Subject  Name  In')
     subject__name__ilike: str | None = Field(default=None, title='Subject  Name  Ilike')
     subject__id: UUID | None = Field(default=None, title='Subject  Id')
-    subject__id__in: list[str] | None = Field(default=None, title='Subject  Id  In')
+    subject__id__in: list[UUID] | None = Field(default=None, title='Subject  Id  In')
     subject__age_value: timedelta | None = Field(
         default=None, title='Subject  Age Value'
     )
@@ -4727,7 +4407,7 @@ class ReadManyExperimentalSynapsesPerConnectionGetParametersQuery(BaseModel):
     subject__species__id: UUID | None = Field(
         default=None, title='Subject  Species  Id'
     )
-    subject__species__id__in: list[str] | None = Field(
+    subject__species__id__in: list[UUID] | None = Field(
         default=None, title='Subject  Species  Id  In'
     )
     subject__strain__name: str | None = Field(
@@ -4740,7 +4420,7 @@ class ReadManyExperimentalSynapsesPerConnectionGetParametersQuery(BaseModel):
         default=None, title='Subject  Strain  Name  Ilike'
     )
     subject__strain__id: UUID | None = Field(default=None, title='Subject  Strain  Id')
-    subject__strain__id__in: list[str] | None = Field(
+    subject__strain__id__in: list[UUID] | None = Field(
         default=None, title='Subject  Strain  Id  In'
     )
     brain_region__name: str | None = Field(default=None, title='Brain Region  Name')
@@ -4751,7 +4431,7 @@ class ReadManyExperimentalSynapsesPerConnectionGetParametersQuery(BaseModel):
         default=None, title='Brain Region  Name  Ilike'
     )
     brain_region__id: UUID | None = Field(default=None, title='Brain Region  Id')
-    brain_region__id__in: list[str] | None = Field(
+    brain_region__id__in: list[UUID] | None = Field(
         default=None, title='Brain Region  Id  In'
     )
     brain_region__acronym: str | None = Field(
@@ -4766,8 +4446,11 @@ class ReadManyExperimentalSynapsesPerConnectionGetParametersQuery(BaseModel):
     contribution__pref_label__in: list[str] | None = Field(
         default=None, title='Contribution  Pref Label  In'
     )
+    contribution__pref_label__ilike: str | None = Field(
+        default=None, title='Contribution  Pref Label  Ilike'
+    )
     contribution__id: UUID | None = Field(default=None, title='Contribution  Id')
-    contribution__id__in: list[str] | None = Field(
+    contribution__id__in: list[UUID] | None = Field(
         default=None, title='Contribution  Id  In'
     )
     created_by__pref_label: str | None = Field(
@@ -4776,8 +4459,11 @@ class ReadManyExperimentalSynapsesPerConnectionGetParametersQuery(BaseModel):
     created_by__pref_label__in: list[str] | None = Field(
         default=None, title='Created By  Pref Label  In'
     )
+    created_by__pref_label__ilike: str | None = Field(
+        default=None, title='Created By  Pref Label  Ilike'
+    )
     created_by__id: UUID | None = Field(default=None, title='Created By  Id')
-    created_by__id__in: list[str] | None = Field(
+    created_by__id__in: list[UUID] | None = Field(
         default=None, title='Created By  Id  In'
     )
     updated_by__pref_label: str | None = Field(
@@ -4786,8 +4472,11 @@ class ReadManyExperimentalSynapsesPerConnectionGetParametersQuery(BaseModel):
     updated_by__pref_label__in: list[str] | None = Field(
         default=None, title='Updated By  Pref Label  In'
     )
+    updated_by__pref_label__ilike: str | None = Field(
+        default=None, title='Updated By  Pref Label  Ilike'
+    )
     updated_by__id: UUID | None = Field(default=None, title='Updated By  Id')
-    updated_by__id__in: list[str] | None = Field(
+    updated_by__id__in: list[UUID] | None = Field(
         default=None, title='Updated By  Id  In'
     )
     pre_mtype__pref_label: str | None = Field(
@@ -4796,16 +4485,24 @@ class ReadManyExperimentalSynapsesPerConnectionGetParametersQuery(BaseModel):
     pre_mtype__pref_label__in: list[str] | None = Field(
         default=None, title='Pre Mtype  Pref Label  In'
     )
+    pre_mtype__pref_label__ilike: str | None = Field(
+        default=None, title='Pre Mtype  Pref Label  Ilike'
+    )
     pre_mtype__id: UUID | None = Field(default=None, title='Pre Mtype  Id')
-    pre_mtype__id__in: list[str] | None = Field(default=None, title='Pre Mtype  Id  In')
+    pre_mtype__id__in: list[UUID] | None = Field(
+        default=None, title='Pre Mtype  Id  In'
+    )
     post_mtype__pref_label: str | None = Field(
         default=None, title='Post Mtype  Pref Label'
     )
     post_mtype__pref_label__in: list[str] | None = Field(
         default=None, title='Post Mtype  Pref Label  In'
     )
+    post_mtype__pref_label__ilike: str | None = Field(
+        default=None, title='Post Mtype  Pref Label  Ilike'
+    )
     post_mtype__id: UUID | None = Field(default=None, title='Post Mtype  Id')
-    post_mtype__id__in: list[str] | None = Field(
+    post_mtype__id__in: list[UUID] | None = Field(
         default=None, title='Post Mtype  Id  In'
     )
     pre_region__name: str | None = Field(default=None, title='Pre Region  Name')
@@ -4816,7 +4513,7 @@ class ReadManyExperimentalSynapsesPerConnectionGetParametersQuery(BaseModel):
         default=None, title='Pre Region  Name  Ilike'
     )
     pre_region__id: UUID | None = Field(default=None, title='Pre Region  Id')
-    pre_region__id__in: list[str] | None = Field(
+    pre_region__id__in: list[UUID] | None = Field(
         default=None, title='Pre Region  Id  In'
     )
     pre_region__acronym: str | None = Field(default=None, title='Pre Region  Acronym')
@@ -4831,7 +4528,7 @@ class ReadManyExperimentalSynapsesPerConnectionGetParametersQuery(BaseModel):
         default=None, title='Post Region  Name  Ilike'
     )
     post_region__id: UUID | None = Field(default=None, title='Post Region  Id')
-    post_region__id__in: list[str] | None = Field(
+    post_region__id__in: list[UUID] | None = Field(
         default=None, title='Post Region  Id  In'
     )
     post_region__acronym: str | None = Field(default=None, title='Post Region  Acronym')
@@ -4858,7 +4555,7 @@ class ReadManyExternalUrlGetParametersQuery(BaseModel):
     name__in: list[str] | None = Field(default=None, title='Name  In')
     name__ilike: str | None = Field(default=None, title='Name  Ilike')
     id: UUID | None = Field(default=None, title='Id')
-    id__in: list[str] | None = Field(default=None, title='Id  In')
+    id__in: list[UUID] | None = Field(default=None, title='Id  In')
     source: ExternalSource | None = Field(default=None, title='Source')
     url: str | None = Field(default=None, title='Url')
     creation_date__lte: AwareDatetime | None = Field(
@@ -4880,8 +4577,11 @@ class ReadManyExternalUrlGetParametersQuery(BaseModel):
     created_by__pref_label__in: list[str] | None = Field(
         default=None, title='Created By  Pref Label  In'
     )
+    created_by__pref_label__ilike: str | None = Field(
+        default=None, title='Created By  Pref Label  Ilike'
+    )
     created_by__id: UUID | None = Field(default=None, title='Created By  Id')
-    created_by__id__in: list[str] | None = Field(
+    created_by__id__in: list[UUID] | None = Field(
         default=None, title='Created By  Id  In'
     )
     updated_by__pref_label: str | None = Field(
@@ -4890,8 +4590,11 @@ class ReadManyExternalUrlGetParametersQuery(BaseModel):
     updated_by__pref_label__in: list[str] | None = Field(
         default=None, title='Updated By  Pref Label  In'
     )
+    updated_by__pref_label__ilike: str | None = Field(
+        default=None, title='Updated By  Pref Label  Ilike'
+    )
     updated_by__id: UUID | None = Field(default=None, title='Updated By  Id')
-    updated_by__id__in: list[str] | None = Field(
+    updated_by__id__in: list[UUID] | None = Field(
         default=None, title='Updated By  Id  In'
     )
     search: str | None = Field(default=None, title='Search')
@@ -4926,7 +4629,7 @@ class ReadManyIonChannelGetParametersQuery(BaseModel):
     name__in: list[str] | None = Field(default=None, title='Name  In')
     name__ilike: str | None = Field(default=None, title='Name  Ilike')
     id: UUID | None = Field(default=None, title='Id')
-    id__in: list[str] | None = Field(default=None, title='Id  In')
+    id__in: list[UUID] | None = Field(default=None, title='Id  In')
     label: str | None = Field(default=None, title='Label')
     gene: str | None = Field(default=None, title='Gene')
     order_by: list[str] = Field(default=['label'], title='Order By')
@@ -4936,8 +4639,11 @@ class ReadManyIonChannelGetParametersQuery(BaseModel):
     created_by__pref_label__in: list[str] | None = Field(
         default=None, title='Created By  Pref Label  In'
     )
+    created_by__pref_label__ilike: str | None = Field(
+        default=None, title='Created By  Pref Label  Ilike'
+    )
     created_by__id: UUID | None = Field(default=None, title='Created By  Id')
-    created_by__id__in: list[str] | None = Field(
+    created_by__id__in: list[UUID] | None = Field(
         default=None, title='Created By  Id  In'
     )
     updated_by__pref_label: str | None = Field(
@@ -4946,8 +4652,11 @@ class ReadManyIonChannelGetParametersQuery(BaseModel):
     updated_by__pref_label__in: list[str] | None = Field(
         default=None, title='Updated By  Pref Label  In'
     )
+    updated_by__pref_label__ilike: str | None = Field(
+        default=None, title='Updated By  Pref Label  Ilike'
+    )
     updated_by__id: UUID | None = Field(default=None, title='Updated By  Id')
-    updated_by__id__in: list[str] | None = Field(
+    updated_by__id__in: list[UUID] | None = Field(
         default=None, title='Updated By  Id  In'
     )
     search: str | None = Field(default=None, title='Search')
@@ -4978,7 +4687,7 @@ class ReadManyIonChannelModelGetParametersQuery(BaseModel):
         default=None, title='Authorized Project Id'
     )
     id: UUID | None = Field(default=None, title='Id')
-    id__in: list[str] | None = Field(default=None, title='Id  In')
+    id__in: list[UUID] | None = Field(default=None, title='Id  In')
     experiment_date__lte: AwareDatetime | None = Field(
         default=None, title='Experiment Date  Lte'
     )
@@ -5005,8 +4714,11 @@ class ReadManyIonChannelModelGetParametersQuery(BaseModel):
     contribution__pref_label__in: list[str] | None = Field(
         default=None, title='Contribution  Pref Label  In'
     )
+    contribution__pref_label__ilike: str | None = Field(
+        default=None, title='Contribution  Pref Label  Ilike'
+    )
     contribution__id: UUID | None = Field(default=None, title='Contribution  Id')
-    contribution__id__in: list[str] | None = Field(
+    contribution__id__in: list[UUID] | None = Field(
         default=None, title='Contribution  Id  In'
     )
     created_by__pref_label: str | None = Field(
@@ -5015,8 +4727,11 @@ class ReadManyIonChannelModelGetParametersQuery(BaseModel):
     created_by__pref_label__in: list[str] | None = Field(
         default=None, title='Created By  Pref Label  In'
     )
+    created_by__pref_label__ilike: str | None = Field(
+        default=None, title='Created By  Pref Label  Ilike'
+    )
     created_by__id: UUID | None = Field(default=None, title='Created By  Id')
-    created_by__id__in: list[str] | None = Field(
+    created_by__id__in: list[UUID] | None = Field(
         default=None, title='Created By  Id  In'
     )
     updated_by__pref_label: str | None = Field(
@@ -5025,8 +4740,11 @@ class ReadManyIonChannelModelGetParametersQuery(BaseModel):
     updated_by__pref_label__in: list[str] | None = Field(
         default=None, title='Updated By  Pref Label  In'
     )
+    updated_by__pref_label__ilike: str | None = Field(
+        default=None, title='Updated By  Pref Label  Ilike'
+    )
     updated_by__id: UUID | None = Field(default=None, title='Updated By  Id')
-    updated_by__id__in: list[str] | None = Field(
+    updated_by__id__in: list[UUID] | None = Field(
         default=None, title='Updated By  Id  In'
     )
     brain_region__name: str | None = Field(default=None, title='Brain Region  Name')
@@ -5037,7 +4755,7 @@ class ReadManyIonChannelModelGetParametersQuery(BaseModel):
         default=None, title='Brain Region  Name  Ilike'
     )
     brain_region__id: UUID | None = Field(default=None, title='Brain Region  Id')
-    brain_region__id__in: list[str] | None = Field(
+    brain_region__id__in: list[UUID] | None = Field(
         default=None, title='Brain Region  Id  In'
     )
     brain_region__acronym: str | None = Field(
@@ -5050,7 +4768,7 @@ class ReadManyIonChannelModelGetParametersQuery(BaseModel):
     subject__name__in: list[str] | None = Field(default=None, title='Subject  Name  In')
     subject__name__ilike: str | None = Field(default=None, title='Subject  Name  Ilike')
     subject__id: UUID | None = Field(default=None, title='Subject  Id')
-    subject__id__in: list[str] | None = Field(default=None, title='Subject  Id  In')
+    subject__id__in: list[UUID] | None = Field(default=None, title='Subject  Id  In')
     subject__age_value: timedelta | None = Field(
         default=None, title='Subject  Age Value'
     )
@@ -5066,7 +4784,7 @@ class ReadManyIonChannelModelGetParametersQuery(BaseModel):
     subject__species__id: UUID | None = Field(
         default=None, title='Subject  Species  Id'
     )
-    subject__species__id__in: list[str] | None = Field(
+    subject__species__id__in: list[UUID] | None = Field(
         default=None, title='Subject  Species  Id  In'
     )
     subject__strain__name: str | None = Field(
@@ -5079,7 +4797,7 @@ class ReadManyIonChannelModelGetParametersQuery(BaseModel):
         default=None, title='Subject  Strain  Name  Ilike'
     )
     subject__strain__id: UUID | None = Field(default=None, title='Subject  Strain  Id')
-    subject__strain__id__in: list[str] | None = Field(
+    subject__strain__id__in: list[UUID] | None = Field(
         default=None, title='Subject  Strain  Id  In'
     )
     within_brain_region_hierarchy_id: UUID | None = Field(
@@ -5117,7 +4835,7 @@ class ReadManyIonChannelRecordingGetParametersQuery(BaseModel):
         default=None, title='Authorized Project Id'
     )
     id: UUID | None = Field(default=None, title='Id')
-    id__in: list[str] | None = Field(default=None, title='Id  In')
+    id__in: list[UUID] | None = Field(default=None, title='Id  In')
     experiment_date__lte: AwareDatetime | None = Field(
         default=None, title='Experiment Date  Lte'
     )
@@ -5138,14 +4856,22 @@ class ReadManyIonChannelRecordingGetParametersQuery(BaseModel):
     recording_origin__in: list[ElectricalRecordingOrigin] | None = Field(
         default=None, title='Recording Origin  In'
     )
+    temperature: float | None = Field(default=None, title='Temperature')
+    temperature__lte: float | None = Field(default=None, title='Temperature  Lte')
+    temperature__gte: float | None = Field(default=None, title='Temperature  Gte')
+    cell_line: str | None = Field(default=None, title='Cell Line')
+    cell_line__ilike: str | None = Field(default=None, title='Cell Line  Ilike')
     contribution__pref_label: str | None = Field(
         default=None, title='Contribution  Pref Label'
     )
     contribution__pref_label__in: list[str] | None = Field(
         default=None, title='Contribution  Pref Label  In'
     )
+    contribution__pref_label__ilike: str | None = Field(
+        default=None, title='Contribution  Pref Label  Ilike'
+    )
     contribution__id: UUID | None = Field(default=None, title='Contribution  Id')
-    contribution__id__in: list[str] | None = Field(
+    contribution__id__in: list[UUID] | None = Field(
         default=None, title='Contribution  Id  In'
     )
     created_by__pref_label: str | None = Field(
@@ -5154,8 +4880,11 @@ class ReadManyIonChannelRecordingGetParametersQuery(BaseModel):
     created_by__pref_label__in: list[str] | None = Field(
         default=None, title='Created By  Pref Label  In'
     )
+    created_by__pref_label__ilike: str | None = Field(
+        default=None, title='Created By  Pref Label  Ilike'
+    )
     created_by__id: UUID | None = Field(default=None, title='Created By  Id')
-    created_by__id__in: list[str] | None = Field(
+    created_by__id__in: list[UUID] | None = Field(
         default=None, title='Created By  Id  In'
     )
     updated_by__pref_label: str | None = Field(
@@ -5164,8 +4893,11 @@ class ReadManyIonChannelRecordingGetParametersQuery(BaseModel):
     updated_by__pref_label__in: list[str] | None = Field(
         default=None, title='Updated By  Pref Label  In'
     )
+    updated_by__pref_label__ilike: str | None = Field(
+        default=None, title='Updated By  Pref Label  Ilike'
+    )
     updated_by__id: UUID | None = Field(default=None, title='Updated By  Id')
-    updated_by__id__in: list[str] | None = Field(
+    updated_by__id__in: list[UUID] | None = Field(
         default=None, title='Updated By  Id  In'
     )
     brain_region__name: str | None = Field(default=None, title='Brain Region  Name')
@@ -5176,7 +4908,7 @@ class ReadManyIonChannelRecordingGetParametersQuery(BaseModel):
         default=None, title='Brain Region  Name  Ilike'
     )
     brain_region__id: UUID | None = Field(default=None, title='Brain Region  Id')
-    brain_region__id__in: list[str] | None = Field(
+    brain_region__id__in: list[UUID] | None = Field(
         default=None, title='Brain Region  Id  In'
     )
     brain_region__acronym: str | None = Field(
@@ -5189,7 +4921,7 @@ class ReadManyIonChannelRecordingGetParametersQuery(BaseModel):
     subject__name__in: list[str] | None = Field(default=None, title='Subject  Name  In')
     subject__name__ilike: str | None = Field(default=None, title='Subject  Name  Ilike')
     subject__id: UUID | None = Field(default=None, title='Subject  Id')
-    subject__id__in: list[str] | None = Field(default=None, title='Subject  Id  In')
+    subject__id__in: list[UUID] | None = Field(default=None, title='Subject  Id  In')
     subject__age_value: timedelta | None = Field(
         default=None, title='Subject  Age Value'
     )
@@ -5205,7 +4937,7 @@ class ReadManyIonChannelRecordingGetParametersQuery(BaseModel):
     subject__species__id: UUID | None = Field(
         default=None, title='Subject  Species  Id'
     )
-    subject__species__id__in: list[str] | None = Field(
+    subject__species__id__in: list[UUID] | None = Field(
         default=None, title='Subject  Species  Id  In'
     )
     subject__strain__name: str | None = Field(
@@ -5218,7 +4950,7 @@ class ReadManyIonChannelRecordingGetParametersQuery(BaseModel):
         default=None, title='Subject  Strain  Name  Ilike'
     )
     subject__strain__id: UUID | None = Field(default=None, title='Subject  Strain  Id')
-    subject__strain__id__in: list[str] | None = Field(
+    subject__strain__id__in: list[UUID] | None = Field(
         default=None, title='Subject  Strain  Id  In'
     )
     ion_channel__name: str | None = Field(default=None, title='Ion Channel  Name')
@@ -5229,7 +4961,7 @@ class ReadManyIonChannelRecordingGetParametersQuery(BaseModel):
         default=None, title='Ion Channel  Name  Ilike'
     )
     ion_channel__id: UUID | None = Field(default=None, title='Ion Channel  Id')
-    ion_channel__id__in: list[str] | None = Field(
+    ion_channel__id__in: list[UUID] | None = Field(
         default=None, title='Ion Channel  Id  In'
     )
     ion_channel__label: str | None = Field(default=None, title='Ion Channel  Label')
@@ -5251,7 +4983,10 @@ class ReadManyLicenseGetParametersQuery(BaseModel):
     page: int = Field(default=1, ge=1, title='Page')
     page_size: int = Field(default=100, ge=1, title='Page Size')
     name: str | None = Field(default=None, title='Name')
+    name__in: list[str] | None = Field(default=None, title='Name  In')
+    name__ilike: str | None = Field(default=None, title='Name  Ilike')
     label: str | None = Field(default=None, title='Label')
+    label__ilike: str | None = Field(default=None, title='Label  Ilike')
     order_by: list[str] = Field(default=['-creation_date'], title='Order By')
 
 
@@ -5330,7 +5065,7 @@ class ReadManyMemodelGetParametersQuery(BaseModel):
         default=None, title='Authorized Project Id'
     )
     id: UUID | None = Field(default=None, title='Id')
-    id__in: list[str] | None = Field(default=None, title='Id  In')
+    id__in: list[UUID] | None = Field(default=None, title='Id  In')
     order_by: list[str] = Field(default=['-creation_date'], title='Order By')
     brain_region__name: str | None = Field(default=None, title='Brain Region  Name')
     brain_region__name__in: list[str] | None = Field(
@@ -5340,7 +5075,7 @@ class ReadManyMemodelGetParametersQuery(BaseModel):
         default=None, title='Brain Region  Name  Ilike'
     )
     brain_region__id: UUID | None = Field(default=None, title='Brain Region  Id')
-    brain_region__id__in: list[str] | None = Field(
+    brain_region__id__in: list[UUID] | None = Field(
         default=None, title='Brain Region  Id  In'
     )
     brain_region__acronym: str | None = Field(
@@ -5353,32 +5088,41 @@ class ReadManyMemodelGetParametersQuery(BaseModel):
     etype__pref_label__in: list[str] | None = Field(
         default=None, title='Etype  Pref Label  In'
     )
+    etype__pref_label__ilike: str | None = Field(
+        default=None, title='Etype  Pref Label  Ilike'
+    )
     etype__id: UUID | None = Field(default=None, title='Etype  Id')
-    etype__id__in: list[str] | None = Field(default=None, title='Etype  Id  In')
+    etype__id__in: list[UUID] | None = Field(default=None, title='Etype  Id  In')
     mtype__pref_label: str | None = Field(default=None, title='Mtype  Pref Label')
     mtype__pref_label__in: list[str] | None = Field(
         default=None, title='Mtype  Pref Label  In'
     )
+    mtype__pref_label__ilike: str | None = Field(
+        default=None, title='Mtype  Pref Label  Ilike'
+    )
     mtype__id: UUID | None = Field(default=None, title='Mtype  Id')
-    mtype__id__in: list[str] | None = Field(default=None, title='Mtype  Id  In')
+    mtype__id__in: list[UUID] | None = Field(default=None, title='Mtype  Id  In')
     species__name: str | None = Field(default=None, title='Species  Name')
     species__name__in: list[str] | None = Field(default=None, title='Species  Name  In')
     species__name__ilike: str | None = Field(default=None, title='Species  Name  Ilike')
     species__id: UUID | None = Field(default=None, title='Species  Id')
-    species__id__in: list[str] | None = Field(default=None, title='Species  Id  In')
+    species__id__in: list[UUID] | None = Field(default=None, title='Species  Id  In')
     strain__name: str | None = Field(default=None, title='Strain  Name')
     strain__name__in: list[str] | None = Field(default=None, title='Strain  Name  In')
     strain__name__ilike: str | None = Field(default=None, title='Strain  Name  Ilike')
     strain__id: UUID | None = Field(default=None, title='Strain  Id')
-    strain__id__in: list[str] | None = Field(default=None, title='Strain  Id  In')
+    strain__id__in: list[UUID] | None = Field(default=None, title='Strain  Id  In')
     contribution__pref_label: str | None = Field(
         default=None, title='Contribution  Pref Label'
     )
     contribution__pref_label__in: list[str] | None = Field(
         default=None, title='Contribution  Pref Label  In'
     )
+    contribution__pref_label__ilike: str | None = Field(
+        default=None, title='Contribution  Pref Label  Ilike'
+    )
     contribution__id: UUID | None = Field(default=None, title='Contribution  Id')
-    contribution__id__in: list[str] | None = Field(
+    contribution__id__in: list[UUID] | None = Field(
         default=None, title='Contribution  Id  In'
     )
     created_by__pref_label: str | None = Field(
@@ -5387,8 +5131,11 @@ class ReadManyMemodelGetParametersQuery(BaseModel):
     created_by__pref_label__in: list[str] | None = Field(
         default=None, title='Created By  Pref Label  In'
     )
+    created_by__pref_label__ilike: str | None = Field(
+        default=None, title='Created By  Pref Label  Ilike'
+    )
     created_by__id: UUID | None = Field(default=None, title='Created By  Id')
-    created_by__id__in: list[str] | None = Field(
+    created_by__id__in: list[UUID] | None = Field(
         default=None, title='Created By  Id  In'
     )
     updated_by__pref_label: str | None = Field(
@@ -5397,8 +5144,11 @@ class ReadManyMemodelGetParametersQuery(BaseModel):
     updated_by__pref_label__in: list[str] | None = Field(
         default=None, title='Updated By  Pref Label  In'
     )
+    updated_by__pref_label__ilike: str | None = Field(
+        default=None, title='Updated By  Pref Label  Ilike'
+    )
     updated_by__id: UUID | None = Field(default=None, title='Updated By  Id')
-    updated_by__id__in: list[str] | None = Field(
+    updated_by__id__in: list[UUID] | None = Field(
         default=None, title='Updated By  Id  In'
     )
     morphology__name: str | None = Field(default=None, title='Morphology  Name')
@@ -5409,7 +5159,7 @@ class ReadManyMemodelGetParametersQuery(BaseModel):
         default=None, title='Morphology  Name  Ilike'
     )
     morphology__id: UUID | None = Field(default=None, title='Morphology  Id')
-    morphology__id__in: list[str] | None = Field(
+    morphology__id__in: list[UUID] | None = Field(
         default=None, title='Morphology  Id  In'
     )
     morphology__brain_region__name: str | None = Field(
@@ -5424,7 +5174,7 @@ class ReadManyMemodelGetParametersQuery(BaseModel):
     morphology__brain_region__id: UUID | None = Field(
         default=None, title='Morphology  Brain Region  Id'
     )
-    morphology__brain_region__id__in: list[str] | None = Field(
+    morphology__brain_region__id__in: list[UUID] | None = Field(
         default=None, title='Morphology  Brain Region  Id  In'
     )
     morphology__brain_region__acronym: str | None = Field(
@@ -5445,7 +5195,7 @@ class ReadManyMemodelGetParametersQuery(BaseModel):
     morphology__subject__id: UUID | None = Field(
         default=None, title='Morphology  Subject  Id'
     )
-    morphology__subject__id__in: list[str] | None = Field(
+    morphology__subject__id__in: list[UUID] | None = Field(
         default=None, title='Morphology  Subject  Id  In'
     )
     morphology__subject__age_value: timedelta | None = Field(
@@ -5463,7 +5213,7 @@ class ReadManyMemodelGetParametersQuery(BaseModel):
     subject__species__id: UUID | None = Field(
         default=None, title='Subject  Species  Id'
     )
-    subject__species__id__in: list[str] | None = Field(
+    subject__species__id__in: list[UUID] | None = Field(
         default=None, title='Subject  Species  Id  In'
     )
     subject__strain__name: str | None = Field(
@@ -5476,7 +5226,7 @@ class ReadManyMemodelGetParametersQuery(BaseModel):
         default=None, title='Subject  Strain  Name  Ilike'
     )
     subject__strain__id: UUID | None = Field(default=None, title='Subject  Strain  Id')
-    subject__strain__id__in: list[str] | None = Field(
+    subject__strain__id__in: list[UUID] | None = Field(
         default=None, title='Subject  Strain  Id  In'
     )
     morphology__mtype__pref_label: str | None = Field(
@@ -5485,17 +5235,20 @@ class ReadManyMemodelGetParametersQuery(BaseModel):
     morphology__mtype__pref_label__in: list[str] | None = Field(
         default=None, title='Morphology  Mtype  Pref Label  In'
     )
+    morphology__mtype__pref_label__ilike: str | None = Field(
+        default=None, title='Morphology  Mtype  Pref Label  Ilike'
+    )
     morphology__mtype__id: UUID | None = Field(
         default=None, title='Morphology  Mtype  Id'
     )
-    morphology__mtype__id__in: list[str] | None = Field(
+    morphology__mtype__id__in: list[UUID] | None = Field(
         default=None, title='Morphology  Mtype  Id  In'
     )
     emodel__name: str | None = Field(default=None, title='Emodel  Name')
     emodel__name__in: list[str] | None = Field(default=None, title='Emodel  Name  In')
     emodel__name__ilike: str | None = Field(default=None, title='Emodel  Name  Ilike')
     emodel__id: UUID | None = Field(default=None, title='Emodel  Id')
-    emodel__id__in: list[str] | None = Field(default=None, title='Emodel  Id  In')
+    emodel__id__in: list[UUID] | None = Field(default=None, title='Emodel  Id  In')
     emodel__score__lte: float | None = Field(default=None, title='Emodel  Score  Lte')
     emodel__score__gte: float | None = Field(default=None, title='Emodel  Score  Gte')
     emodel__brain_region__name: str | None = Field(
@@ -5510,7 +5263,7 @@ class ReadManyMemodelGetParametersQuery(BaseModel):
     emodel__brain_region__id: UUID | None = Field(
         default=None, title='Emodel  Brain Region  Id'
     )
-    emodel__brain_region__id__in: list[str] | None = Field(
+    emodel__brain_region__id__in: list[UUID] | None = Field(
         default=None, title='Emodel  Brain Region  Id  In'
     )
     emodel__brain_region__acronym: str | None = Field(
@@ -5525,8 +5278,11 @@ class ReadManyMemodelGetParametersQuery(BaseModel):
     emodel__mtype__pref_label__in: list[str] | None = Field(
         default=None, title='Emodel  Mtype  Pref Label  In'
     )
+    emodel__mtype__pref_label__ilike: str | None = Field(
+        default=None, title='Emodel  Mtype  Pref Label  Ilike'
+    )
     emodel__mtype__id: UUID | None = Field(default=None, title='Emodel  Mtype  Id')
-    emodel__mtype__id__in: list[str] | None = Field(
+    emodel__mtype__id__in: list[UUID] | None = Field(
         default=None, title='Emodel  Mtype  Id  In'
     )
     emodel__etype__pref_label: str | None = Field(
@@ -5535,8 +5291,11 @@ class ReadManyMemodelGetParametersQuery(BaseModel):
     emodel__etype__pref_label__in: list[str] | None = Field(
         default=None, title='Emodel  Etype  Pref Label  In'
     )
+    emodel__etype__pref_label__ilike: str | None = Field(
+        default=None, title='Emodel  Etype  Pref Label  Ilike'
+    )
     emodel__etype__id: UUID | None = Field(default=None, title='Emodel  Etype  Id')
-    emodel__etype__id__in: list[str] | None = Field(
+    emodel__etype__id__in: list[UUID] | None = Field(
         default=None, title='Emodel  Etype  Id  In'
     )
     emodel__exemplar_morphology__name: str | None = Field(
@@ -5551,7 +5310,7 @@ class ReadManyMemodelGetParametersQuery(BaseModel):
     emodel__exemplar_morphology__id: UUID | None = Field(
         default=None, title='Emodel  Exemplar Morphology  Id'
     )
-    emodel__exemplar_morphology__id__in: list[str] | None = Field(
+    emodel__exemplar_morphology__id__in: list[UUID] | None = Field(
         default=None, title='Emodel  Exemplar Morphology  Id  In'
     )
     search: str | None = Field(default=None, title='Search')
@@ -5587,7 +5346,7 @@ class ReadManyMemodelCalibrationResultGetParametersQuery(BaseModel):
         default=None, title='Authorized Project Id'
     )
     id: UUID | None = Field(default=None, title='Id')
-    id__in: list[str] | None = Field(default=None, title='Id  In')
+    id__in: list[UUID] | None = Field(default=None, title='Id  In')
     passed: bool | None = Field(default=None, title='Passed')
     calibrated_entity_id: UUID | None = Field(
         default=None, title='Calibrated Entity Id'
@@ -5599,8 +5358,11 @@ class ReadManyMemodelCalibrationResultGetParametersQuery(BaseModel):
     contribution__pref_label__in: list[str] | None = Field(
         default=None, title='Contribution  Pref Label  In'
     )
+    contribution__pref_label__ilike: str | None = Field(
+        default=None, title='Contribution  Pref Label  Ilike'
+    )
     contribution__id: UUID | None = Field(default=None, title='Contribution  Id')
-    contribution__id__in: list[str] | None = Field(
+    contribution__id__in: list[UUID] | None = Field(
         default=None, title='Contribution  Id  In'
     )
     created_by__pref_label: str | None = Field(
@@ -5609,8 +5371,11 @@ class ReadManyMemodelCalibrationResultGetParametersQuery(BaseModel):
     created_by__pref_label__in: list[str] | None = Field(
         default=None, title='Created By  Pref Label  In'
     )
+    created_by__pref_label__ilike: str | None = Field(
+        default=None, title='Created By  Pref Label  Ilike'
+    )
     created_by__id: UUID | None = Field(default=None, title='Created By  Id')
-    created_by__id__in: list[str] | None = Field(
+    created_by__id__in: list[UUID] | None = Field(
         default=None, title='Created By  Id  In'
     )
     updated_by__pref_label: str | None = Field(
@@ -5619,8 +5384,11 @@ class ReadManyMemodelCalibrationResultGetParametersQuery(BaseModel):
     updated_by__pref_label__in: list[str] | None = Field(
         default=None, title='Updated By  Pref Label  In'
     )
+    updated_by__pref_label__ilike: str | None = Field(
+        default=None, title='Updated By  Pref Label  Ilike'
+    )
     updated_by__id: UUID | None = Field(default=None, title='Updated By  Id')
-    updated_by__id__in: list[str] | None = Field(
+    updated_by__id__in: list[UUID] | None = Field(
         default=None, title='Updated By  Id  In'
     )
     search: str | None = Field(default=None, title='Search')
@@ -5651,8 +5419,11 @@ class ReadManyMtypeClassificationGetParametersQuery(BaseModel):
     created_by__pref_label__in: list[str] | None = Field(
         default=None, title='Created By  Pref Label  In'
     )
+    created_by__pref_label__ilike: str | None = Field(
+        default=None, title='Created By  Pref Label  Ilike'
+    )
     created_by__id: UUID | None = Field(default=None, title='Created By  Id')
-    created_by__id__in: list[str] | None = Field(
+    created_by__id__in: list[UUID] | None = Field(
         default=None, title='Created By  Id  In'
     )
     updated_by__pref_label: str | None = Field(
@@ -5661,8 +5432,11 @@ class ReadManyMtypeClassificationGetParametersQuery(BaseModel):
     updated_by__pref_label__in: list[str] | None = Field(
         default=None, title='Updated By  Pref Label  In'
     )
+    updated_by__pref_label__ilike: str | None = Field(
+        default=None, title='Updated By  Pref Label  Ilike'
+    )
     updated_by__id: UUID | None = Field(default=None, title='Updated By  Id')
-    updated_by__id__in: list[str] | None = Field(
+    updated_by__id__in: list[UUID] | None = Field(
         default=None, title='Updated By  Id  In'
     )
     search: str | None = Field(default=None, title='Search')
@@ -5677,8 +5451,9 @@ class ReadManyPersonGetParametersQuery(BaseModel):
     page_size: int = Field(default=100, ge=1, title='Page Size')
     pref_label: str | None = Field(default=None, title='Pref Label')
     pref_label__in: list[str] | None = Field(default=None, title='Pref Label  In')
+    pref_label__ilike: str | None = Field(default=None, title='Pref Label  Ilike')
     id: UUID | None = Field(default=None, title='Id')
-    id__in: list[str] | None = Field(default=None, title='Id  In')
+    id__in: list[UUID] | None = Field(default=None, title='Id  In')
     order_by: list[str] = Field(default=['-creation_date'], title='Order By')
     given_name: str | None = Field(default=None, title='Given Name')
     given_name__ilike: str | None = Field(default=None, title='Given Name  Ilike')
@@ -5692,8 +5467,11 @@ class ReadManyPersonGetParametersQuery(BaseModel):
     created_by__pref_label__in: list[str] | None = Field(
         default=None, title='Created By  Pref Label  In'
     )
+    created_by__pref_label__ilike: str | None = Field(
+        default=None, title='Created By  Pref Label  Ilike'
+    )
     created_by__id: UUID | None = Field(default=None, title='Created By  Id')
-    created_by__id__in: list[str] | None = Field(
+    created_by__id__in: list[UUID] | None = Field(
         default=None, title='Created By  Id  In'
     )
     updated_by__pref_label: str | None = Field(
@@ -5702,8 +5480,11 @@ class ReadManyPersonGetParametersQuery(BaseModel):
     updated_by__pref_label__in: list[str] | None = Field(
         default=None, title='Updated By  Pref Label  In'
     )
+    updated_by__pref_label__ilike: str | None = Field(
+        default=None, title='Updated By  Pref Label  Ilike'
+    )
     updated_by__id: UUID | None = Field(default=None, title='Updated By  Id')
-    updated_by__id__in: list[str] | None = Field(
+    updated_by__id__in: list[UUID] | None = Field(
         default=None, title='Updated By  Id  In'
     )
 
@@ -5712,7 +5493,7 @@ class ReadManyPublicationGetParametersQuery(BaseModel):
     page: int = Field(default=1, ge=1, title='Page')
     page_size: int = Field(default=100, ge=1, title='Page Size')
     id: UUID | None = Field(default=None, title='Id')
-    id__in: list[str] | None = Field(default=None, title='Id  In')
+    id__in: list[UUID] | None = Field(default=None, title='Id  In')
     DOI: str | None = Field(default=None, title='Doi')
     publication_year: int | None = Field(default=None, title='Publication Year')
     publication_year__in: list[int] | None = Field(
@@ -5744,8 +5525,11 @@ class ReadManyPublicationGetParametersQuery(BaseModel):
     created_by__pref_label__in: list[str] | None = Field(
         default=None, title='Created By  Pref Label  In'
     )
+    created_by__pref_label__ilike: str | None = Field(
+        default=None, title='Created By  Pref Label  Ilike'
+    )
     created_by__id: UUID | None = Field(default=None, title='Created By  Id')
-    created_by__id__in: list[str] | None = Field(
+    created_by__id__in: list[UUID] | None = Field(
         default=None, title='Created By  Id  In'
     )
     updated_by__pref_label: str | None = Field(
@@ -5754,8 +5538,11 @@ class ReadManyPublicationGetParametersQuery(BaseModel):
     updated_by__pref_label__in: list[str] | None = Field(
         default=None, title='Updated By  Pref Label  In'
     )
+    updated_by__pref_label__ilike: str | None = Field(
+        default=None, title='Updated By  Pref Label  Ilike'
+    )
     updated_by__id: UUID | None = Field(default=None, title='Updated By  Id')
-    updated_by__id__in: list[str] | None = Field(
+    updated_by__id__in: list[UUID] | None = Field(
         default=None, title='Updated By  Id  In'
     )
     search: str | None = Field(default=None, title='Search')
@@ -5775,6 +5562,8 @@ class ReadManyRoleGetParametersQuery(BaseModel):
     page: int = Field(default=1, ge=1, title='Page')
     page_size: int = Field(default=100, ge=1, title='Page Size')
     name: str | None = Field(default=None, title='Name')
+    name__in: list[str] | None = Field(default=None, title='Name  In')
+    name__ilike: str | None = Field(default=None, title='Name  Ilike')
     role_id: str | None = Field(default=None, title='Role Id')
     order_by: list[str] = Field(default=['-creation_date'], title='Order By')
 
@@ -5783,7 +5572,7 @@ class ReadManyScientificArtifactExternalUrlLinkGetParametersQuery(BaseModel):
     page: int = Field(default=1, ge=1, title='Page')
     page_size: int = Field(default=100, ge=1, title='Page Size')
     id: UUID | None = Field(default=None, title='Id')
-    id__in: list[str] | None = Field(default=None, title='Id  In')
+    id__in: list[UUID] | None = Field(default=None, title='Id  In')
     order_by: list[str] = Field(default=['-creation_date'], title='Order By')
     created_by__pref_label: str | None = Field(
         default=None, title='Created By  Pref Label'
@@ -5791,8 +5580,11 @@ class ReadManyScientificArtifactExternalUrlLinkGetParametersQuery(BaseModel):
     created_by__pref_label__in: list[str] | None = Field(
         default=None, title='Created By  Pref Label  In'
     )
+    created_by__pref_label__ilike: str | None = Field(
+        default=None, title='Created By  Pref Label  Ilike'
+    )
     created_by__id: UUID | None = Field(default=None, title='Created By  Id')
-    created_by__id__in: list[str] | None = Field(
+    created_by__id__in: list[UUID] | None = Field(
         default=None, title='Created By  Id  In'
     )
     updated_by__pref_label: str | None = Field(
@@ -5801,8 +5593,11 @@ class ReadManyScientificArtifactExternalUrlLinkGetParametersQuery(BaseModel):
     updated_by__pref_label__in: list[str] | None = Field(
         default=None, title='Updated By  Pref Label  In'
     )
+    updated_by__pref_label__ilike: str | None = Field(
+        default=None, title='Updated By  Pref Label  Ilike'
+    )
     updated_by__id: UUID | None = Field(default=None, title='Updated By  Id')
-    updated_by__id__in: list[str] | None = Field(
+    updated_by__id__in: list[UUID] | None = Field(
         default=None, title='Updated By  Id  In'
     )
     external_url__name: str | None = Field(default=None, title='External Url  Name')
@@ -5813,7 +5608,7 @@ class ReadManyScientificArtifactExternalUrlLinkGetParametersQuery(BaseModel):
         default=None, title='External Url  Name  Ilike'
     )
     external_url__id: UUID | None = Field(default=None, title='External Url  Id')
-    external_url__id__in: list[str] | None = Field(
+    external_url__id__in: list[UUID] | None = Field(
         default=None, title='External Url  Id  In'
     )
     external_url__source: ExternalSource | None = Field(
@@ -5823,7 +5618,7 @@ class ReadManyScientificArtifactExternalUrlLinkGetParametersQuery(BaseModel):
     scientific_artifact__id: UUID | None = Field(
         default=None, title='Scientific Artifact  Id'
     )
-    scientific_artifact__id__in: list[str] | None = Field(
+    scientific_artifact__id__in: list[UUID] | None = Field(
         default=None, title='Scientific Artifact  Id  In'
     )
     scientific_artifact__experiment_date__lte: AwareDatetime | None = Field(
@@ -5852,7 +5647,7 @@ class ReadManyScientificArtifactPublicationLinkGetParametersQuery(BaseModel):
     page: int = Field(default=1, ge=1, title='Page')
     page_size: int = Field(default=100, ge=1, title='Page Size')
     id: UUID | None = Field(default=None, title='Id')
-    id__in: list[str] | None = Field(default=None, title='Id  In')
+    id__in: list[UUID] | None = Field(default=None, title='Id  In')
     order_by: list[str] = Field(default=['-creation_date'], title='Order By')
     publication_type: PublicationType | None = Field(
         default=None, title='Publication Type'
@@ -5863,8 +5658,11 @@ class ReadManyScientificArtifactPublicationLinkGetParametersQuery(BaseModel):
     created_by__pref_label__in: list[str] | None = Field(
         default=None, title='Created By  Pref Label  In'
     )
+    created_by__pref_label__ilike: str | None = Field(
+        default=None, title='Created By  Pref Label  Ilike'
+    )
     created_by__id: UUID | None = Field(default=None, title='Created By  Id')
-    created_by__id__in: list[str] | None = Field(
+    created_by__id__in: list[UUID] | None = Field(
         default=None, title='Created By  Id  In'
     )
     updated_by__pref_label: str | None = Field(
@@ -5873,12 +5671,15 @@ class ReadManyScientificArtifactPublicationLinkGetParametersQuery(BaseModel):
     updated_by__pref_label__in: list[str] | None = Field(
         default=None, title='Updated By  Pref Label  In'
     )
+    updated_by__pref_label__ilike: str | None = Field(
+        default=None, title='Updated By  Pref Label  Ilike'
+    )
     updated_by__id: UUID | None = Field(default=None, title='Updated By  Id')
-    updated_by__id__in: list[str] | None = Field(
+    updated_by__id__in: list[UUID] | None = Field(
         default=None, title='Updated By  Id  In'
     )
     publication__id: UUID | None = Field(default=None, title='Publication  Id')
-    publication__id__in: list[str] | None = Field(
+    publication__id__in: list[UUID] | None = Field(
         default=None, title='Publication  Id  In'
     )
     publication__DOI: str | None = Field(default=None, title='Publication  Doi')
@@ -5898,7 +5699,7 @@ class ReadManyScientificArtifactPublicationLinkGetParametersQuery(BaseModel):
     scientific_artifact__id: UUID | None = Field(
         default=None, title='Scientific Artifact  Id'
     )
-    scientific_artifact__id__in: list[str] | None = Field(
+    scientific_artifact__id__in: list[UUID] | None = Field(
         default=None, title='Scientific Artifact  Id  In'
     )
     scientific_artifact__experiment_date__lte: AwareDatetime | None = Field(
@@ -5943,7 +5744,7 @@ class ReadManySimulationGetParametersQuery(BaseModel):
         default=None, title='Authorized Project Id'
     )
     id: UUID | None = Field(default=None, title='Id')
-    id__in: list[str] | None = Field(default=None, title='Id  In')
+    id__in: list[UUID] | None = Field(default=None, title='Id  In')
     name: str | None = Field(default=None, title='Name')
     name__in: list[str] | None = Field(default=None, title='Name  In')
     name__ilike: str | None = Field(default=None, title='Name  Ilike')
@@ -5962,8 +5763,11 @@ class ReadManySimulationGetParametersQuery(BaseModel):
     contribution__pref_label__in: list[str] | None = Field(
         default=None, title='Contribution  Pref Label  In'
     )
+    contribution__pref_label__ilike: str | None = Field(
+        default=None, title='Contribution  Pref Label  Ilike'
+    )
     contribution__id: UUID | None = Field(default=None, title='Contribution  Id')
-    contribution__id__in: list[str] | None = Field(
+    contribution__id__in: list[UUID] | None = Field(
         default=None, title='Contribution  Id  In'
     )
     created_by__pref_label: str | None = Field(
@@ -5972,8 +5776,11 @@ class ReadManySimulationGetParametersQuery(BaseModel):
     created_by__pref_label__in: list[str] | None = Field(
         default=None, title='Created By  Pref Label  In'
     )
+    created_by__pref_label__ilike: str | None = Field(
+        default=None, title='Created By  Pref Label  Ilike'
+    )
     created_by__id: UUID | None = Field(default=None, title='Created By  Id')
-    created_by__id__in: list[str] | None = Field(
+    created_by__id__in: list[UUID] | None = Field(
         default=None, title='Created By  Id  In'
     )
     updated_by__pref_label: str | None = Field(
@@ -5982,8 +5789,11 @@ class ReadManySimulationGetParametersQuery(BaseModel):
     updated_by__pref_label__in: list[str] | None = Field(
         default=None, title='Updated By  Pref Label  In'
     )
+    updated_by__pref_label__ilike: str | None = Field(
+        default=None, title='Updated By  Pref Label  Ilike'
+    )
     updated_by__id: UUID | None = Field(default=None, title='Updated By  Id')
-    updated_by__id__in: list[str] | None = Field(
+    updated_by__id__in: list[UUID] | None = Field(
         default=None, title='Updated By  Id  In'
     )
     circuit__scale: CircuitScale | None = Field(default=None, title='Circuit  Scale')
@@ -6000,7 +5810,7 @@ class ReadManySimulationGetParametersQuery(BaseModel):
     circuit__name__in: list[str] | None = Field(default=None, title='Circuit  Name  In')
     circuit__name__ilike: str | None = Field(default=None, title='Circuit  Name  Ilike')
     circuit__id: UUID | None = Field(default=None, title='Circuit  Id')
-    circuit__id__in: list[str] | None = Field(default=None, title='Circuit  Id  In')
+    circuit__id__in: list[UUID] | None = Field(default=None, title='Circuit  Id  In')
     search: str | None = Field(default=None, title='Search')
     with_facets: bool = Field(default=False, title='With Facets')
     within_brain_region_hierarchy_id: UUID | None = Field(
@@ -6037,7 +5847,7 @@ class ReadManySimulationCampaignGetParametersQuery(BaseModel):
         default=None, title='Authorized Project Id'
     )
     id: UUID | None = Field(default=None, title='Id')
-    id__in: list[str] | None = Field(default=None, title='Id  In')
+    id__in: list[UUID] | None = Field(default=None, title='Id  In')
     order_by: list[str] = Field(default=['-creation_date'], title='Order By')
     contribution__pref_label: str | None = Field(
         default=None, title='Contribution  Pref Label'
@@ -6045,8 +5855,11 @@ class ReadManySimulationCampaignGetParametersQuery(BaseModel):
     contribution__pref_label__in: list[str] | None = Field(
         default=None, title='Contribution  Pref Label  In'
     )
+    contribution__pref_label__ilike: str | None = Field(
+        default=None, title='Contribution  Pref Label  Ilike'
+    )
     contribution__id: UUID | None = Field(default=None, title='Contribution  Id')
-    contribution__id__in: list[str] | None = Field(
+    contribution__id__in: list[UUID] | None = Field(
         default=None, title='Contribution  Id  In'
     )
     created_by__pref_label: str | None = Field(
@@ -6055,8 +5868,11 @@ class ReadManySimulationCampaignGetParametersQuery(BaseModel):
     created_by__pref_label__in: list[str] | None = Field(
         default=None, title='Created By  Pref Label  In'
     )
+    created_by__pref_label__ilike: str | None = Field(
+        default=None, title='Created By  Pref Label  Ilike'
+    )
     created_by__id: UUID | None = Field(default=None, title='Created By  Id')
-    created_by__id__in: list[str] | None = Field(
+    created_by__id__in: list[UUID] | None = Field(
         default=None, title='Created By  Id  In'
     )
     updated_by__pref_label: str | None = Field(
@@ -6065,12 +5881,15 @@ class ReadManySimulationCampaignGetParametersQuery(BaseModel):
     updated_by__pref_label__in: list[str] | None = Field(
         default=None, title='Updated By  Pref Label  In'
     )
+    updated_by__pref_label__ilike: str | None = Field(
+        default=None, title='Updated By  Pref Label  Ilike'
+    )
     updated_by__id: UUID | None = Field(default=None, title='Updated By  Id')
-    updated_by__id__in: list[str] | None = Field(
+    updated_by__id__in: list[UUID] | None = Field(
         default=None, title='Updated By  Id  In'
     )
     simulation__id: UUID | None = Field(default=None, title='Simulation  Id')
-    simulation__id__in: list[str] | None = Field(
+    simulation__id__in: list[UUID] | None = Field(
         default=None, title='Simulation  Id  In'
     )
     simulation__name: str | None = Field(default=None, title='Simulation  Name')
@@ -6100,7 +5919,7 @@ class ReadManySimulationCampaignGetParametersQuery(BaseModel):
     circuit__name__in: list[str] | None = Field(default=None, title='Circuit  Name  In')
     circuit__name__ilike: str | None = Field(default=None, title='Circuit  Name  Ilike')
     circuit__id: UUID | None = Field(default=None, title='Circuit  Id')
-    circuit__id__in: list[str] | None = Field(default=None, title='Circuit  Id  In')
+    circuit__id__in: list[UUID] | None = Field(default=None, title='Circuit  Id  In')
     search: str | None = Field(default=None, title='Search')
     with_facets: bool = Field(default=False, title='With Facets')
     within_brain_region_hierarchy_id: UUID | None = Field(
@@ -6130,7 +5949,7 @@ class ReadManySimulationExecutionGetParametersQuery(BaseModel):
         default=None, title='Update Date  Gte'
     )
     id: UUID | None = Field(default=None, title='Id')
-    id__in: list[str] | None = Field(default=None, title='Id  In')
+    id__in: list[UUID] | None = Field(default=None, title='Id  In')
     start_time: AwareDatetime | None = Field(default=None, title='Start Time')
     end_time: AwareDatetime | None = Field(default=None, title='End Time')
     order_by: list[str] = Field(default=['-creation_date'], title='Order By')
@@ -6141,8 +5960,11 @@ class ReadManySimulationExecutionGetParametersQuery(BaseModel):
     created_by__pref_label__in: list[str] | None = Field(
         default=None, title='Created By  Pref Label  In'
     )
+    created_by__pref_label__ilike: str | None = Field(
+        default=None, title='Created By  Pref Label  Ilike'
+    )
     created_by__id: UUID | None = Field(default=None, title='Created By  Id')
-    created_by__id__in: list[str] | None = Field(
+    created_by__id__in: list[UUID] | None = Field(
         default=None, title='Created By  Id  In'
     )
     updated_by__pref_label: str | None = Field(
@@ -6151,15 +5973,20 @@ class ReadManySimulationExecutionGetParametersQuery(BaseModel):
     updated_by__pref_label__in: list[str] | None = Field(
         default=None, title='Updated By  Pref Label  In'
     )
+    updated_by__pref_label__ilike: str | None = Field(
+        default=None, title='Updated By  Pref Label  Ilike'
+    )
     updated_by__id: UUID | None = Field(default=None, title='Updated By  Id')
-    updated_by__id__in: list[str] | None = Field(
+    updated_by__id__in: list[UUID] | None = Field(
         default=None, title='Updated By  Id  In'
     )
     used__id: UUID | None = Field(default=None, title='Used  Id')
-    used__id__in: list[str] | None = Field(default=None, title='Used  Id  In')
+    used__id__in: list[UUID] | None = Field(default=None, title='Used  Id  In')
     used__type: str | None = Field(default=None, title='Used  Type')
     generated__id: UUID | None = Field(default=None, title='Generated  Id')
-    generated__id__in: list[str] | None = Field(default=None, title='Generated  Id  In')
+    generated__id__in: list[UUID] | None = Field(
+        default=None, title='Generated  Id  In'
+    )
     generated__type: str | None = Field(default=None, title='Generated  Type')
     search: str | None = Field(default=None, title='Search')
     with_facets: bool = Field(default=False, title='With Facets')
@@ -6200,7 +6027,7 @@ class ReadManySimulationResultGetParametersQuery(BaseModel):
         default=None, title='Authorized Project Id'
     )
     id: UUID | None = Field(default=None, title='Id')
-    id__in: list[str] | None = Field(default=None, title='Id  In')
+    id__in: list[UUID] | None = Field(default=None, title='Id  In')
     order_by: list[str] = Field(default=['-creation_date'], title='Order By')
     contribution__pref_label: str | None = Field(
         default=None, title='Contribution  Pref Label'
@@ -6208,8 +6035,11 @@ class ReadManySimulationResultGetParametersQuery(BaseModel):
     contribution__pref_label__in: list[str] | None = Field(
         default=None, title='Contribution  Pref Label  In'
     )
+    contribution__pref_label__ilike: str | None = Field(
+        default=None, title='Contribution  Pref Label  Ilike'
+    )
     contribution__id: UUID | None = Field(default=None, title='Contribution  Id')
-    contribution__id__in: list[str] | None = Field(
+    contribution__id__in: list[UUID] | None = Field(
         default=None, title='Contribution  Id  In'
     )
     created_by__pref_label: str | None = Field(
@@ -6218,8 +6048,11 @@ class ReadManySimulationResultGetParametersQuery(BaseModel):
     created_by__pref_label__in: list[str] | None = Field(
         default=None, title='Created By  Pref Label  In'
     )
+    created_by__pref_label__ilike: str | None = Field(
+        default=None, title='Created By  Pref Label  Ilike'
+    )
     created_by__id: UUID | None = Field(default=None, title='Created By  Id')
-    created_by__id__in: list[str] | None = Field(
+    created_by__id__in: list[UUID] | None = Field(
         default=None, title='Created By  Id  In'
     )
     updated_by__pref_label: str | None = Field(
@@ -6228,8 +6061,11 @@ class ReadManySimulationResultGetParametersQuery(BaseModel):
     updated_by__pref_label__in: list[str] | None = Field(
         default=None, title='Updated By  Pref Label  In'
     )
+    updated_by__pref_label__ilike: str | None = Field(
+        default=None, title='Updated By  Pref Label  Ilike'
+    )
     updated_by__id: UUID | None = Field(default=None, title='Updated By  Id')
-    updated_by__id__in: list[str] | None = Field(
+    updated_by__id__in: list[UUID] | None = Field(
         default=None, title='Updated By  Id  In'
     )
     search: str | None = Field(default=None, title='Search')
@@ -6268,7 +6104,7 @@ class ReadManySingleNeuronSimulationGetParametersQuery(BaseModel):
         default=None, title='Authorized Project Id'
     )
     id: UUID | None = Field(default=None, title='Id')
-    id__in: list[str] | None = Field(default=None, title='Id  In')
+    id__in: list[UUID] | None = Field(default=None, title='Id  In')
     status: SingleNeuronSimulationStatus | None = Field(default=None, title='Status')
     order_by: list[str] = Field(default=['-creation_date'], title='Order By')
     brain_region__name: str | None = Field(default=None, title='Brain Region  Name')
@@ -6279,7 +6115,7 @@ class ReadManySingleNeuronSimulationGetParametersQuery(BaseModel):
         default=None, title='Brain Region  Name  Ilike'
     )
     brain_region__id: UUID | None = Field(default=None, title='Brain Region  Id')
-    brain_region__id__in: list[str] | None = Field(
+    brain_region__id__in: list[UUID] | None = Field(
         default=None, title='Brain Region  Id  In'
     )
     brain_region__acronym: str | None = Field(
@@ -6294,8 +6130,11 @@ class ReadManySingleNeuronSimulationGetParametersQuery(BaseModel):
     contribution__pref_label__in: list[str] | None = Field(
         default=None, title='Contribution  Pref Label  In'
     )
+    contribution__pref_label__ilike: str | None = Field(
+        default=None, title='Contribution  Pref Label  Ilike'
+    )
     contribution__id: UUID | None = Field(default=None, title='Contribution  Id')
-    contribution__id__in: list[str] | None = Field(
+    contribution__id__in: list[UUID] | None = Field(
         default=None, title='Contribution  Id  In'
     )
     created_by__pref_label: str | None = Field(
@@ -6304,8 +6143,11 @@ class ReadManySingleNeuronSimulationGetParametersQuery(BaseModel):
     created_by__pref_label__in: list[str] | None = Field(
         default=None, title='Created By  Pref Label  In'
     )
+    created_by__pref_label__ilike: str | None = Field(
+        default=None, title='Created By  Pref Label  Ilike'
+    )
     created_by__id: UUID | None = Field(default=None, title='Created By  Id')
-    created_by__id__in: list[str] | None = Field(
+    created_by__id__in: list[UUID] | None = Field(
         default=None, title='Created By  Id  In'
     )
     updated_by__pref_label: str | None = Field(
@@ -6314,8 +6156,11 @@ class ReadManySingleNeuronSimulationGetParametersQuery(BaseModel):
     updated_by__pref_label__in: list[str] | None = Field(
         default=None, title='Updated By  Pref Label  In'
     )
+    updated_by__pref_label__ilike: str | None = Field(
+        default=None, title='Updated By  Pref Label  Ilike'
+    )
     updated_by__id: UUID | None = Field(default=None, title='Updated By  Id')
-    updated_by__id__in: list[str] | None = Field(
+    updated_by__id__in: list[UUID] | None = Field(
         default=None, title='Updated By  Id  In'
     )
     me_model__name: str | None = Field(default=None, title='Me Model  Name')
@@ -6326,7 +6171,7 @@ class ReadManySingleNeuronSimulationGetParametersQuery(BaseModel):
         default=None, title='Me Model  Name  Ilike'
     )
     me_model__id: UUID | None = Field(default=None, title='Me Model  Id')
-    me_model__id__in: list[str] | None = Field(default=None, title='Me Model  Id  In')
+    me_model__id__in: list[UUID] | None = Field(default=None, title='Me Model  Id  In')
     me_model__validation_status: ValidationStatus | None = Field(
         default=None, title='Me Model  Validation Status'
     )
@@ -6342,7 +6187,7 @@ class ReadManySingleNeuronSimulationGetParametersQuery(BaseModel):
     me_model__brain_region__id: UUID | None = Field(
         default=None, title='Me Model  Brain Region  Id'
     )
-    me_model__brain_region__id__in: list[str] | None = Field(
+    me_model__brain_region__id__in: list[UUID] | None = Field(
         default=None, title='Me Model  Brain Region  Id  In'
     )
     me_model__brain_region__acronym: str | None = Field(
@@ -6363,7 +6208,7 @@ class ReadManySingleNeuronSimulationGetParametersQuery(BaseModel):
     me_model__species__id: UUID | None = Field(
         default=None, title='Me Model  Species  Id'
     )
-    me_model__species__id__in: list[str] | None = Field(
+    me_model__species__id__in: list[UUID] | None = Field(
         default=None, title='Me Model  Species  Id  In'
     )
     me_model__strain__name: str | None = Field(
@@ -6378,7 +6223,7 @@ class ReadManySingleNeuronSimulationGetParametersQuery(BaseModel):
     me_model__strain__id: UUID | None = Field(
         default=None, title='Me Model  Strain  Id'
     )
-    me_model__strain__id__in: list[str] | None = Field(
+    me_model__strain__id__in: list[UUID] | None = Field(
         default=None, title='Me Model  Strain  Id  In'
     )
     me_model__morphology__name: str | None = Field(
@@ -6393,7 +6238,7 @@ class ReadManySingleNeuronSimulationGetParametersQuery(BaseModel):
     me_model__morphology__id: UUID | None = Field(
         default=None, title='Me Model  Morphology  Id'
     )
-    me_model__morphology__id__in: list[str] | None = Field(
+    me_model__morphology__id__in: list[UUID] | None = Field(
         default=None, title='Me Model  Morphology  Id  In'
     )
     morphology__brain_region__name: str | None = Field(
@@ -6408,7 +6253,7 @@ class ReadManySingleNeuronSimulationGetParametersQuery(BaseModel):
     morphology__brain_region__id: UUID | None = Field(
         default=None, title='Morphology  Brain Region  Id'
     )
-    morphology__brain_region__id__in: list[str] | None = Field(
+    morphology__brain_region__id__in: list[UUID] | None = Field(
         default=None, title='Morphology  Brain Region  Id  In'
     )
     morphology__brain_region__acronym: str | None = Field(
@@ -6429,7 +6274,7 @@ class ReadManySingleNeuronSimulationGetParametersQuery(BaseModel):
     morphology__subject__id: UUID | None = Field(
         default=None, title='Morphology  Subject  Id'
     )
-    morphology__subject__id__in: list[str] | None = Field(
+    morphology__subject__id__in: list[UUID] | None = Field(
         default=None, title='Morphology  Subject  Id  In'
     )
     morphology__subject__age_value: timedelta | None = Field(
@@ -6447,7 +6292,7 @@ class ReadManySingleNeuronSimulationGetParametersQuery(BaseModel):
     subject__species__id: UUID | None = Field(
         default=None, title='Subject  Species  Id'
     )
-    subject__species__id__in: list[str] | None = Field(
+    subject__species__id__in: list[UUID] | None = Field(
         default=None, title='Subject  Species  Id  In'
     )
     subject__strain__name: str | None = Field(
@@ -6460,7 +6305,7 @@ class ReadManySingleNeuronSimulationGetParametersQuery(BaseModel):
         default=None, title='Subject  Strain  Name  Ilike'
     )
     subject__strain__id: UUID | None = Field(default=None, title='Subject  Strain  Id')
-    subject__strain__id__in: list[str] | None = Field(
+    subject__strain__id__in: list[UUID] | None = Field(
         default=None, title='Subject  Strain  Id  In'
     )
     morphology__mtype__pref_label: str | None = Field(
@@ -6469,10 +6314,13 @@ class ReadManySingleNeuronSimulationGetParametersQuery(BaseModel):
     morphology__mtype__pref_label__in: list[str] | None = Field(
         default=None, title='Morphology  Mtype  Pref Label  In'
     )
+    morphology__mtype__pref_label__ilike: str | None = Field(
+        default=None, title='Morphology  Mtype  Pref Label  Ilike'
+    )
     morphology__mtype__id: UUID | None = Field(
         default=None, title='Morphology  Mtype  Id'
     )
-    morphology__mtype__id__in: list[str] | None = Field(
+    morphology__mtype__id__in: list[UUID] | None = Field(
         default=None, title='Morphology  Mtype  Id  In'
     )
     me_model__emodel__name: str | None = Field(
@@ -6487,7 +6335,7 @@ class ReadManySingleNeuronSimulationGetParametersQuery(BaseModel):
     me_model__emodel__id: UUID | None = Field(
         default=None, title='Me Model  Emodel  Id'
     )
-    me_model__emodel__id__in: list[str] | None = Field(
+    me_model__emodel__id__in: list[UUID] | None = Field(
         default=None, title='Me Model  Emodel  Id  In'
     )
     me_model__emodel__score__lte: float | None = Field(
@@ -6508,7 +6356,7 @@ class ReadManySingleNeuronSimulationGetParametersQuery(BaseModel):
     emodel__brain_region__id: UUID | None = Field(
         default=None, title='Emodel  Brain Region  Id'
     )
-    emodel__brain_region__id__in: list[str] | None = Field(
+    emodel__brain_region__id__in: list[UUID] | None = Field(
         default=None, title='Emodel  Brain Region  Id  In'
     )
     emodel__brain_region__acronym: str | None = Field(
@@ -6523,8 +6371,11 @@ class ReadManySingleNeuronSimulationGetParametersQuery(BaseModel):
     emodel__mtype__pref_label__in: list[str] | None = Field(
         default=None, title='Emodel  Mtype  Pref Label  In'
     )
+    emodel__mtype__pref_label__ilike: str | None = Field(
+        default=None, title='Emodel  Mtype  Pref Label  Ilike'
+    )
     emodel__mtype__id: UUID | None = Field(default=None, title='Emodel  Mtype  Id')
-    emodel__mtype__id__in: list[str] | None = Field(
+    emodel__mtype__id__in: list[UUID] | None = Field(
         default=None, title='Emodel  Mtype  Id  In'
     )
     emodel__etype__pref_label: str | None = Field(
@@ -6533,8 +6384,11 @@ class ReadManySingleNeuronSimulationGetParametersQuery(BaseModel):
     emodel__etype__pref_label__in: list[str] | None = Field(
         default=None, title='Emodel  Etype  Pref Label  In'
     )
+    emodel__etype__pref_label__ilike: str | None = Field(
+        default=None, title='Emodel  Etype  Pref Label  Ilike'
+    )
     emodel__etype__id: UUID | None = Field(default=None, title='Emodel  Etype  Id')
-    emodel__etype__id__in: list[str] | None = Field(
+    emodel__etype__id__in: list[UUID] | None = Field(
         default=None, title='Emodel  Etype  Id  In'
     )
     emodel__exemplar_morphology__name: str | None = Field(
@@ -6549,7 +6403,7 @@ class ReadManySingleNeuronSimulationGetParametersQuery(BaseModel):
     emodel__exemplar_morphology__id: UUID | None = Field(
         default=None, title='Emodel  Exemplar Morphology  Id'
     )
-    emodel__exemplar_morphology__id__in: list[str] | None = Field(
+    emodel__exemplar_morphology__id__in: list[UUID] | None = Field(
         default=None, title='Emodel  Exemplar Morphology  Id  In'
     )
     me_model__mtype__pref_label: str | None = Field(
@@ -6558,8 +6412,11 @@ class ReadManySingleNeuronSimulationGetParametersQuery(BaseModel):
     me_model__mtype__pref_label__in: list[str] | None = Field(
         default=None, title='Me Model  Mtype  Pref Label  In'
     )
+    me_model__mtype__pref_label__ilike: str | None = Field(
+        default=None, title='Me Model  Mtype  Pref Label  Ilike'
+    )
     me_model__mtype__id: UUID | None = Field(default=None, title='Me Model  Mtype  Id')
-    me_model__mtype__id__in: list[str] | None = Field(
+    me_model__mtype__id__in: list[UUID] | None = Field(
         default=None, title='Me Model  Mtype  Id  In'
     )
     me_model__etype__pref_label: str | None = Field(
@@ -6568,8 +6425,11 @@ class ReadManySingleNeuronSimulationGetParametersQuery(BaseModel):
     me_model__etype__pref_label__in: list[str] | None = Field(
         default=None, title='Me Model  Etype  Pref Label  In'
     )
+    me_model__etype__pref_label__ilike: str | None = Field(
+        default=None, title='Me Model  Etype  Pref Label  Ilike'
+    )
     me_model__etype__id: UUID | None = Field(default=None, title='Me Model  Etype  Id')
-    me_model__etype__id__in: list[str] | None = Field(
+    me_model__etype__id__in: list[UUID] | None = Field(
         default=None, title='Me Model  Etype  Id  In'
     )
     search: str | None = Field(default=None, title='Search')
@@ -6608,7 +6468,7 @@ class ReadManySingleNeuronSynaptomeGetParametersQuery(BaseModel):
         default=None, title='Authorized Project Id'
     )
     id: UUID | None = Field(default=None, title='Id')
-    id__in: list[str] | None = Field(default=None, title='Id  In')
+    id__in: list[UUID] | None = Field(default=None, title='Id  In')
     order_by: list[str] = Field(default=['-creation_date'], title='Order By')
     brain_region__name: str | None = Field(default=None, title='Brain Region  Name')
     brain_region__name__in: list[str] | None = Field(
@@ -6618,7 +6478,7 @@ class ReadManySingleNeuronSynaptomeGetParametersQuery(BaseModel):
         default=None, title='Brain Region  Name  Ilike'
     )
     brain_region__id: UUID | None = Field(default=None, title='Brain Region  Id')
-    brain_region__id__in: list[str] | None = Field(
+    brain_region__id__in: list[UUID] | None = Field(
         default=None, title='Brain Region  Id  In'
     )
     brain_region__acronym: str | None = Field(
@@ -6633,8 +6493,11 @@ class ReadManySingleNeuronSynaptomeGetParametersQuery(BaseModel):
     contribution__pref_label__in: list[str] | None = Field(
         default=None, title='Contribution  Pref Label  In'
     )
+    contribution__pref_label__ilike: str | None = Field(
+        default=None, title='Contribution  Pref Label  Ilike'
+    )
     contribution__id: UUID | None = Field(default=None, title='Contribution  Id')
-    contribution__id__in: list[str] | None = Field(
+    contribution__id__in: list[UUID] | None = Field(
         default=None, title='Contribution  Id  In'
     )
     created_by__pref_label: str | None = Field(
@@ -6643,8 +6506,11 @@ class ReadManySingleNeuronSynaptomeGetParametersQuery(BaseModel):
     created_by__pref_label__in: list[str] | None = Field(
         default=None, title='Created By  Pref Label  In'
     )
+    created_by__pref_label__ilike: str | None = Field(
+        default=None, title='Created By  Pref Label  Ilike'
+    )
     created_by__id: UUID | None = Field(default=None, title='Created By  Id')
-    created_by__id__in: list[str] | None = Field(
+    created_by__id__in: list[UUID] | None = Field(
         default=None, title='Created By  Id  In'
     )
     updated_by__pref_label: str | None = Field(
@@ -6653,8 +6519,11 @@ class ReadManySingleNeuronSynaptomeGetParametersQuery(BaseModel):
     updated_by__pref_label__in: list[str] | None = Field(
         default=None, title='Updated By  Pref Label  In'
     )
+    updated_by__pref_label__ilike: str | None = Field(
+        default=None, title='Updated By  Pref Label  Ilike'
+    )
     updated_by__id: UUID | None = Field(default=None, title='Updated By  Id')
-    updated_by__id__in: list[str] | None = Field(
+    updated_by__id__in: list[UUID] | None = Field(
         default=None, title='Updated By  Id  In'
     )
     me_model__name: str | None = Field(default=None, title='Me Model  Name')
@@ -6665,7 +6534,7 @@ class ReadManySingleNeuronSynaptomeGetParametersQuery(BaseModel):
         default=None, title='Me Model  Name  Ilike'
     )
     me_model__id: UUID | None = Field(default=None, title='Me Model  Id')
-    me_model__id__in: list[str] | None = Field(default=None, title='Me Model  Id  In')
+    me_model__id__in: list[UUID] | None = Field(default=None, title='Me Model  Id  In')
     me_model__validation_status: ValidationStatus | None = Field(
         default=None, title='Me Model  Validation Status'
     )
@@ -6681,7 +6550,7 @@ class ReadManySingleNeuronSynaptomeGetParametersQuery(BaseModel):
     me_model__brain_region__id: UUID | None = Field(
         default=None, title='Me Model  Brain Region  Id'
     )
-    me_model__brain_region__id__in: list[str] | None = Field(
+    me_model__brain_region__id__in: list[UUID] | None = Field(
         default=None, title='Me Model  Brain Region  Id  In'
     )
     me_model__brain_region__acronym: str | None = Field(
@@ -6702,7 +6571,7 @@ class ReadManySingleNeuronSynaptomeGetParametersQuery(BaseModel):
     me_model__species__id: UUID | None = Field(
         default=None, title='Me Model  Species  Id'
     )
-    me_model__species__id__in: list[str] | None = Field(
+    me_model__species__id__in: list[UUID] | None = Field(
         default=None, title='Me Model  Species  Id  In'
     )
     me_model__strain__name: str | None = Field(
@@ -6717,7 +6586,7 @@ class ReadManySingleNeuronSynaptomeGetParametersQuery(BaseModel):
     me_model__strain__id: UUID | None = Field(
         default=None, title='Me Model  Strain  Id'
     )
-    me_model__strain__id__in: list[str] | None = Field(
+    me_model__strain__id__in: list[UUID] | None = Field(
         default=None, title='Me Model  Strain  Id  In'
     )
     me_model__morphology__name: str | None = Field(
@@ -6732,7 +6601,7 @@ class ReadManySingleNeuronSynaptomeGetParametersQuery(BaseModel):
     me_model__morphology__id: UUID | None = Field(
         default=None, title='Me Model  Morphology  Id'
     )
-    me_model__morphology__id__in: list[str] | None = Field(
+    me_model__morphology__id__in: list[UUID] | None = Field(
         default=None, title='Me Model  Morphology  Id  In'
     )
     morphology__brain_region__name: str | None = Field(
@@ -6747,7 +6616,7 @@ class ReadManySingleNeuronSynaptomeGetParametersQuery(BaseModel):
     morphology__brain_region__id: UUID | None = Field(
         default=None, title='Morphology  Brain Region  Id'
     )
-    morphology__brain_region__id__in: list[str] | None = Field(
+    morphology__brain_region__id__in: list[UUID] | None = Field(
         default=None, title='Morphology  Brain Region  Id  In'
     )
     morphology__brain_region__acronym: str | None = Field(
@@ -6768,7 +6637,7 @@ class ReadManySingleNeuronSynaptomeGetParametersQuery(BaseModel):
     morphology__subject__id: UUID | None = Field(
         default=None, title='Morphology  Subject  Id'
     )
-    morphology__subject__id__in: list[str] | None = Field(
+    morphology__subject__id__in: list[UUID] | None = Field(
         default=None, title='Morphology  Subject  Id  In'
     )
     morphology__subject__age_value: timedelta | None = Field(
@@ -6786,7 +6655,7 @@ class ReadManySingleNeuronSynaptomeGetParametersQuery(BaseModel):
     subject__species__id: UUID | None = Field(
         default=None, title='Subject  Species  Id'
     )
-    subject__species__id__in: list[str] | None = Field(
+    subject__species__id__in: list[UUID] | None = Field(
         default=None, title='Subject  Species  Id  In'
     )
     subject__strain__name: str | None = Field(
@@ -6799,7 +6668,7 @@ class ReadManySingleNeuronSynaptomeGetParametersQuery(BaseModel):
         default=None, title='Subject  Strain  Name  Ilike'
     )
     subject__strain__id: UUID | None = Field(default=None, title='Subject  Strain  Id')
-    subject__strain__id__in: list[str] | None = Field(
+    subject__strain__id__in: list[UUID] | None = Field(
         default=None, title='Subject  Strain  Id  In'
     )
     morphology__mtype__pref_label: str | None = Field(
@@ -6808,10 +6677,13 @@ class ReadManySingleNeuronSynaptomeGetParametersQuery(BaseModel):
     morphology__mtype__pref_label__in: list[str] | None = Field(
         default=None, title='Morphology  Mtype  Pref Label  In'
     )
+    morphology__mtype__pref_label__ilike: str | None = Field(
+        default=None, title='Morphology  Mtype  Pref Label  Ilike'
+    )
     morphology__mtype__id: UUID | None = Field(
         default=None, title='Morphology  Mtype  Id'
     )
-    morphology__mtype__id__in: list[str] | None = Field(
+    morphology__mtype__id__in: list[UUID] | None = Field(
         default=None, title='Morphology  Mtype  Id  In'
     )
     me_model__emodel__name: str | None = Field(
@@ -6826,7 +6698,7 @@ class ReadManySingleNeuronSynaptomeGetParametersQuery(BaseModel):
     me_model__emodel__id: UUID | None = Field(
         default=None, title='Me Model  Emodel  Id'
     )
-    me_model__emodel__id__in: list[str] | None = Field(
+    me_model__emodel__id__in: list[UUID] | None = Field(
         default=None, title='Me Model  Emodel  Id  In'
     )
     me_model__emodel__score__lte: float | None = Field(
@@ -6847,7 +6719,7 @@ class ReadManySingleNeuronSynaptomeGetParametersQuery(BaseModel):
     emodel__brain_region__id: UUID | None = Field(
         default=None, title='Emodel  Brain Region  Id'
     )
-    emodel__brain_region__id__in: list[str] | None = Field(
+    emodel__brain_region__id__in: list[UUID] | None = Field(
         default=None, title='Emodel  Brain Region  Id  In'
     )
     emodel__brain_region__acronym: str | None = Field(
@@ -6862,8 +6734,11 @@ class ReadManySingleNeuronSynaptomeGetParametersQuery(BaseModel):
     emodel__mtype__pref_label__in: list[str] | None = Field(
         default=None, title='Emodel  Mtype  Pref Label  In'
     )
+    emodel__mtype__pref_label__ilike: str | None = Field(
+        default=None, title='Emodel  Mtype  Pref Label  Ilike'
+    )
     emodel__mtype__id: UUID | None = Field(default=None, title='Emodel  Mtype  Id')
-    emodel__mtype__id__in: list[str] | None = Field(
+    emodel__mtype__id__in: list[UUID] | None = Field(
         default=None, title='Emodel  Mtype  Id  In'
     )
     emodel__etype__pref_label: str | None = Field(
@@ -6872,8 +6747,11 @@ class ReadManySingleNeuronSynaptomeGetParametersQuery(BaseModel):
     emodel__etype__pref_label__in: list[str] | None = Field(
         default=None, title='Emodel  Etype  Pref Label  In'
     )
+    emodel__etype__pref_label__ilike: str | None = Field(
+        default=None, title='Emodel  Etype  Pref Label  Ilike'
+    )
     emodel__etype__id: UUID | None = Field(default=None, title='Emodel  Etype  Id')
-    emodel__etype__id__in: list[str] | None = Field(
+    emodel__etype__id__in: list[UUID] | None = Field(
         default=None, title='Emodel  Etype  Id  In'
     )
     emodel__exemplar_morphology__name: str | None = Field(
@@ -6888,7 +6766,7 @@ class ReadManySingleNeuronSynaptomeGetParametersQuery(BaseModel):
     emodel__exemplar_morphology__id: UUID | None = Field(
         default=None, title='Emodel  Exemplar Morphology  Id'
     )
-    emodel__exemplar_morphology__id__in: list[str] | None = Field(
+    emodel__exemplar_morphology__id__in: list[UUID] | None = Field(
         default=None, title='Emodel  Exemplar Morphology  Id  In'
     )
     me_model__mtype__pref_label: str | None = Field(
@@ -6897,8 +6775,11 @@ class ReadManySingleNeuronSynaptomeGetParametersQuery(BaseModel):
     me_model__mtype__pref_label__in: list[str] | None = Field(
         default=None, title='Me Model  Mtype  Pref Label  In'
     )
+    me_model__mtype__pref_label__ilike: str | None = Field(
+        default=None, title='Me Model  Mtype  Pref Label  Ilike'
+    )
     me_model__mtype__id: UUID | None = Field(default=None, title='Me Model  Mtype  Id')
-    me_model__mtype__id__in: list[str] | None = Field(
+    me_model__mtype__id__in: list[UUID] | None = Field(
         default=None, title='Me Model  Mtype  Id  In'
     )
     me_model__etype__pref_label: str | None = Field(
@@ -6907,8 +6788,11 @@ class ReadManySingleNeuronSynaptomeGetParametersQuery(BaseModel):
     me_model__etype__pref_label__in: list[str] | None = Field(
         default=None, title='Me Model  Etype  Pref Label  In'
     )
+    me_model__etype__pref_label__ilike: str | None = Field(
+        default=None, title='Me Model  Etype  Pref Label  Ilike'
+    )
     me_model__etype__id: UUID | None = Field(default=None, title='Me Model  Etype  Id')
-    me_model__etype__id__in: list[str] | None = Field(
+    me_model__etype__id__in: list[UUID] | None = Field(
         default=None, title='Me Model  Etype  Id  In'
     )
     search: str | None = Field(default=None, title='Search')
@@ -6947,7 +6831,7 @@ class ReadManySingleNeuronSynaptomeSimulationGetParametersQuery(BaseModel):
         default=None, title='Authorized Project Id'
     )
     id: UUID | None = Field(default=None, title='Id')
-    id__in: list[str] | None = Field(default=None, title='Id  In')
+    id__in: list[UUID] | None = Field(default=None, title='Id  In')
     status: SingleNeuronSimulationStatus | None = Field(default=None, title='Status')
     order_by: list[str] = Field(default=['-creation_date'], title='Order By')
     brain_region__name: str | None = Field(default=None, title='Brain Region  Name')
@@ -6958,7 +6842,7 @@ class ReadManySingleNeuronSynaptomeSimulationGetParametersQuery(BaseModel):
         default=None, title='Brain Region  Name  Ilike'
     )
     brain_region__id: UUID | None = Field(default=None, title='Brain Region  Id')
-    brain_region__id__in: list[str] | None = Field(
+    brain_region__id__in: list[UUID] | None = Field(
         default=None, title='Brain Region  Id  In'
     )
     brain_region__acronym: str | None = Field(
@@ -6973,8 +6857,11 @@ class ReadManySingleNeuronSynaptomeSimulationGetParametersQuery(BaseModel):
     contribution__pref_label__in: list[str] | None = Field(
         default=None, title='Contribution  Pref Label  In'
     )
+    contribution__pref_label__ilike: str | None = Field(
+        default=None, title='Contribution  Pref Label  Ilike'
+    )
     contribution__id: UUID | None = Field(default=None, title='Contribution  Id')
-    contribution__id__in: list[str] | None = Field(
+    contribution__id__in: list[UUID] | None = Field(
         default=None, title='Contribution  Id  In'
     )
     created_by__pref_label: str | None = Field(
@@ -6983,8 +6870,11 @@ class ReadManySingleNeuronSynaptomeSimulationGetParametersQuery(BaseModel):
     created_by__pref_label__in: list[str] | None = Field(
         default=None, title='Created By  Pref Label  In'
     )
+    created_by__pref_label__ilike: str | None = Field(
+        default=None, title='Created By  Pref Label  Ilike'
+    )
     created_by__id: UUID | None = Field(default=None, title='Created By  Id')
-    created_by__id__in: list[str] | None = Field(
+    created_by__id__in: list[UUID] | None = Field(
         default=None, title='Created By  Id  In'
     )
     updated_by__pref_label: str | None = Field(
@@ -6993,8 +6883,11 @@ class ReadManySingleNeuronSynaptomeSimulationGetParametersQuery(BaseModel):
     updated_by__pref_label__in: list[str] | None = Field(
         default=None, title='Updated By  Pref Label  In'
     )
+    updated_by__pref_label__ilike: str | None = Field(
+        default=None, title='Updated By  Pref Label  Ilike'
+    )
     updated_by__id: UUID | None = Field(default=None, title='Updated By  Id')
-    updated_by__id__in: list[str] | None = Field(
+    updated_by__id__in: list[UUID] | None = Field(
         default=None, title='Updated By  Id  In'
     )
     synaptome__name: str | None = Field(default=None, title='Synaptome  Name')
@@ -7005,7 +6898,9 @@ class ReadManySingleNeuronSynaptomeSimulationGetParametersQuery(BaseModel):
         default=None, title='Synaptome  Name  Ilike'
     )
     synaptome__id: UUID | None = Field(default=None, title='Synaptome  Id')
-    synaptome__id__in: list[str] | None = Field(default=None, title='Synaptome  Id  In')
+    synaptome__id__in: list[UUID] | None = Field(
+        default=None, title='Synaptome  Id  In'
+    )
     synaptome__brain_region__name: str | None = Field(
         default=None, title='Synaptome  Brain Region  Name'
     )
@@ -7018,7 +6913,7 @@ class ReadManySingleNeuronSynaptomeSimulationGetParametersQuery(BaseModel):
     synaptome__brain_region__id: UUID | None = Field(
         default=None, title='Synaptome  Brain Region  Id'
     )
-    synaptome__brain_region__id__in: list[str] | None = Field(
+    synaptome__brain_region__id__in: list[UUID] | None = Field(
         default=None, title='Synaptome  Brain Region  Id  In'
     )
     synaptome__brain_region__acronym: str | None = Field(
@@ -7039,7 +6934,7 @@ class ReadManySingleNeuronSynaptomeSimulationGetParametersQuery(BaseModel):
     synaptome__me_model__id: UUID | None = Field(
         default=None, title='Synaptome  Me Model  Id'
     )
-    synaptome__me_model__id__in: list[str] | None = Field(
+    synaptome__me_model__id__in: list[UUID] | None = Field(
         default=None, title='Synaptome  Me Model  Id  In'
     )
     synaptome__me_model__validation_status: ValidationStatus | None = Field(
@@ -7057,7 +6952,7 @@ class ReadManySingleNeuronSynaptomeSimulationGetParametersQuery(BaseModel):
     me_model__brain_region__id: UUID | None = Field(
         default=None, title='Me Model  Brain Region  Id'
     )
-    me_model__brain_region__id__in: list[str] | None = Field(
+    me_model__brain_region__id__in: list[UUID] | None = Field(
         default=None, title='Me Model  Brain Region  Id  In'
     )
     me_model__brain_region__acronym: str | None = Field(
@@ -7078,7 +6973,7 @@ class ReadManySingleNeuronSynaptomeSimulationGetParametersQuery(BaseModel):
     me_model__species__id: UUID | None = Field(
         default=None, title='Me Model  Species  Id'
     )
-    me_model__species__id__in: list[str] | None = Field(
+    me_model__species__id__in: list[UUID] | None = Field(
         default=None, title='Me Model  Species  Id  In'
     )
     me_model__strain__name: str | None = Field(
@@ -7093,7 +6988,7 @@ class ReadManySingleNeuronSynaptomeSimulationGetParametersQuery(BaseModel):
     me_model__strain__id: UUID | None = Field(
         default=None, title='Me Model  Strain  Id'
     )
-    me_model__strain__id__in: list[str] | None = Field(
+    me_model__strain__id__in: list[UUID] | None = Field(
         default=None, title='Me Model  Strain  Id  In'
     )
     me_model__morphology__name: str | None = Field(
@@ -7108,7 +7003,7 @@ class ReadManySingleNeuronSynaptomeSimulationGetParametersQuery(BaseModel):
     me_model__morphology__id: UUID | None = Field(
         default=None, title='Me Model  Morphology  Id'
     )
-    me_model__morphology__id__in: list[str] | None = Field(
+    me_model__morphology__id__in: list[UUID] | None = Field(
         default=None, title='Me Model  Morphology  Id  In'
     )
     morphology__brain_region__name: str | None = Field(
@@ -7123,7 +7018,7 @@ class ReadManySingleNeuronSynaptomeSimulationGetParametersQuery(BaseModel):
     morphology__brain_region__id: UUID | None = Field(
         default=None, title='Morphology  Brain Region  Id'
     )
-    morphology__brain_region__id__in: list[str] | None = Field(
+    morphology__brain_region__id__in: list[UUID] | None = Field(
         default=None, title='Morphology  Brain Region  Id  In'
     )
     morphology__brain_region__acronym: str | None = Field(
@@ -7144,7 +7039,7 @@ class ReadManySingleNeuronSynaptomeSimulationGetParametersQuery(BaseModel):
     morphology__subject__id: UUID | None = Field(
         default=None, title='Morphology  Subject  Id'
     )
-    morphology__subject__id__in: list[str] | None = Field(
+    morphology__subject__id__in: list[UUID] | None = Field(
         default=None, title='Morphology  Subject  Id  In'
     )
     morphology__subject__age_value: timedelta | None = Field(
@@ -7162,7 +7057,7 @@ class ReadManySingleNeuronSynaptomeSimulationGetParametersQuery(BaseModel):
     subject__species__id: UUID | None = Field(
         default=None, title='Subject  Species  Id'
     )
-    subject__species__id__in: list[str] | None = Field(
+    subject__species__id__in: list[UUID] | None = Field(
         default=None, title='Subject  Species  Id  In'
     )
     subject__strain__name: str | None = Field(
@@ -7175,7 +7070,7 @@ class ReadManySingleNeuronSynaptomeSimulationGetParametersQuery(BaseModel):
         default=None, title='Subject  Strain  Name  Ilike'
     )
     subject__strain__id: UUID | None = Field(default=None, title='Subject  Strain  Id')
-    subject__strain__id__in: list[str] | None = Field(
+    subject__strain__id__in: list[UUID] | None = Field(
         default=None, title='Subject  Strain  Id  In'
     )
     morphology__mtype__pref_label: str | None = Field(
@@ -7184,10 +7079,13 @@ class ReadManySingleNeuronSynaptomeSimulationGetParametersQuery(BaseModel):
     morphology__mtype__pref_label__in: list[str] | None = Field(
         default=None, title='Morphology  Mtype  Pref Label  In'
     )
+    morphology__mtype__pref_label__ilike: str | None = Field(
+        default=None, title='Morphology  Mtype  Pref Label  Ilike'
+    )
     morphology__mtype__id: UUID | None = Field(
         default=None, title='Morphology  Mtype  Id'
     )
-    morphology__mtype__id__in: list[str] | None = Field(
+    morphology__mtype__id__in: list[UUID] | None = Field(
         default=None, title='Morphology  Mtype  Id  In'
     )
     me_model__emodel__name: str | None = Field(
@@ -7202,7 +7100,7 @@ class ReadManySingleNeuronSynaptomeSimulationGetParametersQuery(BaseModel):
     me_model__emodel__id: UUID | None = Field(
         default=None, title='Me Model  Emodel  Id'
     )
-    me_model__emodel__id__in: list[str] | None = Field(
+    me_model__emodel__id__in: list[UUID] | None = Field(
         default=None, title='Me Model  Emodel  Id  In'
     )
     me_model__emodel__score__lte: float | None = Field(
@@ -7223,7 +7121,7 @@ class ReadManySingleNeuronSynaptomeSimulationGetParametersQuery(BaseModel):
     emodel__brain_region__id: UUID | None = Field(
         default=None, title='Emodel  Brain Region  Id'
     )
-    emodel__brain_region__id__in: list[str] | None = Field(
+    emodel__brain_region__id__in: list[UUID] | None = Field(
         default=None, title='Emodel  Brain Region  Id  In'
     )
     emodel__brain_region__acronym: str | None = Field(
@@ -7238,8 +7136,11 @@ class ReadManySingleNeuronSynaptomeSimulationGetParametersQuery(BaseModel):
     emodel__mtype__pref_label__in: list[str] | None = Field(
         default=None, title='Emodel  Mtype  Pref Label  In'
     )
+    emodel__mtype__pref_label__ilike: str | None = Field(
+        default=None, title='Emodel  Mtype  Pref Label  Ilike'
+    )
     emodel__mtype__id: UUID | None = Field(default=None, title='Emodel  Mtype  Id')
-    emodel__mtype__id__in: list[str] | None = Field(
+    emodel__mtype__id__in: list[UUID] | None = Field(
         default=None, title='Emodel  Mtype  Id  In'
     )
     emodel__etype__pref_label: str | None = Field(
@@ -7248,8 +7149,11 @@ class ReadManySingleNeuronSynaptomeSimulationGetParametersQuery(BaseModel):
     emodel__etype__pref_label__in: list[str] | None = Field(
         default=None, title='Emodel  Etype  Pref Label  In'
     )
+    emodel__etype__pref_label__ilike: str | None = Field(
+        default=None, title='Emodel  Etype  Pref Label  Ilike'
+    )
     emodel__etype__id: UUID | None = Field(default=None, title='Emodel  Etype  Id')
-    emodel__etype__id__in: list[str] | None = Field(
+    emodel__etype__id__in: list[UUID] | None = Field(
         default=None, title='Emodel  Etype  Id  In'
     )
     emodel__exemplar_morphology__name: str | None = Field(
@@ -7264,7 +7168,7 @@ class ReadManySingleNeuronSynaptomeSimulationGetParametersQuery(BaseModel):
     emodel__exemplar_morphology__id: UUID | None = Field(
         default=None, title='Emodel  Exemplar Morphology  Id'
     )
-    emodel__exemplar_morphology__id__in: list[str] | None = Field(
+    emodel__exemplar_morphology__id__in: list[UUID] | None = Field(
         default=None, title='Emodel  Exemplar Morphology  Id  In'
     )
     me_model__mtype__pref_label: str | None = Field(
@@ -7273,8 +7177,11 @@ class ReadManySingleNeuronSynaptomeSimulationGetParametersQuery(BaseModel):
     me_model__mtype__pref_label__in: list[str] | None = Field(
         default=None, title='Me Model  Mtype  Pref Label  In'
     )
+    me_model__mtype__pref_label__ilike: str | None = Field(
+        default=None, title='Me Model  Mtype  Pref Label  Ilike'
+    )
     me_model__mtype__id: UUID | None = Field(default=None, title='Me Model  Mtype  Id')
-    me_model__mtype__id__in: list[str] | None = Field(
+    me_model__mtype__id__in: list[UUID] | None = Field(
         default=None, title='Me Model  Mtype  Id  In'
     )
     me_model__etype__pref_label: str | None = Field(
@@ -7283,8 +7190,11 @@ class ReadManySingleNeuronSynaptomeSimulationGetParametersQuery(BaseModel):
     me_model__etype__pref_label__in: list[str] | None = Field(
         default=None, title='Me Model  Etype  Pref Label  In'
     )
+    me_model__etype__pref_label__ilike: str | None = Field(
+        default=None, title='Me Model  Etype  Pref Label  Ilike'
+    )
     me_model__etype__id: UUID | None = Field(default=None, title='Me Model  Etype  Id')
-    me_model__etype__id__in: list[str] | None = Field(
+    me_model__etype__id__in: list[UUID] | None = Field(
         default=None, title='Me Model  Etype  Id  In'
     )
     search: str | None = Field(default=None, title='Search')
@@ -7308,7 +7218,7 @@ class ReadManySpeciesGetParametersQuery(BaseModel):
     name__in: list[str] | None = Field(default=None, title='Name  In')
     name__ilike: str | None = Field(default=None, title='Name  Ilike')
     id: UUID | None = Field(default=None, title='Id')
-    id__in: list[str] | None = Field(default=None, title='Id  In')
+    id__in: list[UUID] | None = Field(default=None, title='Id  In')
     creation_date__lte: AwareDatetime | None = Field(
         default=None, title='Creation Date  Lte'
     )
@@ -7328,8 +7238,11 @@ class ReadManySpeciesGetParametersQuery(BaseModel):
     created_by__pref_label__in: list[str] | None = Field(
         default=None, title='Created By  Pref Label  In'
     )
+    created_by__pref_label__ilike: str | None = Field(
+        default=None, title='Created By  Pref Label  Ilike'
+    )
     created_by__id: UUID | None = Field(default=None, title='Created By  Id')
-    created_by__id__in: list[str] | None = Field(
+    created_by__id__in: list[UUID] | None = Field(
         default=None, title='Created By  Id  In'
     )
     updated_by__pref_label: str | None = Field(
@@ -7338,8 +7251,11 @@ class ReadManySpeciesGetParametersQuery(BaseModel):
     updated_by__pref_label__in: list[str] | None = Field(
         default=None, title='Updated By  Pref Label  In'
     )
+    updated_by__pref_label__ilike: str | None = Field(
+        default=None, title='Updated By  Pref Label  Ilike'
+    )
     updated_by__id: UUID | None = Field(default=None, title='Updated By  Id')
-    updated_by__id__in: list[str] | None = Field(
+    updated_by__id__in: list[UUID] | None = Field(
         default=None, title='Updated By  Id  In'
     )
 
@@ -7371,27 +7287,30 @@ class ReadManySubjectGetParametersQuery(BaseModel):
         default=None, title='Authorized Project Id'
     )
     id: UUID | None = Field(default=None, title='Id')
-    id__in: list[str] | None = Field(default=None, title='Id  In')
+    id__in: list[UUID] | None = Field(default=None, title='Id  In')
     age_value: timedelta | None = Field(default=None, title='Age Value')
     order_by: list[str] = Field(default=['-creation_date'], title='Order By')
     species__name: str | None = Field(default=None, title='Species  Name')
     species__name__in: list[str] | None = Field(default=None, title='Species  Name  In')
     species__name__ilike: str | None = Field(default=None, title='Species  Name  Ilike')
     species__id: UUID | None = Field(default=None, title='Species  Id')
-    species__id__in: list[str] | None = Field(default=None, title='Species  Id  In')
+    species__id__in: list[UUID] | None = Field(default=None, title='Species  Id  In')
     strain__name: str | None = Field(default=None, title='Strain  Name')
     strain__name__in: list[str] | None = Field(default=None, title='Strain  Name  In')
     strain__name__ilike: str | None = Field(default=None, title='Strain  Name  Ilike')
     strain__id: UUID | None = Field(default=None, title='Strain  Id')
-    strain__id__in: list[str] | None = Field(default=None, title='Strain  Id  In')
+    strain__id__in: list[UUID] | None = Field(default=None, title='Strain  Id  In')
     contribution__pref_label: str | None = Field(
         default=None, title='Contribution  Pref Label'
     )
     contribution__pref_label__in: list[str] | None = Field(
         default=None, title='Contribution  Pref Label  In'
     )
+    contribution__pref_label__ilike: str | None = Field(
+        default=None, title='Contribution  Pref Label  Ilike'
+    )
     contribution__id: UUID | None = Field(default=None, title='Contribution  Id')
-    contribution__id__in: list[str] | None = Field(
+    contribution__id__in: list[UUID] | None = Field(
         default=None, title='Contribution  Id  In'
     )
     created_by__pref_label: str | None = Field(
@@ -7400,8 +7319,11 @@ class ReadManySubjectGetParametersQuery(BaseModel):
     created_by__pref_label__in: list[str] | None = Field(
         default=None, title='Created By  Pref Label  In'
     )
+    created_by__pref_label__ilike: str | None = Field(
+        default=None, title='Created By  Pref Label  Ilike'
+    )
     created_by__id: UUID | None = Field(default=None, title='Created By  Id')
-    created_by__id__in: list[str] | None = Field(
+    created_by__id__in: list[UUID] | None = Field(
         default=None, title='Created By  Id  In'
     )
     updated_by__pref_label: str | None = Field(
@@ -7410,8 +7332,11 @@ class ReadManySubjectGetParametersQuery(BaseModel):
     updated_by__pref_label__in: list[str] | None = Field(
         default=None, title='Updated By  Pref Label  In'
     )
+    updated_by__pref_label__ilike: str | None = Field(
+        default=None, title='Updated By  Pref Label  Ilike'
+    )
     updated_by__id: UUID | None = Field(default=None, title='Updated By  Id')
-    updated_by__id__in: list[str] | None = Field(
+    updated_by__id__in: list[UUID] | None = Field(
         default=None, title='Updated By  Id  In'
     )
     search: str | None = Field(default=None, title='Search')
@@ -7444,7 +7369,7 @@ class ReadManyValidationResultGetParametersQuery(BaseModel):
         default=None, title='Authorized Project Id'
     )
     id: UUID | None = Field(default=None, title='Id')
-    id__in: list[str] | None = Field(default=None, title='Id  In')
+    id__in: list[UUID] | None = Field(default=None, title='Id  In')
     passed: bool | None = Field(default=None, title='Passed')
     validated_entity_id: UUID | None = Field(default=None, title='Validated Entity Id')
     order_by: list[str] = Field(default=['name'], title='Order By')
@@ -7454,8 +7379,11 @@ class ReadManyValidationResultGetParametersQuery(BaseModel):
     contribution__pref_label__in: list[str] | None = Field(
         default=None, title='Contribution  Pref Label  In'
     )
+    contribution__pref_label__ilike: str | None = Field(
+        default=None, title='Contribution  Pref Label  Ilike'
+    )
     contribution__id: UUID | None = Field(default=None, title='Contribution  Id')
-    contribution__id__in: list[str] | None = Field(
+    contribution__id__in: list[UUID] | None = Field(
         default=None, title='Contribution  Id  In'
     )
     created_by__pref_label: str | None = Field(
@@ -7464,8 +7392,11 @@ class ReadManyValidationResultGetParametersQuery(BaseModel):
     created_by__pref_label__in: list[str] | None = Field(
         default=None, title='Created By  Pref Label  In'
     )
+    created_by__pref_label__ilike: str | None = Field(
+        default=None, title='Created By  Pref Label  Ilike'
+    )
     created_by__id: UUID | None = Field(default=None, title='Created By  Id')
-    created_by__id__in: list[str] | None = Field(
+    created_by__id__in: list[UUID] | None = Field(
         default=None, title='Created By  Id  In'
     )
     updated_by__pref_label: str | None = Field(
@@ -7474,8 +7405,11 @@ class ReadManyValidationResultGetParametersQuery(BaseModel):
     updated_by__pref_label__in: list[str] | None = Field(
         default=None, title='Updated By  Pref Label  In'
     )
+    updated_by__pref_label__ilike: str | None = Field(
+        default=None, title='Updated By  Pref Label  Ilike'
+    )
     updated_by__id: UUID | None = Field(default=None, title='Updated By  Id')
-    updated_by__id__in: list[str] | None = Field(
+    updated_by__id__in: list[UUID] | None = Field(
         default=None, title='Updated By  Id  In'
     )
     search: str | None = Field(default=None, title='Search')
@@ -7495,18 +7429,6 @@ class AgentRead(
     RootModel[NestedPersonRead | NestedOrganizationRead | NestedConsortiumRead]
 ):
     root: NestedPersonRead | NestedOrganizationRead | NestedConsortiumRead
-
-
-class AnalysisNotebookEnvironmentAdminUpdate(BaseModel):
-    model_config = ConfigDict(
-        extra='allow',
-    )
-    authorized_public: bool | str | None = Field(
-        default='<NOT_SET>', title='Authorized Public'
-    )
-    runtime_info: RuntimeInfo | str | None = Field(
-        default='<NOT_SET>', title='Runtime Info'
-    )
 
 
 class AnalysisNotebookEnvironmentCreate(BaseModel):
@@ -7670,34 +7592,6 @@ CalibrationRead = SimulationGenerationRead
 CalibrationUserUpdate = SimulationGenerationUserUpdate
 
 
-class CellMorphologyAdminUpdate(BaseModel):
-    model_config = ConfigDict(
-        extra='allow',
-    )
-    authorized_public: bool | str | None = Field(
-        default='<NOT_SET>', title='Authorized Public'
-    )
-    license_id: UUID | str | None = Field(default='<NOT_SET>', title='License Id')
-    brain_region_id: UUID | str | None = Field(
-        default='<NOT_SET>', title='Brain Region Id'
-    )
-    subject_id: UUID | str | None = Field(default='<NOT_SET>', title='Subject Id')
-    experiment_date: AwareDatetime | str | None = Field(
-        default='<NOT_SET>', title='Experiment Date'
-    )
-    contact_email: str | None = Field(default='<NOT_SET>', title='Contact Email')
-    published_in: str | None = Field(default='<NOT_SET>', title='Published In')
-    name: str | None = Field(default='<NOT_SET>', title='Name')
-    description: str | None = Field(default='<NOT_SET>', title='Description')
-    location: PointLocationBase | str | None = Field(
-        default='<NOT_SET>', title='Location'
-    )
-    legacy_id: list[str] | str | None = Field(default='<NOT_SET>', title='Legacy Id')
-    cell_morphology_protocol_id: UUID | str | None = Field(
-        default='<NOT_SET>', title='Cell Morphology Protocol Id'
-    )
-
-
 class CellMorphologyCreate(BaseModel):
     model_config = ConfigDict(
         extra='allow',
@@ -7741,54 +7635,6 @@ class CellMorphologyUserUpdate(BaseModel):
     cell_morphology_protocol_id: UUID | str | None = Field(
         default='<NOT_SET>', title='Cell Morphology Protocol Id'
     )
-
-
-class CircuitAdminUpdate(BaseModel):
-    model_config = ConfigDict(
-        extra='allow',
-    )
-    authorized_public: bool | str | None = Field(
-        default='<NOT_SET>', title='Authorized Public'
-    )
-    license_id: UUID | str | None = Field(default='<NOT_SET>', title='License Id')
-    brain_region_id: UUID | str | None = Field(
-        default='<NOT_SET>', title='Brain Region Id'
-    )
-    subject_id: UUID | str | None = Field(default='<NOT_SET>', title='Subject Id')
-    experiment_date: AwareDatetime | str | None = Field(
-        default='<NOT_SET>', title='Experiment Date'
-    )
-    contact_email: str | None = Field(default='<NOT_SET>', title='Contact Email')
-    published_in: str | None = Field(default='<NOT_SET>', title='Published In')
-    name: str | None = Field(default='<NOT_SET>', title='Name')
-    description: str | None = Field(default='<NOT_SET>', title='Description')
-    has_morphologies: bool | str | None = Field(
-        default='<NOT_SET>', title='Has Morphologies'
-    )
-    has_point_neurons: bool | str | None = Field(
-        default='<NOT_SET>', title='Has Point Neurons'
-    )
-    has_electrical_cell_models: bool | str | None = Field(
-        default='<NOT_SET>', title='Has Electrical Cell Models'
-    )
-    has_spines: bool | str | None = Field(default='<NOT_SET>', title='Has Spines')
-    number_neurons: int | str | None = Field(
-        default='<NOT_SET>', title='Number Neurons'
-    )
-    number_synapses: int | str | None = Field(
-        default='<NOT_SET>', title='Number Synapses'
-    )
-    number_connections: int | str | None = Field(
-        default='<NOT_SET>', title='Number Connections'
-    )
-    scale: CircuitScale | str | None = Field(default='<NOT_SET>', title='Scale')
-    build_category: CircuitBuildCategory | str | None = Field(
-        default='<NOT_SET>', title='Build Category'
-    )
-    root_circuit_id: UUID | str | None = Field(
-        default='<NOT_SET>', title='Root Circuit Id'
-    )
-    atlas_id: UUID | str | None = Field(default='<NOT_SET>', title='Atlas Id')
 
 
 class CircuitCreate(BaseModel):
@@ -8015,40 +7861,6 @@ class ETypeClassificationRead(BaseModel):
     etype_class_id: UUID = Field(..., title='Etype Class Id')
 
 
-class ElectricalCellRecordingAdminUpdate(BaseModel):
-    model_config = ConfigDict(
-        extra='allow',
-    )
-    authorized_public: bool | str | None = Field(
-        default='<NOT_SET>', title='Authorized Public'
-    )
-    license_id: UUID | str | None = Field(default='<NOT_SET>', title='License Id')
-    brain_region_id: UUID | str | None = Field(
-        default='<NOT_SET>', title='Brain Region Id'
-    )
-    subject_id: UUID | str | None = Field(default='<NOT_SET>', title='Subject Id')
-    experiment_date: AwareDatetime | str | None = Field(
-        default='<NOT_SET>', title='Experiment Date'
-    )
-    contact_email: str | None = Field(default='<NOT_SET>', title='Contact Email')
-    published_in: str | None = Field(default='<NOT_SET>', title='Published In')
-    name: str | None = Field(default='<NOT_SET>', title='Name')
-    description: str | None = Field(default='<NOT_SET>', title='Description')
-    ljp: float | str | None = Field(default='<NOT_SET>', title='Ljp')
-    recording_location: list[str] | str | None = Field(
-        default='<NOT_SET>', title='Recording Location'
-    )
-    recording_type: ElectricalRecordingType | str | None = Field(
-        default='<NOT_SET>', title='Recording Type'
-    )
-    recording_origin: ElectricalRecordingOrigin | str | None = Field(
-        default='<NOT_SET>', title='Recording Origin'
-    )
-    temperature: float | str | None = Field(default='<NOT_SET>', title='Temperature')
-    comment: str | None = Field(default='<NOT_SET>', title='Comment')
-    legacy_id: list[str] | str | None = Field(default='<NOT_SET>', title='Legacy Id')
-
-
 class ElectricalCellRecordingCreate(BaseModel):
     model_config = ConfigDict(
         extra='allow',
@@ -8122,27 +7934,6 @@ class ElectricalCellRecordingUserUpdate(BaseModel):
     temperature: float | str | None = Field(default='<NOT_SET>', title='Temperature')
     comment: str | None = Field(default='<NOT_SET>', title='Comment')
     legacy_id: list[str] | str | None = Field(default='<NOT_SET>', title='Legacy Id')
-
-
-class ElectricalRecordingStimulusAdminUpdate(BaseModel):
-    model_config = ConfigDict(
-        extra='allow',
-    )
-    authorized_public: bool | str | None = Field(
-        default='<NOT_SET>', title='Authorized Public'
-    )
-    name: str | None = Field(default='<NOT_SET>', title='Name')
-    description: str | None = Field(default='<NOT_SET>', title='Description')
-    dt: float | str | None = Field(default='<NOT_SET>', title='Dt')
-    injection_type: ElectricalRecordingStimulusType | str | None = Field(
-        default='<NOT_SET>', title='Injection Type'
-    )
-    shape: ElectricalRecordingStimulusShape | str | None = Field(
-        default='<NOT_SET>', title='Shape'
-    )
-    start_time: float | str | None = Field(default='<NOT_SET>', title='Start Time')
-    end_time: float | str | None = Field(default='<NOT_SET>', title='End Time')
-    recording_id: UUID | str | None = Field(default='<NOT_SET>', title='Recording Id')
 
 
 class ElectricalRecordingStimulusCreate(BaseModel):
@@ -8473,27 +8264,6 @@ class ListResponseValidationRead(BaseModel):
     facets: Facets | None = None
 
 
-class MEModelAdminUpdate(BaseModel):
-    model_config = ConfigDict(
-        extra='allow',
-    )
-    authorized_public: bool | str | None = Field(
-        default='<NOT_SET>', title='Authorized Public'
-    )
-    name: str | None = Field(default='<NOT_SET>', title='Name')
-    description: str | None = Field(default='<NOT_SET>', title='Description')
-    validation_status: ValidationStatus | str | None = Field(
-        default='<NOT_SET>', title='Validation Status'
-    )
-    brain_region_id: UUID | str | None = Field(
-        default='<NOT_SET>', title='Brain Region Id'
-    )
-    morphology_id: UUID | str | None = Field(default='<NOT_SET>', title='Morphology Id')
-    emodel_id: UUID | str | None = Field(default='<NOT_SET>', title='Emodel Id')
-    species_id: UUID | str | None = Field(default='<NOT_SET>', title='Species Id')
-    strain_id: UUID | str | None = Field(default='<NOT_SET>', title='Strain Id')
-
-
 class MEModelCalibrationResultRead(BaseModel):
     model_config = ConfigDict(
         extra='allow',
@@ -8582,14 +8352,23 @@ class MeasurementKindCreate(BaseModel):
 MeasurementKindRead = MeasurementKindCreate
 
 
-class MeasurementRead(BaseModel):
+class MeasurementRecordCreate(BaseModel):
     model_config = ConfigDict(
         extra='allow',
     )
-    id: int = Field(..., title='Id')
-    name: str = Field(..., title='Name')
+    name: MeasurementStatistic
     unit: MeasurementUnit
     value: float = Field(..., title='Value')
+
+
+class MeasurementRecordRead(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
+    name: MeasurementStatistic
+    unit: MeasurementUnit
+    value: float = Field(..., title='Value')
+    id: int = Field(..., title='Id')
 
 
 class ModifiedReconstructionCellMorphologyProtocolRead(BaseModel):
@@ -8746,26 +8525,6 @@ class SimulationCampaignRead(BaseModel):
     simulations: list[NestedSimulationRead] = Field(..., title='Simulations')
 
 
-class SimulationExecutionAdminUpdate(BaseModel):
-    model_config = ConfigDict(
-        extra='allow',
-    )
-    authorized_public: bool | str | None = Field(
-        default='<NOT_SET>', title='Authorized Public'
-    )
-    start_time: AwareDatetime | str | None = Field(
-        default='<NOT_SET>', title='Start Time'
-    )
-    end_time: AwareDatetime | str | None = Field(default='<NOT_SET>', title='End Time')
-    used_ids: list[UUID] | str | None = Field(default='<NOT_SET>', title='Used Ids')
-    generated_ids: list[UUID] | str | None = Field(
-        default='<NOT_SET>', title='Generated Ids'
-    )
-    status: SimulationExecutionStatus | str | None = Field(
-        default='<NOT_SET>', title='Status'
-    )
-
-
 class SimulationExecutionCreate(BaseModel):
     model_config = ConfigDict(
         extra='allow',
@@ -8833,31 +8592,6 @@ class SimulationResultRead(BaseModel):
     name: str = Field(..., title='Name')
     description: str = Field(..., title='Description')
     simulation_id: UUID = Field(..., title='Simulation Id')
-
-
-class SingleNeuronSimulationAdminUpdate(BaseModel):
-    model_config = ConfigDict(
-        extra='allow',
-    )
-    brain_region_id: UUID | str | None = Field(
-        default='<NOT_SET>', title='Brain Region Id'
-    )
-    authorized_public: bool | str | None = Field(
-        default='<NOT_SET>', title='Authorized Public'
-    )
-    name: str | None = Field(default='<NOT_SET>', title='Name')
-    description: str | None = Field(default='<NOT_SET>', title='Description')
-    seed: int | str | None = Field(default='<NOT_SET>', title='Seed')
-    status: SingleNeuronSimulationStatus | str | None = Field(
-        default='<NOT_SET>', title='Status'
-    )
-    injection_location: list[str] | str | None = Field(
-        default='<NOT_SET>', title='Injection Location'
-    )
-    recording_location: list[str] | str | None = Field(
-        default='<NOT_SET>', title='Recording Location'
-    )
-    me_model_id: UUID | str | None = Field(default='<NOT_SET>', title='Me Model Id')
 
 
 class SingleNeuronSimulationCreate(BaseModel):
@@ -9012,21 +8746,6 @@ class AnalysisNotebookResultRead(BaseModel):
     type: EntityType | None = None
     name: str = Field(..., title='Name')
     description: str = Field(..., title='Description')
-
-
-class AnalysisNotebookTemplateAdminUpdate(BaseModel):
-    model_config = ConfigDict(
-        extra='allow',
-    )
-    authorized_public: bool | str | None = Field(
-        default='<NOT_SET>', title='Authorized Public'
-    )
-    name: str | None = Field(default='<NOT_SET>', title='Name')
-    description: str | None = Field(default='<NOT_SET>', title='Description')
-    specifications: AnalysisNotebookTemplateSpecificationsInput | str | None = Field(
-        default='<NOT_SET>', title='Specifications'
-    )
-    scale: AnalysisScale | str | None = Field(default='<NOT_SET>', title='Scale')
 
 
 class AnalysisNotebookTemplateCreate(BaseModel):
@@ -9328,6 +9047,20 @@ class ElectricalCellRecordingRead(BaseModel):
     etypes: list[AnnotationRead] | None = Field(..., title='Etypes')
 
 
+class ExperimentalBoutonDensityCreate(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
+    authorized_public: bool = Field(default=False, title='Authorized Public')
+    license_id: UUID | None = Field(default=None, title='License Id')
+    name: str = Field(..., title='Name')
+    description: str = Field(..., title='Description')
+    subject_id: UUID = Field(..., title='Subject Id')
+    brain_region_id: UUID = Field(..., title='Brain Region Id')
+    legacy_id: str | None = Field(..., title='Legacy Id')
+    measurements: list[MeasurementRecordCreate] = Field(..., title='Measurements')
+
+
 class ExperimentalBoutonDensityRead(BaseModel):
     model_config = ConfigDict(
         extra='allow',
@@ -9347,10 +9080,30 @@ class ExperimentalBoutonDensityRead(BaseModel):
     update_date: AwareDatetime = Field(..., title='Update Date')
     name: str = Field(..., title='Name')
     description: str = Field(..., title='Description')
-    measurements: list[MeasurementRead] | None = Field(..., title='Measurements')
-    assets: list[AssetRead] | None = Field(..., title='Assets')
+    measurements: list[MeasurementRecordRead] = Field(..., title='Measurements')
+    assets: list[AssetRead] = Field(..., title='Assets')
     brain_region: BrainRegionRead
     mtypes: list[AnnotationRead] | None = Field(..., title='Mtypes')
+
+
+class ExperimentalBoutonDensityUserUpdate(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
+    license_id: UUID | str | None = Field(default='<NOT_SET>', title='License Id')
+    name: str | None = Field(default='<NOT_SET>', title='Name')
+    description: str | None = Field(default='<NOT_SET>', title='Description')
+    subject_id: UUID | str | None = Field(default='<NOT_SET>', title='Subject Id')
+    brain_region_id: UUID | str | None = Field(
+        default='<NOT_SET>', title='Brain Region Id'
+    )
+    legacy_id: str | None = Field(default='<NOT_SET>', title='Legacy Id')
+    measurements: list[MeasurementRecordCreate] | str | None = Field(
+        default='<NOT_SET>', title='Measurements'
+    )
+
+
+ExperimentalNeuronDensityCreate = ExperimentalBoutonDensityCreate
 
 
 class ExperimentalNeuronDensityRead(BaseModel):
@@ -9372,11 +9125,32 @@ class ExperimentalNeuronDensityRead(BaseModel):
     update_date: AwareDatetime = Field(..., title='Update Date')
     name: str = Field(..., title='Name')
     description: str = Field(..., title='Description')
-    measurements: list[MeasurementRead] | None = Field(..., title='Measurements')
-    assets: list[AssetRead] | None = Field(..., title='Assets')
+    measurements: list[MeasurementRecordRead] = Field(..., title='Measurements')
+    assets: list[AssetRead] = Field(..., title='Assets')
     brain_region: BrainRegionRead
     mtypes: list[AnnotationRead] | None = Field(..., title='Mtypes')
     etypes: list[AnnotationRead] | None = Field(..., title='Etypes')
+
+
+ExperimentalNeuronDensityUserUpdate = ExperimentalBoutonDensityUserUpdate
+
+
+class ExperimentalSynapsesPerConnectionCreate(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
+    authorized_public: bool = Field(default=False, title='Authorized Public')
+    license_id: UUID | None = Field(default=None, title='License Id')
+    name: str = Field(..., title='Name')
+    description: str = Field(..., title='Description')
+    subject_id: UUID = Field(..., title='Subject Id')
+    brain_region_id: UUID = Field(..., title='Brain Region Id')
+    legacy_id: str | None = Field(..., title='Legacy Id')
+    measurements: list[MeasurementRecordCreate] = Field(..., title='Measurements')
+    pre_mtype_id: UUID = Field(..., title='Pre Mtype Id')
+    post_mtype_id: UUID = Field(..., title='Post Mtype Id')
+    pre_region_id: UUID = Field(..., title='Pre Region Id')
+    post_region_id: UUID = Field(..., title='Post Region Id')
 
 
 class ExperimentalSynapsesPerConnectionRead(BaseModel):
@@ -9398,8 +9172,8 @@ class ExperimentalSynapsesPerConnectionRead(BaseModel):
     update_date: AwareDatetime = Field(..., title='Update Date')
     name: str = Field(..., title='Name')
     description: str = Field(..., title='Description')
-    measurements: list[MeasurementRead] | None = Field(..., title='Measurements')
-    assets: list[AssetRead] | None = Field(..., title='Assets')
+    measurements: list[MeasurementRecordRead] = Field(..., title='Measurements')
+    assets: list[AssetRead] = Field(..., title='Assets')
     brain_region: BrainRegionRead
     pre_mtype: AnnotationRead
     post_mtype: AnnotationRead
@@ -9407,38 +9181,26 @@ class ExperimentalSynapsesPerConnectionRead(BaseModel):
     post_region: BrainRegionRead
 
 
-class IonChannelModelAdminUpdate(BaseModel):
+class ExperimentalSynapsesPerConnectionUserUpdate(BaseModel):
     model_config = ConfigDict(
         extra='allow',
     )
-    authorized_public: bool | str | None = Field(
-        default='<NOT_SET>', title='Authorized Public'
-    )
     license_id: UUID | str | None = Field(default='<NOT_SET>', title='License Id')
+    name: str | None = Field(default='<NOT_SET>', title='Name')
+    description: str | None = Field(default='<NOT_SET>', title='Description')
+    subject_id: UUID | str | None = Field(default='<NOT_SET>', title='Subject Id')
     brain_region_id: UUID | str | None = Field(
         default='<NOT_SET>', title='Brain Region Id'
     )
-    subject_id: UUID | str | None = Field(default='<NOT_SET>', title='Subject Id')
-    experiment_date: AwareDatetime | str | None = Field(
-        default='<NOT_SET>', title='Experiment Date'
+    legacy_id: str | None = Field(default='<NOT_SET>', title='Legacy Id')
+    measurements: list[MeasurementRecordCreate] | str | None = Field(
+        default='<NOT_SET>', title='Measurements'
     )
-    contact_email: str | None = Field(default='<NOT_SET>', title='Contact Email')
-    published_in: str | None = Field(default='<NOT_SET>', title='Published In')
-    description: str | None = Field(default='<NOT_SET>', title='Description')
-    name: str | None = Field(default='<NOT_SET>', title='Name')
-    nmodl_suffix: str | None = Field(default='<NOT_SET>', title='Nmodl Suffix')
-    is_ljp_corrected: bool | str | None = Field(
-        default='<NOT_SET>', title='Is Ljp Corrected'
-    )
-    is_temperature_dependent: bool | str | None = Field(
-        default='<NOT_SET>', title='Is Temperature Dependent'
-    )
-    temperature_celsius: int | str | None = Field(
-        default='<NOT_SET>', title='Temperature Celsius'
-    )
-    is_stochastic: bool | str | None = Field(default='<NOT_SET>', title='Is Stochastic')
-    neuron_block: NeuronBlock | str | None = Field(
-        default='<NOT_SET>', title='Neuron Block'
+    pre_mtype_id: UUID | str | None = Field(default='<NOT_SET>', title='Pre Mtype Id')
+    post_mtype_id: UUID | str | None = Field(default='<NOT_SET>', title='Post Mtype Id')
+    pre_region_id: UUID | str | None = Field(default='<NOT_SET>', title='Pre Region Id')
+    post_region_id: UUID | str | None = Field(
+        default='<NOT_SET>', title='Post Region Id'
     )
 
 
@@ -9879,19 +9641,6 @@ class ListResponseValidationResultRead(BaseModel):
     facets: Facets | None = None
 
 
-class MeasurementAnnotationAdminUpdate(BaseModel):
-    model_config = ConfigDict(
-        extra='allow',
-    )
-    entity_id: UUID | str | None = Field(default='<NOT_SET>', title='Entity Id')
-    entity_type: MeasurableEntity | str | None = Field(
-        default='<NOT_SET>', title='Entity Type'
-    )
-    measurement_kinds: list[MeasurementKindCreate] | str | None = Field(
-        default='<NOT_SET>', title='Measurement Kinds'
-    )
-
-
 class MeasurementAnnotationCreate(BaseModel):
     model_config = ConfigDict(
         extra='allow',
@@ -9915,7 +9664,17 @@ class MeasurementAnnotationRead(BaseModel):
     measurement_kinds: list[MeasurementKindRead] = Field(..., title='Measurement Kinds')
 
 
-MeasurementAnnotationUserUpdate = MeasurementAnnotationAdminUpdate
+class MeasurementAnnotationUserUpdate(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
+    entity_id: UUID | str | None = Field(default='<NOT_SET>', title='Entity Id')
+    entity_type: MeasurableEntity | str | None = Field(
+        default='<NOT_SET>', title='Entity Type'
+    )
+    measurement_kinds: list[MeasurementKindCreate] | str | None = Field(
+        default='<NOT_SET>', title='Measurement Kinds'
+    )
 
 
 class NestedCellMorphologyProtocolRead(
