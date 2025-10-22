@@ -43,6 +43,26 @@ class CircuitConnectivityMetricsGetOneTool(BaseTool):
     ]
     description: ClassVar[str] = (
         "Given a circuit ID and edge population, compute the connectivity metrics of it. To be able to provide the rest of the parameters, you need to call the `obione-circuitmetrics-getone` tool first with `level_of_detail_nodes=1`.\n\n"
+        "## SONATA Node Sets Specification\n"
+        "The `pre_selection` and `post_selection` parameters support the full SONATA Node Sets specification format:\n\n"
+        "### Simple Expressions\n"
+        "- **Attribute matching**: `{\"layer\": \"2\"}` - select nodes where layer equals \"2\"\n"
+        "- **List matching (OR)**: `{\"mtype\": [\"SLM_PPA\", \"SP_PC\"]}` - select nodes where mtype is SLM_PPA OR SP_PC\n"
+        "- **Dictionary matching (AND)**: `{\"synapse_class\": \"EXC\", \"mtype\": \"SLM_PPA\"}` - select nodes where synapse_class is EXC AND mtype is SLM_PPA\n"
+        "- **Regex matching**: `{\"mtype\": {\"$regex\": \"^SP_.*\"}}` - select nodes where mtype matches regex pattern\n"
+        "- **Numeric operators**: `{\"x\": {\"$gt\": 100}}`, `{\"y\": {\"$lt\": 50}}`, `{\"z\": {\"$gte\": 0, \"$lte\": 100}}`\n\n"
+        "### Compound Expressions\n"
+        "- **Node set references**: `[\"Excitatory\", \"Inhibitory\"]` - combine multiple node sets with OR logic\n"
+        "- **Nested compounds**: `[\"Layer2_3\", \"Layer4_5\"]` where Layer2_3 and Layer4_5 are defined node sets\n\n"
+        "### Special Keys\n"
+        "- **Population selection**: `{\"population\": \"hippocampus_neurons\"}` - select all nodes from specific population\n"
+        "- **Node ID selection**: `{\"node_id\": [10, 11, 12, 13, 14, 15]}` - select specific node IDs\n\n"
+        "### Available Operators\n"
+        "- `$regex` (String): Regular expression matching\n"
+        "- `$gt` (Numeric): Greater than\n"
+        "- `$lt` (Numeric): Less than\n"
+        "- `$gte` (Numeric): Greater than or equal\n"
+        "- `$lte` (Numeric): Less than or equal\n\n"
         "Example parameters:\n"
         "{\n"
         '  "circuit_id": "PLACEHOLDER_CIRCUIT_ID",\n'
@@ -53,7 +73,8 @@ class CircuitConnectivityMetricsGetOneTool(BaseTool):
         '  "post_node_set": "Excitatory",\n'
         '  "group_by": "mtype",\n'
         '  "max_distance": null\n'
-        "}"
+        "}\n\n"
+        "Note: Use `obione-circuitmetrics-getone` with `level_of_detail_nodes=1` to get available attribute names and values for the circuit."
     )
     description_frontend: ClassVar[str] = (
         """Analyze a circuit's connectivity patterns, including connection probabilities and synapse counts."""
