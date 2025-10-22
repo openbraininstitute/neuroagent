@@ -46,17 +46,17 @@ class CircuitConnectivityMetricsGetOneTool(BaseTool):
         "## SONATA Node Sets Specification\n"
         "The `pre_selection` and `post_selection` parameters support the full SONATA Node Sets specification format:\n\n"
         "### Simple Expressions\n"
-        "- **Attribute matching**: `{\"layer\": \"2\"}` - select nodes where layer equals \"2\"\n"
-        "- **List matching (OR)**: `{\"mtype\": [\"SLM_PPA\", \"SP_PC\"]}` - select nodes where mtype is SLM_PPA OR SP_PC\n"
-        "- **Dictionary matching (AND)**: `{\"synapse_class\": \"EXC\", \"mtype\": \"SLM_PPA\"}` - select nodes where synapse_class is EXC AND mtype is SLM_PPA\n"
-        "- **Regex matching**: `{\"mtype\": {\"$regex\": \"^SP_.*\"}}` - select nodes where mtype matches regex pattern\n"
-        "- **Numeric operators**: `{\"x\": {\"$gt\": 100}}`, `{\"y\": {\"$lt\": 50}}`, `{\"z\": {\"$gte\": 0, \"$lte\": 100}}`\n\n"
+        '- **Attribute matching**: `{"layer": "2"}` - select nodes where layer equals "2"\n'
+        '- **List matching (OR)**: `{"mtype": ["SLM_PPA", "SP_PC"]}` - select nodes where mtype is SLM_PPA OR SP_PC\n'
+        '- **Dictionary matching (AND)**: `{"synapse_class": "EXC", "mtype": "SLM_PPA"}` - select nodes where synapse_class is EXC AND mtype is SLM_PPA\n'
+        '- **Regex matching**: `{"mtype": {"$regex": "^SP_.*"}}` - select nodes where mtype matches regex pattern\n'
+        '- **Numeric operators**: `{"x": {"$gt": 100}}`, `{"y": {"$lt": 50}}`, `{"z": {"$gte": 0, "$lte": 100}}`\n\n'
         "### Compound Expressions\n"
-        "- **Node set references**: `[\"Excitatory\", \"Inhibitory\"]` - combine multiple node sets with OR logic\n"
-        "- **Nested compounds**: `[\"Layer2_3\", \"Layer4_5\"]` where Layer2_3 and Layer4_5 are defined node sets\n\n"
+        '- **Node set references**: `["Excitatory", "Inhibitory"]` - combine multiple node sets with OR logic\n'
+        '- **Nested compounds**: `["Layer2_3", "Layer4_5"]` where Layer2_3 and Layer4_5 are defined node sets\n\n'
         "### Special Keys\n"
-        "- **Population selection**: `{\"population\": \"hippocampus_neurons\"}` - select all nodes from specific population\n"
-        "- **Node ID selection**: `{\"node_id\": [10, 11, 12, 13, 14, 15]}` - select specific node IDs\n\n"
+        '- **Population selection**: `{"population": "hippocampus_neurons"}` - select all nodes from specific population\n'
+        '- **Node ID selection**: `{"node_id": [10, 11, 12, 13, 14, 15]}` - select specific node IDs\n\n'
         "### Available Operators\n"
         "- `$regex` (String): Regular expression matching\n"
         "- `$gt` (Numeric): Greater than\n"
@@ -76,9 +76,15 @@ class CircuitConnectivityMetricsGetOneTool(BaseTool):
         "}\n\n"
         "Note: Use `obione-circuitmetrics-getone` with `level_of_detail_nodes=1` to get available attribute names and values for the circuit."
     )
-    description_frontend: ClassVar[str] = (
-        """Analyze a circuit's connectivity patterns, including connection probabilities and synapse counts."""
-    )
+    description_frontend: ClassVar[
+        str
+    ] = """Analyze a circuit's connectivity patterns, including connection probabilities and synapse counts.
+        
+The tool output contains two keys:
+- `connection_probability`: DataFrame serialized as JSON containing connection probability data
+- `mean_number_of_synapses`: DataFrame serialized as JSON containing mean synapse count data
+
+Both outputs are the result of `df.to_json()` serialization of pandas DataFrames."""
     metadata: CircuitConnectivityMetricsGetOneToolMetadata
     input_schema: CircuitConnectivityMetricsGetOneToolInput
 
@@ -99,7 +105,7 @@ class CircuitConnectivityMetricsGetOneTool(BaseTool):
         connectivity_metrics_response = await self.metadata.httpx_client.post(
             url=f"{self.metadata.obi_one_url}/declared/connectivity-metrics/{self.input_schema.circuit_id}",
             headers=headers,
-            data=request_body,
+            json=request_body,
         )
 
         if connectivity_metrics_response.status_code != 200:
