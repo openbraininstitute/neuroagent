@@ -22,10 +22,9 @@ from neuroagent.app.app_utils import (
 from neuroagent.app.config import Settings
 from neuroagent.app.database.sql_schemas import Entity, Messages, ToolCalls
 from neuroagent.app.schemas import (
-    AnnotationMessageVercel,
-    AnnotationToolCallVercel,
     MessagesRead,
     MessagesReadVercel,
+    MetadataToolCallVercel,
     PaginatedResponse,
     RateLimitInfo,
     TextPartVercel,
@@ -396,38 +395,36 @@ def test_format_messages_vercel():
             MessagesReadVercel(
                 id="359eeb212e94409594d9ca7d4ff22640",
                 role="assistant",
+                isComplete=True,
                 createdAt=datetime(2025, 6, 4, 14, 4, 41, tzinfo=timezone.utc),
                 content="DUMMY_AI_CONTENT",
                 parts=[
                     TextPartVercel(type="text", text="DUMMY_AI_TOOL_CONTENT"),
                     ToolCallPartVercel(
-                        type="tool-invocation",
-                        toolInvocation=ToolCallVercel(
-                            toolCallId="1234",
-                            toolName="dummy_tool",
-                            args={},
-                            state="call",
-                            results=None,
-                        ),
+                        type="tool-dummy_tool",
+                        toolCallId="1234",
+                        state="input-available",
+                        input={},
+                        output=None,
                     ),
                     TextPartVercel(type="text", text="DUMMY_AI_CONTENT"),
                 ],
-                annotations=[
-                    AnnotationToolCallVercel(
-                        toolCallId="1234", validated="not_required", isComplete=True
-                    ),
-                    AnnotationMessageVercel(
-                        messageId="359eeb212e94409594d9ca7d4ff22640", isComplete=True
-                    ),
-                ],
+                metadata={
+                    "toolCalls": [
+                        MetadataToolCallVercel(
+                            toolCallId="1234", validated="not_required", isComplete=True
+                        ),
+                    ]
+                },
             ),
             MessagesReadVercel(
                 id="87866e27dc7848c2bd684ea395d5a466",
                 role="user",
+                isComplete=True,
                 createdAt=datetime(2025, 6, 4, 14, 4, 41, tzinfo=timezone.utc),
                 content="DUMMY_USER_TEXT",
-                parts=None,
-                annotations=None,
+                parts=[TextPartVercel(type="text", text="DUMMY_USER_TEXT")],
+                metadata=None,
             ),
         ],
     )
