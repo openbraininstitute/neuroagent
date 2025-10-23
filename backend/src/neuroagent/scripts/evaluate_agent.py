@@ -2,10 +2,12 @@
 
 import argparse
 import asyncio
+import fnmatch
 import inspect
 import json
 import logging
 import os
+import re
 from datetime import datetime
 from pathlib import Path
 from typing import Any
@@ -124,6 +126,13 @@ def get_parser() -> argparse.ArgumentParser:
         default=60.0,
         help="Timeout in seconds for HTTP requests.",
     )
+    parser.add_argument(
+        "-k",
+        "--keyword",
+        type=str,
+        default=None,
+        help="Filter test cases by name pattern (supports pytest-style patterns with OR logic). Example: 'cerebellum or morphology'",
+    )
     return parser
 
 
@@ -187,7 +196,67 @@ def parse_ai_sdk_streaming_response(streamed_data: str) -> dict[str, Any]:
     return {"response": final_output, "tool_calls": list(tool_calls.values())}
 
 
-def load_test_cases(eval_dir: Path) -> list[dict[str, Any]]:
+def filter_test_cases_by_pattern(
+    test_cases: list[dict[str, Any]], pattern: str
+) -> list[dict[str, Any]]:
+    """
+    Filter test cases based on pytest-style pattern matching.
+
+    Supports:
+    - Simple substring matching: 'cerebellum'
+    - OR patterns: 'cerebellum or morphology'
+    - AND patterns: 'cerebellum and morphology'
+    - Wildcard patterns: 'cerebellum*' or '*morphology'
+
+    Args:
+        test_cases: List of test case dictionaries
+        pattern: Pattern string to match against test names
+
+    Returns
+    -------
+        Filtered list of test cases
+    """
+    if not pattern:
+        return test_cases
+
+    # Split pattern by 'or' (case insensitive) for OR logic
+    or_patterns = [
+        p.strip() for p in re.split(r"\s+or\s+", pattern, flags=re.IGNORECASE)
+    ]
+
+    filtered_cases = []
+
+    for test_case in test_cases:
+        test_name = test_case["name"]
+
+        # Check if any OR pattern matches
+        for or_pattern in or_patterns:
+            # Handle AND logic within each OR pattern
+            and_patterns = [
+                p.strip()
+                for p in re.split(r"\s+and\s+", or_pattern, flags=re.IGNORECASE)
+            ]
+
+            # All AND patterns must match for this OR pattern to be valid
+            and_matches = []
+            for and_pattern in and_patterns:
+                # Use fnmatch for wildcard support
+                if fnmatch.fnmatch(test_name.lower(), and_pattern.lower()):
+                    and_matches.append(True)
+                elif and_pattern.lower() in test_name.lower():
+                    and_matches.append(True)
+                else:
+                    and_matches.append(False)
+
+            # If all AND patterns match, this OR pattern is valid
+            if all(and_matches):
+                filtered_cases.append(test_case)
+                break  # Don't add the same test case multiple times
+
+    return filtered_cases
+
+
+def load_test_cases(eval_dir: Path, filter_pattern: str = None) -> list[dict[str, Any]]:
     """Load test cases from the input/ folder structure."""
     input_dir = eval_dir / "input"
     test_cases = []
@@ -227,6 +296,13 @@ def load_test_cases(eval_dir: Path) -> list[dict[str, Any]]:
         except Exception as e:
             logger.error(f"Error loading test case {test_case_dir.name}: {e}")
             continue
+
+    # Apply filtering if pattern is provided
+    if filter_pattern:
+        test_cases = filter_test_cases_by_pattern(test_cases, filter_pattern)
+        logger.info(
+            f"Filtered to {len(test_cases)} test cases matching pattern: {filter_pattern}"
+        )
 
     return test_cases
 
@@ -374,10 +450,11 @@ async def run_eval(
     agent_url: str = "http://localhost:8000",
     concurrent_requests: int = 5,
     timeout: float = 60.0,
+    keyword: str = None,
 ) -> None:
     """Run the evaluation on the test cases."""
     # Load test cases from folder structure
-    test_cases = load_test_cases(eval_dir)
+    test_cases = load_test_cases(eval_dir, keyword)
     logger.info(f"Loaded {len(test_cases)} test cases")
 
     client = httpx.AsyncClient(
