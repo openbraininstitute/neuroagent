@@ -10,6 +10,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - More evaluation cases.
 
+### Fixed
+- Some prompt engineering.
+
 ## Changed
 - Running deepeval github action also on main
 - Use typescript autogen for backend types in frontend.
