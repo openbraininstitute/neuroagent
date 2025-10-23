@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - More evaluation cases.
+- Filtering logic in `neuroagent.scripts.evaluate_agent` 
 
 ## Changed
 - Running deepeval github action also on main
