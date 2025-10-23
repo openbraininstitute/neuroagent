@@ -3,9 +3,9 @@
 import asyncio
 import json
 import logging
-import os
 import subprocess  # nosec: B404
 import tempfile
+from pathlib import Path
 from textwrap import dedent
 from types import TracebackType
 from typing import Any, Literal
@@ -77,6 +77,7 @@ class WasmExecutor:
             deno_permissions = [
                 "allow-read=./node_modules,./cached_wheels",
                 "node-modules-dir=auto",
+                "allow-env=WS_NO_BUFFER_UTIL",
             ]
         self.deno_permissions = [f"--{perm}" for perm in deno_permissions]
         if allocated_memory:
@@ -103,7 +104,7 @@ class WasmExecutor:
         The example assumes the plotly wheel has been manually downloaded and put it in the folder ./cached_wheels/plotly-wheel.wlh
         """  # noqa: D300
         with tempfile.TemporaryDirectory(prefix="pyodide_deno_") as runner_dir:
-            runner_path = os.path.join(runner_dir, "pyodide_runner.js")
+            runner_path = Path(runner_dir) / "pyodide_runner.js"
             deno_permissions = [  # Allow fetching + caching packages
                 "allow-net="
                 + ",".join(
@@ -162,7 +163,7 @@ class WasmExecutor:
             `SuccessOutput | FailureOutput`: Code output containing the result and logs or potential errors.
         """
         with tempfile.TemporaryDirectory(prefix="pyodide_deno_") as runner_dir:
-            runner_path = os.path.join(runner_dir, "pyodide_runner.js")
+            runner_path = Path(runner_dir) / "pyodide_runner.js"
             # Create the JavaScript runner file
             with open(runner_path, "w") as f:
                 f.write(
