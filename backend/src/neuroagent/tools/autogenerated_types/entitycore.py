@@ -2898,7 +2898,7 @@ class ReadManyCellMorphologyProtocolGetParametersQuery(BaseModel):
     )
     order_by: list[str] = Field(default=['-creation_date'], title='Order By')
     contribution__pref_label: str | None = Field(
-        default=None, title=''
+        default=None, title='Contribution  Pref Label'
     )
     contribution__pref_label__in: list[str] | None = Field(
         default=None, title='Contribution  Pref Label  In'
