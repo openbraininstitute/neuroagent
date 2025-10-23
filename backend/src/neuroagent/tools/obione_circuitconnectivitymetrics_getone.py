@@ -16,7 +16,7 @@ from neuroagent.tools.base_tool import BaseMetadata, BaseTool
 class CircuitConnectivityMetricsGetOneToolInput(ConnectivityMetricsRequest):
     """Input class of the circuit connectivity metrics tool."""
 
-    circuit_id: UUID = Field(
+    circuit_id: UUID = Field(  # type: ignore[assignment]
         description="ID of the circuit from which the connectivity metrics should be computed."
     )
 
