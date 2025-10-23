@@ -32,24 +32,40 @@ class CircuitGetOneTool(BaseTool):
     ]
     description: ClassVar[
         str
-    ] = """Retrieves detailed information about a specific circuit from the knowledge graph.
+    ] = """Retrieves basic metadata information about a specific circuit from the knowledge graph.
     Requires a 'circuit_id' which is the ID of the circuit of interest as registered in the knowledge graph.
-    The output contains detailed information about the circuit, including:
+    
+    **Important**: This tool only provides basic circuit metadata and does NOT contain detailed circuit metrics such as:
+    - Node populations (biophysical or virtual neurons)
+    - Edge populations (chemical or electrical connections)
+    - Synaptic properties and connectivity data
+    - Circuit statistics and measurements
+    - Filterable properties for analysis
+    
+    The output contains basic information about the circuit, including:
     - The circuit ID and basic identifiers
     - Core circuit information and properties
     - Status and state information
     - Associated metadata and relationships
     - Creation and modification timestamps
     - Creation and update dates
+    
+    For detailed circuit analysis and metrics, use the obi-one endpoints:
+    - `obione-circuitmetrics-getone` - Get comprehensive circuit metrics and properties
+    - `obione-circuitconnectivitymetrics-getone` - Analyze connectivity patterns and synaptic connections
     """
     description_frontend: ClassVar[
         str
-    ] = """Get detailed information about a specific circuit. Use this tool to:
-    • View complete circuit details
-    • Access detailed circuit information
+    ] = """Get basic metadata information about a specific circuit. Use this tool to:
+    • View basic circuit metadata
+    • Access circuit identifiers and status
     • Get creation and update information
 
-    Specify the circuit ID to retrieve its full details."""
+    **Note**: This tool provides only basic metadata. For detailed circuit analysis, use:
+    • `obione-circuitmetrics-getone` - Get comprehensive circuit metrics
+    • `obione-circuitconnectivitymetrics-getone` - Analyze connectivity patterns
+
+    Specify the circuit ID to retrieve its basic details."""
     metadata: EntitycoreMetadata
     input_schema: CircuitGetOneInput
 
