@@ -1,84 +1,8 @@
 [
   {
-    "name": "execute-python-code",
-    "arguments": {
-      "python_code": "import numpy as np\n\n# Generate 8 evenly spaced points from 0 to 2*pi\nx_values = np.linspace(0, 2 * np.pi, 8)\n# Calculate sin(x) for these points\ny_values = np.sin(x_values)\n\n# Prepare data for plotting\npoints = [{'x': float(x), 'y': float(y)} for x, y in zip(x_values, y_values)]\npoints"
-    }
-  },
-  {
-    "name": "plot-generator",
-    "arguments": {
-      "plot_type": "json-scatterplot",
-      "title": "Plot of y = sin(x) with 8 evenly spaced points from 0 to 2π",
-      "description": "This scatter plot shows the values of y = sin(x) at 8 points evenly spaced between 0 and 2π.",
-      "x_label": "x (radians)",
-      "y_label": "sin(x)",
-      "piechart_values": null,
-      "barplot_values": null,
-      "scatter_values": [
-        {
-          "x": 0,
-          "y": 0,
-          "label": null,
-          "color": null,
-          "size": null
-        },
-        {
-          "x": 0.8975979010256552,
-          "y": 0.7818314824680298,
-          "label": null,
-          "color": null,
-          "size": null
-        },
-        {
-          "x": 1.7951958020513104,
-          "y": 0.9749279121818236,
-          "label": null,
-          "color": null,
-          "size": null
-        },
-        {
-          "x": 2.6927937030769655,
-          "y": 0.43388373911755823,
-          "label": null,
-          "color": null,
-          "size": null
-        },
-        {
-          "x": 3.5903916041026207,
-          "y": -0.433883739117558,
-          "label": null,
-          "color": null,
-          "size": null
-        },
-        {
-          "x": 4.487989505128276,
-          "y": -0.9749279121818236,
-          "label": null,
-          "color": null,
-          "size": null
-        },
-        {
-          "x": 5.385587406153931,
-          "y": -0.7818314824680299,
-          "label": null,
-          "color": null,
-          "size": null
-        },
-        {
-          "x": 6.283185307179586,
-          "y": -2.4492935982947064e-16,
-          "label": null,
-          "color": null,
-          "size": null
-        }
-      ],
-      "histogram_values": null,
-      "histogram_bins": 10,
-      "histogram_color": null,
-      "linechart_values": null,
-      "line_style": "solid",
-      "line_color": null
+  "name": "run-python",
+  "arguments": {
+    "python_script": "import numpy as np\nimport plotly.graph_objects as go\n\n# generate 8 evenly spaced points from 0 to 2pi\nx = np.linspace(0, 2*np.pi, 8)\ny = np.sin(x)\n\nfig = go.Figure()\nfig.add_trace(go.Scatter(x=x, y=y, mode='markers+lines', name='sin(x)'))\nfig.update_layout(title='y = sin(x) (8 evenly spaced points from 0 to 2π)',\n                  xaxis_title='x', yaxis_title='y',\n                  xaxis = dict(tickmode='array', tickvals=x, ticktext=[f'{val:.2f}' for val in x]))\n\nfig.show()\n\n# return numeric lists for reference\n{\"x\": x.tolist(), \"y\": y.tolist()}"
     }
   }
 ]
