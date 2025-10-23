@@ -1,0 +1,1 @@
+Can you analyze the connectivity patterns in circuit 2eb602ea-9ffc-42a2-9fb7-5234921343d0? I want to see how excitatory and inhibitory neurons connect to each other, and I'm particularly interested in the internal connections within the circuit.
