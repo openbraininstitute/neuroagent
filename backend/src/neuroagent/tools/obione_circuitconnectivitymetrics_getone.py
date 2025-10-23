@@ -42,83 +42,23 @@ class CircuitConnectivityMetricsGetOneTool(BaseTool):
         "Analyze synaptic connections in this circuit",
     ]
     description: ClassVar[str] = (
-        "Given a circuit ID and edge population, compute the connectivity metrics of it. "
-        "This tool provides detailed connectivity analysis including connection probabilities and synapse counts.\n\n"
-        "## What This Tool Provides\n"
-        "- **Connection probabilities**: Probability of connection between pre- and post-synaptic groups\n"
-        "- **Mean synapse counts**: Average number of synapses per connection\n"
-        "- **Grouped analysis**: Results organized by specified grouping criteria (e.g., mtype, layer)\n"
-        "- **Filtered connectivity**: Analysis of specific neuron subsets based on properties\n\n"
-        "## What This Tool Does NOT Provide\n"
-        "- **Circuit structure**: Use `obione-circuitmetrics-getone` instead\n"
-        "- **Node/edge properties**: Use `obione-circuitmetrics-getone` instead\n"
-        "- **Available filterable columns**: Use `obione-circuitmetrics-getone` instead\n"
-        "- **Population statistics**: Use `obione-circuitmetrics-getone` instead\n\n"
-        "## Prerequisites\n"
-        "To use this tool effectively, you need to call `obione-circuitmetrics-getone` first with `level_of_detail_nodes=1` to get:\n"
-        "- Available edge populations\n"
-        "- Filterable properties and their values\n"
-        "- Predefined node sets\n\n"
-        "## SONATA Node Sets Specification\n"
-        "The `pre_selection` and `post_selection` parameters support the full SONATA Node Sets specification format:\n\n"
-        "### Simple Expressions\n"
-        '- **Attribute matching**: `{"layer": "2"}` - select nodes where layer equals "2"\n'
-        '- **List matching (OR)**: `{"mtype": ["SLM_PPA", "SP_PC"]}` - select nodes where mtype is SLM_PPA OR SP_PC\n'
-        '- **Dictionary matching (AND)**: `{"synapse_class": "EXC", "mtype": "SLM_PPA"}` - select nodes where synapse_class is EXC AND mtype is SLM_PPA\n'
-        '- **Regex matching**: `{"mtype": {"$regex": "^SP_.*"}}` - select nodes where mtype matches regex pattern\n'
-        '- **Numeric operators**: `{"x": {"$gt": 100}}`, `{"y": {"$lt": 50}}`, `{"z": {"$gte": 0, "$lte": 100}}`\n\n'
-        "### Compound Expressions\n"
-        '- **Node set references**: `["Excitatory", "Inhibitory"]` - combine multiple node sets with OR logic\n'
-        '- **Nested compounds**: `["Layer2_3", "Layer4_5"]` where Layer2_3 and Layer4_5 are defined node sets\n\n'
-        "### Special Keys\n"
-        '- **Population selection**: `{"population": "hippocampus_neurons"}` - select all nodes from specific population\n'
-        '- **Node ID selection**: `{"node_id": [10, 11, 12, 13, 14, 15]}` - select specific node IDs\n\n'
-        "### Available Operators\n"
-        "- `$regex` (String): Regular expression matching\n"
-        "- `$gt` (Numeric): Greater than\n"
-        "- `$lt` (Numeric): Less than\n"
-        "- `$gte` (Numeric): Greater than or equal\n"
-        "- `$lte` (Numeric): Less than or equal\n\n"
-        "Example parameters:\n"
-        "{\n"
-        '  "circuit_id": "PLACEHOLDER_CIRCUIT_ID",\n'
-        '  "edge_population": "S1nonbarrel_neurons__S1nonbarrel_neurons__chemical",\n'
-        '  "pre_selection": {"layer": "2"},\n'
-        '  "pre_node_set": "Inhibitory",\n'
-        '  "post_selection": {"layer": ["2", "3"]},\n'
-        '  "post_node_set": "Excitatory",\n'
-        '  "group_by": "mtype",\n'
-        '  "max_distance": null\n'
-        "}\n\n"
-        "Note: Use `obione-circuitmetrics-getone` with `level_of_detail_nodes=1` to get available attribute names and values for the circuit."
+        "Analyze connectivity patterns between neuron groups in a circuit.\n\n"
+        "**Use this tool to:**\n"
+        "- Get connection probabilities between pre/post synaptic groups\n"
+        "- Calculate mean synapse counts per connection\n"
+        "- Group results by properties (mtype, layer, etc.)\n\n"
+        "**Prerequisites:** Call `obione-circuitmetrics-getone` first to get available edge populations and node sets.\n\n"
+        "**Common parameters:**\n"
+        "- `edge_population`: e.g., 'S1nonbarrel_neurons__S1nonbarrel_neurons__chemical'\n"
+        "- `pre_node_set`/`post_node_set`: 'Excitatory', 'Inhibitory', or custom selections\n"
+        "- `group_by`: 'mtype', 'layer', 'synapse_class', etc.\n\n"
+        "**Example:** Analyze excitatory→inhibitory connections grouped by morphological type."
     )
     description_frontend: ClassVar[
         str
-    ] = """Analyze a circuit's connectivity patterns, including connection probabilities and synapse counts.
-        
-The tool output contains two keys:
-- `connection_probability`: DataFrame serialized as JSON containing connection probability data
-- `mean_number_of_synapses`: DataFrame serialized as JSON containing mean synapse count data
+    ] = """Analyze connectivity patterns between neuron groups.
 
-Both outputs are the result of `df.to_dict()` serialization of pandas DataFrames.
-The data represents a cartesian product of groups × groups, showing connectivity metrics from each pre-synaptic group to each post-synaptic group.
-
-Example output structure (showing 2×2 groups):
-```json
-{
-  "connection_probability": {
-    "pre": {"0": "L23_CHC", "1": "L23_CHC", "2": "L23_LBC", "3": "L23_LBC"},
-    "post": {"0": "L23_CHC", "1": "L23_LBC", "2": "L23_CHC", "3": "L23_LBC"},
-    "data": {"0": 100.0, "1": 0.0, "2": 16.67, "3": 0.0}
-  },
-  "mean_number_of_synapses": {
-    "pre": {"0": "L23_CHC", "1": "L23_CHC", "2": "L23_LBC", "3": "L23_LBC"},
-    "post": {"0": "L23_CHC", "1": "L23_LBC", "2": "L23_CHC", "3": "L23_LBC"},
-    "data": {"0": 15.0, "1": 0.0, "2": 33.0, "3": 0.0}
-  }
-}
-```
-Each row represents connectivity from one pre-synaptic group to one post-synaptic group."""
+Returns connection probabilities and mean synapse counts between pre/post synaptic groups, grouped by specified criteria (e.g., mtype, layer)."""
     metadata: CircuitConnectivityMetricsGetOneToolMetadata
     input_schema: CircuitConnectivityMetricsGetOneToolInput
 
