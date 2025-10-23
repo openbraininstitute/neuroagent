@@ -202,19 +202,41 @@ def filter_test_cases_by_pattern(
     """
     Filter test cases based on pytest-style pattern matching.
 
-    Supports:
-    - Simple substring matching: 'cerebellum'
-    - OR patterns: 'cerebellum or morphology'
-    - AND patterns: 'cerebellum and morphology'
-    - Wildcard patterns: 'cerebellum*' or '*morphology'
+    This function supports various pattern matching strategies similar to pytest's
+    `-k` flag, allowing for flexible test case selection based on test names.
 
-    Args:
-        test_cases: List of test case dictionaries
-        pattern: Pattern string to match against test names
+    Parameters
+    ----------
+    test_cases : list[dict[str, Any]]
+        List of test case dictionaries containing test information.
+    pattern : str
+        Pattern string to match against test names. Supports:
+
+        - Simple substring matching: 'cerebellum'
+        - OR patterns: 'cerebellum or morphology'
+        - AND patterns: 'cerebellum and morphology'
+        - Wildcard patterns: 'cerebellum*' or '*morphology'
+
+        Pattern matching is case-insensitive.
 
     Returns
     -------
-        Filtered list of test cases
+    list[dict[str, Any]]
+        Filtered list of test cases that match the given pattern.
+        Returns all test cases if pattern is None or empty.
+
+    Examples
+    --------
+    >>> test_cases = [
+    ...     {'name': 'cerebellum_morphologies'},
+    ...     {'name': 'matplotlib_plot'},
+    ...     {'name': 'morphology_studies'}
+    ... ]
+    >>> filter_test_cases_by_pattern(test_cases, 'cerebellum or plot')
+    [{'name': 'cerebellum_morphologies'}, {'name': 'matplotlib_plot'}]
+
+    >>> filter_test_cases_by_pattern(test_cases, 'morphology*')
+    [{'name': 'cerebellum_morphologies'}, {'name': 'morphology_studies'}]
     """
     if not pattern:
         return test_cases
