@@ -256,7 +256,9 @@ def filter_test_cases_by_pattern(
     return filtered_cases
 
 
-def load_test_cases(eval_dir: Path, filter_pattern: str = None) -> list[dict[str, Any]]:
+def load_test_cases(
+    eval_dir: Path, filter_pattern: str | None = None
+) -> list[dict[str, Any]]:
     """Load test cases from the input/ folder structure."""
     input_dir = eval_dir / "input"
     test_cases = []
@@ -450,7 +452,7 @@ async def run_eval(
     agent_url: str = "http://localhost:8000",
     concurrent_requests: int = 5,
     timeout: float = 60.0,
-    keyword: str = None,
+    keyword: str | None = None,
 ) -> None:
     """Run the evaluation on the test cases."""
     # Load test cases from folder structure
