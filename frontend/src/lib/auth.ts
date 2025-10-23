@@ -99,6 +99,9 @@ export const authOptions: NextAuthOptions = {
 };
 
 async function refreshAccessToken(token: TokenSet) {
+  if (!env.KEYCLOAK_ID || !env.KEYCLOAK_SECRET) {
+    throw new Error("Keycloak credentials are not configured");
+  }
   try {
     const response = await fetch(
       `${env.KEYCLOAK_ISSUER}/protocol/openid-connect/token`,

@@ -1,14 +1,7 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 import { MessageStrict, MessageMetadata } from "@/lib/types";
-import {
-  UIMessagePart,
-  ToolUIPart,
-  UITools,
-  UIDataTypes,
-  UIMessage,
-  UITool,
-} from "ai";
+import { UIMessagePart, ToolUIPart, UITools, UIDataTypes, UIMessage } from "ai";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
