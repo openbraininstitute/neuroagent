@@ -15,8 +15,8 @@ from typing import Any
 import httpx
 import pandas as pd
 from deepeval.evaluate import evaluate
-from deepeval.metrics import ArgumentCorrectnessMetric, GEval, ToolCorrectnessMetric
-from deepeval.test_case import LLMTestCase, LLMTestCaseParams, ToolCall
+from deepeval.metrics import GEval, ToolCorrectnessMetric
+from deepeval.test_case import LLMTestCase, LLMTestCaseParams, ToolCall, ToolCallParams
 from dotenv import load_dotenv
 from pydantic import BaseModel, Field
 
@@ -513,7 +513,9 @@ async def run_eval(
 
     # 2. Tool Correctness Metric
     tool_correctness = ToolCorrectnessMetric(should_consider_ordering=True)
-    tool_arguments = ArgumentCorrectnessMetric(model="gpt-4o-mini")
+    tool_arguments = ToolCorrectnessMetric(
+        evaluation_params=[ToolCallParams.INPUT_PARAMETERS], include_reason=True
+    )
 
     # === Run Evaluation ===
     results = evaluate(
