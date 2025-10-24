@@ -7,7 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- More evaluation cases.
+- Filtering logic in `neuroagent.scripts.evaluate_agent`
+
+### Fixed
+- Some prompt engineering.
+- Output class of circuit population tool.
+
 ## Changed
+- Running deepeval github action also on main
 - Use typescript autogen for backend types in frontend.
 - Try to enforce using metric tools rather than downloading assets.
 - Rule to avoid overvalidating.
