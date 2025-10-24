@@ -471,93 +471,6 @@ class ExcitatoryNeurons(BaseModel):
     )
 
 
-class Expert(BaseModel):
-    model_config = ConfigDict(
-        extra='ignore',
-    )
-    type: Literal['IonChannelFittingScanConfig.Expert'] = Field(..., title='Type')
-    act_exclude_voltages_above: float | None = Field(
-        default=None,
-        description="Do not use any activation traces responses from input voltages above this value. Use 'None' not to exclude any trace.",
-        title='Exclude activation voltages above',
-    )
-    act_exclude_voltages_below: float | None = Field(
-        default=None,
-        description="Do not use any activation traces responses from input voltages below this value. Use 'None' not to exclude any trace.",
-        title='Exclude activation voltages below',
-    )
-    inact_exclude_voltages_above: float | None = Field(
-        default=None,
-        description="Do not use any inactivation traces responses from input voltages above this value. Use 'None' not to exclude any trace.",
-        title='Exclude inactivation voltages above',
-    )
-    inact_exclude_voltages_below: float | None = Field(
-        default=None,
-        description="Do not use any inactivation traces responses from input voltages below this value. Use 'None' not to exclude any trace.",
-        title='Exclude inactivation voltages below',
-    )
-    act_stim_start: int | None = Field(
-        default=None,
-        description='Activation stimulus start timing. If None, this value will be taken from nwb and will be corrected with act_stim_start_correction.',
-        title='Activation stimulus start time',
-    )
-    act_stim_end: int | None = Field(
-        default=None,
-        description='Activation stimulus end timing. If None, this value will be taken from nwb and will be corrected with act_stim_end_correction.',
-        title='Activation stimulus end time',
-    )
-    inact_iv_stim_start: int | None = Field(
-        default=None,
-        description='Inactivation stimulus start timing for IV computation. If None, this value will be taken from nwb and will be corrected with inact_iv_stim_start_correction.',
-        title='Inactivation stimulus start time for IV computation',
-    )
-    inact_iv_stim_end: int | None = Field(
-        default=None,
-        description='Inactivation stimulus end timing for IV computation. If None, this value will be taken from nwb and will be corrected with inact_iv_stim_end_correction.',
-        title='Inactivation stimulus end time for IV computation',
-    )
-    inact_tc_stim_start: int | None = Field(
-        default=None,
-        description='Inactivation stimulus start timing for time constant computation. If None, this value will be taken from nwb and will be corrected with inact_tc_stim_start_correction.',
-        title='Inactivation stimulus start time for time constant computation',
-    )
-    inact_tc_stim_end: int | None = Field(
-        default=None,
-        description='Inactivation stimulus end timing for time constant computation. If None, this value will be taken from nwb and will be corrected with inact_tc_stim_end_correction.',
-        title='Inactivation stimulus end time for time constant computation',
-    )
-    act_stim_start_correction: int = Field(
-        default=0,
-        description='Correction to add to the timing taken from nwb file for activation stimulus start.',
-        title='Correction to apply to activation stimulus start time taken from source file, in ms.',
-    )
-    act_stim_end_correction: int = Field(
-        default=-1,
-        description='Correction to add to the timing taken from nwb file for activation stimulus end.',
-        title='Correction to apply to activation stimulus end time taken from source file, in ms.',
-    )
-    inact_iv_stim_start_correction: int = Field(
-        default=5,
-        description='Correction to add to the timing taken from nwb file for inactivation stimulus start for IV computation.',
-        title='Correction to apply to inactivation stimulus start time for IV computation taken from source file, in ms.',
-    )
-    inact_iv_stim_end_correction: int = Field(
-        default=-1,
-        description='Correction to add to the timing taken from nwb file for inactivation stimulus end for IV computation.',
-        title='Correction to apply to inactivation stimulus end time for IV computation taken from source file, in ms.',
-    )
-    inact_tc_stim_start_correction: int = Field(
-        default=0,
-        description='Correction to add to the timing taken from nwb file for inactivation stimulus start for time constant computation.',
-        title='Correction to apply to inactivation stimulus start time for time constant computation taken from source file, in ms.',
-    )
-    inact_tc_stim_end_correction: int = Field(
-        default=-1,
-        description='Correction to add to the timing taken from nwb file for inactivation stimulus end for time constant computation.',
-        title='Correction to apply to inactivation stimulus end time for time constant computation taken from source file, in ms.',
-    )
-
-
 class FloatRange(BaseModel):
     model_config = ConfigDict(
         extra='ignore',
@@ -566,6 +479,29 @@ class FloatRange(BaseModel):
     start: float = Field(..., title='Start')
     step: float = Field(..., gt=0.0, title='Step')
     end: float = Field(..., title='End')
+
+
+class GateExponents(BaseModel):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    type: Literal['IonChannelFittingScanConfig.GateExponents'] = Field(
+        ..., title='Type'
+    )
+    m_power: int = Field(
+        default=1,
+        description='Raise m to this power in the BREAKPOINT equation.',
+        ge=0,
+        le=4,
+        title='m exponent in channel equation',
+    )
+    h_power: int = Field(
+        default=1,
+        description='Raise h to this power in the BREAKPOINT equation.',
+        ge=0,
+        le=4,
+        title='h exponent in channel equation',
+    )
 
 
 class SamplePercentage6(SamplePercentage):
@@ -591,14 +527,11 @@ class Info(BaseModel):
     )
     type: Literal['Info'] = Field(..., title='Type')
     campaign_name: str = Field(
-        ...,
-        description='Name of the simulation campaign.',
-        min_length=1,
-        title='Campaign Name',
+        ..., description='Name of the campaign.', min_length=1, title='Campaign Name'
     )
     campaign_description: str = Field(
         ...,
-        description='Description of the simulation campaign.',
+        description='Description of the campaign.',
         min_length=1,
         title='Campaign Description',
     )
@@ -693,28 +626,6 @@ class MTypeClassification(BaseModel):
         default=None,
         description='UUID for MType classification',
         title='Mtype Class Id',
-    )
-
-
-class MorphologyLocationsBlock(BaseModel):
-    model_config = ConfigDict(
-        extra='ignore',
-    )
-    type: Literal['MorphologyLocationsBlock'] = Field(..., title='Type')
-    random_seed: int | list[int] = Field(
-        default=0,
-        description='Seed for the random generation of locations',
-        title='Random Seed',
-    )
-    number_of_locations: int | list[int] = Field(
-        default=1,
-        description='Number of locations to generate on morphology',
-        title='Number Of Locations',
-    )
-    section_types: list[int] | list[list[int]] | None = Field(
-        default=None,
-        description='Types of sections to generate locations on. 2: axon, 3: basal, 4: apical',
-        title='Section Types',
     )
 
 
@@ -935,6 +846,71 @@ class VarianceItem(DurationItem):
     pass
 
 
+class SamplePercentage10(SamplePercentage):
+    pass
+
+
+class SamplePercentage11Item(SamplePercentage1Item):
+    pass
+
+
+class SamplePercentage11(RootModel[list[SamplePercentage11Item]]):
+    root: list[SamplePercentage11Item] = Field(
+        ...,
+        description='Percentage of neurons to sample between 0 and 100%',
+        min_length=1,
+        title='Sample (Percentage)',
+    )
+
+
+class PairMotifNeuronSet(BaseModel):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    type: Literal['PairMotifNeuronSet'] = Field(..., title='Type')
+    sample_percentage: SamplePercentage10 | SamplePercentage11 = Field(
+        default=100.0,
+        description='Percentage of neurons to sample between 0 and 100%',
+        title='Sample (Percentage)',
+    )
+    sample_seed: int | list[int] = Field(
+        default=1, description='Seed for random sampling.', title='Sample Seed'
+    )
+    node_population: str | list[str] | None = Field(
+        default=None, title='Node Population'
+    )
+    neuron1_filter: dict[str, Any] | list[dict[str, Any]] = Field(
+        default={},
+        description='Filter for first neuron in a pair',
+        title='Neuron1 Filter',
+    )
+    neuron2_filter: dict[str, Any] | list[dict[str, Any]] = Field(
+        default={},
+        description='Filter for second neuron in a pair',
+        title='Neuron2 Filter',
+    )
+    conn_ff_filter: dict[str, Any] | list[dict[str, Any]] = Field(
+        default={},
+        description='Filter for feedforward connections from the first to the second neuron in a pair',
+        title='Conn Ff Filter',
+    )
+    conn_fb_filter: dict[str, Any] | list[dict[str, Any]] = Field(
+        default={},
+        description='Filter for feedback connections from the second to the first neuron in a pair',
+        title='Conn Fb Filter',
+    )
+    pair_selection: dict[str, Any] | list[dict[str, Any]] = Field(
+        default={},
+        description='Selection of pairs among all potential pairs',
+        title='Pair Selection',
+    )
+    node_set_list_op: Literal['union', 'intersect'] = Field(
+        default='union',
+        description="Operation how to combine lists of node sets; can be 'union' or 'intersect'.",
+        title='Node Set List Op',
+    )
+
+
 class PathDistanceMorphologyLocations(BaseModel):
     model_config = ConfigDict(
         extra='ignore',
@@ -996,16 +972,16 @@ class PositiveIntRange(BaseModel):
     end: int = Field(..., gt=0, title='End')
 
 
-class SamplePercentage10(SamplePercentage):
+class SamplePercentage12(SamplePercentage):
     pass
 
 
-class SamplePercentage11Item(SamplePercentage1Item):
+class SamplePercentage13Item(SamplePercentage1Item):
     pass
 
 
-class SamplePercentage11(RootModel[list[SamplePercentage11Item]]):
-    root: list[SamplePercentage11Item] = Field(
+class SamplePercentage13(RootModel[list[SamplePercentage13Item]]):
+    root: list[SamplePercentage13Item] = Field(
         ...,
         description='Percentage of neurons to sample between 0 and 100%',
         min_length=1,
@@ -1030,7 +1006,7 @@ class PredefinedNeuronSet(BaseModel):
         extra='ignore',
     )
     type: Literal['PredefinedNeuronSet'] = Field(..., title='Type')
-    sample_percentage: SamplePercentage10 | SamplePercentage11 = Field(
+    sample_percentage: SamplePercentage12 | SamplePercentage13 = Field(
         default=100.0,
         description='Percentage of neurons to sample between 0 and 100%',
         title='Sample (Percentage)',
@@ -1041,16 +1017,16 @@ class PredefinedNeuronSet(BaseModel):
     node_set: NodeSet1 | NodeSet2 = Field(..., title='Node Set')
 
 
-class SamplePercentage12(SamplePercentage):
+class SamplePercentage14(SamplePercentage):
     pass
 
 
-class SamplePercentage13Item(SamplePercentage1Item):
+class SamplePercentage15Item(SamplePercentage1Item):
     pass
 
 
-class SamplePercentage13(RootModel[list[SamplePercentage13Item]]):
-    root: list[SamplePercentage13Item] = Field(
+class SamplePercentage15(RootModel[list[SamplePercentage15Item]]):
+    root: list[SamplePercentage15Item] = Field(
         ...,
         description='Percentage of neurons to sample between 0 and 100%',
         min_length=1,
@@ -1075,7 +1051,7 @@ class PropertyNeuronSet(BaseModel):
         extra='ignore',
     )
     type: Literal['PropertyNeuronSet'] = Field(..., title='Type')
-    sample_percentage: SamplePercentage12 | SamplePercentage13 = Field(
+    sample_percentage: SamplePercentage14 | SamplePercentage15 = Field(
         default=100.0,
         description='Percentage of neurons to sample between 0 and 100%',
         title='Sample (Percentage)',
@@ -1345,16 +1321,16 @@ class SigFitMTau(BaseModel):
     equation_key: str = Field(default='sig_fit_mtau', title='Equation Key')
 
 
-class SamplePercentage14(SamplePercentage):
+class SamplePercentage16(SamplePercentage):
     pass
 
 
-class SamplePercentage15Item(SamplePercentage1Item):
+class SamplePercentage17Item(SamplePercentage1Item):
     pass
 
 
-class SamplePercentage15(RootModel[list[SamplePercentage15Item]]):
-    root: list[SamplePercentage15Item] = Field(
+class SamplePercentage17(RootModel[list[SamplePercentage17Item]]):
+    root: list[SamplePercentage17Item] = Field(
         ...,
         description='Percentage of neurons to sample between 0 and 100%',
         min_length=1,
@@ -1375,7 +1351,7 @@ class SimplexMembershipBasedNeuronSet(BaseModel):
         extra='ignore',
     )
     type: Literal['SimplexMembershipBasedNeuronSet'] = Field(..., title='Type')
-    sample_percentage: SamplePercentage14 | SamplePercentage15 = Field(
+    sample_percentage: SamplePercentage16 | SamplePercentage17 = Field(
         default=100.0,
         description='Percentage of neurons to sample between 0 and 100%',
         title='Sample (Percentage)',
@@ -1440,16 +1416,16 @@ class SimplexMembershipBasedNeuronSet(BaseModel):
     )
 
 
-class SamplePercentage16(SamplePercentage):
+class SamplePercentage18(SamplePercentage):
     pass
 
 
-class SamplePercentage17Item(SamplePercentage1Item):
+class SamplePercentage19Item(SamplePercentage1Item):
     pass
 
 
-class SamplePercentage17(RootModel[list[SamplePercentage17Item]]):
-    root: list[SamplePercentage17Item] = Field(
+class SamplePercentage19(RootModel[list[SamplePercentage19Item]]):
+    root: list[SamplePercentage19Item] = Field(
         ...,
         description='Percentage of neurons to sample between 0 and 100%',
         min_length=1,
@@ -1470,7 +1446,7 @@ class SimplexNeuronSet(BaseModel):
         extra='ignore',
     )
     type: Literal['SimplexNeuronSet'] = Field(..., title='Type')
-    sample_percentage: SamplePercentage16 | SamplePercentage17 = Field(
+    sample_percentage: SamplePercentage18 | SamplePercentage19 = Field(
         default=100.0,
         description='Percentage of neurons to sample between 0 and 100%',
         title='Sample (Percentage)',
@@ -1587,6 +1563,158 @@ class SomaVoltageRecording(BaseModel):
 
 class SpatialCoordinate(RootModel[Literal['x', 'y', 'z']]):
     root: Literal['x', 'y', 'z'] = Field(..., title='SpatialCoordinate')
+
+
+class ActStimStart(RootModel[float]):
+    root: float = Field(
+        ...,
+        description='Activation stimulus start timing. If None, this value will be taken from nwb and will be corrected with act_stim_start_correction.',
+        ge=0.0,
+        title='Activation stimulus start time',
+    )
+
+
+class ActStimEnd(RootModel[float]):
+    root: float = Field(
+        ...,
+        description='Activation stimulus end timing. If None, this value will be taken from nwb and will be corrected with act_stim_end_correction.',
+        ge=0.0,
+        title='Activation stimulus end time',
+    )
+
+
+class InactIvStimStart(RootModel[float]):
+    root: float = Field(
+        ...,
+        description='Inactivation stimulus start timing for IV computation. If None, this value will be taken from nwb and will be corrected with inact_iv_stim_start_correction.',
+        ge=0.0,
+        title='Inactivation stimulus start time for IV computation',
+    )
+
+
+class InactIvStimEnd(RootModel[float]):
+    root: float = Field(
+        ...,
+        description='Inactivation stimulus end timing for IV computation. If None, this value will be taken from nwb and will be corrected with inact_iv_stim_end_correction.',
+        ge=0.0,
+        title='Inactivation stimulus end time for IV computation',
+    )
+
+
+class InactTcStimStart(RootModel[float]):
+    root: float = Field(
+        ...,
+        description='Inactivation stimulus start timing for time constant computation. If None, this value will be taken from nwb and will be corrected with inact_tc_stim_start_correction.',
+        ge=0.0,
+        title='Inactivation stimulus start time for time constant computation',
+    )
+
+
+class InactTcStimEnd(RootModel[float]):
+    root: float = Field(
+        ...,
+        description='Inactivation stimulus end timing for time constant computation. If None, this value will be taken from nwb and will be corrected with inact_tc_stim_end_correction.',
+        ge=0.0,
+        title='Inactivation stimulus end time for time constant computation',
+    )
+
+
+class StimulusTimings(BaseModel):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    type: Literal['IonChannelFittingScanConfig.StimulusTimings'] = Field(
+        ..., title='Type'
+    )
+    act_stim_start: ActStimStart | None = Field(
+        default=None,
+        description='Activation stimulus start timing. If None, this value will be taken from nwb and will be corrected with act_stim_start_correction.',
+        title='Activation stimulus start time',
+    )
+    act_stim_end: ActStimEnd | None = Field(
+        default=None,
+        description='Activation stimulus end timing. If None, this value will be taken from nwb and will be corrected with act_stim_end_correction.',
+        title='Activation stimulus end time',
+    )
+    inact_iv_stim_start: InactIvStimStart | None = Field(
+        default=None,
+        description='Inactivation stimulus start timing for IV computation. If None, this value will be taken from nwb and will be corrected with inact_iv_stim_start_correction.',
+        title='Inactivation stimulus start time for IV computation',
+    )
+    inact_iv_stim_end: InactIvStimEnd | None = Field(
+        default=None,
+        description='Inactivation stimulus end timing for IV computation. If None, this value will be taken from nwb and will be corrected with inact_iv_stim_end_correction.',
+        title='Inactivation stimulus end time for IV computation',
+    )
+    inact_tc_stim_start: InactTcStimStart | None = Field(
+        default=None,
+        description='Inactivation stimulus start timing for time constant computation. If None, this value will be taken from nwb and will be corrected with inact_tc_stim_start_correction.',
+        title='Inactivation stimulus start time for time constant computation',
+    )
+    inact_tc_stim_end: InactTcStimEnd | None = Field(
+        default=None,
+        description='Inactivation stimulus end timing for time constant computation. If None, this value will be taken from nwb and will be corrected with inact_tc_stim_end_correction.',
+        title='Inactivation stimulus end time for time constant computation',
+    )
+    act_stim_start_correction: float = Field(
+        default=0,
+        description='Correction to add to the timing taken from nwb file for activation stimulus start.This is mainly used to remove artefacts that appear when stimulus is applied/removed.Positive values are expected since we usually want to remove the response right after the beginning of the stimulus, but negative values are also accepted.',
+        title='Correction to apply to activation stimulus start time taken from source file, in ms.',
+    )
+    act_stim_end_correction: float = Field(
+        default=-1,
+        description='Correction to add to the timing taken from nwb file for activation stimulus end.This is mainly used to remove artefacts that appear when stimulus is applied/removed.Negative values are expected since we usually want to remove the response right before the end of the stimulus, but positive values are also accepted.',
+        title='Correction to apply to activation stimulus end time taken from source file, in ms.',
+    )
+    inact_iv_stim_start_correction: float = Field(
+        default=5,
+        description='Correction to add to the timing taken from nwb file for inactivation stimulus start for IV computation.This is mainly used to remove artefacts that appear when stimulus is applied/removed.Positive values are expected since we usually want to remove the response right after the beginning of the stimulus, but negative values are also accepted.',
+        title='Correction to apply to inactivation stimulus start time for IV computation taken from source file, in ms.',
+    )
+    inact_iv_stim_end_correction: float = Field(
+        default=-1,
+        description='Correction to add to the timing taken from nwb file for inactivation stimulus end for IV computation.This is mainly used to remove artefacts that appear when stimulus is applied/removed.Negative values are expected since we usually want to remove the response right before the end of the stimulus, but positive values are also accepted.',
+        title='Correction to apply to inactivation stimulus end time for IV computation taken from source file, in ms.',
+    )
+    inact_tc_stim_start_correction: float = Field(
+        default=0,
+        description='Correction to add to the timing taken from nwb file for inactivation stimulus start for time constant computation.This is mainly used to remove artefacts that appear when stimulus is applied/removed.Positive values are expected since we usually want to remove the response right after the beginning of the stimulus, but negative values are also accepted.',
+        title='Correction to apply to inactivation stimulus start time for time constant computation taken from source file, in ms.',
+    )
+    inact_tc_stim_end_correction: float = Field(
+        default=-1,
+        description='Correction to add to the timing taken from nwb file for inactivation stimulus end for time constant computation.This is mainly used to remove artefacts that appear when stimulus is applied/removed.Negative values are expected since we usually want to remove the response right before the end of the stimulus, but positive values are also accepted.',
+        title='Correction to apply to inactivation stimulus end time for time constant computation taken from source file, in ms.',
+    )
+
+
+class StimulusVoltageExclusion(BaseModel):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    type: Literal['IonChannelFittingScanConfig.StimulusVoltageExclusion'] = Field(
+        ..., title='Type'
+    )
+    act_exclude_voltages_above: float | None = Field(
+        default=None,
+        description="Do not use any activation traces responses from input voltages above this value. Use 'None' not to exclude any trace.",
+        title='Exclude activation voltages above',
+    )
+    act_exclude_voltages_below: float | None = Field(
+        default=None,
+        description="Do not use any activation traces responses from input voltages below this value. Use 'None' not to exclude any trace.",
+        title='Exclude activation voltages below',
+    )
+    inact_exclude_voltages_above: float | None = Field(
+        default=None,
+        description="Do not use any inactivation traces responses from input voltages above this value. Use 'None' not to exclude any trace.",
+        title='Exclude inactivation voltages above',
+    )
+    inact_exclude_voltages_below: float | None = Field(
+        default=None,
+        description="Do not use any inactivation traces responses from input voltages below this value. Use 'None' not to exclude any trace.",
+        title='Exclude inactivation voltages below',
+    )
 
 
 class Weight(RootModel[float]):
@@ -1737,16 +1865,16 @@ class ValidationError(BaseModel):
     type: str = Field(..., title='Error Type')
 
 
-class SamplePercentage18(SamplePercentage):
+class SamplePercentage20(SamplePercentage):
     pass
 
 
-class SamplePercentage19Item(SamplePercentage1Item):
+class SamplePercentage21Item(SamplePercentage1Item):
     pass
 
 
-class SamplePercentage19(RootModel[list[SamplePercentage19Item]]):
-    root: list[SamplePercentage19Item] = Field(
+class SamplePercentage21(RootModel[list[SamplePercentage21Item]]):
+    root: list[SamplePercentage21Item] = Field(
         ...,
         description='Percentage of neurons to sample between 0 and 100%',
         min_length=1,
@@ -1789,7 +1917,7 @@ class VolumetricCountNeuronSet(BaseModel):
         extra='ignore',
     )
     type: Literal['VolumetricCountNeuronSet'] = Field(..., title='Type')
-    sample_percentage: SamplePercentage18 | SamplePercentage19 = Field(
+    sample_percentage: SamplePercentage20 | SamplePercentage21 = Field(
         default=100.0,
         description='Percentage of neurons to sample between 0 and 100%',
         title='Sample (Percentage)',
@@ -1829,16 +1957,16 @@ class VolumetricCountNeuronSet(BaseModel):
     )
 
 
-class SamplePercentage20(SamplePercentage):
+class SamplePercentage22(SamplePercentage):
     pass
 
 
-class SamplePercentage21Item(SamplePercentage1Item):
+class SamplePercentage23Item(SamplePercentage1Item):
     pass
 
 
-class SamplePercentage21(RootModel[list[SamplePercentage21Item]]):
-    root: list[SamplePercentage21Item] = Field(
+class SamplePercentage23(RootModel[list[SamplePercentage23Item]]):
+    root: list[SamplePercentage23Item] = Field(
         ...,
         description='Percentage of neurons to sample between 0 and 100%',
         min_length=1,
@@ -1869,7 +1997,7 @@ class VolumetricRadiusNeuronSet(BaseModel):
         extra='ignore',
     )
     type: Literal['VolumetricRadiusNeuronSet'] = Field(..., title='Type')
-    sample_percentage: SamplePercentage20 | SamplePercentage21 = Field(
+    sample_percentage: SamplePercentage22 | SamplePercentage23 = Field(
         default=100.0,
         description='Percentage of neurons to sample between 0 and 100%',
         title='Sample (Percentage)',
@@ -1911,38 +2039,6 @@ class VolumetricRadiusNeuronSet(BaseModel):
     )
 
 
-class SamplePercentage22(SamplePercentage):
-    pass
-
-
-class SamplePercentage23Item(SamplePercentage1Item):
-    pass
-
-
-class SamplePercentage23(RootModel[list[SamplePercentage23Item]]):
-    root: list[SamplePercentage23Item] = Field(
-        ...,
-        description='Percentage of neurons to sample between 0 and 100%',
-        min_length=1,
-        title='Sample (Percentage)',
-    )
-
-
-class NbS1POmInputs(BaseModel):
-    model_config = ConfigDict(
-        extra='ignore',
-    )
-    type: Literal['nbS1POmInputs'] = Field(..., title='Type')
-    sample_percentage: SamplePercentage22 | SamplePercentage23 = Field(
-        default=100.0,
-        description='Percentage of neurons to sample between 0 and 100%',
-        title='Sample (Percentage)',
-    )
-    sample_seed: int | list[int] = Field(
-        default=1, description='Seed for random sampling.', title='Sample Seed'
-    )
-
-
 class SamplePercentage24(SamplePercentage):
     pass
 
@@ -1960,12 +2056,44 @@ class SamplePercentage25(RootModel[list[SamplePercentage25Item]]):
     )
 
 
+class NbS1POmInputs(BaseModel):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    type: Literal['nbS1POmInputs'] = Field(..., title='Type')
+    sample_percentage: SamplePercentage24 | SamplePercentage25 = Field(
+        default=100.0,
+        description='Percentage of neurons to sample between 0 and 100%',
+        title='Sample (Percentage)',
+    )
+    sample_seed: int | list[int] = Field(
+        default=1, description='Seed for random sampling.', title='Sample Seed'
+    )
+
+
+class SamplePercentage26(SamplePercentage):
+    pass
+
+
+class SamplePercentage27Item(SamplePercentage1Item):
+    pass
+
+
+class SamplePercentage27(RootModel[list[SamplePercentage27Item]]):
+    root: list[SamplePercentage27Item] = Field(
+        ...,
+        description='Percentage of neurons to sample between 0 and 100%',
+        min_length=1,
+        title='Sample (Percentage)',
+    )
+
+
 class NbS1VPMInputs(BaseModel):
     model_config = ConfigDict(
         extra='ignore',
     )
     type: Literal['nbS1VPMInputs'] = Field(..., title='Type')
-    sample_percentage: SamplePercentage24 | SamplePercentage25 = Field(
+    sample_percentage: SamplePercentage26 | SamplePercentage27 = Field(
         default=100.0,
         description='Percentage of neurons to sample between 0 and 100%',
         title='Sample (Percentage)',
@@ -2299,14 +2427,16 @@ class ObiOneScientificTasksIonChannelModelingIonChannelFittingScanConfigInitiali
     suffix: str = Field(
         ...,
         description='SUFFIX to use in the mod file. Will also be used for the mod file name.',
+        min_length=1,
         title='Ion channel SUFFIX (ion channel name to use in the mod file)',
     )
-    ion: str = Field(
+    ion: Literal['k'] = Field(
         default='k', description='Ion to use in the mod file.', title='Ion'
     )
     temperature: int = Field(
         ...,
         description='Temperature of the model. Should be consistent with the one at which the recordings were made. ',
+        ge=-273,
         title='Temperature',
     )
 
@@ -2422,16 +2552,16 @@ class ObiOneScientificUnionsAliasesSimulationsFormInitialize(BaseModel):
     )
 
 
-class SamplePercentage26(SamplePercentage):
+class SamplePercentage28(SamplePercentage):
     pass
 
 
-class SamplePercentage27Item(SamplePercentage1Item):
+class SamplePercentage29Item(SamplePercentage1Item):
     pass
 
 
-class SamplePercentage27(RootModel[list[SamplePercentage27Item]]):
-    root: list[SamplePercentage27Item] = Field(
+class SamplePercentage29(RootModel[list[SamplePercentage29Item]]):
+    root: list[SamplePercentage29Item] = Field(
         ...,
         description='Percentage of neurons to sample between 0 and 100%',
         min_length=1,
@@ -2444,7 +2574,7 @@ class RCA1CA3Inputs(BaseModel):
         extra='ignore',
     )
     type: Literal['rCA1CA3Inputs'] = Field(..., title='Type')
-    sample_percentage: SamplePercentage26 | SamplePercentage27 = Field(
+    sample_percentage: SamplePercentage28 | SamplePercentage29 = Field(
         default=100.0,
         description='Percentage of neurons to sample between 0 and 100%',
         title='Sample (Percentage)',
@@ -2467,40 +2597,20 @@ HealthHealthGetResponse = RootGetResponse
 VersionVersionGetResponse = RootGetResponse
 
 
-class NeuronMorphologyMetricsEndpointDeclaredNeuronMorphologyMetricsCellMorphologyIdGetParametersQuery(
+class CircuitMetricsEndpointDeclaredCircuitMetricsCircuitIdGetParametersQuery(
     BaseModel
 ):
-    requested_metrics: (
-        list[
-            Literal[
-                'aspect_ratio',
-                'circularity',
-                'length_fraction_above_soma',
-                'max_radial_distance',
-                'number_of_neurites',
-                'soma_radius',
-                'soma_surface_area',
-                'total_length',
-                'total_height',
-                'total_width',
-                'total_depth',
-                'total_area',
-                'total_volume',
-                'section_lengths',
-                'segment_radii',
-                'number_of_sections',
-                'local_bifurcation_angles',
-                'remote_bifurcation_angles',
-                'section_path_distances',
-                'section_radial_distances',
-                'section_branch_orders',
-                'section_strahler_orders',
-            ]
-        ]
-        | None
-    ) = Field(
-        default=None, description='List of requested metrics', title='Requested Metrics'
+    level_of_detail_nodes: CircuitStatsLevelOfDetail = Field(
+        default=0, description='Level of detail for node populations analysis'
     )
+    level_of_detail_edges: CircuitStatsLevelOfDetail = Field(
+        default=0, description='Level of detail for edge populations analysis'
+    )
+
+
+MappedCircuitPropertiesEndpointDeclaredMappedCircuitPropertiesCircuitIdGetResponse = (
+    RootGetResponse
+)
 
 
 class ElectrophysiologyrecordingMetricsEndpointDeclaredElectrophysiologyrecordingMetricsTraceIdGetParametersQuery(
@@ -2578,23 +2688,45 @@ class ElectrophysiologyrecordingMetricsEndpointDeclaredElectrophysiologyrecordin
     max_value: float | None = Field(default=None, title='Max Value')
 
 
-class CircuitMetricsEndpointDeclaredCircuitMetricsCircuitIdGetParametersQuery(
+class NeuronMorphologyMetricsEndpointDeclaredNeuronMorphologyMetricsCellMorphologyIdGetParametersQuery(
     BaseModel
 ):
-    level_of_detail_nodes: CircuitStatsLevelOfDetail = Field(
-        default=0, description='Level of detail for node populations analysis'
+    requested_metrics: (
+        list[
+            Literal[
+                'aspect_ratio',
+                'circularity',
+                'length_fraction_above_soma',
+                'max_radial_distance',
+                'number_of_neurites',
+                'soma_radius',
+                'soma_surface_area',
+                'total_length',
+                'total_height',
+                'total_width',
+                'total_depth',
+                'total_area',
+                'total_volume',
+                'section_lengths',
+                'segment_radii',
+                'number_of_sections',
+                'local_bifurcation_angles',
+                'remote_bifurcation_angles',
+                'section_path_distances',
+                'section_radial_distances',
+                'section_branch_orders',
+                'section_strahler_orders',
+            ]
+        ]
+        | None
+    ) = Field(
+        default=None, description='List of requested metrics', title='Requested Metrics'
     )
-    level_of_detail_edges: CircuitStatsLevelOfDetail = Field(
-        default=0, description='Level of detail for edge populations analysis'
-    )
 
 
-MappedCircuitPropertiesEndpointDeclaredMappedCircuitPropertiesCircuitIdGetResponse = (
-    RootGetResponse
-)
-
-
-class EndpointDeclaredParametricMultiValuePostParametersQuery(BaseModel):
+class ParametricMultiValueEndpointDeclaredParametricMultiValuePostParametersQuery(
+    BaseModel
+):
     ge: float | int | None = Field(
         default=None, description='Require all values to be ≥ this', title='Ge'
     )
@@ -2609,7 +2741,7 @@ class EndpointDeclaredParametricMultiValuePostParametersQuery(BaseModel):
     )
 
 
-class EndpointDeclaredParametricMultiValuePostRequest(
+class ParametricMultiValueEndpointDeclaredParametricMultiValuePostRequest(
     RootModel[
         IntRange
         | PositiveIntRange
@@ -2629,11 +2761,12 @@ class EndpointDeclaredParametricMultiValuePostRequest(
     ) = Field(..., discriminator='type', title='Parameteric Multi Value Type')
 
 
-class EndpointDeclaredParametricMultiValuePostResponse(
+class ParametricMultiValueEndpointDeclaredParametricMultiValuePostResponse(
     RootModel[list[float] | list[int]]
 ):
     root: list[float] | list[int] = Field(
-        ..., title='Response Endpoint Declared Parametric Multi Value Post'
+        ...,
+        title='Response Parametric Multi Value Endpoint Declared Parametric Multi Value Post',
     )
 
 
@@ -2750,7 +2883,7 @@ class ConstantCurrentClampSomaticStimulus(BaseModel):
         title='Timestamp Offset',
     )
     duration: Duration | list[DurationItem] = Field(
-        default=1.0,
+        default=200.0,
         description='Time duration in milliseconds for how long input is activated.',
         title='Duration',
     )
@@ -2809,39 +2942,6 @@ class ElectrophysiologyMetricsScanConfig(BaseModel):
     type: Literal['ElectrophysiologyMetricsScanConfig'] = Field(..., title='Type')
     initialize: (
         ObiOneScientificTasksEphysExtractionElectrophysiologyMetricsScanConfigInitialize
-    )
-
-
-class Equations(BaseModel):
-    model_config = ConfigDict(
-        extra='ignore',
-    )
-    type: Literal['IonChannelFittingScanConfig.Equations'] = Field(..., title='Type')
-    minf_eq: dict[str, SigFitMInf | None] | None = Field(
-        default=None, title='m_{inf} equation'
-    )
-    mtau_eq: (
-        dict[str, SigFitMTau | ThermoFitMTau | ThermoFitMTauV2 | BellFitMTau] | None
-    ) = Field(default=None, title='\\tau_m equation')
-    hinf_eq: dict[str, SigFitHInf | None] | None = Field(
-        default=None, title='h_{inf} equation'
-    )
-    htau_eq: dict[str, SigFitHTau | None] | None = Field(
-        default=None, title='\\tau_h equation'
-    )
-    m_power: int = Field(
-        default=1,
-        description='Raise m to this power in the BREAKPOINT equation.',
-        ge=0,
-        le=4,
-        title='m exponent in channel equation',
-    )
-    h_power: int = Field(
-        default=1,
-        description='Raise h to this power in the BREAKPOINT equation.',
-        ge=0,
-        le=4,
-        title='h exponent in channel equation',
     )
 
 
@@ -2904,7 +3004,7 @@ class HyperpolarizingCurrentClampSomaticStimulus(BaseModel):
         title='Timestamp Offset',
     )
     duration: Duration | list[DurationItem] = Field(
-        default=1.0,
+        default=200.0,
         description='Time duration in milliseconds for how long input is activated.',
         title='Duration',
     )
@@ -2937,9 +3037,35 @@ class IonChannelFittingScanConfig(BaseModel):
     type: Literal['IonChannelFittingScanConfig'] = Field(..., title='Type')
     initialize: (
         ObiOneScientificTasksIonChannelModelingIonChannelFittingScanConfigInitialize
+    ) = Field(
+        ...,
+        description='Parameters for initializing the simulation.',
+        title='Initialization',
     )
-    equations: Equations
-    expert: Expert
+    info: Info = Field(
+        ..., description='Information about the ion channel modeling campaign.'
+    )
+    minf_eq: SigFitMInf | None = Field(..., title='m_{inf} equation')
+    mtau_eq: SigFitMTau | ThermoFitMTau | ThermoFitMTauV2 | BellFitMTau = Field(
+        ..., discriminator='type', title='\\tau_m equation'
+    )
+    hinf_eq: SigFitHInf | None = Field(..., title='h_{inf} equation')
+    htau_eq: SigFitHTau | None = Field(..., title='\\tau_h equation')
+    gate_exponents: GateExponents = Field(
+        ...,
+        description='Set the power of m and h gates used in HH formalism equations.',
+        title='m & h gate exponents',
+    )
+    stimulus_voltage_exclusion: StimulusVoltageExclusion = Field(
+        ...,
+        description='Set the maximum and minimum voltages to consider for activation and inactivation.',
+        title='Stimulus voltage exclusion',
+    )
+    stimulus_timings: StimulusTimings = Field(
+        ...,
+        description='Set the stimulus start and end timings for activation and inactivation.',
+        title='Stimulus timings',
+    )
 
 
 class LinearCurrentClampSomaticStimulus(BaseModel):
@@ -2963,7 +3089,7 @@ class LinearCurrentClampSomaticStimulus(BaseModel):
         title='Timestamp Offset',
     )
     duration: Duration | list[DurationItem] = Field(
-        default=1.0,
+        default=200.0,
         description='Time duration in milliseconds for how long input is activated.',
         title='Duration',
     )
@@ -3007,7 +3133,6 @@ class MorphologyLocationsScanConfig(BaseModel):
         ClusteredGroupedMorphologyLocations
         | ClusteredMorphologyLocations
         | ClusteredPathDistanceMorphologyLocations
-        | MorphologyLocationsBlock
         | PathDistanceMorphologyLocations
         | RandomGroupedMorphologyLocations
         | RandomMorphologyLocations
@@ -3050,7 +3175,7 @@ class MultiPulseCurrentClampSomaticStimulus(BaseModel):
         title='Timestamp Offset',
     )
     duration: Duration | list[DurationItem] = Field(
-        default=1.0,
+        default=200.0,
         description='Time duration in milliseconds for how long input is activated.',
         title='Duration',
     )
@@ -3060,7 +3185,7 @@ class MultiPulseCurrentClampSomaticStimulus(BaseModel):
         title='Amplitude',
     )
     width: Width | list[WidthItem] = Field(
-        default=1.0,
+        default=50.0,
         description='The length of time each pulse lasts. Given in milliseconds (ms).',
         title='Pulse Width',
     )
@@ -3094,7 +3219,7 @@ class NormallyDistributedCurrentClampSomaticStimulus(BaseModel):
         title='Timestamp Offset',
     )
     duration: Duration | list[DurationItem] = Field(
-        default=1.0,
+        default=200.0,
         description='Time duration in milliseconds for how long input is activated.',
         title='Duration',
     )
@@ -3128,7 +3253,7 @@ class PoissonSpikeStimulus(BaseModel):
         title='Timestamp Offset',
     )
     duration: Duration | list[DurationItem] = Field(
-        default=1000.0,
+        default=200.0,
         description='Time duration in milliseconds for how long input is activated.',
         title='Duration',
     )
@@ -3167,7 +3292,7 @@ class RelativeConstantCurrentClampSomaticStimulus(BaseModel):
         title='Timestamp Offset',
     )
     duration: Duration | list[DurationItem] = Field(
-        default=1.0,
+        default=200.0,
         description='Time duration in milliseconds for how long input is activated.',
         title='Duration',
     )
@@ -3203,7 +3328,7 @@ class RelativeLinearCurrentClampSomaticStimulus(BaseModel):
         title='Timestamp Offset',
     )
     duration: Duration | list[DurationItem] = Field(
-        default=1.0,
+        default=200.0,
         description='Time duration in milliseconds for how long input is activated.',
         title='Duration',
     )
@@ -3246,7 +3371,7 @@ class RelativeNormallyDistributedCurrentClampSomaticStimulus(BaseModel):
         title='Timestamp Offset',
     )
     duration: Duration | list[DurationItem] = Field(
-        default=1.0,
+        default=200.0,
         description='Time duration in milliseconds for how long input is activated.',
         title='Duration',
     )
@@ -3285,7 +3410,7 @@ class SinusoidalCurrentClampSomaticStimulus(BaseModel):
         title='Timestamp Offset',
     )
     duration: Duration | list[DurationItem] = Field(
-        default=1.0,
+        default=200.0,
         description='Time duration in milliseconds for how long input is activated.',
         title='Duration',
     )
@@ -3327,7 +3452,7 @@ class SubthresholdCurrentClampSomaticStimulus(BaseModel):
         title='Timestamp Offset',
     )
     duration: Duration | list[DurationItem] = Field(
-        default=1.0,
+        default=200.0,
         description='Time duration in milliseconds for how long input is activated.',
         title='Duration',
     )
@@ -3351,6 +3476,7 @@ class CircuitExtractionScanConfig(BaseModel):
         | IDNeuronSet
         | PredefinedNeuronSet
         | PropertyNeuronSet
+        | PairMotifNeuronSet
         | VolumetricCountNeuronSet
         | VolumetricRadiusNeuronSet
         | SimplexNeuronSet
@@ -3382,12 +3508,12 @@ class CircuitSimulationScanConfig(BaseModel):
         dict[
             str,
             IDNeuronSet
-            | NbS1VPMInputs
-            | NbS1POmInputs
             | AllNeurons
             | ExcitatoryNeurons
             | InhibitoryNeurons
-            | PredefinedNeuronSet,
+            | PredefinedNeuronSet
+            | NbS1VPMInputs
+            | NbS1POmInputs,
         ]
         | None
     ) = Field(
@@ -3481,12 +3607,12 @@ class SimulationsForm(BaseModel):
         dict[
             str,
             IDNeuronSet
-            | NbS1VPMInputs
-            | NbS1POmInputs
             | AllNeurons
             | ExcitatoryNeurons
             | InhibitoryNeurons
-            | PredefinedNeuronSet,
+            | PredefinedNeuronSet
+            | NbS1VPMInputs
+            | NbS1POmInputs,
         ]
         | None
     ) = Field(

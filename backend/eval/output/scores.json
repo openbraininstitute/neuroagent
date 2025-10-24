@@ -1,0 +1,60 @@
+{
+  "total_tests": 9,
+  "metrics_df": [
+    {
+      "test_name": "cerebellum_morphologies",
+      "Correctness [GEval]": 0.4184015884884178,
+      "Tool Correctness": 0.5,
+      "Argument Correctness": 1.0
+    },
+    {
+      "test_name": "matplotlib_plot",
+      "Correctness [GEval]": 0.6717451283445485,
+      "Tool Correctness": 1.0,
+      "Argument Correctness": 1.0
+    },
+    {
+      "test_name": "morphology_studies",
+      "Correctness [GEval]": 0.2618439083055465,
+      "Tool Correctness": 0.0,
+      "Argument Correctness": 0.0
+    },
+    {
+      "test_name": "neuroscientists_search",
+      "Correctness [GEval]": 0.3826650445280202,
+      "Tool Correctness": 1.0,
+      "Argument Correctness": 1.0
+    },
+    {
+      "test_name": "platform_news",
+      "Correctness [GEval]": 0.5907858810739233,
+      "Tool Correctness": 1.0,
+      "Argument Correctness": 0.0
+    },
+    {
+      "test_name": "simulation_tutorial",
+      "Correctness [GEval]": 0.606599545774988,
+      "Tool Correctness": 1.0,
+      "Argument Correctness": 0.0
+    },
+    {
+      "test_name": "sin_plot",
+      "Correctness [GEval]": 0.7141020012468438,
+      "Tool Correctness": 1.0,
+      "Argument Correctness": 1.0
+    },
+    {
+      "test_name": "species_list",
+      "Correctness [GEval]": 0.5758348779904099,
+      "Tool Correctness": 1.0,
+      "Argument Correctness": 1.0
+    },
+    {
+      "test_name": "thalamus_id",
+      "Correctness [GEval]": 0.3734244480551204,
+      "Tool Correctness": 1.0,
+      "Argument Correctness": 1.0
+    }
+  ],
+  "created_at": "2025-10-24 17:21:23.788943"
+}

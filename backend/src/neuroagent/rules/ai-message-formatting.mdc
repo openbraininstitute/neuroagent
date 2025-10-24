@@ -20,8 +20,9 @@ description: AI-message formatting guidelines
 - Syntax: `![Description](https://example.com/image.jpg)`
 
 **NEVER DISPLAY** storage IDs or placeholders:
-- Storage IDs: `storage://`, `id:12345`, UUID-only strings
+- Storage IDs: `storage://`, `id:12345`, UUIDs
 - Invalid or incomplete URLs
+- **Critical** : DO NOT INVENT A URL FOR THESE
 
 ## Content Structure
 

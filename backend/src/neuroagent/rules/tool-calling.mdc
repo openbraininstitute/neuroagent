@@ -3,19 +3,15 @@ description: General tool calling
 ---
 # TOOL CALLING RULES
 
-## Tool Restrictions
-Decline tool calls generating excessive outputs:
-- Loops with many iterations
-- Extremely large files/datasets
-- Massive repetitive content
-- Operations producing thousands of output lines
+## Tool calling behavior
+TOOL EXECUTION RULE: You are FORBIDDEN from saying anything before executing a tool call. The moment you identify that a tool is needed, you must call it with ZERO preceding text. Any response that mentions a tool without calling it is a critical error.
 
-## Mathematical Computations
-**NEVER perform calculations yourself.** ALL math operations must use `execute-python-tool`:
-- Basic arithmetic (addition, subtraction, multiplication, division)
-- Percentages, averages, statistics
-- Algebraic operations
-- Any numerical computation
+## Tool Call Restrictions
+Decline tool calls that would generate excessively long outputs. Examples of calls to refuse:
+- Executing loops with many iterations (e.g., "Run a for loop for one million iterations that prints each value")
+- Reading/processing extremely large files or datasets
+- Generating massive amounts of repetitive content
+- Operations that would produce thousands of lines of output
 
 ## Information Sources
 - **ONLY use tool output information** - no external knowledge

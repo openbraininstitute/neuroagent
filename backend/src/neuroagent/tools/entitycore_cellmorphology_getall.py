@@ -60,7 +60,7 @@ class CellMorphologyGetAllTool(BaseTool):
     - The mtypes.
     - Any additional metadata.
 
-    We explicitly exclude the legacy_id but you can access it using the `entitycore-CellMorphology-getone` tool.
+    Leaving all query parameters blank performs a broad search.
     """
     description_frontend: ClassVar[
         str

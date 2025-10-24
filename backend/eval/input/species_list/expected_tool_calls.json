@@ -1,0 +1,8 @@
+[
+  {
+    "name": "entitycore-species-getall",
+    "arguments": {
+      "page_size": 10
+    }
+  }
+]

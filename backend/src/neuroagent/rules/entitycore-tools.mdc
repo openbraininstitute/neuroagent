@@ -10,28 +10,23 @@ description: Entitycore tools
 ## Brain Region ID Resolution
 
 **MANDATORY workflow:**
-1. Resolve names to IDs using `entitycore-brainregion-getall` with `name` parameter (capitalize first letter)
-2. **ALWAYS use `within_brain_region_brain_region_id` with UUID** for subsequent queries
-3. **NEVER use `brain_region__name`** when you have an ID
-4. **NEVER use `brain_region__id`** (does not exist)
-5. **NEVER fall back to name searches** once you have the ID
+1. Resolve names to IDs using `entitycore-brainregion-getall` with `semantic_search` parameter
+2. **NEVER use `brain_region__name`** when you have an ID
+3. **NEVER use `brain_region__id`** (does not exist)
+4. **NEVER fall back to name searches** once you have the ID
 
 ## Species Handling
-- Convert common names to scientific names (*Mus musculus*, *Rattus norvegicus*)
 - Use `entitycore-species-getall` to lookup species IDs
 - EntityCore database only stores scientific names
 
 ## GET ALL Endpoints
 - Mention `total_items` count in response
 - Ask before using pagination to retrieve additional pages
-- If empty asset list, use `GET ONE` endpoint or `GET ALL Assets`
+- When calling `GET ALL` endpoints, please mention the `total_items` count and ask the user if they want to see additional data before using the `pagination` parameter to retrieve subsequent pages.
 
 ## Asset URLs
-- **ONLY `entitycore-asset-downloadone` returns valid URLs**
-- Other endpoints return invalid URLs - do not display them
 - Always include entity links using `url_link` field
 
 ## Tool Outputs
 - **ONLY use information from tool outputs** - no external knowledge
-- Tool outputs are authoritative sources
 - Always include links to retrieved entities

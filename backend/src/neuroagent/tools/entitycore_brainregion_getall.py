@@ -38,10 +38,13 @@ class BrainRegionGetAllTool(BaseTool):
     name: ClassVar[str] = "entitycore-brainregion-getall"
     name_frontend: ClassVar[str] = "Get All Brain Regions"
     utterances: ClassVar[list[str]] = [
-        "Find a morphology in the isocortex and give me its features",
-        "Find brain regions",
-        "Show me available brain regions",
+        "Find a morphology in the isocortex and give me its features.",
+        "Find brain regions.",
+        "Show me available brain regions.",
         "What brain regions are there?",
+        "Find an electrical recording in the thalamus and make an in depth analysis of it.",
+        "Are there circuits in the sscx ?",
+        "Find all of the thalamical neurons.",
     ]
     description: ClassVar[
         str
