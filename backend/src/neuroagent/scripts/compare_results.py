@@ -158,6 +158,14 @@ def print_comparison_table(
         print("No data available for comparison.")
         return
 
+    old_df["Global Argument Correctness"] = old_df[
+        ["Predefined Argument Correctness", "Argument Correctness"]
+    ].max(axis=1)
+
+    new_df["Global Argument Correctness"] = new_df[
+        ["Predefined Argument Correctness", "Argument Correctness"]
+    ].max(axis=1)
+
     # Perform outer join to include all test cases
     combined_df = old_df.join(new_df, how="outer", rsuffix="_new", lsuffix="_old")
     # Don't fill NaN with 0 - we want to distinguish between missing values and actual 0 scores
