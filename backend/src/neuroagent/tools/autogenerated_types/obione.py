@@ -471,93 +471,6 @@ class ExcitatoryNeurons(BaseModel):
     )
 
 
-class Expert(BaseModel):
-    model_config = ConfigDict(
-        extra='ignore',
-    )
-    type: Literal['IonChannelFittingScanConfig.Expert'] = Field(..., title='Type')
-    act_exclude_voltages_above: float | None = Field(
-        default=None,
-        description="Do not use any activation traces responses from input voltages above this value. Use 'None' not to exclude any trace.",
-        title='Exclude activation voltages above',
-    )
-    act_exclude_voltages_below: float | None = Field(
-        default=None,
-        description="Do not use any activation traces responses from input voltages below this value. Use 'None' not to exclude any trace.",
-        title='Exclude activation voltages below',
-    )
-    inact_exclude_voltages_above: float | None = Field(
-        default=None,
-        description="Do not use any inactivation traces responses from input voltages above this value. Use 'None' not to exclude any trace.",
-        title='Exclude inactivation voltages above',
-    )
-    inact_exclude_voltages_below: float | None = Field(
-        default=None,
-        description="Do not use any inactivation traces responses from input voltages below this value. Use 'None' not to exclude any trace.",
-        title='Exclude inactivation voltages below',
-    )
-    act_stim_start: int | None = Field(
-        default=None,
-        description='Activation stimulus start timing. If None, this value will be taken from nwb and will be corrected with act_stim_start_correction.',
-        title='Activation stimulus start time',
-    )
-    act_stim_end: int | None = Field(
-        default=None,
-        description='Activation stimulus end timing. If None, this value will be taken from nwb and will be corrected with act_stim_end_correction.',
-        title='Activation stimulus end time',
-    )
-    inact_iv_stim_start: int | None = Field(
-        default=None,
-        description='Inactivation stimulus start timing for IV computation. If None, this value will be taken from nwb and will be corrected with inact_iv_stim_start_correction.',
-        title='Inactivation stimulus start time for IV computation',
-    )
-    inact_iv_stim_end: int | None = Field(
-        default=None,
-        description='Inactivation stimulus end timing for IV computation. If None, this value will be taken from nwb and will be corrected with inact_iv_stim_end_correction.',
-        title='Inactivation stimulus end time for IV computation',
-    )
-    inact_tc_stim_start: int | None = Field(
-        default=None,
-        description='Inactivation stimulus start timing for time constant computation. If None, this value will be taken from nwb and will be corrected with inact_tc_stim_start_correction.',
-        title='Inactivation stimulus start time for time constant computation',
-    )
-    inact_tc_stim_end: int | None = Field(
-        default=None,
-        description='Inactivation stimulus end timing for time constant computation. If None, this value will be taken from nwb and will be corrected with inact_tc_stim_end_correction.',
-        title='Inactivation stimulus end time for time constant computation',
-    )
-    act_stim_start_correction: int = Field(
-        default=0,
-        description='Correction to add to the timing taken from nwb file for activation stimulus start.',
-        title='Correction to apply to activation stimulus start time taken from source file, in ms.',
-    )
-    act_stim_end_correction: int = Field(
-        default=-1,
-        description='Correction to add to the timing taken from nwb file for activation stimulus end.',
-        title='Correction to apply to activation stimulus end time taken from source file, in ms.',
-    )
-    inact_iv_stim_start_correction: int = Field(
-        default=5,
-        description='Correction to add to the timing taken from nwb file for inactivation stimulus start for IV computation.',
-        title='Correction to apply to inactivation stimulus start time for IV computation taken from source file, in ms.',
-    )
-    inact_iv_stim_end_correction: int = Field(
-        default=-1,
-        description='Correction to add to the timing taken from nwb file for inactivation stimulus end for IV computation.',
-        title='Correction to apply to inactivation stimulus end time for IV computation taken from source file, in ms.',
-    )
-    inact_tc_stim_start_correction: int = Field(
-        default=0,
-        description='Correction to add to the timing taken from nwb file for inactivation stimulus start for time constant computation.',
-        title='Correction to apply to inactivation stimulus start time for time constant computation taken from source file, in ms.',
-    )
-    inact_tc_stim_end_correction: int = Field(
-        default=-1,
-        description='Correction to add to the timing taken from nwb file for inactivation stimulus end for time constant computation.',
-        title='Correction to apply to inactivation stimulus end time for time constant computation taken from source file, in ms.',
-    )
-
-
 class FloatRange(BaseModel):
     model_config = ConfigDict(
         extra='ignore',
@@ -566,6 +479,29 @@ class FloatRange(BaseModel):
     start: float = Field(..., title='Start')
     step: float = Field(..., gt=0.0, title='Step')
     end: float = Field(..., title='End')
+
+
+class GateExponents(BaseModel):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    type: Literal['IonChannelFittingScanConfig.GateExponents'] = Field(
+        ..., title='Type'
+    )
+    m_power: int = Field(
+        default=1,
+        description='Raise m to this power in the BREAKPOINT equation.',
+        ge=0,
+        le=4,
+        title='m exponent in channel equation',
+    )
+    h_power: int = Field(
+        default=1,
+        description='Raise h to this power in the BREAKPOINT equation.',
+        ge=0,
+        le=4,
+        title='h exponent in channel equation',
+    )
 
 
 class SamplePercentage6(SamplePercentage):
@@ -591,14 +527,11 @@ class Info(BaseModel):
     )
     type: Literal['Info'] = Field(..., title='Type')
     campaign_name: str = Field(
-        ...,
-        description='Name of the simulation campaign.',
-        min_length=1,
-        title='Campaign Name',
+        ..., description='Name of the campaign.', min_length=1, title='Campaign Name'
     )
     campaign_description: str = Field(
         ...,
-        description='Description of the simulation campaign.',
+        description='Description of the campaign.',
         min_length=1,
         title='Campaign Description',
     )
@@ -1632,6 +1565,158 @@ class SpatialCoordinate(RootModel[Literal['x', 'y', 'z']]):
     root: Literal['x', 'y', 'z'] = Field(..., title='SpatialCoordinate')
 
 
+class ActStimStart(RootModel[float]):
+    root: float = Field(
+        ...,
+        description='Activation stimulus start timing. If None, this value will be taken from nwb and will be corrected with act_stim_start_correction.',
+        ge=0.0,
+        title='Activation stimulus start time',
+    )
+
+
+class ActStimEnd(RootModel[float]):
+    root: float = Field(
+        ...,
+        description='Activation stimulus end timing. If None, this value will be taken from nwb and will be corrected with act_stim_end_correction.',
+        ge=0.0,
+        title='Activation stimulus end time',
+    )
+
+
+class InactIvStimStart(RootModel[float]):
+    root: float = Field(
+        ...,
+        description='Inactivation stimulus start timing for IV computation. If None, this value will be taken from nwb and will be corrected with inact_iv_stim_start_correction.',
+        ge=0.0,
+        title='Inactivation stimulus start time for IV computation',
+    )
+
+
+class InactIvStimEnd(RootModel[float]):
+    root: float = Field(
+        ...,
+        description='Inactivation stimulus end timing for IV computation. If None, this value will be taken from nwb and will be corrected with inact_iv_stim_end_correction.',
+        ge=0.0,
+        title='Inactivation stimulus end time for IV computation',
+    )
+
+
+class InactTcStimStart(RootModel[float]):
+    root: float = Field(
+        ...,
+        description='Inactivation stimulus start timing for time constant computation. If None, this value will be taken from nwb and will be corrected with inact_tc_stim_start_correction.',
+        ge=0.0,
+        title='Inactivation stimulus start time for time constant computation',
+    )
+
+
+class InactTcStimEnd(RootModel[float]):
+    root: float = Field(
+        ...,
+        description='Inactivation stimulus end timing for time constant computation. If None, this value will be taken from nwb and will be corrected with inact_tc_stim_end_correction.',
+        ge=0.0,
+        title='Inactivation stimulus end time for time constant computation',
+    )
+
+
+class StimulusTimings(BaseModel):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    type: Literal['IonChannelFittingScanConfig.StimulusTimings'] = Field(
+        ..., title='Type'
+    )
+    act_stim_start: ActStimStart | None = Field(
+        default=None,
+        description='Activation stimulus start timing. If None, this value will be taken from nwb and will be corrected with act_stim_start_correction.',
+        title='Activation stimulus start time',
+    )
+    act_stim_end: ActStimEnd | None = Field(
+        default=None,
+        description='Activation stimulus end timing. If None, this value will be taken from nwb and will be corrected with act_stim_end_correction.',
+        title='Activation stimulus end time',
+    )
+    inact_iv_stim_start: InactIvStimStart | None = Field(
+        default=None,
+        description='Inactivation stimulus start timing for IV computation. If None, this value will be taken from nwb and will be corrected with inact_iv_stim_start_correction.',
+        title='Inactivation stimulus start time for IV computation',
+    )
+    inact_iv_stim_end: InactIvStimEnd | None = Field(
+        default=None,
+        description='Inactivation stimulus end timing for IV computation. If None, this value will be taken from nwb and will be corrected with inact_iv_stim_end_correction.',
+        title='Inactivation stimulus end time for IV computation',
+    )
+    inact_tc_stim_start: InactTcStimStart | None = Field(
+        default=None,
+        description='Inactivation stimulus start timing for time constant computation. If None, this value will be taken from nwb and will be corrected with inact_tc_stim_start_correction.',
+        title='Inactivation stimulus start time for time constant computation',
+    )
+    inact_tc_stim_end: InactTcStimEnd | None = Field(
+        default=None,
+        description='Inactivation stimulus end timing for time constant computation. If None, this value will be taken from nwb and will be corrected with inact_tc_stim_end_correction.',
+        title='Inactivation stimulus end time for time constant computation',
+    )
+    act_stim_start_correction: float = Field(
+        default=0,
+        description='Correction to add to the timing taken from nwb file for activation stimulus start.This is mainly used to remove artefacts that appear when stimulus is applied/removed.Positive values are expected since we usually want to remove the response right after the beginning of the stimulus, but negative values are also accepted.',
+        title='Correction to apply to activation stimulus start time taken from source file, in ms.',
+    )
+    act_stim_end_correction: float = Field(
+        default=-1,
+        description='Correction to add to the timing taken from nwb file for activation stimulus end.This is mainly used to remove artefacts that appear when stimulus is applied/removed.Negative values are expected since we usually want to remove the response right before the end of the stimulus, but positive values are also accepted.',
+        title='Correction to apply to activation stimulus end time taken from source file, in ms.',
+    )
+    inact_iv_stim_start_correction: float = Field(
+        default=5,
+        description='Correction to add to the timing taken from nwb file for inactivation stimulus start for IV computation.This is mainly used to remove artefacts that appear when stimulus is applied/removed.Positive values are expected since we usually want to remove the response right after the beginning of the stimulus, but negative values are also accepted.',
+        title='Correction to apply to inactivation stimulus start time for IV computation taken from source file, in ms.',
+    )
+    inact_iv_stim_end_correction: float = Field(
+        default=-1,
+        description='Correction to add to the timing taken from nwb file for inactivation stimulus end for IV computation.This is mainly used to remove artefacts that appear when stimulus is applied/removed.Negative values are expected since we usually want to remove the response right before the end of the stimulus, but positive values are also accepted.',
+        title='Correction to apply to inactivation stimulus end time for IV computation taken from source file, in ms.',
+    )
+    inact_tc_stim_start_correction: float = Field(
+        default=0,
+        description='Correction to add to the timing taken from nwb file for inactivation stimulus start for time constant computation.This is mainly used to remove artefacts that appear when stimulus is applied/removed.Positive values are expected since we usually want to remove the response right after the beginning of the stimulus, but negative values are also accepted.',
+        title='Correction to apply to inactivation stimulus start time for time constant computation taken from source file, in ms.',
+    )
+    inact_tc_stim_end_correction: float = Field(
+        default=-1,
+        description='Correction to add to the timing taken from nwb file for inactivation stimulus end for time constant computation.This is mainly used to remove artefacts that appear when stimulus is applied/removed.Negative values are expected since we usually want to remove the response right before the end of the stimulus, but positive values are also accepted.',
+        title='Correction to apply to inactivation stimulus end time for time constant computation taken from source file, in ms.',
+    )
+
+
+class StimulusVoltageExclusion(BaseModel):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    type: Literal['IonChannelFittingScanConfig.StimulusVoltageExclusion'] = Field(
+        ..., title='Type'
+    )
+    act_exclude_voltages_above: float | None = Field(
+        default=None,
+        description="Do not use any activation traces responses from input voltages above this value. Use 'None' not to exclude any trace.",
+        title='Exclude activation voltages above',
+    )
+    act_exclude_voltages_below: float | None = Field(
+        default=None,
+        description="Do not use any activation traces responses from input voltages below this value. Use 'None' not to exclude any trace.",
+        title='Exclude activation voltages below',
+    )
+    inact_exclude_voltages_above: float | None = Field(
+        default=None,
+        description="Do not use any inactivation traces responses from input voltages above this value. Use 'None' not to exclude any trace.",
+        title='Exclude inactivation voltages above',
+    )
+    inact_exclude_voltages_below: float | None = Field(
+        default=None,
+        description="Do not use any inactivation traces responses from input voltages below this value. Use 'None' not to exclude any trace.",
+        title='Exclude inactivation voltages below',
+    )
+
+
 class Weight(RootModel[float]):
     root: float = Field(..., description='Weight in grams', gt=0.0, title='Weight')
 
@@ -2342,14 +2427,16 @@ class ObiOneScientificTasksIonChannelModelingIonChannelFittingScanConfigInitiali
     suffix: str = Field(
         ...,
         description='SUFFIX to use in the mod file. Will also be used for the mod file name.',
+        min_length=1,
         title='Ion channel SUFFIX (ion channel name to use in the mod file)',
     )
-    ion: str = Field(
+    ion: Literal['k'] = Field(
         default='k', description='Ion to use in the mod file.', title='Ion'
     )
     temperature: int = Field(
         ...,
         description='Temperature of the model. Should be consistent with the one at which the recordings were made. ',
+        ge=-273,
         title='Temperature',
     )
 
@@ -2510,40 +2597,20 @@ HealthHealthGetResponse = RootGetResponse
 VersionVersionGetResponse = RootGetResponse
 
 
-class NeuronMorphologyMetricsEndpointDeclaredNeuronMorphologyMetricsCellMorphologyIdGetParametersQuery(
+class CircuitMetricsEndpointDeclaredCircuitMetricsCircuitIdGetParametersQuery(
     BaseModel
 ):
-    requested_metrics: (
-        list[
-            Literal[
-                'aspect_ratio',
-                'circularity',
-                'length_fraction_above_soma',
-                'max_radial_distance',
-                'number_of_neurites',
-                'soma_radius',
-                'soma_surface_area',
-                'total_length',
-                'total_height',
-                'total_width',
-                'total_depth',
-                'total_area',
-                'total_volume',
-                'section_lengths',
-                'segment_radii',
-                'number_of_sections',
-                'local_bifurcation_angles',
-                'remote_bifurcation_angles',
-                'section_path_distances',
-                'section_radial_distances',
-                'section_branch_orders',
-                'section_strahler_orders',
-            ]
-        ]
-        | None
-    ) = Field(
-        default=None, description='List of requested metrics', title='Requested Metrics'
+    level_of_detail_nodes: CircuitStatsLevelOfDetail = Field(
+        default=0, description='Level of detail for node populations analysis'
     )
+    level_of_detail_edges: CircuitStatsLevelOfDetail = Field(
+        default=0, description='Level of detail for edge populations analysis'
+    )
+
+
+MappedCircuitPropertiesEndpointDeclaredMappedCircuitPropertiesCircuitIdGetResponse = (
+    RootGetResponse
+)
 
 
 class ElectrophysiologyrecordingMetricsEndpointDeclaredElectrophysiologyrecordingMetricsTraceIdGetParametersQuery(
@@ -2621,23 +2688,45 @@ class ElectrophysiologyrecordingMetricsEndpointDeclaredElectrophysiologyrecordin
     max_value: float | None = Field(default=None, title='Max Value')
 
 
-class CircuitMetricsEndpointDeclaredCircuitMetricsCircuitIdGetParametersQuery(
+class NeuronMorphologyMetricsEndpointDeclaredNeuronMorphologyMetricsCellMorphologyIdGetParametersQuery(
     BaseModel
 ):
-    level_of_detail_nodes: CircuitStatsLevelOfDetail = Field(
-        default=0, description='Level of detail for node populations analysis'
+    requested_metrics: (
+        list[
+            Literal[
+                'aspect_ratio',
+                'circularity',
+                'length_fraction_above_soma',
+                'max_radial_distance',
+                'number_of_neurites',
+                'soma_radius',
+                'soma_surface_area',
+                'total_length',
+                'total_height',
+                'total_width',
+                'total_depth',
+                'total_area',
+                'total_volume',
+                'section_lengths',
+                'segment_radii',
+                'number_of_sections',
+                'local_bifurcation_angles',
+                'remote_bifurcation_angles',
+                'section_path_distances',
+                'section_radial_distances',
+                'section_branch_orders',
+                'section_strahler_orders',
+            ]
+        ]
+        | None
+    ) = Field(
+        default=None, description='List of requested metrics', title='Requested Metrics'
     )
-    level_of_detail_edges: CircuitStatsLevelOfDetail = Field(
-        default=0, description='Level of detail for edge populations analysis'
-    )
 
 
-MappedCircuitPropertiesEndpointDeclaredMappedCircuitPropertiesCircuitIdGetResponse = (
-    RootGetResponse
-)
-
-
-class EndpointDeclaredParametricMultiValuePostParametersQuery(BaseModel):
+class ParametricMultiValueEndpointDeclaredParametricMultiValuePostParametersQuery(
+    BaseModel
+):
     ge: float | int | None = Field(
         default=None, description='Require all values to be ≥ this', title='Ge'
     )
@@ -2652,7 +2741,7 @@ class EndpointDeclaredParametricMultiValuePostParametersQuery(BaseModel):
     )
 
 
-class EndpointDeclaredParametricMultiValuePostRequest(
+class ParametricMultiValueEndpointDeclaredParametricMultiValuePostRequest(
     RootModel[
         IntRange
         | PositiveIntRange
@@ -2672,11 +2761,12 @@ class EndpointDeclaredParametricMultiValuePostRequest(
     ) = Field(..., discriminator='type', title='Parameteric Multi Value Type')
 
 
-class EndpointDeclaredParametricMultiValuePostResponse(
+class ParametricMultiValueEndpointDeclaredParametricMultiValuePostResponse(
     RootModel[list[float] | list[int]]
 ):
     root: list[float] | list[int] = Field(
-        ..., title='Response Endpoint Declared Parametric Multi Value Post'
+        ...,
+        title='Response Parametric Multi Value Endpoint Declared Parametric Multi Value Post',
     )
 
 
@@ -2793,7 +2883,7 @@ class ConstantCurrentClampSomaticStimulus(BaseModel):
         title='Timestamp Offset',
     )
     duration: Duration | list[DurationItem] = Field(
-        default=1.0,
+        default=200.0,
         description='Time duration in milliseconds for how long input is activated.',
         title='Duration',
     )
@@ -2852,39 +2942,6 @@ class ElectrophysiologyMetricsScanConfig(BaseModel):
     type: Literal['ElectrophysiologyMetricsScanConfig'] = Field(..., title='Type')
     initialize: (
         ObiOneScientificTasksEphysExtractionElectrophysiologyMetricsScanConfigInitialize
-    )
-
-
-class Equations(BaseModel):
-    model_config = ConfigDict(
-        extra='ignore',
-    )
-    type: Literal['IonChannelFittingScanConfig.Equations'] = Field(..., title='Type')
-    minf_eq: dict[str, SigFitMInf | None] | None = Field(
-        default=None, title='m_{inf} equation'
-    )
-    mtau_eq: (
-        dict[str, SigFitMTau | ThermoFitMTau | ThermoFitMTauV2 | BellFitMTau] | None
-    ) = Field(default=None, title='\\tau_m equation')
-    hinf_eq: dict[str, SigFitHInf | None] | None = Field(
-        default=None, title='h_{inf} equation'
-    )
-    htau_eq: dict[str, SigFitHTau | None] | None = Field(
-        default=None, title='\\tau_h equation'
-    )
-    m_power: int = Field(
-        default=1,
-        description='Raise m to this power in the BREAKPOINT equation.',
-        ge=0,
-        le=4,
-        title='m exponent in channel equation',
-    )
-    h_power: int = Field(
-        default=1,
-        description='Raise h to this power in the BREAKPOINT equation.',
-        ge=0,
-        le=4,
-        title='h exponent in channel equation',
     )
 
 
@@ -2947,7 +3004,7 @@ class HyperpolarizingCurrentClampSomaticStimulus(BaseModel):
         title='Timestamp Offset',
     )
     duration: Duration | list[DurationItem] = Field(
-        default=1.0,
+        default=200.0,
         description='Time duration in milliseconds for how long input is activated.',
         title='Duration',
     )
@@ -2980,9 +3037,35 @@ class IonChannelFittingScanConfig(BaseModel):
     type: Literal['IonChannelFittingScanConfig'] = Field(..., title='Type')
     initialize: (
         ObiOneScientificTasksIonChannelModelingIonChannelFittingScanConfigInitialize
+    ) = Field(
+        ...,
+        description='Parameters for initializing the simulation.',
+        title='Initialization',
     )
-    equations: Equations
-    expert: Expert
+    info: Info = Field(
+        ..., description='Information about the ion channel modeling campaign.'
+    )
+    minf_eq: SigFitMInf | None = Field(..., title='m_{inf} equation')
+    mtau_eq: SigFitMTau | ThermoFitMTau | ThermoFitMTauV2 | BellFitMTau = Field(
+        ..., discriminator='type', title='\\tau_m equation'
+    )
+    hinf_eq: SigFitHInf | None = Field(..., title='h_{inf} equation')
+    htau_eq: SigFitHTau | None = Field(..., title='\\tau_h equation')
+    gate_exponents: GateExponents = Field(
+        ...,
+        description='Set the power of m and h gates used in HH formalism equations.',
+        title='m & h gate exponents',
+    )
+    stimulus_voltage_exclusion: StimulusVoltageExclusion = Field(
+        ...,
+        description='Set the maximum and minimum voltages to consider for activation and inactivation.',
+        title='Stimulus voltage exclusion',
+    )
+    stimulus_timings: StimulusTimings = Field(
+        ...,
+        description='Set the stimulus start and end timings for activation and inactivation.',
+        title='Stimulus timings',
+    )
 
 
 class LinearCurrentClampSomaticStimulus(BaseModel):
@@ -3006,7 +3089,7 @@ class LinearCurrentClampSomaticStimulus(BaseModel):
         title='Timestamp Offset',
     )
     duration: Duration | list[DurationItem] = Field(
-        default=1.0,
+        default=200.0,
         description='Time duration in milliseconds for how long input is activated.',
         title='Duration',
     )
@@ -3092,7 +3175,7 @@ class MultiPulseCurrentClampSomaticStimulus(BaseModel):
         title='Timestamp Offset',
     )
     duration: Duration | list[DurationItem] = Field(
-        default=1.0,
+        default=200.0,
         description='Time duration in milliseconds for how long input is activated.',
         title='Duration',
     )
@@ -3102,7 +3185,7 @@ class MultiPulseCurrentClampSomaticStimulus(BaseModel):
         title='Amplitude',
     )
     width: Width | list[WidthItem] = Field(
-        default=1.0,
+        default=50.0,
         description='The length of time each pulse lasts. Given in milliseconds (ms).',
         title='Pulse Width',
     )
@@ -3136,7 +3219,7 @@ class NormallyDistributedCurrentClampSomaticStimulus(BaseModel):
         title='Timestamp Offset',
     )
     duration: Duration | list[DurationItem] = Field(
-        default=1.0,
+        default=200.0,
         description='Time duration in milliseconds for how long input is activated.',
         title='Duration',
     )
@@ -3170,7 +3253,7 @@ class PoissonSpikeStimulus(BaseModel):
         title='Timestamp Offset',
     )
     duration: Duration | list[DurationItem] = Field(
-        default=1000.0,
+        default=200.0,
         description='Time duration in milliseconds for how long input is activated.',
         title='Duration',
     )
@@ -3209,7 +3292,7 @@ class RelativeConstantCurrentClampSomaticStimulus(BaseModel):
         title='Timestamp Offset',
     )
     duration: Duration | list[DurationItem] = Field(
-        default=1.0,
+        default=200.0,
         description='Time duration in milliseconds for how long input is activated.',
         title='Duration',
     )
@@ -3245,7 +3328,7 @@ class RelativeLinearCurrentClampSomaticStimulus(BaseModel):
         title='Timestamp Offset',
     )
     duration: Duration | list[DurationItem] = Field(
-        default=1.0,
+        default=200.0,
         description='Time duration in milliseconds for how long input is activated.',
         title='Duration',
     )
@@ -3288,7 +3371,7 @@ class RelativeNormallyDistributedCurrentClampSomaticStimulus(BaseModel):
         title='Timestamp Offset',
     )
     duration: Duration | list[DurationItem] = Field(
-        default=1.0,
+        default=200.0,
         description='Time duration in milliseconds for how long input is activated.',
         title='Duration',
     )
@@ -3327,7 +3410,7 @@ class SinusoidalCurrentClampSomaticStimulus(BaseModel):
         title='Timestamp Offset',
     )
     duration: Duration | list[DurationItem] = Field(
-        default=1.0,
+        default=200.0,
         description='Time duration in milliseconds for how long input is activated.',
         title='Duration',
     )
@@ -3369,7 +3452,7 @@ class SubthresholdCurrentClampSomaticStimulus(BaseModel):
         title='Timestamp Offset',
     )
     duration: Duration | list[DurationItem] = Field(
-        default=1.0,
+        default=200.0,
         description='Time duration in milliseconds for how long input is activated.',
         title='Duration',
     )

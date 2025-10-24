@@ -143,7 +143,6 @@
         {
           "name": "entitycore-cellmorphology-getall",
           "arguments": {
-            "page_size": 10,
             "within_brain_region_brain_region_id": "062ebc92-cebb-498a-a76d-b5ef1baf02cf"
           }
         }
@@ -658,7 +657,7 @@
           }
         },
         {
-          "name": "plot-generator",
+          "name": "execute-python-code",
           "arguments": {
             "plot_type": "json-linechart",
             "title": "y = sin(x) sampled at 8 points",
@@ -715,10 +714,10 @@
         },
         {
           "name": "Tool Correctness",
-          "score": 1.0,
+          "score": 0.5,
           "success": true,
           "threshold": 0.5,
-          "reason": "Correct ordering: all expected tools ['execute-python-code', 'plot-generator'] were called in the correct order."
+          "reason": "Incorrect tool usage: missing tools ['plot-generator'] and out-of-order tools ['plot-generator']; expected ['execute-python-code', 'plot-generator'], called ['execute-python-code', 'execute-python-code']. See more details above."
         },
         {
           "name": "Argument Correctness",
@@ -807,7 +806,7 @@
     "actual_tool_calls": {
       "tool_calls": [
         {
-          "name": "web-search-tool",
+          "name": "literature-search-tool",
           "arguments": {
             "query": "most influential computational neuroscientists list influential computational neuroscience researchers prominent names"
           }
@@ -825,10 +824,10 @@
         },
         {
           "name": "Tool Correctness",
-          "score": 1.0,
-          "success": true,
+          "score": 0.0,
+          "success": false,
           "threshold": 0.5,
-          "reason": "Correct ordering: all expected tools ['web-search-tool'] were called in the correct order."
+          "reason": "Incorrect tool usage: missing tools ['web-search-tool'] and out-of-order tools ['web-search-tool']; expected ['web-search-tool'], called ['literature-search-tool']. See more details above."
         },
         {
           "name": "Argument Correctness",
