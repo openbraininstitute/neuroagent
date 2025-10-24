@@ -231,10 +231,17 @@ class AgentsRoutine:
             active_agent = agent
             content = await messages_to_openai_content(messages)
             history = copy.deepcopy(content)
-            tool_map = {tool.name: tool for tool in agent.tools}
+
             turns = 0
+            metadata_data = []
+
+            # In case of HIL, the start steps breaks Vercel and adds a new part.
+            if messages[-1].entity == Entity.USER:
+                yield f"data: {json.dumps({'type': 'start', 'messageId': f'msg_{uuid.uuid4().hex}'})}\n\n"
 
             while turns <= max_turns:
+                # We need to redefine the tool map since the tools can change on agent switch.
+                tool_map = {tool.name: tool for tool in active_agent.tools}
                 # Force an AI message once max turns reached.
                 # I.e. we do a total number of turns of max_turns + 1
                 # The +1 being the final AI message.
@@ -269,11 +276,19 @@ class AgentsRoutine:
                 turns += 1
                 draft_tool_calls: list[dict[str, str]] = []
                 draft_tool_calls_index = -1
+                text_id = f"text_{uuid.uuid4().hex}"
+                text_started = False
+                reasoning_id = f"text_{uuid.uuid4().hex}"
+                reasoning_started = False
                 async for chunk in completion:
                     for choice in chunk.choices:
                         if choice.finish_reason == "stop":
                             if choice.delta.content:
-                                yield f"0:{json.dumps(choice.delta.content, separators=(',', ':'))}\n"
+                                if not text_started:
+                                    yield f"data: {json.dumps({'type': 'text-start', 'id': text_id})}\n\n"
+                                    text_started = True
+
+                                yield f"data: {json.dumps({'type': 'text-delta', 'id': text_id, 'delta': choice.delta.content})}\n\n"
 
                         elif choice.finish_reason == "tool_calls":
                             # Some models stream the whole tool call in one chunk.
@@ -306,12 +321,7 @@ class AgentsRoutine:
                                     )
                                 except ValidationError:
                                     args = input_args
-                                tool_call_data = {
-                                    "toolCallId": draft_tool_call["id"],
-                                    "toolName": draft_tool_call["name"],
-                                    "args": args,
-                                }
-                                yield f"9:{json.dumps(tool_call_data, separators=(',', ':'))}\n"
+                                yield f"data: {json.dumps({'type': 'tool-input-available', 'toolCallId': draft_tool_call['id'], 'toolName': draft_tool_call['name'], 'input': args})}\n\n"
 
                         # Check for tool calls
                         elif choice.delta.tool_calls:
@@ -333,11 +343,7 @@ class AgentsRoutine:
                                     draft_tool_calls.append(
                                         {"id": id, "name": name, "arguments": ""}  # type: ignore
                                     )
-                                    tool_begin_data = {
-                                        "toolCallId": id,
-                                        "toolName": name,
-                                    }
-                                    yield f"b:{json.dumps(tool_begin_data, separators=(',', ':'))}\n"
+                                    yield f"data: {json.dumps({'type': 'tool-input-start', 'toolCallId': id, 'toolName': name})}\n\n"
 
                                 if arguments:
                                     current_id = (
@@ -346,11 +352,7 @@ class AgentsRoutine:
                                             "id"
                                         ]
                                     )
-                                    args_data = {
-                                        "toolCallId": current_id,
-                                        "argsTextDelta": arguments,
-                                    }
-                                    yield f"c:{json.dumps(args_data, separators=(',', ':'))}\n"
+                                    yield f"data: {json.dumps({'type': 'tool-input-delta', 'toolCallId': current_id, 'inputTextDelta': arguments})}\n\n"
                                     draft_tool_calls[draft_tool_calls_index][
                                         "arguments"
                                     ] += arguments
@@ -358,24 +360,31 @@ class AgentsRoutine:
                             hasattr(choice.delta, "reasoning")
                             and choice.delta.reasoning
                         ):
-                            yield f"g:{json.dumps(choice.delta.reasoning, separators=(',', ':'))}\n\n"
+                            if not reasoning_started:
+                                yield f"data: {json.dumps({'type': 'reasoning-start', 'id': reasoning_id})}\n\n"
+                                reasoning_started = True
+
+                            yield f"data: {json.dumps({'type': 'reasoning-delta', 'id': reasoning_id, 'delta': choice.delta.reasoning})}\n\n"
 
                         else:
                             if choice.delta.content is not None:
-                                yield f"0:{json.dumps(choice.delta.content, separators=(',', ':'))}\n"
+                                if not text_started:
+                                    yield f"data: {json.dumps({'type': 'text-start', 'id': text_id})}\n\n"
+                                    text_started = True
+
+                                yield f"data: {json.dumps({'type': 'text-delta', 'id': text_id, 'delta': choice.delta.content})}\n\n"
 
                         delta_json = choice.delta.model_dump()
                         delta_json.pop("role", None)
                         merge_chunk(message, delta_json)
 
-                if chunk.choices == []:
-                    finish_data = {
-                        "finishReason": "tool-calls"
-                        if len(draft_tool_calls) > 0
-                        else "stop",
-                    }
-                else:
-                    finish_data = {"finishReason": "stop"}
+                if reasoning_started:
+                    yield f"data: {json.dumps({'type': 'reasoning-end', 'id': reasoning_id})}\n\n"
+                    reasoning_started = False
+
+                if text_started:
+                    yield f"data: {json.dumps({'type': 'text-end', 'id': text_id})}\n\n"
+                    text_started = False
 
                 message["tool_calls"] = list(message.get("tool_calls", {}).values())
                 if not message["tool_calls"]:
@@ -431,7 +440,7 @@ class AgentsRoutine:
                 )
 
                 if not messages[-1].tool_calls:
-                    yield f"e:{json.dumps(finish_data)}\n"
+                    yield f"data: {json.dumps({'type': 'finish-step'})}\n\n"
                     break
 
                 # kick out tool calls that require HIL
@@ -472,13 +481,9 @@ class AgentsRoutine:
 
                 # Before extending history, yield each tool response
                 for tool_response in tool_calls_executed.messages:
-                    response_data = {
-                        "toolCallId": tool_response["tool_call_id"],
-                        "result": tool_response["content"],
-                    }
-                    yield f"a:{json.dumps(response_data, separators=(',', ':'))}\n"
+                    yield f"data: {json.dumps({'type': 'tool-output-available', 'toolCallId': tool_response['tool_call_id'], 'output': tool_response['content']})}\n\n"
 
-                yield f"e:{json.dumps(finish_data)}\n"
+                yield f"data: {json.dumps({'type': 'finish-step'})}\n\n"
 
                 for tool_response in tool_calls_executed.messages:
                     # Check if an LLM has been called inside of the tool
@@ -529,13 +534,12 @@ class AgentsRoutine:
 
                 # If the tool call response contains HIL validation, do not update anything and return
                 if tool_calls_with_hil:
-                    annotation_data = [
+                    metadata_data = [
                         {"toolCallId": msg.tool_call_id, "validated": "pending"}
                         for msg in tool_calls_with_hil
                     ]
 
-                    yield f"8:{json.dumps(annotation_data, separators=(',', ':'))}\n"
-                    yield f"e:{json.dumps(finish_data)}\n"
+                    yield f"data: {json.dumps({'type': 'finish-step'})}\n\n"
                     break
 
                 history.extend(tool_calls_executed.messages)
@@ -543,10 +547,11 @@ class AgentsRoutine:
                 if tool_calls_executed.agent:
                     active_agent = tool_calls_executed.agent
 
-            done_data = {
-                "finishReason": "stop",
-            }
-            yield f"d:{json.dumps(done_data)}\n"
+            if metadata_data:
+                yield f"data: {json.dumps({'type': 'finish', 'messageMetadata': {'hil': metadata_data}})}\n\n"
+            else:
+                yield f"data: {json.dumps({'type': 'finish'})}\n\n"
+            yield "data: [DONE]\n\n"
 
         # User interrupts streaming
         except asyncio.exceptions.CancelledError:

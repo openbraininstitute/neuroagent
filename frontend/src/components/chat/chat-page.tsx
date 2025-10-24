@@ -13,8 +13,15 @@ import { ChatMessagesInsideThread } from "@/components/chat/chat-messages-inside
 import { generateEditTitle } from "@/actions/generate-edit-thread";
 import { toast } from "sonner";
 import { useGetMessageNextPage } from "@/hooks/get-message-page";
-import { getToolInvocations, isLastMessageComplete } from "@/lib/utils";
+import {
+  getLastMessageText,
+  getLastText,
+  getToolInvocations,
+  isLastMessageComplete,
+  lastAssistantHasAllToolOutputs,
+} from "@/lib/utils";
 import { md5 } from "js-md5";
+import { DefaultChatTransport } from "ai";
 
 type ChatPageProps = {
   threadId: string;
@@ -75,34 +82,45 @@ export function ChatPage({
 
   const {
     addToolResult,
-    append,
     error,
     messages: messagesRaw,
-    handleInputChange,
-    handleSubmit,
-    input,
     setMessages: setMessagesRaw,
+    sendMessage,
     status,
     stop,
   } = useChat({
-    api: `${env.NEXT_PUBLIC_BACKEND_URL}/qa/chat_streamed/${threadId}`,
-    headers: {
-      Authorization: `Bearer ${session?.accessToken}`,
-    },
-    initialMessages: retrievedMessages,
-    experimental_prepareRequestBody: ({ messages }) => {
-      const lastMessage = messages[messages.length - 1];
-      const selectedTools = Object.keys(checkedTools).filter(
-        (key) => key !== "allchecked" && checkedTools[key] === true,
-      );
-      return {
-        content: lastMessage.content,
-        tool_selection: selectedTools,
-        model: currentModel.id,
-        frontend_url: frontendUrl,
-      };
-    },
+    messages: retrievedMessages,
+    experimental_throttle: 50,
+    sendAutomaticallyWhen: lastAssistantHasAllToolOutputs,
+    transport: new DefaultChatTransport({
+      api: `${env.NEXT_PUBLIC_BACKEND_URL}/qa/chat_streamed/${threadId}`,
+      headers: {
+        Authorization: `Bearer ${session?.accessToken}`,
+      },
+      prepareSendMessagesRequest: ({ messages }) => {
+        return {
+          body: {
+            content: getLastMessageText(messages),
+            tool_selection: Object.keys(checkedTools).filter(
+              (key) => key !== "allchecked" && checkedTools[key] === true,
+            ),
+            model: currentModel.id,
+            frontend_url: frontendUrl,
+          },
+        };
+      },
+    }),
   });
+
+  // Handle chat inputs.
+  const [input, setInput] = useState("");
+  const handleSubmit = (
+    e: React.FormEvent<HTMLFormElement | HTMLTextAreaElement>,
+  ) => {
+    e.preventDefault();
+    sendMessage({ text: input });
+    setInput("");
+  };
 
   // This should probably be changed to be more granular, I just created the old behaviour here.
   const isLoading = status == "streaming" || status == "submitted";
@@ -124,11 +142,7 @@ export function ChatPage({
       !hasSendFirstMessage.current
     ) {
       hasSendFirstMessage.current = true;
-      append({
-        id: "temp_id",
-        role: "user",
-        content: newMessage,
-      });
+      sendMessage({ text: newMessage });
       generateEditTitle(null, threadId, newMessage);
       setNewMessage("");
     }
@@ -157,13 +171,9 @@ export function ChatPage({
       setMessages((prevState) => {
         prevState[prevState.length - 1] = {
           ...prevState[prevState.length - 1],
-          annotations: prevState
-            .at(-1)
-            ?.annotations?.map((ann) =>
-              !ann.toolCallId ? { isComplete: false } : ann,
-            ),
+          isComplete: false,
         };
-        // We only change the annotation at message level and keep the rest.
+        // We only change the metadata at message level and keep the rest.
         return prevState;
       });
     }
@@ -176,7 +186,7 @@ export function ChatPage({
       setMessages(() => [
         ...retrievedMessages,
         ...messages.filter(
-          (m) => m.id.length !== 36 && !m.id.startsWith("temp"),
+          (m) => m.id.length !== 36 && !m.id.startsWith("msg"),
         ),
       ]);
     } else {
@@ -187,7 +197,7 @@ export function ChatPage({
   // Constant to check if there are tool calls at the end of conv.
   const hasOngoingToolInvocations =
     (getToolInvocations(messages.at(-1)) ?? []).length > 0 &&
-    messages.at(-1)?.content == "";
+    getLastText(messages.at(-1)) == "";
 
   // Auto scroll when streaming
   useEffect(() => {
@@ -314,7 +324,7 @@ export function ChatPage({
         threadId={threadId}
         setCheckedTools={setCheckedTools}
         setCurrentModel={setCurrentModel}
-        handleInputChange={handleInputChange}
+        handleInputChange={setInput}
         handleSubmit={handleSubmit}
         hasOngoingToolInvocations={hasOngoingToolInvocations}
         setIsAutoScrollEnabled={setIsAutoScrollEnabled}

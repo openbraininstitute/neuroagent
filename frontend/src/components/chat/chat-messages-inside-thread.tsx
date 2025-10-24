@@ -2,9 +2,10 @@
 
 import { MessageStrict } from "@/lib/types";
 import {
-  getStoppedStatus,
+  getLastText,
   getStorageID,
   getValidationStatus,
+  isToolPart,
 } from "@/lib/utils";
 import PlotsInChat from "@/components/chat/plot-in-chat";
 import { ChatMessageAI } from "@/components/chat/chat-message-ai";
@@ -17,14 +18,27 @@ type ChatMessagesInsideThreadProps = {
   messages: MessageStrict[];
   threadId: string;
   availableTools: Array<{ slug: string; label: string }>;
-  addToolResult: ({
+  addToolResult: <TOOL extends string>({
+    state,
+    tool,
     toolCallId,
-    result,
-  }: {
-    toolCallId: string;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    result: any;
-  }) => void;
+    output,
+    errorText,
+  }:
+    | {
+        state?: "output-available";
+        tool: TOOL;
+        toolCallId: string;
+        output: unknown;
+        errorText?: never;
+      }
+    | {
+        state: "output-error";
+        tool: TOOL;
+        toolCallId: string;
+        output?: never;
+        errorText: string;
+      }) => Promise<void>;
   setMessages: (
     messages:
       | MessageStrict[]
@@ -49,6 +63,7 @@ export function ChatMessagesInsideThread({
       messages.map((msg) => (msg.id === messageId ? updater(msg) : msg)),
     );
   };
+  console.log(messages);
   return (
     <>
       {messages.map((message, idx) =>
@@ -59,7 +74,7 @@ export function ChatMessagesInsideThread({
                 key={`${message.id}-reasoning`}
                 reasoningSteps={message.parts
                   ?.filter((part) => part.type === "reasoning")
-                  .map((part) => part.reasoning)}
+                  .map((part) => part.text)}
                 messageId={message.id}
                 isReasoning={
                   !(loadingStatus === "ready") && idx === messages.length - 1
@@ -67,24 +82,21 @@ export function ChatMessagesInsideThread({
               />
             )}
             {message.parts?.map((part, partId) => {
-              if (part.type === "tool-invocation") {
+              if (isToolPart(part)) {
                 const validated =
-                  getValidationStatus(
-                    message.annotations,
-                    part.toolInvocation.toolCallId,
-                  ) ?? "not_required";
-                const stopped = getStoppedStatus(
-                  message.annotations,
-                  part.toolInvocation.toolCallId,
-                );
+                  getValidationStatus(message.metadata, part.toolCallId) ??
+                  "not_required";
                 return (
-                  <div
-                    key={`${message.id}-tool-${part.toolInvocation.toolCallId}`}
-                  >
+                  <div key={`${message.id}-tool-${part.toolCallId}`}>
                     <ChatMessageTool
                       threadId={threadId}
-                      tool={part.toolInvocation}
-                      stopped={stopped}
+                      tool={part}
+                      stopped={
+                        message.metadata?.toolCalls?.some(
+                          (e) =>
+                            e.toolCallId == part.toolCallId && !e.isComplete,
+                        ) || false
+                      }
                       availableTools={availableTools}
                       addToolResult={addToolResult}
                       validated={validated}
@@ -109,7 +121,7 @@ export function ChatMessagesInsideThread({
             })}
           </div>
         ) : (
-          <ChatMessageHuman key={message.id} content={message.content} />
+          <ChatMessageHuman key={message.id} content={getLastText(message)} />
         ),
       )}
       {loadingStatus !== "ready" && <ChatMessageLoading />}
