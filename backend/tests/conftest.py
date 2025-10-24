@@ -113,7 +113,7 @@ def fake_tool():
         description_frontend: ClassVar[str] = "Great description frontend"
         metadata: FakeToolMetadata
         input_schema: FakeToolInput
-        hil: ClassVar[bool] = True
+        hil: ClassVar[bool] = False
 
         async def arun(self) -> FakeToolOutput:
             if self.metadata.planet:

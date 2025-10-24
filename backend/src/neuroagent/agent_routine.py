@@ -231,7 +231,7 @@ class AgentsRoutine:
             active_agent = agent
             content = await messages_to_openai_content(messages)
             history = copy.deepcopy(content)
-            tool_map = {tool.name: tool for tool in agent.tools}
+
             turns = 0
             metadata_data = []
 
@@ -240,6 +240,8 @@ class AgentsRoutine:
                 yield f"data: {json.dumps({'type': 'start', 'messageId': f'msg_{uuid.uuid4().hex}'})}\n\n"
 
             while turns <= max_turns:
+                # We need to redefine the tool map since the tools can change on agent switch.
+                tool_map = {tool.name: tool for tool in active_agent.tools}
                 # Force an AI message once max turns reached.
                 # I.e. we do a total number of turns of max_turns + 1
                 # The +1 being the final AI message.
