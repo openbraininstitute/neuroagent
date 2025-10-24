@@ -1,0 +1,16 @@
+[
+  {
+    "name": "entitycore-brainregion-getall",
+    "arguments": {
+        "semantic_search": "thalamus"
+    }
+  },
+  {
+    "name": "entitycore-ionchannelrecording-getall",
+    "arguments": {
+      "within_brain_region_brain_region_id": "75e3944e-8dcd-4310-a3a2-258f93de63d6",
+      "page": 1,
+      "page_size": 10
+    }
+  }
+]

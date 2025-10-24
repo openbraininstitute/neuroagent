@@ -137,7 +137,7 @@
         {
           "name": "entitycore-brainregion-getall",
           "arguments": {
-            "semantic_search": "cerebellum"
+            "semantic_search": "Cerebellum"
           }
         },
         {
@@ -856,7 +856,7 @@
           "score": 1.0,
           "success": true,
           "threshold": 0.5,
-          "reason": "The score is 1.00 because there were no incorrect tool calls, indicating that the input was handled perfectly."
+          "reason": "The score is 1.00 because there are no incorrect tool calls or issues with the input."
         }
       ],
       "created_at": "2025-10-24 15:06:56.680084"
@@ -881,7 +881,14 @@
     },
     "ai_response": "## Overview \\u2014 How to run simulations on the Open Brain Platform\\n\\nBelow I give a concise, step\\u2011by\\u2011step workflow you can follow to create and run simulations on the platform, plus practical tips, common simulation types, and where to find help.\\n\\n### 1) Choose the simulation scale and objective\\n- Decide the scale you need:\\n  - **single** \\u2014 single neuron (electrophysiology, ion channels)\\n  - **pair** \\u2014 two connected neurons\\n  - **small / microcircuit** \\u2014 local circuits (tens to hundreds of neurons)\\n  - **region / system / whole_brain** \\u2014 atlas-driven, larger-scale simulations\\n- Define the objective (example: test an e\\u2011model against in vitro recordings, test connectivity motifs, run synaptome-driven response to stimulation).\\n\\n### 2) Identify/prepare model ingredients (assets & data)\\n- Select or locate required artifacts on the platform:\\n  - **morphologies** (neuron reconstructions)\\n  - **e\\u2011models** (electrical channel models)\\n  - **me\\u2011models** (morphology + e\\u2011model combinations)\\n  - **synaptome / connectivity** datasets\\n  - **circuit templates** (prebuilt microcircuits or region models)\\n  - **experimental stimuli** (current injection protocols, input spike trains)\\n- Use the Atlas/Entity browser to find entries for the target species/brain region. (Tip: Resolve brain regions to their platform IDs before queries when using programmatic APIs.)\\n\\n### 3) Build or select a circuit configuration\\n- Option A \\u2014 Use an existing circuit/campaign:\\n  - Browse public circuits or simulation campaigns and fork or re-use their configuration.\\n- Option B \\u2014 Create a new circuit:\\n  - Define population composition (cell types, counts, spatial placement)\\n  - Define connectivity (intrinsic/extrinsic, synapse models, delays)\\n  - Define external inputs and stimulation protocols\\n  - Set recording probes / outputs (voltage traces, spike times, network metrics)\\n\\nImportant: When creating atlas-based region circuits, specify the brain region ID (platform UUID) and hierarchy if required.\\n\\n### 4) Create the simulation configuration\\n- The platform uses structured JSON configuration files for simulation runs (circuit id, solver settings, run length, time step, random seeds, output targets).\\n- Use the platform\\u2019s simulation configuration UI or the simulation config generator/notebooks to produce the final config.\\n- If you modify an existing configuration, produce a complete description of the final configuration (not only diffs) \\u2014 the platform expects the full state.\\n\\n### 5) Validate components (optional but recommended)\\n- Validate me\\u2011models / e\\u2011models with short test runs (single neurons) to ensure expected firing patterns.\\n- Validate connectivity with small, quick dry\\u2011runs to confirm there are no missing assets or mismatched species/region IDs.\\n\\n### 6) Launch the simulation\\n- From the web UI:\\n  - Open the simulation or circuit page \\u2192 \\u201cRun\\u201d (choose compute resources / run parameters) \\u2192 start.\\n- From the API / programmatic interface:\\n  - Submit the complete simulation configuration JSON and create a simulation execution.\\n- Monitor status: created \\u2192 pending \\u2192 running \\u2192 done / error.\\n\\n### 7) Retrieve and analyze outputs\\n- Outputs commonly available:\\n  - Membrane potentials, spike times, synaptic currents, network metrics\\n  - Summary statistics and visualizations (raster, PSTH, voltage traces)\\n- Download raw files or use platform notebooks for post\\u2011processing and plots.\\n- If further analysis is needed, you can rerun with additional probes or longer durations.\\n\\n### 8) Iterate and refine\\n- Adjust model parameters (ion channel densities, synaptic weights, connection probabilities)\\n- Rerun shorter tests before full production runs\\n- Use parameter sweeps or simulation campaigns for systematic exploration\\n\\n---\\n\\n## Practical tips & constraints\\n- Start small: run a few short validation simulations before scaling up.\\n- Use seeds for reproducibility.\\n- When building atlas-based circuits, always use the platform brain region UUID (not free text).\\n- For heavy runs (microcircuit, region, whole_brain), check available compute resources and queue times.\\n- Use provided notebooks for common analyses (single neuron fitting, synaptome-based connectivity).\\n\\n---\\n\\n## Where to get help and next actions\\n- Use the platform Tutorials / Docs for step\\u2011by\\u2011step examples (single neuron \\u2192 microcircuit \\u2192 region).\\n- If you want, tell me:\\n  - Which scale you want (single / pair / small / microcircuit / region / system / whole_brain)\\n  - What species / brain region / cell types you want to use\\n  - Whether you prefer the UI or API/notebook route\\nI can then generate a ready\\u2011to\\u2011use simulation configuration (JSON) or a checklist tailored to your case.\\n\\nWould you like me to prepare a simulation config for a specific use case? If yes, provide the circuit ID (if you have one) or the scale and target brain region and I\\u2019ll generate the configuration.",
     "actual_tool_calls": {
-      "tool_calls": []
+      "tool_calls": [
+        {
+          "name": "obi-expert",
+          "arguments": {
+            "document_type": "tutorial"
+          }
+        }
+      ]
     },
     "results": {
       "metrics": [
@@ -894,17 +901,17 @@
         },
         {
           "name": "Tool Correctness",
-          "score": 0.0,
-          "success": false,
-          "threshold": 0.5,
-          "reason": "Incorrect tool usage: missing tools ['obi-expert'] and out-of-order tools ['obi-expert']; expected ['obi-expert'], called []. See more details above."
-        },
-        {
-          "name": "Argument Correctness",
           "score": 1.0,
           "success": true,
           "threshold": 0.5,
-          "reason": "No tool calls provided"
+          "reason": "Correct ordering: all expected tools ['obi-expert'] were called in the correct order."
+        },
+        {
+          "name": "Argument Correctness",
+          "score": 0.0,
+          "success": false,
+          "threshold": 0.5,
+          "reason": "The score is 0.00 because there was no input parameter provided to address the simulation query, which is essential for a valid response."
         }
       ],
       "created_at": "2025-10-24 15:06:56.680095"
