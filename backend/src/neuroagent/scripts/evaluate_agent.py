@@ -414,7 +414,10 @@ async def eval_sample(
             # Send the request to chat_streamed using the previously created thread
             response = await client.post(
                 f"{url}/qa/chat_streamed/{thread_id}",
-                json={"content": test_case["input"]},
+                json={
+                    "content": test_case["input"],
+                    "frontend_url": "https://staging.openbraininstitute.org/app/virtual-lab/82b783eb-fac6-45ec-a928-84322e3a9672/7ef8dc29-233a-4c01-94b8-8c1420105304/data/browse/entity/cell-morphology?br_id=2a156e47-0842-4a40-bd1e-2afffb4dbafd&br_av=477",
+                },
             )
             # Delete the original thread
         finally:
