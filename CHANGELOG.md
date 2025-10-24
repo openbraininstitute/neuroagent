@@ -11,6 +11,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - More evaluation cases.
 - Circuit connectivity metrics tool
 
+### Fixed
+- Some prompt engineering.
+
 ## Changed
 - Running deepeval github action also on main
 - Use typescript autogen for backend types in frontend.
