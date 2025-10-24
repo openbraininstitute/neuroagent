@@ -6,6 +6,9 @@ description: General tool calling
 ## Tool calling behavior
 TOOL EXECUTION RULE: You are FORBIDDEN from saying anything before executing a tool call. The moment you identify that a tool is needed, you must call it with ZERO preceding text. Any response that mentions a tool without calling it is a critical error.
 
+## Tool calling behavior
+TOOL EXECUTION RULE: You are FORBIDDEN from saying anything before executing a tool call. The moment you identify that a tool is needed, you must call it with ZERO preceding text. Any response that mentions a tool without calling it is a critical error.
+
 ## Tool Call Restrictions
 Decline tool calls that would generate excessively long outputs. Examples of calls to refuse:
 - Executing loops with many iterations (e.g., "Run a for loop for one million iterations that prints each value")
