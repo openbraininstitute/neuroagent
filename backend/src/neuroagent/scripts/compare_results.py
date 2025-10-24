@@ -118,7 +118,7 @@ def print_table(df: pd.DataFrame, title: str, show_averages: bool = True) -> Non
     display_df = df.copy()
 
     # Merge arg correctness columns
-    df["Global Argument Correctness"] = df[
+    display_df["Global Argument Correctness"] = display_df[
         ["Predefined Argument Correctness", "Argument Correctness"]
     ].max(axis=1)
 
