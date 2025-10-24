@@ -1,1 +1,1 @@
-Where can I find the simulation section in the platform ?
+where to find the explore button
