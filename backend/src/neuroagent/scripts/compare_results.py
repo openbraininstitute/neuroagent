@@ -117,11 +117,6 @@ def print_table(df: pd.DataFrame, title: str, show_averages: bool = True) -> Non
     # Format the DataFrame for display
     display_df = df.copy()
 
-    # Merge arg correctness columns
-    display_df["Global Argument Correctness"] = display_df[
-        ["Predefined Argument Correctness", "Argument Correctness"]
-    ].max(axis=1)
-
     # Format numeric columns with colors
     for col in display_df.columns:
         if pd.api.types.is_numeric_dtype(display_df[col]):
@@ -157,14 +152,6 @@ def print_comparison_table(
     if old_df.empty and new_df.empty:
         print("No data available for comparison.")
         return
-
-    old_df["Global Argument Correctness"] = old_df[
-        ["Predefined Argument Correctness", "Argument Correctness"]
-    ].max(axis=1)
-
-    new_df["Global Argument Correctness"] = new_df[
-        ["Predefined Argument Correctness", "Argument Correctness"]
-    ].max(axis=1)
 
     # Perform outer join to include all test cases
     combined_df = old_df.join(new_df, how="outer", rsuffix="_new", lsuffix="_old")

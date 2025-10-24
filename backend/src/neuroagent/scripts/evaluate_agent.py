@@ -343,6 +343,47 @@ def collect_test_case_results(
     # Prepare evaluation results with validation and timestamp
     eval_results = EvaluationResults(**evaluation_results)
 
+    # Compute overall arg correctness
+    deterministic_arg_correctness = next(
+        (
+            metric
+            for metric in eval_results.metrics
+            if metric.name == "Deterministic Argument Correctness"
+        ),
+        None,
+    )
+    non_deterministic_arg_correctness = next(
+        (
+            metric
+            for metric in eval_results.metrics
+            if metric.name == "Argument Correctness"
+        ),
+        None,
+    )
+    if deterministic_arg_correctness and non_deterministic_arg_correctness:
+        eval_results.metrics.append(
+            MetricResult(
+                name="Overall Argument Correctness",
+                score=max(
+                    deterministic_arg_correctness.score,
+                    non_deterministic_arg_correctness.score,
+                ),
+                success=max(
+                    deterministic_arg_correctness.score,
+                    non_deterministic_arg_correctness.score,
+                )
+                >= max(
+                    deterministic_arg_correctness.threshold,
+                    non_deterministic_arg_correctness.threshold,
+                ),
+                threshold=max(
+                    deterministic_arg_correctness.threshold,
+                    non_deterministic_arg_correctness.threshold,
+                ),
+                reason="",
+            )
+        )
+
     return {
         # Input data
         "user": test_case["input"],
@@ -514,14 +555,14 @@ async def run_eval(
     # 2. Tool Correctness Metric
     tool_correctness = ToolCorrectnessMetric(should_consider_ordering=True)
 
-    class PredefinedArgCorrectnessMetric(ToolCorrectnessMetric):
+    class DeterministicArgCorrectnessMetric(ToolCorrectnessMetric):
         """Override the name attribute."""
 
         @property
-        def __name__(self) -> Literal["Predefined Argument Correctness"]:
-            return "Predefined Argument Correctness"
+        def __name__(self) -> Literal["Deterministic Argument Correctness"]:
+            return "Deterministic Argument Correctness"
 
-    tool_arguments_strict = PredefinedArgCorrectnessMetric(
+    tool_arguments_strict = DeterministicArgCorrectnessMetric(
         evaluation_params=[ToolCallParams.INPUT_PARAMETERS], include_reason=True
     )
 
