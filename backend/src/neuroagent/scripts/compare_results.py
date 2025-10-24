@@ -117,6 +117,11 @@ def print_table(df: pd.DataFrame, title: str, show_averages: bool = True) -> Non
     # Format the DataFrame for display
     display_df = df.copy()
 
+    # Merge arg correctness columns
+    df["Global Argument Correctness"] = df[
+        ["Predefined Argument Correctness", "Argument Correctness"]
+    ].max(axis=1)
+
     # Format numeric columns with colors
     for col in display_df.columns:
         if pd.api.types.is_numeric_dtype(display_df[col]):
