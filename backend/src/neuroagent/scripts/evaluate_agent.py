@@ -10,7 +10,7 @@ import os
 import re
 from datetime import datetime
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal
 
 import httpx
 import pandas as pd
@@ -513,7 +513,15 @@ async def run_eval(
 
     # 2. Tool Correctness Metric
     tool_correctness = ToolCorrectnessMetric(should_consider_ordering=True)
-    tool_arguments = ToolCorrectnessMetric(
+
+    class ArgumentCorrectnessMetric(ToolCorrectnessMetric):
+        """Override the name attribute."""
+
+        @property
+        def __name__(self) -> Literal["Argument Correctness"]:
+            return "Argument Correctness"
+
+    tool_arguments = ArgumentCorrectnessMetric(
         evaluation_params=[ToolCallParams.INPUT_PARAMETERS], include_reason=True
     )
 
