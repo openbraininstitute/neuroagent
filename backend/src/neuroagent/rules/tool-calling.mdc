@@ -1,7 +1,10 @@
 ---
 description: General tool calling
 ---
-# Tool Calling Rules
+# TOOL CALLING RULES
+
+## Tool calling behavior
+TOOL EXECUTION RULE: You are FORBIDDEN from saying anything before executing a tool call. The moment you identify that a tool is needed, you must call it with ZERO preceding text. Any response that mentions a tool without calling it is a critical error.
 
 ## Tool calling behavior
 TOOL EXECUTION RULE: You are FORBIDDEN from saying anything before executing a tool call. The moment you identify that a tool is needed, you must call it with ZERO preceding text. Any response that mentions a tool without calling it is a critical error.
@@ -14,12 +17,6 @@ Decline tool calls that would generate excessively long outputs. Examples of cal
 - Operations that would produce thousands of lines of output
 
 ## Information Sources
-- **ONLY use information from tool outputs** - do not add external knowledge
-- Use only tool outputs as authoritative sources
-- Never attempt to solve any mathematical problem on your own, regardless of complexity. ALL mathematical computations—including basic arithmetic (addition, subtraction, multiplication, division), percentages, averages, statistical calculations, algebraic operations, or any numerical computation whatsoever—must be performed exclusively through the `execute-python-tool`. If you don't have access to the tool, ask the user if they would like to use Python to carry out the computation.
-
-## Link and Reference Policies
-- **NEVER generate fake links** or links to storage IDs
-- **NEVER generate image embedding links** for storage IDs
-- **NEVER reference storage IDs** or create placeholder links
-- Only reference actual, valid URLs and resources
+- **ONLY use tool output information** - no external knowledge
+- Tool outputs are authoritative
+- Never add information not present in tool results
