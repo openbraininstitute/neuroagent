@@ -15,7 +15,7 @@ from typing import Any, Literal
 import httpx
 import pandas as pd
 from deepeval.evaluate import evaluate
-from deepeval.metrics import GEval, ToolCorrectnessMetric
+from deepeval.metrics import ArgumentCorrectnessMetric, GEval, ToolCorrectnessMetric
 from deepeval.test_case import LLMTestCase, LLMTestCaseParams, ToolCall, ToolCallParams
 from dotenv import load_dotenv
 from pydantic import BaseModel, Field
@@ -514,20 +514,23 @@ async def run_eval(
     # 2. Tool Correctness Metric
     tool_correctness = ToolCorrectnessMetric(should_consider_ordering=True)
 
-    class ArgumentCorrectnessMetric(ToolCorrectnessMetric):
+    class PredefinedArgCorrectnessMetric(ToolCorrectnessMetric):
         """Override the name attribute."""
 
         @property
-        def __name__(self) -> Literal["Argument Correctness"]:
-            return "Argument Correctness"
+        def __name__(self) -> Literal["Predefined Argument Correctness"]:
+            return "Predefined Argument Correctness"
 
-    tool_arguments = ArgumentCorrectnessMetric(
+    tool_arguments_strict = PredefinedArgCorrectnessMetric(
         evaluation_params=[ToolCallParams.INPUT_PARAMETERS], include_reason=True
     )
 
+    tool_arguments = ArgumentCorrectnessMetric(model="gpt-4o-mini")
+
     # === Run Evaluation ===
     results = evaluate(
-        deepeval_test_cases, [answer_relevance, tool_correctness, tool_arguments]
+        deepeval_test_cases,
+        [answer_relevance, tool_correctness, tool_arguments, tool_arguments_strict],
     )
 
     # Collect individual results for detailed.json
