@@ -21,6 +21,13 @@ class CircuitMetricGetOneToolIntput(
     circuit_id: UUID = Field(
         description="ID of the circuit from which the metrics should be computed."
     )
+    # Overriding the query params since the autogen turned them into som wild root models that are not model_dumpable
+    level_of_detail_nodes: int = Field(
+        ge=0, le=3, default=1, description="Level of detail for nodes in the response."
+    )
+    level_of_detail_edges: int = Field(
+        ge=0, le=3, default=1, description="Level of detail for edges in the response."
+    )
 
 
 class CircuitMetricGetOneToolMetadata(BaseMetadata):
