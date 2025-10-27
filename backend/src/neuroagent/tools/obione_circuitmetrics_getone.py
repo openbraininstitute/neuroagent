@@ -22,10 +22,10 @@ class CircuitMetricGetOneToolIntput(
         description="ID of the circuit from which the metrics should be computed."
     )
     # Overriding the query params since the autogen turned them into som wild root models that are not model_dumpable
-    level_of_detail_nodes: int = Field(
+    level_of_detail_nodes: int = Field(  # type: ignore[assignment]
         ge=0, le=3, default=1, description="Level of detail for nodes in the response."
     )
-    level_of_detail_edges: int = Field(
+    level_of_detail_edges: int = Field(  # type: ignore[assignment]
         ge=0, le=3, default=1, description="Level of detail for edges in the response."
     )
 
