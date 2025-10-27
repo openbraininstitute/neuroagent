@@ -3,10 +3,6 @@ description: Entitycore tools
 ---
 # ENTITYCORE TOOLS
 
-## Tool Purpose
-- Use EntityCore **only** for platform-specific data retrieval
-- Use literature/web search for broader knowledge queries
-
 ## Brain Region ID Resolution
 
 **MANDATORY workflow:**
