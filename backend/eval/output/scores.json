@@ -3,9 +3,11 @@
   "metrics_df": [
     {
       "test_name": "cerebellum_morphologies",
-      "Correctness [GEval]": 0.5313502053579773,
+      "Correctness [GEval]": 0.42985730859619575,
       "Tool Correctness": 1.0,
-      "Argument Correctness": 0.5
+      "Argument Correctness": 0.5,
+      "Deterministic Argument Correctness": 0.25,
+      "Overall Argument Correctness": 0.5
     },
     {
       "test_name": "connectivity_metrics",
@@ -21,52 +23,68 @@
     },
     {
       "test_name": "matplotlib_plot",
-      "Correctness [GEval]": 0.5845302086655813,
+      "Correctness [GEval]": 0.5090979516160261,
       "Tool Correctness": 1.0,
-      "Argument Correctness": 1.0
+      "Argument Correctness": 0.3333333333333333,
+      "Deterministic Argument Correctness": 0.2857142857142857,
+      "Overall Argument Correctness": 0.3333333333333333
     },
     {
       "test_name": "morphology_studies",
-      "Correctness [GEval]": 0.3052110152316635,
+      "Correctness [GEval]": 0.258452705743922,
       "Tool Correctness": 0.0,
-      "Argument Correctness": 0.0
+      "Argument Correctness": 0.0,
+      "Deterministic Argument Correctness": 0.0,
+      "Overall Argument Correctness": 0.0
     },
     {
       "test_name": "neuroscientists_search",
-      "Correctness [GEval]": 0.2525209218583996,
-      "Tool Correctness": 1.0,
-      "Argument Correctness": 1.0
+      "Correctness [GEval]": 0.2840726523146641,
+      "Tool Correctness": 0.0,
+      "Argument Correctness": 1.0,
+      "Deterministic Argument Correctness": 0.0,
+      "Overall Argument Correctness": 1.0
     },
     {
       "test_name": "platform_news",
-      "Correctness [GEval]": 0.4402513556363611,
+      "Correctness [GEval]": 0.7102199120289623,
       "Tool Correctness": 1.0,
-      "Argument Correctness": 0.0
+      "Argument Correctness": 0.0,
+      "Deterministic Argument Correctness": 1.0,
+      "Overall Argument Correctness": 1.0
     },
     {
       "test_name": "simulation_tutorial",
-      "Correctness [GEval]": 0.38366733584607526,
+      "Correctness [GEval]": 0.3325023002133673,
       "Tool Correctness": 0.0,
-      "Argument Correctness": 1.0
+      "Argument Correctness": 1.0,
+      "Deterministic Argument Correctness": 0.0,
+      "Overall Argument Correctness": 1.0
     },
     {
       "test_name": "sin_plot",
-      "Correctness [GEval]": 0.6964667410546495,
-      "Tool Correctness": 1.0,
-      "Argument Correctness": 1.0
+      "Correctness [GEval]": 0.5720062186243481,
+      "Tool Correctness": 0.5,
+      "Argument Correctness": 1.0,
+      "Deterministic Argument Correctness": 0.0,
+      "Overall Argument Correctness": 1.0
     },
     {
       "test_name": "species_list",
-      "Correctness [GEval]": 0.5816528515665584,
+      "Correctness [GEval]": 0.5906138101866618,
       "Tool Correctness": 1.0,
-      "Argument Correctness": 1.0
+      "Argument Correctness": 1.0,
+      "Deterministic Argument Correctness": 1.0,
+      "Overall Argument Correctness": 1.0
     },
     {
       "test_name": "thalamus_id",
-      "Correctness [GEval]": 0.3829280705040444,
+      "Correctness [GEval]": 0.6620104649469456,
       "Tool Correctness": 1.0,
-      "Argument Correctness": 1.0
+      "Argument Correctness": 1.0,
+      "Deterministic Argument Correctness": 0.0,
+      "Overall Argument Correctness": 1.0
     }
   ],
-  "created_at": "2025-10-27 12:53:47.930371"
+  "created_at": "2025-10-24 17:29:18.973511"
 }
