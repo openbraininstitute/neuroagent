@@ -1,0 +1,23 @@
+---
+description: Obi-One tools usage patterns
+---
+# Obi-One Tool Guidelines
+
+## Key Tool Purposes
+
+- **`entitycore-circuit-getone`**: Basic metadata only (name, ID, status)
+- **`entitycore-circuit-getall`**: List of all circuits with basic metadata
+- **`obione-circuitmetrics-getone`**: Circuit structure, populations, properties
+- **`obione-circuitconnectivitymetrics-getone`**: Connection probabilities and synapses counts
+
+## Tool Usage Sequence
+
+When analyzing circuits, very often you you will need to use the tools in the following order:
+
+1. **`obione-circuitmetrics-getone`** - Get circuit structure first
+   - Use `level_of_detail_nodes=1` to get available edge populations and node sets
+   - This provides the foundation for connectivity analysis
+
+2. **`obione-circuitconnectivitymetrics-getone`** - Analyze connectivity patterns
+   - Use edge populations and node sets from step 1
+   - Essential for understanding excitatory/inhibitory connections
