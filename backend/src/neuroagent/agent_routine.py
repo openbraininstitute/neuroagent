@@ -76,7 +76,8 @@ class AgentsRoutine:
         if stream:
             create_params["stream_options"] = {"include_usage": True}
         if agent.model == "gpt-5-mini":
-            create_params["reasoning_effort"] = "minimal"
+            create_params["reasoning_effort"] = "low"
+            create_params["verbosity"] = "low"
 
         if tools:
             create_params["parallel_tool_calls"] = agent.parallel_tool_calls
