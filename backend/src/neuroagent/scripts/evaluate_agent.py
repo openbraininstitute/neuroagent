@@ -392,7 +392,7 @@ def collect_test_case_results(
         "params": test_case["params"].model_dump(),
         # Output data
         "ai_response": decoded_response["response"],
-        "actual_tool_calls": actual_tool_calls.model_dump(),
+        "actual_tool_calls": actual_tool_calls.model_dump()["tool_calls"],
         "results": eval_results.model_dump(),
     }
 
