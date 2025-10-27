@@ -77,7 +77,7 @@ Returns connection probabilities and mean synapse counts between pre/post synapt
         )
 
         connectivity_metrics_response = await self.metadata.httpx_client.post(
-            url=f"{self.metadata.obi_one_url}/declared/connectivity-metrics/{self.input_schema.circuit_id}",
+            url=f"{self.metadata.obi_one_url}/declared/connectivity-metrics/{{circuit_id}}",  # circuit_id is passed in the body due to a bug in obi-one
             headers=headers,
             json=request_body,
         )

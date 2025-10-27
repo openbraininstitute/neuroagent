@@ -1,4 +1,4 @@
-"""Tests ObiOne Morphometrics tool - simplified descriptions."""
+"""Tests ObiOne Morphometrics tool."""
 
 import uuid
 
