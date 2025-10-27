@@ -19,6 +19,26 @@ class CircuitConnectivityMetricsGetOneToolInput(ConnectivityMetricsRequest):
     circuit_id: UUID = Field(  # type: ignore[assignment]
         description="ID of the circuit from which the connectivity metrics should be computed."
     )
+    pre_selection: dict[str, str | list[str]] = Field(
+        default_factory=dict,  # there is a bug in obi-one that does not allow sending null for this field
+        description=(
+            "Additional filter for pre-synaptic neurons in Sonata nodeset JSON format. "
+            "Applied on top of pre_node_set if present. "
+            'Format: {"property": "value"} or {"property": ["val1", "val2"]}. '
+            'Example: {"mtype": "L2/3PC"} filters to L2/3 pyramidal cells. '
+            "If not provided, only pre_node_set filter is applied."
+        ),
+    )
+    post_selection: dict[str, str | list[str]] = Field(
+        default_factory=dict,  # there is a bug in obi-one that does not allow sending null for this field
+        description=(
+            "Additional filter for post-synaptic neurons in Sonata nodeset JSON format. "
+            "Applied on top of post_node_set if present. "
+            'Format: {"property": "value"} or {"property": ["val1", "val2"]}. '
+            'Example: {"mtype": "L5PC"} filters to L5 pyramidal cells. '
+            "If not provided, only post_node_set filter is applied."
+        ),
+    )
 
 
 class CircuitConnectivityMetricsGetOneToolMetadata(BaseMetadata):
@@ -47,18 +67,25 @@ class CircuitConnectivityMetricsGetOneTool(BaseTool):
         "- Get connection probabilities between pre/post synaptic groups\n"
         "- Calculate mean synapse counts per connection\n"
         "- Group results by properties (mtype, layer, etc.)\n\n"
-        "**Prerequisites:** Call `obione-circuitmetrics-getone` first to get available edge populations and node sets.\n\n"
+        "**Prerequisites:** Call `obione-circuitmetrics-getone` first to get available edge populations, node sets, property names and possible property values.\n\n"
+        "**Neuron filtering (optional):**\n"
+        "- `pre_node_set`/`post_node_set`: 'Excitatory', 'Inhibitory', or custom selections\n"
+        "- `pre_selection`: Additional filter for pre-synaptic neurons (applied on top of pre_node_set)\n"
+        "- `post_selection`: Additional filter for post-synaptic neurons (applied on top of post_node_set)\n"
+        '- Format: `{"property": "value"}` or `{"property": ["val1", "val2"]}`\n'
+        '- Example: `{"mtype": "L2/3PC"}` filters to L2/3 pyramidal cells\n\n'
         "**Common parameters:**\n"
         "- `edge_population`: e.g., 'S1nonbarrel_neurons__S1nonbarrel_neurons__chemical'\n"
-        "- `pre_node_set`/`post_node_set`: 'Excitatory', 'Inhibitory', or custom selections\n"
         "- `group_by`: 'mtype', 'layer', 'synapse_class', etc.\n\n"
-        "**Example:** Analyze excitatory→inhibitory connections grouped by morphological type."
+        "**Example:** Analyze L2/3 pyramidal cells → L5 pyramidal cells connections grouped by morphological type."
     )
     description_frontend: ClassVar[
         str
     ] = """Analyze connectivity patterns between neuron groups.
 
-Returns connection probabilities and mean synapse counts between pre/post synaptic groups, grouped by specified criteria (e.g., mtype, layer)."""
+Returns connection probabilities and mean synapse counts between pre/post synaptic groups, grouped by specified criteria (e.g., mtype, layer).
+
+Supports optional pre_selection and post_selection parameters as additional filters on top of node sets."""
     metadata: CircuitConnectivityMetricsGetOneToolMetadata
     input_schema: CircuitConnectivityMetricsGetOneToolInput
 
@@ -71,7 +98,7 @@ Returns connection probabilities and mean synapse counts between pre/post synapt
             headers["project_id"] = str(self.metadata.project_id)
 
         request_body = self.input_schema.model_dump(
-            exclude_defaults=True,
+            exclude_defaults=False,  # we want to send all fields, even those with default values to fix a bug in obi-one
             mode="json",
             # exclude={"circuit_id"}  # theere is a bug in obi-one that requires to be both a path and request body parameter
         )
