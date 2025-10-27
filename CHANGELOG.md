@@ -9,7 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - More evaluation cases.
-- Filtering logic in `neuroagent.scripts.evaluate_agent`
+- Filtering logic in `neuroagent.scripts.evaluate_agent`.
+- Ion channel related tools.
 
 ### Fixed
 - Some prompt engineering.
