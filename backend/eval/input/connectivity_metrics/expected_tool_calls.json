@@ -11,8 +11,8 @@
     "arguments": {
       "circuit_id": "2eb602ea-9ffc-42a2-9fb7-5234921343d0",
       "edge_population": "S1nonbarrel_neurons__S1nonbarrel_neurons__chemical",
-      "pre_node_set": "Excitatory",
-      "post_node_set": "Inhibitory",
+      "pre_node_set": "Inhibitory",
+      "post_node_set": "Excitatory",
       "group_by": "mtype"
     }
   }

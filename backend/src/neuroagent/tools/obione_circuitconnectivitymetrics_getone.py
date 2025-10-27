@@ -21,6 +21,11 @@ class CircuitConnectivityMetricsGetOneToolInput(
     circuit_id: UUID = Field(  # type: ignore[assignment]
         description="ID of the circuit from which the connectivity metrics should be computed."
     )
+    # there is a bug in obi-one that does not allow sending null for this field so instead we force this to be a required field
+    group_by: str = Field(
+        description="Morphological type of the neuron.",
+    )
+
     # there is a bug in obi-one that does not allow sending null for these fields, so we set default to empty dict
     pre_selection: dict[str, str | list[str]] = Field(
         default_factory=dict,
@@ -102,9 +107,16 @@ Supports optional pre_selection and post_selection parameters as additional filt
             headers["project_id"] = str(self.metadata.project_id)
 
         request_body = self.input_schema.model_dump(
-            exclude_defaults=False,  # we want to send all fields, even those with default values to fix a bug in obi-one
+            exclude_defaults=False,
             mode="json",
         )
+
+        # we want to ensure that pre_selection and post_selection are always sent as empty dicts if not provided, to fix a bug in obi-one
+        if request_body.get("pre_selection") is None:
+            request_body["pre_selection"] = {}
+
+        if request_body.get("post_selection") is None:
+            request_body["post_selection"] = {}
 
         connectivity_metrics_response = await self.metadata.httpx_client.post(
             url=f"{self.metadata.obi_one_url}/declared/connectivity-metrics/{{circuit_id}}",  # circuit_id is passed in the body due to a bug in obi-one
