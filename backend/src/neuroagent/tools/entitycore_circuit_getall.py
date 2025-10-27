@@ -73,10 +73,6 @@ class CircuitGetAllTool(BaseTool):
     • Find circuits by various criteria
     • Access basic circuit metadata
 
-    **Note**: This tool provides only basic metadata. For detailed circuit analysis, use:
-    • `obione-circuitmetrics-getone` - Get comprehensive circuit metrics
-    • `obione-circuitconnectivitymetrics-getone` - Analyze connectivity patterns
-
     Specify optional criteria to find relevant circuits."""
     metadata: EntitycoreMetadata
     input_schema: CircuitGetAllInput

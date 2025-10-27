@@ -38,13 +38,9 @@ class CircuitGetOneTool(BaseTool):
     - `obione-circuitmetrics-getone` - circuit structure and properties
     - `obione-circuitconnectivitymetrics-getone` - connectivity patterns
     """
-    description_frontend: ClassVar[
-        str
-    ] = """Get basic circuit metadata (name, ID, status, timestamps).
-    
-    For detailed analysis, use:
-    • `obione-circuitmetrics-getone` - circuit structure and properties  
-    • `obione-circuitconnectivitymetrics-getone` - connectivity patterns"""
+    description_frontend: ClassVar[str] = (
+        """Get basic circuit metadata (name, ID, status, timestamps)."""
+    )
     metadata: EntitycoreMetadata
     input_schema: CircuitGetOneInput
 
