@@ -14,7 +14,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Some prompt engineering.
 - Output class of circuit population tool.
+<<<<<<< HEAD
+- Prevent the LLM from talking about the UI.
+=======
 - Tool argument correctness metric.
+>>>>>>> main
 
 ## Changed
 - Running deepeval github action also on main
