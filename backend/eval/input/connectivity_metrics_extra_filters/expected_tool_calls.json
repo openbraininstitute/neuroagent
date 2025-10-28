@@ -2,8 +2,7 @@
   {
     "name": "obione-circuitmetrics-getone",
     "arguments": {
-      "circuit_id": "2eb602ea-9ffc-42a2-9fb7-5234921343d0",
-      "level_of_detail_nodes": 1
+      "circuit_id": "2eb602ea-9ffc-42a2-9fb7-5234921343d0"
     }
   },
   {

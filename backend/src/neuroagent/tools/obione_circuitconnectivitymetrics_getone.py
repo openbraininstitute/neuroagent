@@ -35,6 +35,7 @@ class CircuitConnectivityMetricsGetOneToolInput(
             'Format: {"property": "value"} or {"property": ["val1", "val2"]}. '
             'Example: {"mtype": "L2/3PC"} filters to L2/3 pyramidal cells. '
             "Note: Inspect the `property_unique_values` of the corresponding node population in the `obione-circuitmetrics-getone` tool output to see valid values. "
+            "If filtering on layer, provide it as a string (e.g., 'L2/3', 'L4', 'L5', 'L6'), not as an integer. "
             "If not provided, only pre_node_set filter is applied."
         ),
     )
@@ -47,6 +48,7 @@ class CircuitConnectivityMetricsGetOneToolInput(
             'Format: {"property": "value"} or {"property": ["val1", "val2"]}. '
             'Example: {"mtype": "L5PC"} filters to L5 pyramidal cells. '
             "Note: Inspect the `property_unique_values` of the corresponding node population in the `obione-circuitmetrics-getone` tool output to see valid values. "
+            "If filtering on layer, provide it as a string (e.g., 'L2/3', 'L4', 'L5', 'L6'), not as an integer. "
             "If not provided, only post_node_set filter is applied."
         ),
     )
