@@ -1,0 +1,91 @@
+type MorphologyMetrics {
+  """ID of the morphology in the database."""
+  id: String!
+
+  """Aspect ratio of the morphology."""
+  aspectRatio: Float!
+
+  """Circularity of the morphology points along the plane."""
+  circularity: Float!
+
+  """Length fraction of segments with midpoints higher than soma."""
+  lengthFractionAboveSoma: Float!
+
+  """Maximum radial distance from the soma in micrometers."""
+  maxRadialDistance: Float!
+
+  """Number of neurites in the morphology."""
+  numberOfNeurites: Int!
+
+  """Radius of the soma in micrometers."""
+  somaRadius: Float!
+
+  """Surface area of the soma in square micrometers."""
+  somaSurfaceArea: Float!
+
+  """Total length of the morphology neurites in micrometers."""
+  totalLength: Float!
+
+  """Total height (Y-range) of the morphology in micrometers."""
+  totalHeight: Float!
+
+  """Total width (X-range) of the morphology in micrometers."""
+  totalWidth: Float!
+
+  """Total depth (Z-range) of the morphology in micrometers."""
+  totalDepth: Float!
+
+  """Total surface area of all sections in square micrometers."""
+  totalArea: Float!
+
+  """Total volume of all sections in cubic micrometers."""
+  totalVolume: Float!
+
+  """Distribution of lengths per section in micrometers."""
+  sectionLengths: MultipleValuesContainer!
+
+  """Distribution of radii of the morphology in micrometers."""
+  segmentRadii: MultipleValuesContainer!
+
+  """Number of sections in the morphology."""
+  numberOfSections: Int!
+
+  """Angles between sections computed at bifurcation (local) in radians."""
+  localBifurcationAngles: MultipleValuesContainer!
+
+  """Angles between sections computed at section ends (remote) in radians."""
+  remoteBifurcationAngles: MultipleValuesContainer!
+
+  """Path distances from soma to section endpoints in micrometers."""
+  sectionPathDistances: MultipleValuesContainer!
+
+  """Radial distance from soma to section endpoints in micrometers."""
+  sectionRadialDistances: MultipleValuesContainer!
+
+  """Distribution of branch orders of sections, computed from soma."""
+  sectionBranchOrders: MultipleValuesContainer!
+
+  """
+  Distribution of strahler branch orders of sections, computed from terminals.
+  """
+  sectionStrahlerOrders: MultipleValuesContainer!
+}
+
+type MultipleValuesContainer {
+  """The list of individual values."""
+  values: [Float!]!
+
+  """The number of values in the list."""
+  length: Int!
+
+  """The arithmetic mean of all values."""
+  mean: Float!
+
+  """The standard deviation of all values."""
+  std: Float!
+}
+
+type Query {
+  """Get morphology metrics for one or more cell morphology IDs."""
+  morphologyMetrics(cellMorphologyIds: [String!]!): [MorphologyMetrics!]!
+}
