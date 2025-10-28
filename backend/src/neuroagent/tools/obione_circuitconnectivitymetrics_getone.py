@@ -35,7 +35,8 @@ class CircuitConnectivityMetricsGetOneToolInput(
             'Format: {"property": "value"} or {"property": ["val1", "val2"]}. '
             'Example: {"mtype": "L2/3PC"} filters to L2/3 pyramidal cells. '
             "Note: Inspect the `property_unique_values` of the corresponding node population in the `obione-circuitmetrics-getone` tool output to see valid values. "
-            "If filtering on layer, provide it as a string (e.g., 'L2/3', 'L4', 'L5', 'L6'), not as an integer. "
+            "IMPORTANT: All property values must be provided as strings, never as integers or other data types. "
+            "For layer filtering, use string integers like '2', '3', '4', '5', '6' instead of numeric values. "
             "If not provided, only pre_node_set filter is applied."
         ),
     )
@@ -48,7 +49,8 @@ class CircuitConnectivityMetricsGetOneToolInput(
             'Format: {"property": "value"} or {"property": ["val1", "val2"]}. '
             'Example: {"mtype": "L5PC"} filters to L5 pyramidal cells. '
             "Note: Inspect the `property_unique_values` of the corresponding node population in the `obione-circuitmetrics-getone` tool output to see valid values. "
-            "If filtering on layer, provide it as a string (e.g., 'L2/3', 'L4', 'L5', 'L6'), not as an integer. "
+            "IMPORTANT: All property values must be provided as strings, never as integers or other data types. "
+            "For layer filtering, use string integers like '2', '3', '4', '5', '6' instead of numeric values. "
             "If not provided, only post_node_set filter is applied."
         ),
     )
@@ -82,6 +84,7 @@ class CircuitConnectivityMetricsGetOneTool(BaseTool):
         "- Group results by properties (mtype, layer, etc.)\n\n"
         "**Prerequisites:** Call `obione-circuitmetrics-getone` first to get available edge populations, node sets, property names and possible property values.\n\n"
         "**Neuron filtering (optional):**\n"
+        '**IMPORTANT:** All property values in pre_selection and post_selection must be provided as strings (e.g., `{"layer": "2"}` not `{"layer": 2}`).\\n\\n'
         "- `pre_node_set`/`post_node_set`: 'Excitatory', 'Inhibitory', or custom selections\n"
         "- `pre_selection`: Additional filter for pre-synaptic neurons (applied on top of pre_node_set)\n"
         "- `post_selection`: Additional filter for post-synaptic neurons (applied on top of post_node_set)\n"
