@@ -1762,7 +1762,7 @@ class SubjectID(BaseModel):
 class MagnesiumValue(RootModel[float]):
     root: float = Field(
         ...,
-        description='Extracellular calcium concentration in millimoles (mM).',
+        description='Extracellular magnesium concentration in millimoles (mM).',
         ge=0.0,
         title='Extracellular Magnesium Concentration',
     )
@@ -1779,7 +1779,7 @@ class SynapticMgManipulation(BaseModel):
     type: Literal['SynapticMgManipulation'] = Field(..., title='Type')
     magnesium_value: MagnesiumValue | list[MagnesiumValueItem] = Field(
         default=2.4,
-        description='Extracellular calcium concentration in millimoles (mM).',
+        description='Extracellular magnesium concentration in millimoles (mM).',
         title='Extracellular Magnesium Concentration',
     )
 
