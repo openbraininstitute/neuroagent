@@ -59,6 +59,8 @@ class IonChannelModelGetAllTool(BaseTool):
     - The mtypes.
     - Any additional metadata.
 
+    An ion channel model is used in simulations. Also used to create e-model.
+    An ion channel model is a concrete ion channel, as opposed to the `entitycore-ionchannel-*` tools that return a more abstract reference to a given ion channel.
     We explicitly exclude the contributions but you can access them using the Get One Ion Channel Model tool.
     """
     description_frontend: ClassVar[

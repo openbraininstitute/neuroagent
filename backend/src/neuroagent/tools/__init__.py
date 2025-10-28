@@ -55,11 +55,19 @@ from neuroagent.tools.entitycore_experimentalsynapsesperconnection_getall import
 from neuroagent.tools.entitycore_experimentalsynapsesperconnection_getone import (
     ExperimentalSynapsesPerConnectionGetOneTool,
 )
+from neuroagent.tools.entitycore_ionchannel_getall import IonChannelGetAllTool
+from neuroagent.tools.entitycore_ionchannel_getone import IonChannelGetOneTool
 from neuroagent.tools.entitycore_ionchannelmodel_getall import (
     IonChannelModelGetAllTool,
 )
 from neuroagent.tools.entitycore_ionchannelmodel_getone import (
     IonChannelModelGetOneTool,
+)
+from neuroagent.tools.entitycore_ionchannelrecording_getall import (
+    IonChannelRecordingGetAllTool,
+)
+from neuroagent.tools.entitycore_ionchannelrecording_getone import (
+    IonChannelRecordingGetOneTool,
 )
 from neuroagent.tools.entitycore_measurementannotation_getall import (
     MeasurementAnnotationGetAllTool,
@@ -182,8 +190,12 @@ __all__ = [
     "ExperimentalSynapsesPerConnectionGetAllTool",
     "ExperimentalSynapsesPerConnectionGetOneTool",
     "GenerateSimulationsConfigTool",
+    "IonChannelGetAllTool",
+    "IonChannelGetOneTool",
     "IonChannelModelGetAllTool",
     "IonChannelModelGetOneTool",
+    "IonChannelRecordingGetAllTool",
+    "IonChannelRecordingGetOneTool",
     "MeasurementAnnotationGetAllTool",
     "MeasurementAnnotationGetOneTool",
     "MEModelGetAllTool",
