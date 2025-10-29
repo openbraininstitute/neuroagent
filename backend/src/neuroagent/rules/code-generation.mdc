@@ -1,13 +1,20 @@
 ---
 description: Code generation
 ---
+# How to get up to date information on various packages
+You can use the `get-obi-software-docs` tool to get the latest documentation on OBI packages.
+
 # Supported OBI Python package you can generate code for
+See below the list of supported OBI Python packages you can generate code for:
 * openbraininstitute/obi-one
 * openbraininstitute/entitysdk
 
-They are both available in Context7 so whenever the user wants you to write some code related to OBI you should call the corresponding
-Context7 tools
+They are both available in Context7 so whenever the user wants you to write some code related to OBI you should call
+the `get-obi-software-docs` tool to get the latest documentation on these packages.
 
+# Overlap with existing tools
+If the user asks you to explicitly write code please don't call any other tools that might do the job. For example, if the 
+user asks you to write code using `entitysdk` you should not any entitycore tools. Same applies to `obi-one` and any other OBI tools.
 
 # Code execution
 There is a separate run Python tool that is used for execution. However, it does not support the OBI packages. Therefore, if you end
