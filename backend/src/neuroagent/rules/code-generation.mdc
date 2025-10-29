@@ -5,9 +5,15 @@ description: Code generation
 You can use the `get-obi-software-docs` tool to get the latest documentation on OBI packages.
 
 # Supported OBI Python package you can generate code for
-See below the list of supported OBI Python packages you can generate code for:
+See below the list of library ids supported OBI Python packages you can generate code for:
 * openbraininstitute/obi-one
 * openbraininstitute/entitysdk
+
+They are both available in Context7 so whenever the user wants you to write some code related to OBI you should call
+the `get-obi-software-docs` tool to get the latest documentation on these packages. There is no need to call the `resolve-library-id` for OBI packages as you already know their library ids.
+
+# Getting documentation for open source packages outside OBI
+You can also get documentation for open source packages outside of OBI using the `get-obi-software-docs` tool, but first you need to get the library identifier using the `resolve-library-id` tool. Once you have the identifier, you can then use it with `get-obi-software-docs` to retrieve the documentation.
 
 # Overlap with existing tools
 If the user asks you to explicitly write code please don't call any other tools that might do the job. For example, if the 
