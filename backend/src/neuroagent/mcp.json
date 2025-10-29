@@ -1,4 +1,8 @@
 {
+    "context7": {
+      "command": "npx",
+      "args": ["-y", "@upstash/context7-mcp"]
+    },
     "exa": {
       "command": "npx",
       "args": ["-y", "exa-mcp-server@0.3.10", "--tools=web_search_exa,research_paper_search,crawling"],
