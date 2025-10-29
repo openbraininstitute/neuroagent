@@ -8,3 +8,7 @@ description: Code generation
 They are both available in Context7 so whenever the user wants you to write some code related to OBI you should call the corresponding
 Context7 tools
 
+
+# Code execution
+There is a separate run Python tool that is used for execution. However, it does not support the OBI packages. Therefore, if you end
+up generating code that uses OBI packages you should not suggest to run it with the run Python tool.
