@@ -617,6 +617,26 @@ class MEModelFromID(BaseModel):
     type: Literal['MEModelFromID'] = Field(..., title='Type')
 
 
+class MEModelWithSynapsesCircuit(BaseModel):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    name: str = Field(..., title='Name')
+    path: str = Field(..., title='Path')
+    matrix_path: str | None = Field(default=None, title='Matrix Path')
+    type: Literal['MEModelWithSynapsesCircuit'] = Field(..., title='Type')
+
+
+class MEModelWithSynapsesCircuitFromID(BaseModel):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    id_str: str = Field(
+        ..., description='ID of the entity in string format.', title='Id Str'
+    )
+    type: Literal['MEModelWithSynapsesCircuitFromID'] = Field(..., title='Type')
+
+
 class MTypeClassification(BaseModel):
     model_config = ConfigDict(
         extra='ignore',
@@ -1551,9 +1571,7 @@ class SomaVoltageRecording(BaseModel):
         extra='ignore',
     )
     type: Literal['SomaVoltageRecording'] = Field(..., title='Type')
-    neuron_set: NeuronSetReference = Field(
-        ..., description='Neuron set to record from.', title='Neuron Set'
-    )
+    neuron_set: NeuronSetReference | None = None
     dt: Dt1 | list[DtItem] | NonNegativeFloatRange = Field(
         default=0.1,
         description='Interval between recording time steps in milliseconds (ms).',
@@ -1762,7 +1780,7 @@ class SubjectID(BaseModel):
 class MagnesiumValue(RootModel[float]):
     root: float = Field(
         ...,
-        description='Extracellular calcium concentration in millimoles (mM).',
+        description='Extracellular magnesium concentration in millimoles (mM).',
         ge=0.0,
         title='Extracellular Magnesium Concentration',
     )
@@ -1779,7 +1797,7 @@ class SynapticMgManipulation(BaseModel):
     type: Literal['SynapticMgManipulation'] = Field(..., title='Type')
     magnesium_value: MagnesiumValue | list[MagnesiumValueItem] = Field(
         default=2.4,
-        description='Extracellular calcium concentration in millimoles (mM).',
+        description='Extracellular magnesium concentration in millimoles (mM).',
         title='Extracellular Magnesium Concentration',
     )
 
@@ -1827,9 +1845,7 @@ class TimeWindowSomaVoltageRecording(BaseModel):
         extra='ignore',
     )
     type: Literal['TimeWindowSomaVoltageRecording'] = Field(..., title='Type')
-    neuron_set: NeuronSetReference = Field(
-        ..., description='Neuron set to record from.', title='Neuron Set'
-    )
+    neuron_set: NeuronSetReference | None = None
     dt: Dt1 | list[DtItem] | NonNegativeFloatRange = Field(
         default=0.1,
         description='Interval between recording time steps in milliseconds (ms).',
@@ -2352,9 +2368,7 @@ class ObiOneScientificTasksGenerateSimulationConfigsCircuitSimulationScanConfigI
     random_seed: list[int] | int = Field(
         default=1, description='Random seed for the simulation.', title='Random Seed'
     )
-    node_set: NeuronSetReference = Field(
-        ..., description='Neuron set to simulate.', title='Neuron Set'
-    )
+    node_set: NeuronSetReference | None = None
 
 
 class Circuit2(RootModel[MEModelCircuit | MEModelFromID]):
@@ -2389,6 +2403,69 @@ class ObiOneScientificTasksGenerateSimulationConfigsMEModelSimulationScanConfigI
         ..., description='ME Model to simulate.', title='ME Model'
     )
     simulation_length: SimulationLength2 | SimulationLength3 = Field(
+        default=1000.0,
+        description='Simulation length in milliseconds (ms).',
+        title='Duration',
+    )
+    extracellular_calcium_concentration: (
+        list[ExtracellularCalciumConcentrationItem] | ExtracellularCalciumConcentration
+    ) = Field(
+        default=1.1,
+        description='Extracellular calcium concentration around the synapse in millimoles (mM). Increasing this value increases the probability of synaptic vesicle release, which in turn increases the level of network activity. In vivo values are estimated to be ~0.9-1.2mM, whilst in vitro values are on the order of 2mM.',
+        title='Extracellular Calcium Concentration',
+    )
+    v_init: list[float] | float = Field(
+        default=-80.0,
+        description='Initial membrane potential in millivolts (mV).',
+        title='Initial Voltage',
+    )
+    random_seed: list[int] | int = Field(
+        default=1, description='Random seed for the simulation.', title='Random Seed'
+    )
+
+
+class Circuit3(
+    RootModel[MEModelWithSynapsesCircuit | MEModelWithSynapsesCircuitFromID]
+):
+    root: MEModelWithSynapsesCircuit | MEModelWithSynapsesCircuitFromID = Field(
+        ..., discriminator='type'
+    )
+
+
+class SimulationLength4(SimulationLength):
+    pass
+
+
+class SimulationLength5Item(SimulationLength1Item):
+    pass
+
+
+class SimulationLength5(RootModel[list[SimulationLength5Item]]):
+    root: list[SimulationLength5Item] = Field(
+        ...,
+        description='Simulation length in milliseconds (ms).',
+        min_length=1,
+        title='Duration',
+    )
+
+
+class ObiOneScientificTasksGenerateSimulationConfigsMEModelWithSynapsesCircuitSimulationScanConfigInitialize(
+    BaseModel
+):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    type: Literal['MEModelWithSynapsesCircuitSimulationScanConfig.Initialize'] = Field(
+        ..., title='Type'
+    )
+    circuit: (
+        MEModelWithSynapsesCircuit | MEModelWithSynapsesCircuitFromID | list[Circuit3]
+    ) = Field(
+        ...,
+        description='MEModel with synapses to simulate.',
+        title='MEModel With Synapses',
+    )
+    simulation_length: SimulationLength4 | SimulationLength5 = Field(
         default=1000.0,
         description='Simulation length in milliseconds (ms).',
         title='Duration',
@@ -2498,20 +2575,20 @@ class ObiOneScientificTasksMorphologyMetricsMorphologyMetricsScanConfigInitializ
     )
 
 
-class Circuit3(Circuit1):
+class Circuit4(Circuit1):
     pass
 
 
-class SimulationLength4(SimulationLength):
+class SimulationLength6(SimulationLength):
     pass
 
 
-class SimulationLength5Item(SimulationLength1Item):
+class SimulationLength7Item(SimulationLength1Item):
     pass
 
 
-class SimulationLength5(RootModel[list[SimulationLength5Item]]):
-    root: list[SimulationLength5Item] = Field(
+class SimulationLength7(RootModel[list[SimulationLength7Item]]):
+    root: list[SimulationLength7Item] = Field(
         ...,
         description='Simulation length in milliseconds (ms).',
         min_length=1,
@@ -2524,10 +2601,10 @@ class ObiOneScientificUnionsAliasesSimulationsFormInitialize(BaseModel):
         extra='ignore',
     )
     type: Literal['SimulationsForm.Initialize'] = Field(..., title='Type')
-    circuit: Circuit | CircuitFromID | list[Circuit3] = Field(
+    circuit: Circuit | CircuitFromID | list[Circuit4] = Field(
         ..., description='Circuit to simulate.', title='Circuit'
     )
-    simulation_length: SimulationLength4 | SimulationLength5 = Field(
+    simulation_length: SimulationLength6 | SimulationLength7 = Field(
         default=1000.0,
         description='Simulation length in milliseconds (ms).',
         title='Duration',
@@ -2547,9 +2624,7 @@ class ObiOneScientificUnionsAliasesSimulationsFormInitialize(BaseModel):
     random_seed: list[int] | int = Field(
         default=1, description='Random seed for the simulation.', title='Random Seed'
     )
-    node_set: NeuronSetReference = Field(
-        ..., description='Neuron set to simulate.', title='Neuron Set'
-    )
+    node_set: NeuronSetReference | None = None
 
 
 class SamplePercentage28(SamplePercentage):
@@ -2872,11 +2947,7 @@ class ConstantCurrentClampSomaticStimulus(BaseModel):
         description='Timestamps at which the stimulus is applied.',
         title='Timestamps',
     )
-    neuron_set: NeuronSetReference = Field(
-        ...,
-        description='Neuron set to which the stimulus is applied.',
-        title='Neuron Set',
-    )
+    neuron_set: NeuronSetReference | None = None
     timestamp_offset: float | list[float] | None = Field(
         default=0.0,
         description='The offset of the stimulus relative to each timestamp in milliseconds (ms).',
@@ -2965,8 +3036,8 @@ class FullySynchronousSpikeStimulus(BaseModel):
         description='Timestamps at which the stimulus is applied.',
         title='Timestamps',
     )
-    source_neuron_set: NeuronSetReference = Field(..., title='Neuron Set (Source)')
-    targeted_neuron_set: NeuronSetReference = Field(..., title='Neuron Set (Target)')
+    source_neuron_set: NeuronSetReference | None = None
+    targeted_neuron_set: NeuronSetReference | None = None
     timestamp_offset: float | list[float] | None = Field(
         default=0.0,
         description='The offset of the stimulus relative to each timestamp in milliseconds (ms).',
@@ -2993,11 +3064,7 @@ class HyperpolarizingCurrentClampSomaticStimulus(BaseModel):
         description='Timestamps at which the stimulus is applied.',
         title='Timestamps',
     )
-    neuron_set: NeuronSetReference = Field(
-        ...,
-        description='Neuron set to which the stimulus is applied.',
-        title='Neuron Set',
-    )
+    neuron_set: NeuronSetReference | None = None
     timestamp_offset: float | list[float] | None = Field(
         default=0.0,
         description='The offset of the stimulus relative to each timestamp in milliseconds (ms).',
@@ -3078,11 +3145,7 @@ class LinearCurrentClampSomaticStimulus(BaseModel):
         description='Timestamps at which the stimulus is applied.',
         title='Timestamps',
     )
-    neuron_set: NeuronSetReference = Field(
-        ...,
-        description='Neuron set to which the stimulus is applied.',
-        title='Neuron Set',
-    )
+    neuron_set: NeuronSetReference | None = None
     timestamp_offset: float | list[float] | None = Field(
         default=0.0,
         description='The offset of the stimulus relative to each timestamp in milliseconds (ms).',
@@ -3164,11 +3227,7 @@ class MultiPulseCurrentClampSomaticStimulus(BaseModel):
         description='Timestamps at which the stimulus is applied.',
         title='Timestamps',
     )
-    neuron_set: NeuronSetReference = Field(
-        ...,
-        description='Neuron set to which the stimulus is applied.',
-        title='Neuron Set',
-    )
+    neuron_set: NeuronSetReference | None = None
     timestamp_offset: float | list[float] | None = Field(
         default=0.0,
         description='The offset of the stimulus relative to each timestamp in milliseconds (ms).',
@@ -3208,11 +3267,7 @@ class NormallyDistributedCurrentClampSomaticStimulus(BaseModel):
         description='Timestamps at which the stimulus is applied.',
         title='Timestamps',
     )
-    neuron_set: NeuronSetReference = Field(
-        ...,
-        description='Neuron set to which the stimulus is applied.',
-        title='Neuron Set',
-    )
+    neuron_set: NeuronSetReference | None = None
     timestamp_offset: float | list[float] | None = Field(
         default=0.0,
         description='The offset of the stimulus relative to each timestamp in milliseconds (ms).',
@@ -3245,8 +3300,8 @@ class PoissonSpikeStimulus(BaseModel):
         description='Timestamps at which the stimulus is applied.',
         title='Timestamps',
     )
-    source_neuron_set: NeuronSetReference = Field(..., title='Neuron Set (Source)')
-    targeted_neuron_set: NeuronSetReference = Field(..., title='Neuron Set (Target)')
+    source_neuron_set: NeuronSetReference | None = None
+    targeted_neuron_set: NeuronSetReference | None = None
     timestamp_offset: float | list[float] | None = Field(
         default=0.0,
         description='The offset of the stimulus relative to each timestamp in milliseconds (ms).',
@@ -3281,11 +3336,7 @@ class RelativeConstantCurrentClampSomaticStimulus(BaseModel):
         description='Timestamps at which the stimulus is applied.',
         title='Timestamps',
     )
-    neuron_set: NeuronSetReference = Field(
-        ...,
-        description='Neuron set to which the stimulus is applied.',
-        title='Neuron Set',
-    )
+    neuron_set: NeuronSetReference | None = None
     timestamp_offset: float | list[float] | None = Field(
         default=0.0,
         description='The offset of the stimulus relative to each timestamp in milliseconds (ms).',
@@ -3317,11 +3368,7 @@ class RelativeLinearCurrentClampSomaticStimulus(BaseModel):
         description='Timestamps at which the stimulus is applied.',
         title='Timestamps',
     )
-    neuron_set: NeuronSetReference = Field(
-        ...,
-        description='Neuron set to which the stimulus is applied.',
-        title='Neuron Set',
-    )
+    neuron_set: NeuronSetReference | None = None
     timestamp_offset: float | list[float] | None = Field(
         default=0.0,
         description='The offset of the stimulus relative to each timestamp in milliseconds (ms).',
@@ -3360,11 +3407,7 @@ class RelativeNormallyDistributedCurrentClampSomaticStimulus(BaseModel):
         description='Timestamps at which the stimulus is applied.',
         title='Timestamps',
     )
-    neuron_set: NeuronSetReference = Field(
-        ...,
-        description='Neuron set to which the stimulus is applied.',
-        title='Neuron Set',
-    )
+    neuron_set: NeuronSetReference | None = None
     timestamp_offset: float | list[float] | None = Field(
         default=0.0,
         description='The offset of the stimulus relative to each timestamp in milliseconds (ms).',
@@ -3399,11 +3442,7 @@ class SinusoidalCurrentClampSomaticStimulus(BaseModel):
         description='Timestamps at which the stimulus is applied.',
         title='Timestamps',
     )
-    neuron_set: NeuronSetReference = Field(
-        ...,
-        description='Neuron set to which the stimulus is applied.',
-        title='Neuron Set',
-    )
+    neuron_set: NeuronSetReference | None = None
     timestamp_offset: float | list[float] | None = Field(
         default=0.0,
         description='The offset of the stimulus relative to each timestamp in milliseconds (ms).',
@@ -3441,11 +3480,7 @@ class SubthresholdCurrentClampSomaticStimulus(BaseModel):
         description='Timestamps at which the stimulus is applied.',
         title='Timestamps',
     )
-    neuron_set: NeuronSetReference = Field(
-        ...,
-        description='Neuron set to which the stimulus is applied.',
-        title='Neuron Set',
-    )
+    neuron_set: NeuronSetReference | None = None
     timestamp_offset: float | list[float] | None = Field(
         default=0.0,
         description='The offset of the stimulus relative to each timestamp in milliseconds (ms).',
@@ -3589,6 +3624,58 @@ class MEModelSimulationScanConfig(BaseModel):
     ) = Field(default=None, description='Stimuli for the simulation.', title='Stimuli')
 
 
+class MEModelWithSynapsesCircuitSimulationScanConfig(BaseModel):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    type: Literal['MEModelWithSynapsesCircuitSimulationScanConfig'] = Field(
+        ..., title='Type'
+    )
+    timestamps: dict[str, SingleTimestamp | RegularTimestamps] | None = Field(
+        default=None, description='Timestamps for the simulation.', title='Timestamps'
+    )
+    recordings: (
+        dict[str, SomaVoltageRecording | TimeWindowSomaVoltageRecording] | None
+    ) = Field(
+        default=None, description='Recordings for the simulation.', title='Recordings'
+    )
+    info: Info = Field(..., description='Information about the simulation campaign.')
+    neuron_sets: dict[str, NbS1VPMInputs | NbS1POmInputs] | None = Field(
+        default=None, description='Neuron sets for the simulation.', title='Neuron Sets'
+    )
+    synaptic_manipulations: (
+        dict[str, SynapticMgManipulation | ScaleAcetylcholineUSESynapticManipulation]
+        | None
+    ) = Field(
+        default=None,
+        description='Synaptic manipulations for the simulation.',
+        title='Synaptic Manipulations',
+    )
+    initialize: ObiOneScientificTasksGenerateSimulationConfigsMEModelWithSynapsesCircuitSimulationScanConfigInitialize = Field(
+        ...,
+        description='Parameters for initializing the simulation.',
+        title='Initialization',
+    )
+    stimuli: (
+        dict[
+            str,
+            ConstantCurrentClampSomaticStimulus
+            | HyperpolarizingCurrentClampSomaticStimulus
+            | LinearCurrentClampSomaticStimulus
+            | MultiPulseCurrentClampSomaticStimulus
+            | NormallyDistributedCurrentClampSomaticStimulus
+            | RelativeNormallyDistributedCurrentClampSomaticStimulus
+            | RelativeConstantCurrentClampSomaticStimulus
+            | RelativeLinearCurrentClampSomaticStimulus
+            | SinusoidalCurrentClampSomaticStimulus
+            | SubthresholdCurrentClampSomaticStimulus
+            | PoissonSpikeStimulus
+            | FullySynchronousSpikeStimulus,
+        ]
+        | None
+    ) = Field(default=None, description='Stimuli for the simulation.', title='Stimuli')
+
+
 class SimulationsForm(BaseModel):
     model_config = ConfigDict(
         extra='ignore',
@@ -3663,6 +3750,7 @@ class GridScanParametersCountEndpointDeclaredScanConfigGridScanCoordinateCountPo
         | MorphologyMetricsScanConfig
         | MorphologyLocationsScanConfig
         | IonChannelFittingScanConfig
+        | MEModelWithSynapsesCircuitSimulationScanConfig
     ]
 ):
     root: (
@@ -3680,4 +3768,5 @@ class GridScanParametersCountEndpointDeclaredScanConfigGridScanCoordinateCountPo
         | MorphologyMetricsScanConfig
         | MorphologyLocationsScanConfig
         | IonChannelFittingScanConfig
+        | MEModelWithSynapsesCircuitSimulationScanConfig
     ) = Field(..., discriminator='type', title='Scan Config')

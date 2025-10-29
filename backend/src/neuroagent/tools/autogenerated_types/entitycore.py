@@ -27,6 +27,10 @@ class ActivityType(
             'validation',
             'calibration',
             'analysis_notebook_execution',
+            'ion_channel_modeling_execution',
+            'ion_channel_modeling_config_generation',
+            'circuit_extraction_config_generation',
+            'circuit_extraction_execution',
         ]
     ]
 ):
@@ -36,6 +40,10 @@ class ActivityType(
         'validation',
         'calibration',
         'analysis_notebook_execution',
+        'ion_channel_modeling_execution',
+        'ion_channel_modeling_config_generation',
+        'circuit_extraction_config_generation',
+        'circuit_extraction_execution',
     ] = Field(..., description='Activity types.', title='ActivityType')
 
 
@@ -187,6 +195,7 @@ class AssetLabel(
             'emodel_optimization_output',
             'sonata_simulation_config',
             'simulation_generation_config',
+            'ion_channel_modeling_generation_config',
             'custom_node_sets',
             'campaign_generation_config',
             'campaign_summary',
@@ -210,6 +219,7 @@ class AssetLabel(
             'ion_channel_model_figure',
             'ion_channel_model_figure_summary_json',
             'ion_channel_model_thumbnail',
+            'circuit_extraction_config',
         ]
     ]
 ):
@@ -231,6 +241,7 @@ class AssetLabel(
         'emodel_optimization_output',
         'sonata_simulation_config',
         'simulation_generation_config',
+        'ion_channel_modeling_generation_config',
         'custom_node_sets',
         'campaign_generation_config',
         'campaign_summary',
@@ -254,6 +265,7 @@ class AssetLabel(
         'ion_channel_model_figure',
         'ion_channel_model_figure_summary_json',
         'ion_channel_model_thumbnail',
+        'circuit_extraction_config',
     ] = Field(..., description='See docs/asset-labels.md.', title='AssetLabel')
 
 
@@ -306,6 +318,20 @@ class BrainRegionCreate(BaseModel):
     color_hex_triplet: str = Field(..., title='Color Hex Triplet')
     parent_structure_id: UUID | None = Field(default=None, title='Parent Structure Id')
     hierarchy_id: UUID = Field(..., title='Hierarchy Id')
+
+
+class BrainRegionHierarchyAdminUpdate(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
+    name: str | None = Field(default='<NOT_SET>', title='Name')
+
+
+class BrainRegionHierarchyCreate(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
+    name: str = Field(..., title='Name')
 
 
 class BrainRegionRead(BaseModel):
@@ -367,6 +393,61 @@ class CircuitBuildCategory(
         ...,
         description='Information about how/from what source a circuit was built.\n\n- computational_model: Any type of data-driven or statistical model\n- em_reconstruction: Reconstruction from EM\n(More categories may be added later, if needed).',
         title='CircuitBuildCategory',
+    )
+
+
+class CircuitExtractionCampaignCreate(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
+    authorized_public: bool = Field(default=False, title='Authorized Public')
+    name: str = Field(..., title='Name')
+    description: str = Field(..., title='Description')
+    scan_parameters: dict[str, Any] = Field(..., title='Scan Parameters')
+
+
+class CircuitExtractionCampaignUserUpdate(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
+    name: str | None = Field(default='<NOT_SET>', title='Name')
+    description: str | None = Field(default='<NOT_SET>', title='Description')
+    scan_parameters: dict[str, Any] | str | None = Field(
+        default='<NOT_SET>', title='Scan Parameters'
+    )
+
+
+class CircuitExtractionConfigCreate(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
+    authorized_public: bool = Field(default=False, title='Authorized Public')
+    name: str = Field(..., title='Name')
+    description: str = Field(..., title='Description')
+    circuit_id: UUID = Field(..., title='Circuit Id')
+    scan_parameters: dict[str, Any] = Field(..., title='Scan Parameters')
+
+
+CircuitExtractionConfigGenerationCreate = CalibrationCreate
+
+
+class CircuitExtractionConfigUserUpdate(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
+    name: str | None = Field(default='<NOT_SET>', title='Name')
+    description: str | None = Field(default='<NOT_SET>', title='Description')
+    circuit_id: UUID | str | None = Field(default='<NOT_SET>', title='Circuit Id')
+    scan_parameters: dict[str, Any] | str | None = Field(
+        default='<NOT_SET>', title='Scan Parameters'
+    )
+
+
+class CircuitExtractionExecutionStatus(
+    RootModel[Literal['created', 'pending', 'running', 'done', 'error']]
+):
+    root: Literal['created', 'pending', 'running', 'done', 'error'] = Field(
+        ..., title='CircuitExtractionExecutionStatus'
     )
 
 
@@ -819,6 +900,8 @@ class EntityRoute(
             'experimental-synapses-per-connection',
             'external-url',
             'ion-channel-model',
+            'ion-channel-modeling-campaign',
+            'ion-channel-modeling-config',
             'ion-channel-recording',
             'memodel',
             'memodel-calibration-result',
@@ -833,6 +916,8 @@ class EntityRoute(
             'subject',
             'validation-result',
             'circuit',
+            'circuit-extraction-campaign',
+            'circuit-extraction-config',
             'em-dense-reconstruction-dataset',
             'em-cell-mesh',
             'analysis-notebook-template',
@@ -857,6 +942,8 @@ class EntityRoute(
         'experimental-synapses-per-connection',
         'external-url',
         'ion-channel-model',
+        'ion-channel-modeling-campaign',
+        'ion-channel-modeling-config',
         'ion-channel-recording',
         'memodel',
         'memodel-calibration-result',
@@ -871,6 +958,8 @@ class EntityRoute(
         'subject',
         'validation-result',
         'circuit',
+        'circuit-extraction-campaign',
+        'circuit-extraction-config',
         'em-dense-reconstruction-dataset',
         'em-cell-mesh',
         'analysis-notebook-template',
@@ -897,6 +986,8 @@ class EntityType(
             'experimental_synapses_per_connection',
             'external_url',
             'ion_channel_model',
+            'ion_channel_modeling_campaign',
+            'ion_channel_modeling_config',
             'ion_channel_recording',
             'memodel',
             'memodel_calibration_result',
@@ -911,6 +1002,8 @@ class EntityType(
             'subject',
             'validation_result',
             'circuit',
+            'circuit_extraction_campaign',
+            'circuit_extraction_config',
             'em_dense_reconstruction_dataset',
             'em_cell_mesh',
             'analysis_notebook_template',
@@ -935,6 +1028,8 @@ class EntityType(
         'experimental_synapses_per_connection',
         'external_url',
         'ion_channel_model',
+        'ion_channel_modeling_campaign',
+        'ion_channel_modeling_config',
         'ion_channel_recording',
         'memodel',
         'memodel_calibration_result',
@@ -949,6 +1044,8 @@ class EntityType(
         'subject',
         'validation_result',
         'circuit',
+        'circuit_extraction_campaign',
+        'circuit_extraction_config',
         'em_dense_reconstruction_dataset',
         'em_cell_mesh',
         'analysis_notebook_template',
@@ -1088,6 +1185,50 @@ class IonChannelCreate(BaseModel):
     label: str = Field(..., title='Label')
     gene: str = Field(..., title='Gene')
     synonyms: list[str] = Field(..., title='Synonyms')
+
+
+IonChannelModelingCampaignCreate = CircuitExtractionCampaignCreate
+
+
+IonChannelModelingCampaignUserUpdate = CircuitExtractionCampaignUserUpdate
+
+
+class IonChannelModelingConfigCreate(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
+    authorized_public: bool = Field(default=False, title='Authorized Public')
+    name: str = Field(..., title='Name')
+    description: str = Field(..., title='Description')
+    ion_channel_modeling_campaign_id: UUID = Field(
+        ..., title='Ion Channel Modeling Campaign Id'
+    )
+    scan_parameters: dict[str, Any] = Field(..., title='Scan Parameters')
+
+
+IonChannelModelingConfigGenerationCreate = CalibrationCreate
+
+
+class IonChannelModelingConfigUserUpdate(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
+    name: str | None = Field(default='<NOT_SET>', title='Name')
+    description: str | None = Field(default='<NOT_SET>', title='Description')
+    ion_channel_modeling_campaign_id: UUID | str | None = Field(
+        default='<NOT_SET>', title='Ion Channel Modeling Campaign Id'
+    )
+    scan_parameters: dict[str, Any] | str | None = Field(
+        default='<NOT_SET>', title='Scan Parameters'
+    )
+
+
+class IonChannelModelingExecutionStatus(
+    RootModel[Literal['created', 'pending', 'running', 'done', 'error']]
+):
+    root: Literal['created', 'pending', 'running', 'done', 'error'] = Field(
+        ..., title='IonChannelModelingExecutionStatus'
+    )
 
 
 class IonChannelRecordingCreate(BaseModel):
@@ -1383,6 +1524,20 @@ class NestedExternalUrlRead(BaseModel):
     source_name: str = Field(..., title='Source Name')
 
 
+class NestedIonChannelModelingConfigRead(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
+    id: UUID = Field(..., title='Id')
+    type: EntityType | None = None
+    name: str = Field(..., title='Name')
+    description: str = Field(..., title='Description')
+    ion_channel_modeling_campaign_id: UUID = Field(
+        ..., title='Ion Channel Modeling Campaign Id'
+    )
+    scan_parameters: dict[str, Any] = Field(..., title='Scan Parameters')
+
+
 class NestedIonChannelRead(BaseModel):
     model_config = ConfigDict(
         extra='allow',
@@ -1393,6 +1548,55 @@ class NestedIonChannelRead(BaseModel):
     label: str = Field(..., title='Label')
     gene: str = Field(..., title='Gene')
     synonyms: list[str] = Field(..., title='Synonyms')
+
+
+class NestedIonChannelRecordingRead(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
+    authorized_project_id: UUID4 = Field(..., title='Authorized Project Id')
+    authorized_public: bool = Field(default=False, title='Authorized Public')
+    type: EntityType | None = None
+    id: UUID = Field(..., title='Id')
+    experiment_date: AwareDatetime | None = Field(default=None, title='Experiment Date')
+    contact_email: str | None = Field(default=None, title='Contact Email')
+    published_in: str | None = Field(default=None, title='Published In')
+    name: str = Field(..., title='Name')
+    description: str = Field(..., title='Description')
+    ljp: float = Field(
+        default=0.0,
+        description='Correction applied to the voltage trace, in mV',
+        title='Liquid Junction Potential',
+    )
+    recording_location: list[str] = Field(
+        ...,
+        description='Location on the cell where recording was performed, in hoc-compatible format.',
+        title='Recording Location',
+    )
+    recording_type: ElectricalRecordingType = Field(
+        ...,
+        description="Recording type. One of: [<ElectricalRecordingStimulusType.conductance_clamp: 'conductance_clamp'>, <ElectricalRecordingStimulusType.current_clamp: 'current_clamp'>, <ElectricalRecordingStimulusType.extracellular: 'extracellular'>, <ElectricalRecordingStimulusType.other: 'other'>, <ElectricalRecordingStimulusType.unknown: 'unknown'>, <ElectricalRecordingStimulusType.voltage_clamp: 'voltage_clamp'>]",
+        title='Recording Type',
+    )
+    recording_origin: ElectricalRecordingOrigin = Field(
+        ...,
+        description="Recording origin. One of: [<ElectricalRecordingOrigin.in_silico: 'in_silico'>, <ElectricalRecordingOrigin.in_vitro: 'in_vitro'>, <ElectricalRecordingOrigin.in_vivo: 'in_vivo'>, <ElectricalRecordingOrigin.unknown: 'unknown'>]",
+        title='Recording Origin',
+    )
+    temperature: float | None = Field(
+        default=None,
+        description='Temperature at which the recording was performed, in degrees Celsius.',
+        title='Temperature',
+    )
+    comment: str | None = Field(
+        default=None, description='Comment with further details.', title='Comment'
+    )
+    legacy_id: list[str] | None = Field(default=None, title='Legacy Id')
+    cell_line: str = Field(
+        ...,
+        description='The cell line from which the ion channel was recorded',
+        title='Cell Line',
+    )
 
 
 class NestedModifiedReconstructionCellMorphologyProtocolRead(BaseModel):
@@ -3109,6 +3313,258 @@ class ReadManyCircuitGetParametersQuery(BaseModel):
     )
 
 
+class ReadManyCircuitExtractionCampaignGetParametersQuery(BaseModel):
+    page: int = Field(default=1, ge=1, title='Page')
+    page_size: int = Field(default=100, ge=1, title='Page Size')
+    name: str | None = Field(default=None, title='Name')
+    name__in: list[str] | None = Field(default=None, title='Name  In')
+    name__ilike: str | None = Field(default=None, title='Name  Ilike')
+    creation_date__lte: AwareDatetime | None = Field(
+        default=None, title='Creation Date  Lte'
+    )
+    creation_date__gte: AwareDatetime | None = Field(
+        default=None, title='Creation Date  Gte'
+    )
+    update_date__lte: AwareDatetime | None = Field(
+        default=None, title='Update Date  Lte'
+    )
+    update_date__gte: AwareDatetime | None = Field(
+        default=None, title='Update Date  Gte'
+    )
+    authorized_public: bool | None = Field(default=None, title='Authorized Public')
+    authorized_project_id: UUID | None = Field(
+        default=None, title='Authorized Project Id'
+    )
+    id: UUID | None = Field(default=None, title='Id')
+    id__in: list[UUID] | None = Field(default=None, title='Id  In')
+    order_by: list[str] = Field(default=['-creation_date'], title='Order By')
+    contribution__pref_label: str | None = Field(
+        default=None, title='Contribution  Pref Label'
+    )
+    contribution__pref_label__in: list[str] | None = Field(
+        default=None, title='Contribution  Pref Label  In'
+    )
+    contribution__pref_label__ilike: str | None = Field(
+        default=None, title='Contribution  Pref Label  Ilike'
+    )
+    contribution__id: UUID | None = Field(default=None, title='Contribution  Id')
+    contribution__id__in: list[UUID] | None = Field(
+        default=None, title='Contribution  Id  In'
+    )
+    created_by__pref_label: str | None = Field(
+        default=None, title='Created By  Pref Label'
+    )
+    created_by__pref_label__in: list[str] | None = Field(
+        default=None, title='Created By  Pref Label  In'
+    )
+    created_by__pref_label__ilike: str | None = Field(
+        default=None, title='Created By  Pref Label  Ilike'
+    )
+    created_by__id: UUID | None = Field(default=None, title='Created By  Id')
+    created_by__id__in: list[UUID] | None = Field(
+        default=None, title='Created By  Id  In'
+    )
+    updated_by__pref_label: str | None = Field(
+        default=None, title='Updated By  Pref Label'
+    )
+    updated_by__pref_label__in: list[str] | None = Field(
+        default=None, title='Updated By  Pref Label  In'
+    )
+    updated_by__pref_label__ilike: str | None = Field(
+        default=None, title='Updated By  Pref Label  Ilike'
+    )
+    updated_by__id: UUID | None = Field(default=None, title='Updated By  Id')
+    updated_by__id__in: list[UUID] | None = Field(
+        default=None, title='Updated By  Id  In'
+    )
+    search: str | None = Field(default=None, title='Search')
+    with_facets: bool = Field(default=False, title='With Facets')
+    within_brain_region_hierarchy_id: UUID | None = Field(
+        default=None, title='Within Brain Region Hierarchy Id'
+    )
+    within_brain_region_brain_region_id: UUID | None = Field(
+        default=None, title='Within Brain Region Brain Region Id'
+    )
+    within_brain_region_ascendants: bool = Field(
+        default=False, title='Within Brain Region Ascendants'
+    )
+
+
+class ReadManyCircuitExtractionConfigGetParametersQuery(BaseModel):
+    page: int = Field(default=1, ge=1, title='Page')
+    page_size: int = Field(default=100, ge=1, title='Page Size')
+    creation_date__lte: AwareDatetime | None = Field(
+        default=None, title='Creation Date  Lte'
+    )
+    creation_date__gte: AwareDatetime | None = Field(
+        default=None, title='Creation Date  Gte'
+    )
+    update_date__lte: AwareDatetime | None = Field(
+        default=None, title='Update Date  Lte'
+    )
+    update_date__gte: AwareDatetime | None = Field(
+        default=None, title='Update Date  Gte'
+    )
+    authorized_public: bool | None = Field(default=None, title='Authorized Public')
+    authorized_project_id: UUID | None = Field(
+        default=None, title='Authorized Project Id'
+    )
+    id: UUID | None = Field(default=None, title='Id')
+    id__in: list[UUID] | None = Field(default=None, title='Id  In')
+    name: str | None = Field(default=None, title='Name')
+    name__in: list[str] | None = Field(default=None, title='Name  In')
+    name__ilike: str | None = Field(default=None, title='Name  Ilike')
+    circuit_id: UUID | None = Field(default=None, title='Circuit Id')
+    circuit_id__in: list[UUID] | None = Field(default=None, title='Circuit Id  In')
+    circuit_extraction_campaign_id: UUID | None = Field(
+        default=None, title='Circuit Extraction Campaign Id'
+    )
+    circuit_extraction_campaign_id__in: list[UUID] | None = Field(
+        default=None, title='Circuit Extraction Campaign Id  In'
+    )
+    order_by: list[str] = Field(default=['-creation_date'], title='Order By')
+    contribution__pref_label: str | None = Field(
+        default=None, title='Contribution  Pref Label'
+    )
+    contribution__pref_label__in: list[str] | None = Field(
+        default=None, title='Contribution  Pref Label  In'
+    )
+    contribution__pref_label__ilike: str | None = Field(
+        default=None, title='Contribution  Pref Label  Ilike'
+    )
+    contribution__id: UUID | None = Field(default=None, title='Contribution  Id')
+    contribution__id__in: list[UUID] | None = Field(
+        default=None, title='Contribution  Id  In'
+    )
+    created_by__pref_label: str | None = Field(
+        default=None, title='Created By  Pref Label'
+    )
+    created_by__pref_label__in: list[str] | None = Field(
+        default=None, title='Created By  Pref Label  In'
+    )
+    created_by__pref_label__ilike: str | None = Field(
+        default=None, title='Created By  Pref Label  Ilike'
+    )
+    created_by__id: UUID | None = Field(default=None, title='Created By  Id')
+    created_by__id__in: list[UUID] | None = Field(
+        default=None, title='Created By  Id  In'
+    )
+    updated_by__pref_label: str | None = Field(
+        default=None, title='Updated By  Pref Label'
+    )
+    updated_by__pref_label__in: list[str] | None = Field(
+        default=None, title='Updated By  Pref Label  In'
+    )
+    updated_by__pref_label__ilike: str | None = Field(
+        default=None, title='Updated By  Pref Label  Ilike'
+    )
+    updated_by__id: UUID | None = Field(default=None, title='Updated By  Id')
+    updated_by__id__in: list[UUID] | None = Field(
+        default=None, title='Updated By  Id  In'
+    )
+    circuit__scale: CircuitScale | None = Field(default=None, title='Circuit  Scale')
+    circuit__scale__in: list[CircuitScale] | None = Field(
+        default=None, title='Circuit  Scale  In'
+    )
+    circuit__build_category: CircuitBuildCategory | None = Field(
+        default=None, title='Circuit  Build Category'
+    )
+    circuit__build_category__in: list[CircuitBuildCategory] | None = Field(
+        default=None, title='Circuit  Build Category  In'
+    )
+    circuit__name: str | None = Field(default=None, title='Circuit  Name')
+    circuit__name__in: list[str] | None = Field(default=None, title='Circuit  Name  In')
+    circuit__name__ilike: str | None = Field(default=None, title='Circuit  Name  Ilike')
+    circuit__id: UUID | None = Field(default=None, title='Circuit  Id')
+    circuit__id__in: list[UUID] | None = Field(default=None, title='Circuit  Id  In')
+    search: str | None = Field(default=None, title='Search')
+    with_facets: bool = Field(default=False, title='With Facets')
+    within_brain_region_hierarchy_id: UUID | None = Field(
+        default=None, title='Within Brain Region Hierarchy Id'
+    )
+    within_brain_region_brain_region_id: UUID | None = Field(
+        default=None, title='Within Brain Region Brain Region Id'
+    )
+    within_brain_region_ascendants: bool = Field(
+        default=False, title='Within Brain Region Ascendants'
+    )
+
+
+ReadManyCircuitExtractionConfigGenerationGetParametersQuery = (
+    ReadManyCalibrationGetParametersQuery
+)
+
+
+class ReadManyCircuitExtractionExecutionGetParametersQuery(BaseModel):
+    page: int = Field(default=1, ge=1, title='Page')
+    page_size: int = Field(default=100, ge=1, title='Page Size')
+    creation_date__lte: AwareDatetime | None = Field(
+        default=None, title='Creation Date  Lte'
+    )
+    creation_date__gte: AwareDatetime | None = Field(
+        default=None, title='Creation Date  Gte'
+    )
+    update_date__lte: AwareDatetime | None = Field(
+        default=None, title='Update Date  Lte'
+    )
+    update_date__gte: AwareDatetime | None = Field(
+        default=None, title='Update Date  Gte'
+    )
+    id: UUID | None = Field(default=None, title='Id')
+    id__in: list[UUID] | None = Field(default=None, title='Id  In')
+    start_time: AwareDatetime | None = Field(default=None, title='Start Time')
+    end_time: AwareDatetime | None = Field(default=None, title='End Time')
+    order_by: list[str] = Field(default=['-creation_date'], title='Order By')
+    status: CircuitExtractionExecutionStatus | None = Field(
+        default=None, title='Status'
+    )
+    created_by__pref_label: str | None = Field(
+        default=None, title='Created By  Pref Label'
+    )
+    created_by__pref_label__in: list[str] | None = Field(
+        default=None, title='Created By  Pref Label  In'
+    )
+    created_by__pref_label__ilike: str | None = Field(
+        default=None, title='Created By  Pref Label  Ilike'
+    )
+    created_by__id: UUID | None = Field(default=None, title='Created By  Id')
+    created_by__id__in: list[UUID] | None = Field(
+        default=None, title='Created By  Id  In'
+    )
+    updated_by__pref_label: str | None = Field(
+        default=None, title='Updated By  Pref Label'
+    )
+    updated_by__pref_label__in: list[str] | None = Field(
+        default=None, title='Updated By  Pref Label  In'
+    )
+    updated_by__pref_label__ilike: str | None = Field(
+        default=None, title='Updated By  Pref Label  Ilike'
+    )
+    updated_by__id: UUID | None = Field(default=None, title='Updated By  Id')
+    updated_by__id__in: list[UUID] | None = Field(
+        default=None, title='Updated By  Id  In'
+    )
+    used__id: UUID | None = Field(default=None, title='Used  Id')
+    used__id__in: list[UUID] | None = Field(default=None, title='Used  Id  In')
+    used__type: str | None = Field(default=None, title='Used  Type')
+    generated__id: UUID | None = Field(default=None, title='Generated  Id')
+    generated__id__in: list[UUID] | None = Field(
+        default=None, title='Generated  Id  In'
+    )
+    generated__type: str | None = Field(default=None, title='Generated  Type')
+    search: str | None = Field(default=None, title='Search')
+    with_facets: bool = Field(default=False, title='With Facets')
+    within_brain_region_hierarchy_id: UUID | None = Field(
+        default=None, title='Within Brain Region Hierarchy Id'
+    )
+    within_brain_region_brain_region_id: UUID | None = Field(
+        default=None, title='Within Brain Region Brain Region Id'
+    )
+    within_brain_region_ascendants: bool = Field(
+        default=False, title='Within Brain Region Ascendants'
+    )
+
+
 class ReadManyConsortiumGetParametersQuery(BaseModel):
     page: int = Field(default=1, ge=1, title='Page')
     page_size: int = Field(default=100, ge=1, title='Page Size')
@@ -4812,6 +5268,256 @@ class ReadManyIonChannelModelGetParametersQuery(BaseModel):
     with_facets: bool = Field(default=False, title='With Facets')
 
 
+class ReadManyIonChannelModelingCampaignGetParametersQuery(BaseModel):
+    page: int = Field(default=1, ge=1, title='Page')
+    page_size: int = Field(default=100, ge=1, title='Page Size')
+    name: str | None = Field(default=None, title='Name')
+    name__in: list[str] | None = Field(default=None, title='Name  In')
+    name__ilike: str | None = Field(default=None, title='Name  Ilike')
+    creation_date__lte: AwareDatetime | None = Field(
+        default=None, title='Creation Date  Lte'
+    )
+    creation_date__gte: AwareDatetime | None = Field(
+        default=None, title='Creation Date  Gte'
+    )
+    update_date__lte: AwareDatetime | None = Field(
+        default=None, title='Update Date  Lte'
+    )
+    update_date__gte: AwareDatetime | None = Field(
+        default=None, title='Update Date  Gte'
+    )
+    authorized_public: bool | None = Field(default=None, title='Authorized Public')
+    authorized_project_id: UUID | None = Field(
+        default=None, title='Authorized Project Id'
+    )
+    id: UUID | None = Field(default=None, title='Id')
+    id__in: list[UUID] | None = Field(default=None, title='Id  In')
+    order_by: list[str] = Field(default=['-creation_date'], title='Order By')
+    contribution__pref_label: str | None = Field(
+        default=None, title='Contribution  Pref Label'
+    )
+    contribution__pref_label__in: list[str] | None = Field(
+        default=None, title='Contribution  Pref Label  In'
+    )
+    contribution__pref_label__ilike: str | None = Field(
+        default=None, title='Contribution  Pref Label  Ilike'
+    )
+    contribution__id: UUID | None = Field(default=None, title='Contribution  Id')
+    contribution__id__in: list[UUID] | None = Field(
+        default=None, title='Contribution  Id  In'
+    )
+    created_by__pref_label: str | None = Field(
+        default=None, title='Created By  Pref Label'
+    )
+    created_by__pref_label__in: list[str] | None = Field(
+        default=None, title='Created By  Pref Label  In'
+    )
+    created_by__pref_label__ilike: str | None = Field(
+        default=None, title='Created By  Pref Label  Ilike'
+    )
+    created_by__id: UUID | None = Field(default=None, title='Created By  Id')
+    created_by__id__in: list[UUID] | None = Field(
+        default=None, title='Created By  Id  In'
+    )
+    updated_by__pref_label: str | None = Field(
+        default=None, title='Updated By  Pref Label'
+    )
+    updated_by__pref_label__in: list[str] | None = Field(
+        default=None, title='Updated By  Pref Label  In'
+    )
+    updated_by__pref_label__ilike: str | None = Field(
+        default=None, title='Updated By  Pref Label  Ilike'
+    )
+    updated_by__id: UUID | None = Field(default=None, title='Updated By  Id')
+    updated_by__id__in: list[UUID] | None = Field(
+        default=None, title='Updated By  Id  In'
+    )
+    ion_channel_modeling_config__id: UUID | None = Field(
+        default=None, title='Ion Channel Modeling Config  Id'
+    )
+    ion_channel_modeling_config__id__in: list[UUID] | None = Field(
+        default=None, title='Ion Channel Modeling Config  Id  In'
+    )
+    ion_channel_modeling_config__name: str | None = Field(
+        default=None, title='Ion Channel Modeling Config  Name'
+    )
+    ion_channel_modeling_config__name__in: list[str] | None = Field(
+        default=None, title='Ion Channel Modeling Config  Name  In'
+    )
+    ion_channel_modeling_config__name__ilike: str | None = Field(
+        default=None, title='Ion Channel Modeling Config  Name  Ilike'
+    )
+    search: str | None = Field(default=None, title='Search')
+    with_facets: bool = Field(default=False, title='With Facets')
+    within_brain_region_hierarchy_id: UUID | None = Field(
+        default=None, title='Within Brain Region Hierarchy Id'
+    )
+    within_brain_region_brain_region_id: UUID | None = Field(
+        default=None, title='Within Brain Region Brain Region Id'
+    )
+    within_brain_region_ascendants: bool = Field(
+        default=False, title='Within Brain Region Ascendants'
+    )
+
+
+class ReadManyIonChannelModelingConfigGetParametersQuery(BaseModel):
+    page: int = Field(default=1, ge=1, title='Page')
+    page_size: int = Field(default=100, ge=1, title='Page Size')
+    creation_date__lte: AwareDatetime | None = Field(
+        default=None, title='Creation Date  Lte'
+    )
+    creation_date__gte: AwareDatetime | None = Field(
+        default=None, title='Creation Date  Gte'
+    )
+    update_date__lte: AwareDatetime | None = Field(
+        default=None, title='Update Date  Lte'
+    )
+    update_date__gte: AwareDatetime | None = Field(
+        default=None, title='Update Date  Gte'
+    )
+    authorized_public: bool | None = Field(default=None, title='Authorized Public')
+    authorized_project_id: UUID | None = Field(
+        default=None, title='Authorized Project Id'
+    )
+    id: UUID | None = Field(default=None, title='Id')
+    id__in: list[UUID] | None = Field(default=None, title='Id  In')
+    name: str | None = Field(default=None, title='Name')
+    name__in: list[str] | None = Field(default=None, title='Name  In')
+    name__ilike: str | None = Field(default=None, title='Name  Ilike')
+    ion_channel_modeling_campaign_id: UUID | None = Field(
+        default=None, title='Ion Channel Modeling Campaign Id'
+    )
+    ion_channel_modeling_campaign_id__in: list[UUID] | None = Field(
+        default=None, title='Ion Channel Modeling Campaign Id  In'
+    )
+    order_by: list[str] = Field(default=['-creation_date'], title='Order By')
+    contribution__pref_label: str | None = Field(
+        default=None, title='Contribution  Pref Label'
+    )
+    contribution__pref_label__in: list[str] | None = Field(
+        default=None, title='Contribution  Pref Label  In'
+    )
+    contribution__pref_label__ilike: str | None = Field(
+        default=None, title='Contribution  Pref Label  Ilike'
+    )
+    contribution__id: UUID | None = Field(default=None, title='Contribution  Id')
+    contribution__id__in: list[UUID] | None = Field(
+        default=None, title='Contribution  Id  In'
+    )
+    created_by__pref_label: str | None = Field(
+        default=None, title='Created By  Pref Label'
+    )
+    created_by__pref_label__in: list[str] | None = Field(
+        default=None, title='Created By  Pref Label  In'
+    )
+    created_by__pref_label__ilike: str | None = Field(
+        default=None, title='Created By  Pref Label  Ilike'
+    )
+    created_by__id: UUID | None = Field(default=None, title='Created By  Id')
+    created_by__id__in: list[UUID] | None = Field(
+        default=None, title='Created By  Id  In'
+    )
+    updated_by__pref_label: str | None = Field(
+        default=None, title='Updated By  Pref Label'
+    )
+    updated_by__pref_label__in: list[str] | None = Field(
+        default=None, title='Updated By  Pref Label  In'
+    )
+    updated_by__pref_label__ilike: str | None = Field(
+        default=None, title='Updated By  Pref Label  Ilike'
+    )
+    updated_by__id: UUID | None = Field(default=None, title='Updated By  Id')
+    updated_by__id__in: list[UUID] | None = Field(
+        default=None, title='Updated By  Id  In'
+    )
+    search: str | None = Field(default=None, title='Search')
+    with_facets: bool = Field(default=False, title='With Facets')
+    within_brain_region_hierarchy_id: UUID | None = Field(
+        default=None, title='Within Brain Region Hierarchy Id'
+    )
+    within_brain_region_brain_region_id: UUID | None = Field(
+        default=None, title='Within Brain Region Brain Region Id'
+    )
+    within_brain_region_ascendants: bool = Field(
+        default=False, title='Within Brain Region Ascendants'
+    )
+
+
+ReadManyIonChannelModelingConfigGenerationGetParametersQuery = (
+    ReadManyCalibrationGetParametersQuery
+)
+
+
+class ReadManyIonChannelModelingExecutionGetParametersQuery(BaseModel):
+    page: int = Field(default=1, ge=1, title='Page')
+    page_size: int = Field(default=100, ge=1, title='Page Size')
+    creation_date__lte: AwareDatetime | None = Field(
+        default=None, title='Creation Date  Lte'
+    )
+    creation_date__gte: AwareDatetime | None = Field(
+        default=None, title='Creation Date  Gte'
+    )
+    update_date__lte: AwareDatetime | None = Field(
+        default=None, title='Update Date  Lte'
+    )
+    update_date__gte: AwareDatetime | None = Field(
+        default=None, title='Update Date  Gte'
+    )
+    id: UUID | None = Field(default=None, title='Id')
+    id__in: list[UUID] | None = Field(default=None, title='Id  In')
+    start_time: AwareDatetime | None = Field(default=None, title='Start Time')
+    end_time: AwareDatetime | None = Field(default=None, title='End Time')
+    order_by: list[str] = Field(default=['-creation_date'], title='Order By')
+    status: IonChannelModelingExecutionStatus | None = Field(
+        default=None, title='Status'
+    )
+    created_by__pref_label: str | None = Field(
+        default=None, title='Created By  Pref Label'
+    )
+    created_by__pref_label__in: list[str] | None = Field(
+        default=None, title='Created By  Pref Label  In'
+    )
+    created_by__pref_label__ilike: str | None = Field(
+        default=None, title='Created By  Pref Label  Ilike'
+    )
+    created_by__id: UUID | None = Field(default=None, title='Created By  Id')
+    created_by__id__in: list[UUID] | None = Field(
+        default=None, title='Created By  Id  In'
+    )
+    updated_by__pref_label: str | None = Field(
+        default=None, title='Updated By  Pref Label'
+    )
+    updated_by__pref_label__in: list[str] | None = Field(
+        default=None, title='Updated By  Pref Label  In'
+    )
+    updated_by__pref_label__ilike: str | None = Field(
+        default=None, title='Updated By  Pref Label  Ilike'
+    )
+    updated_by__id: UUID | None = Field(default=None, title='Updated By  Id')
+    updated_by__id__in: list[UUID] | None = Field(
+        default=None, title='Updated By  Id  In'
+    )
+    used__id: UUID | None = Field(default=None, title='Used  Id')
+    used__id__in: list[UUID] | None = Field(default=None, title='Used  Id  In')
+    used__type: str | None = Field(default=None, title='Used  Type')
+    generated__id: UUID | None = Field(default=None, title='Generated  Id')
+    generated__id__in: list[UUID] | None = Field(
+        default=None, title='Generated  Id  In'
+    )
+    generated__type: str | None = Field(default=None, title='Generated  Type')
+    search: str | None = Field(default=None, title='Search')
+    with_facets: bool = Field(default=False, title='With Facets')
+    within_brain_region_hierarchy_id: UUID | None = Field(
+        default=None, title='Within Brain Region Hierarchy Id'
+    )
+    within_brain_region_brain_region_id: UUID | None = Field(
+        default=None, title='Within Brain Region Brain Region Id'
+    )
+    within_brain_region_ascendants: bool = Field(
+        default=False, title='Within Brain Region Ascendants'
+    )
+
+
 class ReadManyIonChannelRecordingGetParametersQuery(BaseModel):
     page: int = Field(default=1, ge=1, title='Page')
     page_size: int = Field(default=100, ge=1, title='Page Size')
@@ -5848,6 +6554,8 @@ class ReadManySimulationCampaignGetParametersQuery(BaseModel):
     )
     id: UUID | None = Field(default=None, title='Id')
     id__in: list[UUID] | None = Field(default=None, title='Id  In')
+    entity_id: UUID | None = Field(default=None, title='Entity Id')
+    entity_id__in: list[UUID] | None = Field(default=None, title='Entity Id  In')
     order_by: list[str] = Field(default=['-creation_date'], title='Order By')
     contribution__pref_label: str | None = Field(
         default=None, title='Contribution  Pref Label'
@@ -5888,6 +6596,21 @@ class ReadManySimulationCampaignGetParametersQuery(BaseModel):
     updated_by__id__in: list[UUID] | None = Field(
         default=None, title='Updated By  Id  In'
     )
+    circuit__scale: CircuitScale | None = Field(default=None, title='Circuit  Scale')
+    circuit__scale__in: list[CircuitScale] | None = Field(
+        default=None, title='Circuit  Scale  In'
+    )
+    circuit__build_category: CircuitBuildCategory | None = Field(
+        default=None, title='Circuit  Build Category'
+    )
+    circuit__build_category__in: list[CircuitBuildCategory] | None = Field(
+        default=None, title='Circuit  Build Category  In'
+    )
+    circuit__name: str | None = Field(default=None, title='Circuit  Name')
+    circuit__name__in: list[str] | None = Field(default=None, title='Circuit  Name  In')
+    circuit__name__ilike: str | None = Field(default=None, title='Circuit  Name  Ilike')
+    circuit__id: UUID | None = Field(default=None, title='Circuit  Id')
+    circuit__id__in: list[UUID] | None = Field(default=None, title='Circuit  Id  In')
     simulation__id: UUID | None = Field(default=None, title='Simulation  Id')
     simulation__id__in: list[UUID] | None = Field(
         default=None, title='Simulation  Id  In'
@@ -5905,21 +6628,33 @@ class ReadManySimulationCampaignGetParametersQuery(BaseModel):
     simulation__entity_id__in: list[UUID] | None = Field(
         default=None, title='Simulation  Entity Id  In'
     )
-    circuit__scale: CircuitScale | None = Field(default=None, title='Circuit  Scale')
-    circuit__scale__in: list[CircuitScale] | None = Field(
-        default=None, title='Circuit  Scale  In'
+    simulation__circuit__scale: CircuitScale | None = Field(
+        default=None, title='Simulation  Circuit  Scale'
     )
-    circuit__build_category: CircuitBuildCategory | None = Field(
-        default=None, title='Circuit  Build Category'
+    simulation__circuit__scale__in: list[CircuitScale] | None = Field(
+        default=None, title='Simulation  Circuit  Scale  In'
     )
-    circuit__build_category__in: list[CircuitBuildCategory] | None = Field(
-        default=None, title='Circuit  Build Category  In'
+    simulation__circuit__build_category: CircuitBuildCategory | None = Field(
+        default=None, title='Simulation  Circuit  Build Category'
     )
-    circuit__name: str | None = Field(default=None, title='Circuit  Name')
-    circuit__name__in: list[str] | None = Field(default=None, title='Circuit  Name  In')
-    circuit__name__ilike: str | None = Field(default=None, title='Circuit  Name  Ilike')
-    circuit__id: UUID | None = Field(default=None, title='Circuit  Id')
-    circuit__id__in: list[UUID] | None = Field(default=None, title='Circuit  Id  In')
+    simulation__circuit__build_category__in: list[CircuitBuildCategory] | None = Field(
+        default=None, title='Simulation  Circuit  Build Category  In'
+    )
+    simulation__circuit__name: str | None = Field(
+        default=None, title='Simulation  Circuit  Name'
+    )
+    simulation__circuit__name__in: list[str] | None = Field(
+        default=None, title='Simulation  Circuit  Name  In'
+    )
+    simulation__circuit__name__ilike: str | None = Field(
+        default=None, title='Simulation  Circuit  Name  Ilike'
+    )
+    simulation__circuit__id: UUID | None = Field(
+        default=None, title='Simulation  Circuit  Id'
+    )
+    simulation__circuit__id__in: list[UUID] | None = Field(
+        default=None, title='Simulation  Circuit  Id  In'
+    )
     search: str | None = Field(default=None, title='Search')
     with_facets: bool = Field(default=False, title='With Facets')
     within_brain_region_hierarchy_id: UUID | None = Field(
@@ -6004,81 +6739,9 @@ class ReadManySimulationExecutionGetParametersQuery(BaseModel):
 ReadManySimulationGenerationGetParametersQuery = ReadManyCalibrationGetParametersQuery
 
 
-class ReadManySimulationResultGetParametersQuery(BaseModel):
-    page: int = Field(default=1, ge=1, title='Page')
-    page_size: int = Field(default=100, ge=1, title='Page Size')
-    name: str | None = Field(default=None, title='Name')
-    name__in: list[str] | None = Field(default=None, title='Name  In')
-    name__ilike: str | None = Field(default=None, title='Name  Ilike')
-    creation_date__lte: AwareDatetime | None = Field(
-        default=None, title='Creation Date  Lte'
-    )
-    creation_date__gte: AwareDatetime | None = Field(
-        default=None, title='Creation Date  Gte'
-    )
-    update_date__lte: AwareDatetime | None = Field(
-        default=None, title='Update Date  Lte'
-    )
-    update_date__gte: AwareDatetime | None = Field(
-        default=None, title='Update Date  Gte'
-    )
-    authorized_public: bool | None = Field(default=None, title='Authorized Public')
-    authorized_project_id: UUID | None = Field(
-        default=None, title='Authorized Project Id'
-    )
-    id: UUID | None = Field(default=None, title='Id')
-    id__in: list[UUID] | None = Field(default=None, title='Id  In')
-    order_by: list[str] = Field(default=['-creation_date'], title='Order By')
-    contribution__pref_label: str | None = Field(
-        default=None, title='Contribution  Pref Label'
-    )
-    contribution__pref_label__in: list[str] | None = Field(
-        default=None, title='Contribution  Pref Label  In'
-    )
-    contribution__pref_label__ilike: str | None = Field(
-        default=None, title='Contribution  Pref Label  Ilike'
-    )
-    contribution__id: UUID | None = Field(default=None, title='Contribution  Id')
-    contribution__id__in: list[UUID] | None = Field(
-        default=None, title='Contribution  Id  In'
-    )
-    created_by__pref_label: str | None = Field(
-        default=None, title='Created By  Pref Label'
-    )
-    created_by__pref_label__in: list[str] | None = Field(
-        default=None, title='Created By  Pref Label  In'
-    )
-    created_by__pref_label__ilike: str | None = Field(
-        default=None, title='Created By  Pref Label  Ilike'
-    )
-    created_by__id: UUID | None = Field(default=None, title='Created By  Id')
-    created_by__id__in: list[UUID] | None = Field(
-        default=None, title='Created By  Id  In'
-    )
-    updated_by__pref_label: str | None = Field(
-        default=None, title='Updated By  Pref Label'
-    )
-    updated_by__pref_label__in: list[str] | None = Field(
-        default=None, title='Updated By  Pref Label  In'
-    )
-    updated_by__pref_label__ilike: str | None = Field(
-        default=None, title='Updated By  Pref Label  Ilike'
-    )
-    updated_by__id: UUID | None = Field(default=None, title='Updated By  Id')
-    updated_by__id__in: list[UUID] | None = Field(
-        default=None, title='Updated By  Id  In'
-    )
-    search: str | None = Field(default=None, title='Search')
-    with_facets: bool = Field(default=False, title='With Facets')
-    within_brain_region_hierarchy_id: UUID | None = Field(
-        default=None, title='Within Brain Region Hierarchy Id'
-    )
-    within_brain_region_brain_region_id: UUID | None = Field(
-        default=None, title='Within Brain Region Brain Region Id'
-    )
-    within_brain_region_ascendants: bool = Field(
-        default=False, title='Within Brain Region Ascendants'
-    )
+ReadManySimulationResultGetParametersQuery = (
+    ReadManyCircuitExtractionCampaignGetParametersQuery
+)
 
 
 class ReadManySingleNeuronSimulationGetParametersQuery(BaseModel):
@@ -7665,6 +8328,59 @@ class CircuitCreate(BaseModel):
     atlas_id: UUID | None = Field(default=None, title='Atlas Id')
 
 
+CircuitExtractionConfigGenerationRead = SimulationGenerationRead
+
+
+CircuitExtractionConfigGenerationUserUpdate = SimulationGenerationUserUpdate
+
+
+class CircuitExtractionExecutionCreate(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
+    authorized_public: bool = Field(default=False, title='Authorized Public')
+    start_time: AwareDatetime | None = Field(default=None, title='Start Time')
+    end_time: AwareDatetime | None = Field(default=None, title='End Time')
+    used_ids: list[UUID] = Field(default=[], title='Used Ids')
+    generated_ids: list[UUID] = Field(default=[], title='Generated Ids')
+    status: CircuitExtractionExecutionStatus
+
+
+class CircuitExtractionExecutionRead(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
+    authorized_project_id: UUID4 = Field(..., title='Authorized Project Id')
+    authorized_public: bool = Field(default=False, title='Authorized Public')
+    creation_date: AwareDatetime = Field(..., title='Creation Date')
+    update_date: AwareDatetime = Field(..., title='Update Date')
+    created_by: NestedPersonRead
+    updated_by: NestedPersonRead
+    id: UUID = Field(..., title='Id')
+    type: ActivityType | None = None
+    start_time: AwareDatetime | None = Field(default=None, title='Start Time')
+    end_time: AwareDatetime | None = Field(default=None, title='End Time')
+    used: list[NestedEntityRead] = Field(..., title='Used')
+    generated: list[NestedEntityRead] = Field(..., title='Generated')
+    status: CircuitExtractionExecutionStatus
+
+
+class CircuitExtractionExecutionUserUpdate(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
+    start_time: AwareDatetime | NotSet | None = Field(
+        default='<NOT_SET>', title='Start Time'
+    )
+    end_time: AwareDatetime | NotSet | None = Field(
+        default='<NOT_SET>', title='End Time'
+    )
+    generated_ids: list[UUID] | NotSet | None = Field(
+        default='<NOT_SET>', title='Generated Ids'
+    )
+    status: CircuitExtractionExecutionStatus | None = None
+
+
 class ComputationallySynthesizedCellMorphologyProtocolRead(BaseModel):
     model_config = ConfigDict(
         extra='allow',
@@ -8014,6 +8730,59 @@ class ExternalUrlRead(BaseModel):
     source_name: str = Field(..., title='Source Name')
 
 
+IonChannelModelingConfigGenerationRead = SimulationGenerationRead
+
+
+IonChannelModelingConfigGenerationUserUpdate = SimulationGenerationUserUpdate
+
+
+class IonChannelModelingExecutionCreate(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
+    authorized_public: bool = Field(default=False, title='Authorized Public')
+    start_time: AwareDatetime | None = Field(default=None, title='Start Time')
+    end_time: AwareDatetime | None = Field(default=None, title='End Time')
+    used_ids: list[UUID] = Field(default=[], title='Used Ids')
+    generated_ids: list[UUID] = Field(default=[], title='Generated Ids')
+    status: IonChannelModelingExecutionStatus
+
+
+class IonChannelModelingExecutionRead(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
+    authorized_project_id: UUID4 = Field(..., title='Authorized Project Id')
+    authorized_public: bool = Field(default=False, title='Authorized Public')
+    creation_date: AwareDatetime = Field(..., title='Creation Date')
+    update_date: AwareDatetime = Field(..., title='Update Date')
+    created_by: NestedPersonRead
+    updated_by: NestedPersonRead
+    id: UUID = Field(..., title='Id')
+    type: ActivityType | None = None
+    start_time: AwareDatetime | None = Field(default=None, title='Start Time')
+    end_time: AwareDatetime | None = Field(default=None, title='End Time')
+    used: list[NestedEntityRead] = Field(..., title='Used')
+    generated: list[NestedEntityRead] = Field(..., title='Generated')
+    status: IonChannelModelingExecutionStatus
+
+
+class IonChannelModelingExecutionUserUpdate(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
+    start_time: AwareDatetime | NotSet | None = Field(
+        default='<NOT_SET>', title='Start Time'
+    )
+    end_time: AwareDatetime | NotSet | None = Field(
+        default='<NOT_SET>', title='End Time'
+    )
+    generated_ids: list[UUID] | NotSet | None = Field(
+        default='<NOT_SET>', title='Generated Ids'
+    )
+    status: IonChannelModelingExecutionStatus | None = None
+
+
 class IonChannelRead(BaseModel):
     model_config = ConfigDict(
         extra='allow',
@@ -8102,6 +8871,24 @@ class ListResponseCalibrationRead(BaseModel):
     facets: Facets | None = None
 
 
+class ListResponseCircuitExtractionConfigGenerationRead(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
+    data: list[CircuitExtractionConfigGenerationRead] = Field(..., title='Data')
+    pagination: PaginationResponse
+    facets: Facets | None = None
+
+
+class ListResponseCircuitExtractionExecutionRead(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
+    data: list[CircuitExtractionExecutionRead] = Field(..., title='Data')
+    pagination: PaginationResponse
+    facets: Facets | None = None
+
+
 class ListResponseConsortiumRead(BaseModel):
     model_config = ConfigDict(
         extra='allow',
@@ -8143,6 +8930,24 @@ class ListResponseExternalUrlRead(BaseModel):
         extra='allow',
     )
     data: list[ExternalUrlRead] = Field(..., title='Data')
+    pagination: PaginationResponse
+    facets: Facets | None = None
+
+
+class ListResponseIonChannelModelingConfigGenerationRead(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
+    data: list[IonChannelModelingConfigGenerationRead] = Field(..., title='Data')
+    pagination: PaginationResponse
+    facets: Facets | None = None
+
+
+class ListResponseIonChannelModelingExecutionRead(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
+    data: list[IonChannelModelingExecutionRead] = Field(..., title='Data')
     pagination: PaginationResponse
     facets: Facets | None = None
 
@@ -8836,6 +9641,49 @@ class CellMorphologyProtocolRead(
     ) = Field(..., discriminator='generation_type')
 
 
+class CircuitExtractionCampaignRead(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
+    contributions: list[NestedContributionRead] | None = Field(
+        ..., title='Contributions'
+    )
+    authorized_project_id: UUID4 = Field(..., title='Authorized Project Id')
+    authorized_public: bool = Field(default=False, title='Authorized Public')
+    creation_date: AwareDatetime = Field(..., title='Creation Date')
+    update_date: AwareDatetime = Field(..., title='Update Date')
+    created_by: NestedPersonRead
+    updated_by: NestedPersonRead
+    assets: list[AssetRead] = Field(..., title='Assets')
+    id: UUID = Field(..., title='Id')
+    type: EntityType | None = None
+    name: str = Field(..., title='Name')
+    description: str = Field(..., title='Description')
+    scan_parameters: dict[str, Any] = Field(..., title='Scan Parameters')
+
+
+class CircuitExtractionConfigRead(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
+    contributions: list[NestedContributionRead] | None = Field(
+        ..., title='Contributions'
+    )
+    authorized_project_id: UUID4 = Field(..., title='Authorized Project Id')
+    authorized_public: bool = Field(default=False, title='Authorized Public')
+    creation_date: AwareDatetime = Field(..., title='Creation Date')
+    update_date: AwareDatetime = Field(..., title='Update Date')
+    created_by: NestedPersonRead
+    updated_by: NestedPersonRead
+    assets: list[AssetRead] = Field(..., title='Assets')
+    id: UUID = Field(..., title='Id')
+    type: EntityType | None = None
+    name: str = Field(..., title='Name')
+    description: str = Field(..., title='Description')
+    circuit_id: UUID = Field(..., title='Circuit Id')
+    scan_parameters: dict[str, Any] = Field(..., title='Scan Parameters')
+
+
 class CircuitRead(BaseModel):
     model_config = ConfigDict(
         extra='allow',
@@ -9348,6 +10196,57 @@ class IonChannelModelWAssets(BaseModel):
     neuron_block: NeuronBlock
 
 
+class IonChannelModelingCampaignRead(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
+    contributions: list[NestedContributionRead] | None = Field(
+        ..., title='Contributions'
+    )
+    authorized_project_id: UUID4 = Field(..., title='Authorized Project Id')
+    authorized_public: bool = Field(default=False, title='Authorized Public')
+    creation_date: AwareDatetime = Field(..., title='Creation Date')
+    update_date: AwareDatetime = Field(..., title='Update Date')
+    created_by: NestedPersonRead
+    updated_by: NestedPersonRead
+    assets: list[AssetRead] = Field(..., title='Assets')
+    id: UUID = Field(..., title='Id')
+    type: EntityType | None = None
+    name: str = Field(..., title='Name')
+    description: str = Field(..., title='Description')
+    scan_parameters: dict[str, Any] = Field(..., title='Scan Parameters')
+    input_recordings: list[NestedIonChannelRecordingRead] = Field(
+        ..., title='Input Recordings'
+    )
+    ion_channel_modeling_configs: list[NestedIonChannelModelingConfigRead] = Field(
+        ..., title='Ion Channel Modeling Configs'
+    )
+
+
+class IonChannelModelingConfigRead(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
+    contributions: list[NestedContributionRead] | None = Field(
+        ..., title='Contributions'
+    )
+    authorized_project_id: UUID4 = Field(..., title='Authorized Project Id')
+    authorized_public: bool = Field(default=False, title='Authorized Public')
+    creation_date: AwareDatetime = Field(..., title='Creation Date')
+    update_date: AwareDatetime = Field(..., title='Update Date')
+    created_by: NestedPersonRead
+    updated_by: NestedPersonRead
+    assets: list[AssetRead] = Field(..., title='Assets')
+    id: UUID = Field(..., title='Id')
+    type: EntityType | None = None
+    name: str = Field(..., title='Name')
+    description: str = Field(..., title='Description')
+    ion_channel_modeling_campaign_id: UUID = Field(
+        ..., title='Ion Channel Modeling Campaign Id'
+    )
+    scan_parameters: dict[str, Any] = Field(..., title='Scan Parameters')
+
+
 class IonChannelRecordingRead(BaseModel):
     model_config = ConfigDict(
         extra='allow',
@@ -9470,6 +10369,24 @@ class ListResponseCellMorphologyProtocolRead(BaseModel):
     facets: Facets | None = None
 
 
+class ListResponseCircuitExtractionCampaignRead(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
+    data: list[CircuitExtractionCampaignRead] = Field(..., title='Data')
+    pagination: PaginationResponse
+    facets: Facets | None = None
+
+
+class ListResponseCircuitExtractionConfigRead(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
+    data: list[CircuitExtractionConfigRead] = Field(..., title='Data')
+    pagination: PaginationResponse
+    facets: Facets | None = None
+
+
 class ListResponseCircuitRead(BaseModel):
     model_config = ConfigDict(
         extra='allow',
@@ -9533,11 +10450,29 @@ class ListResponseExperimentalSynapsesPerConnectionRead(BaseModel):
     facets: Facets | None = None
 
 
-class ListResponseIonChannelModelRead(BaseModel):
+class ListResponseIonChannelModelExpanded(BaseModel):
     model_config = ConfigDict(
         extra='allow',
     )
-    data: list[IonChannelModelRead] = Field(..., title='Data')
+    data: list[IonChannelModelExpanded] = Field(..., title='Data')
+    pagination: PaginationResponse
+    facets: Facets | None = None
+
+
+class ListResponseIonChannelModelingCampaignRead(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
+    data: list[IonChannelModelingCampaignRead] = Field(..., title='Data')
+    pagination: PaginationResponse
+    facets: Facets | None = None
+
+
+class ListResponseIonChannelModelingConfigRead(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
+    data: list[IonChannelModelingConfigRead] = Field(..., title='Data')
     pagination: PaginationResponse
     facets: Facets | None = None
 
