@@ -1,29 +1,28 @@
 ---
 description: Entitycore tools
 ---
-# EntityCore Tool Guidelines
+# ENTITYCORE TOOLS
 
-## Entitycore Tool purpose
-- Use Entitycore tools exclusively for retrieving specific data from the platform.
-- For broader knowledge queries (scientific research, general information, etc.), use literature or web search tools instead.
+## Brain Region ID Resolution
 
-## EntityCore Tool Parameters
-- To find a brain region ID: use `entitycore-brainregion-getall` with the `name` parameter (capitalize the first letter of the brain region name).
-- **MANDATORY**: Always resolve brain region names to their unique IDs before any data queries.
-- **CRITICAL RULE**: Once you have a brain region ID, you MUST use `within_brain_region_brain_region_id` with the UUID for ALL subsequent queries.
-- **STRICTLY FORBIDDEN**: Using `brain_region__name` or any name-based parameters when an ID is available.
-- **NEVER** fall back to name searches when you already have the ID in memory.
-- **INVALID PARAMETER**: `brain_region__id` does not exist and must not be used.
+**MANDATORY workflow:**
+1. Resolve names to IDs using `entitycore-brainregion-getall` with `semantic_search` parameter
+2. **NEVER use `brain_region__name`** when you have an ID
+3. **NEVER use `brain_region__id`** (does not exist)
+4. **NEVER fall back to name searches** once you have the ID
 
-## GET ALL Endpoint Guidelines
+## Species Handling
+- Use `entitycore-species-getall` to lookup species IDs
+- EntityCore database only stores scientific names
+
+## GET ALL Endpoints
+- Mention `total_items` count in response
+- Ask before using pagination to retrieve additional pages
 - When calling `GET ALL` endpoints, please mention the `total_items` count and ask the user if they want to see additional data before using the `pagination` parameter to retrieve subsequent pages.
-- If a `GET ALL` endpoint returns an empty asset list, they can be accessed through the corresponding `GET ONE` endpoint or `GET ALL Assets` if needed.
 
-## EntityCore Tool Outputs
-- The only way to get a valid url for an asset is via `entitycore-asset-downloadone`. Anything else gives invalid urls and you should not display them.
-- ALWAYS include a link to the retreived entities.
+## Asset URLs
+- Always include entity links using `url_link` field
 
-## Species request
-When a user requests data for a species using a common name:
-- Always use the scientific name when tools allow for specifying a species name. The Entitycore database only holds the scientific name of species.
-- Use the tool `entitycore-species-getall` to lookup species ID if needed.
+## Tool Outputs
+- **ONLY use information from tool outputs** - no external knowledge
+- Always include links to retrieved entities

@@ -2,19 +2,21 @@
 
 import argparse
 import asyncio
+import fnmatch
 import inspect
 import json
 import logging
 import os
+import re
 from datetime import datetime
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal
 
 import httpx
 import pandas as pd
 from deepeval.evaluate import evaluate
 from deepeval.metrics import ArgumentCorrectnessMetric, GEval, ToolCorrectnessMetric
-from deepeval.test_case import LLMTestCase, LLMTestCaseParams, ToolCall
+from deepeval.test_case import LLMTestCase, LLMTestCaseParams, ToolCall, ToolCallParams
 from dotenv import load_dotenv
 from pydantic import BaseModel, Field
 
@@ -124,6 +126,13 @@ def get_parser() -> argparse.ArgumentParser:
         default=60.0,
         help="Timeout in seconds for HTTP requests.",
     )
+    parser.add_argument(
+        "-k",
+        "--keyword",
+        type=str,
+        default=None,
+        help="Filter test cases by name pattern (supports pytest-style patterns with OR logic). Example: 'cerebellum or morphology'",
+    )
     return parser
 
 
@@ -187,7 +196,91 @@ def parse_ai_sdk_streaming_response(streamed_data: str) -> dict[str, Any]:
     return {"response": final_output, "tool_calls": list(tool_calls.values())}
 
 
-def load_test_cases(eval_dir: Path) -> list[dict[str, Any]]:
+def filter_test_cases_by_pattern(
+    test_cases: list[dict[str, Any]], pattern: str
+) -> list[dict[str, Any]]:
+    """
+    Filter test cases based on pytest-style pattern matching.
+
+    This function supports various pattern matching strategies similar to pytest's
+    `-k` flag, allowing for flexible test case selection based on test names.
+
+    Parameters
+    ----------
+    test_cases : list[dict[str, Any]]
+        List of test case dictionaries containing test information.
+    pattern : str
+        Pattern string to match against test names. Supports:
+
+        - Simple substring matching: 'cerebellum'
+        - OR patterns: 'cerebellum or morphology'
+        - AND patterns: 'cerebellum and morphology'
+        - Wildcard patterns: 'cerebellum*' or '*morphology'
+
+        Pattern matching is case-insensitive.
+
+    Returns
+    -------
+    list[dict[str, Any]]
+        Filtered list of test cases that match the given pattern.
+        Returns all test cases if pattern is None or empty.
+
+    Examples
+    --------
+    >>> test_cases = [
+    ...     {'name': 'cerebellum_morphologies'},
+    ...     {'name': 'matplotlib_plot'},
+    ...     {'name': 'morphology_studies'}
+    ... ]
+    >>> filter_test_cases_by_pattern(test_cases, 'cerebellum or plot')
+    [{'name': 'cerebellum_morphologies'}, {'name': 'matplotlib_plot'}]
+
+    >>> filter_test_cases_by_pattern(test_cases, 'morphology*')
+    [{'name': 'cerebellum_morphologies'}, {'name': 'morphology_studies'}]
+    """
+    if not pattern:
+        return test_cases
+
+    # Split pattern by 'or' (case insensitive) for OR logic
+    or_patterns = [
+        p.strip() for p in re.split(r"\s+or\s+", pattern, flags=re.IGNORECASE)
+    ]
+
+    filtered_cases = []
+
+    for test_case in test_cases:
+        test_name = test_case["name"]
+
+        # Check if any OR pattern matches
+        for or_pattern in or_patterns:
+            # Handle AND logic within each OR pattern
+            and_patterns = [
+                p.strip()
+                for p in re.split(r"\s+and\s+", or_pattern, flags=re.IGNORECASE)
+            ]
+
+            # All AND patterns must match for this OR pattern to be valid
+            and_matches = []
+            for and_pattern in and_patterns:
+                # Use fnmatch for wildcard support
+                if fnmatch.fnmatch(test_name.lower(), and_pattern.lower()):
+                    and_matches.append(True)
+                elif and_pattern.lower() in test_name.lower():
+                    and_matches.append(True)
+                else:
+                    and_matches.append(False)
+
+            # If all AND patterns match, this OR pattern is valid
+            if all(and_matches):
+                filtered_cases.append(test_case)
+                break  # Don't add the same test case multiple times
+
+    return filtered_cases
+
+
+def load_test_cases(
+    eval_dir: Path, filter_pattern: str | None = None
+) -> list[dict[str, Any]]:
     """Load test cases from the input/ folder structure."""
     input_dir = eval_dir / "input"
     test_cases = []
@@ -228,6 +321,13 @@ def load_test_cases(eval_dir: Path) -> list[dict[str, Any]]:
             logger.error(f"Error loading test case {test_case_dir.name}: {e}")
             continue
 
+    # Apply filtering if pattern is provided
+    if filter_pattern:
+        test_cases = filter_test_cases_by_pattern(test_cases, filter_pattern)
+        logger.info(
+            f"Filtered to {len(test_cases)} test cases matching pattern: {filter_pattern}"
+        )
+
     return test_cases
 
 
@@ -243,6 +343,47 @@ def collect_test_case_results(
     # Prepare evaluation results with validation and timestamp
     eval_results = EvaluationResults(**evaluation_results)
 
+    # Compute overall arg correctness
+    deterministic_arg_correctness = next(
+        (
+            metric
+            for metric in eval_results.metrics
+            if metric.name == "Deterministic Argument Correctness"
+        ),
+        None,
+    )
+    non_deterministic_arg_correctness = next(
+        (
+            metric
+            for metric in eval_results.metrics
+            if metric.name == "Argument Correctness"
+        ),
+        None,
+    )
+    if deterministic_arg_correctness and non_deterministic_arg_correctness:
+        eval_results.metrics.append(
+            MetricResult(
+                name="Overall Argument Correctness",
+                score=max(
+                    deterministic_arg_correctness.score,
+                    non_deterministic_arg_correctness.score,
+                ),
+                success=max(
+                    deterministic_arg_correctness.score,
+                    non_deterministic_arg_correctness.score,
+                )
+                >= max(
+                    deterministic_arg_correctness.threshold,
+                    non_deterministic_arg_correctness.threshold,
+                ),
+                threshold=max(
+                    deterministic_arg_correctness.threshold,
+                    non_deterministic_arg_correctness.threshold,
+                ),
+                reason="",
+            )
+        )
+
     return {
         # Input data
         "user": test_case["input"],
@@ -251,7 +392,7 @@ def collect_test_case_results(
         "params": test_case["params"].model_dump(),
         # Output data
         "ai_response": decoded_response["response"],
-        "actual_tool_calls": actual_tool_calls.model_dump(),
+        "actual_tool_calls": actual_tool_calls.model_dump()["tool_calls"],
         "results": eval_results.model_dump(),
     }
 
@@ -314,7 +455,10 @@ async def eval_sample(
             # Send the request to chat_streamed using the previously created thread
             response = await client.post(
                 f"{url}/qa/chat_streamed/{thread_id}",
-                json={"content": test_case["input"]},
+                json={
+                    "content": test_case["input"],
+                    "frontend_url": "https://staging.openbraininstitute.org/app/virtual-lab/82b783eb-fac6-45ec-a928-84322e3a9672/7ef8dc29-233a-4c01-94b8-8c1420105304/data/browse/entity/cell-morphology?br_id=2a156e47-0842-4a40-bd1e-2afffb4dbafd&br_av=477",
+                },
             )
             # Delete the original thread
         finally:
@@ -374,10 +518,11 @@ async def run_eval(
     agent_url: str = "http://localhost:8000",
     concurrent_requests: int = 5,
     timeout: float = 60.0,
+    keyword: str | None = None,
 ) -> None:
     """Run the evaluation on the test cases."""
     # Load test cases from folder structure
-    test_cases = load_test_cases(eval_dir)
+    test_cases = load_test_cases(eval_dir, keyword)
     logger.info(f"Loaded {len(test_cases)} test cases")
 
     client = httpx.AsyncClient(
@@ -412,11 +557,24 @@ async def run_eval(
 
     # 2. Tool Correctness Metric
     tool_correctness = ToolCorrectnessMetric(should_consider_ordering=True)
+
+    class DeterministicArgCorrectnessMetric(ToolCorrectnessMetric):
+        """Override the name attribute."""
+
+        @property
+        def __name__(self) -> Literal["Deterministic Argument Correctness"]:
+            return "Deterministic Argument Correctness"
+
+    tool_arguments_strict = DeterministicArgCorrectnessMetric(
+        evaluation_params=[ToolCallParams.INPUT_PARAMETERS], include_reason=True
+    )
+
     tool_arguments = ArgumentCorrectnessMetric(model="gpt-4o-mini")
 
     # === Run Evaluation ===
     results = evaluate(
-        deepeval_test_cases, [answer_relevance, tool_correctness, tool_arguments]
+        deepeval_test_cases,
+        [answer_relevance, tool_correctness, tool_arguments, tool_arguments_strict],
     )
 
     # Collect individual results for detailed.json
