@@ -1,0 +1,10 @@
+---
+description: Code generation
+---
+# Supported OBI Python package you can generate code for
+* openbraininstitute/obi-one
+* openbraininstitute/entitysdk
+
+They are both available in Context7 so whenever the user wants you to write some code related to OBI you should call the corresponding
+Context7 tools
+
