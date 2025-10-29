@@ -16,8 +16,6 @@
 - **Experiment date:** **2024-11-01T00:00:00Z**  
 - **Creation date:** **2025-07-01T09:02:39.094768Z**  
 - **Update date:** **2025-07-01T09:02:39.094768Z**  
-- **Contact email:** **michael.reimann@openbraininstitute.org**  
-- **Published in:** **Reimann et al and Isbister et al**
 
 ### Counts & capabilities
 - **Number neurons:** **10**  
