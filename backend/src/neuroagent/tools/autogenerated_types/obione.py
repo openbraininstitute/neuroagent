@@ -94,7 +94,6 @@ class BellFitMTau(BaseModel):
         extra='ignore',
     )
     type: Literal['BellFitMTau'] = Field(..., title='Type')
-    equation_key: str = Field(default='bell_fit_mtau', title='Equation Key')
 
 
 class BodyTestNeuronFileDeclaredTestNeuronFilePost(BaseModel):
@@ -1314,7 +1313,6 @@ class SigFitHInf(BaseModel):
         extra='ignore',
     )
     type: Literal['SigFitHInf'] = Field(..., title='Type')
-    equation_key: str = Field(default='sig_fit_hinf', title='Equation Key')
 
 
 class SigFitHTau(BaseModel):
@@ -1322,7 +1320,6 @@ class SigFitHTau(BaseModel):
         extra='ignore',
     )
     type: Literal['SigFitHTau'] = Field(..., title='Type')
-    equation_key: str = Field(default='sig_fit_htau', title='Equation Key')
 
 
 class SigFitMInf(BaseModel):
@@ -1330,7 +1327,6 @@ class SigFitMInf(BaseModel):
         extra='ignore',
     )
     type: Literal['SigFitMInf'] = Field(..., title='Type')
-    equation_key: str = Field(default='sig_fit_minf', title='Equation Key')
 
 
 class SigFitMTau(BaseModel):
@@ -1338,7 +1334,6 @@ class SigFitMTau(BaseModel):
         extra='ignore',
     )
     type: Literal['SigFitMTau'] = Field(..., title='Type')
-    equation_key: str = Field(default='sig_fit_mtau', title='Equation Key')
 
 
 class SamplePercentage16(SamplePercentage):
@@ -1807,7 +1802,6 @@ class ThermoFitMTau(BaseModel):
         extra='ignore',
     )
     type: Literal['ThermoFitMTau'] = Field(..., title='Type')
-    equation_key: str = Field(default='thermo_fit_mtau', title='Equation Key')
 
 
 class ThermoFitMTauV2(BaseModel):
@@ -1815,7 +1809,6 @@ class ThermoFitMTauV2(BaseModel):
         extra='ignore',
     )
     type: Literal['ThermoFitMTauV2'] = Field(..., title='Type')
-    equation_key: str = Field(default='thermo_fit_mtau_v2', title='Equation Key')
 
 
 class StartTime2(RootModel[float]):
@@ -2942,11 +2935,7 @@ class ConstantCurrentClampSomaticStimulus(BaseModel):
         extra='ignore',
     )
     type: Literal['ConstantCurrentClampSomaticStimulus'] = Field(..., title='Type')
-    timestamps: TimestampsReference = Field(
-        ...,
-        description='Timestamps at which the stimulus is applied.',
-        title='Timestamps',
-    )
+    timestamps: TimestampsReference | None = None
     neuron_set: NeuronSetReference | None = None
     timestamp_offset: float | list[float] | None = Field(
         default=0.0,
@@ -3031,11 +3020,7 @@ class FullySynchronousSpikeStimulus(BaseModel):
         extra='ignore',
     )
     type: Literal['FullySynchronousSpikeStimulus'] = Field(..., title='Type')
-    timestamps: TimestampsReference = Field(
-        ...,
-        description='Timestamps at which the stimulus is applied.',
-        title='Timestamps',
-    )
+    timestamps: TimestampsReference | None = None
     source_neuron_set: NeuronSetReference | None = None
     targeted_neuron_set: NeuronSetReference | None = None
     timestamp_offset: float | list[float] | None = Field(
@@ -3059,11 +3044,7 @@ class HyperpolarizingCurrentClampSomaticStimulus(BaseModel):
     type: Literal['HyperpolarizingCurrentClampSomaticStimulus'] = Field(
         ..., title='Type'
     )
-    timestamps: TimestampsReference = Field(
-        ...,
-        description='Timestamps at which the stimulus is applied.',
-        title='Timestamps',
-    )
+    timestamps: TimestampsReference | None = None
     neuron_set: NeuronSetReference | None = None
     timestamp_offset: float | list[float] | None = Field(
         default=0.0,
@@ -3140,11 +3121,7 @@ class LinearCurrentClampSomaticStimulus(BaseModel):
         extra='ignore',
     )
     type: Literal['LinearCurrentClampSomaticStimulus'] = Field(..., title='Type')
-    timestamps: TimestampsReference = Field(
-        ...,
-        description='Timestamps at which the stimulus is applied.',
-        title='Timestamps',
-    )
+    timestamps: TimestampsReference | None = None
     neuron_set: NeuronSetReference | None = None
     timestamp_offset: float | list[float] | None = Field(
         default=0.0,
@@ -3222,11 +3199,7 @@ class MultiPulseCurrentClampSomaticStimulus(BaseModel):
         extra='ignore',
     )
     type: Literal['MultiPulseCurrentClampSomaticStimulus'] = Field(..., title='Type')
-    timestamps: TimestampsReference = Field(
-        ...,
-        description='Timestamps at which the stimulus is applied.',
-        title='Timestamps',
-    )
+    timestamps: TimestampsReference | None = None
     neuron_set: NeuronSetReference | None = None
     timestamp_offset: float | list[float] | None = Field(
         default=0.0,
@@ -3262,11 +3235,7 @@ class NormallyDistributedCurrentClampSomaticStimulus(BaseModel):
     type: Literal['NormallyDistributedCurrentClampSomaticStimulus'] = Field(
         ..., title='Type'
     )
-    timestamps: TimestampsReference = Field(
-        ...,
-        description='Timestamps at which the stimulus is applied.',
-        title='Timestamps',
-    )
+    timestamps: TimestampsReference | None = None
     neuron_set: NeuronSetReference | None = None
     timestamp_offset: float | list[float] | None = Field(
         default=0.0,
@@ -3295,11 +3264,7 @@ class PoissonSpikeStimulus(BaseModel):
         extra='ignore',
     )
     type: Literal['PoissonSpikeStimulus'] = Field(..., title='Type')
-    timestamps: TimestampsReference = Field(
-        ...,
-        description='Timestamps at which the stimulus is applied.',
-        title='Timestamps',
-    )
+    timestamps: TimestampsReference | None = None
     source_neuron_set: NeuronSetReference | None = None
     targeted_neuron_set: NeuronSetReference | None = None
     timestamp_offset: float | list[float] | None = Field(
@@ -3331,11 +3296,7 @@ class RelativeConstantCurrentClampSomaticStimulus(BaseModel):
     type: Literal['RelativeConstantCurrentClampSomaticStimulus'] = Field(
         ..., title='Type'
     )
-    timestamps: TimestampsReference = Field(
-        ...,
-        description='Timestamps at which the stimulus is applied.',
-        title='Timestamps',
-    )
+    timestamps: TimestampsReference | None = None
     neuron_set: NeuronSetReference | None = None
     timestamp_offset: float | list[float] | None = Field(
         default=0.0,
@@ -3363,11 +3324,7 @@ class RelativeLinearCurrentClampSomaticStimulus(BaseModel):
     type: Literal['RelativeLinearCurrentClampSomaticStimulus'] = Field(
         ..., title='Type'
     )
-    timestamps: TimestampsReference = Field(
-        ...,
-        description='Timestamps at which the stimulus is applied.',
-        title='Timestamps',
-    )
+    timestamps: TimestampsReference | None = None
     neuron_set: NeuronSetReference | None = None
     timestamp_offset: float | list[float] | None = Field(
         default=0.0,
@@ -3402,11 +3359,7 @@ class RelativeNormallyDistributedCurrentClampSomaticStimulus(BaseModel):
     type: Literal['RelativeNormallyDistributedCurrentClampSomaticStimulus'] = Field(
         ..., title='Type'
     )
-    timestamps: TimestampsReference = Field(
-        ...,
-        description='Timestamps at which the stimulus is applied.',
-        title='Timestamps',
-    )
+    timestamps: TimestampsReference | None = None
     neuron_set: NeuronSetReference | None = None
     timestamp_offset: float | list[float] | None = Field(
         default=0.0,
@@ -3437,11 +3390,7 @@ class SinusoidalCurrentClampSomaticStimulus(BaseModel):
         extra='ignore',
     )
     type: Literal['SinusoidalCurrentClampSomaticStimulus'] = Field(..., title='Type')
-    timestamps: TimestampsReference = Field(
-        ...,
-        description='Timestamps at which the stimulus is applied.',
-        title='Timestamps',
-    )
+    timestamps: TimestampsReference | None = None
     neuron_set: NeuronSetReference | None = None
     timestamp_offset: float | list[float] | None = Field(
         default=0.0,
@@ -3475,11 +3424,7 @@ class SubthresholdCurrentClampSomaticStimulus(BaseModel):
         extra='ignore',
     )
     type: Literal['SubthresholdCurrentClampSomaticStimulus'] = Field(..., title='Type')
-    timestamps: TimestampsReference = Field(
-        ...,
-        description='Timestamps at which the stimulus is applied.',
-        title='Timestamps',
-    )
+    timestamps: TimestampsReference | None = None
     neuron_set: NeuronSetReference | None = None
     timestamp_offset: float | list[float] | None = Field(
         default=0.0,
