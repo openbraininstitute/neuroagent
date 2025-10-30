@@ -6,22 +6,25 @@
         "get-library-docs": {
           "name": "get-obi-software-docs",
           "name_frontend": "Get OBI Software Docs",
-          "description": "Get the latest documentation for OBI (Open Brain Institute) Python packages. This tool retrieves up-to-date documentation on OBI software packages including openbraininstitute/obi-one and openbraininstitute/entitysdk. Use this tool whenever the user wants you to write code related to OBI packages to access the most recent API documentation and usage examples.",
-          "description_frontend": "Get the latest documentation for OBI (Open Brain Institute) Python packages. Retrieves up-to-date documentation on OBI software packages including obi-one and entitysdk.",
+          "description": "Get the latest documentation for OBI (Open Brain Institute) Python packages. This tool retrieves up-to-date documentation on OBI software packages including openbraininstitute/obi-one, openbraininstitute/entitysdk, and openbraininstitute/neurom. Use this tool whenever the user wants you to write code related to OBI packages to access the most recent API documentation and usage examples.",
+          "description_frontend": "Get the latest documentation for OBI (Open Brain Institute) Python packages. Retrieves up-to-date documentation on OBI software packages including obi-one, entitysdk, and neurom.",
           "utterances": [
             "Get OBI documentation",
             "Show me OBI software docs",
             "Get documentation for obi-one",
             "Get documentation for entitysdk",
+            "Get documentation for neurom",
             "Find OBI package documentation",
             "Look up OBI software documentation",
             "Write code using OBI packages",
             "Show me example code for OBI",
             "Get code examples for obi-one",
             "Get code examples for entitysdk",
+            "Get code examples for neurom",
             "How to write code with OBI",
             "Write an example using obi-one",
             "Write an example using entitysdk",
+            "Write an example using neurom",
             "Give me a code example for OBI software"
           ]
         }

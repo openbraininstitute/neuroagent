@@ -8,8 +8,9 @@ You can use the `get-obi-software-docs` tool to get the latest documentation on 
 See below the list of library ids supported OBI Python packages you can generate code for:
 * openbraininstitute/obi-one
 * openbraininstitute/entitysdk
+* openbraininstitute/neurom
 
-They are both available in Context7 so whenever the user wants you to write some code related to OBI you should call
+They are all available in Context7 so whenever the user wants you to write some code related to OBI you should call
 the `get-obi-software-docs` tool to get the latest documentation on these packages. There is no need to call the `resolve-library-id` for OBI packages as you already know their library ids.
 
 # Getting documentation for open source packages outside OBI
