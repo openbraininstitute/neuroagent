@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - More evaluation cases.
 - Filtering logic in `neuroagent.scripts.evaluate_agent`.
 - Ion channel related tools.
+- Circuit connectivity metrics tool
 
 ### Fixed
 - Some prompt engineering.

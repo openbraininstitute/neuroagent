@@ -18,7 +18,7 @@ from deepeval.evaluate import evaluate
 from deepeval.metrics import ArgumentCorrectnessMetric, GEval, ToolCorrectnessMetric
 from deepeval.test_case import LLMTestCase, LLMTestCaseParams, ToolCall, ToolCallParams
 from dotenv import load_dotenv
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ValidationError
 
 import neuroagent.tools
 from neuroagent.tools.base_tool import BaseTool
@@ -481,9 +481,15 @@ async def eval_sample(
                 )
                 # Keep the original tool call with all arguments intact
                 continue
-            input_class = tool_class.__annotations__["input_schema"](
-                **tool_call["arguments"]
-            )
+            try:
+                input_class = tool_class.__annotations__["input_schema"](
+                    **tool_call["arguments"]
+                )
+            except ValidationError:
+                logger.warning(
+                    f"Tool '{tool_call['name']}' arguments could not be validated against the tool's input schema."
+                )
+                continue
             decoded["tool_calls"][i]["arguments"] = input_class.model_dump(
                 exclude_defaults=True,
                 mode="json",

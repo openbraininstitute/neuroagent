@@ -48,18 +48,30 @@ class CircuitGetAllTool(BaseTool):
     description: ClassVar[
         str
     ] = """Searches a neuroscience based knowledge graph to retrieve circuits.
+    
+    **Important**: This tool only provides basic circuit metadata and does NOT contain detailed circuit metrics such as:
+    - Node populations (biophysical or virtual neurons)
+    - Edge populations (chemical or electrical connections)
+    - Synaptic properties and connectivity data
+    - Circuit statistics and measurements
+    - Filterable properties for analysis
+    
     The output is a list of circuits, containing:
     - The circuit ID and basic identifiers
     - Core circuit information and properties
     - Status and state information
     - Associated metadata and relationships
     - Creation and modification timestamps
+    
+    For detailed circuit analysis and metrics, use the obi-one endpoints:
+    - `obione-circuitmetrics-getone` - Get comprehensive circuit metrics and properties
+    - `obione-circuitconnectivitymetrics-getone` - Analyze connectivity patterns and synaptic connections
     """
     description_frontend: ClassVar[
         str
     ] = """Search and retrieve circuits. Use this tool to:
     • Find circuits by various criteria
-    • Access detailed circuit data
+    • Access basic circuit metadata
 
     Specify optional criteria to find relevant circuits."""
     metadata: EntitycoreMetadata
