@@ -21,6 +21,13 @@ class CircuitMetricGetOneToolIntput(
     circuit_id: UUID = Field(
         description="ID of the circuit from which the metrics should be computed."
     )
+    # Overriding the query params since the autogen turned them into som wild root models that are not model_dumpable
+    level_of_detail_nodes: int = Field(  # type: ignore[assignment]
+        ge=0, le=3, default=1, description="Level of detail for nodes in the response."
+    )
+    level_of_detail_edges: int = Field(  # type: ignore[assignment]
+        ge=0, le=3, default=1, description="Level of detail for edges in the response."
+    )
 
 
 class CircuitMetricGetOneToolMetadata(BaseMetadata):
@@ -42,7 +49,40 @@ class CircuitMetricGetOneTool(BaseTool):
         "Compute metrics for this circuit",
         "Get some more information about this circuit",
     ]
-    description: ClassVar[str] = "Given a circuit ID, compute the features of it."
+    description: ClassVar[str] = (
+        "Given a circuit ID, compute the features of it. "
+        "This tool returns comprehensive circuit metadata including node populations, edge populations, and available filterable properties.\n\n"
+        "## What This Tool Provides\n"
+        "- **Circuit structure**: Node populations, edge populations, and their properties\n"
+        "- **Filterable properties**: Available columns and values for connectivity analysis\n"
+        "- **Node sets**: Predefined groups for connectivity filtering\n"
+        "- **Population statistics**: Counts and property distributions\n\n"
+        "## What This Tool Does NOT Provide\n"
+        "- **Connection probabilities**: Use `obione-circuitconnectivitymetrics-getone` instead\n"
+        "- **Synapse counts**: Use `obione-circuitconnectivitymetrics-getone` instead\n"
+        "- **Connectivity patterns**: Use `obione-circuitconnectivitymetrics-getone` instead\n"
+        "- **Functional analysis**: Use `obione-circuitconnectivitymetrics-getone` instead\n\n"
+        "## Top-Level Output Fields\n\n"
+        "### Node Populations\n"
+        "- **biophysical_node_populations**: Contains biophysical neuron populations with detailed properties including:\n"
+        "  - `property_names`: List of available column names for filtering (e.g., 'layer', 'mtype', 'synapse_class')\n"
+        "  - `property_unique_values`: For categorical columns, shows all unique values available for filtering\n"
+        "  - `property_value_counts`: Count of occurrences for each unique value\n"
+        "- **virtual_node_populations**: Contains virtual/artificial neuron populations with similar property structure\n"
+        "- **names_of_nodesets**: Predefined node sets that can be referenced in connectivity analysis\n\n"
+        "### Edge Populations\n"
+        "- **chemical_edge_populations**: Chemical synaptic connections between populations with properties like:\n"
+        "  - Synaptic properties (conductance, delay, decay_time, etc.)\n"
+        "  - Spatial properties (afferent/efferent coordinates, section info)\n"
+        "  - Connection statistics and degree metrics\n"
+        "- **electrical_edge_populations**: Electrical gap junction connections (if present)\n\n"
+        "### Usage for Connectivity Analysis\n"
+        "The `property_names` and `property_unique_values` from node populations are essential for:\n"
+        "- Building `pre_selection` and `post_selection` filters in connectivity metrics tools\n"
+        "- Understanding available categorical values for filtering (e.g., layer values, mtype values)\n"
+        "- Identifying which properties can be used for grouping and analysis\n\n"
+        "Example: Use `level_of_detail_nodes=1` to get detailed property information for filtering in connectivity analysis."
+    )
     description_frontend: ClassVar[str] = (
         """Analyze a circuit, and get more insights into its properties."""
     )

@@ -1,0 +1,26 @@
+---
+description: Circuit tools usage patterns
+---
+# Ciruit related tools guidelines
+
+## Key Tool Purposes
+
+- **`entitycore-circuit-getone`**: Basic metadata only (name, ID, status)
+- **`entitycore-circuit-getall`**: List of all circuits with basic metadata
+- **`obione-circuitmetrics-getone`**: Circuit structure, populations, properties
+- **`obione-circuitconnectivitymetrics-getone`**: Connection probabilities and synapses counts
+- **`circuit-population-data-analysis`**: Analyze circuit population data using natural language queries. Note: This tool is very slow but allows accessing per-neuron information.
+- **`obione-circuitpopulation-getone`**: Retrieve circuit population data. Note: `obione-circuitmetrics-getone` reproduces this functionality and is more versatile, so it's probably better in most cases.
+- **`obione-circuitnodesets-getone`**: Retrieve circuit nodesets data. Note: `obione-circuitmetrics-getone` reproduces this functionality and is more versatile, so it's probably better in most cases.
+
+## Tool Usage Sequence
+
+When analyzing circuits, very often you you will need to use the tools in the following order:
+
+1. **`obione-circuitmetrics-getone`** - Get circuit structure first
+   - Use `level_of_detail_nodes=1` to get available edge populations and node sets
+   - This provides the foundation for connectivity analysis
+
+2. **`obione-circuitconnectivitymetrics-getone`** - Analyze connectivity patterns
+   - Use edge populations and node sets from step 1
+   - Essential for understanding excitatory/inhibitory connections
