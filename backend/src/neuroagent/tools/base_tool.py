@@ -42,29 +42,26 @@ class BaseTool(BaseModel, ABC):
 
     @classmethod
     def pydantic_to_openai_schema(cls) -> dict[str, Any]:
-        """Convert pydantic schema to OpenAI json."""
+        """Convert pydantic schema to OpenAI function JSON schema."""
+        # Get the schema from json_schema attribute or input_schema model
         if cls.json_schema is not None:
-            parameters = cls.json_schema
+            schema = cls.json_schema
         else:
-            parameters = cls.__annotations__["input_schema"].model_json_schema()
+            schema = cls.__annotations__["input_schema"].model_json_schema()
 
-        # The name and description are duplicated to accomodate for
-        # models compatible with flat and nested JSON schema.
-        # E.g. o3 is flattened JSON schema compatible only
-        new_retval: dict[str, Any] = {
+        # Wrap in standard JSON Schema structure if needed
+        if "type" not in schema and "properties" not in schema:
+            schema = {"type": "object", "properties": schema}
+
+        # Ensure additionalProperties is False
+        schema.setdefault("additionalProperties", False)
+
+        return {
             "type": "function",
             "name": cls.name,
             "description": cls.description,
-            "function": {
-                "name": cls.name,
-                "description": cls.description,
-                "strict": False,
-                "parameters": parameters,
-            },
+            "parameters": schema,
         }
-        new_retval["function"]["parameters"]["additionalProperties"] = False
-
-        return new_retval
 
     @abstractmethod
     async def arun(self) -> BaseModel:
