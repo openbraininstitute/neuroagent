@@ -1,0 +1,10 @@
+[
+  {
+    "name": "get-obi-software-docs",
+    "arguments": {
+      "context7CompatibleLibraryID": "/openbraininstitute/obi-one",
+      "topic": "Single Cell Simulation Example",
+      "tokens": 2000
+    }
+  }
+]

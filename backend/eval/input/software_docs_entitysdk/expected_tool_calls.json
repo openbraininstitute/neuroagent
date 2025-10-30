@@ -1,0 +1,10 @@
+[
+  {
+    "name": "get-obi-software-docs",
+    "arguments": {
+      "context7CompatibleLibraryID": "/openbraininstitute/entitysdk",
+      "topic": "get all cell morphologies",
+      "tokens": 2000
+    }
+  }
+]
