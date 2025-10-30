@@ -86,7 +86,8 @@ export function getStorageID(
     const parsedResult =
       typeof rawResult === "string" ? safeParse(rawResult) : rawResult;
 
-    const storageId = parsedResult.storage_id;
+    const storageId =
+      parsedResult[toolCall.toolInvocation.toolCallId].storage_id;
     if (storageId) {
       if (Array.isArray(storageId)) {
         storageId.forEach((id: string) => storageIds.push(id));
