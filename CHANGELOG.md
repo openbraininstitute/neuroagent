@@ -9,11 +9,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - More evaluation cases.
-- Filtering logic in `neuroagent.scripts.evaluate_agent`
+- Filtering logic in `neuroagent.scripts.evaluate_agent`.
+- Ion channel related tools.
+- Circuit connectivity metrics tool
 
 ### Fixed
 - Some prompt engineering.
 - Output class of circuit population tool.
+<<<<<<< HEAD
+- Prevent the LLM from talking about the UI.
+=======
+- Tool argument correctness metric.
+>>>>>>> main
 
 ## Changed
 - Running deepeval github action also on main
@@ -21,6 +28,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Try to enforce using metric tools rather than downloading assets.
 - Rule to avoid overvalidating.
 - Adapt everything to vercel v5.
+
+## Fixed
+- Images not appearing in Literature search (Prompt refactor).
 
 ## [v0.10.0] - 2.10.2025
 

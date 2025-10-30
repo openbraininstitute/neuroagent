@@ -55,11 +55,19 @@ from neuroagent.tools.entitycore_experimentalsynapsesperconnection_getall import
 from neuroagent.tools.entitycore_experimentalsynapsesperconnection_getone import (
     ExperimentalSynapsesPerConnectionGetOneTool,
 )
+from neuroagent.tools.entitycore_ionchannel_getall import IonChannelGetAllTool
+from neuroagent.tools.entitycore_ionchannel_getone import IonChannelGetOneTool
 from neuroagent.tools.entitycore_ionchannelmodel_getall import (
     IonChannelModelGetAllTool,
 )
 from neuroagent.tools.entitycore_ionchannelmodel_getone import (
     IonChannelModelGetOneTool,
+)
+from neuroagent.tools.entitycore_ionchannelrecording_getall import (
+    IonChannelRecordingGetAllTool,
+)
+from neuroagent.tools.entitycore_ionchannelrecording_getone import (
+    IonChannelRecordingGetOneTool,
 )
 from neuroagent.tools.entitycore_measurementannotation_getall import (
     MeasurementAnnotationGetAllTool,
@@ -127,6 +135,9 @@ from neuroagent.tools.entitycore_subject_getall import SubjectGetAllTool
 from neuroagent.tools.entitycore_subject_getone import SubjectGetOneTool
 from neuroagent.tools.generate_plot import PlotGeneratorTool
 from neuroagent.tools.obi_expert import OBIExpertTool
+from neuroagent.tools.obione_circuitconnectivitymetrics_getone import (
+    CircuitConnectivityMetricsGetOneTool,
+)
 from neuroagent.tools.obione_circuitmetrics_getone import CircuitMetricGetOneTool
 from neuroagent.tools.obione_circuitnodesets_getone import CircuitNodesetsGetOneTool
 from neuroagent.tools.obione_circuitpopulations_getone import (
@@ -155,6 +166,7 @@ __all__ = [
     "BrainRegionHierarchyGetOneTool",
     "CellMorphologyGetAllTool",
     "CellMorphologyGetOneTool",
+    "CircuitConnectivityMetricsGetOneTool",
     "CircuitGetAllTool",
     "CircuitGetOneTool",
     "CircuitMetricGetOneTool",
@@ -178,8 +190,12 @@ __all__ = [
     "ExperimentalSynapsesPerConnectionGetAllTool",
     "ExperimentalSynapsesPerConnectionGetOneTool",
     "GenerateSimulationsConfigTool",
+    "IonChannelGetAllTool",
+    "IonChannelGetOneTool",
     "IonChannelModelGetAllTool",
     "IonChannelModelGetOneTool",
+    "IonChannelRecordingGetAllTool",
+    "IonChannelRecordingGetOneTool",
     "MeasurementAnnotationGetAllTool",
     "MeasurementAnnotationGetOneTool",
     "MEModelGetAllTool",

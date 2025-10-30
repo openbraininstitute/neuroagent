@@ -10,15 +10,15 @@ import os
 import re
 from datetime import datetime
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal
 
 import httpx
 import pandas as pd
 from deepeval.evaluate import evaluate
 from deepeval.metrics import ArgumentCorrectnessMetric, GEval, ToolCorrectnessMetric
-from deepeval.test_case import LLMTestCase, LLMTestCaseParams, ToolCall
+from deepeval.test_case import LLMTestCase, LLMTestCaseParams, ToolCall, ToolCallParams
 from dotenv import load_dotenv
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ValidationError
 
 import neuroagent.tools
 from neuroagent.tools.base_tool import BaseTool
@@ -343,6 +343,47 @@ def collect_test_case_results(
     # Prepare evaluation results with validation and timestamp
     eval_results = EvaluationResults(**evaluation_results)
 
+    # Compute overall arg correctness
+    deterministic_arg_correctness = next(
+        (
+            metric
+            for metric in eval_results.metrics
+            if metric.name == "Deterministic Argument Correctness"
+        ),
+        None,
+    )
+    non_deterministic_arg_correctness = next(
+        (
+            metric
+            for metric in eval_results.metrics
+            if metric.name == "Argument Correctness"
+        ),
+        None,
+    )
+    if deterministic_arg_correctness and non_deterministic_arg_correctness:
+        eval_results.metrics.append(
+            MetricResult(
+                name="Overall Argument Correctness",
+                score=max(
+                    deterministic_arg_correctness.score,
+                    non_deterministic_arg_correctness.score,
+                ),
+                success=max(
+                    deterministic_arg_correctness.score,
+                    non_deterministic_arg_correctness.score,
+                )
+                >= max(
+                    deterministic_arg_correctness.threshold,
+                    non_deterministic_arg_correctness.threshold,
+                ),
+                threshold=max(
+                    deterministic_arg_correctness.threshold,
+                    non_deterministic_arg_correctness.threshold,
+                ),
+                reason="",
+            )
+        )
+
     return {
         # Input data
         "user": test_case["input"],
@@ -351,7 +392,7 @@ def collect_test_case_results(
         "params": test_case["params"].model_dump(),
         # Output data
         "ai_response": decoded_response["response"],
-        "actual_tool_calls": actual_tool_calls.model_dump(),
+        "actual_tool_calls": actual_tool_calls.model_dump()["tool_calls"],
         "results": eval_results.model_dump(),
     }
 
@@ -414,7 +455,10 @@ async def eval_sample(
             # Send the request to chat_streamed using the previously created thread
             response = await client.post(
                 f"{url}/qa/chat_streamed/{thread_id}",
-                json={"content": test_case["input"]},
+                json={
+                    "content": test_case["input"],
+                    "frontend_url": "https://staging.openbraininstitute.org/app/virtual-lab/82b783eb-fac6-45ec-a928-84322e3a9672/7ef8dc29-233a-4c01-94b8-8c1420105304/data/browse/entity/cell-morphology?br_id=2a156e47-0842-4a40-bd1e-2afffb4dbafd&br_av=477",
+                },
             )
             # Delete the original thread
         finally:
@@ -437,9 +481,15 @@ async def eval_sample(
                 )
                 # Keep the original tool call with all arguments intact
                 continue
-            input_class = tool_class.__annotations__["input_schema"](
-                **tool_call["arguments"]
-            )
+            try:
+                input_class = tool_class.__annotations__["input_schema"](
+                    **tool_call["arguments"]
+                )
+            except ValidationError:
+                logger.warning(
+                    f"Tool '{tool_call['name']}' arguments could not be validated against the tool's input schema."
+                )
+                continue
             decoded["tool_calls"][i]["arguments"] = input_class.model_dump(
                 exclude_defaults=True,
                 mode="json",
@@ -513,11 +563,24 @@ async def run_eval(
 
     # 2. Tool Correctness Metric
     tool_correctness = ToolCorrectnessMetric(should_consider_ordering=True)
+
+    class DeterministicArgCorrectnessMetric(ToolCorrectnessMetric):
+        """Override the name attribute."""
+
+        @property
+        def __name__(self) -> Literal["Deterministic Argument Correctness"]:
+            return "Deterministic Argument Correctness"
+
+    tool_arguments_strict = DeterministicArgCorrectnessMetric(
+        evaluation_params=[ToolCallParams.INPUT_PARAMETERS], include_reason=True
+    )
+
     tool_arguments = ArgumentCorrectnessMetric(model="gpt-4o-mini")
 
     # === Run Evaluation ===
     results = evaluate(
-        deepeval_test_cases, [answer_relevance, tool_correctness, tool_arguments]
+        deepeval_test_cases,
+        [answer_relevance, tool_correctness, tool_arguments, tool_arguments_strict],
     )
 
     # Collect individual results for detailed.json
