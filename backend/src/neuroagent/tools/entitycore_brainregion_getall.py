@@ -1,6 +1,7 @@
 """Get Brain Region tool."""
 
 from typing import ClassVar
+from uuid import UUID
 
 from httpx import AsyncClient
 from pydantic import Field
@@ -27,6 +28,11 @@ class BrainRegionGetAllInput(ReadManyBrainRegionGetParametersQuery):
         title="Brain Region Name Search",
         description="Perform semantic search to find brain regions by their names. Enter any text related to a brain region name (e.g., 'hippocampus', 'frontal cortex', 'amygdala') and receive results ranked by semantic similarity to your query.",
     )
+    hierarchy_id: UUID = Field(
+        default=UUID("e3e70682-c209-4cac-a29f-6fbed82c07cd"),
+        description="The hierarchy ID for brain regions. The default value is the most commonly used hierarchy ID.",
+    )
+
     name: SkipJsonSchema[None] = Field(default=None, exclude=True)
     name__in: SkipJsonSchema[None] = Field(default=None, exclude=True)
     name__ilike: SkipJsonSchema[None] = Field(default=None, exclude=True)
