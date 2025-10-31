@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Output class of circuit population tool.
 - Prevent the LLM from talking about the UI.
 - Tool argument correctness metric.
+- Fix brain region get all for new hierarchy.
 
 ## Changed
 - Running deepeval github action also on main
