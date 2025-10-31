@@ -9,7 +9,20 @@ from collections import defaultdict
 from typing import Any, AsyncIterator
 
 from openai import AsyncOpenAI, AsyncStream
-from openai.types.responses import ResponseFunctionToolCall, ResponseStreamEvent
+from openai.types.responses import (
+    ResponseCompletedEvent,
+    ResponseContentPartAddedEvent,
+    ResponseContentPartDoneEvent,
+    ResponseFunctionCallArgumentsDeltaEvent,
+    ResponseFunctionToolCall,
+    ResponseOutputItemAddedEvent,
+    ResponseOutputItemDoneEvent,
+    ResponseReasoningSummaryPartAddedEvent,
+    ResponseReasoningSummaryPartDoneEvent,
+    ResponseReasoningSummaryTextDeltaEvent,
+    ResponseStreamEvent,
+    ResponseTextDeltaEvent,
+)
 from pydantic import BaseModel, ValidationError
 
 from neuroagent.app.database.sql_schemas import (
@@ -272,60 +285,68 @@ class AgentsRoutine:
                 usage_data = None
                 tool_call_ID_mapping: dict[str, str] = {}
                 async for event in completion:
-                    match event.type:
+                    match event:
                         # REASONING
                         # Reasoning start
-                        case "response.reasoning_summary_part.added":
+                        case ResponseReasoningSummaryPartAddedEvent():
                             yield f"data: {json.dumps({'type': 'reasoning-start', 'id': event.item_id})}\n\n"
 
                         # Reasoning deltas
-                        case "response.reasoning_summary_text.delta":
+                        case ResponseReasoningSummaryTextDeltaEvent():
                             yield f"data: {json.dumps({'type': 'reasoning-delta', 'id': event.item_id, 'delta': event.delta})}\n\n"
                             message["reasoning"] += event.delta
 
                         # Reasoning end
-                        case "response.reasoning_summary_part.done":
+                        case ResponseReasoningSummaryPartDoneEvent():
                             yield f"data: {json.dumps({'type': 'reasoning-end', 'id': event.item_id})}\n\n"
 
                         # TEXT OUTPUTS
                         # Text start
-                        case "response.content_part.added":
+                        case ResponseContentPartAddedEvent():
                             yield f"data: {json.dumps({'type': 'text-start', 'id': event.item_id})}\n\n"
 
                         # Text Delta
-                        case "response.output_text.delta":
+                        case ResponseTextDeltaEvent():
                             yield f"data: {json.dumps({'type': 'text-delta', 'id': event.item_id, 'delta': event.delta})}\n\n"
                             message["content"] += event.delta
 
                         # Text end
-                        case "response.content_part.done":
+                        case ResponseContentPartDoneEvent():
                             yield f"data: {json.dumps({'type': 'text-end', 'id': event.item_id})}\n\n"
 
                         # TOOL CALLS
                         # Tool call starts (handled in EVENTS. Unfortunately no specific event for it.)
-                        case "response.output_item.added":
+                        case ResponseOutputItemAddedEvent():
                             yield f"data: {json.dumps({'type': 'start-step'})}\n\n"
                             # New tool call before streaming its deltas.
-                            if type(event.item) is ResponseFunctionToolCall:
+                            if (
+                                isinstance(event.item, ResponseFunctionToolCall)
+                                and event.item.id
+                            ):
                                 # Add generic UUID to event ID
                                 tool_call_ID_mapping[event.item.id] = uuid.uuid4().hex
                                 yield f"data: {json.dumps({'type': 'tool-input-start', 'toolCallId': tool_call_ID_mapping[event.item.id], 'toolName': event.item.name})}\n\n"
 
                         # Tool call deltas
-                        case "response.function_call_arguments.delta":
-                            yield f"data: {json.dumps({'type': 'tool-input-delta', 'toolCallId': tool_call_ID_mapping[event.item_id], 'inputTextDelta': event.delta})}\n\n"
+                        case ResponseFunctionCallArgumentsDeltaEvent():
+                            if event.item_id:
+                                yield f"data: {json.dumps({'type': 'tool-input-delta', 'toolCallId': tool_call_ID_mapping[event.item_id], 'inputTextDelta': event.delta})}\n\n"
 
                         # Tool call end (handled in EVENTS. Unfortunately no specific event for it.)
-                        case "response.output_item.done":
-                            if type(event.item) is ResponseFunctionToolCall:
+                        case ResponseOutputItemDoneEvent():
+                            if (
+                                isinstance(event.item, ResponseFunctionToolCall)
+                                and event.item.id
+                            ):
                                 input_args = event.item.arguments
                                 try:
                                     input_schema: type[BaseModel] = tool_map[
                                         event.item.name
                                     ].__annotations__["input_schema"]
-                                    args = input_schema(
+                                    validated_args = input_schema(
                                         **json.loads(input_args)
                                     ).model_dump(mode="json")
+                                    args = json.dumps(validated_args)
                                 except ValidationError:
                                     args = input_args
                                 message["tool_calls"].append(
@@ -334,7 +355,7 @@ class AgentsRoutine:
                                         "type": "function",
                                         "function": {
                                             "name": event.item.name,
-                                            "arguments": json.dumps(args),
+                                            "arguments": args,
                                         },
                                     }
                                 )
@@ -343,7 +364,7 @@ class AgentsRoutine:
                             yield f"data: {json.dumps({'type': 'finish-step'})}\n\n"
 
                         # Handle usage/token information
-                        case "response.completed":
+                        case ResponseCompletedEvent():
                             usage_data = event.response.usage
 
                 # If tool calls requested, instantiate them as an SQL compatible class
@@ -366,7 +387,7 @@ class AgentsRoutine:
                 if usage_data:
                     input_cached = (
                         getattr(
-                            getattr(event.response.usage, "input_tokens_details", 0),
+                            getattr(usage_data, "input_tokens_details", 0),
                             "cached_tokens",
                             0,
                         )

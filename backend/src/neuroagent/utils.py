@@ -53,7 +53,9 @@ async def messages_to_openai_content(
     return messages
 
 
-def convert_to_responses_api_format(db_messages: list[dict[str, str]]):
+def convert_to_responses_api_format(
+    db_messages: list[dict[str, Any]],
+) -> list[dict[str, Any]]:
     """
     Convert database message format to OpenAI Responses API format.
 
