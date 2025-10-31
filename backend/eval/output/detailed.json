@@ -441,7 +441,7 @@
       "metrics": [
         {
           "name": "Correctness [GEval]",
-          "score": 0.4911273235362933,
+          "score": 0.4241913428638625,
           "success": false,
           "threshold": 0.5,
           "reason": "The actual output provides detailed information about five cerebellar morphologies, including names, IDs, morphological types, descriptions, assets, licenses, and links, which aligns with the request for morphologies from the cerebellum. However, it does not follow the expected output structure, which includes specific sections for contributors and a more uniform format. Additionally, the expected output mentions 'rodents (Mus musculus)', which is absent in the actual output."
