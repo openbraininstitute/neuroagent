@@ -53,6 +53,67 @@ async def messages_to_openai_content(
     return messages
 
 
+def convert_to_responses_api_format(db_messages: list[dict[str, str]]):
+    """
+    Convert database message format to OpenAI Responses API format.
+
+    The Responses API uses a different structure than Chat Completions:
+    - Uses "input" instead of "messages"
+    - Messages can be simple strings or dictionaries with role/content
+    - Assistant messages have content as a list of objects with "type" field
+    - Function calls are separate items in the input array with specific types
+
+    Args:
+        db_messages: List of message dictionaries from your database
+
+    Returns
+    -------
+        List compatible with OpenAI's Responses API "input" parameter
+    """
+    responses_input = []
+
+    for msg in db_messages:
+        role = msg["role"]
+
+        if role == "user":
+            # User messages can be simple or structured
+            responses_input.append({"role": "user", "content": msg["content"]})
+
+        elif role == "assistant":
+            # Assistant messages need structured content
+            if msg["content"]:
+                assistant_msg = {
+                    "role": "assistant",
+                    "content": [{"type": "output_text", "text": msg["content"]}],
+                }
+                responses_input.append(assistant_msg)
+
+            # If there were tool calls, add them as separate function_call items
+            if msg.get("tool_calls"):
+                for tool_call in msg["tool_calls"]:
+                    responses_input.append(
+                        {
+                            "type": "function_call",
+                            "id": f"fc_{uuid.uuid4().hex}",  # OpenAI wants an ID that start with "FC" ...
+                            "call_id": tool_call.get("id"),
+                            "name": tool_call["function"]["name"],
+                            "arguments": tool_call["function"]["arguments"],
+                        }
+                    )
+
+        elif role == "tool":
+            # Tool results become function_call_output
+            responses_input.append(
+                {
+                    "type": "function_call_output",
+                    "call_id": msg.get("tool_call_id"),
+                    "output": msg["content"],
+                }
+            )
+
+    return responses_input
+
+
 def get_entity(message: dict[str, Any]) -> Entity:
     """Define the Enum entity of the message based on its content."""
     if message["role"] == "user":
