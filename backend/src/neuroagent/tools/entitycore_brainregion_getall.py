@@ -1,6 +1,6 @@
 """Get Brain Region tool."""
 
-from typing import ClassVar
+from typing import ClassVar, Literal
 
 from httpx import AsyncClient
 from pydantic import Field
@@ -27,6 +27,13 @@ class BrainRegionGetAllInput(ReadManyBrainRegionGetParametersQuery):
         title="Brain Region Name Search",
         description="Perform semantic search to find brain regions by their names. Enter any text related to a brain region name (e.g., 'hippocampus', 'frontal cortex', 'amygdala') and receive results ranked by semantic similarity to your query.",
     )
+    hierarchy_id: Literal[
+        "e3e70682-c209-4cac-a29f-6fbed82c07cd", "e3fdfcc0-6807-4be1-aefc-b3f9116f6ced"
+    ] = Field(
+        default="e3e70682-c209-4cac-a29f-6fbed82c07cd",
+        description="The hierarchy ID for brain regions. The default value is the most commonly used hierarchy ID called 'aibs'. The second one is : `Julich-Brain Probabilistic Cytoarchitectonic Atlas`.",
+    )  # type: ignore
+
     name: SkipJsonSchema[None] = Field(default=None, exclude=True)
     name__in: SkipJsonSchema[None] = Field(default=None, exclude=True)
     name__ilike: SkipJsonSchema[None] = Field(default=None, exclude=True)
@@ -79,6 +86,7 @@ class BrainRegionGetAllTool(BaseTool):
         """
         query_params = self.input_schema.model_dump(exclude_defaults=True, mode="json")
         query_params["page_size"] = self.input_schema.page_size
+        query_params["hierarchy_id"] = self.input_schema.hierarchy_id
 
         headers: dict[str, str] = {}
         if self.metadata.vlab_id is not None:
