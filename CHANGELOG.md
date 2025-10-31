@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v0.11.0] - 31.10.2025
+
 ### Added
 - More evaluation cases.
 - Filtering logic in `neuroagent.scripts.evaluate_agent`.
@@ -16,11 +18,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Some prompt engineering.
 - Output class of circuit population tool.
-<<<<<<< HEAD
 - Prevent the LLM from talking about the UI.
-=======
 - Tool argument correctness metric.
->>>>>>> main
 
 ## Changed
 - Running deepeval github action also on main
