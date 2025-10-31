@@ -425,7 +425,7 @@
       "metrics": [
         {
           "name": "Correctness [GEval]",
-          "score": 0.4241913428638626,
+          "score": 0.4241913428638625,
           "success": false,
           "threshold": 0.5,
           "reason": "The actual output provides detailed information about a single morphology from the cerebellum, including its ID, name, species, and description. However, it fails to match the expected output format, which anticipates multiple morphologies and placeholders for various details. The response does not include the expected structure of multiple entries or the placeholders for additional morphologies, leading to a significant discrepancy in alignment with the expected output."
