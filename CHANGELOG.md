@@ -32,6 +32,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Use typescript autogen for backend types in frontend.
 - Try to enforce using metric tools rather than downloading assets.
 - Rule to avoid overvalidating.
+- Adapt everything to vercel v5.
 
 ## Fixed
 - Images not appearing in Literature search (Prompt refactor).

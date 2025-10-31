@@ -628,42 +628,32 @@ async def test_get_thread_messages_vercel_format(
     assert item["id"]
     assert item["createdAt"]
     assert item.get("role") == "assistant"
-    assert item.get("content") == "sample response content."
+    assert item["parts"][1]["text"] == "sample response content."
 
     parts = item.get("parts")
     assert isinstance(parts, list)
-    assert len(parts) == 3
+    assert len(parts) == 2
 
     first_part = parts[0]
-    assert first_part.get("type") == "text"
-    assert first_part.get("text") == ""
+    assert isinstance(first_part, dict)
+    assert first_part.get("toolCallId") == "mock_id_tc"
+    assert first_part.get("type") == "tool-get_weather"
+    assert first_part.get("input") == {"location": "Geneva"}
+    assert first_part.get("state") == "input-available"
+    assert first_part.get("output") is None
 
     second_part = parts[1]
-    assert second_part.get("type") == "tool-invocation"
-    tool_inv = second_part.get("toolInvocation")
-    assert isinstance(tool_inv, dict)
-    assert tool_inv.get("toolCallId") == "mock_id_tc"
-    assert tool_inv.get("toolName") == "get_weather"
-    assert tool_inv.get("args") == {"location": "Geneva"}
-    assert tool_inv.get("state") == "call"
-    assert tool_inv.get("results") is None
+    assert second_part.get("type") == "text"
+    assert second_part.get("text") == "sample response content."
 
-    third_part = parts[2]
-    assert third_part.get("type") == "text"
-    assert third_part.get("text") == "sample response content."
+    metadata = item.get("metadata").get("toolCalls")
+    assert isinstance(metadata, list)
+    assert len(metadata) == 1
 
-    annotations = item.get("annotations")
-    assert isinstance(annotations, list)
-    assert len(annotations) == 2
-
-    ann1 = annotations[0]
+    ann1 = metadata[0]
     assert ann1.get("toolCallId") == "mock_id_tc"
     assert ann1.get("validated") == "not_required"
     assert ann1.get("isComplete") is True
-
-    ann2 = annotations[1]
-    assert ann2["messageId"]
-    assert ann2.get("isComplete") is True
 
     # Assert the second page
     assert len(page_2["results"]) == 1
@@ -672,9 +662,8 @@ async def test_get_thread_messages_vercel_format(
     assert page_2["page_size"] == 2
 
     msg = page_2["results"][0]
-    assert msg["annotations"] is None
-    assert msg["content"] == "This is my query."
-    assert msg["parts"] is None
+    assert msg["metadata"] is None
+    assert msg["parts"][0]["text"] == "This is my query."
     assert msg["role"] == "user"
 
 

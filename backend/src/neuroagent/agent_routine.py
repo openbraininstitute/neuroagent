@@ -9,7 +9,20 @@ from collections import defaultdict
 from typing import Any, AsyncIterator
 
 from openai import AsyncOpenAI, AsyncStream
-from openai.types.chat.chat_completion_chunk import ChatCompletionChunk
+from openai.types.responses import (
+    ResponseCompletedEvent,
+    ResponseContentPartAddedEvent,
+    ResponseContentPartDoneEvent,
+    ResponseFunctionCallArgumentsDeltaEvent,
+    ResponseFunctionToolCall,
+    ResponseOutputItemAddedEvent,
+    ResponseOutputItemDoneEvent,
+    ResponseReasoningSummaryPartAddedEvent,
+    ResponseReasoningSummaryPartDoneEvent,
+    ResponseReasoningSummaryTextDeltaEvent,
+    ResponseStreamEvent,
+    ResponseTextDeltaEvent,
+)
 from pydantic import BaseModel, ValidationError
 
 from neuroagent.app.database.sql_schemas import (
@@ -28,9 +41,8 @@ from neuroagent.new_types import (
 from neuroagent.tools.base_tool import BaseTool
 from neuroagent.utils import (
     complete_partial_json,
+    convert_to_responses_api_format,
     get_entity,
-    get_token_count,
-    merge_chunk,
     messages_to_openai_content,
 )
 
@@ -52,7 +64,7 @@ class AgentsRoutine:
         context_variables: dict[str, Any],
         model_override: str | None,
         stream: bool = False,
-    ) -> AsyncStream[ChatCompletionChunk]:
+    ) -> AsyncStream[ResponseStreamEvent]:
         """Send the OpenAI request."""
         context_variables = defaultdict(str, context_variables)
         instructions = (
@@ -60,27 +72,28 @@ class AgentsRoutine:
             if callable(agent.instructions)
             else agent.instructions
         )
-        messages = [{"role": "system", "content": instructions}] + history
 
         tools = [tool.pydantic_to_openai_schema() for tool in agent.tools]
 
         create_params = {
-            "messages": messages,
+            "instructions": instructions,
+            "input": history,
             "model": model_override or agent.model,
             "stream": stream,
-            "seed": 12008,
             "temperature": agent.temperature,
             "tools": tools or None,
             "tool_choice": agent.tool_choice,
+            "store": False,
         }
-        if stream:
-            create_params["stream_options"] = {"include_usage": True}
+
         if agent.model == "gpt-5-mini":
-            create_params["reasoning_effort"] = "minimal"
+            create_params["reasoning"] = {"effort": "low", "summary": "detailed"}
+            create_params["text"] = {"verbosity": "medium"}
 
         if tools:
             create_params["parallel_tool_calls"] = agent.parallel_tool_calls
-        return await self.client.chat.completions.create(**create_params)  # type: ignore
+
+        return await self.client.responses.create(**create_params)  # type: ignore
 
     def handle_function_result(self, result: Result | Agent | BaseModel) -> Result:
         """Check if agent handoff or regular tool call."""
@@ -231,10 +244,18 @@ class AgentsRoutine:
             active_agent = agent
             content = await messages_to_openai_content(messages)
             history = copy.deepcopy(content)
-            tool_map = {tool.name: tool for tool in agent.tools}
+
             turns = 0
+            metadata_data = []
+
+            # In case of HIL, the start steps breaks Vercel and adds a new part.
+            if messages[-1].entity == Entity.USER:
+                yield f"data: {json.dumps({'type': 'start', 'messageId': f'msg_{uuid.uuid4().hex}'})}\n\n"
 
             while turns <= max_turns:
+                # We need to redefine the tool map since the tools can change on agent switch.
+                tool_map = {tool.name: tool for tool in active_agent.tools}
+
                 # Force an AI message once max turns reached.
                 # I.e. we do a total number of turns of max_turns + 1
                 # The +1 being the final AI message.
@@ -248,141 +269,105 @@ class AgentsRoutine:
                     "sender": agent.name,
                     "role": "assistant",
                     "function_call": None,
-                    "tool_calls": defaultdict(
-                        lambda: {
-                            "function": {"arguments": "", "name": ""},
-                            "id": "",
-                            "type": "",
-                        }
-                    ),
+                    "tool_calls": [],
                 }
 
                 # get completion with current history, agent
                 completion = await self.get_chat_completion(
                     agent=active_agent,
-                    history=history,
+                    history=convert_to_responses_api_format(history),
                     context_variables=context_variables,
                     model_override=model_override,
                     stream=True,
                 )
 
                 turns += 1
-                draft_tool_calls: list[dict[str, str]] = []
-                draft_tool_calls_index = -1
-                async for chunk in completion:
-                    for choice in chunk.choices:
-                        if choice.finish_reason == "stop":
-                            if choice.delta.content:
-                                yield f"0:{json.dumps(choice.delta.content, separators=(',', ':'))}\n"
+                usage_data = None
+                tool_call_ID_mapping: dict[str, str] = {}
+                async for event in completion:
+                    match event:
+                        # REASONING
+                        # Reasoning start
+                        case ResponseReasoningSummaryPartAddedEvent():
+                            yield f"data: {json.dumps({'type': 'reasoning-start', 'id': event.item_id})}\n\n"
 
-                        elif choice.finish_reason == "tool_calls":
-                            # Some models stream the whole tool call in one chunk.
-                            if not draft_tool_calls and choice.delta.tool_calls:
-                                for tc in choice.delta.tool_calls:
-                                    tc.id = uuid.uuid4().hex
-                                    draft_tool_calls.append(
-                                        {
-                                            "arguments": tc.function.arguments or "{}"
-                                            if tc.function
-                                            else "{}",
-                                            "id": tc.id,
-                                            "name": tc.function.name or ""
-                                            if tc.function
-                                            else "",
-                                        }
-                                    )
+                        # Reasoning deltas
+                        case ResponseReasoningSummaryTextDeltaEvent():
+                            yield f"data: {json.dumps({'type': 'reasoning-delta', 'id': event.item_id, 'delta': event.delta})}\n\n"
+                            message["reasoning"] += event.delta
 
-                            for draft_tool_call in draft_tool_calls:
-                                input_args = json.loads(
-                                    draft_tool_call["arguments"] or "{}"
-                                )
+                        # Reasoning end
+                        case ResponseReasoningSummaryPartDoneEvent():
+                            yield f"data: {json.dumps({'type': 'reasoning-end', 'id': event.item_id})}\n\n"
+
+                        # TEXT OUTPUTS
+                        # Text start
+                        case ResponseContentPartAddedEvent():
+                            yield f"data: {json.dumps({'type': 'text-start', 'id': event.item_id})}\n\n"
+
+                        # Text Delta
+                        case ResponseTextDeltaEvent():
+                            yield f"data: {json.dumps({'type': 'text-delta', 'id': event.item_id, 'delta': event.delta})}\n\n"
+                            message["content"] += event.delta
+
+                        # Text end
+                        case ResponseContentPartDoneEvent():
+                            yield f"data: {json.dumps({'type': 'text-end', 'id': event.item_id})}\n\n"
+
+                        # TOOL CALLS
+                        # Tool call starts (handled in EVENTS. Unfortunately no specific event for it.)
+                        case ResponseOutputItemAddedEvent():
+                            yield f"data: {json.dumps({'type': 'start-step'})}\n\n"
+                            # New tool call before streaming its deltas.
+                            if (
+                                isinstance(event.item, ResponseFunctionToolCall)
+                                and event.item.id
+                            ):
+                                # Add generic UUID to event ID
+                                tool_call_ID_mapping[event.item.id] = uuid.uuid4().hex
+                                yield f"data: {json.dumps({'type': 'tool-input-start', 'toolCallId': tool_call_ID_mapping[event.item.id], 'toolName': event.item.name})}\n\n"
+
+                        # Tool call deltas
+                        case ResponseFunctionCallArgumentsDeltaEvent():
+                            if event.item_id:
+                                yield f"data: {json.dumps({'type': 'tool-input-delta', 'toolCallId': tool_call_ID_mapping[event.item_id], 'inputTextDelta': event.delta})}\n\n"
+
+                        # Tool call end (handled in EVENTS. Unfortunately no specific event for it.)
+                        case ResponseOutputItemDoneEvent():
+                            if (
+                                isinstance(event.item, ResponseFunctionToolCall)
+                                and event.item.id
+                            ):
+                                input_args = event.item.arguments
                                 try:
                                     input_schema: type[BaseModel] = tool_map[
-                                        draft_tool_call["name"]
+                                        event.item.name
                                     ].__annotations__["input_schema"]
-
-                                    args = input_schema(**input_args).model_dump(
-                                        mode="json"
-                                    )
+                                    validated_args = input_schema(
+                                        **json.loads(input_args)
+                                    ).model_dump(mode="json")
+                                    args = json.dumps(validated_args)
                                 except ValidationError:
                                     args = input_args
-                                tool_call_data = {
-                                    "toolCallId": draft_tool_call["id"],
-                                    "toolName": draft_tool_call["name"],
-                                    "args": args,
-                                }
-                                yield f"9:{json.dumps(tool_call_data, separators=(',', ':'))}\n"
-
-                        # Check for tool calls
-                        elif choice.delta.tool_calls:
-                            for tool_call in choice.delta.tool_calls:
-                                if tool_call is None:
-                                    continue
-                                if tool_call.function is None:
-                                    continue
-                                if tool_call.id is not None:
-                                    tool_call.id = (
-                                        uuid.uuid4().hex
-                                    )  # Set provider_id to random uuid
-
-                                id = tool_call.id
-                                name = tool_call.function.name
-                                arguments = tool_call.function.arguments
-                                if id is not None:
-                                    draft_tool_calls_index += 1
-                                    draft_tool_calls.append(
-                                        {"id": id, "name": name, "arguments": ""}  # type: ignore
-                                    )
-                                    tool_begin_data = {
-                                        "toolCallId": id,
-                                        "toolName": name,
+                                message["tool_calls"].append(
+                                    {
+                                        "id": tool_call_ID_mapping[event.item.id],
+                                        "type": "function",
+                                        "function": {
+                                            "name": event.item.name,
+                                            "arguments": args,
+                                        },
                                     }
-                                    yield f"b:{json.dumps(tool_begin_data, separators=(',', ':'))}\n"
+                                )
+                                yield f"data: {json.dumps({'type': 'tool-input-available', 'toolCallId': tool_call_ID_mapping[event.item.id], 'toolName': event.item.name, 'input': args})}\n\n"
 
-                                if arguments:
-                                    current_id = (
-                                        id
-                                        or draft_tool_calls[draft_tool_calls_index][
-                                            "id"
-                                        ]
-                                    )
-                                    args_data = {
-                                        "toolCallId": current_id,
-                                        "argsTextDelta": arguments,
-                                    }
-                                    yield f"c:{json.dumps(args_data, separators=(',', ':'))}\n"
-                                    draft_tool_calls[draft_tool_calls_index][
-                                        "arguments"
-                                    ] += arguments
-                        elif (
-                            hasattr(choice.delta, "reasoning")
-                            and choice.delta.reasoning
-                        ):
-                            yield f"g:{json.dumps(choice.delta.reasoning, separators=(',', ':'))}\n\n"
+                            yield f"data: {json.dumps({'type': 'finish-step'})}\n\n"
 
-                        else:
-                            if choice.delta.content is not None:
-                                yield f"0:{json.dumps(choice.delta.content, separators=(',', ':'))}\n"
-
-                        delta_json = choice.delta.model_dump()
-                        delta_json.pop("role", None)
-                        merge_chunk(message, delta_json)
-
-                if chunk.choices == []:
-                    finish_data = {
-                        "finishReason": "tool-calls"
-                        if len(draft_tool_calls) > 0
-                        else "stop",
-                    }
-                else:
-                    finish_data = {"finishReason": "stop"}
-
-                message["tool_calls"] = list(message.get("tool_calls", {}).values())
-                if not message["tool_calls"]:
-                    message["tool_calls"] = None
+                        # Handle usage/token information
+                        case ResponseCompletedEvent():
+                            usage_data = event.response.usage
 
                 # If tool calls requested, instantiate them as an SQL compatible class
-
                 if message["tool_calls"]:
                     tool_calls = [
                         ToolCalls(
@@ -398,27 +383,35 @@ class AgentsRoutine:
                 # Append the history with the json version
                 history.append(copy.deepcopy(message))
 
-                # We add a true / false to check if there were tool calls.
-                message["tool_calls"] = (
-                    "tool_calls" in message and message["tool_calls"]
-                )
-
-                # Stage the new message for addition to DB
-                token_count = get_token_count(chunk.usage)
-                token_consumption = [
-                    TokenConsumption(
-                        type=token_type,
-                        task=Task.CHAT_COMPLETION,
-                        count=count,
-                        model=agent.model,
+                token_consumption = []
+                if usage_data:
+                    input_cached = (
+                        getattr(
+                            getattr(usage_data, "input_tokens_details", 0),
+                            "cached_tokens",
+                            0,
+                        )
+                        or 0
                     )
-                    for token_type, count in [
-                        (TokenType.INPUT_CACHED, token_count["input_cached"]),
-                        (TokenType.INPUT_NONCACHED, token_count["input_noncached"]),
-                        (TokenType.COMPLETION, token_count["completion"]),
+                    input_noncached = (
+                        getattr(usage_data, "input_tokens", 0) - input_cached
+                    )
+                    completion_tokens = getattr(usage_data, "output_tokens", 0) or 0
+
+                    token_consumption = [
+                        TokenConsumption(
+                            type=token_type,
+                            task=Task.CHAT_COMPLETION,
+                            count=count,
+                            model=agent.model,
+                        )
+                        for token_type, count in [
+                            (TokenType.INPUT_CACHED, input_cached),
+                            (TokenType.INPUT_NONCACHED, input_noncached),
+                            (TokenType.COMPLETION, completion_tokens),
+                        ]
+                        if count
                     ]
-                    if count
-                ]
                 messages.append(
                     Messages(
                         thread_id=messages[-1].thread_id,
@@ -431,7 +424,7 @@ class AgentsRoutine:
                 )
 
                 if not messages[-1].tool_calls:
-                    yield f"e:{json.dumps(finish_data)}\n"
+                    yield f"data: {json.dumps({'type': 'finish-step'})}\n\n"
                     break
 
                 # kick out tool calls that require HIL
@@ -472,13 +465,9 @@ class AgentsRoutine:
 
                 # Before extending history, yield each tool response
                 for tool_response in tool_calls_executed.messages:
-                    response_data = {
-                        "toolCallId": tool_response["tool_call_id"],
-                        "result": tool_response["content"],
-                    }
-                    yield f"a:{json.dumps(response_data, separators=(',', ':'))}\n"
+                    yield f"data: {json.dumps({'type': 'tool-output-available', 'toolCallId': tool_response['tool_call_id'], 'output': tool_response['content']})}\n\n"
 
-                yield f"e:{json.dumps(finish_data)}\n"
+                yield f"data: {json.dumps({'type': 'finish-step'})}\n\n"
 
                 for tool_response in tool_calls_executed.messages:
                     # Check if an LLM has been called inside of the tool
@@ -529,13 +518,12 @@ class AgentsRoutine:
 
                 # If the tool call response contains HIL validation, do not update anything and return
                 if tool_calls_with_hil:
-                    annotation_data = [
+                    metadata_data = [
                         {"toolCallId": msg.tool_call_id, "validated": "pending"}
                         for msg in tool_calls_with_hil
                     ]
 
-                    yield f"8:{json.dumps(annotation_data, separators=(',', ':'))}\n"
-                    yield f"e:{json.dumps(finish_data)}\n"
+                    yield f"data: {json.dumps({'type': 'finish-step'})}\n\n"
                     break
 
                 history.extend(tool_calls_executed.messages)
@@ -543,10 +531,11 @@ class AgentsRoutine:
                 if tool_calls_executed.agent:
                     active_agent = tool_calls_executed.agent
 
-            done_data = {
-                "finishReason": "stop",
-            }
-            yield f"d:{json.dumps(done_data)}\n"
+            if metadata_data:
+                yield f"data: {json.dumps({'type': 'finish', 'messageMetadata': {'hil': metadata_data}})}\n\n"
+            else:
+                yield f"data: {json.dumps({'type': 'finish'})}\n\n"
+            yield "data: [DONE]\n\n"
 
         # User interrupts streaming
         except asyncio.exceptions.CancelledError:
