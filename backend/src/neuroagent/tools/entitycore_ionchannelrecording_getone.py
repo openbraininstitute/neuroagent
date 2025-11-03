@@ -70,7 +70,12 @@ class IonChannelRecordingGetOneTool(BaseTool):
             raise ValueError(
                 f"The ion-channel-recording endpoint returned a non 200 response code. Error: {response.text}"
             )
-        return IonChannelRecordingRead(**response.json())
+
+        response_json = response.json()
+        response_json["url_link"] = (
+            self.metadata.entity_frontend_url + "/" + response_json["id"]
+        )
+        return IonChannelRecordingRead(**response_json)
 
     @classmethod
     async def is_online(cls, *, httpx_client: AsyncClient, entitycore_url: str) -> bool:
