@@ -44,7 +44,7 @@ class EntitycoreExcludeBRParams(BaseModel):
 
 
 class EntitycoreExcludeNameParams(BaseModel):
-    """Exclude name parameters tha tthe model should not use in name compatible EC endpoints."""
+    """Exclude name parameters that the model should not use in name compatible EC endpoints."""
 
     name: SkipJsonSchema[None] = Field(default=None, exclude=True)
     name__in: SkipJsonSchema[None] = Field(default=None, exclude=True)
