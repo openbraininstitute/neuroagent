@@ -6628,6 +6628,33 @@ class ReadManySimulationCampaignGetParametersQuery(BaseModel):
     simulation__entity_id__in: list[UUID] | None = Field(
         default=None, title='Simulation  Entity Id  In'
     )
+    simulation__circuit__scale: CircuitScale | None = Field(
+        default=None, title='Simulation  Circuit  Scale'
+    )
+    simulation__circuit__scale__in: list[CircuitScale] | None = Field(
+        default=None, title='Simulation  Circuit  Scale  In'
+    )
+    simulation__circuit__build_category: CircuitBuildCategory | None = Field(
+        default=None, title='Simulation  Circuit  Build Category'
+    )
+    simulation__circuit__build_category__in: list[CircuitBuildCategory] | None = Field(
+        default=None, title='Simulation  Circuit  Build Category  In'
+    )
+    simulation__circuit__name: str | None = Field(
+        default=None, title='Simulation  Circuit  Name'
+    )
+    simulation__circuit__name__in: list[str] | None = Field(
+        default=None, title='Simulation  Circuit  Name  In'
+    )
+    simulation__circuit__name__ilike: str | None = Field(
+        default=None, title='Simulation  Circuit  Name  Ilike'
+    )
+    simulation__circuit__id: UUID | None = Field(
+        default=None, title='Simulation  Circuit  Id'
+    )
+    simulation__circuit__id__in: list[UUID] | None = Field(
+        default=None, title='Simulation  Circuit  Id  In'
+    )
     search: str | None = Field(default=None, title='Search')
     with_facets: bool = Field(default=False, title='With Facets')
     within_brain_region_hierarchy_id: UUID | None = Field(

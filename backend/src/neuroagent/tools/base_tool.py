@@ -6,7 +6,8 @@ from typing import Any, ClassVar
 from uuid import UUID
 
 from httpx import AsyncClient
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
+from pydantic.json_schema import SkipJsonSchema
 
 logger = logging.getLogger(__name__)
 
@@ -25,6 +26,29 @@ class EntitycoreMetadata(BaseMetadata):
     vlab_id: UUID | None
     project_id: UUID | None
     entity_frontend_url: str
+
+
+class EntitycoreExcludeBRParams(BaseModel):
+    """Exclude BR parameters tha tthe model should not use in BR compatible EC endpoints."""
+
+    brain_region__name: SkipJsonSchema[None] = Field(default=None, exclude=True)
+    brain_region__name__in: SkipJsonSchema[None] = Field(default=None, exclude=True)
+    brain_region__name__ilike: SkipJsonSchema[None] = Field(default=None, exclude=True)
+    brain_region__id: SkipJsonSchema[None] = Field(default=None, exclude=True)
+    brain_region__id__in: SkipJsonSchema[None] = Field(default=None, exclude=True)
+    brain_region__acronym: SkipJsonSchema[None] = Field(default=None, exclude=True)
+    brain_region__acronym__in: SkipJsonSchema[None] = Field(default=None, exclude=True)
+    within_brain_region_hierarchy_id: SkipJsonSchema[None] = Field(
+        default=None, exclude=True
+    )
+
+
+class EntitycoreExcludeNameParams(BaseModel):
+    """Exclude name parameters tha tthe model should not use in name compatible EC endpoints."""
+
+    name: SkipJsonSchema[None] = Field(default=None, exclude=True)
+    name__in: SkipJsonSchema[None] = Field(default=None, exclude=True)
+    name__ilike: SkipJsonSchema[None] = Field(default=None, exclude=True)
 
 
 class BaseTool(BaseModel, ABC):
