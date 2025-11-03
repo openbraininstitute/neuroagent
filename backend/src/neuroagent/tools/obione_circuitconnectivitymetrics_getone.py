@@ -126,7 +126,7 @@ Supports optional pre_selection and post_selection parameters as additional filt
             request_body["post_selection"] = {}
 
         connectivity_metrics_response = await self.metadata.httpx_client.post(
-            url=f"{self.metadata.obi_one_url}/declared/connectivity-metrics/{{circuit_id}}",  # circuit_id is passed in the body due to a bug in obi-one
+            url=f"{self.metadata.obi_one_url}/declared/connectivity-metrics",
             headers=headers,
             json=request_body,
         )

@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v0.11.2] - 3.11.2025
+
+### Fixed
+- Connectitivity tool url
+
 ## [v0.11.1] - 31.10.2025
 
 ### Fixed
