@@ -178,7 +178,7 @@ class WasmExecutor:
                         global_vars=globals if globals else {},
                     )
                 )
-            breakpoint()
+
             # Add read permission to tempdir
             permission = []
             for perm in self.deno_permissions:
@@ -297,10 +297,8 @@ async function execute(code) {{
     // Inject globals
     pyodide.runPython(`
         global_var_dict = {global_vars}
-        print("Global variables:")
         for k, v in global_var_dict.items():
             globals()[k] = v
-            print(f"{{k}} = {{globals()[k]}})
     `)
 
     // Execute the code

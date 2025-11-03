@@ -83,7 +83,7 @@ class AgentsRoutine:
         return await self.client.chat.completions.create(**create_params)  # type: ignore
 
     def handle_function_result(
-        self, result: Result | Agent | BaseModel, tool_call_id: uuid.UUID
+        self, result: Result | Agent | BaseModel, tool_call_id: str
     ) -> Result:
         """Check if agent handoff or regular tool call."""
         match result:
@@ -92,14 +92,11 @@ class AgentsRoutine:
 
             case Agent() as agent:
                 return Result(
-                    value=json.dumps({"assistant": agent.name}),
+                    value={tool_call_id: {"assistant": agent.name}},
                     agent=agent,
                 )
             case BaseModel() as model:
-                try:
-                    return Result(value={tool_call_id: model.model_dump(mode="json")})
-                except json.JSONDecodeError:
-                    return Result(value=str(result))
+                return Result(value={tool_call_id: model.model_dump(mode="json")})
             case _:
                 error_message = f"Failed to parse the result: {result}. Make sure the tool returns a pydantic BaseModel or Result object."
                 raise TypeError(error_message)
@@ -206,7 +203,9 @@ class AgentsRoutine:
             }
             return response, None
 
-        result: Result = self.handle_function_result(raw_result, tool_call.tool_call_id)
+        result: Result = self.handle_function_result(
+            raw_result, str(tool_call.tool_call_id)
+        )
         response = {
             "role": "tool",
             "tool_call_id": tool_call.tool_call_id,
@@ -589,7 +588,7 @@ class AgentsRoutine:
 
             # If the partial message hasn't been appended and the last message is not an AI_TOOL, append partial message
             if (
-                json.dumps(message) != messages[-1].content
+                json.dumps(message) != json.dumps(messages[-1].content)
                 and messages[-1].entity != Entity.AI_TOOL
             ):
                 messages.append(

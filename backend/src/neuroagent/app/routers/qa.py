@@ -152,7 +152,7 @@ async def question_suggestions(
             )
 
     if is_in_chat:
-        content = f"CONVERSATION MESSAGES: \n{json.dumps([{k: v for k, v in json.loads(msg.content).items() if k in ['role', 'content']} for msg in db_messages])}"
+        content = f"CONVERSATION MESSAGES: \n{json.dumps([{k: v for k, v in dict(msg.content).items() if k in ['role', 'content']} for msg in db_messages])}"  # type: ignore[call-overload]
     else:
         content = f"USER JOURNEY: \n{body.model_dump(exclude={'thread_id'}, mode='json')['click_history']}"
 

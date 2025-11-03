@@ -88,6 +88,7 @@ export function getStorageID(
 
     const storageId =
       parsedResult[toolCall.toolInvocation.toolCallId].storage_id;
+
     if (storageId) {
       if (Array.isArray(storageId)) {
         storageId.forEach((id: string) => storageIds.push(id));

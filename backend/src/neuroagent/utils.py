@@ -4,7 +4,7 @@ import json
 import logging
 import re
 import uuid
-from typing import Any, Literal
+from typing import Any, Literal, cast
 
 from fastapi import HTTPException
 from openai.types.completion_usage import CompletionUsage
@@ -47,7 +47,7 @@ async def messages_to_openai_content(
     messages = []
     if db_messages:
         for msg in db_messages:
-            messages.append(msg.content)
+            messages.append(cast(dict[str, Any], msg.content))
 
     return messages
 

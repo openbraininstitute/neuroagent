@@ -351,9 +351,11 @@ AVAILABLE LIBRARIES:
             select_columns = []
             for variable in self.input_schema.variables:
                 # JSONB query for postgres
+                # Strip [*] to get the container instead of individual elements
+                path = variable.jsonpath_reference.rstrip("[*]")
                 jsonpath_query = func.jsonb_path_query_first(
                     func.cast(Messages.content["content"], JSONB),
-                    text(f"'{variable.jsonpath_reference}'::jsonpath"),
+                    text(f"'{path}'::jsonpath"),
                 )
 
                 select_columns.append(jsonpath_query.label(variable.variable_name))
@@ -365,17 +367,16 @@ AVAILABLE LIBRARIES:
                 )
             )
             results = await self.metadata.session.execute(stmt)
-
             rows = results.first()
-
+            breakpoint()
             # Raise an error if a variable could not be retrieved
-            if None in rows or rows is None:
+            if rows is None or None in rows:
                 raise ValueError(
                     f"Could not retrieve variables {','.join([k for k, v in rows._mapping.items() if v is None]) if rows else ''}. Please check that the jsonpath query is valid and that the tool_call_id is correct."
                 )
 
             # Convert result to dictionary
-            global_vars = rows._mapping
+            global_vars = dict(rows._mapping)
         else:
             global_vars = None
 
