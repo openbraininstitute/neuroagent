@@ -123,7 +123,6 @@ Supports optional pre_selection and post_selection parameters as additional filt
             url=f"{self.metadata.obi_one_url}/declared/connectivity-metrics",
             headers=headers,
             json=request_body,
-            timeout=300,
         )
 
         if connectivity_metrics_response.status_code != 200:
