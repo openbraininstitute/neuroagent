@@ -26,7 +26,7 @@ class CircuitConnectivityMetricsGetOneToolInput(
     )
 
     pre_selection: dict[str, str | list[str]] | None = Field(
-        default_factory=dict,
+        defaut=None,
         description=(
             "Additional filter for pre-synaptic neurons in Sonata nodeset JSON format. "
             "Applied on top of pre_node_set if present. "
@@ -39,7 +39,7 @@ class CircuitConnectivityMetricsGetOneToolInput(
         ),
     )
     post_selection: dict[str, str | list[str]] | None = Field(
-        default_factory=dict,
+        default=None,
         description=(
             "Additional filter for post-synaptic neurons in Sonata nodeset JSON format. "
             "Applied on top of post_node_set if present. "
