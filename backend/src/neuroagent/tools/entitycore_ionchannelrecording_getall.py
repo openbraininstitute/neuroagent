@@ -87,9 +87,8 @@ class IonChannelRecordingGetAllTool(BaseTool):
             )
 
         response_data = response.json()
-        # Set assets and legacy_id to empty lists for each morphology
+        # Set frontend_url for each entity
         for ion_channel_recording in response_data["data"]:
-            # Add the links to website
             ion_channel_recording["url_link"] = (
                 self.metadata.entity_frontend_url + "/" + ion_channel_recording["id"]
             )
