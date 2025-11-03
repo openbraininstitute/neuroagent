@@ -21,9 +21,6 @@ class CircuitConnectivityMetricsGetOneToolInput(
     circuit_id: UUID = Field(  # type: ignore[assignment]
         description="ID of the circuit from which the connectivity metrics should be computed."
     )
-    group_by: str | None = Field(
-        description="Morphological type of the neuron. When not provided, please use null value."
-    )
 
     pre_selection: dict[str, str | list[str]] | None = Field(
         default=None,
