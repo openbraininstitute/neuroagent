@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Code generation tool (Context7 MCP server)
+
 ## [v0.11.3] - 3.11.2025
 
 ### Fixed
