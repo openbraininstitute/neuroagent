@@ -87,6 +87,11 @@ class IonChannelRecordingGetAllTool(BaseTool):
             )
 
         response_data = response.json()
+        # Set frontend_url for each entity
+        for ion_channel_recording in response_data["data"]:
+            ion_channel_recording["url_link"] = (
+                self.metadata.entity_frontend_url + "/" + ion_channel_recording["id"]
+            )
         return ListResponseIonChannelRecordingRead(**response_data)
 
     @classmethod

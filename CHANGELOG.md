@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- frontend link in ion channel recording tool.
+
 ## [v0.11.2] - 3.11.2025
 
 ### Fixed

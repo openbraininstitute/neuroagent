@@ -19,7 +19,7 @@
     },
     {
       "test_name": "ion_channel_recording",
-      "Correctness [GEval]": 0.6453138787631003,
+      "Correctness [GEval]": 0.6453138787631002,
       "Tool Correctness": 1.0,
       "Argument Correctness": 1.0,
       "Deterministic Argument Correctness": 0.75,
