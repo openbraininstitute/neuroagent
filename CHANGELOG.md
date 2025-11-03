@@ -7,26 +7,38 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v0.11.2] - 3.11.2025
+
+### Fixed
+- Connectitivity tool url
+
+## [v0.11.1] - 31.10.2025
+
+### Fixed
+- Ion Channel Model return class.
+
+## [v0.11.0] - 31.10.2025
+
 ### Added
 - More evaluation cases.
 - Filtering logic in `neuroagent.scripts.evaluate_agent`.
 - Ion channel related tools.
+- Circuit connectivity metrics tool
 
 ### Fixed
 - Some prompt engineering.
 - Output class of circuit population tool.
 - Prevent the LLM from talking about the UI.
 - Tool argument correctness metric.
+- Fix brain region get all for new hierarchy.
+- Images not appearing in Literature search (Prompt refactor).
 
-## Changed
+### Changed
 - Running deepeval github action also on main
 - Use typescript autogen for backend types in frontend.
 - Try to enforce using metric tools rather than downloading assets.
 - Rule to avoid overvalidating.
 - Update uv lock package.
-
-## Fixed
-- Images not appearing in Literature search (Prompt refactor).
 
 ## [v0.10.0] - 2.10.2025
 

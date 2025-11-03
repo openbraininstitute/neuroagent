@@ -1,4 +1,92 @@
 {
+  "connectivity_metrics": {
+    "user": "Can you analyze the connectivity patterns in circuit 2eb602ea-9ffc-42a2-9fb7-5234921343d0? I specifically want to analyze the connections from inhibitory neurons to excitatory neurons.\n\nPlease focus specifically on inhibitory-to-excitatory connections. Also, group by the mtype.\n",
+    "expected_output": "## Summary \\u2014 Requested analysis for circuit **2eb602ea-9ffc-42a2-9fb7-5234921343d0**\n\nI analyzed inhibitory \\u2192 excitatory chemical connections in the circuit, grouped by **mtype** (pre- and post-synaptic morphological types).\n\n### Metadata used\n- **Circuit ID:** **2eb602ea-9ffc-42a2-9fb7-5234921343d0**\n- **Edge population analyzed:** **S1nonbarrel_neurons__S1nonbarrel_neurons__chemical**\n- **Pre node set:** **Inhibitory**\n- **Post node set:** **Excitatory**\n- **Group by:** **mtype**\n\n---\n\n## Connectivity results (grouped by mtype)\n\n- Pre: **L23_CHC** \\u2192 Post: **L2_TPC:B**\n  - **Connection probability:** **100.0%**\n  - **Mean number of synapses per connection:** **7.333333333333333**\n\n- Pre: **L23_LBC** \\u2192 Post: **L2_TPC:B**\n  - **Connection probability:** **0.0%**\n  - **Mean number of synapses per connection:** **0.0**\n\n- Pre: **L23_NBC** \\u2192 Post: **L2_TPC:B**\n  - **Connection probability:** **16.666666666666668%**\n  - **Mean number of synapses per connection:** **33.0**\n\n- Pre: **L23_CHC** \\u2192 Post: **L3_TPC:A**\n  - **Connection probability:** **100.0%**\n  - **Mean number of synapses per connection:** **5.0**\n\n- Pre: **L23_LBC** \\u2192 Post: **L3_TPC:A**\n  - **Connection probability:** **100.0%**\n  - **Mean number of synapses per connection:** **33.0**\n\n- Pre: **L23_NBC** \\u2192 Post: **L3_TPC:A**\n  - **Connection probability:** **100.0%**\n  - **Mean number of synapses per connection:** **36.0**\n\n---\n\nIf you want, I can:\n- Group instead by a different property (e.g., layer or synapse_class)\n- Apply additional pre/post selections (mtype subsets or layers)\n- Return these results in CSV or JSON for download\n\nWhich would you like next?\n",
+    "expected_tool_calls": [
+      {
+        "name": "obione-circuitmetrics-getone",
+        "arguments": {
+          "circuit_id": "2eb602ea-9ffc-42a2-9fb7-5234921343d0"
+        }
+      },
+      {
+        "name": "obione-circuitconnectivitymetrics-getone",
+        "arguments": {
+          "circuit_id": "2eb602ea-9ffc-42a2-9fb7-5234921343d0",
+          "edge_population": "S1nonbarrel_neurons__S1nonbarrel_neurons__chemical",
+          "pre_node_set": "Inhibitory",
+          "post_node_set": "Excitatory",
+          "group_by": "mtype"
+        }
+      }
+    ],
+    "params": {
+      "tags": [
+        "obi-one",
+        "connectivity",
+        "circuit"
+      ]
+    },
+    "ai_response": "## Summary \\u2014 Request\\nYou asked for an analysis of inhibitory \\u2192 excitatory connectivity in circuit **2eb602ea-9ffc-42a2-9fb7-5234921343d0**, grouped by **mtype**.\\n\\nI queried the circuit structure (node/edge populations and node sets) and then computed connectivity metrics for the chemical edge population between the network\\u2019s inhibitory pre-synaptic node set and excitatory post-synaptic node set, grouping results by **mtype**.\\n\\n## Circuit context (retrieved)\\n- **Circuit ID:** **2eb602ea-9ffc-42a2-9fb7-5234921343d0**\\n- Biophysical node populations: **S1nonbarrel_neurons**\\n- Node sets available (selection): **Excitatory**, **Inhibitory**, plus many mtype- and layer-based nodesets (e.g., L23_CHC, L23_LBC, L2_TPC:B, L3_TPC:A, etc.)\\n- Chemical edge population used: **S1nonbarrel_neurons__S1nonbarrel_neurons__chemical**\\n\\n## Connectivity analysis (Inhibitory \\u2192 Excitatory), grouped by mtype\\nEdge population analyzed: **S1nonbarrel_neurons__S1nonbarrel_neurons__chemical**  \\nPre node set: **Inhibitory**  \\nPost node set: **Excitatory**  \\nGroup by: **mtype**\\n\\nThe tool returned mtype-pair entries (pre mtype \\u2192 post mtype) with connection probability (%) and mean number of synapses per connected pair.\\n\\n| Pre (mtype) | Post (mtype) | Connection probability (%) | Mean number of synapses |\\n|-------------|--------------|----------------------------:|------------------------:|\\n| **L23_CHC** | **L2_TPC:B** | 100.0                       | 7.33                    |\\n| **L23_LBC** | **L2_TPC:B** | 0.0                         | 0.0                     |\\n| **L23_NBC** | **L2_TPC:B** | 16.67                       | 33.0                    |\\n| **L23_CHC** | **L3_TPC:A** | 100.0                       | 5.0                     |\\n| **L23_LBC** | **L3_TPC:A** | 100.0                       | 33.0                    |\\n| **L23_NBC** | **L3_TPC:A** | 100.0                       | 36.0                    |\\n\\nNotes on interpretation:\\n- Connection probability is expressed as a percentage (0\\u2013100).\\n- Mean number of synapses is the average synapse count for existing connections between the specified pre/post mtype pair.\\n- Some pre\\u2192post combinations show 100% connection probability (every sampled pre cell of that mtype connects to the sampled post cells in that mtype), while others (e.g., L23_LBC \\u2192 L2_TPC:B) show 0% with 0 synapses.\\n- High mean synapse counts can co-occur with either high or moderate connection probability (example: L23_NBC \\u2192 L2_TPC:B has modest connection probability 16.7% but high mean synapse count 33.0 when a connection exists).\\n\\n## Short interpretation / biologically relevant points\\n- **Layer-23 inhibitory types (L23_CHC, L23_NBC)** make strong inhibitory contacts onto L2/L3 pyramidal mtypes (L2_TPC:B, L3_TPC:A) in different patterns:\\n  - **L23_CHC**: consistently connects to both L2_TPC:B and L3_TPC:A with 100% probability; mean synapses per connection are moderate (\\u22485\\u20137).\\n  - **L23_NBC**: connects to L3_TPC:A with 100% probability and to L2_TPC:B less frequently (\\u224816.7%) but with a high synapse count when present (33).\\n  - **L23_LBC**: connects to L3_TPC:A with 100% probability (mean synapses 33) but does not connect to L2_TPC:B in the sampled data.\\n- These patterns suggest cell-type-specific targeting: some inhibitory mtypes target particular excitatory mtypes reliably, others do so sparsely but with many synapses when they do.\\n\\n## Next steps / offer\\n- Would you like:\\n  - The same analysis grouped by *layer* or *synapse_class* instead of mtype?\\n  - Inclusion of additional edge populations (e.g., thalamic \\u2192 S1 inputs) or electrical connections (none reported in this circuit)?\\n  - A table exported (CSV/JSON) of the raw results?\\n\\nIf you want deeper filtering (e.g., restrict pre-selection to specific layers or include distance limits), tell me the filter criteria and I will run the connectivity metrics again.",
+    "actual_tool_calls": [
+      {
+        "name": "obione-circuitmetrics-getone",
+        "arguments": {
+          "circuit_id": "2eb602ea-9ffc-42a2-9fb7-5234921343d0"
+        }
+      },
+      {
+        "name": "obione-circuitconnectivitymetrics-getone",
+        "arguments": {
+          "circuit_id": "2eb602ea-9ffc-42a2-9fb7-5234921343d0",
+          "edge_population": "S1nonbarrel_neurons__S1nonbarrel_neurons__chemical",
+          "pre_node_set": "Inhibitory",
+          "post_node_set": "Excitatory",
+          "group_by": "mtype"
+        }
+      }
+    ],
+    "results": {
+      "metrics": [
+        {
+          "name": "Correctness [GEval]",
+          "score": 0.7901138771567613,
+          "success": true,
+          "threshold": 0.5,
+          "reason": "The actual output effectively addresses the input request by analyzing inhibitory-to-excitatory connectivity in the specified circuit and grouping results by mtype. It includes relevant metadata and a detailed connectivity analysis, which aligns well with the expected output. However, the structure of the results section differs slightly, lacking the clear separation of results into bullet points as seen in the expected output, which affects clarity. Additionally, the mean number of synapses is presented with more decimal precision than required, which could be simplified for consistency with the expected format."
+        },
+        {
+          "name": "Tool Correctness",
+          "score": 1.0,
+          "success": true,
+          "threshold": 0.5,
+          "reason": "Correct ordering: all expected tools ['obione-circuitmetrics-getone', 'obione-circuitconnectivitymetrics-getone'] were called in the correct order."
+        },
+        {
+          "name": "Argument Correctness",
+          "score": 0.5,
+          "success": true,
+          "threshold": 0.5,
+          "reason": "The score is 0.50 because the first tool call lacked an input parameter, which limited the analysis of connectivity patterns. However, the request was clear and specific, indicating a good understanding of the task."
+        },
+        {
+          "name": "Deterministic Argument Correctness",
+          "score": 1.0,
+          "success": true,
+          "threshold": 0.5,
+          "reason": "All expected tools ['obione-circuitmetrics-getone', 'obione-circuitconnectivitymetrics-getone'] were called (order not considered)."
+        },
+        {
+          "name": "Overall Argument Correctness",
+          "score": 1.0,
+          "success": true,
+          "threshold": 0.5,
+          "reason": ""
+        }
+      ],
+      "created_at": "2025-11-03 09:55:45.971429"
+    }
+  },
   "platform_news": {
     "user": "Please get me some news about the platform.\n",
     "expected_output": "Here are some recent news highlights about the Open Brain Platform:\n\n1. {{News Title 1}} ({{Date 1}})\n{{News Description 1}}\n\n2. {{News Title 2}} ({{Date 2}})\n{{News Description 2}}\n\n3. {{News Title 3}} ({{Date 3}})\n{{News Description 3}}\n\n4. {{News Title 4}} ({{Date 4}})\n{{News Description 4}}\n\n5. {{News Title 5}} ({{Date 5}})\n{{News Description 5}}\n\nIf you want details or full articles on any of these news items, please let me know!\n",
@@ -244,9 +332,9 @@
       {
         "name": "literature-search-tool",
         "arguments": {
-          "query": "neuron morphology cerebrum recent studies",
+          "query": "neuron morphology cerebrum recent studies 2020..2025 morphology cerebral cortex neurons single-cell reconstructions dendritic morphology human mouse",
           "numResults": 5,
-          "maxCharacters": 1500
+          "maxCharacters": 2000
         }
       }
     ],
@@ -271,7 +359,7 @@
           "score": 1.0,
           "success": true,
           "threshold": 0.5,
-          "reason": "The score is 1.00 because there were no incorrect tool calls and the input was clear and relevant."
+          "reason": "The score is 1.00 because there were no incorrect tool calls, indicating that the input was handled perfectly."
         },
         {
           "name": "Deterministic Argument Correctness",
@@ -585,7 +673,7 @@
               "y": 25.0
             }
           ],
-          "line_color": "#1f77b4"
+          "line_color": "#2f6fbb"
         }
       }
     ],
@@ -607,22 +695,22 @@
         },
         {
           "name": "Argument Correctness",
-          "score": 0.3333333333333333,
-          "success": false,
+          "score": 1.0,
+          "success": true,
           "threshold": 0.5,
           "reason": "The score is 0.33 because the tool calls were incorrect due to missing input parameters. This significantly impacted the ability to generate the desired plot, resulting in a lower score."
         },
         {
           "name": "Deterministic Argument Correctness",
-          "score": 0.2857142857142857,
+          "score": 0.21428571428571427,
           "success": false,
           "threshold": 0.5,
           "reason": "[\n\t Tool Calling Reason: Incomplete tool usage: missing tools [ToolCall(\n    name=\"execute-python-code\",\n    input_parameters={\n        \"python_code\": \"import numpy as np\\n# generate 1001 x values from -5 to 5\\nx = np.linspace(-5,5,1001)\\ny = x**2\\n# reduce to 30 evenly spaced points for plotting per tool requirement\\nindices = np.linspace(0, len(x)-1, 30, dtype=int)\\nx_small = x[indices].tolist()\\ny_small = y[indices].tolist()\\nprint({'x': x_small, 'y': y_small})\"\n    }\n), ToolCall(\n    name=\"plot-generator\",\n    input_parameters={\n        \"plot_type\": \"json-linechart\",\n        \"title\": \"y = x^2 (sampled)\",\n        \"description\": \"Plot of y = x^2 using 30 evenly spaced points between x=-5 and x=5 (per plotting tool requirement).\",\n        \"x_label\": \"x\",\n        \"y_label\": \"y\",\n        \"linechart_values\": [\n            {\n                \"x\": -5.0,\n                \"y\": 25.0\n            },\n            {\n                \"x\": -4.66,\n                \"y\": 21.7156\n            },\n            {\n                \"x\": -4.32,\n                \"y\": 18.6624\n            },\n            {\n                \"x\": -3.97,\n                \"y\": 15.7609\n            },\n            {\n                \"x\": -3.63,\n                \"y\": 13.1769\n            },\n            {\n                \"x\": -3.28,\n                \"y\": 10.7584\n            },\n            {\n                \"x\": -2.94,\n                \"y\": 8.6436\n            },\n            {\n                \"x\": -2.59,\n                \"y\": 6.708099999999999\n            },\n            {\n                \"x\": -2.25,\n                \"y\": 5.0625\n            },\n            {\n                \"x\": -1.9,\n                \"y\": 3.61\n            },\n            {\n                \"x\": -1.56,\n                \"y\": 2.4336\n            },\n            {\n                \"x\": -1.21,\n                \"y\": 1.4641\n            },\n            {\n                \"x\": -0.87,\n                \"y\": 0.7569\n            },\n            {\n                \"x\": -0.52,\n                \"y\": 0.27039999999999953\n            },\n            {\n                \"x\": -0.18,\n                \"y\": 0.0323999999999999\n            },\n            {\n                \"x\": 0.17,\n                \"y\": 0.028899999999999974\n            },\n            {\n                \"x\": 0.51,\n                \"y\": 0.2600999999999998\n            },\n            {\n                \"x\": 0.86,\n                \"y\": 0.7396000000000006\n            },\n            {\n                \"x\": 1.2,\n                \"y\": 1.44\n            },\n            {\n                \"x\": 1.55,\n                \"y\": 2.4024999999999994\n            },\n            {\n                \"x\": 1.89,\n                \"y\": 3.572100000000002\n            },\n            {\n                \"x\": 2.24,\n                \"y\": 5.017600000000001\n            },\n            {\n                \"x\": 2.58,\n                \"y\": 6.6564000000000005\n            },\n            {\n                \"x\": 2.93,\n                \"y\": 8.584900000000003\n            },\n            {\n                \"x\": 3.27,\n                \"y\": 10.692899999999998\n            },\n            {\n                \"x\": 3.62,\n                \"y\": 13.104400000000007\n            },\n            {\n                \"x\": 3.96,\n                \"y\": 15.681600000000007\n            },\n            {\n                \"x\": 4.31,\n                \"y\": 18.576100000000004\n            },\n            {\n                \"x\": 4.65,\n                \"y\": 21.622500000000002\n            },\n            {\n                \"x\": 5.0,\n                \"y\": 25.0\n            }\n        ],\n        \"line_color\": \"#1f77b4\"\n    }\n)]; expected ['execute-python-code', 'plot-generator'], called ['execute-python-code', 'execute-python-code', 'plot-generator']. See more details above.\n\t Tool Selection Reason: No available tools were provided to assess tool selection criteria\n]\n"
         },
         {
           "name": "Overall Argument Correctness",
-          "score": 0.3333333333333333,
-          "success": false,
+          "score": 1.0,
+          "success": true,
           "threshold": 0.5,
           "reason": ""
         }
@@ -1113,11 +1201,11 @@
           "score": 1.0,
           "success": true,
           "threshold": 0.5,
-          "reason": "The score is 1.00 because the input request is clear and correctly specifies the task of plotting y=sin(x) with 8 evenly spaced points from 0 to 2pi."
+          "reason": "The score is 1.00 because the input request is clear and correctly specifies the task of plotting 8 evenly spaced points for the function y=sin(x) from 0 to 2pi."
         },
         {
           "name": "Deterministic Argument Correctness",
-          "score": 0.07142857142857142,
+          "score": 0.03571428571428571,
           "success": false,
           "threshold": 0.5,
           "reason": "[\n\t Tool Calling Reason: Incomplete tool usage: missing tools [ToolCall(\n    name=\"execute-python-code\",\n    input_parameters={\n        \"python_code\": \"import numpy as np\\n\\n# Generate 8 evenly spaced points from 0 to 2*pi\\nx_values = np.linspace(0, 2 * np.pi, 8)\\n# Calculate sin(x) for these points\\ny_values = np.sin(x_values)\\n\\n# Prepare data for plotting\\npoints = [{'x': float(x), 'y': float(y)} for x, y in zip(x_values, y_values)]\\npoints\"\n    }\n), ToolCall(\n    name=\"plot-generator\",\n    input_parameters={\n        \"plot_type\": \"json-scatterplot\",\n        \"title\": \"Plot of y = sin(x) with 8 evenly spaced points from 0 to 2\u03c0\",\n        \"description\": \"This scatter plot shows the values of y = sin(x) at 8 points evenly spaced between 0 and 2\u03c0.\",\n        \"x_label\": \"x (radians)\",\n        \"y_label\": \"sin(x)\",\n        \"piechart_values\": null,\n        \"barplot_values\": null,\n        \"scatter_values\": [\n            {\n                \"x\": 0,\n                \"y\": 0,\n                \"label\": null,\n                \"color\": null,\n                \"size\": null\n            },\n            {\n                \"x\": 0.8975979010256552,\n                \"y\": 0.7818314824680298,\n                \"label\": null,\n                \"color\": null,\n                \"size\": null\n            },\n            {\n                \"x\": 1.7951958020513104,\n                \"y\": 0.9749279121818236,\n                \"label\": null,\n                \"color\": null,\n                \"size\": null\n            },\n            {\n                \"x\": 2.6927937030769655,\n                \"y\": 0.43388373911755823,\n                \"label\": null,\n                \"color\": null,\n                \"size\": null\n            },\n            {\n                \"x\": 3.5903916041026207,\n                \"y\": -0.433883739117558,\n                \"label\": null,\n                \"color\": null,\n                \"size\": null\n            },\n            {\n                \"x\": 4.487989505128276,\n                \"y\": -0.9749279121818236,\n                \"label\": null,\n                \"color\": null,\n                \"size\": null\n            },\n            {\n                \"x\": 5.385587406153931,\n                \"y\": -0.7818314824680299,\n                \"label\": null,\n                \"color\": null,\n                \"size\": null\n            },\n            {\n                \"x\": 6.283185307179586,\n                \"y\": -2.4492935982947064e-16,\n                \"label\": null,\n                \"color\": null,\n                \"size\": null\n            }\n        ],\n        \"histogram_values\": null,\n        \"histogram_bins\": 10,\n        \"histogram_color\": null,\n        \"linechart_values\": null,\n        \"line_style\": \"solid\",\n        \"line_color\": null\n    }\n)]; expected ['execute-python-code', 'plot-generator'], called ['execute-python-code', 'execute-python-code', 'plot-generator']. See more details above.\n\t Tool Selection Reason: No available tools were provided to assess tool selection criteria\n]\n"
