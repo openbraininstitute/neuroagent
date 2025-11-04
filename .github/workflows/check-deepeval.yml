@@ -9,6 +9,9 @@ jobs:
   Check-DeepEval:
     name: Check DeepEval
     runs-on: ubuntu-latest
+    if: |
+      github.event_name != 'pull_request' ||
+      !contains(join(github.event.pull_request.labels.*.name, ','), 'no deepeval')
     steps:
       - name: Checkout code
         uses: actions/checkout@v4

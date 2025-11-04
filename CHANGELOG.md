@@ -11,8 +11,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Base class for excluded parameters.
 - Resolving of asset/hierarchy id within tools.
 
+### Added
+- Code generation tool (Context7 MCP server)
+
+## [v0.11.3] - 3.11.2025
+
 ### Fixed
 - frontend link in ion channel recording tool.
+- Allow null inputs in connectivity tool.
 
 ## [v0.11.2] - 3.11.2025
 

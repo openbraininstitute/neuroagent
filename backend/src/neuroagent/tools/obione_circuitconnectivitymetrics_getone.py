@@ -21,14 +21,9 @@ class CircuitConnectivityMetricsGetOneToolInput(
     circuit_id: UUID = Field(  # type: ignore[assignment]
         description="ID of the circuit from which the connectivity metrics should be computed."
     )
-    # there is a bug in obi-one that does not allow sending null for this field so instead we force this to be a required field
-    group_by: str = Field(
-        description="Morphological type of the neuron.",
-    )
 
-    # there is a bug in obi-one that does not allow sending null for these fields, so we set default to empty dict
-    pre_selection: dict[str, str | list[str]] = Field(
-        default_factory=dict,
+    pre_selection: dict[str, str | list[str]] | None = Field(
+        default=None,
         description=(
             "Additional filter for pre-synaptic neurons in Sonata nodeset JSON format. "
             "Applied on top of pre_node_set if present. "
@@ -40,9 +35,8 @@ class CircuitConnectivityMetricsGetOneToolInput(
             "If not provided, only pre_node_set filter is applied."
         ),
     )
-    # there is a bug in obi-one that does not allow sending null for this field, so we set default to empty dict
-    post_selection: dict[str, str | list[str]] = Field(
-        default_factory=dict,
+    post_selection: dict[str, str | list[str]] | None = Field(
+        default=None,
         description=(
             "Additional filter for post-synaptic neurons in Sonata nodeset JSON format. "
             "Applied on top of post_node_set if present. "

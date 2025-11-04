@@ -1,5 +1,5 @@
 {
-  "total_tests": 17,
+  "total_tests": 19,
   "metrics_df": [
     {
       "test_name": "cerebellum_morphologies",
@@ -120,6 +120,22 @@
       "Argument Correctness": 1.0,
       "Deterministic Argument Correctness": 0.03571428571428571,
       "Overall Argument Correctness": 1.0
+    },
+    {
+      "test_name": "software_docs_entitysdk",
+      "Correctness [GEval]": 0.623150863155775,
+      "Tool Correctness": 1.0,
+      "Argument Correctness": 1.0,
+      "Deterministic Argument Correctness": 0.3333333333333333,
+      "Overall Argument Correctness": 1.0
+    },
+    {
+      "test_name": "software_docs_obione",
+      "Correctness [GEval]": 0.5350546330079413,
+      "Tool Correctness": 1.0,
+      "Argument Correctness": 0.0,
+      "Deterministic Argument Correctness": 0.3333333333333333,
+      "Overall Argument Correctness": 0.3333333333333333
     },
     {
       "test_name": "species_list",
