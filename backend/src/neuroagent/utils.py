@@ -79,9 +79,29 @@ def convert_to_responses_api_format(
 
         if role == "user":
             # User messages can be simple or structured
-            responses_input.append({"role": "user", "content": msg["content"]})
+            responses_input.append(
+                {
+                    "role": "user",
+                    "content": [{"type": "input_text", "text": msg["content"]}],
+                }
+            )
 
         elif role == "assistant":
+            # Add reasoning
+            if msg.get("encrypted_reasoning"):
+                reasoning_entry = {
+                    "type": "reasoning",
+                    "encrypted_content": msg["encrypted_reasoning"],
+                    "summary": [],
+                }
+                if msg.get("reasoning"):
+                    for reasoning_step in msg["reasoning"]:
+                        reasoning_entry["summary"].append(
+                            {"type": "summary_text", "text": reasoning_step}
+                        )
+
+                responses_input.append(reasoning_entry)
+
             # Assistant messages need structured content
             if msg["content"]:
                 assistant_msg = {
@@ -108,7 +128,7 @@ def convert_to_responses_api_format(
             responses_input.append(
                 {
                     "type": "function_call_output",
-                    "call_id": msg.get("tool_call_id"),
+                    "call_id": msg["tool_call_id"],
                     "output": msg["content"],
                 }
             )

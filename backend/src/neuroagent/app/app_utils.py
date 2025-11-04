@@ -272,7 +272,11 @@ def format_messages_vercel(
                 if text_content:
                     parts.append(TextPartVercel(text=text_content))
                 if reasoning_content:
-                    parts.append(ReasoningPartVercel(text=reasoning_content))
+                    if isinstance(reasoning_content, list):
+                        for reasoning_step in reasoning_content:
+                            parts.append(ReasoningPartVercel(text=reasoning_step))
+                    else:
+                        parts.append(ReasoningPartVercel(text=reasoning_content))
 
                 message_data["metadata"] = {"toolCalls": metadata}
 
@@ -306,7 +310,11 @@ def format_messages_vercel(
 
             # Add optional reasoning
             if reasoning_content:
-                parts.append(ReasoningPartVercel(text=reasoning_content))
+                if isinstance(reasoning_content, list):
+                    for reasoning_step in reasoning_content:
+                        parts.append(ReasoningPartVercel(text=reasoning_step))
+                else:
+                    parts.append(ReasoningPartVercel(text=reasoning_content))
 
             for tc in msg.tool_calls:
                 requires_validation = tool_hil_mapping.get(tc.name, False)

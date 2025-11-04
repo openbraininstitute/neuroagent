@@ -81,13 +81,16 @@ class AgentsRoutine:
             "model": model_override or agent.model,
             "stream": stream,
             "temperature": agent.temperature,
-            "tools": tools or None,
-            "tool_choice": agent.tool_choice,
+            "tools": tools or [],
+            "include": ["reasoning.encrypted_content"],
             "store": False,
         }
 
+        if agent.tool_choice:
+            create_params["tool_choice"] = agent.tool_choice
+
         if agent.model == "gpt-5-mini":
-            create_params["reasoning"] = {"effort": "low", "summary": "detailed"}
+            create_params["reasoning"] = {"effort": "low", "summary": "auto"}
             create_params["text"] = {"verbosity": "medium"}
 
         if tools:
@@ -265,11 +268,12 @@ class AgentsRoutine:
 
                 message: dict[str, Any] = {
                     "content": "",
-                    "reasoning": "",
+                    "reasoning": [],
                     "sender": agent.name,
                     "role": "assistant",
                     "function_call": None,
                     "tool_calls": [],
+                    "encrypted_reasoning": "",
                 }
 
                 # get completion with current history, agent
@@ -286,21 +290,23 @@ class AgentsRoutine:
                 tool_call_ID_mapping: dict[str, str] = {}
                 async for event in completion:
                     match event:
-                        # REASONING
+                        # === REASONING ===
                         # Reasoning start
                         case ResponseReasoningSummaryPartAddedEvent():
+                            yield f"data: {json.dumps({'type': 'start-step'})}\n\n"
                             yield f"data: {json.dumps({'type': 'reasoning-start', 'id': event.item_id})}\n\n"
 
                         # Reasoning deltas
                         case ResponseReasoningSummaryTextDeltaEvent():
                             yield f"data: {json.dumps({'type': 'reasoning-delta', 'id': event.item_id, 'delta': event.delta})}\n\n"
-                            message["reasoning"] += event.delta
 
                         # Reasoning end
                         case ResponseReasoningSummaryPartDoneEvent():
+                            message["reasoning"].append(event.part.text)
                             yield f"data: {json.dumps({'type': 'reasoning-end', 'id': event.item_id})}\n\n"
+                            yield f"data: {json.dumps({'type': 'finish-step'})}\n\n"
 
-                        # TEXT OUTPUTS
+                        # === TEXT ===
                         # Text start
                         case ResponseContentPartAddedEvent():
                             yield f"data: {json.dumps({'type': 'text-start', 'id': event.item_id})}\n\n"
@@ -308,64 +314,74 @@ class AgentsRoutine:
                         # Text Delta
                         case ResponseTextDeltaEvent():
                             yield f"data: {json.dumps({'type': 'text-delta', 'id': event.item_id, 'delta': event.delta})}\n\n"
-                            message["content"] += event.delta
 
                         # Text end
-                        case ResponseContentPartDoneEvent():
+                        case ResponseContentPartDoneEvent() if (
+                            hasattr(event.part, "text") and event.part.text
+                        ):
+                            message["content"] = event.part.text
                             yield f"data: {json.dumps({'type': 'text-end', 'id': event.item_id})}\n\n"
+                            yield f"data: {json.dumps({'type': 'finish-step'})}\n\n"
 
-                        # TOOL CALLS
-                        # Tool call starts (handled in EVENTS. Unfortunately no specific event for it.)
-                        case ResponseOutputItemAddedEvent():
+                        # === TOOL CALLS ===
+                        # Tool call starts
+                        case ResponseOutputItemAddedEvent() if (
+                            isinstance(event.item, ResponseFunctionToolCall)
+                            and event.item.id
+                        ):
                             yield f"data: {json.dumps({'type': 'start-step'})}\n\n"
-                            # New tool call before streaming its deltas.
-                            if (
-                                isinstance(event.item, ResponseFunctionToolCall)
-                                and event.item.id
-                            ):
-                                # Add generic UUID to event ID
-                                tool_call_ID_mapping[event.item.id] = uuid.uuid4().hex
-                                yield f"data: {json.dumps({'type': 'tool-input-start', 'toolCallId': tool_call_ID_mapping[event.item.id], 'toolName': event.item.name})}\n\n"
+                            tool_call_ID_mapping[event.item.id] = (
+                                uuid.uuid4().hex
+                            )  # Add generic UUID to event ID
+                            yield f"data: {json.dumps({'type': 'tool-input-start', 'toolCallId': tool_call_ID_mapping[event.item.id], 'toolName': event.item.name})}\n\n"
 
                         # Tool call deltas
-                        case ResponseFunctionCallArgumentsDeltaEvent():
-                            if event.item_id:
-                                yield f"data: {json.dumps({'type': 'tool-input-delta', 'toolCallId': tool_call_ID_mapping[event.item_id], 'inputTextDelta': event.delta})}\n\n"
+                        case ResponseFunctionCallArgumentsDeltaEvent() if event.item_id:
+                            yield f"data: {json.dumps({'type': 'tool-input-delta', 'toolCallId': tool_call_ID_mapping[event.item_id], 'inputTextDelta': event.delta})}\n\n"
 
-                        # Tool call end (handled in EVENTS. Unfortunately no specific event for it.)
-                        case ResponseOutputItemDoneEvent():
-                            if (
-                                isinstance(event.item, ResponseFunctionToolCall)
-                                and event.item.id
-                            ):
-                                input_args = event.item.arguments
-                                try:
-                                    input_schema: type[BaseModel] = tool_map[
-                                        event.item.name
-                                    ].__annotations__["input_schema"]
-                                    validated_args = input_schema(
-                                        **json.loads(input_args)
-                                    ).model_dump(mode="json")
-                                    args = json.dumps(validated_args)
-                                except ValidationError:
-                                    args = input_args
-                                message["tool_calls"].append(
-                                    {
-                                        "id": tool_call_ID_mapping[event.item.id],
-                                        "type": "function",
-                                        "function": {
-                                            "name": event.item.name,
-                                            "arguments": args,
-                                        },
-                                    }
-                                )
-                                yield f"data: {json.dumps({'type': 'tool-input-available', 'toolCallId': tool_call_ID_mapping[event.item.id], 'toolName': event.item.name, 'input': args})}\n\n"
-
+                        # Tool call end
+                        case ResponseOutputItemDoneEvent() if (
+                            isinstance(event.item, ResponseFunctionToolCall)
+                            and event.item.id
+                        ):
+                            input_args = event.item.arguments
+                            try:
+                                input_schema: type[BaseModel] = tool_map[
+                                    event.item.name
+                                ].__annotations__["input_schema"]
+                                validated_args = input_schema(
+                                    **json.loads(input_args)
+                                ).model_dump(mode="json")
+                                args = json.dumps(validated_args)
+                            except ValidationError:
+                                args = input_args
+                            message["tool_calls"].append(
+                                {
+                                    "id": tool_call_ID_mapping[event.item.id],
+                                    "type": "function",
+                                    "function": {
+                                        "name": event.item.name,
+                                        "arguments": args,
+                                    },
+                                }
+                            )
+                            yield f"data: {json.dumps({'type': 'tool-input-available', 'toolCallId': tool_call_ID_mapping[event.item.id], 'toolName': event.item.name, 'input': json.loads(args)})}\n\n"
                             yield f"data: {json.dumps({'type': 'finish-step'})}\n\n"
 
                         # Handle usage/token information
                         case ResponseCompletedEvent():
+                            message["encrypted_reasoning"] = next(
+                                (
+                                    part.encrypted_content
+                                    for part in event.response.output
+                                    if part.type == "reasoning"
+                                ),
+                                "",
+                            )
                             usage_data = event.response.usage
+
+                        # case _:
+                        #     print(event.type)
 
                 # If tool calls requested, instantiate them as an SQL compatible class
                 if message["tool_calls"]:

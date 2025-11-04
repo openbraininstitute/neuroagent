@@ -265,7 +265,7 @@ export function ChatPage({
     if (messages.length > 0 && messages[messages.length - 1].role === "user") {
       setMessages(messages.slice(0, -1));
     }
-
+    debugger;
     let errorDetail;
     try {
       // Try to parse error message as JSON
