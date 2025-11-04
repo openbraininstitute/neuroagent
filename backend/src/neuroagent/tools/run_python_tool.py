@@ -368,7 +368,7 @@ AVAILABLE LIBRARIES:
             )
             results = await self.metadata.session.execute(stmt)
             rows = results.first()
-            breakpoint()
+
             # Raise an error if a variable could not be retrieved
             if rows is None or None in rows:
                 raise ValueError(
