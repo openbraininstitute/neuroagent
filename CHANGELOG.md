@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v0.11.4] - 4.11.2025
+
+### Fixed
+- Don't turn `None` into `{}` in connectivity tool
+
 ### Added
 - Code generation tool (Context7 MCP server)
 
