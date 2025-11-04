@@ -108,16 +108,9 @@ Supports optional pre_selection and post_selection parameters as additional filt
             headers["project_id"] = str(self.metadata.project_id)
 
         request_body = self.input_schema.model_dump(
-            exclude_defaults=False,
+            exclude_defaults=True,
             mode="json",
         )
-
-        # we want to ensure that pre_selection and post_selection are always sent as empty dicts if not provided, to fix a bug in obi-one
-        if request_body.get("pre_selection") is None:
-            request_body["pre_selection"] = {}
-
-        if request_body.get("post_selection") is None:
-            request_body["post_selection"] = {}
 
         connectivity_metrics_response = await self.metadata.httpx_client.post(
             url=f"{self.metadata.obi_one_url}/declared/connectivity-metrics",
