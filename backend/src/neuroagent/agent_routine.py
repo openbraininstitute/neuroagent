@@ -135,7 +135,7 @@ class AgentsRoutine:
         tools: list[type[BaseTool]],
         context_variables: dict[str, Any],
         raise_validation_errors: bool = False,
-    ) -> tuple[dict[str, str], Agent | None]:
+    ) -> tuple[dict[str, str | dict[str, Any]], Agent | None]:
         """Run individual tools."""
         tool_map = {tool.name: tool for tool in tools}
 
@@ -159,13 +159,12 @@ class AgentsRoutine:
                 raise err
             else:
                 # Otherwise transform it into an OpenAI response for the model to retry
-                response = {
+                return {
                     "role": "tool",
                     "tool_call_id": tool_call.tool_call_id,
                     "tool_name": name,
                     "content": err.json(),
-                }
-                return response, None
+                }, None
 
         try:
             tool_metadata = tool.__annotations__["metadata"](**context_variables)
@@ -175,13 +174,12 @@ class AgentsRoutine:
                 raise err
             else:
                 # Otherwise transform it into an OpenAI response for the model to retry
-                response = {
+                return {
                     "role": "tool",
                     "tool_call_id": tool_call.tool_call_id,
                     "tool_name": name,
                     "content": "The user is not allowed to run this tool. Don't call it again.",
-                }
-                return response, None
+                }, None
 
         logger.info(
             f"Entering {name}. Inputs: {input_schema.model_dump(exclude_defaults=True)}."
@@ -195,28 +193,22 @@ class AgentsRoutine:
                     tool_instance.metadata.token_consumption
                 )
         except Exception as err:
-            response = {
+            return {
                 "role": "tool",
                 "tool_call_id": tool_call.tool_call_id,
                 "tool_name": name,
                 "content": str(err),
-            }
-            return response, None
+            }, None
 
         result: Result = self.handle_function_result(
             raw_result, str(tool_call.tool_call_id)
         )
-        response = {
+        return {
             "role": "tool",
             "tool_call_id": tool_call.tool_call_id,
             "tool_name": name,
             "content": result.value,
-        }
-        if result.agent:
-            agent = result.agent
-        else:
-            agent = None
-        return response, agent
+        }, (result.agent if result.agent else None)
 
     async def astream(
         self,

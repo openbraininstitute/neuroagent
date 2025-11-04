@@ -8,6 +8,7 @@ from uuid import UUID
 from pydantic import BaseModel, Field, field_validator
 from sqlalchemy import func, select, text
 from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.exc import ProgrammingError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from neuroagent.app.database.sql_schemas import Messages
@@ -366,8 +367,13 @@ AVAILABLE LIBRARIES:
                     [str(var.tool_call_id) for var in self.input_schema.variables]
                 )
             )
-            results = await self.metadata.session.execute(stmt)
-            rows = results.first()
+            try:
+                results = await self.metadata.session.execute(stmt)
+                rows = results.first()
+            except ProgrammingError:
+                raise ValueError(
+                    "Could not execute the variable retrieval query. Make sure the tool_call_id is correct, the JSONPath query is valid and points to an existing field."
+                )
 
             # Raise an error if a variable could not be retrieved
             if rows is None or None in rows:
