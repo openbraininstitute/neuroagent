@@ -17,7 +17,7 @@ from neuroagent.tools.base_tool import (
 
 
 class BrainRegionGetAllInput(
-    ReadManyBrainRegionGetParametersQuery, EntitycoreExcludeNameParams
+    EntitycoreExcludeNameParams, ReadManyBrainRegionGetParametersQuery
 ):
     """Inputs for the brain region get all tool."""
 

@@ -17,7 +17,7 @@ from neuroagent.tools.base_tool import (
 
 
 class SpeciesGetAllInput(
-    ReadManySpeciesGetParametersQuery, EntitycoreExcludeNameParams
+    EntitycoreExcludeNameParams, ReadManySpeciesGetParametersQuery
 ):
     """Inputs for the species get all tool."""
 

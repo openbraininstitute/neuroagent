@@ -16,7 +16,7 @@ from neuroagent.tools.base_tool import (
 )
 
 
-class StrainGetAllInput(ReadManyStrainGetParametersQuery, EntitycoreExcludeNameParams):
+class StrainGetAllInput(EntitycoreExcludeNameParams, ReadManyStrainGetParametersQuery):
     """Inputs for the strain get all tool."""
 
     page_size: int = Field(

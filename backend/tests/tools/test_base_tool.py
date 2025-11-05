@@ -2,7 +2,13 @@
 
 import pytest
 
-from neuroagent.tools.base_tool import EntitycoreExcludeBRParams
+from neuroagent.tools.base_tool import (
+    EntitycoreExcludeBRParams,
+    EntitycoreExcludeNameParams,
+)
+from neuroagent.tools.entitycore_brainregion_getall import (
+    BrainRegionGetAllInput,
+)
 from neuroagent.tools.entitycore_cellmorphology_getall import (
     CellMorphologyGetAllInput,
 )
@@ -49,6 +55,8 @@ from neuroagent.tools.entitycore_singleneuronsynaptome_getall import (
 from neuroagent.tools.entitycore_singleneuronsynaptomesimulation_getall import (
     SingleNeuronSynaptomeSimulationGetAllInput,
 )
+from neuroagent.tools.entitycore_species_getall import SpeciesGetAllInput
+from neuroagent.tools.entitycore_strain_getall import StrainGetAllInput
 
 
 @pytest.mark.parametrize(
@@ -87,6 +95,37 @@ def test_entitycore_exclude_br_params_fields_excluded(input_class):
 
     input_model_fields = input_class.model_fields
     excluded_field_names = set(EntitycoreExcludeBRParams.model_fields.keys())
+
+    for field_name in excluded_field_names:
+        if field_name in input_model_fields:
+            field_info = input_model_fields[field_name]
+            assert field_info.exclude is True, (
+                f"{input_class.__name__}: Field '{field_name}' should have exclude=True "
+                f"but has exclude={field_info.exclude}"
+            )
+
+
+@pytest.mark.parametrize(
+    "input_class",
+    [
+        BrainRegionGetAllInput,
+        SpeciesGetAllInput,
+        StrainGetAllInput,
+    ],
+)
+def test_entitycore_exclude_name_params_fields_excluded(input_class):
+    """Test that input classes exclude EntitycoreExcludeNameParams fields from JSON schema and model_dump."""
+    schema = input_class.model_json_schema()
+    excluded_fields = set(EntitycoreExcludeNameParams.model_fields.keys())
+    schema_properties = set(schema.get("properties", {}).keys())
+    found_excluded_fields = schema_properties & excluded_fields
+
+    assert len(found_excluded_fields) == 0, (
+        f"{input_class.__name__}: Found excluded fields in schema: {found_excluded_fields}"
+    )
+
+    input_model_fields = input_class.model_fields
+    excluded_field_names = set(EntitycoreExcludeNameParams.model_fields.keys())
 
     for field_name in excluded_field_names:
         if field_name in input_model_fields:
