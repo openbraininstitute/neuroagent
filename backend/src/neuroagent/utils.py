@@ -7,7 +7,7 @@ import uuid
 from typing import Any
 
 from fastapi import HTTPException
-from openai.types.completion_usage import CompletionUsage
+from openai.types.responses import ResponseUsage
 
 from neuroagent.app.database.sql_schemas import (
     Entity,
@@ -334,19 +334,19 @@ def delete_from_storage(
             objects_to_delete = []
 
 
-def get_token_count(usage: CompletionUsage | None) -> dict[str, int | None]:
+def get_token_count(usage: ResponseUsage | None) -> dict[str, int | None]:
     """Assign token count to a message given a usage chunk."""
     # Parse usage to add to message's data
     if usage:
         # Compute input, input_cached, completion
-        input_tokens = usage.prompt_tokens
+        input_tokens = usage.input_tokens
         cached_tokens = (
-            usage.prompt_tokens_details.cached_tokens
-            if usage.prompt_tokens_details
+            usage.input_tokens_details.cached_tokens
+            if usage.input_tokens_details
             else None
         )
         prompt_tokens = input_tokens - cached_tokens if cached_tokens else input_tokens
-        completion_tokens = usage.completion_tokens
+        completion_tokens = usage.output_tokens
 
         return {
             "input_cached": cached_tokens,

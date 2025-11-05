@@ -368,7 +368,8 @@ class AgentsRoutine:
                             yield f"data: {json.dumps({'type': 'tool-input-available', 'toolCallId': tool_call_ID_mapping[event.item.id], 'toolName': event.item.name, 'input': json.loads(args)})}\n\n"
                             yield f"data: {json.dumps({'type': 'finish-step'})}\n\n"
 
-                        # Handle usage/token information
+                        # === Usage ===
+                        # Handle usage/token information and ecrypted reasoning.
                         case ResponseCompletedEvent():
                             message["encrypted_reasoning"] = next(
                                 (

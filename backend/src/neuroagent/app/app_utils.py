@@ -37,7 +37,11 @@ from neuroagent.app.schemas import (
     ToolMetadataDict,
 )
 from neuroagent.tools.base_tool import BaseTool
-from neuroagent.utils import get_token_count, messages_to_openai_content
+from neuroagent.utils import (
+    convert_to_responses_api_format,
+    get_token_count,
+    messages_to_openai_content,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -495,17 +499,16 @@ AVAILABLE TOOLS:
         # Send the OpenAI request
         model = "google/gemini-2.5-flash"
         start_request = time.time()
-        response = await openai_client.beta.chat.completions.parse(
-            messages=[{"role": "system", "content": system_prompt}, *openai_messages],  # type: ignore
+        response = await openai_client.responses.parse(
+            instructions=system_prompt,
+            input=convert_to_responses_api_format(openai_messages),  # type: ignore
             model=model,
-            response_format=ToolFiltering,
+            text_format=ToolFiltering,
         )
 
         # Parse the output
-        if response.choices[0].message.parsed:
-            selected_tools = list(
-                set(response.choices[0].message.parsed.selected_tools)
-            )
+        if response.output_parsed and response.output_parsed.selected_tools:
+            selected_tools = list(set(response.output_parsed.selected_tools))
             logger.debug(
                 f"#TOOLS: {len(selected_tools)}, SELECTED TOOLS: {selected_tools} in {(time.time() - start_request):.2f} s"
             )

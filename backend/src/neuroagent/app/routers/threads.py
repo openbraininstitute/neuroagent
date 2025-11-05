@@ -175,22 +175,20 @@ async def generate_title(
         }
     )
     # Send it to OpenAI longside with the system prompt asking for summary
-    messages = [
-        {
-            "role": "system",
-            "content": "Given the user's first message of a conversation, generate a short title for this conversation (max 5 words).",
-        },
-        {"role": "user", "content": body.first_user_message},
-    ]
+    system_prompt = "Given the user's first message of a conversation, generate a short title for this conversation (max 5 words)."
 
-    response = await openai_client.beta.chat.completions.parse(
-        messages=messages,  # type: ignore
+    response = await openai_client.responses.parse(
+        instructions=system_prompt,
+        input=body.first_user_message,
         model=settings.llm.suggestion_model,
-        response_format=ThreadGeneratedTitle,
+        text_format=ThreadGeneratedTitle,
     )
 
     # Update the thread title and modified date + commit
-    thread.title = response.choices[0].message.parsed.title  # type: ignore
+    if response.output_parsed:
+        thread.title = response.output_parsed.title
+    else:
+        logger.warning("Unable to generate title.")
     thread.update_date = utc_now()
     await session.commit()
     await session.refresh(thread)

@@ -123,18 +123,16 @@ Generate only the JSON configuration, ensuring all references are internally con
 """
         model = "gpt-5-mini"
         # Then generate the global class and make the according references
-        response = await self.metadata.openai_client.beta.chat.completions.parse(
-            messages=[
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": self.input_schema.config_request},
-            ],
+        response = await self.metadata.openai_client.responses.parse(
+            instructions=system_prompt,
+            input=self.input_schema.config_request,
             model=model,
-            reasoning_effort="medium",
-            response_format=SimulationsFormModified,
+            text_format=SimulationsFormModified,
+            reasoning={"effort": "medium"},
         )
-        if response.choices[0].message.parsed:
+        if response.output_parsed:
             # Get the output config
-            config = response.choices[0].message.parsed
+            config = response.output_parsed
 
             # Gather everything in the OBI-One compatible class
             output_config = SimulationsForm(

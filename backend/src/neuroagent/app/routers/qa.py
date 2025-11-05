@@ -156,10 +156,7 @@ async def question_suggestions(
     else:
         content = f"USER JOURNEY: \n{body.model_dump(exclude={'thread_id'}, mode='json')['click_history']}"
 
-    messages = [
-        {
-            "role": "system",
-            "content": f"""You are a smart assistant that analyzes user behavior and conversation history to suggest {"three concise, engaging questions" if is_in_chat else "a concise, engaging question"} the user might ask next, specifically about finding relevant scientific literature.
+    system_prompt = f"""You are a smart assistant that analyzes user behavior and conversation history to suggest {"three concise, engaging questions" if is_in_chat else "a concise, engaging question"} the user might ask next, specifically about finding relevant scientific literature.
 
 Platform Context:
 The Open Brain Platform provides an atlas-driven exploration of the mouse brain, offering access to:
@@ -203,20 +200,21 @@ Each question must:
 
 The upcoming user message will either prepend its content with 'CONVERSATION MESSAGES:' indicating that messages from the conversation are dumped, or 'USER JOURNEY:' indicating that the navigation history is dumped.
 
-Important: Weight the user clicks depending on how old they are. The more recent clicks should be given a higher importance. The current date and time is {datetime.now(timezone.utc).isoformat()}.""",
-        },
-        {"role": "user", "content": content},
-    ]
+Important: Weight the user clicks depending on how old they are. The more recent clicks should be given a higher importance. The current date and time is {datetime.now(timezone.utc).isoformat()}."""
 
-    response = await openai_client.beta.chat.completions.parse(
-        messages=messages,  # type: ignore
+    response = await openai_client.responses.parse(
+        instructions=system_prompt,
+        input=content,
         model=settings.llm.suggestion_model,
-        response_format=QuestionsSuggestions
+        text_format=QuestionsSuggestions
         if is_in_chat
         else QuestionSuggestionNoMessages,
     )
 
-    return response.choices[0].message.parsed  # type: ignore
+    if response.output_parsed:
+        return response.output_parsed  # type: ignore
+    else:
+        raise ValueError("Error generating question suggestions.")
 
 
 @router.get("/models")

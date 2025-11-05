@@ -314,19 +314,15 @@ Generate the SQL query to analyze the neuron population:"""
                 # Get SQL from OpenAI
                 model = "gpt-4o-mini"
 
-                response = (
-                    await self.metadata.openai_client.beta.chat.completions.parse(
-                        model=model,
-                        messages=[
-                            {"role": "system", "content": system_prompt},
-                            {"role": "user", "content": user_prompt},
-                        ],
-                        response_format=SQLStatement,
-                    )
+                response = await self.metadata.openai_client.responses.parse(
+                    instructions=system_prompt,
+                    input=user_prompt,
+                    model=model,
+                    text_format=SQLStatement,
                 )
 
-                if response.choices[0].message.parsed:
-                    sql = response.choices[0].message.parsed.sql_statement
+                if response.output_parsed and response.output_parsed.sql_statement:
+                    sql = response.output_parsed.sql_statement
                 else:
                     raise ValueError("Couldn't generate SQL statement.")
 
