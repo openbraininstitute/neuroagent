@@ -11,6 +11,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Base class for excluded parameters.
 - Resolving of asset/hierarchy id within tools.
 
+## [v0.11.4] - 4.11.2025
+
+### Fixed
+- Don't turn `None` into `{}` in connectivity tool
+
 ### Added
 - Code generation tool (Context7 MCP server)
 
