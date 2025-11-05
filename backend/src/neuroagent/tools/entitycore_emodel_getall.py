@@ -17,7 +17,7 @@ from neuroagent.tools.base_tool import (
 )
 
 
-class EModelGetAllInput(ReadManyEmodelGetParametersQuery, EntitycoreExcludeBRParams):
+class EModelGetAllInput(EntitycoreExcludeBRParams, ReadManyEmodelGetParametersQuery):
     """Inputs for the e-model get all tool."""
 
     within_brain_region_brain_region_id: UUID | None = Field(

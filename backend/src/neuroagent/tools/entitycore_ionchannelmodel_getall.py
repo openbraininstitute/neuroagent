@@ -18,7 +18,7 @@ from neuroagent.tools.base_tool import (
 
 
 class IonChannelModelGetAllInput(
-    ReadManyIonChannelModelGetParametersQuery, EntitycoreExcludeBRParams
+    EntitycoreExcludeBRParams, ReadManyIonChannelModelGetParametersQuery
 ):
     """Inputs for the ion channel model get all tool."""
 

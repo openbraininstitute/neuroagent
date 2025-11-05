@@ -18,8 +18,8 @@ from neuroagent.tools.base_tool import (
 
 
 class ExperimentalSynapsesPerConnectionGetAllInput(
-    ReadManyExperimentalSynapsesPerConnectionGetParametersQuery,
     EntitycoreExcludeBRParams,
+    ReadManyExperimentalSynapsesPerConnectionGetParametersQuery,
 ):
     """Inputs for the experimental synapses per connection get all tool."""
 

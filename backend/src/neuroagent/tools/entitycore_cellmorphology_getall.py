@@ -18,7 +18,7 @@ from neuroagent.tools.base_tool import (
 
 
 class CellMorphologyGetAllInput(
-    ReadManyCellMorphologyGetParametersQuery, EntitycoreExcludeBRParams
+    EntitycoreExcludeBRParams, ReadManyCellMorphologyGetParametersQuery
 ):
     """Inputs for the cell morphology get all tool."""
 

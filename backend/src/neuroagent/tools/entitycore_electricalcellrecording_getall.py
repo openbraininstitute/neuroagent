@@ -18,7 +18,7 @@ from neuroagent.tools.base_tool import (
 
 
 class ElectricalCellRecordingGetAllInput(
-    ReadManyElectricalCellRecordingGetParametersQuery, EntitycoreExcludeBRParams
+    EntitycoreExcludeBRParams, ReadManyElectricalCellRecordingGetParametersQuery
 ):
     """Inputs for the electrical cell recording get all tool."""
 

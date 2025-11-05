@@ -18,7 +18,7 @@ from neuroagent.tools.base_tool import (
 
 
 class IonChannelRecordingGetAllInput(
-    ReadManyIonChannelRecordingGetParametersQuery, EntitycoreExcludeBRParams
+    EntitycoreExcludeBRParams, ReadManyIonChannelRecordingGetParametersQuery
 ):
     """Inputs for the ion-channel-recording get all tool."""
 

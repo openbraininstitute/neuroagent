@@ -18,7 +18,7 @@ from neuroagent.tools.base_tool import (
 
 
 class MeasurementAnnotationGetAllInput(
-    ReadManyMeasurementAnnotationGetParametersQuery, EntitycoreExcludeBRParams
+    EntitycoreExcludeBRParams, ReadManyMeasurementAnnotationGetParametersQuery
 ):
     """Inputs for the measurement annotation get all tool."""
 

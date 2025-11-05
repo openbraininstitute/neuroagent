@@ -18,7 +18,7 @@ from neuroagent.tools.base_tool import (
 
 
 class SingleNeuronSynaptomeGetAllInput(
-    ReadManySingleNeuronSynaptomeGetParametersQuery, EntitycoreExcludeBRParams
+    EntitycoreExcludeBRParams, ReadManySingleNeuronSynaptomeGetParametersQuery
 ):
     """Inputs for the single-neuron-synaptome get all tool."""
 

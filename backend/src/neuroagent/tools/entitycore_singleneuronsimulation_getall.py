@@ -18,7 +18,7 @@ from neuroagent.tools.base_tool import (
 
 
 class SingleNeuronSimulationGetAllInput(
-    ReadManySingleNeuronSimulationGetParametersQuery, EntitycoreExcludeBRParams
+    EntitycoreExcludeBRParams, ReadManySingleNeuronSimulationGetParametersQuery
 ):
     """Inputs for the single-neuron-simulation get all tool."""
 

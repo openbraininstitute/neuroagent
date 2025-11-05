@@ -18,7 +18,7 @@ from neuroagent.tools.base_tool import (
 
 
 class ExperimentalBoutonDensityGetAllInput(
-    ReadManyExperimentalBoutonDensityGetParametersQuery, EntitycoreExcludeBRParams
+    EntitycoreExcludeBRParams, ReadManyExperimentalBoutonDensityGetParametersQuery
 ):
     """Inputs for the experimental bouton density get all tool."""
 

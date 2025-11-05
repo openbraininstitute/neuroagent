@@ -17,7 +17,7 @@ from neuroagent.tools.base_tool import (
 )
 
 
-class CircuitGetAllInput(ReadManyCircuitGetParametersQuery, EntitycoreExcludeBRParams):
+class CircuitGetAllInput(EntitycoreExcludeBRParams, ReadManyCircuitGetParametersQuery):
     """Inputs for the circuit get all tool."""
 
     within_brain_region_brain_region_id: UUID | None = Field(

@@ -20,7 +20,7 @@ from neuroagent.tools.base_tool import (
 logger = logging.getLogger(__name__)
 
 
-class MEModelGetAllInput(ReadManyMemodelGetParametersQuery, EntitycoreExcludeBRParams):
+class MEModelGetAllInput(EntitycoreExcludeBRParams, ReadManyMemodelGetParametersQuery):
     """Input for the ME-Model get all tool."""
 
     within_brain_region_brain_region_id: UUID | None = Field(
