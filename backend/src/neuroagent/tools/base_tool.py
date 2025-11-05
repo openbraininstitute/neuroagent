@@ -29,7 +29,18 @@ class EntitycoreMetadata(BaseMetadata):
 
 
 class EntitycoreExcludeBRParams(BaseModel):
-    """Exclude BR parameters tha tthe model should not use in BR compatible EC endpoints."""
+    """Exclude BR parameters that the model should not use in BR compatible EC endpoints.
+
+    The within_brain_region_hierarchy_id parameter should not be provided directly by the user.
+    The tool will automatically make an extra request to map the brain region ID from
+    within_brain_region_brain_region_id to the corresponding hierarchy ID during query execution.
+
+    All other fields in this class are excluded to prevent the LLM from using them directly.
+    Instead, the LLM should be encouraged to use within_brain_region_brain_region_id when
+    filtering by brain region. Note that excluding brain_region__id and brain_region__id__in
+    means we cannot filter for entities exactly within a specific region, but this is an
+    accepted trade-off since most use cases care about entities within a region's subtree.
+    """
 
     brain_region__name: SkipJsonSchema[None] = Field(default=None, exclude=True)
     brain_region__name__in: SkipJsonSchema[None] = Field(default=None, exclude=True)
