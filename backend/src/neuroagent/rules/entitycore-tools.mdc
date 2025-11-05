@@ -3,9 +3,8 @@ description: Entitycore tools
 ---
 # ENTITYCORE TOOLS
 
-## Brain Region ID Resolution
+## Finding Entities within Brain Regions
 
-**MANDATORY workflow:**
 1. Resolve names to IDs using `entitycore-brainregion-getall` with `semantic_search` parameter
 2. Given the ID, retrieve some other entities located within that brain region using relevant tools (e.g., `entitycore-cellmorphology-getall`) and provide the parameter `within_brain_region_brain_region_id` with the resolved ID
 
