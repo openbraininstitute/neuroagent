@@ -4,7 +4,7 @@ import json
 import logging
 import re
 import uuid
-from typing import Any
+from typing import Any, Literal
 
 from fastapi import HTTPException
 from openai.types.responses import ResponseUsage
@@ -13,7 +13,6 @@ from neuroagent.app.database.sql_schemas import (
     Entity,
     Messages,
 )
-from neuroagent.schemas import Category
 
 logger = logging.getLogger(__name__)
 
@@ -233,7 +232,7 @@ def save_to_storage(
     bucket_name: str,
     user_id: uuid.UUID,
     content_type: str,
-    category: Category,
+    category: Literal["image", "json"],
     body: bytes | str,
     thread_id: uuid.UUID | None = None,
 ) -> str:

@@ -1,11 +1,6 @@
 import { getPresignedUrl } from "@/lib/storage";
-import { Piechart } from "@/components/plots/piechart";
-import { Barplot } from "@/components/plots/barplot";
-import { Scatterplot } from "@/components/plots/scatterplot";
 import { ImagePlot } from "@/components/plots/image";
-import { Histogram } from "@/components/plots/histogram";
-import { Linechart } from "@/components/plots/linechart";
-import { MultiLinechart } from "@/components/plots/multi-linechart";
+import { Plots } from "@/components/plots/plotly";
 
 export async function generateMetadata() {
   return {
@@ -28,18 +23,12 @@ export default async function ViewerPage({
   switch (category) {
     case "image":
       return <ImagePlot url={presignedUrl} />;
-    case "json-piechart":
-      return <Piechart presignedUrl={presignedUrl ?? ""} />;
-    case "json-barplot":
-      return <Barplot presignedUrl={presignedUrl ?? ""} />;
-    case "json-scatterplot":
-      return <Scatterplot presignedUrl={presignedUrl ?? ""} />;
-    case "json-histogram":
-      return <Histogram presignedUrl={presignedUrl ?? ""} />;
-    case "json-linechart":
-      return <Linechart presignedUrl={presignedUrl ?? ""} />;
-    case "json-multi-linechart":
-      return <MultiLinechart presignedUrl={presignedUrl ?? ""} />;
+    case "json":
+      return (
+        <div className="overflow-y-auto">
+          <Plots presignedUrl={presignedUrl ?? ""} />
+        </div>
+      );
     default:
       return <p>Error: Unsupported file category: {category}</p>;
   }
