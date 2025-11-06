@@ -2,11 +2,7 @@ import json
 from unittest.mock import AsyncMock, Mock
 
 from openai import AsyncOpenAI
-from openai.types.chat.chat_completion import ChatCompletion
-from openai.types.chat.chat_completion_message_tool_call import (
-    ChatCompletionMessageToolCall,
-    Function,
-)
+from openai.types.responses import ResponseFunctionToolCall
 
 
 def create_mock_response(
@@ -17,72 +13,59 @@ def create_mock_response(
 ):
     role = message.get("role", "assistant")
     content = message.get("content", "")
-    tool_calls = (
-        [
-            ChatCompletionMessageToolCall(
-                id="mock_tc_id",
-                type="function",
-                function=Function(
-                    name=call.get("name", ""),
-                    arguments=json.dumps(call.get("args", {})),
-                ),
-            )
-            for call in function_calls
-        ]
-        if function_calls
-        else None
+
+    output = []
+
+    output.append(
+        {
+            "id": "msg_mock_id",
+            "type": "message",
+            "status": "completed",
+            "role": role,
+            "content": [{"type": "output_text", "text": content}],
+        }
     )
-    return Mock(
-        id="mock_cc_id",
-        created=1234567890,
-        model=model,
-        object="chat.completion",
-        choices=[
-            Mock(
-                message=Mock(
-                    role=role,
-                    content=content,
-                    tool_calls=tool_calls,
-                    parsed=structured_output_class,
-                ),
-                finish_reason="stop",
-                index=0,
+
+    if function_calls is not None:
+        for function_call in function_calls:
+            output.append(
+                ResponseFunctionToolCall(
+                    **{
+                        "id": function_call.get("id", "fc_mock_id"),
+                        "type": "function_call",
+                        "status": "completed",
+                        "name": function_call.get("name"),
+                        "call_id": function_call.get("call_id"),
+                        "arguments": json.dumps(function_call.get("arguments", {})),
+                    }
+                )
             )
-        ],
-    )
+
+    mock_resp = Mock()
+    mock_resp.id = "resp_mock_id"
+    mock_resp.model = model
+    mock_resp.output = output
+    mock_resp.output_parsed = structured_output_class
+    return mock_resp
 
 
 class MockOpenAIClient:
     def __init__(self):
-        self.chat = AsyncMock()
-        self.chat.completions = AsyncMock()
-        self.beta = AsyncMock()
-        self.beta.chat = AsyncMock()
-        self.beta.chat.completions = AsyncMock()
+        self.responses = AsyncMock()
+        self.responses.create = AsyncMock()
+        self.responses.parse = AsyncMock()
 
     @property
     def __class__(self):
-        # pretend to be the real AsyncOpenAI
+        # pretend to be the real client class if needed by code under test
         return AsyncOpenAI
 
-    def set_response(self, response: ChatCompletion):
-        """
-        Set the mock to return a specific response.
-        :param response: A ChatCompletion response to return.
-        """
-        self.chat.completions.create.return_value = response
-        self.beta.chat.completions.parse.return_value = response
+    def set_response(self, response):
+        self.responses.create.return_value = response
+        self.responses.parse.return_value = response
 
-    def set_sequential_responses(self, responses: list[ChatCompletion]):
-        """
-        Set the mock to return different responses sequentially.
-        :param responses: A list of ChatCompletion responses to return in order.
-        """
-        self.chat.completions.create.side_effect = responses
-        self.beta.chat.completions.parse.side_effect = responses
+    def assert_responses_create_called_with(self, **kwargs):
+        self.responses.create.assert_called_with(**kwargs)
 
-    def assert_create_called_with(self, **kwargs):
-        self.chat.completions.create.assert_called_with(**kwargs)
-
-    def assert_create_called_with_structure_output(self, **kwargs):
-        self.beta.chat.completions.parse.assert_called_with(**kwargs)
+    def assert_responses_parse_called_with(self, **kwargs):
+        self.responses.parse.assert_called_with(**kwargs)

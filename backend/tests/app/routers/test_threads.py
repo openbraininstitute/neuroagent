@@ -75,17 +75,12 @@ def test_generate_thread_title(httpx_mock, app_client, db_connection, test_user_
         ).json()
 
         assert create_thread_response["title"] == "Great Title"
-        mock_openai_client.assert_create_called_with_structure_output(
+        mock_openai_client.assert_responses_parse_called_with(
             **{
-                "messages": [
-                    {
-                        "role": "system",
-                        "content": "Given the user's first message of a conversation, generate a short title for this conversation (max 5 words).",
-                    },
-                    {"role": "user", "content": "This is my query"},
-                ],
+                "instructions": "Given the user's first message of a conversation, generate a short title for this conversation (max 5 words).",
+                "input": "This is my query",
                 "model": "great_model",
-                "response_format": ThreadGeneratedTitle,
+                "text_format": ThreadGeneratedTitle,
             }
         )
 
