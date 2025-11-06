@@ -1,4 +1,35 @@
 {
+    "context7": {
+      "command": "npx",
+      "args": ["-y", "@upstash/context7-mcp"],
+      "tool_metadata": {
+        "get-library-docs": {
+          "name": "get-obi-software-docs",
+          "name_frontend": "Get OBI Software Docs",
+          "description": "Get the latest documentation for OBI (Open Brain Institute) Python packages and other open source packages. Use this tool to retrieve up-to-date documentation on various packages.\n\n# Supported OBI Python packages:\nThe following OBI packages are directly available in Context7 - use their library IDs directly without calling resolve-library-id:\n- openbraininstitute/obi-one\n- openbraininstitute/entitysdk\n- openbraininstitute/neurom\n\nUse this tool whenever the user wants you to write code related to OBI packages to access the most recent API documentation and usage examples.\n\n# Getting documentation for open source packages outside OBI:\nFor open source packages outside of OBI, first use the resolve-library-id tool to get the library identifier, then use that identifier with this tool to retrieve the documentation.\n\n# Overlap with existing tools:\nIf the user explicitly asks you to write code, do not call any other tools that might do the job. For example, if the user asks you to write code using entitysdk, you should not call any entitycore tools. Same applies to obi-one and any other OBI tools.\n\n# Code execution:\nThe separate run Python tool (execute-python-code) does not support OBI packages. Therefore, if you generate code that uses OBI packages, do not suggest running it with the run Python tool.",
+          "description_frontend": "Get the latest documentation for OBI (Open Brain Institute) Python packages. Retrieves up-to-date documentation on OBI software packages including obi-one, entitysdk, and neurom.",
+          "utterances": [
+            "Get OBI documentation",
+            "Show me OBI software docs",
+            "Get documentation for obi-one",
+            "Get documentation for entitysdk",
+            "Get documentation for neurom",
+            "Find OBI package documentation",
+            "Look up OBI software documentation",
+            "Write code using OBI packages",
+            "Show me example code for OBI",
+            "Get code examples for obi-one",
+            "Get code examples for entitysdk",
+            "Get code examples for neurom",
+            "How to write code with OBI",
+            "Write an example using obi-one",
+            "Write an example using entitysdk",
+            "Write an example using neurom",
+            "Give me a code example for OBI software"
+          ]
+        }
+      }
+    },
     "exa": {
       "command": "npx",
       "args": ["-y", "exa-mcp-server@0.3.10", "--tools=web_search_exa,research_paper_search,crawling"],

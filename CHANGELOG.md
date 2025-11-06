@@ -7,6 +7,37 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- Base class for excluded parameters.
+- Resolving of asset/hierarchy id within tools.
+- Adapt everything to vercel v5.
+- Adapt to Response API.
+
+
+## [v0.11.4] - 4.11.2025
+
+### Fixed
+- Don't turn `None` into `{}` in connectivity tool
+
+### Added
+- Code generation tool (Context7 MCP server)
+
+## [v0.11.3] - 3.11.2025
+
+### Fixed
+- frontend link in ion channel recording tool.
+- Allow null inputs in connectivity tool.
+
+## [v0.11.2] - 3.11.2025
+
+### Fixed
+- Connectitivity tool url
+
+## [v0.11.1] - 31.10.2025
+
+### Fixed
+- Ion Channel Model return class.
+
 ## [v0.11.0] - 31.10.2025
 
 ### Added
@@ -21,16 +52,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Prevent the LLM from talking about the UI.
 - Tool argument correctness metric.
 - Fix brain region get all for new hierarchy.
+- Images not appearing in Literature search (Prompt refactor).
 
-## Changed
+### Changed
 - Running deepeval github action also on main
 - Use typescript autogen for backend types in frontend.
 - Try to enforce using metric tools rather than downloading assets.
 - Rule to avoid overvalidating.
-- Adapt everything to vercel v5.
 
 ## Fixed
 - Images not appearing in Literature search (Prompt refactor).
+- Update uv lock package.
 
 ## [v0.10.0] - 2.10.2025
 
