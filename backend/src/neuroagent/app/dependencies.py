@@ -24,6 +24,7 @@ from neuroagent.app.app_utils import filter_tools_by_conversation, validate_proj
 from neuroagent.app.config import Settings
 from neuroagent.app.database.sql_schemas import Entity, Messages, Threads
 from neuroagent.app.schemas import OpenRouterModelResponse, UserInfo
+from neuroagent.executor import WasmExecutor
 from neuroagent.mcp import MCPClient, create_dynamic_tool
 from neuroagent.new_types import Agent
 from neuroagent.tools import (
@@ -81,8 +82,8 @@ from neuroagent.tools import (
     PersonGetAllTool,
     PersonGetOneTool,
     PlotElectricalCellRecordingGetOneTool,
-    PlotGeneratorTool,
     PlotMorphologyGetOneTool,
+    RunPythonTool,
     SimulationCampaignGetAllTool,
     SimulationCampaignGetOneTool,
     SimulationExecutionGetAllTool,
@@ -151,6 +152,11 @@ async def get_httpx_client(
 def get_accounting_session_factory(request: Request) -> AsyncAccountingSessionFactory:
     """Get the accounting session factory."""
     return request.app.state.accounting_session_factory
+
+
+def get_python_sandbox(request: Request) -> WasmExecutor:
+    """Get the python sandbox."""
+    return request.app.state.python_sandbox
 
 
 async def get_openai_client(
@@ -427,7 +433,6 @@ def get_tool_list(
         PersonGetAllTool,
         PersonGetOneTool,
         PlotElectricalCellRecordingGetOneTool,
-        PlotGeneratorTool,
         PlotMorphologyGetOneTool,
         SimulationCampaignGetAllTool,
         SimulationCampaignGetOneTool,
@@ -451,9 +456,9 @@ def get_tool_list(
         StrainGetOneTool,
         SubjectGetAllTool,
         SubjectGetOneTool,
+        RunPythonTool,
         # NowTool,
         # WeatherTool,
-        # RandomPlotGeneratorTool,
     ]
 
     all_tools = internal_tool_list + mcp_tool_list
@@ -651,6 +656,7 @@ async def get_context_variables(
     s3_client: Annotated[Any, Depends(get_s3_client)],
     user_info: Annotated[UserInfo, Depends(get_user_info)],
     openai_client: Annotated[AsyncOpenAI, Depends(get_openai_client)],
+    python_sandbox: Annotated[WasmExecutor, Depends(get_python_sandbox)],
 ) -> dict[str, Any]:
     """Get the context variables to feed the tool's metadata."""
     # Get the current frontend url
@@ -669,6 +675,7 @@ async def get_context_variables(
         "obi_one_url": settings.tools.obi_one.url,
         "openai_client": openai_client,
         "project_id": thread.project_id,
+        "python_sandbox": python_sandbox,
         "s3_client": s3_client,
         "sanity_url": settings.tools.sanity.url,
         "thread_id": thread.thread_id,

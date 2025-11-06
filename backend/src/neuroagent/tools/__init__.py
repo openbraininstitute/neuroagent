@@ -133,7 +133,6 @@ from neuroagent.tools.entitycore_strain_getall import StrainGetAllTool
 from neuroagent.tools.entitycore_strain_getone import StrainGetOneTool
 from neuroagent.tools.entitycore_subject_getall import SubjectGetAllTool
 from neuroagent.tools.entitycore_subject_getone import SubjectGetOneTool
-from neuroagent.tools.generate_plot import PlotGeneratorTool
 from neuroagent.tools.obi_expert import OBIExpertTool
 from neuroagent.tools.obione_circuitconnectivitymetrics_getone import (
     CircuitConnectivityMetricsGetOneTool,
@@ -148,6 +147,7 @@ from neuroagent.tools.obione_generatesimulationsconfig import (
     GenerateSimulationsConfigTool,
 )
 from neuroagent.tools.obione_morphometrics_getone import MorphometricsGetOneTool
+from neuroagent.tools.run_python_tool import RunPythonTool
 from neuroagent.tools.thumbnailgen_electricalcellrecording_getone import (
     PlotElectricalCellRecordingGetOneTool,
 )
@@ -209,8 +209,8 @@ __all__ = [
     "PersonGetAllTool",
     "PersonGetOneTool",
     "PlotElectricalCellRecordingGetOneTool",
-    "PlotGeneratorTool",
     "PlotMorphologyGetOneTool",
+    "RunPythonTool",
     "SimulationCampaignGetAllTool",
     "SimulationCampaignGetOneTool",
     "SimulationExecutionGetAllTool",
