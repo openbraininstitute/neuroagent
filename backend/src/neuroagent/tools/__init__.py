@@ -134,6 +134,9 @@ from neuroagent.tools.entitycore_strain_getone import StrainGetOneTool
 from neuroagent.tools.entitycore_subject_getall import SubjectGetAllTool
 from neuroagent.tools.entitycore_subject_getone import SubjectGetOneTool
 from neuroagent.tools.obi_expert import OBIExpertTool
+from neuroagent.tools.obione_circuitconnectivitymetrics_getone import (
+    CircuitConnectivityMetricsGetOneTool,
+)
 from neuroagent.tools.obione_circuitmetrics_getone import CircuitMetricGetOneTool
 from neuroagent.tools.obione_circuitnodesets_getone import CircuitNodesetsGetOneTool
 from neuroagent.tools.obione_circuitpopulations_getone import (
@@ -163,6 +166,7 @@ __all__ = [
     "BrainRegionHierarchyGetOneTool",
     "CellMorphologyGetAllTool",
     "CellMorphologyGetOneTool",
+    "CircuitConnectivityMetricsGetOneTool",
     "CircuitGetAllTool",
     "CircuitGetOneTool",
     "CircuitMetricGetOneTool",
