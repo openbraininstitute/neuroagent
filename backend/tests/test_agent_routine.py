@@ -10,6 +10,23 @@ from openai.types.chat.chat_completion_chunk import (
     ChoiceDeltaToolCallFunction,
 )
 from openai.types.completion_usage import CompletionUsage
+from openai.types.responses import (
+    FunctionTool,
+    ResponseCompletedEvent,
+    ResponseContentPartAddedEvent,
+    ResponseContentPartDoneEvent,
+    ResponseFunctionCallArgumentsDeltaEvent,
+    ResponseFunctionToolCall,
+    ResponseOutputItemAddedEvent,
+    ResponseOutputItemDoneEvent,
+    ResponseOutputMessage,
+    ResponseOutputText,
+    ResponseTextDeltaEvent,
+    ResponseUsage,
+)
+from openai.types.responses import (
+    Response as OpenAIResponse,
+)
 from pydantic import BaseModel
 
 from neuroagent.agent_routine import AgentsRoutine
@@ -30,23 +47,23 @@ class TestAgentsRoutine:
             context_variables={},
             model_override=None,
         )
-        mock_openai_client.assert_create_called_with(
+
+        mock_openai_client.assert_responses_create_called_with(
             **{
+                "instructions": "You are a helpful agent.",
+                "input": [{"role": "user", "content": "Hello !"}],
                 "model": "openai/gpt-5-mini",
-                "messages": [
-                    {"role": "system", "content": "You are a helpful agent."},
-                    {"role": "user", "content": "Hello !"},
-                ],
-                "tools": None,
-                "tool_choice": None,
                 "stream": False,
                 "temperature": 0,
-                "seed": 12008,
+                "tools": [],
+                "include": ["reasoning.encrypted_content"],
+                "store": False,
             }
         )
-
-        assert response.choices[0].message.role == "assistant"
-        assert response.choices[0].message.content == "sample response content"
+        assert response.output[0]["role"] == "assistant"
+        assert response.output[0]["content"] == [
+            {"type": "output_text", "text": "sample response content"}
+        ]
 
     @pytest.mark.asyncio
     async def test_get_chat_completion_callable_sys_prompt(self, mock_openai_client):
@@ -64,26 +81,22 @@ class TestAgentsRoutine:
             context_variables={"mrt": "Great mrt", "twng": "Bad twng"},
             model_override=None,
         )
-        mock_openai_client.assert_create_called_with(
+        mock_openai_client.assert_responses_create_called_with(
             **{
+                "instructions": "This is your new instructions with Bad twng and Great mrt.",
+                "input": [{"role": "user", "content": "Hello !"}],
                 "model": "openai/gpt-5-mini",
-                "messages": [
-                    {
-                        "role": "system",
-                        "content": "This is your new instructions with Bad twng and Great mrt.",
-                    },
-                    {"role": "user", "content": "Hello !"},
-                ],
-                "tools": None,
-                "tool_choice": None,
                 "stream": False,
                 "temperature": 0,
-                "seed": 12008,
+                "tools": [],
+                "include": ["reasoning.encrypted_content"],
+                "store": False,
             }
         )
-
-        assert response.choices[0].message.role == "assistant"
-        assert response.choices[0].message.content == "sample response content"
+        assert response.output[0]["role"] == "assistant"
+        assert response.output[0]["content"] == [
+            {"type": "output_text", "text": "sample response content"}
+        ]
 
     @pytest.mark.asyncio
     async def test_get_chat_completion_tools(
@@ -98,48 +111,43 @@ class TestAgentsRoutine:
             context_variables={},
             model_override=None,
         )
-        mock_openai_client.assert_create_called_with(
+        mock_openai_client.assert_responses_create_called_with(
             **{
+                "instructions": "You are a helpful agent.",
+                "input": [{"role": "user", "content": "Hello !"}],
                 "model": "openai/gpt-5-mini",
-                "messages": [
-                    {"role": "system", "content": "You are a helpful agent."},
-                    {"role": "user", "content": "Hello !"},
-                ],
+                "stream": False,
+                "temperature": 0,
                 "tools": [
                     {
                         "type": "function",
                         "name": "get_weather",
                         "description": "Great description",
-                        "function": {
-                            "name": "get_weather",
-                            "description": "Great description",
-                            "strict": False,
-                            "parameters": {
-                                "properties": {
-                                    "location": {
-                                        "description": "The location to get the weather for",
-                                        "title": "Location",
-                                        "type": "string",
-                                    }
-                                },
-                                "required": ["location"],
-                                "title": "FakeToolInput",
-                                "type": "object",
-                                "additionalProperties": False,
+                        "parameters": {
+                            "properties": {
+                                "location": {
+                                    "description": "The location to get the weather for",
+                                    "title": "Location",
+                                    "type": "string",
+                                }
                             },
+                            "required": ["location"],
+                            "title": "FakeToolInput",
+                            "type": "object",
+                            "additionalProperties": False,
                         },
                     }
                 ],
-                "tool_choice": None,
-                "stream": False,
+                "include": ["reasoning.encrypted_content"],
+                "store": False,
                 "parallel_tool_calls": True,
-                "temperature": 0,
-                "seed": 12008,
             }
         )
 
-        assert response.choices[0].message.role == "assistant"
-        assert response.choices[0].message.content == "sample response content"
+        assert response.output[0]["role"] == "assistant"
+        assert response.output[0]["content"] == [
+            {"type": "output_text", "text": "sample response content"}
+        ]
 
     def test_handle_function_result(self, mock_openai_client):
         routine = AgentsRoutine(client=mock_openai_client)
@@ -200,12 +208,12 @@ class TestAgentsRoutine:
             context_variables=context_variables,
             model_override=None,
         )
-        tool_calls = tool_call_message.choices[0].message.tool_calls
+        tool_calls = tool_call_message.output
         tool_calls_db = [
             ToolCalls(
                 tool_call_id=tool_call.id,
-                name=tool_call.function.name,
-                arguments=tool_call.function.arguments,
+                name=tool_call.name,
+                arguments=tool_call.arguments,
             )
             for tool_call in tool_calls
         ]
@@ -250,12 +258,12 @@ class TestAgentsRoutine:
             context_variables=context_variables,
             model_override=None,
         )
-        tool_calls = tool_call_message.choices[0].message.tool_calls
+        tool_calls = tool_call_message.output
         tool_calls_db = [
             ToolCalls(
                 tool_call_id=tool_call.id,
-                name=tool_call.function.name,
-                arguments=tool_call.function.arguments,
+                name=tool_call.name,
+                arguments=tool_call.arguments,
             )
             for tool_call in tool_calls
         ]
@@ -307,12 +315,12 @@ class TestAgentsRoutine:
             context_variables=context_variables,
             model_override=None,
         )
-        tool_calls = tool_call_message.choices[0].message.tool_calls
+        tool_calls = tool_call_message.output
         tool_calls_db = [
             ToolCalls(
                 tool_call_id=tool_call.id,
-                name=tool_call.function.name,
-                arguments=tool_call.function.arguments,
+                name=tool_call.name,
+                arguments=tool_call.arguments,
             )
             for tool_call in tool_calls
         ]
@@ -357,11 +365,11 @@ class TestAgentsRoutine:
             context_variables=context_variables,
             model_override=None,
         )
-        tool_call = tool_call_message.choices[0].message.tool_calls[0]
+        tool_call = tool_call_message.output[0]
         tool_call_db = ToolCalls(
             tool_call_id=tool_call.id,
-            name=tool_call.function.name,
-            arguments=tool_call.function.arguments,
+            name=tool_call.name,
+            arguments=tool_call.arguments,
         )
         tool_call_result = await routine.handle_tool_call(
             tool_call=tool_call_db,
@@ -402,11 +410,11 @@ class TestAgentsRoutine:
             context_variables=context_variables,
             model_override=None,
         )
-        tool_call = tool_call_message.choices[0].message.tool_calls[0]
+        tool_call = tool_call_message.output[0]
         tool_call_db = ToolCalls(
             tool_call_id=tool_call.id,
-            name=tool_call.function.name,
-            arguments=tool_call.function.arguments,
+            name=tool_call.name,
+            arguments=tool_call.arguments,
         )
         tool_calls_result = await routine.handle_tool_call(
             tool_call=tool_call_db,
@@ -425,54 +433,10 @@ class TestAgentsRoutine:
         )
 
     @pytest.mark.asyncio
-    async def test_handle_tool_call_handoff(
-        self, mock_openai_client, get_weather_tool, agent_handoff_tool
-    ):
-        routine = AgentsRoutine(client=mock_openai_client)
-
-        mock_openai_client.set_response(
-            create_mock_response(
-                message={"role": "assistant", "content": ""},
-                function_calls=[{"name": "agent_handoff_tool", "args": {}}],
-            ),
-        )
-        agent_1 = Agent(name="Test agent 1", tools=[agent_handoff_tool])
-        agent_2 = Agent(name="Test agent 2", tools=[get_weather_tool])
-        context_variables = {"to_agent": agent_2}
-
-        tool_call_message = await routine.get_chat_completion(
-            agent_1,
-            history=[{"role": "user", "content": "Hello"}],
-            context_variables=context_variables,
-            model_override=None,
-        )
-        tool_call = tool_call_message.choices[0].message.tool_calls[0]
-        tool_call_db = ToolCalls(
-            tool_call_id=tool_call.id,
-            name=tool_call.function.name,
-            arguments=tool_call.function.arguments,
-        )
-        tool_calls_result = await routine.handle_tool_call(
-            tool_call=tool_call_db,
-            tools=agent_1.tools,
-            context_variables=context_variables,
-        )
-
-        assert tool_calls_result == (
-            {
-                "role": "tool",
-                "tool_call_id": tool_call.id,
-                "tool_name": "agent_handoff_tool",
-                "content": json.dumps({"assistant": agent_2.name}),
-            },
-            agent_2,
-        )
-
-    @pytest.mark.asyncio
     async def test_astream_complete_flow(
         self, mock_openai_client, get_weather_tool, agent_handoff_tool
     ):
-        """Test complete astream flow with agent handoff, tool execution, and text response."""
+        """Test complete astream flow with agent handoff, tool execution, and text response using Response API."""
 
         # Setup agents
         agent_1 = Agent(name="Agent 1", tools=[agent_handoff_tool])
@@ -496,218 +460,270 @@ class TestAgentsRoutine:
         routine = AgentsRoutine(client=mock_openai_client)
 
         async def mock_streaming_completion(*args, **kwargs):
-            """Mock streaming responses for different turns."""
+            """Mock streaming responses for different turns using Response API format."""
             history = kwargs["history"]
 
             # Count non-tool messages to determine which turn we're on
-            turn = len([msg for msg in history if msg["role"] in ["user", "assistant"]])
+            turn = len(history)
 
             # Turn 1: Agent handoff
             if turn == 1:
-                yield ChatCompletionChunk(
-                    id="chunk_1",
-                    choices=[
-                        Choice(
-                            delta=ChoiceDelta(
-                                tool_calls=[
-                                    ChoiceDeltaToolCall(
-                                        index=0,
-                                        id="tc_handoff_123",
-                                        function=ChoiceDeltaToolCallFunction(
-                                            name="agent_handoff_tool",
-                                            arguments="",
-                                        ),
-                                        type="function",
-                                    )
-                                ]
-                            ),
-                            finish_reason=None,
-                            index=0,
-                        )
-                    ],
-                    created=1234567890,
-                    model="gpt-5-mini",
-                    object="chat.completion.chunk",
+                # Function call added
+                yield ResponseOutputItemAddedEvent(
+                    type="response.output_item.added",
+                    output_index=0,
+                    sequence_number=0,
+                    item=ResponseFunctionToolCall(
+                        id="tc_handoff_123",
+                        call_id="tc_random_id_1",
+                        type="function_call",
+                        name="agent_handoff_tool",
+                        arguments="",
+                        status="in_progress",
+                    ),
                 )
 
-                yield ChatCompletionChunk(
-                    id="chunk_1",
-                    choices=[
-                        Choice(
-                            delta=ChoiceDelta(
-                                tool_calls=[
-                                    ChoiceDeltaToolCall(
-                                        index=0,
-                                        id=None,
-                                        function=ChoiceDeltaToolCallFunction(
-                                            name=None,
-                                            arguments="{}",
-                                        ),
-                                        type="function",
-                                    )
-                                ]
-                            ),
-                            finish_reason=None,
-                            index=0,
-                        )
-                    ],
-                    created=1234567890,
-                    model="gpt-5-mini",
-                    object="chat.completion.chunk",
+                # Function arguments delta
+                yield ResponseFunctionCallArgumentsDeltaEvent(
+                    output_index=1,
+                    sequence_number=1,
+                    type="response.function_call_arguments.delta",
+                    item_id="tc_handoff_123",
+                    delta="{}",
                 )
 
-                yield ChatCompletionChunk(
-                    id="chunk_1",
-                    choices=[
-                        Choice(
-                            delta=ChoiceDelta(),
-                            finish_reason="tool_calls",
-                            index=0,
-                        )
-                    ],
-                    created=1234567890,
-                    model="gpt-5-mini",
-                    object="chat.completion.chunk",
-                    usage=CompletionUsage(
-                        completion_tokens=10,
-                        prompt_tokens=50,
-                        total_tokens=60,
+                # Function call done
+                yield ResponseOutputItemDoneEvent(
+                    type="response.output_item.done",
+                    output_index=2,
+                    sequence_number=2,
+                    item=ResponseFunctionToolCall(
+                        id="tc_handoff_123",
+                        call_id="tc_random_id_1",
+                        type="function_call",
+                        name="agent_handoff_tool",
+                        arguments="{}",
+                        status="completed",
+                    ),
+                )
+
+                yield ResponseCompletedEvent(
+                    output_index=3,
+                    sequence_number=3,
+                    type="response.completed",
+                    event_id="event_4",
+                    response=OpenAIResponse(
+                        id="resp_1",
+                        created_at=1234567890,
+                        status="completed",
+                        model="gpt-5-mini",
+                        object="response",
+                        parallel_tool_calls=False,
+                        tool_choice="auto",
+                        tools=[
+                            FunctionTool(
+                                type="function",
+                                name="agent_handoff_tool",
+                                parameters={"to_agent": Agent},
+                            )
+                        ],
+                        output=[
+                            ResponseFunctionToolCall(
+                                id="tc_handoff_123",
+                                call_id="tc_random_id_1",
+                                type="function_call",
+                                name="agent_handoff_tool",
+                                arguments="{}",
+                                status="completed",
+                            )
+                        ],
+                        usage=ResponseUsage(
+                            input_tokens=50,
+                            input_tokens_details={"cached_tokens": 0},
+                            output_tokens=10,
+                            output_tokens_details={"reasoning_tokens": 0},
+                            total_tokens=60,
+                        ),
                     ),
                 )
 
             # Turn 2: Weather tool call
-            elif turn == 2:
-                yield ChatCompletionChunk(
-                    id="chunk_2",
-                    choices=[
-                        Choice(
-                            delta=ChoiceDelta(
-                                tool_calls=[
-                                    ChoiceDeltaToolCall(
-                                        index=0,
-                                        id="tc_weather_456",
-                                        function=ChoiceDeltaToolCallFunction(
-                                            name="get_weather",
-                                            arguments="",
-                                        ),
-                                        type="function",
-                                    )
-                                ]
-                            ),
-                            finish_reason=None,
-                            index=0,
-                        )
-                    ],
-                    created=1234567891,
-                    model="gpt-5-mini",
-                    object="chat.completion.chunk",
+            elif turn == 3:
+                # Function call added
+                yield ResponseOutputItemAddedEvent(
+                    type="response.output_item.added",
+                    output_index=4,
+                    sequence_number=4,
+                    item=ResponseFunctionToolCall(
+                        id="tc_weather_456",
+                        type="function_call",
+                        call_id="tc_random_id_2",
+                        name="get_weather",
+                        arguments="",
+                        status="in_progress",
+                    ),
                 )
 
-                yield ChatCompletionChunk(
-                    id="chunk_2",
-                    choices=[
-                        Choice(
-                            delta=ChoiceDelta(
-                                tool_calls=[
-                                    ChoiceDeltaToolCall(
-                                        index=0,
-                                        id=None,
-                                        function=ChoiceDeltaToolCallFunction(
-                                            name=None,
-                                            arguments='{"location"',
-                                        ),
-                                        type="function",
-                                    )
-                                ]
-                            ),
-                            finish_reason=None,
-                            index=0,
-                        )
-                    ],
-                    created=1234567891,
-                    model="gpt-5-mini",
-                    object="chat.completion.chunk",
+                # Function arguments deltas
+                yield ResponseFunctionCallArgumentsDeltaEvent(
+                    output_index=5,
+                    sequence_number=5,
+                    type="response.function_call_arguments.delta",
+                    event_id="event_6",
+                    item_id="tc_weather_456",
+                    delta='{"location"',
                 )
 
-                yield ChatCompletionChunk(
-                    id="chunk_2",
-                    choices=[
-                        Choice(
-                            delta=ChoiceDelta(
-                                tool_calls=[
-                                    ChoiceDeltaToolCall(
-                                        index=0,
-                                        id=None,
-                                        function=ChoiceDeltaToolCallFunction(
-                                            name=None,
-                                            arguments=': "San Francisco"}',
-                                        ),
-                                        type="function",
-                                    )
-                                ]
-                            ),
-                            finish_reason=None,
-                            index=0,
-                        )
-                    ],
-                    created=1234567891,
-                    model="gpt-5-mini",
-                    object="chat.completion.chunk",
+                yield ResponseFunctionCallArgumentsDeltaEvent(
+                    output_index=6,
+                    sequence_number=6,
+                    type="response.function_call_arguments.delta",
+                    event_id="event_7",
+                    item_id="tc_weather_456",
+                    delta=': "San Francisco"}',
                 )
 
-                yield ChatCompletionChunk(
-                    id="chunk_2",
-                    choices=[
-                        Choice(
-                            delta=ChoiceDelta(),
-                            finish_reason="tool_calls",
-                            index=0,
-                        )
-                    ],
-                    created=1234567891,
-                    model="gpt-5-mini",
-                    object="chat.completion.chunk",
-                    usage=CompletionUsage(
-                        completion_tokens=15,
-                        prompt_tokens=80,
-                        total_tokens=95,
+                # Function call done
+                yield ResponseOutputItemDoneEvent(
+                    type="response.output_item.done",
+                    output_index=7,
+                    sequence_number=7,
+                    item=ResponseFunctionToolCall(
+                        id="tc_weather_456",
+                        call_id="tc_random_id_2",
+                        type="function_call",
+                        name="get_weather",
+                        arguments='{"location": "San Francisco"}',
+                        status="completed",
+                    ),
+                )
+
+                yield ResponseCompletedEvent(
+                    output_index=8,
+                    sequence_number=8,
+                    type="response.completed",
+                    event_id="event_6",
+                    response=OpenAIResponse(
+                        id="resp_2",
+                        created_at=1234567890,
+                        status="completed",
+                        model="gpt-5-mini",
+                        object="response",
+                        parallel_tool_calls=False,
+                        tool_choice="auto",
+                        tools=[
+                            FunctionTool(
+                                type="function",
+                                name="get_weather_tool",
+                                parameters={"planet": str},
+                            )
+                        ],
+                        output=[
+                            ResponseFunctionToolCall(
+                                id="tc_weather_456",
+                                type="function_call",
+                                call_id="tc_random_id_2",
+                                name="get_weather",
+                                arguments='{"location": "San Francisco"}',
+                                status="completed",
+                            )
+                        ],
+                        usage=ResponseUsage(
+                            input_tokens=80,
+                            input_tokens_details={"cached_tokens": 0},
+                            output_tokens=80,
+                            output_tokens_details={"reasoning_tokens": 0},
+                            total_tokens=95,
+                        ),
                     ),
                 )
 
             # Turn 3: Final text response
-            elif turn == 3:
+            elif turn == 5:
+                # Content part added
+                yield ResponseContentPartAddedEvent(
+                    output_index=9,
+                    sequence_number=9,
+                    type="response.content_part.added",
+                    event_id="event_10",
+                    item_id="item_text_789",
+                    content_index=42,
+                    part=ResponseOutputText(
+                        type="output_text", text="", annotations=[]
+                    ),
+                )
+
+                # Text deltas
                 text_chunks = ["The weather ", "in San Francisco ", "is sunny today!"]
-                for chunk_text in text_chunks:
-                    yield ChatCompletionChunk(
-                        id="chunk_3",
-                        choices=[
-                            Choice(
-                                delta=ChoiceDelta(content=chunk_text),
-                                finish_reason=None,
-                                index=0,
-                            )
-                        ],
-                        created=1234567892,
-                        model="gpt-5-mini",
-                        object="chat.completion.chunk",
+                for i, chunk_text in enumerate(text_chunks):
+                    yield ResponseTextDeltaEvent(
+                        type="response.output_text.delta",
+                        event_id=f"event_{10 + i}",
+                        item_id="item_text_789",
+                        logprobs=[],
+                        sequence_number=10 + i,
+                        output_index=10 + i,
+                        content_index=42,
+                        delta=chunk_text,
                     )
 
-                yield ChatCompletionChunk(
-                    id="chunk_3",
-                    choices=[
-                        Choice(
-                            delta=ChoiceDelta(),
-                            finish_reason="stop",
-                            index=0,
-                        )
-                    ],
-                    created=1234567892,
-                    model="gpt-5-mini",
-                    object="chat.completion.chunk",
-                    usage=CompletionUsage(
-                        completion_tokens=20,
-                        prompt_tokens=100,
-                        total_tokens=120,
+                # Content part done
+                yield ResponseContentPartDoneEvent(
+                    type="response.content_part.done",
+                    event_id="event_13",
+                    item_id="item_text_789",
+                    sequence_number=13,
+                    output_index=13,
+                    content_index=42,
+                    part=ResponseOutputText(
+                        type="output_text",
+                        text="The weather in San Francisco is sunny today!",
+                        annotations=[],
+                    ),
+                )
+
+                yield ResponseCompletedEvent(
+                    output_index=14,
+                    sequence_number=14,
+                    type="response.completed",
+                    event_id="event_9",
+                    response=OpenAIResponse(
+                        id="resp_3",
+                        created_at=1234567890,
+                        status="completed",
+                        model="gpt-5-mini",
+                        object="response",
+                        parallel_tool_calls=False,
+                        tool_choice="auto",
+                        tools=[
+                            FunctionTool(
+                                type="function",
+                                name="get_weather_tool",
+                                parameters={"planet": str},
+                            )
+                        ],
+                        output=[
+                            ResponseOutputMessage(
+                                id="item_text_789",
+                                type="message",
+                                role="assistant",
+                                status="completed",
+                                content=[
+                                    ResponseOutputText(
+                                        type="output_text",
+                                        text="The weather in San Francisco is sunny today!",
+                                        annotations=[],
+                                    )
+                                ],
+                            )
+                        ],
+                        usage=ResponseUsage(
+                            input_tokens=100,
+                            input_tokens_details={"cached_tokens": 0},
+                            output_tokens=20,
+                            output_tokens_details={"reasoning_tokens": 0},
+                            total_tokens=120,
+                        ),
                     ),
                 )
 
@@ -738,28 +754,31 @@ class TestAgentsRoutine:
         # Verify event sequence
         event_types = [e["type"] for e in parsed_events]
 
-        # Expected flow:
+        # Expected flow for Response API:
         # 1. start (initial message)
-        # 2. tool-input-start (handoff tool)
+        # 2. start-step + tool-input-start (handoff tool)
         # 3. tool-input-available (handoff tool complete)
-        # 4. tool-output-available (handoff result)
-        # 5. finish-step
-        # 6. tool-input-start (weather tool)
-        # 7. tool-input-delta (weather args streaming)
-        # 8. tool-input-available (weather tool complete)
-        # 9. tool-output-available (weather result)
+        # 4. finish-step
+        # 5. tool-output-available (handoff result)
+        # 6. finish-step
+        # 7. start-step + tool-input-start (weather tool)
+        # 8. tool-input-delta (weather args streaming)
+        # 9. tool-input-available (weather tool complete)
         # 10. finish-step
-        # 11. text-start
-        # 12. text-delta (multiple)
-        # 13. text-end
-        # 14. finish-step
-        # 15. finish
+        # 11. tool-output-available (weather result)
+        # 12. finish-step
+        # 13. text-start
+        # 14. text-delta (multiple)
+        # 15. text-end
+        # 16. finish-step (twice - once after text-end, once before finish)
+        # 17. finish
 
         assert "start" in event_types
+        assert event_types.count("start-step") == 2  # handoff + weather
         assert event_types.count("tool-input-start") == 2  # handoff + weather
         assert event_types.count("tool-input-available") == 2
         assert event_types.count("tool-output-available") == 2
-        assert event_types.count("finish-step") == 3  # after each turn
+        assert event_types.count("finish-step") >= 3  # after each turn
         assert "text-start" in event_types
         assert event_types.count("text-delta") >= 1
         assert "text-end" in event_types

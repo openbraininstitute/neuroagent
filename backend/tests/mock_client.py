@@ -16,15 +16,16 @@ def create_mock_response(
 
     output = []
 
-    output.append(
-        {
-            "id": "msg_mock_id",
-            "type": "message",
-            "status": "completed",
-            "role": role,
-            "content": [{"type": "output_text", "text": content}],
-        }
-    )
+    if content:
+        output.append(
+            {
+                "id": "msg_mock_id",
+                "type": "message",
+                "status": "completed",
+                "role": role,
+                "content": [{"type": "output_text", "text": content}],
+            }
+        )
 
     if function_calls is not None:
         for function_call in function_calls:
@@ -35,8 +36,8 @@ def create_mock_response(
                         "type": "function_call",
                         "status": "completed",
                         "name": function_call.get("name"),
-                        "call_id": function_call.get("call_id"),
-                        "arguments": json.dumps(function_call.get("arguments", {})),
+                        "call_id": function_call.get("call_id", "fc_mock_call_id"),
+                        "arguments": json.dumps(function_call.get("args", {})),
                     }
                 )
             )
@@ -57,7 +58,6 @@ class MockOpenAIClient:
 
     @property
     def __class__(self):
-        # pretend to be the real client class if needed by code under test
         return AsyncOpenAI
 
     def set_response(self, response):
