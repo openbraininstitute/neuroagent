@@ -2,14 +2,6 @@ import json
 from unittest.mock import patch
 
 import pytest
-from openai.types.chat.chat_completion_chunk import (
-    ChatCompletionChunk,
-    Choice,
-    ChoiceDelta,
-    ChoiceDeltaToolCall,
-    ChoiceDeltaToolCallFunction,
-)
-from openai.types.completion_usage import CompletionUsage
 from openai.types.responses import (
     FunctionTool,
     ResponseCompletedEvent,
@@ -21,6 +13,9 @@ from openai.types.responses import (
     ResponseOutputItemDoneEvent,
     ResponseOutputMessage,
     ResponseOutputText,
+    ResponseReasoningSummaryPartAddedEvent,
+    ResponseReasoningSummaryPartDoneEvent,
+    ResponseReasoningSummaryTextDeltaEvent,
     ResponseTextDeltaEvent,
     ResponseUsage,
 )
@@ -838,7 +833,6 @@ class TestAgentsRoutine:
     @pytest.mark.asyncio
     async def test_astream_max_turns_limit(self, mock_openai_client, get_weather_tool):
         """Test that max_turns limit is enforced."""
-
         agent = Agent(name="Test Agent", tools=[get_weather_tool])
         messages = [
             Messages(
@@ -851,74 +845,148 @@ class TestAgentsRoutine:
 
         async def mock_tool_calls(*args, **kwargs):
             """Always return tool calls to trigger max turns."""
-
             history = kwargs["history"]
-
-            # Count non-tool messages to determine which turn we're on
-            turn = len([msg for msg in history if msg["role"] in ["user", "assistant"]])
+            turn = len(history)
 
             if turn == 1:
-                yield ChatCompletionChunk(
-                    id="chunk",
-                    choices=[
-                        Choice(
-                            delta=ChoiceDelta(
-                                tool_calls=[
-                                    ChoiceDeltaToolCall(
-                                        index=0,
-                                        id="tc_123",
-                                        function=ChoiceDeltaToolCallFunction(
-                                            name="get_weather",
-                                            arguments='{"location": "NYC"}',
-                                        ),
-                                        type="function",
-                                    )
-                                ]
-                            ),
-                            finish_reason="tool_calls",
-                            index=0,
-                        )
-                    ],
-                    created=1234567890,
-                    model="gpt-5-mini",
-                    object="chat.completion.chunk",
-                    usage=CompletionUsage(
-                        completion_tokens=10, prompt_tokens=50, total_tokens=60
+                yield ResponseOutputItemAddedEvent(
+                    type="response.output_item.added",
+                    output_index=0,
+                    sequence_number=0,
+                    item=ResponseFunctionToolCall(
+                        id="tc_123",
+                        call_id="tc_random_1",
+                        type="function_call",
+                        name="get_weather",
+                        arguments='{"location": "NYC"}',
+                        status="in_progress",
                     ),
                 )
-            elif turn == 2:
-                text_chunks = ["The weather ", "in San Francisco ", "is sunny today!"]
-                for chunk_text in text_chunks:
-                    yield ChatCompletionChunk(
-                        id="chunk_3",
-                        choices=[
-                            Choice(
-                                delta=ChoiceDelta(content=chunk_text),
-                                finish_reason=None,
-                                index=0,
+
+                yield ResponseOutputItemDoneEvent(
+                    type="response.output_item.done",
+                    output_index=1,
+                    sequence_number=1,
+                    item=ResponseFunctionToolCall(
+                        id="tc_123",
+                        call_id="tc_random_1",
+                        type="function_call",
+                        name="get_weather",
+                        arguments='{"location": "NYC"}',
+                        status="completed",
+                    ),
+                )
+
+                yield ResponseCompletedEvent(
+                    output_index=2,
+                    sequence_number=2,
+                    type="response.completed",
+                    event_id="event_1",
+                    response=OpenAIResponse(
+                        id="resp_1",
+                        created_at=1234567890,
+                        status="completed",
+                        model="gpt-5-mini",
+                        object="response",
+                        parallel_tool_calls=False,
+                        tool_choice="auto",
+                        tools=[],
+                        output=[
+                            ResponseFunctionToolCall(
+                                id="tc_123",
+                                call_id="tc_random_1",
+                                type="function_call",
+                                name="get_weather",
+                                arguments='{"location": "NYC"}',
+                                status="completed",
                             )
                         ],
-                        created=1234567892,
-                        model="gpt-5-mini",
-                        object="chat.completion.chunk",
+                        usage=ResponseUsage(
+                            input_tokens=50,
+                            input_tokens_details={"cached_tokens": 0},
+                            output_tokens=10,
+                            output_tokens_details={"reasoning_tokens": 0},
+                            total_tokens=60,
+                        ),
+                    ),
+                )
+
+            elif turn == 3:
+                yield ResponseContentPartAddedEvent(
+                    output_index=3,
+                    sequence_number=3,
+                    type="response.content_part.added",
+                    event_id="event_2",
+                    item_id="item_text_1",
+                    content_index=0,
+                    part=ResponseOutputText(
+                        type="output_text", text="", annotations=[]
+                    ),
+                )
+
+                text_chunks = ["The weather ", "in San Francisco ", "is sunny today!"]
+                for i, chunk_text in enumerate(text_chunks):
+                    yield ResponseTextDeltaEvent(
+                        type="response.output_text.delta",
+                        event_id=f"event_{4 + i}",
+                        item_id="item_text_1",
+                        logprobs=[],
+                        sequence_number=4 + i,
+                        output_index=4 + i,
+                        content_index=0,
+                        delta=chunk_text,
                     )
 
-                yield ChatCompletionChunk(
-                    id="chunk_3",
-                    choices=[
-                        Choice(
-                            delta=ChoiceDelta(),
-                            finish_reason="stop",
-                            index=0,
-                        )
-                    ],
-                    created=1234567892,
-                    model="gpt-5-mini",
-                    object="chat.completion.chunk",
-                    usage=CompletionUsage(
-                        completion_tokens=20,
-                        prompt_tokens=100,
-                        total_tokens=120,
+                yield ResponseContentPartDoneEvent(
+                    type="response.content_part.done",
+                    event_id="event_7",
+                    item_id="item_text_1",
+                    sequence_number=7,
+                    output_index=7,
+                    content_index=0,
+                    part=ResponseOutputText(
+                        type="output_text",
+                        text="The weather in San Francisco is sunny today!",
+                        annotations=[],
+                    ),
+                )
+
+                yield ResponseCompletedEvent(
+                    output_index=8,
+                    sequence_number=8,
+                    type="response.completed",
+                    event_id="event_8",
+                    response=OpenAIResponse(
+                        id="resp_2",
+                        created_at=1234567892,
+                        status="completed",
+                        model="gpt-5-mini",
+                        object="response",
+                        parallel_tool_calls=False,
+                        tool_choice="auto",
+                        tools=[],
+                        output=[
+                            ResponseOutputMessage(
+                                id="item_text_1",
+                                type="message",
+                                role="assistant",
+                                status="completed",
+                                content=[
+                                    ResponseOutputText(
+                                        type="output_text",
+                                        text="The weather in San Francisco is sunny today!",
+                                        annotations=[],
+                                    )
+                                ],
+                            )
+                        ],
+                        usage=ResponseUsage(
+                            input_tokens=100,
+                            input_tokens_details={"cached_tokens": 0},
+                            output_tokens=20,
+                            output_tokens_details={"reasoning_tokens": 0},
+                            total_tokens=120,
+                        ),
                     ),
                 )
 
@@ -946,14 +1014,12 @@ class TestAgentsRoutine:
                 except json.JSONDecodeError:
                     pass
 
-        # Should have forced a final text response about rate limiting
         event_types = [e["type"] for e in parsed_events]
         assert "text-delta" in event_types or "text-start" in event_types
 
     @pytest.mark.asyncio
     async def test_astream_with_reasoning(self, mock_openai_client):
         """Test streaming with reasoning tokens (for o1-style models)."""
-
         agent = Agent(name="Reasoning Agent", tools=[], model="gpt-5-mini")
         messages = [
             Messages(
@@ -966,41 +1032,113 @@ class TestAgentsRoutine:
 
         async def mock_reasoning_response(*args, **kwargs):
             """Mock response with reasoning tokens."""
-            # Reasoning chunks
+            yield ResponseReasoningSummaryPartAddedEvent(
+                type="response.reasoning_summary_part.added",
+                event_id="event_1",
+                item_id="item_reason_1",
+                output_index=0,
+                content_index=0,
+                sequence_number=0,
+                summary_index=42,
+                part={"type": "summary_text", "text": ""},
+            )
+
             reasoning_parts = ["Let me think", " about this", " carefully"]
-            for part in reasoning_parts:
-                chunk = ChatCompletionChunk(
-                    id="chunk",
-                    choices=[
-                        Choice(
-                            delta=ChoiceDelta(reasoning=part),
-                            finish_reason=None,
-                            index=0,
+            for i, part in enumerate(reasoning_parts):
+                yield ResponseReasoningSummaryTextDeltaEvent(
+                    type="response.reasoning_summary_text.delta",
+                    event_id=f"event_{2 + i}",
+                    item_id="item_reason_1",
+                    output_index=42,
+                    sequence_number=i + 1,
+                    content_index=0,
+                    summary_index=42,
+                    delta=part,
+                )
+
+            yield ResponseReasoningSummaryPartDoneEvent(
+                type="response.reasoning_summary_part.done",
+                event_id="event_5",
+                item_id="item_reason_1",
+                output_index=3,
+                content_index=0,
+                sequence_number=4,
+                summary_index=42,
+                part={
+                    "type": "summary_text",
+                    "text": "Let me think about this carefully",
+                },
+            )
+
+            yield ResponseContentPartAddedEvent(
+                output_index=4,
+                sequence_number=6,
+                type="response.content_part.added",
+                event_id="event_6",
+                item_id="item_text_1",
+                content_index=0,
+                part=ResponseOutputText(type="output_text", text="", annotations=[]),
+            )
+
+            yield ResponseTextDeltaEvent(
+                type="response.output_text.delta",
+                event_id="event_7",
+                item_id="item_text_1",
+                logprobs=[],
+                sequence_number=7,
+                output_index=5,
+                content_index=0,
+                delta="Here's the solution",
+            )
+
+            yield ResponseContentPartDoneEvent(
+                type="response.content_part.done",
+                event_id="event_8",
+                item_id="item_text_1",
+                sequence_number=8,
+                output_index=6,
+                content_index=0,
+                part=ResponseOutputText(
+                    type="output_text", text="Here's the solution", annotations=[]
+                ),
+            )
+
+            yield ResponseCompletedEvent(
+                output_index=7,
+                sequence_number=9,
+                type="response.completed",
+                event_id="event_9",
+                response=OpenAIResponse(
+                    id="resp_1",
+                    created_at=1234567890,
+                    status="completed",
+                    model="gpt-5-mini",
+                    object="response",
+                    parallel_tool_calls=False,
+                    tool_choice="auto",
+                    tools=[],
+                    output=[
+                        ResponseOutputMessage(
+                            id="item_text_1",
+                            type="message",
+                            role="assistant",
+                            status="completed",
+                            content=[
+                                ResponseOutputText(
+                                    type="output_text",
+                                    text="Here's the solution",
+                                    annotations=[],
+                                )
+                            ],
                         )
                     ],
-                    created=1234567890,
-                    model="gpt-5-mini",
-                    object="chat.completion.chunk",
-                )
-                # Add reasoning attribute manually since it's not in standard delta
-                chunk.choices[0].delta.reasoning = part
-                yield chunk
-
-            # Final answer
-            yield ChatCompletionChunk(
-                id="chunk",
-                choices=[
-                    Choice(
-                        delta=ChoiceDelta(content="Here's the solution"),
-                        finish_reason="stop",
-                        index=0,
-                    )
-                ],
-                created=1234567890,
-                model="gpt-5-mini",
-                object="chat.completion.chunk",
-                usage=CompletionUsage(
-                    completion_tokens=20, prompt_tokens=10, total_tokens=30
+                    usage=ResponseUsage(
+                        input_tokens=10,
+                        input_tokens_details={"cached_tokens": 0},
+                        output_tokens=20,
+                        output_tokens_details={"reasoning_tokens": 0},
+                        total_tokens=30,
+                    ),
                 ),
             )
 
@@ -1028,13 +1166,10 @@ class TestAgentsRoutine:
                     pass
 
         event_types = [e["type"] for e in parsed_events]
-
-        # Verify reasoning events
         assert "reasoning-start" in event_types
         assert "reasoning-delta" in event_types
         assert "reasoning-end" in event_types
 
-        # Verify reasoning content
         reasoning_deltas = [
             e["delta"] for e in parsed_events if e["type"] == "reasoning-delta"
         ]
@@ -1046,10 +1181,7 @@ class TestAgentsRoutine:
         self, mock_openai_client, get_weather_tool, agent_handoff_tool
     ):
         """Test Human-in-the-Loop tool validation."""
-
-        # Make weather tool require HIL
         get_weather_tool.hil = True
-
         agent = Agent(name="Test Agent", tools=[get_weather_tool])
         messages = [
             Messages(
@@ -1062,32 +1194,65 @@ class TestAgentsRoutine:
 
         async def mock_tool_call(*args, **kwargs):
             """Mock a tool call."""
-            yield ChatCompletionChunk(
-                id="chunk",
-                choices=[
-                    Choice(
-                        delta=ChoiceDelta(
-                            tool_calls=[
-                                ChoiceDeltaToolCall(
-                                    index=0,
-                                    id="tc_hil",
-                                    function=ChoiceDeltaToolCallFunction(
-                                        name="get_weather",
-                                        arguments='{"location": "Paris"}',
-                                    ),
-                                    type="function",
-                                )
-                            ]
-                        ),
-                        finish_reason="tool_calls",
-                        index=0,
-                    )
-                ],
-                created=1234567890,
-                model="gpt-5-mini",
-                object="chat.completion.chunk",
-                usage=CompletionUsage(
-                    completion_tokens=10, prompt_tokens=50, total_tokens=60
+            yield ResponseOutputItemAddedEvent(
+                type="response.output_item.added",
+                output_index=0,
+                sequence_number=0,
+                item=ResponseFunctionToolCall(
+                    id="tc_hil",
+                    call_id="tc_random_hil",
+                    type="function_call",
+                    name="get_weather",
+                    arguments='{"location": "Paris"}',
+                    status="in_progress",
+                ),
+            )
+
+            yield ResponseOutputItemDoneEvent(
+                type="response.output_item.done",
+                output_index=1,
+                sequence_number=1,
+                item=ResponseFunctionToolCall(
+                    id="tc_hil",
+                    call_id="tc_random_hil",
+                    type="function_call",
+                    name="get_weather",
+                    arguments='{"location": "Paris"}',
+                    status="completed",
+                ),
+            )
+
+            yield ResponseCompletedEvent(
+                output_index=2,
+                sequence_number=2,
+                type="response.completed",
+                event_id="event_1",
+                response=OpenAIResponse(
+                    id="resp_1",
+                    created_at=1234567890,
+                    status="completed",
+                    model="gpt-5-mini",
+                    object="response",
+                    parallel_tool_calls=False,
+                    tool_choice="auto",
+                    tools=[],
+                    output=[
+                        ResponseFunctionToolCall(
+                            id="tc_hil",
+                            call_id="tc_random_hil",
+                            type="function_call",
+                            name="get_weather",
+                            arguments='{"location": "Paris"}',
+                            status="completed",
+                        )
+                    ],
+                    usage=ResponseUsage(
+                        input_tokens=50,
+                        input_tokens_details={"cached_tokens": 0},
+                        output_tokens=10,
+                        output_tokens_details={"reasoning_tokens": 0},
+                        total_tokens=60,
+                    ),
                 ),
             )
 
@@ -1114,14 +1279,11 @@ class TestAgentsRoutine:
                 except json.JSONDecodeError:
                     pass
 
-        # Find finish event with HIL metadata
         finish_events = [e for e in parsed_events if e["type"] == "finish"]
         assert len(finish_events) == 1
-
         finish_event = finish_events[0]
         assert "messageMetadata" in finish_event
         assert "hil" in finish_event["messageMetadata"]
-
         hil_data = finish_event["messageMetadata"]["hil"]
         assert len(hil_data) == 1
         assert hil_data[0]["validated"] == "pending"
@@ -1148,68 +1310,162 @@ class TestAgentsRoutine:
 
         async def mock_multiple_tool_calls(*args, **kwargs):
             """Mock multiple parallel tool calls."""
-            # First chunk with tool call start
-            for i in range(3):  # 3 tool calls
-                yield ChatCompletionChunk(
-                    id="chunk",
-                    choices=[
-                        Choice(
-                            delta=ChoiceDelta(
-                                tool_calls=[
-                                    ChoiceDeltaToolCall(
-                                        index=i,
-                                        id=f"tc_{i}",
-                                        function=ChoiceDeltaToolCallFunction(
-                                            name="get_weather",
-                                            arguments=f'{{"location": "City{i}"}}',
-                                        ),
-                                        type="function",
-                                    )
-                                ]
-                            ),
-                            finish_reason=None,
-                            index=0,
-                        )
-                    ],
-                    created=1234567890,
-                    model="gpt-5-mini",
-                    object="chat.completion.chunk",
+            history = kwargs["history"]
+            turn = len(history)
+
+            if turn == 1:
+                # First chunk with tool call start
+                for i in range(3):  # 3 tool calls
+                    yield ResponseOutputItemAddedEvent(
+                        type="response.output_item.added",
+                        output_index=i,
+                        sequence_number=i,
+                        item=ResponseFunctionToolCall(
+                            id=f"tc_{i}",
+                            call_id=f"tc_random_{i}",
+                            type="function_call",
+                            name="get_weather",
+                            arguments="",
+                            status="in_progress",
+                        ),
+                    )
+
+                    yield ResponseFunctionCallArgumentsDeltaEvent(
+                        output_index=i + 3,
+                        sequence_number=i + 3,
+                        type="response.function_call_arguments.delta",
+                        item_id=f"tc_{i}",
+                        delta=f'{{"location": "City{i}"}}',
+                    )
+
+                    yield ResponseOutputItemDoneEvent(
+                        type="response.output_item.done",
+                        output_index=i + 6,
+                        sequence_number=i + 6,
+                        item=ResponseFunctionToolCall(
+                            id=f"tc_{i}",
+                            call_id=f"tc_random_{i}",
+                            type="function_call",
+                            name="get_weather",
+                            arguments=f'{{"location": "City{i}"}}',
+                            status="completed",
+                        ),
+                    )
+
+                yield ResponseCompletedEvent(
+                    output_index=9,
+                    sequence_number=9,
+                    type="response.completed",
+                    event_id="event_1",
+                    response=OpenAIResponse(
+                        id="resp_1",
+                        created_at=1234567890,
+                        status="completed",
+                        model="gpt-5-mini",
+                        object="response",
+                        parallel_tool_calls=True,
+                        tool_choice="auto",
+                        tools=[
+                            FunctionTool(
+                                type="function",
+                                name="get_weather",
+                                parameters={"location": str},
+                            )
+                        ],
+                        output=[
+                            ResponseFunctionToolCall(
+                                id=f"tc_{i}",
+                                call_id=f"tc_random_{i}",
+                                type="function_call",
+                                name="get_weather",
+                                arguments=f'{{"location": "City{i}"}}',
+                                status="completed",
+                            )
+                            for i in range(3)
+                        ],
+                        usage=ResponseUsage(
+                            input_tokens=50,
+                            input_tokens_details={"cached_tokens": 0},
+                            output_tokens=30,
+                            output_tokens_details={"reasoning_tokens": 0},
+                            total_tokens=80,
+                        ),
+                    ),
                 )
 
-            yield ChatCompletionChunk(
-                id="chunk",
-                choices=[
-                    Choice(
-                        delta=ChoiceDelta(),
-                        finish_reason="tool_calls",
-                        index=0,
-                    )
-                ],
-                created=1234567890,
-                model="gpt-5-mini",
-                object="chat.completion.chunk",
-                usage=CompletionUsage(
-                    completion_tokens=30, prompt_tokens=50, total_tokens=80
-                ),
-            )
-
             # Second turn - final response
-            yield ChatCompletionChunk(
-                id="chunk2",
-                choices=[
-                    Choice(
-                        delta=ChoiceDelta(content="Done"),
-                        finish_reason="stop",
-                        index=0,
-                    )
-                ],
-                created=1234567891,
-                model="gpt-5-mini",
-                object="chat.completion.chunk",
-                usage=CompletionUsage(
-                    completion_tokens=5, prompt_tokens=80, total_tokens=85
-                ),
-            )
+            elif turn == 5:
+                yield ResponseContentPartAddedEvent(
+                    output_index=10,
+                    sequence_number=10,
+                    type="response.content_part.added",
+                    event_id="event_2",
+                    item_id="item_final",
+                    content_index=0,
+                    part=ResponseOutputText(
+                        type="output_text", text="", annotations=[]
+                    ),
+                )
+
+                yield ResponseTextDeltaEvent(
+                    type="response.output_text.delta",
+                    event_id="event_3",
+                    item_id="item_final",
+                    logprobs=[],
+                    sequence_number=11,
+                    output_index=11,
+                    content_index=0,
+                    delta="Done",
+                )
+
+                yield ResponseContentPartDoneEvent(
+                    type="response.content_part.done",
+                    event_id="event_4",
+                    item_id="item_final",
+                    sequence_number=12,
+                    output_index=12,
+                    content_index=0,
+                    part=ResponseOutputText(
+                        type="output_text", text="Done", annotations=[]
+                    ),
+                )
+
+                yield ResponseCompletedEvent(
+                    output_index=13,
+                    sequence_number=13,
+                    type="response.completed",
+                    event_id="event_5",
+                    response=OpenAIResponse(
+                        id="resp_2",
+                        created_at=1234567891,
+                        status="completed",
+                        model="gpt-5-mini",
+                        object="response",
+                        parallel_tool_calls=False,
+                        tool_choice="auto",
+                        tools=[],
+                        output=[
+                            ResponseOutputMessage(
+                                id="item_final",
+                                type="message",
+                                role="assistant",
+                                status="completed",
+                                content=[
+                                    ResponseOutputText(
+                                        type="output_text", text="Done", annotations=[]
+                                    )
+                                ],
+                            )
+                        ],
+                        usage=ResponseUsage(
+                            input_tokens=80,
+                            input_tokens_details={"cached_tokens": 0},
+                            output_tokens=5,
+                            output_tokens_details={"reasoning_tokens": 0},
+                            total_tokens=85,
+                        ),
+                    ),
+                )
 
         routine = AgentsRoutine(client=mock_openai_client)
         events = []
@@ -1231,3 +1487,7 @@ class TestAgentsRoutine:
 
         # Should have 2 successful executions + 1 rate limited
         assert len(tool_messages) >= 2
+        assert (
+            "could not be executed due to rate limit. Call it again."
+            in tool_messages[2].content
+        )
