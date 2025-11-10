@@ -20,7 +20,6 @@ import {
   isLastMessageComplete,
   lastAssistantHasAllToolOutputs,
 } from "@/lib/utils";
-import { md5 } from "js-md5";
 import { DefaultChatTransport } from "ai";
 
 type ChatPageProps = {
@@ -192,7 +191,7 @@ export function ChatPage({
     } else {
       setMessages(retrievedMessages);
     }
-  }, [md5(JSON.stringify(retrievedMessages))]); // Rerun on content change
+  }, [isInvalidating, isFetching, stopped]); // RE-run on new fetching or stop
 
   // Constant to check if there are tool calls at the end of conv.
   const hasOngoingToolInvocations =

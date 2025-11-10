@@ -63,7 +63,6 @@ export function ChatMessagesInsideThread({
       messages.map((msg) => (msg.id === messageId ? updater(msg) : msg)),
     );
   };
-  console.log(messages);
   return (
     <>
       {messages.map((message, idx) =>

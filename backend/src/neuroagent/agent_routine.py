@@ -313,13 +313,18 @@ class AgentsRoutine:
 
                         # Text Delta
                         case ResponseTextDeltaEvent():
+                            message["content"] += (
+                                event.delta
+                            )  # in case of stop we want to keep the incomplete text
                             yield f"data: {json.dumps({'type': 'text-delta', 'id': event.item_id, 'delta': event.delta})}\n\n"
 
                         # Text end
                         case ResponseContentPartDoneEvent() if (
                             hasattr(event.part, "text") and event.part.text
                         ):
-                            message["content"] = event.part.text
+                            message["content"] = (
+                                event.part.text
+                            )  # we overwrite the text at the end
                             yield f"data: {json.dumps({'type': 'text-end', 'id': event.item_id})}\n\n"
                             yield f"data: {json.dumps({'type': 'finish-step'})}\n\n"
 
