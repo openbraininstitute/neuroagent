@@ -159,37 +159,27 @@ def parse_ai_sdk_streaming_response(streamed_data: str) -> dict[str, Any]:
         }
     """
     response_tokens = []
-    tool_args_buffer: dict[str, str] = {}  # toolCallId -> args string
     tool_calls = {}
 
     for line in streamed_data.splitlines():
-        prefix, _, data = line.partition(":")
+        _, _, data = line.partition(":")
         try:
             content = json.loads(data)
         except json.JSONDecodeError:
             continue
 
         # Streamed response text
-        if prefix == "0":
-            token = data.strip('"')
+        if content["type"] == "text-delta":
+            token = content["delta"]
             response_tokens.append(token)
 
-        # Final tool call object (can override partials)
-        elif prefix == "9":
+        # Final tool call object
+        elif content["type"] == "tool-input-available":
             tool_call_id = content.get("toolCallId")
             tool_calls[tool_call_id] = {
                 "name": content.get("toolName"),
-                "arguments": content.get("args", {}),
+                "arguments": content.get("input", {}),
             }
-
-    # Final pass: fill in any tool calls using streamed args
-    for tool_call_id, args_str in tool_args_buffer.items():
-        if tool_call_id not in tool_calls:
-            tool_calls[tool_call_id] = {"name": None, "arguments": {}}
-        try:
-            tool_calls[tool_call_id]["arguments"] = json.loads(args_str)
-        except json.JSONDecodeError:
-            tool_calls[tool_call_id]["arguments"] = {}
 
     final_output = "".join(response_tokens).strip()
 
