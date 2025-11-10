@@ -129,6 +129,7 @@ Generate only the JSON configuration, ensuring all references are internally con
             model=model,
             text_format=SimulationsFormModified,
             reasoning={"effort": "medium"},
+            store=False,
         )
         if response.output_parsed:
             # Get the output config

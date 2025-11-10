@@ -182,6 +182,7 @@ async def generate_title(
         input=body.first_user_message,
         model=settings.llm.suggestion_model,
         text_format=ThreadGeneratedTitle,
+        store=False,
     )
 
     # Update the thread title and modified date + commit

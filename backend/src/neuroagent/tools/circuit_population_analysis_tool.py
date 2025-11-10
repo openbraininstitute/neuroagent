@@ -319,6 +319,7 @@ Generate the SQL query to analyze the neuron population:"""
                     input=user_prompt,
                     model=model,
                     text_format=SQLStatement,
+                    store=False,
                 )
 
                 if response.output_parsed and response.output_parsed.sql_statement:

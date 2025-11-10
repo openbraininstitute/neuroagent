@@ -209,6 +209,7 @@ Important: Weight the user clicks depending on how old they are. The more recent
         text_format=QuestionsSuggestions
         if is_in_chat
         else QuestionSuggestionNoMessages,
+        store=False,
     )
 
     if response.output_parsed:

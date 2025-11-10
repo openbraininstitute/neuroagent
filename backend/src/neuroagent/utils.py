@@ -54,6 +54,7 @@ async def messages_to_openai_content(
 
 def convert_to_responses_api_format(
     db_messages: list[dict[str, Any]],
+    send_reasoning: bool = True,
 ) -> list[dict[str, Any]]:
     """
     Convert database message format to OpenAI Responses API format.
@@ -87,7 +88,7 @@ def convert_to_responses_api_format(
 
         elif role == "assistant":
             # Add reasoning
-            if msg.get("encrypted_reasoning"):
+            if send_reasoning and msg.get("encrypted_reasoning"):
                 reasoning_entry = {
                     "type": "reasoning",
                     "encrypted_content": msg["encrypted_reasoning"],
