@@ -40,7 +40,6 @@ from neuroagent.new_types import (
 )
 from neuroagent.tools.base_tool import BaseTool
 from neuroagent.utils import (
-    complete_partial_json,
     convert_to_responses_api_format,
     get_entity,
     messages_to_openai_content,
@@ -288,16 +287,23 @@ class AgentsRoutine:
                 turns += 1
                 usage_data = None
                 tool_call_ID_mapping: dict[str, str] = {}
+                temp_stream_data = {
+                    "content": "",
+                    "tool_calls": {},
+                    "reasoning": {},
+                }  # for streaming interrupt
                 async for event in completion:
                     match event:
                         # === REASONING ===
                         # Reasoning start
                         case ResponseReasoningSummaryPartAddedEvent():
+                            temp_stream_data["reasoning"][event.item_id] = ""
                             yield f"data: {json.dumps({'type': 'start-step'})}\n\n"
                             yield f"data: {json.dumps({'type': 'reasoning-start', 'id': event.item_id})}\n\n"
 
                         # Reasoning deltas
                         case ResponseReasoningSummaryTextDeltaEvent():
+                            temp_stream_data["reasoning"][event.item_id] += event.delta
                             yield f"data: {json.dumps({'type': 'reasoning-delta', 'id': event.item_id, 'delta': event.delta})}\n\n"
 
                         # Reasoning end
@@ -313,18 +319,14 @@ class AgentsRoutine:
 
                         # Text Delta
                         case ResponseTextDeltaEvent():
-                            message["content"] += (
-                                event.delta
-                            )  # in case of stop we want to keep the incomplete text
+                            temp_stream_data["content"] += event.delta
                             yield f"data: {json.dumps({'type': 'text-delta', 'id': event.item_id, 'delta': event.delta})}\n\n"
 
                         # Text end
                         case ResponseContentPartDoneEvent() if (
                             hasattr(event.part, "text") and event.part.text
                         ):
-                            message["content"] = (
-                                event.part.text
-                            )  # we overwrite the text at the end
+                            message["content"] = event.part.text
                             yield f"data: {json.dumps({'type': 'text-end', 'id': event.item_id})}\n\n"
                             yield f"data: {json.dumps({'type': 'finish-step'})}\n\n"
 
@@ -334,14 +336,20 @@ class AgentsRoutine:
                             isinstance(event.item, ResponseFunctionToolCall)
                             and event.item.id
                         ):
-                            yield f"data: {json.dumps({'type': 'start-step'})}\n\n"
                             tool_call_ID_mapping[event.item.id] = (
                                 uuid.uuid4().hex
                             )  # Add generic UUID to event ID
+                            temp_stream_data["tool_calls"][
+                                tool_call_ID_mapping[event.item.id]
+                            ] = {"name": event.item.name, "arguments": ""}
+                            yield f"data: {json.dumps({'type': 'start-step'})}\n\n"
                             yield f"data: {json.dumps({'type': 'tool-input-start', 'toolCallId': tool_call_ID_mapping[event.item.id], 'toolName': event.item.name})}\n\n"
 
                         # Tool call deltas
                         case ResponseFunctionCallArgumentsDeltaEvent() if event.item_id:
+                            temp_stream_data["tool_calls"][
+                                tool_call_ID_mapping[event.item_id]
+                            ]["arguments"] += event.delta
                             yield f"data: {json.dumps({'type': 'tool-input-delta', 'toolCallId': tool_call_ID_mapping[event.item_id], 'inputTextDelta': event.delta})}\n\n"
 
                         # Tool call end
@@ -561,25 +569,30 @@ class AgentsRoutine:
 
         # User interrupts streaming
         except asyncio.exceptions.CancelledError:
-            if isinstance(message["tool_calls"], defaultdict):
-                message["tool_calls"] = list(message.get("tool_calls", {}).values())
+            if temp_stream_data["content"]:
+                message["content"] = temp_stream_data["content"]
 
-            if not message["tool_calls"]:
+            if temp_stream_data["reasoning"]:
+                for reasoning_summary in temp_stream_data["reasoning"].values():
+                    message["reasoning"].append(reasoning_summary)
+
+            if not temp_stream_data:
                 message["tool_calls"] = None
             else:
                 # Attempt to fix partial JSONs if any
-                for elem in message["tool_calls"]:
-                    elem["function"]["arguments"] = complete_partial_json(
-                        elem["function"]["arguments"]
+                for id, elem in temp_stream_data["tool_calls"].items():
+                    message["tool_calls"].append(
+                        {"id": id, "name": elem["name"], "arguments": elem["arguments"]}
                     )
+
             logger.debug(f"Stream interrupted. Partial message {message}")
 
             if message["tool_calls"]:
                 tool_calls = [
                     ToolCalls(
                         tool_call_id=tool_call["id"],
-                        name=tool_call["function"]["name"],
-                        arguments=tool_call["function"]["arguments"],
+                        name=tool_call["name"],
+                        arguments=tool_call["arguments"],
                     )
                     for tool_call in message["tool_calls"]
                 ]
