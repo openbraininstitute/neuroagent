@@ -52,26 +52,31 @@ async def messages_to_openai_content(
     return messages
 
 
+def convert_to_parse_api_format(
+    db_messages: list[dict[str, Any]],
+) -> list[dict[str, Any]]:
+    """Convert Dabtabse message to Response Parse API format."""
+    output = []
+
+    for msg in db_messages:
+        # remove the reasoning
+        if msg["role"] == "assistant":
+            msg.pop("encrypted_reasoning", None)
+            msg.pop("reasoning", None)
+
+        # remove the tool outputs.
+        if msg["role"] == "tool":
+            msg["content"] = "..."
+
+        output.append(msg)
+
+    return output
+
+
 def convert_to_responses_api_format(
     db_messages: list[dict[str, Any]],
-    send_reasoning: bool = True,
 ) -> list[dict[str, Any]]:
-    """
-    Convert database message format to OpenAI Responses API format.
-
-    The Responses API uses a different structure than Chat Completions:
-    - Uses "input" instead of "messages"
-    - Messages can be simple strings or dictionaries with role/content
-    - Assistant messages have content as a list of objects with "type" field
-    - Function calls are separate items in the input array with specific types
-
-    Args:
-        db_messages: List of message dictionaries from your database
-
-    Returns
-    -------
-        List compatible with OpenAI's Responses API "input" parameter
-    """
+    """Convert database message format to OpenAI Responses API format."""
     responses_input = []
 
     for msg in db_messages:
@@ -88,7 +93,7 @@ def convert_to_responses_api_format(
 
         elif role == "assistant":
             # Add reasoning
-            if send_reasoning and msg.get("encrypted_reasoning"):
+            if msg.get("encrypted_reasoning"):
                 reasoning_entry = {
                     "type": "reasoning",
                     "encrypted_content": msg["encrypted_reasoning"],

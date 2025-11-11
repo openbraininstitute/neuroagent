@@ -38,7 +38,7 @@ from neuroagent.app.schemas import (
 )
 from neuroagent.tools.base_tool import BaseTool
 from neuroagent.utils import (
-    convert_to_responses_api_format,
+    convert_to_parse_api_format,
     get_token_count,
     messages_to_openai_content,
 )
@@ -457,10 +457,8 @@ async def filter_tools_by_conversation(
 
     openai_messages = await messages_to_openai_content(messages)
 
-    # Remove the content of tool responses to save tokens
-    for message in openai_messages:
-        if message["role"] == "tool":
-            message["content"] = "..."
+    # Remove reasoning and content of tool responses to save tokens
+    openai_messages = convert_to_parse_api_format(openai_messages)
 
     system_prompt = f"""TASK: Filter tools for AI agent based on conversation relevance.
 
@@ -498,13 +496,9 @@ AVAILABLE TOOLS:
     try:
         # Send the OpenAI request
         model = "google/gemini-2.5-flash"
-        breakpoint()
         start_request = time.time()
         response = await openai_client.responses.parse(
-            instructions=system_prompt,
-            input=convert_to_responses_api_format(
-                openai_messages, send_reasoning=False
-            ),
+            input=[{"role": "system", "content": system_prompt}, *openai_messages],  # type: ignore
             model=model,
             text_format=ToolFiltering,
             store=False,
