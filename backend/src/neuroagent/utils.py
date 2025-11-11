@@ -55,22 +55,61 @@ async def messages_to_openai_content(
 def convert_to_parse_api_format(
     db_messages: list[dict[str, Any]],
 ) -> list[dict[str, Any]]:
-    """Convert Dabtabse message to Response Parse API format."""
-    output = []
+    """Convert database messages to a format accepted by the Responses Parse API."""
+    responses_input = []
 
     for msg in db_messages:
-        # remove the reasoning
-        if msg["role"] == "assistant":
-            msg.pop("encrypted_reasoning", None)
-            msg.pop("reasoning", None)
+        role = msg["role"]
 
-        # remove the tool outputs.
-        if msg["role"] == "tool":
-            msg["content"] = "..."
+        if role == "user":
+            responses_input.append(
+                {
+                    "type": "message",
+                    "role": "user",
+                    "status": "completed",
+                    "content": [{"type": "input_text", "text": msg["content"]}],
+                }
+            )
 
-        output.append(msg)
+        elif role == "assistant":
+            if msg["content"]:
+                assistant_msg = {
+                    "type": "message",
+                    "status": "completed",
+                    "role": "assistant",
+                    "content": [
+                        {
+                            "type": "output_text",
+                            "text": msg["content"],
+                            "annotations": [],
+                        }
+                    ],
+                }
+                responses_input.append(assistant_msg)
 
-    return output
+            if msg.get("tool_calls"):
+                for tool_call in msg["tool_calls"]:
+                    responses_input.append(
+                        {
+                            "id": f"fc_{uuid.uuid4().hex}",  # OpenAI wants an ID that start with "FC" ...
+                            "type": "function_call",
+                            "call_id": tool_call.get("id"),
+                            "name": tool_call["function"]["name"],
+                            "arguments": json.dumps(tool_call["function"]["arguments"]),
+                            "status": "completed",
+                        }
+                    )
+        # elif role == "tool":
+        #     # Tool results become function_call_output
+        #     responses_input.append(
+        #         {
+        #             "type": "function_call_output",
+        #             "call_id": msg["tool_call_id"],
+        #             "output":[{"type": "input_text", "text": ""}],
+        #         }
+        #     )
+
+    return responses_input
 
 
 def convert_to_responses_api_format(
