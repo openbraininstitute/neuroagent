@@ -85,17 +85,16 @@ export function ChatMessagesInsideThread({
                 const validated =
                   getValidationStatus(message.metadata, part.toolCallId) ??
                   "not_required";
+                const isStopped =
+                  message.metadata?.toolCalls?.some(
+                    (e) => e.toolCallId == part.toolCallId && !e.isComplete,
+                  ) || false;
                 return (
                   <div key={`${message.id}-tool-${part.toolCallId}`}>
                     <ChatMessageTool
                       threadId={threadId}
                       tool={part}
-                      stopped={
-                        message.metadata?.toolCalls?.some(
-                          (e) =>
-                            e.toolCallId == part.toolCallId && !e.isComplete,
-                        ) || false
-                      }
+                      stopped={isStopped}
                       availableTools={availableTools}
                       addToolResult={addToolResult}
                       validated={validated}

@@ -132,6 +132,7 @@ export function ChatPage({
       | MessageStrict[]
       | ((messages: MessageStrict[]) => MessageStrict[]),
   ) => void;
+  console.log(messages);
 
   // Initial use effect that runs on mount
   useEffect(() => {

@@ -123,7 +123,7 @@ export function HumanValidationDialog({
             ...(msg.metadata?.toolCalls || []).filter(
               (a) => a.toolCallId !== toolId,
             ),
-            { toolCallId: toolId, validated: validation },
+            { toolCallId: toolId, validated: validation, isComplete: true },
           ],
         };
 

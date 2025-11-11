@@ -289,7 +289,7 @@ class AgentsRoutine:
                 usage_data = None
                 tool_call_ID_mapping: dict[str, str] = {}
                 # for streaming interrupt
-                temp_stream_data = {
+                temp_stream_data: dict[str, Any] = {
                     "content": "",
                     "tool_calls": {},
                     "reasoning": {},
@@ -556,7 +556,11 @@ class AgentsRoutine:
                 # If the tool call response contains HIL validation, do not update anything and return
                 if tool_calls_with_hil:
                     metadata_data = [
-                        {"toolCallId": msg.tool_call_id, "validated": "pending"}
+                        {
+                            "toolCallId": msg.tool_call_id,
+                            "validated": "pending",
+                            "isComplete": True,
+                        }
                         for msg in tool_calls_with_hil
                     ]
 
@@ -569,7 +573,7 @@ class AgentsRoutine:
                     active_agent = tool_calls_executed.agent
 
             if metadata_data:
-                yield f"data: {json.dumps({'type': 'finish', 'messageMetadata': {'hil': metadata_data}})}\n\n"
+                yield f"data: {json.dumps({'type': 'finish', 'messageMetadata': {'toolCalls': metadata_data}})}\n\n"
             else:
                 yield f"data: {json.dumps({'type': 'finish'})}\n\n"
             yield "data: [DONE]\n\n"
