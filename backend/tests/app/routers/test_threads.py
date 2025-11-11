@@ -81,6 +81,7 @@ def test_generate_thread_title(httpx_mock, app_client, db_connection, test_user_
                 "input": "This is my query",
                 "model": "great_model",
                 "text_format": ThreadGeneratedTitle,
+                "store": False,
             }
         )
 
