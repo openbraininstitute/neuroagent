@@ -648,7 +648,7 @@ async def test_get_thread_messages_vercel_format(
     ann1 = metadata[0]
     assert ann1.get("toolCallId") == "mock_id_tc"
     assert ann1.get("validated") == "not_required"
-    assert ann1.get("isComplete") is True
+    assert ann1.get("isComplete") is False
 
     # Assert the second page
     assert len(page_2["results"]) == 1

@@ -412,7 +412,9 @@ def test_format_messages_vercel():
                 metadata={
                     "toolCalls": [
                         MetadataToolCallVercel(
-                            toolCallId="1234", validated="not_required", isComplete=True
+                            toolCallId="1234",
+                            validated="not_required",
+                            isComplete=False,
                         ),
                     ]
                 },

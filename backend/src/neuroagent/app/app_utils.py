@@ -498,11 +498,12 @@ AVAILABLE TOOLS:
     try:
         # Send the OpenAI request
         model = "google/gemini-2.5-flash"
+        breakpoint()
         start_request = time.time()
         response = await openai_client.responses.parse(
             instructions=system_prompt,
-            input=json.dumps(
-                convert_to_responses_api_format(openai_messages, send_reasoning=False)
+            input=convert_to_responses_api_format(
+                openai_messages, send_reasoning=False
             ),
             model=model,
             text_format=ToolFiltering,

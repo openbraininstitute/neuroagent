@@ -1283,8 +1283,8 @@ class TestAgentsRoutine:
         assert len(finish_events) == 1
         finish_event = finish_events[0]
         assert "messageMetadata" in finish_event
-        assert "hil" in finish_event["messageMetadata"]
-        hil_data = finish_event["messageMetadata"]["hil"]
+        assert "toolCalls" in finish_event["messageMetadata"]
+        hil_data = finish_event["messageMetadata"]["toolCalls"]
         assert len(hil_data) == 1
         assert hil_data[0]["validated"] == "pending"
 
