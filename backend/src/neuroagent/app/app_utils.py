@@ -345,7 +345,7 @@ def format_messages_vercel(
                     MetadataToolCallVercel(
                         toolCallId=tc.tool_call_id,
                         validated=status,  # type: ignore
-                        isComplete=msg.is_complete,
+                        isComplete=False,
                     )
                 )
 

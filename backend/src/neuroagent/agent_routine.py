@@ -40,6 +40,7 @@ from neuroagent.new_types import (
 )
 from neuroagent.tools.base_tool import BaseTool
 from neuroagent.utils import (
+    complete_partial_json,
     convert_to_responses_api_format,
     get_entity,
     messages_to_openai_content,
@@ -287,11 +288,12 @@ class AgentsRoutine:
                 turns += 1
                 usage_data = None
                 tool_call_ID_mapping: dict[str, str] = {}
+                # for streaming interrupt
                 temp_stream_data = {
                     "content": "",
                     "tool_calls": {},
                     "reasoning": {},
-                }  # for streaming interrupt
+                }
                 async for event in completion:
                     match event:
                         # === REASONING ===
@@ -309,6 +311,7 @@ class AgentsRoutine:
                         # Reasoning end
                         case ResponseReasoningSummaryPartDoneEvent():
                             message["reasoning"].append(event.part.text)
+                            temp_stream_data["reasoning"].pop(event.item_id, None)
                             yield f"data: {json.dumps({'type': 'reasoning-end', 'id': event.item_id})}\n\n"
                             yield f"data: {json.dumps({'type': 'finish-step'})}\n\n"
 
@@ -327,6 +330,7 @@ class AgentsRoutine:
                             hasattr(event.part, "text") and event.part.text
                         ):
                             message["content"] = event.part.text
+                            temp_stream_data["content"] = ""
                             yield f"data: {json.dumps({'type': 'text-end', 'id': event.item_id})}\n\n"
                             yield f"data: {json.dumps({'type': 'finish-step'})}\n\n"
 
@@ -377,6 +381,9 @@ class AgentsRoutine:
                                         "arguments": args,
                                     },
                                 }
+                            )
+                            temp_stream_data["tool_calls"].pop(
+                                tool_call_ID_mapping[event.item.id], None
                             )
                             yield f"data: {json.dumps({'type': 'tool-input-available', 'toolCallId': tool_call_ID_mapping[event.item.id], 'toolName': event.item.name, 'input': json.loads(args)})}\n\n"
                             yield f"data: {json.dumps({'type': 'finish-step'})}\n\n"
@@ -576,14 +583,20 @@ class AgentsRoutine:
                 for reasoning_summary in temp_stream_data["reasoning"].values():
                     message["reasoning"].append(reasoning_summary)
 
-            if not temp_stream_data:
-                message["tool_calls"] = None
-            else:
-                # Attempt to fix partial JSONs if any
+            if temp_stream_data["tool_calls"]:
                 for id, elem in temp_stream_data["tool_calls"].items():
                     message["tool_calls"].append(
-                        {"id": id, "name": elem["name"], "arguments": elem["arguments"]}
+                        {
+                            "function": {
+                                "arguments": complete_partial_json(elem["arguments"]),
+                                "name": elem["name"],
+                            },
+                            "id": id,
+                            "type": "function",
+                        }
                     )
+            else:
+                message["tool_calls"] = None
 
             logger.debug(f"Stream interrupted. Partial message {message}")
 
@@ -591,8 +604,8 @@ class AgentsRoutine:
                 tool_calls = [
                     ToolCalls(
                         tool_call_id=tool_call["id"],
-                        name=tool_call["name"],
-                        arguments=tool_call["arguments"],
+                        name=tool_call["function"]["name"],
+                        arguments=tool_call["function"]["arguments"],
                     )
                     for tool_call in message["tool_calls"]
                 ]
