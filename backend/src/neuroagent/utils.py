@@ -52,70 +52,12 @@ async def messages_to_openai_content(
     return messages
 
 
-def convert_to_parse_api_format(
-    db_messages: list[dict[str, Any]],
-) -> list[dict[str, Any]]:
-    """Convert database messages to a format accepted by the Responses Parse API."""
-    responses_input = []
-
-    for msg in db_messages:
-        role = msg["role"]
-
-        if role == "user":
-            responses_input.append(
-                {
-                    "type": "message",
-                    "role": "user",
-                    "status": "completed",
-                    "content": [{"type": "input_text", "text": msg["content"]}],
-                }
-            )
-
-        elif role == "assistant":
-            if msg["content"]:
-                assistant_msg = {
-                    "type": "message",
-                    "status": "completed",
-                    "role": "assistant",
-                    "content": [
-                        {
-                            "type": "output_text",
-                            "text": msg["content"],
-                            "annotations": [],
-                        }
-                    ],
-                }
-                responses_input.append(assistant_msg)
-
-            if msg.get("tool_calls"):
-                for tool_call in msg["tool_calls"]:
-                    responses_input.append(
-                        {
-                            "id": f"fc_{uuid.uuid4().hex}",  # OpenAI wants an ID that start with "FC" ...
-                            "type": "function_call",
-                            "call_id": tool_call.get("id"),
-                            "name": tool_call["function"]["name"],
-                            "arguments": json.dumps(tool_call["function"]["arguments"]),
-                            "status": "completed",
-                        }
-                    )
-        # elif role == "tool":
-        #     # Tool results become function_call_output
-        #     responses_input.append(
-        #         {
-        #             "type": "function_call_output",
-        #             "call_id": msg["tool_call_id"],
-        #             "output":[{"type": "input_text", "text": ""}],
-        #         }
-        #     )
-
-    return responses_input
-
-
 def convert_to_responses_api_format(
     db_messages: list[dict[str, Any]],
+    send_reasoning: bool = True,
+    send_tool_output: bool = True,
 ) -> list[dict[str, Any]]:
-    """Convert database message format to OpenAI Responses API format."""
+    """Convert database message format to OpenAI Responses API format. For 'parse' endpoint we don't send the reasoning."""
     responses_input = []
 
     for msg in db_messages:
@@ -125,18 +67,21 @@ def convert_to_responses_api_format(
             # User messages can be simple or structured
             responses_input.append(
                 {
+                    "type": "message",
                     "role": "user",
+                    "status": "completed",
                     "content": [{"type": "input_text", "text": msg["content"]}],
                 }
             )
 
         elif role == "assistant":
             # Add reasoning
-            if msg.get("encrypted_reasoning"):
+            if send_reasoning and msg.get("encrypted_reasoning"):
                 reasoning_entry = {
                     "type": "reasoning",
                     "encrypted_content": msg["encrypted_reasoning"],
                     "summary": [],
+                    "content": [],
                 }
                 if msg.get("reasoning"):
                     for reasoning_step in msg["reasoning"]:
@@ -149,8 +94,15 @@ def convert_to_responses_api_format(
             # Assistant messages need structured content
             if msg["content"]:
                 assistant_msg = {
+                    "type": "message",
+                    "status": "completed",
                     "role": "assistant",
-                    "content": [{"type": "output_text", "text": msg["content"]}],
+                    "content": [
+                        {
+                            "type": "output_text",
+                            "text": msg["content"],
+                        }
+                    ],
                 }
                 responses_input.append(assistant_msg)
 
@@ -160,10 +112,10 @@ def convert_to_responses_api_format(
                     responses_input.append(
                         {
                             "type": "function_call",
-                            "id": f"fc_{uuid.uuid4().hex}",  # OpenAI wants an ID that start with "FC" ...
                             "call_id": tool_call.get("id"),
                             "name": tool_call["function"]["name"],
                             "arguments": tool_call["function"]["arguments"],
+                            "status": "completed",
                         }
                     )
 
@@ -173,7 +125,8 @@ def convert_to_responses_api_format(
                 {
                     "type": "function_call_output",
                     "call_id": msg["tool_call_id"],
-                    "output": msg["content"],
+                    "output": msg["content"] if send_tool_output else "...",
+                    "status": "completed",
                 }
             )
 
