@@ -7,6 +7,7 @@ import pytest
 
 from neuroagent.utils import (
     complete_partial_json,
+    convert_to_responses_api_format,
     delete_from_storage,
     merge_chunk,
     merge_fields,
@@ -368,3 +369,123 @@ def test_delete_from_storage_large_batch():
     # Second batch should have 500 objects
     second_batch = mock_s3.delete_objects.call_args_list[1][1]
     assert len(second_batch["Delete"]["Objects"]) == 500
+
+
+def test_convert_to_responses_api_format_general():
+    """
+    One comprehensive test that covers:
+     - user messages
+     - assistant messages with reasoning, content, and tool_calls
+     - tool role entries producing function_call_output
+     - assistant entry with empty content but with reasoning and tool_calls
+     - ordering preservation
+    """
+    db_messages = [
+        {"role": "user", "content": "Hello"},
+        {
+            "role": "assistant",
+            "content": "Assistant answer",
+            "encrypted_reasoning": "enc1",
+            "reasoning": ["r1", "r2"],
+            "tool_calls": [
+                {"id": "tc1", "function": {"name": "search", "arguments": '{"q":"x"}'}},
+                {"id": "tc2", "function": {"name": "calc", "arguments": '{"n":2}'}},
+            ],
+        },
+        {"role": "tool", "tool_call_id": "tc1", "content": "search results"},
+        {
+            "role": "assistant",
+            "content": "",  # empty -> no assistant message, but reasoning + tool_calls still included
+            "encrypted_reasoning": "enc2",
+            "reasoning": ["only"],
+            "tool_calls": [
+                {"id": "tc3", "function": {"name": "format", "arguments": "{}"}}
+            ],
+        },
+        {"role": "tool", "tool_call_id": "tc3", "content": "formatted"},
+        {"role": "user", "content": "Thanks"},
+    ]
+
+    out = convert_to_responses_api_format(
+        db_messages, send_reasoning=True, send_tool_output=True
+    )
+
+    expected = [
+        # user "Hello"
+        {
+            "type": "message",
+            "role": "user",
+            "status": "completed",
+            "content": [{"type": "input_text", "text": "Hello"}],
+        },
+        # assistant reasoning (enc1)
+        {
+            "type": "reasoning",
+            "encrypted_content": "enc1",
+            "summary": [
+                {"type": "summary_text", "text": "r1"},
+                {"type": "summary_text", "text": "r2"},
+            ],
+            "content": [],
+        },
+        # assistant message (content)
+        {
+            "type": "message",
+            "status": "completed",
+            "role": "assistant",
+            "content": [{"type": "output_text", "text": "Assistant answer"}],
+        },
+        # function_call entries from first assistant
+        {
+            "type": "function_call",
+            "call_id": "tc1",
+            "name": "search",
+            "arguments": '{"q":"x"}',
+            "status": "completed",
+        },
+        {
+            "type": "function_call",
+            "call_id": "tc2",
+            "name": "calc",
+            "arguments": '{"n":2}',
+            "status": "completed",
+        },
+        # tool role corresponding to tc1 -> function_call_output
+        {
+            "type": "function_call_output",
+            "call_id": "tc1",
+            "output": "search results",
+            "status": "completed",
+        },
+        # assistant reasoning (enc2) with empty content
+        {
+            "type": "reasoning",
+            "encrypted_content": "enc2",
+            "summary": [{"type": "summary_text", "text": "only"}],
+            "content": [],
+        },
+        # function_call from second assistant (tc3)
+        {
+            "type": "function_call",
+            "call_id": "tc3",
+            "name": "format",
+            "arguments": "{}",
+            "status": "completed",
+        },
+        # tool role corresponding to tc3 -> function_call_output
+        {
+            "type": "function_call_output",
+            "call_id": "tc3",
+            "output": "formatted",
+            "status": "completed",
+        },
+        # final user "Thanks"
+        {
+            "type": "message",
+            "role": "user",
+            "status": "completed",
+            "content": [{"type": "input_text", "text": "Thanks"}],
+        },
+    ]
+
+    assert out == expected
