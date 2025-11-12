@@ -123,19 +123,19 @@ def test_question_suggestions(
     assert response.json() == mock_class_response.model_dump()
 
     # At the end we check if the calls were made with the right arguments:
-    call_list = mock_openai_client.beta.chat.completions.parse.call_args_list
-    assert call_list[0].kwargs["messages"][1] == {
-        "role": "user",
-        "content": "USER JOURNEY: \n[{'timestamp': '1970-01-02T10:17:36Z', 'region': 'Amzing BR', 'artifact': 'Super artifact'}]",
-    }
-    assert call_list[1].kwargs["messages"][1] == {
-        "role": "user",
-        "content": "USER JOURNEY: \n[{'timestamp': '1970-01-02T10:17:36Z', 'region': 'Amzing BR', 'artifact': 'Super artifact'}]",
-    }
-    assert call_list[2].kwargs["messages"][1] == {
-        "role": "user",
-        "content": 'CONVERSATION MESSAGES: \n[{"content": "This is my query."}, {"content": "sample response content."}]',
-    }
+    call_list = mock_openai_client.responses.parse.call_args_list
+    assert (
+        call_list[0].kwargs["input"]
+        == "USER JOURNEY: \n[{'timestamp': '1970-01-02T10:17:36Z', 'region': 'Amzing BR', 'artifact': 'Super artifact'}]"
+    )
+    assert (
+        call_list[1].kwargs["input"]
+        == "USER JOURNEY: \n[{'timestamp': '1970-01-02T10:17:36Z', 'region': 'Amzing BR', 'artifact': 'Super artifact'}]"
+    )
+    assert (
+        call_list[2].kwargs["input"]
+        == 'CONVERSATION MESSAGES: \n[{"content": "This is my query."}, {"content": "sample response content."}]'
+    )
 
 
 async def streamed_response():

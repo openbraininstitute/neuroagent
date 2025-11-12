@@ -1,18 +1,29 @@
-import { describe, expect, test, beforeEach } from "vitest";
+// tests/utils.test.ts
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { describe, test, expect } from "vitest";
 import {
   cn,
   convert_tools_to_set,
+  isToolPart,
   isLastMessageComplete,
+  getLastText,
   getToolInvocations,
+  getLastMessageText,
   getStorageID,
   getValidationStatus,
-  getStoppedStatus,
-} from "@/lib/utils";
-import type { MessageStrict, Annotation } from "@/lib/types";
-import type { ToolInvocationUIPart } from "@ai-sdk/ui-utils";
+  lastAssistantHasAllToolOutputs,
+} from "@/lib/utils"; // adjust path if your project uses a different import alias
+
+// --- Helper types for tests (loose shapes to match runtime checks) ---
+type Part = { type: string; text?: string; state?: string; output?: any };
+type MessageStrictShape = {
+  role?: string;
+  parts?: Part[];
+  metadata?: { toolCalls?: any[] };
+};
 
 describe("cn", () => {
-  test("merges class names with twMerge (e.g., overrides conflicting classes)", () => {
+  test("merges class names with twMerge (overrides conflicting classes)", () => {
     // If clsx produces "text-sm text-lg", twMerge should reduce to "text-lg"
     const result = cn("text-sm", "text-lg");
     expect(result).toBe("text-lg");
@@ -20,200 +31,291 @@ describe("cn", () => {
 
   test("handles multiple inputs and falsy values correctly", () => {
     const result = cn("p-2", false && "block", "m-4");
+    // falsy value should be ignored by clsx/twMerge
     expect(result).toBe("p-2 m-4");
   });
 });
 
 describe("convert_tools_to_set", () => {
-  test("returns an object with each slug set to true and adds allchecked: true", () => {
-    const availableTools = [
-      { slug: "alpha", label: "Alpha Tool" },
-      { slug: "beta", label: "Beta Tool" },
+  test("creates initial checked map with all tool slugs true and allchecked true", () => {
+    const tools = [
+      { slug: "tool-a", label: "Tool A" },
+      { slug: "tool-b", label: "Tool B" },
     ];
-    const result = convert_tools_to_set(availableTools);
-    expect(result).toEqual({
-      alpha: true,
-      beta: true,
+    const set = convert_tools_to_set(tools);
+    expect(set).toEqual({
+      "tool-a": true,
+      "tool-b": true,
       allchecked: true,
     });
   });
 
-  test("works for an empty array of availableTools", () => {
-    const result = convert_tools_to_set([]);
-    expect(result).toEqual({ allchecked: true });
+  test("works for empty input", () => {
+    const set = convert_tools_to_set([]);
+    expect(set).toEqual({ allchecked: true });
+  });
+});
+
+describe("isToolPart", () => {
+  test("returns true for parts whose type starts with 'tool-'", () => {
+    const toolPart: Part = { type: "tool-run", output: "ok" };
+    expect(isToolPart(toolPart as any)).toBe(true);
+  });
+
+  test("returns false for non-tool parts", () => {
+    const textPart: Part = { type: "text", text: "hello" };
+    expect(isToolPart(textPart as any)).toBe(false);
   });
 });
 
 describe("isLastMessageComplete", () => {
-  test("returns true when `messages` is undefined", () => {
-    expect(isLastMessageComplete(undefined)).toBe(true);
+  test("returns true if metadata.toolCalls is empty or undefined", () => {
+    const msg1: MessageStrictShape = { metadata: { toolCalls: [] } };
+    const msg2: MessageStrictShape = {};
+    expect(isLastMessageComplete(msg1 as any)).toBe(true);
+    expect(isLastMessageComplete(msg2 as any)).toBe(true);
   });
 
-  test("returns true when annotations array is empty", () => {
-    const msg = { annotations: [] } as unknown as MessageStrict;
-    expect(isLastMessageComplete(msg)).toBe(true);
+  test("returns false if any tool call has isComplete === false", () => {
+    const msg: MessageStrictShape = {
+      metadata: {
+        toolCalls: [
+          { toolCallId: "1", isComplete: true },
+          { toolCallId: "2", isComplete: false },
+        ],
+      },
+    };
+    expect(isLastMessageComplete(msg as any)).toBe(false);
   });
 
-  test("returns false if any annotation has isComplete === false", () => {
-    const msg = {
-      annotations: [{ isComplete: true }, { isComplete: false }],
-    } as MessageStrict;
-    expect(isLastMessageComplete(msg)).toBe(false);
+  test("returns true if all tool calls are complete (or missing isComplete)", () => {
+    const msg: MessageStrictShape = {
+      metadata: {
+        toolCalls: [{ toolCallId: "1", isComplete: true }, { toolCallId: "2" }],
+      },
+    };
+    // The function treats missing isComplete as not explicitly false, so returns true
+    expect(isLastMessageComplete(msg as any)).toBe(true);
+  });
+});
+
+describe("getLastText / getLastMessageText", () => {
+  test("getLastText returns the last text part of a MessageStrict", () => {
+    const message: MessageStrictShape = {
+      parts: [
+        { type: "text", text: "first" },
+        { type: "something", text: "ignored" },
+        { type: "text", text: "last" },
+      ],
+    };
+    expect(getLastText(message as any)).toBe("last");
   });
 
-  test("returns true if all annotations are complete", () => {
-    const msg = {
-      annotations: [{ isComplete: true }, { isComplete: true }],
-    } as MessageStrict;
-    expect(isLastMessageComplete(msg)).toBe(true);
+  test("getLastText returns empty string if no text parts", () => {
+    const message: MessageStrictShape = {
+      parts: [{ type: "tool-run", output: "ok" }],
+    };
+    expect(getLastText(message as any)).toBe("");
+  });
+
+  test("getLastMessageText returns last message's last text", () => {
+    const messages = [
+      { role: "assistant", parts: [{ type: "text", text: "one" }] },
+      {
+        role: "assistant",
+        parts: [
+          { type: "text", text: "two" },
+          { type: "text", text: "final" },
+        ],
+      },
+    ];
+    expect(getLastMessageText(messages as any)).toBe("final");
+  });
+
+  test("getLastMessageText returns empty string for empty messages", () => {
+    expect(getLastMessageText([])).toBe("");
   });
 });
 
 describe("getToolInvocations", () => {
-  test("extracts toolInvocation objects from parts where type === 'tool-invocation'", () => {
-    // We force-cast to ToolInvocationUIPart via unknown to satisfy the compiler
-    const fakeInvocation = { id: "inv-1", name: "fake-tool" };
-    const part = {
-      type: "tool-invocation",
-      toolInvocation: fakeInvocation,
-    } as unknown as ToolInvocationUIPart;
-
-    // Similarly, cast the entire message to MessageStrict via unknown
-    const message = {
-      parts: [part, { type: "text", text: "just text" }],
-    } as unknown as MessageStrict;
-
-    const invocations = getToolInvocations(message);
-    expect(invocations).toEqual([fakeInvocation]);
+  test("extracts tool parts from a MessageStrict", () => {
+    const msg: MessageStrictShape = {
+      parts: [
+        { type: "text", text: "hi" },
+        { type: "tool-run", output: "ok" },
+        { type: "tool-download", output: { id: 1 } },
+      ],
+    };
+    const invocations = getToolInvocations(msg as any);
+    expect(invocations.length).toBe(2);
+    expect(invocations.map((p) => p.type)).toEqual([
+      "tool-run",
+      "tool-download",
+    ]);
   });
 
-  test("returns an empty array when message or parts is undefined", () => {
+  test("returns empty array for undefined or no tool parts", () => {
     expect(getToolInvocations(undefined)).toEqual([]);
-
-    // Cast through unknown so that MessageStrict with undefined parts compiles
-    const msgNoParts = { parts: undefined } as unknown as MessageStrict;
-    expect(getToolInvocations(msgNoParts)).toEqual([]);
+    expect(
+      getToolInvocations({ parts: [{ type: "text", text: "x" }] } as any),
+    ).toEqual([]);
   });
 });
+
 describe("getStorageID", () => {
-  test("extracts a single storage_id from a JSON string", () => {
-    const toolCall = {
-      type: "tool-invocation",
-      toolInvocation: {
-        state: "result",
-        result: JSON.stringify({ storage_id: "abc-123" }),
-      },
-    } as ToolInvocationUIPart;
-
-    const ids = getStorageID(toolCall);
-    expect(ids).toEqual(["abc-123"]);
-  });
-
-  test("extracts multiple storage_ids from an object", () => {
-    const toolCall = {
-      type: "tool-invocation",
-      toolInvocation: {
-        state: "result",
-        result: { storage_id: ["id1", "id2"] },
-      },
-    } as ToolInvocationUIPart;
-
-    const ids = getStorageID(toolCall);
+  test("returns storage ids when output is an object with storage_id array", () => {
+    const toolCall: Part = {
+      type: "tool-upload",
+      state: "output-available",
+      output: { storage_id: ["id1", "id2"] },
+    };
+    const ids = getStorageID(toolCall as any);
     expect(ids).toEqual(["id1", "id2"]);
   });
 
-  test("returns an empty array if result is invalid JSON string", () => {
-    const toolCall = {
-      type: "tool-invocation",
-      toolInvocation: {
-        state: "result",
-        result: "not json",
-      },
-    } as ToolInvocationUIPart;
-
-    const ids = getStorageID(toolCall);
-    expect(ids).toEqual([]);
+  test("returns single storage id when output.storage_id is a string", () => {
+    const toolCall: Part = {
+      type: "tool-upload",
+      state: "output-available",
+      output: { storage_id: "single-id" },
+    };
+    const ids = getStorageID(toolCall as any);
+    expect(ids).toEqual(["single-id"]);
   });
 
-  test("returns an empty array if storage_id is missing", () => {
-    const toolCall = {
-      type: "tool-invocation",
-      toolInvocation: {
-        state: "result",
-        result: { some_other_field: "value" },
-      },
-    } as ToolInvocationUIPart;
-
-    const ids = getStorageID(toolCall);
-    expect(ids).toEqual([]);
+  test("parses a JSON-string output and extracts storage_id", () => {
+    const toolCall: Part = {
+      type: "tool-upload",
+      state: "output-available",
+      output: JSON.stringify({ storage_id: "str-id" }),
+    };
+    const ids = getStorageID(toolCall as any);
+    expect(ids).toEqual(["str-id"]);
   });
 
-  test("returns empty array if toolCall is undefined", () => {
-    const ids = getStorageID(undefined);
-    expect(ids).toEqual([]);
-  });
+  test("returns empty array when not output-available or missing storage_id", () => {
+    const wrongState: Part = {
+      type: "tool-upload",
+      state: "running",
+      output: { storage_id: "x" },
+    };
+    expect(getStorageID(wrongState as any)).toEqual([]);
 
-  test("returns empty array if type is not 'tool-invocation'", () => {
-    const toolCall = {
-      type: "not-a-tool-invocation",
-      toolInvocation: {
-        state: "result",
-        result: { storage_id: "abc-123" },
-      },
-    } as unknown as ToolInvocationUIPart;
+    const noStorageField: Part = {
+      type: "tool-upload",
+      state: "output-available",
+      output: { foo: "bar" },
+    };
+    expect(getStorageID(noStorageField as any)).toEqual([]);
 
-    const ids = getStorageID(toolCall);
-    expect(ids).toEqual([]);
+    const invalidJsonOutput: Part = {
+      type: "tool-upload",
+      state: "output-available",
+      output: "{ not valid json",
+    };
+    // safeParse will return original string which doesn't have storage_id, so result is []
+    expect(getStorageID(invalidJsonOutput as any)).toEqual([]);
   });
 });
 
 describe("getValidationStatus", () => {
-  let annotations: Annotation[];
-
-  beforeEach(() => {
-    annotations = [
-      { toolCallId: "toolA", validated: "accepted" } as Annotation,
-      { toolCallId: "toolB", validated: "rejected" } as Annotation,
-    ];
+  test("returns validated status for a matching toolCallId", () => {
+    const metadata = {
+      toolCalls: [
+        { toolCallId: "a", validated: true },
+        { toolCallId: "b", validated: false },
+      ],
+    };
+    expect(getValidationStatus(metadata as any, "a")).toBe(true);
+    expect(getValidationStatus(metadata as any, "b")).toBe(false);
   });
 
-  test("returns the correct validated value when annotation is found", () => {
-    expect(getValidationStatus(annotations, "toolA")).toBe("accepted");
-    expect(getValidationStatus(annotations, "toolB")).toBe("rejected");
-  });
-
-  test("returns undefined when annotation with given toolCallId does not exist", () => {
-    expect(getValidationStatus(annotations, "nonexistent")).toBeUndefined();
-  });
-
-  test("returns undefined when annotations array is undefined", () => {
-    expect(getValidationStatus(undefined, "toolA")).toBeUndefined();
+  test("returns undefined when not found", () => {
+    const metadata = { toolCalls: [{ toolCallId: "x", validated: true }] };
+    expect(getValidationStatus(metadata as any, "nope")).toBeUndefined();
+    expect(getValidationStatus(undefined as any, "nope")).toBeUndefined();
   });
 });
 
-describe("getStoppedStatus", () => {
-  let annotations: Annotation[];
-
-  beforeEach(() => {
-    annotations = [
-      { toolCallId: "tool1", isComplete: false } as Annotation,
-      { toolCallId: "tool2", isComplete: true } as Annotation,
-    ];
+describe("lastAssistantHasAllToolOutputs", () => {
+  test("returns false for invalid messages shape", () => {
+    // Not an array
+    // @ts-expect-error : since it is not an array, needed.
+    expect(lastAssistantHasAllToolOutputs({ messages: null })).toBe(false);
   });
 
-  test("returns true when annotation.isComplete is false", () => {
-    expect(getStoppedStatus(annotations, "tool1")).toBe(true);
+  test("returns false if last message is not assistant", () => {
+    const useChatReturn = {
+      messages: [
+        {
+          role: "user",
+          parts: [{ type: "tool-a", state: "output-available", output: {} }],
+        },
+      ],
+    };
+    expect(lastAssistantHasAllToolOutputs(useChatReturn as any)).toBe(false);
   });
 
-  test("returns false when annotation.isComplete is true", () => {
-    expect(getStoppedStatus(annotations, "tool2")).toBe(false);
+  test("returns false if last assistant message has trailing text", () => {
+    const useChatReturn = {
+      messages: [
+        {
+          role: "assistant",
+          parts: [{ type: "text", text: "I am thinking..." }],
+        },
+      ],
+    };
+    expect(lastAssistantHasAllToolOutputs(useChatReturn as any)).toBe(false);
   });
 
-  test("returns false when annotation is missing (undefined)", () => {
-    expect(getStoppedStatus(annotations, "missingTool")).toBe(false);
+  test("returns false if there are no tool parts", () => {
+    const useChatReturn = {
+      messages: [
+        { role: "assistant", parts: [{ type: "something", text: "" }] },
+      ],
+    };
+    expect(lastAssistantHasAllToolOutputs(useChatReturn as any)).toBe(false);
   });
 
-  test("returns false when annotations array is undefined", () => {
-    expect(getStoppedStatus(undefined, "tool1")).toBe(false);
+  test("returns true when last assistant message has only tool parts and all have outputs or output-available state", () => {
+    const useChatReturn = {
+      messages: [
+        {
+          role: "assistant",
+          parts: [
+            { type: "tool-a", state: "output-available", output: { foo: 1 } },
+            { type: "tool-b", state: "output-available", output: "ok" },
+          ],
+        },
+      ],
+    };
+    expect(lastAssistantHasAllToolOutputs(useChatReturn as any)).toBe(true);
+  });
+
+  test("returns true if parts have no 'state' but have truthy output", () => {
+    const useChatReturn = {
+      messages: [
+        {
+          role: "assistant",
+          parts: [{ type: "tool-x", output: { something: 1 } }],
+        },
+      ],
+    };
+    expect(lastAssistantHasAllToolOutputs(useChatReturn as any)).toBe(true);
+  });
+
+  test("returns false if any tool part lacks output and is not output-available", () => {
+    const useChatReturn = {
+      messages: [
+        {
+          role: "assistant",
+          parts: [
+            { type: "tool-a", state: "output-available", output: { ok: true } },
+            { type: "tool-b", state: "running" }, // missing output
+          ],
+        },
+      ],
+    };
+    expect(lastAssistantHasAllToolOutputs(useChatReturn as any)).toBe(false);
   });
 });

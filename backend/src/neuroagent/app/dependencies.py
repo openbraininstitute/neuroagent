@@ -106,6 +106,7 @@ from neuroagent.tools import (
     StrainGetOneTool,
     SubjectGetAllTool,
     SubjectGetOneTool,
+    WeatherTool,
 )
 from neuroagent.tools.base_tool import BaseTool
 
@@ -458,7 +459,8 @@ def get_tool_list(
         SubjectGetOneTool,
         RunPythonTool,
         # NowTool,
-        # WeatherTool,
+        WeatherTool,
+        # RandomPlotGeneratorTool,
     ]
 
     all_tools = internal_tool_list + mcp_tool_list

@@ -7,23 +7,19 @@ from uuid import UUID
 from pydantic import AwareDatetime, BaseModel, ConfigDict, Field, conlist
 
 
-class ToolCallVercel(BaseModel):
+class ToolCallPartVercel(BaseModel):
     """Tool call in Vercel format."""
 
+    # The tool name is included in the type:  'tool-{you_name}'"
+    type: str = Field(pattern=r"^tool-.+$")
     toolCallId: str
-    toolName: str
-    args: dict[str, Any]
-    state: Literal["partial-call", "call", "result"]
-    result: str | None = None
+    state: Literal[
+        "input-streaming", "input-available", "output-available", "output-error"
+    ]
+    input: dict[str, Any]
+    output: str | None = None
 
     model_config = ConfigDict(extra="ignore")
-
-
-class ToolCallPartVercel(BaseModel):
-    """Tool call part from Vercel."""
-
-    type: Literal["tool-invocation"] = "tool-invocation"
-    toolInvocation: ToolCallVercel
 
 
 class TextPartVercel(BaseModel):
@@ -37,22 +33,21 @@ class ReasoningPartVercel(BaseModel):
     """Text part of Vercel."""
 
     type: Literal["reasoning"] = "reasoning"
-    reasoning: str
+    text: str
 
 
-class AnnotationMessageVercel(BaseModel):
-    """Annotation of vercel messages."""
-
-    messageId: UUID
-    isComplete: bool
-
-
-class AnnotationToolCallVercel(BaseModel):
+class MetadataToolCallVercel(BaseModel):
     """Annotation of vercel tool calls."""
 
     toolCallId: str
     validated: Literal["accepted", "rejected", "not_required", "pending"]
     isComplete: bool
+
+
+class ToolMetadataDict(BaseModel):
+    """Dict for HIL Annotations."""
+
+    toolCalls: list[MetadataToolCallVercel]
 
 
 class ToolCall(BaseModel):
@@ -77,9 +72,9 @@ class MessagesReadVercel(BaseRead):
     id: UUID
     role: str
     createdAt: AwareDatetime
-    content: str
+    isComplete: bool
     parts: list[ToolCallPartVercel | TextPartVercel | ReasoningPartVercel] | None = None
-    annotations: list[AnnotationMessageVercel | AnnotationToolCallVercel] | None = None
+    metadata: ToolMetadataDict | None = None
 
 
 class MessagesRead(BaseRead):

@@ -1,7 +1,11 @@
 import { ReactElement } from "react";
 import { Check, X, Loader2, AlertCircle } from "lucide-react";
 
-export type ToolState = "call" | "result" | "partial-call";
+export type ToolState =
+  | "input-streaming"
+  | "input-available"
+  | "output-available"
+  | "output-error";
 export type ValidationStatus =
   | "pending"
   | "accepted"
@@ -23,11 +27,11 @@ export function ToolStatusBadge({
 }: ToolStatusBadgeProps): ReactElement {
   const getStatusIcon = (): ReactElement => {
     if (stopped) return <X className="m-1 h-3 w-3" />;
-    if (state === "result") {
+    if (state === "output-available") {
       if (validated === "rejected") return <X className="m-1 h-3 w-3" />;
       return <Check className="m-1 h-3 w-3" />;
     }
-    if (state === "call") {
+    if (state === "input-available") {
       if (validated === "pending")
         return <AlertCircle className="m-1 h-5 w-5" />;
       if (validated === "accepted")
@@ -41,12 +45,12 @@ export function ToolStatusBadge({
     if (stopped) {
       return "text-red-700 bg-red-200 hover:bg-red-300 dark:text-red-200 dark:bg-red-800/90 dark:hover:bg-red-700/90";
     }
-    if (state === "result") {
+    if (state === "output-available") {
       if (validated === "rejected")
         return "text-red-700 bg-red-200 hover:bg-red-300 dark:text-red-200 dark:bg-red-800/90 dark:hover:bg-red-700/90";
       return "text-green-800 bg-green-200 hover:bg-green-300 dark:text-green-200 dark:bg-green-800/90 dark:hover:bg-green-700/90";
     }
-    if (state === "call") {
+    if (state === "input-available") {
       if (validated === "pending")
         return "text-orange-700 hover:bg-orange-300 dark:text-orange-200 dark:hover:bg-orange-700/90";
       if (validated === "accepted")
@@ -61,11 +65,11 @@ export function ToolStatusBadge({
     if (stopped) {
       return "Stopped";
     }
-    if (state === "result") {
+    if (state === "output-available") {
       if (validated === "rejected") return "Rejected";
       return "Executed";
     }
-    if (state === "call") {
+    if (state === "input-available") {
       if (validated === "pending") return "Running";
       if (validated === "accepted") return "Validated";
       if (validated === "rejected") return "Rejected";
