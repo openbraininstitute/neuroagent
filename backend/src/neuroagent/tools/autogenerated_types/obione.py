@@ -962,6 +962,20 @@ class PathDistanceMorphologyLocations(BaseModel):
     )
 
 
+class Duration5(RootModel[float]):
+    root: float = Field(
+        ...,
+        description='Time duration in milliseconds for how long input is activated.',
+        ge=0.0,
+        le=5000.0,
+        title='Duration',
+    )
+
+
+class DurationItem5(RootModel[float]):
+    root: float = Field(..., ge=0.0, le=5000.0)
+
+
 class Frequency1(RootModel[float]):
     root: float = Field(
         ...,
@@ -1213,6 +1227,14 @@ class RegularTimestamps(BaseModel):
         description='Number of timestamps to generate.',
         title='Number Of Repetitions',
     )
+
+
+class Duration6(Duration):
+    pass
+
+
+class DurationItem6(DurationItem):
+    pass
 
 
 class PercentageOfThresholdCurrent(RootModel[float]):
@@ -1552,6 +1574,65 @@ class DtItem(RootModel[float]):
     root: float = Field(..., ge=0.025)
 
 
+class Duration10(RootModel[float]):
+    root: float = Field(
+        ...,
+        description='Time duration of the stimulus in milliseconds.',
+        ge=0.0,
+        le=5000.0,
+        title='Duration',
+    )
+
+
+class DurationItem10(DurationItem5):
+    pass
+
+
+class MinimumRate(RootModel[float]):
+    root: float = Field(
+        ...,
+        description='Minimum rate of the stimulus in Hz.\n Must be less than the Maximum Rate.',
+        ge=1e-05,
+        gt=0.0,
+        le=50.0,
+        title='Minimum Rate',
+    )
+
+
+class MinimumRateItem(RootModel[float]):
+    root: float = Field(..., ge=1e-05, gt=0.0, le=50.0)
+
+
+class MaximumRate(RootModel[float]):
+    root: float = Field(
+        ...,
+        description='Maximum rate of the stimulus in Hz. Must be greater than or equal to Minimum Rate.',
+        ge=1e-05,
+        gt=0.0,
+        le=50.0,
+        title='Maximum Rate',
+    )
+
+
+class MaximumRateItem(MinimumRateItem):
+    pass
+
+
+class ModulationFrequencyHz(RootModel[float]):
+    root: float = Field(
+        ...,
+        description='Frequency (Hz) of the sinusoidal modulation of the rate.',
+        ge=1e-05,
+        gt=0.0,
+        le=100000.0,
+        title='Modulation Frequency',
+    )
+
+
+class ModulationFrequencyHzItem(RootModel[float]):
+    root: float = Field(..., ge=1e-05, gt=0.0, le=100000.0)
+
+
 class Dt1(RootModel[float]):
     root: float = Field(
         ...,
@@ -1618,6 +1699,14 @@ class SubjectID(BaseModel):
     )
     type: Literal['SubjectID'] = Field(..., title='Type')
     subject_id: UUID | None = Field(default=None, title='Subject Id')
+
+
+class Duration11(Duration):
+    pass
+
+
+class DurationItem11(DurationItem):
+    pass
 
 
 class MagnesiumValue(RootModel[float]):
@@ -3113,7 +3202,7 @@ class PoissonSpikeStimulus(BaseModel):
         description='The offset of the stimulus relative to each timestamp in milliseconds (ms).',
         title='Timestamp Offset',
     )
-    duration: Duration | list[DurationItem] = Field(
+    duration: Duration5 | list[DurationItem5] = Field(
         default=200.0,
         description='Time duration in milliseconds for how long input is activated.',
         title='Duration',
@@ -3144,7 +3233,7 @@ class RelativeConstantCurrentClampSomaticStimulus(BaseModel):
         description='The offset of the stimulus relative to each timestamp in milliseconds (ms).',
         title='Timestamp Offset',
     )
-    duration: Duration | list[DurationItem] = Field(
+    duration: Duration6 | list[DurationItem6] = Field(
         default=200.0,
         description='Time duration in milliseconds for how long input is activated.',
         title='Duration',
@@ -3172,7 +3261,7 @@ class RelativeLinearCurrentClampSomaticStimulus(BaseModel):
         description='The offset of the stimulus relative to each timestamp in milliseconds (ms).',
         title='Timestamp Offset',
     )
-    duration: Duration | list[DurationItem] = Field(
+    duration: Duration6 | list[DurationItem6] = Field(
         default=200.0,
         description='Time duration in milliseconds for how long input is activated.',
         title='Duration',
@@ -3207,7 +3296,7 @@ class RelativeNormallyDistributedCurrentClampSomaticStimulus(BaseModel):
         description='The offset of the stimulus relative to each timestamp in milliseconds (ms).',
         title='Timestamp Offset',
     )
-    duration: Duration | list[DurationItem] = Field(
+    duration: Duration6 | list[DurationItem6] = Field(
         default=200.0,
         description='Time duration in milliseconds for how long input is activated.',
         title='Duration',
@@ -3238,7 +3327,7 @@ class SinusoidalCurrentClampSomaticStimulus(BaseModel):
         description='The offset of the stimulus relative to each timestamp in milliseconds (ms).',
         title='Timestamp Offset',
     )
-    duration: Duration | list[DurationItem] = Field(
+    duration: Duration6 | list[DurationItem6] = Field(
         default=200.0,
         description='Time duration in milliseconds for how long input is activated.',
         title='Duration',
@@ -3260,6 +3349,53 @@ class SinusoidalCurrentClampSomaticStimulus(BaseModel):
     )
 
 
+class SinusoidalPoissonSpikeStimulus(BaseModel):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    type: Literal['SinusoidalPoissonSpikeStimulus'] = Field(..., title='Type')
+    timestamps: TimestampsReference | None = None
+    source_neuron_set: NeuronSetReference | None = None
+    targeted_neuron_set: NeuronSetReference | None = None
+    timestamp_offset: float | list[float] | None = Field(
+        default=0.0,
+        description='The offset of the stimulus relative to each timestamp in milliseconds (ms).',
+        title='Timestamp Offset',
+    )
+    duration: Duration10 | list[DurationItem10] = Field(
+        default=200.0,
+        description='Time duration of the stimulus in milliseconds.',
+        title='Duration',
+    )
+    minimum_rate: MinimumRate | list[MinimumRateItem] = Field(
+        default='1e-05',
+        description='Minimum rate of the stimulus in Hz.\n Must be less than the Maximum Rate.',
+        title='Minimum Rate',
+    )
+    maximum_rate: MaximumRate | list[MaximumRateItem] = Field(
+        default=10.0,
+        description='Maximum rate of the stimulus in Hz. Must be greater than or equal to Minimum Rate.',
+        title='Maximum Rate',
+    )
+    modulation_frequency_hz: ModulationFrequencyHz | list[ModulationFrequencyHzItem] = (
+        Field(
+            default=5.0,
+            description='Frequency (Hz) of the sinusoidal modulation of the rate.',
+            title='Modulation Frequency',
+        )
+    )
+    phase_degrees: float | list[float] = Field(
+        default=0.0,
+        description='Phase offset (degrees) of the sinusoid.',
+        title='Phase Offset',
+    )
+    random_seed: int | list[int] = Field(
+        default=0,
+        description='Seed for the random number generator to ensure reproducibility.',
+        title='Random Seed',
+    )
+
+
 class SubthresholdCurrentClampSomaticStimulus(BaseModel):
     model_config = ConfigDict(
         extra='ignore',
@@ -3272,7 +3408,7 @@ class SubthresholdCurrentClampSomaticStimulus(BaseModel):
         description='The offset of the stimulus relative to each timestamp in milliseconds (ms).',
         title='Timestamp Offset',
     )
-    duration: Duration | list[DurationItem] = Field(
+    duration: Duration11 | list[DurationItem11] = Field(
         default=200.0,
         description='Time duration in milliseconds for how long input is activated.',
         title='Duration',
@@ -3367,7 +3503,8 @@ class CircuitSimulationScanConfig(BaseModel):
             | SinusoidalCurrentClampSomaticStimulus
             | SubthresholdCurrentClampSomaticStimulus
             | PoissonSpikeStimulus
-            | FullySynchronousSpikeStimulus,
+            | FullySynchronousSpikeStimulus
+            | SinusoidalPoissonSpikeStimulus,
         ]
         | None
     ) = Field(default=None, description='Stimuli for the simulation.', title='Stimuli')
@@ -3456,7 +3593,8 @@ class MEModelWithSynapsesCircuitSimulationScanConfig(BaseModel):
             | SinusoidalCurrentClampSomaticStimulus
             | SubthresholdCurrentClampSomaticStimulus
             | PoissonSpikeStimulus
-            | FullySynchronousSpikeStimulus,
+            | FullySynchronousSpikeStimulus
+            | SinusoidalPoissonSpikeStimulus,
         ]
         | None
     ) = Field(default=None, description='Stimuli for the simulation.', title='Stimuli')
@@ -3514,7 +3652,8 @@ class SimulationsForm(BaseModel):
             | SinusoidalCurrentClampSomaticStimulus
             | SubthresholdCurrentClampSomaticStimulus
             | PoissonSpikeStimulus
-            | FullySynchronousSpikeStimulus,
+            | FullySynchronousSpikeStimulus
+            | SinusoidalPoissonSpikeStimulus,
         ]
         | None
     ) = Field(default=None, description='Stimuli for the simulation.', title='Stimuli')
