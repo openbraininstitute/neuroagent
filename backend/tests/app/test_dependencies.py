@@ -83,16 +83,22 @@ def test_get_connection_string_full(monkeypatch):
     )
 
 
-def test_get_starting_agent(get_weather_tool):
+@pytest.mark.asyncio
+async def test_get_starting_agent(get_weather_tool):
     test_settings = Settings()
-    agent = get_starting_agent(
-        tool_list=[get_weather_tool],
+    agent = await get_starting_agent(
+        tool_list_model_reasoning=(
+            [get_weather_tool],
+            {"model": "gpt-4o-mini", "reasoning": "none"},
+        ),
         system_prompt="Test prompt",
         settings=test_settings,
     )
 
     assert isinstance(agent, Agent)
     assert agent.tools == [get_weather_tool]
+    assert agent.model == "gpt-4o-mini"
+    assert agent.reasoning == "none"
 
 
 @pytest.mark.asyncio

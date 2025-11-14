@@ -20,7 +20,10 @@ from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession
 from starlette.status import HTTP_401_UNAUTHORIZED
 
 from neuroagent.agent_routine import AgentsRoutine
-from neuroagent.app.app_utils import filter_tools_by_conversation, validate_project
+from neuroagent.app.app_utils import (
+    filter_tools_and_model_by_conversation,
+    validate_project,
+)
 from neuroagent.app.config import Settings
 from neuroagent.app.database.sql_schemas import Entity, Messages, Threads
 from neuroagent.app.schemas import OpenRouterModelResponse, UserInfo
@@ -498,10 +501,16 @@ async def filtered_tools(
     tool_list: Annotated[list[type[BaseTool]], Depends(get_selected_tools)],
     openai_client: Annotated[AsyncOpenAI, Depends(get_openrouter_client)],
     settings: Annotated[Settings, Depends(get_settings)],
-) -> list[type[BaseTool]]:
+    filtered_models: Annotated[
+        list[OpenRouterModelResponse], Depends(get_openrouter_models)
+    ],
+) -> tuple[list[type[BaseTool]], dict[str, str | None]]:
     """Based on the current conversation, select relevant tools."""
     if request.method == "GET":
-        return tool_list
+        return tool_list, {
+            "model": settings.llm.default_chat_model,
+            "reasoning": settings.llm.default_chat_reasoning,
+        }
 
     body = await request.json()
 
@@ -521,14 +530,27 @@ async def filtered_tools(
             )
         )
 
-        if not tool_list:
-            return []
+        # If the user chosed the auto model, routing is done automatically
+        if body.get("model") is None or body.get("model") == "auto":
+            selected_model = None
 
-        return await filter_tools_by_conversation(
+        # Else, check that the requested model is authorized and use it
+        else:
+            if body["model"] in [model.id for model in filtered_models]:
+                selected_model = body["model"]
+                logger.info(f"Loading model {selected_model}.")
+            else:
+                raise HTTPException(
+                    status_code=404,
+                    detail={"error": f"Model {body['model']} not found."},
+                )
+
+        return await filter_tools_and_model_by_conversation(
             messages=messages,
             tool_list=tool_list,
             openai_client=openai_client,
-            min_tool_selection=settings.tools.min_tool_selection,
+            settings=settings,
+            selected_model=selected_model,
         )
 
     # HIL
@@ -541,7 +563,15 @@ async def filtered_tools(
             selected.tool_name
             for selected in await last_user_message.awaitable_attrs.tool_selection
         ]
-        return [tool for tool in tool_list if tool.name in previously_selected_tools]
+        previous_model_and_reasoning: dict[str, str | None] = {
+            "model": last_user_message.model_selection.model,
+            "reasoning": last_user_message.model_selection.reasoning.value
+            if last_user_message.model_selection.reasoning
+            else None,
+        }
+        return [
+            tool for tool in tool_list if tool.name in previously_selected_tools
+        ], previous_model_and_reasoning
 
 
 @cache
@@ -609,8 +639,10 @@ Current time: {datetime.now(timezone.utc).isoformat()}"""
     return system_prompt
 
 
-def get_starting_agent(
-    tool_list: Annotated[list[type[BaseTool]], Depends(filtered_tools)],
+async def get_starting_agent(
+    tool_list_model_reasoning: Annotated[
+        tuple[list[type[BaseTool]], dict[str, str | None]], Depends(filtered_tools)
+    ],
     system_prompt: Annotated[str, Depends(get_system_prompt)],
     settings: Annotated[Settings, Depends(get_settings)],
 ) -> Agent:
@@ -618,9 +650,12 @@ def get_starting_agent(
     agent = Agent(
         name="Agent",
         instructions=system_prompt,
-        tools=tool_list,
+        tools=tool_list_model_reasoning[0],
+        model=tool_list_model_reasoning[1]["model"],  # type: ignore
+        reasoning=tool_list_model_reasoning[1].get("reasoning"),
         temperature=settings.llm.temperature,
     )
+
     return agent
 
 
