@@ -153,7 +153,7 @@ class WasmExecutor:
         return False
 
     async def run_code(
-        self, code: str, globals: dict[str, Any] | None
+        self, code: str, globals: dict[str, Any] | None = None
     ) -> SuccessOutput | FailureOutput:
         """
         Execute Python code in the Pyodide environment and return the result.

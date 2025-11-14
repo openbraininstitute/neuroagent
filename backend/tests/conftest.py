@@ -275,25 +275,25 @@ async def populate_db(db_connection, test_user_info):
     messages = [
         Messages(
             entity=Entity.USER,
-            content=json.dumps({"content": "This is my query."}),
+            content={"content": "This is my query."},
             thread=thread,
             is_complete=True,
         ),
         Messages(
             entity=Entity.AI_TOOL,
-            content=json.dumps({"content": ""}),
+            content={"content": ""},
             thread=thread,
             is_complete=True,
         ),
         Messages(
             entity=Entity.TOOL,
-            content=json.dumps({"content": "It's sunny today."}),
+            content={"content": "It's sunny today."},
             thread=thread,
             is_complete=True,
         ),
         Messages(
             entity=Entity.AI_MESSAGE,
-            content=json.dumps({"content": "sample response content."}),
+            content={"content": "sample response content."},
             thread=thread,
             is_complete=True,
         ),

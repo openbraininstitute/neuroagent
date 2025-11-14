@@ -145,15 +145,15 @@ class TestAgentsRoutine:
         routine = AgentsRoutine(client=mock_openai_client)
 
         # Raw result is already a result
-        raw_result = Result(value="Nice weather")
-        result = routine.handle_function_result(raw_result)
+        raw_result = Result(value={"1234": "Nice weather"})
+        result = routine.handle_function_result(raw_result, tool_call_id="1234")
         assert result == raw_result
 
         # Raw result is an agent for handoff
         raw_result = Agent(name="Test agent 2")
-        result = routine.handle_function_result(raw_result)
+        result = routine.handle_function_result(raw_result, tool_call_id="1234")
         assert result == Result(
-            value=json.dumps({"assistant": raw_result.name}), agent=raw_result
+            value={"1234": {"assistant": raw_result.name}}, agent=raw_result
         )
 
         # Raw result is a tool output (BaseModel)
@@ -163,8 +163,8 @@ class TestAgentsRoutine:
 
         raw_result = FakeOutput(result_1="Great result", result_2="Bad result")
 
-        result = routine.handle_function_result(raw_result)
-        assert result == Result(value=raw_result.model_dump_json())
+        result = routine.handle_function_result(raw_result, tool_call_id="1234")
+        assert result == Result(value={"1234": raw_result.model_dump()})
 
         # Errors
         with pytest.raises(TypeError):
@@ -220,7 +220,13 @@ class TestAgentsRoutine:
                 "role": "tool",
                 "tool_call_id": tool_calls[0].id,
                 "tool_name": "get_weather",
-                "content": '{"output":{"param":"It\'s sunny today."}}',
+                "content": {
+                    "mock_tc_id": {
+                        "output": {
+                            "param": "It's sunny today.",
+                        },
+                    },
+                },
             }
         ]
         assert tool_calls_result.agent is None
@@ -271,13 +277,25 @@ class TestAgentsRoutine:
                 "role": "tool",
                 "tool_call_id": tool_calls[0].id,
                 "tool_name": "get_weather",
-                "content": '{"output":{"param":"It\'s sunny today in Geneva from planet Earth."}}',
+                "content": {
+                    "mock_tc_id": {
+                        "output": {
+                            "param": "It's sunny today in Geneva from planet Earth."
+                        }
+                    }
+                },
             },
             {
                 "role": "tool",
                 "tool_call_id": tool_calls[1].id,
                 "tool_name": "get_weather",
-                "content": '{"output":{"param":"It\'s sunny today in Lausanne from planet Earth."}}',
+                "content": {
+                    "mock_tc_id": {
+                        "output": {
+                            "param": "It's sunny today in Lausanne from planet Earth."
+                        }
+                    }
+                },
             },
         ]
         assert tool_calls_result.agent is None
@@ -328,7 +346,7 @@ class TestAgentsRoutine:
                 "role": "tool",
                 "tool_call_id": tool_calls[0].id,
                 "tool_name": "agent_handoff_tool",
-                "content": json.dumps({"assistant": agent_2.name}),
+                "content": {"mock_tc_id": {"assistant": agent_2.name}},
             }
         ]
         assert tool_calls_result.agent == agent_2
@@ -374,7 +392,7 @@ class TestAgentsRoutine:
                 "role": "tool",
                 "tool_call_id": tool_call.id,
                 "tool_name": "get_weather",
-                "content": '{"output":{"param":"It\'s sunny today."}}',
+                "content": {"mock_tc_id": {"output": {"param": "It's sunny today."}}},
             },
             None,
         )
@@ -419,7 +437,13 @@ class TestAgentsRoutine:
                 "role": "tool",
                 "tool_call_id": tool_call.id,
                 "tool_name": "get_weather",
-                "content": '{"output":{"param":"It\'s sunny today in Geneva from planet Earth."}}',
+                "content": {
+                    "mock_tc_id": {
+                        "output": {
+                            "param": "It's sunny today in Geneva from planet Earth."
+                        }
+                    }
+                },
             },
             None,
         )
@@ -465,7 +489,7 @@ class TestAgentsRoutine:
                 "role": "tool",
                 "tool_call_id": tool_call.id,
                 "tool_name": "agent_handoff_tool",
-                "content": json.dumps({"assistant": agent_2.name}),
+                "content": {"mock_tc_id": {"assistant": agent_2.name}},
             },
             agent_2,
         )
@@ -481,16 +505,14 @@ class TestAgentsRoutine:
             Messages(
                 thread_id="fake_id",
                 entity=Entity.USER,
-                content=json.dumps(
-                    {
+                content={
+                    "role": "user",
+                    "content": {
                         "role": "user",
-                        "content": {
-                            "role": "user",
-                            "content": "What's the weather like in San Francisco?",
-                        },
-                    }
-                ),
-            )
+                        "content": "What's the weather like in San Francisco?",
+                    },
+                },
+            ),
         ]
         context_variables = {"to_agent": agent_2, "planet": "Mars"}
         routine = AgentsRoutine(client=mock_openai_client)

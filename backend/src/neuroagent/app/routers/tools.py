@@ -92,7 +92,7 @@ async def execute_tool_call(
     new_message = Messages(
         thread_id=thread_id,
         entity=Entity.TOOL,
-        content=json.dumps(message),
+        content=message,
         is_complete=True,
     )
 
@@ -100,7 +100,9 @@ async def execute_tool_call(
     session.add(new_message)
     await session.commit()
 
-    return ExecuteToolCallResponse(status="done", content=message["content"])
+    return ExecuteToolCallResponse(
+        status="done", content=json.dumps(message["content"])
+    )
 
 
 @router.get("")

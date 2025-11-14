@@ -1,0 +1,22 @@
+[
+  {
+    "name": "obione-morphometrics-getone",
+    "arguments": {
+      "morphology_id": "7e69531a-c976-4b4c-be44-881e5e3defdd",
+      "requested_metrics": ["section_lengths"]
+    }
+  },
+  {
+    "name": "run-python",
+    "arguments": {
+      "python_script": "import plotly.graph_objects as go\n\nfig = go.Figure()\nfig.add_trace(go.Histogram(x=section_lengths, nbinsx=30, name='Section Lengths'))\nfig.update_layout(\n    title='Distribution of Section Lengths',\n    xaxis_title='Section Length (μm)',\n    yaxis_title='Frequency'\n)\nfig.show()\n'plot_generated'",
+      "variables": [
+        {
+          "variable_name": "section_lengths",
+          "tool_call_id": "<morphometrics_tool_call_id>",
+          "jsonpath_reference": "$.*.section_lengths"
+        }
+      ]
+    }
+  }
+]

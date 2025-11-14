@@ -591,9 +591,76 @@ class TestWasmExecutor:
         executor = WasmExecutor(additional_imports=["numpy", "pandas"])
 
         formatted = executor.JS_CODE.format(
-            packages=["numpy", "pandas"], code=json.dumps("print('test')")
+            packages=["numpy", "pandas"],
+            code=json.dumps("print('test')"),
+            global_vars={},
         )
 
         assert "numpy" in formatted
         assert "pandas" in formatted
         assert "print('test')" in formatted
+
+    def test_js_code_format_with_global_vars(self):
+        """Test JS code can be formatted correctly with global_vars."""
+        executor = WasmExecutor(additional_imports=["numpy"])
+
+        global_vars = {"x": 42, "y": "test"}
+        formatted = executor.JS_CODE.format(
+            packages=["numpy"], code=json.dumps("print(x)"), global_vars=global_vars
+        )
+
+        assert "numpy" in formatted
+        assert "print(x)" in formatted
+        assert "global_var_dict = {'x': 42, 'y': 'test'}" in formatted
+
+    @patch("subprocess.run")
+    @patch("asyncio.create_subprocess_exec")
+    @patch("tempfile.TemporaryDirectory")
+    @patch("builtins.open", new_callable=mock_open)
+    @pytest.mark.asyncio
+    async def test_run_code_with_global_vars(
+        self, mock_file, mock_tempdir, mock_create_subproc_exec, mock_run
+    ):
+        """Test that global vars are accessible in the runtime."""
+        mock_tempdir_instance = Mock()
+        mock_tempdir_instance.__enter__ = Mock(return_value="/tmp/test_dir")
+        mock_tempdir_instance.__exit__ = Mock(return_value=None)
+        mock_tempdir.return_value = mock_tempdir_instance
+
+        mock_stdout_lines = [
+            json.dumps(
+                {
+                    "output": ["42", "test"],
+                    "return_value": None,
+                    "error": None,
+                }
+            ).encode(),
+        ]
+
+        mock_stdout_data = b"\n".join(mock_stdout_lines)
+        chunks = [
+            mock_stdout_data[i : i + 4096]
+            for i in range(0, len(mock_stdout_data), 4096)
+        ]
+        chunk_iter = iter(chunks + [b""])
+
+        async def mock_read(size):
+            return next(chunk_iter)
+
+        mock_stdout = Mock()
+        mock_stdout.read = mock_read
+        mock_process = AsyncMock()
+        mock_stderr = Mock()
+        mock_stderr.read = AsyncMock(return_value=b"")
+        mock_process.stdout = mock_stdout
+        mock_process.stderr = mock_stderr
+        mock_process.wait = AsyncMock(return_value=None)
+        mock_create_subproc_exec.return_value = mock_process
+
+        executor = WasmExecutor(additional_imports=[])
+        result = await executor.run_code(
+            "print(x)\nprint(y)", globals={"x": 42, "y": "test"}
+        )
+
+        assert isinstance(result, SuccessOutput)
+        assert result.output == ["42", "test"]
