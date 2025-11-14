@@ -117,8 +117,8 @@ class Messages(Base):
     tool_selection: Mapped[list["ToolSelection"]] = relationship(
         "ToolSelection", cascade="all, delete-orphan"
     )
-    model_selection: Mapped["ModelSelection"] = relationship(
-        "ModelSelection", cascade="all, delete-orphan"
+    model_selection: Mapped["ComplexityEstimation"] = relationship(
+        "ComplexityEstimation", cascade="all, delete-orphan"
     )
     token_consumption: Mapped[list["TokenConsumption"]] = relationship(
         "TokenConsumption", cascade="all, delete-orphan"
@@ -159,16 +159,17 @@ class ToolSelection(Base):
     )
 
 
-class ModelSelection(Base):
-    """SQL table used for storing the model selected for a query."""
+class ComplexityEstimation(Base):
+    """SQL table used for storing complexity estimation and underlying choices from a query."""
 
-    __tablename__ = "model_selection"
+    __tablename__ = "complexity_estimation"
     id: Mapped[uuid.UUID] = mapped_column(
         UUID, primary_key=True, default=lambda: uuid.uuid4()
     )
+    complexity: Mapped[int] = mapped_column(Integer, nullable=True)
     model: Mapped[str] = mapped_column(String, nullable=False)
     reasoning: Mapped[ReasoningLevels] = mapped_column(
-        Enum(ReasoningLevels), nullable=False
+        Enum(ReasoningLevels), nullable=True
     )
     message_id: Mapped[uuid.UUID] = mapped_column(
         UUID, ForeignKey("messages.message_id")

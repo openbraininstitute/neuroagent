@@ -75,7 +75,7 @@ class AgentsRoutine:
         }
         if stream:
             create_params["stream_options"] = {"include_usage": True}
-        if agent.reasoning != "none":
+        if agent.reasoning is not None:
             create_params["reasoning_effort"] = agent.reasoning
 
         if tools:

@@ -709,7 +709,7 @@ async def test_filter_tools_with_selected_model(get_weather_tool, agent_handoff_
     assert len(result) == 1
     assert result[0].name == "get_weather"
     assert model_dict["model"] == "openai/gpt-4"
-    assert model_dict["reasoning"] == "none"
+    assert model_dict["reasoning"] is None
 
 
 @pytest.mark.asyncio
@@ -736,7 +736,7 @@ async def test_filter_tools_no_selection_needed(get_weather_tool):
     assert len(result) == 1
     assert result[0].name == "get_weather"
     assert model_dict["model"] == "openai/gpt-4"
-    assert model_dict["reasoning"] == "none"
+    assert model_dict["reasoning"] is None
 
 
 @pytest.mark.asyncio

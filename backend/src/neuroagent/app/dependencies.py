@@ -504,7 +504,7 @@ async def filtered_tools(
     filtered_models: Annotated[
         list[OpenRouterModelResponse], Depends(get_openrouter_models)
     ],
-) -> tuple[list[type[BaseTool]], dict[str, str]]:
+) -> tuple[list[type[BaseTool]], dict[str, str | None]]:
     """Based on the current conversation, select relevant tools."""
     if request.method == "GET":
         return tool_list, {
@@ -563,9 +563,11 @@ async def filtered_tools(
             selected.tool_name
             for selected in await last_user_message.awaitable_attrs.tool_selection
         ]
-        previous_model_and_reasoning = {
+        previous_model_and_reasoning: dict[str, str | None] = {
             "model": last_user_message.model_selection.model,
-            "reasoning": last_user_message.model_selection.reasoning.value,
+            "reasoning": last_user_message.model_selection.reasoning.value
+            if last_user_message.model_selection.reasoning
+            else None,
         }
         return [
             tool for tool in tool_list if tool.name in previously_selected_tools
@@ -639,7 +641,7 @@ Current time: {datetime.now(timezone.utc).isoformat()}"""
 
 async def get_starting_agent(
     tool_list_model_reasoning: Annotated[
-        tuple[list[type[BaseTool]], dict[str, str]], Depends(filtered_tools)
+        tuple[list[type[BaseTool]], dict[str, str | None]], Depends(filtered_tools)
     ],
     system_prompt: Annotated[str, Depends(get_system_prompt)],
     settings: Annotated[Settings, Depends(get_settings)],
@@ -649,8 +651,8 @@ async def get_starting_agent(
         name="Agent",
         instructions=system_prompt,
         tools=tool_list_model_reasoning[0],
-        model=tool_list_model_reasoning[1]["model"],
-        reasoning=tool_list_model_reasoning[1]["reasoning"],
+        model=tool_list_model_reasoning[1]["model"],  # type: ignore
+        reasoning=tool_list_model_reasoning[1].get("reasoning"),
         temperature=settings.llm.temperature,
     )
 

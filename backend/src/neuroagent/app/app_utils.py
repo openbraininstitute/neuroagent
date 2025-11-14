@@ -16,9 +16,9 @@ from starlette.status import HTTP_401_UNAUTHORIZED
 
 from neuroagent.app.config import Settings
 from neuroagent.app.database.sql_schemas import (
+    ComplexityEstimation,
     Entity,
     Messages,
-    ModelSelection,
     ReasoningLevels,
     Task,
     Threads,
@@ -421,7 +421,7 @@ def parse_redis_data(
     )
 
 
-def complexity_to_model_and_reasoning(complexity: int) -> dict[str, str]:
+def complexity_to_model_and_reasoning(complexity: int) -> dict[str, str | None]:
     """Map complexity score to optimal model and reasoning effort.
 
     Parameters
@@ -437,7 +437,7 @@ def complexity_to_model_and_reasoning(complexity: int) -> dict[str, str]:
     if complexity <= 1:
         return {"model": "openai/gpt-5-nano", "reasoning": "minimal"}
     elif complexity <= 3:
-        return {"model": "openai/gpt-4.1-mini", "reasoning": "none"}
+        return {"model": "openai/gpt-4.1-mini", "reasoning": None}
     elif complexity <= 5:
         return {"model": "openai/gpt-5-mini", "reasoning": "low"}
     elif complexity <= 7:
@@ -454,26 +454,39 @@ async def filter_tools_and_model_by_conversation(
     openai_client: AsyncOpenAI,
     settings: Settings,
     selected_model: str | None = None,
-) -> tuple[list[type[BaseTool]], dict[str, str]]:
-    """
-    Filter tools based on conversation relevance.
+) -> tuple[list[type[BaseTool]], dict[str, str | None]]:
+    """Filter tools and select model based on conversation context and query complexity.
+
+    Uses an LLM to analyze the conversation history and determine which tools are relevant
+    and what model/reasoning level is appropriate. Performs tool selection when the number
+    of available tools exceeds the minimum threshold, and model selection when no model is
+    pre-selected. Updates the last message with selection metadata and token consumption.
 
     Parameters
     ----------
-    openai_messages:
-        List of OpenAI formatted messages
-    tool_list:
-        List of available tools
-    user_content:
-        Current user message content
-    openai_client:
-        OpenAI client instance
-    min_tool_selection:
-        Minimum numbers of tools the LLM should select
+    messages : list[Messages]
+        Conversation history as database message objects
+    tool_list : list[type[BaseTool]]
+        Available tools to filter from
+    openai_client : AsyncOpenAI
+        OpenAI client for making LLM requests
+    settings : Settings
+        Application settings containing tool and model configuration
+    selected_model : str | None, optional
+        Pre-selected model name. If provided, skips model selection
 
     Returns
     -------
-        List of filtered tools relevant to the conversation
+    tuple[list[type[BaseTool]], dict[str, str | None]]
+        Filtered tool list and dictionary with 'model' and 'reasoning' keys
+
+    Notes
+    -----
+    - Tool selection only occurs when len(tool_list) > settings.tools.min_tool_selection
+    - Model selection only occurs when selected_model is None
+    - Uses gemini-2.5-flash for the filtering/selection task
+    - Updates messages[-1] with tool_selection, model_selection, and token_consumption
+    - Falls back to defaults on errors: no tools and default model from settings
     """
     need_tool_selection = len(tool_list) > settings.tools.min_tool_selection
     need_model_selection = selected_model is None
@@ -482,10 +495,15 @@ async def filter_tools_and_model_by_conversation(
     if (
         not need_tool_selection and selected_model is not None
     ):  # for mypy we check selected_model not need_model_selection
-        model_reason_dict = {"model": selected_model, "reasoning": "none"}
-        messages[-1].model_selection = ModelSelection(
+        model_reason_dict = {
+            "model": selected_model,
+            "reasoning": None,
+        }  # TODO: chose reasoning effort in frontend
+        messages[-1].model_selection = ComplexityEstimation(
             model=model_reason_dict["model"],
-            reasoning=ReasoningLevels(model_reason_dict.get("reasoning", "none")),
+            reasoning=ReasoningLevels(model_reason_dict["reasoning"])
+            if model_reason_dict.get("reasoning")
+            else None,
         )
         return tool_list, model_reason_dict
 
@@ -588,11 +606,11 @@ AVAILABLE TOOLS:
 
             # Handle model selection
             if need_model_selection:
-                complexity = parsed.complexity
+                complexity: int | None = parsed.complexity
                 model_reason_dict = complexity_to_model_and_reasoning(complexity)
             else:
                 complexity = None
-                model_reason_dict = {"model": selected_model, "reasoning": "none"}
+                model_reason_dict = {"model": selected_model, "reasoning": None}
 
             logger.debug(
                 f"Query complexity: {complexity if complexity is not None else 'N/A'} / 10, selected model {model_reason_dict['model'].lstrip('openai/')} with reasoning effort {model_reason_dict.get('reasoning', 'N/A')}  #TOOLS: {len(filtered_tools)}, SELECTED TOOLS: {[t.name for t in filtered_tools]} in {(time.time() - start_request):.2f} s"
@@ -619,9 +637,9 @@ AVAILABLE TOOLS:
                 "model": selected_model
                 if selected_model
                 else settings.llm.default_chat_model,
-                "reasoning": settings.llm.default_chat_reasoning
-                if need_model_selection
-                else "none",
+                "reasoning": None
+                if selected_model
+                else settings.llm.default_chat_reasoning,
             }
 
     except Exception as e:
@@ -631,13 +649,16 @@ AVAILABLE TOOLS:
             "model": selected_model
             if selected_model
             else settings.llm.default_chat_model,
-            "reasoning": settings.llm.default_chat_reasoning
-            if need_model_selection
-            else "none",
+            "reasoning": None
+            if selected_model
+            else settings.llm.default_chat_reasoning,
         }
 
-    messages[-1].model_selection = ModelSelection(
+    messages[-1].model_selection = ComplexityEstimation(
+        complexity=complexity,
         model=model_reason_dict["model"],
-        reasoning=ReasoningLevels(model_reason_dict.get("reasoning", "none")),
+        reasoning=ReasoningLevels(model_reason_dict["reasoning"])
+        if model_reason_dict.get("reasoning")
+        else None,
     )
     return filtered_tools, model_reason_dict
