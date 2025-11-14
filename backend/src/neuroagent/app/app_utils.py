@@ -201,13 +201,13 @@ def format_messages_output(
     messages = []
     for msg in db_messages:
         # Create a clean dict without SQLAlchemy attributes
-        message_data = {
+        message_data: dict[str, Any] = {
             "message_id": msg.message_id,
             "entity": msg.entity.value,  # Convert enum to string
             "thread_id": msg.thread_id,
             "is_complete": msg.is_complete,
             "creation_date": msg.creation_date.isoformat(),  # Convert datetime to string
-            "msg_content": json.loads(msg.content),
+            "msg_content": msg.content,
         }
 
         # Map validation status based on tool requirements
@@ -257,15 +257,19 @@ def format_messages_vercel(
 
     for msg in reversed(db_messages):
         if msg.entity in [Entity.USER, Entity.AI_MESSAGE]:
-            content = json.loads(msg.content)
-            text_content = content.get("content")
-            reasoning_content = content.get("reasoning")
+            content = (
+                dict(msg.content) if isinstance(msg.content, dict) else msg.content
+            )
+            text_content = content.get("content") if isinstance(content, dict) else None
+            reasoning_content = (
+                content.get("reasoning") if isinstance(content, dict) else None
+            )
 
             # Optional reasoning
             if reasoning_content:
                 parts.append(ReasoningPartVercel(reasoning=reasoning_content))
 
-            message_data = {
+            message_data: dict[str, Any] = {
                 "id": msg.message_id,
                 "role": "user" if msg.entity == Entity.USER else "assistant",
                 "createdAt": msg.creation_date,
@@ -304,9 +308,13 @@ def format_messages_vercel(
 
         # Buffer tool calls until the next AI_MESSAGE
         elif msg.entity == Entity.AI_TOOL:
-            content = json.loads(msg.content)
-            text_content = content.get("content")
-            reasoning_content = content.get("reasoning")
+            content = (
+                dict(msg.content) if isinstance(msg.content, dict) else msg.content
+            )
+            text_content = content.get("content") if isinstance(content, dict) else None
+            reasoning_content = (
+                content.get("reasoning") if isinstance(content, dict) else None
+            )
 
             # Add optional reasoning
             if reasoning_content:
@@ -324,12 +332,16 @@ def format_messages_vercel(
                     status = "pending"
 
                 parts.append(TextPartVercel(text=text_content or ""))
+                try:
+                    tc_args = json.loads(tc.arguments)
+                except json.JSONDecodeError:
+                    tc_args = tc.arguments
                 parts.append(
                     ToolCallPartVercel(
                         toolInvocation=ToolCallVercel(
                             toolCallId=tc.tool_call_id,
                             toolName=tc.name,
-                            args=json.loads(tc.arguments),
+                            args=tc_args,
                             state="call",
                         )
                     )
@@ -344,7 +356,12 @@ def format_messages_vercel(
 
         # Merge the actual tool result back into the buffered part
         elif msg.entity == Entity.TOOL:
-            tool_call_id = json.loads(msg.content).get("tool_call_id")
+            content = (
+                dict(msg.content) if isinstance(msg.content, dict) else msg.content
+            )
+            tool_call_id = (
+                content.get("tool_call_id") if isinstance(content, dict) else None
+            )
             tool_call = next(
                 (
                     part.toolInvocation
@@ -364,7 +381,13 @@ def format_messages_vercel(
                 None,
             )
             if tool_call:
-                tool_call.result = json.loads(msg.content).get("content")
+                content = (
+                    dict(msg.content) if isinstance(msg.content, dict) else msg.content
+                )
+                msg_content = (
+                    content.get("content") if isinstance(content, dict) else None
+                )
+                tool_call.result = json.dumps(msg_content) if msg_content else None
                 tool_call.state = "result"
 
             if annotation:
@@ -493,7 +516,7 @@ AVAILABLE TOOLS:
         model = "google/gemini-2.5-flash"
         start_request = time.time()
         response = await openai_client.beta.chat.completions.parse(
-            messages=[{"role": "system", "content": system_prompt}, *openai_messages],  # type: ignore
+            messages=[{"role": "system", "content": system_prompt}, *openai_messages],  # type: ignore[list-item]
             model=model,
             response_format=ToolFiltering,
         )

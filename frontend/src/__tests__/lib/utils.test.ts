@@ -101,7 +101,8 @@ describe("getStorageID", () => {
       type: "tool-invocation",
       toolInvocation: {
         state: "result",
-        result: JSON.stringify({ storage_id: "abc-123" }),
+        result: JSON.stringify({ mock_tc_id: { storage_id: "abc-123" } }),
+        toolCallId: "mock_tc_id",
       },
     } as ToolInvocationUIPart;
 
@@ -114,7 +115,8 @@ describe("getStorageID", () => {
       type: "tool-invocation",
       toolInvocation: {
         state: "result",
-        result: { storage_id: ["id1", "id2"] },
+        result: { mock_tc_id: { storage_id: ["id1", "id2"] } },
+        toolCallId: "mock_tc_id",
       },
     } as ToolInvocationUIPart;
 
@@ -140,7 +142,8 @@ describe("getStorageID", () => {
       type: "tool-invocation",
       toolInvocation: {
         state: "result",
-        result: { some_other_field: "value" },
+        result: { mock_tc_id: { some_other_field: "value" } },
+        toolCallId: "mock_tc_id",
       },
     } as ToolInvocationUIPart;
 

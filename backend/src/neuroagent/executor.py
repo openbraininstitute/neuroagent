@@ -121,7 +121,9 @@ class WasmExecutor:
             with open(runner_path, "w") as f:
                 f.write(
                     self.JS_CODE.format(
-                        packages=self.additional_imports, code=json.dumps("")
+                        packages=self.additional_imports,
+                        code=json.dumps(""),
+                        global_vars={},
                     )
                 )  # Empty code
 
@@ -150,13 +152,16 @@ class WasmExecutor:
         """Exit context manager."""
         return False
 
-    async def run_code(self, code: str) -> SuccessOutput | FailureOutput:
+    async def run_code(
+        self, code: str, globals: dict[str, Any] | None = None
+    ) -> SuccessOutput | FailureOutput:
         """
         Execute Python code in the Pyodide environment and return the result.
 
         Parameters
         ----------
             code (`str`): Python code to execute.
+            globals (`dict[str, Any]`): Dictionary containing {name: value} of variables that will be injected in the code. No need to redefine them
 
         Returns
         -------
@@ -168,9 +173,12 @@ class WasmExecutor:
             with open(runner_path, "w") as f:
                 f.write(
                     self.JS_CODE.format(
-                        packages=self.additional_imports, code=json.dumps(code)
+                        packages=self.additional_imports,
+                        code=json.dumps(code),
+                        global_vars=globals if globals else {},
                     )
                 )
+
             # Add read permission to tempdir
             permission = []
             for perm in self.deno_permissions:
@@ -286,6 +294,13 @@ async function execute(code) {{
   let output = "";
 
   try {{
+    // Inject globals
+    pyodide.runPython(`
+        global_var_dict = {global_vars}
+        for k, v in global_var_dict.items():
+            globals()[k] = v
+    `)
+
     // Execute the code
     return_value = await pyodide.runPythonAsync(code);
 

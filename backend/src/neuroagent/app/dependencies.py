@@ -1,6 +1,5 @@
 """App dependencies."""
 
-import json
 import logging
 import re
 from datetime import datetime, timezone
@@ -516,7 +515,7 @@ async def filtered_tools(
             Messages(
                 thread_id=thread.thread_id,
                 entity=Entity.USER,
-                content=json.dumps({"role": "user", "content": body["content"]}),
+                content={"role": "user", "content": body["content"]},
                 is_complete=True,
             )
         )
@@ -657,6 +656,7 @@ async def get_context_variables(
     user_info: Annotated[UserInfo, Depends(get_user_info)],
     openai_client: Annotated[AsyncOpenAI, Depends(get_openai_client)],
     python_sandbox: Annotated[WasmExecutor, Depends(get_python_sandbox)],
+    session: Annotated[AsyncSession, Depends(get_session)],
 ) -> dict[str, Any]:
     """Get the context variables to feed the tool's metadata."""
     # Get the current frontend url
@@ -678,6 +678,7 @@ async def get_context_variables(
         "python_sandbox": python_sandbox,
         "s3_client": s3_client,
         "sanity_url": settings.tools.sanity.url,
+        "session": session,
         "thread_id": thread.thread_id,
         "thumbnail_generation_url": settings.tools.thumbnail_generation.url,
         "usage_dict": {},

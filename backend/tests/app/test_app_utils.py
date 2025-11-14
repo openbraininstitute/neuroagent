@@ -1,6 +1,5 @@
 """Test app utils."""
 
-import json
 from datetime import datetime, timezone
 from typing import Literal
 from unittest.mock import AsyncMock, patch
@@ -243,7 +242,7 @@ def test_format_messages_output():
         entity=Entity.AI_MESSAGE,
         is_complete=True,
         message_id="359eeb21-2e94-4095-94d9-ca7d4ff22640",
-        content=json.dumps({"content": "DUMMY_AI_CONTENT"}),
+        content={"content": "DUMMY_AI_CONTENT"},
         thread_id="e2db8c7d-1170-4762-b42b-fdcd08526735",
         tool_calls=[],
     )
@@ -252,7 +251,7 @@ def test_format_messages_output():
         entity=Entity.TOOL,
         is_complete=True,
         message_id="06c305de-1562-43aa-adea-beeeb53880a2",
-        content=json.dumps({"content": "DUMMY_RESULT"}),
+        content={"content": "DUMMY_RESULT"},
         thread_id="e2db8c7d-1170-4762-b42b-fdcd08526735",
         tool_calls=[],
     )
@@ -267,7 +266,7 @@ def test_format_messages_output():
         entity=Entity.AI_TOOL,
         is_complete=True,
         message_id="e21d5f16-8553-4181-9d25-d1d935327ffc",
-        content=json.dumps({"content": "DUMMY_AI_TOOL_CONTENT"}),
+        content={"content": "DUMMY_AI_TOOL_CONTENT"},
         thread_id="e2db8c7d-1170-4762-b42b-fdcd08526735",
         tool_calls=[dummy_tool_call],
     )
@@ -276,7 +275,7 @@ def test_format_messages_output():
         entity=Entity.USER,
         is_complete=True,
         message_id="87866e27-dc78-48c2-bd68-4ea395d5a466",
-        content=json.dumps({"content": "DUMMY_USER_TEXT"}),
+        content={"content": "DUMMY_USER_TEXT"},
         thread_id="e2db8c7d-1170-4762-b42b-fdcd08526735",
         tool_calls=[],
     )
@@ -349,7 +348,7 @@ def test_format_messages_vercel():
         entity=Entity.AI_MESSAGE,
         is_complete=True,
         message_id="359eeb212e94409594d9ca7d4ff22640",
-        content=json.dumps({"content": "DUMMY_AI_CONTENT"}),
+        content={"content": "DUMMY_AI_CONTENT"},
         thread_id="e2db8c7d11704762b42bfdcd08526735",
         tool_calls=[],
     )
@@ -358,7 +357,7 @@ def test_format_messages_vercel():
         entity=Entity.TOOL,
         is_complete=True,
         message_id="06c305de156243aaadeabeeeb53880a2",
-        content=json.dumps({"content": "DUMMY_RESULT"}),
+        content={"content": "DUMMY_RESULT"},
         thread_id="e2db8c7d11704762b42bfdcd08526735",
         tool_calls=[],
     )
@@ -373,7 +372,7 @@ def test_format_messages_vercel():
         entity=Entity.AI_TOOL,
         is_complete=True,
         message_id="e21d5f16855341819d25d1d935327ffc",
-        content=json.dumps({"content": "DUMMY_AI_TOOL_CONTENT"}),
+        content={"content": "DUMMY_AI_TOOL_CONTENT"},
         thread_id="e2db8c7d11704762b42bfdcd08526735",
         tool_calls=[dummy_tool_call],
     )
@@ -382,7 +381,7 @@ def test_format_messages_vercel():
         entity=Entity.USER,
         is_complete=True,
         message_id="87866e27dc7848c2bd684ea395d5a466",
-        content=json.dumps({"content": "DUMMY_USER_TEXT"}),
+        content={"content": "DUMMY_USER_TEXT"},
         thread_id="e2db8c7d11704762b42bfdcd08526735",
         tool_calls=[],
     )
@@ -606,21 +605,19 @@ async def test_filter_tools_successful_selection(get_weather_tool, agent_handoff
     messages = [
         Messages(
             entity=Entity.USER,
-            content=json.dumps({"role": "user", "content": "Hello"}),
+            content={"role": "user", "content": "Hello"},
             thread_id=UUID("12345678-9123-4567-1234-890123456789"),
             is_complete=True,
         ),
         Messages(
             entity=Entity.AI_MESSAGE,
-            content=json.dumps({"role": "assistant", "content": "Hi there!"}),
+            content={"role": "assistant", "content": "Hi there!"},
             thread_id=UUID("12345678-9123-4567-1234-890123456789"),
             is_complete=True,
         ),
         Messages(
             entity=Entity.USER,
-            content=json.dumps(
-                {"role": "user", "content": "I need help with Agent handoff"}
-            ),
+            content={"role": "user", "content": "I need help with Agent handoff"},
             thread_id=UUID("12345678-9123-4567-1234-890123456789"),
             is_complete=True,
         ),

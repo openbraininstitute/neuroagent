@@ -76,13 +76,15 @@ class AgentsRoutine:
         if stream:
             create_params["stream_options"] = {"include_usage": True}
         if agent.model == "gpt-5-mini":
-            create_params["reasoning_effort"] = "minimal"
+            create_params["reasoning_effort"] = "low"
 
         if tools:
             create_params["parallel_tool_calls"] = agent.parallel_tool_calls
         return await self.client.chat.completions.create(**create_params)  # type: ignore
 
-    def handle_function_result(self, result: Result | Agent | BaseModel) -> Result:
+    def handle_function_result(
+        self, result: Result | Agent | BaseModel, tool_call_id: str
+    ) -> Result:
         """Check if agent handoff or regular tool call."""
         match result:
             case Result() as result:
@@ -90,14 +92,11 @@ class AgentsRoutine:
 
             case Agent() as agent:
                 return Result(
-                    value=json.dumps({"assistant": agent.name}),
+                    value={tool_call_id: {"assistant": agent.name}},
                     agent=agent,
                 )
             case BaseModel() as model:
-                try:
-                    return Result(value=model.model_dump_json())
-                except json.JSONDecodeError:
-                    return Result(value=str(result))
+                return Result(value={tool_call_id: model.model_dump(mode="json")})
             case _:
                 error_message = f"Failed to parse the result: {result}. Make sure the tool returns a pydantic BaseModel or Result object."
                 raise TypeError(error_message)
@@ -136,7 +135,7 @@ class AgentsRoutine:
         tools: list[type[BaseTool]],
         context_variables: dict[str, Any],
         raise_validation_errors: bool = False,
-    ) -> tuple[dict[str, str], Agent | None]:
+    ) -> tuple[dict[str, str | dict[str, Any]], Agent | None]:
         """Run individual tools."""
         tool_map = {tool.name: tool for tool in tools}
 
@@ -160,13 +159,12 @@ class AgentsRoutine:
                 raise err
             else:
                 # Otherwise transform it into an OpenAI response for the model to retry
-                response = {
+                return {
                     "role": "tool",
                     "tool_call_id": tool_call.tool_call_id,
                     "tool_name": name,
                     "content": err.json(),
-                }
-                return response, None
+                }, None
 
         try:
             tool_metadata = tool.__annotations__["metadata"](**context_variables)
@@ -176,13 +174,12 @@ class AgentsRoutine:
                 raise err
             else:
                 # Otherwise transform it into an OpenAI response for the model to retry
-                response = {
+                return {
                     "role": "tool",
                     "tool_call_id": tool_call.tool_call_id,
                     "tool_name": name,
                     "content": "The user is not allowed to run this tool. Don't call it again.",
-                }
-                return response, None
+                }, None
 
         logger.info(
             f"Entering {name}. Inputs: {input_schema.model_dump(exclude_defaults=True)}."
@@ -196,26 +193,22 @@ class AgentsRoutine:
                     tool_instance.metadata.token_consumption
                 )
         except Exception as err:
-            response = {
+            return {
                 "role": "tool",
                 "tool_call_id": tool_call.tool_call_id,
                 "tool_name": name,
                 "content": str(err),
-            }
-            return response, None
+            }, None
 
-        result: Result = self.handle_function_result(raw_result)
-        response = {
+        result: Result = self.handle_function_result(
+            raw_result, str(tool_call.tool_call_id)
+        )
+        return {
             "role": "tool",
             "tool_call_id": tool_call.tool_call_id,
             "tool_name": name,
             "content": result.value,
-        }
-        if result.agent:
-            agent = result.agent
-        else:
-            agent = None
-        return response, agent
+        }, (result.agent if result.agent else None)
 
     async def astream(
         self,
@@ -423,7 +416,7 @@ class AgentsRoutine:
                     Messages(
                         thread_id=messages[-1].thread_id,
                         entity=get_entity(message),
-                        content=json.dumps(message),
+                        content=message,
                         tool_calls=tool_calls,
                         is_complete=True,
                         token_consumption=token_consumption,
@@ -474,7 +467,7 @@ class AgentsRoutine:
                 for tool_response in tool_calls_executed.messages:
                     response_data = {
                         "toolCallId": tool_response["tool_call_id"],
-                        "result": tool_response["content"],
+                        "result": json.dumps(tool_response["content"]),
                     }
                     yield f"a:{json.dumps(response_data, separators=(',', ':'))}\n"
 
@@ -521,7 +514,7 @@ class AgentsRoutine:
                         Messages(
                             thread_id=messages[-1].thread_id,
                             entity=Entity.TOOL,
-                            content=json.dumps(tool_response),
+                            content=tool_response,
                             is_complete=True,
                             token_consumption=token_consumption,
                         )
@@ -538,7 +531,17 @@ class AgentsRoutine:
                     yield f"e:{json.dumps(finish_data)}\n"
                     break
 
-                history.extend(tool_calls_executed.messages)
+                history.extend(
+                    [
+                        {
+                            **message,
+                            "content": message["content"]
+                            if isinstance(message["content"], str)
+                            else json.dumps(message["content"]),
+                        }
+                        for message in tool_calls_executed.messages
+                    ]
+                )
                 context_variables.update(tool_calls_executed.context_variables)
                 if tool_calls_executed.agent:
                     active_agent = tool_calls_executed.agent
@@ -577,14 +580,14 @@ class AgentsRoutine:
 
             # If the partial message hasn't been appended and the last message is not an AI_TOOL, append partial message
             if (
-                json.dumps(message) != messages[-1].content
+                json.dumps(message) != json.dumps(messages[-1].content)
                 and messages[-1].entity != Entity.AI_TOOL
             ):
                 messages.append(
                     Messages(
                         thread_id=messages[-1].thread_id,
                         entity=get_entity(message),
-                        content=json.dumps(message),
+                        content=message,
                         tool_calls=tool_calls,
                         is_complete=False,
                     )
@@ -597,14 +600,14 @@ class AgentsRoutine:
                         Messages(
                             thread_id=messages[-1].thread_id,
                             entity=Entity.TOOL,
-                            content=json.dumps(
-                                {
-                                    "role": "tool",
-                                    "tool_call_id": call.tool_call_id,
-                                    "tool_name": call.name,
-                                    "content": "Tool execution aborted by the user.",
-                                }
-                            ),
+                            content={
+                                "role": "tool",
+                                "tool_call_id": call.tool_call_id,
+                                "tool_name": call.name,
+                                "content": {
+                                    call.tool_call_id: "Tool execution aborted by the user."
+                                },
+                            },
                             is_complete=False,
                         )
                         for call in tool_calls
