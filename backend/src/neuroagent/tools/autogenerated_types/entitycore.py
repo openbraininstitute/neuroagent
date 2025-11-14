@@ -31,6 +31,8 @@ class ActivityType(
             'ion_channel_modeling_config_generation',
             'circuit_extraction_config_generation',
             'circuit_extraction_execution',
+            'skeletonization_execution',
+            'skeletonization_config_generation',
         ]
     ]
 ):
@@ -44,6 +46,8 @@ class ActivityType(
         'ion_channel_modeling_config_generation',
         'circuit_extraction_config_generation',
         'circuit_extraction_execution',
+        'skeletonization_execution',
+        'skeletonization_config_generation',
     ] = Field(..., description='Activity types.', title='ActivityType')
 
 
@@ -379,11 +383,15 @@ class CellMorphologyGenerationType(
 
 
 class CellMorphologyProtocolDesign(
-    RootModel[Literal['electron_microscopy', 'cell_patch', 'fluorophore']]
+    RootModel[
+        Literal[
+            'electron_microscopy', 'cell_patch', 'fluorophore', 'topological_synthesis'
+        ]
+    ]
 ):
-    root: Literal['electron_microscopy', 'cell_patch', 'fluorophore'] = Field(
-        ..., title='CellMorphologyProtocolDesign'
-    )
+    root: Literal[
+        'electron_microscopy', 'cell_patch', 'fluorophore', 'topological_synthesis'
+    ] = Field(..., title='CellMorphologyProtocolDesign')
 
 
 class CircuitBuildCategory(
@@ -923,6 +931,8 @@ class EntityRoute(
             'analysis-notebook-template',
             'analysis-notebook-environment',
             'analysis-notebook-result',
+            'skeletonization-config',
+            'skeletonization-campaign',
         ]
     ]
 ):
@@ -965,6 +975,8 @@ class EntityRoute(
         'analysis-notebook-template',
         'analysis-notebook-environment',
         'analysis-notebook-result',
+        'skeletonization-config',
+        'skeletonization-campaign',
     ] = Field(..., title='EntityRoute')
 
 
@@ -1009,6 +1021,8 @@ class EntityType(
             'analysis_notebook_template',
             'analysis_notebook_environment',
             'analysis_notebook_result',
+            'skeletonization_config',
+            'skeletonization_campaign',
         ]
     ]
 ):
@@ -1051,6 +1065,8 @@ class EntityType(
         'analysis_notebook_template',
         'analysis_notebook_environment',
         'analysis_notebook_result',
+        'skeletonization_config',
+        'skeletonization_campaign',
     ] = Field(..., description='Entity types.', title='EntityType')
 
 
@@ -1486,6 +1502,27 @@ class NestedConsortiumRead(BaseModel):
     type: str = Field(..., title='Type')
 
 
+class NestedEMCellMeshRead(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
+    authorized_project_id: UUID4 = Field(..., title='Authorized Project Id')
+    authorized_public: bool = Field(default=False, title='Authorized Public')
+    type: EntityType | None = None
+    id: UUID = Field(..., title='Id')
+    experiment_date: AwareDatetime | None = Field(default=None, title='Experiment Date')
+    contact_email: str | None = Field(default=None, title='Contact Email')
+    published_in: str | None = Field(default=None, title='Published In')
+    release_version: int = Field(..., title='Release Version')
+    dense_reconstruction_cell_id: int = Field(..., title='Dense Reconstruction Cell Id')
+    generation_method: EMCellMeshGenerationMethod
+    level_of_detail: int = Field(..., title='Level Of Detail')
+    generation_parameters: dict[str, Any] | None = Field(
+        default=None, title='Generation Parameters'
+    )
+    mesh_type: EMCellMeshType
+
+
 class NestedElectricalRecordingStimulusRead(BaseModel):
     model_config = ConfigDict(
         extra='allow',
@@ -1678,6 +1715,19 @@ class NestedSimulationRead(BaseModel):
     description: str = Field(..., title='Description')
     simulation_campaign_id: UUID = Field(..., title='Simulation Campaign Id')
     entity_id: UUID = Field(..., title='Entity Id')
+    scan_parameters: dict[str, Any] = Field(..., title='Scan Parameters')
+
+
+class NestedSkeletonizationConfigRead(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
+    id: UUID = Field(..., title='Id')
+    type: EntityType | None = None
+    name: str = Field(..., title='Name')
+    description: str = Field(..., title='Description')
+    skeletonization_campaign_id: UUID = Field(..., title='Skeletonization Campaign Id')
+    em_cell_mesh_id: UUID = Field(..., title='Em Cell Mesh Id')
     scan_parameters: dict[str, Any] = Field(..., title='Scan Parameters')
 
 
@@ -2043,10 +2093,10 @@ class SimulationCreate(BaseModel):
 
 
 class SimulationExecutionStatus(
-    RootModel[Literal['created', 'pending', 'running', 'done', 'error']]
+    RootModel[Literal['created', 'pending', 'running', 'done', 'error', 'cancelled']]
 ):
-    root: Literal['created', 'pending', 'running', 'done', 'error'] = Field(
-        ..., title='SimulationExecutionStatus'
+    root: Literal['created', 'pending', 'running', 'done', 'error', 'cancelled'] = (
+        Field(..., title='SimulationExecutionStatus')
     )
 
 
@@ -2224,6 +2274,74 @@ class SingleNeuronSynaptomeUserUpdate(BaseModel):
     brain_region_id: UUID | str | None = Field(
         default='<NOT_SET>', title='Brain Region Id'
     )
+
+
+SkeletonizationCampaignCreate = CircuitExtractionCampaignCreate
+
+
+SkeletonizationCampaignUserUpdate = CircuitExtractionCampaignUserUpdate
+
+
+class SkeletonizationConfigCreate(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
+    authorized_public: bool = Field(default=False, title='Authorized Public')
+    name: str = Field(..., title='Name')
+    description: str = Field(..., title='Description')
+    skeletonization_campaign_id: UUID = Field(..., title='Skeletonization Campaign Id')
+    em_cell_mesh_id: UUID = Field(..., title='Em Cell Mesh Id')
+    scan_parameters: dict[str, Any] = Field(..., title='Scan Parameters')
+
+
+SkeletonizationConfigGenerationCreate = CalibrationCreate
+
+
+SkeletonizationConfigGenerationRead = SimulationGenerationRead
+
+
+SkeletonizationConfigGenerationUserUpdate = SimulationGenerationUserUpdate
+
+
+class SkeletonizationConfigUserUpdate(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
+    name: str | None = Field(default='<NOT_SET>', title='Name')
+    description: str | None = Field(default='<NOT_SET>', title='Description')
+    skeletonization_campaign_id: UUID | str | None = Field(
+        default='<NOT_SET>', title='Skeletonization Campaign Id'
+    )
+    em_cell_mesh_id: UUID | str | None = Field(
+        default='<NOT_SET>', title='Em Cell Mesh Id'
+    )
+    scan_parameters: dict[str, Any] | str | None = Field(
+        default='<NOT_SET>', title='Scan Parameters'
+    )
+
+
+class SkeletonizationExecutionStatus(
+    RootModel[Literal['created', 'pending', 'running', 'done', 'error']]
+):
+    root: Literal['created', 'pending', 'running', 'done', 'error'] = Field(
+        ..., title='SkeletonizationExecutionStatus'
+    )
+
+
+class SkeletonizationExecutionUserUpdate(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
+    start_time: AwareDatetime | NotSet | None = Field(
+        default='<NOT_SET>', title='Start Time'
+    )
+    end_time: AwareDatetime | NotSet | None = Field(
+        default='<NOT_SET>', title='End Time'
+    )
+    generated_ids: list[UUID] | NotSet | None = Field(
+        default='<NOT_SET>', title='Generated Ids'
+    )
+    status: SkeletonizationExecutionStatus | None = None
 
 
 class SlicingDirectionType(
@@ -5691,6 +5809,8 @@ class ReadManyLicenseGetParametersQuery(BaseModel):
     name: str | None = Field(default=None, title='Name')
     name__in: list[str] | None = Field(default=None, title='Name  In')
     name__ilike: str | None = Field(default=None, title='Name  Ilike')
+    id: UUID | None = Field(default=None, title='Id')
+    id__in: list[UUID] | None = Field(default=None, title='Id  In')
     label: str | None = Field(default=None, title='Label')
     label__ilike: str | None = Field(default=None, title='Label  Ilike')
     order_by: list[str] = Field(default=['-creation_date'], title='Order By')
@@ -6430,6 +6550,258 @@ class ReadManyScientificArtifactPublicationLinkGetParametersQuery(BaseModel):
     )
 
 
+class ReadManySkeletonizationCampaignGetParametersQuery(BaseModel):
+    page: int = Field(default=1, ge=1, title='Page')
+    page_size: int = Field(default=100, ge=1, title='Page Size')
+    name: str | None = Field(default=None, title='Name')
+    name__in: list[str] | None = Field(default=None, title='Name  In')
+    name__ilike: str | None = Field(default=None, title='Name  Ilike')
+    creation_date__lte: AwareDatetime | None = Field(
+        default=None, title='Creation Date  Lte'
+    )
+    creation_date__gte: AwareDatetime | None = Field(
+        default=None, title='Creation Date  Gte'
+    )
+    update_date__lte: AwareDatetime | None = Field(
+        default=None, title='Update Date  Lte'
+    )
+    update_date__gte: AwareDatetime | None = Field(
+        default=None, title='Update Date  Gte'
+    )
+    authorized_public: bool | None = Field(default=None, title='Authorized Public')
+    authorized_project_id: UUID | None = Field(
+        default=None, title='Authorized Project Id'
+    )
+    id: UUID | None = Field(default=None, title='Id')
+    id__in: list[UUID] | None = Field(default=None, title='Id  In')
+    order_by: list[str] = Field(default=['-creation_date'], title='Order By')
+    contribution__pref_label: str | None = Field(
+        default=None, title='Contribution  Pref Label'
+    )
+    contribution__pref_label__in: list[str] | None = Field(
+        default=None, title='Contribution  Pref Label  In'
+    )
+    contribution__pref_label__ilike: str | None = Field(
+        default=None, title='Contribution  Pref Label  Ilike'
+    )
+    contribution__id: UUID | None = Field(default=None, title='Contribution  Id')
+    contribution__id__in: list[UUID] | None = Field(
+        default=None, title='Contribution  Id  In'
+    )
+    created_by__pref_label: str | None = Field(
+        default=None, title='Created By  Pref Label'
+    )
+    created_by__pref_label__in: list[str] | None = Field(
+        default=None, title='Created By  Pref Label  In'
+    )
+    created_by__pref_label__ilike: str | None = Field(
+        default=None, title='Created By  Pref Label  Ilike'
+    )
+    created_by__id: UUID | None = Field(default=None, title='Created By  Id')
+    created_by__id__in: list[UUID] | None = Field(
+        default=None, title='Created By  Id  In'
+    )
+    updated_by__pref_label: str | None = Field(
+        default=None, title='Updated By  Pref Label'
+    )
+    updated_by__pref_label__in: list[str] | None = Field(
+        default=None, title='Updated By  Pref Label  In'
+    )
+    updated_by__pref_label__ilike: str | None = Field(
+        default=None, title='Updated By  Pref Label  Ilike'
+    )
+    updated_by__id: UUID | None = Field(default=None, title='Updated By  Id')
+    updated_by__id__in: list[UUID] | None = Field(
+        default=None, title='Updated By  Id  In'
+    )
+    skeletonization_config__id: UUID | None = Field(
+        default=None, title='Skeletonization Config  Id'
+    )
+    skeletonization_config__id__in: list[UUID] | None = Field(
+        default=None, title='Skeletonization Config  Id  In'
+    )
+    skeletonization_config__name: str | None = Field(
+        default=None, title='Skeletonization Config  Name'
+    )
+    skeletonization_config__name__in: list[str] | None = Field(
+        default=None, title='Skeletonization Config  Name  In'
+    )
+    skeletonization_config__name__ilike: str | None = Field(
+        default=None, title='Skeletonization Config  Name  Ilike'
+    )
+    search: str | None = Field(default=None, title='Search')
+    with_facets: bool = Field(default=False, title='With Facets')
+    within_brain_region_hierarchy_id: UUID | None = Field(
+        default=None, title='Within Brain Region Hierarchy Id'
+    )
+    within_brain_region_brain_region_id: UUID | None = Field(
+        default=None, title='Within Brain Region Brain Region Id'
+    )
+    within_brain_region_ascendants: bool = Field(
+        default=False, title='Within Brain Region Ascendants'
+    )
+
+
+class ReadManySkeletonizationConfigGetParametersQuery(BaseModel):
+    page: int = Field(default=1, ge=1, title='Page')
+    page_size: int = Field(default=100, ge=1, title='Page Size')
+    creation_date__lte: AwareDatetime | None = Field(
+        default=None, title='Creation Date  Lte'
+    )
+    creation_date__gte: AwareDatetime | None = Field(
+        default=None, title='Creation Date  Gte'
+    )
+    update_date__lte: AwareDatetime | None = Field(
+        default=None, title='Update Date  Lte'
+    )
+    update_date__gte: AwareDatetime | None = Field(
+        default=None, title='Update Date  Gte'
+    )
+    authorized_public: bool | None = Field(default=None, title='Authorized Public')
+    authorized_project_id: UUID | None = Field(
+        default=None, title='Authorized Project Id'
+    )
+    id: UUID | None = Field(default=None, title='Id')
+    id__in: list[UUID] | None = Field(default=None, title='Id  In')
+    name: str | None = Field(default=None, title='Name')
+    name__in: list[str] | None = Field(default=None, title='Name  In')
+    name__ilike: str | None = Field(default=None, title='Name  Ilike')
+    skeletonization_campaign_id: UUID | None = Field(
+        default=None, title='Skeletonization Campaign Id'
+    )
+    skeletonization_campaign_id__in: list[UUID] | None = Field(
+        default=None, title='Skeletonization Campaign Id  In'
+    )
+    em_cell_mesh_id: UUID | None = Field(default=None, title='Em Cell Mesh Id')
+    em_cell_mesh_id__in: list[UUID] | None = Field(
+        default=None, title='Em Cell Mesh Id  In'
+    )
+    order_by: list[str] = Field(default=['-creation_date'], title='Order By')
+    contribution__pref_label: str | None = Field(
+        default=None, title='Contribution  Pref Label'
+    )
+    contribution__pref_label__in: list[str] | None = Field(
+        default=None, title='Contribution  Pref Label  In'
+    )
+    contribution__pref_label__ilike: str | None = Field(
+        default=None, title='Contribution  Pref Label  Ilike'
+    )
+    contribution__id: UUID | None = Field(default=None, title='Contribution  Id')
+    contribution__id__in: list[UUID] | None = Field(
+        default=None, title='Contribution  Id  In'
+    )
+    created_by__pref_label: str | None = Field(
+        default=None, title='Created By  Pref Label'
+    )
+    created_by__pref_label__in: list[str] | None = Field(
+        default=None, title='Created By  Pref Label  In'
+    )
+    created_by__pref_label__ilike: str | None = Field(
+        default=None, title='Created By  Pref Label  Ilike'
+    )
+    created_by__id: UUID | None = Field(default=None, title='Created By  Id')
+    created_by__id__in: list[UUID] | None = Field(
+        default=None, title='Created By  Id  In'
+    )
+    updated_by__pref_label: str | None = Field(
+        default=None, title='Updated By  Pref Label'
+    )
+    updated_by__pref_label__in: list[str] | None = Field(
+        default=None, title='Updated By  Pref Label  In'
+    )
+    updated_by__pref_label__ilike: str | None = Field(
+        default=None, title='Updated By  Pref Label  Ilike'
+    )
+    updated_by__id: UUID | None = Field(default=None, title='Updated By  Id')
+    updated_by__id__in: list[UUID] | None = Field(
+        default=None, title='Updated By  Id  In'
+    )
+    search: str | None = Field(default=None, title='Search')
+    with_facets: bool = Field(default=False, title='With Facets')
+    within_brain_region_hierarchy_id: UUID | None = Field(
+        default=None, title='Within Brain Region Hierarchy Id'
+    )
+    within_brain_region_brain_region_id: UUID | None = Field(
+        default=None, title='Within Brain Region Brain Region Id'
+    )
+    within_brain_region_ascendants: bool = Field(
+        default=False, title='Within Brain Region Ascendants'
+    )
+
+
+ReadManySkeletonizationConfigGenerationGetParametersQuery = (
+    ReadManyCalibrationGetParametersQuery
+)
+
+
+class ReadManySkeletonizationExecutionGetParametersQuery(BaseModel):
+    page: int = Field(default=1, ge=1, title='Page')
+    page_size: int = Field(default=100, ge=1, title='Page Size')
+    creation_date__lte: AwareDatetime | None = Field(
+        default=None, title='Creation Date  Lte'
+    )
+    creation_date__gte: AwareDatetime | None = Field(
+        default=None, title='Creation Date  Gte'
+    )
+    update_date__lte: AwareDatetime | None = Field(
+        default=None, title='Update Date  Lte'
+    )
+    update_date__gte: AwareDatetime | None = Field(
+        default=None, title='Update Date  Gte'
+    )
+    id: UUID | None = Field(default=None, title='Id')
+    id__in: list[UUID] | None = Field(default=None, title='Id  In')
+    start_time: AwareDatetime | None = Field(default=None, title='Start Time')
+    end_time: AwareDatetime | None = Field(default=None, title='End Time')
+    order_by: list[str] = Field(default=['-creation_date'], title='Order By')
+    status: SkeletonizationExecutionStatus | None = Field(default=None, title='Status')
+    created_by__pref_label: str | None = Field(
+        default=None, title='Created By  Pref Label'
+    )
+    created_by__pref_label__in: list[str] | None = Field(
+        default=None, title='Created By  Pref Label  In'
+    )
+    created_by__pref_label__ilike: str | None = Field(
+        default=None, title='Created By  Pref Label  Ilike'
+    )
+    created_by__id: UUID | None = Field(default=None, title='Created By  Id')
+    created_by__id__in: list[UUID] | None = Field(
+        default=None, title='Created By  Id  In'
+    )
+    updated_by__pref_label: str | None = Field(
+        default=None, title='Updated By  Pref Label'
+    )
+    updated_by__pref_label__in: list[str] | None = Field(
+        default=None, title='Updated By  Pref Label  In'
+    )
+    updated_by__pref_label__ilike: str | None = Field(
+        default=None, title='Updated By  Pref Label  Ilike'
+    )
+    updated_by__id: UUID | None = Field(default=None, title='Updated By  Id')
+    updated_by__id__in: list[UUID] | None = Field(
+        default=None, title='Updated By  Id  In'
+    )
+    used__id: UUID | None = Field(default=None, title='Used  Id')
+    used__id__in: list[UUID] | None = Field(default=None, title='Used  Id  In')
+    used__type: str | None = Field(default=None, title='Used  Type')
+    generated__id: UUID | None = Field(default=None, title='Generated  Id')
+    generated__id__in: list[UUID] | None = Field(
+        default=None, title='Generated  Id  In'
+    )
+    generated__type: str | None = Field(default=None, title='Generated  Type')
+    search: str | None = Field(default=None, title='Search')
+    with_facets: bool = Field(default=False, title='With Facets')
+    within_brain_region_hierarchy_id: UUID | None = Field(
+        default=None, title='Within Brain Region Hierarchy Id'
+    )
+    within_brain_region_brain_region_id: UUID | None = Field(
+        default=None, title='Within Brain Region Brain Region Id'
+    )
+    within_brain_region_ascendants: bool = Field(
+        default=False, title='Within Brain Region Ascendants'
+    )
+
+
 class ReadManySimulationGetParametersQuery(BaseModel):
     page: int = Field(default=1, ge=1, title='Page')
     page_size: int = Field(default=100, ge=1, title='Page Size')
@@ -6595,6 +6967,11 @@ class ReadManySimulationCampaignGetParametersQuery(BaseModel):
     updated_by__id: UUID | None = Field(default=None, title='Updated By  Id')
     updated_by__id__in: list[UUID] | None = Field(
         default=None, title='Updated By  Id  In'
+    )
+    entity__id: UUID | None = Field(default=None, title='Entity  Id')
+    entity__id__in: list[UUID] | None = Field(default=None, title='Entity  Id  In')
+    entity__type: Literal['circuit', 'memodel'] | None = Field(
+        default=None, title='Entity  Type'
     )
     circuit__scale: CircuitScale | None = Field(default=None, title='Circuit  Scale')
     circuit__scale__in: list[CircuitScale] | None = Field(
@@ -9006,6 +9383,15 @@ class ListResponseSimulationGenerationRead(BaseModel):
     facets: Facets | None = None
 
 
+class ListResponseSkeletonizationConfigGenerationRead(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
+    data: list[SkeletonizationConfigGenerationRead] = Field(..., title='Data')
+    pagination: PaginationResponse
+    facets: Facets | None = None
+
+
 class ListResponseSpeciesRead(BaseModel):
     model_config = ConfigDict(
         extra='allow',
@@ -9454,6 +9840,85 @@ class SingleNeuronSynaptomeSimulationRead(BaseModel):
     injection_location: list[str] = Field(..., title='Injection Location')
     recording_location: list[str] = Field(..., title='Recording Location')
     synaptome: NestedSynaptome
+
+
+class SkeletonizationCampaignRead(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
+    contributions: list[NestedContributionRead] | None = Field(
+        ..., title='Contributions'
+    )
+    authorized_project_id: UUID4 = Field(..., title='Authorized Project Id')
+    authorized_public: bool = Field(default=False, title='Authorized Public')
+    creation_date: AwareDatetime = Field(..., title='Creation Date')
+    update_date: AwareDatetime = Field(..., title='Update Date')
+    created_by: NestedPersonRead
+    updated_by: NestedPersonRead
+    assets: list[AssetRead] = Field(..., title='Assets')
+    id: UUID = Field(..., title='Id')
+    type: EntityType | None = None
+    name: str = Field(..., title='Name')
+    description: str = Field(..., title='Description')
+    scan_parameters: dict[str, Any] = Field(..., title='Scan Parameters')
+    input_meshes: list[NestedEMCellMeshRead] = Field(..., title='Input Meshes')
+    skeletonization_configs: list[NestedSkeletonizationConfigRead] = Field(
+        ..., title='Skeletonization Configs'
+    )
+
+
+class SkeletonizationConfigRead(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
+    contributions: list[NestedContributionRead] | None = Field(
+        ..., title='Contributions'
+    )
+    authorized_project_id: UUID4 = Field(..., title='Authorized Project Id')
+    authorized_public: bool = Field(default=False, title='Authorized Public')
+    creation_date: AwareDatetime = Field(..., title='Creation Date')
+    update_date: AwareDatetime = Field(..., title='Update Date')
+    created_by: NestedPersonRead
+    updated_by: NestedPersonRead
+    assets: list[AssetRead] = Field(..., title='Assets')
+    id: UUID = Field(..., title='Id')
+    type: EntityType | None = None
+    name: str = Field(..., title='Name')
+    description: str = Field(..., title='Description')
+    skeletonization_campaign_id: UUID = Field(..., title='Skeletonization Campaign Id')
+    em_cell_mesh_id: UUID = Field(..., title='Em Cell Mesh Id')
+    scan_parameters: dict[str, Any] = Field(..., title='Scan Parameters')
+
+
+class SkeletonizationExecutionCreate(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
+    authorized_public: bool = Field(default=False, title='Authorized Public')
+    start_time: AwareDatetime | None = Field(default=None, title='Start Time')
+    end_time: AwareDatetime | None = Field(default=None, title='End Time')
+    used_ids: list[UUID] = Field(default=[], title='Used Ids')
+    generated_ids: list[UUID] = Field(default=[], title='Generated Ids')
+    status: SkeletonizationExecutionStatus
+
+
+class SkeletonizationExecutionRead(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
+    authorized_project_id: UUID4 = Field(..., title='Authorized Project Id')
+    authorized_public: bool = Field(default=False, title='Authorized Public')
+    creation_date: AwareDatetime = Field(..., title='Creation Date')
+    update_date: AwareDatetime = Field(..., title='Update Date')
+    created_by: NestedPersonRead
+    updated_by: NestedPersonRead
+    id: UUID = Field(..., title='Id')
+    type: ActivityType | None = None
+    start_time: AwareDatetime | None = Field(default=None, title='Start Time')
+    end_time: AwareDatetime | None = Field(default=None, title='End Time')
+    used: list[NestedEntityRead] = Field(..., title='Used')
+    generated: list[NestedEntityRead] = Field(..., title='Generated')
+    status: SkeletonizationExecutionStatus
 
 
 class ValidationResultRead(BaseModel):
@@ -10536,6 +11001,33 @@ class ListResponseSingleNeuronSynaptomeSimulationRead(BaseModel):
         extra='allow',
     )
     data: list[SingleNeuronSynaptomeSimulationRead] = Field(..., title='Data')
+    pagination: PaginationResponse
+    facets: Facets | None = None
+
+
+class ListResponseSkeletonizationCampaignRead(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
+    data: list[SkeletonizationCampaignRead] = Field(..., title='Data')
+    pagination: PaginationResponse
+    facets: Facets | None = None
+
+
+class ListResponseSkeletonizationConfigRead(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
+    data: list[SkeletonizationConfigRead] = Field(..., title='Data')
+    pagination: PaginationResponse
+    facets: Facets | None = None
+
+
+class ListResponseSkeletonizationExecutionRead(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
+    data: list[SkeletonizationExecutionRead] = Field(..., title='Data')
     pagination: PaginationResponse
     facets: Facets | None = None
 

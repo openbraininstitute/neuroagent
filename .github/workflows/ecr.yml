@@ -72,3 +72,26 @@ jobs:
       run: |
         docker tag temp:latest $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
         docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+
+      # OBI ECR
+    - name: Configure AWS OBI ECR credentials
+      uses: aws-actions/configure-aws-credentials@v1.7.0
+
+      with:
+        role-to-assume: arn:aws:iam::985539765147:role/gh_ecr_push_neuroagent
+
+        role-session-name: GitHub_to_AWS_via_FederatedOIDC
+        aws-region: us-east-1
+
+    - name: Login to Amazon OBI ECR
+      id: login-ecr-management-obi-ecr
+      uses: aws-actions/amazon-ecr-login@v2
+
+    - name: Tag and Push Image to Amazon OBI ECR
+      env:
+        ECR_REGISTRY: ${{ steps.login-ecr-management-obi-ecr.outputs.registry }}
+        ECR_REPOSITORY: neuroagent
+        IMAGE_TAG: neuroagent-${{ github.ref_name }}
+      run: |
+        docker tag temp:latest $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+        docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG

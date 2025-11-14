@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Variable substitution in python tool.
+
+## [v0.11.5] - 6.11.2025
+
+### Changed
+- Base class for excluded parameters.
+- Resolving of asset/hierarchy id within tools.
+- Plot through python + plotly.
+
 ## [v0.11.4] - 4.11.2025
 
 ### Fixed
@@ -46,6 +56,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Tool argument correctness metric.
 - Fix brain region get all for new hierarchy.
 - Images not appearing in Literature search (Prompt refactor).
+- Update uv lock package.
 
 ### Changed
 - Running deepeval github action also on main

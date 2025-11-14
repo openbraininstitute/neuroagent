@@ -3,17 +3,14 @@ description: Entitycore tools
 ---
 # ENTITYCORE TOOLS
 
-## Brain Region ID Resolution
+## Finding Entities within Brain Regions
 
-**MANDATORY workflow:**
 1. Resolve names to IDs using `entitycore-brainregion-getall` with `semantic_search` parameter
-2. **NEVER use `brain_region__name`** when you have an ID
-3. **NEVER use `brain_region__id`** (does not exist)
-4. **NEVER fall back to name searches** once you have the ID
+2. Given the ID, retrieve some other entities located within that brain region using relevant tools (e.g., `entitycore-cellmorphology-getall`) and provide the parameter `within_brain_region_brain_region_id` with the resolved ID
 
 ## Species Handling
-- Use `entitycore-species-getall` to lookup species IDs
-- EntityCore database only stores scientific names
+- Use `entitycore-species-getall` to lookup species IDs, again, using `semantic_search` parameter
+- Entitycore database only stores scientific names
 
 ## GET ALL Endpoints
 - Mention `total_items` count in response

@@ -8,8 +8,7 @@
   {
     "name": "entitycore-cellmorphology-getall",
     "arguments": {
-      "within_brain_region_brain_region_id": "062ebc92-cebb-498a-a76d-b5ef1baf02cf",
-      "page_size": 5
+      "within_brain_region_brain_region_id": "062ebc92-cebb-498a-a76d-b5ef1baf02cf"
     }
   }
 ]
