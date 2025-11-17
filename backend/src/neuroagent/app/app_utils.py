@@ -437,15 +437,13 @@ def complexity_to_model_and_reasoning(complexity: int) -> dict[str, str | None]:
     if complexity <= 1:
         return {"model": "openai/gpt-5-nano", "reasoning": "minimal"}
     elif complexity <= 3:
-        return {"model": "openai/gpt-4.1-mini", "reasoning": None}
+        return {"model": "openai/gpt-5-nano", "reasoning": "low"}
     elif complexity <= 5:
         return {"model": "openai/gpt-5-mini", "reasoning": "low"}
-    elif complexity <= 7:
+    elif complexity <= 8:
         return {"model": "openai/gpt-5-mini", "reasoning": "medium"}
-    elif complexity <= 9:
-        return {"model": "openai/gpt-5.1", "reasoning": "medium"}
     else:
-        return {"model": "openai/gpt-5.1", "reasoning": "high"}
+        return {"model": "openai/gpt-5.1", "reasoning": "medium"}
 
 
 async def filter_tools_and_model_by_conversation(
