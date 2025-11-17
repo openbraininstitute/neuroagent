@@ -48,8 +48,6 @@ export function ChatPage({
   const setNewMessage = useStore((state) => state.setNewMessage);
   const hasSendFirstMessage = useRef(false);
   // Scrolling and pagination
-  const prevHeight = useRef(0);
-  const prevScroll = useRef(0);
   const observerRef = useRef<IntersectionObserver | null>(null);
   const topSentinelRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -132,7 +130,6 @@ export function ChatPage({
       | MessageStrict[]
       | ((messages: MessageStrict[]) => MessageStrict[]),
   ) => void;
-  console.log(messages);
 
   // Initial use effect that runs on mount
   useEffect(() => {
@@ -210,38 +207,53 @@ export function ChatPage({
 
   // Observer to fetch new pages :
   useEffect(() => {
+    const container = containerRef.current;
+    const sentinel = topSentinelRef.current;
+
+    if (!container || !sentinel) return;
+
+    if (observerRef.current) {
+      observerRef.current.disconnect();
+    }
+
     observerRef.current = new IntersectionObserver(
       async (entries) => {
+        const entry = entries[0];
+
         if (
-          entries[0].isIntersecting &&
+          entry.isIntersecting &&
+          hasNextPage &&
           !isFetchingPreviousPage &&
           !isLoading
         ) {
-          const el = containerRef.current!;
-          prevHeight.current = el.scrollHeight;
-          prevScroll.current = el.scrollTop;
-          if (!hasNextPage) return;
-          await fetchPreviousPage();
-          if (!isFetchingPreviousPage && !isLoading && prevHeight.current) {
+          const scrollFromBottom = container.scrollHeight - container.scrollTop;
+
+          try {
+            await fetchPreviousPage();
+
             requestAnimationFrame(() => {
-              const heightDiff = el.scrollHeight - prevHeight.current;
-              el.scrollTop = prevScroll.current + heightDiff - 40;
+              container.scrollTop =
+                container.scrollHeight - scrollFromBottom - 40;
             });
+          } catch (error) {
+            console.error("Error fetching previous page:", error);
           }
         }
       },
       {
-        root: containerRef.current,
+        root: container,
+        rootMargin: "0px 0px 200px 0px",
+        threshold: 0.1,
       },
     );
-    const sentinel = topSentinelRef.current;
-    if (sentinel && observerRef.current) observerRef.current.observe(sentinel);
 
-    // Remove intersection listener when unmounted
+    observerRef.current.observe(sentinel);
+
     return () => {
-      if (sentinel && observerRef.current)
-        observerRef.current.unobserve(sentinel);
-      if (observerRef.current) observerRef.current.disconnect();
+      if (observerRef.current) {
+        observerRef.current.disconnect();
+        observerRef.current = null;
+      }
     };
   }, [hasNextPage, isFetchingPreviousPage, isLoading, fetchPreviousPage]);
 

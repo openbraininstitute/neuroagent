@@ -33,24 +33,31 @@ export function ThreadListClient({
 
   // Observer to load additional threads.
   useEffect(() => {
+    const sentinel = bottomSentinelRef.current;
+    const scrollContainer = scrollContainerRef.current;
+
+    if (!sentinel || !scrollContainer) return;
+
     observerRef.current = new IntersectionObserver(
       (entries) => {
-        if (entries[0].isIntersecting && !isFetchingNextPage) {
-          if (!hasNextPage) return;
-          fetchNextPage(); // If the sentinel is visible, load next page
+        if (entries[0].isIntersecting && hasNextPage && !isFetchingNextPage) {
+          fetchNextPage();
         }
       },
       {
-        root: scrollContainerRef.current,
+        root: scrollContainer,
+        rootMargin: "100px",
+        threshold: 0.1,
       },
     );
-    const sentinel = bottomSentinelRef.current;
-    if (sentinel && observerRef.current) observerRef.current.observe(sentinel);
+
+    observerRef.current.observe(sentinel);
 
     return () => {
-      if (sentinel && observerRef.current)
-        observerRef.current.unobserve(sentinel);
-      if (observerRef.current) observerRef.current.disconnect();
+      if (observerRef.current) {
+        observerRef.current.disconnect();
+        observerRef.current = null;
+      }
     };
   }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
@@ -71,9 +78,7 @@ export function ThreadListClient({
         <div className="h-6 min-h-6 w-6 animate-spin rounded-full border-2 border-gray-500 border-t-transparent" />
       )}
 
-      {hasNextPage && (
-        <div ref={bottomSentinelRef} style={{ height: 1, width: "100%" }} />
-      )}
+      {hasNextPage && <div ref={bottomSentinelRef} className="h-1 w-full" />}
     </div>
   );
 }

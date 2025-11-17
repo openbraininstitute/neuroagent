@@ -122,5 +122,5 @@ export type LLMModel = {
 export type BOpenRouterModelResponse =
   components["schemas"]["OpenRouterModelResponse"];
 
-export const threadPageSize = "25";
-export const messagePageSize = "25";
+export const threadPageSize = "5";
+export const messagePageSize = "5";
