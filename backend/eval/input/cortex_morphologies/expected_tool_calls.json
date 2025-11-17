@@ -2,13 +2,13 @@
   {
     "name": "entitycore-brainregion-getall",
     "arguments": {
-      "semantic_search": "cerebellum"
+      "semantic_search": "cortex"
     }
   },
   {
     "name": "entitycore-cellmorphology-getall",
     "arguments": {
-      "within_brain_region_brain_region_id": "062ebc92-cebb-498a-a76d-b5ef1baf02cf"
+      "within_brain_region_brain_region_id": "abe63c70-1eb0-4b42-9421-d2c914ecb493"
     }
   }
 ]
