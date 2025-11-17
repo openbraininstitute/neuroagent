@@ -36,13 +36,9 @@
         }
       },
       {
-        "name": "obione-circuitconnectivitymetrics-getone",
+        "name": "obione-circuitmetrics-getone",
         "arguments": {
-          "circuit_id": "2eb602ea-9ffc-42a2-9fb7-5234921343d0",
-          "edge_population": "S1nonbarrel_neurons__S1nonbarrel_neurons__chemical",
-          "pre_node_set": "Inhibitory",
-          "post_node_set": "Excitatory",
-          "group_by": "mtype"
+          "circuit_id": "2eb602ea-9ffc-42a2-9fb7-5234921343d0"
         }
       }
     ],
@@ -71,14 +67,14 @@
         },
         {
           "name": "Deterministic Argument Correctness",
-          "score": 1.0,
+          "score": 0.5,
           "success": true,
           "threshold": 0.5,
           "reason": "[\n\t Tool Calling Reason: All expected tools ['obione-circuitmetrics-getone', 'obione-circuitconnectivitymetrics-getone'] were called (order not considered).\n\t Tool Selection Reason: No available tools were provided to assess tool selection criteria\n]\n"
         },
         {
           "name": "Overall Argument Correctness",
-          "score": 1.0,
+          "score": 0.5,
           "success": true,
           "threshold": 0.5,
           "reason": ""
@@ -215,8 +211,8 @@
         },
         {
           "name": "Overall Argument Correctness",
-          "score": 1.0,
-          "success": true,
+          "score": 0.0,
+          "success": false,
           "threshold": 0.5,
           "reason": ""
         }
@@ -268,19 +264,9 @@
         }
       },
       {
-        "name": "obione-circuitconnectivitymetrics-getone",
+        "name": "obione-circuitmetrics-getone",
         "arguments": {
-          "circuit_id": "2eb602ea-9ffc-42a2-9fb7-5234921343d0",
-          "edge_population": "S1nonbarrel_neurons__S1nonbarrel_neurons__chemical",
-          "pre_selection": {
-            "layer": "2"
-          },
-          "pre_node_set": "Inhibitory",
-          "post_selection": {
-            "layer": "2"
-          },
-          "post_node_set": "Excitatory",
-          "group_by": "mtype"
+          "circuit_id": "2eb602ea-9ffc-42a2-9fb7-5234921343d0"
         }
       }
     ],
@@ -309,14 +295,14 @@
         },
         {
           "name": "Deterministic Argument Correctness",
-          "score": 1.0,
+          "score": 0.5,
           "success": true,
           "threshold": 0.5,
           "reason": "[\n\t Tool Calling Reason: All expected tools ['obione-circuitmetrics-getone', 'obione-circuitconnectivitymetrics-getone'] were called (order not considered).\n\t Tool Selection Reason: No available tools were provided to assess tool selection criteria\n]\n"
         },
         {
           "name": "Overall Argument Correctness",
-          "score": 1.0,
+          "score": 0.5,
           "success": true,
           "threshold": 0.5,
           "reason": ""
@@ -438,7 +424,7 @@
           "score": 1.0,
           "success": true,
           "threshold": 0.5,
-          "reason": "The score is 1.00 because there were no incorrect tool calls and the input was clear and straightforward."
+          "reason": "The score is 1.00 because there are no incorrect tool calls and the input is clear and straightforward."
         },
         {
           "name": "Deterministic Argument Correctness",
@@ -465,7 +451,7 @@
       {
         "name": "entitycore-brainregion-getall",
         "arguments": {
-          "semantic_search": "Cerebellum"
+          "semantic_search": "cerebellum"
         }
       },
       {
@@ -477,8 +463,7 @@
     ],
     "params": {
       "tags": [
-        "entitycore",
-        "literature_search"
+        "entitycore"
       ]
     },
     "ai_response": "## Cerebellum \\u2014 5 morphologies (from search)\\nTotal available morphologies in Cerebellum: **50** (showing 5)\\n\\n### 1) **soma_10c** \\u2014 **ID: e892fa95-c724-457a-8dc6-176f5d6cc5d9**\\n- Brain region: **Cerebellum**\\n- Mtype(s): **CBXpu_PuC** (Cerebellum Purkinje Cell)\\n- Description: *Soma as a flask-like shape with a radius around 7.5 \\u00b5m and close to the sagittal plane. Located in the Purkinje cell layer. Dendrites are flat, large and highly branched named dendritic tree. Located in the molecular layer. There is a single long axon, downward to the white matter. It\\u2019s the sole output of the cerebellum.*\\n- Assets (filenames / content types):\\n  - soma_10c.swc \\u2014 application/swc\\n  - soma_10c.h5 \\u2014 application/x-hdf5\\n  - soma_10c.asc \\u2014 application/asc\\n- License: **CC BY-NC-SA 4.0**\\n- View entity: [soma_10c](https://openbraininstitute.org/app/entity/e892fa95-c724-457a-8dc6-176f5d6cc5d9)\\n\\n---\\n\\n### 2) **01bc** \\u2014 **ID: d083a0bd-00a4-4594-b52f-950a5dd3ec70**\\n- Brain region: **Cerebellum**\\n- Mtype(s): **CBXmo_BC** (Cerebellum Basket Cell)\\n- Description: *Soma pyramidal/oval (radius ~6 \\u00b5m) in inner 1/3 of molecular layer. Dendrites long, straight, extend upward with few branches. Axon runs parallel to Purkinje cell layer with descending and ascending collaterals.*\\n- Assets:\\n  - 01bc.swc \\u2014 application/swc\\n  - 01bc.h5 \\u2014 application/x-hdf5\\n  - 01bc.asc \\u2014 application/asc\\n- License: **CC BY-NC-SA 4.0**\\n- View entity: [01bc](https://openbraininstitute.org/app/entity/d083a0bd-00a4-4594-b52f-950a5dd3ec70)\\n\\n---\\n\\n### 3) **stellate** \\u2014 **ID: 00ba95d3-13e4-4703-ad85-3df816febf53**\\n- Brain region: **Cerebellum**\\n- Mtype(s): **CBXmo_StC** (Cerebellum Stellate Cell)\\n- Description: *Soma small and fusiform (radius ~4 \\u00b5m) in outer 2/3 of molecular layer. Dendrites long, thin, contorted, aspinous and branch in all directions. Axon branches immediately into short circumscribed collaterals.*\\n- Assets:\\n  - stellate.swc \\u2014 application/swc\\n  - stellate.h5 \\u2014 application/x-hdf5\\n  - stellate.asc \\u2014 application/asc\\n- License: **CC BY-NC-SA 4.0**\\n- View entity: [stellate](https://openbraininstitute.org/app/entity/00ba95d3-13e4-4703-ad85-3df816febf53)\\n\\n---\\n\\n### 4) **pair-140514-C2-1_split_1** \\u2014 **ID: cb635d11-f5f4-4ec5-8c6e-3e5af6d4eb6c**\\n- Brain region: **Cerebellum**\\n- Mtype(s): **CBXgr_GoC** (Cerebellum Golgi Cell)\\n- Description: *Soma round/polygonal (radius ~8 \\u00b5m) in granular layer. 4\\u201310 dendrites divided into basal (remain in granular layer) and apical (ascend to molecular layer forming a fan). Axons: very thin beaded fibers with a large axon plexus in granular layer.*\\n- Assets:\\n  - pair-140514-C2-1_split_1.swc \\u2014 application/swc\\n  - pair-140514-C2-1_split_1.h5 \\u2014 application/x-hdf5\\n  - pair-140514-C2-1_split_1.asc \\u2014 application/asc\\n- License: **CC BY-NC-SA 4.0**\\n- View entity: [pair-140514-C2-1_split_1](https://openbraininstitute.org/app/entity/cb635d11-f5f4-4ec5-8c6e-3e5af6d4eb6c)\\n\\n---\\n\\n### 5) **GrC2018** \\u2014 **ID: b03ceac9-d657-488c-a43c-01be275d0861**\\n- Brain region: **Cerebellum**\\n- Mtype(s): **CBXgr_GrC** (Cerebellum Granule Cell)\\n- Description: *Soma very small (radius \\u2248 2.5 \\u00b5m), round, located in granular layer. 4\\u20135 dendrites with claw-like endings. Axon ascends to molecular layer and bifurcates into parallel fibers that run along folium axis.*\\n- Assets:\\n  - GrC2018.swc \\u2014 application/swc\\n  - GrC2018.h5 \\u2014 application/x-hdf5\\n  - GrC2018.asc \\u2014 application/asc\\n- License: **CC BY-NC-SA 4.0**\\n- View entity: [GrC2018](https://openbraininstitute.org/app/entity/b03ceac9-d657-488c-a43c-01be275d0861)\\n\\n---\\n\\nIf you\\u2019d like, I can:\\n- Download any of the available SWC/H5/ASC files for one or more of these morphologies,\\n- Show these morphologies rendered (3D) in a Plotly figure (I will use the Python runner for plotting), or\\n- Return additional morphologies (next page) from Cerebellum. Which would you like next?",
@@ -528,7 +513,7 @@
         },
         {
           "name": "Overall Argument Correctness",
-          "score": 0.5,
+          "score": 1.0,
           "success": true,
           "threshold": 0.5,
           "reason": ""
@@ -794,10 +779,10 @@
         },
         {
           "name": "Argument Correctness",
-          "score": 1.0,
+          "score": 0.5,
           "success": true,
           "threshold": 0.5,
-          "reason": "The score is 1.00 because there were no incorrect tool calls and the input was clear and specific."
+          "reason": "The score is 0.50 because the input lacks specificity regarding the brain region related to the ion channel recordings, which is essential for accurate data retrieval."
         },
         {
           "name": "Deterministic Argument Correctness",
@@ -808,7 +793,7 @@
         },
         {
           "name": "Overall Argument Correctness",
-          "score": 1.0,
+          "score": 0.75,
           "success": true,
           "threshold": 0.5,
           "reason": ""
