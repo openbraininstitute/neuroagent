@@ -496,7 +496,7 @@
           "score": 1.0,
           "success": true,
           "threshold": 0.5,
-          "reason": "The score is 1.00 because there were no incorrect tool calls and the input was clear and straightforward."
+          "reason": "The score is 1.00 because there are no incorrect tool calls and the input is clear and straightforward."
         },
         {
           "name": "Deterministic Argument Correctness",
