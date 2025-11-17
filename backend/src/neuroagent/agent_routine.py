@@ -275,6 +275,12 @@ class AgentsRoutine:
                     "tool_calls": [],
                     "encrypted_reasoning": "",
                 }
+                # for streaming interrupt
+                temp_stream_data: dict[str, Any] = {
+                    "content": "",
+                    "tool_calls": {},
+                    "reasoning": {},
+                }
 
                 # get completion with current history, agent
                 completion = await self.get_chat_completion(
@@ -288,12 +294,6 @@ class AgentsRoutine:
                 turns += 1
                 usage_data = None
                 tool_call_ID_mapping: dict[str, str] = {}
-                # for streaming interrupt
-                temp_stream_data: dict[str, Any] = {
-                    "content": "",
-                    "tool_calls": {},
-                    "reasoning": {},
-                }
                 async for event in completion:
                     match event:
                         # === REASONING ===
@@ -648,6 +648,6 @@ class AgentsRoutine:
                             ),
                             is_complete=False,
                         )
-                        for call in tool_calls
+                        for call in messages[-1].tool_calls
                     ]
                 )

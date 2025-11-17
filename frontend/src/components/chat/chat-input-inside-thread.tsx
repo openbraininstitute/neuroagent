@@ -8,6 +8,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { resetInfiniteQueryPagination } from "@/hooks/get-message-page";
 import { ModelSelectionDropdown } from "./model-selection";
 import { LLMModel } from "@/lib/types";
+import { MessageStrict } from "@/lib/types";
 
 type ChatInputInsideThreadProps = {
   input: string;
@@ -29,6 +30,11 @@ type ChatInputInsideThreadProps = {
   stopped: boolean;
   setStopped: Dispatch<SetStateAction<boolean>>;
   setIsInvalidating: Dispatch<SetStateAction<boolean>>;
+  setMessages: (
+    messages:
+      | MessageStrict[]
+      | ((messages: MessageStrict[]) => MessageStrict[]),
+  ) => void;
 };
 
 export function ChatInputInsideThread({
@@ -48,6 +54,7 @@ export function ChatInputInsideThread({
   onStop,
   stopped,
   setStopped,
+  setMessages,
   setIsInvalidating,
 }: ChatInputInsideThreadProps) {
   const canSend = !hasOngoingToolInvocations || stopped;
@@ -118,6 +125,14 @@ export function ChatInputInsideThread({
                   e.preventDefault();
                   onStop();
                   setStopped(true);
+                  setMessages((prevState) => {
+                    prevState[prevState.length - 1] = {
+                      ...prevState[prevState.length - 1],
+                      isComplete: false,
+                    };
+                    // We only change the metadata at message level and keep the rest.
+                    return prevState;
+                  });
                   startTransition(() => {
                     resetInfiniteQueryPagination(
                       queryClient,

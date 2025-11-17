@@ -132,6 +132,7 @@ export function ChatPage({
       | MessageStrict[]
       | ((messages: MessageStrict[]) => MessageStrict[]),
   ) => void;
+  console.log(messages);
 
   // Initial use effect that runs on mount
   useEffect(() => {
@@ -165,20 +166,6 @@ export function ChatPage({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Handle streaming interruption
-  useEffect(() => {
-    if (stopped) {
-      setMessages((prevState) => {
-        prevState[prevState.length - 1] = {
-          ...prevState[prevState.length - 1],
-          isComplete: false,
-        };
-        // We only change the metadata at message level and keep the rest.
-        return prevState;
-      });
-    }
-  }, [stopped, setMessages]);
-
   useEffect(() => {
     if (isInvalidating || isFetching) return;
     // Set retrieved DB messaged as current messages
@@ -192,7 +179,8 @@ export function ChatPage({
     } else {
       setMessages(retrievedMessages);
     }
-  }, [isInvalidating, isFetching, stopped]); // RE-run on new fetching or stop
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isInvalidating, isFetching]); // RE-run on new fetching or stop
 
   // Constant to check if there are tool calls at the end of conv.
   const hasOngoingToolInvocations =
@@ -265,7 +253,7 @@ export function ChatPage({
     if (messages.length > 0 && messages[messages.length - 1].role === "user") {
       setMessages(messages.slice(0, -1));
     }
-    debugger;
+
     let errorDetail;
     try {
       // Try to parse error message as JSON
@@ -331,6 +319,7 @@ export function ChatPage({
         onStop={stop}
         stopped={stopped}
         setStopped={setStopped}
+        setMessages={setMessages}
         setIsInvalidating={setIsInvalidating}
       />
     </div>
