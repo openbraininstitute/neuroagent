@@ -115,7 +115,7 @@ def print_table(df: pd.DataFrame, title: str, show_averages: bool = True) -> Non
         return
 
     # Format the DataFrame for display
-    display_df = df.copy()
+    display_df = df.copy().reindex(sorted(df.columns), axis=1)
 
     # Format numeric columns with colors
     for col in display_df.columns:
@@ -138,6 +138,7 @@ def print_table(df: pd.DataFrame, title: str, show_averages: bool = True) -> Non
                 avg_row[col] = "N/A"
 
         avg_df = pd.DataFrame([avg_row])
+        avg_df = avg_df.reindex(sorted(avg_df.columns), axis=1)
         print(avg_df.to_markdown(tablefmt="grid", index=False))
 
 
@@ -155,6 +156,7 @@ def print_comparison_table(
 
     # Perform outer join to include all test cases
     combined_df = old_df.join(new_df, how="outer", rsuffix="_new", lsuffix="_old")
+    combined_df = combined_df.reindex(sorted(combined_df.columns), axis=1)
     # Don't fill NaN with 0 - we want to distinguish between missing values and actual 0 scores
 
     # Create comparison DataFrame
@@ -310,6 +312,7 @@ def print_comparison_table(
             )
 
     avg_df = pd.DataFrame([avg_comparison])
+    avg_df = avg_df.reindex(sorted(avg_df.columns), axis=1)
     print(avg_df.to_markdown(tablefmt="grid", index=False))
 
 
