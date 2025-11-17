@@ -242,7 +242,9 @@ def print_comparison_table(
         comparison_data.append(row_data)
 
     comparison_df = pd.DataFrame(comparison_data)
-    comparison_df = comparison_df.set_index("test_name")
+    comparison_df = comparison_df.set_index("test_name").reindex(
+        sorted(comparison_df.columns), axis=1
+    )
 
     print(comparison_df.to_markdown(tablefmt="grid"))
 
