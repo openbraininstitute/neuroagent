@@ -12,6 +12,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [v0.11.5] - 6.11.2025
 
+### Fixed
+- Deterministic order of eval columns.
+
 ### Changed
 - Base class for excluded parameters.
 - Resolving of asset/hierarchy id within tools.
