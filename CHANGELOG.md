@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Rule to understand private entities.
+
 ## [v0.11.5] - 6.11.2025
 
 ### Changed
