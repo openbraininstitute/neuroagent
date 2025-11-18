@@ -127,7 +127,6 @@ class WebSearchTool(BaseTool):
     async def is_online(cls) -> bool:
         """Check if the tool is online.
 
-        Returns True if the Exa AI service is accessible.
+        No known way of checking if the API is live.
         """
-        # TODO: Implement health check for Exa AI service
         return True
