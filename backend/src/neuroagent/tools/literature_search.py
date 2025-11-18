@@ -68,7 +68,8 @@ class LiteratureSearchTool(BaseTool):
     description: ClassVar[str] = (
         "Search across 100M+ research papers with full text access using Exa AI - performs targeted academic paper searches with deep research content coverage. "
         "Returns detailed information about relevant academic papers including titles, authors, publication dates, and full text excerpts. "
-        "You can control the number of results as well as the start/end publication date. "
+        "You can control the number of results as well as the start/end publication date."
+        "This tool returns only partial content of pages. In your reply, mention that you can attempt to read the full articles using the `read-paper-tool` if the paper is publicly available."
         "*CRITICAL* : Each returned article has an `image` field. When it is not None, you MUST systematically embed the url in the chat in markdown (e.g. ()[https://url.of.image.png])."
     )
     description_frontend: ClassVar[str] = (
@@ -120,7 +121,7 @@ class LiteratureSearchTool(BaseTool):
         if self.input_schema.end_publish_date:
             payload["endPublishedDate"] = self.input_schema.end_publish_date.isoformat()
 
-        async with httpx.AsyncClient() as client:
+        async with httpx.AsyncClient(timeout=300) as client:
             response = await client.post(
                 "https://api.exa.ai/search",
                 headers={

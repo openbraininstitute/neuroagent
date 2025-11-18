@@ -148,12 +148,14 @@ from neuroagent.tools.obione_generatesimulationsconfig import (
     GenerateSimulationsConfigTool,
 )
 from neuroagent.tools.obione_morphometrics_getone import MorphometricsGetOneTool
+from neuroagent.tools.read_paper import ReadPaperTool
 from neuroagent.tools.run_python_tool import RunPythonTool
 from neuroagent.tools.thumbnailgen_electricalcellrecording_getone import (
     PlotElectricalCellRecordingGetOneTool,
 )
 from neuroagent.tools.thumbnailgen_morphology_getone import PlotMorphologyGetOneTool
 from neuroagent.tools.weather import WeatherTool
+from neuroagent.tools.web_search import WebSearchTool
 
 __all__ = [
     "AssetDownloadOneTool",
@@ -213,6 +215,7 @@ __all__ = [
     "PlotElectricalCellRecordingGetOneTool",
     "PlotMorphologyGetOneTool",
     "RunPythonTool",
+    "ReadPaperTool",
     "SimulationCampaignGetAllTool",
     "SimulationCampaignGetOneTool",
     "SimulationExecutionGetAllTool",
@@ -236,4 +239,5 @@ __all__ = [
     "SubjectGetAllTool",
     "SubjectGetOneTool",
     "WeatherTool",
+    "WebSearchTool",
 ]

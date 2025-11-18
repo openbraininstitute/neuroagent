@@ -87,6 +87,7 @@ from neuroagent.tools import (
     PersonGetOneTool,
     PlotElectricalCellRecordingGetOneTool,
     PlotMorphologyGetOneTool,
+    ReadPaperTool,
     RunPythonTool,
     SimulationCampaignGetAllTool,
     SimulationCampaignGetOneTool,
@@ -110,6 +111,7 @@ from neuroagent.tools import (
     StrainGetOneTool,
     SubjectGetAllTool,
     SubjectGetOneTool,
+    WebSearchTool,
 )
 from neuroagent.tools.base_tool import BaseTool
 
@@ -461,7 +463,9 @@ def get_tool_list(
         StrainGetOneTool,
         SubjectGetAllTool,
         SubjectGetOneTool,
+        ReadPaperTool,
         RunPythonTool,
+        WebSearchTool,
         # NowTool,
         # WeatherTool,
     ]

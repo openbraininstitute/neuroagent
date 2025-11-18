@@ -19,6 +19,14 @@ class WebSearchInput(BaseModel):
     num_results: int = Field(
         default=5, ge=1, le=10, description="Number of results to return"
     )
+    start_publish_date: datetime | None = Field(
+        default=None,
+        description="Filter papers published after this date (ISO 8601 format)",
+    )
+    end_publish_date: datetime | None = Field(
+        default=None,
+        description="Filter papers published before this date (ISO 8601 format)",
+    )
 
 
 class WebSearchMetadata(BaseMetadata):
@@ -95,7 +103,7 @@ class WebSearchTool(BaseTool):
         if self.input_schema.end_publish_date:
             payload["endPublishedDate"] = self.input_schema.end_publish_date.isoformat()
 
-        async with httpx.AsyncClient() as client:
+        async with httpx.AsyncClient(timeout=300) as client:
             response = await client.post(
                 "https://api.exa.ai/search",
                 headers={
@@ -104,11 +112,16 @@ class WebSearchTool(BaseTool):
                 },
                 json=payload,
             )
+
             if response.status_code != 200:
                 raise ValueError(
                     f"The Exa search endpoint returned a non 200 response code. Error: {response.text}"
                 )
             data = response.json()
+
+            return WebSearchOutput(
+                results=[SearchResults(**res) for res in data["results"]]
+            )
 
     @classmethod
     async def is_online(cls) -> bool:
