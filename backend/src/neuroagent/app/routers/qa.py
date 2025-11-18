@@ -12,7 +12,6 @@ from fastapi import (
     BackgroundTasks,
     Depends,
     HTTPException,
-    Request,
     Response,
 )
 from fastapi.responses import StreamingResponse
@@ -232,7 +231,6 @@ async def get_available_LLM_models(
 
 @router.post("/chat_streamed/{thread_id}")
 async def stream_chat_agent(
-    request: Request,
     user_request: ClientRequest,
     redis_client: Annotated[aioredis.Redis | None, Depends(get_redis_client)],
     settings: Annotated[Settings, Depends(get_settings)],
@@ -242,9 +240,6 @@ async def stream_chat_agent(
     context_variables: Annotated[dict[str, Any], Depends(get_context_variables)],
     accounting_session_factory: Annotated[
         AsyncAccountingSessionFactory, Depends(get_accounting_session_factory)
-    ],
-    filtered_models: Annotated[
-        list[OpenRouterModelResponse], Depends(get_openrouter_models)
     ],
     openai_client: Annotated[AsyncOpenAI, Depends(get_openai_client)],
     session: Annotated[AsyncSession, Depends(get_session)],
@@ -282,15 +277,6 @@ async def stream_chat_agent(
         raise HTTPException(
             status_code=413,
             detail=f"Query string has {len(user_request.content)} characters. Maximum allowed is {settings.misc.query_max_size}.",
-        )
-
-    # Check that the requested model is authorized
-    if user_request.model in [model.id for model in filtered_models]:
-        agent.model = user_request.model
-        logger.info(f"Loading model {agent.model}.")
-    else:
-        raise HTTPException(
-            status_code=404, detail={"error": f"Model {user_request.model} not found."}
         )
 
     # For openai requests, ditch openrouter

@@ -23,7 +23,7 @@ DO NOT use markdown image syntax for:
 
 **Important:** If a tool returns only a storage_id/UUID, simply mention it in text:
 - Correct: "The image has displayed (view below)."
-- Wrong: `![Image](https://example.com/[ID])`
+- Wrong: `![Image](https://example.com/[ID])` or `![Image](UUID)`
 
 The frontend will automatically display images from storage IDs BELOW your message.
 
