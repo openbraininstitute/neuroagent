@@ -1,38 +1,57 @@
 ---
-name: Bug report
-about: Create a report to help us improve
+name: Bug
+about: For identifying & tracking bugs
 title: ''
 labels: ''
 assignees: ''
 
 ---
 
-**Describe the bug**
-A clear and concise description of what the bug is.
+## Environment
+E.g. dev, staging, prod
 
-**To Reproduce**
+## Operating system & resolution
+E.g. Mac 14" (if possible, include also the resolution), Linux, etc
+
+## Browser & version
+E.g. chrome, safari (including version)
+
+## Description
+Clear and concise description
+
+## To Reproduce
 Steps to reproduce the behavior:
 1. Go to '...'
 2. Click on '....'
 3. Scroll down to '....'
 4. See error
 
-**Expected behavior**
-A clear and concise description of what you expected to happen.
+## Expected behavior
+Clear and concise description
 
-**Screenshots**
-If applicable, add screenshots to help explain your problem.
+## Screenshots
+If applicable, add screenshots to help explain your problem
 
-**Desktop (please complete the following information):**
- - OS: [e.g. iOS]
- - Browser [e.g. chrome, safari]
- - Version [e.g. 22]
+## Additional context
+Add any other context about the problem here
 
-**Smartphone (please complete the following information):**
- - Device: [e.g. iPhone6]
- - OS: [e.g. iOS8.1]
- - Browser [e.g. stock browser, safari]
- - Version [e.g. 22]
+## Acceptance criteria
+- [ ] Include a checkbox list
+- [ ] Include a checkbox list
+- [ ] Include a checkbox list
 
-**Additional context**
-Add any other context about the problem here.
+## Right panel fields
+
+### Assignee
+Will be added by default (the Product Owner)
+
+### Labels
+E.g. You can add 'planning' (for QA discussion), 'up next?' (for resource request), or other as applicable
+
+### Type
+Bug / Feature / Task
+
+### Projects
+Select 'OBI 2025-' project (plus others as relevant)
+Priority: P0 (higher), P1, or P2 (lower)
+Time estimate: In days

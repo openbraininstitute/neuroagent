@@ -1,20 +1,47 @@
 ---
 name: Feature request
-about: Suggest an idea for this project
+about: For requests for new features
 title: ''
-labels: ''
+labels: enhancement
 assignees: ''
 
 ---
 
-**Is your feature request related to a problem? Please describe.**
-A clear and concise description of what the problem is. Ex. I'm always frustrated when [...]
+## Description
+Clear and concise description of what you would like to happen
 
-**Describe the solution you'd like**
-A clear and concise description of what you want to happen.
+## Assets
+E.g. Figma, design or other assets
 
-**Describe alternatives you've considered**
-A clear and concise description of any alternative solutions or features you've considered.
+## Technical implementation & specs
+Including also dependencies or affected components
 
-**Additional context**
-Add any other context or screenshots about the feature request here.
+## Describe alternatives considered
+Clear and concise description of any alternative solutions or features considered
+
+## Screenshots
+If applicable, add screenshots to help explain your problem
+
+## Additional context
+Add any other context about the problem here
+
+## Acceptance criteria
+- [ ] Include a checkbox list
+- [ ] Include a checkbox list
+- [ ] Include a checkbox list
+
+## Right panel fields
+
+### Assignee
+Will be added by default (the Product Owner)
+
+### Labels
+E.g. You can add 'planning' (for QA discussion), 'up next?' (for resource request), or other as applicable
+
+### Type
+Bug / Feature / Task
+
+### Projects
+Select 'OBI 2025-' project (plus others as relevant)
+Priority: P0 (higher), P1, or P2 (lower)
+Time estimate: In days
