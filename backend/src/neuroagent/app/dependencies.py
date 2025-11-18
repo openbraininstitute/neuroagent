@@ -69,6 +69,7 @@ from neuroagent.tools import (
     IonChannelModelGetOneTool,
     IonChannelRecordingGetAllTool,
     IonChannelRecordingGetOneTool,
+    LiteratureSearchTool,
     MeasurementAnnotationGetAllTool,
     MeasurementAnnotationGetOneTool,
     MEModelGetAllTool,
@@ -420,6 +421,7 @@ def get_tool_list(
         IonChannelModelGetOneTool,
         IonChannelRecordingGetAllTool,
         IonChannelRecordingGetOneTool,
+        LiteratureSearchTool,
         MeasurementAnnotationGetAllTool,
         MeasurementAnnotationGetOneTool,
         MEModelGetAllTool,
@@ -671,6 +673,9 @@ async def get_context_variables(
         "entitycore_url": settings.tools.entitycore.url,
         "current_frontend_url": current_frontend_url,
         "entity_frontend_url": entity_frontend_url,
+        "exa_api_key": settings.tools.exa_api_key.get_secret_value()
+        if settings.tools.exa_api_key
+        else None,
         "httpx_client": httpx_client,
         "obi_one_url": settings.tools.obi_one.url,
         "openai_client": openai_client,
