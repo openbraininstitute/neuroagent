@@ -8,7 +8,7 @@ from typing import Any, Literal, Sequence
 
 from fastapi import HTTPException
 from openai import AsyncOpenAI
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, create_model
 from redis import asyncio as aioredis
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, create_async_engine
@@ -16,8 +16,10 @@ from starlette.status import HTTP_401_UNAUTHORIZED
 
 from neuroagent.app.config import Settings
 from neuroagent.app.database.sql_schemas import (
+    ComplexityEstimation,
     Entity,
     Messages,
+    ReasoningLevels,
     Task,
     Threads,
     TokenConsumption,
@@ -419,34 +421,89 @@ def parse_redis_data(
     )
 
 
-async def filter_tools_by_conversation(
-    messages: list[Messages],
-    tool_list: list[type[BaseTool]],
-    openai_client: AsyncOpenAI,
-    min_tool_selection: int,
-) -> list[type[BaseTool]]:
-    """
-    Filter tools based on conversation relevance.
+def complexity_to_model_and_reasoning(complexity: int) -> dict[str, str | None]:
+    """Map complexity score to optimal model and reasoning effort.
 
     Parameters
     ----------
-    openai_messages:
-        List of OpenAI formatted messages
-    tool_list:
-        List of available tools
-    user_content:
-        Current user message content
-    openai_client:
-        OpenAI client instance
-    min_tool_selection:
-        Minimum numbers of tools the LLM should select
+    complexity : int
+        Query complexity score from 0-10
 
     Returns
     -------
-        List of filtered tools relevant to the conversation
+    dict[str, str]
+        Dictionary with 'model' and optionally 'reasoning' keys
     """
-    if len(tool_list) <= min_tool_selection:
-        return tool_list
+    if complexity <= 1:
+        return {"model": "openai/gpt-5-nano", "reasoning": "minimal"}
+    elif complexity <= 3:
+        return {"model": "openai/gpt-5-nano", "reasoning": "low"}
+    elif complexity <= 5:
+        return {"model": "openai/gpt-5-mini", "reasoning": "low"}
+    elif complexity <= 8:
+        return {"model": "openai/gpt-5-mini", "reasoning": "medium"}
+    else:
+        return {"model": "openai/gpt-5.1", "reasoning": "medium"}
+
+
+async def filter_tools_and_model_by_conversation(
+    messages: list[Messages],
+    tool_list: list[type[BaseTool]],
+    openai_client: AsyncOpenAI,
+    settings: Settings,
+    selected_model: str | None = None,
+) -> tuple[list[type[BaseTool]], dict[str, str | None]]:
+    """Filter tools and select model based on conversation context and query complexity.
+
+    Uses an LLM to analyze the conversation history and determine which tools are relevant
+    and what model/reasoning level is appropriate. Performs tool selection when the number
+    of available tools exceeds the minimum threshold, and model selection when no model is
+    pre-selected. Updates the last message with selection metadata and token consumption.
+
+    Parameters
+    ----------
+    messages : list[Messages]
+        Conversation history as database message objects
+    tool_list : list[type[BaseTool]]
+        Available tools to filter from
+    openai_client : AsyncOpenAI
+        OpenAI client for making LLM requests
+    settings : Settings
+        Application settings containing tool and model configuration
+    selected_model : str | None, optional
+        Pre-selected model name. If provided, skips model selection
+
+    Returns
+    -------
+    tuple[list[type[BaseTool]], dict[str, str | None]]
+        Filtered tool list and dictionary with 'model' and 'reasoning' keys
+
+    Notes
+    -----
+    - Tool selection only occurs when len(tool_list) > settings.tools.min_tool_selection
+    - Model selection only occurs when selected_model is None
+    - Uses gemini-2.5-flash for the filtering/selection task
+    - Updates messages[-1] with tool_selection, model_selection, and token_consumption
+    - Falls back to defaults on errors: no tools and default model from settings
+    """
+    need_tool_selection = len(tool_list) > settings.tools.min_tool_selection
+    need_model_selection = selected_model is None
+
+    # If neither selection is needed, return defaults
+    if (
+        not need_tool_selection and selected_model is not None
+    ):  # for mypy we check selected_model not need_model_selection
+        model_reason_dict = {
+            "model": selected_model,
+            "reasoning": None,
+        }  # TODO: chose reasoning effort in frontend
+        messages[-1].model_selection = ComplexityEstimation(
+            model=model_reason_dict["model"],
+            reasoning=ReasoningLevels(model_reason_dict["reasoning"])
+            if model_reason_dict.get("reasoning")
+            else None,
+        )
+        return tool_list, model_reason_dict
 
     openai_messages = await messages_to_openai_content(messages)
 
@@ -455,38 +512,69 @@ async def filter_tools_by_conversation(
         if message["role"] == "tool":
             message["content"] = "..."
 
-    system_prompt = f"""TASK: Filter tools for AI agent based on conversation relevance.
+    # Build system prompt conditionally
+    instructions = []
+    output_fields = []
 
-TOOL DESCRIPTION FORMAT:
-tool_name: tool_description
-Example utterances: utterances
-
-INSTRUCTIONS:
+    if need_tool_selection:
+        instructions.append(f"""TOOL SELECTION:
 1. Analyze the conversation to identify required capabilities
-2. Select at least {min_tool_selection} of the most relevant tools by name only
+2. Select at least {settings.tools.min_tool_selection} of the most relevant tools by name only
 3. BIAS TOWARD INCLUSION: If uncertain about a tool's relevance, include it - better to provide too many tools than too few
 4. Only exclude tools that are clearly irrelevant to the conversation
-5. Output format: comma-separated list of tool names
-6. Do not respond to user queries - only filter tools
-7. Each tool must be selected only once.
+5. Each tool must be selected only once""")
+        output_fields.append("selected_tools: [tool_name1, tool_name2, ...]")
 
-OUTPUT: [tool_name1, tool_name2, ...]
+    if need_model_selection:
+        instructions.append("""COMPLEXITY RANKING (0-10):
+Evaluate the inherent complexity of the query while considering how well the selected tools can address it. This determines model selection and reasoning effort.
+- 0-1: Simple query answerable directly from LLM knowledge (no tools needed)
+- 2-3: Straightforward query with a tool that directly solves it (single call, minimal reasoning)
+- 4-6: Moderate query requiring some reasoning, even with helpful tools (2-3 calls, basic orchestration)
+- 7-8: Complex query requiring significant reasoning despite tool support (multi-step workflows, cross-referencing)
+- 9-10: Highly complex query demanding deep reasoning even with available tools (extensive orchestration, novel problem-solving)""")
+        output_fields.append("complexity: int")
+
+    task_desc = []
+    if need_tool_selection:
+        task_desc.append("filter tools")
+    if need_model_selection:
+        task_desc.append("rank query complexity")
+
+    system_prompt = f"""TASK: {" and ".join(task_desc).capitalize()}.
+
+{chr(10).join(instructions)}
+
+Do not respond to user queries - only {" and ".join(task_desc)}.
+
+OUTPUT: {{ {", ".join(output_fields)} }}
 
 AVAILABLE TOOLS:
-{(chr(10) * 2).join(f"{tool.name}: {tool.description + chr(10)}Example utterances: {chr(10) + '- ' + (chr(10) + '- ').join(utterance for utterance in tool.utterances)}" for tool in tool_list)}
-"""
+{(chr(10) * 2).join(f"{tool.name}: {tool.description + chr(10)}Example utterances: {chr(10) + '- ' + (chr(10) + '- ').join(utterance for utterance in tool.utterances)}" for tool in tool_list)}"""
 
     # Prepare the dynamic pydantic output class
-    tool_names = [tool.name for tool in tool_list]
-    TOOL_NAMES_LITERAL = Literal[*tool_names]  # type: ignore
-
-    class ToolFiltering(BaseModel):
-        """Data class for tool selection by an LLM."""
-
-        selected_tools: list[TOOL_NAMES_LITERAL] = Field(
-            min_length=min_tool_selection,
-            description=f"List of selected tool names, minimum {min_tool_selection} items. Must contain all of the tools relevant to the conversation. Must not contain duplicates.",
+    class_fields: dict[str, Any] = {}
+    if need_tool_selection:
+        tool_names = [tool.name for tool in tool_list]
+        TOOL_NAMES_LITERAL = Literal[*tool_names]  # type: ignore
+        class_fields["selected_tools"] = (
+            list[TOOL_NAMES_LITERAL],
+            Field(
+                min_length=settings.tools.min_tool_selection,
+                description=f"List of selected tool names, minimum {settings.tools.min_tool_selection} items. Must contain all of the tools relevant to the conversation. Must not contain duplicates.",
+            ),
         )
+    if need_model_selection:
+        class_fields["complexity"] = (
+            int,
+            Field(
+                ge=0,
+                le=10,
+                description="Complexity of the query on a scale from 0 to 10. Trivial queries are ranked 0, extremely hard ones are ranked 10",
+            ),
+        )
+
+    ToolModelFiltering = create_model("ToolModelFiltering", **class_fields)
 
     try:
         # Send the OpenAI request
@@ -495,23 +583,36 @@ AVAILABLE TOOLS:
         response = await openai_client.beta.chat.completions.parse(
             messages=[{"role": "system", "content": system_prompt}, *openai_messages],  # type: ignore
             model=model,
-            response_format=ToolFiltering,
+            response_format=ToolModelFiltering,
         )
 
         # Parse the output
         if response.choices[0].message.parsed:
-            selected_tools = list(
-                set(response.choices[0].message.parsed.selected_tools)
-            )
-            logger.debug(
-                f"#TOOLS: {len(selected_tools)}, SELECTED TOOLS: {selected_tools} in {(time.time() - start_request):.2f} s"
-            )
+            parsed = response.choices[0].message.parsed
 
-            # Add selected tools into the message's data
-            filtered_tools = [tool for tool in tool_list if tool.name in selected_tools]
-            messages[-1].tool_selection = [
-                ToolSelection(tool_name=tool.name) for tool in filtered_tools
-            ]
+            # Handle tool selection
+            if need_tool_selection:
+                selected_tools = list(set(parsed.selected_tools))
+                filtered_tools = [
+                    tool for tool in tool_list if tool.name in selected_tools
+                ]
+                messages[-1].tool_selection = [
+                    ToolSelection(tool_name=tool.name) for tool in filtered_tools
+                ]
+            else:
+                filtered_tools = tool_list
+
+            # Handle model selection
+            if need_model_selection:
+                complexity: int | None = parsed.complexity
+                model_reason_dict = complexity_to_model_and_reasoning(complexity)
+            else:
+                complexity = None
+                model_reason_dict = {"model": selected_model, "reasoning": None}
+
+            logger.debug(
+                f"Query complexity: {complexity if complexity is not None else 'N/A'} / 10, selected model {model_reason_dict['model'].lstrip('openai/')} with reasoning effort {model_reason_dict.get('reasoning', 'N/A')}  #TOOLS: {len(filtered_tools)}, SELECTED TOOLS: {[t.name for t in filtered_tools]} in {(time.time() - start_request):.2f} s"
+            )
 
             token_count = get_token_count(response.usage)
             token_consumption = [
@@ -525,13 +626,37 @@ AVAILABLE TOOLS:
                 ]
                 if count
             ]
-            # Assign to message
             messages[-1].token_consumption = token_consumption
-        else:
-            logger.warning("No parsed response from OpenAI, returning empty list")
-            filtered_tools = []
 
-        return filtered_tools
+        else:
+            logger.warning("No parsed response from OpenAI, returning defaults")
+            filtered_tools = tool_list if not need_tool_selection else []
+            model_reason_dict = {
+                "model": selected_model
+                if selected_model
+                else settings.llm.default_chat_model,
+                "reasoning": None
+                if selected_model
+                else settings.llm.default_chat_reasoning,
+            }
+
     except Exception as e:
         logger.error(f"Error filtering tools: {e}")
-        return []
+        filtered_tools = tool_list if not need_tool_selection else []
+        model_reason_dict = {
+            "model": selected_model
+            if selected_model
+            else settings.llm.default_chat_model,
+            "reasoning": None
+            if selected_model
+            else settings.llm.default_chat_reasoning,
+        }
+
+    messages[-1].model_selection = ComplexityEstimation(
+        complexity=complexity,
+        model=model_reason_dict["model"],
+        reasoning=ReasoningLevels(model_reason_dict["reasoning"])
+        if model_reason_dict.get("reasoning")
+        else None,
+    )
+    return filtered_tools, model_reason_dict
