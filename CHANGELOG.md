@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Auto model routing.
 - New test cases for morphology in br.
 - Rule to understand private entities.
+- Issue templates.
 
 ### Changed
 - Exa tools no longer MCP.
