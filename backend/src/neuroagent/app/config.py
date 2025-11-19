@@ -116,6 +116,7 @@ class SettingsTools(BaseModel):
     min_tool_selection: int = Field(default=5, ge=0)
     whitelisted_tool_regex: str | None = None
     deno_allocated_memory: int | None = 8192
+    exa_api_key: SecretStr | None = None
 
     model_config = ConfigDict(frozen=True)
 

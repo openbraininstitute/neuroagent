@@ -631,6 +631,7 @@ AVAILABLE TOOLS:
         else:
             logger.warning("No parsed response from OpenAI, returning defaults")
             filtered_tools = tool_list if not need_tool_selection else []
+            complexity = None
             model_reason_dict = {
                 "model": selected_model
                 if selected_model
@@ -643,6 +644,7 @@ AVAILABLE TOOLS:
     except Exception as e:
         logger.error(f"Error filtering tools: {e}")
         filtered_tools = tool_list if not need_tool_selection else []
+        complexity = None
         model_reason_dict = {
             "model": selected_model
             if selected_model

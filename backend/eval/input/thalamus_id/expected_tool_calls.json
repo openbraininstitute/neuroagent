@@ -2,7 +2,7 @@
   {
     "name": "entitycore-brainregion-getall",
     "arguments": {
-      "semantic_search": "Thalamus"
+      "semantic_search": "thalamus"
     }
   }
 ]

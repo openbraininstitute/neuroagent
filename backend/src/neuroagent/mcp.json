@@ -29,45 +29,5 @@
           ]
         }
       }
-    },
-    "exa": {
-      "command": "npx",
-      "args": ["-y", "exa-mcp-server@0.3.10", "--tools=web_search_exa,research_paper_search,crawling"],
-      "env": {
-        "EXA_API_KEY": "NEUROAGENT_MCP__SECRETS__EXA_API_KEY"
-      },
-      "tool_metadata": {
-        "crawling": {
-          "name": "read-paper",
-          "description": "Extract content from specific URLs using Exa AI - performs targeted crawling of web pages to retrieve their full content. Useful for reading articles, PDFs, or any web page when you have the exact URL. Use in combination with literature-search-tool and web-search-tool when the user asks for more info about a paper/url. Returns the complete text content of the specified URL.",
-          "description_frontend": "Extract content from specific URLs. Performs targeted crawling of web pages to retrieve their full content. Useful for reading articles, PDFs, or any web page when you have the exact URL. Returns the complete text content of the specified URL.",
-          "utterances": [
-            "Extract content from this URL",
-            "Get the full text of this article",
-            "Read this paper for me"
-          ]
-        },
-        "research_paper_search": {
-          "name": "literature-search-tool",
-          "name_frontend": "Literature Search",
-          "description": "Search across 100M+ research papers with full text access using Exa AI - performs targeted academic paper searches with deep research content coverage. Returns detailed information about relevant academic papers including titles, authors, publication dates, and full text excerpts. Control the number of results and character counts returned to balance comprehensiveness with conciseness based on your task requirements. *CRITICAL* : Systematically embed ALL images returned by the tool in the chat. Images are located in $.content[*].text.results[*].image. Each result must be associated to its images. Do not embed the favicon",
-          "description_frontend": "Search across 100M+ research papers with full text access. Performs targeted academic paper searches with deep research content coverage. Returns detailed information about relevant academic papers including titles, authors, publication dates, and full text excerpts. Control the number of results and character counts returned to balance comprehensiveness with conciseness based on your task requirements.",
-          "utterances": [
-            "Find literature on this topic",
-            "Look up academic papers",
-            "Search for research papers"
-          ]
-        },
-        "web_search_exa": {
-          "name": "web-search-tool",
-          "name_frontend": "Web Search",
-          "description_frontend": "Search the web. Performs real-time web searches and can scrape content from specific URLs. Supports configurable result counts and returns the content from the most relevant websites.",
-          "utterances": [
-            "Find information online",
-            "Look up this topic on the internet",
-            "Search the web for this"
-          ]
-        }
-        }
     }
   }
