@@ -53,6 +53,8 @@ class TestAgentsRoutine:
                 "tools": [],
                 "include": ["reasoning.encrypted_content"],
                 "store": False,
+                "text": {"verbosity": "medium"},
+                "reasoning": {"effort": "minimal", "summary": "auto"},
             }
         )
         assert response.output[0]["role"] == "assistant"
@@ -86,6 +88,8 @@ class TestAgentsRoutine:
                 "tools": [],
                 "include": ["reasoning.encrypted_content"],
                 "store": False,
+                "text": {"verbosity": "medium"},
+                "reasoning": {"effort": "minimal", "summary": "auto"},
             }
         )
         assert response.output[0]["role"] == "assistant"
@@ -135,6 +139,8 @@ class TestAgentsRoutine:
                 ],
                 "include": ["reasoning.encrypted_content"],
                 "store": False,
+                "text": {"verbosity": "medium"},
+                "reasoning": {"effort": "minimal", "summary": "auto"},
                 "parallel_tool_calls": True,
             }
         )
