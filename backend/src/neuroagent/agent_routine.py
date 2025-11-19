@@ -84,10 +84,14 @@ class AgentsRoutine:
             "tools": tools or [],
             "include": ["reasoning.encrypted_content"],
             "store": False,
+            "text": {"verbosity": "medium"},
         }
 
         if agent.tool_choice:
             create_params["tool_choice"] = agent.tool_choice
+
+        if agent.reasoning is not None:
+            create_params["reasoning"] = {"effort": agent.reasoning, "summary": "auto"}
 
         if agent.model == "gpt-5-mini":
             create_params["reasoning"] = {"effort": "low", "summary": "auto"}

@@ -7,11 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## Changed
+### Added
+- Auto model routing.
+- New test cases for morphology in br.
+- Rule to understand private entities.
+- Issue templates.
+
+### Changed
+- Exa tools no longer MCP.
 - Adapt everything to vercel v5.
 - Adapt to Response API.
 
+
 ## [v0.11.5] - 6.11.2025
+
+### Fixed
+- Deterministic order of eval columns.
 
 ### Changed
 - Base class for excluded parameters.

@@ -16,6 +16,7 @@ description: Entitycore tools
 - Mention `total_items` count in response
 - Ask before using pagination to retrieve additional pages
 - When calling `GET ALL` endpoints, please mention the `total_items` count and ask the user if they want to see additional data before using the `pagination` parameter to retrieve subsequent pages.
+- As soon as an entity is returned by an entitycore tool, it means the user has the right to access it. Seeing `"authorized_public": false` only means that the entity belong only to the user's project.
 
 ## Asset URLs
 - Always include entity links using `url_link` field

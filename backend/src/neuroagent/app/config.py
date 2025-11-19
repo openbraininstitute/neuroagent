@@ -116,6 +116,7 @@ class SettingsTools(BaseModel):
     min_tool_selection: int = Field(default=5, ge=0)
     whitelisted_tool_regex: str | None = None
     deno_allocated_memory: int | None = 8192
+    exa_api_key: SecretStr | None = None
 
     model_config = ConfigDict(frozen=True)
 
@@ -127,6 +128,8 @@ class SettingsLLM(BaseModel):
     openai_base_url: str | None = None
     open_router_token: SecretStr | None = None
     suggestion_model: str = "gpt-4o-mini"
+    default_chat_model: str = "gpt-5-mini"  # In case of error in model selection
+    default_chat_reasoning: str = "low"
     temperature: float = 1
     max_tokens: int | None = None
     whitelisted_model_ids_regex: str = "openai.*"

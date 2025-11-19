@@ -1,13 +1,13 @@
 {
-  "total_tests": 19,
+  "total_tests": 24,
   "metrics_df": [
     {
       "test_name": "cerebellum_morphologies",
       "Correctness [GEval]": 0.46307011062996806,
       "Tool Correctness": 1.0,
       "Argument Correctness": 0.0,
-      "Deterministic Argument Correctness": 0.5,
-      "Overall Argument Correctness": 0.5
+      "Deterministic Argument Correctness": 1.0,
+      "Overall Argument Correctness": 1.0
     },
     {
       "test_name": "connectivity_metrics",
@@ -26,10 +26,26 @@
       "Overall Argument Correctness": 0.5
     },
     {
+      "test_name": "cortex_morphologies",
+      "Correctness [GEval]": 0.4038147365599317,
+      "Tool Correctness": 1.0,
+      "Argument Correctness": 0.0,
+      "Deterministic Argument Correctness": 0.75,
+      "Overall Argument Correctness": 0.75
+    },
+    {
       "test_name": "get_specific_circuit",
       "Correctness [GEval]": 0.7064444702755955,
       "Tool Correctness": 1.0,
       "Argument Correctness": 1.0,
+      "Deterministic Argument Correctness": 1.0,
+      "Overall Argument Correctness": 1.0
+    },
+    {
+      "test_name": "hippocampus_morphologies",
+      "Correctness [GEval]": 0.28740926464682565,
+      "Tool Correctness": 1.0,
+      "Argument Correctness": 0.0,
       "Deterministic Argument Correctness": 1.0,
       "Overall Argument Correctness": 1.0
     },
@@ -54,7 +70,7 @@
       "Correctness [GEval]": 0.6516039269359125,
       "Tool Correctness": 1.0,
       "Argument Correctness": 1.0,
-      "Deterministic Argument Correctness": 0.3333333333333333,
+      "Deterministic Argument Correctness": 0.0,
       "Overall Argument Correctness": 1.0
     },
     {
@@ -103,6 +119,14 @@
       "Tool Correctness": 1.0,
       "Argument Correctness": 1.0,
       "Deterministic Argument Correctness": 0.0,
+      "Overall Argument Correctness": 1.0
+    },
+    {
+      "test_name": "read_paper",
+      "Correctness [GEval]": 0.5467840369545625,
+      "Tool Correctness": 1.0,
+      "Argument Correctness": 1.0,
+      "Deterministic Argument Correctness": 1.0,
       "Overall Argument Correctness": 1.0
     },
     {

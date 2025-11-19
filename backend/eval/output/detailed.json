@@ -120,7 +120,7 @@
           "score": 1.0,
           "success": true,
           "threshold": 0.5,
-          "reason": "Correct ordering: all expected tools ['obi-expert'] were called in the correct order."
+          "reason": "[\n\t Tool Calling Reason: Correct ordering: all expected tools ['obi-expert'] were called in the correct order.\n\t Tool Selection Reason: No available tools were provided to assess tool selection criteria\n]\n"
         },
         {
           "name": "Argument Correctness",
@@ -134,7 +134,7 @@
           "score": 1.0,
           "success": true,
           "threshold": 0.5,
-          "reason": "All expected tools ['obi-expert'] were called (order not considered)."
+          "reason": "[\n\t Tool Calling Reason: All expected tools ['obi-expert'] were called (order not considered).\n\t Tool Selection Reason: No available tools were provided to assess tool selection criteria\n]\n"
         },
         {
           "name": "Overall Argument Correctness",
@@ -360,21 +360,21 @@
           "score": 1.0,
           "success": true,
           "threshold": 0.5,
-          "reason": "Correct ordering: all expected tools ['entitycore-circuit-getone'] were called in the correct order."
+          "reason": "[\n\t Tool Calling Reason: Correct ordering: all expected tools ['entitycore-circuit-getone'] were called in the correct order.\n\t Tool Selection Reason: No available tools were provided to assess tool selection criteria\n]\n"
         },
         {
           "name": "Argument Correctness",
           "score": 1.0,
           "success": true,
           "threshold": 0.5,
-          "reason": "The score is 1.00 because there were no incorrect tool calls, indicating that the input was handled perfectly."
+          "reason": "The score is 1.00 because there were no incorrect tool calls and the input was clear and specific."
         },
         {
           "name": "Deterministic Argument Correctness",
           "score": 1.0,
           "success": true,
           "threshold": 0.5,
-          "reason": "All expected tools ['entitycore-circuit-getone'] were called (order not considered)."
+          "reason": "[\n\t Tool Calling Reason: All expected tools ['entitycore-circuit-getone'] were called (order not considered).\n\t Tool Selection Reason: No available tools were provided to assess tool selection criteria\n]\n"
         },
         {
           "name": "Overall Argument Correctness",
@@ -426,7 +426,7 @@
           "score": 1.0,
           "success": true,
           "threshold": 0.5,
-          "reason": "Correct ordering: all expected tools ['entitycore-species-getall'] were called in the correct order."
+          "reason": "[\n\t Tool Calling Reason: Correct ordering: all expected tools ['entitycore-species-getall'] were called in the correct order.\n\t Tool Selection Reason: No available tools were provided to assess tool selection criteria\n]\n"
         },
         {
           "name": "Argument Correctness",
@@ -440,7 +440,7 @@
           "score": 1.0,
           "success": true,
           "threshold": 0.5,
-          "reason": "All expected tools ['entitycore-species-getall'] were called (order not considered)."
+          "reason": "[\n\t Tool Calling Reason: All expected tools ['entitycore-species-getall'] were called (order not considered).\n\t Tool Selection Reason: No available tools were provided to assess tool selection criteria\n]\n"
         },
         {
           "name": "Overall Argument Correctness",
@@ -460,7 +460,7 @@
       {
         "name": "entitycore-brainregion-getall",
         "arguments": {
-          "semantic_search": "Cerebellum"
+          "semantic_search": "cerebellum"
         }
       },
       {
@@ -472,8 +472,7 @@
     ],
     "params": {
       "tags": [
-        "entitycore",
-        "literature_search"
+        "entitycore"
       ]
     },
     "ai_response": "## Results \u2014 5 morphologies in **Cerebellum** (brain region)\n\n**Brain region resolved**\n- **Name:** Cerebellum  \n- **ID:** **062ebc92-cebb-498a-a76d-b5ef1baf02cf**\n\nNote: The query returned **total_items: 50** morphologies for this brain region. Below are the first 5 entries (most recent by creation_date).\n\n---\n\n### 1) **soma_10c**  \n- **ID:** **e892fa95-c724-457a-8dc6-176f5d6cc5d9**  \n- **MType(s):** CBXpu_PuC (Cerebellum Purkinje Cell)  \n- **Description:** Soma flask-like, radius ~7.5 \u00b5m; located in Purkinje cell layer. Large, highly branched, flat dendritic tree in molecular layer. Single long axon projecting to white matter (principal output).  \n- **Assets (examples):** soma_10c.swc, soma_10c.h5, soma_10c.asc  \n- **URL:** [View entity (soma_10c)](https://staging.openbraininstitute.org/app/entity/e892fa95-c724-457a-8dc6-176f5d6cc5d9)\n\n---\n\n### 2) **01bc**  \n- **ID:** **d083a0bd-00a4-4594-b52f-950a5dd3ec70**  \n- **MType(s):** CBXmo_BC (Cerebellum Basket Cell)  \n- **Description:** Pyramidal/oval soma (~6 \u00b5m radius) in inner 1/3 of molecular layer. Long, straight dendrites ascending to pia with few branches. Axon runs parallel to Purkinje cell layer with descending and ascending collaterals.  \n- **Assets (examples):** 01bc.swc, 01bc.h5, 01bc.asc  \n- **URL:** [View entity (01bc)](https://staging.openbraininstitute.org/app/entity/d083a0bd-00a4-4594-b52f-950a5dd3ec70)\n\n---\n\n### 3) **stellate**  \n- **ID:** **00ba95d3-13e4-4703-ad85-3df816febf53**  \n- **MType(s):** CBXmo_StC (Cerebellum Stellate Cell)  \n- **Description:** Small fusiform soma (~4 \u00b5m radius) in outer 2/3 of molecular layer. Long, thin, contorted, aspinous dendrites branching in all directions. Axon branches immediately into short circumscribed collaterals.  \n- **Assets (examples):** stellate.swc, stellate.h5, stellate.asc  \n- **URL:** [View entity (stellate)](https://staging.openbraininstitute.org/app/entity/00ba95d3-13e4-4703-ad85-3df816febf53)\n\n---\n\n### 4) **pair-140514-C2-1_split_1**  \n- **ID:** **cb635d11-f5f4-4ec5-8c6e-3e5af6d4eb6c**  \n- **MType(s):** CBXgr_GoC (Cerebellum Golgi Cell)  \n- **Description:** Soma round/polygonal (~8 \u00b5m radius) in granular layer. 4\u201310 dendrites in two groups (basal remain in granular layer, apical ascend to molecular layer forming a fan-shaped tree). Axons thin, beaded, forming dense axon plexus in granular layer.  \n- **Assets (examples):** pair-140514-C2-1_split_1.swc, .h5, .asc  \n- **URL:** [View entity (pair-140514-C2-1_split_1)](https://staging.openbraininstitute.org/app/entity/cb635d11-f5f4-4ec5-8c6e-3e5af6d4eb6c)\n\n---\n\n### 5) **GrC2018**  \n- **ID:** **b03ceac9-d657-488c-a43c-01be275d0861**  \n- **MType(s):** CBXgr_GrC (Cerebellum Granule Cell)  \n- **Description:** Very small soma (~2.5 \u00b5m radius) in granular layer; 4\u20135 dendrites ending in claw-like appendages. Ascending axon bifurcates in molecular layer to form parallel fibers running along folium axis.  \n- **Assets (examples):** GrC2018.swc, GrC2018.h5, GrC2018.asc  \n- **URL:** [View entity (GrC2018)](https://staging.openbraininstitute.org/app/entity/b03ceac9-d657-488c-a43c-01be275d0861)\n\n---\n\nIf you want:\n- The next page of results (more morphologies from Cerebellum), I can fetch the next 5 or a custom page size.\n- Any of these morphologies downloaded or visualized (I can generate thumbnails/plots for a selected morphology).",
@@ -505,25 +504,25 @@
           "score": 1.0,
           "success": true,
           "threshold": 0.5,
-          "reason": "Correct ordering: all expected tools ['entitycore-brainregion-getall', 'entitycore-cellmorphology-getall'] were called in the correct order."
+          "reason": "[\n\t Tool Calling Reason: Correct ordering: all expected tools ['entitycore-brainregion-getall', 'entitycore-cellmorphology-getall'] were called in the correct order.\n\t Tool Selection Reason: No available tools were provided to assess tool selection criteria\n]\n"
         },
         {
           "name": "Argument Correctness",
           "score": 0.0,
           "success": false,
           "threshold": 0.5,
-          "reason": "The score is 0.00 because there were no input parameters provided for the tool call to fetch morphologies from the cerebellum, and no input parameter was specified to indicate the number of morphologies to retrieve. This lack of necessary information resulted in an inability to fulfill the request."
+          "reason": "The score is 0.00 because the tool calls failed to specify the number of morphologies to retrieve, which is essential for accurate results."
         },
         {
           "name": "Deterministic Argument Correctness",
-          "score": 0.5,
+          "score": 1.0,
           "success": true,
           "threshold": 0.5,
-          "reason": "Incomplete tool usage: missing tools [ToolCall(\n    name=\"entitycore-brainregion-getall\",\n    input_parameters={\n        \"semantic_search\": \"Cerebellum\"\n    }\n)]; expected ['entitycore-brainregion-getall', 'entitycore-cellmorphology-getall'], called ['entitycore-brainregion-getall', 'entitycore-cellmorphology-getall']. See more details above."
+          "reason": "[\n\t Tool Calling Reason: All expected tools ['entitycore-brainregion-getall', 'entitycore-cellmorphology-getall'] were called (order not considered).\n\t Tool Selection Reason: No available tools were provided to assess tool selection criteria\n]\n"
         },
         {
           "name": "Overall Argument Correctness",
-          "score": 0.5,
+          "score": 1.0,
           "success": true,
           "threshold": 0.5,
           "reason": ""
@@ -575,7 +574,7 @@
           "score": 1.0,
           "success": true,
           "threshold": 0.5,
-          "reason": "Correct ordering: all expected tools ['literature-search-tool'] were called in the correct order."
+          "reason": "[\n\t Tool Calling Reason: Correct ordering: all expected tools ['literature-search-tool'] were called in the correct order.\n\t Tool Selection Reason: No available tools were provided to assess tool selection criteria\n]\n"
         },
         {
           "name": "Argument Correctness",
@@ -586,10 +585,10 @@
         },
         {
           "name": "Deterministic Argument Correctness",
-          "score": 0.3333333333333333,
+          "score": 0.0,
           "success": false,
           "threshold": 0.5,
-          "reason": "Incomplete tool usage: missing tools [ToolCall(\n    name=\"literature-search-tool\",\n    input_parameters={\n        \"query\": \"neuron morphology cerebrum\",\n        \"numResults\": 5,\n        \"maxCharacters\": 1000\n    }\n)]; expected ['literature-search-tool'], called ['literature-search-tool']. See more details above."
+          "reason": "[\n\t Tool Calling Reason: Incomplete tool usage: missing tools [ToolCall(\n    name=\"literature-search-tool\",\n    input_parameters={\n        \"query\": \"neuron morphology cerebrum\",\n        \"numResults\": 5,\n        \"maxCharacters\": 1000\n    }\n)]; expected ['literature-search-tool'], called ['literature-search-tool']. See more details above.\n\t Tool Selection Reason: No available tools were provided to assess tool selection criteria\n]\n"
         },
         {
           "name": "Overall Argument Correctness",
@@ -643,7 +642,7 @@
           "score": 1.0,
           "success": true,
           "threshold": 0.5,
-          "reason": "Correct ordering: all expected tools ['entitycore-ionchannel-getall'] were called in the correct order."
+          "reason": "[\n\t Tool Calling Reason: Correct ordering: all expected tools ['entitycore-ionchannel-getall'] were called in the correct order.\n\t Tool Selection Reason: No available tools were provided to assess tool selection criteria\n]\n"
         },
         {
           "name": "Argument Correctness",
@@ -657,7 +656,7 @@
           "score": 0.5,
           "success": true,
           "threshold": 0.5,
-          "reason": "Incomplete tool usage: missing tools [ToolCall(\n    name=\"entitycore-ionchannel-getall\",\n    input_parameters={\n        \"gene\": \"Asic3\"\n    }\n)]; expected ['entitycore-ionchannel-getall'], called ['entitycore-ionchannel-getall']. See more details above."
+          "reason": "[\n\t Tool Calling Reason: Incomplete tool usage: missing tools [ToolCall(\n    name=\"entitycore-ionchannel-getall\",\n    input_parameters={\n        \"gene\": \"Asic3\"\n    }\n)]; expected ['entitycore-ionchannel-getall'], called ['entitycore-ionchannel-getall', 'entitycore-ionchannel-getall']. See more details above.\n\t Tool Selection Reason: No available tools were provided to assess tool selection criteria\n]\n"
         },
         {
           "name": "Overall Argument Correctness",
@@ -705,21 +704,21 @@
           "score": 1.0,
           "success": true,
           "threshold": 0.5,
-          "reason": "Correct ordering: all expected tools ['context-analyzer-tool'] were called in the correct order."
+          "reason": "[\n\t Tool Calling Reason: Correct ordering: all expected tools ['context-analyzer-tool'] were called in the correct order.\n\t Tool Selection Reason: No available tools were provided to assess tool selection criteria\n]\n"
         },
         {
           "name": "Argument Correctness",
           "score": 0.0,
           "success": false,
           "threshold": 0.5,
-          "reason": "The score is 0.00 because there was no input parameter provided, which is essential for evaluating the argument correctly."
+          "reason": "The score is 0.00 because no input parameter was provided, which is essential for generating a relevant response."
         },
         {
           "name": "Deterministic Argument Correctness",
           "score": 1.0,
           "success": true,
           "threshold": 0.5,
-          "reason": "All expected tools ['context-analyzer-tool'] were called (order not considered)."
+          "reason": "[\n\t Tool Calling Reason: All expected tools ['context-analyzer-tool'] were called (order not considered).\n\t Tool Selection Reason: No available tools were provided to assess tool selection criteria\n]\n"
         },
         {
           "name": "Overall Argument Correctness",
@@ -766,6 +765,14 @@
       {
         "name": "entitycore-ionchannelrecording-getall",
         "arguments": {
+          "within_brain_region_brain_region_id": "75e3944e-8dcd-4310-a3a2-258f93de63d6",
+          "page": 1,
+          "page_size": 20
+        }
+      },
+      {
+        "name": "entitycore-ionchannelrecording-getall",
+        "arguments": {
           "page_size": 10,
           "within_brain_region_brain_region_id": "75e3944e-8dcd-4310-a3a2-258f93de63d6"
         }
@@ -785,21 +792,91 @@
           "score": 1.0,
           "success": true,
           "threshold": 0.5,
-          "reason": "Correct ordering: all expected tools ['entitycore-brainregion-getall', 'entitycore-ionchannelrecording-getall'] were called in the correct order."
+          "reason": "[\n\t Tool Calling Reason: Correct ordering: all expected tools ['entitycore-brainregion-getall', 'entitycore-ionchannelrecording-getall'] were called in the correct order.\n\t Tool Selection Reason: No available tools were provided to assess tool selection criteria\n]\n"
         },
         {
           "name": "Argument Correctness",
-          "score": 1.0,
-          "success": true,
+          "score": 0.3333333333333333,
+          "success": false,
           "threshold": 0.5,
-          "reason": "The score is 1.00 because there were no incorrect tool calls and the input was clear and specific."
+          "reason": "The score is 0.33 because the input lacks a specific brain region ID, which is essential for accurately locating ion channel recordings. This omission significantly impacts the correctness of the argument, preventing a higher score."
         },
         {
           "name": "Deterministic Argument Correctness",
           "score": 0.75,
           "success": true,
           "threshold": 0.5,
-          "reason": "Incomplete tool usage: missing tools [ToolCall(\n    name=\"entitycore-ionchannelrecording-getall\",\n    input_parameters={\n        \"within_brain_region_brain_region_id\": \"75e3944e-8dcd-4310-a3a2-258f93de63d6\"\n    }\n)]; expected ['entitycore-brainregion-getall', 'entitycore-ionchannelrecording-getall'], called ['entitycore-brainregion-getall', 'entitycore-ionchannelrecording-getall']. See more details above."
+          "reason": "[\n\t Tool Calling Reason: Incomplete tool usage: missing tools [ToolCall(\n    name=\"entitycore-ionchannelrecording-getall\",\n    input_parameters={\n        \"within_brain_region_brain_region_id\": \"75e3944e-8dcd-4310-a3a2-258f93de63d6\"\n    }\n)]; expected ['entitycore-brainregion-getall', 'entitycore-ionchannelrecording-getall'], called ['entitycore-brainregion-getall', 'entitycore-ionchannelrecording-getall', 'entitycore-ionchannelrecording-getall']. See more details above.\n\t Tool Selection Reason: No available tools were provided to assess tool selection criteria\n]\n"
+        },
+        {
+          "name": "Overall Argument Correctness",
+          "score": 0.75,
+          "success": true,
+          "threshold": 0.5,
+          "reason": ""
+        }
+      ],
+      "created_at": "2025-11-18 16:10:23.114213"
+    }
+  },
+  "read_paper": {
+    "user": "Read the page \"https://www.google.com/\"",
+    "expected_output": "Here\u2019s what the page at the requested URL contains, based on the read-out from the tool:\n\nTitle/URL: Google \u2014 https://www.google.com/\nMain items visible:\nAbout, Store\nAI Mode indicator\nSee more, Delete (predictions-related UI)\nReport inappropriate predictions\nAdvertising, Business\nHow Search works\nLink to topics on applying AI to science and the environment\nPrivacy/Terms:\nPrivacy, Terms\nSettings:\nSearch settings\nAdvanced search\nYour data in Search\nSearch history\nSearch help\nTheme/Apps:\nDark theme: Off\nGoogle apps\nFull URL: Google",
+    "expected_tool_calls": [
+      {
+        "name": "read-paper",
+        "arguments": {
+          "urls": [
+            "https://www.google.com/"
+          ]
+        }
+      }
+    ],
+    "params": {
+      "tags": [
+        "read_paper"
+      ]
+    },
+    "ai_response": "Here is what I retrieved from the page you provided:\\n\\n## Page: https://www.google.com/\\n\\n- **Title / URL:** Google \\u2014 https://www.google.com/\\n- **Author:** N/A\\n- **Published date:** N/A\\n- **Image:** None provided in the tool output\\n- **Text/content excerpt:**\\n  - Includes navigation/links such as:\\n    - About, Store\\n    - AI Mode, See more\\n    - Advertising, Business\\n    - How Search works\\n    - Privacy, Terms\\n    - Settings: Search settings, Advanced search\\n    - Your data in Search, Search history, Search help\\n    - Send feedback\\n    - Dark theme: Off\\n    - Google apps\\n\\nNotes:\\n- The tool returned a small excerpt of the page content (not the full HTML), focusing on navigational elements and footer-like links.\\n- There is no imagery provided in the results.\\n\\nIf you want, I can:\\n- Attempt to read the full article/content from this URL (if publicly accessible) using read-paper again to extract more detailed sections.\\n- Search for more context about the Google homepage or summarize specific sections (e.g., \\u201cHow Search works,\\u201d \\u201cPrivacy & Terms\\u201d links) based on the page content.",
+    "actual_tool_calls": [
+      {
+        "name": "read-paper",
+        "arguments": {
+          "urls": [
+            "https://www.google.com/"
+          ]
+        }
+      }
+    ],
+    "results": {
+      "metrics": [
+        {
+          "name": "Correctness [GEval]",
+          "score": 0.5467840369545625,
+          "success": true,
+          "threshold": 0.5,
+          "reason": "The actual output provides a structured summary of the page content, including the title and navigational elements, which aligns with the expected output's focus on main items. However, it lacks some specific details such as the 'AI Mode indicator' and 'Delete (predictions-related UI)', which are present in the expected output. Additionally, the actual output mentions 'N/A' for author and published date, which is not addressed in the expected output, indicating incomplete alignment."
+        },
+        {
+          "name": "Tool Correctness",
+          "score": 1.0,
+          "success": true,
+          "threshold": 0.5,
+          "reason": "[\n\t Tool Calling Reason: Correct ordering: all expected tools ['read-paper'] were called in the correct order.\n\t Tool Selection Reason: No available tools were provided to assess tool selection criteria\n]\n"
+        },
+        {
+          "name": "Argument Correctness",
+          "score": 1.0,
+          "success": true,
+          "threshold": 0.5,
+          "reason": "The score is 1.00 because there were no incorrect tool calls and the input was appropriate."
+        },
+        {
+          "name": "Deterministic Argument Correctness",
+          "score": 1.0,
+          "success": true,
+          "threshold": 0.5,
+          "reason": "[\n\t Tool Calling Reason: All expected tools ['read-paper'] were called (order not considered).\n\t Tool Selection Reason: No available tools were provided to assess tool selection criteria\n]\n"
         },
         {
           "name": "Overall Argument Correctness",
@@ -834,29 +911,29 @@
         },
         {
           "name": "Tool Correctness",
-          "score": 1.0,
-          "success": true,
+          "score": 0.0,
+          "success": false,
           "threshold": 0.5,
-          "reason": "Correct ordering: all expected tools [] were called in the correct order."
+          "reason": "[\n\t Tool Calling Reason: Incorrect tool usage: ; expected [], called ['context-analyzer-tool']. See more details above.\n\t Tool Selection Reason: No available tools were provided to assess tool selection criteria\n]\n"
         },
         {
           "name": "Argument Correctness",
-          "score": 1.0,
-          "success": true,
+          "score": 0.0,
+          "success": false,
           "threshold": 0.5,
-          "reason": "No tool calls provided"
+          "reason": "The score is 0.00 because there was no input parameter provided, which is essential for generating a relevant response."
         },
         {
           "name": "Deterministic Argument Correctness",
-          "score": 1.0,
-          "success": true,
+          "score": 0.0,
+          "success": false,
           "threshold": 0.5,
-          "reason": "All expected tools [] were called (order not considered)."
+          "reason": "[\n\t Tool Calling Reason: Incomplete tool usage: missing tools []; expected [], called ['context-analyzer-tool']. See more details above.\n\t Tool Selection Reason: No available tools were provided to assess tool selection criteria\n]\n"
         },
         {
           "name": "Overall Argument Correctness",
-          "score": 1.0,
-          "success": true,
+          "score": 0.0,
+          "success": false,
           "threshold": 0.5,
           "reason": ""
         }
@@ -904,21 +981,21 @@
           "score": 1.0,
           "success": true,
           "threshold": 0.5,
-          "reason": "Correct ordering: all expected tools ['run-python'] were called in the correct order."
+          "reason": "[\n\t Tool Calling Reason: Correct ordering: all expected tools ['run-python'] were called in the correct order.\n\t Tool Selection Reason: No available tools were provided to assess tool selection criteria\n]\n"
         },
         {
           "name": "Argument Correctness",
           "score": 1.0,
           "success": true,
           "threshold": 0.5,
-          "reason": "The score is 1.00 because there are no incorrect tool calls or issues with the input."
+          "reason": "The score is 1.00 because there are no incorrect tool calls and the input is clear and straightforward."
         },
         {
           "name": "Deterministic Argument Correctness",
           "score": 0.0,
           "success": false,
           "threshold": 0.5,
-          "reason": "Incomplete tool usage: missing tools [ToolCall(\n    name=\"run-python\",\n    input_parameters={\n        \"python_script\": \"import numpy as np\\nimport plotly.graph_objects as go\\nx = np.linspace(-10,10,400)\\ny = x**2\\nfig = go.Figure()\\nfig.add_trace(go.Scatter(x=x,y=y,mode='lines',name='y=x^2'))\\nfig.update_layout(title='Plot of y = x^2',xaxis_title='x',yaxis_title='y')\\nfig.show()\\n# return something so tool returns\\n'plot_generated'\"\n    }\n)]; expected ['run-python'], called ['run-python']. See more details above."
+          "reason": "[\n\t Tool Calling Reason: Incomplete tool usage: missing tools [ToolCall(\n    name=\"run-python\",\n    input_parameters={\n        \"python_script\": \"import numpy as np\\nimport plotly.graph_objects as go\\nx = np.linspace(-10,10,400)\\ny = x**2\\nfig = go.Figure()\\nfig.add_trace(go.Scatter(x=x,y=y,mode='lines',name='y=x^2'))\\nfig.update_layout(title='Plot of y = x^2',xaxis_title='x',yaxis_title='y')\\nfig.show()\\n# return something so tool returns\\n'plot_generated'\"\n    }\n)]; expected ['run-python'], called ['run-python']. See more details above.\n\t Tool Selection Reason: No available tools were provided to assess tool selection criteria\n]\n"
         },
         {
           "name": "Overall Argument Correctness",
@@ -956,7 +1033,7 @@
           "score": 1.0,
           "success": true,
           "threshold": 0.5,
-          "reason": "Correct ordering: all expected tools [] were called in the correct order."
+          "reason": "[\n\t Tool Calling Reason: Correct ordering: all expected tools [] were called in the correct order.\n\t Tool Selection Reason: No available tools were provided to assess tool selection criteria\n]\n"
         },
         {
           "name": "Argument Correctness",
@@ -970,7 +1047,7 @@
           "score": 1.0,
           "success": true,
           "threshold": 0.5,
-          "reason": "All expected tools [] were called (order not considered)."
+          "reason": "[\n\t Tool Calling Reason: All expected tools [] were called (order not considered).\n\t Tool Selection Reason: No available tools were provided to assess tool selection criteria\n]\n"
         },
         {
           "name": "Overall Argument Correctness",
@@ -1023,7 +1100,7 @@
           "score": 1.0,
           "success": true,
           "threshold": 0.5,
-          "reason": "Correct ordering: all expected tools ['run-python'] were called in the correct order."
+          "reason": "[\n\t Tool Calling Reason: Correct ordering: all expected tools ['run-python'] were called in the correct order.\n\t Tool Selection Reason: No available tools were provided to assess tool selection criteria\n]\n"
         },
         {
           "name": "Argument Correctness",
@@ -1037,7 +1114,7 @@
           "score": 0.0,
           "success": false,
           "threshold": 0.5,
-          "reason": "Incomplete tool usage: missing tools [ToolCall(\n    name=\"run-python\",\n    input_parameters={\n        \"python_script\": \"import numpy as np\\nimport plotly.graph_objects as go\\n\\n# generate 8 evenly spaced points from 0 to 2pi\\nx = np.linspace(0, 2*np.pi, 8)\\ny = np.sin(x)\\n\\nfig = go.Figure()\\nfig.add_trace(go.Scatter(x=x, y=y, mode='markers+lines', name='sin(x)'))\\nfig.update_layout(title='y = sin(x) (8 evenly spaced points from 0 to 2\\u03c0)',\\n                  xaxis_title='x', yaxis_title='y',\\n                  xaxis = dict(tickmode='array', tickvals=x, ticktext=[f'{val:.2f}' for val in x]))\\n\\nfig.show()\\n\\n# return numeric lists for reference\\n{\\\"x\\\": x.tolist(), \\\"y\\\": y.tolist()}\"\n    }\n)]; expected ['run-python'], called ['run-python']. See more details above."
+          "reason": "[\n\t Tool Calling Reason: Incomplete tool usage: missing tools [ToolCall(\n    name=\"run-python\",\n    input_parameters={\n        \"python_script\": \"import numpy as np\\nimport plotly.graph_objects as go\\n\\n# generate 8 evenly spaced points from 0 to 2pi\\nx = np.linspace(0, 2*np.pi, 8)\\ny = np.sin(x)\\n\\nfig = go.Figure()\\nfig.add_trace(go.Scatter(x=x, y=y, mode='markers+lines', name='sin(x)'))\\nfig.update_layout(title='y = sin(x) (8 evenly spaced points from 0 to 2\u03c0)',\\n                  xaxis_title='x', yaxis_title='y',\\n                  xaxis = dict(tickmode='array', tickvals=x, ticktext=[f'{val:.2f}' for val in x]))\\n\\nfig.show()\\n\\n# return numeric lists for reference\\n{\\\"x\\\": x.tolist(), \\\"y\\\": y.tolist()}\"\n    }\n)]; expected ['run-python'], called ['run-python']. See more details above.\n\t Tool Selection Reason: No available tools were provided to assess tool selection criteria\n]\n"
         },
         {
           "name": "Overall Argument Correctness",
@@ -1089,7 +1166,7 @@
           "score": 1.0,
           "success": true,
           "threshold": 0.5,
-          "reason": "Correct ordering: all expected tools ['entitycore-brainregion-getall'] were called in the correct order."
+          "reason": "[\n\t Tool Calling Reason: Correct ordering: all expected tools ['entitycore-brainregion-getall'] were called in the correct order.\n\t Tool Selection Reason: No available tools were provided to assess tool selection criteria\n]\n"
         },
         {
           "name": "Argument Correctness",
@@ -1103,7 +1180,7 @@
           "score": 0.0,
           "success": false,
           "threshold": 0.5,
-          "reason": "Incomplete tool usage: missing tools [ToolCall(\n    name=\"entitycore-brainregion-getall\",\n    input_parameters={\n        \"semantic_search\": \"Thalamus\"\n    }\n)]; expected ['entitycore-brainregion-getall'], called ['entitycore-brainregion-getall']. See more details above."
+          "reason": "[\n\t Tool Calling Reason: Incomplete tool usage: missing tools [ToolCall(\n    name=\"entitycore-brainregion-getall\",\n    input_parameters={\n        \"semantic_search\": \"Thalamus\"\n    }\n)]; expected ['entitycore-brainregion-getall'], called ['entitycore-brainregion-getall']. See more details above.\n\t Tool Selection Reason: No available tools were provided to assess tool selection criteria\n]\n"
         },
         {
           "name": "Overall Argument Correctness",
@@ -1157,7 +1234,7 @@
           "score": 1.0,
           "success": true,
           "threshold": 0.5,
-          "reason": "Correct ordering: all expected tools ['web-search-tool'] were called in the correct order."
+          "reason": "[\n\t Tool Calling Reason: Correct ordering: all expected tools ['web-search-tool'] were called in the correct order.\n\t Tool Selection Reason: No available tools were provided to assess tool selection criteria\n]\n"
         },
         {
           "name": "Argument Correctness",
@@ -1171,7 +1248,7 @@
           "score": 0.0,
           "success": false,
           "threshold": 0.5,
-          "reason": "Incomplete tool usage: missing tools [ToolCall(\n    name=\"web-search-tool\",\n    input_parameters={\n        \"query\": \"most impactful computational neuroscientists\",\n        \"numResults\": 5\n    }\n)]; expected ['web-search-tool'], called ['web-search-tool']. See more details above."
+          "reason": "[\n\t Tool Calling Reason: Incomplete tool usage: missing tools [ToolCall(\n    name=\"web-search-tool\",\n    input_parameters={\n        \"query\": \"most impactful computational neuroscientists\",\n        \"numResults\": 5\n    }\n)]; expected ['web-search-tool'], called ['web-search-tool']. See more details above.\n\t Tool Selection Reason: No available tools were provided to assess tool selection criteria\n]\n"
         },
         {
           "name": "Overall Argument Correctness",
@@ -1217,7 +1294,7 @@
           "score": 0.0,
           "success": false,
           "threshold": 0.5,
-          "reason": "Incorrect tool usage: missing tools ['obi-expert'] and out-of-order tools ['obi-expert']; expected ['obi-expert'], called []. See more details above."
+          "reason": "[\n\t Tool Calling Reason: Incorrect tool usage: missing tools ['obi-expert'] and out-of-order tools ['obi-expert']; expected ['obi-expert'], called []. See more details above.\n\t Tool Selection Reason: No available tools were provided to assess tool selection criteria\n]\n"
         },
         {
           "name": "Argument Correctness",
@@ -1231,7 +1308,7 @@
           "score": 0.0,
           "success": false,
           "threshold": 0.5,
-          "reason": "Incomplete tool usage: missing tools [ToolCall(\n    name=\"obi-expert\",\n    input_parameters={\n        \"document_type\": \"tutorial\",\n        \"query\": \"simulate\"\n    }\n)]; expected ['obi-expert'], called []. See more details above."
+          "reason": "[\n\t Tool Calling Reason: Incomplete tool usage: missing tools [ToolCall(\n    name=\"obi-expert\",\n    input_parameters={\n        \"document_type\": \"tutorial\",\n        \"query\": \"simulate\"\n    }\n)]; expected ['obi-expert'], called []. See more details above.\n\t Tool Selection Reason: No available tools were provided to assess tool selection criteria\n]\n"
         },
         {
           "name": "Overall Argument Correctness",
@@ -1289,7 +1366,7 @@
           "score": 1.0,
           "success": true,
           "threshold": 0.5,
-          "reason": "Correct ordering: all expected tools ['get-obi-software-docs'] were called in the correct order."
+          "reason": "[\n\t Tool Calling Reason: Correct ordering: all expected tools ['get-obi-software-docs'] were called in the correct order.\n\t Tool Selection Reason: No available tools were provided to assess tool selection criteria\n]\n"
         },
         {
           "name": "Argument Correctness",
@@ -1303,7 +1380,7 @@
           "score": 0.6666666666666666,
           "success": true,
           "threshold": 0.5,
-          "reason": "Incomplete tool usage: missing tools [ToolCall(\n    name=\"get-obi-software-docs\",\n    input_parameters={\n        \"context7CompatibleLibraryID\": \"/openbraininstitute/obi-one\",\n        \"topic\": \"Single Cell Simulation Example\",\n        \"tokens\": 2000\n    }\n)]; expected ['get-obi-software-docs'], called ['get-obi-software-docs']. See more details above."
+          "reason": "[\n\t Tool Calling Reason: Incomplete tool usage: missing tools [ToolCall(\n    name=\"get-obi-software-docs\",\n    input_parameters={\n        \"context7CompatibleLibraryID\": \"/openbraininstitute/obi-one\",\n        \"topic\": \"Single Cell Simulation Example\",\n        \"tokens\": 2000\n    }\n)]; expected ['get-obi-software-docs'], called ['get-obi-software-docs']. See more details above.\n\t Tool Selection Reason: No available tools were provided to assess tool selection criteria\n]\n"
         },
         {
           "name": "Overall Argument Correctness",

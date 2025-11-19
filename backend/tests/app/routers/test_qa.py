@@ -198,7 +198,7 @@ def test_chat_streamed(app_client, httpx_mock, db_connection, test_user_info):
         # Thread is injected automatically
         # Perform the lazy loading
         await thread.awaitable_attrs.messages
-        return []
+        return [], {"model": "gpt-4o-mini", "reasoning": "none"}
 
     app.dependency_overrides[filtered_tools] = mock_dependency_with_lazy_loading
 

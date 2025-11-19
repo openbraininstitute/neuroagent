@@ -133,6 +133,7 @@ from neuroagent.tools.entitycore_strain_getall import StrainGetAllTool
 from neuroagent.tools.entitycore_strain_getone import StrainGetOneTool
 from neuroagent.tools.entitycore_subject_getall import SubjectGetAllTool
 from neuroagent.tools.entitycore_subject_getone import SubjectGetOneTool
+from neuroagent.tools.literature_search import LiteratureSearchTool
 from neuroagent.tools.obi_expert import OBIExpertTool
 from neuroagent.tools.obione_circuitconnectivitymetrics_getone import (
     CircuitConnectivityMetricsGetOneTool,
@@ -147,12 +148,14 @@ from neuroagent.tools.obione_generatesimulationsconfig import (
     GenerateSimulationsConfigTool,
 )
 from neuroagent.tools.obione_morphometrics_getone import MorphometricsGetOneTool
+from neuroagent.tools.read_paper import ReadPaperTool
 from neuroagent.tools.run_python_tool import RunPythonTool
 from neuroagent.tools.thumbnailgen_electricalcellrecording_getone import (
     PlotElectricalCellRecordingGetOneTool,
 )
 from neuroagent.tools.thumbnailgen_morphology_getone import PlotMorphologyGetOneTool
 from neuroagent.tools.weather import WeatherTool
+from neuroagent.tools.web_search import WebSearchTool
 
 __all__ = [
     "AssetDownloadOneTool",
@@ -196,6 +199,7 @@ __all__ = [
     "IonChannelModelGetOneTool",
     "IonChannelRecordingGetAllTool",
     "IonChannelRecordingGetOneTool",
+    "LiteratureSearchTool",
     "MeasurementAnnotationGetAllTool",
     "MeasurementAnnotationGetOneTool",
     "MEModelGetAllTool",
@@ -211,6 +215,7 @@ __all__ = [
     "PlotElectricalCellRecordingGetOneTool",
     "PlotMorphologyGetOneTool",
     "RunPythonTool",
+    "ReadPaperTool",
     "SimulationCampaignGetAllTool",
     "SimulationCampaignGetOneTool",
     "SimulationExecutionGetAllTool",
@@ -234,4 +239,5 @@ __all__ = [
     "SubjectGetAllTool",
     "SubjectGetOneTool",
     "WeatherTool",
+    "WebSearchTool",
 ]
