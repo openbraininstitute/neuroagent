@@ -99,7 +99,7 @@ class ReadPaperTool(BaseTool):
 
             if response.status_code != 200:
                 raise ValueError(
-                    f"The Exa search endpoint returned a non 200 response code. Error: {response.text}"
+                    f"The Exa contents endpoint returned a non 200 response code. Error: {response.text}"
                 )
             data = response.json()
 

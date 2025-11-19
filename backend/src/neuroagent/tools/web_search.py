@@ -21,11 +21,11 @@ class WebSearchInput(BaseModel):
     )
     start_publish_date: datetime | None = Field(
         default=None,
-        description="Filter papers published after this date (ISO 8601 format)",
+        description="Filter results published after this date (ISO 8601 format)",
     )
     end_publish_date: datetime | None = Field(
         default=None,
-        description="Filter papers published before this date (ISO 8601 format)",
+        description="Filter results published before this date (ISO 8601 format)",
     )
 
 

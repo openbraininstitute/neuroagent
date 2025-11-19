@@ -64,6 +64,18 @@ class LiteratureSearchTool(BaseTool):
         "Find literature on this topic",
         "Look up academic papers",
         "Search for research papers",
+        "Find papers about",
+        "Search scientific literature",
+        "Look for studies on",
+        "Find research about",
+        "Search for publications",
+        "What papers exist on",
+        "Find academic articles",
+        "Search for scholarly articles",
+        "Look up scientific papers",
+        "Find recent papers on",
+        "Search neuroscience literature",
+        "What research has been done on",
     ]
     description: ClassVar[str] = (
         "Search across 100M+ research papers with full text access using Exa AI - performs targeted academic paper searches with deep research content coverage. "
