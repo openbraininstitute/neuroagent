@@ -90,12 +90,8 @@ class AgentsRoutine:
         if agent.tool_choice:
             create_params["tool_choice"] = agent.tool_choice
 
-        if agent.reasoning is not None:
-            create_params["reasoning"] = {"effort": agent.reasoning, "summary": "auto"}
-
-        if agent.model == "gpt-5-mini":
-            create_params["reasoning"] = {"effort": "low", "summary": "auto"}
-            create_params["text"] = {"verbosity": "medium"}
+        # if agent.reasoning is not None:
+        create_params["reasoning"] = {"effort": "medium", "summary": "auto"}
 
         if tools:
             create_params["parallel_tool_calls"] = agent.parallel_tool_calls
