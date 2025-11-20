@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - New test cases for morphology in br.
 - Rule to understand private entities.
 - Issue templates.
+- Guardrails against off topic queries.
 
 ### Changed
 - Exa tools no longer MCP.

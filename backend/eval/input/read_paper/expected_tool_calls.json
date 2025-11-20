@@ -2,7 +2,7 @@
   {
     "name": "read-paper",
     "arguments": {
-      "urls": ["https://www.google.com/"]
+      "urls": ["https://pubmed.ncbi.nlm.nih.gov/"]
     }
   }
 ]
