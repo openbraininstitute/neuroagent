@@ -436,8 +436,6 @@ def complexity_to_model_and_reasoning(complexity: int) -> dict[str, str | None]:
     """
     if complexity <= 1:
         return {"model": "openai/gpt-5-nano", "reasoning": "minimal"}
-    elif complexity <= 3:
-        return {"model": "openai/gpt-5-nano", "reasoning": "low"}
     elif complexity <= 5:
         return {"model": "openai/gpt-5-mini", "reasoning": "low"}
     elif complexity <= 8:
