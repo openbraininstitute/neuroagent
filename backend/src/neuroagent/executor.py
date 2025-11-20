@@ -190,42 +190,29 @@ class WasmExecutor:
                 stderr=subprocess.PIPE,
             )
 
-            # Process the result
+            # Use communicate() to wait for process and read all output
+            try:
+                stdout, stderr = await asyncio.wait_for(
+                    process.communicate(), timeout=self.timeout
+                )
+            except asyncio.TimeoutError:
+                process.kill()
+                raise
+
+            # Check for execution errors
+            if stderr:
+                return FailureOutput(error_type="install-error", error=stderr.decode())
+
+            # Parse stdout into lines
             events = []
-            buffer = ""
-            if process.stdout:
-                while True:
-                    chunk = await process.stdout.read(32768)
-                    if not chunk:
-                        # Add any remaining data in buffer as the last line
-                        if buffer:
-                            events.append(buffer)
-                            if self.logger:
-                                self.logger.debug(buffer)
-                        break
-
-                    buffer += chunk.decode()
-                    # Split on newlines but keep the last incomplete line in buffer
-                    lines = buffer.split("\n")
-                    buffer = lines[-1]  # Keep the last (potentially incomplete) line
-
-                    # Process all complete lines
-                    for line in lines[:-1]:
-                        text = line.rstrip("\r")
+            if stdout:
+                lines = stdout.decode().split("\n")
+                for line in lines:
+                    text = line.rstrip("\r")
+                    if text:  # Skip empty lines
                         events.append(text)
                         if self.logger:
                             self.logger.debug(text)
-
-            # Wait for the process to finish or timeout
-            await asyncio.wait_for(process.wait(), timeout=self.timeout)
-
-            # Check for execution errors
-            if process.stderr:
-                js_error = await process.stderr.read()
-                if js_error:
-                    return FailureOutput(
-                        error_type="install-error", error=js_error.decode()
-                    )
 
             # No error + no stdout = Houston we have a problem
             if not events:
