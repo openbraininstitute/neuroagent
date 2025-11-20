@@ -1,11 +1,11 @@
 {
-  "total_tests": 24,
+  "total_tests": 28,
   "metrics_df": [
     {
       "test_name": "cerebellum_morphologies",
       "Correctness [GEval]": 0.46307011062996806,
       "Tool Correctness": 1.0,
-      "Argument Correctness": 0.0,
+      "Argument Correctness": 0.5,
       "Deterministic Argument Correctness": 1.0,
       "Overall Argument Correctness": 1.0
     },
@@ -27,11 +27,11 @@
     },
     {
       "test_name": "cortex_morphologies",
-      "Correctness [GEval]": 0.4038147365599317,
-      "Tool Correctness": 1.0,
+      "Correctness [GEval]": 0.5409971790863964,
+      "Tool Correctness": 0.5,
       "Argument Correctness": 0.0,
-      "Deterministic Argument Correctness": 0.75,
-      "Overall Argument Correctness": 0.75
+      "Deterministic Argument Correctness": 0.0,
+      "Overall Argument Correctness": 0.0
     },
     {
       "test_name": "get_specific_circuit",
@@ -43,7 +43,7 @@
     },
     {
       "test_name": "hippocampus_morphologies",
-      "Correctness [GEval]": 0.28740926464682565,
+      "Correctness [GEval]": 0.5137463374862443,
       "Tool Correctness": 1.0,
       "Argument Correctness": 0.0,
       "Deterministic Argument Correctness": 1.0,
@@ -79,6 +79,38 @@
       "Tool Correctness": 1.0,
       "Argument Correctness": 1.0,
       "Deterministic Argument Correctness": 0.0,
+      "Overall Argument Correctness": 1.0
+    },
+    {
+      "test_name": "off_topic_cooking",
+      "Correctness [GEval]": 0.6838805187217983,
+      "Tool Correctness": 1.0,
+      "Argument Correctness": 1.0,
+      "Deterministic Argument Correctness": 1.0,
+      "Overall Argument Correctness": 1.0
+    },
+    {
+      "test_name": "off_topic_programming",
+      "Correctness [GEval]": 0.5645157415294818,
+      "Tool Correctness": 1.0,
+      "Argument Correctness": 1.0,
+      "Deterministic Argument Correctness": 1.0,
+      "Overall Argument Correctness": 1.0
+    },
+    {
+      "test_name": "off_topic_sports",
+      "Correctness [GEval]": 1.0,
+      "Tool Correctness": 1.0,
+      "Argument Correctness": 1.0,
+      "Deterministic Argument Correctness": 1.0,
+      "Overall Argument Correctness": 1.0
+    },
+    {
+      "test_name": "off_topic_weather",
+      "Correctness [GEval]": 0.7963656384144546,
+      "Tool Correctness": 1.0,
+      "Argument Correctness": 1.0,
+      "Deterministic Argument Correctness": 1.0,
       "Overall Argument Correctness": 1.0
     },
     {
@@ -118,12 +150,12 @@
       "Correctness [GEval]": 0.5787714752671883,
       "Tool Correctness": 1.0,
       "Argument Correctness": 1.0,
-      "Deterministic Argument Correctness": 0.0,
+      "Deterministic Argument Correctness": 0.5,
       "Overall Argument Correctness": 1.0
     },
     {
       "test_name": "read_paper",
-      "Correctness [GEval]": 0.5467840369545625,
+      "Correctness [GEval]": 0.5138325537487309,
       "Tool Correctness": 1.0,
       "Argument Correctness": 1.0,
       "Deterministic Argument Correctness": 1.0,

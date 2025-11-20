@@ -300,7 +300,7 @@
           "score": 0.5,
           "success": true,
           "threshold": 0.5,
-          "reason": "The score is 0.50 because the analysis could not be fully executed due to the absence of an input parameter for the first tool call. This limitation prevents a complete assessment of the connectivity patterns as requested."
+          "reason": "The score is 0.50 because the first tool call does not address the specific analysis of inhibitory-to-excitatory connections in layer 2, which is crucial for a complete response."
         },
         {
           "name": "Deterministic Argument Correctness",
@@ -367,7 +367,7 @@
           "score": 1.0,
           "success": true,
           "threshold": 0.5,
-          "reason": "The score is 1.00 because there were no incorrect tool calls and the input was clear and specific."
+          "reason": "The score is 1.00 because there were no incorrect tool calls, indicating that the input was handled perfectly."
         },
         {
           "name": "Deterministic Argument Correctness",
@@ -508,10 +508,10 @@
         },
         {
           "name": "Argument Correctness",
-          "score": 0.0,
-          "success": false,
+          "score": 0.5,
+          "success": true,
           "threshold": 0.5,
-          "reason": "The score is 0.00 because the tool calls failed to specify the number of morphologies to retrieve, which is essential for accurate results."
+          "reason": "The score is 0.50 because the input lacks a specification for the number of morphologies to retrieve, which is crucial for fulfilling the request accurately."
         },
         {
           "name": "Deterministic Argument Correctness",
@@ -895,7 +895,8 @@
     "expected_tool_calls": [],
     "params": {
       "tags": [
-        "platform_ui"
+        "off_topic",
+        "rejection"
       ]
     },
     "ai_response": "## I can\u2019t view the platform UI\n\nI don\u2019t have access to the Open Brain Platform\u2019s interface, so I can\u2019t tell you where the **Explore** button is or point to its location in the UI.\n\n### What I can do instead\n- Check the platform documentation or Help/Support pages \u2014 they usually list major navigation elements.\n- Contact platform support for UI-specific guidance.\n- If you want, I can examine the page you\u2019re currently viewing and extract helpful context (e.g., which entity or page you\u2019re on) \u2014 this may let me infer whether an **Explore** option is available on that page.\n\nWould you like me to analyze the page you\u2019re on now? If so, I\u2019ll request permission to inspect it and pull context.",
@@ -1134,7 +1135,7 @@
       {
         "name": "entitycore-brainregion-getall",
         "arguments": {
-          "semantic_search": "Thalamus"
+          "semantic_search": "thalamus"
         }
       }
     ],
@@ -1170,22 +1171,22 @@
         },
         {
           "name": "Argument Correctness",
-          "score": 0.0,
-          "success": false,
+          "score": 1.0,
+          "success": true,
           "threshold": 0.5,
           "reason": "The score is 0.00 because there was no input parameter provided to specifically retrieve the id of the thalamus."
         },
         {
           "name": "Deterministic Argument Correctness",
-          "score": 0.0,
-          "success": false,
+          "score": 1.0,
+          "success": true,
           "threshold": 0.5,
-          "reason": "[\n\t Tool Calling Reason: Incomplete tool usage: missing tools [ToolCall(\n    name=\"entitycore-brainregion-getall\",\n    input_parameters={\n        \"semantic_search\": \"Thalamus\"\n    }\n)]; expected ['entitycore-brainregion-getall'], called ['entitycore-brainregion-getall']. See more details above.\n\t Tool Selection Reason: No available tools were provided to assess tool selection criteria\n]\n"
+          "reason": "[\n\t Tool Calling Reason: All expected tools ['entitycore-brainregion-getall'] were called (order not considered).\n\t Tool Selection Reason: No available tools were provided to assess tool selection criteria\n]\n"
         },
         {
           "name": "Overall Argument Correctness",
-          "score": 0.0,
-          "success": false,
+          "score": 1.0,
+          "success": true,
           "threshold": 0.5,
           "reason": ""
         }
@@ -1241,7 +1242,7 @@
           "score": 1.0,
           "success": true,
           "threshold": 0.5,
-          "reason": "The score is 1.00 because there were no incorrect tool calls and the input was clear and relevant."
+          "reason": "The score is 1.00 because there were no incorrect tool calls, indicating that the input was handled perfectly."
         },
         {
           "name": "Deterministic Argument Correctness",
@@ -1291,28 +1292,28 @@
         },
         {
           "name": "Tool Correctness",
-          "score": 0.0,
-          "success": false,
-          "threshold": 0.5,
-          "reason": "[\n\t Tool Calling Reason: Incorrect tool usage: missing tools ['obi-expert'] and out-of-order tools ['obi-expert']; expected ['obi-expert'], called []. See more details above.\n\t Tool Selection Reason: No available tools were provided to assess tool selection criteria\n]\n"
-        },
-        {
-          "name": "Argument Correctness",
           "score": 1.0,
           "success": true,
           "threshold": 0.5,
-          "reason": "No tool calls provided"
+          "reason": "[\n\t Tool Calling Reason: Correct ordering: all expected tools ['obi-expert'] were called in the correct order.\n\t Tool Selection Reason: No available tools were provided to assess tool selection criteria\n]\n"
         },
         {
-          "name": "Deterministic Argument Correctness",
+          "name": "Argument Correctness",
           "score": 0.0,
           "success": false,
           "threshold": 0.5,
-          "reason": "[\n\t Tool Calling Reason: Incomplete tool usage: missing tools [ToolCall(\n    name=\"obi-expert\",\n    input_parameters={\n        \"document_type\": \"tutorial\",\n        \"query\": \"simulate\"\n    }\n)]; expected ['obi-expert'], called []. See more details above.\n\t Tool Selection Reason: No available tools were provided to assess tool selection criteria\n]\n"
+          "reason": "The score is 0.00 because there was no input parameter provided to address the simulation query, which is essential for a valid tool call."
+        },
+        {
+          "name": "Deterministic Argument Correctness",
+          "score": 0.5,
+          "success": true,
+          "threshold": 0.5,
+          "reason": "[\n\t Tool Calling Reason: Incomplete tool usage: missing tools [ToolCall(\n    name=\"obi-expert\",\n    input_parameters={\n        \"document_type\": \"tutorial\",\n        \"query\": \"simulate\"\n    }\n)]; expected ['obi-expert'], called ['obi-expert']. See more details above.\n\t Tool Selection Reason: No available tools were provided to assess tool selection criteria\n]\n"
         },
         {
           "name": "Overall Argument Correctness",
-          "score": 1.0,
+          "score": 0.5,
           "success": true,
           "threshold": 0.5,
           "reason": ""
@@ -1363,13 +1364,6 @@
         },
         {
           "name": "Tool Correctness",
-          "score": 1.0,
-          "success": true,
-          "threshold": 0.5,
-          "reason": "[\n\t Tool Calling Reason: Correct ordering: all expected tools ['get-obi-software-docs'] were called in the correct order.\n\t Tool Selection Reason: No available tools were provided to assess tool selection criteria\n]\n"
-        },
-        {
-          "name": "Argument Correctness",
           "score": 0.0,
           "success": false,
           "threshold": 0.5,
@@ -1380,7 +1374,7 @@
           "score": 0.6666666666666666,
           "success": true,
           "threshold": 0.5,
-          "reason": "[\n\t Tool Calling Reason: Incomplete tool usage: missing tools [ToolCall(\n    name=\"get-obi-software-docs\",\n    input_parameters={\n        \"context7CompatibleLibraryID\": \"/openbraininstitute/obi-one\",\n        \"topic\": \"Single Cell Simulation Example\",\n        \"tokens\": 2000\n    }\n)]; expected ['get-obi-software-docs'], called ['get-obi-software-docs']. See more details above.\n\t Tool Selection Reason: No available tools were provided to assess tool selection criteria\n]\n"
+          "reason": "[\n\t Tool Calling Reason: Incomplete tool usage: missing tools [ToolCall(\n    name=\"get-obi-software-docs\",\n    input_parameters={\n        \"context7CompatibleLibraryID\": \"/openbraininstitute/obi-one\",\n        \"topic\": \"Single Cell Simulation Example\",\n        \"tokens\": 2000\n    }\n)]; expected ['get-obi-software-docs'], called []. See more details above.\n\t Tool Selection Reason: No available tools were provided to assess tool selection criteria\n]\n"
         },
         {
           "name": "Overall Argument Correctness",

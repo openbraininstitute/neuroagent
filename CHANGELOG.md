@@ -7,11 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.12.2] - 20.11.2025
+
+### Fixed
+- Python plotting.
+
+## [0.12.1] - 20.11.2025
+
+### Changed
+- Modified model routings.
+
+## [0.12.0] - 20.11.2025
+
 ### Added
 - Auto model routing.
 - New test cases for morphology in br.
 - Rule to understand private entities.
 - Issue templates.
+- Guardrails against off topic queries.
 
 ### Changed
 - Exa tools no longer MCP.
