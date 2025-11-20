@@ -277,7 +277,10 @@ async function execute(code) {{
   pyodide.runPython(`
     import sys
     import io
+    import plotly.io as pio
+
     sys.stdout = io.StringIO()
+    pio.renderers.default = None
   `);
 
   // Execute the code and capture any errors
