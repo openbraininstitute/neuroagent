@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- Properly wait for python subprocess to finish before stdout parsing.
+
 ## [0.12.2] - 20.11.2025
 
 ### Fixed
