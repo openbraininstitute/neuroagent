@@ -220,6 +220,7 @@ class AssetLabel(
             'cell_surface_mesh',
             'jupyter_notebook',
             'requirements',
+            'notebook_required_files',
             'ion_channel_model_figure',
             'ion_channel_model_figure_summary_json',
             'ion_channel_model_thumbnail',
@@ -266,6 +267,7 @@ class AssetLabel(
         'cell_surface_mesh',
         'jupyter_notebook',
         'requirements',
+        'notebook_required_files',
         'ion_channel_model_figure',
         'ion_channel_model_figure_summary_json',
         'ion_channel_model_thumbnail',
@@ -489,6 +491,7 @@ class CircuitUserUpdate(BaseModel):
     )
     contact_email: str | None = Field(default='<NOT_SET>', title='Contact Email')
     published_in: str | None = Field(default='<NOT_SET>', title='Published In')
+    notice_text: str | None = Field(default='<NOT_SET>', title='Notice Text')
     name: str | None = Field(default='<NOT_SET>', title='Name')
     description: str | None = Field(default='<NOT_SET>', title='Description')
     has_morphologies: bool | str | None = Field(
@@ -573,6 +576,7 @@ class ContentType(
             'application/gzip',
             'image/webp',
             'application/x-ipynb+json',
+            'application/zip',
         ]
     ]
 ):
@@ -596,6 +600,7 @@ class ContentType(
         'application/gzip',
         'image/webp',
         'application/x-ipynb+json',
+        'application/zip',
     ] = Field(..., title='ContentType')
 
 
@@ -733,6 +738,7 @@ class EMCellMeshUserUpdate(BaseModel):
     )
     contact_email: str | None = Field(default='<NOT_SET>', title='Contact Email')
     published_in: str | None = Field(default='<NOT_SET>', title='Published In')
+    notice_text: str | None = Field(default='<NOT_SET>', title='Notice Text')
     release_version: int | str | None = Field(
         default='<NOT_SET>', title='Release Version'
     )
@@ -1255,9 +1261,26 @@ class IonChannelRecordingCreate(BaseModel):
     license_id: UUID | None = Field(default=None, title='License Id')
     brain_region_id: UUID = Field(..., title='Brain Region Id')
     subject_id: UUID = Field(..., title='Subject Id')
-    experiment_date: AwareDatetime | None = Field(default=None, title='Experiment Date')
-    contact_email: str | None = Field(default=None, title='Contact Email')
-    published_in: str | None = Field(default=None, title='Published In')
+    experiment_date: AwareDatetime | None = Field(
+        default=None,
+        description='Date of the experiment associated with the artifact.',
+        title='Experiment Date',
+    )
+    contact_email: str | None = Field(
+        default=None,
+        description="Optional string of a contact person's e-mail address.",
+        title='Contact Email',
+    )
+    published_in: str | None = Field(
+        default=None,
+        description='Optional string with short version of the source publication(s).',
+        title='Published In',
+    )
+    notice_text: str | None = Field(
+        default=None,
+        description='Text provided by the data creators to inform users about data caveats, limitations, or required attribution practices.',
+        title='Notice Text',
+    )
     name: str = Field(..., title='Name')
     description: str = Field(..., title='Description')
     ljp: float = Field(
@@ -1315,6 +1338,7 @@ class IonChannelRecordingUserUpdate(BaseModel):
     )
     contact_email: str | None = Field(default='<NOT_SET>', title='Contact Email')
     published_in: str | None = Field(default='<NOT_SET>', title='Published In')
+    notice_text: str | None = Field(default='<NOT_SET>', title='Notice Text')
     name: str | None = Field(default='<NOT_SET>', title='Name')
     description: str | None = Field(default='<NOT_SET>', title='Description')
     ljp: float | str | None = Field(default='<NOT_SET>', title='Ljp')
@@ -1510,9 +1534,26 @@ class NestedEMCellMeshRead(BaseModel):
     authorized_public: bool = Field(default=False, title='Authorized Public')
     type: EntityType | None = None
     id: UUID = Field(..., title='Id')
-    experiment_date: AwareDatetime | None = Field(default=None, title='Experiment Date')
-    contact_email: str | None = Field(default=None, title='Contact Email')
-    published_in: str | None = Field(default=None, title='Published In')
+    experiment_date: AwareDatetime | None = Field(
+        default=None,
+        description='Date of the experiment associated with the artifact.',
+        title='Experiment Date',
+    )
+    contact_email: str | None = Field(
+        default=None,
+        description="Optional string of a contact person's e-mail address.",
+        title='Contact Email',
+    )
+    published_in: str | None = Field(
+        default=None,
+        description='Optional string with short version of the source publication(s).',
+        title='Published In',
+    )
+    notice_text: str | None = Field(
+        default=None,
+        description='Text provided by the data creators to inform users about data caveats, limitations, or required attribution practices.',
+        title='Notice Text',
+    )
     release_version: int = Field(..., title='Release Version')
     dense_reconstruction_cell_id: int = Field(..., title='Dense Reconstruction Cell Id')
     generation_method: EMCellMeshGenerationMethod
@@ -1595,9 +1636,26 @@ class NestedIonChannelRecordingRead(BaseModel):
     authorized_public: bool = Field(default=False, title='Authorized Public')
     type: EntityType | None = None
     id: UUID = Field(..., title='Id')
-    experiment_date: AwareDatetime | None = Field(default=None, title='Experiment Date')
-    contact_email: str | None = Field(default=None, title='Contact Email')
-    published_in: str | None = Field(default=None, title='Published In')
+    experiment_date: AwareDatetime | None = Field(
+        default=None,
+        description='Date of the experiment associated with the artifact.',
+        title='Experiment Date',
+    )
+    contact_email: str | None = Field(
+        default=None,
+        description="Optional string of a contact person's e-mail address.",
+        title='Contact Email',
+    )
+    published_in: str | None = Field(
+        default=None,
+        description='Optional string with short version of the source publication(s).',
+        title='Published In',
+    )
+    notice_text: str | None = Field(
+        default=None,
+        description='Text provided by the data creators to inform users about data caveats, limitations, or required attribution practices.',
+        title='Notice Text',
+    )
     name: str = Field(..., title='Name')
     description: str = Field(..., title='Description')
     ljp: float = Field(
@@ -1700,9 +1758,26 @@ class NestedScientificArtifactRead(BaseModel):
     authorized_public: bool = Field(default=False, title='Authorized Public')
     type: EntityType | None = None
     id: UUID = Field(..., title='Id')
-    experiment_date: AwareDatetime | None = Field(default=None, title='Experiment Date')
-    contact_email: str | None = Field(default=None, title='Contact Email')
-    published_in: str | None = Field(default=None, title='Published In')
+    experiment_date: AwareDatetime | None = Field(
+        default=None,
+        description='Date of the experiment associated with the artifact.',
+        title='Experiment Date',
+    )
+    contact_email: str | None = Field(
+        default=None,
+        description="Optional string of a contact person's e-mail address.",
+        title='Contact Email',
+    )
+    published_in: str | None = Field(
+        default=None,
+        description='Optional string with short version of the source publication(s).',
+        title='Published In',
+    )
+    notice_text: str | None = Field(
+        default=None,
+        description='Text provided by the data creators to inform users about data caveats, limitations, or required attribution practices.',
+        title='Notice Text',
+    )
 
 
 class NestedSimulationRead(BaseModel):
@@ -8613,9 +8688,26 @@ class CellMorphologyCreate(BaseModel):
     license_id: UUID | None = Field(default=None, title='License Id')
     brain_region_id: UUID = Field(..., title='Brain Region Id')
     subject_id: UUID = Field(..., title='Subject Id')
-    experiment_date: AwareDatetime | None = Field(default=None, title='Experiment Date')
-    contact_email: str | None = Field(default=None, title='Contact Email')
-    published_in: str | None = Field(default=None, title='Published In')
+    experiment_date: AwareDatetime | None = Field(
+        default=None,
+        description='Date of the experiment associated with the artifact.',
+        title='Experiment Date',
+    )
+    contact_email: str | None = Field(
+        default=None,
+        description="Optional string of a contact person's e-mail address.",
+        title='Contact Email',
+    )
+    published_in: str | None = Field(
+        default=None,
+        description='Optional string with short version of the source publication(s).',
+        title='Published In',
+    )
+    notice_text: str | None = Field(
+        default=None,
+        description='Text provided by the data creators to inform users about data caveats, limitations, or required attribution practices.',
+        title='Notice Text',
+    )
     name: str = Field(..., title='Name')
     description: str = Field(..., title='Description')
     location: PointLocationBase | None = None
@@ -8639,6 +8731,7 @@ class CellMorphologyUserUpdate(BaseModel):
     )
     contact_email: str | None = Field(default='<NOT_SET>', title='Contact Email')
     published_in: str | None = Field(default='<NOT_SET>', title='Published In')
+    notice_text: str | None = Field(default='<NOT_SET>', title='Notice Text')
     name: str | None = Field(default='<NOT_SET>', title='Name')
     description: str | None = Field(default='<NOT_SET>', title='Description')
     location: PointLocationBase | str | None = Field(
@@ -8658,9 +8751,26 @@ class CircuitCreate(BaseModel):
     license_id: UUID | None = Field(default=None, title='License Id')
     brain_region_id: UUID = Field(..., title='Brain Region Id')
     subject_id: UUID = Field(..., title='Subject Id')
-    experiment_date: AwareDatetime | None = Field(default=None, title='Experiment Date')
-    contact_email: str | None = Field(default=None, title='Contact Email')
-    published_in: str | None = Field(default=None, title='Published In')
+    experiment_date: AwareDatetime | None = Field(
+        default=None,
+        description='Date of the experiment associated with the artifact.',
+        title='Experiment Date',
+    )
+    contact_email: str | None = Field(
+        default=None,
+        description="Optional string of a contact person's e-mail address.",
+        title='Contact Email',
+    )
+    published_in: str | None = Field(
+        default=None,
+        description='Optional string with short version of the source publication(s).',
+        title='Published In',
+    )
+    notice_text: str | None = Field(
+        default=None,
+        description='Text provided by the data creators to inform users about data caveats, limitations, or required attribution practices.',
+        title='Notice Text',
+    )
     name: str = Field(..., title='Name')
     description: str = Field(..., title='Description')
     has_morphologies: bool = Field(default=False, title='Has Morphologies')
@@ -8858,9 +8968,26 @@ class EMCellMeshCreate(BaseModel):
     license_id: UUID | None = Field(default=None, title='License Id')
     brain_region_id: UUID = Field(..., title='Brain Region Id')
     subject_id: UUID = Field(..., title='Subject Id')
-    experiment_date: AwareDatetime | None = Field(default=None, title='Experiment Date')
-    contact_email: str | None = Field(default=None, title='Contact Email')
-    published_in: str | None = Field(default=None, title='Published In')
+    experiment_date: AwareDatetime | None = Field(
+        default=None,
+        description='Date of the experiment associated with the artifact.',
+        title='Experiment Date',
+    )
+    contact_email: str | None = Field(
+        default=None,
+        description="Optional string of a contact person's e-mail address.",
+        title='Contact Email',
+    )
+    published_in: str | None = Field(
+        default=None,
+        description='Optional string with short version of the source publication(s).',
+        title='Published In',
+    )
+    notice_text: str | None = Field(
+        default=None,
+        description='Text provided by the data creators to inform users about data caveats, limitations, or required attribution practices.',
+        title='Notice Text',
+    )
     release_version: int = Field(..., title='Release Version')
     dense_reconstruction_cell_id: int = Field(..., title='Dense Reconstruction Cell Id')
     generation_method: EMCellMeshGenerationMethod
@@ -8882,9 +9009,26 @@ class EMDenseReconstructionDatasetCreate(BaseModel):
     license_id: UUID | None = Field(default=None, title='License Id')
     brain_region_id: UUID = Field(..., title='Brain Region Id')
     subject_id: UUID = Field(..., title='Subject Id')
-    experiment_date: AwareDatetime | None = Field(default=None, title='Experiment Date')
-    contact_email: str | None = Field(default=None, title='Contact Email')
-    published_in: str | None = Field(default=None, title='Published In')
+    experiment_date: AwareDatetime | None = Field(
+        default=None,
+        description='Date of the experiment associated with the artifact.',
+        title='Experiment Date',
+    )
+    contact_email: str | None = Field(
+        default=None,
+        description="Optional string of a contact person's e-mail address.",
+        title='Contact Email',
+    )
+    published_in: str | None = Field(
+        default=None,
+        description='Optional string with short version of the source publication(s).',
+        title='Published In',
+    )
+    notice_text: str | None = Field(
+        default=None,
+        description='Text provided by the data creators to inform users about data caveats, limitations, or required attribution practices.',
+        title='Notice Text',
+    )
     name: str = Field(..., title='Name')
     description: str = Field(..., title='Description')
     protocol_document: ProtocolDocument | None = Field(
@@ -8935,9 +9079,26 @@ class ElectricalCellRecordingCreate(BaseModel):
     license_id: UUID | None = Field(default=None, title='License Id')
     brain_region_id: UUID = Field(..., title='Brain Region Id')
     subject_id: UUID = Field(..., title='Subject Id')
-    experiment_date: AwareDatetime | None = Field(default=None, title='Experiment Date')
-    contact_email: str | None = Field(default=None, title='Contact Email')
-    published_in: str | None = Field(default=None, title='Published In')
+    experiment_date: AwareDatetime | None = Field(
+        default=None,
+        description='Date of the experiment associated with the artifact.',
+        title='Experiment Date',
+    )
+    contact_email: str | None = Field(
+        default=None,
+        description="Optional string of a contact person's e-mail address.",
+        title='Contact Email',
+    )
+    published_in: str | None = Field(
+        default=None,
+        description='Optional string with short version of the source publication(s).',
+        title='Published In',
+    )
+    notice_text: str | None = Field(
+        default=None,
+        description='Text provided by the data creators to inform users about data caveats, limitations, or required attribution practices.',
+        title='Notice Text',
+    )
     name: str = Field(..., title='Name')
     description: str = Field(..., title='Description')
     ljp: float = Field(
@@ -8985,6 +9146,7 @@ class ElectricalCellRecordingUserUpdate(BaseModel):
     )
     contact_email: str | None = Field(default='<NOT_SET>', title='Contact Email')
     published_in: str | None = Field(default='<NOT_SET>', title='Published In')
+    notice_text: str | None = Field(default='<NOT_SET>', title='Notice Text')
     name: str | None = Field(default='<NOT_SET>', title='Name')
     description: str | None = Field(default='<NOT_SET>', title='Description')
     ljp: float | str | None = Field(default='<NOT_SET>', title='Ljp')
@@ -10006,6 +10168,9 @@ class AnalysisNotebookTemplateRead(BaseModel):
     model_config = ConfigDict(
         extra='allow',
     )
+    contributions: list[NestedContributionRead] | None = Field(
+        ..., title='Contributions'
+    )
     authorized_project_id: UUID4 = Field(..., title='Authorized Project Id')
     authorized_public: bool = Field(default=False, title='Authorized Public')
     creation_date: AwareDatetime = Field(..., title='Creation Date')
@@ -10141,9 +10306,26 @@ class CircuitRead(BaseModel):
     authorized_public: bool = Field(default=False, title='Authorized Public')
     type: EntityType | None = None
     id: UUID = Field(..., title='Id')
-    experiment_date: AwareDatetime | None = Field(default=None, title='Experiment Date')
-    contact_email: str | None = Field(default=None, title='Contact Email')
-    published_in: str | None = Field(default=None, title='Published In')
+    experiment_date: AwareDatetime | None = Field(
+        default=None,
+        description='Date of the experiment associated with the artifact.',
+        title='Experiment Date',
+    )
+    contact_email: str | None = Field(
+        default=None,
+        description="Optional string of a contact person's e-mail address.",
+        title='Contact Email',
+    )
+    published_in: str | None = Field(
+        default=None,
+        description='Optional string with short version of the source publication(s).',
+        title='Published In',
+    )
+    notice_text: str | None = Field(
+        default=None,
+        description='Text provided by the data creators to inform users about data caveats, limitations, or required attribution practices.',
+        title='Notice Text',
+    )
     name: str = Field(..., title='Name')
     description: str = Field(..., title='Description')
     has_morphologies: bool = Field(default=False, title='Has Morphologies')
@@ -10180,9 +10362,26 @@ class EMCellMeshRead(BaseModel):
     authorized_public: bool = Field(default=False, title='Authorized Public')
     type: EntityType | None = None
     id: UUID = Field(..., title='Id')
-    experiment_date: AwareDatetime | None = Field(default=None, title='Experiment Date')
-    contact_email: str | None = Field(default=None, title='Contact Email')
-    published_in: str | None = Field(default=None, title='Published In')
+    experiment_date: AwareDatetime | None = Field(
+        default=None,
+        description='Date of the experiment associated with the artifact.',
+        title='Experiment Date',
+    )
+    contact_email: str | None = Field(
+        default=None,
+        description="Optional string of a contact person's e-mail address.",
+        title='Contact Email',
+    )
+    published_in: str | None = Field(
+        default=None,
+        description='Optional string with short version of the source publication(s).',
+        title='Published In',
+    )
+    notice_text: str | None = Field(
+        default=None,
+        description='Text provided by the data creators to inform users about data caveats, limitations, or required attribution practices.',
+        title='Notice Text',
+    )
     release_version: int = Field(..., title='Release Version')
     dense_reconstruction_cell_id: int = Field(..., title='Dense Reconstruction Cell Id')
     generation_method: EMCellMeshGenerationMethod
@@ -10213,9 +10412,26 @@ class EMDenseReconstructionDatasetRead(BaseModel):
     authorized_public: bool = Field(default=False, title='Authorized Public')
     type: EntityType | None = None
     id: UUID = Field(..., title='Id')
-    experiment_date: AwareDatetime | None = Field(default=None, title='Experiment Date')
-    contact_email: str | None = Field(default=None, title='Contact Email')
-    published_in: str | None = Field(default=None, title='Published In')
+    experiment_date: AwareDatetime | None = Field(
+        default=None,
+        description='Date of the experiment associated with the artifact.',
+        title='Experiment Date',
+    )
+    contact_email: str | None = Field(
+        default=None,
+        description="Optional string of a contact person's e-mail address.",
+        title='Contact Email',
+    )
+    published_in: str | None = Field(
+        default=None,
+        description='Optional string with short version of the source publication(s).',
+        title='Published In',
+    )
+    notice_text: str | None = Field(
+        default=None,
+        description='Text provided by the data creators to inform users about data caveats, limitations, or required attribution practices.',
+        title='Notice Text',
+    )
     name: str = Field(..., title='Name')
     description: str = Field(..., title='Description')
     protocol_document: ProtocolDocument | None = Field(
@@ -10291,9 +10507,26 @@ class ElectricalCellRecordingRead(BaseModel):
     authorized_public: bool = Field(default=False, title='Authorized Public')
     type: EntityType | None = None
     id: UUID = Field(..., title='Id')
-    experiment_date: AwareDatetime | None = Field(default=None, title='Experiment Date')
-    contact_email: str | None = Field(default=None, title='Contact Email')
-    published_in: str | None = Field(default=None, title='Published In')
+    experiment_date: AwareDatetime | None = Field(
+        default=None,
+        description='Date of the experiment associated with the artifact.',
+        title='Experiment Date',
+    )
+    contact_email: str | None = Field(
+        default=None,
+        description="Optional string of a contact person's e-mail address.",
+        title='Contact Email',
+    )
+    published_in: str | None = Field(
+        default=None,
+        description='Optional string with short version of the source publication(s).',
+        title='Published In',
+    )
+    notice_text: str | None = Field(
+        default=None,
+        description='Text provided by the data creators to inform users about data caveats, limitations, or required attribution practices.',
+        title='Notice Text',
+    )
     name: str = Field(..., title='Name')
     description: str = Field(..., title='Description')
     ljp: float = Field(
@@ -10498,9 +10731,26 @@ class IonChannelModelCreate(BaseModel):
     license_id: UUID | None = Field(default=None, title='License Id')
     brain_region_id: UUID = Field(..., title='Brain Region Id')
     subject_id: UUID = Field(..., title='Subject Id')
-    experiment_date: AwareDatetime | None = Field(default=None, title='Experiment Date')
-    contact_email: str | None = Field(default=None, title='Contact Email')
-    published_in: str | None = Field(default=None, title='Published In')
+    experiment_date: AwareDatetime | None = Field(
+        default=None,
+        description='Date of the experiment associated with the artifact.',
+        title='Experiment Date',
+    )
+    contact_email: str | None = Field(
+        default=None,
+        description="Optional string of a contact person's e-mail address.",
+        title='Contact Email',
+    )
+    published_in: str | None = Field(
+        default=None,
+        description='Optional string with short version of the source publication(s).',
+        title='Published In',
+    )
+    notice_text: str | None = Field(
+        default=None,
+        description='Text provided by the data creators to inform users about data caveats, limitations, or required attribution practices.',
+        title='Notice Text',
+    )
     description: str = Field(..., title='Description')
     name: str = Field(..., title='Name')
     nmodl_suffix: str = Field(..., title='Nmodl Suffix')
@@ -10508,7 +10758,7 @@ class IonChannelModelCreate(BaseModel):
     is_temperature_dependent: bool = Field(
         default=False, title='Is Temperature Dependent'
     )
-    temperature_celsius: int = Field(..., title='Temperature Celsius')
+    temperature_celsius: int | None = Field(..., title='Temperature Celsius')
     is_stochastic: bool = Field(default=False, title='Is Stochastic')
     neuron_block: NeuronBlock
 
@@ -10532,9 +10782,26 @@ class IonChannelModelExpanded(BaseModel):
     authorized_public: bool = Field(default=False, title='Authorized Public')
     type: EntityType | None = None
     id: UUID = Field(..., title='Id')
-    experiment_date: AwareDatetime | None = Field(default=None, title='Experiment Date')
-    contact_email: str | None = Field(default=None, title='Contact Email')
-    published_in: str | None = Field(default=None, title='Published In')
+    experiment_date: AwareDatetime | None = Field(
+        default=None,
+        description='Date of the experiment associated with the artifact.',
+        title='Experiment Date',
+    )
+    contact_email: str | None = Field(
+        default=None,
+        description="Optional string of a contact person's e-mail address.",
+        title='Contact Email',
+    )
+    published_in: str | None = Field(
+        default=None,
+        description='Optional string with short version of the source publication(s).',
+        title='Published In',
+    )
+    notice_text: str | None = Field(
+        default=None,
+        description='Text provided by the data creators to inform users about data caveats, limitations, or required attribution practices.',
+        title='Notice Text',
+    )
     description: str = Field(..., title='Description')
     name: str = Field(..., title='Name')
     nmodl_suffix: str = Field(..., title='Nmodl Suffix')
@@ -10542,7 +10809,7 @@ class IonChannelModelExpanded(BaseModel):
     is_temperature_dependent: bool = Field(
         default=False, title='Is Temperature Dependent'
     )
-    temperature_celsius: int = Field(..., title='Temperature Celsius')
+    temperature_celsius: int | None = Field(..., title='Temperature Celsius')
     is_stochastic: bool = Field(default=False, title='Is Stochastic')
     neuron_block: NeuronBlock
 
@@ -10559,9 +10826,26 @@ class IonChannelModelRead(BaseModel):
     authorized_public: bool = Field(default=False, title='Authorized Public')
     type: EntityType | None = None
     id: UUID = Field(..., title='Id')
-    experiment_date: AwareDatetime | None = Field(default=None, title='Experiment Date')
-    contact_email: str | None = Field(default=None, title='Contact Email')
-    published_in: str | None = Field(default=None, title='Published In')
+    experiment_date: AwareDatetime | None = Field(
+        default=None,
+        description='Date of the experiment associated with the artifact.',
+        title='Experiment Date',
+    )
+    contact_email: str | None = Field(
+        default=None,
+        description="Optional string of a contact person's e-mail address.",
+        title='Contact Email',
+    )
+    published_in: str | None = Field(
+        default=None,
+        description='Optional string with short version of the source publication(s).',
+        title='Published In',
+    )
+    notice_text: str | None = Field(
+        default=None,
+        description='Text provided by the data creators to inform users about data caveats, limitations, or required attribution practices.',
+        title='Notice Text',
+    )
     description: str = Field(..., title='Description')
     name: str = Field(..., title='Name')
     nmodl_suffix: str = Field(..., title='Nmodl Suffix')
@@ -10569,7 +10853,7 @@ class IonChannelModelRead(BaseModel):
     is_temperature_dependent: bool = Field(
         default=False, title='Is Temperature Dependent'
     )
-    temperature_celsius: int = Field(..., title='Temperature Celsius')
+    temperature_celsius: int | None = Field(..., title='Temperature Celsius')
     is_stochastic: bool = Field(default=False, title='Is Stochastic')
     neuron_block: NeuronBlock
 
@@ -10588,6 +10872,7 @@ class IonChannelModelUserUpdate(BaseModel):
     )
     contact_email: str | None = Field(default='<NOT_SET>', title='Contact Email')
     published_in: str | None = Field(default='<NOT_SET>', title='Published In')
+    notice_text: str | None = Field(default='<NOT_SET>', title='Notice Text')
     description: str | None = Field(default='<NOT_SET>', title='Description')
     name: str | None = Field(default='<NOT_SET>', title='Name')
     nmodl_suffix: str | None = Field(default='<NOT_SET>', title='Nmodl Suffix')
@@ -10619,9 +10904,26 @@ class IonChannelModelWAssets(BaseModel):
     authorized_public: bool = Field(default=False, title='Authorized Public')
     type: EntityType | None = None
     id: UUID = Field(..., title='Id')
-    experiment_date: AwareDatetime | None = Field(default=None, title='Experiment Date')
-    contact_email: str | None = Field(default=None, title='Contact Email')
-    published_in: str | None = Field(default=None, title='Published In')
+    experiment_date: AwareDatetime | None = Field(
+        default=None,
+        description='Date of the experiment associated with the artifact.',
+        title='Experiment Date',
+    )
+    contact_email: str | None = Field(
+        default=None,
+        description="Optional string of a contact person's e-mail address.",
+        title='Contact Email',
+    )
+    published_in: str | None = Field(
+        default=None,
+        description='Optional string with short version of the source publication(s).',
+        title='Published In',
+    )
+    notice_text: str | None = Field(
+        default=None,
+        description='Text provided by the data creators to inform users about data caveats, limitations, or required attribution practices.',
+        title='Notice Text',
+    )
     description: str = Field(..., title='Description')
     name: str = Field(..., title='Name')
     nmodl_suffix: str = Field(..., title='Nmodl Suffix')
@@ -10629,7 +10931,7 @@ class IonChannelModelWAssets(BaseModel):
     is_temperature_dependent: bool = Field(
         default=False, title='Is Temperature Dependent'
     )
-    temperature_celsius: int = Field(..., title='Temperature Celsius')
+    temperature_celsius: int | None = Field(..., title='Temperature Celsius')
     is_stochastic: bool = Field(default=False, title='Is Stochastic')
     neuron_block: NeuronBlock
 
@@ -10704,9 +11006,26 @@ class IonChannelRecordingRead(BaseModel):
     authorized_public: bool = Field(default=False, title='Authorized Public')
     type: EntityType | None = None
     id: UUID = Field(..., title='Id')
-    experiment_date: AwareDatetime | None = Field(default=None, title='Experiment Date')
-    contact_email: str | None = Field(default=None, title='Contact Email')
-    published_in: str | None = Field(default=None, title='Published In')
+    experiment_date: AwareDatetime | None = Field(
+        default=None,
+        description='Date of the experiment associated with the artifact.',
+        title='Experiment Date',
+    )
+    contact_email: str | None = Field(
+        default=None,
+        description="Optional string of a contact person's e-mail address.",
+        title='Contact Email',
+    )
+    published_in: str | None = Field(
+        default=None,
+        description='Optional string with short version of the source publication(s).',
+        title='Published In',
+    )
+    notice_text: str | None = Field(
+        default=None,
+        description='Text provided by the data creators to inform users about data caveats, limitations, or required attribution practices.',
+        title='Notice Text',
+    )
     name: str = Field(..., title='Name')
     description: str = Field(..., title='Description')
     ljp: float = Field(
@@ -11112,9 +11431,26 @@ class CellMorphologyAnnotationExpandedRead(BaseModel):
     authorized_public: bool = Field(default=False, title='Authorized Public')
     type: EntityType | None = None
     id: UUID = Field(..., title='Id')
-    experiment_date: AwareDatetime | None = Field(default=None, title='Experiment Date')
-    contact_email: str | None = Field(default=None, title='Contact Email')
-    published_in: str | None = Field(default=None, title='Published In')
+    experiment_date: AwareDatetime | None = Field(
+        default=None,
+        description='Date of the experiment associated with the artifact.',
+        title='Experiment Date',
+    )
+    contact_email: str | None = Field(
+        default=None,
+        description="Optional string of a contact person's e-mail address.",
+        title='Contact Email',
+    )
+    published_in: str | None = Field(
+        default=None,
+        description='Optional string with short version of the source publication(s).',
+        title='Published In',
+    )
+    notice_text: str | None = Field(
+        default=None,
+        description='Text provided by the data creators to inform users about data caveats, limitations, or required attribution practices.',
+        title='Notice Text',
+    )
     name: str = Field(..., title='Name')
     description: str = Field(..., title='Description')
     location: PointLocationBase | None = None
@@ -11143,9 +11479,26 @@ class CellMorphologyRead(BaseModel):
     authorized_public: bool = Field(default=False, title='Authorized Public')
     type: EntityType | None = None
     id: UUID = Field(..., title='Id')
-    experiment_date: AwareDatetime | None = Field(default=None, title='Experiment Date')
-    contact_email: str | None = Field(default=None, title='Contact Email')
-    published_in: str | None = Field(default=None, title='Published In')
+    experiment_date: AwareDatetime | None = Field(
+        default=None,
+        description='Date of the experiment associated with the artifact.',
+        title='Experiment Date',
+    )
+    contact_email: str | None = Field(
+        default=None,
+        description="Optional string of a contact person's e-mail address.",
+        title='Contact Email',
+    )
+    published_in: str | None = Field(
+        default=None,
+        description='Optional string with short version of the source publication(s).',
+        title='Published In',
+    )
+    notice_text: str | None = Field(
+        default=None,
+        description='Text provided by the data creators to inform users about data caveats, limitations, or required attribution practices.',
+        title='Notice Text',
+    )
     name: str = Field(..., title='Name')
     description: str = Field(..., title='Description')
     location: PointLocationBase | None = None
