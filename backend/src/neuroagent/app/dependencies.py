@@ -644,7 +644,6 @@ Current time: {datetime.now(timezone.utc).isoformat()}"""
 # CURRENT CONTEXT
 
 Current time: {datetime.now(timezone.utc).isoformat()}"""
-    breakpoint()
     return system_prompt
 
 
