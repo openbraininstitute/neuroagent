@@ -123,7 +123,6 @@ export function SearchPopover({ debounceMs = 400 }: SearchPopoverProps) {
         })) as SearchMessagesList;
 
         setResults(data.result_list ?? []);
-        console.log(results);
       } catch (err) {
         if ((err as Error).name !== "AbortError") {
           console.error("Search error:", err);

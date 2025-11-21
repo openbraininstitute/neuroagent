@@ -28,19 +28,22 @@ from neuroagent.app.database.sql_schemas import (
     utc_now,
 )
 from neuroagent.app.schemas import (
-    AnnotationMessageVercel,
-    AnnotationToolCallVercel,
     MessagesRead,
     MessagesReadVercel,
+    MetadataToolCallVercel,
     PaginatedResponse,
     RateLimitInfo,
     ReasoningPartVercel,
     TextPartVercel,
     ToolCallPartVercel,
-    ToolCallVercel,
+    ToolMetadataDict,
 )
 from neuroagent.tools.base_tool import BaseTool
-from neuroagent.utils import get_token_count, messages_to_openai_content
+from neuroagent.utils import (
+    convert_to_responses_api_format,
+    get_token_count,
+    messages_to_openai_content,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -255,7 +258,7 @@ def format_messages_vercel(
     """Format db messages to Vercel schema."""
     messages: list[MessagesReadVercel] = []
     parts: list[TextPartVercel | ToolCallPartVercel | ReasoningPartVercel] = []
-    annotations: list[AnnotationMessageVercel | AnnotationToolCallVercel] = []
+    metadata: list[MetadataToolCallVercel] = []
 
     for msg in reversed(db_messages):
         if msg.entity in [Entity.USER, Entity.AI_MESSAGE]:
@@ -263,45 +266,46 @@ def format_messages_vercel(
             text_content = content.get("content")
             reasoning_content = content.get("reasoning")
 
-            # Optional reasoning
-            if reasoning_content:
-                parts.append(ReasoningPartVercel(reasoning=reasoning_content))
-
-            message_data = {
+            message_data: dict[str, Any] = {
                 "id": msg.message_id,
                 "role": "user" if msg.entity == Entity.USER else "assistant",
                 "createdAt": msg.creation_date,
-                "content": text_content,
+                "isComplete": msg.is_complete,
             }
+
             # add tool calls and reset buffer after attaching
             if msg.entity == Entity.AI_MESSAGE:
                 if text_content:
                     parts.append(TextPartVercel(text=text_content))
+                if reasoning_content:
+                    if isinstance(reasoning_content, list):
+                        for reasoning_step in reasoning_content:
+                            parts.append(ReasoningPartVercel(text=reasoning_step))
+                    else:
+                        parts.append(ReasoningPartVercel(text=reasoning_content))
 
-                annotations.append(
-                    AnnotationMessageVercel(
-                        messageId=msg.message_id, isComplete=msg.is_complete
+                message_data["metadata"] = {"toolCalls": metadata}
+
+            else:
+                if parts:
+                    # If we encounter a user message with a non empty buffer we have to add a dummy ai message.
+                    messages.append(
+                        MessagesReadVercel(
+                            id=uuid.uuid4(),
+                            role="assistant",
+                            createdAt=msg.creation_date,
+                            parts=parts,
+                            metadata=ToolMetadataDict(toolCalls=metadata),
+                            isComplete=False,
+                        )
                     )
-                )
+                # Normal User message (with empty buffer)
+                if text_content:
+                    parts.append(TextPartVercel(text=text_content))
 
-                message_data["parts"] = parts
-                message_data["annotations"] = annotations
-
-            # If we encounter a user message with a non empty buffer we have to add a dummy ai message.
-            elif parts:
-                messages.append(
-                    MessagesReadVercel(
-                        id=uuid.uuid4(),
-                        role="assistant",
-                        createdAt=msg.creation_date,
-                        content="",
-                        parts=parts,
-                        annotations=annotations,
-                    )
-                )
-
+            message_data["parts"] = parts
             parts = []
-            annotations = []
+            metadata = []
             messages.append(MessagesReadVercel(**message_data))
 
         # Buffer tool calls until the next AI_MESSAGE
@@ -312,7 +316,11 @@ def format_messages_vercel(
 
             # Add optional reasoning
             if reasoning_content:
-                parts.append(ReasoningPartVercel(reasoning=reasoning_content))
+                if isinstance(reasoning_content, list):
+                    for reasoning_step in reasoning_content:
+                        parts.append(ReasoningPartVercel(text=reasoning_step))
+                else:
+                    parts.append(ReasoningPartVercel(text=reasoning_content))
 
             for tc in msg.tool_calls:
                 requires_validation = tool_hil_mapping.get(tc.name, False)
@@ -325,22 +333,21 @@ def format_messages_vercel(
                 else:
                     status = "pending"
 
-                parts.append(TextPartVercel(text=text_content or ""))
+                if text_content:
+                    parts.append(TextPartVercel(text=text_content))
                 parts.append(
                     ToolCallPartVercel(
-                        toolInvocation=ToolCallVercel(
-                            toolCallId=tc.tool_call_id,
-                            toolName=tc.name,
-                            args=json.loads(tc.arguments),
-                            state="call",
-                        )
+                        toolCallId=tc.tool_call_id,
+                        type=f"tool-{tc.name}",
+                        input=json.loads(tc.arguments),
+                        state="input-available",
                     )
                 )
-                annotations.append(
-                    AnnotationToolCallVercel(
+                metadata.append(
+                    MetadataToolCallVercel(
                         toolCallId=tc.tool_call_id,
                         validated=status,  # type: ignore
-                        isComplete=msg.is_complete,
+                        isComplete=False if status != "pending" else True,
                     )
                 )
 
@@ -349,28 +356,28 @@ def format_messages_vercel(
             tool_call_id = json.loads(msg.content).get("tool_call_id")
             tool_call = next(
                 (
-                    part.toolInvocation
+                    part
                     for part in parts
                     if isinstance(part, ToolCallPartVercel)
-                    and part.toolInvocation.toolCallId == tool_call_id
-                ),
-                None,
-            )
-            annotation = next(
-                (
-                    annotation
-                    for annotation in annotations
-                    if isinstance(annotation, AnnotationToolCallVercel)
-                    and annotation.toolCallId == tool_call_id
+                    and part.toolCallId == tool_call_id
                 ),
                 None,
             )
             if tool_call:
-                tool_call.result = json.loads(msg.content).get("content")
-                tool_call.state = "result"
+                tool_call.output = json.loads(msg.content).get("content")
+                tool_call.state = "output-available"
 
-            if annotation:
-                annotation.isComplete = msg.is_complete
+            met = next(
+                (
+                    met
+                    for met in metadata
+                    if isinstance(met, MetadataToolCallVercel)
+                    and met.toolCallId == tool_call_id
+                ),
+                None,
+            )
+            if met:
+                met.isComplete = msg.is_complete
 
     # If the tool call buffer is not empty, we need to add a dummy AI message.
     if parts:
@@ -379,9 +386,9 @@ def format_messages_vercel(
                 id=uuid.uuid4(),
                 role="assistant",
                 createdAt=msg.creation_date,
-                content="",
                 parts=parts,
-                annotations=annotations,
+                metadata=ToolMetadataDict(toolCalls=metadata),
+                isComplete=False,
             )
         )
 
@@ -505,10 +512,10 @@ async def filter_tools_and_model_by_conversation(
 
     openai_messages = await messages_to_openai_content(messages)
 
-    # Remove the content of tool responses to save tokens
-    for message in openai_messages:
-        if message["role"] == "tool":
-            message["content"] = "..."
+    # Remove reasoning and content of tool responses to save tokens
+    openai_messages = convert_to_responses_api_format(
+        openai_messages, send_reasoning=False, send_tool_output=False
+    )
 
     # Build system prompt conditionally
     instructions = []
@@ -578,15 +585,20 @@ AVAILABLE TOOLS:
         # Send the OpenAI request
         model = "google/gemini-2.5-flash"
         start_request = time.time()
-        response = await openai_client.beta.chat.completions.parse(
-            messages=[{"role": "system", "content": system_prompt}, *openai_messages],  # type: ignore
+        response = await openai_client.responses.parse(
+            input=[{"role": "system", "content": system_prompt}, *openai_messages],  # type: ignore
             model=model,
-            response_format=ToolModelFiltering,
+            text_format=ToolModelFiltering,
+            store=False,
         )
 
         # Parse the output
-        if response.choices[0].message.parsed:
-            parsed = response.choices[0].message.parsed
+        parsed = response.output_parsed
+        if parsed and response.output_parsed.selected_tools:
+            selected_tools = list(set(response.output_parsed.selected_tools))
+            logger.debug(
+                f"#TOOLS: {len(selected_tools)}, SELECTED TOOLS: {selected_tools} in {(time.time() - start_request):.2f} s"
+            )
 
             # Handle tool selection
             if need_tool_selection:
