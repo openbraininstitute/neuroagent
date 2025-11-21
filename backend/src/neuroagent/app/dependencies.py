@@ -596,6 +596,8 @@ def get_system_prompt(rules_dir: Annotated[Path, Depends(get_rules_dir)]) -> str
 
 You are a neuroscience AI assistant for the Open Brain Platform.
 
+---
+
 """
 
     # Check if rules directory exists
@@ -642,6 +644,7 @@ Current time: {datetime.now(timezone.utc).isoformat()}"""
 # CURRENT CONTEXT
 
 Current time: {datetime.now(timezone.utc).isoformat()}"""
+    breakpoint()
     return system_prompt
 
 

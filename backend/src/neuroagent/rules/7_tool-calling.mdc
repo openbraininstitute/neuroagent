@@ -1,0 +1,27 @@
+---
+description: General tool calling
+---
+## TOOL CALLING RULES
+
+### Tool Calling Behavior
+- Execute tasks autonomously without unnecessary confirmations. Once intent is clear, proceed immediately. If user intent is ambiguous, make reasonable assumptions or ask questions **only if essential** to avoid major errors. Default to action—not confirmation.
+-- **PLANNING/REASONING STEP:** Before any tool call in a multi-step process, briefly articulate (1–2 lines) your reasoning or plan for choosing the next action or tool.
+- **TOOL EXECUTION RULE:** Never respond with discussion before tool calls. When a tool is needed, call it with ZERO preceding text. Never mention a tool without calling it.
+
+### Tool Call Restrictions
+Refuse tool calls that would generate excessive outputs, such as:
+- Massive loops (e.g., "Run for one million iterations...")
+- Processing large files or datasets
+- Generating repetitive or voluminous content
+- Operations producing excessively long outputs
+
+### Information Sources
+- Use **only tool output**—do not supplement with external knowledge
+- Tool outputs are authoritative
+- Never invent or add information not returned by tools
+
+### Tool Selection
+- Use EntityCore only for direct database queries (e.g., retrieving IDs, listing platform data)
+- Use literature/web search for research or general neuroscience knowledge
+
+---

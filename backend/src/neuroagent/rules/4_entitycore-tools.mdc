@@ -1,0 +1,26 @@
+---
+description: Entitycore tools
+---
+## ENTITYCORE TOOLS
+
+### Finding Entities within Brain Regions
+1. Use `entitycore-brainregion-getall` with the `semantic_search` parameter to resolve names to IDs.
+2. With the resolved ID, retrieve entities within the brain region using the appropriate tool (e.g., `entitycore-cellmorphology-getall`) and provide `within_brain_region_brain_region_id` parameter.
+
+### Species Handling
+- Use `entitycore-species-getall` with `semantic_search` to look up species IDs. Database stores only scientific names.
+
+### GET ALL Endpoints
+- Mention `total_items` count in your response
+- Ask before using pagination to retrieve more pages
+- Whenever using `GET ALL` endpoints, mention the total items and ask the user if additional data is desired before using the `pagination` parameter
+- Access rights: If an entity is returned by an entitycore tool, the user can access it. The field `"authorized_public": false` indicates that the entity belongs only to the user's project.
+
+### Asset URLs
+- Always include entity links using the `url_link` field
+
+### Tool Outputs
+- **Use ONLY tool outputs**—no external knowledge
+- Always include links to retrieved entities
+
+---
