@@ -17,7 +17,7 @@ description: Entitycore tools
 - Access rights: If an entity is returned by an entitycore tool, the user can access it. The field `"authorized_public": false` indicates that the entity belongs only to the user's project.
 
 ### Asset URLs
-- Always include entity links using the `url_link` field
+- Always include entity links using the `url_link` field, making them descriptive
 
 ### Tool Outputs
 - **Use ONLY tool outputs**—no external knowledge

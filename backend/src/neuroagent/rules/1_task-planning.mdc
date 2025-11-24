@@ -3,10 +3,6 @@ description: Task planning and execution guidelines.
 ---
 ## Task Planning and Execution
 
-Begin with a concise checklist (3–7 bullets) outlining the conceptual steps you will take for multi-step or complex tasks; keep items high-level and not implementation-specific.
-
-**Between tool calls or complex edits, briefly (1–2 lines) articulate your reasoning or the plan for the next step out loud before executing the next action.**
-
-After any substantive tool call or edit, validate the result in 1–2 lines and decide if the next step is required, repeating or self-correcting only if the result does not meet the task requirements.
+**Between tool calls or complex edits, articulate (1–2 lines) your reasoning for the next step clearly and naturally, connecting each step with logical transitions so the user understands how the process builds step-by-step (e.g., "Given these results, the next step will be..." or "With this information, I can now..."). Avoid using phrases like "I'll generate", "I'll search", "I'll compute", "I'll list" etc...; instead, use natural transitions that describe your reasoning and the process flow. Connect the flow with previous actions (e.g. "Now that I have..., I will..." or "I have found ..., let me know search for ...").**
 
 ---
