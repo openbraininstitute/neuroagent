@@ -1,5 +1,5 @@
 {
-  "total_tests": 29,
+  "total_tests": 28,
   "metrics_df": [
     {
       "test_name": "cerebellum_morphologies",
@@ -13,7 +13,7 @@
       "test_name": "connectivity_metrics",
       "Correctness [GEval]": 0.8066010405562617,
       "Tool Correctness": 1.0,
-      "Argument Correctness": 0.3333333333333333,
+      "Argument Correctness": 0.5,
       "Deterministic Argument Correctness": 1.0,
       "Overall Argument Correctness": 1.0
     },
@@ -30,8 +30,8 @@
       "Correctness [GEval]": 0.48517928029358126,
       "Tool Correctness": 0.5,
       "Argument Correctness": 0.0,
-      "Deterministic Argument Correctness": 0.75,
-      "Overall Argument Correctness": 0.75
+      "Deterministic Argument Correctness": 0.0,
+      "Overall Argument Correctness": 0.0
     },
     {
       "test_name": "get_specific_circuit",
@@ -46,8 +46,8 @@
       "Correctness [GEval]": 0.5487630447472017,
       "Tool Correctness": 1.0,
       "Argument Correctness": 0.0,
-      "Deterministic Argument Correctness": 0.75,
-      "Overall Argument Correctness": 0.75
+      "Deterministic Argument Correctness": 1.0,
+      "Overall Argument Correctness": 1.0
     },
     {
       "test_name": "ion_channel",
@@ -199,38 +199,6 @@
       "Tool Correctness": 1.0,
       "Argument Correctness": 1.0,
       "Deterministic Argument Correctness": 0.2,
-      "Overall Argument Correctness": 1.0
-    },
-    {
-      "test_name": "simulation_tutorial",
-      "Correctness [GEval]": 0.5615612029368113,
-      "Tool Correctness": 0.0,
-      "Argument Correctness": 1.0,
-      "Deterministic Argument Correctness": 0.0,
-      "Overall Argument Correctness": 1.0
-    },
-    {
-      "test_name": "sin_plot",
-      "Correctness [GEval]": 0.002931223117533942,
-      "Tool Correctness": 0.0,
-      "Argument Correctness": 1.0,
-      "Deterministic Argument Correctness": 0.0,
-      "Overall Argument Correctness": 1.0
-    },
-    {
-      "test_name": "software_docs_entitysdk",
-      "Correctness [GEval]": 0.733165273979345,
-      "Tool Correctness": 1.0,
-      "Argument Correctness": 1.0,
-      "Deterministic Argument Correctness": 0.0,
-      "Overall Argument Correctness": 1.0
-    },
-    {
-      "test_name": "software_docs_obione",
-      "Correctness [GEval]": 0.8463566651362253,
-      "Tool Correctness": 1.0,
-      "Argument Correctness": 1.0,
-      "Deterministic Argument Correctness": 0.0,
       "Overall Argument Correctness": 1.0
     },
     {
