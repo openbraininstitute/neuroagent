@@ -1,7 +1,7 @@
 """Get all Me-Models."""
 
 import logging
-from typing import ClassVar
+from typing import ClassVar, Literal
 from uuid import UUID
 
 from httpx import AsyncClient
@@ -32,6 +32,12 @@ class MEModelGetAllInput(EntitycoreExcludeBRParams, ReadManyMemodelGetParameters
         le=10,
         default=5,
         description="Number of items per page",
+    )
+    within_brain_region_direction: Literal[
+        "ascendants", "descendants", "ascendants_and_descendants"
+    ] = Field(  # type: ignore[assignment]
+        default="ascendants_and_descendants",
+        description="Controls whether to search in parent regions (ascendants), child regions (descendants), or both when filtering by brain region.",
     )
 
 
@@ -67,6 +73,9 @@ class MEModelGetAllTool(BaseTool):
         """
         query_params = self.input_schema.model_dump(exclude_defaults=True, mode="json")
         query_params["page_size"] = self.input_schema.page_size
+        query_params["within_brain_region_direction"] = (
+            self.input_schema.within_brain_region_direction
+        )
 
         headers: dict[str, str] = {}
         if self.metadata.vlab_id is not None:
