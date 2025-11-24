@@ -2653,6 +2653,14 @@ class ValidationStatus(
 ValidationUserUpdate = SimulationGenerationUserUpdate
 
 
+class WithinBrainRegionDirection(
+    RootModel[Literal['ascendants', 'descendants', 'ascendants_and_descendants']]
+):
+    root: Literal['ascendants', 'descendants', 'ascendants_and_descendants'] = Field(
+        ..., title='WithinBrainRegionDirection'
+    )
+
+
 class HealthHealthGetResponse(BaseModel):
     pass
     model_config = ConfigDict(
@@ -2727,6 +2735,22 @@ class ReadManyAnalysisNotebookEnvironmentGetParametersQuery(BaseModel):
     created_by__id__in: list[UUID] | None = Field(
         default=None, title='Created By  Id  In'
     )
+    created_by__given_name: str | None = Field(
+        default=None, title='Created By  Given Name'
+    )
+    created_by__given_name__ilike: str | None = Field(
+        default=None, title='Created By  Given Name  Ilike'
+    )
+    created_by__family_name: str | None = Field(
+        default=None, title='Created By  Family Name'
+    )
+    created_by__family_name__ilike: str | None = Field(
+        default=None, title='Created By  Family Name  Ilike'
+    )
+    created_by__sub_id: UUID | None = Field(default=None, title='Created By  Sub Id')
+    created_by__sub_id__in: list[UUID] | None = Field(
+        default=None, title='Created By  Sub Id  In'
+    )
     updated_by__pref_label: str | None = Field(
         default=None, title='Updated By  Pref Label'
     )
@@ -2739,6 +2763,22 @@ class ReadManyAnalysisNotebookEnvironmentGetParametersQuery(BaseModel):
     updated_by__id: UUID | None = Field(default=None, title='Updated By  Id')
     updated_by__id__in: list[UUID] | None = Field(
         default=None, title='Updated By  Id  In'
+    )
+    updated_by__given_name: str | None = Field(
+        default=None, title='Updated By  Given Name'
+    )
+    updated_by__given_name__ilike: str | None = Field(
+        default=None, title='Updated By  Given Name  Ilike'
+    )
+    updated_by__family_name: str | None = Field(
+        default=None, title='Updated By  Family Name'
+    )
+    updated_by__family_name__ilike: str | None = Field(
+        default=None, title='Updated By  Family Name  Ilike'
+    )
+    updated_by__sub_id: UUID | None = Field(default=None, title='Updated By  Sub Id')
+    updated_by__sub_id__in: list[UUID] | None = Field(
+        default=None, title='Updated By  Sub Id  In'
     )
     search: str | None = Field(default=None, title='Search')
     with_facets: bool = Field(default=False, title='With Facets')
@@ -2778,6 +2818,22 @@ class ReadManyAnalysisNotebookExecutionGetParametersQuery(BaseModel):
     created_by__id__in: list[UUID] | None = Field(
         default=None, title='Created By  Id  In'
     )
+    created_by__given_name: str | None = Field(
+        default=None, title='Created By  Given Name'
+    )
+    created_by__given_name__ilike: str | None = Field(
+        default=None, title='Created By  Given Name  Ilike'
+    )
+    created_by__family_name: str | None = Field(
+        default=None, title='Created By  Family Name'
+    )
+    created_by__family_name__ilike: str | None = Field(
+        default=None, title='Created By  Family Name  Ilike'
+    )
+    created_by__sub_id: UUID | None = Field(default=None, title='Created By  Sub Id')
+    created_by__sub_id__in: list[UUID] | None = Field(
+        default=None, title='Created By  Sub Id  In'
+    )
     updated_by__pref_label: str | None = Field(
         default=None, title='Updated By  Pref Label'
     )
@@ -2791,14 +2847,30 @@ class ReadManyAnalysisNotebookExecutionGetParametersQuery(BaseModel):
     updated_by__id__in: list[UUID] | None = Field(
         default=None, title='Updated By  Id  In'
     )
+    updated_by__given_name: str | None = Field(
+        default=None, title='Updated By  Given Name'
+    )
+    updated_by__given_name__ilike: str | None = Field(
+        default=None, title='Updated By  Given Name  Ilike'
+    )
+    updated_by__family_name: str | None = Field(
+        default=None, title='Updated By  Family Name'
+    )
+    updated_by__family_name__ilike: str | None = Field(
+        default=None, title='Updated By  Family Name  Ilike'
+    )
+    updated_by__sub_id: UUID | None = Field(default=None, title='Updated By  Sub Id')
+    updated_by__sub_id__in: list[UUID] | None = Field(
+        default=None, title='Updated By  Sub Id  In'
+    )
     used__id: UUID | None = Field(default=None, title='Used  Id')
     used__id__in: list[UUID] | None = Field(default=None, title='Used  Id  In')
-    used__type: str | None = Field(default=None, title='Used  Type')
+    used__type: EntityType | None = Field(default=None, title='Used  Type')
     generated__id: UUID | None = Field(default=None, title='Generated  Id')
     generated__id__in: list[UUID] | None = Field(
         default=None, title='Generated  Id  In'
     )
-    generated__type: str | None = Field(default=None, title='Generated  Type')
+    generated__type: EntityType | None = Field(default=None, title='Generated  Type')
     search: str | None = Field(default=None, title='Search')
     with_facets: bool = Field(default=False, title='With Facets')
     within_brain_region_hierarchy_id: UUID | None = Field(
@@ -2809,6 +2881,9 @@ class ReadManyAnalysisNotebookExecutionGetParametersQuery(BaseModel):
     )
     within_brain_region_ascendants: bool = Field(
         default=False, title='Within Brain Region Ascendants'
+    )
+    within_brain_region_direction: WithinBrainRegionDirection | None = Field(
+        default=None, title='Within Brain Region Direction'
     )
 
 
@@ -2863,6 +2938,22 @@ class ReadManyAnalysisNotebookResultGetParametersQuery(BaseModel):
     created_by__id__in: list[UUID] | None = Field(
         default=None, title='Created By  Id  In'
     )
+    created_by__given_name: str | None = Field(
+        default=None, title='Created By  Given Name'
+    )
+    created_by__given_name__ilike: str | None = Field(
+        default=None, title='Created By  Given Name  Ilike'
+    )
+    created_by__family_name: str | None = Field(
+        default=None, title='Created By  Family Name'
+    )
+    created_by__family_name__ilike: str | None = Field(
+        default=None, title='Created By  Family Name  Ilike'
+    )
+    created_by__sub_id: UUID | None = Field(default=None, title='Created By  Sub Id')
+    created_by__sub_id__in: list[UUID] | None = Field(
+        default=None, title='Created By  Sub Id  In'
+    )
     updated_by__pref_label: str | None = Field(
         default=None, title='Updated By  Pref Label'
     )
@@ -2875,6 +2966,22 @@ class ReadManyAnalysisNotebookResultGetParametersQuery(BaseModel):
     updated_by__id: UUID | None = Field(default=None, title='Updated By  Id')
     updated_by__id__in: list[UUID] | None = Field(
         default=None, title='Updated By  Id  In'
+    )
+    updated_by__given_name: str | None = Field(
+        default=None, title='Updated By  Given Name'
+    )
+    updated_by__given_name__ilike: str | None = Field(
+        default=None, title='Updated By  Given Name  Ilike'
+    )
+    updated_by__family_name: str | None = Field(
+        default=None, title='Updated By  Family Name'
+    )
+    updated_by__family_name__ilike: str | None = Field(
+        default=None, title='Updated By  Family Name  Ilike'
+    )
+    updated_by__sub_id: UUID | None = Field(default=None, title='Updated By  Sub Id')
+    updated_by__sub_id__in: list[UUID] | None = Field(
+        default=None, title='Updated By  Sub Id  In'
     )
     search: str | None = Field(default=None, title='Search')
     with_facets: bool = Field(default=False, title='With Facets')
@@ -2923,7 +3030,9 @@ class ReadManyBrainRegionGetParametersQuery(BaseModel):
     name__in: list[str] | None = Field(default=None, title='Name  In')
     name__ilike: str | None = Field(default=None, title='Name  Ilike')
     id: UUID | None = Field(default=None, title='Id')
+    id__in: list[UUID] | None = Field(default=None, title='Id  In')
     acronym: str | None = Field(default=None, title='Acronym')
+    acronym__in: list[str] | None = Field(default=None, title='Acronym  In')
     annotation_value: int | None = Field(default=None, title='Annotation Value')
     hierarchy_id: UUID | None = Field(default=None, title='Hierarchy Id')
     order_by: list[str] = Field(default=['name'], title='Order By')
@@ -2973,6 +3082,22 @@ class ReadManyCalibrationGetParametersQuery(BaseModel):
     created_by__id__in: list[UUID] | None = Field(
         default=None, title='Created By  Id  In'
     )
+    created_by__given_name: str | None = Field(
+        default=None, title='Created By  Given Name'
+    )
+    created_by__given_name__ilike: str | None = Field(
+        default=None, title='Created By  Given Name  Ilike'
+    )
+    created_by__family_name: str | None = Field(
+        default=None, title='Created By  Family Name'
+    )
+    created_by__family_name__ilike: str | None = Field(
+        default=None, title='Created By  Family Name  Ilike'
+    )
+    created_by__sub_id: UUID | None = Field(default=None, title='Created By  Sub Id')
+    created_by__sub_id__in: list[UUID] | None = Field(
+        default=None, title='Created By  Sub Id  In'
+    )
     updated_by__pref_label: str | None = Field(
         default=None, title='Updated By  Pref Label'
     )
@@ -2986,14 +3111,30 @@ class ReadManyCalibrationGetParametersQuery(BaseModel):
     updated_by__id__in: list[UUID] | None = Field(
         default=None, title='Updated By  Id  In'
     )
+    updated_by__given_name: str | None = Field(
+        default=None, title='Updated By  Given Name'
+    )
+    updated_by__given_name__ilike: str | None = Field(
+        default=None, title='Updated By  Given Name  Ilike'
+    )
+    updated_by__family_name: str | None = Field(
+        default=None, title='Updated By  Family Name'
+    )
+    updated_by__family_name__ilike: str | None = Field(
+        default=None, title='Updated By  Family Name  Ilike'
+    )
+    updated_by__sub_id: UUID | None = Field(default=None, title='Updated By  Sub Id')
+    updated_by__sub_id__in: list[UUID] | None = Field(
+        default=None, title='Updated By  Sub Id  In'
+    )
     used__id: UUID | None = Field(default=None, title='Used  Id')
     used__id__in: list[UUID] | None = Field(default=None, title='Used  Id  In')
-    used__type: str | None = Field(default=None, title='Used  Type')
+    used__type: EntityType | None = Field(default=None, title='Used  Type')
     generated__id: UUID | None = Field(default=None, title='Generated  Id')
     generated__id__in: list[UUID] | None = Field(
         default=None, title='Generated  Id  In'
     )
-    generated__type: str | None = Field(default=None, title='Generated  Type')
+    generated__type: EntityType | None = Field(default=None, title='Generated  Type')
     search: str | None = Field(default=None, title='Search')
     with_facets: bool = Field(default=False, title='With Facets')
     within_brain_region_hierarchy_id: UUID | None = Field(
@@ -3004,6 +3145,9 @@ class ReadManyCalibrationGetParametersQuery(BaseModel):
     )
     within_brain_region_ascendants: bool = Field(
         default=False, title='Within Brain Region Ascendants'
+    )
+    within_brain_region_direction: WithinBrainRegionDirection | None = Field(
+        default=None, title='Within Brain Region Direction'
     )
 
 
@@ -3058,6 +3202,22 @@ class ReadManyCellCompositionGetParametersQuery(BaseModel):
     created_by__id__in: list[UUID] | None = Field(
         default=None, title='Created By  Id  In'
     )
+    created_by__given_name: str | None = Field(
+        default=None, title='Created By  Given Name'
+    )
+    created_by__given_name__ilike: str | None = Field(
+        default=None, title='Created By  Given Name  Ilike'
+    )
+    created_by__family_name: str | None = Field(
+        default=None, title='Created By  Family Name'
+    )
+    created_by__family_name__ilike: str | None = Field(
+        default=None, title='Created By  Family Name  Ilike'
+    )
+    created_by__sub_id: UUID | None = Field(default=None, title='Created By  Sub Id')
+    created_by__sub_id__in: list[UUID] | None = Field(
+        default=None, title='Created By  Sub Id  In'
+    )
     updated_by__pref_label: str | None = Field(
         default=None, title='Updated By  Pref Label'
     )
@@ -3070,6 +3230,22 @@ class ReadManyCellCompositionGetParametersQuery(BaseModel):
     updated_by__id: UUID | None = Field(default=None, title='Updated By  Id')
     updated_by__id__in: list[UUID] | None = Field(
         default=None, title='Updated By  Id  In'
+    )
+    updated_by__given_name: str | None = Field(
+        default=None, title='Updated By  Given Name'
+    )
+    updated_by__given_name__ilike: str | None = Field(
+        default=None, title='Updated By  Given Name  Ilike'
+    )
+    updated_by__family_name: str | None = Field(
+        default=None, title='Updated By  Family Name'
+    )
+    updated_by__family_name__ilike: str | None = Field(
+        default=None, title='Updated By  Family Name  Ilike'
+    )
+    updated_by__sub_id: UUID | None = Field(default=None, title='Updated By  Sub Id')
+    updated_by__sub_id__in: list[UUID] | None = Field(
+        default=None, title='Updated By  Sub Id  In'
     )
     search: str | None = Field(default=None, title='Search')
 
@@ -3194,6 +3370,12 @@ class ReadManyCellMorphologyGetParametersQuery(BaseModel):
     brain_region__acronym__in: list[str] | None = Field(
         default=None, title='Brain Region  Acronym  In'
     )
+    brain_region__annotation_value: int | None = Field(
+        default=None, title='Brain Region  Annotation Value'
+    )
+    brain_region__hierarchy_id: UUID | None = Field(
+        default=None, title='Brain Region  Hierarchy Id'
+    )
     contribution__pref_label: str | None = Field(
         default=None, title='Contribution  Pref Label'
     )
@@ -3220,6 +3402,22 @@ class ReadManyCellMorphologyGetParametersQuery(BaseModel):
     created_by__id__in: list[UUID] | None = Field(
         default=None, title='Created By  Id  In'
     )
+    created_by__given_name: str | None = Field(
+        default=None, title='Created By  Given Name'
+    )
+    created_by__given_name__ilike: str | None = Field(
+        default=None, title='Created By  Given Name  Ilike'
+    )
+    created_by__family_name: str | None = Field(
+        default=None, title='Created By  Family Name'
+    )
+    created_by__family_name__ilike: str | None = Field(
+        default=None, title='Created By  Family Name  Ilike'
+    )
+    created_by__sub_id: UUID | None = Field(default=None, title='Created By  Sub Id')
+    created_by__sub_id__in: list[UUID] | None = Field(
+        default=None, title='Created By  Sub Id  In'
+    )
     updated_by__pref_label: str | None = Field(
         default=None, title='Updated By  Pref Label'
     )
@@ -3232,6 +3430,22 @@ class ReadManyCellMorphologyGetParametersQuery(BaseModel):
     updated_by__id: UUID | None = Field(default=None, title='Updated By  Id')
     updated_by__id__in: list[UUID] | None = Field(
         default=None, title='Updated By  Id  In'
+    )
+    updated_by__given_name: str | None = Field(
+        default=None, title='Updated By  Given Name'
+    )
+    updated_by__given_name__ilike: str | None = Field(
+        default=None, title='Updated By  Given Name  Ilike'
+    )
+    updated_by__family_name: str | None = Field(
+        default=None, title='Updated By  Family Name'
+    )
+    updated_by__family_name__ilike: str | None = Field(
+        default=None, title='Updated By  Family Name  Ilike'
+    )
+    updated_by__sub_id: UUID | None = Field(default=None, title='Updated By  Sub Id')
+    updated_by__sub_id__in: list[UUID] | None = Field(
+        default=None, title='Updated By  Sub Id  In'
     )
     cell_morphology_protocol__id: UUID | None = Field(
         default=None, title='Cell Morphology Protocol  Id'
@@ -3255,6 +3469,9 @@ class ReadManyCellMorphologyGetParametersQuery(BaseModel):
     )
     within_brain_region_ascendants: bool = Field(
         default=False, title='Within Brain Region Ascendants'
+    )
+    within_brain_region_direction: WithinBrainRegionDirection | None = Field(
+        default=None, title='Within Brain Region Direction'
     )
 
 
@@ -3320,6 +3537,22 @@ class ReadManyCellMorphologyProtocolGetParametersQuery(BaseModel):
     created_by__id__in: list[UUID] | None = Field(
         default=None, title='Created By  Id  In'
     )
+    created_by__given_name: str | None = Field(
+        default=None, title='Created By  Given Name'
+    )
+    created_by__given_name__ilike: str | None = Field(
+        default=None, title='Created By  Given Name  Ilike'
+    )
+    created_by__family_name: str | None = Field(
+        default=None, title='Created By  Family Name'
+    )
+    created_by__family_name__ilike: str | None = Field(
+        default=None, title='Created By  Family Name  Ilike'
+    )
+    created_by__sub_id: UUID | None = Field(default=None, title='Created By  Sub Id')
+    created_by__sub_id__in: list[UUID] | None = Field(
+        default=None, title='Created By  Sub Id  In'
+    )
     updated_by__pref_label: str | None = Field(
         default=None, title='Updated By  Pref Label'
     )
@@ -3332,6 +3565,22 @@ class ReadManyCellMorphologyProtocolGetParametersQuery(BaseModel):
     updated_by__id: UUID | None = Field(default=None, title='Updated By  Id')
     updated_by__id__in: list[UUID] | None = Field(
         default=None, title='Updated By  Id  In'
+    )
+    updated_by__given_name: str | None = Field(
+        default=None, title='Updated By  Given Name'
+    )
+    updated_by__given_name__ilike: str | None = Field(
+        default=None, title='Updated By  Given Name  Ilike'
+    )
+    updated_by__family_name: str | None = Field(
+        default=None, title='Updated By  Family Name'
+    )
+    updated_by__family_name__ilike: str | None = Field(
+        default=None, title='Updated By  Family Name  Ilike'
+    )
+    updated_by__sub_id: UUID | None = Field(default=None, title='Updated By  Sub Id')
+    updated_by__sub_id__in: list[UUID] | None = Field(
+        default=None, title='Updated By  Sub Id  In'
     )
     with_facets: bool = Field(default=False, title='With Facets')
 
@@ -3427,6 +3676,22 @@ class ReadManyCircuitGetParametersQuery(BaseModel):
     created_by__id__in: list[UUID] | None = Field(
         default=None, title='Created By  Id  In'
     )
+    created_by__given_name: str | None = Field(
+        default=None, title='Created By  Given Name'
+    )
+    created_by__given_name__ilike: str | None = Field(
+        default=None, title='Created By  Given Name  Ilike'
+    )
+    created_by__family_name: str | None = Field(
+        default=None, title='Created By  Family Name'
+    )
+    created_by__family_name__ilike: str | None = Field(
+        default=None, title='Created By  Family Name  Ilike'
+    )
+    created_by__sub_id: UUID | None = Field(default=None, title='Created By  Sub Id')
+    created_by__sub_id__in: list[UUID] | None = Field(
+        default=None, title='Created By  Sub Id  In'
+    )
     updated_by__pref_label: str | None = Field(
         default=None, title='Updated By  Pref Label'
     )
@@ -3439,6 +3704,22 @@ class ReadManyCircuitGetParametersQuery(BaseModel):
     updated_by__id: UUID | None = Field(default=None, title='Updated By  Id')
     updated_by__id__in: list[UUID] | None = Field(
         default=None, title='Updated By  Id  In'
+    )
+    updated_by__given_name: str | None = Field(
+        default=None, title='Updated By  Given Name'
+    )
+    updated_by__given_name__ilike: str | None = Field(
+        default=None, title='Updated By  Given Name  Ilike'
+    )
+    updated_by__family_name: str | None = Field(
+        default=None, title='Updated By  Family Name'
+    )
+    updated_by__family_name__ilike: str | None = Field(
+        default=None, title='Updated By  Family Name  Ilike'
+    )
+    updated_by__sub_id: UUID | None = Field(default=None, title='Updated By  Sub Id')
+    updated_by__sub_id__in: list[UUID] | None = Field(
+        default=None, title='Updated By  Sub Id  In'
     )
     brain_region__name: str | None = Field(default=None, title='Brain Region  Name')
     brain_region__name__in: list[str] | None = Field(
@@ -3456,6 +3737,12 @@ class ReadManyCircuitGetParametersQuery(BaseModel):
     )
     brain_region__acronym__in: list[str] | None = Field(
         default=None, title='Brain Region  Acronym  In'
+    )
+    brain_region__annotation_value: int | None = Field(
+        default=None, title='Brain Region  Annotation Value'
+    )
+    brain_region__hierarchy_id: UUID | None = Field(
+        default=None, title='Brain Region  Hierarchy Id'
     )
     subject__name: str | None = Field(default=None, title='Subject  Name')
     subject__name__in: list[str] | None = Field(default=None, title='Subject  Name  In')
@@ -3503,6 +3790,9 @@ class ReadManyCircuitGetParametersQuery(BaseModel):
     )
     within_brain_region_ascendants: bool = Field(
         default=False, title='Within Brain Region Ascendants'
+    )
+    within_brain_region_direction: WithinBrainRegionDirection | None = Field(
+        default=None, title='Within Brain Region Direction'
     )
 
 
@@ -3557,6 +3847,22 @@ class ReadManyCircuitExtractionCampaignGetParametersQuery(BaseModel):
     created_by__id__in: list[UUID] | None = Field(
         default=None, title='Created By  Id  In'
     )
+    created_by__given_name: str | None = Field(
+        default=None, title='Created By  Given Name'
+    )
+    created_by__given_name__ilike: str | None = Field(
+        default=None, title='Created By  Given Name  Ilike'
+    )
+    created_by__family_name: str | None = Field(
+        default=None, title='Created By  Family Name'
+    )
+    created_by__family_name__ilike: str | None = Field(
+        default=None, title='Created By  Family Name  Ilike'
+    )
+    created_by__sub_id: UUID | None = Field(default=None, title='Created By  Sub Id')
+    created_by__sub_id__in: list[UUID] | None = Field(
+        default=None, title='Created By  Sub Id  In'
+    )
     updated_by__pref_label: str | None = Field(
         default=None, title='Updated By  Pref Label'
     )
@@ -3570,6 +3876,22 @@ class ReadManyCircuitExtractionCampaignGetParametersQuery(BaseModel):
     updated_by__id__in: list[UUID] | None = Field(
         default=None, title='Updated By  Id  In'
     )
+    updated_by__given_name: str | None = Field(
+        default=None, title='Updated By  Given Name'
+    )
+    updated_by__given_name__ilike: str | None = Field(
+        default=None, title='Updated By  Given Name  Ilike'
+    )
+    updated_by__family_name: str | None = Field(
+        default=None, title='Updated By  Family Name'
+    )
+    updated_by__family_name__ilike: str | None = Field(
+        default=None, title='Updated By  Family Name  Ilike'
+    )
+    updated_by__sub_id: UUID | None = Field(default=None, title='Updated By  Sub Id')
+    updated_by__sub_id__in: list[UUID] | None = Field(
+        default=None, title='Updated By  Sub Id  In'
+    )
     search: str | None = Field(default=None, title='Search')
     with_facets: bool = Field(default=False, title='With Facets')
     within_brain_region_hierarchy_id: UUID | None = Field(
@@ -3580,6 +3902,9 @@ class ReadManyCircuitExtractionCampaignGetParametersQuery(BaseModel):
     )
     within_brain_region_ascendants: bool = Field(
         default=False, title='Within Brain Region Ascendants'
+    )
+    within_brain_region_direction: WithinBrainRegionDirection | None = Field(
+        default=None, title='Within Brain Region Direction'
     )
 
 
@@ -3642,6 +3967,22 @@ class ReadManyCircuitExtractionConfigGetParametersQuery(BaseModel):
     created_by__id__in: list[UUID] | None = Field(
         default=None, title='Created By  Id  In'
     )
+    created_by__given_name: str | None = Field(
+        default=None, title='Created By  Given Name'
+    )
+    created_by__given_name__ilike: str | None = Field(
+        default=None, title='Created By  Given Name  Ilike'
+    )
+    created_by__family_name: str | None = Field(
+        default=None, title='Created By  Family Name'
+    )
+    created_by__family_name__ilike: str | None = Field(
+        default=None, title='Created By  Family Name  Ilike'
+    )
+    created_by__sub_id: UUID | None = Field(default=None, title='Created By  Sub Id')
+    created_by__sub_id__in: list[UUID] | None = Field(
+        default=None, title='Created By  Sub Id  In'
+    )
     updated_by__pref_label: str | None = Field(
         default=None, title='Updated By  Pref Label'
     )
@@ -3654,6 +3995,22 @@ class ReadManyCircuitExtractionConfigGetParametersQuery(BaseModel):
     updated_by__id: UUID | None = Field(default=None, title='Updated By  Id')
     updated_by__id__in: list[UUID] | None = Field(
         default=None, title='Updated By  Id  In'
+    )
+    updated_by__given_name: str | None = Field(
+        default=None, title='Updated By  Given Name'
+    )
+    updated_by__given_name__ilike: str | None = Field(
+        default=None, title='Updated By  Given Name  Ilike'
+    )
+    updated_by__family_name: str | None = Field(
+        default=None, title='Updated By  Family Name'
+    )
+    updated_by__family_name__ilike: str | None = Field(
+        default=None, title='Updated By  Family Name  Ilike'
+    )
+    updated_by__sub_id: UUID | None = Field(default=None, title='Updated By  Sub Id')
+    updated_by__sub_id__in: list[UUID] | None = Field(
+        default=None, title='Updated By  Sub Id  In'
     )
     circuit__scale: CircuitScale | None = Field(default=None, title='Circuit  Scale')
     circuit__scale__in: list[CircuitScale] | None = Field(
@@ -3680,6 +4037,9 @@ class ReadManyCircuitExtractionConfigGetParametersQuery(BaseModel):
     )
     within_brain_region_ascendants: bool = Field(
         default=False, title='Within Brain Region Ascendants'
+    )
+    within_brain_region_direction: WithinBrainRegionDirection | None = Field(
+        default=None, title='Within Brain Region Direction'
     )
 
 
@@ -3724,6 +4084,22 @@ class ReadManyCircuitExtractionExecutionGetParametersQuery(BaseModel):
     created_by__id__in: list[UUID] | None = Field(
         default=None, title='Created By  Id  In'
     )
+    created_by__given_name: str | None = Field(
+        default=None, title='Created By  Given Name'
+    )
+    created_by__given_name__ilike: str | None = Field(
+        default=None, title='Created By  Given Name  Ilike'
+    )
+    created_by__family_name: str | None = Field(
+        default=None, title='Created By  Family Name'
+    )
+    created_by__family_name__ilike: str | None = Field(
+        default=None, title='Created By  Family Name  Ilike'
+    )
+    created_by__sub_id: UUID | None = Field(default=None, title='Created By  Sub Id')
+    created_by__sub_id__in: list[UUID] | None = Field(
+        default=None, title='Created By  Sub Id  In'
+    )
     updated_by__pref_label: str | None = Field(
         default=None, title='Updated By  Pref Label'
     )
@@ -3737,14 +4113,30 @@ class ReadManyCircuitExtractionExecutionGetParametersQuery(BaseModel):
     updated_by__id__in: list[UUID] | None = Field(
         default=None, title='Updated By  Id  In'
     )
+    updated_by__given_name: str | None = Field(
+        default=None, title='Updated By  Given Name'
+    )
+    updated_by__given_name__ilike: str | None = Field(
+        default=None, title='Updated By  Given Name  Ilike'
+    )
+    updated_by__family_name: str | None = Field(
+        default=None, title='Updated By  Family Name'
+    )
+    updated_by__family_name__ilike: str | None = Field(
+        default=None, title='Updated By  Family Name  Ilike'
+    )
+    updated_by__sub_id: UUID | None = Field(default=None, title='Updated By  Sub Id')
+    updated_by__sub_id__in: list[UUID] | None = Field(
+        default=None, title='Updated By  Sub Id  In'
+    )
     used__id: UUID | None = Field(default=None, title='Used  Id')
     used__id__in: list[UUID] | None = Field(default=None, title='Used  Id  In')
-    used__type: str | None = Field(default=None, title='Used  Type')
+    used__type: EntityType | None = Field(default=None, title='Used  Type')
     generated__id: UUID | None = Field(default=None, title='Generated  Id')
     generated__id__in: list[UUID] | None = Field(
         default=None, title='Generated  Id  In'
     )
-    generated__type: str | None = Field(default=None, title='Generated  Type')
+    generated__type: EntityType | None = Field(default=None, title='Generated  Type')
     search: str | None = Field(default=None, title='Search')
     with_facets: bool = Field(default=False, title='With Facets')
     within_brain_region_hierarchy_id: UUID | None = Field(
@@ -3755,6 +4147,9 @@ class ReadManyCircuitExtractionExecutionGetParametersQuery(BaseModel):
     )
     within_brain_region_ascendants: bool = Field(
         default=False, title='Within Brain Region Ascendants'
+    )
+    within_brain_region_direction: WithinBrainRegionDirection | None = Field(
+        default=None, title='Within Brain Region Direction'
     )
 
 
@@ -3781,6 +4176,22 @@ class ReadManyConsortiumGetParametersQuery(BaseModel):
     created_by__id__in: list[UUID] | None = Field(
         default=None, title='Created By  Id  In'
     )
+    created_by__given_name: str | None = Field(
+        default=None, title='Created By  Given Name'
+    )
+    created_by__given_name__ilike: str | None = Field(
+        default=None, title='Created By  Given Name  Ilike'
+    )
+    created_by__family_name: str | None = Field(
+        default=None, title='Created By  Family Name'
+    )
+    created_by__family_name__ilike: str | None = Field(
+        default=None, title='Created By  Family Name  Ilike'
+    )
+    created_by__sub_id: UUID | None = Field(default=None, title='Created By  Sub Id')
+    created_by__sub_id__in: list[UUID] | None = Field(
+        default=None, title='Created By  Sub Id  In'
+    )
     updated_by__pref_label: str | None = Field(
         default=None, title='Updated By  Pref Label'
     )
@@ -3793,6 +4204,22 @@ class ReadManyConsortiumGetParametersQuery(BaseModel):
     updated_by__id: UUID | None = Field(default=None, title='Updated By  Id')
     updated_by__id__in: list[UUID] | None = Field(
         default=None, title='Updated By  Id  In'
+    )
+    updated_by__given_name: str | None = Field(
+        default=None, title='Updated By  Given Name'
+    )
+    updated_by__given_name__ilike: str | None = Field(
+        default=None, title='Updated By  Given Name  Ilike'
+    )
+    updated_by__family_name: str | None = Field(
+        default=None, title='Updated By  Family Name'
+    )
+    updated_by__family_name__ilike: str | None = Field(
+        default=None, title='Updated By  Family Name  Ilike'
+    )
+    updated_by__sub_id: UUID | None = Field(default=None, title='Updated By  Sub Id')
+    updated_by__sub_id__in: list[UUID] | None = Field(
+        default=None, title='Updated By  Sub Id  In'
     )
 
 
@@ -3825,6 +4252,22 @@ class ReadManyContributionGetParametersQuery(BaseModel):
     created_by__id__in: list[UUID] | None = Field(
         default=None, title='Created By  Id  In'
     )
+    created_by__given_name: str | None = Field(
+        default=None, title='Created By  Given Name'
+    )
+    created_by__given_name__ilike: str | None = Field(
+        default=None, title='Created By  Given Name  Ilike'
+    )
+    created_by__family_name: str | None = Field(
+        default=None, title='Created By  Family Name'
+    )
+    created_by__family_name__ilike: str | None = Field(
+        default=None, title='Created By  Family Name  Ilike'
+    )
+    created_by__sub_id: UUID | None = Field(default=None, title='Created By  Sub Id')
+    created_by__sub_id__in: list[UUID] | None = Field(
+        default=None, title='Created By  Sub Id  In'
+    )
     updated_by__pref_label: str | None = Field(
         default=None, title='Updated By  Pref Label'
     )
@@ -3838,18 +4281,38 @@ class ReadManyContributionGetParametersQuery(BaseModel):
     updated_by__id__in: list[UUID] | None = Field(
         default=None, title='Updated By  Id  In'
     )
-    agent__pref_label: str | None = Field(default=None, title='Agent  Pref Label')
-    agent__pref_label__in: list[str] | None = Field(
-        default=None, title='Agent  Pref Label  In'
+    updated_by__given_name: str | None = Field(
+        default=None, title='Updated By  Given Name'
     )
-    agent__pref_label__ilike: str | None = Field(
-        default=None, title='Agent  Pref Label  Ilike'
+    updated_by__given_name__ilike: str | None = Field(
+        default=None, title='Updated By  Given Name  Ilike'
     )
-    agent__id: UUID | None = Field(default=None, title='Agent  Id')
-    agent__id__in: list[UUID] | None = Field(default=None, title='Agent  Id  In')
+    updated_by__family_name: str | None = Field(
+        default=None, title='Updated By  Family Name'
+    )
+    updated_by__family_name__ilike: str | None = Field(
+        default=None, title='Updated By  Family Name  Ilike'
+    )
+    updated_by__sub_id: UUID | None = Field(default=None, title='Updated By  Sub Id')
+    updated_by__sub_id__in: list[UUID] | None = Field(
+        default=None, title='Updated By  Sub Id  In'
+    )
+    contribution__pref_label: str | None = Field(
+        default=None, title='Contribution  Pref Label'
+    )
+    contribution__pref_label__in: list[str] | None = Field(
+        default=None, title='Contribution  Pref Label  In'
+    )
+    contribution__pref_label__ilike: str | None = Field(
+        default=None, title='Contribution  Pref Label  Ilike'
+    )
+    contribution__id: UUID | None = Field(default=None, title='Contribution  Id')
+    contribution__id__in: list[UUID] | None = Field(
+        default=None, title='Contribution  Id  In'
+    )
     entity__id: UUID | None = Field(default=None, title='Entity  Id')
     entity__id__in: list[UUID] | None = Field(default=None, title='Entity  Id  In')
-    entity__type: str | None = Field(default=None, title='Entity  Type')
+    entity__type: EntityType | None = Field(default=None, title='Entity  Type')
     page: int = Field(default=1, ge=1, title='Page')
     page_size: int = Field(default=100, ge=1, title='Page Size')
 
@@ -3941,6 +4404,22 @@ class ReadManyElectricalCellRecordingGetParametersQuery(BaseModel):
     created_by__id__in: list[UUID] | None = Field(
         default=None, title='Created By  Id  In'
     )
+    created_by__given_name: str | None = Field(
+        default=None, title='Created By  Given Name'
+    )
+    created_by__given_name__ilike: str | None = Field(
+        default=None, title='Created By  Given Name  Ilike'
+    )
+    created_by__family_name: str | None = Field(
+        default=None, title='Created By  Family Name'
+    )
+    created_by__family_name__ilike: str | None = Field(
+        default=None, title='Created By  Family Name  Ilike'
+    )
+    created_by__sub_id: UUID | None = Field(default=None, title='Created By  Sub Id')
+    created_by__sub_id__in: list[UUID] | None = Field(
+        default=None, title='Created By  Sub Id  In'
+    )
     updated_by__pref_label: str | None = Field(
         default=None, title='Updated By  Pref Label'
     )
@@ -3953,6 +4432,22 @@ class ReadManyElectricalCellRecordingGetParametersQuery(BaseModel):
     updated_by__id: UUID | None = Field(default=None, title='Updated By  Id')
     updated_by__id__in: list[UUID] | None = Field(
         default=None, title='Updated By  Id  In'
+    )
+    updated_by__given_name: str | None = Field(
+        default=None, title='Updated By  Given Name'
+    )
+    updated_by__given_name__ilike: str | None = Field(
+        default=None, title='Updated By  Given Name  Ilike'
+    )
+    updated_by__family_name: str | None = Field(
+        default=None, title='Updated By  Family Name'
+    )
+    updated_by__family_name__ilike: str | None = Field(
+        default=None, title='Updated By  Family Name  Ilike'
+    )
+    updated_by__sub_id: UUID | None = Field(default=None, title='Updated By  Sub Id')
+    updated_by__sub_id__in: list[UUID] | None = Field(
+        default=None, title='Updated By  Sub Id  In'
     )
     brain_region__name: str | None = Field(default=None, title='Brain Region  Name')
     brain_region__name__in: list[str] | None = Field(
@@ -3970,6 +4465,12 @@ class ReadManyElectricalCellRecordingGetParametersQuery(BaseModel):
     )
     brain_region__acronym__in: list[str] | None = Field(
         default=None, title='Brain Region  Acronym  In'
+    )
+    brain_region__annotation_value: int | None = Field(
+        default=None, title='Brain Region  Annotation Value'
+    )
+    brain_region__hierarchy_id: UUID | None = Field(
+        default=None, title='Brain Region  Hierarchy Id'
     )
     subject__name: str | None = Field(default=None, title='Subject  Name')
     subject__name__in: list[str] | None = Field(default=None, title='Subject  Name  In')
@@ -4017,6 +4518,9 @@ class ReadManyElectricalCellRecordingGetParametersQuery(BaseModel):
     )
     within_brain_region_ascendants: bool = Field(
         default=False, title='Within Brain Region Ascendants'
+    )
+    within_brain_region_direction: WithinBrainRegionDirection | None = Field(
+        default=None, title='Within Brain Region Direction'
     )
 
 
@@ -4077,6 +4581,22 @@ class ReadManyElectricalRecordingStimulusGetParametersQuery(BaseModel):
     created_by__id__in: list[UUID] | None = Field(
         default=None, title='Created By  Id  In'
     )
+    created_by__given_name: str | None = Field(
+        default=None, title='Created By  Given Name'
+    )
+    created_by__given_name__ilike: str | None = Field(
+        default=None, title='Created By  Given Name  Ilike'
+    )
+    created_by__family_name: str | None = Field(
+        default=None, title='Created By  Family Name'
+    )
+    created_by__family_name__ilike: str | None = Field(
+        default=None, title='Created By  Family Name  Ilike'
+    )
+    created_by__sub_id: UUID | None = Field(default=None, title='Created By  Sub Id')
+    created_by__sub_id__in: list[UUID] | None = Field(
+        default=None, title='Created By  Sub Id  In'
+    )
     updated_by__pref_label: str | None = Field(
         default=None, title='Updated By  Pref Label'
     )
@@ -4090,6 +4610,22 @@ class ReadManyElectricalRecordingStimulusGetParametersQuery(BaseModel):
     updated_by__id__in: list[UUID] | None = Field(
         default=None, title='Updated By  Id  In'
     )
+    updated_by__given_name: str | None = Field(
+        default=None, title='Updated By  Given Name'
+    )
+    updated_by__given_name__ilike: str | None = Field(
+        default=None, title='Updated By  Given Name  Ilike'
+    )
+    updated_by__family_name: str | None = Field(
+        default=None, title='Updated By  Family Name'
+    )
+    updated_by__family_name__ilike: str | None = Field(
+        default=None, title='Updated By  Family Name  Ilike'
+    )
+    updated_by__sub_id: UUID | None = Field(default=None, title='Updated By  Sub Id')
+    updated_by__sub_id__in: list[UUID] | None = Field(
+        default=None, title='Updated By  Sub Id  In'
+    )
     search: str | None = Field(default=None, title='Search')
     with_facets: bool = Field(default=False, title='With Facets')
     within_brain_region_hierarchy_id: UUID | None = Field(
@@ -4100,6 +4636,9 @@ class ReadManyElectricalRecordingStimulusGetParametersQuery(BaseModel):
     )
     within_brain_region_ascendants: bool = Field(
         default=False, title='Within Brain Region Ascendants'
+    )
+    within_brain_region_direction: WithinBrainRegionDirection | None = Field(
+        default=None, title='Within Brain Region Direction'
     )
 
 
@@ -4165,6 +4704,22 @@ class ReadManyEmCellMeshGetParametersQuery(BaseModel):
     created_by__id__in: list[UUID] | None = Field(
         default=None, title='Created By  Id  In'
     )
+    created_by__given_name: str | None = Field(
+        default=None, title='Created By  Given Name'
+    )
+    created_by__given_name__ilike: str | None = Field(
+        default=None, title='Created By  Given Name  Ilike'
+    )
+    created_by__family_name: str | None = Field(
+        default=None, title='Created By  Family Name'
+    )
+    created_by__family_name__ilike: str | None = Field(
+        default=None, title='Created By  Family Name  Ilike'
+    )
+    created_by__sub_id: UUID | None = Field(default=None, title='Created By  Sub Id')
+    created_by__sub_id__in: list[UUID] | None = Field(
+        default=None, title='Created By  Sub Id  In'
+    )
     updated_by__pref_label: str | None = Field(
         default=None, title='Updated By  Pref Label'
     )
@@ -4177,6 +4732,22 @@ class ReadManyEmCellMeshGetParametersQuery(BaseModel):
     updated_by__id: UUID | None = Field(default=None, title='Updated By  Id')
     updated_by__id__in: list[UUID] | None = Field(
         default=None, title='Updated By  Id  In'
+    )
+    updated_by__given_name: str | None = Field(
+        default=None, title='Updated By  Given Name'
+    )
+    updated_by__given_name__ilike: str | None = Field(
+        default=None, title='Updated By  Given Name  Ilike'
+    )
+    updated_by__family_name: str | None = Field(
+        default=None, title='Updated By  Family Name'
+    )
+    updated_by__family_name__ilike: str | None = Field(
+        default=None, title='Updated By  Family Name  Ilike'
+    )
+    updated_by__sub_id: UUID | None = Field(default=None, title='Updated By  Sub Id')
+    updated_by__sub_id__in: list[UUID] | None = Field(
+        default=None, title='Updated By  Sub Id  In'
     )
     brain_region__name: str | None = Field(default=None, title='Brain Region  Name')
     brain_region__name__in: list[str] | None = Field(
@@ -4194,6 +4765,12 @@ class ReadManyEmCellMeshGetParametersQuery(BaseModel):
     )
     brain_region__acronym__in: list[str] | None = Field(
         default=None, title='Brain Region  Acronym  In'
+    )
+    brain_region__annotation_value: int | None = Field(
+        default=None, title='Brain Region  Annotation Value'
+    )
+    brain_region__hierarchy_id: UUID | None = Field(
+        default=None, title='Brain Region  Hierarchy Id'
     )
     subject__name: str | None = Field(default=None, title='Subject  Name')
     subject__name__in: list[str] | None = Field(default=None, title='Subject  Name  In')
@@ -4285,6 +4862,9 @@ class ReadManyEmCellMeshGetParametersQuery(BaseModel):
     within_brain_region_ascendants: bool = Field(
         default=False, title='Within Brain Region Ascendants'
     )
+    within_brain_region_direction: WithinBrainRegionDirection | None = Field(
+        default=None, title='Within Brain Region Direction'
+    )
     with_facets: bool = Field(default=False, title='With Facets')
 
 
@@ -4347,6 +4927,22 @@ class ReadManyEmDenseReconstructionDatasetGetParametersQuery(BaseModel):
     created_by__id__in: list[UUID] | None = Field(
         default=None, title='Created By  Id  In'
     )
+    created_by__given_name: str | None = Field(
+        default=None, title='Created By  Given Name'
+    )
+    created_by__given_name__ilike: str | None = Field(
+        default=None, title='Created By  Given Name  Ilike'
+    )
+    created_by__family_name: str | None = Field(
+        default=None, title='Created By  Family Name'
+    )
+    created_by__family_name__ilike: str | None = Field(
+        default=None, title='Created By  Family Name  Ilike'
+    )
+    created_by__sub_id: UUID | None = Field(default=None, title='Created By  Sub Id')
+    created_by__sub_id__in: list[UUID] | None = Field(
+        default=None, title='Created By  Sub Id  In'
+    )
     updated_by__pref_label: str | None = Field(
         default=None, title='Updated By  Pref Label'
     )
@@ -4359,6 +4955,22 @@ class ReadManyEmDenseReconstructionDatasetGetParametersQuery(BaseModel):
     updated_by__id: UUID | None = Field(default=None, title='Updated By  Id')
     updated_by__id__in: list[UUID] | None = Field(
         default=None, title='Updated By  Id  In'
+    )
+    updated_by__given_name: str | None = Field(
+        default=None, title='Updated By  Given Name'
+    )
+    updated_by__given_name__ilike: str | None = Field(
+        default=None, title='Updated By  Given Name  Ilike'
+    )
+    updated_by__family_name: str | None = Field(
+        default=None, title='Updated By  Family Name'
+    )
+    updated_by__family_name__ilike: str | None = Field(
+        default=None, title='Updated By  Family Name  Ilike'
+    )
+    updated_by__sub_id: UUID | None = Field(default=None, title='Updated By  Sub Id')
+    updated_by__sub_id__in: list[UUID] | None = Field(
+        default=None, title='Updated By  Sub Id  In'
     )
     brain_region__name: str | None = Field(default=None, title='Brain Region  Name')
     brain_region__name__in: list[str] | None = Field(
@@ -4376,6 +4988,12 @@ class ReadManyEmDenseReconstructionDatasetGetParametersQuery(BaseModel):
     )
     brain_region__acronym__in: list[str] | None = Field(
         default=None, title='Brain Region  Acronym  In'
+    )
+    brain_region__annotation_value: int | None = Field(
+        default=None, title='Brain Region  Annotation Value'
+    )
+    brain_region__hierarchy_id: UUID | None = Field(
+        default=None, title='Brain Region  Hierarchy Id'
     )
     subject__name: str | None = Field(default=None, title='Subject  Name')
     subject__name__in: list[str] | None = Field(default=None, title='Subject  Name  In')
@@ -4421,6 +5039,9 @@ class ReadManyEmDenseReconstructionDatasetGetParametersQuery(BaseModel):
     )
     within_brain_region_ascendants: bool = Field(
         default=False, title='Within Brain Region Ascendants'
+    )
+    within_brain_region_direction: WithinBrainRegionDirection | None = Field(
+        default=None, title='Within Brain Region Direction'
     )
     with_facets: bool = Field(default=False, title='With Facets')
 
@@ -4507,6 +5128,22 @@ class ReadManyEmodelGetParametersQuery(BaseModel):
     created_by__id__in: list[UUID] | None = Field(
         default=None, title='Created By  Id  In'
     )
+    created_by__given_name: str | None = Field(
+        default=None, title='Created By  Given Name'
+    )
+    created_by__given_name__ilike: str | None = Field(
+        default=None, title='Created By  Given Name  Ilike'
+    )
+    created_by__family_name: str | None = Field(
+        default=None, title='Created By  Family Name'
+    )
+    created_by__family_name__ilike: str | None = Field(
+        default=None, title='Created By  Family Name  Ilike'
+    )
+    created_by__sub_id: UUID | None = Field(default=None, title='Created By  Sub Id')
+    created_by__sub_id__in: list[UUID] | None = Field(
+        default=None, title='Created By  Sub Id  In'
+    )
     updated_by__pref_label: str | None = Field(
         default=None, title='Updated By  Pref Label'
     )
@@ -4519,6 +5156,22 @@ class ReadManyEmodelGetParametersQuery(BaseModel):
     updated_by__id: UUID | None = Field(default=None, title='Updated By  Id')
     updated_by__id__in: list[UUID] | None = Field(
         default=None, title='Updated By  Id  In'
+    )
+    updated_by__given_name: str | None = Field(
+        default=None, title='Updated By  Given Name'
+    )
+    updated_by__given_name__ilike: str | None = Field(
+        default=None, title='Updated By  Given Name  Ilike'
+    )
+    updated_by__family_name: str | None = Field(
+        default=None, title='Updated By  Family Name'
+    )
+    updated_by__family_name__ilike: str | None = Field(
+        default=None, title='Updated By  Family Name  Ilike'
+    )
+    updated_by__sub_id: UUID | None = Field(default=None, title='Updated By  Sub Id')
+    updated_by__sub_id__in: list[UUID] | None = Field(
+        default=None, title='Updated By  Sub Id  In'
     )
     brain_region__name: str | None = Field(default=None, title='Brain Region  Name')
     brain_region__name__in: list[str] | None = Field(
@@ -4536,6 +5189,12 @@ class ReadManyEmodelGetParametersQuery(BaseModel):
     )
     brain_region__acronym__in: list[str] | None = Field(
         default=None, title='Brain Region  Acronym  In'
+    )
+    brain_region__annotation_value: int | None = Field(
+        default=None, title='Brain Region  Annotation Value'
+    )
+    brain_region__hierarchy_id: UUID | None = Field(
+        default=None, title='Brain Region  Hierarchy Id'
     )
     exemplar_morphology__name: str | None = Field(
         default=None, title='Exemplar Morphology  Name'
@@ -4572,6 +5231,12 @@ class ReadManyEmodelGetParametersQuery(BaseModel):
     )
     morphology__brain_region__acronym__in: list[str] | None = Field(
         default=None, title='Morphology  Brain Region  Acronym  In'
+    )
+    morphology__brain_region__annotation_value: int | None = Field(
+        default=None, title='Morphology  Brain Region  Annotation Value'
+    )
+    morphology__brain_region__hierarchy_id: UUID | None = Field(
+        default=None, title='Morphology  Brain Region  Hierarchy Id'
     )
     morphology__subject__name: str | None = Field(
         default=None, title='Morphology  Subject  Name'
@@ -4660,6 +5325,9 @@ class ReadManyEmodelGetParametersQuery(BaseModel):
     within_brain_region_ascendants: bool = Field(
         default=False, title='Within Brain Region Ascendants'
     )
+    within_brain_region_direction: WithinBrainRegionDirection | None = Field(
+        default=None, title='Within Brain Region Direction'
+    )
 
 
 class CountEntitiesByTypeEntityCountsGetParametersQuery(BaseModel):
@@ -4674,6 +5342,9 @@ class CountEntitiesByTypeEntityCountsGetParametersQuery(BaseModel):
     )
     within_brain_region_ascendants: bool = Field(
         default=False, title='Within Brain Region Ascendants'
+    )
+    within_brain_region_direction: WithinBrainRegionDirection | None = Field(
+        default=None, title='Within Brain Region Direction'
     )
 
 
@@ -4707,6 +5378,22 @@ class ReadManyEtypeClassificationGetParametersQuery(BaseModel):
     created_by__id__in: list[UUID] | None = Field(
         default=None, title='Created By  Id  In'
     )
+    created_by__given_name: str | None = Field(
+        default=None, title='Created By  Given Name'
+    )
+    created_by__given_name__ilike: str | None = Field(
+        default=None, title='Created By  Given Name  Ilike'
+    )
+    created_by__family_name: str | None = Field(
+        default=None, title='Created By  Family Name'
+    )
+    created_by__family_name__ilike: str | None = Field(
+        default=None, title='Created By  Family Name  Ilike'
+    )
+    created_by__sub_id: UUID | None = Field(default=None, title='Created By  Sub Id')
+    created_by__sub_id__in: list[UUID] | None = Field(
+        default=None, title='Created By  Sub Id  In'
+    )
     updated_by__pref_label: str | None = Field(
         default=None, title='Updated By  Pref Label'
     )
@@ -4719,6 +5406,22 @@ class ReadManyEtypeClassificationGetParametersQuery(BaseModel):
     updated_by__id: UUID | None = Field(default=None, title='Updated By  Id')
     updated_by__id__in: list[UUID] | None = Field(
         default=None, title='Updated By  Id  In'
+    )
+    updated_by__given_name: str | None = Field(
+        default=None, title='Updated By  Given Name'
+    )
+    updated_by__given_name__ilike: str | None = Field(
+        default=None, title='Updated By  Given Name  Ilike'
+    )
+    updated_by__family_name: str | None = Field(
+        default=None, title='Updated By  Family Name'
+    )
+    updated_by__family_name__ilike: str | None = Field(
+        default=None, title='Updated By  Family Name  Ilike'
+    )
+    updated_by__sub_id: UUID | None = Field(default=None, title='Updated By  Sub Id')
+    updated_by__sub_id__in: list[UUID] | None = Field(
+        default=None, title='Updated By  Sub Id  In'
     )
     search: str | None = Field(default=None, title='Search')
     with_facets: bool = Field(default=False, title='With Facets')
@@ -4811,6 +5514,12 @@ class ReadManyExperimentalBoutonDensityGetParametersQuery(BaseModel):
     brain_region__acronym__in: list[str] | None = Field(
         default=None, title='Brain Region  Acronym  In'
     )
+    brain_region__annotation_value: int | None = Field(
+        default=None, title='Brain Region  Annotation Value'
+    )
+    brain_region__hierarchy_id: UUID | None = Field(
+        default=None, title='Brain Region  Hierarchy Id'
+    )
     contribution__pref_label: str | None = Field(
         default=None, title='Contribution  Pref Label'
     )
@@ -4837,6 +5546,22 @@ class ReadManyExperimentalBoutonDensityGetParametersQuery(BaseModel):
     created_by__id__in: list[UUID] | None = Field(
         default=None, title='Created By  Id  In'
     )
+    created_by__given_name: str | None = Field(
+        default=None, title='Created By  Given Name'
+    )
+    created_by__given_name__ilike: str | None = Field(
+        default=None, title='Created By  Given Name  Ilike'
+    )
+    created_by__family_name: str | None = Field(
+        default=None, title='Created By  Family Name'
+    )
+    created_by__family_name__ilike: str | None = Field(
+        default=None, title='Created By  Family Name  Ilike'
+    )
+    created_by__sub_id: UUID | None = Field(default=None, title='Created By  Sub Id')
+    created_by__sub_id__in: list[UUID] | None = Field(
+        default=None, title='Created By  Sub Id  In'
+    )
     updated_by__pref_label: str | None = Field(
         default=None, title='Updated By  Pref Label'
     )
@@ -4850,6 +5575,22 @@ class ReadManyExperimentalBoutonDensityGetParametersQuery(BaseModel):
     updated_by__id__in: list[UUID] | None = Field(
         default=None, title='Updated By  Id  In'
     )
+    updated_by__given_name: str | None = Field(
+        default=None, title='Updated By  Given Name'
+    )
+    updated_by__given_name__ilike: str | None = Field(
+        default=None, title='Updated By  Given Name  Ilike'
+    )
+    updated_by__family_name: str | None = Field(
+        default=None, title='Updated By  Family Name'
+    )
+    updated_by__family_name__ilike: str | None = Field(
+        default=None, title='Updated By  Family Name  Ilike'
+    )
+    updated_by__sub_id: UUID | None = Field(default=None, title='Updated By  Sub Id')
+    updated_by__sub_id__in: list[UUID] | None = Field(
+        default=None, title='Updated By  Sub Id  In'
+    )
     search: str | None = Field(default=None, title='Search')
     with_facets: bool = Field(default=False, title='With Facets')
     within_brain_region_hierarchy_id: UUID | None = Field(
@@ -4860,6 +5601,9 @@ class ReadManyExperimentalBoutonDensityGetParametersQuery(BaseModel):
     )
     within_brain_region_ascendants: bool = Field(
         default=False, title='Within Brain Region Ascendants'
+    )
+    within_brain_region_direction: WithinBrainRegionDirection | None = Field(
+        default=None, title='Within Brain Region Direction'
     )
 
 
@@ -4959,6 +5703,12 @@ class ReadManyExperimentalNeuronDensityGetParametersQuery(BaseModel):
     brain_region__acronym__in: list[str] | None = Field(
         default=None, title='Brain Region  Acronym  In'
     )
+    brain_region__annotation_value: int | None = Field(
+        default=None, title='Brain Region  Annotation Value'
+    )
+    brain_region__hierarchy_id: UUID | None = Field(
+        default=None, title='Brain Region  Hierarchy Id'
+    )
     contribution__pref_label: str | None = Field(
         default=None, title='Contribution  Pref Label'
     )
@@ -4985,6 +5735,22 @@ class ReadManyExperimentalNeuronDensityGetParametersQuery(BaseModel):
     created_by__id__in: list[UUID] | None = Field(
         default=None, title='Created By  Id  In'
     )
+    created_by__given_name: str | None = Field(
+        default=None, title='Created By  Given Name'
+    )
+    created_by__given_name__ilike: str | None = Field(
+        default=None, title='Created By  Given Name  Ilike'
+    )
+    created_by__family_name: str | None = Field(
+        default=None, title='Created By  Family Name'
+    )
+    created_by__family_name__ilike: str | None = Field(
+        default=None, title='Created By  Family Name  Ilike'
+    )
+    created_by__sub_id: UUID | None = Field(default=None, title='Created By  Sub Id')
+    created_by__sub_id__in: list[UUID] | None = Field(
+        default=None, title='Created By  Sub Id  In'
+    )
     updated_by__pref_label: str | None = Field(
         default=None, title='Updated By  Pref Label'
     )
@@ -4998,6 +5764,22 @@ class ReadManyExperimentalNeuronDensityGetParametersQuery(BaseModel):
     updated_by__id__in: list[UUID] | None = Field(
         default=None, title='Updated By  Id  In'
     )
+    updated_by__given_name: str | None = Field(
+        default=None, title='Updated By  Given Name'
+    )
+    updated_by__given_name__ilike: str | None = Field(
+        default=None, title='Updated By  Given Name  Ilike'
+    )
+    updated_by__family_name: str | None = Field(
+        default=None, title='Updated By  Family Name'
+    )
+    updated_by__family_name__ilike: str | None = Field(
+        default=None, title='Updated By  Family Name  Ilike'
+    )
+    updated_by__sub_id: UUID | None = Field(default=None, title='Updated By  Sub Id')
+    updated_by__sub_id__in: list[UUID] | None = Field(
+        default=None, title='Updated By  Sub Id  In'
+    )
     search: str | None = Field(default=None, title='Search')
     with_facets: bool = Field(default=False, title='With Facets')
     within_brain_region_hierarchy_id: UUID | None = Field(
@@ -5008,6 +5790,9 @@ class ReadManyExperimentalNeuronDensityGetParametersQuery(BaseModel):
     )
     within_brain_region_ascendants: bool = Field(
         default=False, title='Within Brain Region Ascendants'
+    )
+    within_brain_region_direction: WithinBrainRegionDirection | None = Field(
+        default=None, title='Within Brain Region Direction'
     )
 
 
@@ -5089,6 +5874,12 @@ class ReadManyExperimentalSynapsesPerConnectionGetParametersQuery(BaseModel):
     brain_region__acronym__in: list[str] | None = Field(
         default=None, title='Brain Region  Acronym  In'
     )
+    brain_region__annotation_value: int | None = Field(
+        default=None, title='Brain Region  Annotation Value'
+    )
+    brain_region__hierarchy_id: UUID | None = Field(
+        default=None, title='Brain Region  Hierarchy Id'
+    )
     contribution__pref_label: str | None = Field(
         default=None, title='Contribution  Pref Label'
     )
@@ -5115,6 +5906,22 @@ class ReadManyExperimentalSynapsesPerConnectionGetParametersQuery(BaseModel):
     created_by__id__in: list[UUID] | None = Field(
         default=None, title='Created By  Id  In'
     )
+    created_by__given_name: str | None = Field(
+        default=None, title='Created By  Given Name'
+    )
+    created_by__given_name__ilike: str | None = Field(
+        default=None, title='Created By  Given Name  Ilike'
+    )
+    created_by__family_name: str | None = Field(
+        default=None, title='Created By  Family Name'
+    )
+    created_by__family_name__ilike: str | None = Field(
+        default=None, title='Created By  Family Name  Ilike'
+    )
+    created_by__sub_id: UUID | None = Field(default=None, title='Created By  Sub Id')
+    created_by__sub_id__in: list[UUID] | None = Field(
+        default=None, title='Created By  Sub Id  In'
+    )
     updated_by__pref_label: str | None = Field(
         default=None, title='Updated By  Pref Label'
     )
@@ -5127,6 +5934,22 @@ class ReadManyExperimentalSynapsesPerConnectionGetParametersQuery(BaseModel):
     updated_by__id: UUID | None = Field(default=None, title='Updated By  Id')
     updated_by__id__in: list[UUID] | None = Field(
         default=None, title='Updated By  Id  In'
+    )
+    updated_by__given_name: str | None = Field(
+        default=None, title='Updated By  Given Name'
+    )
+    updated_by__given_name__ilike: str | None = Field(
+        default=None, title='Updated By  Given Name  Ilike'
+    )
+    updated_by__family_name: str | None = Field(
+        default=None, title='Updated By  Family Name'
+    )
+    updated_by__family_name__ilike: str | None = Field(
+        default=None, title='Updated By  Family Name  Ilike'
+    )
+    updated_by__sub_id: UUID | None = Field(default=None, title='Updated By  Sub Id')
+    updated_by__sub_id__in: list[UUID] | None = Field(
+        default=None, title='Updated By  Sub Id  In'
     )
     pre_mtype__pref_label: str | None = Field(
         default=None, title='Pre Mtype  Pref Label'
@@ -5169,6 +5992,12 @@ class ReadManyExperimentalSynapsesPerConnectionGetParametersQuery(BaseModel):
     pre_region__acronym__in: list[str] | None = Field(
         default=None, title='Pre Region  Acronym  In'
     )
+    pre_region__annotation_value: int | None = Field(
+        default=None, title='Pre Region  Annotation Value'
+    )
+    pre_region__hierarchy_id: UUID | None = Field(
+        default=None, title='Pre Region  Hierarchy Id'
+    )
     post_region__name: str | None = Field(default=None, title='Post Region  Name')
     post_region__name__in: list[str] | None = Field(
         default=None, title='Post Region  Name  In'
@@ -5184,6 +6013,12 @@ class ReadManyExperimentalSynapsesPerConnectionGetParametersQuery(BaseModel):
     post_region__acronym__in: list[str] | None = Field(
         default=None, title='Post Region  Acronym  In'
     )
+    post_region__annotation_value: int | None = Field(
+        default=None, title='Post Region  Annotation Value'
+    )
+    post_region__hierarchy_id: UUID | None = Field(
+        default=None, title='Post Region  Hierarchy Id'
+    )
     search: str | None = Field(default=None, title='Search')
     with_facets: bool = Field(default=False, title='With Facets')
     within_brain_region_hierarchy_id: UUID | None = Field(
@@ -5194,6 +6029,9 @@ class ReadManyExperimentalSynapsesPerConnectionGetParametersQuery(BaseModel):
     )
     within_brain_region_ascendants: bool = Field(
         default=False, title='Within Brain Region Ascendants'
+    )
+    within_brain_region_direction: WithinBrainRegionDirection | None = Field(
+        default=None, title='Within Brain Region Direction'
     )
 
 
@@ -5233,6 +6071,22 @@ class ReadManyExternalUrlGetParametersQuery(BaseModel):
     created_by__id__in: list[UUID] | None = Field(
         default=None, title='Created By  Id  In'
     )
+    created_by__given_name: str | None = Field(
+        default=None, title='Created By  Given Name'
+    )
+    created_by__given_name__ilike: str | None = Field(
+        default=None, title='Created By  Given Name  Ilike'
+    )
+    created_by__family_name: str | None = Field(
+        default=None, title='Created By  Family Name'
+    )
+    created_by__family_name__ilike: str | None = Field(
+        default=None, title='Created By  Family Name  Ilike'
+    )
+    created_by__sub_id: UUID | None = Field(default=None, title='Created By  Sub Id')
+    created_by__sub_id__in: list[UUID] | None = Field(
+        default=None, title='Created By  Sub Id  In'
+    )
     updated_by__pref_label: str | None = Field(
         default=None, title='Updated By  Pref Label'
     )
@@ -5246,6 +6100,22 @@ class ReadManyExternalUrlGetParametersQuery(BaseModel):
     updated_by__id__in: list[UUID] | None = Field(
         default=None, title='Updated By  Id  In'
     )
+    updated_by__given_name: str | None = Field(
+        default=None, title='Updated By  Given Name'
+    )
+    updated_by__given_name__ilike: str | None = Field(
+        default=None, title='Updated By  Given Name  Ilike'
+    )
+    updated_by__family_name: str | None = Field(
+        default=None, title='Updated By  Family Name'
+    )
+    updated_by__family_name__ilike: str | None = Field(
+        default=None, title='Updated By  Family Name  Ilike'
+    )
+    updated_by__sub_id: UUID | None = Field(default=None, title='Updated By  Sub Id')
+    updated_by__sub_id__in: list[UUID] | None = Field(
+        default=None, title='Updated By  Sub Id  In'
+    )
     search: str | None = Field(default=None, title='Search')
     with_facets: bool = Field(default=False, title='With Facets')
     within_brain_region_hierarchy_id: UUID | None = Field(
@@ -5256,6 +6126,9 @@ class ReadManyExternalUrlGetParametersQuery(BaseModel):
     )
     within_brain_region_ascendants: bool = Field(
         default=False, title='Within Brain Region Ascendants'
+    )
+    within_brain_region_direction: WithinBrainRegionDirection | None = Field(
+        default=None, title='Within Brain Region Direction'
     )
 
 
@@ -5295,6 +6168,22 @@ class ReadManyIonChannelGetParametersQuery(BaseModel):
     created_by__id__in: list[UUID] | None = Field(
         default=None, title='Created By  Id  In'
     )
+    created_by__given_name: str | None = Field(
+        default=None, title='Created By  Given Name'
+    )
+    created_by__given_name__ilike: str | None = Field(
+        default=None, title='Created By  Given Name  Ilike'
+    )
+    created_by__family_name: str | None = Field(
+        default=None, title='Created By  Family Name'
+    )
+    created_by__family_name__ilike: str | None = Field(
+        default=None, title='Created By  Family Name  Ilike'
+    )
+    created_by__sub_id: UUID | None = Field(default=None, title='Created By  Sub Id')
+    created_by__sub_id__in: list[UUID] | None = Field(
+        default=None, title='Created By  Sub Id  In'
+    )
     updated_by__pref_label: str | None = Field(
         default=None, title='Updated By  Pref Label'
     )
@@ -5307,6 +6196,22 @@ class ReadManyIonChannelGetParametersQuery(BaseModel):
     updated_by__id: UUID | None = Field(default=None, title='Updated By  Id')
     updated_by__id__in: list[UUID] | None = Field(
         default=None, title='Updated By  Id  In'
+    )
+    updated_by__given_name: str | None = Field(
+        default=None, title='Updated By  Given Name'
+    )
+    updated_by__given_name__ilike: str | None = Field(
+        default=None, title='Updated By  Given Name  Ilike'
+    )
+    updated_by__family_name: str | None = Field(
+        default=None, title='Updated By  Family Name'
+    )
+    updated_by__family_name__ilike: str | None = Field(
+        default=None, title='Updated By  Family Name  Ilike'
+    )
+    updated_by__sub_id: UUID | None = Field(default=None, title='Updated By  Sub Id')
+    updated_by__sub_id__in: list[UUID] | None = Field(
+        default=None, title='Updated By  Sub Id  In'
     )
     search: str | None = Field(default=None, title='Search')
     with_facets: bool = Field(default=False, title='With Facets')
@@ -5383,6 +6288,22 @@ class ReadManyIonChannelModelGetParametersQuery(BaseModel):
     created_by__id__in: list[UUID] | None = Field(
         default=None, title='Created By  Id  In'
     )
+    created_by__given_name: str | None = Field(
+        default=None, title='Created By  Given Name'
+    )
+    created_by__given_name__ilike: str | None = Field(
+        default=None, title='Created By  Given Name  Ilike'
+    )
+    created_by__family_name: str | None = Field(
+        default=None, title='Created By  Family Name'
+    )
+    created_by__family_name__ilike: str | None = Field(
+        default=None, title='Created By  Family Name  Ilike'
+    )
+    created_by__sub_id: UUID | None = Field(default=None, title='Created By  Sub Id')
+    created_by__sub_id__in: list[UUID] | None = Field(
+        default=None, title='Created By  Sub Id  In'
+    )
     updated_by__pref_label: str | None = Field(
         default=None, title='Updated By  Pref Label'
     )
@@ -5395,6 +6316,22 @@ class ReadManyIonChannelModelGetParametersQuery(BaseModel):
     updated_by__id: UUID | None = Field(default=None, title='Updated By  Id')
     updated_by__id__in: list[UUID] | None = Field(
         default=None, title='Updated By  Id  In'
+    )
+    updated_by__given_name: str | None = Field(
+        default=None, title='Updated By  Given Name'
+    )
+    updated_by__given_name__ilike: str | None = Field(
+        default=None, title='Updated By  Given Name  Ilike'
+    )
+    updated_by__family_name: str | None = Field(
+        default=None, title='Updated By  Family Name'
+    )
+    updated_by__family_name__ilike: str | None = Field(
+        default=None, title='Updated By  Family Name  Ilike'
+    )
+    updated_by__sub_id: UUID | None = Field(default=None, title='Updated By  Sub Id')
+    updated_by__sub_id__in: list[UUID] | None = Field(
+        default=None, title='Updated By  Sub Id  In'
     )
     brain_region__name: str | None = Field(default=None, title='Brain Region  Name')
     brain_region__name__in: list[str] | None = Field(
@@ -5412,6 +6349,12 @@ class ReadManyIonChannelModelGetParametersQuery(BaseModel):
     )
     brain_region__acronym__in: list[str] | None = Field(
         default=None, title='Brain Region  Acronym  In'
+    )
+    brain_region__annotation_value: int | None = Field(
+        default=None, title='Brain Region  Annotation Value'
+    )
+    brain_region__hierarchy_id: UUID | None = Field(
+        default=None, title='Brain Region  Hierarchy Id'
     )
     subject__name: str | None = Field(default=None, title='Subject  Name')
     subject__name__in: list[str] | None = Field(default=None, title='Subject  Name  In')
@@ -5457,6 +6400,9 @@ class ReadManyIonChannelModelGetParametersQuery(BaseModel):
     )
     within_brain_region_ascendants: bool = Field(
         default=False, title='Within Brain Region Ascendants'
+    )
+    within_brain_region_direction: WithinBrainRegionDirection | None = Field(
+        default=None, title='Within Brain Region Direction'
     )
     with_facets: bool = Field(default=False, title='With Facets')
 
@@ -5512,6 +6458,22 @@ class ReadManyIonChannelModelingCampaignGetParametersQuery(BaseModel):
     created_by__id__in: list[UUID] | None = Field(
         default=None, title='Created By  Id  In'
     )
+    created_by__given_name: str | None = Field(
+        default=None, title='Created By  Given Name'
+    )
+    created_by__given_name__ilike: str | None = Field(
+        default=None, title='Created By  Given Name  Ilike'
+    )
+    created_by__family_name: str | None = Field(
+        default=None, title='Created By  Family Name'
+    )
+    created_by__family_name__ilike: str | None = Field(
+        default=None, title='Created By  Family Name  Ilike'
+    )
+    created_by__sub_id: UUID | None = Field(default=None, title='Created By  Sub Id')
+    created_by__sub_id__in: list[UUID] | None = Field(
+        default=None, title='Created By  Sub Id  In'
+    )
     updated_by__pref_label: str | None = Field(
         default=None, title='Updated By  Pref Label'
     )
@@ -5524,6 +6486,22 @@ class ReadManyIonChannelModelingCampaignGetParametersQuery(BaseModel):
     updated_by__id: UUID | None = Field(default=None, title='Updated By  Id')
     updated_by__id__in: list[UUID] | None = Field(
         default=None, title='Updated By  Id  In'
+    )
+    updated_by__given_name: str | None = Field(
+        default=None, title='Updated By  Given Name'
+    )
+    updated_by__given_name__ilike: str | None = Field(
+        default=None, title='Updated By  Given Name  Ilike'
+    )
+    updated_by__family_name: str | None = Field(
+        default=None, title='Updated By  Family Name'
+    )
+    updated_by__family_name__ilike: str | None = Field(
+        default=None, title='Updated By  Family Name  Ilike'
+    )
+    updated_by__sub_id: UUID | None = Field(default=None, title='Updated By  Sub Id')
+    updated_by__sub_id__in: list[UUID] | None = Field(
+        default=None, title='Updated By  Sub Id  In'
     )
     ion_channel_modeling_config__id: UUID | None = Field(
         default=None, title='Ion Channel Modeling Config  Id'
@@ -5550,6 +6528,9 @@ class ReadManyIonChannelModelingCampaignGetParametersQuery(BaseModel):
     )
     within_brain_region_ascendants: bool = Field(
         default=False, title='Within Brain Region Ascendants'
+    )
+    within_brain_region_direction: WithinBrainRegionDirection | None = Field(
+        default=None, title='Within Brain Region Direction'
     )
 
 
@@ -5610,6 +6591,22 @@ class ReadManyIonChannelModelingConfigGetParametersQuery(BaseModel):
     created_by__id__in: list[UUID] | None = Field(
         default=None, title='Created By  Id  In'
     )
+    created_by__given_name: str | None = Field(
+        default=None, title='Created By  Given Name'
+    )
+    created_by__given_name__ilike: str | None = Field(
+        default=None, title='Created By  Given Name  Ilike'
+    )
+    created_by__family_name: str | None = Field(
+        default=None, title='Created By  Family Name'
+    )
+    created_by__family_name__ilike: str | None = Field(
+        default=None, title='Created By  Family Name  Ilike'
+    )
+    created_by__sub_id: UUID | None = Field(default=None, title='Created By  Sub Id')
+    created_by__sub_id__in: list[UUID] | None = Field(
+        default=None, title='Created By  Sub Id  In'
+    )
     updated_by__pref_label: str | None = Field(
         default=None, title='Updated By  Pref Label'
     )
@@ -5623,6 +6620,22 @@ class ReadManyIonChannelModelingConfigGetParametersQuery(BaseModel):
     updated_by__id__in: list[UUID] | None = Field(
         default=None, title='Updated By  Id  In'
     )
+    updated_by__given_name: str | None = Field(
+        default=None, title='Updated By  Given Name'
+    )
+    updated_by__given_name__ilike: str | None = Field(
+        default=None, title='Updated By  Given Name  Ilike'
+    )
+    updated_by__family_name: str | None = Field(
+        default=None, title='Updated By  Family Name'
+    )
+    updated_by__family_name__ilike: str | None = Field(
+        default=None, title='Updated By  Family Name  Ilike'
+    )
+    updated_by__sub_id: UUID | None = Field(default=None, title='Updated By  Sub Id')
+    updated_by__sub_id__in: list[UUID] | None = Field(
+        default=None, title='Updated By  Sub Id  In'
+    )
     search: str | None = Field(default=None, title='Search')
     with_facets: bool = Field(default=False, title='With Facets')
     within_brain_region_hierarchy_id: UUID | None = Field(
@@ -5633,6 +6646,9 @@ class ReadManyIonChannelModelingConfigGetParametersQuery(BaseModel):
     )
     within_brain_region_ascendants: bool = Field(
         default=False, title='Within Brain Region Ascendants'
+    )
+    within_brain_region_direction: WithinBrainRegionDirection | None = Field(
+        default=None, title='Within Brain Region Direction'
     )
 
 
@@ -5677,6 +6693,22 @@ class ReadManyIonChannelModelingExecutionGetParametersQuery(BaseModel):
     created_by__id__in: list[UUID] | None = Field(
         default=None, title='Created By  Id  In'
     )
+    created_by__given_name: str | None = Field(
+        default=None, title='Created By  Given Name'
+    )
+    created_by__given_name__ilike: str | None = Field(
+        default=None, title='Created By  Given Name  Ilike'
+    )
+    created_by__family_name: str | None = Field(
+        default=None, title='Created By  Family Name'
+    )
+    created_by__family_name__ilike: str | None = Field(
+        default=None, title='Created By  Family Name  Ilike'
+    )
+    created_by__sub_id: UUID | None = Field(default=None, title='Created By  Sub Id')
+    created_by__sub_id__in: list[UUID] | None = Field(
+        default=None, title='Created By  Sub Id  In'
+    )
     updated_by__pref_label: str | None = Field(
         default=None, title='Updated By  Pref Label'
     )
@@ -5690,14 +6722,30 @@ class ReadManyIonChannelModelingExecutionGetParametersQuery(BaseModel):
     updated_by__id__in: list[UUID] | None = Field(
         default=None, title='Updated By  Id  In'
     )
+    updated_by__given_name: str | None = Field(
+        default=None, title='Updated By  Given Name'
+    )
+    updated_by__given_name__ilike: str | None = Field(
+        default=None, title='Updated By  Given Name  Ilike'
+    )
+    updated_by__family_name: str | None = Field(
+        default=None, title='Updated By  Family Name'
+    )
+    updated_by__family_name__ilike: str | None = Field(
+        default=None, title='Updated By  Family Name  Ilike'
+    )
+    updated_by__sub_id: UUID | None = Field(default=None, title='Updated By  Sub Id')
+    updated_by__sub_id__in: list[UUID] | None = Field(
+        default=None, title='Updated By  Sub Id  In'
+    )
     used__id: UUID | None = Field(default=None, title='Used  Id')
     used__id__in: list[UUID] | None = Field(default=None, title='Used  Id  In')
-    used__type: str | None = Field(default=None, title='Used  Type')
+    used__type: EntityType | None = Field(default=None, title='Used  Type')
     generated__id: UUID | None = Field(default=None, title='Generated  Id')
     generated__id__in: list[UUID] | None = Field(
         default=None, title='Generated  Id  In'
     )
-    generated__type: str | None = Field(default=None, title='Generated  Type')
+    generated__type: EntityType | None = Field(default=None, title='Generated  Type')
     search: str | None = Field(default=None, title='Search')
     with_facets: bool = Field(default=False, title='With Facets')
     within_brain_region_hierarchy_id: UUID | None = Field(
@@ -5708,6 +6756,9 @@ class ReadManyIonChannelModelingExecutionGetParametersQuery(BaseModel):
     )
     within_brain_region_ascendants: bool = Field(
         default=False, title='Within Brain Region Ascendants'
+    )
+    within_brain_region_direction: WithinBrainRegionDirection | None = Field(
+        default=None, title='Within Brain Region Direction'
     )
 
 
@@ -5786,6 +6837,22 @@ class ReadManyIonChannelRecordingGetParametersQuery(BaseModel):
     created_by__id__in: list[UUID] | None = Field(
         default=None, title='Created By  Id  In'
     )
+    created_by__given_name: str | None = Field(
+        default=None, title='Created By  Given Name'
+    )
+    created_by__given_name__ilike: str | None = Field(
+        default=None, title='Created By  Given Name  Ilike'
+    )
+    created_by__family_name: str | None = Field(
+        default=None, title='Created By  Family Name'
+    )
+    created_by__family_name__ilike: str | None = Field(
+        default=None, title='Created By  Family Name  Ilike'
+    )
+    created_by__sub_id: UUID | None = Field(default=None, title='Created By  Sub Id')
+    created_by__sub_id__in: list[UUID] | None = Field(
+        default=None, title='Created By  Sub Id  In'
+    )
     updated_by__pref_label: str | None = Field(
         default=None, title='Updated By  Pref Label'
     )
@@ -5798,6 +6865,22 @@ class ReadManyIonChannelRecordingGetParametersQuery(BaseModel):
     updated_by__id: UUID | None = Field(default=None, title='Updated By  Id')
     updated_by__id__in: list[UUID] | None = Field(
         default=None, title='Updated By  Id  In'
+    )
+    updated_by__given_name: str | None = Field(
+        default=None, title='Updated By  Given Name'
+    )
+    updated_by__given_name__ilike: str | None = Field(
+        default=None, title='Updated By  Given Name  Ilike'
+    )
+    updated_by__family_name: str | None = Field(
+        default=None, title='Updated By  Family Name'
+    )
+    updated_by__family_name__ilike: str | None = Field(
+        default=None, title='Updated By  Family Name  Ilike'
+    )
+    updated_by__sub_id: UUID | None = Field(default=None, title='Updated By  Sub Id')
+    updated_by__sub_id__in: list[UUID] | None = Field(
+        default=None, title='Updated By  Sub Id  In'
     )
     brain_region__name: str | None = Field(default=None, title='Brain Region  Name')
     brain_region__name__in: list[str] | None = Field(
@@ -5815,6 +6898,12 @@ class ReadManyIonChannelRecordingGetParametersQuery(BaseModel):
     )
     brain_region__acronym__in: list[str] | None = Field(
         default=None, title='Brain Region  Acronym  In'
+    )
+    brain_region__annotation_value: int | None = Field(
+        default=None, title='Brain Region  Annotation Value'
+    )
+    brain_region__hierarchy_id: UUID | None = Field(
+        default=None, title='Brain Region  Hierarchy Id'
     )
     subject__name: str | None = Field(default=None, title='Subject  Name')
     subject__name__in: list[str] | None = Field(default=None, title='Subject  Name  In')
@@ -5875,6 +6964,9 @@ class ReadManyIonChannelRecordingGetParametersQuery(BaseModel):
     )
     within_brain_region_ascendants: bool = Field(
         default=False, title='Within Brain Region Ascendants'
+    )
+    within_brain_region_direction: WithinBrainRegionDirection | None = Field(
+        default=None, title='Within Brain Region Direction'
     )
 
 
@@ -5940,6 +7032,9 @@ class ReadManyMeasurementAnnotationGetParametersQuery(BaseModel):
     within_brain_region_ascendants: bool = Field(
         default=False, title='Within Brain Region Ascendants'
     )
+    within_brain_region_direction: WithinBrainRegionDirection | None = Field(
+        default=None, title='Within Brain Region Direction'
+    )
 
 
 class ReadManyMemodelGetParametersQuery(BaseModel):
@@ -5984,6 +7079,12 @@ class ReadManyMemodelGetParametersQuery(BaseModel):
     )
     brain_region__acronym__in: list[str] | None = Field(
         default=None, title='Brain Region  Acronym  In'
+    )
+    brain_region__annotation_value: int | None = Field(
+        default=None, title='Brain Region  Annotation Value'
+    )
+    brain_region__hierarchy_id: UUID | None = Field(
+        default=None, title='Brain Region  Hierarchy Id'
     )
     etype__pref_label: str | None = Field(default=None, title='Etype  Pref Label')
     etype__pref_label__in: list[str] | None = Field(
@@ -6039,6 +7140,22 @@ class ReadManyMemodelGetParametersQuery(BaseModel):
     created_by__id__in: list[UUID] | None = Field(
         default=None, title='Created By  Id  In'
     )
+    created_by__given_name: str | None = Field(
+        default=None, title='Created By  Given Name'
+    )
+    created_by__given_name__ilike: str | None = Field(
+        default=None, title='Created By  Given Name  Ilike'
+    )
+    created_by__family_name: str | None = Field(
+        default=None, title='Created By  Family Name'
+    )
+    created_by__family_name__ilike: str | None = Field(
+        default=None, title='Created By  Family Name  Ilike'
+    )
+    created_by__sub_id: UUID | None = Field(default=None, title='Created By  Sub Id')
+    created_by__sub_id__in: list[UUID] | None = Field(
+        default=None, title='Created By  Sub Id  In'
+    )
     updated_by__pref_label: str | None = Field(
         default=None, title='Updated By  Pref Label'
     )
@@ -6051,6 +7168,22 @@ class ReadManyMemodelGetParametersQuery(BaseModel):
     updated_by__id: UUID | None = Field(default=None, title='Updated By  Id')
     updated_by__id__in: list[UUID] | None = Field(
         default=None, title='Updated By  Id  In'
+    )
+    updated_by__given_name: str | None = Field(
+        default=None, title='Updated By  Given Name'
+    )
+    updated_by__given_name__ilike: str | None = Field(
+        default=None, title='Updated By  Given Name  Ilike'
+    )
+    updated_by__family_name: str | None = Field(
+        default=None, title='Updated By  Family Name'
+    )
+    updated_by__family_name__ilike: str | None = Field(
+        default=None, title='Updated By  Family Name  Ilike'
+    )
+    updated_by__sub_id: UUID | None = Field(default=None, title='Updated By  Sub Id')
+    updated_by__sub_id__in: list[UUID] | None = Field(
+        default=None, title='Updated By  Sub Id  In'
     )
     morphology__name: str | None = Field(default=None, title='Morphology  Name')
     morphology__name__in: list[str] | None = Field(
@@ -6083,6 +7216,12 @@ class ReadManyMemodelGetParametersQuery(BaseModel):
     )
     morphology__brain_region__acronym__in: list[str] | None = Field(
         default=None, title='Morphology  Brain Region  Acronym  In'
+    )
+    morphology__brain_region__annotation_value: int | None = Field(
+        default=None, title='Morphology  Brain Region  Annotation Value'
+    )
+    morphology__brain_region__hierarchy_id: UUID | None = Field(
+        default=None, title='Morphology  Brain Region  Hierarchy Id'
     )
     morphology__subject__name: str | None = Field(
         default=None, title='Morphology  Subject  Name'
@@ -6173,6 +7312,12 @@ class ReadManyMemodelGetParametersQuery(BaseModel):
     emodel__brain_region__acronym__in: list[str] | None = Field(
         default=None, title='Emodel  Brain Region  Acronym  In'
     )
+    emodel__brain_region__annotation_value: int | None = Field(
+        default=None, title='Emodel  Brain Region  Annotation Value'
+    )
+    emodel__brain_region__hierarchy_id: UUID | None = Field(
+        default=None, title='Emodel  Brain Region  Hierarchy Id'
+    )
     emodel__mtype__pref_label: str | None = Field(
         default=None, title='Emodel  Mtype  Pref Label'
     )
@@ -6224,6 +7369,9 @@ class ReadManyMemodelGetParametersQuery(BaseModel):
     )
     within_brain_region_ascendants: bool = Field(
         default=False, title='Within Brain Region Ascendants'
+    )
+    within_brain_region_direction: WithinBrainRegionDirection | None = Field(
+        default=None, title='Within Brain Region Direction'
     )
 
 
@@ -6279,6 +7427,22 @@ class ReadManyMemodelCalibrationResultGetParametersQuery(BaseModel):
     created_by__id__in: list[UUID] | None = Field(
         default=None, title='Created By  Id  In'
     )
+    created_by__given_name: str | None = Field(
+        default=None, title='Created By  Given Name'
+    )
+    created_by__given_name__ilike: str | None = Field(
+        default=None, title='Created By  Given Name  Ilike'
+    )
+    created_by__family_name: str | None = Field(
+        default=None, title='Created By  Family Name'
+    )
+    created_by__family_name__ilike: str | None = Field(
+        default=None, title='Created By  Family Name  Ilike'
+    )
+    created_by__sub_id: UUID | None = Field(default=None, title='Created By  Sub Id')
+    created_by__sub_id__in: list[UUID] | None = Field(
+        default=None, title='Created By  Sub Id  In'
+    )
     updated_by__pref_label: str | None = Field(
         default=None, title='Updated By  Pref Label'
     )
@@ -6292,6 +7456,22 @@ class ReadManyMemodelCalibrationResultGetParametersQuery(BaseModel):
     updated_by__id__in: list[UUID] | None = Field(
         default=None, title='Updated By  Id  In'
     )
+    updated_by__given_name: str | None = Field(
+        default=None, title='Updated By  Given Name'
+    )
+    updated_by__given_name__ilike: str | None = Field(
+        default=None, title='Updated By  Given Name  Ilike'
+    )
+    updated_by__family_name: str | None = Field(
+        default=None, title='Updated By  Family Name'
+    )
+    updated_by__family_name__ilike: str | None = Field(
+        default=None, title='Updated By  Family Name  Ilike'
+    )
+    updated_by__sub_id: UUID | None = Field(default=None, title='Updated By  Sub Id')
+    updated_by__sub_id__in: list[UUID] | None = Field(
+        default=None, title='Updated By  Sub Id  In'
+    )
     search: str | None = Field(default=None, title='Search')
     with_facets: bool = Field(default=False, title='With Facets')
     within_brain_region_hierarchy_id: UUID | None = Field(
@@ -6302,6 +7482,9 @@ class ReadManyMemodelCalibrationResultGetParametersQuery(BaseModel):
     )
     within_brain_region_ascendants: bool = Field(
         default=False, title='Within Brain Region Ascendants'
+    )
+    within_brain_region_direction: WithinBrainRegionDirection | None = Field(
+        default=None, title='Within Brain Region Direction'
     )
 
 
@@ -6327,6 +7510,22 @@ class ReadManyMtypeClassificationGetParametersQuery(BaseModel):
     created_by__id__in: list[UUID] | None = Field(
         default=None, title='Created By  Id  In'
     )
+    created_by__given_name: str | None = Field(
+        default=None, title='Created By  Given Name'
+    )
+    created_by__given_name__ilike: str | None = Field(
+        default=None, title='Created By  Given Name  Ilike'
+    )
+    created_by__family_name: str | None = Field(
+        default=None, title='Created By  Family Name'
+    )
+    created_by__family_name__ilike: str | None = Field(
+        default=None, title='Created By  Family Name  Ilike'
+    )
+    created_by__sub_id: UUID | None = Field(default=None, title='Created By  Sub Id')
+    created_by__sub_id__in: list[UUID] | None = Field(
+        default=None, title='Created By  Sub Id  In'
+    )
     updated_by__pref_label: str | None = Field(
         default=None, title='Updated By  Pref Label'
     )
@@ -6339,6 +7538,22 @@ class ReadManyMtypeClassificationGetParametersQuery(BaseModel):
     updated_by__id: UUID | None = Field(default=None, title='Updated By  Id')
     updated_by__id__in: list[UUID] | None = Field(
         default=None, title='Updated By  Id  In'
+    )
+    updated_by__given_name: str | None = Field(
+        default=None, title='Updated By  Given Name'
+    )
+    updated_by__given_name__ilike: str | None = Field(
+        default=None, title='Updated By  Given Name  Ilike'
+    )
+    updated_by__family_name: str | None = Field(
+        default=None, title='Updated By  Family Name'
+    )
+    updated_by__family_name__ilike: str | None = Field(
+        default=None, title='Updated By  Family Name  Ilike'
+    )
+    updated_by__sub_id: UUID | None = Field(default=None, title='Updated By  Sub Id')
+    updated_by__sub_id__in: list[UUID] | None = Field(
+        default=None, title='Updated By  Sub Id  In'
     )
     search: str | None = Field(default=None, title='Search')
     with_facets: bool = Field(default=False, title='With Facets')
@@ -6355,13 +7570,13 @@ class ReadManyPersonGetParametersQuery(BaseModel):
     pref_label__ilike: str | None = Field(default=None, title='Pref Label  Ilike')
     id: UUID | None = Field(default=None, title='Id')
     id__in: list[UUID] | None = Field(default=None, title='Id  In')
-    order_by: list[str] = Field(default=['-creation_date'], title='Order By')
     given_name: str | None = Field(default=None, title='Given Name')
     given_name__ilike: str | None = Field(default=None, title='Given Name  Ilike')
     family_name: str | None = Field(default=None, title='Family Name')
     family_name__ilike: str | None = Field(default=None, title='Family Name  Ilike')
     sub_id: UUID | None = Field(default=None, title='Sub Id')
     sub_id__in: list[UUID] | None = Field(default=None, title='Sub Id  In')
+    order_by: list[str] = Field(default=['-creation_date'], title='Order By')
     created_by__pref_label: str | None = Field(
         default=None, title='Created By  Pref Label'
     )
@@ -6375,6 +7590,22 @@ class ReadManyPersonGetParametersQuery(BaseModel):
     created_by__id__in: list[UUID] | None = Field(
         default=None, title='Created By  Id  In'
     )
+    created_by__given_name: str | None = Field(
+        default=None, title='Created By  Given Name'
+    )
+    created_by__given_name__ilike: str | None = Field(
+        default=None, title='Created By  Given Name  Ilike'
+    )
+    created_by__family_name: str | None = Field(
+        default=None, title='Created By  Family Name'
+    )
+    created_by__family_name__ilike: str | None = Field(
+        default=None, title='Created By  Family Name  Ilike'
+    )
+    created_by__sub_id: UUID | None = Field(default=None, title='Created By  Sub Id')
+    created_by__sub_id__in: list[UUID] | None = Field(
+        default=None, title='Created By  Sub Id  In'
+    )
     updated_by__pref_label: str | None = Field(
         default=None, title='Updated By  Pref Label'
     )
@@ -6387,6 +7618,22 @@ class ReadManyPersonGetParametersQuery(BaseModel):
     updated_by__id: UUID | None = Field(default=None, title='Updated By  Id')
     updated_by__id__in: list[UUID] | None = Field(
         default=None, title='Updated By  Id  In'
+    )
+    updated_by__given_name: str | None = Field(
+        default=None, title='Updated By  Given Name'
+    )
+    updated_by__given_name__ilike: str | None = Field(
+        default=None, title='Updated By  Given Name  Ilike'
+    )
+    updated_by__family_name: str | None = Field(
+        default=None, title='Updated By  Family Name'
+    )
+    updated_by__family_name__ilike: str | None = Field(
+        default=None, title='Updated By  Family Name  Ilike'
+    )
+    updated_by__sub_id: UUID | None = Field(default=None, title='Updated By  Sub Id')
+    updated_by__sub_id__in: list[UUID] | None = Field(
+        default=None, title='Updated By  Sub Id  In'
     )
 
 
@@ -6433,6 +7680,22 @@ class ReadManyPublicationGetParametersQuery(BaseModel):
     created_by__id__in: list[UUID] | None = Field(
         default=None, title='Created By  Id  In'
     )
+    created_by__given_name: str | None = Field(
+        default=None, title='Created By  Given Name'
+    )
+    created_by__given_name__ilike: str | None = Field(
+        default=None, title='Created By  Given Name  Ilike'
+    )
+    created_by__family_name: str | None = Field(
+        default=None, title='Created By  Family Name'
+    )
+    created_by__family_name__ilike: str | None = Field(
+        default=None, title='Created By  Family Name  Ilike'
+    )
+    created_by__sub_id: UUID | None = Field(default=None, title='Created By  Sub Id')
+    created_by__sub_id__in: list[UUID] | None = Field(
+        default=None, title='Created By  Sub Id  In'
+    )
     updated_by__pref_label: str | None = Field(
         default=None, title='Updated By  Pref Label'
     )
@@ -6446,6 +7709,22 @@ class ReadManyPublicationGetParametersQuery(BaseModel):
     updated_by__id__in: list[UUID] | None = Field(
         default=None, title='Updated By  Id  In'
     )
+    updated_by__given_name: str | None = Field(
+        default=None, title='Updated By  Given Name'
+    )
+    updated_by__given_name__ilike: str | None = Field(
+        default=None, title='Updated By  Given Name  Ilike'
+    )
+    updated_by__family_name: str | None = Field(
+        default=None, title='Updated By  Family Name'
+    )
+    updated_by__family_name__ilike: str | None = Field(
+        default=None, title='Updated By  Family Name  Ilike'
+    )
+    updated_by__sub_id: UUID | None = Field(default=None, title='Updated By  Sub Id')
+    updated_by__sub_id__in: list[UUID] | None = Field(
+        default=None, title='Updated By  Sub Id  In'
+    )
     search: str | None = Field(default=None, title='Search')
     with_facets: bool = Field(default=False, title='With Facets')
     within_brain_region_hierarchy_id: UUID | None = Field(
@@ -6456,6 +7735,9 @@ class ReadManyPublicationGetParametersQuery(BaseModel):
     )
     within_brain_region_ascendants: bool = Field(
         default=False, title='Within Brain Region Ascendants'
+    )
+    within_brain_region_direction: WithinBrainRegionDirection | None = Field(
+        default=None, title='Within Brain Region Direction'
     )
 
 
@@ -6488,6 +7770,22 @@ class ReadManyScientificArtifactExternalUrlLinkGetParametersQuery(BaseModel):
     created_by__id__in: list[UUID] | None = Field(
         default=None, title='Created By  Id  In'
     )
+    created_by__given_name: str | None = Field(
+        default=None, title='Created By  Given Name'
+    )
+    created_by__given_name__ilike: str | None = Field(
+        default=None, title='Created By  Given Name  Ilike'
+    )
+    created_by__family_name: str | None = Field(
+        default=None, title='Created By  Family Name'
+    )
+    created_by__family_name__ilike: str | None = Field(
+        default=None, title='Created By  Family Name  Ilike'
+    )
+    created_by__sub_id: UUID | None = Field(default=None, title='Created By  Sub Id')
+    created_by__sub_id__in: list[UUID] | None = Field(
+        default=None, title='Created By  Sub Id  In'
+    )
     updated_by__pref_label: str | None = Field(
         default=None, title='Updated By  Pref Label'
     )
@@ -6500,6 +7798,22 @@ class ReadManyScientificArtifactExternalUrlLinkGetParametersQuery(BaseModel):
     updated_by__id: UUID | None = Field(default=None, title='Updated By  Id')
     updated_by__id__in: list[UUID] | None = Field(
         default=None, title='Updated By  Id  In'
+    )
+    updated_by__given_name: str | None = Field(
+        default=None, title='Updated By  Given Name'
+    )
+    updated_by__given_name__ilike: str | None = Field(
+        default=None, title='Updated By  Given Name  Ilike'
+    )
+    updated_by__family_name: str | None = Field(
+        default=None, title='Updated By  Family Name'
+    )
+    updated_by__family_name__ilike: str | None = Field(
+        default=None, title='Updated By  Family Name  Ilike'
+    )
+    updated_by__sub_id: UUID | None = Field(default=None, title='Updated By  Sub Id')
+    updated_by__sub_id__in: list[UUID] | None = Field(
+        default=None, title='Updated By  Sub Id  In'
     )
     external_url__name: str | None = Field(default=None, title='External Url  Name')
     external_url__name__in: list[str] | None = Field(
@@ -6542,6 +7856,9 @@ class ReadManyScientificArtifactExternalUrlLinkGetParametersQuery(BaseModel):
     within_brain_region_ascendants: bool = Field(
         default=False, title='Within Brain Region Ascendants'
     )
+    within_brain_region_direction: WithinBrainRegionDirection | None = Field(
+        default=None, title='Within Brain Region Direction'
+    )
 
 
 class ReadManyScientificArtifactPublicationLinkGetParametersQuery(BaseModel):
@@ -6566,6 +7883,22 @@ class ReadManyScientificArtifactPublicationLinkGetParametersQuery(BaseModel):
     created_by__id__in: list[UUID] | None = Field(
         default=None, title='Created By  Id  In'
     )
+    created_by__given_name: str | None = Field(
+        default=None, title='Created By  Given Name'
+    )
+    created_by__given_name__ilike: str | None = Field(
+        default=None, title='Created By  Given Name  Ilike'
+    )
+    created_by__family_name: str | None = Field(
+        default=None, title='Created By  Family Name'
+    )
+    created_by__family_name__ilike: str | None = Field(
+        default=None, title='Created By  Family Name  Ilike'
+    )
+    created_by__sub_id: UUID | None = Field(default=None, title='Created By  Sub Id')
+    created_by__sub_id__in: list[UUID] | None = Field(
+        default=None, title='Created By  Sub Id  In'
+    )
     updated_by__pref_label: str | None = Field(
         default=None, title='Updated By  Pref Label'
     )
@@ -6578,6 +7911,22 @@ class ReadManyScientificArtifactPublicationLinkGetParametersQuery(BaseModel):
     updated_by__id: UUID | None = Field(default=None, title='Updated By  Id')
     updated_by__id__in: list[UUID] | None = Field(
         default=None, title='Updated By  Id  In'
+    )
+    updated_by__given_name: str | None = Field(
+        default=None, title='Updated By  Given Name'
+    )
+    updated_by__given_name__ilike: str | None = Field(
+        default=None, title='Updated By  Given Name  Ilike'
+    )
+    updated_by__family_name: str | None = Field(
+        default=None, title='Updated By  Family Name'
+    )
+    updated_by__family_name__ilike: str | None = Field(
+        default=None, title='Updated By  Family Name  Ilike'
+    )
+    updated_by__sub_id: UUID | None = Field(default=None, title='Updated By  Sub Id')
+    updated_by__sub_id__in: list[UUID] | None = Field(
+        default=None, title='Updated By  Sub Id  In'
     )
     publication__id: UUID | None = Field(default=None, title='Publication  Id')
     publication__id__in: list[UUID] | None = Field(
@@ -6622,6 +7971,9 @@ class ReadManyScientificArtifactPublicationLinkGetParametersQuery(BaseModel):
     )
     within_brain_region_ascendants: bool = Field(
         default=False, title='Within Brain Region Ascendants'
+    )
+    within_brain_region_direction: WithinBrainRegionDirection | None = Field(
+        default=None, title='Within Brain Region Direction'
     )
 
 
@@ -6676,6 +8028,22 @@ class ReadManySkeletonizationCampaignGetParametersQuery(BaseModel):
     created_by__id__in: list[UUID] | None = Field(
         default=None, title='Created By  Id  In'
     )
+    created_by__given_name: str | None = Field(
+        default=None, title='Created By  Given Name'
+    )
+    created_by__given_name__ilike: str | None = Field(
+        default=None, title='Created By  Given Name  Ilike'
+    )
+    created_by__family_name: str | None = Field(
+        default=None, title='Created By  Family Name'
+    )
+    created_by__family_name__ilike: str | None = Field(
+        default=None, title='Created By  Family Name  Ilike'
+    )
+    created_by__sub_id: UUID | None = Field(default=None, title='Created By  Sub Id')
+    created_by__sub_id__in: list[UUID] | None = Field(
+        default=None, title='Created By  Sub Id  In'
+    )
     updated_by__pref_label: str | None = Field(
         default=None, title='Updated By  Pref Label'
     )
@@ -6688,6 +8056,22 @@ class ReadManySkeletonizationCampaignGetParametersQuery(BaseModel):
     updated_by__id: UUID | None = Field(default=None, title='Updated By  Id')
     updated_by__id__in: list[UUID] | None = Field(
         default=None, title='Updated By  Id  In'
+    )
+    updated_by__given_name: str | None = Field(
+        default=None, title='Updated By  Given Name'
+    )
+    updated_by__given_name__ilike: str | None = Field(
+        default=None, title='Updated By  Given Name  Ilike'
+    )
+    updated_by__family_name: str | None = Field(
+        default=None, title='Updated By  Family Name'
+    )
+    updated_by__family_name__ilike: str | None = Field(
+        default=None, title='Updated By  Family Name  Ilike'
+    )
+    updated_by__sub_id: UUID | None = Field(default=None, title='Updated By  Sub Id')
+    updated_by__sub_id__in: list[UUID] | None = Field(
+        default=None, title='Updated By  Sub Id  In'
     )
     skeletonization_config__id: UUID | None = Field(
         default=None, title='Skeletonization Config  Id'
@@ -6714,6 +8098,9 @@ class ReadManySkeletonizationCampaignGetParametersQuery(BaseModel):
     )
     within_brain_region_ascendants: bool = Field(
         default=False, title='Within Brain Region Ascendants'
+    )
+    within_brain_region_direction: WithinBrainRegionDirection | None = Field(
+        default=None, title='Within Brain Region Direction'
     )
 
 
@@ -6778,6 +8165,22 @@ class ReadManySkeletonizationConfigGetParametersQuery(BaseModel):
     created_by__id__in: list[UUID] | None = Field(
         default=None, title='Created By  Id  In'
     )
+    created_by__given_name: str | None = Field(
+        default=None, title='Created By  Given Name'
+    )
+    created_by__given_name__ilike: str | None = Field(
+        default=None, title='Created By  Given Name  Ilike'
+    )
+    created_by__family_name: str | None = Field(
+        default=None, title='Created By  Family Name'
+    )
+    created_by__family_name__ilike: str | None = Field(
+        default=None, title='Created By  Family Name  Ilike'
+    )
+    created_by__sub_id: UUID | None = Field(default=None, title='Created By  Sub Id')
+    created_by__sub_id__in: list[UUID] | None = Field(
+        default=None, title='Created By  Sub Id  In'
+    )
     updated_by__pref_label: str | None = Field(
         default=None, title='Updated By  Pref Label'
     )
@@ -6791,6 +8194,22 @@ class ReadManySkeletonizationConfigGetParametersQuery(BaseModel):
     updated_by__id__in: list[UUID] | None = Field(
         default=None, title='Updated By  Id  In'
     )
+    updated_by__given_name: str | None = Field(
+        default=None, title='Updated By  Given Name'
+    )
+    updated_by__given_name__ilike: str | None = Field(
+        default=None, title='Updated By  Given Name  Ilike'
+    )
+    updated_by__family_name: str | None = Field(
+        default=None, title='Updated By  Family Name'
+    )
+    updated_by__family_name__ilike: str | None = Field(
+        default=None, title='Updated By  Family Name  Ilike'
+    )
+    updated_by__sub_id: UUID | None = Field(default=None, title='Updated By  Sub Id')
+    updated_by__sub_id__in: list[UUID] | None = Field(
+        default=None, title='Updated By  Sub Id  In'
+    )
     search: str | None = Field(default=None, title='Search')
     with_facets: bool = Field(default=False, title='With Facets')
     within_brain_region_hierarchy_id: UUID | None = Field(
@@ -6801,6 +8220,9 @@ class ReadManySkeletonizationConfigGetParametersQuery(BaseModel):
     )
     within_brain_region_ascendants: bool = Field(
         default=False, title='Within Brain Region Ascendants'
+    )
+    within_brain_region_direction: WithinBrainRegionDirection | None = Field(
+        default=None, title='Within Brain Region Direction'
     )
 
 
@@ -6843,6 +8265,22 @@ class ReadManySkeletonizationExecutionGetParametersQuery(BaseModel):
     created_by__id__in: list[UUID] | None = Field(
         default=None, title='Created By  Id  In'
     )
+    created_by__given_name: str | None = Field(
+        default=None, title='Created By  Given Name'
+    )
+    created_by__given_name__ilike: str | None = Field(
+        default=None, title='Created By  Given Name  Ilike'
+    )
+    created_by__family_name: str | None = Field(
+        default=None, title='Created By  Family Name'
+    )
+    created_by__family_name__ilike: str | None = Field(
+        default=None, title='Created By  Family Name  Ilike'
+    )
+    created_by__sub_id: UUID | None = Field(default=None, title='Created By  Sub Id')
+    created_by__sub_id__in: list[UUID] | None = Field(
+        default=None, title='Created By  Sub Id  In'
+    )
     updated_by__pref_label: str | None = Field(
         default=None, title='Updated By  Pref Label'
     )
@@ -6856,14 +8294,30 @@ class ReadManySkeletonizationExecutionGetParametersQuery(BaseModel):
     updated_by__id__in: list[UUID] | None = Field(
         default=None, title='Updated By  Id  In'
     )
+    updated_by__given_name: str | None = Field(
+        default=None, title='Updated By  Given Name'
+    )
+    updated_by__given_name__ilike: str | None = Field(
+        default=None, title='Updated By  Given Name  Ilike'
+    )
+    updated_by__family_name: str | None = Field(
+        default=None, title='Updated By  Family Name'
+    )
+    updated_by__family_name__ilike: str | None = Field(
+        default=None, title='Updated By  Family Name  Ilike'
+    )
+    updated_by__sub_id: UUID | None = Field(default=None, title='Updated By  Sub Id')
+    updated_by__sub_id__in: list[UUID] | None = Field(
+        default=None, title='Updated By  Sub Id  In'
+    )
     used__id: UUID | None = Field(default=None, title='Used  Id')
     used__id__in: list[UUID] | None = Field(default=None, title='Used  Id  In')
-    used__type: str | None = Field(default=None, title='Used  Type')
+    used__type: EntityType | None = Field(default=None, title='Used  Type')
     generated__id: UUID | None = Field(default=None, title='Generated  Id')
     generated__id__in: list[UUID] | None = Field(
         default=None, title='Generated  Id  In'
     )
-    generated__type: str | None = Field(default=None, title='Generated  Type')
+    generated__type: EntityType | None = Field(default=None, title='Generated  Type')
     search: str | None = Field(default=None, title='Search')
     with_facets: bool = Field(default=False, title='With Facets')
     within_brain_region_hierarchy_id: UUID | None = Field(
@@ -6874,6 +8328,9 @@ class ReadManySkeletonizationExecutionGetParametersQuery(BaseModel):
     )
     within_brain_region_ascendants: bool = Field(
         default=False, title='Within Brain Region Ascendants'
+    )
+    within_brain_region_direction: WithinBrainRegionDirection | None = Field(
+        default=None, title='Within Brain Region Direction'
     )
 
 
@@ -6936,6 +8393,22 @@ class ReadManySimulationGetParametersQuery(BaseModel):
     created_by__id__in: list[UUID] | None = Field(
         default=None, title='Created By  Id  In'
     )
+    created_by__given_name: str | None = Field(
+        default=None, title='Created By  Given Name'
+    )
+    created_by__given_name__ilike: str | None = Field(
+        default=None, title='Created By  Given Name  Ilike'
+    )
+    created_by__family_name: str | None = Field(
+        default=None, title='Created By  Family Name'
+    )
+    created_by__family_name__ilike: str | None = Field(
+        default=None, title='Created By  Family Name  Ilike'
+    )
+    created_by__sub_id: UUID | None = Field(default=None, title='Created By  Sub Id')
+    created_by__sub_id__in: list[UUID] | None = Field(
+        default=None, title='Created By  Sub Id  In'
+    )
     updated_by__pref_label: str | None = Field(
         default=None, title='Updated By  Pref Label'
     )
@@ -6948,6 +8421,22 @@ class ReadManySimulationGetParametersQuery(BaseModel):
     updated_by__id: UUID | None = Field(default=None, title='Updated By  Id')
     updated_by__id__in: list[UUID] | None = Field(
         default=None, title='Updated By  Id  In'
+    )
+    updated_by__given_name: str | None = Field(
+        default=None, title='Updated By  Given Name'
+    )
+    updated_by__given_name__ilike: str | None = Field(
+        default=None, title='Updated By  Given Name  Ilike'
+    )
+    updated_by__family_name: str | None = Field(
+        default=None, title='Updated By  Family Name'
+    )
+    updated_by__family_name__ilike: str | None = Field(
+        default=None, title='Updated By  Family Name  Ilike'
+    )
+    updated_by__sub_id: UUID | None = Field(default=None, title='Updated By  Sub Id')
+    updated_by__sub_id__in: list[UUID] | None = Field(
+        default=None, title='Updated By  Sub Id  In'
     )
     circuit__scale: CircuitScale | None = Field(default=None, title='Circuit  Scale')
     circuit__scale__in: list[CircuitScale] | None = Field(
@@ -6974,6 +8463,9 @@ class ReadManySimulationGetParametersQuery(BaseModel):
     )
     within_brain_region_ascendants: bool = Field(
         default=False, title='Within Brain Region Ascendants'
+    )
+    within_brain_region_direction: WithinBrainRegionDirection | None = Field(
+        default=None, title='Within Brain Region Direction'
     )
 
 
@@ -7030,6 +8522,22 @@ class ReadManySimulationCampaignGetParametersQuery(BaseModel):
     created_by__id__in: list[UUID] | None = Field(
         default=None, title='Created By  Id  In'
     )
+    created_by__given_name: str | None = Field(
+        default=None, title='Created By  Given Name'
+    )
+    created_by__given_name__ilike: str | None = Field(
+        default=None, title='Created By  Given Name  Ilike'
+    )
+    created_by__family_name: str | None = Field(
+        default=None, title='Created By  Family Name'
+    )
+    created_by__family_name__ilike: str | None = Field(
+        default=None, title='Created By  Family Name  Ilike'
+    )
+    created_by__sub_id: UUID | None = Field(default=None, title='Created By  Sub Id')
+    created_by__sub_id__in: list[UUID] | None = Field(
+        default=None, title='Created By  Sub Id  In'
+    )
     updated_by__pref_label: str | None = Field(
         default=None, title='Updated By  Pref Label'
     )
@@ -7042,6 +8550,22 @@ class ReadManySimulationCampaignGetParametersQuery(BaseModel):
     updated_by__id: UUID | None = Field(default=None, title='Updated By  Id')
     updated_by__id__in: list[UUID] | None = Field(
         default=None, title='Updated By  Id  In'
+    )
+    updated_by__given_name: str | None = Field(
+        default=None, title='Updated By  Given Name'
+    )
+    updated_by__given_name__ilike: str | None = Field(
+        default=None, title='Updated By  Given Name  Ilike'
+    )
+    updated_by__family_name: str | None = Field(
+        default=None, title='Updated By  Family Name'
+    )
+    updated_by__family_name__ilike: str | None = Field(
+        default=None, title='Updated By  Family Name  Ilike'
+    )
+    updated_by__sub_id: UUID | None = Field(default=None, title='Updated By  Sub Id')
+    updated_by__sub_id__in: list[UUID] | None = Field(
+        default=None, title='Updated By  Sub Id  In'
     )
     entity__id: UUID | None = Field(default=None, title='Entity  Id')
     entity__id__in: list[UUID] | None = Field(default=None, title='Entity  Id  In')
@@ -7091,6 +8615,9 @@ class ReadManySimulationCampaignGetParametersQuery(BaseModel):
     within_brain_region_ascendants: bool = Field(
         default=False, title='Within Brain Region Ascendants'
     )
+    within_brain_region_direction: WithinBrainRegionDirection | None = Field(
+        default=None, title='Within Brain Region Direction'
+    )
 
 
 class ReadManySimulationExecutionGetParametersQuery(BaseModel):
@@ -7127,6 +8654,22 @@ class ReadManySimulationExecutionGetParametersQuery(BaseModel):
     created_by__id__in: list[UUID] | None = Field(
         default=None, title='Created By  Id  In'
     )
+    created_by__given_name: str | None = Field(
+        default=None, title='Created By  Given Name'
+    )
+    created_by__given_name__ilike: str | None = Field(
+        default=None, title='Created By  Given Name  Ilike'
+    )
+    created_by__family_name: str | None = Field(
+        default=None, title='Created By  Family Name'
+    )
+    created_by__family_name__ilike: str | None = Field(
+        default=None, title='Created By  Family Name  Ilike'
+    )
+    created_by__sub_id: UUID | None = Field(default=None, title='Created By  Sub Id')
+    created_by__sub_id__in: list[UUID] | None = Field(
+        default=None, title='Created By  Sub Id  In'
+    )
     updated_by__pref_label: str | None = Field(
         default=None, title='Updated By  Pref Label'
     )
@@ -7140,14 +8683,30 @@ class ReadManySimulationExecutionGetParametersQuery(BaseModel):
     updated_by__id__in: list[UUID] | None = Field(
         default=None, title='Updated By  Id  In'
     )
+    updated_by__given_name: str | None = Field(
+        default=None, title='Updated By  Given Name'
+    )
+    updated_by__given_name__ilike: str | None = Field(
+        default=None, title='Updated By  Given Name  Ilike'
+    )
+    updated_by__family_name: str | None = Field(
+        default=None, title='Updated By  Family Name'
+    )
+    updated_by__family_name__ilike: str | None = Field(
+        default=None, title='Updated By  Family Name  Ilike'
+    )
+    updated_by__sub_id: UUID | None = Field(default=None, title='Updated By  Sub Id')
+    updated_by__sub_id__in: list[UUID] | None = Field(
+        default=None, title='Updated By  Sub Id  In'
+    )
     used__id: UUID | None = Field(default=None, title='Used  Id')
     used__id__in: list[UUID] | None = Field(default=None, title='Used  Id  In')
-    used__type: str | None = Field(default=None, title='Used  Type')
+    used__type: EntityType | None = Field(default=None, title='Used  Type')
     generated__id: UUID | None = Field(default=None, title='Generated  Id')
     generated__id__in: list[UUID] | None = Field(
         default=None, title='Generated  Id  In'
     )
-    generated__type: str | None = Field(default=None, title='Generated  Type')
+    generated__type: EntityType | None = Field(default=None, title='Generated  Type')
     search: str | None = Field(default=None, title='Search')
     with_facets: bool = Field(default=False, title='With Facets')
     within_brain_region_hierarchy_id: UUID | None = Field(
@@ -7158,6 +8717,9 @@ class ReadManySimulationExecutionGetParametersQuery(BaseModel):
     )
     within_brain_region_ascendants: bool = Field(
         default=False, title='Within Brain Region Ascendants'
+    )
+    within_brain_region_direction: WithinBrainRegionDirection | None = Field(
+        default=None, title='Within Brain Region Direction'
     )
 
 
@@ -7212,6 +8774,12 @@ class ReadManySingleNeuronSimulationGetParametersQuery(BaseModel):
     brain_region__acronym__in: list[str] | None = Field(
         default=None, title='Brain Region  Acronym  In'
     )
+    brain_region__annotation_value: int | None = Field(
+        default=None, title='Brain Region  Annotation Value'
+    )
+    brain_region__hierarchy_id: UUID | None = Field(
+        default=None, title='Brain Region  Hierarchy Id'
+    )
     contribution__pref_label: str | None = Field(
         default=None, title='Contribution  Pref Label'
     )
@@ -7238,6 +8806,22 @@ class ReadManySingleNeuronSimulationGetParametersQuery(BaseModel):
     created_by__id__in: list[UUID] | None = Field(
         default=None, title='Created By  Id  In'
     )
+    created_by__given_name: str | None = Field(
+        default=None, title='Created By  Given Name'
+    )
+    created_by__given_name__ilike: str | None = Field(
+        default=None, title='Created By  Given Name  Ilike'
+    )
+    created_by__family_name: str | None = Field(
+        default=None, title='Created By  Family Name'
+    )
+    created_by__family_name__ilike: str | None = Field(
+        default=None, title='Created By  Family Name  Ilike'
+    )
+    created_by__sub_id: UUID | None = Field(default=None, title='Created By  Sub Id')
+    created_by__sub_id__in: list[UUID] | None = Field(
+        default=None, title='Created By  Sub Id  In'
+    )
     updated_by__pref_label: str | None = Field(
         default=None, title='Updated By  Pref Label'
     )
@@ -7250,6 +8834,22 @@ class ReadManySingleNeuronSimulationGetParametersQuery(BaseModel):
     updated_by__id: UUID | None = Field(default=None, title='Updated By  Id')
     updated_by__id__in: list[UUID] | None = Field(
         default=None, title='Updated By  Id  In'
+    )
+    updated_by__given_name: str | None = Field(
+        default=None, title='Updated By  Given Name'
+    )
+    updated_by__given_name__ilike: str | None = Field(
+        default=None, title='Updated By  Given Name  Ilike'
+    )
+    updated_by__family_name: str | None = Field(
+        default=None, title='Updated By  Family Name'
+    )
+    updated_by__family_name__ilike: str | None = Field(
+        default=None, title='Updated By  Family Name  Ilike'
+    )
+    updated_by__sub_id: UUID | None = Field(default=None, title='Updated By  Sub Id')
+    updated_by__sub_id__in: list[UUID] | None = Field(
+        default=None, title='Updated By  Sub Id  In'
     )
     me_model__name: str | None = Field(default=None, title='Me Model  Name')
     me_model__name__in: list[str] | None = Field(
@@ -7283,6 +8883,12 @@ class ReadManySingleNeuronSimulationGetParametersQuery(BaseModel):
     )
     me_model__brain_region__acronym__in: list[str] | None = Field(
         default=None, title='Me Model  Brain Region  Acronym  In'
+    )
+    me_model__brain_region__annotation_value: int | None = Field(
+        default=None, title='Me Model  Brain Region  Annotation Value'
+    )
+    me_model__brain_region__hierarchy_id: UUID | None = Field(
+        default=None, title='Me Model  Brain Region  Hierarchy Id'
     )
     me_model__species__name: str | None = Field(
         default=None, title='Me Model  Species  Name'
@@ -7349,6 +8955,12 @@ class ReadManySingleNeuronSimulationGetParametersQuery(BaseModel):
     )
     morphology__brain_region__acronym__in: list[str] | None = Field(
         default=None, title='Morphology  Brain Region  Acronym  In'
+    )
+    morphology__brain_region__annotation_value: int | None = Field(
+        default=None, title='Morphology  Brain Region  Annotation Value'
+    )
+    morphology__brain_region__hierarchy_id: UUID | None = Field(
+        default=None, title='Morphology  Brain Region  Hierarchy Id'
     )
     morphology__subject__name: str | None = Field(
         default=None, title='Morphology  Subject  Name'
@@ -7453,6 +9065,12 @@ class ReadManySingleNeuronSimulationGetParametersQuery(BaseModel):
     emodel__brain_region__acronym__in: list[str] | None = Field(
         default=None, title='Emodel  Brain Region  Acronym  In'
     )
+    emodel__brain_region__annotation_value: int | None = Field(
+        default=None, title='Emodel  Brain Region  Annotation Value'
+    )
+    emodel__brain_region__hierarchy_id: UUID | None = Field(
+        default=None, title='Emodel  Brain Region  Hierarchy Id'
+    )
     emodel__mtype__pref_label: str | None = Field(
         default=None, title='Emodel  Mtype  Pref Label'
     )
@@ -7529,6 +9147,9 @@ class ReadManySingleNeuronSimulationGetParametersQuery(BaseModel):
     )
     within_brain_region_ascendants: bool = Field(
         default=False, title='Within Brain Region Ascendants'
+    )
+    within_brain_region_direction: WithinBrainRegionDirection | None = Field(
+        default=None, title='Within Brain Region Direction'
     )
     with_facets: bool = Field(default=False, title='With Facets')
 
@@ -7575,6 +9196,12 @@ class ReadManySingleNeuronSynaptomeGetParametersQuery(BaseModel):
     brain_region__acronym__in: list[str] | None = Field(
         default=None, title='Brain Region  Acronym  In'
     )
+    brain_region__annotation_value: int | None = Field(
+        default=None, title='Brain Region  Annotation Value'
+    )
+    brain_region__hierarchy_id: UUID | None = Field(
+        default=None, title='Brain Region  Hierarchy Id'
+    )
     contribution__pref_label: str | None = Field(
         default=None, title='Contribution  Pref Label'
     )
@@ -7601,6 +9228,22 @@ class ReadManySingleNeuronSynaptomeGetParametersQuery(BaseModel):
     created_by__id__in: list[UUID] | None = Field(
         default=None, title='Created By  Id  In'
     )
+    created_by__given_name: str | None = Field(
+        default=None, title='Created By  Given Name'
+    )
+    created_by__given_name__ilike: str | None = Field(
+        default=None, title='Created By  Given Name  Ilike'
+    )
+    created_by__family_name: str | None = Field(
+        default=None, title='Created By  Family Name'
+    )
+    created_by__family_name__ilike: str | None = Field(
+        default=None, title='Created By  Family Name  Ilike'
+    )
+    created_by__sub_id: UUID | None = Field(default=None, title='Created By  Sub Id')
+    created_by__sub_id__in: list[UUID] | None = Field(
+        default=None, title='Created By  Sub Id  In'
+    )
     updated_by__pref_label: str | None = Field(
         default=None, title='Updated By  Pref Label'
     )
@@ -7613,6 +9256,22 @@ class ReadManySingleNeuronSynaptomeGetParametersQuery(BaseModel):
     updated_by__id: UUID | None = Field(default=None, title='Updated By  Id')
     updated_by__id__in: list[UUID] | None = Field(
         default=None, title='Updated By  Id  In'
+    )
+    updated_by__given_name: str | None = Field(
+        default=None, title='Updated By  Given Name'
+    )
+    updated_by__given_name__ilike: str | None = Field(
+        default=None, title='Updated By  Given Name  Ilike'
+    )
+    updated_by__family_name: str | None = Field(
+        default=None, title='Updated By  Family Name'
+    )
+    updated_by__family_name__ilike: str | None = Field(
+        default=None, title='Updated By  Family Name  Ilike'
+    )
+    updated_by__sub_id: UUID | None = Field(default=None, title='Updated By  Sub Id')
+    updated_by__sub_id__in: list[UUID] | None = Field(
+        default=None, title='Updated By  Sub Id  In'
     )
     me_model__name: str | None = Field(default=None, title='Me Model  Name')
     me_model__name__in: list[str] | None = Field(
@@ -7646,6 +9305,12 @@ class ReadManySingleNeuronSynaptomeGetParametersQuery(BaseModel):
     )
     me_model__brain_region__acronym__in: list[str] | None = Field(
         default=None, title='Me Model  Brain Region  Acronym  In'
+    )
+    me_model__brain_region__annotation_value: int | None = Field(
+        default=None, title='Me Model  Brain Region  Annotation Value'
+    )
+    me_model__brain_region__hierarchy_id: UUID | None = Field(
+        default=None, title='Me Model  Brain Region  Hierarchy Id'
     )
     me_model__species__name: str | None = Field(
         default=None, title='Me Model  Species  Name'
@@ -7712,6 +9377,12 @@ class ReadManySingleNeuronSynaptomeGetParametersQuery(BaseModel):
     )
     morphology__brain_region__acronym__in: list[str] | None = Field(
         default=None, title='Morphology  Brain Region  Acronym  In'
+    )
+    morphology__brain_region__annotation_value: int | None = Field(
+        default=None, title='Morphology  Brain Region  Annotation Value'
+    )
+    morphology__brain_region__hierarchy_id: UUID | None = Field(
+        default=None, title='Morphology  Brain Region  Hierarchy Id'
     )
     morphology__subject__name: str | None = Field(
         default=None, title='Morphology  Subject  Name'
@@ -7816,6 +9487,12 @@ class ReadManySingleNeuronSynaptomeGetParametersQuery(BaseModel):
     emodel__brain_region__acronym__in: list[str] | None = Field(
         default=None, title='Emodel  Brain Region  Acronym  In'
     )
+    emodel__brain_region__annotation_value: int | None = Field(
+        default=None, title='Emodel  Brain Region  Annotation Value'
+    )
+    emodel__brain_region__hierarchy_id: UUID | None = Field(
+        default=None, title='Emodel  Brain Region  Hierarchy Id'
+    )
     emodel__mtype__pref_label: str | None = Field(
         default=None, title='Emodel  Mtype  Pref Label'
     )
@@ -7892,6 +9569,9 @@ class ReadManySingleNeuronSynaptomeGetParametersQuery(BaseModel):
     )
     within_brain_region_ascendants: bool = Field(
         default=False, title='Within Brain Region Ascendants'
+    )
+    within_brain_region_direction: WithinBrainRegionDirection | None = Field(
+        default=None, title='Within Brain Region Direction'
     )
     with_facets: bool = Field(default=False, title='With Facets')
 
@@ -7939,6 +9619,12 @@ class ReadManySingleNeuronSynaptomeSimulationGetParametersQuery(BaseModel):
     brain_region__acronym__in: list[str] | None = Field(
         default=None, title='Brain Region  Acronym  In'
     )
+    brain_region__annotation_value: int | None = Field(
+        default=None, title='Brain Region  Annotation Value'
+    )
+    brain_region__hierarchy_id: UUID | None = Field(
+        default=None, title='Brain Region  Hierarchy Id'
+    )
     contribution__pref_label: str | None = Field(
         default=None, title='Contribution  Pref Label'
     )
@@ -7965,6 +9651,22 @@ class ReadManySingleNeuronSynaptomeSimulationGetParametersQuery(BaseModel):
     created_by__id__in: list[UUID] | None = Field(
         default=None, title='Created By  Id  In'
     )
+    created_by__given_name: str | None = Field(
+        default=None, title='Created By  Given Name'
+    )
+    created_by__given_name__ilike: str | None = Field(
+        default=None, title='Created By  Given Name  Ilike'
+    )
+    created_by__family_name: str | None = Field(
+        default=None, title='Created By  Family Name'
+    )
+    created_by__family_name__ilike: str | None = Field(
+        default=None, title='Created By  Family Name  Ilike'
+    )
+    created_by__sub_id: UUID | None = Field(default=None, title='Created By  Sub Id')
+    created_by__sub_id__in: list[UUID] | None = Field(
+        default=None, title='Created By  Sub Id  In'
+    )
     updated_by__pref_label: str | None = Field(
         default=None, title='Updated By  Pref Label'
     )
@@ -7977,6 +9679,22 @@ class ReadManySingleNeuronSynaptomeSimulationGetParametersQuery(BaseModel):
     updated_by__id: UUID | None = Field(default=None, title='Updated By  Id')
     updated_by__id__in: list[UUID] | None = Field(
         default=None, title='Updated By  Id  In'
+    )
+    updated_by__given_name: str | None = Field(
+        default=None, title='Updated By  Given Name'
+    )
+    updated_by__given_name__ilike: str | None = Field(
+        default=None, title='Updated By  Given Name  Ilike'
+    )
+    updated_by__family_name: str | None = Field(
+        default=None, title='Updated By  Family Name'
+    )
+    updated_by__family_name__ilike: str | None = Field(
+        default=None, title='Updated By  Family Name  Ilike'
+    )
+    updated_by__sub_id: UUID | None = Field(default=None, title='Updated By  Sub Id')
+    updated_by__sub_id__in: list[UUID] | None = Field(
+        default=None, title='Updated By  Sub Id  In'
     )
     synaptome__name: str | None = Field(default=None, title='Synaptome  Name')
     synaptome__name__in: list[str] | None = Field(
@@ -8009,6 +9727,12 @@ class ReadManySingleNeuronSynaptomeSimulationGetParametersQuery(BaseModel):
     )
     synaptome__brain_region__acronym__in: list[str] | None = Field(
         default=None, title='Synaptome  Brain Region  Acronym  In'
+    )
+    synaptome__brain_region__annotation_value: int | None = Field(
+        default=None, title='Synaptome  Brain Region  Annotation Value'
+    )
+    synaptome__brain_region__hierarchy_id: UUID | None = Field(
+        default=None, title='Synaptome  Brain Region  Hierarchy Id'
     )
     synaptome__me_model__name: str | None = Field(
         default=None, title='Synaptome  Me Model  Name'
@@ -8048,6 +9772,12 @@ class ReadManySingleNeuronSynaptomeSimulationGetParametersQuery(BaseModel):
     )
     me_model__brain_region__acronym__in: list[str] | None = Field(
         default=None, title='Me Model  Brain Region  Acronym  In'
+    )
+    me_model__brain_region__annotation_value: int | None = Field(
+        default=None, title='Me Model  Brain Region  Annotation Value'
+    )
+    me_model__brain_region__hierarchy_id: UUID | None = Field(
+        default=None, title='Me Model  Brain Region  Hierarchy Id'
     )
     me_model__species__name: str | None = Field(
         default=None, title='Me Model  Species  Name'
@@ -8114,6 +9844,12 @@ class ReadManySingleNeuronSynaptomeSimulationGetParametersQuery(BaseModel):
     )
     morphology__brain_region__acronym__in: list[str] | None = Field(
         default=None, title='Morphology  Brain Region  Acronym  In'
+    )
+    morphology__brain_region__annotation_value: int | None = Field(
+        default=None, title='Morphology  Brain Region  Annotation Value'
+    )
+    morphology__brain_region__hierarchy_id: UUID | None = Field(
+        default=None, title='Morphology  Brain Region  Hierarchy Id'
     )
     morphology__subject__name: str | None = Field(
         default=None, title='Morphology  Subject  Name'
@@ -8218,6 +9954,12 @@ class ReadManySingleNeuronSynaptomeSimulationGetParametersQuery(BaseModel):
     emodel__brain_region__acronym__in: list[str] | None = Field(
         default=None, title='Emodel  Brain Region  Acronym  In'
     )
+    emodel__brain_region__annotation_value: int | None = Field(
+        default=None, title='Emodel  Brain Region  Annotation Value'
+    )
+    emodel__brain_region__hierarchy_id: UUID | None = Field(
+        default=None, title='Emodel  Brain Region  Hierarchy Id'
+    )
     emodel__mtype__pref_label: str | None = Field(
         default=None, title='Emodel  Mtype  Pref Label'
     )
@@ -8295,6 +10037,9 @@ class ReadManySingleNeuronSynaptomeSimulationGetParametersQuery(BaseModel):
     within_brain_region_ascendants: bool = Field(
         default=False, title='Within Brain Region Ascendants'
     )
+    within_brain_region_direction: WithinBrainRegionDirection | None = Field(
+        default=None, title='Within Brain Region Direction'
+    )
     with_facets: bool = Field(default=False, title='With Facets')
 
 
@@ -8333,6 +10078,22 @@ class ReadManySpeciesGetParametersQuery(BaseModel):
     created_by__id__in: list[UUID] | None = Field(
         default=None, title='Created By  Id  In'
     )
+    created_by__given_name: str | None = Field(
+        default=None, title='Created By  Given Name'
+    )
+    created_by__given_name__ilike: str | None = Field(
+        default=None, title='Created By  Given Name  Ilike'
+    )
+    created_by__family_name: str | None = Field(
+        default=None, title='Created By  Family Name'
+    )
+    created_by__family_name__ilike: str | None = Field(
+        default=None, title='Created By  Family Name  Ilike'
+    )
+    created_by__sub_id: UUID | None = Field(default=None, title='Created By  Sub Id')
+    created_by__sub_id__in: list[UUID] | None = Field(
+        default=None, title='Created By  Sub Id  In'
+    )
     updated_by__pref_label: str | None = Field(
         default=None, title='Updated By  Pref Label'
     )
@@ -8345,6 +10106,22 @@ class ReadManySpeciesGetParametersQuery(BaseModel):
     updated_by__id: UUID | None = Field(default=None, title='Updated By  Id')
     updated_by__id__in: list[UUID] | None = Field(
         default=None, title='Updated By  Id  In'
+    )
+    updated_by__given_name: str | None = Field(
+        default=None, title='Updated By  Given Name'
+    )
+    updated_by__given_name__ilike: str | None = Field(
+        default=None, title='Updated By  Given Name  Ilike'
+    )
+    updated_by__family_name: str | None = Field(
+        default=None, title='Updated By  Family Name'
+    )
+    updated_by__family_name__ilike: str | None = Field(
+        default=None, title='Updated By  Family Name  Ilike'
+    )
+    updated_by__sub_id: UUID | None = Field(default=None, title='Updated By  Sub Id')
+    updated_by__sub_id__in: list[UUID] | None = Field(
+        default=None, title='Updated By  Sub Id  In'
     )
 
 
@@ -8414,6 +10191,22 @@ class ReadManySubjectGetParametersQuery(BaseModel):
     created_by__id__in: list[UUID] | None = Field(
         default=None, title='Created By  Id  In'
     )
+    created_by__given_name: str | None = Field(
+        default=None, title='Created By  Given Name'
+    )
+    created_by__given_name__ilike: str | None = Field(
+        default=None, title='Created By  Given Name  Ilike'
+    )
+    created_by__family_name: str | None = Field(
+        default=None, title='Created By  Family Name'
+    )
+    created_by__family_name__ilike: str | None = Field(
+        default=None, title='Created By  Family Name  Ilike'
+    )
+    created_by__sub_id: UUID | None = Field(default=None, title='Created By  Sub Id')
+    created_by__sub_id__in: list[UUID] | None = Field(
+        default=None, title='Created By  Sub Id  In'
+    )
     updated_by__pref_label: str | None = Field(
         default=None, title='Updated By  Pref Label'
     )
@@ -8426,6 +10219,22 @@ class ReadManySubjectGetParametersQuery(BaseModel):
     updated_by__id: UUID | None = Field(default=None, title='Updated By  Id')
     updated_by__id__in: list[UUID] | None = Field(
         default=None, title='Updated By  Id  In'
+    )
+    updated_by__given_name: str | None = Field(
+        default=None, title='Updated By  Given Name'
+    )
+    updated_by__given_name__ilike: str | None = Field(
+        default=None, title='Updated By  Given Name  Ilike'
+    )
+    updated_by__family_name: str | None = Field(
+        default=None, title='Updated By  Family Name'
+    )
+    updated_by__family_name__ilike: str | None = Field(
+        default=None, title='Updated By  Family Name  Ilike'
+    )
+    updated_by__sub_id: UUID | None = Field(default=None, title='Updated By  Sub Id')
+    updated_by__sub_id__in: list[UUID] | None = Field(
+        default=None, title='Updated By  Sub Id  In'
     )
     search: str | None = Field(default=None, title='Search')
     with_facets: bool = Field(default=False, title='With Facets')
@@ -8487,6 +10296,22 @@ class ReadManyValidationResultGetParametersQuery(BaseModel):
     created_by__id__in: list[UUID] | None = Field(
         default=None, title='Created By  Id  In'
     )
+    created_by__given_name: str | None = Field(
+        default=None, title='Created By  Given Name'
+    )
+    created_by__given_name__ilike: str | None = Field(
+        default=None, title='Created By  Given Name  Ilike'
+    )
+    created_by__family_name: str | None = Field(
+        default=None, title='Created By  Family Name'
+    )
+    created_by__family_name__ilike: str | None = Field(
+        default=None, title='Created By  Family Name  Ilike'
+    )
+    created_by__sub_id: UUID | None = Field(default=None, title='Created By  Sub Id')
+    created_by__sub_id__in: list[UUID] | None = Field(
+        default=None, title='Created By  Sub Id  In'
+    )
     updated_by__pref_label: str | None = Field(
         default=None, title='Updated By  Pref Label'
     )
@@ -8500,6 +10325,22 @@ class ReadManyValidationResultGetParametersQuery(BaseModel):
     updated_by__id__in: list[UUID] | None = Field(
         default=None, title='Updated By  Id  In'
     )
+    updated_by__given_name: str | None = Field(
+        default=None, title='Updated By  Given Name'
+    )
+    updated_by__given_name__ilike: str | None = Field(
+        default=None, title='Updated By  Given Name  Ilike'
+    )
+    updated_by__family_name: str | None = Field(
+        default=None, title='Updated By  Family Name'
+    )
+    updated_by__family_name__ilike: str | None = Field(
+        default=None, title='Updated By  Family Name  Ilike'
+    )
+    updated_by__sub_id: UUID | None = Field(default=None, title='Updated By  Sub Id')
+    updated_by__sub_id__in: list[UUID] | None = Field(
+        default=None, title='Updated By  Sub Id  In'
+    )
     search: str | None = Field(default=None, title='Search')
     with_facets: bool = Field(default=False, title='With Facets')
     within_brain_region_hierarchy_id: UUID | None = Field(
@@ -8510,6 +10351,9 @@ class ReadManyValidationResultGetParametersQuery(BaseModel):
     )
     within_brain_region_ascendants: bool = Field(
         default=False, title='Within Brain Region Ascendants'
+    )
+    within_brain_region_direction: WithinBrainRegionDirection | None = Field(
+        default=None, title='Within Brain Region Direction'
     )
 
 
