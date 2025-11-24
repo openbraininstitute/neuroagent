@@ -1,0 +1,14 @@
+[
+  {
+    "name": "entitycore-brainregion-getall",
+    "arguments": {
+      "semantic_search": "cortex"
+    }
+  },
+  {
+    "name": "entitycore-cellmorphology-getall",
+    "arguments": {
+      "within_brain_region_brain_region_id": "abe63c70-1eb0-4b42-9421-d2c914ecb493"
+    }
+  }
+]

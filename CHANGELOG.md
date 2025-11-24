@@ -10,6 +10,131 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Support for predefined nodesets in smc simulation config.
 
+### Changed
+- Use `within_brain_region_direction=ascendants_and_descendants` in every applicable tool.
+
+## [0.12.3] - 20.11.2025
+
+### Fixed
+- Properly wait for python subprocess to finish before stdout parsing.
+
+## [0.12.2] - 20.11.2025
+
+### Fixed
+- Python plotting.
+
+## [0.12.1] - 20.11.2025
+
+### Changed
+- Modified model routings.
+
+## [0.12.0] - 20.11.2025
+
+### Added
+- Auto model routing.
+- New test cases for morphology in br.
+- Rule to understand private entities.
+- Issue templates.
+- Guardrails against off topic queries.
+
+### Changed
+- Exa tools no longer MCP.
+
+## [v0.11.5] - 6.11.2025
+
+### Fixed
+- Deterministic order of eval columns.
+
+### Changed
+- Base class for excluded parameters.
+- Resolving of asset/hierarchy id within tools.
+- Plot through python + plotly.
+
+## [v0.11.4] - 4.11.2025
+
+### Fixed
+- Don't turn `None` into `{}` in connectivity tool
+
+### Added
+- Code generation tool (Context7 MCP server)
+
+## [v0.11.3] - 3.11.2025
+
+### Fixed
+- frontend link in ion channel recording tool.
+- Allow null inputs in connectivity tool.
+
+## [v0.11.2] - 3.11.2025
+
+### Fixed
+- Connectitivity tool url
+
+## [v0.11.1] - 31.10.2025
+
+### Fixed
+- Ion Channel Model return class.
+
+## [v0.11.0] - 31.10.2025
+
+### Added
+- More evaluation cases.
+- Filtering logic in `neuroagent.scripts.evaluate_agent`.
+- Ion channel related tools.
+- Circuit connectivity metrics tool
+
+### Fixed
+- Some prompt engineering.
+- Output class of circuit population tool.
+- Prevent the LLM from talking about the UI.
+- Tool argument correctness metric.
+- Fix brain region get all for new hierarchy.
+- Images not appearing in Literature search (Prompt refactor).
+- Update uv lock package.
+
+### Changed
+- Running deepeval github action also on main
+- Use typescript autogen for backend types in frontend.
+- Try to enforce using metric tools rather than downloading assets.
+- Rule to avoid overvalidating.
+
+## [v0.10.0] - 2.10.2025
+
+### Fixed
+- Remove `stream.py` and assume connections are not closed on return.
+- `url_link` in tools that retrieve explore data.
+
+### Changed
+- Made the context analyzer an url analyzer instead.
+
+## [v0.9.4] - 01.10.2025
+
+### Changed
+- Hardocded minimal Deno version in Dockerfile.
+
+## [v0.9.3] - 30.09.2025
+
+### Added
+- Possibility to change the OpenAI SDK base url via an env var.
+
+### Fixed
+- Remove `sonata_asset_id` from circuit analysis tool dependency.
+- Switch to Flash models for tool selection.
+
+
+## [v0.9.2] - 25.09.2025
+
+### Added
+- Circuit population analysis tool.
+
+### Fixed
+- Endpoint names in entitycore.
+- Question suggestion return only one when not in chat.
+
+## [v0.9.1] - 24.09.2025
+
+### Added
+- More options to pass to the Redis client
+
 ## [v0.9.0] - 23.09.2025
 
 ### Added

@@ -1,0 +1,14 @@
+[
+  {
+    "name": "entitycore-brainregion-getall",
+    "arguments": {
+      "semantic_search": "hippocampus"
+    }
+  },
+  {
+    "name": "entitycore-cellmorphology-getall",
+    "arguments": {
+      "within_brain_region_brain_region_id": "08f3ff18-88db-48cc-bac5-d58c2fd16ec8"
+    }
+  }
+]

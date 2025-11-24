@@ -32,24 +32,15 @@ class CircuitGetOneTool(BaseTool):
     ]
     description: ClassVar[
         str
-    ] = """Retrieves detailed information about a specific circuit from the knowledge graph.
-    Requires a 'circuit_id' which is the ID of the circuit of interest as registered in the knowledge graph.
-    The output contains detailed information about the circuit, including:
-    - The circuit ID and basic identifiers
-    - Core circuit information and properties
-    - Status and state information
-    - Associated metadata and relationships
-    - Creation and modification timestamps
-    - Creation and update dates
+    ] = """Get basic circuit metadata (name, ID, status, timestamps).
+    
+    Use this for basic circuit info only. For detailed analysis, use:
+    - `obione-circuitmetrics-getone` - circuit structure and properties
+    - `obione-circuitconnectivitymetrics-getone` - connectivity patterns
     """
-    description_frontend: ClassVar[
-        str
-    ] = """Get detailed information about a specific circuit. Use this tool to:
-    • View complete circuit details
-    • Access detailed circuit information
-    • Get creation and update information
-
-    Specify the circuit ID to retrieve its full details."""
+    description_frontend: ClassVar[str] = (
+        """Get basic circuit metadata (name, ID, status, timestamps)."""
+    )
     metadata: EntitycoreMetadata
     input_schema: CircuitGetOneInput
 
@@ -75,7 +66,12 @@ class CircuitGetOneTool(BaseTool):
             raise ValueError(
                 f"The circuit endpoint returned a non 200 response code. Error: {response.text}"
             )
-        return CircuitRead(**response.json())
+
+        response_data = response.json()
+        response_data["url_link"] = (
+            self.metadata.entity_frontend_url + "/" + response_data["id"]
+        )
+        return CircuitRead(**response_data)
 
     @classmethod
     async def is_online(cls, *, httpx_client: AsyncClient, entitycore_url: str) -> bool:

@@ -11,7 +11,7 @@ from fastapi.exceptions import HTTPException
 from pydantic import BaseModel, Field
 
 from neuroagent.app.app_utils import (
-    filter_tools_by_conversation,
+    filter_tools_and_model_by_conversation,
     format_messages_output,
     format_messages_vercel,
     parse_redis_data,
@@ -572,13 +572,23 @@ def test_various_limit_values(sample_redis_info, limit_value):
 @pytest.mark.asyncio
 async def test_filter_tools_empty_tool_list():
     """Test that empty tool list returns empty list"""
-    result = await filter_tools_by_conversation(
-        messages=[],
+    settings = Settings()
+    messages = [
+        Messages(
+            entity=Entity.USER,
+            content=json.dumps({"role": "user", "content": "Hello"}),
+            thread_id=UUID("12345678-9123-4567-1234-890123456789"),
+            is_complete=True,
+        )
+    ]
+    result, model_dict = await filter_tools_and_model_by_conversation(
+        messages=messages,
         tool_list=[],
         openai_client=AsyncMock(),
-        min_tool_selection=1,
+        settings=settings,
     )
     assert result == []
+    assert "model" in model_dict
 
 
 @pytest.mark.asyncio
@@ -590,16 +600,21 @@ async def test_filter_tools_successful_selection(get_weather_tool, agent_handoff
     class ToolFiltering(BaseModel):
         """Data class for tool selection by an LLM."""
 
-        selected_tools: list[Literal["agent_handoff_tool", "get_weather_tool"]] = Field(
+        selected_tools: list[Literal["agent_handoff_tool", "get_weather"]] = Field(
             min_length=1,
             description="List of selected tool names, minimum 1 items. Must contain all of the tools relevant to the conversation.",
+        )
+        complexity: int = Field(
+            ge=0,
+            le=10,
+            description="Complexity of the query on a scale from 0 to 10.",
         )
 
     mock_openai_client.set_response(
         create_mock_response(
             {"role": "assistant", "content": ""},
             structured_output_class=ToolFiltering(
-                selected_tools=["agent_handoff_tool"]
+                selected_tools=["agent_handoff_tool"], complexity=5
             ),
         )
     )
@@ -626,6 +641,7 @@ async def test_filter_tools_successful_selection(get_weather_tool, agent_handoff
         ),
     ]
 
+    settings = Settings(tools={"min_tool_selection": 1})
     with patch(
         "neuroagent.app.app_utils.get_token_count",
         lambda *args, **kargs: {
@@ -634,12 +650,139 @@ async def test_filter_tools_successful_selection(get_weather_tool, agent_handoff
             "completion": None,
         },
     ):
-        result = await filter_tools_by_conversation(
+        tools, model_dict = await filter_tools_and_model_by_conversation(
             messages=messages,
             tool_list=[get_weather_tool, agent_handoff_tool],
             openai_client=mock_openai_client,
-            min_tool_selection=1,
+            settings=settings,
+        )
+
+    assert len(tools) == 1
+    assert tools[0].name == "agent_handoff_tool"
+    assert model_dict["model"] == "openai/gpt-5-mini"
+    assert model_dict["reasoning"] == "low"
+
+
+@pytest.mark.asyncio
+async def test_filter_tools_with_selected_model(get_weather_tool, agent_handoff_tool):
+    """Test tool filtering when model is pre-selected"""
+    mock_openai_client = MockOpenAIClient()
+
+    class ToolFiltering(BaseModel):
+        selected_tools: list[Literal["agent_handoff_tool", "get_weather"]] = Field(
+            min_length=1,
+            description="List of selected tool names.",
+        )
+
+    mock_openai_client.set_response(
+        create_mock_response(
+            {"role": "assistant", "content": ""},
+            structured_output_class=ToolFiltering(selected_tools=["get_weather"]),
+        )
+    )
+    messages = [
+        Messages(
+            entity=Entity.USER,
+            content=json.dumps({"role": "user", "content": "What's the weather?"}),
+            thread_id=UUID("12345678-9123-4567-1234-890123456789"),
+            is_complete=True,
+        )
+    ]
+
+    settings = Settings(tools={"min_tool_selection": 1})
+    with patch(
+        "neuroagent.app.app_utils.get_token_count",
+        lambda *args, **kargs: {
+            "input_cached": None,
+            "input_noncached": None,
+            "completion": None,
+        },
+    ):
+        result, model_dict = await filter_tools_and_model_by_conversation(
+            messages=messages,
+            tool_list=[get_weather_tool, agent_handoff_tool],
+            openai_client=mock_openai_client,
+            settings=settings,
+            selected_model="openai/gpt-4",
         )
 
     assert len(result) == 1
-    assert result[0].name == "agent_handoff_tool"
+    assert result[0].name == "get_weather"
+    assert model_dict["model"] == "openai/gpt-4"
+    assert model_dict["reasoning"] is None
+
+
+@pytest.mark.asyncio
+async def test_filter_tools_no_selection_needed(get_weather_tool):
+    """Test when neither tool nor model selection is needed"""
+    messages = [
+        Messages(
+            entity=Entity.USER,
+            content=json.dumps({"role": "user", "content": "Hello"}),
+            thread_id=UUID("12345678-9123-4567-1234-890123456789"),
+            is_complete=True,
+        )
+    ]
+
+    settings = Settings(tools={"min_tool_selection": 5})
+    result, model_dict = await filter_tools_and_model_by_conversation(
+        messages=messages,
+        tool_list=[get_weather_tool],
+        openai_client=AsyncMock(),
+        settings=settings,
+        selected_model="openai/gpt-4",
+    )
+
+    assert len(result) == 1
+    assert result[0].name == "get_weather"
+    assert model_dict["model"] == "openai/gpt-4"
+    assert model_dict["reasoning"] is None
+
+
+@pytest.mark.asyncio
+async def test_filter_tools_only_model_selection(get_weather_tool):
+    """Test when only model selection is needed"""
+    mock_openai_client = MockOpenAIClient()
+
+    class ComplexityFiltering(BaseModel):
+        complexity: int = Field(
+            ge=0,
+            le=10,
+            description="Complexity of the query.",
+        )
+
+    mock_openai_client.set_response(
+        create_mock_response(
+            {"role": "assistant", "content": ""},
+            structured_output_class=ComplexityFiltering(complexity=7),
+        )
+    )
+    messages = [
+        Messages(
+            entity=Entity.USER,
+            content=json.dumps({"role": "user", "content": "Complex query"}),
+            thread_id=UUID("12345678-9123-4567-1234-890123456789"),
+            is_complete=True,
+        )
+    ]
+
+    settings = Settings()
+    with patch(
+        "neuroagent.app.app_utils.get_token_count",
+        lambda *args, **kargs: {
+            "input_cached": None,
+            "input_noncached": None,
+            "completion": None,
+        },
+    ):
+        result, model_dict = await filter_tools_and_model_by_conversation(
+            messages=messages,
+            tool_list=[get_weather_tool],
+            openai_client=mock_openai_client,
+            settings=settings,
+        )
+
+    assert len(result) == 1
+    assert result[0].name == "get_weather"
+    assert model_dict["model"] == "openai/gpt-5-mini"
+    assert model_dict["reasoning"] == "medium"

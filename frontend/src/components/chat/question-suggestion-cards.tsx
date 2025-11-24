@@ -1,9 +1,9 @@
 import React from "react";
 import { Card } from "@/components/ui/card";
-import { SuggestedQuestions } from "@/lib/types";
+import { BQuestionsSuggestions } from "@/lib/types";
 
 type QuestionSuggestionCardsProps = {
-  suggestions: SuggestedQuestions | null;
+  suggestions: BQuestionsSuggestions | null;
   onSubmit: (suggestionInput?: string) => void;
 };
 
@@ -14,16 +14,14 @@ const defaultQuestions = {
         "Show me papers about neuron morphologies in the thalamus of rodents",
     },
     {
-      question:
-        "Show me papers about intracellular patch clamp data for the thalamus of rodents",
+      question: "Make me 5 SIMPLE random plots.",
+    },
+    {
+      question: "Plot me 3 morphologies from the Thalamus",
     },
     {
       question:
-        "Show me papers comparing cell morphologies between neurons in the thalamus of rodents",
-    },
-    {
-      question:
-        "Show me papers about experimental electrophysiology data for the thalamus of rodents",
+        "What are some recent studies on neuron morphology in the cerebrum?",
     },
   ],
 };
@@ -33,7 +31,7 @@ export default function QuestionSuggestionCards({
   onSubmit,
 }: QuestionSuggestionCardsProps) {
   const suggestionsMap =
-    suggestions !== null
+    suggestions !== null && suggestions.suggestions !== undefined
       ? {
           suggestions: [
             ...defaultQuestions.suggestions.slice(0, -1),

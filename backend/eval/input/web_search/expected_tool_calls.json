@@ -1,0 +1,9 @@
+[
+  {
+    "name": "web-search-tool",
+    "arguments": {
+      "query": "NEURON simulation software",
+      "num_results": 5
+    }
+  }
+]
