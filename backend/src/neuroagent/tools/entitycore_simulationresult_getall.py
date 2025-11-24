@@ -76,6 +76,9 @@ class SimulationResultGetAllTool(BaseTool):
         """
         query_params = self.input_schema.model_dump(exclude_defaults=True, mode="json")
         query_params["page_size"] = self.input_schema.page_size
+        query_params["within_brain_region_direction"] = (
+            self.input_schema.within_brain_region_direction.root
+        )
 
         headers: dict[str, str] = {}
         if self.metadata.vlab_id is not None:
