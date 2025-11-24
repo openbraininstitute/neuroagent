@@ -35,7 +35,8 @@ class SingleNeuronSynaptomeGetAllInput(
     within_brain_region_direction: Literal[
         "ascendants", "descendants", "ascendants_and_descendants"
     ] = Field(  # type: ignore[assignment]
-        default="ascendants_and_descendants", title="Within Brain Region Direction"
+        default="ascendants_and_descendants",
+        description="Controls whether to search in parent regions (ascendants), child regions (descendants), or both when filtering by brain region.",
     )
 
 
