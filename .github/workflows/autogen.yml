@@ -37,11 +37,13 @@ jobs:
           )
 
           for service in "${!SERVICES[@]}"; do
-              # Set extra-fields parameter based on service
+              # Set parameters based on service
               if [[ "$service" == "obi-one" ]]; then
                   extra_fields="ignore"
+                  collapse_flag=""
               else
                   extra_fields="allow"
+                  collapse_flag="--collapse-root-models"
               fi
 
               datamodel-codegen \
@@ -57,6 +59,7 @@ jobs:
                 --use-default-kwarg \
                 --use-operation-id-as-name \
                 --extra-fields=$extra_fields \
+                $collapse_flag \
                 --disable-timestamp \
                 --strict-nullable \
                 --url="https://staging.openbraininstitute.org/api/${service}/openapi.json" \
@@ -97,8 +100,10 @@ jobs:
                 if echo "$changed_files" | grep -q "${SERVICES[$service]}"; then
                     if [[ "$service" == "obi-one" ]]; then
                         extra_fields="ignore"
+                        collapse_flag=""
                     else
                         extra_fields="allow"
+                        collapse_flag="--collapse-root-models"
                     fi
 
                     echo "# For ${SERVICES[$service]}:"
@@ -115,6 +120,9 @@ jobs:
                     echo "  --use-default-kwarg \\"
                     echo "  --use-operation-id-as-name \\"
                     echo "  --extra-fields=$extra_fields \\"
+                    if [[ -n "$collapse_flag" ]]; then
+                        echo "  $collapse_flag \\"
+                    fi
                     echo "  --disable-timestamp \\"
                     echo "  --strict-nullable \\"
                     echo "  --url=\"https://staging.openbraininstitute.org/api/${service}/openapi.json\" \\"

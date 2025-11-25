@@ -51,10 +51,6 @@ class ActivityType(
     ] = Field(..., description='Activity types.', title='ActivityType')
 
 
-class AgePeriod(RootModel[Literal['prenatal', 'postnatal', 'unknown']]):
-    root: Literal['prenatal', 'postnatal', 'unknown'] = Field(..., title='AgePeriod')
-
-
 class AnalysisNotebookExecutionCreate(BaseModel):
     model_config = ConfigDict(
         extra='allow',
@@ -93,14 +89,6 @@ class CountMax(RootModel[int]):
     root: int = Field(..., ge=0, title='Count Max')
 
 
-class AnalysisScale(RootModel[Literal['subcellular', 'cellular', 'circuit', 'system']]):
-    root: Literal['subcellular', 'cellular', 'circuit', 'system'] = Field(
-        ...,
-        description='Rough scale that an activity takes place in. Note: Not equal to CircuitScale.',
-        title='AnalysisScale',
-    )
-
-
 class AnnotationAdminUpdate(BaseModel):
     model_config = ConfigDict(
         extra='allow',
@@ -131,104 +119,20 @@ class AnnotationRead(BaseModel):
     definition: str = Field(..., title='Definition')
 
 
-class ApiErrorCode(
-    RootModel[
-        Literal[
-            'GENERIC_ERROR',
-            'NOT_AUTHENTICATED',
-            'NOT_AUTHORIZED',
-            'INVALID_REQUEST',
-            'ENTITY_NOT_FOUND',
-            'ENTITY_FORBIDDEN',
-            'ENTITY_DUPLICATED',
-            'ASSET_NOT_FOUND',
-            'ASSET_DUPLICATED',
-            'ASSET_INVALID_FILE',
-            'ASSET_MISSING_PATH',
-            'ASSET_INVALID_PATH',
-            'ASSET_NOT_A_DIRECTORY',
-            'ASSET_INVALID_SCHEMA',
-            'ASSET_INVALID_CONTENT_TYPE',
-            'ION_NAME_NOT_FOUND',
-            'S3_CANNOT_CREATE_PRESIGNED_URL',
-            'OPENAI_API_KEY_MISSING',
-            'OPENAI_API_ERROR',
-        ]
-    ]
-):
-    root: Literal[
-        'GENERIC_ERROR',
-        'NOT_AUTHENTICATED',
-        'NOT_AUTHORIZED',
-        'INVALID_REQUEST',
-        'ENTITY_NOT_FOUND',
-        'ENTITY_FORBIDDEN',
-        'ENTITY_DUPLICATED',
-        'ASSET_NOT_FOUND',
-        'ASSET_DUPLICATED',
-        'ASSET_INVALID_FILE',
-        'ASSET_MISSING_PATH',
-        'ASSET_INVALID_PATH',
-        'ASSET_NOT_A_DIRECTORY',
-        'ASSET_INVALID_SCHEMA',
-        'ASSET_INVALID_CONTENT_TYPE',
-        'ION_NAME_NOT_FOUND',
-        'S3_CANNOT_CREATE_PRESIGNED_URL',
-        'OPENAI_API_KEY_MISSING',
-        'OPENAI_API_ERROR',
-    ] = Field(..., description='API Error codes.', title='ApiErrorCode')
+class Author(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
+    given_name: str = Field(..., title='Given Name')
+    family_name: str = Field(..., title='Family Name')
 
 
-class AssetLabel(
-    RootModel[
-        Literal[
-            'morphology',
-            'morphology_with_spines',
-            'cell_composition_summary',
-            'cell_composition_volumes',
-            'single_neuron_synaptome_config',
-            'single_neuron_synaptome_simulation_data',
-            'single_neuron_simulation_data',
-            'sonata_circuit',
-            'compressed_sonata_circuit',
-            'circuit_figures',
-            'circuit_analysis_data',
-            'circuit_connectivity_matrices',
-            'nwb',
-            'neuron_hoc',
-            'emodel_optimization_output',
-            'sonata_simulation_config',
-            'simulation_generation_config',
-            'ion_channel_modeling_generation_config',
-            'custom_node_sets',
-            'campaign_generation_config',
-            'campaign_summary',
-            'replay_spikes',
-            'voltage_report',
-            'spike_report',
-            'neuron_mechanisms',
-            'brain_atlas_annotation',
-            'brain_atlas_region_mesh',
-            'voxel_densities',
-            'validation_result_figure',
-            'validation_result_details',
-            'simulation_designer_image',
-            'circuit_visualization',
-            'node_stats',
-            'network_stats_a',
-            'network_stats_b',
-            'cell_surface_mesh',
-            'jupyter_notebook',
-            'requirements',
-            'notebook_required_files',
-            'ion_channel_model_figure',
-            'ion_channel_model_figure_summary_json',
-            'ion_channel_model_thumbnail',
-            'circuit_extraction_config',
-        ]
-    ]
-):
-    root: Literal[
+class BodyUploadEntityAssetEntityRouteEntityIdAssetsPost(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
+    file: bytes = Field(..., title='File')
+    label: Literal[
         'morphology',
         'morphology_with_spines',
         'cell_composition_summary',
@@ -273,26 +177,6 @@ class AssetLabel(
         'ion_channel_model_thumbnail',
         'circuit_extraction_config',
     ] = Field(..., description='See docs/asset-labels.md.', title='AssetLabel')
-
-
-class AssetStatus(RootModel[Literal['created', 'deleted']]):
-    root: Literal['created', 'deleted'] = Field(..., title='AssetStatus')
-
-
-class Author(BaseModel):
-    model_config = ConfigDict(
-        extra='allow',
-    )
-    given_name: str = Field(..., title='Given Name')
-    family_name: str = Field(..., title='Family Name')
-
-
-class BodyUploadEntityAssetEntityRouteEntityIdAssetsPost(BaseModel):
-    model_config = ConfigDict(
-        extra='allow',
-    )
-    file: bytes = Field(..., title='File')
-    label: AssetLabel
     meta: dict[str, Any] | None = Field(default=None, title='Meta')
 
 
@@ -366,46 +250,6 @@ class CalibrationCreate(BaseModel):
     generated_ids: list[UUID] = Field(default=[], title='Generated Ids')
 
 
-class CellMorphologyGenerationType(
-    RootModel[
-        Literal[
-            'digital_reconstruction',
-            'modified_reconstruction',
-            'computationally_synthesized',
-            'placeholder',
-        ]
-    ]
-):
-    root: Literal[
-        'digital_reconstruction',
-        'modified_reconstruction',
-        'computationally_synthesized',
-        'placeholder',
-    ] = Field(..., title='CellMorphologyGenerationType')
-
-
-class CellMorphologyProtocolDesign(
-    RootModel[
-        Literal[
-            'electron_microscopy', 'cell_patch', 'fluorophore', 'topological_synthesis'
-        ]
-    ]
-):
-    root: Literal[
-        'electron_microscopy', 'cell_patch', 'fluorophore', 'topological_synthesis'
-    ] = Field(..., title='CellMorphologyProtocolDesign')
-
-
-class CircuitBuildCategory(
-    RootModel[Literal['computational_model', 'em_reconstruction']]
-):
-    root: Literal['computational_model', 'em_reconstruction'] = Field(
-        ...,
-        description='Information about how/from what source a circuit was built.\n\n- computational_model: Any type of data-driven or statistical model\n- em_reconstruction: Reconstruction from EM\n(More categories may be added later, if needed).',
-        title='CircuitBuildCategory',
-    )
-
-
 class CircuitExtractionCampaignCreate(BaseModel):
     model_config = ConfigDict(
         extra='allow',
@@ -453,30 +297,6 @@ class CircuitExtractionConfigUserUpdate(BaseModel):
     )
 
 
-class CircuitExtractionExecutionStatus(
-    RootModel[Literal['created', 'pending', 'running', 'done', 'error']]
-):
-    root: Literal['created', 'pending', 'running', 'done', 'error'] = Field(
-        ..., title='CircuitExtractionExecutionStatus'
-    )
-
-
-class CircuitScale(
-    RootModel[
-        Literal[
-            'single', 'pair', 'small', 'microcircuit', 'region', 'system', 'whole_brain'
-        ]
-    ]
-):
-    root: Literal[
-        'single', 'pair', 'small', 'microcircuit', 'region', 'system', 'whole_brain'
-    ] = Field(
-        ...,
-        description='Scale of the circuit.\n\n- single: Single neuron + extrinsic connectivity\n- pair: Two connected neurons + intrinsic connectivity + extrinsic connectivity\n- small: Small microcircuit (3-20 neurons) + intrinsic connectivity + extrinsic connectivity;\n  usually containing specific connectivity motifs\n- microcircuit: Any circuit larger than 20 neurons but not being a region, system, or\n  whole-brain circuit; may be atlas-based or not\n- region: Atlas-based continuous volume of an entire brain region or a set of continuous\n  sub-regions\n- system: Non-continuous circuit consisting of at least two microcircuits/regions that are\n  connected by inter-region connectivity\n- whole_brain: Circuit representing an entire brain.',
-        title='CircuitScale',
-    )
-
-
 class CircuitUserUpdate(BaseModel):
     model_config = ConfigDict(
         extra='allow',
@@ -513,9 +333,15 @@ class CircuitUserUpdate(BaseModel):
     number_connections: int | str | None = Field(
         default='<NOT_SET>', title='Number Connections'
     )
-    scale: CircuitScale | str | None = Field(default='<NOT_SET>', title='Scale')
-    build_category: CircuitBuildCategory | str | None = Field(
-        default='<NOT_SET>', title='Build Category'
+    scale: (
+        str
+        | Literal[
+            'single', 'pair', 'small', 'microcircuit', 'region', 'system', 'whole_brain'
+        ]
+        | None
+    ) = Field(default='<NOT_SET>', title='Scale')
+    build_category: str | Literal['computational_model', 'em_reconstruction'] | None = (
+        Field(default='<NOT_SET>', title='Build Category')
     )
     root_circuit_id: UUID | str | None = Field(
         default='<NOT_SET>', title='Root Circuit Id'
@@ -534,7 +360,9 @@ class ComputationallySynthesizedCellMorphologyProtocolCreate(BaseModel):
     protocol_document: ProtocolDocument | None = Field(
         default=None, title='Protocol Document'
     )
-    protocol_design: CellMorphologyProtocolDesign
+    protocol_design: Literal[
+        'electron_microscopy', 'cell_patch', 'fluorophore', 'topological_synthesis'
+    ] = Field(..., title='CellMorphologyProtocolDesign')
     authorized_public: bool = Field(default=False, title='Authorized Public')
     type: Literal['cell_morphology_protocol'] = Field(
         default='cell_morphology_protocol', title='Type'
@@ -554,56 +382,6 @@ class ConsortiumCreate(BaseModel):
     legacy_id: str | None = Field(default=None, title='Legacy Id')
 
 
-class ContentType(
-    RootModel[
-        Literal[
-            'application/json',
-            'application/swc',
-            'application/nrrd',
-            'application/obj',
-            'application/hoc',
-            'application/asc',
-            'application/abf',
-            'application/nwb',
-            'application/x-hdf5',
-            'text/plain',
-            'application/vnd.directory',
-            'application/mod',
-            'application/pdf',
-            'image/png',
-            'image/jpeg',
-            'model/gltf-binary',
-            'application/gzip',
-            'image/webp',
-            'application/x-ipynb+json',
-            'application/zip',
-        ]
-    ]
-):
-    root: Literal[
-        'application/json',
-        'application/swc',
-        'application/nrrd',
-        'application/obj',
-        'application/hoc',
-        'application/asc',
-        'application/abf',
-        'application/nwb',
-        'application/x-hdf5',
-        'text/plain',
-        'application/vnd.directory',
-        'application/mod',
-        'application/pdf',
-        'image/png',
-        'image/jpeg',
-        'model/gltf-binary',
-        'application/gzip',
-        'image/webp',
-        'application/x-ipynb+json',
-        'application/zip',
-    ] = Field(..., title='ContentType')
-
-
 class ContributionCreate(BaseModel):
     model_config = ConfigDict(
         extra='allow',
@@ -618,16 +396,6 @@ class DeleteResponse(BaseModel):
         extra='allow',
     )
     id: UUID = Field(..., title='Id')
-
-
-class DerivationType(
-    RootModel[Literal['circuit_extraction', 'circuit_rewiring', 'unspecified']]
-):
-    root: Literal['circuit_extraction', 'circuit_rewiring', 'unspecified'] = Field(
-        ...,
-        description='Represents the type of derivation relationship between two entities.\n\nAttributes:\n    circuit_extraction: Indicates that the entity was derived by extracting a set of nodes from\n     a circuit.\n    circuit_rewiring: Indicates that the entity was derived by rewiring the connectivity of\n      a circuit.\n    unspecified: Indicates a derivation that does not require a specific type.',
-        title='DerivationType',
-    )
 
 
 class DetailedFile(BaseModel):
@@ -661,7 +429,51 @@ class DirectoryUpload(BaseModel):
     directory_name: Path = Field(..., title='Directory Name')
     files: list[Path] = Field(..., title='Files')
     meta: dict[str, Any] | None = Field(..., title='Meta')
-    label: AssetLabel
+    label: Literal[
+        'morphology',
+        'morphology_with_spines',
+        'cell_composition_summary',
+        'cell_composition_volumes',
+        'single_neuron_synaptome_config',
+        'single_neuron_synaptome_simulation_data',
+        'single_neuron_simulation_data',
+        'sonata_circuit',
+        'compressed_sonata_circuit',
+        'circuit_figures',
+        'circuit_analysis_data',
+        'circuit_connectivity_matrices',
+        'nwb',
+        'neuron_hoc',
+        'emodel_optimization_output',
+        'sonata_simulation_config',
+        'simulation_generation_config',
+        'ion_channel_modeling_generation_config',
+        'custom_node_sets',
+        'campaign_generation_config',
+        'campaign_summary',
+        'replay_spikes',
+        'voltage_report',
+        'spike_report',
+        'neuron_mechanisms',
+        'brain_atlas_annotation',
+        'brain_atlas_region_mesh',
+        'voxel_densities',
+        'validation_result_figure',
+        'validation_result_details',
+        'simulation_designer_image',
+        'circuit_visualization',
+        'node_stats',
+        'network_stats_a',
+        'network_stats_b',
+        'cell_surface_mesh',
+        'jupyter_notebook',
+        'requirements',
+        'notebook_required_files',
+        'ion_channel_model_figure',
+        'ion_channel_model_figure_summary_json',
+        'ion_channel_model_thumbnail',
+        'circuit_extraction_config',
+    ] = Field(..., description='See docs/asset-labels.md.', title='AssetLabel')
 
 
 class DockerDependency(BaseModel):
@@ -708,22 +520,6 @@ class DockerRuntimeInfo(BaseModel):
     )
 
 
-class EMCellMeshGenerationMethod(RootModel[Literal['marching_cubes']]):
-    root: Literal['marching_cubes'] = Field(
-        ...,
-        description='The algorithm generating the mesh from a volume.\n\nmarching_cubes: The marching cubes algorithm.',
-        title='EMCellMeshGenerationMethod',
-    )
-
-
-class EMCellMeshType(RootModel[Literal['static', 'dynamic']]):
-    root: Literal['static', 'dynamic'] = Field(
-        ...,
-        description='How an EM cell mesh was created.\n\nstatic: The mesh was precomputed at a given level of detail.\ndynamic: The mesh was dynamically generated at query time.',
-        title='EMCellMeshType',
-    )
-
-
 class EMCellMeshUserUpdate(BaseModel):
     model_config = ConfigDict(
         extra='allow',
@@ -745,7 +541,7 @@ class EMCellMeshUserUpdate(BaseModel):
     dense_reconstruction_cell_id: int | str | None = Field(
         default='<NOT_SET>', title='Dense Reconstruction Cell Id'
     )
-    generation_method: EMCellMeshGenerationMethod | str | None = Field(
+    generation_method: str | Literal['marching_cubes'] | None = Field(
         default='<NOT_SET>', title='Generation Method'
     )
     level_of_detail: int | str | None = Field(
@@ -754,7 +550,7 @@ class EMCellMeshUserUpdate(BaseModel):
     generation_parameters: dict[str, Any] | str | None = Field(
         default='<NOT_SET>', title='Generation Parameters'
     )
-    mesh_type: EMCellMeshType | str | None = Field(
+    mesh_type: str | Literal['static', 'dynamic'] | None = Field(
         default='<NOT_SET>', title='Mesh Type'
     )
     em_dense_reconstruction_dataset_id: UUID | str | None = Field(
@@ -806,17 +602,28 @@ class ETypeClassificationCreate(BaseModel):
     etype_class_id: UUID = Field(..., title='Etype Class Id')
 
 
-class ElectricalRecordingOrigin(
-    RootModel[Literal['in_vivo', 'in_vitro', 'in_silico', 'unknown']]
-):
-    root: Literal['in_vivo', 'in_vitro', 'in_silico', 'unknown'] = Field(
-        ..., title='ElectricalRecordingOrigin'
+class ElectricalRecordingStimulusUserUpdate(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
     )
-
-
-class ElectricalRecordingStimulusShape(
-    RootModel[
-        Literal[
+    name: str | None = Field(default='<NOT_SET>', title='Name')
+    description: str | None = Field(default='<NOT_SET>', title='Description')
+    dt: float | str | None = Field(default='<NOT_SET>', title='Dt')
+    injection_type: (
+        str
+        | Literal[
+            'voltage_clamp',
+            'current_clamp',
+            'conductance_clamp',
+            'extracellular',
+            'other',
+            'unknown',
+        ]
+        | None
+    ) = Field(default='<NOT_SET>', title='Injection Type')
+    shape: (
+        str
+        | Literal[
             'cheops',
             'constant',
             'pulse',
@@ -828,68 +635,11 @@ class ElectricalRecordingStimulusShape(
             'two_steps',
             'unknown',
         ]
-    ]
-):
-    root: Literal[
-        'cheops',
-        'constant',
-        'pulse',
-        'step',
-        'ramp',
-        'noise',
-        'sinusoidal',
-        'other',
-        'two_steps',
-        'unknown',
-    ] = Field(..., title='ElectricalRecordingStimulusShape')
-
-
-class ElectricalRecordingStimulusType(
-    RootModel[
-        Literal[
-            'voltage_clamp',
-            'current_clamp',
-            'conductance_clamp',
-            'extracellular',
-            'other',
-            'unknown',
-        ]
-    ]
-):
-    root: Literal[
-        'voltage_clamp',
-        'current_clamp',
-        'conductance_clamp',
-        'extracellular',
-        'other',
-        'unknown',
-    ] = Field(..., title='ElectricalRecordingStimulusType')
-
-
-class ElectricalRecordingStimulusUserUpdate(BaseModel):
-    model_config = ConfigDict(
-        extra='allow',
-    )
-    name: str | None = Field(default='<NOT_SET>', title='Name')
-    description: str | None = Field(default='<NOT_SET>', title='Description')
-    dt: float | str | None = Field(default='<NOT_SET>', title='Dt')
-    injection_type: ElectricalRecordingStimulusType | str | None = Field(
-        default='<NOT_SET>', title='Injection Type'
-    )
-    shape: ElectricalRecordingStimulusShape | str | None = Field(
-        default='<NOT_SET>', title='Shape'
-    )
+        | None
+    ) = Field(default='<NOT_SET>', title='Shape')
     start_time: float | str | None = Field(default='<NOT_SET>', title='Start Time')
     end_time: float | str | None = Field(default='<NOT_SET>', title='End Time')
     recording_id: UUID | str | None = Field(default='<NOT_SET>', title='Recording Id')
-
-
-class ElectricalRecordingType(
-    RootModel[Literal['intracellular', 'extracellular', 'both', 'unknown']]
-):
-    root: Literal['intracellular', 'extracellular', 'both', 'unknown'] = Field(
-        ..., title='ElectricalRecordingType'
-    )
 
 
 class EntityCountRead(RootModel[dict[str, int]]):
@@ -1076,78 +826,44 @@ class EntityType(
     ] = Field(..., description='Entity types.', title='EntityType')
 
 
-class EntityTypeWithBrainRegion(
-    RootModel[
-        Literal[
-            'brain_atlas_region',
-            'cell_composition',
-            'cell_morphology',
-            'circuit',
-            'electrical_cell_recording',
-            'electrical_recording',
-            'em_cell_mesh',
-            'em_dense_reconstruction_dataset',
-            'emodel',
-            'experimental_bouton_density',
-            'experimental_neuron_density',
-            'experimental_synapses_per_connection',
-            'ion_channel_model',
-            'ion_channel_recording',
-            'me_type_density',
-            'memodel',
-            'scientific_artifact',
-            'single_neuron_simulation',
-            'single_neuron_synaptome',
-            'single_neuron_synaptome_simulation',
-        ]
-    ]
-):
-    root: Literal[
-        'brain_atlas_region',
-        'cell_composition',
-        'cell_morphology',
-        'circuit',
-        'electrical_cell_recording',
-        'electrical_recording',
-        'em_cell_mesh',
-        'em_dense_reconstruction_dataset',
-        'emodel',
-        'experimental_bouton_density',
-        'experimental_neuron_density',
-        'experimental_synapses_per_connection',
-        'ion_channel_model',
-        'ion_channel_recording',
-        'me_type_density',
-        'memodel',
-        'scientific_artifact',
-        'single_neuron_simulation',
-        'single_neuron_synaptome',
-        'single_neuron_synaptome_simulation',
-    ] = Field(..., title='EntityTypeWithBrainRegion')
-
-
 class ErrorResponse(BaseModel):
     model_config = ConfigDict(
         extra='allow',
     )
-    error_code: ApiErrorCode
+    error_code: Literal[
+        'GENERIC_ERROR',
+        'NOT_AUTHENTICATED',
+        'NOT_AUTHORIZED',
+        'INVALID_REQUEST',
+        'ENTITY_NOT_FOUND',
+        'ENTITY_FORBIDDEN',
+        'ENTITY_DUPLICATED',
+        'ASSET_NOT_FOUND',
+        'ASSET_DUPLICATED',
+        'ASSET_INVALID_FILE',
+        'ASSET_MISSING_PATH',
+        'ASSET_INVALID_PATH',
+        'ASSET_NOT_A_DIRECTORY',
+        'ASSET_INVALID_SCHEMA',
+        'ASSET_INVALID_CONTENT_TYPE',
+        'ION_NAME_NOT_FOUND',
+        'S3_CANNOT_CREATE_PRESIGNED_URL',
+        'OPENAI_API_KEY_MISSING',
+        'OPENAI_API_ERROR',
+    ] = Field(..., description='API Error codes.', title='ApiErrorCode')
     message: str = Field(..., title='Message')
     details: Any | None = Field(default=None, title='Details')
-
-
-class ExternalSource(RootModel[Literal['channelpedia', 'modeldb', 'icgenealogy']]):
-    root: Literal['channelpedia', 'modeldb', 'icgenealogy'] = Field(
-        ...,
-        description='External sources that can be used for external urls.',
-        title='ExternalSource',
-    )
 
 
 class ExternalUrlCreate(BaseModel):
     model_config = ConfigDict(
         extra='allow',
     )
-    source: ExternalSource
+    source: Literal['channelpedia', 'modeldb', 'icgenealogy'] = Field(
+        ...,
+        description='External sources that can be used for external urls.',
+        title='ExternalSource',
+    )
     url: AnyUrl = Field(..., title='Url')
     name: str = Field(..., title='Name')
     description: str = Field(..., title='Description')
@@ -1161,10 +877,6 @@ class Facet(BaseModel):
     label: str = Field(..., title='Label')
     count: int = Field(..., title='Count')
     type: str | None = Field(..., title='Type')
-
-
-class Facets(RootModel[dict[str, list[Facet]]]):
-    root: dict[str, list[Facet]]
 
 
 class HierarchyNode(BaseModel):
@@ -1183,7 +895,13 @@ class HierarchyTree(BaseModel):
     model_config = ConfigDict(
         extra='allow',
     )
-    derivation_type: DerivationType
+    derivation_type: Literal[
+        'circuit_extraction', 'circuit_rewiring', 'unspecified'
+    ] = Field(
+        ...,
+        description='Represents the type of derivation relationship between two entities.\n\nAttributes:\n    circuit_extraction: Indicates that the entity was derived by extracting a set of nodes from\n     a circuit.\n    circuit_rewiring: Indicates that the entity was derived by rewiring the connectivity of\n      a circuit.\n    unspecified: Indicates a derivation that does not require a specific type.',
+        title='DerivationType',
+    )
     data: list[HierarchyNode] = Field(..., title='Data')
 
 
@@ -1245,14 +963,6 @@ class IonChannelModelingConfigUserUpdate(BaseModel):
     )
 
 
-class IonChannelModelingExecutionStatus(
-    RootModel[Literal['created', 'pending', 'running', 'done', 'error']]
-):
-    root: Literal['created', 'pending', 'running', 'done', 'error'] = Field(
-        ..., title='IonChannelModelingExecutionStatus'
-    )
-
-
 class IonChannelRecordingCreate(BaseModel):
     model_config = ConfigDict(
         extra='allow',
@@ -1293,12 +1003,14 @@ class IonChannelRecordingCreate(BaseModel):
         description='Location on the cell where recording was performed, in hoc-compatible format.',
         title='Recording Location',
     )
-    recording_type: ElectricalRecordingType = Field(
-        ...,
-        description="Recording type. One of: [<ElectricalRecordingStimulusType.conductance_clamp: 'conductance_clamp'>, <ElectricalRecordingStimulusType.current_clamp: 'current_clamp'>, <ElectricalRecordingStimulusType.extracellular: 'extracellular'>, <ElectricalRecordingStimulusType.other: 'other'>, <ElectricalRecordingStimulusType.unknown: 'unknown'>, <ElectricalRecordingStimulusType.voltage_clamp: 'voltage_clamp'>]",
-        title='Recording Type',
+    recording_type: Literal['intracellular', 'extracellular', 'both', 'unknown'] = (
+        Field(
+            ...,
+            description="Recording type. One of: [<ElectricalRecordingStimulusType.conductance_clamp: 'conductance_clamp'>, <ElectricalRecordingStimulusType.current_clamp: 'current_clamp'>, <ElectricalRecordingStimulusType.extracellular: 'extracellular'>, <ElectricalRecordingStimulusType.other: 'other'>, <ElectricalRecordingStimulusType.unknown: 'unknown'>, <ElectricalRecordingStimulusType.voltage_clamp: 'voltage_clamp'>]",
+            title='Recording Type',
+        )
     )
-    recording_origin: ElectricalRecordingOrigin = Field(
+    recording_origin: Literal['in_vivo', 'in_vitro', 'in_silico', 'unknown'] = Field(
         ...,
         description="Recording origin. One of: [<ElectricalRecordingOrigin.in_silico: 'in_silico'>, <ElectricalRecordingOrigin.in_vitro: 'in_vitro'>, <ElectricalRecordingOrigin.in_vivo: 'in_vivo'>, <ElectricalRecordingOrigin.unknown: 'unknown'>]",
         title='Recording Origin',
@@ -1345,12 +1057,12 @@ class IonChannelRecordingUserUpdate(BaseModel):
     recording_location: list[str] | str | None = Field(
         default='<NOT_SET>', title='Recording Location'
     )
-    recording_type: ElectricalRecordingType | str | None = Field(
-        default='<NOT_SET>', title='Recording Type'
-    )
-    recording_origin: ElectricalRecordingOrigin | str | None = Field(
-        default='<NOT_SET>', title='Recording Origin'
-    )
+    recording_type: (
+        str | Literal['intracellular', 'extracellular', 'both', 'unknown'] | None
+    ) = Field(default='<NOT_SET>', title='Recording Type')
+    recording_origin: (
+        str | Literal['in_vivo', 'in_vitro', 'in_silico', 'unknown'] | None
+    ) = Field(default='<NOT_SET>', title='Recording Origin')
     temperature: float | str | None = Field(default='<NOT_SET>', title='Temperature')
     comment: str | None = Field(default='<NOT_SET>', title='Comment')
     legacy_id: list[str] | str | None = Field(default='<NOT_SET>', title='Legacy Id')
@@ -1426,60 +1138,6 @@ class MTypeClassificationCreate(BaseModel):
     mtype_class_id: UUID = Field(..., title='Mtype Class Id')
 
 
-class MeasurableEntity(RootModel[Literal['cell_morphology']]):
-    root: Literal['cell_morphology'] = Field(..., title='MeasurableEntity')
-
-
-class MeasurementStatistic(
-    RootModel[
-        Literal[
-            'mean',
-            'median',
-            'mode',
-            'variance',
-            'data_point',
-            'sample_size',
-            'standard_error',
-            'standard_deviation',
-            'raw',
-            'minimum',
-            'maximum',
-            'sum',
-        ]
-    ]
-):
-    root: Literal[
-        'mean',
-        'median',
-        'mode',
-        'variance',
-        'data_point',
-        'sample_size',
-        'standard_error',
-        'standard_deviation',
-        'raw',
-        'minimum',
-        'maximum',
-        'sum',
-    ] = Field(..., title='MeasurementStatistic')
-
-
-class MeasurementUnit(
-    RootModel[Literal['dimensionless', '1/μm', '1/mm³', 'μm', 'μm²', 'μm³', 'radian']]
-):
-    root: Literal['dimensionless', '1/μm', '1/mm³', 'μm', 'μm²', 'μm³', 'radian'] = (
-        Field(..., title='MeasurementUnit')
-    )
-
-
-class ModifiedMorphologyMethodType(
-    RootModel[Literal['cloned', 'mix_and_match', 'mousified', 'ratified']]
-):
-    root: Literal['cloned', 'mix_and_match', 'mousified', 'ratified'] = Field(
-        ..., title='ModifiedMorphologyMethodType'
-    )
-
-
 class ModifiedReconstructionCellMorphologyProtocolCreate(BaseModel):
     model_config = ConfigDict(
         extra='allow',
@@ -1487,7 +1145,9 @@ class ModifiedReconstructionCellMorphologyProtocolCreate(BaseModel):
     protocol_document: ProtocolDocument | None = Field(
         default=None, title='Protocol Document'
     )
-    protocol_design: CellMorphologyProtocolDesign
+    protocol_design: Literal[
+        'electron_microscopy', 'cell_patch', 'fluorophore', 'topological_synthesis'
+    ] = Field(..., title='CellMorphologyProtocolDesign')
     authorized_public: bool = Field(default=False, title='Authorized Public')
     type: Literal['cell_morphology_protocol'] = Field(
         default='cell_morphology_protocol', title='Type'
@@ -1495,7 +1155,9 @@ class ModifiedReconstructionCellMorphologyProtocolCreate(BaseModel):
     generation_type: Literal['modified_reconstruction'] = Field(
         ..., title='Generation Type'
     )
-    method_type: ModifiedMorphologyMethodType
+    method_type: Literal['cloned', 'mix_and_match', 'mousified', 'ratified'] = Field(
+        ..., title='ModifiedMorphologyMethodType'
+    )
 
 
 class NestedComputationallySynthesizedCellMorphologyProtocolRead(BaseModel):
@@ -1505,7 +1167,9 @@ class NestedComputationallySynthesizedCellMorphologyProtocolRead(BaseModel):
     protocol_document: ProtocolDocument | None = Field(
         default=None, title='Protocol Document'
     )
-    protocol_design: CellMorphologyProtocolDesign
+    protocol_design: Literal[
+        'electron_microscopy', 'cell_patch', 'fluorophore', 'topological_synthesis'
+    ] = Field(..., title='CellMorphologyProtocolDesign')
     id: UUID = Field(..., title='Id')
     type: Literal['cell_morphology_protocol'] = Field(
         default='cell_morphology_protocol', title='Type'
@@ -1532,7 +1196,51 @@ class NestedEMCellMeshRead(BaseModel):
     )
     authorized_project_id: UUID4 = Field(..., title='Authorized Project Id')
     authorized_public: bool = Field(default=False, title='Authorized Public')
-    type: EntityType | None = None
+    type: (
+        Literal[
+            'analysis_software_source_code',
+            'brain_atlas',
+            'brain_atlas_region',
+            'cell_composition',
+            'cell_morphology',
+            'cell_morphology_protocol',
+            'electrical_cell_recording',
+            'electrical_recording',
+            'electrical_recording_stimulus',
+            'emodel',
+            'experimental_bouton_density',
+            'experimental_neuron_density',
+            'experimental_synapses_per_connection',
+            'external_url',
+            'ion_channel_model',
+            'ion_channel_modeling_campaign',
+            'ion_channel_modeling_config',
+            'ion_channel_recording',
+            'memodel',
+            'memodel_calibration_result',
+            'me_type_density',
+            'simulation',
+            'simulation_campaign',
+            'simulation_result',
+            'scientific_artifact',
+            'single_neuron_simulation',
+            'single_neuron_synaptome',
+            'single_neuron_synaptome_simulation',
+            'subject',
+            'validation_result',
+            'circuit',
+            'circuit_extraction_campaign',
+            'circuit_extraction_config',
+            'em_dense_reconstruction_dataset',
+            'em_cell_mesh',
+            'analysis_notebook_template',
+            'analysis_notebook_environment',
+            'analysis_notebook_result',
+            'skeletonization_config',
+            'skeletonization_campaign',
+        ]
+        | None
+    ) = None
     id: UUID = Field(..., title='Id')
     experiment_date: AwareDatetime | None = Field(
         default=None,
@@ -1556,25 +1264,95 @@ class NestedEMCellMeshRead(BaseModel):
     )
     release_version: int = Field(..., title='Release Version')
     dense_reconstruction_cell_id: int = Field(..., title='Dense Reconstruction Cell Id')
-    generation_method: EMCellMeshGenerationMethod
+    generation_method: Literal['marching_cubes'] = Field(
+        ...,
+        description='The algorithm generating the mesh from a volume.\n\nmarching_cubes: The marching cubes algorithm.',
+        title='EMCellMeshGenerationMethod',
+    )
     level_of_detail: int = Field(..., title='Level Of Detail')
     generation_parameters: dict[str, Any] | None = Field(
         default=None, title='Generation Parameters'
     )
-    mesh_type: EMCellMeshType
+    mesh_type: Literal['static', 'dynamic'] = Field(
+        ...,
+        description='How an EM cell mesh was created.\n\nstatic: The mesh was precomputed at a given level of detail.\ndynamic: The mesh was dynamically generated at query time.',
+        title='EMCellMeshType',
+    )
 
 
 class NestedElectricalRecordingStimulusRead(BaseModel):
     model_config = ConfigDict(
         extra='allow',
     )
-    type: EntityType | None = None
+    type: (
+        Literal[
+            'analysis_software_source_code',
+            'brain_atlas',
+            'brain_atlas_region',
+            'cell_composition',
+            'cell_morphology',
+            'cell_morphology_protocol',
+            'electrical_cell_recording',
+            'electrical_recording',
+            'electrical_recording_stimulus',
+            'emodel',
+            'experimental_bouton_density',
+            'experimental_neuron_density',
+            'experimental_synapses_per_connection',
+            'external_url',
+            'ion_channel_model',
+            'ion_channel_modeling_campaign',
+            'ion_channel_modeling_config',
+            'ion_channel_recording',
+            'memodel',
+            'memodel_calibration_result',
+            'me_type_density',
+            'simulation',
+            'simulation_campaign',
+            'simulation_result',
+            'scientific_artifact',
+            'single_neuron_simulation',
+            'single_neuron_synaptome',
+            'single_neuron_synaptome_simulation',
+            'subject',
+            'validation_result',
+            'circuit',
+            'circuit_extraction_campaign',
+            'circuit_extraction_config',
+            'em_dense_reconstruction_dataset',
+            'em_cell_mesh',
+            'analysis_notebook_template',
+            'analysis_notebook_environment',
+            'analysis_notebook_result',
+            'skeletonization_config',
+            'skeletonization_campaign',
+        ]
+        | None
+    ) = None
     id: UUID = Field(..., title='Id')
     name: str = Field(..., title='Name')
     description: str = Field(..., title='Description')
     dt: float | None = Field(default=None, title='Dt')
-    injection_type: ElectricalRecordingStimulusType
-    shape: ElectricalRecordingStimulusShape
+    injection_type: Literal[
+        'voltage_clamp',
+        'current_clamp',
+        'conductance_clamp',
+        'extracellular',
+        'other',
+        'unknown',
+    ] = Field(..., title='ElectricalRecordingStimulusType')
+    shape: Literal[
+        'cheops',
+        'constant',
+        'pulse',
+        'step',
+        'ramp',
+        'noise',
+        'sinusoidal',
+        'other',
+        'two_steps',
+        'unknown',
+    ] = Field(..., title='ElectricalRecordingStimulusShape')
     start_time: float | None = Field(default=None, title='Start Time')
     end_time: float | None = Field(default=None, title='End Time')
     recording_id: UUID = Field(..., title='Recording Id')
@@ -1595,7 +1373,11 @@ class NestedExternalUrlRead(BaseModel):
         extra='allow',
     )
     id: UUID = Field(..., title='Id')
-    source: ExternalSource
+    source: Literal['channelpedia', 'modeldb', 'icgenealogy'] = Field(
+        ...,
+        description='External sources that can be used for external urls.',
+        title='ExternalSource',
+    )
     url: AnyUrl = Field(..., title='Url')
     name: str = Field(..., title='Name')
     description: str = Field(..., title='Description')
@@ -1607,7 +1389,51 @@ class NestedIonChannelModelingConfigRead(BaseModel):
         extra='allow',
     )
     id: UUID = Field(..., title='Id')
-    type: EntityType | None = None
+    type: (
+        Literal[
+            'analysis_software_source_code',
+            'brain_atlas',
+            'brain_atlas_region',
+            'cell_composition',
+            'cell_morphology',
+            'cell_morphology_protocol',
+            'electrical_cell_recording',
+            'electrical_recording',
+            'electrical_recording_stimulus',
+            'emodel',
+            'experimental_bouton_density',
+            'experimental_neuron_density',
+            'experimental_synapses_per_connection',
+            'external_url',
+            'ion_channel_model',
+            'ion_channel_modeling_campaign',
+            'ion_channel_modeling_config',
+            'ion_channel_recording',
+            'memodel',
+            'memodel_calibration_result',
+            'me_type_density',
+            'simulation',
+            'simulation_campaign',
+            'simulation_result',
+            'scientific_artifact',
+            'single_neuron_simulation',
+            'single_neuron_synaptome',
+            'single_neuron_synaptome_simulation',
+            'subject',
+            'validation_result',
+            'circuit',
+            'circuit_extraction_campaign',
+            'circuit_extraction_config',
+            'em_dense_reconstruction_dataset',
+            'em_cell_mesh',
+            'analysis_notebook_template',
+            'analysis_notebook_environment',
+            'analysis_notebook_result',
+            'skeletonization_config',
+            'skeletonization_campaign',
+        ]
+        | None
+    ) = None
     name: str = Field(..., title='Name')
     description: str = Field(..., title='Description')
     ion_channel_modeling_campaign_id: UUID = Field(
@@ -1634,7 +1460,51 @@ class NestedIonChannelRecordingRead(BaseModel):
     )
     authorized_project_id: UUID4 = Field(..., title='Authorized Project Id')
     authorized_public: bool = Field(default=False, title='Authorized Public')
-    type: EntityType | None = None
+    type: (
+        Literal[
+            'analysis_software_source_code',
+            'brain_atlas',
+            'brain_atlas_region',
+            'cell_composition',
+            'cell_morphology',
+            'cell_morphology_protocol',
+            'electrical_cell_recording',
+            'electrical_recording',
+            'electrical_recording_stimulus',
+            'emodel',
+            'experimental_bouton_density',
+            'experimental_neuron_density',
+            'experimental_synapses_per_connection',
+            'external_url',
+            'ion_channel_model',
+            'ion_channel_modeling_campaign',
+            'ion_channel_modeling_config',
+            'ion_channel_recording',
+            'memodel',
+            'memodel_calibration_result',
+            'me_type_density',
+            'simulation',
+            'simulation_campaign',
+            'simulation_result',
+            'scientific_artifact',
+            'single_neuron_simulation',
+            'single_neuron_synaptome',
+            'single_neuron_synaptome_simulation',
+            'subject',
+            'validation_result',
+            'circuit',
+            'circuit_extraction_campaign',
+            'circuit_extraction_config',
+            'em_dense_reconstruction_dataset',
+            'em_cell_mesh',
+            'analysis_notebook_template',
+            'analysis_notebook_environment',
+            'analysis_notebook_result',
+            'skeletonization_config',
+            'skeletonization_campaign',
+        ]
+        | None
+    ) = None
     id: UUID = Field(..., title='Id')
     experiment_date: AwareDatetime | None = Field(
         default=None,
@@ -1668,12 +1538,14 @@ class NestedIonChannelRecordingRead(BaseModel):
         description='Location on the cell where recording was performed, in hoc-compatible format.',
         title='Recording Location',
     )
-    recording_type: ElectricalRecordingType = Field(
-        ...,
-        description="Recording type. One of: [<ElectricalRecordingStimulusType.conductance_clamp: 'conductance_clamp'>, <ElectricalRecordingStimulusType.current_clamp: 'current_clamp'>, <ElectricalRecordingStimulusType.extracellular: 'extracellular'>, <ElectricalRecordingStimulusType.other: 'other'>, <ElectricalRecordingStimulusType.unknown: 'unknown'>, <ElectricalRecordingStimulusType.voltage_clamp: 'voltage_clamp'>]",
-        title='Recording Type',
+    recording_type: Literal['intracellular', 'extracellular', 'both', 'unknown'] = (
+        Field(
+            ...,
+            description="Recording type. One of: [<ElectricalRecordingStimulusType.conductance_clamp: 'conductance_clamp'>, <ElectricalRecordingStimulusType.current_clamp: 'current_clamp'>, <ElectricalRecordingStimulusType.extracellular: 'extracellular'>, <ElectricalRecordingStimulusType.other: 'other'>, <ElectricalRecordingStimulusType.unknown: 'unknown'>, <ElectricalRecordingStimulusType.voltage_clamp: 'voltage_clamp'>]",
+            title='Recording Type',
+        )
     )
-    recording_origin: ElectricalRecordingOrigin = Field(
+    recording_origin: Literal['in_vivo', 'in_vitro', 'in_silico', 'unknown'] = Field(
         ...,
         description="Recording origin. One of: [<ElectricalRecordingOrigin.in_silico: 'in_silico'>, <ElectricalRecordingOrigin.in_vitro: 'in_vitro'>, <ElectricalRecordingOrigin.in_vivo: 'in_vivo'>, <ElectricalRecordingOrigin.unknown: 'unknown'>]",
         title='Recording Origin',
@@ -1701,7 +1573,9 @@ class NestedModifiedReconstructionCellMorphologyProtocolRead(BaseModel):
     protocol_document: ProtocolDocument | None = Field(
         default=None, title='Protocol Document'
     )
-    protocol_design: CellMorphologyProtocolDesign
+    protocol_design: Literal[
+        'electron_microscopy', 'cell_patch', 'fluorophore', 'topological_synthesis'
+    ] = Field(..., title='CellMorphologyProtocolDesign')
     id: UUID = Field(..., title='Id')
     type: Literal['cell_morphology_protocol'] = Field(
         default='cell_morphology_protocol', title='Type'
@@ -1709,7 +1583,9 @@ class NestedModifiedReconstructionCellMorphologyProtocolRead(BaseModel):
     generation_type: Literal['modified_reconstruction'] = Field(
         ..., title='Generation Type'
     )
-    method_type: ModifiedMorphologyMethodType
+    method_type: Literal['cloned', 'mix_and_match', 'mousified', 'ratified'] = Field(
+        ..., title='ModifiedMorphologyMethodType'
+    )
 
 
 NestedOrganizationRead = NestedConsortiumRead
@@ -1756,7 +1632,51 @@ class NestedScientificArtifactRead(BaseModel):
     )
     authorized_project_id: UUID4 = Field(..., title='Authorized Project Id')
     authorized_public: bool = Field(default=False, title='Authorized Public')
-    type: EntityType | None = None
+    type: (
+        Literal[
+            'analysis_software_source_code',
+            'brain_atlas',
+            'brain_atlas_region',
+            'cell_composition',
+            'cell_morphology',
+            'cell_morphology_protocol',
+            'electrical_cell_recording',
+            'electrical_recording',
+            'electrical_recording_stimulus',
+            'emodel',
+            'experimental_bouton_density',
+            'experimental_neuron_density',
+            'experimental_synapses_per_connection',
+            'external_url',
+            'ion_channel_model',
+            'ion_channel_modeling_campaign',
+            'ion_channel_modeling_config',
+            'ion_channel_recording',
+            'memodel',
+            'memodel_calibration_result',
+            'me_type_density',
+            'simulation',
+            'simulation_campaign',
+            'simulation_result',
+            'scientific_artifact',
+            'single_neuron_simulation',
+            'single_neuron_synaptome',
+            'single_neuron_synaptome_simulation',
+            'subject',
+            'validation_result',
+            'circuit',
+            'circuit_extraction_campaign',
+            'circuit_extraction_config',
+            'em_dense_reconstruction_dataset',
+            'em_cell_mesh',
+            'analysis_notebook_template',
+            'analysis_notebook_environment',
+            'analysis_notebook_result',
+            'skeletonization_config',
+            'skeletonization_campaign',
+        ]
+        | None
+    ) = None
     id: UUID = Field(..., title='Id')
     experiment_date: AwareDatetime | None = Field(
         default=None,
@@ -1785,7 +1705,51 @@ class NestedSimulationRead(BaseModel):
         extra='allow',
     )
     id: UUID = Field(..., title='Id')
-    type: EntityType | None = None
+    type: (
+        Literal[
+            'analysis_software_source_code',
+            'brain_atlas',
+            'brain_atlas_region',
+            'cell_composition',
+            'cell_morphology',
+            'cell_morphology_protocol',
+            'electrical_cell_recording',
+            'electrical_recording',
+            'electrical_recording_stimulus',
+            'emodel',
+            'experimental_bouton_density',
+            'experimental_neuron_density',
+            'experimental_synapses_per_connection',
+            'external_url',
+            'ion_channel_model',
+            'ion_channel_modeling_campaign',
+            'ion_channel_modeling_config',
+            'ion_channel_recording',
+            'memodel',
+            'memodel_calibration_result',
+            'me_type_density',
+            'simulation',
+            'simulation_campaign',
+            'simulation_result',
+            'scientific_artifact',
+            'single_neuron_simulation',
+            'single_neuron_synaptome',
+            'single_neuron_synaptome_simulation',
+            'subject',
+            'validation_result',
+            'circuit',
+            'circuit_extraction_campaign',
+            'circuit_extraction_config',
+            'em_dense_reconstruction_dataset',
+            'em_cell_mesh',
+            'analysis_notebook_template',
+            'analysis_notebook_environment',
+            'analysis_notebook_result',
+            'skeletonization_config',
+            'skeletonization_campaign',
+        ]
+        | None
+    ) = None
     name: str = Field(..., title='Name')
     description: str = Field(..., title='Description')
     simulation_campaign_id: UUID = Field(..., title='Simulation Campaign Id')
@@ -1798,7 +1762,51 @@ class NestedSkeletonizationConfigRead(BaseModel):
         extra='allow',
     )
     id: UUID = Field(..., title='Id')
-    type: EntityType | None = None
+    type: (
+        Literal[
+            'analysis_software_source_code',
+            'brain_atlas',
+            'brain_atlas_region',
+            'cell_composition',
+            'cell_morphology',
+            'cell_morphology_protocol',
+            'electrical_cell_recording',
+            'electrical_recording',
+            'electrical_recording_stimulus',
+            'emodel',
+            'experimental_bouton_density',
+            'experimental_neuron_density',
+            'experimental_synapses_per_connection',
+            'external_url',
+            'ion_channel_model',
+            'ion_channel_modeling_campaign',
+            'ion_channel_modeling_config',
+            'ion_channel_recording',
+            'memodel',
+            'memodel_calibration_result',
+            'me_type_density',
+            'simulation',
+            'simulation_campaign',
+            'simulation_result',
+            'scientific_artifact',
+            'single_neuron_simulation',
+            'single_neuron_synaptome',
+            'single_neuron_synaptome_simulation',
+            'subject',
+            'validation_result',
+            'circuit',
+            'circuit_extraction_campaign',
+            'circuit_extraction_config',
+            'em_dense_reconstruction_dataset',
+            'em_cell_mesh',
+            'analysis_notebook_template',
+            'analysis_notebook_environment',
+            'analysis_notebook_result',
+            'skeletonization_config',
+            'skeletonization_campaign',
+        ]
+        | None
+    ) = None
     name: str = Field(..., title='Name')
     description: str = Field(..., title='Description')
     skeletonization_campaign_id: UUID = Field(..., title='Skeletonization Campaign Id')
@@ -2010,16 +2018,6 @@ class PublicationRead(BaseModel):
     abstract: str | None = Field(default=None, title='Abstract')
 
 
-class PublicationType(
-    RootModel[Literal['entity_source', 'component_source', 'application']]
-):
-    root: Literal['entity_source', 'component_source', 'application'] = Field(
-        ...,
-        description='The type of of the relation between publication and a scientific artifact.\n\nentity_source: The artefact is published with this publication.\ncomponent_source: The publication is used to generate the artifact.\napplication: The publication uses the artifact.',
-        title='PublicationType',
-    )
-
-
 class PythonDependency(BaseModel):
     model_config = ConfigDict(
         extra='allow',
@@ -2111,7 +2109,13 @@ class ScientificArtifactPublicationLinkCreate(BaseModel):
     model_config = ConfigDict(
         extra='allow',
     )
-    publication_type: PublicationType
+    publication_type: Literal['entity_source', 'component_source', 'application'] = (
+        Field(
+            ...,
+            description='The type of of the relation between publication and a scientific artifact.\n\nentity_source: The artefact is published with this publication.\ncomponent_source: The publication is used to generate the artifact.\napplication: The publication uses the artifact.',
+            title='PublicationType',
+        )
+    )
     publication_id: UUID = Field(..., title='Publication Id')
     scientific_artifact_id: UUID = Field(..., title='Scientific Artifact Id')
 
@@ -2123,13 +2127,15 @@ class ScientificArtifactPublicationLinkRead(BaseModel):
     id: UUID = Field(..., title='Id')
     created_by: NestedPersonRead
     updated_by: NestedPersonRead
-    publication_type: PublicationType
+    publication_type: Literal['entity_source', 'component_source', 'application'] = (
+        Field(
+            ...,
+            description='The type of of the relation between publication and a scientific artifact.\n\nentity_source: The artefact is published with this publication.\ncomponent_source: The publication is used to generate the artifact.\napplication: The publication uses the artifact.',
+            title='PublicationType',
+        )
+    )
     publication: NestedPublicationRead
     scientific_artifact: NestedScientificArtifactRead
-
-
-class Sex(RootModel[Literal['male', 'female', 'unknown']]):
-    root: Literal['male', 'female', 'unknown'] = Field(..., title='Sex')
 
 
 class SimulationCampaignCreate(BaseModel):
@@ -2167,28 +2173,22 @@ class SimulationCreate(BaseModel):
     scan_parameters: dict[str, Any] = Field(..., title='Scan Parameters')
 
 
-class SimulationExecutionStatus(
-    RootModel[Literal['created', 'pending', 'running', 'done', 'error', 'cancelled']]
-):
-    root: Literal['created', 'pending', 'running', 'done', 'error', 'cancelled'] = (
-        Field(..., title='SimulationExecutionStatus')
-    )
-
-
 class SimulationExecutionUserUpdate(BaseModel):
     model_config = ConfigDict(
         extra='allow',
     )
-    start_time: AwareDatetime | NotSet | None = Field(
+    start_time: AwareDatetime | Literal['<NOT_SET>'] | None = Field(
         default='<NOT_SET>', title='Start Time'
     )
-    end_time: AwareDatetime | NotSet | None = Field(
+    end_time: AwareDatetime | Literal['<NOT_SET>'] | None = Field(
         default='<NOT_SET>', title='End Time'
     )
-    generated_ids: list[UUID] | NotSet | None = Field(
+    generated_ids: list[UUID] | Literal['<NOT_SET>'] | None = Field(
         default='<NOT_SET>', title='Generated Ids'
     )
-    status: SimulationExecutionStatus | None = None
+    status: (
+        Literal['created', 'pending', 'running', 'done', 'error', 'cancelled'] | None
+    ) = None
 
 
 SimulationGenerationCreate = CalibrationCreate
@@ -2205,7 +2205,22 @@ class SimulationGenerationRead(BaseModel):
     created_by: NestedPersonRead
     updated_by: NestedPersonRead
     id: UUID = Field(..., title='Id')
-    type: ActivityType | None = None
+    type: (
+        Literal[
+            'simulation_execution',
+            'simulation_generation',
+            'validation',
+            'calibration',
+            'analysis_notebook_execution',
+            'ion_channel_modeling_execution',
+            'ion_channel_modeling_config_generation',
+            'circuit_extraction_config_generation',
+            'circuit_extraction_execution',
+            'skeletonization_execution',
+            'skeletonization_config_generation',
+        ]
+        | None
+    ) = None
     start_time: AwareDatetime | None = Field(default=None, title='Start Time')
     end_time: AwareDatetime | None = Field(default=None, title='End Time')
     used: list[NestedEntityRead] = Field(..., title='Used')
@@ -2216,13 +2231,13 @@ class SimulationGenerationUserUpdate(BaseModel):
     model_config = ConfigDict(
         extra='allow',
     )
-    start_time: AwareDatetime | NotSet | None = Field(
+    start_time: AwareDatetime | Literal['<NOT_SET>'] | None = Field(
         default='<NOT_SET>', title='Start Time'
     )
-    end_time: AwareDatetime | NotSet | None = Field(
+    end_time: AwareDatetime | Literal['<NOT_SET>'] | None = Field(
         default='<NOT_SET>', title='End Time'
     )
-    generated_ids: list[UUID] | NotSet | None = Field(
+    generated_ids: list[UUID] | Literal['<NOT_SET>'] | None = Field(
         default='<NOT_SET>', title='Generated Ids'
     )
 
@@ -2261,12 +2276,6 @@ class SimulationUserUpdate(BaseModel):
     )
 
 
-class SingleNeuronSimulationStatus(RootModel[Literal['started', 'failure', 'success']]):
-    root: Literal['started', 'failure', 'success'] = Field(
-        ..., title='SingleNeuronSimulationStatus'
-    )
-
-
 class SingleNeuronSimulationUserUpdate(BaseModel):
     model_config = ConfigDict(
         extra='allow',
@@ -2277,7 +2286,7 @@ class SingleNeuronSimulationUserUpdate(BaseModel):
     name: str | None = Field(default='<NOT_SET>', title='Name')
     description: str | None = Field(default='<NOT_SET>', title='Description')
     seed: int | str | None = Field(default='<NOT_SET>', title='Seed')
-    status: SingleNeuronSimulationStatus | str | None = Field(
+    status: str | Literal['started', 'failure', 'success'] | None = Field(
         default='<NOT_SET>', title='Status'
     )
     injection_location: list[str] | str | None = Field(
@@ -2310,7 +2319,9 @@ class SingleNeuronSynaptomeSimulationCreate(BaseModel):
     name: str = Field(..., title='Name')
     description: str = Field(..., title='Description')
     seed: int = Field(..., title='Seed')
-    status: SingleNeuronSimulationStatus
+    status: Literal['started', 'failure', 'success'] = Field(
+        ..., title='SingleNeuronSimulationStatus'
+    )
     injection_location: list[str] = Field(..., title='Injection Location')
     recording_location: list[str] = Field(..., title='Recording Location')
     synaptome_id: UUID = Field(..., title='Synaptome Id')
@@ -2326,7 +2337,7 @@ class SingleNeuronSynaptomeSimulationUserUpdate(BaseModel):
     name: str | None = Field(default='<NOT_SET>', title='Name')
     description: str | None = Field(default='<NOT_SET>', title='Description')
     seed: int | str | None = Field(default='<NOT_SET>', title='Seed')
-    status: SingleNeuronSimulationStatus | str | None = Field(
+    status: str | Literal['started', 'failure', 'success'] | None = Field(
         default='<NOT_SET>', title='Status'
     )
     injection_location: list[str] | str | None = Field(
@@ -2395,36 +2406,20 @@ class SkeletonizationConfigUserUpdate(BaseModel):
     )
 
 
-class SkeletonizationExecutionStatus(
-    RootModel[Literal['created', 'pending', 'running', 'done', 'error']]
-):
-    root: Literal['created', 'pending', 'running', 'done', 'error'] = Field(
-        ..., title='SkeletonizationExecutionStatus'
-    )
-
-
 class SkeletonizationExecutionUserUpdate(BaseModel):
     model_config = ConfigDict(
         extra='allow',
     )
-    start_time: AwareDatetime | NotSet | None = Field(
+    start_time: AwareDatetime | Literal['<NOT_SET>'] | None = Field(
         default='<NOT_SET>', title='Start Time'
     )
-    end_time: AwareDatetime | NotSet | None = Field(
+    end_time: AwareDatetime | Literal['<NOT_SET>'] | None = Field(
         default='<NOT_SET>', title='End Time'
     )
-    generated_ids: list[UUID] | NotSet | None = Field(
+    generated_ids: list[UUID] | Literal['<NOT_SET>'] | None = Field(
         default='<NOT_SET>', title='Generated Ids'
     )
-    status: SkeletonizationExecutionStatus | None = None
-
-
-class SlicingDirectionType(
-    RootModel[Literal['coronal', 'sagittal', 'horizontal', 'custom']]
-):
-    root: Literal['coronal', 'sagittal', 'horizontal', 'custom'] = Field(
-        ..., title='SlicingDirectionType'
-    )
+    status: Literal['created', 'pending', 'running', 'done', 'error'] | None = None
 
 
 class SpeciesAdminUpdate(BaseModel):
@@ -2454,38 +2449,6 @@ class SpeciesRead(BaseModel):
     update_date: AwareDatetime = Field(..., title='Update Date')
     name: str = Field(..., title='Name')
     taxonomy_id: str = Field(..., title='Taxonomy Id')
-
-
-class StainingType(
-    RootModel[
-        Literal[
-            'golgi',
-            'nissl',
-            'luxol_fast_blue',
-            'fluorescent_nissl',
-            'fluorescent_dyes',
-            'fluorescent_protein_expression',
-            'immunohistochemistry',
-            'other',
-        ]
-    ]
-):
-    root: Literal[
-        'golgi',
-        'nissl',
-        'luxol_fast_blue',
-        'fluorescent_nissl',
-        'fluorescent_dyes',
-        'fluorescent_protein_expression',
-        'immunohistochemistry',
-        'other',
-    ] = Field(..., title='StainingType')
-
-
-class StorageType(RootModel[Literal['aws_s3_internal', 'aws_s3_open']]):
-    root: Literal['aws_s3_internal', 'aws_s3_open'] = Field(
-        ..., description='Storage type.', title='StorageType'
-    )
 
 
 class StrainAdminUpdate(BaseModel):
@@ -2538,7 +2501,9 @@ class SubjectCreate(BaseModel):
     )
     name: str = Field(..., title='Name')
     description: str = Field(..., title='Description')
-    sex: Sex = Field(..., description='Sex of the subject')
+    sex: Literal['male', 'female', 'unknown'] = Field(
+        ..., description='Sex of the subject', title='Sex'
+    )
     weight: Weight | None = Field(
         default=None, description='Weight in grams', title='Weight'
     )
@@ -2551,7 +2516,7 @@ class SubjectCreate(BaseModel):
     age_max: float | None = Field(
         default=None, description='Maximum age range', title='Maximum age range'
     )
-    age_period: AgePeriod | None = None
+    age_period: Literal['prenatal', 'postnatal', 'unknown'] | None = None
     authorized_public: bool = Field(default=False, title='Authorized Public')
     species_id: UUID = Field(..., title='Species Id')
     strain_id: UUID | None = Field(default=None, title='Strain Id')
@@ -2570,7 +2535,9 @@ class SubjectRead(BaseModel):
     update_date: AwareDatetime = Field(..., title='Update Date')
     name: str = Field(..., title='Name')
     description: str = Field(..., title='Description')
-    sex: Sex = Field(..., description='Sex of the subject')
+    sex: Literal['male', 'female', 'unknown'] = Field(
+        ..., description='Sex of the subject', title='Sex'
+    )
     weight: Weight | None = Field(
         default=None, description='Weight in grams', title='Weight'
     )
@@ -2583,7 +2550,7 @@ class SubjectRead(BaseModel):
     age_max: float | None = Field(
         default=None, description='Maximum age range', title='Maximum age range'
     )
-    age_period: AgePeriod | None = None
+    age_period: Literal['prenatal', 'postnatal', 'unknown'] | None = None
     species: NestedSpeciesRead
     strain: NestedStrainRead | None = None
 
@@ -2594,12 +2561,16 @@ class SubjectUserUpdate(BaseModel):
     )
     name: str | None = Field(default='<NOT_SET>', title='Name')
     description: str | None = Field(default='<NOT_SET>', title='Description')
-    sex: Sex | str | None = Field(default='<NOT_SET>', title='Sex')
+    sex: str | Literal['male', 'female', 'unknown'] | None = Field(
+        default='<NOT_SET>', title='Sex'
+    )
     weight: float | str | None = Field(default='<NOT_SET>', title='Weight')
     age_value: timedelta | str | None = Field(default='<NOT_SET>', title='Age Value')
     age_min: timedelta | str | None = Field(default='<NOT_SET>', title='Age Min')
     age_max: timedelta | str | None = Field(default='<NOT_SET>', title='Age Max')
-    age_period: AgePeriod | str | None = Field(default='<NOT_SET>', title='Age Period')
+    age_period: str | Literal['prenatal', 'postnatal', 'unknown'] | None = Field(
+        default='<NOT_SET>', title='Age Period'
+    )
     species_id: UUID | str | None = Field(default='<NOT_SET>', title='Species Id')
     strain_id: UUID | str | None = Field(default='<NOT_SET>', title='Strain Id')
 
@@ -2639,14 +2610,6 @@ class ValidationResultUserUpdate(BaseModel):
     passed: bool | str | None = Field(default='<NOT_SET>', title='Passed')
     validated_entity_id: UUID | str | None = Field(
         default='<NOT_SET>', title='Validated Entity Id'
-    )
-
-
-class ValidationStatus(
-    RootModel[Literal['created', 'initialized', 'running', 'done', 'error']]
-):
-    root: Literal['created', 'initialized', 'running', 'done', 'error'] = Field(
-        ..., title='ValidationStatus'
     )
 
 
@@ -2865,12 +2828,100 @@ class ReadManyAnalysisNotebookExecutionGetParametersQuery(BaseModel):
     )
     used__id: UUID | None = Field(default=None, title='Used  Id')
     used__id__in: list[UUID] | None = Field(default=None, title='Used  Id  In')
-    used__type: EntityType | None = Field(default=None, title='Used  Type')
+    used__type: (
+        Literal[
+            'analysis_software_source_code',
+            'brain_atlas',
+            'brain_atlas_region',
+            'cell_composition',
+            'cell_morphology',
+            'cell_morphology_protocol',
+            'electrical_cell_recording',
+            'electrical_recording',
+            'electrical_recording_stimulus',
+            'emodel',
+            'experimental_bouton_density',
+            'experimental_neuron_density',
+            'experimental_synapses_per_connection',
+            'external_url',
+            'ion_channel_model',
+            'ion_channel_modeling_campaign',
+            'ion_channel_modeling_config',
+            'ion_channel_recording',
+            'memodel',
+            'memodel_calibration_result',
+            'me_type_density',
+            'simulation',
+            'simulation_campaign',
+            'simulation_result',
+            'scientific_artifact',
+            'single_neuron_simulation',
+            'single_neuron_synaptome',
+            'single_neuron_synaptome_simulation',
+            'subject',
+            'validation_result',
+            'circuit',
+            'circuit_extraction_campaign',
+            'circuit_extraction_config',
+            'em_dense_reconstruction_dataset',
+            'em_cell_mesh',
+            'analysis_notebook_template',
+            'analysis_notebook_environment',
+            'analysis_notebook_result',
+            'skeletonization_config',
+            'skeletonization_campaign',
+        ]
+        | None
+    ) = Field(default=None, title='Used  Type')
     generated__id: UUID | None = Field(default=None, title='Generated  Id')
     generated__id__in: list[UUID] | None = Field(
         default=None, title='Generated  Id  In'
     )
-    generated__type: EntityType | None = Field(default=None, title='Generated  Type')
+    generated__type: (
+        Literal[
+            'analysis_software_source_code',
+            'brain_atlas',
+            'brain_atlas_region',
+            'cell_composition',
+            'cell_morphology',
+            'cell_morphology_protocol',
+            'electrical_cell_recording',
+            'electrical_recording',
+            'electrical_recording_stimulus',
+            'emodel',
+            'experimental_bouton_density',
+            'experimental_neuron_density',
+            'experimental_synapses_per_connection',
+            'external_url',
+            'ion_channel_model',
+            'ion_channel_modeling_campaign',
+            'ion_channel_modeling_config',
+            'ion_channel_recording',
+            'memodel',
+            'memodel_calibration_result',
+            'me_type_density',
+            'simulation',
+            'simulation_campaign',
+            'simulation_result',
+            'scientific_artifact',
+            'single_neuron_simulation',
+            'single_neuron_synaptome',
+            'single_neuron_synaptome_simulation',
+            'subject',
+            'validation_result',
+            'circuit',
+            'circuit_extraction_campaign',
+            'circuit_extraction_config',
+            'em_dense_reconstruction_dataset',
+            'em_cell_mesh',
+            'analysis_notebook_template',
+            'analysis_notebook_environment',
+            'analysis_notebook_result',
+            'skeletonization_config',
+            'skeletonization_campaign',
+        ]
+        | None
+    ) = Field(default=None, title='Generated  Type')
     search: str | None = Field(default=None, title='Search')
     with_facets: bool = Field(default=False, title='With Facets')
     within_brain_region_hierarchy_id: UUID | None = Field(
@@ -2882,9 +2933,9 @@ class ReadManyAnalysisNotebookExecutionGetParametersQuery(BaseModel):
     within_brain_region_ascendants: bool = Field(
         default=False, title='Within Brain Region Ascendants'
     )
-    within_brain_region_direction: WithinBrainRegionDirection | None = Field(
-        default=None, title='Within Brain Region Direction'
-    )
+    within_brain_region_direction: (
+        Literal['ascendants', 'descendants', 'ascendants_and_descendants'] | None
+    ) = Field(default=None, title='Within Brain Region Direction')
 
 
 class ReadManyAnalysisNotebookResultGetParametersQuery(BaseModel):
@@ -3129,12 +3180,100 @@ class ReadManyCalibrationGetParametersQuery(BaseModel):
     )
     used__id: UUID | None = Field(default=None, title='Used  Id')
     used__id__in: list[UUID] | None = Field(default=None, title='Used  Id  In')
-    used__type: EntityType | None = Field(default=None, title='Used  Type')
+    used__type: (
+        Literal[
+            'analysis_software_source_code',
+            'brain_atlas',
+            'brain_atlas_region',
+            'cell_composition',
+            'cell_morphology',
+            'cell_morphology_protocol',
+            'electrical_cell_recording',
+            'electrical_recording',
+            'electrical_recording_stimulus',
+            'emodel',
+            'experimental_bouton_density',
+            'experimental_neuron_density',
+            'experimental_synapses_per_connection',
+            'external_url',
+            'ion_channel_model',
+            'ion_channel_modeling_campaign',
+            'ion_channel_modeling_config',
+            'ion_channel_recording',
+            'memodel',
+            'memodel_calibration_result',
+            'me_type_density',
+            'simulation',
+            'simulation_campaign',
+            'simulation_result',
+            'scientific_artifact',
+            'single_neuron_simulation',
+            'single_neuron_synaptome',
+            'single_neuron_synaptome_simulation',
+            'subject',
+            'validation_result',
+            'circuit',
+            'circuit_extraction_campaign',
+            'circuit_extraction_config',
+            'em_dense_reconstruction_dataset',
+            'em_cell_mesh',
+            'analysis_notebook_template',
+            'analysis_notebook_environment',
+            'analysis_notebook_result',
+            'skeletonization_config',
+            'skeletonization_campaign',
+        ]
+        | None
+    ) = Field(default=None, title='Used  Type')
     generated__id: UUID | None = Field(default=None, title='Generated  Id')
     generated__id__in: list[UUID] | None = Field(
         default=None, title='Generated  Id  In'
     )
-    generated__type: EntityType | None = Field(default=None, title='Generated  Type')
+    generated__type: (
+        Literal[
+            'analysis_software_source_code',
+            'brain_atlas',
+            'brain_atlas_region',
+            'cell_composition',
+            'cell_morphology',
+            'cell_morphology_protocol',
+            'electrical_cell_recording',
+            'electrical_recording',
+            'electrical_recording_stimulus',
+            'emodel',
+            'experimental_bouton_density',
+            'experimental_neuron_density',
+            'experimental_synapses_per_connection',
+            'external_url',
+            'ion_channel_model',
+            'ion_channel_modeling_campaign',
+            'ion_channel_modeling_config',
+            'ion_channel_recording',
+            'memodel',
+            'memodel_calibration_result',
+            'me_type_density',
+            'simulation',
+            'simulation_campaign',
+            'simulation_result',
+            'scientific_artifact',
+            'single_neuron_simulation',
+            'single_neuron_synaptome',
+            'single_neuron_synaptome_simulation',
+            'subject',
+            'validation_result',
+            'circuit',
+            'circuit_extraction_campaign',
+            'circuit_extraction_config',
+            'em_dense_reconstruction_dataset',
+            'em_cell_mesh',
+            'analysis_notebook_template',
+            'analysis_notebook_environment',
+            'analysis_notebook_result',
+            'skeletonization_config',
+            'skeletonization_campaign',
+        ]
+        | None
+    ) = Field(default=None, title='Generated  Type')
     search: str | None = Field(default=None, title='Search')
     with_facets: bool = Field(default=False, title='With Facets')
     within_brain_region_hierarchy_id: UUID | None = Field(
@@ -3146,9 +3285,9 @@ class ReadManyCalibrationGetParametersQuery(BaseModel):
     within_brain_region_ascendants: bool = Field(
         default=False, title='Within Brain Region Ascendants'
     )
-    within_brain_region_direction: WithinBrainRegionDirection | None = Field(
-        default=None, title='Within Brain Region Direction'
-    )
+    within_brain_region_direction: (
+        Literal['ascendants', 'descendants', 'ascendants_and_descendants'] | None
+    ) = Field(default=None, title='Within Brain Region Direction')
 
 
 class ReadManyCellCompositionGetParametersQuery(BaseModel):
@@ -3293,15 +3432,32 @@ class ReadManyCellMorphologyGetParametersQuery(BaseModel):
     measurement_kind__definition: str | None = Field(
         default=None, title='Measurement Kind  Definition'
     )
-    measurement_kind__structural_domain: StructuralDomain | None = Field(
-        default=None, title='Measurement Kind  Structural Domain'
-    )
-    measurement_item__name: MeasurementStatistic | None = Field(
-        default=None, title='Measurement Item  Name'
-    )
-    measurement_item__unit: MeasurementUnit | None = Field(
-        default=None, title='Measurement Item  Unit'
-    )
+    measurement_kind__structural_domain: (
+        Literal[
+            'apical_dendrite', 'basal_dendrite', 'axon', 'soma', 'neuron_morphology'
+        ]
+        | None
+    ) = Field(default=None, title='Measurement Kind  Structural Domain')
+    measurement_item__name: (
+        Literal[
+            'mean',
+            'median',
+            'mode',
+            'variance',
+            'data_point',
+            'sample_size',
+            'standard_error',
+            'standard_deviation',
+            'raw',
+            'minimum',
+            'maximum',
+            'sum',
+        ]
+        | None
+    ) = Field(default=None, title='Measurement Item  Name')
+    measurement_item__unit: (
+        Literal['dimensionless', '1/μm', '1/mm³', 'μm', 'μm²', 'μm³', 'radian'] | None
+    ) = Field(default=None, title='Measurement Item  Unit')
     measurement_item__value__gte: float | None = Field(
         default=None, title='Measurement Item  Value  Gte'
     )
@@ -3453,11 +3609,25 @@ class ReadManyCellMorphologyGetParametersQuery(BaseModel):
     cell_morphology_protocol__id__in: list[UUID] | None = Field(
         default=None, title='Cell Morphology Protocol  Id  In'
     )
-    cell_morphology_protocol__generation_type: CellMorphologyGenerationType | None = (
-        Field(default=None, title='Cell Morphology Protocol  Generation Type')
-    )
+    cell_morphology_protocol__generation_type: (
+        Literal[
+            'digital_reconstruction',
+            'modified_reconstruction',
+            'computationally_synthesized',
+            'placeholder',
+        ]
+        | None
+    ) = Field(default=None, title='Cell Morphology Protocol  Generation Type')
     cell_morphology_protocol__generation_type__in: (
-        list[CellMorphologyGenerationType] | None
+        list[
+            Literal[
+                'digital_reconstruction',
+                'modified_reconstruction',
+                'computationally_synthesized',
+                'placeholder',
+            ]
+        ]
+        | None
     ) = Field(default=None, title='Cell Morphology Protocol  Generation Type  In')
     search: str | None = Field(default=None, title='Search')
     with_facets: bool = Field(default=False, title='With Facets')
@@ -3470,9 +3640,9 @@ class ReadManyCellMorphologyGetParametersQuery(BaseModel):
     within_brain_region_ascendants: bool = Field(
         default=False, title='Within Brain Region Ascendants'
     )
-    within_brain_region_direction: WithinBrainRegionDirection | None = Field(
-        default=None, title='Within Brain Region Direction'
-    )
+    within_brain_region_direction: (
+        Literal['ascendants', 'descendants', 'ascendants_and_descendants'] | None
+    ) = Field(default=None, title='Within Brain Region Direction')
 
 
 class Expand(RootModel[list[str]]):
@@ -3504,12 +3674,26 @@ class ReadManyCellMorphologyProtocolGetParametersQuery(BaseModel):
     )
     id: UUID | None = Field(default=None, title='Id')
     id__in: list[UUID] | None = Field(default=None, title='Id  In')
-    generation_type: CellMorphologyGenerationType | None = Field(
-        default=None, title='Generation Type'
-    )
-    generation_type__in: list[CellMorphologyGenerationType] | None = Field(
-        default=None, title='Generation Type  In'
-    )
+    generation_type: (
+        Literal[
+            'digital_reconstruction',
+            'modified_reconstruction',
+            'computationally_synthesized',
+            'placeholder',
+        ]
+        | None
+    ) = Field(default=None, title='Generation Type')
+    generation_type__in: (
+        list[
+            Literal[
+                'digital_reconstruction',
+                'modified_reconstruction',
+                'computationally_synthesized',
+                'placeholder',
+            ]
+        ]
+        | None
+    ) = Field(default=None, title='Generation Type  In')
     order_by: list[str] = Field(default=['-creation_date'], title='Order By')
     contribution__pref_label: str | None = Field(
         default=None, title='Contribution  Pref Label'
@@ -3589,20 +3773,44 @@ UpdateOneCellMorphologyProtocolIdPatchRequest = HealthHealthGetResponse
 
 
 class ReadCircuitHierarchyCircuitHierarchyGetParametersQuery(BaseModel):
-    derivation_type: DerivationType
+    derivation_type: Literal[
+        'circuit_extraction', 'circuit_rewiring', 'unspecified'
+    ] = Field(
+        ...,
+        description='Represents the type of derivation relationship between two entities.\n\nAttributes:\n    circuit_extraction: Indicates that the entity was derived by extracting a set of nodes from\n     a circuit.\n    circuit_rewiring: Indicates that the entity was derived by rewiring the connectivity of\n      a circuit.\n    unspecified: Indicates a derivation that does not require a specific type.',
+        title='DerivationType',
+    )
 
 
 class ReadManyCircuitGetParametersQuery(BaseModel):
     page: int = Field(default=1, ge=1, title='Page')
     page_size: int = Field(default=100, ge=1, title='Page Size')
-    scale: CircuitScale | None = Field(default=None, title='Scale')
-    scale__in: list[CircuitScale] | None = Field(default=None, title='Scale  In')
-    build_category: CircuitBuildCategory | None = Field(
+    scale: (
+        Literal[
+            'single', 'pair', 'small', 'microcircuit', 'region', 'system', 'whole_brain'
+        ]
+        | None
+    ) = Field(default=None, title='Scale')
+    scale__in: (
+        list[
+            Literal[
+                'single',
+                'pair',
+                'small',
+                'microcircuit',
+                'region',
+                'system',
+                'whole_brain',
+            ]
+        ]
+        | None
+    ) = Field(default=None, title='Scale  In')
+    build_category: Literal['computational_model', 'em_reconstruction'] | None = Field(
         default=None, title='Build Category'
     )
-    build_category__in: list[CircuitBuildCategory] | None = Field(
-        default=None, title='Build Category  In'
-    )
+    build_category__in: (
+        list[Literal['computational_model', 'em_reconstruction']] | None
+    ) = Field(default=None, title='Build Category  In')
     name: str | None = Field(default=None, title='Name')
     name__in: list[str] | None = Field(default=None, title='Name  In')
     name__ilike: str | None = Field(default=None, title='Name  Ilike')
@@ -3791,9 +3999,9 @@ class ReadManyCircuitGetParametersQuery(BaseModel):
     within_brain_region_ascendants: bool = Field(
         default=False, title='Within Brain Region Ascendants'
     )
-    within_brain_region_direction: WithinBrainRegionDirection | None = Field(
-        default=None, title='Within Brain Region Direction'
-    )
+    within_brain_region_direction: (
+        Literal['ascendants', 'descendants', 'ascendants_and_descendants'] | None
+    ) = Field(default=None, title='Within Brain Region Direction')
 
 
 class ReadManyCircuitExtractionCampaignGetParametersQuery(BaseModel):
@@ -3903,9 +4111,9 @@ class ReadManyCircuitExtractionCampaignGetParametersQuery(BaseModel):
     within_brain_region_ascendants: bool = Field(
         default=False, title='Within Brain Region Ascendants'
     )
-    within_brain_region_direction: WithinBrainRegionDirection | None = Field(
-        default=None, title='Within Brain Region Direction'
-    )
+    within_brain_region_direction: (
+        Literal['ascendants', 'descendants', 'ascendants_and_descendants'] | None
+    ) = Field(default=None, title='Within Brain Region Direction')
 
 
 class ReadManyCircuitExtractionConfigGetParametersQuery(BaseModel):
@@ -4012,16 +4220,32 @@ class ReadManyCircuitExtractionConfigGetParametersQuery(BaseModel):
     updated_by__sub_id__in: list[UUID] | None = Field(
         default=None, title='Updated By  Sub Id  In'
     )
-    circuit__scale: CircuitScale | None = Field(default=None, title='Circuit  Scale')
-    circuit__scale__in: list[CircuitScale] | None = Field(
-        default=None, title='Circuit  Scale  In'
-    )
-    circuit__build_category: CircuitBuildCategory | None = Field(
-        default=None, title='Circuit  Build Category'
-    )
-    circuit__build_category__in: list[CircuitBuildCategory] | None = Field(
-        default=None, title='Circuit  Build Category  In'
-    )
+    circuit__scale: (
+        Literal[
+            'single', 'pair', 'small', 'microcircuit', 'region', 'system', 'whole_brain'
+        ]
+        | None
+    ) = Field(default=None, title='Circuit  Scale')
+    circuit__scale__in: (
+        list[
+            Literal[
+                'single',
+                'pair',
+                'small',
+                'microcircuit',
+                'region',
+                'system',
+                'whole_brain',
+            ]
+        ]
+        | None
+    ) = Field(default=None, title='Circuit  Scale  In')
+    circuit__build_category: (
+        Literal['computational_model', 'em_reconstruction'] | None
+    ) = Field(default=None, title='Circuit  Build Category')
+    circuit__build_category__in: (
+        list[Literal['computational_model', 'em_reconstruction']] | None
+    ) = Field(default=None, title='Circuit  Build Category  In')
     circuit__name: str | None = Field(default=None, title='Circuit  Name')
     circuit__name__in: list[str] | None = Field(default=None, title='Circuit  Name  In')
     circuit__name__ilike: str | None = Field(default=None, title='Circuit  Name  Ilike')
@@ -4038,9 +4262,9 @@ class ReadManyCircuitExtractionConfigGetParametersQuery(BaseModel):
     within_brain_region_ascendants: bool = Field(
         default=False, title='Within Brain Region Ascendants'
     )
-    within_brain_region_direction: WithinBrainRegionDirection | None = Field(
-        default=None, title='Within Brain Region Direction'
-    )
+    within_brain_region_direction: (
+        Literal['ascendants', 'descendants', 'ascendants_and_descendants'] | None
+    ) = Field(default=None, title='Within Brain Region Direction')
 
 
 ReadManyCircuitExtractionConfigGenerationGetParametersQuery = (
@@ -4068,7 +4292,7 @@ class ReadManyCircuitExtractionExecutionGetParametersQuery(BaseModel):
     start_time: AwareDatetime | None = Field(default=None, title='Start Time')
     end_time: AwareDatetime | None = Field(default=None, title='End Time')
     order_by: list[str] = Field(default=['-creation_date'], title='Order By')
-    status: CircuitExtractionExecutionStatus | None = Field(
+    status: Literal['created', 'pending', 'running', 'done', 'error'] | None = Field(
         default=None, title='Status'
     )
     created_by__pref_label: str | None = Field(
@@ -4131,12 +4355,100 @@ class ReadManyCircuitExtractionExecutionGetParametersQuery(BaseModel):
     )
     used__id: UUID | None = Field(default=None, title='Used  Id')
     used__id__in: list[UUID] | None = Field(default=None, title='Used  Id  In')
-    used__type: EntityType | None = Field(default=None, title='Used  Type')
+    used__type: (
+        Literal[
+            'analysis_software_source_code',
+            'brain_atlas',
+            'brain_atlas_region',
+            'cell_composition',
+            'cell_morphology',
+            'cell_morphology_protocol',
+            'electrical_cell_recording',
+            'electrical_recording',
+            'electrical_recording_stimulus',
+            'emodel',
+            'experimental_bouton_density',
+            'experimental_neuron_density',
+            'experimental_synapses_per_connection',
+            'external_url',
+            'ion_channel_model',
+            'ion_channel_modeling_campaign',
+            'ion_channel_modeling_config',
+            'ion_channel_recording',
+            'memodel',
+            'memodel_calibration_result',
+            'me_type_density',
+            'simulation',
+            'simulation_campaign',
+            'simulation_result',
+            'scientific_artifact',
+            'single_neuron_simulation',
+            'single_neuron_synaptome',
+            'single_neuron_synaptome_simulation',
+            'subject',
+            'validation_result',
+            'circuit',
+            'circuit_extraction_campaign',
+            'circuit_extraction_config',
+            'em_dense_reconstruction_dataset',
+            'em_cell_mesh',
+            'analysis_notebook_template',
+            'analysis_notebook_environment',
+            'analysis_notebook_result',
+            'skeletonization_config',
+            'skeletonization_campaign',
+        ]
+        | None
+    ) = Field(default=None, title='Used  Type')
     generated__id: UUID | None = Field(default=None, title='Generated  Id')
     generated__id__in: list[UUID] | None = Field(
         default=None, title='Generated  Id  In'
     )
-    generated__type: EntityType | None = Field(default=None, title='Generated  Type')
+    generated__type: (
+        Literal[
+            'analysis_software_source_code',
+            'brain_atlas',
+            'brain_atlas_region',
+            'cell_composition',
+            'cell_morphology',
+            'cell_morphology_protocol',
+            'electrical_cell_recording',
+            'electrical_recording',
+            'electrical_recording_stimulus',
+            'emodel',
+            'experimental_bouton_density',
+            'experimental_neuron_density',
+            'experimental_synapses_per_connection',
+            'external_url',
+            'ion_channel_model',
+            'ion_channel_modeling_campaign',
+            'ion_channel_modeling_config',
+            'ion_channel_recording',
+            'memodel',
+            'memodel_calibration_result',
+            'me_type_density',
+            'simulation',
+            'simulation_campaign',
+            'simulation_result',
+            'scientific_artifact',
+            'single_neuron_simulation',
+            'single_neuron_synaptome',
+            'single_neuron_synaptome_simulation',
+            'subject',
+            'validation_result',
+            'circuit',
+            'circuit_extraction_campaign',
+            'circuit_extraction_config',
+            'em_dense_reconstruction_dataset',
+            'em_cell_mesh',
+            'analysis_notebook_template',
+            'analysis_notebook_environment',
+            'analysis_notebook_result',
+            'skeletonization_config',
+            'skeletonization_campaign',
+        ]
+        | None
+    ) = Field(default=None, title='Generated  Type')
     search: str | None = Field(default=None, title='Search')
     with_facets: bool = Field(default=False, title='With Facets')
     within_brain_region_hierarchy_id: UUID | None = Field(
@@ -4148,9 +4460,9 @@ class ReadManyCircuitExtractionExecutionGetParametersQuery(BaseModel):
     within_brain_region_ascendants: bool = Field(
         default=False, title='Within Brain Region Ascendants'
     )
-    within_brain_region_direction: WithinBrainRegionDirection | None = Field(
-        default=None, title='Within Brain Region Direction'
-    )
+    within_brain_region_direction: (
+        Literal['ascendants', 'descendants', 'ascendants_and_descendants'] | None
+    ) = Field(default=None, title='Within Brain Region Direction')
 
 
 class ReadManyConsortiumGetParametersQuery(BaseModel):
@@ -4312,16 +4624,110 @@ class ReadManyContributionGetParametersQuery(BaseModel):
     )
     entity__id: UUID | None = Field(default=None, title='Entity  Id')
     entity__id__in: list[UUID] | None = Field(default=None, title='Entity  Id  In')
-    entity__type: EntityType | None = Field(default=None, title='Entity  Type')
+    entity__type: (
+        Literal[
+            'analysis_software_source_code',
+            'brain_atlas',
+            'brain_atlas_region',
+            'cell_composition',
+            'cell_morphology',
+            'cell_morphology_protocol',
+            'electrical_cell_recording',
+            'electrical_recording',
+            'electrical_recording_stimulus',
+            'emodel',
+            'experimental_bouton_density',
+            'experimental_neuron_density',
+            'experimental_synapses_per_connection',
+            'external_url',
+            'ion_channel_model',
+            'ion_channel_modeling_campaign',
+            'ion_channel_modeling_config',
+            'ion_channel_recording',
+            'memodel',
+            'memodel_calibration_result',
+            'me_type_density',
+            'simulation',
+            'simulation_campaign',
+            'simulation_result',
+            'scientific_artifact',
+            'single_neuron_simulation',
+            'single_neuron_synaptome',
+            'single_neuron_synaptome_simulation',
+            'subject',
+            'validation_result',
+            'circuit',
+            'circuit_extraction_campaign',
+            'circuit_extraction_config',
+            'em_dense_reconstruction_dataset',
+            'em_cell_mesh',
+            'analysis_notebook_template',
+            'analysis_notebook_environment',
+            'analysis_notebook_result',
+            'skeletonization_config',
+            'skeletonization_campaign',
+        ]
+        | None
+    ) = Field(default=None, title='Entity  Type')
     page: int = Field(default=1, ge=1, title='Page')
     page_size: int = Field(default=100, ge=1, title='Page Size')
 
 
 class ReadManyEntityRouteEntityIdDerivedFromGetParametersQuery(BaseModel):
-    derivation_type: DerivationType
+    derivation_type: Literal[
+        'circuit_extraction', 'circuit_rewiring', 'unspecified'
+    ] = Field(
+        ...,
+        description='Represents the type of derivation relationship between two entities.\n\nAttributes:\n    circuit_extraction: Indicates that the entity was derived by extracting a set of nodes from\n     a circuit.\n    circuit_rewiring: Indicates that the entity was derived by rewiring the connectivity of\n      a circuit.\n    unspecified: Indicates a derivation that does not require a specific type.',
+        title='DerivationType',
+    )
     page: int = Field(default=1, ge=1, title='Page')
     page_size: int = Field(default=100, ge=1, title='Page Size')
-    type: EntityType | None = Field(default=None, title='Type')
+    type: (
+        Literal[
+            'analysis_software_source_code',
+            'brain_atlas',
+            'brain_atlas_region',
+            'cell_composition',
+            'cell_morphology',
+            'cell_morphology_protocol',
+            'electrical_cell_recording',
+            'electrical_recording',
+            'electrical_recording_stimulus',
+            'emodel',
+            'experimental_bouton_density',
+            'experimental_neuron_density',
+            'experimental_synapses_per_connection',
+            'external_url',
+            'ion_channel_model',
+            'ion_channel_modeling_campaign',
+            'ion_channel_modeling_config',
+            'ion_channel_recording',
+            'memodel',
+            'memodel_calibration_result',
+            'me_type_density',
+            'simulation',
+            'simulation_campaign',
+            'simulation_result',
+            'scientific_artifact',
+            'single_neuron_simulation',
+            'single_neuron_synaptome',
+            'single_neuron_synaptome_simulation',
+            'subject',
+            'validation_result',
+            'circuit',
+            'circuit_extraction_campaign',
+            'circuit_extraction_config',
+            'em_dense_reconstruction_dataset',
+            'em_cell_mesh',
+            'analysis_notebook_template',
+            'analysis_notebook_environment',
+            'analysis_notebook_result',
+            'skeletonization_config',
+            'skeletonization_campaign',
+        ]
+        | None
+    ) = Field(default=None, title='Type')
     order_by: list[str] = Field(default=['-creation_date'], title='Order By')
 
 
@@ -4357,18 +4763,18 @@ class ReadManyElectricalCellRecordingGetParametersQuery(BaseModel):
     )
     contact_email: str | None = Field(default=None, title='Contact Email')
     order_by: list[str] = Field(default=['-creation_date'], title='Order By')
-    recording_type: ElectricalRecordingType | None = Field(
-        default=None, title='Recording Type'
+    recording_type: (
+        Literal['intracellular', 'extracellular', 'both', 'unknown'] | None
+    ) = Field(default=None, title='Recording Type')
+    recording_type__in: (
+        list[Literal['intracellular', 'extracellular', 'both', 'unknown']] | None
+    ) = Field(default=None, title='Recording Type  In')
+    recording_origin: Literal['in_vivo', 'in_vitro', 'in_silico', 'unknown'] | None = (
+        Field(default=None, title='Recording Origin')
     )
-    recording_type__in: list[ElectricalRecordingType] | None = Field(
-        default=None, title='Recording Type  In'
-    )
-    recording_origin: ElectricalRecordingOrigin | None = Field(
-        default=None, title='Recording Origin'
-    )
-    recording_origin__in: list[ElectricalRecordingOrigin] | None = Field(
-        default=None, title='Recording Origin  In'
-    )
+    recording_origin__in: (
+        list[Literal['in_vivo', 'in_vitro', 'in_silico', 'unknown']] | None
+    ) = Field(default=None, title='Recording Origin  In')
     etype__pref_label: str | None = Field(default=None, title='Etype  Pref Label')
     etype__pref_label__in: list[str] | None = Field(
         default=None, title='Etype  Pref Label  In'
@@ -4519,9 +4925,9 @@ class ReadManyElectricalCellRecordingGetParametersQuery(BaseModel):
     within_brain_region_ascendants: bool = Field(
         default=False, title='Within Brain Region Ascendants'
     )
-    within_brain_region_direction: WithinBrainRegionDirection | None = Field(
-        default=None, title='Within Brain Region Direction'
-    )
+    within_brain_region_direction: (
+        Literal['ascendants', 'descendants', 'ascendants_and_descendants'] | None
+    ) = Field(default=None, title='Within Brain Region Direction')
 
 
 class ReadManyElectricalRecordingStimulusGetParametersQuery(BaseModel):
@@ -4549,10 +4955,32 @@ class ReadManyElectricalRecordingStimulusGetParametersQuery(BaseModel):
     id: UUID | None = Field(default=None, title='Id')
     id__in: list[UUID] | None = Field(default=None, title='Id  In')
     order_by: list[str] = Field(default=['-creation_date'], title='Order By')
-    shape: ElectricalRecordingStimulusShape | None = Field(default=None, title='Shape')
-    injection_type: ElectricalRecordingStimulusType | None = Field(
-        default=None, title='Injection Type'
-    )
+    shape: (
+        Literal[
+            'cheops',
+            'constant',
+            'pulse',
+            'step',
+            'ramp',
+            'noise',
+            'sinusoidal',
+            'other',
+            'two_steps',
+            'unknown',
+        ]
+        | None
+    ) = Field(default=None, title='Shape')
+    injection_type: (
+        Literal[
+            'voltage_clamp',
+            'current_clamp',
+            'conductance_clamp',
+            'extracellular',
+            'other',
+            'unknown',
+        ]
+        | None
+    ) = Field(default=None, title='Injection Type')
     recording_id: UUID | None = Field(default=None, title='Recording Id')
     recording_id__in: list[UUID] | None = Field(default=None, title='Recording Id  In')
     contribution__pref_label: str | None = Field(
@@ -4637,9 +5065,9 @@ class ReadManyElectricalRecordingStimulusGetParametersQuery(BaseModel):
     within_brain_region_ascendants: bool = Field(
         default=False, title='Within Brain Region Ascendants'
     )
-    within_brain_region_direction: WithinBrainRegionDirection | None = Field(
-        default=None, title='Within Brain Region Direction'
-    )
+    within_brain_region_direction: (
+        Literal['ascendants', 'descendants', 'ascendants_and_descendants'] | None
+    ) = Field(default=None, title='Within Brain Region Direction')
 
 
 class ReadManyEmCellMeshGetParametersQuery(BaseModel):
@@ -4677,7 +5105,9 @@ class ReadManyEmCellMeshGetParametersQuery(BaseModel):
         default=None, title='Dense Reconstruction Cell Id'
     )
     level_of_detail: int | None = Field(default=None, title='Level Of Detail')
-    mesh_type: EMCellMeshType | None = Field(default=None, title='Mesh Type')
+    mesh_type: Literal['static', 'dynamic'] | None = Field(
+        default=None, title='Mesh Type'
+    )
     contribution__pref_label: str | None = Field(
         default=None, title='Contribution  Pref Label'
     )
@@ -4862,9 +5292,9 @@ class ReadManyEmCellMeshGetParametersQuery(BaseModel):
     within_brain_region_ascendants: bool = Field(
         default=False, title='Within Brain Region Ascendants'
     )
-    within_brain_region_direction: WithinBrainRegionDirection | None = Field(
-        default=None, title='Within Brain Region Direction'
-    )
+    within_brain_region_direction: (
+        Literal['ascendants', 'descendants', 'ascendants_and_descendants'] | None
+    ) = Field(default=None, title='Within Brain Region Direction')
     with_facets: bool = Field(default=False, title='With Facets')
 
 
@@ -5040,9 +5470,9 @@ class ReadManyEmDenseReconstructionDatasetGetParametersQuery(BaseModel):
     within_brain_region_ascendants: bool = Field(
         default=False, title='Within Brain Region Ascendants'
     )
-    within_brain_region_direction: WithinBrainRegionDirection | None = Field(
-        default=None, title='Within Brain Region Direction'
-    )
+    within_brain_region_direction: (
+        Literal['ascendants', 'descendants', 'ascendants_and_descendants'] | None
+    ) = Field(default=None, title='Within Brain Region Direction')
     with_facets: bool = Field(default=False, title='With Facets')
 
 
@@ -5325,15 +5755,36 @@ class ReadManyEmodelGetParametersQuery(BaseModel):
     within_brain_region_ascendants: bool = Field(
         default=False, title='Within Brain Region Ascendants'
     )
-    within_brain_region_direction: WithinBrainRegionDirection | None = Field(
-        default=None, title='Within Brain Region Direction'
-    )
+    within_brain_region_direction: (
+        Literal['ascendants', 'descendants', 'ascendants_and_descendants'] | None
+    ) = Field(default=None, title='Within Brain Region Direction')
 
 
 class CountEntitiesByTypeEntityCountsGetParametersQuery(BaseModel):
-    types: list[EntityTypeWithBrainRegion] = Field(
-        ..., description='Entity types with count', min_length=1, title='Types'
-    )
+    types: list[
+        Literal[
+            'brain_atlas_region',
+            'cell_composition',
+            'cell_morphology',
+            'circuit',
+            'electrical_cell_recording',
+            'electrical_recording',
+            'em_cell_mesh',
+            'em_dense_reconstruction_dataset',
+            'emodel',
+            'experimental_bouton_density',
+            'experimental_neuron_density',
+            'experimental_synapses_per_connection',
+            'ion_channel_model',
+            'ion_channel_recording',
+            'me_type_density',
+            'memodel',
+            'scientific_artifact',
+            'single_neuron_simulation',
+            'single_neuron_synaptome',
+            'single_neuron_synaptome_simulation',
+        ]
+    ] = Field(..., description='Entity types with count', min_length=1, title='Types')
     within_brain_region_hierarchy_id: UUID | None = Field(
         default=None, title='Within Brain Region Hierarchy Id'
     )
@@ -5343,9 +5794,9 @@ class CountEntitiesByTypeEntityCountsGetParametersQuery(BaseModel):
     within_brain_region_ascendants: bool = Field(
         default=False, title='Within Brain Region Ascendants'
     )
-    within_brain_region_direction: WithinBrainRegionDirection | None = Field(
-        default=None, title='Within Brain Region Direction'
-    )
+    within_brain_region_direction: (
+        Literal['ascendants', 'descendants', 'ascendants_and_descendants'] | None
+    ) = Field(default=None, title='Within Brain Region Direction')
 
 
 class ReadManyEtypeGetParametersQuery(BaseModel):
@@ -5602,9 +6053,9 @@ class ReadManyExperimentalBoutonDensityGetParametersQuery(BaseModel):
     within_brain_region_ascendants: bool = Field(
         default=False, title='Within Brain Region Ascendants'
     )
-    within_brain_region_direction: WithinBrainRegionDirection | None = Field(
-        default=None, title='Within Brain Region Direction'
-    )
+    within_brain_region_direction: (
+        Literal['ascendants', 'descendants', 'ascendants_and_descendants'] | None
+    ) = Field(default=None, title='Within Brain Region Direction')
 
 
 class ReadManyExperimentalNeuronDensityGetParametersQuery(BaseModel):
@@ -5791,9 +6242,9 @@ class ReadManyExperimentalNeuronDensityGetParametersQuery(BaseModel):
     within_brain_region_ascendants: bool = Field(
         default=False, title='Within Brain Region Ascendants'
     )
-    within_brain_region_direction: WithinBrainRegionDirection | None = Field(
-        default=None, title='Within Brain Region Direction'
-    )
+    within_brain_region_direction: (
+        Literal['ascendants', 'descendants', 'ascendants_and_descendants'] | None
+    ) = Field(default=None, title='Within Brain Region Direction')
 
 
 class ReadManyExperimentalSynapsesPerConnectionGetParametersQuery(BaseModel):
@@ -6030,9 +6481,9 @@ class ReadManyExperimentalSynapsesPerConnectionGetParametersQuery(BaseModel):
     within_brain_region_ascendants: bool = Field(
         default=False, title='Within Brain Region Ascendants'
     )
-    within_brain_region_direction: WithinBrainRegionDirection | None = Field(
-        default=None, title='Within Brain Region Direction'
-    )
+    within_brain_region_direction: (
+        Literal['ascendants', 'descendants', 'ascendants_and_descendants'] | None
+    ) = Field(default=None, title='Within Brain Region Direction')
 
 
 class ReadManyExternalUrlGetParametersQuery(BaseModel):
@@ -6043,7 +6494,9 @@ class ReadManyExternalUrlGetParametersQuery(BaseModel):
     name__ilike: str | None = Field(default=None, title='Name  Ilike')
     id: UUID | None = Field(default=None, title='Id')
     id__in: list[UUID] | None = Field(default=None, title='Id  In')
-    source: ExternalSource | None = Field(default=None, title='Source')
+    source: Literal['channelpedia', 'modeldb', 'icgenealogy'] | None = Field(
+        default=None, title='Source'
+    )
     url: str | None = Field(default=None, title='Url')
     creation_date__lte: AwareDatetime | None = Field(
         default=None, title='Creation Date  Lte'
@@ -6127,9 +6580,9 @@ class ReadManyExternalUrlGetParametersQuery(BaseModel):
     within_brain_region_ascendants: bool = Field(
         default=False, title='Within Brain Region Ascendants'
     )
-    within_brain_region_direction: WithinBrainRegionDirection | None = Field(
-        default=None, title='Within Brain Region Direction'
-    )
+    within_brain_region_direction: (
+        Literal['ascendants', 'descendants', 'ascendants_and_descendants'] | None
+    ) = Field(default=None, title='Within Brain Region Direction')
 
 
 class ReadManyIonChannelGetParametersQuery(BaseModel):
@@ -6401,9 +6854,9 @@ class ReadManyIonChannelModelGetParametersQuery(BaseModel):
     within_brain_region_ascendants: bool = Field(
         default=False, title='Within Brain Region Ascendants'
     )
-    within_brain_region_direction: WithinBrainRegionDirection | None = Field(
-        default=None, title='Within Brain Region Direction'
-    )
+    within_brain_region_direction: (
+        Literal['ascendants', 'descendants', 'ascendants_and_descendants'] | None
+    ) = Field(default=None, title='Within Brain Region Direction')
     with_facets: bool = Field(default=False, title='With Facets')
 
 
@@ -6529,9 +6982,9 @@ class ReadManyIonChannelModelingCampaignGetParametersQuery(BaseModel):
     within_brain_region_ascendants: bool = Field(
         default=False, title='Within Brain Region Ascendants'
     )
-    within_brain_region_direction: WithinBrainRegionDirection | None = Field(
-        default=None, title='Within Brain Region Direction'
-    )
+    within_brain_region_direction: (
+        Literal['ascendants', 'descendants', 'ascendants_and_descendants'] | None
+    ) = Field(default=None, title='Within Brain Region Direction')
 
 
 class ReadManyIonChannelModelingConfigGetParametersQuery(BaseModel):
@@ -6647,9 +7100,9 @@ class ReadManyIonChannelModelingConfigGetParametersQuery(BaseModel):
     within_brain_region_ascendants: bool = Field(
         default=False, title='Within Brain Region Ascendants'
     )
-    within_brain_region_direction: WithinBrainRegionDirection | None = Field(
-        default=None, title='Within Brain Region Direction'
-    )
+    within_brain_region_direction: (
+        Literal['ascendants', 'descendants', 'ascendants_and_descendants'] | None
+    ) = Field(default=None, title='Within Brain Region Direction')
 
 
 ReadManyIonChannelModelingConfigGenerationGetParametersQuery = (
@@ -6677,7 +7130,7 @@ class ReadManyIonChannelModelingExecutionGetParametersQuery(BaseModel):
     start_time: AwareDatetime | None = Field(default=None, title='Start Time')
     end_time: AwareDatetime | None = Field(default=None, title='End Time')
     order_by: list[str] = Field(default=['-creation_date'], title='Order By')
-    status: IonChannelModelingExecutionStatus | None = Field(
+    status: Literal['created', 'pending', 'running', 'done', 'error'] | None = Field(
         default=None, title='Status'
     )
     created_by__pref_label: str | None = Field(
@@ -6740,12 +7193,100 @@ class ReadManyIonChannelModelingExecutionGetParametersQuery(BaseModel):
     )
     used__id: UUID | None = Field(default=None, title='Used  Id')
     used__id__in: list[UUID] | None = Field(default=None, title='Used  Id  In')
-    used__type: EntityType | None = Field(default=None, title='Used  Type')
+    used__type: (
+        Literal[
+            'analysis_software_source_code',
+            'brain_atlas',
+            'brain_atlas_region',
+            'cell_composition',
+            'cell_morphology',
+            'cell_morphology_protocol',
+            'electrical_cell_recording',
+            'electrical_recording',
+            'electrical_recording_stimulus',
+            'emodel',
+            'experimental_bouton_density',
+            'experimental_neuron_density',
+            'experimental_synapses_per_connection',
+            'external_url',
+            'ion_channel_model',
+            'ion_channel_modeling_campaign',
+            'ion_channel_modeling_config',
+            'ion_channel_recording',
+            'memodel',
+            'memodel_calibration_result',
+            'me_type_density',
+            'simulation',
+            'simulation_campaign',
+            'simulation_result',
+            'scientific_artifact',
+            'single_neuron_simulation',
+            'single_neuron_synaptome',
+            'single_neuron_synaptome_simulation',
+            'subject',
+            'validation_result',
+            'circuit',
+            'circuit_extraction_campaign',
+            'circuit_extraction_config',
+            'em_dense_reconstruction_dataset',
+            'em_cell_mesh',
+            'analysis_notebook_template',
+            'analysis_notebook_environment',
+            'analysis_notebook_result',
+            'skeletonization_config',
+            'skeletonization_campaign',
+        ]
+        | None
+    ) = Field(default=None, title='Used  Type')
     generated__id: UUID | None = Field(default=None, title='Generated  Id')
     generated__id__in: list[UUID] | None = Field(
         default=None, title='Generated  Id  In'
     )
-    generated__type: EntityType | None = Field(default=None, title='Generated  Type')
+    generated__type: (
+        Literal[
+            'analysis_software_source_code',
+            'brain_atlas',
+            'brain_atlas_region',
+            'cell_composition',
+            'cell_morphology',
+            'cell_morphology_protocol',
+            'electrical_cell_recording',
+            'electrical_recording',
+            'electrical_recording_stimulus',
+            'emodel',
+            'experimental_bouton_density',
+            'experimental_neuron_density',
+            'experimental_synapses_per_connection',
+            'external_url',
+            'ion_channel_model',
+            'ion_channel_modeling_campaign',
+            'ion_channel_modeling_config',
+            'ion_channel_recording',
+            'memodel',
+            'memodel_calibration_result',
+            'me_type_density',
+            'simulation',
+            'simulation_campaign',
+            'simulation_result',
+            'scientific_artifact',
+            'single_neuron_simulation',
+            'single_neuron_synaptome',
+            'single_neuron_synaptome_simulation',
+            'subject',
+            'validation_result',
+            'circuit',
+            'circuit_extraction_campaign',
+            'circuit_extraction_config',
+            'em_dense_reconstruction_dataset',
+            'em_cell_mesh',
+            'analysis_notebook_template',
+            'analysis_notebook_environment',
+            'analysis_notebook_result',
+            'skeletonization_config',
+            'skeletonization_campaign',
+        ]
+        | None
+    ) = Field(default=None, title='Generated  Type')
     search: str | None = Field(default=None, title='Search')
     with_facets: bool = Field(default=False, title='With Facets')
     within_brain_region_hierarchy_id: UUID | None = Field(
@@ -6757,9 +7298,9 @@ class ReadManyIonChannelModelingExecutionGetParametersQuery(BaseModel):
     within_brain_region_ascendants: bool = Field(
         default=False, title='Within Brain Region Ascendants'
     )
-    within_brain_region_direction: WithinBrainRegionDirection | None = Field(
-        default=None, title='Within Brain Region Direction'
-    )
+    within_brain_region_direction: (
+        Literal['ascendants', 'descendants', 'ascendants_and_descendants'] | None
+    ) = Field(default=None, title='Within Brain Region Direction')
 
 
 class ReadManyIonChannelRecordingGetParametersQuery(BaseModel):
@@ -6794,18 +7335,18 @@ class ReadManyIonChannelRecordingGetParametersQuery(BaseModel):
     )
     contact_email: str | None = Field(default=None, title='Contact Email')
     order_by: list[str] = Field(default=['-creation_date'], title='Order By')
-    recording_type: ElectricalRecordingType | None = Field(
-        default=None, title='Recording Type'
+    recording_type: (
+        Literal['intracellular', 'extracellular', 'both', 'unknown'] | None
+    ) = Field(default=None, title='Recording Type')
+    recording_type__in: (
+        list[Literal['intracellular', 'extracellular', 'both', 'unknown']] | None
+    ) = Field(default=None, title='Recording Type  In')
+    recording_origin: Literal['in_vivo', 'in_vitro', 'in_silico', 'unknown'] | None = (
+        Field(default=None, title='Recording Origin')
     )
-    recording_type__in: list[ElectricalRecordingType] | None = Field(
-        default=None, title='Recording Type  In'
-    )
-    recording_origin: ElectricalRecordingOrigin | None = Field(
-        default=None, title='Recording Origin'
-    )
-    recording_origin__in: list[ElectricalRecordingOrigin] | None = Field(
-        default=None, title='Recording Origin  In'
-    )
+    recording_origin__in: (
+        list[Literal['in_vivo', 'in_vitro', 'in_silico', 'unknown']] | None
+    ) = Field(default=None, title='Recording Origin  In')
     temperature: float | None = Field(default=None, title='Temperature')
     temperature__lte: float | None = Field(default=None, title='Temperature  Lte')
     temperature__gte: float | None = Field(default=None, title='Temperature  Gte')
@@ -6965,9 +7506,9 @@ class ReadManyIonChannelRecordingGetParametersQuery(BaseModel):
     within_brain_region_ascendants: bool = Field(
         default=False, title='Within Brain Region Ascendants'
     )
-    within_brain_region_direction: WithinBrainRegionDirection | None = Field(
-        default=None, title='Within Brain Region Direction'
-    )
+    within_brain_region_direction: (
+        Literal['ascendants', 'descendants', 'ascendants_and_descendants'] | None
+    ) = Field(default=None, title='Within Brain Region Direction')
 
 
 class ReadManyLicenseGetParametersQuery(BaseModel):
@@ -6998,7 +7539,9 @@ class ReadManyMeasurementAnnotationGetParametersQuery(BaseModel):
     )
     id__in: list[UUID] | None = Field(default=None, title='Id  In')
     entity_id: UUID | None = Field(default=None, title='Entity Id')
-    entity_type: MeasurableEntity | None = Field(default=None, title='Entity Type')
+    entity_type: Literal['cell_morphology'] | None = Field(
+        default=None, title='Entity Type'
+    )
     order_by: list[str] = Field(default=['-creation_date'], title='Order By')
     measurement_kind__pref_label: str | None = Field(
         default=None, title='Measurement Kind  Pref Label'
@@ -7006,15 +7549,32 @@ class ReadManyMeasurementAnnotationGetParametersQuery(BaseModel):
     measurement_kind__definition: str | None = Field(
         default=None, title='Measurement Kind  Definition'
     )
-    measurement_kind__structural_domain: StructuralDomain | None = Field(
-        default=None, title='Measurement Kind  Structural Domain'
-    )
-    measurement_item__name: MeasurementStatistic | None = Field(
-        default=None, title='Measurement Item  Name'
-    )
-    measurement_item__unit: MeasurementUnit | None = Field(
-        default=None, title='Measurement Item  Unit'
-    )
+    measurement_kind__structural_domain: (
+        Literal[
+            'apical_dendrite', 'basal_dendrite', 'axon', 'soma', 'neuron_morphology'
+        ]
+        | None
+    ) = Field(default=None, title='Measurement Kind  Structural Domain')
+    measurement_item__name: (
+        Literal[
+            'mean',
+            'median',
+            'mode',
+            'variance',
+            'data_point',
+            'sample_size',
+            'standard_error',
+            'standard_deviation',
+            'raw',
+            'minimum',
+            'maximum',
+            'sum',
+        ]
+        | None
+    ) = Field(default=None, title='Measurement Item  Name')
+    measurement_item__unit: (
+        Literal['dimensionless', '1/μm', '1/mm³', 'μm', 'μm²', 'μm³', 'radian'] | None
+    ) = Field(default=None, title='Measurement Item  Unit')
     measurement_item__value__gte: float | None = Field(
         default=None, title='Measurement Item  Value  Gte'
     )
@@ -7032,9 +7592,9 @@ class ReadManyMeasurementAnnotationGetParametersQuery(BaseModel):
     within_brain_region_ascendants: bool = Field(
         default=False, title='Within Brain Region Ascendants'
     )
-    within_brain_region_direction: WithinBrainRegionDirection | None = Field(
-        default=None, title='Within Brain Region Direction'
-    )
+    within_brain_region_direction: (
+        Literal['ascendants', 'descendants', 'ascendants_and_descendants'] | None
+    ) = Field(default=None, title='Within Brain Region Direction')
 
 
 class ReadManyMemodelGetParametersQuery(BaseModel):
@@ -7370,9 +7930,9 @@ class ReadManyMemodelGetParametersQuery(BaseModel):
     within_brain_region_ascendants: bool = Field(
         default=False, title='Within Brain Region Ascendants'
     )
-    within_brain_region_direction: WithinBrainRegionDirection | None = Field(
-        default=None, title='Within Brain Region Direction'
-    )
+    within_brain_region_direction: (
+        Literal['ascendants', 'descendants', 'ascendants_and_descendants'] | None
+    ) = Field(default=None, title='Within Brain Region Direction')
 
 
 class ReadManyMemodelCalibrationResultGetParametersQuery(BaseModel):
@@ -7483,9 +8043,9 @@ class ReadManyMemodelCalibrationResultGetParametersQuery(BaseModel):
     within_brain_region_ascendants: bool = Field(
         default=False, title='Within Brain Region Ascendants'
     )
-    within_brain_region_direction: WithinBrainRegionDirection | None = Field(
-        default=None, title='Within Brain Region Direction'
-    )
+    within_brain_region_direction: (
+        Literal['ascendants', 'descendants', 'ascendants_and_descendants'] | None
+    ) = Field(default=None, title='Within Brain Region Direction')
 
 
 ReadManyMtypeGetParametersQuery = ReadManyEtypeGetParametersQuery
@@ -7736,9 +8296,9 @@ class ReadManyPublicationGetParametersQuery(BaseModel):
     within_brain_region_ascendants: bool = Field(
         default=False, title='Within Brain Region Ascendants'
     )
-    within_brain_region_direction: WithinBrainRegionDirection | None = Field(
-        default=None, title='Within Brain Region Direction'
-    )
+    within_brain_region_direction: (
+        Literal['ascendants', 'descendants', 'ascendants_and_descendants'] | None
+    ) = Field(default=None, title='Within Brain Region Direction')
 
 
 class ReadManyRoleGetParametersQuery(BaseModel):
@@ -7826,8 +8386,8 @@ class ReadManyScientificArtifactExternalUrlLinkGetParametersQuery(BaseModel):
     external_url__id__in: list[UUID] | None = Field(
         default=None, title='External Url  Id  In'
     )
-    external_url__source: ExternalSource | None = Field(
-        default=None, title='External Url  Source'
+    external_url__source: Literal['channelpedia', 'modeldb', 'icgenealogy'] | None = (
+        Field(default=None, title='External Url  Source')
     )
     external_url__url: str | None = Field(default=None, title='External Url  Url')
     scientific_artifact__id: UUID | None = Field(
@@ -7856,9 +8416,9 @@ class ReadManyScientificArtifactExternalUrlLinkGetParametersQuery(BaseModel):
     within_brain_region_ascendants: bool = Field(
         default=False, title='Within Brain Region Ascendants'
     )
-    within_brain_region_direction: WithinBrainRegionDirection | None = Field(
-        default=None, title='Within Brain Region Direction'
-    )
+    within_brain_region_direction: (
+        Literal['ascendants', 'descendants', 'ascendants_and_descendants'] | None
+    ) = Field(default=None, title='Within Brain Region Direction')
 
 
 class ReadManyScientificArtifactPublicationLinkGetParametersQuery(BaseModel):
@@ -7867,9 +8427,9 @@ class ReadManyScientificArtifactPublicationLinkGetParametersQuery(BaseModel):
     id: UUID | None = Field(default=None, title='Id')
     id__in: list[UUID] | None = Field(default=None, title='Id  In')
     order_by: list[str] = Field(default=['-creation_date'], title='Order By')
-    publication_type: PublicationType | None = Field(
-        default=None, title='Publication Type'
-    )
+    publication_type: (
+        Literal['entity_source', 'component_source', 'application'] | None
+    ) = Field(default=None, title='Publication Type')
     created_by__pref_label: str | None = Field(
         default=None, title='Created By  Pref Label'
     )
@@ -7972,9 +8532,9 @@ class ReadManyScientificArtifactPublicationLinkGetParametersQuery(BaseModel):
     within_brain_region_ascendants: bool = Field(
         default=False, title='Within Brain Region Ascendants'
     )
-    within_brain_region_direction: WithinBrainRegionDirection | None = Field(
-        default=None, title='Within Brain Region Direction'
-    )
+    within_brain_region_direction: (
+        Literal['ascendants', 'descendants', 'ascendants_and_descendants'] | None
+    ) = Field(default=None, title='Within Brain Region Direction')
 
 
 class ReadManySkeletonizationCampaignGetParametersQuery(BaseModel):
@@ -8099,9 +8659,9 @@ class ReadManySkeletonizationCampaignGetParametersQuery(BaseModel):
     within_brain_region_ascendants: bool = Field(
         default=False, title='Within Brain Region Ascendants'
     )
-    within_brain_region_direction: WithinBrainRegionDirection | None = Field(
-        default=None, title='Within Brain Region Direction'
-    )
+    within_brain_region_direction: (
+        Literal['ascendants', 'descendants', 'ascendants_and_descendants'] | None
+    ) = Field(default=None, title='Within Brain Region Direction')
 
 
 class ReadManySkeletonizationConfigGetParametersQuery(BaseModel):
@@ -8221,9 +8781,9 @@ class ReadManySkeletonizationConfigGetParametersQuery(BaseModel):
     within_brain_region_ascendants: bool = Field(
         default=False, title='Within Brain Region Ascendants'
     )
-    within_brain_region_direction: WithinBrainRegionDirection | None = Field(
-        default=None, title='Within Brain Region Direction'
-    )
+    within_brain_region_direction: (
+        Literal['ascendants', 'descendants', 'ascendants_and_descendants'] | None
+    ) = Field(default=None, title='Within Brain Region Direction')
 
 
 ReadManySkeletonizationConfigGenerationGetParametersQuery = (
@@ -8251,7 +8811,9 @@ class ReadManySkeletonizationExecutionGetParametersQuery(BaseModel):
     start_time: AwareDatetime | None = Field(default=None, title='Start Time')
     end_time: AwareDatetime | None = Field(default=None, title='End Time')
     order_by: list[str] = Field(default=['-creation_date'], title='Order By')
-    status: SkeletonizationExecutionStatus | None = Field(default=None, title='Status')
+    status: Literal['created', 'pending', 'running', 'done', 'error'] | None = Field(
+        default=None, title='Status'
+    )
     created_by__pref_label: str | None = Field(
         default=None, title='Created By  Pref Label'
     )
@@ -8312,12 +8874,100 @@ class ReadManySkeletonizationExecutionGetParametersQuery(BaseModel):
     )
     used__id: UUID | None = Field(default=None, title='Used  Id')
     used__id__in: list[UUID] | None = Field(default=None, title='Used  Id  In')
-    used__type: EntityType | None = Field(default=None, title='Used  Type')
+    used__type: (
+        Literal[
+            'analysis_software_source_code',
+            'brain_atlas',
+            'brain_atlas_region',
+            'cell_composition',
+            'cell_morphology',
+            'cell_morphology_protocol',
+            'electrical_cell_recording',
+            'electrical_recording',
+            'electrical_recording_stimulus',
+            'emodel',
+            'experimental_bouton_density',
+            'experimental_neuron_density',
+            'experimental_synapses_per_connection',
+            'external_url',
+            'ion_channel_model',
+            'ion_channel_modeling_campaign',
+            'ion_channel_modeling_config',
+            'ion_channel_recording',
+            'memodel',
+            'memodel_calibration_result',
+            'me_type_density',
+            'simulation',
+            'simulation_campaign',
+            'simulation_result',
+            'scientific_artifact',
+            'single_neuron_simulation',
+            'single_neuron_synaptome',
+            'single_neuron_synaptome_simulation',
+            'subject',
+            'validation_result',
+            'circuit',
+            'circuit_extraction_campaign',
+            'circuit_extraction_config',
+            'em_dense_reconstruction_dataset',
+            'em_cell_mesh',
+            'analysis_notebook_template',
+            'analysis_notebook_environment',
+            'analysis_notebook_result',
+            'skeletonization_config',
+            'skeletonization_campaign',
+        ]
+        | None
+    ) = Field(default=None, title='Used  Type')
     generated__id: UUID | None = Field(default=None, title='Generated  Id')
     generated__id__in: list[UUID] | None = Field(
         default=None, title='Generated  Id  In'
     )
-    generated__type: EntityType | None = Field(default=None, title='Generated  Type')
+    generated__type: (
+        Literal[
+            'analysis_software_source_code',
+            'brain_atlas',
+            'brain_atlas_region',
+            'cell_composition',
+            'cell_morphology',
+            'cell_morphology_protocol',
+            'electrical_cell_recording',
+            'electrical_recording',
+            'electrical_recording_stimulus',
+            'emodel',
+            'experimental_bouton_density',
+            'experimental_neuron_density',
+            'experimental_synapses_per_connection',
+            'external_url',
+            'ion_channel_model',
+            'ion_channel_modeling_campaign',
+            'ion_channel_modeling_config',
+            'ion_channel_recording',
+            'memodel',
+            'memodel_calibration_result',
+            'me_type_density',
+            'simulation',
+            'simulation_campaign',
+            'simulation_result',
+            'scientific_artifact',
+            'single_neuron_simulation',
+            'single_neuron_synaptome',
+            'single_neuron_synaptome_simulation',
+            'subject',
+            'validation_result',
+            'circuit',
+            'circuit_extraction_campaign',
+            'circuit_extraction_config',
+            'em_dense_reconstruction_dataset',
+            'em_cell_mesh',
+            'analysis_notebook_template',
+            'analysis_notebook_environment',
+            'analysis_notebook_result',
+            'skeletonization_config',
+            'skeletonization_campaign',
+        ]
+        | None
+    ) = Field(default=None, title='Generated  Type')
     search: str | None = Field(default=None, title='Search')
     with_facets: bool = Field(default=False, title='With Facets')
     within_brain_region_hierarchy_id: UUID | None = Field(
@@ -8329,9 +8979,9 @@ class ReadManySkeletonizationExecutionGetParametersQuery(BaseModel):
     within_brain_region_ascendants: bool = Field(
         default=False, title='Within Brain Region Ascendants'
     )
-    within_brain_region_direction: WithinBrainRegionDirection | None = Field(
-        default=None, title='Within Brain Region Direction'
-    )
+    within_brain_region_direction: (
+        Literal['ascendants', 'descendants', 'ascendants_and_descendants'] | None
+    ) = Field(default=None, title='Within Brain Region Direction')
 
 
 class ReadManySimulationGetParametersQuery(BaseModel):
@@ -8438,16 +9088,32 @@ class ReadManySimulationGetParametersQuery(BaseModel):
     updated_by__sub_id__in: list[UUID] | None = Field(
         default=None, title='Updated By  Sub Id  In'
     )
-    circuit__scale: CircuitScale | None = Field(default=None, title='Circuit  Scale')
-    circuit__scale__in: list[CircuitScale] | None = Field(
-        default=None, title='Circuit  Scale  In'
-    )
-    circuit__build_category: CircuitBuildCategory | None = Field(
-        default=None, title='Circuit  Build Category'
-    )
-    circuit__build_category__in: list[CircuitBuildCategory] | None = Field(
-        default=None, title='Circuit  Build Category  In'
-    )
+    circuit__scale: (
+        Literal[
+            'single', 'pair', 'small', 'microcircuit', 'region', 'system', 'whole_brain'
+        ]
+        | None
+    ) = Field(default=None, title='Circuit  Scale')
+    circuit__scale__in: (
+        list[
+            Literal[
+                'single',
+                'pair',
+                'small',
+                'microcircuit',
+                'region',
+                'system',
+                'whole_brain',
+            ]
+        ]
+        | None
+    ) = Field(default=None, title='Circuit  Scale  In')
+    circuit__build_category: (
+        Literal['computational_model', 'em_reconstruction'] | None
+    ) = Field(default=None, title='Circuit  Build Category')
+    circuit__build_category__in: (
+        list[Literal['computational_model', 'em_reconstruction']] | None
+    ) = Field(default=None, title='Circuit  Build Category  In')
     circuit__name: str | None = Field(default=None, title='Circuit  Name')
     circuit__name__in: list[str] | None = Field(default=None, title='Circuit  Name  In')
     circuit__name__ilike: str | None = Field(default=None, title='Circuit  Name  Ilike')
@@ -8464,9 +9130,9 @@ class ReadManySimulationGetParametersQuery(BaseModel):
     within_brain_region_ascendants: bool = Field(
         default=False, title='Within Brain Region Ascendants'
     )
-    within_brain_region_direction: WithinBrainRegionDirection | None = Field(
-        default=None, title='Within Brain Region Direction'
-    )
+    within_brain_region_direction: (
+        Literal['ascendants', 'descendants', 'ascendants_and_descendants'] | None
+    ) = Field(default=None, title='Within Brain Region Direction')
 
 
 class ReadManySimulationCampaignGetParametersQuery(BaseModel):
@@ -8572,16 +9238,32 @@ class ReadManySimulationCampaignGetParametersQuery(BaseModel):
     entity__type: Literal['circuit', 'memodel'] | None = Field(
         default=None, title='Entity  Type'
     )
-    circuit__scale: CircuitScale | None = Field(default=None, title='Circuit  Scale')
-    circuit__scale__in: list[CircuitScale] | None = Field(
-        default=None, title='Circuit  Scale  In'
-    )
-    circuit__build_category: CircuitBuildCategory | None = Field(
-        default=None, title='Circuit  Build Category'
-    )
-    circuit__build_category__in: list[CircuitBuildCategory] | None = Field(
-        default=None, title='Circuit  Build Category  In'
-    )
+    circuit__scale: (
+        Literal[
+            'single', 'pair', 'small', 'microcircuit', 'region', 'system', 'whole_brain'
+        ]
+        | None
+    ) = Field(default=None, title='Circuit  Scale')
+    circuit__scale__in: (
+        list[
+            Literal[
+                'single',
+                'pair',
+                'small',
+                'microcircuit',
+                'region',
+                'system',
+                'whole_brain',
+            ]
+        ]
+        | None
+    ) = Field(default=None, title='Circuit  Scale  In')
+    circuit__build_category: (
+        Literal['computational_model', 'em_reconstruction'] | None
+    ) = Field(default=None, title='Circuit  Build Category')
+    circuit__build_category__in: (
+        list[Literal['computational_model', 'em_reconstruction']] | None
+    ) = Field(default=None, title='Circuit  Build Category  In')
     circuit__name: str | None = Field(default=None, title='Circuit  Name')
     circuit__name__in: list[str] | None = Field(default=None, title='Circuit  Name  In')
     circuit__name__ilike: str | None = Field(default=None, title='Circuit  Name  Ilike')
@@ -8615,9 +9297,9 @@ class ReadManySimulationCampaignGetParametersQuery(BaseModel):
     within_brain_region_ascendants: bool = Field(
         default=False, title='Within Brain Region Ascendants'
     )
-    within_brain_region_direction: WithinBrainRegionDirection | None = Field(
-        default=None, title='Within Brain Region Direction'
-    )
+    within_brain_region_direction: (
+        Literal['ascendants', 'descendants', 'ascendants_and_descendants'] | None
+    ) = Field(default=None, title='Within Brain Region Direction')
 
 
 class ReadManySimulationExecutionGetParametersQuery(BaseModel):
@@ -8640,7 +9322,9 @@ class ReadManySimulationExecutionGetParametersQuery(BaseModel):
     start_time: AwareDatetime | None = Field(default=None, title='Start Time')
     end_time: AwareDatetime | None = Field(default=None, title='End Time')
     order_by: list[str] = Field(default=['-creation_date'], title='Order By')
-    status: SimulationExecutionStatus | None = Field(default=None, title='Status')
+    status: (
+        Literal['created', 'pending', 'running', 'done', 'error', 'cancelled'] | None
+    ) = Field(default=None, title='Status')
     created_by__pref_label: str | None = Field(
         default=None, title='Created By  Pref Label'
     )
@@ -8701,12 +9385,100 @@ class ReadManySimulationExecutionGetParametersQuery(BaseModel):
     )
     used__id: UUID | None = Field(default=None, title='Used  Id')
     used__id__in: list[UUID] | None = Field(default=None, title='Used  Id  In')
-    used__type: EntityType | None = Field(default=None, title='Used  Type')
+    used__type: (
+        Literal[
+            'analysis_software_source_code',
+            'brain_atlas',
+            'brain_atlas_region',
+            'cell_composition',
+            'cell_morphology',
+            'cell_morphology_protocol',
+            'electrical_cell_recording',
+            'electrical_recording',
+            'electrical_recording_stimulus',
+            'emodel',
+            'experimental_bouton_density',
+            'experimental_neuron_density',
+            'experimental_synapses_per_connection',
+            'external_url',
+            'ion_channel_model',
+            'ion_channel_modeling_campaign',
+            'ion_channel_modeling_config',
+            'ion_channel_recording',
+            'memodel',
+            'memodel_calibration_result',
+            'me_type_density',
+            'simulation',
+            'simulation_campaign',
+            'simulation_result',
+            'scientific_artifact',
+            'single_neuron_simulation',
+            'single_neuron_synaptome',
+            'single_neuron_synaptome_simulation',
+            'subject',
+            'validation_result',
+            'circuit',
+            'circuit_extraction_campaign',
+            'circuit_extraction_config',
+            'em_dense_reconstruction_dataset',
+            'em_cell_mesh',
+            'analysis_notebook_template',
+            'analysis_notebook_environment',
+            'analysis_notebook_result',
+            'skeletonization_config',
+            'skeletonization_campaign',
+        ]
+        | None
+    ) = Field(default=None, title='Used  Type')
     generated__id: UUID | None = Field(default=None, title='Generated  Id')
     generated__id__in: list[UUID] | None = Field(
         default=None, title='Generated  Id  In'
     )
-    generated__type: EntityType | None = Field(default=None, title='Generated  Type')
+    generated__type: (
+        Literal[
+            'analysis_software_source_code',
+            'brain_atlas',
+            'brain_atlas_region',
+            'cell_composition',
+            'cell_morphology',
+            'cell_morphology_protocol',
+            'electrical_cell_recording',
+            'electrical_recording',
+            'electrical_recording_stimulus',
+            'emodel',
+            'experimental_bouton_density',
+            'experimental_neuron_density',
+            'experimental_synapses_per_connection',
+            'external_url',
+            'ion_channel_model',
+            'ion_channel_modeling_campaign',
+            'ion_channel_modeling_config',
+            'ion_channel_recording',
+            'memodel',
+            'memodel_calibration_result',
+            'me_type_density',
+            'simulation',
+            'simulation_campaign',
+            'simulation_result',
+            'scientific_artifact',
+            'single_neuron_simulation',
+            'single_neuron_synaptome',
+            'single_neuron_synaptome_simulation',
+            'subject',
+            'validation_result',
+            'circuit',
+            'circuit_extraction_campaign',
+            'circuit_extraction_config',
+            'em_dense_reconstruction_dataset',
+            'em_cell_mesh',
+            'analysis_notebook_template',
+            'analysis_notebook_environment',
+            'analysis_notebook_result',
+            'skeletonization_config',
+            'skeletonization_campaign',
+        ]
+        | None
+    ) = Field(default=None, title='Generated  Type')
     search: str | None = Field(default=None, title='Search')
     with_facets: bool = Field(default=False, title='With Facets')
     within_brain_region_hierarchy_id: UUID | None = Field(
@@ -8718,9 +9490,9 @@ class ReadManySimulationExecutionGetParametersQuery(BaseModel):
     within_brain_region_ascendants: bool = Field(
         default=False, title='Within Brain Region Ascendants'
     )
-    within_brain_region_direction: WithinBrainRegionDirection | None = Field(
-        default=None, title='Within Brain Region Direction'
-    )
+    within_brain_region_direction: (
+        Literal['ascendants', 'descendants', 'ascendants_and_descendants'] | None
+    ) = Field(default=None, title='Within Brain Region Direction')
 
 
 ReadManySimulationGenerationGetParametersQuery = ReadManyCalibrationGetParametersQuery
@@ -8755,7 +9527,9 @@ class ReadManySingleNeuronSimulationGetParametersQuery(BaseModel):
     )
     id: UUID | None = Field(default=None, title='Id')
     id__in: list[UUID] | None = Field(default=None, title='Id  In')
-    status: SingleNeuronSimulationStatus | None = Field(default=None, title='Status')
+    status: Literal['started', 'failure', 'success'] | None = Field(
+        default=None, title='Status'
+    )
     order_by: list[str] = Field(default=['-creation_date'], title='Order By')
     brain_region__name: str | None = Field(default=None, title='Brain Region  Name')
     brain_region__name__in: list[str] | None = Field(
@@ -8860,9 +9634,9 @@ class ReadManySingleNeuronSimulationGetParametersQuery(BaseModel):
     )
     me_model__id: UUID | None = Field(default=None, title='Me Model  Id')
     me_model__id__in: list[UUID] | None = Field(default=None, title='Me Model  Id  In')
-    me_model__validation_status: ValidationStatus | None = Field(
-        default=None, title='Me Model  Validation Status'
-    )
+    me_model__validation_status: (
+        Literal['created', 'initialized', 'running', 'done', 'error'] | None
+    ) = Field(default=None, title='Me Model  Validation Status')
     me_model__brain_region__name: str | None = Field(
         default=None, title='Me Model  Brain Region  Name'
     )
@@ -9148,9 +9922,9 @@ class ReadManySingleNeuronSimulationGetParametersQuery(BaseModel):
     within_brain_region_ascendants: bool = Field(
         default=False, title='Within Brain Region Ascendants'
     )
-    within_brain_region_direction: WithinBrainRegionDirection | None = Field(
-        default=None, title='Within Brain Region Direction'
-    )
+    within_brain_region_direction: (
+        Literal['ascendants', 'descendants', 'ascendants_and_descendants'] | None
+    ) = Field(default=None, title='Within Brain Region Direction')
     with_facets: bool = Field(default=False, title='With Facets')
 
 
@@ -9282,9 +10056,9 @@ class ReadManySingleNeuronSynaptomeGetParametersQuery(BaseModel):
     )
     me_model__id: UUID | None = Field(default=None, title='Me Model  Id')
     me_model__id__in: list[UUID] | None = Field(default=None, title='Me Model  Id  In')
-    me_model__validation_status: ValidationStatus | None = Field(
-        default=None, title='Me Model  Validation Status'
-    )
+    me_model__validation_status: (
+        Literal['created', 'initialized', 'running', 'done', 'error'] | None
+    ) = Field(default=None, title='Me Model  Validation Status')
     me_model__brain_region__name: str | None = Field(
         default=None, title='Me Model  Brain Region  Name'
     )
@@ -9570,9 +10344,9 @@ class ReadManySingleNeuronSynaptomeGetParametersQuery(BaseModel):
     within_brain_region_ascendants: bool = Field(
         default=False, title='Within Brain Region Ascendants'
     )
-    within_brain_region_direction: WithinBrainRegionDirection | None = Field(
-        default=None, title='Within Brain Region Direction'
-    )
+    within_brain_region_direction: (
+        Literal['ascendants', 'descendants', 'ascendants_and_descendants'] | None
+    ) = Field(default=None, title='Within Brain Region Direction')
     with_facets: bool = Field(default=False, title='With Facets')
 
 
@@ -9600,7 +10374,9 @@ class ReadManySingleNeuronSynaptomeSimulationGetParametersQuery(BaseModel):
     )
     id: UUID | None = Field(default=None, title='Id')
     id__in: list[UUID] | None = Field(default=None, title='Id  In')
-    status: SingleNeuronSimulationStatus | None = Field(default=None, title='Status')
+    status: Literal['started', 'failure', 'success'] | None = Field(
+        default=None, title='Status'
+    )
     order_by: list[str] = Field(default=['-creation_date'], title='Order By')
     brain_region__name: str | None = Field(default=None, title='Brain Region  Name')
     brain_region__name__in: list[str] | None = Field(
@@ -9749,9 +10525,9 @@ class ReadManySingleNeuronSynaptomeSimulationGetParametersQuery(BaseModel):
     synaptome__me_model__id__in: list[UUID] | None = Field(
         default=None, title='Synaptome  Me Model  Id  In'
     )
-    synaptome__me_model__validation_status: ValidationStatus | None = Field(
-        default=None, title='Synaptome  Me Model  Validation Status'
-    )
+    synaptome__me_model__validation_status: (
+        Literal['created', 'initialized', 'running', 'done', 'error'] | None
+    ) = Field(default=None, title='Synaptome  Me Model  Validation Status')
     me_model__brain_region__name: str | None = Field(
         default=None, title='Me Model  Brain Region  Name'
     )
@@ -10037,9 +10813,9 @@ class ReadManySingleNeuronSynaptomeSimulationGetParametersQuery(BaseModel):
     within_brain_region_ascendants: bool = Field(
         default=False, title='Within Brain Region Ascendants'
     )
-    within_brain_region_direction: WithinBrainRegionDirection | None = Field(
-        default=None, title='Within Brain Region Direction'
-    )
+    within_brain_region_direction: (
+        Literal['ascendants', 'descendants', 'ascendants_and_descendants'] | None
+    ) = Field(default=None, title='Within Brain Region Direction')
     with_facets: bool = Field(default=False, title='With Facets')
 
 
@@ -10352,15 +11128,9 @@ class ReadManyValidationResultGetParametersQuery(BaseModel):
     within_brain_region_ascendants: bool = Field(
         default=False, title='Within Brain Region Ascendants'
     )
-    within_brain_region_direction: WithinBrainRegionDirection | None = Field(
-        default=None, title='Within Brain Region Direction'
-    )
-
-
-class AgentRead(
-    RootModel[NestedPersonRead | NestedOrganizationRead | NestedConsortiumRead]
-):
-    root: NestedPersonRead | NestedOrganizationRead | NestedConsortiumRead
+    within_brain_region_direction: (
+        Literal['ascendants', 'descendants', 'ascendants_and_descendants'] | None
+    ) = Field(default=None, title='Within Brain Region Direction')
 
 
 class AnalysisNotebookEnvironmentCreate(BaseModel):
@@ -10384,13 +11154,13 @@ class AnalysisNotebookExecutionUpdate(BaseModel):
     model_config = ConfigDict(
         extra='allow',
     )
-    start_time: AwareDatetime | NotSet | None = Field(
+    start_time: AwareDatetime | Literal['<NOT_SET>'] | None = Field(
         default='<NOT_SET>', title='Start Time'
     )
-    end_time: AwareDatetime | NotSet | None = Field(
+    end_time: AwareDatetime | Literal['<NOT_SET>'] | None = Field(
         default='<NOT_SET>', title='End Time'
     )
-    generated_ids: list[UUID] | NotSet | None = Field(
+    generated_ids: list[UUID] | Literal['<NOT_SET>'] | None = Field(
         default='<NOT_SET>', title='Generated Ids'
     )
     analysis_notebook_template_id: UUID | None = Field(
@@ -10406,7 +11176,48 @@ class AnalysisNotebookTemplateInputType(BaseModel):
         extra='allow',
     )
     name: str = Field(..., title='Name')
-    entity_type: EntityType
+    entity_type: Literal[
+        'analysis_software_source_code',
+        'brain_atlas',
+        'brain_atlas_region',
+        'cell_composition',
+        'cell_morphology',
+        'cell_morphology_protocol',
+        'electrical_cell_recording',
+        'electrical_recording',
+        'electrical_recording_stimulus',
+        'emodel',
+        'experimental_bouton_density',
+        'experimental_neuron_density',
+        'experimental_synapses_per_connection',
+        'external_url',
+        'ion_channel_model',
+        'ion_channel_modeling_campaign',
+        'ion_channel_modeling_config',
+        'ion_channel_recording',
+        'memodel',
+        'memodel_calibration_result',
+        'me_type_density',
+        'simulation',
+        'simulation_campaign',
+        'simulation_result',
+        'scientific_artifact',
+        'single_neuron_simulation',
+        'single_neuron_synaptome',
+        'single_neuron_synaptome_simulation',
+        'subject',
+        'validation_result',
+        'circuit',
+        'circuit_extraction_campaign',
+        'circuit_extraction_config',
+        'em_dense_reconstruction_dataset',
+        'em_cell_mesh',
+        'analysis_notebook_template',
+        'analysis_notebook_environment',
+        'analysis_notebook_result',
+        'skeletonization_config',
+        'skeletonization_campaign',
+    ] = Field(..., description='Entity types.', title='EntityType')
     is_list: bool = Field(default=False, title='Is List')
     count_min: int = Field(default=1, ge=0, title='Count Min')
     count_max: CountMax | None = Field(default=1, title='Count Max')
@@ -10436,7 +11247,9 @@ class AnalysisNotebookTemplateUpdate(BaseModel):
     specifications: AnalysisNotebookTemplateSpecificationsInput | str | None = Field(
         default='<NOT_SET>', title='Specifications'
     )
-    scale: AnalysisScale | str | None = Field(default='<NOT_SET>', title='Scale')
+    scale: str | Literal['subcellular', 'cellular', 'circuit', 'system'] | None = Field(
+        default='<NOT_SET>', title='Scale'
+    )
 
 
 class AssetRead(BaseModel):
@@ -10448,12 +11261,79 @@ class AssetRead(BaseModel):
     path: str = Field(..., title='Path')
     full_path: str = Field(..., title='Full Path')
     is_directory: bool = Field(..., title='Is Directory')
-    content_type: ContentType
+    content_type: Literal[
+        'application/json',
+        'application/swc',
+        'application/nrrd',
+        'application/obj',
+        'application/hoc',
+        'application/asc',
+        'application/abf',
+        'application/nwb',
+        'application/x-hdf5',
+        'text/plain',
+        'application/vnd.directory',
+        'application/mod',
+        'application/pdf',
+        'image/png',
+        'image/jpeg',
+        'model/gltf-binary',
+        'application/gzip',
+        'image/webp',
+        'application/x-ipynb+json',
+        'application/zip',
+    ] = Field(..., title='ContentType')
     meta: dict[str, Any] = Field(default={}, title='Meta')
-    label: AssetLabel
-    storage_type: StorageType
+    label: Literal[
+        'morphology',
+        'morphology_with_spines',
+        'cell_composition_summary',
+        'cell_composition_volumes',
+        'single_neuron_synaptome_config',
+        'single_neuron_synaptome_simulation_data',
+        'single_neuron_simulation_data',
+        'sonata_circuit',
+        'compressed_sonata_circuit',
+        'circuit_figures',
+        'circuit_analysis_data',
+        'circuit_connectivity_matrices',
+        'nwb',
+        'neuron_hoc',
+        'emodel_optimization_output',
+        'sonata_simulation_config',
+        'simulation_generation_config',
+        'ion_channel_modeling_generation_config',
+        'custom_node_sets',
+        'campaign_generation_config',
+        'campaign_summary',
+        'replay_spikes',
+        'voltage_report',
+        'spike_report',
+        'neuron_mechanisms',
+        'brain_atlas_annotation',
+        'brain_atlas_region_mesh',
+        'voxel_densities',
+        'validation_result_figure',
+        'validation_result_details',
+        'simulation_designer_image',
+        'circuit_visualization',
+        'node_stats',
+        'network_stats_a',
+        'network_stats_b',
+        'cell_surface_mesh',
+        'jupyter_notebook',
+        'requirements',
+        'notebook_required_files',
+        'ion_channel_model_figure',
+        'ion_channel_model_figure_summary_json',
+        'ion_channel_model_thumbnail',
+        'circuit_extraction_config',
+    ] = Field(..., description='See docs/asset-labels.md.', title='AssetLabel')
+    storage_type: Literal['aws_s3_internal', 'aws_s3_open'] = Field(
+        ..., description='Storage type.', title='StorageType'
+    )
     id: UUID = Field(..., title='Id')
-    status: AssetStatus
+    status: Literal['created', 'deleted'] = Field(..., title='AssetStatus')
 
 
 class AssetRegister(BaseModel):
@@ -10463,17 +11343,128 @@ class AssetRegister(BaseModel):
     path: str = Field(..., title='Path')
     full_path: str = Field(..., title='Full Path')
     is_directory: bool = Field(..., title='Is Directory')
-    content_type: ContentType
+    content_type: Literal[
+        'application/json',
+        'application/swc',
+        'application/nrrd',
+        'application/obj',
+        'application/hoc',
+        'application/asc',
+        'application/abf',
+        'application/nwb',
+        'application/x-hdf5',
+        'text/plain',
+        'application/vnd.directory',
+        'application/mod',
+        'application/pdf',
+        'image/png',
+        'image/jpeg',
+        'model/gltf-binary',
+        'application/gzip',
+        'image/webp',
+        'application/x-ipynb+json',
+        'application/zip',
+    ] = Field(..., title='ContentType')
     meta: dict[str, Any] = Field(default={}, title='Meta')
-    label: AssetLabel
-    storage_type: StorageType
+    label: Literal[
+        'morphology',
+        'morphology_with_spines',
+        'cell_composition_summary',
+        'cell_composition_volumes',
+        'single_neuron_synaptome_config',
+        'single_neuron_synaptome_simulation_data',
+        'single_neuron_simulation_data',
+        'sonata_circuit',
+        'compressed_sonata_circuit',
+        'circuit_figures',
+        'circuit_analysis_data',
+        'circuit_connectivity_matrices',
+        'nwb',
+        'neuron_hoc',
+        'emodel_optimization_output',
+        'sonata_simulation_config',
+        'simulation_generation_config',
+        'ion_channel_modeling_generation_config',
+        'custom_node_sets',
+        'campaign_generation_config',
+        'campaign_summary',
+        'replay_spikes',
+        'voltage_report',
+        'spike_report',
+        'neuron_mechanisms',
+        'brain_atlas_annotation',
+        'brain_atlas_region_mesh',
+        'voxel_densities',
+        'validation_result_figure',
+        'validation_result_details',
+        'simulation_designer_image',
+        'circuit_visualization',
+        'node_stats',
+        'network_stats_a',
+        'network_stats_b',
+        'cell_surface_mesh',
+        'jupyter_notebook',
+        'requirements',
+        'notebook_required_files',
+        'ion_channel_model_figure',
+        'ion_channel_model_figure_summary_json',
+        'ion_channel_model_thumbnail',
+        'circuit_extraction_config',
+    ] = Field(..., description='See docs/asset-labels.md.', title='AssetLabel')
+    storage_type: Literal['aws_s3_internal', 'aws_s3_open'] = Field(
+        ..., description='Storage type.', title='StorageType'
+    )
 
 
 class BasicEntityRead(BaseModel):
     model_config = ConfigDict(
         extra='allow',
     )
-    type: EntityType | None = None
+    type: (
+        Literal[
+            'analysis_software_source_code',
+            'brain_atlas',
+            'brain_atlas_region',
+            'cell_composition',
+            'cell_morphology',
+            'cell_morphology_protocol',
+            'electrical_cell_recording',
+            'electrical_recording',
+            'electrical_recording_stimulus',
+            'emodel',
+            'experimental_bouton_density',
+            'experimental_neuron_density',
+            'experimental_synapses_per_connection',
+            'external_url',
+            'ion_channel_model',
+            'ion_channel_modeling_campaign',
+            'ion_channel_modeling_config',
+            'ion_channel_recording',
+            'memodel',
+            'memodel_calibration_result',
+            'me_type_density',
+            'simulation',
+            'simulation_campaign',
+            'simulation_result',
+            'scientific_artifact',
+            'single_neuron_simulation',
+            'single_neuron_synaptome',
+            'single_neuron_synaptome_simulation',
+            'subject',
+            'validation_result',
+            'circuit',
+            'circuit_extraction_campaign',
+            'circuit_extraction_config',
+            'em_dense_reconstruction_dataset',
+            'em_cell_mesh',
+            'analysis_notebook_template',
+            'analysis_notebook_environment',
+            'analysis_notebook_result',
+            'skeletonization_config',
+            'skeletonization_campaign',
+        ]
+        | None
+    ) = None
     id: UUID = Field(..., title='Id')
 
 
@@ -10626,8 +11617,18 @@ class CircuitCreate(BaseModel):
     number_neurons: int = Field(..., title='Number Neurons')
     number_synapses: int = Field(..., title='Number Synapses')
     number_connections: int | None = Field(..., title='Number Connections')
-    scale: CircuitScale
-    build_category: CircuitBuildCategory
+    scale: Literal[
+        'single', 'pair', 'small', 'microcircuit', 'region', 'system', 'whole_brain'
+    ] = Field(
+        ...,
+        description='Scale of the circuit.\n\n- single: Single neuron + extrinsic connectivity\n- pair: Two connected neurons + intrinsic connectivity + extrinsic connectivity\n- small: Small microcircuit (3-20 neurons) + intrinsic connectivity + extrinsic connectivity;\n  usually containing specific connectivity motifs\n- microcircuit: Any circuit larger than 20 neurons but not being a region, system, or\n  whole-brain circuit; may be atlas-based or not\n- region: Atlas-based continuous volume of an entire brain region or a set of continuous\n  sub-regions\n- system: Non-continuous circuit consisting of at least two microcircuits/regions that are\n  connected by inter-region connectivity\n- whole_brain: Circuit representing an entire brain.',
+        title='CircuitScale',
+    )
+    build_category: Literal['computational_model', 'em_reconstruction'] = Field(
+        ...,
+        description='Information about how/from what source a circuit was built.\n\n- computational_model: Any type of data-driven or statistical model\n- em_reconstruction: Reconstruction from EM\n(More categories may be added later, if needed).',
+        title='CircuitBuildCategory',
+    )
     root_circuit_id: UUID | None = Field(default=None, title='Root Circuit Id')
     atlas_id: UUID | None = Field(default=None, title='Atlas Id')
 
@@ -10647,7 +11648,9 @@ class CircuitExtractionExecutionCreate(BaseModel):
     end_time: AwareDatetime | None = Field(default=None, title='End Time')
     used_ids: list[UUID] = Field(default=[], title='Used Ids')
     generated_ids: list[UUID] = Field(default=[], title='Generated Ids')
-    status: CircuitExtractionExecutionStatus
+    status: Literal['created', 'pending', 'running', 'done', 'error'] = Field(
+        ..., title='CircuitExtractionExecutionStatus'
+    )
 
 
 class CircuitExtractionExecutionRead(BaseModel):
@@ -10661,28 +11664,45 @@ class CircuitExtractionExecutionRead(BaseModel):
     created_by: NestedPersonRead
     updated_by: NestedPersonRead
     id: UUID = Field(..., title='Id')
-    type: ActivityType | None = None
+    type: (
+        Literal[
+            'simulation_execution',
+            'simulation_generation',
+            'validation',
+            'calibration',
+            'analysis_notebook_execution',
+            'ion_channel_modeling_execution',
+            'ion_channel_modeling_config_generation',
+            'circuit_extraction_config_generation',
+            'circuit_extraction_execution',
+            'skeletonization_execution',
+            'skeletonization_config_generation',
+        ]
+        | None
+    ) = None
     start_time: AwareDatetime | None = Field(default=None, title='Start Time')
     end_time: AwareDatetime | None = Field(default=None, title='End Time')
     used: list[NestedEntityRead] = Field(..., title='Used')
     generated: list[NestedEntityRead] = Field(..., title='Generated')
-    status: CircuitExtractionExecutionStatus
+    status: Literal['created', 'pending', 'running', 'done', 'error'] = Field(
+        ..., title='CircuitExtractionExecutionStatus'
+    )
 
 
 class CircuitExtractionExecutionUserUpdate(BaseModel):
     model_config = ConfigDict(
         extra='allow',
     )
-    start_time: AwareDatetime | NotSet | None = Field(
+    start_time: AwareDatetime | Literal['<NOT_SET>'] | None = Field(
         default='<NOT_SET>', title='Start Time'
     )
-    end_time: AwareDatetime | NotSet | None = Field(
+    end_time: AwareDatetime | Literal['<NOT_SET>'] | None = Field(
         default='<NOT_SET>', title='End Time'
     )
-    generated_ids: list[UUID] | NotSet | None = Field(
+    generated_ids: list[UUID] | Literal['<NOT_SET>'] | None = Field(
         default='<NOT_SET>', title='Generated Ids'
     )
-    status: CircuitExtractionExecutionStatus | None = None
+    status: Literal['created', 'pending', 'running', 'done', 'error'] | None = None
 
 
 class ComputationallySynthesizedCellMorphologyProtocolRead(BaseModel):
@@ -10692,7 +11712,9 @@ class ComputationallySynthesizedCellMorphologyProtocolRead(BaseModel):
     protocol_document: ProtocolDocument | None = Field(
         default=None, title='Protocol Document'
     )
-    protocol_design: CellMorphologyProtocolDesign
+    protocol_design: Literal[
+        'electron_microscopy', 'cell_patch', 'fluorophore', 'topological_synthesis'
+    ] = Field(..., title='CellMorphologyProtocolDesign')
     authorized_project_id: UUID4 = Field(..., title='Authorized Project Id')
     authorized_public: bool = Field(default=False, title='Authorized Public')
     created_by: NestedPersonRead
@@ -10721,7 +11743,7 @@ class ContributionRead(BaseModel):
     updated_by: NestedPersonRead
     creation_date: AwareDatetime = Field(..., title='Creation Date')
     update_date: AwareDatetime = Field(..., title='Update Date')
-    agent: AgentRead
+    agent: NestedPersonRead | NestedOrganizationRead | NestedConsortiumRead
     role: RoleRead
     entity: NestedEntityRead
 
@@ -10732,7 +11754,13 @@ class DerivationCreate(BaseModel):
     )
     used_id: UUID = Field(..., title='Used Id')
     generated_id: UUID = Field(..., title='Generated Id')
-    derivation_type: DerivationType
+    derivation_type: Literal[
+        'circuit_extraction', 'circuit_rewiring', 'unspecified'
+    ] = Field(
+        ...,
+        description='Represents the type of derivation relationship between two entities.\n\nAttributes:\n    circuit_extraction: Indicates that the entity was derived by extracting a set of nodes from\n     a circuit.\n    circuit_rewiring: Indicates that the entity was derived by rewiring the connectivity of\n      a circuit.\n    unspecified: Indicates a derivation that does not require a specific type.',
+        title='DerivationType',
+    )
 
 
 class DerivationRead(BaseModel):
@@ -10741,7 +11769,13 @@ class DerivationRead(BaseModel):
     )
     used: BasicEntityRead
     generated: BasicEntityRead
-    derivation_type: DerivationType
+    derivation_type: Literal[
+        'circuit_extraction', 'circuit_rewiring', 'unspecified'
+    ] = Field(
+        ...,
+        description='Represents the type of derivation relationship between two entities.\n\nAttributes:\n    circuit_extraction: Indicates that the entity was derived by extracting a set of nodes from\n     a circuit.\n    circuit_rewiring: Indicates that the entity was derived by rewiring the connectivity of\n      a circuit.\n    unspecified: Indicates a derivation that does not require a specific type.',
+        title='DerivationType',
+    )
 
 
 class DigitalReconstructionCellMorphologyProtocolCreate(BaseModel):
@@ -10751,7 +11785,9 @@ class DigitalReconstructionCellMorphologyProtocolCreate(BaseModel):
     protocol_document: ProtocolDocument | None = Field(
         default=None, title='Protocol Document'
     )
-    protocol_design: CellMorphologyProtocolDesign
+    protocol_design: Literal[
+        'electron_microscopy', 'cell_patch', 'fluorophore', 'topological_synthesis'
+    ] = Field(..., title='CellMorphologyProtocolDesign')
     authorized_public: bool = Field(default=False, title='Authorized Public')
     type: Literal['cell_morphology_protocol'] = Field(
         default='cell_morphology_protocol', title='Type'
@@ -10759,9 +11795,23 @@ class DigitalReconstructionCellMorphologyProtocolCreate(BaseModel):
     generation_type: Literal['digital_reconstruction'] = Field(
         ..., title='Generation Type'
     )
-    staining_type: StainingType | None = None
+    staining_type: (
+        Literal[
+            'golgi',
+            'nissl',
+            'luxol_fast_blue',
+            'fluorescent_nissl',
+            'fluorescent_dyes',
+            'fluorescent_protein_expression',
+            'immunohistochemistry',
+            'other',
+        ]
+        | None
+    ) = None
     slicing_thickness: float = Field(..., ge=0.0, title='Slicing Thickness')
-    slicing_direction: SlicingDirectionType | None = None
+    slicing_direction: Literal['coronal', 'sagittal', 'horizontal', 'custom'] | None = (
+        None
+    )
     magnification: Magnification | None = Field(default=None, title='Magnification')
     tissue_shrinkage: TissueShrinkage | None = Field(
         default=None, title='Tissue Shrinkage'
@@ -10778,7 +11828,9 @@ class DigitalReconstructionCellMorphologyProtocolRead(BaseModel):
     protocol_document: ProtocolDocument | None = Field(
         default=None, title='Protocol Document'
     )
-    protocol_design: CellMorphologyProtocolDesign
+    protocol_design: Literal[
+        'electron_microscopy', 'cell_patch', 'fluorophore', 'topological_synthesis'
+    ] = Field(..., title='CellMorphologyProtocolDesign')
     authorized_project_id: UUID4 = Field(..., title='Authorized Project Id')
     authorized_public: bool = Field(default=False, title='Authorized Public')
     created_by: NestedPersonRead
@@ -10792,9 +11844,23 @@ class DigitalReconstructionCellMorphologyProtocolRead(BaseModel):
     generation_type: Literal['digital_reconstruction'] = Field(
         ..., title='Generation Type'
     )
-    staining_type: StainingType | None = None
+    staining_type: (
+        Literal[
+            'golgi',
+            'nissl',
+            'luxol_fast_blue',
+            'fluorescent_nissl',
+            'fluorescent_dyes',
+            'fluorescent_protein_expression',
+            'immunohistochemistry',
+            'other',
+        ]
+        | None
+    ) = None
     slicing_thickness: float = Field(..., ge=0.0, title='Slicing Thickness')
-    slicing_direction: SlicingDirectionType | None = None
+    slicing_direction: Literal['coronal', 'sagittal', 'horizontal', 'custom'] | None = (
+        None
+    )
     magnification: Magnification | None = Field(default=None, title='Magnification')
     tissue_shrinkage: TissueShrinkage | None = Field(
         default=None, title='Tissue Shrinkage'
@@ -10834,12 +11900,20 @@ class EMCellMeshCreate(BaseModel):
     )
     release_version: int = Field(..., title='Release Version')
     dense_reconstruction_cell_id: int = Field(..., title='Dense Reconstruction Cell Id')
-    generation_method: EMCellMeshGenerationMethod
+    generation_method: Literal['marching_cubes'] = Field(
+        ...,
+        description='The algorithm generating the mesh from a volume.\n\nmarching_cubes: The marching cubes algorithm.',
+        title='EMCellMeshGenerationMethod',
+    )
     level_of_detail: int = Field(..., title='Level Of Detail')
     generation_parameters: dict[str, Any] | None = Field(
         default=None, title='Generation Parameters'
     )
-    mesh_type: EMCellMeshType
+    mesh_type: Literal['static', 'dynamic'] = Field(
+        ...,
+        description='How an EM cell mesh was created.\n\nstatic: The mesh was precomputed at a given level of detail.\ndynamic: The mesh was dynamically generated at query time.',
+        title='EMCellMeshType',
+    )
     em_dense_reconstruction_dataset_id: UUID = Field(
         ..., title='Em Dense Reconstruction Dataset Id'
     )
@@ -10884,7 +11958,9 @@ class EMDenseReconstructionDatasetCreate(BaseModel):
     tissue_shrinkage: float | None = Field(default=None, title='Tissue Shrinkage')
     microscope_type: str | None = Field(default=None, title='Microscope Type')
     detector: str | None = Field(default=None, title='Detector')
-    slicing_direction: SlicingDirectionType | None = None
+    slicing_direction: Literal['coronal', 'sagittal', 'horizontal', 'custom'] | None = (
+        None
+    )
     landmarks: str | None = Field(default=None, title='Landmarks')
     voltage: float | None = Field(default=None, title='Voltage')
     current: float | None = Field(default=None, title='Current')
@@ -10955,12 +12031,14 @@ class ElectricalCellRecordingCreate(BaseModel):
         description='Location on the cell where recording was performed, in hoc-compatible format.',
         title='Recording Location',
     )
-    recording_type: ElectricalRecordingType = Field(
-        ...,
-        description="Recording type. One of: [<ElectricalRecordingStimulusType.conductance_clamp: 'conductance_clamp'>, <ElectricalRecordingStimulusType.current_clamp: 'current_clamp'>, <ElectricalRecordingStimulusType.extracellular: 'extracellular'>, <ElectricalRecordingStimulusType.other: 'other'>, <ElectricalRecordingStimulusType.unknown: 'unknown'>, <ElectricalRecordingStimulusType.voltage_clamp: 'voltage_clamp'>]",
-        title='Recording Type',
+    recording_type: Literal['intracellular', 'extracellular', 'both', 'unknown'] = (
+        Field(
+            ...,
+            description="Recording type. One of: [<ElectricalRecordingStimulusType.conductance_clamp: 'conductance_clamp'>, <ElectricalRecordingStimulusType.current_clamp: 'current_clamp'>, <ElectricalRecordingStimulusType.extracellular: 'extracellular'>, <ElectricalRecordingStimulusType.other: 'other'>, <ElectricalRecordingStimulusType.unknown: 'unknown'>, <ElectricalRecordingStimulusType.voltage_clamp: 'voltage_clamp'>]",
+            title='Recording Type',
+        )
     )
-    recording_origin: ElectricalRecordingOrigin = Field(
+    recording_origin: Literal['in_vivo', 'in_vitro', 'in_silico', 'unknown'] = Field(
         ...,
         description="Recording origin. One of: [<ElectricalRecordingOrigin.in_silico: 'in_silico'>, <ElectricalRecordingOrigin.in_vitro: 'in_vitro'>, <ElectricalRecordingOrigin.in_vivo: 'in_vivo'>, <ElectricalRecordingOrigin.unknown: 'unknown'>]",
         title='Recording Origin',
@@ -10997,12 +12075,12 @@ class ElectricalCellRecordingUserUpdate(BaseModel):
     recording_location: list[str] | str | None = Field(
         default='<NOT_SET>', title='Recording Location'
     )
-    recording_type: ElectricalRecordingType | str | None = Field(
-        default='<NOT_SET>', title='Recording Type'
-    )
-    recording_origin: ElectricalRecordingOrigin | str | None = Field(
-        default='<NOT_SET>', title='Recording Origin'
-    )
+    recording_type: (
+        str | Literal['intracellular', 'extracellular', 'both', 'unknown'] | None
+    ) = Field(default='<NOT_SET>', title='Recording Type')
+    recording_origin: (
+        str | Literal['in_vivo', 'in_vitro', 'in_silico', 'unknown'] | None
+    ) = Field(default='<NOT_SET>', title='Recording Origin')
     temperature: float | str | None = Field(default='<NOT_SET>', title='Temperature')
     comment: str | None = Field(default='<NOT_SET>', title='Comment')
     legacy_id: list[str] | str | None = Field(default='<NOT_SET>', title='Legacy Id')
@@ -11016,8 +12094,26 @@ class ElectricalRecordingStimulusCreate(BaseModel):
     name: str = Field(..., title='Name')
     description: str = Field(..., title='Description')
     dt: float | None = Field(default=None, title='Dt')
-    injection_type: ElectricalRecordingStimulusType
-    shape: ElectricalRecordingStimulusShape
+    injection_type: Literal[
+        'voltage_clamp',
+        'current_clamp',
+        'conductance_clamp',
+        'extracellular',
+        'other',
+        'unknown',
+    ] = Field(..., title='ElectricalRecordingStimulusType')
+    shape: Literal[
+        'cheops',
+        'constant',
+        'pulse',
+        'step',
+        'ramp',
+        'noise',
+        'sinusoidal',
+        'other',
+        'two_steps',
+        'unknown',
+    ] = Field(..., title='ElectricalRecordingStimulusShape')
     start_time: float | None = Field(default=None, title='Start Time')
     end_time: float | None = Field(default=None, title='End Time')
     recording_id: UUID = Field(..., title='Recording Id')
@@ -11033,13 +12129,75 @@ class ElectricalRecordingStimulusRead(BaseModel):
     updated_by: NestedPersonRead
     creation_date: AwareDatetime = Field(..., title='Creation Date')
     update_date: AwareDatetime = Field(..., title='Update Date')
-    type: EntityType | None = None
+    type: (
+        Literal[
+            'analysis_software_source_code',
+            'brain_atlas',
+            'brain_atlas_region',
+            'cell_composition',
+            'cell_morphology',
+            'cell_morphology_protocol',
+            'electrical_cell_recording',
+            'electrical_recording',
+            'electrical_recording_stimulus',
+            'emodel',
+            'experimental_bouton_density',
+            'experimental_neuron_density',
+            'experimental_synapses_per_connection',
+            'external_url',
+            'ion_channel_model',
+            'ion_channel_modeling_campaign',
+            'ion_channel_modeling_config',
+            'ion_channel_recording',
+            'memodel',
+            'memodel_calibration_result',
+            'me_type_density',
+            'simulation',
+            'simulation_campaign',
+            'simulation_result',
+            'scientific_artifact',
+            'single_neuron_simulation',
+            'single_neuron_synaptome',
+            'single_neuron_synaptome_simulation',
+            'subject',
+            'validation_result',
+            'circuit',
+            'circuit_extraction_campaign',
+            'circuit_extraction_config',
+            'em_dense_reconstruction_dataset',
+            'em_cell_mesh',
+            'analysis_notebook_template',
+            'analysis_notebook_environment',
+            'analysis_notebook_result',
+            'skeletonization_config',
+            'skeletonization_campaign',
+        ]
+        | None
+    ) = None
     id: UUID = Field(..., title='Id')
     name: str = Field(..., title='Name')
     description: str = Field(..., title='Description')
     dt: float | None = Field(default=None, title='Dt')
-    injection_type: ElectricalRecordingStimulusType
-    shape: ElectricalRecordingStimulusShape
+    injection_type: Literal[
+        'voltage_clamp',
+        'current_clamp',
+        'conductance_clamp',
+        'extracellular',
+        'other',
+        'unknown',
+    ] = Field(..., title='ElectricalRecordingStimulusType')
+    shape: Literal[
+        'cheops',
+        'constant',
+        'pulse',
+        'step',
+        'ramp',
+        'noise',
+        'sinusoidal',
+        'other',
+        'two_steps',
+        'unknown',
+    ] = Field(..., title='ElectricalRecordingStimulusShape')
     start_time: float | None = Field(default=None, title='Start Time')
     end_time: float | None = Field(default=None, title='End Time')
     recording_id: UUID = Field(..., title='Recording Id')
@@ -11079,7 +12237,11 @@ class ExternalUrlRead(BaseModel):
     creation_date: AwareDatetime = Field(..., title='Creation Date')
     update_date: AwareDatetime = Field(..., title='Update Date')
     id: UUID = Field(..., title='Id')
-    source: ExternalSource
+    source: Literal['channelpedia', 'modeldb', 'icgenealogy'] = Field(
+        ...,
+        description='External sources that can be used for external urls.',
+        title='ExternalSource',
+    )
     url: AnyUrl = Field(..., title='Url')
     name: str = Field(..., title='Name')
     description: str = Field(..., title='Description')
@@ -11101,7 +12263,9 @@ class IonChannelModelingExecutionCreate(BaseModel):
     end_time: AwareDatetime | None = Field(default=None, title='End Time')
     used_ids: list[UUID] = Field(default=[], title='Used Ids')
     generated_ids: list[UUID] = Field(default=[], title='Generated Ids')
-    status: IonChannelModelingExecutionStatus
+    status: Literal['created', 'pending', 'running', 'done', 'error'] = Field(
+        ..., title='IonChannelModelingExecutionStatus'
+    )
 
 
 class IonChannelModelingExecutionRead(BaseModel):
@@ -11115,28 +12279,45 @@ class IonChannelModelingExecutionRead(BaseModel):
     created_by: NestedPersonRead
     updated_by: NestedPersonRead
     id: UUID = Field(..., title='Id')
-    type: ActivityType | None = None
+    type: (
+        Literal[
+            'simulation_execution',
+            'simulation_generation',
+            'validation',
+            'calibration',
+            'analysis_notebook_execution',
+            'ion_channel_modeling_execution',
+            'ion_channel_modeling_config_generation',
+            'circuit_extraction_config_generation',
+            'circuit_extraction_execution',
+            'skeletonization_execution',
+            'skeletonization_config_generation',
+        ]
+        | None
+    ) = None
     start_time: AwareDatetime | None = Field(default=None, title='Start Time')
     end_time: AwareDatetime | None = Field(default=None, title='End Time')
     used: list[NestedEntityRead] = Field(..., title='Used')
     generated: list[NestedEntityRead] = Field(..., title='Generated')
-    status: IonChannelModelingExecutionStatus
+    status: Literal['created', 'pending', 'running', 'done', 'error'] = Field(
+        ..., title='IonChannelModelingExecutionStatus'
+    )
 
 
 class IonChannelModelingExecutionUserUpdate(BaseModel):
     model_config = ConfigDict(
         extra='allow',
     )
-    start_time: AwareDatetime | NotSet | None = Field(
+    start_time: AwareDatetime | Literal['<NOT_SET>'] | None = Field(
         default='<NOT_SET>', title='Start Time'
     )
-    end_time: AwareDatetime | NotSet | None = Field(
+    end_time: AwareDatetime | Literal['<NOT_SET>'] | None = Field(
         default='<NOT_SET>', title='End Time'
     )
-    generated_ids: list[UUID] | NotSet | None = Field(
+    generated_ids: list[UUID] | Literal['<NOT_SET>'] | None = Field(
         default='<NOT_SET>', title='Generated Ids'
     )
-    status: IonChannelModelingExecutionStatus | None = None
+    status: Literal['created', 'pending', 'running', 'done', 'error'] | None = None
 
 
 class IonChannelRead(BaseModel):
@@ -11161,7 +12342,7 @@ class ListResponseAnnotationRead(BaseModel):
     )
     data: list[AnnotationRead] = Field(..., title='Data')
     pagination: PaginationResponse
-    facets: Facets | None = None
+    facets: dict[str, list[Facet]] | None = None
 
 
 class ListResponseAssetRead(BaseModel):
@@ -11170,7 +12351,7 @@ class ListResponseAssetRead(BaseModel):
     )
     data: list[AssetRead] = Field(..., title='Data')
     pagination: PaginationResponse
-    facets: Facets | None = None
+    facets: dict[str, list[Facet]] | None = None
 
 
 class ListResponseBasicEntityRead(BaseModel):
@@ -11179,7 +12360,7 @@ class ListResponseBasicEntityRead(BaseModel):
     )
     data: list[BasicEntityRead] = Field(..., title='Data')
     pagination: PaginationResponse
-    facets: Facets | None = None
+    facets: dict[str, list[Facet]] | None = None
 
 
 class ListResponseBrainAtlasRead(BaseModel):
@@ -11188,7 +12369,7 @@ class ListResponseBrainAtlasRead(BaseModel):
     )
     data: list[BrainAtlasRead] = Field(..., title='Data')
     pagination: PaginationResponse
-    facets: Facets | None = None
+    facets: dict[str, list[Facet]] | None = None
 
 
 class ListResponseBrainAtlasRegionRead(BaseModel):
@@ -11197,7 +12378,7 @@ class ListResponseBrainAtlasRegionRead(BaseModel):
     )
     data: list[BrainAtlasRegionRead] = Field(..., title='Data')
     pagination: PaginationResponse
-    facets: Facets | None = None
+    facets: dict[str, list[Facet]] | None = None
 
 
 class ListResponseBrainRegionHierarchyRead(BaseModel):
@@ -11206,7 +12387,7 @@ class ListResponseBrainRegionHierarchyRead(BaseModel):
     )
     data: list[BrainRegionHierarchyRead] = Field(..., title='Data')
     pagination: PaginationResponse
-    facets: Facets | None = None
+    facets: dict[str, list[Facet]] | None = None
 
 
 class ListResponseBrainRegionRead(BaseModel):
@@ -11215,7 +12396,7 @@ class ListResponseBrainRegionRead(BaseModel):
     )
     data: list[BrainRegionRead] = Field(..., title='Data')
     pagination: PaginationResponse
-    facets: Facets | None = None
+    facets: dict[str, list[Facet]] | None = None
 
 
 class ListResponseCalibrationRead(BaseModel):
@@ -11224,7 +12405,7 @@ class ListResponseCalibrationRead(BaseModel):
     )
     data: list[CalibrationRead] = Field(..., title='Data')
     pagination: PaginationResponse
-    facets: Facets | None = None
+    facets: dict[str, list[Facet]] | None = None
 
 
 class ListResponseCircuitExtractionConfigGenerationRead(BaseModel):
@@ -11233,7 +12414,7 @@ class ListResponseCircuitExtractionConfigGenerationRead(BaseModel):
     )
     data: list[CircuitExtractionConfigGenerationRead] = Field(..., title='Data')
     pagination: PaginationResponse
-    facets: Facets | None = None
+    facets: dict[str, list[Facet]] | None = None
 
 
 class ListResponseCircuitExtractionExecutionRead(BaseModel):
@@ -11242,7 +12423,7 @@ class ListResponseCircuitExtractionExecutionRead(BaseModel):
     )
     data: list[CircuitExtractionExecutionRead] = Field(..., title='Data')
     pagination: PaginationResponse
-    facets: Facets | None = None
+    facets: dict[str, list[Facet]] | None = None
 
 
 class ListResponseConsortiumRead(BaseModel):
@@ -11251,7 +12432,7 @@ class ListResponseConsortiumRead(BaseModel):
     )
     data: list[ConsortiumRead] = Field(..., title='Data')
     pagination: PaginationResponse
-    facets: Facets | None = None
+    facets: dict[str, list[Facet]] | None = None
 
 
 class ListResponseContributionRead(BaseModel):
@@ -11260,7 +12441,7 @@ class ListResponseContributionRead(BaseModel):
     )
     data: list[ContributionRead] = Field(..., title='Data')
     pagination: PaginationResponse
-    facets: Facets | None = None
+    facets: dict[str, list[Facet]] | None = None
 
 
 class ListResponseETypeClassificationRead(BaseModel):
@@ -11269,7 +12450,7 @@ class ListResponseETypeClassificationRead(BaseModel):
     )
     data: list[ETypeClassificationRead] = Field(..., title='Data')
     pagination: PaginationResponse
-    facets: Facets | None = None
+    facets: dict[str, list[Facet]] | None = None
 
 
 class ListResponseElectricalRecordingStimulusRead(BaseModel):
@@ -11278,7 +12459,7 @@ class ListResponseElectricalRecordingStimulusRead(BaseModel):
     )
     data: list[ElectricalRecordingStimulusRead] = Field(..., title='Data')
     pagination: PaginationResponse
-    facets: Facets | None = None
+    facets: dict[str, list[Facet]] | None = None
 
 
 class ListResponseExternalUrlRead(BaseModel):
@@ -11287,7 +12468,7 @@ class ListResponseExternalUrlRead(BaseModel):
     )
     data: list[ExternalUrlRead] = Field(..., title='Data')
     pagination: PaginationResponse
-    facets: Facets | None = None
+    facets: dict[str, list[Facet]] | None = None
 
 
 class ListResponseIonChannelModelingConfigGenerationRead(BaseModel):
@@ -11296,7 +12477,7 @@ class ListResponseIonChannelModelingConfigGenerationRead(BaseModel):
     )
     data: list[IonChannelModelingConfigGenerationRead] = Field(..., title='Data')
     pagination: PaginationResponse
-    facets: Facets | None = None
+    facets: dict[str, list[Facet]] | None = None
 
 
 class ListResponseIonChannelModelingExecutionRead(BaseModel):
@@ -11305,7 +12486,7 @@ class ListResponseIonChannelModelingExecutionRead(BaseModel):
     )
     data: list[IonChannelModelingExecutionRead] = Field(..., title='Data')
     pagination: PaginationResponse
-    facets: Facets | None = None
+    facets: dict[str, list[Facet]] | None = None
 
 
 class ListResponseIonChannelRead(BaseModel):
@@ -11314,7 +12495,7 @@ class ListResponseIonChannelRead(BaseModel):
     )
     data: list[IonChannelRead] = Field(..., title='Data')
     pagination: PaginationResponse
-    facets: Facets | None = None
+    facets: dict[str, list[Facet]] | None = None
 
 
 class ListResponseLicenseRead(BaseModel):
@@ -11323,7 +12504,7 @@ class ListResponseLicenseRead(BaseModel):
     )
     data: list[LicenseRead] = Field(..., title='Data')
     pagination: PaginationResponse
-    facets: Facets | None = None
+    facets: dict[str, list[Facet]] | None = None
 
 
 class ListResponseOrganizationRead(BaseModel):
@@ -11332,7 +12513,7 @@ class ListResponseOrganizationRead(BaseModel):
     )
     data: list[OrganizationRead] = Field(..., title='Data')
     pagination: PaginationResponse
-    facets: Facets | None = None
+    facets: dict[str, list[Facet]] | None = None
 
 
 class ListResponsePersonRead(BaseModel):
@@ -11341,7 +12522,7 @@ class ListResponsePersonRead(BaseModel):
     )
     data: list[PersonRead] = Field(..., title='Data')
     pagination: PaginationResponse
-    facets: Facets | None = None
+    facets: dict[str, list[Facet]] | None = None
 
 
 class ListResponsePublicationRead(BaseModel):
@@ -11350,7 +12531,7 @@ class ListResponsePublicationRead(BaseModel):
     )
     data: list[PublicationRead] = Field(..., title='Data')
     pagination: PaginationResponse
-    facets: Facets | None = None
+    facets: dict[str, list[Facet]] | None = None
 
 
 class ListResponseRoleRead(BaseModel):
@@ -11359,7 +12540,7 @@ class ListResponseRoleRead(BaseModel):
     )
     data: list[RoleRead] = Field(..., title='Data')
     pagination: PaginationResponse
-    facets: Facets | None = None
+    facets: dict[str, list[Facet]] | None = None
 
 
 class ListResponseScientificArtifactExternalUrlLinkRead(BaseModel):
@@ -11368,7 +12549,7 @@ class ListResponseScientificArtifactExternalUrlLinkRead(BaseModel):
     )
     data: list[ScientificArtifactExternalUrlLinkRead] = Field(..., title='Data')
     pagination: PaginationResponse
-    facets: Facets | None = None
+    facets: dict[str, list[Facet]] | None = None
 
 
 class ListResponseScientificArtifactPublicationLinkRead(BaseModel):
@@ -11377,7 +12558,7 @@ class ListResponseScientificArtifactPublicationLinkRead(BaseModel):
     )
     data: list[ScientificArtifactPublicationLinkRead] = Field(..., title='Data')
     pagination: PaginationResponse
-    facets: Facets | None = None
+    facets: dict[str, list[Facet]] | None = None
 
 
 class ListResponseSimulationGenerationRead(BaseModel):
@@ -11386,7 +12567,7 @@ class ListResponseSimulationGenerationRead(BaseModel):
     )
     data: list[SimulationGenerationRead] = Field(..., title='Data')
     pagination: PaginationResponse
-    facets: Facets | None = None
+    facets: dict[str, list[Facet]] | None = None
 
 
 class ListResponseSkeletonizationConfigGenerationRead(BaseModel):
@@ -11395,7 +12576,7 @@ class ListResponseSkeletonizationConfigGenerationRead(BaseModel):
     )
     data: list[SkeletonizationConfigGenerationRead] = Field(..., title='Data')
     pagination: PaginationResponse
-    facets: Facets | None = None
+    facets: dict[str, list[Facet]] | None = None
 
 
 class ListResponseSpeciesRead(BaseModel):
@@ -11404,7 +12585,7 @@ class ListResponseSpeciesRead(BaseModel):
     )
     data: list[SpeciesRead] = Field(..., title='Data')
     pagination: PaginationResponse
-    facets: Facets | None = None
+    facets: dict[str, list[Facet]] | None = None
 
 
 class ListResponseStrainRead(BaseModel):
@@ -11413,7 +12594,7 @@ class ListResponseStrainRead(BaseModel):
     )
     data: list[StrainRead] = Field(..., title='Data')
     pagination: PaginationResponse
-    facets: Facets | None = None
+    facets: dict[str, list[Facet]] | None = None
 
 
 class ListResponseSubjectRead(BaseModel):
@@ -11422,7 +12603,7 @@ class ListResponseSubjectRead(BaseModel):
     )
     data: list[SubjectRead] = Field(..., title='Data')
     pagination: PaginationResponse
-    facets: Facets | None = None
+    facets: dict[str, list[Facet]] | None = None
 
 
 class ListResponseValidationRead(BaseModel):
@@ -11431,7 +12612,7 @@ class ListResponseValidationRead(BaseModel):
     )
     data: list[ValidationRead] = Field(..., title='Data')
     pagination: PaginationResponse
-    facets: Facets | None = None
+    facets: dict[str, list[Facet]] | None = None
 
 
 class MEModelCalibrationResultRead(BaseModel):
@@ -11458,8 +12639,8 @@ class MEModelCreate(BaseModel):
     authorized_public: bool = Field(default=False, title='Authorized Public')
     name: str = Field(..., title='Name')
     description: str = Field(..., title='Description')
-    validation_status: ValidationStatus = Field(
-        default_factory=lambda: ValidationStatus.model_validate('created')
+    validation_status: Literal['created', 'initialized', 'running', 'done', 'error'] = (
+        Field(default='created', title='ValidationStatus')
     )
     brain_region_id: UUID = Field(..., title='Brain Region Id')
     morphology_id: UUID = Field(..., title='Morphology Id')
@@ -11474,9 +12655,9 @@ class MEModelUserUpdate(BaseModel):
     )
     name: str | None = Field(default='<NOT_SET>', title='Name')
     description: str | None = Field(default='<NOT_SET>', title='Description')
-    validation_status: ValidationStatus | str | None = Field(
-        default='<NOT_SET>', title='Validation Status'
-    )
+    validation_status: (
+        str | Literal['created', 'initialized', 'running', 'done', 'error'] | None
+    ) = Field(default='<NOT_SET>', title='Validation Status')
     brain_region_id: UUID | str | None = Field(
         default='<NOT_SET>', title='Brain Region Id'
     )
@@ -11505,8 +12686,26 @@ class MeasurementItem(BaseModel):
     model_config = ConfigDict(
         extra='allow',
     )
-    name: MeasurementStatistic | None = None
-    unit: MeasurementUnit | None = None
+    name: (
+        Literal[
+            'mean',
+            'median',
+            'mode',
+            'variance',
+            'data_point',
+            'sample_size',
+            'standard_error',
+            'standard_deviation',
+            'raw',
+            'minimum',
+            'maximum',
+            'sum',
+        ]
+        | None
+    ) = None
+    unit: (
+        Literal['dimensionless', '1/μm', '1/mm³', 'μm', 'μm²', 'μm³', 'radian'] | None
+    ) = None
     value: float | None = Field(..., title='Value')
 
 
@@ -11514,7 +12713,9 @@ class MeasurementKindCreate(BaseModel):
     model_config = ConfigDict(
         extra='allow',
     )
-    structural_domain: StructuralDomain
+    structural_domain: Literal[
+        'apical_dendrite', 'basal_dendrite', 'axon', 'soma', 'neuron_morphology'
+    ] = Field(..., title='StructuralDomain')
     measurement_items: list[MeasurementItem] = Field(..., title='Measurement Items')
     pref_label: str = Field(..., title='Pref Label')
 
@@ -11526,8 +12727,23 @@ class MeasurementRecordCreate(BaseModel):
     model_config = ConfigDict(
         extra='allow',
     )
-    name: MeasurementStatistic
-    unit: MeasurementUnit
+    name: Literal[
+        'mean',
+        'median',
+        'mode',
+        'variance',
+        'data_point',
+        'sample_size',
+        'standard_error',
+        'standard_deviation',
+        'raw',
+        'minimum',
+        'maximum',
+        'sum',
+    ] = Field(..., title='MeasurementStatistic')
+    unit: Literal['dimensionless', '1/μm', '1/mm³', 'μm', 'μm²', 'μm³', 'radian'] = (
+        Field(..., title='MeasurementUnit')
+    )
     value: float = Field(..., title='Value')
 
 
@@ -11535,8 +12751,23 @@ class MeasurementRecordRead(BaseModel):
     model_config = ConfigDict(
         extra='allow',
     )
-    name: MeasurementStatistic
-    unit: MeasurementUnit
+    name: Literal[
+        'mean',
+        'median',
+        'mode',
+        'variance',
+        'data_point',
+        'sample_size',
+        'standard_error',
+        'standard_deviation',
+        'raw',
+        'minimum',
+        'maximum',
+        'sum',
+    ] = Field(..., title='MeasurementStatistic')
+    unit: Literal['dimensionless', '1/μm', '1/mm³', 'μm', 'μm²', 'μm³', 'radian'] = (
+        Field(..., title='MeasurementUnit')
+    )
     value: float = Field(..., title='Value')
     id: int = Field(..., title='Id')
 
@@ -11548,7 +12779,9 @@ class ModifiedReconstructionCellMorphologyProtocolRead(BaseModel):
     protocol_document: ProtocolDocument | None = Field(
         default=None, title='Protocol Document'
     )
-    protocol_design: CellMorphologyProtocolDesign
+    protocol_design: Literal[
+        'electron_microscopy', 'cell_patch', 'fluorophore', 'topological_synthesis'
+    ] = Field(..., title='CellMorphologyProtocolDesign')
     authorized_project_id: UUID4 = Field(..., title='Authorized Project Id')
     authorized_public: bool = Field(default=False, title='Authorized Public')
     created_by: NestedPersonRead
@@ -11562,7 +12795,9 @@ class ModifiedReconstructionCellMorphologyProtocolRead(BaseModel):
     generation_type: Literal['modified_reconstruction'] = Field(
         ..., title='Generation Type'
     )
-    method_type: ModifiedMorphologyMethodType
+    method_type: Literal['cloned', 'mix_and_match', 'mousified', 'ratified'] = Field(
+        ..., title='ModifiedMorphologyMethodType'
+    )
 
 
 class NestedAnalysisNotebookEnvironmentRead(BaseModel):
@@ -11570,7 +12805,51 @@ class NestedAnalysisNotebookEnvironmentRead(BaseModel):
         extra='allow',
     )
     id: UUID = Field(..., title='Id')
-    type: EntityType | None = None
+    type: (
+        Literal[
+            'analysis_software_source_code',
+            'brain_atlas',
+            'brain_atlas_region',
+            'cell_composition',
+            'cell_morphology',
+            'cell_morphology_protocol',
+            'electrical_cell_recording',
+            'electrical_recording',
+            'electrical_recording_stimulus',
+            'emodel',
+            'experimental_bouton_density',
+            'experimental_neuron_density',
+            'experimental_synapses_per_connection',
+            'external_url',
+            'ion_channel_model',
+            'ion_channel_modeling_campaign',
+            'ion_channel_modeling_config',
+            'ion_channel_recording',
+            'memodel',
+            'memodel_calibration_result',
+            'me_type_density',
+            'simulation',
+            'simulation_campaign',
+            'simulation_result',
+            'scientific_artifact',
+            'single_neuron_simulation',
+            'single_neuron_synaptome',
+            'single_neuron_synaptome_simulation',
+            'subject',
+            'validation_result',
+            'circuit',
+            'circuit_extraction_campaign',
+            'circuit_extraction_config',
+            'em_dense_reconstruction_dataset',
+            'em_cell_mesh',
+            'analysis_notebook_template',
+            'analysis_notebook_environment',
+            'analysis_notebook_result',
+            'skeletonization_config',
+            'skeletonization_campaign',
+        ]
+        | None
+    ) = None
     runtime_info: RuntimeInfo | None = None
 
 
@@ -11579,11 +12858,59 @@ class NestedAnalysisNotebookTemplateRead(BaseModel):
         extra='allow',
     )
     id: UUID = Field(..., title='Id')
-    type: EntityType | None = None
+    type: (
+        Literal[
+            'analysis_software_source_code',
+            'brain_atlas',
+            'brain_atlas_region',
+            'cell_composition',
+            'cell_morphology',
+            'cell_morphology_protocol',
+            'electrical_cell_recording',
+            'electrical_recording',
+            'electrical_recording_stimulus',
+            'emodel',
+            'experimental_bouton_density',
+            'experimental_neuron_density',
+            'experimental_synapses_per_connection',
+            'external_url',
+            'ion_channel_model',
+            'ion_channel_modeling_campaign',
+            'ion_channel_modeling_config',
+            'ion_channel_recording',
+            'memodel',
+            'memodel_calibration_result',
+            'me_type_density',
+            'simulation',
+            'simulation_campaign',
+            'simulation_result',
+            'scientific_artifact',
+            'single_neuron_simulation',
+            'single_neuron_synaptome',
+            'single_neuron_synaptome_simulation',
+            'subject',
+            'validation_result',
+            'circuit',
+            'circuit_extraction_campaign',
+            'circuit_extraction_config',
+            'em_dense_reconstruction_dataset',
+            'em_cell_mesh',
+            'analysis_notebook_template',
+            'analysis_notebook_environment',
+            'analysis_notebook_result',
+            'skeletonization_config',
+            'skeletonization_campaign',
+        ]
+        | None
+    ) = None
     name: str = Field(..., title='Name')
     description: str = Field(..., title='Description')
     specifications: AnalysisNotebookTemplateSpecificationsOutput | None = None
-    scale: AnalysisScale
+    scale: Literal['subcellular', 'cellular', 'circuit', 'system'] = Field(
+        ...,
+        description='Rough scale that an activity takes place in. Note: Not equal to CircuitScale.',
+        title='AnalysisScale',
+    )
 
 
 class NestedContributionRead(BaseModel):
@@ -11591,7 +12918,7 @@ class NestedContributionRead(BaseModel):
         extra='allow',
     )
     id: UUID = Field(..., title='Id')
-    agent: AgentRead
+    agent: NestedPersonRead | NestedOrganizationRead | NestedConsortiumRead
     role: RoleRead
 
 
@@ -11602,7 +12929,9 @@ class NestedDigitalReconstructionCellMorphologyProtocolRead(BaseModel):
     protocol_document: ProtocolDocument | None = Field(
         default=None, title='Protocol Document'
     )
-    protocol_design: CellMorphologyProtocolDesign
+    protocol_design: Literal[
+        'electron_microscopy', 'cell_patch', 'fluorophore', 'topological_synthesis'
+    ] = Field(..., title='CellMorphologyProtocolDesign')
     id: UUID = Field(..., title='Id')
     type: Literal['cell_morphology_protocol'] = Field(
         default='cell_morphology_protocol', title='Type'
@@ -11610,9 +12939,23 @@ class NestedDigitalReconstructionCellMorphologyProtocolRead(BaseModel):
     generation_type: Literal['digital_reconstruction'] = Field(
         ..., title='Generation Type'
     )
-    staining_type: StainingType | None = None
+    staining_type: (
+        Literal[
+            'golgi',
+            'nissl',
+            'luxol_fast_blue',
+            'fluorescent_nissl',
+            'fluorescent_dyes',
+            'fluorescent_protein_expression',
+            'immunohistochemistry',
+            'other',
+        ]
+        | None
+    ) = None
     slicing_thickness: float = Field(..., ge=0.0, title='Slicing Thickness')
-    slicing_direction: SlicingDirectionType | None = None
+    slicing_direction: Literal['coronal', 'sagittal', 'horizontal', 'custom'] | None = (
+        None
+    )
     magnification: Magnification | None = Field(default=None, title='Magnification')
     tissue_shrinkage: TissueShrinkage | None = Field(
         default=None, title='Tissue Shrinkage'
@@ -11631,8 +12974,8 @@ class NestedMEModel(BaseModel):
     update_date: AwareDatetime = Field(..., title='Update Date')
     name: str = Field(..., title='Name')
     description: str = Field(..., title='Description')
-    validation_status: ValidationStatus = Field(
-        default_factory=lambda: ValidationStatus.model_validate('created')
+    validation_status: Literal['created', 'initialized', 'running', 'done', 'error'] = (
+        Field(default='created', title='ValidationStatus')
     )
     mtypes: list[AnnotationRead] | None = Field(..., title='Mtypes')
     etypes: list[AnnotationRead] | None = Field(..., title='Etypes')
@@ -11645,7 +12988,9 @@ class NestedSubjectRead(BaseModel):
     id: UUID = Field(..., title='Id')
     name: str = Field(..., title='Name')
     description: str = Field(..., title='Description')
-    sex: Sex = Field(..., description='Sex of the subject')
+    sex: Literal['male', 'female', 'unknown'] = Field(
+        ..., description='Sex of the subject', title='Sex'
+    )
     weight: Weight | None = Field(
         default=None, description='Weight in grams', title='Weight'
     )
@@ -11658,7 +13003,7 @@ class NestedSubjectRead(BaseModel):
     age_max: float | None = Field(
         default=None, description='Maximum age range', title='Maximum age range'
     )
-    age_period: AgePeriod | None = None
+    age_period: Literal['prenatal', 'postnatal', 'unknown'] | None = None
     species: NestedSpeciesRead
     strain: NestedStrainRead | None = None
 
@@ -11687,7 +13032,51 @@ class SimulationCampaignRead(BaseModel):
     updated_by: NestedPersonRead
     assets: list[AssetRead] = Field(..., title='Assets')
     id: UUID = Field(..., title='Id')
-    type: EntityType | None = None
+    type: (
+        Literal[
+            'analysis_software_source_code',
+            'brain_atlas',
+            'brain_atlas_region',
+            'cell_composition',
+            'cell_morphology',
+            'cell_morphology_protocol',
+            'electrical_cell_recording',
+            'electrical_recording',
+            'electrical_recording_stimulus',
+            'emodel',
+            'experimental_bouton_density',
+            'experimental_neuron_density',
+            'experimental_synapses_per_connection',
+            'external_url',
+            'ion_channel_model',
+            'ion_channel_modeling_campaign',
+            'ion_channel_modeling_config',
+            'ion_channel_recording',
+            'memodel',
+            'memodel_calibration_result',
+            'me_type_density',
+            'simulation',
+            'simulation_campaign',
+            'simulation_result',
+            'scientific_artifact',
+            'single_neuron_simulation',
+            'single_neuron_synaptome',
+            'single_neuron_synaptome_simulation',
+            'subject',
+            'validation_result',
+            'circuit',
+            'circuit_extraction_campaign',
+            'circuit_extraction_config',
+            'em_dense_reconstruction_dataset',
+            'em_cell_mesh',
+            'analysis_notebook_template',
+            'analysis_notebook_environment',
+            'analysis_notebook_result',
+            'skeletonization_config',
+            'skeletonization_campaign',
+        ]
+        | None
+    ) = None
     name: str = Field(..., title='Name')
     description: str = Field(..., title='Description')
     scan_parameters: dict[str, Any] = Field(..., title='Scan Parameters')
@@ -11704,7 +13093,9 @@ class SimulationExecutionCreate(BaseModel):
     end_time: AwareDatetime | None = Field(default=None, title='End Time')
     used_ids: list[UUID] = Field(default=[], title='Used Ids')
     generated_ids: list[UUID] = Field(default=[], title='Generated Ids')
-    status: SimulationExecutionStatus
+    status: Literal['created', 'pending', 'running', 'done', 'error', 'cancelled'] = (
+        Field(..., title='SimulationExecutionStatus')
+    )
 
 
 class SimulationExecutionRead(BaseModel):
@@ -11718,12 +13109,29 @@ class SimulationExecutionRead(BaseModel):
     created_by: NestedPersonRead
     updated_by: NestedPersonRead
     id: UUID = Field(..., title='Id')
-    type: ActivityType | None = None
+    type: (
+        Literal[
+            'simulation_execution',
+            'simulation_generation',
+            'validation',
+            'calibration',
+            'analysis_notebook_execution',
+            'ion_channel_modeling_execution',
+            'ion_channel_modeling_config_generation',
+            'circuit_extraction_config_generation',
+            'circuit_extraction_execution',
+            'skeletonization_execution',
+            'skeletonization_config_generation',
+        ]
+        | None
+    ) = None
     start_time: AwareDatetime | None = Field(default=None, title='Start Time')
     end_time: AwareDatetime | None = Field(default=None, title='End Time')
     used: list[NestedEntityRead] = Field(..., title='Used')
     generated: list[NestedEntityRead] = Field(..., title='Generated')
-    status: SimulationExecutionStatus
+    status: Literal['created', 'pending', 'running', 'done', 'error', 'cancelled'] = (
+        Field(..., title='SimulationExecutionStatus')
+    )
 
 
 class SimulationRead(BaseModel):
@@ -11738,7 +13146,51 @@ class SimulationRead(BaseModel):
     updated_by: NestedPersonRead
     assets: list[AssetRead] = Field(..., title='Assets')
     id: UUID = Field(..., title='Id')
-    type: EntityType | None = None
+    type: (
+        Literal[
+            'analysis_software_source_code',
+            'brain_atlas',
+            'brain_atlas_region',
+            'cell_composition',
+            'cell_morphology',
+            'cell_morphology_protocol',
+            'electrical_cell_recording',
+            'electrical_recording',
+            'electrical_recording_stimulus',
+            'emodel',
+            'experimental_bouton_density',
+            'experimental_neuron_density',
+            'experimental_synapses_per_connection',
+            'external_url',
+            'ion_channel_model',
+            'ion_channel_modeling_campaign',
+            'ion_channel_modeling_config',
+            'ion_channel_recording',
+            'memodel',
+            'memodel_calibration_result',
+            'me_type_density',
+            'simulation',
+            'simulation_campaign',
+            'simulation_result',
+            'scientific_artifact',
+            'single_neuron_simulation',
+            'single_neuron_synaptome',
+            'single_neuron_synaptome_simulation',
+            'subject',
+            'validation_result',
+            'circuit',
+            'circuit_extraction_campaign',
+            'circuit_extraction_config',
+            'em_dense_reconstruction_dataset',
+            'em_cell_mesh',
+            'analysis_notebook_template',
+            'analysis_notebook_environment',
+            'analysis_notebook_result',
+            'skeletonization_config',
+            'skeletonization_campaign',
+        ]
+        | None
+    ) = None
     name: str = Field(..., title='Name')
     description: str = Field(..., title='Description')
     simulation_campaign_id: UUID = Field(..., title='Simulation Campaign Id')
@@ -11758,7 +13210,51 @@ class SimulationResultRead(BaseModel):
     updated_by: NestedPersonRead
     assets: list[AssetRead] = Field(..., title='Assets')
     id: UUID = Field(..., title='Id')
-    type: EntityType | None = None
+    type: (
+        Literal[
+            'analysis_software_source_code',
+            'brain_atlas',
+            'brain_atlas_region',
+            'cell_composition',
+            'cell_morphology',
+            'cell_morphology_protocol',
+            'electrical_cell_recording',
+            'electrical_recording',
+            'electrical_recording_stimulus',
+            'emodel',
+            'experimental_bouton_density',
+            'experimental_neuron_density',
+            'experimental_synapses_per_connection',
+            'external_url',
+            'ion_channel_model',
+            'ion_channel_modeling_campaign',
+            'ion_channel_modeling_config',
+            'ion_channel_recording',
+            'memodel',
+            'memodel_calibration_result',
+            'me_type_density',
+            'simulation',
+            'simulation_campaign',
+            'simulation_result',
+            'scientific_artifact',
+            'single_neuron_simulation',
+            'single_neuron_synaptome',
+            'single_neuron_synaptome_simulation',
+            'subject',
+            'validation_result',
+            'circuit',
+            'circuit_extraction_campaign',
+            'circuit_extraction_config',
+            'em_dense_reconstruction_dataset',
+            'em_cell_mesh',
+            'analysis_notebook_template',
+            'analysis_notebook_environment',
+            'analysis_notebook_result',
+            'skeletonization_config',
+            'skeletonization_campaign',
+        ]
+        | None
+    ) = None
     name: str = Field(..., title='Name')
     description: str = Field(..., title='Description')
     simulation_id: UUID = Field(..., title='Simulation Id')
@@ -11773,7 +13269,9 @@ class SingleNeuronSimulationCreate(BaseModel):
     name: str = Field(..., title='Name')
     description: str = Field(..., title='Description')
     seed: int = Field(..., title='Seed')
-    status: SingleNeuronSimulationStatus
+    status: Literal['started', 'failure', 'success'] = Field(
+        ..., title='SingleNeuronSimulationStatus'
+    )
     injection_location: list[str] = Field(..., title='Injection Location')
     recording_location: list[str] = Field(..., title='Recording Location')
     me_model_id: UUID = Field(..., title='Me Model Id')
@@ -11786,7 +13284,51 @@ class SingleNeuronSimulationRead(BaseModel):
     created_by: NestedPersonRead
     updated_by: NestedPersonRead
     assets: list[AssetRead] = Field(..., title='Assets')
-    type: EntityType | None = None
+    type: (
+        Literal[
+            'analysis_software_source_code',
+            'brain_atlas',
+            'brain_atlas_region',
+            'cell_composition',
+            'cell_morphology',
+            'cell_morphology_protocol',
+            'electrical_cell_recording',
+            'electrical_recording',
+            'electrical_recording_stimulus',
+            'emodel',
+            'experimental_bouton_density',
+            'experimental_neuron_density',
+            'experimental_synapses_per_connection',
+            'external_url',
+            'ion_channel_model',
+            'ion_channel_modeling_campaign',
+            'ion_channel_modeling_config',
+            'ion_channel_recording',
+            'memodel',
+            'memodel_calibration_result',
+            'me_type_density',
+            'simulation',
+            'simulation_campaign',
+            'simulation_result',
+            'scientific_artifact',
+            'single_neuron_simulation',
+            'single_neuron_synaptome',
+            'single_neuron_synaptome_simulation',
+            'subject',
+            'validation_result',
+            'circuit',
+            'circuit_extraction_campaign',
+            'circuit_extraction_config',
+            'em_dense_reconstruction_dataset',
+            'em_cell_mesh',
+            'analysis_notebook_template',
+            'analysis_notebook_environment',
+            'analysis_notebook_result',
+            'skeletonization_config',
+            'skeletonization_campaign',
+        ]
+        | None
+    ) = None
     creation_date: AwareDatetime = Field(..., title='Creation Date')
     update_date: AwareDatetime = Field(..., title='Update Date')
     id: UUID = Field(..., title='Id')
@@ -11796,7 +13338,9 @@ class SingleNeuronSimulationRead(BaseModel):
     name: str = Field(..., title='Name')
     description: str = Field(..., title='Description')
     seed: int = Field(..., title='Seed')
-    status: SingleNeuronSimulationStatus
+    status: Literal['started', 'failure', 'success'] = Field(
+        ..., title='SingleNeuronSimulationStatus'
+    )
     injection_location: list[str] = Field(..., title='Injection Location')
     recording_location: list[str] = Field(..., title='Recording Location')
     me_model: NestedMEModel
@@ -11809,7 +13353,51 @@ class SingleNeuronSynaptomeRead(BaseModel):
     created_by: NestedPersonRead
     updated_by: NestedPersonRead
     assets: list[AssetRead] = Field(..., title='Assets')
-    type: EntityType | None = None
+    type: (
+        Literal[
+            'analysis_software_source_code',
+            'brain_atlas',
+            'brain_atlas_region',
+            'cell_composition',
+            'cell_morphology',
+            'cell_morphology_protocol',
+            'electrical_cell_recording',
+            'electrical_recording',
+            'electrical_recording_stimulus',
+            'emodel',
+            'experimental_bouton_density',
+            'experimental_neuron_density',
+            'experimental_synapses_per_connection',
+            'external_url',
+            'ion_channel_model',
+            'ion_channel_modeling_campaign',
+            'ion_channel_modeling_config',
+            'ion_channel_recording',
+            'memodel',
+            'memodel_calibration_result',
+            'me_type_density',
+            'simulation',
+            'simulation_campaign',
+            'simulation_result',
+            'scientific_artifact',
+            'single_neuron_simulation',
+            'single_neuron_synaptome',
+            'single_neuron_synaptome_simulation',
+            'subject',
+            'validation_result',
+            'circuit',
+            'circuit_extraction_campaign',
+            'circuit_extraction_config',
+            'em_dense_reconstruction_dataset',
+            'em_cell_mesh',
+            'analysis_notebook_template',
+            'analysis_notebook_environment',
+            'analysis_notebook_result',
+            'skeletonization_config',
+            'skeletonization_campaign',
+        ]
+        | None
+    ) = None
     contributions: list[NestedContributionRead] | None = Field(
         ..., title='Contributions'
     )
@@ -11832,7 +13420,51 @@ class SingleNeuronSynaptomeSimulationRead(BaseModel):
     created_by: NestedPersonRead
     updated_by: NestedPersonRead
     assets: list[AssetRead] = Field(..., title='Assets')
-    type: EntityType | None = None
+    type: (
+        Literal[
+            'analysis_software_source_code',
+            'brain_atlas',
+            'brain_atlas_region',
+            'cell_composition',
+            'cell_morphology',
+            'cell_morphology_protocol',
+            'electrical_cell_recording',
+            'electrical_recording',
+            'electrical_recording_stimulus',
+            'emodel',
+            'experimental_bouton_density',
+            'experimental_neuron_density',
+            'experimental_synapses_per_connection',
+            'external_url',
+            'ion_channel_model',
+            'ion_channel_modeling_campaign',
+            'ion_channel_modeling_config',
+            'ion_channel_recording',
+            'memodel',
+            'memodel_calibration_result',
+            'me_type_density',
+            'simulation',
+            'simulation_campaign',
+            'simulation_result',
+            'scientific_artifact',
+            'single_neuron_simulation',
+            'single_neuron_synaptome',
+            'single_neuron_synaptome_simulation',
+            'subject',
+            'validation_result',
+            'circuit',
+            'circuit_extraction_campaign',
+            'circuit_extraction_config',
+            'em_dense_reconstruction_dataset',
+            'em_cell_mesh',
+            'analysis_notebook_template',
+            'analysis_notebook_environment',
+            'analysis_notebook_result',
+            'skeletonization_config',
+            'skeletonization_campaign',
+        ]
+        | None
+    ) = None
     creation_date: AwareDatetime = Field(..., title='Creation Date')
     update_date: AwareDatetime = Field(..., title='Update Date')
     id: UUID = Field(..., title='Id')
@@ -11842,7 +13474,9 @@ class SingleNeuronSynaptomeSimulationRead(BaseModel):
     name: str = Field(..., title='Name')
     description: str = Field(..., title='Description')
     seed: int = Field(..., title='Seed')
-    status: SingleNeuronSimulationStatus
+    status: Literal['started', 'failure', 'success'] = Field(
+        ..., title='SingleNeuronSimulationStatus'
+    )
     injection_location: list[str] = Field(..., title='Injection Location')
     recording_location: list[str] = Field(..., title='Recording Location')
     synaptome: NestedSynaptome
@@ -11863,7 +13497,51 @@ class SkeletonizationCampaignRead(BaseModel):
     updated_by: NestedPersonRead
     assets: list[AssetRead] = Field(..., title='Assets')
     id: UUID = Field(..., title='Id')
-    type: EntityType | None = None
+    type: (
+        Literal[
+            'analysis_software_source_code',
+            'brain_atlas',
+            'brain_atlas_region',
+            'cell_composition',
+            'cell_morphology',
+            'cell_morphology_protocol',
+            'electrical_cell_recording',
+            'electrical_recording',
+            'electrical_recording_stimulus',
+            'emodel',
+            'experimental_bouton_density',
+            'experimental_neuron_density',
+            'experimental_synapses_per_connection',
+            'external_url',
+            'ion_channel_model',
+            'ion_channel_modeling_campaign',
+            'ion_channel_modeling_config',
+            'ion_channel_recording',
+            'memodel',
+            'memodel_calibration_result',
+            'me_type_density',
+            'simulation',
+            'simulation_campaign',
+            'simulation_result',
+            'scientific_artifact',
+            'single_neuron_simulation',
+            'single_neuron_synaptome',
+            'single_neuron_synaptome_simulation',
+            'subject',
+            'validation_result',
+            'circuit',
+            'circuit_extraction_campaign',
+            'circuit_extraction_config',
+            'em_dense_reconstruction_dataset',
+            'em_cell_mesh',
+            'analysis_notebook_template',
+            'analysis_notebook_environment',
+            'analysis_notebook_result',
+            'skeletonization_config',
+            'skeletonization_campaign',
+        ]
+        | None
+    ) = None
     name: str = Field(..., title='Name')
     description: str = Field(..., title='Description')
     scan_parameters: dict[str, Any] = Field(..., title='Scan Parameters')
@@ -11888,7 +13566,51 @@ class SkeletonizationConfigRead(BaseModel):
     updated_by: NestedPersonRead
     assets: list[AssetRead] = Field(..., title='Assets')
     id: UUID = Field(..., title='Id')
-    type: EntityType | None = None
+    type: (
+        Literal[
+            'analysis_software_source_code',
+            'brain_atlas',
+            'brain_atlas_region',
+            'cell_composition',
+            'cell_morphology',
+            'cell_morphology_protocol',
+            'electrical_cell_recording',
+            'electrical_recording',
+            'electrical_recording_stimulus',
+            'emodel',
+            'experimental_bouton_density',
+            'experimental_neuron_density',
+            'experimental_synapses_per_connection',
+            'external_url',
+            'ion_channel_model',
+            'ion_channel_modeling_campaign',
+            'ion_channel_modeling_config',
+            'ion_channel_recording',
+            'memodel',
+            'memodel_calibration_result',
+            'me_type_density',
+            'simulation',
+            'simulation_campaign',
+            'simulation_result',
+            'scientific_artifact',
+            'single_neuron_simulation',
+            'single_neuron_synaptome',
+            'single_neuron_synaptome_simulation',
+            'subject',
+            'validation_result',
+            'circuit',
+            'circuit_extraction_campaign',
+            'circuit_extraction_config',
+            'em_dense_reconstruction_dataset',
+            'em_cell_mesh',
+            'analysis_notebook_template',
+            'analysis_notebook_environment',
+            'analysis_notebook_result',
+            'skeletonization_config',
+            'skeletonization_campaign',
+        ]
+        | None
+    ) = None
     name: str = Field(..., title='Name')
     description: str = Field(..., title='Description')
     skeletonization_campaign_id: UUID = Field(..., title='Skeletonization Campaign Id')
@@ -11905,7 +13627,9 @@ class SkeletonizationExecutionCreate(BaseModel):
     end_time: AwareDatetime | None = Field(default=None, title='End Time')
     used_ids: list[UUID] = Field(default=[], title='Used Ids')
     generated_ids: list[UUID] = Field(default=[], title='Generated Ids')
-    status: SkeletonizationExecutionStatus
+    status: Literal['created', 'pending', 'running', 'done', 'error'] = Field(
+        ..., title='SkeletonizationExecutionStatus'
+    )
 
 
 class SkeletonizationExecutionRead(BaseModel):
@@ -11919,12 +13643,29 @@ class SkeletonizationExecutionRead(BaseModel):
     created_by: NestedPersonRead
     updated_by: NestedPersonRead
     id: UUID = Field(..., title='Id')
-    type: ActivityType | None = None
+    type: (
+        Literal[
+            'simulation_execution',
+            'simulation_generation',
+            'validation',
+            'calibration',
+            'analysis_notebook_execution',
+            'ion_channel_modeling_execution',
+            'ion_channel_modeling_config_generation',
+            'circuit_extraction_config_generation',
+            'circuit_extraction_execution',
+            'skeletonization_execution',
+            'skeletonization_config_generation',
+        ]
+        | None
+    ) = None
     start_time: AwareDatetime | None = Field(default=None, title='Start Time')
     end_time: AwareDatetime | None = Field(default=None, title='End Time')
     used: list[NestedEntityRead] = Field(..., title='Used')
     generated: list[NestedEntityRead] = Field(..., title='Generated')
-    status: SkeletonizationExecutionStatus
+    status: Literal['created', 'pending', 'running', 'done', 'error'] = Field(
+        ..., title='SkeletonizationExecutionStatus'
+    )
 
 
 class ValidationResultRead(BaseModel):
@@ -11956,7 +13697,51 @@ class AnalysisNotebookEnvironmentRead(BaseModel):
     updated_by: NestedPersonRead
     assets: list[AssetRead] = Field(..., title='Assets')
     id: UUID = Field(..., title='Id')
-    type: EntityType | None = None
+    type: (
+        Literal[
+            'analysis_software_source_code',
+            'brain_atlas',
+            'brain_atlas_region',
+            'cell_composition',
+            'cell_morphology',
+            'cell_morphology_protocol',
+            'electrical_cell_recording',
+            'electrical_recording',
+            'electrical_recording_stimulus',
+            'emodel',
+            'experimental_bouton_density',
+            'experimental_neuron_density',
+            'experimental_synapses_per_connection',
+            'external_url',
+            'ion_channel_model',
+            'ion_channel_modeling_campaign',
+            'ion_channel_modeling_config',
+            'ion_channel_recording',
+            'memodel',
+            'memodel_calibration_result',
+            'me_type_density',
+            'simulation',
+            'simulation_campaign',
+            'simulation_result',
+            'scientific_artifact',
+            'single_neuron_simulation',
+            'single_neuron_synaptome',
+            'single_neuron_synaptome_simulation',
+            'subject',
+            'validation_result',
+            'circuit',
+            'circuit_extraction_campaign',
+            'circuit_extraction_config',
+            'em_dense_reconstruction_dataset',
+            'em_cell_mesh',
+            'analysis_notebook_template',
+            'analysis_notebook_environment',
+            'analysis_notebook_result',
+            'skeletonization_config',
+            'skeletonization_campaign',
+        ]
+        | None
+    ) = None
     runtime_info: RuntimeInfo | None = None
 
 
@@ -11971,7 +13756,22 @@ class AnalysisNotebookExecutionRead(BaseModel):
     created_by: NestedPersonRead
     updated_by: NestedPersonRead
     id: UUID = Field(..., title='Id')
-    type: ActivityType | None = None
+    type: (
+        Literal[
+            'simulation_execution',
+            'simulation_generation',
+            'validation',
+            'calibration',
+            'analysis_notebook_execution',
+            'ion_channel_modeling_execution',
+            'ion_channel_modeling_config_generation',
+            'circuit_extraction_config_generation',
+            'circuit_extraction_execution',
+            'skeletonization_execution',
+            'skeletonization_config_generation',
+        ]
+        | None
+    ) = None
     start_time: AwareDatetime | None = Field(default=None, title='Start Time')
     end_time: AwareDatetime | None = Field(default=None, title='End Time')
     used: list[NestedEntityRead] = Field(..., title='Used')
@@ -11992,7 +13792,51 @@ class AnalysisNotebookResultRead(BaseModel):
     updated_by: NestedPersonRead
     assets: list[AssetRead] = Field(..., title='Assets')
     id: UUID = Field(..., title='Id')
-    type: EntityType | None = None
+    type: (
+        Literal[
+            'analysis_software_source_code',
+            'brain_atlas',
+            'brain_atlas_region',
+            'cell_composition',
+            'cell_morphology',
+            'cell_morphology_protocol',
+            'electrical_cell_recording',
+            'electrical_recording',
+            'electrical_recording_stimulus',
+            'emodel',
+            'experimental_bouton_density',
+            'experimental_neuron_density',
+            'experimental_synapses_per_connection',
+            'external_url',
+            'ion_channel_model',
+            'ion_channel_modeling_campaign',
+            'ion_channel_modeling_config',
+            'ion_channel_recording',
+            'memodel',
+            'memodel_calibration_result',
+            'me_type_density',
+            'simulation',
+            'simulation_campaign',
+            'simulation_result',
+            'scientific_artifact',
+            'single_neuron_simulation',
+            'single_neuron_synaptome',
+            'single_neuron_synaptome_simulation',
+            'subject',
+            'validation_result',
+            'circuit',
+            'circuit_extraction_campaign',
+            'circuit_extraction_config',
+            'em_dense_reconstruction_dataset',
+            'em_cell_mesh',
+            'analysis_notebook_template',
+            'analysis_notebook_environment',
+            'analysis_notebook_result',
+            'skeletonization_config',
+            'skeletonization_campaign',
+        ]
+        | None
+    ) = None
     name: str = Field(..., title='Name')
     description: str = Field(..., title='Description')
 
@@ -12005,7 +13849,11 @@ class AnalysisNotebookTemplateCreate(BaseModel):
     name: str = Field(..., title='Name')
     description: str = Field(..., title='Description')
     specifications: AnalysisNotebookTemplateSpecificationsInput | None = None
-    scale: AnalysisScale
+    scale: Literal['subcellular', 'cellular', 'circuit', 'system'] = Field(
+        ...,
+        description='Rough scale that an activity takes place in. Note: Not equal to CircuitScale.',
+        title='AnalysisScale',
+    )
 
 
 class AnalysisNotebookTemplateRead(BaseModel):
@@ -12023,11 +13871,59 @@ class AnalysisNotebookTemplateRead(BaseModel):
     updated_by: NestedPersonRead
     assets: list[AssetRead] = Field(..., title='Assets')
     id: UUID = Field(..., title='Id')
-    type: EntityType | None = None
+    type: (
+        Literal[
+            'analysis_software_source_code',
+            'brain_atlas',
+            'brain_atlas_region',
+            'cell_composition',
+            'cell_morphology',
+            'cell_morphology_protocol',
+            'electrical_cell_recording',
+            'electrical_recording',
+            'electrical_recording_stimulus',
+            'emodel',
+            'experimental_bouton_density',
+            'experimental_neuron_density',
+            'experimental_synapses_per_connection',
+            'external_url',
+            'ion_channel_model',
+            'ion_channel_modeling_campaign',
+            'ion_channel_modeling_config',
+            'ion_channel_recording',
+            'memodel',
+            'memodel_calibration_result',
+            'me_type_density',
+            'simulation',
+            'simulation_campaign',
+            'simulation_result',
+            'scientific_artifact',
+            'single_neuron_simulation',
+            'single_neuron_synaptome',
+            'single_neuron_synaptome_simulation',
+            'subject',
+            'validation_result',
+            'circuit',
+            'circuit_extraction_campaign',
+            'circuit_extraction_config',
+            'em_dense_reconstruction_dataset',
+            'em_cell_mesh',
+            'analysis_notebook_template',
+            'analysis_notebook_environment',
+            'analysis_notebook_result',
+            'skeletonization_config',
+            'skeletonization_campaign',
+        ]
+        | None
+    ) = None
     name: str = Field(..., title='Name')
     description: str = Field(..., title='Description')
     specifications: AnalysisNotebookTemplateSpecificationsOutput | None = None
-    scale: AnalysisScale
+    scale: Literal['subcellular', 'cellular', 'circuit', 'system'] = Field(
+        ...,
+        description='Rough scale that an activity takes place in. Note: Not equal to CircuitScale.',
+        title='AnalysisScale',
+    )
 
 
 class AssetAndPresignedURLS(BaseModel):
@@ -12046,7 +13942,51 @@ class CellCompositionRead(BaseModel):
     contributions: list[NestedContributionRead] | None = Field(
         ..., title='Contributions'
     )
-    type: EntityType | None = None
+    type: (
+        Literal[
+            'analysis_software_source_code',
+            'brain_atlas',
+            'brain_atlas_region',
+            'cell_composition',
+            'cell_morphology',
+            'cell_morphology_protocol',
+            'electrical_cell_recording',
+            'electrical_recording',
+            'electrical_recording_stimulus',
+            'emodel',
+            'experimental_bouton_density',
+            'experimental_neuron_density',
+            'experimental_synapses_per_connection',
+            'external_url',
+            'ion_channel_model',
+            'ion_channel_modeling_campaign',
+            'ion_channel_modeling_config',
+            'ion_channel_recording',
+            'memodel',
+            'memodel_calibration_result',
+            'me_type_density',
+            'simulation',
+            'simulation_campaign',
+            'simulation_result',
+            'scientific_artifact',
+            'single_neuron_simulation',
+            'single_neuron_synaptome',
+            'single_neuron_synaptome_simulation',
+            'subject',
+            'validation_result',
+            'circuit',
+            'circuit_extraction_campaign',
+            'circuit_extraction_config',
+            'em_dense_reconstruction_dataset',
+            'em_cell_mesh',
+            'analysis_notebook_template',
+            'analysis_notebook_environment',
+            'analysis_notebook_result',
+            'skeletonization_config',
+            'skeletonization_campaign',
+        ]
+        | None
+    ) = None
     id: UUID = Field(..., title='Id')
     authorized_project_id: UUID4 = Field(..., title='Authorized Project Id')
     authorized_public: bool = Field(default=False, title='Authorized Public')
@@ -12072,22 +14012,6 @@ class CellMorphologyProtocolCreate(
     ) = Field(..., discriminator='generation_type')
 
 
-class CellMorphologyProtocolRead(
-    RootModel[
-        DigitalReconstructionCellMorphologyProtocolRead
-        | ModifiedReconstructionCellMorphologyProtocolRead
-        | ComputationallySynthesizedCellMorphologyProtocolRead
-        | PlaceholderCellMorphologyProtocolRead
-    ]
-):
-    root: (
-        DigitalReconstructionCellMorphologyProtocolRead
-        | ModifiedReconstructionCellMorphologyProtocolRead
-        | ComputationallySynthesizedCellMorphologyProtocolRead
-        | PlaceholderCellMorphologyProtocolRead
-    ) = Field(..., discriminator='generation_type')
-
-
 class CircuitExtractionCampaignRead(BaseModel):
     model_config = ConfigDict(
         extra='allow',
@@ -12103,7 +14027,51 @@ class CircuitExtractionCampaignRead(BaseModel):
     updated_by: NestedPersonRead
     assets: list[AssetRead] = Field(..., title='Assets')
     id: UUID = Field(..., title='Id')
-    type: EntityType | None = None
+    type: (
+        Literal[
+            'analysis_software_source_code',
+            'brain_atlas',
+            'brain_atlas_region',
+            'cell_composition',
+            'cell_morphology',
+            'cell_morphology_protocol',
+            'electrical_cell_recording',
+            'electrical_recording',
+            'electrical_recording_stimulus',
+            'emodel',
+            'experimental_bouton_density',
+            'experimental_neuron_density',
+            'experimental_synapses_per_connection',
+            'external_url',
+            'ion_channel_model',
+            'ion_channel_modeling_campaign',
+            'ion_channel_modeling_config',
+            'ion_channel_recording',
+            'memodel',
+            'memodel_calibration_result',
+            'me_type_density',
+            'simulation',
+            'simulation_campaign',
+            'simulation_result',
+            'scientific_artifact',
+            'single_neuron_simulation',
+            'single_neuron_synaptome',
+            'single_neuron_synaptome_simulation',
+            'subject',
+            'validation_result',
+            'circuit',
+            'circuit_extraction_campaign',
+            'circuit_extraction_config',
+            'em_dense_reconstruction_dataset',
+            'em_cell_mesh',
+            'analysis_notebook_template',
+            'analysis_notebook_environment',
+            'analysis_notebook_result',
+            'skeletonization_config',
+            'skeletonization_campaign',
+        ]
+        | None
+    ) = None
     name: str = Field(..., title='Name')
     description: str = Field(..., title='Description')
     scan_parameters: dict[str, Any] = Field(..., title='Scan Parameters')
@@ -12124,7 +14092,51 @@ class CircuitExtractionConfigRead(BaseModel):
     updated_by: NestedPersonRead
     assets: list[AssetRead] = Field(..., title='Assets')
     id: UUID = Field(..., title='Id')
-    type: EntityType | None = None
+    type: (
+        Literal[
+            'analysis_software_source_code',
+            'brain_atlas',
+            'brain_atlas_region',
+            'cell_composition',
+            'cell_morphology',
+            'cell_morphology_protocol',
+            'electrical_cell_recording',
+            'electrical_recording',
+            'electrical_recording_stimulus',
+            'emodel',
+            'experimental_bouton_density',
+            'experimental_neuron_density',
+            'experimental_synapses_per_connection',
+            'external_url',
+            'ion_channel_model',
+            'ion_channel_modeling_campaign',
+            'ion_channel_modeling_config',
+            'ion_channel_recording',
+            'memodel',
+            'memodel_calibration_result',
+            'me_type_density',
+            'simulation',
+            'simulation_campaign',
+            'simulation_result',
+            'scientific_artifact',
+            'single_neuron_simulation',
+            'single_neuron_synaptome',
+            'single_neuron_synaptome_simulation',
+            'subject',
+            'validation_result',
+            'circuit',
+            'circuit_extraction_campaign',
+            'circuit_extraction_config',
+            'em_dense_reconstruction_dataset',
+            'em_cell_mesh',
+            'analysis_notebook_template',
+            'analysis_notebook_environment',
+            'analysis_notebook_result',
+            'skeletonization_config',
+            'skeletonization_campaign',
+        ]
+        | None
+    ) = None
     name: str = Field(..., title='Name')
     description: str = Field(..., title='Description')
     circuit_id: UUID = Field(..., title='Circuit Id')
@@ -12148,7 +14160,51 @@ class CircuitRead(BaseModel):
     subject: NestedSubjectRead
     authorized_project_id: UUID4 = Field(..., title='Authorized Project Id')
     authorized_public: bool = Field(default=False, title='Authorized Public')
-    type: EntityType | None = None
+    type: (
+        Literal[
+            'analysis_software_source_code',
+            'brain_atlas',
+            'brain_atlas_region',
+            'cell_composition',
+            'cell_morphology',
+            'cell_morphology_protocol',
+            'electrical_cell_recording',
+            'electrical_recording',
+            'electrical_recording_stimulus',
+            'emodel',
+            'experimental_bouton_density',
+            'experimental_neuron_density',
+            'experimental_synapses_per_connection',
+            'external_url',
+            'ion_channel_model',
+            'ion_channel_modeling_campaign',
+            'ion_channel_modeling_config',
+            'ion_channel_recording',
+            'memodel',
+            'memodel_calibration_result',
+            'me_type_density',
+            'simulation',
+            'simulation_campaign',
+            'simulation_result',
+            'scientific_artifact',
+            'single_neuron_simulation',
+            'single_neuron_synaptome',
+            'single_neuron_synaptome_simulation',
+            'subject',
+            'validation_result',
+            'circuit',
+            'circuit_extraction_campaign',
+            'circuit_extraction_config',
+            'em_dense_reconstruction_dataset',
+            'em_cell_mesh',
+            'analysis_notebook_template',
+            'analysis_notebook_environment',
+            'analysis_notebook_result',
+            'skeletonization_config',
+            'skeletonization_campaign',
+        ]
+        | None
+    ) = None
     id: UUID = Field(..., title='Id')
     experiment_date: AwareDatetime | None = Field(
         default=None,
@@ -12181,8 +14237,18 @@ class CircuitRead(BaseModel):
     number_neurons: int = Field(..., title='Number Neurons')
     number_synapses: int = Field(..., title='Number Synapses')
     number_connections: int | None = Field(..., title='Number Connections')
-    scale: CircuitScale
-    build_category: CircuitBuildCategory
+    scale: Literal[
+        'single', 'pair', 'small', 'microcircuit', 'region', 'system', 'whole_brain'
+    ] = Field(
+        ...,
+        description='Scale of the circuit.\n\n- single: Single neuron + extrinsic connectivity\n- pair: Two connected neurons + intrinsic connectivity + extrinsic connectivity\n- small: Small microcircuit (3-20 neurons) + intrinsic connectivity + extrinsic connectivity;\n  usually containing specific connectivity motifs\n- microcircuit: Any circuit larger than 20 neurons but not being a region, system, or\n  whole-brain circuit; may be atlas-based or not\n- region: Atlas-based continuous volume of an entire brain region or a set of continuous\n  sub-regions\n- system: Non-continuous circuit consisting of at least two microcircuits/regions that are\n  connected by inter-region connectivity\n- whole_brain: Circuit representing an entire brain.',
+        title='CircuitScale',
+    )
+    build_category: Literal['computational_model', 'em_reconstruction'] = Field(
+        ...,
+        description='Information about how/from what source a circuit was built.\n\n- computational_model: Any type of data-driven or statistical model\n- em_reconstruction: Reconstruction from EM\n(More categories may be added later, if needed).',
+        title='CircuitBuildCategory',
+    )
     root_circuit_id: UUID | None = Field(default=None, title='Root Circuit Id')
     atlas_id: UUID | None = Field(default=None, title='Atlas Id')
 
@@ -12204,7 +14270,51 @@ class EMCellMeshRead(BaseModel):
     subject: NestedSubjectRead
     authorized_project_id: UUID4 = Field(..., title='Authorized Project Id')
     authorized_public: bool = Field(default=False, title='Authorized Public')
-    type: EntityType | None = None
+    type: (
+        Literal[
+            'analysis_software_source_code',
+            'brain_atlas',
+            'brain_atlas_region',
+            'cell_composition',
+            'cell_morphology',
+            'cell_morphology_protocol',
+            'electrical_cell_recording',
+            'electrical_recording',
+            'electrical_recording_stimulus',
+            'emodel',
+            'experimental_bouton_density',
+            'experimental_neuron_density',
+            'experimental_synapses_per_connection',
+            'external_url',
+            'ion_channel_model',
+            'ion_channel_modeling_campaign',
+            'ion_channel_modeling_config',
+            'ion_channel_recording',
+            'memodel',
+            'memodel_calibration_result',
+            'me_type_density',
+            'simulation',
+            'simulation_campaign',
+            'simulation_result',
+            'scientific_artifact',
+            'single_neuron_simulation',
+            'single_neuron_synaptome',
+            'single_neuron_synaptome_simulation',
+            'subject',
+            'validation_result',
+            'circuit',
+            'circuit_extraction_campaign',
+            'circuit_extraction_config',
+            'em_dense_reconstruction_dataset',
+            'em_cell_mesh',
+            'analysis_notebook_template',
+            'analysis_notebook_environment',
+            'analysis_notebook_result',
+            'skeletonization_config',
+            'skeletonization_campaign',
+        ]
+        | None
+    ) = None
     id: UUID = Field(..., title='Id')
     experiment_date: AwareDatetime | None = Field(
         default=None,
@@ -12228,12 +14338,20 @@ class EMCellMeshRead(BaseModel):
     )
     release_version: int = Field(..., title='Release Version')
     dense_reconstruction_cell_id: int = Field(..., title='Dense Reconstruction Cell Id')
-    generation_method: EMCellMeshGenerationMethod
+    generation_method: Literal['marching_cubes'] = Field(
+        ...,
+        description='The algorithm generating the mesh from a volume.\n\nmarching_cubes: The marching cubes algorithm.',
+        title='EMCellMeshGenerationMethod',
+    )
     level_of_detail: int = Field(..., title='Level Of Detail')
     generation_parameters: dict[str, Any] | None = Field(
         default=None, title='Generation Parameters'
     )
-    mesh_type: EMCellMeshType
+    mesh_type: Literal['static', 'dynamic'] = Field(
+        ...,
+        description='How an EM cell mesh was created.\n\nstatic: The mesh was precomputed at a given level of detail.\ndynamic: The mesh was dynamically generated at query time.',
+        title='EMCellMeshType',
+    )
     em_dense_reconstruction_dataset: BasicEntityRead
 
 
@@ -12254,7 +14372,51 @@ class EMDenseReconstructionDatasetRead(BaseModel):
     subject: NestedSubjectRead
     authorized_project_id: UUID4 = Field(..., title='Authorized Project Id')
     authorized_public: bool = Field(default=False, title='Authorized Public')
-    type: EntityType | None = None
+    type: (
+        Literal[
+            'analysis_software_source_code',
+            'brain_atlas',
+            'brain_atlas_region',
+            'cell_composition',
+            'cell_morphology',
+            'cell_morphology_protocol',
+            'electrical_cell_recording',
+            'electrical_recording',
+            'electrical_recording_stimulus',
+            'emodel',
+            'experimental_bouton_density',
+            'experimental_neuron_density',
+            'experimental_synapses_per_connection',
+            'external_url',
+            'ion_channel_model',
+            'ion_channel_modeling_campaign',
+            'ion_channel_modeling_config',
+            'ion_channel_recording',
+            'memodel',
+            'memodel_calibration_result',
+            'me_type_density',
+            'simulation',
+            'simulation_campaign',
+            'simulation_result',
+            'scientific_artifact',
+            'single_neuron_simulation',
+            'single_neuron_synaptome',
+            'single_neuron_synaptome_simulation',
+            'subject',
+            'validation_result',
+            'circuit',
+            'circuit_extraction_campaign',
+            'circuit_extraction_config',
+            'em_dense_reconstruction_dataset',
+            'em_cell_mesh',
+            'analysis_notebook_template',
+            'analysis_notebook_environment',
+            'analysis_notebook_result',
+            'skeletonization_config',
+            'skeletonization_campaign',
+        ]
+        | None
+    ) = None
     id: UUID = Field(..., title='Id')
     experiment_date: AwareDatetime | None = Field(
         default=None,
@@ -12287,7 +14449,9 @@ class EMDenseReconstructionDatasetRead(BaseModel):
     tissue_shrinkage: float | None = Field(default=None, title='Tissue Shrinkage')
     microscope_type: str | None = Field(default=None, title='Microscope Type')
     detector: str | None = Field(default=None, title='Detector')
-    slicing_direction: SlicingDirectionType | None = None
+    slicing_direction: Literal['coronal', 'sagittal', 'horizontal', 'custom'] | None = (
+        None
+    )
     landmarks: str | None = Field(default=None, title='Landmarks')
     voltage: float | None = Field(default=None, title='Voltage')
     current: float | None = Field(default=None, title='Current')
@@ -12313,7 +14477,51 @@ class EModelRead(BaseModel):
     created_by: NestedPersonRead
     updated_by: NestedPersonRead
     assets: list[AssetRead] = Field(..., title='Assets')
-    type: EntityType | None = None
+    type: (
+        Literal[
+            'analysis_software_source_code',
+            'brain_atlas',
+            'brain_atlas_region',
+            'cell_composition',
+            'cell_morphology',
+            'cell_morphology_protocol',
+            'electrical_cell_recording',
+            'electrical_recording',
+            'electrical_recording_stimulus',
+            'emodel',
+            'experimental_bouton_density',
+            'experimental_neuron_density',
+            'experimental_synapses_per_connection',
+            'external_url',
+            'ion_channel_model',
+            'ion_channel_modeling_campaign',
+            'ion_channel_modeling_config',
+            'ion_channel_recording',
+            'memodel',
+            'memodel_calibration_result',
+            'me_type_density',
+            'simulation',
+            'simulation_campaign',
+            'simulation_result',
+            'scientific_artifact',
+            'single_neuron_simulation',
+            'single_neuron_synaptome',
+            'single_neuron_synaptome_simulation',
+            'subject',
+            'validation_result',
+            'circuit',
+            'circuit_extraction_campaign',
+            'circuit_extraction_config',
+            'em_dense_reconstruction_dataset',
+            'em_cell_mesh',
+            'analysis_notebook_template',
+            'analysis_notebook_environment',
+            'analysis_notebook_result',
+            'skeletonization_config',
+            'skeletonization_campaign',
+        ]
+        | None
+    ) = None
     authorized_project_id: UUID4 = Field(..., title='Authorized Project Id')
     authorized_public: bool = Field(default=False, title='Authorized Public')
     creation_date: AwareDatetime = Field(..., title='Creation Date')
@@ -12349,7 +14557,51 @@ class ElectricalCellRecordingRead(BaseModel):
     subject: NestedSubjectRead
     authorized_project_id: UUID4 = Field(..., title='Authorized Project Id')
     authorized_public: bool = Field(default=False, title='Authorized Public')
-    type: EntityType | None = None
+    type: (
+        Literal[
+            'analysis_software_source_code',
+            'brain_atlas',
+            'brain_atlas_region',
+            'cell_composition',
+            'cell_morphology',
+            'cell_morphology_protocol',
+            'electrical_cell_recording',
+            'electrical_recording',
+            'electrical_recording_stimulus',
+            'emodel',
+            'experimental_bouton_density',
+            'experimental_neuron_density',
+            'experimental_synapses_per_connection',
+            'external_url',
+            'ion_channel_model',
+            'ion_channel_modeling_campaign',
+            'ion_channel_modeling_config',
+            'ion_channel_recording',
+            'memodel',
+            'memodel_calibration_result',
+            'me_type_density',
+            'simulation',
+            'simulation_campaign',
+            'simulation_result',
+            'scientific_artifact',
+            'single_neuron_simulation',
+            'single_neuron_synaptome',
+            'single_neuron_synaptome_simulation',
+            'subject',
+            'validation_result',
+            'circuit',
+            'circuit_extraction_campaign',
+            'circuit_extraction_config',
+            'em_dense_reconstruction_dataset',
+            'em_cell_mesh',
+            'analysis_notebook_template',
+            'analysis_notebook_environment',
+            'analysis_notebook_result',
+            'skeletonization_config',
+            'skeletonization_campaign',
+        ]
+        | None
+    ) = None
     id: UUID = Field(..., title='Id')
     experiment_date: AwareDatetime | None = Field(
         default=None,
@@ -12383,12 +14635,14 @@ class ElectricalCellRecordingRead(BaseModel):
         description='Location on the cell where recording was performed, in hoc-compatible format.',
         title='Recording Location',
     )
-    recording_type: ElectricalRecordingType = Field(
-        ...,
-        description="Recording type. One of: [<ElectricalRecordingStimulusType.conductance_clamp: 'conductance_clamp'>, <ElectricalRecordingStimulusType.current_clamp: 'current_clamp'>, <ElectricalRecordingStimulusType.extracellular: 'extracellular'>, <ElectricalRecordingStimulusType.other: 'other'>, <ElectricalRecordingStimulusType.unknown: 'unknown'>, <ElectricalRecordingStimulusType.voltage_clamp: 'voltage_clamp'>]",
-        title='Recording Type',
+    recording_type: Literal['intracellular', 'extracellular', 'both', 'unknown'] = (
+        Field(
+            ...,
+            description="Recording type. One of: [<ElectricalRecordingStimulusType.conductance_clamp: 'conductance_clamp'>, <ElectricalRecordingStimulusType.current_clamp: 'current_clamp'>, <ElectricalRecordingStimulusType.extracellular: 'extracellular'>, <ElectricalRecordingStimulusType.other: 'other'>, <ElectricalRecordingStimulusType.unknown: 'unknown'>, <ElectricalRecordingStimulusType.voltage_clamp: 'voltage_clamp'>]",
+            title='Recording Type',
+        )
     )
-    recording_origin: ElectricalRecordingOrigin = Field(
+    recording_origin: Literal['in_vivo', 'in_vitro', 'in_silico', 'unknown'] = Field(
         ...,
         description="Recording origin. One of: [<ElectricalRecordingOrigin.in_silico: 'in_silico'>, <ElectricalRecordingOrigin.in_vitro: 'in_vitro'>, <ElectricalRecordingOrigin.in_vivo: 'in_vivo'>, <ElectricalRecordingOrigin.unknown: 'unknown'>]",
         title='Recording Origin',
@@ -12434,7 +14688,51 @@ class ExperimentalBoutonDensityRead(BaseModel):
     )
     created_by: NestedPersonRead
     updated_by: NestedPersonRead
-    type: EntityType | None = None
+    type: (
+        Literal[
+            'analysis_software_source_code',
+            'brain_atlas',
+            'brain_atlas_region',
+            'cell_composition',
+            'cell_morphology',
+            'cell_morphology_protocol',
+            'electrical_cell_recording',
+            'electrical_recording',
+            'electrical_recording_stimulus',
+            'emodel',
+            'experimental_bouton_density',
+            'experimental_neuron_density',
+            'experimental_synapses_per_connection',
+            'external_url',
+            'ion_channel_model',
+            'ion_channel_modeling_campaign',
+            'ion_channel_modeling_config',
+            'ion_channel_recording',
+            'memodel',
+            'memodel_calibration_result',
+            'me_type_density',
+            'simulation',
+            'simulation_campaign',
+            'simulation_result',
+            'scientific_artifact',
+            'single_neuron_simulation',
+            'single_neuron_synaptome',
+            'single_neuron_synaptome_simulation',
+            'subject',
+            'validation_result',
+            'circuit',
+            'circuit_extraction_campaign',
+            'circuit_extraction_config',
+            'em_dense_reconstruction_dataset',
+            'em_cell_mesh',
+            'analysis_notebook_template',
+            'analysis_notebook_environment',
+            'analysis_notebook_result',
+            'skeletonization_config',
+            'skeletonization_campaign',
+        ]
+        | None
+    ) = None
     authorized_project_id: UUID4 = Field(..., title='Authorized Project Id')
     authorized_public: bool = Field(default=False, title='Authorized Public')
     license: LicenseRead | None = None
@@ -12479,7 +14777,51 @@ class ExperimentalNeuronDensityRead(BaseModel):
     )
     created_by: NestedPersonRead
     updated_by: NestedPersonRead
-    type: EntityType | None = None
+    type: (
+        Literal[
+            'analysis_software_source_code',
+            'brain_atlas',
+            'brain_atlas_region',
+            'cell_composition',
+            'cell_morphology',
+            'cell_morphology_protocol',
+            'electrical_cell_recording',
+            'electrical_recording',
+            'electrical_recording_stimulus',
+            'emodel',
+            'experimental_bouton_density',
+            'experimental_neuron_density',
+            'experimental_synapses_per_connection',
+            'external_url',
+            'ion_channel_model',
+            'ion_channel_modeling_campaign',
+            'ion_channel_modeling_config',
+            'ion_channel_recording',
+            'memodel',
+            'memodel_calibration_result',
+            'me_type_density',
+            'simulation',
+            'simulation_campaign',
+            'simulation_result',
+            'scientific_artifact',
+            'single_neuron_simulation',
+            'single_neuron_synaptome',
+            'single_neuron_synaptome_simulation',
+            'subject',
+            'validation_result',
+            'circuit',
+            'circuit_extraction_campaign',
+            'circuit_extraction_config',
+            'em_dense_reconstruction_dataset',
+            'em_cell_mesh',
+            'analysis_notebook_template',
+            'analysis_notebook_environment',
+            'analysis_notebook_result',
+            'skeletonization_config',
+            'skeletonization_campaign',
+        ]
+        | None
+    ) = None
     authorized_project_id: UUID4 = Field(..., title='Authorized Project Id')
     authorized_public: bool = Field(default=False, title='Authorized Public')
     license: LicenseRead | None = None
@@ -12526,7 +14868,51 @@ class ExperimentalSynapsesPerConnectionRead(BaseModel):
     )
     created_by: NestedPersonRead
     updated_by: NestedPersonRead
-    type: EntityType | None = None
+    type: (
+        Literal[
+            'analysis_software_source_code',
+            'brain_atlas',
+            'brain_atlas_region',
+            'cell_composition',
+            'cell_morphology',
+            'cell_morphology_protocol',
+            'electrical_cell_recording',
+            'electrical_recording',
+            'electrical_recording_stimulus',
+            'emodel',
+            'experimental_bouton_density',
+            'experimental_neuron_density',
+            'experimental_synapses_per_connection',
+            'external_url',
+            'ion_channel_model',
+            'ion_channel_modeling_campaign',
+            'ion_channel_modeling_config',
+            'ion_channel_recording',
+            'memodel',
+            'memodel_calibration_result',
+            'me_type_density',
+            'simulation',
+            'simulation_campaign',
+            'simulation_result',
+            'scientific_artifact',
+            'single_neuron_simulation',
+            'single_neuron_synaptome',
+            'single_neuron_synaptome_simulation',
+            'subject',
+            'validation_result',
+            'circuit',
+            'circuit_extraction_campaign',
+            'circuit_extraction_config',
+            'em_dense_reconstruction_dataset',
+            'em_cell_mesh',
+            'analysis_notebook_template',
+            'analysis_notebook_environment',
+            'analysis_notebook_result',
+            'skeletonization_config',
+            'skeletonization_campaign',
+        ]
+        | None
+    ) = None
     authorized_project_id: UUID4 = Field(..., title='Authorized Project Id')
     authorized_public: bool = Field(default=False, title='Authorized Public')
     license: LicenseRead | None = None
@@ -12624,7 +15010,51 @@ class IonChannelModelExpanded(BaseModel):
     subject: NestedSubjectRead
     authorized_project_id: UUID4 = Field(..., title='Authorized Project Id')
     authorized_public: bool = Field(default=False, title='Authorized Public')
-    type: EntityType | None = None
+    type: (
+        Literal[
+            'analysis_software_source_code',
+            'brain_atlas',
+            'brain_atlas_region',
+            'cell_composition',
+            'cell_morphology',
+            'cell_morphology_protocol',
+            'electrical_cell_recording',
+            'electrical_recording',
+            'electrical_recording_stimulus',
+            'emodel',
+            'experimental_bouton_density',
+            'experimental_neuron_density',
+            'experimental_synapses_per_connection',
+            'external_url',
+            'ion_channel_model',
+            'ion_channel_modeling_campaign',
+            'ion_channel_modeling_config',
+            'ion_channel_recording',
+            'memodel',
+            'memodel_calibration_result',
+            'me_type_density',
+            'simulation',
+            'simulation_campaign',
+            'simulation_result',
+            'scientific_artifact',
+            'single_neuron_simulation',
+            'single_neuron_synaptome',
+            'single_neuron_synaptome_simulation',
+            'subject',
+            'validation_result',
+            'circuit',
+            'circuit_extraction_campaign',
+            'circuit_extraction_config',
+            'em_dense_reconstruction_dataset',
+            'em_cell_mesh',
+            'analysis_notebook_template',
+            'analysis_notebook_environment',
+            'analysis_notebook_result',
+            'skeletonization_config',
+            'skeletonization_campaign',
+        ]
+        | None
+    ) = None
     id: UUID = Field(..., title='Id')
     experiment_date: AwareDatetime | None = Field(
         default=None,
@@ -12668,7 +15098,51 @@ class IonChannelModelRead(BaseModel):
     subject: NestedSubjectRead
     authorized_project_id: UUID4 = Field(..., title='Authorized Project Id')
     authorized_public: bool = Field(default=False, title='Authorized Public')
-    type: EntityType | None = None
+    type: (
+        Literal[
+            'analysis_software_source_code',
+            'brain_atlas',
+            'brain_atlas_region',
+            'cell_composition',
+            'cell_morphology',
+            'cell_morphology_protocol',
+            'electrical_cell_recording',
+            'electrical_recording',
+            'electrical_recording_stimulus',
+            'emodel',
+            'experimental_bouton_density',
+            'experimental_neuron_density',
+            'experimental_synapses_per_connection',
+            'external_url',
+            'ion_channel_model',
+            'ion_channel_modeling_campaign',
+            'ion_channel_modeling_config',
+            'ion_channel_recording',
+            'memodel',
+            'memodel_calibration_result',
+            'me_type_density',
+            'simulation',
+            'simulation_campaign',
+            'simulation_result',
+            'scientific_artifact',
+            'single_neuron_simulation',
+            'single_neuron_synaptome',
+            'single_neuron_synaptome_simulation',
+            'subject',
+            'validation_result',
+            'circuit',
+            'circuit_extraction_campaign',
+            'circuit_extraction_config',
+            'em_dense_reconstruction_dataset',
+            'em_cell_mesh',
+            'analysis_notebook_template',
+            'analysis_notebook_environment',
+            'analysis_notebook_result',
+            'skeletonization_config',
+            'skeletonization_campaign',
+        ]
+        | None
+    ) = None
     id: UUID = Field(..., title='Id')
     experiment_date: AwareDatetime | None = Field(
         default=None,
@@ -12746,7 +15220,51 @@ class IonChannelModelWAssets(BaseModel):
     subject: NestedSubjectRead
     authorized_project_id: UUID4 = Field(..., title='Authorized Project Id')
     authorized_public: bool = Field(default=False, title='Authorized Public')
-    type: EntityType | None = None
+    type: (
+        Literal[
+            'analysis_software_source_code',
+            'brain_atlas',
+            'brain_atlas_region',
+            'cell_composition',
+            'cell_morphology',
+            'cell_morphology_protocol',
+            'electrical_cell_recording',
+            'electrical_recording',
+            'electrical_recording_stimulus',
+            'emodel',
+            'experimental_bouton_density',
+            'experimental_neuron_density',
+            'experimental_synapses_per_connection',
+            'external_url',
+            'ion_channel_model',
+            'ion_channel_modeling_campaign',
+            'ion_channel_modeling_config',
+            'ion_channel_recording',
+            'memodel',
+            'memodel_calibration_result',
+            'me_type_density',
+            'simulation',
+            'simulation_campaign',
+            'simulation_result',
+            'scientific_artifact',
+            'single_neuron_simulation',
+            'single_neuron_synaptome',
+            'single_neuron_synaptome_simulation',
+            'subject',
+            'validation_result',
+            'circuit',
+            'circuit_extraction_campaign',
+            'circuit_extraction_config',
+            'em_dense_reconstruction_dataset',
+            'em_cell_mesh',
+            'analysis_notebook_template',
+            'analysis_notebook_environment',
+            'analysis_notebook_result',
+            'skeletonization_config',
+            'skeletonization_campaign',
+        ]
+        | None
+    ) = None
     id: UUID = Field(..., title='Id')
     experiment_date: AwareDatetime | None = Field(
         default=None,
@@ -12795,7 +15313,51 @@ class IonChannelModelingCampaignRead(BaseModel):
     updated_by: NestedPersonRead
     assets: list[AssetRead] = Field(..., title='Assets')
     id: UUID = Field(..., title='Id')
-    type: EntityType | None = None
+    type: (
+        Literal[
+            'analysis_software_source_code',
+            'brain_atlas',
+            'brain_atlas_region',
+            'cell_composition',
+            'cell_morphology',
+            'cell_morphology_protocol',
+            'electrical_cell_recording',
+            'electrical_recording',
+            'electrical_recording_stimulus',
+            'emodel',
+            'experimental_bouton_density',
+            'experimental_neuron_density',
+            'experimental_synapses_per_connection',
+            'external_url',
+            'ion_channel_model',
+            'ion_channel_modeling_campaign',
+            'ion_channel_modeling_config',
+            'ion_channel_recording',
+            'memodel',
+            'memodel_calibration_result',
+            'me_type_density',
+            'simulation',
+            'simulation_campaign',
+            'simulation_result',
+            'scientific_artifact',
+            'single_neuron_simulation',
+            'single_neuron_synaptome',
+            'single_neuron_synaptome_simulation',
+            'subject',
+            'validation_result',
+            'circuit',
+            'circuit_extraction_campaign',
+            'circuit_extraction_config',
+            'em_dense_reconstruction_dataset',
+            'em_cell_mesh',
+            'analysis_notebook_template',
+            'analysis_notebook_environment',
+            'analysis_notebook_result',
+            'skeletonization_config',
+            'skeletonization_campaign',
+        ]
+        | None
+    ) = None
     name: str = Field(..., title='Name')
     description: str = Field(..., title='Description')
     scan_parameters: dict[str, Any] = Field(..., title='Scan Parameters')
@@ -12822,7 +15384,51 @@ class IonChannelModelingConfigRead(BaseModel):
     updated_by: NestedPersonRead
     assets: list[AssetRead] = Field(..., title='Assets')
     id: UUID = Field(..., title='Id')
-    type: EntityType | None = None
+    type: (
+        Literal[
+            'analysis_software_source_code',
+            'brain_atlas',
+            'brain_atlas_region',
+            'cell_composition',
+            'cell_morphology',
+            'cell_morphology_protocol',
+            'electrical_cell_recording',
+            'electrical_recording',
+            'electrical_recording_stimulus',
+            'emodel',
+            'experimental_bouton_density',
+            'experimental_neuron_density',
+            'experimental_synapses_per_connection',
+            'external_url',
+            'ion_channel_model',
+            'ion_channel_modeling_campaign',
+            'ion_channel_modeling_config',
+            'ion_channel_recording',
+            'memodel',
+            'memodel_calibration_result',
+            'me_type_density',
+            'simulation',
+            'simulation_campaign',
+            'simulation_result',
+            'scientific_artifact',
+            'single_neuron_simulation',
+            'single_neuron_synaptome',
+            'single_neuron_synaptome_simulation',
+            'subject',
+            'validation_result',
+            'circuit',
+            'circuit_extraction_campaign',
+            'circuit_extraction_config',
+            'em_dense_reconstruction_dataset',
+            'em_cell_mesh',
+            'analysis_notebook_template',
+            'analysis_notebook_environment',
+            'analysis_notebook_result',
+            'skeletonization_config',
+            'skeletonization_campaign',
+        ]
+        | None
+    ) = None
     name: str = Field(..., title='Name')
     description: str = Field(..., title='Description')
     ion_channel_modeling_campaign_id: UUID = Field(
@@ -12848,7 +15454,51 @@ class IonChannelRecordingRead(BaseModel):
     subject: NestedSubjectRead
     authorized_project_id: UUID4 = Field(..., title='Authorized Project Id')
     authorized_public: bool = Field(default=False, title='Authorized Public')
-    type: EntityType | None = None
+    type: (
+        Literal[
+            'analysis_software_source_code',
+            'brain_atlas',
+            'brain_atlas_region',
+            'cell_composition',
+            'cell_morphology',
+            'cell_morphology_protocol',
+            'electrical_cell_recording',
+            'electrical_recording',
+            'electrical_recording_stimulus',
+            'emodel',
+            'experimental_bouton_density',
+            'experimental_neuron_density',
+            'experimental_synapses_per_connection',
+            'external_url',
+            'ion_channel_model',
+            'ion_channel_modeling_campaign',
+            'ion_channel_modeling_config',
+            'ion_channel_recording',
+            'memodel',
+            'memodel_calibration_result',
+            'me_type_density',
+            'simulation',
+            'simulation_campaign',
+            'simulation_result',
+            'scientific_artifact',
+            'single_neuron_simulation',
+            'single_neuron_synaptome',
+            'single_neuron_synaptome_simulation',
+            'subject',
+            'validation_result',
+            'circuit',
+            'circuit_extraction_campaign',
+            'circuit_extraction_config',
+            'em_dense_reconstruction_dataset',
+            'em_cell_mesh',
+            'analysis_notebook_template',
+            'analysis_notebook_environment',
+            'analysis_notebook_result',
+            'skeletonization_config',
+            'skeletonization_campaign',
+        ]
+        | None
+    ) = None
     id: UUID = Field(..., title='Id')
     experiment_date: AwareDatetime | None = Field(
         default=None,
@@ -12882,12 +15532,14 @@ class IonChannelRecordingRead(BaseModel):
         description='Location on the cell where recording was performed, in hoc-compatible format.',
         title='Recording Location',
     )
-    recording_type: ElectricalRecordingType = Field(
-        ...,
-        description="Recording type. One of: [<ElectricalRecordingStimulusType.conductance_clamp: 'conductance_clamp'>, <ElectricalRecordingStimulusType.current_clamp: 'current_clamp'>, <ElectricalRecordingStimulusType.extracellular: 'extracellular'>, <ElectricalRecordingStimulusType.other: 'other'>, <ElectricalRecordingStimulusType.unknown: 'unknown'>, <ElectricalRecordingStimulusType.voltage_clamp: 'voltage_clamp'>]",
-        title='Recording Type',
+    recording_type: Literal['intracellular', 'extracellular', 'both', 'unknown'] = (
+        Field(
+            ...,
+            description="Recording type. One of: [<ElectricalRecordingStimulusType.conductance_clamp: 'conductance_clamp'>, <ElectricalRecordingStimulusType.current_clamp: 'current_clamp'>, <ElectricalRecordingStimulusType.extracellular: 'extracellular'>, <ElectricalRecordingStimulusType.other: 'other'>, <ElectricalRecordingStimulusType.unknown: 'unknown'>, <ElectricalRecordingStimulusType.voltage_clamp: 'voltage_clamp'>]",
+            title='Recording Type',
+        )
     )
-    recording_origin: ElectricalRecordingOrigin = Field(
+    recording_origin: Literal['in_vivo', 'in_vitro', 'in_silico', 'unknown'] = Field(
         ...,
         description="Recording origin. One of: [<ElectricalRecordingOrigin.in_silico: 'in_silico'>, <ElectricalRecordingOrigin.in_vitro: 'in_vitro'>, <ElectricalRecordingOrigin.in_vivo: 'in_vivo'>, <ElectricalRecordingOrigin.unknown: 'unknown'>]",
         title='Recording Origin',
@@ -12922,7 +15574,7 @@ class ListResponseAnalysisNotebookEnvironmentRead(BaseModel):
     )
     data: list[AnalysisNotebookEnvironmentRead] = Field(..., title='Data')
     pagination: PaginationResponse
-    facets: Facets | None = None
+    facets: dict[str, list[Facet]] | None = None
 
 
 class ListResponseAnalysisNotebookExecutionRead(BaseModel):
@@ -12931,7 +15583,7 @@ class ListResponseAnalysisNotebookExecutionRead(BaseModel):
     )
     data: list[AnalysisNotebookExecutionRead] = Field(..., title='Data')
     pagination: PaginationResponse
-    facets: Facets | None = None
+    facets: dict[str, list[Facet]] | None = None
 
 
 class ListResponseAnalysisNotebookResultRead(BaseModel):
@@ -12940,7 +15592,7 @@ class ListResponseAnalysisNotebookResultRead(BaseModel):
     )
     data: list[AnalysisNotebookResultRead] = Field(..., title='Data')
     pagination: PaginationResponse
-    facets: Facets | None = None
+    facets: dict[str, list[Facet]] | None = None
 
 
 class ListResponseAnalysisNotebookTemplateRead(BaseModel):
@@ -12949,7 +15601,7 @@ class ListResponseAnalysisNotebookTemplateRead(BaseModel):
     )
     data: list[AnalysisNotebookTemplateRead] = Field(..., title='Data')
     pagination: PaginationResponse
-    facets: Facets | None = None
+    facets: dict[str, list[Facet]] | None = None
 
 
 class ListResponseCellCompositionRead(BaseModel):
@@ -12958,16 +15610,21 @@ class ListResponseCellCompositionRead(BaseModel):
     )
     data: list[CellCompositionRead] = Field(..., title='Data')
     pagination: PaginationResponse
-    facets: Facets | None = None
+    facets: dict[str, list[Facet]] | None = None
 
 
 class ListResponseCellMorphologyProtocolRead(BaseModel):
     model_config = ConfigDict(
         extra='allow',
     )
-    data: list[CellMorphologyProtocolRead] = Field(..., title='Data')
+    data: list[
+        DigitalReconstructionCellMorphologyProtocolRead
+        | ModifiedReconstructionCellMorphologyProtocolRead
+        | ComputationallySynthesizedCellMorphologyProtocolRead
+        | PlaceholderCellMorphologyProtocolRead
+    ] = Field(..., title='Data')
     pagination: PaginationResponse
-    facets: Facets | None = None
+    facets: dict[str, list[Facet]] | None = None
 
 
 class ListResponseCircuitExtractionCampaignRead(BaseModel):
@@ -12976,7 +15633,7 @@ class ListResponseCircuitExtractionCampaignRead(BaseModel):
     )
     data: list[CircuitExtractionCampaignRead] = Field(..., title='Data')
     pagination: PaginationResponse
-    facets: Facets | None = None
+    facets: dict[str, list[Facet]] | None = None
 
 
 class ListResponseCircuitExtractionConfigRead(BaseModel):
@@ -12985,7 +15642,7 @@ class ListResponseCircuitExtractionConfigRead(BaseModel):
     )
     data: list[CircuitExtractionConfigRead] = Field(..., title='Data')
     pagination: PaginationResponse
-    facets: Facets | None = None
+    facets: dict[str, list[Facet]] | None = None
 
 
 class ListResponseCircuitRead(BaseModel):
@@ -12994,7 +15651,7 @@ class ListResponseCircuitRead(BaseModel):
     )
     data: list[CircuitRead] = Field(..., title='Data')
     pagination: PaginationResponse
-    facets: Facets | None = None
+    facets: dict[str, list[Facet]] | None = None
 
 
 class ListResponseEMCellMeshRead(BaseModel):
@@ -13003,7 +15660,7 @@ class ListResponseEMCellMeshRead(BaseModel):
     )
     data: list[EMCellMeshRead] = Field(..., title='Data')
     pagination: PaginationResponse
-    facets: Facets | None = None
+    facets: dict[str, list[Facet]] | None = None
 
 
 class ListResponseEMDenseReconstructionDatasetRead(BaseModel):
@@ -13012,7 +15669,7 @@ class ListResponseEMDenseReconstructionDatasetRead(BaseModel):
     )
     data: list[EMDenseReconstructionDatasetRead] = Field(..., title='Data')
     pagination: PaginationResponse
-    facets: Facets | None = None
+    facets: dict[str, list[Facet]] | None = None
 
 
 class ListResponseElectricalCellRecordingRead(BaseModel):
@@ -13021,7 +15678,7 @@ class ListResponseElectricalCellRecordingRead(BaseModel):
     )
     data: list[ElectricalCellRecordingRead] = Field(..., title='Data')
     pagination: PaginationResponse
-    facets: Facets | None = None
+    facets: dict[str, list[Facet]] | None = None
 
 
 class ListResponseExperimentalBoutonDensityRead(BaseModel):
@@ -13030,7 +15687,7 @@ class ListResponseExperimentalBoutonDensityRead(BaseModel):
     )
     data: list[ExperimentalBoutonDensityRead] = Field(..., title='Data')
     pagination: PaginationResponse
-    facets: Facets | None = None
+    facets: dict[str, list[Facet]] | None = None
 
 
 class ListResponseExperimentalNeuronDensityRead(BaseModel):
@@ -13039,7 +15696,7 @@ class ListResponseExperimentalNeuronDensityRead(BaseModel):
     )
     data: list[ExperimentalNeuronDensityRead] = Field(..., title='Data')
     pagination: PaginationResponse
-    facets: Facets | None = None
+    facets: dict[str, list[Facet]] | None = None
 
 
 class ListResponseExperimentalSynapsesPerConnectionRead(BaseModel):
@@ -13048,7 +15705,7 @@ class ListResponseExperimentalSynapsesPerConnectionRead(BaseModel):
     )
     data: list[ExperimentalSynapsesPerConnectionRead] = Field(..., title='Data')
     pagination: PaginationResponse
-    facets: Facets | None = None
+    facets: dict[str, list[Facet]] | None = None
 
 
 class ListResponseIonChannelModelExpanded(BaseModel):
@@ -13057,7 +15714,7 @@ class ListResponseIonChannelModelExpanded(BaseModel):
     )
     data: list[IonChannelModelExpanded] = Field(..., title='Data')
     pagination: PaginationResponse
-    facets: Facets | None = None
+    facets: dict[str, list[Facet]] | None = None
 
 
 class ListResponseIonChannelModelingCampaignRead(BaseModel):
@@ -13066,7 +15723,7 @@ class ListResponseIonChannelModelingCampaignRead(BaseModel):
     )
     data: list[IonChannelModelingCampaignRead] = Field(..., title='Data')
     pagination: PaginationResponse
-    facets: Facets | None = None
+    facets: dict[str, list[Facet]] | None = None
 
 
 class ListResponseIonChannelModelingConfigRead(BaseModel):
@@ -13075,7 +15732,7 @@ class ListResponseIonChannelModelingConfigRead(BaseModel):
     )
     data: list[IonChannelModelingConfigRead] = Field(..., title='Data')
     pagination: PaginationResponse
-    facets: Facets | None = None
+    facets: dict[str, list[Facet]] | None = None
 
 
 class ListResponseIonChannelRecordingRead(BaseModel):
@@ -13084,7 +15741,7 @@ class ListResponseIonChannelRecordingRead(BaseModel):
     )
     data: list[IonChannelRecordingRead] = Field(..., title='Data')
     pagination: PaginationResponse
-    facets: Facets | None = None
+    facets: dict[str, list[Facet]] | None = None
 
 
 class ListResponseMEModelCalibrationResultRead(BaseModel):
@@ -13093,7 +15750,7 @@ class ListResponseMEModelCalibrationResultRead(BaseModel):
     )
     data: list[MEModelCalibrationResultRead] = Field(..., title='Data')
     pagination: PaginationResponse
-    facets: Facets | None = None
+    facets: dict[str, list[Facet]] | None = None
 
 
 class ListResponseMTypeClassificationRead(BaseModel):
@@ -13102,7 +15759,7 @@ class ListResponseMTypeClassificationRead(BaseModel):
     )
     data: list[MTypeClassificationRead] = Field(..., title='Data')
     pagination: PaginationResponse
-    facets: Facets | None = None
+    facets: dict[str, list[Facet]] | None = None
 
 
 class ListResponseSimulationCampaignRead(BaseModel):
@@ -13111,7 +15768,7 @@ class ListResponseSimulationCampaignRead(BaseModel):
     )
     data: list[SimulationCampaignRead] = Field(..., title='Data')
     pagination: PaginationResponse
-    facets: Facets | None = None
+    facets: dict[str, list[Facet]] | None = None
 
 
 class ListResponseSimulationExecutionRead(BaseModel):
@@ -13120,7 +15777,7 @@ class ListResponseSimulationExecutionRead(BaseModel):
     )
     data: list[SimulationExecutionRead] = Field(..., title='Data')
     pagination: PaginationResponse
-    facets: Facets | None = None
+    facets: dict[str, list[Facet]] | None = None
 
 
 class ListResponseSimulationRead(BaseModel):
@@ -13129,7 +15786,7 @@ class ListResponseSimulationRead(BaseModel):
     )
     data: list[SimulationRead] = Field(..., title='Data')
     pagination: PaginationResponse
-    facets: Facets | None = None
+    facets: dict[str, list[Facet]] | None = None
 
 
 class ListResponseSimulationResultRead(BaseModel):
@@ -13138,7 +15795,7 @@ class ListResponseSimulationResultRead(BaseModel):
     )
     data: list[SimulationResultRead] = Field(..., title='Data')
     pagination: PaginationResponse
-    facets: Facets | None = None
+    facets: dict[str, list[Facet]] | None = None
 
 
 class ListResponseSingleNeuronSimulationRead(BaseModel):
@@ -13147,7 +15804,7 @@ class ListResponseSingleNeuronSimulationRead(BaseModel):
     )
     data: list[SingleNeuronSimulationRead] = Field(..., title='Data')
     pagination: PaginationResponse
-    facets: Facets | None = None
+    facets: dict[str, list[Facet]] | None = None
 
 
 class ListResponseSingleNeuronSynaptomeRead(BaseModel):
@@ -13156,7 +15813,7 @@ class ListResponseSingleNeuronSynaptomeRead(BaseModel):
     )
     data: list[SingleNeuronSynaptomeRead] = Field(..., title='Data')
     pagination: PaginationResponse
-    facets: Facets | None = None
+    facets: dict[str, list[Facet]] | None = None
 
 
 class ListResponseSingleNeuronSynaptomeSimulationRead(BaseModel):
@@ -13165,7 +15822,7 @@ class ListResponseSingleNeuronSynaptomeSimulationRead(BaseModel):
     )
     data: list[SingleNeuronSynaptomeSimulationRead] = Field(..., title='Data')
     pagination: PaginationResponse
-    facets: Facets | None = None
+    facets: dict[str, list[Facet]] | None = None
 
 
 class ListResponseSkeletonizationCampaignRead(BaseModel):
@@ -13174,7 +15831,7 @@ class ListResponseSkeletonizationCampaignRead(BaseModel):
     )
     data: list[SkeletonizationCampaignRead] = Field(..., title='Data')
     pagination: PaginationResponse
-    facets: Facets | None = None
+    facets: dict[str, list[Facet]] | None = None
 
 
 class ListResponseSkeletonizationConfigRead(BaseModel):
@@ -13183,7 +15840,7 @@ class ListResponseSkeletonizationConfigRead(BaseModel):
     )
     data: list[SkeletonizationConfigRead] = Field(..., title='Data')
     pagination: PaginationResponse
-    facets: Facets | None = None
+    facets: dict[str, list[Facet]] | None = None
 
 
 class ListResponseSkeletonizationExecutionRead(BaseModel):
@@ -13192,7 +15849,7 @@ class ListResponseSkeletonizationExecutionRead(BaseModel):
     )
     data: list[SkeletonizationExecutionRead] = Field(..., title='Data')
     pagination: PaginationResponse
-    facets: Facets | None = None
+    facets: dict[str, list[Facet]] | None = None
 
 
 class ListResponseValidationResultRead(BaseModel):
@@ -13201,7 +15858,7 @@ class ListResponseValidationResultRead(BaseModel):
     )
     data: list[ValidationResultRead] = Field(..., title='Data')
     pagination: PaginationResponse
-    facets: Facets | None = None
+    facets: dict[str, list[Facet]] | None = None
 
 
 class MeasurementAnnotationCreate(BaseModel):
@@ -13209,7 +15866,7 @@ class MeasurementAnnotationCreate(BaseModel):
         extra='allow',
     )
     entity_id: UUID = Field(..., title='Entity Id')
-    entity_type: MeasurableEntity
+    entity_type: Literal['cell_morphology'] = Field(..., title='MeasurableEntity')
     measurement_kinds: list[MeasurementKindCreate] = Field(
         ..., title='Measurement Kinds'
     )
@@ -13223,7 +15880,7 @@ class MeasurementAnnotationRead(BaseModel):
     creation_date: AwareDatetime = Field(..., title='Creation Date')
     update_date: AwareDatetime = Field(..., title='Update Date')
     entity_id: UUID = Field(..., title='Entity Id')
-    entity_type: MeasurableEntity
+    entity_type: Literal['cell_morphology'] = Field(..., title='MeasurableEntity')
     measurement_kinds: list[MeasurementKindRead] = Field(..., title='Measurement Kinds')
 
 
@@ -13232,28 +15889,12 @@ class MeasurementAnnotationUserUpdate(BaseModel):
         extra='allow',
     )
     entity_id: UUID | str | None = Field(default='<NOT_SET>', title='Entity Id')
-    entity_type: MeasurableEntity | str | None = Field(
+    entity_type: str | Literal['cell_morphology'] | None = Field(
         default='<NOT_SET>', title='Entity Type'
     )
     measurement_kinds: list[MeasurementKindCreate] | str | None = Field(
         default='<NOT_SET>', title='Measurement Kinds'
     )
-
-
-class NestedCellMorphologyProtocolRead(
-    RootModel[
-        NestedDigitalReconstructionCellMorphologyProtocolRead
-        | NestedModifiedReconstructionCellMorphologyProtocolRead
-        | NestedComputationallySynthesizedCellMorphologyProtocolRead
-        | NestedPlaceholderCellMorphologyProtocolRead
-    ]
-):
-    root: (
-        NestedDigitalReconstructionCellMorphologyProtocolRead
-        | NestedModifiedReconstructionCellMorphologyProtocolRead
-        | NestedComputationallySynthesizedCellMorphologyProtocolRead
-        | NestedPlaceholderCellMorphologyProtocolRead
-    ) = Field(..., discriminator='generation_type')
 
 
 class CellMorphologyAnnotationExpandedRead(BaseModel):
@@ -13273,7 +15914,51 @@ class CellMorphologyAnnotationExpandedRead(BaseModel):
     subject: NestedSubjectRead
     authorized_project_id: UUID4 = Field(..., title='Authorized Project Id')
     authorized_public: bool = Field(default=False, title='Authorized Public')
-    type: EntityType | None = None
+    type: (
+        Literal[
+            'analysis_software_source_code',
+            'brain_atlas',
+            'brain_atlas_region',
+            'cell_composition',
+            'cell_morphology',
+            'cell_morphology_protocol',
+            'electrical_cell_recording',
+            'electrical_recording',
+            'electrical_recording_stimulus',
+            'emodel',
+            'experimental_bouton_density',
+            'experimental_neuron_density',
+            'experimental_synapses_per_connection',
+            'external_url',
+            'ion_channel_model',
+            'ion_channel_modeling_campaign',
+            'ion_channel_modeling_config',
+            'ion_channel_recording',
+            'memodel',
+            'memodel_calibration_result',
+            'me_type_density',
+            'simulation',
+            'simulation_campaign',
+            'simulation_result',
+            'scientific_artifact',
+            'single_neuron_simulation',
+            'single_neuron_synaptome',
+            'single_neuron_synaptome_simulation',
+            'subject',
+            'validation_result',
+            'circuit',
+            'circuit_extraction_campaign',
+            'circuit_extraction_config',
+            'em_dense_reconstruction_dataset',
+            'em_cell_mesh',
+            'analysis_notebook_template',
+            'analysis_notebook_environment',
+            'analysis_notebook_result',
+            'skeletonization_config',
+            'skeletonization_campaign',
+        ]
+        | None
+    ) = None
     id: UUID = Field(..., title='Id')
     experiment_date: AwareDatetime | None = Field(
         default=None,
@@ -13300,7 +15985,13 @@ class CellMorphologyAnnotationExpandedRead(BaseModel):
     location: PointLocationBase | None = None
     legacy_id: list[str] | None = Field(default=None, title='Legacy Id')
     mtypes: list[AnnotationRead] | None = Field(..., title='Mtypes')
-    cell_morphology_protocol: NestedCellMorphologyProtocolRead | None = None
+    cell_morphology_protocol: (
+        NestedDigitalReconstructionCellMorphologyProtocolRead
+        | NestedModifiedReconstructionCellMorphologyProtocolRead
+        | NestedComputationallySynthesizedCellMorphologyProtocolRead
+        | NestedPlaceholderCellMorphologyProtocolRead
+        | None
+    ) = None
     measurement_annotation: MeasurementAnnotationRead | None = None
 
 
@@ -13321,7 +16012,51 @@ class CellMorphologyRead(BaseModel):
     subject: NestedSubjectRead
     authorized_project_id: UUID4 = Field(..., title='Authorized Project Id')
     authorized_public: bool = Field(default=False, title='Authorized Public')
-    type: EntityType | None = None
+    type: (
+        Literal[
+            'analysis_software_source_code',
+            'brain_atlas',
+            'brain_atlas_region',
+            'cell_composition',
+            'cell_morphology',
+            'cell_morphology_protocol',
+            'electrical_cell_recording',
+            'electrical_recording',
+            'electrical_recording_stimulus',
+            'emodel',
+            'experimental_bouton_density',
+            'experimental_neuron_density',
+            'experimental_synapses_per_connection',
+            'external_url',
+            'ion_channel_model',
+            'ion_channel_modeling_campaign',
+            'ion_channel_modeling_config',
+            'ion_channel_recording',
+            'memodel',
+            'memodel_calibration_result',
+            'me_type_density',
+            'simulation',
+            'simulation_campaign',
+            'simulation_result',
+            'scientific_artifact',
+            'single_neuron_simulation',
+            'single_neuron_synaptome',
+            'single_neuron_synaptome_simulation',
+            'subject',
+            'validation_result',
+            'circuit',
+            'circuit_extraction_campaign',
+            'circuit_extraction_config',
+            'em_dense_reconstruction_dataset',
+            'em_cell_mesh',
+            'analysis_notebook_template',
+            'analysis_notebook_environment',
+            'analysis_notebook_result',
+            'skeletonization_config',
+            'skeletonization_campaign',
+        ]
+        | None
+    ) = None
     id: UUID = Field(..., title='Id')
     experiment_date: AwareDatetime | None = Field(
         default=None,
@@ -13348,7 +16083,13 @@ class CellMorphologyRead(BaseModel):
     location: PointLocationBase | None = None
     legacy_id: list[str] | None = Field(default=None, title='Legacy Id')
     mtypes: list[AnnotationRead] | None = Field(..., title='Mtypes')
-    cell_morphology_protocol: NestedCellMorphologyProtocolRead | None = None
+    cell_morphology_protocol: (
+        NestedDigitalReconstructionCellMorphologyProtocolRead
+        | NestedModifiedReconstructionCellMorphologyProtocolRead
+        | NestedComputationallySynthesizedCellMorphologyProtocolRead
+        | NestedPlaceholderCellMorphologyProtocolRead
+        | None
+    ) = None
 
 
 class EModelReadExpanded(BaseModel):
@@ -13361,7 +16102,51 @@ class EModelReadExpanded(BaseModel):
     created_by: NestedPersonRead
     updated_by: NestedPersonRead
     assets: list[AssetRead] = Field(..., title='Assets')
-    type: EntityType | None = None
+    type: (
+        Literal[
+            'analysis_software_source_code',
+            'brain_atlas',
+            'brain_atlas_region',
+            'cell_composition',
+            'cell_morphology',
+            'cell_morphology_protocol',
+            'electrical_cell_recording',
+            'electrical_recording',
+            'electrical_recording_stimulus',
+            'emodel',
+            'experimental_bouton_density',
+            'experimental_neuron_density',
+            'experimental_synapses_per_connection',
+            'external_url',
+            'ion_channel_model',
+            'ion_channel_modeling_campaign',
+            'ion_channel_modeling_config',
+            'ion_channel_recording',
+            'memodel',
+            'memodel_calibration_result',
+            'me_type_density',
+            'simulation',
+            'simulation_campaign',
+            'simulation_result',
+            'scientific_artifact',
+            'single_neuron_simulation',
+            'single_neuron_synaptome',
+            'single_neuron_synaptome_simulation',
+            'subject',
+            'validation_result',
+            'circuit',
+            'circuit_extraction_campaign',
+            'circuit_extraction_config',
+            'em_dense_reconstruction_dataset',
+            'em_cell_mesh',
+            'analysis_notebook_template',
+            'analysis_notebook_environment',
+            'analysis_notebook_result',
+            'skeletonization_config',
+            'skeletonization_campaign',
+        ]
+        | None
+    ) = None
     authorized_project_id: UUID4 = Field(..., title='Authorized Project Id')
     authorized_public: bool = Field(default=False, title='Authorized Public')
     creation_date: AwareDatetime = Field(..., title='Creation Date')
@@ -13389,7 +16174,7 @@ class ListResponseCellMorphologyRead(BaseModel):
     )
     data: list[CellMorphologyRead] = Field(..., title='Data')
     pagination: PaginationResponse
-    facets: Facets | None = None
+    facets: dict[str, list[Facet]] | None = None
 
 
 class ListResponseEModelReadExpanded(BaseModel):
@@ -13398,7 +16183,7 @@ class ListResponseEModelReadExpanded(BaseModel):
     )
     data: list[EModelReadExpanded] = Field(..., title='Data')
     pagination: PaginationResponse
-    facets: Facets | None = None
+    facets: dict[str, list[Facet]] | None = None
 
 
 class ListResponseMeasurementAnnotationRead(BaseModel):
@@ -13407,7 +16192,7 @@ class ListResponseMeasurementAnnotationRead(BaseModel):
     )
     data: list[MeasurementAnnotationRead] = Field(..., title='Data')
     pagination: PaginationResponse
-    facets: Facets | None = None
+    facets: dict[str, list[Facet]] | None = None
 
 
 class MEModelRead(BaseModel):
@@ -13419,15 +16204,59 @@ class MEModelRead(BaseModel):
     )
     created_by: NestedPersonRead
     updated_by: NestedPersonRead
-    type: EntityType | None = None
+    type: (
+        Literal[
+            'analysis_software_source_code',
+            'brain_atlas',
+            'brain_atlas_region',
+            'cell_composition',
+            'cell_morphology',
+            'cell_morphology_protocol',
+            'electrical_cell_recording',
+            'electrical_recording',
+            'electrical_recording_stimulus',
+            'emodel',
+            'experimental_bouton_density',
+            'experimental_neuron_density',
+            'experimental_synapses_per_connection',
+            'external_url',
+            'ion_channel_model',
+            'ion_channel_modeling_campaign',
+            'ion_channel_modeling_config',
+            'ion_channel_recording',
+            'memodel',
+            'memodel_calibration_result',
+            'me_type_density',
+            'simulation',
+            'simulation_campaign',
+            'simulation_result',
+            'scientific_artifact',
+            'single_neuron_simulation',
+            'single_neuron_synaptome',
+            'single_neuron_synaptome_simulation',
+            'subject',
+            'validation_result',
+            'circuit',
+            'circuit_extraction_campaign',
+            'circuit_extraction_config',
+            'em_dense_reconstruction_dataset',
+            'em_cell_mesh',
+            'analysis_notebook_template',
+            'analysis_notebook_environment',
+            'analysis_notebook_result',
+            'skeletonization_config',
+            'skeletonization_campaign',
+        ]
+        | None
+    ) = None
     authorized_project_id: UUID4 = Field(..., title='Authorized Project Id')
     authorized_public: bool = Field(default=False, title='Authorized Public')
     creation_date: AwareDatetime = Field(..., title='Creation Date')
     update_date: AwareDatetime = Field(..., title='Update Date')
     name: str = Field(..., title='Name')
     description: str = Field(..., title='Description')
-    validation_status: ValidationStatus = Field(
-        default_factory=lambda: ValidationStatus.model_validate('created')
+    validation_status: Literal['created', 'initialized', 'running', 'done', 'error'] = (
+        Field(default='created', title='ValidationStatus')
     )
     id: UUID = Field(..., title='Id')
     species: NestedSpeciesRead
@@ -13454,7 +16283,7 @@ class ListResponseMEModelRead(BaseModel):
     )
     data: list[MEModelRead] = Field(..., title='Data')
     pagination: PaginationResponse
-    facets: Facets | None = None
+    facets: dict[str, list[Facet]] | None = None
 
 
 HierarchyNode.model_rebuild()

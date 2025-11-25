@@ -34,7 +34,7 @@ class CellMorphologyGetAllInput(
     )
     within_brain_region_direction: Literal[
         "ascendants", "descendants", "ascendants_and_descendants"
-    ] = Field(  # type: ignore[assignment]
+    ] = Field(
         default="ascendants_and_descendants",
         description="Controls whether to search in parent regions (ascendants), child regions (descendants), or both when filtering by brain region.",
     )
