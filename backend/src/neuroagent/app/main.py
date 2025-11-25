@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import Annotated, Any, AsyncContextManager
 from uuid import uuid4
 
+import logfire
 from asgi_correlation_id import CorrelationIdMiddleware
 from fastapi import Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -200,6 +201,12 @@ app.include_router(threads.router)
 app.include_router(tools.router)
 app.include_router(storage.router)
 app.include_router(rate_limit.router)
+
+logfire.configure()
+logfire.instrument_fastapi(app=app)
+logfire.instrument_httpx()
+logfire.instrument_openai()
+logfire.instrument_sqlalchemy()
 
 
 def custom_openapi() -> dict[str, Any]:

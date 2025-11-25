@@ -19,6 +19,7 @@ dependencies = [
     "boto3",
     "duckdb",
     "fastapi>=0.118.0",
+    "logfire[fastapi,httpx,sqlalchemy]",
     "mcp",
     "obp-accounting-sdk",
     "openai",
