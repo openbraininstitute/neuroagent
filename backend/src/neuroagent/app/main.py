@@ -131,6 +131,7 @@ async def lifespan(fastapi_app: FastAPI) -> AsyncContextManager[None]:  # type: 
         service_name=app_settings.logfire.service_name,
         environment=app_settings.logfire.environment,
         console=False,
+        scrubbing=logfire.ScrubbingOptions(extra_patterns=["token"]),
     )
 
     async with aclosing(
