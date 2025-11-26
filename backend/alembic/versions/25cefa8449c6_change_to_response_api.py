@@ -126,9 +126,17 @@ def upgrade() -> None:
                         curr_content_json = {"content": curr_content}
 
                     if curr_entity == "AI_TOOL":
-                        # Add reasoning if present
-                        reasoning = curr_content_json.get("reasoning", "")
-                        if reasoning:
+                        turn += 1
+                        # Add reasoning if present (only if it's a list)
+                        reasoning = curr_content_json.get("reasoning", [])
+                        encrypted_reasoning = curr_content_json.get(
+                            "encrypted_reasoning", ""
+                        )
+                        if isinstance(reasoning, list) and reasoning:
+                            summary = [
+                                {"type": "summary_text", "text": step}
+                                for step in reasoning
+                            ]
                             conn.execute(
                                 sa.text("""
                                 INSERT INTO parts (part_id, message_id, turn, order_index, type, output, creation_date)
@@ -139,7 +147,11 @@ def upgrade() -> None:
                                     "turn": turn,
                                     "order_index": order_idx,
                                     "output": json.dumps(
-                                        {"type": "reasoning", "content": []}
+                                        {
+                                            "type": "reasoning",
+                                            "encrypted_content": encrypted_reasoning,
+                                            "summary": summary,
+                                        }
                                     ),
                                     "creation_date": curr_creation_date,
                                 },
@@ -212,7 +224,6 @@ def upgrade() -> None:
                         if curr_msg_id != assistant_msg_id:
                             messages_to_delete.append(curr_msg_id)
                         i += 1
-                        turn += 1
 
                     elif curr_entity == "TOOL":
                         # Add FUNCTION_CALL_OUTPUT part
@@ -243,9 +254,17 @@ def upgrade() -> None:
                         i += 1
 
                     elif curr_entity == "AI_MESSAGE":
-                        # Add reasoning if present
-                        reasoning = curr_content_json.get("reasoning", "")
-                        if reasoning:
+                        turn += 1
+                        # Add reasoning if present (only if it's a list)
+                        reasoning = curr_content_json.get("reasoning", [])
+                        encrypted_reasoning = curr_content_json.get(
+                            "encrypted_reasoning", ""
+                        )
+                        if isinstance(reasoning, list) and reasoning:
+                            summary = [
+                                {"type": "summary_text", "text": step}
+                                for step in reasoning
+                            ]
                             conn.execute(
                                 sa.text("""
                                 INSERT INTO parts (part_id, message_id, turn, order_index, type, output, creation_date)
@@ -256,7 +275,11 @@ def upgrade() -> None:
                                     "turn": turn,
                                     "order_index": order_idx,
                                     "output": json.dumps(
-                                        {"type": "reasoning", "content": []}
+                                        {
+                                            "type": "reasoning",
+                                            "encrypted_content": encrypted_reasoning,
+                                            "summary": summary,
+                                        }
                                     ),
                                     "creation_date": curr_creation_date,
                                 },
@@ -321,12 +344,18 @@ def upgrade() -> None:
                         sa.text("DELETE FROM messages WHERE message_id = :message_id"),
                         {"message_id": old_msg_id},
                     )
+            elif entity == "TOOL":
+                # TOOL messages are handled within AI_TOOL blocks, skip standalone ones
+                i += 1
             else:
                 # Skip unknown entity types
                 i += 1
 
     # Convert entity column to text temporarily
     op.execute("ALTER TABLE messages ALTER COLUMN entity TYPE text")
+
+    # Delete TOOL messages (already converted to parts)
+    conn.execute(sa.text("DELETE FROM messages WHERE entity = 'TOOL'"))
 
     # Update all AI_TOOL and AI_MESSAGE to ASSISTANT
     conn.execute(
@@ -350,24 +379,268 @@ def upgrade() -> None:
 
 
 def downgrade():
-    # Drop your table(s)
-    op.drop_table("response_parts")
-
-    # Drop the enum type
-    # Use execute with text() for raw SQL
     conn = op.get_bind()
 
-    # Check if any tables still use the enum before dropping
-    result = conn.execute(
-        sa.text("""
-            SELECT EXISTS (
-                SELECT 1
-                FROM pg_attribute a
-                JOIN pg_type t ON a.atttypid = t.oid
-                WHERE t.typname = 'parttype'
-            )
-        """)
-    ).scalar()
+    # Add back content column
+    op.add_column("messages", sa.Column("content", sa.String(), nullable=True))
 
-    if not result:
-        conn.execute(sa.text("DROP TYPE IF EXISTS parttype"))
+    # Recreate tool_calls table
+    op.create_table(
+        "tool_calls",
+        sa.Column("tool_call_id", sa.String(), nullable=False),
+        sa.Column("message_id", sa.UUID(), nullable=False),
+        sa.Column("name", sa.String(), nullable=False),
+        sa.Column("arguments", sa.String(), nullable=False),
+        sa.Column("validated", sa.Boolean(), nullable=True),
+        sa.PrimaryKeyConstraint("tool_call_id"),
+        sa.ForeignKeyConstraint(["message_id"], ["messages.message_id"]),
+    )
+
+    # Convert entity enum back to old format
+    op.execute("ALTER TABLE messages ALTER COLUMN entity TYPE text")
+
+    # Migrate data back from Parts to old format (must happen before enum conversion)
+    threads = conn.execute(
+        sa.text("SELECT thread_id FROM threads ORDER BY creation_date")
+    ).fetchall()
+
+    for (thread_id,) in threads:
+        messages = conn.execute(
+            sa.text("""
+            SELECT message_id, entity, creation_date
+            FROM messages
+            WHERE thread_id = :thread_id
+            ORDER BY creation_date
+        """),
+            {"thread_id": thread_id},
+        ).fetchall()
+
+        for msg_id, entity, creation_date in messages:
+            if entity == "USER":
+                # Get USER message part
+                part = conn.execute(
+                    sa.text("""
+                    SELECT output FROM parts
+                    WHERE message_id = :message_id AND type = 'MESSAGE'
+                    ORDER BY turn, order_index LIMIT 1
+                """),
+                    {"message_id": msg_id},
+                ).fetchone()
+                if part:
+                    output = (
+                        part[0] if isinstance(part[0], dict) else json.loads(part[0])
+                    )
+                    text = output.get("content", [{}])[0].get("text", "")
+                    conn.execute(
+                        sa.text(
+                            "UPDATE messages SET content = :content WHERE message_id = :message_id"
+                        ),
+                        {
+                            "content": json.dumps({"content": text}),
+                            "message_id": msg_id,
+                        },
+                    )
+
+            elif entity == "ASSISTANT":
+                # Get all parts for this message grouped by turn
+                parts = conn.execute(
+                    sa.text("""
+                    SELECT turn, type, output, creation_date
+                    FROM parts
+                    WHERE message_id = :message_id
+                    ORDER BY turn, order_index
+                """),
+                    {"message_id": msg_id},
+                ).fetchall()
+
+                # Group parts by turn
+                turns = {}
+                for turn, part_type, output, part_creation_date in parts:
+                    if turn not in turns:
+                        turns[turn] = {
+                            "reasoning": [],
+                            "content": "",
+                            "tool_calls": [],
+                            "tool_outputs": [],
+                            "creation_date": part_creation_date,
+                        }
+                    output_json = (
+                        output if isinstance(output, dict) else json.loads(output)
+                    )
+                    if part_type == "REASONING":
+                        summary = output_json.get("summary", [])
+                        turns[turn]["reasoning"] = [s.get("text", "") for s in summary]
+                        turns[turn]["encrypted_reasoning"] = output_json.get(
+                            "encrypted_content", ""
+                        )
+                    elif part_type == "MESSAGE":
+                        content = output_json.get("content", [{}])[0].get("text", "")
+                        turns[turn]["content"] = content
+                    elif part_type == "FUNCTION_CALL":
+                        turns[turn]["tool_calls"].append(output_json)
+                    elif part_type == "FUNCTION_CALL_OUTPUT":
+                        turns[turn]["tool_outputs"].append(output_json)
+
+                # Create separate messages for each turn
+                first_turn = True
+                for turn in sorted(turns.keys()):
+                    turn_data = turns[turn]
+
+                    if turn_data["tool_calls"]:
+                        # AI_TOOL message
+                        if first_turn:
+                            # Update existing message
+                            content = {
+                                "content": turn_data["content"],
+                                "reasoning": turn_data["reasoning"],
+                            }
+                            if "encrypted_reasoning" in turn_data:
+                                content["encrypted_reasoning"] = turn_data[
+                                    "encrypted_reasoning"
+                                ]
+                            conn.execute(
+                                sa.text(
+                                    "UPDATE messages SET entity = 'AI_TOOL', content = :content WHERE message_id = :message_id"
+                                ),
+                                {"content": json.dumps(content), "message_id": msg_id},
+                            )
+                            # Recreate tool_calls
+                            for tc in turn_data["tool_calls"]:
+                                conn.execute(
+                                    sa.text("""
+                                    INSERT INTO tool_calls (tool_call_id, message_id, name, arguments)
+                                    VALUES (:tool_call_id, :message_id, :name, :arguments)
+                                """),
+                                    {
+                                        "tool_call_id": tc["call_id"],
+                                        "message_id": msg_id,
+                                        "name": tc["name"],
+                                        "arguments": tc["arguments"],
+                                    },
+                                )
+                            first_turn = False
+                        else:
+                            # Create new AI_TOOL message
+                            new_msg_id = conn.execute(
+                                sa.text("SELECT gen_random_uuid()")
+                            ).scalar()
+                            content = {
+                                "content": turn_data["content"],
+                                "reasoning": turn_data["reasoning"],
+                            }
+                            if "encrypted_reasoning" in turn_data:
+                                content["encrypted_reasoning"] = turn_data[
+                                    "encrypted_reasoning"
+                                ]
+                            conn.execute(
+                                sa.text("""
+                                INSERT INTO messages (message_id, thread_id, entity, content, creation_date, is_complete)
+                                SELECT :new_id, thread_id, 'AI_TOOL', :content, :creation_date, is_complete
+                                FROM messages WHERE message_id = :old_id
+                            """),
+                                {
+                                    "new_id": new_msg_id,
+                                    "content": json.dumps(content),
+                                    "creation_date": turn_data["creation_date"],
+                                    "old_id": msg_id,
+                                },
+                            )
+                            for tc in turn_data["tool_calls"]:
+                                conn.execute(
+                                    sa.text("""
+                                    INSERT INTO tool_calls (tool_call_id, message_id, name, arguments)
+                                    VALUES (:tool_call_id, :message_id, :name, :arguments)
+                                """),
+                                    {
+                                        "tool_call_id": tc["call_id"],
+                                        "message_id": new_msg_id,
+                                        "name": tc["name"],
+                                        "arguments": tc["arguments"],
+                                    },
+                                )
+
+                        # Create TOOL messages for outputs
+                        for tool_output in turn_data["tool_outputs"]:
+                            tool_msg_id = conn.execute(
+                                sa.text("SELECT gen_random_uuid()")
+                            ).scalar()
+                            conn.execute(
+                                sa.text("""
+                                INSERT INTO messages (message_id, thread_id, entity, content, creation_date, is_complete)
+                                SELECT :new_id, thread_id, 'TOOL', :content, :creation_date, is_complete
+                                FROM messages WHERE message_id = :old_id
+                            """),
+                                {
+                                    "new_id": tool_msg_id,
+                                    "content": json.dumps(
+                                        {
+                                            "tool_call_id": tool_output["call_id"],
+                                            "content": tool_output["output"],
+                                        }
+                                    ),
+                                    "creation_date": turn_data["creation_date"],
+                                    "old_id": msg_id,
+                                },
+                            )
+                    else:
+                        # AI_MESSAGE
+                        if first_turn:
+                            content = {
+                                "content": turn_data["content"],
+                                "reasoning": turn_data["reasoning"],
+                            }
+                            if "encrypted_reasoning" in turn_data:
+                                content["encrypted_reasoning"] = turn_data[
+                                    "encrypted_reasoning"
+                                ]
+                            conn.execute(
+                                sa.text(
+                                    "UPDATE messages SET entity = 'AI_MESSAGE', content = :content WHERE message_id = :message_id"
+                                ),
+                                {"content": json.dumps(content), "message_id": msg_id},
+                            )
+                            first_turn = False
+                        else:
+                            new_msg_id = conn.execute(
+                                sa.text("SELECT gen_random_uuid()")
+                            ).scalar()
+                            content = {
+                                "content": turn_data["content"],
+                                "reasoning": turn_data["reasoning"],
+                            }
+                            if "encrypted_reasoning" in turn_data:
+                                content["encrypted_reasoning"] = turn_data[
+                                    "encrypted_reasoning"
+                                ]
+                            conn.execute(
+                                sa.text("""
+                                INSERT INTO messages (message_id, thread_id, entity, content, creation_date, is_complete)
+                                SELECT :new_id, thread_id, 'AI_MESSAGE', :content, :creation_date, is_complete
+                                FROM messages WHERE message_id = :old_id
+                            """),
+                                {
+                                    "new_id": new_msg_id,
+                                    "content": json.dumps(content),
+                                    "creation_date": turn_data["creation_date"],
+                                    "old_id": msg_id,
+                                },
+                            )
+
+    # Now convert entity column back to enum
+    op.execute("DROP TYPE entity")
+    op.execute("CREATE TYPE entity AS ENUM ('USER', 'AI_TOOL', 'TOOL', 'AI_MESSAGE')")
+    op.execute(
+        "ALTER TABLE messages ALTER COLUMN entity TYPE entity USING entity::entity"
+    )
+
+    # Drop parts table
+    op.drop_table("parts")
+
+    # Drop parttype enum
+    conn.execute(sa.text("DROP TYPE IF EXISTS parttype"))
+
+    # Recreate search vector index
+    op.execute("""
+        CREATE INDEX ix_messages_search_vector ON messages
+        USING gin(to_tsvector('english', content))
+    """)
