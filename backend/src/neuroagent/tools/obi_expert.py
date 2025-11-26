@@ -180,43 +180,6 @@ class FutureFeature(SanityDocument):
     }
 
 
-class Tutorial(SanityDocument):
-    """Schema for tutorial documents."""
-
-    title: str
-    description: str
-    transcript: str | None
-    video_url: str
-
-    sanity_mapping: ClassVar[dict[str, str]] = {
-        **SanityDocument.sanity_mapping,
-        "title": "title",
-        "description": "description",
-        "transcript": "transcript",
-        "video_url": "videoUrl",
-    }
-
-    @field_validator("transcript", mode="before")
-    @classmethod
-    def flatten_transcript(cls, v: list[dict[str, Any]] | None) -> str | None:
-        """Flatten the transcript from portable text blocks into a single string."""
-        # Use the existing flatten_portable_text function to process the transcript
-        flattened = flatten_portable_text(v)
-
-        # If the result is None, return None
-        if flattened is None:
-            return None
-
-        # The flatten_portable_text function should return a string for portable text
-        if isinstance(flattened, str):
-            return flattened
-
-        # If not a string, raise validation error
-        if not isinstance(flattened, str):
-            raise ValueError("Transcript must be a string")
-        return flattened
-
-
 class PublicProject(SanityDocument):
     """Schema for public project documents."""
 
@@ -382,7 +345,6 @@ SANITY_TYPE_TO_MODEL: dict[str, type[SanityDocument]] = {
     "news": NewsDocument,
     "pages": Page,
     "publicProjects": PublicProject,
-    "tutorial": Tutorial,
 }
 
 
@@ -555,7 +517,6 @@ class OBIExpertInput(BaseModel):
         "news",
         "pages",
         "publicProjects",
-        "tutorial",
     ] = Field(description="Type of documents to retrieve")
     page: int = Field(
         default=1, ge=1, description="Page number to retrieve (1-based index)"
@@ -588,7 +549,6 @@ class OBIExpertOutput(BaseModel):
         | list[NewsDocument]
         | list[Page]
         | list[PublicProject]
-        | list[Tutorial]
     )
     total_items: int
 
@@ -609,7 +569,6 @@ class OBIExpertTool(BaseTool):
         "Show me example projects",
         "Show me planned improvements",
         "Show me recent announcements",
-        "Show me tutorials for beginners",
         "What can I do with this platform?",
         "What does ME model mean?",
         "What features are coming soon?",
@@ -639,17 +598,12 @@ class OBIExpertTool(BaseTool):
        - View planned improvements by topic
        - Track feature development progress
 
-    4. Access Tutorials (document_type: "tutorial")
-       - Find educational content and guides
-       - Get video-based learning materials
-       - Access tutorial transcripts when available
-
-    5. Browse Public Projects (document_type: "publicProjects")
+    4. Browse Public Projects (document_type: "publicProjects")
        - View showcase research projects
        - Access project documentation and videos
        - See project contributors and authors
 
-    6. Read Static Pages (document_type: "pages")
+    5. Read Static Pages (document_type: "pages")
        - Access platform information (About, Mission, Team)
        - View legal documents (Privacy Policy, Terms)
        - Find product information (Pricing, Resources)
