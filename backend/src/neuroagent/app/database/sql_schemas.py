@@ -144,20 +144,13 @@ class Parts(Base):
     message_id: Mapped[uuid.UUID] = mapped_column(
         UUID, ForeignKey("messages.message_id"), nullable=False
     )
-    turn: Mapped[int] = mapped_column(Integer, nullable=False)
     order_index: Mapped[int] = mapped_column(Integer, nullable=False)
     type: Mapped[PartType] = mapped_column(Enum(PartType), nullable=False)
     output: Mapped[dict] = mapped_column(JSONB, nullable=False)
-    creation_date: Mapped[datetime.datetime] = mapped_column(
-        DateTime(timezone=True), default=utc_now
-    )
 
     message: Mapped[Messages] = relationship("Messages", back_populates="parts")
 
-    __table_args__ = (
-        Index("ix_parts_message_id", "message_id"),
-        Index("ix_parts_turn", "turn"),
-    )
+    __table_args__ = (Index("ix_parts_message_id", "message_id"),)
 
 
 class ToolSelection(Base):

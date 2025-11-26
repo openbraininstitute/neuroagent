@@ -30,7 +30,6 @@ def upgrade() -> None:
         "parts",
         sa.Column("part_id", sa.UUID(), nullable=False),
         sa.Column("message_id", sa.UUID(), nullable=False),
-        sa.Column("turn", sa.Integer(), nullable=False),
         sa.Column("order_index", sa.Integer(), nullable=False),
         sa.Column(
             "type",
@@ -45,10 +44,10 @@ def upgrade() -> None:
             nullable=False,
         ),
         sa.Column("output", JSONB, nullable=False),
-        sa.Column("creation_date", sa.DateTime(timezone=True), nullable=False),
         sa.PrimaryKeyConstraint("part_id"),
         sa.ForeignKeyConstraint(["message_id"], ["messages.message_id"]),
     )
+    op.create_index("ix_parts_message_id", "parts", ["message_id"])
 
     # Migrate data
     conn = op.get_bind()
@@ -85,8 +84,8 @@ def upgrade() -> None:
                 user_text = content_json.get("content", "")
                 conn.execute(
                     sa.text("""
-                    INSERT INTO parts (part_id, message_id, turn, order_index, type, output, creation_date)
-                    VALUES (gen_random_uuid(), :message_id, 0, 0, 'MESSAGE', :output, :creation_date)
+                    INSERT INTO parts (part_id, message_id, order_index, type, output)
+                    VALUES (gen_random_uuid(), :message_id, 0, 'MESSAGE', :output)
                 """),
                     {
                         "message_id": msg_id,
@@ -98,7 +97,6 @@ def upgrade() -> None:
                                 "status": "completed",
                             }
                         ),
-                        "creation_date": creation_date,
                     },
                 )
                 i += 1
@@ -106,7 +104,6 @@ def upgrade() -> None:
             elif entity in ("AI_TOOL", "AI_MESSAGE"):
                 # Aggregate all AI responses into ONE ASSISTANT message until next USER
                 assistant_msg_id = msg_id
-                turn = 0
                 order_idx = 0
                 messages_to_delete = []
 
@@ -126,7 +123,6 @@ def upgrade() -> None:
                         curr_content_json = {"content": curr_content}
 
                     if curr_entity == "AI_TOOL":
-                        turn += 1
                         # Add reasoning if present (only if it's a list)
                         reasoning = curr_content_json.get("reasoning", [])
                         encrypted_reasoning = curr_content_json.get(
@@ -139,12 +135,11 @@ def upgrade() -> None:
                             ]
                             conn.execute(
                                 sa.text("""
-                                INSERT INTO parts (part_id, message_id, turn, order_index, type, output, creation_date)
-                                VALUES (gen_random_uuid(), :message_id, :turn, :order_index, 'REASONING', :output, :creation_date)
+                                INSERT INTO parts (part_id, message_id, order_index, type, output)
+                                VALUES (gen_random_uuid(), :message_id, :order_index, 'REASONING', :output)
                             """),
                                 {
                                     "message_id": assistant_msg_id,
-                                    "turn": turn,
                                     "order_index": order_idx,
                                     "output": json.dumps(
                                         {
@@ -153,7 +148,6 @@ def upgrade() -> None:
                                             "summary": summary,
                                         }
                                     ),
-                                    "creation_date": curr_creation_date,
                                 },
                             )
                             order_idx += 1
@@ -163,12 +157,11 @@ def upgrade() -> None:
                         if msg_content:
                             conn.execute(
                                 sa.text("""
-                                INSERT INTO parts (part_id, message_id, turn, order_index, type, output, creation_date)
-                                VALUES (gen_random_uuid(), :message_id, :turn, :order_index, 'MESSAGE', :output, :creation_date)
+                                INSERT INTO parts (part_id, message_id, order_index, type, output)
+                                VALUES (gen_random_uuid(), :message_id, :order_index, 'MESSAGE', :output)
                             """),
                                 {
                                     "message_id": assistant_msg_id,
-                                    "turn": turn,
                                     "order_index": order_idx,
                                     "output": json.dumps(
                                         {
@@ -180,7 +173,6 @@ def upgrade() -> None:
                                             "status": "completed",
                                         }
                                     ),
-                                    "creation_date": curr_creation_date,
                                 },
                             )
                             order_idx += 1
@@ -200,12 +192,11 @@ def upgrade() -> None:
                         for tool_call_id, name, arguments in tool_calls:
                             conn.execute(
                                 sa.text("""
-                                INSERT INTO parts (part_id, message_id, turn, order_index, type, output, creation_date)
-                                VALUES (gen_random_uuid(), :message_id, :turn, :order_index, 'FUNCTION_CALL', :output, :creation_date)
+                                INSERT INTO parts (part_id, message_id, order_index, type, output)
+                                VALUES (gen_random_uuid(), :message_id, :order_index, 'FUNCTION_CALL', :output)
                             """),
                                 {
                                     "message_id": assistant_msg_id,
-                                    "turn": turn,
                                     "order_index": order_idx,
                                     "output": json.dumps(
                                         {
@@ -216,7 +207,6 @@ def upgrade() -> None:
                                             "status": "completed",
                                         }
                                     ),
-                                    "creation_date": curr_creation_date,
                                 },
                             )
                             order_idx += 1
@@ -229,12 +219,11 @@ def upgrade() -> None:
                         # Add FUNCTION_CALL_OUTPUT part
                         conn.execute(
                             sa.text("""
-                            INSERT INTO parts (part_id, message_id, turn, order_index, type, output, creation_date)
-                            VALUES (gen_random_uuid(), :message_id, :turn, :order_index, 'FUNCTION_CALL_OUTPUT', :output, :creation_date)
+                            INSERT INTO parts (part_id, message_id, order_index, type, output)
+                            VALUES (gen_random_uuid(), :message_id, :order_index, 'FUNCTION_CALL_OUTPUT', :output)
                         """),
                             {
                                 "message_id": assistant_msg_id,
-                                "turn": turn,
                                 "order_index": order_idx,
                                 "output": json.dumps(
                                     {
@@ -246,7 +235,6 @@ def upgrade() -> None:
                                         "status": "completed",
                                     }
                                 ),
-                                "creation_date": curr_creation_date,
                             },
                         )
                         order_idx += 1
@@ -254,7 +242,6 @@ def upgrade() -> None:
                         i += 1
 
                     elif curr_entity == "AI_MESSAGE":
-                        turn += 1
                         # Add reasoning if present (only if it's a list)
                         reasoning = curr_content_json.get("reasoning", [])
                         encrypted_reasoning = curr_content_json.get(
@@ -267,12 +254,11 @@ def upgrade() -> None:
                             ]
                             conn.execute(
                                 sa.text("""
-                                INSERT INTO parts (part_id, message_id, turn, order_index, type, output, creation_date)
-                                VALUES (gen_random_uuid(), :message_id, :turn, :order_index, 'REASONING', :output, :creation_date)
+                                INSERT INTO parts (part_id, message_id, order_index, type, output)
+                                VALUES (gen_random_uuid(), :message_id, :order_index, 'REASONING', :output)
                             """),
                                 {
                                     "message_id": assistant_msg_id,
-                                    "turn": turn,
                                     "order_index": order_idx,
                                     "output": json.dumps(
                                         {
@@ -281,7 +267,6 @@ def upgrade() -> None:
                                             "summary": summary,
                                         }
                                     ),
-                                    "creation_date": curr_creation_date,
                                 },
                             )
                             order_idx += 1
@@ -290,12 +275,11 @@ def upgrade() -> None:
                         msg_content = curr_content_json.get("content", "")
                         conn.execute(
                             sa.text("""
-                            INSERT INTO parts (part_id, message_id, turn, order_index, type, output, creation_date)
-                            VALUES (gen_random_uuid(), :message_id, :turn, :order_index, 'MESSAGE', :output, :creation_date)
+                            INSERT INTO parts (part_id, message_id, order_index, type, output)
+                            VALUES (gen_random_uuid(), :message_id, :order_index, 'MESSAGE', :output)
                         """),
                             {
                                 "message_id": assistant_msg_id,
-                                "turn": turn,
                                 "order_index": order_idx,
                                 "output": json.dumps(
                                     {
@@ -307,7 +291,6 @@ def upgrade() -> None:
                                         "status": "completed",
                                     }
                                 ),
-                                "creation_date": curr_creation_date,
                             },
                         )
                         if curr_msg_id != assistant_msg_id:
@@ -422,7 +405,7 @@ def downgrade():
                     sa.text("""
                     SELECT output FROM parts
                     WHERE message_id = :message_id AND type = 'MESSAGE'
-                    ORDER BY turn, order_index LIMIT 1
+                    ORDER BY order_index LIMIT 1
                 """),
                     {"message_id": msg_id},
                 ).fetchone()
@@ -442,50 +425,83 @@ def downgrade():
                     )
 
             elif entity == "ASSISTANT":
-                # Get all parts for this message grouped by turn
+                # Get all parts for this message and reconstruct turns
                 parts = conn.execute(
                     sa.text("""
-                    SELECT turn, type, output, creation_date
+                    SELECT type, output
                     FROM parts
                     WHERE message_id = :message_id
-                    ORDER BY turn, order_index
+                    ORDER BY order_index
                 """),
                     {"message_id": msg_id},
                 ).fetchall()
 
-                # Group parts by turn
-                turns = {}
-                for turn, part_type, output, part_creation_date in parts:
-                    if turn not in turns:
-                        turns[turn] = {
-                            "reasoning": [],
-                            "content": "",
-                            "tool_calls": [],
-                            "tool_outputs": [],
-                            "creation_date": part_creation_date,
-                        }
+                # Group parts by turn (turn boundary = after all FUNCTION_CALL_OUTPUT)
+                turns = []
+                current_turn = {
+                    "reasoning": [],
+                    "content": "",
+                    "tool_calls": [],
+                    "tool_outputs": [],
+                }
+
+                for idx, (part_type, output) in enumerate(parts):
                     output_json = (
                         output if isinstance(output, dict) else json.loads(output)
                     )
                     if part_type == "REASONING":
                         summary = output_json.get("summary", [])
-                        turns[turn]["reasoning"] = [s.get("text", "") for s in summary]
-                        turns[turn]["encrypted_reasoning"] = output_json.get(
+                        current_turn["reasoning"] = [s.get("text", "") for s in summary]
+                        current_turn["encrypted_reasoning"] = output_json.get(
                             "encrypted_content", ""
                         )
                     elif part_type == "MESSAGE":
                         content = output_json.get("content", [{}])[0].get("text", "")
-                        turns[turn]["content"] = content
+                        current_turn["content"] = content
                     elif part_type == "FUNCTION_CALL":
-                        turns[turn]["tool_calls"].append(output_json)
+                        current_turn["tool_calls"].append(output_json)
                     elif part_type == "FUNCTION_CALL_OUTPUT":
-                        turns[turn]["tool_outputs"].append(output_json)
+                        current_turn["tool_outputs"].append(output_json)
+                        # Check if this is the last output in sequence
+                        # If next part is not FUNCTION_CALL_OUTPUT, start new turn
+                        if (
+                            idx + 1 >= len(parts)
+                            or parts[idx + 1][0] != "FUNCTION_CALL_OUTPUT"
+                        ):
+                            turns.append(current_turn)
+                            current_turn = {
+                                "reasoning": [],
+                                "content": "",
+                                "tool_calls": [],
+                                "tool_outputs": [],
+                            }
+
+                # Add last turn if it has content
+                if any(
+                    [
+                        current_turn["reasoning"],
+                        current_turn["content"],
+                        current_turn["tool_calls"],
+                    ]
+                ):
+                    turns.append(current_turn)
+
+                # If no turns were created, convert to AI_MESSAGE with empty content
+                if not turns:
+                    conn.execute(
+                        sa.text(
+                            "UPDATE messages SET entity = 'AI_MESSAGE', content = :content WHERE message_id = :message_id"
+                        ),
+                        {
+                            "content": json.dumps({"content": "", "reasoning": []}),
+                            "message_id": msg_id,
+                        },
+                    )
+                    continue
 
                 # Create separate messages for each turn
                 first_turn = True
-                for turn in sorted(turns.keys()):
-                    turn_data = turns[turn]
-
+                for turn_data in turns:
                     if turn_data["tool_calls"]:
                         # AI_TOOL message
                         if first_turn:
@@ -541,7 +557,7 @@ def downgrade():
                                 {
                                     "new_id": new_msg_id,
                                     "content": json.dumps(content),
-                                    "creation_date": turn_data["creation_date"],
+                                    "creation_date": creation_date,
                                     "old_id": msg_id,
                                 },
                             )
@@ -578,7 +594,7 @@ def downgrade():
                                             "content": tool_output["output"],
                                         }
                                     ),
-                                    "creation_date": turn_data["creation_date"],
+                                    "creation_date": creation_date,
                                     "old_id": msg_id,
                                 },
                             )
@@ -621,13 +637,14 @@ def downgrade():
                                 {
                                     "new_id": new_msg_id,
                                     "content": json.dumps(content),
-                                    "creation_date": turn_data["creation_date"],
+                                    "creation_date": creation_date,
                                     "old_id": msg_id,
                                 },
                             )
 
     # Now convert entity column back to enum
-    op.execute("DROP TYPE entity")
+    # Column is already text from earlier, drop new enum and create old enum
+    op.execute("DROP TYPE IF EXISTS entity")
     op.execute("CREATE TYPE entity AS ENUM ('USER', 'AI_TOOL', 'TOOL', 'AI_MESSAGE')")
     op.execute(
         "ALTER TABLE messages ALTER COLUMN entity TYPE entity USING entity::entity"
