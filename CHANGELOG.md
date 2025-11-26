@@ -13,7 +13,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 - Tutorial in obi-expert
 
-
 ## [0.12.3] - 20.11.2025
 
 ### Fixed
