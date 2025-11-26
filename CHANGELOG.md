@@ -7,10 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.12.3] - 20.11.2025
-
 ### Changed
 - Use `within_brain_region_direction=ascendants_and_descendants` in every applicable tool.
+
+### Removed
+- Tutorial in obi-expert
+
+
+## [0.12.3] - 20.11.2025
 
 ### Fixed
 - Properly wait for python subprocess to finish before stdout parsing.
