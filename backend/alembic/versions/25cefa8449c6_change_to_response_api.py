@@ -44,6 +44,7 @@ def upgrade() -> None:
             nullable=False,
         ),
         sa.Column("output", JSONB, nullable=False),
+        sa.Column("is_complete", sa.Boolean(), nullable=False),
         sa.PrimaryKeyConstraint("part_id"),
         sa.ForeignKeyConstraint(["message_id"], ["messages.message_id"]),
     )
@@ -84,8 +85,8 @@ def upgrade() -> None:
                 user_text = content_json.get("content", "")
                 conn.execute(
                     sa.text("""
-                    INSERT INTO parts (part_id, message_id, order_index, type, output)
-                    VALUES (gen_random_uuid(), :message_id, 0, 'MESSAGE', :output)
+                    INSERT INTO parts (part_id, message_id, order_index, type, output, is_complete)
+                    VALUES (gen_random_uuid(), :message_id, 0, 'MESSAGE', :output, :is_complete)
                 """),
                     {
                         "message_id": msg_id,
@@ -97,6 +98,7 @@ def upgrade() -> None:
                                 "status": "completed",
                             }
                         ),
+                        "is_complete": is_complete,
                     },
                 )
                 i += 1
@@ -113,9 +115,13 @@ def upgrade() -> None:
                     "AI_MESSAGE",
                     "TOOL",
                 ):
-                    curr_msg_id, curr_entity, curr_content, curr_creation_date, _ = (
-                        messages[i]
-                    )
+                    (
+                        curr_msg_id,
+                        curr_entity,
+                        curr_content,
+                        curr_creation_date,
+                        curr_is_complete,
+                    ) = messages[i]
 
                     try:
                         curr_content_json = json.loads(curr_content)
@@ -135,8 +141,8 @@ def upgrade() -> None:
                             ]
                             conn.execute(
                                 sa.text("""
-                                INSERT INTO parts (part_id, message_id, order_index, type, output)
-                                VALUES (gen_random_uuid(), :message_id, :order_index, 'REASONING', :output)
+                                INSERT INTO parts (part_id, message_id, order_index, type, output, is_complete)
+                                VALUES (gen_random_uuid(), :message_id, :order_index, 'REASONING', :output, :is_complete)
                             """),
                                 {
                                     "message_id": assistant_msg_id,
@@ -148,6 +154,7 @@ def upgrade() -> None:
                                             "summary": summary,
                                         }
                                     ),
+                                    "is_complete": curr_is_complete,
                                 },
                             )
                             order_idx += 1
@@ -157,8 +164,8 @@ def upgrade() -> None:
                         if msg_content:
                             conn.execute(
                                 sa.text("""
-                                INSERT INTO parts (part_id, message_id, order_index, type, output)
-                                VALUES (gen_random_uuid(), :message_id, :order_index, 'MESSAGE', :output)
+                                INSERT INTO parts (part_id, message_id, order_index, type, output, is_complete)
+                                VALUES (gen_random_uuid(), :message_id, :order_index, 'MESSAGE', :output, :is_complete)
                             """),
                                 {
                                     "message_id": assistant_msg_id,
@@ -173,6 +180,7 @@ def upgrade() -> None:
                                             "status": "completed",
                                         }
                                     ),
+                                    "is_complete": curr_is_complete,
                                 },
                             )
                             order_idx += 1
@@ -192,8 +200,8 @@ def upgrade() -> None:
                         for tool_call_id, name, arguments in tool_calls:
                             conn.execute(
                                 sa.text("""
-                                INSERT INTO parts (part_id, message_id, order_index, type, output)
-                                VALUES (gen_random_uuid(), :message_id, :order_index, 'FUNCTION_CALL', :output)
+                                INSERT INTO parts (part_id, message_id, order_index, type, output, is_complete)
+                                VALUES (gen_random_uuid(), :message_id, :order_index, 'FUNCTION_CALL', :output, :is_complete)
                             """),
                                 {
                                     "message_id": assistant_msg_id,
@@ -207,6 +215,7 @@ def upgrade() -> None:
                                             "status": "completed",
                                         }
                                     ),
+                                    "is_complete": curr_is_complete,
                                 },
                             )
                             order_idx += 1
@@ -219,8 +228,8 @@ def upgrade() -> None:
                         # Add FUNCTION_CALL_OUTPUT part
                         conn.execute(
                             sa.text("""
-                            INSERT INTO parts (part_id, message_id, order_index, type, output)
-                            VALUES (gen_random_uuid(), :message_id, :order_index, 'FUNCTION_CALL_OUTPUT', :output)
+                            INSERT INTO parts (part_id, message_id, order_index, type, output, is_complete)
+                            VALUES (gen_random_uuid(), :message_id, :order_index, 'FUNCTION_CALL_OUTPUT', :output, :is_complete)
                         """),
                             {
                                 "message_id": assistant_msg_id,
@@ -235,6 +244,7 @@ def upgrade() -> None:
                                         "status": "completed",
                                     }
                                 ),
+                                "is_complete": curr_is_complete,
                             },
                         )
                         order_idx += 1
@@ -254,8 +264,8 @@ def upgrade() -> None:
                             ]
                             conn.execute(
                                 sa.text("""
-                                INSERT INTO parts (part_id, message_id, order_index, type, output)
-                                VALUES (gen_random_uuid(), :message_id, :order_index, 'REASONING', :output)
+                                INSERT INTO parts (part_id, message_id, order_index, type, output, is_complete)
+                                VALUES (gen_random_uuid(), :message_id, :order_index, 'REASONING', :output, :is_complete)
                             """),
                                 {
                                     "message_id": assistant_msg_id,
@@ -267,6 +277,7 @@ def upgrade() -> None:
                                             "summary": summary,
                                         }
                                     ),
+                                    "is_complete": curr_is_complete,
                                 },
                             )
                             order_idx += 1
@@ -275,8 +286,8 @@ def upgrade() -> None:
                         msg_content = curr_content_json.get("content", "")
                         conn.execute(
                             sa.text("""
-                            INSERT INTO parts (part_id, message_id, order_index, type, output)
-                            VALUES (gen_random_uuid(), :message_id, :order_index, 'MESSAGE', :output)
+                            INSERT INTO parts (part_id, message_id, order_index, type, output, is_complete)
+                            VALUES (gen_random_uuid(), :message_id, :order_index, 'MESSAGE', :output, :is_complete)
                         """),
                             {
                                 "message_id": assistant_msg_id,
@@ -291,6 +302,7 @@ def upgrade() -> None:
                                         "status": "completed",
                                     }
                                 ),
+                                "is_complete": curr_is_complete,
                             },
                         )
                         if curr_msg_id != assistant_msg_id:
@@ -359,13 +371,15 @@ def upgrade() -> None:
     # Drop old columns and tables
     op.drop_table("tool_calls")
     op.drop_column("messages", "content")
+    op.drop_column("messages", "is_complete")
 
 
 def downgrade():
     conn = op.get_bind()
 
-    # Add back content column
+    # Add back content and is_complete columns
     op.add_column("messages", sa.Column("content", sa.String(), nullable=True))
+    op.add_column("messages", sa.Column("is_complete", sa.Boolean(), nullable=True))
 
     # Recreate tool_calls table
     op.create_table(
@@ -403,7 +417,7 @@ def downgrade():
                 # Get USER message part
                 part = conn.execute(
                     sa.text("""
-                    SELECT output FROM parts
+                    SELECT output, is_complete FROM parts
                     WHERE message_id = :message_id AND type = 'MESSAGE'
                     ORDER BY order_index LIMIT 1
                 """),
@@ -416,10 +430,11 @@ def downgrade():
                     text = output.get("content", [{}])[0].get("text", "")
                     conn.execute(
                         sa.text(
-                            "UPDATE messages SET content = :content WHERE message_id = :message_id"
+                            "UPDATE messages SET content = :content, is_complete = :is_complete WHERE message_id = :message_id"
                         ),
                         {
                             "content": json.dumps({"content": text}),
+                            "is_complete": part[1],
                             "message_id": msg_id,
                         },
                     )
@@ -443,12 +458,30 @@ def downgrade():
                     "content": "",
                     "tool_calls": [],
                     "tool_outputs": [],
+                    "is_complete": True,
                 }
 
-                for idx, (part_type, output) in enumerate(parts):
+                # Get all parts with is_complete
+                parts_with_complete = conn.execute(
+                    sa.text("""
+                    SELECT type, output, is_complete
+                    FROM parts
+                    WHERE message_id = :message_id
+                    ORDER BY order_index
+                """),
+                    {"message_id": msg_id},
+                ).fetchall()
+
+                for idx, (part_type, output, is_complete_part) in enumerate(
+                    parts_with_complete
+                ):
                     output_json = (
                         output if isinstance(output, dict) else json.loads(output)
                     )
+                    # Track is_complete for this turn - if any part is incomplete, turn is incomplete
+                    if not is_complete_part:
+                        current_turn["is_complete"] = False
+
                     if part_type == "REASONING":
                         summary = output_json.get("summary", [])
                         current_turn["reasoning"] = [s.get("text", "") for s in summary]
@@ -465,8 +498,8 @@ def downgrade():
                         # Check if this is the last output in sequence
                         # If next part is not FUNCTION_CALL_OUTPUT, start new turn
                         if (
-                            idx + 1 >= len(parts)
-                            or parts[idx + 1][0] != "FUNCTION_CALL_OUTPUT"
+                            idx + 1 >= len(parts_with_complete)
+                            or parts_with_complete[idx + 1][0] != "FUNCTION_CALL_OUTPUT"
                         ):
                             turns.append(current_turn)
                             current_turn = {
@@ -474,6 +507,7 @@ def downgrade():
                                 "content": "",
                                 "tool_calls": [],
                                 "tool_outputs": [],
+                                "is_complete": True,
                             }
 
                 # Add last turn if it has content
@@ -488,12 +522,23 @@ def downgrade():
 
                 # If no turns were created, convert to AI_MESSAGE with empty content
                 if not turns:
+                    # Get is_complete from last part if any
+                    last_part = conn.execute(
+                        sa.text("""
+                        SELECT is_complete FROM parts
+                        WHERE message_id = :message_id
+                        ORDER BY order_index DESC LIMIT 1
+                    """),
+                        {"message_id": msg_id},
+                    ).fetchone()
+                    is_complete_val = last_part[0] if last_part else True
                     conn.execute(
                         sa.text(
-                            "UPDATE messages SET entity = 'AI_MESSAGE', content = :content WHERE message_id = :message_id"
+                            "UPDATE messages SET entity = 'AI_MESSAGE', content = :content, is_complete = :is_complete WHERE message_id = :message_id"
                         ),
                         {
                             "content": json.dumps({"content": "", "reasoning": []}),
+                            "is_complete": is_complete_val,
                             "message_id": msg_id,
                         },
                     )
@@ -516,9 +561,13 @@ def downgrade():
                                 ]
                             conn.execute(
                                 sa.text(
-                                    "UPDATE messages SET entity = 'AI_TOOL', content = :content WHERE message_id = :message_id"
+                                    "UPDATE messages SET entity = 'AI_TOOL', content = :content, is_complete = :is_complete WHERE message_id = :message_id"
                                 ),
-                                {"content": json.dumps(content), "message_id": msg_id},
+                                {
+                                    "content": json.dumps(content),
+                                    "is_complete": turn_data["is_complete"],
+                                    "message_id": msg_id,
+                                },
                             )
                             # Recreate tool_calls
                             for tc in turn_data["tool_calls"]:
@@ -611,9 +660,13 @@ def downgrade():
                                 ]
                             conn.execute(
                                 sa.text(
-                                    "UPDATE messages SET entity = 'AI_MESSAGE', content = :content WHERE message_id = :message_id"
+                                    "UPDATE messages SET entity = 'AI_MESSAGE', content = :content, is_complete = :is_complete WHERE message_id = :message_id"
                                 ),
-                                {"content": json.dumps(content), "message_id": msg_id},
+                                {
+                                    "content": json.dumps(content),
+                                    "is_complete": turn_data["is_complete"],
+                                    "message_id": msg_id,
+                                },
                             )
                             first_turn = False
                         else:

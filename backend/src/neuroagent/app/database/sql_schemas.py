@@ -27,8 +27,8 @@ def utc_now() -> datetime.datetime:
 class Entity(enum.Enum):
     """Class to restrict entity column."""
 
-    USER = "user"
-    ASSISTANT = "assistant"
+    USER = "USER"
+    ASSISTANT = "ASSISTANT"
 
 
 class PartType(enum.Enum):
@@ -111,7 +111,6 @@ class Messages(Base):
         DateTime(timezone=True), default=utc_now
     )
     entity: Mapped[Entity] = mapped_column(Enum(Entity), nullable=False)
-    is_complete: Mapped[bool] = mapped_column(Boolean)
 
     thread_id: Mapped[uuid.UUID] = mapped_column(
         UUID, ForeignKey("threads.thread_id"), nullable=False
@@ -147,6 +146,7 @@ class Parts(Base):
     order_index: Mapped[int] = mapped_column(Integer, nullable=False)
     type: Mapped[PartType] = mapped_column(Enum(PartType), nullable=False)
     output: Mapped[dict] = mapped_column(JSONB, nullable=False)
+    is_complete: Mapped[bool] = mapped_column(Boolean, nullable=False)
 
     message: Mapped[Messages] = relationship("Messages", back_populates="parts")
 
