@@ -433,7 +433,7 @@ def downgrade():
                             "UPDATE messages SET content = :content, is_complete = :is_complete WHERE message_id = :message_id"
                         ),
                         {
-                            "content": json.dumps({"content": text}),
+                            "content": json.dumps({"role": "user", "content": text}),
                             "is_complete": part[1],
                             "message_id": msg_id,
                         },
@@ -472,15 +472,37 @@ def downgrade():
                     {"message_id": msg_id},
                 ).fetchall()
 
+                prev_is_complete = True
                 for idx, (part_type, output, is_complete_part) in enumerate(
                     parts_with_complete
                 ):
                     output_json = (
                         output if isinstance(output, dict) else json.loads(output)
                     )
-                    # Track is_complete for this turn - if any part is incomplete, turn is incomplete
+
+                    # Check if we need to start a new turn due to is_complete change
+                    if idx > 0 and not prev_is_complete and is_complete_part:
+                        # Transition from incomplete to complete - start new turn
+                        if any(
+                            [
+                                current_turn["reasoning"],
+                                current_turn["content"],
+                                current_turn["tool_calls"],
+                            ]
+                        ):
+                            turns.append(current_turn)
+                            current_turn = {
+                                "reasoning": [],
+                                "content": "",
+                                "tool_calls": [],
+                                "tool_outputs": [],
+                                "is_complete": True,
+                            }
+
+                    # Track is_complete for this turn
                     if not is_complete_part:
                         current_turn["is_complete"] = False
+                    prev_is_complete = is_complete_part
 
                     if part_type == "REASONING":
                         summary = output_json.get("summary", [])
@@ -491,16 +513,23 @@ def downgrade():
                     elif part_type == "MESSAGE":
                         content = output_json.get("content", [{}])[0].get("text", "")
                         current_turn["content"] = content
-                    elif part_type == "FUNCTION_CALL":
-                        current_turn["tool_calls"].append(output_json)
-                    elif part_type == "FUNCTION_CALL_OUTPUT":
-                        current_turn["tool_outputs"].append(output_json)
-                        # Check if this is the last output in sequence
-                        # If next part is not FUNCTION_CALL_OUTPUT, start new turn
-                        if (
-                            idx + 1 >= len(parts_with_complete)
-                            or parts_with_complete[idx + 1][0] != "FUNCTION_CALL_OUTPUT"
+                        # Check if next part starts a new turn (MESSAGE without tool calls followed by REASONING/MESSAGE)
+                        if not current_turn["tool_calls"] and idx + 1 < len(
+                            parts_with_complete
                         ):
+                            next_type = parts_with_complete[idx + 1][0]
+                            if next_type in ("REASONING", "MESSAGE"):
+                                turns.append(current_turn)
+                                current_turn = {
+                                    "reasoning": [],
+                                    "content": "",
+                                    "tool_calls": [],
+                                    "tool_outputs": [],
+                                    "is_complete": True,
+                                }
+                    elif part_type == "FUNCTION_CALL":
+                        # If current turn already has tool outputs, this is a new turn
+                        if current_turn["tool_outputs"]:
                             turns.append(current_turn)
                             current_turn = {
                                 "reasoning": [],
@@ -509,6 +538,21 @@ def downgrade():
                                 "tool_outputs": [],
                                 "is_complete": True,
                             }
+                        current_turn["tool_calls"].append(output_json)
+                    elif part_type == "FUNCTION_CALL_OUTPUT":
+                        current_turn["tool_outputs"].append(output_json)
+                        # Check if next part starts a new turn (REASONING or MESSAGE after outputs)
+                        if idx + 1 < len(parts_with_complete):
+                            next_type = parts_with_complete[idx + 1][0]
+                            if next_type in ("REASONING", "MESSAGE"):
+                                turns.append(current_turn)
+                                current_turn = {
+                                    "reasoning": [],
+                                    "content": "",
+                                    "tool_calls": [],
+                                    "tool_outputs": [],
+                                    "is_complete": True,
+                                }
 
                 # Add last turn if it has content
                 if any(
@@ -608,6 +652,7 @@ def downgrade():
                                         "arguments": tc["arguments"],
                                     },
                                 )
+                            turn_offset += 1
                             first_turn = False
                         else:
                             # Create new AI_TOOL message
@@ -737,6 +782,7 @@ def downgrade():
                                     "message_id": msg_id,
                                 },
                             )
+                            turn_offset += 1
                             first_turn = False
                         else:
                             new_msg_id = conn.execute(
