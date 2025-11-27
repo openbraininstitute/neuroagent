@@ -79,9 +79,9 @@ class SanityDocument(BaseModel):
 class NewsDocument(SanityDocument):
     """Schema for news documents."""
 
-    title: str
-    category: str
-    content: str | None
+    title: str | None = None
+    category: str | None = None
+    content: str | None = None
 
     sanity_mapping: ClassVar[dict[str, str]] = {
         **SanityDocument.sanity_mapping,
@@ -131,9 +131,9 @@ class NewsDocument(SanityDocument):
 class GlossaryItemDocument(SanityDocument):
     """Schema for glossary item documents."""
 
-    name: str
-    description: str
-    definition: str | None
+    name: str | None = None
+    description: str | None = None
+    definition: str | None = None
 
     sanity_mapping: ClassVar[dict[str, str]] = {
         **SanityDocument.sanity_mapping,
@@ -166,10 +166,10 @@ class GlossaryItemDocument(SanityDocument):
 class FutureFeature(SanityDocument):
     """Schema for future feature documents."""
 
-    topic: str
-    feature_title: str
-    description: str
-    scale: str
+    topic: str | None = None
+    feature_title: str | None = None
+    description: str | None = None
+    scale: str | None = None
 
     sanity_mapping: ClassVar[dict[str, str]] = {
         **SanityDocument.sanity_mapping,
@@ -183,10 +183,10 @@ class FutureFeature(SanityDocument):
 class Tutorial(SanityDocument):
     """Schema for tutorial documents."""
 
-    title: str
-    description: str
-    transcript: str | None
-    video_url: str
+    title: str | None = None
+    description: str | None = None
+    transcript: str | None = None
+    video_url: str | None = None
 
     sanity_mapping: ClassVar[dict[str, str]] = {
         **SanityDocument.sanity_mapping,
@@ -220,11 +220,11 @@ class Tutorial(SanityDocument):
 class PublicProject(SanityDocument):
     """Schema for public project documents."""
 
-    name: str
-    introduction: str
-    description: str | None
-    videos_list: list[dict[str, Any]] | None
-    authors_list: list[dict[str, Any]]
+    name: str | None = None
+    introduction: str | None = None
+    description: str | None = None
+    videos_list: list[dict[str, Any]] | None = None
+    authors_list: list[dict[str, Any]] | None = None
 
     sanity_mapping: ClassVar[dict[str, str]] = {
         **SanityDocument.sanity_mapping,
@@ -259,9 +259,9 @@ class PublicProject(SanityDocument):
 class Page(SanityDocument):
     """Schema for page documents."""
 
-    title: str
-    introduction: str
-    content: str | None
+    title: str | None = None
+    introduction: str | None = None
+    content: str | None = None
 
     sanity_mapping: ClassVar[dict[str, str]] = {
         **SanityDocument.sanity_mapping,
