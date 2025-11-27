@@ -537,7 +537,16 @@ def downgrade():
                             "UPDATE messages SET entity = 'AI_MESSAGE', content = :content, is_complete = :is_complete WHERE message_id = :message_id"
                         ),
                         {
-                            "content": json.dumps({"content": "", "reasoning": []}),
+                            "content": json.dumps(
+                                {
+                                    "content": "",
+                                    "reasoning": [],
+                                    "sender": "Agent",
+                                    "role": "assistant",
+                                    "function_call": None,
+                                    "tool_calls": [],
+                                }
+                            ),
                             "is_complete": is_complete_val,
                             "message_id": msg_id,
                         },
@@ -546,14 +555,30 @@ def downgrade():
 
                 # Create separate messages for each turn
                 first_turn = True
+                turn_offset = 0
                 for turn_data in turns:
                     if turn_data["tool_calls"]:
                         # AI_TOOL message
                         if first_turn:
                             # Update existing message
+                            tool_calls_array = [
+                                {
+                                    "id": tc["call_id"],
+                                    "type": "function",
+                                    "function": {
+                                        "name": tc["name"],
+                                        "arguments": tc["arguments"],
+                                    },
+                                }
+                                for tc in turn_data["tool_calls"]
+                            ]
                             content = {
                                 "content": turn_data["content"],
                                 "reasoning": turn_data["reasoning"],
+                                "sender": "Agent",
+                                "role": "assistant",
+                                "function_call": None,
+                                "tool_calls": tool_calls_array,
                             }
                             if "encrypted_reasoning" in turn_data:
                                 content["encrypted_reasoning"] = turn_data[
@@ -589,9 +614,24 @@ def downgrade():
                             new_msg_id = conn.execute(
                                 sa.text("SELECT gen_random_uuid()")
                             ).scalar()
+                            tool_calls_array = [
+                                {
+                                    "id": tc["call_id"],
+                                    "type": "function",
+                                    "function": {
+                                        "name": tc["name"],
+                                        "arguments": tc["arguments"],
+                                    },
+                                }
+                                for tc in turn_data["tool_calls"]
+                            ]
                             content = {
                                 "content": turn_data["content"],
                                 "reasoning": turn_data["reasoning"],
+                                "sender": "Agent",
+                                "role": "assistant",
+                                "function_call": None,
+                                "tool_calls": tool_calls_array,
                             }
                             if "encrypted_reasoning" in turn_data:
                                 content["encrypted_reasoning"] = turn_data[
@@ -600,16 +640,23 @@ def downgrade():
                             conn.execute(
                                 sa.text("""
                                 INSERT INTO messages (message_id, thread_id, entity, content, creation_date, is_complete)
-                                SELECT :new_id, thread_id, 'AI_TOOL', :content, :creation_date, is_complete
-                                FROM messages WHERE message_id = :old_id
+                                VALUES (:new_id, :thread_id, 'AI_TOOL', :content, :creation_date + INTERVAL ':offset milliseconds', :is_complete)
                             """),
                                 {
                                     "new_id": new_msg_id,
+                                    "thread_id": conn.execute(
+                                        sa.text(
+                                            "SELECT thread_id FROM messages WHERE message_id = :msg_id"
+                                        ),
+                                        {"msg_id": msg_id},
+                                    ).scalar(),
                                     "content": json.dumps(content),
                                     "creation_date": creation_date,
-                                    "old_id": msg_id,
+                                    "offset": turn_offset,
+                                    "is_complete": turn_data["is_complete"],
                                 },
                             )
+                            turn_offset += 1
                             for tc in turn_data["tool_calls"]:
                                 conn.execute(
                                     sa.text("""
@@ -629,30 +676,52 @@ def downgrade():
                             tool_msg_id = conn.execute(
                                 sa.text("SELECT gen_random_uuid()")
                             ).scalar()
+                            # Get tool name from tool_calls
+                            tool_name = next(
+                                (
+                                    tc["name"]
+                                    for tc in turn_data["tool_calls"]
+                                    if tc["call_id"] == tool_output["call_id"]
+                                ),
+                                "",
+                            )
                             conn.execute(
                                 sa.text("""
                                 INSERT INTO messages (message_id, thread_id, entity, content, creation_date, is_complete)
-                                SELECT :new_id, thread_id, 'TOOL', :content, :creation_date, is_complete
-                                FROM messages WHERE message_id = :old_id
+                                VALUES (:new_id, :thread_id, 'TOOL', :content, :creation_date + INTERVAL ':offset milliseconds', :is_complete)
                             """),
                                 {
                                     "new_id": tool_msg_id,
+                                    "thread_id": conn.execute(
+                                        sa.text(
+                                            "SELECT thread_id FROM messages WHERE message_id = :msg_id"
+                                        ),
+                                        {"msg_id": msg_id},
+                                    ).scalar(),
                                     "content": json.dumps(
                                         {
+                                            "role": "tool",
                                             "tool_call_id": tool_output["call_id"],
+                                            "tool_name": tool_name,
                                             "content": tool_output["output"],
                                         }
                                     ),
                                     "creation_date": creation_date,
-                                    "old_id": msg_id,
+                                    "offset": turn_offset,
+                                    "is_complete": turn_data["is_complete"],
                                 },
                             )
+                            turn_offset += 1
                     else:
                         # AI_MESSAGE
                         if first_turn:
                             content = {
                                 "content": turn_data["content"],
                                 "reasoning": turn_data["reasoning"],
+                                "sender": "Agent",
+                                "role": "assistant",
+                                "function_call": None,
+                                "tool_calls": [],
                             }
                             if "encrypted_reasoning" in turn_data:
                                 content["encrypted_reasoning"] = turn_data[
@@ -676,6 +745,10 @@ def downgrade():
                             content = {
                                 "content": turn_data["content"],
                                 "reasoning": turn_data["reasoning"],
+                                "sender": "Agent",
+                                "role": "assistant",
+                                "function_call": None,
+                                "tool_calls": [],
                             }
                             if "encrypted_reasoning" in turn_data:
                                 content["encrypted_reasoning"] = turn_data[
@@ -684,16 +757,23 @@ def downgrade():
                             conn.execute(
                                 sa.text("""
                                 INSERT INTO messages (message_id, thread_id, entity, content, creation_date, is_complete)
-                                SELECT :new_id, thread_id, 'AI_MESSAGE', :content, :creation_date, is_complete
-                                FROM messages WHERE message_id = :old_id
+                                VALUES (:new_id, :thread_id, 'AI_MESSAGE', :content, :creation_date + INTERVAL ':offset milliseconds', :is_complete)
                             """),
                                 {
                                     "new_id": new_msg_id,
+                                    "thread_id": conn.execute(
+                                        sa.text(
+                                            "SELECT thread_id FROM messages WHERE message_id = :msg_id"
+                                        ),
+                                        {"msg_id": msg_id},
+                                    ).scalar(),
                                     "content": json.dumps(content),
                                     "creation_date": creation_date,
-                                    "old_id": msg_id,
+                                    "offset": turn_offset,
+                                    "is_complete": turn_data["is_complete"],
                                 },
                             )
+                            turn_offset += 1
 
     # Now convert entity column back to enum
     # Column is already text from earlier, drop new enum and create old enum
