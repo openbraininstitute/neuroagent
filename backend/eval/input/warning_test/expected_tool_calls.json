@@ -1,0 +1,8 @@
+[
+  {
+    "name": "run-python",
+    "arguments": {
+      "python_script": "import warnings\nwarnings.warn(\"Warning...........Message\")\nprint(\"DONE\")"
+    }
+  }
+]

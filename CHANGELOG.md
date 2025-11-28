@@ -8,10 +8,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Fixed
+- Suppressed all warnings from python tool.
 - Make all fields of all Sanity documents optional.
 
 ### Changed
 - Use `within_brain_region_direction=ascendants_and_descendants` in every applicable tool.
+
 
 ## [0.12.3] - 20.11.2025
 
