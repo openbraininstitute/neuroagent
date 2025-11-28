@@ -1,5 +1,5 @@
 {
-  "total_tests": 29,
+  "total_tests": 30,
   "metrics_df": [
     {
       "test_name": "cerebellum_morphologies",
@@ -78,7 +78,7 @@
       "Correctness [GEval]": 0.8795394641694699,
       "Tool Correctness": 1.0,
       "Argument Correctness": 1.0,
-      "Deterministic Argument Correctness": 0.0,
+      "Deterministic Argument Correctness": 0.25,
       "Overall Argument Correctness": 1.0
     },
     {
@@ -174,7 +174,7 @@
       "Correctness [GEval]": 0.3404582195226227,
       "Tool Correctness": 0.0,
       "Argument Correctness": 1.0,
-      "Deterministic Argument Correctness": 0.0,
+      "Deterministic Argument Correctness": 1.0,
       "Overall Argument Correctness": 1.0
     },
     {

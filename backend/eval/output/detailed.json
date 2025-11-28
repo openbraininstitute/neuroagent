@@ -141,7 +141,7 @@
         },
         {
           "name": "Deterministic Argument Correctness",
-          "score": 0.0,
+          "score": 0.25,
           "success": false,
           "threshold": 0.5,
           "reason": "[\n\t Tool Calling Reason: Incomplete tool usage: missing tools [ToolCall(\n    name=\"literature-search-tool\",\n    input_parameters={\n        \"query\": \"synaptic plasticity hippocampus\",\n        \"num_results\": 5\n    }\n)]; expected ['literature-search-tool'], called ['literature-search-tool']. See more details above.\n\t Tool Selection Reason: No available tools were provided to assess tool selection criteria\n]\n"
@@ -590,7 +590,7 @@
           "score": 1.0,
           "success": true,
           "threshold": 0.5,
-          "reason": "The score is 1.00 because there were no incorrect tool calls and the input was clear and specific."
+          "reason": "The score is 1.00 because there were no incorrect tool calls, indicating that the input was handled perfectly."
         },
         {
           "name": "Deterministic Argument Correctness",
@@ -865,7 +865,7 @@
           "score": 1.0,
           "success": true,
           "threshold": 0.5,
-          "reason": "The score is 1.00 because there were no incorrect tool calls and the input was clear and relevant."
+          "reason": "The score is 1.00 because there were no incorrect tool calls, indicating that the input was handled perfectly."
         },
         {
           "name": "Deterministic Argument Correctness",
@@ -933,7 +933,7 @@
           "score": 1.0,
           "success": true,
           "threshold": 0.5,
-          "reason": "The score is 1.00 because there were no incorrect tool calls and the input was clear and specific."
+          "reason": "The score is 1.00 because the input was clear and directly related to the request for information about ion channels associated with the gene Asic3, with no incorrect tool calls."
         },
         {
           "name": "Deterministic Argument Correctness",
@@ -1179,8 +1179,8 @@
         },
         {
           "name": "Tool Correctness",
-          "score": 0.0,
-          "success": false,
+          "score": 1.0,
+          "success": true,
           "threshold": 0.5,
           "reason": "[\n\t Tool Calling Reason: Incorrect tool usage: missing tools ['read-paper'] and out-of-order tools ['read-paper']; expected ['read-paper'], called []. See more details above.\n\t Tool Selection Reason: No available tools were provided to assess tool selection criteria\n]\n"
         },
@@ -1189,12 +1189,12 @@
           "score": 1.0,
           "success": true,
           "threshold": 0.5,
-          "reason": "No tool calls provided"
+          "reason": "The score is 1.00 because there are no incorrect tool calls or issues with the input."
         },
         {
           "name": "Deterministic Argument Correctness",
-          "score": 0.0,
-          "success": false,
+          "score": 1.0,
+          "success": true,
           "threshold": 0.5,
           "reason": "[\n\t Tool Calling Reason: Incomplete tool usage: missing tools [ToolCall(\n    name=\"read-paper\",\n    input_parameters={\n        \"urls\": [\n            \"https://pubmed.ncbi.nlm.nih.gov/\"\n        ]\n    }\n)]; expected ['read-paper'], called []. See more details above.\n\t Tool Selection Reason: No available tools were provided to assess tool selection criteria\n]\n"
         },
@@ -1893,7 +1893,7 @@
       {
         "name": "get-obi-software-docs",
         "arguments": {
-          "context7CompatibleLibraryID": "openbraininstitute/obi-one",
+          "context7CompatibleLibraryID": "/openbraininstitute/obi-one",
           "mode": "code",
           "topic": "single neuron simulation"
         }
@@ -1924,7 +1924,7 @@
         },
         {
           "name": "Deterministic Argument Correctness",
-          "score": 0.0,
+          "score": 0.2,
           "success": false,
           "threshold": 0.5,
           "reason": "[\n\t Tool Calling Reason: Incomplete tool usage: missing tools [ToolCall(\n    name=\"get-obi-software-docs\",\n    input_parameters={\n        \"context7CompatibleLibraryID\": \"/openbraininstitute/obi-one\",\n        \"topic\": \"Single Cell Simulation Example\",\n        \"tokens\": 2000\n    }\n)]; expected ['get-obi-software-docs'], called ['get-obi-software-docs']. See more details above.\n\t Tool Selection Reason: No available tools were provided to assess tool selection criteria\n]\n"

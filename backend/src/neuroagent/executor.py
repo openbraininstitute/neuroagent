@@ -265,9 +265,11 @@ async function execute(code) {{
     import sys
     import io
     import plotly.io as pio
+    import warnings
 
     sys.stdout = io.StringIO()
     pio.renderers.default = None
+    warnings.filterwarnings("ignore")
   `);
 
   // Execute the code and capture any errors
