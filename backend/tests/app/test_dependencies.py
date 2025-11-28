@@ -307,6 +307,8 @@ Only the content after the frontmatter should be included.
 
 You are a neuroscience AI assistant for the Open Brain Platform.
 
+---
+
 """
     expected_end = f"""
 # CURRENT CONTEXT
@@ -357,6 +359,8 @@ def test_get_system_prompt_no_rules_directory(tmp_path):
 
 You are a neuroscience AI assistant for the Open Brain Platform.
 
+---
+
 
 # CURRENT CONTEXT
 
@@ -387,6 +391,8 @@ def test_get_system_prompt_empty_mdc_files(tmp_path):
     expected_result = f"""# NEUROSCIENCE AI ASSISTANT
 
 You are a neuroscience AI assistant for the Open Brain Platform.
+
+---
 
 
 # CURRENT CONTEXT

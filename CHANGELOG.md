@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Use `within_brain_region_direction=ascendants_and_descendants` in every applicable tool.
+- Optimized the rules.
+- Experiment with more transparent agent, i.e. plan at the top + explanation alongside tool calls.
 
 ### Fixed
 - Suppressed all warnings from python tool.
