@@ -1,0 +1,9 @@
+[
+  {
+    "name": "obi-expert",
+    "arguments": {
+      "document_type": "glossaryItem",
+      "query": "ME-model"
+    }
+  }
+]

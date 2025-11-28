@@ -771,3 +771,69 @@ def test_future_feature_sanity_document_instantiation():
         == "Combine reconstructed neuron morphologies and electrical cell models to create a neuron model that can be used in single cell simulations or circuit building"
     )
     assert future_feature_document.scale == "Cellular"
+
+
+def test_news_document_with_missing_fields():
+    """Test NewsDocument instantiation with some fields missing from response."""
+    # Raw JSON from Sanity with some fields missing
+    raw_json = {
+        "_createdAt": "2025-02-18T15:14:00Z",
+        "_id": "0ac9dded-9906-432b-abfb-42c38d6af448",
+        "_updatedAt": "2025-04-14T02:42:13Z",
+        "_type": "news",
+        # title is missing
+        "category": "BBP news",
+        # content is missing
+    }
+
+    # Map the raw JSON using sanity_mapping
+    mapped_data = {}
+    for pydantic_field, sanity_field in NewsDocument.sanity_mapping.items():
+        if sanity_field in raw_json:
+            mapped_data[pydantic_field] = raw_json[sanity_field]
+
+    # Instantiate the NewsDocument - should work with missing fields
+    news_document = NewsDocument(**mapped_data)
+
+    # Assert the guaranteed fields are present
+    assert news_document.id == "0ac9dded-9906-432b-abfb-42c38d6af448"
+    assert news_document.created_at == "2025-02-18T15:14:00Z"
+    assert news_document.updated_at == "2025-04-14T02:42:13Z"
+
+    # Assert optional fields are None when missing
+    assert news_document.title is None
+    assert news_document.category == "BBP news"
+    assert news_document.content is None
+
+
+def test_glossary_item_document_with_missing_fields():
+    """Test GlossaryItemDocument instantiation with some fields missing from response."""
+    # Raw JSON from Sanity with some fields missing
+    raw_json = {
+        "_createdAt": "2025-06-11T13:50:35Z",
+        "_id": "IYthF0bAW1gjnJ64ATi2TT",
+        "_updatedAt": "2025-06-17T09:07:31Z",
+        "_type": "glossaryItem",
+        "Name": "ME-model",
+        # description is missing
+        # definition is missing
+    }
+
+    # Map the raw JSON using sanity_mapping
+    mapped_data = {}
+    for pydantic_field, sanity_field in GlossaryItemDocument.sanity_mapping.items():
+        if sanity_field in raw_json:
+            mapped_data[pydantic_field] = raw_json[sanity_field]
+
+    # Instantiate the GlossaryItemDocument - should work with missing fields
+    glossary_document = GlossaryItemDocument(**mapped_data)
+
+    # Assert the guaranteed fields are present
+    assert glossary_document.id == "IYthF0bAW1gjnJ64ATi2TT"
+    assert glossary_document.created_at == "2025-06-11T13:50:35Z"
+    assert glossary_document.updated_at == "2025-06-17T09:07:31Z"
+
+    # Assert optional fields
+    assert glossary_document.name == "ME-model"
+    assert glossary_document.description is None
+    assert glossary_document.definition is None
