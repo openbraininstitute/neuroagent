@@ -6,7 +6,7 @@ The distribution was plotted as:
 
 a histogram with a logarithmic x-axis (recommended for heavy-tailed data), and
 a linear histogram for reference.
-The generated figures are shown below (view below).
+The generated figures are shown above
 Storage IDs for the figures:
 
 4e534656-a515-4f00-ad35-c7b1150de248

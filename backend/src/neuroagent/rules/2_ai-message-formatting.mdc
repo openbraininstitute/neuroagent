@@ -26,10 +26,10 @@ Do NOT use Markdown image syntax for:
 
 **Instead:**
 If a tool returns only a storage ID/UUID, simply mention it in text:
-- Correct: "The image has displayed (view below)."
+- Correct: "The image has been displayed (view above)."
 - Incorrect: `![Image](https://example.com/[ID])` or `![Image](UUID)`
 
-The frontend will automatically display images from storage IDs **BELOW** your message.
+The frontend will automatically display images from storage IDs **ABOVE** your message.
 
 ### Content Structure
 
