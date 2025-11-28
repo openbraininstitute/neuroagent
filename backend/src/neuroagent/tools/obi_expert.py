@@ -424,6 +424,7 @@ def build_base_query(document_type: str, query: str | None = None) -> str:
             if k not in ["id", "created_at", "updated_at"]
         ]
         # Build OR conditions for each field
+        # Note: The match operator is case-insensitive by default in GROQ
         match_conditions = [f'{field} match "*{query}*"' for field in searchable_fields]
         base_query += f" && ({' || '.join(match_conditions)})"
 
@@ -568,7 +569,7 @@ class OBIExpertInput(BaseModel):
     )
     query: str | None = Field(
         default=None,
-        description="Optional single word to match in title or content",
+        description="Optional single word to match in title or content. Use whenever you want to narrow down the results.",
         pattern=r"^[a-zA-Z0-9_-]+$",
     )
 
