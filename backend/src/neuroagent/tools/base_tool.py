@@ -134,6 +134,9 @@ class EntitycoreExcludeBRParams(BaseModel):
     within_brain_region_hierarchy_id: SkipJsonSchema[None] = Field(
         default=None, exclude=True
     )
+    within_brain_region_ascendants: SkipJsonSchema[None] = Field(
+        default=None, exclude=True
+    )
 
 
 class EntitycoreExcludeNameParams(BaseModel):

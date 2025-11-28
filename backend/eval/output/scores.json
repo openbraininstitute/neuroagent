@@ -1,5 +1,5 @@
 {
-  "total_tests": 28,
+  "total_tests": 29,
   "metrics_df": [
     {
       "test_name": "cerebellum_morphologies",
@@ -27,11 +27,11 @@
     },
     {
       "test_name": "cortex_morphologies",
-      "Correctness [GEval]": 0.5409971790863964,
-      "Tool Correctness": 0.5,
+      "Correctness [GEval]": 0.62348770330439,
+      "Tool Correctness": 1.0,
       "Argument Correctness": 0.0,
-      "Deterministic Argument Correctness": 0.0,
-      "Overall Argument Correctness": 0.0
+      "Deterministic Argument Correctness": 0.75,
+      "Overall Argument Correctness": 0.75
     },
     {
       "test_name": "get_specific_circuit",
@@ -43,11 +43,11 @@
     },
     {
       "test_name": "hippocampus_morphologies",
-      "Correctness [GEval]": 0.5137463374862443,
+      "Correctness [GEval]": 0.3474612115045808,
       "Tool Correctness": 1.0,
       "Argument Correctness": 0.0,
-      "Deterministic Argument Correctness": 1.0,
-      "Overall Argument Correctness": 1.0
+      "Deterministic Argument Correctness": 0.75,
+      "Overall Argument Correctness": 0.75
     },
     {
       "test_name": "ion_channel",
@@ -83,7 +83,7 @@
     },
     {
       "test_name": "off_topic_cooking",
-      "Correctness [GEval]": 0.6838805187217983,
+      "Correctness [GEval]": 0.8043740261928456,
       "Tool Correctness": 1.0,
       "Argument Correctness": 1.0,
       "Deterministic Argument Correctness": 1.0,
@@ -91,7 +91,7 @@
     },
     {
       "test_name": "off_topic_programming",
-      "Correctness [GEval]": 0.5645157415294818,
+      "Correctness [GEval]": 0.6408833572487395,
       "Tool Correctness": 1.0,
       "Argument Correctness": 1.0,
       "Deterministic Argument Correctness": 1.0,
@@ -99,7 +99,7 @@
     },
     {
       "test_name": "off_topic_sports",
-      "Correctness [GEval]": 1.0,
+      "Correctness [GEval]": 0.995933528886245,
       "Tool Correctness": 1.0,
       "Argument Correctness": 1.0,
       "Deterministic Argument Correctness": 1.0,
@@ -107,7 +107,7 @@
     },
     {
       "test_name": "off_topic_weather",
-      "Correctness [GEval]": 0.7963656384144546,
+      "Correctness [GEval]": 0.8970620529657471,
       "Tool Correctness": 1.0,
       "Argument Correctness": 1.0,
       "Deterministic Argument Correctness": 1.0,
@@ -192,6 +192,38 @@
       "Argument Correctness": 0.0,
       "Deterministic Argument Correctness": 0.6666666666666666,
       "Overall Argument Correctness": 0.6666666666666666
+    },
+    {
+      "test_name": "simulation_tutorial",
+      "Correctness [GEval]": 0.5615612029368113,
+      "Tool Correctness": 0.0,
+      "Argument Correctness": 1.0,
+      "Deterministic Argument Correctness": 0.0,
+      "Overall Argument Correctness": 1.0
+    },
+    {
+      "test_name": "sin_plot",
+      "Correctness [GEval]": 0.002931223117533942,
+      "Tool Correctness": 0.0,
+      "Argument Correctness": 1.0,
+      "Deterministic Argument Correctness": 0.0,
+      "Overall Argument Correctness": 1.0
+    },
+    {
+      "test_name": "software_docs_entitysdk",
+      "Correctness [GEval]": 0.733165273979345,
+      "Tool Correctness": 1.0,
+      "Argument Correctness": 1.0,
+      "Deterministic Argument Correctness": 0.0,
+      "Overall Argument Correctness": 1.0
+    },
+    {
+      "test_name": "software_docs_obione",
+      "Correctness [GEval]": 0.8463566651362253,
+      "Tool Correctness": 1.0,
+      "Argument Correctness": 1.0,
+      "Deterministic Argument Correctness": 0.0,
+      "Overall Argument Correctness": 1.0
     },
     {
       "test_name": "species_list",
