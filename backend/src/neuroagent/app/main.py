@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import Annotated, Any, AsyncContextManager
 from uuid import uuid4
 
+import logfire
 from asgi_correlation_id import CorrelationIdMiddleware
 from fastapi import Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -122,6 +123,17 @@ async def lifespan(fastapi_app: FastAPI) -> AsyncContextManager[None]:  # type: 
     logging.getLogger().setLevel(app_settings.logging.external_packages.upper())
     logging.getLogger("neuroagent").setLevel(app_settings.logging.level.upper())
 
+    logfire.configure(
+        send_to_logfire=app_settings.logfire.send_to_logfire,  # False => noop
+        token=app_settings.logfire.token.get_secret_value()
+        if app_settings.logfire.token
+        else None,
+        service_name=app_settings.logfire.service_name,
+        environment=app_settings.logfire.environment,
+        console=False,
+        scrubbing=logfire.ScrubbingOptions(extra_patterns=["token"]),
+    )
+
     async with aclosing(
         AsyncAccountingSessionFactory(
             base_url=app_settings.accounting.base_url,
@@ -200,6 +212,11 @@ app.include_router(threads.router)
 app.include_router(tools.router)
 app.include_router(storage.router)
 app.include_router(rate_limit.router)
+
+logfire.instrument_fastapi(app=app)
+logfire.instrument_httpx()
+logfire.instrument_openai()
+logfire.instrument_sqlalchemy()
 
 
 def custom_openapi() -> dict[str, Any]:
