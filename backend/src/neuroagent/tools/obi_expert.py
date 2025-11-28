@@ -623,7 +623,16 @@ class OBIExpertTool(BaseTool):
     ]
     description: ClassVar[
         str
-    ] = """Search and retrieve documents from the OBI Sanity API. Use this tool to:
+    ] = """Search and retrieve documents from the OBI Sanity API.
+
+    IMPORTANT:
+    - Use the 'query' parameter when you can identify a clear keyword to search for (e.g., "neuron", "simulation", "tutorial"). The search is case-insensitive.
+    - Results are paginated. If you don't find what you're looking for on the first page, try:
+      * Dropping the query parameter to see all results, or
+      * Increasing the page number to see more results
+      * Adjusting the query keyword if it's too specific
+
+    Use this tool to:
 
     1. Find News Articles (document_type: "news")
        - Access platform news and announcements
