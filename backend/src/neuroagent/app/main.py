@@ -8,6 +8,7 @@ from typing import Annotated, Any, AsyncContextManager
 from uuid import uuid4
 
 from asgi_correlation_id import CorrelationIdMiddleware
+from celery import Celery
 from fastapi import Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.openapi.utils import get_openapi
@@ -99,6 +100,24 @@ async def lifespan(fastapi_app: FastAPI) -> AsyncContextManager[None]:  # type: 
         fastapi_app.state.redis_client = redis_client
     else:
         fastapi_app.state.redis_client = None
+
+    # Initialize Celery client
+    redis_password_str = (
+        app_settings.rate_limiter.redis_password.get_secret_value()
+        if app_settings.rate_limiter.redis_password is not None
+        else None
+    )
+    # Build Redis URL for Celery
+    protocol = "rediss://" if app_settings.rate_limiter.redis_ssl else "redis://"
+    if redis_password_str:
+        redis_url = f"{protocol}:{redis_password_str}@{app_settings.rate_limiter.redis_host}:{app_settings.rate_limiter.redis_port}"
+    else:
+        redis_url = f"{protocol}{app_settings.rate_limiter.redis_host}:{app_settings.rate_limiter.redis_port}"
+
+    celery_app = Celery(__name__)
+    celery_app.conf.broker_url = redis_url
+    celery_app.conf.result_backend = redis_url
+    fastapi_app.state.celery = celery_app
 
     # Get the sqlalchemy engine and store it in app state.
     engine = setup_engine(app_settings, get_connection_string(app_settings))

@@ -11,17 +11,9 @@ readme = "README.md"
 requires-python = ">=3.11"
 dynamic = ["version"]
 dependencies = [
-    "aiohttp",
-    "alembic",
-    "asgi-correlation-id",
     "asyncpg",
-    "bluepysnap",
     "boto3",
-    "duckdb",
-    "fastapi>=0.118.0",
-    "mcp",
-    "obp-accounting-sdk",
-    "openai",
+    "celery>=5.5.3",
     "psycopg2",
     "pydantic>=2.11",
     "pydantic-settings",
@@ -29,9 +21,7 @@ dependencies = [
     "pyyaml",
     "redis",
     "sqlalchemy[asyncio]",
-    "tavily-python",
     "types-PyYAML",
-    "uvicorn",
 ]
 
 [project.optional-dependencies]
@@ -49,6 +39,19 @@ dev = [
     "responses",
     "ruff",
     "types-requests",
+]
+tasks = [
+    "bluepysnap>=3.0.2",
+    "duckdb>=1.4.2",
+]
+app = [
+    "alembic>=1.17.2",
+    "asgi-correlation-id>=4.3.4",
+    "fastapi>=0.122.0",
+    "mcp>=1.22.0",
+    "obp-accounting-sdk>=0.4.2",
+    "openai>=2.6.1",
+    "uvicorn>=0.38.0",
 ]
 
 [project.scripts]
@@ -129,6 +132,3 @@ filterwarnings = [
 ]
 
 addopts = "--cov=src/ -v --cov-report=term-missing --durations=20 --no-cov-on-fail"
-
-[dependency-groups]
-dev = []

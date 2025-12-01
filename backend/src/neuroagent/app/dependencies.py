@@ -9,6 +9,7 @@ from pathlib import Path
 from typing import Annotated, Any, AsyncIterator
 
 import boto3
+from celery import Celery
 from fastapi import Depends, HTTPException, Request
 from fastapi.security import HTTPBearer
 from httpx import AsyncClient, HTTPStatusError, get
@@ -111,6 +112,7 @@ from neuroagent.tools import (
     StrainGetOneTool,
     SubjectGetAllTool,
     SubjectGetOneTool,
+    SubmitDummyTaskTool,
     WebSearchTool,
 )
 from neuroagent.tools.base_tool import BaseTool
@@ -465,6 +467,7 @@ def get_tool_list(
         SubjectGetOneTool,
         ReadPaperTool,
         RunPythonTool,
+        SubmitDummyTaskTool,
         WebSearchTool,
         # NowTool,
         # WeatherTool,
@@ -691,6 +694,22 @@ def get_s3_client(
     )
 
 
+def get_celery_client(request: Request) -> Celery:
+    """Get the Celery client from app state.
+
+    Parameters
+    ----------
+    request : Request
+        The FastAPI request object
+
+    Returns
+    -------
+    Celery
+        The Celery client instance
+    """
+    return request.app.state.celery
+
+
 async def get_context_variables(
     request: Request,
     settings: Annotated[Settings, Depends(get_settings)],
@@ -700,6 +719,7 @@ async def get_context_variables(
     user_info: Annotated[UserInfo, Depends(get_user_info)],
     openai_client: Annotated[AsyncOpenAI, Depends(get_openai_client)],
     python_sandbox: Annotated[WasmExecutor, Depends(get_python_sandbox)],
+    celery_client: Annotated[Celery, Depends(get_celery_client)],
 ) -> dict[str, Any]:
     """Get the context variables to feed the tool's metadata."""
     # Get the current frontend url
@@ -711,6 +731,7 @@ async def get_context_variables(
     return {
         "bluenaas_url": settings.tools.bluenaas.url,
         "bucket_name": settings.storage.bucket_name,
+        "celery_client": celery_client,
         "entitycore_url": settings.tools.entitycore.url,
         "current_frontend_url": current_frontend_url,
         "entity_frontend_url": entity_frontend_url,

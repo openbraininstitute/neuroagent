@@ -1,8 +1,8 @@
 services:
-  backend:
+  app:
     build:
       context: ./backend
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.app
     ports:
       - "8078:8078"
     environment:
@@ -27,6 +27,13 @@ services:
       - minio
       - redis
 
+  tasks:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.tasks
+    networks:
+      - app-network
+
   frontend:
     build:
       context: ./frontend
@@ -36,7 +43,7 @@ services:
     environment:
       - NEXTAUTH_URL=http://localhost:3000
       - NEXTAUTH_SECRET=${NEXTAUTH_SECRET}
-      - SERVER_SIDE_BACKEND_URL=http://backend:8078
+      - SERVER_SIDE_BACKEND_URL=http://app:8078
       - KEYCLOAK_ISSUER=${KEYCLOAK_ISSUER}
       - KEYCLOAK_SECRET=${KEYCLOAK_SECRET}
       - KEYCLOAK_ID=${KEYCLOAK_ID}
@@ -46,7 +53,7 @@ services:
     networks:
       - app-network
     depends_on:
-      - backend
+      - app
 
   postgres:
     image: postgres:15
