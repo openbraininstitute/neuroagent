@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 
 
 @celery.task(name="run_python_task", pydantic=True)
-def run_python_task(arg: RunPythonTaskInput) -> RunPythonTaskOutput:
+def run(arg: RunPythonTaskInput) -> RunPythonTaskOutput:
     """Run Python code in the sandboxed executor and handle S3 storage for plots.
 
     Parameters

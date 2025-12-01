@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 
 
 @celery.task(name="dummy_task", pydantic=True)
-def dummy_task(arg: DummyTaskInput) -> DummyTaskOutput:
+def run(arg: DummyTaskInput) -> DummyTaskOutput:
     """Run dummy task that returns a message.
 
     Parameters

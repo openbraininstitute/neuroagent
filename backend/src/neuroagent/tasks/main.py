@@ -19,8 +19,11 @@ celery = Celery(__name__)
 celery.conf.broker_url = settings.celery.broker_url
 celery.conf.result_backend = settings.celery.result_backend
 
-# Autodiscover tasks
+# Autodiscover tasks (worker side - just needs to know about tasks)
 celery.autodiscover_tasks(["neuroagent.tasks"])
+
+# Note: Task routing is configured on the producer side (app/main.py)
+# Workers listen to specific queues via the -Q flag
 
 # Module-level variables to store shared resources per worker process
 # These are initialized once per worker process via the signal handler

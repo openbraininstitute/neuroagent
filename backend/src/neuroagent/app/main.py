@@ -115,6 +115,14 @@ async def lifespan(fastapi_app: FastAPI) -> AsyncContextManager[None]:  # type: 
     celery_app = Celery(__name__)
     celery_app.conf.broker_url = redis_url
     celery_app.conf.result_backend = redis_url
+
+    # Configure task routing with separate queues for each task
+    # This is on the producer side (where tasks are sent)
+    celery_app.conf.task_routes = {
+        "dummy_task": {"queue": "dummy_q"},
+        "run_python_task": {"queue": "python_q"},
+    }
+
     fastapi_app.state.celery = celery_app
 
     # Get the sqlalchemy engine and store it in app state.
