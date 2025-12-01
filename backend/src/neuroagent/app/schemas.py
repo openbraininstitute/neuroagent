@@ -83,11 +83,9 @@ class MessagesRead(BaseRead):
     message_id: UUID
     entity: str
     thread_id: UUID
-    is_complete: bool
     creation_date: AwareDatetime
-    msg_content: dict[str, Any]
+    parts: list[dict[str, Any]]
     model: str | None = None
-    tool_calls: list[ToolCall]
 
 
 class ThreadsRead(BaseRead):

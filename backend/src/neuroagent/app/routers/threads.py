@@ -9,7 +9,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query, Response
 from openai import AsyncOpenAI
 from pydantic import AwareDatetime
 from redis import asyncio as aioredis
-from sqlalchemy import desc, exists, func, or_, select, true
+from sqlalchemy import desc, exists, func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
@@ -20,7 +20,7 @@ from neuroagent.app.app_utils import (
     validate_project,
 )
 from neuroagent.app.config import Settings
-from neuroagent.app.database.sql_schemas import Entity, Messages, Threads, utc_now
+from neuroagent.app.database.sql_schemas import Messages, Threads, utc_now
 from neuroagent.app.dependencies import (
     get_openai_client,
     get_redis_client,
@@ -317,109 +317,54 @@ async def get_thread_by_id(
 @router.get("/{thread_id}/messages")
 async def get_thread_messages(
     session: Annotated[AsyncSession, Depends(get_session)],
-    _: Annotated[Threads, Depends(get_thread)],  # to check if thread exists
+    _: Annotated[Threads, Depends(get_thread)],
     thread_id: str,
     tool_list: Annotated[list[type[BaseTool]], Depends(get_tool_list)],
     pagination_params: PaginatedParams = Depends(),
-    entity: list[Literal["USER", "AI_TOOL", "TOOL", "AI_MESSAGE"]] | None = Query(
-        default=None
-    ),
+    entity: list[Literal["USER", "ASSISTANT"]] | None = Query(default=None),
     sort: Literal["creation_date", "-creation_date"] = "-creation_date",
-    vercel_format: bool = Query(default=False),
+    vercel_format: bool = False,
 ) -> PaginatedResponse[MessagesRead] | PaginatedResponse[MessagesReadVercel]:
     """Get all messages of the thread."""
-    # Create mapping of tool names to their HIL requirement
     tool_hil_mapping = {tool.name: tool.hil for tool in tool_list}
 
-    if vercel_format:
-        entity = ["USER", "AI_MESSAGE"]
-
+    where_conditions = [Messages.thread_id == thread_id]
     if entity:
-        entity_where = or_(*[Messages.entity == ent for ent in entity])
-    else:
-        entity_where = true()
-
-    where_conditions = [Messages.thread_id == thread_id, entity_where]
-
-    if pagination_params.cursor is not None:
-        comparison_op = (
+        where_conditions.append(or_(*[Messages.entity == ent for ent in entity]))
+    if pagination_params.cursor:
+        where_conditions.append(
             Messages.creation_date < pagination_params.cursor
-            if (sort.startswith("-") or vercel_format)
+            if sort.startswith("-")
             else Messages.creation_date > pagination_params.cursor
         )
-        where_conditions.append(comparison_op)
 
-    # Only get the relevent info for output format, we will then make the full query after.
-    messages_result = await session.execute(
-        select(Messages.message_id, Messages.creation_date, Messages.entity)
+    result = await session.execute(
+        select(Messages)
+        .options(selectinload(Messages.parts))
         .where(*where_conditions)
         .order_by(
             desc(Messages.creation_date)
-            if (sort.startswith("-") or vercel_format)
+            if sort.startswith("-")
             else Messages.creation_date
         )
         .limit(pagination_params.page_size + 1)
     )
-    # This is a list of tuples with (message_id, creation_date, entitty)
-    db_cursor = messages_result.all()
+    db_messages = result.scalars().all()
 
-    if not db_cursor:
-        return PaginatedResponse(
-            next_cursor=None,
-            has_more=False,
-            page_size=pagination_params.page_size,
-            results=[],
-        )
+    has_more = len(db_messages) > pagination_params.page_size
+    db_messages = db_messages[:-1] if has_more else db_messages
 
-    has_more = len(db_cursor) > pagination_params.page_size
-    if not vercel_format and has_more:
-        db_cursor = db_cursor[:-1]
-
-    if vercel_format:
-        # We set the most recent boudary to the cursor if it exists.
-        date_conditions = (
-            [(Messages.creation_date < pagination_params.cursor)]
-            if pagination_params.cursor
-            else []
-        )
-
-        # If there are more messages we set the oldest bound for the messages.
-        if has_more:
-            if db_cursor[-2][2] == Entity.USER:
-                date_conditions.append(Messages.creation_date >= db_cursor[-2][1])
-            else:
-                date_conditions.append(Messages.creation_date > db_cursor[-1][1])
-                # This is a trick to include all tool from last AI.
-
-        # Get all messages in the date frame.
-        all_msg_in_page_query = (
-            select(Messages)
-            .options(selectinload(Messages.tool_calls))
-            .where(Messages.thread_id == thread_id, *date_conditions)
-            .order_by(desc(Messages.creation_date))
-        )
-        all_msg_in_page_result = await session.execute(all_msg_in_page_query)
-        db_messages = all_msg_in_page_result.scalars().all()
-    else:
-        # Here we simply get all messages with the ID found before.
-        # Pagination needs to happen on non-joined parent.
-        # Once we have them we can eager load the tool calls
-        complete_messages_results = await session.execute(
-            select(Messages)
-            .options(selectinload(Messages.tool_calls))
-            .where(Messages.message_id.in_([msg[0] for msg in db_cursor]))
-            .order_by(
-                desc(Messages.creation_date)
-                if sort.startswith("-")
-                else Messages.creation_date
-            )
-        )
-        db_messages = complete_messages_results.scalars().all()
+    breakpoint()
     if vercel_format:
         return format_messages_vercel(
-            db_messages, tool_hil_mapping, has_more, pagination_params.page_size
+            db_messages,
+            tool_hil_mapping,
+            has_more,
+            pagination_params.page_size,
         )
     else:
         return format_messages_output(
-            db_messages, tool_hil_mapping, has_more, pagination_params.page_size
+            db_messages,
+            has_more,
+            pagination_params.page_size,
         )

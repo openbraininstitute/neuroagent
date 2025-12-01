@@ -31,7 +31,6 @@ from neuroagent.app.database.sql_schemas import (
     Task,
     TokenConsumption,
     TokenType,
-    ToolCalls,
 )
 from neuroagent.new_types import (
     Agent,
@@ -120,7 +119,7 @@ class AgentsRoutine:
 
     async def execute_tool_calls(
         self,
-        tool_calls: list[ToolCalls],
+        tool_calls: list[dict[str, Any]],
         tools: list[type[BaseTool]],
         context_variables: dict[str, Any],
     ) -> Response:
@@ -148,7 +147,7 @@ class AgentsRoutine:
 
     async def handle_tool_call(
         self,
-        tool_call: ToolCalls,
+        tool_call: dict[str, Any],
         tools: list[type[BaseTool]],
         context_variables: dict[str, Any],
         raise_validation_errors: bool = False,
@@ -156,16 +155,16 @@ class AgentsRoutine:
         """Run individual tools."""
         tool_map = {tool.name: tool for tool in tools}
 
-        name = tool_call.name
+        name = tool_call["name"]
         # handle missing tool case, skip to next tool
         if name not in tool_map:
             return {
                 "role": "tool",
-                "tool_call_id": tool_call.tool_call_id,
+                "tool_call_id": tool_call["tool_call_id"],
                 "tool_name": name,
                 "content": f"Error: Tool {name} not found.",
             }, None
-        kwargs = json.loads(tool_call.arguments)
+        kwargs = json.loads(tool_call["arguments"])
 
         tool = tool_map[name]
         try:
@@ -178,7 +177,7 @@ class AgentsRoutine:
                 # Otherwise transform it into an OpenAI response for the model to retry
                 response = {
                     "role": "tool",
-                    "tool_call_id": tool_call.tool_call_id,
+                    "tool_call_id": tool_call["tool_call_id"],
                     "tool_name": name,
                     "content": err.json(),
                 }
@@ -194,7 +193,7 @@ class AgentsRoutine:
                 # Otherwise transform it into an OpenAI response for the model to retry
                 response = {
                     "role": "tool",
-                    "tool_call_id": tool_call.tool_call_id,
+                    "tool_call_id": tool_call["tool_call_id"],
                     "tool_name": name,
                     "content": "The user is not allowed to run this tool. Don't call it again.",
                 }
@@ -208,13 +207,13 @@ class AgentsRoutine:
         try:
             raw_result = await tool_instance.arun()
             if hasattr(tool_instance.metadata, "token_consumption"):
-                context_variables["usage_dict"][tool_call.tool_call_id] = (
+                context_variables["usage_dict"][tool_call["tool_call_id"]] = (
                     tool_instance.metadata.token_consumption
                 )
         except Exception as err:
             response = {
                 "role": "tool",
-                "tool_call_id": tool_call.tool_call_id,
+                "tool_call_id": tool_call["tool_call_id"],
                 "tool_name": name,
                 "content": str(err),
             }
@@ -223,7 +222,7 @@ class AgentsRoutine:
         result: Result = self.handle_function_result(raw_result)
         response = {
             "role": "tool",
-            "tool_call_id": tool_call.tool_call_id,
+            "tool_call_id": tool_call["tool_call_id"],
             "tool_name": name,
             "content": result.value,
         }
@@ -404,14 +403,14 @@ class AgentsRoutine:
                         # case _:
                         #     print(event.type)
 
-                # If tool calls requested, instantiate them as an SQL compatible class
+                # If tool calls requested, convert to dict format
                 if message["tool_calls"]:
                     tool_calls = [
-                        ToolCalls(
-                            tool_call_id=tool_call["id"],
-                            name=tool_call["function"]["name"],
-                            arguments=tool_call["function"]["arguments"],
-                        )
+                        {
+                            "tool_call_id": tool_call["id"],
+                            "name": tool_call["function"]["name"],
+                            "arguments": tool_call["function"]["arguments"],
+                        }
                         for tool_call in message["tool_calls"]
                     ]
                 else:
@@ -468,13 +467,13 @@ class AgentsRoutine:
                 tool_calls_to_execute = [
                     tool_call
                     for tool_call in messages[-1].tool_calls
-                    if not tool_map[tool_call.name].hil
+                    if not tool_map[tool_call["name"]].hil
                 ]
 
                 tool_calls_with_hil = [
                     tool_call
                     for tool_call in messages[-1].tool_calls
-                    if tool_map[tool_call.name].hil
+                    if tool_map[tool_call["name"]].hil
                 ]
 
                 # handle function calls, updating context_variables, and switching agents
@@ -488,9 +487,9 @@ class AgentsRoutine:
                         [
                             {
                                 "role": "tool",
-                                "tool_call_id": call.tool_call_id,
-                                "tool_name": call.name,
-                                "content": f"The tool {call.name} with arguments {call.arguments} could not be executed due to rate limit. Call it again.",
+                                "tool_call_id": call["tool_call_id"],
+                                "tool_name": call["name"],
+                                "content": f"The tool {call['name']} with arguments {call['arguments']} could not be executed due to rate limit. Call it again.",
                             }
                             for call in tool_calls_to_execute[max_parallel_tool_calls:]
                         ]
@@ -557,7 +556,7 @@ class AgentsRoutine:
                 if tool_calls_with_hil:
                     metadata_data = [
                         {
-                            "toolCallId": msg.tool_call_id,
+                            "toolCallId": msg["tool_call_id"],
                             "validated": "pending",
                             "isComplete": True,
                         }
@@ -606,11 +605,11 @@ class AgentsRoutine:
 
             if message["tool_calls"]:
                 tool_calls = [
-                    ToolCalls(
-                        tool_call_id=tool_call["id"],
-                        name=tool_call["function"]["name"],
-                        arguments=tool_call["function"]["arguments"],
-                    )
+                    {
+                        "tool_call_id": tool_call["id"],
+                        "name": tool_call["function"]["name"],
+                        "arguments": tool_call["function"]["arguments"],
+                    }
                     for tool_call in message["tool_calls"]
                 ]
             else:
@@ -641,8 +640,8 @@ class AgentsRoutine:
                             content=json.dumps(
                                 {
                                     "role": "tool",
-                                    "tool_call_id": call.tool_call_id,
-                                    "tool_name": call.name,
+                                    "tool_call_id": call["tool_call_id"],
+                                    "tool_name": call["name"],
                                     "content": "Tool execution aborted by the user.",
                                 }
                             ),

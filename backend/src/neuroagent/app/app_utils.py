@@ -198,51 +198,33 @@ async def commit_messages(
 
 def format_messages_output(
     db_messages: Sequence[Messages],
-    tool_hil_mapping: dict[str, bool],
     has_more: bool,
     page_size: int,
 ) -> PaginatedResponse[MessagesRead]:
     """Format db messages to regular output schema."""
     messages = []
     for msg in db_messages:
-        # Create a clean dict without SQLAlchemy attributes
         message_data = {
             "message_id": msg.message_id,
-            "entity": msg.entity.value,  # Convert enum to string
+            "entity": msg.entity.value,
             "thread_id": msg.thread_id,
-            "is_complete": msg.is_complete,
-            "creation_date": msg.creation_date.isoformat(),  # Convert datetime to string
-            "msg_content": json.loads(msg.content),
+            "creation_date": msg.creation_date.isoformat(),
         }
 
-        # Map validation status based on tool requirements
-        tool_calls_data = []
-        for tc in msg.tool_calls:
-            requires_validation = tool_hil_mapping.get(tc.name, False)
+        parts_data = []
+        for part in msg.parts:
+            output = part.output or {}
+            content = output.get("content", [])
 
-            if tc.validated is True:
-                validation_status = "accepted"
-            elif tc.validated is False:
-                validation_status = "rejected"
-            elif not requires_validation:
-                validation_status = "not_required"
-            else:
-                validation_status = "pending"
+            for item in content:
+                if item.get("type") == "text":
+                    parts_data.append({"type": "text", "text": item.get("text", "")})
 
-            tool_calls_data.append(
-                {
-                    "tool_call_id": tc.tool_call_id,
-                    "name": tc.name,
-                    "arguments": tc.arguments,
-                    "validated": validation_status,
-                }
-            )
-
-        message_data["tool_calls"] = tool_calls_data
+        message_data["parts"] = parts_data
         messages.append(MessagesRead(**message_data))
 
     return PaginatedResponse(
-        next_cursor=messages[-1].creation_date,
+        next_cursor=messages[-1].creation_date if messages else None,
         has_more=has_more,
         page_size=page_size,
         results=messages,
