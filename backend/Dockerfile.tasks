@@ -4,6 +4,7 @@ ENV PYTHONUNBUFFERED=1
 
 RUN apt-get -y update && \
     apt-get -y install curl \
+    ca-certificates \
     build-essential \
     libhdf5-dev \
     libboost-all-dev \
@@ -35,8 +36,10 @@ RUN which cmake && cmake --version
 # Install deno
 RUN npm install -g deno@">=2.5.0"
 
-# Install uv
-RUN pip install --no-cache-dir uv
+# Install uv using the official installer script
+ADD https://astral.sh/uv/install.sh /uv-installer.sh
+RUN sh /uv-installer.sh && rm /uv-installer.sh
+ENV PATH="/root/.local/bin/:$PATH"
 
 COPY ./ /code
 WORKDIR /code

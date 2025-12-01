@@ -3,11 +3,14 @@ FROM python:3.11
 ENV PYTHONUNBUFFERED=1
 
 RUN apt-get -y update && \
-    apt-get -y install curl && \
+    apt-get -y install curl \
+    ca-certificates && \
     rm -rf /var/lib/apt/lists/*
 
-# Install uv
-RUN pip install --no-cache-dir uv
+# Install uv using the official installer script
+ADD https://astral.sh/uv/install.sh /uv-installer.sh
+RUN sh /uv-installer.sh && rm /uv-installer.sh
+ENV PATH="/root/.local/bin/:$PATH"
 
 COPY ./ /code
 WORKDIR /code
