@@ -20,6 +20,18 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+app = [
+    "alembic>=1.17.2",
+    "asgi-correlation-id>=4.3.4",
+    "asyncpg>=0.31.0",
+    "fastapi>=0.122.0",
+    "mcp>=1.22.0",
+    "obp-accounting-sdk>=0.4.2",
+    "openai>=2.6.1",
+    "psycopg2>=2.9.11",
+    "sqlalchemy[asyncio]>=2.0.44",
+    "uvicorn>=0.38.0",
+]
 dev = [
     "bandit[toml]",
     "colorama>=0.4.6",
@@ -38,18 +50,6 @@ tasks = [
     "bluepysnap>=3.0.2",
     "duckdb>=1.4.2",
     "pandas>=2.3.3",
-]
-app = [
-    "alembic>=1.17.2",
-    "asgi-correlation-id>=4.3.4",
-    "asyncpg>=0.31.0",
-    "fastapi>=0.122.0",
-    "mcp>=1.22.0",
-    "obp-accounting-sdk>=0.4.2",
-    "openai>=2.6.1",
-    "psycopg2>=2.9.11",
-    "sqlalchemy[asyncio]>=2.0.44",
-    "uvicorn>=0.38.0",
 ]
 
 [project.scripts]
