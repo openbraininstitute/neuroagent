@@ -254,7 +254,7 @@ def format_messages_vercel(
             elif part.type == PartType.REASONING:
                 parts_data.extend(
                     ReasoningPartVercel(text=s.get("text", ""))
-                    for s in output.get("summaries", [])
+                    for s in output.get("summary", [])
                 )
             elif part.type == PartType.FUNCTION_CALL:
                 tc_id = output.get("call_id", "")
@@ -280,13 +280,15 @@ def format_messages_vercel(
                     status = "pending"
 
                 metadata[tc_id] = MetadataToolCallVercel(
-                    toolCallId=tc_id, validated=status, isComplete=False
+                    toolCallId=tc_id,
+                    validated=status,
+                    isComplete=True if requires_validation else False,
                 )
             elif part.type == PartType.FUNCTION_CALL_OUTPUT:
                 tc_id = output.get("call_id", "")
                 if tc_id in tool_calls:
                     tool_calls[tc_id].state = "output-available"
-                    tool_calls[tc_id].output = json.loads(output.get("output", "{}"))
+                    tool_calls[tc_id].output = output.get("output") or "{}"
                     metadata[tc_id].isComplete = True
 
         message_data = {
