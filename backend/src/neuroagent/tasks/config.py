@@ -25,14 +25,24 @@ class SettingsCelery(BaseModel):
     model_config = ConfigDict(frozen=True)
 
 
+class SettingsExecutor(BaseModel):
+    """Executor settings."""
+
+    deno_allocated_memory: int | None = 8192
+    additional_imports: list[str] | None = None
+
+    model_config = ConfigDict(frozen=True)
+
+
 class Settings(BaseSettings):
     """All settings for tasks."""
 
     storage: SettingsStorage = SettingsStorage()  # has no required
     celery: SettingsCelery = SettingsCelery()  # has no required
+    executor: SettingsExecutor = SettingsExecutor()  # has no required
 
     model_config = SettingsConfigDict(
-        env_file=".env.celery",
+        env_file=".env.tasks",
         env_prefix="TASKS_",
         env_nested_delimiter="__",
         frozen=True,

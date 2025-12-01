@@ -47,6 +47,10 @@ WORKDIR /code
 # Install dependencies using uv with tasks extra
 RUN uv sync --extra tasks
 
+# Download manual wheels
+RUN mkdir -p cached_wheels && \
+    uv pip download --only-binary=:all: --no-deps -d ./cached_wheels plotly
+
 WORKDIR /code
 
 # Celery worker entrypoint

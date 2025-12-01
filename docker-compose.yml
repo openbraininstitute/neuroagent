@@ -34,10 +34,15 @@ services:
     environment:
       - TASKS_CELERY__BROKER_URL=redis://redis:6379
       - TASKS_CELERY__RESULT_BACKEND=redis://redis:6379
+      - TASKS_STORAGE__ENDPOINT_URL=http://minio:9000
+      - TASKS_STORAGE__BUCKET_NAME=neuroagent
+      - TASKS_STORAGE__ACCESS_KEY=minioadmin
+      - TASKS_STORAGE__SECRET_KEY=minioadmin
     networks:
       - app-network
     depends_on:
       - redis
+      - minio
 
   frontend:
     build:

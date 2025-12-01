@@ -8,36 +8,13 @@ import tempfile
 from pathlib import Path
 from textwrap import dedent
 from types import TracebackType
-from typing import Any, Literal
+from typing import Literal
 
-from pydantic import BaseModel
+from neuroagent.task_schemas import ErrorDetail, FailureOutput, SuccessOutput
 
 LoggingLevel = Literal[
     "debug", "info", "notice", "warning", "error", "critical", "alert", "emergency"
 ]
-
-
-class SuccessOutput(BaseModel):
-    """Output of the python script."""
-
-    status: Literal["success"] = "success"
-    output: list[str]
-    return_value: Any = None
-
-
-class ErrorDetail(BaseModel):
-    """Detail fo the python error."""
-
-    message: str | None = None
-    name: str | None = None
-
-
-class FailureOutput(BaseModel):
-    """Output of the python script."""
-
-    status: Literal["error"] = "error"
-    error_type: Literal["install-error", "python-error"]
-    error: ErrorDetail | str | None = None
 
 
 class WasmExecutor:
@@ -207,6 +184,90 @@ class WasmExecutor:
             events = []
             if stdout:
                 lines = stdout.decode().split("\n")
+                for line in lines:
+                    text = line.rstrip("\r")
+                    if text:  # Skip empty lines
+                        events.append(text)
+                        if self.logger:
+                            self.logger.debug(text)
+
+            # No error + no stdout = Houston we have a problem
+            if not events:
+                raise ValueError("Could not retrieve outputs of the python script.")
+
+            python_outcome = events[-1]  # Last line of the js logs is the python output
+            try:
+                result_json = json.loads(python_outcome)
+            except json.JSONDecodeError:
+                raise ValueError(
+                    f"The code returned an invalid output: {python_outcome}"
+                )
+
+            if result_json["error"]:
+                return FailureOutput(
+                    error_type="python-error", error=ErrorDetail(**result_json["error"])
+                )
+
+            return SuccessOutput(
+                output=result_json["output"],
+                return_value=result_json.get("return_value"),
+            )
+
+    def run_code_sync(self, code: str) -> SuccessOutput | FailureOutput:
+        """
+        Execute Python code in the Pyodide environment and return the result (synchronous version).
+
+        Parameters
+        ----------
+            code (`str`): Python code to execute.
+
+        Returns
+        -------
+            `SuccessOutput | FailureOutput`: Code output containing the result and logs or potential errors.
+        """
+        with tempfile.TemporaryDirectory(prefix="pyodide_deno_") as runner_dir:
+            runner_path = Path(runner_dir) / "pyodide_runner.js"
+            # Create the JavaScript runner file
+            with open(runner_path, "w") as f:
+                f.write(
+                    self.JS_CODE.format(
+                        packages=self.additional_imports, code=json.dumps(code)
+                    )
+                )
+            # Add read permission to tempdir
+            permission = []
+            for perm in self.deno_permissions:
+                if "--allow-read" in perm:
+                    allowed_read_dir = perm.split("=")[-1].split(",")
+                    allowed_read_dir.append(runner_dir)
+                    permission.append(f"--allow-read={','.join(allowed_read_dir)}")
+                else:
+                    permission.append(perm)
+
+            cmd = [self.deno_path, "run"] + permission + [runner_path]
+
+            # Run the cmd in a subprocess (synchronous)
+            try:
+                result = subprocess.run(  # nosec: B603
+                    cmd,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE,
+                    text=True,
+                    timeout=self.timeout,
+                )
+            except subprocess.TimeoutExpired:
+                raise ValueError(
+                    f"Code execution timed out after {self.timeout} seconds"
+                )
+
+            # Check for execution errors
+            if result.stderr:
+                return FailureOutput(error_type="install-error", error=result.stderr)
+
+            # Parse stdout into lines
+            events = []
+            if result.stdout:
+                lines = result.stdout.split("\n")
                 for line in lines:
                     text = line.rstrip("\r")
                     if text:  # Skip empty lines
