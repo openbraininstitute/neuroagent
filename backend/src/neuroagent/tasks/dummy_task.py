@@ -21,5 +21,4 @@ def dummy_task(message: str) -> str:
     str
         The processed message
     """
-    logger.info(f"Processing dummy task with message: {message}")
-    return f"Task completed: {message}"
+    return message[::-1]  # Return the reversed message as a dummy processing

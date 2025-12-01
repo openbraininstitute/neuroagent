@@ -31,8 +31,13 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile.tasks
+    environment:
+      - TASKS_CELERY__BROKER_URL=redis://redis:6379
+      - TASKS_CELERY__RESULT_BACKEND=redis://redis:6379
     networks:
       - app-network
+    depends_on:
+      - redis
 
   frontend:
     build:
