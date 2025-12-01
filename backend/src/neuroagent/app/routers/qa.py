@@ -207,14 +207,18 @@ Important: Weight the user clicks depending on how old they are. The more recent
         {"role": "user", "content": content},
     ]
 
-    response = await openai_client.beta.chat.completions.parse(
-        messages=messages,  # type: ignore
-        model=settings.llm.suggestion_model,
-        response_format=QuestionsSuggestions
+    parse_kwargs = {
+        "messages": messages,
+        "model": settings.llm.suggestion_model,
+        "response_format": QuestionsSuggestions
         if is_in_chat
         else QuestionSuggestionNoMessages,
-    )
+    }
 
+    if "gpt-5" in settings.llm.suggestion_model:
+        parse_kwargs["reasoning_effort"] = "minimal"
+
+    response = await openai_client.beta.chat.completions.parse(**parse_kwargs)  # type: ignore
     return response.choices[0].message.parsed  # type: ignore
 
 

@@ -183,11 +183,16 @@ async def generate_title(
         {"role": "user", "content": body.first_user_message},
     ]
 
-    response = await openai_client.beta.chat.completions.parse(
-        messages=messages,  # type: ignore
-        model=settings.llm.suggestion_model,
-        response_format=ThreadGeneratedTitle,
-    )
+    parse_kwargs = {
+        "messages": messages,
+        "model": settings.llm.suggestion_model,
+        "response_format": ThreadGeneratedTitle,
+    }
+
+    if "gpt-5" in settings.llm.suggestion_model:
+        parse_kwargs["reasoning_effort"] = "minimal"
+
+    response = await openai_client.beta.chat.completions.parse(**parse_kwargs)  # type: ignore
 
     # Update the thread title and modified date + commit
     thread.title = response.choices[0].message.parsed.title  # type: ignore

@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- Use gpt-5-nano as suggestion/title model.
 
 ## [0.13.0] - 1.12.2025
 
