@@ -26,7 +26,6 @@ dev = [
     "datamodel-code-generator>=0.35.0",
     "deepeval>=3.6.6",
     "mypy==1.15.0",
-    "pandas",
     "pytest",
     "pytest-asyncio",
     "pytest-cov",
@@ -38,6 +37,7 @@ dev = [
 tasks = [
     "bluepysnap>=3.0.2",
     "duckdb>=1.4.2",
+    "pandas>=2.3.3",
 ]
 app = [
     "alembic>=1.17.2",

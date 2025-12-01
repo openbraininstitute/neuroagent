@@ -2249,7 +2249,6 @@ dev = [
     { name = "datamodel-code-generator" },
     { name = "deepeval" },
     { name = "mypy" },
-    { name = "pandas" },
     { name = "pytest" },
     { name = "pytest-asyncio" },
     { name = "pytest-cov" },
@@ -2261,6 +2260,7 @@ dev = [
 tasks = [
     { name = "bluepysnap" },
     { name = "duckdb" },
+    { name = "pandas" },
 ]
 
 [package.metadata]
@@ -2281,7 +2281,7 @@ requires-dist = [
     { name = "mypy", marker = "extra == 'dev'", specifier = "==1.15.0" },
     { name = "obp-accounting-sdk", marker = "extra == 'app'", specifier = ">=0.4.2" },
     { name = "openai", marker = "extra == 'app'", specifier = ">=2.6.1" },
-    { name = "pandas", marker = "extra == 'dev'" },
+    { name = "pandas", marker = "extra == 'tasks'", specifier = ">=2.3.3" },
     { name = "psycopg2", marker = "extra == 'app'", specifier = ">=2.9.11" },
     { name = "pydantic", specifier = ">=2.11" },
     { name = "pydantic-settings" },

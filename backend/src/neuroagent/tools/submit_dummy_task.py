@@ -6,6 +6,7 @@ from typing import Any, ClassVar
 from celery import Celery
 from pydantic import BaseModel, Field
 
+from neuroagent.task_schemas import DummyTaskInput, DummyTaskOutput
 from neuroagent.tools.base_tool import BaseMetadata, BaseTool
 from neuroagent.utils import wait_for_celery_result
 
@@ -66,16 +67,22 @@ class SubmitDummyTaskTool(BaseTool):
         SubmitDummyTaskOutput
             The task result
         """
+        # Create Pydantic model instance for the input
+        task_input = DummyTaskInput(message=self.input_schema.message)
+
         celery_client = self.metadata.celery_client
         task_result = celery_client.send_task(
-            "dummy_task", args=[self.input_schema.message]
+            "dummy_task", args=[task_input.model_dump()]
         )
         logger.info(f"Submitted dummy task with ID: {task_result.id}")
 
         # Wait for result using reusable utility function
-        result = await wait_for_celery_result(task_result)
-        logger.info(f"Task {task_result.id} completed with result: {result}")
-        return SubmitDummyTaskOutput(result=result)
+        result_dict = await wait_for_celery_result(task_result)
+        logger.info(f"Task {task_result.id} completed with result: {result_dict}")
+
+        # Instantiate the task output model from the result dict
+        task_output = DummyTaskOutput(**result_dict)
+        return SubmitDummyTaskOutput(result=task_output.model_dump())
 
     @classmethod
     async def is_online(cls) -> bool:
