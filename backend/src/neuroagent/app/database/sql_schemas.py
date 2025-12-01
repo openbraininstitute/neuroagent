@@ -147,6 +147,7 @@ class Parts(Base):
     type: Mapped[PartType] = mapped_column(Enum(PartType), nullable=False)
     output: Mapped[dict] = mapped_column(JSONB, nullable=False)
     is_complete: Mapped[bool] = mapped_column(Boolean, nullable=False)
+    validated: Mapped[bool] = mapped_column(Boolean, nullable=True)
 
     message: Mapped[Messages] = relationship("Messages", back_populates="parts")
 

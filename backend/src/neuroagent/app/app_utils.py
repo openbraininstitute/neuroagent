@@ -268,11 +268,11 @@ def format_messages_vercel(
                 parts_data.append(tool_part)
                 tool_calls[tc_id] = tool_part
 
-                validated_field = output.get("validated")
                 requires_validation = tool_hil_mapping.get(tool_name, False)
-                if validated_field == "accepted":
+
+                if part.validated is True:
                     status = "accepted"
-                elif validated_field == "rejected":
+                elif part.validated is False:
                     status = "rejected"
                 elif not requires_validation:
                     status = "not_required"

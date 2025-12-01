@@ -45,6 +45,7 @@ def upgrade() -> None:
         ),
         sa.Column("output", JSONB, nullable=False),
         sa.Column("is_complete", sa.Boolean(), nullable=False),
+        sa.Column("validated", sa.Boolean(), nullable=True),
         sa.PrimaryKeyConstraint("part_id"),
         sa.ForeignKeyConstraint(["message_id"], ["messages.message_id"]),
     )
@@ -85,8 +86,8 @@ def upgrade() -> None:
                 user_text = content_json.get("content", "")
                 conn.execute(
                     sa.text("""
-                    INSERT INTO parts (part_id, message_id, order_index, type, output, is_complete)
-                    VALUES (gen_random_uuid(), :message_id, 0, 'MESSAGE', :output, :is_complete)
+                    INSERT INTO parts (part_id, message_id, order_index, type, output, is_complete, validated)
+                    VALUES (gen_random_uuid(), :message_id, 0, 'MESSAGE', :output, :is_complete, NULL)
                 """),
                     {
                         "message_id": msg_id,
@@ -141,8 +142,8 @@ def upgrade() -> None:
                             ]
                             conn.execute(
                                 sa.text("""
-                                INSERT INTO parts (part_id, message_id, order_index, type, output, is_complete)
-                                VALUES (gen_random_uuid(), :message_id, :order_index, 'REASONING', :output, :is_complete)
+                                INSERT INTO parts (part_id, message_id, order_index, type, output, is_complete, validated)
+                                VALUES (gen_random_uuid(), :message_id, :order_index, 'REASONING', :output, :is_complete, NULL)
                             """),
                                 {
                                     "message_id": assistant_msg_id,
@@ -164,8 +165,8 @@ def upgrade() -> None:
                         if msg_content:
                             conn.execute(
                                 sa.text("""
-                                INSERT INTO parts (part_id, message_id, order_index, type, output, is_complete)
-                                VALUES (gen_random_uuid(), :message_id, :order_index, 'MESSAGE', :output, :is_complete)
+                                INSERT INTO parts (part_id, message_id, order_index, type, output, is_complete, validated)
+                                VALUES (gen_random_uuid(), :message_id, :order_index, 'MESSAGE', :output, :is_complete, NULL)
                             """),
                                 {
                                     "message_id": assistant_msg_id,
@@ -185,10 +186,10 @@ def upgrade() -> None:
                             )
                             order_idx += 1
 
-                        # Get tool calls
+                        # Get tool calls with validated
                         tool_calls = conn.execute(
                             sa.text("""
-                            SELECT tool_call_id, name, arguments
+                            SELECT tool_call_id, name, arguments, validated
                             FROM tool_calls
                             WHERE message_id = :message_id
                             ORDER BY tool_call_id
@@ -197,11 +198,11 @@ def upgrade() -> None:
                         ).fetchall()
 
                         # Add FUNCTION_CALL parts
-                        for tool_call_id, name, arguments in tool_calls:
+                        for tool_call_id, name, arguments, validated in tool_calls:
                             conn.execute(
                                 sa.text("""
-                                INSERT INTO parts (part_id, message_id, order_index, type, output, is_complete)
-                                VALUES (gen_random_uuid(), :message_id, :order_index, 'FUNCTION_CALL', :output, :is_complete)
+                                INSERT INTO parts (part_id, message_id, order_index, type, output, is_complete, validated)
+                                VALUES (gen_random_uuid(), :message_id, :order_index, 'FUNCTION_CALL', :output, :is_complete, :validated)
                             """),
                                 {
                                     "message_id": assistant_msg_id,
@@ -216,6 +217,7 @@ def upgrade() -> None:
                                         }
                                     ),
                                     "is_complete": curr_is_complete,
+                                    "validated": validated,
                                 },
                             )
                             order_idx += 1
@@ -228,8 +230,8 @@ def upgrade() -> None:
                         # Add FUNCTION_CALL_OUTPUT part
                         conn.execute(
                             sa.text("""
-                            INSERT INTO parts (part_id, message_id, order_index, type, output, is_complete)
-                            VALUES (gen_random_uuid(), :message_id, :order_index, 'FUNCTION_CALL_OUTPUT', :output, :is_complete)
+                            INSERT INTO parts (part_id, message_id, order_index, type, output, is_complete, validated)
+                            VALUES (gen_random_uuid(), :message_id, :order_index, 'FUNCTION_CALL_OUTPUT', :output, :is_complete, NULL)
                         """),
                             {
                                 "message_id": assistant_msg_id,
@@ -264,8 +266,8 @@ def upgrade() -> None:
                             ]
                             conn.execute(
                                 sa.text("""
-                                INSERT INTO parts (part_id, message_id, order_index, type, output, is_complete)
-                                VALUES (gen_random_uuid(), :message_id, :order_index, 'REASONING', :output, :is_complete)
+                                INSERT INTO parts (part_id, message_id, order_index, type, output, is_complete, validated)
+                                VALUES (gen_random_uuid(), :message_id, :order_index, 'REASONING', :output, :is_complete, NULL)
                             """),
                                 {
                                     "message_id": assistant_msg_id,
@@ -286,8 +288,8 @@ def upgrade() -> None:
                         msg_content = curr_content_json.get("content", "")
                         conn.execute(
                             sa.text("""
-                            INSERT INTO parts (part_id, message_id, order_index, type, output, is_complete)
-                            VALUES (gen_random_uuid(), :message_id, :order_index, 'MESSAGE', :output, :is_complete)
+                            INSERT INTO parts (part_id, message_id, order_index, type, output, is_complete, validated)
+                            VALUES (gen_random_uuid(), :message_id, :order_index, 'MESSAGE', :output, :is_complete, NULL)
                         """),
                             {
                                 "message_id": assistant_msg_id,
@@ -461,10 +463,10 @@ def downgrade():
                     "is_complete": True,
                 }
 
-                # Get all parts with is_complete
+                # Get all parts with is_complete and validated
                 parts_with_complete = conn.execute(
                     sa.text("""
-                    SELECT type, output, is_complete
+                    SELECT type, output, is_complete, validated
                     FROM parts
                     WHERE message_id = :message_id
                     ORDER BY order_index
@@ -473,7 +475,7 @@ def downgrade():
                 ).fetchall()
 
                 prev_is_complete = True
-                for idx, (part_type, output, is_complete_part) in enumerate(
+                for idx, (part_type, output, is_complete_part, validated) in enumerate(
                     parts_with_complete
                 ):
                     output_json = (
@@ -538,6 +540,7 @@ def downgrade():
                                 "tool_outputs": [],
                                 "is_complete": True,
                             }
+                        output_json["validated"] = validated
                         current_turn["tool_calls"].append(output_json)
                     elif part_type == "FUNCTION_CALL_OUTPUT":
                         current_turn["tool_outputs"].append(output_json)
@@ -642,14 +645,15 @@ def downgrade():
                             for tc in turn_data["tool_calls"]:
                                 conn.execute(
                                     sa.text("""
-                                    INSERT INTO tool_calls (tool_call_id, message_id, name, arguments)
-                                    VALUES (:tool_call_id, :message_id, :name, :arguments)
+                                    INSERT INTO tool_calls (tool_call_id, message_id, name, arguments, validated)
+                                    VALUES (:tool_call_id, :message_id, :name, :arguments, :validated)
                                 """),
                                     {
                                         "tool_call_id": tc["call_id"],
                                         "message_id": msg_id,
                                         "name": tc["name"],
                                         "arguments": tc["arguments"],
+                                        "validated": tc.get("validated"),
                                     },
                                 )
                             turn_offset += 1
@@ -705,14 +709,15 @@ def downgrade():
                             for tc in turn_data["tool_calls"]:
                                 conn.execute(
                                     sa.text("""
-                                    INSERT INTO tool_calls (tool_call_id, message_id, name, arguments)
-                                    VALUES (:tool_call_id, :message_id, :name, :arguments)
+                                    INSERT INTO tool_calls (tool_call_id, message_id, name, arguments, validated)
+                                    VALUES (:tool_call_id, :message_id, :name, :arguments, :validated)
                                 """),
                                     {
                                         "tool_call_id": tc["call_id"],
                                         "message_id": new_msg_id,
                                         "name": tc["name"],
                                         "arguments": tc["arguments"],
+                                        "validated": tc.get("validated"),
                                     },
                                 )
 
