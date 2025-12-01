@@ -354,7 +354,6 @@ async def get_thread_messages(
     has_more = len(db_messages) > pagination_params.page_size
     db_messages = db_messages[:-1] if has_more else db_messages
 
-    breakpoint()
     if vercel_format:
         return format_messages_vercel(
             db_messages,

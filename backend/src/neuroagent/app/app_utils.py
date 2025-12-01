@@ -19,6 +19,7 @@ from neuroagent.app.database.sql_schemas import (
     ComplexityEstimation,
     Entity,
     Messages,
+    PartType,
     ReasoningLevels,
     Task,
     Threads,
@@ -36,7 +37,6 @@ from neuroagent.app.schemas import (
     ReasoningPartVercel,
     TextPartVercel,
     ToolCallPartVercel,
-    ToolMetadataDict,
 )
 from neuroagent.tools.base_tool import BaseTool
 from neuroagent.utils import (
@@ -238,151 +238,75 @@ def format_messages_vercel(
     page_size: int,
 ) -> PaginatedResponse[MessagesReadVercel]:
     """Format db messages to Vercel schema."""
-    messages: list[MessagesReadVercel] = []
-    parts: list[TextPartVercel | ToolCallPartVercel | ReasoningPartVercel] = []
-    metadata: list[MetadataToolCallVercel] = []
+    messages = []
+    for msg in db_messages:
+        parts_data: list[ToolCallPartVercel | TextPartVercel | ReasoningPartVercel] = []
+        tool_calls: dict[str, ToolCallPartVercel] = {}
+        metadata: dict[str, MetadataToolCallVercel] = {}
 
-    for msg in reversed(db_messages):
-        if msg.entity in [Entity.USER, Entity.AI_MESSAGE]:
-            content = json.loads(msg.content)
-            text_content = content.get("content")
-            reasoning_content = content.get("reasoning")
+        for part in msg.parts:
+            output = part.output or {}
 
-            message_data: dict[str, Any] = {
-                "id": msg.message_id,
-                "role": "user" if msg.entity == Entity.USER else "assistant",
-                "createdAt": msg.creation_date,
-                "isComplete": msg.is_complete,
-            }
+            if part.type == PartType.MESSAGE:
+                parts_data.append(
+                    TextPartVercel(text=output.get("content")[0].get("text", ""))
+                )
+            elif part.type == PartType.REASONING:
+                parts_data.extend(
+                    ReasoningPartVercel(text=s.get("text", ""))
+                    for s in output.get("summaries", [])
+                )
+            elif part.type == PartType.FUNCTION_CALL:
+                tc_id = output.get("call_id", "")
+                tool_name = output.get("name", "")
+                tool_part = ToolCallPartVercel(
+                    type=f"tool-{tool_name}",
+                    toolCallId=tc_id,
+                    state="input-available",
+                    input=json.loads(output.get("arguments", "{}")),
+                )
+                parts_data.append(tool_part)
+                tool_calls[tc_id] = tool_part
 
-            # add tool calls and reset buffer after attaching
-            if msg.entity == Entity.AI_MESSAGE:
-                if text_content:
-                    parts.append(TextPartVercel(text=text_content))
-                if reasoning_content:
-                    if isinstance(reasoning_content, list):
-                        for reasoning_step in reasoning_content:
-                            parts.append(ReasoningPartVercel(text=reasoning_step))
-                    else:
-                        parts.append(ReasoningPartVercel(text=reasoning_content))
-
-                message_data["metadata"] = {"toolCalls": metadata}
-
-            else:
-                if parts:
-                    # If we encounter a user message with a non empty buffer we have to add a dummy ai message.
-                    messages.append(
-                        MessagesReadVercel(
-                            id=uuid.uuid4(),
-                            role="assistant",
-                            createdAt=msg.creation_date,
-                            parts=parts,
-                            metadata=ToolMetadataDict(toolCalls=metadata),
-                            isComplete=False,
-                        )
-                    )
-                # Normal User message (with empty buffer)
-                if text_content:
-                    parts.append(TextPartVercel(text=text_content))
-
-            message_data["parts"] = parts
-            parts = []
-            metadata = []
-            messages.append(MessagesReadVercel(**message_data))
-
-        # Buffer tool calls until the next AI_MESSAGE
-        elif msg.entity == Entity.AI_TOOL:
-            content = json.loads(msg.content)
-            text_content = content.get("content")
-            reasoning_content = content.get("reasoning")
-
-            # Add optional reasoning
-            if reasoning_content:
-                if isinstance(reasoning_content, list):
-                    for reasoning_step in reasoning_content:
-                        parts.append(ReasoningPartVercel(text=reasoning_step))
-                else:
-                    parts.append(ReasoningPartVercel(text=reasoning_content))
-
-            for tc in msg.tool_calls:
-                requires_validation = tool_hil_mapping.get(tc.name, False)
-                if tc.validated is True:
+                validated_field = output.get("validated")
+                requires_validation = tool_hil_mapping.get(tool_name, False)
+                if validated_field == "accepted":
                     status = "accepted"
-                elif tc.validated is False:
+                elif validated_field == "rejected":
                     status = "rejected"
                 elif not requires_validation:
                     status = "not_required"
                 else:
                     status = "pending"
 
-                if text_content:
-                    parts.append(TextPartVercel(text=text_content))
-                parts.append(
-                    ToolCallPartVercel(
-                        toolCallId=tc.tool_call_id,
-                        type=f"tool-{tc.name}",
-                        input=json.loads(tc.arguments),
-                        state="input-available",
-                    )
+                metadata[tc_id] = MetadataToolCallVercel(
+                    toolCallId=tc_id, validated=status, isComplete=False
                 )
-                metadata.append(
-                    MetadataToolCallVercel(
-                        toolCallId=tc.tool_call_id,
-                        validated=status,  # type: ignore
-                        isComplete=False if status != "pending" else True,
-                    )
-                )
+            elif part.type == PartType.FUNCTION_CALL_OUTPUT:
+                tc_id = output.get("call_id", "")
+                if tc_id in tool_calls:
+                    tool_calls[tc_id].state = "output-available"
+                    tool_calls[tc_id].output = json.loads(output.get("output", "{}"))
+                    metadata[tc_id].isComplete = True
 
-        # Merge the actual tool result back into the buffered part
-        elif msg.entity == Entity.TOOL:
-            tool_call_id = json.loads(msg.content).get("tool_call_id")
-            tool_call = next(
-                (
-                    part
-                    for part in parts
-                    if isinstance(part, ToolCallPartVercel)
-                    and part.toolCallId == tool_call_id
-                ),
-                None,
-            )
-            if tool_call:
-                tool_call.output = json.loads(msg.content).get("content")
-                tool_call.state = "output-available"
-
-            met = next(
-                (
-                    met
-                    for met in metadata
-                    if isinstance(met, MetadataToolCallVercel)
-                    and met.toolCallId == tool_call_id
-                ),
-                None,
-            )
-            if met:
-                met.isComplete = msg.is_complete
-
-    # If the tool call buffer is not empty, we need to add a dummy AI message.
-    if parts:
-        messages.append(
-            MessagesReadVercel(
-                id=uuid.uuid4(),
-                role="assistant",
-                createdAt=msg.creation_date,
-                parts=parts,
-                metadata=ToolMetadataDict(toolCalls=metadata),
-                isComplete=False,
-            )
-        )
-
-    # Reverse back to descending order and build next_cursor
-    ordered_messages = list(reversed(messages))
-    next_cursor = db_messages[-1].creation_date if has_more else None
+        message_data = {
+            "id": msg.message_id,
+            "role": "user" if msg.entity == Entity.USER else "assistant",
+            "createdAt": msg.creation_date.isoformat(),
+            "isComplete": all(part.is_complete for part in msg.parts)
+            if msg.parts
+            else True,
+            "parts": parts_data,
+        }
+        if metadata:
+            message_data["metadata"] = {"toolCalls": list(metadata.values())}
+        messages.append(MessagesReadVercel(**message_data))
 
     return PaginatedResponse(
-        next_cursor=next_cursor,
+        next_cursor=db_messages[-1].creation_date if messages else None,
         has_more=has_more,
         page_size=page_size,
-        results=ordered_messages,
+        results=messages,
     )
 
 
