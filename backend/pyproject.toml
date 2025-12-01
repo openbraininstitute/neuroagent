@@ -11,17 +11,12 @@ readme = "README.md"
 requires-python = ">=3.11"
 dynamic = ["version"]
 dependencies = [
-    "asyncpg",
     "boto3",
     "celery>=5.5.3",
-    "psycopg2",
     "pydantic>=2.11",
     "pydantic-settings",
     "python-dotenv",
-    "pyyaml",
     "redis",
-    "sqlalchemy[asyncio]",
-    "types-PyYAML",
 ]
 
 [project.optional-dependencies]
@@ -47,10 +42,13 @@ tasks = [
 app = [
     "alembic>=1.17.2",
     "asgi-correlation-id>=4.3.4",
+    "asyncpg>=0.31.0",
     "fastapi>=0.122.0",
     "mcp>=1.22.0",
     "obp-accounting-sdk>=0.4.2",
     "openai>=2.6.1",
+    "psycopg2>=2.9.11",
+    "sqlalchemy[asyncio]>=2.0.44",
     "uvicorn>=0.38.0",
 ]
 

@@ -1,6 +1,7 @@
 """Dummy task for testing Celery."""
 
 import logging
+import time
 
 from neuroagent.tasks.main import celery
 
@@ -21,4 +22,5 @@ def dummy_task(message: str) -> str:
     str
         The processed message
     """
+    time.sleep(10)
     return message[::-1]  # Return the reversed message as a dummy processing
