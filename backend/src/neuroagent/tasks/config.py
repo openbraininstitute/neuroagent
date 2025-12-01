@@ -16,19 +16,6 @@ class SettingsStorage(BaseModel):
     model_config = ConfigDict(frozen=True)
 
 
-class SettingsDB(BaseModel):
-    """DB settings for retrieving history."""
-
-    prefix: str | None = None
-    user: str | None = None
-    password: SecretStr | None = None
-    host: str | None = None
-    port: str | None = None
-    name: str | None = None
-
-    model_config = ConfigDict(frozen=True)
-
-
 class SettingsCelery(BaseModel):
     """Celery settings."""
 
@@ -41,7 +28,6 @@ class SettingsCelery(BaseModel):
 class Settings(BaseSettings):
     """All settings for tasks."""
 
-    db: SettingsDB = SettingsDB()  # has no required
     storage: SettingsStorage = SettingsStorage()  # has no required
     celery: SettingsCelery = SettingsCelery()  # has no required
 
