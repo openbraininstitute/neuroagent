@@ -1,12 +1,13 @@
 """Tool for submitting a dummy task to Celery."""
 
 import logging
-from typing import ClassVar
+from typing import Any, ClassVar
 
 from celery import Celery
 from pydantic import BaseModel, Field
 
 from neuroagent.tools.base_tool import BaseMetadata, BaseTool
+from neuroagent.utils import wait_for_celery_result
 
 logger = logging.getLogger(__name__)
 
@@ -26,8 +27,7 @@ class SubmitDummyTaskMetadata(BaseMetadata):
 class SubmitDummyTaskOutput(BaseModel):
     """Output schema of the SubmitDummyTask tool."""
 
-    task_id: str
-    message: str
+    result: Any
 
 
 class SubmitDummyTaskTool(BaseTool):
@@ -43,38 +43,39 @@ class SubmitDummyTaskTool(BaseTool):
     ]
     description: ClassVar[
         str
-    ] = """Submit a dummy task to Celery for asynchronous processing. 
-    The task will be processed in the background and returns immediately with a task ID.
-    Use this when you need to offload work to a background worker."""
+    ] = """Submit a dummy task to Celery and wait for the result.
+    The task will be processed by a background worker and the result will be returned."""
     description_frontend: ClassVar[
         str
-    ] = """Submit a dummy task to Celery for asynchronous processing.
+    ] = """Submit a dummy task to Celery and wait for the result.
     
     This tool allows you to:
-    • Queue tasks for background processing
-    • Get a task ID to track the task status
-    • Offload long-running operations
+    • Submit tasks for background processing
+    • Wait for task completion
+    • Get the task result and status
     
-    Returns a task ID that can be used to check the task status."""
+    Returns the task ID, result, and status once the task completes."""
     metadata: SubmitDummyTaskMetadata
     input_schema: SubmitDummyTaskInput
 
     async def arun(self) -> SubmitDummyTaskOutput:
-        """Submit a dummy task to Celery.
+        """Submit a dummy task to Celery and wait for the result.
 
         Returns
         -------
         SubmitDummyTaskOutput
-            Task ID and the submitted message
+            The task result
         """
         celery_client = self.metadata.celery_client
         task_result = celery_client.send_task(
             "dummy_task", args=[self.input_schema.message]
         )
         logger.info(f"Submitted dummy task with ID: {task_result.id}")
-        return SubmitDummyTaskOutput(
-            task_id=task_result.id, message=self.input_schema.message
-        )
+
+        # Wait for result using reusable utility function
+        result = await wait_for_celery_result(task_result)
+        logger.info(f"Task {task_result.id} completed with result: {result}")
+        return SubmitDummyTaskOutput(result=result)
 
     @classmethod
     async def is_online(cls) -> bool:
