@@ -11,6 +11,10 @@ from uuid import UUID
 from pydantic import AwareDatetime, BaseModel, ConfigDict, Field, RootModel
 
 
+class AgePeriod(RootModel[Literal['prenatal', 'postnatal', 'unknown']]):
+    root: Literal['prenatal', 'postnatal', 'unknown'] = Field(..., title='AgePeriod')
+
+
 class SamplePercentage(RootModel[float]):
     root: float = Field(
         ...,
