@@ -12,6 +12,11 @@ from openai.types.responses import ResponseUsage
 from neuroagent.app.database.sql_schemas import (
     Entity,
     Messages,
+    Parts,
+    PartType,
+    Task,
+    TokenConsumption,
+    TokenType,
 )
 
 logger = logging.getLogger(__name__)
@@ -273,3 +278,152 @@ def get_token_count(usage: ResponseUsage | None) -> dict[str, int | None]:
         }
     else:
         return {"input_cached": None, "input_noncached": None, "completion": None}
+
+
+def append_message_part(
+    message: Messages, history: list[dict[str, Any]], text: str
+) -> None:
+    """Create a message part and append it to the message and history."""
+    output = {
+        "role": "assistant",
+        "type": "message",
+        "status": "completed",
+        "content": [{"text": text, "type": "output_text"}],
+    }
+    part = Parts(
+        message_id=message.message_id,
+        order_index=len(message.parts),
+        type=PartType.MESSAGE,
+        output=output,
+        is_complete=True,
+    )
+    message.parts.append(part)
+    history.append(output)
+
+
+def append_function_call_part(
+    message: Messages,
+    history: list[dict[str, Any]],
+    name: str,
+    call_id: str,
+    arguments: str,
+) -> None:
+    """Create a function call part and append it to the message and history."""
+    output = {
+        "name": name,
+        "type": "function_call",
+        "status": "completed",
+        "call_id": call_id,
+        "arguments": arguments,
+    }
+    part = Parts(
+        message_id=message.message_id,
+        order_index=len(message.parts),
+        type=PartType.FUNCTION_CALL,
+        output=output,
+        is_complete=True,
+    )
+    message.parts.append(part)
+    history.append(output)
+
+
+def append_reasoning_part(
+    message: Messages, history: list[dict[str, Any]], text: str, encrypted_content: str
+) -> None:
+    """Create a reasoning part and append it to the message and history."""
+    output = {
+        "type": "reasoning",
+        "status": "completed",
+        "summary": [{"text": text, "type": "summary_text"}],
+        "encrypted_content": encrypted_content,
+    }
+    part = Parts(
+        message_id=message.message_id,
+        order_index=len(message.parts),
+        type=PartType.REASONING,
+        output=output,
+        is_complete=True,
+    )
+    message.parts.append(part)
+    history.append(output)
+
+
+def append_function_output_part(
+    message: Messages, history: list[dict[str, Any]], call_id: str, output: str
+) -> None:
+    """Create a function output part and append it to the message and history."""
+    output_dict = {
+        "status": "completed",
+        "type": "function_call_output",
+        "call_id": call_id,
+        "output": output,
+    }
+    part = Parts(
+        message_id=message.message_id,
+        order_index=len(message.parts),
+        type=PartType.FUNCTION_CALL_OUTPUT,
+        output=output_dict,
+        is_complete=True,
+    )
+    message.parts.append(part)
+    history.append(output_dict)
+
+
+def get_main_LLM_token_consumption(
+    usage_data: ResponseUsage | None, model: str, task: Task
+) -> list[TokenConsumption]:
+    """Create token consumption objects from usage data."""
+    if not usage_data:
+        return []
+
+    input_cached = (
+        getattr(
+            getattr(usage_data, "input_tokens_details", 0),
+            "cached_tokens",
+            0,
+        )
+        or 0
+    )
+    input_noncached = getattr(usage_data, "input_tokens", 0) - input_cached
+    completion_tokens = getattr(usage_data, "output_tokens", 0) or 0
+
+    return [
+        TokenConsumption(
+            type=token_type,
+            task=task,
+            count=count,
+            model=model,
+        )
+        for token_type, count in [
+            (TokenType.INPUT_CACHED, input_cached),
+            (TokenType.INPUT_NONCACHED, input_noncached),
+            (TokenType.COMPLETION, completion_tokens),
+        ]
+        if count
+    ]
+
+
+def get_tool_token_consumption(
+    tool_response: dict[str, Any],
+    context_variables: dict[str, Any],
+) -> list[TokenConsumption]:
+    """Get token consumption for a tool response."""
+    if context_variables["usage_dict"].get(tool_response["call_id"]):
+        tool_call_consumption = context_variables["usage_dict"][
+            tool_response["call_id"]
+        ]
+        return [
+            TokenConsumption(
+                type=token_type,
+                task=Task.CALL_WITHIN_TOOL,
+                count=count,
+                model=tool_call_consumption["model"],
+            )
+            for token_type, count in [
+                (TokenType.INPUT_CACHED, tool_call_consumption["input_cached"]),
+                (TokenType.INPUT_NONCACHED, tool_call_consumption["input_noncached"]),
+                (TokenType.COMPLETION, tool_call_consumption["completion"]),
+            ]
+            if count
+        ]
+    return []

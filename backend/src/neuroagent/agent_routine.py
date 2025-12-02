@@ -29,8 +29,6 @@ from neuroagent.app.database.sql_schemas import (
     Entity,
     Messages,
     Task,
-    TokenConsumption,
-    TokenType,
 )
 from neuroagent.new_types import (
     Agent,
@@ -39,8 +37,13 @@ from neuroagent.new_types import (
 )
 from neuroagent.tools.base_tool import BaseTool
 from neuroagent.utils import (
+    append_function_call_part,
+    append_function_output_part,
+    append_message_part,
     complete_partial_json,
     get_entity,
+    get_main_LLM_token_consumption,
+    get_tool_token_consumption,
     messages_to_openai_content,
 )
 
@@ -88,8 +91,8 @@ class AgentsRoutine:
         if agent.tool_choice:
             create_params["tool_choice"] = agent.tool_choice
 
-        # if agent.reasoning is not None:
-        create_params["reasoning"] = {"effort": "medium", "summary": "auto"}
+        if agent.reasoning is not None:
+            create_params["reasoning"] = {"effort": agent.reasoning, "summary": "auto"}
 
         if tools:
             create_params["parallel_tool_calls"] = agent.parallel_tool_calls
@@ -159,9 +162,9 @@ class AgentsRoutine:
         if name not in tool_map:
             return {
                 "role": "tool",
-                "tool_call_id": tool_call["tool_call_id"],
-                "tool_name": name,
-                "content": f"Error: Tool {name} not found.",
+                "call_id": tool_call["call_id"],
+                "status": "incomplete",
+                "output": f"Error: Tool {name} not found.",
             }, None
         kwargs = json.loads(tool_call["arguments"])
 
@@ -175,10 +178,10 @@ class AgentsRoutine:
             else:
                 # Otherwise transform it into an OpenAI response for the model to retry
                 response = {
-                    "role": "tool",
-                    "tool_call_id": tool_call["tool_call_id"],
-                    "tool_name": name,
-                    "content": err.json(),
+                    "type": "function_call_output",
+                    "call_id": tool_call["call_id"],
+                    "status": "incomplete",
+                    "output": err.json(),
                 }
                 return response, None
 
@@ -191,10 +194,10 @@ class AgentsRoutine:
             else:
                 # Otherwise transform it into an OpenAI response for the model to retry
                 response = {
-                    "role": "tool",
-                    "tool_call_id": tool_call["tool_call_id"],
-                    "tool_name": name,
-                    "content": "The user is not allowed to run this tool. Don't call it again.",
+                    "type": "function_call_output",
+                    "call_id": tool_call["call_id"],
+                    "status": "incomplete",
+                    "output": "The user is not allowed to run this tool. Don't call it again.",
                 }
                 return response, None
 
@@ -206,24 +209,24 @@ class AgentsRoutine:
         try:
             raw_result = await tool_instance.arun()
             if hasattr(tool_instance.metadata, "token_consumption"):
-                context_variables["usage_dict"][tool_call["tool_call_id"]] = (
+                context_variables["usage_dict"][tool_call["call_id"]] = (
                     tool_instance.metadata.token_consumption
                 )
         except Exception as err:
             response = {
-                "role": "tool",
-                "tool_call_id": tool_call["tool_call_id"],
-                "tool_name": name,
-                "content": str(err),
+                "type": "function_call_output",
+                "call_id": tool_call["call_id"],
+                "status": "incomplete",
+                "output": str(err),
             }
             return response, None
 
         result: Result = self.handle_function_result(raw_result)
         response = {
-            "role": "tool",
-            "tool_call_id": tool_call["tool_call_id"],
-            "tool_name": name,
-            "content": result.value,
+            "type": "function_call_output",
+            "call_id": tool_call["call_id"],
+            "status": "complete",
+            "output": result.value,
         }
         if result.agent:
             agent = result.agent
@@ -249,10 +252,19 @@ class AgentsRoutine:
             turns = 0
             metadata_data = []
 
-            # In case of HIL, the start steps breaks Vercel and adds a new part.
+            # If new message, create it. Else, HIL to we take the previous Assistant message.
             if messages[-1].entity == Entity.USER:
+                new_message = Messages(
+                    thread_id=messages[-1].thread_id,
+                    entity=Entity.ASSISTANT,
+                    role="user",
+                    parts=[],
+                )
                 yield f"data: {json.dumps({'type': 'start', 'messageId': f'msg_{uuid.uuid4().hex}'})}\n\n"
+            else:
+                new_message = messages[-1]
 
+            # === MAIN AGENT LOOP ===
             while turns <= max_turns:
                 # We need to redefine the tool map since the tools can change on agent switch.
                 tool_map = {tool.name: tool for tool in active_agent.tools}
@@ -264,15 +276,6 @@ class AgentsRoutine:
                     agent.tool_choice = "none"
                     agent.instructions = "You are a very nice assistant that is unable to further help the user due to rate limiting. The user just reached the maximum amount of turns he can take with you in a single query. Your one and only job is to let him know that in a nice way, and that the only way to continue the conversation is to send another message. Completely disregard his demand since you cannot fulfill it, simply state that he reached the limit."
 
-                message: dict[str, Any] = {
-                    "content": "",
-                    "reasoning": [],
-                    "sender": agent.name,
-                    "role": "assistant",
-                    "function_call": None,
-                    "tool_calls": [],
-                    "encrypted_reasoning": "",
-                }
                 # for streaming interrupt
                 temp_stream_data: dict[str, Any] = {
                     "content": "",
@@ -291,6 +294,7 @@ class AgentsRoutine:
 
                 turns += 1
                 usage_data = None
+                tool_calls_to_execute = dict[str, Any] = {}
                 tool_call_ID_mapping: dict[str, str] = {}
                 async for event in completion:
                     match event:
@@ -308,7 +312,7 @@ class AgentsRoutine:
 
                         # Reasoning end
                         case ResponseReasoningSummaryPartDoneEvent():
-                            message["reasoning"].append(event.part.text)
+                            # message["parts"].append(event.part.text)
                             temp_stream_data["reasoning"].pop(event.item_id, None)
                             yield f"data: {json.dumps({'type': 'reasoning-end', 'id': event.item_id})}\n\n"
                             yield f"data: {json.dumps({'type': 'finish-step'})}\n\n"
@@ -327,7 +331,7 @@ class AgentsRoutine:
                         case ResponseContentPartDoneEvent() if (
                             hasattr(event.part, "text") and event.part.text
                         ):
-                            message["content"] = event.part.text
+                            append_message_part(new_message, history, event.part.text)
                             temp_stream_data["content"] = ""
                             yield f"data: {json.dumps({'type': 'text-end', 'id': event.item_id})}\n\n"
                             yield f"data: {json.dumps({'type': 'finish-step'})}\n\n"
@@ -370,110 +374,71 @@ class AgentsRoutine:
                                 args = json.dumps(validated_args)
                             except ValidationError:
                                 args = input_args
-                            message["tool_calls"].append(
-                                {
-                                    "id": tool_call_ID_mapping[event.item.id],
-                                    "type": "function",
-                                    "function": {
-                                        "name": event.item.name,
-                                        "arguments": args,
-                                    },
-                                }
+                            append_function_call_part(
+                                new_message,
+                                history,
+                                event.item.name,
+                                tool_call_ID_mapping[event.item.id],
+                                args,
                             )
-                            temp_stream_data["tool_calls"].pop(
-                                tool_call_ID_mapping[event.item.id], None
-                            )
+                            temp_stream_data["tool_calls"][
+                                tool_call_ID_mapping[event.item.id]
+                            ]["arguments"] = args
                             yield f"data: {json.dumps({'type': 'tool-input-available', 'toolCallId': tool_call_ID_mapping[event.item.id], 'toolName': event.item.name, 'input': json.loads(args)})}\n\n"
                             yield f"data: {json.dumps({'type': 'finish-step'})}\n\n"
 
                         # === Usage ===
                         # Handle usage/token information and ecrypted reasoning.
                         case ResponseCompletedEvent():
-                            message["encrypted_reasoning"] = next(
-                                (
-                                    part.encrypted_content
-                                    for part in event.response.output
-                                    if part.type == "reasoning"
-                                ),
-                                "",
-                            )
+                            # message["encrypted_reasoning"] = next(
+                            #     (
+                            #         part.encrypted_content
+                            #         for part in event.response.output
+                            #         if part.type == "reasoning"
+                            #     ),
+                            #     "",
+                            # )
                             usage_data = event.response.usage
 
                         # case _:
                         #     print(event.type)
 
-                # If tool calls requested, convert to dict format
-                if message["tool_calls"]:
-                    tool_calls = [
-                        {
-                            "tool_call_id": tool_call["id"],
-                            "name": tool_call["function"]["name"],
-                            "arguments": tool_call["function"]["arguments"],
-                        }
-                        for tool_call in message["tool_calls"]
-                    ]
-                else:
-                    tool_calls = []
-
-                # Append the history with the json version
-                history.append(copy.deepcopy(message))
-
-                token_consumption = []
-                if usage_data:
-                    input_cached = (
-                        getattr(
-                            getattr(usage_data, "input_tokens_details", 0),
-                            "cached_tokens",
-                            0,
-                        )
-                        or 0
-                    )
-                    input_noncached = (
-                        getattr(usage_data, "input_tokens", 0) - input_cached
-                    )
-                    completion_tokens = getattr(usage_data, "output_tokens", 0) or 0
-
-                    token_consumption = [
-                        TokenConsumption(
-                            type=token_type,
-                            task=Task.CHAT_COMPLETION,
-                            count=count,
-                            model=agent.model,
-                        )
-                        for token_type, count in [
-                            (TokenType.INPUT_CACHED, input_cached),
-                            (TokenType.INPUT_NONCACHED, input_noncached),
-                            (TokenType.COMPLETION, completion_tokens),
-                        ]
-                        if count
-                    ]
-                messages.append(
-                    Messages(
-                        thread_id=messages[-1].thread_id,
-                        entity=get_entity(message),
-                        content=json.dumps(message),
-                        tool_calls=tool_calls,
-                        is_complete=True,
-                        token_consumption=token_consumption,
+                # Add the main LLM token usage to new message
+                new_message.token_consumption.extend(
+                    get_main_LLM_token_consumption(
+                        usage_data, agent.model, Task.CHAT_COMPLETION
                     )
                 )
 
-                if not messages[-1].tool_calls:
+                # Separate streamed tool --> tool to execute / tool with HIL
+                if temp_stream_data["tool_calls"]:
+                    tool_calls_to_execute = [
+                        {
+                            "call_id": tc["id"],
+                            "name": tc["name"],
+                            "arguments": tc["arguments"],
+                        }
+                        for tc in temp_stream_data["tool_calls"].values()
+                        if not tool_map[tc["name"]].hil
+                    ]
+                    tool_calls_with_hil = [
+                        {
+                            "call_id": tc["id"],
+                            "name": tc["name"],
+                            "arguments": tc["arguments"],
+                        }
+                        for tc in temp_stream_data["tool_calls"].values()
+                        if tool_map[tc["name"]].hil
+                    ]
+                else:
+                    # No tool calls, final content part reached, exit agent loop
                     yield f"data: {json.dumps({'type': 'finish-step'})}\n\n"
                     break
 
-                # kick out tool calls that require HIL
-                tool_calls_to_execute = [
-                    tool_call
-                    for tool_call in messages[-1].tool_calls
-                    if not tool_map[tool_call["name"]].hil
-                ]
+                # Append the history with the json version
+                # history.append(copy.deepcopy(message))
 
-                tool_calls_with_hil = [
-                    tool_call
-                    for tool_call in messages[-1].tool_calls
-                    if tool_map[tool_call["name"]].hil
-                ]
+                # messages.append(new_message)
 
                 # handle function calls, updating context_variables, and switching agents
                 if tool_calls_to_execute:
@@ -486,9 +451,9 @@ class AgentsRoutine:
                         [
                             {
                                 "role": "tool",
-                                "tool_call_id": call["tool_call_id"],
+                                "call_id": call["call_id"],
                                 "tool_name": call["name"],
-                                "content": f"The tool {call['name']} with arguments {call['arguments']} could not be executed due to rate limit. Call it again.",
+                                "output": f"The tool {call['name']} with arguments {call['arguments']} could not be executed due to rate limit. Call it again.",
                             }
                             for call in tool_calls_to_execute[max_parallel_tool_calls:]
                         ]
@@ -498,64 +463,26 @@ class AgentsRoutine:
                         messages=[], agent=None, context_variables=context_variables
                     )
 
-                # Before extending history, yield each tool response
+                # Process tool call outputs, adding token consumption and yielding outputs
                 for tool_response in tool_calls_executed.messages:
-                    yield f"data: {json.dumps({'type': 'tool-output-available', 'toolCallId': tool_response['tool_call_id'], 'output': tool_response['content']})}\n\n"
+                    new_message.token_consumption.extend(
+                        get_tool_token_consumption(tool_response, context_variables)
+                    )
+                    append_function_output_part(
+                        new_message,
+                        history,
+                        tool_response["call_id"],
+                        tool_response["output"],
+                    )
+                    yield f"data: {json.dumps({'type': 'tool-output-available', 'toolCallId': tool_response['call_id'], 'output': tool_response['content']})}\n\n"
 
                 yield f"data: {json.dumps({'type': 'finish-step'})}\n\n"
-
-                for tool_response in tool_calls_executed.messages:
-                    # Check if an LLM has been called inside of the tool
-                    if context_variables["usage_dict"].get(
-                        tool_response["tool_call_id"]
-                    ):
-                        # Get the consumption dict for the given tool
-                        tool_call_consumption = context_variables["usage_dict"][
-                            tool_response["tool_call_id"]
-                        ]
-
-                        # Set consumption in SQL classess
-                        token_consumption = [
-                            TokenConsumption(
-                                type=token_type,
-                                task=Task.CALL_WITHIN_TOOL,
-                                count=count,
-                                model=tool_call_consumption["model"],
-                            )
-                            for token_type, count in [
-                                (
-                                    TokenType.INPUT_CACHED,
-                                    tool_call_consumption["input_cached"],
-                                ),
-                                (
-                                    TokenType.INPUT_NONCACHED,
-                                    tool_call_consumption["input_noncached"],
-                                ),
-                                (
-                                    TokenType.COMPLETION,
-                                    tool_call_consumption["completion"],
-                                ),
-                            ]
-                            if count
-                        ]
-                    else:
-                        token_consumption = []
-
-                    messages.append(
-                        Messages(
-                            thread_id=messages[-1].thread_id,
-                            entity=Entity.TOOL,
-                            content=json.dumps(tool_response),
-                            is_complete=True,
-                            token_consumption=token_consumption,
-                        )
-                    )
 
                 # If the tool call response contains HIL validation, do not update anything and return
                 if tool_calls_with_hil:
                     metadata_data = [
                         {
-                            "toolCallId": msg["tool_call_id"],
+                            "toolCallId": msg["call_id"],
                             "validated": "pending",
                             "isComplete": True,
                         }
@@ -565,11 +492,13 @@ class AgentsRoutine:
                     yield f"data: {json.dumps({'type': 'finish-step'})}\n\n"
                     break
 
-                history.extend(tool_calls_executed.messages)
+                # Update history, context variables, agent
                 context_variables.update(tool_calls_executed.context_variables)
                 if tool_calls_executed.agent:
                     active_agent = tool_calls_executed.agent
 
+            # End of agent loop. Add new message to DB.
+            messages.append(new_message)
             if metadata_data:
                 yield f"data: {json.dumps({'type': 'finish', 'messageMetadata': {'toolCalls': metadata_data}})}\n\n"
             else:
@@ -605,7 +534,7 @@ class AgentsRoutine:
             if message["tool_calls"]:
                 tool_calls = [
                     {
-                        "tool_call_id": tool_call["id"],
+                        "call_id": tool_call["id"],
                         "name": tool_call["function"]["name"],
                         "arguments": tool_call["function"]["arguments"],
                     }
@@ -639,7 +568,7 @@ class AgentsRoutine:
                             content=json.dumps(
                                 {
                                     "role": "tool",
-                                    "tool_call_id": call["tool_call_id"],
+                                    "call_id": call["call_id"],
                                     "tool_name": call["name"],
                                     "content": "Tool execution aborted by the user.",
                                 }

@@ -497,7 +497,6 @@ AVAILABLE TOOLS:
 
     try:
         # Send the OpenAI request
-        breakpoint()
         model = "google/gemini-2.5-flash"
         start_request = time.time()
         response = await openai_client.responses.parse(

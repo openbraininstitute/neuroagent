@@ -153,6 +153,7 @@ def upgrade() -> None:
                                             "type": "reasoning",
                                             "encrypted_content": encrypted_reasoning,
                                             "summary": summary,
+                                            "status": "completed",
                                         }
                                     ),
                                     "is_complete": curr_is_complete,
@@ -280,6 +281,7 @@ def upgrade() -> None:
                                             "type": "reasoning",
                                             "encrypted_content": encrypted_reasoning,
                                             "summary": summary,
+                                            "status": "completed",
                                         }
                                     ),
                                     "is_complete": curr_is_complete,
