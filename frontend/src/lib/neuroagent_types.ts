@@ -276,6 +276,58 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/state": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Get State
+     * @description Get an existing state.
+     */
+    get: operations["get_state_state_get"];
+    put?: never;
+    /**
+     * Create State
+     * @description Create state for a user.
+     */
+    post: operations["create_state_state_post"];
+    /**
+     * Delete State
+     * @description Delete an existing state.
+     */
+    delete: operations["delete_state_state_delete"];
+    options?: never;
+    head?: never;
+    /**
+     * Patch State
+     * @description Patch an existing key of the state.
+     */
+    patch: operations["patch_state_state_patch"];
+    trace?: never;
+  };
+  "/state/reset": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /**
+     * Reset State
+     * @description Reset an existing key of the state.
+     */
+    patch: operations["reset_state_state_reset_patch"];
+    trace?: never;
+  };
   "/healthz": {
     parameters: {
       query?: never;
@@ -342,6 +394,50 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
   schemas: {
+    /** AllNeurons */
+    "AllNeurons-Input": {
+      /**
+       * Type
+       * @constant
+       */
+      type: "AllNeurons";
+      /**
+       * Sample (Percentage)
+       * @description Percentage of neurons to sample between 0 and 100%
+       * @default 100
+       */
+      sample_percentage:
+        | components["schemas"]["SamplePercentage"]
+        | components["schemas"]["SamplePercentage1"];
+      /**
+       * Sample Seed
+       * @description Seed for random sampling.
+       * @default 1
+       */
+      sample_seed: number | number[];
+    };
+    /** AllNeurons */
+    "AllNeurons-Output": {
+      /**
+       * Type
+       * @constant
+       */
+      type: "AllNeurons";
+      /**
+       * Sample (Percentage)
+       * @description Percentage of neurons to sample between 0 and 100%
+       * @default 100
+       */
+      sample_percentage:
+        | components["schemas"]["SamplePercentage"]
+        | components["schemas"]["SamplePercentage1"];
+      /**
+       * Sample Seed
+       * @description Seed for random sampling.
+       * @default 1
+       */
+      sample_seed: number | number[];
+    };
     /**
      * AnnotationMessageVercel
      * @description Annotation of vercel messages.
@@ -382,6 +478,37 @@ export interface components {
       /** Tokenizer */
       tokenizer: string;
     };
+    /** Circuit */
+    Circuit: {
+      /** Name */
+      name: string;
+      /** Path */
+      path: string;
+      /** Matrix Path */
+      matrix_path?: string | null;
+      /**
+       * @description discriminator enum property added by openapi-typescript
+       * @enum {string}
+       */
+      type: "Circuit";
+    };
+    /** Circuit4 */
+    Circuit4:
+      | components["schemas"]["Circuit"]
+      | components["schemas"]["CircuitFromID"];
+    /** CircuitFromID */
+    CircuitFromID: {
+      /**
+       * Id Str
+       * @description ID of the entity in string format.
+       */
+      id_str: string;
+      /**
+       * @description discriminator enum property added by openapi-typescript
+       * @enum {string}
+       */
+      type: "CircuitFromID";
+    };
     /**
      * ClientRequest
      * @description Vercel class.
@@ -393,11 +520,141 @@ export interface components {
       tool_selection?: string[] | null;
       /**
        * Model
-       * @default openai/gpt-4.1-mini
+       * @default auto
        */
       model: string;
       /** Frontend Url */
       frontend_url?: string | null;
+    };
+    /** ConstantCurrentClampSomaticStimulus */
+    ConstantCurrentClampSomaticStimulus: {
+      /**
+       * Type
+       * @constant
+       */
+      type: "ConstantCurrentClampSomaticStimulus";
+      timestamps?: components["schemas"]["TimestampsReference"] | null;
+      neuron_set?: components["schemas"]["NeuronSetReference"] | null;
+      /**
+       * Timestamp Offset
+       * @description The offset of the stimulus relative to each timestamp in milliseconds (ms).
+       * @default 0
+       */
+      timestamp_offset: number | number[] | null;
+      /**
+       * Duration
+       * @description Time duration in milliseconds for how long input is activated.
+       * @default 200
+       */
+      duration:
+        | components["schemas"]["Duration"]
+        | components["schemas"]["DurationItem"][];
+      /**
+       * Amplitude
+       * @description The injected current. Given in nanoamps.
+       * @default 0.1
+       */
+      amplitude: number | number[] | components["schemas"]["FloatRange"];
+    };
+    /**
+     * Dt
+     * @description Timestep of generated signal in milliseconds (ms).
+     */
+    Dt: number;
+    /**
+     * Dt1
+     * @description Interval between recording time steps in milliseconds (ms).
+     */
+    Dt1: number;
+    /** DtItem */
+    DtItem: number;
+    /**
+     * Duration
+     * @description Time duration in milliseconds for how long input is activated.
+     */
+    Duration: number;
+    /**
+     * Duration10
+     * @description Time duration of the stimulus in milliseconds.
+     */
+    Duration10: number;
+    /**
+     * Duration11
+     * @description Time duration in milliseconds for how long input is activated.
+     */
+    Duration11: number;
+    /**
+     * Duration5
+     * @description Time duration in milliseconds for how long input is activated.
+     */
+    Duration5: number;
+    /**
+     * Duration6
+     * @description Time duration in milliseconds for how long input is activated.
+     */
+    Duration6: number;
+    /** DurationItem */
+    DurationItem: number;
+    /** DurationItem10 */
+    DurationItem10: number;
+    /** DurationItem11 */
+    DurationItem11: number;
+    /** DurationItem5 */
+    DurationItem5: number;
+    /** DurationItem6 */
+    DurationItem6: number;
+    /** Element */
+    Element: number;
+    /**
+     * EndTime
+     * @description Recording end time in milliseconds (ms).
+     */
+    EndTime: number;
+    /** EndTimeItem */
+    EndTimeItem: number;
+    /** ExcitatoryNeurons */
+    "ExcitatoryNeurons-Input": {
+      /**
+       * Type
+       * @constant
+       */
+      type: "ExcitatoryNeurons";
+      /**
+       * Sample (Percentage)
+       * @description Percentage of neurons to sample between 0 and 100%
+       * @default 100
+       */
+      sample_percentage:
+        | components["schemas"]["SamplePercentage4"]
+        | components["schemas"]["SamplePercentage5"];
+      /**
+       * Sample Seed
+       * @description Seed for random sampling.
+       * @default 1
+       */
+      sample_seed: number | number[];
+    };
+    /** ExcitatoryNeurons */
+    "ExcitatoryNeurons-Output": {
+      /**
+       * Type
+       * @constant
+       */
+      type: "ExcitatoryNeurons";
+      /**
+       * Sample (Percentage)
+       * @description Percentage of neurons to sample between 0 and 100%
+       * @default 100
+       */
+      sample_percentage:
+        | components["schemas"]["SamplePercentage4"]
+        | components["schemas"]["SamplePercentage5"];
+      /**
+       * Sample Seed
+       * @description Seed for random sampling.
+       * @default 1
+       */
+      sample_seed: number | number[];
     };
     /**
      * ExecuteToolCallRequest
@@ -427,11 +684,268 @@ export interface components {
       /** Content */
       content?: string | null;
     };
+    /**
+     * ExtracellularCalciumConcentration
+     * @description Extracellular calcium concentration around the synapse in millimoles (mM). Increasing this value increases the probability of synaptic vesicle release, which in turn increases the level of network activity. In vivo values are estimated to be ~0.9-1.2mM, whilst in vitro values are on the order of 2mM.
+     */
+    ExtracellularCalciumConcentration: number;
+    /** ExtracellularCalciumConcentrationItem */
+    ExtracellularCalciumConcentrationItem: number;
+    /** FloatRange */
+    FloatRange: {
+      /**
+       * Type
+       * @constant
+       */
+      type: "FloatRange";
+      /** Start */
+      start: number;
+      /** Step */
+      step: number;
+      /** End */
+      end: number;
+    };
+    /**
+     * Frequency
+     * @description The frequency of pulse trains. Given in Hertz (Hz).
+     */
+    Frequency: number;
+    /**
+     * Frequency1
+     * @description Mean frequency (Hz) of the Poisson input.
+     */
+    Frequency1: number;
+    /**
+     * Frequency2
+     * @description The frequency of the waveform. Given in Hertz (Hz).
+     */
+    Frequency2: number;
+    /** FrequencyItem */
+    FrequencyItem: number;
+    /** FullySynchronousSpikeStimulus */
+    FullySynchronousSpikeStimulus: {
+      /**
+       * Type
+       * @constant
+       */
+      type: "FullySynchronousSpikeStimulus";
+      timestamps?: components["schemas"]["TimestampsReference"] | null;
+      source_neuron_set?: components["schemas"]["NeuronSetReference"] | null;
+      targeted_neuron_set?: components["schemas"]["NeuronSetReference"] | null;
+      /**
+       * Timestamp Offset
+       * @description The offset of the stimulus relative to each timestamp in milliseconds (ms).
+       * @default 0
+       */
+      timestamp_offset: number | number[] | null;
+    };
     /** HTTPValidationError */
     HTTPValidationError: {
       /** Detail */
       detail?: components["schemas"]["ValidationError"][];
     };
+    /** HyperpolarizingCurrentClampSomaticStimulus */
+    HyperpolarizingCurrentClampSomaticStimulus: {
+      /**
+       * Type
+       * @constant
+       */
+      type: "HyperpolarizingCurrentClampSomaticStimulus";
+      timestamps?: components["schemas"]["TimestampsReference"] | null;
+      neuron_set?: components["schemas"]["NeuronSetReference"] | null;
+      /**
+       * Timestamp Offset
+       * @description The offset of the stimulus relative to each timestamp in milliseconds (ms).
+       * @default 0
+       */
+      timestamp_offset: number | number[] | null;
+      /**
+       * Duration
+       * @description Time duration in milliseconds for how long input is activated.
+       * @default 200
+       */
+      duration:
+        | components["schemas"]["Duration"]
+        | components["schemas"]["DurationItem"][];
+    };
+    /** IDNeuronSet */
+    "IDNeuronSet-Input": {
+      /**
+       * Type
+       * @constant
+       */
+      type: "IDNeuronSet";
+      /**
+       * Sample (Percentage)
+       * @description Percentage of neurons to sample between 0 and 100%
+       * @default 100
+       */
+      sample_percentage:
+        | components["schemas"]["SamplePercentage6"]
+        | components["schemas"]["SamplePercentage7"];
+      /**
+       * Sample Seed
+       * @description Seed for random sampling.
+       * @default 1
+       */
+      sample_seed: number | number[];
+      /** Neuron Ids */
+      neuron_ids:
+        | components["schemas"]["NamedTuple"]
+        | components["schemas"]["NeuronIds-Input"];
+    };
+    /** IDNeuronSet */
+    "IDNeuronSet-Output": {
+      /**
+       * Type
+       * @constant
+       */
+      type: "IDNeuronSet";
+      /**
+       * Sample (Percentage)
+       * @description Percentage of neurons to sample between 0 and 100%
+       * @default 100
+       */
+      sample_percentage:
+        | components["schemas"]["SamplePercentage6"]
+        | components["schemas"]["SamplePercentage7"];
+      /**
+       * Sample Seed
+       * @description Seed for random sampling.
+       * @default 1
+       */
+      sample_seed: number | number[];
+      /** Neuron Ids */
+      neuron_ids:
+        | components["schemas"]["NamedTuple"]
+        | components["schemas"]["NeuronIds-Output"];
+    };
+    /** Info */
+    Info: {
+      /**
+       * Type
+       * @constant
+       */
+      type: "Info";
+      /**
+       * Campaign Name
+       * @description Name of the campaign.
+       */
+      campaign_name: string;
+      /**
+       * Campaign Description
+       * @description Description of the campaign.
+       */
+      campaign_description: string;
+    };
+    /** InhibitoryNeurons */
+    "InhibitoryNeurons-Input": {
+      /**
+       * Type
+       * @constant
+       */
+      type: "InhibitoryNeurons";
+      /**
+       * Sample (Percentage)
+       * @description Percentage of neurons to sample between 0 and 100%
+       * @default 100
+       */
+      sample_percentage:
+        | components["schemas"]["SamplePercentage8"]
+        | components["schemas"]["SamplePercentage9"];
+      /**
+       * Sample Seed
+       * @description Seed for random sampling.
+       * @default 1
+       */
+      sample_seed: number | number[];
+    };
+    /** InhibitoryNeurons */
+    "InhibitoryNeurons-Output": {
+      /**
+       * Type
+       * @constant
+       */
+      type: "InhibitoryNeurons";
+      /**
+       * Sample (Percentage)
+       * @description Percentage of neurons to sample between 0 and 100%
+       * @default 100
+       */
+      sample_percentage:
+        | components["schemas"]["SamplePercentage8"]
+        | components["schemas"]["SamplePercentage9"];
+      /**
+       * Sample Seed
+       * @description Seed for random sampling.
+       * @default 1
+       */
+      sample_seed: number | number[];
+    };
+    /**
+     * Interval
+     * @description Interval between timestamps in milliseconds (ms).
+     */
+    Interval: number;
+    /** IntervalItem */
+    IntervalItem: number;
+    /** LinearCurrentClampSomaticStimulus */
+    LinearCurrentClampSomaticStimulus: {
+      /**
+       * Type
+       * @constant
+       */
+      type: "LinearCurrentClampSomaticStimulus";
+      timestamps?: components["schemas"]["TimestampsReference"] | null;
+      neuron_set?: components["schemas"]["NeuronSetReference"] | null;
+      /**
+       * Timestamp Offset
+       * @description The offset of the stimulus relative to each timestamp in milliseconds (ms).
+       * @default 0
+       */
+      timestamp_offset: number | number[] | null;
+      /**
+       * Duration
+       * @description Time duration in milliseconds for how long input is activated.
+       * @default 200
+       */
+      duration:
+        | components["schemas"]["Duration"]
+        | components["schemas"]["DurationItem"][];
+      /**
+       * Start Amplitude
+       * @description The amount of current initially injected when the stimulus activates. Given in nanoamps.
+       * @default 0.1
+       */
+      amplitude_start: number | number[];
+      /**
+       * End Amplitude
+       * @description If given, current is interpolated such that current reaches this value when the stimulus concludes. Otherwise, current stays at 'Start Amplitude'. Given in nanoamps.
+       * @default 0.2
+       */
+      amplitude_end: number | number[];
+    };
+    /**
+     * MagnesiumValue
+     * @description Extracellular magnesium concentration in millimoles (mM).
+     */
+    MagnesiumValue: number;
+    /** MagnesiumValueItem */
+    MagnesiumValueItem: number;
+    /**
+     * MaximumRate
+     * @description Maximum rate of the stimulus in Hz. Must be greater than or equal to Minimum Rate.
+     */
+    MaximumRate: number;
+    /** MaximumRateItem */
+    MaximumRateItem: number;
+    /**
+     * MeanPercentageOfThresholdCurrent
+     * @description The mean value of current to inject as a percentage of a cell's                     threshold current.
+     */
+    MeanPercentageOfThresholdCurrent: number;
+    /** MeanPercentageOfThresholdCurrentItem */
+    MeanPercentageOfThresholdCurrentItem: number;
     /**
      * MessagesRead
      * @description Message response.
@@ -501,6 +1015,341 @@ export interface components {
         | null;
     };
     /**
+     * MinimumRate
+     * @description Minimum rate of the stimulus in Hz.
+     *      Must be less than the Maximum Rate.
+     */
+    MinimumRate: number;
+    /** MinimumRateItem */
+    MinimumRateItem: number;
+    /**
+     * ModulationFrequencyHz
+     * @description Frequency (Hz) of the sinusoidal modulation of the rate.
+     */
+    ModulationFrequencyHz: number;
+    /** ModulationFrequencyHzItem */
+    ModulationFrequencyHzItem: number;
+    /** MultiPulseCurrentClampSomaticStimulus */
+    MultiPulseCurrentClampSomaticStimulus: {
+      /**
+       * Type
+       * @constant
+       */
+      type: "MultiPulseCurrentClampSomaticStimulus";
+      timestamps?: components["schemas"]["TimestampsReference"] | null;
+      neuron_set?: components["schemas"]["NeuronSetReference"] | null;
+      /**
+       * Timestamp Offset
+       * @description The offset of the stimulus relative to each timestamp in milliseconds (ms).
+       * @default 0
+       */
+      timestamp_offset: number | number[] | null;
+      /**
+       * Duration
+       * @description Time duration in milliseconds for how long input is activated.
+       * @default 200
+       */
+      duration:
+        | components["schemas"]["Duration"]
+        | components["schemas"]["DurationItem"][];
+      /**
+       * Amplitude
+       * @description The amount of current initially injected when each pulse activates. Given in nanoamps (nA).
+       * @default 0.1
+       */
+      amplitude: number | number[];
+      /**
+       * Pulse Width
+       * @description The length of time each pulse lasts. Given in milliseconds (ms).
+       * @default 50
+       */
+      width:
+        | components["schemas"]["Width"]
+        | components["schemas"]["WidthItem"][];
+      /**
+       * Pulse Frequency
+       * @description The frequency of pulse trains. Given in Hertz (Hz).
+       * @default 1
+       */
+      frequency:
+        | components["schemas"]["Frequency"]
+        | components["schemas"]["FrequencyItem"][];
+    };
+    /** NamedTuple */
+    NamedTuple: {
+      /** Name */
+      name: string;
+      /** Elements */
+      elements: components["schemas"]["Element"][];
+      /**
+       * Type
+       * @constant
+       */
+      type: "NamedTuple";
+    };
+    /** NbS1POmInputs */
+    "NbS1POmInputs-Input": {
+      /**
+       * Type
+       * @constant
+       */
+      type: "nbS1POmInputs";
+      /**
+       * Sample (Percentage)
+       * @description Percentage of neurons to sample between 0 and 100%
+       * @default 100
+       */
+      sample_percentage:
+        | components["schemas"]["SamplePercentage24"]
+        | components["schemas"]["SamplePercentage25"];
+      /**
+       * Sample Seed
+       * @description Seed for random sampling.
+       * @default 1
+       */
+      sample_seed: number | number[];
+    };
+    /** NbS1POmInputs */
+    "NbS1POmInputs-Output": {
+      /**
+       * Type
+       * @constant
+       */
+      type: "nbS1POmInputs";
+      /**
+       * Sample (Percentage)
+       * @description Percentage of neurons to sample between 0 and 100%
+       * @default 100
+       */
+      sample_percentage:
+        | components["schemas"]["SamplePercentage24"]
+        | components["schemas"]["SamplePercentage25"];
+      /**
+       * Sample Seed
+       * @description Seed for random sampling.
+       * @default 1
+       */
+      sample_seed: number | number[];
+    };
+    /** NbS1VPMInputs */
+    "NbS1VPMInputs-Input": {
+      /**
+       * Type
+       * @constant
+       */
+      type: "nbS1VPMInputs";
+      /**
+       * Sample (Percentage)
+       * @description Percentage of neurons to sample between 0 and 100%
+       * @default 100
+       */
+      sample_percentage:
+        | components["schemas"]["SamplePercentage26"]
+        | components["schemas"]["SamplePercentage27"];
+      /**
+       * Sample Seed
+       * @description Seed for random sampling.
+       * @default 1
+       */
+      sample_seed: number | number[];
+    };
+    /** NbS1VPMInputs */
+    "NbS1VPMInputs-Output": {
+      /**
+       * Type
+       * @constant
+       */
+      type: "nbS1VPMInputs";
+      /**
+       * Sample (Percentage)
+       * @description Percentage of neurons to sample between 0 and 100%
+       * @default 100
+       */
+      sample_percentage:
+        | components["schemas"]["SamplePercentage26"]
+        | components["schemas"]["SamplePercentage27"];
+      /**
+       * Sample Seed
+       * @description Seed for random sampling.
+       * @default 1
+       */
+      sample_seed: number | number[];
+    };
+    /** NeuronIds */
+    "NeuronIds-Input": components["schemas"]["NamedTuple"][];
+    /** NeuronIds */
+    "NeuronIds-Output": components["schemas"]["NamedTuple"][];
+    /** NeuronSetReference */
+    NeuronSetReference: {
+      /**
+       * Block Dict Name
+       * @default
+       */
+      block_dict_name: string;
+      /** Block Name */
+      block_name: string;
+      /**
+       * Type
+       * @constant
+       */
+      type: "NeuronSetReference";
+    };
+    /** NodeSet1 */
+    NodeSet1: string;
+    /** NodeSet2 */
+    NodeSet2: components["schemas"]["NodeSet2Item"][];
+    /** NodeSet2Item */
+    NodeSet2Item: string;
+    /** NonNegativeFloatRange */
+    NonNegativeFloatRange: {
+      /**
+       * Type
+       * @constant
+       */
+      type: "NonNegativeFloatRange";
+      /** Start */
+      start: number;
+      /** Step */
+      step: number;
+      /** End */
+      end: number;
+    };
+    /** NormallyDistributedCurrentClampSomaticStimulus */
+    NormallyDistributedCurrentClampSomaticStimulus: {
+      /**
+       * Type
+       * @constant
+       */
+      type: "NormallyDistributedCurrentClampSomaticStimulus";
+      timestamps?: components["schemas"]["TimestampsReference"] | null;
+      neuron_set?: components["schemas"]["NeuronSetReference"] | null;
+      /**
+       * Timestamp Offset
+       * @description The offset of the stimulus relative to each timestamp in milliseconds (ms).
+       * @default 0
+       */
+      timestamp_offset: number | number[] | null;
+      /**
+       * Duration
+       * @description Time duration in milliseconds for how long input is activated.
+       * @default 200
+       */
+      duration:
+        | components["schemas"]["Duration"]
+        | components["schemas"]["DurationItem"][];
+      /**
+       * Mean Amplitude
+       * @description The mean value of current to inject. Given in nanoamps (nA).
+       * @default 0.01
+       */
+      mean_amplitude: number | number[];
+      /**
+       * Variance
+       * @description The variance around the mean of current to inject using a                     normal distribution.
+       * @default 0.01
+       */
+      variance:
+        | components["schemas"]["Variance"]
+        | components["schemas"]["VarianceItem"][];
+    };
+    /** NumberOfRepetition */
+    NumberOfRepetition: number;
+    /**
+     * NumberOfRepetitions
+     * @description Number of timestamps to generate.
+     */
+    NumberOfRepetitions: number;
+    /** ObiOneScientificUnionsAliasesSimulationsFormInitialize */
+    "ObiOneScientificUnionsAliasesSimulationsFormInitialize-Input": {
+      /**
+       * Type
+       * @constant
+       */
+      type: "SimulationsForm.Initialize";
+      /**
+       * Circuit
+       * @description Circuit to simulate.
+       */
+      circuit:
+        | components["schemas"]["Circuit"]
+        | components["schemas"]["CircuitFromID"]
+        | components["schemas"]["Circuit4"][];
+      /**
+       * Duration
+       * @description Simulation length in milliseconds (ms).
+       * @default 1000
+       */
+      simulation_length:
+        | components["schemas"]["SimulationLength6"]
+        | components["schemas"]["SimulationLength7"];
+      /**
+       * Extracellular Calcium Concentration
+       * @description Extracellular calcium concentration around the synapse in millimoles (mM). Increasing this value increases the probability of synaptic vesicle release, which in turn increases the level of network activity. In vivo values are estimated to be ~0.9-1.2mM, whilst in vitro values are on the order of 2mM.
+       * @default 1.1
+       */
+      extracellular_calcium_concentration:
+        | components["schemas"]["ExtracellularCalciumConcentrationItem"][]
+        | components["schemas"]["ExtracellularCalciumConcentration"];
+      /**
+       * Initial Voltage
+       * @description Initial membrane potential in millivolts (mV).
+       * @default -80
+       */
+      v_init: number[] | number;
+      /**
+       * Random Seed
+       * @description Random seed for the simulation.
+       * @default 1
+       */
+      random_seed: number[] | number;
+      node_set?: components["schemas"]["NeuronSetReference"] | null;
+    };
+    /** ObiOneScientificUnionsAliasesSimulationsFormInitialize */
+    "ObiOneScientificUnionsAliasesSimulationsFormInitialize-Output": {
+      /**
+       * Type
+       * @constant
+       */
+      type: "SimulationsForm.Initialize";
+      /**
+       * Circuit
+       * @description Circuit to simulate.
+       */
+      circuit:
+        | components["schemas"]["Circuit"]
+        | components["schemas"]["CircuitFromID"]
+        | components["schemas"]["Circuit4"][];
+      /**
+       * Duration
+       * @description Simulation length in milliseconds (ms).
+       * @default 1000
+       */
+      simulation_length:
+        | components["schemas"]["SimulationLength6"]
+        | components["schemas"]["SimulationLength7"];
+      /**
+       * Extracellular Calcium Concentration
+       * @description Extracellular calcium concentration around the synapse in millimoles (mM). Increasing this value increases the probability of synaptic vesicle release, which in turn increases the level of network activity. In vivo values are estimated to be ~0.9-1.2mM, whilst in vitro values are on the order of 2mM.
+       * @default 1.1
+       */
+      extracellular_calcium_concentration:
+        | components["schemas"]["ExtracellularCalciumConcentrationItem"][]
+        | components["schemas"]["ExtracellularCalciumConcentration"];
+      /**
+       * Initial Voltage
+       * @description Initial membrane potential in millivolts (mV).
+       * @default -80
+       */
+      v_init: number[] | number;
+      /**
+       * Random Seed
+       * @description Random seed for the simulation.
+       * @default 1
+       */
+      random_seed: number[] | number;
+      node_set?: components["schemas"]["NeuronSetReference"] | null;
+    };
+    /**
      * OpenRouterModelResponse
      * @description Openrouter's model.
      */
@@ -559,6 +1408,118 @@ export interface components {
       page_size: number;
       /** Results */
       results: components["schemas"]["ThreadsRead"][];
+    };
+    /**
+     * PercentageOfThresholdCurrent
+     * @description The percentage of a cell's threshold current to inject when the stimulus                     activates.
+     */
+    PercentageOfThresholdCurrent: number;
+    /**
+     * PercentageOfThresholdCurrentEnd
+     * @description If given, the percentage of a cell's threshold current is interpolated such that the percentage reaches this value when the stimulus concludes.
+     */
+    PercentageOfThresholdCurrentEnd: number;
+    /** PercentageOfThresholdCurrentEndItem */
+    PercentageOfThresholdCurrentEndItem: number;
+    /** PercentageOfThresholdCurrentItem */
+    PercentageOfThresholdCurrentItem: number;
+    /**
+     * PercentageOfThresholdCurrentStart
+     * @description The percentage of a cell's threshold current to inject when the stimulus activates.
+     */
+    PercentageOfThresholdCurrentStart: number;
+    /** PercentageOfThresholdCurrentStartItem */
+    PercentageOfThresholdCurrentStartItem: number;
+    /** PoissonSpikeStimulus */
+    PoissonSpikeStimulus: {
+      /**
+       * Type
+       * @constant
+       */
+      type: "PoissonSpikeStimulus";
+      timestamps?: components["schemas"]["TimestampsReference"] | null;
+      source_neuron_set?: components["schemas"]["NeuronSetReference"] | null;
+      targeted_neuron_set?: components["schemas"]["NeuronSetReference"] | null;
+      /**
+       * Timestamp Offset
+       * @description The offset of the stimulus relative to each timestamp in milliseconds (ms).
+       * @default 0
+       */
+      timestamp_offset: number | number[] | null;
+      /**
+       * Duration
+       * @description Time duration in milliseconds for how long input is activated.
+       * @default 200
+       */
+      duration:
+        | components["schemas"]["Duration5"]
+        | components["schemas"]["DurationItem5"][];
+      /**
+       * Frequency
+       * @description Mean frequency (Hz) of the Poisson input.
+       * @default 1
+       */
+      frequency:
+        | components["schemas"]["Frequency1"]
+        | components["schemas"]["FrequencyItem"][];
+      /**
+       * Random Seed
+       * @description Seed for the random number generator to ensure reproducibility of the spike generation.
+       * @default 0
+       */
+      random_seed: number | number[];
+    };
+    /** PredefinedNeuronSet */
+    "PredefinedNeuronSet-Input": {
+      /**
+       * Type
+       * @constant
+       */
+      type: "PredefinedNeuronSet";
+      /**
+       * Sample (Percentage)
+       * @description Percentage of neurons to sample between 0 and 100%
+       * @default 100
+       */
+      sample_percentage:
+        | components["schemas"]["SamplePercentage12"]
+        | components["schemas"]["SamplePercentage13"];
+      /**
+       * Sample Seed
+       * @description Seed for random sampling.
+       * @default 1
+       */
+      sample_seed: number | number[];
+      /** Node Set */
+      node_set:
+        | components["schemas"]["NodeSet1"]
+        | components["schemas"]["NodeSet2"];
+    };
+    /** PredefinedNeuronSet */
+    "PredefinedNeuronSet-Output": {
+      /**
+       * Type
+       * @constant
+       */
+      type: "PredefinedNeuronSet";
+      /**
+       * Sample (Percentage)
+       * @description Percentage of neurons to sample between 0 and 100%
+       * @default 100
+       */
+      sample_percentage:
+        | components["schemas"]["SamplePercentage12"]
+        | components["schemas"]["SamplePercentage13"];
+      /**
+       * Sample Seed
+       * @description Seed for random sampling.
+       * @default 1
+       */
+      sample_seed: number | number[];
+      /** Node Set */
+      node_set:
+        | components["schemas"]["NodeSet1"]
+        | components["schemas"]["NodeSet2"];
     };
     /**
      * Pricing
@@ -643,6 +1604,250 @@ export interface components {
       /** Reasoning */
       reasoning: string;
     };
+    /** RegularTimestamps */
+    RegularTimestamps: {
+      /**
+       * Type
+       * @constant
+       */
+      type: "RegularTimestamps";
+      /**
+       * Start Time
+       * @description Sart time of the timestamps in milliseconds (ms).
+       * @default 0
+       */
+      start_time:
+        | components["schemas"]["StartTime"]
+        | components["schemas"]["StartTimeItem"][];
+      /**
+       * Interval
+       * @description Interval between timestamps in milliseconds (ms).
+       * @default 10
+       */
+      interval:
+        | components["schemas"]["Interval"]
+        | components["schemas"]["IntervalItem"][];
+      /**
+       * Number Of Repetitions
+       * @description Number of timestamps to generate.
+       * @default 10
+       */
+      number_of_repetitions:
+        | components["schemas"]["NumberOfRepetitions"]
+        | components["schemas"]["NumberOfRepetition"][];
+    };
+    /** RelativeConstantCurrentClampSomaticStimulus */
+    RelativeConstantCurrentClampSomaticStimulus: {
+      /**
+       * Type
+       * @constant
+       */
+      type: "RelativeConstantCurrentClampSomaticStimulus";
+      timestamps?: components["schemas"]["TimestampsReference"] | null;
+      neuron_set?: components["schemas"]["NeuronSetReference"] | null;
+      /**
+       * Timestamp Offset
+       * @description The offset of the stimulus relative to each timestamp in milliseconds (ms).
+       * @default 0
+       */
+      timestamp_offset: number | number[] | null;
+      /**
+       * Duration
+       * @description Time duration in milliseconds for how long input is activated.
+       * @default 200
+       */
+      duration:
+        | components["schemas"]["Duration6"]
+        | components["schemas"]["DurationItem6"][];
+      /**
+       * Percentage of Threshold Current
+       * @description The percentage of a cell's threshold current to inject when the stimulus                     activates.
+       * @default 10
+       */
+      percentage_of_threshold_current:
+        | components["schemas"]["PercentageOfThresholdCurrent"]
+        | components["schemas"]["PercentageOfThresholdCurrentItem"][];
+    };
+    /** RelativeLinearCurrentClampSomaticStimulus */
+    RelativeLinearCurrentClampSomaticStimulus: {
+      /**
+       * Type
+       * @constant
+       */
+      type: "RelativeLinearCurrentClampSomaticStimulus";
+      timestamps?: components["schemas"]["TimestampsReference"] | null;
+      neuron_set?: components["schemas"]["NeuronSetReference"] | null;
+      /**
+       * Timestamp Offset
+       * @description The offset of the stimulus relative to each timestamp in milliseconds (ms).
+       * @default 0
+       */
+      timestamp_offset: number | number[] | null;
+      /**
+       * Duration
+       * @description Time duration in milliseconds for how long input is activated.
+       * @default 200
+       */
+      duration:
+        | components["schemas"]["Duration6"]
+        | components["schemas"]["DurationItem6"][];
+      /**
+       * Percentage of Threshold Current (Start)
+       * @description The percentage of a cell's threshold current to inject when the stimulus activates.
+       * @default 10
+       */
+      percentage_of_threshold_current_start:
+        | components["schemas"]["PercentageOfThresholdCurrentStart"]
+        | components["schemas"]["PercentageOfThresholdCurrentStartItem"][];
+      /**
+       * Percentage of Threshold Current (End)
+       * @description If given, the percentage of a cell's threshold current is interpolated such that the percentage reaches this value when the stimulus concludes.
+       * @default 100
+       */
+      percentage_of_threshold_current_end:
+        | components["schemas"]["PercentageOfThresholdCurrentEnd"]
+        | components["schemas"]["PercentageOfThresholdCurrentEndItem"][];
+    };
+    /** RelativeNormallyDistributedCurrentClampSomaticStimulus */
+    RelativeNormallyDistributedCurrentClampSomaticStimulus: {
+      /**
+       * Type
+       * @constant
+       */
+      type: "RelativeNormallyDistributedCurrentClampSomaticStimulus";
+      timestamps?: components["schemas"]["TimestampsReference"] | null;
+      neuron_set?: components["schemas"]["NeuronSetReference"] | null;
+      /**
+       * Timestamp Offset
+       * @description The offset of the stimulus relative to each timestamp in milliseconds (ms).
+       * @default 0
+       */
+      timestamp_offset: number | number[] | null;
+      /**
+       * Duration
+       * @description Time duration in milliseconds for how long input is activated.
+       * @default 200
+       */
+      duration:
+        | components["schemas"]["Duration6"]
+        | components["schemas"]["DurationItem6"][];
+      /**
+       * Percentage of Threshold Current (Mean)
+       * @description The mean value of current to inject as a percentage of a cell's                     threshold current.
+       * @default 0.01
+       */
+      mean_percentage_of_threshold_current:
+        | components["schemas"]["MeanPercentageOfThresholdCurrent"]
+        | components["schemas"]["MeanPercentageOfThresholdCurrentItem"][];
+      /**
+       * Variance
+       * @description The variance around the mean of current to inject using a                     normal distribution.
+       * @default 0.01
+       */
+      variance:
+        | components["schemas"]["Variance"]
+        | components["schemas"]["VarianceItem"][];
+    };
+    /**
+     * SamplePercentage
+     * @description Percentage of neurons to sample between 0 and 100%
+     */
+    SamplePercentage: number;
+    /**
+     * SamplePercentage1
+     * @description Percentage of neurons to sample between 0 and 100%
+     */
+    SamplePercentage1: components["schemas"]["SamplePercentage1Item"][];
+    /**
+     * SamplePercentage12
+     * @description Percentage of neurons to sample between 0 and 100%
+     */
+    SamplePercentage12: number;
+    /**
+     * SamplePercentage13
+     * @description Percentage of neurons to sample between 0 and 100%
+     */
+    SamplePercentage13: components["schemas"]["SamplePercentage13Item"][];
+    /** SamplePercentage13Item */
+    SamplePercentage13Item: number;
+    /** SamplePercentage1Item */
+    SamplePercentage1Item: number;
+    /**
+     * SamplePercentage24
+     * @description Percentage of neurons to sample between 0 and 100%
+     */
+    SamplePercentage24: number;
+    /**
+     * SamplePercentage25
+     * @description Percentage of neurons to sample between 0 and 100%
+     */
+    SamplePercentage25: components["schemas"]["SamplePercentage25Item"][];
+    /** SamplePercentage25Item */
+    SamplePercentage25Item: number;
+    /**
+     * SamplePercentage26
+     * @description Percentage of neurons to sample between 0 and 100%
+     */
+    SamplePercentage26: number;
+    /**
+     * SamplePercentage27
+     * @description Percentage of neurons to sample between 0 and 100%
+     */
+    SamplePercentage27: components["schemas"]["SamplePercentage27Item"][];
+    /** SamplePercentage27Item */
+    SamplePercentage27Item: number;
+    /**
+     * SamplePercentage4
+     * @description Percentage of neurons to sample between 0 and 100%
+     */
+    SamplePercentage4: number;
+    /**
+     * SamplePercentage5
+     * @description Percentage of neurons to sample between 0 and 100%
+     */
+    SamplePercentage5: components["schemas"]["SamplePercentage5Item"][];
+    /** SamplePercentage5Item */
+    SamplePercentage5Item: number;
+    /**
+     * SamplePercentage6
+     * @description Percentage of neurons to sample between 0 and 100%
+     */
+    SamplePercentage6: number;
+    /**
+     * SamplePercentage7
+     * @description Percentage of neurons to sample between 0 and 100%
+     */
+    SamplePercentage7: components["schemas"]["SamplePercentage7Item"][];
+    /** SamplePercentage7Item */
+    SamplePercentage7Item: number;
+    /**
+     * SamplePercentage8
+     * @description Percentage of neurons to sample between 0 and 100%
+     */
+    SamplePercentage8: number;
+    /**
+     * SamplePercentage9
+     * @description Percentage of neurons to sample between 0 and 100%
+     */
+    SamplePercentage9: components["schemas"]["SamplePercentage9Item"][];
+    /** SamplePercentage9Item */
+    SamplePercentage9Item: number;
+    /** ScaleAcetylcholineUSESynapticManipulation */
+    ScaleAcetylcholineUSESynapticManipulation: {
+      /**
+       * Type
+       * @constant
+       */
+      type: "ScaleAcetylcholineUSESynapticManipulation";
+      /**
+       * Scale U_SE (ACh)
+       * @description Scale the U_SE (ACh) parameter of the Tsodyks-Markram synaptic model.
+       * @default 0.7050728631217412
+       */
+      use_scaling:
+        | components["schemas"]["UseScaling"]
+        | components["schemas"]["UseScalingItem"][];
+    };
     /**
      * SearchMessagesList
      * @description Class for the message search result list.
@@ -670,6 +1875,461 @@ export interface components {
       title: string;
       /** Content */
       content: string;
+    };
+    /**
+     * SharedState
+     * @description State shared between backend and frontend.
+     */
+    SharedState: {
+      /** @default {
+       *       "type": "SimulationsForm",
+       *       "timestamps": {},
+       *       "recordings": {},
+       *       "info": {
+       *         "campaign_description": "description",
+       *         "campaign_name": "name",
+       *         "type": "Info"
+       *       },
+       *       "neuron_sets": {},
+       *       "synaptic_manipulations": {},
+       *       "initialize": {
+       *         "circuit": {
+       *           "id_str": "",
+       *           "type": "CircuitFromID"
+       *         },
+       *         "extracellular_calcium_concentration": 1.1,
+       *         "node_set": {
+       *           "block_dict_name": "",
+       *           "block_name": "",
+       *           "type": "NeuronSetReference"
+       *         },
+       *         "random_seed": 1,
+       *         "simulation_length": 1000,
+       *         "type": "SimulationsForm.Initialize",
+       *         "v_init": -80
+       *       },
+       *       "stimuli": {}
+       *     } */
+      smc_simulation_config: components["schemas"]["SimulationsForm-Output"];
+    };
+    /**
+     * SimulationLength6
+     * @description Simulation length in milliseconds (ms).
+     */
+    SimulationLength6: number;
+    /**
+     * SimulationLength7
+     * @description Simulation length in milliseconds (ms).
+     */
+    SimulationLength7: components["schemas"]["SimulationLength7Item"][];
+    /** SimulationLength7Item */
+    SimulationLength7Item: number;
+    /** SimulationsForm */
+    "SimulationsForm-Input": {
+      /**
+       * Type
+       * @constant
+       */
+      type: "SimulationsForm";
+      /**
+       * Timestamps
+       * @description Timestamps for the simulation.
+       */
+      timestamps?: {
+        [key: string]:
+          | components["schemas"]["SingleTimestamp"]
+          | components["schemas"]["RegularTimestamps"];
+      } | null;
+      /**
+       * Recordings
+       * @description Recordings for the simulation.
+       */
+      recordings?: {
+        [key: string]:
+          | components["schemas"]["SomaVoltageRecording"]
+          | components["schemas"]["TimeWindowSomaVoltageRecording"];
+      } | null;
+      /** @description Information about the simulation campaign. */
+      info: components["schemas"]["Info"];
+      /**
+       * Neuron Sets
+       * @description Neuron sets for the simulation.
+       */
+      neuron_sets?: {
+        [key: string]:
+          | components["schemas"]["IDNeuronSet-Input"]
+          | components["schemas"]["AllNeurons-Input"]
+          | components["schemas"]["ExcitatoryNeurons-Input"]
+          | components["schemas"]["InhibitoryNeurons-Input"]
+          | components["schemas"]["PredefinedNeuronSet-Input"]
+          | components["schemas"]["NbS1VPMInputs-Input"]
+          | components["schemas"]["NbS1POmInputs-Input"];
+      } | null;
+      /**
+       * Synaptic Manipulations
+       * @description Synaptic manipulations for the simulation.
+       */
+      synaptic_manipulations?: {
+        [key: string]:
+          | components["schemas"]["SynapticMgManipulation"]
+          | components["schemas"]["ScaleAcetylcholineUSESynapticManipulation"];
+      } | null;
+      initialize: components["schemas"]["ObiOneScientificUnionsAliasesSimulationsFormInitialize-Input"];
+      /**
+       * Stimuli
+       * @description Stimuli for the simulation.
+       */
+      stimuli?: {
+        [key: string]:
+          | components["schemas"]["ConstantCurrentClampSomaticStimulus"]
+          | components["schemas"]["HyperpolarizingCurrentClampSomaticStimulus"]
+          | components["schemas"]["LinearCurrentClampSomaticStimulus"]
+          | components["schemas"]["MultiPulseCurrentClampSomaticStimulus"]
+          | components["schemas"]["NormallyDistributedCurrentClampSomaticStimulus"]
+          | components["schemas"]["RelativeNormallyDistributedCurrentClampSomaticStimulus"]
+          | components["schemas"]["RelativeConstantCurrentClampSomaticStimulus"]
+          | components["schemas"]["RelativeLinearCurrentClampSomaticStimulus"]
+          | components["schemas"]["SinusoidalCurrentClampSomaticStimulus"]
+          | components["schemas"]["SubthresholdCurrentClampSomaticStimulus"]
+          | components["schemas"]["PoissonSpikeStimulus"]
+          | components["schemas"]["FullySynchronousSpikeStimulus"]
+          | components["schemas"]["SinusoidalPoissonSpikeStimulus"];
+      } | null;
+    };
+    /** SimulationsForm */
+    "SimulationsForm-Output": {
+      /**
+       * Type
+       * @constant
+       */
+      type: "SimulationsForm";
+      /**
+       * Timestamps
+       * @description Timestamps for the simulation.
+       */
+      timestamps?: {
+        [key: string]:
+          | components["schemas"]["SingleTimestamp"]
+          | components["schemas"]["RegularTimestamps"];
+      } | null;
+      /**
+       * Recordings
+       * @description Recordings for the simulation.
+       */
+      recordings?: {
+        [key: string]:
+          | components["schemas"]["SomaVoltageRecording"]
+          | components["schemas"]["TimeWindowSomaVoltageRecording"];
+      } | null;
+      /** @description Information about the simulation campaign. */
+      info: components["schemas"]["Info"];
+      /**
+       * Neuron Sets
+       * @description Neuron sets for the simulation.
+       */
+      neuron_sets?: {
+        [key: string]:
+          | components["schemas"]["IDNeuronSet-Output"]
+          | components["schemas"]["AllNeurons-Output"]
+          | components["schemas"]["ExcitatoryNeurons-Output"]
+          | components["schemas"]["InhibitoryNeurons-Output"]
+          | components["schemas"]["PredefinedNeuronSet-Output"]
+          | components["schemas"]["NbS1VPMInputs-Output"]
+          | components["schemas"]["NbS1POmInputs-Output"];
+      } | null;
+      /**
+       * Synaptic Manipulations
+       * @description Synaptic manipulations for the simulation.
+       */
+      synaptic_manipulations?: {
+        [key: string]:
+          | components["schemas"]["SynapticMgManipulation"]
+          | components["schemas"]["ScaleAcetylcholineUSESynapticManipulation"];
+      } | null;
+      initialize: components["schemas"]["ObiOneScientificUnionsAliasesSimulationsFormInitialize-Output"];
+      /**
+       * Stimuli
+       * @description Stimuli for the simulation.
+       */
+      stimuli?: {
+        [key: string]:
+          | components["schemas"]["ConstantCurrentClampSomaticStimulus"]
+          | components["schemas"]["HyperpolarizingCurrentClampSomaticStimulus"]
+          | components["schemas"]["LinearCurrentClampSomaticStimulus"]
+          | components["schemas"]["MultiPulseCurrentClampSomaticStimulus"]
+          | components["schemas"]["NormallyDistributedCurrentClampSomaticStimulus"]
+          | components["schemas"]["RelativeNormallyDistributedCurrentClampSomaticStimulus"]
+          | components["schemas"]["RelativeConstantCurrentClampSomaticStimulus"]
+          | components["schemas"]["RelativeLinearCurrentClampSomaticStimulus"]
+          | components["schemas"]["SinusoidalCurrentClampSomaticStimulus"]
+          | components["schemas"]["SubthresholdCurrentClampSomaticStimulus"]
+          | components["schemas"]["PoissonSpikeStimulus"]
+          | components["schemas"]["FullySynchronousSpikeStimulus"]
+          | components["schemas"]["SinusoidalPoissonSpikeStimulus"];
+      } | null;
+    };
+    /** SingleTimestamp */
+    SingleTimestamp: {
+      /**
+       * Type
+       * @constant
+       */
+      type: "SingleTimestamp";
+      /**
+       * Start Time
+       * @description Sart time of the timestamps in milliseconds (ms).
+       * @default 0
+       */
+      start_time:
+        | components["schemas"]["StartTime"]
+        | components["schemas"]["StartTimeItem"][];
+    };
+    /** SinusoidalCurrentClampSomaticStimulus */
+    SinusoidalCurrentClampSomaticStimulus: {
+      /**
+       * Type
+       * @constant
+       */
+      type: "SinusoidalCurrentClampSomaticStimulus";
+      timestamps?: components["schemas"]["TimestampsReference"] | null;
+      neuron_set?: components["schemas"]["NeuronSetReference"] | null;
+      /**
+       * Timestamp Offset
+       * @description The offset of the stimulus relative to each timestamp in milliseconds (ms).
+       * @default 0
+       */
+      timestamp_offset: number | number[] | null;
+      /**
+       * Duration
+       * @description Time duration in milliseconds for how long input is activated.
+       * @default 200
+       */
+      duration:
+        | components["schemas"]["Duration6"]
+        | components["schemas"]["DurationItem6"][];
+      /**
+       * Maximum Amplitude
+       * @description The maximum (and starting) amplitude of the sinusoid. Given in nanoamps (nA).
+       * @default 0.1
+       */
+      maximum_amplitude: number | number[];
+      /**
+       * Frequency
+       * @description The frequency of the waveform. Given in Hertz (Hz).
+       * @default 1
+       */
+      frequency:
+        | components["schemas"]["Frequency2"]
+        | components["schemas"]["FrequencyItem"][];
+      /**
+       * Timestep
+       * @description Timestep of generated signal in milliseconds (ms).
+       * @default 0.025
+       */
+      dt: components["schemas"]["Dt"] | components["schemas"]["DtItem"][];
+    };
+    /** SinusoidalPoissonSpikeStimulus */
+    SinusoidalPoissonSpikeStimulus: {
+      /**
+       * Type
+       * @constant
+       */
+      type: "SinusoidalPoissonSpikeStimulus";
+      timestamps?: components["schemas"]["TimestampsReference"] | null;
+      source_neuron_set?: components["schemas"]["NeuronSetReference"] | null;
+      targeted_neuron_set?: components["schemas"]["NeuronSetReference"] | null;
+      /**
+       * Timestamp Offset
+       * @description The offset of the stimulus relative to each timestamp in milliseconds (ms).
+       * @default 0
+       */
+      timestamp_offset: number | number[] | null;
+      /**
+       * Duration
+       * @description Time duration of the stimulus in milliseconds.
+       * @default 200
+       */
+      duration:
+        | components["schemas"]["Duration10"]
+        | components["schemas"]["DurationItem10"][];
+      /**
+       * Minimum Rate
+       * @description Minimum rate of the stimulus in Hz.
+       *      Must be less than the Maximum Rate.
+       * @default 1e-05
+       */
+      minimum_rate:
+        | components["schemas"]["MinimumRate"]
+        | components["schemas"]["MinimumRateItem"][];
+      /**
+       * Maximum Rate
+       * @description Maximum rate of the stimulus in Hz. Must be greater than or equal to Minimum Rate.
+       * @default 10
+       */
+      maximum_rate:
+        | components["schemas"]["MaximumRate"]
+        | components["schemas"]["MaximumRateItem"][];
+      /**
+       * Modulation Frequency
+       * @description Frequency (Hz) of the sinusoidal modulation of the rate.
+       * @default 5
+       */
+      modulation_frequency_hz:
+        | components["schemas"]["ModulationFrequencyHz"]
+        | components["schemas"]["ModulationFrequencyHzItem"][];
+      /**
+       * Phase Offset
+       * @description Phase offset (degrees) of the sinusoid.
+       * @default 0
+       */
+      phase_degrees: number | number[];
+      /**
+       * Random Seed
+       * @description Seed for the random number generator to ensure reproducibility.
+       * @default 0
+       */
+      random_seed: number | number[];
+    };
+    /** SomaVoltageRecording */
+    SomaVoltageRecording: {
+      /**
+       * Type
+       * @constant
+       */
+      type: "SomaVoltageRecording";
+      neuron_set?: components["schemas"]["NeuronSetReference"] | null;
+      /**
+       * Timestep
+       * @description Interval between recording time steps in milliseconds (ms).
+       * @default 0.1
+       */
+      dt:
+        | components["schemas"]["Dt1"]
+        | components["schemas"]["DtItem"][]
+        | components["schemas"]["NonNegativeFloatRange"];
+    };
+    /**
+     * StartTime
+     * @description Sart time of the timestamps in milliseconds (ms).
+     */
+    StartTime: number;
+    /**
+     * StartTime2
+     * @description Recording start time in milliseconds (ms).
+     */
+    StartTime2: number;
+    /** StartTimeItem */
+    StartTimeItem: number;
+    /**
+     * StateCreate
+     * @description Body of the create state endpoint.
+     */
+    StateCreate: {
+      /** @default {
+       *       "type": "SimulationsForm",
+       *       "timestamps": {},
+       *       "recordings": {},
+       *       "info": {
+       *         "campaign_description": "description",
+       *         "campaign_name": "name",
+       *         "type": "Info"
+       *       },
+       *       "neuron_sets": {},
+       *       "synaptic_manipulations": {},
+       *       "initialize": {
+       *         "circuit": {
+       *           "id_str": "",
+       *           "type": "CircuitFromID"
+       *         },
+       *         "extracellular_calcium_concentration": 1.1,
+       *         "node_set": {
+       *           "block_dict_name": "",
+       *           "block_name": "",
+       *           "type": "NeuronSetReference"
+       *         },
+       *         "random_seed": 1,
+       *         "simulation_length": 1000,
+       *         "type": "SimulationsForm.Initialize",
+       *         "v_init": -80
+       *       },
+       *       "stimuli": {}
+       *     } */
+      smc_simulation_config: components["schemas"]["SimulationsForm-Input"];
+    };
+    /**
+     * StatePatch
+     * @description Patch class for states.
+     */
+    StatePatch: {
+      /** Key */
+      key: string;
+      new_state: components["schemas"]["SimulationsForm-Input"];
+    };
+    /**
+     * StateRead
+     * @description Read class for states.
+     */
+    StateRead: {
+      /**
+       * User Id
+       * Format: uuid
+       */
+      user_id: string;
+      state: components["schemas"]["SharedState"];
+    };
+    /**
+     * StateReset
+     * @description Reset class for states.
+     */
+    StateReset: {
+      /** Key */
+      key: string;
+    };
+    /** SubthresholdCurrentClampSomaticStimulus */
+    SubthresholdCurrentClampSomaticStimulus: {
+      /**
+       * Type
+       * @constant
+       */
+      type: "SubthresholdCurrentClampSomaticStimulus";
+      timestamps?: components["schemas"]["TimestampsReference"] | null;
+      neuron_set?: components["schemas"]["NeuronSetReference"] | null;
+      /**
+       * Timestamp Offset
+       * @description The offset of the stimulus relative to each timestamp in milliseconds (ms).
+       * @default 0
+       */
+      timestamp_offset: number | number[] | null;
+      /**
+       * Duration
+       * @description Time duration in milliseconds for how long input is activated.
+       * @default 200
+       */
+      duration:
+        | components["schemas"]["Duration11"]
+        | components["schemas"]["DurationItem11"][];
+      /**
+       * Percentage Below Threshold
+       * @description A percentage adjusted from 100 of a cell's threshold current.                         E.g. 20 will apply 80\% of the threshold current. Using a negative                             value will give more than 100. E.g. -20 will inject 120\% of the                                 threshold current.
+       * @default 0.1
+       */
+      percentage_below_threshold: number | number[];
+    };
+    /** SynapticMgManipulation */
+    SynapticMgManipulation: {
+      /**
+       * Type
+       * @constant
+       */
+      type: "SynapticMgManipulation";
+      /**
+       * Extracellular Magnesium Concentration
+       * @description Extracellular magnesium concentration in millimoles (mM).
+       * @default 2.4
+       */
+      magnesium_value:
+        | components["schemas"]["MagnesiumValue"]
+        | components["schemas"]["MagnesiumValueItem"][];
     };
     /**
      * TextPartVercel
@@ -747,6 +2407,55 @@ export interface components {
        * Format: date-time
        */
       update_date: string;
+    };
+    /** TimeWindowSomaVoltageRecording */
+    TimeWindowSomaVoltageRecording: {
+      /**
+       * Type
+       * @constant
+       */
+      type: "TimeWindowSomaVoltageRecording";
+      neuron_set?: components["schemas"]["NeuronSetReference"] | null;
+      /**
+       * Timestep
+       * @description Interval between recording time steps in milliseconds (ms).
+       * @default 0.1
+       */
+      dt:
+        | components["schemas"]["Dt1"]
+        | components["schemas"]["DtItem"][]
+        | components["schemas"]["NonNegativeFloatRange"];
+      /**
+       * Start Time
+       * @description Recording start time in milliseconds (ms).
+       * @default 0
+       */
+      start_time:
+        | components["schemas"]["StartTime2"]
+        | components["schemas"]["StartTimeItem"][];
+      /**
+       * End Time
+       * @description Recording end time in milliseconds (ms).
+       * @default 100
+       */
+      end_time:
+        | components["schemas"]["EndTime"]
+        | components["schemas"]["EndTimeItem"][];
+    };
+    /** TimestampsReference */
+    TimestampsReference: {
+      /**
+       * Block Dict Name
+       * @default
+       */
+      block_dict_name: string;
+      /** Block Name */
+      block_name: string;
+      /**
+       * Type
+       * @constant
+       */
+      type: "TimestampsReference";
     };
     /**
      * ToolCall
@@ -840,6 +2549,13 @@ export interface components {
       is_moderated: boolean;
     };
     /**
+     * UseScaling
+     * @description Scale the U_SE (ACh) parameter of the Tsodyks-Markram synaptic model.
+     */
+    UseScaling: number;
+    /** UseScalingItem */
+    UseScalingItem: number;
+    /**
      * UserJourney
      * @description Schema of the user's journey.
      */
@@ -864,12 +2580,38 @@ export interface components {
       type: string;
     };
     /**
+     * Variance
+     * @description The variance around the mean of current to inject using a                     normal distribution.
+     */
+    Variance: number;
+    /** VarianceItem */
+    VarianceItem: number;
+    /**
+     * Width
+     * @description The length of time each pulse lasts. Given in milliseconds (ms).
+     */
+    Width: number;
+    /** WidthItem */
+    WidthItem: number;
+    /**
+     * AssetDownloadOneOutput
+     * @description Output schema for AssetDownloadOneTool.
+     */
+    AssetDownloadOneOutput: {
+      /**
+       * Presigned Url
+       * @description The presigned URL for downloading the asset
+       */
+      presigned_url: string;
+    };
+    /**
      * AssetLabel
      * @description See docs/asset-labels.md.
      * @enum {string}
      */
     AssetLabel:
       | "morphology"
+      | "morphology_with_spines"
       | "cell_composition_summary"
       | "cell_composition_volumes"
       | "single_neuron_synaptome_config"
@@ -885,6 +2627,7 @@ export interface components {
       | "emodel_optimization_output"
       | "sonata_simulation_config"
       | "simulation_generation_config"
+      | "ion_channel_modeling_generation_config"
       | "custom_node_sets"
       | "campaign_generation_config"
       | "campaign_summary"
@@ -901,7 +2644,15 @@ export interface components {
       | "circuit_visualization"
       | "node_stats"
       | "network_stats_a"
-      | "network_stats_b";
+      | "network_stats_b"
+      | "cell_surface_mesh"
+      | "jupyter_notebook"
+      | "requirements"
+      | "notebook_required_files"
+      | "ion_channel_model_figure"
+      | "ion_channel_model_figure_summary_json"
+      | "ion_channel_model_thumbnail"
+      | "circuit_extraction_config";
     /** AssetRead */
     AssetRead: {
       /** Size */
@@ -960,7 +2711,9 @@ export interface components {
       | "image/jpeg"
       | "model/gltf-binary"
       | "application/gzip"
-      | "image/webp";
+      | "image/webp"
+      | "application/x-ipynb+json"
+      | "application/zip";
     /** Facet */
     Facet: {
       /** Id */
@@ -974,13 +2727,10 @@ export interface components {
     } & {
       [key: string]: unknown;
     };
-    /**
-     * Facets
-     * @default null
-     */
+    /** Facets */
     Facets: {
       [key: string]: components["schemas"]["Facet"][];
-    } | null;
+    };
     /** PaginationResponse */
     PaginationResponse: {
       /** Page */
@@ -1115,7 +2865,10 @@ export interface components {
       acronym: string;
       /** Color Hex Triplet */
       color_hex_triplet: string;
-      /** Parent Structure Id */
+      /**
+       * Parent Structure Id
+       * @default null
+       */
       parent_structure_id: string | null;
       /**
        * Hierarchy Id
@@ -1169,10 +2922,1023 @@ export interface components {
     } & {
       [key: string]: unknown;
     };
+    /**
+     * AgePeriod
+     * @enum {string}
+     */
+    AgePeriod: "prenatal" | "postnatal" | "unknown";
     /** AgentRead */
     AgentRead:
       | components["schemas"]["NestedPersonRead"]
       | components["schemas"]["NestedConsortiumRead"];
+    /** AnnotationRead */
+    AnnotationRead: {
+      /**
+       * Id
+       * Format: uuid
+       */
+      id: string;
+      /**
+       * Creation Date
+       * Format: date-time
+       */
+      creation_date: string;
+      /**
+       * Update Date
+       * Format: date-time
+       */
+      update_date: string;
+      /** Pref Label */
+      pref_label: string;
+      /** Alt Label */
+      alt_label: string;
+      /** Definition */
+      definition: string;
+    } & {
+      [key: string]: unknown;
+    };
+    /**
+     * CellMorphologyProtocolDesign
+     * @enum {string}
+     */
+    CellMorphologyProtocolDesign:
+      | "electron_microscopy"
+      | "cell_patch"
+      | "fluorophore"
+      | "topological_synthesis";
+    /** CellMorphologyRead */
+    CellMorphologyRead: {
+      /** Contributions */
+      contributions: components["schemas"]["NestedContributionRead"][] | null;
+      /** Assets */
+      assets: components["schemas"]["AssetRead"][];
+      /** @default null */
+      license: components["schemas"]["LicenseRead"] | null;
+      /**
+       * Creation Date
+       * Format: date-time
+       */
+      creation_date: string;
+      /**
+       * Update Date
+       * Format: date-time
+       */
+      update_date: string;
+      created_by: components["schemas"]["NestedPersonRead"];
+      updated_by: components["schemas"]["NestedPersonRead"];
+      brain_region: components["schemas"]["BrainRegionRead"];
+      subject: components["schemas"]["NestedSubjectRead"];
+      /**
+       * Authorized Project Id
+       * Format: uuid4
+       */
+      authorized_project_id: string;
+      /**
+       * Authorized Public
+       * @default false
+       */
+      authorized_public: boolean;
+      /** @default null */
+      type: components["schemas"]["EntityType"] | null;
+      /**
+       * Id
+       * Format: uuid
+       */
+      id: string;
+      /**
+       * Experiment Date
+       * @description Date of the experiment associated with the artifact.
+       * @default null
+       */
+      experiment_date: string | null;
+      /**
+       * Contact Email
+       * @description Optional string of a contact person's e-mail address.
+       * @default null
+       */
+      contact_email: string | null;
+      /**
+       * Published In
+       * @description Optional string with short version of the source publication(s).
+       * @default null
+       */
+      published_in: string | null;
+      /**
+       * Notice Text
+       * @description Text provided by the data creators to inform users about data caveats, limitations, or required attribution practices.
+       * @default null
+       */
+      notice_text: string | null;
+      /** Name */
+      name: string;
+      /** Description */
+      description: string;
+      /** @default null */
+      location: components["schemas"]["PointLocationBase"] | null;
+      /**
+       * Legacy Id
+       * @default null
+       */
+      legacy_id: string[] | null;
+      /** Mtypes */
+      mtypes: components["schemas"]["AnnotationRead"][] | null;
+      /** @default null */
+      cell_morphology_protocol:
+        | components["schemas"]["NestedCellMorphologyProtocolRead"]
+        | null;
+    } & {
+      [key: string]: unknown;
+    };
+    /**
+     * EntityType
+     * @description Entity types.
+     * @enum {string}
+     */
+    EntityType:
+      | "analysis_software_source_code"
+      | "brain_atlas"
+      | "brain_atlas_region"
+      | "cell_composition"
+      | "cell_morphology"
+      | "cell_morphology_protocol"
+      | "electrical_cell_recording"
+      | "electrical_recording"
+      | "electrical_recording_stimulus"
+      | "emodel"
+      | "experimental_bouton_density"
+      | "experimental_neuron_density"
+      | "experimental_synapses_per_connection"
+      | "external_url"
+      | "ion_channel_model"
+      | "ion_channel_modeling_campaign"
+      | "ion_channel_modeling_config"
+      | "ion_channel_recording"
+      | "memodel"
+      | "memodel_calibration_result"
+      | "me_type_density"
+      | "simulation"
+      | "simulation_campaign"
+      | "simulation_result"
+      | "scientific_artifact"
+      | "single_neuron_simulation"
+      | "single_neuron_synaptome"
+      | "single_neuron_synaptome_simulation"
+      | "subject"
+      | "validation_result"
+      | "circuit"
+      | "circuit_extraction_campaign"
+      | "circuit_extraction_config"
+      | "em_dense_reconstruction_dataset"
+      | "em_cell_mesh"
+      | "analysis_notebook_template"
+      | "analysis_notebook_environment"
+      | "analysis_notebook_result"
+      | "skeletonization_config"
+      | "skeletonization_campaign";
+    /** LicenseRead */
+    LicenseRead: {
+      /**
+       * Id
+       * Format: uuid
+       */
+      id: string;
+      /**
+       * Creation Date
+       * Format: date-time
+       */
+      creation_date: string;
+      /**
+       * Update Date
+       * Format: date-time
+       */
+      update_date: string;
+      /** Name */
+      name: string;
+      /** Description */
+      description: string;
+      /** Label */
+      label: string;
+    } & {
+      [key: string]: unknown;
+    };
+    /** Magnification */
+    Magnification: number;
+    /**
+     * ModifiedMorphologyMethodType
+     * @enum {string}
+     */
+    ModifiedMorphologyMethodType:
+      | "cloned"
+      | "mix_and_match"
+      | "mousified"
+      | "ratified";
+    /** NestedCellMorphologyProtocolRead */
+    NestedCellMorphologyProtocolRead:
+      | components["schemas"]["NestedDigitalReconstructionCellMorphologyProtocolRead"]
+      | components["schemas"]["NestedModifiedReconstructionCellMorphologyProtocolRead"]
+      | components["schemas"]["NestedComputationallySynthesizedCellMorphologyProtocolRead"]
+      | components["schemas"]["NestedPlaceholderCellMorphologyProtocolRead"];
+    /** NestedComputationallySynthesizedCellMorphologyProtocolRead */
+    NestedComputationallySynthesizedCellMorphologyProtocolRead: {
+      /**
+       * Protocol Document
+       * @default null
+       */
+      protocol_document: components["schemas"]["ProtocolDocument"] | null;
+      protocol_design: components["schemas"]["CellMorphologyProtocolDesign"];
+      /**
+       * Id
+       * Format: uuid
+       */
+      id: string;
+      /**
+       * Type
+       * @default cell_morphology_protocol
+       * @constant
+       */
+      type: "cell_morphology_protocol";
+      /**
+       * @description discriminator enum property added by openapi-typescript
+       * @enum {string}
+       */
+      generation_type: "computationally_synthesized";
+      /** Method Type */
+      method_type: string;
+    } & {
+      [key: string]: unknown;
+    };
+    /** NestedConsortiumRead */
+    NestedConsortiumRead: {
+      /**
+       * Id
+       * Format: uuid
+       */
+      id: string;
+      /** Pref Label */
+      pref_label: string;
+      /**
+       * Alternative Name
+       * @default null
+       */
+      alternative_name: string | null;
+      /** Type */
+      type: string;
+    } & {
+      [key: string]: unknown;
+    };
+    /** NestedContributionRead */
+    NestedContributionRead: {
+      /**
+       * Id
+       * Format: uuid
+       */
+      id: string;
+      agent: components["schemas"]["AgentRead"];
+      role: components["schemas"]["RoleRead"];
+    } & {
+      [key: string]: unknown;
+    };
+    /** NestedDigitalReconstructionCellMorphologyProtocolRead */
+    NestedDigitalReconstructionCellMorphologyProtocolRead: {
+      /**
+       * Protocol Document
+       * @default null
+       */
+      protocol_document: components["schemas"]["ProtocolDocument"] | null;
+      protocol_design: components["schemas"]["CellMorphologyProtocolDesign"];
+      /**
+       * Id
+       * Format: uuid
+       */
+      id: string;
+      /**
+       * Type
+       * @default cell_morphology_protocol
+       * @constant
+       */
+      type: "cell_morphology_protocol";
+      /**
+       * @description discriminator enum property added by openapi-typescript
+       * @enum {string}
+       */
+      generation_type: "digital_reconstruction";
+      /** @default null */
+      staining_type: components["schemas"]["StainingType"] | null;
+      /** Slicing Thickness */
+      slicing_thickness: number;
+      /** @default null */
+      slicing_direction: components["schemas"]["SlicingDirectionType"] | null;
+      /**
+       * Magnification
+       * @default null
+       */
+      magnification: components["schemas"]["Magnification"] | null;
+      /**
+       * Tissue Shrinkage
+       * @default null
+       */
+      tissue_shrinkage: components["schemas"]["TissueShrinkage"] | null;
+      /**
+       * Corrected For Shrinkage
+       * @default null
+       */
+      corrected_for_shrinkage: boolean | null;
+    } & {
+      [key: string]: unknown;
+    };
+    /** NestedModifiedReconstructionCellMorphologyProtocolRead */
+    NestedModifiedReconstructionCellMorphologyProtocolRead: {
+      /**
+       * Protocol Document
+       * @default null
+       */
+      protocol_document: components["schemas"]["ProtocolDocument"] | null;
+      protocol_design: components["schemas"]["CellMorphologyProtocolDesign"];
+      /**
+       * Id
+       * Format: uuid
+       */
+      id: string;
+      /**
+       * Type
+       * @default cell_morphology_protocol
+       * @constant
+       */
+      type: "cell_morphology_protocol";
+      /**
+       * @description discriminator enum property added by openapi-typescript
+       * @enum {string}
+       */
+      generation_type: "modified_reconstruction";
+      method_type: components["schemas"]["ModifiedMorphologyMethodType"];
+    } & {
+      [key: string]: unknown;
+    };
+    /** NestedPlaceholderCellMorphologyProtocolRead */
+    NestedPlaceholderCellMorphologyProtocolRead: {
+      /**
+       * Id
+       * Format: uuid
+       */
+      id: string;
+      /**
+       * Type
+       * @default cell_morphology_protocol
+       * @constant
+       */
+      type: "cell_morphology_protocol";
+      /**
+       * @description discriminator enum property added by openapi-typescript
+       * @enum {string}
+       */
+      generation_type: "placeholder";
+    } & {
+      [key: string]: unknown;
+    };
+    /** NestedStrainRead */
+    NestedStrainRead: {
+      /**
+       * Id
+       * Format: uuid
+       */
+      id: string;
+      /** Name */
+      name: string;
+      /** Taxonomy Id */
+      taxonomy_id: string;
+      /**
+       * Species Id
+       * Format: uuid
+       */
+      species_id: string;
+    } & {
+      [key: string]: unknown;
+    };
+    /** NestedSubjectRead */
+    NestedSubjectRead: {
+      /**
+       * Id
+       * Format: uuid
+       */
+      id: string;
+      /** Name */
+      name: string;
+      /** Description */
+      description: string;
+      /** @description Sex of the subject */
+      sex: components["schemas"]["Sex"];
+      /**
+       * Weight
+       * @description Weight in grams
+       * @default null
+       */
+      weight: components["schemas"]["Weight"] | null;
+      /**
+       * Age value
+       * @description Age value interval.
+       * @default null
+       */
+      age_value: number | null;
+      /**
+       * Minimum age range
+       * @description Minimum age range
+       * @default null
+       */
+      age_min: number | null;
+      /**
+       * Maximum age range
+       * @description Maximum age range
+       * @default null
+       */
+      age_max: number | null;
+      /** @default null */
+      age_period: components["schemas"]["AgePeriod"] | null;
+      species: components["schemas"]["NestedSpeciesRead"];
+      /** @default null */
+      strain: components["schemas"]["NestedStrainRead"] | null;
+    } & {
+      [key: string]: unknown;
+    };
+    /** PointLocationBase */
+    PointLocationBase: {
+      /** X */
+      x: number;
+      /** Y */
+      y: number;
+      /** Z */
+      z: number;
+    } & {
+      [key: string]: unknown;
+    };
+    /**
+     * ProtocolDocument
+     * Format: uri
+     */
+    ProtocolDocument: string;
+    /** RoleRead */
+    RoleRead: {
+      /**
+       * Id
+       * Format: uuid
+       */
+      id: string;
+      /**
+       * Creation Date
+       * Format: date-time
+       */
+      creation_date: string;
+      /**
+       * Update Date
+       * Format: date-time
+       */
+      update_date: string;
+      /** Name */
+      name: string;
+      /** Role Id */
+      role_id: string;
+    } & {
+      [key: string]: unknown;
+    };
+    /**
+     * Sex
+     * @enum {string}
+     */
+    Sex: "male" | "female" | "unknown";
+    /**
+     * SlicingDirectionType
+     * @enum {string}
+     */
+    SlicingDirectionType: "coronal" | "sagittal" | "horizontal" | "custom";
+    /**
+     * StainingType
+     * @enum {string}
+     */
+    StainingType:
+      | "golgi"
+      | "nissl"
+      | "luxol_fast_blue"
+      | "fluorescent_nissl"
+      | "fluorescent_dyes"
+      | "fluorescent_protein_expression"
+      | "immunohistochemistry"
+      | "other";
+    /** TissueShrinkage */
+    TissueShrinkage: number;
+    /**
+     * Weight
+     * @description Weight in grams
+     */
+    Weight: number;
+    /** ListResponseCellMorphologyRead */
+    ListResponseCellMorphologyRead: {
+      /** Data */
+      data: components["schemas"]["CellMorphologyRead"][];
+      pagination: components["schemas"]["PaginationResponse"];
+      /** @default null */
+      facets: components["schemas"]["Facets"] | null;
+    } & {
+      [key: string]: unknown;
+    };
+    /** CellMorphologyAnnotationExpandedRead */
+    CellMorphologyAnnotationExpandedRead: {
+      /** Contributions */
+      contributions: components["schemas"]["NestedContributionRead"][] | null;
+      /** Assets */
+      assets: components["schemas"]["AssetRead"][];
+      /** @default null */
+      license: components["schemas"]["LicenseRead"] | null;
+      /**
+       * Creation Date
+       * Format: date-time
+       */
+      creation_date: string;
+      /**
+       * Update Date
+       * Format: date-time
+       */
+      update_date: string;
+      created_by: components["schemas"]["NestedPersonRead"];
+      updated_by: components["schemas"]["NestedPersonRead"];
+      brain_region: components["schemas"]["BrainRegionRead"];
+      subject: components["schemas"]["NestedSubjectRead"];
+      /**
+       * Authorized Project Id
+       * Format: uuid4
+       */
+      authorized_project_id: string;
+      /**
+       * Authorized Public
+       * @default false
+       */
+      authorized_public: boolean;
+      /** @default null */
+      type: components["schemas"]["EntityType"] | null;
+      /**
+       * Id
+       * Format: uuid
+       */
+      id: string;
+      /**
+       * Experiment Date
+       * @description Date of the experiment associated with the artifact.
+       * @default null
+       */
+      experiment_date: string | null;
+      /**
+       * Contact Email
+       * @description Optional string of a contact person's e-mail address.
+       * @default null
+       */
+      contact_email: string | null;
+      /**
+       * Published In
+       * @description Optional string with short version of the source publication(s).
+       * @default null
+       */
+      published_in: string | null;
+      /**
+       * Notice Text
+       * @description Text provided by the data creators to inform users about data caveats, limitations, or required attribution practices.
+       * @default null
+       */
+      notice_text: string | null;
+      /** Name */
+      name: string;
+      /** Description */
+      description: string;
+      /** @default null */
+      location: components["schemas"]["PointLocationBase"] | null;
+      /**
+       * Legacy Id
+       * @default null
+       */
+      legacy_id: string[] | null;
+      /** Mtypes */
+      mtypes: components["schemas"]["AnnotationRead"][] | null;
+      /** @default null */
+      cell_morphology_protocol:
+        | components["schemas"]["NestedCellMorphologyProtocolRead"]
+        | null;
+      /** @default null */
+      measurement_annotation:
+        | components["schemas"]["MeasurementAnnotationRead"]
+        | null;
+    } & {
+      [key: string]: unknown;
+    };
+    /**
+     * MeasurableEntity
+     * @constant
+     */
+    MeasurableEntity: "cell_morphology";
+    /** MeasurementAnnotationRead */
+    MeasurementAnnotationRead: {
+      /**
+       * Id
+       * Format: uuid
+       */
+      id: string;
+      /**
+       * Creation Date
+       * Format: date-time
+       */
+      creation_date: string;
+      /**
+       * Update Date
+       * Format: date-time
+       */
+      update_date: string;
+      /**
+       * Entity Id
+       * Format: uuid
+       */
+      entity_id: string;
+      entity_type: components["schemas"]["MeasurableEntity"];
+      /** Measurement Kinds */
+      measurement_kinds: components["schemas"]["MeasurementKindCreate"][];
+    } & {
+      [key: string]: unknown;
+    };
+    /** MeasurementItem */
+    MeasurementItem: {
+      /** @default null */
+      name: components["schemas"]["MeasurementStatistic"] | null;
+      /** @default null */
+      unit: components["schemas"]["MeasurementUnit"] | null;
+      /** Value */
+      value: number | null;
+    } & {
+      [key: string]: unknown;
+    };
+    /** MeasurementKindCreate */
+    MeasurementKindCreate: {
+      structural_domain: components["schemas"]["StructuralDomain"];
+      /** Measurement Items */
+      measurement_items: components["schemas"]["MeasurementItem"][];
+      /** Pref Label */
+      pref_label: string;
+    } & {
+      [key: string]: unknown;
+    };
+    /**
+     * MeasurementStatistic
+     * @enum {string}
+     */
+    MeasurementStatistic:
+      | "mean"
+      | "median"
+      | "mode"
+      | "variance"
+      | "data_point"
+      | "sample_size"
+      | "standard_error"
+      | "standard_deviation"
+      | "raw"
+      | "minimum"
+      | "maximum"
+      | "sum";
+    /**
+     * MeasurementUnit
+     * @enum {string}
+     */
+    MeasurementUnit:
+      | "dimensionless"
+      | "1/μm"
+      | "1/mm³"
+      | "μm"
+      | "μm²"
+      | "μm³"
+      | "radian";
+    /**
+     * StructuralDomain
+     * @enum {string}
+     */
+    StructuralDomain:
+      | "apical_dendrite"
+      | "basal_dendrite"
+      | "axon"
+      | "soma"
+      | "neuron_morphology";
+    /** ReadOneCellMorphologyIdGetResponse */
+    ReadOneCellMorphologyIdGetResponse:
+      | components["schemas"]["CellMorphologyRead"]
+      | components["schemas"]["CellMorphologyAnnotationExpandedRead"];
+    /** ConnectivityMetricsOutput */
+    ConnectivityMetricsOutput: {
+      /**
+       * Connection Probability
+       * @default null
+       */
+      connection_probability: {
+        [key: string]: unknown;
+      } | null;
+      /**
+       * Mean Number Of Synapses
+       * @default null
+       */
+      mean_number_of_synapses: {
+        [key: string]: unknown;
+      } | null;
+    };
+    /**
+     * CircuitBuildCategory
+     * @description Information about how/from what source a circuit was built.
+     *
+     *     - computational_model: Any type of data-driven or statistical model
+     *     - em_reconstruction: Reconstruction from EM
+     *     (More categories may be added later, if needed).
+     * @enum {string}
+     */
+    CircuitBuildCategory: "computational_model" | "em_reconstruction";
+    /** CircuitRead */
+    CircuitRead: {
+      /** Contributions */
+      contributions: components["schemas"]["NestedContributionRead"][] | null;
+      /** Assets */
+      assets: components["schemas"]["AssetRead"][];
+      /** @default null */
+      license: components["schemas"]["LicenseRead"] | null;
+      /**
+       * Creation Date
+       * Format: date-time
+       */
+      creation_date: string;
+      /**
+       * Update Date
+       * Format: date-time
+       */
+      update_date: string;
+      created_by: components["schemas"]["NestedPersonRead"];
+      updated_by: components["schemas"]["NestedPersonRead"];
+      brain_region: components["schemas"]["BrainRegionRead"];
+      subject: components["schemas"]["NestedSubjectRead"];
+      /**
+       * Authorized Project Id
+       * Format: uuid4
+       */
+      authorized_project_id: string;
+      /**
+       * Authorized Public
+       * @default false
+       */
+      authorized_public: boolean;
+      /** @default null */
+      type: components["schemas"]["EntityType"] | null;
+      /**
+       * Id
+       * Format: uuid
+       */
+      id: string;
+      /**
+       * Experiment Date
+       * @description Date of the experiment associated with the artifact.
+       * @default null
+       */
+      experiment_date: string | null;
+      /**
+       * Contact Email
+       * @description Optional string of a contact person's e-mail address.
+       * @default null
+       */
+      contact_email: string | null;
+      /**
+       * Published In
+       * @description Optional string with short version of the source publication(s).
+       * @default null
+       */
+      published_in: string | null;
+      /**
+       * Notice Text
+       * @description Text provided by the data creators to inform users about data caveats, limitations, or required attribution practices.
+       * @default null
+       */
+      notice_text: string | null;
+      /** Name */
+      name: string;
+      /** Description */
+      description: string;
+      /**
+       * Has Morphologies
+       * @default false
+       */
+      has_morphologies: boolean;
+      /**
+       * Has Point Neurons
+       * @default false
+       */
+      has_point_neurons: boolean;
+      /**
+       * Has Electrical Cell Models
+       * @default false
+       */
+      has_electrical_cell_models: boolean;
+      /**
+       * Has Spines
+       * @default false
+       */
+      has_spines: boolean;
+      /** Number Neurons */
+      number_neurons: number;
+      /** Number Synapses */
+      number_synapses: number;
+      /** Number Connections */
+      number_connections: number | null;
+      scale: components["schemas"]["CircuitScale"];
+      build_category: components["schemas"]["CircuitBuildCategory"];
+      /**
+       * Root Circuit Id
+       * @default null
+       */
+      root_circuit_id: string | null;
+      /**
+       * Atlas Id
+       * @default null
+       */
+      atlas_id: string | null;
+    } & {
+      [key: string]: unknown;
+    };
+    /**
+     * CircuitScale
+     * @description Scale of the circuit.
+     *
+     *     - single: Single neuron + extrinsic connectivity
+     *     - pair: Two connected neurons + intrinsic connectivity + extrinsic connectivity
+     *     - small: Small microcircuit (3-20 neurons) + intrinsic connectivity + extrinsic connectivity;
+     *       usually containing specific connectivity motifs
+     *     - microcircuit: Any circuit larger than 20 neurons but not being a region, system, or
+     *       whole-brain circuit; may be atlas-based or not
+     *     - region: Atlas-based continuous volume of an entire brain region or a set of continuous
+     *       sub-regions
+     *     - system: Non-continuous circuit consisting of at least two microcircuits/regions that are
+     *       connected by inter-region connectivity
+     *     - whole_brain: Circuit representing an entire brain.
+     * @enum {string}
+     */
+    CircuitScale:
+      | "single"
+      | "pair"
+      | "small"
+      | "microcircuit"
+      | "region"
+      | "system"
+      | "whole_brain";
+    /** ListResponseCircuitRead */
+    ListResponseCircuitRead: {
+      /** Data */
+      data: components["schemas"]["CircuitRead"][];
+      pagination: components["schemas"]["PaginationResponse"];
+      /** @default null */
+      facets: components["schemas"]["Facets"] | null;
+    } & {
+      [key: string]: unknown;
+    };
+    /** CircuitMetricsEdgePopulation */
+    CircuitMetricsEdgePopulation: {
+      /** Number Of Edges */
+      number_of_edges: number;
+      /** Name */
+      name: string;
+      population_type: components["schemas"]["EdgePopulationType"];
+      /** Property Names */
+      property_names: string[];
+      /** Property Stats */
+      property_stats: {
+        [key: string]: {
+          [key: string]: number;
+        };
+      } | null;
+      /** Degree Stats */
+      degree_stats: {
+        [key: string]: {
+          [key: string]: number;
+        };
+      } | null;
+    };
+    /** CircuitMetricsNodePopulation */
+    CircuitMetricsNodePopulation: {
+      /** Number Of Nodes */
+      number_of_nodes: number;
+      /** Name */
+      name: string;
+      population_type: components["schemas"]["NodePopulationType"];
+      /** Property Names */
+      property_names: string[];
+      /** Property Unique Values */
+      property_unique_values: {
+        [key: string]: string[];
+      };
+      /** Property Value Counts */
+      property_value_counts: {
+        [key: string]: {
+          [key: string]: number;
+        };
+      };
+      /** Node Location Info */
+      node_location_info: {
+        [key: string]: {
+          [key: string]: number;
+        };
+      } | null;
+    };
+    /**
+     * EdgePopulationType
+     * @enum {string}
+     */
+    EdgePopulationType: "chemical" | "electrical";
+    /**
+     * NodePopulationType
+     * @enum {string}
+     */
+    NodePopulationType: "biophysical" | "virtual";
+    /** CircuitMetricsOutput */
+    CircuitMetricsOutput: {
+      /** Number Of Biophys Node Populations */
+      number_of_biophys_node_populations: number;
+      /** Number Of Virtual Node Populations */
+      number_of_virtual_node_populations: number;
+      /** Names Of Biophys Node Populations */
+      names_of_biophys_node_populations: string[];
+      /** Names Of Virtual Node Populations */
+      names_of_virtual_node_populations: string[];
+      /** Names Of Nodesets */
+      names_of_nodesets: string[];
+      /** Biophysical Node Populations */
+      biophysical_node_populations: (
+        | components["schemas"]["CircuitMetricsNodePopulation"]
+        | null
+      )[];
+      /** Virtual Node Populations */
+      virtual_node_populations: (
+        | components["schemas"]["CircuitMetricsNodePopulation"]
+        | null
+      )[];
+      /** Number Of Chemical Edge Populations */
+      number_of_chemical_edge_populations: number;
+      /** Number Of Electrical Edge Populations */
+      number_of_electrical_edge_populations: number;
+      /** Names Of Chemical Edge Populations */
+      names_of_chemical_edge_populations: string[];
+      /** Names Of Electrical Edge Populations */
+      names_of_electrical_edge_populations: string[];
+      /** Chemical Edge Populations */
+      chemical_edge_populations: (
+        | components["schemas"]["CircuitMetricsEdgePopulation"]
+        | null
+      )[];
+      /** Electrical Edge Populations */
+      electrical_edge_populations: (
+        | components["schemas"]["CircuitMetricsEdgePopulation"]
+        | null
+      )[];
+    };
+    /** CircuitNodesetsResponse */
+    CircuitNodesetsResponse: {
+      /** Nodesets */
+      nodesets: string[];
+    };
+    /**
+     * CircuitPopulationAnalysisOutput
+     * @description Output of the CircuitPopulationAnalysis tool.
+     */
+    CircuitPopulationAnalysisOutput: {
+      /** Result Data */
+      result_data: string;
+      /** Query Executed */
+      query_executed: string;
+    };
+    /** CircuitPopulationsResponse */
+    CircuitPopulationsResponse: {
+      /** Populations */
+      populations: string[];
+    };
+    /**
+     * ContextAnalyzerOutput
+     * @description Output of the Context Analyzer tool.
+     */
+    ContextAnalyzerOutput: {
+      /** Raw Path */
+      raw_path: string;
+      /** Query Params */
+      query_params: {
+        [key: string]: string[];
+      };
+      /**
+       * Brain Region Id
+       * @default null
+       */
+      brain_region_id: string | null;
+      /**
+       * Observed Entity Type
+       * @default null
+       */
+      observed_entity_type: string | null;
+      /**
+       * Current Entity Id
+       * @default null
+       */
+      current_entity_id: string | null;
+    };
     /** ContributionRead */
     ContributionRead: {
       /**
@@ -1198,25 +3964,6 @@ export interface components {
     } & {
       [key: string]: unknown;
     };
-    /** NestedConsortiumRead */
-    NestedConsortiumRead: {
-      /**
-       * Id
-       * Format: uuid
-       */
-      id: string;
-      /** Pref Label */
-      pref_label: string;
-      /**
-       * Alternative Name
-       * @default null
-       */
-      alternative_name: string | null;
-      /** Type */
-      type: string;
-    } & {
-      [key: string]: unknown;
-    };
     /** NestedEntityRead */
     NestedEntityRead: {
       /**
@@ -1236,8 +3983,507 @@ export interface components {
     } & {
       [key: string]: unknown;
     };
-    /** RoleRead */
-    RoleRead: {
+    /** ListResponseContributionRead */
+    ListResponseContributionRead: {
+      /** Data */
+      data: components["schemas"]["ContributionRead"][];
+      pagination: components["schemas"]["PaginationResponse"];
+      /** @default null */
+      facets: components["schemas"]["Facets"] | null;
+    } & {
+      [key: string]: unknown;
+    };
+    /** ElectricalCellRecordingRead */
+    ElectricalCellRecordingRead: {
+      /** Contributions */
+      contributions: components["schemas"]["NestedContributionRead"][] | null;
+      /** Assets */
+      assets: components["schemas"]["AssetRead"][];
+      /** @default null */
+      license: components["schemas"]["LicenseRead"] | null;
+      /**
+       * Creation Date
+       * Format: date-time
+       */
+      creation_date: string;
+      /**
+       * Update Date
+       * Format: date-time
+       */
+      update_date: string;
+      created_by: components["schemas"]["NestedPersonRead"];
+      updated_by: components["schemas"]["NestedPersonRead"];
+      brain_region: components["schemas"]["BrainRegionRead"];
+      subject: components["schemas"]["NestedSubjectRead"];
+      /**
+       * Authorized Project Id
+       * Format: uuid4
+       */
+      authorized_project_id: string;
+      /**
+       * Authorized Public
+       * @default false
+       */
+      authorized_public: boolean;
+      /** @default null */
+      type: components["schemas"]["EntityType"] | null;
+      /**
+       * Id
+       * Format: uuid
+       */
+      id: string;
+      /**
+       * Experiment Date
+       * @description Date of the experiment associated with the artifact.
+       * @default null
+       */
+      experiment_date: string | null;
+      /**
+       * Contact Email
+       * @description Optional string of a contact person's e-mail address.
+       * @default null
+       */
+      contact_email: string | null;
+      /**
+       * Published In
+       * @description Optional string with short version of the source publication(s).
+       * @default null
+       */
+      published_in: string | null;
+      /**
+       * Notice Text
+       * @description Text provided by the data creators to inform users about data caveats, limitations, or required attribution practices.
+       * @default null
+       */
+      notice_text: string | null;
+      /** Name */
+      name: string;
+      /** Description */
+      description: string;
+      /**
+       * Liquid Junction Potential
+       * @description Correction applied to the voltage trace, in mV
+       * @default 0
+       */
+      ljp: number;
+      /**
+       * Recording Location
+       * @description Location on the cell where recording was performed, in hoc-compatible format.
+       */
+      recording_location: string[];
+      /**
+       * Recording Type
+       * @description Recording type. One of: [<ElectricalRecordingStimulusType.conductance_clamp: 'conductance_clamp'>, <ElectricalRecordingStimulusType.current_clamp: 'current_clamp'>, <ElectricalRecordingStimulusType.extracellular: 'extracellular'>, <ElectricalRecordingStimulusType.other: 'other'>, <ElectricalRecordingStimulusType.unknown: 'unknown'>, <ElectricalRecordingStimulusType.voltage_clamp: 'voltage_clamp'>]
+       */
+      recording_type: components["schemas"]["ElectricalRecordingType"];
+      /**
+       * Recording Origin
+       * @description Recording origin. One of: [<ElectricalRecordingOrigin.in_silico: 'in_silico'>, <ElectricalRecordingOrigin.in_vitro: 'in_vitro'>, <ElectricalRecordingOrigin.in_vivo: 'in_vivo'>, <ElectricalRecordingOrigin.unknown: 'unknown'>]
+       */
+      recording_origin: components["schemas"]["ElectricalRecordingOrigin"];
+      /**
+       * Temperature
+       * @description Temperature at which the recording was performed, in degrees Celsius.
+       * @default null
+       */
+      temperature: number | null;
+      /**
+       * Comment
+       * @description Comment with further details.
+       * @default null
+       */
+      comment: string | null;
+      /**
+       * Legacy Id
+       * @default null
+       */
+      legacy_id: string[] | null;
+      /**
+       * Electrical Recording Stimuli
+       * @description List of stimuli applied to the cell with their respective time steps
+       * @default null
+       */
+      stimuli:
+        | components["schemas"]["NestedElectricalRecordingStimulusRead"][]
+        | null;
+      /** Etypes */
+      etypes: components["schemas"]["AnnotationRead"][] | null;
+    } & {
+      [key: string]: unknown;
+    };
+    /**
+     * ElectricalRecordingOrigin
+     * @enum {string}
+     */
+    ElectricalRecordingOrigin: "in_vivo" | "in_vitro" | "in_silico" | "unknown";
+    /**
+     * ElectricalRecordingStimulusShape
+     * @enum {string}
+     */
+    ElectricalRecordingStimulusShape:
+      | "cheops"
+      | "constant"
+      | "pulse"
+      | "step"
+      | "ramp"
+      | "noise"
+      | "sinusoidal"
+      | "other"
+      | "two_steps"
+      | "unknown";
+    /**
+     * ElectricalRecordingStimulusType
+     * @enum {string}
+     */
+    ElectricalRecordingStimulusType:
+      | "voltage_clamp"
+      | "current_clamp"
+      | "conductance_clamp"
+      | "extracellular"
+      | "other"
+      | "unknown";
+    /**
+     * ElectricalRecordingType
+     * @enum {string}
+     */
+    ElectricalRecordingType:
+      | "intracellular"
+      | "extracellular"
+      | "both"
+      | "unknown";
+    /** NestedElectricalRecordingStimulusRead */
+    NestedElectricalRecordingStimulusRead: {
+      /** @default null */
+      type: components["schemas"]["EntityType"] | null;
+      /**
+       * Id
+       * Format: uuid
+       */
+      id: string;
+      /** Name */
+      name: string;
+      /** Description */
+      description: string;
+      /**
+       * Dt
+       * @default null
+       */
+      dt: number | null;
+      injection_type: components["schemas"]["ElectricalRecordingStimulusType"];
+      shape: components["schemas"]["ElectricalRecordingStimulusShape"];
+      /**
+       * Start Time
+       * @default null
+       */
+      start_time: number | null;
+      /**
+       * End Time
+       * @default null
+       */
+      end_time: number | null;
+      /**
+       * Recording Id
+       * Format: uuid
+       */
+      recording_id: string;
+    } & {
+      [key: string]: unknown;
+    };
+    /** ListResponseElectricalCellRecordingRead */
+    ListResponseElectricalCellRecordingRead: {
+      /** Data */
+      data: components["schemas"]["ElectricalCellRecordingRead"][];
+      pagination: components["schemas"]["PaginationResponse"];
+      /** @default null */
+      facets: components["schemas"]["Facets"] | null;
+    } & {
+      [key: string]: unknown;
+    };
+    /** EModelReadExpanded */
+    EModelReadExpanded: {
+      /** Contributions */
+      contributions: components["schemas"]["NestedContributionRead"][] | null;
+      created_by: components["schemas"]["NestedPersonRead"];
+      updated_by: components["schemas"]["NestedPersonRead"];
+      /** Assets */
+      assets: components["schemas"]["AssetRead"][];
+      /** @default null */
+      type: components["schemas"]["EntityType"] | null;
+      /**
+       * Authorized Project Id
+       * Format: uuid4
+       */
+      authorized_project_id: string;
+      /**
+       * Authorized Public
+       * @default false
+       */
+      authorized_public: boolean;
+      /**
+       * Creation Date
+       * Format: date-time
+       */
+      creation_date: string;
+      /**
+       * Update Date
+       * Format: date-time
+       */
+      update_date: string;
+      /** Description */
+      description: string;
+      /** Name */
+      name: string;
+      /** Iteration */
+      iteration: string;
+      /** Score */
+      score: number;
+      /** Seed */
+      seed: number;
+      /**
+       * Id
+       * Format: uuid
+       */
+      id: string;
+      species: components["schemas"]["NestedSpeciesRead"];
+      /** @default null */
+      strain: components["schemas"]["NestedStrainRead"] | null;
+      brain_region: components["schemas"]["BrainRegionRead"];
+      /** Mtypes */
+      mtypes: components["schemas"]["AnnotationRead"][] | null;
+      /** Etypes */
+      etypes: components["schemas"]["AnnotationRead"][] | null;
+      exemplar_morphology: components["schemas"]["ExemplarMorphology"];
+      /** Ion Channel Models */
+      ion_channel_models: components["schemas"]["IonChannelModelWAssets"][];
+    } & {
+      [key: string]: unknown;
+    };
+    /** ExemplarMorphology */
+    ExemplarMorphology: {
+      /**
+       * Id
+       * Format: uuid
+       */
+      id: string;
+      /** Name */
+      name: string;
+      /** Description */
+      description: string;
+      /** @default null */
+      location: components["schemas"]["PointLocationBase"] | null;
+      /**
+       * Legacy Id
+       * @default null
+       */
+      legacy_id: string[] | null;
+      /**
+       * Creation Date
+       * Format: date-time
+       */
+      creation_date: string;
+      /**
+       * Update Date
+       * Format: date-time
+       */
+      update_date: string;
+    } & {
+      [key: string]: unknown;
+    };
+    /** IonChannelModelWAssets */
+    IonChannelModelWAssets: {
+      /** Assets */
+      assets: components["schemas"]["AssetRead"][];
+      /**
+       * Creation Date
+       * Format: date-time
+       */
+      creation_date: string;
+      /**
+       * Update Date
+       * Format: date-time
+       */
+      update_date: string;
+      brain_region: components["schemas"]["BrainRegionRead"];
+      subject: components["schemas"]["NestedSubjectRead"];
+      /**
+       * Authorized Project Id
+       * Format: uuid4
+       */
+      authorized_project_id: string;
+      /**
+       * Authorized Public
+       * @default false
+       */
+      authorized_public: boolean;
+      /** @default null */
+      type: components["schemas"]["EntityType"] | null;
+      /**
+       * Id
+       * Format: uuid
+       */
+      id: string;
+      /**
+       * Experiment Date
+       * @description Date of the experiment associated with the artifact.
+       * @default null
+       */
+      experiment_date: string | null;
+      /**
+       * Contact Email
+       * @description Optional string of a contact person's e-mail address.
+       * @default null
+       */
+      contact_email: string | null;
+      /**
+       * Published In
+       * @description Optional string with short version of the source publication(s).
+       * @default null
+       */
+      published_in: string | null;
+      /**
+       * Notice Text
+       * @description Text provided by the data creators to inform users about data caveats, limitations, or required attribution practices.
+       * @default null
+       */
+      notice_text: string | null;
+      /** Description */
+      description: string;
+      /** Name */
+      name: string;
+      /** Nmodl Suffix */
+      nmodl_suffix: string;
+      /**
+       * Is Ljp Corrected
+       * @default false
+       */
+      is_ljp_corrected: boolean;
+      /**
+       * Is Temperature Dependent
+       * @default false
+       */
+      is_temperature_dependent: boolean;
+      /** Temperature Celsius */
+      temperature_celsius: number | null;
+      /**
+       * Is Stochastic
+       * @default false
+       */
+      is_stochastic: boolean;
+      neuron_block: components["schemas"]["NeuronBlock"];
+    } & {
+      [key: string]: unknown;
+    };
+    /** NeuronBlock */
+    NeuronBlock: {
+      /**
+       * Global
+       * @default []
+       */
+      global: {
+        [key: string]: string | null;
+      }[];
+      /**
+       * Range
+       * @default []
+       */
+      range: {
+        [key: string]: string | null;
+      }[];
+      /**
+       * Useion
+       * @default []
+       */
+      useion: components["schemas"]["UseIon"][];
+      /**
+       * Nonspecific
+       * @default []
+       */
+      nonspecific: {
+        [key: string]: string | null;
+      }[];
+    } & {
+      [key: string]: unknown;
+    };
+    /** UseIon */
+    UseIon: {
+      /** Ion Name */
+      ion_name: string;
+      /**
+       * Read
+       * @default []
+       */
+      read: string[];
+      /**
+       * Write
+       * @default []
+       */
+      write: string[];
+      /**
+       * Valence
+       * @default null
+       */
+      valence: number | null;
+      /**
+       * Main Ion
+       * @default null
+       */
+      main_ion: boolean | null;
+    } & {
+      [key: string]: unknown;
+    };
+    /** ListResponseEModelReadExpanded */
+    ListResponseEModelReadExpanded: {
+      /** Data */
+      data: components["schemas"]["EModelReadExpanded"][];
+      pagination: components["schemas"]["PaginationResponse"];
+      /** @default null */
+      facets: components["schemas"]["Facets"] | null;
+    } & {
+      [key: string]: unknown;
+    };
+    /** ElectrophysiologyMetricsOutput */
+    ElectrophysiologyMetricsOutput: {
+      /**
+       * Feature Dict
+       * @description Mapping of feature name to its metric values. Each entry contains at least an 'avg', and optionally 'unit', 'num_traces', etc.
+       */
+      feature_dict: {
+        [key: string]: {
+          [key: string]: unknown;
+        };
+      };
+    };
+    /** ListResponseAnnotationRead */
+    ListResponseAnnotationRead: {
+      /** Data */
+      data: components["schemas"]["AnnotationRead"][];
+      pagination: components["schemas"]["PaginationResponse"];
+      /** @default null */
+      facets: components["schemas"]["Facets"] | null;
+    } & {
+      [key: string]: unknown;
+    };
+    /** ExperimentalBoutonDensityRead */
+    ExperimentalBoutonDensityRead: {
+      subject: components["schemas"]["NestedSubjectRead"];
+      /** Contributions */
+      contributions: components["schemas"]["NestedContributionRead"][] | null;
+      created_by: components["schemas"]["NestedPersonRead"];
+      updated_by: components["schemas"]["NestedPersonRead"];
+      /** @default null */
+      type: components["schemas"]["EntityType"] | null;
+      /**
+       * Authorized Project Id
+       * Format: uuid4
+       */
+      authorized_project_id: string;
+      /**
+       * Authorized Public
+       * @default false
+       */
+      authorized_public: boolean;
+      /** @default null */
+      license: components["schemas"]["LicenseRead"] | null;
       /**
        * Id
        * Format: uuid
@@ -1255,23 +4501,60 @@ export interface components {
       update_date: string;
       /** Name */
       name: string;
-      /** Role Id */
-      role_id: string;
+      /** Description */
+      description: string;
+      /** Measurements */
+      measurements: components["schemas"]["MeasurementRecordRead"][];
+      /** Assets */
+      assets: components["schemas"]["AssetRead"][];
+      brain_region: components["schemas"]["BrainRegionRead"];
+      /** Mtypes */
+      mtypes: components["schemas"]["AnnotationRead"][] | null;
     } & {
       [key: string]: unknown;
     };
-    /** ListResponseContributionRead */
-    ListResponseContributionRead: {
+    /** MeasurementRecordRead */
+    MeasurementRecordRead: {
+      name: components["schemas"]["MeasurementStatistic"];
+      unit: components["schemas"]["MeasurementUnit"];
+      /** Value */
+      value: number;
+      /** Id */
+      id: number;
+    } & {
+      [key: string]: unknown;
+    };
+    /** ListResponseExperimentalBoutonDensityRead */
+    ListResponseExperimentalBoutonDensityRead: {
       /** Data */
-      data: components["schemas"]["ContributionRead"][];
+      data: components["schemas"]["ExperimentalBoutonDensityRead"][];
       pagination: components["schemas"]["PaginationResponse"];
       /** @default null */
       facets: components["schemas"]["Facets"] | null;
     } & {
       [key: string]: unknown;
     };
-    /** Annotation */
-    Annotation: {
+    /** ExperimentalNeuronDensityRead */
+    ExperimentalNeuronDensityRead: {
+      subject: components["schemas"]["NestedSubjectRead"];
+      /** Contributions */
+      contributions: components["schemas"]["NestedContributionRead"][] | null;
+      created_by: components["schemas"]["NestedPersonRead"];
+      updated_by: components["schemas"]["NestedPersonRead"];
+      /** @default null */
+      type: components["schemas"]["EntityType"] | null;
+      /**
+       * Authorized Project Id
+       * Format: uuid4
+       */
+      authorized_project_id: string;
+      /**
+       * Authorized Public
+       * @default false
+       */
+      authorized_public: boolean;
+      /** @default null */
+      license: components["schemas"]["LicenseRead"] | null;
       /**
        * Id
        * Format: uuid
@@ -1287,12 +4570,529 @@ export interface components {
        * Format: date-time
        */
       update_date: string;
-      /** Pref Label */
-      pref_label: string;
-      /** Alt Label */
-      alt_label: string;
-      /** Definition */
-      definition: string;
+      /** Name */
+      name: string;
+      /** Description */
+      description: string;
+      /** Measurements */
+      measurements: components["schemas"]["MeasurementRecordRead"][];
+      /** Assets */
+      assets: components["schemas"]["AssetRead"][];
+      brain_region: components["schemas"]["BrainRegionRead"];
+      /** Mtypes */
+      mtypes: components["schemas"]["AnnotationRead"][] | null;
+      /** Etypes */
+      etypes: components["schemas"]["AnnotationRead"][] | null;
+    } & {
+      [key: string]: unknown;
+    };
+    /** ListResponseExperimentalNeuronDensityRead */
+    ListResponseExperimentalNeuronDensityRead: {
+      /** Data */
+      data: components["schemas"]["ExperimentalNeuronDensityRead"][];
+      pagination: components["schemas"]["PaginationResponse"];
+      /** @default null */
+      facets: components["schemas"]["Facets"] | null;
+    } & {
+      [key: string]: unknown;
+    };
+    /** ExperimentalSynapsesPerConnectionRead */
+    ExperimentalSynapsesPerConnectionRead: {
+      subject: components["schemas"]["NestedSubjectRead"];
+      /** Contributions */
+      contributions: components["schemas"]["NestedContributionRead"][] | null;
+      created_by: components["schemas"]["NestedPersonRead"];
+      updated_by: components["schemas"]["NestedPersonRead"];
+      /** @default null */
+      type: components["schemas"]["EntityType"] | null;
+      /**
+       * Authorized Project Id
+       * Format: uuid4
+       */
+      authorized_project_id: string;
+      /**
+       * Authorized Public
+       * @default false
+       */
+      authorized_public: boolean;
+      /** @default null */
+      license: components["schemas"]["LicenseRead"] | null;
+      /**
+       * Id
+       * Format: uuid
+       */
+      id: string;
+      /**
+       * Creation Date
+       * Format: date-time
+       */
+      creation_date: string;
+      /**
+       * Update Date
+       * Format: date-time
+       */
+      update_date: string;
+      /** Name */
+      name: string;
+      /** Description */
+      description: string;
+      /** Measurements */
+      measurements: components["schemas"]["MeasurementRecordRead"][];
+      /** Assets */
+      assets: components["schemas"]["AssetRead"][];
+      brain_region: components["schemas"]["BrainRegionRead"];
+      pre_mtype: components["schemas"]["AnnotationRead"];
+      post_mtype: components["schemas"]["AnnotationRead"];
+      pre_region: components["schemas"]["BrainRegionRead"];
+      post_region: components["schemas"]["BrainRegionRead"];
+    } & {
+      [key: string]: unknown;
+    };
+    /** ListResponseExperimentalSynapsesPerConnectionRead */
+    ListResponseExperimentalSynapsesPerConnectionRead: {
+      /** Data */
+      data: components["schemas"]["ExperimentalSynapsesPerConnectionRead"][];
+      pagination: components["schemas"]["PaginationResponse"];
+      /** @default null */
+      facets: components["schemas"]["Facets"] | null;
+    } & {
+      [key: string]: unknown;
+    };
+    /**
+     * GenerateSimulationsConfigOutput
+     * @description Class holding the ordered list of json patchers to apply to the base config.
+     */
+    GenerateSimulationsConfigOutput: {
+      /**
+       * Updated
+       * @default true
+       */
+      updated: boolean;
+    };
+    /** IonChannelRead */
+    IonChannelRead: {
+      created_by: components["schemas"]["NestedPersonRead"];
+      updated_by: components["schemas"]["NestedPersonRead"];
+      /**
+       * Creation Date
+       * Format: date-time
+       */
+      creation_date: string;
+      /**
+       * Update Date
+       * Format: date-time
+       */
+      update_date: string;
+      /**
+       * Id
+       * Format: uuid
+       */
+      id: string;
+      /** Name */
+      name: string;
+      /** Description */
+      description: string;
+      /** Label */
+      label: string;
+      /** Gene */
+      gene: string;
+      /** Synonyms */
+      synonyms: string[];
+    } & {
+      [key: string]: unknown;
+    };
+    /** ListResponseIonChannelRead */
+    ListResponseIonChannelRead: {
+      /** Data */
+      data: components["schemas"]["IonChannelRead"][];
+      pagination: components["schemas"]["PaginationResponse"];
+      /** @default null */
+      facets: components["schemas"]["Facets"] | null;
+    } & {
+      [key: string]: unknown;
+    };
+    /** IonChannelModelExpanded */
+    IonChannelModelExpanded: {
+      /** Contributions */
+      contributions: components["schemas"]["NestedContributionRead"][] | null;
+      /** Assets */
+      assets: components["schemas"]["AssetRead"][];
+      /** @default null */
+      license: components["schemas"]["LicenseRead"] | null;
+      /**
+       * Creation Date
+       * Format: date-time
+       */
+      creation_date: string;
+      /**
+       * Update Date
+       * Format: date-time
+       */
+      update_date: string;
+      created_by: components["schemas"]["NestedPersonRead"];
+      updated_by: components["schemas"]["NestedPersonRead"];
+      brain_region: components["schemas"]["BrainRegionRead"];
+      subject: components["schemas"]["NestedSubjectRead"];
+      /**
+       * Authorized Project Id
+       * Format: uuid4
+       */
+      authorized_project_id: string;
+      /**
+       * Authorized Public
+       * @default false
+       */
+      authorized_public: boolean;
+      /** @default null */
+      type: components["schemas"]["EntityType"] | null;
+      /**
+       * Id
+       * Format: uuid
+       */
+      id: string;
+      /**
+       * Experiment Date
+       * @description Date of the experiment associated with the artifact.
+       * @default null
+       */
+      experiment_date: string | null;
+      /**
+       * Contact Email
+       * @description Optional string of a contact person's e-mail address.
+       * @default null
+       */
+      contact_email: string | null;
+      /**
+       * Published In
+       * @description Optional string with short version of the source publication(s).
+       * @default null
+       */
+      published_in: string | null;
+      /**
+       * Notice Text
+       * @description Text provided by the data creators to inform users about data caveats, limitations, or required attribution practices.
+       * @default null
+       */
+      notice_text: string | null;
+      /** Description */
+      description: string;
+      /** Name */
+      name: string;
+      /** Nmodl Suffix */
+      nmodl_suffix: string;
+      /**
+       * Is Ljp Corrected
+       * @default false
+       */
+      is_ljp_corrected: boolean;
+      /**
+       * Is Temperature Dependent
+       * @default false
+       */
+      is_temperature_dependent: boolean;
+      /** Temperature Celsius */
+      temperature_celsius: number | null;
+      /**
+       * Is Stochastic
+       * @default false
+       */
+      is_stochastic: boolean;
+      neuron_block: components["schemas"]["NeuronBlock"];
+    } & {
+      [key: string]: unknown;
+    };
+    /** ListResponseIonChannelModelExpanded */
+    ListResponseIonChannelModelExpanded: {
+      /** Data */
+      data: components["schemas"]["IonChannelModelExpanded"][];
+      pagination: components["schemas"]["PaginationResponse"];
+      /** @default null */
+      facets: components["schemas"]["Facets"] | null;
+    } & {
+      [key: string]: unknown;
+    };
+    /** IonChannelModelRead */
+    IonChannelModelRead: {
+      /**
+       * Creation Date
+       * Format: date-time
+       */
+      creation_date: string;
+      /**
+       * Update Date
+       * Format: date-time
+       */
+      update_date: string;
+      brain_region: components["schemas"]["BrainRegionRead"];
+      subject: components["schemas"]["NestedSubjectRead"];
+      /**
+       * Authorized Project Id
+       * Format: uuid4
+       */
+      authorized_project_id: string;
+      /**
+       * Authorized Public
+       * @default false
+       */
+      authorized_public: boolean;
+      /** @default null */
+      type: components["schemas"]["EntityType"] | null;
+      /**
+       * Id
+       * Format: uuid
+       */
+      id: string;
+      /**
+       * Experiment Date
+       * @description Date of the experiment associated with the artifact.
+       * @default null
+       */
+      experiment_date: string | null;
+      /**
+       * Contact Email
+       * @description Optional string of a contact person's e-mail address.
+       * @default null
+       */
+      contact_email: string | null;
+      /**
+       * Published In
+       * @description Optional string with short version of the source publication(s).
+       * @default null
+       */
+      published_in: string | null;
+      /**
+       * Notice Text
+       * @description Text provided by the data creators to inform users about data caveats, limitations, or required attribution practices.
+       * @default null
+       */
+      notice_text: string | null;
+      /** Description */
+      description: string;
+      /** Name */
+      name: string;
+      /** Nmodl Suffix */
+      nmodl_suffix: string;
+      /**
+       * Is Ljp Corrected
+       * @default false
+       */
+      is_ljp_corrected: boolean;
+      /**
+       * Is Temperature Dependent
+       * @default false
+       */
+      is_temperature_dependent: boolean;
+      /** Temperature Celsius */
+      temperature_celsius: number | null;
+      /**
+       * Is Stochastic
+       * @default false
+       */
+      is_stochastic: boolean;
+      neuron_block: components["schemas"]["NeuronBlock"];
+    } & {
+      [key: string]: unknown;
+    };
+    /** IonChannelRecordingRead */
+    IonChannelRecordingRead: {
+      /** Contributions */
+      contributions: components["schemas"]["NestedContributionRead"][] | null;
+      /** Assets */
+      assets: components["schemas"]["AssetRead"][];
+      /** @default null */
+      license: components["schemas"]["LicenseRead"] | null;
+      /**
+       * Creation Date
+       * Format: date-time
+       */
+      creation_date: string;
+      /**
+       * Update Date
+       * Format: date-time
+       */
+      update_date: string;
+      created_by: components["schemas"]["NestedPersonRead"];
+      updated_by: components["schemas"]["NestedPersonRead"];
+      brain_region: components["schemas"]["BrainRegionRead"];
+      subject: components["schemas"]["NestedSubjectRead"];
+      /**
+       * Authorized Project Id
+       * Format: uuid4
+       */
+      authorized_project_id: string;
+      /**
+       * Authorized Public
+       * @default false
+       */
+      authorized_public: boolean;
+      /** @default null */
+      type: components["schemas"]["EntityType"] | null;
+      /**
+       * Id
+       * Format: uuid
+       */
+      id: string;
+      /**
+       * Experiment Date
+       * @description Date of the experiment associated with the artifact.
+       * @default null
+       */
+      experiment_date: string | null;
+      /**
+       * Contact Email
+       * @description Optional string of a contact person's e-mail address.
+       * @default null
+       */
+      contact_email: string | null;
+      /**
+       * Published In
+       * @description Optional string with short version of the source publication(s).
+       * @default null
+       */
+      published_in: string | null;
+      /**
+       * Notice Text
+       * @description Text provided by the data creators to inform users about data caveats, limitations, or required attribution practices.
+       * @default null
+       */
+      notice_text: string | null;
+      /** Name */
+      name: string;
+      /** Description */
+      description: string;
+      /**
+       * Liquid Junction Potential
+       * @description Correction applied to the voltage trace, in mV
+       * @default 0
+       */
+      ljp: number;
+      /**
+       * Recording Location
+       * @description Location on the cell where recording was performed, in hoc-compatible format.
+       */
+      recording_location: string[];
+      /**
+       * Recording Type
+       * @description Recording type. One of: [<ElectricalRecordingStimulusType.conductance_clamp: 'conductance_clamp'>, <ElectricalRecordingStimulusType.current_clamp: 'current_clamp'>, <ElectricalRecordingStimulusType.extracellular: 'extracellular'>, <ElectricalRecordingStimulusType.other: 'other'>, <ElectricalRecordingStimulusType.unknown: 'unknown'>, <ElectricalRecordingStimulusType.voltage_clamp: 'voltage_clamp'>]
+       */
+      recording_type: components["schemas"]["ElectricalRecordingType"];
+      /**
+       * Recording Origin
+       * @description Recording origin. One of: [<ElectricalRecordingOrigin.in_silico: 'in_silico'>, <ElectricalRecordingOrigin.in_vitro: 'in_vitro'>, <ElectricalRecordingOrigin.in_vivo: 'in_vivo'>, <ElectricalRecordingOrigin.unknown: 'unknown'>]
+       */
+      recording_origin: components["schemas"]["ElectricalRecordingOrigin"];
+      /**
+       * Temperature
+       * @description Temperature at which the recording was performed, in degrees Celsius.
+       * @default null
+       */
+      temperature: number | null;
+      /**
+       * Comment
+       * @description Comment with further details.
+       * @default null
+       */
+      comment: string | null;
+      /**
+       * Legacy Id
+       * @default null
+       */
+      legacy_id: string[] | null;
+      /**
+       * Cell Line
+       * @description The cell line from which the ion channel was recorded
+       */
+      cell_line: string;
+      /**
+       * Ion Channel
+       * @description The ion channel that was recorded from
+       */
+      ion_channel: components["schemas"]["NestedIonChannelRead"];
+      /**
+       * Electrical Recording Stimuli
+       * @description List of stimuli applied to the cell with their respective time steps
+       * @default null
+       */
+      stimuli:
+        | components["schemas"]["NestedElectricalRecordingStimulusRead"][]
+        | null;
+    } & {
+      [key: string]: unknown;
+    };
+    /** NestedIonChannelRead */
+    NestedIonChannelRead: {
+      /**
+       * Id
+       * Format: uuid
+       */
+      id: string;
+      /** Name */
+      name: string;
+      /** Description */
+      description: string;
+      /** Label */
+      label: string;
+      /** Gene */
+      gene: string;
+      /** Synonyms */
+      synonyms: string[];
+    } & {
+      [key: string]: unknown;
+    };
+    /** ListResponseIonChannelRecordingRead */
+    ListResponseIonChannelRecordingRead: {
+      /** Data */
+      data: components["schemas"]["IonChannelRecordingRead"][];
+      pagination: components["schemas"]["PaginationResponse"];
+      /** @default null */
+      facets: components["schemas"]["Facets"] | null;
+    } & {
+      [key: string]: unknown;
+    };
+    /**
+     * ArticleResults
+     * @description Article results schema for Literature Search tool.
+     */
+    ArticleResults: {
+      /** Title */
+      title: string;
+      /** Url */
+      url: string;
+      /**
+       * Publisheddate
+       * @default null
+       */
+      publishedDate: string | null;
+      /**
+       * Author
+       * @default null
+       */
+      author: string | null;
+      /** Id */
+      id: string;
+      /**
+       * Image
+       * @default null
+       */
+      image: string | null;
+      /** Text */
+      text: string;
+    };
+    /**
+     * LiteratureSearchOutput
+     * @description Output schema for Literature Search tool.
+     */
+    LiteratureSearchOutput: {
+      /** Results */
+      results: components["schemas"]["ArticleResults"][];
+    };
+    /** ListResponseMeasurementAnnotationRead */
+    ListResponseMeasurementAnnotationRead: {
+      /** Data */
+      data: components["schemas"]["MeasurementAnnotationRead"][];
+      pagination: components["schemas"]["PaginationResponse"];
+      /** @default null */
+      facets: components["schemas"]["Facets"] | null;
     } & {
       [key: string]: unknown;
     };
@@ -1346,99 +5146,10 @@ export interface components {
       strain: components["schemas"]["NestedStrainRead"] | null;
       brain_region: components["schemas"]["BrainRegionRead"];
       /** Mtypes */
-      mtypes: components["schemas"]["Annotation"][] | null;
+      mtypes: components["schemas"]["AnnotationRead"][] | null;
       /** Etypes */
-      etypes: components["schemas"]["Annotation"][] | null;
+      etypes: components["schemas"]["AnnotationRead"][] | null;
       exemplar_morphology: components["schemas"]["ExemplarMorphology"];
-    } & {
-      [key: string]: unknown;
-    };
-    /**
-     * EntityType
-     * @description Entity types.
-     * @enum {string}
-     */
-    EntityType:
-      | "analysis_software_source_code"
-      | "brain_atlas"
-      | "brain_atlas_region"
-      | "cell_composition"
-      | "electrical_cell_recording"
-      | "electrical_recording_stimulus"
-      | "emodel"
-      | "experimental_bouton_density"
-      | "experimental_neuron_density"
-      | "experimental_synapses_per_connection"
-      | "ion_channel_model"
-      | "memodel"
-      | "mesh"
-      | "memodel_calibration_result"
-      | "me_type_density"
-      | "publication"
-      | "reconstruction_morphology"
-      | "simulation"
-      | "simulation_campaign"
-      | "simulation_campaign_generation"
-      | "simulation_execution"
-      | "simulation_result"
-      | "scientific_artifact"
-      | "single_neuron_simulation"
-      | "single_neuron_synaptome"
-      | "single_neuron_synaptome_simulation"
-      | "subject"
-      | "validation_result"
-      | "circuit";
-    /** ExemplarMorphology */
-    ExemplarMorphology: {
-      /**
-       * Id
-       * Format: uuid
-       */
-      id: string;
-      /** Name */
-      name: string;
-      /** Description */
-      description: string;
-      /** @default null */
-      location: components["schemas"]["PointLocationBase"] | null;
-      /** Legacy Id */
-      legacy_id: string[] | null;
-      /**
-       * Creation Date
-       * Format: date-time
-       */
-      creation_date: string;
-      /**
-       * Update Date
-       * Format: date-time
-       */
-      update_date: string;
-    } & {
-      [key: string]: unknown;
-    };
-    /** LicenseRead */
-    LicenseRead: {
-      /**
-       * Id
-       * Format: uuid
-       */
-      id: string;
-      /**
-       * Creation Date
-       * Format: date-time
-       */
-      creation_date: string;
-      /**
-       * Update Date
-       * Format: date-time
-       */
-      update_date: string;
-      /** Name */
-      name: string;
-      /** Description */
-      description: string;
-      /** Label */
-      label: string;
     } & {
       [key: string]: unknown;
     };
@@ -1531,111 +5242,15 @@ export interface components {
       strain: components["schemas"]["NestedStrainRead"] | null;
       brain_region: components["schemas"]["BrainRegionRead"];
       /** Mtypes */
-      mtypes: components["schemas"]["Annotation"][] | null;
+      mtypes: components["schemas"]["AnnotationRead"][] | null;
       /** Etypes */
-      etypes: components["schemas"]["Annotation"][] | null;
-      morphology: components["schemas"]["ReconstructionMorphologyRead"];
+      etypes: components["schemas"]["AnnotationRead"][] | null;
+      morphology: components["schemas"]["CellMorphologyRead"];
       emodel: components["schemas"]["EModelRead"];
       /** @default null */
       calibration_result:
         | components["schemas"]["MEModelCalibrationResultRead"]
         | null;
-    } & {
-      [key: string]: unknown;
-    };
-    /** NestedContributionRead */
-    NestedContributionRead: {
-      /**
-       * Id
-       * Format: uuid
-       */
-      id: string;
-      agent: components["schemas"]["AgentRead"];
-      role: components["schemas"]["RoleRead"];
-    } & {
-      [key: string]: unknown;
-    };
-    /** NestedStrainRead */
-    NestedStrainRead: {
-      /**
-       * Id
-       * Format: uuid
-       */
-      id: string;
-      /** Name */
-      name: string;
-      /** Taxonomy Id */
-      taxonomy_id: string;
-      /**
-       * Species Id
-       * Format: uuid
-       */
-      species_id: string;
-    } & {
-      [key: string]: unknown;
-    };
-    /** PointLocationBase */
-    PointLocationBase: {
-      /** X */
-      x: number;
-      /** Y */
-      y: number;
-      /** Z */
-      z: number;
-    } & {
-      [key: string]: unknown;
-    };
-    /** ReconstructionMorphologyRead */
-    ReconstructionMorphologyRead: {
-      /** Contributions */
-      contributions: components["schemas"]["NestedContributionRead"][] | null;
-      created_by: components["schemas"]["NestedPersonRead"];
-      updated_by: components["schemas"]["NestedPersonRead"];
-      /** @default null */
-      type: components["schemas"]["EntityType"] | null;
-      /** Assets */
-      assets: components["schemas"]["AssetRead"][];
-      /**
-       * Authorized Project Id
-       * Format: uuid4
-       */
-      authorized_project_id: string;
-      /**
-       * Authorized Public
-       * @default false
-       */
-      authorized_public: boolean;
-      /** @default null */
-      license: components["schemas"]["LicenseRead"] | null;
-      /**
-       * Id
-       * Format: uuid
-       */
-      id: string;
-      /**
-       * Creation Date
-       * Format: date-time
-       */
-      creation_date: string;
-      /**
-       * Update Date
-       * Format: date-time
-       */
-      update_date: string;
-      /** Name */
-      name: string;
-      /** Description */
-      description: string;
-      /** @default null */
-      location: components["schemas"]["PointLocationBase"] | null;
-      /** Legacy Id */
-      legacy_id: string[] | null;
-      species: components["schemas"]["NestedSpeciesRead"];
-      /** @default null */
-      strain: components["schemas"]["NestedStrainRead"] | null;
-      brain_region: components["schemas"]["BrainRegionRead"];
-      /** Mtypes */
-      mtypes: components["schemas"]["Annotation"][] | null;
     } & {
       [key: string]: unknown;
     };
@@ -1654,171 +5269,6 @@ export interface components {
     } & {
       [key: string]: unknown;
     };
-    /** ListResponseReconstructionMorphologyRead */
-    ListResponseReconstructionMorphologyRead: {
-      /** Data */
-      data: components["schemas"]["ReconstructionMorphologyRead"][];
-      pagination: components["schemas"]["PaginationResponse"];
-      /** @default null */
-      facets: components["schemas"]["Facets"] | null;
-    } & {
-      [key: string]: unknown;
-    };
-    /**
-     * MeasurableEntity
-     * @constant
-     */
-    MeasurableEntity: "reconstruction_morphology";
-    /** MeasurementAnnotationRead */
-    MeasurementAnnotationRead: {
-      /**
-       * Id
-       * Format: uuid
-       */
-      id: string;
-      /**
-       * Creation Date
-       * Format: date-time
-       */
-      creation_date: string;
-      /**
-       * Update Date
-       * Format: date-time
-       */
-      update_date: string;
-      /**
-       * Entity Id
-       * Format: uuid
-       */
-      entity_id: string;
-      entity_type: components["schemas"]["MeasurableEntity"];
-      /** Measurement Kinds */
-      measurement_kinds: components["schemas"]["MeasurementKindCreate"][];
-    } & {
-      [key: string]: unknown;
-    };
-    /** MeasurementItem */
-    MeasurementItem: {
-      /** @default null */
-      name: components["schemas"]["MeasurementStatistic"] | null;
-      /** @default null */
-      unit: components["schemas"]["MeasurementUnit"] | null;
-      /** Value */
-      value: number | null;
-    } & {
-      [key: string]: unknown;
-    };
-    /** MeasurementKindCreate */
-    MeasurementKindCreate: {
-      structural_domain: components["schemas"]["StructuralDomain"];
-      /** Measurement Items */
-      measurement_items: components["schemas"]["MeasurementItem"][];
-      /** Pref Label */
-      pref_label: string;
-    } & {
-      [key: string]: unknown;
-    };
-    /**
-     * MeasurementStatistic
-     * @enum {string}
-     */
-    MeasurementStatistic:
-      | "mean"
-      | "median"
-      | "mode"
-      | "variance"
-      | "data_point"
-      | "sample_size"
-      | "standard_error"
-      | "standard_deviation"
-      | "raw"
-      | "minimum"
-      | "maximum"
-      | "sum";
-    /**
-     * MeasurementUnit
-     * @enum {string}
-     */
-    MeasurementUnit:
-      | "dimensionless"
-      | "1/μm"
-      | "1/mm³"
-      | "μm"
-      | "μm²"
-      | "μm³"
-      | "radian";
-    /** ReconstructionMorphologyAnnotationExpandedRead */
-    ReconstructionMorphologyAnnotationExpandedRead: {
-      /** Contributions */
-      contributions: components["schemas"]["NestedContributionRead"][] | null;
-      created_by: components["schemas"]["NestedPersonRead"];
-      updated_by: components["schemas"]["NestedPersonRead"];
-      /** @default null */
-      type: components["schemas"]["EntityType"] | null;
-      /** Assets */
-      assets: components["schemas"]["AssetRead"][];
-      /**
-       * Authorized Project Id
-       * Format: uuid4
-       */
-      authorized_project_id: string;
-      /**
-       * Authorized Public
-       * @default false
-       */
-      authorized_public: boolean;
-      /** @default null */
-      license: components["schemas"]["LicenseRead"] | null;
-      /**
-       * Id
-       * Format: uuid
-       */
-      id: string;
-      /**
-       * Creation Date
-       * Format: date-time
-       */
-      creation_date: string;
-      /**
-       * Update Date
-       * Format: date-time
-       */
-      update_date: string;
-      /** Name */
-      name: string;
-      /** Description */
-      description: string;
-      /** @default null */
-      location: components["schemas"]["PointLocationBase"] | null;
-      /** Legacy Id */
-      legacy_id: string[] | null;
-      species: components["schemas"]["NestedSpeciesRead"];
-      /** @default null */
-      strain: components["schemas"]["NestedStrainRead"] | null;
-      brain_region: components["schemas"]["BrainRegionRead"];
-      /** Mtypes */
-      mtypes: components["schemas"]["Annotation"][] | null;
-      /** @default null */
-      measurement_annotation:
-        | components["schemas"]["MeasurementAnnotationRead"]
-        | null;
-    } & {
-      [key: string]: unknown;
-    };
-    /**
-     * StructuralDomain
-     * @enum {string}
-     */
-    StructuralDomain:
-      | "apical_dendrite"
-      | "basal_dendrite"
-      | "axon"
-      | "soma"
-      | "neuron_morphology";
-    /** ReadOneReconstructionMorphologyIdGetResponse */
-    ReadOneReconstructionMorphologyIdGetResponse:
-      | components["schemas"]["ReconstructionMorphologyRead"]
-      | components["schemas"]["ReconstructionMorphologyAnnotationExpandedRead"];
     /** MorphologyMetricsOutput */
     MorphologyMetricsOutput: {
       /**
@@ -1948,6 +5398,212 @@ export interface components {
        */
       section_strahler_orders: number[] | null;
     };
+    /**
+     * FutureFeature
+     * @description Schema for future feature documents.
+     */
+    FutureFeature: {
+      /** Id */
+      id: string;
+      /** Created At */
+      created_at: string;
+      /** Updated At */
+      updated_at: string;
+      /**
+       * Topic
+       * @default null
+       */
+      topic: string | null;
+      /**
+       * Feature Title
+       * @default null
+       */
+      feature_title: string | null;
+      /**
+       * Description
+       * @default null
+       */
+      description: string | null;
+      /**
+       * Scale
+       * @default null
+       */
+      scale: string | null;
+    };
+    /**
+     * GlossaryItemDocument
+     * @description Schema for glossary item documents.
+     */
+    GlossaryItemDocument: {
+      /** Id */
+      id: string;
+      /** Created At */
+      created_at: string;
+      /** Updated At */
+      updated_at: string;
+      /**
+       * Name
+       * @default null
+       */
+      name: string | null;
+      /**
+       * Description
+       * @default null
+       */
+      description: string | null;
+      /**
+       * Definition
+       * @default null
+       */
+      definition: string | null;
+    };
+    /**
+     * NewsDocument
+     * @description Schema for news documents.
+     */
+    NewsDocument: {
+      /** Id */
+      id: string;
+      /** Created At */
+      created_at: string;
+      /** Updated At */
+      updated_at: string;
+      /**
+       * Title
+       * @default null
+       */
+      title: string | null;
+      /**
+       * Category
+       * @default null
+       */
+      category: string | null;
+      /**
+       * Content
+       * @default null
+       */
+      content: string | null;
+    };
+    /**
+     * Page
+     * @description Schema for page documents.
+     */
+    Page: {
+      /** Id */
+      id: string;
+      /** Created At */
+      created_at: string;
+      /** Updated At */
+      updated_at: string;
+      /**
+       * Title
+       * @default null
+       */
+      title: string | null;
+      /**
+       * Introduction
+       * @default null
+       */
+      introduction: string | null;
+      /**
+       * Content
+       * @default null
+       */
+      content: string | null;
+    };
+    /**
+     * PublicProject
+     * @description Schema for public project documents.
+     */
+    PublicProject: {
+      /** Id */
+      id: string;
+      /** Created At */
+      created_at: string;
+      /** Updated At */
+      updated_at: string;
+      /**
+       * Name
+       * @default null
+       */
+      name: string | null;
+      /**
+       * Introduction
+       * @default null
+       */
+      introduction: string | null;
+      /**
+       * Description
+       * @default null
+       */
+      description: string | null;
+      /**
+       * Videos List
+       * @default null
+       */
+      videos_list:
+        | {
+            [key: string]: unknown;
+          }[]
+        | null;
+      /**
+       * Authors List
+       * @default null
+       */
+      authors_list:
+        | {
+            [key: string]: unknown;
+          }[]
+        | null;
+    };
+    /**
+     * Tutorial
+     * @description Schema for tutorial documents.
+     */
+    Tutorial: {
+      /** Id */
+      id: string;
+      /** Created At */
+      created_at: string;
+      /** Updated At */
+      updated_at: string;
+      /**
+       * Title
+       * @default null
+       */
+      title: string | null;
+      /**
+       * Description
+       * @default null
+       */
+      description: string | null;
+      /**
+       * Transcript
+       * @default null
+       */
+      transcript: string | null;
+      /**
+       * Video Url
+       * @default null
+       */
+      video_url: string | null;
+    };
+    /**
+     * OBIExpertOutput
+     * @description Output schema for the OBI Expert tool.
+     */
+    OBIExpertOutput: {
+      /** Results */
+      results:
+        | components["schemas"]["FutureFeature"][]
+        | components["schemas"]["GlossaryItemDocument"][]
+        | components["schemas"]["NewsDocument"][]
+        | components["schemas"]["Page"][]
+        | components["schemas"]["PublicProject"][]
+        | components["schemas"]["Tutorial"][];
+      /** Total Items */
+      total_items: number;
+    };
     /** OrganizationRead */
     OrganizationRead: {
       /**
@@ -2038,600 +5694,12 @@ export interface components {
       [key: string]: unknown;
     };
     /**
-     * PlotGeneratorToolOutput
-     * @description Output class for the plot generator.
+     * PlotElectricalCellRecordingGetOneOutput
+     * @description Output of the PlotElectricalCellRecordingGetOneTool.
      */
-    PlotGeneratorToolOutput: {
+    PlotElectricalCellRecordingGetOneOutput: {
       /** Storage Id */
       storage_id: string;
-    };
-    /** ListResponseAnnotation */
-    ListResponseAnnotation: {
-      /** Data */
-      data: components["schemas"]["Annotation"][];
-      pagination: components["schemas"]["PaginationResponse"];
-      /** @default null */
-      facets: components["schemas"]["Facets"] | null;
-    } & {
-      [key: string]: unknown;
-    };
-    /** EModelReadExpanded */
-    EModelReadExpanded: {
-      /** Contributions */
-      contributions: components["schemas"]["NestedContributionRead"][] | null;
-      created_by: components["schemas"]["NestedPersonRead"];
-      updated_by: components["schemas"]["NestedPersonRead"];
-      /** Assets */
-      assets: components["schemas"]["AssetRead"][];
-      /** @default null */
-      type: components["schemas"]["EntityType"] | null;
-      /**
-       * Authorized Project Id
-       * Format: uuid4
-       */
-      authorized_project_id: string;
-      /**
-       * Authorized Public
-       * @default false
-       */
-      authorized_public: boolean;
-      /**
-       * Creation Date
-       * Format: date-time
-       */
-      creation_date: string;
-      /**
-       * Update Date
-       * Format: date-time
-       */
-      update_date: string;
-      /** Description */
-      description: string;
-      /** Name */
-      name: string;
-      /** Iteration */
-      iteration: string;
-      /** Score */
-      score: number;
-      /** Seed */
-      seed: number;
-      /**
-       * Id
-       * Format: uuid
-       */
-      id: string;
-      species: components["schemas"]["NestedSpeciesRead"];
-      /** @default null */
-      strain: components["schemas"]["NestedStrainRead"] | null;
-      brain_region: components["schemas"]["BrainRegionRead"];
-      /** Mtypes */
-      mtypes: components["schemas"]["Annotation"][] | null;
-      /** Etypes */
-      etypes: components["schemas"]["Annotation"][] | null;
-      exemplar_morphology: components["schemas"]["ExemplarMorphology"];
-      /** Ion Channel Models */
-      ion_channel_models: components["schemas"]["IonChannelModelWAssets"][];
-    } & {
-      [key: string]: unknown;
-    };
-    /** IonChannelModelWAssets */
-    IonChannelModelWAssets: {
-      /** Assets */
-      assets: components["schemas"]["AssetRead"][];
-      /** @default null */
-      type: components["schemas"]["EntityType"] | null;
-      /**
-       * Authorized Project Id
-       * Format: uuid4
-       */
-      authorized_project_id: string;
-      /**
-       * Authorized Public
-       * @default false
-       */
-      authorized_public: boolean;
-      /**
-       * Id
-       * Format: uuid
-       */
-      id: string;
-      /**
-       * Creation Date
-       * Format: date-time
-       */
-      creation_date: string;
-      /**
-       * Update Date
-       * Format: date-time
-       */
-      update_date: string;
-      /** Description */
-      description: string;
-      /** Name */
-      name: string;
-      /** Nmodl Suffix */
-      nmodl_suffix: string;
-      /**
-       * Is Ljp Corrected
-       * @default false
-       */
-      is_ljp_corrected: boolean;
-      /**
-       * Is Temperature Dependent
-       * @default false
-       */
-      is_temperature_dependent: boolean;
-      /** Temperature Celsius */
-      temperature_celsius: number;
-      /**
-       * Is Stochastic
-       * @default false
-       */
-      is_stochastic: boolean;
-      neuron_block: components["schemas"]["NeuronBlock"];
-      species: components["schemas"]["NestedSpeciesRead"];
-      /** @default null */
-      strain: components["schemas"]["NestedStrainRead"] | null;
-      brain_region: components["schemas"]["BrainRegionRead"];
-    } & {
-      [key: string]: unknown;
-    };
-    /** NeuronBlock */
-    NeuronBlock: {
-      /**
-       * Global
-       * @default []
-       */
-      global: {
-        [key: string]: string | null;
-      }[];
-      /**
-       * Range
-       * @default []
-       */
-      range: {
-        [key: string]: string | null;
-      }[];
-      /**
-       * Useion
-       * @default []
-       */
-      useion: components["schemas"]["UseIon"][];
-      /**
-       * Nonspecific
-       * @default []
-       */
-      nonspecific: {
-        [key: string]: string | null;
-      }[];
-    } & {
-      [key: string]: unknown;
-    };
-    /** UseIon */
-    UseIon: {
-      /** Ion Name */
-      ion_name: string;
-      /**
-       * Read
-       * @default []
-       */
-      read: string[];
-      /**
-       * Write
-       * @default []
-       */
-      write: string[];
-      /**
-       * Valence
-       * @default null
-       */
-      valence: number | null;
-      /**
-       * Main Ion
-       * @default null
-       */
-      main_ion: boolean | null;
-    } & {
-      [key: string]: unknown;
-    };
-    /** ListResponseEModelReadExpanded */
-    ListResponseEModelReadExpanded: {
-      /** Data */
-      data: components["schemas"]["EModelReadExpanded"][];
-      pagination: components["schemas"]["PaginationResponse"];
-      /** @default null */
-      facets: components["schemas"]["Facets"] | null;
-    } & {
-      [key: string]: unknown;
-    };
-    /**
-     * AgePeriod
-     * @enum {string}
-     */
-    AgePeriod: "prenatal" | "postnatal" | "unknown";
-    /** ElectricalCellRecordingRead */
-    ElectricalCellRecordingRead: {
-      /** Contributions */
-      contributions: components["schemas"]["NestedContributionRead"][] | null;
-      /** Assets */
-      assets: components["schemas"]["AssetRead"][];
-      /** @default null */
-      license: components["schemas"]["LicenseRead"] | null;
-      /**
-       * Creation Date
-       * Format: date-time
-       */
-      creation_date: string;
-      /**
-       * Update Date
-       * Format: date-time
-       */
-      update_date: string;
-      created_by: components["schemas"]["NestedPersonRead"];
-      updated_by: components["schemas"]["NestedPersonRead"];
-      brain_region: components["schemas"]["BrainRegionRead"];
-      subject: components["schemas"]["NestedSubjectRead"];
-      /**
-       * Authorized Project Id
-       * Format: uuid4
-       */
-      authorized_project_id: string;
-      /**
-       * Authorized Public
-       * @default false
-       */
-      authorized_public: boolean;
-      /** @default null */
-      type: components["schemas"]["EntityType"] | null;
-      /**
-       * Id
-       * Format: uuid
-       */
-      id: string;
-      /**
-       * Experiment Date
-       * @default null
-       */
-      experiment_date: string | null;
-      /**
-       * Contact Email
-       * @default null
-       */
-      contact_email: string | null;
-      /**
-       * Published In
-       * @default null
-       */
-      published_in: string | null;
-      /** Name */
-      name: string;
-      /** Description */
-      description: string;
-      /**
-       * Liquid Junction Potential
-       * @description Correction applied to the voltage trace, in mV
-       * @default 0
-       */
-      ljp: number;
-      /**
-       * Recording Location
-       * @description Location on the cell where recording was performed, in hoc-compatible format.
-       */
-      recording_location: string[];
-      /**
-       * Recording Type
-       * @description Recording type. One of: [<ElectricalRecordingStimulusType.conductance_clamp: 'conductance_clamp'>, <ElectricalRecordingStimulusType.current_clamp: 'current_clamp'>, <ElectricalRecordingStimulusType.extracellular: 'extracellular'>, <ElectricalRecordingStimulusType.other: 'other'>, <ElectricalRecordingStimulusType.unknown: 'unknown'>, <ElectricalRecordingStimulusType.voltage_clamp: 'voltage_clamp'>]
-       */
-      recording_type: components["schemas"]["ElectricalRecordingType"];
-      /**
-       * Recording Origin
-       * @description Recording origin. One of: [<ElectricalRecordingOrigin.in_silico: 'in_silico'>, <ElectricalRecordingOrigin.in_vitro: 'in_vitro'>, <ElectricalRecordingOrigin.in_vivo: 'in_vivo'>, <ElectricalRecordingOrigin.unknown: 'unknown'>]
-       */
-      recording_origin: components["schemas"]["ElectricalRecordingOrigin"];
-      /**
-       * Temperature
-       * @description Temperature at which the recording was performed, in degrees Celsius.
-       * @default null
-       */
-      temperature: number | null;
-      /**
-       * Comment
-       * @description Comment with further details.
-       * @default null
-       */
-      comment: string | null;
-      /**
-       * Legacy Id
-       * @default null
-       */
-      legacy_id: string[] | null;
-      /**
-       * Electrical Recording Stimuli
-       * @description List of stimuli applied to the cell with their respective time steps
-       * @default null
-       */
-      stimuli:
-        | components["schemas"]["NestedElectricalRecordingStimulusRead"][]
-        | null;
-      /** Etypes */
-      etypes: components["schemas"]["Annotation"][] | null;
-    } & {
-      [key: string]: unknown;
-    };
-    /**
-     * ElectricalRecordingOrigin
-     * @enum {string}
-     */
-    ElectricalRecordingOrigin: "in_vivo" | "in_vitro" | "in_silico" | "unknown";
-    /**
-     * ElectricalRecordingStimulusShape
-     * @enum {string}
-     */
-    ElectricalRecordingStimulusShape:
-      | "cheops"
-      | "constant"
-      | "pulse"
-      | "step"
-      | "ramp"
-      | "noise"
-      | "sinusoidal"
-      | "other"
-      | "two_steps"
-      | "unknown";
-    /**
-     * ElectricalRecordingStimulusType
-     * @enum {string}
-     */
-    ElectricalRecordingStimulusType:
-      | "voltage_clamp"
-      | "current_clamp"
-      | "conductance_clamp"
-      | "extracellular"
-      | "other"
-      | "unknown";
-    /**
-     * ElectricalRecordingType
-     * @enum {string}
-     */
-    ElectricalRecordingType:
-      | "intracellular"
-      | "extracellular"
-      | "both"
-      | "unknown";
-    /** NestedElectricalRecordingStimulusRead */
-    NestedElectricalRecordingStimulusRead: {
-      /** @default null */
-      type: components["schemas"]["EntityType"] | null;
-      /**
-       * Id
-       * Format: uuid
-       */
-      id: string;
-      /** Name */
-      name: string;
-      /** Description */
-      description: string;
-      /**
-       * Dt
-       * @default null
-       */
-      dt: number | null;
-      injection_type: components["schemas"]["ElectricalRecordingStimulusType"];
-      shape: components["schemas"]["ElectricalRecordingStimulusShape"];
-      /**
-       * Start Time
-       * @default null
-       */
-      start_time: number | null;
-      /**
-       * End Time
-       * @default null
-       */
-      end_time: number | null;
-      /**
-       * Recording Id
-       * Format: uuid
-       */
-      recording_id: string;
-    } & {
-      [key: string]: unknown;
-    };
-    /** NestedSubjectRead */
-    NestedSubjectRead: {
-      /**
-       * Id
-       * Format: uuid
-       */
-      id: string;
-      /** Name */
-      name: string;
-      /** Description */
-      description: string;
-      /** @description Sex of the subject */
-      sex: components["schemas"]["Sex"];
-      /**
-       * Weight
-       * @description Weight in grams
-       * @default null
-       */
-      weight: components["schemas"]["Weight"] | null;
-      /**
-       * Age value
-       * @description Age value interval.
-       * @default null
-       */
-      age_value: number | null;
-      /**
-       * Minimum age range
-       * @description Minimum age range
-       * @default null
-       */
-      age_min: number | null;
-      /**
-       * Maximum age range
-       * @description Maximum age range
-       * @default null
-       */
-      age_max: number | null;
-      /** @default null */
-      age_period: components["schemas"]["AgePeriod"] | null;
-      species: components["schemas"]["NestedSpeciesRead"];
-    } & {
-      [key: string]: unknown;
-    };
-    /**
-     * Sex
-     * @enum {string}
-     */
-    Sex: "male" | "female" | "unknown";
-    /**
-     * Weight
-     * @description Weight in grams
-     */
-    Weight: number;
-    /** ListResponseElectricalCellRecordingRead */
-    ListResponseElectricalCellRecordingRead: {
-      /** Data */
-      data: components["schemas"]["ElectricalCellRecordingRead"][];
-      pagination: components["schemas"]["PaginationResponse"];
-      /** @default null */
-      facets: components["schemas"]["Facets"] | null;
-    } & {
-      [key: string]: unknown;
-    };
-    /** ExperimentalBoutonDensityRead */
-    ExperimentalBoutonDensityRead: {
-      subject: components["schemas"]["NestedSubjectRead"];
-      /** Contributions */
-      contributions: components["schemas"]["NestedContributionRead"][] | null;
-      created_by: components["schemas"]["NestedPersonRead"];
-      updated_by: components["schemas"]["NestedPersonRead"];
-      /** @default null */
-      type: components["schemas"]["EntityType"] | null;
-      /**
-       * Authorized Project Id
-       * Format: uuid4
-       */
-      authorized_project_id: string;
-      /**
-       * Authorized Public
-       * @default false
-       */
-      authorized_public: boolean;
-      /** @default null */
-      license: components["schemas"]["LicenseRead"] | null;
-      /**
-       * Id
-       * Format: uuid
-       */
-      id: string;
-      /**
-       * Creation Date
-       * Format: date-time
-       */
-      creation_date: string;
-      /**
-       * Update Date
-       * Format: date-time
-       */
-      update_date: string;
-      /** Name */
-      name: string;
-      /** Description */
-      description: string;
-      /** Measurements */
-      measurements: components["schemas"]["MeasurementRead"][] | null;
-      /** Assets */
-      assets: components["schemas"]["AssetRead"][] | null;
-      brain_region: components["schemas"]["BrainRegionRead"];
-      /** Mtypes */
-      mtypes: components["schemas"]["Annotation"][] | null;
-    } & {
-      [key: string]: unknown;
-    };
-    /** MeasurementRead */
-    MeasurementRead: {
-      /** Id */
-      id: number;
-      /** Name */
-      name: string;
-      unit: components["schemas"]["MeasurementUnit"];
-      /** Value */
-      value: number;
-    } & {
-      [key: string]: unknown;
-    };
-    /** ListResponseExperimentalBoutonDensityRead */
-    ListResponseExperimentalBoutonDensityRead: {
-      /** Data */
-      data: components["schemas"]["ExperimentalBoutonDensityRead"][];
-      pagination: components["schemas"]["PaginationResponse"];
-      /** @default null */
-      facets: components["schemas"]["Facets"] | null;
-    } & {
-      [key: string]: unknown;
-    };
-    /** ExperimentalNeuronDensityRead */
-    ExperimentalNeuronDensityRead: {
-      subject: components["schemas"]["NestedSubjectRead"];
-      /** Contributions */
-      contributions: components["schemas"]["NestedContributionRead"][] | null;
-      created_by: components["schemas"]["NestedPersonRead"];
-      updated_by: components["schemas"]["NestedPersonRead"];
-      /** @default null */
-      type: components["schemas"]["EntityType"] | null;
-      /**
-       * Authorized Project Id
-       * Format: uuid4
-       */
-      authorized_project_id: string;
-      /**
-       * Authorized Public
-       * @default false
-       */
-      authorized_public: boolean;
-      /** @default null */
-      license: components["schemas"]["LicenseRead"] | null;
-      /**
-       * Id
-       * Format: uuid
-       */
-      id: string;
-      /**
-       * Creation Date
-       * Format: date-time
-       */
-      creation_date: string;
-      /**
-       * Update Date
-       * Format: date-time
-       */
-      update_date: string;
-      /** Name */
-      name: string;
-      /** Description */
-      description: string;
-      /** Measurements */
-      measurements: components["schemas"]["MeasurementRead"][] | null;
-      /** Assets */
-      assets: components["schemas"]["AssetRead"][] | null;
-      brain_region: components["schemas"]["BrainRegionRead"];
-      /** Mtypes */
-      mtypes: components["schemas"]["Annotation"][] | null;
-      /** Etypes */
-      etypes: components["schemas"]["Annotation"][] | null;
-    } & {
-      [key: string]: unknown;
-    };
-    /** ListResponseExperimentalNeuronDensityRead */
-    ListResponseExperimentalNeuronDensityRead: {
-      /** Data */
-      data: components["schemas"]["ExperimentalNeuronDensityRead"][];
-      pagination: components["schemas"]["PaginationResponse"];
-      /** @default null */
-      facets: components["schemas"]["Facets"] | null;
-    } & {
-      [key: string]: unknown;
     };
     /**
      * PlotMorphologyGetOneOutput
@@ -2640,6 +5708,595 @@ export interface components {
     PlotMorphologyGetOneOutput: {
       /** Storage Id */
       storage_id: string;
+    };
+    /** NestedSimulationRead */
+    NestedSimulationRead: {
+      /**
+       * Id
+       * Format: uuid
+       */
+      id: string;
+      /** @default null */
+      type: components["schemas"]["EntityType"] | null;
+      /** Name */
+      name: string;
+      /** Description */
+      description: string;
+      /**
+       * Simulation Campaign Id
+       * Format: uuid
+       */
+      simulation_campaign_id: string;
+      /**
+       * Entity Id
+       * Format: uuid
+       */
+      entity_id: string;
+      /** Scan Parameters */
+      scan_parameters: {
+        [key: string]: unknown;
+      };
+    } & {
+      [key: string]: unknown;
+    };
+    /** SimulationCampaignRead */
+    SimulationCampaignRead: {
+      /**
+       * Authorized Project Id
+       * Format: uuid4
+       */
+      authorized_project_id: string;
+      /**
+       * Authorized Public
+       * @default false
+       */
+      authorized_public: boolean;
+      /**
+       * Creation Date
+       * Format: date-time
+       */
+      creation_date: string;
+      /**
+       * Update Date
+       * Format: date-time
+       */
+      update_date: string;
+      created_by: components["schemas"]["NestedPersonRead"];
+      updated_by: components["schemas"]["NestedPersonRead"];
+      /** Assets */
+      assets: components["schemas"]["AssetRead"][];
+      /**
+       * Id
+       * Format: uuid
+       */
+      id: string;
+      /** @default null */
+      type: components["schemas"]["EntityType"] | null;
+      /** Name */
+      name: string;
+      /** Description */
+      description: string;
+      /** Scan Parameters */
+      scan_parameters: {
+        [key: string]: unknown;
+      };
+      /**
+       * Entity Id
+       * Format: uuid
+       */
+      entity_id: string;
+      /** Simulations */
+      simulations: components["schemas"]["NestedSimulationRead"][];
+    } & {
+      [key: string]: unknown;
+    };
+    /** ListResponseSimulationCampaignRead */
+    ListResponseSimulationCampaignRead: {
+      /** Data */
+      data: components["schemas"]["SimulationCampaignRead"][];
+      pagination: components["schemas"]["PaginationResponse"];
+      /** @default null */
+      facets: components["schemas"]["Facets"] | null;
+    } & {
+      [key: string]: unknown;
+    };
+    /**
+     * ActivityType
+     * @description Activity types.
+     * @enum {string}
+     */
+    ActivityType:
+      | "simulation_execution"
+      | "simulation_generation"
+      | "validation"
+      | "calibration"
+      | "analysis_notebook_execution"
+      | "ion_channel_modeling_execution"
+      | "ion_channel_modeling_config_generation"
+      | "circuit_extraction_config_generation"
+      | "circuit_extraction_execution"
+      | "skeletonization_execution"
+      | "skeletonization_config_generation";
+    /** SimulationExecutionRead */
+    SimulationExecutionRead: {
+      /**
+       * Authorized Project Id
+       * Format: uuid4
+       */
+      authorized_project_id: string;
+      /**
+       * Authorized Public
+       * @default false
+       */
+      authorized_public: boolean;
+      /**
+       * Creation Date
+       * Format: date-time
+       */
+      creation_date: string;
+      /**
+       * Update Date
+       * Format: date-time
+       */
+      update_date: string;
+      created_by: components["schemas"]["NestedPersonRead"];
+      updated_by: components["schemas"]["NestedPersonRead"];
+      /**
+       * Id
+       * Format: uuid
+       */
+      id: string;
+      /** @default null */
+      type: components["schemas"]["ActivityType"] | null;
+      /**
+       * Start Time
+       * @default null
+       */
+      start_time: string | null;
+      /**
+       * End Time
+       * @default null
+       */
+      end_time: string | null;
+      /** Used */
+      used: components["schemas"]["NestedEntityRead"][];
+      /** Generated */
+      generated: components["schemas"]["NestedEntityRead"][];
+      status: components["schemas"]["SimulationExecutionStatus"];
+    } & {
+      [key: string]: unknown;
+    };
+    /**
+     * SimulationExecutionStatus
+     * @enum {string}
+     */
+    SimulationExecutionStatus:
+      | "created"
+      | "pending"
+      | "running"
+      | "done"
+      | "error"
+      | "cancelled";
+    /** ListResponseSimulationExecutionRead */
+    ListResponseSimulationExecutionRead: {
+      /** Data */
+      data: components["schemas"]["SimulationExecutionRead"][];
+      pagination: components["schemas"]["PaginationResponse"];
+      /** @default null */
+      facets: components["schemas"]["Facets"] | null;
+    } & {
+      [key: string]: unknown;
+    };
+    /** SimulationGenerationRead */
+    SimulationGenerationRead: {
+      /**
+       * Authorized Project Id
+       * Format: uuid4
+       */
+      authorized_project_id: string;
+      /**
+       * Authorized Public
+       * @default false
+       */
+      authorized_public: boolean;
+      /**
+       * Creation Date
+       * Format: date-time
+       */
+      creation_date: string;
+      /**
+       * Update Date
+       * Format: date-time
+       */
+      update_date: string;
+      created_by: components["schemas"]["NestedPersonRead"];
+      updated_by: components["schemas"]["NestedPersonRead"];
+      /**
+       * Id
+       * Format: uuid
+       */
+      id: string;
+      /** @default null */
+      type: components["schemas"]["ActivityType"] | null;
+      /**
+       * Start Time
+       * @default null
+       */
+      start_time: string | null;
+      /**
+       * End Time
+       * @default null
+       */
+      end_time: string | null;
+      /** Used */
+      used: components["schemas"]["NestedEntityRead"][];
+      /** Generated */
+      generated: components["schemas"]["NestedEntityRead"][];
+    } & {
+      [key: string]: unknown;
+    };
+    /** ListResponseSimulationGenerationRead */
+    ListResponseSimulationGenerationRead: {
+      /** Data */
+      data: components["schemas"]["SimulationGenerationRead"][];
+      pagination: components["schemas"]["PaginationResponse"];
+      /** @default null */
+      facets: components["schemas"]["Facets"] | null;
+    } & {
+      [key: string]: unknown;
+    };
+    /** SimulationRead */
+    SimulationRead: {
+      /**
+       * Authorized Project Id
+       * Format: uuid4
+       */
+      authorized_project_id: string;
+      /**
+       * Authorized Public
+       * @default false
+       */
+      authorized_public: boolean;
+      /**
+       * Creation Date
+       * Format: date-time
+       */
+      creation_date: string;
+      /**
+       * Update Date
+       * Format: date-time
+       */
+      update_date: string;
+      created_by: components["schemas"]["NestedPersonRead"];
+      updated_by: components["schemas"]["NestedPersonRead"];
+      /** Assets */
+      assets: components["schemas"]["AssetRead"][];
+      /**
+       * Id
+       * Format: uuid
+       */
+      id: string;
+      /** @default null */
+      type: components["schemas"]["EntityType"] | null;
+      /** Name */
+      name: string;
+      /** Description */
+      description: string;
+      /**
+       * Simulation Campaign Id
+       * Format: uuid
+       */
+      simulation_campaign_id: string;
+      /**
+       * Entity Id
+       * Format: uuid
+       */
+      entity_id: string;
+      /** Scan Parameters */
+      scan_parameters: {
+        [key: string]: unknown;
+      };
+    } & {
+      [key: string]: unknown;
+    };
+    /** ListResponseSimulationRead */
+    ListResponseSimulationRead: {
+      /** Data */
+      data: components["schemas"]["SimulationRead"][];
+      pagination: components["schemas"]["PaginationResponse"];
+      /** @default null */
+      facets: components["schemas"]["Facets"] | null;
+    } & {
+      [key: string]: unknown;
+    };
+    /** SimulationResultRead */
+    SimulationResultRead: {
+      /**
+       * Authorized Project Id
+       * Format: uuid4
+       */
+      authorized_project_id: string;
+      /**
+       * Authorized Public
+       * @default false
+       */
+      authorized_public: boolean;
+      /**
+       * Creation Date
+       * Format: date-time
+       */
+      creation_date: string;
+      /**
+       * Update Date
+       * Format: date-time
+       */
+      update_date: string;
+      created_by: components["schemas"]["NestedPersonRead"];
+      updated_by: components["schemas"]["NestedPersonRead"];
+      /** Assets */
+      assets: components["schemas"]["AssetRead"][];
+      /**
+       * Id
+       * Format: uuid
+       */
+      id: string;
+      /** @default null */
+      type: components["schemas"]["EntityType"] | null;
+      /** Name */
+      name: string;
+      /** Description */
+      description: string;
+      /**
+       * Simulation Id
+       * Format: uuid
+       */
+      simulation_id: string;
+    } & {
+      [key: string]: unknown;
+    };
+    /** ListResponseSimulationResultRead */
+    ListResponseSimulationResultRead: {
+      /** Data */
+      data: components["schemas"]["SimulationResultRead"][];
+      pagination: components["schemas"]["PaginationResponse"];
+      /** @default null */
+      facets: components["schemas"]["Facets"] | null;
+    } & {
+      [key: string]: unknown;
+    };
+    /** NestedMEModel */
+    NestedMEModel: {
+      /**
+       * Id
+       * Format: uuid
+       */
+      id: string;
+      /**
+       * Creation Date
+       * Format: date-time
+       */
+      creation_date: string;
+      /**
+       * Update Date
+       * Format: date-time
+       */
+      update_date: string;
+      /** Name */
+      name: string;
+      /** Description */
+      description: string;
+      validation_status?: components["schemas"]["ValidationStatus"];
+      /** Mtypes */
+      mtypes: components["schemas"]["AnnotationRead"][] | null;
+      /** Etypes */
+      etypes: components["schemas"]["AnnotationRead"][] | null;
+    } & {
+      [key: string]: unknown;
+    };
+    /** SingleNeuronSimulationRead */
+    SingleNeuronSimulationRead: {
+      created_by: components["schemas"]["NestedPersonRead"];
+      updated_by: components["schemas"]["NestedPersonRead"];
+      /** Assets */
+      assets: components["schemas"]["AssetRead"][];
+      /** @default null */
+      type: components["schemas"]["EntityType"] | null;
+      /**
+       * Creation Date
+       * Format: date-time
+       */
+      creation_date: string;
+      /**
+       * Update Date
+       * Format: date-time
+       */
+      update_date: string;
+      /**
+       * Id
+       * Format: uuid
+       */
+      id: string;
+      /**
+       * Authorized Project Id
+       * Format: uuid4
+       */
+      authorized_project_id: string;
+      /**
+       * Authorized Public
+       * @default false
+       */
+      authorized_public: boolean;
+      brain_region: components["schemas"]["BrainRegionRead"];
+      /** Name */
+      name: string;
+      /** Description */
+      description: string;
+      /** Seed */
+      seed: number;
+      status: components["schemas"]["SingleNeuronSimulationStatus"];
+      /** Injection Location */
+      injection_location: string[];
+      /** Recording Location */
+      recording_location: string[];
+      me_model: components["schemas"]["NestedMEModel"];
+    } & {
+      [key: string]: unknown;
+    };
+    /**
+     * SingleNeuronSimulationStatus
+     * @enum {string}
+     */
+    SingleNeuronSimulationStatus: "started" | "failure" | "success";
+    /** ListResponseSingleNeuronSimulationRead */
+    ListResponseSingleNeuronSimulationRead: {
+      /** Data */
+      data: components["schemas"]["SingleNeuronSimulationRead"][];
+      pagination: components["schemas"]["PaginationResponse"];
+      /** @default null */
+      facets: components["schemas"]["Facets"] | null;
+    } & {
+      [key: string]: unknown;
+    };
+    /** SingleNeuronSynaptomeRead */
+    SingleNeuronSynaptomeRead: {
+      created_by: components["schemas"]["NestedPersonRead"];
+      updated_by: components["schemas"]["NestedPersonRead"];
+      /** Assets */
+      assets: components["schemas"]["AssetRead"][];
+      /** @default null */
+      type: components["schemas"]["EntityType"] | null;
+      /** Contributions */
+      contributions: components["schemas"]["NestedContributionRead"][] | null;
+      /**
+       * Creation Date
+       * Format: date-time
+       */
+      creation_date: string;
+      /**
+       * Update Date
+       * Format: date-time
+       */
+      update_date: string;
+      /**
+       * Id
+       * Format: uuid
+       */
+      id: string;
+      /**
+       * Authorized Project Id
+       * Format: uuid4
+       */
+      authorized_project_id: string;
+      /**
+       * Authorized Public
+       * @default false
+       */
+      authorized_public: boolean;
+      /** Name */
+      name: string;
+      /** Description */
+      description: string;
+      /** Seed */
+      seed: number;
+      me_model: components["schemas"]["NestedMEModel"];
+      brain_region: components["schemas"]["BrainRegionRead"];
+    } & {
+      [key: string]: unknown;
+    };
+    /** ListResponseSingleNeuronSynaptomeRead */
+    ListResponseSingleNeuronSynaptomeRead: {
+      /** Data */
+      data: components["schemas"]["SingleNeuronSynaptomeRead"][];
+      pagination: components["schemas"]["PaginationResponse"];
+      /** @default null */
+      facets: components["schemas"]["Facets"] | null;
+    } & {
+      [key: string]: unknown;
+    };
+    /** NestedSynaptome */
+    NestedSynaptome: {
+      /**
+       * Id
+       * Format: uuid
+       */
+      id: string;
+      /**
+       * Creation Date
+       * Format: date-time
+       */
+      creation_date: string;
+      /**
+       * Update Date
+       * Format: date-time
+       */
+      update_date: string;
+      /** Name */
+      name: string;
+      /** Description */
+      description: string;
+      /** Seed */
+      seed: number;
+    } & {
+      [key: string]: unknown;
+    };
+    /** SingleNeuronSynaptomeSimulationRead */
+    SingleNeuronSynaptomeSimulationRead: {
+      created_by: components["schemas"]["NestedPersonRead"];
+      updated_by: components["schemas"]["NestedPersonRead"];
+      /** Assets */
+      assets: components["schemas"]["AssetRead"][];
+      /** @default null */
+      type: components["schemas"]["EntityType"] | null;
+      /**
+       * Creation Date
+       * Format: date-time
+       */
+      creation_date: string;
+      /**
+       * Update Date
+       * Format: date-time
+       */
+      update_date: string;
+      /**
+       * Id
+       * Format: uuid
+       */
+      id: string;
+      /**
+       * Authorized Project Id
+       * Format: uuid4
+       */
+      authorized_project_id: string;
+      /**
+       * Authorized Public
+       * @default false
+       */
+      authorized_public: boolean;
+      brain_region: components["schemas"]["BrainRegionRead"];
+      /** Name */
+      name: string;
+      /** Description */
+      description: string;
+      /** Seed */
+      seed: number;
+      status: components["schemas"]["SingleNeuronSimulationStatus"];
+      /** Injection Location */
+      injection_location: string[];
+      /** Recording Location */
+      recording_location: string[];
+      synaptome: components["schemas"]["NestedSynaptome"];
+    } & {
+      [key: string]: unknown;
+    };
+    /** ListResponseSingleNeuronSynaptomeSimulationRead */
+    ListResponseSingleNeuronSynaptomeSimulationRead: {
+      /** Data */
+      data: components["schemas"]["SingleNeuronSynaptomeSimulationRead"][];
+      pagination: components["schemas"]["PaginationResponse"];
+      /** @default null */
+      facets: components["schemas"]["Facets"] | null;
+    } & {
+      [key: string]: unknown;
     };
     /** SpeciesRead */
     SpeciesRead: {
@@ -2780,6 +6437,8 @@ export interface components {
       /** @default null */
       age_period: components["schemas"]["AgePeriod"] | null;
       species: components["schemas"]["NestedSpeciesRead"];
+      /** @default null */
+      strain: components["schemas"]["NestedStrainRead"] | null;
     } & {
       [key: string]: unknown;
     };
@@ -2794,12 +6453,147 @@ export interface components {
       [key: string]: unknown;
     };
     /**
-     * PlotElectricalCellRecordingGetOneOutput
-     * @description Output of the PlotElectricalCellRecordingGetOneTool.
+     * ContentResult
+     * @description Article results schema for Literature Search tool.
      */
-    PlotElectricalCellRecordingGetOneOutput: {
+    ContentResult: {
+      /** Title */
+      title: string;
+      /** Url */
+      url: string;
+      /**
+       * Publisheddate
+       * @default null
+       */
+      publishedDate: string | null;
+      /**
+       * Author
+       * @default null
+       */
+      author: string | null;
+      /** Id */
+      id: string;
+      /**
+       * Image
+       * @default null
+       */
+      image: string | null;
+      /** Text */
+      text: string;
+    };
+    /**
+     * ReadPaperOutput
+     * @description Output schema for Literature Search tool.
+     */
+    ReadPaperOutput: {
+      /** Results */
+      results: components["schemas"]["ContentResult"][];
+    };
+    /**
+     * ErrorDetail
+     * @description Detail fo the python error.
+     */
+    ErrorDetail: {
+      /**
+       * Message
+       * @default null
+       */
+      message: string | null;
+      /**
+       * Name
+       * @default null
+       */
+      name: string | null;
+    };
+    /**
+     * FailureOutput
+     * @description Output of the python script.
+     */
+    FailureOutput: {
+      /**
+       * Status
+       * @default error
+       * @constant
+       */
+      status: "error";
+      /**
+       * Error Type
+       * @enum {string}
+       */
+      error_type: "install-error" | "python-error";
+      /**
+       * Error
+       * @default null
+       */
+      error: components["schemas"]["ErrorDetail"] | string | null;
+    };
+    /**
+     * SuccessOutput
+     * @description Output of the python script.
+     */
+    SuccessOutput: {
+      /**
+       * Status
+       * @default success
+       * @constant
+       */
+      status: "success";
+      /** Output */
+      output: string[];
+      /**
+       * Return Value
+       * @default null
+       */
+      return_value: unknown;
+    };
+    /**
+     * RunPythonOutput
+     * @description Output class for the RunPython tool.
+     */
+    RunPythonOutput: {
+      /** Result */
+      result:
+        | components["schemas"]["SuccessOutput"]
+        | components["schemas"]["FailureOutput"];
       /** Storage Id */
-      storage_id: string;
+      storage_id: string[];
+    };
+    /**
+     * SearchResults
+     * @description Search results schema for Web Search tool.
+     */
+    SearchResults: {
+      /** Title */
+      title: string;
+      /** Url */
+      url: string;
+      /**
+       * Publisheddate
+       * @default null
+       */
+      publishedDate: string | null;
+      /**
+       * Author
+       * @default null
+       */
+      author: string | null;
+      /** Id */
+      id: string;
+      /**
+       * Image
+       * @default null
+       */
+      image: string | null;
+      /** Text */
+      text: string;
+    };
+    /**
+     * WebSearchOutput
+     * @description Output schema for Web Search tool.
+     */
+    WebSearchOutput: {
+      /** Results */
+      results: components["schemas"]["SearchResults"][];
     };
   };
   responses: never;
@@ -3320,6 +7114,151 @@ export interface operations {
         };
         content: {
           "application/json": components["schemas"]["RateLimitOutput"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  get_state_state_get: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["StateRead"];
+        };
+      };
+    };
+  };
+  create_state_state_post: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: {
+      content: {
+        "application/json": components["schemas"]["StateCreate"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["StateRead"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  delete_state_state_delete: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            [key: string]: string;
+          };
+        };
+      };
+    };
+  };
+  patch_state_state_patch: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["StatePatch"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            [key: string]: string;
+          };
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  reset_state_state_reset_patch: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["StateReset"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            [key: string]: string;
+          };
         };
       };
       /** @description Validation Error */
