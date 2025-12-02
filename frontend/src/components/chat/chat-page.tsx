@@ -3,7 +3,12 @@
 import Cookies from "js-cookie";
 import { useChat } from "@ai-sdk/react";
 import { useEffect, useRef, useState } from "react";
-import { BMessage, LLMModel, type MessageStrict } from "@/lib/types";
+import {
+  BMessage,
+  LLMModel,
+  SimulationsForm,
+  type MessageStrict,
+} from "@/lib/types";
 import { env } from "@/lib/env";
 import { useSession } from "next-auth/react";
 import { ExtendedSession } from "@/lib/auth";
@@ -54,6 +59,40 @@ export function ChatPage({
   const [isInvalidating, setIsInvalidating] = useState(false);
   // For frontend url
   const frontendUrl = Cookies.get("frontendUrl") || "";
+  // Simulation config json
+  const [simConfigJson, setSimConfigJson] = useState<
+    Record<string, SimulationsForm>
+  >({
+    smc_simulation_config: {
+      type: "SimulationsForm",
+      timestamps: {},
+      stimuli: {},
+      recordings: {},
+      neuron_sets: {},
+      synaptic_manipulations: {},
+      initialize: {
+        type: "SimulationsForm.Initialize",
+        circuit: {
+          type: "CircuitFromID",
+          id_str: "",
+        },
+        node_set: {
+          block_dict_name: "",
+          block_name: "",
+          type: "NeuronSetReference",
+        },
+        simulation_length: 1000,
+        extracellular_calcium_concentration: 1.1,
+        v_init: -80,
+        random_seed: 1,
+      },
+      info: {
+        type: "Info",
+        campaign_name: "name",
+        campaign_description: "description",
+      },
+    },
+  });
 
   const {
     data,
@@ -100,6 +139,7 @@ export function ChatPage({
         tool_selection: selectedTools,
         model: currentModel.id,
         frontend_url: frontendUrl,
+        shared_state: simConfigJson,
       };
     },
   });
@@ -300,6 +340,8 @@ export function ChatPage({
           addToolResult={addToolResult}
           setMessages={setMessages}
           loadingStatus={status}
+          simConfigJson={simConfigJson}
+          setSimConfigJson={setSimConfigJson}
         />
         <div ref={messagesEndRef} className="pb-5" />
       </div>
