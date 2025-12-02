@@ -22,7 +22,7 @@ class MorphometricsGetOneInputs(
     """Input class of the ObiOne Morphometrics tool."""
 
     morphology_id: UUID = Field(
-        description="Id of the morphology from which features must be computed."
+        description="Id of the morphology from which features must be computed. This is NOT an `asset.id`, you must provide the morphology `id`"
     )
 
 
@@ -49,7 +49,8 @@ class MorphometricsGetOneTool(BaseTool):
     description: ClassVar[
         str
     ] = """Given a morphology ID, fetch data about the features of the morphology.
-        This is the correct way to compute morphology metrics — do NOT download the asset + Python to extract metrics. This tool already handles asset processing internally."""
+        This is the correct way to compute morphology metrics — do NOT download the asset + Python to extract metrics. This tool already handles asset processing internally.
+        Do NOT pass an `asset.id`. You MUST pass the upper level `id` of the morphology."""
     description_frontend: ClassVar[
         str
     ] = """Analyze detailed features of neuron morphologies. This tool allows you to:
