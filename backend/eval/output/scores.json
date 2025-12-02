@@ -3,7 +3,7 @@
   "metrics_df": [
     {
       "test_name": "cerebellum_morphologies",
-      "Correctness [GEval]": 0.7353869349174808,
+      "Correctness [GEval]": 0.5295066404884736,
       "Tool Correctness": 1.0,
       "Argument Correctness": 0.0,
       "Deterministic Argument Correctness": 1.0,
@@ -11,7 +11,7 @@
     },
     {
       "test_name": "cerebellum_morphologies_descendants",
-      "Correctness [GEval]": 0.7043457159658145,
+      "Correctness [GEval]": 0.7110611787676981,
       "Tool Correctness": 1.0,
       "Argument Correctness": 0.5,
       "Deterministic Argument Correctness": 1.0,
@@ -19,7 +19,7 @@
     },
     {
       "test_name": "connectivity_metrics",
-      "Correctness [GEval]": 0.8413822094291581,
+      "Correctness [GEval]": 0.8282548726538138,
       "Tool Correctness": 1.0,
       "Argument Correctness": 0.5,
       "Deterministic Argument Correctness": 1.0,
@@ -27,7 +27,7 @@
     },
     {
       "test_name": "connectivity_metrics_extra_filters",
-      "Correctness [GEval]": 0.8070269281059362,
+      "Correctness [GEval]": 0.8130113536159069,
       "Tool Correctness": 1.0,
       "Argument Correctness": 0.5,
       "Deterministic Argument Correctness": 1.0,
@@ -35,15 +35,15 @@
     },
     {
       "test_name": "cortex_morphologies",
-      "Correctness [GEval]": 0.4653298006903742,
-      "Tool Correctness": 0.5,
+      "Correctness [GEval]": 0.4256307033376162,
+      "Tool Correctness": 1.0,
       "Argument Correctness": 0.0,
-      "Deterministic Argument Correctness": 0.0,
-      "Overall Argument Correctness": 0.0
+      "Deterministic Argument Correctness": 0.5,
+      "Overall Argument Correctness": 0.5
     },
     {
       "test_name": "get_specific_circuit",
-      "Correctness [GEval]": 0.4548528662574201,
+      "Correctness [GEval]": 0.33691910937313496,
       "Tool Correctness": 0.0,
       "Argument Correctness": 1.0,
       "Deterministic Argument Correctness": 0.0,
@@ -51,7 +51,7 @@
     },
     {
       "test_name": "hippocampus_morphologies",
-      "Correctness [GEval]": 0.4451658056800826,
+      "Correctness [GEval]": 0.4257675642352484,
       "Tool Correctness": 1.0,
       "Argument Correctness": 0.0,
       "Deterministic Argument Correctness": 0.75,
@@ -59,7 +59,7 @@
     },
     {
       "test_name": "ion_channel",
-      "Correctness [GEval]": 0.7807403647069058,
+      "Correctness [GEval]": 0.7270511848735165,
       "Tool Correctness": 1.0,
       "Argument Correctness": 1.0,
       "Deterministic Argument Correctness": 0.5,
@@ -67,15 +67,15 @@
     },
     {
       "test_name": "ion_channel_recording",
-      "Correctness [GEval]": 0.8749718614233014,
+      "Correctness [GEval]": 0.8420550054954837,
       "Tool Correctness": 1.0,
       "Argument Correctness": 1.0,
-      "Deterministic Argument Correctness": 0.5,
+      "Deterministic Argument Correctness": 0.75,
       "Overall Argument Correctness": 1.0
     },
     {
       "test_name": "literature_search",
-      "Correctness [GEval]": 0.648942087564872,
+      "Correctness [GEval]": 0.8911249953120765,
       "Tool Correctness": 1.0,
       "Argument Correctness": 1.0,
       "Deterministic Argument Correctness": 0.0,
@@ -83,15 +83,15 @@
     },
     {
       "test_name": "me_model_glossary",
-      "Correctness [GEval]": 0.683306831536382,
-      "Tool Correctness": 1.0,
+      "Correctness [GEval]": 0.5065993953136548,
+      "Tool Correctness": 0.0,
       "Argument Correctness": 1.0,
-      "Deterministic Argument Correctness": 1.0,
+      "Deterministic Argument Correctness": 0.0,
       "Overall Argument Correctness": 1.0
     },
     {
       "test_name": "morphology_studies",
-      "Correctness [GEval]": 0.4840374574429811,
+      "Correctness [GEval]": 0.7824160183427944,
       "Tool Correctness": 1.0,
       "Argument Correctness": 1.0,
       "Deterministic Argument Correctness": 0.0,
@@ -99,7 +99,7 @@
     },
     {
       "test_name": "neuroscientists_search",
-      "Correctness [GEval]": 0.7001340077257124,
+      "Correctness [GEval]": 0.8077238211036708,
       "Tool Correctness": 1.0,
       "Argument Correctness": 1.0,
       "Deterministic Argument Correctness": 0.0,
@@ -107,7 +107,7 @@
     },
     {
       "test_name": "off_topic_cooking",
-      "Correctness [GEval]": 0.5945247609273225,
+      "Correctness [GEval]": 0.8105472434618998,
       "Tool Correctness": 1.0,
       "Argument Correctness": 1.0,
       "Deterministic Argument Correctness": 1.0,
@@ -115,7 +115,7 @@
     },
     {
       "test_name": "off_topic_programming",
-      "Correctness [GEval]": 0.7695570160957931,
+      "Correctness [GEval]": 0.55,
       "Tool Correctness": 1.0,
       "Argument Correctness": 1.0,
       "Deterministic Argument Correctness": 1.0,
@@ -123,7 +123,7 @@
     },
     {
       "test_name": "off_topic_sports",
-      "Correctness [GEval]": 0.8057059705376057,
+      "Correctness [GEval]": 0.7336164973410646,
       "Tool Correctness": 1.0,
       "Argument Correctness": 1.0,
       "Deterministic Argument Correctness": 1.0,
@@ -131,7 +131,7 @@
     },
     {
       "test_name": "off_topic_weather",
-      "Correctness [GEval]": 0.6890006117592387,
+      "Correctness [GEval]": 0.7704792648644829,
       "Tool Correctness": 1.0,
       "Argument Correctness": 1.0,
       "Deterministic Argument Correctness": 1.0,
@@ -139,7 +139,7 @@
     },
     {
       "test_name": "platform_explore",
-      "Correctness [GEval]": 0.2853000957950641,
+      "Correctness [GEval]": 0.2398233457850524,
       "Tool Correctness": 1.0,
       "Argument Correctness": 1.0,
       "Deterministic Argument Correctness": 1.0,
@@ -147,7 +147,7 @@
     },
     {
       "test_name": "platform_news",
-      "Correctness [GEval]": 0.8330807047145509,
+      "Correctness [GEval]": 0.798732649330445,
       "Tool Correctness": 1.0,
       "Argument Correctness": 0.0,
       "Deterministic Argument Correctness": 1.0,
@@ -155,7 +155,7 @@
     },
     {
       "test_name": "platform_ui_simulate",
-      "Correctness [GEval]": 0.5975963651681446,
+      "Correctness [GEval]": 0.5514054576376685,
       "Tool Correctness": 1.0,
       "Argument Correctness": 1.0,
       "Deterministic Argument Correctness": 1.0,
@@ -163,7 +163,7 @@
     },
     {
       "test_name": "platform_viewing",
-      "Correctness [GEval]": 0.6731008652407333,
+      "Correctness [GEval]": 0.7474790771581536,
       "Tool Correctness": 1.0,
       "Argument Correctness": 0.0,
       "Deterministic Argument Correctness": 1.0,
@@ -171,7 +171,7 @@
     },
     {
       "test_name": "plotting",
-      "Correctness [GEval]": 0.7366374977736997,
+      "Correctness [GEval]": 0.6051127256701763,
       "Tool Correctness": 1.0,
       "Argument Correctness": 1.0,
       "Deterministic Argument Correctness": 0.5,
@@ -179,15 +179,15 @@
     },
     {
       "test_name": "read_paper",
-      "Correctness [GEval]": 0.32354476156942,
-      "Tool Correctness": 1.0,
+      "Correctness [GEval]": 0.37298736194916804,
+      "Tool Correctness": 0.0,
       "Argument Correctness": 1.0,
-      "Deterministic Argument Correctness": 1.0,
+      "Deterministic Argument Correctness": 0.0,
       "Overall Argument Correctness": 1.0
     },
     {
       "test_name": "sin_plot",
-      "Correctness [GEval]": 0.43660922801944063,
+      "Correctness [GEval]": 0.7023677185734583,
       "Tool Correctness": 1.0,
       "Argument Correctness": 1.0,
       "Deterministic Argument Correctness": 0.0,
@@ -195,23 +195,23 @@
     },
     {
       "test_name": "software_docs_entitysdk",
-      "Correctness [GEval]": 0.7795970779907103,
+      "Correctness [GEval]": 0.6061974843894171,
       "Tool Correctness": 1.0,
       "Argument Correctness": 1.0,
-      "Deterministic Argument Correctness": 0.0,
+      "Deterministic Argument Correctness": 0.25,
       "Overall Argument Correctness": 1.0
     },
     {
       "test_name": "software_docs_obione",
-      "Correctness [GEval]": 0.6725945299889496,
+      "Correctness [GEval]": 0.4382921205261077,
       "Tool Correctness": 1.0,
       "Argument Correctness": 1.0,
-      "Deterministic Argument Correctness": 0.0,
+      "Deterministic Argument Correctness": 0.2,
       "Overall Argument Correctness": 1.0
     },
     {
       "test_name": "species_list",
-      "Correctness [GEval]": 0.6400358146726484,
+      "Correctness [GEval]": 0.6583697931124776,
       "Tool Correctness": 1.0,
       "Argument Correctness": 1.0,
       "Deterministic Argument Correctness": 1.0,
@@ -219,7 +219,7 @@
     },
     {
       "test_name": "thalamus_id",
-      "Correctness [GEval]": 0.7415867699349027,
+      "Correctness [GEval]": 0.7358150780363005,
       "Tool Correctness": 1.0,
       "Argument Correctness": 1.0,
       "Deterministic Argument Correctness": 0.5,
@@ -227,7 +227,7 @@
     },
     {
       "test_name": "warning_test",
-      "Correctness [GEval]": 0.618138951957894,
+      "Correctness [GEval]": 0.6475030203561727,
       "Tool Correctness": 1.0,
       "Argument Correctness": 1.0,
       "Deterministic Argument Correctness": 0.0,
@@ -235,12 +235,12 @@
     },
     {
       "test_name": "web_search",
-      "Correctness [GEval]": 0.4164325021025331,
+      "Correctness [GEval]": 0.6986114689164452,
       "Tool Correctness": 1.0,
       "Argument Correctness": 1.0,
       "Deterministic Argument Correctness": 0.0,
       "Overall Argument Correctness": 1.0
     }
   ],
-  "created_at": "2025-11-28 16:33:30.267246"
+  "created_at": "2025-12-02 17:33:53.718613"
 }
