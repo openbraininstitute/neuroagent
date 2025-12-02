@@ -40,7 +40,6 @@ from neuroagent.app.schemas import (
 )
 from neuroagent.tools.base_tool import BaseTool
 from neuroagent.utils import (
-    convert_to_responses_api_format,
     get_token_count,
     messages_to_openai_content,
 )
@@ -420,10 +419,13 @@ async def filter_tools_and_model_by_conversation(
 
     openai_messages = await messages_to_openai_content(messages)
 
-    # Remove reasoning and content of tool responses to save tokens
-    openai_messages = convert_to_responses_api_format(
-        openai_messages, send_reasoning=False, send_tool_output=False
-    )
+    filtered_messages = []
+    for msg in openai_messages:
+        if msg.get("type") == PartType.REASONING.value:
+            continue
+        if msg.get("type") == PartType.FUNCTION_CALL_OUTPUT.value:
+            msg["output"] = "..."
+        filtered_messages.append(msg)
 
     # Build system prompt conditionally
     instructions = []
@@ -491,10 +493,11 @@ AVAILABLE TOOLS:
 
     try:
         # Send the OpenAI request
+        breakpoint()
         model = "google/gemini-2.5-flash"
         start_request = time.time()
         response = await openai_client.responses.parse(
-            input=[{"role": "system", "content": system_prompt}, *openai_messages],  # type: ignore
+            input=[{"role": "system", "content": system_prompt}, *filtered_messages],  # type: ignore
             model=model,
             text_format=ToolModelFiltering,
             store=False,

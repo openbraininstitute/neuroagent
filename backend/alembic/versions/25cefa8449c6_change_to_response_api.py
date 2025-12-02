@@ -176,7 +176,10 @@ def upgrade() -> None:
                                             "type": "message",
                                             "role": "assistant",
                                             "content": [
-                                                {"type": "text", "text": msg_content}
+                                                {
+                                                    "type": "output_text",
+                                                    "text": msg_content,
+                                                }
                                             ],
                                             "status": "completed",
                                         }
@@ -299,7 +302,7 @@ def upgrade() -> None:
                                         "type": "message",
                                         "role": "assistant",
                                         "content": [
-                                            {"type": "text", "text": msg_content}
+                                            {"type": "output_text", "text": msg_content}
                                         ],
                                         "status": "completed",
                                     }

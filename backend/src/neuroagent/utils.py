@@ -44,93 +44,14 @@ async def messages_to_openai_content(
     db_messages: list[Messages] | None = None,
 ) -> list[dict[str, Any]]:
     """Exctract content from Messages as dictionary to pass them to OpenAI."""
-    messages = []
+    # Maybe we should add a check to see if the parts where awaited
+    openai_messages = []
     if db_messages:
         for msg in db_messages:
-            messages.append(json.loads(msg.content))
+            for part in msg.parts:
+                openai_messages.append(part.output)
 
-    return messages
-
-
-def convert_to_responses_api_format(
-    db_messages: list[dict[str, Any]],
-    send_reasoning: bool = True,
-    send_tool_output: bool = True,
-) -> list[dict[str, Any]]:
-    """Convert database message format to OpenAI Responses API format. For 'parse' endpoint we don't send the reasoning."""
-    responses_input = []
-
-    for msg in db_messages:
-        role = msg["role"]
-
-        if role == "user":
-            # User messages can be simple or structured
-            responses_input.append(
-                {
-                    "type": "message",
-                    "role": "user",
-                    "status": "completed",
-                    "content": [{"type": "input_text", "text": msg["content"]}],
-                }
-            )
-
-        elif role == "assistant":
-            # Add reasoning
-            if send_reasoning and msg.get("encrypted_reasoning"):
-                reasoning_entry = {
-                    "type": "reasoning",
-                    "encrypted_content": msg["encrypted_reasoning"],
-                    "summary": [],
-                    "content": [],
-                }
-                if msg.get("reasoning"):
-                    for reasoning_step in msg["reasoning"]:
-                        reasoning_entry["summary"].append(
-                            {"type": "summary_text", "text": reasoning_step}
-                        )
-
-                responses_input.append(reasoning_entry)
-
-            # Assistant messages need structured content
-            if msg["content"]:
-                assistant_msg = {
-                    "type": "message",
-                    "status": "completed",
-                    "role": "assistant",
-                    "content": [
-                        {
-                            "type": "output_text",
-                            "text": msg["content"],
-                        }
-                    ],
-                }
-                responses_input.append(assistant_msg)
-
-            # If there were tool calls, add them as separate function_call items
-            if msg.get("tool_calls"):
-                for tool_call in msg["tool_calls"]:
-                    responses_input.append(
-                        {
-                            "type": "function_call",
-                            "call_id": tool_call.get("id"),
-                            "name": tool_call["function"]["name"],
-                            "arguments": tool_call["function"]["arguments"],
-                            "status": "completed",
-                        }
-                    )
-
-        elif role == "tool":
-            # Tool results become function_call_output
-            responses_input.append(
-                {
-                    "type": "function_call_output",
-                    "call_id": msg["tool_call_id"],
-                    "output": msg["content"] if send_tool_output else "...",
-                    "status": "completed",
-                }
-            )
-
-    return responses_input
+    return openai_messages
 
 
 def get_entity(message: dict[str, Any]) -> Entity:

@@ -40,7 +40,6 @@ from neuroagent.new_types import (
 from neuroagent.tools.base_tool import BaseTool
 from neuroagent.utils import (
     complete_partial_json,
-    convert_to_responses_api_format,
     get_entity,
     messages_to_openai_content,
 )
@@ -284,7 +283,7 @@ class AgentsRoutine:
                 # get completion with current history, agent
                 completion = await self.get_chat_completion(
                     agent=active_agent,
-                    history=convert_to_responses_api_format(history),
+                    history=history,
                     context_variables=context_variables,
                     model_override=model_override,
                     stream=True,
