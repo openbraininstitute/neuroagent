@@ -15,13 +15,14 @@ dependencies = [
     "alembic",
     "asgi-correlation-id",
     "asyncpg",
+    "bluepysnap",
     "boto3",
-    "fastapi",
     "jsonpatch",
+    "duckdb",
+    "fastapi>=0.118.0",
     "mcp",
     "obp-accounting-sdk",
     "openai",
-    "psycopg2",
     "pydantic>=2.11",
     "pydantic-settings",
     "python-dotenv",
@@ -36,7 +37,9 @@ dependencies = [
 [project.optional-dependencies]
 dev = [
     "bandit[toml]",
-    "deepeval",
+    "colorama>=0.4.6",
+    "datamodel-code-generator>=0.35.0",
+    "deepeval>=3.6.6",
     "mypy==1.15.0",
     "pandas",
     "pytest",
@@ -46,7 +49,7 @@ dev = [
     "responses",
     "ruff",
     "types-requests",
-    ]
+]
 
 [project.scripts]
 neuroagent-api = "neuroagent.scripts.neuroagent_api:main"
@@ -59,7 +62,7 @@ where = ["src"]
 namespaces = false
 
 [tool.setuptools.package-data]
-neuroagent = ["rules/*.mdc", "mcp.json", "platform_description.json"]
+neuroagent = ["rules/*.mdc", "mcp.json"]
 
 [tool.bandit]
 exclude_dirs = ["tests"]
@@ -126,3 +129,6 @@ filterwarnings = [
 ]
 
 addopts = "--cov=src/ -v --cov-report=term-missing --durations=20 --no-cov-on-fail"
+
+[dependency-groups]
+dev = []

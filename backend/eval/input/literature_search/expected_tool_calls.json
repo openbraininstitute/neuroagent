@@ -1,0 +1,9 @@
+[
+  {
+    "name": "literature-search-tool",
+    "arguments": {
+      "query": "synaptic plasticity hippocampus",
+      "num_results": 5
+    }
+  }
+]

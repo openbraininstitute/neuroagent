@@ -1,0 +1,8 @@
+[
+  {
+    "name": "read-paper",
+    "arguments": {
+      "urls": ["https://pubmed.ncbi.nlm.nih.gov/"]
+    }
+  }
+]

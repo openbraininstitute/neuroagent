@@ -19,6 +19,7 @@ class Agent(BaseModel):
 
     name: str = "Agent"
     model: str = "openai/gpt-5-mini"
+    reasoning: str | None = "minimal"
     instructions: str | Callable[[], str] = "You are a helpful agent."
     temperature: float = 0
     tools: list[type[BaseTool]] = []
@@ -68,7 +69,7 @@ class ClientRequest(BaseModel):
 
     content: str
     tool_selection: list[str] | None = None
-    model: str = "openai/gpt-5-mini"
+    model: str = "auto"
     frontend_url: str | None = None
     shared_state: SharedState | None = None
 

@@ -9,8 +9,9 @@ import {
   CustomError,
   ToolDetailedMetadata,
   ToolMetadata,
-  BPaginatedResponse,
   BOpenRouterModelResponse,
+  BPaginatedResponseThread,
+  BPaginatedResponseMessage,
 } from "@/lib/types";
 import { threadPageSize, messagePageSize, LLMModel } from "@/lib/types";
 
@@ -42,7 +43,7 @@ export async function getThreads() {
       queryParams,
       headers: { Authorization: `Bearer ${session.accessToken}` },
       next: { tags: ["threads"] },
-    })) as BPaginatedResponse;
+    })) as BPaginatedResponseThread;
 
     const threads = paginatedResponseThreads.results as BThread[];
 
@@ -111,7 +112,7 @@ export async function getMessages(threadId: string) {
       next: {
         tags: [`thread/${threadId}/messages`],
       },
-    })) as BPaginatedResponse;
+    })) as BPaginatedResponseMessage;
 
     const messages = (
       paginatedResponseMessages.results as BMessage[]
@@ -221,16 +222,23 @@ export async function getModels(): Promise<Array<LLMModel>> {
       headers: { Authorization: `Bearer ${session.accessToken}` },
     })) as Array<BOpenRouterModelResponse>;
 
-    return models
-      ?.map((model) => {
-        const out_date = new Date(model.created * 1000);
-        return {
-          id: model.id,
-          name: model.name,
-          metadata: `${Math.round(Number(model.pricing?.prompt) * 1e8) / 100}$/M tokens, ${Math.round(model.context_length / 1000)}k context length, ${out_date.getDate()}/${out_date.getMonth() + 1}/${out_date.getFullYear()}`,
-        };
-      })
-      .sort((a: LLMModel, b: LLMModel) => a.name.localeCompare(b.name));
+    return [
+      {
+        id: "auto",
+        name: "Auto",
+        metadata: "",
+      },
+      ...models
+        ?.map((model) => {
+          const out_date = new Date(model.created * 1000);
+          return {
+            id: model.id,
+            name: model.name,
+            metadata: `${Math.round(Number(model.pricing?.prompt) * 1e8) / 100}$/M tokens, ${Math.round(model.context_length / 1000)}k context length, ${out_date.getDate()}/${out_date.getMonth() + 1}/${out_date.getFullYear()}`,
+          };
+        })
+        .sort((a: LLMModel, b: LLMModel) => a.name.localeCompare(b.name)),
+    ];
   } catch (error) {
     if ((error as CustomError).statusCode === 404) {
       return [];

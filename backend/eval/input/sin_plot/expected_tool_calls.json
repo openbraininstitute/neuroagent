@@ -1,0 +1,8 @@
+[
+  {
+  "name": "run-python",
+  "arguments": {
+    "python_script": "import numpy as np\nimport plotly.graph_objects as go\n\n# generate 8 evenly spaced points from 0 to 2pi\nx = np.linspace(0, 2*np.pi, 8)\ny = np.sin(x)\n\nfig = go.Figure()\nfig.add_trace(go.Scatter(x=x, y=y, mode='markers+lines', name='sin(x)'))\nfig.update_layout(title='y = sin(x) (8 evenly spaced points from 0 to 2π)',\n                  xaxis_title='x', yaxis_title='y',\n                  xaxis = dict(tickmode='array', tickvals=x, ticktext=[f'{val:.2f}' for val in x]))\n\nfig.show()\n\n# return numeric lists for reference\n{\"x\": x.tolist(), \"y\": y.tolist()}"
+    }
+  }
+]

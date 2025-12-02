@@ -3,6 +3,8 @@
 
 from __future__ import annotations
 
+from datetime import timedelta
+from pathlib import Path
 from typing import Any, Literal
 from uuid import UUID
 
@@ -47,6 +49,18 @@ class AllNeurons(BaseModel):
     )
 
 
+class AmplitudeInput(BaseModel):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    min_value: float | None = Field(
+        default=None, description='Minimum amplitude (nA)', title='Min Value'
+    )
+    max_value: float | None = Field(
+        default=None, description='Maximum amplitude (nA)', title='Max Value'
+    )
+
+
 class Assets(BaseModel):
     model_config = ConfigDict(
         extra='ignore',
@@ -71,6 +85,44 @@ class Author(BaseModel):
     family_name: str | None = Field(default=None, title='Family Name')
 
 
+class BellFitMTau(BaseModel):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    type: Literal['BellFitMTau'] = Field(..., title='Type')
+
+
+class BodyTestNeuronFileDeclaredTestNeuronFilePost(BaseModel):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    file: bytes = Field(
+        ..., description='Neuron file to upload (.swc, .h5, or .asc)', title='File'
+    )
+
+
+class CellMorphology(BaseModel):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    type: Literal['CellMorphology'] = Field(..., title='Type')
+    name: str = Field(..., description='Name of the morphology', title='Name')
+    description: str = Field(..., description='Description', title='Description')
+    species_id: UUID | None = Field(default=None, title='Species Id')
+    strain_id: UUID | None = Field(default=None, title='Strain Id')
+    brain_region_id: UUID | None = Field(default=None, title='Brain Region Id')
+
+
+class CellMorphologyFromID(BaseModel):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    id_str: str = Field(
+        ..., description='ID of the entity in string format.', title='Id Str'
+    )
+    type: Literal['CellMorphologyFromID'] = Field(..., title='Type')
+
+
 class Circuit(BaseModel):
     model_config = ConfigDict(
         extra='ignore',
@@ -89,6 +141,253 @@ class CircuitFromID(BaseModel):
         ..., description='ID of the entity in string format.', title='Id Str'
     )
     type: Literal['CircuitFromID'] = Field(..., title='Type')
+
+
+class CircuitNodesetsResponse(BaseModel):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    nodesets: list[str] = Field(..., title='Nodesets')
+
+
+class CircuitPopulationsResponse(BaseModel):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    populations: list[str] = Field(..., title='Populations')
+
+
+class CircuitStatsLevelOfDetail(RootModel[Literal[0, 1, 2, 3]]):
+    root: Literal[0, 1, 2, 3] = Field(..., title='CircuitStatsLevelOfDetail')
+
+
+class ClusteredGroupedMorphologyLocations(BaseModel):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    type: Literal['ClusteredGroupedMorphologyLocations'] = Field(..., title='Type')
+    random_seed: int | list[int] = Field(
+        default=0,
+        description='Seed for the random generation of locations',
+        title='Random Seed',
+    )
+    number_of_locations: int | list[int] = Field(
+        default=1,
+        description='Number of locations to generate on morphology',
+        title='Number Of Locations',
+    )
+    section_types: list[int] | list[list[int]] | None = Field(
+        default=None,
+        description='Types of sections to generate locations on. 2: axon, 3: basal, 4: apical',
+        title='Section Types',
+    )
+    n_groups: int | list[int] = Field(
+        default=1,
+        description='Number of groups of locations to             generate',
+        title='N Groups',
+    )
+    n_clusters: int | list[int] = Field(
+        ..., description='Number of location clusters to generate', title='N Clusters'
+    )
+    cluster_max_distance: float | list[float] = Field(
+        ...,
+        description='Maximum distance in um of generated locations from the center of their             cluster',
+        title='Cluster Max Distance',
+    )
+
+
+class ClusteredMorphologyLocations(BaseModel):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    type: Literal['ClusteredMorphologyLocations'] = Field(..., title='Type')
+    random_seed: int | list[int] = Field(
+        default=0,
+        description='Seed for the random generation of locations',
+        title='Random Seed',
+    )
+    number_of_locations: int | list[int] = Field(
+        default=1,
+        description='Number of locations to generate on morphology',
+        title='Number Of Locations',
+    )
+    section_types: list[int] | list[list[int]] | None = Field(
+        default=None,
+        description='Types of sections to generate locations on. 2: axon, 3: basal, 4: apical',
+        title='Section Types',
+    )
+    n_clusters: int | list[int] = Field(
+        ..., description='Number of location clusters to generate', title='N Clusters'
+    )
+    cluster_max_distance: float | list[float] = Field(
+        ...,
+        description='Maximum distance in um of generated locations from the center of their             cluster',
+        title='Cluster Max Distance',
+    )
+
+
+class ClusteredPathDistanceMorphologyLocations(BaseModel):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    type: Literal['ClusteredPathDistanceMorphologyLocations'] = Field(..., title='Type')
+    random_seed: int | list[int] = Field(
+        default=0,
+        description='Seed for the random generation of locations',
+        title='Random Seed',
+    )
+    number_of_locations: int | list[int] = Field(
+        default=1,
+        description='Number of locations to generate on morphology',
+        title='Number Of Locations',
+    )
+    section_types: list[int] | list[list[int]] | None = Field(
+        default=None,
+        description='Types of sections to generate locations on. 2: axon, 3: basal, 4: apical',
+        title='Section Types',
+    )
+    n_clusters: int | list[int] = Field(
+        ..., description='Number of location clusters to generate', title='N Clusters'
+    )
+    cluster_max_distance: float | list[float] = Field(
+        ...,
+        description='Maximum distance in um of generated locations from the center of their             cluster',
+        title='Cluster Max Distance',
+    )
+    path_dist_mean: float | list[float] = Field(
+        ...,
+        description='Mean of a Gaussian, defined on soma path distance in um. Used to determine             locations.',
+        title='Path Dist Mean',
+    )
+    path_dist_sd: float | list[float] = Field(
+        ...,
+        description='SD of a Gaussian, defined on soma path distance in um. Used to determine             locations.',
+        title='Path Dist Sd',
+    )
+    n_groups_per_cluster: int | list[int] = Field(
+        default=1,
+        description='Number of conceptual groups per location cluster to generate',
+        title='N Groups Per Cluster',
+    )
+
+
+class SamplePercentage2(SamplePercentage):
+    pass
+
+
+class SamplePercentage3Item(SamplePercentage1Item):
+    pass
+
+
+class SamplePercentage3(RootModel[list[SamplePercentage3Item]]):
+    root: list[SamplePercentage3Item] = Field(
+        ...,
+        description='Percentage of neurons to sample between 0 and 100%',
+        min_length=1,
+        title='Sample (Percentage)',
+    )
+
+
+class NodeSet(RootModel[str]):
+    root: str = Field(..., min_length=1)
+
+
+class NodeSets(RootModel[list[NodeSet]]):
+    root: list[NodeSet] = Field(..., min_length=1, title='Node Sets')
+
+
+class NodeSets1ItemItem(NodeSet):
+    pass
+
+
+class NodeSets1Item(RootModel[list[NodeSets1ItemItem]]):
+    root: list[NodeSets1ItemItem] = Field(..., min_length=1)
+
+
+class NodeSets1(RootModel[list[NodeSets1Item]]):
+    root: list[NodeSets1Item] = Field(..., min_length=1, title='Node Sets')
+
+
+class CombinedNeuronSet(BaseModel):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    type: Literal['CombinedNeuronSet'] = Field(..., title='Type')
+    sample_percentage: SamplePercentage2 | SamplePercentage3 = Field(
+        default=100.0,
+        description='Percentage of neurons to sample between 0 and 100%',
+        title='Sample (Percentage)',
+    )
+    sample_seed: int | list[int] = Field(
+        default=1, description='Seed for random sampling.', title='Sample Seed'
+    )
+    node_population: str | list[str] | None = Field(
+        default=None, title='Node Population'
+    )
+    node_sets: NodeSets | NodeSets1 = Field(..., title='Node Sets')
+
+
+class ConnectivityMetricsOutput(BaseModel):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    connection_probability: dict[str, Any] | None = Field(
+        default=None, title='Connection Probability'
+    )
+    mean_number_of_synapses: dict[str, Any] | None = Field(
+        default=None, title='Mean Number Of Synapses'
+    )
+
+
+class MaxDistance(RootModel[float]):
+    root: float = Field(
+        ...,
+        description='Maximum distance (in um) to take connectivity into account',
+        gt=0.0,
+        title='Max Distance',
+    )
+
+
+class ConnectivityMetricsRequest(BaseModel):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    circuit_id: str = Field(..., title='Circuit Id')
+    edge_population: str = Field(
+        ...,
+        description='Name of the edge population to extract connectivity metrics from',
+        title='Edge Population',
+    )
+    pre_selection: dict[str, str | list[str]] | None = Field(
+        default=None,
+        description='Property/value pairs for pre-synaptic neuron selection',
+        title='Pre Selection',
+    )
+    pre_node_set: str | None = Field(
+        default=None,
+        description='Existing node set to apply pre-synaptic neuron selection in',
+        title='Pre Node Set',
+    )
+    post_selection: dict[str, str | list[str]] | None = Field(
+        default=None,
+        description='Property/value pairs for post-synaptic neuron selection',
+        title='Post Selection',
+    )
+    post_node_set: str | None = Field(
+        default=None,
+        description='Existing node set to apply post-synaptic neuron selection in',
+        title='Post Node Set',
+    )
+    group_by: str | None = Field(
+        default=None,
+        description='Property name to group connectivity by',
+        title='Group By',
+    )
+    max_distance: MaxDistance | None = Field(
+        default=None,
+        description='Maximum distance (in um) to take connectivity into account',
+        title='Max Distance',
+    )
 
 
 class Duration(RootModel[float]):
@@ -112,6 +411,18 @@ class Contribution(BaseModel):
     role_id: UUID | None = Field(default=None, title='Role Id')
 
 
+class DegreeTypes(
+    RootModel[Literal['indegree', 'outdegree', 'totaldegree', 'degreedifference']]
+):
+    root: Literal['indegree', 'outdegree', 'totaldegree', 'degreedifference'] = Field(
+        ..., title='DegreeTypes'
+    )
+
+
+class EdgePopulationType(RootModel[Literal['chemical', 'electrical']]):
+    root: Literal['chemical', 'electrical'] = Field(..., title='EdgePopulationType')
+
+
 class ElectrophysiologyMetricsOutput(BaseModel):
     model_config = ConfigDict(
         extra='ignore',
@@ -120,38 +431,6 @@ class ElectrophysiologyMetricsOutput(BaseModel):
         ...,
         description="Mapping of feature name to its metric values. Each entry contains at least an 'avg', and optionally 'unit', 'num_traces', etc.",
         title='Feature Dict',
-    )
-
-
-class SamplePercentage2(SamplePercentage):
-    pass
-
-
-class SamplePercentage3Item(SamplePercentage1Item):
-    pass
-
-
-class SamplePercentage3(RootModel[list[SamplePercentage3Item]]):
-    root: list[SamplePercentage3Item] = Field(
-        ...,
-        description='Percentage of neurons to sample between 0 and 100%',
-        min_length=1,
-        title='Sample (Percentage)',
-    )
-
-
-class ExcitatoryNeurons(BaseModel):
-    model_config = ConfigDict(
-        extra='ignore',
-    )
-    type: Literal['ExcitatoryNeurons'] = Field(..., title='Type')
-    sample_percentage: SamplePercentage2 | SamplePercentage3 = Field(
-        default=100.0,
-        description='Percentage of neurons to sample between 0 and 100%',
-        title='Sample (Percentage)',
-    )
-    sample_seed: int | list[int] = Field(
-        default=1, description='Seed for random sampling.', title='Sample Seed'
     )
 
 
@@ -172,22 +451,51 @@ class SamplePercentage5(RootModel[list[SamplePercentage5Item]]):
     )
 
 
-class Info(BaseModel):
+class ExcitatoryNeurons(BaseModel):
     model_config = ConfigDict(
         extra='ignore',
     )
-    type: Literal['Info'] = Field(..., title='Type')
-    campaign_name: str = Field(
-        ...,
-        description='Name of the simulation campaign.',
-        min_length=1,
-        title='Campaign Name',
+    type: Literal['ExcitatoryNeurons'] = Field(..., title='Type')
+    sample_percentage: SamplePercentage4 | SamplePercentage5 = Field(
+        default=100.0,
+        description='Percentage of neurons to sample between 0 and 100%',
+        title='Sample (Percentage)',
     )
-    campaign_description: str = Field(
-        ...,
-        description='Description of the simulation campaign.',
-        min_length=1,
-        title='Campaign Description',
+    sample_seed: int | list[int] = Field(
+        default=1, description='Seed for random sampling.', title='Sample Seed'
+    )
+
+
+class FloatRange(BaseModel):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    type: Literal['FloatRange'] = Field(..., title='Type')
+    start: float = Field(..., title='Start')
+    step: float = Field(..., gt=0.0, title='Step')
+    end: float = Field(..., title='End')
+
+
+class GateExponents(BaseModel):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    type: Literal['IonChannelFittingScanConfig.GateExponents'] = Field(
+        ..., title='Type'
+    )
+    m_power: int = Field(
+        default=1,
+        description='Exponent \\(p\\) of \\(m\\) in the channel equation: \\(g = \\bar{g} \\cdot m^p \\cdot h^q\\)',
+        ge=1,
+        le=4,
+        title='m exponent in channel equation',
+    )
+    h_power: int = Field(
+        default=1,
+        description='Exponent \\(q\\) of \\(h\\) in the channel equation: \\(g = \\bar{g} \\cdot m^p \\cdot h^q\\)',
+        ge=0,
+        le=4,
+        title='h exponent in channel equation',
     )
 
 
@@ -208,12 +516,45 @@ class SamplePercentage7(RootModel[list[SamplePercentage7Item]]):
     )
 
 
+class Info(BaseModel):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    type: Literal['Info'] = Field(..., title='Type')
+    campaign_name: str = Field(
+        ..., description='Name of the campaign.', min_length=1, title='Campaign Name'
+    )
+    campaign_description: str = Field(
+        ...,
+        description='Description of the campaign.',
+        min_length=1,
+        title='Campaign Description',
+    )
+
+
+class SamplePercentage8(SamplePercentage):
+    pass
+
+
+class SamplePercentage9Item(SamplePercentage1Item):
+    pass
+
+
+class SamplePercentage9(RootModel[list[SamplePercentage9Item]]):
+    root: list[SamplePercentage9Item] = Field(
+        ...,
+        description='Percentage of neurons to sample between 0 and 100%',
+        min_length=1,
+        title='Sample (Percentage)',
+    )
+
+
 class InhibitoryNeurons(BaseModel):
     model_config = ConfigDict(
         extra='ignore',
     )
     type: Literal['InhibitoryNeurons'] = Field(..., title='Type')
-    sample_percentage: SamplePercentage6 | SamplePercentage7 = Field(
+    sample_percentage: SamplePercentage8 | SamplePercentage9 = Field(
         default=100.0,
         description='Percentage of neurons to sample between 0 and 100%',
         title='Sample (Percentage)',
@@ -223,12 +564,72 @@ class InhibitoryNeurons(BaseModel):
     )
 
 
+class IntRange(BaseModel):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    type: Literal['IntRange'] = Field(..., title='Type')
+    start: int = Field(..., title='Start')
+    step: int = Field(..., gt=0, title='Step')
+    end: int = Field(..., title='End')
+
+
+class IonChannelRecordingFromID(BaseModel):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    id_str: str = Field(
+        ..., description='ID of the entity in string format.', title='Id Str'
+    )
+    type: Literal['IonChannelRecordingFromID'] = Field(..., title='Type')
+
+
 class License(BaseModel):
     model_config = ConfigDict(
         extra='ignore',
     )
     type: Literal['License'] = Field(..., title='Type')
     license_id: UUID | None = Field(default=None, title='License Id')
+
+
+class MEModelCircuit(BaseModel):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    name: str = Field(..., title='Name')
+    path: str = Field(..., title='Path')
+    matrix_path: str | None = Field(default=None, title='Matrix Path')
+    type: Literal['MEModelCircuit'] = Field(..., title='Type')
+
+
+class MEModelFromID(BaseModel):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    id_str: str = Field(
+        ..., description='ID of the entity in string format.', title='Id Str'
+    )
+    type: Literal['MEModelFromID'] = Field(..., title='Type')
+
+
+class MEModelWithSynapsesCircuit(BaseModel):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    name: str = Field(..., title='Name')
+    path: str = Field(..., title='Path')
+    matrix_path: str | None = Field(default=None, title='Matrix Path')
+    type: Literal['MEModelWithSynapsesCircuit'] = Field(..., title='Type')
+
+
+class MEModelWithSynapsesCircuitFromID(BaseModel):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    id_str: str = Field(
+        ..., description='ID of the entity in string format.', title='Id Str'
+    )
+    type: Literal['MEModelWithSynapsesCircuitFromID'] = Field(..., title='Type')
 
 
 class MTypeClassification(BaseModel):
@@ -380,6 +781,15 @@ class FrequencyItem(WidthItem):
     pass
 
 
+class NamedPath(BaseModel):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    name: str = Field(..., title='Name')
+    path: str = Field(..., title='Path')
+    type: Literal['NamedPath'] = Field(..., title='Type')
+
+
 class Element(RootModel[int]):
     root: int = Field(..., ge=0)
 
@@ -393,6 +803,18 @@ class NamedTuple(BaseModel):
     type: Literal['NamedTuple'] = Field(..., title='Type')
 
 
+class NeuronPropertyFilter(BaseModel):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    filter_dict: dict[str, list] = Field(
+        default={},
+        description="Filter dictionary. Note as this is NOT a Block and the list here is                     not to support multi-dimensional parameters but to support a key-value pair                     with multiple values i.e. {'layer': ['2', '3']}}",
+        title='Filter Dict',
+    )
+    type: Literal['NeuronPropertyFilter'] = Field(..., title='Type')
+
+
 class NeuronSetReference(BaseModel):
     model_config = ConfigDict(
         extra='ignore',
@@ -400,6 +822,30 @@ class NeuronSetReference(BaseModel):
     block_dict_name: str = Field(default='', title='Block Dict Name')
     block_name: str = Field(..., title='Block Name')
     type: Literal['NeuronSetReference'] = Field(..., title='Type')
+
+
+class NodePopulationType(RootModel[Literal['biophysical', 'virtual']]):
+    root: Literal['biophysical', 'virtual'] = Field(..., title='NodePopulationType')
+
+
+class NonNegativeFloatRange(BaseModel):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    type: Literal['NonNegativeFloatRange'] = Field(..., title='Type')
+    start: float = Field(..., ge=0.0, title='Start')
+    step: float = Field(..., gt=0.0, title='Step')
+    end: float = Field(..., ge=0.0, title='End')
+
+
+class NonNegativeIntRange(BaseModel):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    type: Literal['NonNegativeIntRange'] = Field(..., title='Type')
+    start: int = Field(..., ge=0, title='Start')
+    step: int = Field(..., gt=0, title='Step')
+    end: int = Field(..., ge=0, title='End')
 
 
 class Variance(RootModel[float]):
@@ -415,6 +861,117 @@ class VarianceItem(DurationItem):
     pass
 
 
+class SamplePercentage10(SamplePercentage):
+    pass
+
+
+class SamplePercentage11Item(SamplePercentage1Item):
+    pass
+
+
+class SamplePercentage11(RootModel[list[SamplePercentage11Item]]):
+    root: list[SamplePercentage11Item] = Field(
+        ...,
+        description='Percentage of neurons to sample between 0 and 100%',
+        min_length=1,
+        title='Sample (Percentage)',
+    )
+
+
+class PairMotifNeuronSet(BaseModel):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    type: Literal['PairMotifNeuronSet'] = Field(..., title='Type')
+    sample_percentage: SamplePercentage10 | SamplePercentage11 = Field(
+        default=100.0,
+        description='Percentage of neurons to sample between 0 and 100%',
+        title='Sample (Percentage)',
+    )
+    sample_seed: int | list[int] = Field(
+        default=1, description='Seed for random sampling.', title='Sample Seed'
+    )
+    node_population: str | list[str] | None = Field(
+        default=None, title='Node Population'
+    )
+    neuron1_filter: dict[str, Any] | list[dict[str, Any]] = Field(
+        default={},
+        description='Filter for first neuron in a pair',
+        title='Neuron1 Filter',
+    )
+    neuron2_filter: dict[str, Any] | list[dict[str, Any]] = Field(
+        default={},
+        description='Filter for second neuron in a pair',
+        title='Neuron2 Filter',
+    )
+    conn_ff_filter: dict[str, Any] | list[dict[str, Any]] = Field(
+        default={},
+        description='Filter for feedforward connections from the first to the second neuron in a pair',
+        title='Conn Ff Filter',
+    )
+    conn_fb_filter: dict[str, Any] | list[dict[str, Any]] = Field(
+        default={},
+        description='Filter for feedback connections from the second to the first neuron in a pair',
+        title='Conn Fb Filter',
+    )
+    pair_selection: dict[str, Any] | list[dict[str, Any]] = Field(
+        default={},
+        description='Selection of pairs among all potential pairs',
+        title='Pair Selection',
+    )
+    node_set_list_op: Literal['union', 'intersect'] = Field(
+        default='union',
+        description="Operation how to combine lists of node sets; can be 'union' or 'intersect'.",
+        title='Node Set List Op',
+    )
+
+
+class PathDistanceMorphologyLocations(BaseModel):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    type: Literal['PathDistanceMorphologyLocations'] = Field(..., title='Type')
+    random_seed: int | list[int] = Field(
+        default=0,
+        description='Seed for the random generation of locations',
+        title='Random Seed',
+    )
+    number_of_locations: int | list[int] = Field(
+        default=1,
+        description='Number of locations to generate on morphology',
+        title='Number Of Locations',
+    )
+    section_types: list[int] | list[list[int]] | None = Field(
+        default=None,
+        description='Types of sections to generate locations on. 2: axon, 3: basal, 4: apical',
+        title='Section Types',
+    )
+    path_dist_mean: float | list[float] = Field(
+        ...,
+        description='Mean of a Gaussian, defined on soma path distance in um. Used to determine             locations.',
+        title='Path Dist Mean',
+    )
+    path_dist_tolerance: float | list[float] = Field(
+        ...,
+        description='Amount of deviation in um from mean path distance that is tolerated. Must be             > 1.0',
+        title='Path Dist Tolerance',
+    )
+
+
+class Duration5(RootModel[float]):
+    root: float = Field(
+        ...,
+        description='Time duration in milliseconds for how long input is activated.',
+        ge=0.0,
+        le=5000.0,
+        title='Duration',
+    )
+
+
+class DurationItem5(RootModel[float]):
+    root: float = Field(..., ge=0.0, le=5000.0)
+
+
 class Frequency1(RootModel[float]):
     root: float = Field(
         ...,
@@ -422,6 +979,124 @@ class Frequency1(RootModel[float]):
         ge=1e-06,
         title='Frequency',
     )
+
+
+class PositiveFloatRange(BaseModel):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    type: Literal['PositiveFloatRange'] = Field(..., title='Type')
+    start: float = Field(..., gt=0.0, title='Start')
+    step: float = Field(..., gt=0.0, title='Step')
+    end: float = Field(..., gt=0.0, title='End')
+
+
+class PositiveIntRange(BaseModel):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    type: Literal['PositiveIntRange'] = Field(..., title='Type')
+    start: int = Field(..., gt=0, title='Start')
+    step: int = Field(..., gt=0, title='Step')
+    end: int = Field(..., gt=0, title='End')
+
+
+class SamplePercentage12(SamplePercentage):
+    pass
+
+
+class SamplePercentage13Item(SamplePercentage1Item):
+    pass
+
+
+class SamplePercentage13(RootModel[list[SamplePercentage13Item]]):
+    root: list[SamplePercentage13Item] = Field(
+        ...,
+        description='Percentage of neurons to sample between 0 and 100%',
+        min_length=1,
+        title='Sample (Percentage)',
+    )
+
+
+class NodeSet1(RootModel[str]):
+    root: str = Field(..., min_length=1, title='Node Set')
+
+
+class NodeSet2Item(NodeSet):
+    pass
+
+
+class NodeSet2(RootModel[list[NodeSet2Item]]):
+    root: list[NodeSet2Item] = Field(..., min_length=1, title='Node Set')
+
+
+class PredefinedNeuronSet(BaseModel):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    type: Literal['PredefinedNeuronSet'] = Field(..., title='Type')
+    sample_percentage: SamplePercentage12 | SamplePercentage13 = Field(
+        default=100.0,
+        description='Percentage of neurons to sample between 0 and 100%',
+        title='Sample (Percentage)',
+    )
+    sample_seed: int | list[int] = Field(
+        default=1, description='Seed for random sampling.', title='Sample Seed'
+    )
+    node_set: NodeSet1 | NodeSet2 = Field(..., title='Node Set')
+
+
+class SamplePercentage14(SamplePercentage):
+    pass
+
+
+class SamplePercentage15Item(SamplePercentage1Item):
+    pass
+
+
+class SamplePercentage15(RootModel[list[SamplePercentage15Item]]):
+    root: list[SamplePercentage15Item] = Field(
+        ...,
+        description='Percentage of neurons to sample between 0 and 100%',
+        min_length=1,
+        title='Sample (Percentage)',
+    )
+
+
+class NodeSet3(NodeSet):
+    pass
+
+
+class NodeSets2Item(NodeSet):
+    pass
+
+
+class NodeSets2(RootModel[list[list[NodeSets2Item]]]):
+    root: list[list[NodeSets2Item]] = Field(..., min_length=1, title='Node Sets')
+
+
+class PropertyNeuronSet(BaseModel):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    type: Literal['PropertyNeuronSet'] = Field(..., title='Type')
+    sample_percentage: SamplePercentage14 | SamplePercentage15 = Field(
+        default=100.0,
+        description='Percentage of neurons to sample between 0 and 100%',
+        title='Sample (Percentage)',
+    )
+    sample_seed: int | list[int] = Field(
+        default=1, description='Seed for random sampling.', title='Sample Seed'
+    )
+    node_population: str | list[str] | None = Field(
+        default=None, title='Node Population'
+    )
+    property_filter: NeuronPropertyFilter | list[NeuronPropertyFilter] = Field(
+        default=[],
+        description='NeuronPropertyFilter object or list of NeuronPropertyFilter objects',
+        title='Property Filter',
+    )
+    node_sets: list[NodeSet3] | NodeSets2 = Field(default=[], title='Node Sets')
 
 
 class Publication(BaseModel):
@@ -440,26 +1115,53 @@ class Publication(BaseModel):
     abstract: str | None = Field(default='', title='Abstract')
 
 
-class ReconstructionMorphology(BaseModel):
+class RandomGroupedMorphologyLocations(BaseModel):
     model_config = ConfigDict(
         extra='ignore',
     )
-    type: Literal['ReconstructionMorphology'] = Field(..., title='Type')
-    name: str = Field(..., description='Name of the morphology', title='Name')
-    description: str = Field(..., description='Description', title='Description')
-    species_id: UUID | None = Field(default=None, title='Species Id')
-    strain_id: UUID | None = Field(default=None, title='Strain Id')
-    brain_region_id: UUID | None = Field(default=None, title='Brain Region Id')
+    type: Literal['RandomGroupedMorphologyLocations'] = Field(..., title='Type')
+    random_seed: int | list[int] = Field(
+        default=0,
+        description='Seed for the random generation of locations',
+        title='Random Seed',
+    )
+    number_of_locations: int | list[int] = Field(
+        default=1,
+        description='Number of locations to generate on morphology',
+        title='Number Of Locations',
+    )
+    section_types: list[int] | list[list[int]] | None = Field(
+        default=None,
+        description='Types of sections to generate locations on. 2: axon, 3: basal, 4: apical',
+        title='Section Types',
+    )
+    n_groups: int | list[int] = Field(
+        default=1,
+        description='Number of groups of locations to             generate',
+        title='N Groups',
+    )
 
 
-class ReconstructionMorphologyFromID(BaseModel):
+class RandomMorphologyLocations(BaseModel):
     model_config = ConfigDict(
         extra='ignore',
     )
-    id_str: str = Field(
-        ..., description='ID of the entity in string format.', title='Id Str'
+    type: Literal['RandomMorphologyLocations'] = Field(..., title='Type')
+    random_seed: int | list[int] = Field(
+        default=0,
+        description='Seed for the random generation of locations',
+        title='Random Seed',
     )
-    type: Literal['ReconstructionMorphologyFromID'] = Field(..., title='Type')
+    number_of_locations: int | list[int] = Field(
+        default=1,
+        description='Number of locations to generate on morphology',
+        title='Number Of Locations',
+    )
+    section_types: list[int] | list[list[int]] | None = Field(
+        default=None,
+        description='Types of sections to generate locations on. 2: axon, 3: basal, 4: apical',
+        title='Section Types',
+    )
 
 
 class StartTime(RootModel[float]):
@@ -521,6 +1223,14 @@ class RegularTimestamps(BaseModel):
         description='Number of timestamps to generate.',
         title='Number Of Repetitions',
     )
+
+
+class Duration6(Duration):
+    pass
+
+
+class DurationItem6(DurationItem):
+    pass
 
 
 class PercentageOfThresholdCurrent(RootModel[float]):
@@ -612,6 +1322,220 @@ class ScientificArtifact(BaseModel):
     atlas_id: UUID | None = Field(default=None, title='Atlas Id')
 
 
+class Sex(RootModel[Literal['male', 'female', 'unknown']]):
+    root: Literal['male', 'female', 'unknown'] = Field(..., title='Sex')
+
+
+class SigFitHInf(BaseModel):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    type: Literal['SigFitHInf'] = Field(..., title='Type')
+
+
+class SigFitHTau(BaseModel):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    type: Literal['SigFitHTau'] = Field(..., title='Type')
+
+
+class SigFitMInf(BaseModel):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    type: Literal['SigFitMInf'] = Field(..., title='Type')
+
+
+class SigFitMTau(BaseModel):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    type: Literal['SigFitMTau'] = Field(..., title='Type')
+
+
+class SamplePercentage16(SamplePercentage):
+    pass
+
+
+class SamplePercentage17Item(SamplePercentage1Item):
+    pass
+
+
+class SamplePercentage17(RootModel[list[SamplePercentage17Item]]):
+    root: list[SamplePercentage17Item] = Field(
+        ...,
+        description='Percentage of neurons to sample between 0 and 100%',
+        min_length=1,
+        title='Sample (Percentage)',
+    )
+
+
+class NodeSets3Item(NodeSet):
+    pass
+
+
+class NodeSets3(RootModel[list[list[NodeSets3Item]]]):
+    root: list[list[NodeSets3Item]] = Field(..., min_length=1, title='Node Sets')
+
+
+class SimplexMembershipBasedNeuronSet(BaseModel):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    type: Literal['SimplexMembershipBasedNeuronSet'] = Field(..., title='Type')
+    sample_percentage: SamplePercentage16 | SamplePercentage17 = Field(
+        default=100.0,
+        description='Percentage of neurons to sample between 0 and 100%',
+        title='Sample (Percentage)',
+    )
+    sample_seed: int | list[int] = Field(
+        default=1, description='Seed for random sampling.', title='Sample Seed'
+    )
+    node_population: str | list[str] | None = Field(
+        default=None, title='Node Population'
+    )
+    property_filter: NeuronPropertyFilter | list[NeuronPropertyFilter] = Field(
+        default=[],
+        description='NeuronPropertyFilter object or list of NeuronPropertyFilter objects',
+        title='Property Filter',
+    )
+    node_sets: list[NodeSet3] | NodeSets3 = Field(default=[], title='Node Sets')
+    central_neuron_id: int | list[int] = Field(
+        ...,
+        description='Node id (index) that will be source or target of the simplices extracted',
+        title='Central Neuron Id',
+    )
+    dim: int | list[int] = Field(
+        ..., description='Dimension of the simplices to be extracted', title='Dim'
+    )
+    central_neuron_simplex_position: (
+        Literal['source', 'target'] | list[Literal['source', 'target']]
+    ) = Field(
+        default='source',
+        description="Position of the central neuron/node in the simplex, it can be either 'source' or 'target'",
+        title='Central Neuron Simplex Position',
+    )
+    subsample: bool | list[bool] = Field(
+        default=True,
+        description='Whether to subsample the set of nodes in the simplex lists or not',
+        title='Subsample',
+    )
+    n_count_max: int | list[int] | None = Field(
+        default=False,
+        description='Maximum number of nodes to be subsampled',
+        title='N Count Max',
+    )
+    subsample_method: (
+        Literal['node_participation', 'random']
+        | list[Literal['node_participation', 'random']]
+    ) = Field(
+        default='node_participation',
+        description='\n        **Method to subsample nodes**:\n        - `random`: randomly selects nodes from all nodes in the simplices\n        - `node_participation`: selects nodes with highest node participation\n            ',
+        title='Subsample Method',
+    )
+    simplex_type: (
+        Literal['directed', 'reciprocal', 'undirected']
+        | list[Literal['directed', 'reciprocal', 'undirected']]
+    ) = Field(
+        default='directed',
+        description='Type of simplex to consider. See more at             https://openbraininstitute.github.io/connectome-analysis/network_topology/#src.connalysis.network.topology.simplex_counts',
+        title='Simplex Type',
+    )
+    seed: int | list[int] | None = Field(
+        default=None,
+        description='Seed used for random subsampling method',
+        title='Seed',
+    )
+
+
+class SamplePercentage18(SamplePercentage):
+    pass
+
+
+class SamplePercentage19Item(SamplePercentage1Item):
+    pass
+
+
+class SamplePercentage19(RootModel[list[SamplePercentage19Item]]):
+    root: list[SamplePercentage19Item] = Field(
+        ...,
+        description='Percentage of neurons to sample between 0 and 100%',
+        min_length=1,
+        title='Sample (Percentage)',
+    )
+
+
+class NodeSets4Item(NodeSet):
+    pass
+
+
+class NodeSets4(RootModel[list[list[NodeSets4Item]]]):
+    root: list[list[NodeSets4Item]] = Field(..., min_length=1, title='Node Sets')
+
+
+class SimplexNeuronSet(BaseModel):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    type: Literal['SimplexNeuronSet'] = Field(..., title='Type')
+    sample_percentage: SamplePercentage18 | SamplePercentage19 = Field(
+        default=100.0,
+        description='Percentage of neurons to sample between 0 and 100%',
+        title='Sample (Percentage)',
+    )
+    sample_seed: int | list[int] = Field(
+        default=1, description='Seed for random sampling.', title='Sample Seed'
+    )
+    node_population: str | list[str] | None = Field(
+        default=None, title='Node Population'
+    )
+    property_filter: NeuronPropertyFilter | list[NeuronPropertyFilter] = Field(
+        default=[],
+        description='NeuronPropertyFilter object or list of NeuronPropertyFilter objects',
+        title='Property Filter',
+    )
+    node_sets: list[NodeSet3] | NodeSets4 = Field(default=[], title='Node Sets')
+    central_neuron_id: int | list[int] = Field(
+        ...,
+        description='Node id (index) that will be source or target of the simplices extracted',
+        title='Central Neuron Id',
+    )
+    dim: int | list[int] = Field(
+        ..., description='Dimension of the simplices to be extracted', title='Dim'
+    )
+    central_neuron_simplex_position: (
+        Literal['source', 'target'] | list[Literal['source', 'target']]
+    ) = Field(
+        default='source',
+        description="Position of the central neuron/node in the simplex, it can be either 'source' or 'target'",
+        title='Central Neuron Simplex Position',
+    )
+    subsample: bool = Field(
+        default=False,
+        description='Whether to subsample the set of nodes in the simplex lists or not',
+        title='Subsample',
+    )
+    n_count_max: int | list[int] | None = Field(
+        default=None,
+        description='Maximum number of nodes to be subsampled',
+        title='N Count Max',
+    )
+    simplex_type: (
+        Literal['directed', 'reciprocal', 'undirected']
+        | list[Literal['directed', 'reciprocal', 'undirected']]
+    ) = Field(
+        default='directed',
+        description='Type of simplex to consider. See more at             https://openbraininstitute.github.io/connectome-analysis/network_topology/#src.connalysis.network.topology.simplex_counts',
+        title='Simplex Type',
+    )
+    seed: int | list[int] | None = Field(
+        default=None,
+        description='Seed used for random subsampling method',
+        title='Seed',
+    )
+
+
 class SingleTimestamp(BaseModel):
     model_config = ConfigDict(
         extra='ignore',
@@ -646,6 +1570,65 @@ class DtItem(RootModel[float]):
     root: float = Field(..., ge=0.025)
 
 
+class Duration10(RootModel[float]):
+    root: float = Field(
+        ...,
+        description='Time duration of the stimulus in milliseconds.',
+        ge=0.0,
+        le=5000.0,
+        title='Duration',
+    )
+
+
+class DurationItem10(DurationItem5):
+    pass
+
+
+class MinimumRate(RootModel[float]):
+    root: float = Field(
+        ...,
+        description='Minimum rate of the stimulus in Hz.\n Must be less than the Maximum Rate.',
+        ge=1e-05,
+        gt=0.0,
+        le=50.0,
+        title='Minimum Rate',
+    )
+
+
+class MinimumRateItem(RootModel[float]):
+    root: float = Field(..., ge=1e-05, gt=0.0, le=50.0)
+
+
+class MaximumRate(RootModel[float]):
+    root: float = Field(
+        ...,
+        description='Maximum rate of the stimulus in Hz. Must be greater than or equal to Minimum Rate.',
+        ge=1e-05,
+        gt=0.0,
+        le=50.0,
+        title='Maximum Rate',
+    )
+
+
+class MaximumRateItem(MinimumRateItem):
+    pass
+
+
+class ModulationFrequencyHz(RootModel[float]):
+    root: float = Field(
+        ...,
+        description='Frequency (Hz) of the sinusoidal modulation of the rate.',
+        ge=1e-05,
+        gt=0.0,
+        le=100000.0,
+        title='Modulation Frequency',
+    )
+
+
+class ModulationFrequencyHzItem(RootModel[float]):
+    root: float = Field(..., ge=1e-05, gt=0.0, le=100000.0)
+
+
 class Dt1(RootModel[float]):
     root: float = Field(
         ...,
@@ -660,14 +1643,50 @@ class SomaVoltageRecording(BaseModel):
         extra='ignore',
     )
     type: Literal['SomaVoltageRecording'] = Field(..., title='Type')
-    neuron_set: NeuronSetReference = Field(
-        ..., description='Neuron set to record from.', title='Neuron Set'
-    )
-    dt: Dt1 | list[DtItem] = Field(
+    neuron_set: NeuronSetReference | None = None
+    dt: Dt1 | list[DtItem] | NonNegativeFloatRange = Field(
         default=0.1,
         description='Interval between recording time steps in milliseconds (ms).',
         title='Timestep',
     )
+
+
+class SpatialCoordinate(RootModel[Literal['x', 'y', 'z']]):
+    root: Literal['x', 'y', 'z'] = Field(..., title='SpatialCoordinate')
+
+
+class Weight(RootModel[float]):
+    root: float = Field(..., description='Weight in grams', gt=0.0, title='Weight')
+
+
+class Subject(BaseModel):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    type: Literal['Subject'] = Field(..., title='Type')
+    name: str = Field(..., description='Subject name', title='Name')
+    description: str = Field(
+        ..., description='Subject description', title='Description'
+    )
+    sex: Sex = Field(
+        default_factory=lambda: Sex.model_validate('unknown'),
+        description='Sex of the subject',
+    )
+    weight: Weight | None = Field(
+        default=None, description='Weight in grams', title='Weight'
+    )
+    age_value: timedelta = Field(..., description='Age value.', title='Age value')
+    age_min: timedelta | None = Field(
+        default=None,
+        description='Minimum age (of range)',
+        title='Minimum age (of range)',
+    )
+    age_max: timedelta | None = Field(
+        default=None, description='Maximum age range', title='Maximum age range'
+    )
+    age_period: AgePeriod | None = 'unknown'
+    species_id: UUID = Field(..., description='Species UUID', title='Species Id')
+    strain_id: UUID | None = Field(default=None, title='Strain Id')
 
 
 class SubjectID(BaseModel):
@@ -678,10 +1697,18 @@ class SubjectID(BaseModel):
     subject_id: UUID | None = Field(default=None, title='Subject Id')
 
 
+class Duration11(Duration):
+    pass
+
+
+class DurationItem11(DurationItem):
+    pass
+
+
 class MagnesiumValue(RootModel[float]):
     root: float = Field(
         ...,
-        description='Extracellular calcium concentration in millimoles (mM).',
+        description='Extracellular magnesium concentration in millimoles (mM).',
         ge=0.0,
         title='Extracellular Magnesium Concentration',
     )
@@ -698,9 +1725,23 @@ class SynapticMgManipulation(BaseModel):
     type: Literal['SynapticMgManipulation'] = Field(..., title='Type')
     magnesium_value: MagnesiumValue | list[MagnesiumValueItem] = Field(
         default=2.4,
-        description='Extracellular calcium concentration in millimoles (mM).',
+        description='Extracellular magnesium concentration in millimoles (mM).',
         title='Extracellular Magnesium Concentration',
     )
+
+
+class ThermoFitMTau(BaseModel):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    type: Literal['ThermoFitMTau'] = Field(..., title='Type')
+
+
+class ThermoFitMTauV2(BaseModel):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    type: Literal['ThermoFitMTauV2'] = Field(..., title='Type')
 
 
 class StartTime2(RootModel[float]):
@@ -730,10 +1771,8 @@ class TimeWindowSomaVoltageRecording(BaseModel):
         extra='ignore',
     )
     type: Literal['TimeWindowSomaVoltageRecording'] = Field(..., title='Type')
-    neuron_set: NeuronSetReference = Field(
-        ..., description='Neuron set to record from.', title='Neuron Set'
-    )
-    dt: Dt1 | list[DtItem] = Field(
+    neuron_set: NeuronSetReference | None = None
+    dt: Dt1 | list[DtItem] | NonNegativeFloatRange = Field(
         default=0.1,
         description='Interval between recording time steps in milliseconds (ms).',
         title='Timestep',
@@ -768,16 +1807,190 @@ class ValidationError(BaseModel):
     type: str = Field(..., title='Error Type')
 
 
-class SamplePercentage8(SamplePercentage):
+class SamplePercentage20(SamplePercentage):
     pass
 
 
-class SamplePercentage9Item(SamplePercentage1Item):
+class SamplePercentage21Item(SamplePercentage1Item):
     pass
 
 
-class SamplePercentage9(RootModel[list[SamplePercentage9Item]]):
-    root: list[SamplePercentage9Item] = Field(
+class SamplePercentage21(RootModel[list[SamplePercentage21Item]]):
+    root: list[SamplePercentage21Item] = Field(
+        ...,
+        description='Percentage of neurons to sample between 0 and 100%',
+        min_length=1,
+        title='Sample (Percentage)',
+    )
+
+
+class NodeSets5Item(NodeSet):
+    pass
+
+
+class NodeSets5(RootModel[list[list[NodeSets5Item]]]):
+    root: list[list[NodeSets5Item]] = Field(..., min_length=1, title='Node Sets')
+
+
+class N(RootModel[int]):
+    root: int = Field(..., description='Number of neurons to find', ge=0, title='N')
+
+
+class NItem(Element):
+    pass
+
+
+class ColumnsXyz(RootModel[list]):
+    root: list = Field(
+        ...,
+        description='Names of the three neuron (node) properties used for volumetric tests',
+        max_length=3,
+        min_length=3,
+        title='Columns Xyz',
+    )
+
+
+class ColumnsXyzItem(RootModel[list]):
+    root: list = Field(..., max_length=3, min_length=3)
+
+
+class VolumetricCountNeuronSet(BaseModel):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    type: Literal['VolumetricCountNeuronSet'] = Field(..., title='Type')
+    sample_percentage: SamplePercentage20 | SamplePercentage21 = Field(
+        default=100.0,
+        description='Percentage of neurons to sample between 0 and 100%',
+        title='Sample (Percentage)',
+    )
+    sample_seed: int | list[int] = Field(
+        default=1, description='Seed for random sampling.', title='Sample Seed'
+    )
+    node_population: str | list[str] | None = Field(
+        default=None, title='Node Population'
+    )
+    property_filter: NeuronPropertyFilter | list[NeuronPropertyFilter] = Field(
+        default=[],
+        description='NeuronPropertyFilter object or list of NeuronPropertyFilter objects',
+        title='Property Filter',
+    )
+    node_sets: list[NodeSet3] | NodeSets5 = Field(default=[], title='Node Sets')
+    ox: float | list[float] = Field(
+        ...,
+        description='Offset of the center of the volume, relative to the centroid of the node             population',
+        title='Ox',
+    )
+    oy: float | list[float] = Field(
+        ...,
+        description='Offset of the center of the volume, relative to the centroid of the node             population',
+        title='Oy',
+    )
+    oz: float | list[float] = Field(
+        ...,
+        description='Offset of the center of the volume, relative to the centroid of the node             population',
+        title='Oz',
+    )
+    n: N | list[NItem] = Field(..., description='Number of neurons to find', title='N')
+    columns_xyz: ColumnsXyz | list[ColumnsXyzItem] = Field(
+        default=['x', 'y', 'z'],
+        description='Names of the three neuron (node) properties used for volumetric tests',
+        title='Columns Xyz',
+    )
+
+
+class SamplePercentage22(SamplePercentage):
+    pass
+
+
+class SamplePercentage23Item(SamplePercentage1Item):
+    pass
+
+
+class SamplePercentage23(RootModel[list[SamplePercentage23Item]]):
+    root: list[SamplePercentage23Item] = Field(
+        ...,
+        description='Percentage of neurons to sample between 0 and 100%',
+        min_length=1,
+        title='Sample (Percentage)',
+    )
+
+
+class NodeSets6Item(NodeSet):
+    pass
+
+
+class NodeSets6(RootModel[list[list[NodeSets6Item]]]):
+    root: list[list[NodeSets6Item]] = Field(..., min_length=1, title='Node Sets')
+
+
+class Radius(RootModel[float]):
+    root: float = Field(
+        ..., description='Radius in um of volumetric sample', ge=0.0, title='Radius'
+    )
+
+
+class Radiu(DurationItem):
+    pass
+
+
+class VolumetricRadiusNeuronSet(BaseModel):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    type: Literal['VolumetricRadiusNeuronSet'] = Field(..., title='Type')
+    sample_percentage: SamplePercentage22 | SamplePercentage23 = Field(
+        default=100.0,
+        description='Percentage of neurons to sample between 0 and 100%',
+        title='Sample (Percentage)',
+    )
+    sample_seed: int | list[int] = Field(
+        default=1, description='Seed for random sampling.', title='Sample Seed'
+    )
+    node_population: str | list[str] | None = Field(
+        default=None, title='Node Population'
+    )
+    property_filter: NeuronPropertyFilter | list[NeuronPropertyFilter] = Field(
+        default=[],
+        description='NeuronPropertyFilter object or list of NeuronPropertyFilter objects',
+        title='Property Filter',
+    )
+    node_sets: list[NodeSet3] | NodeSets6 = Field(default=[], title='Node Sets')
+    ox: float | list[float] = Field(
+        ...,
+        description='Offset of the center of the volume, relative to the centroid of the node             population',
+        title='Ox',
+    )
+    oy: float | list[float] = Field(
+        ...,
+        description='Offset of the center of the volume, relative to the centroid of the node             population',
+        title='Oy',
+    )
+    oz: float | list[float] = Field(
+        ...,
+        description='Offset of the center of the volume, relative to the centroid of the node             population',
+        title='Oz',
+    )
+    radius: Radius | list[Radiu] = Field(
+        ..., description='Radius in um of volumetric sample', title='Radius'
+    )
+    columns_xyz: ColumnsXyz | list[ColumnsXyzItem] = Field(
+        default=['x', 'y', 'z'],
+        description='Names of the three neuron (node) properties used for volumetric tests',
+        title='Columns Xyz',
+    )
+
+
+class SamplePercentage24(SamplePercentage):
+    pass
+
+
+class SamplePercentage25Item(SamplePercentage1Item):
+    pass
+
+
+class SamplePercentage25(RootModel[list[SamplePercentage25Item]]):
+    root: list[SamplePercentage25Item] = Field(
         ...,
         description='Percentage of neurons to sample between 0 and 100%',
         min_length=1,
@@ -790,7 +2003,7 @@ class NbS1POmInputs(BaseModel):
         extra='ignore',
     )
     type: Literal['nbS1POmInputs'] = Field(..., title='Type')
-    sample_percentage: SamplePercentage8 | SamplePercentage9 = Field(
+    sample_percentage: SamplePercentage24 | SamplePercentage25 = Field(
         default=100.0,
         description='Percentage of neurons to sample between 0 and 100%',
         title='Sample (Percentage)',
@@ -800,16 +2013,16 @@ class NbS1POmInputs(BaseModel):
     )
 
 
-class SamplePercentage10(SamplePercentage):
+class SamplePercentage26(SamplePercentage):
     pass
 
 
-class SamplePercentage11Item(SamplePercentage1Item):
+class SamplePercentage27Item(SamplePercentage1Item):
     pass
 
 
-class SamplePercentage11(RootModel[list[SamplePercentage11Item]]):
-    root: list[SamplePercentage11Item] = Field(
+class SamplePercentage27(RootModel[list[SamplePercentage27Item]]):
+    root: list[SamplePercentage27Item] = Field(
         ...,
         description='Percentage of neurons to sample between 0 and 100%',
         min_length=1,
@@ -822,7 +2035,7 @@ class NbS1VPMInputs(BaseModel):
         extra='ignore',
     )
     type: Literal['nbS1VPMInputs'] = Field(..., title='Type')
-    sample_percentage: SamplePercentage10 | SamplePercentage11 = Field(
+    sample_percentage: SamplePercentage26 | SamplePercentage27 = Field(
         default=100.0,
         description='Percentage of neurons to sample between 0 and 100%',
         title='Sample (Percentage)',
@@ -832,16 +2045,183 @@ class NbS1VPMInputs(BaseModel):
     )
 
 
-class ObiOneScientificMorphologyMetricsMorphologyMetricsMorphologyMetricsFormInitialize(
+class ObiOneScientificTasksBasicConnectivityPlotsBasicConnectivityPlotsScanConfigInitialize(
     BaseModel
 ):
     model_config = ConfigDict(
         extra='ignore',
     )
-    type: Literal['MorphologyMetricsForm.Initialize'] = Field(..., title='Type')
-    morphology: (
-        ReconstructionMorphologyFromID | list[ReconstructionMorphologyFromID]
-    ) = Field(..., description='3. Morphology description', title='Morphology')
+    type: Literal['BasicConnectivityPlotsScanConfig.Initialize'] = Field(
+        ..., title='Type'
+    )
+    matrix_path: NamedPath | list[NamedPath] = Field(..., title='Matrix Path')
+    plot_formats: list[str] = Field(default=['png', 'pdf', 'svg'], title='Plot Formats')
+    plot_types: list[str] = Field(
+        default=[
+            'nodes',
+            'connectivity_global',
+            'connectivity_pathway',
+            'small_adj_and_stats',
+            'network_in_2D',
+            'property_table',
+        ],
+        title='Plot Types',
+    )
+    rendering_cmap: str | None = Field(default=None, title='Rendering Cmap')
+    rendering_color_file: str | None = Field(default=None, title='Rendering Color File')
+    dpi: int = Field(default=300, title='Dpi')
+
+
+class ObiOneScientificTasksCircuitExtractionCircuitExtractionScanConfigInitialize(
+    BaseModel
+):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    type: Literal['CircuitExtractionScanConfig.Initialize'] = Field(..., title='Type')
+    circuit: Circuit | list[Circuit] = Field(..., title='Circuit')
+    run_validation: bool = Field(default=False, title='Run Validation')
+    do_virtual: bool | list[bool] = Field(
+        default=True,
+        description='Enable virtual neurons that target the cells contained in the specified neuron set to be split out and kept as virtual neurons together with their connectivity.',
+        title='Do Virtual',
+    )
+    create_external: bool | list[bool] = Field(
+        default=True,
+        description='Enable external neurons that are outside the specified neuron set but target the cells contained therein to be turned into new virtual neurons together with their connectivity.',
+        title='Create External',
+    )
+    virtual_sources_to_ignore: list[str] | list[list[str]] = Field(
+        default=[], title='Virtual Sources To Ignore'
+    )
+
+
+class ObiOneScientificTasksConnectivityMatrixExtractionConnectivityMatrixExtractionScanConfigInitialize(
+    BaseModel
+):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    type: Literal['ConnectivityMatrixExtractionScanConfig.Initialize'] = Field(
+        ..., title='Type'
+    )
+    circuit: Circuit | list[Circuit] = Field(..., title='Circuit')
+    edge_population: str | list[str | None] | None = Field(
+        default=None, title='Edge Population'
+    )
+    node_attributes: list[str] | list[list[str] | None] | None = Field(
+        default=None, title='Node Attributes'
+    )
+
+
+class ObiOneScientificTasksEphysExtractionElectrophysiologyMetricsScanConfigInitialize(
+    BaseModel
+):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    type: Literal['ElectrophysiologyMetricsScanConfig.Initialize'] = Field(
+        ..., title='Type'
+    )
+    trace_id: str = Field(
+        ..., description='ID of the trace of interest.', title='Trace Id'
+    )
+    protocols: (
+        list[
+            Literal[
+                'spontaneous',
+                'idrest',
+                'idthreshold',
+                'apwaveform',
+                'iv',
+                'step',
+                'sponaps',
+                'firepattern',
+                'spontaneousnohold',
+                'starthold',
+                'startnohold',
+                'delta',
+                'sahp',
+                'idhyperpol',
+                'irdepol',
+                'irhyperpol',
+                'iddepol',
+                'apthreshold',
+                'hyperdepol',
+                'negcheops',
+                'poscheops',
+                'spikerec',
+                'sinespec',
+                'genericstep',
+            ]
+        ]
+        | None
+    ) = Field(
+        default=None,
+        description="Type of stimuli requested by the user. Should be one                 of: 'spontaneous', 'idrest', 'idthreshold', 'apwaveform', 'iv', 'step', 'sponaps', 'firepattern', 'spontaneousnohold', 'starthold', 'startnohold', 'delta', 'sahp', 'idhyperpol', 'irdepol', 'irhyperpol', 'iddepol', 'apthreshold', 'hyperdepol', 'negcheops', 'poscheops', 'spikerec', 'sinespec', 'genericstep'.",
+        title='Protocols',
+    )
+    requested_metrics: (
+        list[
+            Literal[
+                'spike_count',
+                'time_to_first_spike',
+                'time_to_last_spike',
+                'inv_time_to_first_spike',
+                'doublet_ISI',
+                'inv_first_ISI',
+                'ISI_log_slope',
+                'ISI_CV',
+                'irregularity_index',
+                'adaptation_index',
+                'mean_frequency',
+                'strict_burst_number',
+                'strict_burst_mean_freq',
+                'spikes_per_burst',
+                'AP_height',
+                'AP_amplitude',
+                'AP1_amp',
+                'APlast_amp',
+                'AP_duration_half_width',
+                'AHP_depth',
+                'AHP_time_from_peak',
+                'AP_peak_upstroke',
+                'AP_peak_downstroke',
+                'voltage_base',
+                'voltage_after_stim',
+                'ohmic_input_resistance_vb_ssse',
+                'steady_state_voltage_stimend',
+                'sag_amplitude',
+                'decay_time_constant_after_stim',
+                'depol_block_bool',
+            ]
+        ]
+        | None
+    ) = Field(
+        default=None,
+        description="Feature requested by the user. Should be one of 'spike_count','time_to_first_spike', 'time_to_last_spike','inv_time_to_first_spike', 'doublet_ISI', 'inv_first_ISI','ISI_log_slope', 'ISI_CV', 'irregularity_index', 'adaptation_index','mean_frequency', 'strict_burst_number', 'strict_burst_mean_freq','spikes_per_burst', 'AP_height', 'AP_amplitude', 'AP1_amp', 'APlast_amp','AP_duration_half_width', 'AHP_depth', 'AHP_time_from_peak','AP_peak_upstroke', 'AP_peak_downstroke', 'voltage_base','voltage_after_stim', 'ohmic_input_resistance_vb_ssse','steady_state_voltage_stimend', 'sag_amplitude','decay_time_constant_after_stim', 'depol_block_bool'",
+        title='Requested Metrics',
+    )
+    amplitude: AmplitudeInput | None = Field(
+        default=None,
+        description='Amplitude of the protocol (should be specified in nA).Can be a range of amplitudes with min and max valuesCan be None (if the user does not specify it) and all the amplitudes are going to be taken into account.',
+    )
+
+
+class ObiOneScientificTasksFolderCompressionFolderCompressionScanConfigInitialize(
+    BaseModel
+):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    type: Literal['FolderCompressionScanConfig.Initialize'] = Field(..., title='Type')
+    folder_path: NamedPath | list[NamedPath] = Field(..., title='Folder Path')
+    file_format: str | list[str | None] | None = Field(
+        default='gz', title='File Format'
+    )
+    file_name: str | list[str | None] | None = Field(
+        default='compressed', title='File Name'
+    )
 
 
 class Circuit1(RootModel[Circuit | CircuitFromID]):
@@ -884,14 +2264,15 @@ class ExtracellularCalciumConcentration(RootModel[float]):
     )
 
 
-class ObiOneScientificSimulationSimulationsSimulationsFormInitialize(BaseModel):
+class ObiOneScientificTasksGenerateSimulationConfigsCircuitSimulationScanConfigInitialize(
+    BaseModel
+):
     model_config = ConfigDict(
         extra='ignore',
     )
-    type: Literal['SimulationsForm.Initialize'] = Field(..., title='Type')
-    circuit: Circuit | CircuitFromID | list[Circuit1] = Field(..., title='Circuit')
-    node_set: NeuronSetReference = Field(
-        ..., description='Neuron set to simulate.', title='Neuron Set'
+    type: Literal['CircuitSimulationScanConfig.Initialize'] = Field(..., title='Type')
+    circuit: Circuit | CircuitFromID | list[Circuit1] = Field(
+        ..., description='Circuit to simulate.', title='Circuit'
     )
     simulation_length: SimulationLength | SimulationLength1 = Field(
         default=1000.0,
@@ -913,6 +2294,283 @@ class ObiOneScientificSimulationSimulationsSimulationsFormInitialize(BaseModel):
     random_seed: list[int] | int = Field(
         default=1, description='Random seed for the simulation.', title='Random Seed'
     )
+    node_set: NeuronSetReference | None = None
+
+
+class Circuit2(RootModel[MEModelCircuit | MEModelFromID]):
+    root: MEModelCircuit | MEModelFromID = Field(..., discriminator='type')
+
+
+class SimulationLength2(SimulationLength):
+    pass
+
+
+class SimulationLength3Item(SimulationLength1Item):
+    pass
+
+
+class SimulationLength3(RootModel[list[SimulationLength3Item]]):
+    root: list[SimulationLength3Item] = Field(
+        ...,
+        description='Simulation length in milliseconds (ms).',
+        min_length=1,
+        title='Duration',
+    )
+
+
+class ObiOneScientificTasksGenerateSimulationConfigsMEModelSimulationScanConfigInitialize(
+    BaseModel
+):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    type: Literal['MEModelSimulationScanConfig.Initialize'] = Field(..., title='Type')
+    circuit: MEModelCircuit | MEModelFromID | list[Circuit2] = Field(
+        ..., description='ME Model to simulate.', title='ME Model'
+    )
+    simulation_length: SimulationLength2 | SimulationLength3 = Field(
+        default=1000.0,
+        description='Simulation length in milliseconds (ms).',
+        title='Duration',
+    )
+    extracellular_calcium_concentration: (
+        list[ExtracellularCalciumConcentrationItem] | ExtracellularCalciumConcentration
+    ) = Field(
+        default=1.1,
+        description='Extracellular calcium concentration around the synapse in millimoles (mM). Increasing this value increases the probability of synaptic vesicle release, which in turn increases the level of network activity. In vivo values are estimated to be ~0.9-1.2mM, whilst in vitro values are on the order of 2mM.',
+        title='Extracellular Calcium Concentration',
+    )
+    v_init: list[float] | float = Field(
+        default=-80.0,
+        description='Initial membrane potential in millivolts (mV).',
+        title='Initial Voltage',
+    )
+    random_seed: list[int] | int = Field(
+        default=1, description='Random seed for the simulation.', title='Random Seed'
+    )
+
+
+class Circuit3(
+    RootModel[MEModelWithSynapsesCircuit | MEModelWithSynapsesCircuitFromID]
+):
+    root: MEModelWithSynapsesCircuit | MEModelWithSynapsesCircuitFromID = Field(
+        ..., discriminator='type'
+    )
+
+
+class SimulationLength4(SimulationLength):
+    pass
+
+
+class SimulationLength5Item(SimulationLength1Item):
+    pass
+
+
+class SimulationLength5(RootModel[list[SimulationLength5Item]]):
+    root: list[SimulationLength5Item] = Field(
+        ...,
+        description='Simulation length in milliseconds (ms).',
+        min_length=1,
+        title='Duration',
+    )
+
+
+class ObiOneScientificTasksGenerateSimulationConfigsMEModelWithSynapsesCircuitSimulationScanConfigInitialize(
+    BaseModel
+):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    type: Literal['MEModelWithSynapsesCircuitSimulationScanConfig.Initialize'] = Field(
+        ..., title='Type'
+    )
+    circuit: (
+        MEModelWithSynapsesCircuit | MEModelWithSynapsesCircuitFromID | list[Circuit3]
+    ) = Field(
+        ...,
+        description='MEModel with synapses to simulate.',
+        title='MEModel With Synapses',
+    )
+    simulation_length: SimulationLength4 | SimulationLength5 = Field(
+        default=1000.0,
+        description='Simulation length in milliseconds (ms).',
+        title='Duration',
+    )
+    extracellular_calcium_concentration: (
+        list[ExtracellularCalciumConcentrationItem] | ExtracellularCalciumConcentration
+    ) = Field(
+        default=1.1,
+        description='Extracellular calcium concentration around the synapse in millimoles (mM). Increasing this value increases the probability of synaptic vesicle release, which in turn increases the level of network activity. In vivo values are estimated to be ~0.9-1.2mM, whilst in vitro values are on the order of 2mM.',
+        title='Extracellular Calcium Concentration',
+    )
+    v_init: list[float] | float = Field(
+        default=-80.0,
+        description='Initial membrane potential in millivolts (mV).',
+        title='Initial Voltage',
+    )
+    random_seed: list[int] | int = Field(
+        default=1, description='Random seed for the simulation.', title='Random Seed'
+    )
+
+
+class ObiOneScientificTasksIonChannelModelingIonChannelFittingScanConfigInitialize(
+    BaseModel
+):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    type: Literal['IonChannelFittingScanConfig.Initialize'] = Field(..., title='Type')
+    recordings: IonChannelRecordingFromID = Field(
+        ..., description='IDs of the traces of interest.', title='Ion channel recording'
+    )
+    ion_channel_name: str = Field(
+        default='DefaultIonChannelName',
+        description='The name you want to give to the generated ion channel model (used as SUFFIX in the mod file). Name must start with a letter or underscore, and can only contain letters, numbers, and underscores.',
+        min_length=1,
+        pattern='^[A-Za-z_][A-Za-z0-9_]*$',
+        title='Ion channel name',
+    )
+
+
+class ObiOneScientificTasksMorphologyContainerizationMorphologyContainerizationScanConfigInitialize(
+    BaseModel
+):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    type: Literal['MorphologyContainerizationScanConfig.Initialize'] = Field(
+        ..., title='Type'
+    )
+    circuit: Circuit | list[Circuit] = Field(..., title='Circuit')
+    hoc_template_old: str = Field(..., title='Hoc Template Old')
+    hoc_template_new: str = Field(..., title='Hoc Template New')
+
+
+class ObiOneScientificTasksMorphologyDecontainerizationMorphologyDecontainerizationScanConfigInitialize(
+    BaseModel
+):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    type: Literal['MorphologyDecontainerizationScanConfig.Initialize'] = Field(
+        ..., title='Type'
+    )
+    circuit: Circuit | list[Circuit] = Field(..., title='Circuit')
+    output_format: Literal['h5', 'asc', 'swc'] | list[Literal['h5', 'asc', 'swc']] = (
+        Field(default='h5', title='Output Format')
+    )
+
+
+class ObiOneScientificTasksMorphologyLocationsMorphologyLocationsScanConfigInitialize(
+    BaseModel
+):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    type: Literal['MorphologyLocationsScanConfig.Initialize'] = Field(..., title='Type')
+    morphology: (
+        CellMorphologyFromID | list[CellMorphologyFromID] | Path | list[Path]
+    ) = Field(
+        ...,
+        description='The morphology skeleton to place locations on',
+        title='Morphology',
+    )
+
+
+class ObiOneScientificTasksMorphologyMetricsMorphologyMetricsScanConfigInitialize(
+    BaseModel
+):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    type: Literal['MorphologyMetricsScanConfig.Initialize'] = Field(..., title='Type')
+    morphology: CellMorphologyFromID | list[CellMorphologyFromID] = Field(
+        ..., description='3. Morphology description', title='Morphology'
+    )
+
+
+class Circuit4(Circuit1):
+    pass
+
+
+class SimulationLength6(SimulationLength):
+    pass
+
+
+class SimulationLength7Item(SimulationLength1Item):
+    pass
+
+
+class SimulationLength7(RootModel[list[SimulationLength7Item]]):
+    root: list[SimulationLength7Item] = Field(
+        ...,
+        description='Simulation length in milliseconds (ms).',
+        min_length=1,
+        title='Duration',
+    )
+
+
+class ObiOneScientificUnionsAliasesSimulationsFormInitialize(BaseModel):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    type: Literal['SimulationsForm.Initialize'] = Field(..., title='Type')
+    circuit: Circuit | CircuitFromID | list[Circuit4] = Field(
+        ..., description='Circuit to simulate.', title='Circuit'
+    )
+    simulation_length: SimulationLength6 | SimulationLength7 = Field(
+        default=1000.0,
+        description='Simulation length in milliseconds (ms).',
+        title='Duration',
+    )
+    extracellular_calcium_concentration: (
+        list[ExtracellularCalciumConcentrationItem] | ExtracellularCalciumConcentration
+    ) = Field(
+        default=1.1,
+        description='Extracellular calcium concentration around the synapse in millimoles (mM). Increasing this value increases the probability of synaptic vesicle release, which in turn increases the level of network activity. In vivo values are estimated to be ~0.9-1.2mM, whilst in vitro values are on the order of 2mM.',
+        title='Extracellular Calcium Concentration',
+    )
+    v_init: list[float] | float = Field(
+        default=-80.0,
+        description='Initial membrane potential in millivolts (mV).',
+        title='Initial Voltage',
+    )
+    random_seed: list[int] | int = Field(
+        default=1, description='Random seed for the simulation.', title='Random Seed'
+    )
+    node_set: NeuronSetReference | None = None
+
+
+class SamplePercentage28(SamplePercentage):
+    pass
+
+
+class SamplePercentage29Item(SamplePercentage1Item):
+    pass
+
+
+class SamplePercentage29(RootModel[list[SamplePercentage29Item]]):
+    root: list[SamplePercentage29Item] = Field(
+        ...,
+        description='Percentage of neurons to sample between 0 and 100%',
+        min_length=1,
+        title='Sample (Percentage)',
+    )
+
+
+class RCA1CA3Inputs(BaseModel):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    type: Literal['rCA1CA3Inputs'] = Field(..., title='Type')
+    sample_percentage: SamplePercentage28 | SamplePercentage29 = Field(
+        default=100.0,
+        description='Percentage of neurons to sample between 0 and 100%',
+        title='Sample (Percentage)',
+    )
+    sample_seed: int | list[int] = Field(
+        default=1, description='Seed for random sampling.', title='Sample Seed'
+    )
 
 
 class RootGetResponse(BaseModel):
@@ -928,40 +2586,20 @@ HealthHealthGetResponse = RootGetResponse
 VersionVersionGetResponse = RootGetResponse
 
 
-class NeuronMorphologyMetricsEndpointDeclaredNeuronMorphologyMetricsReconstructionMorphologyIdGetParametersQuery(
+class CircuitMetricsEndpointDeclaredCircuitMetricsCircuitIdGetParametersQuery(
     BaseModel
 ):
-    requested_metrics: (
-        list[
-            Literal[
-                'aspect_ratio',
-                'circularity',
-                'length_fraction_above_soma',
-                'max_radial_distance',
-                'number_of_neurites',
-                'soma_radius',
-                'soma_surface_area',
-                'total_length',
-                'total_height',
-                'total_width',
-                'total_depth',
-                'total_area',
-                'total_volume',
-                'section_lengths',
-                'segment_radii',
-                'number_of_sections',
-                'local_bifurcation_angles',
-                'remote_bifurcation_angles',
-                'section_path_distances',
-                'section_radial_distances',
-                'section_branch_orders',
-                'section_strahler_orders',
-            ]
-        ]
-        | None
-    ) = Field(
-        default=None, description='List of requested metrics', title='Requested Metrics'
+    level_of_detail_nodes: CircuitStatsLevelOfDetail = Field(
+        default=0, description='Level of detail for node populations analysis'
     )
+    level_of_detail_edges: CircuitStatsLevelOfDetail = Field(
+        default=0, description='Level of detail for edge populations analysis'
+    )
+
+
+MappedCircuitPropertiesEndpointDeclaredMappedCircuitPropertiesCircuitIdGetResponse = (
+    RootGetResponse
+)
 
 
 class ElectrophysiologyrecordingMetricsEndpointDeclaredElectrophysiologyrecordingMetricsTraceIdGetParametersQuery(
@@ -1039,47 +2677,215 @@ class ElectrophysiologyrecordingMetricsEndpointDeclaredElectrophysiologyrecordin
     max_value: float | None = Field(default=None, title='Max Value')
 
 
+class NeuronMorphologyMetricsEndpointDeclaredNeuronMorphologyMetricsCellMorphologyIdGetParametersQuery(
+    BaseModel
+):
+    requested_metrics: (
+        list[
+            Literal[
+                'aspect_ratio',
+                'circularity',
+                'length_fraction_above_soma',
+                'max_radial_distance',
+                'number_of_neurites',
+                'soma_radius',
+                'soma_surface_area',
+                'total_length',
+                'total_height',
+                'total_width',
+                'total_depth',
+                'total_area',
+                'total_volume',
+                'section_lengths',
+                'segment_radii',
+                'number_of_sections',
+                'local_bifurcation_angles',
+                'remote_bifurcation_angles',
+                'section_path_distances',
+                'section_radial_distances',
+                'section_branch_orders',
+                'section_strahler_orders',
+            ]
+        ]
+        | None
+    ) = Field(
+        default=None, description='List of requested metrics', title='Requested Metrics'
+    )
+
+
+class ParametricMultiValueEndpointDeclaredParametricMultiValuePostParametersQuery(
+    BaseModel
+):
+    ge: float | int | None = Field(
+        default=None, description='Require all values to be ≥ this', title='Ge'
+    )
+    gt: float | int | None = Field(
+        default=None, description='Require all values to be > this', title='Gt'
+    )
+    le: float | int | None = Field(
+        default=None, description='Require all values to be ≤ this', title='Le'
+    )
+    lt: float | int | None = Field(
+        default=None, description='Require all values to be < this', title='Lt'
+    )
+
+
+class ParametricMultiValueEndpointDeclaredParametricMultiValuePostRequest(
+    RootModel[
+        IntRange
+        | PositiveIntRange
+        | NonNegativeIntRange
+        | FloatRange
+        | PositiveFloatRange
+        | NonNegativeFloatRange
+    ]
+):
+    root: (
+        IntRange
+        | PositiveIntRange
+        | NonNegativeIntRange
+        | FloatRange
+        | PositiveFloatRange
+        | NonNegativeFloatRange
+    ) = Field(..., discriminator='type', title='Parameteric Multi Value Type')
+
+
+class ParametricMultiValueEndpointDeclaredParametricMultiValuePostResponse(
+    RootModel[list[float] | list[int]]
+):
+    root: list[float] | list[int] = Field(
+        ...,
+        title='Response Parametric Multi Value Endpoint Declared Parametric Multi Value Post',
+    )
+
+
+class BasicConnectivityPlotsScanConfig(BaseModel):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    type: Literal['BasicConnectivityPlotsScanConfig'] = Field(..., title='Type')
+    initialize: ObiOneScientificTasksBasicConnectivityPlotsBasicConnectivityPlotsScanConfigInitialize
+
+
+class CircuitMetricsEdgePopulation(BaseModel):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    number_of_edges: int = Field(..., title='Number Of Edges')
+    name: str = Field(..., title='Name')
+    population_type: EdgePopulationType
+    property_names: list[str] = Field(..., title='Property Names')
+    property_stats: dict[str, dict[str, float]] | None = Field(
+        ..., title='Property Stats'
+    )
+    degree_stats: dict[str, dict[str, float]] | None = Field(..., title='Degree Stats')
+
+
+class CircuitMetricsNodePopulation(BaseModel):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    number_of_nodes: int = Field(..., title='Number Of Nodes')
+    name: str = Field(..., title='Name')
+    population_type: NodePopulationType
+    property_names: list[str] = Field(..., title='Property Names')
+    property_unique_values: dict[str, list[str]] = Field(
+        ..., title='Property Unique Values'
+    )
+    property_value_counts: dict[str, dict[str, int]] = Field(
+        ..., title='Property Value Counts'
+    )
+    node_location_info: dict[str, dict[str, float]] | None = Field(
+        ..., title='Node Location Info'
+    )
+
+
+class CircuitMetricsOutput(BaseModel):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    number_of_biophys_node_populations: int = Field(
+        ..., title='Number Of Biophys Node Populations'
+    )
+    number_of_virtual_node_populations: int = Field(
+        ..., title='Number Of Virtual Node Populations'
+    )
+    names_of_biophys_node_populations: list[str] = Field(
+        ..., title='Names Of Biophys Node Populations'
+    )
+    names_of_virtual_node_populations: list[str] = Field(
+        ..., title='Names Of Virtual Node Populations'
+    )
+    names_of_nodesets: list[str] = Field(..., title='Names Of Nodesets')
+    biophysical_node_populations: list[CircuitMetricsNodePopulation | None] = Field(
+        ..., title='Biophysical Node Populations'
+    )
+    virtual_node_populations: list[CircuitMetricsNodePopulation | None] = Field(
+        ..., title='Virtual Node Populations'
+    )
+    number_of_chemical_edge_populations: int = Field(
+        ..., title='Number Of Chemical Edge Populations'
+    )
+    number_of_electrical_edge_populations: int = Field(
+        ..., title='Number Of Electrical Edge Populations'
+    )
+    names_of_chemical_edge_populations: list[str] = Field(
+        ..., title='Names Of Chemical Edge Populations'
+    )
+    names_of_electrical_edge_populations: list[str] = Field(
+        ..., title='Names Of Electrical Edge Populations'
+    )
+    chemical_edge_populations: list[CircuitMetricsEdgePopulation | None] = Field(
+        ..., title='Chemical Edge Populations'
+    )
+    electrical_edge_populations: list[CircuitMetricsEdgePopulation | None] = Field(
+        ..., title='Electrical Edge Populations'
+    )
+
+
+class ConnectivityMatrixExtractionScanConfig(BaseModel):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    type: Literal['ConnectivityMatrixExtractionScanConfig'] = Field(..., title='Type')
+    initialize: ObiOneScientificTasksConnectivityMatrixExtractionConnectivityMatrixExtractionScanConfigInitialize
+
+
 class ConstantCurrentClampSomaticStimulus(BaseModel):
     model_config = ConfigDict(
         extra='ignore',
     )
     type: Literal['ConstantCurrentClampSomaticStimulus'] = Field(..., title='Type')
-    timestamps: TimestampsReference = Field(
-        ...,
-        description='Timestamps at which the stimulus is applied.',
-        title='Timestamps',
-    )
-    neuron_set: NeuronSetReference = Field(
-        ...,
-        description='Neuron set to which the stimulus is applied.',
-        title='Neuron Set',
-    )
+    timestamps: TimestampsReference | None = None
+    neuron_set: NeuronSetReference | None = None
     timestamp_offset: float | list[float] | None = Field(
         default=0.0,
         description='The offset of the stimulus relative to each timestamp in milliseconds (ms).',
         title='Timestamp Offset',
     )
     duration: Duration | list[DurationItem] = Field(
-        default=1.0,
+        default=200.0,
         description='Time duration in milliseconds for how long input is activated.',
         title='Duration',
     )
-    amplitude: float | list[float] = Field(
+    amplitude: float | list[float] | FloatRange = Field(
         default=0.1,
         description='The injected current. Given in nanoamps.',
         title='Amplitude',
     )
 
 
-class ContributeMorphologyForm(BaseModel):
+class ContributeMorphologyScanConfig(BaseModel):
     model_config = ConfigDict(
         extra='ignore',
     )
-    type: Literal['ContributeMorphologyForm'] = Field(..., title='Type')
+    type: Literal['ContributeMorphologyScanConfig'] = Field(..., title='Type')
     assets: Assets | None = Field(default=None, description='Morphology files.')
     contribution: Contribution | None = Field(default=None, description='Contributor.')
-    morphology: ReconstructionMorphology | None = Field(
-        default=None, description='Information about contributors.', title='Morphology'
+    morphology: CellMorphology | None = Field(
+        default=None,
+        description='Information about the morphology.',
+        title='Morphology',
     )
     publication: Publication | None = Field(
         default=None, description='Publication details.', title='Publication Details'
@@ -1100,18 +2906,44 @@ class ContributeMorphologyForm(BaseModel):
     )
 
 
+class ContributeSubjectScanConfig(BaseModel):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    type: Literal['ContributeSubjectScanConfig'] = Field(..., title='Type')
+    subject: Subject | None = Field(
+        default=None, description='Information about the subject.'
+    )
+
+
+class ElectrophysiologyMetricsScanConfig(BaseModel):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    type: Literal['ElectrophysiologyMetricsScanConfig'] = Field(..., title='Type')
+    initialize: (
+        ObiOneScientificTasksEphysExtractionElectrophysiologyMetricsScanConfigInitialize
+    )
+
+
+class FolderCompressionScanConfig(BaseModel):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    type: Literal['FolderCompressionScanConfig'] = Field(..., title='Type')
+    initialize: (
+        ObiOneScientificTasksFolderCompressionFolderCompressionScanConfigInitialize
+    )
+
+
 class FullySynchronousSpikeStimulus(BaseModel):
     model_config = ConfigDict(
         extra='ignore',
     )
     type: Literal['FullySynchronousSpikeStimulus'] = Field(..., title='Type')
-    timestamps: TimestampsReference = Field(
-        ...,
-        description='Timestamps at which the stimulus is applied.',
-        title='Timestamps',
-    )
-    source_neuron_set: NeuronSetReference = Field(..., title='Neuron Set (Source)')
-    targeted_neuron_set: NeuronSetReference = Field(..., title='Neuron Set (Target)')
+    timestamps: TimestampsReference | None = None
+    source_neuron_set: NeuronSetReference | None = None
+    targeted_neuron_set: NeuronSetReference | None = None
     timestamp_offset: float | list[float] | None = Field(
         default=0.0,
         description='The offset of the stimulus relative to each timestamp in milliseconds (ms).',
@@ -1133,23 +2965,15 @@ class HyperpolarizingCurrentClampSomaticStimulus(BaseModel):
     type: Literal['HyperpolarizingCurrentClampSomaticStimulus'] = Field(
         ..., title='Type'
     )
-    timestamps: TimestampsReference = Field(
-        ...,
-        description='Timestamps at which the stimulus is applied.',
-        title='Timestamps',
-    )
-    neuron_set: NeuronSetReference = Field(
-        ...,
-        description='Neuron set to which the stimulus is applied.',
-        title='Neuron Set',
-    )
+    timestamps: TimestampsReference | None = None
+    neuron_set: NeuronSetReference | None = None
     timestamp_offset: float | list[float] | None = Field(
         default=0.0,
         description='The offset of the stimulus relative to each timestamp in milliseconds (ms).',
         title='Timestamp Offset',
     )
     duration: Duration | list[DurationItem] = Field(
-        default=1.0,
+        default=200.0,
         description='Time duration in milliseconds for how long input is activated.',
         title='Duration',
     )
@@ -1164,7 +2988,7 @@ class IDNeuronSet(BaseModel):
         extra='ignore',
     )
     type: Literal['IDNeuronSet'] = Field(..., title='Type')
-    sample_percentage: SamplePercentage4 | SamplePercentage5 = Field(
+    sample_percentage: SamplePercentage6 | SamplePercentage7 = Field(
         default=100.0,
         description='Percentage of neurons to sample between 0 and 100%',
         title='Sample (Percentage)',
@@ -1175,28 +2999,63 @@ class IDNeuronSet(BaseModel):
     neuron_ids: NamedTuple | NeuronIds = Field(..., title='Neuron Ids')
 
 
+class IonChannelFittingScanConfig(BaseModel):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    type: Literal['IonChannelFittingScanConfig'] = Field(..., title='Type')
+    initialize: (
+        ObiOneScientificTasksIonChannelModelingIonChannelFittingScanConfigInitialize
+    ) = Field(
+        ...,
+        description='Parameters for initializing the simulation.',
+        title='Initialization',
+    )
+    info: Info = Field(
+        ..., description='Information about the ion channel modeling campaign.'
+    )
+    minf_eq: SigFitMInf | None = Field(
+        ...,
+        description='Steady state activation parameter \\( m_{\\infty} \\) equation. This equation will be used for solving the differential equation: \\( \\frac{dm}{dt} = \\frac{m_{\\infty} - m}{\\tau_{m}} \\)',
+        title='m_{\\infty} equation',
+    )
+    mtau_eq: SigFitMTau | ThermoFitMTau | ThermoFitMTauV2 | BellFitMTau = Field(
+        ...,
+        description='Activation time constant \\(\\tau_m\\) equation. This equation will be used for solving the differential equation: \\( \\frac{dm}{dt} = \\frac{m_{\\infty} - m}{\\tau_{m}} \\)',
+        discriminator='type',
+        title='\\tau_m equation',
+    )
+    hinf_eq: SigFitHInf | None = Field(
+        ...,
+        description='Steady state inactivation parameter \\(h_{\\infty}\\) equation. This equation will be used for solving the differential equation: \\( \\frac{dh}{dt} = \\frac{h_{\\infty} - h}{\\tau_{h}} \\)',
+        title='h_{\\infty} equation',
+    )
+    htau_eq: SigFitHTau | None = Field(
+        ...,
+        description='Inactivation time constant \\(\\tau_h\\) equation. This equation will be used for solving the differential equation: \\( \\frac{dh}{dt} = \\frac{h_{\\infty} - h}{\\tau_{h}} \\)',
+        title='\\tau_h equation',
+    )
+    gate_exponents: GateExponents = Field(
+        ...,
+        description='Set the power of m and h gates used in Hodgkin-Huxley formalism: \\(g = \\bar{g} \\cdot m^p \\cdot h^q\\)',
+        title='m & h gate exponents',
+    )
+
+
 class LinearCurrentClampSomaticStimulus(BaseModel):
     model_config = ConfigDict(
         extra='ignore',
     )
     type: Literal['LinearCurrentClampSomaticStimulus'] = Field(..., title='Type')
-    timestamps: TimestampsReference = Field(
-        ...,
-        description='Timestamps at which the stimulus is applied.',
-        title='Timestamps',
-    )
-    neuron_set: NeuronSetReference = Field(
-        ...,
-        description='Neuron set to which the stimulus is applied.',
-        title='Neuron Set',
-    )
+    timestamps: TimestampsReference | None = None
+    neuron_set: NeuronSetReference | None = None
     timestamp_offset: float | list[float] | None = Field(
         default=0.0,
         description='The offset of the stimulus relative to each timestamp in milliseconds (ms).',
         title='Timestamp Offset',
     )
     duration: Duration | list[DurationItem] = Field(
-        default=1.0,
+        default=200.0,
         description='Time duration in milliseconds for how long input is activated.',
         title='Duration',
     )
@@ -1212,12 +3071,53 @@ class LinearCurrentClampSomaticStimulus(BaseModel):
     )
 
 
-class MorphologyMetricsForm(BaseModel):
+class MorphologyContainerizationScanConfig(BaseModel):
     model_config = ConfigDict(
         extra='ignore',
     )
-    type: Literal['MorphologyMetricsForm'] = Field(..., title='Type')
-    initialize: ObiOneScientificMorphologyMetricsMorphologyMetricsMorphologyMetricsFormInitialize
+    type: Literal['MorphologyContainerizationScanConfig'] = Field(..., title='Type')
+    initialize: ObiOneScientificTasksMorphologyContainerizationMorphologyContainerizationScanConfigInitialize
+
+
+class MorphologyDecontainerizationScanConfig(BaseModel):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    type: Literal['MorphologyDecontainerizationScanConfig'] = Field(..., title='Type')
+    initialize: ObiOneScientificTasksMorphologyDecontainerizationMorphologyDecontainerizationScanConfigInitialize
+
+
+class MorphologyLocationsScanConfig(BaseModel):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    type: Literal['MorphologyLocationsScanConfig'] = Field(..., title='Type')
+    initialize: (
+        ObiOneScientificTasksMorphologyLocationsMorphologyLocationsScanConfigInitialize
+    )
+    morph_locations: (
+        ClusteredGroupedMorphologyLocations
+        | ClusteredMorphologyLocations
+        | ClusteredPathDistanceMorphologyLocations
+        | PathDistanceMorphologyLocations
+        | RandomGroupedMorphologyLocations
+        | RandomMorphologyLocations
+    ) = Field(
+        ...,
+        description='Parameterization of locations on the neurites of the morphology',
+        discriminator='type',
+        title='Morphology locations',
+    )
+
+
+class MorphologyMetricsScanConfig(BaseModel):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    type: Literal['MorphologyMetricsScanConfig'] = Field(..., title='Type')
+    initialize: (
+        ObiOneScientificTasksMorphologyMetricsMorphologyMetricsScanConfigInitialize
+    )
 
 
 class MultiPulseCurrentClampSomaticStimulus(BaseModel):
@@ -1225,23 +3125,15 @@ class MultiPulseCurrentClampSomaticStimulus(BaseModel):
         extra='ignore',
     )
     type: Literal['MultiPulseCurrentClampSomaticStimulus'] = Field(..., title='Type')
-    timestamps: TimestampsReference = Field(
-        ...,
-        description='Timestamps at which the stimulus is applied.',
-        title='Timestamps',
-    )
-    neuron_set: NeuronSetReference = Field(
-        ...,
-        description='Neuron set to which the stimulus is applied.',
-        title='Neuron Set',
-    )
+    timestamps: TimestampsReference | None = None
+    neuron_set: NeuronSetReference | None = None
     timestamp_offset: float | list[float] | None = Field(
         default=0.0,
         description='The offset of the stimulus relative to each timestamp in milliseconds (ms).',
         title='Timestamp Offset',
     )
     duration: Duration | list[DurationItem] = Field(
-        default=1.0,
+        default=200.0,
         description='Time duration in milliseconds for how long input is activated.',
         title='Duration',
     )
@@ -1251,7 +3143,7 @@ class MultiPulseCurrentClampSomaticStimulus(BaseModel):
         title='Amplitude',
     )
     width: Width | list[WidthItem] = Field(
-        default=1.0,
+        default=50.0,
         description='The length of time each pulse lasts. Given in milliseconds (ms).',
         title='Pulse Width',
     )
@@ -1269,23 +3161,15 @@ class NormallyDistributedCurrentClampSomaticStimulus(BaseModel):
     type: Literal['NormallyDistributedCurrentClampSomaticStimulus'] = Field(
         ..., title='Type'
     )
-    timestamps: TimestampsReference = Field(
-        ...,
-        description='Timestamps at which the stimulus is applied.',
-        title='Timestamps',
-    )
-    neuron_set: NeuronSetReference = Field(
-        ...,
-        description='Neuron set to which the stimulus is applied.',
-        title='Neuron Set',
-    )
+    timestamps: TimestampsReference | None = None
+    neuron_set: NeuronSetReference | None = None
     timestamp_offset: float | list[float] | None = Field(
         default=0.0,
         description='The offset of the stimulus relative to each timestamp in milliseconds (ms).',
         title='Timestamp Offset',
     )
     duration: Duration | list[DurationItem] = Field(
-        default=1.0,
+        default=200.0,
         description='Time duration in milliseconds for how long input is activated.',
         title='Duration',
     )
@@ -1306,20 +3190,16 @@ class PoissonSpikeStimulus(BaseModel):
         extra='ignore',
     )
     type: Literal['PoissonSpikeStimulus'] = Field(..., title='Type')
-    timestamps: TimestampsReference = Field(
-        ...,
-        description='Timestamps at which the stimulus is applied.',
-        title='Timestamps',
-    )
-    source_neuron_set: NeuronSetReference = Field(..., title='Neuron Set (Source)')
-    targeted_neuron_set: NeuronSetReference = Field(..., title='Neuron Set (Target)')
+    timestamps: TimestampsReference | None = None
+    source_neuron_set: NeuronSetReference | None = None
+    targeted_neuron_set: NeuronSetReference | None = None
     timestamp_offset: float | list[float] | None = Field(
         default=0.0,
         description='The offset of the stimulus relative to each timestamp in milliseconds (ms).',
         title='Timestamp Offset',
     )
-    duration: Duration | list[DurationItem] = Field(
-        default=1000.0,
+    duration: Duration5 | list[DurationItem5] = Field(
+        default=200.0,
         description='Time duration in milliseconds for how long input is activated.',
         title='Duration',
     )
@@ -1342,23 +3222,15 @@ class RelativeConstantCurrentClampSomaticStimulus(BaseModel):
     type: Literal['RelativeConstantCurrentClampSomaticStimulus'] = Field(
         ..., title='Type'
     )
-    timestamps: TimestampsReference = Field(
-        ...,
-        description='Timestamps at which the stimulus is applied.',
-        title='Timestamps',
-    )
-    neuron_set: NeuronSetReference = Field(
-        ...,
-        description='Neuron set to which the stimulus is applied.',
-        title='Neuron Set',
-    )
+    timestamps: TimestampsReference | None = None
+    neuron_set: NeuronSetReference | None = None
     timestamp_offset: float | list[float] | None = Field(
         default=0.0,
         description='The offset of the stimulus relative to each timestamp in milliseconds (ms).',
         title='Timestamp Offset',
     )
-    duration: Duration | list[DurationItem] = Field(
-        default=1.0,
+    duration: Duration6 | list[DurationItem6] = Field(
+        default=200.0,
         description='Time duration in milliseconds for how long input is activated.',
         title='Duration',
     )
@@ -1378,23 +3250,15 @@ class RelativeLinearCurrentClampSomaticStimulus(BaseModel):
     type: Literal['RelativeLinearCurrentClampSomaticStimulus'] = Field(
         ..., title='Type'
     )
-    timestamps: TimestampsReference = Field(
-        ...,
-        description='Timestamps at which the stimulus is applied.',
-        title='Timestamps',
-    )
-    neuron_set: NeuronSetReference = Field(
-        ...,
-        description='Neuron set to which the stimulus is applied.',
-        title='Neuron Set',
-    )
+    timestamps: TimestampsReference | None = None
+    neuron_set: NeuronSetReference | None = None
     timestamp_offset: float | list[float] | None = Field(
         default=0.0,
         description='The offset of the stimulus relative to each timestamp in milliseconds (ms).',
         title='Timestamp Offset',
     )
-    duration: Duration | list[DurationItem] = Field(
-        default=1.0,
+    duration: Duration6 | list[DurationItem6] = Field(
+        default=200.0,
         description='Time duration in milliseconds for how long input is activated.',
         title='Duration',
     )
@@ -1421,23 +3285,15 @@ class RelativeNormallyDistributedCurrentClampSomaticStimulus(BaseModel):
     type: Literal['RelativeNormallyDistributedCurrentClampSomaticStimulus'] = Field(
         ..., title='Type'
     )
-    timestamps: TimestampsReference = Field(
-        ...,
-        description='Timestamps at which the stimulus is applied.',
-        title='Timestamps',
-    )
-    neuron_set: NeuronSetReference = Field(
-        ...,
-        description='Neuron set to which the stimulus is applied.',
-        title='Neuron Set',
-    )
+    timestamps: TimestampsReference | None = None
+    neuron_set: NeuronSetReference | None = None
     timestamp_offset: float | list[float] | None = Field(
         default=0.0,
         description='The offset of the stimulus relative to each timestamp in milliseconds (ms).',
         title='Timestamp Offset',
     )
-    duration: Duration | list[DurationItem] = Field(
-        default=1.0,
+    duration: Duration6 | list[DurationItem6] = Field(
+        default=200.0,
         description='Time duration in milliseconds for how long input is activated.',
         title='Duration',
     )
@@ -1460,23 +3316,15 @@ class SinusoidalCurrentClampSomaticStimulus(BaseModel):
         extra='ignore',
     )
     type: Literal['SinusoidalCurrentClampSomaticStimulus'] = Field(..., title='Type')
-    timestamps: TimestampsReference = Field(
-        ...,
-        description='Timestamps at which the stimulus is applied.',
-        title='Timestamps',
-    )
-    neuron_set: NeuronSetReference = Field(
-        ...,
-        description='Neuron set to which the stimulus is applied.',
-        title='Neuron Set',
-    )
+    timestamps: TimestampsReference | None = None
+    neuron_set: NeuronSetReference | None = None
     timestamp_offset: float | list[float] | None = Field(
         default=0.0,
         description='The offset of the stimulus relative to each timestamp in milliseconds (ms).',
         title='Timestamp Offset',
     )
-    duration: Duration | list[DurationItem] = Field(
-        default=1.0,
+    duration: Duration6 | list[DurationItem6] = Field(
+        default=200.0,
         description='Time duration in milliseconds for how long input is activated.',
         title='Duration',
     )
@@ -1497,28 +3345,67 @@ class SinusoidalCurrentClampSomaticStimulus(BaseModel):
     )
 
 
-class SubthresholdCurrentClampSomaticStimulus(BaseModel):
+class SinusoidalPoissonSpikeStimulus(BaseModel):
     model_config = ConfigDict(
         extra='ignore',
     )
-    type: Literal['SubthresholdCurrentClampSomaticStimulus'] = Field(..., title='Type')
-    timestamps: TimestampsReference = Field(
-        ...,
-        description='Timestamps at which the stimulus is applied.',
-        title='Timestamps',
-    )
-    neuron_set: NeuronSetReference = Field(
-        ...,
-        description='Neuron set to which the stimulus is applied.',
-        title='Neuron Set',
-    )
+    type: Literal['SinusoidalPoissonSpikeStimulus'] = Field(..., title='Type')
+    timestamps: TimestampsReference | None = None
+    source_neuron_set: NeuronSetReference | None = None
+    targeted_neuron_set: NeuronSetReference | None = None
     timestamp_offset: float | list[float] | None = Field(
         default=0.0,
         description='The offset of the stimulus relative to each timestamp in milliseconds (ms).',
         title='Timestamp Offset',
     )
-    duration: Duration | list[DurationItem] = Field(
-        default=1.0,
+    duration: Duration10 | list[DurationItem10] = Field(
+        default=200.0,
+        description='Time duration of the stimulus in milliseconds.',
+        title='Duration',
+    )
+    minimum_rate: MinimumRate | list[MinimumRateItem] = Field(
+        default='1e-05',
+        description='Minimum rate of the stimulus in Hz.\n Must be less than the Maximum Rate.',
+        title='Minimum Rate',
+    )
+    maximum_rate: MaximumRate | list[MaximumRateItem] = Field(
+        default=10.0,
+        description='Maximum rate of the stimulus in Hz. Must be greater than or equal to Minimum Rate.',
+        title='Maximum Rate',
+    )
+    modulation_frequency_hz: ModulationFrequencyHz | list[ModulationFrequencyHzItem] = (
+        Field(
+            default=5.0,
+            description='Frequency (Hz) of the sinusoidal modulation of the rate.',
+            title='Modulation Frequency',
+        )
+    )
+    phase_degrees: float | list[float] = Field(
+        default=0.0,
+        description='Phase offset (degrees) of the sinusoid.',
+        title='Phase Offset',
+    )
+    random_seed: int | list[int] = Field(
+        default=0,
+        description='Seed for the random number generator to ensure reproducibility.',
+        title='Random Seed',
+    )
+
+
+class SubthresholdCurrentClampSomaticStimulus(BaseModel):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    type: Literal['SubthresholdCurrentClampSomaticStimulus'] = Field(..., title='Type')
+    timestamps: TimestampsReference | None = None
+    neuron_set: NeuronSetReference | None = None
+    timestamp_offset: float | list[float] | None = Field(
+        default=0.0,
+        description='The offset of the stimulus relative to each timestamp in milliseconds (ms).',
+        title='Timestamp Offset',
+    )
+    duration: Duration11 | list[DurationItem11] = Field(
+        default=200.0,
         description='Time duration in milliseconds for how long input is activated.',
         title='Duration',
     )
@@ -1529,13 +3416,74 @@ class SubthresholdCurrentClampSomaticStimulus(BaseModel):
     )
 
 
-class SimulationsForm(BaseModel):
+class CircuitExtractionScanConfig(BaseModel):
     model_config = ConfigDict(
         extra='ignore',
     )
-    type: Literal['SimulationsForm'] = Field(..., title='Type')
+    type: Literal['CircuitExtractionScanConfig'] = Field(..., title='Type')
+    initialize: (
+        ObiOneScientificTasksCircuitExtractionCircuitExtractionScanConfigInitialize
+    )
+    neuron_set: (
+        CombinedNeuronSet
+        | IDNeuronSet
+        | PredefinedNeuronSet
+        | PropertyNeuronSet
+        | PairMotifNeuronSet
+        | VolumetricCountNeuronSet
+        | VolumetricRadiusNeuronSet
+        | SimplexNeuronSet
+        | SimplexMembershipBasedNeuronSet
+        | NbS1VPMInputs
+        | NbS1POmInputs
+        | RCA1CA3Inputs
+        | AllNeurons
+        | ExcitatoryNeurons
+        | InhibitoryNeurons
+    ) = Field(..., discriminator='type', title='Neuron Set')
+
+
+class CircuitSimulationScanConfig(BaseModel):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    type: Literal['CircuitSimulationScanConfig'] = Field(..., title='Type')
     timestamps: dict[str, SingleTimestamp | RegularTimestamps] | None = Field(
         default=None, description='Timestamps for the simulation.', title='Timestamps'
+    )
+    recordings: (
+        dict[str, SomaVoltageRecording | TimeWindowSomaVoltageRecording] | None
+    ) = Field(
+        default=None, description='Recordings for the simulation.', title='Recordings'
+    )
+    info: Info = Field(..., description='Information about the simulation campaign.')
+    neuron_sets: (
+        dict[
+            str,
+            IDNeuronSet
+            | AllNeurons
+            | ExcitatoryNeurons
+            | InhibitoryNeurons
+            | PredefinedNeuronSet
+            | NbS1VPMInputs
+            | NbS1POmInputs,
+        ]
+        | None
+    ) = Field(
+        default=None, description='Neuron sets for the simulation.', title='Neuron Sets'
+    )
+    synaptic_manipulations: (
+        dict[str, SynapticMgManipulation | ScaleAcetylcholineUSESynapticManipulation]
+        | None
+    ) = Field(
+        default=None,
+        description='Synaptic manipulations for the simulation.',
+        title='Synaptic Manipulations',
+    )
+    initialize: ObiOneScientificTasksGenerateSimulationConfigsCircuitSimulationScanConfigInitialize = Field(
+        ...,
+        description='Parameters for initializing the simulation.',
+        title='Initialization',
     )
     stimuli: (
         dict[
@@ -1551,24 +3499,127 @@ class SimulationsForm(BaseModel):
             | SinusoidalCurrentClampSomaticStimulus
             | SubthresholdCurrentClampSomaticStimulus
             | PoissonSpikeStimulus
-            | FullySynchronousSpikeStimulus,
+            | FullySynchronousSpikeStimulus
+            | SinusoidalPoissonSpikeStimulus,
         ]
         | None
     ) = Field(default=None, description='Stimuli for the simulation.', title='Stimuli')
+
+
+class MEModelSimulationScanConfig(BaseModel):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    type: Literal['MEModelSimulationScanConfig'] = Field(..., title='Type')
+    timestamps: dict[str, SingleTimestamp | RegularTimestamps] | None = Field(
+        default=None, description='Timestamps for the simulation.', title='Timestamps'
+    )
     recordings: (
         dict[str, SomaVoltageRecording | TimeWindowSomaVoltageRecording] | None
     ) = Field(
         default=None, description='Recordings for the simulation.', title='Recordings'
     )
+    info: Info = Field(..., description='Information about the simulation campaign.')
+    initialize: ObiOneScientificTasksGenerateSimulationConfigsMEModelSimulationScanConfigInitialize = Field(
+        ...,
+        description='Parameters for initializing the simulation.',
+        title='Initialization',
+    )
+    stimuli: (
+        dict[
+            str,
+            ConstantCurrentClampSomaticStimulus
+            | HyperpolarizingCurrentClampSomaticStimulus
+            | LinearCurrentClampSomaticStimulus
+            | MultiPulseCurrentClampSomaticStimulus
+            | NormallyDistributedCurrentClampSomaticStimulus
+            | RelativeNormallyDistributedCurrentClampSomaticStimulus
+            | RelativeConstantCurrentClampSomaticStimulus
+            | RelativeLinearCurrentClampSomaticStimulus
+            | SinusoidalCurrentClampSomaticStimulus
+            | SubthresholdCurrentClampSomaticStimulus,
+        ]
+        | None
+    ) = Field(default=None, description='Stimuli for the simulation.', title='Stimuli')
+
+
+class MEModelWithSynapsesCircuitSimulationScanConfig(BaseModel):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    type: Literal['MEModelWithSynapsesCircuitSimulationScanConfig'] = Field(
+        ..., title='Type'
+    )
+    timestamps: dict[str, SingleTimestamp | RegularTimestamps] | None = Field(
+        default=None, description='Timestamps for the simulation.', title='Timestamps'
+    )
+    recordings: (
+        dict[str, SomaVoltageRecording | TimeWindowSomaVoltageRecording] | None
+    ) = Field(
+        default=None, description='Recordings for the simulation.', title='Recordings'
+    )
+    info: Info = Field(..., description='Information about the simulation campaign.')
+    neuron_sets: dict[str, NbS1VPMInputs | NbS1POmInputs] | None = Field(
+        default=None, description='Neuron sets for the simulation.', title='Neuron Sets'
+    )
+    synaptic_manipulations: (
+        dict[str, SynapticMgManipulation | ScaleAcetylcholineUSESynapticManipulation]
+        | None
+    ) = Field(
+        default=None,
+        description='Synaptic manipulations for the simulation.',
+        title='Synaptic Manipulations',
+    )
+    initialize: ObiOneScientificTasksGenerateSimulationConfigsMEModelWithSynapsesCircuitSimulationScanConfigInitialize = Field(
+        ...,
+        description='Parameters for initializing the simulation.',
+        title='Initialization',
+    )
+    stimuli: (
+        dict[
+            str,
+            ConstantCurrentClampSomaticStimulus
+            | HyperpolarizingCurrentClampSomaticStimulus
+            | LinearCurrentClampSomaticStimulus
+            | MultiPulseCurrentClampSomaticStimulus
+            | NormallyDistributedCurrentClampSomaticStimulus
+            | RelativeNormallyDistributedCurrentClampSomaticStimulus
+            | RelativeConstantCurrentClampSomaticStimulus
+            | RelativeLinearCurrentClampSomaticStimulus
+            | SinusoidalCurrentClampSomaticStimulus
+            | SubthresholdCurrentClampSomaticStimulus
+            | PoissonSpikeStimulus
+            | FullySynchronousSpikeStimulus
+            | SinusoidalPoissonSpikeStimulus,
+        ]
+        | None
+    ) = Field(default=None, description='Stimuli for the simulation.', title='Stimuli')
+
+
+class SimulationsForm(BaseModel):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    type: Literal['SimulationsForm'] = Field(..., title='Type')
+    timestamps: dict[str, SingleTimestamp | RegularTimestamps] | None = Field(
+        default=None, description='Timestamps for the simulation.', title='Timestamps'
+    )
+    recordings: (
+        dict[str, SomaVoltageRecording | TimeWindowSomaVoltageRecording] | None
+    ) = Field(
+        default=None, description='Recordings for the simulation.', title='Recordings'
+    )
+    info: Info = Field(..., description='Information about the simulation campaign.')
     neuron_sets: (
         dict[
             str,
             IDNeuronSet
-            | NbS1VPMInputs
-            | NbS1POmInputs
             | AllNeurons
             | ExcitatoryNeurons
-            | InhibitoryNeurons,
+            | InhibitoryNeurons
+            | PredefinedNeuronSet
+            | NbS1VPMInputs
+            | NbS1POmInputs,
         ]
         | None
     ) = Field(
@@ -1582,9 +3633,61 @@ class SimulationsForm(BaseModel):
         description='Synaptic manipulations for the simulation.',
         title='Synaptic Manipulations',
     )
-    initialize: ObiOneScientificSimulationSimulationsSimulationsFormInitialize = Field(
-        ...,
-        description='Parameters for initializing the simulation.',
-        title='Initialization',
-    )
-    info: Info = Field(..., description='Information about the simulation campaign.')
+    initialize: ObiOneScientificUnionsAliasesSimulationsFormInitialize
+    stimuli: (
+        dict[
+            str,
+            ConstantCurrentClampSomaticStimulus
+            | HyperpolarizingCurrentClampSomaticStimulus
+            | LinearCurrentClampSomaticStimulus
+            | MultiPulseCurrentClampSomaticStimulus
+            | NormallyDistributedCurrentClampSomaticStimulus
+            | RelativeNormallyDistributedCurrentClampSomaticStimulus
+            | RelativeConstantCurrentClampSomaticStimulus
+            | RelativeLinearCurrentClampSomaticStimulus
+            | SinusoidalCurrentClampSomaticStimulus
+            | SubthresholdCurrentClampSomaticStimulus
+            | PoissonSpikeStimulus
+            | FullySynchronousSpikeStimulus
+            | SinusoidalPoissonSpikeStimulus,
+        ]
+        | None
+    ) = Field(default=None, description='Stimuli for the simulation.', title='Stimuli')
+
+
+class GridScanParametersCountEndpointDeclaredScanConfigGridScanCoordinateCountPostRequest(
+    RootModel[
+        CircuitSimulationScanConfig
+        | SimulationsForm
+        | CircuitExtractionScanConfig
+        | BasicConnectivityPlotsScanConfig
+        | ConnectivityMatrixExtractionScanConfig
+        | ContributeMorphologyScanConfig
+        | FolderCompressionScanConfig
+        | MEModelSimulationScanConfig
+        | MorphologyContainerizationScanConfig
+        | ElectrophysiologyMetricsScanConfig
+        | MorphologyDecontainerizationScanConfig
+        | MorphologyMetricsScanConfig
+        | MorphologyLocationsScanConfig
+        | IonChannelFittingScanConfig
+        | MEModelWithSynapsesCircuitSimulationScanConfig
+    ]
+):
+    root: (
+        CircuitSimulationScanConfig
+        | SimulationsForm
+        | CircuitExtractionScanConfig
+        | BasicConnectivityPlotsScanConfig
+        | ConnectivityMatrixExtractionScanConfig
+        | ContributeMorphologyScanConfig
+        | FolderCompressionScanConfig
+        | MEModelSimulationScanConfig
+        | MorphologyContainerizationScanConfig
+        | ElectrophysiologyMetricsScanConfig
+        | MorphologyDecontainerizationScanConfig
+        | MorphologyMetricsScanConfig
+        | MorphologyLocationsScanConfig
+        | IonChannelFittingScanConfig
+        | MEModelWithSynapsesCircuitSimulationScanConfig
+    ) = Field(..., discriminator='type', title='Scan Config')

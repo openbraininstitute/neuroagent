@@ -5,7 +5,7 @@ import {
   useQueryClient,
 } from "@tanstack/react-query";
 import { useFetcher } from "@/hooks/fetch";
-import { BPaginatedResponse, BMessage } from "@/lib/types";
+import { BPaginatedResponseMessage, BMessage } from "@/lib/types";
 import { messagePageSize } from "@/lib/types";
 import { Dispatch, SetStateAction, useEffect } from "react";
 
@@ -37,16 +37,17 @@ async function fetchMessagePage({
     path: "/threads/{threadId}/messages",
     pathParams: { threadId },
     queryParams,
-  })) as BPaginatedResponse;
+  })) as BPaginatedResponseMessage;
 
   // Messages arrive as DESC creation_date, we need to reverse the array
   const messages = (paginatedResponseMessage.results as BMessage[]).reverse();
 
   return {
     messages,
-    nextCursor: paginatedResponseMessage.has_more
-      ? paginatedResponseMessage.next_cursor
-      : undefined,
+    nextCursor:
+      paginatedResponseMessage.has_more && paginatedResponseMessage.next_cursor
+        ? paginatedResponseMessage.next_cursor
+        : undefined,
   };
 }
 

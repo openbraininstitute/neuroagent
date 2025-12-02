@@ -1,0 +1,8 @@
+[
+  {
+    "name": "entitycore-brainregion-getall",
+    "arguments": {
+      "semantic_search": "thalamus"
+    }
+  }
+]
