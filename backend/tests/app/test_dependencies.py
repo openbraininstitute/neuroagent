@@ -83,16 +83,22 @@ def test_get_connection_string_full(monkeypatch):
     )
 
 
-def test_get_starting_agent(get_weather_tool):
+@pytest.mark.asyncio
+async def test_get_starting_agent(get_weather_tool):
     test_settings = Settings()
-    agent = get_starting_agent(
-        tool_list=[get_weather_tool],
+    agent = await get_starting_agent(
+        tool_list_model_reasoning=(
+            [get_weather_tool],
+            {"model": "gpt-4o-mini", "reasoning": "none"},
+        ),
         system_prompt="Test prompt",
         settings=test_settings,
     )
 
     assert isinstance(agent, Agent)
     assert agent.tools == [get_weather_tool]
+    assert agent.model == "gpt-4o-mini"
+    assert agent.reasoning == "none"
 
 
 @pytest.mark.asyncio
@@ -301,6 +307,8 @@ Only the content after the frontmatter should be included.
 
 You are a neuroscience AI assistant for the Open Brain Platform.
 
+---
+
 """
     expected_end = f"""
 # CURRENT CONTEXT
@@ -351,6 +359,8 @@ def test_get_system_prompt_no_rules_directory(tmp_path):
 
 You are a neuroscience AI assistant for the Open Brain Platform.
 
+---
+
 
 # CURRENT CONTEXT
 
@@ -381,6 +391,8 @@ def test_get_system_prompt_empty_mdc_files(tmp_path):
     expected_result = f"""# NEUROSCIENCE AI ASSISTANT
 
 You are a neuroscience AI assistant for the Open Brain Platform.
+
+---
 
 
 # CURRENT CONTEXT

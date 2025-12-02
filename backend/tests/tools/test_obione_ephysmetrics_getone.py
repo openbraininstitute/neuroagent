@@ -12,12 +12,14 @@ from neuroagent.tools.obione_ephysmetrics_getone import (
     EphysMetricsGetOneMetadata,
 )
 
+random_uuid = uuid.UUID("06c87a93-48cd-4241-9d4e-1fb09315b00d")
+
 
 class TestEphysMetricsGetOneTool:
     @pytest.mark.asyncio
     async def test_arun(self, httpx_mock):
         httpx_mock.add_response(
-            url="http://obione.org/declared/electrophysiologyrecording-metrics/1234",
+            url=f"http://obione.org/declared/electrophysiologyrecording-metrics/{random_uuid}",
             json={
                 "feature_dict": {
                     "step_0": {
@@ -145,7 +147,9 @@ class TestEphysMetricsGetOneTool:
                 vlab_id=None,
                 project_id=None,
             ),
-            input_schema=EphysMetricsGetOneInputs(electrical_cell_recording_id="1234"),
+            input_schema=EphysMetricsGetOneInputs(
+                electrical_cell_recording_id=random_uuid
+            ),
         )
 
         response = await tool.arun()
@@ -154,7 +158,7 @@ class TestEphysMetricsGetOneTool:
     @pytest.mark.asyncio
     async def test_arun_vlab_proj(self, httpx_mock):
         httpx_mock.add_response(
-            url="http://obione.org/declared/electrophysiologyrecording-metrics/1234",
+            url=f"http://obione.org/declared/electrophysiologyrecording-metrics/{random_uuid}",
             json={
                 "feature_dict": {
                     "step_0": {
@@ -283,7 +287,9 @@ class TestEphysMetricsGetOneTool:
                 vlab_id=uuid.uuid4().hex,
                 project_id=uuid.uuid4().hex,
             ),
-            input_schema=EphysMetricsGetOneInputs(electrical_cell_recording_id="1234"),
+            input_schema=EphysMetricsGetOneInputs(
+                electrical_cell_recording_id=random_uuid
+            ),
         )
 
         response = await tool.arun()
@@ -299,11 +305,13 @@ class TestEphysMetricsGetOneTool:
                 vlab_id=None,
                 project_id=None,
             ),
-            input_schema=EphysMetricsGetOneInputs(electrical_cell_recording_id="1234"),
+            input_schema=EphysMetricsGetOneInputs(
+                electrical_cell_recording_id=random_uuid
+            ),
         )
 
         httpx_mock.add_response(
-            url="http://obione.org/declared/electrophysiologyrecording-metrics/1234",
+            url=f"http://obione.org/declared/electrophysiologyrecording-metrics/{random_uuid}",
             status_code=404,
             text="Resource not found.",
         )

@@ -21,7 +21,7 @@ class EphysMetricsGetOneInputs(
 ):
     """Input class of the ObiOne Electrophysiology Metrics tool."""
 
-    electrical_cell_recording_id: str = Field(
+    electrical_cell_recording_id: UUID = Field(
         description="Id of the electrical cell recording from which features must be computed."
     )
 
@@ -44,10 +44,15 @@ class EphysMetricsGetOneTool(BaseTool):
         "Analyze electrophysiological features",
         "Compute metrics for this recording",
         "Get electrophysiology data",
+        "Calculate the spike count for this trace",
+        "Count spikes using the step protocol",
+        "Run a full analysis of this trace using all available metrics",
+        "Get spike count from step protocol between 0.1 and 0.3 nA",
     ]
-    description: ClassVar[str] = (
-        """Given an electrical cell recording ID, fetch data about the electrophysiological features."""
-    )
+    description: ClassVar[
+        str
+    ] = """Given an electrical cell recording ID, fetch data about the electrophysiological features.
+        This is the correct way to compute electrical recording metrics — do NOT download the asset + Python to extract metrics. This tool already handles asset processing internally."""
     description_frontend: ClassVar[
         str
     ] = """Analyze detailed electrophysiological features of neuron recordings. This tool allows you to:

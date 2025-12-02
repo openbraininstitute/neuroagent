@@ -6,22 +6,16 @@ import {
 } from "@ai-sdk/ui-utils";
 import { components } from "./neuroagent_types";
 
-export type BPaginatedResponse = {
-  next_cursor: string;
-  has_more: boolean;
-  page_size: number;
-  results: BThread[] | BMessage[];
-};
+export type BPaginatedResponseThread =
+  components["schemas"]["PaginatedResponse_ThreadsRead_"];
 
-export type BThread = {
-  thread_id: string;
-  user_id: string;
-  vlab_id: string | null;
-  project_id: string | null;
-  title: string;
-  creation_date: string;
-  update_date: string;
-};
+// This type needs to use native vercel AI types which are not defined the backend
+export type BPaginatedResponseMessage = Omit<
+  components["schemas"]["PaginatedResponse_MessagesReadVercel_"],
+  "results"
+> & { results: BMessage[] };
+
+export type BThread = components["schemas"]["ThreadsRead"];
 
 export type Thread = {
   threadId: string;
@@ -35,11 +29,9 @@ export type Annotation = {
   isComplete?: boolean;
 };
 
-export type BTextPart = {
-  type: "text";
-  text: string;
-};
+export type BTextPart = components["schemas"]["TextPartVercel"];
 
+// This type needs to use native vercel AI types which are not defined the backend
 export type BMessageUser = {
   id: string;
   role: "user";
@@ -49,6 +41,7 @@ export type BMessageUser = {
   annotation: [];
 };
 
+// This type needs to use native vercel AI types which are not defined the backend
 export type BMessageAIContent = {
   id: string;
   role: "assistant";
@@ -66,37 +59,21 @@ export type MessageStrict = Omit<UIMessage, "annotations"> & {
   annotations?: Annotation[];
 };
 
-export type BExecuteToolCallRequest = {
-  validation: "rejected" | "accepted";
-  args?: string;
-  feedback?: string;
-};
+export type BExecuteToolCallRequest =
+  components["schemas"]["ExecuteToolCallRequest"];
 
-export type BExecuteToolCallResponse = {
-  status: "done" | "validation-error";
-  content: string | null;
-};
+export type BExecuteToolCallResponse =
+  components["schemas"]["ExecuteToolCallResponse"];
 
-export type BToolMetadata = {
-  name: string;
-  name_frontend: string;
-};
+export type BToolMetadata = components["schemas"]["ToolMetadata"];
 
 export type ToolMetadata = {
   name: string;
   nameFrontend: string;
 };
 
-export type BToolMetadataDetailed = {
-  name: string;
-  name_frontend: string;
-  description: string;
-  description_frontend: string;
-  utterances: string[];
-  input_schema: string;
-  hil: boolean;
-  is_online: boolean;
-};
+export type BToolMetadataDetailed =
+  components["schemas"]["ToolMetadataDetailed"];
 
 export type ToolDetailedMetadata = {
   name: string;
@@ -115,83 +92,8 @@ export type PlotProp = {
   isInChat?: boolean;
 };
 
-type BaseObject = {
-  title: string;
-  description: string;
-  x_label?: string;
-  y_label?: string;
-};
-
-type PiechartValue = {
-  category: string;
-  value: number;
-  color?: string;
-};
-
-export type JSONPiechart = BaseObject & {
-  values: PiechartValue[];
-  show_percentages?: boolean;
-};
-
-type BarplotValue = {
-  category: string;
-  value: number;
-  error?: number;
-  color?: string;
-};
-
-export type JSONBarplot = BaseObject & {
-  values: BarplotValue[];
-  orientation?: "vertical" | "horizontal";
-};
-
-type ScatterplotValue = {
-  x: number;
-  y: number;
-  label?: string;
-  color?: string;
-  size?: number;
-};
-
-export type JSONScatterplot = BaseObject & {
-  values: ScatterplotValue[];
-  show_regression?: boolean;
-};
-
-export type JSONHistogram = BaseObject & {
-  values: number[]; // The raw values to bin
-  bins: number; // Number of bins to use
-  color?: string; // Optional color for the bars
-};
-
-type LinechartValue = {
-  x: number;
-  y: number;
-  label?: string;
-};
-
-export type JSONLinechart = BaseObject & {
-  values: LinechartValue[];
-  show_points?: boolean;
-  line_style?: string;
-  line_color?: string;
-};
-
-export type MultiLinechartSeries = {
-  data: LinechartValue[];
-  series_label?: string | null;
-};
-
-export type JSONMultiLinechart = BaseObject & {
-  values: MultiLinechartSeries[];
-  show_points?: boolean;
-  line_style?: "solid" | "dashed" | "dotted" | string | null;
-  line_color?: string | null;
-};
-
-export type SuggestedQuestions = {
-  suggestions: { question: string }[];
-};
+export type BQuestionsSuggestions =
+  components["schemas"]["QuestionsSuggestions"];
 
 export class CustomError extends Error {
   public statusCode: number;
@@ -203,11 +105,7 @@ export class CustomError extends Error {
   }
 }
 
-export type UserHistory = Array<{
-  timestamp: number;
-  region: string;
-  artifact: string | null;
-}>;
+export type UserHistory = Array<components["schemas"]["UserJourney"]>;
 
 export type LLMModel = {
   id: string;
@@ -215,34 +113,8 @@ export type LLMModel = {
   metadata: string;
 };
 
-export type BOpenRouterModelResponse = {
-  id: string;
-  name: string;
-  created: number;
-  description: string;
-  architecture: {
-    input_modalities: string[];
-    output_modalities: string[];
-    tokenizer: string;
-  };
-  top_provider: {
-    is_moderated: boolean;
-  };
-  pricing: {
-    prompt: string;
-    completion: string;
-    image: string;
-    request: string;
-    input_cache_read: string;
-    input_cache_write: string;
-    web_search: string;
-    internal_reasoning: string;
-  };
-  context_length: number;
-  hugging_face_id: string;
-  per_request_limits: Record<string, string>;
-  supported_parameters: string[];
-};
+export type BOpenRouterModelResponse =
+  components["schemas"]["OpenRouterModelResponse"];
 
 export type BStateRead = components["schemas"]["StateRead"];
 export type SharedState = components["schemas"]["SharedState"];

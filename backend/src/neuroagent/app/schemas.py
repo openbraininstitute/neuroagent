@@ -219,6 +219,14 @@ class QuestionsSuggestions(BaseModel):
     )
 
 
+class QuestionSuggestionNoMessages(BaseModel):
+    """One suggested questions by the LLM without messages in chat."""
+
+    suggestions: list[Question] = conlist(  # type: ignore
+        item_type=Question, min_length=1, max_length=1
+    )
+
+
 class UserJourney(BaseModel):
     """Schema of the user's journey."""
 

@@ -20,10 +20,14 @@ from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession
 from starlette.status import HTTP_401_UNAUTHORIZED
 
 from neuroagent.agent_routine import AgentsRoutine
-from neuroagent.app.app_utils import filter_tools_by_conversation, validate_project
+from neuroagent.app.app_utils import (
+    filter_tools_and_model_by_conversation,
+    validate_project,
+)
 from neuroagent.app.config import Settings
 from neuroagent.app.database.sql_schemas import Entity, Messages, State, Threads
 from neuroagent.app.schemas import OpenRouterModelResponse, UserInfo
+from neuroagent.executor import WasmExecutor
 from neuroagent.mcp import MCPClient, create_dynamic_tool
 from neuroagent.new_types import Agent
 from neuroagent.tools import (
@@ -36,8 +40,15 @@ from neuroagent.tools import (
     BrainRegionGetOneTool,
     BrainRegionHierarchyGetAllTool,
     BrainRegionHierarchyGetOneTool,
+    CellMorphologyGetAllTool,
+    CellMorphologyGetOneTool,
+    CircuitConnectivityMetricsGetOneTool,
     CircuitGetAllTool,
     CircuitGetOneTool,
+    CircuitMetricGetOneTool,
+    CircuitNodesetsGetOneTool,
+    CircuitPopulationAnalysisTool,
+    CircuitPopulationGetOneTool,
     ContextAnalyzerTool,
     ContributionGetAllTool,
     ContributionGetOneTool,
@@ -55,8 +66,13 @@ from neuroagent.tools import (
     ExperimentalSynapsesPerConnectionGetAllTool,
     ExperimentalSynapsesPerConnectionGetOneTool,
     GenerateSimulationsConfigTool,
+    IonChannelGetAllTool,
+    IonChannelGetOneTool,
     IonChannelModelGetAllTool,
     IonChannelModelGetOneTool,
+    IonChannelRecordingGetAllTool,
+    IonChannelRecordingGetOneTool,
+    LiteratureSearchTool,
     MeasurementAnnotationGetAllTool,
     MeasurementAnnotationGetOneTool,
     MEModelGetAllTool,
@@ -70,10 +86,9 @@ from neuroagent.tools import (
     PersonGetAllTool,
     PersonGetOneTool,
     PlotElectricalCellRecordingGetOneTool,
-    PlotGeneratorTool,
     PlotMorphologyGetOneTool,
-    ReconstructionMorphologyGetAllTool,
-    ReconstructionMorphologyGetOneTool,
+    ReadPaperTool,
+    RunPythonTool,
     SimulationCampaignGetAllTool,
     SimulationCampaignGetOneTool,
     SimulationExecutionGetAllTool,
@@ -96,6 +111,7 @@ from neuroagent.tools import (
     StrainGetOneTool,
     SubjectGetAllTool,
     SubjectGetOneTool,
+    WebSearchTool,
 )
 from neuroagent.tools.base_tool import BaseTool
 
@@ -144,6 +160,11 @@ def get_accounting_session_factory(request: Request) -> AsyncAccountingSessionFa
     return request.app.state.accounting_session_factory
 
 
+def get_python_sandbox(request: Request) -> WasmExecutor:
+    """Get the python sandbox."""
+    return request.app.state.python_sandbox
+
+
 async def get_openai_client(
     settings: Annotated[Settings, Depends(get_settings)],
 ) -> AsyncIterator[AsyncOpenAI | None]:
@@ -152,7 +173,10 @@ async def get_openai_client(
         yield None
     else:
         try:
-            client = AsyncOpenAI(api_key=settings.llm.openai_token.get_secret_value())
+            client = AsyncOpenAI(
+                api_key=settings.llm.openai_token.get_secret_value(),
+                base_url=settings.llm.openai_base_url,
+            )
             yield client
         finally:
             await client.close()
@@ -327,19 +351,28 @@ def get_mcp_tool_list(
                         if server.tool_metadata is not None
                         else None
                     )
+                    if tool_metadata is not None:
+                        break
             else:
                 tool_metadata = None
 
             dynamic_tool = create_dynamic_tool(
                 tool_name=tool.name,
+                tool_name_frontend=tool_metadata.name_frontend
+                if tool_metadata
+                else None,
                 tool_name_mapping=mcp_client.tool_name_mapping,
-                tool_description=tool.description
-                if tool.description
-                else "NO DESCRIPTION",
+                tool_description=tool_metadata.description
+                or tool.description
+                or "NO DESCRIPTION"
+                if tool_metadata
+                else tool.description or "NO DESCRIPTION",
+                tool_description_frontend=tool_metadata.description_frontend
+                if tool_metadata
+                else None,
+                utterance_list=tool_metadata.utterances if tool_metadata else None,
                 input_schema_serialized=tool.inputSchema,
                 session=mcp_client.sessions[server_name],
-                utterance_list=tool_metadata.utterances if tool_metadata else None,
-                tool_name_frontend=mcp_client.tool_name_frontend_mapping.get(tool.name),
             )
             dynamic_tools.append(dynamic_tool)
 
@@ -352,78 +385,89 @@ def get_tool_list(
 ) -> list[type[BaseTool]]:
     """Return a raw list of all of the available tools."""
     internal_tool_list: list[type[BaseTool]] = [
+        AssetDownloadOneTool,
         AssetGetAllTool,
         AssetGetOneTool,
-        AssetDownloadOneTool,
         BrainAtlasGetAllTool,
         BrainAtlasGetOneTool,
         BrainRegionGetAllTool,
         BrainRegionGetOneTool,
         BrainRegionHierarchyGetAllTool,
         BrainRegionHierarchyGetOneTool,
+        CellMorphologyGetAllTool,
+        CellMorphologyGetOneTool,
+        CircuitConnectivityMetricsGetOneTool,
+        CircuitGetAllTool,
+        CircuitGetOneTool,
+        CircuitMetricGetOneTool,
+        CircuitNodesetsGetOneTool,
+        CircuitPopulationAnalysisTool,
+        CircuitPopulationGetOneTool,
         ContextAnalyzerTool,
         ContributionGetAllTool,
         ContributionGetOneTool,
-        MEModelGetAllTool,
-        MEModelGetOneTool,
-        ReconstructionMorphologyGetAllTool,
-        ReconstructionMorphologyGetOneTool,
-        MorphometricsGetOneTool,
-        EphysMetricsGetOneTool,
-        OrganizationGetAllTool,
-        OrganizationGetOneTool,
-        PersonGetAllTool,
-        PersonGetOneTool,
-        PlotGeneratorTool,
-        EtypeGetAllTool,
-        EtypeGetOneTool,
-        EModelGetAllTool,
-        EModelGetOneTool,
-        MtypeGetAllTool,
-        MtypeGetOneTool,
         ElectricalCellRecordingGetAllTool,
         ElectricalCellRecordingGetOneTool,
+        EModelGetAllTool,
+        EModelGetOneTool,
+        EphysMetricsGetOneTool,
+        EtypeGetAllTool,
+        EtypeGetOneTool,
         ExperimentalBoutonDensityGetAllTool,
         ExperimentalBoutonDensityGetOneTool,
         ExperimentalNeuronDensityGetAllTool,
         ExperimentalNeuronDensityGetOneTool,
         ExperimentalSynapsesPerConnectionGetAllTool,
         ExperimentalSynapsesPerConnectionGetOneTool,
+        GenerateSimulationsConfigTool,
+        IonChannelGetAllTool,
+        IonChannelGetOneTool,
         IonChannelModelGetAllTool,
         IonChannelModelGetOneTool,
+        IonChannelRecordingGetAllTool,
+        IonChannelRecordingGetOneTool,
+        LiteratureSearchTool,
         MeasurementAnnotationGetAllTool,
         MeasurementAnnotationGetOneTool,
+        MEModelGetAllTool,
+        MEModelGetOneTool,
+        MorphometricsGetOneTool,
+        MtypeGetAllTool,
+        MtypeGetOneTool,
+        OBIExpertTool,
+        OrganizationGetAllTool,
+        OrganizationGetOneTool,
+        PersonGetAllTool,
+        PersonGetOneTool,
+        PlotElectricalCellRecordingGetOneTool,
         PlotMorphologyGetOneTool,
-        SpeciesGetAllTool,
-        SpeciesGetOneTool,
-        StrainGetAllTool,
-        StrainGetOneTool,
-        SubjectGetAllTool,
-        SubjectGetOneTool,
-        SimulationResultGetOneTool,
-        SimulationResultGetAllTool,
-        SimulationGetAllTool,
-        SimulationGetOneTool,
         SimulationCampaignGetAllTool,
         SimulationCampaignGetOneTool,
         SimulationExecutionGetAllTool,
         SimulationExecutionGetOneTool,
         SimulationGenerationGetAllTool,
         SimulationGenerationGetOneTool,
-        SingleNeuronSynaptomeSimulationGetAllTool,
+        SimulationGetAllTool,
+        SimulationGetOneTool,
+        SimulationResultGetAllTool,
+        SimulationResultGetOneTool,
         SingleNeuronSimulationGetAllTool,
         SingleNeuronSimulationGetOneTool,
         SingleNeuronSynaptomeGetAllTool,
         SingleNeuronSynaptomeGetOneTool,
+        SingleNeuronSynaptomeSimulationGetAllTool,
         SingleNeuronSynaptomeSimulationGetOneTool,
-        CircuitGetAllTool,
-        CircuitGetOneTool,
-        GenerateSimulationsConfigTool,
-        OBIExpertTool,
-        PlotElectricalCellRecordingGetOneTool,
+        SpeciesGetAllTool,
+        SpeciesGetOneTool,
+        StrainGetAllTool,
+        StrainGetOneTool,
+        SubjectGetAllTool,
+        SubjectGetOneTool,
+        ReadPaperTool,
+        RunPythonTool,
+        WebSearchTool,
         # NowTool,
         # WeatherTool,
-        # RandomPlotGeneratorTool,
     ]
 
     all_tools = internal_tool_list + mcp_tool_list
@@ -461,12 +505,18 @@ async def filtered_tools(
     request: Request,
     thread: Annotated[Threads, Depends(get_thread)],
     tool_list: Annotated[list[type[BaseTool]], Depends(get_selected_tools)],
-    openai_client: Annotated[AsyncOpenAI, Depends(get_openai_client)],
+    openai_client: Annotated[AsyncOpenAI, Depends(get_openrouter_client)],
     settings: Annotated[Settings, Depends(get_settings)],
-) -> list[type[BaseTool]]:
+    filtered_models: Annotated[
+        list[OpenRouterModelResponse], Depends(get_openrouter_models)
+    ],
+) -> tuple[list[type[BaseTool]], dict[str, str | None]]:
     """Based on the current conversation, select relevant tools."""
     if request.method == "GET":
-        return tool_list
+        return tool_list, {
+            "model": settings.llm.default_chat_model,
+            "reasoning": settings.llm.default_chat_reasoning,
+        }
 
     body = await request.json()
 
@@ -486,14 +536,27 @@ async def filtered_tools(
             )
         )
 
-        if not tool_list:
-            return []
+        # If the user chosed the auto model, routing is done automatically
+        if body.get("model") is None or body.get("model") == "auto":
+            selected_model = None
 
-        return await filter_tools_by_conversation(
+        # Else, check that the requested model is authorized and use it
+        else:
+            if body["model"] in [model.id for model in filtered_models]:
+                selected_model = body["model"]
+                logger.info(f"Loading model {selected_model}.")
+            else:
+                raise HTTPException(
+                    status_code=404,
+                    detail={"error": f"Model {body['model']} not found."},
+                )
+
+        return await filter_tools_and_model_by_conversation(
             messages=messages,
             tool_list=tool_list,
             openai_client=openai_client,
-            min_tool_selection=settings.tools.min_tool_selection,
+            settings=settings,
+            selected_model=selected_model,
         )
 
     # HIL
@@ -506,7 +569,15 @@ async def filtered_tools(
             selected.tool_name
             for selected in await last_user_message.awaitable_attrs.tool_selection
         ]
-        return [tool for tool in tool_list if tool.name in previously_selected_tools]
+        previous_model_and_reasoning: dict[str, str | None] = {
+            "model": last_user_message.model_selection.model,
+            "reasoning": last_user_message.model_selection.reasoning.value
+            if last_user_message.model_selection.reasoning
+            else None,
+        }
+        return [
+            tool for tool in tool_list if tool.name in previously_selected_tools
+        ], previous_model_and_reasoning
 
 
 @cache
@@ -524,6 +595,8 @@ def get_system_prompt(rules_dir: Annotated[Path, Depends(get_rules_dir)]) -> str
     system_prompt = """# NEUROSCIENCE AI ASSISTANT
 
 You are a neuroscience AI assistant for the Open Brain Platform.
+
+---
 
 """
 
@@ -574,8 +647,10 @@ Current time: {datetime.now(timezone.utc).isoformat()}"""
     return system_prompt
 
 
-def get_starting_agent(
-    tool_list: Annotated[list[type[BaseTool]], Depends(filtered_tools)],
+async def get_starting_agent(
+    tool_list_model_reasoning: Annotated[
+        tuple[list[type[BaseTool]], dict[str, str | None]], Depends(filtered_tools)
+    ],
     system_prompt: Annotated[str, Depends(get_system_prompt)],
     settings: Annotated[Settings, Depends(get_settings)],
 ) -> Agent:
@@ -583,9 +658,12 @@ def get_starting_agent(
     agent = Agent(
         name="Agent",
         instructions=system_prompt,
-        tools=tool_list,
+        tools=tool_list_model_reasoning[0],
+        model=tool_list_model_reasoning[1]["model"],  # type: ignore
+        reasoning=tool_list_model_reasoning[1].get("reasoning"),
         temperature=settings.llm.temperature,
     )
+
     return agent
 
 
@@ -629,37 +707,34 @@ async def get_context_variables(
     s3_client: Annotated[Any, Depends(get_s3_client)],
     user_info: Annotated[UserInfo, Depends(get_user_info)],
     openai_client: Annotated[AsyncOpenAI, Depends(get_openai_client)],
+    session: Annotated[AsyncSession, Depends(get_session)],
     state: Annotated[State, Depends(get_state)],
+    python_sandbox: Annotated[WasmExecutor, Depends(get_python_sandbox)],
 ) -> dict[str, Any]:
     """Get the context variables to feed the tool's metadata."""
     # Get the current frontend url
     body = await request.json()
     current_frontend_url = body.get("frontend_url")
     # Get the url for entitycore links
-    if thread.vlab_id and thread.project_id:
-        entity_frontend_url = (
-            settings.tools.frontend_base_url.rstrip("/")
-            + "/app/virtual-lab/lab/"
-            + str(thread.vlab_id)
-            + "/project/"
-            + str(thread.project_id)
-        )
-    else:
-        entity_frontend_url = (
-            settings.tools.frontend_base_url.rstrip("/") + "/app/virtual-lab"
-        )
+    entity_frontend_url = settings.tools.frontend_base_url.rstrip("/") + "/app/entity"
+
     return {
         "bluenaas_url": settings.tools.bluenaas.url,
         "bucket_name": settings.storage.bucket_name,
         "entitycore_url": settings.tools.entitycore.url,
         "current_frontend_url": current_frontend_url,
         "entity_frontend_url": entity_frontend_url,
+        "exa_api_key": settings.tools.exa_api_key.get_secret_value()
+        if settings.tools.exa_api_key
+        else None,
         "httpx_client": httpx_client,
         "obi_one_url": settings.tools.obi_one.url,
         "openai_client": openai_client,
         "project_id": thread.project_id,
+        "python_sandbox": python_sandbox,
         "s3_client": s3_client,
         "sanity_url": settings.tools.sanity.url,
+        "session": session,
         "state": state,
         "thread_id": thread.thread_id,
         "thumbnail_generation_url": settings.tools.thumbnail_generation.url,
