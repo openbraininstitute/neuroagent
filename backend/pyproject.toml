@@ -13,6 +13,7 @@ dynamic = ["version"]
 dependencies = [
     "boto3",
     "celery>=5.5.3",
+    "httpx>=0.28.1",
     "pydantic>=2.11",
     "pydantic-settings",
     "python-dotenv",

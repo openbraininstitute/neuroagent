@@ -2224,6 +2224,7 @@ source = { editable = "." }
 dependencies = [
     { name = "boto3" },
     { name = "celery" },
+    { name = "httpx" },
     { name = "pydantic" },
     { name = "pydantic-settings" },
     { name = "python-dotenv" },
@@ -2277,6 +2278,7 @@ requires-dist = [
     { name = "deepeval", marker = "extra == 'dev'", specifier = ">=3.6.6" },
     { name = "duckdb", marker = "extra == 'tasks'", specifier = ">=1.4.2" },
     { name = "fastapi", marker = "extra == 'app'", specifier = ">=0.122.0" },
+    { name = "httpx", specifier = ">=0.28.1" },
     { name = "mcp", marker = "extra == 'app'", specifier = ">=1.22.0" },
     { name = "mypy", marker = "extra == 'dev'", specifier = "==1.15.0" },
     { name = "obp-accounting-sdk", marker = "extra == 'app'", specifier = ">=0.4.2" },
@@ -2297,7 +2299,7 @@ requires-dist = [
     { name = "types-requests", marker = "extra == 'dev'" },
     { name = "uvicorn", marker = "extra == 'app'", specifier = ">=0.38.0" },
 ]
-provides-extras = ["dev", "tasks", "app"]
+provides-extras = ["app", "dev", "tasks"]
 
 [[package]]
 name = "neurom"
