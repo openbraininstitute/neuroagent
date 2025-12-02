@@ -224,7 +224,7 @@ def format_messages_output(
         messages.append(MessagesRead(**message_data))
 
     return PaginatedResponse(
-        next_cursor=messages[-1].creation_date if messages else None,
+        next_cursor=db_messages[-1].creation_date if messages else None,
         has_more=has_more,
         page_size=page_size,
         results=messages,
@@ -282,14 +282,14 @@ def format_messages_vercel(
                 metadata[tc_id] = MetadataToolCallVercel(
                     toolCallId=tc_id,
                     validated=status,
-                    isComplete=True if requires_validation else False,
+                    isComplete=True if requires_validation else part.is_complete,
                 )
             elif part.type == PartType.FUNCTION_CALL_OUTPUT:
                 tc_id = output.get("call_id", "")
                 if tc_id in tool_calls:
                     tool_calls[tc_id].state = "output-available"
                     tool_calls[tc_id].output = output.get("output") or "{}"
-                    metadata[tc_id].isComplete = True
+                    metadata[tc_id].isComplete = part.is_complete
 
         message_data = {
             "id": msg.message_id,

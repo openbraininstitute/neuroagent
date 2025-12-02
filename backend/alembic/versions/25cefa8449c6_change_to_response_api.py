@@ -442,17 +442,6 @@ def downgrade():
                     )
 
             elif entity == "ASSISTANT":
-                # Get all parts for this message and reconstruct turns
-                parts = conn.execute(
-                    sa.text("""
-                    SELECT type, output
-                    FROM parts
-                    WHERE message_id = :message_id
-                    ORDER BY order_index
-                """),
-                    {"message_id": msg_id},
-                ).fetchall()
-
                 # Group parts by turn (turn boundary = after all FUNCTION_CALL_OUTPUT)
                 turns = []
                 current_turn = {
@@ -483,8 +472,8 @@ def downgrade():
                     )
 
                     # Check if we need to start a new turn due to is_complete change
-                    if idx > 0 and not prev_is_complete and is_complete_part:
-                        # Transition from incomplete to complete - start new turn
+                    if idx > 0 and prev_is_complete != is_complete_part:
+                        # Transition in is_complete - start new turn
                         if any(
                             [
                                 current_turn["reasoning"],
@@ -498,7 +487,7 @@ def downgrade():
                                 "content": "",
                                 "tool_calls": [],
                                 "tool_outputs": [],
-                                "is_complete": True,
+                                "is_complete": is_complete_part,
                             }
 
                     # Track is_complete for this turn
