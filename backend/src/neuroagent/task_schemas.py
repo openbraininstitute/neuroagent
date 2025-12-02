@@ -53,3 +53,23 @@ class RunPythonTaskOutput(BaseModel):
 
     result: SuccessOutput | FailureOutput
     storage_id: list[str]
+
+
+class CircuitPopulationAnalysisTaskInput(BaseModel):
+    """Input schema for circuit_population_analysis task."""
+
+    circuit_id: str
+    population_name: str
+    question: str
+    vlab_id: str | None
+    project_id: str | None
+    bearer_token: str
+    entitycore_url: str
+
+
+class CircuitPopulationAnalysisTaskOutput(BaseModel):
+    """Output schema for circuit_population_analysis task."""
+
+    result_data: str
+    query_executed: str
+    token_consumption: dict[str, str | int | None] | None = None

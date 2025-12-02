@@ -34,12 +34,21 @@ class SettingsExecutor(BaseModel):
     model_config = ConfigDict(frozen=True)
 
 
+class SettingsLLM(BaseModel):
+    """LLM settings."""
+
+    openai_token: SecretStr
+
+    model_config = ConfigDict(frozen=True)
+
+
 class Settings(BaseSettings):
     """All settings for tasks."""
 
     storage: SettingsStorage = SettingsStorage()  # has no required
     celery: SettingsCelery = SettingsCelery()  # has no required
     executor: SettingsExecutor = SettingsExecutor()  # has no required
+    llm: SettingsLLM  # required
 
     model_config = SettingsConfigDict(
         env_file=".env.tasks",

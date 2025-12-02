@@ -121,6 +121,7 @@ async def lifespan(fastapi_app: FastAPI) -> AsyncContextManager[None]:  # type: 
     celery_app.conf.task_routes = {
         "dummy_task": {"queue": "dummy_q"},
         "run_python_task": {"queue": "python_q"},
+        "circuit_population_analysis_task": {"queue": "circuit_q"},
     }
 
     fastapi_app.state.celery = celery_app
