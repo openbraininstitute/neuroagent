@@ -691,14 +691,6 @@ def get_s3_client(
     )
 
 
-async def get_state(
-    user_info: Annotated[UserInfo, Depends(get_user_info)],
-    session: Annotated[AsyncSession, Depends(get_session)],
-) -> State | None:
-    """Retrieve the user's state to pass it to context variables."""
-    return await session.get(State, user_info.sub)
-
-
 async def get_context_variables(
     request: Request,
     settings: Annotated[Settings, Depends(get_settings)],
@@ -707,8 +699,7 @@ async def get_context_variables(
     s3_client: Annotated[Any, Depends(get_s3_client)],
     user_info: Annotated[UserInfo, Depends(get_user_info)],
     openai_client: Annotated[AsyncOpenAI, Depends(get_openai_client)],
-    session: Annotated[AsyncSession, Depends(get_session)],
-    state: Annotated[State, Depends(get_state)],
+    engine: Annotated[AsyncEngine | None, Depends(get_engine)],
     python_sandbox: Annotated[WasmExecutor, Depends(get_python_sandbox)],
 ) -> dict[str, Any]:
     """Get the context variables to feed the tool's metadata."""
@@ -718,30 +709,36 @@ async def get_context_variables(
     # Get the url for entitycore links
     entity_frontend_url = settings.tools.frontend_base_url.rstrip("/") + "/app/entity"
 
-    return {
-        "bluenaas_url": settings.tools.bluenaas.url,
-        "bucket_name": settings.storage.bucket_name,
-        "entitycore_url": settings.tools.entitycore.url,
-        "current_frontend_url": current_frontend_url,
-        "entity_frontend_url": entity_frontend_url,
-        "exa_api_key": settings.tools.exa_api_key.get_secret_value()
-        if settings.tools.exa_api_key
-        else None,
-        "httpx_client": httpx_client,
-        "obi_one_url": settings.tools.obi_one.url,
-        "openai_client": openai_client,
-        "project_id": thread.project_id,
-        "python_sandbox": python_sandbox,
-        "s3_client": s3_client,
-        "sanity_url": settings.tools.sanity.url,
-        "session": session,
-        "state": state,
-        "thread_id": thread.thread_id,
-        "thumbnail_generation_url": settings.tools.thumbnail_generation.url,
-        "usage_dict": {},
-        "user_id": user_info.sub,
-        "vlab_id": thread.vlab_id,
-    }
+    # We use a separate session for tools that need a session
+    # such that commiting within the tool won't commit
+    # pending messages/tool_calls
+    async with AsyncSession(engine) as session:
+        state = await session.get(State, user_info.sub)
+
+        return {
+            "bluenaas_url": settings.tools.bluenaas.url,
+            "bucket_name": settings.storage.bucket_name,
+            "entitycore_url": settings.tools.entitycore.url,
+            "current_frontend_url": current_frontend_url,
+            "entity_frontend_url": entity_frontend_url,
+            "exa_api_key": settings.tools.exa_api_key.get_secret_value()
+            if settings.tools.exa_api_key
+            else None,
+            "httpx_client": httpx_client,
+            "obi_one_url": settings.tools.obi_one.url,
+            "openai_client": openai_client,
+            "project_id": thread.project_id,
+            "python_sandbox": python_sandbox,
+            "s3_client": s3_client,
+            "sanity_url": settings.tools.sanity.url,
+            "session": session,
+            "state": state,
+            "thread_id": thread.thread_id,
+            "thumbnail_generation_url": settings.tools.thumbnail_generation.url,
+            "usage_dict": {},
+            "user_id": user_info.sub,
+            "vlab_id": thread.vlab_id,
+        }
 
 
 def get_healthcheck_variables(
