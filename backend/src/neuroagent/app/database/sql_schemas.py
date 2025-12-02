@@ -3,6 +3,7 @@
 import datetime
 import enum
 import uuid
+from typing import Any
 
 from sqlalchemy import (
     UUID,
@@ -145,7 +146,7 @@ class Parts(Base):
     )
     order_index: Mapped[int] = mapped_column(Integer, nullable=False)
     type: Mapped[PartType] = mapped_column(Enum(PartType), nullable=False)
-    output: Mapped[dict] = mapped_column(JSONB, nullable=False)
+    output: Mapped[dict[str, Any]] = mapped_column(JSONB, nullable=False)
     is_complete: Mapped[bool] = mapped_column(Boolean, nullable=False)
     validated: Mapped[bool] = mapped_column(Boolean, nullable=True)
 

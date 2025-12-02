@@ -37,6 +37,7 @@ from neuroagent.app.schemas import (
     ReasoningPartVercel,
     TextPartVercel,
     ToolCallPartVercel,
+    ToolMetadataDict,
 )
 from neuroagent.tools.base_tool import BaseTool
 from neuroagent.utils import (
@@ -201,16 +202,9 @@ def format_messages_output(
     page_size: int,
 ) -> PaginatedResponse[MessagesRead]:
     """Format db messages to regular output schema."""
-    messages = []
+    messages: list[MessagesRead] = []
     for msg in db_messages:
-        message_data = {
-            "message_id": msg.message_id,
-            "entity": msg.entity.value,
-            "thread_id": msg.thread_id,
-            "creation_date": msg.creation_date.isoformat(),
-        }
-
-        parts_data = []
+        parts_data: list[dict[str, Any]] = []
         for part in msg.parts:
             output = part.output or {}
             content = output.get("content", [])
@@ -219,8 +213,15 @@ def format_messages_output(
                 if item.get("type") == "text":
                     parts_data.append({"type": "text", "text": item.get("text", "")})
 
-        message_data["parts"] = parts_data
-        messages.append(MessagesRead(**message_data))
+        messages.append(
+            MessagesRead(
+                message_id=msg.message_id,
+                entity=msg.entity.value,
+                thread_id=msg.thread_id,
+                creation_date=msg.creation_date,
+                parts=parts_data,
+            )
+        )
 
     return PaginatedResponse(
         next_cursor=db_messages[-1].creation_date if messages else None,
@@ -247,9 +248,9 @@ def format_messages_vercel(
             output = part.output or {}
 
             if part.type == PartType.MESSAGE:
-                parts_data.append(
-                    TextPartVercel(text=output.get("content")[0].get("text", ""))
-                )
+                content = output.get("content")
+                if content and isinstance(content, list) and len(content) > 0:
+                    parts_data.append(TextPartVercel(text=content[0].get("text", "")))
             elif part.type == PartType.REASONING:
                 parts_data.extend(
                     ReasoningPartVercel(text=s.get("text", ""))
@@ -270,7 +271,9 @@ def format_messages_vercel(
                 requires_validation = tool_hil_mapping.get(tool_name, False)
 
                 if part.validated is True:
-                    status = "accepted"
+                    status: Literal[
+                        "accepted", "rejected", "not_required", "pending"
+                    ] = "accepted"
                 elif part.validated is False:
                     status = "rejected"
                 elif not requires_validation:
@@ -290,18 +293,19 @@ def format_messages_vercel(
                     tool_calls[tc_id].output = output.get("output") or "{}"
                     metadata[tc_id].isComplete = part.is_complete
 
-        message_data = {
-            "id": msg.message_id,
-            "role": "user" if msg.entity == Entity.USER else "assistant",
-            "createdAt": msg.creation_date.isoformat(),
-            "isComplete": all(part.is_complete for part in msg.parts)
-            if msg.parts
-            else True,
-            "parts": parts_data,
-        }
-        if metadata:
-            message_data["metadata"] = {"toolCalls": list(metadata.values())}
-        messages.append(MessagesReadVercel(**message_data))
+        is_complete = all(part.is_complete for part in msg.parts) if msg.parts else True
+
+        msg_vercel = MessagesReadVercel(
+            id=msg.message_id,
+            role="user" if msg.entity == Entity.USER else "assistant",
+            createdAt=msg.creation_date.isoformat(),
+            isComplete=is_complete,
+            parts=parts_data,
+            metadata=ToolMetadataDict(toolCalls=list(metadata.values()))
+            if metadata
+            else None,
+        )
+        messages.append(msg_vercel)
 
     return PaginatedResponse(
         next_cursor=db_messages[-1].creation_date if messages else None,
