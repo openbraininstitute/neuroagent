@@ -353,6 +353,52 @@ def upgrade() -> None:
                 # Skip unknown entity types
                 i += 1
 
+    # drop old trigger/function if present
+    op.execute("DROP TRIGGER IF EXISTS messages_search_vector_trigger ON messages;")
+    op.execute("DROP TRIGGER IF EXISTS parts_search_vector_trigger ON parts;")
+    op.execute("DROP FUNCTION IF EXISTS update_messages_search_vector();")
+
+    # create new function that updates parent message search vector from parts
+    op.execute("""
+    CREATE OR REPLACE FUNCTION update_messages_search_vector()
+    RETURNS TRIGGER AS $$
+    BEGIN
+        UPDATE messages
+        SET search_vector = to_tsvector('english', COALESCE(
+            (SELECT p.output->'content'->0->>'text'
+            FROM parts p
+            WHERE p.message_id = COALESCE(NEW.message_id, OLD.message_id) AND p.type = 'MESSAGE'
+            ORDER BY p.order_index DESC
+            LIMIT 1
+            ), ''
+        ))
+        WHERE message_id = COALESCE(NEW.message_id, OLD.message_id);
+        RETURN NEW;
+    END;
+    $$ LANGUAGE plpgsql;
+    """)
+
+    # create trigger on parts table
+    op.execute("""
+    CREATE TRIGGER parts_search_vector_trigger
+    AFTER INSERT OR UPDATE OR DELETE ON parts
+    FOR EACH ROW
+    EXECUTE FUNCTION update_messages_search_vector();
+    """)
+
+    # populate search_vector for existing rows
+    op.execute("""
+    UPDATE messages
+    SET search_vector = to_tsvector('english', COALESCE(
+        (SELECT p.output->'content'->0->>'text'
+        FROM parts p
+        WHERE p.message_id = messages.message_id AND p.type = 'MESSAGE'
+        ORDER BY p.order_index DESC
+        LIMIT 1
+        ), ''
+    ));
+    """)
+
     # Convert entity column to text temporarily
     op.execute("ALTER TABLE messages ALTER COLUMN entity TYPE text")
 
@@ -834,8 +880,68 @@ def downgrade():
     # Drop parttype enum
     conn.execute(sa.text("DROP TYPE IF EXISTS parttype"))
 
-    # Recreate search vector index
+    # remove any trigger/function from the upgraded version
+    op.execute("DROP TRIGGER IF EXISTS messages_search_vector_trigger ON messages;")
+    op.execute("DROP FUNCTION IF EXISTS update_messages_search_vector();")
+
+    # recreate the old function that used the content column
     op.execute("""
-        CREATE INDEX ix_messages_search_vector ON messages
-        USING gin(to_tsvector('english', content))
+    CREATE OR REPLACE FUNCTION update_messages_search_vector()
+    RETURNS TRIGGER AS $$
+    BEGIN
+        NEW.search_vector := CASE
+            WHEN NEW.entity IN ('USER', 'AI_MESSAGE') THEN
+                to_tsvector('english',
+                    COALESCE(
+                        CASE
+                            WHEN NEW.content::jsonb ? 'content' THEN
+                                NEW.content::jsonb->>'content'
+                            ELSE ''
+                        END,
+                        ''
+                    )
+                )
+            ELSE to_tsvector('english', '')
+        END;
+        RETURN NEW;
+    END;
+    $$ LANGUAGE plpgsql;
     """)
+
+    # recreate trigger
+    op.execute("""
+    CREATE TRIGGER messages_search_vector_trigger
+    BEFORE INSERT OR UPDATE ON messages
+    FOR EACH ROW
+    EXECUTE FUNCTION update_messages_search_vector();
+    """)
+
+    # populate existing rows from content (same logic used when the trigger was added originally)
+    op.execute("""
+    UPDATE messages
+    SET search_vector = (
+        CASE
+            WHEN entity IN ('USER', 'AI_MESSAGE') THEN
+                to_tsvector('english',
+                    COALESCE(
+                        CASE
+                            WHEN content::jsonb ? 'content' THEN
+                                content::jsonb->>'content'
+                            ELSE ''
+                        END,
+                        ''
+                    )
+                )
+            ELSE to_tsvector('english', '')
+        END
+    )
+    """)
+
+    # recreate index on to_tsvector('english', content)
+    op.create_index(
+        "ix_messages_search_vector",
+        "messages",
+        ["search_vector"],
+        unique=False,
+        postgresql_using="gin",
+    )

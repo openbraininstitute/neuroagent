@@ -28,8 +28,8 @@ def utc_now() -> datetime.datetime:
 class Entity(enum.Enum):
     """Class to restrict entity column."""
 
-    USER = "USER"
-    ASSISTANT = "ASSISTANT"
+    USER = "user"
+    ASSISTANT = "assistant"
 
 
 class PartType(enum.Enum):

@@ -40,8 +40,6 @@ from neuroagent.utils import (
     append_function_call_part,
     append_function_output_part,
     append_message_part,
-    complete_partial_json,
-    get_entity,
     get_main_LLM_token_consumption,
     get_tool_token_consumption,
     messages_to_openai_content,
@@ -257,7 +255,6 @@ class AgentsRoutine:
                 new_message = Messages(
                     thread_id=messages[-1].thread_id,
                     entity=Entity.ASSISTANT,
-                    role="user",
                     parts=[],
                 )
                 yield f"data: {json.dumps({'type': 'start', 'messageId': f'msg_{uuid.uuid4().hex}'})}\n\n"
@@ -294,7 +291,7 @@ class AgentsRoutine:
 
                 turns += 1
                 usage_data = None
-                tool_calls_to_execute = dict[str, Any] = {}
+                # tool_calls_to_execute = dict[str, Any] = {}
                 tool_call_ID_mapping: dict[str, str] = {}
                 async for event in completion:
                     match event:
@@ -507,74 +504,75 @@ class AgentsRoutine:
 
         # User interrupts streaming
         except asyncio.exceptions.CancelledError:
-            if temp_stream_data["content"]:
-                message["content"] = temp_stream_data["content"]
+            pass
+            # if temp_stream_data["content"]:
+            #     message["content"] = temp_stream_data["content"]
 
-            if temp_stream_data["reasoning"]:
-                for reasoning_summary in temp_stream_data["reasoning"].values():
-                    message["reasoning"].append(reasoning_summary)
+            # if temp_stream_data["reasoning"]:
+            #     for reasoning_summary in temp_stream_data["reasoning"].values():
+            #         message["reasoning"].append(reasoning_summary)
 
-            if temp_stream_data["tool_calls"]:
-                for id, elem in temp_stream_data["tool_calls"].items():
-                    message["tool_calls"].append(
-                        {
-                            "function": {
-                                "arguments": complete_partial_json(elem["arguments"]),
-                                "name": elem["name"],
-                            },
-                            "id": id,
-                            "type": "function",
-                        }
-                    )
-            else:
-                message["tool_calls"] = None
+            # if temp_stream_data["tool_calls"]:
+            #     for id, elem in temp_stream_data["tool_calls"].items():
+            #         message["tool_calls"].append(
+            #             {
+            #                 "function": {
+            #                     "arguments": complete_partial_json(elem["arguments"]),
+            #                     "name": elem["name"],
+            #                 },
+            #                 "id": id,
+            #                 "type": "function",
+            #             }
+            #         )
+            # else:
+            #     message["tool_calls"] = None
 
-            logger.debug(f"Stream interrupted. Partial message {message}")
+            # logger.debug(f"Stream interrupted. Partial message {message}")
 
-            if message["tool_calls"]:
-                tool_calls = [
-                    {
-                        "call_id": tool_call["id"],
-                        "name": tool_call["function"]["name"],
-                        "arguments": tool_call["function"]["arguments"],
-                    }
-                    for tool_call in message["tool_calls"]
-                ]
-            else:
-                tool_calls = []
+            # if message["tool_calls"]:
+            #     tool_calls = [
+            #         {
+            #             "call_id": tool_call["id"],
+            #             "name": tool_call["function"]["name"],
+            #             "arguments": tool_call["function"]["arguments"],
+            #         }
+            #         for tool_call in message["tool_calls"]
+            #     ]
+            # else:
+            #     tool_calls = []
 
-            # If the partial message hasn't been appended and the last message is not an AI_TOOL, append partial message
-            if (
-                json.dumps(message) != messages[-1].content
-                and messages[-1].entity != Entity.AI_TOOL
-            ):
-                messages.append(
-                    Messages(
-                        thread_id=messages[-1].thread_id,
-                        entity=get_entity(message),
-                        content=json.dumps(message),
-                        tool_calls=tool_calls,
-                        is_complete=False,
-                    )
-                )
+            # # If the partial message hasn't been appended and the last message is not an AI_TOOL, append partial message
+            # if (
+            #     json.dumps(message) != messages[-1].content
+            #     and messages[-1].entity != Entity.AI_TOOL
+            # ):
+            #     messages.append(
+            #         Messages(
+            #             thread_id=messages[-1].thread_id,
+            #             entity=get_entity(message),
+            #             content=json.dumps(message),
+            #             tool_calls=tool_calls,
+            #             is_complete=False,
+            #         )
+            #     )
 
-            # Append default tool message to partial tool calls
-            if messages[-1].entity == Entity.AI_TOOL:
-                messages.extend(
-                    [
-                        Messages(
-                            thread_id=messages[-1].thread_id,
-                            entity=Entity.TOOL,
-                            content=json.dumps(
-                                {
-                                    "role": "tool",
-                                    "call_id": call["call_id"],
-                                    "tool_name": call["name"],
-                                    "content": "Tool execution aborted by the user.",
-                                }
-                            ),
-                            is_complete=False,
-                        )
-                        for call in messages[-1].tool_calls
-                    ]
-                )
+            # # Append default tool message to partial tool calls
+            # if messages[-1].entity == Entity.AI_TOOL:
+            #     messages.extend(
+            #         [
+            #             Messages(
+            #                 thread_id=messages[-1].thread_id,
+            #                 entity=Entity.TOOL,
+            #                 content=json.dumps(
+            #                     {
+            #                         "role": "tool",
+            #                         "call_id": call["call_id"],
+            #                         "tool_name": call["name"],
+            #                         "content": "Tool execution aborted by the user.",
+            #                     }
+            #                 ),
+            #                 is_complete=False,
+            #             )
+            #             for call in messages[-1].tool_calls
+            #         ]
+            #     )
