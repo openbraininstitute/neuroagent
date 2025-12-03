@@ -704,6 +704,22 @@ def get_celery_client(request: Request) -> Celery:
     return request.app.state.celery
 
 
+def get_redis_client(request: Request) -> aioredis.Redis | None:
+    """Get the Redis client from app state.
+
+    Parameters
+    ----------
+    request : Request
+        The FastAPI request object
+
+    Returns
+    -------
+    aioredis.Redis | None
+        The Redis client instance or None if not configured
+    """
+    return request.app.state.redis_client
+
+
 async def get_context_variables(
     request: Request,
     settings: Annotated[Settings, Depends(get_settings)],
@@ -712,6 +728,7 @@ async def get_context_variables(
     user_info: Annotated[UserInfo, Depends(get_user_info)],
     openai_client: Annotated[AsyncOpenAI, Depends(get_openai_client)],
     celery_client: Annotated[Celery, Depends(get_celery_client)],
+    redis_client: Annotated[aioredis.Redis | None, Depends(get_redis_client)],
 ) -> dict[str, Any]:
     """Get the context variables to feed the tool's metadata."""
     # Get the current frontend url
@@ -734,6 +751,7 @@ async def get_context_variables(
         "obi_one_url": settings.tools.obi_one.url,
         "openai_client": openai_client,
         "project_id": thread.project_id,
+        "redis_client": redis_client,
         "sanity_url": settings.tools.sanity.url,
         "thread_id": thread.thread_id,
         "thumbnail_generation_url": settings.tools.thumbnail_generation.url,
@@ -772,19 +790,3 @@ def get_agents_routine(
         return AgentsRoutine(openrouter_client)
     else:
         return AgentsRoutine(openai_client)
-
-
-def get_redis_client(request: Request) -> aioredis.Redis | None:
-    """Get the Redis client from app state.
-
-    Parameters
-    ----------
-    request : Request
-        The FastAPI request object
-
-    Returns
-    -------
-    aioredis.Redis | None
-        The Redis client instance or None if not configured
-    """
-    return request.app.state.redis_client

@@ -275,7 +275,7 @@ def get_token_count(usage: CompletionUsage | None) -> dict[str, int | None]:
         return {"input_cached": None, "input_noncached": None, "completion": None}
 
 
-async def wait_for_celery_result(
+async def short_poll_celery_result(
     task_result: AsyncResult,
     timeout: int | None = 30,
     poll_interval: float = 0.5,
@@ -328,3 +328,138 @@ async def wait_for_celery_result(
         # Wait before next poll
         await asyncio.sleep(poll_interval)
         elapsed += poll_interval
+
+
+async def _poll_celery_ready_with_retry(
+    task_result: AsyncResult,
+    max_retries: int = 5,
+    retry_delay: float = 0.1,
+) -> Any:
+    """Poll Celery task with retries to handle race condition.
+
+    When a task completes, there's a small window where the stream notification
+    arrives before Celery finishes storing the result. This function retries
+    checking task.ready() with short delays to handle this race condition.
+
+    Parameters
+    ----------
+    task_result : AsyncResult
+        The Celery AsyncResult object to wait for
+    max_retries : int, optional
+        Maximum number of retry attempts. Default is 5.
+    retry_delay : float, optional
+        Delay between retries in seconds. Default is 0.1 (100ms).
+
+    Returns
+    -------
+    Any
+        The task result value (deserialized from JSON/Redis)
+
+    Raises
+    ------
+    Exception
+        If the task fails, the exception raised by the task will be propagated
+    """
+    for attempt in range(max_retries):
+        is_ready = await asyncio.to_thread(task_result.ready)
+        if is_ready:
+            return await asyncio.to_thread(task_result.get)
+        # Wait a bit before retrying (except on last attempt)
+        if attempt < max_retries - 1:
+            await asyncio.sleep(retry_delay)
+
+    # Final check after all retries
+    is_ready = await asyncio.to_thread(task_result.ready)
+    if is_ready:
+        return await asyncio.to_thread(task_result.get)
+
+    return None
+
+
+async def long_poll_celery_result(
+    task_result: AsyncResult,
+    redis_client: Any,  # aioredis.Redis
+    timeout: int = 30,
+) -> Any:
+    """Wait for a Celery task result using Redis Streams with long polling.
+
+    This function performs a single blocking XREAD call on a Redis stream until
+    the task publishes a "done" message. The timeout is passed directly to XREAD
+    as the block parameter. This is event-driven - Redis will wake up the coroutine
+    immediately when the message arrives. Efficient for handling many concurrent tasks.
+
+    Parameters
+    ----------
+    task_result : AsyncResult
+        The Celery AsyncResult object to wait for
+    redis_client : aioredis.Redis
+        The Redis client instance for stream operations (assumed to be not None)
+    timeout : int, optional
+        Maximum time to wait in seconds. Converted to milliseconds for XREAD block.
+        Default is 30.
+
+    Returns
+    -------
+    Any
+        The task result value (deserialized from JSON/Redis)
+
+    Raises
+    ------
+    Exception
+        If the task fails, the exception raised by the task will be propagated
+    """
+    task_id = task_result.id
+    stream_key = f"task:{task_id}:progress"
+    last_id = "$"  # Start reading from new messages
+    block_ms = timeout * 1000  # Convert seconds to milliseconds
+
+    try:
+        # Single blocking XREAD call - Redis will wake us up when message arrives
+        # This is NOT polling - truly event-driven
+        messages = await redis_client.xread(
+            {stream_key: last_id},
+            block=block_ms,  # Block for timeout milliseconds
+            count=1,
+        )
+
+        if messages:
+            # Got a message from the stream
+            # aioredis returns: [(stream_name_bytes, [(msg_id_bytes, {field_bytes: value_bytes, ...}), ...])]
+            stream_name, stream_messages = messages[0]
+            for msg_id, msg_data in stream_messages:
+                # Handle both bytes and string keys
+                status = msg_data.get(b"status") or msg_data.get("status")
+                if status == b"done" or status == "done":
+                    # Task is done, but Celery might still be storing the result
+                    # Use retry polling to handle race condition
+                    result = await _poll_celery_ready_with_retry(task_result)
+                    if result is not None:
+                        return result
+                elif status == b"error" or status == "error":
+                    # Task failed, but Celery might still be storing the error
+                    # Use retry polling to handle race condition
+                    result = await _poll_celery_ready_with_retry(task_result)
+                    if result is not None:
+                        return result
+        else:
+            # No message received (timeout), check task status as fallback
+            is_ready = await asyncio.to_thread(task_result.ready)
+            if is_ready:
+                return await asyncio.to_thread(task_result.get)
+
+    except Exception as e:
+        # If stream read fails, fall back to checking task status directly
+        logger.warning(f"Stream read failed: {e}, checking task status directly")
+        is_ready = await asyncio.to_thread(task_result.ready)
+        if is_ready:
+            return await asyncio.to_thread(task_result.get)
+
+    # If we get here, task didn't complete - check one more time
+    is_ready = await asyncio.to_thread(task_result.ready)
+    if is_ready:
+        return await asyncio.to_thread(task_result.get)
+
+    # Task didn't complete within timeout
+    raise asyncio.TimeoutError(
+        f"Task {task_id} did not complete within {timeout} seconds"
+    )

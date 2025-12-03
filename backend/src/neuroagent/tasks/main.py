@@ -3,8 +3,10 @@
 import logging
 from pathlib import Path
 from typing import Any
+from urllib.parse import urlparse
 
 import boto3
+import redis
 from celery import Celery
 from celery.signals import worker_process_init
 
@@ -45,6 +47,42 @@ def get_s3_client() -> Any | None:
 def get_settings() -> Settings:
     """Get the settings instance."""
     return settings
+
+
+def get_redis_client() -> redis.Redis:
+    """Get a Redis client instance for task operations.
+
+    Creates a Redis client from the Celery broker URL configuration.
+    Uses sync Redis client since tasks run in sync context.
+    Assumes Redis is always available.
+
+    Returns
+    -------
+    redis.Redis
+        The Redis client instance
+
+    Raises
+    ------
+    Exception
+        If Redis client cannot be created from broker URL
+    """
+    broker_url = settings.celery.broker_url
+    parsed = urlparse(broker_url)
+
+    # Extract connection details
+    host = parsed.hostname or "localhost"
+    port = parsed.port or 6379
+    password = parsed.password
+    ssl = parsed.scheme == "rediss"
+
+    # Create Redis client
+    return redis.Redis(
+        host=host,
+        port=port,
+        password=password,
+        ssl=ssl,
+        decode_responses=False,  # Keep bytes for stream operations
+    )
 
 
 @worker_process_init.connect

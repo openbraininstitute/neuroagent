@@ -5,10 +5,11 @@ from typing import Any, ClassVar
 
 from celery import Celery
 from pydantic import BaseModel, Field
+from redis import asyncio as aioredis
 
 from neuroagent.task_schemas import DummyTaskInput, DummyTaskOutput
 from neuroagent.tools.base_tool import BaseMetadata, BaseTool
-from neuroagent.utils import wait_for_celery_result
+from neuroagent.utils import long_poll_celery_result
 
 logger = logging.getLogger(__name__)
 
@@ -23,6 +24,7 @@ class SubmitDummyTaskMetadata(BaseMetadata):
     """Metadata for SubmitDummyTask tool."""
 
     celery_client: Celery
+    redis_client: aioredis.Redis
 
 
 class SubmitDummyTaskOutput(BaseModel):
@@ -71,13 +73,16 @@ class SubmitDummyTaskTool(BaseTool):
         task_input = DummyTaskInput(message=self.input_schema.message)
 
         celery_client = self.metadata.celery_client
+        redis_client = self.metadata.redis_client
         task_result = celery_client.send_task(
             "dummy_task", args=[task_input.model_dump()]
         )
         logger.info(f"Submitted dummy task with ID: {task_result.id}")
 
-        # Wait for result using reusable utility function
-        result_dict = await wait_for_celery_result(task_result)
+        # Wait for result using Redis Streams (truly event-driven, no polling)
+        result_dict = await long_poll_celery_result(
+            task_result, redis_client, timeout=30
+        )
         logger.info(f"Task {task_result.id} completed with result: {result_dict}")
 
         # Instantiate the task output model from the result dict

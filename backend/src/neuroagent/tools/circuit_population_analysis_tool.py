@@ -6,13 +6,14 @@ from uuid import UUID
 
 from celery import Celery
 from pydantic import BaseModel, Field
+from redis import asyncio as aioredis
 
 from neuroagent.task_schemas import (
     CircuitPopulationAnalysisTaskInput,
     CircuitPopulationAnalysisTaskOutput,
 )
 from neuroagent.tools.base_tool import BaseTool, EntitycoreMetadata
-from neuroagent.utils import wait_for_celery_result
+from neuroagent.utils import long_poll_celery_result
 
 logger = logging.getLogger(__name__)
 
@@ -34,6 +35,7 @@ class CircuitPopulationAnalysisMetadata(EntitycoreMetadata):
     """Metadata of the CircuitPopulationAnalysis tool."""
 
     celery_client: Celery
+    redis_client: aioredis.Redis
     token_consumption: dict[str, str | int | None] | None = None
 
 
@@ -111,6 +113,7 @@ Ask questions like "What is the most common morphological type?", "How many exci
 
         # Submit task to Celery
         celery_client = self.metadata.celery_client
+        redis_client = self.metadata.redis_client
         task_result = celery_client.send_task(
             "circuit_population_analysis_task", args=[task_input.model_dump()]
         )
@@ -118,8 +121,10 @@ Ask questions like "What is the most common morphological type?", "How many exci
             f"Submitted circuit_population_analysis_task with ID: {task_result.id}"
         )
 
-        # Wait for result (with longer timeout for circuit analysis)
-        result_dict = await wait_for_celery_result(task_result, timeout=300)
+        # Wait for result using Redis Streams (with longer timeout for circuit analysis)
+        result_dict = await long_poll_celery_result(
+            task_result, redis_client, timeout=300
+        )
         logger.info(f"Task {task_result.id} completed")
 
         # Extract result from task output

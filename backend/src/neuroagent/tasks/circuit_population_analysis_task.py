@@ -16,7 +16,8 @@ from neuroagent.task_schemas import (
     CircuitPopulationAnalysisTaskInput,
     CircuitPopulationAnalysisTaskOutput,
 )
-from neuroagent.tasks.main import celery, get_settings
+from neuroagent.tasks.main import celery, get_redis_client, get_settings
+from neuroagent.tasks.utils import task_stream_notifier
 from neuroagent.utils import get_token_count
 
 logger = logging.getLogger(__name__)
@@ -325,4 +326,9 @@ Generate the SQL query to analyze the neuron population:"""
 @celery.task(name="circuit_population_analysis_task", pydantic=True)
 def run(arg: CircuitPopulationAnalysisTaskInput) -> CircuitPopulationAnalysisTaskOutput:
     """Celery task wrapper for circuit population analysis."""
-    return run_circuit_population_analysis(arg)
+    task_id = run.request.id
+    redis_client = get_redis_client()
+
+    # Context manager automatically handles stream notifications
+    with task_stream_notifier(redis_client, task_id):
+        return run_circuit_population_analysis(arg)

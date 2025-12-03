@@ -6,6 +6,7 @@ from uuid import UUID
 
 from celery import Celery
 from pydantic import BaseModel, Field
+from redis import asyncio as aioredis
 
 from neuroagent.task_schemas import (
     FailureOutput,
@@ -14,7 +15,7 @@ from neuroagent.task_schemas import (
     SuccessOutput,
 )
 from neuroagent.tools.base_tool import BaseMetadata, BaseTool
-from neuroagent.utils import wait_for_celery_result
+from neuroagent.utils import long_poll_celery_result
 
 logger = logging.getLogger(__name__)
 
@@ -29,6 +30,7 @@ class RunPythonMetadata(BaseMetadata):
     """Metadata for RunPython tool."""
 
     celery_client: Celery
+    redis_client: aioredis.Redis
     user_id: UUID
     bucket_name: str
     thread_id: UUID
@@ -106,13 +108,16 @@ AVAILABLE LIBRARIES:
 
         # Submit task to Celery
         celery_client = self.metadata.celery_client
+        redis_client = self.metadata.redis_client
         task_result = celery_client.send_task(
             "run_python_task", args=[task_input.model_dump()]
         )
         logger.info(f"Submitted run_python_task with ID: {task_result.id}")
 
-        # Wait for result (with longer timeout for Python execution)
-        result_dict = await wait_for_celery_result(task_result, timeout=120)
+        # Wait for result using Redis Streams (with longer timeout for Python execution)
+        result_dict = await long_poll_celery_result(
+            task_result, redis_client, timeout=120
+        )
         logger.info(f"Task {task_result.id} completed")
 
         # Extract result from task output
