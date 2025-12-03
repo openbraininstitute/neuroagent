@@ -1,7 +1,7 @@
 """Endpoints for agent's question answering pipeline."""
 
-import json
 import logging
+import time
 from contextlib import asynccontextmanager
 from datetime import datetime, timezone
 from typing import Annotated, Any, AsyncIterator
@@ -19,7 +19,6 @@ from obp_accounting_sdk import AsyncAccountingSessionFactory
 from obp_accounting_sdk.constants import ServiceSubtype
 from openai import AsyncOpenAI
 from redis import asyncio as aioredis
-from sqlalchemy import or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from neuroagent.agent_routine import AgentsRoutine
@@ -29,7 +28,7 @@ from neuroagent.app.app_utils import (
     validate_project,
 )
 from neuroagent.app.config import Settings
-from neuroagent.app.database.sql_schemas import Entity, Messages, Threads
+from neuroagent.app.database.sql_schemas import Messages, Threads
 from neuroagent.app.dependencies import (
     get_accounting_session_factory,
     get_agents_routine,
@@ -41,6 +40,7 @@ from neuroagent.app.dependencies import (
     get_settings,
     get_starting_agent,
     get_thread,
+    get_tool_list,
     get_user_info,
 )
 from neuroagent.app.schemas import (
@@ -54,6 +54,8 @@ from neuroagent.new_types import (
     Agent,
     ClientRequest,
 )
+from neuroagent.tools.base_tool import BaseTool
+from neuroagent.utils import messages_to_openai_content
 
 router = APIRouter(prefix="/qa", tags=["Run the agent"])
 
@@ -74,6 +76,7 @@ async def question_suggestions(
     redis_client: Annotated[aioredis.Redis | None, Depends(get_redis_client)],
     fastapi_response: Response,
     session: Annotated[AsyncSession, Depends(get_session)],
+    tool_list: Annotated[list[type[BaseTool]], Depends(get_tool_list)],
     body: QuestionsSuggestionsRequest,
     vlab_id: UUID | None = None,
     project_id: UUID | None = None,
@@ -130,91 +133,92 @@ async def question_suggestions(
 
     if body.thread_id is not None:
         # Get the AI and User messages from the conversation :
-        messages_result = await session.execute(
-            select(Messages)
-            .where(
-                Messages.thread_id == thread.thread_id,
-                or_(
-                    Messages.entity == Entity.USER,
-                    Messages.entity == Entity.AI_MESSAGE,
-                ),
-            )
-            .order_by(Messages.creation_date)
-        )
-        db_messages = messages_result.unique().scalars().all()
+        thread = await session.get(Threads, body.thread_id)
+        messages = await thread.awaitable_attrs.messages
+        openai_messages = await messages_to_openai_content(messages)
 
-        is_in_chat = bool(db_messages)
+        # Remove the content of tool responses to save tokens
+        for message in openai_messages:
+            if message["role"] == "tool":
+                message["content"] = "..."
+        # messages_result = await session.execute(
+        #     select(Messages)
+        #     .where(
+        #         Messages.thread_id == thread.thread_id,
+        #         or_(
+        #             Messages.entity == Entity.USER,
+        #             Messages.entity == Entity.AI_MESSAGE,
+        #         ),
+        #     )
+        #     .order_by(Messages.creation_date)
+        # )
+        # db_messages = messages_result.unique().scalars().all()
+
+        is_in_chat = bool(openai_messages)
         if not is_in_chat and not body.click_history:
             raise HTTPException(
                 status_code=404,
                 detail="The thread is empty and the 'click_history' wasn't provided.",
             )
 
+    tool_info = [f"{tool.name}: {tool.description}" for tool in tool_list]
+
     if is_in_chat:
-        content = f"CONVERSATION MESSAGES: \n{json.dumps([{k: v for k, v in json.loads(msg.content).items() if k in ['role', 'content']} for msg in db_messages])}"
+        # content = f"CONVERSATION MESSAGES: \n{json.dumps([{k: v for k, v in json.loads(msg.content).items() if k in ['role', 'content']} for msg in db_messages])}"
+        content = openai_messages  # TODO: Restrict to only a couple of messages back not everything.
+        system_prompt = f"""
+Guidelines:
+
+- Generate three questions, each on a significantly different aspect or subtopic relevant to the main topic of the conversation, and each phrased from the user's perspective (e.g., "Show me...", "What is...", "Can you...").
+- **CRITICAL**: DO NOT generate questions that an LLM would ask. GENERATE QUESTIONS A HUMAN WOULD ASK TO THE LLM.
+- Explore various distinct possibilities. E.g. visuals, metrics, literature, associated models, etc... Be creative.
+- Only include questions that can be answered using the available tools.
+- This LLM cannot call any tools, suggestions must be based solely on the descriptions. Do not assume access to tools beyond what is described.
+- Focus on advancing the user's workflow and showcasing what the chat can help with. Suggest logical next steps, deeper exploration, or related topics using the available tool information. Avoid producing mere variations of previous questions.
+- Keep questions succinct and clear.
+- When evaluating which questions make sense, refer only to the tools' purposes and minimal relevant input as described in the provided list; do not call or simulate tool execution.
+- Ensure that the three questions each address substantially different elements of the main topic, leveraging the diversity of the tool set, while still remaining contextually relevant.
+- It is not possible to export data in any format. Do not suggest such questions.
+- Do not suggest questions that have already been answered in the conversation.
+- Suggest workflows on subsets of data. Do not suggest analysis of large datasets.
+
+## Output Format
+
+- Output must be a JSON array (and nothing else) with exactly three strings.
+- Always return exactly three appropriate questions (never more, never less). If the conversation context or tools do not support three contextually relevant questions, produce the most logically appropriate or useful questions, ensuring the output array still contains three strings. Output must always be a JSON array, with no surrounding text or formatting.
+
+Available Tools:
+{", ".join(tool_info)}"""
+
     else:
         content = f"USER JOURNEY: \n{body.model_dump(exclude={'thread_id'}, mode='json')['click_history']}"
+        system_prompt = f"""Generate one question the user might ask next.
 
-    messages = [
-        {
-            "role": "system",
-            "content": f"""You are a smart assistant that analyzes user behavior and conversation history to suggest {"three concise, engaging questions" if is_in_chat else "a concise, engaging question"} the user might ask next, specifically about finding relevant scientific literature.
+Rules:
+- Questions must be from the user's perspective (e.g., "Show me...", "What is...", "Can you...")
+- Each question must be answerable using ONLY the available tools below
+- Focus on the most recent clicks (current time: {datetime.now(timezone.utc).isoformat()})
+- Keep questions clear and concise
 
-Platform Context:
-The Open Brain Platform provides an atlas-driven exploration of the mouse brain, offering access to:
-- Neuron morphology (axon, soma, dendrite structures)
-- Electrophysiology (electrical recordings of neuronal activity)
-- Ion channels
-- Neuron density
-- Bouton density
-- Synapse-per-connection counts
-- Electrical models ("E-models")
-- Morpho-electrical models ("ME-models")
-- Synaptome (network of neuronal connections)
+Input format: USER JOURNEY
 
-User Capabilities:
-- Explore and build digital brain models at scales ranging from molecular to whole-region circuits.
-- Customize or create new cellular-composition models.
-- Run simulations and perform data analyses.
-- Access both experimental and model data.
+Available Tools:
+{",".join(tool_info)}"""  # TODO: Modify system prompt for empty conversations.
 
-User Journey Format:
-- User journey is a list of clicks performed by the user.
-- Each click represent the brain region and artifact the user was viewing. The timestamp of the click is added.
-- Artifacts may include:
-  * Morphology
-  * Electrophysiology
-  * Neuron density
-  * Bouton density
-  * Synapse per connection
-  * E-model
-  * ME-model
-  * Synaptome
-
-Task:
-{"Using the user's latest messages, generate three short, literature-focused questions they might ask next." if is_in_chat else "Based on the user's navigation history, generate a short, literature-focused question about the last brain region they visited."}
-
-Each question must:
-- Directly relate to searching for scientific papers.
-- Be clear, concise, and easy to understand.
-- Focus exclusively on literature retrieval.
-{"" if is_in_chat else "- Specifically focus on the most recently visited brain region in the user journey."}
-
-The upcoming user message will either prepend its content with 'CONVERSATION MESSAGES:' indicating that messages from the conversation are dumped, or 'USER JOURNEY:' indicating that the navigation history is dumped.
-
-Important: Weight the user clicks depending on how old they are. The more recent clicks should be given a higher importance. The current date and time is {datetime.now(timezone.utc).isoformat()}.""",
-        },
-        {"role": "user", "content": content},
-    ]
-
+    messages = [{"role": "system", "content": system_prompt}, *content]
+    start = time.time()
     response = await openai_client.beta.chat.completions.parse(
         messages=messages,  # type: ignore
-        model=settings.llm.suggestion_model,
+        model="gpt-5-nano",
+        reasoning_effort="minimal",
         response_format=QuestionsSuggestions
         if is_in_chat
         else QuestionSuggestionNoMessages,
     )
-
+    logger.debug(
+        f"Used {response.usage.model_dump()} tokens. Response time: {time.time() - start}"
+    )
+    # breakpoint()
     return response.choices[0].message.parsed  # type: ignore
 
 
