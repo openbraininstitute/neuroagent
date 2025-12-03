@@ -411,20 +411,20 @@ class AgentsRoutine:
                 if temp_stream_data["tool_calls"]:
                     tool_calls_to_execute = [
                         {
-                            "call_id": tc["id"],
+                            "call_id": id,
                             "name": tc["name"],
                             "arguments": tc["arguments"],
                         }
-                        for tc in temp_stream_data["tool_calls"].values()
+                        for id, tc in temp_stream_data["tool_calls"].items()
                         if not tool_map[tc["name"]].hil
                     ]
                     tool_calls_with_hil = [
                         {
-                            "call_id": tc["id"],
+                            "call_id": id,
                             "name": tc["name"],
                             "arguments": tc["arguments"],
                         }
-                        for tc in temp_stream_data["tool_calls"].values()
+                        for id, tc in temp_stream_data["tool_calls"].items()
                         if tool_map[tc["name"]].hil
                     ]
                 else:
@@ -471,7 +471,7 @@ class AgentsRoutine:
                         tool_response["call_id"],
                         tool_response["output"],
                     )
-                    yield f"data: {json.dumps({'type': 'tool-output-available', 'toolCallId': tool_response['call_id'], 'output': tool_response['content']})}\n\n"
+                    yield f"data: {json.dumps({'type': 'tool-output-available', 'toolCallId': tool_response['call_id'], 'output': tool_response['output']})}\n\n"
 
                 yield f"data: {json.dumps({'type': 'finish-step'})}\n\n"
 
