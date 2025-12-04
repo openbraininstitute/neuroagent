@@ -6,7 +6,7 @@ import re
 import uuid
 from typing import Any, Literal
 
-from openai.types.responses import ResponseUsage
+from openai.types.responses import ResponseOutputItem, ResponseUsage
 
 from neuroagent.app.database.sql_schemas import (
     Messages,
@@ -241,93 +241,26 @@ def get_token_count(usage: ResponseUsage | None) -> dict[str, int | None]:
         return {"input_cached": None, "input_noncached": None, "completion": None}
 
 
-def append_message_part(
-    message: Messages, history: list[dict[str, Any]], text: str
-) -> None:
-    """Create a message part and append it to the message and history."""
-    output = {
-        "role": "assistant",
-        "type": "message",
-        "status": "completed",
-        "content": [{"text": text, "type": "output_text"}],
-    }
-    part = Parts(
-        message_id=message.message_id,
-        order_index=len(message.parts),
-        type=PartType.MESSAGE,
-        output=output,
-        is_complete=True,
-    )
-    message.parts.append(part)
-    history.append(output)
-
-
-def append_function_call_part(
+def append_part(
     message: Messages,
     history: list[dict[str, Any]],
-    name: str,
-    call_id: str,
-    arguments: str,
-) -> None:
-    """Create a function call part and append it to the message and history."""
-    output = {
-        "name": name,
-        "type": "function_call",
-        "status": "completed",
-        "call_id": call_id,
-        "arguments": arguments,
-    }
-    part = Parts(
-        message_id=message.message_id,
-        order_index=len(message.parts),
-        type=PartType.FUNCTION_CALL,
-        output=output,
-        is_complete=True,
-    )
-    message.parts.append(part)
-    history.append(output)
-
-
-def append_reasoning_part(
-    message: Messages, history: list[dict[str, Any]], text: str, encrypted_content: str
+    openai_part: ResponseOutputItem | dict[str, Any],
+    type: PartType,
 ) -> None:
     """Create a reasoning part and append it to the message and history."""
-    output = {
-        "type": "reasoning",
-        "status": "completed",
-        "summary": [{"text": text, "type": "summary_text"}],
-        "encrypted_content": encrypted_content,
-    }
+    if isinstance(openai_part, dict):
+        output = openai_part
+    else:
+        output = openai_part.model_dump(exclude={"status"})
     part = Parts(
         message_id=message.message_id,
         order_index=len(message.parts),
-        type=PartType.REASONING,
+        type=type,
         output=output,
         is_complete=True,
     )
     message.parts.append(part)
     history.append(output)
-
-
-def append_function_output_part(
-    message: Messages, history: list[dict[str, Any]], call_id: str, output: str
-) -> None:
-    """Create a function output part and append it to the message and history."""
-    output_dict = {
-        "status": "completed",
-        "type": "function_call_output",
-        "call_id": call_id,
-        "output": output,
-    }
-    part = Parts(
-        message_id=message.message_id,
-        order_index=len(message.parts),
-        type=PartType.FUNCTION_CALL_OUTPUT,
-        output=output_dict,
-        is_complete=True,
-    )
-    message.parts.append(part)
-    history.append(output_dict)
 
 
 def get_main_LLM_token_consumption(
@@ -388,3 +321,43 @@ def get_tool_token_consumption(
             if count
         ]
     return []
+
+
+def separate_tool_calls(
+    tool_calls: dict[str, dict[str, Any]], tool_map: dict[str, Any]
+) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+    """Separate tool calls into those to execute and those requiring HIL.
+
+    Parameters
+    ----------
+    tool_calls : dict[str, dict[str, Any]]
+        Dictionary of tool calls with IDs as keys
+    tool_map : dict[str, Any]
+        Mapping of tool names to tool objects
+
+    Returns
+    -------
+    tuple[list[dict[str, Any]], list[dict[str, Any]]]
+        Tuple of (tool_calls_to_execute, tool_calls_with_hil)
+    """
+    tool_calls_to_execute = [
+        {
+            "id": id,
+            "call_id": tc["call_id"],
+            "name": tc["name"],
+            "arguments": tc["arguments"],
+        }
+        for id, tc in tool_calls.items()
+        if not tool_map[tc["name"]].hil
+    ]
+    tool_calls_with_hil = [
+        {
+            "id": id,
+            "call_id": tc["call_id"],
+            "name": tc["name"],
+            "arguments": tc["arguments"],
+        }
+        for id, tc in tool_calls.items()
+        if tool_map[tc["name"]].hil
+    ]
+    return tool_calls_to_execute, tool_calls_with_hil

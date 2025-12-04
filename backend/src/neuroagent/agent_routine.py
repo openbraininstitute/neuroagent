@@ -17,6 +17,8 @@ from openai.types.responses import (
     ResponseFunctionToolCall,
     ResponseOutputItemAddedEvent,
     ResponseOutputItemDoneEvent,
+    ResponseOutputMessage,
+    ResponseReasoningItem,
     ResponseReasoningSummaryPartAddedEvent,
     ResponseReasoningSummaryPartDoneEvent,
     ResponseReasoningSummaryTextDeltaEvent,
@@ -28,6 +30,7 @@ from pydantic import BaseModel, ValidationError
 from neuroagent.app.database.sql_schemas import (
     Entity,
     Messages,
+    PartType,
     Task,
 )
 from neuroagent.new_types import (
@@ -37,12 +40,11 @@ from neuroagent.new_types import (
 )
 from neuroagent.tools.base_tool import BaseTool
 from neuroagent.utils import (
-    append_function_call_part,
-    append_function_output_part,
-    append_message_part,
+    append_part,
     get_main_LLM_token_consumption,
     get_tool_token_consumption,
     messages_to_openai_content,
+    separate_tool_calls,
 )
 
 logger = logging.getLogger(__name__)
@@ -160,6 +162,7 @@ class AgentsRoutine:
         if name not in tool_map:
             return {
                 "role": "tool",
+                "id": tool_call["id"],
                 "call_id": tool_call["call_id"],
                 "status": "incomplete",
                 "output": f"Error: Tool {name} not found.",
@@ -177,6 +180,7 @@ class AgentsRoutine:
                 # Otherwise transform it into an OpenAI response for the model to retry
                 response = {
                     "type": "function_call_output",
+                    "id": tool_call["id"],
                     "call_id": tool_call["call_id"],
                     "status": "incomplete",
                     "output": err.json(),
@@ -193,6 +197,7 @@ class AgentsRoutine:
                 # Otherwise transform it into an OpenAI response for the model to retry
                 response = {
                     "type": "function_call_output",
+                    "id": tool_call["id"],
                     "call_id": tool_call["call_id"],
                     "status": "incomplete",
                     "output": "The user is not allowed to run this tool. Don't call it again.",
@@ -213,6 +218,7 @@ class AgentsRoutine:
         except Exception as err:
             response = {
                 "type": "function_call_output",
+                "id": tool_call["id"],
                 "call_id": tool_call["call_id"],
                 "status": "incomplete",
                 "output": str(err),
@@ -222,8 +228,9 @@ class AgentsRoutine:
         result: Result = self.handle_function_result(raw_result)
         response = {
             "type": "function_call_output",
+            "id": tool_call["id"],
             "call_id": tool_call["call_id"],
-            "status": "complete",
+            "status": "completed",
             "output": result.value,
         }
         if result.agent:
@@ -275,7 +282,7 @@ class AgentsRoutine:
 
                 # for streaming interrupt
                 temp_stream_data: dict[str, Any] = {
-                    "content": "",
+                    "content": {},
                     "tool_calls": {},
                     "reasoning": {},
                 }
@@ -291,47 +298,61 @@ class AgentsRoutine:
 
                 turns += 1
                 usage_data = None
-                # tool_calls_to_execute = dict[str, Any] = {}
-                tool_call_ID_mapping: dict[str, str] = {}
+                # tool_call_ID_mapping: dict[str, str] = {}
                 async for event in completion:
                     match event:
                         # === REASONING ===
-                        # Reasoning start
+                        # Reasoning summary start
                         case ResponseReasoningSummaryPartAddedEvent():
                             temp_stream_data["reasoning"][event.item_id] = ""
                             yield f"data: {json.dumps({'type': 'start-step'})}\n\n"
                             yield f"data: {json.dumps({'type': 'reasoning-start', 'id': event.item_id})}\n\n"
 
-                        # Reasoning deltas
+                        # Reasoning summary deltas
                         case ResponseReasoningSummaryTextDeltaEvent():
                             temp_stream_data["reasoning"][event.item_id] += event.delta
                             yield f"data: {json.dumps({'type': 'reasoning-delta', 'id': event.item_id, 'delta': event.delta})}\n\n"
 
-                        # Reasoning end
+                        # Reasoning summary end
                         case ResponseReasoningSummaryPartDoneEvent():
-                            # message["parts"].append(event.part.text)
-                            temp_stream_data["reasoning"].pop(event.item_id, None)
                             yield f"data: {json.dumps({'type': 'reasoning-end', 'id': event.item_id})}\n\n"
                             yield f"data: {json.dumps({'type': 'finish-step'})}\n\n"
+
+                        # Capture the final reasoning (only chunk that has the encrypted content)
+                        case ResponseOutputItemDoneEvent() if (
+                            isinstance(event.item, ResponseReasoningItem)
+                            and event.item.id
+                        ):
+                            append_part(
+                                new_message, history, event.item, PartType.REASONING
+                            )
+                            temp_stream_data["reasoning"].pop(event.item.id, None)
 
                         # === TEXT ===
                         # Text start
                         case ResponseContentPartAddedEvent():
+                            temp_stream_data["content"][event.item_id] = ""
                             yield f"data: {json.dumps({'type': 'text-start', 'id': event.item_id})}\n\n"
 
                         # Text Delta
                         case ResponseTextDeltaEvent():
-                            temp_stream_data["content"] += event.delta
+                            temp_stream_data["content"][event.item_id] += event.delta
                             yield f"data: {json.dumps({'type': 'text-delta', 'id': event.item_id, 'delta': event.delta})}\n\n"
 
                         # Text end
-                        case ResponseContentPartDoneEvent() if (
-                            hasattr(event.part, "text") and event.part.text
-                        ):
-                            append_message_part(new_message, history, event.part.text)
-                            temp_stream_data["content"] = ""
+                        case ResponseContentPartDoneEvent():
                             yield f"data: {json.dumps({'type': 'text-end', 'id': event.item_id})}\n\n"
                             yield f"data: {json.dumps({'type': 'finish-step'})}\n\n"
+
+                        # Capture the final content part
+                        case ResponseOutputItemDoneEvent() if (
+                            isinstance(event.item, ResponseOutputMessage)
+                            and event.item.id
+                        ):
+                            append_part(
+                                new_message, history, event.item, PartType.MESSAGE
+                            )
+                            temp_stream_data["content"].pop(event.item.id, None)
 
                         # === TOOL CALLS ===
                         # Tool call starts
@@ -339,21 +360,23 @@ class AgentsRoutine:
                             isinstance(event.item, ResponseFunctionToolCall)
                             and event.item.id
                         ):
-                            tool_call_ID_mapping[event.item.id] = (
-                                uuid.uuid4().hex
-                            )  # Add generic UUID to event ID
-                            temp_stream_data["tool_calls"][
-                                tool_call_ID_mapping[event.item.id]
-                            ] = {"name": event.item.name, "arguments": ""}
+                            # tool_call_ID_mapping[event.item.id] = (
+                            #     uuid.uuid4().hex
+                            # )  # Add generic UUID to event ID
+                            temp_stream_data["tool_calls"][event.item.id] = {
+                                "call_id": event.item.call_id,
+                                "name": event.item.name,
+                                "arguments": "",
+                            }
                             yield f"data: {json.dumps({'type': 'start-step'})}\n\n"
-                            yield f"data: {json.dumps({'type': 'tool-input-start', 'toolCallId': tool_call_ID_mapping[event.item.id], 'toolName': event.item.name})}\n\n"
+                            yield f"data: {json.dumps({'type': 'tool-input-start', 'toolCallId': event.item.id, 'toolName': event.item.name})}\n\n"
 
                         # Tool call deltas
                         case ResponseFunctionCallArgumentsDeltaEvent() if event.item_id:
-                            temp_stream_data["tool_calls"][
-                                tool_call_ID_mapping[event.item_id]
-                            ]["arguments"] += event.delta
-                            yield f"data: {json.dumps({'type': 'tool-input-delta', 'toolCallId': tool_call_ID_mapping[event.item_id], 'inputTextDelta': event.delta})}\n\n"
+                            temp_stream_data["tool_calls"][event.item_id][
+                                "arguments"
+                            ] += event.delta
+                            yield f"data: {json.dumps({'type': 'tool-input-delta', 'toolCallId': event.item_id, 'inputTextDelta': event.delta})}\n\n"
 
                         # Tool call end
                         case ResponseOutputItemDoneEvent() if (
@@ -371,30 +394,18 @@ class AgentsRoutine:
                                 args = json.dumps(validated_args)
                             except ValidationError:
                                 args = input_args
-                            append_function_call_part(
-                                new_message,
-                                history,
-                                event.item.name,
-                                tool_call_ID_mapping[event.item.id],
-                                args,
+                            append_part(
+                                new_message, history, event.item, PartType.FUNCTION_CALL
                             )
-                            temp_stream_data["tool_calls"][
-                                tool_call_ID_mapping[event.item.id]
-                            ]["arguments"] = args
-                            yield f"data: {json.dumps({'type': 'tool-input-available', 'toolCallId': tool_call_ID_mapping[event.item.id], 'toolName': event.item.name, 'input': json.loads(args)})}\n\n"
+                            temp_stream_data["tool_calls"][event.item.id][
+                                "arguments"
+                            ] = args
+                            yield f"data: {json.dumps({'type': 'tool-input-available', 'toolCallId': event.item.id, 'toolName': event.item.name, 'input': json.loads(args)})}\n\n"
                             yield f"data: {json.dumps({'type': 'finish-step'})}\n\n"
 
                         # === Usage ===
                         # Handle usage/token information and ecrypted reasoning.
                         case ResponseCompletedEvent():
-                            # message["encrypted_reasoning"] = next(
-                            #     (
-                            #         part.encrypted_content
-                            #         for part in event.response.output
-                            #         if part.type == "reasoning"
-                            #     ),
-                            #     "",
-                            # )
                             usage_data = event.response.usage
 
                         # case _:
@@ -409,45 +420,28 @@ class AgentsRoutine:
 
                 # Separate streamed tool --> tool to execute / tool with HIL
                 if temp_stream_data["tool_calls"]:
-                    tool_calls_to_execute = [
-                        {
-                            "call_id": id,
-                            "name": tc["name"],
-                            "arguments": tc["arguments"],
-                        }
-                        for id, tc in temp_stream_data["tool_calls"].items()
-                        if not tool_map[tc["name"]].hil
-                    ]
-                    tool_calls_with_hil = [
-                        {
-                            "call_id": id,
-                            "name": tc["name"],
-                            "arguments": tc["arguments"],
-                        }
-                        for id, tc in temp_stream_data["tool_calls"].items()
-                        if tool_map[tc["name"]].hil
-                    ]
+                    tool_calls_to_execute, tool_calls_with_hil = separate_tool_calls(
+                        temp_stream_data["tool_calls"], tool_map
+                    )
+                    # clear stream data, the tool calls info is not needed anymore
+                    temp_stream_data["tool_calls"] = {}
                 else:
                     # No tool calls, final content part reached, exit agent loop
                     yield f"data: {json.dumps({'type': 'finish-step'})}\n\n"
                     break
 
-                # Append the history with the json version
-                # history.append(copy.deepcopy(message))
-
-                # messages.append(new_message)
-
                 # handle function calls, updating context_variables, and switching agents
                 if tool_calls_to_execute:
-                    tool_calls_executed = await self.execute_tool_calls(
+                    tool_calls_done = await self.execute_tool_calls(
                         tool_calls_to_execute[:max_parallel_tool_calls],
                         active_agent.tools,
                         context_variables,
                     )
-                    tool_calls_executed.messages.extend(
+                    tool_calls_done.messages.extend(
                         [
                             {
                                 "role": "tool",
+                                "id": call["id"],
                                 "call_id": call["call_id"],
                                 "tool_name": call["name"],
                                 "output": f"The tool {call['name']} with arguments {call['arguments']} could not be executed due to rate limit. Call it again.",
@@ -456,22 +450,22 @@ class AgentsRoutine:
                         ]
                     )
                 else:
-                    tool_calls_executed = Response(
+                    tool_calls_done = Response(
                         messages=[], agent=None, context_variables=context_variables
                     )
 
                 # Process tool call outputs, adding token consumption and yielding outputs
-                for tool_response in tool_calls_executed.messages:
+                for tool_response in tool_calls_done.messages:
                     new_message.token_consumption.extend(
                         get_tool_token_consumption(tool_response, context_variables)
                     )
-                    append_function_output_part(
+                    append_part(
                         new_message,
                         history,
-                        tool_response["call_id"],
-                        tool_response["output"],
+                        tool_response,
+                        PartType.FUNCTION_CALL_OUTPUT,
                     )
-                    yield f"data: {json.dumps({'type': 'tool-output-available', 'toolCallId': tool_response['call_id'], 'output': tool_response['output']})}\n\n"
+                    yield f"data: {json.dumps({'type': 'tool-output-available', 'toolCallId': tool_response['id'], 'output': tool_response['output']})}\n\n"
 
                 yield f"data: {json.dumps({'type': 'finish-step'})}\n\n"
 
@@ -479,7 +473,7 @@ class AgentsRoutine:
                 if tool_calls_with_hil:
                     metadata_data = [
                         {
-                            "toolCallId": msg["call_id"],
+                            "toolCallId": msg["id"],
                             "validated": "pending",
                             "isComplete": True,
                         }
@@ -490,9 +484,9 @@ class AgentsRoutine:
                     break
 
                 # Update history, context variables, agent
-                context_variables.update(tool_calls_executed.context_variables)
-                if tool_calls_executed.agent:
-                    active_agent = tool_calls_executed.agent
+                context_variables.update(tool_calls_done.context_variables)
+                if tool_calls_done.agent:
+                    active_agent = tool_calls_done.agent
 
             # End of agent loop. Add new message to DB.
             messages.append(new_message)
