@@ -159,7 +159,6 @@ def upgrade() -> None:
                                             "type": "reasoning",
                                             "encrypted_content": encrypted_reasoning,
                                             "summary": summary,
-                                            "status": "completed",
                                         }
                                     ),
                                     "is_complete": curr_is_complete,
@@ -293,7 +292,6 @@ def upgrade() -> None:
                                             "type": "reasoning",
                                             "encrypted_content": encrypted_reasoning,
                                             "summary": summary,
-                                            "status": "completed",
                                         }
                                     ),
                                     "is_complete": curr_is_complete,
@@ -508,7 +506,7 @@ def downgrade():
                 # Group parts by turn (turn boundary = after all FUNCTION_CALL_OUTPUT)
                 turns = []
                 current_turn = {
-                    "reasoning": [],
+                    "reasoning": "",
                     "content": "",
                     "tool_calls": [],
                     "tool_outputs": [],
@@ -546,7 +544,7 @@ def downgrade():
                         ):
                             turns.append(current_turn)
                             current_turn = {
-                                "reasoning": [],
+                                "reasoning": "",
                                 "content": "",
                                 "tool_calls": [],
                                 "tool_outputs": [],
@@ -562,7 +560,9 @@ def downgrade():
                         summary = output_json.get("summary", [])
                         # Convert list to JSON string for downgrade (preserves structure)
                         reasoning_list = [s.get("text", "") for s in summary]
-                        current_turn["reasoning"] = json.dumps(reasoning_list)
+                        current_turn["reasoning"] = (
+                            json.dumps(reasoning_list) if reasoning_list else ""
+                        )
                         current_turn["encrypted_reasoning"] = output_json.get(
                             "encrypted_content", ""
                         )
@@ -577,7 +577,7 @@ def downgrade():
                             if next_type in ("REASONING", "MESSAGE"):
                                 turns.append(current_turn)
                                 current_turn = {
-                                    "reasoning": [],
+                                    "reasoning": "",
                                     "content": "",
                                     "tool_calls": [],
                                     "tool_outputs": [],
@@ -588,7 +588,7 @@ def downgrade():
                         if current_turn["tool_outputs"]:
                             turns.append(current_turn)
                             current_turn = {
-                                "reasoning": [],
+                                "reasoning": "",
                                 "content": "",
                                 "tool_calls": [],
                                 "tool_outputs": [],
@@ -604,7 +604,7 @@ def downgrade():
                             if next_type in ("REASONING", "MESSAGE"):
                                 turns.append(current_turn)
                                 current_turn = {
-                                    "reasoning": [],
+                                    "reasoning": "",
                                     "content": "",
                                     "tool_calls": [],
                                     "tool_outputs": [],
@@ -641,11 +641,10 @@ def downgrade():
                             "content": json.dumps(
                                 {
                                     "content": "",
-                                    "reasoning": [],
+                                    "reasoning": "",
                                     "sender": "Agent",
                                     "role": "assistant",
                                     "function_call": None,
-                                    "tool_calls": [],
                                 }
                             ),
                             "is_complete": is_complete_val,
@@ -825,7 +824,6 @@ def downgrade():
                                 "sender": "Agent",
                                 "role": "assistant",
                                 "function_call": None,
-                                "tool_calls": [],
                             }
                             if "encrypted_reasoning" in turn_data:
                                 content["encrypted_reasoning"] = turn_data[
@@ -853,7 +851,6 @@ def downgrade():
                                 "sender": "Agent",
                                 "role": "assistant",
                                 "function_call": None,
-                                "tool_calls": [],
                             }
                             if "encrypted_reasoning" in turn_data:
                                 content["encrypted_reasoning"] = turn_data[
