@@ -298,7 +298,7 @@ def format_messages_vercel(
         msg_vercel = MessagesReadVercel(
             id=msg.message_id,
             role="user" if msg.entity == Entity.USER else "assistant",
-            createdAt=msg.creation_date.isoformat(),
+            createdAt=msg.creation_date,
             isComplete=is_complete,
             parts=parts_data,
             metadata=ToolMetadataDict(toolCalls=list(metadata.values()))

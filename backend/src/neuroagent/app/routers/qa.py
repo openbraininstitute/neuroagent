@@ -19,8 +19,9 @@ from obp_accounting_sdk import AsyncAccountingSessionFactory
 from obp_accounting_sdk.constants import ServiceSubtype
 from openai import AsyncOpenAI
 from redis import asyncio as aioredis
-from sqlalchemy import or_, select
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
 
 from neuroagent.agent_routine import AgentsRoutine
 from neuroagent.app.app_utils import (
@@ -29,7 +30,7 @@ from neuroagent.app.app_utils import (
     validate_project,
 )
 from neuroagent.app.config import Settings
-from neuroagent.app.database.sql_schemas import Entity, Messages, Threads
+from neuroagent.app.database.sql_schemas import Messages, Threads
 from neuroagent.app.dependencies import (
     get_accounting_session_factory,
     get_agents_routine,
@@ -132,16 +133,11 @@ async def question_suggestions(
         # Get the AI and User messages from the conversation :
         messages_result = await session.execute(
             select(Messages)
-            .where(
-                Messages.thread_id == thread.thread_id,
-                or_(
-                    Messages.entity == Entity.USER,
-                    Messages.entity == Entity.AI_MESSAGE,
-                ),
-            )
+            .options(selectinload(Messages.parts))
+            .where(Messages.thread_id == thread.thread_id)
             .order_by(Messages.creation_date)
         )
-        db_messages = messages_result.unique().scalars().all()
+        db_messages = messages_result.scalars().all()
 
         is_in_chat = bool(db_messages)
         if not is_in_chat and not body.click_history:
@@ -151,7 +147,14 @@ async def question_suggestions(
             )
 
     if is_in_chat:
-        content = f"CONVERSATION MESSAGES: \n{json.dumps([{k: v for k, v in json.loads(msg.content).items() if k in ['role', 'content']} for msg in db_messages])}"
+        messages_str = "\n".join(
+            [
+                json.dumps(msg.parts[-1].output.get("content", {})[0].get("text"))
+                for msg in db_messages
+                if msg.parts
+            ]
+        )
+        content = f"CONVERSATION MESSAGES: \n{messages_str}"
     else:
         content = f"USER JOURNEY: \n{body.model_dump(exclude={'thread_id'}, mode='json')['click_history']}"
 
@@ -285,8 +288,9 @@ async def stream_chat_agent(
 
     # No need to await since it has been awaited in tool filtering dependency
     messages: list[Messages] = thread.messages
-
+    # Add background task to commit messages after streaming / stop
     background_tasks.add_task(commit_messages, session, messages, thread)
+
     async with accounting_context(
         subtype=ServiceSubtype.ML_LLM,
         user_id=thread.user_id,

@@ -7,6 +7,7 @@ from datetime import datetime, timezone
 from functools import cache
 from pathlib import Path
 from typing import Annotated, Any, AsyncIterator
+from uuid import UUID
 
 import boto3
 from fastapi import Depends, HTTPException, Request
@@ -273,7 +274,7 @@ async def get_user_info(
 
 async def get_thread(
     user_info: Annotated[UserInfo, Depends(get_user_info)],
-    thread_id: str,
+    thread_id: UUID,
     session: Annotated[AsyncSession, Depends(get_session)],
 ) -> Threads:
     """Check if the current thread / user matches."""

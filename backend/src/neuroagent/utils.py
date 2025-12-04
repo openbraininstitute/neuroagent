@@ -6,11 +6,9 @@ import re
 import uuid
 from typing import Any, Literal
 
-from fastapi import HTTPException
 from openai.types.responses import ResponseUsage
 
 from neuroagent.app.database.sql_schemas import (
-    Entity,
     Messages,
     Parts,
     PartType,
@@ -20,29 +18,6 @@ from neuroagent.app.database.sql_schemas import (
 )
 
 logger = logging.getLogger(__name__)
-
-
-def merge_fields(target: dict[str, Any], source: dict[str, Any]) -> None:
-    """Recursively merge each field in the target dictionary."""
-    for key, value in source.items():
-        if isinstance(value, str):
-            target[key] += value
-        elif value is not None and isinstance(value, dict):
-            merge_fields(target[key], value)
-
-
-def merge_chunk(final_response: dict[str, Any], delta: dict[str, Any]) -> None:
-    """Merge a chunk into the final message."""
-    delta.pop("role", None)
-    merge_fields(final_response, delta)
-
-    tool_calls = delta.get("tool_calls")
-    if tool_calls and len(tool_calls) > 0:
-        for tool_call in tool_calls:
-            index = tool_call.pop("index")
-            if final_response["tool_calls"][index]["type"]:
-                tool_call["type"] = None
-            merge_fields(final_response["tool_calls"][index], tool_call)
 
 
 async def messages_to_openai_content(
@@ -57,20 +32,6 @@ async def messages_to_openai_content(
                 openai_messages.append(part.output)
 
     return openai_messages
-
-
-def get_entity(message: dict[str, Any]) -> Entity:
-    """Define the Enum entity of the message based on its content."""
-    if message["role"] == "user":
-        return Entity.USER
-    elif message["role"] == "tool":
-        return Entity.TOOL
-    elif message["role"] == "assistant" and message.get("tool_calls", False):
-        return Entity.AI_TOOL
-    elif message["role"] == "assistant" and not message.get("tool_calls", False):
-        return Entity.AI_MESSAGE
-    else:
-        raise HTTPException(status_code=500, detail="Unknown message entity.")
 
 
 def complete_partial_json(partial: str) -> str:

@@ -230,7 +230,7 @@ class QuestionsSuggestionsRequest(BaseModel):
     """Request for the suggestion endpoint."""
 
     click_history: list[UserJourney] | None = None
-    thread_id: str | None = None
+    thread_id: UUID | None = None
 
 
 class Architecture(BaseModel):

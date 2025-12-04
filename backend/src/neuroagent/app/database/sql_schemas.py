@@ -15,7 +15,7 @@ from sqlalchemy import (
     Integer,
     String,
 )
-from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.dialects.postgresql import JSONB, TSVECTOR
 from sqlalchemy.ext.asyncio import AsyncAttrs
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
@@ -112,6 +112,7 @@ class Messages(Base):
         DateTime(timezone=True), default=utc_now
     )
     entity: Mapped[Entity] = mapped_column(Enum(Entity), nullable=False)
+    search_vector: Mapped[str | None] = mapped_column(TSVECTOR, nullable=True)
 
     thread_id: Mapped[uuid.UUID] = mapped_column(
         UUID, ForeignKey("threads.thread_id"), nullable=False

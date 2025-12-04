@@ -1,6 +1,5 @@
 """Threads CRUDs."""
 
-import json
 import logging
 from typing import Annotated, Any, Literal
 from uuid import UUID
@@ -98,19 +97,13 @@ async def search(
     search_query = func.plainto_tsquery("english", query)
 
     sql_query = (
-        select(
-            Messages.thread_id,
-            Messages.message_id,
-            Threads.title,
-            Messages.content,
-        )
-        .select_from(Messages)
+        select(Messages)
+        .options(selectinload(Messages.parts))
         .join(Threads, Messages.thread_id == Threads.thread_id)
         .where(
             Threads.user_id == user_info.sub,
             Threads.vlab_id == virtual_lab_id,
             Threads.project_id == project_id,
-            Messages.entity.in_(["USER", "AI_MESSAGE"]),
             Messages.search_vector.op("@@")(search_query),
         )
         .distinct(Messages.thread_id)
@@ -123,16 +116,16 @@ async def search(
     )
 
     result = await session.execute(sql_query)
-    results = result.fetchall()
+    messages = result.scalars().all()
     return SearchMessagesList(
         result_list=[
             SearchMessagesResult(
-                thread_id=result[0],
-                message_id=result[1],
-                title=result[2],
-                content=json.loads(result[3])["content"],
+                thread_id=msg.thread_id,
+                message_id=msg.message_id,
+                title=msg.thread.title,
+                content=msg.parts[-1].output.get("content", {})[0].get("text"),
             )
-            for result in results
+            for msg in messages
         ]
     )
 
