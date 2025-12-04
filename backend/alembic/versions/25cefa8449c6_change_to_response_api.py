@@ -130,12 +130,18 @@ def upgrade() -> None:
                         curr_content_json = {"content": curr_content}
 
                     if curr_entity == "AI_TOOL":
-                        # Add reasoning if present (only if it's a list)
+                        # Add reasoning if present
                         reasoning = curr_content_json.get("reasoning", [])
                         encrypted_reasoning = curr_content_json.get(
                             "encrypted_reasoning", ""
                         )
-                        if isinstance(reasoning, list) and reasoning:
+                        # Convert string to list if needed (handle JSON-encoded strings)
+                        if isinstance(reasoning, str):
+                            try:
+                                reasoning = json.loads(reasoning)
+                            except:
+                                reasoning = [reasoning] if reasoning else []
+                        if reasoning:
                             summary = [
                                 {"type": "summary_text", "text": step}
                                 for step in reasoning
@@ -258,12 +264,18 @@ def upgrade() -> None:
                         i += 1
 
                     elif curr_entity == "AI_MESSAGE":
-                        # Add reasoning if present (only if it's a list)
+                        # Add reasoning if present
                         reasoning = curr_content_json.get("reasoning", [])
                         encrypted_reasoning = curr_content_json.get(
                             "encrypted_reasoning", ""
                         )
-                        if isinstance(reasoning, list) and reasoning:
+                        # Convert string to list if needed (handle JSON-encoded strings)
+                        if isinstance(reasoning, str):
+                            try:
+                                reasoning = json.loads(reasoning)
+                            except:
+                                reasoning = [reasoning] if reasoning else []
+                        if reasoning:
                             summary = [
                                 {"type": "summary_text", "text": step}
                                 for step in reasoning
@@ -548,7 +560,9 @@ def downgrade():
 
                     if part_type == "REASONING":
                         summary = output_json.get("summary", [])
-                        current_turn["reasoning"] = [s.get("text", "") for s in summary]
+                        # Convert list to JSON string for downgrade (preserves structure)
+                        reasoning_list = [s.get("text", "") for s in summary]
+                        current_turn["reasoning"] = json.dumps(reasoning_list)
                         current_turn["encrypted_reasoning"] = output_json.get(
                             "encrypted_content", ""
                         )
