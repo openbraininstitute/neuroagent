@@ -26,5 +26,5 @@ RUN uv sync --extra app
 # The .venv will be in /code/.venv
 WORKDIR /code
 
-EXPOSE 8078
-ENTRYPOINT ["bash", "-c", "uv run alembic upgrade head && uv run neuroagent-api --host 0.0.0.0 --port 8078"]
+EXPOSE 8000
+ENTRYPOINT ["bash", "-c", "uv run alembic upgrade head && uv run neuroagent-api --host 0.0.0.0 --port 8000"]
