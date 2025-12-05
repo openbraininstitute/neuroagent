@@ -44,6 +44,7 @@ from neuroagent.utils import (
     append_part,
     complete_partial_json,
     get_main_LLM_token_consumption,
+    get_previous_hil_metadata,
     get_tool_token_consumption,
     messages_to_openai_content,
 )
@@ -261,6 +262,9 @@ class AgentsRoutine:
             else:
                 new_message = messages[-1]
                 await new_message.awaitable_attrs.token_consumption
+                # Initialize metadata for previous HIL tool calls
+                tool_map = {tool.name: tool for tool in active_agent.tools}
+                metadata_data = get_previous_hil_metadata(new_message, tool_map)
 
             # MAIN AGENT LOOP
             while turns <= max_turns:
@@ -510,9 +514,8 @@ class AgentsRoutine:
 
                 yield f"data: {json.dumps({'type': 'finish-step'})}\n\n"
 
-                # If the tool call response contains HIL validation, do not update anything and return
+                # If response contains HIL validation, do not update anything and return
                 if tool_calls_with_hil:
-                    metadata_data = []
                     for msg in tool_calls_with_hil:
                         metadata_data.append(
                             {

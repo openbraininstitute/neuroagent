@@ -12,14 +12,12 @@ export function useExecuteTool() {
       threadId: string;
       toolCallId: string;
       validation: "accepted" | "rejected";
-      args?: string;
       feedback?: string;
     }
   >({
-    mutationFn: ({ threadId, toolCallId, validation, args, feedback }) => {
+    mutationFn: ({ threadId, toolCallId, validation, feedback }) => {
       const body: BExecuteToolCallRequest = {
         validation,
-        args,
         feedback,
       };
       return fetcher({

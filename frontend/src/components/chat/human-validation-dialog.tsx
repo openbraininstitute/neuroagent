@@ -1,7 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
-import { useTheme } from "next-themes";
+import { useState, useRef } from "react";
 import {
   Dialog,
   DialogContent,
@@ -10,17 +9,11 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
-import {
-  JsonData,
-  JsonEditor,
-  monoDarkTheme,
-  monoLightTheme,
-} from "json-edit-react";
+import { JsonData } from "json-edit-react";
 
 import { Button } from "@/components/ui/button";
 import type { MessageStrict } from "@/lib/types";
 import { HilRefusalFeedbackDialog } from "@/components/chat/hil-refusal-feedback-dialog";
-import { getToolInvocations } from "@/lib/utils";
 
 type HumanValidationDialogProps = {
   threadId: string;
@@ -35,7 +28,6 @@ type HumanValidationDialogProps = {
     threadId: string;
     toolCallId: string;
     validation: "accepted" | "rejected";
-    args?: string;
     feedback?: string;
   }) => void;
 };
@@ -51,41 +43,22 @@ export function HumanValidationDialog({
   setMessage,
   mutate,
 }: HumanValidationDialogProps) {
-  const { theme } = useTheme();
-  const isLightTheme = theme === "light";
-
-  const [editedArgs, setEditedArgs] = useState<JsonData>(args);
-  const [isEdited, setIsEdited] = useState(false);
   const [isAccepted, setIsAccepted] = useState<"accepted" | "rejected">(
     "rejected",
   );
-  const [error, setError] = useState("");
   const [showReviewDialog, setShowReviewDialog] = useState(true);
   const [showFeedbackDialog, setShowFeedbackDialog] = useState(false);
   const [dialogTransition, setDialogTransition] = useState(false);
   const [feedback, setFeedback] = useState<string>("");
   const formRef = useRef<HTMLFormElement>(null);
 
-  useEffect(() => {
-    setEditedArgs(args);
-  }, [args]);
-
-  const handleArgsChange = (value: JsonData) => {
-    setEditedArgs(value);
-    setIsEdited(JSON.stringify(value) !== JSON.stringify(args));
-  };
-
   const handleOpenChange = (open: boolean) => {
     if (!open) {
-      // Reset the state when the dialog is closed
       setTimeout(() => {
-        setEditedArgs(args);
-        setIsEdited(false);
         setShowReviewDialog(true);
         setShowFeedbackDialog(false);
         setFeedback("");
         setDialogTransition(false);
-        setError("");
       }, 300);
     }
     setIsOpen(open);
@@ -102,51 +75,44 @@ export function HumanValidationDialog({
 
   const handleAction = (formData: FormData) => {
     const validation = formData.get("validation") as "accepted" | "rejected";
-    setError("");
-    // Process the decision first
-    try {
-      setMessage((msg: MessageStrict) => {
-        const updatedParts = (getToolInvocations(msg) || []).map((t) =>
-          t.toolCallId === toolId
-            ? {
-                ...t,
-                input: isEdited ? editedArgs : args,
-                state: "input-available" as const,
-                output: undefined,
-                errorText: undefined,
-              }
-            : t,
-        );
 
-        const updatedMetadata = {
+    setMessage((msg: MessageStrict) => {
+      const updatedParts = msg.parts.map((part) => {
+        if (
+          part.type.startsWith("tool-") &&
+          "toolCallId" in part &&
+          part.toolCallId === toolId
+        ) {
+          return {
+            ...part,
+            input: args,
+            state: "input-available" as const,
+            output: undefined,
+            errorText: undefined,
+          } as typeof part;
+        }
+        return part;
+      });
+
+      return {
+        ...msg,
+        parts: updatedParts as typeof msg.parts,
+        metadata: {
+          ...msg.metadata,
           toolCalls: [
             ...(msg.metadata?.toolCalls || []).filter(
               (a) => a.toolCallId !== toolId,
             ),
             { toolCallId: toolId, validated: validation, isComplete: true },
           ],
-        };
+        },
+      } as MessageStrict;
+    });
 
-        return {
-          ...msg,
-          metadata: updatedMetadata,
-          parts: updatedParts,
-        };
-      });
-    } catch {
-      // Timeout is here to have the flickering effect when clicking
-      // "Accept" multiple times on a malformed JSON.
-      setTimeout(() => {
-        setError("Invalid JSON. Please check your input and try again.");
-      }, 50);
-      return;
-    }
-    // Execute using the passed mutate function
     mutate({
       threadId,
       toolCallId: toolId,
       validation,
-      args: isEdited ? JSON.stringify(editedArgs) : JSON.stringify(args),
       feedback: feedback === "" ? undefined : feedback,
     });
 
@@ -157,15 +123,7 @@ export function HumanValidationDialog({
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       <DialogContent className="min-w-[50%]">
         <form action={handleAction} ref={formRef}>
-          <input type="hidden" name="threadId" value={threadId} />
-          <input type="hidden" name="toolCallId" value={toolId} />
           <input type="hidden" name="validation" value={isAccepted} />
-          <input
-            type="hidden"
-            name="args"
-            value={isEdited ? JSON.stringify(editedArgs) : JSON.stringify(args)}
-          />
-          <input type="hidden" name="feedback" value={feedback} />
 
           <div className="space-y-4">
             {showReviewDialog && (
@@ -186,52 +144,9 @@ export function HumanValidationDialog({
                   </div>
                   <div className="mt-4">
                     <h3 className="text-sm font-medium">Arguments:</h3>
-                    <JsonEditor
-                      data={editedArgs}
-                      setData={(data: JsonData) => handleArgsChange(data)}
-                      className="max-h-[75vh] overflow-y-auto"
-                      theme={[
-                        isLightTheme ? monoLightTheme : monoDarkTheme,
-                        {
-                          styles: {
-                            container: {
-                              backgroundColor: isLightTheme
-                                ? "#f1f1f1"
-                                : "#151515",
-                              fontFamily: "Geist Mono",
-                            },
-                            input: isLightTheme ? "#575757" : "#a8a8a8",
-                            inputHighlight: isLightTheme
-                              ? "#b3d8ff"
-                              : "#1c3a59",
-                            string: isLightTheme
-                              ? "rgb(8, 129, 215)"
-                              : "rgb(38, 139, 210)",
-                            number: isLightTheme
-                              ? "rgb(8, 129, 215)"
-                              : "rgb(38, 139, 210)",
-                            boolean: isLightTheme
-                              ? "rgb(8, 129, 215)"
-                              : "rgb(38, 139, 210)",
-                          },
-                        },
-                      ]}
-                      maxWidth={1000}
-                      restrictTypeSelection={true}
-                      rootName={"JSON"}
-                      showStringQuotes={true}
-                      showArrayIndices={false}
-                      showCollectionCount={false}
-                      restrictDelete={true}
-                    />
-                    {error && (
-                      <p
-                        className="mt-1 text-sm text-red-500"
-                        aria-live="polite"
-                      >
-                        {error}
-                      </p>
-                    )}
+                    <pre className="mt-2 max-h-[75vh] overflow-y-auto rounded-md bg-muted p-4 text-sm">
+                      {JSON.stringify(args, null, 2)}
+                    </pre>
                   </div>
                 </div>
                 <DialogFooter className="mt-4">

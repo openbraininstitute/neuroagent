@@ -120,28 +120,23 @@ export function getValidationStatus(
 export function lastAssistantHasAllToolOutputs(useChatReturn: {
   messages: UIMessage[];
 }) {
-  const msgs = useChatReturn.messages;
-  if (!Array.isArray(msgs)) {
-    return false;
-  }
-  const last = msgs.at(-1);
+  const last = useChatReturn.messages.at(-1);
   if (!last || last.role !== "assistant") return false;
 
-  // First we check if there is some text at the end, to prevent infinite loops.
-  if (getLastMessageText(msgs)) {
-    return false;
-  }
-
-  // assumes tool parts are flagged with part.type including 'tool' or similar
   const parts = last.parts ?? [];
-  const toolParts = parts.filter(
-    (p): p is ToolUIPart => !!p.type && p.type.startsWith("tool-"),
-  );
+  const lastToolIndex = parts.findLastIndex((p) => p.type.startsWith("tool-"));
 
-  if (toolParts.length === 0) return false;
+  if (lastToolIndex === -1) return false;
 
-  // here we detect output by either a 'state' or presence of an 'output' field
-  return toolParts.every(
-    (p: ToolUIPart) => p.state === "output-available" || !!p.output,
-  );
+  // Don't auto-send if there's text after the last tool
+  const hasTextAfterTools = parts
+    .slice(lastToolIndex + 1)
+    .some((p) => p.type === "text" && "text" in p && p.text);
+
+  if (hasTextAfterTools) return false;
+
+  // All tools must have outputs
+  return parts
+    .filter((p): p is ToolUIPart => p.type.startsWith("tool-"))
+    .every((p) => p.state === "output-available" || !!p.output);
 }

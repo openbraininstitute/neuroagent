@@ -328,3 +328,22 @@ def get_tool_token_consumption(
             if count
         ]
     return []
+
+
+def get_previous_hil_metadata(
+    message: Messages, tool_map: dict[str, Any]
+) -> list[dict[str, Any]]:
+    """Initialize metadata for previous HIL tool calls."""
+    metadata_data = []
+    for part in message.parts:
+        if part.type == PartType.FUNCTION_CALL:
+            tool_name = part.output.get("name")
+            if tool_name and tool_map.get(tool_name) and tool_map[tool_name].hil:
+                metadata_data.append(
+                    {
+                        "toolCallId": part.output.get("id"),
+                        "validated": "accepted" if part.validated else "rejected",
+                        "isComplete": part.is_complete,
+                    }
+                )
+    return metadata_data
