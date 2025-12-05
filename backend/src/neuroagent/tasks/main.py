@@ -23,6 +23,9 @@ celery = Celery(__name__)
 celery.conf.broker_url = redis_url
 celery.conf.result_backend = redis_url
 
+# Update Celery configuration from settings
+celery.conf.update(settings.celery.model_dump(exclude_none=True))
+
 # Autodiscover tasks (worker side - just needs to know about tasks)
 celery.autodiscover_tasks(["neuroagent.tasks"])
 

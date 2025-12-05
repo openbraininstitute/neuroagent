@@ -12,6 +12,7 @@ from openai import AsyncOpenAI, AsyncStream
 from openai.types.chat.chat_completion_chunk import ChatCompletionChunk
 from pydantic import BaseModel, ValidationError
 
+from neuroagent.app.app_utils import get_entity, messages_to_openai_content
 from neuroagent.app.database.sql_schemas import (
     Entity,
     Messages,
@@ -26,7 +27,6 @@ from neuroagent.new_types import (
     Result,
 )
 from neuroagent.tools.base_tool import BaseTool
-from neuroagent.app.app_utils import get_entity, messages_to_openai_content
 from neuroagent.utils import (
     complete_partial_json,
     get_token_count,
