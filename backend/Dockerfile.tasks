@@ -33,12 +33,18 @@ ENV CMAKE=/usr/local/bin/cmake
 ENV CMAKE_POLICY_VERSION_MINIMUM=3.5
 RUN which cmake && cmake --version
 
-# Install deno
-RUN npm install -g deno@">=2.5.0"
+# Install deno using the official installer script
+# The installer will detect the container's architecture automatically
+RUN curl -fsSL https://deno.land/install.sh | sh && \
+    chmod +x /root/.deno/bin/deno && \
+    /root/.deno/bin/deno --version
+ENV PATH="/root/.deno/bin:$PATH"
 
 # Install uv using the official installer script
-ADD https://astral.sh/uv/install.sh /uv-installer.sh
-RUN sh /uv-installer.sh && rm /uv-installer.sh
+# The installer will detect the container's architecture automatically
+RUN curl -LsSf https://astral.sh/uv/install.sh | sh && \
+    chmod +x /root/.local/bin/uv && \
+    /root/.local/bin/uv --version
 ENV PATH="/root/.local/bin/:$PATH"
 
 COPY ./ /code
@@ -49,10 +55,11 @@ RUN uv sync --extra tasks
 
 # Download manual wheels
 RUN mkdir -p cached_wheels && \
-    uv pip download --only-binary=:all: --no-deps -d ./cached_wheels plotly
+    wget https://files.pythonhosted.org/packages/e7/c3/3031c931098de393393e1f93a38dc9ed6805d86bb801acc3cf2d5bd1e6b7/plotly-6.5.0-py3-none-any.whl -O ./cached_wheels/plotly-6.5.0-py3-none-any.whl
 
 WORKDIR /code
 
 # Celery worker entrypoint
 # Celery app is configured in neuroagent.tasks.main
-ENTRYPOINT ["uv", "run", "celery", "-A", "neuroagent.tasks.main", "worker", "--loglevel=info"]
+# Consume from both python_q and circuit_q queues
+ENTRYPOINT ["uv", "run", "celery", "-A", "neuroagent.tasks.main", "worker", "--loglevel=info", "-Q", "python_q,circuit_q"]

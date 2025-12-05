@@ -26,12 +26,11 @@ from neuroagent.new_types import (
     Result,
 )
 from neuroagent.tools.base_tool import BaseTool
+from neuroagent.app.app_utils import get_entity, messages_to_openai_content
 from neuroagent.utils import (
     complete_partial_json,
-    get_entity,
     get_token_count,
     merge_chunk,
-    messages_to_openai_content,
 )
 
 logger = logging.getLogger(__name__)

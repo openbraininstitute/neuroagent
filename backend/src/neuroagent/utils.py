@@ -8,14 +8,8 @@ import uuid
 from typing import Any, Literal
 
 from celery.result import AsyncResult
-from fastapi import HTTPException
 from openai.types.completion_usage import CompletionUsage
 from redis import asyncio as aioredis
-
-from neuroagent.app.database.sql_schemas import (
-    Entity,
-    Messages,
-)
 
 logger = logging.getLogger(__name__)
 
@@ -41,32 +35,6 @@ def merge_chunk(final_response: dict[str, Any], delta: dict[str, Any]) -> None:
             if final_response["tool_calls"][index]["type"]:
                 tool_call["type"] = None
             merge_fields(final_response["tool_calls"][index], tool_call)
-
-
-async def messages_to_openai_content(
-    db_messages: list[Messages] | None = None,
-) -> list[dict[str, Any]]:
-    """Exctract content from Messages as dictionary to pass them to OpenAI."""
-    messages = []
-    if db_messages:
-        for msg in db_messages:
-            messages.append(json.loads(msg.content))
-
-    return messages
-
-
-def get_entity(message: dict[str, Any]) -> Entity:
-    """Define the Enum entity of the message based on its content."""
-    if message["role"] == "user":
-        return Entity.USER
-    elif message["role"] == "tool":
-        return Entity.TOOL
-    elif message["role"] == "assistant" and message.get("tool_calls", False):
-        return Entity.AI_TOOL
-    elif message["role"] == "assistant" and not message.get("tool_calls", False):
-        return Entity.AI_MESSAGE
-    else:
-        raise HTTPException(status_code=500, detail="Unknown message entity.")
 
 
 def complete_partial_json(partial: str) -> str:

@@ -8,8 +8,10 @@ RUN apt-get -y update && \
     rm -rf /var/lib/apt/lists/*
 
 # Install uv using the official installer script
-ADD https://astral.sh/uv/install.sh /uv-installer.sh
-RUN sh /uv-installer.sh && rm /uv-installer.sh
+# The installer will detect the container's architecture automatically
+RUN curl -LsSf https://astral.sh/uv/install.sh | sh && \
+    chmod +x /root/.local/bin/uv && \
+    /root/.local/bin/uv --version
 ENV PATH="/root/.local/bin/:$PATH"
 
 COPY ./ /code

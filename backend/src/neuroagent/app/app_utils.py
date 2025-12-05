@@ -40,9 +40,35 @@ from neuroagent.app.schemas import (
     ToolCallVercel,
 )
 from neuroagent.tools.base_tool import BaseTool
-from neuroagent.utils import get_token_count, messages_to_openai_content
+from neuroagent.utils import get_token_count
 
 logger = logging.getLogger(__name__)
+
+
+async def messages_to_openai_content(
+    db_messages: list[Messages] | None = None,
+) -> list[dict[str, Any]]:
+    """Exctract content from Messages as dictionary to pass them to OpenAI."""
+    messages = []
+    if db_messages:
+        for msg in db_messages:
+            messages.append(json.loads(msg.content))
+
+    return messages
+
+
+def get_entity(message: dict[str, Any]) -> Entity:
+    """Define the Enum entity of the message based on its content."""
+    if message["role"] == "user":
+        return Entity.USER
+    elif message["role"] == "tool":
+        return Entity.TOOL
+    elif message["role"] == "assistant" and message.get("tool_calls", False):
+        return Entity.AI_TOOL
+    elif message["role"] == "assistant" and not message.get("tool_calls", False):
+        return Entity.AI_MESSAGE
+    else:
+        raise HTTPException(status_code=500, detail="Unknown message entity.")
 
 
 class RateLimitHeaders(BaseModel):
