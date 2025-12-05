@@ -46,13 +46,9 @@ class RunPythonTaskOutput(BaseModel):
 class CircuitPopulationAnalysisTaskInput(BaseModel):
     """Input schema for circuit_population_analysis task."""
 
-    circuit_id: str
+    presigned_url: str
     population_name: str
     question: str
-    vlab_id: str | None
-    project_id: str | None
-    bearer_token: str
-    entitycore_url: str
 
 
 class CircuitPopulationAnalysisTaskOutput(BaseModel):

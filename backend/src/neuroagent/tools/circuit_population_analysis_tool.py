@@ -5,6 +5,7 @@ from typing import ClassVar
 from uuid import UUID
 
 from celery import Celery
+from httpx import AsyncClient
 from pydantic import BaseModel, Field
 from redis import asyncio as aioredis
 
@@ -34,6 +35,7 @@ class CircuitPopulationAnalysisInput(BaseModel):
 class CircuitPopulationAnalysisMetadata(EntitycoreMetadata):
     """Metadata of the CircuitPopulationAnalysis tool."""
 
+    httpx_client: AsyncClient
     celery_client: Celery
     redis_client: aioredis.Redis
     token_consumption: dict[str, str | int | None] | None = None
@@ -93,22 +95,16 @@ Ask questions like "What is the most common morphological type?", "How many exci
 
     async def arun(self) -> CircuitPopulationAnalysisOutput:
         """Run the circuit population analysis tool via Celery task."""
-        # Extract bearer token from httpx_client headers - hacky but whatever
-        bearer_token = self.metadata.httpx_client.headers["authorization"].split(
-            "Bearer "
-        )[1]
-
-        # Create task input with all required metadata
-        task_input = CircuitPopulationAnalysisTaskInput(
+        # Generate presigned URL for circuit.gz asset
+        presigned_url = await self._get_presigned_url(
             circuit_id=str(self.input_schema.circuit_id),
+        )
+
+        # Create task input with presigned URL
+        task_input = CircuitPopulationAnalysisTaskInput(
+            presigned_url=presigned_url,
             population_name=self.input_schema.population_name,
             question=self.input_schema.question,
-            vlab_id=str(self.metadata.vlab_id) if self.metadata.vlab_id else None,
-            project_id=str(self.metadata.project_id)
-            if self.metadata.project_id
-            else None,
-            bearer_token=bearer_token,
-            entitycore_url=self.metadata.entitycore_url,
         )
 
         # Submit task to Celery
@@ -139,6 +135,53 @@ Ask questions like "What is the most common morphological type?", "How many exci
             result_data=task_output.result_data,
             query_executed=task_output.query_executed,
         )
+
+    async def _get_presigned_url(
+        self,
+        circuit_id: str,
+    ) -> str:
+        """Get presigned URL for circuit.gz asset from entitycore."""
+        # Build headers with vlab_id and project_id if they exist
+        headers: dict[str, str] = {}
+        if self.metadata.vlab_id is not None:
+            headers["virtual-lab-id"] = str(self.metadata.vlab_id)
+        if self.metadata.project_id is not None:
+            headers["project-id"] = str(self.metadata.project_id)
+
+        # Find the `circuit.gz` sonata asset
+        response = await self.metadata.httpx_client.get(
+            url=self.metadata.entitycore_url.rstrip("/") + f"/circuit/{circuit_id}",
+            headers=headers,
+        )
+        if response.status_code != 200:
+            raise ValueError(
+                f"The circuit get one endpoint returned a non 200 response code. Error: {response.text}"
+            )
+
+        # Retrieve relevant asset's id
+        assets = response.json()["assets"]
+        circuit_gz_asset = next(
+            (asset for asset in assets if asset["path"] == "circuit.gz"), None
+        )
+        if not circuit_gz_asset:
+            raise ValueError(
+                f"Circuit {circuit_id} doesn't have a 'circuit.gz' file to download."
+            )
+        sonata_asset_id = circuit_gz_asset["id"]
+
+        # Get pre-signed url
+        response = await self.metadata.httpx_client.get(
+            url=f"{self.metadata.entitycore_url.rstrip('/')}/circuit/{circuit_id}/assets/{sonata_asset_id}/download",
+            headers=headers,
+            follow_redirects=False,
+        )
+        if response.status_code != 307:
+            raise ValueError(
+                f"The asset download endpoint returned a non 307 response code. Error: {response.text}"
+            )
+        presigned_url = response.headers["location"]
+
+        return presigned_url
 
     @classmethod
     async def is_online(cls) -> bool:

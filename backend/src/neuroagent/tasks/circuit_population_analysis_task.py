@@ -33,56 +33,11 @@ class SQLStatement(BaseModel):
 
 def _download_and_extract_circuit(
     temp_dir: str,
-    circuit_id: str,
-    entitycore_url: str,
-    bearer_token: str,
-    vlab_id: str | None,
-    project_id: str | None,
+    presigned_url: str,
 ) -> Path:
-    """Download and extract circuit data, return path to config file."""
-    # Find the `circuit.gz` sonata asset
-    headers: dict[str, str] = {
-        "Authorization": f"Bearer {bearer_token}",
-    }
-    if vlab_id is not None:
-        headers["virtual-lab-id"] = vlab_id
-    if project_id is not None:
-        headers["project-id"] = project_id
-
+    """Download and extract circuit data from presigned URL, return path to config file."""
     client = Client(timeout=300.0, verify=False)
     try:
-        response = client.get(
-            url=entitycore_url.rstrip("/") + f"/circuit/{circuit_id}",
-            headers=headers,
-        )
-        if response.status_code != 200:
-            raise ValueError(
-                f"The circuit get one endpoint returned a non 200 response code. Error: {response.text}"
-            )
-
-        # Retrieve relevant asset's id
-        assets = response.json()["assets"]
-        circuit_gz_asset = next(
-            (asset for asset in assets if asset["path"] == "circuit.gz"), None
-        )
-        if not circuit_gz_asset:
-            raise ValueError(
-                f"Circuit {circuit_id} doesn't have a 'circuit.gz' file to download."
-            )
-        sonata_asset_id = circuit_gz_asset["id"]
-
-        # Get pre-signed url
-        response = client.get(
-            url=f"{entitycore_url.rstrip('/')}/circuit/{circuit_id}/assets/{sonata_asset_id}/download",
-            headers=headers,
-            follow_redirects=False,
-        )
-        if response.status_code != 307:
-            raise ValueError(
-                f"The asset download endpoint returned a non 307 response code. Error: {response.text}"
-            )
-        presigned_url = response.headers["location"]
-
         # Download the .gz file
         logger.info("Downloading circuit.")
         Path(temp_dir).mkdir(parents=True, exist_ok=True)
@@ -164,11 +119,7 @@ def run_circuit_population_analysis(
             # Download and load the circuit population data
             circuit_config_path = _download_and_extract_circuit(
                 temp_dir=temp_dir,
-                circuit_id=arg.circuit_id,
-                entitycore_url=arg.entitycore_url,
-                bearer_token=arg.bearer_token,
-                vlab_id=arg.vlab_id,
-                project_id=arg.project_id,
+                presigned_url=arg.presigned_url,
             )
             population_dataframe = _load_circuit_population_data(
                 circuit_config_path, arg.population_name
