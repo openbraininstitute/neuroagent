@@ -6,7 +6,11 @@ import re
 import uuid
 from typing import Any, Literal
 
-from openai.types.responses import ResponseOutputItem, ResponseUsage
+from openai.types.responses import (
+    ResponseFunctionToolCallOutputItem,
+    ResponseOutputItem,
+    ResponseUsage,
+)
 
 from neuroagent.app.database.sql_schemas import (
     Messages,
@@ -244,20 +248,23 @@ def get_token_count(usage: ResponseUsage | None) -> dict[str, int | None]:
 def append_part(
     message: Messages,
     history: list[dict[str, Any]],
-    openai_part: ResponseOutputItem | dict[str, Any],
+    openai_part: ResponseOutputItem | ResponseFunctionToolCallOutputItem,
     type: PartType,
+    is_complete: bool = True,
 ) -> None:
     """Create a reasoning part and append it to the message and history."""
-    if isinstance(openai_part, dict):
-        output = openai_part
-    else:
+    if type == PartType.REASONING:
+        # Openai does not like none for status ... and it outputs none in reasoning ...
         output = openai_part.model_dump(exclude={"status"})
+    else:
+        output = openai_part.model_dump()
+
     part = Parts(
         message_id=message.message_id,
         order_index=len(message.parts),
         type=type,
         output=output,
-        is_complete=True,
+        is_complete=is_complete,
     )
     message.parts.append(part)
     history.append(output)
@@ -298,14 +305,12 @@ def get_main_LLM_token_consumption(
 
 
 def get_tool_token_consumption(
-    tool_response: dict[str, Any],
+    tool_response: ResponseFunctionToolCallOutputItem,
     context_variables: dict[str, Any],
 ) -> list[TokenConsumption]:
     """Get token consumption for a tool response."""
-    if context_variables["usage_dict"].get(tool_response["call_id"]):
-        tool_call_consumption = context_variables["usage_dict"][
-            tool_response["call_id"]
-        ]
+    if context_variables["usage_dict"].get(tool_response.call_id):
+        tool_call_consumption = context_variables["usage_dict"][tool_response.call_id]
         return [
             TokenConsumption(
                 type=token_type,
@@ -321,43 +326,3 @@ def get_tool_token_consumption(
             if count
         ]
     return []
-
-
-def separate_tool_calls(
-    tool_calls: dict[str, dict[str, Any]], tool_map: dict[str, Any]
-) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
-    """Separate tool calls into those to execute and those requiring HIL.
-
-    Parameters
-    ----------
-    tool_calls : dict[str, dict[str, Any]]
-        Dictionary of tool calls with IDs as keys
-    tool_map : dict[str, Any]
-        Mapping of tool names to tool objects
-
-    Returns
-    -------
-    tuple[list[dict[str, Any]], list[dict[str, Any]]]
-        Tuple of (tool_calls_to_execute, tool_calls_with_hil)
-    """
-    tool_calls_to_execute = [
-        {
-            "id": id,
-            "call_id": tc["call_id"],
-            "name": tc["name"],
-            "arguments": tc["arguments"],
-        }
-        for id, tc in tool_calls.items()
-        if not tool_map[tc["name"]].hil
-    ]
-    tool_calls_with_hil = [
-        {
-            "id": id,
-            "call_id": tc["call_id"],
-            "name": tc["name"],
-            "arguments": tc["arguments"],
-        }
-        for id, tc in tool_calls.items()
-        if tool_map[tc["name"]].hil
-    ]
-    return tool_calls_to_execute, tool_calls_with_hil
