@@ -119,7 +119,6 @@ async def lifespan(fastapi_app: FastAPI) -> AsyncContextManager[None]:  # type: 
     # Configure task routing with separate queues for each task
     # This is on the producer side (where tasks are sent)
     celery_app.conf.task_routes = {
-        "dummy_task": {"queue": "dummy_q"},
         "run_python_task": {"queue": "python_q"},
         "circuit_population_analysis_task": {"queue": "circuit_q"},
     }

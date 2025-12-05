@@ -28,18 +28,6 @@ class FailureOutput(BaseModel):
     error: ErrorDetail | str | None = None
 
 
-class DummyTaskInput(BaseModel):
-    """Input schema for dummy task."""
-
-    message: str
-
-
-class DummyTaskOutput(BaseModel):
-    """Output schema for dummy task."""
-
-    result: str
-
-
 class RunPythonTaskInput(BaseModel):
     """Input schema for run_python task."""
 

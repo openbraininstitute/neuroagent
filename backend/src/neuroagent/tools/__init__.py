@@ -150,7 +150,6 @@ from neuroagent.tools.obione_generatesimulationsconfig import (
 from neuroagent.tools.obione_morphometrics_getone import MorphometricsGetOneTool
 from neuroagent.tools.read_paper import ReadPaperTool
 from neuroagent.tools.run_python_tool import RunPythonTool
-from neuroagent.tools.submit_dummy_task import SubmitDummyTaskTool
 from neuroagent.tools.thumbnailgen_electricalcellrecording_getone import (
     PlotElectricalCellRecordingGetOneTool,
 )
@@ -217,7 +216,6 @@ __all__ = [
     "PlotMorphologyGetOneTool",
     "RunPythonTool",
     "ReadPaperTool",
-    "SubmitDummyTaskTool",
     "SimulationCampaignGetAllTool",
     "SimulationCampaignGetOneTool",
     "SimulationExecutionGetAllTool",
