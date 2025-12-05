@@ -1,6 +1,5 @@
 """App dependencies."""
 
-import asyncio
 import logging
 import re
 from datetime import datetime, timezone
@@ -529,15 +528,15 @@ async def filtered_tools(
 
     body = await request.json()
 
-    # Awaiting here makes downstream calls already loaded so no performance issue
     messages: list[Messages] = await thread.awaitable_attrs.messages
-    # Also await parts to have them ready for filtering
-    await asyncio.gather(*[message.awaitable_attrs.parts for message in messages])
+
+    for message in messages:
+        await message.awaitable_attrs.parts
 
     if (
         not messages
         or not messages[-1].parts
-        or messages[-1].parts[-1].type != PartType.FUNCTION_CALL
+        or messages[-1].parts[-1].type != PartType.FUNCTION_CALL_OUTPUT
     ):
         messages.append(
             Messages(
@@ -590,14 +589,14 @@ async def filtered_tools(
         last_user_message = next(
             message for message in reversed(messages) if message.entity == Entity.USER
         )
-        previously_selected_tools = [
-            selected.tool_name
-            for selected in await last_user_message.awaitable_attrs.tool_selection
-        ]
+        tool_selection = await last_user_message.awaitable_attrs.tool_selection
+        model_selection = await last_user_message.awaitable_attrs.model_selection
+
+        previously_selected_tools = [selected.tool_name for selected in tool_selection]
         previous_model_and_reasoning: dict[str, str | None] = {
-            "model": last_user_message.model_selection.model,
-            "reasoning": last_user_message.model_selection.reasoning.value
-            if last_user_message.model_selection.reasoning
+            "model": model_selection.model,
+            "reasoning": model_selection.reasoning.value
+            if model_selection.reasoning
             else None,
         }
         return [

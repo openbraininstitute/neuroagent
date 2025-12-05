@@ -257,7 +257,7 @@ def format_messages_vercel(
                     for s in output.get("summary", [])
                 )
             elif part.type == PartType.FUNCTION_CALL:
-                tc_id = output.get("call_id", "")
+                tc_id = output.get("id", "")
                 tool_name = output.get("name", "")
                 try:
                     input_data = json.loads(output.get("arguments", "{}"))
@@ -291,7 +291,7 @@ def format_messages_vercel(
                     isComplete=True if requires_validation else part.is_complete,
                 )
             elif part.type == PartType.FUNCTION_CALL_OUTPUT:
-                tc_id = output.get("call_id", "")
+                tc_id = output.get("id", "")
                 if tc_id in tool_calls:
                     tool_calls[tc_id].state = "output-available"
                     tool_calls[tc_id].output = output.get("output") or "{}"

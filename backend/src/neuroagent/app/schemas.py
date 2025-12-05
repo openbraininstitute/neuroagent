@@ -138,8 +138,7 @@ class ExecuteToolCallRequest(BaseModel):
     """Request body for executing a tool call."""
 
     validation: Literal["rejected", "accepted"]
-    args: str | None = None
-    feedback: str | None = None  # For refusal
+    feedback: str | None = None
 
 
 class ExecuteToolCallResponse(BaseModel):

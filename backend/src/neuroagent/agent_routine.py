@@ -260,6 +260,7 @@ class AgentsRoutine:
                 yield f"data: {json.dumps({'type': 'start', 'messageId': f'msg_{uuid.uuid4().hex}'})}\n\n"
             else:
                 new_message = messages[-1]
+                await new_message.awaitable_attrs.token_consumption
 
             # MAIN AGENT LOOP
             while turns <= max_turns:
