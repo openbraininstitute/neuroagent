@@ -143,7 +143,6 @@ async def get_httpx_client(
     """Manage the httpx client for the request."""
     client = AsyncClient(
         timeout=300.0,
-        verify=False,  # nosec: B501
         headers={
             "x-request-id": request.headers["x-request-id"],
             "Authorization": f"Bearer {token}",

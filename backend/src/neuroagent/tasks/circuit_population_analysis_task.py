@@ -36,7 +36,7 @@ def _download_and_extract_circuit(
     presigned_url: str,
 ) -> Path:
     """Download and extract circuit data from presigned URL, return path to config file."""
-    client = Client(timeout=300.0, verify=False)
+    client = Client(timeout=300.0)
     try:
         # Download the .gz file
         logger.info("Downloading circuit.")
