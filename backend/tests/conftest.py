@@ -3,7 +3,7 @@
 import json
 import os
 from typing import ClassVar
-from unittest.mock import AsyncMock, mock_open, patch
+from unittest.mock import mock_open, patch
 from uuid import UUID
 
 import pytest
