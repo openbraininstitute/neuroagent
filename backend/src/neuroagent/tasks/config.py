@@ -61,7 +61,7 @@ class SettingsExecutor(BaseModel):
 class SettingsLLM(BaseModel):
     """LLM settings."""
 
-    openai_token: SecretStr
+    openai_token: SecretStr | None = None
 
     model_config = ConfigDict(frozen=True)
 
@@ -72,7 +72,7 @@ class Settings(BaseSettings):
     storage: SettingsStorage = SettingsStorage()  # has no required
     redis: SettingsRedis = SettingsRedis()  # has no required
     executor: SettingsExecutor = SettingsExecutor()  # has no required
-    llm: SettingsLLM  # required
+    llm: SettingsLLM = SettingsLLM()  # has no required
 
     model_config = SettingsConfigDict(
         env_file=".env.tasks",

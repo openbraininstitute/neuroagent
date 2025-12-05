@@ -27,6 +27,7 @@ from neuroagent.app.dependencies import (
 )
 from neuroagent.app.main import app
 from neuroagent.app.schemas import OpenRouterModelResponse
+from neuroagent.tasks.config import Settings as SettingsTasks
 from neuroagent.tools.base_tool import BaseTool
 from tests.mock_client import MockOpenAIClient, create_mock_response
 
@@ -167,9 +168,15 @@ def agent_handoff_tool():
 
 
 @pytest.fixture(autouse=True, scope="session")
-def dont_look_at_env_file():
+def dont_look_at_app_env_file():
     """Never look inside of the .env when running unit tests."""
     Settings.model_config["env_file"] = None
+
+
+@pytest.fixture(autouse=True, scope="session")
+def dont_look_at_tasks_env_file():
+    """Never look inside of the .env when running unit tests."""
+    SettingsTasks.model_config["env_file"] = None
 
 
 @pytest.fixture(autouse=True)

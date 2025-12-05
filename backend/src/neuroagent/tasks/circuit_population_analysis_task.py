@@ -110,6 +110,11 @@ def run_circuit_population_analysis(
     """
     try:
         settings = get_settings()
+        if settings.llm is None or settings.llm.openai_token is None:
+            raise ValueError(
+                "OpenAI token is required for circuit population analysis. "
+                "Please set TASKS__LLM__OPENAI_TOKEN environment variable."
+            )
         openai_token = settings.llm.openai_token.get_secret_value()
 
         # Create sync clients
