@@ -26,9 +26,22 @@ docker exec -it neuroagent-minio-1 mc alias set myminio http://minio:9000 minioa
 
 4. Access the application at `http://localhost:3000`
 
+### Services
+
+The `docker-compose.yml` defines the following services:
+
+- **`app`**: The FastAPI backend application (port 8000)
+- **`tasks`**: Celery worker for executing background tasks (Python code execution, circuit analysis, etc.)
+- **`frontend`**: Next.js frontend application (port 3000)
+- **`postgres`**: PostgreSQL database (port 5432)
+- **`minio`**: MinIO object storage (ports 9000, 9001)
+- **`redis`**: Redis for rate limiting and Celery message broker (port 6379)
+
+The `app` and `tasks` services are built from separate Dockerfiles (`Dockerfile.app` and `Dockerfile.tasks`) and use different dependency groups from `pyproject.toml` to keep their dependencies isolated.
+
 Notes:
 - First run will take longer to build frontend and backend images
-- To rebuild individual services: `docker compose build frontend` or `docker compose build backend`
+- To rebuild individual services: `docker compose build frontend`, `docker compose build app`, or `docker compose build tasks`
 - Database changes persist in `neuroagent_postgres_data` volume
 - MinIO data persists in `neuroagent_minio_data` volume
 - Redis data persists in `neuroagent_redis_data` volume
