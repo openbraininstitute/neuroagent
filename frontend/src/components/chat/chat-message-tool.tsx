@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { MessageStrict } from "@/lib/types";
 import { HumanValidationDialog } from "@/components/chat/human-validation-dialog";
-import { ToolInvocation } from "@ai-sdk/ui-utils";
+import { ToolUIPart } from "ai";
 import { useExecuteTool } from "@/hooks/tools";
 import { ToolCallCollapsible } from "@/components/chat/tool-call-collapsible";
 import React from "react";
@@ -11,17 +11,31 @@ import React from "react";
 type ChatMessageToolProps = {
   content?: string;
   threadId: string;
-  tool: ToolInvocation;
+  tool: ToolUIPart;
   stopped: boolean;
   availableTools: Array<{ slug: string; label: string }>;
-  addToolResult: ({
+  addToolResult: <TOOL extends string>({
+    state,
+    tool,
     toolCallId,
-    result,
-  }: {
-    toolCallId: string;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    result: any;
-  }) => void;
+    output,
+    errorText,
+  }:
+    | {
+        state?: "output-available";
+        tool: TOOL;
+        toolCallId: string;
+        output: unknown;
+        errorText?: never;
+      }
+    | {
+        state: "output-error";
+        tool: TOOL;
+        toolCallId: string;
+        output?: never;
+        errorText: string;
+      }) => Promise<void>;
+
   validated: "pending" | "accepted" | "rejected" | "not_required";
   setMessage: (updater: (msg: MessageStrict) => MessageStrict) => void;
 };
@@ -52,20 +66,27 @@ export const ChatMessageTool = function ChatMessageTool({
         setValidationError(null);
         // We leverage the addToolResult from useChat to add results.
         // It will also trigger the chat automatically when every tool has results !
-        addToolResult({ toolCallId: tool.toolCallId, result: data.content });
+        addToolResult({
+          state: "output-available",
+          tool: tool.type,
+          toolCallId: tool.toolCallId,
+          output: data.content,
+        });
 
-        // If the tool had a validation error, we have to reset the annotation.
+        // If the tool had a validation error, we have to reset the metadata.
       } else if (data.status === "validation-error") {
         setValidationError(data.content || "Validation failed");
         setMessage((msg) => {
           return {
             ...msg,
-            annotations: [
-              ...(msg.annotations || []).filter(
-                (a) => a.toolCallId !== tool.toolCallId,
-              ),
-              { toolCallId: tool.toolCallId, validated: "pending" },
-            ],
+            metadata: {
+              toolCalls: [
+                ...(msg.metadata?.toolCalls || []).filter(
+                  (a) => a.toolCallId !== tool.toolCallId,
+                ),
+                { toolCallId: tool.toolCallId, validated: "pending" },
+              ],
+            },
           };
         });
       }
@@ -74,8 +95,8 @@ export const ChatMessageTool = function ChatMessageTool({
   }, [status]);
 
   const toolLabel =
-    availableTools.filter((toolObj) => toolObj.slug === tool.toolName)?.[0]
-      ?.label ?? tool.toolName;
+    availableTools.filter((toolObj) => toolObj.slug === tool.type.slice(5))?.[0]
+      ?.label ?? tool.type;
 
   return (
     <div className="border-white-300 ml-5 border-solid p-0.5">
@@ -83,9 +104,9 @@ export const ChatMessageTool = function ChatMessageTool({
         key={tool.toolCallId}
         threadId={threadId}
         toolId={tool.toolCallId}
-        toolName={tool.toolName}
+        toolName={tool.type.slice(5)}
         availableTools={availableTools}
-        args={tool.args}
+        args={tool.input}
         isOpen={dialogOpen}
         setIsOpen={setDialogOpen}
         setMessage={setMessage}

@@ -3,6 +3,7 @@
 from typing import Any, Callable
 
 # Third-party imports
+from openai.types.responses import ResponseFunctionToolCallOutputItem
 from pydantic import BaseModel, ConfigDict
 
 from neuroagent.tools.base_tool import BaseTool
@@ -40,7 +41,7 @@ class HILValidation(BaseModel):
 class Response(BaseModel):
     """Agent response."""
 
-    messages: list[dict[str, Any]] = []
+    messages: list[ResponseFunctionToolCallOutputItem] = []
     agent: Agent | None = None
     context_variables: dict[str, Any] = {}
     hil_messages: list[HILResponse] | None = None

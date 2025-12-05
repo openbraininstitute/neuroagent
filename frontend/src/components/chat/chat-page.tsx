@@ -13,8 +13,14 @@ import { ChatMessagesInsideThread } from "@/components/chat/chat-messages-inside
 import { generateEditTitle } from "@/actions/generate-edit-thread";
 import { toast } from "sonner";
 import { useGetMessageNextPage } from "@/hooks/get-message-page";
-import { getToolInvocations, isLastMessageComplete } from "@/lib/utils";
-import { md5 } from "js-md5";
+import {
+  getLastMessageText,
+  getLastText,
+  getToolInvocations,
+  isLastMessageComplete,
+  lastAssistantHasAllToolOutputs,
+} from "@/lib/utils";
+import { DefaultChatTransport } from "ai";
 
 type ChatPageProps = {
   threadId: string;
@@ -42,8 +48,6 @@ export function ChatPage({
   const setNewMessage = useStore((state) => state.setNewMessage);
   const hasSendFirstMessage = useRef(false);
   // Scrolling and pagination
-  const prevHeight = useRef(0);
-  const prevScroll = useRef(0);
   const observerRef = useRef<IntersectionObserver | null>(null);
   const topSentinelRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -75,34 +79,46 @@ export function ChatPage({
 
   const {
     addToolResult,
-    append,
     error,
     messages: messagesRaw,
-    handleInputChange,
-    handleSubmit,
-    input,
     setMessages: setMessagesRaw,
+    sendMessage,
     status,
     stop,
   } = useChat({
-    api: `${env.NEXT_PUBLIC_BACKEND_URL}/qa/chat_streamed/${threadId}`,
-    headers: {
-      Authorization: `Bearer ${session?.accessToken}`,
-    },
-    initialMessages: retrievedMessages,
-    experimental_prepareRequestBody: ({ messages }) => {
-      const lastMessage = messages[messages.length - 1];
-      const selectedTools = Object.keys(checkedTools).filter(
-        (key) => key !== "allchecked" && checkedTools[key] === true,
-      );
-      return {
-        content: lastMessage.content,
-        tool_selection: selectedTools,
-        model: currentModel.id,
-        frontend_url: frontendUrl,
-      };
-    },
+    messages: retrievedMessages,
+    experimental_throttle: 50,
+    sendAutomaticallyWhen: lastAssistantHasAllToolOutputs,
+    transport: new DefaultChatTransport({
+      api: `${env.NEXT_PUBLIC_BACKEND_URL}/qa/chat_streamed/${threadId}`,
+      headers: {
+        Authorization: `Bearer ${session?.accessToken}`,
+      },
+      prepareSendMessagesRequest: ({ messages }) => {
+        const checkedToolsNow = useStore.getState().checkedTools; // else no tool update.
+        return {
+          body: {
+            content: getLastMessageText(messages),
+            tool_selection: Object.keys(checkedToolsNow).filter(
+              (key) => key !== "allchecked" && checkedToolsNow[key] === true,
+            ),
+            model: currentModel.id,
+            frontend_url: frontendUrl,
+          },
+        };
+      },
+    }),
   });
+
+  // Handle chat inputs.
+  const [input, setInput] = useState("");
+  const handleSubmit = (
+    e: React.FormEvent<HTMLFormElement | HTMLTextAreaElement>,
+  ) => {
+    e.preventDefault();
+    sendMessage({ text: input });
+    setInput("");
+  };
 
   // This should probably be changed to be more granular, I just created the old behaviour here.
   const isLoading = status == "streaming" || status == "submitted";
@@ -114,6 +130,7 @@ export function ChatPage({
       | MessageStrict[]
       | ((messages: MessageStrict[]) => MessageStrict[]),
   ) => void;
+  console.log(messages);
 
   // Initial use effect that runs on mount
   useEffect(() => {
@@ -124,11 +141,7 @@ export function ChatPage({
       !hasSendFirstMessage.current
     ) {
       hasSendFirstMessage.current = true;
-      append({
-        id: "temp_id",
-        role: "user",
-        content: newMessage,
-      });
+      sendMessage({ text: newMessage });
       generateEditTitle(null, threadId, newMessage);
       setNewMessage("");
     }
@@ -151,24 +164,6 @@ export function ChatPage({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Handle streaming interruption
-  useEffect(() => {
-    if (stopped) {
-      setMessages((prevState) => {
-        prevState[prevState.length - 1] = {
-          ...prevState[prevState.length - 1],
-          annotations: prevState
-            .at(-1)
-            ?.annotations?.map((ann) =>
-              !ann.toolCallId ? { isComplete: false } : ann,
-            ),
-        };
-        // We only change the annotation at message level and keep the rest.
-        return prevState;
-      });
-    }
-  }, [stopped, setMessages]);
-
   useEffect(() => {
     if (isInvalidating || isFetching) return;
     // Set retrieved DB messaged as current messages
@@ -176,18 +171,19 @@ export function ChatPage({
       setMessages(() => [
         ...retrievedMessages,
         ...messages.filter(
-          (m) => m.id.length !== 36 && !m.id.startsWith("temp"),
+          (m) => m.id.length !== 36 && !m.id.startsWith("msg"),
         ),
       ]);
     } else {
       setMessages(retrievedMessages);
     }
-  }, [md5(JSON.stringify(retrievedMessages))]); // Rerun on content change
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isInvalidating, isFetching]); // RE-run on new fetching or stop
 
   // Constant to check if there are tool calls at the end of conv.
   const hasOngoingToolInvocations =
     (getToolInvocations(messages.at(-1)) ?? []).length > 0 &&
-    messages.at(-1)?.content == "";
+    getLastText(messages.at(-1)) == "";
 
   // Auto scroll when streaming
   useEffect(() => {
@@ -212,38 +208,53 @@ export function ChatPage({
 
   // Observer to fetch new pages :
   useEffect(() => {
+    const container = containerRef.current;
+    const sentinel = topSentinelRef.current;
+
+    if (!container || !sentinel) return;
+
+    if (observerRef.current) {
+      observerRef.current.disconnect();
+    }
+
     observerRef.current = new IntersectionObserver(
       async (entries) => {
+        const entry = entries[0];
+
         if (
-          entries[0].isIntersecting &&
+          entry.isIntersecting &&
+          hasNextPage &&
           !isFetchingPreviousPage &&
           !isLoading
         ) {
-          const el = containerRef.current!;
-          prevHeight.current = el.scrollHeight;
-          prevScroll.current = el.scrollTop;
-          if (!hasNextPage) return;
-          await fetchPreviousPage();
-          if (!isFetchingPreviousPage && !isLoading && prevHeight.current) {
+          const scrollFromBottom = container.scrollHeight - container.scrollTop;
+
+          try {
+            await fetchPreviousPage();
+
             requestAnimationFrame(() => {
-              const heightDiff = el.scrollHeight - prevHeight.current;
-              el.scrollTop = prevScroll.current + heightDiff - 40;
+              container.scrollTop =
+                container.scrollHeight - scrollFromBottom - 40;
             });
+          } catch (error) {
+            console.error("Error fetching previous page:", error);
           }
         }
       },
       {
-        root: containerRef.current,
+        root: container,
+        rootMargin: "0px 0px 200px 0px",
+        threshold: 0.1,
       },
     );
-    const sentinel = topSentinelRef.current;
-    if (sentinel && observerRef.current) observerRef.current.observe(sentinel);
 
-    // Remove intersection listener when unmounted
+    observerRef.current.observe(sentinel);
+
     return () => {
-      if (sentinel && observerRef.current)
-        observerRef.current.unobserve(sentinel);
-      if (observerRef.current) observerRef.current.disconnect();
+      if (observerRef.current) {
+        observerRef.current.disconnect();
+        observerRef.current = null;
+      }
     };
   }, [hasNextPage, isFetchingPreviousPage, isLoading, fetchPreviousPage]);
 
@@ -314,13 +325,14 @@ export function ChatPage({
         threadId={threadId}
         setCheckedTools={setCheckedTools}
         setCurrentModel={setCurrentModel}
-        handleInputChange={handleInputChange}
+        handleInputChange={setInput}
         handleSubmit={handleSubmit}
         hasOngoingToolInvocations={hasOngoingToolInvocations}
         setIsAutoScrollEnabled={setIsAutoScrollEnabled}
         onStop={stop}
         stopped={stopped}
         setStopped={setStopped}
+        setMessages={setMessages}
         setIsInvalidating={setIsInvalidating}
       />
     </div>

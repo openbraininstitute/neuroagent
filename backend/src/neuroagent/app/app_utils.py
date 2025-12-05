@@ -19,6 +19,7 @@ from neuroagent.app.database.sql_schemas import (
     ComplexityEstimation,
     Entity,
     Messages,
+    PartType,
     ReasoningLevels,
     Task,
     Threads,
@@ -28,19 +29,21 @@ from neuroagent.app.database.sql_schemas import (
     utc_now,
 )
 from neuroagent.app.schemas import (
-    AnnotationMessageVercel,
-    AnnotationToolCallVercel,
     MessagesRead,
     MessagesReadVercel,
+    MetadataToolCallVercel,
     PaginatedResponse,
     RateLimitInfo,
     ReasoningPartVercel,
     TextPartVercel,
     ToolCallPartVercel,
-    ToolCallVercel,
+    ToolMetadataDict,
 )
 from neuroagent.tools.base_tool import BaseTool
-from neuroagent.utils import get_token_count, messages_to_openai_content
+from neuroagent.utils import (
+    get_token_count,
+    messages_to_openai_content,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -195,51 +198,33 @@ async def commit_messages(
 
 def format_messages_output(
     db_messages: Sequence[Messages],
-    tool_hil_mapping: dict[str, bool],
     has_more: bool,
     page_size: int,
 ) -> PaginatedResponse[MessagesRead]:
     """Format db messages to regular output schema."""
-    messages = []
+    messages: list[MessagesRead] = []
     for msg in db_messages:
-        # Create a clean dict without SQLAlchemy attributes
-        message_data = {
-            "message_id": msg.message_id,
-            "entity": msg.entity.value,  # Convert enum to string
-            "thread_id": msg.thread_id,
-            "is_complete": msg.is_complete,
-            "creation_date": msg.creation_date.isoformat(),  # Convert datetime to string
-            "msg_content": json.loads(msg.content),
-        }
+        parts_data: list[dict[str, Any]] = []
+        for part in msg.parts:
+            output = part.output or {}
+            content = output.get("content", [])
 
-        # Map validation status based on tool requirements
-        tool_calls_data = []
-        for tc in msg.tool_calls:
-            requires_validation = tool_hil_mapping.get(tc.name, False)
+            for item in content:
+                if item.get("type") == "text":
+                    parts_data.append({"type": "text", "text": item.get("text", "")})
 
-            if tc.validated is True:
-                validation_status = "accepted"
-            elif tc.validated is False:
-                validation_status = "rejected"
-            elif not requires_validation:
-                validation_status = "not_required"
-            else:
-                validation_status = "pending"
-
-            tool_calls_data.append(
-                {
-                    "tool_call_id": tc.tool_call_id,
-                    "name": tc.name,
-                    "arguments": tc.arguments,
-                    "validated": validation_status,
-                }
+        messages.append(
+            MessagesRead(
+                message_id=msg.message_id,
+                entity=msg.entity.value,
+                thread_id=msg.thread_id,
+                creation_date=msg.creation_date,
+                parts=parts_data,
             )
-
-        message_data["tool_calls"] = tool_calls_data
-        messages.append(MessagesRead(**message_data))
+        )
 
     return PaginatedResponse(
-        next_cursor=messages[-1].creation_date,
+        next_cursor=db_messages[-1].creation_date if messages else None,
         has_more=has_more,
         page_size=page_size,
         results=messages,
@@ -253,147 +238,84 @@ def format_messages_vercel(
     page_size: int,
 ) -> PaginatedResponse[MessagesReadVercel]:
     """Format db messages to Vercel schema."""
-    messages: list[MessagesReadVercel] = []
-    parts: list[TextPartVercel | ToolCallPartVercel | ReasoningPartVercel] = []
-    annotations: list[AnnotationMessageVercel | AnnotationToolCallVercel] = []
+    messages = []
+    for msg in db_messages:
+        parts_data: list[ToolCallPartVercel | TextPartVercel | ReasoningPartVercel] = []
+        tool_calls: dict[str, ToolCallPartVercel] = {}
+        metadata: dict[str, MetadataToolCallVercel] = {}
 
-    for msg in reversed(db_messages):
-        if msg.entity in [Entity.USER, Entity.AI_MESSAGE]:
-            content = json.loads(msg.content)
-            text_content = content.get("content")
-            reasoning_content = content.get("reasoning")
+        for part in msg.parts:
+            output = part.output or {}
 
-            # Optional reasoning
-            if reasoning_content:
-                parts.append(ReasoningPartVercel(reasoning=reasoning_content))
-
-            message_data = {
-                "id": msg.message_id,
-                "role": "user" if msg.entity == Entity.USER else "assistant",
-                "createdAt": msg.creation_date,
-                "content": text_content,
-            }
-            # add tool calls and reset buffer after attaching
-            if msg.entity == Entity.AI_MESSAGE:
-                if text_content:
-                    parts.append(TextPartVercel(text=text_content))
-
-                annotations.append(
-                    AnnotationMessageVercel(
-                        messageId=msg.message_id, isComplete=msg.is_complete
-                    )
+            if part.type == PartType.MESSAGE:
+                content = output.get("content")
+                if content and isinstance(content, list) and len(content) > 0:
+                    parts_data.append(TextPartVercel(text=content[0].get("text", "")))
+            elif part.type == PartType.REASONING:
+                parts_data.extend(
+                    ReasoningPartVercel(text=s.get("text", ""))
+                    for s in output.get("summary", [])
                 )
-
-                message_data["parts"] = parts
-                message_data["annotations"] = annotations
-
-            # If we encounter a user message with a non empty buffer we have to add a dummy ai message.
-            elif parts:
-                messages.append(
-                    MessagesReadVercel(
-                        id=uuid.uuid4(),
-                        role="assistant",
-                        createdAt=msg.creation_date,
-                        content="",
-                        parts=parts,
-                        annotations=annotations,
-                    )
+            elif part.type == PartType.FUNCTION_CALL:
+                tc_id = output.get("id", "")
+                tool_name = output.get("name", "")
+                try:
+                    input_data = json.loads(output.get("arguments", "{}"))
+                except json.JSONDecodeError:
+                    input_data = {}
+                tool_part = ToolCallPartVercel(
+                    type=f"tool-{tool_name}",
+                    toolCallId=tc_id,
+                    state="input-available",
+                    input=input_data,
                 )
+                parts_data.append(tool_part)
+                tool_calls[tc_id] = tool_part
 
-            parts = []
-            annotations = []
-            messages.append(MessagesReadVercel(**message_data))
+                requires_validation = tool_hil_mapping.get(tool_name, False)
 
-        # Buffer tool calls until the next AI_MESSAGE
-        elif msg.entity == Entity.AI_TOOL:
-            content = json.loads(msg.content)
-            text_content = content.get("content")
-            reasoning_content = content.get("reasoning")
-
-            # Add optional reasoning
-            if reasoning_content:
-                parts.append(ReasoningPartVercel(reasoning=reasoning_content))
-
-            for tc in msg.tool_calls:
-                requires_validation = tool_hil_mapping.get(tc.name, False)
-                if tc.validated is True:
-                    status = "accepted"
-                elif tc.validated is False:
+                if part.validated is True:
+                    status: Literal[
+                        "accepted", "rejected", "not_required", "pending"
+                    ] = "accepted"
+                elif part.validated is False:
                     status = "rejected"
                 elif not requires_validation:
                     status = "not_required"
                 else:
                     status = "pending"
 
-                parts.append(TextPartVercel(text=text_content or ""))
-                parts.append(
-                    ToolCallPartVercel(
-                        toolInvocation=ToolCallVercel(
-                            toolCallId=tc.tool_call_id,
-                            toolName=tc.name,
-                            args=json.loads(tc.arguments),
-                            state="call",
-                        )
-                    )
+                metadata[tc_id] = MetadataToolCallVercel(
+                    toolCallId=tc_id,
+                    validated=status,
+                    isComplete=True if requires_validation else part.is_complete,
                 )
-                annotations.append(
-                    AnnotationToolCallVercel(
-                        toolCallId=tc.tool_call_id,
-                        validated=status,  # type: ignore
-                        isComplete=msg.is_complete,
-                    )
-                )
+            elif part.type == PartType.FUNCTION_CALL_OUTPUT:
+                tc_id = output.get("id", "")
+                if tc_id in tool_calls:
+                    tool_calls[tc_id].state = "output-available"
+                    tool_calls[tc_id].output = output.get("output") or "{}"
+                    metadata[tc_id].isComplete = part.is_complete
 
-        # Merge the actual tool result back into the buffered part
-        elif msg.entity == Entity.TOOL:
-            tool_call_id = json.loads(msg.content).get("tool_call_id")
-            tool_call = next(
-                (
-                    part.toolInvocation
-                    for part in parts
-                    if isinstance(part, ToolCallPartVercel)
-                    and part.toolInvocation.toolCallId == tool_call_id
-                ),
-                None,
-            )
-            annotation = next(
-                (
-                    annotation
-                    for annotation in annotations
-                    if isinstance(annotation, AnnotationToolCallVercel)
-                    and annotation.toolCallId == tool_call_id
-                ),
-                None,
-            )
-            if tool_call:
-                tool_call.result = json.loads(msg.content).get("content")
-                tool_call.state = "result"
+        is_complete = all(part.is_complete for part in msg.parts) if msg.parts else True
 
-            if annotation:
-                annotation.isComplete = msg.is_complete
-
-    # If the tool call buffer is not empty, we need to add a dummy AI message.
-    if parts:
-        messages.append(
-            MessagesReadVercel(
-                id=uuid.uuid4(),
-                role="assistant",
-                createdAt=msg.creation_date,
-                content="",
-                parts=parts,
-                annotations=annotations,
-            )
+        msg_vercel = MessagesReadVercel(
+            id=msg.message_id,
+            role="user" if msg.entity == Entity.USER else "assistant",
+            createdAt=msg.creation_date,
+            isComplete=is_complete,
+            parts=parts_data,
+            metadata=ToolMetadataDict(toolCalls=list(metadata.values()))
+            if metadata
+            else None,
         )
-
-    # Reverse back to descending order and build next_cursor
-    ordered_messages = list(reversed(messages))
-    next_cursor = db_messages[-1].creation_date if has_more else None
+        messages.append(msg_vercel)
 
     return PaginatedResponse(
-        next_cursor=next_cursor,
+        next_cursor=db_messages[-1].creation_date if messages else None,
         has_more=has_more,
         page_size=page_size,
-        results=ordered_messages,
+        results=messages,
     )
 
 
@@ -505,10 +427,13 @@ async def filter_tools_and_model_by_conversation(
 
     openai_messages = await messages_to_openai_content(messages)
 
-    # Remove the content of tool responses to save tokens
-    for message in openai_messages:
-        if message["role"] == "tool":
-            message["content"] = "..."
+    filtered_messages = []
+    for msg in openai_messages:
+        if msg.get("type") == PartType.REASONING.value:
+            continue
+        if msg.get("type") == PartType.FUNCTION_CALL_OUTPUT.value:
+            msg["output"] = "..."
+        filtered_messages.append(msg)
 
     # Build system prompt conditionally
     instructions = []
@@ -578,15 +503,20 @@ AVAILABLE TOOLS:
         # Send the OpenAI request
         model = "google/gemini-2.5-flash"
         start_request = time.time()
-        response = await openai_client.beta.chat.completions.parse(
-            messages=[{"role": "system", "content": system_prompt}, *openai_messages],  # type: ignore
+        response = await openai_client.responses.parse(
+            input=[{"role": "system", "content": system_prompt}, *filtered_messages],  # type: ignore
             model=model,
-            response_format=ToolModelFiltering,
+            text_format=ToolModelFiltering,
+            store=False,
         )
 
         # Parse the output
-        if response.choices[0].message.parsed:
-            parsed = response.choices[0].message.parsed
+        parsed = response.output_parsed
+        if parsed and response.output_parsed.selected_tools:
+            selected_tools = list(set(response.output_parsed.selected_tools))
+            logger.debug(
+                f"#TOOLS: {len(selected_tools)}, SELECTED TOOLS: {selected_tools} in {(time.time() - start_request):.2f} s"
+            )
 
             # Handle tool selection
             if need_tool_selection:
