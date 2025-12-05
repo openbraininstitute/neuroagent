@@ -18,8 +18,8 @@ services:
       - NEUROAGENT_STORAGE__BUCKET_NAME=neuroagent
       - NEUROAGENT_STORAGE__ACCESS_KEY=minioadmin
       - NEUROAGENT_STORAGE__SECRET_KEY=minioadmin
-      - NEUROAGENT_RATE_LIMITER__REDIS_HOST=redis
-      - NEUROAGENT_RATE_LIMITER__REDIS_PORT=6379
+      - NEUROAGENT_REDIS__REDIS_HOST=redis
+      - NEUROAGENT_REDIS__REDIS_PORT=6379
     networks:
       - app-network
     depends_on:
@@ -32,8 +32,9 @@ services:
       context: ./backend
       dockerfile: Dockerfile.tasks
     environment:
-      - TASKS_CELERY__BROKER_URL=redis://redis:6379
-      - TASKS_CELERY__RESULT_BACKEND=redis://redis:6379
+      - TASKS_REDIS__REDIS_HOST=redis
+      - TASKS_REDIS__REDIS_PORT=6379
+      - TASKS_LLM__OPENAI_TOKEN=${OPENAI_API_KEY}
       - TASKS_STORAGE__ENDPOINT_URL=http://minio:9000
       - TASKS_STORAGE__BUCKET_NAME=neuroagent
       - TASKS_STORAGE__ACCESS_KEY=minioadmin
