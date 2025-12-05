@@ -5,21 +5,13 @@ services:
       dockerfile: Dockerfile.app
     ports:
       - "8078:8078"
+    env_file:
+      - ./backend/.env
     environment:
-      - NEUROAGENT_DB__PREFIX=postgresql+asyncpg://
+      # Override service hostnames for Docker internal network
       - NEUROAGENT_DB__HOST=postgres
-      - NEUROAGENT_DB__PORT=5432
-      - NEUROAGENT_DB__USER=postgres
-      - NEUROAGENT_DB__PASSWORD=pwd
-      - NEUROAGENT_DB__NAME=neuroagent
-      - NEUROAGENT_KEYCLOAK__ISSUER=${KEYCLOAK_ISSUER}
-      - NEUROAGENT_LLM__OPENAI_TOKEN=${OPENAI_API_KEY}
       - NEUROAGENT_STORAGE__ENDPOINT_URL=http://minio:9000
-      - NEUROAGENT_STORAGE__BUCKET_NAME=neuroagent
-      - NEUROAGENT_STORAGE__ACCESS_KEY=minioadmin
-      - NEUROAGENT_STORAGE__SECRET_KEY=minioadmin
       - NEUROAGENT_REDIS__REDIS_HOST=redis
-      - NEUROAGENT_REDIS__REDIS_PORT=6379
     networks:
       - app-network
     depends_on:
@@ -31,14 +23,12 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile.tasks
+    env_file:
+      - ./backend/.env.tasks
     environment:
+      # Override service hostnames for Docker internal network
       - TASKS_REDIS__REDIS_HOST=redis
-      - TASKS_REDIS__REDIS_PORT=6379
-      - TASKS_LLM__OPENAI_TOKEN=${OPENAI_API_KEY}
       - TASKS_STORAGE__ENDPOINT_URL=http://minio:9000
-      - TASKS_STORAGE__BUCKET_NAME=neuroagent
-      - TASKS_STORAGE__ACCESS_KEY=minioadmin
-      - TASKS_STORAGE__SECRET_KEY=minioadmin
     networks:
       - app-network
     depends_on:
