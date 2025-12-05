@@ -119,7 +119,7 @@ async def rate_limit(
     limit: int,
     expiry: int,
     user_sub: uuid.UUID,
-    disabled: bool,
+    disabled: bool = False,
 ) -> tuple[RateLimitHeaders, bool]:
     """Check rate limiting for a given route and user.
 
@@ -135,7 +135,7 @@ async def rate_limit(
         Time in seconds before the rate limit resets
     user_sub : uuid.UUID
         User identifier
-    disabled : bool
+    disabled : bool, optional
         Whether rate limiting is disabled
 
     Returns
