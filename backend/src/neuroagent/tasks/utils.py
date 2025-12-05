@@ -60,6 +60,7 @@ def task_stream_notifier(redis_client: redis.Redis, task_id: str):
                 {"status": "done"},
                 maxlen=1,  # Keep only the latest message
             )
+            redis_client.expire(stream_key, 86400)  # Set TTL to 1 day
             logger.info(f"Published done status to stream {stream_key}")
         except Exception as e:
             logger.warning(f"Failed to publish done status to stream: {e}")
@@ -73,6 +74,7 @@ def task_stream_notifier(redis_client: redis.Redis, task_id: str):
                 {"status": "error", "error": error_message},
                 maxlen=1,
             )
+            redis_client.expire(stream_key, 86400)  # Set TTL to 1 day
             logger.info(
                 f"Published error status to stream {stream_key}: {error_message}"
             )
