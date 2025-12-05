@@ -259,11 +259,15 @@ def format_messages_vercel(
             elif part.type == PartType.FUNCTION_CALL:
                 tc_id = output.get("call_id", "")
                 tool_name = output.get("name", "")
+                try:
+                    input_data = json.loads(output.get("arguments", "{}"))
+                except json.JSONDecodeError:
+                    input_data = {}
                 tool_part = ToolCallPartVercel(
                     type=f"tool-{tool_name}",
                     toolCallId=tc_id,
                     state="input-available",
-                    input=json.loads(output.get("arguments", "{}")),
+                    input=input_data,
                 )
                 parts_data.append(tool_part)
                 tool_calls[tc_id] = tool_part

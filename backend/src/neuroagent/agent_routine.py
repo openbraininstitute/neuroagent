@@ -543,6 +543,7 @@ class AgentsRoutine:
             # add parts not appended to `new_message`
             if temp_stream_data["reasoning"]:
                 for reasoning_item in temp_stream_data["reasoning"].values():
+                    del reasoning_item.id
                     append_part(
                         new_message, history, reasoning_item, PartType.REASONING, False
                     )
@@ -591,4 +592,5 @@ class AgentsRoutine:
                         False,
                     )
 
-            logger.debug(f"Stream interrupted. Partial message {new_message}")
+            # Append completed new_message to DB
+            messages.append(new_message)

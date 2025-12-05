@@ -1,5 +1,6 @@
 """Utilies for neuroagent."""
 
+import copy
 import json
 import logging
 import re
@@ -33,7 +34,8 @@ async def messages_to_openai_content(
     if db_messages:
         for msg in db_messages:
             for part in msg.parts:
-                openai_messages.append(part.output)
+                openai_messages.append(copy.deepcopy(part.output))
+                # to prevent replacing output in tool filtering
 
     return openai_messages
 
