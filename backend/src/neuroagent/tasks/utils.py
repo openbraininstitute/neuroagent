@@ -9,7 +9,7 @@ from contextlib import contextmanager
 from pathlib import Path
 from textwrap import dedent
 from types import TracebackType
-from typing import Literal
+from typing import Iterator, Literal
 
 import redis
 
@@ -23,7 +23,7 @@ LoggingLevel = Literal[
 
 
 @contextmanager
-def task_stream_notifier(redis_client: redis.Redis, task_id: str):
+def task_stream_notifier(redis_client: redis.Redis, task_id: str) -> Iterator[None]:
     """Context manager that automatically publishes task completion to Redis stream.
 
     This context manager wraps task execution and automatically publishes

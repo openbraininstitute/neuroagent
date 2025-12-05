@@ -85,7 +85,7 @@ def get_redis_client() -> redis.Redis:
 
 
 @worker_process_init.connect
-def init_worker_resources(**kwargs) -> None:
+def init_worker_resources(**kwargs: Any) -> None:
     """Initialize shared resources when a worker process starts.
 
     This runs once per worker process and sets up:

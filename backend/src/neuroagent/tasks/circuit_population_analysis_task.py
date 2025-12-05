@@ -258,8 +258,11 @@ Generate the SQL query to analyze the neuron population:"""
                 result = conn.execute(sql).fetchdf()
 
                 # Track token usage
-                token_consumption = get_token_count(response.usage)
-                token_consumption = {**token_consumption, "model": model}
+                token_consumption_ = get_token_count(response.usage)
+                token_consumption: dict[str, int | str | None] = {
+                    **token_consumption_,
+                    "model": model,
+                }
 
                 return CircuitPopulationAnalysisTaskOutput(
                     result_data=result.to_json(),
