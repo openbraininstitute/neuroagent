@@ -78,9 +78,9 @@ def test_get_connection_string_full(monkeypatch):
 
     settings = Settings()
     result = get_connection_string(settings)
-    assert (
-        result == "http://John:Doe@localhost:5000/test"
-    ), "must return fully formed connection string"
+    assert result == "http://John:Doe@localhost:5000/test", (
+        "must return fully formed connection string"
+    )
 
 
 @pytest.mark.asyncio

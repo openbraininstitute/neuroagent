@@ -89,9 +89,9 @@ def test_entitycore_exclude_br_params_fields_excluded(input_class):
     schema_properties = set(schema.get("properties", {}).keys())
     found_excluded_fields = schema_properties & excluded_fields
 
-    assert (
-        len(found_excluded_fields) == 0
-    ), f"{input_class.__name__}: Found excluded fields in schema: {found_excluded_fields}"
+    assert len(found_excluded_fields) == 0, (
+        f"{input_class.__name__}: Found excluded fields in schema: {found_excluded_fields}"
+    )
 
     input_model_fields = input_class.model_fields
     excluded_field_names = set(EntitycoreExcludeBRParams.model_fields.keys())
@@ -120,9 +120,9 @@ def test_entitycore_exclude_name_params_fields_excluded(input_class):
     schema_properties = set(schema.get("properties", {}).keys())
     found_excluded_fields = schema_properties & excluded_fields
 
-    assert (
-        len(found_excluded_fields) == 0
-    ), f"{input_class.__name__}: Found excluded fields in schema: {found_excluded_fields}"
+    assert len(found_excluded_fields) == 0, (
+        f"{input_class.__name__}: Found excluded fields in schema: {found_excluded_fields}"
+    )
 
     input_model_fields = input_class.model_fields
     excluded_field_names = set(EntitycoreExcludeNameParams.model_fields.keys())

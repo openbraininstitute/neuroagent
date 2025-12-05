@@ -44,7 +44,7 @@ dev = [
     "pytest-cov",
     "pytest-httpx",
     "responses",
-    "ruff",
+    "ruff>=0.14.8",
     "types-requests",
 ]
 tasks = [
