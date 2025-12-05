@@ -10,6 +10,7 @@ from typing import Any, Literal
 from celery.result import AsyncResult
 from fastapi import HTTPException
 from openai.types.completion_usage import CompletionUsage
+from redis import asyncio as aioredis
 
 from neuroagent.app.database.sql_schemas import (
     Entity,
@@ -275,11 +276,11 @@ def get_token_count(usage: CompletionUsage | None) -> dict[str, int | None]:
         return {"input_cached": None, "input_noncached": None, "completion": None}
 
 
-async def _poll_celery_ready_with_retry(
+async def short_poll_celery_ready_with_retry(
     task_result: AsyncResult,
     max_retries: int = 5,
     retry_delay: float = 0.1,
-) -> Any:
+) -> dict[Any, Any]:
     """Poll Celery task with retries to handle race condition.
 
     When a task completes, there's a small window where the stream notification
@@ -318,14 +319,16 @@ async def _poll_celery_ready_with_retry(
     if is_ready:
         return await asyncio.to_thread(task_result.get)
 
-    return None
+    raise TimeoutError(
+        f"Task {task_result.id} finished but it was not possible to retrieve the result after {max_retries} attempts. "
+    )
 
 
 async def long_poll_celery_result(
     task_result: AsyncResult,
-    redis_client: Any,  # aioredis.Redis
+    redis_client: aioredis.Redis,
     timeout: int = 30,
-) -> Any:
+) -> dict[Any, Any]:
     """Wait for a Celery task result using Redis Streams with long polling.
 
     This function performs a single blocking XREAD call on a Redis stream until
@@ -358,53 +361,15 @@ async def long_poll_celery_result(
     last_id = "$"  # Start reading from new messages
     block_ms = timeout * 1000  # Convert seconds to milliseconds
 
-    try:
-        # Single blocking XREAD call - Redis will wake us up when message arrives
-        # This is NOT polling - truly event-driven
-        messages = await redis_client.xread(
-            {stream_key: last_id},
-            block=block_ms,  # Block for timeout milliseconds
-            count=1,
-        )
-
-        if messages:
-            # Got a message from the stream
-            # aioredis returns: [(stream_name_bytes, [(msg_id_bytes, {field_bytes: value_bytes, ...}), ...])]
-            stream_name, stream_messages = messages[0]
-            for msg_id, msg_data in stream_messages:
-                # Handle both bytes and string keys
-                status = msg_data.get(b"status") or msg_data.get("status")
-                if status == b"done" or status == "done":
-                    # Task is done, but Celery might still be storing the result
-                    # Use retry polling to handle race condition
-                    result = await _poll_celery_ready_with_retry(task_result)
-                    if result is not None:
-                        return result
-                elif status == b"error" or status == "error":
-                    # Task failed, but Celery might still be storing the error
-                    # Use retry polling to handle race condition
-                    result = await _poll_celery_ready_with_retry(task_result)
-                    if result is not None:
-                        return result
-        else:
-            # No message received (timeout), check task status as fallback
-            is_ready = await asyncio.to_thread(task_result.ready)
-            if is_ready:
-                return await asyncio.to_thread(task_result.get)
-
-    except Exception as e:
-        # If stream read fails, fall back to checking task status directly
-        logger.warning(f"Stream read failed: {e}, checking task status directly")
-        is_ready = await asyncio.to_thread(task_result.ready)
-        if is_ready:
-            return await asyncio.to_thread(task_result.get)
-
-    # If we get here, task didn't complete - check one more time
-    is_ready = await asyncio.to_thread(task_result.ready)
-    if is_ready:
-        return await asyncio.to_thread(task_result.get)
-
-    # Task didn't complete within timeout
-    raise asyncio.TimeoutError(
-        f"Task {task_id} did not complete within {timeout} seconds"
+    messages = await redis_client.xread(
+        {stream_key: last_id},
+        block=block_ms,  # Block for timeout milliseconds
+        count=1,
     )
+
+    if messages:
+        # Got a message from the stream, poll for result
+        return await short_poll_celery_ready_with_retry(task_result)
+    else:
+        # No message received (timeout)
+        raise TimeoutError(f"Task {task_id} did not finish within {timeout} seconds")
