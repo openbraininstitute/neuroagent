@@ -6,7 +6,7 @@ from neuroagent.app.dependencies import get_settings, get_tool_list
 from neuroagent.app.main import app
 
 
-def test_settings_endpoint(app_client, dont_look_at_env_file, settings):
+def test_settings_endpoint(app_client, settings):
     response = app_client.get("/settings")
 
     replace_secretstr = settings.model_dump()
