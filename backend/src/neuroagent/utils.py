@@ -275,61 +275,6 @@ def get_token_count(usage: CompletionUsage | None) -> dict[str, int | None]:
         return {"input_cached": None, "input_noncached": None, "completion": None}
 
 
-async def short_poll_celery_result(
-    task_result: AsyncResult,
-    timeout: int | None = 30,
-    poll_interval: float = 0.5,
-) -> Any:
-    """Wait for a Celery task result using async polling.
-
-    This function polls the task status asynchronously and returns the result
-    when the task is ready. It's designed to be used in async contexts without
-    blocking the event loop.
-
-    Parameters
-    ----------
-    task_result : AsyncResult
-        The Celery AsyncResult object to wait for
-    timeout : int | None, optional
-        Maximum time to wait in seconds. None for no timeout. Default is 30.
-    poll_interval : float, optional
-        Interval between status checks in seconds. Default is 0.5.
-
-    Returns
-    -------
-    Any
-        The task result value (deserialized from JSON/Redis)
-
-    Raises
-    ------
-    asyncio.TimeoutError
-        If the task doesn't complete within the timeout period
-    Exception
-        If the task fails, the exception raised by the task will be propagated
-    """
-    elapsed = 0.0
-
-    while True:
-        # Check if task is ready (blocking call, so use thread)
-        is_ready = await asyncio.to_thread(task_result.ready)
-
-        if is_ready:
-            # Task is ready, get the result
-            # result.get() is fast when ready (just deserializes from Redis)
-            # but still blocking, so we use to_thread for safety
-            return await asyncio.to_thread(task_result.get)
-
-        # Check timeout
-        if timeout is not None and elapsed >= timeout:
-            raise asyncio.TimeoutError(
-                f"Task {task_result.id} did not complete within {timeout} seconds"
-            )
-
-        # Wait before next poll
-        await asyncio.sleep(poll_interval)
-        elapsed += poll_interval
-
-
 async def _poll_celery_ready_with_retry(
     task_result: AsyncResult,
     max_retries: int = 5,
