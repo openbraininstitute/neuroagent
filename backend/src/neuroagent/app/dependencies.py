@@ -702,7 +702,7 @@ def get_celery_client(request: Request) -> Celery:
     return request.app.state.celery
 
 
-def get_redis_client(request: Request) -> aioredis.Redis | None:
+def get_redis_client(request: Request) -> aioredis.Redis:
     """Get the Redis client from app state.
 
     Parameters
@@ -712,8 +712,8 @@ def get_redis_client(request: Request) -> aioredis.Redis | None:
 
     Returns
     -------
-    aioredis.Redis | None
-        The Redis client instance or None if not configured
+    aioredis.Redis
+        The Redis client instance (always available)
     """
     return request.app.state.redis_client
 
@@ -726,7 +726,7 @@ async def get_context_variables(
     user_info: Annotated[UserInfo, Depends(get_user_info)],
     openai_client: Annotated[AsyncOpenAI, Depends(get_openai_client)],
     celery_client: Annotated[Celery, Depends(get_celery_client)],
-    redis_client: Annotated[aioredis.Redis | None, Depends(get_redis_client)],
+    redis_client: Annotated[aioredis.Redis, Depends(get_redis_client)],
 ) -> dict[str, Any]:
     """Get the context variables to feed the tool's metadata."""
     # Get the current frontend url

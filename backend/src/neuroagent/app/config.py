@@ -162,13 +162,42 @@ class SettingsMisc(BaseModel):
     model_config = ConfigDict(frozen=True)
 
 
-class SettingsRateLimiter(BaseModel):
-    """Rate limiter settings."""
+class SettingsRedis(BaseModel):
+    """Redis settings."""
 
     redis_host: str = "localhost"
     redis_port: int = 6379
     redis_password: SecretStr | None = None
     redis_ssl: bool = False
+
+    model_config = ConfigDict(frozen=True)
+
+    @property
+    def redis_url(self) -> str:
+        """Build Redis URL from settings.
+
+        Returns
+        -------
+        str
+            Redis URL in the format redis://[password@]host:port or rediss://[password@]host:port
+        """
+        redis_password_str = (
+            self.redis_password.get_secret_value()
+            if self.redis_password is not None
+            else None
+        )
+        protocol = "rediss://" if self.redis_ssl else "redis://"
+        if redis_password_str:
+            return (
+                f"{protocol}:{redis_password_str}@{self.redis_host}:{self.redis_port}"
+            )
+        else:
+            return f"{protocol}{self.redis_host}:{self.redis_port}"
+
+
+class SettingsRateLimiter(BaseModel):
+    """Rate limiter settings."""
+
     disabled: bool = False
 
     limit_chat: int = 20
@@ -261,6 +290,7 @@ class Settings(BaseSettings):
     keycloak: SettingsKeycloak = SettingsKeycloak()  # has no required
     misc: SettingsMisc = SettingsMisc()  # has no required
     storage: SettingsStorage = SettingsStorage()  # has no required
+    redis: SettingsRedis = SettingsRedis()  # has no required
     rate_limiter: SettingsRateLimiter = SettingsRateLimiter()  # has no required
     accounting: SettingsAccounting = SettingsAccounting()  # has no required
     mcp: SettingsMCP = SettingsMCP()  # has no required

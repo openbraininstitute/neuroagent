@@ -81,49 +81,36 @@ async def lifespan(fastapi_app: FastAPI) -> AsyncContextManager[None]:  # type: 
         get_settings, get_settings
     )()
 
-    # Initialize Redis client if rate limiting is enabled
-    if not app_settings.rate_limiter.disabled:
-        redis_password = (
-            app_settings.rate_limiter.redis_password.get_secret_value()
-            if app_settings.rate_limiter.redis_password is not None
-            else None
-        )
-        redis_client = aioredis.Redis(
-            host=app_settings.rate_limiter.redis_host,
-            port=app_settings.rate_limiter.redis_port,
-            password=redis_password,
-            ssl=app_settings.rate_limiter.redis_ssl,
-            decode_responses=True,
-        )
-        fastapi_app.state.redis_client = redis_client
-    else:
-        fastapi_app.state.redis_client = None
-
-    # Initialize Celery client
-    redis_password_str = (
-        app_settings.rate_limiter.redis_password.get_secret_value()
-        if app_settings.rate_limiter.redis_password is not None
+    # Initialize Redis client (always created, used for rate limiting and other purposes)
+    redis_password = (
+        app_settings.redis.redis_password.get_secret_value()
+        if app_settings.redis.redis_password is not None
         else None
     )
-    # Build Redis URL for Celery
-    protocol = "rediss://" if app_settings.rate_limiter.redis_ssl else "redis://"
-    if redis_password_str:
-        redis_url = f"{protocol}:{redis_password_str}@{app_settings.rate_limiter.redis_host}:{app_settings.rate_limiter.redis_port}"
-    else:
-        redis_url = f"{protocol}{app_settings.rate_limiter.redis_host}:{app_settings.rate_limiter.redis_port}"
+    redis_client = aioredis.Redis(
+        host=app_settings.redis.redis_host,
+        port=app_settings.redis.redis_port,
+        password=redis_password,
+        ssl=app_settings.redis.redis_ssl,
+        decode_responses=True,
+    )
+    fastapi_app.state.redis_client = redis_client
 
-    celery_app = Celery(__name__)
-    celery_app.conf.broker_url = redis_url
-    celery_app.conf.result_backend = redis_url
+    # Initialize Celery client
+    redis_url = app_settings.redis.redis_url
+
+    celery_client = Celery(__name__)
+    celery_client.conf.broker_url = redis_url
+    celery_client.conf.result_backend = redis_url
 
     # Configure task routing with separate queues for each task
     # This is on the producer side (where tasks are sent)
-    celery_app.conf.task_routes = {
+    celery_client.conf.task_routes = {
         "run_python_task": {"queue": "python_q"},
         "circuit_population_analysis_task": {"queue": "circuit_q"},
     }
 
-    fastapi_app.state.celery = celery_app
+    fastapi_app.state.celery = celery_client
 
     # Get the sqlalchemy engine and store it in app state.
     engine = setup_engine(app_settings, get_connection_string(app_settings))
@@ -167,8 +154,7 @@ async def lifespan(fastapi_app: FastAPI) -> AsyncContextManager[None]:  # type: 
     if engine:
         await engine.dispose()
 
-    if fastapi_app.state.redis_client is not None:
-        await fastapi_app.state.redis_client.aclose()
+    await fastapi_app.state.redis_client.aclose()
 
     # MCP client cleanup is handled by the context manager
 

@@ -3,7 +3,6 @@
 import logging
 from pathlib import Path
 from typing import Any
-from urllib.parse import urlparse
 
 import boto3
 import redis
@@ -17,9 +16,12 @@ logger = logging.getLogger(__name__)
 
 settings = Settings()
 
+# Build Redis URL for Celery
+redis_url = settings.redis.redis_url
+
 celery = Celery(__name__)
-celery.conf.broker_url = settings.celery.broker_url
-celery.conf.result_backend = settings.celery.result_backend
+celery.conf.broker_url = redis_url
+celery.conf.result_backend = redis_url
 
 # Autodiscover tasks (worker side - just needs to know about tasks)
 celery.autodiscover_tasks(["neuroagent.tasks"])
@@ -52,7 +54,7 @@ def get_settings() -> Settings:
 def get_redis_client() -> redis.Redis:
     """Get a Redis client instance for task operations.
 
-    Creates a Redis client from the Celery broker URL configuration.
+    Creates a Redis client from the Redis settings.
     Uses sync Redis client since tasks run in sync context.
     Assumes Redis is always available.
 
@@ -64,23 +66,20 @@ def get_redis_client() -> redis.Redis:
     Raises
     ------
     Exception
-        If Redis client cannot be created from broker URL
+        If Redis client cannot be created
     """
-    broker_url = settings.celery.broker_url
-    parsed = urlparse(broker_url)
-
-    # Extract connection details
-    host = parsed.hostname or "localhost"
-    port = parsed.port or 6379
-    password = parsed.password
-    ssl = parsed.scheme == "rediss"
+    redis_password = (
+        settings.redis.redis_password.get_secret_value()
+        if settings.redis.redis_password is not None
+        else None
+    )
 
     # Create Redis client
     return redis.Redis(
-        host=host,
-        port=port,
-        password=password,
-        ssl=ssl,
+        host=settings.redis.redis_host,
+        port=settings.redis.redis_port,
+        password=redis_password,
+        ssl=settings.redis.redis_ssl,
         decode_responses=False,  # Keep bytes for stream operations
     )
 

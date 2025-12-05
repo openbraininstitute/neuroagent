@@ -114,18 +114,19 @@ def validate_project(
 
 
 async def rate_limit(
-    redis_client: aioredis.Redis | None,
+    redis_client: aioredis.Redis,
     route_path: str,
     limit: int,
     expiry: int,
     user_sub: uuid.UUID,
+    disabled: bool,
 ) -> tuple[RateLimitHeaders, bool]:
     """Check rate limiting for a given route and user.
 
     Parameters
     ----------
     redis_client : aioredis.Redis
-        Redis client instance
+        Redis client instance (never None)
     route_path : str
         Path of the route being accessed
     limit : int
@@ -134,6 +135,8 @@ async def rate_limit(
         Time in seconds before the rate limit resets
     user_sub : uuid.UUID
         User identifier
+    disabled : bool
+        Whether rate limiting is disabled
 
     Returns
     -------
@@ -142,10 +145,10 @@ async def rate_limit(
     rate_limited
         Whether the user is rate limited. In parent endpoint raise error if True.
     """
-    if redis_client is None:
+    if disabled:
         return RateLimitHeaders(
             x_ratelimit_limit="-1", x_ratelimit_remaining="-1", x_ratelimit_reset="-1"
-        ), False  # redis disabled
+        ), False  # rate limiting disabled
 
     # Create key using normalized route path and user sub
     key = f"rate_limit:{user_sub}:{route_path}"
