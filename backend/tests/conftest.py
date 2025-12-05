@@ -341,13 +341,3 @@ def patch_mcp_servers():
             read_data="{}"
         )
         yield
-
-
-@pytest.fixture(autouse=True)
-def patch_code_sandbox():
-    mock_cm = AsyncMock()
-    mock_cm.__aenter__.return_value = None
-    mock_cm.__aexit__.return_value = None
-
-    with patch("neuroagent.tasks.main.WasmExecutor", return_value=mock_cm):
-        yield
