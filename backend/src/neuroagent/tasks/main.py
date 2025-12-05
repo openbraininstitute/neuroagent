@@ -11,7 +11,7 @@ from celery import Celery
 from celery.signals import worker_process_init
 
 from neuroagent.tasks.config import Settings
-from neuroagent.tasks.executor import WasmExecutor
+from neuroagent.tasks.utils import WasmExecutor
 
 logger = logging.getLogger(__name__)
 

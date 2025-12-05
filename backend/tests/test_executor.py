@@ -7,7 +7,7 @@ from unittest.mock import AsyncMock, Mock, mock_open, patch
 import pytest
 
 from neuroagent.task_schemas import ErrorDetail, FailureOutput, SuccessOutput
-from neuroagent.tasks.executor import WasmExecutor
+from neuroagent.tasks.utils import WasmExecutor
 
 
 class TestWasmExecutor:
