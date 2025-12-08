@@ -36,6 +36,7 @@ class MyTaskOutput(BaseModel):
 In `backend/src/neuroagent/tasks/my_task.py`:
 
 ```python
+from celery import Task
 from neuroagent.task_schemas import MyTaskInput, MyTaskOutput
 from neuroagent.tasks.main import celery, get_redis_client
 from neuroagent.tasks.utils import task_stream_notifier
@@ -47,7 +48,7 @@ def run_my_task(arg: MyTaskInput) -> MyTaskOutput:
     return MyTaskOutput(result=result)
 
 @celery.task(name="my_task", bind=True, pydantic=True)
-def run(self, arg: MyTaskInput) -> MyTaskOutput:
+def run(self: Task, arg: MyTaskInput) -> MyTaskOutput:
     """Celery task wrapper."""
     task_id = self.request.id
     redis_client = get_redis_client()
@@ -59,7 +60,8 @@ def run(self, arg: MyTaskInput) -> MyTaskOutput:
 
 **Key points:**
 - Use `@celery.task(name="my_task", bind=True, pydantic=True)` decorator
-- With `bind=True`, the task receives `self` as the first argument
+- With `bind=True`, the task receives `self` as the first argument (typed as `Task`)
+- Import `Task` from `celery` and annotate `self: Task` for proper type checking
 - Get `task_id` from `self.request.id`
 - Get Redis client using `get_redis_client()`
 - Wrap task execution with `task_stream_notifier` context manager

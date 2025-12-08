@@ -7,6 +7,7 @@ from pathlib import Path
 
 import bluepysnap
 import duckdb
+from celery import Task
 from httpx import Client
 from openai import OpenAI
 from pandas import DataFrame
@@ -283,7 +284,9 @@ Generate the SQL query to analyze the neuron population:"""
 
 
 @celery.task(name="circuit_population_analysis_task", bind=True, pydantic=True)
-def run(self, arg: CircuitPopulationAnalysisTaskInput) -> CircuitPopulationAnalysisTaskOutput:
+def run(
+    self: Task, arg: CircuitPopulationAnalysisTaskInput
+) -> CircuitPopulationAnalysisTaskOutput:
     """Celery task wrapper for circuit population analysis."""
     task_id = self.request.id
     redis_client = get_redis_client()

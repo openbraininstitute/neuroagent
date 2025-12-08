@@ -4,6 +4,8 @@ import json
 import logging
 import uuid
 
+from celery import Task
+
 from neuroagent.task_schemas import (
     FailureOutput,
     RunPythonTaskInput,
@@ -23,7 +25,7 @@ logger = logging.getLogger(__name__)
 
 
 @celery.task(name="run_python_task", bind=True, pydantic=True)
-def run(self, arg: RunPythonTaskInput) -> RunPythonTaskOutput:
+def run(self: Task, arg: RunPythonTaskInput) -> RunPythonTaskOutput:
     """Run Python code in the sandboxed executor and handle S3 storage for plots.
 
     Parameters
