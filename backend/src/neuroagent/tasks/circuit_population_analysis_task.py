@@ -282,10 +282,10 @@ Generate the SQL query to analyze the neuron population:"""
         raise Exception(f"Circuit population analysis failed: {str(e)}")
 
 
-@celery.task(name="circuit_population_analysis_task", pydantic=True)
-def run(arg: CircuitPopulationAnalysisTaskInput) -> CircuitPopulationAnalysisTaskOutput:
+@celery.task(name="circuit_population_analysis_task", bind=True, pydantic=True)
+def run(self, arg: CircuitPopulationAnalysisTaskInput) -> CircuitPopulationAnalysisTaskOutput:
     """Celery task wrapper for circuit population analysis."""
-    task_id = run.request.id
+    task_id = self.request.id
     redis_client = get_redis_client()
 
     # Context manager automatically handles stream notifications

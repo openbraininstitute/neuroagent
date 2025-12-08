@@ -22,12 +22,14 @@ from neuroagent.utils import save_to_storage
 logger = logging.getLogger(__name__)
 
 
-@celery.task(name="run_python_task", pydantic=True)
-def run(arg: RunPythonTaskInput) -> RunPythonTaskOutput:
+@celery.task(name="run_python_task", bind=True, pydantic=True)
+def run(self, arg: RunPythonTaskInput) -> RunPythonTaskOutput:
     """Run Python code in the sandboxed executor and handle S3 storage for plots.
 
     Parameters
     ----------
+    self : Task
+        The task instance (bound task)
     arg : RunPythonTaskInput
         The input containing the Python script to execute and storage metadata
 
@@ -36,7 +38,7 @@ def run(arg: RunPythonTaskInput) -> RunPythonTaskOutput:
     RunPythonTaskOutput
         The execution result containing output, return value, errors, and storage IDs
     """
-    task_id = run.request.id
+    task_id = self.request.id
     redis_client = get_redis_client()
 
     # Context manager automatically handles stream notifications
