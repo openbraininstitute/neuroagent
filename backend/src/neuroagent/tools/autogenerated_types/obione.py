@@ -811,7 +811,7 @@ class NeuronPropertyFilter(BaseModel):
     model_config = ConfigDict(
         extra='ignore',
     )
-    filter_dict: dict[str, list] = Field(
+    filter_dict: dict[str, list[Any]] = Field(
         default={},
         description="Filter dictionary. Note as this is NOT a Block and the list here is                     not to support multi-dimensional parameters but to support a key-value pair                     with multiple values i.e. {'layer': ['2', '3']}}",
         title='Filter Dict',
@@ -1844,8 +1844,8 @@ class NItem(Element):
     pass
 
 
-class ColumnsXyz(RootModel[list]):
-    root: list = Field(
+class ColumnsXyz(RootModel[list[Any]]):
+    root: list[Any] = Field(
         ...,
         description='Names of the three neuron (node) properties used for volumetric tests',
         max_length=3,
@@ -1854,8 +1854,8 @@ class ColumnsXyz(RootModel[list]):
     )
 
 
-class ColumnsXyzItem(RootModel[list]):
-    root: list = Field(..., max_length=3, min_length=3)
+class ColumnsXyzItem(RootModel[list[Any]]):
+    root: list[Any] = Field(..., max_length=3, min_length=3)
 
 
 class VolumetricCountNeuronSet(BaseModel):
@@ -1897,7 +1897,7 @@ class VolumetricCountNeuronSet(BaseModel):
     )
     n: N | list[NItem] = Field(..., description='Number of neurons to find', title='N')
     columns_xyz: ColumnsXyz | list[ColumnsXyzItem] = Field(
-        default=['x', 'y', 'z'],
+        default_factory=lambda: ColumnsXyz.model_validate(['x', 'y', 'z']),
         description='Names of the three neuron (node) properties used for volumetric tests',
         title='Columns Xyz',
     )
@@ -1979,7 +1979,7 @@ class VolumetricRadiusNeuronSet(BaseModel):
         ..., description='Radius in um of volumetric sample', title='Radius'
     )
     columns_xyz: ColumnsXyz | list[ColumnsXyzItem] = Field(
-        default=['x', 'y', 'z'],
+        default_factory=lambda: ColumnsXyz.model_validate(['x', 'y', 'z']),
         description='Names of the three neuron (node) properties used for volumetric tests',
         title='Columns Xyz',
     )

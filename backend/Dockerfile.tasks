@@ -1,0 +1,65 @@
+FROM python:3.11
+
+ENV PYTHONUNBUFFERED=1
+
+RUN apt-get -y update && \
+    apt-get -y install curl \
+    ca-certificates \
+    build-essential \
+    libhdf5-dev \
+    libboost-all-dev \
+    ninja-build \
+    nodejs \
+    npm \
+    wget \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install cmake (with special handling for ARM)
+RUN TARGETARCH=$(dpkg --print-architecture) && \
+    if [ "$TARGETARCH" = "arm64" ] || [ "$TARGETARCH" = "aarch64" ]; then \
+        wget https://github.com/Kitware/CMake/archive/refs/tags/v4.0.1.tar.gz -O cmake.tar.gz && \
+        tar xzf cmake.tar.gz && \
+        cd CMake-4.0.1 && \
+        ./bootstrap --parallel=$(nproc) && \
+        make -j$(nproc) && \
+        make install && \
+        cd .. && \
+        rm -rf CMake-4.0.1 cmake.tar.gz; \
+    else \
+        apt-get update && apt-get install -y cmake && rm -rf /var/lib/apt/lists/*; \
+    fi
+
+ENV CMAKE=/usr/local/bin/cmake
+ENV CMAKE_POLICY_VERSION_MINIMUM=3.5
+RUN which cmake && cmake --version
+
+# Install deno using the official installer script
+# The installer will detect the container's architecture automatically
+RUN curl -fsSL https://deno.land/install.sh | sh && \
+    chmod +x /root/.deno/bin/deno && \
+    /root/.deno/bin/deno --version
+ENV PATH="/root/.deno/bin:$PATH"
+
+# Install uv using the official installer script
+# The installer will detect the container's architecture automatically
+RUN curl -LsSf https://astral.sh/uv/install.sh | sh && \
+    chmod +x /root/.local/bin/uv && \
+    /root/.local/bin/uv --version
+ENV PATH="/root/.local/bin/:$PATH"
+
+COPY ./ /code
+WORKDIR /code
+
+# Install dependencies using uv with tasks extra
+RUN uv sync --extra tasks
+
+# Download manual wheels
+RUN mkdir -p cached_wheels && \
+    wget https://files.pythonhosted.org/packages/e7/c3/3031c931098de393393e1f93a38dc9ed6805d86bb801acc3cf2d5bd1e6b7/plotly-6.5.0-py3-none-any.whl -O ./cached_wheels/plotly-6.5.0-py3-none-any.whl
+
+WORKDIR /code
+
+# Celery worker entrypoint
+# Celery app is configured in neuroagent.tasks.main
+# Consume from both python_q and circuit_q queues
+ENTRYPOINT ["uv", "run", "celery", "-A", "neuroagent.tasks.main", "worker", "--loglevel=info", "-Q", "python_q,circuit_q"]

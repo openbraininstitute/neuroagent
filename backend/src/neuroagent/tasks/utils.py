@@ -1,43 +1,88 @@
-"""Sandboxed python executor."""
+"""Utility functions for Celery tasks."""
 
 import asyncio
 import json
 import logging
 import subprocess  # nosec: B404
 import tempfile
+from contextlib import contextmanager
 from pathlib import Path
 from textwrap import dedent
 from types import TracebackType
-from typing import Any, Literal
+from typing import Iterator, Literal
 
-from pydantic import BaseModel
+import redis
+
+from neuroagent.task_schemas import ErrorDetail, FailureOutput, SuccessOutput
+
+logger = logging.getLogger(__name__)
 
 LoggingLevel = Literal[
     "debug", "info", "notice", "warning", "error", "critical", "alert", "emergency"
 ]
 
 
-class SuccessOutput(BaseModel):
-    """Output of the python script."""
+@contextmanager
+def task_stream_notifier(redis_client: redis.Redis, task_id: str) -> Iterator[None]:
+    """Context manager that automatically publishes task completion to Redis stream.
 
-    status: Literal["success"] = "success"
-    output: list[str]
-    return_value: Any = None
+    This context manager wraps task execution and automatically publishes
+    "done" status to Redis stream on successful completion, or "error" status
+    on exception. The stream key is `task:{task_id}:progress`.
 
+    Parameters
+    ----------
+    redis_client : redis.Redis
+        The Redis client instance (sync, since tasks run in sync context)
+    task_id : str
+        The Celery task ID
 
-class ErrorDetail(BaseModel):
-    """Detail fo the python error."""
+    Yields
+    ------
+    None
+        The context manager yields control to the task code
 
-    message: str | None = None
-    name: str | None = None
+    Example
+    -------
+    >>> with task_stream_notifier(redis_client, task_id):
+    ...     # Your task code here
+    ...     result = do_work()
+    ...     return result
+    """
+    stream_key = f"task:{task_id}:progress"
 
+    try:
+        yield
+        # If we get here, task completed successfully
+        try:
+            redis_client.xadd(
+                stream_key,
+                {"status": "done"},
+                maxlen=1,  # Keep only the latest message
+            )
+            redis_client.expire(stream_key, 86400)  # Set TTL to 1 day
+            logger.info(f"Published done status to stream {stream_key}")
+        except Exception as e:
+            logger.warning(f"Failed to publish done status to stream: {e}")
 
-class FailureOutput(BaseModel):
-    """Output of the python script."""
+    except Exception as e:
+        # Task failed, publish error status
+        error_message = str(e)
+        try:
+            redis_client.xadd(
+                stream_key,
+                {"status": "error", "error": error_message},
+                maxlen=1,
+            )
+            redis_client.expire(stream_key, 86400)  # Set TTL to 1 day
+            logger.info(
+                f"Published error status to stream {stream_key}: {error_message}"
+            )
+        except Exception as stream_error:
+            logger.warning(f"Failed to publish error status to stream: {stream_error}")
 
-    status: Literal["error"] = "error"
-    error_type: Literal["install-error", "python-error"]
-    error: ErrorDetail | str | None = None
+        # Re-raise the original exception
+        raise
 
 
 class WasmExecutor:
@@ -207,6 +252,90 @@ class WasmExecutor:
             events = []
             if stdout:
                 lines = stdout.decode().split("\n")
+                for line in lines:
+                    text = line.rstrip("\r")
+                    if text:  # Skip empty lines
+                        events.append(text)
+                        if self.logger:
+                            self.logger.debug(text)
+
+            # No error + no stdout = Houston we have a problem
+            if not events:
+                raise ValueError("Could not retrieve outputs of the python script.")
+
+            python_outcome = events[-1]  # Last line of the js logs is the python output
+            try:
+                result_json = json.loads(python_outcome)
+            except json.JSONDecodeError:
+                raise ValueError(
+                    f"The code returned an invalid output: {python_outcome}"
+                )
+
+            if result_json["error"]:
+                return FailureOutput(
+                    error_type="python-error", error=ErrorDetail(**result_json["error"])
+                )
+
+            return SuccessOutput(
+                output=result_json["output"],
+                return_value=result_json.get("return_value"),
+            )
+
+    def run_code_sync(self, code: str) -> SuccessOutput | FailureOutput:
+        """
+        Execute Python code in the Pyodide environment and return the result (synchronous version).
+
+        Parameters
+        ----------
+            code (`str`): Python code to execute.
+
+        Returns
+        -------
+            `SuccessOutput | FailureOutput`: Code output containing the result and logs or potential errors.
+        """
+        with tempfile.TemporaryDirectory(prefix="pyodide_deno_") as runner_dir:
+            runner_path = Path(runner_dir) / "pyodide_runner.js"
+            # Create the JavaScript runner file
+            with open(runner_path, "w") as f:
+                f.write(
+                    self.JS_CODE.format(
+                        packages=self.additional_imports, code=json.dumps(code)
+                    )
+                )
+            # Add read permission to tempdir
+            permission = []
+            for perm in self.deno_permissions:
+                if "--allow-read" in perm:
+                    allowed_read_dir = perm.split("=")[-1].split(",")
+                    allowed_read_dir.append(runner_dir)
+                    permission.append(f"--allow-read={','.join(allowed_read_dir)}")
+                else:
+                    permission.append(perm)
+
+            cmd = [self.deno_path, "run"] + permission + [runner_path]
+
+            # Run the cmd in a subprocess (synchronous)
+            try:
+                result = subprocess.run(  # nosec: B603
+                    cmd,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE,
+                    text=True,
+                    timeout=self.timeout,
+                )
+            except subprocess.TimeoutExpired:
+                raise ValueError(
+                    f"Code execution timed out after {self.timeout} seconds"
+                )
+
+            # Check for execution errors
+            if result.stderr:
+                return FailureOutput(error_type="install-error", error=result.stderr)
+
+            # Parse stdout into lines
+            events = []
+            if result.stdout:
+                lines = result.stdout.split("\n")
                 for line in lines:
                     text = line.rstrip("\r")
                     if text:  # Skip empty lines

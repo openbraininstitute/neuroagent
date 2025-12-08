@@ -11,16 +11,15 @@ from tests.conftest import mock_keycloak_user_identification
 
 @pytest.mark.asyncio
 async def test_get_rate_limit_redis_disabled(app_client, httpx_mock, test_user_info):
-    """Test rate limit endpoint when Redis is disabled (None)."""
+    """Test rate limit endpoint when the reate limiter is disabled."""
     mock_keycloak_user_identification(httpx_mock, test_user_info)
     test_settings = Settings(
         keycloak={"issuer": "https://great_issuer.com"},
         accounting={"disabled": True},
-        rate_limiter={"disabled": False},
+        rate_limiter={"disabled": True},
     )
     app.dependency_overrides[get_settings] = lambda: test_settings
-    app.dependency_overrides[get_redis_client] = lambda: None
-    # Call the endpoint with redis_client=None
+
     with app_client as app_client:
         response = app_client.get("/rate_limit")
 

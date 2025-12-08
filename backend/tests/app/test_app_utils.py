@@ -222,19 +222,6 @@ async def test_rate_limit_subsequent_request_at_limit():
     }
 
 
-@pytest.mark.asyncio
-async def test_rate_limit_no_redis():
-    """Test rate limiting is skipped when Redis client is None."""
-    # Should complete without error and without any calls
-    await rate_limit(
-        redis_client=None,
-        route_path="/test/path",
-        limit=10,
-        expiry=3600,
-        user_sub="test_user",
-    )
-
-
 def test_format_messages_output():
     """Test the output format conversion."""
 
