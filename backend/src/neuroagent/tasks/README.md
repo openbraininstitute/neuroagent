@@ -2,6 +2,18 @@
 
 This guide describes the minimal way to implement a tool that triggers a Celery task.
 
+## Table of Contents
+
+- [Overview](#overview)
+- [Step-by-Step Implementation](#step-by-step-implementation)
+  - [1. Define Schemas](#1-define-schemas-in-task_schemaspy)
+  - [2. Create the Task Function](#2-create-the-task-function)
+  - [3. Register the Task in `__init__.py`](#3-register-the-task-in-__init__py)
+  - [4. Create the Tool](#4-create-the-tool)
+  - [5. The `task_stream_notifier` Context Manager](#5-the-task_stream_notifier-context-manager)
+- [Bonus: Worker Process Initialization](#bonus-worker-process-initialization)
+- [Bonus: Debugging Tasks](#bonus-debugging-tasks)
+
 ## Overview
 
 The pattern consists of:
@@ -159,3 +171,26 @@ def get_resource() -> MyResource | None:
 ```
 
 Then access it in your tasks via the getter function. This avoids re-initializing expensive resources for every task execution. See `backend/src/neuroagent/tasks/main.py` for a complete example.
+
+## Bonus: Debugging Tasks
+
+Use `celery.contrib.rdb` for remote debugging of tasks that don't have terminal access:
+
+```python
+from celery.contrib import rdb
+
+@celery.task(name="my_task", bind=True, pydantic=True)
+def run(self: Task, arg: MyTaskInput) -> MyTaskOutput:
+    """Celery task wrapper."""
+    result = perform_work(arg.field1, arg.field2)
+    rdb.set_trace()  # <- set break-point
+    return MyTaskOutput(result=result)
+```
+
+When the worker hits the break-point, it will log the telnet connection details. Connect to debug:
+
+```bash
+telnet localhost 6900
+```
+
+You'll get a pdb shell to inspect variables and step through code. Type `exit` to continue task execution.
