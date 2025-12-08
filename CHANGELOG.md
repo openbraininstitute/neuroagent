@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Pricing information in obi-expert
 
 ## [0.13.0] - 1.12.2025
 
