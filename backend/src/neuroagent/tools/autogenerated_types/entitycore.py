@@ -2056,6 +2056,12 @@ class PythonRuntimeInfo(BaseModel):
     )
 
 
+class RepairPipelineType(RootModel[Literal['raw', 'curated', 'unraveled', 'repaired']]):
+    root: Literal['raw', 'curated', 'unraveled', 'repaired'] = Field(
+        ..., title='RepairPipelineType'
+    )
+
+
 class RoleAdminUpdate(BaseModel):
     model_config = ConfigDict(
         extra='allow',
@@ -2923,6 +2929,11 @@ class ReadManyAnalysisNotebookResultGetParametersQuery(BaseModel):
     id: UUID | None = Field(default=None, title='Id')
     id__in: list[UUID] | None = Field(default=None, title='Id  In')
     order_by: list[str] = Field(default=['-creation_date'], title='Order By')
+    ilike_search: str | None = Field(
+        default=None,
+        description="Search text with wildcard support. Use * for zero or more characters and ? for exactly one character. All other characters are treated as literals. Examples: 'test*' matches 'testing', 'file?.txt' matches 'file1.txt'. search_model_fields: name, description",
+        title='Ilike Search',
+    )
     contribution__pref_label: str | None = Field(
         default=None, title='Contribution  Pref Label'
     )
@@ -3013,6 +3024,11 @@ class ReadManyBrainAtlasGetParametersQuery(BaseModel):
     id: UUID | None = Field(default=None, title='Id')
     id__in: list[UUID] | None = Field(default=None, title='Id  In')
     order_by: list[str] = Field(default=['name'], title='Order By')
+    ilike_search: str | None = Field(
+        default=None,
+        description="Search text with wildcard support. Use * for zero or more characters and ? for exactly one character. All other characters are treated as literals. Examples: 'test*' matches 'testing', 'file?.txt' matches 'file1.txt'. search_model_fields: name, description",
+        title='Ilike Search',
+    )
     species__name: str | None = Field(default=None, title='Species  Name')
     species__name__in: list[str] | None = Field(default=None, title='Species  Name  In')
     species__name__ilike: str | None = Field(default=None, title='Species  Name  Ilike')
@@ -3187,6 +3203,11 @@ class ReadManyCellCompositionGetParametersQuery(BaseModel):
     id: UUID | None = Field(default=None, title='Id')
     id__in: list[UUID] | None = Field(default=None, title='Id  In')
     order_by: list[str] = Field(default=['-creation_date'], title='Order By')
+    ilike_search: str | None = Field(
+        default=None,
+        description="Search text with wildcard support. Use * for zero or more characters and ? for exactly one character. All other characters are treated as literals. Examples: 'test*' matches 'testing', 'file?.txt' matches 'file1.txt'. search_model_fields: name, description",
+        title='Ilike Search',
+    )
     contribution__pref_label: str | None = Field(
         default=None, title='Contribution  Pref Label'
     )
@@ -3286,6 +3307,11 @@ class ReadManyCellMorphologyGetParametersQuery(BaseModel):
     id: UUID | None = Field(default=None, title='Id')
     id__in: list[UUID] | None = Field(default=None, title='Id  In')
     order_by: list[str] = Field(default=['-creation_date'], title='Order By')
+    ilike_search: str | None = Field(
+        default=None,
+        description="Search text with wildcard support. Use * for zero or more characters and ? for exactly one character. All other characters are treated as literals. Examples: 'test*' matches 'testing', 'file?.txt' matches 'file1.txt'. search_model_fields: name, description",
+        title='Ilike Search',
+    )
     measurement_annotation__creation_date__lte: AwareDatetime | None = Field(
         default=None, title='Measurement Annotation  Creation Date  Lte'
     )
@@ -3534,6 +3560,11 @@ class ReadManyCellMorphologyProtocolGetParametersQuery(BaseModel):
         default=None, title='Generation Type  In'
     )
     order_by: list[str] = Field(default=['-creation_date'], title='Order By')
+    ilike_search: str | None = Field(
+        default=None,
+        description="Search text with wildcard support. Use * for zero or more characters and ? for exactly one character. All other characters are treated as literals. Examples: 'test*' matches 'testing', 'file?.txt' matches 'file1.txt'. search_model_fields: name, description",
+        title='Ilike Search',
+    )
     contribution__pref_label: str | None = Field(
         default=None, title='Contribution  Pref Label'
     )
@@ -3672,6 +3703,11 @@ class ReadManyCircuitGetParametersQuery(BaseModel):
     )
     number_connections__gte: int | None = Field(
         default=None, title='Number Connections  Gte'
+    )
+    ilike_search: str | None = Field(
+        default=None,
+        description="Search text with wildcard support. Use * for zero or more characters and ? for exactly one character. All other characters are treated as literals. Examples: 'test*' matches 'testing', 'file?.txt' matches 'file1.txt'. search_model_fields: name, description",
+        title='Ilike Search',
     )
     contribution__pref_label: str | None = Field(
         default=None, title='Contribution  Pref Label'
@@ -3844,6 +3880,11 @@ class ReadManyCircuitExtractionCampaignGetParametersQuery(BaseModel):
     id: UUID | None = Field(default=None, title='Id')
     id__in: list[UUID] | None = Field(default=None, title='Id  In')
     order_by: list[str] = Field(default=['-creation_date'], title='Order By')
+    ilike_search: str | None = Field(
+        default=None,
+        description="Search text with wildcard support. Use * for zero or more characters and ? for exactly one character. All other characters are treated as literals. Examples: 'test*' matches 'testing', 'file?.txt' matches 'file1.txt'. search_model_fields: name, description",
+        title='Ilike Search',
+    )
     contribution__pref_label: str | None = Field(
         default=None, title='Contribution  Pref Label'
     )
@@ -3964,6 +4005,11 @@ class ReadManyCircuitExtractionConfigGetParametersQuery(BaseModel):
         default=None, title='Circuit Extraction Campaign Id  In'
     )
     order_by: list[str] = Field(default=['-creation_date'], title='Order By')
+    ilike_search: str | None = Field(
+        default=None,
+        description="Search text with wildcard support. Use * for zero or more characters and ? for exactly one character. All other characters are treated as literals. Examples: 'test*' matches 'testing', 'file?.txt' matches 'file1.txt'. search_model_fields: name, description",
+        title='Ilike Search',
+    )
     contribution__pref_label: str | None = Field(
         default=None, title='Contribution  Pref Label'
     )
@@ -4394,6 +4440,11 @@ class ReadManyElectricalCellRecordingGetParametersQuery(BaseModel):
     recording_origin__in: list[ElectricalRecordingOrigin] | None = Field(
         default=None, title='Recording Origin  In'
     )
+    ilike_search: str | None = Field(
+        default=None,
+        description="Search text with wildcard support. Use * for zero or more characters and ? for exactly one character. All other characters are treated as literals. Examples: 'test*' matches 'testing', 'file?.txt' matches 'file1.txt'. search_model_fields: name, description",
+        title='Ilike Search',
+    )
     etype__pref_label: str | None = Field(default=None, title='Etype  Pref Label')
     etype__pref_label__in: list[str] | None = Field(
         default=None, title='Etype  Pref Label  In'
@@ -4580,6 +4631,11 @@ class ReadManyElectricalRecordingStimulusGetParametersQuery(BaseModel):
     )
     recording_id: UUID | None = Field(default=None, title='Recording Id')
     recording_id__in: list[UUID] | None = Field(default=None, title='Recording Id  In')
+    ilike_search: str | None = Field(
+        default=None,
+        description="Search text with wildcard support. Use * for zero or more characters and ? for exactly one character. All other characters are treated as literals. Examples: 'test*' matches 'testing', 'file?.txt' matches 'file1.txt'. search_model_fields: name, description",
+        title='Ilike Search',
+    )
     contribution__pref_label: str | None = Field(
         default=None, title='Contribution  Pref Label'
     )
@@ -4926,6 +4982,11 @@ class ReadManyEmDenseReconstructionDatasetGetParametersQuery(BaseModel):
     )
     contact_email: str | None = Field(default=None, title='Contact Email')
     order_by: list[str] = Field(default=['-creation_date'], title='Order By')
+    ilike_search: str | None = Field(
+        default=None,
+        description="Search text with wildcard support. Use * for zero or more characters and ? for exactly one character. All other characters are treated as literals. Examples: 'test*' matches 'testing', 'file?.txt' matches 'file1.txt'. search_model_fields: name, description",
+        title='Ilike Search',
+    )
     contribution__pref_label: str | None = Field(
         default=None, title='Contribution  Pref Label'
     )
@@ -5099,6 +5160,11 @@ class ReadManyEmodelGetParametersQuery(BaseModel):
     score__lte: float | None = Field(default=None, title='Score  Lte')
     score__gte: float | None = Field(default=None, title='Score  Gte')
     order_by: list[str] = Field(default=['-creation_date'], title='Order By')
+    ilike_search: str | None = Field(
+        default=None,
+        description="Search text with wildcard support. Use * for zero or more characters and ? for exactly one character. All other characters are treated as literals. Examples: 'test*' matches 'testing', 'file?.txt' matches 'file1.txt'. search_model_fields: name, description",
+        title='Ilike Search',
+    )
     species__name: str | None = Field(default=None, title='Species  Name')
     species__name__in: list[str] | None = Field(default=None, title='Species  Name  In')
     species__name__ilike: str | None = Field(default=None, title='Species  Name  Ilike')
@@ -5477,6 +5543,11 @@ class ReadManyExperimentalBoutonDensityGetParametersQuery(BaseModel):
     id: UUID | None = Field(default=None, title='Id')
     id__in: list[UUID] | None = Field(default=None, title='Id  In')
     order_by: list[str] = Field(default=['-creation_date'], title='Order By')
+    ilike_search: str | None = Field(
+        default=None,
+        description="Search text with wildcard support. Use * for zero or more characters and ? for exactly one character. All other characters are treated as literals. Examples: 'test*' matches 'testing', 'file?.txt' matches 'file1.txt'. search_model_fields: name, description",
+        title='Ilike Search',
+    )
     mtype__pref_label: str | None = Field(default=None, title='Mtype  Pref Label')
     mtype__pref_label__in: list[str] | None = Field(
         default=None, title='Mtype  Pref Label  In'
@@ -5657,6 +5728,11 @@ class ReadManyExperimentalNeuronDensityGetParametersQuery(BaseModel):
     id: UUID | None = Field(default=None, title='Id')
     id__in: list[UUID] | None = Field(default=None, title='Id  In')
     order_by: list[str] = Field(default=['-creation_date'], title='Order By')
+    ilike_search: str | None = Field(
+        default=None,
+        description="Search text with wildcard support. Use * for zero or more characters and ? for exactly one character. All other characters are treated as literals. Examples: 'test*' matches 'testing', 'file?.txt' matches 'file1.txt'. search_model_fields: name, description",
+        title='Ilike Search',
+    )
     etype__pref_label: str | None = Field(default=None, title='Etype  Pref Label')
     etype__pref_label__in: list[str] | None = Field(
         default=None, title='Etype  Pref Label  In'
@@ -5846,6 +5922,11 @@ class ReadManyExperimentalSynapsesPerConnectionGetParametersQuery(BaseModel):
     id: UUID | None = Field(default=None, title='Id')
     id__in: list[UUID] | None = Field(default=None, title='Id  In')
     order_by: list[str] = Field(default=['-creation_date'], title='Order By')
+    ilike_search: str | None = Field(
+        default=None,
+        description="Search text with wildcard support. Use * for zero or more characters and ? for exactly one character. All other characters are treated as literals. Examples: 'test*' matches 'testing', 'file?.txt' matches 'file1.txt'. search_model_fields: name, description",
+        title='Ilike Search',
+    )
     subject__name: str | None = Field(default=None, title='Subject  Name')
     subject__name__in: list[str] | None = Field(default=None, title='Subject  Name  In')
     subject__name__ilike: str | None = Field(default=None, title='Subject  Name  Ilike')
@@ -6083,6 +6164,11 @@ class ReadManyExternalUrlGetParametersQuery(BaseModel):
         default=None, title='Update Date  Gte'
     )
     order_by: list[str] = Field(default=['-creation_date'], title='Order By')
+    ilike_search: str | None = Field(
+        default=None,
+        description="Search text with wildcard support. Use * for zero or more characters and ? for exactly one character. All other characters are treated as literals. Examples: 'test*' matches 'testing', 'file?.txt' matches 'file1.txt'. search_model_fields: name, description",
+        title='Ilike Search',
+    )
     created_by__pref_label: str | None = Field(
         default=None, title='Created By  Pref Label'
     )
@@ -6180,6 +6266,11 @@ class ReadManyIonChannelGetParametersQuery(BaseModel):
     label: str | None = Field(default=None, title='Label')
     gene: str | None = Field(default=None, title='Gene')
     order_by: list[str] = Field(default=['label'], title='Order By')
+    ilike_search: str | None = Field(
+        default=None,
+        description="Search text with wildcard support. Use * for zero or more characters and ? for exactly one character. All other characters are treated as literals. Examples: 'test*' matches 'testing', 'file?.txt' matches 'file1.txt'. search_model_fields: name, description",
+        title='Ilike Search',
+    )
     created_by__pref_label: str | None = Field(
         default=None, title='Created By  Pref Label'
     )
@@ -6288,6 +6379,11 @@ class ReadManyIonChannelModelGetParametersQuery(BaseModel):
         default=None, title='Temperature Celsius  Gte'
     )
     is_stochastic: bool | None = Field(default=None, title='Is Stochastic')
+    ilike_search: str | None = Field(
+        default=None,
+        description="Search text with wildcard support. Use * for zero or more characters and ? for exactly one character. All other characters are treated as literals. Examples: 'test*' matches 'testing', 'file?.txt' matches 'file1.txt'. search_model_fields: name, description",
+        title='Ilike Search',
+    )
     contribution__pref_label: str | None = Field(
         default=None, title='Contribution  Pref Label'
     )
@@ -6458,6 +6554,11 @@ class ReadManyIonChannelModelingCampaignGetParametersQuery(BaseModel):
     id: UUID | None = Field(default=None, title='Id')
     id__in: list[UUID] | None = Field(default=None, title='Id  In')
     order_by: list[str] = Field(default=['-creation_date'], title='Order By')
+    ilike_search: str | None = Field(
+        default=None,
+        description="Search text with wildcard support. Use * for zero or more characters and ? for exactly one character. All other characters are treated as literals. Examples: 'test*' matches 'testing', 'file?.txt' matches 'file1.txt'. search_model_fields: name, description",
+        title='Ilike Search',
+    )
     contribution__pref_label: str | None = Field(
         default=None, title='Contribution  Pref Label'
     )
@@ -6591,6 +6692,11 @@ class ReadManyIonChannelModelingConfigGetParametersQuery(BaseModel):
         default=None, title='Ion Channel Modeling Campaign Id  In'
     )
     order_by: list[str] = Field(default=['-creation_date'], title='Order By')
+    ilike_search: str | None = Field(
+        default=None,
+        description="Search text with wildcard support. Use * for zero or more characters and ? for exactly one character. All other characters are treated as literals. Examples: 'test*' matches 'testing', 'file?.txt' matches 'file1.txt'. search_model_fields: name, description",
+        title='Ilike Search',
+    )
     contribution__pref_label: str | None = Field(
         default=None, title='Contribution  Pref Label'
     )
@@ -6839,6 +6945,11 @@ class ReadManyIonChannelRecordingGetParametersQuery(BaseModel):
     temperature__gte: float | None = Field(default=None, title='Temperature  Gte')
     cell_line: str | None = Field(default=None, title='Cell Line')
     cell_line__ilike: str | None = Field(default=None, title='Cell Line  Ilike')
+    ilike_search: str | None = Field(
+        default=None,
+        description="Search text with wildcard support. Use * for zero or more characters and ? for exactly one character. All other characters are treated as literals. Examples: 'test*' matches 'testing', 'file?.txt' matches 'file1.txt'. search_model_fields: name, description",
+        title='Ilike Search',
+    )
     contribution__pref_label: str | None = Field(
         default=None, title='Contribution  Pref Label'
     )
@@ -7009,6 +7120,11 @@ class ReadManyLicenseGetParametersQuery(BaseModel):
     label: str | None = Field(default=None, title='Label')
     label__ilike: str | None = Field(default=None, title='Label  Ilike')
     order_by: list[str] = Field(default=['-creation_date'], title='Order By')
+    ilike_search: str | None = Field(
+        default=None,
+        description="Search text with wildcard support. Use * for zero or more characters and ? for exactly one character. All other characters are treated as literals. Examples: 'test*' matches 'testing', 'file?.txt' matches 'file1.txt'. search_model_fields: name, description",
+        title='Ilike Search',
+    )
 
 
 class ReadManyMeasurementAnnotationGetParametersQuery(BaseModel):
@@ -7091,6 +7207,11 @@ class ReadManyMemodelGetParametersQuery(BaseModel):
     id: UUID | None = Field(default=None, title='Id')
     id__in: list[UUID] | None = Field(default=None, title='Id  In')
     order_by: list[str] = Field(default=['-creation_date'], title='Order By')
+    ilike_search: str | None = Field(
+        default=None,
+        description="Search text with wildcard support. Use * for zero or more characters and ? for exactly one character. All other characters are treated as literals. Examples: 'test*' matches 'testing', 'file?.txt' matches 'file1.txt'. search_model_fields: name, description",
+        title='Ilike Search',
+    )
     brain_region__name: str | None = Field(default=None, title='Brain Region  Name')
     brain_region__name__in: list[str] | None = Field(
         default=None, title='Brain Region  Name  In'
@@ -8030,6 +8151,11 @@ class ReadManySkeletonizationCampaignGetParametersQuery(BaseModel):
     id: UUID | None = Field(default=None, title='Id')
     id__in: list[UUID] | None = Field(default=None, title='Id  In')
     order_by: list[str] = Field(default=['-creation_date'], title='Order By')
+    ilike_search: str | None = Field(
+        default=None,
+        description="Search text with wildcard support. Use * for zero or more characters and ? for exactly one character. All other characters are treated as literals. Examples: 'test*' matches 'testing', 'file?.txt' matches 'file1.txt'. search_model_fields: name, description",
+        title='Ilike Search',
+    )
     contribution__pref_label: str | None = Field(
         default=None, title='Contribution  Pref Label'
     )
@@ -8167,6 +8293,11 @@ class ReadManySkeletonizationConfigGetParametersQuery(BaseModel):
         default=None, title='Em Cell Mesh Id  In'
     )
     order_by: list[str] = Field(default=['-creation_date'], title='Order By')
+    ilike_search: str | None = Field(
+        default=None,
+        description="Search text with wildcard support. Use * for zero or more characters and ? for exactly one character. All other characters are treated as literals. Examples: 'test*' matches 'testing', 'file?.txt' matches 'file1.txt'. search_model_fields: name, description",
+        title='Ilike Search',
+    )
     contribution__pref_label: str | None = Field(
         default=None, title='Contribution  Pref Label'
     )
@@ -8397,6 +8528,11 @@ class ReadManySimulationGetParametersQuery(BaseModel):
         default=None, title='Simulation Campaign Id  In'
     )
     order_by: list[str] = Field(default=['-creation_date'], title='Order By')
+    ilike_search: str | None = Field(
+        default=None,
+        description="Search text with wildcard support. Use * for zero or more characters and ? for exactly one character. All other characters are treated as literals. Examples: 'test*' matches 'testing', 'file?.txt' matches 'file1.txt'. search_model_fields: name, description",
+        title='Ilike Search',
+    )
     contribution__pref_label: str | None = Field(
         default=None, title='Contribution  Pref Label'
     )
@@ -8526,6 +8662,11 @@ class ReadManySimulationCampaignGetParametersQuery(BaseModel):
     entity_id: UUID | None = Field(default=None, title='Entity Id')
     entity_id__in: list[UUID] | None = Field(default=None, title='Entity Id  In')
     order_by: list[str] = Field(default=['-creation_date'], title='Order By')
+    ilike_search: str | None = Field(
+        default=None,
+        description="Search text with wildcard support. Use * for zero or more characters and ? for exactly one character. All other characters are treated as literals. Examples: 'test*' matches 'testing', 'file?.txt' matches 'file1.txt'. search_model_fields: name, description",
+        title='Ilike Search',
+    )
     contribution__pref_label: str | None = Field(
         default=None, title='Contribution  Pref Label'
     )
@@ -8789,6 +8930,11 @@ class ReadManySingleNeuronSimulationGetParametersQuery(BaseModel):
     id__in: list[UUID] | None = Field(default=None, title='Id  In')
     status: SingleNeuronSimulationStatus | None = Field(default=None, title='Status')
     order_by: list[str] = Field(default=['-creation_date'], title='Order By')
+    ilike_search: str | None = Field(
+        default=None,
+        description="Search text with wildcard support. Use * for zero or more characters and ? for exactly one character. All other characters are treated as literals. Examples: 'test*' matches 'testing', 'file?.txt' matches 'file1.txt'. search_model_fields: name, description",
+        title='Ilike Search',
+    )
     brain_region__name: str | None = Field(default=None, title='Brain Region  Name')
     brain_region__name__in: list[str] | None = Field(
         default=None, title='Brain Region  Name  In'
@@ -9211,6 +9357,11 @@ class ReadManySingleNeuronSynaptomeGetParametersQuery(BaseModel):
     id: UUID | None = Field(default=None, title='Id')
     id__in: list[UUID] | None = Field(default=None, title='Id  In')
     order_by: list[str] = Field(default=['-creation_date'], title='Order By')
+    ilike_search: str | None = Field(
+        default=None,
+        description="Search text with wildcard support. Use * for zero or more characters and ? for exactly one character. All other characters are treated as literals. Examples: 'test*' matches 'testing', 'file?.txt' matches 'file1.txt'. search_model_fields: name, description",
+        title='Ilike Search',
+    )
     brain_region__name: str | None = Field(default=None, title='Brain Region  Name')
     brain_region__name__in: list[str] | None = Field(
         default=None, title='Brain Region  Name  In'
@@ -9634,6 +9785,11 @@ class ReadManySingleNeuronSynaptomeSimulationGetParametersQuery(BaseModel):
     id__in: list[UUID] | None = Field(default=None, title='Id  In')
     status: SingleNeuronSimulationStatus | None = Field(default=None, title='Status')
     order_by: list[str] = Field(default=['-creation_date'], title='Order By')
+    ilike_search: str | None = Field(
+        default=None,
+        description="Search text with wildcard support. Use * for zero or more characters and ? for exactly one character. All other characters are treated as literals. Examples: 'test*' matches 'testing', 'file?.txt' matches 'file1.txt'. search_model_fields: name, description",
+        title='Ilike Search',
+    )
     brain_region__name: str | None = Field(default=None, title='Brain Region  Name')
     brain_region__name__in: list[str] | None = Field(
         default=None, title='Brain Region  Name  In'
@@ -10187,6 +10343,11 @@ class ReadManySubjectGetParametersQuery(BaseModel):
     id__in: list[UUID] | None = Field(default=None, title='Id  In')
     age_value: timedelta | None = Field(default=None, title='Age Value')
     order_by: list[str] = Field(default=['-creation_date'], title='Order By')
+    ilike_search: str | None = Field(
+        default=None,
+        description="Search text with wildcard support. Use * for zero or more characters and ? for exactly one character. All other characters are treated as literals. Examples: 'test*' matches 'testing', 'file?.txt' matches 'file1.txt'. search_model_fields: name, description",
+        title='Ilike Search',
+    )
     species__name: str | None = Field(default=None, title='Species  Name')
     species__name__in: list[str] | None = Field(default=None, title='Species  Name  In')
     species__name__ilike: str | None = Field(default=None, title='Species  Name  Ilike')
@@ -10610,6 +10771,7 @@ class CellMorphologyCreate(BaseModel):
     location: PointLocationBase | None = None
     legacy_id: list[str] | None = Field(default=None, title='Legacy Id')
     has_segmented_spines: bool = Field(default=False, title='Has Segmented Spines')
+    repair_pipeline_state: RepairPipelineType | None = None
     cell_morphology_protocol_id: UUID | None = Field(
         default=None, title='Cell Morphology Protocol Id'
     )
@@ -10638,6 +10800,9 @@ class CellMorphologyUserUpdate(BaseModel):
     legacy_id: list[str] | str | None = Field(default='<NOT_SET>', title='Legacy Id')
     has_segmented_spines: bool | str | None = Field(
         default='<NOT_SET>', title='Has Segmented Spines'
+    )
+    repair_pipeline_state: RepairPipelineType | str | None = Field(
+        default='<NOT_SET>', title='Repair Pipeline State'
     )
     cell_morphology_protocol_id: UUID | str | None = Field(
         default='<NOT_SET>', title='Cell Morphology Protocol Id'
@@ -11136,6 +11301,7 @@ class ExemplarMorphology(BaseModel):
     location: PointLocationBase | None = None
     legacy_id: list[str] | None = Field(default=None, title='Legacy Id')
     has_segmented_spines: bool = Field(default=False, title='Has Segmented Spines')
+    repair_pipeline_state: RepairPipelineType | None = None
     creation_date: AwareDatetime = Field(..., title='Creation Date')
     update_date: AwareDatetime = Field(..., title='Update Date')
 
@@ -13390,6 +13556,7 @@ class CellMorphologyAnnotationExpandedRead(BaseModel):
     location: PointLocationBase | None = None
     legacy_id: list[str] | None = Field(default=None, title='Legacy Id')
     has_segmented_spines: bool = Field(default=False, title='Has Segmented Spines')
+    repair_pipeline_state: RepairPipelineType | None = None
     mtypes: list[AnnotationRead] | None = Field(..., title='Mtypes')
     cell_morphology_protocol: NestedCellMorphologyProtocolRead | None = None
     measurement_annotation: MeasurementAnnotationRead | None = None
@@ -13439,6 +13606,7 @@ class CellMorphologyRead(BaseModel):
     location: PointLocationBase | None = None
     legacy_id: list[str] | None = Field(default=None, title='Legacy Id')
     has_segmented_spines: bool = Field(default=False, title='Has Segmented Spines')
+    repair_pipeline_state: RepairPipelineType | None = None
     mtypes: list[AnnotationRead] | None = Field(..., title='Mtypes')
     cell_morphology_protocol: NestedCellMorphologyProtocolRead | None = None
 
