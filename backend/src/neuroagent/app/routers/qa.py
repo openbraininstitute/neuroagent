@@ -169,23 +169,23 @@ async def question_suggestions(
         system_prompt = f"""
 Guidelines:
 
-- Generate three questions, each on a significantly different aspect or subtopic relevant to the main topic of the conversation, and each phrased from the user's perspective (e.g., "Show me...", "What is...", "Can you...").
-- **CRITICAL**: DO NOT generate questions that an LLM would ask. GENERATE QUESTIONS A HUMAN WOULD ASK TO THE LLM.
-- Explore various distinct possibilities. E.g. visuals, metrics, literature, associated models, etc... Be creative.
-- Only include questions that can be answered using the available tools.
-- This LLM cannot call any tools, suggestions must be based solely on the descriptions. Do not assume access to tools beyond what is described.
-- Focus on advancing the user's workflow and showcasing what the chat can help with. Suggest logical next steps, deeper exploration, or related topics using the available tool information. Avoid producing mere variations of previous questions.
-- Keep questions succinct and clear.
-- When evaluating which questions make sense, refer only to the tools' purposes and minimal relevant input as described in the provided list; do not call or simulate tool execution.
-- Ensure that the three questions each address substantially different elements of the main topic, leveraging the diversity of the tool set, while still remaining contextually relevant.
-- It is not possible to export data in any format. Do not suggest such questions.
-- Do not suggest questions that have already been answered in the conversation.
+- Generate three actions, each targeting a significantly different aspect or subtopic relevant to the main topic of the conversation. Each action should be phrased exactly as if the user is instructing the system to perform the action (e.g., "Show...", "Find...", "Analyze..."). Each action should be independent, and information contained or revealed in one action cannot be re-used, referred to, or assumed in the others. Any shared context or information must be restated in each action where necessary.
+- **CRITICAL**: Actions must always be phrased strictly from the user's perspective only. Do NOT generate or rephrase actions from the LLM's perspective. Avoid any formulations such as: "Would you like me to...", "Should I analyze...", "Do you want me to...", "Would it be helpful if I...", "Shall I retrieve..." etc.
+- Explore various distinct possibilities, e.g., visuals, metrics, literature, associated models, etc. Be creative.
+- Only include actions that can be performed using the available tools.
+- This LLM cannot call any tools; actions suggested must be based solely on the tool descriptions. Do not assume access to tools beyond what is described.
+- Focus on advancing the user's workflow and showcasing what the chat can help with. Suggest logical next steps, deeper exploration, or related topics using the available tool information. Avoid producing mere variations of previous actions.
+- Keep actions succinct and clear.
+- When evaluating which actions make sense, refer only to the tools' purposes and minimal relevant input as described in the provided list; do not call or simulate tool execution.
+- When suggesting actions, take into account any relevant entities, such as IDs, parameters, or references that have already been provided earlier in the conversation. If a tool requires such an input and it is already present and contextually appropriate, suggest actions that utilize this information directly.
+- Ensure that the three actions each address substantially different elements of the main topic, leveraging the diversity of the tool set, while still remaining contextually relevant.
+- The system does not allow export of data in any format (CSV, JSON, Excel, etc.). Do not suggest actions about exporting, downloading, or saving data to files.
+- Do not suggest actions that have already been carried out in the conversation.
 - Suggest workflows on subsets of data. Do not suggest analysis of large datasets.
 
 ## Output Format
-
 - Output must be a JSON array (and nothing else) with exactly three strings.
-- Always return exactly three appropriate questions (never more, never less). If the conversation context or tools do not support three contextually relevant questions, produce the most logically appropriate or useful questions, ensuring the output array still contains three strings. Output must always be a JSON array, with no surrounding text or formatting.
+- Always return exactly three appropriate actions (never more, never less). If the conversation context or tools do not support three contextually relevant actions, produce the most logically appropriate or useful actions, ensuring the output array still contains three strings. Output must always be a JSON array, with no surrounding text or formatting.
 
 Available Tools:
 {", ".join(tool_info)}"""
