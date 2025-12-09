@@ -341,7 +341,7 @@ def get_previous_hil_metadata(
             if tool_name and tool_map.get(tool_name) and tool_map[tool_name].hil:
                 metadata_data.append(
                     {
-                        "toolCallId": part.output.get("id"),
+                        "toolCallId": part.output.get("call_id"),
                         "validated": "accepted" if part.validated else "rejected",
                         "isComplete": part.is_complete,
                     }
