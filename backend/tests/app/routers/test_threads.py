@@ -607,7 +607,7 @@ async def test_get_thread_messages_vercel_format(
     # First part: FUNCTION_CALL
     first_part = parts[0]
     assert isinstance(first_part, dict)
-    assert first_part.get("toolCallId") == "mock_tc_id"
+    assert first_part.get("toolCallId") == "mock_call_id"
     assert first_part.get("type") == "tool-get_weather"
     assert first_part.get("input") == {"location": "Geneva"}
     assert first_part.get("state") == "output-available"
@@ -622,7 +622,7 @@ async def test_get_thread_messages_vercel_format(
     assert len(metadata) == 1
 
     ann1 = metadata[0]
-    assert ann1.get("toolCallId") == "mock_tc_id"
+    assert ann1.get("toolCallId") == "mock_call_id"
     assert ann1.get("validated") == "not_required"
     assert ann1.get("isComplete") is True
 

@@ -30,7 +30,7 @@ async def test_execute_tool_call_accepted(
     # Get the FUNCTION_CALL part from assistant message
     await session.refresh(assistant_message, ["parts"])
     tool_call_part = assistant_message.parts[0]
-    tool_id = tool_call_part.output["id"]
+    tool_id = tool_call_part.output["call_id"]
 
     app.dependency_overrides[get_tool_list] = lambda: [get_weather_tool]
 
@@ -67,7 +67,7 @@ async def test_execute_tool_call_rejected(
     # Get the FUNCTION_CALL part from assistant message
     await session.refresh(assistant_message, ["parts"])
     tool_call_part = assistant_message.parts[0]
-    tool_id = tool_call_part.output["id"]
+    tool_id = tool_call_part.output["call_id"]
 
     app.dependency_overrides[get_tool_list] = lambda: [get_weather_tool]
 

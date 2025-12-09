@@ -5,9 +5,16 @@ from unittest.mock import Mock, call
 
 import pytest
 
+from neuroagent.app.database.sql_schemas import PartType, Task
 from neuroagent.utils import (
+    append_part,
     complete_partial_json,
     delete_from_storage,
+    get_main_LLM_token_consumption,
+    get_previous_hil_metadata,
+    get_token_count,
+    get_tool_token_consumption,
+    messages_to_openai_content,
     save_to_storage,
 )
 
@@ -304,8 +311,6 @@ def test_delete_from_storage_large_batch():
 
 @pytest.mark.asyncio
 async def test_messages_to_openai_content():
-    from neuroagent.utils import messages_to_openai_content
-
     # Create mock messages with parts
     mock_part1 = Mock()
     mock_part1.output = {"role": "user", "content": "Hello"}
@@ -329,10 +334,6 @@ async def test_messages_to_openai_content():
 
 
 def test_get_token_count():
-    from unittest.mock import Mock
-
-    from neuroagent.utils import get_token_count
-
     # Test with usage data
     mock_usage = Mock()
     mock_usage.input_tokens = 100
@@ -356,11 +357,6 @@ def test_get_token_count():
 
 
 def test_append_part():
-    from unittest.mock import Mock
-
-    from neuroagent.app.database.sql_schemas import PartType
-    from neuroagent.utils import append_part
-
     mock_message = Mock()
     mock_message.message_id = "msg-123"
     mock_message.parts = []
@@ -380,11 +376,6 @@ def test_append_part():
 
 
 def test_get_main_LLM_token_consumption():
-    from unittest.mock import Mock
-
-    from neuroagent.app.database.sql_schemas import Task
-    from neuroagent.utils import get_main_LLM_token_consumption
-
     mock_usage = Mock()
     mock_usage.input_tokens = 150
     mock_usage.output_tokens = 75
@@ -404,11 +395,6 @@ def test_get_main_LLM_token_consumption():
 
 
 def test_get_tool_token_consumption():
-    from unittest.mock import Mock
-
-    from neuroagent.app.database.sql_schemas import Task
-    from neuroagent.utils import get_tool_token_consumption
-
     mock_tool_response = Mock()
     mock_tool_response.call_id = "call-123"
 
@@ -436,16 +422,11 @@ def test_get_tool_token_consumption():
 
 
 def test_get_previous_hil_metadata():
-    from unittest.mock import Mock
-
-    from neuroagent.app.database.sql_schemas import PartType
-    from neuroagent.utils import get_previous_hil_metadata
-
     mock_message = Mock()
 
     mock_part1 = Mock()
     mock_part1.type = PartType.FUNCTION_CALL
-    mock_part1.output = {"name": "tool1", "id": "call-1"}
+    mock_part1.output = {"name": "tool1", "call_id": "call-1"}
     mock_part1.validated = True
     mock_part1.is_complete = True
 

@@ -1,5 +1,6 @@
 """Test app utils."""
 
+from datetime import datetime, timezone
 from typing import Literal
 from unittest.mock import AsyncMock, patch
 from uuid import UUID
@@ -230,7 +231,6 @@ async def test_rate_limit_no_redis():
 
 def test_format_messages_output():
     """Test format_messages_output with multiple messages and parts."""
-    from datetime import datetime, timezone
 
     msg1 = Messages(
         message_id=UUID("359eeb21-2e94-4095-94d9-ca7d4ff22640"),
@@ -291,7 +291,6 @@ def test_format_messages_output():
 
 def test_format_messages_vercel():
     """Test format_messages_vercel with all part types and validation states."""
-    from datetime import datetime, timezone
 
     msg1 = Messages(
         message_id=UUID("359eeb21-2e94-4095-94d9-ca7d4ff22640"),
@@ -324,20 +323,20 @@ def test_format_messages_vercel():
         Parts(
             order_index=1,
             type=PartType.FUNCTION_CALL,
-            output={"id": "call_1", "name": "tool_no_hil", "arguments": "{}"},
+            output={"call_id": "call_1", "name": "tool_no_hil", "arguments": "{}"},
             is_complete=True,
             validated=None,
         ),
         Parts(
             order_index=2,
             type=PartType.FUNCTION_CALL_OUTPUT,
-            output={"id": "call_1", "output": "Result"},
+            output={"call_id": "call_1", "output": "Result"},
             is_complete=True,
         ),
         Parts(
             order_index=3,
             type=PartType.FUNCTION_CALL,
-            output={"id": "call_2", "name": "tool_hil", "arguments": "{}"},
+            output={"call_id": "call_2", "name": "tool_hil", "arguments": "{}"},
             is_complete=False,
             validated=True,
         ),
