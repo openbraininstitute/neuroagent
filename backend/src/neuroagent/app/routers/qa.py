@@ -47,7 +47,6 @@ from neuroagent.app.schemas import (
     OpenRouterModelResponse,
     QuestionsSuggestions,
     QuestionsSuggestionsRequest,
-    QuestionSuggestionNoMessages,
     UserInfo,
 )
 from neuroagent.new_types import (
@@ -55,6 +54,10 @@ from neuroagent.new_types import (
     ClientRequest,
 )
 from neuroagent.tools.base_tool import BaseTool
+from neuroagent.tools.context_analyzer_tool import (
+    ContextAnalyzerMetdata,
+    ContextAnalyzerTool,
+)
 from neuroagent.utils import messages_to_openai_content
 
 router = APIRouter(prefix="/qa", tags=["Run the agent"])
@@ -169,8 +172,8 @@ async def question_suggestions(
         system_prompt = f"""
 Guidelines:
 
-- Generate three actions, each targeting a significantly different aspect or subtopic relevant to the main topic of the conversation. Each action should be phrased exactly as if the user is instructing the system to perform the action (e.g., "Show...", "Find...", "Analyze..."). Each action should be independent, and information contained or revealed in one action cannot be re-used, referred to, or assumed in the others. Any shared context or information must be restated in each action where necessary.
-- **CRITICAL**: Actions must always be phrased strictly from the user's perspective only. Do NOT generate or rephrase actions from the LLM's perspective. Avoid any formulations such as: "Would you like me to...", "Should I analyze...", "Do you want me to...", "Would it be helpful if I...", "Shall I retrieve..." etc.
+- Generate three user actions, each targeting a significantly different aspect or subtopic relevant to the main topic of the conversation. Each action should be phrased exactly as if the user is instructing the system to perform the action (e.g., "Show...", "Find...", "Analyze..."). Each action should be independent, and information contained or revealed in one action cannot be re-used, referred to, or assumed in the others. Any shared context or information must be restated in each action where necessary.
+- **CRITICAL**: Actions must be in imperative mood (commands), NOT interrogative (questions). Do NOT end actions with question marks. Actions must always be phrased strictly from the user's perspective only. Do NOT generate or rephrase actions from the LLM's perspective. Avoid any formulations such as: "Would you like me to...", "Should I analyze...", "Do you want me to...", "Would it be helpful if I...", "Shall I retrieve...", "Can you...", "What is..." etc.
 - Explore various distinct possibilities, e.g., visuals, metrics, literature, associated models, etc. Be creative.
 - Only include actions that can be performed using the available tools.
 - This LLM cannot call any tools; actions suggested must be based solely on the tool descriptions. Do not assume access to tools beyond what is described.
@@ -191,19 +194,66 @@ Available Tools:
 {", ".join(tool_info)}"""
 
     else:
-        content = f"USER JOURNEY: \n{body.model_dump(exclude={'thread_id'}, mode='json')['click_history']}"
-        system_prompt = f"""Generate one question the user might ask next.
+        # Get current page context
+        # breakpoint()
+        if body.frontend_url:
+            context_tool = ContextAnalyzerTool(
+                metadata=ContextAnalyzerMetdata(current_frontend_url=body.frontend_url),
+                input_schema={},
+            )
+            try:
+                context_output = await context_tool.arun()
+                context_info = f"\nCurrent page context: {context_output.model_dump_json(exclude={'raw_path', 'query_params'})}"
+            except Exception:
+                context_info = ""
+        else:
+            context_info = ""
 
-Rules:
-- Questions must be from the user's perspective (e.g., "Show me...", "What is...", "Can you...")
-- Each question must be answerable using ONLY the available tools below
-- Focus on the most recent clicks (current time: {datetime.now(timezone.utc).isoformat()})
-- Keep questions clear and concise
+        content = [
+            {
+                "role": "user",
+                "content": f"USER JOURNEY: \n{body.model_dump(exclude={'thread_id'}, mode='json')['click_history']}{context_info}",
+            }
+        ]
+        system_prompt = f"""
+Guidelines:
 
-Input format: USER JOURNEY
+- Generate three user actions based on the user's current location and journey, each targeting a significantly different aspect. Each action must be phrased exactly as a user instruction to the system (e.g., "Show...", "Find...", "Analyze...").
+- **CRITICAL**: Actions must be in imperative mood (commands), NOT interrogative (questions). Do NOT end actions with question marks. User actions must always be phrased from the user's perspective only. Do NOT rephrase actions from the perspective of the LLM or system—do not use formulations such as: "Would you like me to...", "Should I analyze...", "Do you want me to...", "Can you...", "What is..." etc.
+- At least one action MUST be literature-related (such as searching for papers or finding publications).
+- Explore a range of distinct possibilities, such as visuals, metrics, literature, associated models, etc. Be creative and leverage the variety of available tools.
+- Only include actions that can be performed using the available tools.
+- This LLM cannot call any tools directly; base your suggestions solely on tool descriptions and do not assume access to tools beyond what is described.
+- Focus on demonstrating what the chat can help with, based on the user's current page and recent navigation.
+- Keep each action succinct and clear.
+- When determining which actions to suggest, refer only to the stated purposes and required minimal inputs of the tools; do not simulate or attempt tool execution.
+- If the current page context includes entity IDs or other parameters, actions MUST explicitly include these values in the text (e.g., "Show morphology with ID abc-123"). This ensures clarity for both the user and the main LLM.
+- Brain regions should be mentioned by their name (e.g., "Somatosensory cortex", "Hippocampus"), NOT by their ID. Use the brain region ID to infer or reference the brain region name if needed.
+- Literature-related actions MUST use only general keywords or concepts (like brain region names or scientific terms) and NEVER database-specific or entity IDs.
+- Ignore any page context information with the value `None` or `null`; do not reference or use such values in suggested actions.
+- Ensure the three actions each address substantially different elements, utilizing the diversity of the tool set.
+- Do not suggest actions involving data export, download, or saving to files, as these are not permitted (e.g., CSV, JSON, Excel, etc.).
+- Suggest workflows only on subsets of data (e.g. on the first entry); do not propose analysis for large datasets.
+- Emphasize the most recent navigation and current page, but cross-page questions related to the navigation history are allowed if relevant (Current time: {datetime.now(timezone.utc).isoformat()}).
 
+Input format:
+- USER JOURNEY—list of pages visited, each with a timestamp.
+- Current page context—extracted information from the current URL with the following fields:
+  - `observed_entity_type`: The type of entity being viewed (e.g., "morphology", "neuron", "simulation-campaign", "trace" etc...). If None, user is on a general page.
+  - `current_entity_id`: The UUID of the specific entity being viewed. If None, user is on a list/overview page.
+  - `brain_region_id`: Brain region ID from query parameters (br_id). If None, no brain region filter is active.
+
+Typical action patterns:
+- If `current_entity_id` is present: Suggest actions to analyze, visualize, or get more details about that specific entity (mention the entity ID explicitly).
+- If `current_entity_id` is None but `observed_entity_type` is present: Suggest actions to search, filter, or retrieve entities of that type.
+- If `brain_region_id` is present: Suggest actions related to that brain region by name (e.g., find related entities within the brain region, explore it in various atlases, search literature about it).
+- If most fields are None: Suggest exploratory actions to help user discover available data or capabilities.
+
+Output format:
+- Return a JSON array containing exactly three appropriate user action strings (never more, never less). The output must be only the JSON array, with no surrounding text or formatting.
 Available Tools:
-{",".join(tool_info)}"""  # TODO: Modify system prompt for empty conversations.
+
+{",".join(tool_info)}"""
 
     messages = [{"role": "system", "content": system_prompt}, *content]
     start = time.time()
@@ -211,14 +261,11 @@ Available Tools:
         messages=messages,  # type: ignore
         model="gpt-5-nano",
         reasoning_effort="minimal",
-        response_format=QuestionsSuggestions
-        if is_in_chat
-        else QuestionSuggestionNoMessages,
+        response_format=QuestionsSuggestions,
     )
     logger.debug(
         f"Used {response.usage.model_dump()} tokens. Response time: {time.time() - start}"
     )
-    # breakpoint()
     return response.choices[0].message.parsed  # type: ignore
 
 

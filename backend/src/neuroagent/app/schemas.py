@@ -238,6 +238,7 @@ class QuestionsSuggestionsRequest(BaseModel):
 
     click_history: list[UserJourney] | None = None
     thread_id: str | None = None
+    frontend_url: str | None = None
 
 
 class Architecture(BaseModel):
