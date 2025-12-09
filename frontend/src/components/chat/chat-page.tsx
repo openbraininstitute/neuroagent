@@ -312,6 +312,7 @@ export function ChatPage({
         checkedTools={checkedTools}
         currentModel={currentModel}
         threadId={threadId}
+        lastMessageId={messages[messages.length - 1]?.id}
         setCheckedTools={setCheckedTools}
         setCurrentModel={setCurrentModel}
         handleInputChange={handleInputChange}
