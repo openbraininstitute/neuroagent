@@ -510,7 +510,6 @@ def downgrade():
                     "content": "",
                     "tool_calls": [],
                     "tool_outputs": [],
-                    "is_complete": True,
                 }
 
                 # Get all parts with is_complete and validated
@@ -524,7 +523,6 @@ def downgrade():
                     {"message_id": msg_id},
                 ).fetchall()
 
-                prev_is_complete = True
                 for idx, (part_type, output, is_complete_part, validated) in enumerate(
                     parts_with_complete
                 ):
@@ -532,29 +530,7 @@ def downgrade():
                         output if isinstance(output, dict) else json.loads(output)
                     )
 
-                    # Check if we need to start a new turn due to is_complete change
-                    if idx > 0 and prev_is_complete != is_complete_part:
-                        # Transition in is_complete - start new turn
-                        if any(
-                            [
-                                current_turn["reasoning"],
-                                current_turn["content"],
-                                current_turn["tool_calls"],
-                            ]
-                        ):
-                            turns.append(current_turn)
-                            current_turn = {
-                                "reasoning": "",
-                                "content": "",
-                                "tool_calls": [],
-                                "tool_outputs": [],
-                                "is_complete": is_complete_part,
-                            }
-
-                    # Track is_complete for this turn
-                    if not is_complete_part:
-                        current_turn["is_complete"] = False
-                    prev_is_complete = is_complete_part
+                    current_turn["is_complete"] = is_complete_part
 
                     if part_type == "REASONING":
                         summary = output_json.get("summary", [])
@@ -581,7 +557,6 @@ def downgrade():
                                     "content": "",
                                     "tool_calls": [],
                                     "tool_outputs": [],
-                                    "is_complete": True,
                                 }
                     elif part_type == "FUNCTION_CALL":
                         # If current turn already has tool outputs, this is a new turn
@@ -592,7 +567,6 @@ def downgrade():
                                 "content": "",
                                 "tool_calls": [],
                                 "tool_outputs": [],
-                                "is_complete": True,
                             }
                         output_json["validated"] = validated
                         current_turn["tool_calls"].append(output_json)
@@ -608,7 +582,6 @@ def downgrade():
                                     "content": "",
                                     "tool_calls": [],
                                     "tool_outputs": [],
-                                    "is_complete": True,
                                 }
 
                 # Add last turn if it has content
