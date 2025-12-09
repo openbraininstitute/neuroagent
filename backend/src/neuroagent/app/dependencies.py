@@ -536,8 +536,7 @@ async def filtered_tools(
     if (
         not messages
         or not messages[-1].parts
-        or messages[-1].parts[-1].type
-        not in (PartType.FUNCTION_CALL, PartType.FUNCTION_CALL_OUTPUT)
+        or messages[-1].parts[-1].type == PartType.MESSAGE
         or not messages[-1].parts[-1].is_complete
     ):
         messages.append(
