@@ -120,6 +120,7 @@ export function getValidationStatus(
 export function lastAssistantHasAllToolOutputs(useChatReturn: {
   messages: UIMessage[];
 }) {
+  if (!Array.isArray(useChatReturn.messages)) return false;
   const last = useChatReturn.messages.at(-1);
   if (!last || last.role !== "assistant") return false;
 
