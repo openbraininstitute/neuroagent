@@ -98,7 +98,7 @@ async def search(
 
     sql_query = (
         select(Messages)
-        .options(selectinload(Messages.parts))
+        .options(selectinload(Messages.parts), selectinload(Messages.thread))
         .join(Threads, Messages.thread_id == Threads.thread_id)
         .where(
             Threads.user_id == user_info.sub,
