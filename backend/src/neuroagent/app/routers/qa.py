@@ -149,7 +149,12 @@ async def question_suggestions(
     if is_in_chat:
         messages_str = "\n".join(
             [
-                json.dumps(msg.parts[-1].output.get("content", {})[0].get("text"))
+                json.dumps(
+                    {
+                        "entity": msg.entity.value,
+                        "text": msg.parts[-1].output.get("content", {})[0].get("text"),
+                    }
+                )
                 for msg in db_messages
                 if msg.parts
             ]

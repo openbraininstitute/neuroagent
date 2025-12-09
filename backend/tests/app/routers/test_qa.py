@@ -134,7 +134,7 @@ def test_question_suggestions(
     )
     assert (
         call_list[2].kwargs["input"]
-        == 'CONVERSATION MESSAGES: \n[{"content": "This is my query."}, {"content": "sample response content."}]'
+        == 'CONVERSATION MESSAGES: \n{"entity": "user", "text": "This is my query."}\n{"entity": "assistant", "text": "sample response content."}'
     )
 
 

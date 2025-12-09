@@ -1,6 +1,5 @@
 """Test configuration."""
 
-import json
 import os
 from typing import ClassVar
 from unittest.mock import AsyncMock, mock_open, patch
@@ -17,8 +16,9 @@ from neuroagent.app.config import Settings
 from neuroagent.app.database.sql_schemas import (
     Entity,
     Messages,
+    Parts,
+    PartType,
     Threads,
-    ToolCalls,
 )
 from neuroagent.app.dependencies import (
     Agent,
@@ -249,7 +249,7 @@ async def setup_sql_db(request):
     async with engine.begin() as conn:
         await conn.run_sync(metadata.reflect)
         tables = metadata.tables
-        await session.execute(tables["tool_calls"].delete())
+        await session.execute(tables["parts"].delete())
         await session.execute(tables["messages"].delete())
         await session.execute(tables["threads"].delete())
 
@@ -271,53 +271,76 @@ async def populate_db(db_connection, test_user_info):
         title="Test Thread",
     )
 
-    # Create four dummy messages associated with the thread
-    messages = [
-        Messages(
-            entity=Entity.USER,
-            content=json.dumps({"content": "This is my query."}),
-            thread=thread,
+    user_message = Messages(entity=Entity.USER, thread=thread)
+    user_message.parts = [
+        Parts(
+            order_index=0,
+            type=PartType.MESSAGE,
+            output={
+                "content": [{"text": "This is my query.", "type": "input_text"}],
+                "role": "user",
+                "status": "completed",
+                "type": "message",
+            },
+            is_complete=True,
+        )
+    ]
+
+    assistant_message = Messages(entity=Entity.ASSISTANT, thread=thread)
+    assistant_message.parts = [
+        Parts(
+            order_index=0,
+            type=PartType.FUNCTION_CALL,
+            output={
+                "id": "mock_tc_id",
+                "call_id": "mock_call_id",
+                "name": "get_weather",
+                "arguments": '{"location": "Geneva"}',
+                "status": "completed",
+                "type": "function_call",
+            },
+            is_complete=True,
+            validated=None,
+        ),
+        Parts(
+            order_index=1,
+            type=PartType.FUNCTION_CALL_OUTPUT,
+            output={
+                "id": "mock_tc_id",
+                "call_id": "mock_call_id",
+                "output": "It's sunny today.",
+                "status": "completed",
+                "type": "function_call_output",
+            },
             is_complete=True,
         ),
-        Messages(
-            entity=Entity.AI_TOOL,
-            content=json.dumps({"content": ""}),
-            thread=thread,
-            is_complete=True,
-        ),
-        Messages(
-            entity=Entity.TOOL,
-            content=json.dumps({"content": "It's sunny today."}),
-            thread=thread,
-            is_complete=True,
-        ),
-        Messages(
-            entity=Entity.AI_MESSAGE,
-            content=json.dumps({"content": "sample response content."}),
-            thread=thread,
+        Parts(
+            order_index=2,
+            type=PartType.MESSAGE,
+            output={
+                "content": [{"text": "sample response content."}],
+                "role": "assistant",
+                "status": "completed",
+                "type": "message",
+            },
             is_complete=True,
         ),
     ]
 
-    tool_call = ToolCalls(
-        tool_call_id="mock_id_tc",
-        name="get_weather",
-        arguments=json.dumps({"location": "Geneva"}),
-        validated=None,
-        message=messages[1],
-    )
+    session.add_all([thread, user_message, assistant_message])
 
-    # Add them to the session
-    session.add(thread)
-    session.add_all(messages)
-    session.add(tool_call)
-
-    # Commit the transaction to persist them in the test database
     await session.commit()
     await session.refresh(thread)
-    await session.refresh(tool_call)
-    # Return the created objects so they can be used in tests
-    yield {"thread": thread, "messages": messages, "tool_call": tool_call}, session
+    await session.refresh(user_message)
+    await session.refresh(assistant_message)
+    yield (
+        {
+            "thread": thread,
+            "user_message": user_message,
+            "assistant_message": assistant_message,
+        },
+        session,
+    )
     await session.close()
 
 

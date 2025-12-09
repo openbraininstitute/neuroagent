@@ -224,7 +224,7 @@ def format_messages_output(
         )
 
     return PaginatedResponse(
-        next_cursor=db_messages[-1].creation_date if messages else None,
+        next_cursor=db_messages[-1].creation_date if has_more else None,
         has_more=has_more,
         page_size=page_size,
         results=messages,
@@ -312,7 +312,7 @@ def format_messages_vercel(
         messages.append(msg_vercel)
 
     return PaginatedResponse(
-        next_cursor=db_messages[-1].creation_date if messages else None,
+        next_cursor=db_messages[-1].creation_date if has_more else None,
         has_more=has_more,
         page_size=page_size,
         results=messages,

@@ -394,29 +394,21 @@ async def test_get_thread_messages(
             f"/threads/{thread.thread_id}/messages", params={"sort": "creation_date"}
         ).json()["results"]
 
+    # With new schema: only 2 messages (USER and ASSISTANT)
+    assert len(messages) == 2
+
+    # First message: USER
     assert messages[0]["entity"] == "user"
-    assert messages[0]["msg_content"] == {"content": "This is my query."}
     assert messages[0]["message_id"]
     assert messages[0]["creation_date"]
 
-    assert messages[1]["entity"] == "ai_tool"
-    assert messages[1]["msg_content"] == {"content": ""}
+    # Second message: ASSISTANT (contains all AI responses as parts)
+    assert messages[1]["entity"] == "assistant"
     assert messages[1]["message_id"]
     assert messages[1]["creation_date"]
 
-    assert messages[2]["entity"] == "tool"
-    assert messages[2]["msg_content"] == {"content": "It's sunny today."}
-    assert messages[2]["message_id"]
-    assert messages[2]["creation_date"]
-
-    assert messages[3]["entity"] == "ai_message"
-    assert messages[3]["msg_content"] == {"content": "sample response content."}
-    assert messages[3]["message_id"]
-    assert messages[3]["creation_date"]
-
+    # Verify chronological order
     assert messages[0]["creation_date"] < messages[1]["creation_date"]
-    assert messages[1]["creation_date"] < messages[2]["creation_date"]
-    assert messages[2]["creation_date"] < messages[3]["creation_date"]
 
 
 @pytest.mark.httpx_mock(can_send_already_matched_responses=True)
@@ -443,48 +435,29 @@ async def test_get_thread_messages_sort_and_filter(
     with app_client as app_client:
         response = app_client.get(
             f"/threads/{thread.thread_id}/messages",
-            params={"sort": "-creation_date", "entity": ["USER", "TOOL"]},
+            params={"sort": "-creation_date", "entity": ["USER"]},
         )
         messages = response.json()["results"]
 
-    # Expecting only the messages that have the entities "user" and "tool".
-    # From the populate_db fixture these are:
-    # - The first message: entity "user", msg_content {"content": "This is my query."}
-    # - The third message: entity "tool", msg_content {"content": "It's sunny today."}
-    assert len(messages) == 2
+    # With new schema: only USER entity exists, no TOOL entity
+    assert len(messages) == 1
+    assert messages[0]["entity"] == "user"
+    assert messages[0]["message_id"]
+    assert messages[0]["creation_date"]
 
-    # Check that messages are sorted in ascending order by creation_date.
-    assert messages[0]["creation_date"] >= messages[1]["creation_date"]
-
-    # Verify the filtering: first message should be from "user" and second from "tool"
-    assert messages[0]["entity"] == "tool"
-    assert messages[0]["msg_content"] == {"content": "It's sunny today."}
-    assert messages[1]["entity"] == "user"
-    assert messages[1]["msg_content"] == {"content": "This is my query."}
-
-    # Test sorting in descending order (newest first) and filtering for AI_TOOL and AI_MESSAGE messages.
+    # Test filtering for ASSISTANT messages
     with app_client as app_client:
         response = app_client.get(
             f"/threads/{thread.thread_id}/messages",
-            params={"sort": "creation_date", "entity": ["AI_TOOL", "AI_MESSAGE"]},
+            params={"sort": "creation_date", "entity": ["ASSISTANT"]},
         )
         messages = response.json()["results"]
 
-    # Expecting only the messages that have the entities "ai_tool" and "ai_message".
-    # According to populate_db these are:
-    # - The second message: entity "ai_tool", msg_content {"content": ""}
-    # - The fourth message: entity "ai_message", msg_content {"content": "sample response content."}
-    assert len(messages) == 2
-
-    # Check that messages are sorted in descending order by creation_date.
-    assert messages[0]["creation_date"] <= messages[1]["creation_date"]
-
-    # Verify the filtering:
-    # Assuming the newer message (by creation_date) is "ai_message"
-    assert messages[0]["entity"] == "ai_tool"
-    assert messages[0]["msg_content"] == {"content": ""}
-    assert messages[1]["entity"] == "ai_message"
-    assert messages[1]["msg_content"] == {"content": "sample response content."}
+    # With new schema: only one ASSISTANT message with multiple parts
+    assert len(messages) == 1
+    assert messages[0]["entity"] == "assistant"
+    assert messages[0]["message_id"]
+    assert messages[0]["creation_date"]
 
 
 @pytest.mark.httpx_mock(can_send_already_matched_responses=True)
@@ -506,43 +479,45 @@ async def test_get_thread_messages_paginated(
     thread = db_items["thread"]
 
     with app_client as app_client:
-        # Get the messages of the thread
+        # Get the messages of the thread with page_size=1
         messages = app_client.get(
-            f"/threads/{thread.thread_id}/messages", params={"page_size": 3}
+            f"/threads/{thread.thread_id}/messages", params={"page_size": 1}
         ).json()
         page_2 = app_client.get(
             f"/threads/{thread.thread_id}/messages",
-            params={"page_size": 3, "cursor": messages["next_cursor"]},
+            params={"page_size": 1, "cursor": messages["next_cursor"]},
         ).json()
 
     assert set(messages.keys()) == {"next_cursor", "has_more", "page_size", "results"}
 
-    assert messages["page_size"] == 3
-    assert messages["next_cursor"] == messages["results"][-1]["creation_date"]
+    # First page: page_size=1, should have 1 message and indicate more available
+    assert messages["page_size"] == 1
     assert messages["has_more"]
-    assert len(messages["results"]) == 3
+    assert len(messages["results"]) == 1
+    assert messages["next_cursor"] == messages["results"][-1]["creation_date"]
 
     messages_results = messages["results"]
 
-    assert messages_results[2]["entity"] == "ai_tool"
-    assert messages_results[2]["msg_content"] == {"content": ""}
-    assert messages_results[2]["message_id"]
-    assert messages_results[2]["creation_date"]
-
-    assert messages_results[1]["entity"] == "tool"
-    assert messages_results[1]["msg_content"] == {"content": "It's sunny today."}
-    assert messages_results[1]["message_id"]
-    assert messages_results[1]["creation_date"]
-
-    assert messages_results[0]["entity"] == "ai_message"
-    assert messages_results[0]["msg_content"] == {"content": "sample response content."}
+    # First result (newest): ASSISTANT message
+    assert messages_results[0]["entity"] == "assistant"
     assert messages_results[0]["message_id"]
     assert messages_results[0]["creation_date"]
 
-    assert messages_results[0]["creation_date"] > messages_results[1]["creation_date"]
-    assert messages_results[1]["creation_date"] > messages_results[2]["creation_date"]
-
+    # Second page: should have the remaining USER message
+    assert set(page_2.keys()) == {"next_cursor", "has_more", "page_size", "results"}
+    assert page_2["page_size"] == 1
+    assert not page_2["has_more"]
     assert len(page_2["results"]) == 1
+
+    page_2_results = page_2["results"]
+
+    # Second result (oldest): USER message
+    assert page_2_results[0]["entity"] == "user"
+    assert page_2_results[0]["message_id"]
+    assert page_2_results[0]["creation_date"]
+
+    # Verify descending order (newest first)
+    assert messages_results[0]["creation_date"] > page_2_results[0]["creation_date"]
 
 
 @pytest.mark.httpx_mock(can_send_already_matched_responses=True)
@@ -624,32 +599,32 @@ async def test_get_thread_messages_vercel_format(
     assert item["id"]
     assert item["createdAt"]
     assert item.get("role") == "assistant"
-    assert item["parts"][1]["text"] == "sample response content."
 
     parts = item.get("parts")
     assert isinstance(parts, list)
     assert len(parts) == 2
 
+    # First part: FUNCTION_CALL
     first_part = parts[0]
     assert isinstance(first_part, dict)
-    assert first_part.get("toolCallId") == "mock_id_tc"
+    assert first_part.get("toolCallId") == "mock_tc_id"
     assert first_part.get("type") == "tool-get_weather"
     assert first_part.get("input") == {"location": "Geneva"}
-    assert first_part.get("state") == "input-available"
-    assert first_part.get("output") is None
+    assert first_part.get("state") == "output-available"
 
-    second_part = parts[1]
-    assert second_part.get("type") == "text"
-    assert second_part.get("text") == "sample response content."
+    # Second part: MESSAGE
+    third_part = parts[1]
+    assert third_part.get("type") == "text"
+    assert third_part.get("text") == "sample response content."
 
     metadata = item.get("metadata").get("toolCalls")
     assert isinstance(metadata, list)
     assert len(metadata) == 1
 
     ann1 = metadata[0]
-    assert ann1.get("toolCallId") == "mock_id_tc"
+    assert ann1.get("toolCallId") == "mock_tc_id"
     assert ann1.get("validated") == "not_required"
-    assert ann1.get("isComplete") is False
+    assert ann1.get("isComplete") is True
 
     # Assert the second page
     assert len(page_2["results"]) == 1

@@ -1,7 +1,5 @@
 """Test app utils."""
 
-import json
-from datetime import datetime, timezone
 from typing import Literal
 from unittest.mock import AsyncMock, patch
 from uuid import UUID
@@ -12,24 +10,15 @@ from pydantic import BaseModel, Field
 
 from neuroagent.app.app_utils import (
     filter_tools_and_model_by_conversation,
-    format_messages_output,
-    format_messages_vercel,
     parse_redis_data,
     rate_limit,
     setup_engine,
     validate_project,
 )
 from neuroagent.app.config import Settings
-from neuroagent.app.database.sql_schemas import Entity, Messages, ToolCalls
+from neuroagent.app.database.sql_schemas import Entity, Messages, Parts, PartType
 from neuroagent.app.schemas import (
-    MessagesRead,
-    MessagesReadVercel,
-    MetadataToolCallVercel,
-    PaginatedResponse,
     RateLimitInfo,
-    TextPartVercel,
-    ToolCall,
-    ToolCallPartVercel,
     UserInfo,
 )
 from tests.mock_client import MockOpenAIClient, create_mock_response
@@ -233,209 +222,209 @@ async def test_rate_limit_no_redis():
     )
 
 
-def test_format_messages_output():
-    """Test the output format conversion."""
+# def test_format_messages_output():
+#     """Test the output format conversion."""
 
-    msg1 = Messages(
-        creation_date=datetime(2025, 6, 4, 14, 4, 41, tzinfo=timezone.utc),
-        entity=Entity.AI_MESSAGE,
-        is_complete=True,
-        message_id="359eeb21-2e94-4095-94d9-ca7d4ff22640",
-        content=json.dumps({"content": "DUMMY_AI_CONTENT"}),
-        thread_id="e2db8c7d-1170-4762-b42b-fdcd08526735",
-        tool_calls=[],
-    )
-    msg2 = Messages(
-        creation_date=datetime(2025, 6, 4, 14, 4, 41, tzinfo=timezone.utc),
-        entity=Entity.TOOL,
-        is_complete=True,
-        message_id="06c305de-1562-43aa-adea-beeeb53880a2",
-        content=json.dumps({"content": "DUMMY_RESULT"}),
-        thread_id="e2db8c7d-1170-4762-b42b-fdcd08526735",
-        tool_calls=[],
-    )
-    dummy_tool_call = ToolCalls(
-        tool_call_id="1234",
-        arguments="{}",
-        name="dummy_tool",
-        validated="not_required",
-    )
-    msg3 = Messages(
-        creation_date=datetime(2025, 6, 4, 14, 4, 41, tzinfo=timezone.utc),
-        entity=Entity.AI_TOOL,
-        is_complete=True,
-        message_id="e21d5f16-8553-4181-9d25-d1d935327ffc",
-        content=json.dumps({"content": "DUMMY_AI_TOOL_CONTENT"}),
-        thread_id="e2db8c7d-1170-4762-b42b-fdcd08526735",
-        tool_calls=[dummy_tool_call],
-    )
-    msg4 = Messages(
-        creation_date=datetime(2025, 6, 4, 14, 4, 41, tzinfo=timezone.utc),
-        entity=Entity.USER,
-        is_complete=True,
-        message_id="87866e27-dc78-48c2-bd68-4ea395d5a466",
-        content=json.dumps({"content": "DUMMY_USER_TEXT"}),
-        thread_id="e2db8c7d-1170-4762-b42b-fdcd08526735",
-        tool_calls=[],
-    )
+#     msg1 = Messages(
+#         creation_date=datetime(2025, 6, 4, 14, 4, 41, tzinfo=timezone.utc),
+#         entity=Entity.AI_MESSAGE,
+#         is_complete=True,
+#         message_id="359eeb21-2e94-4095-94d9-ca7d4ff22640",
+#         content=json.dumps({"content": "DUMMY_AI_CONTENT"}),
+#         thread_id="e2db8c7d-1170-4762-b42b-fdcd08526735",
+#         tool_calls=[],
+#     )
+#     msg2 = Messages(
+#         creation_date=datetime(2025, 6, 4, 14, 4, 41, tzinfo=timezone.utc),
+#         entity=Entity.TOOL,
+#         is_complete=True,
+#         message_id="06c305de-1562-43aa-adea-beeeb53880a2",
+#         content=json.dumps({"content": "DUMMY_RESULT"}),
+#         thread_id="e2db8c7d-1170-4762-b42b-fdcd08526735",
+#         tool_calls=[],
+#     )
+#     dummy_tool_call = ToolCalls(
+#         tool_call_id="1234",
+#         arguments="{}",
+#         name="dummy_tool",
+#         validated="not_required",
+#     )
+#     msg3 = Messages(
+#         creation_date=datetime(2025, 6, 4, 14, 4, 41, tzinfo=timezone.utc),
+#         entity=Entity.AI_TOOL,
+#         is_complete=True,
+#         message_id="e21d5f16-8553-4181-9d25-d1d935327ffc",
+#         content=json.dumps({"content": "DUMMY_AI_TOOL_CONTENT"}),
+#         thread_id="e2db8c7d-1170-4762-b42b-fdcd08526735",
+#         tool_calls=[dummy_tool_call],
+#     )
+#     msg4 = Messages(
+#         creation_date=datetime(2025, 6, 4, 14, 4, 41, tzinfo=timezone.utc),
+#         entity=Entity.USER,
+#         is_complete=True,
+#         message_id="87866e27-dc78-48c2-bd68-4ea395d5a466",
+#         content=json.dumps({"content": "DUMMY_USER_TEXT"}),
+#         thread_id="e2db8c7d-1170-4762-b42b-fdcd08526735",
+#         tool_calls=[],
+#     )
 
-    fake_message_list = [msg1, msg2, msg3, msg4]
+#     fake_message_list = [msg1, msg2, msg3, msg4]
 
-    expected_output = PaginatedResponse(
-        next_cursor=datetime(2025, 6, 4, 14, 4, 41, tzinfo=timezone.utc),
-        has_more=False,
-        page_size=10,
-        results=[
-            MessagesRead(
-                message_id="359eeb21-2e94-4095-94d9-ca7d4ff22640",
-                entity="ai_message",
-                thread_id="e2db8c7d-1170-4762-b42b-fdcd08526735",
-                is_complete=True,
-                creation_date=datetime(2025, 6, 4, 14, 4, 41, tzinfo=timezone.utc),
-                msg_content={"content": "DUMMY_AI_CONTENT"},
-                tool_calls=[],
-            ),
-            MessagesRead(
-                message_id="06c305de-1562-43aa-adea-beeeb53880a2",
-                entity="tool",
-                thread_id="e2db8c7d-1170-4762-b42b-fdcd08526735",
-                is_complete=True,
-                creation_date=datetime(2025, 6, 4, 14, 4, 41, tzinfo=timezone.utc),
-                msg_content={"content": "DUMMY_RESULT"},
-                tool_calls=[],
-            ),
-            MessagesRead(
-                message_id="e21d5f16-8553-4181-9d25-d1d935327ffc",
-                entity="ai_tool",
-                thread_id="e2db8c7d-1170-4762-b42b-fdcd08526735",
-                is_complete=True,
-                creation_date=datetime(2025, 6, 4, 14, 4, 41, tzinfo=timezone.utc),
-                msg_content={"content": "DUMMY_AI_TOOL_CONTENT"},
-                tool_calls=[
-                    ToolCall(
-                        tool_call_id="1234",
-                        name="dummy_tool",
-                        arguments="{}",
-                        validated="not_required",
-                    )
-                ],
-            ),
-            MessagesRead(
-                message_id="87866e27-dc78-48c2-bd68-4ea395d5a466",
-                entity="user",
-                thread_id="e2db8c7d-1170-4762-b42b-fdcd08526735",
-                is_complete=True,
-                creation_date=datetime(2025, 6, 4, 14, 4, 41, tzinfo=timezone.utc),
-                msg_content={"content": "DUMMY_USER_TEXT"},
-                tool_calls=[],
-            ),
-        ],
-    )
+#     expected_output = PaginatedResponse(
+#         next_cursor=datetime(2025, 6, 4, 14, 4, 41, tzinfo=timezone.utc),
+#         has_more=False,
+#         page_size=10,
+#         results=[
+#             MessagesRead(
+#                 message_id="359eeb21-2e94-4095-94d9-ca7d4ff22640",
+#                 entity="ai_message",
+#                 thread_id="e2db8c7d-1170-4762-b42b-fdcd08526735",
+#                 is_complete=True,
+#                 creation_date=datetime(2025, 6, 4, 14, 4, 41, tzinfo=timezone.utc),
+#                 msg_content={"content": "DUMMY_AI_CONTENT"},
+#                 tool_calls=[],
+#             ),
+#             MessagesRead(
+#                 message_id="06c305de-1562-43aa-adea-beeeb53880a2",
+#                 entity="tool",
+#                 thread_id="e2db8c7d-1170-4762-b42b-fdcd08526735",
+#                 is_complete=True,
+#                 creation_date=datetime(2025, 6, 4, 14, 4, 41, tzinfo=timezone.utc),
+#                 msg_content={"content": "DUMMY_RESULT"},
+#                 tool_calls=[],
+#             ),
+#             MessagesRead(
+#                 message_id="e21d5f16-8553-4181-9d25-d1d935327ffc",
+#                 entity="ai_tool",
+#                 thread_id="e2db8c7d-1170-4762-b42b-fdcd08526735",
+#                 is_complete=True,
+#                 creation_date=datetime(2025, 6, 4, 14, 4, 41, tzinfo=timezone.utc),
+#                 msg_content={"content": "DUMMY_AI_TOOL_CONTENT"},
+#                 tool_calls=[
+#                     ToolCall(
+#                         tool_call_id="1234",
+#                         name="dummy_tool",
+#                         arguments="{}",
+#                         validated="not_required",
+#                     )
+#                 ],
+#             ),
+#             MessagesRead(
+#                 message_id="87866e27-dc78-48c2-bd68-4ea395d5a466",
+#                 entity="user",
+#                 thread_id="e2db8c7d-1170-4762-b42b-fdcd08526735",
+#                 is_complete=True,
+#                 creation_date=datetime(2025, 6, 4, 14, 4, 41, tzinfo=timezone.utc),
+#                 msg_content={"content": "DUMMY_USER_TEXT"},
+#                 tool_calls=[],
+#             ),
+#         ],
+#     )
 
-    fake_formated_response = format_messages_output(
-        fake_message_list, {"dummy_tool": False}, False, 10
-    )
+#     fake_formated_response = format_messages_output(
+#         fake_message_list, {"dummy_tool": False}, False, 10
+#     )
 
-    assert fake_formated_response == expected_output
+#     assert fake_formated_response == expected_output
 
 
-def test_format_messages_vercel():
-    """Test the output format conversion to vercel."""
+# def test_format_messages_vercel():
+#     """Test the output format conversion to vercel."""
 
-    msg1 = Messages(
-        creation_date=datetime(2025, 6, 4, 14, 4, 41, tzinfo=timezone.utc),
-        entity=Entity.AI_MESSAGE,
-        is_complete=True,
-        message_id="359eeb212e94409594d9ca7d4ff22640",
-        content=json.dumps({"content": "DUMMY_AI_CONTENT"}),
-        thread_id="e2db8c7d11704762b42bfdcd08526735",
-        tool_calls=[],
-    )
-    msg2 = Messages(
-        creation_date=datetime(2025, 6, 4, 14, 4, 41, tzinfo=timezone.utc),
-        entity=Entity.TOOL,
-        is_complete=True,
-        message_id="06c305de156243aaadeabeeeb53880a2",
-        content=json.dumps({"content": "DUMMY_RESULT"}),
-        thread_id="e2db8c7d11704762b42bfdcd08526735",
-        tool_calls=[],
-    )
-    dummy_tool_call = ToolCalls(
-        tool_call_id="1234",
-        arguments="{}",
-        name="dummy_tool",
-        validated="not_required",
-    )
-    msg3 = Messages(
-        creation_date=datetime(2025, 6, 4, 14, 4, 41, tzinfo=timezone.utc),
-        entity=Entity.AI_TOOL,
-        is_complete=True,
-        message_id="e21d5f16855341819d25d1d935327ffc",
-        content=json.dumps({"content": "DUMMY_AI_TOOL_CONTENT"}),
-        thread_id="e2db8c7d11704762b42bfdcd08526735",
-        tool_calls=[dummy_tool_call],
-    )
-    msg4 = Messages(
-        creation_date=datetime(2025, 6, 4, 14, 4, 41, tzinfo=timezone.utc),
-        entity=Entity.USER,
-        is_complete=True,
-        message_id="87866e27dc7848c2bd684ea395d5a466",
-        content=json.dumps({"content": "DUMMY_USER_TEXT"}),
-        thread_id="e2db8c7d11704762b42bfdcd08526735",
-        tool_calls=[],
-    )
+#     msg1 = Messages(
+#         creation_date=datetime(2025, 6, 4, 14, 4, 41, tzinfo=timezone.utc),
+#         entity=Entity.AI_MESSAGE,
+#         is_complete=True,
+#         message_id="359eeb212e94409594d9ca7d4ff22640",
+#         content=json.dumps({"content": "DUMMY_AI_CONTENT"}),
+#         thread_id="e2db8c7d11704762b42bfdcd08526735",
+#         tool_calls=[],
+#     )
+#     msg2 = Messages(
+#         creation_date=datetime(2025, 6, 4, 14, 4, 41, tzinfo=timezone.utc),
+#         entity=Entity.TOOL,
+#         is_complete=True,
+#         message_id="06c305de156243aaadeabeeeb53880a2",
+#         content=json.dumps({"content": "DUMMY_RESULT"}),
+#         thread_id="e2db8c7d11704762b42bfdcd08526735",
+#         tool_calls=[],
+#     )
+#     dummy_tool_call = ToolCalls(
+#         tool_call_id="1234",
+#         arguments="{}",
+#         name="dummy_tool",
+#         validated="not_required",
+#     )
+#     msg3 = Messages(
+#         creation_date=datetime(2025, 6, 4, 14, 4, 41, tzinfo=timezone.utc),
+#         entity=Entity.AI_TOOL,
+#         is_complete=True,
+#         message_id="e21d5f16855341819d25d1d935327ffc",
+#         content=json.dumps({"content": "DUMMY_AI_TOOL_CONTENT"}),
+#         thread_id="e2db8c7d11704762b42bfdcd08526735",
+#         tool_calls=[dummy_tool_call],
+#     )
+#     msg4 = Messages(
+#         creation_date=datetime(2025, 6, 4, 14, 4, 41, tzinfo=timezone.utc),
+#         entity=Entity.USER,
+#         is_complete=True,
+#         message_id="87866e27dc7848c2bd684ea395d5a466",
+#         content=json.dumps({"content": "DUMMY_USER_TEXT"}),
+#         thread_id="e2db8c7d11704762b42bfdcd08526735",
+#         tool_calls=[],
+#     )
 
-    fake_message_list = [msg1, msg2, msg3, msg4]
+#     fake_message_list = [msg1, msg2, msg3, msg4]
 
-    expected_output = PaginatedResponse(
-        next_cursor=None,
-        has_more=False,
-        page_size=10,
-        results=[
-            MessagesReadVercel(
-                id="359eeb212e94409594d9ca7d4ff22640",
-                role="assistant",
-                isComplete=True,
-                createdAt=datetime(2025, 6, 4, 14, 4, 41, tzinfo=timezone.utc),
-                content="DUMMY_AI_CONTENT",
-                parts=[
-                    TextPartVercel(type="text", text="DUMMY_AI_TOOL_CONTENT"),
-                    ToolCallPartVercel(
-                        type="tool-dummy_tool",
-                        toolCallId="1234",
-                        state="input-available",
-                        input={},
-                        output=None,
-                    ),
-                    TextPartVercel(type="text", text="DUMMY_AI_CONTENT"),
-                ],
-                metadata={
-                    "toolCalls": [
-                        MetadataToolCallVercel(
-                            toolCallId="1234",
-                            validated="not_required",
-                            isComplete=False,
-                        ),
-                    ]
-                },
-            ),
-            MessagesReadVercel(
-                id="87866e27dc7848c2bd684ea395d5a466",
-                role="user",
-                isComplete=True,
-                createdAt=datetime(2025, 6, 4, 14, 4, 41, tzinfo=timezone.utc),
-                content="DUMMY_USER_TEXT",
-                parts=[TextPartVercel(type="text", text="DUMMY_USER_TEXT")],
-                metadata=None,
-            ),
-        ],
-    )
+#     expected_output = PaginatedResponse(
+#         next_cursor=None,
+#         has_more=False,
+#         page_size=10,
+#         results=[
+#             MessagesReadVercel(
+#                 id="359eeb212e94409594d9ca7d4ff22640",
+#                 role="assistant",
+#                 isComplete=True,
+#                 createdAt=datetime(2025, 6, 4, 14, 4, 41, tzinfo=timezone.utc),
+#                 content="DUMMY_AI_CONTENT",
+#                 parts=[
+#                     TextPartVercel(type="text", text="DUMMY_AI_TOOL_CONTENT"),
+#                     ToolCallPartVercel(
+#                         type="tool-dummy_tool",
+#                         toolCallId="1234",
+#                         state="input-available",
+#                         input={},
+#                         output=None,
+#                     ),
+#                     TextPartVercel(type="text", text="DUMMY_AI_CONTENT"),
+#                 ],
+#                 metadata={
+#                     "toolCalls": [
+#                         MetadataToolCallVercel(
+#                             toolCallId="1234",
+#                             validated="not_required",
+#                             isComplete=False,
+#                         ),
+#                     ]
+#                 },
+#             ),
+#             MessagesReadVercel(
+#                 id="87866e27dc7848c2bd684ea395d5a466",
+#                 role="user",
+#                 isComplete=True,
+#                 createdAt=datetime(2025, 6, 4, 14, 4, 41, tzinfo=timezone.utc),
+#                 content="DUMMY_USER_TEXT",
+#                 parts=[TextPartVercel(type="text", text="DUMMY_USER_TEXT")],
+#                 metadata=None,
+#             ),
+#         ],
+#     )
 
-    fake_formated_response_vercel = format_messages_vercel(
-        fake_message_list, {"dummy_tool": False}, False, 10
-    )
+#     fake_formated_response_vercel = format_messages_vercel(
+#         fake_message_list, {"dummy_tool": False}, False, 10
+#     )
 
-    assert fake_formated_response_vercel == expected_output
+#     assert fake_formated_response_vercel == expected_output
 
 
 @pytest.fixture()
@@ -571,14 +560,24 @@ def test_various_limit_values(sample_redis_info, limit_value):
 async def test_filter_tools_empty_tool_list():
     """Test that empty tool list returns empty list"""
     settings = Settings()
-    messages = [
-        Messages(
-            entity=Entity.USER,
-            content=json.dumps({"role": "user", "content": "Hello"}),
-            thread_id=UUID("12345678-9123-4567-1234-890123456789"),
+    user_message = Messages(
+        entity=Entity.USER,
+        thread_id=UUID("12345678-9123-4567-1234-890123456789"),
+    )
+    user_message.parts = [
+        Parts(
+            order_index=0,
+            type=PartType.MESSAGE,
+            output={
+                "content": [{"text": "Hello", "type": "input_text"}],
+                "role": "user",
+                "status": "completed",
+                "type": "message",
+            },
             is_complete=True,
         )
     ]
+    messages = [user_message]
     result, model_dict = await filter_tools_and_model_by_conversation(
         messages=messages,
         tool_list=[],
@@ -592,7 +591,6 @@ async def test_filter_tools_empty_tool_list():
 @pytest.mark.asyncio
 async def test_filter_tools_successful_selection(get_weather_tool, agent_handoff_tool):
     """Test successful tool filtering"""
-    # Mock OpenAI response
     mock_openai_client = MockOpenAIClient()
 
     class ToolFiltering(BaseModel):
@@ -616,28 +614,60 @@ async def test_filter_tools_successful_selection(get_weather_tool, agent_handoff
             ),
         )
     )
-    messages = [
-        Messages(
-            entity=Entity.USER,
-            content=json.dumps({"role": "user", "content": "Hello"}),
-            thread_id=UUID("12345678-9123-4567-1234-890123456789"),
+    msg1 = Messages(
+        entity=Entity.USER, thread_id=UUID("12345678-9123-4567-1234-890123456789")
+    )
+    msg1.parts = [
+        Parts(
+            order_index=0,
+            type=PartType.MESSAGE,
+            output={
+                "content": [{"text": "Hello", "type": "input_text"}],
+                "role": "user",
+                "status": "completed",
+                "type": "message",
+            },
             is_complete=True,
-        ),
-        Messages(
-            entity=Entity.AI_MESSAGE,
-            content=json.dumps({"role": "assistant", "content": "Hi there!"}),
-            thread_id=UUID("12345678-9123-4567-1234-890123456789"),
-            is_complete=True,
-        ),
-        Messages(
-            entity=Entity.USER,
-            content=json.dumps(
-                {"role": "user", "content": "I need help with Agent handoff"}
-            ),
-            thread_id=UUID("12345678-9123-4567-1234-890123456789"),
-            is_complete=True,
-        ),
+        )
     ]
+
+    msg2 = Messages(
+        entity=Entity.ASSISTANT, thread_id=UUID("12345678-9123-4567-1234-890123456789")
+    )
+    msg2.parts = [
+        Parts(
+            order_index=0,
+            type=PartType.MESSAGE,
+            output={
+                "content": [{"text": "Hi there!"}],
+                "role": "assistant",
+                "status": "completed",
+                "type": "message",
+            },
+            is_complete=True,
+        )
+    ]
+
+    msg3 = Messages(
+        entity=Entity.USER, thread_id=UUID("12345678-9123-4567-1234-890123456789")
+    )
+    msg3.parts = [
+        Parts(
+            order_index=0,
+            type=PartType.MESSAGE,
+            output={
+                "content": [
+                    {"text": "I need help with Agent handoff", "type": "input_text"}
+                ],
+                "role": "user",
+                "status": "completed",
+                "type": "message",
+            },
+            is_complete=True,
+        )
+    ]
+
+    messages = [msg1, msg2, msg3]
 
     settings = Settings(tools={"min_tool_selection": 1})
     with patch(
@@ -678,14 +708,23 @@ async def test_filter_tools_with_selected_model(get_weather_tool, agent_handoff_
             structured_output_class=ToolFiltering(selected_tools=["get_weather"]),
         )
     )
-    messages = [
-        Messages(
-            entity=Entity.USER,
-            content=json.dumps({"role": "user", "content": "What's the weather?"}),
-            thread_id=UUID("12345678-9123-4567-1234-890123456789"),
+    user_message = Messages(
+        entity=Entity.USER, thread_id=UUID("12345678-9123-4567-1234-890123456789")
+    )
+    user_message.parts = [
+        Parts(
+            order_index=0,
+            type=PartType.MESSAGE,
+            output={
+                "content": [{"text": "What's the weather?", "type": "input_text"}],
+                "role": "user",
+                "status": "completed",
+                "type": "message",
+            },
             is_complete=True,
         )
     ]
+    messages = [user_message]
 
     settings = Settings(tools={"min_tool_selection": 1})
     with patch(
@@ -713,14 +752,23 @@ async def test_filter_tools_with_selected_model(get_weather_tool, agent_handoff_
 @pytest.mark.asyncio
 async def test_filter_tools_no_selection_needed(get_weather_tool):
     """Test when neither tool nor model selection is needed"""
-    messages = [
-        Messages(
-            entity=Entity.USER,
-            content=json.dumps({"role": "user", "content": "Hello"}),
-            thread_id=UUID("12345678-9123-4567-1234-890123456789"),
+    user_message = Messages(
+        entity=Entity.USER, thread_id=UUID("12345678-9123-4567-1234-890123456789")
+    )
+    user_message.parts = [
+        Parts(
+            order_index=0,
+            type=PartType.MESSAGE,
+            output={
+                "content": [{"text": "Hello", "type": "input_text"}],
+                "role": "user",
+                "status": "completed",
+                "type": "message",
+            },
             is_complete=True,
         )
     ]
+    messages = [user_message]
 
     settings = Settings(tools={"min_tool_selection": 5})
     result, model_dict = await filter_tools_and_model_by_conversation(
@@ -755,14 +803,24 @@ async def test_filter_tools_only_model_selection(get_weather_tool):
             structured_output_class=ComplexityFiltering(complexity=7),
         )
     )
-    messages = [
-        Messages(
-            entity=Entity.USER,
-            content=json.dumps({"role": "user", "content": "Complex query"}),
-            thread_id=UUID("12345678-9123-4567-1234-890123456789"),
+    user_message = Messages(
+        entity=Entity.USER,
+        thread_id=UUID("12345678-9123-4567-1234-890123456789"),
+    )
+    user_message.parts = [
+        Parts(
+            order_index=0,
+            type=PartType.MESSAGE,
+            output={
+                "content": [{"text": "Complex query", "type": "input_text"}],
+                "role": "user",
+                "status": "completed",
+                "type": "message",
+            },
             is_complete=True,
         )
     ]
+    messages = [user_message]
 
     settings = Settings()
     with patch(

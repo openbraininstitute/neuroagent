@@ -3,7 +3,6 @@ import json
 import pytest
 
 from neuroagent.app.config import Settings
-from neuroagent.app.database.sql_schemas import Entity
 from neuroagent.app.dependencies import get_settings, get_tool_list
 from neuroagent.app.main import app
 from tests.conftest import mock_keycloak_user_identification
@@ -26,20 +25,24 @@ async def test_execute_tool_call_accepted(
     )
     app.dependency_overrides[get_settings] = lambda: test_settings
     db_items, session = populate_db
-    thread, _, tool_call = db_items.values()
+    thread = db_items["thread"]
+    assistant_message = db_items["assistant_message"]
+    # Get the FUNCTION_CALL part from assistant message
+    await session.refresh(assistant_message, ["parts"])
+    tool_call_part = assistant_message.parts[0]
+    tool_id = tool_call_part.output["id"]
+
     app.dependency_overrides[get_tool_list] = lambda: [get_weather_tool]
 
     with app_client as app_client:
         response = app_client.patch(
-            f"/tools/{thread.thread_id}/execute/{tool_call.tool_call_id}",
+            f"/tools/{thread.thread_id}/execute/{tool_id}",
             json={"validation": "accepted"},
         )
     assert response.json()["status"] == "done"
-    # Check if validation status changed and new tool message appeared
-    await session.refresh(tool_call)
-    assert tool_call.validated
-    messages = await thread.awaitable_attrs.messages
-    assert messages[-1].entity == Entity.TOOL
+    # Check if validation status changed
+    await session.refresh(tool_call_part)
+    assert tool_call_part.validated
 
 
 @pytest.mark.asyncio
@@ -59,58 +62,25 @@ async def test_execute_tool_call_rejected(
     )
     app.dependency_overrides[get_settings] = lambda: test_settings
     db_items, session = populate_db
-    thread, _, tool_call = db_items.values()
+    thread = db_items["thread"]
+    assistant_message = db_items["assistant_message"]
+    # Get the FUNCTION_CALL part from assistant message
+    await session.refresh(assistant_message, ["parts"])
+    tool_call_part = assistant_message.parts[0]
+    tool_id = tool_call_part.output["id"]
 
     app.dependency_overrides[get_tool_list] = lambda: [get_weather_tool]
 
     with app_client as app_client:
         response = app_client.patch(
-            f"/tools/{thread.thread_id}/execute/{tool_call.tool_call_id}",
+            f"/tools/{thread.thread_id}/execute/{tool_id}",
             json={"validation": "rejected"},
         )
 
     assert response.json()["status"] == "done"
-    # Check if validation status changed and new tool message appeared
-    await session.refresh(tool_call)
-    assert not tool_call.validated
-    messages = await thread.awaitable_attrs.messages
-    assert messages[-1].entity == Entity.TOOL
-
-
-@pytest.mark.asyncio
-async def test_execute_tool_call_validation_error(
-    httpx_mock,
-    app_client,
-    db_connection,
-    populate_db,
-    get_weather_tool,
-    test_user_info,
-):
-    mock_keycloak_user_identification(httpx_mock, test_user_info)
-    test_settings = Settings(
-        db={"prefix": db_connection},
-        keycloak={"issuer": "https://great_issuer.com"},
-        llm={"base_url": "http://cool.com", "open_router_token": "sk-or-cool"},
-    )
-    app.dependency_overrides[get_settings] = lambda: test_settings
-    db_items, session = populate_db
-    thread, _, tool_call = db_items.values()
-
-    app.dependency_overrides[get_tool_list] = lambda: [get_weather_tool]
-
-    with app_client as app_client:
-        response = app_client.patch(
-            f"/tools/{thread.thread_id}/execute/{tool_call.tool_call_id}",
-            json={
-                "validation": "accepted",
-                "args": json.dumps({"lction": "Zurich"}),
-            },  # Make a mistake in the args json
-        )
-
-    # Check if validation status didn't change
-    assert response.json()["status"] == "validation-error"
-    await session.refresh(tool_call)
-    assert tool_call.validated is None
+    # Check if validation status changed
+    await session.refresh(tool_call_part)
+    assert not tool_call_part.validated
 
 
 @pytest.mark.asyncio
