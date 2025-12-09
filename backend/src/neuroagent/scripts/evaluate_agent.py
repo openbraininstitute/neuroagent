@@ -158,8 +158,9 @@ def parse_ai_sdk_streaming_response(streamed_data: str) -> dict[str, Any]:
             ]
         }
     """
-    response_tokens = []
+    response_tokens: list[str] = []
     tool_calls = {}
+    current_text_id = None
 
     for line in streamed_data.splitlines():
         _, _, data = line.partition(":")
@@ -168,22 +169,22 @@ def parse_ai_sdk_streaming_response(streamed_data: str) -> dict[str, Any]:
         except json.JSONDecodeError:
             continue
 
-        # Streamed response text
-        if content["type"] == "text-delta":
-            token = content["delta"]
-            response_tokens.append(token)
-
-        # Final tool call object
+        if content["type"] == "text-start":
+            # reset on new text part. We don't want all the text in between tool calls.
+            current_text_id = content["id"]
+            response_tokens = []
+        elif content["type"] == "text-delta" and content["id"] == current_text_id:
+            response_tokens.append(content["delta"])
         elif content["type"] == "tool-input-available":
-            tool_call_id = content.get("toolCallId")
-            tool_calls[tool_call_id] = {
-                "name": content.get("toolName"),
-                "arguments": content.get("input", {}),
+            tool_calls[content["toolCallId"]] = {
+                "name": content["toolName"],
+                "arguments": content["input"],
             }
 
-    final_output = "".join(response_tokens).strip()
-
-    return {"response": final_output, "tool_calls": list(tool_calls.values())}
+    return {
+        "response": "".join(response_tokens).strip(),
+        "tool_calls": list(tool_calls.values()),
+    }
 
 
 def filter_test_cases_by_pattern(
