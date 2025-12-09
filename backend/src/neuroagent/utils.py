@@ -1,69 +1,43 @@
 """Utilies for neuroagent."""
 
+import copy
 import json
 import logging
 import re
 import uuid
 from typing import Any, Literal
 
-from fastapi import HTTPException
-from openai.types.completion_usage import CompletionUsage
+from openai.types.responses import (
+    ResponseFunctionToolCallOutputItem,
+    ResponseOutputItem,
+    ResponseUsage,
+)
 
 from neuroagent.app.database.sql_schemas import (
-    Entity,
     Messages,
+    Parts,
+    PartType,
+    Task,
+    TokenConsumption,
+    TokenType,
 )
 
 logger = logging.getLogger(__name__)
-
-
-def merge_fields(target: dict[str, Any], source: dict[str, Any]) -> None:
-    """Recursively merge each field in the target dictionary."""
-    for key, value in source.items():
-        if isinstance(value, str):
-            target[key] += value
-        elif value is not None and isinstance(value, dict):
-            merge_fields(target[key], value)
-
-
-def merge_chunk(final_response: dict[str, Any], delta: dict[str, Any]) -> None:
-    """Merge a chunk into the final message."""
-    delta.pop("role", None)
-    merge_fields(final_response, delta)
-
-    tool_calls = delta.get("tool_calls")
-    if tool_calls and len(tool_calls) > 0:
-        for tool_call in tool_calls:
-            index = tool_call.pop("index")
-            if final_response["tool_calls"][index]["type"]:
-                tool_call["type"] = None
-            merge_fields(final_response["tool_calls"][index], tool_call)
 
 
 async def messages_to_openai_content(
     db_messages: list[Messages] | None = None,
 ) -> list[dict[str, Any]]:
     """Exctract content from Messages as dictionary to pass them to OpenAI."""
-    messages = []
+    # Maybe we should add a check to see if the parts where awaited
+    openai_messages = []
     if db_messages:
         for msg in db_messages:
-            messages.append(json.loads(msg.content))
+            for part in msg.parts:
+                openai_messages.append(copy.deepcopy(part.output))
+                # to prevent replacing output in tool filtering
 
-    return messages
-
-
-def get_entity(message: dict[str, Any]) -> Entity:
-    """Define the Enum entity of the message based on its content."""
-    if message["role"] == "user":
-        return Entity.USER
-    elif message["role"] == "tool":
-        return Entity.TOOL
-    elif message["role"] == "assistant" and message.get("tool_calls", False):
-        return Entity.AI_TOOL
-    elif message["role"] == "assistant" and not message.get("tool_calls", False):
-        return Entity.AI_MESSAGE
-    else:
-        raise HTTPException(status_code=500, detail="Unknown message entity.")
+    return openai_messages
 
 
 def complete_partial_json(partial: str) -> str:
@@ -250,19 +224,19 @@ def delete_from_storage(
             objects_to_delete = []
 
 
-def get_token_count(usage: CompletionUsage | None) -> dict[str, int | None]:
+def get_token_count(usage: ResponseUsage | None) -> dict[str, int | None]:
     """Assign token count to a message given a usage chunk."""
     # Parse usage to add to message's data
     if usage:
         # Compute input, input_cached, completion
-        input_tokens = usage.prompt_tokens
+        input_tokens = usage.input_tokens
         cached_tokens = (
-            usage.prompt_tokens_details.cached_tokens
-            if usage.prompt_tokens_details
+            usage.input_tokens_details.cached_tokens
+            if usage.input_tokens_details
             else None
         )
         prompt_tokens = input_tokens - cached_tokens if cached_tokens else input_tokens
-        completion_tokens = usage.completion_tokens
+        completion_tokens = usage.output_tokens
 
         return {
             "input_cached": cached_tokens,
@@ -271,3 +245,105 @@ def get_token_count(usage: CompletionUsage | None) -> dict[str, int | None]:
         }
     else:
         return {"input_cached": None, "input_noncached": None, "completion": None}
+
+
+def append_part(
+    message: Messages,
+    history: list[dict[str, Any]],
+    openai_part: ResponseOutputItem | ResponseFunctionToolCallOutputItem,
+    type: PartType,
+    is_complete: bool = True,
+) -> None:
+    """Create a reasoning part and append it to the message and history."""
+    if type == PartType.REASONING:
+        # Openai does not like none for status ... and it outputs none in reasoning ...
+        output = openai_part.model_dump(exclude={"status"})
+    else:
+        output = openai_part.model_dump()
+
+    part = Parts(
+        message_id=message.message_id,
+        order_index=len(message.parts),
+        type=type,
+        output=output,
+        is_complete=is_complete,
+    )
+    message.parts.append(part)
+    history.append(output)
+
+
+def get_main_LLM_token_consumption(
+    usage_data: ResponseUsage | None, model: str, task: Task
+) -> list[TokenConsumption]:
+    """Create token consumption objects from usage data."""
+    if not usage_data:
+        return []
+
+    input_cached = (
+        getattr(
+            getattr(usage_data, "input_tokens_details", 0),
+            "cached_tokens",
+            0,
+        )
+        or 0
+    )
+    input_noncached = getattr(usage_data, "input_tokens", 0) - input_cached
+    completion_tokens = getattr(usage_data, "output_tokens", 0) or 0
+
+    return [
+        TokenConsumption(
+            type=token_type,
+            task=task,
+            count=count,
+            model=model,
+        )
+        for token_type, count in [
+            (TokenType.INPUT_CACHED, input_cached),
+            (TokenType.INPUT_NONCACHED, input_noncached),
+            (TokenType.COMPLETION, completion_tokens),
+        ]
+        if count
+    ]
+
+
+def get_tool_token_consumption(
+    tool_response: ResponseFunctionToolCallOutputItem,
+    context_variables: dict[str, Any],
+) -> list[TokenConsumption]:
+    """Get token consumption for a tool response."""
+    if context_variables["usage_dict"].get(tool_response.call_id):
+        tool_call_consumption = context_variables["usage_dict"][tool_response.call_id]
+        return [
+            TokenConsumption(
+                type=token_type,
+                task=Task.CALL_WITHIN_TOOL,
+                count=count,
+                model=tool_call_consumption["model"],
+            )
+            for token_type, count in [
+                (TokenType.INPUT_CACHED, tool_call_consumption["input_cached"]),
+                (TokenType.INPUT_NONCACHED, tool_call_consumption["input_noncached"]),
+                (TokenType.COMPLETION, tool_call_consumption["completion"]),
+            ]
+            if count
+        ]
+    return []
+
+
+def get_previous_hil_metadata(
+    message: Messages, tool_map: dict[str, Any]
+) -> list[dict[str, Any]]:
+    """Initialize metadata for previous HIL tool calls."""
+    metadata_data = []
+    for part in message.parts:
+        if part.type == PartType.FUNCTION_CALL:
+            tool_name = part.output.get("name")
+            if tool_name and tool_map.get(tool_name) and tool_map[tool_name].hil:
+                metadata_data.append(
+                    {
+                        "toolCallId": part.output.get("call_id"),
+                        "validated": "accepted" if part.validated else "rejected",
+                        "isComplete": part.is_complete,
+                    }
+                )
+    return metadata_data

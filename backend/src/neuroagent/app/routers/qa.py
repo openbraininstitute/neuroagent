@@ -19,8 +19,9 @@ from obp_accounting_sdk import AsyncAccountingSessionFactory
 from obp_accounting_sdk.constants import ServiceSubtype
 from openai import AsyncOpenAI
 from redis import asyncio as aioredis
-from sqlalchemy import or_, select
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
 
 from neuroagent.agent_routine import AgentsRoutine
 from neuroagent.app.app_utils import (
@@ -29,7 +30,7 @@ from neuroagent.app.app_utils import (
     validate_project,
 )
 from neuroagent.app.config import Settings
-from neuroagent.app.database.sql_schemas import Entity, Messages, Threads
+from neuroagent.app.database.sql_schemas import Messages, Threads
 from neuroagent.app.dependencies import (
     get_accounting_session_factory,
     get_agents_routine,
@@ -132,16 +133,11 @@ async def question_suggestions(
         # Get the AI and User messages from the conversation :
         messages_result = await session.execute(
             select(Messages)
-            .where(
-                Messages.thread_id == thread.thread_id,
-                or_(
-                    Messages.entity == Entity.USER,
-                    Messages.entity == Entity.AI_MESSAGE,
-                ),
-            )
+            .options(selectinload(Messages.parts))
+            .where(Messages.thread_id == thread.thread_id)
             .order_by(Messages.creation_date)
         )
-        db_messages = messages_result.unique().scalars().all()
+        db_messages = messages_result.scalars().all()
 
         is_in_chat = bool(db_messages)
         if not is_in_chat and not body.click_history:
@@ -151,14 +147,23 @@ async def question_suggestions(
             )
 
     if is_in_chat:
-        content = f"CONVERSATION MESSAGES: \n{json.dumps([{k: v for k, v in json.loads(msg.content).items() if k in ['role', 'content']} for msg in db_messages])}"
+        messages_str = "\n".join(
+            [
+                json.dumps(
+                    {
+                        "entity": msg.entity.value,
+                        "text": msg.parts[-1].output.get("content", {})[0].get("text"),
+                    }
+                )
+                for msg in db_messages
+                if msg.parts
+            ]
+        )
+        content = f"CONVERSATION MESSAGES: \n{messages_str}"
     else:
         content = f"USER JOURNEY: \n{body.model_dump(exclude={'thread_id'}, mode='json')['click_history']}"
 
-    messages = [
-        {
-            "role": "system",
-            "content": f"""You are a smart assistant that analyzes user behavior and conversation history to suggest {"three concise, engaging questions" if is_in_chat else "a concise, engaging question"} the user might ask next, specifically about finding relevant scientific literature.
+    system_prompt = f"""You are a smart assistant that analyzes user behavior and conversation history to suggest {"three concise, engaging questions" if is_in_chat else "a concise, engaging question"} the user might ask next, specifically about finding relevant scientific literature.
 
 Platform Context:
 The Open Brain Platform provides an atlas-driven exploration of the mouse brain, offering access to:
@@ -202,20 +207,22 @@ Each question must:
 
 The upcoming user message will either prepend its content with 'CONVERSATION MESSAGES:' indicating that messages from the conversation are dumped, or 'USER JOURNEY:' indicating that the navigation history is dumped.
 
-Important: Weight the user clicks depending on how old they are. The more recent clicks should be given a higher importance. The current date and time is {datetime.now(timezone.utc).isoformat()}.""",
-        },
-        {"role": "user", "content": content},
-    ]
+Important: Weight the user clicks depending on how old they are. The more recent clicks should be given a higher importance. The current date and time is {datetime.now(timezone.utc).isoformat()}."""
 
-    response = await openai_client.beta.chat.completions.parse(
-        messages=messages,  # type: ignore
+    response = await openai_client.responses.parse(
+        instructions=system_prompt,
+        input=content,
         model=settings.llm.suggestion_model,
-        response_format=QuestionsSuggestions
+        text_format=QuestionsSuggestions
         if is_in_chat
         else QuestionSuggestionNoMessages,
+        store=False,
     )
 
-    return response.choices[0].message.parsed  # type: ignore
+    if response.output_parsed:
+        return response.output_parsed  # type: ignore
+    else:
+        raise ValueError("Error generating question suggestions.")
 
 
 @router.get("/models")
@@ -286,8 +293,9 @@ async def stream_chat_agent(
 
     # No need to await since it has been awaited in tool filtering dependency
     messages: list[Messages] = thread.messages
-
+    # Add background task to commit messages after streaming / stop
     background_tasks.add_task(commit_messages, session, messages, thread)
+
     async with accounting_context(
         subtype=ServiceSubtype.ML_LLM,
         user_id=thread.user_id,
@@ -305,7 +313,7 @@ async def stream_chat_agent(
         stream_generator,
         media_type="text/event-stream",
         headers={
-            "x-vercel-ai-data-stream": "v1",
+            "x-vercel-ai-ui-message-stream": "v1",
             "Access-Control-Expose-Headers": ",".join(
                 list(limit_headers.model_dump(by_alias=True).keys())
             ),

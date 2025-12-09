@@ -1,12 +1,12 @@
 """App dependencies."""
 
-import json
 import logging
 import re
 from datetime import datetime, timezone
 from functools import cache
 from pathlib import Path
 from typing import Annotated, Any, AsyncIterator
+from uuid import UUID
 
 import boto3
 from fastapi import Depends, HTTPException, Request
@@ -25,7 +25,13 @@ from neuroagent.app.app_utils import (
     validate_project,
 )
 from neuroagent.app.config import Settings
-from neuroagent.app.database.sql_schemas import Entity, Messages, Threads
+from neuroagent.app.database.sql_schemas import (
+    Entity,
+    Messages,
+    Parts,
+    PartType,
+    Threads,
+)
 from neuroagent.app.schemas import OpenRouterModelResponse, UserInfo
 from neuroagent.executor import WasmExecutor
 from neuroagent.mcp import MCPClient, create_dynamic_tool
@@ -111,6 +117,7 @@ from neuroagent.tools import (
     StrainGetOneTool,
     SubjectGetAllTool,
     SubjectGetOneTool,
+    WeatherTool,
     WebSearchTool,
 )
 from neuroagent.tools.base_tool import BaseTool
@@ -266,7 +273,7 @@ async def get_user_info(
 
 async def get_thread(
     user_info: Annotated[UserInfo, Depends(get_user_info)],
-    thread_id: str,
+    thread_id: UUID,
     session: Annotated[AsyncSession, Depends(get_session)],
 ) -> Threads:
     """Check if the current thread / user matches."""
@@ -467,7 +474,8 @@ def get_tool_list(
         RunPythonTool,
         WebSearchTool,
         # NowTool,
-        # WeatherTool,
+        WeatherTool,
+        # RandomPlotGeneratorTool,
     ]
 
     all_tools = internal_tool_list + mcp_tool_list
@@ -520,19 +528,36 @@ async def filtered_tools(
 
     body = await request.json()
 
-    # Awaiting here makes downstream calls already loaded so no performance issue
     messages: list[Messages] = await thread.awaitable_attrs.messages
+
+    for message in messages:
+        await message.awaitable_attrs.parts
+
     if (
         not messages
-        or messages[-1].entity == Entity.AI_MESSAGE
-        or not messages[-1].is_complete
+        or not messages[-1].parts
+        or messages[-1].parts[-1].type == PartType.MESSAGE
+        or not messages[-1].parts[-1].is_complete
     ):
         messages.append(
             Messages(
                 thread_id=thread.thread_id,
                 entity=Entity.USER,
-                content=json.dumps({"role": "user", "content": body["content"]}),
-                is_complete=True,
+                parts=[
+                    Parts(
+                        order_index=0,
+                        type=PartType.MESSAGE,
+                        output={
+                            "type": "message",
+                            "role": "user",
+                            "content": [
+                                {"type": "input_text", "text": body["content"]}
+                            ],
+                            "status": "completed",
+                        },
+                        is_complete=True,
+                    )
+                ],
             )
         )
 
@@ -565,14 +590,14 @@ async def filtered_tools(
         last_user_message = next(
             message for message in reversed(messages) if message.entity == Entity.USER
         )
-        previously_selected_tools = [
-            selected.tool_name
-            for selected in await last_user_message.awaitable_attrs.tool_selection
-        ]
+        tool_selection = await last_user_message.awaitable_attrs.tool_selection
+        model_selection = await last_user_message.awaitable_attrs.model_selection
+
+        previously_selected_tools = [selected.tool_name for selected in tool_selection]
         previous_model_and_reasoning: dict[str, str | None] = {
-            "model": last_user_message.model_selection.model,
-            "reasoning": last_user_message.model_selection.reasoning.value
-            if last_user_message.model_selection.reasoning
+            "model": model_selection.model,
+            "reasoning": model_selection.reasoning.value
+            if model_selection.reasoning
             else None,
         }
         return [
