@@ -300,3 +300,167 @@ def test_delete_from_storage_large_batch():
     # Second batch should have 500 objects
     second_batch = mock_s3.delete_objects.call_args_list[1][1]
     assert len(second_batch["Delete"]["Objects"]) == 500
+
+
+@pytest.mark.asyncio
+async def test_messages_to_openai_content():
+    from neuroagent.utils import messages_to_openai_content
+
+    # Create mock messages with parts
+    mock_part1 = Mock()
+    mock_part1.output = {"role": "user", "content": "Hello"}
+
+    mock_part2 = Mock()
+    mock_part2.output = {"role": "assistant", "content": "Hi there"}
+
+    mock_message1 = Mock()
+    mock_message1.parts = [mock_part1]
+
+    mock_message2 = Mock()
+    mock_message2.parts = [mock_part2]
+
+    db_messages = [mock_message1, mock_message2]
+
+    result = await messages_to_openai_content(db_messages)
+
+    assert len(result) == 2
+    assert result[0] == {"role": "user", "content": "Hello"}
+    assert result[1] == {"role": "assistant", "content": "Hi there"}
+
+
+def test_get_token_count():
+    from unittest.mock import Mock
+
+    from neuroagent.utils import get_token_count
+
+    # Test with usage data
+    mock_usage = Mock()
+    mock_usage.input_tokens = 100
+    mock_usage.output_tokens = 50
+    mock_usage.input_tokens_details = Mock()
+    mock_usage.input_tokens_details.cached_tokens = 20
+
+    result = get_token_count(mock_usage)
+
+    assert result["input_cached"] == 20
+    assert result["input_noncached"] == 80
+    assert result["completion"] == 50
+
+    # Test with None
+    result_none = get_token_count(None)
+    assert result_none == {
+        "input_cached": None,
+        "input_noncached": None,
+        "completion": None,
+    }
+
+
+def test_append_part():
+    from unittest.mock import Mock
+
+    from neuroagent.app.database.sql_schemas import PartType
+    from neuroagent.utils import append_part
+
+    mock_message = Mock()
+    mock_message.message_id = "msg-123"
+    mock_message.parts = []
+
+    mock_openai_part = Mock()
+    mock_openai_part.model_dump.return_value = {"type": "message", "content": "test"}
+
+    history = []
+
+    append_part(
+        mock_message, history, mock_openai_part, PartType.MESSAGE, is_complete=True
+    )
+
+    assert len(mock_message.parts) == 1
+    assert len(history) == 1
+    assert history[0] == {"type": "message", "content": "test"}
+
+
+def test_get_main_LLM_token_consumption():
+    from unittest.mock import Mock
+
+    from neuroagent.app.database.sql_schemas import Task
+    from neuroagent.utils import get_main_LLM_token_consumption
+
+    mock_usage = Mock()
+    mock_usage.input_tokens = 150
+    mock_usage.output_tokens = 75
+    mock_details = Mock()
+    mock_details.cached_tokens = 30
+    mock_usage.input_tokens_details = mock_details
+
+    result = get_main_LLM_token_consumption(mock_usage, "gpt-4", Task.CHAT_COMPLETION)
+
+    assert len(result) == 3
+    assert all(tc.model == "gpt-4" for tc in result)
+    assert all(tc.task == Task.CHAT_COMPLETION for tc in result)
+
+    # Test with None
+    result_none = get_main_LLM_token_consumption(None, "gpt-4", Task.CHAT_COMPLETION)
+    assert result_none == []
+
+
+def test_get_tool_token_consumption():
+    from unittest.mock import Mock
+
+    from neuroagent.app.database.sql_schemas import Task
+    from neuroagent.utils import get_tool_token_consumption
+
+    mock_tool_response = Mock()
+    mock_tool_response.call_id = "call-123"
+
+    context_variables = {
+        "usage_dict": {
+            "call-123": {
+                "model": "gpt-4",
+                "input_cached": 10,
+                "input_noncached": 50,
+                "completion": 25,
+            }
+        }
+    }
+
+    result = get_tool_token_consumption(mock_tool_response, context_variables)
+
+    assert len(result) == 3
+    assert all(tc.task == Task.CALL_WITHIN_TOOL for tc in result)
+    assert all(tc.model == "gpt-4" for tc in result)
+
+    # Test with missing call_id
+    context_empty = {"usage_dict": {}}
+    result_empty = get_tool_token_consumption(mock_tool_response, context_empty)
+    assert result_empty == []
+
+
+def test_get_previous_hil_metadata():
+    from unittest.mock import Mock
+
+    from neuroagent.app.database.sql_schemas import PartType
+    from neuroagent.utils import get_previous_hil_metadata
+
+    mock_message = Mock()
+
+    mock_part1 = Mock()
+    mock_part1.type = PartType.FUNCTION_CALL
+    mock_part1.output = {"name": "tool1", "id": "call-1"}
+    mock_part1.validated = True
+    mock_part1.is_complete = True
+
+    mock_part2 = Mock()
+    mock_part2.type = PartType.MESSAGE
+
+    mock_message.parts = [mock_part1, mock_part2]
+
+    mock_tool = Mock()
+    mock_tool.hil = True
+    tool_map = {"tool1": mock_tool}
+
+    result = get_previous_hil_metadata(mock_message, tool_map)
+
+    assert len(result) == 1
+    assert result[0]["toolCallId"] == "call-1"
+    assert result[0]["validated"] == "accepted"
+    assert result[0]["isComplete"] is True
