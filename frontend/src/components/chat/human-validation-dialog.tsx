@@ -17,7 +17,7 @@ import { HilRefusalFeedbackDialog } from "@/components/chat/hil-refusal-feedback
 
 type HumanValidationDialogProps = {
   threadId: string;
-  toolId: string;
+  toolCallId: string;
   toolName: string;
   availableTools: Array<{ slug: string; label: string }>;
   args: JsonData;
@@ -34,7 +34,7 @@ type HumanValidationDialogProps = {
 
 export function HumanValidationDialog({
   threadId,
-  toolId,
+  toolCallId,
   toolName,
   availableTools,
   args,
@@ -81,7 +81,7 @@ export function HumanValidationDialog({
         if (
           part.type.startsWith("tool-") &&
           "toolCallId" in part &&
-          part.toolCallId === toolId
+          part.toolCallId === toolCallId
         ) {
           return {
             ...part,
@@ -101,9 +101,9 @@ export function HumanValidationDialog({
           ...msg.metadata,
           toolCalls: [
             ...(msg.metadata?.toolCalls || []).filter(
-              (a) => a.toolCallId !== toolId,
+              (a) => a.toolCallId !== toolCallId,
             ),
-            { toolCallId: toolId, validated: validation, isComplete: true },
+            { toolCallId: toolCallId, validated: validation, isComplete: true },
           ],
         },
       } as MessageStrict;
@@ -111,7 +111,7 @@ export function HumanValidationDialog({
 
     mutate({
       threadId,
-      toolCallId: toolId,
+      toolCallId: toolCallId,
       validation,
       feedback: feedback === "" ? undefined : feedback,
     });

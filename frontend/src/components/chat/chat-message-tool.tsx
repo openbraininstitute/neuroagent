@@ -103,7 +103,7 @@ export const ChatMessageTool = function ChatMessageTool({
       <HumanValidationDialog
         key={tool.toolCallId}
         threadId={threadId}
-        toolId={tool.toolCallId}
+        toolCallId={tool.toolCallId}
         toolName={tool.type.slice(5)}
         availableTools={availableTools}
         args={tool.input}

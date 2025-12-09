@@ -405,14 +405,18 @@ class AgentsRoutine:
                                 )
                             )
                             yield f"data: {json.dumps({'type': 'start-step'})}\n\n"
-                            yield f"data: {json.dumps({'type': 'tool-input-start', 'toolCallId': event.item.id, 'toolName': event.item.name})}\n\n"
+                            yield f"data: {json.dumps({'type': 'tool-input-start', 'toolCallId': event.item.call_id, 'toolName': event.item.name})}\n\n"
 
                         # Tool call (args) deltas
                         case ResponseFunctionCallArgumentsDeltaEvent() if event.item_id:
+                            # Now call ID in the stream, we have to get it form temp stream data
+                            tool_call_id = temp_stream_data["tool_calls"][
+                                event.item_id
+                            ].call_id
                             temp_stream_data["tool_calls"][
                                 event.item_id
                             ].arguments += event.delta
-                            yield f"data: {json.dumps({'type': 'tool-input-delta', 'toolCallId': event.item_id, 'inputTextDelta': event.delta})}\n\n"
+                            yield f"data: {json.dumps({'type': 'tool-input-delta', 'toolCallId': tool_call_id, 'inputTextDelta': event.delta})}\n\n"
 
                         # Tool call end and ready to execute
                         case ResponseOutputItemDoneEvent() if (
@@ -438,7 +442,7 @@ class AgentsRoutine:
                             temp_stream_data["tool_to_execute"][event.item.id] = (
                                 event.item
                             )
-                            yield f"data: {json.dumps({'type': 'tool-input-available', 'toolCallId': event.item.id, 'toolName': event.item.name, 'input': json.loads(args)})}\n\n"
+                            yield f"data: {json.dumps({'type': 'tool-input-available', 'toolCallId': event.item.call_id, 'toolName': event.item.name, 'input': json.loads(args)})}\n\n"
                             yield f"data: {json.dumps({'type': 'finish-step'})}\n\n"
 
                         # === Usage ===
@@ -484,7 +488,7 @@ class AgentsRoutine:
                     tool_calls_done.messages.extend(
                         [
                             ResponseFunctionToolCallOutputItem(
-                                id=call.id,
+                                id=call.id or "",
                                 call_id=call.call_id,
                                 output=f"The tool {call.name} with arguments {call.arguments} could not be executed due to rate limit. Call it again.",
                                 type="function_call_output",
@@ -510,7 +514,7 @@ class AgentsRoutine:
                         PartType.FUNCTION_CALL_OUTPUT,
                     )
                     temp_stream_data["tool_to_execute"].pop(tool_response.id, None)
-                    yield f"data: {json.dumps({'type': 'tool-output-available', 'toolCallId': tool_response.id, 'output': tool_response.output})}\n\n"
+                    yield f"data: {json.dumps({'type': 'tool-output-available', 'toolCallId': tool_response.call_id, 'output': tool_response.output})}\n\n"
 
                 yield f"data: {json.dumps({'type': 'finish-step'})}\n\n"
 
@@ -519,7 +523,7 @@ class AgentsRoutine:
                     for msg in tool_calls_with_hil:
                         metadata_data.append(
                             {
-                                "toolCallId": msg.id,
+                                "toolCallId": msg.call_id,
                                 "validated": "pending",
                                 "isComplete": True,
                             }

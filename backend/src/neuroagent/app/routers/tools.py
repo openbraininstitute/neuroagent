@@ -38,10 +38,10 @@ logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/tools", tags=["Tool's CRUD"])
 
 
-@router.patch("/{thread_id}/execute/{tool_id}")
+@router.patch("/{thread_id}/execute/{tool_call_id}")
 async def execute_tool_call(
     thread_id: UUID,
-    tool_id: str,
+    tool_call_id: str,
     request: ExecuteToolCallRequest,
     _: Annotated[Threads, Depends(get_thread)],
     session: Annotated[AsyncSession, Depends(get_session)],
@@ -54,7 +54,7 @@ async def execute_tool_call(
     result = await session.execute(
         select(Parts).where(
             Parts.type == PartType.FUNCTION_CALL,
-            Parts.output["id"].astext == tool_id,
+            Parts.output["call_id"].astext == tool_call_id,
         )
     )
     part = result.scalars().first()
