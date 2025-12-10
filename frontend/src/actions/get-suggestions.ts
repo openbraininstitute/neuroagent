@@ -15,7 +15,7 @@ export async function getSuggestions(
       return { success: false, error: "Not authenticated" };
     }
 
-    const { projectID, virtualLabID } = await getSettings();
+    const { projectID, virtualLabID, frontendUrl } = await getSettings();
 
     // Add query parameters if vlab/project are present
     const queryParams: Record<string, string> = {};
@@ -25,12 +25,14 @@ export async function getSuggestions(
     if (projectID !== undefined) {
       queryParams.project_id = projectID;
     }
-
+    console.log(projectID);
+    console.log(virtualLabID);
+    console.log(frontendUrl);
     const threadResponse = (await fetcher({
       method: "POST",
       path: "/qa/question_suggestions",
       headers: { Authorization: `Bearer ${session.accessToken}` },
-      body: { click_history: user_history },
+      body: { click_history: user_history, frontend_url: frontendUrl },
       queryParams,
     })) as BQuestionsSuggestions;
 

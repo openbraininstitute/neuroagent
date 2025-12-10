@@ -212,9 +212,7 @@ class PaginatedResponse(BaseModel, Generic[T]):
 class QuestionsSuggestions(BaseModel):
     """All suggested questions by the LLM when there are already messages."""
 
-    suggestions: list[Question] = conlist(  # type: ignore
-        item_type=Question, min_length=3, max_length=3
-    )
+    suggestions: list[Question] = Field(min_length=3, max_length=3)
 
 
 class QuestionSuggestionNoMessages(BaseModel):

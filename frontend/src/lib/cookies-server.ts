@@ -5,5 +5,6 @@ export async function getSettings() {
   return {
     projectID: cookieStore.get("projectID")?.value,
     virtualLabID: cookieStore.get("virtualLabID")?.value,
+    frontendUrl: cookieStore.get("frontendUrl")?.value,
   };
 }
