@@ -23,7 +23,7 @@ export async function generateEditTitle(
       headers: { Authorization: `Bearer ${session.accessToken}` },
     });
 
-    revalidateTag("threads");
+    revalidateTag("threads", { expire: 0 });
     return { success: true };
   } catch (error) {
     return {

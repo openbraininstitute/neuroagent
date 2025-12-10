@@ -60,6 +60,7 @@ export function ThreadCardSidebar({ title, threadId }: ThreadCardSidebarProps) {
       <Link
         href={`/threads/${threadId}`}
         className="flex w-[100%] flex-1 gap-3"
+        prefetch={false}
       >
         <MessageCircle />
         <span

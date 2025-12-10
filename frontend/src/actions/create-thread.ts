@@ -35,7 +35,7 @@ export async function createThread() {
     const { thread_id: newThreadId } = threadResponse;
     threadId = newThreadId;
 
-    revalidateTag("threads");
+    revalidateTag("threads", { expire: 0 });
   } catch (error) {
     console.error("Error creating thread with message:", error);
     return { success: false, error: "Failed to create thread with message" };
