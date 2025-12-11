@@ -95,14 +95,15 @@ export function ChatPage({
         Authorization: `Bearer ${session?.accessToken}`,
       },
       prepareSendMessagesRequest: ({ messages }) => {
-        const checkedToolsNow = useStore.getState().checkedTools; // else no tool update.
+        const checkedToolsNow = useStore.getState().checkedTools;
+        const currentModelNow = useStore.getState().currentModel;
         return {
           body: {
             content: getLastMessageText(messages),
             tool_selection: Object.keys(checkedToolsNow).filter(
               (key) => key !== "allchecked" && checkedToolsNow[key] === true,
             ),
-            model: currentModel.id,
+            model: currentModelNow.id,
             frontend_url: frontendUrl,
           },
         };

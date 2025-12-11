@@ -131,7 +131,7 @@ export function ModelSelectionDropdown({
 
             <CommandGroup>
               {availableModels.map((model) => {
-                const isCurrentModel = model.name === currentModel.name;
+                const isCurrentModel = model.id === currentModel.id;
                 return renderModelItem(model, isCurrentModel);
               })}
             </CommandGroup>
