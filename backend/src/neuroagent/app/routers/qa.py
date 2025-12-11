@@ -2,7 +2,6 @@
 
 import logging
 from contextlib import asynccontextmanager
-from datetime import datetime, timezone
 from typing import Annotated, Any, AsyncIterator
 from uuid import UUID
 
@@ -20,6 +19,7 @@ from obp_accounting_sdk.constants import ServiceSubtype
 from openai import AsyncOpenAI
 from redis import asyncio as aioredis
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
 
 from neuroagent.agent_routine import AgentsRoutine
 from neuroagent.app.app_utils import (
@@ -131,13 +131,15 @@ async def question_suggestions(
 
     if body.thread_id is not None:
         # Get the AI and User messages from the conversation:
-        thread = await session.get(Threads, body.thread_id)
+        thread = await session.get(
+            Threads, body.thread_id, options=[selectinload(Threads.messages)]
+        )
         if not thread:
             raise HTTPException(
                 status_code=404,
                 detail=f"Thread with id {body.thread_id} not found.",
             )
-        messages = await thread.awaitable_attrs.messages
+        messages = thread.messages
         openai_messages = await messages_to_openai_content(messages)
 
         # Remove the tool calls.
@@ -273,18 +275,19 @@ Output format:
 - Output must strictly be a JSON array containing exactly three user action strings (never more, never less); do not return any surrounding text, commentary, or formatting.
 - After producing the actions, briefly validate that all requirements are satisfied (distinctness, literature, page context, tool set limits) before finalizing the output.
 
-Current time: {datetime.now(timezone.utc).isoformat()}
-
 Tool description:
 {chr(10).join(tool_info)}"""
 
-    messages = [{"role": "system", "content": system_prompt}, *content]
-    response = await openai_client.beta.chat.completions.parse(
-        messages=messages,
-        model="gpt-5-nano",
-        reasoning_effort="minimal",  # type: ignore
-        response_format=QuestionsSuggestions,
-    )
+    messages = [{"role": "system", "content": system_prompt}, *content]  # type: ignore
+    parse_kwargs = {
+        "messages": messages,
+        "model": settings.llm.suggestion_model,
+        "response_format": QuestionsSuggestions,
+    }
+    if "gpt-5" in settings.llm.suggestion_model:
+        parse_kwargs["reasoning_effort"] = "minimal"
+
+    response = await openai_client.beta.chat.completions.parse(**parse_kwargs)  # type: ignore
     return response.choices[0].message.parsed  # type: ignore
 
 

@@ -5,7 +5,7 @@ import { fetcher } from "@/lib/fetcher";
 import { getSettings } from "@/lib/cookies-server";
 import { BQuestionsSuggestions, UserHistory } from "@/lib/types";
 
-export async function getSuggestions(
+export async function getSuggestionsNoMessage(
   previousState: unknown,
   user_history: UserHistory,
 ) {
@@ -25,9 +25,7 @@ export async function getSuggestions(
     if (projectID !== undefined) {
       queryParams.project_id = projectID;
     }
-    console.log(projectID);
-    console.log(virtualLabID);
-    console.log(frontendUrl);
+
     const threadResponse = (await fetcher({
       method: "POST",
       path: "/qa/question_suggestions",
