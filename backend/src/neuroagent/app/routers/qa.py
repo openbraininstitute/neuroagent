@@ -174,7 +174,7 @@ Guidelines:
 - Ensure that the three actions each address substantially different elements of the main topic, leveraging the diversity of the tool set, while still remaining contextually relevant.
 - The system does not allow export of data in any format (CSV, JSON, Excel, etc.). Do not suggest actions about exporting, downloading, or saving data to files.
 - Do not suggest actions that have already been carried out in the conversation.
-- Suggest workflows on subsets of data. Do not suggest analysis of large datasets.
+- Suggest workflows on subsets of data (max 5 elements). Do not suggest analysis of large datasets, such as full hierarchies. Do not suggest actions that can generate a lot of data.
 
 ## Output Format
 - Output must be a JSON array (and nothing else) with exactly three strings.
@@ -249,16 +249,16 @@ Guidelines:
 - Focus on demonstrating what the chat can help with based on the user's current page. Explore creative options based on available tools.
 - Keep actions succinct and clear.
 - When selecting actions, refer only to described tool purposes and minimal required inputs. Do not simulate or mimic tool usage.
-- If the current page context contains entity IDs or other parameters, explicitly state these values in the action text for clarity (e.g., "Show me the morphology with ID abc-123").
+- If the current page context contains entity IDs or other parameters, explicitly state these values in the action text for clarity.
 - Refer to brain regions by their names (e.g., "Somatosensory cortex", "Hippocampus"), never by their IDs.
 - Ignore any page context information with value `None` or `null`; do not use such values in suggested actions.
 - Ensure all three actions cover substantially different features or elements, making use of the tool set's diversity.
 - Do not suggest actions involving exporting, downloading, or saving data/files (e.g., CSV, JSON, Excel).
-- Only suggest workflows/analyzes on subsets of data (e.g., first entry), not large-scale dataset analysis.
+- Suggest workflows on subsets of data (max 5 elements). Do not suggest analysis of large datasets, such as full hierarchies. Do not suggest actions that can generate a lot of data.
 
 Input format:
 - Current page context with fields:
-- `observed_entity_type`: Type of entity being viewed (e.g., "morphology", "neuron", "simulation-campaign", "trace" etc...). `None` means a general page.
+- `observed_entity_type`: Type of entity being viewed. `None` means a general page.
 - `current_entity_id`: UUID of the specific entity being viewed. (`brain_region_id` is NOT an entity ID.) `None` means a list/overview page.
 - `brain_region_id`: This identifies the selected brain region but is not an entity ID. `None` means no region filter is active.
 - `brain_region_name`: Name of the brain region with this ID. `None` means that the name resolving could not be performed from the ID
