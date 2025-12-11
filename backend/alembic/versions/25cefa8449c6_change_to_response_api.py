@@ -510,6 +510,7 @@ def downgrade():
                     "content": "",
                     "tool_calls": [],
                     "tool_outputs": [],
+                    "is_complete": True,
                 }
 
                 # Get all parts with is_complete and validated
@@ -557,6 +558,7 @@ def downgrade():
                                     "content": "",
                                     "tool_calls": [],
                                     "tool_outputs": [],
+                                    "is_complete": is_complete_part,
                                 }
                     elif part_type == "FUNCTION_CALL":
                         # If current turn already has tool outputs, this is a new turn
@@ -567,6 +569,7 @@ def downgrade():
                                 "content": "",
                                 "tool_calls": [],
                                 "tool_outputs": [],
+                                "is_complete": is_complete_part,
                             }
                         output_json["validated"] = validated
                         current_turn["tool_calls"].append(output_json)
@@ -582,6 +585,7 @@ def downgrade():
                                     "content": "",
                                     "tool_calls": [],
                                     "tool_outputs": [],
+                                    "is_complete": is_complete_part,
                                 }
 
                 # Add last turn if it has content
