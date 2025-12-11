@@ -14,6 +14,7 @@ from fastapi import (
     Response,
 )
 from fastapi.responses import StreamingResponse
+from httpx import AsyncClient
 from obp_accounting_sdk import AsyncAccountingSessionFactory
 from obp_accounting_sdk.constants import ServiceSubtype
 from openai import AsyncOpenAI
@@ -32,6 +33,7 @@ from neuroagent.app.dependencies import (
     get_accounting_session_factory,
     get_agents_routine,
     get_context_variables,
+    get_httpx_client,
     get_openai_client,
     get_openrouter_models,
     get_redis_client,
@@ -80,19 +82,15 @@ async def question_suggestions(
     fastapi_response: Response,
     session: Annotated[AsyncSession, Depends(get_session)],
     tool_list: Annotated[list[type[BaseTool]], Depends(get_tool_list)],
+    httpx_client: Annotated[AsyncClient, Depends(get_httpx_client)],
     body: QuestionsSuggestionsRequest,
     vlab_id: UUID | None = None,
     project_id: UUID | None = None,
 ) -> QuestionsSuggestions:
-    """Generate suggested question taking into account the user journey and the user previous messages."""
+    """Generate suggested questions based on the user's previous messages."""
     if body.thread_id is None:
         # if there is no thread ID, we simply go without messages.
         is_in_chat = False
-        if not body.click_history:
-            raise HTTPException(
-                status_code=422,
-                detail="One of 'thread_id' or 'click_history' must be provided.",
-            )
 
     if vlab_id is not None and project_id is not None:
         validate_project(
@@ -151,16 +149,14 @@ async def question_suggestions(
                 user_ai_messages.append(message)
 
         is_in_chat = bool(openai_messages)
-        if not is_in_chat and not body.click_history:
-            raise HTTPException(
-                status_code=404,
-                detail="The thread is empty and the 'click_history' wasn't provided.",
-            )
 
     tool_info = [f"{tool.name}: {tool.description}" for tool in tool_list]
 
+    # ====================================IN CHAT===============================================
     if is_in_chat:
-        content = user_ai_messages[-5:]
+        content = user_ai_messages[
+            -4:
+        ]  # 4 last messages, no special reason for that number
         system_prompt = f"""
 Guidelines:
 
@@ -183,8 +179,9 @@ Guidelines:
 - Always return exactly three appropriate actions (never more, never less). If the conversation context or tools do not support three contextually relevant actions, produce the most logically appropriate or useful actions, ensuring the output array still contains three strings. Output must always be a JSON array, with no surrounding text or formatting.
 
 Available Tools:
-{", ".join(tool_info)}"""
+{chr(10).join(tool_info)}"""
 
+    # ====================================NOT IN CHAT===========================================
     else:
         # Get current page context
         if body.frontend_url:
@@ -193,8 +190,39 @@ Available Tools:
                 input_schema=ContextAnalyzerInput(),
             )
             try:
+                # Get current page info
                 context_output = await context_tool.arun()
-                context_info = f"\nCurrent page context: {context_output.model_dump_json(exclude={'raw_path', 'query_params'})}"
+
+                # Get BR name from ID
+                if context_output.brain_region_id is not None:
+                    headers: dict[str, str] = {}
+                    if vlab_id is not None:
+                        headers["virtual-lab-id"] = str(vlab_id)
+                    if project_id is not None:
+                        headers["project-id"] = str(project_id)
+
+                    # Query GET ONE Brain Region in entitycore
+                    response = await httpx_client.get(
+                        url=settings.tools.entitycore.url.rstrip("/")
+                        + f"/brain-region/{context_output.brain_region_id}",
+                        headers=headers,
+                    )
+                    if response.status_code != 200:
+                        brain_region_name = None
+
+                    brain_region_name = response.json()["name"]
+                else:
+                    brain_region_name = None
+
+                # Dump page context
+                context_output_json = context_output.model_dump(
+                    mode="json", exclude={"raw_path", "query_params"}
+                )
+
+                # Add resolved BR name. Even if `None` it carries info
+                context_output_json["brain_region_name"] = brain_region_name
+
+                context_info = f"\nCurrent page context: {context_output_json}"
             except Exception:
                 context_info = ""
         else:
@@ -203,52 +231,52 @@ Available Tools:
         content = [
             {
                 "role": "user",
-                "content": f"USER JOURNEY: \n{body.model_dump(exclude={'thread_id'}, mode='json')['click_history']}{context_info}",
+                "content": context_info,
             }
         ]
         system_prompt = f"""
 Guidelines:
-
-- Generate three user actions based on the user's current location and journey, each targeting a significantly different aspect. Each action must be phrased as a natural, conversational command that a user would say (e.g., "Show me...", "Find papers about...", "Analyze the...", "Compare...", "Visualize...").
-- **CRITICAL**: Actions must be in imperative mood (commands), NOT interrogative (questions). Do NOT end actions with question marks. User actions must always be phrased from the user's perspective only. Do NOT rephrase actions from the perspective of the LLM or system—do not use formulations such as: "Would you like me to...", "Should I analyze...", "Do you want me to...", "Can you...", "What is..." etc.
-- Use natural, conversational language that sounds like how a real user would speak. Prefer phrases like "Show me...", "Find...", "Get...", "Compare...", "Visualize..." over stiff or robotic phrasing.
+- Generate three user actions based on the user's current location, each action targeting a distinctly different aspect. Each action must be written as a natural, conversational command a user would say (e.g., "Show me...", "Find papers about...", "Analyze the...", "Compare...", "Visualize...").
+- **CRITICAL**: Actions must use the imperative mood (commands), not interrogative (questions). Do not end actions with question marks. User actions must always be worded from the user's perspective only, never rephrase from the LLM or system's viewpoint. Avoid phrases such as: "Would you like me to...", "Should I analyze...", "Do you want me to...", "Can you...", "What is..." etc.
+- Use conversational, natural phrasing that sounds like how real users speak. Prefer phrases like "Show me...", "Find...", "Get...", "Compare...", "Visualize..." and avoid robotic or stiff language.
 - At least one action MUST be literature-related (such as searching for papers or finding publications).
-- Explore a range of distinct possibilities, such as visuals, metrics, literature, associated models, etc. Be creative and leverage the variety of available tools.
-- Only include actions that can be performed using the available tools.
-- This LLM cannot call any tools directly; base your suggestions solely on tool descriptions and do not assume access to tools beyond what is described.
-- Focus on demonstrating what the chat can help with, based on the user's current page and recent navigation.
-- Keep each action succinct and clear.
-- When determining which actions to suggest, refer only to the stated purposes and required minimal inputs of the tools; do not simulate or attempt tool execution.
-- If the current page context includes entity IDs or other parameters, actions MUST explicitly include these values in the text (e.g., "Show me the morphology with ID abc-123"). This ensures clarity for both the user and the main LLM.
-- Brain regions should be mentioned by their name (e.g., "Somatosensory cortex", "Hippocampus"), NOT by their ID. Use the brain region ID to infer or reference the brain region name if needed.
-- Literature-related actions MUST use only general keywords or concepts (like brain region names or scientific terms) and NEVER database-specific or entity IDs.
-- Ignore any page context information with the value `None` or `null`; do not reference or use such values in suggested actions.
-- Ensure the three actions each address substantially different elements, utilizing the diversity of the tool set.
-- Do not suggest actions involving data export, download, or saving to files, as these are not permitted (e.g., CSV, JSON, Excel, etc.).
-- Suggest workflows only on subsets of data (e.g. on the first entry); do not propose analysis for large datasets.
-- Emphasize the most recent navigation and current page, but cross-page questions related to the navigation history are allowed if relevant
+- For non-literature actions, focus on the current page context provided in the user message.
+- Explore a diverse set of possibilities: visuals, metrics, literature, related models, etc. Apply creativity and use the variety of tools available.
+- Only include actions possible with the provided toolset. Reference only described tool capabilities and minimal required inputs, and do not simulate tool responses.
+- The LLM cannot execute tools directly; base all actions on tool descriptions alone. Do not assume access to tools beyond their described capabilities.
+- Focus on demonstrating what the chat can help with based on the user's current page. Explore creative options based on available tools.
+- Keep actions succinct and clear.
+- When selecting actions, refer only to described tool purposes and minimal required inputs. Do not simulate or mimic tool usage.
+- If the current page context contains entity IDs or other parameters, explicitly state these values in the action text for clarity (e.g., "Show me the morphology with ID abc-123").
+- Refer to brain regions by their names (e.g., "Somatosensory cortex", "Hippocampus"), never by their IDs.
+- Ignore any page context information with value `None` or `null`; do not use such values in suggested actions.
+- Ensure all three actions cover substantially different features or elements, making use of the tool set's diversity.
+- Do not suggest actions involving exporting, downloading, or saving data/files (e.g., CSV, JSON, Excel).
+- Only suggest workflows/analyzes on subsets of data (e.g., first entry), not large-scale dataset analysis.
 
 Input format:
-- USER JOURNEY—list of pages visited, each with a timestamp.
-- Current page context—extracted information from the current URL with the following fields:
-  - `observed_entity_type`: The type of entity being viewed (e.g., "morphology", "neuron", "simulation-campaign", "trace" etc...). If None, user is on a general page.
-  - `current_entity_id`: The UUID of the specific entity being viewed. he `brain_region_id` does NOT reflect an entity ID. If None, user is on a list/overview page.
-  - `brain_region_id`: Brain region ID from query parameters (br_id). This is NOT an entity ID. This is the id of the brain region selected by the user. If None, no brain region filter is active.
+- Current page context with fields:
+- `observed_entity_type`: Type of entity being viewed (e.g., "morphology", "neuron", "simulation-campaign", "trace" etc...). `None` means a general page.
+- `current_entity_id`: UUID of the specific entity being viewed. (`brain_region_id` is NOT an entity ID.) `None` means a list/overview page.
+- `brain_region_id`: This identifies the selected brain region but is not an entity ID. `None` means no region filter is active.
+- `brain_region_name`: Name of the brain region with this ID. `None` means that the name resolving could not be performed from the ID
 
 Typical action patterns:
 - If `current_entity_id` is present: Suggest actions to analyze, visualize, or get more details about that specific entity (mention the entity ID explicitly).
 - If `current_entity_id` is None but `observed_entity_type` is present: Suggest actions to search, filter, or retrieve entities of that type.
-- If `brain_region_id` is present: Suggest actions related to that brain region by name (e.g., find related entities within the brain region, explore it in various atlases, search literature about it).
-- If most fields are None: Suggest exploratory actions to help user discover available data or capabilities.
+- If `brain_region_name` is present: Suggest actions about that brain region by name (e.g., find related entities in the region, show it in atlases, search literature about it).
+- If most fields are None, or there is no user input: Suggest exploratory actions to help users discover available data or features.
+- For the literature-related action, use only high-level concepts or keywords from the current page context (e.g., page topics, regions, or scientific terms), not database-specific IDs.
+- The remaining two actions must focus on features or data available from the current page context.
+
+Output format:
+- Output must strictly be a JSON array containing exactly three user action strings (never more, never less); do not return any surrounding text, commentary, or formatting.
+- After producing the actions, briefly validate that all requirements are satisfied (distinctness, literature, page context, tool set limits) before finalizing the output.
 
 Current time: {datetime.now(timezone.utc).isoformat()}
 
-Output format:
-- Return a JSON array containing exactly three appropriate user action strings (never more, never less). The output must be only the JSON array, with no surrounding text or formatting.
-
-Available Tools:
-
-{",".join(tool_info)}"""
+Tool description:
+{chr(10).join(tool_info)}"""
 
     messages = [{"role": "system", "content": system_prompt}, *content]
     response = await openai_client.beta.chat.completions.parse(
