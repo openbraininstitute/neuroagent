@@ -144,7 +144,7 @@ async def question_suggestions(
         user_ai_messages = []
         for message in openai_messages:
             if message["role"] == "user" or (
-                message["role"] == "assistant" and not message["tool_calls"]
+                message["role"] == "assistant" and not message.get("tool_calls")
             ):
                 user_ai_messages.append(message)
 

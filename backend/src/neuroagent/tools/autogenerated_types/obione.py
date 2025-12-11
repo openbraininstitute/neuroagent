@@ -96,6 +96,18 @@ class BellFitMTau(BaseModel):
     type: Literal['BellFitMTau'] = Field(..., title='Type')
 
 
+class BodyMorphologyMetricsCalculationDeclaredRegisterMorphologyWithCalculatedMetricsPost(
+    BaseModel
+):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    file: bytes = Field(
+        ..., description='Neuron file to upload (.swc, .h5, or .asc)', title='File'
+    )
+    metadata: str = Field(default='{}', title='Metadata')
+
+
 class BodyTestNeuronFileDeclaredTestNeuronFilePost(BaseModel):
     model_config = ConfigDict(
         extra='ignore',
@@ -103,6 +115,15 @@ class BodyTestNeuronFileDeclaredTestNeuronFilePost(BaseModel):
     file: bytes = Field(
         ..., description='Neuron file to upload (.swc, .h5, or .asc)', title='File'
     )
+
+
+class BodyValidateNwbFileDeclaredValidateElectrophysiologyProtocolNwbFilePost(
+    BaseModel
+):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    file: bytes = Field(..., description='NWB file to upload (.nwb)', title='File')
 
 
 class CellMorphology(BaseModel):
@@ -950,6 +971,14 @@ class Frequency(RootModel[float]):
 
 class FrequencyItem(WidthItem):
     pass
+
+
+class NWBValidationResponse(BaseModel):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    status: str = Field(..., title='Status')
+    message: str = Field(..., title='Message')
 
 
 class NamedPath(BaseModel):
@@ -2863,6 +2892,11 @@ class NeuronMorphologyMetricsEndpointDeclaredNeuronMorphologyMetricsCellMorpholo
     ) = Field(
         default=None, description='List of requested metrics', title='Requested Metrics'
     )
+
+
+MorphologyMetricsCalculationDeclaredRegisterMorphologyWithCalculatedMetricsPostResponse = (
+    RootGetResponse
+)
 
 
 class ParametricMultiValueEndpointDeclaredParametricMultiValuePostParametersQuery(
