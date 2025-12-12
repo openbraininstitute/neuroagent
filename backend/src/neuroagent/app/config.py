@@ -127,7 +127,7 @@ class SettingsLLM(BaseModel):
     openai_token: SecretStr | None = None
     openai_base_url: str | None = None
     open_router_token: SecretStr | None = None
-    suggestion_model: str = "gpt-4o-mini"
+    suggestion_model: str = "gpt-5-nano"
     default_chat_model: str = "gpt-5-mini"  # In case of error in model selection
     default_chat_reasoning: str = "low"
     temperature: float = 1

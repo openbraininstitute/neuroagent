@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 class ReadPaperInput(BaseModel):
     """Input schema for Read Paper tool."""
 
-    urls: list[str] = Field(description="URLs to extract content from.")
+    urls: list[str] = Field(description="URLs to extract content from.", min_length=1)
 
 
 class ReadPaperMetadata(BaseMetadata):
@@ -38,10 +38,30 @@ class ContentResult(BaseModel):
     model_config = ConfigDict(extra="ignore")
 
 
+class ContentError(BaseModel):
+    """Error details for content extraction."""
+
+    tag: str
+    httpStatusCode: int | None = None
+
+    model_config = ConfigDict(extra="ignore")
+
+
+class ContentStatus(BaseModel):
+    """Status of the content extraction."""
+
+    id: str
+    status: str
+    error: ContentError | None = None
+
+    model_config = ConfigDict(extra="ignore")
+
+
 class ReadPaperOutput(BaseModel):
     """Output schema for Literature Search tool."""
 
     results: list[ContentResult]
+    statuses: list[ContentStatus]
 
 
 class ReadPaperTool(BaseTool):
@@ -102,9 +122,11 @@ class ReadPaperTool(BaseTool):
                     f"The Exa contents endpoint returned a non 200 response code. Error: {response.text}"
                 )
             data = response.json()
-
             return ReadPaperOutput(
-                results=[ContentResult(**res) for res in data["results"]]
+                results=[ContentResult(**res) for res in data["results"]],
+                statuses=[
+                    ContentStatus(**status) for status in data.get("statuses", [])
+                ],
             )
 
     @classmethod

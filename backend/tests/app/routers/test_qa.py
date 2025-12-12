@@ -31,11 +31,20 @@ def test_question_suggestions(
     test_user_info,
 ):
     mock_keycloak_user_identification(httpx_mock, test_user_info)
+
+    # Mock the entitycore brain region GET request
+    httpx_mock.add_response(
+        method="GET",
+        url="https://greaturl.com/brain-region/676b00ec-1b9e-478d-96ef-069b25f17f9a",
+        json={"id": "676b00ec-1b9e-478d-96ef-069b25f17f9a", "name": "Amazing BR"},
+    )
+
     test_settings = Settings(
         db={"prefix": db_connection},
         keycloak={"issuer": "https://great_issuer.com"},
         accounting={"disabled": True},
         rate_limiter={"disabled": True},
+        tools={"entitycore": {"url": "https://greaturl.com"}},
     )
     app.dependency_overrides[get_settings] = lambda: test_settings
     mock_openai_client = MockOpenAIClient()
@@ -53,7 +62,7 @@ def test_question_suggestions(
     )
     mock_openai_client.set_response(mock_response)
     app.dependency_overrides[get_openai_client] = lambda: mock_openai_client
-    user_id, vlab, proj = test_user_info
+    _, vlab, proj = test_user_info
 
     # First we test if no thread id is provided.
     with app_client as app_client:
@@ -66,7 +75,8 @@ def test_question_suggestions(
                         "region": "Amzing BR",
                         "artifact": "Super artifact",
                     }
-                ]
+                ],
+                "frontend_url": "https://myurl.org/app/virtual-lab/56b753ec-frc6-45cc-a928-87522e3a9672/7ee3df24-221b-4c89-94bd-8d2471105306/data/browse/entity/experimental-synapses-per-connection?br_id=676b00ec-1b9e-478d-96ef-069b25f17f9a&br_av=803",
             },
             headers={"x-virtual-lab-id": str(vlab), "x-project-id": str(proj)},
         )
@@ -91,6 +101,7 @@ def test_question_suggestions(
                         "artifact": "Super artifact",
                     }
                 ],
+                "frontend_url": "https://myurl.org/app/virtual-lab/56b753ec-frc6-45cc-a928-87522e3a9672/7ee3df24-221b-4c89-94bd-8d2471105306/data/browse/entity/experimental-synapses-per-connection?br_id=676b00ec-1b9e-478d-96ef-069b25f17f9a&br_av=803",
                 "thread_id": create_output["thread_id"],
             },
             headers={"x-virtual-lab-id": str(vlab), "x-project-id": str(proj)},
@@ -114,6 +125,7 @@ def test_question_suggestions(
                         "artifact": "Super artifact",
                     }
                 ],
+                "frontend_url": "https://myurl.org/app/virtual-lab/56b753ec-frc6-45cc-a928-87522e3a9672/7ee3df24-221b-4c89-94bd-8d2471105306/data/browse/entity/experimental-synapses-per-connection?br_id=676b00ec-1b9e-478d-96ef-069b25f17f9a&br_av=803",
                 "thread_id": str(thread.thread_id),
             },
             headers={"x-virtual-lab-id": str(vlab), "x-project-id": str(proj)},
@@ -124,18 +136,19 @@ def test_question_suggestions(
 
     # At the end we check if the calls were made with the right arguments:
     call_list = mock_openai_client.beta.chat.completions.parse.call_args_list
+
     assert call_list[0].kwargs["messages"][1] == {
         "role": "user",
-        "content": "USER JOURNEY: \n[{'timestamp': '1970-01-02T10:17:36Z', 'region': 'Amzing BR', 'artifact': 'Super artifact'}]",
+        "content": "\nCurrent page context: {'brain_region_id': '676b00ec-1b9e-478d-96ef-069b25f17f9a', 'observed_entity_type': 'experimental-synapses-per-connection', 'current_entity_id': None, 'brain_region_name': 'Amazing BR'}",
     }
     assert call_list[1].kwargs["messages"][1] == {
         "role": "user",
-        "content": "USER JOURNEY: \n[{'timestamp': '1970-01-02T10:17:36Z', 'region': 'Amzing BR', 'artifact': 'Super artifact'}]",
+        "content": "\nCurrent page context: {'brain_region_id': '676b00ec-1b9e-478d-96ef-069b25f17f9a', 'observed_entity_type': 'experimental-synapses-per-connection', 'current_entity_id': None, 'brain_region_name': 'Amazing BR'}",
     }
-    assert call_list[2].kwargs["messages"][1] == {
-        "role": "user",
-        "content": 'CONVERSATION MESSAGES: \n[{"content": "This is my query."}, {"content": "sample response content."}]',
-    }
+    assert call_list[2].kwargs["messages"][1:] == [
+        {"content": "This is my query.", "role": "user"},
+        {"content": "sample response content.", "role": "assistant"},
+    ]
 
 
 async def streamed_response():
