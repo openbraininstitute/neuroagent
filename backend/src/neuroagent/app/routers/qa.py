@@ -272,7 +272,7 @@ Input format:
 - `brain_region_name`: Name of the brain region with this ID. `None` means that the name resolving could not be performed from the ID
 
 Typical action patterns:
-- If `current_entity_id` is present: Suggest actions to analyze, visualize, or get more details about that specific entity (mention the entity ID explicitly).
+- If `current_entity_id` is present: Suggest actions to analyze, visualize, or get more details about that specific entity.
 - If `current_entity_id` is None but `observed_entity_type` is present: Suggest actions to search, filter, or retrieve entities of that type.
 - If `brain_region_name` is present: Suggest actions about that brain region by name (e.g., find related entities in the region, search literature about it etc...).
 - If most fields are None, or there is no user input: Suggest exploratory actions to help users discover available data or features.
