@@ -139,8 +139,7 @@ async def question_suggestions(
                 status_code=404,
                 detail=f"Thread with id {body.thread_id} not found.",
             )
-        messages = thread.messages
-        openai_messages = await messages_to_openai_content(messages)
+        openai_messages = await messages_to_openai_content(thread.messages)
 
         # Remove the tool calls.
         user_ai_messages = []
@@ -165,7 +164,7 @@ Guidelines:
 - Generate three user actions, each targeting a significantly different aspect or subtopic relevant to the main topic of the conversation. Each action should be phrased exactly as if the user is instructing the system to perform the action (e.g., "Show...", "Find...", "Analyze..."). Each action should be independent, and information contained or revealed in one action cannot be re-used, referred to, or assumed in the others. Any shared context or information must be restated in each action where necessary.
 - **CRITICAL**: Actions must be in imperative mood (commands), NOT interrogative (questions). Do NOT end actions with question marks. Actions must always be phrased strictly from the user's perspective only. Do NOT generate or rephrase actions from the LLM's perspective. Avoid any formulations such as: "Would you like me to...", "Should I analyze...", "Do you want me to...", "Would it be helpful if I...", "Shall I retrieve...", "Can you...", "What is..." etc.
 - Explore various distinct possibilities, e.g., visuals, metrics, literature, associated models, etc. Be creative.
-- Only include actions that can be performed using the available tools.
+- Only include actions that can be performed using the available tools described below.
 - This LLM cannot call any tools; actions suggested must be based solely on the tool descriptions. Do not assume access to tools beyond what is described.
 - Focus on advancing the user's workflow and showcasing what the chat can help with. Suggest logical next steps, deeper exploration, or related topics using the available tool information. Avoid producing mere variations of previous actions.
 - Keep actions succinct and clear.
@@ -174,9 +173,12 @@ Guidelines:
 - Ensure that the three actions each address substantially different elements of the main topic, leveraging the diversity of the tool set, while still remaining contextually relevant.
 - The system does not allow export of data in any format (CSV, JSON, Excel, etc.). Do not suggest actions about exporting, downloading, or saving data to files.
 - Do not suggest actions that have already been carried out in the conversation.
-- Suggest workflows on subsets of data (max 5 elements). Do not suggest analysis of large datasets, such as full hierarchies. Do not suggest actions that can generate a lot of data.
+- Suggest workflows on subsets of data (max 5 elements). Do not suggest analysis or retrieval of large datasets, such as retrieving full lists of entities or resolving full hierarchies (e.g., all child brain regions). Suggested actions must only span small, manageable subsets (no more than 5 entities) to avoid triggering huge workflows. Do not suggest actions that can generate a lot of data.
 
-## Output Format
+Tool Description Format
+- `tool_name: tool_description`
+
+Output Format
 - Output must be a JSON array (and nothing else) with exactly three strings.
 - Always return exactly three appropriate actions (never more, never less). If the conversation context or tools do not support three contextually relevant actions, produce the most logically appropriate or useful actions, ensuring the output array still contains three strings. Output must always be a JSON array, with no surrounding text or formatting.
 
@@ -222,6 +224,9 @@ Available Tools:
                 )
 
                 # Add resolved BR name. Even if `None` it carries info
+                # if brain_region_name is not None:
+                #     context_output_json["brain_region_name"] = brain_region_name
+                #     context_output_json.pop("brain_region_id", None)
                 context_output_json["brain_region_name"] = brain_region_name
 
                 context_info = f"\nCurrent page context: {context_output_json}"
@@ -256,6 +261,9 @@ Guidelines:
 - Do not suggest actions involving exporting, downloading, or saving data/files (e.g., CSV, JSON, Excel).
 - Suggest workflows on subsets of data (max 5 elements). Do not suggest analysis of large datasets, such as full hierarchies. Do not suggest actions that can generate a lot of data.
 
+Tool Description Format
+- `tool_name: tool_description`
+
 Input format:
 - Current page context with fields:
 - `observed_entity_type`: Type of entity being viewed. `None` means a general page.
@@ -266,7 +274,7 @@ Input format:
 Typical action patterns:
 - If `current_entity_id` is present: Suggest actions to analyze, visualize, or get more details about that specific entity (mention the entity ID explicitly).
 - If `current_entity_id` is None but `observed_entity_type` is present: Suggest actions to search, filter, or retrieve entities of that type.
-- If `brain_region_name` is present: Suggest actions about that brain region by name (e.g., find related entities in the region, show it in atlases, search literature about it).
+- If `brain_region_name` is present: Suggest actions about that brain region by name (e.g., find related entities in the region, search literature about it etc...).
 - If most fields are None, or there is no user input: Suggest exploratory actions to help users discover available data or features.
 - For the literature-related action, use only high-level concepts or keywords from the current page context (e.g., page topics, regions, or scientific terms), not database-specific IDs.
 - The remaining two actions must focus on features or data available from the current page context.
@@ -278,7 +286,7 @@ Output format:
 Tool description:
 {chr(10).join(tool_info)}"""
 
-    messages = [{"role": "system", "content": system_prompt}, *content]  # type: ignore
+    messages = [{"role": "system", "content": system_prompt}, *content]
     parse_kwargs = {
         "messages": messages,
         "model": settings.llm.suggestion_model,
