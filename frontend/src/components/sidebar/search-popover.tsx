@@ -186,6 +186,7 @@ export function SearchPopover({ debounceMs = 400 }: SearchPopoverProps) {
                     <Link
                       href={`/threads/${res.thread_id}`}
                       className="block w-full"
+                      prefetch={false}
                     >
                       <div className="mb-1 line-clamp-1 text-sm font-semibold text-gray-900 dark:text-gray-100">
                         {res.title}
