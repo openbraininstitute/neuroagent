@@ -162,18 +162,10 @@ export function ChatInput({ availableTools, availableModels }: ChatInputProps) {
                 />
               ) : (
                 <button
-                  type={input ? "submit" : "button"}
-                  onClick={
-                    !input && fullSuggestion
-                      ? () => {
-                          setNewMessage(fullSuggestion);
-                          startTransition(action);
-                        }
-                      : undefined
-                  }
+                  type="submit"
                   data-testid="send-button"
                   className="ml-3 rounded-full bg-gray-100 p-3 text-gray-700 transition-all hover:bg-gray-400 hover:text-gray-800 disabled:opacity-50 dark:bg-gray-600/15 dark:text-gray-300 dark:hover:bg-gray-800"
-                  disabled={!input && !fullSuggestion}
+                  disabled={!input}
                 >
                   <Send className="h-5 w-5" />
                 </button>

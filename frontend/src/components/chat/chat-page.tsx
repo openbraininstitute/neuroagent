@@ -12,6 +12,7 @@ import { ChatInputInsideThread } from "@/components/chat/chat-input-inside-threa
 import { ChatMessagesInsideThread } from "@/components/chat/chat-messages-inside-thread";
 import { generateEditTitle } from "@/actions/generate-edit-thread";
 import { toast } from "sonner";
+import { getSuggestionsForThread } from "@/actions/get-suggestions";
 import { useGetMessageNextPage } from "@/hooks/get-message-page";
 import { getToolInvocations, isLastMessageComplete } from "@/lib/utils";
 import { md5 } from "js-md5";
@@ -54,6 +55,9 @@ export function ChatPage({
   const [isInvalidating, setIsInvalidating] = useState(false);
   // For frontend url
   const frontendUrl = Cookies.get("frontendUrl") || "";
+  // Suggestions
+  const [suggestions, setSuggestions] = useState<string[]>([]);
+  const hasFetchedSuggestions = useRef(false);
 
   const {
     data,
@@ -102,10 +106,25 @@ export function ChatPage({
         frontend_url: frontendUrl,
       };
     },
+    async onFinish() {
+      const result = await getSuggestionsForThread(threadId);
+      if (result?.suggestions) {
+        setSuggestions(result.suggestions.map((s) => s.question));
+      }
+    },
   });
 
   // This should probably be changed to be more granular, I just created the old behaviour here.
   const isLoading = status == "streaming" || status == "submitted";
+  const prevIsLoading = useRef(isLoading);
+
+  // Clear suggestions when chat starts
+  useEffect(() => {
+    if (isLoading && !prevIsLoading.current) {
+      setSuggestions([]);
+    }
+    prevIsLoading.current = isLoading;
+  }, [isLoading]);
 
   // Convert to our types.
   const messages = messagesRaw as MessageStrict[];
@@ -131,6 +150,14 @@ export function ChatPage({
       });
       generateEditTitle(null, threadId, newMessage);
       setNewMessage("");
+    } else if (initialMessages.length > 0 && !hasFetchedSuggestions.current) {
+      // Load suggestions for existing conversation
+      hasFetchedSuggestions.current = true;
+      getSuggestionsForThread(threadId).then((result) => {
+        if (result?.suggestions) {
+          setSuggestions(result.suggestions.map((s) => s.question));
+        }
+      });
     }
 
     // If checkedTools is not initialized yet, initialize it
@@ -312,7 +339,6 @@ export function ChatPage({
         checkedTools={checkedTools}
         currentModel={currentModel}
         threadId={threadId}
-        lastMessageId={messages[messages.length - 1]?.id}
         setCheckedTools={setCheckedTools}
         setCurrentModel={setCurrentModel}
         handleInputChange={handleInputChange}
@@ -323,6 +349,7 @@ export function ChatPage({
         stopped={stopped}
         setStopped={setStopped}
         setIsInvalidating={setIsInvalidating}
+        suggestions={suggestions}
       />
     </div>
   );
