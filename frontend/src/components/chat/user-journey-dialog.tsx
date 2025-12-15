@@ -101,14 +101,10 @@ export function OpenUserJourneyButton({
 
   return (
     <>
-      <button
-        type="button"
-        className="mr-2"
-        onClick={() => setIsDialogOpen(true)}
-      >
+      <button type="button" className="" onClick={() => setIsDialogOpen(true)}>
         {pendingSuggestions ? (
           <div
-            className="ml-2 h-6 w-6 animate-spin rounded-full border-2 border-gray-500 border-t-transparent p-1"
+            className="h-6 w-6 animate-spin rounded-full border-2 border-gray-500 border-t-transparent p-1"
             data-testid="loading-spinner"
           />
         ) : (
