@@ -3,6 +3,7 @@
 import datetime
 import enum
 import uuid
+from typing import Any
 
 from sqlalchemy import (
     UUID,
@@ -14,7 +15,7 @@ from sqlalchemy import (
     Integer,
     String,
 )
-from sqlalchemy.dialects.postgresql import TSVECTOR
+from sqlalchemy.dialects.postgresql import JSONB, TSVECTOR
 from sqlalchemy.ext.asyncio import AsyncAttrs
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
@@ -25,12 +26,19 @@ def utc_now() -> datetime.datetime:
 
 
 class Entity(enum.Enum):
-    """Calss to restrict entity collumn."""
+    """Class to restrict entity column."""
 
     USER = "user"
-    AI_TOOL = "ai_tool"
-    TOOL = "tool"
-    AI_MESSAGE = "ai_message"
+    ASSISTANT = "assistant"
+
+
+class PartType(enum.Enum):
+    """Type of Response API part."""
+
+    MESSAGE = "message"
+    REASONING = "reasoning"
+    FUNCTION_CALL = "function_call"
+    FUNCTION_CALL_OUTPUT = "function_call_output"
 
 
 class Task(enum.Enum):
@@ -94,7 +102,7 @@ class Threads(Base):
 
 
 class Messages(Base):
-    """SQL table for the messsages in the threads."""
+    """SQL table for user messages. Each message groups all AI responses/tool calls."""
 
     __tablename__ = "messages"
     message_id: Mapped[uuid.UUID] = mapped_column(
@@ -104,15 +112,17 @@ class Messages(Base):
         DateTime(timezone=True), default=utc_now
     )
     entity: Mapped[Entity] = mapped_column(Enum(Entity), nullable=False)
-    content: Mapped[str] = mapped_column(String, nullable=False)
-    is_complete: Mapped[bool] = mapped_column(Boolean)
+    search_vector: Mapped[str | None] = mapped_column(TSVECTOR, nullable=True)
 
     thread_id: Mapped[uuid.UUID] = mapped_column(
         UUID, ForeignKey("threads.thread_id"), nullable=False
     )
     thread: Mapped[Threads] = relationship("Threads", back_populates="messages")
-    tool_calls: Mapped[list["ToolCalls"]] = relationship(
-        "ToolCalls", back_populates="message", cascade="all, delete-orphan"
+    parts: Mapped[list["Parts"]] = relationship(
+        "Parts",
+        back_populates="message",
+        order_by="Parts.order_index",
+        cascade="all, delete-orphan",
     )
     tool_selection: Mapped[list["ToolSelection"]] = relationship(
         "ToolSelection", cascade="all, delete-orphan"
@@ -123,27 +133,27 @@ class Messages(Base):
     token_consumption: Mapped[list["TokenConsumption"]] = relationship(
         "TokenConsumption", cascade="all, delete-orphan"
     )
-    search_vector: Mapped[str] = mapped_column(TSVECTOR, nullable=True)
 
-    __table_args__ = (
-        # GIN index for full-text search performance
-        Index("ix_messages_search_vector", "search_vector", postgresql_using="gin"),
+
+class Parts(Base):
+    """SQL table for storing Response API parts (JSONB format)."""
+
+    __tablename__ = "parts"
+    part_id: Mapped[uuid.UUID] = mapped_column(
+        UUID, primary_key=True, default=lambda: uuid.uuid4()
     )
-
-
-class ToolCalls(Base):
-    """SQL table used for tool call parameters."""
-
-    __tablename__ = "tool_calls"
-    tool_call_id: Mapped[str] = mapped_column(String, primary_key=True)
-    name: Mapped[str] = mapped_column(String, nullable=False)
-    arguments: Mapped[str] = mapped_column(String, nullable=False)
+    message_id: Mapped[uuid.UUID] = mapped_column(
+        UUID, ForeignKey("messages.message_id"), nullable=False
+    )
+    order_index: Mapped[int] = mapped_column(Integer, nullable=False)
+    type: Mapped[PartType] = mapped_column(Enum(PartType), nullable=False)
+    output: Mapped[dict[str, Any]] = mapped_column(JSONB, nullable=False)
+    is_complete: Mapped[bool] = mapped_column(Boolean, nullable=False)
     validated: Mapped[bool] = mapped_column(Boolean, nullable=True)
 
-    message_id: Mapped[uuid.UUID] = mapped_column(
-        UUID, ForeignKey("messages.message_id")
-    )
-    message: Mapped[Messages] = relationship("Messages", back_populates="tool_calls")
+    message: Mapped[Messages] = relationship("Messages", back_populates="parts")
+
+    __table_args__ = (Index("ix_parts_message_id", "message_id"),)
 
 
 class ToolSelection(Base):

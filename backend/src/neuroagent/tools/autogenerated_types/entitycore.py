@@ -208,6 +208,7 @@ class AssetLabel(
             'ion_channel_model_figure_summary_json',
             'ion_channel_model_thumbnail',
             'circuit_extraction_config',
+            'skeletonization_config',
         ]
     ]
 ):
@@ -255,6 +256,7 @@ class AssetLabel(
         'ion_channel_model_figure_summary_json',
         'ion_channel_model_thumbnail',
         'circuit_extraction_config',
+        'skeletonization_config',
     ] = Field(..., description='See docs/asset-labels.md.', title='AssetLabel')
 
 
@@ -314,6 +316,8 @@ class BrainRegionHierarchyAdminUpdate(BaseModel):
         extra='allow',
     )
     name: str | None = Field(default='<NOT_SET>', title='Name')
+    species_id: UUID | str | None = Field(default='<NOT_SET>', title='Species Id')
+    strain_id: UUID | str | None = Field(default='<NOT_SET>', title='Strain Id')
 
 
 class BrainRegionHierarchyCreate(BaseModel):
@@ -321,21 +325,8 @@ class BrainRegionHierarchyCreate(BaseModel):
         extra='allow',
     )
     name: str = Field(..., title='Name')
-
-
-class BrainRegionRead(BaseModel):
-    model_config = ConfigDict(
-        extra='allow',
-    )
-    creation_date: AwareDatetime = Field(..., title='Creation Date')
-    update_date: AwareDatetime = Field(..., title='Update Date')
-    id: UUID = Field(..., title='Id')
-    annotation_value: int = Field(..., title='Annotation Value')
-    name: str = Field(..., title='Name')
-    acronym: str = Field(..., title='Acronym')
-    color_hex_triplet: str = Field(..., title='Color Hex Triplet')
-    parent_structure_id: UUID | None = Field(default=None, title='Parent Structure Id')
-    hierarchy_id: UUID = Field(..., title='Hierarchy Id')
+    species_id: UUID = Field(..., title='Species Id')
+    strain_id: UUID | None = Field(default=None, title='Strain Id')
 
 
 class CalibrationCreate(BaseModel):
@@ -1491,6 +1482,19 @@ class ModifiedReconstructionCellMorphologyProtocolCreate(BaseModel):
         ..., title='Generation Type'
     )
     method_type: ModifiedMorphologyMethodType
+
+
+class NestedBrainRegionRead(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
+    id: UUID = Field(..., title='Id')
+    annotation_value: int = Field(..., title='Annotation Value')
+    name: str = Field(..., title='Name')
+    acronym: str = Field(..., title='Acronym')
+    color_hex_triplet: str = Field(..., title='Color Hex Triplet')
+    parent_structure_id: UUID | None = Field(default=None, title='Parent Structure Id')
+    hierarchy_id: UUID = Field(..., title='Hierarchy Id')
 
 
 class NestedComputationallySynthesizedCellMorphologyProtocolRead(BaseModel):
@@ -3062,7 +3066,18 @@ class ReadManyBrainRegionGetParametersQuery(BaseModel):
     acronym__in: list[str] | None = Field(default=None, title='Acronym  In')
     annotation_value: int | None = Field(default=None, title='Annotation Value')
     hierarchy_id: UUID | None = Field(default=None, title='Hierarchy Id')
+    species_id__in: list[UUID] | None = Field(default=None, title='Species Id  In')
     order_by: list[str] = Field(default=['name'], title='Order By')
+    species__name: str | None = Field(default=None, title='Species  Name')
+    species__name__in: list[str] | None = Field(default=None, title='Species  Name  In')
+    species__name__ilike: str | None = Field(default=None, title='Species  Name  Ilike')
+    species__id: UUID | None = Field(default=None, title='Species  Id')
+    species__id__in: list[UUID] | None = Field(default=None, title='Species  Id  In')
+    strain__name: str | None = Field(default=None, title='Strain  Name')
+    strain__name__in: list[str] | None = Field(default=None, title='Strain  Name  In')
+    strain__name__ilike: str | None = Field(default=None, title='Strain  Name  Ilike')
+    strain__id: UUID | None = Field(default=None, title='Strain  Id')
+    strain__id__in: list[UUID] | None = Field(default=None, title='Strain  Id  In')
 
 
 class ReadManyBrainRegionHierarchyGetParametersQuery(BaseModel):
@@ -3073,7 +3088,19 @@ class ReadManyBrainRegionHierarchyGetParametersQuery(BaseModel):
     name__ilike: str | None = Field(default=None, title='Name  Ilike')
     id: UUID | None = Field(default=None, title='Id')
     id__in: list[UUID] | None = Field(default=None, title='Id  In')
+    species_id__in: list[UUID] | None = Field(default=None, title='Species Id  In')
     order_by: list[str] = Field(default=['name'], title='Order By')
+    species__name: str | None = Field(default=None, title='Species  Name')
+    species__name__in: list[str] | None = Field(default=None, title='Species  Name  In')
+    species__name__ilike: str | None = Field(default=None, title='Species  Name  Ilike')
+    species__id: UUID | None = Field(default=None, title='Species  Id')
+    species__id__in: list[UUID] | None = Field(default=None, title='Species  Id  In')
+    strain__name: str | None = Field(default=None, title='Strain  Name')
+    strain__name__in: list[str] | None = Field(default=None, title='Strain  Name  In')
+    strain__name__ilike: str | None = Field(default=None, title='Strain  Name  Ilike')
+    strain__id: UUID | None = Field(default=None, title='Strain  Id')
+    strain__id__in: list[UUID] | None = Field(default=None, title='Strain  Id  In')
+    with_facets: bool = Field(default=False, title='With Facets')
 
 
 class ReadManyCalibrationGetParametersQuery(BaseModel):
@@ -10730,6 +10757,25 @@ class BrainRegionHierarchyRead(BaseModel):
     creation_date: AwareDatetime = Field(..., title='Creation Date')
     update_date: AwareDatetime = Field(..., title='Update Date')
     name: str = Field(..., title='Name')
+    species: NestedSpeciesRead
+    strain: NestedStrainRead | None = None
+
+
+class BrainRegionRead(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
+    creation_date: AwareDatetime = Field(..., title='Creation Date')
+    update_date: AwareDatetime = Field(..., title='Update Date')
+    id: UUID = Field(..., title='Id')
+    annotation_value: int = Field(..., title='Annotation Value')
+    name: str = Field(..., title='Name')
+    acronym: str = Field(..., title='Acronym')
+    color_hex_triplet: str = Field(..., title='Color Hex Triplet')
+    parent_structure_id: UUID | None = Field(default=None, title='Parent Structure Id')
+    hierarchy_id: UUID = Field(..., title='Hierarchy Id')
+    species: NestedSpeciesRead
+    strain: NestedStrainRead | None = None
 
 
 CalibrationRead = SimulationGenerationRead
@@ -12044,7 +12090,7 @@ class SingleNeuronSimulationRead(BaseModel):
     id: UUID = Field(..., title='Id')
     authorized_project_id: UUID4 = Field(..., title='Authorized Project Id')
     authorized_public: bool = Field(default=False, title='Authorized Public')
-    brain_region: BrainRegionRead
+    brain_region: NestedBrainRegionRead
     seed: int = Field(..., title='Seed')
     status: SingleNeuronSimulationStatus
     injection_location: list[str] = Field(..., title='Injection Location')
@@ -12058,6 +12104,7 @@ class SingleNeuronSynaptomeRead(BaseModel):
     )
     name: str = Field(..., title='Name')
     description: str = Field(..., title='Description')
+    brain_region: NestedBrainRegionRead
     created_by: NestedPersonRead
     updated_by: NestedPersonRead
     assets: list[AssetRead] = Field(..., title='Assets')
@@ -12072,7 +12119,6 @@ class SingleNeuronSynaptomeRead(BaseModel):
     authorized_public: bool = Field(default=False, title='Authorized Public')
     seed: int = Field(..., title='Seed')
     me_model: NestedMEModel
-    brain_region: BrainRegionRead
 
 
 class SingleNeuronSynaptomeSimulationRead(BaseModel):
@@ -12090,7 +12136,7 @@ class SingleNeuronSynaptomeSimulationRead(BaseModel):
     id: UUID = Field(..., title='Id')
     authorized_project_id: UUID4 = Field(..., title='Authorized Project Id')
     authorized_public: bool = Field(default=False, title='Authorized Public')
-    brain_region: BrainRegionRead
+    brain_region: NestedBrainRegionRead
     seed: int = Field(..., title='Seed')
     status: SingleNeuronSimulationStatus
     injection_location: list[str] = Field(..., title='Injection Location')
@@ -12402,7 +12448,7 @@ class CircuitRead(BaseModel):
     update_date: AwareDatetime = Field(..., title='Update Date')
     created_by: NestedPersonRead
     updated_by: NestedPersonRead
-    brain_region: BrainRegionRead
+    brain_region: NestedBrainRegionRead
     subject: NestedSubjectRead
     authorized_project_id: UUID4 = Field(..., title='Authorized Project Id')
     authorized_public: bool = Field(default=False, title='Authorized Public')
@@ -12456,7 +12502,7 @@ class EMCellMeshRead(BaseModel):
     update_date: AwareDatetime = Field(..., title='Update Date')
     created_by: NestedPersonRead
     updated_by: NestedPersonRead
-    brain_region: BrainRegionRead
+    brain_region: NestedBrainRegionRead
     subject: NestedSubjectRead
     authorized_project_id: UUID4 = Field(..., title='Authorized Project Id')
     authorized_public: bool = Field(default=False, title='Authorized Public')
@@ -12508,7 +12554,7 @@ class EMDenseReconstructionDatasetRead(BaseModel):
     update_date: AwareDatetime = Field(..., title='Update Date')
     created_by: NestedPersonRead
     updated_by: NestedPersonRead
-    brain_region: BrainRegionRead
+    brain_region: NestedBrainRegionRead
     subject: NestedSubjectRead
     authorized_project_id: UUID4 = Field(..., title='Authorized Project Id')
     authorized_public: bool = Field(default=False, title='Authorized Public')
@@ -12565,6 +12611,7 @@ class EModelRead(BaseModel):
     )
     name: str = Field(..., title='Name')
     description: str = Field(..., title='Description')
+    brain_region: NestedBrainRegionRead
     contributions: list[NestedContributionRead] | None = Field(
         ..., title='Contributions'
     )
@@ -12582,7 +12629,6 @@ class EModelRead(BaseModel):
     id: UUID = Field(..., title='Id')
     species: NestedSpeciesRead
     strain: NestedStrainRead | None = None
-    brain_region: BrainRegionRead
     mtypes: list[AnnotationRead] | None = Field(..., title='Mtypes')
     etypes: list[AnnotationRead] | None = Field(..., title='Etypes')
     exemplar_morphology: ExemplarMorphology
@@ -12603,7 +12649,7 @@ class ElectricalCellRecordingRead(BaseModel):
     update_date: AwareDatetime = Field(..., title='Update Date')
     created_by: NestedPersonRead
     updated_by: NestedPersonRead
-    brain_region: BrainRegionRead
+    brain_region: NestedBrainRegionRead
     subject: NestedSubjectRead
     authorized_project_id: UUID4 = Field(..., title='Authorized Project Id')
     authorized_public: bool = Field(default=False, title='Authorized Public')
@@ -12684,9 +12730,10 @@ class ExperimentalBoutonDensityRead(BaseModel):
     model_config = ConfigDict(
         extra='allow',
     )
-    subject: NestedSubjectRead
     name: str = Field(..., title='Name')
     description: str = Field(..., title='Description')
+    brain_region: NestedBrainRegionRead
+    subject: NestedSubjectRead
     contributions: list[NestedContributionRead] | None = Field(
         ..., title='Contributions'
     )
@@ -12701,7 +12748,6 @@ class ExperimentalBoutonDensityRead(BaseModel):
     update_date: AwareDatetime = Field(..., title='Update Date')
     measurements: list[MeasurementRecordRead] = Field(..., title='Measurements')
     assets: list[AssetRead] = Field(..., title='Assets')
-    brain_region: BrainRegionRead
     mtypes: list[AnnotationRead] | None = Field(..., title='Mtypes')
 
 
@@ -12729,9 +12775,10 @@ class ExperimentalNeuronDensityRead(BaseModel):
     model_config = ConfigDict(
         extra='allow',
     )
-    subject: NestedSubjectRead
     name: str = Field(..., title='Name')
     description: str = Field(..., title='Description')
+    brain_region: NestedBrainRegionRead
+    subject: NestedSubjectRead
     contributions: list[NestedContributionRead] | None = Field(
         ..., title='Contributions'
     )
@@ -12746,7 +12793,6 @@ class ExperimentalNeuronDensityRead(BaseModel):
     update_date: AwareDatetime = Field(..., title='Update Date')
     measurements: list[MeasurementRecordRead] = Field(..., title='Measurements')
     assets: list[AssetRead] = Field(..., title='Assets')
-    brain_region: BrainRegionRead
     mtypes: list[AnnotationRead] | None = Field(..., title='Mtypes')
     etypes: list[AnnotationRead] | None = Field(..., title='Etypes')
 
@@ -12776,9 +12822,10 @@ class ExperimentalSynapsesPerConnectionRead(BaseModel):
     model_config = ConfigDict(
         extra='allow',
     )
-    subject: NestedSubjectRead
     name: str = Field(..., title='Name')
     description: str = Field(..., title='Description')
+    brain_region: NestedBrainRegionRead
+    subject: NestedSubjectRead
     contributions: list[NestedContributionRead] | None = Field(
         ..., title='Contributions'
     )
@@ -12793,11 +12840,10 @@ class ExperimentalSynapsesPerConnectionRead(BaseModel):
     update_date: AwareDatetime = Field(..., title='Update Date')
     measurements: list[MeasurementRecordRead] = Field(..., title='Measurements')
     assets: list[AssetRead] = Field(..., title='Assets')
-    brain_region: BrainRegionRead
     pre_mtype: AnnotationRead
     post_mtype: AnnotationRead
-    pre_region: BrainRegionRead
-    post_region: BrainRegionRead
+    pre_region: NestedBrainRegionRead
+    post_region: NestedBrainRegionRead
 
 
 class ExperimentalSynapsesPerConnectionUserUpdate(BaseModel):
@@ -12878,7 +12924,7 @@ class IonChannelModelExpanded(BaseModel):
     update_date: AwareDatetime = Field(..., title='Update Date')
     created_by: NestedPersonRead
     updated_by: NestedPersonRead
-    brain_region: BrainRegionRead
+    brain_region: NestedBrainRegionRead
     subject: NestedSubjectRead
     authorized_project_id: UUID4 = Field(..., title='Authorized Project Id')
     authorized_public: bool = Field(default=False, title='Authorized Public')
@@ -12922,7 +12968,7 @@ class IonChannelModelRead(BaseModel):
     description: str = Field(..., title='Description')
     creation_date: AwareDatetime = Field(..., title='Creation Date')
     update_date: AwareDatetime = Field(..., title='Update Date')
-    brain_region: BrainRegionRead
+    brain_region: NestedBrainRegionRead
     subject: NestedSubjectRead
     authorized_project_id: UUID4 = Field(..., title='Authorized Project Id')
     authorized_public: bool = Field(default=False, title='Authorized Public')
@@ -13000,7 +13046,7 @@ class IonChannelModelWAssets(BaseModel):
     assets: list[AssetRead] = Field(..., title='Assets')
     creation_date: AwareDatetime = Field(..., title='Creation Date')
     update_date: AwareDatetime = Field(..., title='Update Date')
-    brain_region: BrainRegionRead
+    brain_region: NestedBrainRegionRead
     subject: NestedSubjectRead
     authorized_project_id: UUID4 = Field(..., title='Authorized Project Id')
     authorized_public: bool = Field(default=False, title='Authorized Public')
@@ -13102,7 +13148,7 @@ class IonChannelRecordingRead(BaseModel):
     update_date: AwareDatetime = Field(..., title='Update Date')
     created_by: NestedPersonRead
     updated_by: NestedPersonRead
-    brain_region: BrainRegionRead
+    brain_region: NestedBrainRegionRead
     subject: NestedSubjectRead
     authorized_project_id: UUID4 = Field(..., title='Authorized Project Id')
     authorized_public: bool = Field(default=False, title='Authorized Public')
@@ -13527,7 +13573,7 @@ class CellMorphologyAnnotationExpandedRead(BaseModel):
     update_date: AwareDatetime = Field(..., title='Update Date')
     created_by: NestedPersonRead
     updated_by: NestedPersonRead
-    brain_region: BrainRegionRead
+    brain_region: NestedBrainRegionRead
     subject: NestedSubjectRead
     authorized_project_id: UUID4 = Field(..., title='Authorized Project Id')
     authorized_public: bool = Field(default=False, title='Authorized Public')
@@ -13577,7 +13623,7 @@ class CellMorphologyRead(BaseModel):
     update_date: AwareDatetime = Field(..., title='Update Date')
     created_by: NestedPersonRead
     updated_by: NestedPersonRead
-    brain_region: BrainRegionRead
+    brain_region: NestedBrainRegionRead
     subject: NestedSubjectRead
     authorized_project_id: UUID4 = Field(..., title='Authorized Project Id')
     authorized_public: bool = Field(default=False, title='Authorized Public')
@@ -13617,6 +13663,7 @@ class EModelReadExpanded(BaseModel):
     )
     name: str = Field(..., title='Name')
     description: str = Field(..., title='Description')
+    brain_region: NestedBrainRegionRead
     contributions: list[NestedContributionRead] | None = Field(
         ..., title='Contributions'
     )
@@ -13634,7 +13681,6 @@ class EModelReadExpanded(BaseModel):
     id: UUID = Field(..., title='Id')
     species: NestedSpeciesRead
     strain: NestedStrainRead | None = None
-    brain_region: BrainRegionRead
     mtypes: list[AnnotationRead] | None = Field(..., title='Mtypes')
     etypes: list[AnnotationRead] | None = Field(..., title='Etypes')
     exemplar_morphology: ExemplarMorphology
@@ -13676,6 +13722,7 @@ class MEModelRead(BaseModel):
     )
     name: str = Field(..., title='Name')
     description: str = Field(..., title='Description')
+    brain_region: NestedBrainRegionRead
     contributions: list[NestedContributionRead] | None = Field(
         ..., title='Contributions'
     )
@@ -13692,7 +13739,6 @@ class MEModelRead(BaseModel):
     id: UUID = Field(..., title='Id')
     species: NestedSpeciesRead
     strain: NestedStrainRead | None = None
-    brain_region: BrainRegionRead
     mtypes: list[AnnotationRead] | None = Field(..., title='Mtypes')
     etypes: list[AnnotationRead] | None = Field(..., title='Etypes')
     morphology: CellMorphologyRead

@@ -8,6 +8,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { resetInfiniteQueryPagination } from "@/hooks/get-message-page";
 import { ModelSelectionDropdown } from "./model-selection";
 import { LLMModel } from "@/lib/types";
+import { MessageStrict } from "@/lib/types";
 
 type ChatInputInsideThreadProps = {
   input: string;
@@ -19,14 +20,21 @@ type ChatInputInsideThreadProps = {
   threadId: string;
   setCheckedTools: (tools: Record<string, boolean>) => void;
   setCurrentModel: (model: LLMModel) => void;
-  handleInputChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
-  handleSubmit: (event?: { preventDefault?: () => void }) => void;
+  handleInputChange: Dispatch<SetStateAction<string>>;
+  handleSubmit: (
+    e: React.FormEvent<HTMLFormElement | HTMLTextAreaElement>,
+  ) => void;
   setIsAutoScrollEnabled: (enabled: boolean) => void;
   hasOngoingToolInvocations: boolean;
   onStop: () => void;
   stopped: boolean;
   setStopped: Dispatch<SetStateAction<boolean>>;
   setIsInvalidating: Dispatch<SetStateAction<boolean>>;
+  setMessages: (
+    messages:
+      | MessageStrict[]
+      | ((messages: MessageStrict[]) => MessageStrict[]),
+  ) => void;
 };
 
 export function ChatInputInsideThread({
@@ -46,6 +54,7 @@ export function ChatInputInsideThread({
   onStop,
   stopped,
   setStopped,
+  setMessages,
   setIsInvalidating,
 }: ChatInputInsideThreadProps) {
   const canSend = !hasOngoingToolInvocations || stopped;
@@ -89,7 +98,7 @@ export function ChatInputInsideThread({
             name="prompt"
             placeholder="Message the AI..."
             value={input}
-            onChange={handleInputChange}
+            onChange={(e) => handleInputChange(e.target.value)}
             onKeyDown={(e) => handleKeyDown(e)}
             autoComplete="off"
             maxRows={10}
@@ -116,6 +125,14 @@ export function ChatInputInsideThread({
                   e.preventDefault();
                   onStop();
                   setStopped(true);
+                  setMessages((prevState) => {
+                    prevState[prevState.length - 1] = {
+                      ...prevState[prevState.length - 1],
+                      isComplete: false,
+                    };
+                    // We only change the metadata at message level and keep the rest.
+                    return prevState;
+                  });
                   startTransition(() => {
                     resetInfiniteQueryPagination(
                       queryClient,

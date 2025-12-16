@@ -1,7 +1,7 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
-import { MessageStrict, Annotation } from "@/lib/types";
-import { ToolInvocation, ToolInvocationUIPart } from "@ai-sdk/ui-utils";
+import { MessageStrict, MessageMetadata } from "@/lib/types";
+import { UIMessagePart, ToolUIPart, UITools, UIDataTypes, UIMessage } from "ai";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -31,55 +31,60 @@ function safeParse<T = any>(str: string): T | string {
   }
 }
 
+// check if the part od the message is a tool.
+export function isToolPart<
+  DATA_TYPES extends UIDataTypes,
+  TOOLS extends UITools,
+>(part: UIMessagePart<DATA_TYPES, TOOLS>): part is ToolUIPart<TOOLS> {
+  return part.type.startsWith("tool-");
+}
+
 // Small utility function to check if the last message has incomplete parts
 export function isLastMessageComplete(messages: MessageStrict | undefined) {
-  const annotations = messages?.annotations;
-  if (annotations?.length === 0) {
+  const metadata = messages?.metadata;
+  if (metadata?.toolCalls.length === 0) {
     return true;
   }
-  const hasIncomplete = annotations?.some(
-    (ann) => "isComplete" in ann && ann.isComplete === false,
+  const hasIncomplete = metadata?.toolCalls?.some(
+    (met) => "isComplete" in met && met.isComplete === false,
   );
 
   return !hasIncomplete;
 }
 
+// Util to get the last text part
+export function getLastText(message: MessageStrict | undefined): string {
+  return message?.parts.findLast((e) => e.type == "text")?.text || "";
+}
+
 // Utils to get all tool calls from an AI message
 export function getToolInvocations(
   message: MessageStrict | undefined,
-): ToolInvocation[] {
+): ToolUIPart[] {
   return (
     message?.parts
-      ?.filter(
-        (part): part is ToolInvocationUIPart =>
-          part.type === "tool-invocation" &&
-          typeof part.toolInvocation === "object",
-      )
-      .map((part) => part.toolInvocation) ?? []
+      ?.filter((part): part is ToolUIPart => part.type.startsWith("tool-"))
+      .map((part) => part) ?? []
   );
 }
 
+// Utils to get the last text part of the Message parts:
+export function getLastMessageText(messages: UIMessage[]): string {
+  return messages.at(-1)?.parts.findLast((e) => e.type === "text")?.text || "";
+}
+
 // Utils to get all storage ID from a single tool call message
-export function getStorageID(
-  toolCall: ToolInvocationUIPart | undefined,
-): string[] {
-  if (
-    !toolCall ||
-    toolCall.type !== "tool-invocation" ||
-    !toolCall.toolInvocation
-  ) {
+export function getStorageID(toolCall: ToolUIPart | undefined): string[] {
+  if (!toolCall || !toolCall.type.startsWith("tool-")) {
     return [];
   }
 
-  if (
-    toolCall.toolInvocation.state !== "result" ||
-    !toolCall.toolInvocation.result
-  ) {
+  if (toolCall.state !== "output-available" || !toolCall.output) {
     return [];
   }
 
   const storageIds: string[] = [];
-  const rawResult = toolCall.toolInvocation.result;
+  const rawResult = toolCall.output;
 
   try {
     // If the result is a JSON string, parse it; otherwise assume it's already an object
@@ -101,19 +106,38 @@ export function getStorageID(
   return storageIds;
 }
 
-// Small utility function that finds the right tool call in annotations and returns its status
+// Small utility function that finds the right tool call in metadata and returns its status
 export function getValidationStatus(
-  annotations: Annotation[] | undefined,
+  metadata: MessageMetadata | undefined,
   toolCallId: string,
 ) {
-  const ann = annotations?.find((a) => a.toolCallId === toolCallId);
-  if (!ann) return undefined;
-  return ann.validated;
+  const met = metadata?.toolCalls?.find((a) => a.toolCallId === toolCallId);
+  if (!met) return undefined;
+  return met.validated;
 }
-export function getStoppedStatus(
-  annotations: Annotation[] | undefined,
-  toolCallId: string,
-) {
-  const ann = annotations?.find((a) => a.toolCallId === toolCallId);
-  return !(ann?.isComplete ?? true);
+
+// Util to check if all tools have been executed.
+export function lastAssistantHasAllToolOutputs(useChatReturn: {
+  messages: UIMessage[];
+}) {
+  if (!Array.isArray(useChatReturn.messages)) return false;
+  const last = useChatReturn.messages.at(-1);
+  if (!last || last.role !== "assistant") return false;
+
+  const parts = last.parts ?? [];
+  const lastToolIndex = parts.findLastIndex((p) => p.type.startsWith("tool-"));
+
+  if (lastToolIndex === -1) return false;
+
+  // Don't auto-send if there's text after the last tool
+  const hasTextAfterTools = parts
+    .slice(lastToolIndex + 1)
+    .some((p) => p.type === "text" && "text" in p && p.text);
+
+  if (hasTextAfterTools) return false;
+
+  // All tools must have outputs
+  return parts
+    .filter((p): p is ToolUIPart => p.type.startsWith("tool-"))
+    .every((p) => p.state === "output-available" || !!p.output);
 }
