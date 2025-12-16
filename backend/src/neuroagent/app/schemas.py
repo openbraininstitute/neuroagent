@@ -108,7 +108,7 @@ class ThreadCreate(BaseModel):
     project_id: UUID | None = None
 
 
-class ThreadGeneratBody(BaseModel):
+class ThreadGenerateBody(BaseModel):
     """Data class for input of the thread generation."""
 
     first_user_message: str

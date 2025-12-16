@@ -38,7 +38,7 @@ from neuroagent.app.schemas import (
     SearchMessagesList,
     SearchMessagesResult,
     ThreadCreate,
-    ThreadGeneratBody,
+    ThreadGenerateBody,
     ThreadGeneratedTitle,
     ThreadsRead,
     ThreadUpdate,
@@ -138,7 +138,7 @@ async def generate_title(
     thread: Annotated[Threads, Depends(get_thread)],
     redis_client: Annotated[aioredis.Redis | None, Depends(get_redis_client)],
     fastapi_response: Response,
-    body: ThreadGeneratBody,
+    body: ThreadGenerateBody,
 ) -> ThreadsRead:
     """Generate a short thread title based on the user's first message and update thread's title."""
     limit_headers, rate_limited = await rate_limit(
