@@ -8,6 +8,7 @@ import uuid
 from collections import defaultdict
 from typing import Any, AsyncIterator
 
+import logfire
 from openai import AsyncOpenAI, AsyncStream
 from openai.types.chat.chat_completion_chunk import ChatCompletionChunk
 from pydantic import BaseModel, ValidationError
@@ -187,22 +188,26 @@ class AgentsRoutine:
         logger.info(
             f"Entering {name}. Inputs: {input_schema.model_dump(exclude_defaults=True)}."
         )
-        tool_instance = tool(input_schema=input_schema, metadata=tool_metadata)
-        # pass context_variables to agent functions
-        try:
-            raw_result = await tool_instance.arun()
-            if hasattr(tool_instance.metadata, "token_consumption"):
-                context_variables["usage_dict"][tool_call.tool_call_id] = (
-                    tool_instance.metadata.token_consumption
-                )
-        except Exception as err:
-            response = {
-                "role": "tool",
-                "tool_call_id": tool_call.tool_call_id,
-                "tool_name": name,
-                "content": str(err),
-            }
-            return response, None
+        with logfire.span(
+            f"Entering {name}. Inputs: {input_schema.model_dump(exclude_defaults=True)}."
+        ) as span:
+            tool_instance = tool(input_schema=input_schema, metadata=tool_metadata)
+            # pass context_variables to agent functions
+            try:
+                raw_result = await tool_instance.arun()
+                if hasattr(tool_instance.metadata, "token_consumption"):
+                    context_variables["usage_dict"][tool_call.tool_call_id] = (
+                        tool_instance.metadata.token_consumption
+                    )
+            except Exception as err:
+                span.record_exception(err)
+                response = {
+                    "role": "tool",
+                    "tool_call_id": tool_call.tool_call_id,
+                    "tool_name": name,
+                    "content": str(err),
+                }
+                return response, None
 
         result: Result = self.handle_function_result(raw_result)
         response = {

@@ -205,6 +205,17 @@ class SettingsAccounting(BaseModel):
         return data
 
 
+class SettingsLogfire(BaseModel):
+    """Logfire observability settings."""
+
+    send_to_logfire: bool = False
+    token: SecretStr | None = None
+    service_name: str = "neuroagent"
+    environment: str | None = "dev"
+
+    model_config = ConfigDict(frozen=True)
+
+
 class MCPToolMetadata(BaseModel):
     """Metadata of the MCP tools. Overrides native ones."""
 
@@ -264,6 +275,7 @@ class Settings(BaseSettings):
     rate_limiter: SettingsRateLimiter = SettingsRateLimiter()  # has no required
     accounting: SettingsAccounting = SettingsAccounting()  # has no required
     mcp: SettingsMCP = SettingsMCP()  # has no required
+    logfire: SettingsLogfire = SettingsLogfire()  # has no required
 
     model_config = SettingsConfigDict(
         env_file=".env",
