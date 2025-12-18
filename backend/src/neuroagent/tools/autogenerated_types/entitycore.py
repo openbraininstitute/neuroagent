@@ -1166,7 +1166,7 @@ class HierarchyNode(BaseModel):
     id: UUID = Field(..., title='Id')
     name: str = Field(..., title='Name')
     parent_id: UUID | None = Field(..., title='Parent Id')
-    children: list[HierarchyNode] = Field(default=[], title='Children')
+    children: list[HierarchyNode] = Field(default_factory=list, title='Children')
     authorized_public: bool = Field(..., title='Authorized Public')
     authorized_project_id: UUID = Field(..., title='Authorized Project Id')
 
@@ -10852,7 +10852,9 @@ class AnalysisNotebookTemplateSpecificationsInput(BaseModel):
     schema_version: int = Field(default=1, title='Schema Version')
     python: PythonDependency | None = None
     docker: DockerDependency | None = None
-    inputs: list[AnalysisNotebookTemplateInputType] = Field(default=[], title='Inputs')
+    inputs: list[AnalysisNotebookTemplateInputType] = Field(
+        default_factory=list, title='Inputs'
+    )
 
 
 AnalysisNotebookTemplateSpecificationsOutput = (
@@ -12155,7 +12157,7 @@ class NeuronBlock(BaseModel):
         default=[], alias='global', title='Global'
     )
     range: list[dict[str, str | None]] = Field(default=[], title='Range')
-    useion: list[UseIon] = Field(default=[], title='Useion')
+    useion: list[UseIon] = Field(default_factory=list, title='Useion')
     nonspecific: list[dict[str, str | None]] = Field(default=[], title='Nonspecific')
 
 
