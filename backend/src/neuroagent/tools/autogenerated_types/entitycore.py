@@ -55,6 +55,14 @@ class AgePeriod(RootModel[Literal['prenatal', 'postnatal', 'unknown']]):
     root: Literal['prenatal', 'postnatal', 'unknown'] = Field(..., title='AgePeriod')
 
 
+class AgentType(RootModel[Literal['person', 'organization', 'consortium']]):
+    root: Literal['person', 'organization', 'consortium'] = Field(
+        ...,
+        description='Agent types.\n\n- person: Individual person\n- organization: Individual organization or institution\n- consortium: Group of individual persons (or organizations) formally joined together',
+        title='AgentType',
+    )
+
+
 class AnalysisNotebookResultCreate(BaseModel):
     model_config = ConfigDict(
         extra='allow',
@@ -208,6 +216,7 @@ class AssetLabel(
             'ion_channel_model_figure_summary_json',
             'ion_channel_model_thumbnail',
             'circuit_extraction_config',
+            'skeletonization_config',
         ]
     ]
 ):
@@ -255,6 +264,7 @@ class AssetLabel(
         'ion_channel_model_figure_summary_json',
         'ion_channel_model_thumbnail',
         'circuit_extraction_config',
+        'skeletonization_config',
     ] = Field(..., description='See docs/asset-labels.md.', title='AssetLabel')
 
 
@@ -314,6 +324,8 @@ class BrainRegionHierarchyAdminUpdate(BaseModel):
         extra='allow',
     )
     name: str | None = Field(default='<NOT_SET>', title='Name')
+    species_id: UUID | str | None = Field(default='<NOT_SET>', title='Species Id')
+    strain_id: UUID | str | None = Field(default='<NOT_SET>', title='Strain Id')
 
 
 class BrainRegionHierarchyCreate(BaseModel):
@@ -321,21 +333,8 @@ class BrainRegionHierarchyCreate(BaseModel):
         extra='allow',
     )
     name: str = Field(..., title='Name')
-
-
-class BrainRegionRead(BaseModel):
-    model_config = ConfigDict(
-        extra='allow',
-    )
-    creation_date: AwareDatetime = Field(..., title='Creation Date')
-    update_date: AwareDatetime = Field(..., title='Update Date')
-    id: UUID = Field(..., title='Id')
-    annotation_value: int = Field(..., title='Annotation Value')
-    name: str = Field(..., title='Name')
-    acronym: str = Field(..., title='Acronym')
-    color_hex_triplet: str = Field(..., title='Color Hex Triplet')
-    parent_structure_id: UUID | None = Field(default=None, title='Parent Structure Id')
-    hierarchy_id: UUID = Field(..., title='Hierarchy Id')
+    species_id: UUID = Field(..., title='Species Id')
+    strain_id: UUID | None = Field(default=None, title='Strain Id')
 
 
 class CalibrationCreate(BaseModel):
@@ -1491,6 +1490,19 @@ class ModifiedReconstructionCellMorphologyProtocolCreate(BaseModel):
         ..., title='Generation Type'
     )
     method_type: ModifiedMorphologyMethodType
+
+
+class NestedBrainRegionRead(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
+    id: UUID = Field(..., title='Id')
+    annotation_value: int = Field(..., title='Annotation Value')
+    name: str = Field(..., title='Name')
+    acronym: str = Field(..., title='Acronym')
+    color_hex_triplet: str = Field(..., title='Color Hex Triplet')
+    parent_structure_id: UUID | None = Field(default=None, title='Parent Structure Id')
+    hierarchy_id: UUID = Field(..., title='Hierarchy Id')
 
 
 class NestedComputationallySynthesizedCellMorphologyProtocolRead(BaseModel):
@@ -2692,10 +2704,6 @@ class GetEntityAssetsEntityRouteEntityIdAssetsGetParametersQuery(BaseModel):
     order_by: list[str] = Field(default=['-creation_date'], title='Order By')
 
 
-class DeleteEntityAssetEntityRouteEntityIdAssetsAssetIdDeleteParametersQuery(BaseModel):
-    hard: bool = Field(default=False, title='Hard')
-
-
 class DownloadEntityAssetEntityRouteEntityIdAssetsAssetIdDownloadGetParametersQuery(
     BaseModel
 ):
@@ -2737,6 +2745,9 @@ class ReadManyAnalysisNotebookEnvironmentGetParametersQuery(BaseModel):
     contribution__id__in: list[UUID] | None = Field(
         default=None, title='Contribution  Id  In'
     )
+    contribution__type: AgentType | None = Field(
+        default=None, title='Contribution  Type'
+    )
     created_by__pref_label: str | None = Field(
         default=None, title='Created By  Pref Label'
     )
@@ -2750,6 +2761,7 @@ class ReadManyAnalysisNotebookEnvironmentGetParametersQuery(BaseModel):
     created_by__id__in: list[UUID] | None = Field(
         default=None, title='Created By  Id  In'
     )
+    created_by__type: AgentType | None = Field(default=None, title='Created By  Type')
     created_by__given_name: str | None = Field(
         default=None, title='Created By  Given Name'
     )
@@ -2779,6 +2791,7 @@ class ReadManyAnalysisNotebookEnvironmentGetParametersQuery(BaseModel):
     updated_by__id__in: list[UUID] | None = Field(
         default=None, title='Updated By  Id  In'
     )
+    updated_by__type: AgentType | None = Field(default=None, title='Updated By  Type')
     updated_by__given_name: str | None = Field(
         default=None, title='Updated By  Given Name'
     )
@@ -2835,6 +2848,7 @@ class ReadManyAnalysisNotebookExecutionGetParametersQuery(BaseModel):
     created_by__id__in: list[UUID] | None = Field(
         default=None, title='Created By  Id  In'
     )
+    created_by__type: AgentType | None = Field(default=None, title='Created By  Type')
     created_by__given_name: str | None = Field(
         default=None, title='Created By  Given Name'
     )
@@ -2864,6 +2878,7 @@ class ReadManyAnalysisNotebookExecutionGetParametersQuery(BaseModel):
     updated_by__id__in: list[UUID] | None = Field(
         default=None, title='Updated By  Id  In'
     )
+    updated_by__type: AgentType | None = Field(default=None, title='Updated By  Type')
     updated_by__given_name: str | None = Field(
         default=None, title='Updated By  Given Name'
     )
@@ -2947,6 +2962,9 @@ class ReadManyAnalysisNotebookResultGetParametersQuery(BaseModel):
     contribution__id__in: list[UUID] | None = Field(
         default=None, title='Contribution  Id  In'
     )
+    contribution__type: AgentType | None = Field(
+        default=None, title='Contribution  Type'
+    )
     created_by__pref_label: str | None = Field(
         default=None, title='Created By  Pref Label'
     )
@@ -2960,6 +2978,7 @@ class ReadManyAnalysisNotebookResultGetParametersQuery(BaseModel):
     created_by__id__in: list[UUID] | None = Field(
         default=None, title='Created By  Id  In'
     )
+    created_by__type: AgentType | None = Field(default=None, title='Created By  Type')
     created_by__given_name: str | None = Field(
         default=None, title='Created By  Given Name'
     )
@@ -2989,6 +3008,7 @@ class ReadManyAnalysisNotebookResultGetParametersQuery(BaseModel):
     updated_by__id__in: list[UUID] | None = Field(
         default=None, title='Updated By  Id  In'
     )
+    updated_by__type: AgentType | None = Field(default=None, title='Updated By  Type')
     updated_by__given_name: str | None = Field(
         default=None, title='Updated By  Given Name'
     )
@@ -3062,7 +3082,18 @@ class ReadManyBrainRegionGetParametersQuery(BaseModel):
     acronym__in: list[str] | None = Field(default=None, title='Acronym  In')
     annotation_value: int | None = Field(default=None, title='Annotation Value')
     hierarchy_id: UUID | None = Field(default=None, title='Hierarchy Id')
+    species_id__in: list[UUID] | None = Field(default=None, title='Species Id  In')
     order_by: list[str] = Field(default=['name'], title='Order By')
+    species__name: str | None = Field(default=None, title='Species  Name')
+    species__name__in: list[str] | None = Field(default=None, title='Species  Name  In')
+    species__name__ilike: str | None = Field(default=None, title='Species  Name  Ilike')
+    species__id: UUID | None = Field(default=None, title='Species  Id')
+    species__id__in: list[UUID] | None = Field(default=None, title='Species  Id  In')
+    strain__name: str | None = Field(default=None, title='Strain  Name')
+    strain__name__in: list[str] | None = Field(default=None, title='Strain  Name  In')
+    strain__name__ilike: str | None = Field(default=None, title='Strain  Name  Ilike')
+    strain__id: UUID | None = Field(default=None, title='Strain  Id')
+    strain__id__in: list[UUID] | None = Field(default=None, title='Strain  Id  In')
 
 
 class ReadManyBrainRegionHierarchyGetParametersQuery(BaseModel):
@@ -3073,7 +3104,19 @@ class ReadManyBrainRegionHierarchyGetParametersQuery(BaseModel):
     name__ilike: str | None = Field(default=None, title='Name  Ilike')
     id: UUID | None = Field(default=None, title='Id')
     id__in: list[UUID] | None = Field(default=None, title='Id  In')
+    species_id__in: list[UUID] | None = Field(default=None, title='Species Id  In')
     order_by: list[str] = Field(default=['name'], title='Order By')
+    species__name: str | None = Field(default=None, title='Species  Name')
+    species__name__in: list[str] | None = Field(default=None, title='Species  Name  In')
+    species__name__ilike: str | None = Field(default=None, title='Species  Name  Ilike')
+    species__id: UUID | None = Field(default=None, title='Species  Id')
+    species__id__in: list[UUID] | None = Field(default=None, title='Species  Id  In')
+    strain__name: str | None = Field(default=None, title='Strain  Name')
+    strain__name__in: list[str] | None = Field(default=None, title='Strain  Name  In')
+    strain__name__ilike: str | None = Field(default=None, title='Strain  Name  Ilike')
+    strain__id: UUID | None = Field(default=None, title='Strain  Id')
+    strain__id__in: list[UUID] | None = Field(default=None, title='Strain  Id  In')
+    with_facets: bool = Field(default=False, title='With Facets')
 
 
 class ReadManyCalibrationGetParametersQuery(BaseModel):
@@ -3109,6 +3152,7 @@ class ReadManyCalibrationGetParametersQuery(BaseModel):
     created_by__id__in: list[UUID] | None = Field(
         default=None, title='Created By  Id  In'
     )
+    created_by__type: AgentType | None = Field(default=None, title='Created By  Type')
     created_by__given_name: str | None = Field(
         default=None, title='Created By  Given Name'
     )
@@ -3138,6 +3182,7 @@ class ReadManyCalibrationGetParametersQuery(BaseModel):
     updated_by__id__in: list[UUID] | None = Field(
         default=None, title='Updated By  Id  In'
     )
+    updated_by__type: AgentType | None = Field(default=None, title='Updated By  Type')
     updated_by__given_name: str | None = Field(
         default=None, title='Updated By  Given Name'
     )
@@ -3221,6 +3266,9 @@ class ReadManyCellCompositionGetParametersQuery(BaseModel):
     contribution__id__in: list[UUID] | None = Field(
         default=None, title='Contribution  Id  In'
     )
+    contribution__type: AgentType | None = Field(
+        default=None, title='Contribution  Type'
+    )
     created_by__pref_label: str | None = Field(
         default=None, title='Created By  Pref Label'
     )
@@ -3234,6 +3282,7 @@ class ReadManyCellCompositionGetParametersQuery(BaseModel):
     created_by__id__in: list[UUID] | None = Field(
         default=None, title='Created By  Id  In'
     )
+    created_by__type: AgentType | None = Field(default=None, title='Created By  Type')
     created_by__given_name: str | None = Field(
         default=None, title='Created By  Given Name'
     )
@@ -3263,6 +3312,7 @@ class ReadManyCellCompositionGetParametersQuery(BaseModel):
     updated_by__id__in: list[UUID] | None = Field(
         default=None, title='Updated By  Id  In'
     )
+    updated_by__type: AgentType | None = Field(default=None, title='Updated By  Type')
     updated_by__given_name: str | None = Field(
         default=None, title='Updated By  Given Name'
     )
@@ -3426,6 +3476,9 @@ class ReadManyCellMorphologyGetParametersQuery(BaseModel):
     contribution__id__in: list[UUID] | None = Field(
         default=None, title='Contribution  Id  In'
     )
+    contribution__type: AgentType | None = Field(
+        default=None, title='Contribution  Type'
+    )
     created_by__pref_label: str | None = Field(
         default=None, title='Created By  Pref Label'
     )
@@ -3439,6 +3492,7 @@ class ReadManyCellMorphologyGetParametersQuery(BaseModel):
     created_by__id__in: list[UUID] | None = Field(
         default=None, title='Created By  Id  In'
     )
+    created_by__type: AgentType | None = Field(default=None, title='Created By  Type')
     created_by__given_name: str | None = Field(
         default=None, title='Created By  Given Name'
     )
@@ -3468,6 +3522,7 @@ class ReadManyCellMorphologyGetParametersQuery(BaseModel):
     updated_by__id__in: list[UUID] | None = Field(
         default=None, title='Updated By  Id  In'
     )
+    updated_by__type: AgentType | None = Field(default=None, title='Updated By  Type')
     updated_by__given_name: str | None = Field(
         default=None, title='Updated By  Given Name'
     )
@@ -3578,6 +3633,9 @@ class ReadManyCellMorphologyProtocolGetParametersQuery(BaseModel):
     contribution__id__in: list[UUID] | None = Field(
         default=None, title='Contribution  Id  In'
     )
+    contribution__type: AgentType | None = Field(
+        default=None, title='Contribution  Type'
+    )
     created_by__pref_label: str | None = Field(
         default=None, title='Created By  Pref Label'
     )
@@ -3591,6 +3649,7 @@ class ReadManyCellMorphologyProtocolGetParametersQuery(BaseModel):
     created_by__id__in: list[UUID] | None = Field(
         default=None, title='Created By  Id  In'
     )
+    created_by__type: AgentType | None = Field(default=None, title='Created By  Type')
     created_by__given_name: str | None = Field(
         default=None, title='Created By  Given Name'
     )
@@ -3620,6 +3679,7 @@ class ReadManyCellMorphologyProtocolGetParametersQuery(BaseModel):
     updated_by__id__in: list[UUID] | None = Field(
         default=None, title='Updated By  Id  In'
     )
+    updated_by__type: AgentType | None = Field(default=None, title='Updated By  Type')
     updated_by__given_name: str | None = Field(
         default=None, title='Updated By  Given Name'
     )
@@ -3722,6 +3782,9 @@ class ReadManyCircuitGetParametersQuery(BaseModel):
     contribution__id__in: list[UUID] | None = Field(
         default=None, title='Contribution  Id  In'
     )
+    contribution__type: AgentType | None = Field(
+        default=None, title='Contribution  Type'
+    )
     created_by__pref_label: str | None = Field(
         default=None, title='Created By  Pref Label'
     )
@@ -3735,6 +3798,7 @@ class ReadManyCircuitGetParametersQuery(BaseModel):
     created_by__id__in: list[UUID] | None = Field(
         default=None, title='Created By  Id  In'
     )
+    created_by__type: AgentType | None = Field(default=None, title='Created By  Type')
     created_by__given_name: str | None = Field(
         default=None, title='Created By  Given Name'
     )
@@ -3764,6 +3828,7 @@ class ReadManyCircuitGetParametersQuery(BaseModel):
     updated_by__id__in: list[UUID] | None = Field(
         default=None, title='Updated By  Id  In'
     )
+    updated_by__type: AgentType | None = Field(default=None, title='Updated By  Type')
     updated_by__given_name: str | None = Field(
         default=None, title='Updated By  Given Name'
     )
@@ -3898,6 +3963,9 @@ class ReadManyCircuitExtractionCampaignGetParametersQuery(BaseModel):
     contribution__id__in: list[UUID] | None = Field(
         default=None, title='Contribution  Id  In'
     )
+    contribution__type: AgentType | None = Field(
+        default=None, title='Contribution  Type'
+    )
     created_by__pref_label: str | None = Field(
         default=None, title='Created By  Pref Label'
     )
@@ -3911,6 +3979,7 @@ class ReadManyCircuitExtractionCampaignGetParametersQuery(BaseModel):
     created_by__id__in: list[UUID] | None = Field(
         default=None, title='Created By  Id  In'
     )
+    created_by__type: AgentType | None = Field(default=None, title='Created By  Type')
     created_by__given_name: str | None = Field(
         default=None, title='Created By  Given Name'
     )
@@ -3940,6 +4009,7 @@ class ReadManyCircuitExtractionCampaignGetParametersQuery(BaseModel):
     updated_by__id__in: list[UUID] | None = Field(
         default=None, title='Updated By  Id  In'
     )
+    updated_by__type: AgentType | None = Field(default=None, title='Updated By  Type')
     updated_by__given_name: str | None = Field(
         default=None, title='Updated By  Given Name'
     )
@@ -4023,6 +4093,9 @@ class ReadManyCircuitExtractionConfigGetParametersQuery(BaseModel):
     contribution__id__in: list[UUID] | None = Field(
         default=None, title='Contribution  Id  In'
     )
+    contribution__type: AgentType | None = Field(
+        default=None, title='Contribution  Type'
+    )
     created_by__pref_label: str | None = Field(
         default=None, title='Created By  Pref Label'
     )
@@ -4036,6 +4109,7 @@ class ReadManyCircuitExtractionConfigGetParametersQuery(BaseModel):
     created_by__id__in: list[UUID] | None = Field(
         default=None, title='Created By  Id  In'
     )
+    created_by__type: AgentType | None = Field(default=None, title='Created By  Type')
     created_by__given_name: str | None = Field(
         default=None, title='Created By  Given Name'
     )
@@ -4065,6 +4139,7 @@ class ReadManyCircuitExtractionConfigGetParametersQuery(BaseModel):
     updated_by__id__in: list[UUID] | None = Field(
         default=None, title='Updated By  Id  In'
     )
+    updated_by__type: AgentType | None = Field(default=None, title='Updated By  Type')
     updated_by__given_name: str | None = Field(
         default=None, title='Updated By  Given Name'
     )
@@ -4155,6 +4230,7 @@ class ReadManyCircuitExtractionExecutionGetParametersQuery(BaseModel):
     created_by__id__in: list[UUID] | None = Field(
         default=None, title='Created By  Id  In'
     )
+    created_by__type: AgentType | None = Field(default=None, title='Created By  Type')
     created_by__given_name: str | None = Field(
         default=None, title='Created By  Given Name'
     )
@@ -4184,6 +4260,7 @@ class ReadManyCircuitExtractionExecutionGetParametersQuery(BaseModel):
     updated_by__id__in: list[UUID] | None = Field(
         default=None, title='Updated By  Id  In'
     )
+    updated_by__type: AgentType | None = Field(default=None, title='Updated By  Type')
     updated_by__given_name: str | None = Field(
         default=None, title='Updated By  Given Name'
     )
@@ -4232,6 +4309,7 @@ class ReadManyConsortiumGetParametersQuery(BaseModel):
     pref_label__ilike: str | None = Field(default=None, title='Pref Label  Ilike')
     id: UUID | None = Field(default=None, title='Id')
     id__in: list[UUID] | None = Field(default=None, title='Id  In')
+    type: AgentType | None = Field(default=None, title='Type')
     order_by: list[str] = Field(default=['-creation_date'], title='Order By')
     alternative_name: str | None = Field(default=None, title='Alternative Name')
     created_by__pref_label: str | None = Field(
@@ -4247,6 +4325,7 @@ class ReadManyConsortiumGetParametersQuery(BaseModel):
     created_by__id__in: list[UUID] | None = Field(
         default=None, title='Created By  Id  In'
     )
+    created_by__type: AgentType | None = Field(default=None, title='Created By  Type')
     created_by__given_name: str | None = Field(
         default=None, title='Created By  Given Name'
     )
@@ -4276,6 +4355,7 @@ class ReadManyConsortiumGetParametersQuery(BaseModel):
     updated_by__id__in: list[UUID] | None = Field(
         default=None, title='Updated By  Id  In'
     )
+    updated_by__type: AgentType | None = Field(default=None, title='Updated By  Type')
     updated_by__given_name: str | None = Field(
         default=None, title='Updated By  Given Name'
     )
@@ -4323,6 +4403,7 @@ class ReadManyContributionGetParametersQuery(BaseModel):
     created_by__id__in: list[UUID] | None = Field(
         default=None, title='Created By  Id  In'
     )
+    created_by__type: AgentType | None = Field(default=None, title='Created By  Type')
     created_by__given_name: str | None = Field(
         default=None, title='Created By  Given Name'
     )
@@ -4352,6 +4433,7 @@ class ReadManyContributionGetParametersQuery(BaseModel):
     updated_by__id__in: list[UUID] | None = Field(
         default=None, title='Updated By  Id  In'
     )
+    updated_by__type: AgentType | None = Field(default=None, title='Updated By  Type')
     updated_by__given_name: str | None = Field(
         default=None, title='Updated By  Given Name'
     )
@@ -4368,19 +4450,16 @@ class ReadManyContributionGetParametersQuery(BaseModel):
     updated_by__sub_id__in: list[UUID] | None = Field(
         default=None, title='Updated By  Sub Id  In'
     )
-    contribution__pref_label: str | None = Field(
-        default=None, title='Contribution  Pref Label'
+    agent__pref_label: str | None = Field(default=None, title='Agent  Pref Label')
+    agent__pref_label__in: list[str] | None = Field(
+        default=None, title='Agent  Pref Label  In'
     )
-    contribution__pref_label__in: list[str] | None = Field(
-        default=None, title='Contribution  Pref Label  In'
+    agent__pref_label__ilike: str | None = Field(
+        default=None, title='Agent  Pref Label  Ilike'
     )
-    contribution__pref_label__ilike: str | None = Field(
-        default=None, title='Contribution  Pref Label  Ilike'
-    )
-    contribution__id: UUID | None = Field(default=None, title='Contribution  Id')
-    contribution__id__in: list[UUID] | None = Field(
-        default=None, title='Contribution  Id  In'
-    )
+    agent__id: UUID | None = Field(default=None, title='Agent  Id')
+    agent__id__in: list[UUID] | None = Field(default=None, title='Agent  Id  In')
+    agent__type: AgentType | None = Field(default=None, title='Agent  Type')
     entity__id: UUID | None = Field(default=None, title='Entity  Id')
     entity__id__in: list[UUID] | None = Field(default=None, title='Entity  Id  In')
     entity__type: EntityType | None = Field(default=None, title='Entity  Type')
@@ -4467,6 +4546,9 @@ class ReadManyElectricalCellRecordingGetParametersQuery(BaseModel):
     contribution__id__in: list[UUID] | None = Field(
         default=None, title='Contribution  Id  In'
     )
+    contribution__type: AgentType | None = Field(
+        default=None, title='Contribution  Type'
+    )
     created_by__pref_label: str | None = Field(
         default=None, title='Created By  Pref Label'
     )
@@ -4480,6 +4562,7 @@ class ReadManyElectricalCellRecordingGetParametersQuery(BaseModel):
     created_by__id__in: list[UUID] | None = Field(
         default=None, title='Created By  Id  In'
     )
+    created_by__type: AgentType | None = Field(default=None, title='Created By  Type')
     created_by__given_name: str | None = Field(
         default=None, title='Created By  Given Name'
     )
@@ -4509,6 +4592,7 @@ class ReadManyElectricalCellRecordingGetParametersQuery(BaseModel):
     updated_by__id__in: list[UUID] | None = Field(
         default=None, title='Updated By  Id  In'
     )
+    updated_by__type: AgentType | None = Field(default=None, title='Updated By  Type')
     updated_by__given_name: str | None = Field(
         default=None, title='Updated By  Given Name'
     )
@@ -4649,6 +4733,9 @@ class ReadManyElectricalRecordingStimulusGetParametersQuery(BaseModel):
     contribution__id__in: list[UUID] | None = Field(
         default=None, title='Contribution  Id  In'
     )
+    contribution__type: AgentType | None = Field(
+        default=None, title='Contribution  Type'
+    )
     created_by__pref_label: str | None = Field(
         default=None, title='Created By  Pref Label'
     )
@@ -4662,6 +4749,7 @@ class ReadManyElectricalRecordingStimulusGetParametersQuery(BaseModel):
     created_by__id__in: list[UUID] | None = Field(
         default=None, title='Created By  Id  In'
     )
+    created_by__type: AgentType | None = Field(default=None, title='Created By  Type')
     created_by__given_name: str | None = Field(
         default=None, title='Created By  Given Name'
     )
@@ -4691,6 +4779,7 @@ class ReadManyElectricalRecordingStimulusGetParametersQuery(BaseModel):
     updated_by__id__in: list[UUID] | None = Field(
         default=None, title='Updated By  Id  In'
     )
+    updated_by__type: AgentType | None = Field(default=None, title='Updated By  Type')
     updated_by__given_name: str | None = Field(
         default=None, title='Updated By  Given Name'
     )
@@ -4772,6 +4861,9 @@ class ReadManyEmCellMeshGetParametersQuery(BaseModel):
     contribution__id__in: list[UUID] | None = Field(
         default=None, title='Contribution  Id  In'
     )
+    contribution__type: AgentType | None = Field(
+        default=None, title='Contribution  Type'
+    )
     created_by__pref_label: str | None = Field(
         default=None, title='Created By  Pref Label'
     )
@@ -4785,6 +4877,7 @@ class ReadManyEmCellMeshGetParametersQuery(BaseModel):
     created_by__id__in: list[UUID] | None = Field(
         default=None, title='Created By  Id  In'
     )
+    created_by__type: AgentType | None = Field(default=None, title='Created By  Type')
     created_by__given_name: str | None = Field(
         default=None, title='Created By  Given Name'
     )
@@ -4814,6 +4907,7 @@ class ReadManyEmCellMeshGetParametersQuery(BaseModel):
     updated_by__id__in: list[UUID] | None = Field(
         default=None, title='Updated By  Id  In'
     )
+    updated_by__type: AgentType | None = Field(default=None, title='Updated By  Type')
     updated_by__given_name: str | None = Field(
         default=None, title='Updated By  Given Name'
     )
@@ -5000,6 +5094,9 @@ class ReadManyEmDenseReconstructionDatasetGetParametersQuery(BaseModel):
     contribution__id__in: list[UUID] | None = Field(
         default=None, title='Contribution  Id  In'
     )
+    contribution__type: AgentType | None = Field(
+        default=None, title='Contribution  Type'
+    )
     created_by__pref_label: str | None = Field(
         default=None, title='Created By  Pref Label'
     )
@@ -5013,6 +5110,7 @@ class ReadManyEmDenseReconstructionDatasetGetParametersQuery(BaseModel):
     created_by__id__in: list[UUID] | None = Field(
         default=None, title='Created By  Id  In'
     )
+    created_by__type: AgentType | None = Field(default=None, title='Created By  Type')
     created_by__given_name: str | None = Field(
         default=None, title='Created By  Given Name'
     )
@@ -5042,6 +5140,7 @@ class ReadManyEmDenseReconstructionDatasetGetParametersQuery(BaseModel):
     updated_by__id__in: list[UUID] | None = Field(
         default=None, title='Updated By  Id  In'
     )
+    updated_by__type: AgentType | None = Field(default=None, title='Updated By  Type')
     updated_by__given_name: str | None = Field(
         default=None, title='Updated By  Given Name'
     )
@@ -5206,6 +5305,9 @@ class ReadManyEmodelGetParametersQuery(BaseModel):
     contribution__id__in: list[UUID] | None = Field(
         default=None, title='Contribution  Id  In'
     )
+    contribution__type: AgentType | None = Field(
+        default=None, title='Contribution  Type'
+    )
     created_by__pref_label: str | None = Field(
         default=None, title='Created By  Pref Label'
     )
@@ -5219,6 +5321,7 @@ class ReadManyEmodelGetParametersQuery(BaseModel):
     created_by__id__in: list[UUID] | None = Field(
         default=None, title='Created By  Id  In'
     )
+    created_by__type: AgentType | None = Field(default=None, title='Created By  Type')
     created_by__given_name: str | None = Field(
         default=None, title='Created By  Given Name'
     )
@@ -5248,6 +5351,7 @@ class ReadManyEmodelGetParametersQuery(BaseModel):
     updated_by__id__in: list[UUID] | None = Field(
         default=None, title='Updated By  Id  In'
     )
+    updated_by__type: AgentType | None = Field(default=None, title='Updated By  Type')
     updated_by__given_name: str | None = Field(
         default=None, title='Updated By  Given Name'
     )
@@ -5469,6 +5573,7 @@ class ReadManyEtypeClassificationGetParametersQuery(BaseModel):
     created_by__id__in: list[UUID] | None = Field(
         default=None, title='Created By  Id  In'
     )
+    created_by__type: AgentType | None = Field(default=None, title='Created By  Type')
     created_by__given_name: str | None = Field(
         default=None, title='Created By  Given Name'
     )
@@ -5498,6 +5603,7 @@ class ReadManyEtypeClassificationGetParametersQuery(BaseModel):
     updated_by__id__in: list[UUID] | None = Field(
         default=None, title='Updated By  Id  In'
     )
+    updated_by__type: AgentType | None = Field(default=None, title='Updated By  Type')
     updated_by__given_name: str | None = Field(
         default=None, title='Updated By  Given Name'
     )
@@ -5629,6 +5735,9 @@ class ReadManyExperimentalBoutonDensityGetParametersQuery(BaseModel):
     contribution__id__in: list[UUID] | None = Field(
         default=None, title='Contribution  Id  In'
     )
+    contribution__type: AgentType | None = Field(
+        default=None, title='Contribution  Type'
+    )
     created_by__pref_label: str | None = Field(
         default=None, title='Created By  Pref Label'
     )
@@ -5642,6 +5751,7 @@ class ReadManyExperimentalBoutonDensityGetParametersQuery(BaseModel):
     created_by__id__in: list[UUID] | None = Field(
         default=None, title='Created By  Id  In'
     )
+    created_by__type: AgentType | None = Field(default=None, title='Created By  Type')
     created_by__given_name: str | None = Field(
         default=None, title='Created By  Given Name'
     )
@@ -5671,6 +5781,7 @@ class ReadManyExperimentalBoutonDensityGetParametersQuery(BaseModel):
     updated_by__id__in: list[UUID] | None = Field(
         default=None, title='Updated By  Id  In'
     )
+    updated_by__type: AgentType | None = Field(default=None, title='Updated By  Type')
     updated_by__given_name: str | None = Field(
         default=None, title='Updated By  Given Name'
     )
@@ -5823,6 +5934,9 @@ class ReadManyExperimentalNeuronDensityGetParametersQuery(BaseModel):
     contribution__id__in: list[UUID] | None = Field(
         default=None, title='Contribution  Id  In'
     )
+    contribution__type: AgentType | None = Field(
+        default=None, title='Contribution  Type'
+    )
     created_by__pref_label: str | None = Field(
         default=None, title='Created By  Pref Label'
     )
@@ -5836,6 +5950,7 @@ class ReadManyExperimentalNeuronDensityGetParametersQuery(BaseModel):
     created_by__id__in: list[UUID] | None = Field(
         default=None, title='Created By  Id  In'
     )
+    created_by__type: AgentType | None = Field(default=None, title='Created By  Type')
     created_by__given_name: str | None = Field(
         default=None, title='Created By  Given Name'
     )
@@ -5865,6 +5980,7 @@ class ReadManyExperimentalNeuronDensityGetParametersQuery(BaseModel):
     updated_by__id__in: list[UUID] | None = Field(
         default=None, title='Updated By  Id  In'
     )
+    updated_by__type: AgentType | None = Field(default=None, title='Updated By  Type')
     updated_by__given_name: str | None = Field(
         default=None, title='Updated By  Given Name'
     )
@@ -5999,6 +6115,9 @@ class ReadManyExperimentalSynapsesPerConnectionGetParametersQuery(BaseModel):
     contribution__id__in: list[UUID] | None = Field(
         default=None, title='Contribution  Id  In'
     )
+    contribution__type: AgentType | None = Field(
+        default=None, title='Contribution  Type'
+    )
     created_by__pref_label: str | None = Field(
         default=None, title='Created By  Pref Label'
     )
@@ -6012,6 +6131,7 @@ class ReadManyExperimentalSynapsesPerConnectionGetParametersQuery(BaseModel):
     created_by__id__in: list[UUID] | None = Field(
         default=None, title='Created By  Id  In'
     )
+    created_by__type: AgentType | None = Field(default=None, title='Created By  Type')
     created_by__given_name: str | None = Field(
         default=None, title='Created By  Given Name'
     )
@@ -6041,6 +6161,7 @@ class ReadManyExperimentalSynapsesPerConnectionGetParametersQuery(BaseModel):
     updated_by__id__in: list[UUID] | None = Field(
         default=None, title='Updated By  Id  In'
     )
+    updated_by__type: AgentType | None = Field(default=None, title='Updated By  Type')
     updated_by__given_name: str | None = Field(
         default=None, title='Updated By  Given Name'
     )
@@ -6182,6 +6303,7 @@ class ReadManyExternalUrlGetParametersQuery(BaseModel):
     created_by__id__in: list[UUID] | None = Field(
         default=None, title='Created By  Id  In'
     )
+    created_by__type: AgentType | None = Field(default=None, title='Created By  Type')
     created_by__given_name: str | None = Field(
         default=None, title='Created By  Given Name'
     )
@@ -6211,6 +6333,7 @@ class ReadManyExternalUrlGetParametersQuery(BaseModel):
     updated_by__id__in: list[UUID] | None = Field(
         default=None, title='Updated By  Id  In'
     )
+    updated_by__type: AgentType | None = Field(default=None, title='Updated By  Type')
     updated_by__given_name: str | None = Field(
         default=None, title='Updated By  Given Name'
     )
@@ -6284,6 +6407,7 @@ class ReadManyIonChannelGetParametersQuery(BaseModel):
     created_by__id__in: list[UUID] | None = Field(
         default=None, title='Created By  Id  In'
     )
+    created_by__type: AgentType | None = Field(default=None, title='Created By  Type')
     created_by__given_name: str | None = Field(
         default=None, title='Created By  Given Name'
     )
@@ -6313,6 +6437,7 @@ class ReadManyIonChannelGetParametersQuery(BaseModel):
     updated_by__id__in: list[UUID] | None = Field(
         default=None, title='Updated By  Id  In'
     )
+    updated_by__type: AgentType | None = Field(default=None, title='Updated By  Type')
     updated_by__given_name: str | None = Field(
         default=None, title='Updated By  Given Name'
     )
@@ -6397,6 +6522,9 @@ class ReadManyIonChannelModelGetParametersQuery(BaseModel):
     contribution__id__in: list[UUID] | None = Field(
         default=None, title='Contribution  Id  In'
     )
+    contribution__type: AgentType | None = Field(
+        default=None, title='Contribution  Type'
+    )
     created_by__pref_label: str | None = Field(
         default=None, title='Created By  Pref Label'
     )
@@ -6410,6 +6538,7 @@ class ReadManyIonChannelModelGetParametersQuery(BaseModel):
     created_by__id__in: list[UUID] | None = Field(
         default=None, title='Created By  Id  In'
     )
+    created_by__type: AgentType | None = Field(default=None, title='Created By  Type')
     created_by__given_name: str | None = Field(
         default=None, title='Created By  Given Name'
     )
@@ -6439,6 +6568,7 @@ class ReadManyIonChannelModelGetParametersQuery(BaseModel):
     updated_by__id__in: list[UUID] | None = Field(
         default=None, title='Updated By  Id  In'
     )
+    updated_by__type: AgentType | None = Field(default=None, title='Updated By  Type')
     updated_by__given_name: str | None = Field(
         default=None, title='Updated By  Given Name'
     )
@@ -6572,6 +6702,9 @@ class ReadManyIonChannelModelingCampaignGetParametersQuery(BaseModel):
     contribution__id__in: list[UUID] | None = Field(
         default=None, title='Contribution  Id  In'
     )
+    contribution__type: AgentType | None = Field(
+        default=None, title='Contribution  Type'
+    )
     created_by__pref_label: str | None = Field(
         default=None, title='Created By  Pref Label'
     )
@@ -6585,6 +6718,7 @@ class ReadManyIonChannelModelingCampaignGetParametersQuery(BaseModel):
     created_by__id__in: list[UUID] | None = Field(
         default=None, title='Created By  Id  In'
     )
+    created_by__type: AgentType | None = Field(default=None, title='Created By  Type')
     created_by__given_name: str | None = Field(
         default=None, title='Created By  Given Name'
     )
@@ -6614,6 +6748,7 @@ class ReadManyIonChannelModelingCampaignGetParametersQuery(BaseModel):
     updated_by__id__in: list[UUID] | None = Field(
         default=None, title='Updated By  Id  In'
     )
+    updated_by__type: AgentType | None = Field(default=None, title='Updated By  Type')
     updated_by__given_name: str | None = Field(
         default=None, title='Updated By  Given Name'
     )
@@ -6710,6 +6845,9 @@ class ReadManyIonChannelModelingConfigGetParametersQuery(BaseModel):
     contribution__id__in: list[UUID] | None = Field(
         default=None, title='Contribution  Id  In'
     )
+    contribution__type: AgentType | None = Field(
+        default=None, title='Contribution  Type'
+    )
     created_by__pref_label: str | None = Field(
         default=None, title='Created By  Pref Label'
     )
@@ -6723,6 +6861,7 @@ class ReadManyIonChannelModelingConfigGetParametersQuery(BaseModel):
     created_by__id__in: list[UUID] | None = Field(
         default=None, title='Created By  Id  In'
     )
+    created_by__type: AgentType | None = Field(default=None, title='Created By  Type')
     created_by__given_name: str | None = Field(
         default=None, title='Created By  Given Name'
     )
@@ -6752,6 +6891,7 @@ class ReadManyIonChannelModelingConfigGetParametersQuery(BaseModel):
     updated_by__id__in: list[UUID] | None = Field(
         default=None, title='Updated By  Id  In'
     )
+    updated_by__type: AgentType | None = Field(default=None, title='Updated By  Type')
     updated_by__given_name: str | None = Field(
         default=None, title='Updated By  Given Name'
     )
@@ -6827,6 +6967,7 @@ class ReadManyIonChannelModelingExecutionGetParametersQuery(BaseModel):
     created_by__id__in: list[UUID] | None = Field(
         default=None, title='Created By  Id  In'
     )
+    created_by__type: AgentType | None = Field(default=None, title='Created By  Type')
     created_by__given_name: str | None = Field(
         default=None, title='Created By  Given Name'
     )
@@ -6856,6 +6997,7 @@ class ReadManyIonChannelModelingExecutionGetParametersQuery(BaseModel):
     updated_by__id__in: list[UUID] | None = Field(
         default=None, title='Updated By  Id  In'
     )
+    updated_by__type: AgentType | None = Field(default=None, title='Updated By  Type')
     updated_by__given_name: str | None = Field(
         default=None, title='Updated By  Given Name'
     )
@@ -6963,6 +7105,9 @@ class ReadManyIonChannelRecordingGetParametersQuery(BaseModel):
     contribution__id__in: list[UUID] | None = Field(
         default=None, title='Contribution  Id  In'
     )
+    contribution__type: AgentType | None = Field(
+        default=None, title='Contribution  Type'
+    )
     created_by__pref_label: str | None = Field(
         default=None, title='Created By  Pref Label'
     )
@@ -6976,6 +7121,7 @@ class ReadManyIonChannelRecordingGetParametersQuery(BaseModel):
     created_by__id__in: list[UUID] | None = Field(
         default=None, title='Created By  Id  In'
     )
+    created_by__type: AgentType | None = Field(default=None, title='Created By  Type')
     created_by__given_name: str | None = Field(
         default=None, title='Created By  Given Name'
     )
@@ -7005,6 +7151,7 @@ class ReadManyIonChannelRecordingGetParametersQuery(BaseModel):
     updated_by__id__in: list[UUID] | None = Field(
         default=None, title='Updated By  Id  In'
     )
+    updated_by__type: AgentType | None = Field(default=None, title='Updated By  Type')
     updated_by__given_name: str | None = Field(
         default=None, title='Updated By  Given Name'
     )
@@ -7276,6 +7423,9 @@ class ReadManyMemodelGetParametersQuery(BaseModel):
     contribution__id__in: list[UUID] | None = Field(
         default=None, title='Contribution  Id  In'
     )
+    contribution__type: AgentType | None = Field(
+        default=None, title='Contribution  Type'
+    )
     created_by__pref_label: str | None = Field(
         default=None, title='Created By  Pref Label'
     )
@@ -7289,6 +7439,7 @@ class ReadManyMemodelGetParametersQuery(BaseModel):
     created_by__id__in: list[UUID] | None = Field(
         default=None, title='Created By  Id  In'
     )
+    created_by__type: AgentType | None = Field(default=None, title='Created By  Type')
     created_by__given_name: str | None = Field(
         default=None, title='Created By  Given Name'
     )
@@ -7318,6 +7469,7 @@ class ReadManyMemodelGetParametersQuery(BaseModel):
     updated_by__id__in: list[UUID] | None = Field(
         default=None, title='Updated By  Id  In'
     )
+    updated_by__type: AgentType | None = Field(default=None, title='Updated By  Type')
     updated_by__given_name: str | None = Field(
         default=None, title='Updated By  Given Name'
     )
@@ -7563,6 +7715,9 @@ class ReadManyMemodelCalibrationResultGetParametersQuery(BaseModel):
     contribution__id__in: list[UUID] | None = Field(
         default=None, title='Contribution  Id  In'
     )
+    contribution__type: AgentType | None = Field(
+        default=None, title='Contribution  Type'
+    )
     created_by__pref_label: str | None = Field(
         default=None, title='Created By  Pref Label'
     )
@@ -7576,6 +7731,7 @@ class ReadManyMemodelCalibrationResultGetParametersQuery(BaseModel):
     created_by__id__in: list[UUID] | None = Field(
         default=None, title='Created By  Id  In'
     )
+    created_by__type: AgentType | None = Field(default=None, title='Created By  Type')
     created_by__given_name: str | None = Field(
         default=None, title='Created By  Given Name'
     )
@@ -7605,6 +7761,7 @@ class ReadManyMemodelCalibrationResultGetParametersQuery(BaseModel):
     updated_by__id__in: list[UUID] | None = Field(
         default=None, title='Updated By  Id  In'
     )
+    updated_by__type: AgentType | None = Field(default=None, title='Updated By  Type')
     updated_by__given_name: str | None = Field(
         default=None, title='Updated By  Given Name'
     )
@@ -7659,6 +7816,7 @@ class ReadManyMtypeClassificationGetParametersQuery(BaseModel):
     created_by__id__in: list[UUID] | None = Field(
         default=None, title='Created By  Id  In'
     )
+    created_by__type: AgentType | None = Field(default=None, title='Created By  Type')
     created_by__given_name: str | None = Field(
         default=None, title='Created By  Given Name'
     )
@@ -7688,6 +7846,7 @@ class ReadManyMtypeClassificationGetParametersQuery(BaseModel):
     updated_by__id__in: list[UUID] | None = Field(
         default=None, title='Updated By  Id  In'
     )
+    updated_by__type: AgentType | None = Field(default=None, title='Updated By  Type')
     updated_by__given_name: str | None = Field(
         default=None, title='Updated By  Given Name'
     )
@@ -7719,6 +7878,7 @@ class ReadManyPersonGetParametersQuery(BaseModel):
     pref_label__ilike: str | None = Field(default=None, title='Pref Label  Ilike')
     id: UUID | None = Field(default=None, title='Id')
     id__in: list[UUID] | None = Field(default=None, title='Id  In')
+    type: AgentType | None = Field(default=None, title='Type')
     given_name: str | None = Field(default=None, title='Given Name')
     given_name__ilike: str | None = Field(default=None, title='Given Name  Ilike')
     family_name: str | None = Field(default=None, title='Family Name')
@@ -7739,6 +7899,7 @@ class ReadManyPersonGetParametersQuery(BaseModel):
     created_by__id__in: list[UUID] | None = Field(
         default=None, title='Created By  Id  In'
     )
+    created_by__type: AgentType | None = Field(default=None, title='Created By  Type')
     created_by__given_name: str | None = Field(
         default=None, title='Created By  Given Name'
     )
@@ -7768,6 +7929,7 @@ class ReadManyPersonGetParametersQuery(BaseModel):
     updated_by__id__in: list[UUID] | None = Field(
         default=None, title='Updated By  Id  In'
     )
+    updated_by__type: AgentType | None = Field(default=None, title='Updated By  Type')
     updated_by__given_name: str | None = Field(
         default=None, title='Updated By  Given Name'
     )
@@ -7829,6 +7991,7 @@ class ReadManyPublicationGetParametersQuery(BaseModel):
     created_by__id__in: list[UUID] | None = Field(
         default=None, title='Created By  Id  In'
     )
+    created_by__type: AgentType | None = Field(default=None, title='Created By  Type')
     created_by__given_name: str | None = Field(
         default=None, title='Created By  Given Name'
     )
@@ -7858,6 +8021,7 @@ class ReadManyPublicationGetParametersQuery(BaseModel):
     updated_by__id__in: list[UUID] | None = Field(
         default=None, title='Updated By  Id  In'
     )
+    updated_by__type: AgentType | None = Field(default=None, title='Updated By  Type')
     updated_by__given_name: str | None = Field(
         default=None, title='Updated By  Given Name'
     )
@@ -7919,6 +8083,7 @@ class ReadManyScientificArtifactExternalUrlLinkGetParametersQuery(BaseModel):
     created_by__id__in: list[UUID] | None = Field(
         default=None, title='Created By  Id  In'
     )
+    created_by__type: AgentType | None = Field(default=None, title='Created By  Type')
     created_by__given_name: str | None = Field(
         default=None, title='Created By  Given Name'
     )
@@ -7948,6 +8113,7 @@ class ReadManyScientificArtifactExternalUrlLinkGetParametersQuery(BaseModel):
     updated_by__id__in: list[UUID] | None = Field(
         default=None, title='Updated By  Id  In'
     )
+    updated_by__type: AgentType | None = Field(default=None, title='Updated By  Type')
     updated_by__given_name: str | None = Field(
         default=None, title='Updated By  Given Name'
     )
@@ -8032,6 +8198,7 @@ class ReadManyScientificArtifactPublicationLinkGetParametersQuery(BaseModel):
     created_by__id__in: list[UUID] | None = Field(
         default=None, title='Created By  Id  In'
     )
+    created_by__type: AgentType | None = Field(default=None, title='Created By  Type')
     created_by__given_name: str | None = Field(
         default=None, title='Created By  Given Name'
     )
@@ -8061,6 +8228,7 @@ class ReadManyScientificArtifactPublicationLinkGetParametersQuery(BaseModel):
     updated_by__id__in: list[UUID] | None = Field(
         default=None, title='Updated By  Id  In'
     )
+    updated_by__type: AgentType | None = Field(default=None, title='Updated By  Type')
     updated_by__given_name: str | None = Field(
         default=None, title='Updated By  Given Name'
     )
@@ -8169,6 +8337,9 @@ class ReadManySkeletonizationCampaignGetParametersQuery(BaseModel):
     contribution__id__in: list[UUID] | None = Field(
         default=None, title='Contribution  Id  In'
     )
+    contribution__type: AgentType | None = Field(
+        default=None, title='Contribution  Type'
+    )
     created_by__pref_label: str | None = Field(
         default=None, title='Created By  Pref Label'
     )
@@ -8182,6 +8353,7 @@ class ReadManySkeletonizationCampaignGetParametersQuery(BaseModel):
     created_by__id__in: list[UUID] | None = Field(
         default=None, title='Created By  Id  In'
     )
+    created_by__type: AgentType | None = Field(default=None, title='Created By  Type')
     created_by__given_name: str | None = Field(
         default=None, title='Created By  Given Name'
     )
@@ -8211,6 +8383,7 @@ class ReadManySkeletonizationCampaignGetParametersQuery(BaseModel):
     updated_by__id__in: list[UUID] | None = Field(
         default=None, title='Updated By  Id  In'
     )
+    updated_by__type: AgentType | None = Field(default=None, title='Updated By  Type')
     updated_by__given_name: str | None = Field(
         default=None, title='Updated By  Given Name'
     )
@@ -8311,6 +8484,9 @@ class ReadManySkeletonizationConfigGetParametersQuery(BaseModel):
     contribution__id__in: list[UUID] | None = Field(
         default=None, title='Contribution  Id  In'
     )
+    contribution__type: AgentType | None = Field(
+        default=None, title='Contribution  Type'
+    )
     created_by__pref_label: str | None = Field(
         default=None, title='Created By  Pref Label'
     )
@@ -8324,6 +8500,7 @@ class ReadManySkeletonizationConfigGetParametersQuery(BaseModel):
     created_by__id__in: list[UUID] | None = Field(
         default=None, title='Created By  Id  In'
     )
+    created_by__type: AgentType | None = Field(default=None, title='Created By  Type')
     created_by__given_name: str | None = Field(
         default=None, title='Created By  Given Name'
     )
@@ -8353,6 +8530,7 @@ class ReadManySkeletonizationConfigGetParametersQuery(BaseModel):
     updated_by__id__in: list[UUID] | None = Field(
         default=None, title='Updated By  Id  In'
     )
+    updated_by__type: AgentType | None = Field(default=None, title='Updated By  Type')
     updated_by__given_name: str | None = Field(
         default=None, title='Updated By  Given Name'
     )
@@ -8426,6 +8604,7 @@ class ReadManySkeletonizationExecutionGetParametersQuery(BaseModel):
     created_by__id__in: list[UUID] | None = Field(
         default=None, title='Created By  Id  In'
     )
+    created_by__type: AgentType | None = Field(default=None, title='Created By  Type')
     created_by__given_name: str | None = Field(
         default=None, title='Created By  Given Name'
     )
@@ -8455,6 +8634,7 @@ class ReadManySkeletonizationExecutionGetParametersQuery(BaseModel):
     updated_by__id__in: list[UUID] | None = Field(
         default=None, title='Updated By  Id  In'
     )
+    updated_by__type: AgentType | None = Field(default=None, title='Updated By  Type')
     updated_by__given_name: str | None = Field(
         default=None, title='Updated By  Given Name'
     )
@@ -8546,6 +8726,9 @@ class ReadManySimulationGetParametersQuery(BaseModel):
     contribution__id__in: list[UUID] | None = Field(
         default=None, title='Contribution  Id  In'
     )
+    contribution__type: AgentType | None = Field(
+        default=None, title='Contribution  Type'
+    )
     created_by__pref_label: str | None = Field(
         default=None, title='Created By  Pref Label'
     )
@@ -8559,6 +8742,7 @@ class ReadManySimulationGetParametersQuery(BaseModel):
     created_by__id__in: list[UUID] | None = Field(
         default=None, title='Created By  Id  In'
     )
+    created_by__type: AgentType | None = Field(default=None, title='Created By  Type')
     created_by__given_name: str | None = Field(
         default=None, title='Created By  Given Name'
     )
@@ -8588,6 +8772,7 @@ class ReadManySimulationGetParametersQuery(BaseModel):
     updated_by__id__in: list[UUID] | None = Field(
         default=None, title='Updated By  Id  In'
     )
+    updated_by__type: AgentType | None = Field(default=None, title='Updated By  Type')
     updated_by__given_name: str | None = Field(
         default=None, title='Updated By  Given Name'
     )
@@ -8680,6 +8865,9 @@ class ReadManySimulationCampaignGetParametersQuery(BaseModel):
     contribution__id__in: list[UUID] | None = Field(
         default=None, title='Contribution  Id  In'
     )
+    contribution__type: AgentType | None = Field(
+        default=None, title='Contribution  Type'
+    )
     created_by__pref_label: str | None = Field(
         default=None, title='Created By  Pref Label'
     )
@@ -8693,6 +8881,7 @@ class ReadManySimulationCampaignGetParametersQuery(BaseModel):
     created_by__id__in: list[UUID] | None = Field(
         default=None, title='Created By  Id  In'
     )
+    created_by__type: AgentType | None = Field(default=None, title='Created By  Type')
     created_by__given_name: str | None = Field(
         default=None, title='Created By  Given Name'
     )
@@ -8722,6 +8911,7 @@ class ReadManySimulationCampaignGetParametersQuery(BaseModel):
     updated_by__id__in: list[UUID] | None = Field(
         default=None, title='Updated By  Id  In'
     )
+    updated_by__type: AgentType | None = Field(default=None, title='Updated By  Type')
     updated_by__given_name: str | None = Field(
         default=None, title='Updated By  Given Name'
     )
@@ -8827,6 +9017,7 @@ class ReadManySimulationExecutionGetParametersQuery(BaseModel):
     created_by__id__in: list[UUID] | None = Field(
         default=None, title='Created By  Id  In'
     )
+    created_by__type: AgentType | None = Field(default=None, title='Created By  Type')
     created_by__given_name: str | None = Field(
         default=None, title='Created By  Given Name'
     )
@@ -8856,6 +9047,7 @@ class ReadManySimulationExecutionGetParametersQuery(BaseModel):
     updated_by__id__in: list[UUID] | None = Field(
         default=None, title='Updated By  Id  In'
     )
+    updated_by__type: AgentType | None = Field(default=None, title='Updated By  Type')
     updated_by__given_name: str | None = Field(
         default=None, title='Updated By  Given Name'
     )
@@ -8971,6 +9163,9 @@ class ReadManySingleNeuronSimulationGetParametersQuery(BaseModel):
     contribution__id__in: list[UUID] | None = Field(
         default=None, title='Contribution  Id  In'
     )
+    contribution__type: AgentType | None = Field(
+        default=None, title='Contribution  Type'
+    )
     created_by__pref_label: str | None = Field(
         default=None, title='Created By  Pref Label'
     )
@@ -8984,6 +9179,7 @@ class ReadManySingleNeuronSimulationGetParametersQuery(BaseModel):
     created_by__id__in: list[UUID] | None = Field(
         default=None, title='Created By  Id  In'
     )
+    created_by__type: AgentType | None = Field(default=None, title='Created By  Type')
     created_by__given_name: str | None = Field(
         default=None, title='Created By  Given Name'
     )
@@ -9013,6 +9209,7 @@ class ReadManySingleNeuronSimulationGetParametersQuery(BaseModel):
     updated_by__id__in: list[UUID] | None = Field(
         default=None, title='Updated By  Id  In'
     )
+    updated_by__type: AgentType | None = Field(default=None, title='Updated By  Type')
     updated_by__given_name: str | None = Field(
         default=None, title='Updated By  Given Name'
     )
@@ -9398,6 +9595,9 @@ class ReadManySingleNeuronSynaptomeGetParametersQuery(BaseModel):
     contribution__id__in: list[UUID] | None = Field(
         default=None, title='Contribution  Id  In'
     )
+    contribution__type: AgentType | None = Field(
+        default=None, title='Contribution  Type'
+    )
     created_by__pref_label: str | None = Field(
         default=None, title='Created By  Pref Label'
     )
@@ -9411,6 +9611,7 @@ class ReadManySingleNeuronSynaptomeGetParametersQuery(BaseModel):
     created_by__id__in: list[UUID] | None = Field(
         default=None, title='Created By  Id  In'
     )
+    created_by__type: AgentType | None = Field(default=None, title='Created By  Type')
     created_by__given_name: str | None = Field(
         default=None, title='Created By  Given Name'
     )
@@ -9440,6 +9641,7 @@ class ReadManySingleNeuronSynaptomeGetParametersQuery(BaseModel):
     updated_by__id__in: list[UUID] | None = Field(
         default=None, title='Updated By  Id  In'
     )
+    updated_by__type: AgentType | None = Field(default=None, title='Updated By  Type')
     updated_by__given_name: str | None = Field(
         default=None, title='Updated By  Given Name'
     )
@@ -9826,6 +10028,9 @@ class ReadManySingleNeuronSynaptomeSimulationGetParametersQuery(BaseModel):
     contribution__id__in: list[UUID] | None = Field(
         default=None, title='Contribution  Id  In'
     )
+    contribution__type: AgentType | None = Field(
+        default=None, title='Contribution  Type'
+    )
     created_by__pref_label: str | None = Field(
         default=None, title='Created By  Pref Label'
     )
@@ -9839,6 +10044,7 @@ class ReadManySingleNeuronSynaptomeSimulationGetParametersQuery(BaseModel):
     created_by__id__in: list[UUID] | None = Field(
         default=None, title='Created By  Id  In'
     )
+    created_by__type: AgentType | None = Field(default=None, title='Created By  Type')
     created_by__given_name: str | None = Field(
         default=None, title='Created By  Given Name'
     )
@@ -9868,6 +10074,7 @@ class ReadManySingleNeuronSynaptomeSimulationGetParametersQuery(BaseModel):
     updated_by__id__in: list[UUID] | None = Field(
         default=None, title='Updated By  Id  In'
     )
+    updated_by__type: AgentType | None = Field(default=None, title='Updated By  Type')
     updated_by__given_name: str | None = Field(
         default=None, title='Updated By  Given Name'
     )
@@ -10266,6 +10473,7 @@ class ReadManySpeciesGetParametersQuery(BaseModel):
     created_by__id__in: list[UUID] | None = Field(
         default=None, title='Created By  Id  In'
     )
+    created_by__type: AgentType | None = Field(default=None, title='Created By  Type')
     created_by__given_name: str | None = Field(
         default=None, title='Created By  Given Name'
     )
@@ -10295,6 +10503,7 @@ class ReadManySpeciesGetParametersQuery(BaseModel):
     updated_by__id__in: list[UUID] | None = Field(
         default=None, title='Updated By  Id  In'
     )
+    updated_by__type: AgentType | None = Field(default=None, title='Updated By  Type')
     updated_by__given_name: str | None = Field(
         default=None, title='Updated By  Given Name'
     )
@@ -10371,6 +10580,9 @@ class ReadManySubjectGetParametersQuery(BaseModel):
     contribution__id__in: list[UUID] | None = Field(
         default=None, title='Contribution  Id  In'
     )
+    contribution__type: AgentType | None = Field(
+        default=None, title='Contribution  Type'
+    )
     created_by__pref_label: str | None = Field(
         default=None, title='Created By  Pref Label'
     )
@@ -10384,6 +10596,7 @@ class ReadManySubjectGetParametersQuery(BaseModel):
     created_by__id__in: list[UUID] | None = Field(
         default=None, title='Created By  Id  In'
     )
+    created_by__type: AgentType | None = Field(default=None, title='Created By  Type')
     created_by__given_name: str | None = Field(
         default=None, title='Created By  Given Name'
     )
@@ -10413,6 +10626,7 @@ class ReadManySubjectGetParametersQuery(BaseModel):
     updated_by__id__in: list[UUID] | None = Field(
         default=None, title='Updated By  Id  In'
     )
+    updated_by__type: AgentType | None = Field(default=None, title='Updated By  Type')
     updated_by__given_name: str | None = Field(
         default=None, title='Updated By  Given Name'
     )
@@ -10476,6 +10690,9 @@ class ReadManyValidationResultGetParametersQuery(BaseModel):
     contribution__id__in: list[UUID] | None = Field(
         default=None, title='Contribution  Id  In'
     )
+    contribution__type: AgentType | None = Field(
+        default=None, title='Contribution  Type'
+    )
     created_by__pref_label: str | None = Field(
         default=None, title='Created By  Pref Label'
     )
@@ -10489,6 +10706,7 @@ class ReadManyValidationResultGetParametersQuery(BaseModel):
     created_by__id__in: list[UUID] | None = Field(
         default=None, title='Created By  Id  In'
     )
+    created_by__type: AgentType | None = Field(default=None, title='Created By  Type')
     created_by__given_name: str | None = Field(
         default=None, title='Created By  Given Name'
     )
@@ -10518,6 +10736,7 @@ class ReadManyValidationResultGetParametersQuery(BaseModel):
     updated_by__id__in: list[UUID] | None = Field(
         default=None, title='Updated By  Id  In'
     )
+    updated_by__type: AgentType | None = Field(default=None, title='Updated By  Type')
     updated_by__given_name: str | None = Field(
         default=None, title='Updated By  Given Name'
     )
@@ -10730,6 +10949,25 @@ class BrainRegionHierarchyRead(BaseModel):
     creation_date: AwareDatetime = Field(..., title='Creation Date')
     update_date: AwareDatetime = Field(..., title='Update Date')
     name: str = Field(..., title='Name')
+    species: NestedSpeciesRead
+    strain: NestedStrainRead | None = None
+
+
+class BrainRegionRead(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
+    creation_date: AwareDatetime = Field(..., title='Creation Date')
+    update_date: AwareDatetime = Field(..., title='Update Date')
+    id: UUID = Field(..., title='Id')
+    annotation_value: int = Field(..., title='Annotation Value')
+    name: str = Field(..., title='Name')
+    acronym: str = Field(..., title='Acronym')
+    color_hex_triplet: str = Field(..., title='Color Hex Triplet')
+    parent_structure_id: UUID | None = Field(default=None, title='Parent Structure Id')
+    hierarchy_id: UUID = Field(..., title='Hierarchy Id')
+    species: NestedSpeciesRead
+    strain: NestedStrainRead | None = None
 
 
 CalibrationRead = SimulationGenerationRead
@@ -12044,7 +12282,7 @@ class SingleNeuronSimulationRead(BaseModel):
     id: UUID = Field(..., title='Id')
     authorized_project_id: UUID4 = Field(..., title='Authorized Project Id')
     authorized_public: bool = Field(default=False, title='Authorized Public')
-    brain_region: BrainRegionRead
+    brain_region: NestedBrainRegionRead
     seed: int = Field(..., title='Seed')
     status: SingleNeuronSimulationStatus
     injection_location: list[str] = Field(..., title='Injection Location')
@@ -12058,6 +12296,7 @@ class SingleNeuronSynaptomeRead(BaseModel):
     )
     name: str = Field(..., title='Name')
     description: str = Field(..., title='Description')
+    brain_region: NestedBrainRegionRead
     created_by: NestedPersonRead
     updated_by: NestedPersonRead
     assets: list[AssetRead] = Field(..., title='Assets')
@@ -12072,7 +12311,6 @@ class SingleNeuronSynaptomeRead(BaseModel):
     authorized_public: bool = Field(default=False, title='Authorized Public')
     seed: int = Field(..., title='Seed')
     me_model: NestedMEModel
-    brain_region: BrainRegionRead
 
 
 class SingleNeuronSynaptomeSimulationRead(BaseModel):
@@ -12090,7 +12328,7 @@ class SingleNeuronSynaptomeSimulationRead(BaseModel):
     id: UUID = Field(..., title='Id')
     authorized_project_id: UUID4 = Field(..., title='Authorized Project Id')
     authorized_public: bool = Field(default=False, title='Authorized Public')
-    brain_region: BrainRegionRead
+    brain_region: NestedBrainRegionRead
     seed: int = Field(..., title='Seed')
     status: SingleNeuronSimulationStatus
     injection_location: list[str] = Field(..., title='Injection Location')
@@ -12402,7 +12640,7 @@ class CircuitRead(BaseModel):
     update_date: AwareDatetime = Field(..., title='Update Date')
     created_by: NestedPersonRead
     updated_by: NestedPersonRead
-    brain_region: BrainRegionRead
+    brain_region: NestedBrainRegionRead
     subject: NestedSubjectRead
     authorized_project_id: UUID4 = Field(..., title='Authorized Project Id')
     authorized_public: bool = Field(default=False, title='Authorized Public')
@@ -12456,7 +12694,7 @@ class EMCellMeshRead(BaseModel):
     update_date: AwareDatetime = Field(..., title='Update Date')
     created_by: NestedPersonRead
     updated_by: NestedPersonRead
-    brain_region: BrainRegionRead
+    brain_region: NestedBrainRegionRead
     subject: NestedSubjectRead
     authorized_project_id: UUID4 = Field(..., title='Authorized Project Id')
     authorized_public: bool = Field(default=False, title='Authorized Public')
@@ -12508,7 +12746,7 @@ class EMDenseReconstructionDatasetRead(BaseModel):
     update_date: AwareDatetime = Field(..., title='Update Date')
     created_by: NestedPersonRead
     updated_by: NestedPersonRead
-    brain_region: BrainRegionRead
+    brain_region: NestedBrainRegionRead
     subject: NestedSubjectRead
     authorized_project_id: UUID4 = Field(..., title='Authorized Project Id')
     authorized_public: bool = Field(default=False, title='Authorized Public')
@@ -12565,6 +12803,7 @@ class EModelRead(BaseModel):
     )
     name: str = Field(..., title='Name')
     description: str = Field(..., title='Description')
+    brain_region: NestedBrainRegionRead
     contributions: list[NestedContributionRead] | None = Field(
         ..., title='Contributions'
     )
@@ -12582,7 +12821,6 @@ class EModelRead(BaseModel):
     id: UUID = Field(..., title='Id')
     species: NestedSpeciesRead
     strain: NestedStrainRead | None = None
-    brain_region: BrainRegionRead
     mtypes: list[AnnotationRead] | None = Field(..., title='Mtypes')
     etypes: list[AnnotationRead] | None = Field(..., title='Etypes')
     exemplar_morphology: ExemplarMorphology
@@ -12603,7 +12841,7 @@ class ElectricalCellRecordingRead(BaseModel):
     update_date: AwareDatetime = Field(..., title='Update Date')
     created_by: NestedPersonRead
     updated_by: NestedPersonRead
-    brain_region: BrainRegionRead
+    brain_region: NestedBrainRegionRead
     subject: NestedSubjectRead
     authorized_project_id: UUID4 = Field(..., title='Authorized Project Id')
     authorized_public: bool = Field(default=False, title='Authorized Public')
@@ -12684,9 +12922,10 @@ class ExperimentalBoutonDensityRead(BaseModel):
     model_config = ConfigDict(
         extra='allow',
     )
-    subject: NestedSubjectRead
     name: str = Field(..., title='Name')
     description: str = Field(..., title='Description')
+    brain_region: NestedBrainRegionRead
+    subject: NestedSubjectRead
     contributions: list[NestedContributionRead] | None = Field(
         ..., title='Contributions'
     )
@@ -12701,7 +12940,6 @@ class ExperimentalBoutonDensityRead(BaseModel):
     update_date: AwareDatetime = Field(..., title='Update Date')
     measurements: list[MeasurementRecordRead] = Field(..., title='Measurements')
     assets: list[AssetRead] = Field(..., title='Assets')
-    brain_region: BrainRegionRead
     mtypes: list[AnnotationRead] | None = Field(..., title='Mtypes')
 
 
@@ -12729,9 +12967,10 @@ class ExperimentalNeuronDensityRead(BaseModel):
     model_config = ConfigDict(
         extra='allow',
     )
-    subject: NestedSubjectRead
     name: str = Field(..., title='Name')
     description: str = Field(..., title='Description')
+    brain_region: NestedBrainRegionRead
+    subject: NestedSubjectRead
     contributions: list[NestedContributionRead] | None = Field(
         ..., title='Contributions'
     )
@@ -12746,7 +12985,6 @@ class ExperimentalNeuronDensityRead(BaseModel):
     update_date: AwareDatetime = Field(..., title='Update Date')
     measurements: list[MeasurementRecordRead] = Field(..., title='Measurements')
     assets: list[AssetRead] = Field(..., title='Assets')
-    brain_region: BrainRegionRead
     mtypes: list[AnnotationRead] | None = Field(..., title='Mtypes')
     etypes: list[AnnotationRead] | None = Field(..., title='Etypes')
 
@@ -12776,9 +13014,10 @@ class ExperimentalSynapsesPerConnectionRead(BaseModel):
     model_config = ConfigDict(
         extra='allow',
     )
-    subject: NestedSubjectRead
     name: str = Field(..., title='Name')
     description: str = Field(..., title='Description')
+    brain_region: NestedBrainRegionRead
+    subject: NestedSubjectRead
     contributions: list[NestedContributionRead] | None = Field(
         ..., title='Contributions'
     )
@@ -12793,11 +13032,10 @@ class ExperimentalSynapsesPerConnectionRead(BaseModel):
     update_date: AwareDatetime = Field(..., title='Update Date')
     measurements: list[MeasurementRecordRead] = Field(..., title='Measurements')
     assets: list[AssetRead] = Field(..., title='Assets')
-    brain_region: BrainRegionRead
     pre_mtype: AnnotationRead
     post_mtype: AnnotationRead
-    pre_region: BrainRegionRead
-    post_region: BrainRegionRead
+    pre_region: NestedBrainRegionRead
+    post_region: NestedBrainRegionRead
 
 
 class ExperimentalSynapsesPerConnectionUserUpdate(BaseModel):
@@ -12878,7 +13116,7 @@ class IonChannelModelExpanded(BaseModel):
     update_date: AwareDatetime = Field(..., title='Update Date')
     created_by: NestedPersonRead
     updated_by: NestedPersonRead
-    brain_region: BrainRegionRead
+    brain_region: NestedBrainRegionRead
     subject: NestedSubjectRead
     authorized_project_id: UUID4 = Field(..., title='Authorized Project Id')
     authorized_public: bool = Field(default=False, title='Authorized Public')
@@ -12922,7 +13160,7 @@ class IonChannelModelRead(BaseModel):
     description: str = Field(..., title='Description')
     creation_date: AwareDatetime = Field(..., title='Creation Date')
     update_date: AwareDatetime = Field(..., title='Update Date')
-    brain_region: BrainRegionRead
+    brain_region: NestedBrainRegionRead
     subject: NestedSubjectRead
     authorized_project_id: UUID4 = Field(..., title='Authorized Project Id')
     authorized_public: bool = Field(default=False, title='Authorized Public')
@@ -13000,7 +13238,7 @@ class IonChannelModelWAssets(BaseModel):
     assets: list[AssetRead] = Field(..., title='Assets')
     creation_date: AwareDatetime = Field(..., title='Creation Date')
     update_date: AwareDatetime = Field(..., title='Update Date')
-    brain_region: BrainRegionRead
+    brain_region: NestedBrainRegionRead
     subject: NestedSubjectRead
     authorized_project_id: UUID4 = Field(..., title='Authorized Project Id')
     authorized_public: bool = Field(default=False, title='Authorized Public')
@@ -13102,7 +13340,7 @@ class IonChannelRecordingRead(BaseModel):
     update_date: AwareDatetime = Field(..., title='Update Date')
     created_by: NestedPersonRead
     updated_by: NestedPersonRead
-    brain_region: BrainRegionRead
+    brain_region: NestedBrainRegionRead
     subject: NestedSubjectRead
     authorized_project_id: UUID4 = Field(..., title='Authorized Project Id')
     authorized_public: bool = Field(default=False, title='Authorized Public')
@@ -13527,7 +13765,7 @@ class CellMorphologyAnnotationExpandedRead(BaseModel):
     update_date: AwareDatetime = Field(..., title='Update Date')
     created_by: NestedPersonRead
     updated_by: NestedPersonRead
-    brain_region: BrainRegionRead
+    brain_region: NestedBrainRegionRead
     subject: NestedSubjectRead
     authorized_project_id: UUID4 = Field(..., title='Authorized Project Id')
     authorized_public: bool = Field(default=False, title='Authorized Public')
@@ -13577,7 +13815,7 @@ class CellMorphologyRead(BaseModel):
     update_date: AwareDatetime = Field(..., title='Update Date')
     created_by: NestedPersonRead
     updated_by: NestedPersonRead
-    brain_region: BrainRegionRead
+    brain_region: NestedBrainRegionRead
     subject: NestedSubjectRead
     authorized_project_id: UUID4 = Field(..., title='Authorized Project Id')
     authorized_public: bool = Field(default=False, title='Authorized Public')
@@ -13617,6 +13855,7 @@ class EModelReadExpanded(BaseModel):
     )
     name: str = Field(..., title='Name')
     description: str = Field(..., title='Description')
+    brain_region: NestedBrainRegionRead
     contributions: list[NestedContributionRead] | None = Field(
         ..., title='Contributions'
     )
@@ -13634,7 +13873,6 @@ class EModelReadExpanded(BaseModel):
     id: UUID = Field(..., title='Id')
     species: NestedSpeciesRead
     strain: NestedStrainRead | None = None
-    brain_region: BrainRegionRead
     mtypes: list[AnnotationRead] | None = Field(..., title='Mtypes')
     etypes: list[AnnotationRead] | None = Field(..., title='Etypes')
     exemplar_morphology: ExemplarMorphology
@@ -13676,6 +13914,7 @@ class MEModelRead(BaseModel):
     )
     name: str = Field(..., title='Name')
     description: str = Field(..., title='Description')
+    brain_region: NestedBrainRegionRead
     contributions: list[NestedContributionRead] | None = Field(
         ..., title='Contributions'
     )
@@ -13692,7 +13931,6 @@ class MEModelRead(BaseModel):
     id: UUID = Field(..., title='Id')
     species: NestedSpeciesRead
     strain: NestedStrainRead | None = None
-    brain_region: BrainRegionRead
     mtypes: list[AnnotationRead] | None = Field(..., title='Mtypes')
     etypes: list[AnnotationRead] | None = Field(..., title='Etypes')
     morphology: CellMorphologyRead

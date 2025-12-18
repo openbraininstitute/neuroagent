@@ -18,8 +18,8 @@ from obp_accounting_sdk import AsyncAccountingSessionFactory
 from obp_accounting_sdk.constants import ServiceSubtype
 from openai import AsyncOpenAI
 from redis import asyncio as aioredis
+from sqlalchemy import desc, select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import selectinload
 
 from neuroagent.agent_routine import AgentsRoutine
 from neuroagent.app.app_utils import (
@@ -28,7 +28,7 @@ from neuroagent.app.app_utils import (
     validate_project,
 )
 from neuroagent.app.config import Settings
-from neuroagent.app.database.sql_schemas import Messages, Threads
+from neuroagent.app.database.sql_schemas import Entity, Messages, Threads
 from neuroagent.app.dependencies import (
     get_accounting_session_factory,
     get_agents_routine,
@@ -130,34 +130,26 @@ async def question_suggestions(
     )
 
     if body.thread_id is not None:
-        # Get the AI and User messages from the conversation:
-        thread = await session.get(
-            Threads, body.thread_id, options=[selectinload(Threads.messages)]
-        )
-        if not thread:
-            raise HTTPException(
-                status_code=404,
-                detail=f"Thread with id {body.thread_id} not found.",
+        # Select the last 4 human/ai messages
+        result = await session.execute(
+            select(Messages)
+            .where(
+                Messages.thread_id == body.thread_id,
+                Messages.entity.in_([Entity.USER, Entity.AI_MESSAGE]),
             )
-        openai_messages = await messages_to_openai_content(thread.messages)
+            .order_by(desc(Messages.creation_date))
+            .limit(4)
+        )
 
-        # Remove the tool calls.
-        user_ai_messages = []
-        for message in openai_messages:
-            if message["role"] == "user" or (
-                message["role"] == "assistant" and not message.get("tool_calls")
-            ):
-                user_ai_messages.append(message)
-
-        is_in_chat = bool(openai_messages)
+        messages = list(reversed(result.scalars().all()))
+        user_ai_messages = await messages_to_openai_content(messages)
+        is_in_chat = bool(user_ai_messages)
 
     tool_info = [f"{tool.name}: {tool.description}" for tool in tool_list]
 
     # ====================================IN CHAT===============================================
     if is_in_chat:
-        content = user_ai_messages[
-            -4:
-        ]  # 4 last messages, no special reason for that number
+        content = user_ai_messages
         system_prompt = f"""
 Guidelines:
 
@@ -224,9 +216,6 @@ Available Tools:
                 )
 
                 # Add resolved BR name. Even if `None` it carries info
-                # if brain_region_name is not None:
-                #     context_output_json["brain_region_name"] = brain_region_name
-                #     context_output_json.pop("brain_region_id", None)
                 context_output_json["brain_region_name"] = brain_region_name
 
                 context_info = f"\nCurrent page context: {context_output_json}"
@@ -286,7 +275,7 @@ Output format:
 Tool description:
 {chr(10).join(tool_info)}"""
 
-    messages = [{"role": "system", "content": system_prompt}, *content]
+    messages = [{"role": "system", "content": system_prompt}, *content]  # type: ignore
     parse_kwargs = {
         "messages": messages,
         "model": settings.llm.suggestion_model,
