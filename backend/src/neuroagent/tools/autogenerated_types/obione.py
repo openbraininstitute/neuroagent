@@ -96,6 +96,18 @@ class BellFitMTau(BaseModel):
     type: Literal['BellFitMTau'] = Field(..., title='Type')
 
 
+class BodyMorphologyMetricsCalculationDeclaredRegisterMorphologyWithCalculatedMetricsPost(
+    BaseModel
+):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    file: bytes = Field(
+        ..., description='Neuron file to upload (.swc, .h5, or .asc)', title='File'
+    )
+    metadata: str = Field(default='{}', title='Metadata')
+
+
 class BodyTestNeuronFileDeclaredTestNeuronFilePost(BaseModel):
     model_config = ConfigDict(
         extra='ignore',
@@ -103,6 +115,15 @@ class BodyTestNeuronFileDeclaredTestNeuronFilePost(BaseModel):
     file: bytes = Field(
         ..., description='Neuron file to upload (.swc, .h5, or .asc)', title='File'
     )
+
+
+class BodyValidateNwbFileDeclaredValidateElectrophysiologyProtocolNwbFilePost(
+    BaseModel
+):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    file: bytes = Field(..., description='NWB file to upload (.nwb)', title='File')
 
 
 class CellMorphology(BaseModel):
@@ -952,6 +973,14 @@ class FrequencyItem(WidthItem):
     pass
 
 
+class NWBValidationResponse(BaseModel):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    status: str = Field(..., title='Status')
+    message: str = Field(..., title='Message')
+
+
 class NamedPath(BaseModel):
     model_config = ConfigDict(
         extra='ignore',
@@ -1257,11 +1286,13 @@ class PropertyNeuronSet(BaseModel):
         default=None, title='Node Population'
     )
     property_filter: NeuronPropertyFilter | list[NeuronPropertyFilter] = Field(
-        default=[],
+        default_factory=lambda: NeuronPropertyFilter.model_validate([]),
         description='NeuronPropertyFilter object or list of NeuronPropertyFilter objects',
         title='Property Filter',
     )
-    node_sets: list[NodeSet3] | NodeSets2 = Field(default=[], title='Node Sets')
+    node_sets: list[NodeSet3] | NodeSets2 = Field(
+        default_factory=lambda: NodeSets2.model_validate([]), title='Node Sets'
+    )
 
 
 class Publication(BaseModel):
@@ -1561,11 +1592,13 @@ class SimplexMembershipBasedNeuronSet(BaseModel):
         default=None, title='Node Population'
     )
     property_filter: NeuronPropertyFilter | list[NeuronPropertyFilter] = Field(
-        default=[],
+        default_factory=lambda: NeuronPropertyFilter.model_validate([]),
         description='NeuronPropertyFilter object or list of NeuronPropertyFilter objects',
         title='Property Filter',
     )
-    node_sets: list[NodeSet3] | NodeSets3 = Field(default=[], title='Node Sets')
+    node_sets: list[NodeSet3] | NodeSets3 = Field(
+        default_factory=lambda: NodeSets3.model_validate([]), title='Node Sets'
+    )
     central_neuron_id: int | list[int] = Field(
         ...,
         description='Node id (index) that will be source or target of the simplices extracted',
@@ -1656,11 +1689,13 @@ class SimplexNeuronSet(BaseModel):
         default=None, title='Node Population'
     )
     property_filter: NeuronPropertyFilter | list[NeuronPropertyFilter] = Field(
-        default=[],
+        default_factory=lambda: NeuronPropertyFilter.model_validate([]),
         description='NeuronPropertyFilter object or list of NeuronPropertyFilter objects',
         title='Property Filter',
     )
-    node_sets: list[NodeSet3] | NodeSets4 = Field(default=[], title='Node Sets')
+    node_sets: list[NodeSet3] | NodeSets4 = Field(
+        default_factory=lambda: NodeSets4.model_validate([]), title='Node Sets'
+    )
     central_neuron_id: int | list[int] = Field(
         ...,
         description='Node id (index) that will be source or target of the simplices extracted',
@@ -2046,11 +2081,13 @@ class VolumetricCountNeuronSet(BaseModel):
         default=None, title='Node Population'
     )
     property_filter: NeuronPropertyFilter | list[NeuronPropertyFilter] = Field(
-        default=[],
+        default_factory=lambda: NeuronPropertyFilter.model_validate([]),
         description='NeuronPropertyFilter object or list of NeuronPropertyFilter objects',
         title='Property Filter',
     )
-    node_sets: list[NodeSet3] | NodeSets5 = Field(default=[], title='Node Sets')
+    node_sets: list[NodeSet3] | NodeSets5 = Field(
+        default_factory=lambda: NodeSets5.model_validate([]), title='Node Sets'
+    )
     ox: float | list[float] = Field(
         ...,
         description='Offset of the center of the volume, relative to the centroid of the node             population',
@@ -2126,11 +2163,13 @@ class VolumetricRadiusNeuronSet(BaseModel):
         default=None, title='Node Population'
     )
     property_filter: NeuronPropertyFilter | list[NeuronPropertyFilter] = Field(
-        default=[],
+        default_factory=lambda: NeuronPropertyFilter.model_validate([]),
         description='NeuronPropertyFilter object or list of NeuronPropertyFilter objects',
         title='Property Filter',
     )
-    node_sets: list[NodeSet3] | NodeSets6 = Field(default=[], title='Node Sets')
+    node_sets: list[NodeSet3] | NodeSets6 = Field(
+        default_factory=lambda: NodeSets6.model_validate([]), title='Node Sets'
+    )
     ox: float | list[float] = Field(
         ...,
         description='Offset of the center of the volume, relative to the centroid of the node             population',
@@ -2742,10 +2781,12 @@ class CircuitMetricsEndpointDeclaredCircuitMetricsCircuitIdGetParametersQuery(
     BaseModel
 ):
     level_of_detail_nodes: CircuitStatsLevelOfDetail = Field(
-        default=0, description='Level of detail for node populations analysis'
+        default_factory=lambda: CircuitStatsLevelOfDetail.model_validate(0),
+        description='Level of detail for node populations analysis',
     )
     level_of_detail_edges: CircuitStatsLevelOfDetail = Field(
-        default=0, description='Level of detail for edge populations analysis'
+        default_factory=lambda: CircuitStatsLevelOfDetail.model_validate(0),
+        description='Level of detail for edge populations analysis',
     )
 
 
@@ -2863,6 +2904,11 @@ class NeuronMorphologyMetricsEndpointDeclaredNeuronMorphologyMetricsCellMorpholo
     ) = Field(
         default=None, description='List of requested metrics', title='Requested Metrics'
     )
+
+
+MorphologyMetricsCalculationDeclaredRegisterMorphologyWithCalculatedMetricsPostResponse = (
+    RootGetResponse
+)
 
 
 class ParametricMultiValueEndpointDeclaredParametricMultiValuePostParametersQuery(
