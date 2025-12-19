@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.14.1] - 19.12.2025
+
+### Changed
+- Use gpt-5-nano as suggestion/title model.
+
 ## [0.14.0] - 19.12.2025
 
 ### Fixed
@@ -14,7 +19,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Suggestions.
-- Use gpt-5-nano as suggestion/title model.
 
 ## [0.13.0] - 1.12.2025
 
