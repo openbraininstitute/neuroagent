@@ -60,7 +60,6 @@ class PlotMorphologyGetOneTool(BaseTool):
 
         **Inputs**:
         entity_id: ID of the target entity.
-        asset_id: ID of the specific morphology asset. Retrieve using `entitycore-cellmorphology-getall`,  `entitycore-cellmorphology-getone` or `entitycore-asset-getall`.
 
         **Output**:
         storage_id: Identifier for where the generated plot is stored.

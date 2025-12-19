@@ -63,7 +63,6 @@ class PlotElectricalCellRecordingGetOneTool(BaseTool):
 
         **Inputs**:
         entity_id: ID of the target entity.
-        asset_id: ID of the specific electricalcellrecording asset. Retrieve using `entitycore-electricalcellrecording-getall`, `entitycore-electricalcellrecording-getone` or `entitycore-asset-getall`.
 
         **Output**:
         storage_id: Identifier for where the generated plot is stored.
