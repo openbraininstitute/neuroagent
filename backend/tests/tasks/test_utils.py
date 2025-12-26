@@ -2,6 +2,7 @@
 
 import json
 import logging
+import subprocess
 from unittest.mock import AsyncMock, Mock, mock_open, patch
 
 import pytest
@@ -13,8 +14,18 @@ from neuroagent.tasks.utils import WasmExecutor
 class TestWasmExecutor:
     """Tests for WasmExecutor initialization."""
 
-    def test_init_with_defaults(self):
+    @patch("subprocess.run")
+    @patch("tempfile.TemporaryDirectory")
+    @patch("builtins.open", new_callable=mock_open)
+    def test_init_with_defaults(self, mock_file, mock_tempdir, mock_run):
         """Test initialization with default parameters."""
+        # Mock TemporaryDirectory context manager
+        mock_tempdir_instance = Mock()
+        mock_tempdir_instance.__enter__ = Mock(return_value="/tmp/test_dir")
+        mock_tempdir_instance.__exit__ = Mock(return_value=None)
+        mock_tempdir.return_value = mock_tempdir_instance
+        mock_run.return_value = Mock(returncode=0, stdout=b"", stderr=b"")
+
         executor = WasmExecutor(additional_imports=["numpy"])
 
         assert executor.additional_imports == ["numpy"]
@@ -25,9 +36,21 @@ class TestWasmExecutor:
             "--allow-read=./node_modules,./cached_wheels" in executor.deno_permissions
         )
         assert "--node-modules-dir=auto" in executor.deno_permissions
+        # Verify package installation happened in constructor
+        assert mock_run.call_count == 1
 
-    def test_init_with_custom_parameters(self):
+    @patch("subprocess.run")
+    @patch("tempfile.TemporaryDirectory")
+    @patch("builtins.open", new_callable=mock_open)
+    def test_init_with_custom_parameters(self, mock_file, mock_tempdir, mock_run):
         """Test initialization with custom parameters."""
+        # Mock TemporaryDirectory context manager
+        mock_tempdir_instance = Mock()
+        mock_tempdir_instance.__enter__ = Mock(return_value="/tmp/test_dir")
+        mock_tempdir_instance.__exit__ = Mock(return_value=None)
+        mock_tempdir.return_value = mock_tempdir_instance
+        mock_run.return_value = Mock(returncode=0, stdout=b"", stderr=b"")
+
         logger = logging.getLogger("test")
         custom_permissions = ["allow-net", "allow-read"]
 
@@ -44,12 +67,14 @@ class TestWasmExecutor:
         assert executor.deno_path == "/usr/local/bin/deno"
         assert executor.timeout == 120
         assert executor.deno_permissions == ["--allow-net", "--allow-read"]
+        # Verify package installation happened in constructor
+        assert mock_run.call_count == 1
 
     @patch("subprocess.run")
     @patch("tempfile.TemporaryDirectory")
     @patch("builtins.open", new_callable=mock_open)
-    def test_context_manager_enter_exit(self, mock_file, mock_tempdir, mock_run):
-        """Test context manager enters and exits correctly."""
+    def test_init_installs_packages(self, mock_file, mock_tempdir, mock_run):
+        """Test that package installation happens during initialization."""
         # Mock TemporaryDirectory context manager
         mock_tempdir_instance = Mock()
         mock_tempdir_instance.__enter__ = Mock(return_value="/tmp/test_dir")
@@ -57,42 +82,35 @@ class TestWasmExecutor:
         mock_tempdir.return_value = mock_tempdir_instance
         mock_run.return_value = Mock(returncode=0, stdout=b"", stderr=b"")
 
-        executor = WasmExecutor(additional_imports=["numpy"])
-
-        with executor as exec_instance:
-            assert exec_instance is executor
-            mock_file.assert_called()
+        WasmExecutor(additional_imports=["numpy"])
 
         # Verify TemporaryDirectory was used
         mock_tempdir.assert_called()
         # Verify the context manager was properly entered and exited
         mock_tempdir_instance.__enter__.assert_called()
         mock_tempdir_instance.__exit__.assert_called()
+        mock_file.assert_called()
 
-        # Verify subprocess.run was called (for package installation in __enter__)
+        # Verify subprocess.run was called (for package installation in __init__)
         assert mock_run.call_count == 1
 
     @patch("subprocess.run")
     @patch("tempfile.TemporaryDirectory")
     @patch("builtins.open", new_callable=mock_open)
-    def test_context_manager_cleanup_on_exception(
-        self, mock_file, mock_tempdir, mock_run
-    ):
-        """Test context manager cleans up even on exception."""
+    def test_init_cleanup_on_exception(self, mock_file, mock_tempdir, mock_run):
+        """Test that TemporaryDirectory cleanup happens even if subprocess fails."""
         # Mock TemporaryDirectory context manager
         mock_tempdir_instance = Mock()
         mock_tempdir_instance.__enter__ = Mock(return_value="/tmp/test_dir")
         mock_tempdir_instance.__exit__ = Mock(return_value=None)
         mock_tempdir.return_value = mock_tempdir_instance
-        mock_run.return_value = Mock(returncode=0, stdout=b"", stderr=b"")
+        # Make subprocess.run raise an exception
+        mock_run.side_effect = subprocess.TimeoutExpired("deno", 60)
 
-        executor = WasmExecutor(additional_imports=[])
+        with pytest.raises(subprocess.TimeoutExpired):
+            WasmExecutor(additional_imports=[])
 
-        with pytest.raises(ValueError):
-            with executor:
-                raise ValueError("Test error")
-
-        # Verify TemporaryDirectory cleanup was called via __exit__
+        # Verify TemporaryDirectory cleanup was called even on exception
         mock_tempdir_instance.__exit__.assert_called()
 
     @patch("subprocess.run")
@@ -129,6 +147,8 @@ class TestWasmExecutor:
             return_value=(mock_stdout_data, mock_stderr_data)
         )
         mock_create_subproc_exec.return_value = mock_process
+        # Mock subprocess.run for constructor (package installation)
+        mock_run.return_value = Mock(returncode=0, stdout=b"", stderr=b"")
 
         executor = WasmExecutor(additional_imports=[])
         result = await executor.run_code("print('Hello, World!')")
@@ -183,6 +203,8 @@ class TestWasmExecutor:
             return_value=(mock_stdout_data, mock_stderr_data)
         )
         mock_create_subproc_exec.return_value = mock_process
+        # Mock subprocess.run for constructor (package installation)
+        mock_run.return_value = Mock(returncode=0, stdout=b"", stderr=b"")
 
         executor = WasmExecutor(additional_imports=[])
         result = await executor.run_code("print(undefined_var)")
@@ -217,6 +239,8 @@ class TestWasmExecutor:
             return_value=(mock_stdout_data, mock_stderr_data)
         )
         mock_create_subproc_exec.return_value = mock_process
+        # Mock subprocess.run for constructor (package installation)
+        mock_run.return_value = Mock(returncode=0, stdout=b"", stderr=b"")
 
         executor = WasmExecutor(additional_imports=["numpy"])
         result = await executor.run_code("import numpy")
@@ -250,6 +274,8 @@ class TestWasmExecutor:
             return_value=(mock_stdout_data, mock_stderr_data)
         )
         mock_create_subproc_exec.return_value = mock_process
+        # Mock subprocess.run for constructor (package installation)
+        mock_run.return_value = Mock(returncode=0, stdout=b"", stderr=b"")
 
         executor = WasmExecutor(additional_imports=[])
 
@@ -280,6 +306,8 @@ class TestWasmExecutor:
             return_value=(mock_stdout_data, mock_stderr_data)
         )
         mock_create_subproc_exec.return_value = mock_process
+        # Mock subprocess.run for constructor (package installation)
+        mock_run.return_value = Mock(returncode=0, stdout=b"", stderr=b"")
 
         executor = WasmExecutor(additional_imports=[])
 
@@ -323,6 +351,8 @@ class TestWasmExecutor:
             return_value=(mock_stdout_data, mock_stderr_data)
         )
         mock_create_subproc_exec.return_value = mock_process
+        # Mock subprocess.run for constructor (package installation)
+        mock_run.return_value = Mock(returncode=0, stdout=b"", stderr=b"")
 
         executor = WasmExecutor(additional_imports=[], logger=mock_logger)
         result = await executor.run_code("print('test')")
@@ -355,6 +385,8 @@ class TestWasmExecutor:
             return_value=(mock_stdout_data, mock_stderr_data)
         )
         mock_create_subproc_exec.return_value = mock_process
+        # Mock subprocess.run for constructor (package installation)
+        mock_run.return_value = Mock(returncode=0, stdout=b"", stderr=b"")
 
         executor = WasmExecutor(additional_imports=[])
 
@@ -397,6 +429,8 @@ class TestWasmExecutor:
             return_value=(mock_stdout_data, mock_stderr_data)
         )
         mock_create_subproc_exec.return_value = mock_process
+        # Mock subprocess.run for constructor (package installation)
+        mock_run.return_value = Mock(returncode=0, stdout=b"", stderr=b"")
 
         # Test with packages that would normally trigger network requests
         executor = WasmExecutor(additional_imports=["numpy", "pandas", "matplotlib"])
@@ -414,15 +448,37 @@ class TestWasmExecutor:
         assert "pandas" in written_content
         assert "matplotlib" in written_content
 
-    def test_js_code_contains_package_placeholder(self):
+    @patch("subprocess.run")
+    @patch("tempfile.TemporaryDirectory")
+    @patch("builtins.open", new_callable=mock_open)
+    def test_js_code_contains_package_placeholder(
+        self, mock_file, mock_tempdir, mock_run
+    ):
         """Test JS code template has package placeholder."""
+        # Mock TemporaryDirectory context manager
+        mock_tempdir_instance = Mock()
+        mock_tempdir_instance.__enter__ = Mock(return_value="/tmp/test_dir")
+        mock_tempdir_instance.__exit__ = Mock(return_value=None)
+        mock_tempdir.return_value = mock_tempdir_instance
+        mock_run.return_value = Mock(returncode=0, stdout=b"", stderr=b"")
+
         executor = WasmExecutor(additional_imports=["numpy"])
 
         assert "{packages}" in executor.JS_CODE
         assert "{code}" in executor.JS_CODE
 
-    def test_js_code_format(self):
+    @patch("subprocess.run")
+    @patch("tempfile.TemporaryDirectory")
+    @patch("builtins.open", new_callable=mock_open)
+    def test_js_code_format(self, mock_file, mock_tempdir, mock_run):
         """Test JS code can be formatted correctly."""
+        # Mock TemporaryDirectory context manager
+        mock_tempdir_instance = Mock()
+        mock_tempdir_instance.__enter__ = Mock(return_value="/tmp/test_dir")
+        mock_tempdir_instance.__exit__ = Mock(return_value=None)
+        mock_tempdir.return_value = mock_tempdir_instance
+        mock_run.return_value = Mock(returncode=0, stdout=b"", stderr=b"")
+
         executor = WasmExecutor(additional_imports=["numpy", "pandas"])
 
         formatted = executor.JS_CODE.format(

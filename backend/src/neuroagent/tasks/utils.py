@@ -8,7 +8,6 @@ import tempfile
 from contextlib import contextmanager
 from pathlib import Path
 from textwrap import dedent
-from types import TracebackType
 from typing import Iterator, Literal
 
 import redis
@@ -110,7 +109,24 @@ class WasmExecutor:
         allocated_memory: int | None = None,
         timeout: int = 60,
     ) -> None:
-        """Init."""
+        """Init and install provided dependencies.
+
+        Only built-in pyodide packages (see https://pyodide.org/en/stable/usage/packages-in-pyodide.html) are downloaded and cached.
+        PyPi wheels need to be manually downloaded and added to the `./cached_wheels` folder if you plan running without net access.
+        With net access, no need for manual download. Built in pyodide packages can be references by package name.
+        Pure python 3 wheels from PyPi that have been manually added must be referenced through micropip's reference mechanism:
+        "file:/path/to/the/wheel.whl."
+        Example:
+        ```python
+        import asyncio
+
+        executor = WasmExecutor(additional_imports=["numpy", "file:./cached_wheels/plotly-6.5.0-py3-none-any.whl"])
+        code = \"""import plotly; print('Hello world')\"""
+        executed = asyncio.run(executor.run_code(code))
+        ```
+        The example assumes the plotly wheel has been manually downloaded and put it in the folder ./cached_wheels/plotly-6.5.0-py3-none-any.whl
+        Note: The wheel filename doesn't matter - micropip reads package metadata from the wheel file itself.
+        """  # noqa: D300
         self.additional_imports = additional_imports
         self.logger = logger
         self.deno_path = deno_path
@@ -130,24 +146,7 @@ class WasmExecutor:
                 f"--v8-flags=--max-old-space-size={allocated_memory}"
             )
 
-    def __enter__(self) -> "WasmExecutor":
-        """Install provided dependencies. Use the class as a context manager to cache the wheels.
-
-        Only built-in pyodide packages (see https://pyodide.org/en/stable/usage/packages-in-pyodide.html) are downloaded and cached.
-        PyPi wheels need to be manually downloaded and added to the `./cached_wheels` folder if you plan running without net access.
-        With net access, no need for manual download. Built in pyodide packages can be references by package name.
-        Pure python 3 wheels from PyPi that have been manually added must be referenced through micropip's reference mechanism:
-        "file:/path/to/the/wheel.whl."
-        Example:
-        ```python
-        import asyncio
-
-        with WasmExecutor(additional_imports=["numpy", "file:./cached_wheels/plotly-wheel.wlh"]) as executor:
-            code = \"""import plotly; print('Hello world')\"""
-            executed = asyncio.run(executor.run_code(code))
-        ```
-        The example assumes the plotly wheel has been manually downloaded and put it in the folder ./cached_wheels/plotly-wheel.wlh
-        """  # noqa: D300
+        # Install provided dependencies (previously in __enter__)
         with tempfile.TemporaryDirectory(prefix="pyodide_deno_") as runner_dir:
             runner_path = Path(runner_dir) / "pyodide_runner.js"
             deno_permissions = [  # Allow fetching + caching packages
@@ -184,16 +183,6 @@ class WasmExecutor:
                 text=True,
                 timeout=self.timeout,
             )
-            return self
-
-    def __exit__(
-        self,
-        exc_type: type[BaseException] | None,
-        exc_value: BaseException | None,
-        traceback: TracebackType | None,
-    ) -> Literal[False]:
-        """Exit context manager."""
-        return False
 
     async def run_code(self, code: str) -> SuccessOutput | FailureOutput:
         """

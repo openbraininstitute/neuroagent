@@ -115,15 +115,12 @@ def init_worker_resources(**kwargs: Any) -> None:
         )
         imports += [f"file:{wheel.absolute()}" for wheel in extra_wheel_list]
 
-    # Initialize and set up the executor (equivalent to __enter__)
+    # Initialize and set up the executor (package installation happens in __init__)
     executor = WasmExecutor(
         additional_imports=imports,
         allocated_memory=settings.executor.deno_allocated_memory,
         logger=logger,
     )
-    # Run the setup (equivalent to __enter__)
-    with executor:
-        pass  # The __enter__ does the setup, we just need to call it
 
     # Store in module-level variable for reuse
     _python_executor = executor
