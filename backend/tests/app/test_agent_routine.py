@@ -12,7 +12,7 @@ from openai.types.chat.chat_completion_chunk import (
 )
 from pydantic import BaseModel
 
-from neuroagent.agent_routine import AgentsRoutine
+from neuroagent.app.agent_routine import AgentsRoutine
 from neuroagent.app.database.sql_schemas import Entity, Messages, ToolCalls
 from neuroagent.new_types import Agent, Response, Result
 from tests.mock_client import create_mock_response
@@ -598,7 +598,7 @@ class TestAgentsRoutine:
 
         tokens = []
         with patch(
-            "neuroagent.agent_routine.AgentsRoutine.get_chat_completion",
+            "neuroagent.app.agent_routine.AgentsRoutine.get_chat_completion",
             new=return_iterator,
         ):
             async for token in routine.astream(

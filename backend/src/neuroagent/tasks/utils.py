@@ -1,43 +1,86 @@
-"""Sandboxed python executor."""
+"""Utility functions for Celery tasks."""
 
-import asyncio
 import json
 import logging
 import subprocess  # nosec: B404
 import tempfile
+from contextlib import contextmanager
 from pathlib import Path
 from textwrap import dedent
-from types import TracebackType
-from typing import Any, Literal
+from typing import Iterator, Literal
 
-from pydantic import BaseModel
+import redis
+
+from neuroagent.task_schemas import ErrorDetail, FailureOutput, SuccessOutput
+
+logger = logging.getLogger(__name__)
 
 LoggingLevel = Literal[
     "debug", "info", "notice", "warning", "error", "critical", "alert", "emergency"
 ]
 
 
-class SuccessOutput(BaseModel):
-    """Output of the python script."""
+@contextmanager
+def task_stream_notifier(redis_client: redis.Redis, task_id: str) -> Iterator[None]:
+    """Context manager that automatically publishes task completion to Redis stream.
 
-    status: Literal["success"] = "success"
-    output: list[str]
-    return_value: Any = None
+    This context manager wraps task execution and automatically publishes
+    "done" status to Redis stream on successful completion, or "error" status
+    on exception. The stream key is `task:{task_id}:progress`.
 
+    Parameters
+    ----------
+    redis_client : redis.Redis
+        The Redis client instance (sync, since tasks run in sync context)
+    task_id : str
+        The Celery task ID
 
-class ErrorDetail(BaseModel):
-    """Detail fo the python error."""
+    Yields
+    ------
+    None
+        The context manager yields control to the task code
 
-    message: str | None = None
-    name: str | None = None
+    Example
+    -------
+    >>> with task_stream_notifier(redis_client, task_id):
+    ...     # Your task code here
+    ...     result = do_work()
+    ...     return result
+    """
+    stream_key = f"task:{task_id}:progress"
 
+    try:
+        yield
+        # If we get here, task completed successfully
+        try:
+            redis_client.xadd(
+                stream_key,
+                {"status": "done"},
+                maxlen=1,  # Keep only the latest message
+            )
+            redis_client.expire(stream_key, 86400)  # Set TTL to 1 day
+            logger.info(f"Published done status to stream {stream_key}")
+        except Exception as e:
+            logger.warning(f"Failed to publish done status to stream: {e}")
 
-class FailureOutput(BaseModel):
-    """Output of the python script."""
+    except Exception as e:
+        # Task failed, publish error status
+        error_message = str(e)
+        try:
+            redis_client.xadd(
+                stream_key,
+                {"status": "error", "error": error_message},
+                maxlen=1,
+            )
+            redis_client.expire(stream_key, 86400)  # Set TTL to 1 day
+            logger.info(
+                f"Published error status to stream {stream_key}: {error_message}"
+            )
+        except Exception as stream_error:
+            logger.warning(f"Failed to publish error status to stream: {stream_error}")
 
-    status: Literal["error"] = "error"
-    error_type: Literal["install-error", "python-error"]
-    error: ErrorDetail | str | None = None
+        # Re-raise the original exception
+        raise
 
 
 class WasmExecutor:
@@ -65,7 +108,22 @@ class WasmExecutor:
         allocated_memory: int | None = None,
         timeout: int = 60,
     ) -> None:
-        """Init."""
+        """Init and install provided dependencies.
+
+        Only built-in pyodide packages (see https://pyodide.org/en/stable/usage/packages-in-pyodide.html) are downloaded and cached.
+        PyPi wheels need to be manually downloaded and added to the `./cached_wheels` folder if you plan running without net access.
+        With net access, no need for manual download. Built in pyodide packages can be references by package name.
+        Pure python 3 wheels from PyPi that have been manually added must be referenced through micropip's reference mechanism:
+        "file:/path/to/the/wheel.whl."
+        Example:
+        ```python
+        executor = WasmExecutor(additional_imports=["numpy", "file:./cached_wheels/plotly-6.5.0-py3-none-any.whl"])
+        code = \"""import plotly; print('Hello world')\"""
+        executed = executor.run_code_sync(code)
+        ```
+        The example assumes the plotly wheel has been manually downloaded and put it in the folder ./cached_wheels/plotly-6.5.0-py3-none-any.whl
+        Note: The wheel filename doesn't matter - micropip reads package metadata from the wheel file itself.
+        """  # noqa: D300
         self.additional_imports = additional_imports
         self.logger = logger
         self.deno_path = deno_path
@@ -85,24 +143,7 @@ class WasmExecutor:
                 f"--v8-flags=--max-old-space-size={allocated_memory}"
             )
 
-    def __enter__(self) -> "WasmExecutor":
-        """Install provided dependencies. Use the class as a context manager to cache the wheels.
-
-        Only built-in pyodide packages (see https://pyodide.org/en/stable/usage/packages-in-pyodide.html) are downloaded and cached.
-        PyPi wheels need to be manually downloaded and added to the `./cached_wheels` folder if you plan running without net access.
-        With net access, no need for manual download. Built in pyodide packages can be references by package name.
-        Pure python 3 wheels from PyPi that have been manually added must be referenced through micropip's reference mechanism:
-        "file:/path/to/the/wheel.whl."
-        Example:
-        ```python
-        import asyncio
-
-        with WasmExecutor(additional_imports=["numpy", "file:./cached_wheels/plotly-wheel.wlh"]) as executor:
-            code = \"""import plotly; print('Hello world')\"""
-            executed = asyncio.run(executor.run_code(code))
-        ```
-        The example assumes the plotly wheel has been manually downloaded and put it in the folder ./cached_wheels/plotly-wheel.wlh
-        """  # noqa: D300
+        # Install provided dependencies (previously in __enter__)
         with tempfile.TemporaryDirectory(prefix="pyodide_deno_") as runner_dir:
             runner_path = Path(runner_dir) / "pyodide_runner.js"
             deno_permissions = [  # Allow fetching + caching packages
@@ -139,20 +180,10 @@ class WasmExecutor:
                 text=True,
                 timeout=self.timeout,
             )
-            return self
 
-    def __exit__(
-        self,
-        exc_type: type[BaseException] | None,
-        exc_value: BaseException | None,
-        traceback: TracebackType | None,
-    ) -> Literal[False]:
-        """Exit context manager."""
-        return False
-
-    async def run_code(self, code: str) -> SuccessOutput | FailureOutput:
+    def run_code_sync(self, code: str) -> SuccessOutput | FailureOutput:
         """
-        Execute Python code in the Pyodide environment and return the result.
+        Execute Python code in the Pyodide environment and return the result (synchronous version).
 
         Parameters
         ----------
@@ -183,30 +214,28 @@ class WasmExecutor:
 
             cmd = [self.deno_path, "run"] + permission + [runner_path]
 
-            # Run the cmd in a subprocess
-            process = await asyncio.create_subprocess_exec(  # nosec: B603
-                *cmd,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-            )
-
-            # Use communicate() to wait for process and read all output
+            # Run the cmd in a subprocess (synchronous)
             try:
-                stdout, stderr = await asyncio.wait_for(
-                    process.communicate(), timeout=self.timeout
+                result = subprocess.run(  # nosec: B603
+                    cmd,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE,
+                    text=True,
+                    timeout=self.timeout,
                 )
-            except asyncio.TimeoutError:
-                process.kill()
-                raise
+            except subprocess.TimeoutExpired:
+                raise ValueError(
+                    f"Code execution timed out after {self.timeout} seconds"
+                )
 
             # Check for execution errors
-            if stderr:
-                return FailureOutput(error_type="install-error", error=stderr.decode())
+            if result.stderr:
+                return FailureOutput(error_type="install-error", error=result.stderr)
 
             # Parse stdout into lines
             events = []
-            if stdout:
-                lines = stdout.decode().split("\n")
+            if result.stdout:
+                lines = result.stdout.split("\n")
                 for line in lines:
                     text = line.rstrip("\r")
                     if text:  # Skip empty lines

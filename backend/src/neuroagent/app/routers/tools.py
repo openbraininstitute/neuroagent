@@ -10,7 +10,7 @@ from pydantic import ValidationError
 from pydantic.json_schema import SkipJsonSchema
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from neuroagent.agent_routine import AgentsRoutine
+from neuroagent.app.agent_routine import AgentsRoutine
 from neuroagent.app.database.sql_schemas import Entity, Messages, Threads, ToolCalls
 from neuroagent.app.dependencies import (
     get_agents_routine,

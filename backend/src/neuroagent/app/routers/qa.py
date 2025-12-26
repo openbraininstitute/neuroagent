@@ -21,9 +21,10 @@ from redis import asyncio as aioredis
 from sqlalchemy import desc, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from neuroagent.agent_routine import AgentsRoutine
+from neuroagent.app.agent_routine import AgentsRoutine
 from neuroagent.app.app_utils import (
     commit_messages,
+    messages_to_openai_content,
     rate_limit,
     validate_project,
 )
@@ -60,7 +61,6 @@ from neuroagent.tools.context_analyzer_tool import (
     ContextAnalyzerMetdata,
     ContextAnalyzerTool,
 )
-from neuroagent.utils import messages_to_openai_content
 
 router = APIRouter(prefix="/qa", tags=["Run the agent"])
 
@@ -78,7 +78,7 @@ async def question_suggestions(
     openai_client: Annotated[AsyncOpenAI, Depends(get_openai_client)],
     settings: Annotated[Settings, Depends(get_settings)],
     user_info: Annotated[UserInfo, Depends(get_user_info)],
-    redis_client: Annotated[aioredis.Redis | None, Depends(get_redis_client)],
+    redis_client: Annotated[aioredis.Redis, Depends(get_redis_client)],
     fastapi_response: Response,
     session: Annotated[AsyncSession, Depends(get_session)],
     tool_list: Annotated[list[type[BaseTool]], Depends(get_tool_list)],
@@ -108,6 +108,7 @@ async def question_suggestions(
         limit=limit,
         expiry=settings.rate_limiter.expiry_suggestions,
         user_sub=user_info.sub,
+        disabled=settings.rate_limiter.disabled,
     )
     if rate_limited:
         raise HTTPException(
@@ -302,7 +303,7 @@ async def get_available_LLM_models(
 @router.post("/chat_streamed/{thread_id}")
 async def stream_chat_agent(
     user_request: ClientRequest,
-    redis_client: Annotated[aioredis.Redis | None, Depends(get_redis_client)],
+    redis_client: Annotated[aioredis.Redis, Depends(get_redis_client)],
     settings: Annotated[Settings, Depends(get_settings)],
     thread: Annotated[Threads, Depends(get_thread)],
     agents_routine: Annotated[AgentsRoutine, Depends(get_agents_routine)],
@@ -322,6 +323,7 @@ async def stream_chat_agent(
         limit=settings.rate_limiter.limit_chat,
         expiry=settings.rate_limiter.expiry_chat,
         user_sub=thread.user_id,
+        disabled=settings.rate_limiter.disabled,
     )
     if rate_limited:
         # Outside of vlab, cannot send requests anymore

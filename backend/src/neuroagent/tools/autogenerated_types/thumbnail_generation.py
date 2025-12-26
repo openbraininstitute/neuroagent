@@ -87,7 +87,6 @@ class ProcessSomaApiThumbnailGenerationSomaProcessNexusSwcGetParametersQuery(Bas
 
 
 class HealthApiThumbnailGenerationHealthGetResponse(BaseModel):
-    pass
     model_config = ConfigDict(
         extra='allow',
     )

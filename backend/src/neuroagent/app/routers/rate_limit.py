@@ -26,8 +26,8 @@ async def get_rate_limit(
     project_id: uuid.UUID | None = None,
 ) -> RateLimitOutput:
     """Let the user know about its current rate limits."""
-    # Default response if redis is deactivated
-    if redis_client is None:
+    # Default response if rate limiting is disabled
+    if settings.rate_limiter.disabled:
         return RateLimitOutput(
             chat_streamed=RateLimitInfo(limit=-1, remaining=-1, reset_in=-1),
             question_suggestions=RateLimitInfo(limit=-1, remaining=-1, reset_in=-1),

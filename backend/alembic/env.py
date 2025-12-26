@@ -7,7 +7,7 @@ from sqlalchemy import engine_from_config, pool
 from alembic import context
 
 # Load environment variables from .env file
-load_dotenv()
+load_dotenv(".env.app")
 
 # Import your Base class
 from neuroagent.app.database.sql_schemas import Base
