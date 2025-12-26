@@ -1,6 +1,5 @@
 """Utility functions for Celery tasks."""
 
-import asyncio
 import json
 import logging
 import subprocess  # nosec: B404
@@ -118,11 +117,9 @@ class WasmExecutor:
         "file:/path/to/the/wheel.whl."
         Example:
         ```python
-        import asyncio
-
         executor = WasmExecutor(additional_imports=["numpy", "file:./cached_wheels/plotly-6.5.0-py3-none-any.whl"])
         code = \"""import plotly; print('Hello world')\"""
-        executed = asyncio.run(executor.run_code(code))
+        executed = executor.run_code_sync(code)
         ```
         The example assumes the plotly wheel has been manually downloaded and put it in the folder ./cached_wheels/plotly-6.5.0-py3-none-any.whl
         Note: The wheel filename doesn't matter - micropip reads package metadata from the wheel file itself.
@@ -182,92 +179,6 @@ class WasmExecutor:
                 stderr=subprocess.PIPE,
                 text=True,
                 timeout=self.timeout,
-            )
-
-    async def run_code(self, code: str) -> SuccessOutput | FailureOutput:
-        """
-        Execute Python code in the Pyodide environment and return the result.
-
-        Parameters
-        ----------
-            code (`str`): Python code to execute.
-
-        Returns
-        -------
-            `SuccessOutput | FailureOutput`: Code output containing the result and logs or potential errors.
-        """
-        with tempfile.TemporaryDirectory(prefix="pyodide_deno_") as runner_dir:
-            runner_path = Path(runner_dir) / "pyodide_runner.js"
-            # Create the JavaScript runner file
-            with open(runner_path, "w") as f:
-                f.write(
-                    self.JS_CODE.format(
-                        packages=self.additional_imports, code=json.dumps(code)
-                    )
-                )
-            # Add read permission to tempdir
-            permission = []
-            for perm in self.deno_permissions:
-                if "--allow-read" in perm:
-                    allowed_read_dir = perm.split("=")[-1].split(",")
-                    allowed_read_dir.append(runner_dir)
-                    permission.append(f"--allow-read={','.join(allowed_read_dir)}")
-                else:
-                    permission.append(perm)
-
-            cmd = [self.deno_path, "run"] + permission + [runner_path]
-
-            # Run the cmd in a subprocess
-            process = await asyncio.create_subprocess_exec(  # nosec: B603
-                *cmd,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-            )
-
-            # Use communicate() to wait for process and read all output
-            try:
-                stdout, stderr = await asyncio.wait_for(
-                    process.communicate(), timeout=self.timeout
-                )
-            except asyncio.TimeoutError:
-                process.kill()
-                raise
-
-            # Check for execution errors
-            if stderr:
-                return FailureOutput(error_type="install-error", error=stderr.decode())
-
-            # Parse stdout into lines
-            events = []
-            if stdout:
-                lines = stdout.decode().split("\n")
-                for line in lines:
-                    text = line.rstrip("\r")
-                    if text:  # Skip empty lines
-                        events.append(text)
-                        if self.logger:
-                            self.logger.debug(text)
-
-            # No error + no stdout = Houston we have a problem
-            if not events:
-                raise ValueError("Could not retrieve outputs of the python script.")
-
-            python_outcome = events[-1]  # Last line of the js logs is the python output
-            try:
-                result_json = json.loads(python_outcome)
-            except json.JSONDecodeError:
-                raise ValueError(
-                    f"The code returned an invalid output: {python_outcome}"
-                )
-
-            if result_json["error"]:
-                return FailureOutput(
-                    error_type="python-error", error=ErrorDetail(**result_json["error"])
-                )
-
-            return SuccessOutput(
-                output=result_json["output"],
-                return_value=result_json.get("return_value"),
             )
 
     def run_code_sync(self, code: str) -> SuccessOutput | FailureOutput:
