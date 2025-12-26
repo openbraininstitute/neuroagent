@@ -399,22 +399,35 @@ async def test_get_thread_messages(
         ).json()["results"]
 
     assert messages[0]["entity"] == "user"
-    assert messages[0]["msg_content"] == {"content": "This is my query."}
+    assert messages[0]["msg_content"] == {
+        "content": "This is my query.",
+        "role": "user",
+    }
     assert messages[0]["message_id"]
     assert messages[0]["creation_date"]
 
     assert messages[1]["entity"] == "ai_tool"
-    assert messages[1]["msg_content"] == {"content": ""}
+    assert messages[1]["msg_content"] == {
+        "content": "",
+        "role": "assistant",
+        "tool_calls": {"name": "great-tool"},
+    }
     assert messages[1]["message_id"]
     assert messages[1]["creation_date"]
 
     assert messages[2]["entity"] == "tool"
-    assert messages[2]["msg_content"] == {"content": "It's sunny today."}
+    assert messages[2]["msg_content"] == {
+        "content": "It's sunny today.",
+        "role": "tool",
+    }
     assert messages[2]["message_id"]
     assert messages[2]["creation_date"]
 
     assert messages[3]["entity"] == "ai_message"
-    assert messages[3]["msg_content"] == {"content": "sample response content."}
+    assert messages[3]["msg_content"] == {
+        "content": "sample response content.",
+        "role": "assistant",
+    }
     assert messages[3]["message_id"]
     assert messages[3]["creation_date"]
 
@@ -462,9 +475,15 @@ async def test_get_thread_messages_sort_and_filter(
 
     # Verify the filtering: first message should be from "user" and second from "tool"
     assert messages[0]["entity"] == "tool"
-    assert messages[0]["msg_content"] == {"content": "It's sunny today."}
+    assert messages[0]["msg_content"] == {
+        "content": "It's sunny today.",
+        "role": "tool",
+    }
     assert messages[1]["entity"] == "user"
-    assert messages[1]["msg_content"] == {"content": "This is my query."}
+    assert messages[1]["msg_content"] == {
+        "content": "This is my query.",
+        "role": "user",
+    }
 
     # Test sorting in descending order (newest first) and filtering for AI_TOOL and AI_MESSAGE messages.
     with app_client as app_client:
@@ -486,9 +505,16 @@ async def test_get_thread_messages_sort_and_filter(
     # Verify the filtering:
     # Assuming the newer message (by creation_date) is "ai_message"
     assert messages[0]["entity"] == "ai_tool"
-    assert messages[0]["msg_content"] == {"content": ""}
+    assert messages[0]["msg_content"] == {
+        "content": "",
+        "role": "assistant",
+        "tool_calls": {"name": "great-tool"},
+    }
     assert messages[1]["entity"] == "ai_message"
-    assert messages[1]["msg_content"] == {"content": "sample response content."}
+    assert messages[1]["msg_content"] == {
+        "content": "sample response content.",
+        "role": "assistant",
+    }
 
 
 @pytest.mark.httpx_mock(can_send_already_matched_responses=True)
@@ -529,17 +555,27 @@ async def test_get_thread_messages_paginated(
     messages_results = messages["results"]
 
     assert messages_results[2]["entity"] == "ai_tool"
-    assert messages_results[2]["msg_content"] == {"content": ""}
+    assert messages_results[2]["msg_content"] == {
+        "content": "",
+        "role": "assistant",
+        "tool_calls": {"name": "great-tool"},
+    }
     assert messages_results[2]["message_id"]
     assert messages_results[2]["creation_date"]
 
     assert messages_results[1]["entity"] == "tool"
-    assert messages_results[1]["msg_content"] == {"content": "It's sunny today."}
+    assert messages_results[1]["msg_content"] == {
+        "content": "It's sunny today.",
+        "role": "tool",
+    }
     assert messages_results[1]["message_id"]
     assert messages_results[1]["creation_date"]
 
     assert messages_results[0]["entity"] == "ai_message"
-    assert messages_results[0]["msg_content"] == {"content": "sample response content."}
+    assert messages_results[0]["msg_content"] == {
+        "content": "sample response content.",
+        "role": "assistant",
+    }
     assert messages_results[0]["message_id"]
     assert messages_results[0]["creation_date"]
 

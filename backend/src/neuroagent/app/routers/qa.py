@@ -1,9 +1,7 @@
 """Endpoints for agent's question answering pipeline."""
 
-import json
 import logging
 from contextlib import asynccontextmanager
-from datetime import datetime, timezone
 from typing import Annotated, Any, AsyncIterator
 from uuid import UUID
 
@@ -15,11 +13,12 @@ from fastapi import (
     Response,
 )
 from fastapi.responses import StreamingResponse
+from httpx import AsyncClient
 from obp_accounting_sdk import AsyncAccountingSessionFactory
 from obp_accounting_sdk.constants import ServiceSubtype
 from openai import AsyncOpenAI
 from redis import asyncio as aioredis
-from sqlalchemy import or_, select
+from sqlalchemy import desc, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from neuroagent.agent_routine import AgentsRoutine
@@ -34,6 +33,7 @@ from neuroagent.app.dependencies import (
     get_accounting_session_factory,
     get_agents_routine,
     get_context_variables,
+    get_httpx_client,
     get_openai_client,
     get_openrouter_models,
     get_redis_client,
@@ -41,19 +41,26 @@ from neuroagent.app.dependencies import (
     get_settings,
     get_starting_agent,
     get_thread,
+    get_tool_list,
     get_user_info,
 )
 from neuroagent.app.schemas import (
     OpenRouterModelResponse,
     QuestionsSuggestions,
     QuestionsSuggestionsRequest,
-    QuestionSuggestionNoMessages,
     UserInfo,
 )
 from neuroagent.new_types import (
     Agent,
     ClientRequest,
 )
+from neuroagent.tools.base_tool import BaseTool
+from neuroagent.tools.context_analyzer_tool import (
+    ContextAnalyzerInput,
+    ContextAnalyzerMetdata,
+    ContextAnalyzerTool,
+)
+from neuroagent.utils import messages_to_openai_content
 
 router = APIRouter(prefix="/qa", tags=["Run the agent"])
 
@@ -74,22 +81,16 @@ async def question_suggestions(
     redis_client: Annotated[aioredis.Redis, Depends(get_redis_client)],
     fastapi_response: Response,
     session: Annotated[AsyncSession, Depends(get_session)],
+    tool_list: Annotated[list[type[BaseTool]], Depends(get_tool_list)],
+    httpx_client: Annotated[AsyncClient, Depends(get_httpx_client)],
     body: QuestionsSuggestionsRequest,
     vlab_id: UUID | None = None,
     project_id: UUID | None = None,
 ) -> QuestionsSuggestions:
-    """Generate suggested question taking into account the user journey and the user previous messages."""
+    """Generate suggested questions based on the user's previous messages."""
     if body.thread_id is None:
         # if there is no thread ID, we simply go without messages.
         is_in_chat = False
-        if not body.click_history:
-            raise HTTPException(
-                status_code=422,
-                detail="One of 'thread_id' or 'click_history' must be provided.",
-            )
-    else:
-        # We have to call get_thread explicitely.
-        thread = await get_thread(user_info, body.thread_id, session)
 
     if vlab_id is not None and project_id is not None:
         validate_project(
@@ -130,92 +131,161 @@ async def question_suggestions(
     )
 
     if body.thread_id is not None:
-        # Get the AI and User messages from the conversation :
-        messages_result = await session.execute(
+        # Select the last 4 human/ai messages
+        result = await session.execute(
             select(Messages)
             .where(
-                Messages.thread_id == thread.thread_id,
-                or_(
-                    Messages.entity == Entity.USER,
-                    Messages.entity == Entity.AI_MESSAGE,
-                ),
+                Messages.thread_id == body.thread_id,
+                Messages.entity.in_([Entity.USER, Entity.AI_MESSAGE]),
             )
-            .order_by(Messages.creation_date)
+            .order_by(desc(Messages.creation_date))
+            .limit(4)
         )
-        db_messages = messages_result.unique().scalars().all()
 
-        is_in_chat = bool(db_messages)
-        if not is_in_chat and not body.click_history:
-            raise HTTPException(
-                status_code=404,
-                detail="The thread is empty and the 'click_history' wasn't provided.",
-            )
+        messages = list(reversed(result.scalars().all()))
+        user_ai_messages = await messages_to_openai_content(messages)
+        is_in_chat = bool(user_ai_messages)
 
+    tool_info = [f"{tool.name}: {tool.description}" for tool in tool_list]
+
+    # ====================================IN CHAT===============================================
     if is_in_chat:
-        content = f"CONVERSATION MESSAGES: \n{json.dumps([{k: v for k, v in json.loads(msg.content).items() if k in ['role', 'content']} for msg in db_messages])}"
+        content = user_ai_messages
+        system_prompt = f"""
+Guidelines:
+
+- Generate three user actions, each targeting a significantly different aspect or subtopic relevant to the main topic of the conversation. Each action should be phrased exactly as if the user is instructing the system to perform the action (e.g., "Show...", "Find...", "Analyze..."). Each action should be independent, and information contained or revealed in one action cannot be re-used, referred to, or assumed in the others. Any shared context or information must be restated in each action where necessary.
+- **CRITICAL**: Actions must be in imperative mood (commands), NOT interrogative (questions). Do NOT end actions with question marks. Actions must always be phrased strictly from the user's perspective only. Do NOT generate or rephrase actions from the LLM's perspective. Avoid any formulations such as: "Would you like me to...", "Should I analyze...", "Do you want me to...", "Would it be helpful if I...", "Shall I retrieve...", "Can you...", "What is..." etc.
+- Explore various distinct possibilities, e.g., visuals, metrics, literature, associated models, etc. Be creative.
+- Only include actions that can be performed using the available tools described below.
+- This LLM cannot call any tools; actions suggested must be based solely on the tool descriptions. Do not assume access to tools beyond what is described.
+- Focus on advancing the user's workflow and showcasing what the chat can help with. Suggest logical next steps, deeper exploration, or related topics using the available tool information. Avoid producing mere variations of previous actions.
+- Keep actions succinct and clear.
+- When evaluating which actions make sense, refer only to the tools' purposes and minimal relevant input as described in the provided list; do not call or simulate tool execution.
+- When suggesting actions, take into account any relevant entities, such as IDs, parameters, or references that have already been provided earlier in the conversation. If a tool requires such an input and it is already present and contextually appropriate, suggest actions that utilize this information directly.
+- Ensure that the three actions each address substantially different elements of the main topic, leveraging the diversity of the tool set, while still remaining contextually relevant.
+- The system does not allow export of data in any format (CSV, JSON, Excel, etc.). Do not suggest actions about exporting, downloading, or saving data to files.
+- Do not suggest actions that have already been carried out in the conversation.
+- Suggest workflows on subsets of data (max 5 elements). Do not suggest analysis or retrieval of large datasets, such as retrieving full lists of entities or resolving full hierarchies (e.g., all child brain regions). Suggested actions must only span small, manageable subsets (no more than 5 entities) to avoid triggering huge workflows. Do not suggest actions that can generate a lot of data.
+
+Tool Description Format
+- `tool_name: tool_description`
+
+Output Format
+- Output must be a JSON array (and nothing else) with exactly three strings.
+- Always return exactly three appropriate actions (never more, never less). If the conversation context or tools do not support three contextually relevant actions, produce the most logically appropriate or useful actions, ensuring the output array still contains three strings. Output must always be a JSON array, with no surrounding text or formatting.
+
+Available Tools:
+{chr(10).join(tool_info)}"""
+
+    # ====================================NOT IN CHAT===========================================
     else:
-        content = f"USER JOURNEY: \n{body.model_dump(exclude={'thread_id'}, mode='json')['click_history']}"
+        # Get current page context
+        if body.frontend_url:
+            context_tool = ContextAnalyzerTool(
+                metadata=ContextAnalyzerMetdata(current_frontend_url=body.frontend_url),
+                input_schema=ContextAnalyzerInput(),
+            )
+            try:
+                # Get current page info
+                context_output = await context_tool.arun()
 
-    messages = [
-        {
-            "role": "system",
-            "content": f"""You are a smart assistant that analyzes user behavior and conversation history to suggest {"three concise, engaging questions" if is_in_chat else "a concise, engaging question"} the user might ask next, specifically about finding relevant scientific literature.
+                # Get BR name from ID
+                if context_output.brain_region_id is not None:
+                    headers: dict[str, str] = {}
+                    if vlab_id is not None:
+                        headers["virtual-lab-id"] = str(vlab_id)
+                    if project_id is not None:
+                        headers["project-id"] = str(project_id)
 
-Platform Context:
-The Open Brain Platform provides an atlas-driven exploration of the mouse brain, offering access to:
-- Neuron morphology (axon, soma, dendrite structures)
-- Electrophysiology (electrical recordings of neuronal activity)
-- Ion channels
-- Neuron density
-- Bouton density
-- Synapse-per-connection counts
-- Electrical models ("E-models")
-- Morpho-electrical models ("ME-models")
-- Synaptome (network of neuronal connections)
+                    # Query GET ONE Brain Region in entitycore
+                    response = await httpx_client.get(
+                        url=settings.tools.entitycore.url.rstrip("/")
+                        + f"/brain-region/{context_output.brain_region_id}",
+                        headers=headers,
+                    )
+                    if response.status_code != 200:
+                        brain_region_name = None
 
-User Capabilities:
-- Explore and build digital brain models at scales ranging from molecular to whole-region circuits.
-- Customize or create new cellular-composition models.
-- Run simulations and perform data analyses.
-- Access both experimental and model data.
+                    brain_region_name = response.json()["name"]
+                else:
+                    brain_region_name = None
 
-User Journey Format:
-- User journey is a list of clicks performed by the user.
-- Each click represent the brain region and artifact the user was viewing. The timestamp of the click is added.
-- Artifacts may include:
-  * Morphology
-  * Electrophysiology
-  * Neuron density
-  * Bouton density
-  * Synapse per connection
-  * E-model
-  * ME-model
-  * Synaptome
+                # Dump page context
+                context_output_json = context_output.model_dump(
+                    mode="json", exclude={"raw_path", "query_params"}
+                )
 
-Task:
-{"Using the user's latest messages, generate three short, literature-focused questions they might ask next." if is_in_chat else "Based on the user's navigation history, generate a short, literature-focused question about the last brain region they visited."}
+                # Add resolved BR name. Even if `None` it carries info
+                context_output_json["brain_region_name"] = brain_region_name
 
-Each question must:
-- Directly relate to searching for scientific papers.
-- Be clear, concise, and easy to understand.
-- Focus exclusively on literature retrieval.
-{"" if is_in_chat else "- Specifically focus on the most recently visited brain region in the user journey."}
+                context_info = f"\nCurrent page context: {context_output_json}"
+            except Exception:
+                context_info = ""
+        else:
+            context_info = ""
 
-The upcoming user message will either prepend its content with 'CONVERSATION MESSAGES:' indicating that messages from the conversation are dumped, or 'USER JOURNEY:' indicating that the navigation history is dumped.
+        content = [
+            {
+                "role": "user",
+                "content": context_info,
+            }
+        ]
+        system_prompt = f"""
+Guidelines:
+- Generate three user actions based on the user's current location, each action targeting a distinctly different aspect. Each action must be written as a natural, conversational command a user would say (e.g., "Show me...", "Find papers about...", "Analyze the...", "Compare...", "Visualize...").
+- **CRITICAL**: Actions must use the imperative mood (commands), not interrogative (questions). Do not end actions with question marks. User actions must always be worded from the user's perspective only, never rephrase from the LLM or system's viewpoint. Avoid phrases such as: "Would you like me to...", "Should I analyze...", "Do you want me to...", "Can you...", "What is..." etc.
+- Use conversational, natural phrasing that sounds like how real users speak. Prefer phrases like "Show me...", "Find...", "Get...", "Compare...", "Visualize..." and avoid robotic or stiff language.
+- At least one action MUST be literature-related (such as searching for papers or finding publications).
+- For non-literature actions, focus on the current page context provided in the user message.
+- Explore a diverse set of possibilities: visuals, metrics, literature, related models, etc. Apply creativity and use the variety of tools available.
+- Only include actions possible with the provided toolset. Reference only described tool capabilities and minimal required inputs, and do not simulate tool responses.
+- The LLM cannot execute tools directly; base all actions on tool descriptions alone. Do not assume access to tools beyond their described capabilities.
+- Focus on demonstrating what the chat can help with based on the user's current page. Explore creative options based on available tools.
+- Keep actions succinct and clear.
+- When selecting actions, refer only to described tool purposes and minimal required inputs. Do not simulate or mimic tool usage.
+- If the current page context contains entity IDs or other parameters, explicitly state these values in the action text for clarity.
+- Refer to brain regions by their names (e.g., "Somatosensory cortex", "Hippocampus"), never by their IDs.
+- Ignore any page context information with value `None` or `null`; do not use such values in suggested actions.
+- Ensure all three actions cover substantially different features or elements, making use of the tool set's diversity.
+- Do not suggest actions involving exporting, downloading, or saving data/files (e.g., CSV, JSON, Excel).
+- Suggest workflows on subsets of data (max 5 elements). Do not suggest analysis of large datasets, such as full hierarchies. Do not suggest actions that can generate a lot of data.
 
-Important: Weight the user clicks depending on how old they are. The more recent clicks should be given a higher importance. The current date and time is {datetime.now(timezone.utc).isoformat()}.""",
-        },
-        {"role": "user", "content": content},
-    ]
+Tool Description Format
+- `tool_name: tool_description`
 
-    response = await openai_client.beta.chat.completions.parse(
-        messages=messages,  # type: ignore
-        model=settings.llm.suggestion_model,
-        response_format=QuestionsSuggestions
-        if is_in_chat
-        else QuestionSuggestionNoMessages,
-    )
+Input format:
+- Current page context with fields:
+- `observed_entity_type`: Type of entity being viewed. `None` means a general page.
+- `current_entity_id`: UUID of the specific entity being viewed. (`brain_region_id` is NOT an entity ID.) `None` means a list/overview page.
+- `brain_region_id`: This identifies the selected brain region but is not an entity ID. `None` means no region filter is active.
+- `brain_region_name`: Name of the brain region with this ID. `None` means that the name resolving could not be performed from the ID
 
+Typical action patterns:
+- If `current_entity_id` is present: Suggest actions to analyze, visualize, or get more details about that specific entity (mention the entity ID explicitly. The entity ID is NOT `brain_region_id`.).
+- If `current_entity_id` is None but `observed_entity_type` is present: Suggest actions to search, filter, or retrieve entities of that type.
+- If `brain_region_name` is present: Suggest actions about that brain region by name (e.g., find related entities in the region, search literature about it etc...).
+- If most fields are None, or there is no user input: Suggest exploratory actions to help users discover available data or features.
+- For the literature-related action, use only high-level concepts or keywords from the current page context (e.g., page topics, regions, or scientific terms), not database-specific IDs.
+- The remaining two actions must focus on features or data available from the current page context.
+
+Output format:
+- Output must strictly be a JSON array containing exactly three user action strings (never more, never less); do not return any surrounding text, commentary, or formatting.
+- After producing the actions, briefly validate that all requirements are satisfied (distinctness, literature, page context, tool set limits) before finalizing the output.
+
+Tool description:
+{chr(10).join(tool_info)}"""
+
+    messages = [{"role": "system", "content": system_prompt}, *content]  # type: ignore
+    parse_kwargs = {
+        "messages": messages,
+        "model": settings.llm.suggestion_model,
+        "response_format": QuestionsSuggestions,
+    }
+    if "gpt-5" in settings.llm.suggestion_model:
+        parse_kwargs["reasoning_effort"] = "minimal"
+
+    response = await openai_client.beta.chat.completions.parse(**parse_kwargs)  # type: ignore
     return response.choices[0].message.parsed  # type: ignore
 
 

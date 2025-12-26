@@ -4,7 +4,7 @@ import datetime
 from typing import Any, Generic, Literal, TypeVar
 from uuid import UUID
 
-from pydantic import AwareDatetime, BaseModel, ConfigDict, Field, conlist
+from pydantic import AwareDatetime, BaseModel, ConfigDict, Field
 
 
 class ToolCallVercel(BaseModel):
@@ -212,17 +212,7 @@ class PaginatedResponse(BaseModel, Generic[T]):
 class QuestionsSuggestions(BaseModel):
     """All suggested questions by the LLM when there are already messages."""
 
-    suggestions: list[Question] = conlist(  # type: ignore
-        item_type=Question, min_length=3, max_length=3
-    )
-
-
-class QuestionSuggestionNoMessages(BaseModel):
-    """One suggested questions by the LLM without messages in chat."""
-
-    suggestions: list[Question] = conlist(  # type: ignore
-        item_type=Question, min_length=1, max_length=1
-    )
+    suggestions: list[Question] = Field(min_length=3, max_length=3)
 
 
 class UserJourney(BaseModel):
@@ -238,6 +228,7 @@ class QuestionsSuggestionsRequest(BaseModel):
 
     click_history: list[UserJourney] | None = None
     thread_id: str | None = None
+    frontend_url: str | None = None
 
 
 class Architecture(BaseModel):

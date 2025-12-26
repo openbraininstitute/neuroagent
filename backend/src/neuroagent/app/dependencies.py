@@ -563,10 +563,13 @@ async def filtered_tools(
             selected.tool_name
             for selected in await last_user_message.awaitable_attrs.tool_selection
         ]
+        last_message_model_selection = (
+            await last_user_message.awaitable_attrs.model_selection
+        )
         previous_model_and_reasoning: dict[str, str | None] = {
-            "model": last_user_message.model_selection.model,
-            "reasoning": last_user_message.model_selection.reasoning.value
-            if last_user_message.model_selection.reasoning
+            "model": last_message_model_selection.model,
+            "reasoning": last_message_model_selection.reasoning.value
+            if last_message_model_selection.reasoning
             else None,
         }
         return [

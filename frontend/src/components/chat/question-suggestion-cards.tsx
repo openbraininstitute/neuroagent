@@ -34,8 +34,11 @@ export default function QuestionSuggestionCards({
     suggestions !== null && suggestions.suggestions !== undefined
       ? {
           suggestions: [
-            ...defaultQuestions.suggestions.slice(0, -1),
-            suggestions.suggestions[0],
+            ...defaultQuestions.suggestions.slice(
+              0,
+              -suggestions.suggestions.length,
+            ),
+            ...suggestions.suggestions,
           ],
         }
       : defaultQuestions;
