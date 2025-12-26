@@ -20,7 +20,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession
 from starlette.status import HTTP_401_UNAUTHORIZED
 
-from neuroagent.agent_routine import AgentsRoutine
+from neuroagent.app.agent_routine import AgentsRoutine
 from neuroagent.app.app_utils import (
     filter_tools_and_model_by_conversation,
     validate_project,

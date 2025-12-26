@@ -21,7 +21,7 @@ from redis import asyncio as aioredis
 from sqlalchemy import desc, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from neuroagent.agent_routine import AgentsRoutine
+from neuroagent.app.agent_routine import AgentsRoutine
 from neuroagent.app.app_utils import (
     commit_messages,
     messages_to_openai_content,
