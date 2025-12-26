@@ -84,7 +84,7 @@ def run(self: Task, arg: MyTaskInput) -> MyTaskOutput:
 Add the task import to `backend/src/neuroagent/tasks/__init__.py` so that Celery's autodiscovery can find it:
 
 ```python
-from neuroagent.tasks.my_task import run as run_my_task  # noqa: F401
+from neuroagent.tasks.my_task import run as run_my_task
 
 __all__ = [
     "run_my_task",
@@ -93,7 +93,7 @@ __all__ = [
 ```
 
 **Key points:**
-- Import the task function (using `# noqa: F401` to suppress unused import warnings)
+- Import the task function
 - Add it to `__all__` for explicit exports
 - This allows Celery's `autodiscover_tasks()` to find and register your task
 
