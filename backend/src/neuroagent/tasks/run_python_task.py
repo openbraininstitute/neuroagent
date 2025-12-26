@@ -2,7 +2,6 @@
 
 import json
 import logging
-import uuid
 
 from celery import Task
 
@@ -100,21 +99,17 @@ def run(self: Task, arg: RunPythonTaskInput) -> RunPythonTaskOutput:
 
                 # If we have figures, save them to the storage
                 if fig_list:
-                    # Convert user_id and thread_id to UUID
-                    user_id_uuid = uuid.UUID(arg.user_id)
-                    thread_id_uuid = uuid.UUID(arg.thread_id)
-
                     # Save individual jsons to storage
                     for plot_json in fig_list:
                         identifiers.append(
                             save_to_storage(
                                 s3_client=s3_client,
                                 bucket_name=bucket_name,
-                                user_id=user_id_uuid,
+                                user_id=arg.user_id,
                                 content_type="application/json",
                                 body=plot_json,
                                 category="json",
-                                thread_id=thread_id_uuid,
+                                thread_id=arg.thread_id,
                             )
                         )
 

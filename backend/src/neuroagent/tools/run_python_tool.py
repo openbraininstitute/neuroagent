@@ -102,15 +102,15 @@ AVAILABLE LIBRARIES:
         # Create task input with all required metadata
         task_input = RunPythonTaskInput(
             python_script=self.input_schema.python_script,
-            user_id=str(self.metadata.user_id),
-            thread_id=str(self.metadata.thread_id),
+            user_id=self.metadata.user_id,
+            thread_id=self.metadata.thread_id,
         )
 
         # Submit task to Celery
         celery_client = self.metadata.celery_client
         redis_client = self.metadata.redis_client
         task_result = celery_client.send_task(
-            "run_python_task", args=[task_input.model_dump()]
+            "run_python_task", args=[task_input.model_dump(mode="json")]
         )
         logger.info(f"Submitted run_python_task with ID: {task_result.id}")
 

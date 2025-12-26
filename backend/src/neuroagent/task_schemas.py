@@ -1,6 +1,7 @@
 """Pydantic schemas for Celery tasks."""
 
 from typing import Any, Literal
+from uuid import UUID
 
 from pydantic import BaseModel
 
@@ -32,8 +33,8 @@ class RunPythonTaskInput(BaseModel):
     """Input schema for run_python task."""
 
     python_script: str
-    user_id: str
-    thread_id: str
+    user_id: UUID
+    thread_id: UUID
 
 
 class RunPythonTaskOutput(BaseModel):
