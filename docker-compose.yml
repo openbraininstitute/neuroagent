@@ -4,7 +4,7 @@ services:
       context: ./backend
       dockerfile: Dockerfile.app
     ports:
-      - "8000:8000"
+      - "8078:8078"
     env_file:
       - ./backend/.env.app
     environment:
@@ -40,11 +40,11 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
       args:
-        - NEXT_PUBLIC_BACKEND_URL=http://localhost:8000
+        - NEXT_PUBLIC_BACKEND_URL=http://localhost:8078
     environment:
       - NEXTAUTH_URL=http://localhost:3000
       - NEXTAUTH_SECRET=${NEXTAUTH_SECRET}
-      - SERVER_SIDE_BACKEND_URL=http://app:8000
+      - SERVER_SIDE_BACKEND_URL=http://app:8078
       - KEYCLOAK_ISSUER=${KEYCLOAK_ISSUER}
       - KEYCLOAK_SECRET=${KEYCLOAK_SECRET}
       - KEYCLOAK_ID=${KEYCLOAK_ID}

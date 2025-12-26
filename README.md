@@ -30,7 +30,7 @@ docker exec -it neuroagent-minio-1 mc alias set myminio http://minio:9000 minioa
 
 The `docker-compose.yml` defines the following services:
 
-- **`app`**: The FastAPI backend application (port 8000)
+- **`app`**: The FastAPI backend application (port 8078)
 - **`tasks`**: Celery worker for executing background tasks (Python code execution, circuit analysis, etc.)
 - **`frontend`**: Next.js frontend application (port 3000)
 - **`postgres`**: PostgreSQL database (port 5432)
