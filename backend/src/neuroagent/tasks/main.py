@@ -36,7 +36,6 @@ celery.autodiscover_tasks(["neuroagent.tasks"])
 # These are initialized once per worker process via the signal handler
 _python_executor: WasmExecutor | None = None
 _s3_client: Any | None = None
-_bucket_name: str = "neuroagent"
 
 
 def get_python_executor() -> WasmExecutor | None:
@@ -89,7 +88,7 @@ def init_worker_resources(**kwargs: Any) -> None:
     These resources are stored in module-level variables and reused
     across all tasks in the same worker process.
     """
-    global _python_executor, _s3_client, _bucket_name
+    global _python_executor, _s3_client
 
     logger.info("Initializing worker resources...")
 
@@ -151,5 +150,4 @@ def init_worker_resources(**kwargs: Any) -> None:
         aws_session_token=None,
         config=boto3.session.Config(signature_version="s3v4"),
     )
-    _bucket_name = settings.storage.bucket_name
     logger.info("S3 client initialized successfully")
