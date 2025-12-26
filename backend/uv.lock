@@ -919,7 +919,7 @@ wheels = [
 
 [[package]]
 name = "datamodel-code-generator"
-version = "0.40.0"
+version = "0.49.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "argcomplete" },
@@ -933,9 +933,9 @@ dependencies = [
     { name = "pyyaml" },
     { name = "tomli", marker = "python_full_version < '3.12'" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/fe/dc/7991dd4b6c1b02f72307e8229864ce5eb8bc4d781e083010290e9d8e3210/datamodel_code_generator-0.40.0.tar.gz", hash = "sha256:e3be14bdc857a6f3ec8e3e2f3c6eeea57c2b2b135020c6613734b376ce5f7377", size = 456159, upload-time = "2025-12-03T19:54:31.249Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/7b/92/738536021ea6b0ec7cc080bb0fa149b52e908b662ea03aac9462c7b02d7c/datamodel_code_generator-0.49.0.tar.gz", hash = "sha256:eb4a95ee21c10f7675982f8b7d92344971b9a5e4c34c89b54652f8576b3a604b", size = 695361, upload-time = "2025-12-25T02:19:50.164Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/3b/a8/04faa5bea6640525700a0f85c4e8f12bcc99ae775904977d2ccc72f0e824/datamodel_code_generator-0.40.0-py3-none-any.whl", hash = "sha256:93d44c665ad2ea445ffd6e59ac93d4d610c997e17b0271c47207acdf444aa929", size = 153945, upload-time = "2025-12-03T19:54:29.724Z" },
+    { url = "https://files.pythonhosted.org/packages/2b/e4/c59fd088850a8d35085d7ba90fe70098096da152600a96b9ba260740b76c/datamodel_code_generator-0.49.0-py3-none-any.whl", hash = "sha256:0c24d21b7a3103a89a324be48bbcac3fed1fd2f22804de8589e589f2c93d9dc0", size = 214650, upload-time = "2025-12-25T02:19:48.255Z" },
 ]
 
 [[package]]
@@ -2224,6 +2224,7 @@ source = { editable = "." }
 dependencies = [
     { name = "boto3" },
     { name = "celery" },
+    { name = "datamodel-code-generator" },
     { name = "httpx" },
     { name = "openai" },
     { name = "pydantic" },
@@ -2274,6 +2275,7 @@ requires-dist = [
     { name = "boto3" },
     { name = "celery", specifier = ">=5.5.3" },
     { name = "colorama", marker = "extra == 'dev'", specifier = ">=0.4.6" },
+    { name = "datamodel-code-generator", specifier = "==0.49.0" },
     { name = "datamodel-code-generator", marker = "extra == 'dev'", specifier = ">=0.40.0" },
     { name = "deepeval", marker = "extra == 'dev'", specifier = ">=3.6.6" },
     { name = "duckdb", marker = "extra == 'tasks'", specifier = ">=1.4.2" },
