@@ -169,13 +169,13 @@ def agent_handoff_tool():
 
 @pytest.fixture(autouse=True, scope="session")
 def dont_look_at_app_env_file():
-    """Never look inside of the .env when running unit tests."""
+    """Never look inside of the .env.app when running unit tests."""
     Settings.model_config["env_file"] = None
 
 
 @pytest.fixture(autouse=True, scope="session")
 def dont_look_at_tasks_env_file():
-    """Never look inside of the .env when running unit tests."""
+    """Never look inside of the .env.tasks when running unit tests."""
     SettingsTasks.model_config["env_file"] = None
 
 

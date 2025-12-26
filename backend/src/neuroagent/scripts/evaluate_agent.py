@@ -644,7 +644,7 @@ async def run_eval(
 
 
 if __name__ == "__main__":
-    load_dotenv()
+    load_dotenv(".env.app")
     os.environ["OPENAI_API_KEY"] = os.getenv("NEUROAGENT_LLM__OPENAI_TOKEN", "")
 
     parser = get_parser()

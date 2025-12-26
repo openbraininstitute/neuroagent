@@ -26,11 +26,11 @@ def get_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--env",
         type=Path,
-        default=Path(__file__).parent.parent.parent.parent / ".env",
+        default=Path(__file__).parent.parent.parent.parent / ".env.app",
         help=(
             "Path to the env file for app config. See example at"
-            " https://github.com/BlueBrain/neuroagent/.env.example. Reads from local"
-            " '.env' file in backend/"
+            " https://github.com/BlueBrain/neuroagent/.env.app.example. Reads from local"
+            " '.env.app' file in backend/"
         ),
     )
     parser.add_argument(

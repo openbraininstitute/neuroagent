@@ -6,7 +6,7 @@ services:
     ports:
       - "8000:8000"
     env_file:
-      - ./backend/.env
+      - ./backend/.env.app
     environment:
       # Override service hostnames for Docker internal network
       - NEUROAGENT_DB__HOST=postgres

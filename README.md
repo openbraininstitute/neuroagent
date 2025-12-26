@@ -9,7 +9,7 @@ LLM agent for interacting with neuroscience tools. Enables ChatGPT-style interac
 The easiest way to run the project is with Docker Compose:
 
 1. Install Docker and Docker Compose
-2. Create `.env` file with required variables:
+2. Create `.env.app` file with required variables:
 ```bash
 OPENAI_API_KEY=...
 KEYCLOAK_ID=...

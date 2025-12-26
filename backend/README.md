@@ -43,7 +43,7 @@ uv sync --extra dev
 
 ### 1. Set up environment
 
-- Copy `.env.example` to `.env` and fill in required variables for the app
+- Copy `.env.app.example` to `.env.app` and fill in required variables for the app
 - Copy `.env.tasks.example` to `.env.tasks` and fill in required variables for tasks (if running tasks separately)
 - Set up database (PostgreSQL)
 
@@ -88,7 +88,7 @@ docker run -d -p 6379:6379 redis
 
 ### 5. (Optional) MCP server secrets
 
-MCP server secrets can be configured in the `.env` file. Their keys follow the following naming convention:
+MCP server secrets can be configured in the `.env.app` file. Their keys follow the following naming convention:
 `NEUROAGENT_MCP__SECRETS__${secret_name}=${secret_value}`
 
 The servers in use are defined in the file `mcp.json`. The potential secrets that can be set are also displayed in this file.
@@ -134,7 +134,7 @@ The backend is split into two independent components:
 - **Purpose**: FastAPI web application
 - **Dependencies**: Installed via `uv sync --extra app`
 - **Entry point**: `neuroagent-api` command (defined in `pyproject.toml`)
-- **Configuration**: `.env` file with `NEUROAGENT_` prefix
+- **Configuration**: `.env.app` file with `NEUROAGENT_` prefix
 - **Features**: HTTP API, authentication, database, rate limiting, tool routing
 
 ### Tasks Component

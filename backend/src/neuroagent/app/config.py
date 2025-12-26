@@ -296,7 +296,7 @@ class Settings(BaseSettings):
     mcp: SettingsMCP = SettingsMCP()  # has no required
 
     model_config = SettingsConfigDict(
-        env_file=".env",
+        env_file=".env.app",
         env_prefix="NEUROAGENT_",
         env_nested_delimiter="__",
         frozen=True,
