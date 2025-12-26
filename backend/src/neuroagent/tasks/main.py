@@ -71,18 +71,9 @@ def get_redis_client() -> redis.Redis:
     Exception
         If Redis client cannot be created
     """
-    redis_password = (
-        settings.redis.redis_password.get_secret_value()
-        if settings.redis.redis_password is not None
-        else None
-    )
-
     # Create Redis client
-    return redis.Redis(
-        host=settings.redis.redis_host,
-        port=settings.redis.redis_port,
-        password=redis_password,
-        ssl=settings.redis.redis_ssl,
+    return redis.Redis.from_url(
+        settings.redis.redis_url,
         decode_responses=False,  # Keep bytes for stream operations
     )
 
