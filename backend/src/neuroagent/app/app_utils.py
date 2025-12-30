@@ -17,7 +17,6 @@ from starlette.status import HTTP_401_UNAUTHORIZED
 from neuroagent.app.config import Settings
 from neuroagent.app.database.sql_schemas import (
     ComplexityEstimation,
-    Entity,
     Messages,
     PartType,
     ReasoningLevels,
@@ -262,7 +261,7 @@ def format_messages_vercel(
                 try:
                     input_data = json.loads(output.get("arguments", "{}"))
                 except json.JSONDecodeError:
-                    input_data = {}
+                    input_data = {"raw_arguments": output.get("arguments", "")}
                 tool_part = ToolCallPartVercel(
                     type=f"tool-{tool_name}",
                     toolCallId=tc_id,
@@ -274,16 +273,16 @@ def format_messages_vercel(
 
                 requires_validation = tool_hil_mapping.get(tool_name, False)
 
-                if part.validated is True:
+                if not requires_validation:
                     status: Literal[
                         "accepted", "rejected", "not_required", "pending"
-                    ] = "accepted"
-                elif part.validated is False:
-                    status = "rejected"
-                elif not requires_validation:
-                    status = "not_required"
-                else:
+                    ] = "not_required"
+                elif part.validated is None:
                     status = "pending"
+                elif part.validated:
+                    status = "accepted"
+                else:
+                    status = "rejected"
 
                 metadata[tc_id] = MetadataToolCallVercel(
                     toolCallId=tc_id,
@@ -296,12 +295,14 @@ def format_messages_vercel(
                     tool_calls[tc_id].state = "output-available"
                     tool_calls[tc_id].output = output.get("output") or "{}"
                     metadata[tc_id].isComplete = part.is_complete
+                else:
+                    raise ValueError(f"Output for unknown tool call ID {tc_id}.")
 
         is_complete = all(part.is_complete for part in msg.parts) if msg.parts else True
 
         msg_vercel = MessagesReadVercel(
             id=msg.message_id,
-            role="user" if msg.entity == Entity.USER else "assistant",
+            role=msg.entity.value,
             createdAt=msg.creation_date,
             isComplete=is_complete,
             parts=parts_data,

@@ -85,7 +85,6 @@ class MessagesRead(BaseRead):
     thread_id: UUID
     creation_date: AwareDatetime
     parts: list[dict[str, Any]]
-    model: str | None = None
 
 
 class ThreadsRead(BaseRead):

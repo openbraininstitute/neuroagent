@@ -60,7 +60,7 @@ class AgentsRoutine:
             client = AsyncOpenAI()
         self.client = client
 
-    async def get_chat_completion(
+    async def get_openai_response(
         self,
         agent: Agent,
         history: list[dict[str, str]],
@@ -279,7 +279,7 @@ class AgentsRoutine:
                     agent.instructions = "You are a very nice assistant that is unable to further help the user due to rate limiting. The user just reached the maximum amount of turns he can take with you in a single query. Your one and only job is to let him know that in a nice way, and that the only way to continue the conversation is to send another message. Completely disregard his demand since you cannot fulfill it, simply state that he reached the limit."
 
                 # get completion with current history, agent
-                completion = await self.get_chat_completion(
+                completion = await self.get_openai_response(
                     agent=active_agent,
                     history=history,
                     context_variables=context_variables,
@@ -296,6 +296,9 @@ class AgentsRoutine:
                     "reasoning": dict[str, ResponseReasoningItem](),
                     "tool_to_execute": dict[str, ResponseFunctionToolCall](),
                 }
+                # Indicate that a new step started
+                yield f"data: {json.dumps({'type': 'start-step'})}\n\n"
+
                 # Unpack the streaming events
                 async for event in completion:
                     match event:
@@ -318,7 +321,6 @@ class AgentsRoutine:
                             temp_stream_data["reasoning"][event.item_id].summary.append(
                                 {"text": "", "type": "summary_text"}
                             )
-                            yield f"data: {json.dumps({'type': 'start-step'})}\n\n"
                             yield f"data: {json.dumps({'type': 'reasoning-start', 'id': event.item_id})}\n\n"
 
                         # Reasoning summary deltas
@@ -331,7 +333,6 @@ class AgentsRoutine:
                         # Reasoning summary end
                         case ResponseReasoningSummaryPartDoneEvent():
                             yield f"data: {json.dumps({'type': 'reasoning-end', 'id': event.item_id})}\n\n"
-                            yield f"data: {json.dumps({'type': 'finish-step'})}\n\n"
 
                         # Capture the final reasoning (only chunk that has the encrypted content)
                         case ResponseOutputItemDoneEvent() if (
@@ -376,7 +377,6 @@ class AgentsRoutine:
                         # Text end
                         case ResponseContentPartDoneEvent():
                             yield f"data: {json.dumps({'type': 'text-end', 'id': event.item_id})}\n\n"
-                            yield f"data: {json.dumps({'type': 'finish-step'})}\n\n"
 
                         # Capture the final content part
                         case ResponseOutputItemDoneEvent() if (
@@ -404,7 +404,6 @@ class AgentsRoutine:
                                     status="in_progress",
                                 )
                             )
-                            yield f"data: {json.dumps({'type': 'start-step'})}\n\n"
                             yield f"data: {json.dumps({'type': 'tool-input-start', 'toolCallId': event.item.call_id, 'toolName': event.item.name})}\n\n"
 
                         # Tool call (args) deltas
@@ -443,7 +442,6 @@ class AgentsRoutine:
                                 event.item
                             )
                             yield f"data: {json.dumps({'type': 'tool-input-available', 'toolCallId': event.item.call_id, 'toolName': event.item.name, 'input': json.loads(args)})}\n\n"
-                            yield f"data: {json.dumps({'type': 'finish-step'})}\n\n"
 
                         # === Usage ===
                         # Handle usage/token information and ecrypted reasoning.
@@ -453,6 +451,9 @@ class AgentsRoutine:
                         # case _:
                         #     print(event.type)
                         # Some events are not needed. Not sure what we should do with them yet.
+
+                # At the end of the response stream we indicate the the step is finished
+                yield f"data: {json.dumps({'type': 'finish-step'})}\n\n"
 
                 # Add the main LLM token usage
                 new_message.token_consumption.extend(
@@ -475,7 +476,6 @@ class AgentsRoutine:
                     ]
                 else:
                     # No tool calls, final content part reached, exit agent loop
-                    yield f"data: {json.dumps({'type': 'finish-step'})}\n\n"
                     break
 
                 # handle function calls, updating context_variables, and switching agents
@@ -516,8 +516,6 @@ class AgentsRoutine:
                     temp_stream_data["tool_to_execute"].pop(tool_response.id, None)
                     yield f"data: {json.dumps({'type': 'tool-output-available', 'toolCallId': tool_response.call_id, 'output': tool_response.output})}\n\n"
 
-                yield f"data: {json.dumps({'type': 'finish-step'})}\n\n"
-
                 # If response contains HIL validation, do not update anything and return
                 if tool_calls_with_hil:
                     for msg in tool_calls_with_hil:
@@ -529,8 +527,6 @@ class AgentsRoutine:
                             }
                         )
                         temp_stream_data["tool_to_execute"].pop(msg.id, None)
-
-                    yield f"data: {json.dumps({'type': 'finish-step'})}\n\n"
                     break
 
                 # Update context variables, agent

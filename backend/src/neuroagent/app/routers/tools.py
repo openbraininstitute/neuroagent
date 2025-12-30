@@ -40,10 +40,10 @@ router = APIRouter(prefix="/tools", tags=["Tool's CRUD"])
 
 @router.patch("/{thread_id}/execute/{tool_call_id}")
 async def execute_tool_call(
-    thread_id: UUID,
+    _: UUID,
     tool_call_id: str,
     request: ExecuteToolCallRequest,
-    _: Annotated[Threads, Depends(get_thread)],
+    __: Annotated[Threads, Depends(get_thread)],
     session: Annotated[AsyncSession, Depends(get_session)],
     tool_list: Annotated[list[type[BaseTool]], Depends(get_tool_list)],
     context_variables: Annotated[dict[str, Any], Depends(get_context_variables)],

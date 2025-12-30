@@ -28,16 +28,15 @@ logger = logging.getLogger(__name__)
 async def messages_to_openai_content(
     db_messages: list[Messages] | None = None,
 ) -> list[dict[str, Any]]:
-    """Exctract content from Messages as dictionary to pass them to OpenAI."""
-    # Maybe we should add a check to see if the parts where awaited
-    openai_messages = []
-    if db_messages:
-        for msg in db_messages:
-            for part in msg.parts:
-                openai_messages.append(copy.deepcopy(part.output))
-                # to prevent replacing output in tool filtering
+    """Extract content from Messages as dictionary to pass them to OpenAI."""
+    if not db_messages:
+        return []
 
-    return openai_messages
+    # Collect all outputs first (shallow references)
+    all_outputs = [part.output for msg in db_messages for part in msg.parts]
+
+    # Single deep copy of the entire structure is more efficient
+    return copy.deepcopy(all_outputs)
 
 
 def complete_partial_json(partial: str) -> str:
@@ -259,7 +258,7 @@ def append_part(
         # Openai does not like none for status ... and it outputs none in reasoning ...
         output = openai_part.model_dump(exclude={"status"})
     else:
-        output = openai_part.model_dump()
+        output = openai_part.model_dump(exclude_defaults=True)
 
     part = Parts(
         message_id=message.message_id,
@@ -276,19 +275,7 @@ def get_main_LLM_token_consumption(
     usage_data: ResponseUsage | None, model: str, task: Task
 ) -> list[TokenConsumption]:
     """Create token consumption objects from usage data."""
-    if not usage_data:
-        return []
-
-    input_cached = (
-        getattr(
-            getattr(usage_data, "input_tokens_details", 0),
-            "cached_tokens",
-            0,
-        )
-        or 0
-    )
-    input_noncached = getattr(usage_data, "input_tokens", 0) - input_cached
-    completion_tokens = getattr(usage_data, "output_tokens", 0) or 0
+    token_counts = get_token_count(usage_data)
 
     return [
         TokenConsumption(
@@ -298,9 +285,9 @@ def get_main_LLM_token_consumption(
             model=model,
         )
         for token_type, count in [
-            (TokenType.INPUT_CACHED, input_cached),
-            (TokenType.INPUT_NONCACHED, input_noncached),
-            (TokenType.COMPLETION, completion_tokens),
+            (TokenType.INPUT_CACHED, token_counts["input_cached"]),
+            (TokenType.INPUT_NONCACHED, token_counts["input_noncached"]),
+            (TokenType.COMPLETION, token_counts["completion"]),
         ]
         if count
     ]
