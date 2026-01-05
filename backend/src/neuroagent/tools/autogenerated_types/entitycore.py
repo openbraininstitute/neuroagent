@@ -106,7 +106,7 @@ class AnnotationCreate(BaseModel):
         extra='allow',
     )
     pref_label: str = Field(..., title='Pref Label')
-    alt_label: str = Field(..., title='Alt Label')
+    alt_label: str | None = Field(default=None, title='Alt Label')
     definition: str = Field(..., title='Definition')
 
 
@@ -118,7 +118,7 @@ class AnnotationRead(BaseModel):
     creation_date: AwareDatetime = Field(..., title='Creation Date')
     update_date: AwareDatetime = Field(..., title='Update Date')
     pref_label: str = Field(..., title='Pref Label')
-    alt_label: str = Field(..., title='Alt Label')
+    alt_label: str | None = Field(default=None, title='Alt Label')
     definition: str = Field(..., title='Definition')
 
 
@@ -1127,6 +1127,14 @@ class ExecutorType(
     )
 
 
+class Expandable(RootModel[Literal['measurement_annotation']]):
+    root: Literal['measurement_annotation'] = Field(..., title='Expandable')
+
+
+class ExpandableAttribute(RootModel[Literal['measurement_annotation']]):
+    root: Literal['measurement_annotation'] = Field(..., title='ExpandableAttribute')
+
+
 class ExternalSource(RootModel[Literal['channelpedia', 'modeldb', 'icgenealogy']]):
     root: Literal['channelpedia', 'modeldb', 'icgenealogy'] = Field(
         ...,
@@ -1166,7 +1174,7 @@ class HierarchyNode(BaseModel):
     id: UUID = Field(..., title='Id')
     name: str = Field(..., title='Name')
     parent_id: UUID | None = Field(..., title='Parent Id')
-    children: list[HierarchyNode] = Field(default_factory=list, title='Children')
+    children: list[HierarchyNode] = Field(default=[], title='Children')
     authorized_public: bool = Field(..., title='Authorized Public')
     authorized_project_id: UUID = Field(..., title='Authorized Project Id')
 
@@ -1418,8 +1426,23 @@ class MTypeClassificationCreate(BaseModel):
     mtype_class_id: UUID = Field(..., title='Mtype Class Id')
 
 
-class MeasurableEntity(RootModel[Literal['cell_morphology']]):
-    root: Literal['cell_morphology'] = Field(..., title='MeasurableEntity')
+class MeasurableEntity(RootModel[Literal['cell_morphology', 'em_cell_mesh']]):
+    root: Literal['cell_morphology', 'em_cell_mesh'] = Field(
+        ..., title='MeasurableEntity'
+    )
+
+
+MeasurementLabelAdminUpdate = AnnotationAdminUpdate
+
+
+class MeasurementLabelCreate(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
+    pref_label: str = Field(..., title='Pref Label')
+    alt_label: str | None = Field(default=None, title='Alt Label')
+    definition: str = Field(..., title='Definition')
+    entity_type: MeasurableEntity
 
 
 class MeasurementStatistic(
@@ -1457,11 +1480,13 @@ class MeasurementStatistic(
 
 
 class MeasurementUnit(
-    RootModel[Literal['dimensionless', '1/μm', '1/mm³', 'μm', 'μm²', 'μm³', 'radian']]
+    RootModel[
+        Literal['dimensionless', '1/μm', '1/μm²', '1/mm³', 'μm', 'μm²', 'μm³', 'radian']
+    ]
 ):
-    root: Literal['dimensionless', '1/μm', '1/mm³', 'μm', 'μm²', 'μm³', 'radian'] = (
-        Field(..., title='MeasurementUnit')
-    )
+    root: Literal[
+        'dimensionless', '1/μm', '1/μm²', '1/mm³', 'μm', 'μm²', 'μm³', 'radian'
+    ] = Field(..., title='MeasurementUnit')
 
 
 class ModifiedMorphologyMethodType(
@@ -3377,9 +3402,6 @@ class ReadManyCellMorphologyGetParametersQuery(BaseModel):
     measurement_kind__pref_label: str | None = Field(
         default=None, title='Measurement Kind  Pref Label'
     )
-    measurement_kind__definition: str | None = Field(
-        default=None, title='Measurement Kind  Definition'
-    )
     measurement_kind__structural_domain: StructuralDomain | None = Field(
         default=None, title='Measurement Kind  Structural Domain'
     )
@@ -3576,8 +3598,8 @@ class ReadManyCellMorphologyGetParametersQuery(BaseModel):
     )
 
 
-class Expand(RootModel[list[str]]):
-    root: list[str] = Field(..., title='Expand')
+class Expand(RootModel[list[ExpandableAttribute]]):
+    root: list[ExpandableAttribute] = Field(..., title='Expand')
 
 
 class ReadOneCellMorphologyIdGetParametersQuery(BaseModel):
@@ -4475,6 +4497,12 @@ class ReadManyEntityRouteEntityIdDerivedFromGetParametersQuery(BaseModel):
     order_by: list[str] = Field(default=['-creation_date'], title='Order By')
 
 
+class DeleteOneDerivationDeleteParametersQuery(BaseModel):
+    used_id: UUID = Field(..., title='Used Id')
+    generated_id: UUID = Field(..., title='Generated Id')
+    derivation_type: DerivationType
+
+
 class ReadManyElectricalCellRecordingGetParametersQuery(BaseModel):
     page: int = Field(default=1, ge=1, title='Page')
     page_size: int = Field(default=100, ge=1, title='Page Size')
@@ -4848,6 +4876,45 @@ class ReadManyEmCellMeshGetParametersQuery(BaseModel):
     )
     level_of_detail: int | None = Field(default=None, title='Level Of Detail')
     mesh_type: EMCellMeshType | None = Field(default=None, title='Mesh Type')
+    measurement_annotation__creation_date__lte: AwareDatetime | None = Field(
+        default=None, title='Measurement Annotation  Creation Date  Lte'
+    )
+    measurement_annotation__creation_date__gte: AwareDatetime | None = Field(
+        default=None, title='Measurement Annotation  Creation Date  Gte'
+    )
+    measurement_annotation__update_date__lte: AwareDatetime | None = Field(
+        default=None, title='Measurement Annotation  Update Date  Lte'
+    )
+    measurement_annotation__update_date__gte: AwareDatetime | None = Field(
+        default=None, title='Measurement Annotation  Update Date  Gte'
+    )
+    measurement_kind__pref_label: str | None = Field(
+        default=None, title='Measurement Kind  Pref Label'
+    )
+    measurement_kind__structural_domain: StructuralDomain | None = Field(
+        default=None, title='Measurement Kind  Structural Domain'
+    )
+    measurement_item__name: MeasurementStatistic | None = Field(
+        default=None, title='Measurement Item  Name'
+    )
+    measurement_item__unit: MeasurementUnit | None = Field(
+        default=None, title='Measurement Item  Unit'
+    )
+    measurement_item__value__gte: float | None = Field(
+        default=None, title='Measurement Item  Value  Gte'
+    )
+    measurement_item__value__lte: float | None = Field(
+        default=None, title='Measurement Item  Value  Lte'
+    )
+    mtype__pref_label: str | None = Field(default=None, title='Mtype  Pref Label')
+    mtype__pref_label__in: list[str] | None = Field(
+        default=None, title='Mtype  Pref Label  In'
+    )
+    mtype__pref_label__ilike: str | None = Field(
+        default=None, title='Mtype  Pref Label  Ilike'
+    )
+    mtype__id: UUID | None = Field(default=None, title='Mtype  Id')
+    mtype__id__in: list[UUID] | None = Field(default=None, title='Mtype  Id  In')
     contribution__pref_label: str | None = Field(
         default=None, title='Contribution  Pref Label'
     )
@@ -5041,6 +5108,14 @@ class ReadManyEmCellMeshGetParametersQuery(BaseModel):
         default=None, title='Within Brain Region Direction'
     )
     with_facets: bool = Field(default=False, title='With Facets')
+
+
+class Expand1(RootModel[list[Expandable]]):
+    root: list[Expandable] = Field(..., title='Expand')
+
+
+class ReadOneEmCellMeshIdGetParametersQuery(BaseModel):
+    expand: Expand1 | None = Field(default=None, title='Expand')
 
 
 class ReadManyEmDenseReconstructionDatasetGetParametersQuery(BaseModel):
@@ -7294,9 +7369,6 @@ class ReadManyMeasurementAnnotationGetParametersQuery(BaseModel):
     measurement_kind__pref_label: str | None = Field(
         default=None, title='Measurement Kind  Pref Label'
     )
-    measurement_kind__definition: str | None = Field(
-        default=None, title='Measurement Kind  Definition'
-    )
     measurement_kind__structural_domain: StructuralDomain | None = Field(
         default=None, title='Measurement Kind  Structural Domain'
     )
@@ -7325,6 +7397,89 @@ class ReadManyMeasurementAnnotationGetParametersQuery(BaseModel):
     )
     within_brain_region_direction: WithinBrainRegionDirection | None = Field(
         default=None, title='Within Brain Region Direction'
+    )
+
+
+class ReadManyMeasurementLabelGetParametersQuery(BaseModel):
+    page: int = Field(default=1, ge=1, title='Page')
+    page_size: int = Field(default=100, ge=1, title='Page Size')
+    pref_label: str | None = Field(default=None, title='Pref Label')
+    pref_label__in: list[str] | None = Field(default=None, title='Pref Label  In')
+    pref_label__ilike: str | None = Field(default=None, title='Pref Label  Ilike')
+    id: UUID | None = Field(default=None, title='Id')
+    id__in: list[UUID] | None = Field(default=None, title='Id  In')
+    creation_date__lte: AwareDatetime | None = Field(
+        default=None, title='Creation Date  Lte'
+    )
+    creation_date__gte: AwareDatetime | None = Field(
+        default=None, title='Creation Date  Gte'
+    )
+    update_date__lte: AwareDatetime | None = Field(
+        default=None, title='Update Date  Lte'
+    )
+    update_date__gte: AwareDatetime | None = Field(
+        default=None, title='Update Date  Gte'
+    )
+    order_by: list[str] = Field(default=['-creation_date'], title='Order By')
+    created_by__pref_label: str | None = Field(
+        default=None, title='Created By  Pref Label'
+    )
+    created_by__pref_label__in: list[str] | None = Field(
+        default=None, title='Created By  Pref Label  In'
+    )
+    created_by__pref_label__ilike: str | None = Field(
+        default=None, title='Created By  Pref Label  Ilike'
+    )
+    created_by__id: UUID | None = Field(default=None, title='Created By  Id')
+    created_by__id__in: list[UUID] | None = Field(
+        default=None, title='Created By  Id  In'
+    )
+    created_by__type: AgentType | None = Field(default=None, title='Created By  Type')
+    created_by__given_name: str | None = Field(
+        default=None, title='Created By  Given Name'
+    )
+    created_by__given_name__ilike: str | None = Field(
+        default=None, title='Created By  Given Name  Ilike'
+    )
+    created_by__family_name: str | None = Field(
+        default=None, title='Created By  Family Name'
+    )
+    created_by__family_name__ilike: str | None = Field(
+        default=None, title='Created By  Family Name  Ilike'
+    )
+    created_by__sub_id: UUID | None = Field(default=None, title='Created By  Sub Id')
+    created_by__sub_id__in: list[UUID] | None = Field(
+        default=None, title='Created By  Sub Id  In'
+    )
+    updated_by__pref_label: str | None = Field(
+        default=None, title='Updated By  Pref Label'
+    )
+    updated_by__pref_label__in: list[str] | None = Field(
+        default=None, title='Updated By  Pref Label  In'
+    )
+    updated_by__pref_label__ilike: str | None = Field(
+        default=None, title='Updated By  Pref Label  Ilike'
+    )
+    updated_by__id: UUID | None = Field(default=None, title='Updated By  Id')
+    updated_by__id__in: list[UUID] | None = Field(
+        default=None, title='Updated By  Id  In'
+    )
+    updated_by__type: AgentType | None = Field(default=None, title='Updated By  Type')
+    updated_by__given_name: str | None = Field(
+        default=None, title='Updated By  Given Name'
+    )
+    updated_by__given_name__ilike: str | None = Field(
+        default=None, title='Updated By  Given Name  Ilike'
+    )
+    updated_by__family_name: str | None = Field(
+        default=None, title='Updated By  Family Name'
+    )
+    updated_by__family_name__ilike: str | None = Field(
+        default=None, title='Updated By  Family Name  Ilike'
+    )
+    updated_by__sub_id: UUID | None = Field(default=None, title='Updated By  Sub Id')
+    updated_by__sub_id__in: list[UUID] | None = Field(
+        default=None, title='Updated By  Sub Id  In'
     )
 
 
@@ -10852,9 +11007,7 @@ class AnalysisNotebookTemplateSpecificationsInput(BaseModel):
     schema_version: int = Field(default=1, title='Schema Version')
     python: PythonDependency | None = None
     docker: DockerDependency | None = None
-    inputs: list[AnalysisNotebookTemplateInputType] = Field(
-        default_factory=list, title='Inputs'
-    )
+    inputs: list[AnalysisNotebookTemplateInputType] = Field(default=[], title='Inputs')
 
 
 AnalysisNotebookTemplateSpecificationsOutput = (
@@ -12004,6 +12157,21 @@ class MeasurementKindCreate(BaseModel):
 MeasurementKindRead = MeasurementKindCreate
 
 
+class MeasurementLabelRead(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
+    created_by: NestedPersonRead
+    updated_by: NestedPersonRead
+    creation_date: AwareDatetime = Field(..., title='Creation Date')
+    update_date: AwareDatetime = Field(..., title='Update Date')
+    id: UUID = Field(..., title='Id')
+    pref_label: str = Field(..., title='Pref Label')
+    alt_label: str | None = Field(default=None, title='Alt Label')
+    definition: str = Field(..., title='Definition')
+    entity_type: MeasurableEntity
+
+
 class MeasurementRecordCreate(BaseModel):
     model_config = ConfigDict(
         extra='allow',
@@ -12157,7 +12325,7 @@ class NeuronBlock(BaseModel):
         default=[], alias='global', title='Global'
     )
     range: list[dict[str, str | None]] = Field(default=[], title='Range')
-    useion: list[UseIon] = Field(default_factory=list, title='Useion')
+    useion: list[UseIon] = Field(default=[], title='Useion')
     nonspecific: list[dict[str, str | None]] = Field(default=[], title='Nonspecific')
 
 
@@ -12731,6 +12899,7 @@ class EMCellMeshRead(BaseModel):
     )
     mesh_type: EMCellMeshType
     em_dense_reconstruction_dataset: BasicEntityRead
+    mtypes: list[AnnotationRead] | None = Field(..., title='Mtypes')
 
 
 class EMDenseReconstructionDatasetRead(BaseModel):
@@ -13601,6 +13770,15 @@ class ListResponseMTypeClassificationRead(BaseModel):
     facets: Facets | None = None
 
 
+class ListResponseMeasurementLabelRead(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
+    data: list[MeasurementLabelRead] = Field(..., title='Data')
+    pagination: PaginationResponse
+    facets: Facets | None = None
+
+
 class ListResponseSimulationCampaignRead(BaseModel):
     model_config = ConfigDict(
         extra='allow',
@@ -13851,6 +14029,58 @@ class CellMorphologyRead(BaseModel):
     cell_morphology_protocol: NestedCellMorphologyProtocolRead | None = None
 
 
+class EMCellMeshAnnotationExpandedRead(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
+    contributions: list[NestedContributionRead] | None = Field(
+        ..., title='Contributions'
+    )
+    assets: list[AssetRead] = Field(..., title='Assets')
+    license: LicenseRead | None = None
+    creation_date: AwareDatetime = Field(..., title='Creation Date')
+    update_date: AwareDatetime = Field(..., title='Update Date')
+    created_by: NestedPersonRead
+    updated_by: NestedPersonRead
+    brain_region: NestedBrainRegionRead
+    subject: NestedSubjectRead
+    authorized_project_id: UUID4 = Field(..., title='Authorized Project Id')
+    authorized_public: bool = Field(default=False, title='Authorized Public')
+    type: EntityType | None = None
+    id: UUID = Field(..., title='Id')
+    experiment_date: AwareDatetime | None = Field(
+        default=None,
+        description='Date of the experiment associated with the artifact.',
+        title='Experiment Date',
+    )
+    contact_email: str | None = Field(
+        default=None,
+        description="Optional string of a contact person's e-mail address.",
+        title='Contact Email',
+    )
+    published_in: str | None = Field(
+        default=None,
+        description='Optional string with short version of the source publication(s).',
+        title='Published In',
+    )
+    notice_text: str | None = Field(
+        default=None,
+        description='Text provided by the data creators to inform users about data caveats, limitations, or required attribution practices.',
+        title='Notice Text',
+    )
+    release_version: int = Field(..., title='Release Version')
+    dense_reconstruction_cell_id: int = Field(..., title='Dense Reconstruction Cell Id')
+    generation_method: EMCellMeshGenerationMethod
+    level_of_detail: int = Field(..., title='Level Of Detail')
+    generation_parameters: dict[str, Any] | None = Field(
+        default=None, title='Generation Parameters'
+    )
+    mesh_type: EMCellMeshType
+    em_dense_reconstruction_dataset: BasicEntityRead
+    mtypes: list[AnnotationRead] | None = Field(..., title='Mtypes')
+    measurement_annotation: MeasurementAnnotationRead | None = None
+
+
 class EModelReadExpanded(BaseModel):
     model_config = ConfigDict(
         extra='allow',
@@ -13945,6 +14175,14 @@ class ReadOneCellMorphologyIdGetResponse(
 ):
     root: CellMorphologyRead | CellMorphologyAnnotationExpandedRead = Field(
         ..., title='Response Read One Cell Morphology  Id   Get'
+    )
+
+
+class ReadOneEmCellMeshIdGetResponse(
+    RootModel[EMCellMeshRead | EMCellMeshAnnotationExpandedRead]
+):
+    root: EMCellMeshRead | EMCellMeshAnnotationExpandedRead = Field(
+        ..., title='Response Read One Em Cell Mesh  Id   Get'
     )
 
 
