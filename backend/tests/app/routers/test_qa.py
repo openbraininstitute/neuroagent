@@ -31,11 +31,20 @@ def test_question_suggestions(
     test_user_info,
 ):
     mock_keycloak_user_identification(httpx_mock, test_user_info)
+
+    # Mock the entitycore brain region GET request
+    httpx_mock.add_response(
+        method="GET",
+        url="https://greaturl.com/brain-region/676b00ec-1b9e-478d-96ef-069b25f17f9a",
+        json={"id": "676b00ec-1b9e-478d-96ef-069b25f17f9a", "name": "Amazing BR"},
+    )
+
     test_settings = Settings(
         db={"prefix": db_connection},
         keycloak={"issuer": "https://great_issuer.com"},
         accounting={"disabled": True},
         rate_limiter={"disabled": True},
+        tools={"entitycore": {"url": "https://greaturl.com"}},
     )
     app.dependency_overrides[get_settings] = lambda: test_settings
     mock_openai_client = MockOpenAIClient()
@@ -53,7 +62,7 @@ def test_question_suggestions(
     )
     mock_openai_client.set_response(mock_response)
     app.dependency_overrides[get_openai_client] = lambda: mock_openai_client
-    user_id, vlab, proj = test_user_info
+    _, vlab, proj = test_user_info
 
     # First we test if no thread id is provided.
     with app_client as app_client:
@@ -66,7 +75,8 @@ def test_question_suggestions(
                         "region": "Amzing BR",
                         "artifact": "Super artifact",
                     }
-                ]
+                ],
+                "frontend_url": "https://myurl.org/app/virtual-lab/56b753ec-frc6-45cc-a928-87522e3a9672/7ee3df24-221b-4c89-94bd-8d2471105306/data/browse/entity/experimental-synapses-per-connection?br_id=676b00ec-1b9e-478d-96ef-069b25f17f9a&br_av=803",
             },
             headers={"x-virtual-lab-id": str(vlab), "x-project-id": str(proj)},
         )
@@ -91,6 +101,7 @@ def test_question_suggestions(
                         "artifact": "Super artifact",
                     }
                 ],
+                "frontend_url": "https://myurl.org/app/virtual-lab/56b753ec-frc6-45cc-a928-87522e3a9672/7ee3df24-221b-4c89-94bd-8d2471105306/data/browse/entity/experimental-synapses-per-connection?br_id=676b00ec-1b9e-478d-96ef-069b25f17f9a&br_av=803",
                 "thread_id": create_output["thread_id"],
             },
             headers={"x-virtual-lab-id": str(vlab), "x-project-id": str(proj)},
@@ -114,6 +125,7 @@ def test_question_suggestions(
                         "artifact": "Super artifact",
                     }
                 ],
+                "frontend_url": "https://myurl.org/app/virtual-lab/56b753ec-frc6-45cc-a928-87522e3a9672/7ee3df24-221b-4c89-94bd-8d2471105306/data/browse/entity/experimental-synapses-per-connection?br_id=676b00ec-1b9e-478d-96ef-069b25f17f9a&br_av=803",
                 "thread_id": str(thread.thread_id),
             },
             headers={"x-virtual-lab-id": str(vlab), "x-project-id": str(proj)},
@@ -124,17 +136,22 @@ def test_question_suggestions(
 
     # At the end we check if the calls were made with the right arguments:
     call_list = mock_openai_client.responses.parse.call_args_list
+    assert call_list[0].kwargs["input"][0]["role"] == "system"
     assert (
-        call_list[0].kwargs["input"]
-        == "USER JOURNEY: \n[{'timestamp': '1970-01-02T10:17:36Z', 'region': 'Amzing BR', 'artifact': 'Super artifact'}]"
+        "Generate three user actions based on the user's current location"
+        in call_list[0].kwargs["input"][0]["content"]
     )
+    assert call_list[0].kwargs["input"][1]["role"] == "user"
+    assert "brain_region_id" in call_list[0].kwargs["input"][1]["content"]
+    assert "Amazing BR" in call_list[0].kwargs["input"][1]["content"]
+
+    assert call_list[1].kwargs["input"][0]["role"] == "system"
+    assert call_list[1].kwargs["input"][1]["role"] == "user"
+
+    assert call_list[2].kwargs["input"][0]["role"] == "system"
     assert (
-        call_list[1].kwargs["input"]
-        == "USER JOURNEY: \n[{'timestamp': '1970-01-02T10:17:36Z', 'region': 'Amzing BR', 'artifact': 'Super artifact'}]"
-    )
-    assert (
-        call_list[2].kwargs["input"]
-        == 'CONVERSATION MESSAGES: \n{"entity": "user", "text": "This is my query."}\n{"entity": "assistant", "text": "sample response content."}'
+        "Generate three user actions, each targeting a significantly different aspect"
+        in call_list[2].kwargs["input"][0]["content"]
     )
 
 

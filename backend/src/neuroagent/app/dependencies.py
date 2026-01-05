@@ -590,14 +590,17 @@ async def filtered_tools(
         last_user_message = next(
             message for message in reversed(messages) if message.entity == Entity.USER
         )
-        tool_selection = await last_user_message.awaitable_attrs.tool_selection
-        model_selection = await last_user_message.awaitable_attrs.model_selection
-
-        previously_selected_tools = [selected.tool_name for selected in tool_selection]
+        previously_selected_tools = [
+            selected.tool_name
+            for selected in await last_user_message.awaitable_attrs.tool_selection
+        ]
+        last_message_model_selection = (
+            await last_user_message.awaitable_attrs.model_selection
+        )
         previous_model_and_reasoning: dict[str, str | None] = {
-            "model": model_selection.model,
-            "reasoning": model_selection.reasoning.value
-            if model_selection.reasoning
+            "model": last_message_model_selection.model,
+            "reasoning": last_message_model_selection.reasoning.value
+            if last_message_model_selection.reasoning
             else None,
         }
         return [

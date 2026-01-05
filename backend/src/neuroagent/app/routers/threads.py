@@ -170,13 +170,18 @@ async def generate_title(
     # Send it to OpenAI longside with the system prompt asking for summary
     system_prompt = "Given the user's first message of a conversation, generate a short title for this conversation (max 5 words)."
 
-    response = await openai_client.responses.parse(
-        instructions=system_prompt,
-        input=body.first_user_message,
-        model=settings.llm.suggestion_model,
-        text_format=ThreadGeneratedTitle,
-        store=False,
-    )
+    parse_kwargs: dict[str, Any] = {
+        "instructions": system_prompt,
+        "input": body.first_user_message,
+        "model": settings.llm.suggestion_model,
+        "text_format": ThreadGeneratedTitle,
+        "store": False,
+    }
+
+    if "gpt-5" in settings.llm.suggestion_model:
+        parse_kwargs["reasoning"] = {"effort": "minimal"}
+
+    response = await openai_client.responses.parse(**parse_kwargs)
 
     # Update the thread title and modified date + commit
     if response.output_parsed:

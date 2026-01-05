@@ -32,11 +32,11 @@ from tests.mock_client import create_mock_response
 
 class TestAgentsRoutine:
     @pytest.mark.asyncio
-    async def test_get_chat_completion_simple_message(self, mock_openai_client):
+    async def test_get_openai_response(self, mock_openai_client):
         routine = AgentsRoutine(client=mock_openai_client)
 
         agent = Agent()
-        response = await routine.get_chat_completion(
+        response = await routine.get_openai_response(
             agent=agent,
             history=[{"role": "user", "content": "Hello !"}],
             context_variables={},
@@ -63,7 +63,7 @@ class TestAgentsRoutine:
         ]
 
     @pytest.mark.asyncio
-    async def test_get_chat_completion_callable_sys_prompt(self, mock_openai_client):
+    async def test_get_openai_response_callable_sys_prompt(self, mock_openai_client):
         routine = AgentsRoutine(client=mock_openai_client)
 
         def agent_instruction(context_variables):
@@ -72,7 +72,7 @@ class TestAgentsRoutine:
             return f"This is your new instructions with {twng} and {mrt}."
 
         agent = Agent(instructions=agent_instruction)
-        response = await routine.get_chat_completion(
+        response = await routine.get_openai_response(
             agent=agent,
             history=[{"role": "user", "content": "Hello !"}],
             context_variables={"mrt": "Great mrt", "twng": "Bad twng"},
@@ -98,13 +98,13 @@ class TestAgentsRoutine:
         ]
 
     @pytest.mark.asyncio
-    async def test_get_chat_completion_tools(
+    async def test_get_openai_response_tools(
         self, mock_openai_client, get_weather_tool
     ):
         routine = AgentsRoutine(client=mock_openai_client)
 
         agent = Agent(tools=[get_weather_tool])
-        response = await routine.get_chat_completion(
+        response = await routine.get_openai_response(
             agent=agent,
             history=[{"role": "user", "content": "Hello !"}],
             context_variables={},
@@ -203,7 +203,7 @@ class TestAgentsRoutine:
         agent = Agent(tools=[get_weather_tool, agent_handoff_tool])
         context_variables = {}
 
-        tool_call_message = await routine.get_chat_completion(
+        tool_call_message = await routine.get_openai_response(
             agent,
             history=[{"role": "user", "content": "Hello"}],
             context_variables=context_variables,
@@ -243,7 +243,7 @@ class TestAgentsRoutine:
         agent = Agent(tools=[get_weather_tool, agent_handoff_tool])
         context_variables = {"planet": "Earth"}
 
-        tool_call_message = await routine.get_chat_completion(
+        tool_call_message = await routine.get_openai_response(
             agent,
             history=[{"role": "user", "content": "Hello"}],
             context_variables=context_variables,
@@ -285,7 +285,7 @@ class TestAgentsRoutine:
         )
         context_variables = {"to_agent": agent_2}
 
-        tool_call_message = await routine.get_chat_completion(
+        tool_call_message = await routine.get_openai_response(
             agent_1,
             history=[{"role": "user", "content": "Hello"}],
             context_variables=context_variables,
@@ -324,7 +324,7 @@ class TestAgentsRoutine:
         agent = Agent(tools=[get_weather_tool, agent_handoff_tool])
         context_variables = {}
 
-        tool_call_message = await routine.get_chat_completion(
+        tool_call_message = await routine.get_openai_response(
             agent,
             history=[{"role": "user", "content": "Hello"}],
             context_variables=context_variables,
@@ -358,7 +358,7 @@ class TestAgentsRoutine:
         agent = Agent(tools=[get_weather_tool, agent_handoff_tool])
         context_variables = {"planet": "Earth"}
 
-        tool_call_message = await routine.get_chat_completion(
+        tool_call_message = await routine.get_openai_response(
             agent,
             history=[{"role": "user", "content": "Hello"}],
             context_variables=context_variables,
@@ -720,7 +720,7 @@ class TestAgentsRoutine:
         events = []
 
         with patch(
-            "neuroagent.agent_routine.AgentsRoutine.get_chat_completion",
+            "neuroagent.agent_routine.AgentsRoutine.get_openai_response",
             side_effect=mock_streaming_completion,
         ):
             async for event in routine.astream(
@@ -763,11 +763,11 @@ class TestAgentsRoutine:
         # 17. finish
 
         assert "start" in event_types
-        assert event_types.count("start-step") == 2  # handoff + weather
+        assert event_types.count("start-step") == 3  # handoff + weather + text
         assert event_types.count("tool-input-start") == 2  # handoff + weather
         assert event_types.count("tool-input-available") == 2
         assert event_types.count("tool-output-available") == 2
-        assert event_types.count("finish-step") >= 3  # after each turn
+        assert event_types.count("finish-step") == 3  # after each turn
         assert "text-start" in event_types
         assert event_types.count("text-delta") >= 1
         assert "text-end" in event_types
@@ -1009,7 +1009,7 @@ class TestAgentsRoutine:
         events = []
 
         with patch(
-            "neuroagent.agent_routine.AgentsRoutine.get_chat_completion",
+            "neuroagent.agent_routine.AgentsRoutine.get_openai_response",
             side_effect=mock_tool_calls,
         ):
             async for event in routine.astream(
@@ -1198,7 +1198,7 @@ class TestAgentsRoutine:
         events = []
 
         with patch(
-            "neuroagent.agent_routine.AgentsRoutine.get_chat_completion",
+            "neuroagent.agent_routine.AgentsRoutine.get_openai_response",
             side_effect=mock_reasoning_response,
         ):
             async for event in routine.astream(
@@ -1323,7 +1323,7 @@ class TestAgentsRoutine:
         events = []
 
         with patch(
-            "neuroagent.agent_routine.AgentsRoutine.get_chat_completion",
+            "neuroagent.agent_routine.AgentsRoutine.get_openai_response",
             side_effect=mock_tool_call,
         ):
             async for event in routine.astream(
@@ -1545,7 +1545,7 @@ class TestAgentsRoutine:
         events = []
 
         with patch(
-            "neuroagent.agent_routine.AgentsRoutine.get_chat_completion",
+            "neuroagent.agent_routine.AgentsRoutine.get_openai_response",
             side_effect=mock_multiple_tool_calls,
         ):
             async for event in routine.astream(
