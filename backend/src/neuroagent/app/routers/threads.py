@@ -327,7 +327,7 @@ async def get_thread_messages(
     if pagination_params.cursor:
         where_conditions.append(
             Messages.creation_date < pagination_params.cursor
-            if sort.startswith("-")
+            if sort.startswith("-") or vercel_format
             else Messages.creation_date > pagination_params.cursor
         )
 
