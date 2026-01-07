@@ -27,4 +27,4 @@ RUN uv sync --extra app
 WORKDIR /code
 
 EXPOSE 8078
-ENTRYPOINT ["bash", "-c", "uv run alembic upgrade head && uv run neuroagent-api --host 0.0.0.0 --port 8078"]
+ENTRYPOINT ["bash", "-c", "uv run alembic upgrade head && uv run uvicorn neuroagent.app.main:app --host 0.0.0.0 --port 8078"]

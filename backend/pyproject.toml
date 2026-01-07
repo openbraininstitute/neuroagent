@@ -55,7 +55,6 @@ tasks = [
 ]
 
 [project.scripts]
-neuroagent-api = "neuroagent.scripts.neuroagent_api:main"
 
 [tool.setuptools.dynamic]
 version = {attr = "neuroagent.__version__"}

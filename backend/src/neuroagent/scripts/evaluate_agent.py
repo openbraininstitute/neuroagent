@@ -96,7 +96,7 @@ def get_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "token",
         type=str,
-        help="Bearer token for the neuroagent-api call.",
+        help="Bearer token for the neuroagent API call.",
     )
     parser.add_argument(
         "--agent-url",

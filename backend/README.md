@@ -99,12 +99,12 @@ The servers in use are defined in the file `mcp.json`. The potential secrets tha
 
 Start the FastAPI server:
 ```bash
-uv run neuroagent-api
+uv run uvicorn neuroagent.app.main:app
 ```
 
 Or with custom host/port:
 ```bash
-uv run neuroagent-api --host 0.0.0.0 --port 8000
+uv run uvicorn neuroagent.app.main:app --host 0.0.0.0 --port 8000
 ```
 
 The API will be available at `http://localhost:8000`
@@ -133,7 +133,7 @@ The backend is split into two independent components:
 - **Location**: `src/neuroagent/app/`
 - **Purpose**: FastAPI web application
 - **Dependencies**: Installed via `uv sync --extra app`
-- **Entry point**: `neuroagent-api` command (defined in `pyproject.toml`)
+- **Entry point**: `uvicorn neuroagent.app.main:app` command
 - **Configuration**: `.env.app` file with `NEUROAGENT_` prefix
 - **Features**: HTTP API, authentication, database, rate limiting, tool routing
 
