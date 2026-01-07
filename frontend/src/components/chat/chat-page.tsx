@@ -86,14 +86,15 @@ export function ChatPage({
     status,
     stop,
   } = useChat({
+    id: `${threadId}-${session?.accessToken ? "authed" : "unauthed"}`,
     messages: retrievedMessages,
     experimental_throttle: 50,
     sendAutomaticallyWhen: lastAssistantHasAllToolOutputs,
     transport: new DefaultChatTransport({
       api: `${env.NEXT_PUBLIC_BACKEND_URL}/qa/chat_streamed/${threadId}`,
-      headers: {
+      headers: () => ({
         Authorization: `Bearer ${session?.accessToken}`,
-      },
+      }),
       prepareSendMessagesRequest: ({ messages }) => {
         const checkedToolsNow = useStore.getState().checkedTools;
         const currentModelNow = useStore.getState().currentModel;
