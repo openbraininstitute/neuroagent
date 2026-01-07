@@ -4,6 +4,6 @@ target_files:
 reinit: "neuragentobi_AAAAMA" # Forces full rescan when modified.
 
 include: 
-  - "/backend/src/neuroagent/app"
-  - "/backend/src/neuroagent/tools"
-  - "/backend/src/neuroagent/mcp.json"
+  - "backend/src/neuroagent/app/"
+  - "backend/src/neuroagent/tools/"
+  - "backend/src/neuroagent/mcp.json"
