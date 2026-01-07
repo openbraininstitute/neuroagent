@@ -1,0 +1,60 @@
+"""Pydantic schemas for Celery tasks."""
+
+from typing import Any, Literal
+from uuid import UUID
+
+from pydantic import BaseModel
+
+
+class SuccessOutput(BaseModel):
+    """Output of the python script."""
+
+    status: Literal["success"] = "success"
+    output: list[str]
+    return_value: Any = None
+
+
+class ErrorDetail(BaseModel):
+    """Detail of the python error."""
+
+    message: str | None = None
+    name: str | None = None
+
+
+class FailureOutput(BaseModel):
+    """Output of the python script."""
+
+    status: Literal["error"] = "error"
+    error_type: Literal["install-error", "python-error"]
+    error: ErrorDetail | str | None = None
+
+
+class RunPythonTaskInput(BaseModel):
+    """Input schema for run_python task."""
+
+    python_script: str
+    user_id: UUID
+    thread_id: UUID
+
+
+class RunPythonTaskOutput(BaseModel):
+    """Output schema for run_python task."""
+
+    result: SuccessOutput | FailureOutput
+    storage_id: list[str]
+
+
+class CircuitPopulationAnalysisTaskInput(BaseModel):
+    """Input schema for circuit_population_analysis task."""
+
+    presigned_url: str
+    population_name: str
+    question: str
+
+
+class CircuitPopulationAnalysisTaskOutput(BaseModel):
+    """Output schema for circuit_population_analysis task."""
+
+    result_data: str
+    query_executed: str
+    token_consumption: dict[str, str | int | None] | None = None

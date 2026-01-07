@@ -40,9 +40,35 @@ from neuroagent.app.schemas import (
     ToolCallVercel,
 )
 from neuroagent.tools.base_tool import BaseTool
-from neuroagent.utils import get_token_count, messages_to_openai_content
+from neuroagent.utils import get_token_count
 
 logger = logging.getLogger(__name__)
+
+
+async def messages_to_openai_content(
+    db_messages: list[Messages] | None = None,
+) -> list[dict[str, Any]]:
+    """Exctract content from Messages as dictionary to pass them to OpenAI."""
+    messages = []
+    if db_messages:
+        for msg in db_messages:
+            messages.append(json.loads(msg.content))
+
+    return messages
+
+
+def get_entity(message: dict[str, Any]) -> Entity:
+    """Define the Enum entity of the message based on its content."""
+    if message["role"] == "user":
+        return Entity.USER
+    elif message["role"] == "tool":
+        return Entity.TOOL
+    elif message["role"] == "assistant" and message.get("tool_calls", False):
+        return Entity.AI_TOOL
+    elif message["role"] == "assistant" and not message.get("tool_calls", False):
+        return Entity.AI_MESSAGE
+    else:
+        raise HTTPException(status_code=500, detail="Unknown message entity.")
 
 
 class RateLimitHeaders(BaseModel):
@@ -114,18 +140,19 @@ def validate_project(
 
 
 async def rate_limit(
-    redis_client: aioredis.Redis | None,
+    redis_client: aioredis.Redis,
     route_path: str,
     limit: int,
     expiry: int,
     user_sub: uuid.UUID,
+    disabled: bool = False,
 ) -> tuple[RateLimitHeaders, bool]:
     """Check rate limiting for a given route and user.
 
     Parameters
     ----------
     redis_client : aioredis.Redis
-        Redis client instance
+        Redis client instance (never None)
     route_path : str
         Path of the route being accessed
     limit : int
@@ -134,6 +161,8 @@ async def rate_limit(
         Time in seconds before the rate limit resets
     user_sub : uuid.UUID
         User identifier
+    disabled : bool, optional
+        Whether rate limiting is disabled
 
     Returns
     -------
@@ -142,10 +171,10 @@ async def rate_limit(
     rate_limited
         Whether the user is rate limited. In parent endpoint raise error if True.
     """
-    if redis_client is None:
+    if disabled:
         return RateLimitHeaders(
             x_ratelimit_limit="-1", x_ratelimit_remaining="-1", x_ratelimit_reset="-1"
-        ), False  # redis disabled
+        ), False  # rate limiting disabled
 
     # Create key using normalized route path and user sub
     key = f"rate_limit:{user_sub}:{route_path}"

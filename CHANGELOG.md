@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Celery support and offload run python tool and circuit analysis tool to celery workers.
+
 ## [0.14.1] - 19.12.2025
 
 ### Changed

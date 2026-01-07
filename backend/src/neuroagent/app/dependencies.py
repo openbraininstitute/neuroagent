@@ -9,6 +9,7 @@ from pathlib import Path
 from typing import Annotated, Any, AsyncIterator
 
 import boto3
+from celery import Celery
 from fastapi import Depends, HTTPException, Request
 from fastapi.security import HTTPBearer
 from httpx import AsyncClient, HTTPStatusError, get
@@ -19,7 +20,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession
 from starlette.status import HTTP_401_UNAUTHORIZED
 
-from neuroagent.agent_routine import AgentsRoutine
+from neuroagent.app.agent_routine import AgentsRoutine
 from neuroagent.app.app_utils import (
     filter_tools_and_model_by_conversation,
     validate_project,
@@ -27,7 +28,6 @@ from neuroagent.app.app_utils import (
 from neuroagent.app.config import Settings
 from neuroagent.app.database.sql_schemas import Entity, Messages, Threads
 from neuroagent.app.schemas import OpenRouterModelResponse, UserInfo
-from neuroagent.executor import WasmExecutor
 from neuroagent.mcp import MCPClient, create_dynamic_tool
 from neuroagent.new_types import Agent
 from neuroagent.tools import (
@@ -143,7 +143,6 @@ async def get_httpx_client(
     """Manage the httpx client for the request."""
     client = AsyncClient(
         timeout=300.0,
-        verify=False,  # nosec: B501
         headers={
             "x-request-id": request.headers["x-request-id"],
             "Authorization": f"Bearer {token}",
@@ -158,11 +157,6 @@ async def get_httpx_client(
 def get_accounting_session_factory(request: Request) -> AsyncAccountingSessionFactory:
     """Get the accounting session factory."""
     return request.app.state.accounting_session_factory
-
-
-def get_python_sandbox(request: Request) -> WasmExecutor:
-    """Get the python sandbox."""
-    return request.app.state.python_sandbox
 
 
 async def get_openai_client(
@@ -694,15 +688,47 @@ def get_s3_client(
     )
 
 
+def get_celery_client(request: Request) -> Celery:
+    """Get the Celery client from app state.
+
+    Parameters
+    ----------
+    request : Request
+        The FastAPI request object
+
+    Returns
+    -------
+    Celery
+        The Celery client instance
+    """
+    return request.app.state.celery
+
+
+def get_redis_client(request: Request) -> aioredis.Redis:
+    """Get the Redis client from app state.
+
+    Parameters
+    ----------
+    request : Request
+        The FastAPI request object
+
+    Returns
+    -------
+    aioredis.Redis
+        The Redis client instance (always available)
+    """
+    return request.app.state.redis_client
+
+
 async def get_context_variables(
     request: Request,
     settings: Annotated[Settings, Depends(get_settings)],
     httpx_client: Annotated[AsyncClient, Depends(get_httpx_client)],
     thread: Annotated[Threads, Depends(get_thread)],
-    s3_client: Annotated[Any, Depends(get_s3_client)],
     user_info: Annotated[UserInfo, Depends(get_user_info)],
     openai_client: Annotated[AsyncOpenAI, Depends(get_openai_client)],
-    python_sandbox: Annotated[WasmExecutor, Depends(get_python_sandbox)],
+    celery_client: Annotated[Celery, Depends(get_celery_client)],
+    redis_client: Annotated[aioredis.Redis, Depends(get_redis_client)],
 ) -> dict[str, Any]:
     """Get the context variables to feed the tool's metadata."""
     # Get the current frontend url
@@ -714,6 +740,7 @@ async def get_context_variables(
     return {
         "bluenaas_url": settings.tools.bluenaas.url,
         "bucket_name": settings.storage.bucket_name,
+        "celery_client": celery_client,
         "entitycore_url": settings.tools.entitycore.url,
         "current_frontend_url": current_frontend_url,
         "entity_frontend_url": entity_frontend_url,
@@ -724,8 +751,7 @@ async def get_context_variables(
         "obi_one_url": settings.tools.obi_one.url,
         "openai_client": openai_client,
         "project_id": thread.project_id,
-        "python_sandbox": python_sandbox,
-        "s3_client": s3_client,
+        "redis_client": redis_client,
         "sanity_url": settings.tools.sanity.url,
         "thread_id": thread.thread_id,
         "thumbnail_generation_url": settings.tools.thumbnail_generation.url,
@@ -764,19 +790,3 @@ def get_agents_routine(
         return AgentsRoutine(openrouter_client)
     else:
         return AgentsRoutine(openai_client)
-
-
-def get_redis_client(request: Request) -> aioredis.Redis | None:
-    """Get the Redis client from app state.
-
-    Parameters
-    ----------
-    request : Request
-        The FastAPI request object
-
-    Returns
-    -------
-    aioredis.Redis | None
-        The Redis client instance or None if not configured
-    """
-    return request.app.state.redis_client

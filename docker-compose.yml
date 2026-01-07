@@ -1,31 +1,39 @@
 services:
-  backend:
+  app:
     build:
       context: ./backend
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.app
     ports:
       - "8078:8078"
+    env_file:
+      - ./backend/.env.app
     environment:
-      - NEUROAGENT_DB__PREFIX=postgresql+asyncpg://
+      # Override service hostnames for Docker internal network
       - NEUROAGENT_DB__HOST=postgres
-      - NEUROAGENT_DB__PORT=5432
-      - NEUROAGENT_DB__USER=postgres
-      - NEUROAGENT_DB__PASSWORD=pwd
-      - NEUROAGENT_DB__NAME=neuroagent
-      - NEUROAGENT_KEYCLOAK__ISSUER=${KEYCLOAK_ISSUER}
-      - NEUROAGENT_LLM__OPENAI_TOKEN=${OPENAI_API_KEY}
       - NEUROAGENT_STORAGE__ENDPOINT_URL=http://minio:9000
-      - NEUROAGENT_STORAGE__BUCKET_NAME=neuroagent
-      - NEUROAGENT_STORAGE__ACCESS_KEY=minioadmin
-      - NEUROAGENT_STORAGE__SECRET_KEY=minioadmin
-      - NEUROAGENT_RATE_LIMITER__REDIS_HOST=redis
-      - NEUROAGENT_RATE_LIMITER__REDIS_PORT=6379
+      - NEUROAGENT_REDIS__REDIS_HOST=redis
     networks:
       - app-network
     depends_on:
       - postgres
       - minio
       - redis
+
+  tasks:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.tasks
+    env_file:
+      - ./backend/.env.tasks
+    environment:
+      # Override service hostnames for Docker internal network
+      - TASKS_REDIS__REDIS_HOST=redis
+      - TASKS_STORAGE__ENDPOINT_URL=http://minio:9000
+    networks:
+      - app-network
+    depends_on:
+      - redis
+      - minio
 
   frontend:
     build:
@@ -36,7 +44,7 @@ services:
     environment:
       - NEXTAUTH_URL=http://localhost:3000
       - NEXTAUTH_SECRET=${NEXTAUTH_SECRET}
-      - SERVER_SIDE_BACKEND_URL=http://backend:8078
+      - SERVER_SIDE_BACKEND_URL=http://app:8078
       - KEYCLOAK_ISSUER=${KEYCLOAK_ISSUER}
       - KEYCLOAK_SECRET=${KEYCLOAK_SECRET}
       - KEYCLOAK_ID=${KEYCLOAK_ID}
@@ -46,7 +54,7 @@ services:
     networks:
       - app-network
     depends_on:
-      - backend
+      - app
 
   postgres:
     image: postgres:15

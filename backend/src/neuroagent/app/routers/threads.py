@@ -143,7 +143,7 @@ async def generate_title(
     openai_client: Annotated[AsyncOpenAI, Depends(get_openai_client)],
     settings: Annotated[Settings, Depends(get_settings)],
     thread: Annotated[Threads, Depends(get_thread)],
-    redis_client: Annotated[aioredis.Redis | None, Depends(get_redis_client)],
+    redis_client: Annotated[aioredis.Redis, Depends(get_redis_client)],
     fastapi_response: Response,
     body: ThreadGeneratBody,
 ) -> ThreadsRead:
@@ -154,6 +154,7 @@ async def generate_title(
         limit=settings.rate_limiter.limit_title,
         expiry=settings.rate_limiter.expiry_title,
         user_sub=thread.user_id,
+        disabled=settings.rate_limiter.disabled,
     )
     if rate_limited:
         raise HTTPException(

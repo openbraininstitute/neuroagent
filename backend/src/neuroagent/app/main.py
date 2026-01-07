@@ -3,11 +3,11 @@
 import logging
 from contextlib import aclosing, asynccontextmanager
 from logging.config import dictConfig
-from pathlib import Path
 from typing import Annotated, Any, AsyncContextManager
 from uuid import uuid4
 
 from asgi_correlation_id import CorrelationIdMiddleware
+from celery import Celery
 from fastapi import Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.openapi.utils import get_openapi
@@ -34,7 +34,6 @@ from neuroagent.app.dependencies import (
 )
 from neuroagent.app.middleware import strip_path_prefix
 from neuroagent.app.routers import qa, rate_limit, storage, threads, tools
-from neuroagent.executor import WasmExecutor
 from neuroagent.mcp import MCPClient
 
 LOGGING = {
@@ -82,23 +81,28 @@ async def lifespan(fastapi_app: FastAPI) -> AsyncContextManager[None]:  # type: 
         get_settings, get_settings
     )()
 
-    # Initialize Redis client if rate limiting is enabled
-    if not app_settings.rate_limiter.disabled:
-        redis_password = (
-            app_settings.rate_limiter.redis_password.get_secret_value()
-            if app_settings.rate_limiter.redis_password is not None
-            else None
-        )
-        redis_client = aioredis.Redis(
-            host=app_settings.rate_limiter.redis_host,
-            port=app_settings.rate_limiter.redis_port,
-            password=redis_password,
-            ssl=app_settings.rate_limiter.redis_ssl,
-            decode_responses=True,
-        )
-        fastapi_app.state.redis_client = redis_client
-    else:
-        fastapi_app.state.redis_client = None
+    # Initialize Redis client (always created, used for rate limiting and other purposes)
+    redis_client = aioredis.Redis.from_url(
+        app_settings.redis.redis_url,
+        decode_responses=True,
+    )
+    fastapi_app.state.redis_client = redis_client
+
+    # Initialize Celery client
+    redis_url = app_settings.redis.redis_url
+
+    celery_client = Celery(__name__)
+    celery_client.conf.broker_url = redis_url
+    celery_client.conf.result_backend = redis_url
+
+    # Configure task routing with separate queues for each task
+    # This is on the producer side (where tasks are sent)
+    celery_client.conf.task_routes = {
+        "run_python_task": {"queue": "python_q"},
+        "circuit_population_analysis_task": {"queue": "circuit_q"},
+    }
+
+    fastapi_app.state.celery = celery_client
 
     # Get the sqlalchemy engine and store it in app state.
     engine = setup_engine(app_settings, get_connection_string(app_settings))
@@ -130,43 +134,19 @@ async def lifespan(fastapi_app: FastAPI) -> AsyncContextManager[None]:  # type: 
     ) as session_factory:
         fastapi_app.state.accounting_session_factory = session_factory
 
-        # Built in pyodide packages
-        imports = [
-            "numpy",
-            "pandas",
-            "pydantic",
-            "scikit-learn",
-            "scipy",
-        ]
-
-        # Fetch manually downloaded wheels + use micropip notation
-        extra_wheel_list = list(Path("./cached_wheels").glob("*.whl"))
-        if extra_wheel_list:
-            logger.info(
-                f"Found the following extra wheels: {', '.join([wheel.name for wheel in extra_wheel_list])}"
-            )
-            imports += [f"file:{wheel.absolute()}" for wheel in extra_wheel_list]
-
         async with MCPClient(config=app_settings.mcp) as mcp_client:
-            with WasmExecutor(
-                additional_imports=imports,
-                allocated_memory=app_settings.tools.deno_allocated_memory,
-                logger=logger,
-            ) as sandbox:
-                fastapi_app.state.python_sandbox = sandbox
-                # trigger dynamic tool generation - only done once - it is cached
-                _ = fastapi_app.dependency_overrides.get(
-                    get_mcp_tool_list, get_mcp_tool_list
-                )(mcp_client, app_settings)
-                fastapi_app.state.mcp_client = mcp_client
-                yield
+            # trigger dynamic tool generation - only done once - it is cached
+            _ = fastapi_app.dependency_overrides.get(
+                get_mcp_tool_list, get_mcp_tool_list
+            )(mcp_client, app_settings)
+            fastapi_app.state.mcp_client = mcp_client
+            yield
 
     # Cleanup connections
     if engine:
         await engine.dispose()
 
-    if fastapi_app.state.redis_client is not None:
-        await fastapi_app.state.redis_client.aclose()
+    await fastapi_app.state.redis_client.aclose()
 
     # MCP client cleanup is handled by the context manager
 

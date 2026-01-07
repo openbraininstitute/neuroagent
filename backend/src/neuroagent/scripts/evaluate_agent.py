@@ -96,7 +96,7 @@ def get_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "token",
         type=str,
-        help="Bearer token for the neuroagent-api call.",
+        help="Bearer token for the neuroagent API call.",
     )
     parser.add_argument(
         "--agent-url",
@@ -644,7 +644,7 @@ async def run_eval(
 
 
 if __name__ == "__main__":
-    load_dotenv()
+    load_dotenv(".env.app")
     os.environ["OPENAI_API_KEY"] = os.getenv("NEUROAGENT_LLM__OPENAI_TOKEN", "")
 
     parser = get_parser()

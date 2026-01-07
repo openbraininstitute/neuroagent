@@ -1,18 +1,15 @@
 """Utilies for neuroagent."""
 
+import asyncio
 import json
 import logging
 import re
 import uuid
 from typing import Any, Literal
 
-from fastapi import HTTPException
+from celery.result import AsyncResult
 from openai.types.completion_usage import CompletionUsage
-
-from neuroagent.app.database.sql_schemas import (
-    Entity,
-    Messages,
-)
+from redis import asyncio as aioredis
 
 logger = logging.getLogger(__name__)
 
@@ -38,32 +35,6 @@ def merge_chunk(final_response: dict[str, Any], delta: dict[str, Any]) -> None:
             if final_response["tool_calls"][index]["type"]:
                 tool_call["type"] = None
             merge_fields(final_response["tool_calls"][index], tool_call)
-
-
-async def messages_to_openai_content(
-    db_messages: list[Messages] | None = None,
-) -> list[dict[str, Any]]:
-    """Exctract content from Messages as dictionary to pass them to OpenAI."""
-    messages = []
-    if db_messages:
-        for msg in db_messages:
-            messages.append(json.loads(msg.content))
-
-    return messages
-
-
-def get_entity(message: dict[str, Any]) -> Entity:
-    """Define the Enum entity of the message based on its content."""
-    if message["role"] == "user":
-        return Entity.USER
-    elif message["role"] == "tool":
-        return Entity.TOOL
-    elif message["role"] == "assistant" and message.get("tool_calls", False):
-        return Entity.AI_TOOL
-    elif message["role"] == "assistant" and not message.get("tool_calls", False):
-        return Entity.AI_MESSAGE
-    else:
-        raise HTTPException(status_code=500, detail="Unknown message entity.")
 
 
 def complete_partial_json(partial: str) -> str:
@@ -271,3 +242,102 @@ def get_token_count(usage: CompletionUsage | None) -> dict[str, int | None]:
         }
     else:
         return {"input_cached": None, "input_noncached": None, "completion": None}
+
+
+async def short_poll_celery_ready_with_retry(
+    task_result: AsyncResult,
+    max_retries: int = 5,
+    retry_delay: float = 0.1,
+) -> dict[Any, Any]:
+    """Poll Celery task with retries to handle race condition.
+
+    When a task completes, there's a small window where the stream notification
+    arrives before Celery finishes storing the result. This function retries
+    checking task.ready() with short delays to handle this race condition.
+
+    Parameters
+    ----------
+    task_result : AsyncResult
+        The Celery AsyncResult object to wait for
+    max_retries : int, optional
+        Maximum number of retry attempts. Default is 5.
+    retry_delay : float, optional
+        Delay between retries in seconds. Default is 0.1 (100ms).
+
+    Returns
+    -------
+    Any
+        The task result value (deserialized from JSON/Redis)
+
+    Raises
+    ------
+    Exception
+        If the task fails, the exception raised by the task will be propagated
+    """
+    for attempt in range(max_retries):
+        is_ready = await asyncio.to_thread(task_result.ready)
+        if is_ready:
+            return await asyncio.to_thread(task_result.get)
+        # Wait a bit before retrying (except on last attempt)
+        if attempt < max_retries - 1:
+            await asyncio.sleep(retry_delay)
+
+    # Final check after all retries
+    is_ready = await asyncio.to_thread(task_result.ready)
+    if is_ready:
+        return await asyncio.to_thread(task_result.get)
+
+    raise TimeoutError(
+        f"Task {task_result.id} finished but it was not possible to retrieve the result after {max_retries} attempts. "
+    )
+
+
+async def long_poll_celery_result(
+    task_result: AsyncResult,
+    redis_client: aioredis.Redis,
+    timeout: int = 30,
+) -> dict[Any, Any]:
+    """Wait for a Celery task result using Redis Streams with long polling.
+
+    This function performs a single blocking XREAD call on a Redis stream until
+    the task publishes a "done" message. The timeout is passed directly to XREAD
+    as the block parameter. This is event-driven - Redis will wake up the coroutine
+    immediately when the message arrives. Efficient for handling many concurrent tasks.
+
+    Parameters
+    ----------
+    task_result : AsyncResult
+        The Celery AsyncResult object to wait for
+    redis_client : aioredis.Redis
+        The Redis client instance for stream operations (assumed to be not None)
+    timeout : int, optional
+        Maximum time to wait in seconds. Converted to milliseconds for XREAD block.
+        Default is 30.
+
+    Returns
+    -------
+    Any
+        The task result value (deserialized from JSON/Redis)
+
+    Raises
+    ------
+    Exception
+        If the task fails, the exception raised by the task will be propagated
+    """
+    task_id = task_result.id
+    stream_key = f"task:{task_id}:progress"
+    last_id = "$"  # Start reading from new messages
+    block_ms = timeout * 1000  # Convert seconds to milliseconds
+
+    messages = await redis_client.xread(
+        {stream_key: last_id},
+        block=block_ms,  # Block for timeout milliseconds
+        count=1,
+    )
+
+    if messages:
+        # Got a message from the stream, poll for result
+        return await short_poll_celery_ready_with_retry(task_result)
+    else:
+        # No message received (timeout)
+        raise TimeoutError(f"Task {task_id} did not finish within {timeout} seconds")

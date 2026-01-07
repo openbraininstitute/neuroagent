@@ -10,6 +10,8 @@ from dotenv import dotenv_values
 from pydantic import BaseModel, ConfigDict, Field, SecretStr, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
+from neuroagent.config import SettingsRedis, SettingsStorage
+
 logger = logging.getLogger(__name__)
 
 
@@ -19,18 +21,6 @@ class SettingsAgent(BaseModel):
     model: Literal["simple", "multi"] = "simple"
     max_turns: int = 10
     max_parallel_tool_calls: int = 10
-
-    model_config = ConfigDict(frozen=True)
-
-
-class SettingsStorage(BaseModel):
-    """Storage settings."""
-
-    endpoint_url: str | None = None
-    bucket_name: str = "neuroagent"
-    access_key: SecretStr | None = None
-    secret_key: SecretStr | None = None
-    expires_in: int = 600
 
     model_config = ConfigDict(frozen=True)
 
@@ -165,10 +155,6 @@ class SettingsMisc(BaseModel):
 class SettingsRateLimiter(BaseModel):
     """Rate limiter settings."""
 
-    redis_host: str = "localhost"
-    redis_port: int = 6379
-    redis_password: SecretStr | None = None
-    redis_ssl: bool = False
     disabled: bool = False
 
     limit_chat: int = 20
@@ -261,12 +247,13 @@ class Settings(BaseSettings):
     keycloak: SettingsKeycloak = SettingsKeycloak()  # has no required
     misc: SettingsMisc = SettingsMisc()  # has no required
     storage: SettingsStorage = SettingsStorage()  # has no required
+    redis: SettingsRedis = SettingsRedis()  # has no required
     rate_limiter: SettingsRateLimiter = SettingsRateLimiter()  # has no required
     accounting: SettingsAccounting = SettingsAccounting()  # has no required
     mcp: SettingsMCP = SettingsMCP()  # has no required
 
     model_config = SettingsConfigDict(
-        env_file=".env",
+        env_file=".env.app",
         env_prefix="NEUROAGENT_",
         env_nested_delimiter="__",
         frozen=True,

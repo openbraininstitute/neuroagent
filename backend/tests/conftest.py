@@ -3,7 +3,7 @@
 import json
 import os
 from typing import ClassVar
-from unittest.mock import AsyncMock, mock_open, patch
+from unittest.mock import mock_open, patch
 from uuid import UUID
 
 import pytest
@@ -27,6 +27,7 @@ from neuroagent.app.dependencies import (
 )
 from neuroagent.app.main import app
 from neuroagent.app.schemas import OpenRouterModelResponse
+from neuroagent.tasks.config import Settings as SettingsTasks
 from neuroagent.tools.base_tool import BaseTool
 from tests.mock_client import MockOpenAIClient, create_mock_response
 
@@ -167,9 +168,15 @@ def agent_handoff_tool():
 
 
 @pytest.fixture(autouse=True, scope="session")
-def dont_look_at_env_file():
-    """Never look inside of the .env when running unit tests."""
+def dont_look_at_app_env_file():
+    """Never look inside of the .env.app when running unit tests."""
     Settings.model_config["env_file"] = None
+
+
+@pytest.fixture(autouse=True, scope="session")
+def dont_look_at_tasks_env_file():
+    """Never look inside of the .env.tasks when running unit tests."""
+    SettingsTasks.model_config["env_file"] = None
 
 
 @pytest.fixture(autouse=True)
@@ -348,14 +355,4 @@ def patch_mcp_servers():
         mock_path.return_value.parent.parent.__truediv__.return_value.open = mock_open(
             read_data="{}"
         )
-        yield
-
-
-@pytest.fixture(autouse=True)
-def patch_code_sandbox():
-    mock_cm = AsyncMock()
-    mock_cm.__aenter__.return_value = None
-    mock_cm.__aexit__.return_value = None
-
-    with patch("neuroagent.app.main.WasmExecutor", return_value=mock_cm):
         yield

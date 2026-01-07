@@ -1,15 +1,21 @@
 """Tool for running any kind of python code."""
 
-import json
 import logging
-from typing import Any, ClassVar
+from typing import ClassVar
 from uuid import UUID
 
+from celery import Celery
 from pydantic import BaseModel, Field
+from redis import asyncio as aioredis
 
-from neuroagent.executor import FailureOutput, SuccessOutput, WasmExecutor
+from neuroagent.task_schemas import (
+    FailureOutput,
+    RunPythonTaskInput,
+    RunPythonTaskOutput,
+    SuccessOutput,
+)
 from neuroagent.tools.base_tool import BaseMetadata, BaseTool
-from neuroagent.utils import save_to_storage
+from neuroagent.utils import long_poll_celery_result
 
 logger = logging.getLogger(__name__)
 
@@ -23,8 +29,8 @@ class RunPythonInput(BaseModel):
 class RunPythonMetadata(BaseMetadata):
     """Metadata for RunPython tool."""
 
-    python_sandbox: WasmExecutor
-    s3_client: Any  # boto3 client
+    celery_client: Celery
+    redis_client: aioredis.Redis
     user_id: UUID
     bucket_name: str
     thread_id: UUID
@@ -92,49 +98,35 @@ AVAILABLE LIBRARIES:
     input_schema: RunPythonInput
 
     async def arun(self) -> RunPythonOutput:
-        """Run arbitrary python code."""
-        # Run the entire code
-        result = await self.metadata.python_sandbox.run_code(
-            self.input_schema.python_script
+        """Run arbitrary python code via Celery task."""
+        # Create task input with all required metadata
+        task_input = RunPythonTaskInput(
+            python_script=self.input_schema.python_script,
+            user_id=self.metadata.user_id,
+            thread_id=self.metadata.thread_id,
         )
 
-        identifiers = []
-        # Check if we have images, upload them to the store if so
-        # Get the plot stdout for parsing
-        fig_list = []
-        if result.status == "success":
-            for i, elem in enumerate(result.output):
-                # Stdout lines are not necessarily valid jsons
-                try:
-                    # Load every element of the stdout until we find our fig dict
-                    output = json.loads(elem)
+        # Submit task to Celery
+        celery_client = self.metadata.celery_client
+        redis_client = self.metadata.redis_client
+        task_result = celery_client.send_task(
+            "run_python_task", args=[task_input.model_dump(mode="json")]
+        )
+        logger.info(f"Submitted run_python_task with ID: {task_result.id}")
 
-                    # Not only dicts can be valid json, gotta be careful
-                    if isinstance(output, dict) and "_plots" in output:
-                        fig_list = output["_plots"]
-                        result.output.pop(i)  # Do not pollute stdout
-                        break
+        # Wait for result using Redis Streams (with longer timeout for Python execution)
+        result_dict = await long_poll_celery_result(
+            task_result, redis_client, timeout=120
+        )
+        logger.info(f"Task {task_result.id} completed")
 
-                except json.JSONDecodeError:
-                    continue
+        # Extract result from task output
+        task_output = RunPythonTaskOutput(**result_dict)
 
-            # If we have figures, save them to the storage
-            if fig_list:
-                # Save individual jsons to storage
-                for plot_json in fig_list:
-                    identifiers.append(
-                        save_to_storage(
-                            s3_client=self.metadata.s3_client,
-                            bucket_name=self.metadata.bucket_name,
-                            user_id=self.metadata.user_id,
-                            content_type="application/json",
-                            body=plot_json,
-                            category="json",
-                            thread_id=self.metadata.thread_id,
-                        )
-                    )
-
-        return RunPythonOutput(result=result, storage_id=identifiers)
+        # Return the result directly (S3 operations are handled in the task)
+        return RunPythonOutput(
+            result=task_output.result, storage_id=task_output.storage_id
+        )
 
     @classmethod
     async def is_online(cls) -> bool:
