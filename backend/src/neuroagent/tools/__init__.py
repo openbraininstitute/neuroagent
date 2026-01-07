@@ -155,7 +155,7 @@ from neuroagent.tools.run_python_tool import RunPythonTool
 from neuroagent.tools.thumbnailgen_electricalcellrecording_getone import (
     PlotElectricalCellRecordingGetOneTool,
 )
-from neuroagent.tools.text_reverser import TextReverserTool
+from neuroagent.tools.timestamp import TimestampTool
 from neuroagent.tools.thumbnailgen_morphology_getone import PlotMorphologyGetOneTool
 from neuroagent.tools.weather import WeatherTool
 from neuroagent.tools.web_search import WebSearchTool
@@ -243,7 +243,7 @@ __all__ = [
     "StrainGetOneTool",
     "SubjectGetAllTool",
     "SubjectGetOneTool",
-    "TextReverserTool",
+    "TimestampTool",
     "WeatherTool",
     "WebSearchTool",
 ]
