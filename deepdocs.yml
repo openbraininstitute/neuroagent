@@ -1,5 +1,5 @@
 target:
-  - url: "backend/docs/neuroagent-capabilities.md"
+  - url: "docs"
 
 reinit: "neuragentobi_AMAMAAMA" # Forces full rescan when modified.
 
