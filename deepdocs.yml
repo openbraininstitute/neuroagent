@@ -3,7 +3,9 @@ target:
 
 reinit: "neuragentobi_AMAMAAMA" # Forces full rescan when modified.
 
-include: 
-  - "backend/src/neuroagent/app/"
-  - "backend/src/neuroagent/tools/"
-  - "backend/src/neuroagent/mcp.json"
+include: []
+
+# include: 
+#   - "backend/src/neuroagent/app/"
+#   - "backend/src/neuroagent/tools/"
+#   - "backend/src/neuroagent/mcp.json"
