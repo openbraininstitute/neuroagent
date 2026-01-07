@@ -54,7 +54,8 @@ export function isLastMessageComplete(messages: MessageStrict | undefined) {
 
 // Util to get the last text part
 export function getLastText(message: MessageStrict | undefined): string {
-  return message?.parts.findLast((e) => e.type == "text")?.text || "";
+  const lastPart = message?.parts.at(-1);
+  return lastPart?.type === "text" ? lastPart.text : "";
 }
 
 // Utils to get all tool calls from an AI message
@@ -70,7 +71,8 @@ export function getToolInvocations(
 
 // Utils to get the last text part of the Message parts:
 export function getLastMessageText(messages: UIMessage[]): string {
-  return messages.at(-1)?.parts.findLast((e) => e.type === "text")?.text || "";
+  const lastPart = messages.at(-1)?.parts.at(-1);
+  return lastPart?.type === "text" ? lastPart.text : "";
 }
 
 // Utils to get all storage ID from a single tool call message
