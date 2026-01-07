@@ -1,7 +1,7 @@
 target:
   - url: "backend/docs/neuroagent-capabilities.md"
 
-reinit: "neuragentobi_AMAAAMA" # Forces full rescan when modified.
+reinit: "neuragentobi_AMAMAAMA" # Forces full rescan when modified.
 
 include: 
   - "backend/src/neuroagent/app/"
