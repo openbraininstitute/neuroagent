@@ -1,4 +1,4 @@
-target_files:
+target:
   - url: "backend/docs/neuroagent-capabilities.md"
 
 reinit: "neuragentobi_AMAAAMA" # Forces full rescan when modified.
