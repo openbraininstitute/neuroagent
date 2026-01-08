@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.14.2] - 08.01.2026
+
+### Fixed
+- Context7 name change.
+
 ## [0.14.1] - 19.12.2025
 
 ### Changed
