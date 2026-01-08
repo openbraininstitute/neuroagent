@@ -149,6 +149,7 @@ from neuroagent.tools.obione_generatesimulationsconfig import (
     GenerateSimulationsConfigTool,
 )
 from neuroagent.tools.obione_morphometrics_getone import MorphometricsGetOneTool
+from neuroagent.tools.password_generator import PasswordTool
 from neuroagent.tools.random_number import RandomNumberTool
 from neuroagent.tools.read_paper import ReadPaperTool
 from neuroagent.tools.run_python_tool import RunPythonTool
@@ -157,6 +158,7 @@ from neuroagent.tools.thumbnailgen_electricalcellrecording_getone import (
 )
 from neuroagent.tools.timestamp import TimestampTool
 from neuroagent.tools.thumbnailgen_morphology_getone import PlotMorphologyGetOneTool
+from neuroagent.tools.uuid_generator import UuidTool
 from neuroagent.tools.weather import WeatherTool
 from neuroagent.tools.web_search import WebSearchTool
 
@@ -214,6 +216,7 @@ __all__ = [
     "OBIExpertTool",
     "OrganizationGetAllTool",
     "OrganizationGetOneTool",
+    "PasswordTool",
     "PersonGetAllTool",
     "PersonGetOneTool",
     "PlotElectricalCellRecordingGetOneTool",
@@ -244,6 +247,7 @@ __all__ = [
     "SubjectGetAllTool",
     "SubjectGetOneTool",
     "TimestampTool",
+    "UuidTool",
     "WeatherTool",
     "WebSearchTool",
 ]
