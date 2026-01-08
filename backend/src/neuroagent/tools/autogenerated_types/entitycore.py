@@ -2732,12 +2732,22 @@ class StrainRead(BaseModel):
 class StructuralDomain(
     RootModel[
         Literal[
-            'apical_dendrite', 'basal_dendrite', 'axon', 'soma', 'neuron_morphology'
+            'apical_dendrite',
+            'basal_dendrite',
+            'axon',
+            'soma',
+            'neuron_morphology',
+            'not_applicable',
         ]
     ]
 ):
     root: Literal[
-        'apical_dendrite', 'basal_dendrite', 'axon', 'soma', 'neuron_morphology'
+        'apical_dendrite',
+        'basal_dendrite',
+        'axon',
+        'soma',
+        'neuron_morphology',
+        'not_applicable',
     ] = Field(..., title='StructuralDomain')
 
 
@@ -7739,6 +7749,7 @@ class ReadManyMeasurementLabelGetParametersQuery(BaseModel):
     update_date__gte: AwareDatetime | None = Field(
         default=None, title='Update Date  Gte'
     )
+    entity_type: MeasurableEntity | None = Field(default=None, title='Entity Type')
     order_by: list[str] = Field(default=['-creation_date'], title='Order By')
     created_by__pref_label: str | None = Field(
         default=None, title='Created By  Pref Label'
