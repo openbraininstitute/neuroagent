@@ -4,7 +4,9 @@ from neuroagent.tools.calculator import CalculatorTool
 from neuroagent.tools.circuit_population_analysis_tool import (
     CircuitPopulationAnalysisTool,
 )
+from neuroagent.tools.color_generator import ColorTool
 from neuroagent.tools.context_analyzer_tool import ContextAnalyzerTool
+from neuroagent.tools.dice_roller import DiceTool
 from neuroagent.tools.entitycore_asset_downloadone import AssetDownloadOneTool
 from neuroagent.tools.entitycore_asset_getall import AssetGetAllTool
 from neuroagent.tools.entitycore_asset_getone import AssetGetOneTool
@@ -149,7 +151,6 @@ from neuroagent.tools.obione_generatesimulationsconfig import (
     GenerateSimulationsConfigTool,
 )
 from neuroagent.tools.obione_morphometrics_getone import MorphometricsGetOneTool
-from neuroagent.tools.password_generator import PasswordTool
 from neuroagent.tools.random_number import RandomNumberTool
 from neuroagent.tools.read_paper import ReadPaperTool
 from neuroagent.tools.run_python_tool import RunPythonTool
@@ -158,7 +159,6 @@ from neuroagent.tools.thumbnailgen_electricalcellrecording_getone import (
 )
 from neuroagent.tools.timestamp import TimestampTool
 from neuroagent.tools.thumbnailgen_morphology_getone import PlotMorphologyGetOneTool
-from neuroagent.tools.uuid_generator import UuidTool
 from neuroagent.tools.weather import WeatherTool
 from neuroagent.tools.web_search import WebSearchTool
 
@@ -173,6 +173,7 @@ __all__ = [
     "BrainRegionHierarchyGetAllTool",
     "BrainRegionHierarchyGetOneTool",
     "CalculatorTool",
+    "ColorTool",
     "CellMorphologyGetAllTool",
     "CellMorphologyGetOneTool",
     "CircuitConnectivityMetricsGetOneTool",
@@ -185,6 +186,7 @@ __all__ = [
     "ContributionGetOneTool",
     "ContextAnalyzerTool",
     "CircuitPopulationAnalysisTool",
+    "DiceTool",
     "ElectricalCellRecordingGetAllTool",
     "ElectricalCellRecordingGetOneTool",
     "EModelGetAllTool",
@@ -216,7 +218,6 @@ __all__ = [
     "OBIExpertTool",
     "OrganizationGetAllTool",
     "OrganizationGetOneTool",
-    "PasswordTool",
     "PersonGetAllTool",
     "PersonGetOneTool",
     "PlotElectricalCellRecordingGetOneTool",
@@ -247,7 +248,6 @@ __all__ = [
     "SubjectGetAllTool",
     "SubjectGetOneTool",
     "TimestampTool",
-    "UuidTool",
     "WeatherTool",
     "WebSearchTool",
 ]
