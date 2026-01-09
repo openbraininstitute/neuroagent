@@ -796,5 +796,5 @@ async def test_filter_tools_only_model_selection(get_weather_tool):
 
     assert len(result) == 1
     assert result[0].name == "get_weather"
-    assert model_dict["model"] == "gpt-5-mini"
+    assert model_dict["model"] == "openai/gpt-5-mini"
     assert model_dict["reasoning"] == "low"

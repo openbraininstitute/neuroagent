@@ -1939,6 +1939,7 @@ class NestedSimulationRead(BaseModel):
     simulation_campaign_id: UUID = Field(..., title='Simulation Campaign Id')
     entity_id: UUID = Field(..., title='Entity Id')
     scan_parameters: dict[str, Any] = Field(..., title='Scan Parameters')
+    number_neurons: int = Field(..., title='Number Neurons')
 
 
 class NestedSkeletonizationConfigRead(BaseModel):
@@ -2334,6 +2335,7 @@ class SimulationCreate(BaseModel):
     simulation_campaign_id: UUID = Field(..., title='Simulation Campaign Id')
     entity_id: UUID = Field(..., title='Entity Id')
     scan_parameters: dict[str, Any] = Field(..., title='Scan Parameters')
+    number_neurons: int = Field(..., title='Number Neurons')
 
 
 class SimulationExecutionStatus(
@@ -2438,6 +2440,9 @@ class SimulationUserUpdate(BaseModel):
     )
     scan_parameters: dict[str, Any] | Literal['<NOT_SET>'] | None = Field(
         default='<NOT_SET>', title='Scan Parameters'
+    )
+    number_neurons: int | Literal['<NOT_SET>'] | None = Field(
+        default='<NOT_SET>', title='Number Neurons'
     )
 
 
@@ -3132,18 +3137,6 @@ class ReadManyAnalysisNotebookExecutionGetParametersQuery(BaseModel):
     generated__type: EntityType | None = Field(default=None, title='Generated  Type')
     search: str | None = Field(default=None, title='Search')
     with_facets: bool = Field(default=False, title='With Facets')
-    within_brain_region_hierarchy_id: UUID | None = Field(
-        default=None, title='Within Brain Region Hierarchy Id'
-    )
-    within_brain_region_brain_region_id: UUID | None = Field(
-        default=None, title='Within Brain Region Brain Region Id'
-    )
-    within_brain_region_ascendants: bool = Field(
-        default=False, title='Within Brain Region Ascendants'
-    )
-    within_brain_region_direction: WithinBrainRegionDirection | None = Field(
-        default=None, title='Within Brain Region Direction'
-    )
 
 
 class ReadManyAnalysisNotebookResultGetParametersQuery(BaseModel):
@@ -3455,18 +3448,6 @@ class ReadManyCalibrationGetParametersQuery(BaseModel):
     generated__type: EntityType | None = Field(default=None, title='Generated  Type')
     search: str | None = Field(default=None, title='Search')
     with_facets: bool = Field(default=False, title='With Facets')
-    within_brain_region_hierarchy_id: UUID | None = Field(
-        default=None, title='Within Brain Region Hierarchy Id'
-    )
-    within_brain_region_brain_region_id: UUID | None = Field(
-        default=None, title='Within Brain Region Brain Region Id'
-    )
-    within_brain_region_ascendants: bool = Field(
-        default=False, title='Within Brain Region Ascendants'
-    )
-    within_brain_region_direction: WithinBrainRegionDirection | None = Field(
-        default=None, title='Within Brain Region Direction'
-    )
 
 
 class ReadManyCellCompositionGetParametersQuery(BaseModel):
@@ -4182,129 +4163,10 @@ class ReadManyCircuitGetParametersQuery(BaseModel):
     )
 
 
-class ReadManyCircuitExtractionCampaignGetParametersQuery(BaseModel):
-    model_config = ConfigDict(
-        extra='allow',
-    )
-    page: int = Field(default=1, ge=1, title='Page')
-    page_size: int = Field(default=100, ge=1, title='Page Size')
-    name: str | None = Field(default=None, title='Name')
-    name__in: list[str] | None = Field(default=None, title='Name  In')
-    name__ilike: str | None = Field(default=None, title='Name  Ilike')
-    creation_date__lte: AwareDatetime | None = Field(
-        default=None, title='Creation Date  Lte'
-    )
-    creation_date__gte: AwareDatetime | None = Field(
-        default=None, title='Creation Date  Gte'
-    )
-    update_date__lte: AwareDatetime | None = Field(
-        default=None, title='Update Date  Lte'
-    )
-    update_date__gte: AwareDatetime | None = Field(
-        default=None, title='Update Date  Gte'
-    )
-    authorized_public: bool | None = Field(default=None, title='Authorized Public')
-    authorized_project_id: UUID | None = Field(
-        default=None, title='Authorized Project Id'
-    )
-    id: UUID | None = Field(default=None, title='Id')
-    id__in: list[UUID] | None = Field(default=None, title='Id  In')
-    order_by: list[str] = Field(default=['-creation_date'], title='Order By')
-    ilike_search: str | None = Field(
-        default=None,
-        description="Search text with wildcard support. Use * for zero or more characters and ? for exactly one character. All other characters are treated as literals. Examples: 'test*' matches 'testing', 'file?.txt' matches 'file1.txt'. search_model_fields: name, description",
-        title='Ilike Search',
-    )
-    contribution__pref_label: str | None = Field(
-        default=None, title='Contribution  Pref Label'
-    )
-    contribution__pref_label__in: list[str] | None = Field(
-        default=None, title='Contribution  Pref Label  In'
-    )
-    contribution__pref_label__ilike: str | None = Field(
-        default=None, title='Contribution  Pref Label  Ilike'
-    )
-    contribution__id: UUID | None = Field(default=None, title='Contribution  Id')
-    contribution__id__in: list[UUID] | None = Field(
-        default=None, title='Contribution  Id  In'
-    )
-    contribution__type: AgentType | None = Field(
-        default=None, title='Contribution  Type'
-    )
-    created_by__pref_label: str | None = Field(
-        default=None, title='Created By  Pref Label'
-    )
-    created_by__pref_label__in: list[str] | None = Field(
-        default=None, title='Created By  Pref Label  In'
-    )
-    created_by__pref_label__ilike: str | None = Field(
-        default=None, title='Created By  Pref Label  Ilike'
-    )
-    created_by__id: UUID | None = Field(default=None, title='Created By  Id')
-    created_by__id__in: list[UUID] | None = Field(
-        default=None, title='Created By  Id  In'
-    )
-    created_by__type: AgentType | None = Field(default=None, title='Created By  Type')
-    created_by__given_name: str | None = Field(
-        default=None, title='Created By  Given Name'
-    )
-    created_by__given_name__ilike: str | None = Field(
-        default=None, title='Created By  Given Name  Ilike'
-    )
-    created_by__family_name: str | None = Field(
-        default=None, title='Created By  Family Name'
-    )
-    created_by__family_name__ilike: str | None = Field(
-        default=None, title='Created By  Family Name  Ilike'
-    )
-    created_by__sub_id: UUID | None = Field(default=None, title='Created By  Sub Id')
-    created_by__sub_id__in: list[UUID] | None = Field(
-        default=None, title='Created By  Sub Id  In'
-    )
-    updated_by__pref_label: str | None = Field(
-        default=None, title='Updated By  Pref Label'
-    )
-    updated_by__pref_label__in: list[str] | None = Field(
-        default=None, title='Updated By  Pref Label  In'
-    )
-    updated_by__pref_label__ilike: str | None = Field(
-        default=None, title='Updated By  Pref Label  Ilike'
-    )
-    updated_by__id: UUID | None = Field(default=None, title='Updated By  Id')
-    updated_by__id__in: list[UUID] | None = Field(
-        default=None, title='Updated By  Id  In'
-    )
-    updated_by__type: AgentType | None = Field(default=None, title='Updated By  Type')
-    updated_by__given_name: str | None = Field(
-        default=None, title='Updated By  Given Name'
-    )
-    updated_by__given_name__ilike: str | None = Field(
-        default=None, title='Updated By  Given Name  Ilike'
-    )
-    updated_by__family_name: str | None = Field(
-        default=None, title='Updated By  Family Name'
-    )
-    updated_by__family_name__ilike: str | None = Field(
-        default=None, title='Updated By  Family Name  Ilike'
-    )
-    updated_by__sub_id: UUID | None = Field(default=None, title='Updated By  Sub Id')
-    updated_by__sub_id__in: list[UUID] | None = Field(
-        default=None, title='Updated By  Sub Id  In'
-    )
-    search: str | None = Field(default=None, title='Search')
-    with_facets: bool = Field(default=False, title='With Facets')
-    within_brain_region_hierarchy_id: UUID | None = Field(
-        default=None, title='Within Brain Region Hierarchy Id'
-    )
-    within_brain_region_brain_region_id: UUID | None = Field(
-        default=None, title='Within Brain Region Brain Region Id'
-    )
-    within_brain_region_ascendants: bool = Field(
-        default=False, title='Within Brain Region Ascendants'
-    )
-    within_brain_region_direction: WithinBrainRegionDirection | None = Field(
-        default=None, title='Within Brain Region Direction'
-    )
+class ReadManyCircuitExtractionCampaignGetParametersQuery(
+    ReadManyAnalysisNotebookResultGetParametersQuery
+):
+    pass
 
 
 class ReadManyCircuitExtractionConfigGetParametersQuery(BaseModel):
@@ -4441,18 +4303,6 @@ class ReadManyCircuitExtractionConfigGetParametersQuery(BaseModel):
     circuit__id__in: list[UUID] | None = Field(default=None, title='Circuit  Id  In')
     search: str | None = Field(default=None, title='Search')
     with_facets: bool = Field(default=False, title='With Facets')
-    within_brain_region_hierarchy_id: UUID | None = Field(
-        default=None, title='Within Brain Region Hierarchy Id'
-    )
-    within_brain_region_brain_region_id: UUID | None = Field(
-        default=None, title='Within Brain Region Brain Region Id'
-    )
-    within_brain_region_ascendants: bool = Field(
-        default=False, title='Within Brain Region Ascendants'
-    )
-    within_brain_region_direction: WithinBrainRegionDirection | None = Field(
-        default=None, title='Within Brain Region Direction'
-    )
 
 
 class ReadManyCircuitExtractionConfigGenerationGetParametersQuery(
@@ -4559,18 +4409,6 @@ class ReadManyCircuitExtractionExecutionGetParametersQuery(BaseModel):
     generated__type: EntityType | None = Field(default=None, title='Generated  Type')
     search: str | None = Field(default=None, title='Search')
     with_facets: bool = Field(default=False, title='With Facets')
-    within_brain_region_hierarchy_id: UUID | None = Field(
-        default=None, title='Within Brain Region Hierarchy Id'
-    )
-    within_brain_region_brain_region_id: UUID | None = Field(
-        default=None, title='Within Brain Region Brain Region Id'
-    )
-    within_brain_region_ascendants: bool = Field(
-        default=False, title='Within Brain Region Ascendants'
-    )
-    within_brain_region_direction: WithinBrainRegionDirection | None = Field(
-        default=None, title='Within Brain Region Direction'
-    )
 
 
 class ReadManyConsortiumGetParametersQuery(BaseModel):
@@ -5094,18 +4932,6 @@ class ReadManyElectricalRecordingStimulusGetParametersQuery(BaseModel):
     )
     search: str | None = Field(default=None, title='Search')
     with_facets: bool = Field(default=False, title='With Facets')
-    within_brain_region_hierarchy_id: UUID | None = Field(
-        default=None, title='Within Brain Region Hierarchy Id'
-    )
-    within_brain_region_brain_region_id: UUID | None = Field(
-        default=None, title='Within Brain Region Brain Region Id'
-    )
-    within_brain_region_ascendants: bool = Field(
-        default=False, title='Within Brain Region Ascendants'
-    )
-    within_brain_region_direction: WithinBrainRegionDirection | None = Field(
-        default=None, title='Within Brain Region Direction'
-    )
 
 
 class ReadManyEmCellMeshGetParametersQuery(BaseModel):
@@ -5913,6 +5739,11 @@ class ReadManyEtypeGetParametersQuery(BaseModel):
     id: UUID | None = Field(default=None, title='Id')
     id__in: list[UUID] | None = Field(default=None, title='Id  In')
     order_by: list[str] = Field(default=['pref_label'], title='Order By')
+    ilike_search: str | None = Field(
+        default=None,
+        description="Search text with wildcard support. Use * for zero or more characters and ? for exactly one character. All other characters are treated as literals. Examples: 'test*' matches 'testing', 'file?.txt' matches 'file1.txt'. search_model_fields: pref_label, alt_label",
+        title='Ilike Search',
+    )
 
 
 class ReadManyEtypeClassificationGetParametersQuery(BaseModel):
@@ -6728,18 +6559,6 @@ class ReadManyExternalUrlGetParametersQuery(BaseModel):
     )
     search: str | None = Field(default=None, title='Search')
     with_facets: bool = Field(default=False, title='With Facets')
-    within_brain_region_hierarchy_id: UUID | None = Field(
-        default=None, title='Within Brain Region Hierarchy Id'
-    )
-    within_brain_region_brain_region_id: UUID | None = Field(
-        default=None, title='Within Brain Region Brain Region Id'
-    )
-    within_brain_region_ascendants: bool = Field(
-        default=False, title='Within Brain Region Ascendants'
-    )
-    within_brain_region_direction: WithinBrainRegionDirection | None = Field(
-        default=None, title='Within Brain Region Direction'
-    )
 
 
 class ReadManyIonChannelGetParametersQuery(BaseModel):
@@ -7167,18 +6986,6 @@ class ReadManyIonChannelModelingCampaignGetParametersQuery(BaseModel):
     )
     search: str | None = Field(default=None, title='Search')
     with_facets: bool = Field(default=False, title='With Facets')
-    within_brain_region_hierarchy_id: UUID | None = Field(
-        default=None, title='Within Brain Region Hierarchy Id'
-    )
-    within_brain_region_brain_region_id: UUID | None = Field(
-        default=None, title='Within Brain Region Brain Region Id'
-    )
-    within_brain_region_ascendants: bool = Field(
-        default=False, title='Within Brain Region Ascendants'
-    )
-    within_brain_region_direction: WithinBrainRegionDirection | None = Field(
-        default=None, title='Within Brain Region Direction'
-    )
 
 
 class ReadManyIonChannelModelingConfigGetParametersQuery(BaseModel):
@@ -7298,18 +7105,6 @@ class ReadManyIonChannelModelingConfigGetParametersQuery(BaseModel):
     )
     search: str | None = Field(default=None, title='Search')
     with_facets: bool = Field(default=False, title='With Facets')
-    within_brain_region_hierarchy_id: UUID | None = Field(
-        default=None, title='Within Brain Region Hierarchy Id'
-    )
-    within_brain_region_brain_region_id: UUID | None = Field(
-        default=None, title='Within Brain Region Brain Region Id'
-    )
-    within_brain_region_ascendants: bool = Field(
-        default=False, title='Within Brain Region Ascendants'
-    )
-    within_brain_region_direction: WithinBrainRegionDirection | None = Field(
-        default=None, title='Within Brain Region Direction'
-    )
 
 
 class ReadManyIonChannelModelingConfigGenerationGetParametersQuery(
@@ -7416,18 +7211,6 @@ class ReadManyIonChannelModelingExecutionGetParametersQuery(BaseModel):
     generated__type: EntityType | None = Field(default=None, title='Generated  Type')
     search: str | None = Field(default=None, title='Search')
     with_facets: bool = Field(default=False, title='With Facets')
-    within_brain_region_hierarchy_id: UUID | None = Field(
-        default=None, title='Within Brain Region Hierarchy Id'
-    )
-    within_brain_region_brain_region_id: UUID | None = Field(
-        default=None, title='Within Brain Region Brain Region Id'
-    )
-    within_brain_region_ascendants: bool = Field(
-        default=False, title='Within Brain Region Ascendants'
-    )
-    within_brain_region_direction: WithinBrainRegionDirection | None = Field(
-        default=None, title='Within Brain Region Direction'
-    )
 
 
 class ReadManyIonChannelRecordingGetParametersQuery(BaseModel):
@@ -7712,18 +7495,6 @@ class ReadManyMeasurementAnnotationGetParametersQuery(BaseModel):
     )
     page: int = Field(default=1, ge=1, title='Page')
     page_size: int = Field(default=100, ge=1, title='Page Size')
-    within_brain_region_hierarchy_id: UUID | None = Field(
-        default=None, title='Within Brain Region Hierarchy Id'
-    )
-    within_brain_region_brain_region_id: UUID | None = Field(
-        default=None, title='Within Brain Region Brain Region Id'
-    )
-    within_brain_region_ascendants: bool = Field(
-        default=False, title='Within Brain Region Ascendants'
-    )
-    within_brain_region_direction: WithinBrainRegionDirection | None = Field(
-        default=None, title='Within Brain Region Direction'
-    )
 
 
 class ReadManyMeasurementLabelGetParametersQuery(BaseModel):
@@ -8271,18 +8042,6 @@ class ReadManyMemodelCalibrationResultGetParametersQuery(BaseModel):
     )
     search: str | None = Field(default=None, title='Search')
     with_facets: bool = Field(default=False, title='With Facets')
-    within_brain_region_hierarchy_id: UUID | None = Field(
-        default=None, title='Within Brain Region Hierarchy Id'
-    )
-    within_brain_region_brain_region_id: UUID | None = Field(
-        default=None, title='Within Brain Region Brain Region Id'
-    )
-    within_brain_region_ascendants: bool = Field(
-        default=False, title='Within Brain Region Ascendants'
-    )
-    within_brain_region_direction: WithinBrainRegionDirection | None = Field(
-        default=None, title='Within Brain Region Direction'
-    )
 
 
 class ReadManyMtypeGetParametersQuery(ReadManyEtypeGetParametersQuery):
@@ -8542,18 +8301,6 @@ class ReadManyPublicationGetParametersQuery(BaseModel):
     )
     search: str | None = Field(default=None, title='Search')
     with_facets: bool = Field(default=False, title='With Facets')
-    within_brain_region_hierarchy_id: UUID | None = Field(
-        default=None, title='Within Brain Region Hierarchy Id'
-    )
-    within_brain_region_brain_region_id: UUID | None = Field(
-        default=None, title='Within Brain Region Brain Region Id'
-    )
-    within_brain_region_ascendants: bool = Field(
-        default=False, title='Within Brain Region Ascendants'
-    )
-    within_brain_region_direction: WithinBrainRegionDirection | None = Field(
-        default=None, title='Within Brain Region Direction'
-    )
 
 
 class ReadManyRoleGetParametersQuery(BaseModel):
@@ -8670,18 +8417,6 @@ class ReadManyScientificArtifactExternalUrlLinkGetParametersQuery(BaseModel):
     )
     search: str | None = Field(default=None, title='Search')
     with_facets: bool = Field(default=False, title='With Facets')
-    within_brain_region_hierarchy_id: UUID | None = Field(
-        default=None, title='Within Brain Region Hierarchy Id'
-    )
-    within_brain_region_brain_region_id: UUID | None = Field(
-        default=None, title='Within Brain Region Brain Region Id'
-    )
-    within_brain_region_ascendants: bool = Field(
-        default=False, title='Within Brain Region Ascendants'
-    )
-    within_brain_region_direction: WithinBrainRegionDirection | None = Field(
-        default=None, title='Within Brain Region Direction'
-    )
 
 
 class ReadManyScientificArtifactPublicationLinkGetParametersQuery(BaseModel):
@@ -8791,18 +8526,6 @@ class ReadManyScientificArtifactPublicationLinkGetParametersQuery(BaseModel):
     )
     search: str | None = Field(default=None, title='Search')
     with_facets: bool = Field(default=False, title='With Facets')
-    within_brain_region_hierarchy_id: UUID | None = Field(
-        default=None, title='Within Brain Region Hierarchy Id'
-    )
-    within_brain_region_brain_region_id: UUID | None = Field(
-        default=None, title='Within Brain Region Brain Region Id'
-    )
-    within_brain_region_ascendants: bool = Field(
-        default=False, title='Within Brain Region Ascendants'
-    )
-    within_brain_region_direction: WithinBrainRegionDirection | None = Field(
-        default=None, title='Within Brain Region Direction'
-    )
 
 
 class ReadManySkeletonizationCampaignGetParametersQuery(BaseModel):
@@ -8931,18 +8654,6 @@ class ReadManySkeletonizationCampaignGetParametersQuery(BaseModel):
     )
     search: str | None = Field(default=None, title='Search')
     with_facets: bool = Field(default=False, title='With Facets')
-    within_brain_region_hierarchy_id: UUID | None = Field(
-        default=None, title='Within Brain Region Hierarchy Id'
-    )
-    within_brain_region_brain_region_id: UUID | None = Field(
-        default=None, title='Within Brain Region Brain Region Id'
-    )
-    within_brain_region_ascendants: bool = Field(
-        default=False, title='Within Brain Region Ascendants'
-    )
-    within_brain_region_direction: WithinBrainRegionDirection | None = Field(
-        default=None, title='Within Brain Region Direction'
-    )
 
 
 class ReadManySkeletonizationConfigGetParametersQuery(BaseModel):
@@ -9066,18 +8777,6 @@ class ReadManySkeletonizationConfigGetParametersQuery(BaseModel):
     )
     search: str | None = Field(default=None, title='Search')
     with_facets: bool = Field(default=False, title='With Facets')
-    within_brain_region_hierarchy_id: UUID | None = Field(
-        default=None, title='Within Brain Region Hierarchy Id'
-    )
-    within_brain_region_brain_region_id: UUID | None = Field(
-        default=None, title='Within Brain Region Brain Region Id'
-    )
-    within_brain_region_ascendants: bool = Field(
-        default=False, title='Within Brain Region Ascendants'
-    )
-    within_brain_region_direction: WithinBrainRegionDirection | None = Field(
-        default=None, title='Within Brain Region Direction'
-    )
 
 
 class ReadManySkeletonizationConfigGenerationGetParametersQuery(
@@ -9182,18 +8881,6 @@ class ReadManySkeletonizationExecutionGetParametersQuery(BaseModel):
     generated__type: EntityType | None = Field(default=None, title='Generated  Type')
     search: str | None = Field(default=None, title='Search')
     with_facets: bool = Field(default=False, title='With Facets')
-    within_brain_region_hierarchy_id: UUID | None = Field(
-        default=None, title='Within Brain Region Hierarchy Id'
-    )
-    within_brain_region_brain_region_id: UUID | None = Field(
-        default=None, title='Within Brain Region Brain Region Id'
-    )
-    within_brain_region_ascendants: bool = Field(
-        default=False, title='Within Brain Region Ascendants'
-    )
-    within_brain_region_direction: WithinBrainRegionDirection | None = Field(
-        default=None, title='Within Brain Region Direction'
-    )
 
 
 class ReadManySimulationGetParametersQuery(BaseModel):
@@ -9330,18 +9017,6 @@ class ReadManySimulationGetParametersQuery(BaseModel):
     circuit__id__in: list[UUID] | None = Field(default=None, title='Circuit  Id  In')
     search: str | None = Field(default=None, title='Search')
     with_facets: bool = Field(default=False, title='With Facets')
-    within_brain_region_hierarchy_id: UUID | None = Field(
-        default=None, title='Within Brain Region Hierarchy Id'
-    )
-    within_brain_region_brain_region_id: UUID | None = Field(
-        default=None, title='Within Brain Region Brain Region Id'
-    )
-    within_brain_region_ascendants: bool = Field(
-        default=False, title='Within Brain Region Ascendants'
-    )
-    within_brain_region_direction: WithinBrainRegionDirection | None = Field(
-        default=None, title='Within Brain Region Direction'
-    )
 
 
 class ReadManySimulationCampaignGetParametersQuery(BaseModel):
@@ -9494,18 +9169,6 @@ class ReadManySimulationCampaignGetParametersQuery(BaseModel):
     )
     search: str | None = Field(default=None, title='Search')
     with_facets: bool = Field(default=False, title='With Facets')
-    within_brain_region_hierarchy_id: UUID | None = Field(
-        default=None, title='Within Brain Region Hierarchy Id'
-    )
-    within_brain_region_brain_region_id: UUID | None = Field(
-        default=None, title='Within Brain Region Brain Region Id'
-    )
-    within_brain_region_ascendants: bool = Field(
-        default=False, title='Within Brain Region Ascendants'
-    )
-    within_brain_region_direction: WithinBrainRegionDirection | None = Field(
-        default=None, title='Within Brain Region Direction'
-    )
 
 
 class ReadManySimulationExecutionGetParametersQuery(BaseModel):
@@ -9604,18 +9267,6 @@ class ReadManySimulationExecutionGetParametersQuery(BaseModel):
     generated__type: EntityType | None = Field(default=None, title='Generated  Type')
     search: str | None = Field(default=None, title='Search')
     with_facets: bool = Field(default=False, title='With Facets')
-    within_brain_region_hierarchy_id: UUID | None = Field(
-        default=None, title='Within Brain Region Hierarchy Id'
-    )
-    within_brain_region_brain_region_id: UUID | None = Field(
-        default=None, title='Within Brain Region Brain Region Id'
-    )
-    within_brain_region_ascendants: bool = Field(
-        default=False, title='Within Brain Region Ascendants'
-    )
-    within_brain_region_direction: WithinBrainRegionDirection | None = Field(
-        default=None, title='Within Brain Region Direction'
-    )
 
 
 class ReadManySimulationGenerationGetParametersQuery(
@@ -9625,7 +9276,7 @@ class ReadManySimulationGenerationGetParametersQuery(
 
 
 class ReadManySimulationResultGetParametersQuery(
-    ReadManyCircuitExtractionCampaignGetParametersQuery
+    ReadManyAnalysisNotebookResultGetParametersQuery
 ):
     pass
 
@@ -11309,18 +10960,6 @@ class ReadManyValidationResultGetParametersQuery(BaseModel):
     )
     search: str | None = Field(default=None, title='Search')
     with_facets: bool = Field(default=False, title='With Facets')
-    within_brain_region_hierarchy_id: UUID | None = Field(
-        default=None, title='Within Brain Region Hierarchy Id'
-    )
-    within_brain_region_brain_region_id: UUID | None = Field(
-        default=None, title='Within Brain Region Brain Region Id'
-    )
-    within_brain_region_ascendants: bool = Field(
-        default=False, title='Within Brain Region Ascendants'
-    )
-    within_brain_region_direction: WithinBrainRegionDirection | None = Field(
-        default=None, title='Within Brain Region Direction'
-    )
 
 
 class AgentRead(
@@ -12858,6 +12497,7 @@ class SimulationRead(BaseModel):
     simulation_campaign_id: UUID = Field(..., title='Simulation Campaign Id')
     entity_id: UUID = Field(..., title='Entity Id')
     scan_parameters: dict[str, Any] = Field(..., title='Scan Parameters')
+    number_neurons: int = Field(..., title='Number Neurons')
 
 
 class SimulationResultRead(BaseModel):
