@@ -30,7 +30,10 @@ export default function ChatInputLoading({ newMessage }: ChatComponentProps) {
           <div className="flex items-center justify-between px-6 pb-3 pt-1">
             <div />
             <div className="flex items-center gap-3">
-              <button className="ml-3 rounded-full p-3">
+              <button
+                disabled
+                className="pointer-events-none ml-3 rounded-full p-3 opacity-50"
+              >
                 <div className="ml-2 h-5 w-5 animate-spin rounded-full border-2 border-gray-500 border-t-transparent p-1" />
               </button>
             </div>

@@ -598,36 +598,8 @@ def downgrade():
                 ):
                     turns.append(current_turn)
 
-                # If no turns were created, convert to AI_MESSAGE with empty content
+                # If no turns were created, skip this message (will be deleted later)
                 if not turns:
-                    # Get is_complete from last part if any
-                    last_part = conn.execute(
-                        sa.text("""
-                        SELECT is_complete FROM parts
-                        WHERE message_id = :message_id
-                        ORDER BY order_index DESC LIMIT 1
-                    """),
-                        {"message_id": msg_id},
-                    ).fetchone()
-                    is_complete_val = last_part[0] if last_part else True
-                    conn.execute(
-                        sa.text(
-                            "UPDATE messages SET entity = 'AI_MESSAGE', content = :content, is_complete = :is_complete WHERE message_id = :message_id"
-                        ),
-                        {
-                            "content": json.dumps(
-                                {
-                                    "content": "",
-                                    "reasoning": "",
-                                    "sender": "Agent",
-                                    "role": "assistant",
-                                    "function_call": None,
-                                }
-                            ),
-                            "is_complete": is_complete_val,
-                            "message_id": msg_id,
-                        },
-                    )
                     continue
 
                 # Create separate messages for each turn
@@ -853,6 +825,14 @@ def downgrade():
                                 },
                             )
                             turn_offset += 1
+
+    # Delete parts for any remaining ASSISTANT messages, then delete the messages
+    conn.execute(
+        sa.text(
+            "DELETE FROM parts WHERE message_id IN (SELECT message_id FROM messages WHERE entity = 'ASSISTANT')"
+        )
+    )
+    conn.execute(sa.text("DELETE FROM messages WHERE entity = 'ASSISTANT'"))
 
     # Now convert entity column back to enum
     # Column is already text from earlier, drop new enum and create old enum

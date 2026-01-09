@@ -513,12 +513,17 @@ AVAILABLE TOOLS:
 
         # Parse the output
         parsed = response.output_parsed
-        if parsed and response.output_parsed.selected_tools:
-            selected_tools = list(set(response.output_parsed.selected_tools))
-            logger.debug(
-                f"#TOOLS: {len(selected_tools)}, SELECTED TOOLS: {selected_tools} in {(time.time() - start_request):.2f} s"
-            )
-
+        if not parsed:
+            logger.warning("No parsed response from model, returning defaults")
+            filtered_tools = tool_list if not need_tool_selection else []
+            complexity: int | None = None
+            model_reason_dict = {
+                "model": selected_model or settings.llm.default_chat_model,
+                "reasoning": None
+                if selected_model
+                else settings.llm.default_chat_reasoning,
+            }
+        else:
             # Handle tool selection
             if need_tool_selection:
                 selected_tools = list(set(parsed.selected_tools))
@@ -528,12 +533,15 @@ AVAILABLE TOOLS:
                 messages[-1].tool_selection = [
                     ToolSelection(tool_name=tool.name) for tool in filtered_tools
                 ]
+                logger.debug(
+                    f"#TOOLS: {len(selected_tools)}, SELECTED TOOLS: {selected_tools} in {(time.time() - start_request):.2f} s"
+                )
             else:
                 filtered_tools = tool_list
 
             # Handle model selection
             if need_model_selection:
-                complexity: int | None = parsed.complexity
+                complexity = parsed.complexity
                 model_reason_dict = complexity_to_model_and_reasoning(complexity)
             else:
                 complexity = None
@@ -557,27 +565,12 @@ AVAILABLE TOOLS:
             ]
             messages[-1].token_consumption = token_consumption
 
-        else:
-            logger.warning("No parsed response from OpenAI, returning defaults")
-            filtered_tools = tool_list if not need_tool_selection else []
-            complexity = None
-            model_reason_dict = {
-                "model": selected_model
-                if selected_model
-                else settings.llm.default_chat_model,
-                "reasoning": None
-                if selected_model
-                else settings.llm.default_chat_reasoning,
-            }
-
     except Exception as e:
         logger.error(f"Error filtering tools: {e}")
         filtered_tools = tool_list if not need_tool_selection else []
         complexity = None
         model_reason_dict = {
-            "model": selected_model
-            if selected_model
-            else settings.llm.default_chat_model,
+            "model": selected_model or settings.llm.default_chat_model,
             "reasoning": None
             if selected_model
             else settings.llm.default_chat_reasoning,
