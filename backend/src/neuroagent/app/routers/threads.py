@@ -13,7 +13,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from neuroagent.app.app_utils import (
-    format_messages_output,
     format_messages_vercel,
     rate_limit,
     validate_project,
@@ -31,7 +30,6 @@ from neuroagent.app.dependencies import (
     get_user_info,
 )
 from neuroagent.app.schemas import (
-    MessagesRead,
     MessagesReadVercel,
     PaginatedParams,
     PaginatedResponse,
@@ -320,31 +318,21 @@ async def get_thread_messages(
     tool_list: Annotated[list[type[BaseTool]], Depends(get_tool_list)],
     pagination_params: PaginatedParams = Depends(),
     entity: list[Literal["USER", "ASSISTANT"]] | None = Query(default=None),
-    sort: Literal["creation_date", "-creation_date"] = "-creation_date",
-    vercel_format: bool = False,
-) -> PaginatedResponse[MessagesRead] | PaginatedResponse[MessagesReadVercel]:
-    """Get all messages of the thread."""
+) -> PaginatedResponse[MessagesReadVercel]:
+    """Get all messages of the thread, in Vercel format."""
     tool_hil_mapping = {tool.name: tool.hil for tool in tool_list}
 
     where_conditions = [Messages.thread_id == thread_id]
     if entity:
         where_conditions.append(or_(*[Messages.entity == ent for ent in entity]))
     if pagination_params.cursor:
-        where_conditions.append(
-            Messages.creation_date < pagination_params.cursor
-            if sort.startswith("-") or vercel_format
-            else Messages.creation_date > pagination_params.cursor
-        )
+        where_conditions.append(Messages.creation_date < pagination_params.cursor)
 
     result = await session.execute(
         select(Messages)
         .options(selectinload(Messages.parts))
         .where(*where_conditions)
-        .order_by(
-            desc(Messages.creation_date)
-            if sort.startswith("-")
-            else Messages.creation_date
-        )
+        .order_by(desc(Messages.creation_date))
         .limit(pagination_params.page_size + 1)
     )
     db_messages = result.scalars().all()
@@ -352,16 +340,9 @@ async def get_thread_messages(
     has_more = len(db_messages) > pagination_params.page_size
     db_messages = db_messages[:-1] if has_more else db_messages
 
-    if vercel_format:
-        return format_messages_vercel(
-            db_messages,
-            tool_hil_mapping,
-            has_more,
-            pagination_params.page_size,
-        )
-    else:
-        return format_messages_output(
-            db_messages,
-            has_more,
-            pagination_params.page_size,
-        )
+    return format_messages_vercel(
+        db_messages,
+        tool_hil_mapping,
+        has_more,
+        pagination_params.page_size,
+    )

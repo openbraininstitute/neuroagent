@@ -28,7 +28,6 @@ from neuroagent.app.database.sql_schemas import (
     utc_now,
 )
 from neuroagent.app.schemas import (
-    MessagesRead,
     MessagesReadVercel,
     MetadataToolCallVercel,
     PaginatedResponse,
@@ -193,41 +192,6 @@ async def commit_messages(
     thread.update_date = utc_now()
     await session.commit()
     await session.close()
-
-
-def format_messages_output(
-    db_messages: Sequence[Messages],
-    has_more: bool,
-    page_size: int,
-) -> PaginatedResponse[MessagesRead]:
-    """Format db messages to regular output schema."""
-    messages: list[MessagesRead] = []
-    for msg in db_messages:
-        parts_data: list[dict[str, Any]] = []
-        for part in msg.parts:
-            output = part.output or {}
-            content = output.get("content", [])
-
-            for item in content:
-                if item.get("type") == "text":
-                    parts_data.append({"type": "text", "text": item.get("text", "")})
-
-        messages.append(
-            MessagesRead(
-                message_id=msg.message_id,
-                entity=msg.entity.value,
-                thread_id=msg.thread_id,
-                creation_date=msg.creation_date,
-                parts=parts_data,
-            )
-        )
-
-    return PaginatedResponse(
-        next_cursor=db_messages[-1].creation_date if has_more else None,
-        has_more=has_more,
-        page_size=page_size,
-        results=messages,
-    )
 
 
 def format_messages_vercel(

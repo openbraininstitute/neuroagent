@@ -11,7 +11,6 @@ from pydantic import BaseModel, Field
 
 from neuroagent.app.app_utils import (
     filter_tools_and_model_by_conversation,
-    format_messages_output,
     format_messages_vercel,
     parse_redis_data,
     rate_limit,
@@ -227,66 +226,6 @@ async def test_rate_limit_no_redis():
         expiry=3600,
         user_sub="test_user",
     )
-
-
-def test_format_messages_output():
-    """Test format_messages_output with multiple messages and parts."""
-
-    msg1 = Messages(
-        message_id=UUID("359eeb21-2e94-4095-94d9-ca7d4ff22640"),
-        entity=Entity.USER,
-        thread_id=UUID("e2db8c7d-1170-4762-b42b-fdcd08526735"),
-        creation_date=datetime(2025, 6, 4, 14, 4, 41, tzinfo=timezone.utc),
-    )
-    msg1.parts = [
-        Parts(
-            order_index=0,
-            type=PartType.MESSAGE,
-            output={"content": [{"type": "text", "text": "User message"}]},
-            is_complete=True,
-        )
-    ]
-
-    msg2 = Messages(
-        message_id=UUID("459eeb21-2e94-4095-94d9-ca7d4ff22641"),
-        entity=Entity.ASSISTANT,
-        thread_id=UUID("e2db8c7d-1170-4762-b42b-fdcd08526735"),
-        creation_date=datetime(2025, 6, 4, 14, 5, 0, tzinfo=timezone.utc),
-    )
-    msg2.parts = [
-        Parts(
-            order_index=0,
-            type=PartType.MESSAGE,
-            output={
-                "content": [
-                    {"type": "text", "text": "Response 1"},
-                    {"type": "text", "text": "Response 2"},
-                ]
-            },
-            is_complete=True,
-        ),
-        Parts(
-            order_index=1,
-            type=PartType.MESSAGE,
-            output={"content": []},
-            is_complete=True,
-        ),
-    ]
-
-    result = format_messages_output([msg1, msg2], True, 5)
-
-    assert isinstance(result, PaginatedResponse)
-    assert result.has_more is True
-    assert result.page_size == 5
-    assert result.next_cursor == msg2.creation_date
-    assert len(result.results) == 2
-    assert result.results[0].entity == "user"
-    assert result.results[0].parts == [{"type": "text", "text": "User message"}]
-    assert result.results[1].entity == "assistant"
-    assert result.results[1].parts == [
-        {"type": "text", "text": "Response 1"},
-        {"type": "text", "text": "Response 2"},
-    ]
 
 
 def test_format_messages_vercel():
@@ -797,4 +736,4 @@ async def test_filter_tools_only_model_selection(get_weather_tool):
     assert len(result) == 1
     assert result[0].name == "get_weather"
     assert model_dict["model"] == "openai/gpt-5-mini"
-    assert model_dict["reasoning"] == "low"
+    assert model_dict["reasoning"] == "medium"

@@ -77,16 +77,6 @@ class MessagesReadVercel(BaseRead):
     metadata: ToolMetadataDict | None = None
 
 
-class MessagesRead(BaseRead):
-    """Message response."""
-
-    message_id: UUID
-    entity: str
-    thread_id: UUID
-    creation_date: AwareDatetime
-    parts: list[dict[str, Any]]
-
-
 class ThreadsRead(BaseRead):
     """Data class to read chatbot conversations in the db."""
 
