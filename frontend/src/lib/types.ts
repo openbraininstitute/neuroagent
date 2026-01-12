@@ -116,5 +116,8 @@ export type LLMModel = {
 export type BOpenRouterModelResponse =
   components["schemas"]["OpenRouterModelResponse"];
 
+export type BStateRead = components["schemas"]["StateRead"];
+export type SharedState = components["schemas"]["SharedState"];
+
 export const threadPageSize = "25";
 export const messagePageSize = "25";
