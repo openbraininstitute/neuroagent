@@ -27,7 +27,7 @@ export async function editThread(previousState: unknown, formData: FormData) {
     });
 
     // Revalidate the same tags as delete for consistency
-    revalidateTag("threads");
+    revalidateTag("threads", { expire: 0 });
 
     return { success: true };
   } catch (error) {
