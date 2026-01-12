@@ -17,6 +17,7 @@ from openai import AsyncOpenAI
 from redis import asyncio as aioredis
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession
+from sqlalchemy.orm import selectinload
 from starlette.status import HTTP_401_UNAUTHORIZED
 
 from neuroagent.agent_routine import AgentsRoutine
@@ -518,6 +519,7 @@ async def filtered_tools(
     filtered_models: Annotated[
         list[OpenRouterModelResponse], Depends(get_openrouter_models)
     ],
+    session: Annotated[AsyncSession, Depends(get_session)],
 ) -> tuple[list[type[BaseTool]], dict[str, str | None]]:
     """Based on the current conversation, select relevant tools."""
     if request.method == "GET":
@@ -528,10 +530,15 @@ async def filtered_tools(
 
     body = await request.json()
 
-    messages: list[Messages] = await thread.awaitable_attrs.messages
+    thread_result = await session.execute(
+        select(Threads)
+        .options(selectinload(Threads.messages).selectinload(Messages.parts))
+        .where(Threads.thread_id == thread.thread_id)
+    )
 
-    for message in messages:
-        await message.awaitable_attrs.parts
+    # Re-assign the thread so that they are loaded for astream.
+    thread = thread_result.scalar_one()
+    messages = thread.messages
 
     if (
         not messages
