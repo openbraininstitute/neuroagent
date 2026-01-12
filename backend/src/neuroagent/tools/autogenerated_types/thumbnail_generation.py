@@ -32,26 +32,41 @@ class Dpi(RootModel[int]):
 class GetMorphologyPreviewApiThumbnailGenerationCoreCellMorphologyPreviewGetParametersQuery(
     BaseModel
 ):
+    model_config = ConfigDict(
+        extra='allow',
+    )
     entity_id: UUID = Field(..., title='Entity Id')
     asset_id: UUID = Field(..., title='Asset Id')
     dpi: Dpi | None = Field(default=None, title='Dpi')
 
 
-GetEphysPreviewApiThumbnailGenerationCoreElectricalCellRecordingPreviewGetParametersQuery = GetMorphologyPreviewApiThumbnailGenerationCoreCellMorphologyPreviewGetParametersQuery
+class GetEphysPreviewApiThumbnailGenerationCoreElectricalCellRecordingPreviewGetParametersQuery(
+    GetMorphologyPreviewApiThumbnailGenerationCoreCellMorphologyPreviewGetParametersQuery
+):
+    pass
 
 
-GetIonChannelRecordingPreviewApiThumbnailGenerationCoreIonChannelRecordingPreviewGetParametersQuery = GetMorphologyPreviewApiThumbnailGenerationCoreCellMorphologyPreviewGetParametersQuery
+class GetIonChannelRecordingPreviewApiThumbnailGenerationCoreIonChannelRecordingPreviewGetParametersQuery(
+    GetMorphologyPreviewApiThumbnailGenerationCoreCellMorphologyPreviewGetParametersQuery
+):
+    pass
 
 
 class GetModelTracePreviewApiThumbnailGenerationCoreModelTracePreviewGetParametersQuery(
     BaseModel
 ):
+    model_config = ConfigDict(
+        extra='allow',
+    )
     entity_id: UUID = Field(..., title='Entity Id')
 
 
 class GetSimulationPlotApiThumbnailGenerationCoreSimulationTypePreviewGetParametersQuery(
     BaseModel
 ):
+    model_config = ConfigDict(
+        extra='allow',
+    )
     entity_id: UUID = Field(..., title='Entity Id')
     asset_id: UUID = Field(..., title='Asset Id')
     target: Literal['stimulus', 'simulation'] = Field(..., title='Target')
@@ -62,18 +77,25 @@ class GetSimulationPlotApiThumbnailGenerationCoreSimulationTypePreviewGetParamet
 class GetMorphologyImageApiThumbnailGenerationGenerateMorphologyImageGetParametersQuery(
     BaseModel
 ):
+    model_config = ConfigDict(
+        extra='allow',
+    )
     content_url: str = Field(..., title='Content Url')
     dpi: Dpi | None = Field(default=None, title='Dpi')
 
 
-GetTraceImageApiThumbnailGenerationGenerateTraceImageGetParametersQuery = (
+class GetTraceImageApiThumbnailGenerationGenerateTraceImageGetParametersQuery(
     GetMorphologyImageApiThumbnailGenerationGenerateMorphologyImageGetParametersQuery
-)
+):
+    pass
 
 
 class GetSimulationPlotApiThumbnailGenerationGenerateSimulationPlotGetParametersQuery(
     BaseModel
 ):
+    model_config = ConfigDict(
+        extra='allow',
+    )
     content_url: str = Field(..., title='Content Url')
     target: Literal['stimulus', 'simulation'] = Field(..., title='Target')
     w: int | None = Field(default=None, title='W')
@@ -81,13 +103,15 @@ class GetSimulationPlotApiThumbnailGenerationGenerateSimulationPlotGetParameters
 
 
 class ProcessSomaApiThumbnailGenerationSomaProcessNexusSwcGetParametersQuery(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
     content_url: str = Field(
         ..., description='URL of the SWC file to process', title='Content Url'
     )
 
 
 class HealthApiThumbnailGenerationHealthGetResponse(BaseModel):
-    pass
     model_config = ConfigDict(
         extra='allow',
     )

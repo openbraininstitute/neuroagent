@@ -23,8 +23,8 @@ export async function deleteThread(previousState: unknown, formData: FormData) {
       headers: { Authorization: `Bearer ${session.accessToken}` },
     });
 
-    revalidateTag("threads");
-    revalidateTag(`threads/${threadId}/messages`);
+    revalidateTag("threads", { expire: 0 });
+    revalidateTag(`threads/${threadId}/messages`, { expire: 0 });
   } catch (error) {
     return {
       error: error instanceof Error ? error.message : "Failed to delete thread",

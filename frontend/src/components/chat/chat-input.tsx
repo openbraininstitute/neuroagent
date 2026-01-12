@@ -12,7 +12,7 @@ import { convert_tools_to_set } from "@/lib/utils";
 import { OpenUserJourneyButton } from "@/components/chat/user-journey-dialog";
 import QuestionSuggestionCards from "@/components/chat/question-suggestion-cards";
 import { LLMModel, BQuestionsSuggestions, UserHistory } from "@/lib/types";
-import { getSuggestions } from "@/actions/get-suggestions";
+import { getSuggestionsNoMessage } from "@/actions/get-suggestions";
 import { ModelSelectionDropdown } from "./model-selection";
 
 type ChatInputProps = {
@@ -31,7 +31,7 @@ export function ChatInput({ availableTools, availableModels }: ChatInputProps) {
 
   const [, action, isPending] = useActionState(createThread, null);
   const [suggestionsState, querySuggestions, pendingSuggestions] =
-    useActionState(getSuggestions, null);
+    useActionState(getSuggestionsNoMessage, null);
 
   const actionWrapper = (suggestionInput?: string) => {
     if (!suggestionInput) {

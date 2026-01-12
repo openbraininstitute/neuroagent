@@ -72,7 +72,12 @@ class MCPClient:
                             if tool.name == tool_name
                         )
                     except StopIteration:
-                        raise ValueError(f"Tool {tool_name} not found")
+                        logger.warning(
+                            f"Tool {tool_name} not found in server. "
+                            f"Skipping override. Available tools: "
+                            f"{[t.name for t in self.group_session._tools.values()]}"
+                        )
+                        continue
 
                     # Store the original name for when we call the tool
                     self.tool_name_mapping[

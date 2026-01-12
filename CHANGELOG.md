@@ -10,8 +10,37 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Support for predefined nodesets in smc simulation config.
 
+## [0.14.2] - 08.01.2026
+
+### Fixed
+- Context7 name change.
+
+## [0.14.1] - 19.12.2025
+
+### Changed
+- Use gpt-5-nano as suggestion/title model.
+
+## [0.14.0] - 19.12.2025
+
+### Fixed
+- Update vercel.
+
+### Changed
+- Suggestions.
+
+## [0.13.0] - 1.12.2025
+
+### Fixed
+- Suppressed all warnings from python tool.
+- Make all fields of all Sanity documents optional.
+
 ### Changed
 - Use `within_brain_region_direction=ascendants_and_descendants` in every applicable tool.
+- Optimized the rules.
+- Experiment with more transparent agent, i.e. plan at the top + explanation alongside tool calls.
+
+
+## [0.12.3] - 20.11.2025
 
 ## [0.12.3] - 20.11.2025
 
