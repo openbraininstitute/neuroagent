@@ -42,7 +42,7 @@ class SettingsRedis(BaseModel):
         protocol = "rediss://" if self.redis_ssl else "redis://"
         if redis_password_str:
             return (
-                f"{protocol}:{redis_password_str}@{self.redis_host}:{self.redis_port}"
+                f"{protocol}{redis_password_str}@{self.redis_host}:{self.redis_port}"
             )
         else:
             return f"{protocol}{self.redis_host}:{self.redis_port}"
