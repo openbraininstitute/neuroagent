@@ -44,7 +44,7 @@ class AllNeurons(BaseModel):
     )
     type: Literal['AllNeurons'] = Field(..., title='Type')
     sample_percentage: SamplePercentage | SamplePercentage1 = Field(
-        default=100.0,
+        default_factory=lambda: SamplePercentage(100.0),
         description='Percentage of neurons to sample between 0 and 100%',
         title='Sample (Percentage)',
     )
@@ -96,6 +96,18 @@ class BellFitMTau(BaseModel):
     type: Literal['BellFitMTau'] = Field(..., title='Type')
 
 
+class BodyMorphologyMetricsCalculationDeclaredRegisterMorphologyWithCalculatedMetricsPost(
+    BaseModel
+):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    file: bytes = Field(
+        ..., description='Neuron file to upload (.swc, .h5, or .asc)', title='File'
+    )
+    metadata: str = Field(default='{}', title='Metadata')
+
+
 class BodyTestNeuronFileDeclaredTestNeuronFilePost(BaseModel):
     model_config = ConfigDict(
         extra='ignore',
@@ -103,6 +115,15 @@ class BodyTestNeuronFileDeclaredTestNeuronFilePost(BaseModel):
     file: bytes = Field(
         ..., description='Neuron file to upload (.swc, .h5, or .asc)', title='File'
     )
+
+
+class BodyValidateNwbFileDeclaredValidateElectrophysiologyProtocolNwbFilePost(
+    BaseModel
+):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    file: bytes = Field(..., description='NWB file to upload (.nwb)', title='File')
 
 
 class CellMorphology(BaseModel):
@@ -159,6 +180,62 @@ class CircuitPopulationsResponse(BaseModel):
         extra='ignore',
     )
     populations: list[str] = Field(..., title='Populations')
+
+
+class Info(BaseModel):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    type: Literal['Info'] = Field(..., title='Type')
+    campaign_name: str = Field(
+        ..., description='Name of the campaign.', min_length=1, title='Campaign Name'
+    )
+    campaign_description: str = Field(
+        ...,
+        description='Description of the campaign.',
+        min_length=1,
+        title='Campaign Description',
+    )
+
+
+class Circuit1(RootModel[Circuit | CircuitFromID]):
+    root: Circuit | CircuitFromID = Field(..., discriminator='type')
+
+
+class SimulationLength(RootModel[float]):
+    root: float = Field(
+        ...,
+        description='Simulation length in milliseconds (ms).',
+        ge=1.0,
+        le=5000.0,
+        title='Duration',
+    )
+
+
+class SimulationLength1Item(RootModel[float]):
+    root: float = Field(..., ge=1.0, le=5000.0)
+
+
+class SimulationLength1(RootModel[list[SimulationLength1Item]]):
+    root: list[SimulationLength1Item] = Field(
+        ...,
+        description='Simulation length in milliseconds (ms).',
+        min_length=1,
+        title='Duration',
+    )
+
+
+class ExtracellularCalciumConcentrationItem(RootModel[float]):
+    root: float = Field(..., ge=0.0)
+
+
+class ExtracellularCalciumConcentration(RootModel[float]):
+    root: float = Field(
+        ...,
+        description='Extracellular calcium concentration around the synapse in millimoles (mM). Increasing this value increases the probability of synaptic vesicle release, which in turn increases the level of network activity. In vivo values are estimated to be ~0.9-1.2mM, whilst in vitro values are on the order of 2mM.',
+        ge=0.0,
+        title='Extracellular Calcium Concentration',
+    )
 
 
 class CircuitStatsLevelOfDetail(RootModel[Literal[0, 1, 2, 3]]):
@@ -318,7 +395,7 @@ class CombinedNeuronSet(BaseModel):
     )
     type: Literal['CombinedNeuronSet'] = Field(..., title='Type')
     sample_percentage: SamplePercentage2 | SamplePercentage3 = Field(
-        default=100.0,
+        default_factory=lambda: SamplePercentage2(100.0),
         description='Percentage of neurons to sample between 0 and 100%',
         title='Sample (Percentage)',
     )
@@ -394,6 +471,15 @@ class ConnectivityMetricsRequest(BaseModel):
     )
 
 
+class NeuronSet(BaseModel):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    block_dict_name: str = Field(default='', title='Block Dict Name')
+    block_name: str = Field(..., title='Block Name')
+    type: Literal['NeuronSetReference'] = Field(..., title='Type')
+
+
 class Duration(RootModel[float]):
     root: float = Field(
         ...,
@@ -403,8 +489,8 @@ class Duration(RootModel[float]):
     )
 
 
-class DurationItem(RootModel[float]):
-    root: float = Field(..., ge=0.0)
+class DurationItem(ExtracellularCalciumConcentrationItem):
+    pass
 
 
 class Contribution(BaseModel):
@@ -461,7 +547,7 @@ class ExcitatoryNeurons(BaseModel):
     )
     type: Literal['ExcitatoryNeurons'] = Field(..., title='Type')
     sample_percentage: SamplePercentage4 | SamplePercentage5 = Field(
-        default=100.0,
+        default_factory=lambda: SamplePercentage4(100.0),
         description='Percentage of neurons to sample between 0 and 100%',
         title='Sample (Percentage)',
     )
@@ -478,6 +564,14 @@ class FloatRange(BaseModel):
     start: float = Field(..., title='Start')
     step: float = Field(..., gt=0.0, title='Step')
     end: float = Field(..., title='End')
+
+
+class SourceNeuronSet(NeuronSet):
+    pass
+
+
+class TargetedNeuronSet(NeuronSet):
+    pass
 
 
 class GateExponents(BaseModel):
@@ -520,22 +614,6 @@ class SamplePercentage7(RootModel[list[SamplePercentage7Item]]):
     )
 
 
-class Info(BaseModel):
-    model_config = ConfigDict(
-        extra='ignore',
-    )
-    type: Literal['Info'] = Field(..., title='Type')
-    campaign_name: str = Field(
-        ..., description='Name of the campaign.', min_length=1, title='Campaign Name'
-    )
-    campaign_description: str = Field(
-        ...,
-        description='Description of the campaign.',
-        min_length=1,
-        title='Campaign Description',
-    )
-
-
 class SamplePercentage8(SamplePercentage):
     pass
 
@@ -559,7 +637,7 @@ class InhibitoryNeurons(BaseModel):
     )
     type: Literal['InhibitoryNeurons'] = Field(..., title='Type')
     sample_percentage: SamplePercentage8 | SamplePercentage9 = Field(
-        default=100.0,
+        default_factory=lambda: SamplePercentage8(100.0),
         description='Percentage of neurons to sample between 0 and 100%',
         title='Sample (Percentage)',
     )
@@ -616,6 +694,57 @@ class MEModelFromID(BaseModel):
     type: Literal['MEModelFromID'] = Field(..., title='Type')
 
 
+class Circuit2(RootModel[MEModelCircuit | MEModelFromID]):
+    root: MEModelCircuit | MEModelFromID = Field(..., discriminator='type')
+
+
+class SimulationLength2(SimulationLength):
+    pass
+
+
+class SimulationLength3Item(SimulationLength1Item):
+    pass
+
+
+class SimulationLength3(RootModel[list[SimulationLength3Item]]):
+    root: list[SimulationLength3Item] = Field(
+        ...,
+        description='Simulation length in milliseconds (ms).',
+        min_length=1,
+        title='Duration',
+    )
+
+
+class Initialize2(BaseModel):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    type: Literal['MEModelSimulationScanConfig.Initialize'] = Field(..., title='Type')
+    circuit: MEModelCircuit | MEModelFromID | list[Circuit2] = Field(
+        ..., description='ME Model to simulate.', title='ME Model'
+    )
+    simulation_length: SimulationLength2 | SimulationLength3 = Field(
+        default_factory=lambda: SimulationLength2(1000.0),
+        description='Simulation length in milliseconds (ms).',
+        title='Duration',
+    )
+    extracellular_calcium_concentration: (
+        list[ExtracellularCalciumConcentrationItem] | ExtracellularCalciumConcentration
+    ) = Field(
+        default_factory=lambda: ExtracellularCalciumConcentration(1.1),
+        description='Extracellular calcium concentration around the synapse in millimoles (mM). Increasing this value increases the probability of synaptic vesicle release, which in turn increases the level of network activity. In vivo values are estimated to be ~0.9-1.2mM, whilst in vitro values are on the order of 2mM.',
+        title='Extracellular Calcium Concentration',
+    )
+    v_init: list[float] | float = Field(
+        default=-80.0,
+        description='Initial membrane potential in millivolts (mV).',
+        title='Initial Voltage',
+    )
+    random_seed: list[int] | int = Field(
+        default=1, description='Random seed for the simulation.', title='Random Seed'
+    )
+
+
 class MEModelWithSynapsesCircuit(BaseModel):
     model_config = ConfigDict(
         extra='ignore',
@@ -634,6 +763,67 @@ class MEModelWithSynapsesCircuitFromID(BaseModel):
         ..., description='ID of the entity in string format.', title='Id Str'
     )
     type: Literal['MEModelWithSynapsesCircuitFromID'] = Field(..., title='Type')
+
+
+class Circuit3(
+    RootModel[MEModelWithSynapsesCircuit | MEModelWithSynapsesCircuitFromID]
+):
+    root: MEModelWithSynapsesCircuit | MEModelWithSynapsesCircuitFromID = Field(
+        ..., discriminator='type'
+    )
+
+
+class SimulationLength4(SimulationLength):
+    pass
+
+
+class SimulationLength5Item(SimulationLength1Item):
+    pass
+
+
+class SimulationLength5(RootModel[list[SimulationLength5Item]]):
+    root: list[SimulationLength5Item] = Field(
+        ...,
+        description='Simulation length in milliseconds (ms).',
+        min_length=1,
+        title='Duration',
+    )
+
+
+class Initialize3(BaseModel):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    type: Literal['MEModelWithSynapsesCircuitSimulationScanConfig.Initialize'] = Field(
+        ..., title='Type'
+    )
+    circuit: (
+        MEModelWithSynapsesCircuit | MEModelWithSynapsesCircuitFromID | list[Circuit3]
+    ) = Field(
+        ...,
+        description='MEModel with synapses to simulate.',
+        title='MEModel With Synapses',
+    )
+    simulation_length: SimulationLength4 | SimulationLength5 = Field(
+        default_factory=lambda: SimulationLength4(1000.0),
+        description='Simulation length in milliseconds (ms).',
+        title='Duration',
+    )
+    extracellular_calcium_concentration: (
+        list[ExtracellularCalciumConcentrationItem] | ExtracellularCalciumConcentration
+    ) = Field(
+        default_factory=lambda: ExtracellularCalciumConcentration(1.1),
+        description='Extracellular calcium concentration around the synapse in millimoles (mM). Increasing this value increases the probability of synaptic vesicle release, which in turn increases the level of network activity. In vivo values are estimated to be ~0.9-1.2mM, whilst in vitro values are on the order of 2mM.',
+        title='Extracellular Calcium Concentration',
+    )
+    v_init: list[float] | float = Field(
+        default=-80.0,
+        description='Initial membrane potential in millivolts (mV).',
+        title='Initial Voltage',
+    )
+    random_seed: list[int] | int = Field(
+        default=1, description='Random seed for the simulation.', title='Random Seed'
+    )
 
 
 class MTypeClassification(BaseModel):
@@ -785,6 +975,14 @@ class FrequencyItem(WidthItem):
     pass
 
 
+class NWBValidationResponse(BaseModel):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    status: str = Field(..., title='Status')
+    message: str = Field(..., title='Message')
+
+
 class NamedPath(BaseModel):
     model_config = ConfigDict(
         extra='ignore',
@@ -811,7 +1009,7 @@ class NeuronPropertyFilter(BaseModel):
     model_config = ConfigDict(
         extra='ignore',
     )
-    filter_dict: dict[str, list] = Field(
+    filter_dict: dict[str, list[Any]] = Field(
         default={},
         description="Filter dictionary. Note as this is NOT a Block and the list here is                     not to support multi-dimensional parameters but to support a key-value pair                     with multiple values i.e. {'layer': ['2', '3']}}",
         title='Filter Dict',
@@ -819,13 +1017,8 @@ class NeuronPropertyFilter(BaseModel):
     type: Literal['NeuronPropertyFilter'] = Field(..., title='Type')
 
 
-class NeuronSetReference(BaseModel):
-    model_config = ConfigDict(
-        extra='ignore',
-    )
-    block_dict_name: str = Field(default='', title='Block Dict Name')
-    block_name: str = Field(..., title='Block Name')
-    type: Literal['NeuronSetReference'] = Field(..., title='Type')
+class NeuronSetReference(NeuronSet):
+    pass
 
 
 class NodePopulationType(RootModel[Literal['biophysical', 'virtual']]):
@@ -861,7 +1054,7 @@ class Variance(RootModel[float]):
     )
 
 
-class VarianceItem(DurationItem):
+class VarianceItem(ExtracellularCalciumConcentrationItem):
     pass
 
 
@@ -888,7 +1081,7 @@ class PairMotifNeuronSet(BaseModel):
     )
     type: Literal['PairMotifNeuronSet'] = Field(..., title='Type')
     sample_percentage: SamplePercentage10 | SamplePercentage11 = Field(
-        default=100.0,
+        default_factory=lambda: SamplePercentage10(100.0),
         description='Percentage of neurons to sample between 0 and 100%',
         title='Sample (Percentage)',
     )
@@ -1040,7 +1233,7 @@ class PredefinedNeuronSet(BaseModel):
     )
     type: Literal['PredefinedNeuronSet'] = Field(..., title='Type')
     sample_percentage: SamplePercentage12 | SamplePercentage13 = Field(
-        default=100.0,
+        default_factory=lambda: SamplePercentage12(100.0),
         description='Percentage of neurons to sample between 0 and 100%',
         title='Sample (Percentage)',
     )
@@ -1085,7 +1278,7 @@ class PropertyNeuronSet(BaseModel):
     )
     type: Literal['PropertyNeuronSet'] = Field(..., title='Type')
     sample_percentage: SamplePercentage14 | SamplePercentage15 = Field(
-        default=100.0,
+        default_factory=lambda: SamplePercentage14(100.0),
         description='Percentage of neurons to sample between 0 and 100%',
         title='Sample (Percentage)',
     )
@@ -1096,11 +1289,13 @@ class PropertyNeuronSet(BaseModel):
         default=None, title='Node Population'
     )
     property_filter: NeuronPropertyFilter | list[NeuronPropertyFilter] = Field(
-        default=[],
+        default_factory=lambda: NeuronPropertyFilter.model_validate([]),
         description='NeuronPropertyFilter object or list of NeuronPropertyFilter objects',
         title='Property Filter',
     )
-    node_sets: list[NodeSet3] | NodeSets2 = Field(default=[], title='Node Sets')
+    node_sets: list[NodeSet3] | NodeSets2 = Field(
+        default_factory=lambda: NodeSets2([]), title='Node Sets'
+    )
 
 
 class Publication(BaseModel):
@@ -1177,7 +1372,7 @@ class StartTime(RootModel[float]):
     )
 
 
-class StartTimeItem(DurationItem):
+class StartTimeItem(ExtracellularCalciumConcentrationItem):
     pass
 
 
@@ -1190,7 +1385,7 @@ class Interval(RootModel[float]):
     )
 
 
-class IntervalItem(DurationItem):
+class IntervalItem(ExtracellularCalciumConcentrationItem):
     pass
 
 
@@ -1213,17 +1408,17 @@ class RegularTimestamps(BaseModel):
     )
     type: Literal['RegularTimestamps'] = Field(..., title='Type')
     start_time: StartTime | list[StartTimeItem] = Field(
-        default=0.0,
+        default_factory=lambda: StartTime(0.0),
         description='Sart time of the timestamps in milliseconds (ms).',
         title='Start Time',
     )
     interval: Interval | list[IntervalItem] = Field(
-        default=10.0,
+        default_factory=lambda: Interval(10.0),
         description='Interval between timestamps in milliseconds (ms).',
         title='Interval',
     )
     number_of_repetitions: NumberOfRepetitions | list[NumberOfRepetition] = Field(
-        default=10,
+        default_factory=lambda: NumberOfRepetitions(10),
         description='Number of timestamps to generate.',
         title='Number Of Repetitions',
     )
@@ -1233,7 +1428,7 @@ class Duration6(Duration):
     pass
 
 
-class DurationItem6(DurationItem):
+class DurationItem6(ExtracellularCalciumConcentrationItem):
     pass
 
 
@@ -1246,7 +1441,7 @@ class PercentageOfThresholdCurrent(RootModel[float]):
     )
 
 
-class PercentageOfThresholdCurrentItem(DurationItem):
+class PercentageOfThresholdCurrentItem(ExtracellularCalciumConcentrationItem):
     pass
 
 
@@ -1259,7 +1454,7 @@ class PercentageOfThresholdCurrentStart(RootModel[float]):
     )
 
 
-class PercentageOfThresholdCurrentStartItem(DurationItem):
+class PercentageOfThresholdCurrentStartItem(ExtracellularCalciumConcentrationItem):
     pass
 
 
@@ -1272,7 +1467,7 @@ class PercentageOfThresholdCurrentEnd(RootModel[float]):
     )
 
 
-class PercentageOfThresholdCurrentEndItem(DurationItem):
+class PercentageOfThresholdCurrentEndItem(ExtracellularCalciumConcentrationItem):
     pass
 
 
@@ -1285,7 +1480,7 @@ class MeanPercentageOfThresholdCurrent(RootModel[float]):
     )
 
 
-class MeanPercentageOfThresholdCurrentItem(DurationItem):
+class MeanPercentageOfThresholdCurrentItem(ExtracellularCalciumConcentrationItem):
     pass
 
 
@@ -1298,7 +1493,7 @@ class UseScaling(RootModel[float]):
     )
 
 
-class UseScalingItem(DurationItem):
+class UseScalingItem(ExtracellularCalciumConcentrationItem):
     pass
 
 
@@ -1310,7 +1505,7 @@ class ScaleAcetylcholineUSESynapticManipulation(BaseModel):
         ..., title='Type'
     )
     use_scaling: UseScaling | list[UseScalingItem] = Field(
-        default=0.7050728631217412,
+        default_factory=lambda: UseScaling(0.7050728631217412),
         description='Scale the U_SE (ACh) parameter of the Tsodyks-Markram synaptic model.',
         title='Scale U_SE (ACh)',
     )
@@ -1389,7 +1584,7 @@ class SimplexMembershipBasedNeuronSet(BaseModel):
     )
     type: Literal['SimplexMembershipBasedNeuronSet'] = Field(..., title='Type')
     sample_percentage: SamplePercentage16 | SamplePercentage17 = Field(
-        default=100.0,
+        default_factory=lambda: SamplePercentage16(100.0),
         description='Percentage of neurons to sample between 0 and 100%',
         title='Sample (Percentage)',
     )
@@ -1400,11 +1595,13 @@ class SimplexMembershipBasedNeuronSet(BaseModel):
         default=None, title='Node Population'
     )
     property_filter: NeuronPropertyFilter | list[NeuronPropertyFilter] = Field(
-        default=[],
+        default_factory=lambda: NeuronPropertyFilter.model_validate([]),
         description='NeuronPropertyFilter object or list of NeuronPropertyFilter objects',
         title='Property Filter',
     )
-    node_sets: list[NodeSet3] | NodeSets3 = Field(default=[], title='Node Sets')
+    node_sets: list[NodeSet3] | NodeSets3 = Field(
+        default_factory=lambda: NodeSets3([]), title='Node Sets'
+    )
     central_neuron_id: int | list[int] = Field(
         ...,
         description='Node id (index) that will be source or target of the simplices extracted',
@@ -1484,7 +1681,7 @@ class SimplexNeuronSet(BaseModel):
     )
     type: Literal['SimplexNeuronSet'] = Field(..., title='Type')
     sample_percentage: SamplePercentage18 | SamplePercentage19 = Field(
-        default=100.0,
+        default_factory=lambda: SamplePercentage18(100.0),
         description='Percentage of neurons to sample between 0 and 100%',
         title='Sample (Percentage)',
     )
@@ -1495,11 +1692,13 @@ class SimplexNeuronSet(BaseModel):
         default=None, title='Node Population'
     )
     property_filter: NeuronPropertyFilter | list[NeuronPropertyFilter] = Field(
-        default=[],
+        default_factory=lambda: NeuronPropertyFilter.model_validate([]),
         description='NeuronPropertyFilter object or list of NeuronPropertyFilter objects',
         title='Property Filter',
     )
-    node_sets: list[NodeSet3] | NodeSets4 = Field(default=[], title='Node Sets')
+    node_sets: list[NodeSet3] | NodeSets4 = Field(
+        default_factory=lambda: NodeSets4([]), title='Node Sets'
+    )
     central_neuron_id: int | list[int] = Field(
         ...,
         description='Node id (index) that will be source or target of the simplices extracted',
@@ -1546,7 +1745,7 @@ class SingleTimestamp(BaseModel):
     )
     type: Literal['SingleTimestamp'] = Field(..., title='Type')
     start_time: StartTime | list[StartTimeItem] = Field(
-        default=0.0,
+        default_factory=lambda: StartTime(0.0),
         description='Sart time of the timestamps in milliseconds (ms).',
         title='Start Time',
     )
@@ -1642,14 +1841,18 @@ class Dt1(RootModel[float]):
     )
 
 
+class Dt2(NonNegativeFloatRange):
+    pass
+
+
 class SomaVoltageRecording(BaseModel):
     model_config = ConfigDict(
         extra='ignore',
     )
     type: Literal['SomaVoltageRecording'] = Field(..., title='Type')
     neuron_set: NeuronSetReference | None = None
-    dt: Dt1 | list[DtItem] | NonNegativeFloatRange = Field(
-        default=0.1,
+    dt: Dt1 | list[DtItem] | Dt2 = Field(
+        default_factory=lambda: Dt1(0.1),
         description='Interval between recording time steps in milliseconds (ms).',
         title='Timestep',
     )
@@ -1673,8 +1876,7 @@ class Subject(BaseModel):
         ..., description='Subject description', title='Description'
     )
     sex: Sex = Field(
-        default_factory=lambda: Sex.model_validate('unknown'),
-        description='Sex of the subject',
+        default_factory=lambda: Sex('unknown'), description='Sex of the subject'
     )
     weight: Weight | None = Field(
         default=None, description='Weight in grams', title='Weight'
@@ -1688,7 +1890,7 @@ class Subject(BaseModel):
     age_max: timedelta | None = Field(
         default=None, description='Maximum age range', title='Maximum age range'
     )
-    age_period: AgePeriod | None = 'unknown'
+    age_period: AgePeriod | None = Field(default_factory=lambda: AgePeriod('unknown'))
     species_id: UUID = Field(..., description='Species UUID', title='Species Id')
     strain_id: UUID | None = Field(default=None, title='Strain Id')
 
@@ -1705,7 +1907,7 @@ class Duration11(Duration):
     pass
 
 
-class DurationItem11(DurationItem):
+class DurationItem11(ExtracellularCalciumConcentrationItem):
     pass
 
 
@@ -1718,7 +1920,7 @@ class MagnesiumValue(RootModel[float]):
     )
 
 
-class MagnesiumValueItem(DurationItem):
+class MagnesiumValueItem(ExtracellularCalciumConcentrationItem):
     pass
 
 
@@ -1728,7 +1930,7 @@ class SynapticMgManipulation(BaseModel):
     )
     type: Literal['SynapticMgManipulation'] = Field(..., title='Type')
     magnesium_value: MagnesiumValue | list[MagnesiumValueItem] = Field(
-        default=2.4,
+        default_factory=lambda: MagnesiumValue(2.4),
         description='Extracellular magnesium concentration in millimoles (mM).',
         title='Extracellular Magnesium Concentration',
     )
@@ -1746,6 +1948,14 @@ class ThermoFitMTauV2(BaseModel):
         extra='ignore',
     )
     type: Literal['ThermoFitMTauV2'] = Field(..., title='Type')
+
+
+class Dt3(Dt1):
+    pass
+
+
+class Dt4(NonNegativeFloatRange):
+    pass
 
 
 class StartTime2(RootModel[float]):
@@ -1766,7 +1976,7 @@ class EndTime(RootModel[float]):
     )
 
 
-class EndTimeItem(DurationItem):
+class EndTimeItem(ExtracellularCalciumConcentrationItem):
     pass
 
 
@@ -1776,18 +1986,18 @@ class TimeWindowSomaVoltageRecording(BaseModel):
     )
     type: Literal['TimeWindowSomaVoltageRecording'] = Field(..., title='Type')
     neuron_set: NeuronSetReference | None = None
-    dt: Dt1 | list[DtItem] | NonNegativeFloatRange = Field(
-        default=0.1,
+    dt: Dt3 | list[DtItem] | Dt4 = Field(
+        default_factory=lambda: Dt3(0.1),
         description='Interval between recording time steps in milliseconds (ms).',
         title='Timestep',
     )
     start_time: StartTime2 | list[StartTimeItem] = Field(
-        default=0.0,
+        default_factory=lambda: StartTime2(0.0),
         description='Recording start time in milliseconds (ms).',
         title='Start Time',
     )
     end_time: EndTime | list[EndTimeItem] = Field(
-        default=100.0,
+        default_factory=lambda: EndTime(100.0),
         description='Recording end time in milliseconds (ms).',
         title='End Time',
     )
@@ -1844,8 +2054,8 @@ class NItem(Element):
     pass
 
 
-class ColumnsXyz(RootModel[list]):
-    root: list = Field(
+class ColumnsXyz(RootModel[tuple[str, str, str]]):
+    root: tuple[str, str, str] = Field(
         ...,
         description='Names of the three neuron (node) properties used for volumetric tests',
         max_length=3,
@@ -1854,8 +2064,8 @@ class ColumnsXyz(RootModel[list]):
     )
 
 
-class ColumnsXyzItem(RootModel[list]):
-    root: list = Field(..., max_length=3, min_length=3)
+class ColumnsXyzItem(RootModel[tuple[str, str, str]]):
+    root: tuple[str, str, str] = Field(..., max_length=3, min_length=3)
 
 
 class VolumetricCountNeuronSet(BaseModel):
@@ -1864,7 +2074,7 @@ class VolumetricCountNeuronSet(BaseModel):
     )
     type: Literal['VolumetricCountNeuronSet'] = Field(..., title='Type')
     sample_percentage: SamplePercentage20 | SamplePercentage21 = Field(
-        default=100.0,
+        default_factory=lambda: SamplePercentage20(100.0),
         description='Percentage of neurons to sample between 0 and 100%',
         title='Sample (Percentage)',
     )
@@ -1875,11 +2085,13 @@ class VolumetricCountNeuronSet(BaseModel):
         default=None, title='Node Population'
     )
     property_filter: NeuronPropertyFilter | list[NeuronPropertyFilter] = Field(
-        default=[],
+        default_factory=lambda: NeuronPropertyFilter.model_validate([]),
         description='NeuronPropertyFilter object or list of NeuronPropertyFilter objects',
         title='Property Filter',
     )
-    node_sets: list[NodeSet3] | NodeSets5 = Field(default=[], title='Node Sets')
+    node_sets: list[NodeSet3] | NodeSets5 = Field(
+        default_factory=lambda: NodeSets5([]), title='Node Sets'
+    )
     ox: float | list[float] = Field(
         ...,
         description='Offset of the center of the volume, relative to the centroid of the node             population',
@@ -1897,7 +2109,7 @@ class VolumetricCountNeuronSet(BaseModel):
     )
     n: N | list[NItem] = Field(..., description='Number of neurons to find', title='N')
     columns_xyz: ColumnsXyz | list[ColumnsXyzItem] = Field(
-        default=['x', 'y', 'z'],
+        default_factory=lambda: ColumnsXyz(['x', 'y', 'z']),
         description='Names of the three neuron (node) properties used for volumetric tests',
         title='Columns Xyz',
     )
@@ -1934,7 +2146,7 @@ class Radius(RootModel[float]):
     )
 
 
-class Radiu(DurationItem):
+class Radiu(ExtracellularCalciumConcentrationItem):
     pass
 
 
@@ -1944,7 +2156,7 @@ class VolumetricRadiusNeuronSet(BaseModel):
     )
     type: Literal['VolumetricRadiusNeuronSet'] = Field(..., title='Type')
     sample_percentage: SamplePercentage22 | SamplePercentage23 = Field(
-        default=100.0,
+        default_factory=lambda: SamplePercentage22(100.0),
         description='Percentage of neurons to sample between 0 and 100%',
         title='Sample (Percentage)',
     )
@@ -1955,11 +2167,13 @@ class VolumetricRadiusNeuronSet(BaseModel):
         default=None, title='Node Population'
     )
     property_filter: NeuronPropertyFilter | list[NeuronPropertyFilter] = Field(
-        default=[],
+        default_factory=lambda: NeuronPropertyFilter.model_validate([]),
         description='NeuronPropertyFilter object or list of NeuronPropertyFilter objects',
         title='Property Filter',
     )
-    node_sets: list[NodeSet3] | NodeSets6 = Field(default=[], title='Node Sets')
+    node_sets: list[NodeSet3] | NodeSets6 = Field(
+        default_factory=lambda: NodeSets6([]), title='Node Sets'
+    )
     ox: float | list[float] = Field(
         ...,
         description='Offset of the center of the volume, relative to the centroid of the node             population',
@@ -1979,7 +2193,7 @@ class VolumetricRadiusNeuronSet(BaseModel):
         ..., description='Radius in um of volumetric sample', title='Radius'
     )
     columns_xyz: ColumnsXyz | list[ColumnsXyzItem] = Field(
-        default=['x', 'y', 'z'],
+        default_factory=lambda: ColumnsXyz(['x', 'y', 'z']),
         description='Names of the three neuron (node) properties used for volumetric tests',
         title='Columns Xyz',
     )
@@ -2008,7 +2222,7 @@ class NbS1POmInputs(BaseModel):
     )
     type: Literal['nbS1POmInputs'] = Field(..., title='Type')
     sample_percentage: SamplePercentage24 | SamplePercentage25 = Field(
-        default=100.0,
+        default_factory=lambda: SamplePercentage24(100.0),
         description='Percentage of neurons to sample between 0 and 100%',
         title='Sample (Percentage)',
     )
@@ -2040,7 +2254,7 @@ class NbS1VPMInputs(BaseModel):
     )
     type: Literal['nbS1VPMInputs'] = Field(..., title='Type')
     sample_percentage: SamplePercentage26 | SamplePercentage27 = Field(
-        default=100.0,
+        default_factory=lambda: SamplePercentage26(100.0),
         description='Percentage of neurons to sample between 0 and 100%',
         title='Sample (Percentage)',
     )
@@ -2228,43 +2442,24 @@ class ObiOneScientificTasksFolderCompressionFolderCompressionScanConfigInitializ
     )
 
 
-class Circuit1(RootModel[Circuit | CircuitFromID]):
-    root: Circuit | CircuitFromID = Field(..., discriminator='type')
+class Circuit4(Circuit1):
+    pass
 
 
-class SimulationLength(RootModel[float]):
-    root: float = Field(
-        ...,
-        description='Simulation length in milliseconds (ms).',
-        ge=1.0,
-        le=5000.0,
-        title='Duration',
-    )
+class SimulationLength6(SimulationLength):
+    pass
 
 
-class SimulationLength1Item(RootModel[float]):
-    root: float = Field(..., ge=1.0, le=5000.0)
+class SimulationLength7Item(SimulationLength1Item):
+    pass
 
 
-class SimulationLength1(RootModel[list[SimulationLength1Item]]):
-    root: list[SimulationLength1Item] = Field(
+class SimulationLength7(RootModel[list[SimulationLength7Item]]):
+    root: list[SimulationLength7Item] = Field(
         ...,
         description='Simulation length in milliseconds (ms).',
         min_length=1,
         title='Duration',
-    )
-
-
-class ExtracellularCalciumConcentrationItem(DurationItem):
-    pass
-
-
-class ExtracellularCalciumConcentration(RootModel[float]):
-    root: float = Field(
-        ...,
-        description='Extracellular calcium concentration around the synapse in millimoles (mM). Increasing this value increases the probability of synaptic vesicle release, which in turn increases the level of network activity. In vivo values are estimated to be ~0.9-1.2mM, whilst in vitro values are on the order of 2mM.',
-        ge=0.0,
-        title='Extracellular Calcium Concentration',
     )
 
 
@@ -2275,18 +2470,18 @@ class ObiOneScientificTasksGenerateSimulationConfigsCircuitSimulationScanConfigI
         extra='ignore',
     )
     type: Literal['CircuitSimulationScanConfig.Initialize'] = Field(..., title='Type')
-    circuit: Circuit | CircuitFromID | list[Circuit1] = Field(
+    circuit: Circuit | CircuitFromID | list[Circuit4] = Field(
         ..., description='Circuit to simulate.', title='Circuit'
     )
-    simulation_length: SimulationLength | SimulationLength1 = Field(
-        default=1000.0,
+    simulation_length: SimulationLength6 | SimulationLength7 = Field(
+        default_factory=lambda: SimulationLength6(1000.0),
         description='Simulation length in milliseconds (ms).',
         title='Duration',
     )
     extracellular_calcium_concentration: (
         list[ExtracellularCalciumConcentrationItem] | ExtracellularCalciumConcentration
     ) = Field(
-        default=1.1,
+        default_factory=lambda: ExtracellularCalciumConcentration(1.1),
         description='Extracellular calcium concentration around the synapse in millimoles (mM). Increasing this value increases the probability of synaptic vesicle release, which in turn increases the level of network activity. In vivo values are estimated to be ~0.9-1.2mM, whilst in vitro values are on the order of 2mM.',
         title='Extracellular Calcium Concentration',
     )
@@ -2301,20 +2496,20 @@ class ObiOneScientificTasksGenerateSimulationConfigsCircuitSimulationScanConfigI
     node_set: NeuronSetReference | None = None
 
 
-class Circuit2(RootModel[MEModelCircuit | MEModelFromID]):
-    root: MEModelCircuit | MEModelFromID = Field(..., discriminator='type')
-
-
-class SimulationLength2(SimulationLength):
+class Circuit5(Circuit2):
     pass
 
 
-class SimulationLength3Item(SimulationLength1Item):
+class SimulationLength8(SimulationLength):
     pass
 
 
-class SimulationLength3(RootModel[list[SimulationLength3Item]]):
-    root: list[SimulationLength3Item] = Field(
+class SimulationLength9Item(SimulationLength1Item):
+    pass
+
+
+class SimulationLength9(RootModel[list[SimulationLength9Item]]):
+    root: list[SimulationLength9Item] = Field(
         ...,
         description='Simulation length in milliseconds (ms).',
         min_length=1,
@@ -2329,18 +2524,18 @@ class ObiOneScientificTasksGenerateSimulationConfigsMEModelSimulationScanConfigI
         extra='ignore',
     )
     type: Literal['MEModelSimulationScanConfig.Initialize'] = Field(..., title='Type')
-    circuit: MEModelCircuit | MEModelFromID | list[Circuit2] = Field(
+    circuit: MEModelCircuit | MEModelFromID | list[Circuit5] = Field(
         ..., description='ME Model to simulate.', title='ME Model'
     )
-    simulation_length: SimulationLength2 | SimulationLength3 = Field(
-        default=1000.0,
+    simulation_length: SimulationLength8 | SimulationLength9 = Field(
+        default_factory=lambda: SimulationLength8(1000.0),
         description='Simulation length in milliseconds (ms).',
         title='Duration',
     )
     extracellular_calcium_concentration: (
         list[ExtracellularCalciumConcentrationItem] | ExtracellularCalciumConcentration
     ) = Field(
-        default=1.1,
+        default_factory=lambda: ExtracellularCalciumConcentration(1.1),
         description='Extracellular calcium concentration around the synapse in millimoles (mM). Increasing this value increases the probability of synaptic vesicle release, which in turn increases the level of network activity. In vivo values are estimated to be ~0.9-1.2mM, whilst in vitro values are on the order of 2mM.',
         title='Extracellular Calcium Concentration',
     )
@@ -2354,24 +2549,20 @@ class ObiOneScientificTasksGenerateSimulationConfigsMEModelSimulationScanConfigI
     )
 
 
-class Circuit3(
-    RootModel[MEModelWithSynapsesCircuit | MEModelWithSynapsesCircuitFromID]
-):
-    root: MEModelWithSynapsesCircuit | MEModelWithSynapsesCircuitFromID = Field(
-        ..., discriminator='type'
-    )
-
-
-class SimulationLength4(SimulationLength):
+class Circuit6(Circuit3):
     pass
 
 
-class SimulationLength5Item(SimulationLength1Item):
+class SimulationLength10(SimulationLength):
     pass
 
 
-class SimulationLength5(RootModel[list[SimulationLength5Item]]):
-    root: list[SimulationLength5Item] = Field(
+class SimulationLength11Item(SimulationLength1Item):
+    pass
+
+
+class SimulationLength11(RootModel[list[SimulationLength11Item]]):
+    root: list[SimulationLength11Item] = Field(
         ...,
         description='Simulation length in milliseconds (ms).',
         min_length=1,
@@ -2389,21 +2580,21 @@ class ObiOneScientificTasksGenerateSimulationConfigsMEModelWithSynapsesCircuitSi
         ..., title='Type'
     )
     circuit: (
-        MEModelWithSynapsesCircuit | MEModelWithSynapsesCircuitFromID | list[Circuit3]
+        MEModelWithSynapsesCircuit | MEModelWithSynapsesCircuitFromID | list[Circuit6]
     ) = Field(
         ...,
         description='MEModel with synapses to simulate.',
         title='MEModel With Synapses',
     )
-    simulation_length: SimulationLength4 | SimulationLength5 = Field(
-        default=1000.0,
+    simulation_length: SimulationLength10 | SimulationLength11 = Field(
+        default_factory=lambda: SimulationLength10(1000.0),
         description='Simulation length in milliseconds (ms).',
         title='Duration',
     )
     extracellular_calcium_concentration: (
         list[ExtracellularCalciumConcentrationItem] | ExtracellularCalciumConcentration
     ) = Field(
-        default=1.1,
+        default_factory=lambda: ExtracellularCalciumConcentration(1.1),
         description='Extracellular calcium concentration around the synapse in millimoles (mM). Increasing this value increases the probability of synaptic vesicle release, which in turn increases the level of network activity. In vivo values are estimated to be ~0.9-1.2mM, whilst in vitro values are on the order of 2mM.',
         title='Extracellular Calcium Concentration',
     )
@@ -2493,20 +2684,20 @@ class ObiOneScientificTasksMorphologyMetricsMorphologyMetricsScanConfigInitializ
     )
 
 
-class Circuit4(Circuit1):
+class Circuit7(Circuit1):
     pass
 
 
-class SimulationLength6(SimulationLength):
+class SimulationLength12(SimulationLength):
     pass
 
 
-class SimulationLength7Item(SimulationLength1Item):
+class SimulationLength13Item(SimulationLength1Item):
     pass
 
 
-class SimulationLength7(RootModel[list[SimulationLength7Item]]):
-    root: list[SimulationLength7Item] = Field(
+class SimulationLength13(RootModel[list[SimulationLength13Item]]):
+    root: list[SimulationLength13Item] = Field(
         ...,
         description='Simulation length in milliseconds (ms).',
         min_length=1,
@@ -2519,18 +2710,18 @@ class ObiOneScientificUnionsAliasesSimulationsFormInitialize(BaseModel):
         extra='ignore',
     )
     type: Literal['SimulationsForm.Initialize'] = Field(..., title='Type')
-    circuit: Circuit | CircuitFromID | list[Circuit4] = Field(
+    circuit: Circuit | CircuitFromID | list[Circuit7] = Field(
         ..., description='Circuit to simulate.', title='Circuit'
     )
-    simulation_length: SimulationLength6 | SimulationLength7 = Field(
-        default=1000.0,
+    simulation_length: SimulationLength12 | SimulationLength13 = Field(
+        default_factory=lambda: SimulationLength12(1000.0),
         description='Simulation length in milliseconds (ms).',
         title='Duration',
     )
     extracellular_calcium_concentration: (
         list[ExtracellularCalciumConcentrationItem] | ExtracellularCalciumConcentration
     ) = Field(
-        default=1.1,
+        default_factory=lambda: ExtracellularCalciumConcentration(1.1),
         description='Extracellular calcium concentration around the synapse in millimoles (mM). Increasing this value increases the probability of synaptic vesicle release, which in turn increases the level of network activity. In vivo values are estimated to be ~0.9-1.2mM, whilst in vitro values are on the order of 2mM.',
         title='Extracellular Calcium Concentration',
     )
@@ -2568,7 +2759,7 @@ class RCA1CA3Inputs(BaseModel):
     )
     type: Literal['rCA1CA3Inputs'] = Field(..., title='Type')
     sample_percentage: SamplePercentage28 | SamplePercentage29 = Field(
-        default=100.0,
+        default_factory=lambda: SamplePercentage28(100.0),
         description='Percentage of neurons to sample between 0 and 100%',
         title='Sample (Percentage)',
     )
@@ -2578,37 +2769,47 @@ class RCA1CA3Inputs(BaseModel):
 
 
 class RootGetResponse(BaseModel):
-    pass
     model_config = ConfigDict(
         extra='ignore',
     )
 
 
-HealthHealthGetResponse = RootGetResponse
+class HealthHealthGetResponse(RootGetResponse):
+    pass
 
 
-VersionVersionGetResponse = RootGetResponse
+class VersionVersionGetResponse(RootGetResponse):
+    pass
 
 
 class CircuitMetricsEndpointDeclaredCircuitMetricsCircuitIdGetParametersQuery(
     BaseModel
 ):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
     level_of_detail_nodes: CircuitStatsLevelOfDetail = Field(
-        default=0, description='Level of detail for node populations analysis'
+        default_factory=lambda: CircuitStatsLevelOfDetail(0),
+        description='Level of detail for node populations analysis',
     )
     level_of_detail_edges: CircuitStatsLevelOfDetail = Field(
-        default=0, description='Level of detail for edge populations analysis'
+        default_factory=lambda: CircuitStatsLevelOfDetail(0),
+        description='Level of detail for edge populations analysis',
     )
 
 
-MappedCircuitPropertiesEndpointDeclaredMappedCircuitPropertiesCircuitIdGetResponse = (
+class MappedCircuitPropertiesEndpointDeclaredMappedCircuitPropertiesCircuitIdGetResponse(
     RootGetResponse
-)
+):
+    pass
 
 
 class ElectrophysiologyrecordingMetricsEndpointDeclaredElectrophysiologyrecordingMetricsTraceIdGetParametersQuery(
     BaseModel
 ):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
     requested_metrics: (
         list[
             Literal[
@@ -2684,6 +2885,9 @@ class ElectrophysiologyrecordingMetricsEndpointDeclaredElectrophysiologyrecordin
 class NeuronMorphologyMetricsEndpointDeclaredNeuronMorphologyMetricsCellMorphologyIdGetParametersQuery(
     BaseModel
 ):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
     requested_metrics: (
         list[
             Literal[
@@ -2717,9 +2921,18 @@ class NeuronMorphologyMetricsEndpointDeclaredNeuronMorphologyMetricsCellMorpholo
     )
 
 
+class MorphologyMetricsCalculationDeclaredRegisterMorphologyWithCalculatedMetricsPostResponse(
+    RootGetResponse
+):
+    pass
+
+
 class ParametricMultiValueEndpointDeclaredParametricMultiValuePostParametersQuery(
     BaseModel
 ):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
     ge: float | int | None = Field(
         default=None, description='Require all values to be ≥ this', title='Ge'
     )
@@ -2782,7 +2995,9 @@ class CircuitMetricsEdgePopulation(BaseModel):
     property_stats: dict[str, dict[str, float]] | None = Field(
         ..., title='Property Stats'
     )
-    degree_stats: dict[str, dict[str, float]] | None = Field(..., title='Degree Stats')
+    degree_stats: dict[DegreeTypes, dict[str, float]] | None = Field(
+        ..., title='Degree Stats'
+    )
 
 
 class CircuitMetricsNodePopulation(BaseModel):
@@ -2799,7 +3014,7 @@ class CircuitMetricsNodePopulation(BaseModel):
     property_value_counts: dict[str, dict[str, int]] = Field(
         ..., title='Property Value Counts'
     )
-    node_location_info: dict[str, dict[str, float]] | None = Field(
+    node_location_info: dict[SpatialCoordinate, dict[str, float]] | None = Field(
         ..., title='Node Location Info'
     )
 
@@ -2847,6 +3062,37 @@ class CircuitMetricsOutput(BaseModel):
     )
 
 
+class Initialize(BaseModel):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    type: Literal['CircuitSimulationScanConfig.Initialize'] = Field(..., title='Type')
+    circuit: Circuit | CircuitFromID | list[Circuit1] = Field(
+        ..., description='Circuit to simulate.', title='Circuit'
+    )
+    simulation_length: SimulationLength | SimulationLength1 = Field(
+        default_factory=lambda: SimulationLength(1000.0),
+        description='Simulation length in milliseconds (ms).',
+        title='Duration',
+    )
+    extracellular_calcium_concentration: (
+        list[ExtracellularCalciumConcentrationItem] | ExtracellularCalciumConcentration
+    ) = Field(
+        default_factory=lambda: ExtracellularCalciumConcentration(1.1),
+        description='Extracellular calcium concentration around the synapse in millimoles (mM). Increasing this value increases the probability of synaptic vesicle release, which in turn increases the level of network activity. In vivo values are estimated to be ~0.9-1.2mM, whilst in vitro values are on the order of 2mM.',
+        title='Extracellular Calcium Concentration',
+    )
+    v_init: list[float] | float = Field(
+        default=-80.0,
+        description='Initial membrane potential in millivolts (mV).',
+        title='Initial Voltage',
+    )
+    random_seed: list[int] | int = Field(
+        default=1, description='Random seed for the simulation.', title='Random Seed'
+    )
+    node_set: NeuronSetReference | None = None
+
+
 class ConnectivityMatrixExtractionScanConfig(BaseModel):
     model_config = ConfigDict(
         extra='ignore',
@@ -2861,14 +3107,14 @@ class ConstantCurrentClampSomaticStimulus(BaseModel):
     )
     type: Literal['ConstantCurrentClampSomaticStimulus'] = Field(..., title='Type')
     timestamps: TimestampsReference | None = None
-    neuron_set: NeuronSetReference | None = None
+    neuron_set: NeuronSet | None = None
     timestamp_offset: float | list[float] | None = Field(
         default=0.0,
         description='The offset of the stimulus relative to each timestamp in milliseconds (ms).',
         title='Timestamp Offset',
     )
     duration: Duration | list[DurationItem] = Field(
-        default=200.0,
+        default_factory=lambda: Duration(200.0),
         description='Time duration in milliseconds for how long input is activated.',
         title='Duration',
     )
@@ -2946,8 +3192,8 @@ class FullySynchronousSpikeStimulus(BaseModel):
     )
     type: Literal['FullySynchronousSpikeStimulus'] = Field(..., title='Type')
     timestamps: TimestampsReference | None = None
-    source_neuron_set: NeuronSetReference | None = None
-    targeted_neuron_set: NeuronSetReference | None = None
+    source_neuron_set: SourceNeuronSet | None = None
+    targeted_neuron_set: TargetedNeuronSet | None = None
     timestamp_offset: float | list[float] | None = Field(
         default=0.0,
         description='The offset of the stimulus relative to each timestamp in milliseconds (ms).',
@@ -2970,14 +3216,14 @@ class HyperpolarizingCurrentClampSomaticStimulus(BaseModel):
         ..., title='Type'
     )
     timestamps: TimestampsReference | None = None
-    neuron_set: NeuronSetReference | None = None
+    neuron_set: NeuronSet | None = None
     timestamp_offset: float | list[float] | None = Field(
         default=0.0,
         description='The offset of the stimulus relative to each timestamp in milliseconds (ms).',
         title='Timestamp Offset',
     )
     duration: Duration | list[DurationItem] = Field(
-        default=200.0,
+        default_factory=lambda: Duration(200.0),
         description='Time duration in milliseconds for how long input is activated.',
         title='Duration',
     )
@@ -2993,7 +3239,7 @@ class IDNeuronSet(BaseModel):
     )
     type: Literal['IDNeuronSet'] = Field(..., title='Type')
     sample_percentage: SamplePercentage6 | SamplePercentage7 = Field(
-        default=100.0,
+        default_factory=lambda: SamplePercentage6(100.0),
         description='Percentage of neurons to sample between 0 and 100%',
         title='Sample (Percentage)',
     )
@@ -3003,14 +3249,18 @@ class IDNeuronSet(BaseModel):
     neuron_ids: NamedTuple | NeuronIds = Field(..., title='Neuron Ids')
 
 
+class Initialize1(
+    ObiOneScientificTasksIonChannelModelingIonChannelFittingScanConfigInitialize
+):
+    pass
+
+
 class IonChannelFittingScanConfig(BaseModel):
     model_config = ConfigDict(
         extra='ignore',
     )
     type: Literal['IonChannelFittingScanConfig'] = Field(..., title='Type')
-    initialize: (
-        ObiOneScientificTasksIonChannelModelingIonChannelFittingScanConfigInitialize
-    ) = Field(
+    initialize: Initialize1 = Field(
         ...,
         description='Parameters for initializing the simulation.',
         title='Initialization',
@@ -3052,14 +3302,14 @@ class LinearCurrentClampSomaticStimulus(BaseModel):
     )
     type: Literal['LinearCurrentClampSomaticStimulus'] = Field(..., title='Type')
     timestamps: TimestampsReference | None = None
-    neuron_set: NeuronSetReference | None = None
+    neuron_set: NeuronSet | None = None
     timestamp_offset: float | list[float] | None = Field(
         default=0.0,
         description='The offset of the stimulus relative to each timestamp in milliseconds (ms).',
         title='Timestamp Offset',
     )
     duration: Duration | list[DurationItem] = Field(
-        default=200.0,
+        default_factory=lambda: Duration(200.0),
         description='Time duration in milliseconds for how long input is activated.',
         title='Duration',
     )
@@ -3130,14 +3380,14 @@ class MultiPulseCurrentClampSomaticStimulus(BaseModel):
     )
     type: Literal['MultiPulseCurrentClampSomaticStimulus'] = Field(..., title='Type')
     timestamps: TimestampsReference | None = None
-    neuron_set: NeuronSetReference | None = None
+    neuron_set: NeuronSet | None = None
     timestamp_offset: float | list[float] | None = Field(
         default=0.0,
         description='The offset of the stimulus relative to each timestamp in milliseconds (ms).',
         title='Timestamp Offset',
     )
     duration: Duration | list[DurationItem] = Field(
-        default=200.0,
+        default_factory=lambda: Duration(200.0),
         description='Time duration in milliseconds for how long input is activated.',
         title='Duration',
     )
@@ -3147,12 +3397,12 @@ class MultiPulseCurrentClampSomaticStimulus(BaseModel):
         title='Amplitude',
     )
     width: Width | list[WidthItem] = Field(
-        default=50.0,
+        default_factory=lambda: Width(50.0),
         description='The length of time each pulse lasts. Given in milliseconds (ms).',
         title='Pulse Width',
     )
     frequency: Frequency | list[FrequencyItem] = Field(
-        default=1.0,
+        default_factory=lambda: Frequency(1.0),
         description='The frequency of pulse trains. Given in Hertz (Hz).',
         title='Pulse Frequency',
     )
@@ -3166,14 +3416,14 @@ class NormallyDistributedCurrentClampSomaticStimulus(BaseModel):
         ..., title='Type'
     )
     timestamps: TimestampsReference | None = None
-    neuron_set: NeuronSetReference | None = None
+    neuron_set: NeuronSet | None = None
     timestamp_offset: float | list[float] | None = Field(
         default=0.0,
         description='The offset of the stimulus relative to each timestamp in milliseconds (ms).',
         title='Timestamp Offset',
     )
     duration: Duration | list[DurationItem] = Field(
-        default=200.0,
+        default_factory=lambda: Duration(200.0),
         description='Time duration in milliseconds for how long input is activated.',
         title='Duration',
     )
@@ -3183,7 +3433,7 @@ class NormallyDistributedCurrentClampSomaticStimulus(BaseModel):
         title='Mean Amplitude',
     )
     variance: Variance | list[VarianceItem] = Field(
-        default=0.01,
+        default_factory=lambda: Variance(0.01),
         description='The variance around the mean of current to inject using a                     normal distribution.',
         title='Variance',
     )
@@ -3195,20 +3445,20 @@ class PoissonSpikeStimulus(BaseModel):
     )
     type: Literal['PoissonSpikeStimulus'] = Field(..., title='Type')
     timestamps: TimestampsReference | None = None
-    source_neuron_set: NeuronSetReference | None = None
-    targeted_neuron_set: NeuronSetReference | None = None
+    source_neuron_set: SourceNeuronSet | None = None
+    targeted_neuron_set: TargetedNeuronSet | None = None
     timestamp_offset: float | list[float] | None = Field(
         default=0.0,
         description='The offset of the stimulus relative to each timestamp in milliseconds (ms).',
         title='Timestamp Offset',
     )
     duration: Duration5 | list[DurationItem5] = Field(
-        default=200.0,
+        default_factory=lambda: Duration5(200.0),
         description='Time duration in milliseconds for how long input is activated.',
         title='Duration',
     )
     frequency: Frequency1 | list[FrequencyItem] = Field(
-        default=1.0,
+        default_factory=lambda: Frequency1(1.0),
         description='Mean frequency (Hz) of the Poisson input.',
         title='Frequency',
     )
@@ -3227,21 +3477,21 @@ class RelativeConstantCurrentClampSomaticStimulus(BaseModel):
         ..., title='Type'
     )
     timestamps: TimestampsReference | None = None
-    neuron_set: NeuronSetReference | None = None
+    neuron_set: NeuronSet | None = None
     timestamp_offset: float | list[float] | None = Field(
         default=0.0,
         description='The offset of the stimulus relative to each timestamp in milliseconds (ms).',
         title='Timestamp Offset',
     )
     duration: Duration6 | list[DurationItem6] = Field(
-        default=200.0,
+        default_factory=lambda: Duration6(200.0),
         description='Time duration in milliseconds for how long input is activated.',
         title='Duration',
     )
     percentage_of_threshold_current: (
         PercentageOfThresholdCurrent | list[PercentageOfThresholdCurrentItem]
     ) = Field(
-        default=10.0,
+        default_factory=lambda: PercentageOfThresholdCurrent(10.0),
         description="The percentage of a cell's threshold current to inject when the stimulus                     activates.",
         title='Percentage of Threshold Current',
     )
@@ -3255,28 +3505,28 @@ class RelativeLinearCurrentClampSomaticStimulus(BaseModel):
         ..., title='Type'
     )
     timestamps: TimestampsReference | None = None
-    neuron_set: NeuronSetReference | None = None
+    neuron_set: NeuronSet | None = None
     timestamp_offset: float | list[float] | None = Field(
         default=0.0,
         description='The offset of the stimulus relative to each timestamp in milliseconds (ms).',
         title='Timestamp Offset',
     )
     duration: Duration6 | list[DurationItem6] = Field(
-        default=200.0,
+        default_factory=lambda: Duration6(200.0),
         description='Time duration in milliseconds for how long input is activated.',
         title='Duration',
     )
     percentage_of_threshold_current_start: (
         PercentageOfThresholdCurrentStart | list[PercentageOfThresholdCurrentStartItem]
     ) = Field(
-        default=10.0,
+        default_factory=lambda: PercentageOfThresholdCurrentStart(10.0),
         description="The percentage of a cell's threshold current to inject when the stimulus activates.",
         title='Percentage of Threshold Current (Start)',
     )
     percentage_of_threshold_current_end: (
         PercentageOfThresholdCurrentEnd | list[PercentageOfThresholdCurrentEndItem]
     ) = Field(
-        default=100.0,
+        default_factory=lambda: PercentageOfThresholdCurrentEnd(100.0),
         description="If given, the percentage of a cell's threshold current is interpolated such that the percentage reaches this value when the stimulus concludes.",
         title='Percentage of Threshold Current (End)',
     )
@@ -3290,26 +3540,26 @@ class RelativeNormallyDistributedCurrentClampSomaticStimulus(BaseModel):
         ..., title='Type'
     )
     timestamps: TimestampsReference | None = None
-    neuron_set: NeuronSetReference | None = None
+    neuron_set: NeuronSet | None = None
     timestamp_offset: float | list[float] | None = Field(
         default=0.0,
         description='The offset of the stimulus relative to each timestamp in milliseconds (ms).',
         title='Timestamp Offset',
     )
     duration: Duration6 | list[DurationItem6] = Field(
-        default=200.0,
+        default_factory=lambda: Duration6(200.0),
         description='Time duration in milliseconds for how long input is activated.',
         title='Duration',
     )
     mean_percentage_of_threshold_current: (
         MeanPercentageOfThresholdCurrent | list[MeanPercentageOfThresholdCurrentItem]
     ) = Field(
-        default=0.01,
+        default_factory=lambda: MeanPercentageOfThresholdCurrent(0.01),
         description="The mean value of current to inject as a percentage of a cell's                     threshold current.",
         title='Percentage of Threshold Current (Mean)',
     )
     variance: Variance | list[VarianceItem] = Field(
-        default=0.01,
+        default_factory=lambda: Variance(0.01),
         description='The variance around the mean of current to inject using a                     normal distribution.',
         title='Variance',
     )
@@ -3321,14 +3571,14 @@ class SinusoidalCurrentClampSomaticStimulus(BaseModel):
     )
     type: Literal['SinusoidalCurrentClampSomaticStimulus'] = Field(..., title='Type')
     timestamps: TimestampsReference | None = None
-    neuron_set: NeuronSetReference | None = None
+    neuron_set: NeuronSet | None = None
     timestamp_offset: float | list[float] | None = Field(
         default=0.0,
         description='The offset of the stimulus relative to each timestamp in milliseconds (ms).',
         title='Timestamp Offset',
     )
     duration: Duration6 | list[DurationItem6] = Field(
-        default=200.0,
+        default_factory=lambda: Duration6(200.0),
         description='Time duration in milliseconds for how long input is activated.',
         title='Duration',
     )
@@ -3338,12 +3588,12 @@ class SinusoidalCurrentClampSomaticStimulus(BaseModel):
         title='Maximum Amplitude',
     )
     frequency: Frequency2 | list[FrequencyItem] = Field(
-        default=1.0,
+        default_factory=lambda: Frequency2(1.0),
         description='The frequency of the waveform. Given in Hertz (Hz).',
         title='Frequency',
     )
     dt: Dt | list[DtItem] = Field(
-        default=0.025,
+        default_factory=lambda: Dt(0.025),
         description='Timestep of generated signal in milliseconds (ms).',
         title='Timestep',
     )
@@ -3355,31 +3605,31 @@ class SinusoidalPoissonSpikeStimulus(BaseModel):
     )
     type: Literal['SinusoidalPoissonSpikeStimulus'] = Field(..., title='Type')
     timestamps: TimestampsReference | None = None
-    source_neuron_set: NeuronSetReference | None = None
-    targeted_neuron_set: NeuronSetReference | None = None
+    source_neuron_set: SourceNeuronSet | None = None
+    targeted_neuron_set: TargetedNeuronSet | None = None
     timestamp_offset: float | list[float] | None = Field(
         default=0.0,
         description='The offset of the stimulus relative to each timestamp in milliseconds (ms).',
         title='Timestamp Offset',
     )
     duration: Duration10 | list[DurationItem10] = Field(
-        default=200.0,
+        default_factory=lambda: Duration10(200.0),
         description='Time duration of the stimulus in milliseconds.',
         title='Duration',
     )
     minimum_rate: MinimumRate | list[MinimumRateItem] = Field(
-        default='1e-05',
+        default_factory=lambda: MinimumRate(1e-05),
         description='Minimum rate of the stimulus in Hz.\n Must be less than the Maximum Rate.',
         title='Minimum Rate',
     )
     maximum_rate: MaximumRate | list[MaximumRateItem] = Field(
-        default=10.0,
+        default_factory=lambda: MaximumRate(10.0),
         description='Maximum rate of the stimulus in Hz. Must be greater than or equal to Minimum Rate.',
         title='Maximum Rate',
     )
     modulation_frequency_hz: ModulationFrequencyHz | list[ModulationFrequencyHzItem] = (
         Field(
-            default=5.0,
+            default_factory=lambda: ModulationFrequencyHz(5.0),
             description='Frequency (Hz) of the sinusoidal modulation of the rate.',
             title='Modulation Frequency',
         )
@@ -3402,14 +3652,14 @@ class SubthresholdCurrentClampSomaticStimulus(BaseModel):
     )
     type: Literal['SubthresholdCurrentClampSomaticStimulus'] = Field(..., title='Type')
     timestamps: TimestampsReference | None = None
-    neuron_set: NeuronSetReference | None = None
+    neuron_set: NeuronSet | None = None
     timestamp_offset: float | list[float] | None = Field(
         default=0.0,
         description='The offset of the stimulus relative to each timestamp in milliseconds (ms).',
         title='Timestamp Offset',
     )
     duration: Duration11 | list[DurationItem11] = Field(
-        default=200.0,
+        default_factory=lambda: Duration11(200.0),
         description='Time duration in milliseconds for how long input is activated.',
         title='Duration',
     )
@@ -3484,7 +3734,7 @@ class CircuitSimulationScanConfig(BaseModel):
         description='Synaptic manipulations for the simulation.',
         title='Synaptic Manipulations',
     )
-    initialize: ObiOneScientificTasksGenerateSimulationConfigsCircuitSimulationScanConfigInitialize = Field(
+    initialize: Initialize = Field(
         ...,
         description='Parameters for initializing the simulation.',
         title='Initialization',
@@ -3524,7 +3774,7 @@ class MEModelSimulationScanConfig(BaseModel):
         default=None, description='Recordings for the simulation.', title='Recordings'
     )
     info: Info = Field(..., description='Information about the simulation campaign.')
-    initialize: ObiOneScientificTasksGenerateSimulationConfigsMEModelSimulationScanConfigInitialize = Field(
+    initialize: Initialize2 = Field(
         ...,
         description='Parameters for initializing the simulation.',
         title='Initialization',
@@ -3574,7 +3824,7 @@ class MEModelWithSynapsesCircuitSimulationScanConfig(BaseModel):
         description='Synaptic manipulations for the simulation.',
         title='Synaptic Manipulations',
     )
-    initialize: ObiOneScientificTasksGenerateSimulationConfigsMEModelWithSynapsesCircuitSimulationScanConfigInitialize = Field(
+    initialize: Initialize3 = Field(
         ...,
         description='Parameters for initializing the simulation.',
         title='Initialization',

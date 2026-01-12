@@ -26,6 +26,6 @@ export async function saveSettings(previousState: unknown, formData: FormData) {
     cookieStore.delete("frontendUrl");
   }
   // Refresh the client-side router
-  revalidateTag("threads");
+  revalidateTag("threads", { expire: 0 });
   redirect("/");
 }
