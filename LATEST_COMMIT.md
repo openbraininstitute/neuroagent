@@ -5,12 +5,12 @@
 - **Commit Hash**: c01e75e3ddeaf5f91c1f89bb5028002deb8ff227
 - **Author**: Boris Bergsma <boris.bergsma@openbraininstitute.org>
 - **Date**: Thu Jan 8 10:31:44 2026 +0100
-- **Title**: Context7 mcp name fix (#658)
+- **Title**: Context7 MCP name fix (#658)
 - **Tag**: v0.14.2
 
 ## Overview
 
-This commit addresses a naming change in the Context7 MCP (Model Context Protocol) integration, updating the tool name from `get-library-docs` to `query-docs` to maintain compatibility with the latest version of the Context7 MCP server.
+This commit addresses a breaking change in the external Context7 MCP (Model Context Protocol) server, which renamed its tool from `get-library-docs` to `query-docs`. The neuroagent codebase was updated to maintain compatibility with the latest version of the Context7 MCP server.
 
 ## Changes Summary
 
@@ -81,9 +81,9 @@ This change allows the application to continue running even when a tool is not f
 ## Impact
 
 - **Version**: Incremented to v0.14.2
-- **Breaking Changes**: None
+- **Breaking Changes**: None in the neuroagent API (the breaking change was in the external Context7 MCP server)
 - **Bug Fixes**: Resolves compatibility issues with the updated Context7 MCP server
-- **Backward Compatibility**: Maintained through graceful error handling
+- **Backward Compatibility**: The improved error handling allows the application to gracefully handle the external breaking change while providing useful debugging information
 
 ## Related
 
