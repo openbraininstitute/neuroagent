@@ -1,24 +1,24 @@
-# Neuroagent
+# 🧠 Neuroagent
 
-## Description
+## 📖 Description
 
-LLM agent for interacting with neuroscience tools.
+LLM agent for interacting with neuroscience tools. 🔬
 
-## Quick Start
+## 🚀 Quick Start
 
 ```bash
 docker compose up
 ```
 
-Access at `http://localhost:3000`
+Access at `http://localhost:3000` 🌐
 
-## Requirements
+## ✅ Requirements
 
-- Docker
-- Docker Compose
-- OpenAI API key
+- 🐳 Docker
+- 🐳 Docker Compose
+- 🤖 OpenAI API key
 
-## License
+## 📜 License
 
 Apache License 2.0
 
