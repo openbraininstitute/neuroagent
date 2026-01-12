@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Support for predefined nodesets in smc simulation config.
+
 ## [0.14.2] - 08.01.2026
 
 ### Fixed
@@ -36,6 +39,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Optimized the rules.
 - Experiment with more transparent agent, i.e. plan at the top + explanation alongside tool calls.
 
+
+## [0.12.3] - 20.11.2025
 
 ## [0.12.3] - 20.11.2025
 
