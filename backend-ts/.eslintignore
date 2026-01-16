@@ -1,0 +1,24 @@
+# Dependencies
+node_modules
+
+# Build outputs
+.next
+out
+dist
+build
+
+# Testing
+coverage
+
+# Prisma generated files
+prisma/generated
+
+# Cache
+.turbo
+.eslintcache
+.tsbuildinfo
+tsconfig.tsbuildinfo
+
+# Config files
+next.config.ts
+vitest.config.ts

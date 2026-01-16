@@ -1,0 +1,125 @@
+// Prisma schema for Neuroagent TypeScript backend
+// This schema mirrors the Python SQLAlchemy models
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["fullTextSearchPostgres"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Enums matching Python backend
+// Note: Prisma enum names must match the PostgreSQL enum type names exactly
+
+enum entity {
+  USER
+  AI_TOOL
+  TOOL
+  AI_MESSAGE
+}
+
+enum task {
+  CHAT_COMPLETION
+  TOOL_SELECTION
+  CALL_WITHIN_TOOL
+}
+
+enum tokentype {
+  INPUT_NONCACHED
+  INPUT_CACHED
+  COMPLETION
+}
+
+enum reasoninglevels {
+  NONE
+  MINIMAL
+  LOW
+  MEDIUM
+  HIGH
+}
+
+// Models
+
+model Thread {
+  id           String    @id @map("thread_id") @db.Uuid
+  vlabId       String?   @map("vlab_id") @db.Uuid
+  projectId    String?   @map("project_id") @db.Uuid
+  title        String    @db.VarChar
+  creationDate DateTime  @map("creation_date") @db.Timestamptz(6)
+  updateDate   DateTime  @map("update_date") @db.Timestamptz(6)
+  userId       String    @map("user_id") @db.Uuid
+  messages     Message[]
+
+  @@map("threads")
+}
+
+model Message {
+  id                   String                 @id @map("message_id") @db.Uuid
+  creationDate         DateTime               @map("creation_date") @db.Timestamptz(6)
+  entity               entity
+  content              String                 @db.VarChar
+  isComplete           Boolean                @map("is_complete")
+  threadId             String                 @map("thread_id") @db.Uuid
+  thread               Thread                 @relation(fields: [threadId], references: [id], onDelete: Cascade)
+  toolCalls            ToolCall[]
+  toolSelection        ToolSelection[]
+  complexityEstimation ComplexityEstimation[]
+  tokenConsumption     TokenConsumption[]
+  searchVector         Unsupported("tsvector")? @map("search_vector")
+
+  @@index([searchVector], map: "ix_messages_search_vector", type: Gin)
+  @@map("messages")
+}
+
+model ToolCall {
+  id        String   @id @map("tool_call_id") @db.VarChar
+  name      String   @db.VarChar
+  arguments String   @db.VarChar
+  validated Boolean?
+  messageId String   @map("message_id") @db.Uuid
+  message   Message  @relation(fields: [messageId], references: [id], onDelete: Cascade)
+
+  @@map("tool_calls")
+}
+
+model ToolSelection {
+  id        String  @id @db.Uuid
+  toolName  String  @map("tool_name") @db.VarChar
+  messageId String  @map("message_id") @db.Uuid
+  message   Message @relation(fields: [messageId], references: [id], onDelete: Cascade)
+
+  @@map("tool_selection")
+}
+
+model ComplexityEstimation {
+  id         String           @id @db.Uuid
+  complexity Int?
+  model      String           @db.VarChar
+  reasoning  reasoninglevels?
+  messageId  String           @map("message_id") @db.Uuid
+  message    Message          @relation(fields: [messageId], references: [id], onDelete: Cascade)
+
+  @@map("complexity_estimation")
+}
+
+model TokenConsumption {
+  id        String    @id @db.Uuid
+  messageId String    @map("message_id") @db.Uuid
+  type      tokentype
+  task      task
+  count     Int
+  model     String    @db.VarChar
+  message   Message   @relation(fields: [messageId], references: [id], onDelete: Cascade)
+
+  @@map("token_consumption")
+}
+
+// Alembic version table (from Python backend migrations)
+model AlembicVersion {
+  versionNum String @id @map("version_num") @db.VarChar(32)
+
+  @@map("alembic_version")
+}

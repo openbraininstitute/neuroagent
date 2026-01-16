@@ -1,0 +1,9 @@
+{
+  "example-server": {
+    "command": "npx",
+    "args": ["-y", "@modelcontextprotocol/server-example"],
+    "env": {
+      "EXAMPLE_API_KEY": "NEUROAGENT_MCP__SECRETS__EXAMPLE_API_KEY"
+    }
+  }
+}
