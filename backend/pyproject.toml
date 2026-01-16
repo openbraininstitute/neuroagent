@@ -131,7 +131,9 @@ filterwarnings = [
 addopts = "--cov=src/ -v --cov-report=term-missing --durations=20 --no-cov-on-fail"
 
 [dependency-groups]
-dev = []
+dev = [
+    "datamodel-code-generator[ruff]>=0.53.0",
+]
 docs = [
     "mkdocs>=1.6.1",
     "mkdocs-material>=9.7.1",

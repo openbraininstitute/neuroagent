@@ -17,7 +17,7 @@ class AgePeriod(RootModel[Literal['prenatal', 'postnatal', 'unknown']]):
 
 class SamplePercentage(RootModel[float]):
     root: float = Field(
-        ...,
+        100.0,
         description='Percentage of neurons to sample between 0 and 100%',
         ge=0.0,
         le=100.0,
@@ -31,7 +31,7 @@ class SamplePercentage1Item(RootModel[float]):
 
 class SamplePercentage1(RootModel[list[SamplePercentage1Item]]):
     root: list[SamplePercentage1Item] = Field(
-        ...,
+        100.0,
         description='Percentage of neurons to sample between 0 and 100%',
         min_length=1,
         title='Sample (Percentage)',
@@ -204,7 +204,7 @@ class Circuit2(RootModel[Circuit | CircuitFromID]):
 
 class SimulationLength(RootModel[float]):
     root: float = Field(
-        ...,
+        1000.0,
         description='Simulation length in milliseconds (ms).',
         ge=1.0,
         le=5000.0,
@@ -218,7 +218,7 @@ class SimulationLength1Item(RootModel[float]):
 
 class SimulationLength1(RootModel[list[SimulationLength1Item]]):
     root: list[SimulationLength1Item] = Field(
-        ...,
+        1000.0,
         description='Simulation length in milliseconds (ms).',
         min_length=1,
         title='Duration',
@@ -231,7 +231,7 @@ class ExtracellularCalciumConcentrationItem(RootModel[float]):
 
 class ExtracellularCalciumConcentration(RootModel[float]):
     root: float = Field(
-        ...,
+        1.1,
         description='Extracellular calcium concentration around the synapse in millimoles (mM). Increasing this value increases the probability of synaptic vesicle release, which in turn increases the level of network activity. In vivo values are estimated to be ~0.9-1.2mM, whilst in vitro values are on the order of 2mM.',
         ge=0.0,
         title='Extracellular Calcium Concentration',
@@ -426,7 +426,7 @@ class NeuronSet(BaseModel):
 
 class Duration(RootModel[float]):
     root: float = Field(
-        ...,
+        200.0,
         description='Time duration in milliseconds for how long input is activated.',
         ge=0.0,
         title='Duration',
@@ -478,7 +478,7 @@ class SamplePercentage3Item(SamplePercentage1Item):
 
 class SamplePercentage3(RootModel[list[SamplePercentage3Item]]):
     root: list[SamplePercentage3Item] = Field(
-        ...,
+        100.0,
         description='Percentage of neurons to sample between 0 and 100%',
         min_length=1,
         title='Sample (Percentage)',
@@ -510,10 +510,12 @@ class FloatRange(BaseModel):
     end: float = Field(..., title='End')
 
 
-SourceNeuronSet = NeuronSet
+class SourceNeuronSet(NeuronSet):
+    pass
 
 
-TargetedNeuronSet = NeuronSet
+class TargetedNeuronSet(NeuronSet):
+    pass
 
 
 class GateExponents(BaseModel):
@@ -549,7 +551,7 @@ class SamplePercentage5Item(SamplePercentage1Item):
 
 class SamplePercentage5(RootModel[list[SamplePercentage5Item]]):
     root: list[SamplePercentage5Item] = Field(
-        ...,
+        100.0,
         description='Percentage of neurons to sample between 0 and 100%',
         min_length=1,
         title='Sample (Percentage)',
@@ -566,7 +568,7 @@ class SamplePercentage7Item(SamplePercentage1Item):
 
 class SamplePercentage7(RootModel[list[SamplePercentage7Item]]):
     root: list[SamplePercentage7Item] = Field(
-        ...,
+        100.0,
         description='Percentage of neurons to sample between 0 and 100%',
         min_length=1,
         title='Sample (Percentage)',
@@ -650,7 +652,7 @@ class SimulationLength3Item(SimulationLength1Item):
 
 class SimulationLength3(RootModel[list[SimulationLength3Item]]):
     root: list[SimulationLength3Item] = Field(
-        ...,
+        1000.0,
         description='Simulation length in milliseconds (ms).',
         min_length=1,
         title='Duration',
@@ -725,7 +727,7 @@ class SimulationLength5Item(SimulationLength1Item):
 
 class SimulationLength5(RootModel[list[SimulationLength5Item]]):
     root: list[SimulationLength5Item] = Field(
-        ...,
+        1000.0,
         description='Simulation length in milliseconds (ms).',
         min_length=1,
         title='Duration',
@@ -893,7 +895,7 @@ class MorphologyMetricsOutput(BaseModel):
 
 class Width(RootModel[float]):
     root: float = Field(
-        ...,
+        50.0,
         description='The length of time each pulse lasts. Given in milliseconds (ms).',
         ge=1e-06,
         title='Pulse Width',
@@ -906,7 +908,7 @@ class WidthItem(RootModel[float]):
 
 class Frequency(RootModel[float]):
     root: float = Field(
-        ...,
+        1.0,
         description='The frequency of pulse trains. Given in Hertz (Hz).',
         ge=1e-06,
         title='Pulse Frequency',
@@ -947,7 +949,8 @@ class NamedTuple(BaseModel):
     type: Literal['NamedTuple'] = Field(..., title='Type')
 
 
-NeuronSetReference = NeuronSet
+class NeuronSetReference(NeuronSet):
+    pass
 
 
 class NodePopulationType(RootModel[Literal['biophysical', 'virtual']]):
@@ -976,7 +979,7 @@ class NonNegativeIntRange(BaseModel):
 
 class Variance(RootModel[float]):
     root: float = Field(
-        ...,
+        0.01,
         description='The variance around the mean of current to inject using a                     normal distribution.',
         ge=0.0,
         title='Variance',
@@ -1021,7 +1024,7 @@ class PathDistanceMorphologyLocations(BaseModel):
 
 class Duration5(RootModel[float]):
     root: float = Field(
-        ...,
+        200.0,
         description='Time duration in milliseconds for how long input is activated.',
         ge=0.0,
         le=5000.0,
@@ -1035,7 +1038,7 @@ class DurationItem5(RootModel[float]):
 
 class Frequency1(RootModel[float]):
     root: float = Field(
-        ...,
+        1.0,
         description='Mean frequency (Hz) of the Poisson input.',
         ge=1e-06,
         title='Frequency',
@@ -1072,7 +1075,7 @@ class SamplePercentage9Item(SamplePercentage1Item):
 
 class SamplePercentage9(RootModel[list[SamplePercentage9Item]]):
     root: list[SamplePercentage9Item] = Field(
-        ...,
+        100.0,
         description='Percentage of neurons to sample between 0 and 100%',
         min_length=1,
         title='Sample (Percentage)',
@@ -1174,7 +1177,7 @@ class RandomMorphologyLocations(BaseModel):
 
 class StartTime(RootModel[float]):
     root: float = Field(
-        ...,
+        0.0,
         description='Sart time of the timestamps in milliseconds (ms).',
         ge=0.0,
         title='Start Time',
@@ -1187,7 +1190,7 @@ class StartTimeItem(ExtracellularCalciumConcentrationItem):
 
 class Interval(RootModel[float]):
     root: float = Field(
-        ...,
+        10.0,
         description='Interval between timestamps in milliseconds (ms).',
         ge=0.0,
         title='Interval',
@@ -1200,7 +1203,7 @@ class IntervalItem(ExtracellularCalciumConcentrationItem):
 
 class NumberOfRepetitions(RootModel[int]):
     root: int = Field(
-        ...,
+        10,
         description='Number of timestamps to generate.',
         ge=0,
         title='Number Of Repetitions',
@@ -1243,7 +1246,7 @@ class DurationItem6(ExtracellularCalciumConcentrationItem):
 
 class PercentageOfThresholdCurrent(RootModel[float]):
     root: float = Field(
-        ...,
+        10.0,
         description="The percentage of a cell's threshold current to inject when the stimulus                     activates.",
         ge=0.0,
         title='Percentage of Threshold Current',
@@ -1256,7 +1259,7 @@ class PercentageOfThresholdCurrentItem(ExtracellularCalciumConcentrationItem):
 
 class PercentageOfThresholdCurrentStart(RootModel[float]):
     root: float = Field(
-        ...,
+        10.0,
         description="The percentage of a cell's threshold current to inject when the stimulus activates.",
         ge=0.0,
         title='Percentage of Threshold Current (Start)',
@@ -1269,7 +1272,7 @@ class PercentageOfThresholdCurrentStartItem(ExtracellularCalciumConcentrationIte
 
 class PercentageOfThresholdCurrentEnd(RootModel[float]):
     root: float = Field(
-        ...,
+        100.0,
         description="If given, the percentage of a cell's threshold current is interpolated such that the percentage reaches this value when the stimulus concludes.",
         ge=0.0,
         title='Percentage of Threshold Current (End)',
@@ -1282,7 +1285,7 @@ class PercentageOfThresholdCurrentEndItem(ExtracellularCalciumConcentrationItem)
 
 class MeanPercentageOfThresholdCurrent(RootModel[float]):
     root: float = Field(
-        ...,
+        0.01,
         description="The mean value of current to inject as a percentage of a cell's                     threshold current.",
         ge=0.0,
         title='Percentage of Threshold Current (Mean)',
@@ -1295,7 +1298,7 @@ class MeanPercentageOfThresholdCurrentItem(ExtracellularCalciumConcentrationItem
 
 class UseScaling(RootModel[float]):
     root: float = Field(
-        ...,
+        0.7050728631217412,
         description='Scale the U_SE (ACh) parameter of the Tsodyks-Markram synaptic model.',
         ge=0.0,
         title='Scale U_SE (ACh)',
@@ -1376,7 +1379,7 @@ class SingleTimestamp(BaseModel):
 
 class Frequency2(RootModel[float]):
     root: float = Field(
-        ...,
+        1.0,
         description='The frequency of the waveform. Given in Hertz (Hz).',
         ge=1e-06,
         title='Frequency',
@@ -1385,7 +1388,7 @@ class Frequency2(RootModel[float]):
 
 class Dt(RootModel[float]):
     root: float = Field(
-        ...,
+        0.025,
         description='Timestep of generated signal in milliseconds (ms).',
         ge=0.025,
         title='Timestep',
@@ -1398,7 +1401,7 @@ class DtItem(RootModel[float]):
 
 class Duration10(RootModel[float]):
     root: float = Field(
-        ...,
+        200.0,
         description='Time duration of the stimulus in milliseconds.',
         ge=0.0,
         le=5000.0,
@@ -1412,7 +1415,7 @@ class DurationItem10(DurationItem5):
 
 class MinimumRate(RootModel[float]):
     root: float = Field(
-        ...,
+        1e-05,
         description='Minimum rate of the stimulus in Hz.\n Must be less than the Maximum Rate.',
         ge=1e-05,
         gt=0.0,
@@ -1427,7 +1430,7 @@ class MinimumRateItem(RootModel[float]):
 
 class MaximumRate(RootModel[float]):
     root: float = Field(
-        ...,
+        10.0,
         description='Maximum rate of the stimulus in Hz. Must be greater than or equal to Minimum Rate.',
         ge=1e-05,
         gt=0.0,
@@ -1442,7 +1445,7 @@ class MaximumRateItem(MinimumRateItem):
 
 class ModulationFrequencyHz(RootModel[float]):
     root: float = Field(
-        ...,
+        5.0,
         description='Frequency (Hz) of the sinusoidal modulation of the rate.',
         ge=1e-05,
         gt=0.0,
@@ -1457,14 +1460,15 @@ class ModulationFrequencyHzItem(RootModel[float]):
 
 class Dt1(RootModel[float]):
     root: float = Field(
-        ...,
+        0.1,
         description='Interval between recording time steps in milliseconds (ms).',
         ge=0.025,
         title='Timestep',
     )
 
 
-Dt2 = NonNegativeFloatRange
+class Dt2(NonNegativeFloatRange):
+    pass
 
 
 class SomaVoltageRecording(BaseModel):
@@ -1535,7 +1539,7 @@ class DurationItem11(ExtracellularCalciumConcentrationItem):
 
 class MagnesiumValue(RootModel[float]):
     root: float = Field(
-        ...,
+        2.4,
         description='Extracellular magnesium concentration in millimoles (mM).',
         ge=0.0,
         title='Extracellular Magnesium Concentration',
@@ -1576,12 +1580,13 @@ class Dt3(Dt1):
     pass
 
 
-Dt4 = NonNegativeFloatRange
+class Dt4(NonNegativeFloatRange):
+    pass
 
 
 class StartTime2(RootModel[float]):
     root: float = Field(
-        ...,
+        0.0,
         description='Recording start time in milliseconds (ms).',
         ge=0.0,
         title='Start Time',
@@ -1590,7 +1595,7 @@ class StartTime2(RootModel[float]):
 
 class EndTime(RootModel[float]):
     root: float = Field(
-        ...,
+        100.0,
         description='Recording end time in milliseconds (ms).',
         ge=0.0,
         title='End Time',
@@ -1652,7 +1657,7 @@ class SamplePercentage11Item(SamplePercentage1Item):
 
 class SamplePercentage11(RootModel[list[SamplePercentage11Item]]):
     root: list[SamplePercentage11Item] = Field(
-        ...,
+        100.0,
         description='Percentage of neurons to sample between 0 and 100%',
         min_length=1,
         title='Sample (Percentage)',
@@ -1684,7 +1689,7 @@ class SamplePercentage13Item(SamplePercentage1Item):
 
 class SamplePercentage13(RootModel[list[SamplePercentage13Item]]):
     root: list[SamplePercentage13Item] = Field(
-        ...,
+        100.0,
         description='Percentage of neurons to sample between 0 and 100%',
         min_length=1,
         title='Sample (Percentage)',
@@ -1899,7 +1904,7 @@ class SimulationLength7Item(SimulationLength1Item):
 
 class SimulationLength7(RootModel[list[SimulationLength7Item]]):
     root: list[SimulationLength7Item] = Field(
-        ...,
+        1000.0,
         description='Simulation length in milliseconds (ms).',
         min_length=1,
         title='Duration',
@@ -1953,7 +1958,7 @@ class SimulationLength9Item(SimulationLength1Item):
 
 class SimulationLength9(RootModel[list[SimulationLength9Item]]):
     root: list[SimulationLength9Item] = Field(
-        ...,
+        1000.0,
         description='Simulation length in milliseconds (ms).',
         min_length=1,
         title='Duration',
@@ -2006,7 +2011,7 @@ class SimulationLength11Item(SimulationLength1Item):
 
 class SimulationLength11(RootModel[list[SimulationLength11Item]]):
     root: list[SimulationLength11Item] = Field(
-        ...,
+        1000.0,
         description='Simulation length in milliseconds (ms).',
         min_length=1,
         title='Duration',
@@ -2141,7 +2146,7 @@ class SimulationLength13Item(SimulationLength1Item):
 
 class SimulationLength13(RootModel[list[SimulationLength13Item]]):
     root: list[SimulationLength13Item] = Field(
-        ...,
+        1000.0,
         description='Simulation length in milliseconds (ms).',
         min_length=1,
         title='Duration',
@@ -2185,15 +2190,20 @@ class RootGetResponse(BaseModel):
     )
 
 
-HealthHealthGetResponse = RootGetResponse
+class HealthHealthGetResponse(RootGetResponse):
+    pass
 
 
-VersionVersionGetResponse = RootGetResponse
+class VersionVersionGetResponse(RootGetResponse):
+    pass
 
 
 class CircuitMetricsEndpointDeclaredCircuitMetricsCircuitIdGetParametersQuery(
     BaseModel
 ):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
     level_of_detail_nodes: CircuitStatsLevelOfDetail = Field(
         default_factory=lambda: CircuitStatsLevelOfDetail(0),
         description='Level of detail for node populations analysis',
@@ -2204,14 +2214,18 @@ class CircuitMetricsEndpointDeclaredCircuitMetricsCircuitIdGetParametersQuery(
     )
 
 
-MappedCircuitPropertiesEndpointDeclaredMappedCircuitPropertiesCircuitIdGetResponse = (
+class MappedCircuitPropertiesEndpointDeclaredMappedCircuitPropertiesCircuitIdGetResponse(
     RootGetResponse
-)
+):
+    pass
 
 
 class ElectrophysiologyrecordingMetricsEndpointDeclaredElectrophysiologyrecordingMetricsTraceIdGetParametersQuery(
     BaseModel
 ):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
     requested_metrics: (
         list[
             Literal[
@@ -2287,6 +2301,9 @@ class ElectrophysiologyrecordingMetricsEndpointDeclaredElectrophysiologyrecordin
 class NeuronMorphologyMetricsEndpointDeclaredNeuronMorphologyMetricsCellMorphologyIdGetParametersQuery(
     BaseModel
 ):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
     requested_metrics: (
         list[
             Literal[
@@ -2321,6 +2338,9 @@ class NeuronMorphologyMetricsEndpointDeclaredNeuronMorphologyMetricsCellMorpholo
 
 
 class TestNeuronFileDeclaredTestNeuronFilePostParametersQuery(BaseModel):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
     single_point_soma: bool = Field(
         default=False,
         description='Convert soma to single point',
@@ -2328,14 +2348,18 @@ class TestNeuronFileDeclaredTestNeuronFilePostParametersQuery(BaseModel):
     )
 
 
-MorphologyMetricsCalculationDeclaredRegisterMorphologyWithCalculatedMetricsPostResponse = (
+class MorphologyMetricsCalculationDeclaredRegisterMorphologyWithCalculatedMetricsPostResponse(
     RootGetResponse
-)
+):
+    pass
 
 
 class ParametricMultiValueEndpointDeclaredParametricMultiValuePostParametersQuery(
     BaseModel
 ):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
     ge: float | int | None = Field(
         default=None, description='Require all values to be ≥ this', title='Ge'
     )
@@ -2420,7 +2444,9 @@ class CircuitMetricsEdgePopulation(BaseModel):
     property_stats: dict[str, dict[str, float]] | None = Field(
         ..., title='Property Stats'
     )
-    degree_stats: dict[str, dict[str, float]] | None = Field(..., title='Degree Stats')
+    degree_stats: dict[DegreeTypes, dict[str, float]] | None = Field(
+        ..., title='Degree Stats'
+    )
 
 
 class CircuitMetricsNodePopulation(BaseModel):
@@ -2437,7 +2463,7 @@ class CircuitMetricsNodePopulation(BaseModel):
     property_value_counts: dict[str, dict[str, int]] = Field(
         ..., title='Property Value Counts'
     )
-    node_location_info: dict[str, dict[str, float]] | None = Field(
+    node_location_info: dict[SpatialCoordinate, dict[str, float]] | None = Field(
         ..., title='Node Location Info'
     )
 
@@ -2672,9 +2698,10 @@ class IDNeuronSet(BaseModel):
     neuron_ids: NamedTuple | NeuronIds = Field(..., title='Neuron Ids')
 
 
-Initialize2 = (
+class Initialize2(
     ObiOneScientificTasksIonChannelModelingIonChannelFittingScanConfigInitialize
-)
+):
+    pass
 
 
 class IonChannelFittingScanConfig(BaseModel):
@@ -3040,7 +3067,7 @@ class SinusoidalPoissonSpikeStimulus(BaseModel):
         title='Duration',
     )
     minimum_rate: MinimumRate | list[MinimumRateItem] = Field(
-        default_factory=lambda: MinimumRate('1e-05'),
+        default_factory=lambda: MinimumRate(1e-05),
         description='Minimum rate of the stimulus in Hz.\n Must be less than the Maximum Rate.',
         title='Minimum Rate',
     )
