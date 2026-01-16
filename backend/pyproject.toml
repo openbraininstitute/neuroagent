@@ -132,3 +132,7 @@ addopts = "--cov=src/ -v --cov-report=term-missing --durations=20 --no-cov-on-fa
 
 [dependency-groups]
 dev = []
+docs = [
+    "mkdocs>=1.6.1",
+    "mkdocs-material>=9.7.1",
+]
