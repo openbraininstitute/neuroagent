@@ -14,6 +14,8 @@ theme:
 # Navigation structure
 nav:
   - Home: index.md
+  - Tool Selection: tool_selection.md
+  - Tools: tools.md
 
 # Plugins
 plugins:
