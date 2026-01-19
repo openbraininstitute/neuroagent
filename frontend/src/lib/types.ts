@@ -117,7 +117,8 @@ export type LLMModel = {
 export type BOpenRouterModelResponse =
   NeuroagentComponents["schemas"]["OpenRouterModelResponse"];
 
-export type SimulationsForm = ObiOneComponents["schemas"]["SimulationsForm"];
+export type CircuitSimulationScanConfig =
+  ObiOneComponents["schemas"]["CircuitSimulationScanConfig"];
 
 export const threadPageSize = "25";
 export const messagePageSize = "25";

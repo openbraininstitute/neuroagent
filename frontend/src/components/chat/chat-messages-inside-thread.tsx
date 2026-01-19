@@ -1,6 +1,6 @@
 "use client";
 
-import { MessageStrict, SimulationsForm } from "@/lib/types";
+import { MessageStrict, CircuitSimulationScanConfig } from "@/lib/types";
 import {
   getStoppedStatus,
   getStorageID,
@@ -32,8 +32,10 @@ type ChatMessagesInsideThreadProps = {
       | ((messages: MessageStrict[]) => MessageStrict[]),
   ) => void;
   loadingStatus: "submitted" | "streaming" | "ready" | "error";
-  simConfigJson: Record<string, SimulationsForm>;
-  setSimConfigJson: Dispatch<SetStateAction<Record<string, SimulationsForm>>>;
+  simConfigJson: Record<string, CircuitSimulationScanConfig>;
+  setSimConfigJson: Dispatch<
+    SetStateAction<Record<string, CircuitSimulationScanConfig>>
+  >;
 };
 
 export function ChatMessagesInsideThread({

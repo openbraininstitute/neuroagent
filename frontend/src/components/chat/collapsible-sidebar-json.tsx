@@ -16,7 +16,7 @@ import {
   monoLightTheme,
 } from "json-edit-react";
 import { useTheme } from "next-themes";
-import { SimulationsForm } from "@/lib/types";
+import { CircuitSimulationScanConfig } from "@/lib/types";
 
 export type PatchOperation = {
   op: "add" | "replace" | "remove";
@@ -27,8 +27,10 @@ export type PatchOperation = {
 type JsonSidebarProps = {
   isOpen: boolean;
   onClose: () => void;
-  simConfigJson: Record<string, SimulationsForm>;
-  setSimConfigJson: Dispatch<SetStateAction<Record<string, SimulationsForm>>>;
+  simConfigJson: Record<string, CircuitSimulationScanConfig>;
+  setSimConfigJson: Dispatch<
+    SetStateAction<Record<string, CircuitSimulationScanConfig>>
+  >;
 };
 
 export const JsonSidebar = React.memo(
@@ -41,7 +43,7 @@ export const JsonSidebar = React.memo(
     const isResizingSidebar = useRef(false);
     const [isClicked, setIsClicked] = useState(false);
 
-    const handleCopy = (SimForm: SimulationsForm) => {
+    const handleCopy = (SimForm: CircuitSimulationScanConfig) => {
       if (navigator.clipboard && window.isSecureContext) {
         navigator.clipboard.writeText(JSON.stringify(SimForm));
         setIsClicked(true);
@@ -83,7 +85,7 @@ export const JsonSidebar = React.memo(
         const timeoutId = setTimeout(() => {
           setSimConfigJson((prev) => ({
             ...prev,
-            smc_simulation_config: data as SimulationsForm,
+            smc_simulation_config: data as CircuitSimulationScanConfig,
           }));
         }, 100); // 100ms debounce
 

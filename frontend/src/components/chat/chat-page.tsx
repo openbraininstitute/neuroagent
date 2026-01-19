@@ -6,7 +6,7 @@ import { useEffect, useRef, useState } from "react";
 import {
   BMessage,
   LLMModel,
-  SimulationsForm,
+  CircuitSimulationScanConfig,
   type MessageStrict,
 } from "@/lib/types";
 import { env } from "@/lib/env";
@@ -61,17 +61,17 @@ export function ChatPage({
   const frontendUrl = Cookies.get("frontendUrl") || "";
   // Simulation config json
   const [simConfigJson, setSimConfigJson] = useState<
-    Record<string, SimulationsForm>
+    Record<string, CircuitSimulationScanConfig>
   >({
     smc_simulation_config: {
-      type: "SimulationsForm",
+      type: "CircuitSimulationScanConfig",
       timestamps: {},
       stimuli: {},
       recordings: {},
       neuron_sets: {},
       synaptic_manipulations: {},
       initialize: {
-        type: "SimulationsForm.Initialize",
+        type: "CircuitSimulationScanConfig.Initialize",
         circuit: {
           type: "CircuitFromID",
           id_str: "",

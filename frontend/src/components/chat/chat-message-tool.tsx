@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, Dispatch, SetStateAction } from "react";
-import { MessageStrict, SimulationsForm } from "@/lib/types";
+import { MessageStrict, CircuitSimulationScanConfig } from "@/lib/types";
 import { HumanValidationDialog } from "@/components/chat/human-validation-dialog";
 import { ToolInvocation } from "@ai-sdk/ui-utils";
 import { useExecuteTool } from "@/hooks/tools";
@@ -32,8 +32,10 @@ type ChatMessageToolProps = {
   }) => void;
   validated: "pending" | "accepted" | "rejected" | "not_required";
   setMessage: (updater: (msg: MessageStrict) => MessageStrict) => void;
-  simConfigJson: Record<string, SimulationsForm>;
-  setSimConfigJson: Dispatch<SetStateAction<Record<string, SimulationsForm>>>;
+  simConfigJson: Record<string, CircuitSimulationScanConfig>;
+  setSimConfigJson: Dispatch<
+    SetStateAction<Record<string, CircuitSimulationScanConfig>>
+  >;
 };
 
 export const ChatMessageTool = function ChatMessageTool({

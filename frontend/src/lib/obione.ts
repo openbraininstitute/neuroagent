@@ -64,7 +64,27 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  "/declared/neuron-morphology-metrics/{reconstruction_morphology_id}": {
+  "/declared/connectivity-metrics": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Connectivity metrics
+     * @description This calculates connectivity metrics, such as connection probabilities and mean number of synapses per connection between different groups of neurons.
+     */
+    post: operations["connectivity_metrics_endpoint_declared_connectivity_metrics_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/declared/circuit-metrics/{circuit_id}": {
     parameters: {
       query?: never;
       header?: never;
@@ -72,12 +92,92 @@ export interface paths {
       cookie?: never;
     };
     /**
-     * Neuron morphology metrics
-     * @description This calculates neuron morphology metrics for a given reconstruction                     morphology.
+     * Circuit metrics
+     * @description This calculates circuit metrics
      */
-    get: operations["neuron_morphology_metrics_endpoint_declared_neuron_morphology_metrics__reconstruction_morphology_id__get"];
+    get: operations["circuit_metrics_endpoint_declared_circuit_metrics__circuit_id__get"];
     put?: never;
     post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/declared/circuit/{circuit_id}/biophysical_populations": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Circuit populations
+     * @description This returns the list of biophysical node populations for a given circuit.
+     */
+    get: operations["circuit_populations_endpoint_declared_circuit__circuit_id__biophysical_populations_get"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/declared/circuit/{circuit_id}/nodesets": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Circuit nodesets
+     * @description This returns the list of nodesets for a given circuit.
+     */
+    get: operations["circuit_nodesets_endpoint_declared_circuit__circuit_id__nodesets_get"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/declared/mapped-circuit-properties/{circuit_id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Mapped circuit properties
+     * @description Returns a dictionary of mapped circuit properties.
+     */
+    get: operations["mapped_circuit_properties_endpoint_declared_mapped_circuit_properties__circuit_id__get"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/declared/scan_config/grid-scan-coordinate-count": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Grid scan coordinate count
+     * @description This calculates the number of coordinates for a grid scan configuration.
+     */
+    post: operations["grid_scan_parameters_count_endpoint_declared_scan_config_grid_scan_coordinate_count_post"];
     delete?: never;
     options?: never;
     head?: never;
@@ -92,7 +192,7 @@ export interface paths {
       cookie?: never;
     };
     /**
-     * electrophysiology recording metrics
+     * Electrophysiology recording metrics
      * @description This calculates electrophysiology traces metrics for a particular recording
      */
     get: operations["electrophysiologyrecording_metrics_endpoint_declared_electrophysiologyrecording_metrics__trace_id__get"];
@@ -104,7 +204,107 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  "/generated/simulations-generate-grid": {
+  "/declared/neuron-morphology-metrics/{cell_morphology_id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Neuron morphology metrics
+     * @description This calculates neuron morphology metrics for a given cell morphology.
+     */
+    get: operations["neuron_morphology_metrics_endpoint_declared_neuron_morphology_metrics__cell_morphology_id__get"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/declared/test-neuron-file": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Validate morphology format and returns the conversion to other formats.
+     * @description Tests a neuron file (.swc, .h5, or .asc) with basic validation.
+     */
+    post: operations["test_neuron_file_declared_test_neuron_file_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/declared/register-morphology-with-calculated-metrics": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Calculate morphology metrics and register entities.
+     * @description Performs analysis on a neuron file (.swc, .h5, or .asc) and registers the entity, asset, and measurements.
+     */
+    post: operations["morphology_metrics_calculation_declared_register_morphology_with_calculated_metrics_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/declared/parametric-multi-value": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Parameteric Multi Value
+     * @description Temp description.
+     */
+    post: operations["parametric_multi_value_endpoint_declared_parametric_multi_value_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/declared/validate-electrophysiology-protocol-nwb-file": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Validate NWB file format for OBP.
+     * @description Validates an uploaded .nwb file using registered readers.
+     */
+    post: operations["validate_nwb_file_declared_validate_electrophysiology_protocol_nwb_file_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/generated/circuit-simulation-scan-config-generate-grid": {
     parameters: {
       query?: never;
       header?: never;
@@ -117,7 +317,47 @@ export interface paths {
      * Simulation Campaign
      * @description SONATA simulation campaign
      */
-    post: operations["endpoint_generated_simulations_generate_grid_post"];
+    post: operations["endpoint_generated_circuit_simulation_scan_config_generate_grid_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/generated/me-model-simulation-scan-config-generate-grid": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Simulation Campaign
+     * @description SONATA simulation campaign
+     */
+    post: operations["endpoint_generated_me_model_simulation_scan_config_generate_grid_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/generated/me-model-with-synapses-circuit-simulation-scan-config-generate-grid": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Simulation Campaign
+     * @description SONATA simulation campaign
+     */
+    post: operations["endpoint_generated_me_model_with_synapses_circuit_simulation_scan_config_generate_grid_post"];
     delete?: never;
     options?: never;
     head?: never;
@@ -144,7 +384,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  "/generated/morphology-metrics-run-grid": {
+  "/generated/morphology-metrics-scan-config-run-grid": {
     parameters: {
       query?: never;
       header?: never;
@@ -157,14 +397,14 @@ export interface paths {
      * Morphology Metrics
      * @description Calculates morphology metrics for a given morphologies.
      */
-    post: operations["endpoint_generated_morphology_metrics_run_grid_post"];
+    post: operations["endpoint_generated_morphology_metrics_scan_config_run_grid_post"];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  "/generated/contribute-morphology-generate-grid": {
+  "/generated/contribute-morphology-scan-config-generate-grid": {
     parameters: {
       query?: never;
       header?: never;
@@ -175,60 +415,69 @@ export interface paths {
     put?: never;
     /**
      * Contribute a Morphology
-     * @description Form to contribute a morphology to the OBI.
+     * @description ScanConfig to contribute a morphology to the OBI.
      */
-    post: operations["endpoint_generated_contribute_morphology_generate_grid_post"];
+    post: operations["endpoint_generated_contribute_morphology_scan_config_generate_grid_post"];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  "/api/subject_data": {
+  "/generated/contribute-subject-scan-config-generate-grid": {
     parameters: {
       query?: never;
       header?: never;
       path?: never;
       cookie?: never;
     };
-    /** Get Subject Data */
-    get: operations["get_subject_data_api_subject_data_get"];
+    get?: never;
     put?: never;
-    post?: never;
+    /**
+     * Contribute a Subject
+     * @description ScanConfig to contribute a subject to the OBI.
+     */
+    post: operations["endpoint_generated_contribute_subject_scan_config_generate_grid_post"];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  "/api/licenses": {
+  "/generated/ion-channel-fitting-scan-config-generate-grid": {
     parameters: {
       query?: never;
       header?: never;
       path?: never;
       cookie?: never;
     };
-    /** Get License Data */
-    get: operations["get_license_data_api_licenses_get"];
+    get?: never;
     put?: never;
-    post?: never;
+    /**
+     * IonChannelFittingScanConfig
+     * @description Models ion channel model from a set of ion channel traces.
+     */
+    post: operations["endpoint_generated_ion_channel_fitting_scan_config_generate_grid_post"];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  "/api/mtypes": {
+  "/generated/circuit-extraction-scan-config-generate-grid": {
     parameters: {
       query?: never;
       header?: never;
       path?: never;
       cookie?: never;
     };
-    /** Get Mtype Data */
-    get: operations["get_mtype_data_api_mtypes_get"];
+    get?: never;
     put?: never;
-    post?: never;
+    /**
+     * Circuit Extraction
+     * @description Extracts a sub-circuit from a SONATA circuit as defined by a neuron set. The output circuit will contain all morphologies, hoc files, and mod files that are required to simulate the extracted circuit.
+     */
+    post: operations["endpoint_generated_circuit_extraction_scan_config_generate_grid_post"];
     delete?: never;
     options?: never;
     head?: never;
@@ -267,10 +516,27 @@ export interface components {
        */
       sample_seed: number | number[];
     };
+    /**
+     * AmplitudeInput
+     * @description Amplitude class.
+     */
+    AmplitudeInput: {
+      /**
+       * Min Value
+       * @description Minimum amplitude (nA)
+       */
+      min_value?: number | null;
+      /**
+       * Max Value
+       * @description Maximum amplitude (nA)
+       */
+      max_value?: number | null;
+    };
     /** Assets */
     Assets: {
       /**
        * Type
+       * @default Assets
        * @constant
        */
       type: "Assets";
@@ -298,6 +564,107 @@ export interface components {
       family_name?: string | null;
     };
     /**
+     * BasicConnectivityPlotsScanConfig
+     * @description Class to generate basic connectivity plots and stats from a ConnectivityMatrix object.
+     *
+     *     Supported plot types:
+     *       - "nodes": Node statistics (e.g., synapse class, layer, mtype).
+     *       - "connectivity_pathway": Connection probabilities per pathway/grouping.
+     *                                 Not useful for small circuits.
+     *       - "connectivity_global": Global connection probabilities across the network.
+     *                                 Not useful for small circuits
+     *       - "small_adj_and_stats": Matrix and node statistics for small connectomes only (<= 20 nodes).
+     *       - "network_in_2D": 2D visualization of the network for small connectomes only (<= 20 nodes).
+     *       - "property_table": Table of node properties for small connectomes only (<= 20 nodes).
+     */
+    BasicConnectivityPlotsScanConfig: {
+      /**
+       * @description discriminator enum property added by openapi-typescript
+       * @enum {string}
+       */
+      type: "BasicConnectivityPlotsScanConfig";
+      initialize: components["schemas"]["obi_one__scientific__tasks__basic_connectivity_plots__BasicConnectivityPlotsScanConfig__Initialize"];
+    };
+    /** Bell equation for \tau_m */
+    BellFitMTau: {
+      /**
+       * @description discriminator enum property added by openapi-typescript
+       * @enum {string}
+       */
+      type: "BellFitMTau";
+    };
+    /** Body_morphology_metrics_calculation_declared_register_morphology_with_calculated_metrics_post */
+    Body_morphology_metrics_calculation_declared_register_morphology_with_calculated_metrics_post: {
+      /**
+       * File
+       * Format: binary
+       * @description Neuron file to upload (.swc, .h5, or .asc)
+       */
+      file: string;
+      /**
+       * Metadata
+       * @default {}
+       */
+      metadata: string;
+    };
+    /** Body_test_neuron_file_declared_test_neuron_file_post */
+    Body_test_neuron_file_declared_test_neuron_file_post: {
+      /**
+       * File
+       * Format: binary
+       * @description Neuron file to upload (.swc, .h5, or .asc)
+       */
+      file: string;
+    };
+    /** Body_validate_nwb_file_declared_validate_electrophysiology_protocol_nwb_file_post */
+    Body_validate_nwb_file_declared_validate_electrophysiology_protocol_nwb_file_post: {
+      /**
+       * File
+       * Format: binary
+       * @description NWB file to upload (.nwb)
+       */
+      file: string;
+    };
+    /** CellMorphology */
+    CellMorphology: {
+      /**
+       * Type
+       * @default CellMorphology
+       * @constant
+       */
+      type: "CellMorphology";
+      /**
+       * Name
+       * @description Name of the morphology
+       */
+      name: string;
+      /**
+       * Description
+       * @description Description
+       */
+      description: string;
+      /** Species Id */
+      species_id?: string | null;
+      /** Strain Id */
+      strain_id?: string | null;
+      /** Brain Region Id */
+      brain_region_id?: string | null;
+    };
+    /** CellMorphologyFromID */
+    CellMorphologyFromID: {
+      /**
+       * Id Str
+       * @description ID of the entity in string format.
+       */
+      id_str: string;
+      /**
+       * Type
+       * @default CellMorphologyFromID
+       * @constant
+       */
+      type: "CellMorphologyFromID";
+    };
+    /**
      * Circuit
      * @description Class representing a circuit.
      *
@@ -316,6 +683,34 @@ export interface components {
        */
       type: "Circuit";
     };
+    /**
+     * CircuitExtractionScanConfig
+     * @description ScanConfig for extracting sub-circuits from larger circuits.
+     */
+    CircuitExtractionScanConfig: {
+      /**
+       * @description discriminator enum property added by openapi-typescript
+       * @enum {string}
+       */
+      type: "CircuitExtractionScanConfig";
+      /** @description Information about the circuit extraction campaign. */
+      info: components["schemas"]["Info"];
+      /**
+       * Initialization
+       * @description Parameters for initializing the circuit extraction campaign.
+       */
+      initialize: components["schemas"]["obi_one__scientific__tasks__circuit_extraction__CircuitExtractionScanConfig__Initialize"];
+      /**
+       * Neuron Set
+       * @description Set of neurons to be extracted from the parent circuit, including their connectivity.
+       */
+      neuron_set:
+        | components["schemas"]["AllNeurons"]
+        | components["schemas"]["ExcitatoryNeurons"]
+        | components["schemas"]["InhibitoryNeurons"]
+        | components["schemas"]["PredefinedNeuronSet"]
+        | components["schemas"]["IDNeuronSet"];
+    };
     /** CircuitFromID */
     CircuitFromID: {
       /**
@@ -328,6 +723,397 @@ export interface components {
        * @enum {string}
        */
       type: "CircuitFromID";
+    };
+    /** CircuitMetricsEdgePopulation */
+    CircuitMetricsEdgePopulation: {
+      /** Number Of Edges */
+      number_of_edges: number;
+      /** Name */
+      name: string;
+      population_type: components["schemas"]["EdgePopulationType"];
+      /** Property Names */
+      property_names: string[];
+      /** Property Stats */
+      property_stats: {
+        [key: string]: {
+          [key: string]: number;
+        };
+      } | null;
+      /** Degree Stats */
+      degree_stats: {
+        [key: string]: {
+          [key: string]: number;
+        };
+      } | null;
+    };
+    /** CircuitMetricsNodePopulation */
+    CircuitMetricsNodePopulation: {
+      /** Number Of Nodes */
+      number_of_nodes: number;
+      /** Name */
+      name: string;
+      population_type: components["schemas"]["NodePopulationType"];
+      /** Property Names */
+      property_names: string[];
+      /** Property Unique Values */
+      property_unique_values: {
+        [key: string]: string[];
+      };
+      /** Property Value Counts */
+      property_value_counts: {
+        [key: string]: {
+          [key: string]: number;
+        };
+      };
+      /** Node Location Info */
+      node_location_info: {
+        [key: string]: {
+          [key: string]: number;
+        };
+      } | null;
+    };
+    /** CircuitMetricsOutput */
+    CircuitMetricsOutput: {
+      /** Number Of Biophys Node Populations */
+      number_of_biophys_node_populations: number;
+      /** Number Of Virtual Node Populations */
+      number_of_virtual_node_populations: number;
+      /** Names Of Biophys Node Populations */
+      names_of_biophys_node_populations: string[];
+      /** Names Of Virtual Node Populations */
+      names_of_virtual_node_populations: string[];
+      /** Names Of Nodesets */
+      names_of_nodesets: string[];
+      /** Biophysical Node Populations */
+      biophysical_node_populations: (
+        | components["schemas"]["CircuitMetricsNodePopulation"]
+        | null
+      )[];
+      /** Virtual Node Populations */
+      virtual_node_populations: (
+        | components["schemas"]["CircuitMetricsNodePopulation"]
+        | null
+      )[];
+      /** Number Of Chemical Edge Populations */
+      number_of_chemical_edge_populations: number;
+      /** Number Of Electrical Edge Populations */
+      number_of_electrical_edge_populations: number;
+      /** Names Of Chemical Edge Populations */
+      names_of_chemical_edge_populations: string[];
+      /** Names Of Electrical Edge Populations */
+      names_of_electrical_edge_populations: string[];
+      /** Chemical Edge Populations */
+      chemical_edge_populations: (
+        | components["schemas"]["CircuitMetricsEdgePopulation"]
+        | null
+      )[];
+      /** Electrical Edge Populations */
+      electrical_edge_populations: (
+        | components["schemas"]["CircuitMetricsEdgePopulation"]
+        | null
+      )[];
+    };
+    /** CircuitNodesetsResponse */
+    CircuitNodesetsResponse: {
+      /** Nodesets */
+      nodesets: string[];
+    };
+    /** CircuitPopulationsResponse */
+    CircuitPopulationsResponse: {
+      /** Populations */
+      populations: string[];
+    };
+    /**
+     * CircuitSimulationScanConfig
+     * @description CircuitSimulationScanConfig.
+     */
+    CircuitSimulationScanConfig: {
+      /**
+       * @description discriminator enum property added by openapi-typescript
+       * @enum {string}
+       */
+      type: "CircuitSimulationScanConfig";
+      /**
+       * Timestamps
+       * @description Timestamps for the simulation.
+       */
+      timestamps?: {
+        [key: string]:
+          | components["schemas"]["SingleTimestamp"]
+          | components["schemas"]["RegularTimestamps"];
+      };
+      /**
+       * Recordings
+       * @description Recordings for the simulation.
+       */
+      recordings?: {
+        [key: string]:
+          | components["schemas"]["SomaVoltageRecording"]
+          | components["schemas"]["TimeWindowSomaVoltageRecording"];
+      };
+      /** @description Information about the simulation campaign. */
+      info: components["schemas"]["Info"];
+      /**
+       * Neuron Sets
+       * @description Neuron sets for the simulation.
+       */
+      neuron_sets?: {
+        [key: string]:
+          | components["schemas"]["IDNeuronSet"]
+          | components["schemas"]["AllNeurons"]
+          | components["schemas"]["ExcitatoryNeurons"]
+          | components["schemas"]["InhibitoryNeurons"]
+          | components["schemas"]["PredefinedNeuronSet"]
+          | components["schemas"]["nbS1VPMInputs"]
+          | components["schemas"]["nbS1POmInputs"];
+      };
+      /**
+       * Synaptic Manipulations
+       * @description Synaptic manipulations for the simulation.
+       */
+      synaptic_manipulations?: {
+        [key: string]:
+          | components["schemas"]["SynapticMgManipulation"]
+          | components["schemas"]["ScaleAcetylcholineUSESynapticManipulation"];
+      };
+      /**
+       * Initialization
+       * @description Parameters for initializing the simulation.
+       */
+      initialize: components["schemas"]["obi_one__scientific__tasks__generate_simulation_configs__CircuitSimulationScanConfig__Initialize"];
+      /**
+       * Stimuli
+       * @description Stimuli for the simulation.
+       */
+      stimuli?: {
+        [key: string]:
+          | components["schemas"]["ConstantCurrentClampSomaticStimulus"]
+          | components["schemas"]["HyperpolarizingCurrentClampSomaticStimulus"]
+          | components["schemas"]["LinearCurrentClampSomaticStimulus"]
+          | components["schemas"]["MultiPulseCurrentClampSomaticStimulus"]
+          | components["schemas"]["NormallyDistributedCurrentClampSomaticStimulus"]
+          | components["schemas"]["RelativeNormallyDistributedCurrentClampSomaticStimulus"]
+          | components["schemas"]["RelativeConstantCurrentClampSomaticStimulus"]
+          | components["schemas"]["RelativeLinearCurrentClampSomaticStimulus"]
+          | components["schemas"]["SinusoidalCurrentClampSomaticStimulus"]
+          | components["schemas"]["SubthresholdCurrentClampSomaticStimulus"]
+          | components["schemas"]["PoissonSpikeStimulus"]
+          | components["schemas"]["FullySynchronousSpikeStimulus"]
+          | components["schemas"]["SinusoidalPoissonSpikeStimulus"];
+      };
+    };
+    /**
+     * CircuitStatsLevelOfDetail
+     * @enum {integer}
+     */
+    CircuitStatsLevelOfDetail: 0 | 1 | 2 | 3;
+    /**
+     * ClusteredGroupedMorphologyLocations
+     * @description Clustered random locations, grouped in to conceptual groups.
+     */
+    ClusteredGroupedMorphologyLocations: {
+      /**
+       * @description discriminator enum property added by openapi-typescript
+       * @enum {string}
+       */
+      type: "ClusteredGroupedMorphologyLocations";
+      /**
+       * Random Seed
+       * @description Seed for the random generation of locations
+       * @default 0
+       */
+      random_seed: number | number[];
+      /**
+       * Number Of Locations
+       * @description Number of locations to generate on morphology
+       * @default 1
+       */
+      number_of_locations: number | number[];
+      /**
+       * Section Types
+       * @description Types of sections to generate locations on. 2: axon, 3: basal, 4: apical
+       */
+      section_types?: number[] | number[][] | null;
+      /**
+       * N Groups
+       * @description Number of groups of locations to             generate
+       * @default 1
+       */
+      n_groups: number | number[];
+      /**
+       * N Clusters
+       * @description Number of location clusters to generate
+       */
+      n_clusters: number | number[];
+      /**
+       * Cluster Max Distance
+       * @description Maximum distance in um of generated locations from the center of their             cluster
+       */
+      cluster_max_distance: number | number[];
+    };
+    /**
+     * ClusteredMorphologyLocations
+     * @description Clustered random locations.
+     */
+    ClusteredMorphologyLocations: {
+      /**
+       * @description discriminator enum property added by openapi-typescript
+       * @enum {string}
+       */
+      type: "ClusteredMorphologyLocations";
+      /**
+       * Random Seed
+       * @description Seed for the random generation of locations
+       * @default 0
+       */
+      random_seed: number | number[];
+      /**
+       * Number Of Locations
+       * @description Number of locations to generate on morphology
+       * @default 1
+       */
+      number_of_locations: number | number[];
+      /**
+       * Section Types
+       * @description Types of sections to generate locations on. 2: axon, 3: basal, 4: apical
+       */
+      section_types?: number[] | number[][] | null;
+      /**
+       * N Clusters
+       * @description Number of location clusters to generate
+       */
+      n_clusters: number | number[];
+      /**
+       * Cluster Max Distance
+       * @description Maximum distance in um of generated locations from the center of their             cluster
+       */
+      cluster_max_distance: number | number[];
+    };
+    /**
+     * ClusteredPathDistanceMorphologyLocations
+     * @description Clustered random locations around a specified path distance. Also creates
+     *     groups within each cluster. This exposes the full possible complexity.
+     */
+    ClusteredPathDistanceMorphologyLocations: {
+      /**
+       * @description discriminator enum property added by openapi-typescript
+       * @enum {string}
+       */
+      type: "ClusteredPathDistanceMorphologyLocations";
+      /**
+       * Random Seed
+       * @description Seed for the random generation of locations
+       * @default 0
+       */
+      random_seed: number | number[];
+      /**
+       * Number Of Locations
+       * @description Number of locations to generate on morphology
+       * @default 1
+       */
+      number_of_locations: number | number[];
+      /**
+       * Section Types
+       * @description Types of sections to generate locations on. 2: axon, 3: basal, 4: apical
+       */
+      section_types?: number[] | number[][] | null;
+      /**
+       * N Clusters
+       * @description Number of location clusters to generate
+       */
+      n_clusters: number | number[];
+      /**
+       * Cluster Max Distance
+       * @description Maximum distance in um of generated locations from the center of their             cluster
+       */
+      cluster_max_distance: number | number[];
+      /**
+       * Path Dist Mean
+       * @description Mean of a Gaussian, defined on soma path distance in um. Used to determine             locations.
+       */
+      path_dist_mean: number | number[];
+      /**
+       * Path Dist Sd
+       * @description SD of a Gaussian, defined on soma path distance in um. Used to determine             locations.
+       */
+      path_dist_sd: number | number[];
+      /**
+       * N Groups Per Cluster
+       * @description Number of conceptual groups per location cluster to generate
+       * @default 1
+       */
+      n_groups_per_cluster: number | number[];
+    };
+    /**
+     * ConnectivityMatrixExtractionScanConfig
+     * @description ScanConfig for extracting connectivity matrices in ConnectomeUtilities format.
+     *
+     *     The connectivity matrix is extracted in ConnectomeUtilities format, consisting of a sparse
+     *     connectivity matrix with the number of synapses for each connection, together with a
+     *     table (dataframe) of selected node attributes.
+     */
+    ConnectivityMatrixExtractionScanConfig: {
+      /**
+       * @description discriminator enum property added by openapi-typescript
+       * @enum {string}
+       */
+      type: "ConnectivityMatrixExtractionScanConfig";
+      initialize: components["schemas"]["obi_one__scientific__tasks__connectivity_matrix_extraction__ConnectivityMatrixExtractionScanConfig__Initialize"];
+    };
+    /** ConnectivityMetricsOutput */
+    ConnectivityMetricsOutput: {
+      /** Connection Probability */
+      connection_probability?: {
+        [key: string]: unknown;
+      } | null;
+      /** Mean Number Of Synapses */
+      mean_number_of_synapses?: {
+        [key: string]: unknown;
+      } | null;
+    };
+    /** ConnectivityMetricsRequest */
+    ConnectivityMetricsRequest: {
+      /** Circuit Id */
+      circuit_id: string;
+      /**
+       * Edge Population
+       * @description Name of the edge population to extract connectivity metrics from
+       */
+      edge_population: string;
+      /**
+       * Pre Selection
+       * @description Property/value pairs for pre-synaptic neuron selection
+       */
+      pre_selection?: {
+        [key: string]: string | string[];
+      } | null;
+      /**
+       * Pre Node Set
+       * @description Existing node set to apply pre-synaptic neuron selection in
+       */
+      pre_node_set?: string | null;
+      /**
+       * Post Selection
+       * @description Property/value pairs for post-synaptic neuron selection
+       */
+      post_selection?: {
+        [key: string]: string | string[];
+      } | null;
+      /**
+       * Post Node Set
+       * @description Existing node set to apply post-synaptic neuron selection in
+       */
+      post_node_set?: string | null;
+      /**
+       * Group By
+       * @description Property name to group connectivity by
+       */
+      group_by?: string | null;
+      /**
+       * Max Distance
+       * @description Maximum distance (in um) to take connectivity into account
+       */
+      max_distance?: number | null;
     };
     /**
      * Constant Somatic Current Clamp (Absolute)
@@ -343,12 +1129,12 @@ export interface components {
        * Timestamps
        * @description Timestamps at which the stimulus is applied.
        */
-      timestamps: components["schemas"]["TimestampsReference"];
+      timestamps?: components["schemas"]["TimestampsReference"] | null;
       /**
        * Neuron Set
        * @description Neuron set to which the stimulus is applied.
        */
-      neuron_set: components["schemas"]["NeuronSetReference"];
+      neuron_set?: components["schemas"]["NeuronSetReference"] | null;
       /**
        * Timestamp Offset
        * @description The offset of the stimulus relative to each timestamp in milliseconds (ms).
@@ -358,7 +1144,7 @@ export interface components {
       /**
        * Duration
        * @description Time duration in milliseconds for how long input is activated.
-       * @default 1
+       * @default 200
        */
       duration: number | number[];
       /**
@@ -366,34 +1152,37 @@ export interface components {
        * @description The injected current. Given in nanoamps.
        * @default 0.1
        */
-      amplitude: number | number[];
+      amplitude: number | number[] | components["schemas"]["FloatRange"];
     };
     /**
-     * ContributeMorphologyForm
-     * @description Contribute Morphology Form.
+     * ContributeMorphologyScanConfig
+     * @description Contribute Morphology ScanConfig.
      */
-    ContributeMorphologyForm: {
+    ContributeMorphologyScanConfig: {
       /**
-       * Type
-       * @constant
+       * @description discriminator enum property added by openapi-typescript
+       * @enum {string}
        */
-      type: "ContributeMorphologyForm";
+      type: "ContributeMorphologyScanConfig";
       /** @description Morphology files. */
       assets?: components["schemas"]["Assets"];
       /** @description Contributor. */
       contribution?: components["schemas"]["Contribution"];
       /**
        * Morphology
-       * @description Information about contributors.
+       * @description Information about the morphology.
        */
-      morphology?: components["schemas"]["ReconstructionMorphology"];
-      /** @description Information about the subject. */
-      subject?: components["schemas"]["Subject"];
+      morphology?: components["schemas"]["CellMorphology"];
       /**
        * Publication Details
        * @description Publication details.
        */
       publication?: components["schemas"]["Publication"];
+      /**
+       * Subject
+       * @description The subject from which the morphology was derived.
+       */
+      subject?: components["schemas"]["SubjectID"];
       /** @description The license used. */
       license?: components["schemas"]["License"];
       /**
@@ -407,15 +1196,37 @@ export interface components {
        */
       mtype?: components["schemas"]["MTypeClassification"];
     };
+    /**
+     * ContributeSubjectScanConfig
+     * @description Contribute Morphology ScanConfig.
+     */
+    ContributeSubjectScanConfig: {
+      /**
+       * Type
+       * @default ContributeSubjectScanConfig
+       * @constant
+       */
+      type: "ContributeSubjectScanConfig";
+      /** @description Information about the subject. */
+      subject?: components["schemas"]["Subject"];
+    };
     /** Contribution */
     Contribution: {
-      /**
-       * Name
-       * @description Contribution name
-       * @default
-       */
-      name: string;
+      /** Agent Id */
+      agent_id?: string | null;
+      /** Role Id */
+      role_id?: string | null;
     };
+    /**
+     * DegreeTypes
+     * @enum {string}
+     */
+    DegreeTypes: "indegree" | "outdegree" | "totaldegree" | "degreedifference";
+    /**
+     * EdgePopulationType
+     * @enum {string}
+     */
+    EdgePopulationType: "chemical" | "electrical";
     /**
      * ElectrophysiologyMetricsOutput
      * @description Output schema for electrophysiological metrics extracted using BluePyEfe.
@@ -430,6 +1241,18 @@ export interface components {
           [key: string]: unknown;
         };
       };
+    };
+    /**
+     * ElectrophysiologyMetricsScanConfig
+     * @description ScanConfig for extracting electrophysiological metrics from a trace.
+     */
+    ElectrophysiologyMetricsScanConfig: {
+      /**
+       * @description discriminator enum property added by openapi-typescript
+       * @enum {string}
+       */
+      type: "ElectrophysiologyMetricsScanConfig";
+      initialize: components["schemas"]["obi_one__scientific__tasks__ephys_extraction__ElectrophysiologyMetricsScanConfig__Initialize"];
     };
     /**
      * All Excitatory Neurons
@@ -454,11 +1277,40 @@ export interface components {
        */
       sample_seed: number | number[];
     };
+    /** FloatRange */
+    FloatRange: {
+      /**
+       * @description discriminator enum property added by openapi-typescript
+       * @enum {string}
+       */
+      type: "FloatRange";
+      /** Start */
+      start: number;
+      /** Step */
+      step: number;
+      /** End */
+      end: number;
+    };
+    /**
+     * FolderCompressionScanConfig
+     * @description Compression of an entire folder (e.g., circuit) using the given compression file format.
+     *
+     *     The following compression formats are available: gzip (.gz; default), bzip2 (.bz2), LZMA (.xz)
+     */
+    FolderCompressionScanConfig: {
+      /**
+       * @description discriminator enum property added by openapi-typescript
+       * @enum {string}
+       */
+      type: "FolderCompressionScanConfig";
+      initialize: components["schemas"]["obi_one__scientific__tasks__folder_compression__FolderCompressionScanConfig__Initialize"];
+    };
     /**
      * Fully Synchronous Spikes (Efferent)
-     * @description Spikes sent at the same time from all neurons in the source neuron set.
+     * @description Spikes sent at the same time.
      *
-     *     to efferently connected neurons in the target neuron set.
+     *     Sent from all neurons in the source neuron set to efferently connected
+     *     neurons in the target neuron set.
      */
     FullySynchronousSpikeStimulus: {
       /**
@@ -470,17 +1322,44 @@ export interface components {
        * Timestamps
        * @description Timestamps at which the stimulus is applied.
        */
-      timestamps: components["schemas"]["TimestampsReference"];
-      /** Neuron Set (Source) */
-      source_neuron_set: components["schemas"]["NeuronSetReference"];
-      /** Neuron Set (Target) */
-      targeted_neuron_set: components["schemas"]["NeuronSetReference"];
+      timestamps?: components["schemas"]["TimestampsReference"] | null;
+      /**
+       * Neuron Set (Source)
+       * @description Source neuron set to simulate
+       */
+      source_neuron_set?: components["schemas"]["NeuronSetReference"] | null;
+      /**
+       * Neuron Set (Target)
+       * @description Target neuron set to simulate
+       */
+      targeted_neuron_set?: components["schemas"]["NeuronSetReference"] | null;
       /**
        * Timestamp Offset
        * @description The offset of the stimulus relative to each timestamp in milliseconds (ms).
        * @default 0
        */
       timestamp_offset: number | number[] | null;
+    };
+    /** GateExponents */
+    GateExponents: {
+      /**
+       * Type
+       * @default IonChannelFittingScanConfig.GateExponents
+       * @constant
+       */
+      type: "IonChannelFittingScanConfig.GateExponents";
+      /**
+       * m exponent in channel equation
+       * @description Exponent \(p\) of \(m\) in the channel equation: \(g = \bar{g} \cdot m^p \cdot h^q\)
+       * @default 1
+       */
+      m_power: number;
+      /**
+       * h exponent in channel equation
+       * @description Exponent \(q\) of \(h\) in the channel equation: \(g = \bar{g} \cdot m^p \cdot h^q\)
+       * @default 1
+       */
+      h_power: number;
     };
     /** HTTPValidationError */
     HTTPValidationError: {
@@ -503,12 +1382,12 @@ export interface components {
        * Timestamps
        * @description Timestamps at which the stimulus is applied.
        */
-      timestamps: components["schemas"]["TimestampsReference"];
+      timestamps?: components["schemas"]["TimestampsReference"] | null;
       /**
        * Neuron Set
        * @description Neuron set to which the stimulus is applied.
        */
-      neuron_set: components["schemas"]["NeuronSetReference"];
+      neuron_set?: components["schemas"]["NeuronSetReference"] | null;
       /**
        * Timestamp Offset
        * @description The offset of the stimulus relative to each timestamp in milliseconds (ms).
@@ -518,7 +1397,7 @@ export interface components {
       /**
        * Duration
        * @description Time duration in milliseconds for how long input is activated.
-       * @default 1
+       * @default 200
        */
       duration: number | number[];
     };
@@ -544,7 +1423,10 @@ export interface components {
        * @default 1
        */
       sample_seed: number | number[];
-      /** Neuron Ids */
+      /**
+       * ID Neuronset
+       * @description List of neuron IDs to include in the neuron set.
+       */
       neuron_ids:
         | components["schemas"]["NamedTuple"]
         | components["schemas"]["NamedTuple"][];
@@ -553,23 +1435,24 @@ export interface components {
     Info: {
       /**
        * Type
+       * @default Info
        * @constant
        */
       type: "Info";
       /**
        * Campaign Name
-       * @description Name of the simulation campaign.
+       * @description Name of the campaign.
        */
       campaign_name: string;
       /**
        * Campaign Description
-       * @description Description of the simulation campaign.
+       * @description Description of the campaign.
        */
       campaign_description: string;
     };
     /**
      * All Inhibitory Neurons
-     * @description All inhibitory neurons.
+     * @description All biophysical inhibitory neurons.
      */
     InhibitoryNeurons: {
       /**
@@ -590,17 +1473,86 @@ export interface components {
        */
       sample_seed: number | number[];
     };
-    /** Lic */
-    Lic: {
-      /** License Label */
-      license_label: string;
-      /** License Id */
-      license_id: string;
+    /** IntRange */
+    IntRange: {
+      /**
+       * @description discriminator enum property added by openapi-typescript
+       * @enum {string}
+       */
+      type: "IntRange";
+      /** Start */
+      start: number;
+      /** Step */
+      step: number;
+      /** End */
+      end: number;
+    };
+    /**
+     * IonChannelFittingScanConfig
+     * @description Form for modeling an ion channel model from a set of ion channel traces.
+     */
+    IonChannelFittingScanConfig: {
+      /**
+       * @description discriminator enum property added by openapi-typescript
+       * @enum {string}
+       */
+      type: "IonChannelFittingScanConfig";
+      /**
+       * Initialization
+       * @description Parameters for initializing the simulation.
+       */
+      initialize: components["schemas"]["obi_one__scientific__tasks__ion_channel_modeling__IonChannelFittingScanConfig__Initialize"];
+      /** @description Information about the ion channel modeling campaign. */
+      info: components["schemas"]["Info"];
+      /**
+       * m_{\infty} equation
+       * @description Steady state activation parameter \( m_{\infty} \) equation. This equation will be used for solving the differential equation: \( \frac{dm}{dt} = \frac{m_{\infty} - m}{\tau_{m}} \)
+       */
+      minf_eq: components["schemas"]["SigFitMInf"] | null;
+      /**
+       * \tau_m equation
+       * @description Activation time constant \(\tau_m\) equation. This equation will be used for solving the differential equation: \( \frac{dm}{dt} = \frac{m_{\infty} - m}{\tau_{m}} \)
+       */
+      mtau_eq:
+        | components["schemas"]["SigFitMTau"]
+        | components["schemas"]["ThermoFitMTau"]
+        | components["schemas"]["ThermoFitMTauV2"]
+        | components["schemas"]["BellFitMTau"];
+      /**
+       * h_{\infty} equation
+       * @description Steady state inactivation parameter \(h_{\infty}\) equation. This equation will be used for solving the differential equation: \( \frac{dh}{dt} = \frac{h_{\infty} - h}{\tau_{h}} \)
+       */
+      hinf_eq: components["schemas"]["SigFitHInf"] | null;
+      /**
+       * \tau_h equation
+       * @description Inactivation time constant \(\tau_h\) equation. This equation will be used for solving the differential equation: \( \frac{dh}{dt} = \frac{h_{\infty} - h}{\tau_{h}} \)
+       */
+      htau_eq: components["schemas"]["SigFitHTau"] | null;
+      /**
+       * m & h gate exponents
+       * @description Set the power of m and h gates used in Hodgkin-Huxley formalism: \(g = \bar{g} \cdot m^p \cdot h^q\)
+       */
+      gate_exponents: components["schemas"]["GateExponents"];
+    };
+    /** IonChannelRecordingFromID */
+    IonChannelRecordingFromID: {
+      /**
+       * Id Str
+       * @description ID of the entity in string format.
+       */
+      id_str: string;
+      /**
+       * Type
+       * @default IonChannelRecordingFromID
+       * @constant
+       */
+      type: "IonChannelRecordingFromID";
     };
     /** License */
     License: {
       /**
        * Type
+       * @default License
        * @constant
        */
       type: "License";
@@ -621,12 +1573,12 @@ export interface components {
        * Timestamps
        * @description Timestamps at which the stimulus is applied.
        */
-      timestamps: components["schemas"]["TimestampsReference"];
+      timestamps?: components["schemas"]["TimestampsReference"] | null;
       /**
        * Neuron Set
        * @description Neuron set to which the stimulus is applied.
        */
-      neuron_set: components["schemas"]["NeuronSetReference"];
+      neuron_set?: components["schemas"]["NeuronSetReference"] | null;
       /**
        * Timestamp Offset
        * @description The offset of the stimulus relative to each timestamp in milliseconds (ms).
@@ -636,7 +1588,7 @@ export interface components {
       /**
        * Duration
        * @description Time duration in milliseconds for how long input is activated.
-       * @default 1
+       * @default 200
        */
       duration: number | number[];
       /**
@@ -652,10 +1604,192 @@ export interface components {
        */
       amplitude_end: number | number[];
     };
+    /** MEModelCircuit */
+    MEModelCircuit: {
+      /** Name */
+      name: string;
+      /** Path */
+      path: string;
+      /** Matrix Path */
+      matrix_path?: string | null;
+      /**
+       * @description discriminator enum property added by openapi-typescript
+       * @enum {string}
+       */
+      type: "MEModelCircuit";
+    };
+    /** MEModelFromID */
+    MEModelFromID: {
+      /**
+       * Id Str
+       * @description ID of the entity in string format.
+       */
+      id_str: string;
+      /**
+       * @description discriminator enum property added by openapi-typescript
+       * @enum {string}
+       */
+      type: "MEModelFromID";
+    };
+    /**
+     * MEModelSimulationScanConfig
+     * @description MEModelSimulationScanConfig.
+     */
+    MEModelSimulationScanConfig: {
+      /**
+       * @description discriminator enum property added by openapi-typescript
+       * @enum {string}
+       */
+      type: "MEModelSimulationScanConfig";
+      /**
+       * Timestamps
+       * @description Timestamps for the simulation.
+       */
+      timestamps?: {
+        [key: string]:
+          | components["schemas"]["SingleTimestamp"]
+          | components["schemas"]["RegularTimestamps"];
+      };
+      /**
+       * Recordings
+       * @description Recordings for the simulation.
+       */
+      recordings?: {
+        [key: string]:
+          | components["schemas"]["SomaVoltageRecording"]
+          | components["schemas"]["TimeWindowSomaVoltageRecording"];
+      };
+      /** @description Information about the simulation campaign. */
+      info: components["schemas"]["Info"];
+      /**
+       * Initialization
+       * @description Parameters for initializing the simulation.
+       */
+      initialize: components["schemas"]["obi_one__scientific__tasks__generate_simulation_configs__MEModelSimulationScanConfig__Initialize"];
+      /**
+       * Stimuli
+       * @description Stimuli for the simulation.
+       */
+      stimuli?: {
+        [key: string]:
+          | components["schemas"]["ConstantCurrentClampSomaticStimulus"]
+          | components["schemas"]["HyperpolarizingCurrentClampSomaticStimulus"]
+          | components["schemas"]["LinearCurrentClampSomaticStimulus"]
+          | components["schemas"]["MultiPulseCurrentClampSomaticStimulus"]
+          | components["schemas"]["NormallyDistributedCurrentClampSomaticStimulus"]
+          | components["schemas"]["RelativeNormallyDistributedCurrentClampSomaticStimulus"]
+          | components["schemas"]["RelativeConstantCurrentClampSomaticStimulus"]
+          | components["schemas"]["RelativeLinearCurrentClampSomaticStimulus"]
+          | components["schemas"]["SinusoidalCurrentClampSomaticStimulus"]
+          | components["schemas"]["SubthresholdCurrentClampSomaticStimulus"];
+      };
+    };
+    /** MEModelWithSynapsesCircuit */
+    MEModelWithSynapsesCircuit: {
+      /** Name */
+      name: string;
+      /** Path */
+      path: string;
+      /** Matrix Path */
+      matrix_path?: string | null;
+      /**
+       * @description discriminator enum property added by openapi-typescript
+       * @enum {string}
+       */
+      type: "MEModelWithSynapsesCircuit";
+    };
+    /** MEModelWithSynapsesCircuitFromID */
+    MEModelWithSynapsesCircuitFromID: {
+      /**
+       * Id Str
+       * @description ID of the entity in string format.
+       */
+      id_str: string;
+      /**
+       * @description discriminator enum property added by openapi-typescript
+       * @enum {string}
+       */
+      type: "MEModelWithSynapsesCircuitFromID";
+    };
+    /**
+     * MEModelWithSynapsesCircuitSimulationScanConfig
+     * @description MEModelWithSynapsesCircuitSimulationScanConfig.
+     */
+    MEModelWithSynapsesCircuitSimulationScanConfig: {
+      /**
+       * @description discriminator enum property added by openapi-typescript
+       * @enum {string}
+       */
+      type: "MEModelWithSynapsesCircuitSimulationScanConfig";
+      /**
+       * Timestamps
+       * @description Timestamps for the simulation.
+       */
+      timestamps?: {
+        [key: string]:
+          | components["schemas"]["SingleTimestamp"]
+          | components["schemas"]["RegularTimestamps"];
+      };
+      /**
+       * Recordings
+       * @description Recordings for the simulation.
+       */
+      recordings?: {
+        [key: string]:
+          | components["schemas"]["SomaVoltageRecording"]
+          | components["schemas"]["TimeWindowSomaVoltageRecording"];
+      };
+      /** @description Information about the simulation campaign. */
+      info: components["schemas"]["Info"];
+      /**
+       * Neuron Sets
+       * @description Neuron sets for the simulation.
+       */
+      neuron_sets?: {
+        [key: string]:
+          | components["schemas"]["nbS1VPMInputs"]
+          | components["schemas"]["nbS1POmInputs"];
+      };
+      /**
+       * Synaptic Manipulations
+       * @description Synaptic manipulations for the simulation.
+       */
+      synaptic_manipulations?: {
+        [key: string]:
+          | components["schemas"]["SynapticMgManipulation"]
+          | components["schemas"]["ScaleAcetylcholineUSESynapticManipulation"];
+      };
+      /**
+       * Initialization
+       * @description Parameters for initializing the simulation.
+       */
+      initialize: components["schemas"]["obi_one__scientific__tasks__generate_simulation_configs__MEModelWithSynapsesCircuitSimulationScanConfig__Initialize"];
+      /**
+       * Stimuli
+       * @description Stimuli for the simulation.
+       */
+      stimuli?: {
+        [key: string]:
+          | components["schemas"]["ConstantCurrentClampSomaticStimulus"]
+          | components["schemas"]["HyperpolarizingCurrentClampSomaticStimulus"]
+          | components["schemas"]["LinearCurrentClampSomaticStimulus"]
+          | components["schemas"]["MultiPulseCurrentClampSomaticStimulus"]
+          | components["schemas"]["NormallyDistributedCurrentClampSomaticStimulus"]
+          | components["schemas"]["RelativeNormallyDistributedCurrentClampSomaticStimulus"]
+          | components["schemas"]["RelativeConstantCurrentClampSomaticStimulus"]
+          | components["schemas"]["RelativeLinearCurrentClampSomaticStimulus"]
+          | components["schemas"]["SinusoidalCurrentClampSomaticStimulus"]
+          | components["schemas"]["SubthresholdCurrentClampSomaticStimulus"]
+          | components["schemas"]["PoissonSpikeStimulus"]
+          | components["schemas"]["FullySynchronousSpikeStimulus"]
+          | components["schemas"]["SinusoidalPoissonSpikeStimulus"];
+      };
+    };
     /** MTypeClassification */
     MTypeClassification: {
       /**
        * Type
+       * @default MTypeClassification
        * @constant
        */
       type: "MTypeClassification";
@@ -665,14 +1799,71 @@ export interface components {
        */
       mtype_class_id?: string | null;
     };
-    /** MorphologyMetricsForm */
-    MorphologyMetricsForm: {
+    /**
+     * MorphologyContainerizationScanConfig
+     * @description Creates a circuit with containerized morphologies instead of individual morphology files,
+     *     which involves the following steps:
+     *     (1) Copy circuit to output location
+     *     (2) Convert morphologies to .h5, if not yet existing (from .swc or .asc)
+     *     (3) Merge individual .h5 morphologies into an .h5 container
+     *     (4) Update the circuit config, pointing to the .h5 container
+     *     (5) Update .hoc files so that they will work with .h5 containers
+     *     (6) Delete all individual morphologies
+     *     (7) Check containerized morphologies
+     *     Important: The original circuit won't be modified! The circuit will be copied
+     *                to the output location where all operations take place.
+     */
+    MorphologyContainerizationScanConfig: {
       /**
-       * Type
-       * @constant
+       * @description discriminator enum property added by openapi-typescript
+       * @enum {string}
        */
-      type: "MorphologyMetricsForm";
-      initialize: components["schemas"]["obi_one__scientific__morphology_metrics__morphology_metrics__MorphologyMetricsForm__Initialize"];
+      type: "MorphologyContainerizationScanConfig";
+      initialize: components["schemas"]["obi_one__scientific__tasks__morphology_containerization__MorphologyContainerizationScanConfig__Initialize"];
+    };
+    /**
+     * MorphologyDecontainerizationScanConfig
+     * @description Creates a circuit with individual morphology files instead of containerized morphologies,
+     *     which involves the following steps:
+     *     (1) Copy circuit to output location
+     *     (2) Extract individual .h5 morphologies from an .h5 container
+     *     (3) Convert .h5 morphologies to specified output format (.swc or .asc; skip if .h5)
+     *     (4) Update the circuit config, pointing to the individual morphology folder
+     *     (5) Delete .h5 container and .h5 files if that's not the specified output format
+     *     (7) Check loading individual morphologies
+     *     Important: The original circuit won't be modified! The circuit will be copied
+     *                to the output location where all operations take place.
+     */
+    MorphologyDecontainerizationScanConfig: {
+      /**
+       * @description discriminator enum property added by openapi-typescript
+       * @enum {string}
+       */
+      type: "MorphologyDecontainerizationScanConfig";
+      initialize: components["schemas"]["obi_one__scientific__tasks__morphology_decontainerization__MorphologyDecontainerizationScanConfig__Initialize"];
+    };
+    /**
+     * MorphologyLocationsScanConfig
+     * @description ScanConfig for generating locations on a morphology skeleton.
+     */
+    MorphologyLocationsScanConfig: {
+      /**
+       * @description discriminator enum property added by openapi-typescript
+       * @enum {string}
+       */
+      type: "MorphologyLocationsScanConfig";
+      initialize: components["schemas"]["obi_one__scientific__tasks__morphology_locations__MorphologyLocationsScanConfig__Initialize"];
+      /**
+       * Morphology locations
+       * @description Parameterization of locations on the neurites of the morphology
+       */
+      morph_locations:
+        | components["schemas"]["ClusteredGroupedMorphologyLocations"]
+        | components["schemas"]["ClusteredMorphologyLocations"]
+        | components["schemas"]["ClusteredPathDistanceMorphologyLocations"]
+        | components["schemas"]["PathDistanceMorphologyLocations"]
+        | components["schemas"]["RandomGroupedMorphologyLocations"]
+        | components["schemas"]["RandomMorphologyLocations"];
     };
     /** MorphologyMetricsOutput */
     MorphologyMetricsOutput: {
@@ -782,12 +1973,14 @@ export interface components {
        */
       section_strahler_orders?: number[] | null;
     };
-    /** Mty */
-    Mty: {
-      /** Mtype Label */
-      mtype_label: string;
-      /** Mtype Id */
-      mtype_id: string;
+    /** MorphologyMetricsScanConfig */
+    MorphologyMetricsScanConfig: {
+      /**
+       * @description discriminator enum property added by openapi-typescript
+       * @enum {string}
+       */
+      type: "MorphologyMetricsScanConfig";
+      initialize: components["schemas"]["obi_one__scientific__tasks__morphology_metrics__MorphologyMetricsScanConfig__Initialize"];
     };
     /**
      * Multi Pulse Somatic Current Clamp (Absolute)
@@ -804,12 +1997,12 @@ export interface components {
        * Timestamps
        * @description Timestamps at which the stimulus is applied.
        */
-      timestamps: components["schemas"]["TimestampsReference"];
+      timestamps?: components["schemas"]["TimestampsReference"] | null;
       /**
        * Neuron Set
        * @description Neuron set to which the stimulus is applied.
        */
-      neuron_set: components["schemas"]["NeuronSetReference"];
+      neuron_set?: components["schemas"]["NeuronSetReference"] | null;
       /**
        * Timestamp Offset
        * @description The offset of the stimulus relative to each timestamp in milliseconds (ms).
@@ -819,7 +2012,7 @@ export interface components {
       /**
        * Duration
        * @description Time duration in milliseconds for how long input is activated.
-       * @default 1
+       * @default 200
        */
       duration: number | number[];
       /**
@@ -831,7 +2024,7 @@ export interface components {
       /**
        * Pulse Width
        * @description The length of time each pulse lasts. Given in milliseconds (ms).
-       * @default 1
+       * @default 50
        */
       width: number | number[];
       /**
@@ -842,16 +2035,46 @@ export interface components {
       frequency: number | number[];
     };
     /**
+     * NWBValidationResponse
+     * @description Schema for the NWB file validation success response.
+     */
+    NWBValidationResponse: {
+      /** Status */
+      status: string;
+      /** Message */
+      message: string;
+    };
+    /**
+     * NamedPath
+     * @description Helper class to assign a name to a file path.
+     */
+    NamedPath: {
+      /** Name */
+      name: string;
+      /** Path */
+      path: string;
+      /**
+       * Type
+       * @default NamedPath
+       * @constant
+       */
+      type: "NamedPath";
+    };
+    /**
      * NamedTuple
      * @description Helper class to assign a name to a tuple of elements.
      */
     NamedTuple: {
-      /** Name */
+      /**
+       * Name
+       * @default Default name
+       */
       name: string;
       /** Elements */
       elements: number[];
       /**
        * Type
+       * @default NamedTuple
        * @constant
        */
       type: "NamedTuple";
@@ -870,9 +2093,43 @@ export interface components {
       block_name: string;
       /**
        * Type
+       * @default NeuronSetReference
        * @constant
        */
       type: "NeuronSetReference";
+    };
+    /**
+     * NodePopulationType
+     * @enum {string}
+     */
+    NodePopulationType: "biophysical" | "virtual";
+    /** NonNegativeFloatRange */
+    NonNegativeFloatRange: {
+      /**
+       * @description discriminator enum property added by openapi-typescript
+       * @enum {string}
+       */
+      type: "NonNegativeFloatRange";
+      /** Start */
+      start: number;
+      /** Step */
+      step: number;
+      /** End */
+      end: number;
+    };
+    /** NonNegativeIntRange */
+    NonNegativeIntRange: {
+      /**
+       * @description discriminator enum property added by openapi-typescript
+       * @enum {string}
+       */
+      type: "NonNegativeIntRange";
+      /** Start */
+      start: number;
+      /** Step */
+      step: number;
+      /** End */
+      end: number;
     };
     /**
      * Normally Distributed Somatic Current Clamp (Absolute)
@@ -888,12 +2145,12 @@ export interface components {
        * Timestamps
        * @description Timestamps at which the stimulus is applied.
        */
-      timestamps: components["schemas"]["TimestampsReference"];
+      timestamps?: components["schemas"]["TimestampsReference"] | null;
       /**
        * Neuron Set
        * @description Neuron set to which the stimulus is applied.
        */
-      neuron_set: components["schemas"]["NeuronSetReference"];
+      neuron_set?: components["schemas"]["NeuronSetReference"] | null;
       /**
        * Timestamp Offset
        * @description The offset of the stimulus relative to each timestamp in milliseconds (ms).
@@ -903,7 +2160,7 @@ export interface components {
       /**
        * Duration
        * @description Time duration in milliseconds for how long input is activated.
-       * @default 1
+       * @default 200
        */
       duration: number | number[];
       /**
@@ -918,6 +2175,44 @@ export interface components {
        * @default 0.01
        */
       variance: number | number[];
+    };
+    /**
+     * PathDistanceMorphologyLocations
+     * @description Locations around a specified path distance.
+     */
+    PathDistanceMorphologyLocations: {
+      /**
+       * @description discriminator enum property added by openapi-typescript
+       * @enum {string}
+       */
+      type: "PathDistanceMorphologyLocations";
+      /**
+       * Random Seed
+       * @description Seed for the random generation of locations
+       * @default 0
+       */
+      random_seed: number | number[];
+      /**
+       * Number Of Locations
+       * @description Number of locations to generate on morphology
+       * @default 1
+       */
+      number_of_locations: number | number[];
+      /**
+       * Section Types
+       * @description Types of sections to generate locations on. 2: axon, 3: basal, 4: apical
+       */
+      section_types?: number[] | number[][] | null;
+      /**
+       * Path Dist Mean
+       * @description Mean of a Gaussian, defined on soma path distance in um. Used to determine             locations.
+       */
+      path_dist_mean: number | number[];
+      /**
+       * Path Dist Tolerance
+       * @description Amount of deviation in um from mean path distance that is tolerated. Must be             > 1.0
+       */
+      path_dist_tolerance: number | number[];
     };
     /**
      * Poisson Spikes (Efferent)
@@ -936,11 +2231,17 @@ export interface components {
        * Timestamps
        * @description Timestamps at which the stimulus is applied.
        */
-      timestamps: components["schemas"]["TimestampsReference"];
-      /** Neuron Set (Source) */
-      source_neuron_set: components["schemas"]["NeuronSetReference"];
-      /** Neuron Set (Target) */
-      targeted_neuron_set: components["schemas"]["NeuronSetReference"];
+      timestamps?: components["schemas"]["TimestampsReference"] | null;
+      /**
+       * Neuron Set (Source)
+       * @description Source neuron set to simulate
+       */
+      source_neuron_set?: components["schemas"]["NeuronSetReference"] | null;
+      /**
+       * Neuron Set (Target)
+       * @description Target neuron set to simulate
+       */
+      targeted_neuron_set?: components["schemas"]["NeuronSetReference"] | null;
       /**
        * Timestamp Offset
        * @description The offset of the stimulus relative to each timestamp in milliseconds (ms).
@@ -950,7 +2251,7 @@ export interface components {
       /**
        * Duration
        * @description Time duration in milliseconds for how long input is activated.
-       * @default 1000
+       * @default 200
        */
       duration: number | number[];
       /**
@@ -966,10 +2267,67 @@ export interface components {
        */
       random_seed: number | number[];
     };
+    /** PositiveFloatRange */
+    PositiveFloatRange: {
+      /**
+       * @description discriminator enum property added by openapi-typescript
+       * @enum {string}
+       */
+      type: "PositiveFloatRange";
+      /** Start */
+      start: number;
+      /** Step */
+      step: number;
+      /** End */
+      end: number;
+    };
+    /** PositiveIntRange */
+    PositiveIntRange: {
+      /**
+       * @description discriminator enum property added by openapi-typescript
+       * @enum {string}
+       */
+      type: "PositiveIntRange";
+      /** Start */
+      start: number;
+      /** Step */
+      step: number;
+      /** End */
+      end: number;
+    };
+    /**
+     * Predefined Neuron Set
+     * @description Use an existing node set already defined in the circuit's node sets file.
+     */
+    PredefinedNeuronSet: {
+      /**
+       * @description discriminator enum property added by openapi-typescript
+       * @enum {string}
+       */
+      type: "PredefinedNeuronSet";
+      /**
+       * Sample (Percentage)
+       * @description Percentage of neurons to sample between 0 and 100%
+       * @default 100
+       */
+      sample_percentage: number | number[];
+      /**
+       * Sample Seed
+       * @description Seed for random sampling.
+       * @default 1
+       */
+      sample_seed: number | number[];
+      /**
+       * Node Set
+       * @description Name of the node set to use.
+       */
+      node_set: string | string[];
+    };
     /** Publication */
     Publication: {
       /**
        * Type
+       * @default Publication
        * @constant
        */
       type: "Publication";
@@ -1004,42 +2362,67 @@ export interface components {
        */
       abstract: string | null;
     };
-    /** ReconstructionMorphology */
-    ReconstructionMorphology: {
+    /**
+     * RandomGroupedMorphologyLocations
+     * @description Completely random locations, but grouped into abstract groups.
+     */
+    RandomGroupedMorphologyLocations: {
       /**
-       * Type
-       * @constant
+       * @description discriminator enum property added by openapi-typescript
+       * @enum {string}
        */
-      type: "ReconstructionMorphology";
+      type: "RandomGroupedMorphologyLocations";
       /**
-       * Name
-       * @description Name of the morphology
+       * Random Seed
+       * @description Seed for the random generation of locations
+       * @default 0
        */
-      name: string;
+      random_seed: number | number[];
       /**
-       * Description
-       * @description Description
+       * Number Of Locations
+       * @description Number of locations to generate on morphology
+       * @default 1
        */
-      description: string;
-      /** Species Id */
-      species_id?: string | null;
-      /** Strain Id */
-      strain_id?: string | null;
-      /** Brain Region Id */
-      brain_region_id?: string | null;
+      number_of_locations: number | number[];
+      /**
+       * Section Types
+       * @description Types of sections to generate locations on. 2: axon, 3: basal, 4: apical
+       */
+      section_types?: number[] | number[][] | null;
+      /**
+       * N Groups
+       * @description Number of groups of locations to             generate
+       * @default 1
+       */
+      n_groups: number | number[];
     };
-    /** ReconstructionMorphologyFromID */
-    ReconstructionMorphologyFromID: {
+    /**
+     * RandomMorphologyLocations
+     * @description Completely random locations without constraint.
+     */
+    RandomMorphologyLocations: {
       /**
-       * Id Str
-       * @description ID of the entity in string format.
+       * @description discriminator enum property added by openapi-typescript
+       * @enum {string}
        */
-      id_str: string;
+      type: "RandomMorphologyLocations";
       /**
-       * Type
-       * @constant
+       * Random Seed
+       * @description Seed for the random generation of locations
+       * @default 0
        */
-      type: "ReconstructionMorphologyFromID";
+      random_seed: number | number[];
+      /**
+       * Number Of Locations
+       * @description Number of locations to generate on morphology
+       * @default 1
+       */
+      number_of_locations: number | number[];
+      /**
+       * Section Types
+       * @description Types of sections to generate locations on. 2: axon, 3: basal, 4: apical
+       */
+      section_types?: number[] | number[][] | null;
     };
     /**
      * Regular Timestamps
@@ -1084,12 +2467,12 @@ export interface components {
        * Timestamps
        * @description Timestamps at which the stimulus is applied.
        */
-      timestamps: components["schemas"]["TimestampsReference"];
+      timestamps?: components["schemas"]["TimestampsReference"] | null;
       /**
        * Neuron Set
        * @description Neuron set to which the stimulus is applied.
        */
-      neuron_set: components["schemas"]["NeuronSetReference"];
+      neuron_set?: components["schemas"]["NeuronSetReference"] | null;
       /**
        * Timestamp Offset
        * @description The offset of the stimulus relative to each timestamp in milliseconds (ms).
@@ -1099,7 +2482,7 @@ export interface components {
       /**
        * Duration
        * @description Time duration in milliseconds for how long input is activated.
-       * @default 1
+       * @default 200
        */
       duration: number | number[];
       /**
@@ -1124,12 +2507,12 @@ export interface components {
        * Timestamps
        * @description Timestamps at which the stimulus is applied.
        */
-      timestamps: components["schemas"]["TimestampsReference"];
+      timestamps?: components["schemas"]["TimestampsReference"] | null;
       /**
        * Neuron Set
        * @description Neuron set to which the stimulus is applied.
        */
-      neuron_set: components["schemas"]["NeuronSetReference"];
+      neuron_set?: components["schemas"]["NeuronSetReference"] | null;
       /**
        * Timestamp Offset
        * @description The offset of the stimulus relative to each timestamp in milliseconds (ms).
@@ -1139,7 +2522,7 @@ export interface components {
       /**
        * Duration
        * @description Time duration in milliseconds for how long input is activated.
-       * @default 1
+       * @default 200
        */
       duration: number | number[];
       /**
@@ -1170,12 +2553,12 @@ export interface components {
        * Timestamps
        * @description Timestamps at which the stimulus is applied.
        */
-      timestamps: components["schemas"]["TimestampsReference"];
+      timestamps?: components["schemas"]["TimestampsReference"] | null;
       /**
        * Neuron Set
        * @description Neuron set to which the stimulus is applied.
        */
-      neuron_set: components["schemas"]["NeuronSetReference"];
+      neuron_set?: components["schemas"]["NeuronSetReference"] | null;
       /**
        * Timestamp Offset
        * @description The offset of the stimulus relative to each timestamp in milliseconds (ms).
@@ -1185,7 +2568,7 @@ export interface components {
       /**
        * Duration
        * @description Time duration in milliseconds for how long input is activated.
-       * @default 1
+       * @default 200
        */
       duration: number | number[];
       /**
@@ -1226,6 +2609,7 @@ export interface components {
     ScientificArtifact: {
       /**
        * Type
+       * @default ScientificArtifact
        * @constant
        */
       type: "ScientificArtifact";
@@ -1241,14 +2625,43 @@ export interface components {
      * @enum {string}
      */
     Sex: "male" | "female" | "unknown";
-    /**
-     * SimulationsForm
-     * @description Simulations Form.
-     */
+    /** Sigmoid equation for h_{\infty} */
+    SigFitHInf: {
+      /**
+       * @description discriminator enum property added by openapi-typescript
+       * @enum {string}
+       */
+      type: "SigFitHInf";
+    };
+    /** Sigmoid equation for \tau_h */
+    SigFitHTau: {
+      /**
+       * @description discriminator enum property added by openapi-typescript
+       * @enum {string}
+       */
+      type: "SigFitHTau";
+    };
+    /** Sigmoid equation for m_{\infty} */
+    SigFitMInf: {
+      /**
+       * @description discriminator enum property added by openapi-typescript
+       * @enum {string}
+       */
+      type: "SigFitMInf";
+    };
+    /** Sigmoid equation combination for \tau_m */
+    SigFitMTau: {
+      /**
+       * @description discriminator enum property added by openapi-typescript
+       * @enum {string}
+       */
+      type: "SigFitMTau";
+    };
+    /** SimulationsForm */
     SimulationsForm: {
       /**
-       * Type
-       * @constant
+       * @description discriminator enum property added by openapi-typescript
+       * @enum {string}
        */
       type: "SimulationsForm";
       /**
@@ -1260,6 +2673,41 @@ export interface components {
           | components["schemas"]["SingleTimestamp"]
           | components["schemas"]["RegularTimestamps"];
       };
+      /**
+       * Recordings
+       * @description Recordings for the simulation.
+       */
+      recordings?: {
+        [key: string]:
+          | components["schemas"]["SomaVoltageRecording"]
+          | components["schemas"]["TimeWindowSomaVoltageRecording"];
+      };
+      /** @description Information about the simulation campaign. */
+      info: components["schemas"]["Info"];
+      /**
+       * Neuron Sets
+       * @description Neuron sets for the simulation.
+       */
+      neuron_sets?: {
+        [key: string]:
+          | components["schemas"]["IDNeuronSet"]
+          | components["schemas"]["AllNeurons"]
+          | components["schemas"]["ExcitatoryNeurons"]
+          | components["schemas"]["InhibitoryNeurons"]
+          | components["schemas"]["PredefinedNeuronSet"]
+          | components["schemas"]["nbS1VPMInputs"]
+          | components["schemas"]["nbS1POmInputs"];
+      };
+      /**
+       * Synaptic Manipulations
+       * @description Synaptic manipulations for the simulation.
+       */
+      synaptic_manipulations?: {
+        [key: string]:
+          | components["schemas"]["SynapticMgManipulation"]
+          | components["schemas"]["ScaleAcetylcholineUSESynapticManipulation"];
+      };
+      initialize: components["schemas"]["obi_one__scientific__unions__aliases__SimulationsForm__Initialize"];
       /**
        * Stimuli
        * @description Stimuli for the simulation.
@@ -1277,46 +2725,9 @@ export interface components {
           | components["schemas"]["SinusoidalCurrentClampSomaticStimulus"]
           | components["schemas"]["SubthresholdCurrentClampSomaticStimulus"]
           | components["schemas"]["PoissonSpikeStimulus"]
-          | components["schemas"]["FullySynchronousSpikeStimulus"];
+          | components["schemas"]["FullySynchronousSpikeStimulus"]
+          | components["schemas"]["SinusoidalPoissonSpikeStimulus"];
       };
-      /**
-       * Recordings
-       * @description Recordings for the simulation.
-       */
-      recordings?: {
-        [key: string]:
-          | components["schemas"]["SomaVoltageRecording"]
-          | components["schemas"]["TimeWindowSomaVoltageRecording"];
-      };
-      /**
-       * Neuron Sets
-       * @description Neuron sets for the simulation.
-       */
-      neuron_sets?: {
-        [key: string]:
-          | components["schemas"]["IDNeuronSet"]
-          | components["schemas"]["nbS1VPMInputs"]
-          | components["schemas"]["nbS1POmInputs"]
-          | components["schemas"]["AllNeurons"]
-          | components["schemas"]["ExcitatoryNeurons"]
-          | components["schemas"]["InhibitoryNeurons"];
-      };
-      /**
-       * Synaptic Manipulations
-       * @description Synaptic manipulations for the simulation.
-       */
-      synaptic_manipulations?: {
-        [key: string]:
-          | components["schemas"]["SynapticMgManipulation"]
-          | components["schemas"]["ScaleAcetylcholineUSESynapticManipulation"];
-      };
-      /**
-       * Initialization
-       * @description Parameters for initializing the simulation.
-       */
-      initialize: components["schemas"]["obi_one__scientific__simulation__simulations__SimulationsForm__Initialize"];
-      /** @description Information about the simulation campaign. */
-      info: components["schemas"]["Info"];
     };
     /**
      * Single Timestamp
@@ -1349,12 +2760,12 @@ export interface components {
        * Timestamps
        * @description Timestamps at which the stimulus is applied.
        */
-      timestamps: components["schemas"]["TimestampsReference"];
+      timestamps?: components["schemas"]["TimestampsReference"] | null;
       /**
        * Neuron Set
        * @description Neuron set to which the stimulus is applied.
        */
-      neuron_set: components["schemas"]["NeuronSetReference"];
+      neuron_set?: components["schemas"]["NeuronSetReference"] | null;
       /**
        * Timestamp Offset
        * @description The offset of the stimulus relative to each timestamp in milliseconds (ms).
@@ -1364,7 +2775,7 @@ export interface components {
       /**
        * Duration
        * @description Time duration in milliseconds for how long input is activated.
-       * @default 1
+       * @default 200
        */
       duration: number | number[];
       /**
@@ -1387,6 +2798,80 @@ export interface components {
       dt: number | number[];
     };
     /**
+     * Sinusoidal Poisson Spikes (Efferent)
+     * @description Spike times drawn from an inhomogeneous Poisson process with sinusoidal rate.
+     *
+     *     Sinusoid defined by a minimum and maximum rate.
+     *
+     *     Sent from all neurons in the source neuron set to efferently connected
+     *     neurons in the target neuron set.
+     */
+    SinusoidalPoissonSpikeStimulus: {
+      /**
+       * @description discriminator enum property added by openapi-typescript
+       * @enum {string}
+       */
+      type: "SinusoidalPoissonSpikeStimulus";
+      /**
+       * Timestamps
+       * @description Timestamps at which the stimulus is applied.
+       */
+      timestamps?: components["schemas"]["TimestampsReference"] | null;
+      /**
+       * Neuron Set (Source)
+       * @description Source neuron set to simulate
+       */
+      source_neuron_set?: components["schemas"]["NeuronSetReference"] | null;
+      /**
+       * Neuron Set (Target)
+       * @description Target neuron set to simulate
+       */
+      targeted_neuron_set?: components["schemas"]["NeuronSetReference"] | null;
+      /**
+       * Timestamp Offset
+       * @description The offset of the stimulus relative to each timestamp in milliseconds (ms).
+       * @default 0
+       */
+      timestamp_offset: number | number[] | null;
+      /**
+       * Duration
+       * @description Time duration of the stimulus in milliseconds.
+       * @default 200
+       */
+      duration: number | number[];
+      /**
+       * Minimum Rate
+       * @description Minimum rate of the stimulus in Hz.
+       *      Must be less than the Maximum Rate.
+       * @default 0.00001
+       */
+      minimum_rate: number | number[];
+      /**
+       * Maximum Rate
+       * @description Maximum rate of the stimulus in Hz. Must be greater than or equal to Minimum Rate.
+       * @default 10
+       */
+      maximum_rate: number | number[];
+      /**
+       * Modulation Frequency
+       * @description Frequency (Hz) of the sinusoidal modulation of the rate.
+       * @default 5
+       */
+      modulation_frequency_hz: number | number[];
+      /**
+       * Phase Offset
+       * @description Phase offset (degrees) of the sinusoid.
+       * @default 0
+       */
+      phase_degrees: number | number[];
+      /**
+       * Random Seed
+       * @description Seed for the random number generator to ensure reproducibility.
+       * @default 0
+       */
+      random_seed: number | number[];
+    };
+    /**
      * Soma Voltage Recording (Full Experiment)
      * @description Records the soma voltage of a neuron set for the full length of the experiment.
      */
@@ -1400,42 +2885,35 @@ export interface components {
        * Neuron Set
        * @description Neuron set to record from.
        */
-      neuron_set: components["schemas"]["NeuronSetReference"];
+      neuron_set?: components["schemas"]["NeuronSetReference"] | null;
       /**
        * Timestep
        * @description Interval between recording time steps in milliseconds (ms).
        * @default 0.1
        */
-      dt: number | number[];
+      dt: number | number[] | components["schemas"]["NonNegativeFloatRange"];
     };
-    /** Spec */
-    Spec: {
-      /** Species Name */
-      species_name: string;
-      /** Species Id */
-      species_id: string;
-      /** Strains */
-      strains: {
-        [key: string]: string;
-      };
-    };
+    /**
+     * SpatialCoordinate
+     * @enum {string}
+     */
+    SpatialCoordinate: "x" | "y" | "z";
     /** Subject */
     Subject: {
       /**
        * Type
+       * @default Subject
        * @constant
        */
       type: "Subject";
       /**
        * Name
        * @description Subject name
-       * @default
        */
       name: string;
       /**
        * Description
        * @description Subject description
-       * @default
        */
       description: string;
       /**
@@ -1450,12 +2928,13 @@ export interface components {
       weight?: number | null;
       /**
        * Age value
-       * @description Age value interval.
+       * Format: duration
+       * @description Age value.
        */
-      age_value?: string | null;
+      age_value: string;
       /**
-       * Minimum age range
-       * @description Minimum age range
+       * Minimum age (of range)
+       * @description Minimum age (of range)
        */
       age_min?: string | null;
       /**
@@ -1465,6 +2944,25 @@ export interface components {
       age_max?: string | null;
       /** @default unknown */
       age_period: components["schemas"]["AgePeriod"] | null;
+      /**
+       * Species Id
+       * Format: uuid
+       * @description Species UUID
+       */
+      species_id: string;
+      /** Strain Id */
+      strain_id?: string | null;
+    };
+    /** SubjectID */
+    SubjectID: {
+      /**
+       * Type
+       * @default SubjectID
+       * @constant
+       */
+      type: "SubjectID";
+      /** Subject Id */
+      subject_id?: string | null;
     };
     /**
      * Subthreshold Somatic Current Clamp (Relative)
@@ -1480,12 +2978,12 @@ export interface components {
        * Timestamps
        * @description Timestamps at which the stimulus is applied.
        */
-      timestamps: components["schemas"]["TimestampsReference"];
+      timestamps?: components["schemas"]["TimestampsReference"] | null;
       /**
        * Neuron Set
        * @description Neuron set to which the stimulus is applied.
        */
-      neuron_set: components["schemas"]["NeuronSetReference"];
+      neuron_set?: components["schemas"]["NeuronSetReference"] | null;
       /**
        * Timestamp Offset
        * @description The offset of the stimulus relative to each timestamp in milliseconds (ms).
@@ -1495,7 +2993,7 @@ export interface components {
       /**
        * Duration
        * @description Time duration in milliseconds for how long input is activated.
-       * @default 1
+       * @default 200
        */
       duration: number | number[];
       /**
@@ -1519,10 +3017,26 @@ export interface components {
       type: "SynapticMgManipulation";
       /**
        * Extracellular Magnesium Concentration
-       * @description Extracellular calcium concentration in millimoles (mM).
+       * @description Extracellular magnesium concentration in millimoles (mM).
        * @default 2.4
        */
       magnesium_value: number | number[];
+    };
+    /** Double exponential denominator equation for \tau_m */
+    ThermoFitMTau: {
+      /**
+       * @description discriminator enum property added by openapi-typescript
+       * @enum {string}
+       */
+      type: "ThermoFitMTau";
+    };
+    /** Double exponential denominator equation with slope constraint for \tau_m */
+    ThermoFitMTauV2: {
+      /**
+       * @description discriminator enum property added by openapi-typescript
+       * @enum {string}
+       */
+      type: "ThermoFitMTauV2";
     };
     /**
      * Soma Voltage Recording (Time Window)
@@ -1538,13 +3052,13 @@ export interface components {
        * Neuron Set
        * @description Neuron set to record from.
        */
-      neuron_set: components["schemas"]["NeuronSetReference"];
+      neuron_set?: components["schemas"]["NeuronSetReference"] | null;
       /**
        * Timestep
        * @description Interval between recording time steps in milliseconds (ms).
        * @default 0.1
        */
-      dt: number | number[];
+      dt: number | number[] | components["schemas"]["NonNegativeFloatRange"];
       /**
        * Start Time
        * @description Recording start time in milliseconds (ms).
@@ -1572,6 +3086,7 @@ export interface components {
       block_name: string;
       /**
        * Type
+       * @default TimestampsReference
        * @constant
        */
       type: "TimestampsReference";
@@ -1638,28 +3153,60 @@ export interface components {
       sample_seed: number | number[];
     };
     /** Initialize */
-    obi_one__scientific__morphology_metrics__morphology_metrics__MorphologyMetricsForm__Initialize: {
+    obi_one__scientific__tasks__basic_connectivity_plots__BasicConnectivityPlotsScanConfig__Initialize: {
       /**
        * Type
+       * @default BasicConnectivityPlotsScanConfig.Initialize
        * @constant
        */
-      type: "MorphologyMetricsForm.Initialize";
+      type: "BasicConnectivityPlotsScanConfig.Initialize";
+      /** Matrix Path */
+      matrix_path:
+        | components["schemas"]["NamedPath"]
+        | components["schemas"]["NamedPath"][];
       /**
-       * Morphology
-       * @description 3. Morphology description
+       * Plot Formats
+       * @default [
+       *       "png",
+       *       "pdf",
+       *       "svg"
+       *     ]
        */
-      morphology:
-        | components["schemas"]["ReconstructionMorphologyFromID"]
-        | components["schemas"]["ReconstructionMorphologyFromID"][];
+      plot_formats: string[];
+      /**
+       * Plot Types
+       * @default [
+       *       "nodes",
+       *       "connectivity_global",
+       *       "connectivity_pathway",
+       *       "small_adj_and_stats",
+       *       "network_in_2D",
+       *       "property_table"
+       *     ]
+       */
+      plot_types: string[];
+      /** Rendering Cmap */
+      rendering_cmap?: string | null;
+      /** Rendering Color File */
+      rendering_color_file?: string | null;
+      /**
+       * Dpi
+       * @default 300
+       */
+      dpi: number;
     };
     /** Initialize */
-    obi_one__scientific__simulation__simulations__SimulationsForm__Initialize: {
+    obi_one__scientific__tasks__circuit_extraction__CircuitExtractionScanConfig__Initialize: {
       /**
        * Type
+       * @default CircuitExtractionScanConfig.Initialize
        * @constant
        */
-      type: "SimulationsForm.Initialize";
-      /** Circuit */
+      type: "CircuitExtractionScanConfig.Initialize";
+      /**
+       * Circuit
+       * @description Parent circuit to extract a sub-circuit from.
+       */
       circuit:
         | (
             | components["schemas"]["Circuit"]
@@ -1670,10 +3217,165 @@ export interface components {
             | components["schemas"]["CircuitFromID"]
           )[];
       /**
-       * Neuron Set
-       * @description Neuron set to simulate.
+       * Include Virtual Populations
+       * @description Include virtual neurons which target the cells contained in the specified neuron set (together with their connectivity onto the specified neuron set) in the extracted sub-circuit.
+       * @default true
        */
-      node_set: components["schemas"]["NeuronSetReference"];
+      do_virtual: boolean;
+      /**
+       * Create External Population
+       * @description Convert (non-virtual) neurons which are outside of the specified neuron set, but which target the cells contained therein, into a new external population of virtual neurons (together with their connectivity onto the specified neuron set).
+       * @default true
+       */
+      create_external: boolean;
+    };
+    /** Initialize */
+    obi_one__scientific__tasks__connectivity_matrix_extraction__ConnectivityMatrixExtractionScanConfig__Initialize: {
+      /**
+       * Type
+       * @default ConnectivityMatrixExtractionScanConfig.Initialize
+       * @constant
+       */
+      type: "ConnectivityMatrixExtractionScanConfig.Initialize";
+      /** Circuit */
+      circuit:
+        | components["schemas"]["Circuit"]
+        | components["schemas"]["Circuit"][];
+      /** Edge Population */
+      edge_population?: string | (string | null)[] | null;
+      /** Node Attributes */
+      node_attributes?: string[] | (string[] | null)[] | null;
+    };
+    /** Initialize */
+    obi_one__scientific__tasks__ephys_extraction__ElectrophysiologyMetricsScanConfig__Initialize: {
+      /**
+       * Type
+       * @default ElectrophysiologyMetricsScanConfig.Initialize
+       * @constant
+       */
+      type: "ElectrophysiologyMetricsScanConfig.Initialize";
+      /**
+       * Trace Id
+       * @description ID of the trace of interest.
+       */
+      trace_id: string;
+      /**
+       * Protocols
+       * @description Type of stimuli requested by the user. Should be one                 of: 'spontaneous', 'idrest', 'idthreshold', 'apwaveform', 'iv', 'step', 'sponaps', 'firepattern', 'spontaneousnohold', 'starthold', 'startnohold', 'delta', 'sahp', 'idhyperpol', 'irdepol', 'irhyperpol', 'iddepol', 'apthreshold', 'hyperdepol', 'negcheops', 'poscheops', 'spikerec', 'sinespec', 'genericstep'.
+       */
+      protocols?:
+        | (
+            | "spontaneous"
+            | "idrest"
+            | "idthreshold"
+            | "apwaveform"
+            | "iv"
+            | "step"
+            | "sponaps"
+            | "firepattern"
+            | "spontaneousnohold"
+            | "starthold"
+            | "startnohold"
+            | "delta"
+            | "sahp"
+            | "idhyperpol"
+            | "irdepol"
+            | "irhyperpol"
+            | "iddepol"
+            | "apthreshold"
+            | "hyperdepol"
+            | "negcheops"
+            | "poscheops"
+            | "spikerec"
+            | "sinespec"
+            | "genericstep"
+          )[]
+        | null;
+      /**
+       * Requested Metrics
+       * @description Feature requested by the user. Should be one of 'spike_count','time_to_first_spike', 'time_to_last_spike','inv_time_to_first_spike', 'doublet_ISI', 'inv_first_ISI','ISI_log_slope', 'ISI_CV', 'irregularity_index', 'adaptation_index','mean_frequency', 'strict_burst_number', 'strict_burst_mean_freq','spikes_per_burst', 'AP_height', 'AP_amplitude', 'AP1_amp', 'APlast_amp','AP_duration_half_width', 'AHP_depth', 'AHP_time_from_peak','AP_peak_upstroke', 'AP_peak_downstroke', 'voltage_base','voltage_after_stim', 'ohmic_input_resistance_vb_ssse','steady_state_voltage_stimend', 'sag_amplitude','decay_time_constant_after_stim', 'depol_block_bool'
+       */
+      requested_metrics?:
+        | (
+            | "spike_count"
+            | "time_to_first_spike"
+            | "time_to_last_spike"
+            | "inv_time_to_first_spike"
+            | "doublet_ISI"
+            | "inv_first_ISI"
+            | "ISI_log_slope"
+            | "ISI_CV"
+            | "irregularity_index"
+            | "adaptation_index"
+            | "mean_frequency"
+            | "strict_burst_number"
+            | "strict_burst_mean_freq"
+            | "spikes_per_burst"
+            | "AP_height"
+            | "AP_amplitude"
+            | "AP1_amp"
+            | "APlast_amp"
+            | "AP_duration_half_width"
+            | "AHP_depth"
+            | "AHP_time_from_peak"
+            | "AP_peak_upstroke"
+            | "AP_peak_downstroke"
+            | "voltage_base"
+            | "voltage_after_stim"
+            | "ohmic_input_resistance_vb_ssse"
+            | "steady_state_voltage_stimend"
+            | "sag_amplitude"
+            | "decay_time_constant_after_stim"
+            | "depol_block_bool"
+          )[]
+        | null;
+      /** @description Amplitude of the protocol (should be specified in nA).Can be a range of amplitudes with min and max valuesCan be None (if the user does not specify it) and all the amplitudes are going to be taken into account. */
+      amplitude?: components["schemas"]["AmplitudeInput"] | null;
+    };
+    /** Initialize */
+    obi_one__scientific__tasks__folder_compression__FolderCompressionScanConfig__Initialize: {
+      /**
+       * Type
+       * @default FolderCompressionScanConfig.Initialize
+       * @constant
+       */
+      type: "FolderCompressionScanConfig.Initialize";
+      /** Folder Path */
+      folder_path:
+        | components["schemas"]["NamedPath"]
+        | components["schemas"]["NamedPath"][];
+      /**
+       * File Format
+       * @default gz
+       */
+      file_format: string | (string | null)[] | null;
+      /**
+       * File Name
+       * @default compressed
+       */
+      file_name: string | (string | null)[] | null;
+    };
+    /** Initialize */
+    obi_one__scientific__tasks__generate_simulation_configs__CircuitSimulationScanConfig__Initialize: {
+      /**
+       * Type
+       * @default CircuitSimulationScanConfig.Initialize
+       * @constant
+       */
+      type: "CircuitSimulationScanConfig.Initialize";
+      /**
+       * Circuit
+       * @description Circuit to simulate.
+       */
+      circuit:
+        | (
+            | components["schemas"]["Circuit"]
+            | components["schemas"]["CircuitFromID"]
+          )
+        | (
+            | components["schemas"]["Circuit"]
+            | components["schemas"]["CircuitFromID"]
+          )[];
       /**
        * Duration
        * @description Simulation length in milliseconds (ms).
@@ -1685,19 +3387,256 @@ export interface components {
        * @description Extracellular calcium concentration around the synapse in millimoles (mM). Increasing this value increases the probability of synaptic vesicle release, which in turn increases the level of network activity. In vivo values are estimated to be ~0.9-1.2mM, whilst in vitro values are on the order of 2mM.
        * @default 1.1
        */
-      extracellular_calcium_concentration: number[] | number;
+      extracellular_calcium_concentration: number | number[];
       /**
        * Initial Voltage
        * @description Initial membrane potential in millivolts (mV).
        * @default -80
        */
-      v_init: number[] | number;
+      v_init: number | number[];
       /**
        * Random Seed
        * @description Random seed for the simulation.
        * @default 1
        */
-      random_seed: number[] | number;
+      random_seed: number | number[];
+      /**
+       * Neuron Set
+       * @description Neuron set to simulate.
+       */
+      node_set?: components["schemas"]["NeuronSetReference"] | null;
+    };
+    /** Initialize */
+    obi_one__scientific__tasks__generate_simulation_configs__MEModelSimulationScanConfig__Initialize: {
+      /**
+       * Type
+       * @default MEModelSimulationScanConfig.Initialize
+       * @constant
+       */
+      type: "MEModelSimulationScanConfig.Initialize";
+      /**
+       * ME Model
+       * @description ME Model to simulate.
+       */
+      circuit:
+        | (
+            | components["schemas"]["MEModelCircuit"]
+            | components["schemas"]["MEModelFromID"]
+          )
+        | (
+            | components["schemas"]["MEModelCircuit"]
+            | components["schemas"]["MEModelFromID"]
+          )[];
+      /**
+       * Duration
+       * @description Simulation length in milliseconds (ms).
+       * @default 1000
+       */
+      simulation_length: number | number[];
+      /**
+       * Extracellular Calcium Concentration
+       * @description Extracellular calcium concentration around the synapse in millimoles (mM). Increasing this value increases the probability of synaptic vesicle release, which in turn increases the level of network activity. In vivo values are estimated to be ~0.9-1.2mM, whilst in vitro values are on the order of 2mM.
+       * @default 1.1
+       */
+      extracellular_calcium_concentration: number | number[];
+      /**
+       * Initial Voltage
+       * @description Initial membrane potential in millivolts (mV).
+       * @default -80
+       */
+      v_init: number | number[];
+      /**
+       * Random Seed
+       * @description Random seed for the simulation.
+       * @default 1
+       */
+      random_seed: number | number[];
+    };
+    /** Initialize */
+    obi_one__scientific__tasks__generate_simulation_configs__MEModelWithSynapsesCircuitSimulationScanConfig__Initialize: {
+      /**
+       * Type
+       * @default MEModelWithSynapsesCircuitSimulationScanConfig.Initialize
+       * @constant
+       */
+      type: "MEModelWithSynapsesCircuitSimulationScanConfig.Initialize";
+      /**
+       * MEModel With Synapses
+       * @description MEModel with synapses to simulate.
+       */
+      circuit:
+        | (
+            | components["schemas"]["MEModelWithSynapsesCircuit"]
+            | components["schemas"]["MEModelWithSynapsesCircuitFromID"]
+          )
+        | (
+            | components["schemas"]["MEModelWithSynapsesCircuit"]
+            | components["schemas"]["MEModelWithSynapsesCircuitFromID"]
+          )[];
+      /**
+       * Duration
+       * @description Simulation length in milliseconds (ms).
+       * @default 1000
+       */
+      simulation_length: number | number[];
+      /**
+       * Extracellular Calcium Concentration
+       * @description Extracellular calcium concentration around the synapse in millimoles (mM). Increasing this value increases the probability of synaptic vesicle release, which in turn increases the level of network activity. In vivo values are estimated to be ~0.9-1.2mM, whilst in vitro values are on the order of 2mM.
+       * @default 1.1
+       */
+      extracellular_calcium_concentration: number | number[];
+      /**
+       * Initial Voltage
+       * @description Initial membrane potential in millivolts (mV).
+       * @default -80
+       */
+      v_init: number | number[];
+      /**
+       * Random Seed
+       * @description Random seed for the simulation.
+       * @default 1
+       */
+      random_seed: number | number[];
+    };
+    /** Initialize */
+    obi_one__scientific__tasks__ion_channel_modeling__IonChannelFittingScanConfig__Initialize: {
+      /**
+       * Type
+       * @default IonChannelFittingScanConfig.Initialize
+       * @constant
+       */
+      type: "IonChannelFittingScanConfig.Initialize";
+      /**
+       * Ion channel recording
+       * @description IDs of the traces of interest.
+       */
+      recordings: components["schemas"]["IonChannelRecordingFromID"];
+      /**
+       * Ion channel name
+       * @description The name you want to give to the generated ion channel model (used as SUFFIX in the mod file). Name must start with a letter or underscore, and can only contain letters, numbers, and underscores.
+       * @default DefaultIonChannelName
+       */
+      ion_channel_name: string;
+    };
+    /** Initialize */
+    obi_one__scientific__tasks__morphology_containerization__MorphologyContainerizationScanConfig__Initialize: {
+      /**
+       * Type
+       * @default MorphologyContainerizationScanConfig.Initialize
+       * @constant
+       */
+      type: "MorphologyContainerizationScanConfig.Initialize";
+      /** Circuit */
+      circuit:
+        | components["schemas"]["Circuit"]
+        | components["schemas"]["Circuit"][];
+      /** Hoc Template Old */
+      hoc_template_old: string;
+      /** Hoc Template New */
+      hoc_template_new: string;
+    };
+    /** Initialize */
+    obi_one__scientific__tasks__morphology_decontainerization__MorphologyDecontainerizationScanConfig__Initialize: {
+      /**
+       * Type
+       * @default MorphologyDecontainerizationScanConfig.Initialize
+       * @constant
+       */
+      type: "MorphologyDecontainerizationScanConfig.Initialize";
+      /** Circuit */
+      circuit:
+        | components["schemas"]["Circuit"]
+        | components["schemas"]["Circuit"][];
+      /**
+       * Output Format
+       * @default h5
+       */
+      output_format: ("h5" | "asc" | "swc") | ("h5" | "asc" | "swc")[];
+    };
+    /** Initialize */
+    obi_one__scientific__tasks__morphology_locations__MorphologyLocationsScanConfig__Initialize: {
+      /**
+       * Type
+       * @default MorphologyLocationsScanConfig.Initialize
+       * @constant
+       */
+      type: "MorphologyLocationsScanConfig.Initialize";
+      /**
+       * Morphology
+       * @description The morphology skeleton to place locations on
+       */
+      morphology:
+        | components["schemas"]["CellMorphologyFromID"]
+        | components["schemas"]["CellMorphologyFromID"][]
+        | string
+        | string[];
+    };
+    /** Initialize */
+    obi_one__scientific__tasks__morphology_metrics__MorphologyMetricsScanConfig__Initialize: {
+      /**
+       * Type
+       * @default MorphologyMetricsScanConfig.Initialize
+       * @constant
+       */
+      type: "MorphologyMetricsScanConfig.Initialize";
+      /**
+       * Morphology
+       * @description 3. Morphology description
+       */
+      morphology:
+        | components["schemas"]["CellMorphologyFromID"]
+        | components["schemas"]["CellMorphologyFromID"][];
+    };
+    /** Initialize */
+    obi_one__scientific__unions__aliases__SimulationsForm__Initialize: {
+      /**
+       * Type
+       * @default SimulationsForm.Initialize
+       * @constant
+       */
+      type: "SimulationsForm.Initialize";
+      /**
+       * Circuit
+       * @description Circuit to simulate.
+       */
+      circuit:
+        | (
+            | components["schemas"]["Circuit"]
+            | components["schemas"]["CircuitFromID"]
+          )
+        | (
+            | components["schemas"]["Circuit"]
+            | components["schemas"]["CircuitFromID"]
+          )[];
+      /**
+       * Duration
+       * @description Simulation length in milliseconds (ms).
+       * @default 1000
+       */
+      simulation_length: number | number[];
+      /**
+       * Extracellular Calcium Concentration
+       * @description Extracellular calcium concentration around the synapse in millimoles (mM). Increasing this value increases the probability of synaptic vesicle release, which in turn increases the level of network activity. In vivo values are estimated to be ~0.9-1.2mM, whilst in vitro values are on the order of 2mM.
+       * @default 1.1
+       */
+      extracellular_calcium_concentration: number | number[];
+      /**
+       * Initial Voltage
+       * @description Initial membrane potential in millivolts (mV).
+       * @default -80
+       */
+      v_init: number | number[];
+      /**
+       * Random Seed
+       * @description Random seed for the simulation.
+       * @default 1
+       */
+      random_seed: number | number[];
+      /**
+       * Neuron Set
+       * @description Neuron set to simulate.
+       */
+      node_set?: components["schemas"]["NeuronSetReference"] | null;
     };
   };
   responses: never;
@@ -1774,43 +3713,56 @@ export interface operations {
       };
     };
   };
-  neuron_morphology_metrics_endpoint_declared_neuron_morphology_metrics__reconstruction_morphology_id__get: {
+  connectivity_metrics_endpoint_declared_connectivity_metrics_post: {
+    parameters: {
+      query?: never;
+      header?: {
+        "virtual-lab-id"?: string | null;
+        "project-id"?: string | null;
+      };
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["ConnectivityMetricsRequest"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ConnectivityMetricsOutput"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  circuit_metrics_endpoint_declared_circuit_metrics__circuit_id__get: {
     parameters: {
       query?: {
-        /** @description List of requested metrics */
-        requested_metrics?:
-          | (
-              | "aspect_ratio"
-              | "circularity"
-              | "length_fraction_above_soma"
-              | "max_radial_distance"
-              | "number_of_neurites"
-              | "soma_radius"
-              | "soma_surface_area"
-              | "total_length"
-              | "total_height"
-              | "total_width"
-              | "total_depth"
-              | "total_area"
-              | "total_volume"
-              | "section_lengths"
-              | "segment_radii"
-              | "number_of_sections"
-              | "local_bifurcation_angles"
-              | "remote_bifurcation_angles"
-              | "section_path_distances"
-              | "section_radial_distances"
-              | "section_branch_orders"
-              | "section_strahler_orders"
-            )[]
-          | null;
+        /** @description Level of detail for node populations analysis */
+        level_of_detail_nodes?: components["schemas"]["CircuitStatsLevelOfDetail"];
+        /** @description Level of detail for edge populations analysis */
+        level_of_detail_edges?: components["schemas"]["CircuitStatsLevelOfDetail"];
       };
       header?: {
         "virtual-lab-id"?: string | null;
         "project-id"?: string | null;
       };
       path: {
-        reconstruction_morphology_id: string;
+        circuit_id: string;
       };
       cookie?: never;
     };
@@ -1822,7 +3774,162 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": components["schemas"]["MorphologyMetricsOutput"];
+          "application/json": components["schemas"]["CircuitMetricsOutput"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  circuit_populations_endpoint_declared_circuit__circuit_id__biophysical_populations_get: {
+    parameters: {
+      query?: never;
+      header?: {
+        "virtual-lab-id"?: string | null;
+        "project-id"?: string | null;
+      };
+      path: {
+        circuit_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["CircuitPopulationsResponse"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  circuit_nodesets_endpoint_declared_circuit__circuit_id__nodesets_get: {
+    parameters: {
+      query?: never;
+      header?: {
+        "virtual-lab-id"?: string | null;
+        "project-id"?: string | null;
+      };
+      path: {
+        circuit_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["CircuitNodesetsResponse"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  mapped_circuit_properties_endpoint_declared_mapped_circuit_properties__circuit_id__get: {
+    parameters: {
+      query?: never;
+      header?: {
+        "virtual-lab-id"?: string | null;
+        "project-id"?: string | null;
+      };
+      path: {
+        circuit_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            [key: string]: unknown;
+          };
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  grid_scan_parameters_count_endpoint_declared_scan_config_grid_scan_coordinate_count_post: {
+    parameters: {
+      query?: never;
+      header?: {
+        "virtual-lab-id"?: string | null;
+        "project-id"?: string | null;
+      };
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json":
+          | components["schemas"]["CircuitSimulationScanConfig"]
+          | components["schemas"]["SimulationsForm"]
+          | components["schemas"]["CircuitExtractionScanConfig"]
+          | components["schemas"]["BasicConnectivityPlotsScanConfig"]
+          | components["schemas"]["ConnectivityMatrixExtractionScanConfig"]
+          | components["schemas"]["ContributeMorphologyScanConfig"]
+          | components["schemas"]["FolderCompressionScanConfig"]
+          | components["schemas"]["MEModelSimulationScanConfig"]
+          | components["schemas"]["MorphologyContainerizationScanConfig"]
+          | components["schemas"]["ElectrophysiologyMetricsScanConfig"]
+          | components["schemas"]["MorphologyDecontainerizationScanConfig"]
+          | components["schemas"]["MorphologyMetricsScanConfig"]
+          | components["schemas"]["MorphologyLocationsScanConfig"]
+          | components["schemas"]["IonChannelFittingScanConfig"]
+          | components["schemas"]["MEModelWithSynapsesCircuitSimulationScanConfig"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": number;
         };
       };
       /** @description Validation Error */
@@ -1877,14 +3984,13 @@ export interface operations {
           | (
               | "spontaneous"
               | "idrest"
-              | "idthres"
+              | "idthreshold"
               | "apwaveform"
               | "iv"
               | "step"
-              | "spontaps"
+              | "sponaps"
               | "firepattern"
-              | "sponnohold30"
-              | "sponhold30"
+              | "spontaneousnohold"
               | "starthold"
               | "startnohold"
               | "delta"
@@ -1893,13 +3999,13 @@ export interface operations {
               | "irdepol"
               | "irhyperpol"
               | "iddepol"
-              | "ramp"
-              | "ap_thresh"
+              | "apthreshold"
               | "hyperdepol"
               | "negcheops"
               | "poscheops"
               | "spikerec"
               | "sinespec"
+              | "genericstep"
             )[]
           | null;
         min_value?: number | null;
@@ -1936,7 +4042,108 @@ export interface operations {
       };
     };
   };
-  endpoint_generated_simulations_generate_grid_post: {
+  neuron_morphology_metrics_endpoint_declared_neuron_morphology_metrics__cell_morphology_id__get: {
+    parameters: {
+      query?: {
+        /** @description List of requested metrics */
+        requested_metrics?:
+          | (
+              | "aspect_ratio"
+              | "circularity"
+              | "length_fraction_above_soma"
+              | "max_radial_distance"
+              | "number_of_neurites"
+              | "soma_radius"
+              | "soma_surface_area"
+              | "total_length"
+              | "total_height"
+              | "total_width"
+              | "total_depth"
+              | "total_area"
+              | "total_volume"
+              | "section_lengths"
+              | "segment_radii"
+              | "number_of_sections"
+              | "local_bifurcation_angles"
+              | "remote_bifurcation_angles"
+              | "section_path_distances"
+              | "section_radial_distances"
+              | "section_branch_orders"
+              | "section_strahler_orders"
+            )[]
+          | null;
+      };
+      header?: {
+        "virtual-lab-id"?: string | null;
+        "project-id"?: string | null;
+      };
+      path: {
+        cell_morphology_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["MorphologyMetricsOutput"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  test_neuron_file_declared_test_neuron_file_post: {
+    parameters: {
+      query?: {
+        /** @description Convert soma to single point */
+        single_point_soma?: boolean;
+      };
+      header?: {
+        "virtual-lab-id"?: string | null;
+        "project-id"?: string | null;
+      };
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "multipart/form-data": components["schemas"]["Body_test_neuron_file_declared_test_neuron_file_post"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  morphology_metrics_calculation_declared_register_morphology_with_calculated_metrics_post: {
     parameters: {
       query?: never;
       header?: {
@@ -1948,7 +4155,204 @@ export interface operations {
     };
     requestBody: {
       content: {
-        "application/json": components["schemas"]["SimulationsForm"];
+        "multipart/form-data": components["schemas"]["Body_morphology_metrics_calculation_declared_register_morphology_with_calculated_metrics_post"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            [key: string]: unknown;
+          };
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  parametric_multi_value_endpoint_declared_parametric_multi_value_post: {
+    parameters: {
+      query?: {
+        /** @description Require all values to be ≥ this */
+        ge?: number | null;
+        /** @description Require all values to be > this */
+        gt?: number | null;
+        /** @description Require all values to be ≤ this */
+        le?: number | null;
+        /** @description Require all values to be < this */
+        lt?: number | null;
+      };
+      header?: {
+        "virtual-lab-id"?: string | null;
+        "project-id"?: string | null;
+      };
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json":
+          | components["schemas"]["IntRange"]
+          | components["schemas"]["PositiveIntRange"]
+          | components["schemas"]["NonNegativeIntRange"]
+          | components["schemas"]["FloatRange"]
+          | components["schemas"]["PositiveFloatRange"]
+          | components["schemas"]["NonNegativeFloatRange"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": number[] | number[];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  validate_nwb_file_declared_validate_electrophysiology_protocol_nwb_file_post: {
+    parameters: {
+      query?: never;
+      header?: {
+        "virtual-lab-id"?: string | null;
+        "project-id"?: string | null;
+      };
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "multipart/form-data": components["schemas"]["Body_validate_nwb_file_declared_validate_electrophysiology_protocol_nwb_file_post"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["NWBValidationResponse"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  endpoint_generated_circuit_simulation_scan_config_generate_grid_post: {
+    parameters: {
+      query?: never;
+      header?: {
+        "virtual-lab-id"?: string | null;
+        "project-id"?: string | null;
+      };
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CircuitSimulationScanConfig"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": string;
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  endpoint_generated_me_model_simulation_scan_config_generate_grid_post: {
+    parameters: {
+      query?: never;
+      header?: {
+        "virtual-lab-id"?: string | null;
+        "project-id"?: string | null;
+      };
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["MEModelSimulationScanConfig"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": string;
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  endpoint_generated_me_model_with_synapses_circuit_simulation_scan_config_generate_grid_post: {
+    parameters: {
+      query?: never;
+      header?: {
+        "virtual-lab-id"?: string | null;
+        "project-id"?: string | null;
+      };
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["MEModelWithSynapsesCircuitSimulationScanConfig"];
       };
     };
     responses: {
@@ -2008,7 +4412,7 @@ export interface operations {
       };
     };
   };
-  endpoint_generated_morphology_metrics_run_grid_post: {
+  endpoint_generated_morphology_metrics_scan_config_run_grid_post: {
     parameters: {
       query?: never;
       header?: {
@@ -2020,7 +4424,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        "application/json": components["schemas"]["MorphologyMetricsForm"];
+        "application/json": components["schemas"]["MorphologyMetricsScanConfig"];
       };
     };
     responses: {
@@ -2044,7 +4448,7 @@ export interface operations {
       };
     };
   };
-  endpoint_generated_contribute_morphology_generate_grid_post: {
+  endpoint_generated_contribute_morphology_scan_config_generate_grid_post: {
     parameters: {
       query?: never;
       header?: {
@@ -2056,7 +4460,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        "application/json": components["schemas"]["ContributeMorphologyForm"];
+        "application/json": components["schemas"]["ContributeMorphologyScanConfig"];
       };
     };
     responses: {
@@ -2080,14 +4484,21 @@ export interface operations {
       };
     };
   };
-  get_subject_data_api_subject_data_get: {
+  endpoint_generated_contribute_subject_scan_config_generate_grid_post: {
     parameters: {
       query?: never;
-      header?: never;
+      header?: {
+        "virtual-lab-id"?: string | null;
+        "project-id"?: string | null;
+      };
       path?: never;
       cookie?: never;
     };
-    requestBody?: never;
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["ContributeSubjectScanConfig"];
+      };
+    };
     responses: {
       /** @description Successful Response */
       200: {
@@ -2095,19 +4506,35 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": components["schemas"]["Spec"][];
+          "application/json": string;
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
   };
-  get_license_data_api_licenses_get: {
+  endpoint_generated_ion_channel_fitting_scan_config_generate_grid_post: {
     parameters: {
       query?: never;
-      header?: never;
+      header?: {
+        "virtual-lab-id"?: string | null;
+        "project-id"?: string | null;
+      };
       path?: never;
       cookie?: never;
     };
-    requestBody?: never;
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["IonChannelFittingScanConfig"];
+      };
+    };
     responses: {
       /** @description Successful Response */
       200: {
@@ -2115,19 +4542,35 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": components["schemas"]["Lic"][];
+          "application/json": string;
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
   };
-  get_mtype_data_api_mtypes_get: {
+  endpoint_generated_circuit_extraction_scan_config_generate_grid_post: {
     parameters: {
       query?: never;
-      header?: never;
+      header?: {
+        "virtual-lab-id"?: string | null;
+        "project-id"?: string | null;
+      };
       path?: never;
       cookie?: never;
     };
-    requestBody?: never;
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CircuitExtractionScanConfig"];
+      };
+    };
     responses: {
       /** @description Successful Response */
       200: {
@@ -2135,7 +4578,16 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": components["schemas"]["Mty"][];
+          "application/json": string;
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
