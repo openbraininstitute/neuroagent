@@ -1,5 +1,6 @@
 """Tool to generate an obi-one compatible simulation config."""
 
+import json
 from typing import Any, ClassVar
 from uuid import UUID
 
@@ -165,7 +166,7 @@ Generate only the JSON configuration, ensuring all references are internally con
 
         user_message = f"""
 CURRENT SIMULATION CONFIG JSON:
-{base_simulation_form.model_dump()}
+{json.dumps(base_simulation_form)}
 
 REQUIREMENTS:
 {self.input_schema.config_request}
@@ -203,7 +204,7 @@ REQUIREMENTS:
                 info=config.info,
             )
             patches = make_patch(
-                base_simulation_form.model_dump(), output_config.model_dump()
+                json.dumps(base_simulation_form), output_config.model_dump()
             ).patch
             for patch in patches:
                 patch["path"] = "/smc_simulation_config" + patch["path"]
