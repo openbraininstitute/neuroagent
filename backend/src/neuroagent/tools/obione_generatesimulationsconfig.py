@@ -203,9 +203,7 @@ REQUIREMENTS:
                 ),
                 info=config.info,
             )
-            patches = make_patch(
-                json.dumps(base_simulation_form), output_config.model_dump()
-            ).patch
+            patches = make_patch(base_simulation_form, output_config.model_dump()).patch
             for patch in patches:
                 patch["path"] = "/smc_simulation_config" + patch["path"]
 
