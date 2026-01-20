@@ -1,29 +1,52 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+import {
+  addCorsHeaders,
+  isCorsPreflightRequest,
+  handleCorsPreflightRequest,
+  addRequestIdHeader,
+  stripPathPrefix,
+} from './lib/middleware';
 
 /**
  * Next.js middleware for request processing
  *
- * This middleware runs on all requests and handles:
- * - Request ID generation for correlation
- * - CORS headers (additional to next.config.ts)
- * - Path prefix stripping if needed
+ * This middleware runs on all requests and handles (in order):
+ * 1. Path prefix stripping (if configured)
+ * 2. CORS preflight requests (OPTIONS)
+ * 3. Request ID generation for correlation
+ * 4. CORS headers for API routes
+ *
+ * Middleware order is important:
+ * - Path prefix stripping must happen first to normalize paths
+ * - CORS preflight must be handled early to avoid unnecessary processing
+ * - Request ID should be added to all requests for tracing
+ * - CORS headers should be added last to ensure they're on all responses
  */
 export function middleware(request: NextRequest) {
-  const response = NextResponse.next();
+  // 1. Strip path prefix if configured
+  // This modifies the request URL to remove any configured application prefix
+  const strippedRequest = stripPathPrefix(request);
 
-  // Generate and add request ID for correlation (using crypto.randomUUID from Web Crypto API)
-  const requestId = crypto.randomUUID();
-  response.headers.set('X-Request-ID', requestId);
+  // 2. Handle CORS preflight requests (OPTIONS)
+  // These should return immediately with appropriate headers
+  if (isCorsPreflightRequest(strippedRequest)) {
+    return handleCorsPreflightRequest(strippedRequest);
+  }
 
-  // Add CORS headers for API routes
-  if (request.nextUrl.pathname.startsWith('/api')) {
-    response.headers.set('Access-Control-Allow-Origin', '*');
-    response.headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-    response.headers.set(
-      'Access-Control-Allow-Headers',
-      'Content-Type, Authorization, X-Request-ID'
-    );
+  // 3. Continue with the request
+  const response = NextResponse.next({
+    request: strippedRequest,
+  });
+
+  // 4. Add request ID for correlation
+  // This allows tracing requests through logs and debugging
+  addRequestIdHeader(response, strippedRequest);
+
+  // 5. Add CORS headers for API routes
+  // This is in addition to the static headers in next.config.ts
+  if (strippedRequest.nextUrl.pathname.startsWith('/api')) {
+    addCorsHeaders(response, strippedRequest);
   }
 
   return response;

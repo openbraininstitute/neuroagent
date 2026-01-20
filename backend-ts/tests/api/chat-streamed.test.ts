@@ -1,6 +1,6 @@
 /**
  * Tests for Chat Streaming API Route
- * 
+ *
  * Tests authentication, rate limiting, thread validation, and streaming functionality.
  */
 
@@ -48,11 +48,15 @@ vi.mock('@/lib/tools', () => ({
 }));
 
 describe('Chat Streaming API Route', () => {
-  const testThreadId = crypto.randomUUID();
-  const testUserId = crypto.randomUUID();
+  let testThreadId: string;
+  let testUserId: string;
 
   beforeEach(async () => {
-    // Clean up test data
+    // Generate unique IDs for each test to avoid conflicts
+    testThreadId = crypto.randomUUID();
+    testUserId = crypto.randomUUID();
+
+    // Clean up any existing test data
     await prisma.message.deleteMany({ where: { threadId: testThreadId } });
     await prisma.thread.deleteMany({ where: { id: testThreadId } });
   });
@@ -80,7 +84,7 @@ describe('Chat Streaming API Route', () => {
       },
     });
 
-    const response = await POST(request, { params: { thread_id: testThreadId } });
+    const response = await POST(request, { params: Promise.resolve({ thread_id: testThreadId }) });
 
     expect(response.status).toBe(401);
     const body = await response.json();
@@ -117,7 +121,7 @@ describe('Chat Streaming API Route', () => {
       },
     });
 
-    const response = await POST(request, { params: { thread_id: testThreadId } });
+    const response = await POST(request, { params: Promise.resolve({ thread_id: testThreadId }) });
 
     expect(response.status).toBe(429);
     expect(response.headers.get('X-RateLimit-Limit')).toBe('20');
@@ -154,7 +158,7 @@ describe('Chat Streaming API Route', () => {
       }
     );
 
-    const response = await POST(request, { params: { thread_id: nonExistentThreadId } });
+    const response = await POST(request, { params: Promise.resolve({ thread_id: nonExistentThreadId }) });
 
     expect(response.status).toBe(404);
   });
@@ -196,7 +200,7 @@ describe('Chat Streaming API Route', () => {
       },
     });
 
-    const response = await POST(request, { params: { thread_id: testThreadId } });
+    const response = await POST(request, { params: Promise.resolve({ thread_id: testThreadId }) });
 
     expect(response.status).toBe(403);
   });
@@ -237,7 +241,7 @@ describe('Chat Streaming API Route', () => {
       },
     });
 
-    const response = await POST(request, { params: { thread_id: testThreadId } });
+    const response = await POST(request, { params: Promise.resolve({ thread_id: testThreadId }) });
 
     expect(response.status).toBe(400);
   });
@@ -282,7 +286,7 @@ describe('Chat Streaming API Route', () => {
       },
     });
 
-    const response = await POST(request, { params: { thread_id: testThreadId } });
+    const response = await POST(request, { params: Promise.resolve({ thread_id: testThreadId }) });
 
     expect(response.status).toBe(200);
     expect(response.headers.get('X-RateLimit-Limit')).toBe('20');
@@ -293,8 +297,8 @@ describe('Chat Streaming API Route', () => {
     });
 
     expect(messages.length).toBe(1);
-    expect(messages[0].entity).toBe(Entity.USER);
-    const content = JSON.parse(messages[0].content);
+    expect(messages[0]?.entity).toBe(Entity.USER);
+    const content = JSON.parse(messages[0]?.content || '{}');
     expect(content.content).toBe('Hello, how are you?');
   });
 
@@ -337,7 +341,7 @@ describe('Chat Streaming API Route', () => {
       },
     });
 
-    const response = await POST(request, { params: { thread_id: testThreadId } });
+    const response = await POST(request, { params: Promise.resolve({ thread_id: testThreadId }) });
 
     expect(response.status).toBe(413);
   });

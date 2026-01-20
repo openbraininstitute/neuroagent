@@ -22,3 +22,23 @@ export {
   RateLimitError,
   type RateLimitResult,
 } from './rate-limit';
+
+export {
+  addCorsHeaders,
+  handleCorsPreflightRequest,
+  isCorsPreflightRequest,
+} from './cors';
+
+export {
+  generateRequestId,
+  getOrGenerateRequestId,
+  addRequestIdHeader,
+  createResponseWithRequestId,
+  REQUEST_ID_HEADER,
+} from './request-id';
+
+export {
+  stripPathPrefix,
+  shouldStripPrefix,
+  withPathPrefixStripping,
+} from './path-prefix';

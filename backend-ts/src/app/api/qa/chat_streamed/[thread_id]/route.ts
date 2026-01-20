@@ -1,8 +1,8 @@
 /**
  * Chat Streaming API Route
- * 
+ *
  * Handles streaming chat responses for a specific thread.
- * 
+ *
  * Features:
  * - JWT authentication via Keycloak
  * - Rate limiting per user
@@ -11,7 +11,7 @@
  * - Streaming responses using Vercel AI SDK
  * - Token consumption tracking
  * - Query size validation
- * 
+ *
  * Requirements: 1.4, 2.1, 2.2, 2.4, 6.5, 14.1, 14.3
  */
 
@@ -65,9 +65,9 @@ export const maxDuration = 300;
 
 /**
  * POST /api/qa/chat_streamed/[thread_id]
- * 
+ *
  * Stream a chat response for the given thread.
- * 
+ *
  * @param request - Next.js request object
  * @param params - Route parameters containing thread_id
  * @returns Streaming response with chat completion
@@ -202,6 +202,7 @@ export async function POST(
       vlabId: thread.vlabId || undefined,
       projectId: thread.projectId || undefined,
       obiOneUrl: settings.tools.obiOne.url,
+      mcpConfig: settings.mcp,
     });
     console.log('[chat_streamed] Initialized', tools.length, 'tools');
 

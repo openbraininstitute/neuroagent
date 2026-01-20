@@ -1,9 +1,9 @@
 /**
  * Tools API Route
- * 
+ *
  * Endpoint:
  * - GET /api/tools - List all available tools with basic metadata
- * 
+ *
  * Features:
  * - Returns basic tool metadata (name, name_frontend)
  * - Authentication required
@@ -26,10 +26,10 @@ interface ToolMetadata {
 
 /**
  * GET /api/tools
- * 
+ *
  * Returns a list of all available tools with their basic metadata.
  * Matches the Python backend format: list of {name, name_frontend}
- * 
+ *
  * Response:
  * - Array of tool objects with name and name_frontend
  */
@@ -49,6 +49,7 @@ export async function GET(request: NextRequest) {
         vlabId: undefined, // Tools API doesn't have user context
         projectId: undefined,
         obiOneUrl: settings.tools.obiOne.url,
+        mcpConfig: settings.mcp,
       });
     }
 

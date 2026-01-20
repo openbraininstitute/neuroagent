@@ -1,5 +1,6 @@
 services:
   backend:
+    env_file: "backend/.env"
     build:
       context: ./backend
       dockerfile: Dockerfile
