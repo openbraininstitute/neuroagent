@@ -180,7 +180,7 @@ REQUIREMENTS:
                 {"role": "user", "content": user_message},
             ],
             model=model,
-            reasoning_effort="medium",
+            reasoning_effort="low",
             response_format=CircuitSimulationScanConfigModified,
         )
         if response.choices[0].message.parsed:
@@ -203,7 +203,10 @@ REQUIREMENTS:
                 ),
                 info=config.info,
             )
-            patches = make_patch(base_simulation_form, output_config.model_dump()).patch
+            patches = make_patch(
+                base_simulation_form, ts_number_normalize(output_config.model_dump())
+            ).patch
+
             for patch in patches:
                 patch["path"] = "/smc_simulation_config" + patch["path"]
 
@@ -218,3 +221,14 @@ REQUIREMENTS:
     async def is_online(cls) -> bool:
         """Check if the tool is online."""
         return True
+
+
+def ts_number_normalize(value: Any) -> Any:
+    """Cast python json to ts json."""
+    if isinstance(value, float):
+        return int(value) if value.is_integer() else value
+    if isinstance(value, list):
+        return [ts_number_normalize(v) for v in value]
+    if isinstance(value, dict):
+        return {k: ts_number_normalize(v) for k, v in value.items()}
+    return value

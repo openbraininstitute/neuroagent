@@ -64,33 +64,29 @@ export function ChatPage({
     Record<string, CircuitSimulationScanConfig>
   >({
     smc_simulation_config: {
-      type: "CircuitSimulationScanConfig",
-      timestamps: {},
-      stimuli: {},
-      recordings: {},
-      neuron_sets: {},
-      synaptic_manipulations: {},
-      initialize: {
-        type: "CircuitSimulationScanConfig.Initialize",
-        circuit: {
-          type: "CircuitFromID",
-          id_str: "",
-        },
-        node_set: {
-          block_dict_name: "",
-          block_name: "",
-          type: "NeuronSetReference",
-        },
-        simulation_length: 1000,
-        extracellular_calcium_concentration: 1.1,
-        v_init: -80,
-        random_seed: 1,
-      },
       info: {
+        campaign_description: "",
+        campaign_name: "",
         type: "Info",
-        campaign_name: "name",
-        campaign_description: "description",
       },
+      initialize: {
+        circuit: {
+          id_str: "d311460b-4169-407c-b9c9-39015fa1e65a",
+          type: "CircuitFromID",
+        },
+        extracellular_calcium_concentration: 1.1,
+        node_set: null,
+        random_seed: 1,
+        simulation_length: 1000.0,
+        type: "CircuitSimulationScanConfig.Initialize",
+        v_init: -80.0,
+      },
+      neuron_sets: {},
+      recordings: {},
+      stimuli: {},
+      synaptic_manipulations: {},
+      timestamps: {},
+      type: "CircuitSimulationScanConfig",
     },
   });
 
