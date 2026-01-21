@@ -1,3 +1,8 @@
+---
+tags:
+  - Explore
+---
+
 # What Neuroagent Can Access
 
 Neuroagent connects you to a comprehensive collection of neuroscience data sources and analytical capabilities. You don't need to know which specific capability to use - just ask your question naturally, and Neuroagent will access the right information.

@@ -1,3 +1,8 @@
+---
+tags:
+  - Explore
+---
+
 # Neuroagent
 
 Neuroagent is an AI-powered conversational assistant for neuroscience research. Ask questions in natural language and get answers backed by real neuroscience data, simulations, and scientific literature.
@@ -31,5 +36,10 @@ Simply ask your questions naturally. Neuroagent understands the context of your 
 
 ## Learn More
 
+### User Guide
 - [Tool Selection](tool_selection.md) - How Neuroagent chooses the right capabilities for your question
 - [Tools](tools.md) - What types of neuroscience data and capabilities are available
+
+### Technical Documentation
+- [Architecture](architecture.md) - Core concepts and system design
+- [Data Models](data-models.md) - How information flows and is structured

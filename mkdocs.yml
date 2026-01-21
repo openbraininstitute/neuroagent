@@ -20,6 +20,17 @@ nav:
 # Plugins
 plugins:
   - search
+  - tags:
+      tags_allowed:
+        - Explore
+        - Launch notebook
+        - Contribute & Fix data
+        - Build Ion channel model
+        - Single cell simulation
+        - Paired neuron simulation
+        - Circuit simulation
+        - Neuron skeletonization
+        - Virtual labs
 
 # Documentation directory
 docs_dir: docs

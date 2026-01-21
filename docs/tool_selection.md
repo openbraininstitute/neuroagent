@@ -1,3 +1,8 @@
+---
+tags:
+  - Explore
+---
+
 # How Neuroagent Chooses the Right Tools
 
 Neuroagent has access to over 100 different capabilities for accessing neuroscience data and performing analyses. To answer your questions efficiently and accurately, it intelligently selects only the relevant capabilities for each conversation.
