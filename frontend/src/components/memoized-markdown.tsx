@@ -2,6 +2,7 @@ import { marked } from "marked";
 import { memo, useMemo } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import remarkUnwrapImages from "remark-unwrap-images";
 import PlotsInChat from "@/components/chat/plot-in-chat";
 
 const ConditionalImageRenderer = ({
@@ -19,11 +20,7 @@ const ConditionalImageRenderer = ({
 
   if (storageMatch) {
     const storageId = storageMatch[1]; // Extract the ID part
-    return (
-      <span className="block">
-        <PlotsInChat storageIds={[storageId]} fallbackUrl={src} />
-      </span>
-    );
+    return <PlotsInChat storageIds={[storageId]} fallbackUrl={src} />;
   }
 
   // Render normal image for all other URLs
@@ -39,7 +36,7 @@ const MemoizedMarkdownBlock = memo(
   ({ content }: { content: string }) => {
     return (
       <ReactMarkdown
-        remarkPlugins={[remarkGfm]}
+        remarkPlugins={[remarkGfm, remarkUnwrapImages]}
         components={{
           img: ConditionalImageRenderer,
         }}
@@ -48,10 +45,7 @@ const MemoizedMarkdownBlock = memo(
       </ReactMarkdown>
     );
   },
-  (prevProps, nextProps) => {
-    if (prevProps.content !== nextProps.content) return false;
-    return true;
-  },
+  (prevProps, nextProps) => prevProps.content === nextProps.content,
 );
 
 MemoizedMarkdownBlock.displayName = "MemoizedMarkdownBlock";
