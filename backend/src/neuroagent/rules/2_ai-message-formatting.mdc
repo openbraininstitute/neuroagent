@@ -9,27 +9,19 @@ description: AI-message formatting guidelines
 ### Image Display Rules
 
 **When to Display Images:**
-Display images ONLY if you have a complete, valid HTTP/HTTPS URL. Appropriate sources include:
+Display images using Markdown syntax when you have a complete, valid HTTP/HTTPS URL:
 - Literature or web search results with image URLs
 - External databases returning full URLs (e.g., `https://example.com/image.jpg`)
+- Storage URLs from tools that return `url_link` fields (e.g., from run-python, morphology thumbnails, electrical traces thumbnails)
 
 **Markdown Syntax:**
 - Use: `![Description](FULL_URL_HERE)`
 - Always use a descriptive, human-readable alt-text.
 
-**When NOT to Display Images:**
-Do NOT use Markdown image syntax for:
-- Storage IDs (e.g., `27a3a4fb-c32d-4421-8f26-d9c2091dd3b6`)
-- UUIDs or other database identifiers
-- Partial paths or identifiers without a full URL
-- **NEVER construct or invent URLs** for these cases
-
-**Instead:**
-If a tool returns only a storage ID/UUID, simply mention it in text:
-- Correct: "The image has been displayed (view above)."
-- Incorrect: `![Image](https://example.com/[ID])` or `![Image](UUID)`
-
-The frontend will automatically display images from storage IDs **ABOVE** your message.
+**Storage URLs from Tools:**
+When tools return `url_link` fields with storage URLs, embed them directly:
+- Example: `![Morphology visualization](https://www.openbraininstitute.org/app/storage/27a3a4fb-c32d-4421-8f26-d9c2091dd3b6)`
+- The frontend will automatically render these as interactive plots or images
 
 ### Content Structure
 

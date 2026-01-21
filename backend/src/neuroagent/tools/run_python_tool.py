@@ -28,6 +28,7 @@ class RunPythonMetadata(BaseMetadata):
     user_id: UUID
     bucket_name: str
     thread_id: UUID
+    storage_frontend_url: str
 
 
 class RunPythonOutput(BaseModel):
@@ -35,6 +36,7 @@ class RunPythonOutput(BaseModel):
 
     result: SuccessOutput | FailureOutput
     storage_id: list[str]
+    url_link: list[str]
 
 
 class RunPythonTool(BaseTool):
@@ -134,7 +136,8 @@ AVAILABLE LIBRARIES:
                         )
                     )
 
-        return RunPythonOutput(result=result, storage_id=identifiers)
+        urls = [f"{self.metadata.storage_frontend_url}/{id}" for id in identifiers]
+        return RunPythonOutput(result=result, storage_id=identifiers, url_link=urls)
 
     @classmethod
     async def is_online(cls) -> bool:

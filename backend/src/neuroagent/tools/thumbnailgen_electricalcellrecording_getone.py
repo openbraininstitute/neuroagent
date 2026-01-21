@@ -34,12 +34,14 @@ class PlotElectricalCellRecordingGetOneMetadata(BaseMetadata):
     thread_id: UUID
     vlab_id: UUID | None
     project_id: UUID | None
+    storage_frontend_url: str
 
 
 class PlotElectricalCellRecordingGetOneOutput(BaseModel):
     """Output of the PlotElectricalCellRecordingGetOneTool."""
 
     storage_id: str
+    url_link: str
 
 
 class PlotElectricalCellRecordingGetOneTool(BaseTool):
@@ -138,7 +140,10 @@ class PlotElectricalCellRecordingGetOneTool(BaseTool):
             thread_id=self.metadata.thread_id,
         )
 
-        return PlotElectricalCellRecordingGetOneOutput(storage_id=identifier)
+        url = f"{self.metadata.storage_frontend_url}/{identifier}"
+        return PlotElectricalCellRecordingGetOneOutput(
+            storage_id=identifier, url_link=url
+        )
 
     @classmethod
     async def is_online(

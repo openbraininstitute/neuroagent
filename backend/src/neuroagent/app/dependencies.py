@@ -711,6 +711,8 @@ async def get_context_variables(
     # Get the url for entitycore links
     entity_frontend_url = settings.tools.frontend_base_url.rstrip("/") + "/app/entity"
 
+    storage_frontend_url = settings.tools.frontend_base_url.rstrip("/") + "/app/storage"
+
     return {
         "bluenaas_url": settings.tools.bluenaas.url,
         "bucket_name": settings.storage.bucket_name,
@@ -727,6 +729,7 @@ async def get_context_variables(
         "python_sandbox": python_sandbox,
         "s3_client": s3_client,
         "sanity_url": settings.tools.sanity.url,
+        "storage_frontend_url": storage_frontend_url,
         "thread_id": thread.thread_id,
         "thumbnail_generation_url": settings.tools.thumbnail_generation.url,
         "usage_dict": {},

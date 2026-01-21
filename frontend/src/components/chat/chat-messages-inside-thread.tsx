@@ -92,7 +92,7 @@ export function ChatMessagesInsideThread({
                         handleMessageUpdate(message.id, updater)
                       }
                     />
-                    <PlotsInChat storageIds={getStorageID(part) || []} />
+                    {/* <PlotsInChat storageIds={getStorageID(part) || []} /> */}
                   </div>
                 );
               }

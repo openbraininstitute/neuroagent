@@ -34,12 +34,14 @@ class PlotMorphologyGetOneMetadata(BaseMetadata):
     thread_id: UUID
     vlab_id: UUID | None
     project_id: UUID | None
+    storage_frontend_url: str
 
 
 class PlotMorphologyGetOneOutput(BaseModel):
     """Output of the PlotMorphologyGetOneTool."""
 
     storage_id: str
+    url_link: str
 
 
 class PlotMorphologyGetOneTool(BaseTool):
@@ -135,7 +137,8 @@ class PlotMorphologyGetOneTool(BaseTool):
             thread_id=self.metadata.thread_id,
         )
 
-        return PlotMorphologyGetOneOutput(storage_id=identifier)
+        url = f"{self.metadata.storage_frontend_url}/{identifier}"
+        return PlotMorphologyGetOneOutput(storage_id=identifier, url_link=url)
 
     @classmethod
     async def is_online(
