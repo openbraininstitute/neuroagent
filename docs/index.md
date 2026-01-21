@@ -1,6 +1,6 @@
 ---
 tags:
-  - Explore
+  - explore
 ---
 
 # Neuroagent

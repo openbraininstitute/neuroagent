@@ -1,6 +1,6 @@
 ---
 tags:
-  - Explore
+  - explore
 ---
 
 # How Neuroagent Chooses the Right Tools

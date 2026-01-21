@@ -22,15 +22,15 @@ plugins:
   - search
   - tags:
       tags_allowed:
-        - Explore
-        - Launch notebook
-        - Contribute & Fix data
-        - Build Ion channel model
-        - Single cell simulation
-        - Paired neuron simulation
-        - Circuit simulation
-        - Neuron skeletonization
-        - Virtual labs
+        - explore
+        - launch-notebook
+        - contribute-and-fix-data
+        - build-ion-channel-model
+        - single-cell-simulation
+        - paired-neuron-simulation
+        - circuit-simulation
+        - neuron-skeletonization
+        - virtual-labs
 
 # Documentation directory
 docs_dir: docs

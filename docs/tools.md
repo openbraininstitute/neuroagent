@@ -1,6 +1,6 @@
 ---
 tags:
-  - Explore
+  - explore
 ---
 
 # What Neuroagent Can Access
