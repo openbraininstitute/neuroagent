@@ -83,7 +83,7 @@ class AnalysisNotebookResultUpdate(BaseModel):
 
 
 class CountMax(RootModel[int]):
-    root: int = Field(..., ge=0, title='Count Max')
+    root: int = Field(1, ge=0, title='Count Max')
 
 
 class AnalysisScale(RootModel[Literal['subcellular', 'cellular', 'circuit', 'system']]):
