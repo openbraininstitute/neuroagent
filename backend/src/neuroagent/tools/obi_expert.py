@@ -376,7 +376,70 @@ class Page(SanityDocument):
         return flattened
 
 
+class DocumentationGithub(SanityDocument):
+    """Schema for documentation GitHub documents."""
+
+    title: str | None = None
+    slug: dict[str, Any] | None = None
+    keywords: list[str] | None = None
+    product: list[str] | None = None
+    repository: str | None = None
+    commit: str | None = None
+    upload_date: str | None = None
+    content: str | None = None
+
+    sanity_mapping: ClassVar[dict[str, str]] = {
+        **SanityDocument.sanity_mapping,
+        "title": "title",
+        "slug": "slug",
+        "keywords": "keywords",
+        "product": "product",
+        "repository": "repository",
+        "commit": "commit",
+        "upload_date": "uploadDate",
+        "content": "content",
+    }
+
+    @field_validator("content", mode="before")
+    @classmethod
+    def flatten_content(cls, v: list[dict[str, Any]] | None) -> str | None:
+        """Flatten the content from richPortableText blocks into a single string."""
+        # Use the existing flatten_portable_text function to process the content
+        flattened = flatten_portable_text(v)
+
+        # If the result is None, return None
+        if flattened is None:
+            return None
+
+        # If the result is a string, return it directly
+        if isinstance(flattened, str):
+            return flattened
+
+        # If it's still a list, join all text elements together
+        if isinstance(flattened, list):
+            text_parts = []
+            for item in flattened:
+                if isinstance(item, str):
+                    text_parts.append(item)
+                elif isinstance(item, dict):
+                    # Extract text from various block types
+                    if "title" in item:
+                        text_parts.append(item["title"])
+                    elif "text" in item:
+                        text_parts.append(item["text"])
+                    elif "content" in item and isinstance(item["content"], str):
+                        text_parts.append(item["content"])
+
+            return " ".join(text_parts) if text_parts else ""
+
+        # If not a string, raise validation error
+        if not isinstance(flattened, str):
+            raise ValueError("Content must be a string")
+        return flattened
+
+
 SANITY_TYPE_TO_MODEL: dict[str, type[SanityDocument]] = {
+    "documentationGithub": DocumentationGithub,
     "futureFeaturesItem": FutureFeature,
     "glossaryItem": GlossaryItemDocument,
     "news": NewsDocument,
@@ -551,6 +614,7 @@ class OBIExpertInput(BaseModel):
     """Inputs for the OBI Expert tool."""
 
     document_type: Literal[
+        "documentationGithub",
         "futureFeaturesItem",
         "glossaryItem",
         "news",
@@ -584,7 +648,8 @@ class OBIExpertOutput(BaseModel):
     """Output schema for the OBI Expert tool."""
 
     results: (
-        list[FutureFeature]
+        list[DocumentationGithub]
+        | list[FutureFeature]
         | list[GlossaryItemDocument]
         | list[NewsDocument]
         | list[Page]
