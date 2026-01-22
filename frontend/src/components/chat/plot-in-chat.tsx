@@ -20,17 +20,17 @@ export default function PlotsInChat({
   }
 
   return (
-    <div className="max-w ml-20 grid grid-cols-2 gap-4">
+    <span className="max-w ml-20 block grid grid-cols-2 gap-4">
       {storageIds.map((storageId) => (
-        <div key={storageId} className="flex min-h-[27rem] justify-start">
+        <span key={storageId} className="flex min-h-[27rem] justify-start">
           <SinglePlotInChat
             key={storageId}
             storageId={storageId}
             fallbackUrl={fallbackUrl}
           />
-        </div>
+        </span>
       ))}
-    </div>
+    </span>
   );
 }
 
@@ -62,9 +62,9 @@ const SinglePlotInChat = memo(
 
     if (!category) {
       return (
-        <div className="flex h-full w-full items-center justify-center border-4">
-          <div className="h-6 w-6 animate-spin rounded-full border-2 border-gray-500 border-t-transparent p-1" />
-        </div>
+        <span className="flex h-full w-full items-center justify-center border-4">
+          <span className="inline-block h-6 w-6 animate-spin rounded-full border-2 border-gray-500 border-t-transparent p-1" />
+        </span>
       );
     }
 
