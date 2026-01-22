@@ -2195,7 +2195,6 @@ provides-extras = ["dev", "docs"]
 
 [package.metadata.requires-dev]
 dev = []
-docs = []
 
 [[package]]
 name = "neurom"
