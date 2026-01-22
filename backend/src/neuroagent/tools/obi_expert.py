@@ -382,7 +382,9 @@ class DocumentationGithub(SanityDocument):
     title: str | None = None
     slug: dict[str, Any] | None = None
     keywords: list[str] | None = None
-    product: str | None = None
+    product: list[str] | None = None
+    repository: str | None = None
+    commit: str | None = None
     upload_date: str | None = None
     content: str | None = None
 
@@ -392,6 +394,8 @@ class DocumentationGithub(SanityDocument):
         "slug": "slug",
         "keywords": "keywords",
         "product": "product",
+        "repository": "repository",
+        "commit": "commit",
         "upload_date": "uploadDate",
         "content": "content",
     }
