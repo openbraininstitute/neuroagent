@@ -41,7 +41,8 @@ const ConditionalImageRenderer = ({
       src={src}
       alt={alt}
       {...props}
-      className="ml-20 max-h-[500px] w-auto object-contain"
+      className="ml-20"
+      style={{ maxHeight: "500px", width: "auto", maxWidth: "none" }}
       onError={(e) => {
         e.currentTarget.outerHTML = `<a href="${src}" target="_blank" rel="noopener noreferrer" class="text-sm text-blue-600 underline dark:text-blue-400">${src}</a>`;
       }}

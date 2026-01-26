@@ -1,4 +1,3 @@
-import Image from "next/image";
 import Link from "next/link";
 import { Link2 } from "lucide-react";
 
@@ -18,9 +17,7 @@ export function ImagePlot({
   storageId,
 }: ImagePlotProps) {
   return (
-    <div
-      className={`relative mx-auto max-h-screen w-full max-w-2xl overflow-auto pb-2 ${!isInChat && "mx-auto"}`}
-    >
+    <div className="relative pb-2">
       {isInChat ? (
         <Link href={`/viewer/${storageId}`} className="flex gap-2">
           <Link2 className="mt-0.5" />
@@ -31,15 +28,12 @@ export function ImagePlot({
       )}
       {description && <p className="mb-4 text-gray-600">{description}</p>}
 
-      <div className="relative h-[500px] w-full rounded-md bg-white p-3">
-        <Image
-          src={url}
-          alt={title || "Plot"}
-          fill
-          className="object-contain"
-          sizes="100vw"
-        />
-      </div>
+      <img
+        src={url}
+        alt={title || "Plot"}
+        className="rounded-md bg-white p-3"
+        style={{ maxHeight: "500px", width: "auto", maxWidth: "none" }}
+      />
     </div>
   );
 }
