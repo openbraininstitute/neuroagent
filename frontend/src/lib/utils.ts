@@ -117,3 +117,19 @@ export function getStoppedStatus(
   const ann = annotations?.find((a) => a.toolCallId === toolCallId);
   return !(ann?.isComplete ?? true);
 }
+
+// Utils to get the last text part from a message
+export function getLastTextContent(message: MessageStrict): string {
+  const lastTextPart = message.parts?.findLast((p) => p.type === "text");
+  return lastTextPart?.type === "text" ? lastTextPart.text : "";
+}
+
+// Utils to check if storage IDs are embedded in text
+export function isStorageIdInText(text: string, storageIds: string[]): boolean {
+  return storageIds.some((id) => {
+    const pattern = new RegExp(
+      `/app/storage/${id.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}`,
+    );
+    return pattern.test(text);
+  });
+}

@@ -5,6 +5,8 @@ import {
   getStoppedStatus,
   getStorageID,
   getValidationStatus,
+  getLastTextContent,
+  isStorageIdInText,
 } from "@/lib/utils";
 import PlotsInChat from "@/components/chat/plot-in-chat";
 import { ChatMessageAI } from "@/components/chat/chat-message-ai";
@@ -51,8 +53,16 @@ export function ChatMessagesInsideThread({
   };
   return (
     <>
-      {messages.map((message, idx) =>
-        message.role === "assistant" ? (
+      {messages.map((message, idx) => {
+        const isStreamingLastMsg =
+          loadingStatus !== "ready" && idx === messages.length - 1;
+        const textContent = getLastTextContent(message);
+        const allMsgStorageIds =
+          message.parts
+            ?.filter((p) => p.type === "tool-invocation")
+            .flatMap((p) => getStorageID(p)) || [];
+
+        return message.role === "assistant" ? (
           <div key={message.id}>
             {message.parts.some((part) => part.type === "reasoning") && (
               <ReasoningCollapsible
@@ -61,9 +71,7 @@ export function ChatMessagesInsideThread({
                   ?.filter((part) => part.type === "reasoning")
                   .map((part) => part.reasoning)}
                 messageId={message.id}
-                isReasoning={
-                  !(loadingStatus === "ready") && idx === messages.length - 1
-                }
+                isReasoning={isStreamingLastMsg}
               />
             )}
             {message.parts?.map((part, partId) => {
@@ -77,6 +85,12 @@ export function ChatMessagesInsideThread({
                   message.annotations,
                   part.toolInvocation.toolCallId,
                 );
+                const storageIds = getStorageID(part) || [];
+                const shouldShowBackup =
+                  !isStreamingLastMsg &&
+                  storageIds.length > 0 &&
+                  !isStorageIdInText(textContent, storageIds);
+
                 return (
                   <div
                     key={`${message.id}-tool-${part.toolInvocation.toolCallId}`}
@@ -92,7 +106,9 @@ export function ChatMessagesInsideThread({
                         handleMessageUpdate(message.id, updater)
                       }
                     />
-                    {/* <PlotsInChat storageIds={getStorageID(part) || []} /> */}
+                    {shouldShowBackup && (
+                      <PlotsInChat storageIds={storageIds} />
+                    )}
                   </div>
                 );
               }
@@ -102,6 +118,7 @@ export function ChatMessagesInsideThread({
                     key={`${message.id}-text-${partId}`}
                     messageId={message.id}
                     content={part.text}
+                    validStorageIds={allMsgStorageIds}
                   />
                 );
               }
@@ -110,8 +127,8 @@ export function ChatMessagesInsideThread({
           </div>
         ) : (
           <ChatMessageHuman key={message.id} content={message.content} />
-        ),
-      )}
+        );
+      })}
       {loadingStatus !== "ready" && <ChatMessageLoading />}
     </>
   );
