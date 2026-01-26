@@ -79,7 +79,7 @@ export function Plots({ presignedUrl, isInChat, storageId }: PlotProp) {
         <h2 className="text-xl font-bold">{title?.text || title}</h2>
       )}
 
-      <div className={"plot-container h-full w-full overflow-y-auto"}>
+      <div className={"plot-container h-[500px] w-full"}>
         <Plot
           data={response.data}
           layout={themedLayout}

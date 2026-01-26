@@ -8,6 +8,7 @@ import { memo } from "react";
 
 type PlotDisplayProps = {
   storageIds: string[];
+  fallbackUrl?: string;
 };
 
 export default function PlotsInChat({ storageIds }: PlotDisplayProps) {
@@ -37,7 +38,7 @@ const SinglePlotInChat = memo(({ storageId }: { storageId: string }) => {
   if (isError || isStorageError) {
     return (
       <span className="flex">
-        <span className="inline-block rounded border border-red-200 bg-red-50 px-2 py-1 text-xs text-red-700 dark:border-red-800/50 dark:bg-red-900/20 dark:text-red-300">
+        <span className="inline-block px-2 py-1 text-xs text-red-700">
           Error loading plot
         </span>
       </span>
@@ -46,7 +47,7 @@ const SinglePlotInChat = memo(({ storageId }: { storageId: string }) => {
 
   if (!category) {
     return (
-      <span className="flex h-[27rem] w-full items-center justify-center border-4">
+      <span className="flex h-[500px] w-full items-center justify-center border-4">
         <span className="inline-block h-6 w-6 animate-spin rounded-full border-2 border-gray-500 border-t-transparent p-1" />
       </span>
     );

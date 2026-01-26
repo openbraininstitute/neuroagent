@@ -37,9 +37,7 @@ export function ImagePlot({
           alt={title || "Plot"}
           fill
           className="object-contain"
-          sizes="(max-width: 500px) 100vw,
-                (max-width: 700px) 50vw,
-                33vw"
+          sizes="100vw"
         />
       </div>
     </div>
