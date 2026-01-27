@@ -40,6 +40,10 @@ export async function GET(request: NextRequest) {
 
     const settings = getSettings();
 
+    // Extract JWT token from Authorization header
+    const authHeader = request.headers.get('authorization');
+    const jwtToken = authHeader?.replace('Bearer ', '');
+
     // Initialize tools if not already initialized
     if (toolRegistry.getAll().length === 0) {
       await initializeTools({
@@ -48,6 +52,7 @@ export async function GET(request: NextRequest) {
         entityFrontendUrl: settings.tools.frontendBaseUrl,
         vlabId: undefined, // Tools API doesn't have user context
         projectId: undefined,
+        jwtToken,  // Pass JWT token for authenticated requests
         obiOneUrl: settings.tools.obiOne.url,
         mcpConfig: settings.mcp,
       });

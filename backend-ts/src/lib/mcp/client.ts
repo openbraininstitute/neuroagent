@@ -15,8 +15,8 @@ import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js'
 import { Tool } from '@modelcontextprotocol/sdk/types.js';
 import { z } from 'zod';
 
-import { BaseTool, ToolMetadata } from '../tools/base-tool.js';
-import { MCPServerConfig, SettingsMCP } from '../config/settings.js';
+import { BaseTool, ToolMetadata } from '../tools/base-tool';
+import { MCPServerConfig, SettingsMCP } from '../config/settings';
 
 const SERVER_TOOL_SEPARATOR = '|||';
 

@@ -6,7 +6,7 @@
  */
 
 import { z } from 'zod';
-import { tool as vercelTool, CoreTool } from 'ai';
+import { tool as vercelTool, Tool } from 'ai';
 
 /**
  * Tool metadata interface
@@ -83,21 +83,14 @@ export abstract class BaseTool<TInput extends z.ZodType>
   /**
    * Convert this tool to Vercel AI SDK format
    * 
-   * This method generates a CoreTool compatible with Vercel AI SDK's
+   * This method generates a Tool compatible with Vercel AI SDK's
    * streamText function, automatically handling input validation and
-   * execution.
+   * execution. The tool() function ensures schema compatibility across
+   * all providers (OpenAI, Anthropic, Google, etc.).
    * 
-   * OpenAI Compatibility Note:
-   * OpenAI's function calling API requires that the JSON Schema includes
-   * an explicit 'required' array listing all required properties. When
-   * using Zod schemas with .optional() or .default(), zod-to-json-schema
-   * may not include the 'required' array, causing OpenAI to reject the
-   * schema. The Vercel AI SDK's tool() function handles this automatically
-   * by ensuring the 'required' array is present in the generated schema.
-   * 
-   * @returns CoreTool object for use with Vercel AI SDK
+   * @returns Tool object for use with Vercel AI SDK
    */
-  toVercelTool(): CoreTool {
+  toVercelTool(): Tool {
     return vercelTool({
       description: this.metadata.description,
       parameters: this.inputSchema,
@@ -201,10 +194,10 @@ export class ToolRegistry {
   /**
    * Get all tools as Vercel AI SDK format
    * 
-   * @returns Record mapping tool names to CoreTool objects
+   * @returns Record mapping tool names to Tool objects
    */
-  getAllAsVercelTools(): Record<string, CoreTool> {
-    const vercelTools: Record<string, CoreTool> = {};
+  getAllAsVercelTools(): Record<string, Tool> {
+    const vercelTools: Record<string, Tool> = {};
     const tools = Array.from(this.tools.values());
     for (const tool of tools) {
       vercelTools[tool.metadata.name] = tool.toVercelTool();

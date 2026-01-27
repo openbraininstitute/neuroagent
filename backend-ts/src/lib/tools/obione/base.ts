@@ -22,6 +22,9 @@ export interface OBIOneMetadata {
   
   /** Project ID for scoped queries (optional) */
   projectId?: string;
+  
+  /** JWT token for authentication (optional) */
+  jwtToken?: string;
 }
 
 /**
@@ -43,7 +46,8 @@ export abstract class OBIOneTool<TInput extends z.ZodType> extends BaseTool<TInp
   /**
    * Build headers for OBIOne API requests
    * 
-   * Includes virtual lab and project IDs if available
+   * Includes virtual lab and project IDs if available,
+   * and JWT token for authentication
    * 
    * @returns Headers object for fetch requests
    */
@@ -58,6 +62,10 @@ export abstract class OBIOneTool<TInput extends z.ZodType> extends BaseTool<TInp
 
     if (this.obiOneMetadata.projectId) {
       headers['project_id'] = this.obiOneMetadata.projectId;
+    }
+
+    if (this.obiOneMetadata.jwtToken) {
+      headers['Authorization'] = `Bearer ${this.obiOneMetadata.jwtToken}`;
     }
 
     return headers;
@@ -96,11 +104,19 @@ export abstract class OBIOneTool<TInput extends z.ZodType> extends BaseTool<TInp
     if (!response.ok) {
       const errorText = await response.text();
       throw new Error(
-        `The ${endpoint} endpoint returned a non 200 response code. Error: ${errorText}`
+        `The ${endpoint} endpoint returned a non 200 response code (${response.status}). Error: ${errorText}`
       );
     }
 
-    return response.json() as Promise<T>;
+    const data = await response.json();
+    
+    // Log response for debugging
+    console.log(`[OBIOne] Response from ${endpoint}:`, {
+      status: response.status,
+      dataPreview: JSON.stringify(data).substring(0, 200),
+    });
+
+    return data as T;
   }
 
   /**

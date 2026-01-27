@@ -12,7 +12,7 @@
  * Requirements: 6.1, 6.2, 6.3, 6.4, 6.6, 6.7
  */
 
-import { streamText, CoreMessage, CoreTool, LanguageModelUsage } from 'ai';
+import { streamText, CoreMessage, Tool, LanguageModelUsage } from 'ai';
 import { createOpenAI } from '@ai-sdk/openai';
 import { createOpenRouter } from '@openrouter/ai-sdk-provider';
 import { BaseTool } from '../tools/base-tool';
@@ -140,7 +140,7 @@ export class AgentsRoutine {
 
       // Convert tools to Vercel AI SDK format
       console.log('[streamChat] Converting tools to Vercel format...');
-      const tools: Record<string, CoreTool> = {};
+      const tools: Record<string, Tool> = {};
       for (const tool of agent.tools) {
         tools[tool.metadata.name] = tool.toVercelTool();
       }
@@ -159,7 +159,7 @@ export class AgentsRoutine {
           { role: 'system', content: agent.instructions },
           ...coreMessages,
         ],
-        maxSteps: maxTurns,
+        tools, 
         temperature: agent.temperature,
         maxTokens: agent.maxTokens,
         experimental_telemetry: {

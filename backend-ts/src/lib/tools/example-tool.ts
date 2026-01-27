@@ -17,12 +17,10 @@ const ExampleToolInputSchema = z.object({
     .number()
     .int()
     .positive()
-    .optional()
     .default(10)
     .describe('Maximum number of results to return'),
   includeMetadata: z
     .boolean()
-    .optional()
     .default(false)
     .describe('Whether to include metadata in results'),
 });

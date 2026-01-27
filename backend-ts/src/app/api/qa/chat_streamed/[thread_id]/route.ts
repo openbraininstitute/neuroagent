@@ -195,12 +195,18 @@ export async function POST(
     // 6. Initialize Tools
     // ========================================================================
     console.log('[chat_streamed] Initializing tools...');
+    
+    // Extract JWT token from Authorization header
+    const authHeader = request.headers.get('authorization');
+    const jwtToken = authHeader?.replace('Bearer ', '');
+    
     const tools = await initializeTools({
       exaApiKey: settings.tools.exaApiKey,
       entitycoreUrl: settings.tools.entitycore.url,
       entityFrontendUrl: settings.tools.frontendBaseUrl,
       vlabId: thread.vlabId || undefined,
       projectId: thread.projectId || undefined,
+      jwtToken,  // Pass JWT token to tools
       obiOneUrl: settings.tools.obiOne.url,
       mcpConfig: settings.mcp,
     });

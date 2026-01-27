@@ -10,7 +10,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { generateObject } from 'ai';
-import { openai } from '@ai-sdk/openai';
+import { createOpenAI } from '@ai-sdk/openai';
 import { z } from 'zod';
 
 import { getSettings } from '@/lib/config/settings';
@@ -18,7 +18,6 @@ import { validateAuth } from '@/lib/middleware/auth';
 import { checkRateLimit } from '@/lib/middleware/rate-limit';
 import { prisma } from '@/lib/db/client';
 import { entity } from '@prisma/client';
-import { initializeTools } from '@/lib/tools';
 
 // ============================================================================
 // Schemas
@@ -26,9 +25,10 @@ import { initializeTools } from '@/lib/tools';
 
 /**
  * Schema for question suggestions response
+ * Must match frontend expectation: { suggestions: [{ question: string }, ...] }
  */
 const QuestionsSuggestionsSchema = z.object({
-  suggestions: z.array(z.string()).length(3),
+  suggestions: z.array(z.object({ question: z.string() })).length(3),
 });
 
 /**
@@ -44,6 +44,22 @@ const RequestBodySchema = z.object({
 // ============================================================================
 // Context Analyzer
 // ============================================================================
+
+/**
+ * Get static tool descriptions for LLM context
+ * 
+ * Returns hardcoded descriptions to avoid tool initialization overhead.
+ * This is much faster than initializing all tools (especially MCP tools).
+ */
+function getToolDescriptions(): string[] {
+  return [
+    'web_search: Search the web for current information using Exa AI',
+    'literature_search: Search across 100M+ research papers using Exa AI',
+    'entitycore-brainregion-getall: Search and retrieve brain regions from EntityCore',
+    'entitycore-cellmorphology-getall: Search and retrieve cell morphologies from EntityCore',
+    'obione-circuitmetrics-getone: Get circuit metrics from OBIOne',
+  ];
+}
 
 /**
  * Analyzes frontend URL to extract page context
@@ -177,18 +193,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Initialize tools to get tool descriptions
-    const tools = await initializeTools({
-      exaApiKey: settings.tools.exaApiKey,
-      entitycoreUrl: settings.tools.entitycore.url,
-      entityFrontendUrl: settings.tools.frontendBaseUrl,
-      vlabId,
-      projectId,
-      obiOneUrl: settings.tools.obiOne.url,
-      mcpConfig: settings.mcp,
-    });
-
-    const toolInfo = tools.map((tool) => `${tool.metadata.name}: ${tool.metadata.description}`);
+    // Get tool descriptions (static, no initialization needed)
+    const toolInfo = getToolDescriptions();
 
     let systemPrompt = '';
     let userMessages: Array<{ role: 'user' | 'assistant'; content: string }> = [];
@@ -231,6 +237,7 @@ export async function POST(request: NextRequest) {
 Guidelines:
 
 - Generate three user actions, each targeting a significantly different aspect or subtopic relevant to the main topic of the conversation. Each action should be phrased exactly as if the user is instructing the system to perform the action (e.g., "Show...", "Find...", "Analyze..."). Each action should be independent, and information contained or revealed in one action cannot be re-used, referred to, or assumed in the others. Any shared context or information must be restated in each action where necessary.
+- **CRITICAL OUTPUT FORMAT**: Return a JSON object with a "suggestions" array containing exactly 3 objects, each with a "question" field containing the action string. Example: {"suggestions": [{"question": "Show me..."}, {"question": "Find..."}, {"question": "Analyze..."}]}
 - **CRITICAL**: Actions must be in imperative mood (commands), NOT interrogative (questions). Do NOT end actions with question marks. Actions must always be phrased strictly from the user's perspective only. Do NOT generate or rephrase actions from the LLM's perspective. Avoid any formulations such as: "Would you like me to...", "Should I analyze...", "Do you want me to...", "Would it be helpful if I...", "Shall I retrieve...", "Can you...", "What is..." etc.
 - Explore various distinct possibilities, e.g., visuals, metrics, literature, associated models, etc. Be creative.
 - Only include actions that can be performed using the available tools described below.
@@ -248,8 +255,9 @@ Tool Description Format
 - \`tool_name: tool_description\`
 
 Output Format
-- Output must be a JSON array (and nothing else) with exactly three strings.
-- Always return exactly three appropriate actions (never more, never less). If the conversation context or tools do not support three contextually relevant actions, produce the most logically appropriate or useful actions, ensuring the output array still contains three strings. Output must always be a JSON array, with no surrounding text or formatting.
+- Output must be a JSON object with a "suggestions" array containing exactly three objects, each with a "question" field.
+- Example: {"suggestions": [{"question": "Show me brain regions in the hippocampus"}, {"question": "Find papers about synaptic plasticity"}, {"question": "Analyze morphology data for layer 5 neurons"}]}
+- Always return exactly three appropriate actions (never more, never less). If the conversation context or tools do not support three contextually relevant actions, produce the most logically appropriate or useful actions, ensuring the output contains three question objects.
 
 Available Tools:
 ${toolInfo.join('\n')}`;
@@ -273,6 +281,12 @@ ${toolInfo.join('\n')}`;
               const headers: Record<string, string> = {};
               if (vlabId) headers['virtual-lab-id'] = vlabId;
               if (projectId) headers['project-id'] = projectId;
+              
+              // Add JWT token for authentication
+              const authHeader = request.headers.get('authorization');
+              if (authHeader) {
+                headers['Authorization'] = authHeader;
+              }
 
               const response = await fetch(
                 `${settings.tools.entitycore.url.replace(/\/$/, '')}/brain-region/${pageContext.brainRegionId}`,
@@ -352,7 +366,8 @@ Typical action patterns:
 - The remaining two actions must focus on features or data available from the current page context.
 
 Output format:
-- Output must strictly be a JSON array containing exactly three user action strings (never more, never less); do not return any surrounding text, commentary, or formatting.
+- Output must strictly be a JSON object with a "suggestions" array containing exactly three objects, each with a "question" field containing the action string.
+- Example: {"suggestions": [{"question": "Show me..."}, {"question": "Find papers about..."}, {"question": "Analyze..."}]}
 - After producing the actions, briefly validate that all requirements are satisfied (distinctness, literature, page context, tool set limits) before finalizing the output.
 
 Tool description:
@@ -363,6 +378,12 @@ ${toolInfo.join('\n')}`;
     // Generate suggestions using Vercel AI SDK
     // ========================================================================
     const messages = [{ role: 'system' as const, content: systemPrompt }, ...userMessages];
+
+    // Create OpenAI client with API key from settings
+    const openai = createOpenAI({
+      apiKey: settings.llm.openaiToken,
+      baseURL: settings.llm.openaiBaseUrl,
+    });
 
     // Prepare generation parameters
     const generateParams: any = {

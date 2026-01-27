@@ -9,21 +9,21 @@ import {
 } from './lib/middleware';
 
 /**
- * Next.js middleware for request processing
+ * Next.js proxy for request processing
  *
- * This middleware runs on all requests and handles (in order):
+ * This proxy runs on all requests and handles (in order):
  * 1. Path prefix stripping (if configured)
  * 2. CORS preflight requests (OPTIONS)
  * 3. Request ID generation for correlation
  * 4. CORS headers for API routes
  *
- * Middleware order is important:
+ * Proxy order is important:
  * - Path prefix stripping must happen first to normalize paths
  * - CORS preflight must be handled early to avoid unnecessary processing
  * - Request ID should be added to all requests for tracing
  * - CORS headers should be added last to ensure they're on all responses
  */
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   // 1. Strip path prefix if configured
   // This modifies the request URL to remove any configured application prefix
   const strippedRequest = stripPathPrefix(request);
@@ -52,7 +52,7 @@ export function middleware(request: NextRequest) {
   return response;
 }
 
-// Configure which routes use this middleware
+// Configure which routes use this proxy
 export const config = {
   matcher: [
     /*

@@ -5,19 +5,18 @@
  *
  * This module provides:
  * - Base tool classes and interfaces
- * - Tool registry for managing available tools
  * - Concrete tool implementations (Web Search, Literature Search, EntityCore, OBIOne)
  *
  * Usage:
  * ```typescript
- * import { toolRegistry, WebSearchTool, BrainRegionGetAllTool } from '@/lib/tools';
+ * import { WebSearchTool, BrainRegionGetAllTool } from '@/lib/tools';
  *
- * // Register tools
+ * // Instantiate tools with configuration
  * const webSearch = new WebSearchTool(exaApiKey);
- * toolRegistry.register(webSearch);
- *
- * // Get all tools as Vercel AI SDK format
- * const vercelTools = toolRegistry.getAllAsVercelTools();
+ * const result = await webSearch.execute({ query: 'neuroscience', num_results: 5 });
+ * 
+ * // Convert to Vercel AI SDK format
+ * const vercelTool = webSearch.toVercelTool();
  * ```
  */
 
@@ -52,6 +51,7 @@ export interface ToolConfig {
   entityFrontendUrl?: string;
   vlabId?: string;
   projectId?: string;
+  jwtToken?: string;  // JWT token for authenticated requests
 
   // OBIOne tools
   obiOneUrl?: string;
@@ -69,12 +69,10 @@ export interface ToolConfig {
 export async function initializeTools(config: ToolConfig) {
   const { toolRegistry } = await import('./base-tool');
 
-  // If tools are already registered, return them
-  const existingTools = toolRegistry.getAll();
-  if (existingTools.length > 0) {
-    return existingTools;
-  }
-
+  // IMPORTANT: Always create fresh tool instances for each request
+  // Tools contain user-specific context (JWT tokens, vlab/project IDs)
+  // and must not be shared across requests
+  
   const tools: any[] = [];
 
   // Initialize search tools
@@ -84,9 +82,6 @@ export async function initializeTools(config: ToolConfig) {
 
     const webSearch = new WebSearchTool(config.exaApiKey);
     const literatureSearch = new LiteratureSearchTool(config.exaApiKey);
-
-    toolRegistry.register(webSearch);
-    toolRegistry.register(literatureSearch);
 
     tools.push(webSearch, literatureSearch);
   }
@@ -100,13 +95,11 @@ export async function initializeTools(config: ToolConfig) {
       entityFrontendUrl: config.entityFrontendUrl,
       vlabId: config.vlabId,
       projectId: config.projectId,
+      jwtToken: config.jwtToken,  // Pass JWT token
     };
 
     const brainRegionGetAll = new BrainRegionGetAllTool(entityCoreMetadata);
     const cellMorphologyGetAll = new CellMorphologyGetAllTool(entityCoreMetadata);
-
-    toolRegistry.register(brainRegionGetAll);
-    toolRegistry.register(cellMorphologyGetAll);
 
     tools.push(brainRegionGetAll, cellMorphologyGetAll);
   }
@@ -119,11 +112,10 @@ export async function initializeTools(config: ToolConfig) {
       obiOneUrl: config.obiOneUrl,
       vlabId: config.vlabId,
       projectId: config.projectId,
+      jwtToken: config.jwtToken,  // Pass JWT token
     };
 
     const circuitMetrics = new CircuitMetricsGetOneTool(obiOneMetadata);
-
-    toolRegistry.register(circuitMetrics);
 
     tools.push(circuitMetrics);
   }
@@ -134,11 +126,6 @@ export async function initializeTools(config: ToolConfig) {
 
     try {
       const mcpTools = await initializeMCPTools(config.mcpConfig);
-
-      for (const tool of mcpTools) {
-        toolRegistry.register(tool);
-      }
-
       tools.push(...mcpTools);
     } catch (error) {
       console.error('Failed to initialize MCP tools:', error);

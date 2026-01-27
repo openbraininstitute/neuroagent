@@ -1,0 +1,365 @@
+/**
+ * Thread Messages API Route
+ * 
+ * Translated from: backend/src/neuroagent/app/routers/threads.py
+ *
+ * Endpoint:
+ * - GET /api/threads/[thread_id]/messages - Get messages for a thread
+ *
+ * Features:
+ * - Authentication required
+ * - Thread ownership validation
+ * - Two-phase pagination for Vercel format (matches Python implementation)
+ * - Entity filtering (USER, AI_MESSAGE, TOOL, AI_TOOL)
+ * - Tool HIL (Human-in-Loop) status tracking
+ */
+
+import { NextRequest, NextResponse } from 'next/server';
+import { prisma } from '@/lib/db/client';
+import {
+  validateAuth,
+  AuthenticationError,
+  AuthorizationError,
+} from '@/lib/middleware/auth';
+import { entity } from '@prisma/client';
+import { initializeTools } from '@/lib/tools';
+import { getSettings } from '@/lib/config/settings';
+
+/**
+ * Message response schema (Vercel format)
+ */
+interface MessageVercel {
+  id: string;
+  role: string;
+  createdAt: string;
+  content: string;
+  parts?: Array<{
+    type: string;
+    toolCallId?: string;
+    toolName?: string;
+    args?: unknown;
+    result?: unknown;
+  }>;
+  annotations?: Array<{
+    type: string;
+    data?: unknown;
+  }>;
+}
+
+/**
+ * Paginated response
+ */
+interface PaginatedResponse<T> {
+  results: T[];
+  next_cursor: string | null;
+  has_more: boolean;
+  page_size: number;
+}
+
+/**
+ * GET /api/threads/[thread_id]/messages
+ *
+ * Get all messages for a specific thread with pagination.
+ * 
+ * Implements two-phase query strategy for Vercel format:
+ * 1. First query: Get message IDs and metadata for pagination
+ * 2. Second query: Fetch full messages with tool calls based on IDs
+ */
+export async function GET(
+  request: NextRequest,
+  { params }: { params: Promise<{ thread_id: string }> }
+) {
+  try {
+    // Await params (Next.js 15+ requirement)
+    const { thread_id } = await params;
+    console.log('[messages] GET request for thread:', thread_id);
+
+    // Validate authentication
+    const userInfo = await validateAuth(request);
+    console.log('[messages] User authenticated:', userInfo.sub);
+
+    // Get query parameters
+    const searchParams = request.nextUrl.searchParams;
+    const pageSize = parseInt(searchParams.get('page_size') || '50', 10);
+    const cursor = searchParams.get('cursor');
+    const vercelFormat = searchParams.get('vercel_format') === 'true';
+    const sort = searchParams.get('sort') || '-creation_date';
+    const entityFilterParam = searchParams.get('entity');
+    
+    console.log('[messages] Query params:', {
+      pageSize,
+      cursor,
+      vercelFormat,
+      sort,
+      entityFilterParam,
+    });
+
+    // Validate thread exists and user owns it
+    const thread = await prisma.thread.findUnique({
+      where: { id: thread_id },
+    });
+
+    console.log('[messages] Thread found:', thread ? 'YES' : 'NO');
+    if (thread) {
+      console.log('[messages] Thread owner:', thread.userId, 'Request user:', userInfo.sub);
+    }
+
+    if (!thread) {
+      return NextResponse.json({ error: 'Thread not found' }, { status: 404 });
+    }
+
+    if (thread.userId !== userInfo.sub) {
+      return NextResponse.json(
+        { error: 'Access denied: You do not own this thread' },
+        { status: 403 }
+      );
+    }
+
+    // Get tool HIL mapping (for Vercel format annotations)
+    const settings = getSettings();
+    const authHeader = request.headers.get('authorization');
+    const jwtToken = authHeader?.replace('Bearer ', '');
+    
+    const tools = await initializeTools({
+      exaApiKey: settings.tools.exaApiKey,
+      entitycoreUrl: settings.tools.entitycore.url,
+      entityFrontendUrl: settings.tools.frontendBaseUrl,
+      vlabId: thread.vlabId || undefined,
+      projectId: thread.projectId || undefined,
+      jwtToken,
+      obiOneUrl: settings.tools.obiOne.url,
+      mcpConfig: settings.mcp,
+    });
+    
+    const toolHilMapping: Record<string, boolean> = {};
+    tools.forEach((tool) => {
+      toolHilMapping[tool.metadata.name] = tool.metadata.hil || false;
+    });
+
+    // Determine entity filter
+    let entityFilter: entity[] | null = null;
+    if (vercelFormat) {
+      entityFilter = [entity.USER, entity.AI_MESSAGE];
+    } else if (entityFilterParam) {
+      entityFilter = entityFilterParam.split(',').map((e) => e as entity);
+    }
+
+    // Build where clause for first query (IDs only)
+    const whereClause: any = {
+      threadId: thread_id,
+    };
+
+    if (entityFilter) {
+      whereClause.entity = {
+        in: entityFilter,
+      };
+    }
+
+    // Add cursor-based pagination
+    const isDescending = sort.startsWith('-') || vercelFormat;
+    if (cursor) {
+      whereClause.creationDate = isDescending
+        ? { lt: new Date(cursor) }
+        : { gt: new Date(cursor) };
+    }
+
+    // PHASE 1: Get message IDs and metadata for pagination
+    // This matches Python's first query that only selects (message_id, creation_date, entity)
+    const messageCursor = await prisma.message.findMany({
+      where: whereClause,
+      select: {
+        id: true,
+        creationDate: true,
+        entity: true,
+      },
+      orderBy: {
+        creationDate: isDescending ? 'desc' : 'asc',
+      },
+      take: pageSize + 1,
+    });
+
+    console.log('[messages] Phase 1 - Found', messageCursor.length, 'messages');
+
+    if (messageCursor.length === 0) {
+      console.log('[messages] No messages found, returning empty response');
+      return NextResponse.json({
+        results: [],
+        next_cursor: null,
+        has_more: false,
+        page_size: pageSize,
+      });
+    }
+
+    // Determine if there are more messages
+    const hasMore = messageCursor.length > pageSize;
+    let dbCursor = messageCursor;
+
+    // For non-Vercel format, trim the extra message
+    if (!vercelFormat && hasMore) {
+      dbCursor = messageCursor.slice(0, pageSize);
+    }
+
+    // PHASE 2: Fetch full messages with tool calls
+    let dbMessages;
+
+    if (vercelFormat) {
+      // Special Vercel format logic: include all tool calls from last AI message
+      const dateConditions: any = {
+        threadId: thread_id,
+      };
+
+      // Set most recent boundary to cursor if it exists
+      if (cursor) {
+        dateConditions.creationDate = { lt: new Date(cursor) };
+      }
+
+      // If there are more messages, set oldest bound
+      if (hasMore) {
+        const secondToLast = dbCursor[dbCursor.length - 2];
+        const last = dbCursor[dbCursor.length - 1];
+
+        if (secondToLast.entity === entity.USER) {
+          // Include messages >= second to last
+          dateConditions.creationDate = {
+            ...dateConditions.creationDate,
+            gte: secondToLast.creationDate,
+          };
+        } else {
+          // Include messages > last (to include all tool calls from last AI)
+          dateConditions.creationDate = {
+            ...dateConditions.creationDate,
+            gt: last.creationDate,
+          };
+        }
+      }
+
+      // Get all messages in the date frame
+      dbMessages = await prisma.message.findMany({
+        where: dateConditions,
+        include: {
+          toolCalls: true,
+        },
+        orderBy: {
+          creationDate: 'desc',
+        },
+      });
+    } else {
+      // Standard format: just get messages by IDs
+      dbMessages = await prisma.message.findMany({
+        where: {
+          id: {
+            in: dbCursor.map((m) => m.id),
+          },
+        },
+        include: {
+          toolCalls: true,
+        },
+        orderBy: {
+          creationDate: isDescending ? 'desc' : 'asc',
+        },
+      });
+    }
+
+    // Calculate next cursor
+    const nextCursor =
+      hasMore && dbCursor.length > 0
+        ? dbCursor[dbCursor.length - 1].creationDate.toISOString()
+        : null;
+
+    console.log('[messages] Phase 2 - Fetched', dbMessages.length, 'full messages');
+    console.log('[messages] Has more:', hasMore, 'Next cursor:', nextCursor);
+
+    // Format response
+    if (vercelFormat) {
+      // Return messages in descending order (newest first)
+      // Frontend will reverse them to get chronological order (oldest first) for display
+      const formattedMessages: MessageVercel[] = dbMessages
+        .filter((msg) => msg.entity === entity.USER || msg.entity === entity.AI_MESSAGE)
+        .map((msg) => {
+          const content = JSON.parse(msg.content);
+          const role =
+            msg.entity === entity.USER
+              ? 'user'
+              : msg.entity === entity.AI_MESSAGE
+                ? 'assistant'
+                : 'system';
+
+          const message: MessageVercel = {
+            id: msg.id,
+            role,
+            createdAt: msg.creationDate.toISOString(),
+            content: content.content || content,
+          };
+
+          // Add tool calls as parts if they exist
+          if (msg.toolCalls && msg.toolCalls.length > 0) {
+            message.parts = msg.toolCalls.map((tc) => ({
+              type: 'tool-call',
+              toolCallId: tc.id,
+              toolName: tc.name,
+              args: JSON.parse(tc.arguments),
+              result: tc.result ? JSON.parse(tc.result) : undefined,
+            }));
+          }
+
+          return message;
+        });
+      // Note: dbMessages are already in DESC order from the query, no need to reverse
+
+      const response: PaginatedResponse<MessageVercel> = {
+        results: formattedMessages,
+        next_cursor: nextCursor,
+        has_more: hasMore,
+        page_size: pageSize,
+      };
+
+      return NextResponse.json(response);
+    } else {
+      // Standard format
+      const formattedMessages = dbMessages.map((msg) => ({
+        message_id: msg.id,
+        entity: msg.entity,
+        thread_id: msg.threadId,
+        is_complete: msg.isComplete,
+        creation_date: msg.creationDate.toISOString(),
+        msg_content: JSON.parse(msg.content),
+        tool_calls: msg.toolCalls.map((tc) => ({
+          tool_call_id: tc.id,
+          name: tc.name,
+          arguments: JSON.parse(tc.arguments),
+          result: tc.result ? JSON.parse(tc.result) : null,
+          validated: tc.validated,
+        })),
+      }));
+
+      const response: PaginatedResponse<any> = {
+        results: formattedMessages,
+        next_cursor: nextCursor,
+        has_more: hasMore,
+        page_size: pageSize,
+      };
+
+      return NextResponse.json(response);
+    }
+  } catch (error) {
+    if (error instanceof AuthenticationError) {
+      return NextResponse.json(
+        { error: 'Authentication failed', message: error.message },
+        { status: 401 }
+      );
+    }
+
+    if (error instanceof AuthorizationError) {
+      return NextResponse.json(
+        { error: 'Authorization failed', message: error.message },
+        { status: 403 }
+      );
+    }
+
+    console.error('Error fetching messages:', error);
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    );
+  }
+}
