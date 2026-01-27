@@ -7,8 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## Added
-- Diff mechanism for small circuit simulation config.
+### Changed
+- OBI expert points at the documentationProduct instead of documentationGithub
+- Expose the `x-request-id` header for CORS requests.
+
+## [0.14.3] - 26.01.2026
+
+### Changed
+- Run autogen for release.
 
 ## [0.14.2] - 08.01.2026
 
