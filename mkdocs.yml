@@ -15,7 +15,9 @@ theme:
 nav:
   - Home: index.md
   - Tool Selection: tool-selection.md
+  - Model Routing: model-routing.md
   - Tools: tools.md
+  - Credits: credits.md
 
 # Plugins
 plugins:

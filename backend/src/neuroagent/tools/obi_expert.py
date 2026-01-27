@@ -376,70 +376,86 @@ class Page(SanityDocument):
         return flattened
 
 
-class DocumentationGithub(SanityDocument):
-    """Schema for documentation GitHub documents."""
+PRODUCT_VALUES = Literal[
+    "explore",
+    "single-cell-simulation",
+    "circuit-simulation",
+    "launch-notebook",
+    "contribute-and-fix-data",
+    "build-ion-channel-model",
+    "paired-neuron-simulation",
+    "neuron-skeletonization",
+    "virtual-labs",
+]
+
+
+class DocumentationProduct(SanityDocument):
+    """Schema for documentationProduct documents (obi-website staging).
+
+    Document type with: title, slug, product, filePath, content (Portable Text),
+    contentHash, uploadDate. Product is one of the PRODUCT_VALUES.
+    """
 
     title: str | None = None
-    slug: dict[str, Any] | None = None
-    keywords: list[str] | None = None
-    product: list[str] | None = None
-    repository: str | None = None
-    commit: str | None = None
-    upload_date: str | None = None
+    slug: str | None = None
+    product: str | None = None
+    file_path: str | None = None
     content: str | None = None
+    content_hash: str | None = None
+    upload_date: str | None = None
 
     sanity_mapping: ClassVar[dict[str, str]] = {
         **SanityDocument.sanity_mapping,
         "title": "title",
         "slug": "slug",
-        "keywords": "keywords",
         "product": "product",
-        "repository": "repository",
-        "commit": "commit",
-        "upload_date": "uploadDate",
+        "file_path": "filePath",
         "content": "content",
+        "content_hash": "contentHash",
+        "upload_date": "uploadDate",
     }
+
+    @field_validator("slug", mode="before")
+    @classmethod
+    def normalize_slug(cls, v: Any) -> str | None:
+        """Extract slug string from Sanity slug object { current: '...' } or use as-is if already str."""
+        if v is None:
+            return None
+        if isinstance(v, str):
+            return v
+        if isinstance(v, dict) and "current" in v:
+            return v["current"]
+        return str(v) if v else None
 
     @field_validator("content", mode="before")
     @classmethod
     def flatten_content(cls, v: list[dict[str, Any]] | None) -> str | None:
-        """Flatten the content from richPortableText blocks into a single string."""
-        # Use the existing flatten_portable_text function to process the content
+        """Flatten the content from Portable Text blocks into a single string."""
         flattened = flatten_portable_text(v)
-
-        # If the result is None, return None
         if flattened is None:
             return None
-
-        # If the result is a string, return it directly
         if isinstance(flattened, str):
             return flattened
-
-        # If it's still a list, join all text elements together
         if isinstance(flattened, list):
             text_parts = []
             for item in flattened:
                 if isinstance(item, str):
                     text_parts.append(item)
                 elif isinstance(item, dict):
-                    # Extract text from various block types
                     if "title" in item:
                         text_parts.append(item["title"])
                     elif "text" in item:
                         text_parts.append(item["text"])
                     elif "content" in item and isinstance(item["content"], str):
                         text_parts.append(item["content"])
-
             return " ".join(text_parts) if text_parts else ""
-
-        # If not a string, raise validation error
         if not isinstance(flattened, str):
             raise ValueError("Content must be a string")
         return flattened
 
 
 SANITY_TYPE_TO_MODEL: dict[str, type[SanityDocument]] = {
-    "documentationGithub": DocumentationGithub,
+    "documentationProduct": DocumentationProduct,
     "futureFeaturesItem": FutureFeature,
     "glossaryItem": GlossaryItemDocument,
     "news": NewsDocument,
@@ -614,7 +630,7 @@ class OBIExpertInput(BaseModel):
     """Inputs for the OBI Expert tool."""
 
     document_type: Literal[
-        "documentationGithub",
+        "documentationProduct",
         "futureFeaturesItem",
         "glossaryItem",
         "news",
@@ -648,7 +664,7 @@ class OBIExpertOutput(BaseModel):
     """Output schema for the OBI Expert tool."""
 
     results: (
-        list[DocumentationGithub]
+        list[DocumentationProduct]
         | list[FutureFeature]
         | list[GlossaryItemDocument]
         | list[NewsDocument]
@@ -724,7 +740,12 @@ class OBIExpertTool(BaseTool):
        - Access project documentation and videos
        - See project contributors and authors
 
-    6. Read Static Pages (document_type: "pages")
+    6. Product Documentation (document_type: "documentationProduct")
+       - Access product-specific docs (Explore, Single Cell Simulation, Circuit Simulation, etc.)
+       - Find guides by product (e.g. launch-notebook, virtual-labs, neuron-skeletonization)
+       - Content is Portable Text with title, slug, product, filePath, contentHash, uploadDate
+
+    7. Read Static Pages (document_type: "pages")
        - Access platform information (About, Mission, Team)
        - View legal documents (Privacy Policy, Terms)
        - Find product information (Pricing, Resources)
