@@ -1,3 +1,8 @@
+---
+tags:
+  - explore
+---
+
 # Credits
 
 Credits are used to track usage of the Neuroagent platform. Here’s how they work:
