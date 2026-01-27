@@ -27,16 +27,6 @@ When you ask a question, Neuroagent:
 
 For example, if you're asking about brain anatomy, Neuroagent won't consider tools for literature search or circuit simulation. If you're researching a specific topic, it will prioritize relevant knowledge sources.
 
-## Adaptive Complexity
-
-Neuroagent also estimates how complex your question is and adapts accordingly:
-
-- **Simple questions** (e.g., "What is the hippocampus?") → Fast, straightforward answers
-- **Moderate questions** (e.g., "Show me L5 pyramidal cells in the somatosensory cortex") → Standard processing with some reasoning
-- **Complex questions** (e.g., "Compare morphological properties across cell types in different cortical layers") → Enhanced reasoning and multi-step analysis
-
-This ensures Neuroagent uses the right level of computational power for your question - not too little, not too much.
-
 ## Benefits to You
 
 - **Faster responses**: Less time spent considering irrelevant options
