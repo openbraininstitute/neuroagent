@@ -120,7 +120,8 @@ export async function GET(
     const authHeader = request.headers.get('authorization');
     const jwtToken = authHeader?.replace('Bearer ', '');
     
-    const tools = await initializeTools({
+    // Get tool CLASSES (not instances) - following ClassVar pattern
+    const toolClasses = await initializeTools({
       exaApiKey: settings.tools.exaApiKey,
       entitycoreUrl: settings.tools.entitycore.url,
       entityFrontendUrl: settings.tools.frontendBaseUrl,
@@ -131,9 +132,10 @@ export async function GET(
       mcpConfig: settings.mcp,
     });
     
+    // Build HIL mapping from tool classes (static properties)
     const toolHilMapping: Record<string, boolean> = {};
-    tools.forEach((tool) => {
-      toolHilMapping[tool.metadata.name] = tool.metadata.hil || false;
+    toolClasses.forEach((ToolClass) => {
+      toolHilMapping[ToolClass.toolName] = ToolClass.toolHil || false;
     });
 
     // Determine entity filter

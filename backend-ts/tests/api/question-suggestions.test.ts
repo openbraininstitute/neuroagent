@@ -42,17 +42,16 @@ vi.mock('ai', () => ({
 
 vi.mock('@/lib/tools', () => ({
   initializeTools: vi.fn().mockResolvedValue([
+    // Mock tool CLASSES (not instances)
     {
-      metadata: {
-        name: 'web_search',
-        description: 'Search the web for information',
-      },
+      toolName: 'web_search',
+      toolDescription: 'Search the web for information',
+      toolHil: false,
     },
     {
-      metadata: {
-        name: 'literature_search',
-        description: 'Search scientific literature',
-      },
+      toolName: 'literature_search',
+      toolDescription: 'Search scientific literature',
+      toolHil: false,
     },
   ]),
 }));

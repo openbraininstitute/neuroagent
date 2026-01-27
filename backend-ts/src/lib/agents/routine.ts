@@ -15,7 +15,6 @@
 import { streamText, CoreMessage, Tool, LanguageModelUsage } from 'ai';
 import { createOpenAI } from '@ai-sdk/openai';
 import { createOpenRouter } from '@openrouter/ai-sdk-provider';
-import { BaseTool } from '../tools/base-tool';
 import { prisma } from '../db/client';
 import { Entity, Task, TokenType } from '../../types';
 import type { Message, ToolCall } from '@prisma/client';
@@ -37,11 +36,14 @@ export interface AgentConfig {
   /** Reasoning level for model selection (optional) */
   reasoning?: 'none' | 'minimal' | 'low' | 'medium' | 'high';
   
-  /** Array of tools available to the agent */
-  tools: BaseTool<any>[];
+  /** Array of tool CLASSES available to the agent (not instances) */
+  tools: any[];
   
   /** System instructions for the agent */
   instructions: string;
+  
+  /** Context variables for tool instantiation (optional) */
+  contextVariables?: any;
 }
 
 /**
@@ -88,18 +90,22 @@ export class AgentsRoutine {
   }
 
   /**
-   * Stream a chat response using Vercel AI SDK
+   * Stream a chat response using Vercel AI SDK with automatic multi-step tool execution
    * 
-   * This method:
+   * This method leverages Vercel AI SDK's built-in multi-step capabilities:
    * 1. Loads message history from database
    * 2. Converts messages to CoreMessage format
-   * 3. Streams LLM response with tool execution
-   * 4. Saves messages and token consumption to database
+   * 3. Calls streamText with maxSteps to enable automatic multi-turn execution
+   * 4. Vercel AI SDK automatically:
+   *    - Calls tools when requested by the LLM
+   *    - Adds tool results to message history
+   *    - Continues generation until completion or maxSteps reached
+   * 5. Saves messages and token consumption via onFinish callback
    * 
    * @param agent - Agent configuration
    * @param threadId - Thread ID for message history
    * @param maxTurns - Maximum number of conversation turns (default: 10)
-   * @param _maxParallelToolCalls - Maximum parallel tool calls (reserved for future use)
+   * @param _maxParallelToolCalls - Reserved for future use
    * @returns Data stream response for client consumption
    * 
    * Requirements: 6.1, 6.2, 6.3, 6.4, 6.7
@@ -110,7 +116,7 @@ export class AgentsRoutine {
     maxTurns: number = 10,
     _maxParallelToolCalls: number = 5
   ) {
-    console.log('[streamChat] Starting stream for thread:', threadId);
+    console.log('[streamChat] Starting multi-turn agent for thread:', threadId);
     console.log('[streamChat] Agent config:', {
       model: agent.model,
       temperature: agent.temperature,
@@ -119,84 +125,72 @@ export class AgentsRoutine {
       maxTurns,
     });
 
-    // Track if streaming was interrupted (needs to be in outer scope)
-    let partialContent = '';
-    let chunkCount = 0;
-
     try {
       // Load message history from database
       console.log('[streamChat] Loading message history from database...');
-      const messages = await prisma.message.findMany({
+      const dbMessages = await prisma.message.findMany({
         where: { threadId },
         orderBy: { creationDate: 'asc' },
         include: { toolCalls: true },
       });
-      console.log('[streamChat] Loaded', messages.length, 'messages from database');
+      console.log('[streamChat] Loaded', dbMessages.length, 'messages from database');
 
       // Convert to Vercel AI SDK format
       console.log('[streamChat] Converting messages to CoreMessage format...');
-      const coreMessages: CoreMessage[] = this.convertToCoreMessages(messages);
+      const coreMessages: CoreMessage[] = this.convertToCoreMessages(dbMessages);
       console.log('[streamChat] Converted to', coreMessages.length, 'core messages');
 
-      // Convert tools to Vercel AI SDK format
-      console.log('[streamChat] Converting tools to Vercel format...');
+      // Convert tool classes to Vercel AI SDK format WITH execute functions
+      console.log('[streamChat] Converting tool classes to Vercel format...');
       const tools: Record<string, Tool> = {};
-      for (const tool of agent.tools) {
-        tools[tool.metadata.name] = tool.toVercelTool();
+      for (const ToolClass of agent.tools) {
+        const toolName = ToolClass.toolName;
+        const tempInstance = new ToolClass(agent.contextVariables || {});
+        
+        // Get the full tool definition with execute function
+        // Vercel AI SDK will handle automatic execution
+        tools[toolName] = tempInstance.toVercelTool();
       }
       console.log('[streamChat] Converted', Object.keys(tools).length, 'tools:', Object.keys(tools));
 
       // Determine provider and model
-      console.log('[streamChat] Determining provider and model...');
       const model = this.getProviderAndModel(agent.model);
-      console.log('[streamChat] Using model:', agent.model);
 
-      console.log('[streamChat] Initiating streamText...');
-      // Stream with Vercel AI SDK
+      // Use Vercel AI SDK's built-in multi-step execution
+      console.log('[streamChat] Initiating streamText with maxSteps:', maxTurns);
       const result = streamText({
         model,
         messages: [
           { role: 'system', content: agent.instructions },
           ...coreMessages,
         ],
-        tools, 
+        tools,
         temperature: agent.temperature,
         maxTokens: agent.maxTokens,
+        maxSteps: maxTurns, // Enable automatic multi-step tool execution
         experimental_telemetry: {
           isEnabled: false,
           functionId: 'neuroagent-chat',
         },
-        onFinish: async ({ usage, response, finishReason }) => {
+        onFinish: async ({ response, usage, finishReason }) => {
           console.log('[streamChat] Stream finished:', {
             finishReason,
             usage,
             messagesCount: response.messages?.length || 0,
           });
           
-          // Save message and token consumption to database
+          // Save all messages generated during the multi-step execution
           try {
-            await this.saveMessageToDatabase(
+            await this.saveMessagesToDatabase(
               threadId,
-              response,
+              response.messages || [],
               usage,
-              agent.model,
-              finishReason === 'stop' || finishReason === 'length'
+              agent.model
             );
-            console.log('[streamChat] Message saved to database successfully');
+            console.log('[streamChat] Messages saved to database successfully');
           } catch (error) {
-            console.error('[streamChat] Error saving message to database:', error);
+            console.error('[streamChat] Error saving messages to database:', error);
             throw error;
-          }
-        },
-        onChunk: ({ chunk }) => {
-          chunkCount++;
-          if (chunkCount % 10 === 0) {
-            console.log('[streamChat] Received', chunkCount, 'chunks');
-          }
-          
-          // Track partial content for interruption handling
-          if (chunk.type === 'text-delta') {
-            partialContent += chunk.textDelta;
           }
         },
       });
@@ -204,10 +198,8 @@ export class AgentsRoutine {
       console.log('[streamChat] Converting to DataStreamResponse...');
       const response = result.toDataStreamResponse({
         getErrorMessage: (error: unknown) => {
-          // Log the error for debugging
           console.error('[streamChat] Error in stream:', error);
           
-          // Return detailed error message
           if (error == null) {
             return 'Unknown error occurred';
           }
@@ -217,14 +209,12 @@ export class AgentsRoutine {
           }
           
           if (error instanceof Error) {
-            // Return the full error message with stack trace in development
             if (process.env.NODE_ENV === 'development') {
               return `${error.message}\n\nStack trace:\n${error.stack}`;
             }
             return error.message;
           }
           
-          // For other error types, stringify them
           try {
             return JSON.stringify(error);
           } catch {
@@ -232,44 +222,17 @@ export class AgentsRoutine {
           }
         },
       });
+      
       console.log('[streamChat] DataStreamResponse created successfully');
       return response;
     } catch (error) {
-      console.error('[streamChat] Error occurred before streaming:', error);
+      console.error('[streamChat] Error setting up agent:', error);
       console.error('[streamChat] Error stack:', error instanceof Error ? error.stack : 'No stack trace');
       
-      // Save partial message if we have content
-      if (partialContent) {
-        console.log('[streamChat] Saving partial message with', partialContent.length, 'characters');
-        try {
-          await this.savePartialMessage(threadId, partialContent, agent.model);
-        } catch (saveError) {
-          console.error('[streamChat] Error saving partial message:', saveError);
-        }
-      }
-      
-      // Return a proper error response instead of throwing
-      // This creates a stream with an error part
-      let errorMessage: string;
-      
-      if (error == null) {
-        errorMessage = 'An error occurred';
-      } else if (typeof error === 'string') {
-        errorMessage = error;
-      } else if (error instanceof Error) {
-        errorMessage = error.message;
-      } else {
-        try {
-          errorMessage = JSON.stringify(error);
-        } catch {
-          errorMessage = 'An error occurred';
-        }
-      }
-      
+      // Return error response
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       const errorStream = new ReadableStream({
         start(controller) {
-          // Send error part in Vercel AI SDK format
-          // Format: 3:"error message"\n
           const errorPart = `3:${JSON.stringify(errorMessage)}\n`;
           controller.enqueue(new TextEncoder().encode(errorPart));
           controller.close();
@@ -277,12 +240,118 @@ export class AgentsRoutine {
       });
       
       return new Response(errorStream, {
-        status: 200, // Keep 200 to allow streaming
+        status: 200,
         headers: {
           'Content-Type': 'text/plain; charset=utf-8',
           'X-Vercel-AI-Data-Stream': 'v1',
         },
       });
+    }
+  }
+
+  /**
+   * Save messages to database from Vercel AI SDK response
+   * 
+   * Processes all messages generated during multi-step execution and saves them
+   * to the database with appropriate entity types and tool call information.
+   * 
+   * @param threadId - Thread ID
+   * @param messages - Messages from Vercel AI SDK response
+   * @param usage - Token usage information
+   * @param model - Model identifier
+   */
+  private async saveMessagesToDatabase(
+    threadId: string,
+    messages: CoreMessage[],
+    usage: LanguageModelUsage | undefined,
+    model: string
+  ): Promise<void> {
+    try {
+      console.log('[saveMessagesToDatabase] Saving', messages.length, 'messages');
+      
+      for (const message of messages) {
+        if (message.role === 'assistant') {
+          // Extract text content and tool calls
+          let textContent = '';
+          const toolCalls: Array<{
+            toolCallId: string;
+            toolName: string;
+            args: any;
+          }> = [];
+
+          if (typeof message.content === 'string') {
+            textContent = message.content;
+          } else if (Array.isArray(message.content)) {
+            for (const part of message.content) {
+              if (part.type === 'text') {
+                textContent += part.text;
+              } else if (part.type === 'tool-call') {
+                toolCalls.push({
+                  toolCallId: part.toolCallId,
+                  toolName: part.toolName,
+                  args: part.args,
+                });
+              }
+            }
+          }
+
+          // Save assistant message
+          await prisma.message.create({
+            data: {
+              id: crypto.randomUUID(),
+              creationDate: new Date(),
+              threadId,
+              entity: toolCalls.length > 0 ? Entity.AI_TOOL : Entity.AI_MESSAGE,
+              content: JSON.stringify({
+                role: 'assistant',
+                content: textContent,
+              }),
+              isComplete: true,
+              toolCalls: {
+                create: toolCalls.map((tc) => ({
+                  id: tc.toolCallId,
+                  name: tc.toolName,
+                  arguments: JSON.stringify(tc.args),
+                  validated: null,
+                })),
+              },
+              tokenConsumption: {
+                create: this.createTokenConsumptionRecords(usage, model),
+              },
+            },
+          });
+        } else if (message.role === 'tool') {
+          // Save tool result messages
+          if (Array.isArray(message.content)) {
+            for (const part of message.content) {
+              if (part.type === 'tool-result') {
+                await prisma.message.create({
+                  data: {
+                    id: crypto.randomUUID(),
+                    creationDate: new Date(),
+                    threadId,
+                    entity: Entity.TOOL,
+                    content: JSON.stringify({
+                      role: 'tool',
+                      tool_call_id: part.toolCallId,
+                      tool_name: part.toolName,
+                      content: typeof part.result === 'string' 
+                        ? part.result 
+                        : JSON.stringify(part.result),
+                    }),
+                    isComplete: true,
+                  },
+                });
+              }
+            }
+          }
+        }
+      }
+      
+      console.log('[saveMessagesToDatabase] All messages saved successfully');
+    } catch (error) {
+      console.error('[saveMessagesToDatabase] Error:', error);
+      throw error;
     }
   }
 
@@ -415,148 +484,7 @@ export class AgentsRoutine {
     }
   }
 
-  /**
-   * Save message and token consumption to database
-   * 
-   * Creates a message record with:
-   * - Message content
-   * - Tool calls (if any)
-   * - Token consumption records
-   * 
-   * @param threadId - Thread ID
-   * @param response - Response from LLM (contains messages array)
-   * @param usage - Token usage information
-   * @param model - Model identifier
-   * @param isComplete - Whether the message is complete
-   * 
-   * Requirements: 6.4, 6.7
-   */
-  private async saveMessageToDatabase(
-    threadId: string,
-    response: any,
-    usage: LanguageModelUsage | undefined,
-    model: string,
-    isComplete: boolean
-  ): Promise<void> {
-    try {
-      console.log('[saveMessageToDatabase] Response structure:', {
-        hasMessages: !!response.messages,
-        messagesCount: response.messages?.length || 0,
-      });
 
-      // Extract messages from response
-      const messages = response.messages || [];
-      
-      // Find the last assistant message
-      const lastAssistantMessage = messages
-        .filter((m: any) => m.role === 'assistant')
-        .pop();
-
-      if (!lastAssistantMessage) {
-        console.warn('[saveMessageToDatabase] No assistant message found in response');
-        return;
-      }
-
-      console.log('[saveMessageToDatabase] Last assistant message:', {
-        role: lastAssistantMessage.role,
-        contentLength: JSON.stringify(lastAssistantMessage.content).length,
-      });
-
-      // Extract text content and tool calls
-      let textContent = '';
-      const toolCalls: any[] = [];
-
-      if (typeof lastAssistantMessage.content === 'string') {
-        textContent = lastAssistantMessage.content;
-      } else if (Array.isArray(lastAssistantMessage.content)) {
-        // Content is an array of parts
-        for (const part of lastAssistantMessage.content) {
-          if (part.type === 'text') {
-            textContent += part.text;
-          } else if (part.type === 'tool-call') {
-            toolCalls.push({
-              toolCallId: part.toolCallId,
-              toolName: part.toolName,
-              args: part.args,
-            });
-          }
-        }
-      }
-
-      console.log('[saveMessageToDatabase] Extracted:', {
-        textLength: textContent.length,
-        toolCallsCount: toolCalls.length,
-      });
-
-      // Create message record with tool calls and token consumption
-      await prisma.message.create({
-        data: {
-          id: crypto.randomUUID(),
-          creationDate: new Date(),
-          threadId,
-          entity: Entity.AI_MESSAGE,
-          content: JSON.stringify({
-            role: 'assistant',
-            content: textContent,
-          }),
-          isComplete,
-          toolCalls: {
-            create: toolCalls.map((tc: any) => ({
-              id: tc.toolCallId,
-              name: tc.toolName,
-              arguments: JSON.stringify(tc.args),
-              validated: null,
-            })),
-          },
-          tokenConsumption: {
-            create: this.createTokenConsumptionRecords(usage, model),
-          },
-        },
-      });
-
-      console.log('[saveMessageToDatabase] Message saved successfully');
-    } catch (error) {
-      console.error('[saveMessageToDatabase] Error:', error);
-      throw error;
-    }
-  }
-
-  /**
-   * Save partial message to database (for interrupted streams)
-   * 
-   * Creates a message record with isComplete=false to indicate
-   * the message was interrupted during streaming.
-   * 
-   * @param threadId - Thread ID
-   * @param partialContent - Partial content received before interruption
-   * @param _model - Model identifier (unused but kept for signature consistency)
-   * 
-   * Requirement: 6.6
-   */
-  private async savePartialMessage(
-    threadId: string,
-    partialContent: string,
-    _model: string
-  ): Promise<void> {
-    try {
-      await prisma.message.create({
-        data: {
-          id: crypto.randomUUID(),
-          creationDate: new Date(),
-          threadId,
-          entity: Entity.AI_MESSAGE,
-          content: JSON.stringify({
-            role: 'assistant',
-            content: partialContent,
-          }),
-          isComplete: false,
-        },
-      });
-    } catch (error) {
-      console.error('Error saving partial message:', error);
-      // Don't throw - this is a best-effort operation
-    }
-  }
 
   /**
    * Create token consumption records from usage information

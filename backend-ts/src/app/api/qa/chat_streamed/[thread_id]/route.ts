@@ -200,7 +200,8 @@ export async function POST(
     const authHeader = request.headers.get('authorization');
     const jwtToken = authHeader?.replace('Bearer ', '');
     
-    const tools = await initializeTools({
+    // Get tool CLASSES (not instances) - following ClassVar pattern
+    const toolClasses = await initializeTools({
       exaApiKey: settings.tools.exaApiKey,
       entitycoreUrl: settings.tools.entitycore.url,
       entityFrontendUrl: settings.tools.frontendBaseUrl,
@@ -210,7 +211,7 @@ export async function POST(
       obiOneUrl: settings.tools.obiOne.url,
       mcpConfig: settings.mcp,
     });
-    console.log('[chat_streamed] Initialized', tools.length, 'tools');
+    console.log('[chat_streamed] Registered', toolClasses.length, 'tool classes');
 
     // ========================================================================
     // 7. Create Agent Configuration
@@ -220,7 +221,16 @@ export async function POST(
       model: body.model || settings.llm.defaultChatModel,
       temperature: settings.llm.temperature,
       maxTokens: settings.llm.maxTokens,
-      tools,
+      tools: toolClasses,
+      contextVariables: {
+        exaApiKey: settings.tools.exaApiKey,
+        entitycoreUrl: settings.tools.entitycore.url,
+        entityFrontendUrl: settings.tools.frontendBaseUrl,
+        vlabId: thread.vlabId || undefined,
+        projectId: thread.projectId || undefined,
+        jwtToken,
+        obiOneUrl: settings.tools.obiOne.url,
+      },
       instructions:
         'You are a helpful neuroscience research assistant. ' +
         'You have access to various tools to help answer questions about brain regions, ' +
