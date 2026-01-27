@@ -1,3 +1,8 @@
+---
+tags:
+  - explore
+---
+
 # Model Routing
 
 Neuroagent estimates how complex your question is and routes it to the appropriate model:
