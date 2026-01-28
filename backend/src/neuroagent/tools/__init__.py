@@ -144,9 +144,6 @@ from neuroagent.tools.obione_circuitpopulations_getone import (
     CircuitPopulationGetOneTool,
 )
 from neuroagent.tools.obione_ephysmetrics_getone import EphysMetricsGetOneTool
-from neuroagent.tools.obione_generatesimulationsconfig import (
-    GenerateSimulationsConfigTool,
-)
 from neuroagent.tools.obione_morphometrics_getone import MorphometricsGetOneTool
 from neuroagent.tools.read_paper import ReadPaperTool
 from neuroagent.tools.run_python_tool import RunPythonTool
@@ -192,7 +189,6 @@ __all__ = [
     "ExperimentalNeuronDensityGetOneTool",
     "ExperimentalSynapsesPerConnectionGetAllTool",
     "ExperimentalSynapsesPerConnectionGetOneTool",
-    "GenerateSimulationsConfigTool",
     "IonChannelGetAllTool",
     "IonChannelGetOneTool",
     "IonChannelModelGetAllTool",

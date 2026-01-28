@@ -3,7 +3,12 @@
 import Cookies from "js-cookie";
 import { useChat } from "@ai-sdk/react";
 import { useEffect, useRef, useState } from "react";
-import { BMessage, LLMModel, type MessageStrict } from "@/lib/types";
+import {
+  BMessage,
+  LLMModel,
+  CircuitSimulationScanConfig,
+  type MessageStrict,
+} from "@/lib/types";
 import { env } from "@/lib/env";
 import { useSession } from "next-auth/react";
 import { ExtendedSession } from "@/lib/auth";
@@ -54,6 +59,36 @@ export function ChatPage({
   const [isInvalidating, setIsInvalidating] = useState(false);
   // For frontend url
   const frontendUrl = Cookies.get("frontendUrl") || "";
+  // Simulation config json
+  const [simConfigJson, setSimConfigJson] = useState<
+    Record<string, CircuitSimulationScanConfig>
+  >({
+    smc_simulation_config: {
+      info: {
+        campaign_description: "",
+        campaign_name: "",
+        type: "Info",
+      },
+      initialize: {
+        circuit: {
+          id_str: "d311460b-4169-407c-b9c9-39015fa1e65a",
+          type: "CircuitFromID",
+        },
+        extracellular_calcium_concentration: 1.1,
+        node_set: null,
+        random_seed: 1,
+        simulation_length: 1000.0,
+        type: "CircuitSimulationScanConfig.Initialize",
+        v_init: -80.0,
+      },
+      neuron_sets: {},
+      recordings: {},
+      stimuli: {},
+      synaptic_manipulations: {},
+      timestamps: {},
+      type: "CircuitSimulationScanConfig",
+    },
+  });
 
   const {
     data,
@@ -100,6 +135,7 @@ export function ChatPage({
         tool_selection: selectedTools,
         model: currentModel.id,
         frontend_url: frontendUrl,
+        shared_state: simConfigJson,
       };
     },
   });
@@ -300,6 +336,8 @@ export function ChatPage({
           addToolResult={addToolResult}
           setMessages={setMessages}
           loadingStatus={status}
+          simConfigJson={simConfigJson}
+          setSimConfigJson={setSimConfigJson}
         />
         <div ref={messagesEndRef} className="pb-5" />
       </div>
