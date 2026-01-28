@@ -4,7 +4,6 @@ import json
 from typing import Any, ClassVar
 from uuid import UUID
 
-from jsonpatch import make_patch
 from openai import AsyncOpenAI
 from pydantic import BaseModel, Field
 from pydantic.json_schema import SkipJsonSchema
@@ -55,12 +54,6 @@ class CircuitSimulationScanConfigModified(CircuitSimulationScanConfig):
     )
 
 
-class JsonPatches(BaseModel):
-    """Class holding the ordered list of json patchers to apply to the base config."""
-
-    patches: list[dict[str, Any]]
-
-
 class GenerateSimulationsConfigTool(BaseTool):
     """Class defining the GenerateSimulationsConfig tool."""
 
@@ -96,7 +89,7 @@ Simply specify in plain english what you want your configuration to achieve or w
     metadata: GenerateSimulationsConfigMetadata
     input_schema: GenerateSimulationsConfigInput
 
-    async def arun(self) -> JsonPatches:
+    async def arun(self) -> CircuitSimulationScanConfig:
         """Run the tool."""
         if not self.metadata.shared_state:
             raise ValueError(
@@ -203,19 +196,13 @@ REQUIREMENTS:
                 ),
                 info=config.info,
             )
-            patches = make_patch(
-                base_simulation_form, ts_number_normalize(output_config.model_dump())
-            ).patch
-
-            for patch in patches:
-                patch["path"] = "/smc_simulation_config" + patch["path"]
 
             # Assign token usage
             token_consumption = get_token_count(response.usage)
             self.metadata.token_consumption = {**token_consumption, "model": model}
         else:
             raise ValueError("Couldn't generate a valid simulation config.")
-        return JsonPatches(patches=patches)
+        return output_config
 
     @classmethod
     async def is_online(cls) -> bool:

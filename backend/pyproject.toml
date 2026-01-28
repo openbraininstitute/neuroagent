@@ -17,7 +17,6 @@ dependencies = [
     "asyncpg",
     "bluepysnap",
     "boto3",
-    "jsonpatch",
     "duckdb",
     "fastapi>=0.118.0",
     "mcp",

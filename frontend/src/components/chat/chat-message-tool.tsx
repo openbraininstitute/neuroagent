@@ -6,15 +6,9 @@ import { HumanValidationDialog } from "@/components/chat/human-validation-dialog
 import { ToolInvocation } from "@ai-sdk/ui-utils";
 import { useExecuteTool } from "@/hooks/tools";
 import { ToolCallCollapsible } from "@/components/chat/tool-call-collapsible";
-import React from "react";
-import { JsonSidebar, PatchOperation } from "./collapsible-sidebar-json";
+import { JsonSidebar } from "./collapsible-sidebar-json";
 import { Code } from "lucide-react";
 import { toast } from "sonner";
-import * as jsonpatch from "fast-json-patch";
-
-type PatchPayload = {
-  patches: PatchOperation[];
-};
 
 type ChatMessageToolProps = {
   content?: string;
@@ -99,11 +93,10 @@ export const ChatMessageTool = function ChatMessageTool({
       tool.state === "result"
     ) {
       try {
-        const tool_result = JSON.parse(tool.result) as PatchPayload;
-        const patches = tool_result.patches;
-        setSimConfigJson(
-          jsonpatch.applyPatch(simConfigJson, patches).newDocument,
-        );
+        const newSimConfigJson = JSON.parse(
+          tool.result,
+        ) as CircuitSimulationScanConfig;
+        setSimConfigJson({ smc_simulation_config: newSimConfigJson });
       } catch {
         toast.error("JSON Edit Error", {
           description: "The tool output is not a valid JSON",
