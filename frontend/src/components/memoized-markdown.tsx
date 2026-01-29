@@ -6,53 +6,32 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import remarkUnwrapImages from "remark-unwrap-images";
 import PlotsInChat from "@/components/chat/plot-in-chat";
-import { PlotSkeleton } from "@/components/plots/skeleton";
 import { useStorageId } from "@/lib/storage-queries";
 
 const ConditionalImageRenderer = ({
   src,
   alt,
-  validStorageIds = [],
   ...props
 }: {
   src?: string;
   alt?: string;
-  validStorageIds?: string[];
   [key: string]: unknown;
 }) => {
-  const matchedStorageId = validStorageIds.find((id) => src?.includes(id));
-  const { data: storageId, isPending } = useStorageId(
-    matchedStorageId ? src : undefined,
-    validStorageIds,
-  );
+  const { data: storageId } = useStorageId(src);
 
-  if (!matchedStorageId) {
-    return (
-      <img
-        src={src || undefined}
-        alt={alt}
-        {...props}
-        className="ml-20"
-        style={{ height: "450px", width: "auto" }}
-      />
-    );
+  if (!src || storageId === undefined) {
+    return <img src={src} alt={alt} {...props} className="ml-20" />;
   }
 
-  if (isPending) {
-    return <PlotSkeleton className="ml-20" />;
-  }
-
-  if (storageId) {
-    return <PlotsInChat storageIds={[storageId]} />;
-  }
-
-  return (
+  return storageId ? (
+    <PlotsInChat storageIds={[storageId]} />
+  ) : (
     <img
       src={src}
       alt={alt}
       {...props}
       className="ml-20"
-      style={{ height: "450px", width: "auto" }}
+      style={{ maxHeight: "500px", width: "auto", maxWidth: "none" }}
     />
   );
 };
@@ -63,54 +42,29 @@ function parseMarkdownIntoBlocks(markdown: string): string[] {
 }
 
 const MemoizedMarkdownBlock = memo(
-  ({
-    content,
-    validStorageIds = [],
-  }: {
-    content: string;
-    validStorageIds?: string[];
-  }) => {
+  ({ content }: { content: string }) => {
     return (
       <ReactMarkdown
         remarkPlugins={[remarkGfm, remarkUnwrapImages]}
         components={{
-          img: (props) => (
-            <ConditionalImageRenderer
-              {...props}
-              validStorageIds={validStorageIds}
-            />
-          ),
+          img: (props) => <ConditionalImageRenderer {...props} />,
         }}
       >
         {content}
       </ReactMarkdown>
     );
   },
-  (prevProps, nextProps) =>
-    prevProps.content === nextProps.content &&
-    prevProps.validStorageIds === nextProps.validStorageIds,
+  (prevProps, nextProps) => prevProps.content === nextProps.content,
 );
 
 MemoizedMarkdownBlock.displayName = "MemoizedMarkdownBlock";
 
 export const MemoizedMarkdown = memo(
-  ({
-    content,
-    id,
-    validStorageIds = [],
-  }: {
-    content: string;
-    id: string;
-    validStorageIds?: string[];
-  }) => {
+  ({ content, id }: { content: string; id: string }) => {
     const blocks = useMemo(() => parseMarkdownIntoBlocks(content), [content]);
 
     return blocks.map((block, index) => (
-      <MemoizedMarkdownBlock
-        content={block}
-        key={`${id}-block_${index}`}
-        validStorageIds={validStorageIds}
-      />
+      <MemoizedMarkdownBlock content={block} key={`${id}-block_${index}`} />
     ));
   },
 );

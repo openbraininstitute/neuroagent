@@ -1,15 +1,10 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
-export const useStorageId = (src?: string, knownStorageIds: string[] = []) => {
+export const useStorageId = (src?: string) => {
   return useQuery({
     queryKey: ["storage-id", src],
     queryFn: async () => {
       if (!src) return null;
-
-      // Check if this src is already in knownStorageIds
-      const match = knownStorageIds.find((id) => src.includes(id));
-      if (match) return match;
-
       const res = await fetch(src, { method: "HEAD" });
       return res.ok ? res.headers.get("X-Storage-Id") : null;
     },
@@ -17,4 +12,18 @@ export const useStorageId = (src?: string, knownStorageIds: string[] = []) => {
     gcTime: Infinity,
     enabled: !!src,
   });
+};
+
+export const useHasImageLoaded = (storageId: string): boolean => {
+  const queryClient = useQueryClient();
+  const src = `/app/storage/${storageId}`;
+  const queryKey = ["storage-id", src];
+
+  const queryState = queryClient.getQueryState(queryKey);
+
+  return (
+    !!queryState &&
+    queryState.status === "success" &&
+    queryState.data === storageId
+  );
 };

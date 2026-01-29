@@ -117,13 +117,6 @@ class BodyTestNeuronFileDeclaredTestNeuronFilePost(BaseModel):
     )
 
 
-class BodyValidateMeshFileDeclaredTestMeshFilePost(BaseModel):
-    model_config = ConfigDict(
-        extra='ignore',
-    )
-    file: bytes = Field(..., description='MESH file to upload (.obj)', title='File')
-
-
 class BodyValidateNwbFileDeclaredValidateElectrophysiologyProtocolNwbFilePost(
     BaseModel
 ):
@@ -261,32 +254,30 @@ class ClusteredGroupedMorphologyLocations(BaseModel):
     random_seed: int | list[int] = Field(
         default=0,
         description='Seed for the random generation of locations',
-        title='Random seed',
+        title='Random Seed',
     )
     number_of_locations: int | list[int] = Field(
         default=1,
         description='Number of locations to generate on morphology',
-        title='Number of locations',
+        title='Number Of Locations',
     )
     section_types: list[int] | list[list[int]] | None = Field(
         default=None,
         description='Types of sections to generate locations on. 2: axon, 3: basal, 4: apical',
-        title='Section types',
+        title='Section Types',
     )
     n_groups: int | list[int] = Field(
         default=1,
         description='Number of groups of locations to             generate',
-        title='Number of groups',
+        title='N Groups',
     )
     n_clusters: int | list[int] = Field(
-        ...,
-        description='Number of location clusters to generate',
-        title='Number of clusters',
+        ..., description='Number of location clusters to generate', title='N Clusters'
     )
     cluster_max_distance: float | list[float] = Field(
         ...,
         description='Maximum distance in um of generated locations from the center of their             cluster',
-        title='Cluster maximum distance',
+        title='Cluster Max Distance',
     )
 
 
@@ -300,27 +291,25 @@ class ClusteredMorphologyLocations(BaseModel):
     random_seed: int | list[int] = Field(
         default=0,
         description='Seed for the random generation of locations',
-        title='Random seed',
+        title='Random Seed',
     )
     number_of_locations: int | list[int] = Field(
         default=1,
         description='Number of locations to generate on morphology',
-        title='Number of locations',
+        title='Number Of Locations',
     )
     section_types: list[int] | list[list[int]] | None = Field(
         default=None,
         description='Types of sections to generate locations on. 2: axon, 3: basal, 4: apical',
-        title='Section types',
+        title='Section Types',
     )
     n_clusters: int | list[int] = Field(
-        ...,
-        description='Number of location clusters to generate',
-        title='Number of clusters',
+        ..., description='Number of location clusters to generate', title='N Clusters'
     )
     cluster_max_distance: float | list[float] = Field(
         ...,
         description='Maximum distance in um of generated locations from the center of their             cluster',
-        title='Cluster maximum distance',
+        title='Cluster Max Distance',
     )
 
 
@@ -334,42 +323,40 @@ class ClusteredPathDistanceMorphologyLocations(BaseModel):
     random_seed: int | list[int] = Field(
         default=0,
         description='Seed for the random generation of locations',
-        title='Random seed',
+        title='Random Seed',
     )
     number_of_locations: int | list[int] = Field(
         default=1,
         description='Number of locations to generate on morphology',
-        title='Number of locations',
+        title='Number Of Locations',
     )
     section_types: list[int] | list[list[int]] | None = Field(
         default=None,
         description='Types of sections to generate locations on. 2: axon, 3: basal, 4: apical',
-        title='Section types',
+        title='Section Types',
     )
     n_clusters: int | list[int] = Field(
-        ...,
-        description='Number of location clusters to generate',
-        title='Number of clusters',
+        ..., description='Number of location clusters to generate', title='N Clusters'
     )
     cluster_max_distance: float | list[float] = Field(
         ...,
         description='Maximum distance in um of generated locations from the center of their             cluster',
-        title='Cluster maximum distance',
+        title='Cluster Max Distance',
     )
     path_dist_mean: float | list[float] = Field(
         ...,
         description='Mean of a Gaussian, defined on soma path distance in um. Used to determine             locations.',
-        title='Path distance mean',
+        title='Path Dist Mean',
     )
     path_dist_sd: float | list[float] = Field(
         ...,
         description='SD of a Gaussian, defined on soma path distance in um. Used to determine             locations.',
-        title='Path distance mean',
+        title='Path Dist Sd',
     )
     n_groups_per_cluster: int | list[int] = Field(
         default=1,
         description='Number of conceptual groups per location cluster to generate',
-        title='Number of groups per cluster',
+        title='N Groups Per Cluster',
     )
 
 
@@ -1113,27 +1100,27 @@ class PathDistanceMorphologyLocations(BaseModel):
     random_seed: int | list[int] = Field(
         default=0,
         description='Seed for the random generation of locations',
-        title='Random seed',
+        title='Random Seed',
     )
     number_of_locations: int | list[int] = Field(
         default=1,
         description='Number of locations to generate on morphology',
-        title='Number of locations',
+        title='Number Of Locations',
     )
     section_types: list[int] | list[list[int]] | None = Field(
         default=None,
         description='Types of sections to generate locations on. 2: axon, 3: basal, 4: apical',
-        title='Section types',
+        title='Section Types',
     )
     path_dist_mean: float | list[float] = Field(
         ...,
         description='Mean of a Gaussian, defined on soma path distance in um. Used to determine             locations.',
-        title='Path distance mean',
+        title='Path Dist Mean',
     )
     path_dist_tolerance: float | list[float] = Field(
         ...,
         description='Amount of deviation in um from mean path distance that is tolerated. Must be             > 1.0',
-        title='Path distance tolerance',
+        title='Path Dist Tolerance',
     )
 
 
@@ -1255,22 +1242,22 @@ class RandomGroupedMorphologyLocations(BaseModel):
     random_seed: int | list[int] = Field(
         default=0,
         description='Seed for the random generation of locations',
-        title='Random seed',
+        title='Random Seed',
     )
     number_of_locations: int | list[int] = Field(
         default=1,
         description='Number of locations to generate on morphology',
-        title='Number of locations',
+        title='Number Of Locations',
     )
     section_types: list[int] | list[list[int]] | None = Field(
         default=None,
         description='Types of sections to generate locations on. 2: axon, 3: basal, 4: apical',
-        title='Section types',
+        title='Section Types',
     )
     n_groups: int | list[int] = Field(
         default=1,
         description='Number of groups of locations to             generate',
-        title='Number of groups',
+        title='N Groups',
     )
 
 
@@ -1284,17 +1271,17 @@ class RandomMorphologyLocations(BaseModel):
     random_seed: int | list[int] = Field(
         default=0,
         description='Seed for the random generation of locations',
-        title='Random seed',
+        title='Random Seed',
     )
     number_of_locations: int | list[int] = Field(
         default=1,
         description='Number of locations to generate on morphology',
-        title='Number of locations',
+        title='Number Of Locations',
     )
     section_types: list[int] | list[list[int]] | None = Field(
         default=None,
         description='Types of sections to generate locations on. 2: axon, 3: basal, 4: apical',
-        title='Section types',
+        title='Section Types',
     )
 
 
@@ -1418,6 +1405,32 @@ class MeanPercentageOfThresholdCurrent(RootModel[float]):
 
 
 class MeanPercentageOfThresholdCurrentItem(ExtracellularCalciumConcentrationItem):
+    pass
+
+
+class MeanPercentageOfCellsInputConductance(RootModel[float]):
+    root: float = Field(
+        100.0,
+        description="Signal mean as percentage of a cell's input conductance.",
+        ge=0.0,
+        title="Mean Percentage of Cells' Input Conductance",
+    )
+
+
+class MeanPercentageOfCellsInputConductanceItem(ExtracellularCalciumConcentrationItem):
+    pass
+
+
+class StandardDeviationPercentageOfCellsInputConductance(RootModel[float]):
+    root: float = Field(
+        5.0,
+        description="Signal standard deviation as percentage of a cell's input conductance.",
+        gt=0.0,
+        title='Standard Deviation',
+    )
+
+
+class StandardDeviationPercentageOfCellsInputConductanceItem(TimeConstantItem):
     pass
 
 
@@ -1548,7 +1561,7 @@ class DtItem(RootModel[float]):
     root: float = Field(..., ge=0.025)
 
 
-class Duration13(RootModel[float]):
+class Duration14(RootModel[float]):
     root: float = Field(
         200.0,
         description='Time duration of the stimulus in milliseconds.',
@@ -1558,7 +1571,7 @@ class Duration13(RootModel[float]):
     )
 
 
-class DurationItem13(DurationItem7):
+class DurationItem14(DurationItem7):
     pass
 
 
@@ -1753,11 +1766,11 @@ class SubjectID(BaseModel):
     subject_id: UUID | None = Field(default=None, title='Subject Id')
 
 
-class Duration14(Duration):
+class Duration15(Duration):
     pass
 
 
-class DurationItem14(ExtracellularCalciumConcentrationItem):
+class DurationItem15(ExtracellularCalciumConcentrationItem):
     pass
 
 
@@ -1883,14 +1896,6 @@ class ValidationError(BaseModel):
     loc: list[str | int] = Field(..., title='Location')
     msg: str = Field(..., title='Message')
     type: str = Field(..., title='Error Type')
-
-
-class ValidationStatus(RootModel[Literal['success', 'failure']]):
-    root: Literal['success', 'failure'] = Field(
-        ...,
-        description='Enumeration of possible validation outcomes.',
-        title='ValidationStatus',
-    )
 
 
 class SamplePercentage10(SamplePercentage):
@@ -3118,14 +3123,6 @@ class LinearCurrentClampSomaticStimulus(BaseModel):
     )
 
 
-class MESHValidationResponse(BaseModel):
-    model_config = ConfigDict(
-        extra='ignore',
-    )
-    status: ValidationStatus
-    message: str = Field(..., title='Message')
-
-
 class MorphologyContainerizationScanConfig(BaseModel):
     model_config = ConfigDict(
         extra='ignore',
@@ -3523,6 +3520,61 @@ class RelativeNormallyDistributedCurrentClampSomaticStimulus(BaseModel):
     )
 
 
+class RelativeOrnsteinUhlenbeckConductanceSomaticStimulus(BaseModel):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    type: Literal['RelativeOrnsteinUhlenbeckConductanceSomaticStimulus'] = Field(
+        default='RelativeOrnsteinUhlenbeckConductanceSomaticStimulus', title='Type'
+    )
+    timestamps: TimestampsReference | None = Field(
+        default=None,
+        description='Timestamps at which the stimulus is applied.',
+        title='Timestamps',
+    )
+    neuron_set: NeuronSetReference | None = Field(
+        default=None,
+        description='Neuron set to which the stimulus is applied.',
+        title='Neuron Set',
+    )
+    timestamp_offset: float | list[float] | None = Field(
+        default=0.0,
+        description='The offset of the stimulus relative to each timestamp in milliseconds (ms).',
+        title='Timestamp Offset',
+    )
+    duration: Duration8 | list[DurationItem8] = Field(
+        default_factory=lambda: Duration8(200.0),
+        description='Time duration in milliseconds for how long input is activated.',
+        title='Duration',
+    )
+    time_constant: TimeConstant | list[TimeConstantItem] = Field(
+        default_factory=lambda: TimeConstant(2.7),
+        description='The time constant of the Ornstein-Uhlenbeck process.',
+        title='Tau',
+    )
+    mean_percentage_of_cells_input_conductance: (
+        MeanPercentageOfCellsInputConductance
+        | list[MeanPercentageOfCellsInputConductanceItem]
+    ) = Field(
+        default_factory=lambda: MeanPercentageOfCellsInputConductance(100.0),
+        description="Signal mean as percentage of a cell's input conductance.",
+        title="Mean Percentage of Cells' Input Conductance",
+    )
+    standard_deviation_percentage_of_cells_input_conductance: (
+        StandardDeviationPercentageOfCellsInputConductance
+        | list[StandardDeviationPercentageOfCellsInputConductanceItem]
+    ) = Field(
+        default_factory=lambda: StandardDeviationPercentageOfCellsInputConductance(5.0),
+        description="Signal standard deviation as percentage of a cell's input conductance.",
+        title='Standard Deviation',
+    )
+    reversal_potential: float | list[float] = Field(
+        default=0.0,
+        description='The reversal potential of the conductance injection.',
+        title='Reversal Potential',
+    )
+
+
 class RelativeOrnsteinUhlenbeckCurrentSomaticStimulus(BaseModel):
     model_config = ConfigDict(
         extra='ignore',
@@ -3643,8 +3695,8 @@ class SinusoidalPoissonSpikeStimulus(BaseModel):
         description='The offset of the stimulus relative to each timestamp in milliseconds (ms).',
         title='Timestamp Offset',
     )
-    duration: Duration13 | list[DurationItem13] = Field(
-        default_factory=lambda: Duration13(200.0),
+    duration: Duration14 | list[DurationItem14] = Field(
+        default_factory=lambda: Duration14(200.0),
         description='Time duration of the stimulus in milliseconds.',
         title='Duration',
     )
@@ -3699,8 +3751,8 @@ class SubthresholdCurrentClampSomaticStimulus(BaseModel):
         description='The offset of the stimulus relative to each timestamp in milliseconds (ms).',
         title='Timestamp Offset',
     )
-    duration: Duration14 | list[DurationItem14] = Field(
-        default_factory=lambda: Duration14(200.0),
+    duration: Duration15 | list[DurationItem15] = Field(
+        default_factory=lambda: Duration15(200.0),
         description='Time duration in milliseconds for how long input is activated.',
         title='Duration',
     )
@@ -3812,6 +3864,7 @@ class CircuitSimulationScanConfig(BaseModel):
             | OrnsteinUhlenbeckCurrentSomaticStimulus
             | OrnsteinUhlenbeckConductanceSomaticStimulus
             | RelativeOrnsteinUhlenbeckCurrentSomaticStimulus
+            | RelativeOrnsteinUhlenbeckConductanceSomaticStimulus
             | PoissonSpikeStimulus
             | FullySynchronousSpikeStimulus
             | SinusoidalPoissonSpikeStimulus,
@@ -3856,7 +3909,8 @@ class MEModelSimulationScanConfig(BaseModel):
             | SubthresholdCurrentClampSomaticStimulus
             | OrnsteinUhlenbeckCurrentSomaticStimulus
             | OrnsteinUhlenbeckConductanceSomaticStimulus
-            | RelativeOrnsteinUhlenbeckCurrentSomaticStimulus,
+            | RelativeOrnsteinUhlenbeckCurrentSomaticStimulus
+            | RelativeOrnsteinUhlenbeckConductanceSomaticStimulus,
         ]
         | None
     ) = Field(default=None, description='Stimuli for the simulation.', title='Stimuli')
@@ -3910,6 +3964,7 @@ class MEModelWithSynapsesCircuitSimulationScanConfig(BaseModel):
             | OrnsteinUhlenbeckCurrentSomaticStimulus
             | OrnsteinUhlenbeckConductanceSomaticStimulus
             | RelativeOrnsteinUhlenbeckCurrentSomaticStimulus
+            | RelativeOrnsteinUhlenbeckConductanceSomaticStimulus
             | PoissonSpikeStimulus
             | FullySynchronousSpikeStimulus
             | SinusoidalPoissonSpikeStimulus,
@@ -3972,6 +4027,7 @@ class SimulationsForm(BaseModel):
             | OrnsteinUhlenbeckCurrentSomaticStimulus
             | OrnsteinUhlenbeckConductanceSomaticStimulus
             | RelativeOrnsteinUhlenbeckCurrentSomaticStimulus
+            | RelativeOrnsteinUhlenbeckConductanceSomaticStimulus
             | PoissonSpikeStimulus
             | FullySynchronousSpikeStimulus
             | SinusoidalPoissonSpikeStimulus,
