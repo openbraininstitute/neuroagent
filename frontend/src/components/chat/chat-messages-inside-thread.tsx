@@ -6,12 +6,12 @@ import {
   getStorageID,
   getValidationStatus,
 } from "@/lib/utils";
-import PlotsInChat from "@/components/chat/plot-in-chat";
 import { ChatMessageAI } from "@/components/chat/chat-message-ai";
 import { ChatMessageHuman } from "@/components/chat/chat-message-human";
 import { ChatMessageTool } from "@/components/chat/chat-message-tool";
 import { ChatMessageLoading } from "./chat-message-loading";
 import { ReasoningCollapsible } from "./reasoning-collapsible";
+import { BackupPlot } from "./backup-plot";
 
 type ChatMessagesInsideThreadProps = {
   messages: MessageStrict[];
@@ -51,8 +51,12 @@ export function ChatMessagesInsideThread({
   };
   return (
     <>
-      {messages.map((message, idx) =>
-        message.role === "assistant" ? (
+      {messages.map((message, idx) => {
+        const isStreamingLastMsg =
+          (loadingStatus === "streaming" || loadingStatus === "submitted") &&
+          idx === messages.length - 1;
+
+        return message.role === "assistant" ? (
           <div key={message.id}>
             {message.parts.some((part) => part.type === "reasoning") && (
               <ReasoningCollapsible
@@ -61,9 +65,7 @@ export function ChatMessagesInsideThread({
                   ?.filter((part) => part.type === "reasoning")
                   .map((part) => part.reasoning)}
                 messageId={message.id}
-                isReasoning={
-                  !(loadingStatus === "ready") && idx === messages.length - 1
-                }
+                isReasoning={isStreamingLastMsg}
               />
             )}
             {message.parts?.map((part, partId) => {
@@ -77,6 +79,7 @@ export function ChatMessagesInsideThread({
                   message.annotations,
                   part.toolInvocation.toolCallId,
                 );
+                const storageIds = getStorageID(part) || [];
                 return (
                   <div
                     key={`${message.id}-tool-${part.toolInvocation.toolCallId}`}
@@ -92,7 +95,11 @@ export function ChatMessagesInsideThread({
                         handleMessageUpdate(message.id, updater)
                       }
                     />
-                    <PlotsInChat storageIds={getStorageID(part) || []} />
+                    <BackupPlot
+                      storageIds={storageIds}
+                      message={message}
+                      isStreamingLastMsg={isStreamingLastMsg}
+                    />
                   </div>
                 );
               }
@@ -110,8 +117,8 @@ export function ChatMessagesInsideThread({
           </div>
         ) : (
           <ChatMessageHuman key={message.id} content={message.content} />
-        ),
-      )}
+        );
+      })}
       {loadingStatus !== "ready" && <ChatMessageLoading />}
     </>
   );

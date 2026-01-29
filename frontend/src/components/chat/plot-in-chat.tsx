@@ -8,6 +8,7 @@ import { memo } from "react";
 
 type PlotDisplayProps = {
   storageIds: string[];
+  fallbackUrl?: string;
 };
 
 export default function PlotsInChat({ storageIds }: PlotDisplayProps) {
@@ -16,30 +17,39 @@ export default function PlotsInChat({ storageIds }: PlotDisplayProps) {
   }
 
   return (
-    <div className="max-w ml-20 grid grid-cols-2 gap-4">
+    <span className="ml-20 block grid grid-cols-2 gap-4">
       {storageIds.map((storageId) => (
-        <div key={storageId} className="flex min-h-[27rem] justify-start">
-          <SinglePlotInChat key={storageId} storageId={storageId} />
-        </div>
+        <SinglePlotInChat key={storageId} storageId={storageId} />
       ))}
-    </div>
+    </span>
   );
 }
 
 const SinglePlotInChat = memo(({ storageId }: { storageId: string }) => {
-  const { data: presignedUrl, isPending } = useGetPresignedUrl(storageId);
-  const { data: responseHeader } = useGetObjectFromStorage(
-    presignedUrl as string,
-    !isPending,
-    true,
-  );
+  const {
+    data: presignedUrl,
+    isPending,
+    isError,
+  } = useGetPresignedUrl(storageId);
+  const { data: responseHeader, isError: isStorageError } =
+    useGetObjectFromStorage(presignedUrl as string, !isPending, true);
   const category = responseHeader?.get("X-Amz-Meta-Category");
+
+  if (isError || isStorageError) {
+    return (
+      <span className="flex">
+        <span className="inline-block px-2 py-1 text-xs text-red-700">
+          Error loading plot
+        </span>
+      </span>
+    );
+  }
 
   if (!category) {
     return (
-      <div className="flex h-full w-full items-center justify-center border-4">
-        <div className="h-6 w-6 animate-spin rounded-full border-2 border-gray-500 border-t-transparent p-1" />
-      </div>
+      <span className="flex h-[500px] w-full items-center justify-center border-4">
+        <span className="inline-block h-6 w-6 animate-spin rounded-full border-2 border-gray-500 border-t-transparent p-1" />
+      </span>
     );
   }
 
