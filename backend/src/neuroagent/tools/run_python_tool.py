@@ -36,7 +36,7 @@ class RunPythonOutput(BaseModel):
 
     result: SuccessOutput | FailureOutput
     storage_id: list[str]
-    url_link: list[str]
+    image_link: list[str]
 
 
 class RunPythonTool(BaseTool):
@@ -70,6 +70,7 @@ class RunPythonTool(BaseTool):
     Figures defined in plotly will automatically be shown in the chat. Do not save them to disk.
     Only the plotly library is able to plot in the chat.
     The images can be downloaded directly in chat as plotly offers a download button next to the displayed image.
+    OUTPUT: storage_id contains the storage identifiers, image_link contains URLs to stored plot images. Embed image_link URLs using Markdown image syntax.
     You are not able to export anything. Don't pretend like you can.
     The user can read the code from this tool's input. DO NOT re-write the code you just executed in chat."""
     description_frontend: ClassVar[
@@ -137,7 +138,7 @@ AVAILABLE LIBRARIES:
                     )
 
         urls = [f"{self.metadata.storage_frontend_url}/{id}" for id in identifiers]
-        return RunPythonOutput(result=result, storage_id=identifiers, url_link=urls)
+        return RunPythonOutput(result=result, storage_id=identifiers, image_link=urls)
 
     @classmethod
     async def is_online(cls) -> bool:

@@ -41,7 +41,7 @@ class PlotMorphologyGetOneOutput(BaseModel):
     """Output of the PlotMorphologyGetOneTool."""
 
     storage_id: str
-    url_link: str
+    image_link: str
 
 
 class PlotMorphologyGetOneTool(BaseTool):
@@ -65,9 +65,7 @@ class PlotMorphologyGetOneTool(BaseTool):
 
         **Output**:
         storage_id: Identifier for where the generated plot is stored.
-
-        **Notes**:
-        Do not embed or display the plot link directly in your response.
+        image_link: URL to the stored plot image that should be embedded as an image in responses.
     """
     description_frontend: ClassVar[
         str
@@ -138,7 +136,7 @@ class PlotMorphologyGetOneTool(BaseTool):
         )
 
         url = f"{self.metadata.storage_frontend_url}/{identifier}"
-        return PlotMorphologyGetOneOutput(storage_id=identifier, url_link=url)
+        return PlotMorphologyGetOneOutput(storage_id=identifier, image_link=url)
 
     @classmethod
     async def is_online(

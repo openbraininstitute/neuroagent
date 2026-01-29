@@ -5,15 +5,13 @@ import {
   getStoppedStatus,
   getStorageID,
   getValidationStatus,
-  getLastTextContent,
-  isStorageIdInText,
 } from "@/lib/utils";
-import PlotsInChat from "@/components/chat/plot-in-chat";
 import { ChatMessageAI } from "@/components/chat/chat-message-ai";
 import { ChatMessageHuman } from "@/components/chat/chat-message-human";
 import { ChatMessageTool } from "@/components/chat/chat-message-tool";
 import { ChatMessageLoading } from "./chat-message-loading";
 import { ReasoningCollapsible } from "./reasoning-collapsible";
+import { BackupPlot } from "./backup-plot";
 
 type ChatMessagesInsideThreadProps = {
   messages: MessageStrict[];
@@ -55,12 +53,8 @@ export function ChatMessagesInsideThread({
     <>
       {messages.map((message, idx) => {
         const isStreamingLastMsg =
-          loadingStatus !== "ready" && idx === messages.length - 1;
-        const textContent = getLastTextContent(message);
-        const allMsgStorageIds =
-          message.parts
-            ?.filter((p) => p.type === "tool-invocation")
-            .flatMap((p) => getStorageID(p)) || [];
+          (loadingStatus === "streaming" || loadingStatus === "submitted") &&
+          idx === messages.length - 1;
 
         return message.role === "assistant" ? (
           <div key={message.id}>
@@ -86,11 +80,6 @@ export function ChatMessagesInsideThread({
                   part.toolInvocation.toolCallId,
                 );
                 const storageIds = getStorageID(part) || [];
-                const shouldShowBackup =
-                  !isStreamingLastMsg &&
-                  storageIds.length > 0 &&
-                  !isStorageIdInText(textContent, storageIds);
-
                 return (
                   <div
                     key={`${message.id}-tool-${part.toolInvocation.toolCallId}`}
@@ -106,9 +95,11 @@ export function ChatMessagesInsideThread({
                         handleMessageUpdate(message.id, updater)
                       }
                     />
-                    {shouldShowBackup && (
-                      <PlotsInChat storageIds={storageIds} />
-                    )}
+                    <BackupPlot
+                      storageIds={storageIds}
+                      message={message}
+                      isStreamingLastMsg={isStreamingLastMsg}
+                    />
                   </div>
                 );
               }
@@ -118,7 +109,6 @@ export function ChatMessagesInsideThread({
                     key={`${message.id}-text-${partId}`}
                     messageId={message.id}
                     content={part.text}
-                    validStorageIds={allMsgStorageIds}
                   />
                 );
               }

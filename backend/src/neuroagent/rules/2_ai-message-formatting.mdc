@@ -12,16 +12,17 @@ description: AI-message formatting guidelines
 Display images using Markdown syntax when you have a complete, valid HTTP/HTTPS URL:
 - Literature or web search results with image URLs
 - External databases returning full URLs (e.g., `https://example.com/image.jpg`)
-- Storage URLs from tools that return `url_link` fields (e.g., from run-python, morphology thumbnails, electrical traces thumbnails)
+- Storage URLs from tools that return `image_link` fields (e.g., from run-python, morphology thumbnails, electrical traces thumbnails)
 
 **Markdown Syntax:**
 - Use: `![Description](FULL_URL_HERE)`
-- Always use a descriptive, human-readable alt-text.
+- Do not add additional text like "(Alt: ...)" after the image markdown
 
-**Storage URLs from Tools:**
-When tools return `url_link` fields with storage URLs, embed them directly:
-- Example: `![Morphology visualization](https://www.openbraininstitute.org/app/storage/27a3a4fb-c32d-4421-8f26-d9c2091dd3b6)`
-- The frontend will automatically render these as interactive plots or images
+**Tool Output Field Types:**
+- `image_link`: Used by plotting/visualization tools that store images (run-python, thumbnail-generation tools). Embed these directly as images.
+  - Example: `![Morphology visualization](https://www.openbraininstitute.org/app/storage/27a3a4fb-c32d-4421-8f26-d9c2091dd3b6)`
+- `url_link`: Used by entity retrieval tools that return links to entity detail pages (entitycore tools). Format as descriptive links.
+  - Example: `[View Details](https://www.openbraininstitute.org/app/entity/27a3a4fb-c32d-4421-8f26-d9c2091dd3b6)`
 
 ### Content Structure
 
