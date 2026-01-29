@@ -2,6 +2,7 @@
 
 import { ImagePlot } from "@/components/plots/image";
 import { Plots } from "@/components/plots/plotly";
+import { PlotSkeleton } from "@/components/plots/skeleton";
 import { useGetPresignedUrl } from "@/hooks/get-presigned";
 import { useGetObjectFromStorage } from "@/hooks/get-storage-object";
 import { memo } from "react";
@@ -17,7 +18,7 @@ export default function PlotsInChat({ storageIds }: PlotDisplayProps) {
   }
 
   return (
-    <span className="ml-20 block grid grid-cols-2 gap-4">
+    <span className="ml-20 block">
       {storageIds.map((storageId) => (
         <SinglePlotInChat key={storageId} storageId={storageId} />
       ))}
@@ -46,16 +47,18 @@ const SinglePlotInChat = memo(({ storageId }: { storageId: string }) => {
   }
 
   if (!category) {
-    return (
-      <span className="flex h-[500px] w-full items-center justify-center border-4">
-        <span className="inline-block h-6 w-6 animate-spin rounded-full border-2 border-gray-500 border-t-transparent p-1" />
-      </span>
-    );
+    return <PlotSkeleton />;
   }
 
   switch (category) {
     case "image":
-      return <ImagePlot url={presignedUrl ?? ""} storageId={storageId} />;
+      return (
+        <ImagePlot
+          url={presignedUrl ?? ""}
+          storageId={storageId}
+          isInChat={true}
+        />
+      );
     case "json":
       return (
         <Plots

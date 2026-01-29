@@ -104,11 +104,15 @@ export function ChatMessagesInsideThread({
                 );
               }
               if (part.type === "text" && part.text !== "") {
+                const validStorageIds = message.parts
+                  .filter((p) => p.type === "tool-invocation")
+                  .flatMap((p) => getStorageID(p) || []);
                 return (
                   <ChatMessageAI
                     key={`${message.id}-text-${partId}`}
                     messageId={message.id}
                     content={part.text}
+                    validStorageIds={validStorageIds}
                   />
                 );
               }
