@@ -18,16 +18,25 @@ export function BackupPlot({
     return null;
   }
 
-  const storageId = storageIds[0];
   const textParts = message.parts.filter((p) => p.type === "text");
-  const escapedId = storageId.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  const hasImageLink = textParts.some((p) =>
-    p.text?.match(new RegExp(`!\\[.*?\\]\\([^)]*\\/storage\\/${escapedId}\\)`)),
-  );
+  const storageIdsWithoutImageLink = storageIds.filter((storageId) => {
+    const escapedId = storageId.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    return !textParts.some((p) =>
+      p.text?.match(
+        new RegExp(`!\\[.*?\\]\\([^)]*\\/storage\\/${escapedId}\\)`),
+      ),
+    );
+  });
 
-  if (hasImageLink) {
+  if (storageIdsWithoutImageLink.length === 0) {
     return null;
   }
 
-  return <PlotsInChat storageIds={storageIds} />;
+  return (
+    <>
+      {storageIdsWithoutImageLink.map((storageId) => (
+        <PlotsInChat key={storageId} storageIds={[storageId]} />
+      ))}
+    </>
+  );
 }
