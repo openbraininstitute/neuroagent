@@ -1,0 +1,43 @@
+site_name: Neuroagent
+
+# Theme configuration
+theme:
+  name: material
+  palette:
+    scheme: slate
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - search.suggest
+    - content.code.copy
+
+# Navigation structure
+nav:
+  - Home: index.md
+  - Tool Selection: tool-selection.md
+  - Model Routing: model-routing.md
+  - Tools: tools.md
+  - Credits: credits.md
+
+# Plugins
+plugins:
+  - search
+  - tags:
+      tags_allowed:
+        - explore
+        - launch-notebook
+        - contribute-and-fix-data
+        - build-ion-channel-model
+        - single-cell-simulation
+        - paired-neuron-simulation
+        - circuit-simulation
+        - neuron-skeletonization
+        - virtual-labs
+
+# Documentation directory
+docs_dir: docs
+site_dir: site
+
+# Build options
+strict: false
+use_directory_urls: true
