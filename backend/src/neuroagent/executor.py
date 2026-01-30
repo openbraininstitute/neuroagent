@@ -3,6 +3,7 @@
 import asyncio
 import json
 import logging
+import os
 import subprocess  # nosec: B404
 import tempfile
 from pathlib import Path
@@ -64,20 +65,31 @@ class WasmExecutor:
         deno_permissions: list[str] | None = None,
         allocated_memory: int | None = None,
         timeout: int = 60,
+        tmp_base_dir: str = "/tmp",  # nosec: B108 - /tmp is intentionally used for read-only filesystem compatibility
     ) -> None:
         """Init."""
         self.additional_imports = additional_imports
         self.logger = logger
         self.deno_path = deno_path
         self.timeout = timeout
+        self.tmp_base_dir = tmp_base_dir
+
+        # Create persistent cache directory in /tmp for Deno
+        # Resolve to handle symlinks (e.g., /tmp -> /private/tmp on macOS)
+        self.deno_cache_dir = Path(tmp_base_dir).resolve() / "deno_cache"
+
+        # Ensure cache directory exists
+        self.deno_cache_dir.mkdir(parents=True, exist_ok=True)
 
         # Default minimal permissions needed
         if deno_permissions is None:
             # Use minimal permissions for Deno execution
+            # Allow reading from local node_modules (for .deno cache), cached wheels, and /tmp (including deno_cache)
+            # cached_wheels is always at ./cached_wheels relative to working directory
             deno_permissions = [
-                "allow-read=./node_modules,./cached_wheels",
-                "node-modules-dir=auto",
-                "allow-env=WS_NO_BUFFER_UTIL",
+                f"allow-read=./node_modules,./cached_wheels,{tmp_base_dir},{self.deno_cache_dir}",
+                f"allow-write={self.deno_cache_dir}",
+                "allow-env=WS_NO_BUFFER_UTIL,DENO_DIR",
             ]
         self.deno_permissions = [f"--{perm}" for perm in deno_permissions]
         if allocated_memory:
@@ -103,7 +115,9 @@ class WasmExecutor:
         ```
         The example assumes the plotly wheel has been manually downloaded and put it in the folder ./cached_wheels/plotly-wheel.wlh
         """  # noqa: D300
-        with tempfile.TemporaryDirectory(prefix="pyodide_deno_") as runner_dir:
+        with tempfile.TemporaryDirectory(
+            prefix="pyodide_deno_", dir=self.tmp_base_dir
+        ) as runner_dir:
             runner_path = Path(runner_dir) / "pyodide_runner.js"
             deno_permissions = [  # Allow fetching + caching packages
                 "allow-net="
@@ -113,9 +127,9 @@ class WasmExecutor:
                         "pypi.org:443,files.pythonhosted.org:443",  # allow pyodide install packages from PyPI
                     ]
                 ),
-                "allow-read=./node_modules,./cached_wheels",
-                "allow-write=./node_modules",
-                "node-modules-dir=auto",
+                f"allow-read=./node_modules,./cached_wheels,{self.tmp_base_dir},{self.deno_cache_dir}",
+                f"allow-write={self.deno_cache_dir}",
+                "allow-env=WS_NO_BUFFER_UTIL,DENO_DIR",
             ]
             # Create the JavaScript runner file
             with open(runner_path, "w") as f:
@@ -131,13 +145,21 @@ class WasmExecutor:
                 + [runner_path]
             )
 
+            # Set DENO_DIR environment variable to use /tmp for caching
+            env = {
+                **os.environ,
+                "DENO_DIR": str(self.deno_cache_dir),
+            }
+
             # Run the cmd in a subprocess
+            # Note: We don't set cwd here to allow reading from local node_modules
             subprocess.run(  # nosec: B603
                 cmd,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
                 text=True,
                 timeout=self.timeout,
+                env=env,
             )
             return self
 
@@ -162,7 +184,9 @@ class WasmExecutor:
         -------
             `SuccessOutput | FailureOutput`: Code output containing the result and logs or potential errors.
         """
-        with tempfile.TemporaryDirectory(prefix="pyodide_deno_") as runner_dir:
+        with tempfile.TemporaryDirectory(
+            prefix="pyodide_deno_", dir=self.tmp_base_dir
+        ) as runner_dir:
             runner_path = Path(runner_dir) / "pyodide_runner.js"
             # Create the JavaScript runner file
             with open(runner_path, "w") as f:
@@ -183,11 +207,19 @@ class WasmExecutor:
 
             cmd = [self.deno_path, "run"] + permission + [runner_path]
 
+            # Set DENO_DIR environment variable to use /tmp for caching
+            env = {
+                **os.environ,
+                "DENO_DIR": str(self.deno_cache_dir),
+            }
+
             # Run the cmd in a subprocess
+            # Note: We don't set cwd here to allow reading from local node_modules
             process = await asyncio.create_subprocess_exec(  # nosec: B603
                 *cmd,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
+                env=env,
             )
 
             # Use communicate() to wait for process and read all output
