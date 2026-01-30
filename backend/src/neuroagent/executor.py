@@ -145,9 +145,10 @@ class WasmExecutor:
                 + [runner_path]
             )
 
-            # Set DENO_DIR environment variable to use /tmp for caching
+            # Set minimal environment variables for Deno execution
+            # Only pass PATH to find deno binary and DENO_DIR for cache location
             env = {
-                **os.environ,
+                "PATH": os.environ.get("PATH", ""),
                 "DENO_DIR": str(self.deno_cache_dir),
             }
 
@@ -207,9 +208,10 @@ class WasmExecutor:
 
             cmd = [self.deno_path, "run"] + permission + [runner_path]
 
-            # Set DENO_DIR environment variable to use /tmp for caching
+            # Set minimal environment variables for Deno execution
+            # Only pass PATH to find deno binary and DENO_DIR for cache location
             env = {
-                **os.environ,
+                "PATH": os.environ.get("PATH", ""),
                 "DENO_DIR": str(self.deno_cache_dir),
             }
 
