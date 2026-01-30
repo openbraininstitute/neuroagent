@@ -25,10 +25,16 @@ class TestWasmExecutor:
         assert executor.logger is None
         assert executor.deno_path == "deno"
         assert executor.timeout == 60
-        assert (
-            "--allow-read=./node_modules,./cached_wheels" in executor.deno_permissions
-        )
-        assert "--node-modules-dir=auto" in executor.deno_permissions
+        # Check that read permissions include the essential paths
+        read_perms = [
+            p for p in executor.deno_permissions if p.startswith("--allow-read=")
+        ]
+        assert len(read_perms) == 1
+        assert "./node_modules" in read_perms[0]
+        assert "./cached_wheels" in read_perms[0]
+        assert "/tmp" in read_perms[0]
+        # Check that node-modules-dir is NOT present (we removed it)
+        assert not any("node-modules-dir" in p for p in executor.deno_permissions)
 
     def test_init_with_custom_parameters(self):
         """Test initialization with custom parameters."""

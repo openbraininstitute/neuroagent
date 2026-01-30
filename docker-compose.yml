@@ -5,6 +5,9 @@ services:
       dockerfile: Dockerfile
     ports:
       - "8078:8078"
+    read_only: true
+    tmpfs:
+      - /tmp:exec,mode=1777
     environment:
       - NEUROAGENT_DB__PREFIX=postgresql+asyncpg://
       - NEUROAGENT_DB__HOST=postgres
