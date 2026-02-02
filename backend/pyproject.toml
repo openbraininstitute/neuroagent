@@ -38,7 +38,7 @@ dependencies = [
 dev = [
     "bandit[toml]",
     "colorama>=0.4.6",
-    "datamodel-code-generator>=0.35.0",
+    "datamodel-code-generator[ruff]>=0.53.0",
     "deepeval>=3.6.6",
     "mypy==1.15.0",
     "pandas",
@@ -49,6 +49,10 @@ dev = [
     "responses",
     "ruff",
     "types-requests",
+]
+docs = [
+    "mkdocs>=1.6.1",
+    "mkdocs-material>=9.7.1",
 ]
 
 [project.scripts]
