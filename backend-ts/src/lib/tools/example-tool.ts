@@ -1,8 +1,8 @@
 /**
  * Example Tool Implementation
- * 
+ *
  * Translated from backend/src/neuroagent/tools/base_tool.py
- * 
+ *
  * This is a reference implementation showing how to create a tool
  * by extending the BaseTool class. It demonstrates the proper separation
  * between static tool metadata and instance context variables.
@@ -13,27 +13,29 @@ import { BaseTool, BaseContextVariables } from './base-tool';
 
 /**
  * Context variables for the example tool
- * 
+ *
  * These are runtime dependencies passed from the app to the tool.
  * They contain things like HTTP clients, API URLs, configuration, etc.
- * 
+ *
  * In Python, this would be a subclass of BaseMetadata.
  */
 interface ExampleToolContextVariables extends BaseContextVariables {
   /** Example API base URL */
   apiUrl: string;
-  
+
   /** Example API key for authentication */
   apiKey?: string;
-  
+
   /** HTTP client for making requests */
   httpClient?: any; // TODO: Type this properly
 }
 
 /**
  * Input schema for the example tool
- * 
+ *
  * This defines the parameters that the LLM can provide to the tool.
+ * Note: maxResults is optional with a default value, demonstrating
+ * how optional parameters work with structuredOutputs: false.
  */
 const ExampleToolInputSchema = z.object({
   query: z.string().describe('The search query or input text'),
@@ -42,19 +44,19 @@ const ExampleToolInputSchema = z.object({
     .int()
     .positive()
     .default(10)
-    .describe('Maximum number of results to return'),
+    .describe('Maximum number of results to return (default: 10)'),
   includeMetadata: z
     .boolean()
-    .default(false)
-    .describe('Whether to include metadata in results'),
+    .optional()
+    .describe('Whether to include metadata in results (optional)'),
 });
 
 /**
  * Example tool demonstrating the BaseTool pattern
- * 
+ *
  * This tool serves as a template for implementing new tools.
  * Replace the logic in the execute method with your actual tool implementation.
- * 
+ *
  * Key concepts:
  * - Static properties (name, description, etc.) = Tool metadata for LLM
  * - contextVariables = Runtime dependencies from app (not from LLM)
@@ -77,7 +79,7 @@ export class ExampleTool extends BaseTool<
 
   /**
    * Context variables (runtime dependencies)
-   * 
+   *
    * These are passed from the app to the tool, not from the LLM.
    * In Python, this is the `metadata` field.
    */
@@ -85,14 +87,14 @@ export class ExampleTool extends BaseTool<
 
   /**
    * Input validation schema
-   * 
+   *
    * Defines the parameters that the LLM can provide to the tool.
    */
   override inputSchema = ExampleToolInputSchema;
 
   /**
    * Constructor
-   * 
+   *
    * @param contextVariables - Runtime dependencies passed from app
    */
   constructor(contextVariables: ExampleToolContextVariables) {
@@ -102,11 +104,11 @@ export class ExampleTool extends BaseTool<
 
   /**
    * Execute the tool
-   * 
+   *
    * This method has access to:
    * - input: Parameters provided by the LLM
    * - this.contextVariables: Runtime dependencies from the app
-   * 
+   *
    * @param input - Validated input matching ExampleToolInputSchema
    * @returns Tool execution result
    */
@@ -142,10 +144,10 @@ export class ExampleTool extends BaseTool<
 
   /**
    * Health check implementation
-   * 
+   *
    * Override this method to check if external services are available.
    * For this example, we always return true.
-   * 
+   *
    * Note: In Python, this is a classmethod that receives context variables
    * as parameters. In TypeScript, we use instance method with access to
    * this.contextVariables.

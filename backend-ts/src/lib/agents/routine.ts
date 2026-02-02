@@ -1,6 +1,6 @@
 /**
  * Agent Routine with Vercel AI SDK Integration
- * 
+ *
  * This module implements the core agent orchestration logic using Vercel AI SDK's
  * streamText function. It handles:
  * - Message history conversion to CoreMessage format
@@ -8,7 +8,7 @@
  * - Token consumption tracking
  * - Streaming interruption handling
  * - Multi-turn conversation management
- * 
+ *
  * Requirements: 6.1, 6.2, 6.3, 6.4, 6.6, 6.7
  */
 
@@ -26,22 +26,22 @@ import type { Message, ToolCall } from '@prisma/client';
 export interface AgentConfig {
   /** Model identifier (e.g., 'openai/gpt-4', 'openrouter/anthropic/claude-3') */
   model: string;
-  
+
   /** Temperature for response generation (0-2) */
   temperature: number;
-  
+
   /** Maximum tokens to generate (optional) */
   maxTokens?: number;
-  
+
   /** Reasoning level for model selection (optional) */
   reasoning?: 'none' | 'minimal' | 'low' | 'medium' | 'high';
-  
+
   /** Array of tool CLASSES available to the agent (not instances) */
   tools: any[];
-  
+
   /** System instructions for the agent */
   instructions: string;
-  
+
   /** Context variables for tool instantiation (optional) */
   contextVariables?: any;
 }
@@ -55,7 +55,7 @@ type MessageWithToolCalls = Message & {
 
 /**
  * Agent Routine Class
- * 
+ *
  * Orchestrates LLM interactions using Vercel AI SDK's streamText function.
  * Handles message history, tool execution, and token tracking.
  */
@@ -65,7 +65,7 @@ export class AgentsRoutine {
 
   /**
    * Initialize the agent routine with API credentials
-   * 
+   *
    * @param openaiApiKey - OpenAI API key (optional)
    * @param openaiBaseUrl - OpenAI base URL (optional)
    * @param openrouterApiKey - OpenRouter API key (optional)
@@ -77,6 +77,8 @@ export class AgentsRoutine {
   ) {
     if (openaiApiKey) {
       // Initialize OpenAI provider with API key
+      // Note: We don't set compatibility mode to let Vercel AI SDK handle
+      // OpenAI's structured outputs correctly with strict: false by default
       this.openaiClient = createOpenAI({
         apiKey: openaiApiKey,
         baseURL: openaiBaseUrl,
@@ -91,7 +93,7 @@ export class AgentsRoutine {
 
   /**
    * Stream a chat response using Vercel AI SDK with automatic multi-step tool execution
-   * 
+   *
    * This method leverages Vercel AI SDK's built-in multi-step capabilities:
    * 1. Loads message history from database
    * 2. Converts messages to CoreMessage format
@@ -101,13 +103,13 @@ export class AgentsRoutine {
    *    - Adds tool results to message history
    *    - Continues generation until completion or maxSteps reached
    * 5. Saves messages and token consumption via onFinish callback
-   * 
+   *
    * @param agent - Agent configuration
    * @param threadId - Thread ID for message history
    * @param maxTurns - Maximum number of conversation turns (default: 10)
    * @param _maxParallelToolCalls - Reserved for future use
    * @returns Data stream response for client consumption
-   * 
+   *
    * Requirements: 6.1, 6.2, 6.3, 6.4, 6.7
    */
   async streamChat(
@@ -146,12 +148,25 @@ export class AgentsRoutine {
       for (const ToolClass of agent.tools) {
         const toolName = ToolClass.toolName;
         const tempInstance = new ToolClass(agent.contextVariables || {});
-        
+
         // Get the full tool definition with execute function
         // Vercel AI SDK will handle automatic execution
         tools[toolName] = tempInstance.toVercelTool();
       }
       console.log('[streamChat] Converted', Object.keys(tools).length, 'tools:', Object.keys(tools));
+
+      // Log the tool schemas before sending to LLM
+      console.log('[streamChat] ========== TOOL SCHEMAS SENT TO LLM ==========');
+      for (const [toolName, tool] of Object.entries(tools)) {
+        try {
+          console.log(`Tool: ${toolName}`);
+          console.log(`Description: ${(tool as any).description}`);
+          console.log(`Parameters schema:`, (tool as any).parameters);
+        } catch (error) {
+          console.error(`[streamChat] Failed to log schema for tool "${toolName}":`, error);
+        }
+      }
+      console.log('[streamChat] ================================================');
 
       // Determine provider and model
       const model = this.getProviderAndModel(agent.model);
@@ -178,7 +193,7 @@ export class AgentsRoutine {
             usage,
             messagesCount: response.messages?.length || 0,
           });
-          
+
           // Save all messages generated during the multi-step execution
           try {
             await this.saveMessagesToDatabase(
@@ -199,22 +214,22 @@ export class AgentsRoutine {
       const response = result.toDataStreamResponse({
         getErrorMessage: (error: unknown) => {
           console.error('[streamChat] Error in stream:', error);
-          
+
           if (error == null) {
             return 'Unknown error occurred';
           }
-          
+
           if (typeof error === 'string') {
             return error;
           }
-          
+
           if (error instanceof Error) {
             if (process.env.NODE_ENV === 'development') {
               return `${error.message}\n\nStack trace:\n${error.stack}`;
             }
             return error.message;
           }
-          
+
           try {
             return JSON.stringify(error);
           } catch {
@@ -222,13 +237,13 @@ export class AgentsRoutine {
           }
         },
       });
-      
+
       console.log('[streamChat] DataStreamResponse created successfully');
       return response;
     } catch (error) {
       console.error('[streamChat] Error setting up agent:', error);
       console.error('[streamChat] Error stack:', error instanceof Error ? error.stack : 'No stack trace');
-      
+
       // Return error response
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       const errorStream = new ReadableStream({
@@ -238,7 +253,7 @@ export class AgentsRoutine {
           controller.close();
         },
       });
-      
+
       return new Response(errorStream, {
         status: 200,
         headers: {
@@ -251,10 +266,10 @@ export class AgentsRoutine {
 
   /**
    * Save messages to database from Vercel AI SDK response
-   * 
+   *
    * Processes all messages generated during multi-step execution and saves them
    * to the database with appropriate entity types and tool call information.
-   * 
+   *
    * @param threadId - Thread ID
    * @param messages - Messages from Vercel AI SDK response
    * @param usage - Token usage information
@@ -268,7 +283,7 @@ export class AgentsRoutine {
   ): Promise<void> {
     try {
       console.log('[saveMessagesToDatabase] Saving', messages.length, 'messages');
-      
+
       for (const message of messages) {
         if (message.role === 'assistant') {
           // Extract text content and tool calls
@@ -335,8 +350,8 @@ export class AgentsRoutine {
                       role: 'tool',
                       tool_call_id: part.toolCallId,
                       tool_name: part.toolName,
-                      content: typeof part.result === 'string' 
-                        ? part.result 
+                      content: typeof part.result === 'string'
+                        ? part.result
                         : JSON.stringify(part.result),
                     }),
                     isComplete: true,
@@ -347,7 +362,7 @@ export class AgentsRoutine {
           }
         }
       }
-      
+
       console.log('[saveMessagesToDatabase] All messages saved successfully');
     } catch (error) {
       console.error('[saveMessagesToDatabase] Error:', error);
@@ -357,16 +372,16 @@ export class AgentsRoutine {
 
   /**
    * Convert database messages to Vercel AI SDK CoreMessage format
-   * 
+   *
    * Handles conversion of:
    * - User messages
    * - Assistant messages
    * - Tool call messages
    * - Tool result messages
-   * 
+   *
    * @param messages - Messages from database with tool calls
    * @returns Array of CoreMessage objects
-   * 
+   *
    * Requirement: 6.2
    */
   private convertToCoreMessages(
@@ -391,7 +406,7 @@ export class AgentsRoutine {
           // Assistant message (may include tool calls)
           const assistantContent = typeof content === 'string' ? content : content.content || '';
           console.log('[convertToCoreMessages] Assistant message with', msg.toolCalls?.length || 0, 'tool calls');
-          
+
           const assistantMessage: CoreMessage = {
             role: 'assistant',
             content: assistantContent,
@@ -422,7 +437,7 @@ export class AgentsRoutine {
           const toolCallId = content.tool_call_id || content.toolCallId;
           const toolName = content.tool_name || content.toolName;
           console.log('[convertToCoreMessages] Tool result for:', toolName, 'ID:', toolCallId);
-          
+
           coreMessages.push({
             role: 'tool',
             content: [
@@ -450,16 +465,20 @@ export class AgentsRoutine {
 
   /**
    * Get provider and model name from model identifier
-   * 
+   *
    * Supports formats:
    * - 'openai/gpt-4' -> OpenAI provider, 'gpt-4' model
    * - 'openrouter/anthropic/claude-3' -> OpenRouter provider, 'anthropic/claude-3' model
    * - 'gpt-4' -> OpenAI provider (default), 'gpt-4' model
-   * 
+   *
+   * Note: For OpenAI models, we set structuredOutputs: false to allow optional parameters
+   * in tool schemas without requiring strict mode validation. This matches the Python
+   * backend behavior where tools have "strict": false.
+   *
    * @param modelIdentifier - Model identifier string
    * @returns Provider model instance
    * @throws Error if provider is not configured
-   * 
+   *
    * Requirement: 2.3
    */
   private getProviderAndModel(modelIdentifier: string): any {
@@ -468,7 +487,8 @@ export class AgentsRoutine {
         throw new Error('OpenAI provider not configured');
       }
       const modelName = modelIdentifier.replace('openai/', '');
-      return this.openaiClient(modelName);
+      // Set structuredOutputs: false to allow optional parameters in tool schemas
+      return this.openaiClient(modelName, { structuredOutputs: false });
     } else if (modelIdentifier.startsWith('openrouter/')) {
       if (!this.openrouterClient) {
         throw new Error('OpenRouter provider not configured');
@@ -480,7 +500,8 @@ export class AgentsRoutine {
       if (!this.openaiClient) {
         throw new Error('OpenAI provider not configured');
       }
-      return this.openaiClient(modelIdentifier);
+      // Set structuredOutputs: false to allow optional parameters in tool schemas
+      return this.openaiClient(modelIdentifier, { structuredOutputs: false });
     }
   }
 
@@ -488,15 +509,15 @@ export class AgentsRoutine {
 
   /**
    * Create token consumption records from usage information
-   * 
+   *
    * Generates records for:
    * - Input tokens (cached and non-cached)
    * - Completion tokens
-   * 
+   *
    * @param usage - Token usage from LLM
    * @param model - Model identifier
    * @returns Array of token consumption records
-   * 
+   *
    * Requirement: 6.7
    */
   private createTokenConsumptionRecords(
