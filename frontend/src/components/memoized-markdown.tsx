@@ -4,8 +4,8 @@ import { marked } from "marked";
 import { memo, useMemo } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import remarkUnwrapImages from "remark-unwrap-images";
 import PlotsInChat from "@/components/chat/plot-in-chat";
+import { PlotSkeleton } from "@/components/plots/skeleton";
 import { useStorageId } from "@/lib/storage-queries";
 
 const ConditionalImageRenderer = ({
@@ -20,7 +20,7 @@ const ConditionalImageRenderer = ({
   const { data: storageId } = useStorageId(src);
 
   if (!src || storageId === undefined) {
-    return <img src={src} alt={alt} {...props} className="ml-20" />;
+    return <PlotSkeleton className="ml-20" />;
   }
 
   return storageId ? (
@@ -31,7 +31,7 @@ const ConditionalImageRenderer = ({
       alt={alt}
       {...props}
       className="ml-20"
-      style={{ maxHeight: "500px", width: "auto", maxWidth: "none" }}
+      style={{ maxHeight: "500px", width: "auto" }}
     />
   );
 };
@@ -45,9 +45,10 @@ const MemoizedMarkdownBlock = memo(
   ({ content }: { content: string }) => {
     return (
       <ReactMarkdown
-        remarkPlugins={[remarkGfm, remarkUnwrapImages]}
+        remarkPlugins={[remarkGfm]}
         components={{
           img: (props) => <ConditionalImageRenderer {...props} />,
+          p: ({ children }) => <div>{children}</div>,
         }}
       >
         {content}

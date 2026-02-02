@@ -16,14 +16,18 @@ export function ImagePlot({
   isInChat,
   storageId,
 }: ImagePlotProps) {
-  return (
-    <div className="relative pb-2">
-      {isInChat ? (
-        <Link href={`/viewer/${storageId}`} className="flex gap-2">
-          <Link2 className="mt-0.5" />
-          <h2 className="mb-2 text-xl font-bold underline">{title}</h2>
+  const content = (
+    <>
+      {isInChat && title && (
+        <Link
+          href={`/viewer/${storageId}`}
+          className="inline-flex items-center gap-2"
+        >
+          <Link2 className="size-5" />
+          <span className="mb-2 text-xl font-bold underline">{title}</span>
         </Link>
-      ) : (
+      )}
+      {!isInChat && title && (
         <h2 className="mb-2 text-xl font-bold">{title}</h2>
       )}
       {description && <p className="mb-4 text-gray-600">{description}</p>}
@@ -31,9 +35,21 @@ export function ImagePlot({
       <img
         src={url}
         alt={title || "Plot"}
-        className="rounded-md bg-white p-3"
-        style={{ maxHeight: "500px", width: "auto", maxWidth: "none" }}
+        className="rounded-md bg-white p-1"
+        style={{ maxHeight: "400px", width: "auto" }}
       />
+    </>
+  );
+
+  return (
+    <div className="relative max-h-[450px] max-w-3xl">
+      {isInChat ? (
+        <Link href={`/viewer/${storageId}`} className="block">
+          {content}
+        </Link>
+      ) : (
+        content
+      )}
     </div>
   );
 }

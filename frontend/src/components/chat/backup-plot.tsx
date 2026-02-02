@@ -33,10 +33,10 @@ export function BackupPlot({
   }
 
   return (
-    <>
+    <div className="my-4 space-y-12">
       {storageIdsWithoutImageLink.map((storageId) => (
         <PlotsInChat key={storageId} storageIds={[storageId]} />
       ))}
-    </>
+    </div>
   );
 }

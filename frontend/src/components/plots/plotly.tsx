@@ -56,30 +56,30 @@ export function Plots({ presignedUrl, isInChat, storageId }: PlotProp) {
     margin: {
       l: 0,
       r: 0,
-      t: 20, // reduces big empty space
-      b: 40, // bottom prevents overlap with text below
+      t: 20,
+      b: 20,
     },
     autosize: true,
+    height: 420,
   };
 
   return (
-    <div
-      className={`mx-auto flex w-full max-w-4xl flex-col gap-2 p-4 ${
-        !isInChat ? "mt-6" : ""
-      }`}
-    >
+    <div className="flex w-full max-w-3xl flex-col gap-2">
       {isInChat ? (
-        <Link href={`/viewer/${storageId}`} className="flex items-center gap-2">
-          <Link2 className="mt-0.5" />
-          <h2 className="text-xl font-bold underline">
-            {title?.text || title}
-          </h2>
+        <Link
+          href={`/viewer/${storageId}`}
+          className="inline-flex items-center gap-2"
+        >
+          <Link2 className="size-5" />
+          <span className="text-xl font-bold underline">
+            {title?.text || title || "Python plot"}
+          </span>
         </Link>
       ) : (
         <h2 className="text-xl font-bold">{title?.text || title}</h2>
       )}
 
-      <div className={"plot-container h-[500px] w-full"}>
+      <div className={"plot-container max-h-[420px] max-w-3xl overflow-y-auto"}>
         <Plot
           data={response.data}
           layout={themedLayout}
