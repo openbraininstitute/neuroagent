@@ -9,22 +9,22 @@ LLM agent for interacting with neuroscience tools. Enables ChatGPT-style interac
 The easiest way to run the project is with Docker Compose:
 
 1. Install Docker and Docker Compose
-2. Create `.env` file with required variables:
+2. Create a `backend/.env` file with required variables. Configurable variables are listed in `backend/.env.example`. Please contact the Machine Learning team to get the secret values.
+3. Create a `frontend/.env.local` file with required variables. Configure the following variables. Please contact the Machine Learning team to get the secret values.
 ```bash
-OPENAI_API_KEY=...
-KEYCLOAK_ID=...
-KEYCLOAK_SECRET=...
-KEYCLOAK_ISSUER=...
-NEXTAUTH_SECRET=...
+KEYCLOAK_ID=
+KEYCLOAK_SECRET=
+KEYCLOAK_ISSUER=
+NEXTAUTH_SECRET=
 ```
 
-3. Start the services and initialize the database:
+4. Start the services and initialize the database:
 ```bash
 docker compose up
 docker exec -it neuroagent-minio-1 mc alias set myminio http://minio:9000 minioadmin minioadmin && docker exec -it neuroagent-minio-1 mc mb myminio/neuroagent
 ```
 
-4. Access the application at `http://localhost:3000`
+5. Access the application at `http://localhost:3000`
 
 Notes:
 - First run will take longer to build frontend and backend images
