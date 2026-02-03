@@ -1,6 +1,6 @@
 /**
  * Thread Messages API Route
- * 
+ *
  * Translated from: backend/src/neuroagent/app/routers/threads.py
  *
  * Endpoint:
@@ -60,7 +60,7 @@ interface PaginatedResponse<T> {
  * GET /api/threads/[thread_id]/messages
  *
  * Get all messages for a specific thread with pagination.
- * 
+ *
  * Implements two-phase query strategy for Vercel format:
  * 1. First query: Get message IDs and metadata for pagination
  * 2. Second query: Fetch full messages with tool calls based on IDs
@@ -85,7 +85,7 @@ export async function GET(
     const vercelFormat = searchParams.get('vercel_format') === 'true';
     const sort = searchParams.get('sort') || '-creation_date';
     const entityFilterParam = searchParams.get('entity');
-    
+
     console.log('[messages] Query params:', {
       pageSize,
       cursor,
@@ -119,7 +119,7 @@ export async function GET(
     const settings = getSettings();
     const authHeader = request.headers.get('authorization');
     const jwtToken = authHeader?.replace('Bearer ', '');
-    
+
     // Get tool CLASSES (not instances) - following ClassVar pattern
     const toolClasses = await initializeTools({
       exaApiKey: settings.tools.exaApiKey,
@@ -131,7 +131,7 @@ export async function GET(
       obiOneUrl: settings.tools.obiOne.url,
       mcpConfig: settings.mcp,
     });
-    
+
     // Build HIL mapping from tool classes (static properties)
     const toolHilMapping: Record<string, boolean> = {};
     toolClasses.forEach((ToolClass) => {
@@ -141,7 +141,9 @@ export async function GET(
     // Determine entity filter
     let entityFilter: entity[] | null = null;
     if (vercelFormat) {
-      entityFilter = [entity.USER, entity.AI_MESSAGE];
+      // Include AI_TOOL and TOOL to properly merge tool results
+      // TOOL entities are needed to populate tool call results
+      entityFilter = [entity.USER, entity.AI_MESSAGE, entity.AI_TOOL, entity.TOOL];
     } else if (entityFilterParam) {
       entityFilter = entityFilterParam.split(',').map((e) => e as entity);
     }
@@ -273,43 +275,165 @@ export async function GET(
 
     // Format response
     if (vercelFormat) {
-      // Return messages in descending order (newest first)
-      // Frontend will reverse them to get chronological order (oldest first) for display
-      const formattedMessages: MessageVercel[] = dbMessages
-        .filter((msg) => msg.entity === entity.USER || msg.entity === entity.AI_MESSAGE)
-        .map((msg) => {
-          const content = JSON.parse(msg.content);
-          const role =
-            msg.entity === entity.USER
-              ? 'user'
-              : msg.entity === entity.AI_MESSAGE
-                ? 'assistant'
-                : 'system';
+      // Post-process messages to match Python backend's format_messages_to_vercel()
+      // Process in REVERSE order (oldest to newest) and buffer tool calls
+      const messages: MessageVercel[] = [];
+      let parts: Array<any> = [];
+      let annotations: Array<any> = [];
 
-          const message: MessageVercel = {
-            id: msg.id,
-            role,
-            createdAt: msg.creationDate.toISOString(),
-            content: content.content || content,
-          };
+      // Reverse to process oldest to newest
+      const reversedMessages = [...dbMessages].reverse();
 
-          // Add tool calls as parts if they exist
-          if (msg.toolCalls && msg.toolCalls.length > 0) {
-            message.parts = msg.toolCalls.map((tc) => ({
-              type: 'tool-call',
-              toolCallId: tc.id,
-              toolName: tc.name,
-              args: JSON.parse(tc.arguments),
-              result: tc.result ? JSON.parse(tc.result) : undefined,
-            }));
+      for (const msg of reversedMessages) {
+        const content = JSON.parse(msg.content);
+
+        if (msg.entity === entity.USER || msg.entity === entity.AI_MESSAGE) {
+          const textContent = content.content || content;
+          const reasoningContent = content.reasoning;
+
+          // Add optional reasoning
+          if (reasoningContent) {
+            parts.push({
+              type: 'reasoning',
+              reasoning: reasoningContent,
+            });
           }
 
-          return message;
+          const messageData: MessageVercel = {
+            id: msg.id,
+            role: msg.entity === entity.USER ? 'user' : 'assistant',
+            createdAt: msg.creationDate.toISOString(),
+            content: textContent,
+          };
+
+          // Handle AI_MESSAGE - flush buffer
+          if (msg.entity === entity.AI_MESSAGE) {
+            if (textContent) {
+              parts.push({
+                type: 'text',
+                text: textContent,
+              });
+            }
+
+            annotations.push({
+              messageId: msg.id,
+              isComplete: msg.isComplete,
+            });
+
+            messageData.parts = parts;
+            messageData.annotations = annotations;
+          } else if (msg.entity === entity.USER && parts.length > 0) {
+            // If we encounter a user message with a non-empty buffer, add a dummy AI message
+            messages.push({
+              id: crypto.randomUUID(),
+              role: 'assistant',
+              createdAt: msg.creationDate.toISOString(),
+              content: '',
+              parts,
+              annotations,
+            });
+          }
+
+          // Reset buffer and add message
+          parts = [];
+          annotations = [];
+          messages.push(messageData);
+        } else if (msg.entity === entity.AI_TOOL) {
+          // Buffer tool calls until the next AI_MESSAGE
+          const textContent = content.content || '';
+          const reasoningContent = content.reasoning;
+
+          // Add optional reasoning
+          if (reasoningContent) {
+            parts.push({
+              type: 'reasoning',
+              reasoning: reasoningContent,
+            });
+          }
+
+          // Add text content
+          if (textContent) {
+            parts.push({
+              type: 'text',
+              text: textContent,
+            });
+          }
+
+          // Add tool calls to buffer
+          for (const tc of msg.toolCalls) {
+            const requiresValidation = toolHilMapping[tc.name] || false;
+            let status: 'accepted' | 'rejected' | 'pending' | 'not_required';
+
+            if (tc.validated === true) {
+              status = 'accepted';
+            } else if (tc.validated === false) {
+              status = 'rejected';
+            } else if (!requiresValidation) {
+              status = 'not_required';
+            } else {
+              status = 'pending';
+            }
+
+            parts.push({
+              type: 'tool-invocation',
+              toolInvocation: {
+                toolCallId: tc.id,
+                toolName: tc.name,
+                args: JSON.parse(tc.arguments),
+                state: 'call',
+              },
+            });
+
+            annotations.push({
+              toolCallId: tc.id,
+              validated: status,
+              isComplete: msg.isComplete,
+            });
+          }
+        } else if (msg.entity === entity.TOOL) {
+          // Merge tool result back into buffered part
+          const toolCallId = content.tool_call_id || content.toolCallId;
+          const toolResult = content.content || content.result || '';
+
+          // Find the buffered tool call
+          const toolCallPart = parts.find(
+            (part) =>
+              part.type === 'tool-invocation' &&
+              part.toolInvocation?.toolCallId === toolCallId
+          );
+
+          if (toolCallPart) {
+            toolCallPart.toolInvocation.result = toolResult;
+            toolCallPart.toolInvocation.state = 'result';
+          }
+
+          // Update annotation isComplete
+          const annotation = annotations.find(
+            (ann) => ann.toolCallId === toolCallId
+          );
+          if (annotation) {
+            annotation.isComplete = msg.isComplete;
+          }
+        }
+      }
+
+      // If the tool call buffer is not empty, add a dummy AI message
+      if (parts.length > 0) {
+        messages.push({
+          id: crypto.randomUUID(),
+          role: 'assistant',
+          createdAt: reversedMessages[reversedMessages.length - 1].creationDate.toISOString(),
+          content: '',
+          parts,
+          annotations,
         });
-      // Note: dbMessages are already in DESC order from the query, no need to reverse
+      }
+
+      // Reverse back to descending order (newest first)
+      const orderedMessages = messages.reverse();
 
       const response: PaginatedResponse<MessageVercel> = {
-        results: formattedMessages,
+        results: orderedMessages,
         next_cursor: nextCursor,
         has_more: hasMore,
         page_size: pageSize,

@@ -195,13 +195,13 @@ export async function POST(
     // 6. Initialize Tools
     // ========================================================================
     console.log('[chat_streamed] Initializing tools...');
-    
+
     // Extract JWT token from Authorization header
     const authHeader = request.headers.get('authorization');
     const jwtToken = authHeader?.replace('Bearer ', '');
-    
+
     // Get tool CLASSES (not instances) - following ClassVar pattern
-    const toolClasses = await initializeTools({
+    const allToolClasses = await initializeTools({
       exaApiKey: settings.tools.exaApiKey,
       entitycoreUrl: settings.tools.entitycore.url,
       entityFrontendUrl: settings.tools.frontendBaseUrl,
@@ -211,17 +211,72 @@ export async function POST(
       obiOneUrl: settings.tools.obiOne.url,
       mcpConfig: settings.mcp,
     });
-    console.log('[chat_streamed] Registered', toolClasses.length, 'tool classes');
+    console.log('[chat_streamed] Registered', allToolClasses.length, 'tool classes');
 
     // ========================================================================
-    // 7. Create Agent Configuration
+    // 7. Filter Tools and Select Model
+    // ========================================================================
+    console.log('[chat_streamed] Filtering tools and selecting model...');
+
+    // Import the filtering function
+    const { filterToolsAndModelByConversation } = await import('@/lib/utils/tool-filtering');
+
+    // Determine if we need to filter tools and select model
+    const selectedModel = body.model === 'auto' ? null : body.model || null;
+
+    // Only filter if we have OpenRouter token
+    let filteredTools: any[];
+    let selectedModelId: string;
+    let reasoning: string | null = null;
+
+    if (settings.llm.openRouterToken) {
+      const filteringResult = await filterToolsAndModelByConversation(
+        thread_id,
+        allToolClasses,
+        settings.llm.openRouterToken,
+        settings.tools.minToolSelection,
+        selectedModel,
+        settings.llm.defaultChatModel,
+        settings.llm.defaultChatReasoning
+      );
+
+      filteredTools = filteringResult.filteredTools;
+      selectedModelId = filteringResult.model;
+      reasoning = filteringResult.reasoning ?? null;
+
+      console.log('[chat_streamed] Tool filtering complete:', {
+        originalToolCount: allToolClasses.length,
+        filteredToolCount: filteredTools.length,
+        selectedModel: selectedModelId,
+        reasoning,
+      });
+    } else {
+      // No OpenRouter token, use all tools and default model
+      console.log('[chat_streamed] No OpenRouter token, skipping filtering');
+      filteredTools = allToolClasses;
+      selectedModelId = selectedModel ?? settings.llm.defaultChatModel;
+    }
+
+    // ========================================================================
+    // 8. Create Agent Configuration
     // ========================================================================
     console.log('[chat_streamed] Creating agent configuration...');
+
+    // Map reasoning string to valid enum value (lowercase for Vercel AI SDK)
+    let reasoningLevel: 'none' | 'minimal' | 'low' | 'medium' | 'high' | undefined;
+    if (reasoning) {
+      const reasoningLower = reasoning.toLowerCase();
+      if (['none', 'minimal', 'low', 'medium', 'high'].includes(reasoningLower)) {
+        reasoningLevel = reasoningLower as 'none' | 'minimal' | 'low' | 'medium' | 'high';
+      }
+    }
+
     const agentConfig = {
-      model: body.model || settings.llm.defaultChatModel,
+      model: selectedModelId,
       temperature: settings.llm.temperature,
       maxTokens: settings.llm.maxTokens,
-      tools: toolClasses,
+      reasoning: reasoningLevel,
+      tools: filteredTools,
       contextVariables: {
         exaApiKey: settings.tools.exaApiKey,
         entitycoreUrl: settings.tools.entitycore.url,
@@ -241,11 +296,12 @@ export async function POST(
       model: agentConfig.model,
       temperature: agentConfig.temperature,
       maxTokens: agentConfig.maxTokens,
+      reasoning: agentConfig.reasoning,
       toolCount: agentConfig.tools.length,
     });
 
     // ========================================================================
-    // 8. Stream Response Using AgentsRoutine
+    // 9. Stream Response Using AgentsRoutine
     // ========================================================================
     console.log('[chat_streamed] Creating AgentsRoutine...');
     const routine = new AgentsRoutine(

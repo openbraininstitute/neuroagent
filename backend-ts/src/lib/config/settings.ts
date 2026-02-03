@@ -108,7 +108,7 @@ const SettingsToolsSchema = z.object({
   sanity: SettingsSanitySchema.default({}),
   thumbnailGeneration: SettingsThumbnailGenerationSchema.default({}),
   frontendBaseUrl: z.string().default('https://openbraininstitute.org'),
-  minToolSelection: z.number().int().min(0).default(5),
+  minToolSelection: z.number().int().min(0).default(2),
   whitelistedToolRegex: z.string().optional(),
   denoAllocatedMemory: z.number().int().default(8192),
   exaApiKey: z.string().optional(),
