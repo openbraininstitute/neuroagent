@@ -1,11 +1,14 @@
 services:
   backend:
-    env_file: "backend/.env"
     build:
       context: ./backend
       dockerfile: Dockerfile
     ports:
       - "8078:8078"
+    read_only: true
+    tmpfs:
+      - /tmp:exec,mode=1777
+    env_file: "backend/.env"
     environment:
       - NEUROAGENT_DB__PREFIX=postgresql+asyncpg://
       - NEUROAGENT_DB__HOST=postgres
@@ -13,8 +16,6 @@ services:
       - NEUROAGENT_DB__USER=postgres
       - NEUROAGENT_DB__PASSWORD=pwd
       - NEUROAGENT_DB__NAME=neuroagent
-      - NEUROAGENT_KEYCLOAK__ISSUER=${KEYCLOAK_ISSUER}
-      - NEUROAGENT_LLM__OPENAI_TOKEN=${OPENAI_API_KEY}
       - NEUROAGENT_STORAGE__ENDPOINT_URL=http://minio:9000
       - NEUROAGENT_STORAGE__BUCKET_NAME=neuroagent
       - NEUROAGENT_STORAGE__ACCESS_KEY=minioadmin
@@ -34,13 +35,10 @@ services:
       dockerfile: Dockerfile
       args:
         - NEXT_PUBLIC_BACKEND_URL=http://localhost:8078
+    env_file: "frontend/.env.local"
     environment:
       - NEXTAUTH_URL=http://localhost:3000
-      - NEXTAUTH_SECRET=${NEXTAUTH_SECRET}
       - SERVER_SIDE_BACKEND_URL=http://backend:8078
-      - KEYCLOAK_ISSUER=${KEYCLOAK_ISSUER}
-      - KEYCLOAK_SECRET=${KEYCLOAK_SECRET}
-      - KEYCLOAK_ID=${KEYCLOAK_ID}
       - NODE_OPTIONS=--dns-result-order=ipv4first
     ports:
       - "3000:3000"

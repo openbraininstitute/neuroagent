@@ -314,6 +314,10 @@ def format_messages_vercel(
             if reasoning_content:
                 parts.append(ReasoningPartVercel(reasoning=reasoning_content))
 
+            # Add text content
+            if text_content:
+                parts.append(TextPartVercel(text=text_content))
+
             for tc in msg.tool_calls:
                 requires_validation = tool_hil_mapping.get(tc.name, False)
                 if tc.validated is True:
@@ -325,7 +329,6 @@ def format_messages_vercel(
                 else:
                     status = "pending"
 
-                parts.append(TextPartVercel(text=text_content or ""))
                 parts.append(
                     ToolCallPartVercel(
                         toolInvocation=ToolCallVercel(
