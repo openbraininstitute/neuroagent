@@ -424,7 +424,7 @@ export function getSettings(): Settings {
     llm: {
       openaiToken: parseEnvVar('LLM__OPENAI_TOKEN'),
       openaiBaseUrl: parseEnvVar('LLM__OPENAI_BASE_URL'),
-      openRouterToken: parseEnvVar('LLM__OPEN_ROUTER_TOKEN'),
+      openRouterToken: parseEnvVar('LLM__OPENROUTER_TOKEN'),
       suggestionModel: parseEnvVar('LLM__SUGGESTION_MODEL'),
       defaultChatModel: parseEnvVar('LLM__DEFAULT_CHAT_MODEL'),
       defaultChatReasoning: parseEnvVar('LLM__DEFAULT_CHAT_REASONING'),

@@ -270,6 +270,12 @@ export class AgentsRoutine {
    * Processes all messages generated during multi-step execution and saves them
    * to the database with appropriate entity types and tool call information.
    *
+   * Matches Python backend behavior:
+   * - Assistant messages with tool calls use Entity.AI_TOOL
+   * - Assistant messages without tool calls use Entity.AI_MESSAGE
+   * - Tool results use Entity.TOOL
+   * - Message content follows Python format with role, content, and optional tool_calls
+   *
    * @param threadId - Thread ID
    * @param messages - Messages from Vercel AI SDK response
    * @param usage - Token usage information
@@ -310,17 +316,43 @@ export class AgentsRoutine {
             }
           }
 
-          // Save assistant message
+          // Determine entity type based on whether there are tool calls
+          const entity = toolCalls.length > 0 ? Entity.AI_TOOL : Entity.AI_MESSAGE;
+
+          // Build message content matching Python backend format
+          const messageContent: any = {
+            role: 'assistant',
+            content: textContent,
+            sender: 'Agent', // Default sender name
+            function_call: null,
+          };
+
+          // Add tool_calls to content if present (matching Python format)
+          if (toolCalls.length > 0) {
+            messageContent.tool_calls = toolCalls.map((tc) => ({
+              id: tc.toolCallId,
+              function: {
+                name: tc.toolName,
+                arguments: JSON.stringify(tc.args),
+              },
+              type: 'function',
+            }));
+          }
+
+          console.log('[saveMessagesToDatabase] Saving assistant message:', {
+            entity,
+            hasToolCalls: toolCalls.length > 0,
+            toolCallCount: toolCalls.length,
+          });
+
+          // Save assistant message with tool calls as nested records
           await prisma.message.create({
             data: {
               id: crypto.randomUUID(),
               creationDate: new Date(),
               threadId,
-              entity: toolCalls.length > 0 ? Entity.AI_TOOL : Entity.AI_MESSAGE,
-              content: JSON.stringify({
-                role: 'assistant',
-                content: textContent,
-              }),
+              entity,
+              content: JSON.stringify(messageContent),
               isComplete: true,
               toolCalls: {
                 create: toolCalls.map((tc) => ({
@@ -340,6 +372,11 @@ export class AgentsRoutine {
           if (Array.isArray(message.content)) {
             for (const part of message.content) {
               if (part.type === 'tool-result') {
+                console.log('[saveMessagesToDatabase] Saving tool result:', {
+                  toolName: part.toolName,
+                  toolCallId: part.toolCallId,
+                });
+
                 await prisma.message.create({
                   data: {
                     id: crypto.randomUUID(),
@@ -375,9 +412,13 @@ export class AgentsRoutine {
    *
    * Handles conversion of:
    * - User messages
-   * - Assistant messages
-   * - Tool call messages
+   * - Assistant messages (AI_MESSAGE and AI_TOOL)
    * - Tool result messages
+   *
+   * Matches Python backend message format where:
+   * - AI_MESSAGE: Assistant message without tool calls
+   * - AI_TOOL: Assistant message with tool calls
+   * - TOOL: Tool execution results
    *
    * @param messages - Messages from database with tool calls
    * @returns Array of CoreMessage objects
@@ -402,40 +443,49 @@ export class AgentsRoutine {
             role: 'user',
             content: userContent,
           });
-        } else if (msg.entity === Entity.AI_MESSAGE) {
-          // Assistant message (may include tool calls)
+        } else if (msg.entity === Entity.AI_MESSAGE || msg.entity === Entity.AI_TOOL) {
+          // Assistant message (with or without tool calls)
           const assistantContent = typeof content === 'string' ? content : content.content || '';
-          console.log('[convertToCoreMessages] Assistant message with', msg.toolCalls?.length || 0, 'tool calls');
+          console.log('[convertToCoreMessages] Assistant message (', msg.entity, ') with', msg.toolCalls?.length || 0, 'tool calls');
 
-          const assistantMessage: CoreMessage = {
-            role: 'assistant',
-            content: assistantContent,
-          };
+          // Check if there are tool calls in the message content (Python format)
+          const hasToolCalls = content.tool_calls && Array.isArray(content.tool_calls) && content.tool_calls.length > 0;
 
-          // Add tool calls if present
-          if (msg.toolCalls && msg.toolCalls.length > 0) {
-            assistantMessage.content = [
-              {
-                type: 'text',
-                text: assistantContent,
-              },
-              ...msg.toolCalls.map((tc) => {
-                console.log('[convertToCoreMessages] Tool call:', tc.name, 'with ID:', tc.id);
-                return {
-                  type: 'tool-call' as const,
-                  toolCallId: tc.id,
-                  toolName: tc.name,
-                  args: JSON.parse(tc.arguments),
-                };
-              }),
-            ];
+          if (hasToolCalls) {
+            // Assistant message with tool calls
+            const assistantMessage: CoreMessage = {
+              role: 'assistant',
+              content: [
+                {
+                  type: 'text',
+                  text: assistantContent,
+                },
+                ...content.tool_calls.map((tc: any) => {
+                  console.log('[convertToCoreMessages] Tool call:', tc.function?.name || tc.name, 'with ID:', tc.id);
+                  return {
+                    type: 'tool-call' as const,
+                    toolCallId: tc.id,
+                    toolName: tc.function?.name || tc.name,
+                    args: typeof tc.function?.arguments === 'string'
+                      ? JSON.parse(tc.function.arguments)
+                      : tc.function?.arguments || tc.args || {},
+                  };
+                }),
+              ],
+            };
+            coreMessages.push(assistantMessage);
+          } else {
+            // Assistant message without tool calls
+            coreMessages.push({
+              role: 'assistant',
+              content: assistantContent,
+            });
           }
-
-          coreMessages.push(assistantMessage);
         } else if (msg.entity === Entity.TOOL) {
           // Tool result message
           const toolCallId = content.tool_call_id || content.toolCallId;
           const toolName = content.tool_name || content.toolName;
+          const toolContent = content.content || content.result || '';
           console.log('[convertToCoreMessages] Tool result for:', toolName, 'ID:', toolCallId);
 
           coreMessages.push({
@@ -445,7 +495,7 @@ export class AgentsRoutine {
                 type: 'tool-result',
                 toolCallId,
                 toolName,
-                result: content.content || content.result || content,
+                result: toolContent,
               },
             ],
           });
@@ -453,6 +503,7 @@ export class AgentsRoutine {
       } catch (error) {
         console.error('[convertToCoreMessages] Error parsing message:', error);
         console.error('[convertToCoreMessages] Message ID:', msg.id);
+        console.error('[convertToCoreMessages] Message entity:', msg.entity);
         console.error('[convertToCoreMessages] Message content:', msg.content);
         // Skip malformed messages
         continue;
@@ -469,7 +520,11 @@ export class AgentsRoutine {
    * Supports formats:
    * - 'openai/gpt-4' -> OpenAI provider, 'gpt-4' model
    * - 'openrouter/anthropic/claude-3' -> OpenRouter provider, 'anthropic/claude-3' model
-   * - 'gpt-4' -> OpenAI provider (default), 'gpt-4' model
+   * - 'anthropic/claude-3' -> OpenRouter provider (default), 'anthropic/claude-3' model
+   *
+   * Logic matches Python backend:
+   * - If model starts with 'openai/', use OpenAI provider and strip prefix
+   * - Otherwise, use OpenRouter provider (no prefix stripping needed)
    *
    * Note: For OpenAI models, we set structuredOutputs: false to allow optional parameters
    * in tool schemas without requiring strict mode validation. This matches the Python
@@ -483,25 +538,23 @@ export class AgentsRoutine {
    */
   private getProviderAndModel(modelIdentifier: string): any {
     if (modelIdentifier.startsWith('openai/')) {
+      // OpenAI models: strip 'openai/' prefix
       if (!this.openaiClient) {
         throw new Error('OpenAI provider not configured');
       }
       const modelName = modelIdentifier.replace('openai/', '');
+      console.log('[getProviderAndModel] Using OpenAI provider with model:', modelName);
       // Set structuredOutputs: false to allow optional parameters in tool schemas
       return this.openaiClient(modelName, { structuredOutputs: false });
-    } else if (modelIdentifier.startsWith('openrouter/')) {
+    } else {
+      // Default to OpenRouter for all other models (including 'openrouter/' prefix)
       if (!this.openrouterClient) {
         throw new Error('OpenRouter provider not configured');
       }
-      const modelName = modelIdentifier.replace('openrouter/', '');
-      return this.openrouterClient(modelName);
-    } else {
-      // Default to OpenAI
-      if (!this.openaiClient) {
-        throw new Error('OpenAI provider not configured');
-      }
-      // Set structuredOutputs: false to allow optional parameters in tool schemas
-      return this.openaiClient(modelIdentifier, { structuredOutputs: false });
+      // OpenRouter expects the full model identifier (e.g., 'anthropic/claude-3-5-sonnet')
+      // Don't strip 'openrouter/' prefix as it's not part of the model name format
+      console.log('[getProviderAndModel] Using OpenRouter provider with model:', modelIdentifier);
+      return this.openrouterClient(modelIdentifier);
     }
   }
 
