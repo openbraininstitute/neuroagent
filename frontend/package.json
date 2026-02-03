@@ -52,6 +52,7 @@
     "react-plotly.js": "^2.6.0",
     "react-textarea-autosize": "^8.5.7",
     "remark-gfm": "^4.0.0",
+    "remark-unwrap-images": "^4.0.1",
     "sonner": "^2.0.1",
     "tailwind-merge": "^2.6.0",
     "tailwindcss-animate": "^1.0.7",
