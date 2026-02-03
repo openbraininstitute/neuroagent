@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Changed
+- Route all writing to `/tmp`.
 - OBI expert points at the documentationProduct instead of documentationGithub
 - Expose the `x-request-id` header for CORS requests.
 - Expose the `x-ratelimit-...` headers for CORS requests.
