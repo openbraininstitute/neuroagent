@@ -296,11 +296,14 @@ describe('CalculatorTool', () => {
       const tool = new CalculatorTool();
       const vercelTool = tool.toVercelTool();
 
-      const result = await vercelTool.execute({
-        operation: 'add',
-        a: 2,
-        b: 3,
-      });
+      const result = await vercelTool.execute!(
+        {
+          operation: 'add',
+          a: 2,
+          b: 3,
+        },
+        {}
+      );
 
       expect(result).toMatchObject({
         result: 5,

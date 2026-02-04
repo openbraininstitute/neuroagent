@@ -20,7 +20,7 @@
  * 8. Middleware headers are consistent across different request types
  */
 
-import { describe, beforeEach, vi } from 'vitest';
+import { describe, beforeEach, vi, expect } from 'vitest';
 import { test } from '@fast-check/vitest';
 import * as fc from 'fast-check';
 import { NextRequest, NextResponse } from 'next/server';

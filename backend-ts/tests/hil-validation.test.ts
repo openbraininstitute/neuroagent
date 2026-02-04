@@ -179,7 +179,7 @@ describe('HIL Validation Flow Integration', () => {
     const hilTools = allTools.filter((ToolClass) => ToolClass.toolHil === true);
 
     expect(hilTools.length).toBe(1);
-    expect(hilTools[0].toolName).toBe('dangerous_tool');
+    expect(hilTools[0]!.toolName).toBe('dangerous_tool');
   });
 
   it('should allow instantiation with context variables', () => {

@@ -211,7 +211,7 @@ describe('ToolRegistry', () => {
     const metadata = registry.getAllMetadata();
 
     expect(metadata).toHaveLength(2);
-    expect(metadata[0].name).toBe('test_tool');
+    expect(metadata[0]!.name).toBe('test_tool');
     expect(metadata[1].name).toBe('hil_test_tool');
   });
 

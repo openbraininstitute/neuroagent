@@ -218,7 +218,7 @@ describe('GET /api/qa/models', () => {
 
     // Should only include models matching 'openai.*' regex
     expect(data.length).toBe(1);
-    expect(data[0].id).toBe('openai/gpt-4');
+    expect(data[0]!.id).toBe('openai/gpt-4');
   });
 
   it('should require authentication', async () => {

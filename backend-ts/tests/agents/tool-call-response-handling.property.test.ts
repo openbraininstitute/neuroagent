@@ -259,10 +259,10 @@ describe('Tool Call Response Handling Property Tests', () => {
           };
 
           expect(coreMessage.role).toBe('tool');
-          expect(coreMessage.content[0].type).toBe('tool-result');
-          expect(coreMessage.content[0].toolCallId).toBe(toolCallId);
-          expect(coreMessage.content[0].toolName).toBe('test_tool');
-          expect(coreMessage.content[0].result).toBe(resultContent);
+          expect(coreMessage.content[0]!.type).toBe('tool-result');
+          expect(coreMessage.content[0]!.toolCallId).toBe(toolCallId);
+          expect(coreMessage.content[0]!.toolName).toBe('test_tool');
+          expect(coreMessage.content[0]!.result).toBe(resultContent);
         } finally {
           await cleanupTestThread(threadId);
         }
@@ -599,7 +599,7 @@ describe('Tool Call Response Handling Property Tests', () => {
           const assistantMessage = messages[0];
           expect(assistantMessage.entity).toBe(Entity.AI_TOOL);
           expect(assistantMessage.toolCalls.length).toBe(1);
-          expect(assistantMessage.toolCalls[0].id).toBe(toolCallId);
+          expect(assistantMessage.toolCalls[0]!.id).toBe(toolCallId);
 
           // Second message should have the tool result with matching ID
           const toolMessage = messages[1];

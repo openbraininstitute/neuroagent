@@ -240,7 +240,7 @@ describe('Threads API Routes', () => {
 
       expect(response.status).toBe(200);
       const body = await response.json();
-      expect(body.results[0].title).toBe('Thread 1');
+      expect(body.results[0]!.title).toBe('Thread 1');
     });
   });
 

@@ -255,7 +255,7 @@ describe('HIL Tool Validation Property Tests', () => {
       registry.registerClass(ToolClass);
 
       const metadata = registry.getAllMetadata();
-      const toolMetadata = metadata.find((m) => m.name === ToolClass.toolName);
+      const toolMetadata = metadata.find((m) => m.name === ToolClass!.toolName);
 
       expect(toolMetadata).toBeDefined();
       // HIL should be true only if explicitly set to true, otherwise undefined or false
@@ -509,13 +509,13 @@ describe('HIL Tool Validation Property Tests', () => {
       // Register
       registry.registerClass(HILRequiredTool);
       let metadata = registry.getAllMetadata();
-      expect(metadata[0].hil).toBe(true);
+      expect(metadata[0]!.hil).toBe(true);
 
       // Clear and re-register
       registry.clear();
       registry.registerClass(HILRequiredTool);
       metadata = registry.getAllMetadata();
-      expect(metadata[0].hil).toBe(true);
+      expect(metadata[0]!.hil).toBe(true);
     });
 
     it('should handle tool with utterances and HIL requirement', () => {
@@ -580,10 +580,10 @@ describe('HIL Tool Validation Property Tests', () => {
 
       // Verify separation
       expect(toolCallsToExecute.length).toBe(1);
-      expect(toolCallsToExecute[0].name).toBe('no_hil_tool');
+      expect(toolCallsToExecute[0]!.name).toBe('no_hil_tool');
 
       expect(toolCallsWithHIL.length).toBe(1);
-      expect(toolCallsWithHIL[0].name).toBe('hil_required_tool');
+      expect(toolCallsWithHIL[0]!.name).toBe('hil_required_tool');
 
       // Execute non-HIL tools
       const results = [];

@@ -59,7 +59,7 @@ describe('ExampleTool', () => {
       });
 
       const typedResult = result as any;
-      expect(typedResult.results[0].source).toBe(apiUrl);
+      expect(typedResult.results[0]!.source).toBe(apiUrl);
     });
 
     it('should use API key when provided', async () => {
@@ -75,7 +75,7 @@ describe('ExampleTool', () => {
       });
 
       const typedResult = result as any;
-      expect(typedResult.results[0].metadata.authenticated).toBe(true);
+      expect(typedResult.results[0]!.metadata.authenticated).toBe(true);
     });
 
     it('should indicate unauthenticated when no API key', async () => {
@@ -90,7 +90,7 @@ describe('ExampleTool', () => {
       });
 
       const typedResult = result as any;
-      expect(typedResult.results[0].metadata.authenticated).toBe(false);
+      expect(typedResult.results[0]!.metadata.authenticated).toBe(false);
     });
   });
 
@@ -158,9 +158,9 @@ describe('ExampleTool', () => {
       });
 
       const typedResult = result as any;
-      expect(typedResult.results[0].metadata).toBeDefined();
-      expect(typedResult.results[0].metadata.timestamp).toBeDefined();
-      expect(typedResult.results[0].metadata.relevance).toBeDefined();
+      expect(typedResult.results[0]!.metadata).toBeDefined();
+      expect(typedResult.results[0]!.metadata.timestamp).toBeDefined();
+      expect(typedResult.results[0]!.metadata.relevance).toBeDefined();
     });
 
     it('should exclude metadata when not requested', async () => {
@@ -175,7 +175,7 @@ describe('ExampleTool', () => {
       });
 
       const typedResult = result as any;
-      expect(typedResult.results[0].metadata).toBeUndefined();
+      expect(typedResult.results[0]!.metadata).toBeUndefined();
     });
 
     it('should exclude metadata by default', async () => {
@@ -189,7 +189,7 @@ describe('ExampleTool', () => {
       });
 
       const typedResult = result as any;
-      expect(typedResult.results[0].metadata).toBeUndefined();
+      expect(typedResult.results[0]!.metadata).toBeUndefined();
     });
   });
 
@@ -295,10 +295,13 @@ describe('ExampleTool', () => {
       });
       const vercelTool = tool.toVercelTool();
 
-      const result = await vercelTool.execute({
-        query: 'test',
-        maxResults: 2,
-      });
+      const result = await vercelTool.execute!(
+        {
+          query: 'test',
+          maxResults: 2,
+        },
+        {}
+      );
 
       const typedResult = result as any;
       expect(typedResult.query).toBe('test');

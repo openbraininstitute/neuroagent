@@ -336,7 +336,7 @@ describe('Question Suggestions API - In-Chat Suggestions', () => {
     await POST(request);
 
     // First message should be system prompt, then user messages in chronological order
-    expect(capturedMessages[0].role).toBe('system');
+    expect(capturedMessages[0]!.role).toBe('system');
     expect(capturedMessages[1].role).toBe('user');
     expect(capturedMessages[1].content).toContain('Question');
     expect(capturedMessages[2].role).toBe('assistant');
@@ -822,8 +822,8 @@ describe('Question Suggestions API - Response Format', () => {
     const data = await response.json();
 
     expect(data.suggestions[0]).toHaveProperty('question');
-    expect(typeof data.suggestions[0].question).toBe('string');
-    expect(data.suggestions[0].question.length).toBeGreaterThan(0);
+    expect(typeof data.suggestions[0]!.question).toBe('string');
+    expect(data.suggestions[0]!.question.length).toBeGreaterThan(0);
   });
 
   it('should return JSON content type', async () => {

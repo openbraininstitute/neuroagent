@@ -179,8 +179,8 @@ describe('Database Migrations', () => {
     `;
 
     expect(indexes).toHaveLength(1);
-    expect(indexes[0].indexdef).toContain('USING gin');
-    expect(indexes[0].indexdef).toContain('search_vector');
+    expect(indexes[0]!.indexdef).toContain('USING gin');
+    expect(indexes[0]!.indexdef).toContain('search_vector');
   });
 
   it('should have trigger for search_vector updates', async () => {
@@ -193,7 +193,7 @@ describe('Database Migrations', () => {
     `;
 
     expect(triggers).toHaveLength(1);
-    expect(triggers[0].tgname).toBe('messages_search_vector_trigger');
+    expect(triggers[0]!.tgname).toBe('messages_search_vector_trigger');
   });
 
   it('should have correct column types for threads table', async () => {

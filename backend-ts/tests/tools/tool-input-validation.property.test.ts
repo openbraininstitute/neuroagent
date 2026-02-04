@@ -133,7 +133,7 @@ describe('Tool Input Validation Property Tests', () => {
       if (!result.success) {
         expect(result.error.issues.length).toBeGreaterThan(0);
         // Verify error messages are descriptive
-        expect(result.error.issues[0].message).toBeTruthy();
+        expect(result.error.issues[0]!.message).toBeTruthy();
       }
     });
 

@@ -43,14 +43,14 @@ describe('Tool Metadata Property Tests', () => {
       // Check each tool class
       for (const ToolClass of toolClasses) {
         // Property: Tool name must be a non-empty string
-        expect(ToolClass.toolName).toBeDefined();
-        expect(typeof ToolClass.toolName).toBe('string');
-        expect(ToolClass.toolName.length).toBeGreaterThan(0);
+        expect(ToolClass!.toolName).toBeDefined();
+        expect(typeof ToolClass!.toolName).toBe('string');
+        expect(ToolClass!.toolName.length).toBeGreaterThan(0);
 
         // Property: Tool description must be a non-empty string
-        expect(ToolClass.toolDescription).toBeDefined();
-        expect(typeof ToolClass.toolDescription).toBe('string');
-        expect(ToolClass.toolDescription.length).toBeGreaterThan(0);
+        expect(ToolClass!.toolDescription).toBeDefined();
+        expect(typeof ToolClass!.toolDescription).toBe('string');
+        expect(ToolClass!.toolDescription.length).toBeGreaterThan(0);
 
         // Property: If utterances are provided, they must be a non-empty array
         if (ToolClass.toolUtterances !== undefined) {
@@ -66,15 +66,15 @@ describe('Tool Metadata Property Tests', () => {
         }
 
         // Property: Frontend name (if provided) must be a non-empty string
-        if (ToolClass.toolNameFrontend !== undefined) {
-          expect(typeof ToolClass.toolNameFrontend).toBe('string');
-          expect(ToolClass.toolNameFrontend.length).toBeGreaterThan(0);
+        if (ToolClass!.toolNameFrontend !== undefined) {
+          expect(typeof ToolClass!.toolNameFrontend).toBe('string');
+          expect(ToolClass!.toolNameFrontend.length).toBeGreaterThan(0);
         }
 
         // Property: Frontend description (if provided) must be a non-empty string
-        if (ToolClass.toolDescriptionFrontend !== undefined) {
-          expect(typeof ToolClass.toolDescriptionFrontend).toBe('string');
-          expect(ToolClass.toolDescriptionFrontend.length).toBeGreaterThan(0);
+        if (ToolClass!.toolDescriptionFrontend !== undefined) {
+          expect(typeof ToolClass!.toolDescriptionFrontend).toBe('string');
+          expect(ToolClass!.toolDescriptionFrontend.length).toBeGreaterThan(0);
         }
 
         // Property: HIL flag (if provided) must be a boolean
@@ -89,7 +89,7 @@ describe('Tool Metadata Property Tests', () => {
      */
     it('should have unique tool names for all registered tools', async () => {
       const toolClasses = toolRegistry.getAllClasses();
-      const toolNames = toolClasses.map((ToolClass) => ToolClass.toolName);
+      const toolNames = toolClasses.map((ToolClass) => ToolClass!.toolName);
 
       // Property: All tool names must be unique
       const uniqueNames = new Set(toolNames);
@@ -106,8 +106,8 @@ describe('Tool Metadata Property Tests', () => {
         // Property: Metadata should be accessible from the class itself
         // without creating an instance
         expect(() => {
-          const name = ToolClass.toolName;
-          const description = ToolClass.toolDescription;
+          const name = ToolClass!.toolName;
+          const description = ToolClass!.toolDescription;
           const utterances = ToolClass.toolUtterances;
 
           // These should all be accessible without errors
@@ -175,10 +175,10 @@ describe('Tool Metadata Property Tests', () => {
         const ToolClass = toolClasses[iterations % toolClasses.length];
 
         // Access metadata multiple times
-        const name1 = ToolClass.toolName;
-        const name2 = ToolClass.toolName;
-        const desc1 = ToolClass.toolDescription;
-        const desc2 = ToolClass.toolDescription;
+        const name1 = ToolClass!.toolName;
+        const name2 = ToolClass!.toolName;
+        const desc1 = ToolClass!.toolDescription;
+        const desc2 = ToolClass!.toolDescription;
 
         // Property: Metadata should be consistent across accesses
         expect(name1).toBe(name2);
@@ -198,7 +198,7 @@ describe('Tool Metadata Property Tests', () => {
         const toolClasses = toolRegistry.getAllClasses();
 
         for (const ToolClass of toolClasses) {
-          const toolName = ToolClass.toolName;
+          const toolName = ToolClass!.toolName;
 
           // Property: Tool names should be valid identifiers
           // (lowercase, underscores, alphanumeric)
@@ -229,7 +229,7 @@ describe('Tool Metadata Property Tests', () => {
         const toolClasses = toolRegistry.getAllClasses();
 
         for (const ToolClass of toolClasses) {
-          const description = ToolClass.toolDescription;
+          const description = ToolClass!.toolDescription;
 
           // Property: Descriptions should be at least 10 characters
           // (to ensure they're meaningful, not just placeholders)
@@ -251,7 +251,7 @@ describe('Tool Metadata Property Tests', () => {
           for (const placeholder of placeholders) {
             if (lowerDesc.includes(placeholder.toLowerCase())) {
               console.warn(
-                `Tool "${ToolClass.toolName}" has placeholder description: "${description}"`
+                `Tool "${ToolClass!.toolName}" has placeholder description: "${description}"`
               );
             }
           }
@@ -287,13 +287,13 @@ describe('Tool Metadata Property Tests', () => {
             // (start with capital letter or question word)
             // This is a soft check - we log warnings but don't fail
             const firstChar = utterance.trim()[0];
-            const isCapitalized = firstChar === firstChar.toUpperCase();
+            const isCapitalized = firstChar === firstChar!.toUpperCase();
             const startsWithQuestionWord =
               /^(what|how|when|where|why|who|which|is|are|can|do|does)/i.test(utterance.trim());
 
             if (!isCapitalized && !startsWithQuestionWord) {
               console.warn(
-                `Tool "${ToolClass.toolName}" has utterance that doesn't start with capital or question word: "${utterance}"`
+                `Tool "${ToolClass!.toolName}" has utterance that doesn't start with capital or question word: "${utterance}"`
               );
             }
           }
@@ -327,7 +327,7 @@ describe('Tool Metadata Property Tests', () => {
       const toolClasses = toolRegistry.getAllClasses();
 
       for (const ToolClass of toolClasses) {
-        const name = ToolClass.toolName;
+        const name = ToolClass!.toolName;
 
         // Property: Should be able to retrieve tool class by its name
         const retrieved = toolRegistry.getClass(name);
@@ -369,8 +369,8 @@ describe('Tool Metadata Property Tests', () => {
       }
 
       const ToolClass = toolClasses[0];
-      const originalName = ToolClass.toolName;
-      const originalDescription = ToolClass.toolDescription;
+      const originalName = ToolClass!.toolName;
+      const originalDescription = ToolClass!.toolDescription;
 
       // Document that metadata SHOULD be readonly
       // In TypeScript, static readonly properties are compile-time only

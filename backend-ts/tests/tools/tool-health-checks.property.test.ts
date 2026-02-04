@@ -312,7 +312,7 @@ describe('Tool Health Checks Property Tests', () => {
         const contextVariables: TestContextVariables = { serviceAvailable: true };
         const healthMap = await registry.checkAllHealth(contextVariables);
 
-        const toolName = ToolClass.toolName;
+        const toolName = ToolClass!.toolName;
         expect(healthMap.has(toolName)).toBe(true);
         expect(typeof healthMap.get(toolName)).toBe('boolean');
       }
@@ -331,9 +331,9 @@ describe('Tool Health Checks Property Tests', () => {
         // Register all tools (skip duplicates)
         const registeredNames = new Set<string>();
         for (const ToolClass of toolClasses) {
-          if (!registeredNames.has(ToolClass.toolName)) {
+          if (!registeredNames.has(ToolClass!.toolName)) {
             registry.registerClass(ToolClass);
-            registeredNames.add(ToolClass.toolName);
+            registeredNames.add(ToolClass!.toolName);
           }
         }
 

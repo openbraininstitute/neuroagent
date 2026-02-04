@@ -20,7 +20,7 @@
  * 8. Headers are present even when rate limit is exceeded
  */
 
-import { describe, beforeEach, afterEach } from 'vitest';
+import { describe, beforeEach, afterEach, expect } from 'vitest';
 import { test } from '@fast-check/vitest';
 import * as fc from 'fast-check';
 import {

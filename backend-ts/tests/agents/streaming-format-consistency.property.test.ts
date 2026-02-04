@@ -120,8 +120,8 @@ describe('Streaming Format Consistency Property Tests', () => {
       const events = parseStreamChunks(mockStreamData);
 
       expect(events.length).toBe(1);
-      expect(events[0].type).toBe('0');
-      expect(events[0].data).toBe('Hello world');
+      expect(events[0]!.type).toBe('0');
+      expect(events[0]!.data).toBe('Hello world');
     });
 
     /**
@@ -139,12 +139,12 @@ describe('Streaming Format Consistency Property Tests', () => {
       const events = parseStreamChunks(mockStreamData);
 
       expect(events.length).toBe(1);
-      expect(events[0].type).toBe('9');
-      expect(events[0].data).toHaveProperty('toolCallId');
-      expect(events[0].data).toHaveProperty('toolName');
-      expect(events[0].data).toHaveProperty('args');
-      expect(events[0].data.toolCallId).toBe(toolCallId);
-      expect(events[0].data.toolName).toBe(toolName);
+      expect(events[0]!.type).toBe('9');
+      expect(events[0]!.data).toHaveProperty('toolCallId');
+      expect(events[0]!.data).toHaveProperty('toolName');
+      expect(events[0]!.data).toHaveProperty('args');
+      expect(events[0]!.data.toolCallId).toBe(toolCallId);
+      expect(events[0]!.data.toolName).toBe(toolName);
     });
 
     /**
@@ -159,11 +159,11 @@ describe('Streaming Format Consistency Property Tests', () => {
       const events = parseStreamChunks(mockStreamData);
 
       expect(events.length).toBe(1);
-      expect(events[0].type).toBe('a');
-      expect(events[0].data).toHaveProperty('toolCallId');
-      expect(events[0].data).toHaveProperty('result');
-      expect(events[0].data.toolCallId).toBe(toolCallId);
-      expect(events[0].data.result).toBe(result);
+      expect(events[0]!.type).toBe('a');
+      expect(events[0]!.data).toHaveProperty('toolCallId');
+      expect(events[0]!.data).toHaveProperty('result');
+      expect(events[0]!.data.toolCallId).toBe(toolCallId);
+      expect(events[0]!.data.result).toBe(result);
     });
 
     /**
@@ -177,9 +177,9 @@ describe('Streaming Format Consistency Property Tests', () => {
         const events = parseStreamChunks(mockStreamData);
 
         expect(events.length).toBe(1);
-        expect(events[0].type).toBe('e');
-        expect(events[0].data).toHaveProperty('finishReason');
-        expect(events[0].data.finishReason).toBe(finishReason);
+        expect(events[0]!.type).toBe('e');
+        expect(events[0]!.data).toHaveProperty('finishReason');
+        expect(events[0]!.data.finishReason).toBe(finishReason);
       }
     );
 
@@ -193,11 +193,11 @@ describe('Streaming Format Consistency Property Tests', () => {
       const events = parseStreamChunks(mockStreamData);
 
       expect(events.length).toBe(1);
-      expect(events[0].type).toBe('8');
-      expect(Array.isArray(events[0].data)).toBe(true);
-      expect(events[0].data[0]).toHaveProperty('toolCallId');
-      expect(events[0].data[0]).toHaveProperty('validated');
-      expect(events[0].data[0].validated).toBe('pending');
+      expect(events[0]!.type).toBe('8');
+      expect(Array.isArray(events[0]!.data)).toBe(true);
+      expect(events[0]!.data[0]).toHaveProperty('toolCallId');
+      expect(events[0]!.data[0]).toHaveProperty('validated');
+      expect(events[0]!.data[0]!.validated).toBe('pending');
     });
 
     /**
@@ -225,8 +225,8 @@ describe('Streaming Format Consistency Property Tests', () => {
         const events = parseStreamChunks(mockStreamData);
 
         expect(events.length).toBe(1);
-        expect(events[0].type).toBe(eventType);
-        expect(events[0].data).toBeDefined();
+        expect(events[0]!.type).toBe(eventType);
+        expect(events[0]!.data).toBeDefined();
       }
     );
 
@@ -262,9 +262,9 @@ describe('Streaming Format Consistency Property Tests', () => {
       const events = parseStreamChunks(mockStreamData);
 
       expect(events.length).toBe(1);
-      expect(events[0].type).toBe('3');
-      expect(typeof events[0].data).toBe('string');
-      expect(events[0].data).toBe(errorMessage);
+      expect(events[0]!.type).toBe('3');
+      expect(typeof events[0]!.data).toBe('string');
+      expect(events[0]!.data).toBe(errorMessage);
     });
 
     /**
@@ -285,8 +285,8 @@ describe('Streaming Format Consistency Property Tests', () => {
 
       // Verify event order
       expect(events.length).toBe(5);
-      expect(events[0].type).toBe('0');
-      expect(events[1].type).toBe('9');
+      expect(events[0]!.type).toBe('0');
+      expect(events[1]!.type).toBe('9');
       expect(events[2].type).toBe('a');
       expect(events[3].type).toBe('0');
       expect(events[4].type).toBe('e');
@@ -303,11 +303,11 @@ describe('Streaming Format Consistency Property Tests', () => {
       const events = parseStreamChunks(mockStreamData);
 
       expect(events.length).toBe(1);
-      expect(events[0].type).toBe('b');
-      expect(events[0].data).toHaveProperty('toolCallId');
-      expect(events[0].data).toHaveProperty('toolName');
-      expect(events[0].data.toolCallId).toBe(toolCallId);
-      expect(events[0].data.toolName).toBe(toolName);
+      expect(events[0]!.type).toBe('b');
+      expect(events[0]!.data).toHaveProperty('toolCallId');
+      expect(events[0]!.data).toHaveProperty('toolName');
+      expect(events[0]!.data.toolCallId).toBe(toolCallId);
+      expect(events[0]!.data.toolName).toBe(toolName);
     });
 
     /**
@@ -321,11 +321,11 @@ describe('Streaming Format Consistency Property Tests', () => {
       const events = parseStreamChunks(mockStreamData);
 
       expect(events.length).toBe(1);
-      expect(events[0].type).toBe('c');
-      expect(events[0].data).toHaveProperty('toolCallId');
-      expect(events[0].data).toHaveProperty('argsTextDelta');
-      expect(events[0].data.toolCallId).toBe(toolCallId);
-      expect(events[0].data.argsTextDelta).toBe(argsTextDelta);
+      expect(events[0]!.type).toBe('c');
+      expect(events[0]!.data).toHaveProperty('toolCallId');
+      expect(events[0]!.data).toHaveProperty('argsTextDelta');
+      expect(events[0]!.data.toolCallId).toBe(toolCallId);
+      expect(events[0]!.data.argsTextDelta).toBe(argsTextDelta);
     });
 
     /**
@@ -337,9 +337,9 @@ describe('Streaming Format Consistency Property Tests', () => {
       const events = parseStreamChunks(mockStreamData);
 
       expect(events.length).toBe(1);
-      expect(events[0].type).toBe('d');
-      expect(events[0].data).toHaveProperty('finishReason');
-      expect(events[0].data.finishReason).toBe('stop');
+      expect(events[0]!.type).toBe('d');
+      expect(events[0]!.data).toHaveProperty('finishReason');
+      expect(events[0]!.data.finishReason).toBe('stop');
     });
 
     /**
@@ -352,9 +352,9 @@ describe('Streaming Format Consistency Property Tests', () => {
       const events = parseStreamChunks(mockStreamData);
 
       expect(events.length).toBe(1);
-      expect(events[0].type).toBe('g');
-      expect(typeof events[0].data).toBe('string');
-      expect(events[0].data).toBe(reasoningContent);
+      expect(events[0]!.type).toBe('g');
+      expect(typeof events[0]!.data).toBe('string');
+      expect(events[0]!.data).toBe(reasoningContent);
     });
 
     /**
@@ -373,8 +373,8 @@ describe('Streaming Format Consistency Property Tests', () => {
 
       // Should only parse the valid events
       expect(events.length).toBe(2);
-      expect(events[0].type).toBe('0');
-      expect(events[1].type).toBe('e');
+      expect(events[0]!.type).toBe('0');
+      expect(events[1]!.type).toBe('e');
     });
 
     /**
@@ -387,7 +387,7 @@ describe('Streaming Format Consistency Property Tests', () => {
       const events = parseStreamChunks(mockStreamData);
 
       expect(events.length).toBe(3);
-      expect(events[0].data).toBe('First');
+      expect(events[0]!.data).toBe('First');
       expect(events[1].data).toBe('Second');
       expect(events[2].type).toBe('e');
     });
@@ -412,7 +412,7 @@ describe('Streaming Format Consistency Property Tests', () => {
       const events = parseStreamChunks(mockStreamData);
 
       expect(events.length).toBe(1);
-      expect(events[0].data.args).toEqual(args);
+      expect(events[0]!.data.args).toEqual(args);
     });
   });
 });

@@ -111,7 +111,7 @@ describe('Database Integration Tests', () => {
       });
 
       expect(messages).toHaveLength(3);
-      expect(messages[0].entity).toBe('USER');
+      expect(messages[0]!.entity).toBe('USER');
       expect(messages[1].entity).toBe('AI_MESSAGE');
       expect(messages[2].entity).toBe('USER');
     });
@@ -165,7 +165,7 @@ describe('Database Integration Tests', () => {
       });
 
       expect(message.toolCalls).toHaveLength(2);
-      expect(message.toolCalls[0].name).toBe('web_search');
+      expect(message.toolCalls[0]!.name).toBe('web_search');
       expect(message.toolCalls[1].name).toBe('literature_search');
     });
 
@@ -220,7 +220,7 @@ describe('Database Integration Tests', () => {
       });
 
       expect(message.tokenConsumption).toHaveLength(2);
-      expect(message.tokenConsumption[0].count).toBe(100);
+      expect(message.tokenConsumption[0]!.count).toBe(100);
       expect(message.tokenConsumption[1].count).toBe(50);
     });
 
@@ -265,8 +265,8 @@ describe('Database Integration Tests', () => {
       });
 
       expect(message.complexityEstimation).toHaveLength(1);
-      expect(message.complexityEstimation[0].complexity).toBe(7);
-      expect(message.complexityEstimation[0].reasoning).toBe('MEDIUM');
+      expect(message.complexityEstimation[0]!.complexity).toBe(7);
+      expect(message.complexityEstimation[0]!.reasoning).toBe('MEDIUM');
     });
 
     it('should retrieve messages with all relations', async () => {
@@ -433,7 +433,7 @@ describe('Database Integration Tests', () => {
       });
 
       expect(threads).toHaveLength(3);
-      expect(threads[0].title).toBe('Thread 3');
+      expect(threads[0]!.title).toBe('Thread 3');
       expect(threads[1].title).toBe('Thread 2');
       expect(threads[2].title).toBe('Thread 1');
     });
@@ -627,7 +627,7 @@ describe('Database Integration Tests', () => {
       });
 
       expect(filtered).toHaveLength(1);
-      expect(filtered[0].title).toBe('Thread 1');
+      expect(filtered[0]!.title).toBe('Thread 1');
     });
   });
 
@@ -703,7 +703,7 @@ describe('Database Integration Tests', () => {
       `;
 
       expect(results).toHaveLength(2);
-      expect(results[0].message_id).toBe(messageIds[0]);
+      expect(results[0]!.message_id).toBe(messageIds[0]);
       expect(results[1].message_id).toBe(messageIds[1]);
     });
 
@@ -781,8 +781,8 @@ describe('Database Integration Tests', () => {
 
       expect(results.length).toBeGreaterThan(0);
       // Message with multiple occurrences should rank higher
-      expect(results[0].message_id).toBe(messageIds[1]);
-      expect(results[0].rank).toBeGreaterThan(0);
+      expect(results[0]!.message_id).toBe(messageIds[1]);
+      expect(results[0]!.rank).toBeGreaterThan(0);
     });
 
     it('should search across multiple threads for a user', async () => {
@@ -866,7 +866,7 @@ describe('Database Integration Tests', () => {
       `;
 
       expect(results).toHaveLength(2);
-      expect(results[0].message_id).toBe(messageIds[0]);
+      expect(results[0]!.message_id).toBe(messageIds[0]);
       expect(results[1].message_id).toBe(messageIds[1]);
     });
 
@@ -939,7 +939,7 @@ describe('Database Integration Tests', () => {
       `;
 
       expect(andResults).toHaveLength(1);
-      expect(andResults[0].message_id).toBe(messageIds[0]);
+      expect(andResults[0]!.message_id).toBe(messageIds[0]);
 
       // Search with OR operator
       const orResults = await prisma.$queryRaw<Array<{ message_id: string }>>`

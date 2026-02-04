@@ -350,8 +350,8 @@ describe('MCP Tool Discovery Property Tests', () => {
 
       // Property: Tool metadata should be overridden
       expect(discoveredTools).toHaveLength(1);
-      expect(discoveredTools[0].tool.name).toBe('overridden-tool-name');
-      expect(discoveredTools[0].tool.description).toBe('Overridden description');
+      expect(discoveredTools[0]!.tool.name).toBe('overridden-tool-name');
+      expect(discoveredTools[0]!.tool.description).toBe('Overridden description');
 
       await mcpClient.disconnect();
     });

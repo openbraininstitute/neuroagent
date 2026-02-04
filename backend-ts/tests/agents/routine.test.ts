@@ -141,8 +141,8 @@ describe('AgentsRoutine', () => {
       const coreMessages = (routine as any).convertToCoreMessages(messages);
 
       expect(coreMessages).toHaveLength(1);
-      expect(coreMessages[0].role).toBe('assistant');
-      expect(Array.isArray(coreMessages[0].content)).toBe(true);
+      expect(coreMessages[0]!.role).toBe('assistant');
+      expect(Array.isArray(coreMessages[0]!.content)).toBe(true);
     });
 
     it('should convert tool result messages correctly', () => {
@@ -166,7 +166,7 @@ describe('AgentsRoutine', () => {
       const coreMessages = (routine as any).convertToCoreMessages(messages);
 
       expect(coreMessages).toHaveLength(1);
-      expect(coreMessages[0].role).toBe('tool');
+      expect(coreMessages[0]!.role).toBe('tool');
     });
 
     it('should skip malformed messages', () => {
@@ -261,7 +261,7 @@ describe('AgentsRoutine', () => {
       const records = (routine as any).createTokenConsumptionRecords(usage, 'gpt-4');
 
       expect(records).toHaveLength(1);
-      expect(records[0].type).toBe(TokenType.COMPLETION);
+      expect(records[0]!.type).toBe(TokenType.COMPLETION);
     });
 
     it('should handle missing completion tokens', () => {
@@ -272,7 +272,7 @@ describe('AgentsRoutine', () => {
       const records = (routine as any).createTokenConsumptionRecords(usage, 'gpt-4');
 
       expect(records).toHaveLength(1);
-      expect(records[0].type).toBe(TokenType.INPUT_NONCACHED);
+      expect(records[0]!.type).toBe(TokenType.INPUT_NONCACHED);
     });
 
     it('should generate unique IDs for each record', () => {
@@ -283,9 +283,9 @@ describe('AgentsRoutine', () => {
 
       const records = (routine as any).createTokenConsumptionRecords(usage, 'gpt-4');
 
-      expect(records[0].id).toBeDefined();
+      expect(records[0]!.id).toBeDefined();
       expect(records[1].id).toBeDefined();
-      expect(records[0].id).not.toBe(records[1].id);
+      expect(records[0]!.id).not.toBe(records[1].id);
     });
   });
 });

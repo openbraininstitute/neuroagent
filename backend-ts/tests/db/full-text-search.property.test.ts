@@ -261,8 +261,8 @@ describe('Full-Text Search Property Tests', () => {
         expect(results.length).toBe(3);
 
         // Message with 3 occurrences should rank highest
-        expect(results[0].message_id).toBe(messageId2);
-        expect(results[0].rank).toBeGreaterThan(results[1].rank);
+        expect(results[0]!.message_id).toBe(messageId2);
+        expect(results[0]!.rank).toBeGreaterThan(results[1].rank);
         expect(results[1].rank).toBeGreaterThan(0);
       },
       { numRuns: 10 }
@@ -335,7 +335,7 @@ describe('Full-Text Search Property Tests', () => {
 
         // Property: Search should be case-insensitive
         expect(results.length).toBeGreaterThan(0);
-        expect(results[0].message_id).toBe(messageId);
+        expect(results[0]!.message_id).toBe(messageId);
       },
       { numRuns: 10 }
     );
@@ -410,7 +410,7 @@ describe('Full-Text Search Property Tests', () => {
 
         // Property: Only messages with both terms should be returned
         expect(results.length).toBeGreaterThanOrEqual(1);
-        expect(results[0].message_id).toBe(messageId1);
+        expect(results[0]!.message_id).toBe(messageId1);
 
         // Messages with only one term should not be returned
         const resultIds = results.map((r) => r.message_id);
@@ -511,7 +511,7 @@ describe('Full-Text Search Property Tests', () => {
 
         // Property: Search should handle special characters gracefully
         expect(results.length).toBeGreaterThan(0);
-        expect(results[0].message_id).toBe(messageId);
+        expect(results[0]!.message_id).toBe(messageId);
       },
       { numRuns: 10 }
     );
@@ -580,7 +580,7 @@ describe('Full-Text Search Property Tests', () => {
       // Verify original search works
       const results1 = await searchMessagesSimple(threadId, 'neurons');
       expect(results1.length).toBe(1);
-      expect(results1[0].message_id).toBe(messageId);
+      expect(results1[0]!.message_id).toBe(messageId);
 
       // Update the message content
       await prisma.message.update({
@@ -596,7 +596,7 @@ describe('Full-Text Search Property Tests', () => {
       // Verify new search works
       const results2 = await searchMessagesSimple(threadId, 'synapses');
       expect(results2.length).toBe(1);
-      expect(results2[0].message_id).toBe(messageId);
+      expect(results2[0]!.message_id).toBe(messageId);
 
       // Verify old search no longer works
       const results3 = await searchMessagesSimple(threadId, 'neurons');
@@ -654,12 +654,12 @@ describe('Full-Text Search Property Tests', () => {
         expect(results3.length).toBe(3);
 
         // Order should be the same
-        expect(results1[0].message_id).toBe(results2[0].message_id);
-        expect(results2[0].message_id).toBe(results3[0].message_id);
+        expect(results1[0]!.message_id).toBe(results2[0]!.message_id);
+        expect(results2[0]!.message_id).toBe(results3[0]!.message_id);
 
         // Ranks should be the same
-        expect(results1[0].rank).toBeCloseTo(results2[0].rank, 5);
-        expect(results2[0].rank).toBeCloseTo(results3[0].rank, 5);
+        expect(results1[0]!.rank).toBeCloseTo(results2[0]!.rank, 5);
+        expect(results2[0]!.rank).toBeCloseTo(results3[0]!.rank, 5);
       },
       { numRuns: 10 }
     );
