@@ -315,7 +315,8 @@ export async function POST(
       agentConfig,
       thread_id,
       settings.agent.maxTurns,
-      settings.agent.maxParallelToolCalls
+      settings.agent.maxParallelToolCalls,
+      request.signal // Pass abort signal to detect client disconnect
     );
     console.log('[chat_streamed] streamChat completed, response received');
 

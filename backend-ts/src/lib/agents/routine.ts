@@ -6,8 +6,26 @@
  * - Message history conversion to CoreMessage format
  * - Tool execution and response formatting
  * - Token consumption tracking
- * - Streaming interruption handling
+ * - Streaming interruption handling via abortSignal listener + onChunk tracking
  * - Multi-turn conversation management
+ *
+ * Streaming Interruption Handling:
+ * When a client disconnects or stops streaming (e.g., user clicks stop button),
+ * the request's abortSignal is triggered. We handle this by:
+ * 1. Tracking streaming content in real-time using onChunk callback
+ * 2. Tracking completed steps using onStepFinish callback
+ * 3. Listening to abort signal to save immediately when triggered
+ * 4. Combining current streaming content with completed steps
+ * 5. Saving all partial messages with is_complete=false
+ *
+ * This approach ensures:
+ * - Stream stops immediately (no background continuation)
+ * - Current streaming message is captured and saved
+ * - Partial messages are saved with is_complete=false
+ * - User sees the partial message immediately
+ * - Matches Python backend's asyncio.CancelledError behavior
+ *
+ * Using Vercel AI SDK v4.3.19
  *
  * Requirements: 6.1, 6.2, 6.3, 6.4, 6.6, 6.7
  */
@@ -102,12 +120,24 @@ export class AgentsRoutine {
    *    - Adds tool results to message history
    *    - Continues generation until completion or maxSteps reached
    * 5. Limits parallel tool execution to maxParallelToolCalls
-   * 6. Saves messages and token consumption via onFinish callback
+   * 6. Saves messages via onFinish (complete) or abort listener (partial)
+   *
+   * Streaming Interruption Handling:
+   * When the client disconnects (e.g., user clicks stop button), we:
+   * - Track streaming content in real-time via onChunk callback
+   * - Track completed steps via onStepFinish callback
+   * - Listen to abortSignal 'abort' event
+   * - Combine current streaming content with completed steps
+   * - Save all partial messages immediately when abort fires
+   * - Skip onFinish save if already aborted
+   * This ensures the currently streaming message is captured and saved with
+   * is_complete=false, matching the Python backend's asyncio.CancelledError behavior.
    *
    * @param agent - Agent configuration
    * @param threadId - Thread ID for message history
    * @param maxTurns - Maximum number of conversation turns (default: 10)
    * @param maxParallelToolCalls - Maximum number of tools to execute in parallel (default: 5)
+   * @param abortSignal - Optional abort signal for cancellation (from request.signal)
    * @returns Data stream response for client consumption
    *
    * Requirements: 2.6, 6.1, 6.2, 6.3, 6.4, 6.7
@@ -116,7 +146,8 @@ export class AgentsRoutine {
     agent: AgentConfig,
     threadId: string,
     maxTurns: number = 10,
-    maxParallelToolCalls: number = 5
+    maxParallelToolCalls: number = 5,
+    abortSignal?: AbortSignal
   ) {
     console.log('[streamChat] Starting multi-turn agent for thread:', threadId);
     console.log('[streamChat] Agent config:', {
@@ -273,6 +304,74 @@ export class AgentsRoutine {
       const systemPrompt = await getSystemPrompt();
       console.log('[streamChat] System prompt assembled from rules directory');
 
+      // Set up abort signal listener to save partial messages
+      // THIS IS NATIVE IN VERCEL AI SDK V5 (it adds an onAbort callback)
+      let partialMessages: CoreMessage[] = [];
+      let partialUsage: LanguageModelUsage | undefined;
+      let currentStreamingMessage: string = '';
+      let currentToolCalls: Array<{
+        toolCallId: string;
+        toolName: string;
+        args: any;
+      }> = [];
+
+      if (abortSignal) {
+        abortSignal.addEventListener('abort', async () => {
+          console.log('[streamChat] Abort signal triggered - saving partial messages');
+
+          // If we have a currently streaming message, add it to partial messages
+          if (currentStreamingMessage || currentToolCalls.length > 0) {
+            console.log('[streamChat] Adding current streaming message to partial messages');
+
+            // Build the partial assistant message
+            const partialAssistantMessage: CoreMessage = {
+              role: 'assistant',
+              content: currentToolCalls.length > 0
+                ? [
+                    { type: 'text', text: currentStreamingMessage },
+                    ...currentToolCalls.map(tc => ({
+                      type: 'tool-call' as const,
+                      toolCallId: tc.toolCallId,
+                      toolName: tc.toolName,
+                      args: tc.args,
+                    }))
+                  ]
+                : currentStreamingMessage,
+            };
+
+            // Add to partial messages if not already there
+            const messagesToSave = [...partialMessages, partialAssistantMessage];
+
+            try {
+              await this.saveMessagesToDatabase(
+                threadId,
+                messagesToSave,
+                partialUsage,
+                agent.model,
+                true // Mark as aborted (is_complete=false)
+              );
+              console.log('[streamChat] Partial messages (including streaming content) saved after abort');
+            } catch (error) {
+              console.error('[streamChat] Error saving partial messages after abort:', error);
+            }
+          } else if (partialMessages.length > 0) {
+            // Save completed steps only
+            try {
+              await this.saveMessagesToDatabase(
+                threadId,
+                partialMessages,
+                partialUsage,
+                agent.model,
+                true // Mark as aborted (is_complete=false)
+              );
+              console.log('[streamChat] Partial messages saved after abort');
+            } catch (error) {
+              console.error('[streamChat] Error saving partial messages after abort:', error);
+            }
+          }
+        });
+      }
+
       const result = streamText({
         model,
         messages: [{ role: 'system', content: systemPrompt }, ...coreMessages],
@@ -280,35 +379,97 @@ export class AgentsRoutine {
         temperature: agent.temperature,
         maxTokens: agent.maxTokens,
         maxSteps: maxTurns, // Enable automatic multi-step tool execution
+        abortSignal, // Forward abort signal from request to detect client disconnect
         experimental_telemetry: {
           isEnabled: false,
           functionId: 'neuroagent-chat',
         },
+        onChunk: async ({ chunk }) => {
+          // Track streaming content in real-time
+          if (chunk.type === 'text-delta') {
+            currentStreamingMessage += chunk.textDelta;
+          } else if (chunk.type === 'tool-call-delta') {
+            // Track tool call deltas
+            const existingToolCall = currentToolCalls.find(tc => tc.toolCallId === chunk.toolCallId);
+            if (!existingToolCall && chunk.toolName) {
+              currentToolCalls.push({
+                toolCallId: chunk.toolCallId,
+                toolName: chunk.toolName,
+                args: {},
+              });
+            }
+            if (chunk.argsTextDelta && existingToolCall) {
+              // Accumulate args (they come as JSON string deltas)
+              try {
+                const currentArgs = JSON.stringify(existingToolCall.args);
+                existingToolCall.args = JSON.parse(currentArgs + chunk.argsTextDelta);
+              } catch {
+                // Ignore parse errors during streaming
+              }
+            }
+          } else if (chunk.type === 'tool-call') {
+            // Complete tool call received
+            const existingIndex = currentToolCalls.findIndex(tc => tc.toolCallId === chunk.toolCallId);
+            if (existingIndex >= 0) {
+              currentToolCalls[existingIndex] = {
+                toolCallId: chunk.toolCallId,
+                toolName: chunk.toolName,
+                args: chunk.args,
+              };
+            } else {
+              currentToolCalls.push({
+                toolCallId: chunk.toolCallId,
+                toolName: chunk.toolName,
+                args: chunk.args,
+              });
+            }
+          }
+        },
+        onStepFinish: async ({ response, usage }) => {
+          // Track partial state as each step completes
+          // This allows us to save the latest state when abort is triggered
+          partialMessages = response.messages || [];
+          partialUsage = usage;
+
+          // Reset current streaming state after step completes
+          currentStreamingMessage = '';
+          currentToolCalls = [];
+
+          console.log('[streamChat] Step finished, updated partial state:', {
+            messagesCount: partialMessages.length,
+            usage,
+          });
+        },
         onFinish: async ({ response, usage, finishReason }) => {
-          console.log('[streamChat] Stream finished:', {
+          console.log('[streamChat] Stream finished normally:', {
             finishReason,
             usage,
             messagesCount: response.messages?.length || 0,
           });
 
-          // Save all messages generated during the multi-step execution
-          try {
-            const saveResult = await this.saveMessagesToDatabase(
-              threadId,
-              response.messages || [],
-              usage,
-              agent.model
-            );
-            console.log('[streamChat] Messages saved to database successfully');
+          // Only save if not aborted (abort handler will save partial messages)
+          if (!abortSignal?.aborted) {
+            try {
+              const saveResult = await this.saveMessagesToDatabase(
+                threadId,
+                response.messages || [],
+                usage,
+                agent.model,
+                false // Mark as complete (is_complete=true)
+              );
+              console.log('[streamChat] Complete messages saved to database');
 
-            // Check if HIL validation is required
-            if (saveResult.hilRequired) {
-              console.log('[streamChat] HIL validation required - stream will be terminated');
-              // The annotation data will be sent via the custom stream wrapper below
+              // Check if HIL validation is required
+              if (saveResult.hilRequired) {
+                console.log('[streamChat] HIL validation required - stream will be terminated');
+                // The annotation data will be sent via the custom stream wrapper below
+              }
+            } catch (error) {
+              console.error('[streamChat] Error saving messages to database:', error);
+              throw error;
             }
-          } catch (error) {
-            console.error('[streamChat] Error saving messages to database:', error);
-            throw error;
+          } else {
+            console.log('[streamChat] Skipping onFinish save - stream was aborted');
           }
         },
       });
@@ -391,24 +552,28 @@ export class AgentsRoutine {
    * - Tool results use Entity.TOOL
    * - Message content follows Python format with role, content, and optional tool_calls
    * - HIL tool calls are saved with validated: null (pending validation)
+   * - When stream is aborted, messages are marked with is_complete=false
    *
    * @param threadId - Thread ID
    * @param messages - Messages from Vercel AI SDK response
    * @param usage - Token usage information
    * @param model - Model identifier
+   * @param isAborted - Whether the stream was aborted by the client
    * @returns Object indicating if HIL validation is required and which tool calls need validation
    */
   private async saveMessagesToDatabase(
     threadId: string,
     messages: CoreMessage[],
     usage: LanguageModelUsage | undefined,
-    model: string
+    model: string,
+    isAborted: boolean = false
   ): Promise<{
     hilRequired: boolean;
     hilToolCalls: Array<{ toolCallId: string; toolName: string; args: any }>;
   }> {
     try {
       console.log('[saveMessagesToDatabase] Saving', messages.length, 'messages');
+      console.log('[saveMessagesToDatabase] Stream aborted:', isAborted);
 
       const hilToolCalls: Array<{ toolCallId: string; toolName: string; args: any }> = [];
       let hilRequired = false;
@@ -466,6 +631,7 @@ export class AgentsRoutine {
             entity,
             hasToolCalls: toolCalls.length > 0,
             toolCallCount: toolCalls.length,
+            isComplete: !isAborted, // Mark as incomplete if aborted
           });
 
           // Save assistant message with tool calls as nested records
@@ -476,7 +642,7 @@ export class AgentsRoutine {
               threadId,
               entity,
               content: JSON.stringify(messageContent),
-              isComplete: true,
+              isComplete: !isAborted, // Mark as incomplete if stream was aborted
               toolCalls: {
                 create: toolCalls.map((tc) => ({
                   id: tc.toolCallId,

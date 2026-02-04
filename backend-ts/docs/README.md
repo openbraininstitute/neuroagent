@@ -23,6 +23,7 @@ This directory contains comprehensive documentation for the TypeScript backend i
 - **[API-REFERENCE.md](API-REFERENCE.md)** - API endpoints and usage
 - **[MULTI-TURN-AGENT-LOOP.md](MULTI-TURN-AGENT-LOOP.md)** - Agent conversation flow
 - **[STREAM-CANCELLATION-HANDLING.md](STREAM-CANCELLATION-HANDLING.md)** - Stream handling patterns
+- **[STREAMING-INTERRUPTION-HANDLING.md](STREAMING-INTERRUPTION-HANDLING.md)** - Client disconnect handling with Vercel AI SDK
 
 ## Development Guides
 
