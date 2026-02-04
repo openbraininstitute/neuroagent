@@ -8,6 +8,9 @@ export default defineConfig({
     setupFiles: ['./tests/setup.ts'],
     // Run test files sequentially to avoid database race conditions
     fileParallelism: false,
+    // Suppress console output during tests (stdout/stderr)
+    // Set to false to see console output for debugging
+    silent: true,
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html'],

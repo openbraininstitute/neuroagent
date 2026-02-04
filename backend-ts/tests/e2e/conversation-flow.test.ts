@@ -149,7 +149,7 @@ describe('End-to-End: Complete User Flows', () => {
 
       // Mock streamText to simulate a complete conversation
       const mockStreamText = vi.mocked(streamText);
-      mockStreamText.mockResolvedValue({
+      mockStreamText.mockReturnValue({
         toDataStreamResponse: vi.fn(() => {
           const encoder = new TextEncoder();
           const stream = new ReadableStream({
@@ -274,7 +274,7 @@ describe('End-to-End: Complete User Flows', () => {
 
       // Mock streamText
       const mockStreamText = vi.mocked(streamText);
-      mockStreamText.mockResolvedValue({
+      mockStreamText.mockReturnValue({
         toDataStreamResponse: vi.fn(() => {
           const encoder = new TextEncoder();
           const stream = new ReadableStream({
@@ -378,7 +378,7 @@ describe('End-to-End: Complete User Flows', () => {
 
       // Mock streamText to simulate tool calling
       const mockStreamText = vi.mocked(streamText);
-      mockStreamText.mockResolvedValue({
+      mockStreamText.mockReturnValue({
         toDataStreamResponse: vi.fn(() => {
           const encoder = new TextEncoder();
           const stream = new ReadableStream({
@@ -482,7 +482,7 @@ describe('End-to-End: Complete User Flows', () => {
 
       // Mock streamText with multiple tool calls
       const mockStreamText = vi.mocked(streamText);
-      mockStreamText.mockResolvedValue({
+      mockStreamText.mockReturnValue({
         toDataStreamResponse: vi.fn(() => {
           const encoder = new TextEncoder();
           const stream = new ReadableStream({
@@ -568,7 +568,7 @@ describe('End-to-End: Complete User Flows', () => {
 
       // Mock streamText to simulate interrupted stream
       const mockStreamText = vi.mocked(streamText);
-      mockStreamText.mockResolvedValue({
+      mockStreamText.mockReturnValue({
         toDataStreamResponse: vi.fn(() => {
           const encoder = new TextEncoder();
           const stream = new ReadableStream({
@@ -642,14 +642,14 @@ describe('End-to-End: Complete User Flows', () => {
 
       // Mock streamText to simulate timeout
       const mockStreamText = vi.mocked(streamText);
-      mockStreamText.mockResolvedValue({
+      mockStreamText.mockReturnValue({
         toDataStreamResponse: vi.fn(() => {
           const encoder = new TextEncoder();
           const stream = new ReadableStream({
             async start(controller) {
               controller.enqueue(encoder.encode('0:"Starting response..."\n'));
               // Simulate delay then timeout
-              await new Promise((resolve) => setTimeout(resolve, 100));
+              await new Promise((resolve) => setTimeout(resolve, 10)); // Reduced from 100ms to 10ms
               controller.error(new Error('Network timeout'));
             },
           });
@@ -729,7 +729,7 @@ describe('End-to-End: Complete User Flows', () => {
 
       // Mock streamText for recovery
       const mockStreamText = vi.mocked(streamText);
-      mockStreamText.mockResolvedValue({
+      mockStreamText.mockReturnValue({
         toDataStreamResponse: vi.fn(() => {
           const encoder = new TextEncoder();
           const stream = new ReadableStream({
@@ -801,36 +801,44 @@ describe('End-to-End: Complete User Flows', () => {
         },
       });
 
-      // Mock tool
-      const mockTool = {
-        metadata: {
+      // Mock tool class (not just an object)
+      class MockBrainRegionTool {
+        static toolName = 'get_brain_region';
+        static toolDescription = 'Get information about brain regions';
+
+        metadata = {
           name: 'get_brain_region',
           description: 'Get information about brain regions',
-        },
-        toVercelTool: vi.fn(() => ({
+        };
+
+        constructor(contextVariables?: any) {
+          // Constructor for instantiation
+        }
+
+        toVercelTool = vi.fn(() => ({
           description: 'Get information about brain regions',
           parameters: {},
           execute: vi.fn(async () => ({
             region: 'Hippocampus',
             description: 'Memory formation',
           })),
-        })),
-      };
+        }));
+      }
 
       const { initializeTools } = await import('@/lib/tools');
-      vi.mocked(initializeTools).mockResolvedValue([mockTool as any]);
+      vi.mocked(initializeTools).mockResolvedValue([MockBrainRegionTool as any]);
 
       // Mock tool filtering to return the tool
       const { filterToolsAndModelByConversation } = await import('@/lib/utils/tool-filtering');
       vi.mocked(filterToolsAndModelByConversation).mockResolvedValue({
-        filteredTools: [mockTool as any],
+        filteredTools: [MockBrainRegionTool as any],
         model: 'openai/gpt-4',
         reasoning: 'low',
       });
 
       // Mock streamText with tool call and response
       const mockStreamText = vi.mocked(streamText);
-      mockStreamText.mockResolvedValue({
+      mockStreamText.mockReturnValue({
         toDataStreamResponse: vi.fn(() => {
           const encoder = new TextEncoder();
           const stream = new ReadableStream({
@@ -903,7 +911,7 @@ describe('End-to-End: Complete User Flows', () => {
 
       // Mock streamText
       const mockStreamText = vi.mocked(streamText);
-      mockStreamText.mockResolvedValue({
+      mockStreamText.mockReturnValue({
         toDataStreamResponse: vi.fn(() => {
           const encoder = new TextEncoder();
           const stream = new ReadableStream({

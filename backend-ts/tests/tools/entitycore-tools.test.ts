@@ -1,0 +1,130 @@
+/**
+ * Unit tests for EntityCore Tools
+ *
+ * Tests EntityCore tool execution with known inputs and error handling.
+ * Validates: Requirements 13.4
+ *
+ * NOTE: This test file is a placeholder for when the EntityCore tools are migrated
+ * from Python to TypeScript. The tools should be implemented based on:
+ * backend/src/neuroagent/tools/entitycore_*.py
+ */
+
+import { describe, it, expect, vi } from 'vitest';
+
+describe('EntityCore Tools (Placeholder)', () => {
+  describe('EntityCore BrainRegion GetAll Tool', () => {
+    it.todo('should have correct static metadata');
+    it.todo('should fetch all brain regions');
+    it.todo('should support pagination with limit and offset');
+    it.todo('should filter by vlab_id and project_id');
+    it.todo('should exclude metadata fields based on configuration');
+    it.todo('should handle API authentication');
+    it.todo('should return properly structured brain region data');
+    it.todo('should handle API errors gracefully');
+    it.todo('should convert to Vercel AI SDK format');
+
+    describe('Input Validation', () => {
+      it.todo('should validate limit is positive integer');
+      it.todo('should validate offset is non-negative integer');
+      it.todo('should validate UUID formats for vlab_id and project_id');
+    });
+
+    describe('Metadata Exclusion', () => {
+      it.todo('should exclude configured metadata fields');
+      it.todo('should handle empty exclusion list');
+      it.todo('should preserve non-excluded fields');
+    });
+  });
+
+  describe('EntityCore BrainRegion GetOne Tool', () => {
+    it.todo('should have correct static metadata');
+    it.todo('should fetch a single brain region by ID');
+    it.todo('should include all brain region details');
+    it.todo('should handle not found errors');
+    it.todo('should validate brain region ID format');
+  });
+
+  describe('EntityCore BrainRegionHierarchy Tools', () => {
+    it.todo('should fetch brain region hierarchy');
+    it.todo('should handle parent-child relationships');
+    it.todo('should support filtering by brain atlas');
+    it.todo('should handle circular reference prevention');
+  });
+
+  describe('EntityCore CellMorphology Tools', () => {
+    it.todo('should fetch cell morphology data');
+    it.todo('should support filtering by brain region');
+    it.todo('should include morphology metrics');
+    it.todo('should handle morphology file URLs');
+  });
+
+  describe('EntityCore ElectricalCellRecording Tools', () => {
+    it.todo('should fetch electrical recording data');
+    it.todo('should support filtering by cell type');
+    it.todo('should include recording metrics');
+    it.todo('should handle recording file URLs');
+  });
+
+  describe('EntityCore Circuit Tools', () => {
+    it.todo('should fetch circuit data');
+    it.todo('should support public/private circuit filtering');
+    it.todo('should validate project access for private circuits');
+    it.todo('should include circuit configuration');
+  });
+
+  describe('Common EntityCore Patterns', () => {
+    it.todo('should use httpxClient from context variables');
+    it.todo('should construct URLs with entitycoreUrl');
+    it.todo('should include vlab_id and project_id in requests');
+    it.todo('should handle pagination consistently');
+    it.todo('should format frontend URLs correctly');
+  });
+
+  describe('Error Handling', () => {
+    it.todo('should handle 401 unauthorized errors');
+    it.todo('should handle 403 forbidden errors');
+    it.todo('should handle 404 not found errors');
+    it.todo('should handle 500 server errors');
+    it.todo('should handle network timeouts');
+  });
+
+  describe('Health Checks', () => {
+    it.todo('should check EntityCore API availability');
+    it.todo('should return false when API is unreachable');
+    it.todo('should return true when API is healthy');
+  });
+});
+
+/**
+ * Implementation checklist for EntityCore Tools:
+ *
+ * 1. Create base EntityCore tool class with common functionality:
+ *    - Context variables: httpxClient, entitycoreUrl, vlabId, projectId, entityFrontendUrl
+ *    - Common error handling
+ *    - Metadata exclusion logic
+ *    - URL construction helpers
+ *
+ * 2. Implement GetAll pattern tools:
+ *    - Input schema: limit, offset, vlab_id, project_id, filters
+ *    - Execute: GET request with query parameters
+ *    - Return: paginated list of entities
+ *
+ * 3. Implement GetOne pattern tools:
+ *    - Input schema: entity_id, vlab_id, project_id
+ *    - Execute: GET request to /entity/{id}
+ *    - Return: single entity details
+ *
+ * 4. Implement specific tools for each entity type:
+ *    - BrainRegion (getall, getone)
+ *    - BrainRegionHierarchy (getall, getone)
+ *    - CellMorphology (getall, getone)
+ *    - ElectricalCellRecording (getall, getone)
+ *    - Circuit (getall, getone)
+ *    - EModel, MType, EType, etc.
+ *
+ * 5. Add metadata exclusion configuration
+ * 6. Implement health checks for EntityCore API
+ * 7. Add proper TypeScript types from autogenerated_types/entitycore.ts
+ *
+ * Reference: backend/src/neuroagent/tools/entitycore_*.py
+ */

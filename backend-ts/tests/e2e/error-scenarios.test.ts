@@ -417,7 +417,7 @@ describe('End-to-End: Error Scenarios', () => {
           const stream = new ReadableStream({
             async start(controller) {
               // Simulate slow response
-              await new Promise((resolve) => setTimeout(resolve, 50));
+              await new Promise((resolve) => setTimeout(resolve, 5)); // Reduced from 50ms to 5ms
               controller.enqueue(encoder.encode('0:"Response"\n'));
               controller.close();
             },

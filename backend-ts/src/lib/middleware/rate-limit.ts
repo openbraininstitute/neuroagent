@@ -1,6 +1,6 @@
 /**
  * Rate limiting middleware using Redis for state management.
- * 
+ *
  * Provides functions for:
  * - Rate limit checking with Redis-based counters
  * - Rate limit header generation
@@ -10,7 +10,7 @@
 
 import Redis from 'ioredis';
 
-import { getSettings } from '../config/settings';
+import { getCachedSettings } from '../config/settings';
 
 /**
  * Rate limit result containing limit status and headers
@@ -40,14 +40,14 @@ let redisClient: Redis | null = null;
 
 /**
  * Get or create Redis client for rate limiting.
- * 
+ *
  * Returns null if rate limiting is disabled or Redis connection fails.
  * Uses singleton pattern to reuse connection across requests.
- * 
+ *
  * @returns Redis client instance or null if disabled/unavailable
  */
 function getRedisClient(): Redis | null {
-  const settings = getSettings();
+  const settings = getCachedSettings();
 
   // Return null if rate limiting is disabled
   if (settings.rateLimiter.disabled) {
@@ -106,12 +106,12 @@ export async function closeRedisConnection(): Promise<void> {
 
 /**
  * Generate rate limit headers for HTTP response.
- * 
+ *
  * Headers follow standard rate limiting conventions:
  * - X-RateLimit-Limit: Maximum requests allowed in window
  * - X-RateLimit-Remaining: Requests remaining in current window
  * - X-RateLimit-Reset: Unix timestamp when the limit resets
- * 
+ *
  * @param limit - Maximum number of requests allowed
  * @param remaining - Number of requests remaining
  * @param resetTime - Unix timestamp (seconds) when limit resets
@@ -131,22 +131,22 @@ export function generateRateLimitHeaders(
 
 /**
  * Check rate limit for a user and route combination.
- * 
+ *
  * This function:
  * 1. Generates a unique Redis key for the user/route combination
  * 2. Increments the request counter in Redis
  * 3. Sets expiration on first request in the window
  * 4. Calculates remaining requests and reset time
  * 5. Returns rate limit status and headers
- * 
+ *
  * If Redis is unavailable or rate limiting is disabled, returns unlimited access.
- * 
+ *
  * @param userId - Unique user identifier (typically from JWT sub claim)
  * @param route - Route identifier (e.g., 'chat', 'suggestions', 'title')
  * @param limit - Maximum number of requests allowed in the time window
  * @param expiry - Time window in seconds
  * @returns Rate limit result with status and headers
- * 
+ *
  * @example
  * ```typescript
  * const result = await checkRateLimit(
@@ -155,7 +155,7 @@ export function generateRateLimitHeaders(
  *   settings.rateLimiter.limitChat,
  *   settings.rateLimiter.expiryChat
  * );
- * 
+ *
  * if (result.limited) {
  *   return new Response('Rate limit exceeded', {
  *     status: 429,
@@ -234,9 +234,9 @@ export async function checkRateLimit(
 
 /**
  * Reset rate limit for a specific user and route.
- * 
+ *
  * Useful for testing or administrative purposes.
- * 
+ *
  * @param userId - User identifier
  * @param route - Route identifier
  * @returns True if reset was successful, false otherwise
@@ -260,9 +260,9 @@ export async function resetRateLimit(userId: string, route: string): Promise<boo
 
 /**
  * Get current rate limit status without incrementing counter.
- * 
+ *
  * Useful for checking rate limit status without consuming a request.
- * 
+ *
  * @param userId - User identifier
  * @param route - Route identifier
  * @param limit - Maximum number of requests allowed

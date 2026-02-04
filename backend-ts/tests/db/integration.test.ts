@@ -454,7 +454,7 @@ describe('Database Integration Tests', () => {
       });
 
       // Wait a bit to ensure updateDate changes
-      await new Promise((resolve) => setTimeout(resolve, 10));
+      await new Promise((resolve) => setTimeout(resolve, 1));
 
       // Update thread
       const updated = await prisma.thread.update({

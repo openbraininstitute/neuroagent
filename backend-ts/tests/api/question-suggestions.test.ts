@@ -31,13 +31,18 @@ vi.mock('ai', () => ({
   generateObject: vi.fn().mockResolvedValue({
     object: {
       suggestions: [
-        'Find papers about neuroscience',
-        'Show me brain regions',
-        'Analyze cell morphologies',
+        { question: 'Find papers about neuroscience' },
+        { question: 'Show me brain regions' },
+        { question: 'Analyze cell morphologies' },
       ],
     },
   }),
   openai: vi.fn(() => 'mocked-model'),
+}));
+
+// Mock the OpenAI SDK to prevent real API calls
+vi.mock('@ai-sdk/openai', () => ({
+  createOpenAI: vi.fn(() => vi.fn(() => 'mocked-openai-model')),
 }));
 
 vi.mock('@/lib/tools', () => ({

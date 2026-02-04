@@ -232,7 +232,7 @@ describe('Path Prefix Middleware', () => {
       } as any);
 
       const mockMiddleware = vi.fn(async (req: NextRequest) => {
-        await new Promise((resolve) => setTimeout(resolve, 10));
+        await new Promise((resolve) => setTimeout(resolve, 1)); // Reduced from 10ms to 1ms
         return NextResponse.json({ path: req.nextUrl.pathname });
       });
 
