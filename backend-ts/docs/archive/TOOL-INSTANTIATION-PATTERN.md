@@ -87,7 +87,7 @@ export async function GET(request: NextRequest, { params }: { params: { name: st
     utterances: ToolClass.toolUtterances,
     hil: ToolClass.toolHil,
     // Health check using static method
-    is_online: ToolClass.isOnline 
+    is_online: ToolClass.isOnline
       ? await ToolClass.isOnline(contextVariables)
       : true,
   });

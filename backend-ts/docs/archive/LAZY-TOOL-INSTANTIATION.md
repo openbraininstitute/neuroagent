@@ -109,7 +109,7 @@ async function handleToolCall(toolName: string, input: any) {
 
   // Execute and return result
   const result = await toolInstance.execute(input);
-  
+
   // Instance is discarded after execution
   return result;
 }
@@ -139,7 +139,7 @@ export async function POST(request: NextRequest) {
 
   // Step 3: Convert to Vercel AI SDK format with lazy instantiation
   const vercelTools: Record<string, Tool> = {};
-  
+
   for (const [name, ToolClass] of Object.entries(toolMap)) {
     vercelTools[name] = {
       description: ToolClass.toolDescription,
@@ -155,7 +155,7 @@ export async function POST(request: NextRequest) {
           projectId: session.user.projectId,
           obiOneUrl: settings.tools.obiOne.url,
         });
-        
+
         return await toolInstance.execute(input);
       },
     };

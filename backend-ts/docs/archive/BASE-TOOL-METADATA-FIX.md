@@ -35,10 +35,10 @@ export class ExampleTool extends BaseTool<...> {
   static readonly toolDescriptionFrontend = '...';
   static readonly toolUtterances = ['example', 'demo'];
   static readonly toolHil = false;
-  
+
   // Instance field (runtime dependencies)
   override contextVariables: ExampleToolContextVariables;
-  
+
   constructor(contextVariables: ExampleToolContextVariables) {
     super();
     this.contextVariables = contextVariables;
@@ -112,9 +112,9 @@ export class MyTool extends BaseTool<typeof MyInputSchema> {
     name: 'my-tool',
     description: '...',
   };
-  
+
   inputSchema = MyInputSchema;
-  
+
   async execute(input) {
     // No access to runtime dependencies
   }
@@ -132,15 +132,15 @@ export class MyTool extends BaseTool<
 > {
   static readonly toolName = 'my-tool';
   static readonly toolDescription = '...';
-  
+
   override contextVariables: MyToolContextVariables;
   override inputSchema = MyInputSchema;
-  
+
   constructor(contextVariables: MyToolContextVariables) {
     super();
     this.contextVariables = contextVariables;
   }
-  
+
   async execute(input) {
     // Access runtime dependencies
     const { apiUrl, apiKey } = this.contextVariables;

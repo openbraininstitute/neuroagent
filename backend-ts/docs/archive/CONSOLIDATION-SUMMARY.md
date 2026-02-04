@@ -104,11 +104,11 @@ This avoids the expensive MCP tool initialization while still providing LLM cont
 class WebSearchTool extends BaseTool<typeof WebSearchInputSchema> {
   metadata: ToolMetadata = { name: 'web_search', ... };
   inputSchema = WebSearchInputSchema;
-  
+
   constructor(private exaApiKey: string) {
     super();
   }
-  
+
   async execute(input: WebSearchInput): Promise<WebSearchOutput> {
     // Implementation
   }

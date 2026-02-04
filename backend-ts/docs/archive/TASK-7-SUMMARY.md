@@ -114,13 +114,13 @@ export async function GET(request: NextRequest) {
   try {
     // Validate JWT token
     const userInfo = await validateAuth(request);
-    
+
     // Validate project access
     validateProject(userInfo.groups, vlabId, projectId);
-    
+
     // Process authenticated request
     return Response.json({ userId: userInfo.sub });
-    
+
   } catch (error) {
     if (error instanceof AuthenticationError) {
       return new Response('Unauthorized', { status: 401 });

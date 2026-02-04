@@ -114,10 +114,10 @@ import { getSettings } from '@/lib/config/settings';
 
 export async function POST(request: NextRequest) {
   const settings = getSettings();
-  
+
   // Validate authentication
   const userInfo = await validateAuth(request);
-  
+
   // Check rate limit
   const rateLimitResult = await checkRateLimit(
     userInfo.sub,
@@ -125,14 +125,14 @@ export async function POST(request: NextRequest) {
     settings.rateLimiter.limitChat,
     settings.rateLimiter.expiryChat
   );
-  
+
   if (rateLimitResult.limited) {
     return new Response('Rate limit exceeded', {
       status: 429,
       headers: rateLimitResult.headers,
     });
   }
-  
+
   // Process request...
   return Response.json(result, {
     headers: rateLimitResult.headers,
@@ -142,9 +142,9 @@ export async function POST(request: NextRequest) {
 
 ## Requirements Satisfied
 
-✅ **Requirement 9.1**: Redis-based rate limiting state management  
-✅ **Requirement 9.2**: Rate limits for different routes (chat, suggestions, title)  
-✅ **Requirement 9.3**: Rate limit headers in responses  
+✅ **Requirement 9.1**: Redis-based rate limiting state management
+✅ **Requirement 9.2**: Rate limits for different routes (chat, suggestions, title)
+✅ **Requirement 9.3**: Rate limit headers in responses
 ✅ **Requirement 9.4**: Support for different limits based on context (inside/outside vlab)
 
 ## Technical Decisions

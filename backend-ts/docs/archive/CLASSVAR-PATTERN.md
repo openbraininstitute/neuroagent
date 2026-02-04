@@ -9,7 +9,7 @@ class BrainRegionGetAllTool(BaseTool):
     name: ClassVar[str] = "entitycore-brainregion-getall"
     name_frontend: ClassVar[str] = "Get All Brain Regions"
     description: ClassVar[str] = "..."
-    
+
 # Access without instantiation
 tool_list: list[type[BaseTool]] = [BrainRegionGetAllTool, ...]
 for tool in tool_list:
@@ -27,7 +27,7 @@ class BrainRegionGetAllTool extends BaseTool {
   static readonly toolName = "entitycore-brainregion-getall";
   static readonly toolNameFrontend = "Get All Brain Regions";
   static readonly toolDescription = "...";
-  
+
   // Instance properties for execution
   contextVariables: EntitycoreContextVariables;
   inputSchema = BrainRegionGetAllInputSchema;
@@ -54,10 +54,10 @@ export interface ToolClass {
   readonly toolDescriptionFrontend?: string;
   readonly toolUtterances?: string[];
   readonly toolHil?: boolean;
-  
+
   // Static health check method
   isOnline?(contextVariables: BaseContextVariables): Promise<boolean>;
-  
+
   // Constructor
   new (contextVariables: any): BaseTool<any, any>;
 }
@@ -181,7 +181,7 @@ export async function POST(request: NextRequest) {
           projectId: session.user.projectId,
           obiOneUrl: settings.obiOneUrl,
         });
-        
+
         return await toolInstance.execute(input);
       },
     };
@@ -223,7 +223,7 @@ export async function POST(request: NextRequest) {
 2. **Matches Python Pattern**: Direct translation of Python's `ClassVar` approach
 3. **Type Safety**: TypeScript enforces the static property contract via `ToolClass` interface
 4. **Lazy Instantiation**: Tools are only created when needed for execution
-5. **Separation of Concerns**: 
+5. **Separation of Concerns**:
    - Classes = metadata (static, shared, no user context)
    - Instances = execution (user-specific context, created per-request)
 

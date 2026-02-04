@@ -19,7 +19,7 @@ Implemented the `/api/qa/models` endpoint to fetch and filter available LLM mode
   - Nested schemas for `Architecture`, `TopProvider`, and `Pricing`
 - **Regex Filtering**: Filters models based on configuration pattern
 - **Caching**: Uses Next.js revalidation (5 minutes) to avoid excessive API calls
-- **Error Handling**: 
+- **Error Handling**:
   - 401 for authentication failures
   - 502 for OpenRouter API errors
   - 500 for internal errors

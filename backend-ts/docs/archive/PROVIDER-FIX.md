@@ -86,9 +86,9 @@ import { createOpenAI } from '@ai-sdk/openai';
 import { streamText } from 'ai';
 
 // createOpenAI returns a provider function
-const provider = createOpenAI({ 
-  apiKey: 'sk-...', 
-  baseURL: 'https://api.openai.com/v1' 
+const provider = createOpenAI({
+  apiKey: 'sk-...',
+  baseURL: 'https://api.openai.com/v1'
 });
 
 // Call provider function with model name to get model instance

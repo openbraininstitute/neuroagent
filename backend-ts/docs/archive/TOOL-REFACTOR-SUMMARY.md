@@ -18,7 +18,7 @@ class BaseTool(BaseModel, ABC):
     name: ClassVar[str]  # Class-level, accessible without instantiation
     description: ClassVar[str]
     metadata: BaseMetadata  # Instance-level, for runtime config
-    
+
     @abstractmethod
     async def arun(self) -> BaseModel:
         """Run the tool."""

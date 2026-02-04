@@ -7,7 +7,7 @@ Next.js 15 introduced a breaking change where dynamic route parameters must be a
 ## Error Message
 
 ```
-Error: Route "/api/qa/chat_streamed/[thread_id]" used `params.thread_id`. 
+Error: Route "/api/qa/chat_streamed/[thread_id]" used `params.thread_id`.
 `params` should be awaited before using its properties.
 Learn more: https://nextjs.org/docs/messages/sync-dynamic-apis
 ```
@@ -37,7 +37,7 @@ export async function POST(
 ) {
   // Await params first
   const { thread_id } = await params;
-  
+
   const thread = await prisma.thread.findUnique({
     where: { id: thread_id },
   });

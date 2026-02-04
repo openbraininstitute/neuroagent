@@ -23,15 +23,15 @@ For errors that occur during streaming (after `streamText` is called), we added 
 const response = result.toDataStreamResponse({
   getErrorMessage: (error: unknown) => {
     console.error('[streamChat] Error in stream:', error);
-    
+
     if (error == null) {
       return 'Unknown error occurred';
     }
-    
+
     if (typeof error === 'string') {
       return error;
     }
-    
+
     if (error instanceof Error) {
       // Return full error message with stack trace in development
       if (process.env.NODE_ENV === 'development') {
@@ -39,7 +39,7 @@ const response = result.toDataStreamResponse({
       }
       return error.message;
     }
-    
+
     // For other error types, stringify them
     try {
       return JSON.stringify(error);
@@ -58,7 +58,7 @@ For errors that occur before streaming starts (database errors, provider configu
 catch (error) {
   // Determine error message
   let errorMessage: string;
-  
+
   if (error == null) {
     errorMessage = 'An error occurred';
   } else if (typeof error === 'string') {
@@ -72,7 +72,7 @@ catch (error) {
       errorMessage = 'An error occurred';
     }
   }
-  
+
   // Create error stream in Vercel AI SDK format
   const errorStream = new ReadableStream({
     start(controller) {
@@ -82,7 +82,7 @@ catch (error) {
       controller.close();
     },
   });
-  
+
   return new Response(errorStream, {
     status: 200, // Keep 200 to allow streaming
     headers: {

@@ -64,12 +64,12 @@ That's it! Vercel AI SDK automatically:
 - Future SDK improvements automatically benefit us
 
 ### 4. Feature Parity
-✅ Multi-turn conversations  
-✅ Automatic tool execution  
-✅ Max turns limit  
-✅ Streaming responses  
-✅ Database persistence  
-✅ Token tracking  
+✅ Multi-turn conversations
+✅ Automatic tool execution
+✅ Max turns limit
+✅ Streaming responses
+✅ Database persistence
+✅ Token tracking
 
 ## Files Modified
 
@@ -84,18 +84,18 @@ const writer = stream.writable.getWriter();
 // Manual loop
 while (turns < maxTurns) {
   const result = streamText({ messages, tools });
-  
+
   // Manually stream chunks
   for await (const chunk of result.fullStream) {
     await writer.write(chunk);
   }
-  
+
   // Manually execute tools
   const toolResults = await executeToolCalls(...);
-  
+
   // Manually add to history
   messageHistory.push(...toolResults);
-  
+
   turns++;
 }
 ```
@@ -153,7 +153,7 @@ onFinish: async ({ response, usage }) => {
   // response.messages contains ALL messages from multi-step execution:
   // - Assistant messages (with tool calls)
   // - Tool result messages
-  
+
   for (const message of response.messages) {
     if (message.role === 'assistant') {
       // Extract text and tool calls

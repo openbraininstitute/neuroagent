@@ -10,7 +10,7 @@ import { initializeTools } from '@/lib/tools';
 
 export async function POST(request: NextRequest) {
   // ... auth and rate limiting ...
-  
+
   // ❌ SLOW: Initializes ALL tools including MCP (50+ seconds)
   const tools = await initializeTools({
     exaApiKey: settings.tools.exaApiKey,
@@ -22,10 +22,10 @@ export async function POST(request: NextRequest) {
     mcpConfig: settings.mcp,  // ← MCP initialization is expensive!
   });
 
-  const toolInfo = tools.map((tool) => 
+  const toolInfo = tools.map((tool) =>
     `${tool.metadata.name}: ${tool.metadata.description}`
   );
-  
+
   // ... rest of endpoint ...
 }
 ```
@@ -38,10 +38,10 @@ import { getToolDescriptionsForLLM } from '@/lib/tools/tool-list';
 
 export async function POST(request: NextRequest) {
   // ... auth and rate limiting ...
-  
+
   // ✅ FAST: Accesses static metadata only (milliseconds)
   const toolInfo = getToolDescriptionsForLLM();
-  
+
   // ... rest of endpoint ...
 }
 ```
@@ -131,7 +131,7 @@ export class ToolRegistry {
   getAll(): BaseTool<any>[] {
     return Array.from(this.tools.values());
   }
-  
+
   getAllMetadata(): ToolMetadata[] {
     return Array.from(this.tools.values()).map((tool) => tool.metadata);
   }
@@ -250,7 +250,7 @@ class BaseTool(BaseModel, ABC):
     name: ClassVar[str]  # ← Class-level (like TypeScript static)
     description: ClassVar[str]
     metadata: BaseMetadata  # ← Instance-level
-    
+
     @abstractmethod
     async def arun(self) -> BaseModel:
         """Run the tool."""

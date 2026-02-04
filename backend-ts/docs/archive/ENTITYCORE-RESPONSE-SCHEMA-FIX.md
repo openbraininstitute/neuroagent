@@ -19,8 +19,8 @@ Error executing tool entitycore-brainregion-getall: [
 After fixing the response schema, OpenAI rejected the function schema:
 
 ```
-Invalid schema for function 'entitycore-brainregion-getall': 
-In context=(), 'required' is required to be supplied and to be an array 
+Invalid schema for function 'entitycore-brainregion-getall':
+In context=(), 'required' is required to be supplied and to be an array
 including every key in properties. Missing 'page'.
 ```
 
