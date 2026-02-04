@@ -1,5 +1,4 @@
 import { ChatPage } from "@/components/chat/chat-page";
-import { md5 } from "js-md5";
 import { getModels, getThread, getToolList } from "@/lib/server-fetches";
 import { getMessages } from "@/lib/server-fetches";
 import { notFound } from "next/navigation";
@@ -32,11 +31,11 @@ export default async function PageThread({
     return notFound();
   }
 
-  const key = messages.at(-1) ? md5(JSON.stringify(messages.at(-1))) : null;
-
+  // Use threadId as key instead of last message hash
+  // Using message hash causes remounting during streaming when messages are saved to DB
   return (
     <ChatPage
-      key={key}
+      key={threadId}
       threadId={threadId}
       initialMessages={messages}
       initialNextCursor={nextCursor ? nextCursor : undefined}
