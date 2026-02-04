@@ -65,6 +65,7 @@ from neuroagent.tools import (
     ExperimentalNeuronDensityGetOneTool,
     ExperimentalSynapsesPerConnectionGetAllTool,
     ExperimentalSynapsesPerConnectionGetOneTool,
+    InfoSimulationsConfigTool,
     IonChannelGetAllTool,
     IonChannelGetOneTool,
     IonChannelModelGetAllTool,
@@ -116,7 +117,6 @@ from neuroagent.tools.base_tool import BaseTool
 from neuroagent.tools.obione_generatesimulationsconfig import (
     GenerateSimulationsConfigTool,
 )
-from neuroagent.backend.src.neuroagent.tools.obione_infosimulationsconfig import InfoSimulationsConfigTool
 
 logger = logging.getLogger(__name__)
 
