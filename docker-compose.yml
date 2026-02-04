@@ -29,6 +29,49 @@ services:
       - minio
       - redis
 
+  backend-ts:
+    build:
+      context: ./backend-ts
+      dockerfile: Dockerfile
+    ports:
+      - "8079:8079"
+    env_file: "backend-ts/.env"
+    environment:
+      # Database Configuration
+      - DATABASE_URL=postgresql://postgres:pwd@postgres:5432/neuroagent
+      - NEUROAGENT_DB__HOST=postgres
+      - NEUROAGENT_DB__PORT=5432
+      - NEUROAGENT_DB__USER=postgres
+      - NEUROAGENT_DB__PASSWORD=pwd
+      - NEUROAGENT_DB__NAME=neuroagent
+      # Storage Configuration (MinIO)
+      - NEUROAGENT_STORAGE__ENDPOINT_URL=http://minio:9000
+      - NEUROAGENT_STORAGE__BUCKET_NAME=neuroagent
+      - NEUROAGENT_STORAGE__ACCESS_KEY=minioadmin
+      - NEUROAGENT_STORAGE__SECRET_KEY=minioadmin
+      # Rate Limiting Configuration (Redis)
+      - NEUROAGENT_RATE_LIMITER__REDIS_HOST=redis
+      - NEUROAGENT_RATE_LIMITER__REDIS_PORT=6379
+      - NEUROAGENT_RATE_LIMITER__DISABLED=false
+      # Node Environment
+      - NODE_ENV=production
+    networks:
+      - app-network
+    depends_on:
+      postgres:
+        condition: service_started
+      minio:
+        condition: service_started
+      redis:
+        condition: service_started
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:8079/api/healthz', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"]
+      interval: 30s
+      timeout: 10s
+      start_period: 40s
+      retries: 3
+    restart: unless-stopped
+
   frontend:
     build:
       context: ./frontend

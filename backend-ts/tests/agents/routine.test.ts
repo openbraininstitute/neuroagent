@@ -1,6 +1,6 @@
 /**
  * Tests for Agent Routine
- * 
+ *
  * These tests verify the core agent orchestration functionality.
  */
 
@@ -117,19 +117,24 @@ describe('AgentsRoutine', () => {
           id: '1',
           creationDate: new Date(),
           entity: 'AI_MESSAGE' as any,
-          content: JSON.stringify({ role: 'assistant', content: 'Let me search for that' }),
+          content: JSON.stringify({
+            role: 'assistant',
+            content: 'Let me search for that',
+            tool_calls: [
+              {
+                id: 'call-1',
+                type: 'function',
+                function: {
+                  name: 'web_search',
+                  arguments: JSON.stringify({ query: 'test' })
+                }
+              }
+            ]
+          }),
           isComplete: true,
           threadId: 'thread-1',
           searchVector: null,
-          toolCalls: [
-            {
-              id: 'call-1',
-              name: 'web_search',
-              arguments: JSON.stringify({ query: 'test' }),
-              validated: null,
-              messageId: '1',
-            },
-          ],
+          toolCalls: [],
         },
       ];
 
@@ -188,30 +193,30 @@ describe('AgentsRoutine', () => {
     it('should select OpenAI provider for openai/ prefix', () => {
       const model = (routine as any).getProviderAndModel('openai/gpt-4');
       expect(model).toBeDefined();
-      expect(mockOpenAIProvider).toHaveBeenCalledWith('gpt-4');
+      expect(mockOpenAIProvider).toHaveBeenCalledWith('gpt-4', { structuredOutputs: false });
     });
 
     it('should select OpenRouter provider for openrouter/ prefix', () => {
       // OpenRouter client is initialized in constructor
       const model = (routine as any).getProviderAndModel('openrouter/anthropic/claude-3');
       expect(model).toBeDefined();
-      expect(mockOpenRouterProvider).toHaveBeenCalledWith('anthropic/claude-3');
+      expect(mockOpenRouterProvider).toHaveBeenCalledWith('openrouter/anthropic/claude-3');
     });
 
-    it('should default to OpenAI for no prefix', () => {
+    it('should default to OpenRouter for no prefix', () => {
       const model = (routine as any).getProviderAndModel('gpt-4');
       expect(model).toBeDefined();
-      expect(mockOpenAIProvider).toHaveBeenCalledWith('gpt-4');
-    });
-
-    it('should throw error if OpenAI not configured', () => {
-      const r = new AgentsRoutine();
-      expect(() => (r as any).getProviderAndModel('gpt-4')).toThrow(
-        'OpenAI provider not configured'
-      );
+      expect(mockOpenRouterProvider).toHaveBeenCalledWith('gpt-4');
     });
 
     it('should throw error if OpenRouter not configured', () => {
+      const r = new AgentsRoutine('openai-key');
+      expect(() => (r as any).getProviderAndModel('gpt-4')).toThrow(
+        'OpenRouter provider not configured'
+      );
+    });
+
+    it('should throw error if OpenRouter not configured for openrouter/ prefix', () => {
       const r = new AgentsRoutine('openai-key');
       expect(() => (r as any).getProviderAndModel('openrouter/model')).toThrow(
         'OpenRouter provider not configured'

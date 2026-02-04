@@ -218,17 +218,17 @@ export async function GET(
       }
 
       // If there are more messages, set oldest bound
-      if (hasMore) {
+      if (hasMore && dbCursor.length >= 2) {
         const secondToLast = dbCursor[dbCursor.length - 2];
         const last = dbCursor[dbCursor.length - 1];
 
-        if (secondToLast.entity === entity.USER) {
+        if (secondToLast && secondToLast.entity === entity.USER) {
           // Include messages >= second to last
           dateConditions.creationDate = {
             ...dateConditions.creationDate,
             gte: secondToLast.creationDate,
           };
-        } else {
+        } else if (last) {
           // Include messages > last (to include all tool calls from last AI)
           dateConditions.creationDate = {
             ...dateConditions.creationDate,
@@ -265,9 +265,10 @@ export async function GET(
     }
 
     // Calculate next cursor
+    const lastCursorItem = dbCursor.length > 0 ? dbCursor[dbCursor.length - 1] : null;
     const nextCursor =
-      hasMore && dbCursor.length > 0
-        ? dbCursor[dbCursor.length - 1].creationDate.toISOString()
+      hasMore && lastCursorItem
+        ? lastCursorItem.creationDate.toISOString()
         : null;
 
     console.log('[messages] Phase 2 - Fetched', dbMessages.length, 'full messages');

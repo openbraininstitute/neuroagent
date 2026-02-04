@@ -1,8 +1,10 @@
 /**
  * Tests for Models API Route
- * 
+ *
  * Tests the /api/qa/models endpoint for listing available LLM models from OpenRouter.
  * Matches Python backend format.
+ *
+ * IMPORTANT: All fetch calls are mocked to prevent real API calls to OpenRouter.
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
@@ -28,9 +30,62 @@ vi.mock('@/lib/config/settings', () => ({
   }),
 }));
 
+// Sample OpenRouter response for mocking
+const mockOpenRouterResponse = {
+  data: [
+    {
+      id: 'openai/gpt-4',
+      name: 'GPT-4',
+      created: 1678896000,
+      description: 'GPT-4 model',
+      architecture: {
+        input_modalities: ['text'],
+        output_modalities: ['text'],
+        tokenizer: 'cl100k_base',
+      },
+      top_provider: {
+        is_moderated: true,
+      },
+      pricing: {
+        prompt: '0.00003',
+        completion: '0.00006',
+      },
+      context_length: 8192,
+      supported_parameters: ['temperature', 'max_tokens'],
+    },
+    {
+      id: 'anthropic/claude-3',
+      name: 'Claude 3',
+      created: 1678896000,
+      description: 'Claude 3 model',
+      architecture: {
+        input_modalities: ['text'],
+        output_modalities: ['text'],
+        tokenizer: 'claude',
+      },
+      top_provider: {
+        is_moderated: true,
+      },
+      pricing: {
+        prompt: '0.00003',
+        completion: '0.00015',
+      },
+      context_length: 200000,
+      supported_parameters: ['temperature', 'max_tokens'],
+    },
+  ],
+};
+
 describe('GET /api/qa/models', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+
+    // CRITICAL: Mock fetch globally to prevent real API calls to OpenRouter
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      status: 200,
+      json: async () => mockOpenRouterResponse,
+    });
   });
 
   it('should return list of models from OpenRouter', async () => {
@@ -160,7 +215,7 @@ describe('GET /api/qa/models', () => {
 
     expect(response.status).toBe(200);
     expect(Array.isArray(data)).toBe(true);
-    
+
     // Should only include models matching 'openai.*' regex
     expect(data.length).toBe(1);
     expect(data[0].id).toBe('openai/gpt-4');
@@ -238,10 +293,10 @@ describe('GET /api/qa/models', () => {
     const data = await response.json();
 
     expect(response.status).toBe(200);
-    
+
     if (data.length > 0) {
       const model = data[0];
-      
+
       // Check required fields
       expect(model).toHaveProperty('id');
       expect(model).toHaveProperty('name');
@@ -252,7 +307,7 @@ describe('GET /api/qa/models', () => {
       expect(model).toHaveProperty('pricing');
       expect(model).toHaveProperty('context_length');
       expect(model).toHaveProperty('supported_parameters');
-      
+
       // Check nested structures
       expect(model.architecture).toHaveProperty('input_modalities');
       expect(model.architecture).toHaveProperty('output_modalities');
@@ -305,7 +360,7 @@ describe('GET /api/qa/models', () => {
 
     // Should be a plain array, not wrapped in an object
     expect(Array.isArray(data)).toBe(true);
-    
+
     // Should match OpenRouterModelResponse schema from Python backend
     if (data.length > 0) {
       const model = data[0];

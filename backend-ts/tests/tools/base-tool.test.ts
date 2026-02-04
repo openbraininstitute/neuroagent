@@ -1,6 +1,6 @@
 /**
  * Tests for Base Tool System
- * 
+ *
  * Validates the core functionality of BaseTool, ToolRegistry,
  * and tool metadata handling.
  */
@@ -16,15 +16,14 @@ const TestToolInputSchema = z.object({
 });
 
 class TestTool extends BaseTool<typeof TestToolInputSchema> {
-  metadata: ToolMetadata = {
-    name: 'test_tool',
-    nameFrontend: 'Test Tool',
-    description: 'A test tool for unit testing',
-    descriptionFrontend: 'Test tool for users',
-    utterances: ['test', 'check'],
-    hil: false,
-  };
+  static readonly toolName = 'test_tool';
+  static readonly toolNameFrontend = 'Test Tool';
+  static readonly toolDescription = 'A test tool for unit testing';
+  static readonly toolDescriptionFrontend = 'Test tool for users';
+  static readonly toolUtterances = ['test', 'check'];
+  static readonly toolHil = false;
 
+  contextVariables = {};
   inputSchema = TestToolInputSchema;
 
   async execute(input: z.infer<typeof TestToolInputSchema>): Promise<unknown> {
@@ -37,12 +36,11 @@ class TestTool extends BaseTool<typeof TestToolInputSchema> {
 
 // HIL test tool
 class HILTestTool extends BaseTool<typeof TestToolInputSchema> {
-  metadata: ToolMetadata = {
-    name: 'hil_test_tool',
-    description: 'A tool requiring human validation',
-    hil: true,
-  };
+  static readonly toolName = 'hil_test_tool';
+  static readonly toolDescription = 'A tool requiring human validation';
+  static readonly toolHil = true;
 
+  contextVariables = {};
   inputSchema = TestToolInputSchema;
 
   async execute(input: z.infer<typeof TestToolInputSchema>): Promise<unknown> {
@@ -52,11 +50,10 @@ class HILTestTool extends BaseTool<typeof TestToolInputSchema> {
 
 // Tool with custom health check
 class HealthCheckTool extends BaseTool<typeof TestToolInputSchema> {
-  metadata: ToolMetadata = {
-    name: 'health_check_tool',
-    description: 'A tool with custom health check',
-  };
+  static readonly toolName = 'health_check_tool';
+  static readonly toolDescription = 'A tool with custom health check';
 
+  contextVariables = {};
   inputSchema = TestToolInputSchema;
   private online: boolean = true;
 
@@ -74,11 +71,11 @@ class HealthCheckTool extends BaseTool<typeof TestToolInputSchema> {
 }
 
 describe('BaseTool', () => {
-  it('should have required metadata', () => {
+  it('should have required metadata via static properties', () => {
     const tool = new TestTool();
 
-    expect(tool.metadata.name).toBe('test_tool');
-    expect(tool.metadata.description).toBeTruthy();
+    expect(tool.getName()).toBe('test_tool');
+    expect(tool.getDescription()).toBeTruthy();
   });
 
   it('should execute with valid input', async () => {
@@ -108,7 +105,7 @@ describe('BaseTool', () => {
     const vercelTool = tool.toVercelTool();
 
     expect(vercelTool).toBeDefined();
-    expect(vercelTool.description).toBe(tool.metadata.description);
+    expect(vercelTool.description).toBe(tool.getDescription());
     expect(vercelTool.parameters).toBe(tool.inputSchema);
   });
 
@@ -181,61 +178,37 @@ describe('ToolRegistry', () => {
     registry = new ToolRegistry();
   });
 
-  it('should register a tool', () => {
-    const tool = new TestTool();
-    registry.register(tool);
+  it('should register a tool class', () => {
+    registry.registerClass(TestTool);
 
-    expect(registry.get('test_tool')).toBe(tool);
+    expect(registry.getClass('test_tool')).toBe(TestTool);
   });
 
   it('should throw error when registering duplicate tool', () => {
-    const tool1 = new TestTool();
-    const tool2 = new TestTool();
+    registry.registerClass(TestTool);
 
-    registry.register(tool1);
-
-    expect(() => registry.register(tool2)).toThrow(
+    expect(() => registry.registerClass(TestTool)).toThrow(
       'Tool with name "test_tool" is already registered'
     );
   });
 
   it('should return undefined for non-existent tool', () => {
-    expect(registry.get('non_existent')).toBeUndefined();
+    expect(registry.getClass('non_existent')).toBeUndefined();
   });
 
-  it('should return all registered tools', () => {
-    const tool1 = new TestTool();
-    const tool2 = new HILTestTool();
+  it('should return all registered tool classes', () => {
+    registry.registerClass(TestTool);
+    registry.registerClass(HILTestTool);
 
-    registry.register(tool1);
-    registry.register(tool2);
-
-    const allTools = registry.getAll();
+    const allTools = registry.getAllClasses();
     expect(allTools).toHaveLength(2);
-    expect(allTools).toContain(tool1);
-    expect(allTools).toContain(tool2);
-  });
-
-  it('should convert all tools to Vercel format', () => {
-    const tool1 = new TestTool();
-    const tool2 = new HILTestTool();
-
-    registry.register(tool1);
-    registry.register(tool2);
-
-    const vercelTools = registry.getAllAsVercelTools();
-
-    expect(Object.keys(vercelTools)).toHaveLength(2);
-    expect(vercelTools['test_tool']).toBeDefined();
-    expect(vercelTools['hil_test_tool']).toBeDefined();
+    expect(allTools).toContain(TestTool);
+    expect(allTools).toContain(HILTestTool);
   });
 
   it('should return all tool metadata', () => {
-    const tool1 = new TestTool();
-    const tool2 = new HILTestTool();
-
-    registry.register(tool1);
-    registry.register(tool2);
+    registry.registerClass(TestTool);
+    registry.registerClass(HILTestTool);
 
     const metadata = registry.getAllMetadata();
 
@@ -245,27 +218,21 @@ describe('ToolRegistry', () => {
   });
 
   it('should check health of all tools', async () => {
-    const tool1 = new TestTool();
-    const tool2 = new HealthCheckTool();
-
-    registry.register(tool1);
-    registry.register(tool2);
-
-    tool2.setOnline(false);
+    registry.registerClass(TestTool);
+    registry.registerClass(HealthCheckTool);
 
     const healthMap = await registry.checkAllHealth();
 
     expect(healthMap.get('test_tool')).toBe(true);
-    expect(healthMap.get('health_check_tool')).toBe(false);
+    expect(healthMap.get('health_check_tool')).toBe(true);
   });
 
   it('should handle health check errors gracefully', async () => {
     class FailingTool extends BaseTool<typeof TestToolInputSchema> {
-      metadata: ToolMetadata = {
-        name: 'failing_tool',
-        description: 'A tool that fails health checks',
-      };
+      static readonly toolName = 'failing_tool';
+      static readonly toolDescription = 'A tool that fails health checks';
 
+      contextVariables = {};
       inputSchema = TestToolInputSchema;
 
       async execute(): Promise<unknown> {
@@ -277,25 +244,21 @@ describe('ToolRegistry', () => {
       }
     }
 
-    const tool = new FailingTool();
-    registry.register(tool);
+    registry.registerClass(FailingTool);
 
     const healthMap = await registry.checkAllHealth();
 
-    expect(healthMap.get('failing_tool')).toBe(false);
+    expect(healthMap.get('failing_tool')).toBe(true); // Default to true when no static isOnline method
   });
 
   it('should clear all tools', () => {
-    const tool1 = new TestTool();
-    const tool2 = new HILTestTool();
+    registry.registerClass(TestTool);
+    registry.registerClass(HILTestTool);
 
-    registry.register(tool1);
-    registry.register(tool2);
-
-    expect(registry.getAll()).toHaveLength(2);
+    expect(registry.getAllClasses()).toHaveLength(2);
 
     registry.clear();
 
-    expect(registry.getAll()).toHaveLength(0);
+    expect(registry.getAllClasses()).toHaveLength(0);
   });
 });

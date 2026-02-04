@@ -47,9 +47,19 @@ vi.mock('@/lib/tools', () => ({
   initializeTools: vi.fn().mockResolvedValue([]),
 }));
 
+// CRITICAL: Mock tool filtering to prevent real LLM API calls
+vi.mock('@/lib/utils/tool-filtering', () => ({
+  filterToolsAndModelByConversation: vi.fn().mockResolvedValue({
+    filteredTools: [],
+    model: 'openai/gpt-4',
+    reasoning: 'low',
+  }),
+}));
+
 describe('Chat Streaming API Route', () => {
   let testThreadId: string;
   let testUserId: string;
+
 
   beforeEach(async () => {
     // Generate unique IDs for each test to avoid conflicts

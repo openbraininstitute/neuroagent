@@ -1,6 +1,6 @@
 /**
  * Provider Selection Integration Tests
- * 
+ *
  * These tests verify that the provider selection logic works correctly
  * with different model identifiers and configurations.
  */
@@ -31,44 +31,44 @@ describe('Provider Selection Integration', () => {
 
     it('should select OpenAI for openai/ prefix', () => {
       const result = (routine as any).getProviderAndModel('openai/gpt-4');
-      
+
       expect(result).toBeDefined();
-      expect(mockOpenAIProvider).toHaveBeenCalledWith('gpt-4');
+      expect(mockOpenAIProvider).toHaveBeenCalledWith('gpt-4', { structuredOutputs: false });
     });
 
     it('should select OpenAI for openai/ prefix with turbo model', () => {
       const result = (routine as any).getProviderAndModel('openai/gpt-4-turbo');
-      
+
       expect(result).toBeDefined();
-      expect(mockOpenAIProvider).toHaveBeenCalledWith('gpt-4-turbo');
+      expect(mockOpenAIProvider).toHaveBeenCalledWith('gpt-4-turbo', { structuredOutputs: false });
     });
 
     it('should select OpenRouter for openrouter/ prefix', () => {
       const result = (routine as any).getProviderAndModel('openrouter/anthropic/claude-3-opus');
-      
+
       expect(result).toBeDefined();
-      expect(mockOpenRouterProvider).toHaveBeenCalledWith('anthropic/claude-3-opus');
+      expect(mockOpenRouterProvider).toHaveBeenCalledWith('openrouter/anthropic/claude-3-opus');
     });
 
     it('should select OpenRouter for openrouter/ prefix with nested path', () => {
       const result = (routine as any).getProviderAndModel('openrouter/google/gemini-pro');
-      
+
       expect(result).toBeDefined();
-      expect(mockOpenRouterProvider).toHaveBeenCalledWith('google/gemini-pro');
+      expect(mockOpenRouterProvider).toHaveBeenCalledWith('openrouter/google/gemini-pro');
     });
 
-    it('should default to OpenAI when no prefix is provided', () => {
+    it('should default to OpenRouter when no prefix is provided', () => {
       const result = (routine as any).getProviderAndModel('gpt-4');
-      
+
       expect(result).toBeDefined();
-      expect(mockOpenAIProvider).toHaveBeenCalledWith('gpt-4');
+      expect(mockOpenRouterProvider).toHaveBeenCalledWith('gpt-4');
     });
 
-    it('should default to OpenAI for legacy model names', () => {
+    it('should default to OpenRouter for legacy model names', () => {
       const result = (routine as any).getProviderAndModel('gpt-3.5-turbo');
-      
+
       expect(result).toBeDefined();
-      expect(mockOpenAIProvider).toHaveBeenCalledWith('gpt-3.5-turbo');
+      expect(mockOpenRouterProvider).toHaveBeenCalledWith('gpt-3.5-turbo');
     });
   });
 
@@ -83,13 +83,13 @@ describe('Provider Selection Integration', () => {
     it('should work with OpenAI models', () => {
       const result = (routine as any).getProviderAndModel('openai/gpt-4');
       expect(result).toBeDefined();
-      expect(mockOpenAIProvider).toHaveBeenCalledWith('gpt-4');
+      expect(mockOpenAIProvider).toHaveBeenCalledWith('gpt-4', { structuredOutputs: false });
     });
 
-    it('should work with default (no prefix) models', () => {
-      const result = (routine as any).getProviderAndModel('gpt-4');
-      expect(result).toBeDefined();
-      expect(mockOpenAIProvider).toHaveBeenCalledWith('gpt-4');
+    it('should throw error for default (no prefix) models', () => {
+      expect(() => {
+        (routine as any).getProviderAndModel('gpt-4');
+      }).toThrow('OpenRouter provider not configured');
     });
 
     it('should throw error for OpenRouter models', () => {
@@ -110,7 +110,7 @@ describe('Provider Selection Integration', () => {
     it('should work with OpenRouter models', () => {
       const result = (routine as any).getProviderAndModel('openrouter/anthropic/claude-3');
       expect(result).toBeDefined();
-      expect(mockOpenRouterProvider).toHaveBeenCalledWith('anthropic/claude-3');
+      expect(mockOpenRouterProvider).toHaveBeenCalledWith('openrouter/anthropic/claude-3');
     });
 
     it('should throw error for OpenAI models with prefix', () => {
@@ -119,10 +119,10 @@ describe('Provider Selection Integration', () => {
       }).toThrow('OpenAI provider not configured');
     });
 
-    it('should throw error for default (no prefix) models', () => {
-      expect(() => {
-        (routine as any).getProviderAndModel('gpt-4');
-      }).toThrow('OpenAI provider not configured');
+    it('should work with default (no prefix) models', () => {
+      const result = (routine as any).getProviderAndModel('gpt-4');
+      expect(result).toBeDefined();
+      expect(mockOpenRouterProvider).toHaveBeenCalledWith('gpt-4');
     });
   });
 
@@ -148,7 +148,7 @@ describe('Provider Selection Integration', () => {
     it('should throw error for default models', () => {
       expect(() => {
         (routine as any).getProviderAndModel('gpt-4');
-      }).toThrow('OpenAI provider not configured');
+      }).toThrow('OpenRouter provider not configured');
     });
   });
 
@@ -162,27 +162,27 @@ describe('Provider Selection Integration', () => {
 
     it('should correctly parse simple OpenAI model names', () => {
       (routine as any).getProviderAndModel('openai/gpt-4');
-      expect(mockOpenAIProvider).toHaveBeenCalledWith('gpt-4');
+      expect(mockOpenAIProvider).toHaveBeenCalledWith('gpt-4', { structuredOutputs: false });
     });
 
     it('should correctly parse OpenAI model names with hyphens', () => {
       (routine as any).getProviderAndModel('openai/gpt-4-turbo-preview');
-      expect(mockOpenAIProvider).toHaveBeenCalledWith('gpt-4-turbo-preview');
+      expect(mockOpenAIProvider).toHaveBeenCalledWith('gpt-4-turbo-preview', { structuredOutputs: false });
     });
 
     it('should correctly parse OpenRouter nested paths', () => {
       (routine as any).getProviderAndModel('openrouter/anthropic/claude-3-opus-20240229');
-      expect(mockOpenRouterProvider).toHaveBeenCalledWith('anthropic/claude-3-opus-20240229');
+      expect(mockOpenRouterProvider).toHaveBeenCalledWith('openrouter/anthropic/claude-3-opus-20240229');
     });
 
     it('should correctly parse OpenRouter with multiple slashes', () => {
       (routine as any).getProviderAndModel('openrouter/meta-llama/llama-3-70b-instruct');
-      expect(mockOpenRouterProvider).toHaveBeenCalledWith('meta-llama/llama-3-70b-instruct');
+      expect(mockOpenRouterProvider).toHaveBeenCalledWith('openrouter/meta-llama/llama-3-70b-instruct');
     });
 
     it('should preserve model name exactly when no prefix', () => {
       (routine as any).getProviderAndModel('gpt-4-0125-preview');
-      expect(mockOpenAIProvider).toHaveBeenCalledWith('gpt-4-0125-preview');
+      expect(mockOpenRouterProvider).toHaveBeenCalledWith('gpt-4-0125-preview');
     });
   });
 });

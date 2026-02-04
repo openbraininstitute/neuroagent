@@ -89,7 +89,7 @@ describe('Configuration System', () => {
     it('should load LLM configuration from environment variables', () => {
       process.env['NEUROAGENT_LLM__OPENAI_TOKEN'] = 'sk-test-token';
       process.env['NEUROAGENT_LLM__OPENAI_BASE_URL'] = 'https://api.openai.com/v1';
-      process.env['NEUROAGENT_LLM__OPEN_ROUTER_TOKEN'] = 'or-test-token';
+      process.env['NEUROAGENT_LLM__OPENROUTER_TOKEN'] = 'or-test-token';
       process.env['NEUROAGENT_LLM__SUGGESTION_MODEL'] = 'gpt-4';
       process.env['NEUROAGENT_LLM__DEFAULT_CHAT_MODEL'] = 'gpt-4-turbo';
       process.env['NEUROAGENT_LLM__TEMPERATURE'] = '0.7';
@@ -269,7 +269,7 @@ describe('Configuration System', () => {
       expect(settings.tools.entitycore.url).toBe('https://openbraininstitute.org/api/entitycore');
       expect(settings.tools.obiOne.url).toBe('https://openbraininstitute.org/api/obi-one');
       expect(settings.tools.bluenaas.url).toBe('https://www.openbraininstitute.org/api/bluenaas');
-      expect(settings.tools.minToolSelection).toBe(5);
+      expect(settings.tools.minToolSelection).toBe(2);
       expect(settings.tools.denoAllocatedMemory).toBe(8192);
     });
 
