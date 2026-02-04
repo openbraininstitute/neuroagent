@@ -685,14 +685,33 @@ npm run db:studio
 
 ## Documentation
 
-Additional documentation is available in:
+### Core Documentation
+
+- **[DEPLOYMENT.md](docs/DEPLOYMENT.md)** - Comprehensive deployment guide for all environments
+- **[QUICK-START-DEPLOYMENT.md](docs/QUICK-START-DEPLOYMENT.md)** - Quick start guide for common deployment scenarios
+- **[PRODUCTION-READINESS-CHECKLIST.md](docs/PRODUCTION-READINESS-CHECKLIST.md)** - Pre-deployment checklist
+- **[CONFIGURATION-GUIDE.md](docs/CONFIGURATION-GUIDE.md)** - Environment configuration reference
+- **[API-REFERENCE.md](docs/API-REFERENCE.md)** - API endpoint documentation
+- **[COMMON-OPERATIONS.md](docs/COMMON-OPERATIONS.md)** - Common operational tasks
+
+### Database Documentation
 
 - `prisma/README.md` - Prisma schema and migration guide
 - `prisma/MIGRATION_GUIDE.md` - Database migration best practices
 - `prisma/MIGRATION_WORKFLOW.md` - Step-by-step migration workflows
-- `src/lib/tools/README.md` - Tool development guide
+- **[DATABASE-SCHEMA.md](docs/DATABASE-SCHEMA.md)** - Database schema documentation
+
+### Development Documentation
+
+- **[TOOL-DEVELOPMENT-GUIDE.md](docs/TOOL-DEVELOPMENT-GUIDE.md)** - Guide for creating new tools
+- **[MIGRATION-GUIDE.md](docs/MIGRATION-GUIDE.md)** - Python to TypeScript migration guide
+- `src/lib/tools/README.md` - Tool system overview
 - `src/lib/middleware/README.md` - Middleware documentation
 - `docs/` - Task summaries and implementation notes
+
+### CI/CD
+
+- `.github/workflows/ci-cd.yml.example` - Example GitHub Actions workflow
 
 ## Architecture
 
@@ -758,4 +777,3 @@ For issues and questions:
 - Check documentation in `docs/` and `prisma/`
 - Review existing issues on GitHub
 - Create new issue with reproduction steps
-

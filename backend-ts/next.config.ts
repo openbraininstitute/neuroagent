@@ -48,6 +48,14 @@ const nextConfig: NextConfig = {
 
   /* Output */
   output: 'standalone',
+
+  /* Production optimizations */
+  compress: true, // Enable gzip compression
+  poweredByHeader: false, // Remove X-Powered-By header for security
+  generateEtags: true, // Enable ETags for caching
+
+  /* Performance */
+  swcMinify: true, // Use SWC for minification (faster than Terser)
 };
 
 export default nextConfig;
