@@ -19,6 +19,12 @@ class InfoSimulationsConfigInput(BaseModel):
     )
 
 
+class InfoSimulationsConfigOutput(BaseModel):
+    """Output of the InfoSimulationsConfig tool."""
+
+    answer: str
+
+
 class InfoSimulationsConfigMetadata(BaseMetadata):
     """Metadata of the InfoSimulationsConfig tool."""
 
@@ -46,7 +52,7 @@ class InfoSimulationsConfigTool(BaseTool):
     metadata: InfoSimulationsConfigMetadata
     input_schema: InfoSimulationsConfigInput
 
-    async def arun(self) -> str:
+    async def arun(self) -> InfoSimulationsConfigOutput:
         """Run the tool."""
         schema_json = json.dumps(
             CircuitSimulationScanConfig.model_json_schema(), indent=2
@@ -75,7 +81,7 @@ Be concise and helpful. If a field has nested structures, explain the hierarchy.
         token_consumption = get_token_count(response.usage)
         self.metadata.token_consumption = {**token_consumption, "model": model}
 
-        return answer
+        return InfoSimulationsConfigOutput(answer=answer)
 
     @classmethod
     async def is_online(cls) -> bool:
