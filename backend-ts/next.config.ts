@@ -57,9 +57,7 @@ const nextConfig: NextConfig = {
   compress: true, // Enable gzip compression
   poweredByHeader: false, // Remove X-Powered-By header for security
   generateEtags: true, // Enable ETags for caching
-
-  /* Performance */
-  swcMinify: true, // Use SWC for minification (faster than Terser)
+  // Note: swcMinify is now the default in Next.js 13+ and has been removed as a config option
 };
 
 export default nextConfig;

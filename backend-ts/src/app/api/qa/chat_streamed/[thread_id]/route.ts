@@ -37,6 +37,8 @@ import { Entity } from '@/types';
 const ChatStreamRequestSchema = z.object({
   content: z.string().min(1, 'Message content cannot be empty'),
   model: z.string().optional(),
+  tool_selection: z.array(z.string()).optional(),
+  frontend_url: z.string().optional(),
 });
 
 /**
@@ -214,6 +216,34 @@ export async function POST(
     console.log('[chat_streamed] Registered', allToolClasses.length, 'tool classes');
 
     // ========================================================================
+    // 6.5. Apply Tool Selection Filter (if provided)
+    // ========================================================================
+    let selectedToolClasses = allToolClasses;
+    if (body.tool_selection && body.tool_selection.length > 0) {
+      console.log('[chat_streamed] Applying tool selection filter:', body.tool_selection);
+
+      // Create a map of tool names to tool classes for efficient lookup
+      // Tool classes have a static 'toolName' property
+      const toolMap = new Map(
+        allToolClasses.map(ToolClass => [ToolClass.toolName, ToolClass])
+      );
+
+      // Filter to only include selected tools
+      selectedToolClasses = body.tool_selection
+        .map(toolName => toolMap.get(toolName))
+        .filter((tool): tool is NonNullable<typeof tool> => tool !== undefined);
+
+      console.log('[chat_streamed] Filtered to', selectedToolClasses.length, 'selected tools');
+
+      // Log which tools were selected and which were not found
+      if (selectedToolClasses.length !== body.tool_selection.length) {
+        const foundTools = selectedToolClasses.map(t => t.toolName);
+        const notFound = body.tool_selection.filter(name => !foundTools.includes(name));
+        console.log('[chat_streamed] Tools not found:', notFound);
+      }
+    }
+
+    // ========================================================================
     // 7. Filter Tools and Select Model
     // ========================================================================
     console.log('[chat_streamed] Filtering tools and selecting model...');
@@ -224,15 +254,20 @@ export async function POST(
     // Determine if we need to filter tools and select model
     const selectedModel = body.model === 'auto' ? null : body.model || null;
 
-    // Only filter if we have OpenRouter token
+    // Only filter if we need automatic tool/model selection AND have OpenRouter token
     let filteredTools: any[];
     let selectedModelId: string;
     let reasoning: string | null = null;
 
-    if (settings.llm.openRouterToken) {
+    // If tool_selection is provided, skip automatic filtering
+    if (body.tool_selection && body.tool_selection.length > 0) {
+      console.log('[chat_streamed] Using manually selected tools, skipping automatic filtering');
+      filteredTools = selectedToolClasses;
+      selectedModelId = selectedModel ?? settings.llm.defaultChatModel;
+    } else if (settings.llm.openRouterToken) {
       const filteringResult = await filterToolsAndModelByConversation(
         thread_id,
-        allToolClasses,
+        selectedToolClasses,
         settings.llm.openRouterToken,
         settings.tools.minToolSelection,
         selectedModel,
@@ -245,7 +280,7 @@ export async function POST(
       reasoning = filteringResult.reasoning ?? null;
 
       console.log('[chat_streamed] Tool filtering complete:', {
-        originalToolCount: allToolClasses.length,
+        originalToolCount: selectedToolClasses.length,
         filteredToolCount: filteredTools.length,
         selectedModel: selectedModelId,
         reasoning,
@@ -253,7 +288,7 @@ export async function POST(
     } else {
       // No OpenRouter token, use all tools and default model
       console.log('[chat_streamed] No OpenRouter token, skipping filtering');
-      filteredTools = allToolClasses;
+      filteredTools = selectedToolClasses;
       selectedModelId = selectedModel ?? settings.llm.defaultChatModel;
     }
 
