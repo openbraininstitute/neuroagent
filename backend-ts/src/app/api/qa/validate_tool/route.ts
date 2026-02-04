@@ -54,11 +54,6 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const validationRequest = ValidateToolRequestSchema.parse(body);
 
-    console.log('[validate_tool] Received validation request:', {
-      toolCallId: validationRequest.toolCallId,
-      isValidated: validationRequest.isValidated,
-    });
-
     // Find the tool call in the database
     const toolCall = await prisma.toolCall.findUnique({
       where: { id: validationRequest.toolCallId },
@@ -87,15 +82,8 @@ export async function POST(request: NextRequest) {
       data: { validated: validationRequest.isValidated },
     });
 
-    console.log('[validate_tool] Updated tool call validated status:', {
-      toolCallId: validationRequest.toolCallId,
-      validated: validationRequest.isValidated,
-    });
-
     // If rejected, return early
     if (!validationRequest.isValidated) {
-      console.log('[validate_tool] Tool call rejected by user');
-
       // Save rejection message to database
       await prisma.message.create({
         data: {
@@ -135,15 +123,9 @@ export async function POST(request: NextRequest) {
     const toolInstance = new ToolClass(contextVariables);
 
     // Execute the tool with validated inputs
-    console.log('[validate_tool] Executing tool:', {
-      toolName: toolCall.name,
-      validatedInputs: validationRequest.validatedInputs,
-    });
-
     let result: any;
     try {
       result = await toolInstance.execute(validationRequest.validatedInputs);
-      console.log('[validate_tool] Tool execution completed successfully');
     } catch (error) {
       console.error('[validate_tool] Tool execution failed:', error);
       result = `Tool execution failed: ${error instanceof Error ? error.message : 'Unknown error'}`;
@@ -165,8 +147,6 @@ export async function POST(request: NextRequest) {
         isComplete: true,
       },
     });
-
-    console.log('[validate_tool] Tool result saved to database');
 
     return NextResponse.json({
       success: true,

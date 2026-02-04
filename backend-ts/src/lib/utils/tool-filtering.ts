@@ -143,14 +143,6 @@ export async function filterToolsAndModelByConversation(
   const needToolSelection = toolList.length > minToolSelection;
   const needModelSelection = !selectedModel;
 
-  console.log('[filterToolsAndModelByConversation] Starting:', {
-    threadId,
-    toolCount: toolList.length,
-    needToolSelection,
-    needModelSelection,
-    selectedModel,
-  });
-
   // Load messages from database
   const messages = await prisma.message.findMany({
     where: { threadId },
@@ -158,12 +150,8 @@ export async function filterToolsAndModelByConversation(
     include: { toolCalls: true },
   });
 
-  console.log('[filterToolsAndModelByConversation] Loaded', messages.length, 'messages');
-
   // If neither selection is needed, return defaults
   if (!needToolSelection && selectedModel) {
-    console.log('[filterToolsAndModelByConversation] No selection needed, using provided model');
-
     // Save model selection to last message
     const lastMessage = messages[messages.length - 1];
     if (lastMessage) {
@@ -271,8 +259,6 @@ ${toolList
     const model = 'google/gemini-2.5-flash';
     const startRequest = Date.now();
 
-    console.log('[filterToolsAndModelByConversation] Calling LLM for filtering...');
-
     // Call LLM with structured output
     // Note: Using .chat() method for OpenRouter provider compatibility
     // Type assertion needed due to version mismatch between AI SDK and OpenRouter provider
@@ -288,23 +274,15 @@ ${toolList
       schema: ToolModelFilteringSchema,
     });
 
-    console.log('[filterToolsAndModelByConversation] LLM response received');
-
     // Parse the output - use bracket notation to avoid index signature issues
     const parsed = result.object as any;
 
     // Handle tool selection
-    let filteredTools: any[];
+    let filteredTools: any[]
     if (needToolSelection && 'selected_tools' in parsed) {
       const selectedToolsRaw = parsed['selected_tools'];
       const selectedTools = Array.from(new Set(selectedToolsRaw as string[]));
       filteredTools = toolList.filter((tool) => selectedTools.includes(tool.toolName));
-      console.log(
-        '[filterToolsAndModelByConversation] Selected',
-        filteredTools.length,
-        'tools:',
-        selectedTools
-      );
     } else {
       filteredTools = toolList;
     }
@@ -328,8 +306,9 @@ ${toolList
     }
 
     const elapsedTime = ((Date.now() - startRequest) / 1000).toFixed(2);
+    // Log tool filtering summary (matches Python backend logger.debug)
     console.log(
-      `[filterToolsAndModelByConversation] Query complexity: ${complexity !== null ? complexity : 'N/A'} / 10, selected model ${modelReasonDict.model.replace('openai/', '')} with reasoning effort ${modelReasonDict.reasoning || 'N/A'}  #TOOLS: ${filteredTools.length}, SELECTED TOOLS: ${filteredTools.map((t) => t.toolName)} in ${elapsedTime} s`
+      `Query complexity: ${complexity !== null ? complexity : 'N/A'} / 10, selected model ${modelReasonDict.model.replace('openai/', '')} with reasoning effort ${modelReasonDict.reasoning || 'N/A'}  #TOOLS: ${filteredTools.length}, SELECTED TOOLS: ${filteredTools.map((t) => t.toolName)} in ${elapsedTime} s`
     );
 
     // Save to database

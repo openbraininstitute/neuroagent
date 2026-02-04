@@ -38,7 +38,6 @@ export class MCPClient {
    */
   async connect(): Promise<void> {
     if (!this.config.servers || Object.keys(this.config.servers).length === 0) {
-      console.log('No MCP servers configured');
       return;
     }
 
@@ -59,6 +58,7 @@ export class MCPClient {
    * Connect to a single MCP server
    */
   private async connectToServer(serverName: string, serverConfig: MCPServerConfig): Promise<void> {
+    // Log connection (matches Python backend logger.info)
     console.log(`Connecting to MCP server: ${serverName}`);
 
     // Create client
@@ -96,6 +96,7 @@ export class MCPClient {
       this.applyToolMetadataOverrides(serverName, serverConfig.toolMetadata);
     }
 
+    // Log successful connection (matches Python backend logger.info)
     console.log(
       `Connected to ${serverName}, discovered ${toolsList.tools.length} tools:`,
       toolsList.tools.map((t) => t.name).join(', ')
@@ -305,6 +306,7 @@ export async function initializeMCPTools(config: SettingsMCP): Promise<Array<Bas
     dynamicTools.push(dynamicTool);
   }
 
+  // Log initialization summary (matches Python backend logger.info)
   console.log(`Initialized ${dynamicTools.length} MCP tools`);
 
   return dynamicTools;

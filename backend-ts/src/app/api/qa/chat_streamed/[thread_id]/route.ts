@@ -83,14 +83,11 @@ export async function POST(
   try {
     // Await params (Next.js 15+ requirement)
     const { thread_id } = await params;
-    console.log(`[DEBUG] chat_streamed - thread_id from params: "${thread_id}"`);
-    console.log(`[DEBUG] chat_streamed - thread_id type: ${typeof thread_id}`);
 
     // ========================================================================
     // 1. Authentication
     // ========================================================================
     const userInfo = await validateAuth(request);
-    console.log(`[DEBUG] chat_streamed - userInfo.sub: "${userInfo.sub}"`);
 
     // ========================================================================
     // 2. Rate Limiting
@@ -115,14 +112,9 @@ export async function POST(
     // ========================================================================
     // 3. Load Thread and Validate Ownership
     // ========================================================================
-    console.log(`[DEBUG] chat_streamed - Looking up thread with id: "${thread_id}"`);
     const thread = await prisma.thread.findUnique({
       where: { id: thread_id },
     });
-    console.log(`[DEBUG] chat_streamed - Thread found: ${thread ? 'YES' : 'NO'}`);
-    if (thread) {
-      console.log(`[DEBUG] chat_streamed - Thread userId: "${thread.userId}"`);
-    }
 
     if (!thread) {
       return errorResponse('Thread not found', 404);
@@ -196,7 +188,6 @@ export async function POST(
     // ========================================================================
     // 6. Initialize Tools
     // ========================================================================
-    console.log('[chat_streamed] Initializing tools...');
 
     // Extract JWT token from Authorization header
     const authHeader = request.headers.get('authorization');
@@ -213,14 +204,12 @@ export async function POST(
       obiOneUrl: settings.tools.obiOne.url,
       mcpConfig: settings.mcp,
     });
-    console.log('[chat_streamed] Registered', allToolClasses.length, 'tool classes');
 
     // ========================================================================
     // 6.5. Apply Tool Selection Filter (if provided)
     // ========================================================================
     let selectedToolClasses = allToolClasses;
     if (body.tool_selection && body.tool_selection.length > 0) {
-      console.log('[chat_streamed] Applying tool selection filter:', body.tool_selection);
 
       // Create a map of tool names to tool classes for efficient lookup
       // Tool classes have a static 'toolName' property
@@ -233,20 +222,17 @@ export async function POST(
         .map(toolName => toolMap.get(toolName))
         .filter((tool): tool is NonNullable<typeof tool> => tool !== undefined);
 
-      console.log('[chat_streamed] Filtered to', selectedToolClasses.length, 'selected tools');
 
       // Log which tools were selected and which were not found
       if (selectedToolClasses.length !== body.tool_selection.length) {
         const foundTools = selectedToolClasses.map(t => t.toolName);
         const notFound = body.tool_selection.filter(name => !foundTools.includes(name));
-        console.log('[chat_streamed] Tools not found:', notFound);
       }
     }
 
     // ========================================================================
     // 7. Filter Tools and Select Model
     // ========================================================================
-    console.log('[chat_streamed] Filtering tools and selecting model...');
 
     // Import the filtering function
     const { filterToolsAndModelByConversation } = await import('@/lib/utils/tool-filtering');
@@ -254,20 +240,16 @@ export async function POST(
     // Determine if we need to filter tools and select model
     const selectedModel = body.model === 'auto' ? null : body.model || null;
 
-    // Only filter if we need automatic tool/model selection AND have OpenRouter token
+    // Filter tools and select model if OpenRouter token is available
     let filteredTools: any[];
     let selectedModelId: string;
     let reasoning: string | null = null;
 
-    // If tool_selection is provided, skip automatic filtering
-    if (body.tool_selection && body.tool_selection.length > 0) {
-      console.log('[chat_streamed] Using manually selected tools, skipping automatic filtering');
-      filteredTools = selectedToolClasses;
-      selectedModelId = selectedModel ?? settings.llm.defaultChatModel;
-    } else if (settings.llm.openRouterToken) {
+    if (settings.llm.openRouterToken) {
+      console.log('[chat_streamed] Filtering tools and selecting model...');
       const filteringResult = await filterToolsAndModelByConversation(
         thread_id,
-        selectedToolClasses,
+        selectedToolClasses, // Use the tool_selection as the pool to filter from
         settings.llm.openRouterToken,
         settings.tools.minToolSelection,
         selectedModel,
@@ -278,16 +260,15 @@ export async function POST(
       filteredTools = filteringResult.filteredTools;
       selectedModelId = filteringResult.model;
       reasoning = filteringResult.reasoning ?? null;
-
       console.log('[chat_streamed] Tool filtering complete:', {
-        originalToolCount: selectedToolClasses.length,
+        availableToolsCount: selectedToolClasses.length,
         filteredToolCount: filteredTools.length,
         selectedModel: selectedModelId,
         reasoning,
       });
     } else {
-      // No OpenRouter token, use all tools and default model
       console.log('[chat_streamed] No OpenRouter token, skipping filtering');
+      // No OpenRouter token, use all available tools and default model
       filteredTools = selectedToolClasses;
       selectedModelId = selectedModel ?? settings.llm.defaultChatModel;
     }
@@ -295,7 +276,6 @@ export async function POST(
     // ========================================================================
     // 8. Create Agent Configuration
     // ========================================================================
-    console.log('[chat_streamed] Creating agent configuration...');
 
     // Map reasoning string to valid enum value (lowercase for Vercel AI SDK)
     let reasoningLevel: 'none' | 'minimal' | 'low' | 'medium' | 'high' | undefined;
@@ -327,24 +307,15 @@ export async function POST(
         'cell morphologies, electrical traces, and scientific literature. ' +
         'Use the tools when appropriate to provide accurate and detailed information.',
     };
-    console.log('[chat_streamed] Agent config created:', {
-      model: agentConfig.model,
-      temperature: agentConfig.temperature,
-      maxTokens: agentConfig.maxTokens,
-      reasoning: agentConfig.reasoning,
-      toolCount: agentConfig.tools.length,
-    });
 
     // ========================================================================
     // 9. Stream Response Using AgentsRoutine
     // ========================================================================
-    console.log('[chat_streamed] Creating AgentsRoutine...');
     const routine = new AgentsRoutine(
       settings.llm.openaiToken,
       settings.llm.openaiBaseUrl,
       settings.llm.openRouterToken
     );
-    console.log('[chat_streamed] AgentsRoutine created, calling streamChat...');
 
     const response = await routine.streamChat(
       agentConfig,
@@ -353,7 +324,6 @@ export async function POST(
       settings.agent.maxParallelToolCalls,
       request.signal // Pass abort signal to detect client disconnect
     );
-    console.log('[chat_streamed] streamChat completed, response received');
 
     // Add rate limit headers to streaming response
     const headers = new Headers(response.headers);
@@ -361,7 +331,6 @@ export async function POST(
       headers.set(key, String(value));
     });
 
-    console.log('[chat_streamed] Returning streaming response');
     return new Response(response.body, {
       status: response.status,
       statusText: response.statusText,

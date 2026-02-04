@@ -62,8 +62,6 @@ export class DangerousTool extends BaseTool<typeof DangerousToolInputSchema, Bas
    * @returns Result of the dangerous operation
    */
   async execute(input: z.infer<typeof DangerousToolInputSchema>): Promise<string> {
-    console.log('[DangerousTool] Executing dangerous operation:', input);
-
     // Simulate a dangerous operation
     const result = {
       status: 'completed',
@@ -72,8 +70,6 @@ export class DangerousTool extends BaseTool<typeof DangerousToolInputSchema, Bas
       timestamp: new Date().toISOString(),
       message: `Successfully performed "${input.action}" on "${input.target}" after user validation.`,
     };
-
-    console.log('[DangerousTool] Operation completed:', result);
 
     return JSON.stringify(result, null, 2);
   }

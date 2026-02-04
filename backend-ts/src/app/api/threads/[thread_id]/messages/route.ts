@@ -69,11 +69,9 @@ export async function GET(
   try {
     // Await params (Next.js 15+ requirement)
     const { thread_id } = await params;
-    console.log('[messages] GET request for thread:', thread_id);
 
     // Validate authentication
     const userInfo = await validateAuth(request);
-    console.log('[messages] User authenticated:', userInfo.sub);
 
     // Get query parameters
     const searchParams = request.nextUrl.searchParams;
@@ -83,23 +81,10 @@ export async function GET(
     const sort = searchParams.get('sort') || '-creation_date';
     const entityFilterParam = searchParams.get('entity');
 
-    console.log('[messages] Query params:', {
-      pageSize,
-      cursor,
-      vercelFormat,
-      sort,
-      entityFilterParam,
-    });
-
     // Validate thread exists and user owns it
     const thread = await prisma.thread.findUnique({
       where: { id: thread_id },
     });
-
-    console.log('[messages] Thread found:', thread ? 'YES' : 'NO');
-    if (thread) {
-      console.log('[messages] Thread owner:', thread.userId, 'Request user:', userInfo.sub);
-    }
 
     if (!thread) {
       return NextResponse.json({ error: 'Thread not found' }, { status: 404 });
@@ -177,10 +162,7 @@ export async function GET(
       take: pageSize + 1,
     });
 
-    console.log('[messages] Phase 1 - Found', messageCursor.length, 'messages');
-
     if (messageCursor.length === 0) {
-      console.log('[messages] No messages found, returning empty response');
       return NextResponse.json({
         results: [],
         next_cursor: null,
@@ -262,9 +244,6 @@ export async function GET(
     // Calculate next cursor
     const lastCursorItem = dbCursor.length > 0 ? dbCursor[dbCursor.length - 1] : null;
     const nextCursor = hasMore && lastCursorItem ? lastCursorItem.creationDate.toISOString() : null;
-
-    console.log('[messages] Phase 2 - Fetched', dbMessages.length, 'full messages');
-    console.log('[messages] Has more:', hasMore, 'Next cursor:', nextCursor);
 
     // Format response
     if (vercelFormat) {

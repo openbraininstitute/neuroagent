@@ -40,16 +40,12 @@ type ThreadsRead = z.infer<typeof ThreadsReadSchema>;
  * Helper function to get thread and validate ownership
  */
 async function getThreadWithOwnershipCheck(threadId: string, userId: string) {
-  console.log(`[DEBUG] Looking for thread: ${threadId}`);
-  console.log(`[DEBUG] User ID: ${userId}`);
 
   const thread = await prisma.thread.findUnique({
     where: { id: threadId },
   });
 
-  console.log(`[DEBUG] Thread found:`, thread ? 'YES' : 'NO');
   if (thread) {
-    console.log(`[DEBUG] Thread owner: ${thread.userId}`);
   }
 
   if (!thread) {
