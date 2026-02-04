@@ -20,6 +20,8 @@ import { streamText, type CoreMessage, type Tool, type LanguageModelUsage } from
 import { Entity, Task, TokenType } from '../../types';
 import { prisma } from '../db/client';
 
+import { getSystemPrompt } from './system-prompt';
+
 /**
  * Agent configuration interface
  * Defines all parameters needed to configure an agent's behavior
@@ -266,9 +268,14 @@ export class AgentsRoutine {
 
       // Use Vercel AI SDK's built-in multi-step execution
       console.log('[streamChat] Initiating streamText with maxSteps:', maxTurns);
+
+      // Get the assembled system prompt from MDC rule files
+      const systemPrompt = await getSystemPrompt();
+      console.log('[streamChat] System prompt assembled from rules directory');
+
       const result = streamText({
         model,
-        messages: [{ role: 'system', content: agent.instructions }, ...coreMessages],
+        messages: [{ role: 'system', content: systemPrompt }, ...coreMessages],
         tools,
         temperature: agent.temperature,
         maxTokens: agent.maxTokens,
