@@ -6,9 +6,6 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import PlotInChat from "@/components/chat/plot-in-chat";
 
-const isUUID = (str: string) =>
-  str.length === 36 && str.split("-").length === 5;
-
 const ConditionalImageRenderer = ({
   src,
   alt,
@@ -38,8 +35,7 @@ const ConditionalImageRenderer = ({
     );
   }
 
-  const extractedId = src.match(/\/storage\/([^/]+)/)?.[1];
-  const storageId = extractedId && isUUID(extractedId) ? extractedId : null;
+  const storageId = src.match(/\/storage\/([^/]+)/)?.[1];
 
   if (!storageId) {
     return (
