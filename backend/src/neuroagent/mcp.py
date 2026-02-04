@@ -51,7 +51,15 @@ class MCPClient:
                 StdioServerParameters(
                     command=server_config.command,
                     args=server_config.args or [],
-                    env=env,
+                    env={
+                        **(env or {}),
+                        "TMPDIR": "/tmp",  # nosec B108
+                        "TMP": "/tmp",  # nosec B108
+                        "TEMP": "/tmp",  # nosec B108
+                        "npm_config_cache": "/tmp/.npm",  # nosec B108
+                        "npm_config_logs_dir": "/tmp/.npm/_logs",  # nosec B108
+                        "HOME": "/tmp",  # nosec B108
+                    },
                 )
             )
         # Override tool name and description

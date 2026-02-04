@@ -10,9 +10,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - OBI Expert tool contains info about pricing
 
+## [0.15.0] - 03.02.2026
+
+### Added
+- Rule on how to format `ilike` wildcards.
+
 ### Changed
+- Route all writing to `/tmp`.
 - OBI expert points at the documentationProduct instead of documentationGithub
 - Expose the `x-request-id` header for CORS requests.
+- Expose the `x-ratelimit-...` headers for CORS requests.
+- Simplify docker compose.
 
 ## [0.14.3] - 26.01.2026
 

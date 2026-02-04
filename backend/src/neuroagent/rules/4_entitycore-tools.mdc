@@ -15,6 +15,7 @@ description: Entitycore tools
 - Ask before using pagination to retrieve more pages
 - Whenever using `GET ALL` endpoints, mention the total items and ask the user if additional data is desired before using the `pagination` parameter
 - Access rights: If an entity is returned by an entitycore tool, the user can access it. The field `"authorized_public": false` indicates that the entity belongs only to the user's project.
+- `ilike` parameters must be SQL ILIKE pattern strings (not full SQL statements). Use SQL wildcard syntax: "%" for multiple characters, "_" for single character (NOT "*" or "?")
 
 ### Asset URLs
 - Always include entity links using the `url_link` field, making them descriptive
