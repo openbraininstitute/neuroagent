@@ -20,10 +20,9 @@ export function BackupPlot({
 
   const textParts = message.parts.filter((p) => p.type === "text");
   const storageIdsWithoutImageLink = storageIds.filter((storageId) => {
-    const escapedId = storageId.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
     return !textParts.some((p) =>
       p.text?.match(
-        new RegExp(`!\\[.*?\\]\\([^)]*\\/storage\\/${escapedId}\\)`),
+        new RegExp(`!\\[.*?\\]\\([^)]*\\/storage\\/${storageId}\\)`),
       ),
     );
   });

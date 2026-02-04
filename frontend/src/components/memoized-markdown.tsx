@@ -5,8 +5,9 @@ import { memo, useMemo } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import PlotInChat from "@/components/chat/plot-in-chat";
-import { PlotSkeleton } from "@/components/plots/skeleton";
-import { useStorageId } from "@/lib/storage-queries";
+
+const isUUID = (str: string) =>
+  str.length === 36 && str.split("-").length === 5;
 
 const ConditionalImageRenderer = ({
   src,
@@ -17,23 +18,36 @@ const ConditionalImageRenderer = ({
   alt?: string;
   [key: string]: unknown;
 }) => {
-  const { data: storageId } = useStorageId(src);
-
-  if (!src || storageId === undefined) {
-    return <PlotSkeleton className="ml-20" />;
+  if (!src) {
+    return (
+      <div className="ml-20 text-red-500">Error: No image source provided</div>
+    );
   }
 
-  return storageId ? (
-    <PlotInChat storageId={storageId} />
-  ) : (
-    <img
-      src={src}
-      alt={alt}
-      {...props}
-      className="ml-20"
-      style={{ maxHeight: "500px", width: "auto" }}
-    />
-  );
+  const isSameOrigin = new URL(src).origin === window.location.origin;
+
+  if (!isSameOrigin) {
+    return (
+      <img
+        src={src}
+        alt={alt}
+        {...props}
+        className="ml-20"
+        style={{ maxHeight: "500px", width: "auto" }}
+      />
+    );
+  }
+
+  const extractedId = src.match(/\/storage\/([^/]+)/)?.[1];
+  const storageId = extractedId && isUUID(extractedId) ? extractedId : null;
+
+  if (!storageId) {
+    return (
+      <div className="ml-20 text-red-500">Error: Unable to load image</div>
+    );
+  }
+
+  return <PlotInChat storageId={storageId} />;
 };
 
 function parseMarkdownIntoBlocks(markdown: string): string[] {
