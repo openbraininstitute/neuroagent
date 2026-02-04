@@ -256,6 +256,89 @@ class PublicProject(SanityDocument):
         return flattened
 
 
+# --- PlanV2 nested object types ---
+
+
+class SubscriptionItem(BaseModel):
+    """Schema for subscription items within PlanV2."""
+
+    name: str | None = None
+    price: float | None = None
+    currency: str | None = None
+    has_special_label: bool | None = None
+    special_label: str | None = None
+    features: list[str] | None = None
+
+
+class AdvantageItem(BaseModel):
+    """Schema for advantage items within PlanV2."""
+
+    title: str | None = None
+    tooltip: str | None = None
+
+
+class BooleanOptionsItem(BaseModel):
+    """Schema for boolean options within PlanV2 (general_features, support)."""
+
+    label: str | None = None
+    value: bool | None = None
+
+
+class PlanFeaturesItem(BaseModel):
+    """Schema for plan features within PlanV2 (ai_assistant, build, simulate, notebooks)."""
+
+    name: str | None = None
+    cost: str | None = None
+
+
+class PlanV2Document(SanityDocument):
+    """Schema for planV2 documents (pricing plans).
+
+    Use this document type when users ask about:
+    - Pricing plans and subscription options
+    - Plan features and comparisons
+    - Monthly vs yearly pricing
+    - What's included in Free vs Pro plans
+    - AI assistant, Build, Simulate, Notebooks features per plan
+    - Support options per plan
+    """
+
+    name: str | None = None
+    has_subtitle: bool | None = None
+    subtitle: str | None = None
+    custom_plan: bool | None = None
+    has_contact_button: bool | None = None
+    has_subscription: bool | None = None
+    monthly_subscriptions: list[SubscriptionItem] | None = None
+    yearly_subscriptions: list[SubscriptionItem] | None = None
+    advantages: list[AdvantageItem] | None = None
+    general_features: list[BooleanOptionsItem] | None = None
+    ai_assistant_features: list[PlanFeaturesItem] | None = None
+    build_features: list[PlanFeaturesItem] | None = None
+    simulate_features: list[PlanFeaturesItem] | None = None
+    notebooks_features: list[PlanFeaturesItem] | None = None
+    support: list[BooleanOptionsItem] | None = None
+
+    sanity_mapping: ClassVar[dict[str, str]] = {
+        **SanityDocument.sanity_mapping,
+        "name": "name",
+        "has_subtitle": "has_subtitle",
+        "subtitle": "subtitle",
+        "custom_plan": "custom_plan",
+        "has_contact_button": "has_contact_button",
+        "has_subscription": "has_subscription",
+        "monthly_subscriptions": "monthly_subscriptions",
+        "yearly_subscriptions": "yearly_subscriptions",
+        "advantages": "advantages",
+        "general_features": "general_features",
+        "ai_assistant_features": "ai_assistant_features",
+        "build_features": "build_features",
+        "simulate_features": "simulate_features",
+        "notebooks_features": "notebooks_features",
+        "support": "support",
+    }
+
+
 class Page(SanityDocument):
     """Schema for page documents."""
 
@@ -460,6 +543,7 @@ SANITY_TYPE_TO_MODEL: dict[str, type[SanityDocument]] = {
     "glossaryItem": GlossaryItemDocument,
     "news": NewsDocument,
     "pages": Page,
+    "planV2": PlanV2Document,
     "publicProjects": PublicProject,
     "tutorial": Tutorial,
 }
@@ -635,6 +719,7 @@ class OBIExpertInput(BaseModel):
         "glossaryItem",
         "news",
         "pages",
+        "planV2",
         "publicProjects",
         "tutorial",
     ] = Field(description="Type of documents to retrieve")
@@ -669,6 +754,7 @@ class OBIExpertOutput(BaseModel):
         | list[GlossaryItemDocument]
         | list[NewsDocument]
         | list[Page]
+        | list[PlanV2Document]
         | list[PublicProject]
         | list[Tutorial]
     )
@@ -701,6 +787,20 @@ class OBIExpertTool(BaseTool):
         "What's new in the platform?",
         "When will brain region simulation be available?",
         "Where can I learn about the platform?",
+        # Pricing-related utterances (use document_type: "planV2")
+        "What are your pricing plans?",
+        "How much does a subscription cost?",
+        "What's the difference between Free and Pro?",
+        "What features are included in each plan?",
+        "Do you have monthly or yearly pricing?",
+        "What's included in the Pro plan?",
+        "Is there a free tier?",
+        "Compare your subscription options",
+        "What AI assistant features come with each plan?",
+        "How much does simulation cost per plan?",
+        "What support options do I get with Pro?",
+        "Tell me about your pricing tiers",
+        "What are the plan advantages?",
     ]
     description: ClassVar[
         str
@@ -750,6 +850,26 @@ class OBIExpertTool(BaseTool):
        - View legal documents (Privacy Policy, Terms)
        - Find product information (Pricing, Resources)
        - Get support information (Contact)
+
+    8. Pricing Plans (document_type: "planV2")
+       - Get detailed information about subscription plans and pricing tiers
+       - Compare Free vs Pro plan features and costs
+       - View monthly and yearly subscription pricing with currency options
+       - Access plan advantages and highlights
+       - See feature breakdowns by category:
+         * General features (what's included/excluded per plan)
+         * AI assistant features with costs
+         * Build features with costs
+         * Simulate features with costs
+         * Notebooks features with costs
+         * Support options per plan
+       - Example user questions that should use this document type:
+         * "What are your pricing plans?"
+         * "How much does a Pro subscription cost?"
+         * "What's the difference between Free and Pro?"
+         * "What features are included in each plan?"
+         * "Do you offer monthly or yearly billing?"
+         * "What AI assistant features come with Pro?"
     """
     description_frontend: ClassVar[str] = (
         """Search and retrieve documents from the OBI Sanity API."""
