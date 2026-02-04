@@ -1,6 +1,6 @@
 "use client";
 
-import PlotsInChat from "@/components/chat/plot-in-chat";
+import PlotInChat from "@/components/chat/plot-in-chat";
 import { MessageStrict } from "@/lib/types";
 
 type BackupPlotProps = {
@@ -35,7 +35,7 @@ export function BackupPlot({
   return (
     <div className="my-4 space-y-12">
       {storageIdsWithoutImageLink.map((storageId) => (
-        <PlotsInChat key={storageId} storageIds={[storageId]} />
+        <PlotInChat key={storageId} storageId={storageId} />
       ))}
     </div>
   );

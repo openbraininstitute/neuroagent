@@ -4,7 +4,7 @@ import { marked } from "marked";
 import { memo, useMemo } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import PlotsInChat from "@/components/chat/plot-in-chat";
+import PlotInChat from "@/components/chat/plot-in-chat";
 import { PlotSkeleton } from "@/components/plots/skeleton";
 import { useStorageId } from "@/lib/storage-queries";
 
@@ -24,7 +24,7 @@ const ConditionalImageRenderer = ({
   }
 
   return storageId ? (
-    <PlotsInChat storageIds={[storageId]} />
+    <PlotInChat storageId={storageId} />
   ) : (
     <img
       src={src}

@@ -7,28 +7,7 @@ import { useGetPresignedUrl } from "@/hooks/get-presigned";
 import { useGetObjectFromStorage } from "@/hooks/get-storage-object";
 import { memo } from "react";
 
-type PlotDisplayProps = {
-  storageIds: string[];
-  fallbackUrl?: string;
-};
-
-export default function PlotsInChat({ storageIds }: PlotDisplayProps) {
-  if (storageIds.length === 0) {
-    return null;
-  }
-
-  return (
-    <>
-      {storageIds.map((storageId) => (
-        <span key={storageId} className="ml-20 block">
-          <SinglePlotInChat storageId={storageId} />
-        </span>
-      ))}
-    </>
-  );
-}
-
-const SinglePlotInChat = memo(({ storageId }: { storageId: string }) => {
+const PlotInChat = memo(({ storageId }: { storageId: string }) => {
   const {
     data: presignedUrl,
     isPending,
@@ -40,38 +19,41 @@ const SinglePlotInChat = memo(({ storageId }: { storageId: string }) => {
 
   if (isError || isStorageError) {
     return (
-      <span className="flex">
-        <span className="inline-block px-2 py-1 text-xs text-red-700">
-          Error loading plot
+      <div className="ml-20 block">
+        <span className="flex">
+          <span className="inline-block px-2 py-1 text-xs text-red-700">
+            Error loading plot
+          </span>
         </span>
-      </span>
+      </div>
     );
   }
 
   if (!category) {
-    return <PlotSkeleton />;
+    return <PlotSkeleton className="ml-20" />;
   }
 
-  switch (category) {
-    case "image":
-      return (
+  return (
+    <div className="ml-20 block">
+      {category === "image" ? (
         <ImagePlot
           url={presignedUrl ?? ""}
           storageId={storageId}
           isInChat={true}
         />
-      );
-    case "json":
-      return (
+      ) : category === "json" ? (
         <Plots
           presignedUrl={presignedUrl ?? ""}
           storageId={storageId}
           isInChat={true}
         />
-      );
-    default:
-      return <p>Error: Unsupported file category: {category}</p>;
-  }
+      ) : (
+        <p>Error: Unsupported file category: {category}</p>
+      )}
+    </div>
+  );
 });
 
-SinglePlotInChat.displayName = "SinglePlotInChat";
+PlotInChat.displayName = "PlotInChat";
+
+export default PlotInChat;
