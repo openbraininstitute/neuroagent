@@ -23,8 +23,9 @@ class MCPClient:
     def __init__(self, config: SettingsMCP):
         self.config = config
         self.group_session: ClientSessionGroup = ClientSessionGroup(
-            component_name_hook=lambda name,
-            server_info: f"{(server_info.name)}{SERVER_TOOL_SEPARATOR}{name}"
+            component_name_hook=lambda name, server_info: (
+                f"{(server_info.name)}{SERVER_TOOL_SEPARATOR}{name}"
+            )
         )
 
         self.tools: dict[str, list[Tool]] = {}  # server -> tool list
