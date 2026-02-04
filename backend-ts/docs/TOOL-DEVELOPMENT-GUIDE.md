@@ -58,7 +58,6 @@ export class MyTool extends BaseTool<typeof MyToolInputSchema, MyContextVariable
 
 ### Lazy Instantiation Pattern
 
-
 **Important:** Tools are NOT instantiated at application startup. Instead:
 
 1. **Startup:** Register tool CLASSES (not instances) in the registry
@@ -67,6 +66,7 @@ export class MyTool extends BaseTool<typeof MyToolInputSchema, MyContextVariable
 4. **Cleanup:** Tool instance is discarded after execution
 
 This pattern:
+
 - Reduces memory usage (no unused tool instances)
 - Allows per-request context (user-specific configuration)
 - Matches Python's ClassVar pattern
@@ -84,14 +84,19 @@ import { z } from 'zod';
 
 const WebSearchInputSchema = z.object({
   query: z.string().describe('The search query'),
-  maxResults: z.number().int().min(1).max(100).default(10)
+  maxResults: z
+    .number()
+    .int()
+    .min(1)
+    .max(100)
+    .default(10)
     .describe('Maximum number of results to return'),
-  language: z.enum(['en', 'es', 'fr', 'de']).optional()
-    .describe('Language for search results'),
+  language: z.enum(['en', 'es', 'fr', 'de']).optional().describe('Language for search results'),
 });
 ```
 
 **Best Practices:**
+
 - Use `.describe()` for all fields (helps LLM understand parameters)
 - Set reasonable defaults with `.default()`
 - Add validation constraints (`.min()`, `.max()`, `.email()`, etc.)
@@ -111,11 +116,11 @@ interface WebSearchContextVariables extends BaseContextVariables {
 ```
 
 **Context vs Input:**
+
 - **Context:** App-provided (API keys, URLs, HTTP clients)
 - **Input:** LLM-provided (user query, parameters)
 
 ### Step 3: Implement the Tool Class
-
 
 ```typescript
 import { BaseTool } from './base-tool';
@@ -128,10 +133,8 @@ export class WebSearchTool extends BaseTool<
   // Static metadata (accessible without instantiation)
   static readonly toolName = 'web_search';
   static readonly toolNameFrontend = 'Web Search';
-  static readonly toolDescription =
-    'Search the web for information using a search engine API';
-  static readonly toolDescriptionFrontend =
-    'Search the internet for current information';
+  static readonly toolDescription = 'Search the web for information using a search engine API';
+  static readonly toolDescriptionFrontend = 'Search the internet for current information';
   static readonly toolUtterances = [
     'search the web',
     'find information online',
@@ -157,7 +160,7 @@ export class WebSearchTool extends BaseTool<
       {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${this.contextVariables.apiKey}`,
+          Authorization: `Bearer ${this.contextVariables.apiKey}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ query, max_results: maxResults, language }),
@@ -196,25 +199,26 @@ export class WebSearchTool extends BaseTool<
 
 ### Required Static Properties
 
-
-| Property | Type | Required | Description |
-|----------|------|----------|-------------|
-| `toolName` | `string` | Yes | Unique identifier (snake_case) |
-| `toolDescription` | `string` | Yes | What the tool does (for LLM) |
-| `toolNameFrontend` | `string` | No | Display name for UI |
-| `toolDescriptionFrontend` | `string` | No | User-friendly description |
-| `toolUtterances` | `string[]` | No | Example phrases that trigger tool |
-| `toolHil` | `boolean` | No | Requires human validation |
+| Property                  | Type       | Required | Description                       |
+| ------------------------- | ---------- | -------- | --------------------------------- |
+| `toolName`                | `string`   | Yes      | Unique identifier (snake_case)    |
+| `toolDescription`         | `string`   | Yes      | What the tool does (for LLM)      |
+| `toolNameFrontend`        | `string`   | No       | Display name for UI               |
+| `toolDescriptionFrontend` | `string`   | No       | User-friendly description         |
+| `toolUtterances`          | `string[]` | No       | Example phrases that trigger tool |
+| `toolHil`                 | `boolean`  | No       | Requires human validation         |
 
 ### Naming Conventions
 
 **Backend Names (toolName):**
+
 - Use snake_case: `web_search`, `get_brain_region`
 - Be descriptive but concise
 - Avoid special characters
 - Must be unique across all tools
 
 **Frontend Names (toolNameFrontend):**
+
 - Use Title Case: `Web Search`, `Get Brain Region`
 - User-friendly and clear
 - Can include spaces and punctuation
@@ -222,12 +226,14 @@ export class WebSearchTool extends BaseTool<
 ### Descriptions
 
 **Backend Description (toolDescription):**
+
 - Technical and precise
 - Explain what the tool does
 - Include key capabilities
 - Used by LLM to decide when to use tool
 
 Example:
+
 ```typescript
 static readonly toolDescription =
   'Search the web for current information using a search engine API. ' +
@@ -236,11 +242,13 @@ static readonly toolDescription =
 ```
 
 **Frontend Description (toolDescriptionFrontend):**
+
 - User-friendly language
 - Explain benefits to user
 - Shorter and simpler
 
 Example:
+
 ```typescript
 static readonly toolDescriptionFrontend =
   'Search the internet for up-to-date information on any topic';
@@ -261,6 +269,7 @@ static readonly toolUtterances = [
 ```
 
 **Best Practices:**
+
 - Include 3-10 utterances
 - Use natural language phrases
 - Include synonyms and variations
@@ -272,73 +281,69 @@ static readonly toolUtterances = [
 
 ### Zod Schema Patterns
 
-
 **String Validation:**
+
 ```typescript
 z.object({
-  query: z.string()
+  query: z
+    .string()
     .min(1, 'Query cannot be empty')
     .max(500, 'Query too long')
     .describe('Search query'),
 
-  email: z.string()
-    .email('Invalid email format')
-    .describe('User email address'),
+  email: z.string().email('Invalid email format').describe('User email address'),
 
-  url: z.string()
-    .url('Invalid URL format')
-    .describe('Website URL'),
+  url: z.string().url('Invalid URL format').describe('Website URL'),
 });
 ```
 
 **Number Validation:**
+
 ```typescript
 z.object({
-  age: z.number()
+  age: z
+    .number()
     .int('Age must be an integer')
     .min(0, 'Age cannot be negative')
     .max(150, 'Age too high')
     .describe('User age'),
 
-  temperature: z.number()
+  temperature: z
+    .number()
     .min(-273.15, 'Below absolute zero')
     .max(1000, 'Temperature too high')
     .describe('Temperature in Celsius'),
 
-  percentage: z.number()
-    .min(0)
-    .max(100)
-    .describe('Percentage value'),
+  percentage: z.number().min(0).max(100).describe('Percentage value'),
 });
 ```
 
 **Array Validation:**
+
 ```typescript
 z.object({
-  tags: z.array(z.string())
+  tags: z
+    .array(z.string())
     .min(1, 'At least one tag required')
     .max(10, 'Too many tags')
     .describe('List of tags'),
 
-  coordinates: z.array(z.number())
-    .length(2, 'Must be [x, y]')
-    .describe('2D coordinates'),
+  coordinates: z.array(z.number()).length(2, 'Must be [x, y]').describe('2D coordinates'),
 });
 ```
 
 **Enum Validation:**
+
 ```typescript
 z.object({
-  status: z.enum(['pending', 'active', 'completed'])
-    .describe('Task status'),
+  status: z.enum(['pending', 'active', 'completed']).describe('Task status'),
 
-  priority: z.enum(['low', 'medium', 'high'])
-    .default('medium')
-    .describe('Task priority'),
+  priority: z.enum(['low', 'medium', 'high']).default('medium').describe('Task priority'),
 });
 ```
 
 **Optional Fields:**
+
 ```typescript
 z.object({
   required: z.string().describe('Required field'),
@@ -349,22 +354,23 @@ z.object({
 ```
 
 **Complex Objects:**
+
 ```typescript
 z.object({
-  user: z.object({
-    name: z.string(),
-    email: z.string().email(),
-  }).describe('User information'),
+  user: z
+    .object({
+      name: z.string(),
+      email: z.string().email(),
+    })
+    .describe('User information'),
 
-  metadata: z.record(z.string(), z.any())
-    .describe('Additional metadata'),
+  metadata: z.record(z.string(), z.any()).describe('Additional metadata'),
 });
 ```
 
 ---
 
 ## Context Variables
-
 
 ### Defining Context Variables
 
@@ -419,19 +425,22 @@ async execute(input: z.infer<typeof this.inputSchema>) {
 ### Common Context Variables
 
 **HTTP Clients:**
+
 ```typescript
-httpClient: typeof fetch;  // Standard fetch API
-axiosClient: AxiosInstance;  // Axios instance
+httpClient: typeof fetch; // Standard fetch API
+axiosClient: AxiosInstance; // Axios instance
 ```
 
 **API Configuration:**
+
 ```typescript
-apiUrl: string;  // Base URL
-apiKey: string;  // Authentication key
-apiVersion: string;  // API version
+apiUrl: string; // Base URL
+apiKey: string; // Authentication key
+apiVersion: string; // API version
 ```
 
 **User Context:**
+
 ```typescript
 userId: string;  // Current user ID
 vlabId?: string;  // Virtual lab ID
@@ -440,10 +449,11 @@ userGroups: string[];  // User permissions
 ```
 
 **Application Context:**
+
 ```typescript
-frontendUrl: string;  // Frontend base URL
-storageClient: S3Client;  // Storage client
-databaseClient: PrismaClient;  // Database client
+frontendUrl: string; // Frontend base URL
+storageClient: S3Client; // Storage client
+databaseClient: PrismaClient; // Database client
 ```
 
 ---
@@ -473,7 +483,6 @@ async execute(input: z.infer<typeof this.inputSchema>): Promise<unknown> {
 
 ### Return Values
 
-
 **Return any JSON-serializable value:**
 
 ```typescript
@@ -501,6 +510,7 @@ return {
 ```
 
 **Best Practices:**
+
 - Return structured data (objects/arrays)
 - Include status indicators
 - Provide context (counts, metadata)
@@ -567,8 +577,8 @@ async execute(input: z.infer<typeof this.inputSchema>) {
 
 ### Error Messages
 
-
 **Good error messages:**
+
 - Specific and actionable
 - Include context (what failed, why)
 - Suggest solutions when possible
@@ -580,7 +590,7 @@ throw new Error('Failed');
 // ✅ Good
 throw new Error(
   'Failed to fetch brain region data: API returned 404. ' +
-  'The region ID may not exist in the database.'
+    'The region ID may not exist in the database.'
 );
 ```
 
@@ -675,13 +685,10 @@ describe('WebSearchTool', () => {
   it('should handle errors gracefully', async () => {
     const invalidInput = { query: '', maxResults: -1 };
 
-    await expect(
-      tool.inputSchema.parseAsync(invalidInput)
-    ).rejects.toThrow();
+    await expect(tool.inputSchema.parseAsync(invalidInput)).rejects.toThrow();
   });
 });
 ```
-
 
 ### Integration Tests
 
@@ -724,17 +731,17 @@ Test tool with random inputs:
 ```typescript
 import { fc, test } from '@fast-check/vitest';
 
-test.prop([
-  fc.string({ minLength: 1, maxLength: 100 }),
-  fc.integer({ min: 1, max: 100 }),
-])('should handle any valid input', async (query, maxResults) => {
-  const tool = new WebSearchTool(mockContext);
-  const input = { query, maxResults };
+test.prop([fc.string({ minLength: 1, maxLength: 100 }), fc.integer({ min: 1, max: 100 })])(
+  'should handle any valid input',
+  async (query, maxResults) => {
+    const tool = new WebSearchTool(mockContext);
+    const input = { query, maxResults };
 
-  // Should not throw for valid inputs
-  const result = await tool.execute(input);
-  expect(result).toBeDefined();
-});
+    // Should not throw for valid inputs
+    const result = await tool.execute(input);
+    expect(result).toBeDefined();
+  }
+);
 ```
 
 ---
@@ -774,7 +781,6 @@ console.log(ToolClass.toolDescription);
 ```
 
 ### Instantiating Tools On-Demand
-
 
 Create instances only when LLM calls the tool:
 
@@ -875,7 +881,6 @@ async execute(input: z.infer<typeof this.inputSchema>) {
 
 ### Caching Results
 
-
 Cache expensive operations:
 
 ```typescript
@@ -975,7 +980,6 @@ async execute(input: z.infer<typeof this.inputSchema>) {
 ```
 
 ### 3. Provide Helpful Descriptions
-
 
 Help the LLM understand when to use your tool:
 
@@ -1117,21 +1121,15 @@ import { z } from 'zod';
 
 // Input schema
 const BrainRegionSearchInputSchema = z.object({
-  query: z.string()
+  query: z
+    .string()
     .min(1, 'Query cannot be empty')
     .max(200, 'Query too long')
     .describe('Search query for brain regions'),
 
-  limit: z.number()
-    .int()
-    .min(1)
-    .max(100)
-    .default(10)
-    .describe('Maximum number of results'),
+  limit: z.number().int().min(1).max(100).default(10).describe('Maximum number of results'),
 
-  includeHierarchy: z.boolean()
-    .default(false)
-    .describe('Include hierarchical relationships'),
+  includeHierarchy: z.boolean().default(false).describe('Include hierarchical relationships'),
 });
 
 // Context variables
@@ -1162,8 +1160,7 @@ export class BrainRegionSearchTool extends BaseTool<
     'Returns region names, acronyms, coordinates, and optional ' +
     'hierarchical relationships. Useful for finding specific brain ' +
     'areas or exploring brain anatomy.';
-  static readonly toolDescriptionFrontend =
-    'Search for brain regions and explore brain anatomy';
+  static readonly toolDescriptionFrontend = 'Search for brain regions and explore brain anatomy';
   static readonly toolUtterances = [
     'search brain regions',
     'find brain area',
@@ -1188,10 +1185,7 @@ export class BrainRegionSearchTool extends BaseTool<
 
     try {
       // Search for regions
-      const regions = await this.searchRegions(
-        input.query,
-        input.limit
-      );
+      const regions = await this.searchRegions(input.query, input.limit);
 
       // Optionally include hierarchy
       if (input.includeHierarchy) {
@@ -1206,16 +1200,11 @@ export class BrainRegionSearchTool extends BaseTool<
       };
     } catch (error) {
       console.error(`[${this.getName()}] Error:`, error);
-      throw new Error(
-        `Failed to search brain regions: ${error.message}`
-      );
+      throw new Error(`Failed to search brain regions: ${error.message}`);
     }
   }
 
-  private async searchRegions(
-    query: string,
-    limit: number
-  ): Promise<BrainRegion[]> {
+  private async searchRegions(query: string, limit: number): Promise<BrainRegion[]> {
     const url = `${this.contextVariables.entitycoreUrl}/regions/search`;
 
     const response = await this.contextVariables.httpClient(url, {
@@ -1232,9 +1221,7 @@ export class BrainRegionSearchTool extends BaseTool<
     return data.results;
   }
 
-  private async enrichWithHierarchy(
-    regions: BrainRegion[]
-  ): Promise<void> {
+  private async enrichWithHierarchy(regions: BrainRegion[]): Promise<void> {
     await Promise.all(
       regions.map(async (region) => {
         try {
@@ -1309,6 +1296,7 @@ Before submitting a new tool, ensure:
 ## Support
 
 For questions about tool development:
+
 - Review existing tool implementations in `src/lib/tools/`
 - Check test examples in `tests/tools/`
 - See [MIGRATION-GUIDE.md](./MIGRATION-GUIDE.md) for Python to TypeScript patterns

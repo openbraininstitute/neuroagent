@@ -13,6 +13,7 @@ The TypeScript backend's tool system was overcomplicated compared to the Python 
 Refactored the TypeScript tool system to follow the Python backend's simpler pattern:
 
 ### Python Backend Pattern (Reference)
+
 ```python
 class BaseTool(BaseModel, ABC):
     name: ClassVar[str]  # Class-level, accessible without instantiation
@@ -25,10 +26,11 @@ class BaseTool(BaseModel, ABC):
 ```
 
 ### New TypeScript Pattern (V2)
+
 ```typescript
 abstract class BaseToolV2<TInput extends z.ZodType> {
-  static readonly metadata: ToolMetadata;  // Class-level, like Python's ClassVar
-  abstract inputSchema: TInput;  // Instance-level
+  static readonly metadata: ToolMetadata; // Class-level, like Python's ClassVar
+  abstract inputSchema: TInput; // Instance-level
   abstract execute(input: z.infer<TInput>): Promise<unknown>;
 }
 ```
@@ -36,7 +38,9 @@ abstract class BaseToolV2<TInput extends z.ZodType> {
 ## Key Changes
 
 ### 1. Static Metadata (Class-Level)
+
 **Before:**
+
 ```typescript
 class WebSearchTool extends BaseTool {
   metadata: ToolMetadata = { name: 'web-search', ... };  // Instance-level
@@ -44,6 +48,7 @@ class WebSearchTool extends BaseTool {
 ```
 
 **After:**
+
 ```typescript
 class WebSearchToolV2 extends BaseToolV2 {
   static readonly metadata: ToolMetadata = { name: 'web_search', ... };  // Class-level
@@ -51,27 +56,33 @@ class WebSearchToolV2 extends BaseToolV2 {
 ```
 
 ### 2. No Registry Pattern
+
 **Before:**
+
 ```typescript
-const tools = await initializeTools(config);  // Expensive!
+const tools = await initializeTools(config); // Expensive!
 toolRegistry.register(tool);
 const metadata = toolRegistry.getAllMetadata();
 ```
 
 **After:**
+
 ```typescript
-const metadata = WebSearchToolV2.metadata;  // Direct access, no instantiation
+const metadata = WebSearchToolV2.metadata; // Direct access, no instantiation
 const allMetadata = getAllToolMetadata([WebSearchToolV2, LiteratureSearchToolV2]);
 ```
 
 ### 3. Tool List Module (Like Python's dependencies.py)
+
 **Before:**
+
 ```typescript
 // Tools scattered, registry manages them
 await initializeTools({ exaApiKey, entitycoreUrl, ... });
 ```
 
 **After:**
+
 ```typescript
 // Centralized tool list in tool-list.ts
 export function getInternalToolClasses(): ToolClass[] {
@@ -94,32 +105,37 @@ export function getToolDescriptionsForLLM(): string[] {
 ## Performance Impact
 
 ### Question Suggestions Endpoint
+
 - **Before**: 55+ seconds (initializing all tools including MCP)
 - **After**: ~2-5 seconds (accessing static metadata only)
 
 ### Why So Much Faster?
+
 ```typescript
 // Before - Expensive
-const tools = await initializeTools(config);  // Initializes MCP tools (50+ seconds)
-const descriptions = tools.map(t => t.metadata.description);
+const tools = await initializeTools(config); // Initializes MCP tools (50+ seconds)
+const descriptions = tools.map((t) => t.metadata.description);
 
 // After - Fast
-const descriptions = getToolDescriptionsForLLM();  // Static access (milliseconds)
+const descriptions = getToolDescriptionsForLLM(); // Static access (milliseconds)
 ```
 
 ## Migration Path
 
 ### Phase 1: Coexistence (Current)
+
 - V1 and V2 coexist
 - New code uses V2
 - Old code continues using V1
 
 ### Phase 2: Gradual Migration
+
 - Refactor remaining tools (EntityCore, OBIOne, etc.)
 - Update consumers to use V2
 - Add tools to `tool-list.ts`
 
 ### Phase 3: Cleanup
+
 - Remove V1 files
 - Remove registry pattern
 - Update all imports
@@ -133,12 +149,12 @@ const descriptions = getToolDescriptionsForLLM();  // Static access (millisecond
 
 ## Comparison with Python Backend
 
-| Aspect | Python Backend | TypeScript V1 | TypeScript V2 |
-|--------|---------------|---------------|---------------|
-| Metadata | `ClassVar` | Instance-level | `static readonly` |
-| Tool List | `get_tool_list()` | Registry | `getInternalToolClasses()` |
-| Instantiation | Only for execution | Always | Only for execution |
-| Pattern | Simple list | Registry | Simple list |
+| Aspect        | Python Backend     | TypeScript V1  | TypeScript V2              |
+| ------------- | ------------------ | -------------- | -------------------------- |
+| Metadata      | `ClassVar`         | Instance-level | `static readonly`          |
+| Tool List     | `get_tool_list()`  | Registry       | `getInternalToolClasses()` |
+| Instantiation | Only for execution | Always         | Only for execution         |
+| Pattern       | Simple list        | Registry       | Simple list                |
 
 ## Next Steps
 
@@ -150,6 +166,7 @@ const descriptions = getToolDescriptionsForLLM();  // Static access (millisecond
 ## Example Usage
 
 ### Getting Tool Metadata (No Instantiation)
+
 ```typescript
 import { getToolDescriptionsForLLM } from '@/lib/tools/tool-list';
 
@@ -159,6 +176,7 @@ const descriptions = getToolDescriptionsForLLM();
 ```
 
 ### Executing a Tool (With Instantiation)
+
 ```typescript
 import { WebSearchToolV2 } from '@/lib/tools';
 

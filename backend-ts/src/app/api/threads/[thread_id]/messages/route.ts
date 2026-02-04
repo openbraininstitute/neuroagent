@@ -14,16 +14,13 @@
  * - Tool HIL (Human-in-Loop) status tracking
  */
 
-import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/db/client';
-import {
-  validateAuth,
-  AuthenticationError,
-  AuthorizationError,
-} from '@/lib/middleware/auth';
 import { entity } from '@prisma/client';
-import { initializeTools } from '@/lib/tools';
+import { type NextRequest, NextResponse } from 'next/server';
+
 import { getSettings } from '@/lib/config/settings';
+import { prisma } from '@/lib/db/client';
+import { validateAuth, AuthenticationError, AuthorizationError } from '@/lib/middleware/auth';
+import { initializeTools } from '@/lib/tools';
 
 /**
  * Message response schema (Vercel format)
@@ -162,9 +159,7 @@ export async function GET(
     // Add cursor-based pagination
     const isDescending = sort.startsWith('-') || vercelFormat;
     if (cursor) {
-      whereClause.creationDate = isDescending
-        ? { lt: new Date(cursor) }
-        : { gt: new Date(cursor) };
+      whereClause.creationDate = isDescending ? { lt: new Date(cursor) } : { gt: new Date(cursor) };
     }
 
     // PHASE 1: Get message IDs and metadata for pagination
@@ -266,10 +261,7 @@ export async function GET(
 
     // Calculate next cursor
     const lastCursorItem = dbCursor.length > 0 ? dbCursor[dbCursor.length - 1] : null;
-    const nextCursor =
-      hasMore && lastCursorItem
-        ? lastCursorItem.creationDate.toISOString()
-        : null;
+    const nextCursor = hasMore && lastCursorItem ? lastCursorItem.creationDate.toISOString() : null;
 
     console.log('[messages] Phase 2 - Fetched', dbMessages.length, 'full messages');
     console.log('[messages] Has more:', hasMore, 'Next cursor:', nextCursor);
@@ -399,8 +391,7 @@ export async function GET(
           // Find the buffered tool call
           const toolCallPart = parts.find(
             (part) =>
-              part.type === 'tool-invocation' &&
-              part.toolInvocation?.toolCallId === toolCallId
+              part.type === 'tool-invocation' && part.toolInvocation?.toolCallId === toolCallId
           );
 
           if (toolCallPart) {
@@ -409,9 +400,7 @@ export async function GET(
           }
 
           // Update annotation isComplete
-          const annotation = annotations.find(
-            (ann) => ann.toolCallId === toolCallId
-          );
+          const annotation = annotations.find((ann) => ann.toolCallId === toolCallId);
           if (annotation) {
             annotation.isComplete = msg.isComplete;
           }
@@ -484,9 +473,6 @@ export async function GET(
     }
 
     console.error('Error fetching messages:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

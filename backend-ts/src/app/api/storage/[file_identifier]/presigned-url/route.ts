@@ -1,6 +1,7 @@
-import { NextRequest, NextResponse } from 'next/server';
 import { HeadObjectCommand, GetObjectCommand, PutObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
+import { type NextRequest, NextResponse } from 'next/server';
+
 import { getSettings } from '@/lib/config/settings';
 import { validateAuth } from '@/lib/middleware/auth';
 import { getS3Client } from '@/lib/storage/client';

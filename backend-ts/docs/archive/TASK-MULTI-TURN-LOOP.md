@@ -7,6 +7,7 @@ Implement multi-turn agentic conversations in the TypeScript backend using Verce
 ## Problem Statement
 
 The TypeScript backend needed to support multi-turn conversations where:
+
 1. The LLM can call tools multiple times
 2. Tool results are added to message history
 3. The LLM continues with updated context
@@ -21,10 +22,7 @@ Instead of implementing a manual loop (as initially attempted), we leverage **Ve
 ```typescript
 const result = streamText({
   model,
-  messages: [
-    { role: 'system', content: agent.instructions },
-    ...coreMessages,
-  ],
+  messages: [{ role: 'system', content: agent.instructions }, ...coreMessages],
   tools, // Tools WITH execute functions
   maxSteps: maxTurns, // Enable automatic multi-step execution
   onFinish: async ({ response, usage }) => {
@@ -37,6 +35,7 @@ return result.toDataStreamResponse();
 ```
 
 That's it! Vercel AI SDK automatically:
+
 - Calls the LLM
 - Detects and executes tool calls
 - Adds results to message history
@@ -46,24 +45,28 @@ That's it! Vercel AI SDK automatically:
 ## Benefits
 
 ### 1. Simplicity
+
 - **~150 lines** instead of ~400 lines
 - No manual loop management
 - No custom stream handling
 - No manual tool execution logic
 
 ### 2. Vercel AI SDK Compatibility
+
 - Uses standard `toDataStreamResponse()`
 - Works with Vercel's `useChat()` hook
 - Automatic streaming format
 - Built-in error handling
 
 ### 3. Maintainability
+
 - Follows SDK best practices
 - Less custom code = fewer bugs
 - Easier to understand
 - Future SDK improvements automatically benefit us
 
 ### 4. Feature Parity
+
 ✅ Multi-turn conversations
 ✅ Automatic tool execution
 ✅ Max turns limit
@@ -76,6 +79,7 @@ That's it! Vercel AI SDK automatically:
 ### `backend-ts/src/lib/agents/routine.ts`
 
 **Before (Manual Loop - 400+ lines):**
+
 ```typescript
 // Custom TransformStream
 const stream = new TransformStream();
@@ -101,6 +105,7 @@ while (turns < maxTurns) {
 ```
 
 **After (Automatic with maxSteps - 150 lines):**
+
 ```typescript
 const result = streamText({
   model,
@@ -116,6 +121,7 @@ return result.toDataStreamResponse();
 ```
 
 **Changes:**
+
 - Removed manual loop implementation
 - Removed `executeToolCalls()` method (SDK handles it)
 - Removed custom stream control (use `toDataStreamResponse()`)
@@ -163,20 +169,20 @@ onFinish: async ({ response, usage }) => {
       // Save to database
     }
   }
-}
+};
 ```
 
 ## Comparison: Manual vs Automatic
 
-| Aspect | Manual Loop | Automatic (maxSteps) |
-|--------|-------------|----------------------|
-| Lines of code | ~400 | ~150 |
-| Loop management | Manual `while` loop | SDK handles it |
-| Tool execution | Manual `executeToolCalls()` | SDK calls `execute` |
-| Stream control | Custom `TransformStream` | `toDataStreamResponse()` |
-| Message history | Manual updates | SDK manages it |
-| Error handling | Custom try/catch | SDK built-in |
-| Frontend compat | Custom format | Standard Vercel format |
+| Aspect          | Manual Loop                 | Automatic (maxSteps)     |
+| --------------- | --------------------------- | ------------------------ |
+| Lines of code   | ~400                        | ~150                     |
+| Loop management | Manual `while` loop         | SDK handles it           |
+| Tool execution  | Manual `executeToolCalls()` | SDK calls `execute`      |
+| Stream control  | Custom `TransformStream`    | `toDataStreamResponse()` |
+| Message history | Manual updates              | SDK manages it           |
+| Error handling  | Custom try/catch            | SDK built-in             |
+| Frontend compat | Custom format               | Standard Vercel format   |
 
 ## Testing
 
@@ -228,15 +234,19 @@ const { messages, isLoading } = useChat({
 ## Future Enhancements
 
 ### 1. Parallel Tool Execution
+
 SDK supports this by default when LLM requests multiple tools.
 
 ### 2. HIL (Human-in-the-Loop)
+
 Can be implemented by:
+
 - Pausing after tool call
 - Requesting user confirmation
 - Resuming with result
 
 ### 3. Progress Callbacks
+
 ```typescript
 const result = streamText({
   maxSteps: 10,

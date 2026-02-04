@@ -167,17 +167,23 @@ describe('Provider Selection Integration', () => {
 
     it('should correctly parse OpenAI model names with hyphens', () => {
       (routine as any).getProviderAndModel('openai/gpt-4-turbo-preview');
-      expect(mockOpenAIProvider).toHaveBeenCalledWith('gpt-4-turbo-preview', { structuredOutputs: false });
+      expect(mockOpenAIProvider).toHaveBeenCalledWith('gpt-4-turbo-preview', {
+        structuredOutputs: false,
+      });
     });
 
     it('should correctly parse OpenRouter nested paths', () => {
       (routine as any).getProviderAndModel('openrouter/anthropic/claude-3-opus-20240229');
-      expect(mockOpenRouterProvider).toHaveBeenCalledWith('openrouter/anthropic/claude-3-opus-20240229');
+      expect(mockOpenRouterProvider).toHaveBeenCalledWith(
+        'openrouter/anthropic/claude-3-opus-20240229'
+      );
     });
 
     it('should correctly parse OpenRouter with multiple slashes', () => {
       (routine as any).getProviderAndModel('openrouter/meta-llama/llama-3-70b-instruct');
-      expect(mockOpenRouterProvider).toHaveBeenCalledWith('openrouter/meta-llama/llama-3-70b-instruct');
+      expect(mockOpenRouterProvider).toHaveBeenCalledWith(
+        'openrouter/meta-llama/llama-3-70b-instruct'
+      );
     });
 
     it('should preserve model name exactly when no prefix', () => {

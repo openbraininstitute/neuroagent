@@ -6,7 +6,8 @@
  * or API gateway that adds a path prefix.
  */
 
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest, type NextResponse } from 'next/server';
+
 import { getSettings } from '../config/settings';
 
 /**

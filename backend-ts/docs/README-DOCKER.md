@@ -28,6 +28,7 @@ nano .env
 ```
 
 Required variables:
+
 - `DATABASE_URL` - PostgreSQL connection string
 - `NEUROAGENT_LLM__OPENAI_TOKEN` - OpenAI API key
 - `NEUROAGENT_STORAGE__*` - MinIO/S3 configuration
@@ -58,6 +59,7 @@ curl http://localhost:8079/api/healthz
 ```
 
 Expected response:
+
 ```json
 {
   "status": "ok",
@@ -93,6 +95,7 @@ The Dockerfile uses three stages for optimal image size:
 - **Host Port**: 8079 (configurable)
 
 This differs from:
+
 - Frontend: 3000
 - Python Backend: 8078
 
@@ -101,6 +104,7 @@ This differs from:
 See [.env.example](./.env.example) for all available variables.
 
 Critical variables:
+
 ```bash
 DATABASE_URL=postgresql://user:pass@host:5432/db
 NEUROAGENT_LLM__OPENAI_TOKEN=sk-...
@@ -112,6 +116,7 @@ NODE_ENV=production
 ### Volume Mounts
 
 No volumes are required for the backend-ts service. Data is stored in:
+
 - PostgreSQL (postgres_data volume)
 - MinIO (minio_data volume)
 - Redis (redis_data volume)
@@ -159,7 +164,7 @@ The container includes built-in health checks:
 
 ```yaml
 healthcheck:
-  test: ["CMD", "node", "-e", "require('http').get(...)"]
+  test: ['CMD', 'node', '-e', "require('http').get(...)"]
   interval: 30s
   timeout: 10s
   start_period: 40s
@@ -167,6 +172,7 @@ healthcheck:
 ```
 
 Check health status:
+
 ```bash
 # Via Docker
 docker compose ps backend-ts
@@ -183,11 +189,13 @@ docker inspect --format='{{json .State.Health}}' neuroagent-backend-ts-1 | jq
 ### Container Won't Start
 
 1. Check logs:
+
    ```bash
    docker compose logs backend-ts
    ```
 
 2. Verify dependencies:
+
    ```bash
    docker compose ps postgres redis minio
    ```
@@ -200,11 +208,13 @@ docker inspect --format='{{json .State.Health}}' neuroagent-backend-ts-1 | jq
 ### Database Connection Failed
 
 1. Test connection:
+
    ```bash
    docker compose exec backend-ts npx prisma db execute --stdin <<< "SELECT 1"
    ```
 
 2. Verify DATABASE_URL:
+
    ```bash
    docker compose exec backend-ts env | grep DATABASE_URL
    ```
@@ -218,11 +228,13 @@ docker inspect --format='{{json .State.Health}}' neuroagent-backend-ts-1 | jq
 ### Migration Failed
 
 1. Check status:
+
    ```bash
    docker compose exec backend-ts npx prisma migrate status
    ```
 
 2. View migration logs:
+
    ```bash
    docker compose logs backend-ts | grep -i migration
    ```
@@ -235,11 +247,13 @@ docker inspect --format='{{json .State.Health}}' neuroagent-backend-ts-1 | jq
 ### Build Failed
 
 1. Clear cache:
+
    ```bash
    docker compose build --no-cache backend-ts
    ```
 
 2. Check disk space:
+
    ```bash
    docker system df
    ```
@@ -259,6 +273,7 @@ cd backend-ts
 ```
 
 This validates:
+
 - Docker installation
 - Dockerfile configuration
 - Multi-stage build
@@ -297,6 +312,7 @@ docker compose -f docker-compose.yml -f docker-compose.prod.yml config backend-t
 ```
 
 Production features:
+
 - Resource limits (2 CPU, 2GB RAM)
 - Read-only filesystem
 - Log rotation
@@ -354,6 +370,7 @@ watch -n 5 'curl -s http://localhost:8079/api/healthz | jq'
 ### Optimization Tips
 
 1. **Use BuildKit**:
+
    ```bash
    export DOCKER_BUILDKIT=1
    docker compose build backend-ts
@@ -369,15 +386,15 @@ watch -n 5 'curl -s http://localhost:8079/api/healthz | jq'
 
 ## Comparison with Python Backend
 
-| Feature | Python Backend | TypeScript Backend |
-|---------|---------------|-------------------|
-| Port | 8078 | 8079 |
-| Framework | FastAPI | Next.js |
-| Base Image | python:3.11 | node:18-alpine |
-| Image Size | ~1.5GB | ~352MB |
-| Build Time | ~5 min | ~2-3 min |
-| Migrations | Alembic | Prisma |
-| Health Check | /healthz | /api/healthz |
+| Feature      | Python Backend | TypeScript Backend |
+| ------------ | -------------- | ------------------ |
+| Port         | 8078           | 8079               |
+| Framework    | FastAPI        | Next.js            |
+| Base Image   | python:3.11    | node:18-alpine     |
+| Image Size   | ~1.5GB         | ~352MB             |
+| Build Time   | ~5 min         | ~2-3 min           |
+| Migrations   | Alembic        | Prisma             |
+| Health Check | /healthz       | /api/healthz       |
 
 ## Development Workflow
 
@@ -389,6 +406,7 @@ npm run dev
 ```
 
 Benefits:
+
 - Hot module reloading
 - Better error messages
 - Faster iteration
@@ -421,6 +439,7 @@ docker compose logs -f backend-ts
 ## Support
 
 For issues:
+
 1. Run test script: `./test-docker.sh`
 2. Check logs: `docker compose logs backend-ts`
 3. Verify config: `docker compose config backend-ts`

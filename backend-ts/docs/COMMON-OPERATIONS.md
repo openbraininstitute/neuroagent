@@ -63,6 +63,7 @@ npm run test:watch
 ### Environment Setup for Different Scenarios
 
 **Local Development (No Docker):**
+
 ```bash
 # .env
 DATABASE_URL="postgresql://postgres:postgres@localhost:5432/neuroagent"
@@ -72,6 +73,7 @@ NEUROAGENT_STORAGE__ENDPOINT_URL=http://localhost:9000
 ```
 
 **Docker Development:**
+
 ```bash
 # Start all services
 docker-compose up
@@ -80,6 +82,7 @@ docker-compose up
 ```
 
 **Testing:**
+
 ```bash
 # .env.test
 DATABASE_URL="postgresql://postgres:postgres@localhost:5432/neuroagent_test"
@@ -122,6 +125,7 @@ psql $DATABASE_URL
 ### Common Database Queries
 
 **List all threads for a user:**
+
 ```typescript
 const threads = await prisma.thread.findMany({
   where: { userId: userId },
@@ -135,6 +139,7 @@ const threads = await prisma.thread.findMany({
 ```
 
 **Get thread with full message history:**
+
 ```typescript
 const thread = await prisma.thread.findUnique({
   where: { id: threadId },
@@ -151,6 +156,7 @@ const thread = await prisma.thread.findUnique({
 ```
 
 **Create thread with first message:**
+
 ```typescript
 const thread = await prisma.thread.create({
   data: {
@@ -174,6 +180,7 @@ const thread = await prisma.thread.create({
 ```
 
 **Delete old threads:**
+
 ```typescript
 const cutoffDate = new Date();
 cutoffDate.setMonth(cutoffDate.getMonth() - 6);
@@ -186,6 +193,7 @@ await prisma.thread.deleteMany({
 ```
 
 **Get token consumption statistics:**
+
 ```typescript
 const stats = await prisma.tokenConsumption.groupBy({
   by: ['model', 'type'],
@@ -220,11 +228,13 @@ npx prisma migrate reset
 ### Using curl
 
 **Health check:**
+
 ```bash
 curl http://localhost:8079/api/healthz
 ```
 
 **Create thread:**
+
 ```bash
 curl -X POST http://localhost:8079/api/threads \
   -H "Content-Type: application/json" \
@@ -237,6 +247,7 @@ curl -X POST http://localhost:8079/api/threads \
 ```
 
 **Send chat message:**
+
 ```bash
 curl -X POST http://localhost:8079/api/qa/chat_streamed/THREAD_ID \
   -H "Content-Type: application/json" \
@@ -248,12 +259,14 @@ curl -X POST http://localhost:8079/api/qa/chat_streamed/THREAD_ID \
 ```
 
 **List threads:**
+
 ```bash
 curl http://localhost:8079/api/threads \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
 
 **Search threads:**
+
 ```bash
 curl "http://localhost:8079/api/threads?search=hippocampus&limit=10" \
   -H "Authorization: Bearer YOUR_TOKEN"
@@ -319,11 +332,13 @@ console.log(token);
 ### Creating a New Tool
 
 **1. Create tool file:**
+
 ```bash
 touch src/lib/tools/my-new-tool.ts
 ```
 
 **2. Implement tool:**
+
 ```typescript
 // src/lib/tools/my-new-tool.ts
 import { BaseTool } from './base-tool';
@@ -337,10 +352,7 @@ interface MyToolContext extends BaseContextVariables {
   apiKey: string;
 }
 
-export class MyNewTool extends BaseTool<
-  typeof MyToolInputSchema,
-  MyToolContext
-> {
+export class MyNewTool extends BaseTool<typeof MyToolInputSchema, MyToolContext> {
   static readonly toolName = 'my_new_tool';
   static readonly toolDescription = 'Does something useful';
 
@@ -360,6 +372,7 @@ export class MyNewTool extends BaseTool<
 ```
 
 **3. Register tool:**
+
 ```typescript
 // src/lib/tools/index.ts
 export * from './my-new-tool';
@@ -371,6 +384,7 @@ export async function registerToolClasses() {
 ```
 
 **4. Create tests:**
+
 ```typescript
 // tests/tools/my-new-tool.test.ts
 import { describe, it, expect } from 'vitest';
@@ -386,6 +400,7 @@ describe('MyNewTool', () => {
 ```
 
 **5. Test the tool:**
+
 ```bash
 npm test tests/tools/my-new-tool.test.ts
 ```
@@ -473,6 +488,7 @@ Create `.vscode/launch.json`:
 ### Common Debugging Scenarios
 
 **Debug streaming responses:**
+
 ```typescript
 // Add logging in agent routine
 console.log('[Agent] Starting stream');
@@ -488,6 +504,7 @@ const result = streamText({
 ```
 
 **Debug tool execution:**
+
 ```typescript
 async execute(input: z.infer<typeof this.inputSchema>) {
   console.log(`[${this.getName()}] Input:`, input);
@@ -504,6 +521,7 @@ async execute(input: z.infer<typeof this.inputSchema>) {
 ```
 
 **Debug database queries:**
+
 ```typescript
 // Enable query logging
 const result = await prisma.thread.findMany({
@@ -541,6 +559,7 @@ npm test -- --reporter=verbose
 ### Writing Tests
 
 **Unit test:**
+
 ```typescript
 import { describe, it, expect, beforeEach } from 'vitest';
 
@@ -557,6 +576,7 @@ describe('MyFunction', () => {
 ```
 
 **Async test:**
+
 ```typescript
 it('should handle async operations', async () => {
   const result = await asyncFunction();
@@ -565,6 +585,7 @@ it('should handle async operations', async () => {
 ```
 
 **Test with mocks:**
+
 ```typescript
 import { vi } from 'vitest';
 
@@ -578,10 +599,7 @@ it('should call external API', async () => {
 
   await myFunction();
 
-  expect(mockFetch).toHaveBeenCalledWith(
-    'https://api.example.com',
-    expect.any(Object)
-  );
+  expect(mockFetch).toHaveBeenCalledWith('https://api.example.com', expect.any(Object));
 });
 ```
 
@@ -680,6 +698,7 @@ npx prisma migrate status
 ### Logging
 
 **Application logs:**
+
 ```bash
 # Docker
 docker-compose logs -f backend-ts
@@ -692,6 +711,7 @@ journalctl -u backend-ts -f
 ```
 
 **Log levels:**
+
 ```bash
 # Set log level
 NEUROAGENT_LOGGING__LEVEL=debug npm run dev
@@ -700,6 +720,7 @@ NEUROAGENT_LOGGING__LEVEL=debug npm run dev
 ### Metrics
 
 **Token consumption:**
+
 ```typescript
 const stats = await prisma.tokenConsumption.aggregate({
   _sum: { count: true },
@@ -713,6 +734,7 @@ const stats = await prisma.tokenConsumption.aggregate({
 ```
 
 **Active threads:**
+
 ```typescript
 const activeThreads = await prisma.thread.count({
   where: {
@@ -724,6 +746,7 @@ const activeThreads = await prisma.thread.count({
 ```
 
 **Error rate:**
+
 ```bash
 # Count errors in logs
 grep "ERROR" logs/app.log | wc -l
@@ -732,6 +755,7 @@ grep "ERROR" logs/app.log | wc -l
 ### Performance Monitoring
 
 **Slow queries:**
+
 ```typescript
 // Enable query logging
 const prisma = new PrismaClient({
@@ -751,6 +775,7 @@ prisma.$on('query', (e) => {
 ```
 
 **Response times:**
+
 ```typescript
 // Middleware to log response times
 export async function GET(request: NextRequest) {

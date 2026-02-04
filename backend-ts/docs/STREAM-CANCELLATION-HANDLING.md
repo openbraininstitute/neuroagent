@@ -70,7 +70,7 @@ export async function POST(request: NextRequest, { params }) {
     thread_id,
     maxTurns,
     maxParallelToolCalls,
-    request.signal  // Forward abort signal
+    request.signal // Forward abort signal
   );
 }
 
@@ -79,7 +79,7 @@ const result = streamText({
   model,
   messages,
   tools,
-  abortSignal,  // Enable cancellation
+  abortSignal, // Enable cancellation
   onFinish: async ({ response, usage, finishReason }) => {
     const isAborted = finishReason === 'stop' && abortSignal?.aborted;
 
@@ -94,7 +94,7 @@ const result = streamText({
 });
 
 // 3. Consume stream to ensure completion
-result.consumeStream();  // Runs in background
+result.consumeStream(); // Runs in background
 
 // 4. Return streaming response
 return result.toDataStreamResponse();
@@ -105,8 +105,9 @@ return result.toDataStreamResponse();
 When a stream is aborted, `savePartialMessagesToDatabase()`:
 
 1. **Marks messages as incomplete**
+
    ```typescript
-   isComplete: false  // Indicates partial/aborted message
+   isComplete: false; // Indicates partial/aborted message
    ```
 
 2. **Saves partial assistant messages**
@@ -125,13 +126,13 @@ When a stream is aborted, `savePartialMessagesToDatabase()`:
 
 ## Differences from Python Implementation
 
-| Aspect | Python | TypeScript |
-|--------|--------|------------|
-| **Cancellation Detection** | `asyncio.CancelledError` exception | `abortSignal?.aborted` check |
-| **Stream Handling** | Manual chunk iteration with try/catch | `result.consumeStream()` + `onFinish` |
-| **Partial JSON Fixing** | `complete_partial_json()` utility | Not needed - Vercel SDK handles |
-| **Message Appending** | Manual list manipulation | Database transactions |
-| **Tool Call Tracking** | `defaultdict` for partial calls | Vercel SDK manages state |
+| Aspect                     | Python                                | TypeScript                            |
+| -------------------------- | ------------------------------------- | ------------------------------------- |
+| **Cancellation Detection** | `asyncio.CancelledError` exception    | `abortSignal?.aborted` check          |
+| **Stream Handling**        | Manual chunk iteration with try/catch | `result.consumeStream()` + `onFinish` |
+| **Partial JSON Fixing**    | `complete_partial_json()` utility     | Not needed - Vercel SDK handles       |
+| **Message Appending**      | Manual list manipulation              | Database transactions                 |
+| **Tool Call Tracking**     | `defaultdict` for partial calls       | Vercel SDK manages state              |
 
 ## Benefits
 
@@ -146,6 +147,7 @@ When a stream is aborted, `savePartialMessagesToDatabase()`:
 To test stream cancellation:
 
 1. **Start a streaming request**
+
    ```bash
    curl -X POST http://localhost:3000/api/qa/chat_streamed/[thread_id] \
      -H "Authorization: Bearer $TOKEN" \
@@ -156,6 +158,7 @@ To test stream cancellation:
 2. **Cancel the request** (Ctrl+C or close browser tab)
 
 3. **Verify database**
+
    ```sql
    SELECT entity, is_complete, content
    FROM messages

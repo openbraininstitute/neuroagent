@@ -31,6 +31,7 @@ Content-Type: application/json
 The backend validates JWT tokens against the configured Keycloak issuer.
 
 **Environment Configuration:**
+
 ```bash
 NEUROAGENT_KEYCLOAK__ISSUER=https://keycloak.example.com/realms/myrealm
 ```
@@ -38,6 +39,7 @@ NEUROAGENT_KEYCLOAK__ISSUER=https://keycloak.example.com/realms/myrealm
 ### User Information Extraction
 
 From the JWT token, the backend extracts:
+
 - `sub` - User ID
 - `email` - User email
 - `groups` - User groups for authorization
@@ -55,6 +57,7 @@ Stream an AI response for a user message in a thread.
 **Authentication:** Required
 
 **Request Body:**
+
 ```json
 {
   "content": "What are the main brain regions involved in memory?",

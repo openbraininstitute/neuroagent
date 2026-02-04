@@ -129,6 +129,7 @@ const results = await prisma.$queryRaw`
 This schema is designed to be compatible with the existing Python backend database. The table and column names match exactly, allowing both backends to share the same database during migration.
 
 Key differences from SQLAlchemy models:
+
 - Prisma uses camelCase for field names in TypeScript, but maps to snake_case in the database
 - Enum values are mapped to match the Python backend's string values
 - TSVECTOR is represented as `Unsupported("tsvector")` in Prisma

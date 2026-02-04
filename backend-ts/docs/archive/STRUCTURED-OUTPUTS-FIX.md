@@ -3,6 +3,7 @@
 ## Problem
 
 The TypeScript backend was encountering errors with optional tool parameters:
+
 ```
 Invalid schema for function 'example_tool': In context=(), 'required' is required to be supplied and to be an array including every key in properties. Missing 'maxResults'.
 ```
@@ -51,6 +52,7 @@ No manual schema manipulation needed! The Vercel AI SDK handles everything corre
 ## How It Works
 
 When `structuredOutputs: false` is set:
+
 - Vercel AI SDK automatically converts Zod schemas to JSON Schema
 - Optional parameters (`.optional()` or `.default()`) are NOT added to the `required` array
 - OpenAI accepts the schema without strict mode validation
@@ -76,6 +78,7 @@ The generated tool schemas automatically match the Python backend format:
 ```
 
 Key points:
+
 - `required` array only contains truly required fields (not optional ones)
 - No manual schema manipulation needed
 - Clean, maintainable code that follows Vercel AI SDK best practices

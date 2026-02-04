@@ -14,6 +14,7 @@ Successfully implemented tool filtering and model selection feature in the TypeS
 Created `backend-ts/src/lib/utils/tool-filtering.ts` with the main filtering function:
 
 **Key Features:**
+
 - Analyzes conversation history using `gemini-2.5-flash` via OpenRouter
 - Selects relevant tools when tool count exceeds threshold (default: 3)
 - Ranks query complexity on 0-10 scale
@@ -22,6 +23,7 @@ Created `backend-ts/src/lib/utils/tool-filtering.ts` with the main filtering fun
 - Uses Vercel AI SDK v4.3.19 `generateObject()` for structured outputs
 
 **Model Selection Logic:**
+
 - 0-1: `gpt-5-nano` with MINIMAL reasoning
 - 2-5: `gpt-5-mini` with LOW reasoning
 - 6-8: `gpt-5-mini` with MEDIUM reasoning
@@ -45,6 +47,7 @@ const filteringResult = await filterToolsAndModelByConversation(
 ```
 
 **Behavior:**
+
 - Filtering only activates when `toolList.length > settings.tools.minToolSelection`
 - Model selection only occurs when `selectedModel` is null or "auto"
 - Filtered tools and selected model are passed to agent execution
@@ -66,11 +69,13 @@ All tools follow the `BaseTool` pattern with proper TypeScript generics and stat
 ### 4. Database Integration
 
 **Tables Updated:**
+
 - `tool_selection` - Stores which tools were selected for each message
 - `complexity_estimation` - Stores complexity score, model, and reasoning level
 - `token_consumption` - Tracks tokens used for filtering (task type: TOOL_SELECTION)
 
 **Enum Handling:**
+
 - Prisma enum values are uppercase: `MINIMAL`, `LOW`, `MEDIUM`, `HIGH`, `NONE`
 - Converted to lowercase when passing to Vercel AI SDK
 - Type assertion used for OpenRouter provider due to version mismatch
@@ -100,13 +105,18 @@ Dynamic Zod schema built based on what's needed:
 const schemaFields: Record<string, z.ZodTypeAny> = {};
 
 if (needToolSelection) {
-  schemaFields['selected_tools'] = z.array(z.enum(toolNames))
+  schemaFields['selected_tools'] = z
+    .array(z.enum(toolNames))
     .min(minToolSelection)
     .describe('List of selected tool names...');
 }
 
 if (needModelSelection) {
-  schemaFields['complexity'] = z.number().int().min(0).max(10)
+  schemaFields['complexity'] = z
+    .number()
+    .int()
+    .min(0)
+    .max(10)
     .describe('Complexity of the query...');
 }
 
@@ -116,6 +126,7 @@ const ToolModelFilteringSchema = z.object(schemaFields);
 ### Error Handling
 
 Graceful fallback on errors:
+
 - Returns empty tool list or all tools depending on context
 - Uses default model and reasoning
 - Still saves model selection to database
@@ -124,6 +135,7 @@ Graceful fallback on errors:
 ## Configuration
 
 **Environment Variables:**
+
 - `NEUROAGENT_LLM__OPENROUTER_TOKEN` - Required for filtering (uses OpenRouter)
 - `NEUROAGENT_TOOLS__MIN_TOOL_SELECTION` - Threshold for filtering (default: 3)
 - `NEUROAGENT_LLM__DEFAULT_CHAT_MODEL` - Fallback model
@@ -147,6 +159,7 @@ See `backend-ts/docs/TESTING-TOOL-FILTERING.md` for comprehensive testing scenar
 ### 1. Vercel AI SDK First
 
 Used Vercel AI SDK's native `generateObject()` instead of custom implementation:
+
 - Leverages SDK's structured output support
 - Uses Zod schemas for validation
 - Handles streaming and error cases
@@ -155,6 +168,7 @@ Used Vercel AI SDK's native `generateObject()` instead of custom implementation:
 ### 2. ClassVar Pattern
 
 Tools are stored as CLASS REFERENCES, not instances:
+
 - Matches Python's `list[type[BaseTool]]` pattern
 - Access static metadata without instantiation
 - Instantiate only when LLM calls specific tool
@@ -163,6 +177,7 @@ Tools are stored as CLASS REFERENCES, not instances:
 ### 3. Uppercase Enum Values
 
 Prisma enums use uppercase, Vercel AI SDK uses lowercase:
+
 - Store as uppercase in database
 - Convert to lowercase for SDK
 - Type-safe conversions with explicit casting
@@ -170,6 +185,7 @@ Prisma enums use uppercase, Vercel AI SDK uses lowercase:
 ### 4. Type Assertions
 
 Used `as any` for OpenRouter provider due to version mismatch:
+
 - AI SDK v4.3.19 expects specific provider interface
 - OpenRouter provider package may be older version
 - Type assertion allows compatibility
@@ -178,11 +194,13 @@ Used `as any` for OpenRouter provider due to version mismatch:
 ## Performance Characteristics
 
 **Expected Performance:**
+
 - Filtering time: 1-3 seconds
 - Token usage: 500-2000 tokens per operation
 - Model used: `google/gemini-2.5-flash` (fast and cheap)
 
 **Optimization:**
+
 - Only filters when tool count exceeds threshold
 - Only selects model when not pre-specified
 - Truncates tool responses in conversation history
@@ -191,10 +209,12 @@ Used `as any` for OpenRouter provider due to version mismatch:
 ## Files Modified/Created
 
 **Core Implementation:**
+
 - `backend-ts/src/lib/utils/tool-filtering.ts` (new)
 - `backend-ts/src/app/api/qa/chat_streamed/[thread_id]/route.ts` (modified)
 
 **Tool System:**
+
 - `backend-ts/src/lib/tools/index.ts` (modified)
 - `backend-ts/src/lib/tools/test/WeatherTool.ts` (new)
 - `backend-ts/src/lib/tools/test/TranslatorTool.ts` (new)
@@ -203,6 +223,7 @@ Used `as any` for OpenRouter provider due to version mismatch:
 - `backend-ts/src/lib/tools/test/index.ts` (new)
 
 **Documentation:**
+
 - `backend-ts/docs/TOOL-FILTERING-AND-MODEL-SELECTION.md` (new)
 - `backend-ts/docs/TESTING-TOOL-FILTERING.md` (new)
 - `backend-ts/docs/TOOL-FILTERING-IMPLEMENTATION-COMPLETE.md` (this file)
@@ -256,18 +277,19 @@ Before deploying to production:
 
 **Functional Parity:** ✅ Complete
 
-| Feature | Python | TypeScript | Status |
-|---------|--------|------------|--------|
-| Tool filtering | ✅ | ✅ | Complete |
-| Model selection | ✅ | ✅ | Complete |
-| Complexity ranking | ✅ | ✅ | Complete |
-| Database persistence | ✅ | ✅ | Complete |
-| Token tracking | ✅ | ✅ | Complete |
-| System prompt | ✅ | ✅ | Identical |
-| Model mapping | ✅ | ✅ | Identical |
-| Error handling | ✅ | ✅ | Complete |
+| Feature              | Python | TypeScript | Status    |
+| -------------------- | ------ | ---------- | --------- |
+| Tool filtering       | ✅     | ✅         | Complete  |
+| Model selection      | ✅     | ✅         | Complete  |
+| Complexity ranking   | ✅     | ✅         | Complete  |
+| Database persistence | ✅     | ✅         | Complete  |
+| Token tracking       | ✅     | ✅         | Complete  |
+| System prompt        | ✅     | ✅         | Identical |
+| Model mapping        | ✅     | ✅         | Identical |
+| Error handling       | ✅     | ✅         | Complete  |
 
 **Implementation Differences:**
+
 - Python uses OpenAI client directly, TypeScript uses Vercel AI SDK
 - Python uses Pydantic models, TypeScript uses Zod schemas
 - Python uses SQLAlchemy, TypeScript uses Prisma

@@ -3,6 +3,7 @@
 ## Problem
 
 OpenAI's function calling API was rejecting tool schemas with the error:
+
 ```
 Invalid schema for function 'entitycore-brainregion-getall': In context=(), 'required' is required to be supplied and to be an array including every key in properties. Missing 'page'.
 ```
@@ -10,6 +11,7 @@ Invalid schema for function 'entitycore-brainregion-getall': In context=(), 'req
 ## Root Cause
 
 The issue was caused by using `.optional().default()` together in Zod schemas. When `zod-to-json-schema` converts these schemas to JSON Schema, it:
+
 1. Does NOT include the field in the `required` array (correct)
 2. But also does NOT include an explicit `required` array when all fields are optional/have defaults
 
@@ -22,10 +24,12 @@ OpenAI's function calling API has a strict requirement: **the JSON Schema MUST i
 ### Why This Works
 
 In Zod:
+
 - `.default()` alone makes a field optional (you can omit it and it will use the default)
 - `.optional().default()` is redundant and causes schema conversion issues
 
 In JSON Schema:
+
 - Fields with `.default()` (without `.optional()`) are NOT included in the `required` array
 - But the `required` array is still generated with other truly required fields
 - OpenAI accepts this format
@@ -33,6 +37,7 @@ In JSON Schema:
 ### Example
 
 **Before (Broken):**
+
 ```typescript
 const schema = z.object({
   page: z.number().int().min(1).optional().default(1),
@@ -41,6 +46,7 @@ const schema = z.object({
 ```
 
 **After (Fixed):**
+
 ```typescript
 const schema = z.object({
   page: z.number().int().min(1).default(1),
@@ -49,6 +55,7 @@ const schema = z.object({
 ```
 
 **Generated JSON Schema:**
+
 ```json
 {
   "type": "object",
@@ -99,12 +106,14 @@ const schema = z.object({
 ## Testing
 
 All tests pass:
+
 - ✅ 22 base tool tests
 - ✅ 45 agent tests (routine, error-handling, provider-selection)
 
 ## Verification
 
 To verify the fix works:
+
 1. Start the backend: `npm run dev`
 2. Send a chat message that triggers a tool call
 3. The tool schema should now be accepted by OpenAI without errors
@@ -117,6 +126,7 @@ To verify the fix works:
 ## Best Practices
 
 Going forward:
+
 - ✅ Use `.default()` for optional fields with default values
 - ✅ Use `.optional()` for optional fields without defaults
 - ❌ Don't use `.optional().default()` together

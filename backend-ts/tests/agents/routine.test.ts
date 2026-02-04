@@ -126,10 +126,10 @@ describe('AgentsRoutine', () => {
                 type: 'function',
                 function: {
                   name: 'web_search',
-                  arguments: JSON.stringify({ query: 'test' })
-                }
-              }
-            ]
+                  arguments: JSON.stringify({ query: 'test' }),
+                },
+              },
+            ],
           }),
           isComplete: true,
           threadId: 'thread-1',

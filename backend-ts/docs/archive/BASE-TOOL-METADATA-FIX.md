@@ -5,6 +5,7 @@
 The TypeScript `BaseTool` implementation incorrectly used `metadata` for tool descriptive information (name, description, utterances), when it should have been used for runtime context variables (HTTP clients, API URLs, configuration) passed from the app to the tool.
 
 In the Python implementation:
+
 - **Class variables** (`name`, `description`, `utterances`, etc.) = Tool metadata for LLM
 - **Instance field `metadata`** = Context variables from app (like `httpx_client`, `entitycore_url`, `vlab_id`)
 
@@ -80,12 +81,14 @@ export interface EntitycoreContextVariables extends BaseContextVariables {
 ## Key Concepts
 
 ### Tool Metadata (Static Properties)
+
 - Defined once per tool class
 - Used by LLM to understand tool capabilities
 - Includes: name, description, utterances, HIL flag
 - Accessed via helper methods: `getName()`, `getDescription()`, etc.
 
 ### Context Variables (Instance Field)
+
 - Passed from app to tool at runtime
 - Contains dependencies: HTTP clients, API URLs, auth tokens
 - Different for each tool instance
@@ -93,13 +96,13 @@ export interface EntitycoreContextVariables extends BaseContextVariables {
 
 ## Python to TypeScript Mapping
 
-| Python | TypeScript |
-|--------|-----------|
-| `name: ClassVar[str]` | `static readonly toolName: string` |
-| `description: ClassVar[str]` | `static readonly toolDescription: string` |
-| `utterances: ClassVar[list[str]]` | `static readonly toolUtterances: string[]` |
-| `hil: ClassVar[bool]` | `static readonly toolHil: boolean` |
-| `metadata: EntitycoreMetadata` | `contextVariables: EntitycoreContextVariables` |
+| Python                            | TypeScript                                     |
+| --------------------------------- | ---------------------------------------------- |
+| `name: ClassVar[str]`             | `static readonly toolName: string`             |
+| `description: ClassVar[str]`      | `static readonly toolDescription: string`      |
+| `utterances: ClassVar[list[str]]` | `static readonly toolUtterances: string[]`     |
+| `hil: ClassVar[bool]`             | `static readonly toolHil: boolean`             |
+| `metadata: EntitycoreMetadata`    | `contextVariables: EntitycoreContextVariables` |
 
 ## Migration Guide
 
@@ -126,10 +129,7 @@ interface MyToolContextVariables extends BaseContextVariables {
   apiKey?: string;
 }
 
-export class MyTool extends BaseTool<
-  typeof MyInputSchema,
-  MyToolContextVariables
-> {
+export class MyTool extends BaseTool<typeof MyInputSchema, MyToolContextVariables> {
   static readonly toolName = 'my-tool';
   static readonly toolDescription = '...';
 

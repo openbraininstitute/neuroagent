@@ -7,16 +7,19 @@ Added comprehensive logging of tool JSON schemas before they are sent to the LLM
 ## Problem Statement
 
 The TypeScript backend was encountering errors with optional tool parameters:
+
 ```
 Invalid schema for function 'example_tool': In context=(), 'required' is required to be supplied and to be an array including every key in properties. Missing 'maxResults'.
 ```
 
 And also with boolean default values:
+
 ```
 Invalid schema for function 'example_tool': True is not of type 'number'.
 ```
 
 This occurred because:
+
 1. OpenAI's API was enforcing strict validation even with `strictSchemas: false`
 2. Optional parameters with defaults (like `maxResults`) were being incorrectly marked as required
 3. The `zod-to-json-schema` library with `target: 'openAi'` was converting boolean values to Python-style `True`/`False` instead of JSON's `true`/`false`
@@ -61,6 +64,7 @@ toVercelTool(): Tool {
 ```
 
 **Key Changes:**
+
 - Use `target: 'jsonSchema7'` instead of `'openAi'` to avoid Python-style boolean conversion (`True`/`False` → `true`/`false`)
 - Set `additionalProperties: false` to match Python backend
 - Let `zod-to-json-schema` naturally handle the `required` array
@@ -127,6 +131,7 @@ def pydantic_to_openai_schema(cls) -> dict[str, Any]:
 ```
 
 Our TypeScript implementation achieves the same result:
+
 - ✅ Sets `additionalProperties: false` in the schema
 - ✅ Uses non-strict mode via `strictSchemas: false`
 - ✅ Properly handles optional parameters with defaults
@@ -157,6 +162,7 @@ providerOptions: {
 ```
 
 **Purpose**: Disables OpenAI's strict JSON schema validation, allowing:
+
 - Optional parameters with defaults
 - More lenient validation
 - Better compatibility with complex schemas
@@ -172,6 +178,7 @@ providerOptions: {
 ## Example Tool Schema Output
 
 With the example tool:
+
 ```typescript
 const ExampleToolInputSchema = z.object({
   query: z.string().describe('The search query'),
@@ -181,6 +188,7 @@ const ExampleToolInputSchema = z.object({
 ```
 
 The logged schema will be:
+
 ```json
 {
   "name": "example_tool",
@@ -232,6 +240,7 @@ Note: Only `query` is in `required`, while `maxResults` and `includeMetadata` ar
 To verify the fix works:
 
 1. Define a tool with optional parameters:
+
 ```typescript
 const schema = z.object({
   required: z.string(),

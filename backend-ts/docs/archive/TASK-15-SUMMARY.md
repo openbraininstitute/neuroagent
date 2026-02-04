@@ -1,17 +1,20 @@
 # Task 15: Tools API Route - Implementation Summary
 
 ## Overview
+
 Implemented the `/api/tools` endpoint to list all available tools with their basic metadata, matching the Python backend format.
 
 ## Implementation Details
 
 ### Files Created/Modified
+
 1. **`src/app/api/tools/route.ts`** - Main API route handler
 2. **`tests/api/tools.test.ts`** - Test suite for the tools endpoint
 
 ### Key Features
 
 #### 1. Tool Metadata Endpoint
+
 - **Route**: `GET /api/tools`
 - **Authentication**: Required (matches Python backend)
 - **Response Format** (matches Python `ToolMetadata`):
@@ -29,31 +32,35 @@ Implemented the `/api/tools` endpoint to list all available tools with their bas
   ```
 
 #### 2. Tool Initialization
+
 - Automatically initializes tools from configuration if not already loaded
 - Uses `initializeTools()` function with settings from environment
 - Leverages the global `toolRegistry` for tool management
 
 #### 3. Simple Response Format
+
 - Returns a plain array (not wrapped in an object)
 - Each tool has only two fields: `name` and `name_frontend`
 - Matches Python backend's `ToolMetadata` schema exactly
 
 ### Tool Response Fields
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `name` | string | Backend tool identifier |
-| `name_frontend` | string | Frontend display name |
+| Field           | Type   | Description             |
+| --------------- | ------ | ----------------------- |
+| `name`          | string | Backend tool identifier |
+| `name_frontend` | string | Frontend display name   |
 
 ### Testing
 
 Created comprehensive test suite covering:
+
 - ✅ Returns list of tools with basic metadata
 - ✅ Includes only name and name_frontend fields
 - ✅ Requires authentication
 - ✅ Matches Python backend format
 
 All tests pass successfully:
+
 ```
 ✓ tests/api/tools.test.ts (4)
   ✓ GET /api/tools (4)
@@ -86,6 +93,7 @@ All tests pass successfully:
 The TypeScript implementation exactly matches the Python backend:
 
 **Python Backend** (`backend/src/neuroagent/app/routers/tools.py`):
+
 ```python
 @router.get("")
 def get_available_tools(
@@ -100,6 +108,7 @@ def get_available_tools(
 ```
 
 **TypeScript Backend** (`backend-ts/src/app/api/tools/route.ts`):
+
 ```typescript
 export async function GET(request: NextRequest) {
   await validateAuth(request);
@@ -146,6 +155,7 @@ curl -H "Authorization: Bearer <token>" http://localhost:3000/api/tools
 ## Next Steps
 
 This endpoint provides the basic tool list for:
+
 1. Frontend to display available tools
 2. Tool discovery
 3. Basic tool information display

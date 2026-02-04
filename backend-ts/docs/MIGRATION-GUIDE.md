@@ -24,6 +24,7 @@ This guide documents the complete migration of the Neuroagent backend from Pytho
 ### High-Level Architecture Comparison
 
 **Python Backend (FastAPI):**
+
 ```
 Frontend → FastAPI → OpenAI Python Client → LLM
                   ↓
@@ -31,6 +32,7 @@ Frontend → FastAPI → OpenAI Python Client → LLM
 ```
 
 **TypeScript Backend (Next.js):**
+
 ```
 Frontend → Next.js API Routes → Vercel AI SDK → LLM
                               ↓
@@ -52,17 +54,17 @@ Frontend → Next.js API Routes → Vercel AI SDK → LLM
 
 ### Core Dependencies
 
-| Python | TypeScript | Purpose |
-|--------|-----------|---------|
-| `fastapi` | `next` | Web framework |
-| `pydantic` | `zod` | Schema validation |
-| `sqlalchemy` | `@prisma/client` | Database ORM |
-| `alembic` | `prisma` (CLI) | Database migrations |
-| `openai` | `ai` + `@ai-sdk/openai` | LLM integration |
-| `uvicorn` | Built into Next.js | Server runtime |
-| `pytest` | `vitest` | Testing framework |
-| `mypy` | `typescript` | Type checking |
-| `ruff` | `eslint` + `prettier` | Linting/formatting |
+| Python       | TypeScript              | Purpose             |
+| ------------ | ----------------------- | ------------------- |
+| `fastapi`    | `next`                  | Web framework       |
+| `pydantic`   | `zod`                   | Schema validation   |
+| `sqlalchemy` | `@prisma/client`        | Database ORM        |
+| `alembic`    | `prisma` (CLI)          | Database migrations |
+| `openai`     | `ai` + `@ai-sdk/openai` | LLM integration     |
+| `uvicorn`    | Built into Next.js      | Server runtime      |
+| `pytest`     | `vitest`                | Testing framework   |
+| `mypy`       | `typescript`            | Type checking       |
+| `ruff`       | `eslint` + `prettier`   | Linting/formatting  |
 
 ### Additional TypeScript Dependencies
 
@@ -79,6 +81,7 @@ Frontend → Next.js API Routes → Vercel AI SDK → LLM
 ### 1. Async Functions
 
 **Python:**
+
 ```python
 async def get_thread(thread_id: str) -> Thread:
     async with get_session() as session:
@@ -89,6 +92,7 @@ async def get_thread(thread_id: str) -> Thread:
 ```
 
 **TypeScript:**
+
 ```typescript
 async function getThread(threadId: string): Promise<Thread | null> {
   return await prisma.thread.findUnique({
@@ -100,6 +104,7 @@ async function getThread(threadId: string): Promise<Thread | null> {
 ### 2. Schema Validation
 
 **Python (Pydantic):**
+
 ```python
 from pydantic import BaseModel, Field
 
@@ -109,6 +114,7 @@ class ChatRequest(BaseModel):
 ```
 
 **TypeScript (Zod):**
+
 ```typescript
 import { z } from 'zod';
 
@@ -123,6 +129,7 @@ type ChatRequest = z.infer<typeof ChatRequestSchema>;
 ### 3. API Route Handlers
 
 **Python (FastAPI):**
+
 ```python
 from fastapi import APIRouter, Depends, HTTPException
 
@@ -138,6 +145,7 @@ async def create_thread(
 ```
 
 **TypeScript (Next.js):**
+
 ```typescript
 import { NextRequest } from 'next/server';
 
@@ -158,6 +166,7 @@ export async function POST(request: NextRequest) {
 ### 4. Database Models
 
 **Python (SQLAlchemy):**
+
 ```python
 from sqlalchemy import Column, String, DateTime, ForeignKey
 from sqlalchemy.orm import relationship
@@ -172,6 +181,7 @@ class Thread(Base):
 ```
 
 **TypeScript (Prisma):**
+
 ```prisma
 model Thread {
   id        String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
@@ -186,6 +196,7 @@ model Thread {
 ### 5. LLM Streaming
 
 **Python (OpenAI Client):**
+
 ```python
 from openai import AsyncOpenAI
 
@@ -204,6 +215,7 @@ async def stream_chat():
 ```
 
 **TypeScript (Vercel AI SDK):**
+
 ```typescript
 import { streamText } from 'ai';
 import { openai } from '@ai-sdk/openai';
@@ -221,6 +233,7 @@ async function streamChat() {
 ### 6. Tool Definitions
 
 **Python:**
+
 ```python
 from neuroagent.tools.base_tool import BaseTool
 from pydantic import BaseModel, Field
@@ -240,6 +253,7 @@ class WebSearchTool(BaseTool):
 ```
 
 **TypeScript:**
+
 ```typescript
 import { BaseTool } from './base-tool';
 import { z } from 'zod';
@@ -270,6 +284,7 @@ const WebSearchInputSchema = z.object({
 ### 7. Error Handling
 
 **Python:**
+
 ```python
 from fastapi import HTTPException
 
@@ -283,6 +298,7 @@ except Exception as e:
 ```
 
 **TypeScript:**
+
 ```typescript
 import { z } from 'zod';
 
@@ -290,23 +306,18 @@ try {
   const result = await someOperation();
 } catch (error) {
   if (error instanceof z.ZodError) {
-    return Response.json(
-      { error: 'Validation Error', details: error.errors },
-      { status: 400 }
-    );
+    return Response.json({ error: 'Validation Error', details: error.errors }, { status: 400 });
   }
 
   console.error('Unexpected error:', error);
-  return Response.json(
-    { error: 'Internal Server Error' },
-    { status: 500 }
-  );
+  return Response.json({ error: 'Internal Server Error' }, { status: 500 });
 }
 ```
 
 ### 8. Dependency Injection
 
 **Python (FastAPI Dependencies):**
+
 ```python
 from fastapi import Depends
 
@@ -324,6 +335,7 @@ async def list_threads(
 ```
 
 **TypeScript (Direct Imports):**
+
 ```typescript
 import { prisma } from '@/lib/db/client';
 import { validateAuth } from '@/lib/middleware/auth';
@@ -358,6 +370,7 @@ The database schema remains largely the same, but with Prisma syntax:
    - Use `@@map("table_name")` for table mapping
 
 2. **Relations**: Prisma requires explicit relation fields on both sides
+
    ```prisma
    model Thread {
      messages Message[]
@@ -370,6 +383,7 @@ The database schema remains largely the same, but with Prisma syntax:
    ```
 
 3. **Enums**: Defined at schema level, not in models
+
    ```prisma
    enum Entity {
      USER
@@ -388,6 +402,7 @@ The database schema remains largely the same, but with Prisma syntax:
 ### Migration Workflow
 
 **Python (Alembic):**
+
 ```bash
 # Create migration
 alembic revision --autogenerate -m "add_user_preferences"
@@ -400,6 +415,7 @@ alembic downgrade -1
 ```
 
 **TypeScript (Prisma):**
+
 ```bash
 # Create and apply migration
 npm run db:migrate
@@ -464,12 +480,14 @@ export class MyTool extends BaseTool<typeof MyToolInputSchema> {
 ### Core Differences
 
 **Python Approach:**
+
 - Manual streaming loop
 - Custom tool execution
 - Manual message history management
 - Custom token counting
 
 **TypeScript Approach (Vercel AI SDK):**
+
 - SDK handles streaming automatically
 - SDK manages tool execution loop
 - SDK converts message formats
@@ -478,6 +496,7 @@ export class MyTool extends BaseTool<typeof MyToolInputSchema> {
 ### Migration Example
 
 **Python:**
+
 ```python
 async def stream_agent_response(messages, tools):
     while turn < max_turns:
@@ -505,6 +524,7 @@ async def stream_agent_response(messages, tools):
 ```
 
 **TypeScript:**
+
 ```typescript
 async function streamAgentResponse(messages: CoreMessage[], tools: Record<string, CoreTool>) {
   const result = streamText({
@@ -523,6 +543,7 @@ async function streamAgentResponse(messages: CoreMessage[], tools: Record<string
 ```
 
 **Key Benefits:**
+
 - Less code to maintain
 - Automatic tool execution loop
 - Built-in error handling
@@ -536,6 +557,7 @@ async function streamAgentResponse(messages: CoreMessage[], tools: Record<string
 ### Route Structure
 
 **Python (FastAPI):**
+
 ```
 backend/src/neuroagent/app/routers/
 ├── qa.py          # Chat endpoints
@@ -545,6 +567,7 @@ backend/src/neuroagent/app/routers/
 ```
 
 **TypeScript (Next.js):**
+
 ```
 backend-ts/src/app/api/
 ├── qa/
@@ -560,16 +583,16 @@ backend-ts/src/app/api/
 
 ### Endpoint Mapping
 
-| Python Endpoint | TypeScript Endpoint | Method | Purpose |
-|----------------|---------------------|--------|---------|
-| `/qa/chat_streamed/{thread_id}` | `/api/qa/chat_streamed/[thread_id]` | POST | Stream chat response |
-| `/qa/question_suggestions` | `/api/qa/question_suggestions` | POST | Generate suggestions |
-| `/qa/models` | `/api/qa/models` | GET | List available models |
-| `/threads` | `/api/threads` | GET, POST | List/create threads |
-| `/threads/{thread_id}` | `/api/threads/[thread_id]` | GET, PATCH, DELETE | Thread operations |
-| `/threads/search` | `/api/threads/search` | GET | Search threads |
-| `/tools` | `/api/tools` | GET | List tools |
-| `/storage/{file_id}/presigned-url` | `/api/storage/[file_identifier]/presigned-url` | GET | Get presigned URL |
+| Python Endpoint                    | TypeScript Endpoint                            | Method             | Purpose               |
+| ---------------------------------- | ---------------------------------------------- | ------------------ | --------------------- |
+| `/qa/chat_streamed/{thread_id}`    | `/api/qa/chat_streamed/[thread_id]`            | POST               | Stream chat response  |
+| `/qa/question_suggestions`         | `/api/qa/question_suggestions`                 | POST               | Generate suggestions  |
+| `/qa/models`                       | `/api/qa/models`                               | GET                | List available models |
+| `/threads`                         | `/api/threads`                                 | GET, POST          | List/create threads   |
+| `/threads/{thread_id}`             | `/api/threads/[thread_id]`                     | GET, PATCH, DELETE | Thread operations     |
+| `/threads/search`                  | `/api/threads/search`                          | GET                | Search threads        |
+| `/tools`                           | `/api/tools`                                   | GET                | List tools            |
+| `/storage/{file_id}/presigned-url` | `/api/storage/[file_identifier]/presigned-url` | GET                | Get presigned URL     |
 
 ### Request/Response Compatibility
 
@@ -587,6 +610,7 @@ All endpoints maintain the same request/response schemas for frontend compatibil
 ### Environment Variables
 
 **Python (Nested with `__`):**
+
 ```bash
 NEUROAGENT_LLM__OPENAI_TOKEN=sk-...
 NEUROAGENT_LLM__DEFAULT_CHAT_MODEL=gpt-4
@@ -595,6 +619,7 @@ NEUROAGENT_DB__PORT=5432
 ```
 
 **TypeScript (Same format):**
+
 ```bash
 # Same environment variable names
 NEUROAGENT_LLM__OPENAI_TOKEN=sk-...
@@ -609,6 +634,7 @@ DATABASE_URL=postgresql://user:pass@localhost:5432/neuroagent
 ### Configuration Loading
 
 **Python (Pydantic Settings):**
+
 ```python
 from pydantic_settings import BaseSettings
 
@@ -619,6 +645,7 @@ class Settings(BaseSettings):
 ```
 
 **TypeScript (Zod + Manual Parsing):**
+
 ```typescript
 import { z } from 'zod';
 
@@ -652,6 +679,7 @@ function parseEnvVars() {
 ### Test Framework
 
 **Python → TypeScript:**
+
 - `pytest` → `vitest`
 - `pytest-asyncio` → Native async support in Vitest
 - `pytest-cov` → `@vitest/coverage-v8`
@@ -660,6 +688,7 @@ function parseEnvVars() {
 ### Test Structure
 
 **Python:**
+
 ```python
 import pytest
 
@@ -670,6 +699,7 @@ async def test_create_thread():
 ```
 
 **TypeScript:**
+
 ```typescript
 import { describe, it, expect } from 'vitest';
 
@@ -684,6 +714,7 @@ describe('Thread Creation', () => {
 ### Property-Based Testing
 
 **TypeScript (fast-check):**
+
 ```typescript
 import { fc, test } from '@fast-check/vitest';
 
@@ -707,6 +738,7 @@ test.prop([fc.string(), fc.integer({ min: 1, max: 100 })])(
 ### Docker
 
 **Python Dockerfile:**
+
 ```dockerfile
 FROM python:3.11
 COPY requirements.txt .
@@ -715,6 +747,7 @@ CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
 ```
 
 **TypeScript Dockerfile:**
+
 ```dockerfile
 FROM node:20-alpine AS builder
 COPY package*.json ./
@@ -735,6 +768,7 @@ CMD ["node", "server.js"]
 ### Environment Setup
 
 Both backends require:
+
 - PostgreSQL database
 - Redis (for rate limiting)
 - MinIO/S3 (for storage)
@@ -830,6 +864,7 @@ export async function GET(request: NextRequest) {
 **Issue**: TypeScript complains about Prisma types
 
 **Solution**: Regenerate Prisma client after schema changes
+
 ```bash
 npm run db:generate
 ```
@@ -839,6 +874,7 @@ npm run db:generate
 **Issue**: Streaming responses not appearing in frontend
 
 **Solution**: Ensure proper headers and use Vercel AI SDK's `toDataStreamResponse()`
+
 ```typescript
 return result.toDataStreamResponse();
 ```
@@ -854,6 +890,7 @@ return result.toDataStreamResponse();
 **Issue**: Cannot connect to PostgreSQL
 
 **Solution**: Verify `DATABASE_URL` format:
+
 ```bash
 DATABASE_URL="postgresql://user:password@host:port/database"
 ```
@@ -878,6 +915,7 @@ DATABASE_URL="postgresql://user:password@host:port/database"
 ### Monitoring
 
 Both backends support:
+
 - Token consumption tracking
 - Request logging
 - Error tracking
@@ -910,6 +948,7 @@ Both backends support:
 ## Support
 
 For migration questions or issues:
+
 - Check `backend-ts/docs/` for detailed documentation
 - Review `backend-ts/README.md` for setup instructions
 - See `prisma/MIGRATION_GUIDE.md` for database-specific guidance

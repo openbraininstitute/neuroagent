@@ -54,7 +54,7 @@ await registerToolClasses();
 
 // Now you can access metadata without instantiation
 const ToolClass = toolRegistry.getClass('calculator');
-console.log(ToolClass.toolName);        // 'calculator'
+console.log(ToolClass.toolName); // 'calculator'
 console.log(ToolClass.toolDescription); // 'Performs basic arithmetic...'
 ```
 
@@ -78,7 +78,7 @@ Instantiate tools individually when the LLM calls them:
 
 ```typescript
 // LLM decides to call 'calculator'
-const ToolClass = toolClasses.find(cls => cls.toolName === 'calculator');
+const ToolClass = toolClasses.find((cls) => cls.toolName === 'calculator');
 
 // Instantiate ONLY this tool with user context
 const toolInstance = await createToolInstance(ToolClass, {
@@ -119,6 +119,7 @@ npx tsx src/lib/tools/demo.ts
 ```
 
 This will demonstrate:
+
 1. Registering tool classes
 2. Accessing metadata without instantiation
 3. Getting available tools based on config
@@ -153,13 +154,13 @@ This will demonstrate:
 
 ## Comparison with Python
 
-| Python | TypeScript |
-|--------|-----------|
-| `ClassVar[str]` | `static readonly toolName` |
-| `tool_list: list[type[BaseTool]]` | `toolClasses: any[]` |
-| `tool.name` (class property) | `ToolClass.toolName` |
-| `tool(metadata=..., input_schema=...)` | `new ToolClass(contextVariables)` |
-| `await tool_instance.arun()` | `await toolInstance.execute(input)` |
+| Python                                 | TypeScript                          |
+| -------------------------------------- | ----------------------------------- |
+| `ClassVar[str]`                        | `static readonly toolName`          |
+| `tool_list: list[type[BaseTool]]`      | `toolClasses: any[]`                |
+| `tool.name` (class property)           | `ToolClass.toolName`                |
+| `tool(metadata=..., input_schema=...)` | `new ToolClass(contextVariables)`   |
+| `await tool_instance.arun()`           | `await toolInstance.execute(input)` |
 
 ## Benefits
 

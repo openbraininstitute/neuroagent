@@ -55,7 +55,7 @@ export class MyTool extends BaseTool<typeof MyToolInputSchema> {
   async execute(input: z.infer<typeof MyToolInputSchema>): Promise<unknown> {
     // Implement your tool logic here
     const { query, maxResults } = input;
-    
+
     // Return any JSON-serializable value
     return {
       results: [],
@@ -115,10 +115,10 @@ Tools use Zod schemas for input validation. The schema:
 const schema = z.object({
   // Good: descriptive name and description
   searchQuery: z.string().describe('The text to search for'),
-  
+
   // Good: sensible default
   maxResults: z.number().int().positive().default(10),
-  
+
   // Good: validation constraints
   pageSize: z.number().int().min(1).max(100).default(20),
 });
@@ -189,22 +189,26 @@ describe('MyTool', () => {
       query: 'test',
       maxResults: 5,
     });
-    
+
     expect(result).toBeDefined();
   });
 
   it('should validate input schema', () => {
     const tool = new MyTool();
-    
+
     // Valid input
-    expect(() => tool.inputSchema.parse({
-      query: 'test',
-    })).not.toThrow();
-    
+    expect(() =>
+      tool.inputSchema.parse({
+        query: 'test',
+      })
+    ).not.toThrow();
+
     // Invalid input
-    expect(() => tool.inputSchema.parse({
-      query: 123, // Should be string
-    })).toThrow();
+    expect(() =>
+      tool.inputSchema.parse({
+        query: 123, // Should be string
+      })
+    ).toThrow();
   });
 });
 ```
@@ -221,7 +225,7 @@ test.prop([fc.string(), fc.integer({ min: 1, max: 100 })])(
   async (query, maxResults) => {
     const tool = new MyTool();
     const result = await tool.execute({ query, maxResults });
-    
+
     expect(result).toBeDefined();
   }
 );
@@ -284,16 +288,16 @@ When migrating tools from the Python backend:
 
 ### Python to TypeScript Mapping
 
-| Python | TypeScript |
-|--------|-----------|
-| `pydantic.BaseModel` | `z.object()` |
-| `str` | `z.string()` |
-| `int` | `z.number().int()` |
-| `float` | `z.number()` |
-| `bool` | `z.boolean()` |
-| `Optional[T]` | `z.optional()` |
-| `List[T]` | `z.array()` |
-| `Dict[K, V]` | `z.record()` |
+| Python               | TypeScript         |
+| -------------------- | ------------------ |
+| `pydantic.BaseModel` | `z.object()`       |
+| `str`                | `z.string()`       |
+| `int`                | `z.number().int()` |
+| `float`              | `z.number()`       |
+| `bool`               | `z.boolean()`      |
+| `Optional[T]`        | `z.optional()`     |
+| `List[T]`            | `z.array()`        |
+| `Dict[K, V]`         | `z.record()`       |
 
 ## Best Practices
 

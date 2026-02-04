@@ -13,11 +13,13 @@ Created a comprehensive API compatibility test suite that validates the TypeScri
 A comprehensive test suite with **45+ test cases** covering:
 
 #### Health Check Endpoints
+
 - `/healthz` - Health check
 - `/` - Readiness check
 - `/settings` - Settings endpoint
 
 #### Thread Endpoints (8 tests)
+
 - `POST /threads` - Create thread
 - `GET /threads` - List threads with pagination
 - `GET /threads?page_size=10` - Pagination
@@ -29,33 +31,40 @@ A comprehensive test suite with **45+ test cases** covering:
 - `DELETE /threads/{thread_id}` - Delete thread
 
 #### QA Endpoints (3 tests)
+
 - `GET /qa/models` - Get available models
 - `POST /qa/question_suggestions` - Generate suggestions (out-of-chat)
 - `POST /qa/question_suggestions` - Generate suggestions (in-chat)
 
 #### Tools Endpoints (2 tests)
+
 - `GET /tools` - List available tools
 - `GET /tools/{name}` - Get tool metadata
 
 #### Storage Endpoints (1 test)
+
 - `GET /storage/{file_identifier}/presigned-url` - Generate presigned URL
 
 #### Error Response Compatibility (4 tests)
+
 - 401 Unauthorized responses
 - 404 Not Found responses
 - Error response format consistency
 - Error field validation
 
 #### Rate Limiting Compatibility (2 tests)
+
 - Rate limit headers presence
 - 429 Too Many Requests handling
 
 #### Streaming Response Compatibility (1 test)
+
 - Content-Type headers
 - Vercel AI SDK headers
 - Stream format validation
 
 #### Authentication & Authorization (3 tests)
+
 - Missing authorization header
 - Invalid token handling
 - Project access validation
@@ -63,6 +72,7 @@ A comprehensive test suite with **45+ test cases** covering:
 ### 2. Test Utilities
 
 **Schema Definitions** using Zod:
+
 - `ThreadSchema` - Thread response validation
 - `PaginatedThreadsSchema` - Paginated thread list
 - `MessageSchema` - Message response validation
@@ -74,6 +84,7 @@ A comprehensive test suite with **45+ test cases** covering:
 - `SearchResultSchema` - Search results
 
 **Helper Functions**:
+
 - `compareEndpoints()` - Make requests to both backends
 - `compareSchemas()` - Validate responses against schemas
 - `authHeaders()` - Generate authentication headers
@@ -81,6 +92,7 @@ A comprehensive test suite with **45+ test cases** covering:
 ### 3. Test Runner Script (`scripts/run-compatibility-tests.sh`)
 
 Bash script that:
+
 - Checks if both backends are running
 - Validates health endpoints
 - Warns about missing auth token
@@ -88,6 +100,7 @@ Bash script that:
 - Provides colored output for better readability
 
 Features:
+
 - ✅ Automatic backend health checks
 - ✅ Clear error messages
 - ✅ Environment variable support
@@ -96,7 +109,9 @@ Features:
 ### 4. Documentation
 
 #### Main Documentation (`docs/API-COMPATIBILITY-TESTING.md`)
+
 Comprehensive guide covering:
+
 - Overview and requirements
 - Test structure and categories
 - Running tests (multiple methods)
@@ -110,7 +125,9 @@ Comprehensive guide covering:
 - Best practices
 
 #### Quick Start Guide (`tests/api/README.md`)
+
 Developer-friendly guide with:
+
 - Quick start instructions
 - What gets tested
 - Test structure
@@ -123,7 +140,9 @@ Developer-friendly guide with:
 - CI/CD integration
 
 #### Configuration Example (`.env.compatibility.example`)
+
 Template for test configuration:
+
 - Backend URLs
 - Authentication token
 - Optional credentials
@@ -132,6 +151,7 @@ Template for test configuration:
 ### 5. NPM Script
 
 Added to `package.json`:
+
 ```json
 "test:compatibility": "vitest --run tests/api/compatibility.test.ts"
 ```
@@ -139,6 +159,7 @@ Added to `package.json`:
 ## Test Coverage
 
 ### Endpoints Tested: 20+
+
 - All major CRUD operations
 - Pagination and filtering
 - Search functionality
@@ -147,6 +168,7 @@ Added to `package.json`:
 - Authentication/authorization
 
 ### Validation Types:
+
 1. **Status Code Matching** - Both backends return same HTTP status
 2. **Schema Validation** - Responses match expected structure
 3. **Field Presence** - All required fields present
@@ -196,6 +218,7 @@ TS_BACKEND_URL="http://localhost:3000" \
 ## Key Features
 
 ### 1. Comprehensive Coverage
+
 - Tests all major API endpoints
 - Validates both success and error cases
 - Checks authentication and authorization
@@ -203,24 +226,28 @@ TS_BACKEND_URL="http://localhost:3000" \
 - Tests streaming responses
 
 ### 2. Schema-Based Validation
+
 - Uses Zod for runtime type checking
 - Ensures response structure matches
 - Validates data types
 - Checks required fields
 
 ### 3. Easy to Run
+
 - Simple bash script
 - NPM script integration
 - Clear error messages
 - Automatic health checks
 
 ### 4. Well Documented
+
 - Comprehensive main documentation
 - Quick start guide
 - Configuration examples
 - Troubleshooting guide
 
 ### 5. CI/CD Ready
+
 - Can run in automated pipelines
 - Docker support
 - Environment variable configuration
@@ -229,23 +256,26 @@ TS_BACKEND_URL="http://localhost:3000" \
 ## Test Methodology
 
 ### 1. Parallel Requests
+
 Makes identical requests to both backends simultaneously:
+
 ```typescript
-const [pythonRes, tsRes] = await Promise.all([
-  fetch(pythonUrl, options),
-  fetch(tsUrl, options),
-]);
+const [pythonRes, tsRes] = await Promise.all([fetch(pythonUrl, options), fetch(tsUrl, options)]);
 ```
 
 ### 2. Schema Validation
+
 Validates both responses against the same schema:
+
 ```typescript
 expect(() => schema.parse(pythonData)).not.toThrow();
 expect(() => schema.parse(tsData)).not.toThrow();
 ```
 
 ### 3. Structure Comparison
+
 Compares object keys to ensure structure matches:
+
 ```typescript
 const pythonKeys = Object.keys(pythonData).sort();
 const tsKeys = Object.keys(tsData).sort();
@@ -253,7 +283,9 @@ expect(tsKeys).toEqual(pythonKeys);
 ```
 
 ### 4. Status Code Matching
+
 Ensures both backends return the same HTTP status:
+
 ```typescript
 expect(typescript.status).toBe(python.status);
 ```
@@ -261,24 +293,28 @@ expect(typescript.status).toBe(python.status);
 ## Benefits
 
 ### For Developers
+
 - ✅ Confidence that TypeScript backend matches Python
 - ✅ Early detection of compatibility issues
 - ✅ Clear documentation of API behavior
 - ✅ Easy to add tests for new endpoints
 
 ### For QA
+
 - ✅ Automated validation of API compatibility
 - ✅ Comprehensive test coverage
 - ✅ Clear test results
 - ✅ Easy to reproduce issues
 
 ### For DevOps
+
 - ✅ CI/CD integration ready
 - ✅ Docker support
 - ✅ Environment-based configuration
 - ✅ Automated health checks
 
 ### For Product
+
 - ✅ Ensures frontend compatibility
 - ✅ Validates feature parity
 - ✅ Reduces migration risk
@@ -287,6 +323,7 @@ expect(typescript.status).toBe(python.status);
 ## Limitations and Future Enhancements
 
 ### Current Limitations
+
 1. **Authentication**: Requires manual token setup
 2. **Streaming Content**: Only validates headers, not stream content
 3. **Tool Execution**: Doesn't test actual tool execution
@@ -294,6 +331,7 @@ expect(typescript.status).toBe(python.status);
 5. **Load Testing**: No concurrent request testing
 
 ### Future Enhancements
+
 1. **Automated Token Generation**: Generate tokens programmatically
 2. **Stream Content Validation**: Parse and compare stream data
 3. **Tool Execution Tests**: Execute tools and compare results
@@ -325,6 +363,7 @@ backend-ts/
 To verify the test suite works:
 
 1. **Start both backends**:
+
    ```bash
    # Terminal 1
    cd backend && neuroagent-api
@@ -334,12 +373,14 @@ To verify the test suite works:
    ```
 
 2. **Run the tests**:
+
    ```bash
    cd backend-ts
    ./scripts/run-compatibility-tests.sh
    ```
 
 3. **Expected output**:
+
    ```
    === API Compatibility Test Runner ===
 

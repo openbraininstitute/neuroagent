@@ -110,12 +110,14 @@ prisma/
 ## Common Issues
 
 ### "Migration already applied"
+
 ```bash
 # Migration is already in database, skip it
 npx prisma migrate resolve --applied MIGRATION_NAME
 ```
 
 ### "Schema drift detected"
+
 ```bash
 # Development: Reset database
 npx prisma migrate reset --force
@@ -125,6 +127,7 @@ npm run db:migrate -- --name fix_drift
 ```
 
 ### "Cannot connect to database"
+
 ```bash
 # Check DATABASE_URL
 echo $DATABASE_URL
@@ -137,6 +140,7 @@ docker ps  # if using Docker
 ```
 
 ### "Enum type already exists"
+
 ```bash
 # Database already has the enum, mark migration as applied
 npx prisma migrate resolve --applied MIGRATION_NAME
@@ -145,6 +149,7 @@ npx prisma migrate resolve --applied MIGRATION_NAME
 ## Best Practices
 
 ✅ **DO**
+
 - Always backup before migrations
 - Test migrations in staging first
 - Keep migrations small and focused
@@ -154,6 +159,7 @@ npx prisma migrate resolve --applied MIGRATION_NAME
 - Document breaking changes
 
 ❌ **DON'T**
+
 - Don't use `db:push` in production
 - Don't edit applied migrations
 - Don't skip migrations

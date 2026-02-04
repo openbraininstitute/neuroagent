@@ -11,6 +11,7 @@ Assistant messages and tool calls were disappearing from the database after bein
    - `Entity.AI_TOOL` for assistant messages WITH tool calls
 
 2. **Incorrect Message Content Format**: The message content was not matching the Python backend format. The Python backend stores messages with this structure:
+
    ```json
    {
      "role": "assistant",
@@ -37,6 +38,7 @@ Assistant messages and tool calls were disappearing from the database after bein
 ### 1. Fixed `saveMessagesToDatabase` Method
 
 Updated to:
+
 - Use `Entity.AI_TOOL` for assistant messages with tool calls
 - Use `Entity.AI_MESSAGE` for assistant messages without tool calls
 - Store message content in Python-compatible format with `tool_calls` array
@@ -45,6 +47,7 @@ Updated to:
 ### 2. Fixed `convertToCoreMessages` Method
 
 Updated to:
+
 - Handle both `Entity.AI_MESSAGE` and `Entity.AI_TOOL` entity types
 - Parse tool calls from message content (Python format) instead of relying only on the toolCalls relation
 - Support both formats for backward compatibility

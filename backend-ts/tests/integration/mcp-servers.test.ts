@@ -58,11 +58,11 @@ describe('Integration: MCP Server Integration', () => {
     it('should initialize with multiple server configurations', () => {
       const config: SettingsMCP = {
         servers: {
-          'server1': {
+          server1: {
             command: 'node',
             args: ['server1.js'],
           },
-          'server2': {
+          server2: {
             command: 'python',
             args: ['server2.py'],
           },
@@ -127,9 +127,9 @@ describe('Integration: MCP Server Integration', () => {
     it('should connect to multiple servers in parallel', async () => {
       const config: SettingsMCP = {
         servers: {
-          'server1': { command: 'node', args: ['s1.js'] },
-          'server2': { command: 'node', args: ['s2.js'] },
-          'server3': { command: 'node', args: ['s3.js'] },
+          server1: { command: 'node', args: ['s1.js'] },
+          server2: { command: 'node', args: ['s2.js'] },
+          server3: { command: 'node', args: ['s3.js'] },
         },
       };
 
@@ -221,8 +221,8 @@ describe('Integration: MCP Server Integration', () => {
 
       const config: SettingsMCP = {
         servers: {
-          'server1': { command: 'node', args: ['s1.js'] },
-          'server2': { command: 'node', args: ['s2.js'] },
+          server1: { command: 'node', args: ['s1.js'] },
+          server2: { command: 'node', args: ['s2.js'] },
         },
       };
 
@@ -279,9 +279,9 @@ describe('Integration: MCP Server Integration', () => {
       const client = new MCPClient(config);
       (client as any).clients = new Map([['test-server', mockClient]]);
 
-      await expect(
-        client.callTool('test-server', 'failing_tool', {})
-      ).rejects.toThrow('Tool execution failed');
+      await expect(client.callTool('test-server', 'failing_tool', {})).rejects.toThrow(
+        'Tool execution failed'
+      );
     });
 
     it('should return structured content from tool execution', async () => {
@@ -361,11 +361,9 @@ describe('Integration: MCP Server Integration', () => {
 
       expect(result).toEqual({ result: 42 });
       // callTool is called with three separate parameters: serverName, toolName, arguments
-      expect(mockClient.callTool).toHaveBeenCalledWith(
-        'calc-server',
-        'calculate',
-        { expression: '6 * 7' }
-      );
+      expect(mockClient.callTool).toHaveBeenCalledWith('calc-server', 'calculate', {
+        expression: '6 * 7',
+      });
     });
 
     it('should check if dynamic tool is online', async () => {
@@ -435,8 +433,8 @@ describe('Integration: MCP Server Integration', () => {
     it('should disconnect all servers gracefully', async () => {
       const config: SettingsMCP = {
         servers: {
-          'server1': { command: 'node', args: ['s1.js'] },
-          'server2': { command: 'node', args: ['s2.js'] },
+          server1: { command: 'node', args: ['s1.js'] },
+          server2: { command: 'node', args: ['s2.js'] },
         },
       };
 

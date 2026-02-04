@@ -12,11 +12,12 @@
  * Requirements: 5.8
  */
 
-import { NextRequest, NextResponse } from 'next/server';
+import { type NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
+
 import { prisma } from '@/lib/db/client';
-import { Entity } from '@/types';
 import { toolRegistry } from '@/lib/tools/base-tool';
+import { Entity } from '@/types';
 
 /**
  * Request schema for tool validation
@@ -24,7 +25,9 @@ import { toolRegistry } from '@/lib/tools/base-tool';
 const ValidateToolRequestSchema = z.object({
   toolCallId: z.string().describe('The tool call ID to validate'),
   validatedInputs: z.record(z.any()).describe('The validated inputs for the tool'),
-  isValidated: z.boolean().describe('Whether the tool call is validated (true) or rejected (false)'),
+  isValidated: z
+    .boolean()
+    .describe('Whether the tool call is validated (true) or rejected (false)'),
 });
 
 /**
@@ -66,10 +69,7 @@ export async function POST(request: NextRequest) {
 
     if (!toolCall) {
       console.error('[validate_tool] Tool call not found:', validationRequest.toolCallId);
-      return NextResponse.json(
-        { error: 'Tool call not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: 'Tool call not found' }, { status: 404 });
     }
 
     // Check if tool call is already validated
@@ -78,10 +78,7 @@ export async function POST(request: NextRequest) {
         toolCallId: validationRequest.toolCallId,
         validated: toolCall.validated,
       });
-      return NextResponse.json(
-        { error: 'Tool call already validated' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Tool call already validated' }, { status: 400 });
     }
 
     // Update the tool call's validated status
@@ -126,10 +123,7 @@ export async function POST(request: NextRequest) {
     const ToolClass = toolRegistry.getClass(toolCall.name);
     if (!ToolClass) {
       console.error('[validate_tool] Tool not found in registry:', toolCall.name);
-      return NextResponse.json(
-        { error: `Tool "${toolCall.name}" not found` },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: `Tool "${toolCall.name}" not found` }, { status: 404 });
     }
 
     // Instantiate the tool with context variables

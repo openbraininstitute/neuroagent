@@ -7,16 +7,19 @@ The API compatibility test suite was making actual HTTP requests to endpoints th
 ## Tests That Were Making LLM Calls
 
 ### 1. Streaming Chat Test
+
 **Endpoint**: `POST /qa/chat_streamed/{thread_id}`
 **Problem**: Calls `streamText()` which makes actual OpenAI/OpenRouter API calls
 **Cost per call**: ~$0.02 - $0.05 (depending on model)
 
 ### 2. Question Suggestions Tests (2 tests)
+
 **Endpoint**: `POST /qa/question_suggestions`
 **Problem**: Calls `generateObject()` which makes actual LLM API calls
 **Cost per call**: ~$0.01 - $0.03
 
 ### Total Cost Impact
+
 - **Per test run**: ~$0.10 - $0.20
 - **With CI/CD** (10 runs/day): ~$1.50/day = **$45/month**
 - **Over a year**: **$540/year** just for compatibility tests
@@ -41,16 +44,19 @@ it.skip('should have compatible POST /qa/question_suggestions endpoint', async (
 ### 2. Added Clear Documentation
 
 Created comprehensive documentation explaining:
+
 - Which tests are skipped and why
 - How to test manually if needed
 - Alternative testing strategies (mocked responses)
 - Cost estimation and monitoring
 
 **Files created**:
+
 - `docs/COMPATIBILITY-TESTS-COST-SAFETY.md` - Detailed cost safety guide
 - `docs/COST-SAFETY-FIX-SUMMARY.md` - This file
 
 **Files updated**:
+
 - `tests/api/compatibility.test.ts` - Skipped expensive tests
 - `docs/API-COMPATIBILITY-TESTING.md` - Added cost safety warning
 - `tests/api/README.md` - Added cost safety warning
@@ -58,10 +64,12 @@ Created comprehensive documentation explaining:
 ### 3. Provided Alternatives
 
 **For automated testing**:
+
 - Use mocked LLM responses (see `tests/e2e/conversation-flow.test.ts`)
 - All e2e tests already use `vi.mock('ai')` to mock the AI SDK
 
 **For manual testing**:
+
 - Provided curl commands for manual verification
 - Documented expected responses
 - Estimated costs per manual test session (~$0.05)
@@ -92,6 +100,7 @@ npm run test:compatibility
 ```
 
 Expected output:
+
 ```
 ✓ API Compatibility - Health Checks (3)
 ✓ API Compatibility - Threads (8)
@@ -112,12 +121,14 @@ Test Files  1 passed (1)
 ## Impact
 
 ### Before Fix
+
 - ❌ Tests make actual LLM API calls
 - ❌ Costs $45/month in CI/CD
 - ❌ Unpredictable costs
 - ❌ Slow test execution (waiting for LLM responses)
 
 ### After Fix
+
 - ✅ No LLM API calls in automated tests
 - ✅ $0 cost for test runs
 - ✅ Predictable and fast test execution
@@ -133,6 +144,7 @@ Test Files  1 passed (1)
    - Does it call OpenAI, OpenRouter, or other LLM APIs?
 
 2. **If yes, skip the test**
+
    ```typescript
    it.skip('should test expensive endpoint', async () => {
      // SKIPPED: Makes actual LLM API calls
@@ -153,15 +165,18 @@ Test Files  1 passed (1)
 ### When Testing LLM Endpoints
 
 **For development**:
+
 - Use mocked responses in unit/e2e tests
 - See `tests/e2e/conversation-flow.test.ts` for examples
 
 **For staging**:
+
 - Enable tests temporarily with monitoring
 - Use cheaper models (gpt-3.5-turbo)
 - Limit test frequency
 
 **For production**:
+
 - Manual testing before major releases
 - Monitor actual usage in production
 - Use application logs and database queries
@@ -169,15 +184,18 @@ Test Files  1 passed (1)
 ## Related Files
 
 ### Modified Files
+
 - `backend-ts/tests/api/compatibility.test.ts` - Skipped 3 expensive tests
 - `backend-ts/docs/API-COMPATIBILITY-TESTING.md` - Added cost warning
 - `backend-ts/tests/api/README.md` - Added cost warning
 
 ### New Files
+
 - `backend-ts/docs/COMPATIBILITY-TESTS-COST-SAFETY.md` - Comprehensive guide
 - `backend-ts/docs/COST-SAFETY-FIX-SUMMARY.md` - This file
 
 ### Reference Files
+
 - `backend-ts/tests/e2e/conversation-flow.test.ts` - Examples of mocked LLM tests
 - `backend-ts/src/lib/agents/routine.ts` - Agent implementation
 

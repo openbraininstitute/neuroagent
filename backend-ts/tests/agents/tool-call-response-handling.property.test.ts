@@ -203,10 +203,7 @@ describe('Tool Call Response Handling Property Tests', () => {
     /**
      * Test that tool call responses can be converted to CoreMessage format
      */
-    test.prop([
-      fc.string({ minLength: 1, maxLength: 100 }),
-      fc.uuid(),
-    ])(
+    test.prop([fc.string({ minLength: 1, maxLength: 100 }), fc.uuid()])(
       'should convert tool call responses to CoreMessage format correctly',
       async (resultContent, toolCallId) => {
         const threadId = await createTestThread();
@@ -336,10 +333,7 @@ describe('Tool Call Response Handling Property Tests', () => {
     /**
      * Test that tool call responses with errors are properly formatted
      */
-    test.prop([
-      fc.string({ minLength: 1, maxLength: 200 }),
-      fc.uuid(),
-    ])(
+    test.prop([fc.string({ minLength: 1, maxLength: 200 }), fc.uuid()])(
       'should format tool call error responses correctly',
       async (errorMessage, toolCallId) => {
         const threadId = await createTestThread();
@@ -397,54 +391,51 @@ describe('Tool Call Response Handling Property Tests', () => {
         }),
         { minLength: 1, maxLength: 5 }
       ),
-    ])(
-      'should handle multiple tool call responses in sequence',
-      async (toolCalls) => {
-        const threadId = await createTestThread();
+    ])('should handle multiple tool call responses in sequence', async (toolCalls) => {
+      const threadId = await createTestThread();
 
-        try {
-          // Create multiple tool result messages
-          for (const toolCall of toolCalls) {
-            await prisma.message.create({
-              data: {
-                id: crypto.randomUUID(),
-                threadId,
-                entity: Entity.TOOL,
-                content: JSON.stringify({
-                  role: 'tool',
-                  tool_call_id: toolCall.toolCallId,
-                  tool_name: toolCall.toolName,
-                  content: toolCall.result,
-                }),
-                isComplete: true,
-                creationDate: new Date(),
-              },
-            });
-          }
-
-          // Verify all messages were saved correctly
-          const savedMessages = await prisma.message.findMany({
-            where: { threadId },
-            orderBy: { creationDate: 'asc' },
+      try {
+        // Create multiple tool result messages
+        for (const toolCall of toolCalls) {
+          await prisma.message.create({
+            data: {
+              id: crypto.randomUUID(),
+              threadId,
+              entity: Entity.TOOL,
+              content: JSON.stringify({
+                role: 'tool',
+                tool_call_id: toolCall.toolCallId,
+                tool_name: toolCall.toolName,
+                content: toolCall.result,
+              }),
+              isComplete: true,
+              creationDate: new Date(),
+            },
           });
-
-          expect(savedMessages.length).toBe(toolCalls.length);
-
-          // Verify each message has the correct format
-          for (let i = 0; i < toolCalls.length; i++) {
-            const message = savedMessages[i];
-            const content = JSON.parse(message.content);
-
-            expect(content.tool_call_id).toBe(toolCalls[i].toolCallId);
-            expect(content.tool_name).toBe(toolCalls[i].toolName);
-            expect(content.content).toBe(toolCalls[i].result);
-            expect(content.role).toBe('tool');
-          }
-        } finally {
-          await cleanupTestThread(threadId);
         }
+
+        // Verify all messages were saved correctly
+        const savedMessages = await prisma.message.findMany({
+          where: { threadId },
+          orderBy: { creationDate: 'asc' },
+        });
+
+        expect(savedMessages.length).toBe(toolCalls.length);
+
+        // Verify each message has the correct format
+        for (let i = 0; i < toolCalls.length; i++) {
+          const message = savedMessages[i];
+          const content = JSON.parse(message.content);
+
+          expect(content.tool_call_id).toBe(toolCalls[i].toolCallId);
+          expect(content.tool_name).toBe(toolCalls[i].toolName);
+          expect(content.content).toBe(toolCalls[i].result);
+          expect(content.role).toBe('tool');
+        }
+      } finally {
+        await cleanupTestThread(threadId);
       }
-    );
+    });
 
     /**
      * Test that tool call responses maintain order
@@ -495,10 +486,7 @@ describe('Tool Call Response Handling Property Tests', () => {
     /**
      * Test that tool call responses with string results are handled correctly
      */
-    test.prop([
-      fc.string({ minLength: 1, maxLength: 500 }),
-      fc.uuid(),
-    ])(
+    test.prop([fc.string({ minLength: 1, maxLength: 500 }), fc.uuid()])(
       'should handle tool call responses with plain string results',
       async (stringResult, toolCallId) => {
         const threadId = await createTestThread();
@@ -540,10 +528,7 @@ describe('Tool Call Response Handling Property Tests', () => {
     /**
      * Test that tool call responses are properly linked to their tool calls
      */
-    test.prop([
-      fc.string({ minLength: 1 }),
-      fc.uuid(),
-    ])(
+    test.prop([fc.string({ minLength: 1 }), fc.uuid()])(
       'should link tool call responses to their corresponding tool calls',
       async (query, toolCallId) => {
         const threadId = await createTestThread();
@@ -630,10 +615,7 @@ describe('Tool Call Response Handling Property Tests', () => {
     /**
      * Test that tool call responses are marked as complete
      */
-    test.prop([
-      fc.string({ minLength: 1 }),
-      fc.uuid(),
-    ])(
+    test.prop([fc.string({ minLength: 1 }), fc.uuid()])(
       'should mark tool call responses as complete',
       async (result, toolCallId) => {
         const threadId = await createTestThread();

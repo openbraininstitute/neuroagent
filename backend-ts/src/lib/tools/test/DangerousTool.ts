@@ -15,7 +15,8 @@
  */
 
 import { z } from 'zod';
-import { BaseTool, BaseContextVariables } from '../base-tool';
+
+import { BaseTool, type BaseContextVariables } from '../base-tool';
 
 /**
  * Input schema for the dangerous tool
@@ -33,20 +34,12 @@ const DangerousToolInputSchema = z.object({
  * When the LLM tries to use this tool, execution will pause and
  * the user will be prompted to validate the inputs before proceeding.
  */
-export class DangerousTool extends BaseTool<
-  typeof DangerousToolInputSchema,
-  BaseContextVariables
-> {
+export class DangerousTool extends BaseTool<typeof DangerousToolInputSchema, BaseContextVariables> {
   // Static metadata (ClassVar pattern)
   static readonly toolName = 'dangerous_tool';
   static readonly toolDescription =
     'Performs a dangerous operation that requires explicit user validation before execution. Use this tool when you need to demonstrate HIL validation flow.';
-  static readonly toolUtterances = [
-    'dangerous',
-    'risky',
-    'destructive',
-    'requires validation',
-  ];
+  static readonly toolUtterances = ['dangerous', 'risky', 'destructive', 'requires validation'];
   static readonly toolHil = true; // This tool requires HIL validation
 
   // Instance properties
@@ -68,9 +61,7 @@ export class DangerousTool extends BaseTool<
    * @param input - Validated input parameters
    * @returns Result of the dangerous operation
    */
-  async execute(
-    input: z.infer<typeof DangerousToolInputSchema>
-  ): Promise<string> {
+  async execute(input: z.infer<typeof DangerousToolInputSchema>): Promise<string> {
     console.log('[DangerousTool] Executing dangerous operation:', input);
 
     // Simulate a dangerous operation

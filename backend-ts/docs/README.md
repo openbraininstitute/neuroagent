@@ -51,6 +51,7 @@ This directory contains comprehensive documentation for the TypeScript backend i
 ## Archive
 
 The `archive/` directory contains historical documentation from the development process:
+
 - Task summaries and checkpoints
 - Implementation notes and fixes
 - Development progress tracking
@@ -60,16 +61,19 @@ These files are kept for reference but are not part of the active documentation.
 ## Quick Links
 
 ### For New Developers
+
 1. Start with [SETUP.md](SETUP.md)
 2. Read [ARCHITECTURE-DIAGRAM.md](ARCHITECTURE-DIAGRAM.md)
 3. Review [MIGRATION-GUIDE.md](MIGRATION-GUIDE.md) if coming from Python backend
 
 ### For DevOps/Deployment
+
 1. Check [PRODUCTION-READINESS-CHECKLIST.md](PRODUCTION-READINESS-CHECKLIST.md)
 2. Follow [DEPLOYMENT.md](DEPLOYMENT.md)
 3. Reference [CONFIGURATION-GUIDE.md](CONFIGURATION-GUIDE.md)
 
 ### For Tool Development
+
 1. Read [TOOL-DEVELOPMENT-GUIDE.md](TOOL-DEVELOPMENT-GUIDE.md)
 2. Understand [TOOL-LIFECYCLE.md](TOOL-LIFECYCLE.md)
 3. Review [FINAL-TOOL-SYSTEM.md](FINAL-TOOL-SYSTEM.md)
@@ -77,6 +81,7 @@ These files are kept for reference but are not part of the active documentation.
 ## Contributing
 
 When adding new documentation:
+
 - Place active documentation in this directory
 - Use clear, descriptive filenames
 - Update this README with links to new docs

@@ -5,6 +5,7 @@
 **Tools are instantiated INDIVIDUALLY and ONLY when the LLM calls them.**
 
 This matches Python's pattern exactly:
+
 1. Start with `list[type[BaseTool]]` (list of classes)
 2. Create a tool map: `{tool.name: tool for tool in tools}` (still classes!)
 3. When LLM calls a tool → instantiate that specific tool
@@ -101,8 +102,8 @@ async function handleToolCall(toolName: string, input: any) {
     exaApiKey: settings.exaApiKey,
     entitycoreUrl: settings.entitycoreUrl,
     entityFrontendUrl: settings.frontendBaseUrl,
-    jwtToken: session.accessToken,    // User-specific!
-    vlabId: session.user.vlabId,      // User-specific!
+    jwtToken: session.accessToken, // User-specific!
+    vlabId: session.user.vlabId, // User-specific!
     projectId: session.user.projectId, // User-specific!
     obiOneUrl: settings.obiOneUrl,
   });
@@ -175,16 +176,21 @@ export async function POST(request: NextRequest) {
 ## Why This Pattern?
 
 ### 1. Memory Efficiency
+
 Only create instances for tools that are actually called. If LLM only uses 2 out of 10 tools, you only instantiate 2.
 
 ### 2. User Context Isolation
+
 Each tool call gets fresh user context (JWT token, vlab ID, project ID) at the moment of execution.
 
 ### 3. No Stale State
+
 Tools don't hold state between calls. Each execution is independent.
 
 ### 4. Matches Python Pattern
+
 Python's `handle_tool_call` does exactly this:
+
 ```python
 tool_map = {tool.name: tool for tool in tools}  # Classes, not instances
 tool = tool_map[name]  # Still a class
@@ -195,12 +201,14 @@ result = await tool_instance.arun()
 ## Common Mistakes to Avoid
 
 ❌ **DON'T** instantiate all tools at once:
+
 ```typescript
 // BAD - creates all tool instances upfront
 const tools = await createAllToolInstances(config);
 ```
 
 ❌ **DON'T** cache tool instances:
+
 ```typescript
 // BAD - reuses instances across calls
 const toolInstances = new Map();
@@ -210,15 +218,15 @@ if (!toolInstances.has(toolName)) {
 ```
 
 ✅ **DO** work with classes until execution:
+
 ```typescript
 // GOOD - classes until LLM calls the tool
 const toolClasses = await getAvailableToolClasses(config);
-const toolMap = Object.fromEntries(
-  toolClasses.map((ToolClass) => [ToolClass.toolName, ToolClass])
-);
+const toolMap = Object.fromEntries(toolClasses.map((ToolClass) => [ToolClass.toolName, ToolClass]));
 ```
 
 ✅ **DO** instantiate individually on-demand:
+
 ```typescript
 // GOOD - instantiate only when called
 const ToolClass = toolMap[toolName];
@@ -228,13 +236,13 @@ const result = await instance.execute(input);
 
 ## Summary Table
 
-| Phase | What | When | Why |
-|-------|------|------|-----|
-| Startup | Register tool classes | Once | Enable metadata access |
-| Request Start | Get available tool classes | Per request | Check which tools are available |
-| LLM Planning | Access static properties | Per request | LLM decides which tools to call |
-| Tool Call | Instantiate specific tool | Per tool call | Execute with user context |
-| After Execution | Discard instance | Per tool call | No state retention |
+| Phase           | What                       | When          | Why                             |
+| --------------- | -------------------------- | ------------- | ------------------------------- |
+| Startup         | Register tool classes      | Once          | Enable metadata access          |
+| Request Start   | Get available tool classes | Per request   | Check which tools are available |
+| LLM Planning    | Access static properties   | Per request   | LLM decides which tools to call |
+| Tool Call       | Instantiate specific tool  | Per tool call | Execute with user context       |
+| After Execution | Discard instance           | Per tool call | No state retention              |
 
 ## Key Functions
 

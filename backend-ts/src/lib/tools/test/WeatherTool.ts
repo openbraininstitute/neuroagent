@@ -5,14 +5,18 @@
  */
 
 import { z } from 'zod';
-import { BaseTool, BaseContextVariables } from '../base-tool';
+
+import { BaseTool, type BaseContextVariables } from '../base-tool';
 
 /**
  * Input schema for weather tool
  */
 const WeatherToolInputSchema = z.object({
   location: z.string().describe('The city or location to get weather for'),
-  units: z.enum(['celsius', 'fahrenheit']).optional().describe('Temperature units (default: celsius)'),
+  units: z
+    .enum(['celsius', 'fahrenheit'])
+    .optional()
+    .describe('Temperature units (default: celsius)'),
 });
 
 /**
@@ -20,16 +24,12 @@ const WeatherToolInputSchema = z.object({
  *
  * Returns current weather information for a given location.
  */
-export class WeatherTool extends BaseTool<
-  typeof WeatherToolInputSchema,
-  BaseContextVariables
-> {
+export class WeatherTool extends BaseTool<typeof WeatherToolInputSchema, BaseContextVariables> {
   static readonly toolName = 'get_weather';
   static readonly toolNameFrontend = 'Weather';
   static readonly toolDescription =
     'Get current weather information for any location. Returns temperature, conditions, and forecast.';
-  static readonly toolDescriptionFrontend =
-    'Get weather information for any city or location';
+  static readonly toolDescriptionFrontend = 'Get weather information for any city or location';
   static readonly toolUtterances = [
     'What is the weather in Paris?',
     'Tell me the temperature in New York',

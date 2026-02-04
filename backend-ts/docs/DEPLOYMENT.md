@@ -146,6 +146,7 @@ npm run build
 ```
 
 The build process:
+
 1. Compiles TypeScript to JavaScript
 2. Optimizes and bundles code
 3. Generates static assets
@@ -219,7 +220,7 @@ backend-ts:
     context: ./backend-ts
     dockerfile: Dockerfile
   ports:
-    - "8079:8079"
+    - '8079:8079'
   environment:
     - NODE_ENV=production
     - DATABASE_URL=postgresql://postgres:pwd@postgres:5432/neuroagent
@@ -228,7 +229,13 @@ backend-ts:
     - redis
     - minio
   healthcheck:
-    test: ["CMD", "node", "-e", "require('http').get('http://localhost:8079/api/healthz', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"]
+    test:
+      [
+        'CMD',
+        'node',
+        '-e',
+        "require('http').get('http://localhost:8079/api/healthz', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})",
+      ]
     interval: 30s
     timeout: 10s
     start_period: 40s
@@ -334,6 +341,7 @@ vercel --prod
 ```
 
 **Considerations**:
+
 - Serverless function timeout limits (10s hobby, 60s pro)
 - Streaming responses work but may have limits
 - Database connection pooling required (use Prisma Data Proxy)
@@ -341,6 +349,7 @@ vercel --prod
 #### AWS ECS/Fargate
 
 1. **Build and push Docker image**:
+
 ```bash
 # Build image
 docker build -t neuroagent-backend-ts .
@@ -354,6 +363,7 @@ docker push 123456789.dkr.ecr.us-east-1.amazonaws.com/neuroagent-backend-ts:late
 ```
 
 2. **Create ECS Task Definition**:
+
 ```json
 {
   "family": "neuroagent-backend-ts",
@@ -384,7 +394,10 @@ docker push 123456789.dkr.ecr.us-east-1.amazonaws.com/neuroagent-backend-ts:late
         }
       ],
       "healthCheck": {
-        "command": ["CMD-SHELL", "node -e \"require('http').get('http://localhost:8079/api/healthz', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})\""],
+        "command": [
+          "CMD-SHELL",
+          "node -e \"require('http').get('http://localhost:8079/api/healthz', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})\""
+        ],
         "interval": 30,
         "timeout": 5,
         "retries": 3,
@@ -422,6 +435,7 @@ gcloud run deploy neuroagent-backend-ts \
 See `k8s/` directory for Kubernetes manifests (if available), or create:
 
 1. **Deployment**:
+
 ```yaml
 apiVersion: apps/v1
 kind: Deployment
@@ -438,33 +452,34 @@ spec:
         app: neuroagent-backend-ts
     spec:
       containers:
-      - name: backend
-        image: neuroagent-backend-ts:latest
-        ports:
-        - containerPort: 8079
-        env:
-        - name: NODE_ENV
-          value: "production"
-        - name: DATABASE_URL
-          valueFrom:
-            secretKeyRef:
-              name: neuroagent-secrets
-              key: database-url
-        livenessProbe:
-          httpGet:
-            path: /api/healthz
-            port: 8079
-          initialDelaySeconds: 30
-          periodSeconds: 10
-        readinessProbe:
-          httpGet:
-            path: /api/healthz
-            port: 8079
-          initialDelaySeconds: 10
-          periodSeconds: 5
+        - name: backend
+          image: neuroagent-backend-ts:latest
+          ports:
+            - containerPort: 8079
+          env:
+            - name: NODE_ENV
+              value: 'production'
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: neuroagent-secrets
+                  key: database-url
+          livenessProbe:
+            httpGet:
+              path: /api/healthz
+              port: 8079
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /api/healthz
+              port: 8079
+            initialDelaySeconds: 10
+            periodSeconds: 5
 ```
 
 2. **Service**:
+
 ```yaml
 apiVersion: v1
 kind: Service
@@ -474,8 +489,8 @@ spec:
   selector:
     app: neuroagent-backend-ts
   ports:
-  - port: 80
-    targetPort: 8079
+    - port: 80
+      targetPort: 8079
   type: LoadBalancer
 ```
 
@@ -579,6 +594,7 @@ curl http://localhost:8079/api/healthz
 ```
 
 Use for:
+
 - Kubernetes liveness probes
 - Docker health checks
 - Load balancer health checks
@@ -593,6 +609,7 @@ curl http://localhost:8079/api/
 ```
 
 Use for:
+
 - Kubernetes readiness probes
 - Deployment verification
 
@@ -786,6 +803,7 @@ console.log('LLM API call', {
 ```
 
 Use secret management:
+
 - AWS Secrets Manager
 - Google Secret Manager
 - Azure Key Vault
@@ -794,11 +812,13 @@ Use secret management:
 ### Database Security
 
 1. **Use strong passwords**:
+
 ```env
 DATABASE_URL=postgresql://user:$(openssl rand -base64 32)@host:5432/db
 ```
 
 2. **Enable SSL/TLS**:
+
 ```env
 DATABASE_URL=postgresql://user:pass@host:5432/db?sslmode=require
 ```
@@ -813,10 +833,9 @@ DATABASE_URL=postgresql://user:pass@host:5432/db?sslmode=require
 1. **Rate Limiting**: Enabled by default with Redis
 
 2. **CORS**: Configured in `next.config.ts`
+
 ```typescript
-headers: [
-  { key: 'Access-Control-Allow-Origin', value: 'https://yourdomain.com' },
-]
+headers: [{ key: 'Access-Control-Allow-Origin', value: 'https://yourdomain.com' }];
 ```
 
 3. **Authentication**: JWT validation with Keycloak
@@ -832,6 +851,7 @@ headers: [
 3. **Minimal base image**: Uses `node:18-alpine`
 
 4. **Security scanning**:
+
 ```bash
 # Scan Docker image
 docker scan neuroagent-backend-ts:latest
@@ -846,6 +866,7 @@ npm audit fix
 Always use HTTPS in production:
 
 1. **Reverse Proxy** (Nginx, Traefik):
+
 ```nginx
 server {
     listen 443 ssl http2;
@@ -871,6 +892,7 @@ server {
 **Symptoms**: Container exits immediately, or server fails to start
 
 **Diagnosis**:
+
 ```bash
 # Check logs
 docker logs backend-ts
@@ -880,6 +902,7 @@ docker exec backend-ts env | grep NEUROAGENT
 ```
 
 **Solutions**:
+
 - Verify all required environment variables are set
 - Check DATABASE_URL format
 - Ensure database is accessible
@@ -890,6 +913,7 @@ docker exec backend-ts env | grep NEUROAGENT
 **Symptoms**: `Error: Can't reach database server`
 
 **Diagnosis**:
+
 ```bash
 # Test database connection
 psql $DATABASE_URL
@@ -899,6 +923,7 @@ docker exec backend-ts ping postgres
 ```
 
 **Solutions**:
+
 - Verify DATABASE_URL is correct
 - Check database is running
 - Verify network connectivity
@@ -910,6 +935,7 @@ docker exec backend-ts ping postgres
 **Symptoms**: `Migration failed to apply`
 
 **Diagnosis**:
+
 ```bash
 # Check migration status
 npx prisma migrate status
@@ -919,6 +945,7 @@ psql $DATABASE_URL -c "SELECT * FROM _prisma_migrations;"
 ```
 
 **Solutions**:
+
 - Restore from backup
 - Manually fix database schema
 - Mark migration as applied: `npx prisma migrate resolve --applied <migration_name>`
@@ -929,6 +956,7 @@ psql $DATABASE_URL -c "SELECT * FROM _prisma_migrations;"
 **Symptoms**: Container OOM killed, high memory consumption
 
 **Diagnosis**:
+
 ```bash
 # Check memory usage
 docker stats backend-ts
@@ -938,6 +966,7 @@ docker exec backend-ts node -e "console.log(process.memoryUsage())"
 ```
 
 **Solutions**:
+
 - Increase container memory limit
 - Optimize database queries
 - Reduce connection pool size
@@ -948,6 +977,7 @@ docker exec backend-ts node -e "console.log(process.memoryUsage())"
 **Symptoms**: API requests take >5 seconds
 
 **Diagnosis**:
+
 ```bash
 # Enable query logging
 # Check Prisma logs for slow queries
@@ -957,6 +987,7 @@ curl -w "@curl-format.txt" -o /dev/null -s http://localhost:8079/api/endpoint
 ```
 
 **Solutions**:
+
 - Add database indexes
 - Optimize queries (use `select` to limit fields)
 - Enable Redis caching
@@ -968,6 +999,7 @@ curl -w "@curl-format.txt" -o /dev/null -s http://localhost:8079/api/endpoint
 **Symptoms**: `401 Unauthorized` errors
 
 **Diagnosis**:
+
 ```bash
 # Verify JWT token
 curl -H "Authorization: Bearer $TOKEN" http://localhost:8079/api/healthz
@@ -977,6 +1009,7 @@ curl $NEUROAGENT_KEYCLOAK__ISSUER/.well-known/openid-configuration
 ```
 
 **Solutions**:
+
 - Verify Keycloak issuer URL
 - Check token expiration
 - Verify JWKS endpoint is accessible
@@ -997,6 +1030,7 @@ docker run -e DEBUG=* neuroagent-backend-ts
 ### Support
 
 For additional help:
+
 1. Check documentation in `docs/`
 2. Review GitHub issues
 3. Contact support team
@@ -1021,11 +1055,13 @@ Before deploying to production:
 After deployment:
 
 1. **Verify health checks**:
+
 ```bash
 curl https://api.example.com/api/healthz
 ```
 
 2. **Test critical endpoints**:
+
 ```bash
 # Test authentication
 curl -H "Authorization: Bearer $TOKEN" https://api.example.com/api/threads
@@ -1037,6 +1073,7 @@ curl -X POST https://api.example.com/api/qa/chat_streamed/thread-id \
 ```
 
 3. **Monitor logs** for errors:
+
 ```bash
 docker logs -f backend-ts
 ```
@@ -1048,6 +1085,7 @@ docker logs -f backend-ts
    - Memory usage
 
 5. **Verify database migrations**:
+
 ```bash
 npx prisma migrate status
 ```
@@ -1057,21 +1095,25 @@ npx prisma migrate status
 If deployment fails:
 
 1. **Stop new version**:
+
 ```bash
 docker-compose stop backend-ts
 ```
 
 2. **Restore database** (if migrations were applied):
+
 ```bash
 psql $DATABASE_URL < backup.sql
 ```
 
 3. **Start previous version**:
+
 ```bash
 docker-compose up -d backend-ts:previous-tag
 ```
 
 4. **Verify rollback**:
+
 ```bash
 curl https://api.example.com/api/healthz
 ```
@@ -1129,6 +1171,7 @@ kubectl scale deployment neuroagent-backend-ts --replicas=5
 ### Load Balancing
 
 Use a load balancer to distribute traffic:
+
 - AWS Application Load Balancer
 - Google Cloud Load Balancer
 - Nginx
@@ -1137,6 +1180,7 @@ Use a load balancer to distribute traffic:
 ### Database Scaling
 
 For high load:
+
 1. Use read replicas for read-heavy workloads
 2. Enable connection pooling (PgBouncer)
 3. Optimize queries and add indexes
@@ -1147,12 +1191,14 @@ For high load:
 ### Regular Tasks
 
 1. **Update dependencies** (monthly):
+
 ```bash
 npm update
 npm audit fix
 ```
 
 2. **Database maintenance** (weekly):
+
 ```bash
 # Vacuum and analyze
 psql $DATABASE_URL -c "VACUUM ANALYZE;"
@@ -1162,6 +1208,7 @@ psql $DATABASE_URL -c "SELECT pg_size_pretty(pg_database_size('neuroagent'));"
 ```
 
 3. **Log rotation** (daily):
+
 ```bash
 # Configure logrotate
 /var/log/neuroagent/*.log {
@@ -1174,6 +1221,7 @@ psql $DATABASE_URL -c "SELECT pg_size_pretty(pg_database_size('neuroagent'));"
 ```
 
 4. **Backup verification** (weekly):
+
 ```bash
 # Test restore from backup
 pg_restore -d test_db backup.sql
@@ -1182,6 +1230,7 @@ pg_restore -d test_db backup.sql
 ### Monitoring Alerts
 
 Set up alerts for:
+
 - High error rate (>1%)
 - Slow response times (>5s)
 - High memory usage (>80%)

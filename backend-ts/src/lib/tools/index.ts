@@ -165,10 +165,7 @@ export async function getAvailableToolClasses(config: ToolConfig): Promise<any[]
  * @param config - User-specific context for the tool
  * @returns Tool instance ready for execution
  */
-export async function createToolInstance(
-  ToolCls: any,
-  config: ToolConfig
-): Promise<any> {
+export async function createToolInstance(ToolCls: any, config: ToolConfig): Promise<any> {
   const toolName = ToolCls.toolName;
 
   // Instantiate based on tool name
@@ -216,10 +213,10 @@ export async function createToolInstance(
  * await instance.execute(input);
  * ```
  *
- * @param config - Configuration to determine available tools
+ * @param _config - Configuration to determine available tools (currently unused)
  * @returns Array of tool classes (NOT instances)
  */
-export async function initializeTools(config?: any): Promise<any[]> {
+export async function initializeTools(_config?: any): Promise<any[]> {
   // Register tool classes if not already done
   await registerToolClasses();
 

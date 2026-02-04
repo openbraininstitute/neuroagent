@@ -5,6 +5,7 @@ This module provides integration with MCP servers, allowing dynamic tool discove
 ## Overview
 
 The MCP client:
+
 - Parses `mcp.json` configuration file
 - Spawns and manages MCP server processes via stdio
 - Discovers tools from connected servers
@@ -147,10 +148,7 @@ You can override tool metadata in the configuration:
         "nameFrontend": "Get OBI Software Docs",
         "description": "Get documentation for OBI packages",
         "descriptionFrontend": "Retrieves OBI package documentation",
-        "utterances": [
-          "Get OBI documentation",
-          "Show me OBI software docs"
-        ]
+        "utterances": ["Get OBI documentation", "Show me OBI software docs"]
       }
     }
   }
@@ -158,6 +156,7 @@ You can override tool metadata in the configuration:
 ```
 
 This allows you to:
+
 - Rename tools for better LLM understanding
 - Provide custom descriptions
 - Add utterances for intent matching
@@ -177,6 +176,7 @@ Each MCP tool is converted to a `BaseTool` instance:
 ### Tool Name Mapping
 
 When tool names are overridden, the client maintains a mapping:
+
 - Frontend/LLM sees the custom name
 - Backend uses the original name when calling the MCP server
 
@@ -202,6 +202,7 @@ See `tests/mcp/` for test examples.
 ## Requirements Validation
 
 This implementation satisfies:
+
 - **Requirement 11.1**: MCP client implemented in TypeScript
 - **Requirement 11.2**: Parses mcp.json configuration file
 - **Requirement 11.3**: Spawns and manages MCP server processes

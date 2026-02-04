@@ -309,21 +309,21 @@ ab -n 1000 -c 10 https://api.example.com/api/healthz
 
 ### Development Team
 
-- [ ] Lead Developer: _________________ Date: _______
-- [ ] Backend Developer: _________________ Date: _______
-- [ ] QA Engineer: _________________ Date: _______
+- [ ] Lead Developer: **\*\*\*\***\_**\*\*\*\*** Date: **\_\_\_**
+- [ ] Backend Developer: **\*\*\*\***\_**\*\*\*\*** Date: **\_\_\_**
+- [ ] QA Engineer: **\*\*\*\***\_**\*\*\*\*** Date: **\_\_\_**
 
 ### Operations Team
 
-- [ ] DevOps Engineer: _________________ Date: _______
-- [ ] SRE: _________________ Date: _______
-- [ ] Security Engineer: _________________ Date: _______
+- [ ] DevOps Engineer: **\*\*\*\***\_**\*\*\*\*** Date: **\_\_\_**
+- [ ] SRE: **\*\*\*\***\_**\*\*\*\*** Date: **\_\_\_**
+- [ ] Security Engineer: **\*\*\*\***\_**\*\*\*\*** Date: **\_\_\_**
 
 ### Management
 
-- [ ] Engineering Manager: _________________ Date: _______
-- [ ] Product Manager: _________________ Date: _______
-- [ ] CTO/VP Engineering: _________________ Date: _______
+- [ ] Engineering Manager: **\*\*\*\***\_**\*\*\*\*** Date: **\_\_\_**
+- [ ] Product Manager: **\*\*\*\***\_**\*\*\*\*** Date: **\_\_\_**
+- [ ] CTO/VP Engineering: **\*\*\*\***\_**\*\*\*\*** Date: **\_\_\_**
 
 ## Notes
 

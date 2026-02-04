@@ -5,6 +5,7 @@ This document lists all TypeScript compilation errors that need to be fixed befo
 ## Priority 1: Critical Runtime Issues (Must Fix)
 
 ### 1.1 Prisma Enum Case Mismatch
+
 **File:** `src/lib/db/index.ts`
 **Lines:** 17-20
 **Issue:** Importing enums with wrong case (PascalCase vs lowercase)
@@ -12,9 +13,9 @@ This document lists all TypeScript compilation errors that need to be fixed befo
 ```typescript
 // Current (WRONG):
 export {
-  Entity,      // Should be: entity
-  Task,        // Should be: task
-  TokenType,   // Should be: tokentype
+  Entity, // Should be: entity
+  Task, // Should be: task
+  TokenType, // Should be: tokentype
   ReasoningLevels, // Should be: reasoninglevels
 } from '@prisma/client';
 
@@ -31,6 +32,7 @@ export {
 **Estimated Time:** 5 minutes
 
 ### 1.2 Missing ToolCall.result Property
+
 **File:** `src/app/api/threads/[thread_id]/messages/route.ts`
 **Lines:** 457 (2 errors)
 **Issue:** Accessing non-existent `result` property on ToolCall
@@ -48,6 +50,7 @@ result: tc.result ? JSON.parse(tc.result) : null,
 **Estimated Time:** 15 minutes (need to verify data model)
 
 ### 1.3 Possibly Undefined Array Access
+
 **File:** `src/app/api/threads/[thread_id]/messages/route.ts`
 **Line:** 426
 **Issue:** Accessing array element without null check
@@ -66,6 +69,7 @@ createdAt: reversedMessages.length > 0
 **Estimated Time:** 5 minutes
 
 ### 1.4 MCPDynamicTool Missing contextVariables
+
 **File:** `src/lib/mcp/client.ts`
 **Line:** 239
 **Issue:** Class doesn't implement required abstract member
@@ -90,28 +94,31 @@ class MCPDynamicTool extends BaseTool<typeof inputSchema> {
 ## Priority 2: Type Safety Issues (Should Fix)
 
 ### 2.1 Next.js 15 Params Pattern
+
 **Files:** Multiple test files
 **Issue:** Tests use old params pattern (object instead of Promise)
 
 ```typescript
 // Current (WRONG):
 const response = await getThread(request, {
-  params: { thread_id: testThreadId }
+  params: { thread_id: testThreadId },
 });
 
 // Fix:
 const response = await getThread(request, {
-  params: Promise.resolve({ thread_id: testThreadId })
+  params: Promise.resolve({ thread_id: testThreadId }),
 });
 ```
 
 **Affected Files:**
+
 - `tests/api/threads.test.ts` (7 errors)
 
 **Impact:** Medium - Tests work but type-unsafe
 **Estimated Time:** 10 minutes
 
 ### 2.2 Request vs NextRequest in Tests
+
 **Files:** `tests/api/question-suggestions.test.ts`, `tests/api/storage.test.ts`
 **Issue:** Using `Request` instead of `NextRequest` in test mocks
 
@@ -129,6 +136,7 @@ const response = await POST(request);
 **Estimated Time:** 15 minutes
 
 ### 2.3 Null Assignment to Non-Nullable Types
+
 **Files:** Multiple test files
 **Issue:** Mocking functions to return null when type expects object
 
@@ -145,6 +153,7 @@ vi.mocked(validateAuth).mockResolvedValueOnce(null as any);
 **Estimated Time:** 10 minutes
 
 ### 2.4 OpenRouter Provider Type Mismatch
+
 **File:** `tests/integration/llm-providers.test.ts`
 **Lines:** 180, 223
 **Issue:** OpenRouter provider has incompatible type with Vercel AI SDK
@@ -167,6 +176,7 @@ const result = await streamText({
 **Estimated Time:** 5 minutes
 
 ### 2.5 Reasoning Level Case Mismatch
+
 **File:** `tests/e2e/conversation-flow.test.ts`
 **Lines:** 124, 376, 480, 828
 **Issue:** Using lowercase 'low' instead of uppercase 'LOW'
@@ -185,10 +195,12 @@ reasoning: 'LOW',
 ## Priority 3: Code Quality Issues (Nice to Fix)
 
 ### 3.1 Unused Variables and Imports
+
 **Files:** Multiple test files
 **Issue:** Declared but never used
 
 **Examples:**
+
 - `tests/agents/parallel-tool-execution.test.ts` - `prisma`, `MockTool`, `routine`
 - `tests/agents/routine.test.ts` - `Entity`
 - `tests/db/integration.test.ts` - `beforeEach`
@@ -201,6 +213,7 @@ reasoning: 'LOW',
 **Estimated Time:** 30 minutes
 
 ### 3.2 Unused Interface Definitions
+
 **Files:** `src/app/api/tools/route.ts`, `src/lib/tools/index.ts`
 **Issue:** Interfaces defined but never used
 
@@ -216,6 +229,7 @@ interface InputSchema { ... }
 **Estimated Time:** 10 minutes
 
 ### 3.3 Possibly Undefined in Tests
+
 **Files:** Multiple test files
 **Issue:** Accessing array elements without null checks in tests
 
@@ -232,6 +246,7 @@ expect(messages[0]?.entity).toBe('USER');
 **Estimated Time:** 30 minutes
 
 ### 3.4 Process.env Property Access
+
 **File:** `tests/proxy-verification.test.ts`
 **Issue:** Accessing process.env properties without bracket notation
 
@@ -247,6 +262,7 @@ const proxyUrl = process.env['HTTP_PROXY'];
 **Estimated Time:** 5 minutes
 
 ### 3.5 Read-only Property Assignment
+
 **File:** `tests/agents/error-handling.test.ts`
 **Lines:** 93, 125
 **Issue:** Trying to assign to read-only NODE_ENV

@@ -69,12 +69,14 @@ This document describes the middleware flow in the TypeScript backend. The middl
 **Configuration**: `NEUROAGENT_MISC__APPLICATION_PREFIX`
 
 **Example**:
+
 ```
 Input:  /myapp/api/threads/123
 Output: /api/threads/123
 ```
 
 **Key Features**:
+
 - Preserves query parameters
 - Preserves request headers
 - Preserves HTTP method
@@ -90,6 +92,7 @@ Output: /api/threads/123
 **Configuration**: `NEUROAGENT_MISC__CORS_ORIGINS`
 
 **Headers Added**:
+
 - `Access-Control-Allow-Origin`: Configured origins or `*`
 - `Access-Control-Allow-Credentials`: `true`
 - `Access-Control-Allow-Methods`: `GET, POST, PUT, DELETE, OPTIONS, PATCH`
@@ -97,6 +100,7 @@ Output: /api/threads/123
 - `Access-Control-Max-Age`: `86400` (24 hours)
 
 **Preflight Handling**:
+
 - Detects OPTIONS requests with CORS headers
 - Returns 204 No Content immediately
 - Includes all CORS headers in response
@@ -110,6 +114,7 @@ Output: /api/threads/123
 **Header**: `X-Request-ID`
 
 **Key Features**:
+
 - Generates UUID v4 using Web Crypto API
 - Preserves existing request IDs
 - Adds to all responses
@@ -130,6 +135,7 @@ NEUROAGENT_MISC__APPLICATION_PREFIX=/myapp
 ### Middleware Matcher
 
 The middleware runs on all routes except:
+
 - `/_next/static/*` - Next.js static files
 - `/_next/image/*` - Next.js image optimization
 - `/favicon.ico` - Favicon file
@@ -144,6 +150,7 @@ All middleware components have comprehensive test coverage:
 - **Integration Tests**: 12 tests covering complete middleware chain
 
 Run tests:
+
 ```bash
 npm test tests/middleware --run
 ```
@@ -153,6 +160,7 @@ npm test tests/middleware --run
 ### Request ID Tracing
 
 All requests include an `X-Request-ID` header in the response. Use this ID to:
+
 - Trace requests through logs
 - Correlate related operations
 - Debug issues across services
@@ -160,6 +168,7 @@ All requests include an `X-Request-ID` header in the response. Use this ID to:
 ### CORS Issues
 
 If experiencing CORS issues:
+
 1. Check `NEUROAGENT_MISC__CORS_ORIGINS` configuration
 2. Verify origin is in allowed list
 3. Check browser console for CORS errors
@@ -168,6 +177,7 @@ If experiencing CORS issues:
 ### Path Prefix Issues
 
 If routes are not found:
+
 1. Check `NEUROAGENT_MISC__APPLICATION_PREFIX` configuration
 2. Verify prefix matches deployment configuration
 3. Check that prefix is being stripped correctly

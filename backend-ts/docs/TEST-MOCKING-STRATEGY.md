@@ -3,6 +3,7 @@
 ## Problem
 
 Tests were making real API calls to OpenAI's API (`https://api.openai.com/v1/chat/completions`), which:
+
 - Costs money
 - Makes tests slow and unreliable
 - Violates test isolation principles
@@ -55,6 +56,7 @@ Routes that use LLM providers and are now properly mocked:
 To verify no real API calls are being made:
 
 1. Run tests with proxy interception:
+
    ```bash
    NODE_USE_ENV_PROXY=1 HTTP_PROXY=http://localhost:8080 \
    HTTPS_PROXY=http://localhost:8080 \
@@ -85,6 +87,7 @@ To test LLM integration without making real API calls:
 4. Assert on the mock function calls and parameters
 
 Example:
+
 ```typescript
 vi.mocked(generateObject).mockResolvedValue({
   object: { suggestions: [{ question: 'Test question' }] },

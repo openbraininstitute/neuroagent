@@ -16,6 +16,7 @@ Six simple test tools have been created for testing the filtering functionality:
 ## Configuration
 
 The minimum tool selection threshold is set to **3 tools** by default. This means:
+
 - If you have **≤3 tools** available: No filtering occurs, all tools are used
 - If you have **>3 tools** available: Filtering kicks in and selects relevant tools
 
@@ -26,6 +27,7 @@ With 6 tools registered, filtering will activate.
 ### Scenario 1: Weather Query (Should select WeatherTool)
 
 **Request:**
+
 ```json
 POST /api/qa/chat_streamed/[thread_id]
 {
@@ -35,12 +37,14 @@ POST /api/qa/chat_streamed/[thread_id]
 ```
 
 **Expected Behavior:**
+
 - Tool filtering activates (6 tools > 3 threshold)
 - LLM should select: `get_weather`, possibly `get_time`
 - Model selection: Likely `gpt-5-nano` or `gpt-5-mini` (low complexity)
 - Reasoning: `MINIMAL` or `LOW`
 
 **Check Database:**
+
 ```sql
 -- Get the last message
 SELECT * FROM messages ORDER BY creation_date DESC LIMIT 1;
@@ -58,6 +62,7 @@ SELECT * FROM token_consumption WHERE message_id = 'last_message_id' AND task = 
 ### Scenario 2: Math Query (Should select CalculatorTool)
 
 **Request:**
+
 ```json
 {
   "content": "Calculate 25 multiplied by 17",
@@ -66,6 +71,7 @@ SELECT * FROM token_consumption WHERE message_id = 'last_message_id' AND task = 
 ```
 
 **Expected Behavior:**
+
 - Tool filtering activates
 - LLM should select: `calculator`
 - Model selection: `gpt-5-nano` (very low complexity)
@@ -74,6 +80,7 @@ SELECT * FROM token_consumption WHERE message_id = 'last_message_id' AND task = 
 ### Scenario 3: Translation Query (Should select TranslatorTool)
 
 **Request:**
+
 ```json
 {
   "content": "How do you say 'hello' in Spanish and French?",
@@ -82,6 +89,7 @@ SELECT * FROM token_consumption WHERE message_id = 'last_message_id' AND task = 
 ```
 
 **Expected Behavior:**
+
 - Tool filtering activates
 - LLM should select: `translate_text`
 - Model selection: `gpt-5-nano` or `gpt-5-mini`
@@ -90,6 +98,7 @@ SELECT * FROM token_consumption WHERE message_id = 'last_message_id' AND task = 
 ### Scenario 4: Multi-Tool Query (Should select multiple tools)
 
 **Request:**
+
 ```json
 {
   "content": "What time is it in Tokyo and what's the weather there?",
@@ -98,6 +107,7 @@ SELECT * FROM token_consumption WHERE message_id = 'last_message_id' AND task = 
 ```
 
 **Expected Behavior:**
+
 - Tool filtering activates
 - LLM should select: `get_time`, `get_weather`
 - Model selection: `gpt-5-mini` (moderate complexity)
@@ -106,6 +116,7 @@ SELECT * FROM token_consumption WHERE message_id = 'last_message_id' AND task = 
 ### Scenario 5: Complex Query (Should select higher model)
 
 **Request:**
+
 ```json
 {
   "content": "I need to convert 100 USD to EUR, then tell me what time it is in Paris, translate 'good morning' to French, and calculate the exchange rate difference if I convert to GBP instead",
@@ -114,6 +125,7 @@ SELECT * FROM token_consumption WHERE message_id = 'last_message_id' AND task = 
 ```
 
 **Expected Behavior:**
+
 - Tool filtering activates
 - LLM should select: `convert_currency`, `get_time`, `translate_text`, `calculator`
 - Model selection: `gpt-5-mini` or `gpt-5.1` (high complexity)
@@ -122,6 +134,7 @@ SELECT * FROM token_consumption WHERE message_id = 'last_message_id' AND task = 
 ### Scenario 6: Specific Model (Should skip model selection)
 
 **Request:**
+
 ```json
 {
   "content": "What's the weather in London?",
@@ -130,6 +143,7 @@ SELECT * FROM token_consumption WHERE message_id = 'last_message_id' AND task = 
 ```
 
 **Expected Behavior:**
+
 - Tool filtering activates (still happens)
 - LLM should select: `get_weather`
 - Model selection: **SKIPPED** (user specified model)
@@ -152,6 +166,7 @@ Watch the console output for filtering logs:
 ### 1. Check Console Logs
 
 Look for these log entries:
+
 - `[chat_streamed] Tool filtering complete:` - Shows filtering results
 - `[filterToolsAndModelByConversation] Query complexity:` - Shows complexity score and model selection
 
@@ -221,6 +236,7 @@ export NEUROAGENT_TOOLS__MIN_TOOL_SELECTION=3
 **Problem:** All tools are being used, no filtering occurs
 
 **Solutions:**
+
 1. Check tool count: `console.log('[chat_streamed] Registered', toolClasses.length, 'tool classes');`
 2. Verify threshold: Should be less than tool count
 3. Check OpenRouter token: Filtering requires `NEUROAGENT_LLM__OPENROUTER_TOKEN`
@@ -230,6 +246,7 @@ export NEUROAGENT_TOOLS__MIN_TOOL_SELECTION=3
 **Problem:** LLM selects irrelevant tools
 
 **Solutions:**
+
 1. Check tool descriptions and utterances - make them more specific
 2. Review system prompt in `tool-filtering.ts`
 3. Check conversation history - previous messages affect selection
@@ -239,6 +256,7 @@ export NEUROAGENT_TOOLS__MIN_TOOL_SELECTION=3
 **Problem:** Wrong model or reasoning level selected
 
 **Solutions:**
+
 1. Check complexity score in logs
 2. Verify `complexityToModelAndReasoning()` mapping
 3. Review complexity ranking criteria in system prompt
@@ -248,6 +266,7 @@ export NEUROAGENT_TOOLS__MIN_TOOL_SELECTION=3
 **Problem:** Prisma validation errors for reasoning enum
 
 **Solutions:**
+
 1. Ensure reasoning values are uppercase: `MINIMAL`, `LOW`, `MEDIUM`, `HIGH`, `NONE`
 2. Check Prisma schema enum matches: `enum reasoninglevels`
 3. Verify database enum is created correctly

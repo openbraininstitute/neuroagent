@@ -1,19 +1,20 @@
 /**
  * Individual Thread API Routes - Get, Update, Delete
- * 
+ *
  * Endpoints:
  * - GET /api/threads/[thread_id] - Get thread by ID
  * - PATCH /api/threads/[thread_id] - Update thread title
  * - DELETE /api/threads/[thread_id] - Delete thread
- * 
+ *
  * Features:
  * - Authentication required
  * - Ownership validation
  * - Cascading delete for messages and related data
  */
 
-import { NextRequest, NextResponse } from 'next/server';
+import { type NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
+
 import { prisma } from '@/lib/db/client';
 import { validateAuth, AuthenticationError, AuthorizationError } from '@/lib/middleware/auth';
 
@@ -41,7 +42,7 @@ type ThreadsRead = z.infer<typeof ThreadsReadSchema>;
 async function getThreadWithOwnershipCheck(threadId: string, userId: string) {
   console.log(`[DEBUG] Looking for thread: ${threadId}`);
   console.log(`[DEBUG] User ID: ${userId}`);
-  
+
   const thread = await prisma.thread.findUnique({
     where: { id: threadId },
   });
@@ -64,7 +65,7 @@ async function getThreadWithOwnershipCheck(threadId: string, userId: string) {
 
 /**
  * GET /api/threads/[thread_id]
- * 
+ *
  * Get a specific thread by ID.
  * Validates that the authenticated user owns the thread.
  */
@@ -110,26 +111,20 @@ export async function GET(
     }
 
     if (error instanceof Error && error.message === 'Thread not found') {
-      return NextResponse.json(
-        { error: 'Thread not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: 'Thread not found' }, { status: 404 });
     }
 
     console.error('Error getting thread:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
 /**
  * PATCH /api/threads/[thread_id]
- * 
+ *
  * Update thread title.
  * Validates that the authenticated user owns the thread.
- * 
+ *
  * Request body:
  * - title: string - New thread title
  */
@@ -188,10 +183,7 @@ export async function PATCH(
     }
 
     if (error instanceof Error && error.message === 'Thread not found') {
-      return NextResponse.json(
-        { error: 'Thread not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: 'Thread not found' }, { status: 404 });
     }
 
     if (error instanceof z.ZodError) {
@@ -202,19 +194,16 @@ export async function PATCH(
     }
 
     console.error('Error updating thread:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
 /**
  * DELETE /api/threads/[thread_id]
- * 
+ *
  * Delete thread and all associated messages, tool calls, and token consumption.
  * Validates that the authenticated user owns the thread.
- * 
+ *
  * Note: Cascading deletes are handled by Prisma based on the schema relations.
  */
 export async function DELETE(
@@ -253,16 +242,10 @@ export async function DELETE(
     }
 
     if (error instanceof Error && error.message === 'Thread not found') {
-      return NextResponse.json(
-        { error: 'Thread not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: 'Thread not found' }, { status: 404 });
     }
 
     console.error('Error deleting thread:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

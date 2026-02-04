@@ -3,7 +3,8 @@
  */
 
 import { z } from 'zod';
-import { BaseTool, BaseContextVariables } from '../base-tool';
+
+import { BaseTool, type BaseContextVariables } from '../base-tool';
 
 const CurrencyToolInputSchema = z.object({
   amount: z.number().describe('The amount to convert'),
@@ -14,7 +15,8 @@ const CurrencyToolInputSchema = z.object({
 export class CurrencyTool extends BaseTool<typeof CurrencyToolInputSchema, BaseContextVariables> {
   static readonly toolName = 'convert_currency';
   static readonly toolNameFrontend = 'Currency Converter';
-  static readonly toolDescription = 'Convert amounts between different currencies. Supports major world currencies including USD, EUR, GBP, JPY, CNY, and more.';
+  static readonly toolDescription =
+    'Convert amounts between different currencies. Supports major world currencies including USD, EUR, GBP, JPY, CNY, and more.';
   static readonly toolDescriptionFrontend = 'Convert between currencies';
   static readonly toolUtterances = [
     'Convert 100 USD to EUR',
@@ -39,7 +41,7 @@ export class CurrencyTool extends BaseTool<typeof CurrencyToolInputSchema, BaseC
       USD: 1.0,
       EUR: 0.92,
       GBP: 0.79,
-      JPY: 149.50,
+      JPY: 149.5,
       CNY: 7.24,
       AUD: 1.53,
       CAD: 1.36,

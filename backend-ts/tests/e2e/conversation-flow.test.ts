@@ -166,7 +166,7 @@ describe('End-to-End: Complete User Flows', () => {
             headers: {
               'Content-Type': 'text/event-stream',
               'Cache-Control': 'no-cache',
-              'Connection': 'keep-alive',
+              Connection: 'keep-alive',
             },
           });
           return response;
@@ -182,17 +182,14 @@ describe('End-to-End: Complete User Flows', () => {
       } as any);
 
       // Make request
-      const request = new NextRequest(
-        `http://localhost/api/qa/chat_streamed/${testThreadId}`,
-        {
-          method: 'POST',
-          body: JSON.stringify({ content: 'Hello, I need help with neuroscience research' }),
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: 'Bearer test-token',
-          },
-        }
-      );
+      const request = new NextRequest(`http://localhost/api/qa/chat_streamed/${testThreadId}`, {
+        method: 'POST',
+        body: JSON.stringify({ content: 'Hello, I need help with neuroscience research' }),
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: 'Bearer test-token',
+        },
+      });
 
       const response = await POST(request, {
         params: Promise.resolve({ thread_id: testThreadId }),
@@ -289,7 +286,7 @@ describe('End-to-End: Complete User Flows', () => {
             headers: {
               'Content-Type': 'text/event-stream',
               'Cache-Control': 'no-cache',
-              'Connection': 'keep-alive',
+              Connection: 'keep-alive',
             },
           });
         }),
@@ -300,17 +297,14 @@ describe('End-to-End: Complete User Flows', () => {
       } as any);
 
       // Make follow-up request
-      const request = new NextRequest(
-        `http://localhost/api/qa/chat_streamed/${testThreadId}`,
-        {
-          method: 'POST',
-          body: JSON.stringify({ content: 'How do they communicate?' }),
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: 'Bearer test-token',
-          },
-        }
-      );
+      const request = new NextRequest(`http://localhost/api/qa/chat_streamed/${testThreadId}`, {
+        method: 'POST',
+        body: JSON.stringify({ content: 'How do they communicate?' }),
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: 'Bearer test-token',
+        },
+      });
 
       const response = await POST(request, {
         params: Promise.resolve({ thread_id: testThreadId }),
@@ -400,7 +394,7 @@ describe('End-to-End: Complete User Flows', () => {
             headers: {
               'Content-Type': 'text/event-stream',
               'Cache-Control': 'no-cache',
-              'Connection': 'keep-alive',
+              Connection: 'keep-alive',
             },
           });
         }),
@@ -411,17 +405,14 @@ describe('End-to-End: Complete User Flows', () => {
       } as any);
 
       // Make request that triggers tool use
-      const request = new NextRequest(
-        `http://localhost/api/qa/chat_streamed/${testThreadId}`,
-        {
-          method: 'POST',
-          body: JSON.stringify({ content: 'Search for information about neurons' }),
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: 'Bearer test-token',
-          },
-        }
-      );
+      const request = new NextRequest(`http://localhost/api/qa/chat_streamed/${testThreadId}`, {
+        method: 'POST',
+        body: JSON.stringify({ content: 'Search for information about neurons' }),
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: 'Bearer test-token',
+        },
+      });
 
       const response = await POST(request, {
         params: Promise.resolve({ thread_id: testThreadId }),
@@ -511,7 +502,7 @@ describe('End-to-End: Complete User Flows', () => {
             headers: {
               'Content-Type': 'text/event-stream',
               'Cache-Control': 'no-cache',
-              'Connection': 'keep-alive',
+              Connection: 'keep-alive',
             },
           });
         }),
@@ -521,19 +512,16 @@ describe('End-to-End: Complete User Flows', () => {
         experimental_providerMetadata: undefined,
       } as any);
 
-      const request = new NextRequest(
-        `http://localhost/api/qa/chat_streamed/${testThreadId}`,
-        {
-          method: 'POST',
-          body: JSON.stringify({
-            content: 'Search both web and literature for neuron information',
-          }),
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: 'Bearer test-token',
-          },
-        }
-      );
+      const request = new NextRequest(`http://localhost/api/qa/chat_streamed/${testThreadId}`, {
+        method: 'POST',
+        body: JSON.stringify({
+          content: 'Search both web and literature for neuron information',
+        }),
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: 'Bearer test-token',
+        },
+      });
 
       const response = await POST(request, {
         params: Promise.resolve({ thread_id: testThreadId }),
@@ -585,7 +573,7 @@ describe('End-to-End: Complete User Flows', () => {
             headers: {
               'Content-Type': 'text/event-stream',
               'Cache-Control': 'no-cache',
-              'Connection': 'keep-alive',
+              Connection: 'keep-alive',
             },
           });
         }),
@@ -595,17 +583,14 @@ describe('End-to-End: Complete User Flows', () => {
         experimental_providerMetadata: undefined,
       } as any);
 
-      const request = new NextRequest(
-        `http://localhost/api/qa/chat_streamed/${testThreadId}`,
-        {
-          method: 'POST',
-          body: JSON.stringify({ content: 'Tell me about neurons' }),
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: 'Bearer test-token',
-          },
-        }
-      );
+      const request = new NextRequest(`http://localhost/api/qa/chat_streamed/${testThreadId}`, {
+        method: 'POST',
+        body: JSON.stringify({ content: 'Tell me about neurons' }),
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: 'Bearer test-token',
+        },
+      });
 
       // The response should still be returned even if stream is interrupted
       const response = await POST(request, {
@@ -658,7 +643,7 @@ describe('End-to-End: Complete User Flows', () => {
             headers: {
               'Content-Type': 'text/event-stream',
               'Cache-Control': 'no-cache',
-              'Connection': 'keep-alive',
+              Connection: 'keep-alive',
             },
           });
         }),
@@ -668,17 +653,14 @@ describe('End-to-End: Complete User Flows', () => {
         experimental_providerMetadata: undefined,
       } as any);
 
-      const request = new NextRequest(
-        `http://localhost/api/qa/chat_streamed/${testThreadId}`,
-        {
-          method: 'POST',
-          body: JSON.stringify({ content: 'Quick question' }),
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: 'Bearer test-token',
-          },
-        }
-      );
+      const request = new NextRequest(`http://localhost/api/qa/chat_streamed/${testThreadId}`, {
+        method: 'POST',
+        body: JSON.stringify({ content: 'Quick question' }),
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: 'Bearer test-token',
+        },
+      });
 
       const response = await POST(request, {
         params: Promise.resolve({ thread_id: testThreadId }),
@@ -743,7 +725,7 @@ describe('End-to-End: Complete User Flows', () => {
             headers: {
               'Content-Type': 'text/event-stream',
               'Cache-Control': 'no-cache',
-              'Connection': 'keep-alive',
+              Connection: 'keep-alive',
             },
           });
         }),
@@ -754,17 +736,14 @@ describe('End-to-End: Complete User Flows', () => {
       } as any);
 
       // Make new request after interruption
-      const request = new NextRequest(
-        `http://localhost/api/qa/chat_streamed/${testThreadId}`,
-        {
-          method: 'POST',
-          body: JSON.stringify({ content: 'Can you try again?' }),
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: 'Bearer test-token',
-          },
-        }
-      );
+      const request = new NextRequest(`http://localhost/api/qa/chat_streamed/${testThreadId}`, {
+        method: 'POST',
+        body: JSON.stringify({ content: 'Can you try again?' }),
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: 'Bearer test-token',
+        },
+      });
 
       const response = await POST(request, {
         params: Promise.resolve({ thread_id: testThreadId }),
@@ -848,9 +827,7 @@ describe('End-to-End: Complete User Flows', () => {
                 encoder.encode('9:{"toolCallId":"call-1","toolName":"get_brain_region"}\n')
               );
               controller.enqueue(
-                encoder.encode(
-                  'a:{"toolCallId":"call-1","result":{"region":"Hippocampus"}}\n'
-                )
+                encoder.encode('a:{"toolCallId":"call-1","result":{"region":"Hippocampus"}}\n')
               );
               // Streaming response
               controller.enqueue(encoder.encode('0:"The hippocampus "\n'));
@@ -864,7 +841,7 @@ describe('End-to-End: Complete User Flows', () => {
             headers: {
               'Content-Type': 'text/event-stream',
               'Cache-Control': 'no-cache',
-              'Connection': 'keep-alive',
+              Connection: 'keep-alive',
             },
           });
         }),
@@ -874,17 +851,14 @@ describe('End-to-End: Complete User Flows', () => {
         experimental_providerMetadata: undefined,
       } as any);
 
-      const request = new NextRequest(
-        `http://localhost/api/qa/chat_streamed/${testThreadId}`,
-        {
-          method: 'POST',
-          body: JSON.stringify({ content: 'Tell me about the hippocampus' }),
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: 'Bearer test-token',
-          },
-        }
-      );
+      const request = new NextRequest(`http://localhost/api/qa/chat_streamed/${testThreadId}`, {
+        method: 'POST',
+        body: JSON.stringify({ content: 'Tell me about the hippocampus' }),
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: 'Bearer test-token',
+        },
+      });
 
       const response = await POST(request, {
         params: Promise.resolve({ thread_id: testThreadId }),
@@ -925,7 +899,7 @@ describe('End-to-End: Complete User Flows', () => {
             headers: {
               'Content-Type': 'text/event-stream',
               'Cache-Control': 'no-cache',
-              'Connection': 'keep-alive',
+              Connection: 'keep-alive',
             },
           });
         }),
@@ -935,17 +909,14 @@ describe('End-to-End: Complete User Flows', () => {
         experimental_providerMetadata: undefined,
       } as any);
 
-      const request = new NextRequest(
-        `http://localhost/api/qa/chat_streamed/${testThreadId}`,
-        {
-          method: 'POST',
-          body: JSON.stringify({ content: 'Test message' }),
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: 'Bearer test-token',
-          },
-        }
-      );
+      const request = new NextRequest(`http://localhost/api/qa/chat_streamed/${testThreadId}`, {
+        method: 'POST',
+        body: JSON.stringify({ content: 'Test message' }),
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: 'Bearer test-token',
+        },
+      });
 
       const response = await POST(request, {
         params: Promise.resolve({ thread_id: testThreadId }),

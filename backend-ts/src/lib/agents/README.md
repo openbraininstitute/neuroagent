@@ -5,6 +5,7 @@ This module provides the core agent orchestration logic for the Neuroagent TypeS
 ## Overview
 
 The agents module handles:
+
 - LLM streaming with Vercel AI SDK's `streamText` function
 - Message history conversion from database format to CoreMessage format
 - Tool execution and response formatting
@@ -47,12 +48,12 @@ Configuration interface for agent behavior:
 
 ```typescript
 interface AgentConfig {
-  model: string;              // Model identifier (e.g., 'openai/gpt-4')
-  temperature: number;        // Temperature for generation (0-2)
-  maxTokens?: number;         // Maximum tokens to generate
-  reasoning?: string;         // Reasoning level (optional)
-  tools: BaseTool<any>[];    // Available tools
-  instructions: string;       // System instructions
+  model: string; // Model identifier (e.g., 'openai/gpt-4')
+  temperature: number; // Temperature for generation (0-2)
+  maxTokens?: number; // Maximum tokens to generate
+  reasoning?: string; // Reasoning level (optional)
+  tools: BaseTool<any>[]; // Available tools
+  instructions: string; // System instructions
 }
 ```
 
@@ -78,11 +79,11 @@ await routine.streamChat({ model: 'openrouter/anthropic/claude-3', ... }, ...);
 
 Database messages are automatically converted to Vercel AI SDK's CoreMessage format:
 
-| Database Entity | CoreMessage Role | Notes |
-|----------------|------------------|-------|
-| USER | user | User messages |
-| AI_MESSAGE | assistant | Assistant messages (may include tool calls) |
-| TOOL | tool | Tool execution results |
+| Database Entity | CoreMessage Role | Notes                                       |
+| --------------- | ---------------- | ------------------------------------------- |
+| USER            | user             | User messages                               |
+| AI_MESSAGE      | assistant        | Assistant messages (may include tool calls) |
+| TOOL            | tool             | Tool execution results                      |
 
 ### Token Tracking
 
@@ -92,6 +93,7 @@ All LLM calls automatically track token consumption:
 - **COMPLETION**: Completion tokens
 
 Token records include:
+
 - Type (INPUT_NONCACHED, INPUT_CACHED, COMPLETION)
 - Task (CHAT_COMPLETION, TOOL_SELECTION, CALL_WITHIN_TOOL)
 - Count (number of tokens)
@@ -100,6 +102,7 @@ Token records include:
 ### Streaming Interruption Handling
 
 If a stream is interrupted:
+
 1. Partial content is tracked during streaming
 2. On error, a partial message is saved with `isComplete=false`
 3. The error is re-thrown for handling by the caller
@@ -109,17 +112,20 @@ If a stream is interrupted:
 The routine integrates with Prisma for:
 
 ### Message Storage
+
 - Creates message records with unique IDs
 - Stores message content as JSON
 - Tracks completion status (`isComplete`)
 - Associates messages with threads
 
 ### Tool Call Storage
+
 - Stores tool call ID, name, and arguments
 - Links tool calls to messages
 - Tracks validation status
 
 ### Token Consumption Storage
+
 - Creates token consumption records
 - Links to messages
 - Includes type, task, count, and model
@@ -127,6 +133,7 @@ The routine integrates with Prisma for:
 ## Error Handling
 
 ### Provider Configuration Errors
+
 ```typescript
 // Throws if provider not configured
 throw new Error('OpenAI provider not configured');
@@ -134,11 +141,13 @@ throw new Error('OpenRouter provider not configured');
 ```
 
 ### Streaming Errors
+
 - Caught and logged
 - Partial messages saved (best-effort)
 - Error re-thrown for caller handling
 
 ### Message Parsing Errors
+
 - Malformed messages are skipped
 - Errors logged to console
 - Conversion continues with remaining messages
@@ -152,6 +161,7 @@ npm test tests/agents/routine.test.ts
 ```
 
 Tests cover:
+
 - Constructor initialization
 - Message conversion (user, assistant, tool)
 - Provider selection

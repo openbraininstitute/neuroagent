@@ -86,6 +86,7 @@ The tool {tool_name} with arguments {args_json} could not be executed due to rat
 ```
 
 This format:
+
 - Clearly indicates the rate limit issue
 - Includes the tool name and arguments for context
 - Instructs the LLM to retry the call
@@ -95,6 +96,7 @@ This format:
 The TypeScript implementation matches the Python backend behavior:
 
 **Python Backend** (`backend/src/neuroagent/agent_routine.py`):
+
 ```python
 # Execute only the first max_parallel_tool_calls tools
 tool_calls_executed = await self.execute_tool_calls(
@@ -116,6 +118,7 @@ tool_calls_executed.messages.extend([
 ```
 
 **TypeScript Backend** (`backend-ts/src/lib/agents/routine.ts`):
+
 ```typescript
 // Wrap tool execution to enforce limit
 if (toolPosition > maxParallelToolCalls) {
@@ -146,6 +149,7 @@ npm test -- tests/agents/parallel-tool-execution.test.ts
 ```
 
 Test coverage includes:
+
 - Step tracking using message count
 - Limit enforcement
 - Error message format
@@ -155,16 +159,19 @@ Test coverage includes:
 ## Configuration Examples
 
 ### Development (Unlimited)
+
 ```bash
 NEUROAGENT_AGENT__MAX_PARALLEL_TOOL_CALLS=100
 ```
 
 ### Production (Conservative)
+
 ```bash
 NEUROAGENT_AGENT__MAX_PARALLEL_TOOL_CALLS=3
 ```
 
 ### Sequential Execution
+
 ```bash
 NEUROAGENT_AGENT__MAX_PARALLEL_TOOL_CALLS=1
 ```
@@ -184,12 +191,14 @@ The implementation includes detailed logging:
 ## Requirements
 
 This implementation satisfies:
+
 - **Requirement 2.6**: Support parallel tool calls with configurable limits
 - **Property 6**: For any set of tool calls up to the configured limit, they should execute in parallel, and calls beyond the limit should be queued or rejected
 
 ## Future Enhancements
 
 Potential improvements:
+
 1. **Queuing**: Instead of immediate rejection, queue tools beyond the limit
 2. **Priority**: Allow certain tools to bypass the limit
 3. **Dynamic Limits**: Adjust limits based on system load

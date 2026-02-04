@@ -7,8 +7,8 @@
  * along with interfaces and utilities for context variables and health checks.
  */
 
-import { z } from 'zod';
-import { tool as vercelTool, Tool } from 'ai';
+import { tool as vercelTool, type Tool } from 'ai';
+import { type z } from 'zod';
 
 /**
  * Base context variables interface
@@ -119,9 +119,8 @@ export interface ToolClass {
  */
 export abstract class BaseTool<
   TInput extends z.ZodType,
-  TContext extends BaseContextVariables = BaseContextVariables
-> implements ToolHealthCheck
-{
+  TContext extends BaseContextVariables = BaseContextVariables,
+> implements ToolHealthCheck {
   /**
    * Context variables (runtime dependencies)
    *
@@ -306,9 +305,7 @@ export class ToolRegistry {
   registerClass(ToolClass: ToolClass): void {
     const toolName = ToolClass.toolName;
     if (this.toolClasses.has(toolName)) {
-      throw new Error(
-        `Tool with name "${toolName}" is already registered`
-      );
+      throw new Error(`Tool with name "${toolName}" is already registered`);
     }
     // Store the class reference (NOT an instance - just the class type)
     this.toolClasses.set(toolName, ToolClass);

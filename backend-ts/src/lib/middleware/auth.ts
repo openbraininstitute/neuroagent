@@ -1,14 +1,15 @@
 /**
  * Authentication middleware for JWT validation with Keycloak.
- * 
+ *
  * Provides functions for:
  * - JWT token validation using Keycloak's public keys
  * - User information extraction from JWT payload
  * - Project and virtual lab access validation
  */
 
-import { NextRequest } from 'next/server';
 import { jwtVerify, createRemoteJWKSet } from 'jose';
+import { type NextRequest } from 'next/server';
+
 import { getSettings } from '../config/settings';
 
 /**
@@ -47,7 +48,7 @@ export class AuthorizationError extends Error {
 
 /**
  * Extract bearer token from Authorization header.
- * 
+ *
  * @param request - Next.js request object
  * @returns Bearer token string or null if not present
  */
@@ -67,17 +68,17 @@ function extractBearerToken(request: NextRequest): string | null {
 
 /**
  * Validate JWT token with Keycloak and extract user information.
- * 
+ *
  * This function:
  * 1. Extracts the bearer token from the Authorization header
  * 2. Verifies the JWT signature using Keycloak's public keys (JWKS)
  * 3. Validates token expiration and other claims
  * 4. Extracts user information from the token payload
- * 
+ *
  * @param request - Next.js request object
  * @returns User information extracted from valid JWT token
  * @throws AuthenticationError if token is missing, invalid, or expired
- * 
+ *
  * @example
  * ```typescript
  * const userInfo = await validateAuth(request);
@@ -135,14 +136,14 @@ export async function validateAuth(request: NextRequest): Promise<UserInfo> {
 
 /**
  * Validate user access to a virtual lab.
- * 
+ *
  * Checks if the user's groups include the virtual lab membership.
  * Group format: `/vlab/{vlabId}`
- * 
+ *
  * @param groups - User's group memberships from JWT token
  * @param vlabId - Virtual lab ID to validate access for
  * @throws AuthorizationError if user doesn't have access
- * 
+ *
  * @example
  * ```typescript
  * validateVirtualLabAccess(userInfo.groups, 'abc-123-def');
@@ -158,28 +159,22 @@ export function validateVirtualLabAccess(groups: string[], vlabId: string): void
 
 /**
  * Validate user access to a project within a virtual lab.
- * 
+ *
  * Checks if the user's groups include the project membership.
  * Group format: `/proj/{vlabId}/{projectId}`
- * 
+ *
  * @param groups - User's group memberships from JWT token
  * @param vlabId - Virtual lab ID
  * @param projectId - Project ID to validate access for
  * @throws AuthorizationError if user doesn't have access
- * 
+ *
  * @example
  * ```typescript
  * validateProjectAccess(userInfo.groups, 'abc-123-def', 'proj-456-ghi');
  * ```
  */
-export function validateProjectAccess(
-  groups: string[],
-  vlabId: string,
-  projectId: string
-): void {
-  const belongsToProject = groups.some((group) =>
-    group.includes(`/proj/${vlabId}/${projectId}`)
-  );
+export function validateProjectAccess(groups: string[], vlabId: string, projectId: string): void {
+  const belongsToProject = groups.some((group) => group.includes(`/proj/${vlabId}/${projectId}`));
 
   if (!belongsToProject) {
     throw new AuthorizationError('User does not belong to the project');
@@ -188,24 +183,24 @@ export function validateProjectAccess(
 
 /**
  * Validate user access to a virtual lab and/or project.
- * 
+ *
  * This is a convenience function that handles multiple validation scenarios:
  * - If only vlabId is provided: validates virtual lab access
  * - If both vlabId and projectId are provided: validates project access
  * - If only projectId is provided: throws error (vlabId is required)
  * - If neither is provided: no validation (returns immediately)
- * 
+ *
  * @param groups - User's group memberships from JWT token
  * @param vlabId - Optional virtual lab ID
  * @param projectId - Optional project ID
  * @throws AuthorizationError if user doesn't have required access
  * @throws Error if projectId is provided without vlabId
- * 
+ *
  * @example
  * ```typescript
  * // Validate virtual lab access only
  * validateProject(userInfo.groups, 'abc-123-def');
- * 
+ *
  * // Validate project access (also validates vlab access)
  * validateProject(userInfo.groups, 'abc-123-def', 'proj-456-ghi');
  * ```
@@ -230,13 +225,13 @@ export function validateProject(
 
 /**
  * Validate authentication and return user info, or return null if authentication fails.
- * 
+ *
  * This is a non-throwing variant of validateAuth that returns null instead of throwing
  * an error. Useful for optional authentication scenarios.
- * 
+ *
  * @param request - Next.js request object
  * @returns User information or null if authentication fails
- * 
+ *
  * @example
  * ```typescript
  * const userInfo = await validateAuthOptional(request);
@@ -247,9 +242,7 @@ export function validateProject(
  * }
  * ```
  */
-export async function validateAuthOptional(
-  request: NextRequest
-): Promise<UserInfo | null> {
+export async function validateAuthOptional(request: NextRequest): Promise<UserInfo | null> {
   try {
     return await validateAuth(request);
   } catch (error) {

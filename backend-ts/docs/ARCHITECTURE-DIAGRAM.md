@@ -103,6 +103,7 @@
 ## Comparison: Metadata Access
 
 ### V1 (Slow)
+
 ```
 User Request
     ↓
@@ -124,6 +125,7 @@ Response (55+ seconds)
 ```
 
 ### V2 (Fast)
+
 ```
 User Request
     ↓
@@ -139,6 +141,7 @@ Response (2-5 seconds)
 ## Comparison: Tool Execution
 
 ### V1 (Same)
+
 ```
 Execution Request
     ↓
@@ -150,6 +153,7 @@ Response
 ```
 
 ### V2 (Same)
+
 ```
 Execution Request
     ↓
@@ -171,7 +175,7 @@ class BaseTool(BaseModel, ABC):
     name: ClassVar[str]          # ← Class-level (static)
     description: ClassVar[str]   # ← Class-level (static)
     metadata: BaseMetadata       # ← Instance-level
-    
+
     @abstractmethod
     async def arun(self) -> BaseModel:
         pass

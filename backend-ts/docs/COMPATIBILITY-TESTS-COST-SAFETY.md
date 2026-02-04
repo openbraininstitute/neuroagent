@@ -13,11 +13,13 @@ The API compatibility test suite has been designed to **avoid making actual LLM 
 **Reason**: This endpoint makes actual LLM API calls via `streamText()` which incurs costs
 
 **What it would test**:
+
 - Content-Type headers (text/event-stream)
 - Vercel AI SDK headers (x-vercel-ai-data-stream)
 - Streaming response format
 
 **Manual testing**:
+
 ```bash
 # Create a thread
 curl -X POST http://localhost:3000/threads \
@@ -42,11 +44,13 @@ See `tests/e2e/conversation-flow.test.ts` which uses mocked AI SDK responses.
 **Reason**: This endpoint uses `generateObject()` which makes actual LLM API calls
 
 **What it would test**:
+
 - Response schema: `{ suggestions: string[3] }`
 - Out-of-chat suggestions (with frontend_url)
 - In-chat suggestions (with thread_id)
 
 **Manual testing**:
+
 ```bash
 # Out-of-chat suggestions (THIS WILL MAKE AN LLM CALL)
 curl -X POST http://localhost:3000/qa/question_suggestions \
@@ -69,11 +73,13 @@ Mock the `generateObject()` function in unit tests.
 The following tests are **safe to run** and do NOT make LLM API calls:
 
 ### ✅ Health Check Endpoints
+
 - `/healthz` - Simple health check
 - `/` - Readiness check
 - `/settings` - Configuration endpoint
 
 ### ✅ Thread Endpoints
+
 - `POST /threads` - Create thread (database only)
 - `GET /threads` - List threads (database only)
 - `GET /threads/{thread_id}` - Get thread (database only)
@@ -83,23 +89,28 @@ The following tests are **safe to run** and do NOT make LLM API calls:
 - `GET /threads/search` - Search threads (database only)
 
 ### ✅ Tools Endpoints
+
 - `GET /tools` - List tools (metadata only)
 - `GET /tools/{name}` - Get tool metadata (no execution)
 
 ### ✅ Storage Endpoints
+
 - `GET /storage/{file}/presigned-url` - Generate URL (no LLM)
 
 ### ✅ Error Response Tests
+
 - 401 Unauthorized
 - 404 Not Found
 - Error format validation
 
 ### ✅ Authentication Tests
+
 - Missing token
 - Invalid token
 - Project access validation
 
 ### ✅ Models Endpoint
+
 - `GET /qa/models` - List available models (no LLM call)
 
 ## Running Safe Tests Only
@@ -112,6 +123,7 @@ cd backend-ts
 ```
 
 Output will show:
+
 ```
 ✓ API Compatibility - Health Checks (3)
 ✓ API Compatibility - Threads (8)
@@ -137,11 +149,13 @@ Running the full compatibility test suite with LLM calls would cost approximatel
 - **Total**: ~6 LLM calls per test run
 
 **Estimated cost** (using GPT-4):
+
 - Input tokens: ~500 tokens per call × 6 = 3,000 tokens
 - Output tokens: ~100 tokens per call × 6 = 600 tokens
 - **Cost**: ~$0.10 - $0.20 per test run
 
 **With CI/CD** (running on every commit):
+
 - 10 commits/day × $0.15 = **$1.50/day**
 - **$45/month** just for compatibility tests
 
@@ -163,7 +177,7 @@ vi.mock('ai', () => ({
 
 // Mock the response
 vi.mocked(generateObject).mockResolvedValue({
-  object: { suggestions: ['Q1', 'Q2', 'Q3'] }
+  object: { suggestions: ['Q1', 'Q2', 'Q3'] },
 });
 ```
 
@@ -172,6 +186,7 @@ See `tests/e2e/conversation-flow.test.ts` for examples.
 ### 2. Dedicated Test Environment
 
 Set up a test environment with:
+
 - Mocked LLM provider that returns canned responses
 - No actual API calls to OpenAI/OpenRouter
 - Fast, deterministic responses
@@ -179,6 +194,7 @@ Set up a test environment with:
 ### 3. Manual Testing
 
 For critical releases, manually test LLM endpoints:
+
 1. Create a test thread
 2. Send a few test messages
 3. Verify streaming works
@@ -188,6 +204,7 @@ For critical releases, manually test LLM endpoints:
 ### 4. Staging Environment Tests
 
 Run LLM tests only in staging:
+
 - Scheduled nightly runs (not on every commit)
 - Use cheaper models (gpt-3.5-turbo instead of gpt-4)
 - Limit to critical paths only

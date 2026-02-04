@@ -7,11 +7,13 @@ This document summarizes the cleanup performed on the `backend-ts` directory to 
 ### 1. Environment Configuration Files
 
 **Removed:**
+
 - `.env.docker.example` - Redundant Docker-specific configuration
 - `.env.compatibility.example` - Temporary compatibility testing configuration
 - `.env.production.example` - Redundant production configuration
 
 **Kept:**
+
 - `.env.example` - Single, comprehensive environment configuration file with:
   - Clear section organization
   - Inline documentation and comments
@@ -23,6 +25,7 @@ This document summarizes the cleanup performed on the `backend-ts` directory to 
 ### 2. Temporary Test Files
 
 **Removed:**
+
 - `test-docker.sh` - Temporary Docker testing script
 - `list-threads.ts` - Temporary utility script for listing threads
 
@@ -31,6 +34,7 @@ This document summarizes the cleanup performed on the `backend-ts` directory to 
 ### 3. Package.json Scripts
 
 **Removed scripts:**
+
 - `build:analyze` - Bundle analysis (can be run manually if needed)
 - `start:prod` - Redundant with `start` (use NODE_ENV instead)
 - `test:compatibility` - Specific test file (use `test` with file path)
@@ -44,6 +48,7 @@ This document summarizes the cleanup performed on the `backend-ts` directory to 
 - `docker:*` - Docker commands should be run directly, not via npm
 
 **Kept scripts (18 total):**
+
 - Core: `dev`, `build`, `start`
 - Quality: `lint`, `lint:fix`, `format`, `format:check`, `type-check`
 - Testing: `test`, `test:watch`, `test:coverage`
@@ -52,6 +57,7 @@ This document summarizes the cleanup performed on the `backend-ts` directory to 
 - Hooks: `prebuild`, `postinstall`
 
 **Rationale:**
+
 - Removed scripts with `rm -rf` for safety
 - Removed Docker scripts (use `docker compose` directly)
 - Removed CI-specific scripts (configure in CI pipeline)
@@ -61,6 +67,7 @@ This document summarizes the cleanup performed on the `backend-ts` directory to 
 ### 4. Documentation Organization
 
 **Moved to `docs/`:**
+
 - `DOCKER.md`
 - `DOCKER-QUICKSTART.md`
 - `DOCKER-IMPLEMENTATION-SUMMARY.md`
@@ -75,6 +82,7 @@ This document summarizes the cleanup performed on the `backend-ts` directory to 
 - `FINAL-CHECKPOINT-SUMMARY.md`
 
 **Moved to `docs/archive/`:**
+
 - All `TASK-*.md` files (task summaries)
 - All `CHECKPOINT-*.md` files (milestone summaries)
 - All `*-SUMMARY.md` files (implementation summaries)
@@ -84,10 +92,12 @@ This document summarizes the cleanup performed on the `backend-ts` directory to 
 - Testing and integration notes
 
 **Created:**
+
 - `docs/README.md` - Comprehensive documentation index
 - `docs/archive/README.md` - Archive explanation
 
 **Rationale:**
+
 - Root directory should only contain essential files (README, Dockerfile, configs)
 - Active documentation belongs in `docs/`
 - Historical/development documentation belongs in `docs/archive/`

@@ -403,37 +403,40 @@ describe('Max Turn Limit Property Tests', () => {
     test.prop([
       fc.integer({ min: 1, max: 10 }), // maxTurns
       fc.integer({ min: 1, max: 10 }), // maxParallelToolCalls
-    ])('should respect maxTurns regardless of maxParallelToolCalls', async (maxTurns, maxParallelToolCalls) => {
-      const mockResponse = {
-        toDataStreamResponse: vi.fn().mockReturnValue(
-          new Response('mock stream', {
-            headers: { 'Content-Type': 'text/event-stream' },
-          })
-        ),
-      };
-      mockStreamText.mockReturnValue(mockResponse);
+    ])(
+      'should respect maxTurns regardless of maxParallelToolCalls',
+      async (maxTurns, maxParallelToolCalls) => {
+        const mockResponse = {
+          toDataStreamResponse: vi.fn().mockReturnValue(
+            new Response('mock stream', {
+              headers: { 'Content-Type': 'text/event-stream' },
+            })
+          ),
+        };
+        mockStreamText.mockReturnValue(mockResponse);
 
-      const routine = new AgentsRoutine('test-key');
-      const threadId = `thread-${Math.random()}`;
+        const routine = new AgentsRoutine('test-key');
+        const threadId = `thread-${Math.random()}`;
 
-      const agentConfig = {
-        model: 'openai/gpt-4',
-        temperature: 0.7,
-        tools: [CounterTool, RecursiveTool],
-        instructions: 'You are a test assistant',
-      };
+        const agentConfig = {
+          model: 'openai/gpt-4',
+          temperature: 0.7,
+          tools: [CounterTool, RecursiveTool],
+          instructions: 'You are a test assistant',
+        };
 
-      try {
-        await routine.streamChat(agentConfig, threadId, maxTurns, maxParallelToolCalls);
+        try {
+          await routine.streamChat(agentConfig, threadId, maxTurns, maxParallelToolCalls);
 
-        // Verify that maxSteps is set to maxTurns, not affected by maxParallelToolCalls
-        const callArgs = mockStreamText.mock.calls[0][0];
-        expect(callArgs.maxSteps).toBe(maxTurns);
-        expect(callArgs.maxSteps).not.toBe(maxParallelToolCalls);
-      } catch (error) {
-        // Expected in test environment
+          // Verify that maxSteps is set to maxTurns, not affected by maxParallelToolCalls
+          const callArgs = mockStreamText.mock.calls[0][0];
+          expect(callArgs.maxSteps).toBe(maxTurns);
+          expect(callArgs.maxSteps).not.toBe(maxParallelToolCalls);
+        } catch (error) {
+          // Expected in test environment
+        }
       }
-    });
+    );
 
     /**
      * Test that the default maxTurns value is used when not specified
@@ -540,9 +543,7 @@ describe('Max Turn Limit Property Tests', () => {
       };
 
       // Should not throw an error
-      await expect(
-        routine.streamChat(agentConfig, threadId, maxTurns, 5)
-      ).resolves.toBeDefined();
+      await expect(routine.streamChat(agentConfig, threadId, maxTurns, 5)).resolves.toBeDefined();
     });
   });
 });

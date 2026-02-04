@@ -1,6 +1,6 @@
 /**
  * Tests for Tools API Route
- * 
+ *
  * Tests the /api/tools endpoint for listing available tools with basic metadata.
  * Matches Python backend format.
  */
@@ -83,7 +83,7 @@ describe('GET /api/tools', () => {
 
     // Should be a plain array, not wrapped in an object
     expect(Array.isArray(data)).toBe(true);
-    
+
     // Each item should have exactly the fields from Python ToolMetadata
     if (data.length > 0) {
       const tool = data[0];

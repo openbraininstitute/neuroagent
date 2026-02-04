@@ -16,6 +16,7 @@ This document summarizes the implementation of integration tests for external se
 **Purpose:** Test LLM provider integration (OpenAI and OpenRouter)
 
 **Test Coverage (12 tests):**
+
 - ✅ OpenAI provider initialization with API key
 - ✅ Text streaming with OpenAI provider (mocked)
 - ✅ Structured output generation with OpenAI (mocked)
@@ -30,12 +31,14 @@ This document summarizes the implementation of integration tests for external se
 - ✅ Streaming with multiple chunks (mocked)
 
 **Key Safety Features:**
+
 - All `streamText` and `generateObject` calls are mocked using `vi.mock('ai')`
 - No actual API keys are used in tests
 - No real LLM API calls are made
 - All responses are simulated with mock data
 
 **Mock Pattern:**
+
 ```typescript
 vi.mock('ai', () => ({
   streamText: vi.fn(),
@@ -56,6 +59,7 @@ vi.mock('@openrouter/ai-sdk-provider', () => ({
 **Purpose:** Test MCP (Model Context Protocol) server integration
 
 **Test Coverage (23 tests):**
+
 - ✅ MCP client initialization with empty configuration
 - ✅ MCP client initialization with multiple servers
 - ✅ Server configuration with environment variables
@@ -81,6 +85,7 @@ vi.mock('@openrouter/ai-sdk-provider', () => ({
 - ✅ Empty configuration handling
 
 **Key Safety Features:**
+
 - All MCP SDK calls are mocked using `vi.mock('@modelcontextprotocol/sdk/*')`
 - No actual MCP server processes are spawned
 - No real stdio communication occurs
@@ -88,6 +93,7 @@ vi.mock('@openrouter/ai-sdk-provider', () => ({
 - Connection failures are handled gracefully without throwing
 
 **Mock Pattern:**
+
 ```typescript
 vi.mock('@modelcontextprotocol/sdk/client/index.js', () => ({
   Client: vi.fn().mockImplementation(() => ({
@@ -103,6 +109,7 @@ vi.mock('@modelcontextprotocol/sdk/client/index.js', () => ({
 **Purpose:** Test S3/MinIO storage integration
 
 **Test Coverage (19 tests):**
+
 - ✅ S3 client initialization with MinIO endpoint
 - ✅ S3 client initialization with AWS S3 endpoint
 - ✅ Missing credentials handling
@@ -124,6 +131,7 @@ vi.mock('@modelcontextprotocol/sdk/client/index.js', () => ({
 - ✅ Virtual-hosted-style URLs for AWS S3
 
 **Key Safety Features:**
+
 - All AWS SDK calls are mocked using `vi.mock('@aws-sdk/client-s3')`
 - No actual S3/MinIO operations are performed
 - No real files are uploaded or downloaded
@@ -131,6 +139,7 @@ vi.mock('@modelcontextprotocol/sdk/client/index.js', () => ({
 - No network requests are made
 
 **Mock Pattern:**
+
 ```typescript
 vi.mock('@aws-sdk/client-s3', () => ({
   S3Client: vi.fn().mockImplementation(() => ({
@@ -151,6 +160,7 @@ vi.mock('@aws-sdk/s3-request-presigner', () => ({
 **Purpose:** Documentation for integration tests
 
 **Contents:**
+
 - Overview of integration test suite
 - Description of each test file
 - Coverage details
@@ -169,6 +179,7 @@ vi.mock('@aws-sdk/s3-request-presigner', () => ({
 ```
 
 **Breakdown:**
+
 - LLM Providers: 12 tests ✅
 - MCP Servers: 23 tests ✅
 - Storage: 19 tests ✅
@@ -217,11 +228,13 @@ import { streamText } from 'ai';
 ### Mock Implementation Patterns
 
 1. **Function Mocks:** Return controlled values
+
    ```typescript
    vi.mocked(streamText).mockResolvedValue({ ... });
    ```
 
 2. **Class Mocks:** Return mock instances
+
    ```typescript
    vi.mocked(S3Client).mockImplementation(() => ({ send: vi.fn() }));
    ```

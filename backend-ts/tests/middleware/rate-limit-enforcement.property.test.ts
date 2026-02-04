@@ -103,11 +103,7 @@ vi.mock('ioredis', () => {
   };
 });
 
-import {
-  checkRateLimit,
-  resetRateLimit,
-  closeRedisConnection,
-} from '@/lib/middleware/rate-limit';
+import { checkRateLimit, resetRateLimit, closeRedisConnection } from '@/lib/middleware/rate-limit';
 import { clearSettingsCache } from '@/lib/config/settings';
 
 /**
@@ -248,7 +244,10 @@ describe('Rate Limit Enforcement Property Tests', () => {
      */
     test.prop([
       userIdArbitrary,
-      fc.subarray(['chat', 'suggestions', 'title', 'models', 'threads', 'tools'], { minLength: 2, maxLength: 2 }),
+      fc.subarray(['chat', 'suggestions', 'title', 'models', 'threads', 'tools'], {
+        minLength: 2,
+        maxLength: 2,
+      }),
       fc.record({
         limit: fc.integer({ min: 1, max: 10 }), // Reduced max to speed up test
         expiry: fc.integer({ min: 10, max: 60 }),
@@ -611,36 +610,33 @@ describe('Rate Limit Enforcement Property Tests', () => {
       routeArbitrary,
       fc.integer({ min: 1, max: 10 }),
       fc.integer({ min: 5, max: 300 }),
-    ])(
-      'should work correctly with various expiry times',
-      async (userId, route, limit, expiry) => {
-        // Reset rate limit
-        await resetRateLimit(userId, route);
+    ])('should work correctly with various expiry times', async (userId, route, limit, expiry) => {
+      // Reset rate limit
+      await resetRateLimit(userId, route);
 
-        // Make requests up to limit
-        const results = await makeRequests(userId, route, limit, expiry, limit + 1);
+      // Make requests up to limit
+      const results = await makeRequests(userId, route, limit, expiry, limit + 1);
 
-        // Property: Behavior should be consistent regardless of expiry time
-        for (let i = 0; i < limit; i++) {
-          expect(results[i].limited).toBe(false);
-        }
-
-        expect(results[limit].limited).toBe(true);
-
-        // Property: Reset time should be approximately current time + expiry
-        // Check the first result (before any potential connection issues)
-        if (results[0] && results[0].headers) {
-          const currentTime = Math.floor(Date.now() / 1000);
-          const resetTime = parseInt(results[0].headers['X-RateLimit-Reset']);
-
-          // Allow some tolerance for execution time
-          expect(resetTime).toBeGreaterThanOrEqual(currentTime);
-          expect(resetTime).toBeLessThanOrEqual(currentTime + expiry + 5);
-        }
-
-        // Cleanup
-        await resetRateLimit(userId, route);
+      // Property: Behavior should be consistent regardless of expiry time
+      for (let i = 0; i < limit; i++) {
+        expect(results[i].limited).toBe(false);
       }
-    );
+
+      expect(results[limit].limited).toBe(true);
+
+      // Property: Reset time should be approximately current time + expiry
+      // Check the first result (before any potential connection issues)
+      if (results[0] && results[0].headers) {
+        const currentTime = Math.floor(Date.now() / 1000);
+        const resetTime = parseInt(results[0].headers['X-RateLimit-Reset']);
+
+        // Allow some tolerance for execution time
+        expect(resetTime).toBeGreaterThanOrEqual(currentTime);
+        expect(resetTime).toBeLessThanOrEqual(currentTime + expiry + 5);
+      }
+
+      // Cleanup
+      await resetRateLimit(userId, route);
+    });
   });
 });

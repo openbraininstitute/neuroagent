@@ -1,9 +1,9 @@
 /**
  * Thread Search API Route
- * 
+ *
  * Endpoint:
  * - GET /api/threads/search - Full-text search on messages
- * 
+ *
  * Features:
  * - Full-text search using PostgreSQL TSVECTOR
  * - Authentication required
@@ -11,10 +11,16 @@
  * - Returns distinct threads with matching messages
  */
 
-import { NextRequest, NextResponse } from 'next/server';
+import { type NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
+
 import { prisma } from '@/lib/db/client';
-import { validateAuth, validateProject, AuthenticationError, AuthorizationError } from '@/lib/middleware/auth';
+import {
+  validateAuth,
+  validateProject,
+  AuthenticationError,
+  AuthorizationError,
+} from '@/lib/middleware/auth';
 
 // Response schemas
 const SearchMessagesResultSchema = z.object({
@@ -33,16 +39,16 @@ type SearchMessagesList = z.infer<typeof SearchMessagesListSchema>;
 
 /**
  * GET /api/threads/search
- * 
+ *
  * Full-text search on messages within threads.
  * Uses PostgreSQL's full-text search capabilities with TSVECTOR.
- * 
+ *
  * Query parameters:
  * - query: string (required) - Search query
  * - virtual_lab_id: UUID - Filter by virtual lab
  * - project_id: UUID - Filter by project
  * - limit: number - Maximum number of results (default: 20)
- * 
+ *
  * Returns:
  * - List of threads with matching messages
  * - One result per thread (the most relevant message)
@@ -62,10 +68,7 @@ export async function GET(request: NextRequest) {
 
     // Validate required parameters
     if (!query) {
-      return NextResponse.json(
-        { error: 'Query parameter is required' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Query parameter is required' }, { status: 400 });
     }
 
     // Validate project access if provided
@@ -75,12 +78,14 @@ export async function GET(request: NextRequest) {
 
     // Perform full-text search using raw SQL
     // This is necessary because Prisma doesn't fully support PostgreSQL full-text search operators
-    const results = await prisma.$queryRaw<Array<{
-      thread_id: string;
-      message_id: string;
-      title: string;
-      content: string;
-    }>>`
+    const results = await prisma.$queryRaw<
+      Array<{
+        thread_id: string;
+        message_id: string;
+        title: string;
+        content: string;
+      }>
+    >`
       SELECT DISTINCT ON (m.thread_id)
         m.thread_id,
         m.message_id,
@@ -137,9 +142,6 @@ export async function GET(request: NextRequest) {
     }
 
     console.error('Error searching threads:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

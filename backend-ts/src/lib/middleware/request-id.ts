@@ -47,10 +47,7 @@ export function getOrGenerateRequestId(request: NextRequest): string {
  * @param request - The incoming request
  * @returns The response with request ID header added
  */
-export function addRequestIdHeader(
-  response: NextResponse,
-  request: NextRequest
-): NextResponse {
+export function addRequestIdHeader(response: NextResponse, request: NextRequest): NextResponse {
   const requestId = getOrGenerateRequestId(request);
   response.headers.set(REQUEST_ID_HEADER, requestId);
   return response;

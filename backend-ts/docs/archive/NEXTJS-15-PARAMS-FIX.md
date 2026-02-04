@@ -17,10 +17,7 @@ Learn more: https://nextjs.org/docs/messages/sync-dynamic-apis
 ### Before (Next.js 14 and earlier)
 
 ```typescript
-export async function POST(
-  request: NextRequest,
-  { params }: { params: { thread_id: string } }
-) {
+export async function POST(request: NextRequest, { params }: { params: { thread_id: string } }) {
   const thread = await prisma.thread.findUnique({
     where: { id: params.thread_id },
   });
@@ -60,11 +57,13 @@ export async function POST(
 For all dynamic route handlers in Next.js 15+:
 
 1. **Type the params as a Promise**:
+
    ```typescript
    { params }: { params: Promise<{ param_name: string }> }
    ```
 
 2. **Await params at the start of the function**:
+
    ```typescript
    const { param_name } = await params;
    ```
@@ -78,6 +77,7 @@ For all dynamic route handlers in Next.js 15+:
 ## Why This Change?
 
 Next.js 15 made this change to:
+
 - Make async operations more explicit
 - Improve type safety
 - Prepare for future optimizations in the framework
@@ -86,11 +86,13 @@ Next.js 15 made this change to:
 ## Testing
 
 Tests continue to work without modification because:
+
 - Tests call route handlers directly
 - The Promise wrapper is handled by Next.js runtime, not test environment
 - Mocking works the same way
 
 All existing tests pass without changes:
+
 ```
 ✓ 15 tests passed
 ✓ All CRUD operations validated

@@ -68,14 +68,14 @@ Created detailed documentation covering:
 
 ### Tables
 
-| Table | Purpose | Key Features |
-|-------|---------|--------------|
-| threads | User conversations | UUID primary key, user/project associations |
-| messages | Individual messages | Full-text search, entity types, completion status |
-| tool_calls | AI tool invocations | Tool parameters, validation status |
-| tool_selection | Tool selection tracking | Links tools to messages |
-| complexity_estimation | Model selection metadata | Complexity scores, reasoning levels |
-| token_consumption | LLM usage tracking | Token counts by type and task |
+| Table                 | Purpose                  | Key Features                                      |
+| --------------------- | ------------------------ | ------------------------------------------------- |
+| threads               | User conversations       | UUID primary key, user/project associations       |
+| messages              | Individual messages      | Full-text search, entity types, completion status |
+| tool_calls            | AI tool invocations      | Tool parameters, validation status                |
+| tool_selection        | Tool selection tracking  | Links tools to messages                           |
+| complexity_estimation | Model selection metadata | Complexity scores, reasoning levels               |
+| token_consumption     | LLM usage tracking       | Token counts by type and task                     |
 
 ### Relationships
 
@@ -90,21 +90,27 @@ Message (1) ──< (N) TokenConsumption
 ## Validation
 
 ### Type Checking
+
 ```bash
 npm run type-check
 ```
+
 ✅ No TypeScript errors
 
 ### Tests
+
 ```bash
 npm test
 ```
+
 ✅ All 35 tests pass (including 3 new database tests)
 
 ### Prisma Client Generation
+
 ```bash
 npm run db:generate
 ```
+
 ✅ Client generated successfully with no warnings
 
 ## Requirements Satisfied

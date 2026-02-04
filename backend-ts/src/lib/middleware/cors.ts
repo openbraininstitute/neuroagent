@@ -7,6 +7,7 @@
 
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+
 import { getSettings } from '../config/settings';
 
 /**
@@ -16,10 +17,7 @@ import { getSettings } from '../config/settings';
  * @param request - The incoming request (optional, for origin validation)
  * @returns The response with CORS headers added
  */
-export function addCorsHeaders(
-  response: NextResponse,
-  request?: NextRequest
-): NextResponse {
+export function addCorsHeaders(response: NextResponse, request?: NextRequest): NextResponse {
   const settings = getSettings();
   const corsOrigins = settings.misc.corsOrigins;
 
@@ -46,10 +44,7 @@ export function addCorsHeaders(
 
   // Set other CORS headers
   response.headers.set('Access-Control-Allow-Credentials', 'true');
-  response.headers.set(
-    'Access-Control-Allow-Methods',
-    'GET, POST, PUT, DELETE, OPTIONS, PATCH'
-  );
+  response.headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, PATCH');
   response.headers.set(
     'Access-Control-Allow-Headers',
     'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, Authorization, X-Request-ID'

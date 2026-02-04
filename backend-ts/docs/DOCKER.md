@@ -5,6 +5,7 @@ This document describes the Docker setup for the Neuroagent TypeScript backend, 
 ## Overview
 
 The TypeScript backend is containerized using a multi-stage Docker build that:
+
 - Minimizes image size using Alpine Linux
 - Separates build and runtime dependencies
 - Uses Next.js standalone output for optimal production builds
@@ -179,6 +180,7 @@ docker inspect --format='{{json .State.Health}}' neuroagent-backend-ts | jq
 ```
 
 The health check:
+
 - **Endpoint**: `GET /api/healthz`
 - **Interval**: 30 seconds
 - **Timeout**: 10 seconds
@@ -190,11 +192,13 @@ The health check:
 ### Container Won't Start
 
 1. **Check logs**:
+
    ```bash
    docker compose logs backend-ts
    ```
 
 2. **Verify database connection**:
+
    ```bash
    docker compose exec backend-ts npx prisma db execute --stdin <<< "SELECT 1"
    ```
@@ -207,11 +211,13 @@ The health check:
 ### Database Connection Issues
 
 1. **Ensure PostgreSQL is running**:
+
    ```bash
    docker compose ps postgres
    ```
 
 2. **Check DATABASE_URL format**:
+
    ```
    postgresql://user:password@host:port/database
    ```
@@ -224,11 +230,13 @@ The health check:
 ### Migration Failures
 
 1. **Check migration status**:
+
    ```bash
    docker compose exec backend-ts npx prisma migrate status
    ```
 
 2. **Reset database (development only)**:
+
    ```bash
    docker compose exec backend-ts npx prisma migrate reset
    ```
@@ -241,11 +249,13 @@ The health check:
 ### Build Failures
 
 1. **Clear Docker cache**:
+
    ```bash
    docker compose build --no-cache backend-ts
    ```
 
 2. **Check Prisma schema**:
+
    ```bash
    npx prisma validate
    ```
@@ -260,12 +270,14 @@ The health check:
 ### Image Size
 
 The multi-stage build produces a minimal image:
+
 - Base image: `node:18-alpine` (~40MB)
 - Final image: ~200-300MB (includes Next.js standalone output and Prisma client)
 
 ### Build Cache
 
 To optimize build times:
+
 1. Package files are copied before source code
 2. Prisma schema is copied separately for better caching
 3. `.dockerignore` excludes unnecessary files
@@ -303,6 +315,7 @@ services:
 ### Secrets Management
 
 Never commit secrets to the repository:
+
 - Use `.env` files (gitignored)
 - Use Docker secrets in production
 - Use environment variables from orchestration platform
@@ -336,28 +349,28 @@ spec:
         app: neuroagent-backend-ts
     spec:
       containers:
-      - name: backend-ts
-        image: neuroagent-backend-ts:latest
-        ports:
-        - containerPort: 8079
-        env:
-        - name: DATABASE_URL
-          valueFrom:
-            secretKeyRef:
-              name: neuroagent-secrets
-              key: database-url
-        livenessProbe:
-          httpGet:
-            path: /api/healthz
-            port: 8079
-          initialDelaySeconds: 40
-          periodSeconds: 30
-        readinessProbe:
-          httpGet:
-            path: /api/healthz
-            port: 8079
-          initialDelaySeconds: 10
-          periodSeconds: 10
+        - name: backend-ts
+          image: neuroagent-backend-ts:latest
+          ports:
+            - containerPort: 8079
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: neuroagent-secrets
+                  key: database-url
+          livenessProbe:
+            httpGet:
+              path: /api/healthz
+              port: 8079
+            initialDelaySeconds: 40
+            periodSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /api/healthz
+              port: 8079
+            initialDelaySeconds: 10
+            periodSeconds: 10
 ```
 
 ### Resource Limits
@@ -395,6 +408,7 @@ docker compose logs backend-ts > backend-ts.log
 ### Metrics
 
 The container exposes metrics through:
+
 - Health check endpoint: `/api/healthz`
 - Settings endpoint: `/api/settings`
 
@@ -427,6 +441,7 @@ npm run dev
 ```
 
 This provides:
+
 - Hot module reloading
 - Better error messages
 - Source maps
@@ -441,6 +456,7 @@ docker compose up -d backend-ts
 ```
 
 This provides:
+
 - Optimized build
 - Minimal image size
 - Security hardening
@@ -449,14 +465,14 @@ This provides:
 
 ## Comparison with Python Backend
 
-| Feature | Python Backend | TypeScript Backend |
-|---------|---------------|-------------------|
-| Port | 8078 | 8079 |
-| Framework | FastAPI | Next.js |
-| Base Image | python:3.11 | node:18-alpine |
-| Image Size | ~1.5GB | ~250MB |
-| Migrations | Alembic | Prisma |
-| Health Check | /healthz | /api/healthz |
+| Feature      | Python Backend | TypeScript Backend |
+| ------------ | -------------- | ------------------ |
+| Port         | 8078           | 8079               |
+| Framework    | FastAPI        | Next.js            |
+| Base Image   | python:3.11    | node:18-alpine     |
+| Image Size   | ~1.5GB         | ~250MB             |
+| Migrations   | Alembic        | Prisma             |
+| Health Check | /healthz       | /api/healthz       |
 
 ## References
 

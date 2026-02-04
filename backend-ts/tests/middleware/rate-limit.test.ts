@@ -57,9 +57,9 @@ describe('Rate Limiting Middleware', () => {
       expect(result.headers['X-RateLimit-Reset']).toBeDefined();
 
       // Verify header values are numbers
-      expect(parseInt(result.headers['X-RateLimit-Limit'])).toBe(limit);
-      expect(parseInt(result.headers['X-RateLimit-Remaining'])).toBeGreaterThanOrEqual(0);
-      expect(parseInt(result.headers['X-RateLimit-Reset'])).toBeGreaterThan(0);
+      expect(parseInt(result.headers['X-RateLimit-Limit'] ?? '0')).toBe(limit);
+      expect(parseInt(result.headers['X-RateLimit-Remaining'] ?? '0')).toBeGreaterThanOrEqual(0);
+      expect(parseInt(result.headers['X-RateLimit-Reset'] ?? '0')).toBeGreaterThan(0);
     });
 
     it('should track different users separately', async () => {

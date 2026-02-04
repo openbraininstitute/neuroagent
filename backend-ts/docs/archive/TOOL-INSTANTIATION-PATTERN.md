@@ -17,7 +17,7 @@ await registerToolClasses();
 // Now you can access metadata without instantiation
 const toolClasses = toolRegistry.getAllClasses();
 for (const ToolClass of toolClasses) {
-  console.log(ToolClass.toolName);        // Static property
+  console.log(ToolClass.toolName); // Static property
   console.log(ToolClass.toolDescription); // Static property
 }
 ```
@@ -31,9 +31,9 @@ Create tool **instances** only when needed for execution:
 const tools = await createToolInstances({
   exaApiKey: settings.exaApiKey,
   entitycoreUrl: settings.entitycoreUrl,
-  jwtToken: userJwtToken,      // User-specific!
-  vlabId: userVlabId,           // User-specific!
-  projectId: userProjectId,     // User-specific!
+  jwtToken: userJwtToken, // User-specific!
+  vlabId: userVlabId, // User-specific!
+  projectId: userProjectId, // User-specific!
 });
 
 // Now you can execute tools
@@ -87,9 +87,7 @@ export async function GET(request: NextRequest, { params }: { params: { name: st
     utterances: ToolClass.toolUtterances,
     hil: ToolClass.toolHil,
     // Health check using static method
-    is_online: ToolClass.isOnline
-      ? await ToolClass.isOnline(contextVariables)
-      : true,
+    is_online: ToolClass.isOnline ? await ToolClass.isOnline(contextVariables) : true,
   });
 }
 ```
@@ -142,6 +140,7 @@ export async function POST(request: NextRequest) {
 ### 1. User-Specific Context
 
 Tools need user-specific data that's only available at request time:
+
 - JWT tokens for authentication
 - Virtual lab IDs
 - Project IDs
@@ -150,6 +149,7 @@ Tools need user-specific data that's only available at request time:
 ### 2. Request Isolation
 
 Each request must have its own tool instances to prevent:
+
 - Data leakage between users
 - Race conditions
 - Stale authentication tokens
@@ -157,6 +157,7 @@ Each request must have its own tool instances to prevent:
 ### 3. Memory Efficiency
 
 Don't create objects until needed:
+
 - Metadata endpoints don't need instances
 - Health checks can use static methods
 - Only execution requires instances
@@ -184,6 +185,7 @@ async def execute_tool(tool_class: type[BaseTool], context: dict):
 ## Common Mistakes to Avoid
 
 ❌ **DON'T** instantiate tools at startup:
+
 ```typescript
 // BAD - creates instances with no user context
 const tools = await createToolInstances(config);
@@ -191,6 +193,7 @@ app.set('tools', tools);
 ```
 
 ❌ **DON'T** cache tool instances across requests:
+
 ```typescript
 // BAD - shares instances between users
 let cachedTools: BaseTool[] = [];
@@ -200,6 +203,7 @@ if (cachedTools.length === 0) {
 ```
 
 ❌ **DON'T** instantiate tools for metadata access:
+
 ```typescript
 // BAD - unnecessary instantiation
 const tool = new BrainRegionGetAllTool(context);
@@ -207,12 +211,14 @@ console.log(tool.getName()); // Use ToolClass.toolName instead!
 ```
 
 ✅ **DO** register classes once:
+
 ```typescript
 // GOOD - lightweight class registration
 await registerToolClasses();
 ```
 
 ✅ **DO** create instances per-request:
+
 ```typescript
 // GOOD - fresh instances with user context
 const tools = await createToolInstances({
@@ -223,6 +229,7 @@ const tools = await createToolInstances({
 ```
 
 ✅ **DO** access metadata from classes:
+
 ```typescript
 // GOOD - no instantiation needed
 const ToolClass = toolRegistry.getClass('web-search');
@@ -231,9 +238,9 @@ console.log(ToolClass.toolName);
 
 ## Summary
 
-| Operation | Use | When |
-|-----------|-----|------|
-| Register classes | `registerToolClasses()` | Once at startup |
-| Get metadata | `toolRegistry.getAllClasses()` | Anytime (no instantiation) |
-| Check health | `ToolClass.isOnline(context)` | Anytime (static method) |
-| Execute tools | `createToolInstances(userContext)` | Per-request only |
+| Operation        | Use                                | When                       |
+| ---------------- | ---------------------------------- | -------------------------- |
+| Register classes | `registerToolClasses()`            | Once at startup            |
+| Get metadata     | `toolRegistry.getAllClasses()`     | Anytime (no instantiation) |
+| Check health     | `ToolClass.isOnline(context)`      | Anytime (static method)    |
+| Execute tools    | `createToolInstances(userContext)` | Per-request only           |

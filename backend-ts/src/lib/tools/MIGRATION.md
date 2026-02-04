@@ -7,11 +7,12 @@ The TypeScript backend tool system has been refactored to align with the Python 
 ## Key Changes
 
 ### Before (V1 - Registry Pattern)
+
 ```typescript
 // Tools had instance-level metadata
 class WebSearchTool extends BaseTool<typeof WebSearchInputSchema> {
   metadata: ToolMetadata = { name: 'web-search', ... };
-  
+
   constructor(private exaApiKey: string) {
     super();
   }
@@ -24,11 +25,12 @@ const metadata = toolRegistry.getAllMetadata();
 ```
 
 ### After (V2 - Python-Style Pattern)
+
 ```typescript
 // Tools have static class-level metadata
 class WebSearchToolV2 extends BaseToolV2<typeof WebSearchInputSchema> {
   static readonly metadata: ToolMetadata = { name: 'web_search', ... };
-  
+
   constructor(private exaApiKey: string) {
     super();
   }
@@ -61,22 +63,24 @@ const allMetadata = getAllToolMetadata([WebSearchToolV2, LiteratureSearchToolV2]
 ### For Tool Consumers
 
 1. **Access metadata statically**:
+
    ```typescript
    // Before
    const tool = new WebSearchTool(apiKey);
    const name = tool.metadata.name;
-   
+
    // After
    const name = WebSearchToolV2.metadata.name;
    ```
 
 2. **Use tool-list module** for getting all tools:
+
    ```typescript
    import { getInternalToolClasses, getToolDescriptionsForLLM } from '@/lib/tools/tool-list';
-   
+
    // Get all tool classes
    const toolClasses = getInternalToolClasses();
-   
+
    // Get descriptions for LLM (no instantiation!)
    const descriptions = getToolDescriptionsForLLM();
    ```
@@ -91,6 +95,7 @@ const allMetadata = getAllToolMetadata([WebSearchToolV2, LiteratureSearchToolV2]
 ## Coexistence
 
 Both V1 and V2 can coexist during migration:
+
 - V1 tools: `base-tool.ts`, `web-search.ts`, etc.
 - V2 tools: `base-tool-v2.ts`, `web-search-v2.ts`, etc.
 
@@ -99,19 +104,20 @@ Once all tools are migrated, V1 files can be removed.
 ## Example: Migrating a Tool
 
 ### Before (V1)
+
 ```typescript
 export class MyTool extends BaseTool<typeof MyInputSchema> {
   metadata: ToolMetadata = {
     name: 'my-tool',
     description: 'Does something',
   };
-  
+
   inputSchema = MyInputSchema;
-  
+
   constructor(private config: string) {
     super();
   }
-  
+
   async execute(input: MyInput): Promise<MyOutput> {
     // implementation
   }
@@ -123,27 +129,28 @@ toolRegistry.register(tool);
 ```
 
 ### After (V2)
+
 ```typescript
 export class MyToolV2 extends BaseToolV2<typeof MyInputSchema> {
   static readonly metadata: ToolMetadata = {
-    name: 'my_tool',  // snake_case
+    name: 'my_tool', // snake_case
     description: 'Does something',
   };
-  
+
   inputSchema = MyInputSchema;
-  
+
   constructor(private config: string) {
     super();
   }
-  
+
   async execute(input: MyInput): Promise<MyOutput> {
     // implementation (same)
   }
 }
 
 // Usage - no registry needed
-const description = MyToolV2.metadata.description;  // Static access
-const tool = new MyToolV2(config);  // Only when executing
+const description = MyToolV2.metadata.description; // Static access
+const tool = new MyToolV2(config); // Only when executing
 ```
 
 ## Checklist for New Tools

@@ -15,7 +15,7 @@
  * Requirements: 1.4, 2.1, 2.2, 2.4, 6.5, 14.1, 14.3
  */
 
-import { NextRequest } from 'next/server';
+import { type NextRequest } from 'next/server';
 import { z } from 'zod';
 
 import { AgentsRoutine } from '@/lib/agents/routine';
@@ -207,7 +207,7 @@ export async function POST(
       entityFrontendUrl: settings.tools.frontendBaseUrl,
       vlabId: thread.vlabId || undefined,
       projectId: thread.projectId || undefined,
-      jwtToken,  // Pass JWT token to tools
+      jwtToken, // Pass JWT token to tools
       obiOneUrl: settings.tools.obiOne.url,
       mcpConfig: settings.mcp,
     });

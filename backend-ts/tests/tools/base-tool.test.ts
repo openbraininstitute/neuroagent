@@ -130,9 +130,7 @@ describe('BaseTool', () => {
   it('should fallback to backend description if no frontend description', () => {
     const tool = new HILTestTool();
 
-    expect(tool.getFrontendDescription()).toBe(
-      'A tool requiring human validation'
-    );
+    expect(tool.getFrontendDescription()).toBe('A tool requiring human validation');
   });
 
   it('should identify HIL tools', () => {

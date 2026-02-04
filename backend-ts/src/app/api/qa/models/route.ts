@@ -1,9 +1,9 @@
 /**
  * Models API Route
- * 
+ *
  * Endpoint:
  * - GET /api/qa/models - List available LLM models from OpenRouter
- * 
+ *
  * Features:
  * - Fetches models from OpenRouter API
  * - Filters models based on whitelisted regex pattern
@@ -12,10 +12,11 @@
  * - Matches Python backend format
  */
 
-import { NextRequest, NextResponse } from 'next/server';
+import { type NextRequest, NextResponse } from 'next/server';
+import { z } from 'zod';
+
 import { getSettings } from '@/lib/config/settings';
 import { validateAuth, AuthenticationError } from '@/lib/middleware/auth';
-import { z } from 'zod';
 
 /**
  * OpenRouter API response schemas
@@ -101,10 +102,10 @@ function filterModels(models: OpenRouterModel[], regexPattern: string): OpenRout
 
 /**
  * GET /api/qa/models
- * 
+ *
  * Returns a list of available LLM models from OpenRouter, filtered by whitelist regex.
  * Matches the Python backend format and behavior.
- * 
+ *
  * Response:
  * - Array of OpenRouter model objects with full metadata
  */
@@ -131,7 +132,7 @@ export async function GET(request: NextRequest) {
     }
 
     console.error('Error fetching models:', error);
-    
+
     // Return appropriate error status
     if (error instanceof Error && error.message.includes('Failed to fetch models')) {
       return NextResponse.json(

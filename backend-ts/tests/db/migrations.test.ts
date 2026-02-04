@@ -1,6 +1,6 @@
 /**
  * Database Migration Tests
- * 
+ *
  * Tests for database migration application and schema verification.
  * These tests verify that migrations can be applied successfully and
  * that the database schema matches expectations.
@@ -18,8 +18,8 @@ describe('Database Migrations', () => {
   it('should have all required tables', async () => {
     // Query information_schema to verify tables exist
     const tables = await prisma.$queryRaw<Array<{ table_name: string }>>`
-      SELECT table_name 
-      FROM information_schema.tables 
+      SELECT table_name
+      FROM information_schema.tables
       WHERE table_schema = 'public'
       AND table_type = 'BASE TABLE'
       ORDER BY table_name
@@ -41,8 +41,8 @@ describe('Database Migrations', () => {
   it('should have all required enums', async () => {
     // Query pg_type to verify enums exist
     const enums = await prisma.$queryRaw<Array<{ typname: string }>>`
-      SELECT typname 
-      FROM pg_type 
+      SELECT typname
+      FROM pg_type
       WHERE typtype = 'e'
       ORDER BY typname
     `;
@@ -58,8 +58,8 @@ describe('Database Migrations', () => {
 
   it('should have correct enum values for entity', async () => {
     const values = await prisma.$queryRaw<Array<{ enumlabel: string }>>`
-      SELECT enumlabel 
-      FROM pg_enum 
+      SELECT enumlabel
+      FROM pg_enum
       WHERE enumtypid = (SELECT oid FROM pg_type WHERE typname = 'entity')
       ORDER BY enumsortorder
     `;
@@ -71,42 +71,34 @@ describe('Database Migrations', () => {
 
   it('should have correct enum values for task', async () => {
     const values = await prisma.$queryRaw<Array<{ enumlabel: string }>>`
-      SELECT enumlabel 
-      FROM pg_enum 
+      SELECT enumlabel
+      FROM pg_enum
       WHERE enumtypid = (SELECT oid FROM pg_type WHERE typname = 'task')
       ORDER BY enumsortorder
     `;
 
     const enumValues = values.map((v) => v.enumlabel);
 
-    expect(enumValues).toEqual([
-      'CHAT_COMPLETION',
-      'TOOL_SELECTION',
-      'CALL_WITHIN_TOOL',
-    ]);
+    expect(enumValues).toEqual(['CHAT_COMPLETION', 'TOOL_SELECTION', 'CALL_WITHIN_TOOL']);
   });
 
   it('should have correct enum values for tokentype', async () => {
     const values = await prisma.$queryRaw<Array<{ enumlabel: string }>>`
-      SELECT enumlabel 
-      FROM pg_enum 
+      SELECT enumlabel
+      FROM pg_enum
       WHERE enumtypid = (SELECT oid FROM pg_type WHERE typname = 'tokentype')
       ORDER BY enumsortorder
     `;
 
     const enumValues = values.map((v) => v.enumlabel);
 
-    expect(enumValues).toEqual([
-      'INPUT_NONCACHED',
-      'INPUT_CACHED',
-      'COMPLETION',
-    ]);
+    expect(enumValues).toEqual(['INPUT_NONCACHED', 'INPUT_CACHED', 'COMPLETION']);
   });
 
   it('should have correct enum values for reasoninglevels', async () => {
     const values = await prisma.$queryRaw<Array<{ enumlabel: string }>>`
-      SELECT enumlabel 
-      FROM pg_enum 
+      SELECT enumlabel
+      FROM pg_enum
       WHERE enumtypid = (SELECT oid FROM pg_type WHERE typname = 'reasoninglevels')
       ORDER BY enumsortorder
     `;
@@ -121,7 +113,7 @@ describe('Database Migrations', () => {
     const foreignKeys = await prisma.$queryRaw<
       Array<{ table_name: string; constraint_name: string }>
     >`
-      SELECT 
+      SELECT
         tc.table_name,
         tc.constraint_name
       FROM information_schema.table_constraints tc
@@ -143,10 +135,8 @@ describe('Database Migrations', () => {
   it('should have cascade delete on foreign keys', async () => {
     // Query pg_constraint for cascade rules
     // confdeltype: 'a' = NO ACTION, 'r' = RESTRICT, 'c' = CASCADE, 'n' = SET NULL, 'd' = SET DEFAULT
-    const cascadeRules = await prisma.$queryRaw<
-      Array<{ conname: string; confdeltype: string }>
-    >`
-      SELECT 
+    const cascadeRules = await prisma.$queryRaw<Array<{ conname: string; confdeltype: string }>>`
+      SELECT
         conname,
         confdeltype
       FROM pg_constraint
@@ -181,9 +171,7 @@ describe('Database Migrations', () => {
 
   it('should have GIN index on messages.search_vector', async () => {
     // Query pg_indexes for the search_vector index
-    const indexes = await prisma.$queryRaw<
-      Array<{ indexname: string; indexdef: string }>
-    >`
+    const indexes = await prisma.$queryRaw<Array<{ indexname: string; indexdef: string }>>`
       SELECT indexname, indexdef
       FROM pg_indexes
       WHERE tablename = 'messages'

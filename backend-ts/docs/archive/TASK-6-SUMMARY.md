@@ -7,6 +7,7 @@ Successfully migrated core tools from Python to TypeScript, implementing the bas
 ## Completed Subtasks
 
 ### 6.1 Web Search Tool ✅
+
 - **File**: `src/lib/tools/web-search.ts`
 - **Features**:
   - Zod input schema with query, num_results, and date filtering
@@ -17,6 +18,7 @@ Successfully migrated core tools from Python to TypeScript, implementing the bas
   - Proper error handling and response validation
 
 ### 6.2 Literature Search Tool ✅
+
 - **File**: `src/lib/tools/literature-search.ts`
 - **Features**:
   - Zod input schema for academic paper searches
@@ -28,6 +30,7 @@ Successfully migrated core tools from Python to TypeScript, implementing the bas
   - Comprehensive utterances for natural language triggering
 
 ### 6.3 EntityCore Tools ✅
+
 - **Base Class**: `src/lib/tools/entitycore/base.ts`
   - Abstract `EntityCoreTool` class extending `BaseTool`
   - Metadata interface for EntityCore configuration
@@ -51,6 +54,7 @@ Successfully migrated core tools from Python to TypeScript, implementing the bas
   - Pagination support
 
 ### 6.4 OBIOne Tools ✅
+
 - **Base Class**: `src/lib/tools/obione/base.ts`
   - Abstract `OBIOneTool` class extending `BaseTool`
   - Metadata interface for OBIOne configuration
@@ -68,7 +72,9 @@ Successfully migrated core tools from Python to TypeScript, implementing the bas
 ## Architecture Patterns
 
 ### Base Tool System
+
 All tools follow a consistent pattern:
+
 1. Extend appropriate base class (`BaseTool`, `EntityCoreTool`, or `OBIOneTool`)
 2. Define Zod input schema for validation
 3. Define Zod output schema for type safety
@@ -77,7 +83,9 @@ All tools follow a consistent pattern:
 6. Override `isOnline()` for health checks when applicable
 
 ### Metadata Structure
+
 Each tool provides:
+
 - `name`: Backend identifier (kebab-case)
 - `nameFrontend`: User-facing display name
 - `description`: LLM context description
@@ -86,6 +94,7 @@ Each tool provides:
 - `hil`: Human-in-the-loop flag
 
 ### Type Safety
+
 - All inputs validated with Zod schemas
 - All outputs validated with Zod schemas
 - TypeScript strict mode compliance
@@ -94,6 +103,7 @@ Each tool provides:
 ## Tool Registry
 
 Created centralized tool management system:
+
 - **File**: `src/lib/tools/index.ts`
 - **Features**:
   - Tool registration and lookup
@@ -105,18 +115,22 @@ Created centralized tool management system:
 ## Integration Points
 
 ### Configuration
+
 Tools integrate with settings system:
+
 - Exa API key for search tools
 - EntityCore URL and frontend URL
 - OBIOne URL
 - Virtual lab and project IDs for scoped queries
 
 ### Vercel AI SDK
+
 All tools provide `toVercelTool()` method for seamless integration with Vercel AI SDK's `streamText` function.
 
 ## Testing Considerations
 
 While optional test tasks were not implemented in this phase, the tools are designed for testability:
+
 - Pure functions for business logic
 - Dependency injection for API clients
 - Mockable HTTP requests
@@ -125,14 +139,18 @@ While optional test tasks were not implemented in this phase, the tools are desi
 ## Future Enhancements
 
 ### Additional EntityCore Tools
+
 The base class supports easy addition of:
+
 - Electrical cell recording tools
 - E-model and ME-model tools
 - Circuit and simulation tools
 - And 50+ other EntityCore endpoints
 
 ### Additional OBIOne Tools
+
 The base class supports:
+
 - Circuit connectivity metrics
 - Node sets and populations
 - Ephys metrics
@@ -140,6 +158,7 @@ The base class supports:
 - Simulation configuration generation
 
 ### Tool Features
+
 - Caching for frequently accessed data
 - Rate limiting per tool
 - Retry logic for transient failures
@@ -168,6 +187,7 @@ backend-ts/src/lib/tools/
 ## Validation
 
 All TypeScript compilation errors related to tools have been resolved:
+
 - No type errors in tool implementations
 - Proper override modifiers for inherited methods
 - Correct metadata typing

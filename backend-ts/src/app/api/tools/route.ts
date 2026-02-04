@@ -13,10 +13,10 @@
  * Translated from backend/src/neuroagent/app/routers/tools.py
  */
 
-import { NextResponse } from 'next/server';
-import { toolRegistry, registerToolClasses } from '@/lib/tools';
+import { NextResponse, type NextRequest } from 'next/server';
+
 import { validateAuth, AuthenticationError } from '@/lib/middleware/auth';
-import { NextRequest } from 'next/server';
+import { toolRegistry, registerToolClasses } from '@/lib/tools';
 
 /**
  * Tool response schema - matches Python ToolMetadata
@@ -28,8 +28,10 @@ interface ToolMetadata {
 
 /**
  * Detailed tool metadata response - matches Python ToolMetadataDetailed
+ * @deprecated Currently unused, kept for future API compatibility
  */
-interface ToolMetadataDetailed extends ToolMetadata {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+interface _ToolMetadataDetailed extends ToolMetadata {
   description: string;
   description_frontend: string;
   utterances: string[];
@@ -40,8 +42,10 @@ interface ToolMetadataDetailed extends ToolMetadata {
 
 /**
  * Input schema parameter definition
+ * @deprecated Currently unused, kept for future API compatibility
  */
-interface InputSchemaParameter {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+interface _InputSchemaParameter {
   name: string;
   required: boolean;
   default: string | null;
@@ -50,9 +54,11 @@ interface InputSchemaParameter {
 
 /**
  * Input schema structure
+ * @deprecated Currently unused, kept for future API compatibility
  */
-interface InputSchema {
-  parameters: InputSchemaParameter[];
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+interface _InputSchema {
+  parameters: _InputSchemaParameter[];
 }
 
 /**

@@ -120,7 +120,10 @@ async function captureSchemaState(): Promise<SchemaState> {
 /**
  * Compare two schema states for equality
  */
-function compareSchemaStates(state1: SchemaState, state2: SchemaState): {
+function compareSchemaStates(
+  state1: SchemaState,
+  state2: SchemaState
+): {
   equal: boolean;
   differences: string[];
 } {
@@ -153,9 +156,7 @@ function compareSchemaStates(state1: SchemaState, state2: SchemaState): {
     for (const [colName, col1] of cols1) {
       const col2 = cols2.get(colName);
       if (!col2) {
-        differences.push(
-          `Column ${table1.name}.${colName} exists in state1 but not in state2`
-        );
+        differences.push(`Column ${table1.name}.${colName} exists in state1 but not in state2`);
       } else {
         if (col1.type !== col2.type) {
           differences.push(
@@ -172,9 +173,7 @@ function compareSchemaStates(state1: SchemaState, state2: SchemaState): {
 
     for (const colName of cols2.keys()) {
       if (!cols1.has(colName)) {
-        differences.push(
-          `Column ${table1.name}.${colName} exists in state2 but not in state1`
-        );
+        differences.push(`Column ${table1.name}.${colName} exists in state2 but not in state1`);
       }
     }
   }
@@ -212,12 +211,7 @@ function compareSchemaStates(state1: SchemaState, state2: SchemaState): {
 function createInvalidMigration(migrationName: string, sql: string): string {
   const timestamp = Date.now();
   const fullMigrationName = `${timestamp}_${migrationName}`;
-  const migrationPath = path.join(
-    process.cwd(),
-    'prisma',
-    'migrations',
-    fullMigrationName
-  );
+  const migrationPath = path.join(process.cwd(), 'prisma', 'migrations', fullMigrationName);
 
   // Create migration directory
   fs.mkdirSync(migrationPath, { recursive: true });
@@ -233,12 +227,7 @@ function createInvalidMigration(migrationName: string, sql: string): string {
  * Remove a temporary migration
  */
 function removeInvalidMigration(migrationName: string): void {
-  const migrationPath = path.join(
-    process.cwd(),
-    'prisma',
-    'migrations',
-    migrationName
-  );
+  const migrationPath = path.join(process.cwd(), 'prisma', 'migrations', migrationName);
 
   if (fs.existsSync(migrationPath)) {
     fs.rmSync(migrationPath, { recursive: true, force: true });
@@ -511,7 +500,7 @@ describe('Migration Validation Property Tests', () => {
         fc.constant('DROP TABEL test;'), // Typo
         fc.constant('ALTER TABEL test ADD COLUMN x INT;'), // Typo
         fc.constant('DROP TABLE this_table_definitely_does_not_exist_xyz_123;'), // Non-existent table
-        fc.constant('ALTER TABLE threads ADD COLUMN test_col INT REFERENCES nonexistent_table(id);'), // Invalid FK reference
+        fc.constant('ALTER TABLE threads ADD COLUMN test_col INT REFERENCES nonexistent_table(id);') // Invalid FK reference
       ),
     ])(
       'should reject any invalid SQL and maintain schema integrity',

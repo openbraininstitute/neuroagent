@@ -20,12 +20,14 @@ backend-ts/src/lib/tools/
 ## The Two Example Tools
 
 ### 1. CalculatorTool
+
 - **Purpose**: Demonstrates a simple tool with no external dependencies
 - **Operations**: add, subtract, multiply, divide
 - **Context Variables**: Optional `maxValue` for safety
 - **Always Available**: Yes (no configuration required)
 
 ### 2. ExampleTool
+
 - **Purpose**: Demonstrates a tool with external API dependencies
 - **Operations**: Query with configurable results and metadata
 - **Context Variables**: `apiUrl` (required), `apiKey` (optional), `httpClient` (optional)
@@ -44,16 +46,16 @@ export class CalculatorTool extends BaseTool<...> {
   static readonly toolDescriptionFrontend = 'Use this tool to perform calculations...';
   static readonly toolUtterances = ['calculate', 'add', 'subtract', ...];
   static readonly toolHil = false;
-  
+
   // Instance properties - only after instantiation
   override contextVariables: CalculatorToolContextVariables;
   override inputSchema = CalculatorToolInputSchema;
-  
+
   constructor(contextVariables: CalculatorToolContextVariables = {}) {
     super();
     this.contextVariables = contextVariables;
   }
-  
+
   async execute(input: ...) { /* ... */ }
 }
 ```
@@ -73,14 +75,14 @@ const toolClasses = await getAvailableToolClasses({
 // Result: [ExampleTool, CalculatorTool] - still just classes!
 
 // 3. METADATA ACCESS: Use static properties (no instantiation)
-toolClasses.forEach(ToolClass => {
-  console.log(ToolClass.toolName);        // Static property
+toolClasses.forEach((ToolClass) => {
+  console.log(ToolClass.toolName); // Static property
   console.log(ToolClass.toolDescription); // Static property
-  console.log(ToolClass.toolUtterances);  // Static property
+  console.log(ToolClass.toolUtterances); // Static property
 });
 
 // 4. TOOL EXECUTION: Instantiate individually when LLM calls
-const ToolClass = toolClasses.find(cls => cls.toolName === 'calculator');
+const ToolClass = toolClasses.find((cls) => cls.toolName === 'calculator');
 const toolInstance = await createToolInstance(ToolClass, config);
 const result = await toolInstance.execute({ operation: 'add', a: 5, b: 3 });
 // Instance is discarded after execution
@@ -89,21 +91,25 @@ const result = await toolInstance.execute({ operation: 'add', a: 5, b: 3 });
 ## Key Functions
 
 ### `registerToolClasses()`
+
 - **When**: Once at application startup
 - **What**: Stores class references in the registry
 - **No Instantiation**: Only stores the class types themselves
 
 ### `getAvailableToolClasses(config)`
+
 - **When**: Per-request
 - **What**: Returns list of tool classes based on configuration
 - **Returns**: Array of classes (not instances!)
 
 ### `createToolInstance(ToolClass, config)`
+
 - **When**: When LLM calls a specific tool
 - **What**: Instantiates ONE tool with user-specific context
 - **Returns**: Tool instance ready for execution
 
 ### `toolRegistry.getClass(name)`
+
 - **When**: Anytime
 - **What**: Get tool class by name from registry
 - **Returns**: Tool class for metadata access or instantiation
@@ -116,6 +122,7 @@ npx tsx src/lib/tools/demo.ts
 ```
 
 Output shows:
+
 1. Tool classes being registered
 2. Metadata accessed from static properties (no instantiation)
 3. Available tools determined by configuration
@@ -124,13 +131,13 @@ Output shows:
 
 ## Python vs TypeScript Comparison
 
-| Concept | Python | TypeScript |
-|---------|--------|-----------|
-| Static metadata | `ClassVar[str]` | `static readonly toolName` |
-| Tool list | `list[type[BaseTool]]` | `any[]` (tool classes) |
-| Access metadata | `tool.name` | `ToolClass.toolName` |
-| Instantiate | `tool(metadata=..., input_schema=...)` | `new ToolClass(contextVariables)` |
-| Execute | `await tool_instance.arun()` | `await toolInstance.execute(input)` |
+| Concept         | Python                                 | TypeScript                          |
+| --------------- | -------------------------------------- | ----------------------------------- |
+| Static metadata | `ClassVar[str]`                        | `static readonly toolName`          |
+| Tool list       | `list[type[BaseTool]]`                 | `any[]` (tool classes)              |
+| Access metadata | `tool.name`                            | `ToolClass.toolName`                |
+| Instantiate     | `tool(metadata=..., input_schema=...)` | `new ToolClass(contextVariables)`   |
+| Execute         | `await tool_instance.arun()`           | `await toolInstance.execute(input)` |
 
 ## Adding New Tools
 
@@ -167,6 +174,7 @@ See `example-tool.ts` and `calculator-tool.ts` for complete examples.
 ## Clean State
 
 All production tools (web-search, literature-search, entitycore, obione) have been removed. The system now contains only:
+
 - Base tool infrastructure
 - Two example tools demonstrating the pattern
 - Complete documentation

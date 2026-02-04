@@ -210,11 +210,11 @@ export async function POST(request: NextRequest) {
 
 ### When to Use Classes vs Instances
 
-| Operation | Use | Example |
-|-----------|-----|---------|
-| Get metadata | **Class** (static properties) | `ToolClass.toolName` |
-| Check health | **Class** (static method) | `ToolClass.isOnline(context)` |
-| List tools | **Class** references | `toolRegistry.getAllClasses()` |
+| Operation    | Use                              | Example                                |
+| ------------ | -------------------------------- | -------------------------------------- |
+| Get metadata | **Class** (static properties)    | `ToolClass.toolName`                   |
+| Check health | **Class** (static method)        | `ToolClass.isOnline(context)`          |
+| List tools   | **Class** references             | `toolRegistry.getAllClasses()`         |
 | Execute tool | **Instance** (with user context) | `new Tool(userContext).execute(input)` |
 
 ## Benefits
@@ -249,10 +249,7 @@ export class BrainRegionGetAllTool extends EntityCoreTool<typeof BrainRegionGetA
   static readonly toolNameFrontend = 'Get All Brain Regions';
   static readonly toolDescription = 'Searches a neuroscience based knowledge graph...';
   static readonly toolDescriptionFrontend = 'Search and retrieve brain regions...';
-  static readonly toolUtterances = [
-    'Find brain regions.',
-    'Show me available brain regions.',
-  ];
+  static readonly toolUtterances = ['Find brain regions.', 'Show me available brain regions.'];
   static readonly toolHil = false;
 
   // Instance properties (for execution)

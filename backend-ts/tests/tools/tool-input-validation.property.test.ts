@@ -65,7 +65,10 @@ const StrictStringToolInputSchema = z.object({
   uuid: z.string().uuid().describe('A valid UUID'),
   minLength: z.string().min(5).describe('String with minimum length 5'),
   maxLength: z.string().max(10).describe('String with maximum length 10'),
-  pattern: z.string().regex(/^[A-Z]{3}$/).describe('Three uppercase letters'),
+  pattern: z
+    .string()
+    .regex(/^[A-Z]{3}$/)
+    .describe('Three uppercase letters'),
 });
 
 class StrictStringTool extends BaseTool<typeof StrictStringToolInputSchema> {
@@ -315,9 +318,9 @@ describe('Tool Input Validation Property Tests', () => {
      */
     test.prop([
       fc.record({
-        operation: fc.string().filter(
-          (s) => !['add', 'subtract', 'multiply', 'divide'].includes(s)
-        ),
+        operation: fc
+          .string()
+          .filter((s) => !['add', 'subtract', 'multiply', 'divide'].includes(s)),
         a: fc.integer(),
         b: fc.integer(),
       }),
@@ -373,22 +376,23 @@ describe('Tool Input Validation Property Tests', () => {
     /**
      * Test that invalid email addresses fail
      */
-    test.prop([
-      fc.string().filter((s) => !s.includes('@') || s.length < 3),
-    ])('should reject invalid email addresses', async (invalidEmail) => {
-      const tool = new StrictStringTool();
+    test.prop([fc.string().filter((s) => !s.includes('@') || s.length < 3)])(
+      'should reject invalid email addresses',
+      async (invalidEmail) => {
+        const tool = new StrictStringTool();
 
-      const result = tool.inputSchema.safeParse({
-        email: invalidEmail,
-        url: 'https://example.com',
-        uuid: '123e4567-e89b-12d3-a456-426614174000',
-        minLength: 'valid',
-        maxLength: 'valid',
-        pattern: 'ABC',
-      });
+        const result = tool.inputSchema.safeParse({
+          email: invalidEmail,
+          url: 'https://example.com',
+          uuid: '123e4567-e89b-12d3-a456-426614174000',
+          minLength: 'valid',
+          maxLength: 'valid',
+          pattern: 'ABC',
+        });
 
-      expect(result.success).toBe(false);
-    });
+        expect(result.success).toBe(false);
+      }
+    );
 
     /**
      * Test that strings violating length constraints fail
@@ -458,77 +462,78 @@ describe('Tool Input Validation Property Tests', () => {
     /**
      * Test that non-positive integers fail positive validation
      */
-    test.prop([
-      fc.integer({ min: -1000, max: 0 }),
-    ])('should reject non-positive integers for positive fields', async (nonPositive) => {
-      const tool = new NumericTool();
+    test.prop([fc.integer({ min: -1000, max: 0 })])(
+      'should reject non-positive integers for positive fields',
+      async (nonPositive) => {
+        const tool = new NumericTool();
 
-      const result = tool.inputSchema.safeParse({
-        positiveInt: nonPositive,
-        negativeInt: -5,
-        inRange: 50,
-        multipleOf: 10,
-      });
+        const result = tool.inputSchema.safeParse({
+          positiveInt: nonPositive,
+          negativeInt: -5,
+          inRange: 50,
+          multipleOf: 10,
+        });
 
-      expect(result.success).toBe(false);
-    });
+        expect(result.success).toBe(false);
+      }
+    );
 
     /**
      * Test that non-negative integers fail negative validation
      */
-    test.prop([
-      fc.integer({ min: 0, max: 1000 }),
-    ])('should reject non-negative integers for negative fields', async (nonNegative) => {
-      const tool = new NumericTool();
+    test.prop([fc.integer({ min: 0, max: 1000 })])(
+      'should reject non-negative integers for negative fields',
+      async (nonNegative) => {
+        const tool = new NumericTool();
 
-      const result = tool.inputSchema.safeParse({
-        positiveInt: 5,
-        negativeInt: nonNegative,
-        inRange: 50,
-        multipleOf: 10,
-      });
+        const result = tool.inputSchema.safeParse({
+          positiveInt: 5,
+          negativeInt: nonNegative,
+          inRange: 50,
+          multipleOf: 10,
+        });
 
-      expect(result.success).toBe(false);
-    });
+        expect(result.success).toBe(false);
+      }
+    );
 
     /**
      * Test that out-of-range numbers fail
      */
-    test.prop([
-      fc.oneof(
-        fc.integer({ min: -1000, max: -1 }),
-        fc.integer({ min: 101, max: 1000 })
-      ),
-    ])('should reject numbers outside valid range', async (outOfRange) => {
-      const tool = new NumericTool();
+    test.prop([fc.oneof(fc.integer({ min: -1000, max: -1 }), fc.integer({ min: 101, max: 1000 }))])(
+      'should reject numbers outside valid range',
+      async (outOfRange) => {
+        const tool = new NumericTool();
 
-      const result = tool.inputSchema.safeParse({
-        positiveInt: 5,
-        negativeInt: -5,
-        inRange: outOfRange,
-        multipleOf: 10,
-      });
+        const result = tool.inputSchema.safeParse({
+          positiveInt: 5,
+          negativeInt: -5,
+          inRange: outOfRange,
+          multipleOf: 10,
+        });
 
-      expect(result.success).toBe(false);
-    });
+        expect(result.success).toBe(false);
+      }
+    );
 
     /**
      * Test that non-multiples fail multipleOf validation
      */
-    test.prop([
-      fc.integer({ min: 1, max: 100 }).filter((n) => n % 5 !== 0),
-    ])('should reject numbers that are not multiples of 5', async (nonMultiple) => {
-      const tool = new NumericTool();
+    test.prop([fc.integer({ min: 1, max: 100 }).filter((n) => n % 5 !== 0)])(
+      'should reject numbers that are not multiples of 5',
+      async (nonMultiple) => {
+        const tool = new NumericTool();
 
-      const result = tool.inputSchema.safeParse({
-        positiveInt: 5,
-        negativeInt: -5,
-        inRange: 50,
-        multipleOf: nonMultiple,
-      });
+        const result = tool.inputSchema.safeParse({
+          positiveInt: 5,
+          negativeInt: -5,
+          inRange: 50,
+          multipleOf: nonMultiple,
+        });
 
-      expect(result.success).toBe(false);
-    });
+        expect(result.success).toBe(false);
+      }
+    );
 
     /**
      * Test that validation errors contain useful information

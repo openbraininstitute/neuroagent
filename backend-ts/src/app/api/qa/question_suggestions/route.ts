@@ -8,16 +8,16 @@
  * Uses Vercel AI SDK's generateObject for structured output generation.
  */
 
-import { NextRequest, NextResponse } from 'next/server';
-import { generateObject } from 'ai';
 import { createOpenAI } from '@ai-sdk/openai';
+import { entity } from '@prisma/client';
+import { generateObject } from 'ai';
+import { type NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 
 import { getSettings } from '@/lib/config/settings';
+import { prisma } from '@/lib/db/client';
 import { validateAuth } from '@/lib/middleware/auth';
 import { checkRateLimit } from '@/lib/middleware/rate-limit';
-import { prisma } from '@/lib/db/client';
-import { entity } from '@prisma/client';
 
 // ============================================================================
 // Schemas
@@ -47,7 +47,7 @@ const RequestBodySchema = z.object({
 
 /**
  * Get static tool descriptions for LLM context
- * 
+ *
  * Returns hardcoded descriptions to avoid tool initialization overhead.
  * This is much faster than initializing all tools (especially MCP tools).
  */
@@ -73,8 +73,7 @@ interface PageContext {
 }
 
 function isUUID(str: string): boolean {
-  const uuidRegex =
-    /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
   return uuidRegex.test(str);
 }
 
@@ -279,9 +278,13 @@ ${toolInfo.join('\n')}`;
           if (pageContext.brainRegionId && settings.tools.entitycore.url) {
             try {
               const headers: Record<string, string> = {};
-              if (vlabId) headers['virtual-lab-id'] = vlabId;
-              if (projectId) headers['project-id'] = projectId;
-              
+              if (vlabId) {
+                headers['virtual-lab-id'] = vlabId;
+              }
+              if (projectId) {
+                headers['project-id'] = projectId;
+              }
+
               // Add JWT token for authentication
               const authHeader = request.headers.get('authorization');
               if (authHeader) {

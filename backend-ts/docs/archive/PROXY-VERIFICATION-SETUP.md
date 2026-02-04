@@ -5,6 +5,7 @@ This document explains how to verify that tests are not making real external API
 ## Problem
 
 Tests should never make real API calls to external services (OpenAI, OpenRouter, etc.) because:
+
 - It costs money (LLM API calls are expensive)
 - It's slow and unreliable
 - It can hit rate limits
@@ -48,6 +49,7 @@ mitmweb
 ```
 
 This starts:
+
 - Proxy server on `http://localhost:8080`
 - Web interface on `http://localhost:8081`
 
@@ -70,6 +72,7 @@ npm test
 Open http://localhost:8081 in your browser.
 
 **Expected result:** You should see **only 3 requests**:
+
 1. `GET httpbin.org/get?test=native-fetch-proxy&timestamp=...`
 2. `GET api.github.com/zen` (with User-Agent: `neuroagent-test-...`)
 3. `POST httpbin.org/post`
@@ -167,6 +170,7 @@ beforeEach(() => {
 ## Cost Savings
 
 By ensuring all tests are properly mocked:
+
 - **Estimated savings:** $500-1000/year
 - **Test execution time:** 10x faster
 - **Reliability:** No rate limiting or network issues

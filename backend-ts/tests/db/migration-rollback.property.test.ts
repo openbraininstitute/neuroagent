@@ -152,9 +152,7 @@ async function captureSchemaState(): Promise<SchemaState> {
   `;
 
   // Capture triggers
-  const triggers = await prisma.$queryRaw<
-    Array<{ table_name: string; trigger_name: string }>
-  >`
+  const triggers = await prisma.$queryRaw<Array<{ table_name: string; trigger_name: string }>>`
     SELECT
       event_object_table as table_name,
       trigger_name
@@ -189,7 +187,10 @@ async function captureSchemaState(): Promise<SchemaState> {
 /**
  * Compare two schema states for equality
  */
-function compareSchemaStates(state1: SchemaState, state2: SchemaState): {
+function compareSchemaStates(
+  state1: SchemaState,
+  state2: SchemaState
+): {
   equal: boolean;
   differences: string[];
 } {
@@ -222,9 +223,7 @@ function compareSchemaStates(state1: SchemaState, state2: SchemaState): {
     for (const [colName, col1] of cols1) {
       const col2 = cols2.get(colName);
       if (!col2) {
-        differences.push(
-          `Column ${table1.name}.${colName} exists in state1 but not in state2`
-        );
+        differences.push(`Column ${table1.name}.${colName} exists in state1 but not in state2`);
       } else {
         if (col1.type !== col2.type) {
           differences.push(
@@ -241,9 +240,7 @@ function compareSchemaStates(state1: SchemaState, state2: SchemaState): {
 
     for (const colName of cols2.keys()) {
       if (!cols1.has(colName)) {
-        differences.push(
-          `Column ${table1.name}.${colName} exists in state2 but not in state1`
-        );
+        differences.push(`Column ${table1.name}.${colName} exists in state2 but not in state1`);
       }
     }
   }
@@ -352,12 +349,7 @@ function getMigrationDirectories(): string[] {
  * This simulates the manual rollback process described in the workflow
  */
 function createDownMigration(migrationName: string): string | null {
-  const migrationPath = path.join(
-    process.cwd(),
-    'prisma',
-    'migrations',
-    migrationName
-  );
+  const migrationPath = path.join(process.cwd(), 'prisma', 'migrations', migrationName);
   const downPath = path.join(migrationPath, 'down.sql');
 
   // Check if down.sql already exists
@@ -387,9 +379,7 @@ function createDownMigration(migrationName: string): string | null {
   }
 
   // Look for ALTER TABLE ADD COLUMN and generate DROP COLUMN
-  const addColumnMatches = upSql.matchAll(
-    /ALTER TABLE\s+"?(\w+)"?\s+ADD COLUMN\s+"?(\w+)"?/gi
-  );
+  const addColumnMatches = upSql.matchAll(/ALTER TABLE\s+"?(\w+)"?\s+ADD COLUMN\s+"?(\w+)"?/gi);
   for (const match of addColumnMatches) {
     downSql += `ALTER TABLE "${match[1]}" DROP COLUMN IF EXISTS "${match[2]}";\n`;
   }
@@ -493,9 +483,7 @@ describe('Migration Rollback Property Tests', () => {
       const rollbackSuccess = applyDownMigration(latestMigration);
 
       if (!rollbackSuccess) {
-        console.log(
-          `Skipping rollback test for ${latestMigration} - no down migration available`
-        );
+        console.log(`Skipping rollback test for ${latestMigration} - no down migration available`);
         expect(true).toBe(true);
         return;
       }

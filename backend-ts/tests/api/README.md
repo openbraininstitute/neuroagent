@@ -9,6 +9,7 @@ This directory contains the API compatibility test suite that validates the Type
 ### 1. Start Both Backends
 
 **Terminal 1 - Python Backend:**
+
 ```bash
 cd backend
 neuroagent-api
@@ -16,6 +17,7 @@ neuroagent-api
 ```
 
 **Terminal 2 - TypeScript Backend:**
+
 ```bash
 cd backend-ts
 npm run dev
@@ -25,18 +27,21 @@ npm run dev
 ### 2. Run Compatibility Tests
 
 **Option A: Using the helper script (recommended):**
+
 ```bash
 cd backend-ts
 ./scripts/run-compatibility-tests.sh
 ```
 
 **Option B: Using npm:**
+
 ```bash
 cd backend-ts
 npm run test:compatibility
 ```
 
 **Option C: Using vitest directly:**
+
 ```bash
 cd backend-ts
 npx vitest tests/api/compatibility.test.ts
@@ -144,6 +149,7 @@ To test authenticated endpoints, you need a valid JWT token:
 ```
 
 **What to do:**
+
 1. Check TypeScript backend logs for errors
 2. Verify database is accessible
 3. Ensure environment variables are set correctly
@@ -154,12 +160,14 @@ To test authenticated endpoints, you need a valid JWT token:
 ### Issue: "Connection Refused"
 
 **Symptom:**
+
 ```
 Error: fetch failed
   cause: Error: connect ECONNREFUSED 127.0.0.1:8078
 ```
 
 **Solution:**
+
 - Verify Python backend is running: `curl http://localhost:8078/healthz`
 - Verify TypeScript backend is running: `curl http://localhost:3000/healthz`
 - Check for port conflicts
@@ -167,12 +175,14 @@ Error: fetch failed
 ### Issue: "401 Unauthorized"
 
 **Symptom:**
+
 ```
 Expected: 200
 Received: 401
 ```
 
 **Solution:**
+
 - Set `TEST_AUTH_TOKEN` environment variable
 - Verify token is valid and not expired
 - Check token has required permissions
@@ -180,6 +190,7 @@ Received: 401
 ### Issue: "Schema Validation Failed"
 
 **Symptom:**
+
 ```
 ZodError: Invalid type
   Expected: string
@@ -187,6 +198,7 @@ ZodError: Invalid type
 ```
 
 **Solution:**
+
 - Compare actual responses from both backends
 - Check if TypeScript implementation matches Python
 - Update schema definition if API changed
@@ -194,12 +206,14 @@ ZodError: Invalid type
 ### Issue: "Rate Limit Exceeded"
 
 **Symptom:**
+
 ```
 Expected: 200
 Received: 429
 ```
 
 **Solution:**
+
 - Wait for rate limit to reset
 - Clear Redis cache: `redis-cli FLUSHALL`
 - Adjust rate limit settings for testing

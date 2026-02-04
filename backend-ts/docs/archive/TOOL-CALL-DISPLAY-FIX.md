@@ -9,22 +9,27 @@ Tool calls were disappearing from the chat interface or reverting to "calling" s
 The TypeScript backend's message formatting logic didn't match the Python backend's implementation. Key differences:
 
 ### 1. Processing Order
+
 - **Python**: Processes messages in REVERSE order (oldest to newest), then reverses back
 - **TypeScript (wrong)**: Processed in descending order (newest to oldest)
 
 ### 2. Buffering Logic
+
 - **Python**: Buffers `parts` and `annotations` across multiple messages, flushing on AI_MESSAGE or USER
 - **TypeScript (wrong)**: Simple one-pass processing without proper buffering
 
 ### 3. Missing Annotations
+
 - **Python**: Creates annotations for each tool call with validation status and isComplete
 - **TypeScript (wrong)**: No annotations, causing frontend to not know tool call state
 
 ### 4. Entity Handling
+
 - **Python**: Treats AI_MESSAGE and AI_TOOL differently - AI_MESSAGE flushes buffer, AI_TOOL adds to buffer
 - **TypeScript (wrong)**: Treated them the same way
 
 ### 5. Dummy Messages
+
 - **Python**: Creates dummy AI messages when buffer has parts but no AI_MESSAGE to attach to
 - **TypeScript (wrong)**: Didn't create dummy messages
 
@@ -183,18 +188,21 @@ if (parts.length > 0) {
 ### Message Flow Example
 
 **Database Messages (descending order):**
+
 1. USER: "What's the weather in Paris?"
 2. AI_TOOL: "I'll check the weather" + tool_calls=[{id: "call_123", name: "get_weather"}]
 3. TOOL: {tool_call_id: "call_123", content: "{temp: 20}"}
 4. AI_MESSAGE: "The weather in Paris is 20°C"
 
 **Processing (reversed to ascending):**
+
 1. USER message → Add to messages, reset buffer
 2. AI_TOOL message → Add text to parts buffer, add tool call to parts buffer, add annotation
 3. TOOL message → Find tool call in buffer, update result and state to "result"
 4. AI_MESSAGE → Add text to parts buffer, add message annotation, flush buffer to message
 
 **Result (reversed back to descending):**
+
 ```json
 [
   {
@@ -235,26 +243,28 @@ if (parts.length > 0) {
 
 ## Key Differences from Previous Implementation
 
-| Aspect | Previous (Wrong) | Current (Correct) |
-|--------|-----------------|-------------------|
-| Processing order | Descending (newest first) | Reverse to ascending, then back |
-| Buffering | Simple map | Proper buffer with flush logic |
-| Annotations | None | Full annotation support |
-| AI_MESSAGE vs AI_TOOL | Same handling | Different - MESSAGE flushes, TOOL buffers |
-| Dummy messages | Not created | Created when needed |
-| Tool call state | Always 'call' initially | Properly updated to 'result' |
-| Validation status | Not included | Included in annotations |
+| Aspect                | Previous (Wrong)          | Current (Correct)                         |
+| --------------------- | ------------------------- | ----------------------------------------- |
+| Processing order      | Descending (newest first) | Reverse to ascending, then back           |
+| Buffering             | Simple map                | Proper buffer with flush logic            |
+| Annotations           | None                      | Full annotation support                   |
+| AI_MESSAGE vs AI_TOOL | Same handling             | Different - MESSAGE flushes, TOOL buffers |
+| Dummy messages        | Not created               | Created when needed                       |
+| Tool call state       | Always 'call' initially   | Properly updated to 'result'              |
+| Validation status     | Not included              | Included in annotations                   |
 
 ## Why This Matters
 
 ### Annotations Tell Frontend the State
 
 The frontend uses annotations to determine:
+
 - **validated**: Whether tool needs human approval (pending/accepted/rejected/not_required)
 - **isComplete**: Whether the tool execution is finished
 - **toolCallId**: Links annotation to specific tool call
 
 Without annotations, the frontend doesn't know:
+
 - If a tool call is complete
 - If it needs validation
 - What the validation status is
@@ -264,6 +274,7 @@ This causes the "calling" state issue - the frontend thinks the tool is still ex
 ### Buffering Ensures Correct Grouping
 
 Tool calls and their results come as separate messages in the database:
+
 - AI_TOOL message has the tool call
 - TOOL message has the result
 
@@ -297,6 +308,7 @@ To verify the fix:
 ## Comparison with Python Backend
 
 This implementation now **exactly matches** the Python backend:
+
 - `backend/src/neuroagent/app/app_utils.py` - `format_messages_to_vercel()` function
 - Same processing order (reverse, process, reverse back)
 - Same buffering logic

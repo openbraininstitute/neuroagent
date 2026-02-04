@@ -12,12 +12,13 @@
  * Requirements: 6.1, 6.2, 6.3, 6.4, 6.6, 6.7
  */
 
-import { streamText, CoreMessage, Tool, LanguageModelUsage } from 'ai';
 import { createOpenAI } from '@ai-sdk/openai';
 import { createOpenRouter } from '@openrouter/ai-sdk-provider';
-import { prisma } from '../db/client';
-import { Entity, Task, TokenType } from '../../types';
 import type { Message, ToolCall } from '@prisma/client';
+import { streamText, type CoreMessage, type Tool, type LanguageModelUsage } from 'ai';
+
+import { Entity, Task, TokenType } from '../../types';
+import { prisma } from '../db/client';
 
 /**
  * Agent configuration interface
@@ -70,11 +71,7 @@ export class AgentsRoutine {
    * @param openaiBaseUrl - OpenAI base URL (optional)
    * @param openrouterApiKey - OpenRouter API key (optional)
    */
-  constructor(
-    openaiApiKey?: string,
-    openaiBaseUrl?: string,
-    openrouterApiKey?: string
-  ) {
+  constructor(openaiApiKey?: string, openaiBaseUrl?: string, openrouterApiKey?: string) {
     if (openaiApiKey) {
       // Initialize OpenAI provider with API key
       // Note: We don't set compatibility mode to let Vercel AI SDK handle
@@ -176,13 +173,18 @@ export class AgentsRoutine {
         // 2. HIL tools are blocked from execution and require explicit validation
         const wrappedTool = {
           ...originalTool,
-          execute: async (args: any, options: { toolCallId: string; messages: any[]; abortSignal?: AbortSignal }) => {
+          execute: async (
+            args: any,
+            options: { toolCallId: string; messages: any[]; abortSignal?: AbortSignal }
+          ) => {
             const { toolCallId, messages } = options;
 
             // Check if this tool requires HIL validation
             // HIL tools should NEVER execute automatically - they need explicit user validation
             if (hilToolNames.has(toolName)) {
-              console.log(`[streamChat] Tool "${toolName}" (ID: ${toolCallId}) requires HIL validation - blocking execution`);
+              console.log(
+                `[streamChat] Tool "${toolName}" (ID: ${toolCallId}) requires HIL validation - blocking execution`
+              );
 
               // Return a special marker that indicates HIL validation is required
               // This will be caught by the onFinish handler to send annotation data
@@ -206,11 +208,15 @@ export class AgentsRoutine {
             // Update counter
             toolCallsPerStep.set(stepId, toolPosition);
 
-            console.log(`[streamChat] Step ${stepId}, Tool ${toolPosition}/${maxParallelToolCalls}: ${toolName} (ID: ${toolCallId})`);
+            console.log(
+              `[streamChat] Step ${stepId}, Tool ${toolPosition}/${maxParallelToolCalls}: ${toolName} (ID: ${toolCallId})`
+            );
 
             // Check if we've exceeded the parallel limit for this step
             if (toolPosition > maxParallelToolCalls) {
-              console.log(`[streamChat] Tool call ${toolName} (ID: ${toolCallId}) exceeds parallel limit (${maxParallelToolCalls}). Returning rate limit error.`);
+              console.log(
+                `[streamChat] Tool call ${toolName} (ID: ${toolCallId}) exceeds parallel limit (${maxParallelToolCalls}). Returning rate limit error.`
+              );
 
               // Return error message matching Python backend behavior
               // This tells the LLM to retry the tool call in the next step
@@ -223,7 +229,10 @@ export class AgentsRoutine {
               console.log(`[streamChat] Tool execution completed: ${toolName} (ID: ${toolCallId})`);
               return result;
             } catch (error) {
-              console.error(`[streamChat] Tool execution failed: ${toolName} (ID: ${toolCallId})`, error);
+              console.error(
+                `[streamChat] Tool execution failed: ${toolName} (ID: ${toolCallId})`,
+                error
+              );
               throw error;
             }
           },
@@ -231,7 +240,12 @@ export class AgentsRoutine {
 
         tools[toolName] = wrappedTool as Tool;
       }
-      console.log('[streamChat] Converted', Object.keys(tools).length, 'tools:', Object.keys(tools));
+      console.log(
+        '[streamChat] Converted',
+        Object.keys(tools).length,
+        'tools:',
+        Object.keys(tools)
+      );
       console.log('[streamChat] HIL tools:', Array.from(hilToolNames));
 
       // Log the tool schemas before sending to LLM
@@ -254,10 +268,7 @@ export class AgentsRoutine {
       console.log('[streamChat] Initiating streamText with maxSteps:', maxTurns);
       const result = streamText({
         model,
-        messages: [
-          { role: 'system', content: agent.instructions },
-          ...coreMessages,
-        ],
+        messages: [{ role: 'system', content: agent.instructions }, ...coreMessages],
         tools,
         temperature: agent.temperature,
         maxTokens: agent.maxTokens,
@@ -334,7 +345,10 @@ export class AgentsRoutine {
       return wrappedResponse;
     } catch (error) {
       console.error('[streamChat] Error setting up agent:', error);
-      console.error('[streamChat] Error stack:', error instanceof Error ? error.stack : 'No stack trace');
+      console.error(
+        '[streamChat] Error stack:',
+        error instanceof Error ? error.stack : 'No stack trace'
+      );
 
       // Return error response
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
@@ -351,7 +365,7 @@ export class AgentsRoutine {
         headers: {
           'Content-Type': 'text/event-stream',
           'Cache-Control': 'no-cache',
-          'Connection': 'keep-alive',
+          Connection: 'keep-alive',
           'X-Vercel-AI-Data-Stream': 'v1',
         },
       });
@@ -382,7 +396,10 @@ export class AgentsRoutine {
     messages: CoreMessage[],
     usage: LanguageModelUsage | undefined,
     model: string
-  ): Promise<{ hilRequired: boolean; hilToolCalls: Array<{ toolCallId: string; toolName: string; args: any }> }> {
+  ): Promise<{
+    hilRequired: boolean;
+    hilToolCalls: Array<{ toolCallId: string; toolName: string; args: any }>;
+  }> {
     try {
       console.log('[saveMessagesToDatabase] Saving', messages.length, 'messages');
 
@@ -484,7 +501,10 @@ export class AgentsRoutine {
                   '__hil_required' in result &&
                   result.__hil_required === true
                 ) {
-                  console.log('[saveMessagesToDatabase] HIL validation required for tool:', part.toolName);
+                  console.log(
+                    '[saveMessagesToDatabase] HIL validation required for tool:',
+                    part.toolName
+                  );
                   hilRequired = true;
                   hilToolCalls.push({
                     toolCallId: part.toolCallId,
@@ -507,9 +527,8 @@ export class AgentsRoutine {
                       role: 'tool',
                       tool_call_id: part.toolCallId,
                       tool_name: part.toolName,
-                      content: typeof part.result === 'string'
-                        ? part.result
-                        : JSON.stringify(part.result),
+                      content:
+                        typeof part.result === 'string' ? part.result : JSON.stringify(part.result),
                     }),
                     isComplete: true,
                   },
@@ -522,7 +541,11 @@ export class AgentsRoutine {
 
       console.log('[saveMessagesToDatabase] All messages saved successfully');
       if (hilRequired) {
-        console.log('[saveMessagesToDatabase] HIL validation required for', hilToolCalls.length, 'tool calls');
+        console.log(
+          '[saveMessagesToDatabase] HIL validation required for',
+          hilToolCalls.length,
+          'tool calls'
+        );
       }
 
       return { hilRequired, hilToolCalls };
@@ -547,10 +570,7 @@ export class AgentsRoutine {
    * @param threadId - Thread ID to check for HIL tool calls
    * @returns Wrapped response with HIL annotations if needed
    */
-  private async wrapStreamForHIL(
-    originalResponse: Response,
-    threadId: string
-  ): Promise<Response> {
+  private async wrapStreamForHIL(originalResponse: Response, threadId: string): Promise<Response> {
     const originalBody = originalResponse.body;
     if (!originalBody) {
       return originalResponse;
@@ -569,7 +589,9 @@ export class AgentsRoutine {
 
             if (done) {
               // Stream is complete - check if HIL validation is needed
-              console.log('[wrapStreamForHIL] Original stream completed, checking for HIL validation...');
+              console.log(
+                '[wrapStreamForHIL] Original stream completed, checking for HIL validation...'
+              );
 
               // Query the database to find any tool calls with validated: null
               // These are tool calls that require HIL validation
@@ -591,7 +613,11 @@ export class AgentsRoutine {
               });
 
               if (pendingToolCalls.length > 0) {
-                console.log('[wrapStreamForHIL] Found', pendingToolCalls.length, 'tool calls requiring HIL validation');
+                console.log(
+                  '[wrapStreamForHIL] Found',
+                  pendingToolCalls.length,
+                  'tool calls requiring HIL validation'
+                );
 
                 // Send annotation data for each pending tool call
                 // Format: 8:[{"toolCallId":"...","validated":"pending"}]
@@ -651,9 +677,7 @@ export class AgentsRoutine {
    *
    * Requirement: 6.2
    */
-  private convertToCoreMessages(
-    messages: MessageWithToolCalls[]
-  ): CoreMessage[] {
+  private convertToCoreMessages(messages: MessageWithToolCalls[]): CoreMessage[] {
     console.log('[convertToCoreMessages] Converting', messages.length, 'messages');
     const coreMessages: CoreMessage[] = [];
 
@@ -664,7 +688,10 @@ export class AgentsRoutine {
         if (msg.entity === Entity.USER) {
           // User message
           const userContent = typeof content === 'string' ? content : content.content || '';
-          console.log('[convertToCoreMessages] User message:', userContent.substring(0, 50) + '...');
+          console.log(
+            '[convertToCoreMessages] User message:',
+            `${userContent.substring(0, 50)}...`
+          );
           coreMessages.push({
             role: 'user',
             content: userContent,
@@ -672,10 +699,19 @@ export class AgentsRoutine {
         } else if (msg.entity === Entity.AI_MESSAGE || msg.entity === Entity.AI_TOOL) {
           // Assistant message (with or without tool calls)
           const assistantContent = typeof content === 'string' ? content : content.content || '';
-          console.log('[convertToCoreMessages] Assistant message (', msg.entity, ') with', msg.toolCalls?.length || 0, 'tool calls');
+          console.log(
+            '[convertToCoreMessages] Assistant message (',
+            msg.entity,
+            ') with',
+            msg.toolCalls?.length || 0,
+            'tool calls'
+          );
 
           // Check if there are tool calls in the message content (Python format)
-          const hasToolCalls = content.tool_calls && Array.isArray(content.tool_calls) && content.tool_calls.length > 0;
+          const hasToolCalls =
+            content.tool_calls &&
+            Array.isArray(content.tool_calls) &&
+            content.tool_calls.length > 0;
 
           if (hasToolCalls) {
             // Assistant message with tool calls
@@ -687,14 +723,20 @@ export class AgentsRoutine {
                   text: assistantContent,
                 },
                 ...content.tool_calls.map((tc: any) => {
-                  console.log('[convertToCoreMessages] Tool call:', tc.function?.name || tc.name, 'with ID:', tc.id);
+                  console.log(
+                    '[convertToCoreMessages] Tool call:',
+                    tc.function?.name || tc.name,
+                    'with ID:',
+                    tc.id
+                  );
                   return {
                     type: 'tool-call' as const,
                     toolCallId: tc.id,
                     toolName: tc.function?.name || tc.name,
-                    args: typeof tc.function?.arguments === 'string'
-                      ? JSON.parse(tc.function.arguments)
-                      : tc.function?.arguments || tc.args || {},
+                    args:
+                      typeof tc.function?.arguments === 'string'
+                        ? JSON.parse(tc.function.arguments)
+                        : tc.function?.arguments || tc.args || {},
                   };
                 }),
               ],
@@ -783,8 +825,6 @@ export class AgentsRoutine {
       return this.openrouterClient(modelIdentifier);
     }
   }
-
-
 
   /**
    * Create token consumption records from usage information

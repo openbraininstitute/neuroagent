@@ -5,7 +5,8 @@
  */
 
 import { z } from 'zod';
-import { BaseTool, BaseContextVariables } from '../base-tool';
+
+import { BaseTool, type BaseContextVariables } from '../base-tool';
 
 /**
  * Input schema for translator tool
@@ -29,8 +30,7 @@ export class TranslatorTool extends BaseTool<
   static readonly toolNameFrontend = 'Translator';
   static readonly toolDescription =
     'Translate text from one language to another. Supports major world languages including English, Spanish, French, German, Chinese, and Japanese.';
-  static readonly toolDescriptionFrontend =
-    'Translate text between languages';
+  static readonly toolDescriptionFrontend = 'Translate text between languages';
   static readonly toolUtterances = [
     'Translate "hello" to Spanish',
     'How do you say "thank you" in French?',
@@ -79,8 +79,7 @@ export class TranslatorTool extends BaseTool<
     const lowerText = text.toLowerCase();
     const lowerTarget = target_language.toLowerCase();
 
-    const translation = mockTranslations[lowerText]?.[lowerTarget] ||
-      `[Translated: ${text}]`;
+    const translation = mockTranslations[lowerText]?.[lowerTarget] || `[Translated: ${text}]`;
 
     return {
       original_text: text,

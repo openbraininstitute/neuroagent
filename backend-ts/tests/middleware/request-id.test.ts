@@ -18,8 +18,7 @@ describe('Request ID Middleware', () => {
       const requestId = generateRequestId();
 
       // UUID v4 format: xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx
-      const uuidRegex =
-        /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+      const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
       expect(requestId).toMatch(uuidRegex);
     });
 
@@ -56,8 +55,7 @@ describe('Request ID Middleware', () => {
       expect(requestId).toBeDefined();
       expect(requestId.length).toBeGreaterThan(0);
       // Should be a valid UUID
-      const uuidRegex =
-        /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+      const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
       expect(requestId).toMatch(uuidRegex);
     });
 

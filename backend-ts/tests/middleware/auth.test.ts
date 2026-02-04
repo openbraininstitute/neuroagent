@@ -33,9 +33,7 @@ describe('Authentication Middleware', () => {
 
     it('should deny access when user does not belong to virtual lab', () => {
       const groups = ['/vlab/other-vlab', '/other/group'];
-      expect(() => validateVirtualLabAccess(groups, 'abc-123-def')).toThrow(
-        AuthorizationError
-      );
+      expect(() => validateVirtualLabAccess(groups, 'abc-123-def')).toThrow(AuthorizationError);
       expect(() => validateVirtualLabAccess(groups, 'abc-123-def')).toThrow(
         'User does not belong to the virtual-lab'
       );
@@ -43,9 +41,7 @@ describe('Authentication Middleware', () => {
 
     it('should deny access when groups array is empty', () => {
       const groups: string[] = [];
-      expect(() => validateVirtualLabAccess(groups, 'abc-123-def')).toThrow(
-        AuthorizationError
-      );
+      expect(() => validateVirtualLabAccess(groups, 'abc-123-def')).toThrow(AuthorizationError);
     });
   });
 

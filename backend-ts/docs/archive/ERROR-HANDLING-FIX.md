@@ -3,6 +3,7 @@
 ## Issue
 
 When errors occurred during chat streaming, the client only received a generic error message:
+
 ```
 3:"An error occurred."
 ```
@@ -96,11 +97,13 @@ catch (error) {
 ## Error Stream Format
 
 According to Vercel AI SDK v4 documentation, error parts are formatted as:
+
 ```
 3:"error message"\n
 ```
 
 Where:
+
 - `3:` indicates an error part
 - The error message is JSON-encoded
 - Ends with a newline character
@@ -143,6 +146,7 @@ All 7 tests pass successfully.
 ## Example Error Messages
 
 ### Before Fix
+
 ```
 3:"An error occurred."
 ```
@@ -150,16 +154,19 @@ All 7 tests pass successfully.
 ### After Fix
 
 **Database Error:**
+
 ```
 3:"Database connection failed"
 ```
 
 **Provider Error:**
+
 ```
 3:"OpenAI provider not configured"
 ```
 
 **Development Mode (with stack trace):**
+
 ```
 3:"Database connection failed\n\nStack trace:\nError: Database connection failed\n    at ..."
 ```

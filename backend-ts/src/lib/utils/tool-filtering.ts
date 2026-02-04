@@ -9,13 +9,13 @@
  * Requirements: Matches backend/src/neuroagent/app/app_utils.py
  */
 
-import { generateObject } from 'ai';
 import { createOpenRouter } from '@openrouter/ai-sdk-provider';
+import type { Message, ToolCall } from '@prisma/client';
+import { generateObject } from 'ai';
 import { z } from 'zod';
 
 import { prisma } from '@/lib/db/client';
 import { Entity, Task, TokenType } from '@/types';
-import type { Message, ToolCall } from '@prisma/client';
 
 /**
  * Message with tool calls for database queries
@@ -213,8 +213,12 @@ Evaluate the inherent complexity of the query while considering how well the sel
   }
 
   const taskDesc: string[] = [];
-  if (needToolSelection) taskDesc.push('filter tools');
-  if (needModelSelection) taskDesc.push('rank query complexity');
+  if (needToolSelection) {
+    taskDesc.push('filter tools');
+  }
+  if (needModelSelection) {
+    taskDesc.push('rank query complexity');
+  }
 
   const systemPrompt = `TASK: ${taskDesc.join(' and ').charAt(0).toUpperCase() + taskDesc.join(' and ').slice(1)}.
 
@@ -295,7 +299,12 @@ ${toolList
       const selectedToolsRaw = parsed['selected_tools'];
       const selectedTools = Array.from(new Set(selectedToolsRaw as string[]));
       filteredTools = toolList.filter((tool) => selectedTools.includes(tool.toolName));
-      console.log('[filterToolsAndModelByConversation] Selected', filteredTools.length, 'tools:', selectedTools);
+      console.log(
+        '[filterToolsAndModelByConversation] Selected',
+        filteredTools.length,
+        'tools:',
+        selectedTools
+      );
     } else {
       filteredTools = toolList;
     }
@@ -397,7 +406,9 @@ ${toolList
       reasoning: 'NONE' | 'MINIMAL' | 'LOW' | 'MEDIUM' | 'HIGH' | null;
     } = {
       model: selectedModel || defaultChatModel,
-      reasoning: selectedModel ? null : (defaultChatReasoning.toUpperCase() as 'NONE' | 'MINIMAL' | 'LOW' | 'MEDIUM' | 'HIGH'),
+      reasoning: selectedModel
+        ? null
+        : (defaultChatReasoning.toUpperCase() as 'NONE' | 'MINIMAL' | 'LOW' | 'MEDIUM' | 'HIGH'),
     };
 
     // Save model selection to database even on error

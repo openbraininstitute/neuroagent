@@ -3,6 +3,7 @@
 ## Question Suggestions Endpoint
 
 ### Before (55+ seconds)
+
 ```typescript
 // backend-ts/src/app/api/qa/question_suggestions/route.ts
 
@@ -19,18 +20,17 @@ export async function POST(request: NextRequest) {
     vlabId,
     projectId,
     obiOneUrl: settings.tools.obiOne.url,
-    mcpConfig: settings.mcp,  // ← MCP initialization is expensive!
+    mcpConfig: settings.mcp, // ← MCP initialization is expensive!
   });
 
-  const toolInfo = tools.map((tool) =>
-    `${tool.metadata.name}: ${tool.metadata.description}`
-  );
+  const toolInfo = tools.map((tool) => `${tool.metadata.name}: ${tool.metadata.description}`);
 
   // ... rest of endpoint ...
 }
 ```
 
 ### After (~2-5 seconds)
+
 ```typescript
 // backend-ts/src/app/api/qa/question_suggestions/route.ts
 
@@ -53,6 +53,7 @@ export async function POST(request: NextRequest) {
 ## Tool Definition
 
 ### Before (V1 - Instance Metadata)
+
 ```typescript
 // backend-ts/src/lib/tools/web-search.ts
 
@@ -77,18 +78,19 @@ export class WebSearchTool extends BaseTool<typeof WebSearchInputSchema> {
 }
 
 // Usage - requires instantiation even for metadata
-const tool = new WebSearchTool(apiKey);  // ← Must instantiate
+const tool = new WebSearchTool(apiKey); // ← Must instantiate
 const name = tool.metadata.name;
 ```
 
 ### After (V2 - Static Metadata)
+
 ```typescript
 // backend-ts/src/lib/tools/web-search-v2.ts
 
 export class WebSearchToolV2 extends BaseToolV2<typeof WebSearchInputSchema> {
   // ✅ Class-level metadata - accessible without instantiation
   static readonly metadata: ToolMetadata = {
-    name: 'web_search',  // snake_case like Python
+    name: 'web_search', // snake_case like Python
     nameFrontend: 'Web Search',
     description: 'Search the web...',
     hil: false,
@@ -106,7 +108,7 @@ export class WebSearchToolV2 extends BaseToolV2<typeof WebSearchInputSchema> {
 }
 
 // Usage - no instantiation needed for metadata
-const name = WebSearchToolV2.metadata.name;  // ← Direct access
+const name = WebSearchToolV2.metadata.name; // ← Direct access
 
 // Only instantiate when executing
 const tool = new WebSearchToolV2(apiKey);
@@ -118,6 +120,7 @@ const result = await tool.execute(input);
 ## Tool Registry vs Tool List
 
 ### Before (V1 - Registry Pattern)
+
 ```typescript
 // backend-ts/src/lib/tools/base-tool.ts
 
@@ -141,11 +144,12 @@ export const toolRegistry = new ToolRegistry();
 
 // Usage
 const tool = new WebSearchTool(apiKey);
-toolRegistry.register(tool);  // ← Manual registration
-const metadata = toolRegistry.getAllMetadata();  // ← Through registry
+toolRegistry.register(tool); // ← Manual registration
+const metadata = toolRegistry.getAllMetadata(); // ← Through registry
 ```
 
 ### After (V2 - Simple List)
+
 ```typescript
 // backend-ts/src/lib/tools/tool-list.ts
 
@@ -163,7 +167,7 @@ export function getToolDescriptionsForLLM(): string[] {
 }
 
 // Usage - no registry needed
-const descriptions = getToolDescriptionsForLLM();  // ← Direct access
+const descriptions = getToolDescriptionsForLLM(); // ← Direct access
 ```
 
 ---
@@ -171,6 +175,7 @@ const descriptions = getToolDescriptionsForLLM();  // ← Direct access
 ## Tool Initialization
 
 ### Before (V1 - Always Initialize)
+
 ```typescript
 // backend-ts/src/lib/tools/index.ts
 
@@ -200,15 +205,13 @@ export async function initializeTools(config: ToolConfig) {
 ```
 
 ### After (V2 - Initialize Only When Needed)
+
 ```typescript
 // backend-ts/src/lib/tools/tool-list.ts
 
 // ✅ No initialization - just return class references
 export function getInternalToolClasses(): ToolClass[] {
-  return [
-    WebSearchToolV2,
-    LiteratureSearchToolV2,
-  ];
+  return [WebSearchToolV2, LiteratureSearchToolV2];
 }
 
 // ✅ Metadata access without instantiation
@@ -227,15 +230,15 @@ const result = await tool.execute(input);
 
 ## Comparison Table
 
-| Aspect | Before (V1) | After (V2) |
-|--------|-------------|------------|
-| **Metadata Access** | Requires instantiation | Static class property |
-| **Tool Management** | Registry pattern | Simple list |
-| **Initialization** | Always (expensive) | Only when executing |
-| **Performance** | 55+ seconds | 2-5 seconds |
-| **Complexity** | High (registry, factory) | Low (simple list) |
-| **Alignment** | Custom pattern | Matches Python backend |
-| **Tool Names** | kebab-case | snake_case |
+| Aspect              | Before (V1)              | After (V2)             |
+| ------------------- | ------------------------ | ---------------------- |
+| **Metadata Access** | Requires instantiation   | Static class property  |
+| **Tool Management** | Registry pattern         | Simple list            |
+| **Initialization**  | Always (expensive)       | Only when executing    |
+| **Performance**     | 55+ seconds              | 2-5 seconds            |
+| **Complexity**      | High (registry, factory) | Low (simple list)      |
+| **Alignment**       | Custom pattern           | Matches Python backend |
+| **Tool Names**      | kebab-case               | snake_case             |
 
 ---
 
@@ -275,6 +278,7 @@ tool_name = WebSearchTool.name  # ← Direct class access
 ## Migration Status
 
 ### ✅ Completed
+
 - [x] Base tool V2 (`base-tool-v2.ts`)
 - [x] Tool list module (`tool-list.ts`)
 - [x] Web search V2 (`web-search-v2.ts`)
@@ -283,11 +287,13 @@ tool_name = WebSearchTool.name  # ← Direct class access
 - [x] Migration documentation
 
 ### 🔄 In Progress
+
 - [ ] EntityCore tools V2
 - [ ] OBIOne tools V2
 - [ ] Other API routes
 
 ### 📋 Todo
+
 - [ ] Remove V1 files after full migration
 - [ ] Update all consumers to V2
 - [ ] Add remaining tools to tool-list.ts

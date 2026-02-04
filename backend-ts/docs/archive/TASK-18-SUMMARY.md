@@ -35,6 +35,7 @@ Successfully implemented MCP (Model Context Protocol) server integration for the
 ### 1. Server Connection Management
 
 The `MCPClient` class manages connections to multiple MCP servers:
+
 - Spawns server processes via stdio transport
 - Maintains separate client instances for each server
 - Handles connection errors gracefully
@@ -43,6 +44,7 @@ The `MCPClient` class manages connections to multiple MCP servers:
 ### 2. Tool Discovery
 
 Automatically discovers tools from connected servers:
+
 - Lists all available tools from each server
 - Stores tool metadata and schemas
 - Supports tool metadata overrides from configuration
@@ -50,6 +52,7 @@ Automatically discovers tools from connected servers:
 ### 3. Dynamic Tool Generation
 
 Converts MCP tools to BaseTool instances:
+
 - Creates dynamic tool classes that extend BaseTool
 - Proxies execution to the MCP server
 - Handles both structured and text content responses
@@ -58,6 +61,7 @@ Converts MCP tools to BaseTool instances:
 ### 4. Configuration Support
 
 Reads from `src/mcp.json`:
+
 - Server command and arguments
 - Environment variables with secret placeholders
 - Tool metadata overrides (name, description, utterances)
@@ -66,6 +70,7 @@ Reads from `src/mcp.json`:
 ### 5. Integration with Tool System
 
 Seamlessly integrates with existing tool infrastructure:
+
 - Tools are registered in the global tool registry
 - Available to the agent routine via Vercel AI SDK
 - Included in tool listings for the frontend
@@ -95,6 +100,7 @@ Seamlessly integrates with existing tool infrastructure:
 ## Testing
 
 Created comprehensive unit tests covering:
+
 - Client initialization and connection
 - Empty/undefined server configurations
 - Tool discovery and listing
@@ -157,6 +163,7 @@ const mcpTools = await initializeMCPTools(settings.mcp);
 ## Error Handling
 
 The implementation handles errors gracefully:
+
 - Connection failures are logged but don't crash the application
 - Servers with unresolved secrets are automatically deactivated
 - Invalid server configurations return empty tool arrays
@@ -165,6 +172,7 @@ The implementation handles errors gracefully:
 ## Future Enhancements
 
 Potential improvements for future iterations:
+
 1. Support for HTTP/WebSocket transports (currently only stdio)
 2. Automatic server reconnection on failure
 3. Tool caching to avoid repeated server queries

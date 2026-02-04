@@ -21,6 +21,7 @@ The initial migration (`0_init`) represents the baseline database schema that wa
 ### Making Schema Changes
 
 1. **Modify the Prisma schema** (`prisma/schema.prisma`)
+
    ```prisma
    // Example: Adding a new field
    model Thread {
@@ -31,20 +32,22 @@ The initial migration (`0_init`) represents the baseline database schema that wa
    ```
 
 2. **Create a migration**
+
    ```bash
    npm run db:migrate -- --name add_thread_description
    ```
-   
+
    This command will:
    - Generate SQL migration files in `prisma/migrations/`
    - Apply the migration to your development database
    - Regenerate the Prisma Client with updated types
 
 3. **Review the generated SQL**
+
    ```bash
    cat prisma/migrations/XXXXXX_add_thread_description/migration.sql
    ```
-   
+
    Verify that the SQL is correct and safe to apply.
 
 4. **Test the migration**
@@ -96,25 +99,28 @@ npm run db:push
 ### Deployment Steps
 
 1. **Backup the database**
+
    ```bash
    pg_dump $DATABASE_URL > backup_$(date +%Y%m%d_%H%M%S).sql
    ```
 
 2. **Deploy migrations**
+
    ```bash
    npm run db:migrate:deploy
    ```
-   
+
    This command:
    - Applies all pending migrations in order
    - Does not prompt for input (suitable for CI/CD)
    - Fails if any migration fails (transactional)
 
 3. **Verify deployment**
+
    ```bash
    npx prisma migrate status
    ```
-   
+
    Expected output: "Database schema is up to date!"
 
 4. **Deploy application**
@@ -145,19 +151,22 @@ Prisma Migrate does not have built-in rollback commands. To rollback a migration
 ### Option 1: Manual Rollback (Recommended)
 
 1. **Create a down migration SQL file**
-   
+
    When creating a migration, also create a corresponding down migration:
+
    ```sql
    -- prisma/migrations/XXXXXX_add_thread_description/down.sql
    ALTER TABLE threads DROP COLUMN description;
    ```
 
 2. **Apply the down migration**
+
    ```bash
    psql $DATABASE_URL -f prisma/migrations/XXXXXX_add_thread_description/down.sql
    ```
 
 3. **Mark the migration as rolled back**
+
    ```bash
    npx prisma migrate resolve --rolled-back XXXXXX_add_thread_description
    ```
@@ -174,11 +183,13 @@ If the migration caused issues:
 1. **Stop the application**
 
 2. **Restore from backup**
+
    ```bash
    psql $DATABASE_URL < backup_YYYYMMDD_HHMMSS.sql
    ```
 
 3. **Reset migration history**
+
    ```bash
    npx prisma migrate resolve --rolled-back XXXXXX_migration_name
    ```
@@ -198,9 +209,9 @@ import { describe, it, expect } from 'vitest';
 describe('Database Migrations', () => {
   it('should apply all migrations successfully', () => {
     expect(() => {
-      execSync('npx prisma migrate deploy', { 
+      execSync('npx prisma migrate deploy', {
         stdio: 'inherit',
-        env: { ...process.env, DATABASE_URL: 'postgresql://...' }
+        env: { ...process.env, DATABASE_URL: 'postgresql://...' },
       });
     }).not.toThrow();
   });
@@ -253,7 +264,8 @@ describe('Thread Operations', () => {
 
 **Error**: `Your database schema is not in sync with your migration history`
 
-**Solution**: 
+**Solution**:
+
 1. For development: `npx prisma migrate reset` (destroys data)
 2. For production: Create a new migration to fix the drift
 
@@ -261,7 +273,8 @@ describe('Thread Operations', () => {
 
 **Error**: `Can't reach database server`
 
-**Solution**: 
+**Solution**:
+
 1. Verify `DATABASE_URL` in `.env`
 2. Check database is running: `docker ps` or `pg_isready`
 3. Test connection: `psql $DATABASE_URL`
@@ -271,6 +284,7 @@ describe('Thread Operations', () => {
 **Error**: `type "entity" already exists`
 
 **Solution**: The database already has the enum. Mark the migration as applied:
+
 ```bash
 npx prisma migrate resolve --applied XXXXXX_migration_name
 ```
@@ -397,10 +411,11 @@ prisma/migrations/
 ```
 
 Each migration directory contains:
+
 - `migration.sql`: Generated SQL to apply the migration
 - `down.sql`: (Optional) Manual SQL to rollback the migration
 
 curl -X POST http://localhost:8079/api/qa/chat_streamed/cfb10f68-6240-48ad-a04b-788a082b94c0 \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJZVTEyTEoyNG1sRFRieURlWXgyaGU5RkQzbldkWlBSV2piSVVpa2hocVFVIn0.eyJleHAiOjE3Njg0Nzk3NDIsImlhdCI6MTc2ODQ3NjE0MiwiYXV0aF90aW1lIjoxNzY4NDc2MTM3LCJqdGkiOiJvbnJ0YWM6NDRkZmMzNjItOGNjNS00MGQ3LTljOWUtYmEwNTAyOWM3MzUzIiwiaXNzIjoiaHR0cHM6Ly9zdGFnaW5nLmNlbGwtYS5vcGVuYnJhaW5pbnN0aXR1dGUub3JnL2F1dGgvcmVhbG1zL1NCTyIsImF1ZCI6ImFjY291bnQiLCJzdWIiOiIzZDIwMmQ1Zi1hZjMyLTQ4YzgtYmYwZS00MDgwZjUzMDc5ZDgiLCJ0eXAiOiJCZWFyZXIiLCJhenAiOiJjb3JlLXdlYmFwcC1jZWxsLWItYXp1cmUtc3RhZ2luZyIsInNpZCI6IjcxMGU3Y2Y3LTdlZjAtNGY0MS1iYjhjLTAyYzExOTZhZmIwNyIsImFjciI6IjAiLCJhbGxvd2VkLW9yaWdpbnMiOlsiaHR0cHM6Ly9zdGFnaW5nLmNlbGwtYi5vcGVuYnJhaW5pbnN0aXR1dGUub3JnIiwiaHR0cHM6Ly9zdGFnaW5nLm9wZW5icmFpbmluc3RpdHV0ZS5vcmciXSwicmVhbG1fYWNjZXNzIjp7InJvbGVzIjpbInJlc3RyaWN0ZWQtYWNjZXNzIiwib2ZmbGluZV9hY2Nlc3MiLCJ1bWFfYXV0aG9yaXphdGlvbiIsImRlZmF1bHQtcm9sZXMtc2JvIl19LCJyZXNvdXJjZV9hY2Nlc3MiOnsiYWNjb3VudCI6eyJyb2xlcyI6WyJtYW5hZ2UtYWNjb3VudCIsIm1hbmFnZS1hY2NvdW50LWxpbmtzIiwidmlldy1wcm9maWxlIl19fSwic2NvcGUiOiJhZGRyZXNzIG9wZW5pZCBwcm9maWxlIGVtYWlsIiwiZW1haWxfdmVyaWZpZWQiOmZhbHNlLCJuYW1lIjoiTmljb2xhcyBGcmFuayIsInByZWZlcnJlZF91c2VybmFtZSI6IndvbmRlcnBnIiwiZ2l2ZW5fbmFtZSI6Ik5pY29sYXMiLCJmYW1pbHlfbmFtZSI6IkZyYW5rIiwiZW1haWwiOiJuaWNvbGFzQGZyYW5rLm5vbS5mciJ9.g5tfQPOeJSYZV-nkoKljngxapi3ZrthuS3YVz8kI7O6E5U3ZUmYOAkTqBdqF2q_BmvJfUJDDres5OtU8a_EXC7Y_8_q_jRrsDe5WafjYBsylwR2gG052uAcc08wc2M1s5SpEtfW6IXmjzYc7Ucv6Of_kH4zE1npilhcq8P3fhUT3eAAqPvb22rtwDGHjcXQYM1Kablfc-wwx3140YZzPndhaQrq_EAmJvHHbnYUKgEz7E3QDpz6OmYGmj-ITngRFfLsW0wzut1MGN8-5caG_gifs9iij7CttKZBBBNn2iXKhxQGr8BrdAgsiaVh-4UoXxGRVUZa-ABa77SRU1wZ5GA" \
-  -d '{"content": "Hello, how are you?"}'
+ -H "Content-Type: application/json" \
+ -H "Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJZVTEyTEoyNG1sRFRieURlWXgyaGU5RkQzbldkWlBSV2piSVVpa2hocVFVIn0.eyJleHAiOjE3Njg0Nzk3NDIsImlhdCI6MTc2ODQ3NjE0MiwiYXV0aF90aW1lIjoxNzY4NDc2MTM3LCJqdGkiOiJvbnJ0YWM6NDRkZmMzNjItOGNjNS00MGQ3LTljOWUtYmEwNTAyOWM3MzUzIiwiaXNzIjoiaHR0cHM6Ly9zdGFnaW5nLmNlbGwtYS5vcGVuYnJhaW5pbnN0aXR1dGUub3JnL2F1dGgvcmVhbG1zL1NCTyIsImF1ZCI6ImFjY291bnQiLCJzdWIiOiIzZDIwMmQ1Zi1hZjMyLTQ4YzgtYmYwZS00MDgwZjUzMDc5ZDgiLCJ0eXAiOiJCZWFyZXIiLCJhenAiOiJjb3JlLXdlYmFwcC1jZWxsLWItYXp1cmUtc3RhZ2luZyIsInNpZCI6IjcxMGU3Y2Y3LTdlZjAtNGY0MS1iYjhjLTAyYzExOTZhZmIwNyIsImFjciI6IjAiLCJhbGxvd2VkLW9yaWdpbnMiOlsiaHR0cHM6Ly9zdGFnaW5nLmNlbGwtYi5vcGVuYnJhaW5pbnN0aXR1dGUub3JnIiwiaHR0cHM6Ly9zdGFnaW5nLm9wZW5icmFpbmluc3RpdHV0ZS5vcmciXSwicmVhbG1fYWNjZXNzIjp7InJvbGVzIjpbInJlc3RyaWN0ZWQtYWNjZXNzIiwib2ZmbGluZV9hY2Nlc3MiLCJ1bWFfYXV0aG9yaXphdGlvbiIsImRlZmF1bHQtcm9sZXMtc2JvIl19LCJyZXNvdXJjZV9hY2Nlc3MiOnsiYWNjb3VudCI6eyJyb2xlcyI6WyJtYW5hZ2UtYWNjb3VudCIsIm1hbmFnZS1hY2NvdW50LWxpbmtzIiwidmlldy1wcm9maWxlIl19fSwic2NvcGUiOiJhZGRyZXNzIG9wZW5pZCBwcm9maWxlIGVtYWlsIiwiZW1haWxfdmVyaWZpZWQiOmZhbHNlLCJuYW1lIjoiTmljb2xhcyBGcmFuayIsInByZWZlcnJlZF91c2VybmFtZSI6IndvbmRlcnBnIiwiZ2l2ZW5fbmFtZSI6Ik5pY29sYXMiLCJmYW1pbHlfbmFtZSI6IkZyYW5rIiwiZW1haWwiOiJuaWNvbGFzQGZyYW5rLm5vbS5mciJ9.g5tfQPOeJSYZV-nkoKljngxapi3ZrthuS3YVz8kI7O6E5U3ZUmYOAkTqBdqF2q_BmvJfUJDDres5OtU8a_EXC7Y_8_q_jRrsDe5WafjYBsylwR2gG052uAcc08wc2M1s5SpEtfW6IXmjzYc7Ucv6Of_kH4zE1npilhcq8P3fhUT3eAAqPvb22rtwDGHjcXQYM1Kablfc-wwx3140YZzPndhaQrq_EAmJvHHbnYUKgEz7E3QDpz6OmYGmj-ITngRFfLsW0wzut1MGN8-5caG_gifs9iij7CttKZBBBNn2iXKhxQGr8BrdAgsiaVh-4UoXxGRVUZa-ABa77SRU1wZ5GA" \
+ -d '{"content": "Hello, how are you?"}'

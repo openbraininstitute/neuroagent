@@ -70,9 +70,9 @@ describe('Rate Limit Headers Property Tests', () => {
           expect(typeof result.headers['X-RateLimit-Reset']).toBe('string');
 
           // Property: Header values must be parseable as numbers
-          const parsedLimit = parseInt(result.headers['X-RateLimit-Limit'], 10);
-          const parsedRemaining = parseInt(result.headers['X-RateLimit-Remaining'], 10);
-          const parsedReset = parseInt(result.headers['X-RateLimit-Reset'], 10);
+          const parsedLimit = parseInt(result.headers['X-RateLimit-Limit'] ?? '0', 10);
+          const parsedRemaining = parseInt(result.headers['X-RateLimit-Remaining'] ?? '0', 10);
+          const parsedReset = parseInt(result.headers['X-RateLimit-Reset'] ?? '0', 10);
 
           expect(Number.isNaN(parsedLimit)).toBe(false);
           expect(Number.isNaN(parsedRemaining)).toBe(false);
@@ -130,10 +130,10 @@ describe('Rate Limit Headers Property Tests', () => {
           expect(result.headers).toHaveProperty('X-RateLimit-Reset');
 
           // Property: X-RateLimit-Remaining should be 0 when exceeded
-          expect(parseInt(result.headers['X-RateLimit-Remaining'], 10)).toBe(0);
+          expect(parseInt(result.headers['X-RateLimit-Remaining'] ?? '0', 10)).toBe(0);
 
           // Property: X-RateLimit-Limit should still match configured limit
-          expect(parseInt(result.headers['X-RateLimit-Limit'], 10)).toBe(limit);
+          expect(parseInt(result.headers['X-RateLimit-Limit'] ?? '0', 10)).toBe(limit);
         } finally {
           await resetRateLimit(userId, route);
         }
@@ -159,7 +159,7 @@ describe('Rate Limit Headers Property Tests', () => {
           for (let i = 0; i < limit; i++) {
             const result = await checkRateLimit(userId, route, limit, expiry);
 
-            const remaining = parseInt(result.headers['X-RateLimit-Remaining'], 10);
+            const remaining = parseInt(result.headers['X-RateLimit-Remaining'] ?? '0', 10);
 
             // Property: Remaining should decrease by 1 with each request
             expect(remaining).toBe(previousRemaining - 1);
@@ -194,12 +194,12 @@ describe('Rate Limit Headers Property Tests', () => {
         try {
           // Make first request to establish window
           const firstResult = await checkRateLimit(userId, route, limit, expiry);
-          const firstReset = parseInt(firstResult.headers['X-RateLimit-Reset'], 10);
+          const firstReset = parseInt(firstResult.headers['X-RateLimit-Reset'] ?? '0', 10);
 
           // Make several more requests in quick succession
           for (let i = 0; i < Math.min(3, limit - 1); i++) {
             const result = await checkRateLimit(userId, route, limit, expiry);
-            const reset = parseInt(result.headers['X-RateLimit-Reset'], 10);
+            const reset = parseInt(result.headers['X-RateLimit-Reset'] ?? '0', 10);
 
             // Property: Reset time should be the same (or very close) within the same window
             // Allow 1 second tolerance for timing variations
@@ -240,11 +240,13 @@ describe('Rate Limit Headers Property Tests', () => {
           expect(status.headers).toHaveProperty('X-RateLimit-Reset');
 
           // Property: Limit should match configuration
-          expect(parseInt(status.headers['X-RateLimit-Limit'], 10)).toBe(limit);
+          expect(parseInt(status.headers['X-RateLimit-Limit'] ?? '0', 10)).toBe(limit);
 
           // Property: Remaining should reflect actual state
           const expectedRemaining = Math.max(0, limit - Math.min(requestCount, limit));
-          expect(parseInt(status.headers['X-RateLimit-Remaining'], 10)).toBe(expectedRemaining);
+          expect(parseInt(status.headers['X-RateLimit-Remaining'] ?? '0', 10)).toBe(
+            expectedRemaining
+          );
         } finally {
           await resetRateLimit(userId, route);
         }
@@ -258,30 +260,27 @@ describe('Rate Limit Headers Property Tests', () => {
       fc.integer({ min: 1, max: 10000 }), // limit
       fc.integer({ min: 0, max: 10000 }), // remaining
       fc.integer({ min: 1000000000, max: 2000000000 }), // reset timestamp
-    ])(
-      'should generate valid headers for any input values',
-      (limit, remaining, resetTime) => {
-        const headers = generateRateLimitHeaders(limit, remaining, resetTime);
+    ])('should generate valid headers for any input values', (limit, remaining, resetTime) => {
+      const headers = generateRateLimitHeaders(limit, remaining, resetTime);
 
-        // Property: All three headers must be present
-        expect(headers).toHaveProperty('X-RateLimit-Limit');
-        expect(headers).toHaveProperty('X-RateLimit-Remaining');
-        expect(headers).toHaveProperty('X-RateLimit-Reset');
+      // Property: All three headers must be present
+      expect(headers).toHaveProperty('X-RateLimit-Limit');
+      expect(headers).toHaveProperty('X-RateLimit-Remaining');
+      expect(headers).toHaveProperty('X-RateLimit-Reset');
 
-        // Property: Values must be strings
-        expect(typeof headers['X-RateLimit-Limit']).toBe('string');
-        expect(typeof headers['X-RateLimit-Remaining']).toBe('string');
-        expect(typeof headers['X-RateLimit-Reset']).toBe('string');
+      // Property: Values must be strings
+      expect(typeof headers['X-RateLimit-Limit']).toBe('string');
+      expect(typeof headers['X-RateLimit-Remaining']).toBe('string');
+      expect(typeof headers['X-RateLimit-Reset']).toBe('string');
 
-        // Property: Values must match input (as strings)
-        expect(headers['X-RateLimit-Limit']).toBe(limit.toString());
-        expect(headers['X-RateLimit-Reset']).toBe(resetTime.toString());
+      // Property: Values must match input (as strings)
+      expect(headers['X-RateLimit-Limit']).toBe(limit.toString());
+      expect(headers['X-RateLimit-Reset']).toBe(resetTime.toString());
 
-        // Property: Remaining should be clamped to 0 if negative
-        const expectedRemaining = Math.max(0, remaining);
-        expect(headers['X-RateLimit-Remaining']).toBe(expectedRemaining.toString());
-      }
-    );
+      // Property: Remaining should be clamped to 0 if negative
+      const expectedRemaining = Math.max(0, remaining);
+      expect(headers['X-RateLimit-Remaining']).toBe(expectedRemaining.toString());
+    });
 
     /**
      * Test that negative remaining values are clamped to 0
@@ -290,15 +289,12 @@ describe('Rate Limit Headers Property Tests', () => {
       fc.integer({ min: 1, max: 100 }), // limit
       fc.integer({ min: -1000, max: -1 }), // negative remaining
       fc.integer({ min: 1000000000, max: 2000000000 }), // reset
-    ])(
-      'should clamp negative remaining values to 0',
-      (limit, negativeRemaining, resetTime) => {
-        const headers = generateRateLimitHeaders(limit, negativeRemaining, resetTime);
+    ])('should clamp negative remaining values to 0', (limit, negativeRemaining, resetTime) => {
+      const headers = generateRateLimitHeaders(limit, negativeRemaining, resetTime);
 
-        // Property: Negative remaining should be clamped to 0
-        expect(headers['X-RateLimit-Remaining']).toBe('0');
-      }
-    );
+      // Property: Negative remaining should be clamped to 0
+      expect(headers['X-RateLimit-Remaining']).toBe('0');
+    });
 
     /**
      * Test header consistency across different users and routes
@@ -329,10 +325,10 @@ describe('Rate Limit Headers Property Tests', () => {
               expect(result.headers).toHaveProperty('X-RateLimit-Reset');
 
               // Property: Limit should always match configuration
-              expect(parseInt(result.headers['X-RateLimit-Limit'], 10)).toBe(limit);
+              expect(parseInt(result.headers['X-RateLimit-Limit'] ?? '0', 10)).toBe(limit);
 
               // Property: First request should have remaining = limit - 1
-              expect(parseInt(result.headers['X-RateLimit-Remaining'], 10)).toBe(limit - 1);
+              expect(parseInt(result.headers['X-RateLimit-Remaining'] ?? '0', 10)).toBe(limit - 1);
             }
           }
         } finally {
@@ -377,9 +373,11 @@ describe('Rate Limit Headers Property Tests', () => {
           expect(Object.keys(result.headers)).toHaveLength(3);
 
           // Property: Result fields should be consistent with headers
-          expect(result.limit).toBe(parseInt(result.headers['X-RateLimit-Limit'], 10));
-          expect(result.remaining).toBe(parseInt(result.headers['X-RateLimit-Remaining'], 10));
-          expect(result.reset).toBe(parseInt(result.headers['X-RateLimit-Reset'], 10));
+          expect(result.limit).toBe(parseInt(result.headers['X-RateLimit-Limit'] ?? '0', 10));
+          expect(result.remaining).toBe(
+            parseInt(result.headers['X-RateLimit-Remaining'] ?? '0', 10)
+          );
+          expect(result.reset).toBe(parseInt(result.headers['X-RateLimit-Reset'] ?? '0', 10));
         } finally {
           await resetRateLimit(userId, route);
         }
@@ -393,21 +391,18 @@ describe('Rate Limit Headers Property Tests', () => {
       fc.integer({ min: 0, max: 10000 }), // limit
       fc.integer({ min: -100, max: 10000 }), // remaining (can be negative)
       fc.integer({ min: 0, max: 2000000000 }), // reset
-    ])(
-      'should never return empty header values',
-      (limit, remaining, resetTime) => {
-        const headers = generateRateLimitHeaders(limit, remaining, resetTime);
+    ])('should never return empty header values', (limit, remaining, resetTime) => {
+      const headers = generateRateLimitHeaders(limit, remaining, resetTime);
 
-        // Property: Header values should never be empty strings
-        expect(headers['X-RateLimit-Limit']).not.toBe('');
-        expect(headers['X-RateLimit-Remaining']).not.toBe('');
-        expect(headers['X-RateLimit-Reset']).not.toBe('');
+      // Property: Header values should never be empty strings
+      expect(headers['X-RateLimit-Limit']).not.toBe('');
+      expect(headers['X-RateLimit-Remaining']).not.toBe('');
+      expect(headers['X-RateLimit-Reset']).not.toBe('');
 
-        // Property: Header values should have length > 0
-        expect(headers['X-RateLimit-Limit'].length).toBeGreaterThan(0);
-        expect(headers['X-RateLimit-Remaining'].length).toBeGreaterThan(0);
-        expect(headers['X-RateLimit-Reset'].length).toBeGreaterThan(0);
-      }
-    );
+      // Property: Header values should have length > 0
+      expect(headers['X-RateLimit-Limit']?.length).toBeGreaterThan(0);
+      expect(headers['X-RateLimit-Remaining']?.length).toBeGreaterThan(0);
+      expect(headers['X-RateLimit-Reset']?.length).toBeGreaterThan(0);
+    });
   });
 });

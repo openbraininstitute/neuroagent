@@ -7,6 +7,7 @@ After fixing the root causes of the performance and validation issues, we consol
 ## Why V2 Was Created
 
 During troubleshooting, V2 was created to:
+
 1. Align with Python backend's static metadata pattern
 2. Eliminate the registry pattern (thought to be causing slowness)
 3. Provide faster metadata access
@@ -14,6 +15,7 @@ During troubleshooting, V2 was created to:
 ## Why V2 Is No Longer Needed
 
 The **real issues** were:
+
 1. ❌ Missing `.optional()` before `.default()` in Zod schemas → **Fixed in V1**
 2. ❌ Tools not passed to LLM call → **Fixed in V1**
 3. ❌ Using deprecated `CoreTool` instead of `Tool` → **Fixed in V1**
@@ -41,15 +43,17 @@ The **real issues** were:
 ## Key Fixes Applied to V1
 
 ### 1. Zod Schema Fix
+
 ```typescript
 // ❌ Before (caused OpenAI validation error)
-z.number().default(5)
+z.number().default(5);
 
 // ✅ After (works with all providers)
-z.number().optional().default(5)
+z.number().optional().default(5);
 ```
 
 ### 2. Tool Integration Fix
+
 ```typescript
 // ❌ Before (tools not available to LLM)
 const result = streamText({
@@ -62,11 +66,12 @@ const result = streamText({
 const result = streamText({
   model,
   messages,
-  tools,  // ← Added
+  tools, // ← Added
 });
 ```
 
 ### 3. Deprecated API Fix
+
 ```typescript
 // ❌ Before (deprecated)
 import { CoreTool } from 'ai';
@@ -78,10 +83,12 @@ import { Tool } from 'ai';
 ## Performance Results
 
 ### Question Suggestions Endpoint
+
 - **Before**: 55+ seconds (initializing all tools including MCP)
 - **After**: 2-5 seconds (using static tool descriptions)
 
 ### Solution
+
 Instead of initializing tools, we use a simple function that returns hardcoded descriptions:
 
 ```typescript
@@ -99,6 +106,7 @@ This avoids the expensive MCP tool initialization while still providing LLM cont
 ## Architecture
 
 ### V1 Pattern (Current)
+
 ```typescript
 // Tool with instance-level metadata
 class WebSearchTool extends BaseTool<typeof WebSearchInputSchema> {
@@ -120,6 +128,7 @@ const result = await tool.execute({ query: 'test', num_results: 5 });
 ```
 
 ### Vercel AI SDK Integration
+
 ```typescript
 // Convert to Vercel AI SDK format
 const vercelTool = tool.toVercelTool();

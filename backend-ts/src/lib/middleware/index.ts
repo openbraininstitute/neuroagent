@@ -23,11 +23,7 @@ export {
   type RateLimitResult,
 } from './rate-limit';
 
-export {
-  addCorsHeaders,
-  handleCorsPreflightRequest,
-  isCorsPreflightRequest,
-} from './cors';
+export { addCorsHeaders, handleCorsPreflightRequest, isCorsPreflightRequest } from './cors';
 
 export {
   generateRequestId,
@@ -37,8 +33,4 @@ export {
   REQUEST_ID_HEADER,
 } from './request-id';
 
-export {
-  stripPathPrefix,
-  shouldStripPrefix,
-  withPathPrefixStripping,
-} from './path-prefix';
+export { stripPathPrefix, shouldStripPrefix, withPathPrefixStripping } from './path-prefix';

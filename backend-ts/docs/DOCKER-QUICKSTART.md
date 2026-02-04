@@ -243,15 +243,15 @@ docker system df
 
 ## Port Reference
 
-| Service | Port | Description |
-|---------|------|-------------|
-| backend-ts | 8079 | TypeScript Backend API |
-| backend | 8078 | Python Backend API |
-| frontend | 3000 | Next.js Frontend |
-| postgres | 5432 | PostgreSQL Database |
-| minio | 9000 | MinIO S3 API |
-| minio-console | 9001 | MinIO Web Console |
-| redis | 6379 | Redis Cache |
+| Service       | Port | Description            |
+| ------------- | ---- | ---------------------- |
+| backend-ts    | 8079 | TypeScript Backend API |
+| backend       | 8078 | Python Backend API     |
+| frontend      | 3000 | Next.js Frontend       |
+| postgres      | 5432 | PostgreSQL Database    |
+| minio         | 9000 | MinIO S3 API           |
+| minio-console | 9001 | MinIO Web Console      |
+| redis         | 6379 | Redis Cache            |
 
 ## Environment Files
 
@@ -268,6 +268,7 @@ nano backend-ts/.env
 ### Production
 
 Use environment variables from your orchestration platform:
+
 - Kubernetes: ConfigMaps and Secrets
 - Docker Swarm: Docker Secrets
 - Cloud platforms: Environment variable configuration
@@ -286,6 +287,7 @@ curl http://localhost:8079/api/healthz
 ```
 
 Expected response:
+
 ```json
 {
   "status": "ok",
@@ -296,6 +298,7 @@ Expected response:
 ## Performance Tips
 
 1. **Use BuildKit**: Enable Docker BuildKit for faster builds
+
    ```bash
    export DOCKER_BUILDKIT=1
    docker compose build backend-ts
@@ -335,6 +338,7 @@ Expected response:
 ## Support
 
 For issues:
+
 1. Check logs: `docker compose logs backend-ts`
 2. Verify configuration: `docker compose config backend-ts`
 3. Test health: `curl http://localhost:8079/api/healthz`

@@ -3,11 +3,13 @@
 ## Status: ✅ Complete
 
 ## Overview
+
 Task 21 required implementing provider support for both OpenAI and OpenRouter using the Vercel AI SDK. This functionality was already implemented as part of Task 9 (Agent Routine with Vercel AI SDK).
 
 ## Implementation Details
 
 ### 1. OpenAI Provider Configuration
+
 **Location:** `src/lib/agents/routine.ts` (constructor)
 
 ```typescript
@@ -28,6 +30,7 @@ constructor(
 The OpenAI provider is configured using the `@ai-sdk/openai` package, which provides native TypeScript support for OpenAI models.
 
 ### 2. OpenRouter Provider Configuration
+
 **Location:** `src/lib/agents/routine.ts` (constructor)
 
 ```typescript
@@ -50,6 +53,7 @@ constructor(
 The OpenRouter provider is configured using the `@openrouter/ai-sdk-provider` package, which provides access to multiple LLM providers through OpenRouter's API.
 
 ### 3. Provider Selection Logic
+
 **Location:** `src/lib/agents/routine.ts` (`getProviderAndModel` method)
 
 ```typescript
@@ -87,11 +91,13 @@ private getProviderAndModel(modelIdentifier: string): {
 ```
 
 The provider selection logic supports three formats:
+
 - `openai/gpt-4` → OpenAI provider with model `gpt-4`
 - `openrouter/anthropic/claude-3` → OpenRouter provider with model `anthropic/claude-3`
 - `gpt-4` → OpenAI provider (default) with model `gpt-4`
 
 ### 4. Usage in Chat Streaming
+
 **Location:** `src/app/api/qa/chat_streamed/[thread_id]/route.ts`
 
 ```typescript
@@ -114,6 +120,7 @@ The chat streaming endpoint initializes the `AgentsRoutine` with both API keys, 
 ## Configuration
 
 ### Environment Variables
+
 The provider API keys are configured via environment variables:
 
 ```bash
@@ -126,6 +133,7 @@ NEUROAGENT_LLM__OPEN_ROUTER_TOKEN=sk-or-...
 ```
 
 ### Settings Schema
+
 **Location:** `src/lib/config/settings.ts`
 
 ```typescript
@@ -142,9 +150,11 @@ const SettingsLLMSchema = z.object({
 ### Test Coverage
 
 #### Unit Tests
+
 **Location:** `tests/agents/routine.test.ts`
 
 Basic provider selection scenarios:
+
 - ✅ OpenAI provider selection with `openai/` prefix
 - ✅ OpenRouter provider selection with `openrouter/` prefix
 - ✅ Default to OpenAI when no prefix is provided
@@ -152,9 +162,11 @@ Basic provider selection scenarios:
 - ✅ Error handling when OpenRouter is not configured
 
 #### Integration Tests
+
 **Location:** `tests/agents/provider-selection.test.ts`
 
 Comprehensive provider selection scenarios:
+
 - ✅ Both providers configured (6 tests)
   - OpenAI models with prefix
   - OpenAI turbo models
@@ -178,6 +190,7 @@ Comprehensive provider selection scenarios:
   - Exact model name preservation
 
 ### Test Results
+
 ```
 ✓ tests/agents/routine.test.ts (18 tests)
   ✓ provider selection (5)
@@ -206,6 +219,7 @@ Comprehensive provider selection scenarios:
 ## Dependencies
 
 ### Installed Packages
+
 ```json
 {
   "dependencies": {
@@ -221,6 +235,7 @@ Comprehensive provider selection scenarios:
 **Requirement 2.3:** THE Backend SHALL support OpenAI and OpenRouter providers through Vercel AI SDK
 
 ✅ **Validated:**
+
 - OpenAI provider is configured using `@ai-sdk/openai`
 - OpenRouter provider is configured using `@openrouter/ai-sdk-provider`
 - Provider selection logic correctly routes to the appropriate provider based on model identifier

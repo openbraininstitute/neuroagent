@@ -25,17 +25,14 @@ import { describe, it, expect, vi } from 'vitest';
 import { test } from '@fast-check/vitest';
 import * as fc from 'fast-check';
 import { NextRequest } from 'next/server';
-import {
-  validateAuthOptional,
-} from '@/lib/middleware/auth';
+import { validateAuthOptional } from '@/lib/middleware/auth';
 
 // Mock the settings module
 vi.mock('@/lib/config/settings', () => ({
   getSettings: vi.fn(() => ({
     keycloak: {
       issuer: 'https://example.com/auth/realms/test',
-      userInfoEndpoint:
-        'https://example.com/auth/realms/test/protocol/openid-connect/userinfo',
+      userInfoEndpoint: 'https://example.com/auth/realms/test/protocol/openid-connect/userinfo',
     },
   })),
 }));
@@ -74,7 +71,7 @@ describe('JWT Authentication Property Tests', () => {
         fc.constant('Token token123'), // Wrong scheme
         fc.constant('token123'), // No scheme
         fc.constant('Bearer'), // No token
-        fc.constant('Bearer '), // Empty token
+        fc.constant('Bearer ') // Empty token
       ),
     ])(
       'should reject invalid Authorization header formats',
@@ -100,7 +97,7 @@ describe('JWT Authentication Property Tests', () => {
         fc.constant('invalid-token'),
         fc.constant('not.a.jwt'),
         fc.constant('a.b'), // Only 2 parts
-        fc.constant('a.b.c.d'), // Too many parts
+        fc.constant('a.b.c.d') // Too many parts
       ),
     ])(
       'should reject malformed JWT tokens',
@@ -117,13 +114,7 @@ describe('JWT Authentication Property Tests', () => {
     /**
      * Test that validateAuthOptional returns null for invalid tokens
      */
-    test.prop([
-      fc.oneof(
-        fc.constant('invalid-token'),
-        fc.constant(''),
-        fc.constant('abc123'),
-      ),
-    ])(
+    test.prop([fc.oneof(fc.constant('invalid-token'), fc.constant(''), fc.constant('abc123'))])(
       'should return null for invalid tokens with validateAuthOptional',
       async (invalidToken) => {
         const request = createRequestWithToken(invalidToken);
@@ -138,13 +129,7 @@ describe('JWT Authentication Property Tests', () => {
     /**
      * Test that token validation is consistent
      */
-    test.prop([
-      fc.oneof(
-        fc.constant('token1'),
-        fc.constant('token2'),
-        fc.constant('invalid'),
-      ),
-    ])(
+    test.prop([fc.oneof(fc.constant('token1'), fc.constant('token2'), fc.constant('invalid'))])(
       'should produce consistent validation results for the same token',
       async (token) => {
         const request = createRequestWithToken(token);
@@ -164,13 +149,7 @@ describe('JWT Authentication Property Tests', () => {
     /**
      * Test that empty or whitespace-only tokens are rejected
      */
-    test.prop([
-      fc.oneof(
-        fc.constant(''),
-        fc.constant(' '),
-        fc.constant('  '),
-      ),
-    ])(
+    test.prop([fc.oneof(fc.constant(''), fc.constant(' '), fc.constant('  '))])(
       'should reject empty or whitespace-only tokens',
       async (emptyToken) => {
         const request = createRequestWithToken(emptyToken);
@@ -208,12 +187,7 @@ describe('JWT Authentication Property Tests', () => {
      * Test that tokens with only dots are rejected
      */
     test.prop([
-      fc.oneof(
-        fc.constant('.'),
-        fc.constant('..'),
-        fc.constant('...'),
-        fc.constant('....'),
-      ),
+      fc.oneof(fc.constant('.'), fc.constant('..'), fc.constant('...'), fc.constant('....')),
     ])(
       'should reject tokens that are only dots',
       async (dotToken) => {
@@ -246,7 +220,7 @@ describe('JWT Authentication Property Tests', () => {
       fc.oneof(
         fc.constant('secret-token-123'),
         fc.constant('password123'),
-        fc.constant('api-key-xyz'),
+        fc.constant('api-key-xyz')
       ),
     ])(
       'should not leak token content in error handling',
@@ -291,7 +265,7 @@ describe('JWT Authentication Property Tests', () => {
         fc.constant('invalid1'),
         fc.constant('invalid2'),
         fc.constant('bad-token'),
-        fc.constant('xyz'),
+        fc.constant('xyz')
       ),
     ])(
       'should return null for all invalid tokens',
@@ -312,9 +286,7 @@ describe('JWT Authentication Property Tests', () => {
       const requests = tokens.map((token) => createRequestWithToken(token));
 
       // Validate all concurrently
-      const results = await Promise.all(
-        requests.map((req) => validateAuthOptional(req))
-      );
+      const results = await Promise.all(requests.map((req) => validateAuthOptional(req)));
 
       // All should return null (invalid tokens)
       results.forEach((result) => {

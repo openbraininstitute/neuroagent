@@ -1,10 +1,10 @@
 /**
  * Threads API Routes - List and Create
- * 
+ *
  * Endpoints:
  * - GET /api/threads - List threads for authenticated user
  * - POST /api/threads - Create a new thread
- * 
+ *
  * Features:
  * - Authentication required
  * - Virtual lab and project access validation
@@ -14,10 +14,16 @@
  * - Option to exclude empty threads
  */
 
-import { NextRequest, NextResponse } from 'next/server';
+import { type NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
+
 import { prisma } from '@/lib/db/client';
-import { validateAuth, validateProject, AuthenticationError, AuthorizationError } from '@/lib/middleware/auth';
+import {
+  validateAuth,
+  validateProject,
+  AuthenticationError,
+  AuthorizationError,
+} from '@/lib/middleware/auth';
 
 // Request schemas
 const ThreadCreateSchema = z.object({
@@ -49,9 +55,9 @@ type PaginatedResponse = z.infer<typeof PaginatedResponseSchema>;
 
 /**
  * GET /api/threads
- * 
+ *
  * List threads for the authenticated user with pagination and filtering.
- * 
+ *
  * Query parameters:
  * - virtual_lab_id: UUID - Filter by virtual lab
  * - project_id: UUID - Filter by project
@@ -88,10 +94,7 @@ export async function GET(request: NextRequest) {
     const sortDirection = sort.startsWith('-') ? 'desc' : 'asc';
 
     if (!['update_date', 'creation_date'].includes(sortColumn)) {
-      return NextResponse.json(
-        { error: 'Invalid sort parameter' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Invalid sort parameter' }, { status: 400 });
     }
 
     // Build where conditions
@@ -188,18 +191,15 @@ export async function GET(request: NextRequest) {
     }
 
     console.error('Error listing threads:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
 /**
  * POST /api/threads
- * 
+ *
  * Create a new thread for the authenticated user.
- * 
+ *
  * Request body:
  * - title: string - Thread title (default: "New chat")
  * - virtual_lab_id: UUID | null - Virtual lab ID
@@ -216,11 +216,7 @@ export async function POST(request: NextRequest) {
 
     // Validate project access if provided
     if (validatedBody.virtual_lab_id || validatedBody.project_id) {
-      validateProject(
-        userInfo.groups,
-        validatedBody.virtual_lab_id,
-        validatedBody.project_id
-      );
+      validateProject(userInfo.groups, validatedBody.virtual_lab_id, validatedBody.project_id);
     }
 
     // Create thread
@@ -272,9 +268,6 @@ export async function POST(request: NextRequest) {
     }
 
     console.error('Error creating thread:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

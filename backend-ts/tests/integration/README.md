@@ -13,6 +13,7 @@ These tests verify the integration with external services while using mocks to a
 Tests for LLM provider integration (OpenAI and OpenRouter).
 
 **Coverage:**
+
 - OpenAI provider initialization and configuration
 - OpenRouter provider initialization and configuration
 - Text streaming with both providers (mocked)
@@ -23,6 +24,7 @@ Tests for LLM provider integration (OpenAI and OpenRouter).
 - Multi-chunk streaming behavior
 
 **Key Safety Features:**
+
 - All `streamText` and `generateObject` calls are mocked
 - No actual API keys are used in tests
 - No real LLM API calls are made
@@ -33,6 +35,7 @@ Tests for LLM provider integration (OpenAI and OpenRouter).
 Tests for MCP (Model Context Protocol) server integration.
 
 **Coverage:**
+
 - MCP client initialization with server configurations
 - Server connection and disconnection (mocked)
 - Tool discovery from MCP servers (mocked)
@@ -43,6 +46,7 @@ Tests for MCP (Model Context Protocol) server integration.
 - Multi-server aggregation
 
 **Key Safety Features:**
+
 - All MCP SDK calls are mocked
 - No actual MCP server processes are spawned
 - No real stdio communication occurs
@@ -53,6 +57,7 @@ Tests for MCP (Model Context Protocol) server integration.
 Tests for S3/MinIO storage integration.
 
 **Coverage:**
+
 - S3 client initialization for MinIO and AWS S3
 - File existence checks (mocked)
 - File upload operations (mocked)
@@ -64,6 +69,7 @@ Tests for S3/MinIO storage integration.
 - Path-style vs virtual-hosted-style URLs
 
 **Key Safety Features:**
+
 - All AWS SDK calls are mocked
 - No actual S3/MinIO operations are performed
 - No real files are uploaded or downloaded
@@ -153,5 +159,6 @@ When adding new integration tests for external services:
 ## Requirements
 
 These tests fulfill:
+
 - **Task 27.3**: Write integration tests for external services
 - **Requirement 13.2**: Testing Infrastructure - Integration testing with external services

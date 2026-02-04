@@ -13,10 +13,10 @@
  * Translated from backend/src/neuroagent/app/routers/tools.py:get_tool_metadata
  */
 
-import { NextResponse } from 'next/server';
-import { toolRegistry, registerToolClasses } from '@/lib/tools';
+import { NextResponse, type NextRequest } from 'next/server';
+
 import { validateAuth, AuthenticationError } from '@/lib/middleware/auth';
-import { NextRequest } from 'next/server';
+import { toolRegistry, registerToolClasses } from '@/lib/tools';
 
 /**
  * Detailed tool metadata response - matches Python ToolMetadataDetailed
@@ -51,37 +51,37 @@ interface InputSchema {
 
 /**
  * Extract input schema from Zod schema
- * 
+ *
  * Converts a Zod schema to the input schema format expected by the frontend.
  * This matches Python's logic for extracting parameters from Pydantic models.
- * 
+ *
  * @param zodSchema - The Zod schema to extract parameters from
  * @returns Input schema with parameters array
  */
 function extractInputSchema(zodSchema: any): InputSchema {
   const parameters: InputSchemaParameter[] = [];
-  
+
   try {
     // Get the shape of the Zod object schema
     if (zodSchema._def && zodSchema._def.shape) {
       const shape = zodSchema._def.shape();
-      
+
       for (const [fieldName, fieldSchema] of Object.entries(shape)) {
         const field = fieldSchema as any;
-        
+
         // Check if field is optional
         const isOptional = field._def?.typeName === 'ZodOptional';
         const innerSchema = isOptional ? field._def.innerType : field;
-        
+
         // Get default value if present
         let defaultValue: string | null = null;
         if (innerSchema._def?.defaultValue !== undefined) {
           defaultValue = String(innerSchema._def.defaultValue());
         }
-        
+
         // Get description from Zod schema
         const description = innerSchema._def?.description || '';
-        
+
         parameters.push({
           name: fieldName,
           required: !isOptional,
@@ -93,7 +93,7 @@ function extractInputSchema(zodSchema: any): InputSchema {
   } catch (error) {
     console.error('Error extracting input schema:', error);
   }
-  
+
   return { parameters };
 }
 
@@ -112,10 +112,7 @@ function extractInputSchema(zodSchema: any): InputSchema {
  * @param params - Route parameters containing tool name
  * @returns Tool metadata or error response
  */
-export async function GET(
-  request: NextRequest,
-  { params }: { params: Promise<{ name: string }> }
-) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ name: string }> }) {
   try {
     // Validate authentication (required like Python backend)
     await validateAuth(request);
@@ -130,12 +127,9 @@ export async function GET(
 
     // Find the tool class by name
     const ToolClass = toolRegistry.getClass(name);
-    
+
     if (!ToolClass) {
-      return NextResponse.json(
-        { error: `Tool '${name}' not found` },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: `Tool '${name}' not found` }, { status: 404 });
     }
 
     // Check if tool is online
@@ -156,7 +150,7 @@ export async function GET(
     // We need to instantiate temporarily to access the inputSchema
     // In Python, this is accessed via __annotations__["input_schema"]
     let inputSchema: InputSchema = { parameters: [] };
-    
+
     try {
       // Create a minimal instance just to access the schema
       // This is safe because we're only reading the schema, not executing

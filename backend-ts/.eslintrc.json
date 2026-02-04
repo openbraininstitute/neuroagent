@@ -1,10 +1,6 @@
 {
-  "extends": [
-    "next/core-web-vitals",
-    "next/typescript"
-  ],
+  "extends": ["next/core-web-vitals", "next/typescript"],
   "rules": {
-    // TypeScript specific rules
     "@typescript-eslint/no-explicit-any": "warn",
     "@typescript-eslint/no-unused-vars": [
       "error",
@@ -24,8 +20,7 @@
         "fixStyle": "inline-type-imports"
       }
     ],
-    
-    // General code quality rules
+
     "no-console": [
       "warn",
       {
@@ -39,19 +34,11 @@
     "no-throw-literal": "error",
     "prefer-template": "error",
     "prefer-arrow-callback": "error",
-    
-    // Import rules
+
     "import/order": [
       "error",
       {
-        "groups": [
-          "builtin",
-          "external",
-          "internal",
-          "parent",
-          "sibling",
-          "index"
-        ],
+        "groups": ["builtin", "external", "internal", "parent", "sibling", "index"],
         "newlines-between": "always",
         "alphabetize": {
           "order": "asc",
@@ -60,8 +47,7 @@
       }
     ],
     "import/no-duplicates": "error",
-    
-    // React/Next.js specific rules
+
     "react/jsx-curly-brace-presence": [
       "error",
       {
@@ -71,8 +57,7 @@
     ],
     "react/self-closing-comp": "error",
     "react-hooks/exhaustive-deps": "warn",
-    
-    // Async/Promise rules
+
     "no-async-promise-executor": "error",
     "require-await": "warn"
   },

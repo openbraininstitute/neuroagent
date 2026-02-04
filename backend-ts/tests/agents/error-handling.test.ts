@@ -51,9 +51,7 @@ describe('AgentsRoutine Error Handling', () => {
   describe('database errors', () => {
     it('should return error stream when database query fails', async () => {
       // Mock database error
-      (prisma.message.findMany as any).mockRejectedValue(
-        new Error('Database connection failed')
-      );
+      (prisma.message.findMany as any).mockRejectedValue(new Error('Database connection failed'));
 
       const agentConfig = {
         model: 'gpt-4',
@@ -139,10 +137,7 @@ describe('AgentsRoutine Error Handling', () => {
         instructions: 'Test instructions',
       };
 
-      const response = await routineWithoutProviders.streamChat(
-        agentConfig,
-        'test-thread-id'
-      );
+      const response = await routineWithoutProviders.streamChat(agentConfig, 'test-thread-id');
 
       // Read the stream
       const reader = response.body?.getReader();
@@ -174,10 +169,7 @@ describe('AgentsRoutine Error Handling', () => {
         instructions: 'Test instructions',
       };
 
-      const response = await routineWithOnlyOpenAI.streamChat(
-        agentConfig,
-        'test-thread-id'
-      );
+      const response = await routineWithOnlyOpenAI.streamChat(agentConfig, 'test-thread-id');
 
       // Read the stream
       const reader = response.body?.getReader();

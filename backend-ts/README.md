@@ -100,6 +100,7 @@ npm start
 ```
 
 The development server includes:
+
 - Hot module replacement (HMR)
 - Automatic TypeScript compilation
 - API routes at `/api/*`
@@ -125,11 +126,11 @@ npm run type-check
 ```
 
 **Recommended workflow:**
+
 ```bash
 # Before committing
 npm run lint:fix && npm run format && npm run type-check && npm test
 ```
-
 
 ## Testing
 
@@ -167,6 +168,7 @@ The project uses **Vitest** for testing with two types of tests:
    - Tagged with property numbers from design document
 
 **Example test commands:**
+
 ```bash
 # Test a specific module
 npm test tests/tools/base-tool.test.ts
@@ -185,14 +187,15 @@ npm run test:coverage
 ### Coverage Reports
 
 Coverage reports are generated in the `coverage/` directory:
+
 - `coverage/index.html` - Interactive HTML report
 - `coverage/lcov.info` - LCOV format for CI tools
 - `coverage/coverage-final.json` - JSON format
 
 **Coverage goals:**
+
 - Overall: 80%+
 - Critical paths (auth, database, tools): 100%
-
 
 ## Database (Prisma)
 
@@ -224,6 +227,7 @@ npm run db:studio
 ### Common Prisma Workflows
 
 **1. Modifying the database schema:**
+
 ```bash
 # 1. Edit prisma/schema.prisma
 # 2. Create and apply migration
@@ -232,6 +236,7 @@ npm run db:migrate
 ```
 
 **2. Viewing/editing data:**
+
 ```bash
 # Open Prisma Studio
 npm run db:studio
@@ -239,6 +244,7 @@ npm run db:studio
 ```
 
 **3. Resetting the database (development only):**
+
 ```bash
 # WARNING: This deletes all data!
 npx prisma migrate reset
@@ -250,11 +256,13 @@ npx prisma migrate reset
 ```
 
 **4. Checking migration status:**
+
 ```bash
 npx prisma migrate status
 ```
 
 **5. Generating SQL for a migration (without applying):**
+
 ```bash
 npx prisma migrate dev --create-only
 ```
@@ -262,11 +270,11 @@ npx prisma migrate dev --create-only
 ### Prisma Documentation
 
 See `prisma/README.md` for detailed Prisma documentation including:
+
 - Schema syntax and best practices
 - Migration workflows
 - Troubleshooting common issues
 - Production deployment guide
-
 
 ## Environment Configuration
 
@@ -285,11 +293,13 @@ nano .env  # or your preferred editor
 ### Key Configuration Sections
 
 **Database (Required):**
+
 ```env
 DATABASE_URL="postgresql://user:password@localhost:5432/neuroagent"
 ```
 
 **LLM Providers (At least one required):**
+
 ```env
 NEUROAGENT_LLM__OPENAI_TOKEN=sk-...
 NEUROAGENT_LLM__OPENAI_BASE_URL=https://api.openai.com/v1  # Optional
@@ -300,11 +310,13 @@ NEUROAGENT_LLM__TEMPERATURE=1
 ```
 
 **Authentication (Required for protected routes):**
+
 ```env
 NEUROAGENT_KEYCLOAK__ISSUER=https://keycloak.example.com/realms/myrealm
 ```
 
 **Rate Limiting (Optional, uses Redis):**
+
 ```env
 NEUROAGENT_RATE_LIMITER__REDIS_HOST=localhost
 NEUROAGENT_RATE_LIMITER__REDIS_PORT=6379
@@ -315,6 +327,7 @@ NEUROAGENT_RATE_LIMITER__EXPIRY_CHAT=86400
 ```
 
 **Storage (Optional, for file uploads):**
+
 ```env
 NEUROAGENT_STORAGE__ENDPOINT_URL=http://localhost:9000
 NEUROAGENT_STORAGE__BUCKET_NAME=neuroagent
@@ -323,6 +336,7 @@ NEUROAGENT_STORAGE__SECRET_KEY=minioadmin
 ```
 
 **Tools (Optional, for specific features):**
+
 ```env
 NEUROAGENT_TOOLS__EXA_API_KEY=...  # For web/literature search
 NEUROAGENT_TOOLS__ENTITYCORE__URL=https://api.example.com/entitycore
@@ -331,6 +345,7 @@ NEUROAGENT_TOOLS__FRONTEND_BASE_URL=https://example.com
 ```
 
 **Agent Configuration:**
+
 ```env
 NEUROAGENT_AGENT__MODEL=simple
 NEUROAGENT_AGENT__MAX_TURNS=10
@@ -340,7 +355,6 @@ NEUROAGENT_AGENT__MAX_PARALLEL_TOOL_CALLS=10
 ### Environment Validation
 
 The application validates all environment variables at startup using Zod schemas. If required variables are missing or invalid, the application will fail to start with a clear error message.
-
 
 ## API Endpoints
 
@@ -429,7 +443,6 @@ http POST localhost:8079/api/qa/chat_streamed/thread-id \
   content="Hello, how are you?"
 ```
 
-
 ## Docker
 
 ### Building and Running
@@ -462,6 +475,7 @@ docker-compose down
 ### Docker Compose Services
 
 The `docker-compose.yml` includes:
+
 - `backend-ts` - TypeScript backend (port 8079)
 - `postgres` - PostgreSQL database (port 5432)
 - `redis` - Redis for rate limiting (port 6379)
@@ -483,6 +497,7 @@ docker-compose up --build backend-ts
 ### Common Issues
 
 **1. Port already in use:**
+
 ```bash
 # Check what's using port 8079
 lsof -i :8079
@@ -495,12 +510,14 @@ kill -9 <PID>
 ```
 
 **2. Prisma Client out of sync:**
+
 ```bash
 # Regenerate Prisma Client
 npm run db:generate
 ```
 
 **3. Database connection errors:**
+
 ```bash
 # Check DATABASE_URL in .env
 # Verify PostgreSQL is running
@@ -511,6 +528,7 @@ psql $DATABASE_URL
 ```
 
 **4. TypeScript errors:**
+
 ```bash
 # Clear Next.js cache
 rm -rf .next
@@ -521,6 +539,7 @@ npm install
 ```
 
 **5. Test failures:**
+
 ```bash
 # Clear test cache
 npx vitest --clearCache
@@ -528,7 +547,6 @@ npx vitest --clearCache
 # Run tests with verbose output
 npm test -- --reporter=verbose
 ```
-
 
 ### Debug Mode
 
@@ -554,6 +572,7 @@ NODE_OPTIONS='--inspect' npm run dev
 
 1. Create route file: `src/app/api/your-route/route.ts`
 2. Implement handler:
+
 ```typescript
 import { NextRequest } from 'next/server';
 
@@ -561,6 +580,7 @@ export async function GET(request: NextRequest) {
   return Response.json({ message: 'Hello' });
 }
 ```
+
 3. Add tests: `tests/api/your-route.test.ts`
 4. Update this README with endpoint documentation
 
@@ -568,6 +588,7 @@ export async function GET(request: NextRequest) {
 
 1. Create tool file: `src/lib/tools/your-tool.ts`
 2. Extend `BaseTool`:
+
 ```typescript
 import { BaseTool } from './base-tool';
 import { z } from 'zod';
@@ -592,6 +613,7 @@ const YourToolInputSchema = z.object({
   param: z.string(),
 });
 ```
+
 3. Register in `src/lib/tools/index.ts`
 4. Add tests: `tests/tools/your-tool.test.ts`
 
@@ -604,27 +626,26 @@ const YourToolInputSchema = z.object({
 5. Update types if needed
 6. Document in `prisma/MIGRATION_GUIDE.md`
 
-
 ## Useful NPM Scripts Reference
 
-| Command | Description |
-|---------|-------------|
-| `npm run dev` | Start development server on port 8079 |
-| `npm run build` | Build for production |
-| `npm start` | Start production server |
-| `npm test` | Run all tests once |
-| `npm run test:watch` | Run tests in watch mode |
-| `npm run test:coverage` | Run tests with coverage report |
-| `npm run lint` | Run ESLint |
-| `npm run lint:fix` | Fix ESLint issues automatically |
-| `npm run format` | Format code with Prettier |
-| `npm run format:check` | Check code formatting |
-| `npm run type-check` | TypeScript type checking |
-| `npm run db:generate` | Generate Prisma Client |
-| `npm run db:migrate` | Create and apply migration |
-| `npm run db:migrate:deploy` | Apply migrations (production) |
-| `npm run db:push` | Push schema without migration |
-| `npm run db:studio` | Open Prisma Studio GUI |
+| Command                     | Description                           |
+| --------------------------- | ------------------------------------- |
+| `npm run dev`               | Start development server on port 8079 |
+| `npm run build`             | Build for production                  |
+| `npm start`                 | Start production server               |
+| `npm test`                  | Run all tests once                    |
+| `npm run test:watch`        | Run tests in watch mode               |
+| `npm run test:coverage`     | Run tests with coverage report        |
+| `npm run lint`              | Run ESLint                            |
+| `npm run lint:fix`          | Fix ESLint issues automatically       |
+| `npm run format`            | Format code with Prettier             |
+| `npm run format:check`      | Check code formatting                 |
+| `npm run type-check`        | TypeScript type checking              |
+| `npm run db:generate`       | Generate Prisma Client                |
+| `npm run db:migrate`        | Create and apply migration            |
+| `npm run db:migrate:deploy` | Apply migrations (production)         |
+| `npm run db:push`           | Push schema without migration         |
+| `npm run db:studio`         | Open Prisma Studio GUI                |
 
 ## Additional Prisma Commands
 
@@ -681,7 +702,6 @@ npm run db:studio
 # Edit schema.prisma:
 # @@index([fieldName])
 ```
-
 
 ## Documentation
 
@@ -774,6 +794,7 @@ See LICENSE.md in the root directory.
 ## Support
 
 For issues and questions:
+
 - Check documentation in `docs/` and `prisma/`
 - Review existing issues on GitHub
 - Create new issue with reproduction steps

@@ -150,9 +150,7 @@ describe('End-to-End: Error Scenarios', () => {
           const encoder = new TextEncoder();
           const stream = new ReadableStream({
             start(controller) {
-              controller.enqueue(
-                encoder.encode('3:{"error":"Tool execution failed"}\n')
-              );
+              controller.enqueue(encoder.encode('3:{"error":"Tool execution failed"}\n'));
               controller.enqueue(
                 encoder.encode('0:"I encountered an error while using the tool."\n')
               );
@@ -164,7 +162,7 @@ describe('End-to-End: Error Scenarios', () => {
             headers: {
               'Content-Type': 'text/event-stream',
               'Cache-Control': 'no-cache',
-              'Connection': 'keep-alive',
+              Connection: 'keep-alive',
             },
           });
         }),
@@ -174,17 +172,14 @@ describe('End-to-End: Error Scenarios', () => {
         experimental_providerMetadata: undefined,
       } as any);
 
-      const request = new NextRequest(
-        `http://localhost/api/qa/chat_streamed/${testThreadId}`,
-        {
-          method: 'POST',
-          body: JSON.stringify({ content: 'Use the failing tool' }),
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: 'Bearer test-token',
-          },
-        }
-      );
+      const request = new NextRequest(`http://localhost/api/qa/chat_streamed/${testThreadId}`, {
+        method: 'POST',
+        body: JSON.stringify({ content: 'Use the failing tool' }),
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: 'Bearer test-token',
+        },
+      });
 
       const response = await POST(request, {
         params: Promise.resolve({ thread_id: testThreadId }),
@@ -214,17 +209,14 @@ describe('End-to-End: Error Scenarios', () => {
       const mockStreamText = vi.mocked(streamText);
       mockStreamText.mockRejectedValue(new Error('Request timeout'));
 
-      const request = new NextRequest(
-        `http://localhost/api/qa/chat_streamed/${testThreadId}`,
-        {
-          method: 'POST',
-          body: JSON.stringify({ content: 'Test message' }),
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: 'Bearer test-token',
-          },
-        }
-      );
+      const request = new NextRequest(`http://localhost/api/qa/chat_streamed/${testThreadId}`, {
+        method: 'POST',
+        body: JSON.stringify({ content: 'Test message' }),
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: 'Bearer test-token',
+        },
+      });
 
       const response = await POST(request, {
         params: Promise.resolve({ thread_id: testThreadId }),
@@ -253,20 +245,17 @@ describe('End-to-End: Error Scenarios', () => {
       const mockStreamText = vi.mocked(streamText);
       mockStreamText.mockRejectedValue(new Error('Model not found'));
 
-      const request = new NextRequest(
-        `http://localhost/api/qa/chat_streamed/${testThreadId}`,
-        {
-          method: 'POST',
-          body: JSON.stringify({
-            content: 'Test message',
-            model: 'invalid-model-name',
-          }),
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: 'Bearer test-token',
-          },
-        }
-      );
+      const request = new NextRequest(`http://localhost/api/qa/chat_streamed/${testThreadId}`, {
+        method: 'POST',
+        body: JSON.stringify({
+          content: 'Test message',
+          model: 'invalid-model-name',
+        }),
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: 'Bearer test-token',
+        },
+      });
 
       const response = await POST(request, {
         params: Promise.resolve({ thread_id: testThreadId }),
@@ -304,17 +293,14 @@ describe('End-to-End: Error Scenarios', () => {
         reset: Math.floor(Date.now() / 1000) + 3600,
       });
 
-      const request = new NextRequest(
-        `http://localhost/api/qa/chat_streamed/${testThreadId}`,
-        {
-          method: 'POST',
-          body: JSON.stringify({ content: 'Test message' }),
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: 'Bearer test-token',
-          },
-        }
-      );
+      const request = new NextRequest(`http://localhost/api/qa/chat_streamed/${testThreadId}`, {
+        method: 'POST',
+        body: JSON.stringify({ content: 'Test message' }),
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: 'Bearer test-token',
+        },
+      });
 
       const response = await POST(request, {
         params: Promise.resolve({ thread_id: testThreadId }),
@@ -356,7 +342,7 @@ describe('End-to-End: Error Scenarios', () => {
             headers: {
               'Content-Type': 'text/event-stream',
               'Cache-Control': 'no-cache',
-              'Connection': 'keep-alive',
+              Connection: 'keep-alive',
             },
           });
         }),
@@ -370,17 +356,14 @@ describe('End-to-End: Error Scenarios', () => {
       const originalCreate = prisma.message.create;
       prisma.message.create = vi.fn().mockRejectedValue(new Error('Database error'));
 
-      const request = new NextRequest(
-        `http://localhost/api/qa/chat_streamed/${testThreadId}`,
-        {
-          method: 'POST',
-          body: JSON.stringify({ content: 'Test message' }),
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: 'Bearer test-token',
-          },
-        }
-      );
+      const request = new NextRequest(`http://localhost/api/qa/chat_streamed/${testThreadId}`, {
+        method: 'POST',
+        body: JSON.stringify({ content: 'Test message' }),
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: 'Bearer test-token',
+        },
+      });
 
       const response = await POST(request, {
         params: Promise.resolve({ thread_id: testThreadId }),
@@ -427,7 +410,7 @@ describe('End-to-End: Error Scenarios', () => {
             headers: {
               'Content-Type': 'text/event-stream',
               'Cache-Control': 'no-cache',
-              'Connection': 'keep-alive',
+              Connection: 'keep-alive',
             },
           });
         }),
@@ -438,29 +421,23 @@ describe('End-to-End: Error Scenarios', () => {
       } as any);
 
       // Make two concurrent requests
-      const request1 = new NextRequest(
-        `http://localhost/api/qa/chat_streamed/${testThreadId}`,
-        {
-          method: 'POST',
-          body: JSON.stringify({ content: 'First message' }),
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: 'Bearer test-token',
-          },
-        }
-      );
+      const request1 = new NextRequest(`http://localhost/api/qa/chat_streamed/${testThreadId}`, {
+        method: 'POST',
+        body: JSON.stringify({ content: 'First message' }),
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: 'Bearer test-token',
+        },
+      });
 
-      const request2 = new NextRequest(
-        `http://localhost/api/qa/chat_streamed/${testThreadId}`,
-        {
-          method: 'POST',
-          body: JSON.stringify({ content: 'Second message' }),
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: 'Bearer test-token',
-          },
-        }
-      );
+      const request2 = new NextRequest(`http://localhost/api/qa/chat_streamed/${testThreadId}`, {
+        method: 'POST',
+        body: JSON.stringify({ content: 'Second message' }),
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: 'Bearer test-token',
+        },
+      });
 
       // Execute concurrently
       const [response1, response2] = await Promise.all([

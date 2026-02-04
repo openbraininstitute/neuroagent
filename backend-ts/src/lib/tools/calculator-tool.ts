@@ -1,16 +1,17 @@
 /**
  * Calculator Tool Implementation
- * 
+ *
  * A simple calculator tool demonstrating the BaseTool pattern.
  * This tool performs basic arithmetic operations.
  */
 
 import { z } from 'zod';
-import { BaseTool, BaseContextVariables } from './base-tool';
+
+import { BaseTool, type BaseContextVariables } from './base-tool';
 
 /**
  * Context variables for the calculator tool
- * 
+ *
  * This tool doesn't need any external dependencies,
  * but we still define the interface for consistency.
  */
@@ -32,7 +33,7 @@ const CalculatorToolInputSchema = z.object({
 
 /**
  * Calculator tool for basic arithmetic operations
- * 
+ *
  * This is a simple example showing:
  * - Static properties for tool metadata
  * - Minimal context variables
@@ -72,7 +73,7 @@ export class CalculatorTool extends BaseTool<
 
   /**
    * Constructor
-   * 
+   *
    * @param contextVariables - Runtime dependencies (minimal for this tool)
    */
   constructor(contextVariables: CalculatorToolContextVariables = {}) {
@@ -82,13 +83,11 @@ export class CalculatorTool extends BaseTool<
 
   /**
    * Execute the calculation
-   * 
+   *
    * @param input - Validated input with operation and operands
    * @returns Calculation result
    */
-  async execute(
-    input: z.infer<typeof CalculatorToolInputSchema>
-  ): Promise<unknown> {
+  async execute(input: z.infer<typeof CalculatorToolInputSchema>): Promise<unknown> {
     const { operation, a, b } = input;
 
     let result: number;
@@ -114,9 +113,7 @@ export class CalculatorTool extends BaseTool<
     // Check against max value if configured
     const maxValue = this.contextVariables.maxValue;
     if (maxValue !== undefined && Math.abs(result) > maxValue) {
-      throw new Error(
-        `Result ${result} exceeds maximum allowed value ${maxValue}`
-      );
+      throw new Error(`Result ${result} exceeds maximum allowed value ${maxValue}`);
     }
 
     return {
@@ -130,12 +127,7 @@ export class CalculatorTool extends BaseTool<
   /**
    * Format the calculation as a human-readable expression
    */
-  private formatExpression(
-    operation: string,
-    a: number,
-    b: number,
-    result: number
-  ): string {
+  private formatExpression(operation: string, a: number, b: number, result: number): string {
     const operators = {
       add: '+',
       subtract: '-',

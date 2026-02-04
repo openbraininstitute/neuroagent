@@ -6,7 +6,7 @@ This document explains how to test the migration rollback property test with act
 
 The property test in `migration-rollback.property.test.ts` validates **Property 9: Migration Rollback** from the design document:
 
-> *For any* applied migration, rolling it back should restore the database schema to its previous state.
+> _For any_ applied migration, rolling it back should restore the database schema to its previous state.
 
 **Validates: Requirements 4.4**
 
@@ -45,6 +45,7 @@ npm run db:migrate -- --name add_test_field_to_threads --create-only
 ```
 
 This will create a migration directory like:
+
 ```
 prisma/migrations/20240115120000_add_test_field_to_threads/
 └── migration.sql
@@ -81,6 +82,7 @@ npm test -- migration-rollback.property.test.ts
 ```
 
 The test will:
+
 - Capture the schema before the test migration
 - Apply the migration (if not already applied)
 - Capture the schema after migration
@@ -105,22 +107,27 @@ rm -rf prisma/migrations/20240115120000_add_test_field_to_threads
 The test compares the following schema elements:
 
 ### Tables
+
 - Table names
 - Column names, types, nullability, and defaults
 
 ### Enums
+
 - Enum type names
 - Enum values and their order
 
 ### Indexes
+
 - Index names and definitions
 - Excludes primary key indexes
 
 ### Foreign Keys
+
 - Foreign key constraint names
 - Delete rules (CASCADE, RESTRICT, etc.)
 
 ### Triggers
+
 - Trigger names and associated tables
 
 ## Example Test Output
@@ -153,6 +160,7 @@ The test is configured to run with a minimum of 100 iterations for property-base
 ### Test Isolation
 
 Each test:
+
 - Operates on the actual database (not mocked)
 - Restores the database state after testing
 - Can be run multiple times safely
@@ -160,6 +168,7 @@ Each test:
 ### Idempotency
 
 The test includes an idempotency check:
+
 - Applies rollback twice
 - Verifies the schema state remains consistent
 - Ensures rollback operations are safe to repeat
@@ -296,6 +305,7 @@ pg_dump $DATABASE_URL > backup_$(date +%Y%m%d_%H%M%S).sql
 **Cause**: The down migration is incomplete or incorrect.
 
 **Solution**:
+
 1. Review the `down.sql` file
 2. Ensure all changes in `migration.sql` are reversed
 3. Check for missing DROP statements or ALTER TABLE commands
@@ -305,6 +315,7 @@ pg_dump $DATABASE_URL > backup_$(date +%Y%m%d_%H%M%S).sql
 **Cause**: The migration was already marked as rolled back in Prisma's migration history.
 
 **Solution**:
+
 ```bash
 # Re-apply the migration
 npm run db:migrate:deploy
@@ -318,6 +329,7 @@ npm test -- migration-rollback.property.test.ts
 **Cause**: Trying to rollback a migration that added a column with data.
 
 **Solution**:
+
 1. Backup the data first
 2. Use `DROP COLUMN IF EXISTS` with CASCADE if needed
 3. Consider data migration strategy before rollback

@@ -76,6 +76,7 @@ The compatibility test suite ensures that:
 ### Prerequisites
 
 1. **Both backends must be running**:
+
    ```bash
    # Terminal 1: Python backend
    cd backend
@@ -98,18 +99,21 @@ The compatibility test suite ensures that:
 ### Run Tests
 
 **Using the helper script** (recommended):
+
 ```bash
 cd backend-ts
 ./scripts/run-compatibility-tests.sh
 ```
 
 **Using npm directly**:
+
 ```bash
 cd backend-ts
 npm run test:compatibility
 ```
 
 **Using vitest directly**:
+
 ```bash
 cd backend-ts
 npx vitest tests/api/compatibility.test.ts
@@ -118,6 +122,7 @@ npx vitest tests/api/compatibility.test.ts
 ### Docker Environment
 
 If running backends in Docker:
+
 ```bash
 # Start both backends
 docker compose up backend backend-ts
@@ -164,6 +169,7 @@ For each endpoint, the test suite:
 ### Error Handling
 
 Tests verify that both backends:
+
 - Return the same status codes for errors
 - Include error information in responses
 - Handle authentication failures identically
@@ -173,15 +179,16 @@ Tests verify that both backends:
 
 ### Environment Variables
 
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `PYTHON_BACKEND_URL` | `http://localhost:8078` | Python backend URL |
-| `TS_BACKEND_URL` | `http://localhost:3000` | TypeScript backend URL |
-| `TEST_AUTH_TOKEN` | (empty) | Valid JWT token for authenticated requests |
+| Variable             | Default                 | Description                                |
+| -------------------- | ----------------------- | ------------------------------------------ |
+| `PYTHON_BACKEND_URL` | `http://localhost:8078` | Python backend URL                         |
+| `TS_BACKEND_URL`     | `http://localhost:3000` | TypeScript backend URL                     |
+| `TEST_AUTH_TOKEN`    | (empty)                 | Valid JWT token for authenticated requests |
 
 ### Test Data
 
 The test suite creates minimal test data:
+
 - Test threads (cleaned up after tests)
 - Test messages (as needed)
 - No persistent data is created
@@ -191,6 +198,7 @@ The test suite creates minimal test data:
 ### Success Criteria
 
 All tests should pass, indicating:
+
 - ✅ Status codes match between backends
 - ✅ Response schemas are identical
 - ✅ Error handling is consistent
@@ -199,21 +207,27 @@ All tests should pass, indicating:
 ### Common Failures
 
 1. **Backend Not Running**
+
    ```
    Error: fetch failed
    ```
+
    **Solution**: Ensure both backends are running
 
 2. **Authentication Failures**
+
    ```
    Expected: 200, Received: 401
    ```
+
    **Solution**: Set valid `TEST_AUTH_TOKEN`
 
 3. **Schema Mismatch**
+
    ```
    ZodError: Invalid type
    ```
+
    **Solution**: Check response format differences
 
 4. **Status Code Mismatch**
@@ -305,6 +319,7 @@ jobs:
 When adding new endpoints to the TypeScript backend:
 
 1. **Add schema definition**:
+
    ```typescript
    const NewEndpointSchema = z.object({
      // Define expected response structure
@@ -312,6 +327,7 @@ When adding new endpoints to the TypeScript backend:
    ```
 
 2. **Add test case**:
+
    ```typescript
    it('should have compatible GET /new-endpoint', async () => {
      const { python, typescript } = await compareEndpoints('/new-endpoint', {
@@ -344,6 +360,7 @@ When the API schema changes:
 **Problem**: Cannot connect to one or both backends
 
 **Solutions**:
+
 - Verify backends are running: `curl http://localhost:8078/healthz`
 - Check port conflicts: `lsof -i :8078` and `lsof -i :3000`
 - Review backend logs for startup errors
@@ -353,6 +370,7 @@ When the API schema changes:
 **Problem**: Response doesn't match expected schema
 
 **Solutions**:
+
 - Compare actual responses from both backends
 - Check if schema definition is correct
 - Verify backend implementation matches spec
@@ -362,6 +380,7 @@ When the API schema changes:
 **Problem**: Backends return different status codes
 
 **Solutions**:
+
 - Check backend logs for errors
 - Verify both backends handle the request correctly
 - Ensure database state is consistent
@@ -371,6 +390,7 @@ When the API schema changes:
 **Problem**: Rate limiting behaves differently
 
 **Solutions**:
+
 - Ensure Redis is running for both backends
 - Check rate limit configuration matches
 - Verify rate limit headers are set correctly

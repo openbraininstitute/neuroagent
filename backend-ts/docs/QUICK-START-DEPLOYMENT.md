@@ -544,6 +544,7 @@ NODE_OPTIONS="--max-old-space-size=2048" pm2 restart neuroagent-backend
 If deployment fails:
 
 1. **Stop new version:**
+
 ```bash
 pm2 stop neuroagent-backend
 # or
@@ -551,11 +552,13 @@ docker-compose stop backend-ts
 ```
 
 2. **Restore database** (if migrations were applied):
+
 ```bash
 psql $DATABASE_URL < backup.sql
 ```
 
 3. **Start previous version:**
+
 ```bash
 git checkout previous-tag
 npm run build
@@ -563,6 +566,7 @@ pm2 restart neuroagent-backend
 ```
 
 4. **Verify rollback:**
+
 ```bash
 curl https://api.example.com/api/healthz
 ```
@@ -623,6 +627,7 @@ psql $DATABASE_URL -c "SELECT pg_size_pretty(pg_database_size('neuroagent'));"
 ## Support
 
 For additional help:
+
 - See [DEPLOYMENT.md](./DEPLOYMENT.md) for detailed deployment documentation
 - See [COMMON-OPERATIONS.md](./COMMON-OPERATIONS.md) for common operations
 - Check GitHub issues

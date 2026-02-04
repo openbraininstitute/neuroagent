@@ -3,7 +3,8 @@
  */
 
 import { z } from 'zod';
-import { BaseTool, BaseContextVariables } from '../base-tool';
+
+import { BaseTool, type BaseContextVariables } from '../base-tool';
 
 const TimeToolInputSchema = z.object({
   timezone: z.string().describe('Timezone name'),
@@ -35,9 +36,10 @@ export class TimeTool extends BaseTool<typeof TimeToolInputSchema, BaseContextVa
     const now = new Date();
     const hours = now.getUTCHours();
     const minutes = now.getUTCMinutes().toString().padStart(2, '0');
-    const timeString = format === '12h'
-      ? `${hours % 12 || 12}:${minutes} ${hours >= 12 ? 'PM' : 'AM'}`
-      : `${hours.toString().padStart(2, '0')}:${minutes}`;
+    const timeString =
+      format === '12h'
+        ? `${hours % 12 || 12}:${minutes} ${hours >= 12 ? 'PM' : 'AM'}`
+        : `${hours.toString().padStart(2, '0')}:${minutes}`;
 
     return {
       timezone,

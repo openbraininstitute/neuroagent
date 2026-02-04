@@ -13,6 +13,7 @@ Provides JWT-based authentication using Keycloak as the identity provider.
 Validates JWT token and extracts user information. Throws `AuthenticationError` if validation fails.
 
 **Usage:**
+
 ```typescript
 import { validateAuth } from '@/lib/middleware/auth';
 
@@ -36,12 +37,13 @@ export async function GET(request: NextRequest) {
 Non-throwing variant that returns `null` instead of throwing an error. Useful for optional authentication.
 
 **Usage:**
+
 ```typescript
 import { validateAuthOptional } from '@/lib/middleware/auth';
 
 export async function GET(request: NextRequest) {
   const userInfo = await validateAuthOptional(request);
-  
+
   if (userInfo) {
     // Authenticated user
     console.log(`Authenticated as: ${userInfo.email}`);
@@ -57,15 +59,16 @@ export async function GET(request: NextRequest) {
 Validates user access to virtual labs and projects. Throws `AuthorizationError` if access is denied.
 
 **Usage:**
+
 ```typescript
 import { validateAuth, validateProject } from '@/lib/middleware/auth';
 
 export async function GET(request: NextRequest) {
   const userInfo = await validateAuth(request);
-  
+
   // Validate virtual lab access
   validateProject(userInfo.groups, 'vlab-id');
-  
+
   // Validate project access (also validates vlab access)
   validateProject(userInfo.groups, 'vlab-id', 'project-id');
 }
@@ -76,6 +79,7 @@ export async function GET(request: NextRequest) {
 Validates user belongs to a specific virtual lab. Throws `AuthorizationError` if access is denied.
 
 **Usage:**
+
 ```typescript
 import { validateVirtualLabAccess } from '@/lib/middleware/auth';
 
@@ -87,6 +91,7 @@ validateVirtualLabAccess(userInfo.groups, 'vlab-id');
 Validates user belongs to a specific project within a virtual lab. Throws `AuthorizationError` if access is denied.
 
 **Usage:**
+
 ```typescript
 import { validateProjectAccess } from '@/lib/middleware/auth';
 
@@ -101,14 +106,14 @@ User information extracted from JWT token:
 
 ```typescript
 interface UserInfo {
-  sub: string;                    // User ID (UUID)
-  groups: string[];               // Group memberships
-  emailVerified?: boolean;        // Email verification status
-  name?: string;                  // Full name
-  preferredUsername?: string;     // Username
-  givenName?: string;            // First name
-  familyName?: string;           // Last name
-  email?: string;                // Email address
+  sub: string; // User ID (UUID)
+  groups: string[]; // Group memberships
+  emailVerified?: boolean; // Email verification status
+  name?: string; // Full name
+  preferredUsername?: string; // Username
+  givenName?: string; // First name
+  familyName?: string; // Last name
+  email?: string; // Email address
 }
 ```
 
@@ -125,6 +130,7 @@ Thrown when user doesn't have required permissions (virtual lab or project acces
 ### Group Format
 
 User groups follow these formats:
+
 - Virtual lab membership: `/vlab/{vlabId}`
 - Project membership: `/proj/{vlabId}/{projectId}`
 
@@ -137,6 +143,7 @@ NEUROAGENT_KEYCLOAK__ISSUER=https://example.com/auth/realms/realm-name
 ```
 
 The middleware automatically constructs the JWKS endpoint URL:
+
 ```
 {issuer}/protocol/openid-connect/certs
 ```
@@ -152,39 +159,40 @@ The middleware automatically constructs the JWKS endpoint URL:
 
 ```typescript
 import { NextRequest } from 'next/server';
-import { validateAuth, validateProject, AuthenticationError, AuthorizationError } from '@/lib/middleware/auth';
+import {
+  validateAuth,
+  validateProject,
+  AuthenticationError,
+  AuthorizationError,
+} from '@/lib/middleware/auth';
 import { prisma } from '@/lib/db/client';
 
-export async function GET(
-  request: NextRequest,
-  { params }: { params: { thread_id: string } }
-) {
+export async function GET(request: NextRequest, { params }: { params: { thread_id: string } }) {
   try {
     // Validate authentication
     const userInfo = await validateAuth(request);
-    
+
     // Get thread from database
     const thread = await prisma.thread.findUnique({
       where: { id: params.thread_id },
     });
-    
+
     if (!thread) {
       return new Response('Thread not found', { status: 404 });
     }
-    
+
     // Validate thread ownership
     if (thread.userId !== userInfo.sub) {
       return new Response('Forbidden', { status: 403 });
     }
-    
+
     // Validate project access
     if (thread.vlabId && thread.projectId) {
       validateProject(userInfo.groups, thread.vlabId, thread.projectId);
     }
-    
+
     // Return thread data
     return Response.json(thread);
-    
   } catch (error) {
     if (error instanceof AuthenticationError) {
       return new Response('Unauthorized', { status: 401 });
@@ -202,18 +210,19 @@ export async function GET(
 Tests are located in `tests/middleware/auth.test.ts`.
 
 Run tests:
+
 ```bash
 npm test -- tests/middleware/auth.test.ts
 ```
 
 The test suite covers:
+
 - Virtual lab access validation
 - Project access validation
 - Combined validation scenarios
 - Authentication with missing/invalid tokens
 - Optional authentication
 - Error handling
-
 
 ## Rate Limiting Middleware (`rate-limit.ts`)
 
@@ -226,12 +235,14 @@ Provides Redis-based rate limiting for API endpoints with configurable limits pe
 Checks rate limit for a user and route combination. Increments the request counter and returns rate limit status with headers.
 
 **Parameters:**
+
 - `userId`: Unique user identifier (typically from JWT sub claim)
 - `route`: Route identifier (e.g., 'chat', 'suggestions', 'title')
 - `limit`: Maximum number of requests allowed in the time window
 - `expiry`: Time window in seconds
 
 **Returns:** `RateLimitResult` with:
+
 - `limited`: Boolean indicating if rate limit is exceeded
 - `headers`: Rate limit headers for HTTP response
 - `remaining`: Number of requests remaining
@@ -239,6 +250,7 @@ Checks rate limit for a user and route combination. Increments the request count
 - `reset`: Unix timestamp when limit resets
 
 **Usage:**
+
 ```typescript
 import { checkRateLimit } from '@/lib/middleware/rate-limit';
 import { getSettings } from '@/lib/config/settings';
@@ -246,7 +258,7 @@ import { getSettings } from '@/lib/config/settings';
 export async function POST(request: NextRequest) {
   const settings = getSettings();
   const userInfo = await validateAuth(request);
-  
+
   // Check rate limit
   const rateLimitResult = await checkRateLimit(
     userInfo.sub,
@@ -254,14 +266,14 @@ export async function POST(request: NextRequest) {
     settings.rateLimiter.limitChat,
     settings.rateLimiter.expiryChat
   );
-  
+
   if (rateLimitResult.limited) {
     return new Response('Rate limit exceeded', {
       status: 429,
       headers: rateLimitResult.headers,
     });
   }
-  
+
   // Process request...
   return new Response('Success', {
     headers: rateLimitResult.headers,
@@ -274,6 +286,7 @@ export async function POST(request: NextRequest) {
 Gets current rate limit status without incrementing the counter. Useful for checking status without consuming a request.
 
 **Usage:**
+
 ```typescript
 import { getRateLimitStatus } from '@/lib/middleware/rate-limit';
 
@@ -293,6 +306,7 @@ console.log(`Resets at: ${new Date(status.reset * 1000)}`);
 Resets rate limit for a specific user and route. Useful for testing or administrative purposes.
 
 **Usage:**
+
 ```typescript
 import { resetRateLimit } from '@/lib/middleware/rate-limit';
 
@@ -307,11 +321,13 @@ if (success) {
 Generates standard rate limit headers for HTTP responses.
 
 **Headers:**
+
 - `X-RateLimit-Limit`: Maximum requests allowed in window
 - `X-RateLimit-Remaining`: Requests remaining in current window
 - `X-RateLimit-Reset`: Unix timestamp when the limit resets
 
 **Usage:**
+
 ```typescript
 import { generateRateLimitHeaders } from '@/lib/middleware/rate-limit';
 
@@ -329,6 +345,7 @@ const headers = generateRateLimitHeaders(100, 75, Date.now() + 3600);
 Closes the Redis connection. Useful for cleanup in tests or application shutdown.
 
 **Usage:**
+
 ```typescript
 import { closeRedisConnection } from '@/lib/middleware/rate-limit';
 
@@ -344,11 +361,11 @@ Rate limit check result:
 
 ```typescript
 interface RateLimitResult {
-  limited: boolean;           // True if rate limit exceeded
-  headers: Record<string, string>;  // Rate limit headers
-  remaining: number;          // Requests remaining
-  limit: number;             // Maximum requests allowed
-  reset: number;             // Unix timestamp when limit resets
+  limited: boolean; // True if rate limit exceeded
+  headers: Record<string, string>; // Rate limit headers
+  remaining: number; // Requests remaining
+  limit: number; // Maximum requests allowed
+  reset: number; // Unix timestamp when limit resets
 }
 ```
 
@@ -382,11 +399,13 @@ NEUROAGENT_RATE_LIMITER__EXPIRY_TITLE=86400
 ### Redis Key Format
 
 Rate limit counters are stored in Redis with the following key format:
+
 ```
 rate-limit:{userId}:{route}
 ```
 
 Examples:
+
 - `rate-limit:user-123:chat`
 - `rate-limit:user-456:suggestions`
 - `rate-limit:user-789:title`
@@ -409,11 +428,11 @@ import { getSettings } from '@/lib/config/settings';
 
 export async function POST(request: NextRequest) {
   const settings = getSettings();
-  
+
   try {
     // Validate authentication
     const userInfo = await validateAuth(request);
-    
+
     // Check rate limit
     const rateLimitResult = await checkRateLimit(
       userInfo.sub,
@@ -421,22 +440,21 @@ export async function POST(request: NextRequest) {
       settings.rateLimiter.limitChat,
       settings.rateLimiter.expiryChat
     );
-    
+
     if (rateLimitResult.limited) {
       return new Response('Rate limit exceeded. Please try again later.', {
         status: 429,
         headers: rateLimitResult.headers,
       });
     }
-    
+
     // Process request...
     const result = await processRequest(request);
-    
+
     // Return response with rate limit headers
     return Response.json(result, {
       headers: rateLimitResult.headers,
     });
-    
   } catch (error) {
     // Handle errors...
     return new Response('Internal Server Error', { status: 500 });
@@ -454,26 +472,27 @@ export async function POST(request: NextRequest) {
   const settings = getSettings();
   const userInfo = await validateAuth(request);
   const body = await request.json();
-  
+
   // Determine rate limit based on context
-  const limit = body.vlabId && body.projectId
-    ? settings.rateLimiter.limitSuggestionsInside
-    : settings.rateLimiter.limitSuggestionsOutside;
-  
+  const limit =
+    body.vlabId && body.projectId
+      ? settings.rateLimiter.limitSuggestionsInside
+      : settings.rateLimiter.limitSuggestionsOutside;
+
   const rateLimitResult = await checkRateLimit(
     userInfo.sub,
     'suggestions',
     limit,
     settings.rateLimiter.expirySuggestions
   );
-  
+
   if (rateLimitResult.limited) {
     return new Response('Rate limit exceeded', {
       status: 429,
       headers: rateLimitResult.headers,
     });
   }
-  
+
   // Process request...
 }
 ```
@@ -481,6 +500,7 @@ export async function POST(request: NextRequest) {
 ### Testing
 
 Tests should cover:
+
 - Rate limit enforcement (requests blocked after limit)
 - Rate limit headers (correct values in responses)
 - Rate limit reset (counter expires after window)
@@ -488,6 +508,7 @@ Tests should cover:
 - Different limits for different routes
 
 Example test:
+
 ```typescript
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { checkRateLimit, resetRateLimit, closeRedisConnection } from '@/lib/middleware/rate-limit';
@@ -497,15 +518,15 @@ describe('Rate Limiting', () => {
   const route = 'test-route';
   const limit = 5;
   const expiry = 60;
-  
+
   beforeEach(async () => {
     await resetRateLimit(userId, route);
   });
-  
+
   afterEach(async () => {
     await closeRedisConnection();
   });
-  
+
   it('should allow requests within limit', async () => {
     for (let i = 0; i < limit; i++) {
       const result = await checkRateLimit(userId, route, limit, expiry);
@@ -513,22 +534,22 @@ describe('Rate Limiting', () => {
       expect(result.remaining).toBe(limit - i - 1);
     }
   });
-  
+
   it('should block requests after limit exceeded', async () => {
     // Consume all allowed requests
     for (let i = 0; i < limit; i++) {
       await checkRateLimit(userId, route, limit, expiry);
     }
-    
+
     // Next request should be blocked
     const result = await checkRateLimit(userId, route, limit, expiry);
     expect(result.limited).toBe(true);
     expect(result.remaining).toBe(0);
   });
-  
+
   it('should include correct rate limit headers', async () => {
     const result = await checkRateLimit(userId, route, limit, expiry);
-    
+
     expect(result.headers['X-RateLimit-Limit']).toBe(limit.toString());
     expect(result.headers['X-RateLimit-Remaining']).toBeDefined();
     expect(result.headers['X-RateLimit-Reset']).toBeDefined();
@@ -541,11 +562,13 @@ describe('Rate Limiting', () => {
 Tests are located in `tests/middleware/`.
 
 Run all middleware tests:
+
 ```bash
 npm test -- tests/middleware/
 ```
 
 Run specific test files:
+
 ```bash
 npm test -- tests/middleware/auth.test.ts
 npm test -- tests/middleware/rate-limit.test.ts
@@ -554,6 +577,7 @@ npm test -- tests/middleware/rate-limit.test.ts
 The test suites cover:
 
 **Authentication (`auth.test.ts`):**
+
 - Virtual lab access validation
 - Project access validation
 - Combined validation scenarios
@@ -562,6 +586,7 @@ The test suites cover:
 - Error handling
 
 **Rate Limiting (`rate-limit.test.ts`):**
+
 - Rate limit enforcement
 - Rate limit headers
 - Rate limit reset

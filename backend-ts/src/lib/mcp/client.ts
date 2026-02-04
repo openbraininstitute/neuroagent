@@ -12,11 +12,11 @@
 
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
-import { Tool } from '@modelcontextprotocol/sdk/types.js';
+import { type Tool } from '@modelcontextprotocol/sdk/types.js';
 import { z } from 'zod';
 
-import { BaseTool, ToolMetadata } from '../tools/base-tool';
-import { MCPServerConfig, SettingsMCP } from '../config/settings';
+import { type MCPServerConfig, type SettingsMCP } from '../config/settings';
+import { BaseTool, type ToolMetadata } from '../tools/base-tool';
 
 const SERVER_TOOL_SEPARATOR = '|||';
 
@@ -58,10 +58,7 @@ export class MCPClient {
   /**
    * Connect to a single MCP server
    */
-  private async connectToServer(
-    serverName: string,
-    serverConfig: MCPServerConfig
-  ): Promise<void> {
+  private async connectToServer(serverName: string, serverConfig: MCPServerConfig): Promise<void> {
     console.log(`Connecting to MCP server: ${serverName}`);
 
     // Create client
@@ -108,12 +105,11 @@ export class MCPClient {
   /**
    * Apply tool metadata overrides from configuration
    */
-  private applyToolMetadataOverrides(
-    serverName: string,
-    toolMetadata: Record<string, any>
-  ): void {
+  private applyToolMetadataOverrides(serverName: string, toolMetadata: Record<string, any>): void {
     const serverTools = this.tools.get(serverName);
-    if (!serverTools) return;
+    if (!serverTools) {
+      return;
+    }
 
     for (const [originalToolName, metadata] of Object.entries(toolMetadata)) {
       const tool = serverTools.find((t) => t.name === originalToolName);
@@ -129,15 +125,16 @@ export class MCPClient {
       // Store mapping from new name to original name
       const newName = metadata.name || tool.name;
       if (newName !== tool.name) {
-        this.toolNameMapping.set(
-          `${serverName}${SERVER_TOOL_SEPARATOR}${newName}`,
-          tool.name
-        );
+        this.toolNameMapping.set(`${serverName}${SERVER_TOOL_SEPARATOR}${newName}`, tool.name);
       }
 
       // Override tool properties
-      if (metadata.name) tool.name = metadata.name;
-      if (metadata.description) tool.description = metadata.description;
+      if (metadata.name) {
+        tool.name = metadata.name;
+      }
+      if (metadata.description) {
+        tool.description = metadata.description;
+      }
     }
   }
 
@@ -186,7 +183,9 @@ export class MCPClient {
    */
   async isServerOnline(serverName: string): Promise<boolean> {
     const client = this.clients.get(serverName);
-    if (!client) return false;
+    if (!client) {
+      return false;
+    }
 
     try {
       await client.ping();
@@ -251,6 +250,7 @@ export function createDynamicMCPTool(
     };
 
     inputSchema = inputSchema;
+    contextVariables = {}; // Add required contextVariables property
 
     override async execute(input: any): Promise<any> {
       const result = await mcpClient.callTool(serverName, tool.name, input);

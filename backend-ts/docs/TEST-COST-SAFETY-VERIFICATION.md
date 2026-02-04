@@ -13,9 +13,11 @@ All tests have been verified to NOT make real external API calls to LLM provider
 ## Critical Fix Applied
 
 ### Issue Found
+
 The `chat_streamed` API route was making real LLM API calls to OpenRouter for tool selection and complexity estimation via `filterToolsAndModelByConversation()`.
 
 ### Fix Applied
+
 Added mock for `filterToolsAndModelByConversation` in `tests/api/chat-streamed.test.ts`:
 
 ```typescript
@@ -31,12 +33,14 @@ vi.mock('@/lib/utils/tool-filtering', () => ({
 ## Verification Method
 
 ### Prerequisites
+
 1. **Node.js v25.5.0** (upgraded from v23.6.1)
    - v23 does NOT support native fetch proxy
    - v24+ and v22.21.0+ support `NODE_USE_ENV_PROXY`
 2. **mitmproxy** running on port 8080
 
 ### Command Used
+
 ```bash
 NODE_USE_ENV_PROXY=1 \
 HTTP_PROXY=http://localhost:8080 \
@@ -48,12 +52,15 @@ npm test
 ```
 
 ### Results
+
 **Only 3 requests observed in mitmweb:**
+
 1. `GET httpbin.org/get?test=native-fetch-proxy&timestamp=...` (proxy verification)
 2. `GET api.github.com/zen` (proxy verification)
 3. `POST httpbin.org/post` (proxy verification)
 
 **No requests to:**
+
 - ❌ `api.openai.com`
 - ❌ `openrouter.ai`
 - ❌ Any other external APIs
@@ -61,11 +68,13 @@ npm test
 ## Cost Impact
 
 ### Before Fix
+
 - **Risk:** Unintentional LLM API calls during test execution
 - **Estimated cost:** $0.01-0.10 per test run
 - **Annual cost (if run 1000x):** $10-100
 
 ### After Fix
+
 - **Cost per test run:** $0.00
 - **Annual savings:** $10-100
 - **Additional benefits:**
@@ -78,6 +87,7 @@ npm test
 All test files have been verified to properly mock external services:
 
 ### API Tests
+
 - ✅ `tests/api/chat-streamed.test.ts` - **FIXED** (added tool filtering mock)
 - ✅ `tests/api/models.test.ts` - **FIXED** (added global fetch mock in beforeEach)
 - ✅ `tests/api/compatibility.test.ts` - Properly mocked (3 expensive tests skipped)
@@ -86,31 +96,37 @@ All test files have been verified to properly mock external services:
 - ✅ `tests/api/health-and-settings.test.ts` - No external calls
 
 ### Integration Tests
+
 - ✅ `tests/integration/llm-providers.test.ts` - Comprehensive mocks (0 real calls)
 - ✅ `tests/integration/mcp-servers.test.ts` - Comprehensive mocks (0 real calls)
 - ✅ `tests/integration/storage.test.ts` - Comprehensive mocks (0 real calls)
 
 ### E2E Tests
+
 - ✅ `tests/e2e/conversation-flow.test.ts` - AI SDK mocked
 - ✅ `tests/e2e/error-scenarios.test.ts` - AI SDK mocked
 
 ### Agent Tests
+
 - ✅ `tests/agents/routine.test.ts` - AI SDK mocked
 - ✅ `tests/agents/provider-selection.test.ts` - AI SDK mocked
 - ✅ `tests/agents/error-handling.test.ts` - AI SDK mocked
 - ✅ `tests/agents/parallel-tool-execution.test.ts` - AI SDK mocked
 
 ### Database Tests
+
 - ✅ `tests/db/integration.test.ts` - No external calls
 - ✅ `tests/db/client.test.ts` - No external calls
 - ✅ `tests/db/migrations.test.ts` - No external calls
 
 ### HIL Tests
+
 - ✅ `tests/hil-validation.test.ts` - AI SDK mocked
 
 ## Key Mocks Required
 
 ### 1. AI SDK (Vercel AI SDK)
+
 ```typescript
 vi.mock('ai', () => ({
   streamText: vi.fn(),
@@ -121,6 +137,7 @@ vi.mock('ai', () => ({
 ```
 
 ### 2. Tool Filtering (NEW - CRITICAL)
+
 ```typescript
 vi.mock('@/lib/utils/tool-filtering', () => ({
   filterToolsAndModelByConversation: vi.fn().mockResolvedValue({
@@ -132,6 +149,7 @@ vi.mock('@/lib/utils/tool-filtering', () => ({
 ```
 
 ### 3. OpenRouter Models API
+
 ```typescript
 beforeEach(() => {
   global.fetch = vi.fn().mockResolvedValue({
@@ -154,6 +172,7 @@ beforeEach(() => {
 ### Regular Verification
 
 Run proxy verification monthly or after major changes:
+
 ```bash
 # See docs/PROXY-VERIFICATION-SETUP.md for full instructions
 npm test -- tests/proxy-verification.test.ts

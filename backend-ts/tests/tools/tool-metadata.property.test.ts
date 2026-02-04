@@ -207,9 +207,7 @@ describe('Tool Metadata Property Tests', () => {
           // This is a soft check - we log warnings but don't fail
           // to allow for different naming conventions
           if (!validNamePattern.test(toolName)) {
-            console.warn(
-              `Tool name "${toolName}" doesn't follow snake_case convention`
-            );
+            console.warn(`Tool name "${toolName}" doesn't follow snake_case convention`);
           }
 
           // Hard requirement: No spaces or special characters except underscore
@@ -290,9 +288,8 @@ describe('Tool Metadata Property Tests', () => {
             // This is a soft check - we log warnings but don't fail
             const firstChar = utterance.trim()[0];
             const isCapitalized = firstChar === firstChar.toUpperCase();
-            const startsWithQuestionWord = /^(what|how|when|where|why|who|which|is|are|can|do|does)/i.test(
-              utterance.trim()
-            );
+            const startsWithQuestionWord =
+              /^(what|how|when|where|why|who|which|is|are|can|do|does)/i.test(utterance.trim());
 
             if (!isCapitalized && !startsWithQuestionWord) {
               console.warn(

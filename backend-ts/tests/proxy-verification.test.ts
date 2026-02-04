@@ -20,17 +20,17 @@ import { describe, it, expect, beforeAll } from 'vitest';
 describe('Proxy Verification - Native Fetch Only', () => {
   // Run config check once before all tests
   beforeAll(() => {
-    const proxyUrl = process.env.HTTP_PROXY || process.env.HTTPS_PROXY;
-    const useEnvProxy = process.env.NODE_USE_ENV_PROXY;
+    const proxyUrl = process.env['HTTP_PROXY'] || process.env['HTTPS_PROXY'];
+    const useEnvProxy = process.env['NODE_USE_ENV_PROXY'];
 
     console.log('\n🔍 Proxy Configuration Check:');
-    console.log(`   HTTP_PROXY: ${process.env.HTTP_PROXY || 'not set'}`);
-    console.log(`   HTTPS_PROXY: ${process.env.HTTPS_PROXY || 'not set'}`);
+    console.log(`   HTTP_PROXY: ${process.env['HTTP_PROXY'] || 'not set'}`);
+    console.log(`   HTTPS_PROXY: ${process.env['HTTPS_PROXY'] || 'not set'}`);
     console.log(`   NODE_USE_ENV_PROXY: ${useEnvProxy || 'not set'}`);
-    console.log(`   NODE_EXTRA_CA_CERTS: ${process.env.NODE_EXTRA_CA_CERTS || 'not set'}`);
+    console.log(`   NODE_EXTRA_CA_CERTS: ${process.env['NODE_EXTRA_CA_CERTS'] || 'not set'}`);
     console.log(`   Node.js version: ${process.version}`);
-    console.log(`   NO_PROXY: ${process.env.NO_PROXY || 'not set'}`);
-    console.log(`   no_proxy: ${process.env.no_proxy || 'not set'}`);
+    console.log(`   NO_PROXY: ${process.env['NO_PROXY'] || 'not set'}`);
+    console.log(`   no_proxy: ${process.env['no_proxy'] || 'not set'}`);
 
     if (!proxyUrl) {
       console.log('⚠️  No proxy configured - requests will go direct\n');

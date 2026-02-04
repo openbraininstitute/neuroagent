@@ -37,6 +37,7 @@ return result.toDataStreamResponse();
 ```
 
 That's it! Vercel AI SDK automatically:
+
 - Calls the LLM
 - Detects tool calls
 - Executes tools using the `execute` function
@@ -82,24 +83,28 @@ async streamChat(agent: AgentConfig, threadId: string, maxTurns: number = 10) {
 ## Benefits of This Approach
 
 ### 1. Simplicity
+
 - **~100 lines** instead of ~400 lines
 - No manual loop management
 - No custom stream handling
 - No manual tool execution
 
 ### 2. Vercel AI SDK Compatibility
+
 - Uses standard `toDataStreamResponse()`
 - Works with Vercel's `useChat()` hook on frontend
 - Automatic streaming format
 - Built-in error handling
 
 ### 3. Maintainability
+
 - Follows Vercel AI SDK best practices
 - Less custom code = fewer bugs
 - Easier to understand and modify
 - Future SDK improvements automatically benefit us
 
 ### 4. Feature Parity
+
 - ✅ Multi-turn conversations
 - ✅ Automatic tool execution
 - ✅ Max turns limit
@@ -141,7 +146,7 @@ Vercel AI SDK uses a standard data stream format that's automatically handled:
 
 ```
 0:"text chunk"           # Text delta
-9:{toolCall}             # Tool call notification  
+9:{toolCall}             # Tool call notification
 a:{toolResult}           # Tool result
 e:{finish}               # Step finish
 d:{done}                 # Conversation complete
@@ -165,7 +170,7 @@ onFinish: async ({ response, usage }) => {
   // response.messages contains:
   // - Assistant messages (with tool calls)
   // - Tool result messages
-  
+
   for (const message of response.messages) {
     if (message.role === 'assistant') {
       // Save assistant message with tool calls
@@ -173,35 +178,37 @@ onFinish: async ({ response, usage }) => {
       // Save tool results
     }
   }
-}
+};
 ```
 
 ## Comparison: Manual vs Automatic
 
 ### Manual Loop (Old Approach)
+
 ```typescript
 while (turns < maxTurns) {
   const result = streamText({ messages, tools });
-  
+
   // Manually stream chunks
   for await (const chunk of result.fullStream) {
     await writer.write(chunk);
   }
-  
+
   // Manually check for tool calls
   if (finishReason !== 'tool-calls') break;
-  
+
   // Manually execute tools
   const toolResults = await executeToolCalls(...);
-  
+
   // Manually add to history
   messageHistory.push(...toolResults);
-  
+
   turns++;
 }
 ```
 
 ### Automatic with `maxSteps` (New Approach)
+
 ```typescript
 const result = streamText({
   messages,
@@ -217,10 +224,11 @@ return result.toDataStreamResponse();
 ### Max Steps
 
 ```typescript
-maxSteps: 10  // Allow up to 10 steps total
+maxSteps: 10; // Allow up to 10 steps total
 ```
 
 Each "step" is one generation that results in either:
+
 - Text output (final answer)
 - Tool calls (intermediate step)
 
@@ -298,6 +306,7 @@ Vercel AI SDK supports parallel tool calls by default when the LLM requests mult
 ### 2. HIL (Human-in-the-Loop)
 
 For tools requiring user confirmation, we can:
+
 - Pause execution after tool call
 - Request user confirmation
 - Resume with confirmed/denied result

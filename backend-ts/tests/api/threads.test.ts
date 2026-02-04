@@ -1,6 +1,6 @@
 /**
  * Tests for Threads API Routes
- * 
+ *
  * Tests CRUD operations, authentication, authorization, and full-text search.
  */
 
@@ -8,7 +8,11 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { NextRequest } from 'next/server';
 
 import { GET as getThreads, POST as createThread } from '@/app/api/threads/route';
-import { GET as getThread, PATCH as updateThread, DELETE as deleteThread } from '@/app/api/threads/[thread_id]/route';
+import {
+  GET as getThread,
+  PATCH as updateThread,
+  DELETE as deleteThread,
+} from '@/app/api/threads/[thread_id]/route';
 import { GET as searchThreads } from '@/app/api/threads/search/route';
 import { prisma } from '@/lib/db/client';
 

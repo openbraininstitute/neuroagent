@@ -769,9 +769,7 @@ describe('Database Integration Tests', () => {
       `;
 
       // Search with ranking
-      const results = await prisma.$queryRaw<
-        Array<{ message_id: string; rank: number }>
-      >`
+      const results = await prisma.$queryRaw<Array<{ message_id: string; rank: number }>>`
         SELECT
           message_id,
           ts_rank(search_vector, to_tsquery('english', 'neuron')) as rank
@@ -858,9 +856,7 @@ describe('Database Integration Tests', () => {
       `;
 
       // Search across threads
-      const results = await prisma.$queryRaw<
-        Array<{ message_id: string; thread_id: string }>
-      >`
+      const results = await prisma.$queryRaw<Array<{ message_id: string; thread_id: string }>>`
         SELECT m.message_id, m.thread_id
         FROM messages m
         INNER JOIN threads t ON m.thread_id = t.thread_id

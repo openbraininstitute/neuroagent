@@ -1,31 +1,27 @@
 /**
  * Thread Title Generation API Route
- * 
+ *
  * Endpoint:
  * - PATCH /api/threads/[thread_id]/generate_title - Generate thread title from first message
- * 
+ *
  * Features:
  * - Authentication required
  * - Ownership validation
  * - Rate limiting (10 requests per 60 seconds by default)
  * - Uses OpenAI structured output for title generation
- * 
+ *
  * Translated from: backend/src/neuroagent/app/routers/threads.py
  */
 
+import { createOpenAI } from '@ai-sdk/openai';
+import { generateObject } from 'ai';
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
-import { generateObject } from 'ai';
-import { createOpenAI } from '@ai-sdk/openai';
 import { z } from 'zod';
 
 import { getSettings } from '@/lib/config/settings';
 import { prisma } from '@/lib/db/client';
-import {
-  validateAuth,
-  AuthenticationError,
-  AuthorizationError,
-} from '@/lib/middleware/auth';
+import { validateAuth, AuthenticationError, AuthorizationError } from '@/lib/middleware/auth';
 import { checkRateLimit } from '@/lib/middleware/rate-limit';
 
 // Request schema
@@ -72,15 +68,15 @@ async function getThreadWithOwnershipCheck(threadId: string, userId: string) {
 
 /**
  * PATCH /api/threads/[thread_id]/generate_title
- * 
+ *
  * Generate a short thread title based on the user's first message.
  * Uses OpenAI's structured output to generate a concise title (max 5 words).
- * 
+ *
  * Rate limited to prevent abuse (default: 10 requests per 60 seconds).
- * 
+ *
  * Request body:
  * - first_user_message: string - The user's first message in the thread
- * 
+ *
  * Returns:
  * - Updated thread object with generated title
  * - Rate limit headers in response

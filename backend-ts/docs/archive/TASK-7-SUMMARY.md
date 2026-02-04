@@ -7,6 +7,7 @@ Implemented JWT-based authentication middleware with Keycloak integration for th
 ## Files Created
 
 ### 1. `src/lib/middleware/auth.ts`
+
 Main authentication middleware implementation with the following functions:
 
 - **`validateAuth(request)`**: Validates JWT token and extracts user information
@@ -16,10 +17,13 @@ Main authentication middleware implementation with the following functions:
 - **`validateProjectAccess(groups, vlabId, projectId)`**: Validates project membership
 
 ### 2. `src/lib/middleware/index.ts`
+
 Barrel export file for middleware functions and types.
 
 ### 3. `tests/middleware/auth.test.ts`
+
 Comprehensive test suite with 17 tests covering:
+
 - Virtual lab access validation
 - Project access validation
 - Combined validation scenarios
@@ -28,32 +32,39 @@ Comprehensive test suite with 17 tests covering:
 - Error handling
 
 ### 4. `src/lib/middleware/README.md`
+
 Complete documentation with usage examples, API reference, and security features.
 
 ### 5. `docs/TASK-7-SUMMARY.md`
+
 This summary document.
 
 ## Key Features
 
 ### JWT Validation
+
 - Uses `jose` library for JWT verification
 - Fetches and caches Keycloak public keys (JWKS)
 - Validates token signature, expiration, and issuer
 - Extracts user information from token payload
 
 ### User Information
+
 Extracts the following from JWT tokens:
+
 - User ID (sub)
 - Group memberships
 - Email and verification status
 - Name fields (given, family, preferred username)
 
 ### Authorization
+
 - Virtual lab access: `/vlab/{vlabId}` group format
 - Project access: `/proj/{vlabId}/{projectId}` group format
 - Flexible validation supporting multiple scenarios
 
 ### Error Handling
+
 - `AuthenticationError`: For JWT validation failures
 - `AuthorizationError`: For access control violations
 - Clear error messages for debugging
@@ -61,6 +72,7 @@ Extracts the following from JWT tokens:
 ## Implementation Details
 
 ### JWT Verification Flow
+
 1. Extract bearer token from Authorization header
 2. Fetch Keycloak JWKS endpoint
 3. Verify JWT signature using public keys
@@ -69,24 +81,29 @@ Extracts the following from JWT tokens:
 6. Return UserInfo object
 
 ### Group-Based Authorization
+
 The middleware validates access based on Keycloak group memberships:
+
 - Groups are stored in the JWT token's `groups` claim
 - Virtual lab groups: `/vlab/{vlabId}`
 - Project groups: `/proj/{vlabId}/{projectId}`
 - Project access implies virtual lab access
 
 ### Configuration
+
 Uses existing settings from `src/lib/config/settings.ts`:
+
 ```typescript
 keycloak: {
-  issuer: string;  // e.g., "https://example.com/auth/realms/SBO"
-  userInfoEndpoint: string;  // Auto-computed from issuer
+  issuer: string; // e.g., "https://example.com/auth/realms/SBO"
+  userInfoEndpoint: string; // Auto-computed from issuer
 }
 ```
 
 ## Testing
 
 All 17 tests pass successfully:
+
 ```bash
 ✓ tests/middleware/auth.test.ts (17)
   ✓ Authentication Middleware (17)
@@ -98,6 +115,7 @@ All 17 tests pass successfully:
 ```
 
 Test coverage includes:
+
 - Valid and invalid access scenarios
 - Empty groups arrays
 - Missing/malformed tokens
@@ -120,7 +138,6 @@ export async function GET(request: NextRequest) {
 
     // Process authenticated request
     return Response.json({ userId: userInfo.sub });
-
   } catch (error) {
     if (error instanceof AuthenticationError) {
       return new Response('Unauthorized', { status: 401 });

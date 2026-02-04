@@ -22,6 +22,7 @@ Complete documentation of the Neuroagent database schema, migrations, and best p
 The Neuroagent database uses **PostgreSQL** with **Prisma** as the ORM. The schema maintains compatibility with the Python backend while leveraging Prisma's type-safe query builder.
 
 **Key Features:**
+
 - UUID primary keys
 - Cascade deletes for data integrity
 - Full-text search on messages
@@ -29,6 +30,7 @@ The Neuroagent database uses **PostgreSQL** with **Prisma** as the ORM. The sche
 - Thread-based conversation organization
 
 **Database URL:**
+
 ```bash
 DATABASE_URL="postgresql://user:password@localhost:5432/neuroagent"
 ```
@@ -74,17 +76,18 @@ Represents a conversation thread between a user and the AI agent.
 
 **Fields:**
 
-| Field | Type | Nullable | Default | Description |
-|-------|------|----------|---------|-------------|
-| `id` | UUID | No | `gen_random_uuid()` | Primary key |
-| `vlabId` | UUID | Yes | - | Virtual lab ID |
-| `projectId` | UUID | Yes | - | Project ID |
-| `title` | String | No | `"New chat"` | Thread title |
-| `creationDate` | DateTime | No | `now()` | When created |
-| `updateDate` | DateTime | No | Auto-updated | Last modified |
-| `userId` | UUID | No | - | Owner user ID |
+| Field          | Type     | Nullable | Default             | Description    |
+| -------------- | -------- | -------- | ------------------- | -------------- |
+| `id`           | UUID     | No       | `gen_random_uuid()` | Primary key    |
+| `vlabId`       | UUID     | Yes      | -                   | Virtual lab ID |
+| `projectId`    | UUID     | Yes      | -                   | Project ID     |
+| `title`        | String   | No       | `"New chat"`        | Thread title   |
+| `creationDate` | DateTime | No       | `now()`             | When created   |
+| `updateDate`   | DateTime | No       | Auto-updated        | Last modified  |
+| `userId`       | UUID     | No       | -                   | Owner user ID  |
 
 **Prisma Model:**
+
 ```prisma
 model Thread {
   id           String    @id @map("thread_id") @db.Uuid
@@ -101,6 +104,7 @@ model Thread {
 ```
 
 **TypeScript Type:**
+
 ```typescript
 import { Thread } from '@prisma/client';
 
@@ -132,6 +136,7 @@ Represents a single message in a conversation thread.
 | `searchVector` | tsvector | Yes | - | Full-text search vector |
 
 **Prisma Model:**
+
 ```prisma
 model Message {
   id                   String                 @id @map("message_id") @db.Uuid
@@ -193,6 +198,7 @@ Represents a tool invocation by the AI.
 | `messageId` | UUID | No | - | Parent message ID |
 
 **Prisma Model:**
+
 ```prisma
 model ToolCall {
   id        String   @id @map("tool_call_id") @db.VarChar
@@ -218,6 +224,7 @@ Tracks which tools were selected for a message (for analytics).
 | `messageId` | UUID | No | - | Parent message ID |
 
 **Prisma Model:**
+
 ```prisma
 model ToolSelection {
   id        String  @id @db.Uuid
@@ -243,6 +250,7 @@ Stores model selection metadata for a message.
 | `messageId` | UUID | No | - | Parent message ID (unique) |
 
 **Prisma Model:**
+
 ```prisma
 model ComplexityEstimation {
   id         String           @id @db.Uuid
@@ -271,6 +279,7 @@ Tracks LLM token usage for billing and analytics.
 | `model` | String | No | - | Model name |
 
 **Prisma Model:**
+
 ```prisma
 model TokenConsumption {
   id        String    @id @db.Uuid
@@ -410,6 +419,7 @@ Messages have a GIN index on `search_vector` for fast full-text search:
 ```
 
 **Usage:**
+
 ```typescript
 // Search messages (requires raw SQL for tsvector)
 const results = await prisma.$queryRaw`
@@ -425,7 +435,6 @@ const results = await prisma.$queryRaw`
 ## Migrations
 
 ### Creating Migrations
-
 
 **Development workflow:**
 
@@ -457,11 +466,13 @@ npm run db:migrate
 ### Applying Migrations
 
 **Development:**
+
 ```bash
 npm run db:migrate
 ```
 
 **Production:**
+
 ```bash
 npm run db:migrate:deploy
 ```
@@ -484,6 +495,7 @@ prisma/migrations/
 Prisma doesn't have automatic rollback. To rollback:
 
 1. **Manual approach:**
+
    ```bash
    # Delete the migration folder
    rm -rf prisma/migrations/20240102000000_add_thread_description
@@ -505,6 +517,7 @@ Prisma doesn't have automatic rollback. To rollback:
 ### Basic Queries
 
 **Find unique:**
+
 ```typescript
 const thread = await prisma.thread.findUnique({
   where: { id: threadId },
@@ -512,6 +525,7 @@ const thread = await prisma.thread.findUnique({
 ```
 
 **Find many:**
+
 ```typescript
 const threads = await prisma.thread.findMany({
   where: { userId: userId },
@@ -521,6 +535,7 @@ const threads = await prisma.thread.findMany({
 ```
 
 **Create:**
+
 ```typescript
 const thread = await prisma.thread.create({
   data: {
@@ -534,6 +549,7 @@ const thread = await prisma.thread.create({
 ```
 
 **Update:**
+
 ```typescript
 const thread = await prisma.thread.update({
   where: { id: threadId },
@@ -542,6 +558,7 @@ const thread = await prisma.thread.update({
 ```
 
 **Delete:**
+
 ```typescript
 await prisma.thread.delete({
   where: { id: threadId },
@@ -551,6 +568,7 @@ await prisma.thread.delete({
 ### Advanced Queries
 
 **Include relations:**
+
 ```typescript
 const thread = await prisma.thread.findUnique({
   where: { id: threadId },
@@ -567,6 +585,7 @@ const thread = await prisma.thread.findUnique({
 ```
 
 **Select specific fields:**
+
 ```typescript
 const threads = await prisma.thread.findMany({
   select: {
@@ -578,6 +597,7 @@ const threads = await prisma.thread.findMany({
 ```
 
 **Filtering:**
+
 ```typescript
 const messages = await prisma.message.findMany({
   where: {
@@ -591,6 +611,7 @@ const messages = await prisma.message.findMany({
 ```
 
 **Pagination:**
+
 ```typescript
 const threads = await prisma.thread.findMany({
   skip: (page - 1) * pageSize,
@@ -602,6 +623,7 @@ const threads = await prisma.thread.findMany({
 ### Transactions
 
 **Sequential operations:**
+
 ```typescript
 const result = await prisma.$transaction(async (tx) => {
   // Create thread
@@ -622,6 +644,7 @@ const result = await prisma.$transaction(async (tx) => {
 ```
 
 **Batch operations:**
+
 ```typescript
 await prisma.$transaction([
   prisma.message.create({ data: message1 }),
@@ -691,7 +714,7 @@ const thread = await prisma.thread.findUnique({
   where: { id },
   include: {
     messages: {
-      take: 50,  // Limit messages
+      take: 50, // Limit messages
       orderBy: { creationDate: 'desc' },
     },
   },
@@ -732,7 +755,7 @@ const thread = await prisma.thread.create({
 // ❌ Bad: Don't use strings
 const thread = await prisma.thread.create({
   data: {
-    creationDate: '2024-01-01',  // Wrong!
+    creationDate: '2024-01-01', // Wrong!
   },
 });
 ```
@@ -756,6 +779,7 @@ afterEach(async () => {
 **Problem:** TypeScript errors about missing fields or methods.
 
 **Solution:**
+
 ```bash
 npm run db:generate
 ```
@@ -765,6 +789,7 @@ npm run db:generate
 **Problem:** Migration fails due to conflicts.
 
 **Solution:**
+
 ```bash
 # Reset database (WARNING: deletes all data)
 npx prisma migrate reset
@@ -778,6 +803,7 @@ npx prisma migrate resolve --applied <migration_name>
 **Problem:** Cannot connect to database.
 
 **Solution:**
+
 1. Check `DATABASE_URL` in `.env`
 2. Verify PostgreSQL is running
 3. Test connection:
@@ -790,13 +816,16 @@ npx prisma migrate resolve --applied <migration_name>
 **Problem:** Queries are slow.
 
 **Solution:**
+
 1. Add indexes:
+
    ```prisma
    @@index([userId])
    @@index([creationDate])
    ```
 
 2. Use `select` to reduce data:
+
    ```typescript
    select: { id: true, title: true }
    ```
@@ -813,6 +842,7 @@ npx prisma migrate resolve --applied <migration_name>
 **Problem:** TypeScript complains about Prisma types.
 
 **Solution:**
+
 ```bash
 # Regenerate types
 npm run db:generate

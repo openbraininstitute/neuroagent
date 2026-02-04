@@ -9,7 +9,8 @@
  */
 
 import { z } from 'zod';
-import { BaseTool, BaseContextVariables } from './base-tool';
+
+import { BaseTool, type BaseContextVariables } from './base-tool';
 
 /**
  * Context variables for the example tool
@@ -112,9 +113,7 @@ export class ExampleTool extends BaseTool<
    * @param input - Validated input matching ExampleToolInputSchema
    * @returns Tool execution result
    */
-  async execute(
-    input: z.infer<typeof ExampleToolInputSchema>
-  ): Promise<unknown> {
+  async execute(input: z.infer<typeof ExampleToolInputSchema>): Promise<unknown> {
     const { query, maxResults, includeMetadata } = input;
 
     // Access context variables (runtime dependencies)

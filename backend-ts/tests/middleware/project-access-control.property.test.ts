@@ -37,9 +37,7 @@ const uuidArbitrary = fc.uuid();
  * Arbitrary for generating valid group names with vlab access
  * Format: /vlab/{vlabId}
  */
-const vlabGroupArbitrary = fc
-  .tuple(uuidArbitrary)
-  .map(([vlabId]) => `/vlab/${vlabId}`);
+const vlabGroupArbitrary = fc.tuple(uuidArbitrary).map(([vlabId]) => `/vlab/${vlabId}`);
 
 /**
  * Arbitrary for generating valid group names with project access
@@ -59,7 +57,7 @@ const groupNameArbitrary = fc.oneof(
   fc.constant(''), // Empty strings
   fc.constant('/vlab/'), // Incomplete vlab group
   fc.constant('/proj/'), // Incomplete project group
-  fc.stringMatching(/^\/[a-z]+\/[a-f0-9-]+$/), // Other group patterns
+  fc.stringMatching(/^\/[a-z]+\/[a-f0-9-]+$/) // Other group patterns
 );
 
 /**
@@ -129,13 +127,7 @@ describe('Project Access Control Property Tests', () => {
     /**
      * Test that users without correct project group membership cannot access projects
      */
-    test.prop([
-      uuidArbitrary,
-      uuidArbitrary,
-      uuidArbitrary,
-      uuidArbitrary,
-      groupsArrayArbitrary,
-    ])(
+    test.prop([uuidArbitrary, uuidArbitrary, uuidArbitrary, uuidArbitrary, groupsArrayArbitrary])(
       'should deny access when user lacks correct project group membership',
       (vlabId, projectId, differentVlabId, differentProjectId, otherGroups) => {
         // Ensure IDs are different
@@ -143,14 +135,10 @@ describe('Project Access Control Property Tests', () => {
 
         // Create groups array without the correct project group
         // Filter out any groups that might accidentally match
-        const groups = otherGroups.filter(
-          (g) => !g.includes(`/proj/${vlabId}/${projectId}`)
-        );
+        const groups = otherGroups.filter((g) => !g.includes(`/proj/${vlabId}/${projectId}`));
 
         // Property: Access should be denied
-        expect(() => validateProjectAccess(groups, vlabId, projectId)).toThrow(
-          AuthorizationError
-        );
+        expect(() => validateProjectAccess(groups, vlabId, projectId)).toThrow(AuthorizationError);
         expect(() => validateProjectAccess(groups, vlabId, projectId)).toThrow(
           'User does not belong to the project'
         );
@@ -167,9 +155,7 @@ describe('Project Access Control Property Tests', () => {
         const groups = [`/vlab/${vlabId}`];
 
         // Property: Project access should be denied even with vlab access
-        expect(() => validateProjectAccess(groups, vlabId, projectId)).toThrow(
-          AuthorizationError
-        );
+        expect(() => validateProjectAccess(groups, vlabId, projectId)).toThrow(AuthorizationError);
       }
     );
 
@@ -186,9 +172,7 @@ describe('Project Access Control Property Tests', () => {
         const groups = [`/proj/${differentVlabId}/${projectId}`];
 
         // Property: Access should be denied
-        expect(() => validateProjectAccess(groups, vlabId, projectId)).toThrow(
-          AuthorizationError
-        );
+        expect(() => validateProjectAccess(groups, vlabId, projectId)).toThrow(AuthorizationError);
       }
     );
 
@@ -295,9 +279,7 @@ describe('Project Access Control Property Tests', () => {
         ];
 
         // Property: Malformed groups should not grant access
-        expect(() => validateVirtualLabAccess(malformedGroups, vlabId)).toThrow(
-          AuthorizationError
-        );
+        expect(() => validateVirtualLabAccess(malformedGroups, vlabId)).toThrow(AuthorizationError);
         expect(() => validateProjectAccess(malformedGroups, vlabId, projectId)).toThrow(
           AuthorizationError
         );
@@ -319,9 +301,7 @@ describe('Project Access Control Property Tests', () => {
         ];
 
         // Property: Case-sensitive matching should deny access
-        expect(() => validateVirtualLabAccess(wrongCaseGroups, vlabId)).toThrow(
-          AuthorizationError
-        );
+        expect(() => validateVirtualLabAccess(wrongCaseGroups, vlabId)).toThrow(AuthorizationError);
         expect(() => validateProjectAccess(wrongCaseGroups, vlabId, projectId)).toThrow(
           AuthorizationError
         );
@@ -412,9 +392,7 @@ describe('Project Access Control Property Tests', () => {
 
       // Current implementation DOES grant access (substring match)
       expect(() => validateVirtualLabAccess(groupsWithSubstrings, vlabId)).not.toThrow();
-      expect(() =>
-        validateProjectAccess(groupsWithSubstrings, vlabId, projectId)
-      ).not.toThrow();
+      expect(() => validateProjectAccess(groupsWithSubstrings, vlabId, projectId)).not.toThrow();
 
       // If exact matching is needed, these should throw AuthorizationError
       // and the implementation should be updated

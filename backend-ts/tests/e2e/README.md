@@ -90,12 +90,14 @@ Each test follows this pattern:
 ## Mocking Strategy
 
 E2E tests mock:
+
 - **AI SDK**: `streamText` function to simulate LLM responses
 - **Providers**: OpenAI and OpenRouter clients
 - **Middleware**: Authentication and rate limiting
 - **Tools**: Tool initialization and execution
 
 E2E tests use real:
+
 - **Database**: Prisma client with test database
 - **API Routes**: Actual Next.js route handlers
 - **Agent Routine**: Real agent orchestration logic
@@ -105,6 +107,7 @@ E2E tests use real:
 ### Requirement 13.2: Integration Testing
 
 These tests validate:
+
 - ✅ Full conversation flow from user message to AI response
 - ✅ Tool calling flow with real tool execution
 - ✅ Streaming with interruptions and recovery

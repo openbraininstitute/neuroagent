@@ -230,15 +230,15 @@ describe('Database Migrations', () => {
   it('should apply migrations successfully', async () => {
     // Apply migrations
     execSync('npx prisma migrate deploy', { stdio: 'inherit' });
-    
+
     // Verify schema
     const prisma = new PrismaClient();
     const tables = await prisma.$queryRaw`
-      SELECT table_name 
-      FROM information_schema.tables 
+      SELECT table_name
+      FROM information_schema.tables
       WHERE table_schema = 'public'
     `;
-    
+
     expect(tables).toContainEqual({ table_name: 'threads' });
     expect(tables).toContainEqual({ table_name: 'messages' });
     // ... verify other tables
@@ -254,7 +254,7 @@ Test database operations after migration:
 describe('Database Operations', () => {
   it('should create and query threads', async () => {
     const prisma = new PrismaClient();
-    
+
     const thread = await prisma.thread.create({
       data: {
         id: '123e4567-e89b-12d3-a456-426614174000',
@@ -264,7 +264,7 @@ describe('Database Operations', () => {
         updateDate: new Date(),
       },
     });
-    
+
     expect(thread.title).toBe('Test Thread');
   });
 });
@@ -326,16 +326,19 @@ psql $DATABASE_URL
 ### Deployment Steps
 
 1. **Backup database**
+
    ```bash
    pg_dump $DATABASE_URL > backup_$(date +%Y%m%d_%H%M%S).sql
    ```
 
 2. **Apply migrations**
+
    ```bash
    npx prisma migrate deploy
    ```
 
 3. **Verify deployment**
+
    ```bash
    npx prisma migrate status
    ```

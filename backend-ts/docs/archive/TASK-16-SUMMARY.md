@@ -1,14 +1,17 @@
 # Task 16: Storage API Routes - Implementation Summary
 
 ## Overview
+
 Implemented the Storage API routes for generating presigned URLs for file access and upload to S3/MinIO storage.
 
 ## Files Created
 
 ### 1. Storage API Route
+
 **File:** `src/app/api/storage/[file_identifier]/presigned-url/route.ts`
 
 Implements two endpoints:
+
 - **GET** - Generate presigned URL for file download
   - Validates authentication
   - Checks if file exists using HeadObjectCommand
@@ -22,24 +25,29 @@ Implements two endpoints:
   - Returns URL as plain text
 
 Both endpoints:
+
 - Use user-specific paths: `{userId}/{file_identifier}`
 - Support S3 and MinIO (S3-compatible storage)
 - Include proper error handling (401, 404, 500)
 - Match Python backend API contract
 
 ### 2. S3 Client Helper
+
 **File:** `src/lib/storage/client.ts`
 
 Provides:
+
 - Singleton S3Client instance
 - Configuration from settings (endpoint, credentials, bucket)
 - Force path style for MinIO compatibility
 - Reset function for testing
 
 ### 3. Tests
+
 **File:** `tests/api/storage.test.ts`
 
 Test coverage includes:
+
 - Authentication validation (401 responses)
 - File existence checking (404 responses)
 - Presigned URL generation for download
@@ -61,6 +69,7 @@ Test coverage includes:
 ## Configuration
 
 The storage system uses these environment variables (already configured in settings.ts):
+
 - `NEUROAGENT_STORAGE__ENDPOINT_URL` - S3/MinIO endpoint
 - `NEUROAGENT_STORAGE__BUCKET_NAME` - Bucket name (default: "neuroagent")
 - `NEUROAGENT_STORAGE__ACCESS_KEY` - Access key ID
@@ -70,6 +79,7 @@ The storage system uses these environment variables (already configured in setti
 ## API Endpoints
 
 ### GET /api/storage/{file_identifier}/presigned-url
+
 Generate a presigned URL for downloading a file.
 
 **Authentication:** Required (JWT token)
@@ -77,17 +87,20 @@ Generate a presigned URL for downloading a file.
 **Response:** Plain text presigned URL (200) or error JSON
 
 **Example:**
+
 ```bash
 curl -H "Authorization: Bearer <token>" \
   http://localhost:8079/api/storage/my-file.pdf/presigned-url
 ```
 
 ### POST /api/storage/{file_identifier}/presigned-url
+
 Generate a presigned URL for uploading a file.
 
 **Authentication:** Required (JWT token)
 
 **Request Body (optional):**
+
 ```json
 {
   "contentType": "image/png"
@@ -97,6 +110,7 @@ Generate a presigned URL for uploading a file.
 **Response:** Plain text presigned URL (200) or error JSON
 
 **Example:**
+
 ```bash
 curl -X POST \
   -H "Authorization: Bearer <token>" \
