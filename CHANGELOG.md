@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - OBI Expert tool contains info about pricing
+- State sharing (from the frontend).
 
 ## [0.15.0] - 03.02.2026
 
