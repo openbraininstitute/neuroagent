@@ -50,7 +50,7 @@
       "metrics": [
         {
           "name": "Correctness [GEval]",
-          "score": 0.8413822094291582,
+          "score": 0.8802113302273791,
           "success": true,
           "threshold": 0.5,
           "reason": "The actual output effectively addresses the input by analyzing the connectivity patterns from inhibitory to excitatory neurons in the specified circuit, and it includes relevant details such as the circuit ID and the grouping by mtype. However, while the structure is mostly coherent, it lacks some clarity in the summary and could be more concise, which slightly detracts from its overall alignment with the expected output format."
@@ -775,13 +775,6 @@
         "arguments": {
           "within_brain_region_brain_region_id": "062ebc92-cebb-498a-a76d-b5ef1baf02cf"
         }
-      },
-      {
-        "name": "entitycore-cellmorphology-getall",
-        "arguments": {
-          "page": 2,
-          "within_brain_region_brain_region_id": "062ebc92-cebb-498a-a76d-b5ef1baf02cf"
-        }
       }
     ],
     "results": {
@@ -1250,8 +1243,8 @@
         },
         {
           "name": "Tool Correctness",
-          "score": 1.0,
-          "success": true,
+          "score": 0.0,
+          "success": false,
           "threshold": 0.5,
           "reason": "[\n\t Tool Calling Reason: Correct ordering: all expected tools ['read-paper'] were called in the correct order.\n\t Tool Selection Reason: No available tools were provided to assess tool selection criteria\n]\n"
         },
@@ -1264,8 +1257,8 @@
         },
         {
           "name": "Deterministic Argument Correctness",
-          "score": 1.0,
-          "success": true,
+          "score": 0.0,
+          "success": false,
           "threshold": 0.5,
           "reason": "[\n\t Tool Calling Reason: All expected tools ['read-paper'] were called (order not considered).\n\t Tool Selection Reason: No available tools were provided to assess tool selection criteria\n]\n"
         },
@@ -1683,7 +1676,7 @@
         "rejection"
       ]
     },
-    "ai_response": "I'm specialized in neuroscience and the Open Brain Platform. I can't help with that topic, but I'd be happy to assist with brain research or platform-related questions.\\nThat's outside my area of expertise. I focus specifically on neuroscience and the Open Brain Platform. Is there anything related to brain data or the platform I can help you with?",
+    "ai_response": "I'm specialized in neuroscience and the Open Brain Platform. I can't help with that topic, but I\\u2019d be happy to assist with brain research or platform-related questions. If you\\u2019d like, I can look up recent neuroscience papers or platform updates for you.",
     "actual_tool_calls": [],
     "results": {
       "metrics": [
@@ -1981,7 +1974,7 @@
           "score": 1.0,
           "success": true,
           "threshold": 0.5,
-          "reason": "The score is 1.00 because there were no incorrect tool calls and the input was clear and specific."
+          "reason": "The score is 1.00 because there are no incorrect tool calls, indicating that the input was handled perfectly."
         },
         {
           "name": "Deterministic Argument Correctness",

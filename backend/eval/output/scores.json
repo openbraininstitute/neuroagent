@@ -1,5 +1,5 @@
 {
-  "total_tests": 30,
+  "total_tests": 34,
   "metrics_df": [
     {
       "test_name": "cerebellum_morphologies",
@@ -56,6 +56,14 @@
       "Argument Correctness": 0.0,
       "Deterministic Argument Correctness": 0.75,
       "Overall Argument Correctness": 0.75
+    },
+    {
+      "test_name": "ilike_pattern_test",
+      "Correctness [GEval]": 0.8463925916702252,
+      "Tool Correctness": 1.0,
+      "Argument Correctness": 1.0,
+      "Deterministic Argument Correctness": 0.0,
+      "Overall Argument Correctness": 1.0
     },
     {
       "test_name": "ion_channel",
@@ -181,8 +189,32 @@
       "test_name": "read_paper",
       "Correctness [GEval]": 0.5022483980567334,
       "Tool Correctness": 1.0,
-      "Argument Correctness": 1.0,
+      "Argument Correctness": 0.0,
       "Deterministic Argument Correctness": 1.0,
+      "Overall Argument Correctness": 1.0
+    },
+    {
+      "test_name": "pricing_plans_overview",
+      "Correctness [GEval]": 0.8091585210692689,
+      "Tool Correctness": 1.0,
+      "Argument Correctness": 0.0,
+      "Deterministic Argument Correctness": 0.5,
+      "Overall Argument Correctness": 0.5
+    },
+    {
+      "test_name": "pricing_simulation_costs",
+      "Correctness [GEval]": 0.7981281621387895,
+      "Tool Correctness": 1.0,
+      "Argument Correctness": 0.0,
+      "Deterministic Argument Correctness": 1.0,
+      "Overall Argument Correctness": 1.0
+    },
+    {
+      "test_name": "read_paper",
+      "Correctness [GEval]": 0.3974182503562305,
+      "Tool Correctness": 0.0,
+      "Argument Correctness": 1.0,
+      "Deterministic Argument Correctness": 0.0,
       "Overall Argument Correctness": 1.0
     },
     {

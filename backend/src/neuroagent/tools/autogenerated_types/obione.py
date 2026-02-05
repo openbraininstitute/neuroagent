@@ -608,6 +608,18 @@ class InhibitoryNeurons(BaseModel):
     )
 
 
+class Initialize2(BaseModel):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    type: Literal['MorphologyMetricsScanConfig.Initialize'] = Field(
+        default='MorphologyMetricsScanConfig.Initialize', title='Type'
+    )
+    morphology: CellMorphologyFromID | list[CellMorphologyFromID] = Field(
+        ..., description='3. Morphology description', title='Morphology'
+    )
+
+
 class IntRange(BaseModel):
     model_config = ConfigDict(
         extra='ignore',
@@ -920,6 +932,16 @@ class MorphologyMetricsOutput(BaseModel):
         description='The distribution of strahler branch orders of sections, computed from                 terminals.',
         title='section_strahler_orders',
     )
+
+
+class MorphologyMetricsScanConfig(BaseModel):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    type: Literal['MorphologyMetricsScanConfig'] = Field(
+        default='MorphologyMetricsScanConfig', title='Type'
+    )
+    initialize: Initialize2
 
 
 class Width(RootModel[float]):
@@ -2297,6 +2319,27 @@ class ObiOneScientificTasksGenerateSimulationConfigsMEModelWithSynapsesCircuitSi
     )
 
 
+class ObiOneScientificTasksIonChannelModelingIonChannelFittingScanConfigInitialize(
+    BaseModel
+):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    type: Literal['IonChannelFittingScanConfig.Initialize'] = Field(
+        default='IonChannelFittingScanConfig.Initialize', title='Type'
+    )
+    recordings: IonChannelRecordingFromID = Field(
+        ..., description='IDs of the traces of interest.', title='Ion channel recording'
+    )
+    ion_channel_name: str = Field(
+        default='DefaultIonChannelName',
+        description='The name you want to give to the generated ion channel model (used as SUFFIX in the mod file). Name must start with a letter or underscore, and can only contain letters, numbers, and underscores.',
+        min_length=1,
+        pattern='^[A-Za-z_][A-Za-z0-9_]*$',
+        title='Ion channel name',
+    )
+
+
 class ObiOneScientificTasksMorphologyContainerizationMorphologyContainerizationScanConfigInitialize(
     BaseModel
 ):
@@ -2341,20 +2384,6 @@ class ObiOneScientificTasksMorphologyLocationsMorphologyLocationsScanConfigIniti
         ...,
         description='The morphology skeleton to place locations on',
         title='Morphology',
-    )
-
-
-class ObiOneScientificTasksMorphologyMetricsMorphologyMetricsScanConfigInitialize(
-    BaseModel
-):
-    model_config = ConfigDict(
-        extra='ignore',
-    )
-    type: Literal['MorphologyMetricsScanConfig.Initialize'] = Field(
-        default='MorphologyMetricsScanConfig.Initialize', title='Type'
-    )
-    morphology: CellMorphologyFromID | list[CellMorphologyFromID] = Field(
-        ..., description='3. Morphology description', title='Morphology'
     )
 
 
@@ -3011,23 +3040,10 @@ class IDNeuronSet(BaseModel):
     )
 
 
-class Initialize2(BaseModel):
-    model_config = ConfigDict(
-        extra='ignore',
-    )
-    type: Literal['IonChannelFittingScanConfig.Initialize'] = Field(
-        default='IonChannelFittingScanConfig.Initialize', title='Type'
-    )
-    recordings: IonChannelRecordingFromID = Field(
-        ..., description='IDs of the traces of interest.', title='Ion channel recording'
-    )
-    ion_channel_name: str = Field(
-        default='DefaultIonChannelName',
-        description='The name you want to give to the generated ion channel model (used as SUFFIX in the mod file). Name must start with a letter or underscore, and can only contain letters, numbers, and underscores.',
-        min_length=1,
-        pattern='^[A-Za-z_][A-Za-z0-9_]*$',
-        title='Ion channel name',
-    )
+class Initialize3(
+    ObiOneScientificTasksIonChannelModelingIonChannelFittingScanConfigInitialize
+):
+    pass
 
 
 class IonChannelFittingScanConfig(BaseModel):
@@ -3037,7 +3053,7 @@ class IonChannelFittingScanConfig(BaseModel):
     type: Literal['IonChannelFittingScanConfig'] = Field(
         default='IonChannelFittingScanConfig', title='Type'
     )
-    initialize: Initialize2 = Field(
+    initialize: Initialize3 = Field(
         ...,
         description='Parameters for initializing the simulation.',
         title='Initialization',
@@ -3162,18 +3178,6 @@ class MorphologyLocationsScanConfig(BaseModel):
         description='Parameterization of locations on the neurites of the morphology',
         discriminator='type',
         title='Morphology locations',
-    )
-
-
-class MorphologyMetricsScanConfig(BaseModel):
-    model_config = ConfigDict(
-        extra='ignore',
-    )
-    type: Literal['MorphologyMetricsScanConfig'] = Field(
-        default='MorphologyMetricsScanConfig', title='Type'
-    )
-    initialize: (
-        ObiOneScientificTasksMorphologyMetricsMorphologyMetricsScanConfigInitialize
     )
 
 
