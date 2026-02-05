@@ -85,7 +85,7 @@ class GenerateSimulationsConfigTool(BaseTool):
     ]
     description: ClassVar[
         str
-    ] = """This tool generates JSON configurations for simulations based on natural language descriptions. It accepts both complete configuration specifications and modification requests for existing configurations, using an LLM with structured output to produce the corresponding JSON.
+    ] = f"""This tool generates JSON configurations for simulations based on natural language descriptions. It accepts both complete configuration specifications and modification requests for existing configurations, using an LLM with structured output to produce the corresponding JSON.
     Always use a circuit ID with this tool. If you can't see a reference to an existing circuit in the chat, ask for clarifications.
 
 For modifications, you can provide incremental change descriptions - the tool will interpret these in the context of the existing configuration. You don't need to describe the entire final state; focused modification requests are fully supported.
@@ -94,7 +94,7 @@ Input: Either a comprehensive new configuration description OR specific modifica
 IMPORTANT: In the config_request parameter, only describe what the user explicitly requested. Do NOT include default values or standard parameters - the downstream LLM will handle those automatically. The output will always be valid JSON.
 The downstream LLM uses structured output. It has a lot of information about the structure and defaults of the simulations form.
 
-Available configuration fields: {extract_model_structure(SimulationsForm)}
+Available configuration fields: {extract_model_structure(CircuitSimulationScanConfig)}
 
 Output: Valid simulation config json
 
