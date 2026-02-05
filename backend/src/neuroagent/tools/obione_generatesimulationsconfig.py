@@ -203,7 +203,7 @@ REQUIREMENTS:
             self.metadata.token_consumption = {**token_consumption, "model": model}
         else:
             raise ValueError("Couldn't generate a valid simulation config.")
-        return output_config
+        return ts_number_normalize(output_config)
 
     @classmethod
     async def is_online(cls) -> bool:
