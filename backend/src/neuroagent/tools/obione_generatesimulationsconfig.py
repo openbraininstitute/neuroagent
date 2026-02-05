@@ -81,6 +81,7 @@ Use this tool when users need to:
 
 Always call this tool to generate a simulation config, never attempt to generate one yourself.
 Do not try to generate a simulation config yourself if the tool fails.
+CRITICAL: DO NOT WRITE THE FINAL JSON OUTPUT IN THE CHAT. It will be automatically taken care of by the platform.
 """
     description_frontend: ClassVar[
         str
@@ -155,7 +156,6 @@ Before outputting, verify:
 - [ ] Configuration structure remains valid and consistent
 
 Generate only the JSON configuration, ensuring all references are internally consistent.
-Do not paste the final json to the chat. It will be automatically taken care of by the platform.
 """
 
         user_message = f"""
