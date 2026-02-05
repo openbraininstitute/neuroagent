@@ -173,7 +173,7 @@
       "test_name": "platform_viewing",
       "Correctness [GEval]": 0.7145961399725881,
       "Tool Correctness": 1.0,
-      "Argument Correctness": 0.0,
+      "Argument Correctness": 0.5,
       "Deterministic Argument Correctness": 1.0,
       "Overall Argument Correctness": 1.0
     },
@@ -213,9 +213,9 @@
       "test_name": "read_paper",
       "Correctness [GEval]": 0.2978130170277479,
       "Tool Correctness": 0.0,
-      "Argument Correctness": 1.0,
+      "Argument Correctness": 0.0,
       "Deterministic Argument Correctness": 0.0,
-      "Overall Argument Correctness": 1.0
+      "Overall Argument Correctness": 0.0
     },
     {
       "test_name": "sin_plot",

@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Support for predefined nodesets in smc simulation config.
 - OBI Expert tool contains info about pricing
+- State sharing (from the frontend).
 
 ## [0.15.0] - 03.02.2026
 

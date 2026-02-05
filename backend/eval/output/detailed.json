@@ -380,6 +380,13 @@
     "ai_response": "I will fetch the latest entitysdk documentation so I can provide an up-to-date, idiomatic Python example showing how to list cell morphologies and handle pagination. Now I'll retrieve the OBI documentation for the entitysdk package.Reasoning: To give a clear, working recipe I will show how to authenticate and create an EntitySDK client, then demonstrate listing morphologies both unfiltered and with filters (brain region / species) and how to handle pagination/counts using the iterator API returned by client.search_entity.\\n\\n## Overview\\nBelow is a concise, idiomatic Python example using the EntitySDK to list cell morphologies. It shows:\\n- token management (environment variable)\\n- client creation\\n- listing all morphologies (handling pagination via the iterator)\\n- filtering by brain region label and species\\n- counting results / inspecting partial previews\\n\\nRelevant references:\\n- Example client initialization: [examples/02_morphology.ipynb](https://github.com/openbraininstitute/entitysdk/blob/main/examples/02_morphology.ipynb)  \\n- Searching examples: [examples/01_searching.ipynb](https://github.com/openbraininstitute/entitysdk/blob/main/examples/01_searching.ipynb)\\n\\n## Example code\\n\\n```python\\n# Example: list cell morphologies using entitysdk\\n# Requirements: pip install entitysdk\\n\\nimport os\\nfrom entitysdk.client import Client\\nfrom entitysdk.common import ProjectContext\\nfrom entitysdk.token_manager import TokenFromEnv\\nfrom entitysdk import models\\n\\n# -------------------------\\n# Authentication and client\\n# -------------------------\\n# Put your JWT/API token in an environment variable, e.g. ENTITYCORE_TOKEN\\ntoken_manager = TokenFromEnv(env_var_name=\\ENTITYCORE_TOKEN\\\")\\n\\n# Replace with your project context values (example placeholders)\\nproject_context = ProjectContext(\\n    virtual_lab_id=\\a98b7abc-fc46-4700-9e3d-37137812c730\\\",\\n    project_id=\\0dbced5f-cc3d-488a-8c7f-cfb8ea039dc6\\\",\\n)\\n\\n# If using a custom API URL (e.g., local/dev), provide api_url; otherwise use defaults for environment\\nclient = Client(api_url=\\http://127.0.0.1:8000\\\", project_context=project_context, token_manager=token_manager)\\n\\n# -------------------------\\n# 1) List a limited number\\n# -------------------------\\n# Get a small preview (limit=10)\\niterator = client.search_entity(entity_type=models.CellMorphology, limit=10)\\nmorphs_preview = iterator.all()   # returns a list of up to 'limit' entities\\n\\nprint(f\\Preview count: {len(morphs_preview)}\\\")\\nfor m in morphs_preview:\\n    print(f\\ID: {m.id}  Name: {m.name}\\\")\\n\\n# -------------------------\\n# 2) List ALL morphologies\\n# -------------------------\\n# Use limit=None to iterate over all results (the iterator handles pagination)\\nall_iterator = client.search_entity(entity_type=models.CellMorphology, limit=None)\\n\\n# Convert to list (be mindful of memory if the dataset is very large)\\nall_morphs = all_iterator.all()\\nprint(f\\Total morphologies retrieved: {len(all_morphs)}\\\")\\n\\n# Optionally iterate in streaming fashion to avoid holding all in memory:\\nfor morph in client.search_entity(entity_type=models.CellMorphology, limit=None):\\n    # process morph (e.g., print id)\\n    print(morph.id)\\n\\n# -------------------------\\n# 3) Filter by brain region label and species\\n# -------------------------\\n# Example: Primary motor cortex (label) and Mus musculus (species)\\nquery = {\\n    \\brain_location__brain_region__label\\\": \\Primary motor cortex\\\",\\n    \\subject__species__label\\\": \\Mus musculus\\\"\\n}\\n\\nfiltered_iter = client.search_entity(entity_type=models.CellMorphology, query=query, limit=None)\\nfiltered_list = filtered_iter.all()\\nprint(f\\Filtered count (PMC, mouse): {len(filtered_list)}\\\")\\nfor m in filtered_list[:10]:   # show first 10 matches\\n    print(f\\ID: {m.id}  Name: {m.name}\\\")\\n\\n# -------------------------\\n# 4) Example: filter by brain region UUID\\n# -------------------------\\n# If you have a brain region **UUID**: use the appropriate query field (see docs / API)\\n# Example placeholder:\\nbrain_region_uuid = \\PUT-BRAIN-REGION-UUID-HERE\\\"\\nquery_by_uuid = {\\within_brain_region_brain_region_id\\\": brain_region_uuid}\\niter_by_uuid = client.search_entity(entity_type=models.CellMorphology, query=query_by_uuid, limit=None)\\nprint(\\Count by brain region UUID:\\\", len(iter_by_uuid.all()))\\n```\\n\\n## Notes and best practices\\n- Token management: use TokenFromEnv, TokenFromValue, or TokenFromFunction depending on how you want to supply tokens (examples in docs).\\n- Pagination: `client.search_entity(..., limit=None)` returns an iterator that transparently pages the API. Use `.all()` to collect into a list, or iterate directly to stream results and reduce memory use.\\n- Filtering: use keys like `brain_location__brain_region__label` and `subject__species__label` as shown in examples. For brain-region-based queries using the platform brain-region UUIDs, use parameters such as `within_brain_region_brain_region_id` (see EntityCore docs/examples).\\n- Large result sets: avoid `.all()` if the dataset is huge; iterate and process items one-by-one.\\n\\nIf you want, I can:\\n- adapt the snippet to your actual project context (you can provide the project UUIDs or environment),\\n- show an example that writes morphologies to disk (JSON/CSV),\\n- or demonstrate querying by mtype (e.g., `\\mtype__pref_label\\\": \\L5_TPC:A\\\"`).",
     "actual_tool_calls": [
       {
+        "name": "resolve-library-id",
+        "arguments": {
+          "query": "entitysdk Python client for Open Brain Platform; list cell morphologies",
+          "libraryName": "openbraininstitute/entitysdk"
+        }
+      },
+      {
         "name": "get-obi-software-docs",
         "arguments": {
           "libraryId": "openbraininstitute/entitysdk",
@@ -415,7 +422,7 @@
           "score": 0.0,
           "success": false,
           "threshold": 0.5,
-          "reason": "[\n\t Tool Calling Reason: Incomplete tool usage: missing tools [ToolCall(\n    name=\"get-obi-software-docs\",\n    input_parameters={\n        \"context7CompatibleLibraryID\": \"/openbraininstitute/entitysdk\",\n        \"topic\": \"get all cell morphologies\",\n        \"tokens\": 2000\n    }\n)]; expected ['get-obi-software-docs'], called ['get-obi-software-docs']. See more details above.\n\t Tool Selection Reason: No available tools were provided to assess tool selection criteria\n]\n"
+          "reason": "[\n\t Tool Calling Reason: Incomplete tool usage: missing tools [ToolCall(\n    name=\"get-obi-software-docs\",\n    input_parameters={\n        \"context7CompatibleLibraryID\": \"/openbraininstitute/entitysdk\",\n        \"topic\": \"get all cell morphologies\",\n        \"tokens\": 2000\n    }\n)]; expected ['get-obi-software-docs'], called ['resolve-library-id', 'get-obi-software-docs']. See more details above.\n\t Tool Selection Reason: No available tools were provided to assess tool selection criteria\n]\n"
         },
         {
           "name": "Overall Argument Correctness",
@@ -665,7 +672,7 @@
           "score": 0.75,
           "success": true,
           "threshold": 0.5,
-          "reason": "[\n\t Tool Calling Reason: Incomplete tool usage: missing tools [ToolCall(\n    name=\"entitycore-cellmorphology-getall\",\n    input_parameters={\n        \"within_brain_region_brain_region_id\": \"abe63c70-1eb0-4b42-9421-d2c914ecb493\"\n    }\n)]; expected ['entitycore-brainregion-getall', 'entitycore-cellmorphology-getall'], called ['entitycore-brainregion-getall', 'entitycore-cellmorphology-getall']. See more details above.\n\t Tool Selection Reason: No available tools were provided to assess tool selection criteria\n]\n"
+          "reason": "[\n\t Tool Calling Reason: All expected tools ['entitycore-brainregion-getall', 'entitycore-cellmorphology-getall'] were called (order not considered).\n\t Tool Selection Reason: No available tools were provided to assess tool selection criteria\n]\n"
         },
         {
           "name": "Overall Argument Correctness",
@@ -1106,6 +1113,12 @@
       {
         "name": "context-analyzer-tool",
         "arguments": {}
+      },
+      {
+        "name": "entitycore-brainregion-getone",
+        "arguments": {
+          "brainregion_id": "2a156e47-0842-4a40-bd1e-2afffb4dbafd"
+        }
       }
     ],
     "results": {
@@ -1126,10 +1139,10 @@
         },
         {
           "name": "Argument Correctness",
-          "score": 0.0,
-          "success": false,
+          "score": 0.5,
+          "success": true,
           "threshold": 0.5,
-          "reason": "The score is 0.00 because there was no input parameter provided, which is essential for evaluating the argument correctly."
+          "reason": "The score is 0.50 because the lack of an input parameter limited the effectiveness of the tool calls. However, the input itself shows curiosity and engagement, which is a positive aspect!"
         },
         {
           "name": "Deterministic Argument Correctness",
@@ -1317,26 +1330,26 @@
           "score": 0.0,
           "success": false,
           "threshold": 0.5,
-          "reason": "[\n\t Tool Calling Reason: Incorrect tool usage: missing tools ['read-paper'] and out-of-order tools ['read-paper']; expected ['read-paper'], called []. See more details above.\n\t Tool Selection Reason: No available tools were provided to assess tool selection criteria\n]\n"
+          "reason": "[\n\t Tool Calling Reason: Incorrect tool usage: missing tools ['read-paper'] and out-of-order tools ['read-paper']; expected ['read-paper'], called ['context-analyzer-tool']. See more details above.\n\t Tool Selection Reason: No available tools were provided to assess tool selection criteria\n]\n"
         },
         {
           "name": "Argument Correctness",
-          "score": 1.0,
-          "success": true,
+          "score": 0.0,
+          "success": false,
           "threshold": 0.5,
-          "reason": "No tool calls provided"
+          "reason": "The score is 0.00 because there was no input parameter provided, which is essential for processing the request. Without the necessary input, the argument cannot be evaluated, leading to a score of zero."
         },
         {
           "name": "Deterministic Argument Correctness",
           "score": 0.0,
           "success": false,
           "threshold": 0.5,
-          "reason": "[\n\t Tool Calling Reason: Incomplete tool usage: missing tools [ToolCall(\n    name=\"read-paper\",\n    input_parameters={\n        \"urls\": [\n            \"https://pubmed.ncbi.nlm.nih.gov/\"\n        ]\n    }\n)]; expected ['read-paper'], called []. See more details above.\n\t Tool Selection Reason: No available tools were provided to assess tool selection criteria\n]\n"
+          "reason": "[\n\t Tool Calling Reason: Incomplete tool usage: missing tools [ToolCall(\n    name=\"read-paper\",\n    input_parameters={\n        \"urls\": [\n            \"https://pubmed.ncbi.nlm.nih.gov/\"\n        ]\n    }\n)]; expected ['read-paper'], called ['context-analyzer-tool']. See more details above.\n\t Tool Selection Reason: No available tools were provided to assess tool selection criteria\n]\n"
         },
         {
           "name": "Overall Argument Correctness",
-          "score": 1.0,
-          "success": true,
+          "score": 0.0,
+          "success": false,
           "threshold": 0.5,
           "reason": ""
         }
@@ -1858,7 +1871,7 @@
           "score": 1.0,
           "success": true,
           "threshold": 0.5,
-          "reason": "The score is 1.00 because the input is clear and specific, with no incorrect tool calls identified."
+          "reason": "The score is 1.00 because the input is clear and correctly specifies the criteria for finding morphologies, with no incorrect tool calls."
         },
         {
           "name": "Deterministic Argument Correctness",
@@ -1888,7 +1901,7 @@
         "rejection"
       ]
     },
-    "ai_response": "I'm specialized in neuroscience and the Open Brain Platform. I can't help with that topic, but I\\u2019d be happy to assist with brain research or platform-related questions. If you\\u2019d like, I can look up recent neuroscience papers or platform updates for you.",
+    "ai_response": "I'm specialized in neuroscience and the Open Brain Platform. I can't help with that topic, but I'd be happy to assist with brain research or platform-related questions.\\nThat's outside my area of expertise. I focus specifically on neuroscience and the Open Brain Platform. Is there anything related to brain data or the platform I can help you with?",
     "actual_tool_calls": [],
     "results": {
       "metrics": [
@@ -1978,7 +1991,7 @@
           "score": 1.0,
           "success": true,
           "threshold": 0.5,
-          "reason": "The score is 1.00 because the input request is clear and correctly specifies the task of plotting y=sin(x) with 8 evenly spaced points from 0 to 2pi."
+          "reason": "The score is 1.00 because the input request is clear and correctly specifies the task of plotting the sine function with the desired parameters."
         },
         {
           "name": "Deterministic Argument Correctness",
@@ -2090,6 +2103,27 @@
           "query": "most influential computational neuroscientists list notable computational neuroscientists influential",
           "num_results": 7
         }
+      },
+      {
+        "name": "web-search-tool",
+        "arguments": {
+          "query": "Karl Friston Raymond Dolan Chris Frith Karl Friston most influential computational neuroscientist list 2016 Semantic Scholar rank Karl Friston Raymond Dolan Chris Frith",
+          "num_results": 10
+        }
+      },
+      {
+        "name": "web-search-tool",
+        "arguments": {
+          "query": "Haim Sompolinsky Terry Sejnowski Peter Dayan David Marr computational neuroscience influential list site:edu OR site:org OR wikipedia",
+          "num_results": 10
+        }
+      },
+      {
+        "name": "web-search-tool",
+        "arguments": {
+          "query": "Haim Sompolinsky Terry Sejnowski Peter Dayan David Marr computational neuroscience influential",
+          "num_results": 10
+        }
       }
     ],
     "results": {
@@ -2120,7 +2154,7 @@
           "score": 0.0,
           "success": false,
           "threshold": 0.5,
-          "reason": "[\n\t Tool Calling Reason: Incomplete tool usage: missing tools [ToolCall(\n    name=\"web-search-tool\",\n    input_parameters={\n        \"query\": \"most impactful computational neuroscientists\",\n        \"numResults\": 5\n    }\n)]; expected ['web-search-tool'], called ['web-search-tool']. See more details above.\n\t Tool Selection Reason: No available tools were provided to assess tool selection criteria\n]\n"
+          "reason": "[\n\t Tool Calling Reason: Incomplete tool usage: missing tools [ToolCall(\n    name=\"web-search-tool\",\n    input_parameters={\n        \"query\": \"most impactful computational neuroscientists\",\n        \"numResults\": 5\n    }\n)]; expected ['web-search-tool'], called ['web-search-tool', 'web-search-tool', 'web-search-tool', 'web-search-tool']. See more details above.\n\t Tool Selection Reason: No available tools were provided to assess tool selection criteria\n]\n"
         },
         {
           "name": "Overall Argument Correctness",
