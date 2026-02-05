@@ -140,7 +140,7 @@
         },
         {
           "name": "Deterministic Argument Correctness",
-          "score": 0.0,
+          "score": 0.3333333333333333,
           "success": false,
           "threshold": 0.5,
           "reason": "[\n\t Tool Calling Reason: Incomplete tool usage: missing tools [ToolCall(\n    name=\"literature-search-tool\",\n    input_parameters={\n        \"query\": \"synaptic plasticity hippocampus\",\n        \"num_results\": 5\n    }\n)]; expected ['literature-search-tool'], called ['literature-search-tool']. See more details above.\n\t Tool Selection Reason: No available tools were provided to assess tool selection criteria\n]\n"
@@ -487,6 +487,12 @@
     "ai_response": "## Retrieved morphologies \\u2014 Cortex (5 items)\\n\\nTotal matches for your search: **219** (returned first 5).  \\nBelow are the five morphologies retrieved (metadata and primary assets). Each entry includes the entity link.\\n\\n---\\n\\n### 1) **NMO_159989**  \\n**ID:** **8ad9fa02-d206-4578-95c5-abf8fe930a91**  \\n**Name:** **NMO_159989**  \\n**Description:** Morphological reconstruction of a pyramidal cell from the human temporal cortex. Part of Moradi et al., 2021 (https://doi.org/10.1038/s41467-021-22741-9)  \\n**Brain region:** **Temporal association areas, layer 5 (TEa5)**  \\n- **Brain region ID:** **e182532d-9864-4016-99a9-94a05c8f8d9a**  \\n**Subject:** *Homo sapiens* (Generic)  \\n**Mtype:** **Pyramidal Neuron**  \\n**License:** **CC BY 4.0**  \\n**Assets (primary morphology files):**\\n- label: **morphology** \\u2014 NMO_159989.swc (size: 204,645 bytes) \\u2014 asset id: **5bb8dd5c-3009-40d0-86d9-9420f8fa7ba5**  \\n- NMO_159989.asc (id: **a02ccc6a-ffb8-4177-8129-4e1830699917**)  \\n- NMO_159989.h5 (id: **ee0895f6-4fd3-42e6-b536-4a6ae64b8519**)  \\n**URL:** [View Morphology](https://openbraininstitute.org/app/entity/8ad9fa02-d206-4578-95c5-abf8fe930a91)\\n\\n---\\n\\n### 2) **NMO_194161**  \\n**ID:** **d9b6bcb6-e14c-490a-b7ab-4b513805016c**  \\n**Name:** **NMO_194161**  \\n**Description:** Morphological reconstruction of a pyramidal cell from the human temporal cortex. Part of Howard et al., 2022 (https://doi.org/10.1093/gigascience/giac108)  \\n**Brain region:** **Temporal association areas, layer 2/3 (TEa2/3)**  \\n- **Brain region ID:** **fe3aeb11-da80-43bb-a6fc-c59ac962efe0**  \\n**Subject:** *Homo sapiens* (Generic)  \\n**Mtype:** **Pyramidal Neuron**  \\n**License:** **CC0 1.0**  \\n**Assets (primary morphology files):**\\n- label: **morphology** \\u2014 NMO_194161.CNG.swc (size: 194,749 bytes) \\u2014 asset id: **90ac48c5-ebb3-4b2a-a63d-0938d8280302**  \\n- NMO_194161.CNG.asc (id: **89dd6e1d-1cd3-48db-9a68-9344b967b3f4**)  \\n- NMO_194161.CNG.h5 (id: **e2605eed-8109-4744-84ed-889208cc03e3**)  \\n**URL:** [View Morphology](https://openbraininstitute.org/app/entity/d9b6bcb6-e14c-490a-b7ab-4b513805016c)\\n\\n---\\n\\n### 3) **NMO_159995**  \\n**ID:** **c8b57a6d-5c81-4f4f-9079-0b09b0581678**  \\n**Name:** **NMO_159995**  \\n**Description:** Morphological reconstruction of a pyramidal cell from the human temporal cortex. Part of Moradi et al., 2021 (https://doi.org/10.1038/s41467-021-22741-9)  \\n**Brain region:** **Temporal association areas, layer 2/3 (TEa2/3)**  \\n- **Brain region ID:** **fe3aeb11-da80-43bb-a6fc-c59ac962efe0**  \\n**Subject:** *Homo sapiens* (Generic)  \\n**Mtype:** **Pyramidal Neuron**  \\n**License:** none specified (null)  \\n**Assets (primary morphology files):**\\n- label: **morphology** \\u2014 NMO_159995.CNG.swc (size: 277,039 bytes) \\u2014 asset id: **dcdbb46e-a33b-4ae2-b725-3c16f84e6f67**  \\n- NMO_159995.CNG.asc (id: **e1b4b786-d231-41cb-a386-13a78f989edf**)  \\n- NMO_159995.CNG.h5 (id: **0837f2bb-3e92-4ed2-95d2-b70a3d5100f2**)  \\n**URL:** [View Morphology](https://openbraininstitute.org/app/entity/c8b57a6d-5c81-4f4f-9079-0b09b0581678)\\n\\n---\\n\\n### 4) **NMO_159994**  \\n**ID:** **ebc3049a-0ca6-43a7-a7cb-1d205e26c01c**  \\n**Name:** **NMO_159994**  \\n**Description:** Morphological reconstruction of a pyramidal cell from the human temporal cortex. Part of Moradi et al., 2021 (https://doi.org/10.1038/s41467-021-22741-9)  \\n**Brain region:** **Temporal association areas, layer 3 (TEa3)**  \\n- **Brain region ID:** **50440b2d-397f-4974-a837-148649e22959**  \\n**Subject:** *Homo sapiens* (Generic)  \\n**Mtype:** **Pyramidal Neuron**  \\n**License:** none specified (null)  \\n**Assets (primary morphology files):**\\n- label: **morphology** \\u2014 NMO_159994.CNG.swc (size: 350,177 bytes) \\u2014 asset id: **ff0984f3-dcf0-43d2-b8da-9e0e92987989**  \\n- NMO_159994.CNG.asc (id: **5d214041-daae-4420-9140-abe1fdbf0a9b**)  \\n- NMO_159994.CNG.h5 (id: **54ac25c9-3bf3-42e9-92ad-3cf98b028b97**)  \\n**URL:** [View Morphology](https://openbraininstitute.org/app/entity/ebc3049a-0ca6-43a7-a7cb-1d205e26c01c)\\n\\n---\\n\\n### 5) **NMO_159993**  \\n**ID:** **bd57dd40-e14f-4940-bfb9-335bcfba06d0**  \\n**Name:** **NMO_159993**  \\n**Description:** Morphological reconstruction of a pyramidal cell from the human temporal cortex. Part of Moradi et al., 2021 (https://doi.org/10.1038/s41467-021-22741-9)  \\n**Brain region:** **Temporal association areas, layer 5 (TEa5)**  \\n- **Brain region ID:** **e182532d-9864-4016-99a9-94a05c8f8d9a**  \\n**Subject:** *Homo sapiens* (Generic)  \\n**Mtype:** **Pyramidal Neuron**  \\n**License:** none specified (null)  \\n**Assets (primary morphology files):**\\n- label: **morphology** \\u2014 NMO_159993.CNG.swc (size: 919,944 bytes) \\u2014 asset id: **0de1bf0e-e612-4abe-ba1f-c60b6cfcebc5**  \\n- NMO_159993.CNG.asc (id: **b72d177c-e6ae-448f-a759-62897e7473a3**)  \\n- NMO_159993.CNG.h5 (id: **aaf6e119-bb49-4b19-818d-20cea1bbab05**)  \\n**URL:** [View Morphology](https://openbraininstitute.org/app/entity/bd57dd40-e14f-4940-bfb9-335bcfba06d0)\\n\\n---\\n\\nIf you want any of these morphologies visualized (thumbnail plot), or specific morphometrics computed (total length, soma radius, max radial distance, etc.), tell me which morphology ID(s) and which metrics to compute and I will generate them.",
     "actual_tool_calls": [
       {
+        "name": "entitycore-brainregion-getall",
+        "arguments": {
+          "semantic_search": "cortex"
+        }
+      },
+      {
         "name": "entitycore-cellmorphology-getall",
         "arguments": {
           "search": "cortex"
@@ -504,7 +510,7 @@
         },
         {
           "name": "Tool Correctness",
-          "score": 0.5,
+          "score": 1.0,
           "success": true,
           "threshold": 0.5,
           "reason": "[\n\t Tool Calling Reason: Incorrect tool usage: missing tools ['entitycore-brainregion-getall'] and out-of-order tools ['entitycore-brainregion-getall']; expected ['entitycore-brainregion-getall', 'entitycore-cellmorphology-getall'], called ['entitycore-cellmorphology-getall']. See more details above.\n\t Tool Selection Reason: No available tools were provided to assess tool selection criteria\n]\n"
@@ -518,15 +524,15 @@
         },
         {
           "name": "Deterministic Argument Correctness",
-          "score": 0.0,
-          "success": false,
+          "score": 0.5,
+          "success": true,
           "threshold": 0.5,
           "reason": "[\n\t Tool Calling Reason: Incomplete tool usage: missing tools [ToolCall(\n    name=\"entitycore-brainregion-getall\",\n    input_parameters={\n        \"semantic_search\": \"cortex\"\n    }\n), ToolCall(\n    name=\"entitycore-cellmorphology-getall\",\n    input_parameters={\n        \"within_brain_region_brain_region_id\": \"abe63c70-1eb0-4b42-9421-d2c914ecb493\"\n    }\n)]; expected ['entitycore-brainregion-getall', 'entitycore-cellmorphology-getall'], called ['entitycore-cellmorphology-getall']. See more details above.\n\t Tool Selection Reason: No available tools were provided to assess tool selection criteria\n]\n"
         },
         {
           "name": "Overall Argument Correctness",
-          "score": 0.0,
-          "success": false,
+          "score": 0.5,
+          "success": true,
           "threshold": 0.5,
           "reason": ""
         }
@@ -581,7 +587,7 @@
           "score": 1.0,
           "success": true,
           "threshold": 0.5,
-          "reason": "The score is 1.00 because there were no incorrect tool calls, indicating that the input was handled perfectly."
+          "reason": "The score is 1.00 because there were no incorrect tool calls and the input was clear and specific."
         },
         {
           "name": "Deterministic Argument Correctness",
@@ -700,13 +706,6 @@
       {
         "name": "entitycore-cellmorphology-getall",
         "arguments": {
-          "within_brain_region_brain_region_id": "062ebc92-cebb-498a-a76d-b5ef1baf02cf"
-        }
-      },
-      {
-        "name": "entitycore-cellmorphology-getall",
-        "arguments": {
-          "page": 2,
           "within_brain_region_brain_region_id": "062ebc92-cebb-498a-a76d-b5ef1baf02cf"
         }
       }
@@ -1083,7 +1082,7 @@
         },
         {
           "name": "Overall Argument Correctness",
-          "score": 1.0,
+          "score": 0.75,
           "success": true,
           "threshold": 0.5,
           "reason": ""
@@ -1102,7 +1101,7 @@
         "rejection"
       ]
     },
-    "ai_response": "\\\"I'm specialized in neuroscience and the Open Brain Platform. I can't help with that topic, but I'd be happy to assist with brain research or platform-related questions.\\\"\\n\\That's outside my area of expertise. I focus specifically on neuroscience and the Open Brain Platform. Is there anything related to brain data or the platform I can help you with?\\",
+    "ai_response": "I'm specialized in neuroscience and the Open Brain Platform. I can't help with that topic, but I'd be happy to assist with brain research or platform-related questions.\\n\\nThat's outside my area of expertise. I focus specifically on neuroscience and the Open Brain Platform. Is there anything related to brain data or the platform I can help with?",
     "actual_tool_calls": [],
     "results": {
       "metrics": [
@@ -1181,8 +1180,8 @@
         },
         {
           "name": "Tool Correctness",
-          "score": 1.0,
-          "success": true,
+          "score": 0.0,
+          "success": false,
           "threshold": 0.5,
           "reason": "[\n\t Tool Calling Reason: Incorrect tool usage: missing tools ['read-paper'] and out-of-order tools ['read-paper']; expected ['read-paper'], called ['context-analyzer-tool']. See more details above.\n\t Tool Selection Reason: No available tools were provided to assess tool selection criteria\n]\n"
         },
@@ -1195,8 +1194,8 @@
         },
         {
           "name": "Deterministic Argument Correctness",
-          "score": 1.0,
-          "success": true,
+          "score": 0.0,
+          "success": false,
           "threshold": 0.5,
           "reason": "[\n\t Tool Calling Reason: Incomplete tool usage: missing tools [ToolCall(\n    name=\"read-paper\",\n    input_parameters={\n        \"urls\": [\n            \"https://pubmed.ncbi.nlm.nih.gov/\"\n        ]\n    }\n)]; expected ['read-paper'], called ['context-analyzer-tool']. See more details above.\n\t Tool Selection Reason: No available tools were provided to assess tool selection criteria\n]\n"
         },
@@ -1409,7 +1408,7 @@
           "score": 1.0,
           "success": true,
           "threshold": 0.5,
-          "reason": "The score is 1.00 because all tool calls were correct and the input was clear and well-defined."
+          "reason": "The score is 1.00 because there were no incorrect tool calls, indicating that the input was handled perfectly."
         },
         {
           "name": "Deterministic Argument Correctness",
@@ -1545,7 +1544,7 @@
         "rejection"
       ]
     },
-    "ai_response": "I'm specialized in neuroscience and the Open Brain Platform. I can't help with that topic, but I'd be happy to assist with brain research or platform-related questions.\\nThat's outside my area of expertise. I focus specifically on neuroscience and the Open Brain Platform. Is there anything related to brain data or the platform I can help you with?",
+    "ai_response": "I'm specialized in neuroscience and the Open Brain Platform. I can't help with that topic, but I\\u2019d be happy to assist with brain research or platform-related questions. If you\\u2019d like, I can look up recent neuroscience papers or platform updates for you.",
     "actual_tool_calls": [],
     "results": {
       "metrics": [
@@ -1902,7 +1901,7 @@
           "score": 1.0,
           "success": true,
           "threshold": 0.5,
-          "reason": "The score is 1.00 because there were no incorrect tool calls and the input was clear and specific."
+          "reason": "The score is 1.00 because there are no incorrect tool calls, indicating that the input was handled perfectly."
         },
         {
           "name": "Deterministic Argument Correctness",

@@ -1,5 +1,5 @@
 {
-  "total_tests": 30,
+  "total_tests": 34,
   "metrics_df": [
     {
       "test_name": "cerebellum_morphologies",
@@ -38,8 +38,8 @@
       "Correctness [GEval]": 0.3186384511202486,
       "Tool Correctness": 0.5,
       "Argument Correctness": 0.0,
-      "Deterministic Argument Correctness": 0.0,
-      "Overall Argument Correctness": 0.0
+      "Deterministic Argument Correctness": 0.5,
+      "Overall Argument Correctness": 0.5
     },
     {
       "test_name": "get_specific_circuit",
@@ -55,6 +55,14 @@
       "Tool Correctness": 1.0,
       "Argument Correctness": 0.0,
       "Deterministic Argument Correctness": 1.0,
+      "Overall Argument Correctness": 1.0
+    },
+    {
+      "test_name": "ilike_pattern_test",
+      "Correctness [GEval]": 0.8463925916702252,
+      "Tool Correctness": 1.0,
+      "Argument Correctness": 1.0,
+      "Deterministic Argument Correctness": 0.0,
       "Overall Argument Correctness": 1.0
     },
     {
@@ -78,12 +86,12 @@
       "Correctness [GEval]": 0.9294276453877884,
       "Tool Correctness": 1.0,
       "Argument Correctness": 1.0,
-      "Deterministic Argument Correctness": 0.0,
+      "Deterministic Argument Correctness": 0.3333333333333333,
       "Overall Argument Correctness": 1.0
     },
     {
       "test_name": "me_model_glossary",
-      "Correctness [GEval]": 0.683306831536382,
+      "Correctness [GEval]": 0.6276212001621108,
       "Tool Correctness": 1.0,
       "Argument Correctness": 1.0,
       "Deterministic Argument Correctness": 1.0,
@@ -194,6 +202,30 @@
       "Overall Argument Correctness": 1.0
     },
     {
+      "test_name": "pricing_plans_overview",
+      "Correctness [GEval]": 0.8091585210692689,
+      "Tool Correctness": 1.0,
+      "Argument Correctness": 0.0,
+      "Deterministic Argument Correctness": 0.5,
+      "Overall Argument Correctness": 0.5
+    },
+    {
+      "test_name": "pricing_simulation_costs",
+      "Correctness [GEval]": 0.7981281621387895,
+      "Tool Correctness": 1.0,
+      "Argument Correctness": 0.0,
+      "Deterministic Argument Correctness": 1.0,
+      "Overall Argument Correctness": 1.0
+    },
+    {
+      "test_name": "read_paper",
+      "Correctness [GEval]": 0.3974182503562305,
+      "Tool Correctness": 0.0,
+      "Argument Correctness": 1.0,
+      "Deterministic Argument Correctness": 0.0,
+      "Overall Argument Correctness": 1.0
+    },
+    {
       "test_name": "sin_plot",
       "Correctness [GEval]": 0.704552344483199,
       "Tool Correctness": 1.0,
@@ -235,7 +267,7 @@
     },
     {
       "test_name": "warning_test",
-      "Correctness [GEval]": 0.618138951957894,
+      "Correctness [GEval]": 0.6138443708815899,
       "Tool Correctness": 1.0,
       "Argument Correctness": 1.0,
       "Deterministic Argument Correctness": 0.0,

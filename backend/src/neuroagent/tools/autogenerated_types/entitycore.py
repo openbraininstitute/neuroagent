@@ -6919,6 +6919,16 @@ class ReadManyIonChannelModelGetParametersQuery(BaseModel):
         default=None, title='Temperature Celsius  Gte'
     )
     is_stochastic: bool | None = Field(default=None, title='Is Stochastic')
+    conductance_name: str | None = Field(default=None, title='Conductance Name')
+    conductance_name__isnull: bool | None = Field(
+        default=None, title='Conductance Name  Isnull'
+    )
+    max_permeability_name: str | None = Field(
+        default=None, title='Max Permeability Name'
+    )
+    max_permeability_name__isnull: bool | None = Field(
+        default=None, title='Max Permeability Name  Isnull'
+    )
     ilike_search: str | None = Field(
         default=None,
         description="Search text with wildcard support. Use * for zero or more characters and ? for exactly one character. All other characters are treated as literals. Examples: 'test*' matches 'testing', 'file?.txt' matches 'file1.txt'. search_model_fields: name, description",
@@ -12778,6 +12788,10 @@ class IonChannelModelCreate(BaseModel):
     temperature_celsius: int | None = Field(..., title='Temperature Celsius')
     is_stochastic: bool = Field(default=False, title='Is Stochastic')
     neuron_block: NeuronBlock
+    conductance_name: str | None = Field(default=None, title='Conductance Name')
+    max_permeability_name: str | None = Field(
+        default=None, title='Max Permeability Name'
+    )
 
 
 class IonChannelModelExpanded(BaseModel):
@@ -12829,6 +12843,10 @@ class IonChannelModelExpanded(BaseModel):
     temperature_celsius: int | None = Field(..., title='Temperature Celsius')
     is_stochastic: bool = Field(default=False, title='Is Stochastic')
     neuron_block: NeuronBlock
+    conductance_name: str | None = Field(default=None, title='Conductance Name')
+    max_permeability_name: str | None = Field(
+        default=None, title='Max Permeability Name'
+    )
 
 
 class IonChannelModelRead(BaseModel):
@@ -12873,6 +12891,10 @@ class IonChannelModelRead(BaseModel):
     temperature_celsius: int | None = Field(..., title='Temperature Celsius')
     is_stochastic: bool = Field(default=False, title='Is Stochastic')
     neuron_block: NeuronBlock
+    conductance_name: str | None = Field(default=None, title='Conductance Name')
+    max_permeability_name: str | None = Field(
+        default=None, title='Max Permeability Name'
+    )
 
 
 class IonChannelModelUserUpdate(BaseModel):
@@ -12922,6 +12944,12 @@ class IonChannelModelUserUpdate(BaseModel):
     neuron_block: NeuronBlock | Literal['<NOT_SET>'] | None = Field(
         default='<NOT_SET>', title='Neuron Block'
     )
+    conductance_name: str | Literal['<NOT_SET>'] | None = Field(
+        default='<NOT_SET>', title='Conductance Name'
+    )
+    max_permeability_name: str | Literal['<NOT_SET>'] | None = Field(
+        default='<NOT_SET>', title='Max Permeability Name'
+    )
 
 
 class IonChannelModelWAssets(BaseModel):
@@ -12967,6 +12995,10 @@ class IonChannelModelWAssets(BaseModel):
     temperature_celsius: int | None = Field(..., title='Temperature Celsius')
     is_stochastic: bool = Field(default=False, title='Is Stochastic')
     neuron_block: NeuronBlock
+    conductance_name: str | None = Field(default=None, title='Conductance Name')
+    max_permeability_name: str | None = Field(
+        default=None, title='Max Permeability Name'
+    )
 
 
 class IonChannelModelingCampaignRead(BaseModel):
