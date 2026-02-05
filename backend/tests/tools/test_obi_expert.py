@@ -5,6 +5,7 @@ from neuroagent.tools.obi_expert import (
     GlossaryItemDocument,
     NewsDocument,
     Page,
+    PlanV2Document,
     PublicProject,
     Tutorial,
     flatten_portable_text,
@@ -837,3 +838,184 @@ def test_glossary_item_document_with_missing_fields():
     assert glossary_document.name == "ME-model"
     assert glossary_document.description is None
     assert glossary_document.definition is None
+
+
+def test_planv2_document_instantiation():
+    """Test instantiating PlanV2Document sanity documents using sanity_mapping.
+
+    Tests with the first 2 plans from staging: Education and Enterprise.
+    """
+    # Raw JSON from Sanity - Education plan
+    education_plan_json = {
+        "_createdAt": "2025-12-15T10:49:44Z",
+        "_id": "1e8ea4a7-5e82-43b8-aaad-d168d1849cbe",
+        "_rev": "tSHp35e2txlUpol1IAWfle",
+        "_type": "planV2",
+        "_updatedAt": "2026-02-02T12:38:53Z",
+        "custom_plan": False,
+        "general_features": [
+            {
+                "_key": "12a992a01be2",
+                "_type": "booleanOptions",
+                "label": "All Virtual Lab features",
+                "value": True,
+            },
+            {
+                "_key": "54317ebcfd5d",
+                "_type": "booleanOptions",
+                "label": "Seat-based access for instructors & students",
+                "value": True,
+            },
+            {
+                "_key": "ad71dd6dc11b",
+                "_type": "booleanOptions",
+                "label": "Compute credits included for teaching",
+                "value": True,
+            },
+            {
+                "_key": "6daed2eed7bc",
+                "_type": "booleanOptions",
+                "label": "Free storage for course materials",
+                "value": True,
+            },
+        ],
+        "has_contact_button": True,
+        "has_subscription": False,
+        "has_subtitle": True,
+        "name": "Education",
+        "subtitle": "For courses and classroom teaching",
+        "support": [
+            {
+                "_key": "521ba1cea249",
+                "_type": "booleanOptions",
+                "label": "Onboarding",
+                "value": True,
+            }
+        ],
+    }
+
+    # Map the raw JSON using sanity_mapping
+    mapped_data = {}
+    for pydantic_field, sanity_field in PlanV2Document.sanity_mapping.items():
+        if sanity_field in education_plan_json:
+            mapped_data[pydantic_field] = education_plan_json[sanity_field]
+
+    # Instantiate the PlanV2Document
+    education_plan = PlanV2Document(**mapped_data)
+
+    # Assert the mapped fields are correct
+    assert education_plan.id == "1e8ea4a7-5e82-43b8-aaad-d168d1849cbe"
+    assert education_plan.created_at == "2025-12-15T10:49:44Z"
+    assert education_plan.updated_at == "2026-02-02T12:38:53Z"
+    assert education_plan.name == "Education"
+    assert education_plan.has_subtitle is True
+    assert education_plan.subtitle == "For courses and classroom teaching"
+    assert education_plan.custom_plan is False
+    assert education_plan.has_contact_button is True
+    assert education_plan.has_subscription is False
+
+    # Test general_features
+    assert education_plan.general_features is not None
+    assert len(education_plan.general_features) == 4
+    assert education_plan.general_features[0].label == "All Virtual Lab features"
+    assert education_plan.general_features[0].value is True
+
+    # Test support
+    assert education_plan.support is not None
+    assert len(education_plan.support) == 1
+    assert education_plan.support[0].label == "Onboarding"
+    assert education_plan.support[0].value is True
+
+    # Raw JSON from Sanity - Enterprise plan
+    enterprise_plan_json = {
+        "_createdAt": "2025-12-15T10:50:50Z",
+        "_id": "33a59ede-61bf-44bd-95b9-586abe8c48a6",
+        "_rev": "4JFsJ7XF1lf73b2rk0o9z5",
+        "_type": "planV2",
+        "_updatedAt": "2025-12-16T14:00:38Z",
+        "custom_plan": False,
+        "general_features": [
+            {
+                "_key": "fb9d520b4721",
+                "_type": "booleanOptions",
+                "label": "All Virtual Lab features",
+                "value": True,
+            },
+            {
+                "_key": "ec8da3b4404c",
+                "_type": "booleanOptions",
+                "label": "Seat-based access for teams",
+                "value": True,
+            },
+            {
+                "_key": "3f71b386817a",
+                "_type": "booleanOptions",
+                "label": "Scalable compute & storage options",
+                "value": True,
+            },
+            {
+                "_key": "3ee53253f7e8",
+                "_type": "booleanOptions",
+                "label": "Custom feature development",
+                "value": True,
+            },
+        ],
+        "has_contact_button": True,
+        "has_subscription": False,
+        "has_subtitle": True,
+        "name": "Enterprise",
+        "subtitle": "For commercial and organizational use",
+        "support": [
+            {
+                "_key": "89c0772c3189",
+                "_type": "booleanOptions",
+                "label": "Priority support",
+                "value": True,
+            },
+            {
+                "_key": "37ec7d82b185",
+                "_type": "booleanOptions",
+                "label": "Onboarding",
+                "value": True,
+            },
+            {
+                "_key": "13a73843e6ed",
+                "_type": "booleanOptions",
+                "label": "Dedicated account manager",
+                "value": True,
+            },
+        ],
+    }
+
+    # Map the raw JSON using sanity_mapping
+    mapped_data = {}
+    for pydantic_field, sanity_field in PlanV2Document.sanity_mapping.items():
+        if sanity_field in enterprise_plan_json:
+            mapped_data[pydantic_field] = enterprise_plan_json[sanity_field]
+
+    # Instantiate the PlanV2Document
+    enterprise_plan = PlanV2Document(**mapped_data)
+
+    # Assert the mapped fields are correct
+    assert enterprise_plan.id == "33a59ede-61bf-44bd-95b9-586abe8c48a6"
+    assert enterprise_plan.created_at == "2025-12-15T10:50:50Z"
+    assert enterprise_plan.updated_at == "2025-12-16T14:00:38Z"
+    assert enterprise_plan.name == "Enterprise"
+    assert enterprise_plan.has_subtitle is True
+    assert enterprise_plan.subtitle == "For commercial and organizational use"
+    assert enterprise_plan.custom_plan is False
+    assert enterprise_plan.has_contact_button is True
+    assert enterprise_plan.has_subscription is False
+
+    # Test general_features
+    assert enterprise_plan.general_features is not None
+    assert len(enterprise_plan.general_features) == 4
+    assert enterprise_plan.general_features[1].label == "Seat-based access for teams"
+
+    # Test support - Enterprise has more support options
+    assert enterprise_plan.support is not None
+    assert len(enterprise_plan.support) == 3
+    assert enterprise_plan.support[0].label == "Priority support"
+    assert enterprise_plan.support[0].value is True
+    assert enterprise_plan.support[2].label == "Dedicated account manager"
+    assert enterprise_plan.support[2].value is True
