@@ -155,6 +155,7 @@ Before outputting, verify:
 - [ ] Configuration structure remains valid and consistent
 
 Generate only the JSON configuration, ensuring all references are internally consistent.
+Do not paste the final json to the chat. It will be automatically taken care of by the platform.
 """
 
         user_message = f"""
