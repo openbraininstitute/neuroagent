@@ -29,8 +29,8 @@ export interface BaseContextVariables {
  * Equivalent to Python's EntitycoreMetadata class.
  */
 export interface EntitycoreContextVariables extends BaseContextVariables {
-  /** HTTP client for making requests */
-  httpxClient: any; // TODO: Type this properly with fetch or axios
+  /** HTTP client (ky instance) pre-configured with JWT token */
+  httpClient: import('ky').KyInstance;
 
   /** EntityCore API base URL */
   entitycoreUrl: string;

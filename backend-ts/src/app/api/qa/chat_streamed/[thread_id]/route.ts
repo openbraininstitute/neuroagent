@@ -16,6 +16,7 @@
  */
 
 import { type NextRequest } from 'next/server';
+import ky from 'ky';
 import { z } from 'zod';
 
 import { AgentsRoutine } from '@/lib/agents/routine';
@@ -286,6 +287,27 @@ export async function POST(
       }
     }
 
+    // Create authenticated HTTP client with JWT token
+    // This matches Python's httpx_client pattern from dependencies.py
+    const httpClient = ky.create({
+      timeout: 300000, // 5 minutes (matches Python)
+      retry: 0,
+      hooks: {
+        beforeRequest: [
+          (request) => {
+            if (jwtToken) {
+              request.headers.set('Authorization', `Bearer ${jwtToken}`);
+            }
+            // Add request ID for correlation if available
+            const requestId = headers.get('x-request-id');
+            if (requestId) {
+              request.headers.set('x-request-id', requestId);
+            }
+          },
+        ],
+      },
+    });
+
     const agentConfig = {
       model: selectedModelId,
       temperature: settings.llm.temperature,
@@ -293,12 +315,12 @@ export async function POST(
       reasoning: reasoningLevel,
       tools: filteredTools,
       contextVariables: {
+        httpClient, // Pass ky instance with JWT token
         exaApiKey: settings.tools.exaApiKey,
         entitycoreUrl: settings.tools.entitycore.url,
         entityFrontendUrl: settings.tools.frontendBaseUrl,
         vlabId: thread.vlabId || undefined,
         projectId: thread.projectId || undefined,
-        jwtToken,
         obiOneUrl: settings.tools.obiOne.url,
       },
       instructions:

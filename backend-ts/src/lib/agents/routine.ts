@@ -37,6 +37,7 @@ import { streamText, type CoreMessage, type Tool, type LanguageModelUsage } from
 
 import { Entity, Task, TokenType } from '../../types';
 import { prisma } from '../db/client';
+import { toolRegistry } from '../tools/base-tool';
 
 import { getSystemPrompt } from './system-prompt';
 
@@ -675,10 +676,17 @@ export class AgentsRoutine {
                 },
               });
 
-              if (pendingToolCalls.length > 0) {
+              // Filter to only include tool calls that actually require HIL validation
+              // Non-HIL tools may have validated: null but shouldn't trigger HIL flow
+              const hilToolCalls = pendingToolCalls.filter((tc) => {
+                const toolClass = toolRegistry.getClass(tc.name);
+                return toolClass && new toolClass({}).requiresHIL();
+              });
+
+              if (hilToolCalls.length > 0) {
                 // Send annotation data for each pending tool call
                 // Format: 8:[{"toolCallId":"...","validated":"pending"}]
-                const annotationData = pendingToolCalls.map((tc) => ({
+                const annotationData = hilToolCalls.map((tc) => ({
                   toolCallId: tc.id,
                   validated: 'pending',
                 }));

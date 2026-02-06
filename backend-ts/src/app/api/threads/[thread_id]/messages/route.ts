@@ -120,12 +120,12 @@ export async function GET(
       toolHilMapping[ToolClass.toolName] = ToolClass.toolHil || false;
     });
 
-    // Determine entity filter
+    // Determine entity filter for pagination cursor query
+    // CRITICAL: For Vercel format, only use USER and AI_MESSAGE for pagination
+    // This matches Python backend behavior - we'll fetch AI_TOOL and TOOL later in the date range
     let entityFilter: entity[] | null = null;
     if (vercelFormat) {
-      // Include AI_TOOL and TOOL to properly merge tool results
-      // TOOL entities are needed to populate tool call results
-      entityFilter = [entity.USER, entity.AI_MESSAGE, entity.AI_TOOL, entity.TOOL];
+      entityFilter = [entity.USER, entity.AI_MESSAGE];
     } else if (entityFilterParam) {
       entityFilter = entityFilterParam.split(',').map((e) => e as entity);
     }
@@ -185,6 +185,7 @@ export async function GET(
 
     if (vercelFormat) {
       // Special Vercel format logic: include all tool calls from last AI message
+      // This matches Python backend: fetch ALL messages (no entity filter) within date range
       const dateConditions: any = {
         threadId: thread_id,
       };
@@ -214,7 +215,7 @@ export async function GET(
         }
       }
 
-      // Get all messages in the date frame
+      // Get all messages in the date frame (no entity filter - matches Python)
       dbMessages = await prisma.message.findMany({
         where: dateConditions,
         include: {
@@ -226,10 +227,37 @@ export async function GET(
       });
     } else {
       // Standard format: just get messages by IDs
+      // Note: We need to include TOOL entities to get tool results
+      // Tool results are stored as separate Message entities, not in ToolCall.result
+      const messageIds = dbCursor.map((m) => m.id);
+
+      // Get all TOOL messages that correspond to tool calls in our message set
+      const toolMessages = await prisma.message.findMany({
+        where: {
+          threadId: thread_id,
+          entity: entity.TOOL,
+        },
+      });
+
+      // Build a map of tool_call_id -> result
+      const toolResultsMap = new Map<string, string>();
+      for (const toolMsg of toolMessages) {
+        try {
+          const content = JSON.parse(toolMsg.content);
+          const toolCallId = content.tool_call_id || content.toolCallId;
+          const result = content.content || content.result || '';
+          if (toolCallId) {
+            toolResultsMap.set(toolCallId, result);
+          }
+        } catch (e) {
+          // Skip malformed tool messages
+        }
+      }
+
       dbMessages = await prisma.message.findMany({
         where: {
           id: {
-            in: dbCursor.map((m) => m.id),
+            in: messageIds,
           },
         },
         include: {
@@ -239,6 +267,13 @@ export async function GET(
           creationDate: isDescending ? 'desc' : 'asc',
         },
       });
+
+      // Attach results from the map
+      for (const msg of dbMessages) {
+        for (const tc of msg.toolCalls) {
+          (tc as any).result = toolResultsMap.get(tc.id) || null;
+        }
+      }
     }
 
     // Calculate next cursor
@@ -422,7 +457,7 @@ export async function GET(
           tool_call_id: tc.id,
           name: tc.name,
           arguments: JSON.parse(tc.arguments),
-          result: tc.result ? JSON.parse(tc.result) : null,
+          result: (tc as any).result ? JSON.parse((tc as any).result) : null,
           validated: tc.validated,
         })),
       }));
