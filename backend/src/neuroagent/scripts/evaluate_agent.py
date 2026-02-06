@@ -133,6 +133,25 @@ def get_parser() -> argparse.ArgumentParser:
         default=None,
         help="Filter test cases by name pattern (supports pytest-style patterns with OR logic). Example: 'cerebellum or morphology'",
     )
+    parser.add_argument(
+        "--include-tags",
+        type=str,
+        default=None,
+        help="Only run test cases with at least one of these tags (comma-separated). Example: 'simulation,hippocampus'",
+    )
+    parser.add_argument(
+        "--exclude-tags",
+        type=str,
+        default="benchmark",
+        help="Skip test cases with any of these tags (comma-separated). Use empty string to run all tests including benchmarks. Example: 'benchmark,slow'",
+    )
+    parser.add_argument(
+        "-n",
+        "--dry-run",
+        action="store_true",
+        default=False,
+        help="List test cases that would be run (alphabetically) without executing them.",
+    )
     return parser
 
 
@@ -278,8 +297,63 @@ def filter_test_cases_by_pattern(
     return filtered_cases
 
 
+def parse_tag_list(tag_string: str | None) -> set[str]:
+    """Parse a comma-separated tag string into a set of tags."""
+    if not tag_string:
+        return set()
+    return {tag.strip() for tag in tag_string.split(",") if tag.strip()}
+
+
+def filter_test_cases_by_tags(
+    test_cases: list[dict[str, Any]],
+    include_tags: set[str],
+    exclude_tags: set[str],
+) -> list[dict[str, Any]]:
+    """
+    Filter test cases based on include and exclude tags.
+
+    A test case is included if:
+    1. It has at least one of the include tags (if include_tags is non-empty)
+    2. AND it has none of the exclude tags
+
+    Parameters
+    ----------
+    test_cases : list[dict[str, Any]]
+        List of test case dictionaries containing test information.
+    include_tags : set[str]
+        Tags to include. If non-empty, test must have at least one.
+    exclude_tags : set[str]
+        Tags to exclude. Test must have none of these.
+
+    Returns
+    -------
+    list[dict[str, Any]]
+        Filtered list of test cases.
+    """
+    filtered_cases = []
+
+    for test_case in test_cases:
+        params: TestCaseParams = test_case["params"]
+        test_tags = set(params.tags)
+
+        # Check include condition: must have at least one include tag (if specified)
+        if include_tags and not test_tags.intersection(include_tags):
+            continue
+
+        # Check exclude condition: must have none of the exclude tags
+        if test_tags.intersection(exclude_tags):
+            continue
+
+        filtered_cases.append(test_case)
+
+    return filtered_cases
+
+
 def load_test_cases(
-    eval_dir: Path, filter_pattern: str | None = None
+    eval_dir: Path,
+    filter_pattern: str | None = None,
+    include_tags: str | None = None,
+    exclude_tags: str | None = None,
 ) -> list[dict[str, Any]]:
     """Load test cases from the input/ folder structure."""
     input_dir = eval_dir / "input"
@@ -321,11 +395,35 @@ def load_test_cases(
             logger.error(f"Error loading test case {test_case_dir.name}: {e}")
             continue
 
-    # Apply filtering if pattern is provided
+    # Apply name pattern filtering if provided
     if filter_pattern:
         test_cases = filter_test_cases_by_pattern(test_cases, filter_pattern)
         logger.info(
             f"Filtered to {len(test_cases)} test cases matching pattern: {filter_pattern}"
+        )
+
+    # Apply tag filtering
+    include_tags_set = parse_tag_list(include_tags)
+    exclude_tags_set = parse_tag_list(exclude_tags)
+
+    # Validate: error if same tag in both include and exclude
+    overlapping_tags = include_tags_set.intersection(exclude_tags_set)
+    if overlapping_tags:
+        raise ValueError(
+            f"Tags cannot be in both --include-tags and --exclude-tags: {', '.join(sorted(overlapping_tags))}"
+        )
+
+    if include_tags_set or exclude_tags_set:
+        test_cases = filter_test_cases_by_tags(
+            test_cases, include_tags_set, exclude_tags_set
+        )
+        filter_desc = []
+        if include_tags_set:
+            filter_desc.append(f"include={','.join(sorted(include_tags_set))}")
+        if exclude_tags_set:
+            filter_desc.append(f"exclude={','.join(sorted(exclude_tags_set))}")
+        logger.info(
+            f"Filtered to {len(test_cases)} test cases by tags ({'; '.join(filter_desc)})"
         )
 
     return test_cases
@@ -526,10 +624,22 @@ async def run_eval(
     concurrent_requests: int = 5,
     timeout: float = 60.0,
     keyword: str | None = None,
+    include_tags: str | None = None,
+    exclude_tags: str | None = None,
+    dry_run: bool = False,
 ) -> None:
     """Run the evaluation on the test cases."""
     # Load test cases from folder structure
-    test_cases = load_test_cases(eval_dir, keyword)
+    test_cases = load_test_cases(eval_dir, keyword, include_tags, exclude_tags)
+
+    # Dry run: just list test cases alphabetically and exit
+    if dry_run:
+        test_names = sorted(tc["name"] for tc in test_cases)
+        print(f"Would run {len(test_names)} test case(s):\n")
+        for name in test_names:
+            print(f"  {name}")
+        return
+
     logger.info(f"Loaded {len(test_cases)} test cases")
 
     client = httpx.AsyncClient(
