@@ -262,14 +262,17 @@ ${toolList
     // Call LLM with structured output
     // Note: Using .chat() method for OpenRouter provider compatibility
     // Type assertion needed due to version mismatch between AI SDK and OpenRouter provider
+    // Filter out tool messages as generateObject only accepts system/user/assistant roles
     const result = await generateObject({
       model: openrouterClient.chat(model) as any,
       messages: [
         { role: 'system', content: systemPrompt },
-        ...openaiMessages.map((msg) => ({
-          role: msg.role as 'user' | 'assistant',
-          content: msg.content,
-        })),
+        ...openaiMessages
+          .filter((msg) => msg.role !== 'tool')
+          .map((msg) => ({
+            role: msg.role as 'user' | 'assistant',
+            content: msg.content,
+          })),
       ],
       schema: ToolModelFilteringSchema,
     });

@@ -89,6 +89,10 @@ export * from './entitycore/strain-getone';
 export * from './entitycore/subject-getall';
 export * from './entitycore/subject-getone';
 
+// OBIOne tools
+export * from './obione/circuit-connectivity-metrics-getone';
+export * from './obione/circuit-metric-getone';
+
 // Test tools for filtering
 export * from './test';
 
@@ -112,6 +116,9 @@ export interface ToolConfig {
   vlabId?: string;
   projectId?: string;
   httpClient?: any;
+
+  // OBIOne tool config
+  obiOneUrl?: string;
 
   // Add more tool configs as needed
 }
@@ -205,6 +212,10 @@ export async function registerToolClasses() {
     const { SubjectGetAllTool } = await import('./entitycore/subject-getall');
     const { SubjectGetOneTool } = await import('./entitycore/subject-getone');
 
+    // Import OBIOne tools
+    const { CircuitConnectivityMetricsGetOneTool } = await import('./obione/circuit-connectivity-metrics-getone');
+    const { CircuitMetricGetOneTool } = await import('./obione/circuit-metric-getone');
+
     // Import test tools
     const { WeatherTool } = await import('./test/WeatherTool');
     const { TranslatorTool } = await import('./test/TranslatorTool');
@@ -276,6 +287,8 @@ export async function registerToolClasses() {
       { name: 'StrainGetOneTool', cls: StrainGetOneTool },
       { name: 'SubjectGetAllTool', cls: SubjectGetAllTool },
       { name: 'SubjectGetOneTool', cls: SubjectGetOneTool },
+      { name: 'CircuitConnectivityMetricsGetOneTool', cls: CircuitConnectivityMetricsGetOneTool },
+      { name: 'CircuitMetricGetOneTool', cls: CircuitMetricGetOneTool },
       { name: 'WeatherTool', cls: WeatherTool },
       { name: 'TranslatorTool', cls: TranslatorTool },
       { name: 'TimeTool', cls: TimeTool },
@@ -453,6 +466,14 @@ export async function getAvailableToolClasses(config: ToolConfig): Promise<any[]
     availableClasses.push(StrainGetOneTool);
     availableClasses.push(SubjectGetAllTool);
     availableClasses.push(SubjectGetOneTool);
+  }
+
+  // OBIOne tools are available if OBIOne URL is configured
+  if (config.obiOneUrl) {
+    const { CircuitConnectivityMetricsGetOneTool } = await import('./obione/circuit-connectivity-metrics-getone');
+    const { CircuitMetricGetOneTool } = await import('./obione/circuit-metric-getone');
+    availableClasses.push(CircuitConnectivityMetricsGetOneTool);
+    availableClasses.push(CircuitMetricGetOneTool);
   }
 
   // Test tools are always available (for testing filtering)
@@ -1399,6 +1420,35 @@ export async function createToolInstance(ToolCls: any, config: ToolConfig): Prom
       httpClient: config.httpClient,
       entitycoreUrl: config.entitycoreUrl,
       entityFrontendUrl: config.entityFrontendUrl,
+      vlabId: config.vlabId,
+      projectId: config.projectId,
+    });
+  }
+
+  // OBIOne tools
+  if (toolName === 'obione-circuitconnectivitymetrics-getone') {
+    if (!config.obiOneUrl) {
+      throw new Error('OBIOne tools require obiOneUrl');
+    }
+
+    const { CircuitConnectivityMetricsGetOneTool } = await import('./obione/circuit-connectivity-metrics-getone');
+    return new CircuitConnectivityMetricsGetOneTool({
+      httpClient: config.httpClient,
+      obiOneUrl: config.obiOneUrl,
+      vlabId: config.vlabId,
+      projectId: config.projectId,
+    });
+  }
+
+  if (toolName === 'obione-circuitmetrics-getone') {
+    if (!config.obiOneUrl) {
+      throw new Error('OBIOne tools require obiOneUrl');
+    }
+
+    const { CircuitMetricGetOneTool } = await import('./obione/circuit-metric-getone');
+    return new CircuitMetricGetOneTool({
+      httpClient: config.httpClient,
+      obiOneUrl: config.obiOneUrl,
       vlabId: config.vlabId,
       projectId: config.projectId,
     });
