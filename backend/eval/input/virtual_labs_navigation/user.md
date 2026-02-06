@@ -1,1 +1,1 @@
-Where is the Virtual Labs section? How do I find the Explore button to access model data?
+Where is Virtual Labs? Where is the Explore button? I'm trying to navigate to Model data > Circuits but I can't find the menu.
