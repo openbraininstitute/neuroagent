@@ -1,0 +1,1 @@
+I want to simulate a brain malformation. How would I do that? My objective is to simulate a Chiari malformation for surgical planning. How do I incorporate that to simulate a 3D brain on this platform?

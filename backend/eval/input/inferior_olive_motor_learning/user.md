@@ -1,1 +1,0 @@
-What is the role of the inferior olive correlated with mossy fibers? How does the inferior olive provide information about the "teaching error" for movement modulation? Are there any reviews discussing the role of the inferior olive in motor learning and adaptation?
