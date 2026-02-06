@@ -612,11 +612,12 @@ class Initialize2(BaseModel):
     model_config = ConfigDict(
         extra='ignore',
     )
-    type: Literal['MorphologyMetricsScanConfig.Initialize'] = Field(
-        default='MorphologyMetricsScanConfig.Initialize', title='Type'
+    type: Literal['MorphologyDecontainerizationScanConfig.Initialize'] = Field(
+        default='MorphologyDecontainerizationScanConfig.Initialize', title='Type'
     )
-    morphology: CellMorphologyFromID | list[CellMorphologyFromID] = Field(
-        ..., description='3. Morphology description', title='Morphology'
+    circuit: Circuit | list[Circuit] = Field(..., title='Circuit')
+    output_format: Literal['h5', 'asc', 'swc'] | list[Literal['h5', 'asc', 'swc']] = (
+        Field(default='h5', title='Output Format')
     )
 
 
@@ -823,6 +824,16 @@ class MTypeClassification(BaseModel):
     )
 
 
+class MorphologyDecontainerizationScanConfig(BaseModel):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    type: Literal['MorphologyDecontainerizationScanConfig'] = Field(
+        default='MorphologyDecontainerizationScanConfig', title='Type'
+    )
+    initialize: Initialize2
+
+
 class MorphologyMetricsOutput(BaseModel):
     model_config = ConfigDict(
         extra='ignore',
@@ -932,16 +943,6 @@ class MorphologyMetricsOutput(BaseModel):
         description='The distribution of strahler branch orders of sections, computed from                 terminals.',
         title='section_strahler_orders',
     )
-
-
-class MorphologyMetricsScanConfig(BaseModel):
-    model_config = ConfigDict(
-        extra='ignore',
-    )
-    type: Literal['MorphologyMetricsScanConfig'] = Field(
-        default='MorphologyMetricsScanConfig', title='Type'
-    )
-    initialize: Initialize2
 
 
 class Width(RootModel[float]):
@@ -2354,21 +2355,6 @@ class ObiOneScientificTasksMorphologyContainerizationMorphologyContainerizationS
     hoc_template_new: str = Field(..., title='Hoc Template New')
 
 
-class ObiOneScientificTasksMorphologyDecontainerizationMorphologyDecontainerizationScanConfigInitialize(
-    BaseModel
-):
-    model_config = ConfigDict(
-        extra='ignore',
-    )
-    type: Literal['MorphologyDecontainerizationScanConfig.Initialize'] = Field(
-        default='MorphologyDecontainerizationScanConfig.Initialize', title='Type'
-    )
-    circuit: Circuit | list[Circuit] = Field(..., title='Circuit')
-    output_format: Literal['h5', 'asc', 'swc'] | list[Literal['h5', 'asc', 'swc']] = (
-        Field(default='h5', title='Output Format')
-    )
-
-
 class ObiOneScientificTasksMorphologyLocationsMorphologyLocationsScanConfigInitialize(
     BaseModel
 ):
@@ -2384,6 +2370,20 @@ class ObiOneScientificTasksMorphologyLocationsMorphologyLocationsScanConfigIniti
         ...,
         description='The morphology skeleton to place locations on',
         title='Morphology',
+    )
+
+
+class ObiOneScientificTasksMorphologyMetricsMorphologyMetricsScanConfigInitialize(
+    BaseModel
+):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    type: Literal['MorphologyMetricsScanConfig.Initialize'] = Field(
+        default='MorphologyMetricsScanConfig.Initialize', title='Type'
+    )
+    morphology: CellMorphologyFromID | list[CellMorphologyFromID] = Field(
+        ..., description='3. Morphology description', title='Morphology'
     )
 
 
@@ -3146,16 +3146,6 @@ class MorphologyContainerizationScanConfig(BaseModel):
     initialize: ObiOneScientificTasksMorphologyContainerizationMorphologyContainerizationScanConfigInitialize
 
 
-class MorphologyDecontainerizationScanConfig(BaseModel):
-    model_config = ConfigDict(
-        extra='ignore',
-    )
-    type: Literal['MorphologyDecontainerizationScanConfig'] = Field(
-        default='MorphologyDecontainerizationScanConfig', title='Type'
-    )
-    initialize: ObiOneScientificTasksMorphologyDecontainerizationMorphologyDecontainerizationScanConfigInitialize
-
-
 class MorphologyLocationsScanConfig(BaseModel):
     model_config = ConfigDict(
         extra='ignore',
@@ -3178,6 +3168,18 @@ class MorphologyLocationsScanConfig(BaseModel):
         description='Parameterization of locations on the neurites of the morphology',
         discriminator='type',
         title='Morphology locations',
+    )
+
+
+class MorphologyMetricsScanConfig(BaseModel):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    type: Literal['MorphologyMetricsScanConfig'] = Field(
+        default='MorphologyMetricsScanConfig', title='Type'
+    )
+    initialize: (
+        ObiOneScientificTasksMorphologyMetricsMorphologyMetricsScanConfigInitialize
     )
 
 
