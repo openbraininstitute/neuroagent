@@ -7,6 +7,7 @@
  */
 
 import { z } from 'zod';
+import { HTTPError } from 'ky';
 
 import { BaseTool, type EntitycoreContextVariables } from '../base-tool';
 import {
@@ -119,10 +120,20 @@ Specify optional criteria to find relevant persons.`;
       // Validate response with Zod schema
       const validated = zListResponsePersonRead.parse(data);
       return validated;
-    } catch (error: any) {
-      throw new Error(
-        `The person endpoint returned an error: ${error.message || JSON.stringify(error)}`
-      );
+    } catch (error) {
+      if (error instanceof HTTPError) {
+        const { status, statusText } = error.response;
+        let responseBody = '';
+        try {
+          responseBody = await error.response.text();
+        } catch {
+          // Ignore if we can't read the body
+        }
+        throw new Error(
+          `The person endpoint returned a non 200 response code. Error: ${status} ${statusText}${responseBody ? ': ' + responseBody : ''}`
+        );
+      }
+      throw error;
     }
   }
 

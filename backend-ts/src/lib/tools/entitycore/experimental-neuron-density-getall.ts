@@ -7,6 +7,7 @@
  */
 
 import { z } from 'zod';
+import { HTTPError } from 'ky';
 
 import { BaseTool, type EntitycoreContextVariables } from '../base-tool';
 import {
@@ -130,7 +131,7 @@ Specify brain region and optional criteria to find relevant densities.`;
     });
 
     // Always include page_size (matches Python: query_params["page_size"] = self.input_schema.page_size)
-    queryParams.page_size = input.page_size ?? 5;
+    queryParams['page_size'] = input.page_size ?? 5;
 
     // Prepare headers
     const headers: Record<string, string> = {};
@@ -153,11 +154,11 @@ Specify brain region and optional criteria to find relevant densities.`;
           .json<any>();
 
         // Set the hierarchy_id in query params
-        queryParams.within_brain_region_hierarchy_id = brainRegionData.hierarchy_id;
+        queryParams['within_brain_region_hierarchy_id'] = brainRegionData.hierarchy_id;
 
         // Only add within_brain_region_direction when hierarchy_id is present
         // (matches Python: query_params["within_brain_region_direction"] = self.input_schema.within_brain_region_direction)
-        queryParams.within_brain_region_direction = within_brain_region_direction ?? 'ascendants_and_descendants';
+        queryParams['within_brain_region_direction'] = within_brain_region_direction ?? 'ascendants_and_descendants';
       }
 
       // Prepare search parameters
@@ -192,10 +193,20 @@ Specify brain region and optional criteria to find relevant densities.`;
       // Validate response with Zod schema
       const validated = zListResponseExperimentalNeuronDensityRead.parse(data);
       return validated;
-    } catch (error: any) {
-      throw new Error(
-        `The experimental neuron density endpoint returned an error: ${error.message || JSON.stringify(error)}`
-      );
+    } catch (error) {
+      if (error instanceof HTTPError) {
+        const { status, statusText } = error.response;
+        let responseBody = '';
+        try {
+          responseBody = await error.response.text();
+        } catch {
+          // Ignore if we can't read the body
+        }
+        throw new Error(
+          `The experimental neuron density endpoint returned a non 200 response code. Error: ${status} ${statusText}${responseBody ? ': ' + responseBody : ''}`
+        );
+      }
+      throw error;
     }
   }
 

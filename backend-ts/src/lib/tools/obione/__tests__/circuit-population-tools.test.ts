@@ -4,7 +4,7 @@
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { CircuitPopulationGetOneTool } from '../circuit-population-getone';
-import type { ObiOneContextVariables } from '../circuit-population-getone';
+import type { ObiOneContextVariables } from '../types';
 
 describe('CircuitPopulationGetOneTool', () => {
   let mockHttpClient: any;

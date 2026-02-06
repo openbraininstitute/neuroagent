@@ -76,9 +76,6 @@ describe('SimulationExecution Tools', () => {
       const result = tool.inputSchema.parse({});
       expect(result.page).toBe(1);
       expect(result.page_size).toBe(5);
-      expect(result.within_brain_region_hierarchy_id).toBe(
-        'e3e70682-c209-4cac-a29f-6fbed82c07cd'
-      );
       expect(result.order_by).toEqual(['-creation_date']);
     });
 

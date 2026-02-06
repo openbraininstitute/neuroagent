@@ -90,8 +90,14 @@ export * from './entitycore/subject-getall';
 export * from './entitycore/subject-getone';
 
 // OBIOne tools
+export * from './obione/types'; // Export shared ObiOneContextVariables
 export * from './obione/circuit-connectivity-metrics-getone';
 export * from './obione/circuit-metric-getone';
+export * from './obione/circuit-nodesets-getone';
+export * from './obione/circuit-population-getone';
+export * from './obione/ephys-metrics-getone';
+export * from './obione/morphometrics-getone';
+export * from './obione/generate-simulations-config';
 
 // Test tools for filtering
 export * from './test';
@@ -119,6 +125,10 @@ export interface ToolConfig {
 
   // OBIOne tool config
   obiOneUrl?: string;
+  sharedState?: any;
+  model?: string;
+  tokenConsumption?: any;
+  openaiApiKey?: string; // For tools that use Vercel AI SDK
 
   // Add more tool configs as needed
 }
@@ -215,6 +225,11 @@ export async function registerToolClasses() {
     // Import OBIOne tools
     const { CircuitConnectivityMetricsGetOneTool } = await import('./obione/circuit-connectivity-metrics-getone');
     const { CircuitMetricGetOneTool } = await import('./obione/circuit-metric-getone');
+    const { CircuitNodesetsGetOneTool } = await import('./obione/circuit-nodesets-getone');
+    const { CircuitPopulationGetOneTool } = await import('./obione/circuit-population-getone');
+    const { EphysMetricsGetOneTool } = await import('./obione/ephys-metrics-getone');
+    const { MorphometricsGetOneTool } = await import('./obione/morphometrics-getone');
+    const { GenerateSimulationsConfigTool } = await import('./obione/generate-simulations-config');
 
     // Import test tools
     const { WeatherTool } = await import('./test/WeatherTool');
@@ -289,6 +304,11 @@ export async function registerToolClasses() {
       { name: 'SubjectGetOneTool', cls: SubjectGetOneTool },
       { name: 'CircuitConnectivityMetricsGetOneTool', cls: CircuitConnectivityMetricsGetOneTool },
       { name: 'CircuitMetricGetOneTool', cls: CircuitMetricGetOneTool },
+      { name: 'CircuitNodesetsGetOneTool', cls: CircuitNodesetsGetOneTool },
+      { name: 'CircuitPopulationGetOneTool', cls: CircuitPopulationGetOneTool },
+      { name: 'EphysMetricsGetOneTool', cls: EphysMetricsGetOneTool },
+      { name: 'MorphometricsGetOneTool', cls: MorphometricsGetOneTool },
+      { name: 'GenerateSimulationsConfigTool', cls: GenerateSimulationsConfigTool },
       { name: 'WeatherTool', cls: WeatherTool },
       { name: 'TranslatorTool', cls: TranslatorTool },
       { name: 'TimeTool', cls: TimeTool },
@@ -472,8 +492,18 @@ export async function getAvailableToolClasses(config: ToolConfig): Promise<any[]
   if (config.obiOneUrl) {
     const { CircuitConnectivityMetricsGetOneTool } = await import('./obione/circuit-connectivity-metrics-getone');
     const { CircuitMetricGetOneTool } = await import('./obione/circuit-metric-getone');
+    const { CircuitNodesetsGetOneTool } = await import('./obione/circuit-nodesets-getone');
+    const { CircuitPopulationGetOneTool } = await import('./obione/circuit-population-getone');
+    const { EphysMetricsGetOneTool } = await import('./obione/ephys-metrics-getone');
+    const { MorphometricsGetOneTool } = await import('./obione/morphometrics-getone');
+    const { GenerateSimulationsConfigTool } = await import('./obione/generate-simulations-config');
     availableClasses.push(CircuitConnectivityMetricsGetOneTool);
     availableClasses.push(CircuitMetricGetOneTool);
+    availableClasses.push(CircuitNodesetsGetOneTool);
+    availableClasses.push(CircuitPopulationGetOneTool);
+    availableClasses.push(EphysMetricsGetOneTool);
+    availableClasses.push(MorphometricsGetOneTool);
+    availableClasses.push(GenerateSimulationsConfigTool);
   }
 
   // Test tools are always available (for testing filtering)
@@ -1451,6 +1481,81 @@ export async function createToolInstance(ToolCls: any, config: ToolConfig): Prom
       obiOneUrl: config.obiOneUrl,
       vlabId: config.vlabId,
       projectId: config.projectId,
+    });
+  }
+
+  if (toolName === 'obione-circuitnodesets-getone') {
+    if (!config.obiOneUrl) {
+      throw new Error('OBIOne tools require obiOneUrl');
+    }
+
+    const { CircuitNodesetsGetOneTool } = await import('./obione/circuit-nodesets-getone');
+    return new CircuitNodesetsGetOneTool({
+      httpClient: config.httpClient,
+      obiOneUrl: config.obiOneUrl,
+      vlabId: config.vlabId,
+      projectId: config.projectId,
+    });
+  }
+
+  if (toolName === 'obione-circuitpopulation-getone') {
+    if (!config.obiOneUrl) {
+      throw new Error('OBIOne tools require obiOneUrl');
+    }
+
+    const { CircuitPopulationGetOneTool } = await import('./obione/circuit-population-getone');
+    return new CircuitPopulationGetOneTool({
+      httpClient: config.httpClient,
+      obiOneUrl: config.obiOneUrl,
+      vlabId: config.vlabId,
+      projectId: config.projectId,
+    });
+  }
+
+  if (toolName === 'obione-ephysmetrics-getone') {
+    if (!config.obiOneUrl) {
+      throw new Error('OBIOne tools require obiOneUrl');
+    }
+
+    const { EphysMetricsGetOneTool } = await import('./obione/ephys-metrics-getone');
+    return new EphysMetricsGetOneTool({
+      httpClient: config.httpClient,
+      obiOneUrl: config.obiOneUrl,
+      vlabId: config.vlabId,
+      projectId: config.projectId,
+    });
+  }
+
+  if (toolName === 'obione-morphometrics-getone') {
+    if (!config.obiOneUrl) {
+      throw new Error('OBIOne tools require obiOneUrl');
+    }
+
+    const { MorphometricsGetOneTool } = await import('./obione/morphometrics-getone');
+    return new MorphometricsGetOneTool({
+      httpClient: config.httpClient,
+      obiOneUrl: config.obiOneUrl,
+      vlabId: config.vlabId,
+      projectId: config.projectId,
+    });
+  }
+
+  if (toolName === 'obione-generatesimulationsconfig') {
+    if (!config.obiOneUrl) {
+      throw new Error('OBIOne tools require obiOneUrl');
+    }
+
+    const { GenerateSimulationsConfigTool } = await import('./obione/generate-simulations-config');
+    return new GenerateSimulationsConfigTool({
+      httpClient: config.httpClient,
+      obiOneUrl: config.obiOneUrl,
+      vlabId: config.vlabId,
+      projectId: config.projectId,
+      sharedState: config.sharedState,
+      entityFrontendUrl: config.entityFrontendUrl || '',
+      model: config.model,
+      openaiApiKey: config.openaiApiKey,
+      tokenConsumption: config.tokenConsumption,
     });
   }
 

@@ -4,8 +4,9 @@
  */
 
 import { z } from 'zod';
-import { type KyInstance } from 'ky';
-import { BaseTool, type BaseContextVariables } from '../base-tool';
+import { HTTPError } from 'ky';
+import { BaseTool } from '../base-tool';
+import { ObiOneContextVariables } from './types';
 import {
   zCircuitPopulationsEndpointDeclaredCircuitCircuitIdBiophysicalPopulationsGetData,
   zCircuitPopulationsResponse,
@@ -24,23 +25,6 @@ const CircuitPopulationGetOneInputSchema =
         .describe('ID of the circuit from which the population should be retrieved.'),
     }
   );
-
-/**
- * Context variables for the circuit population tool.
- */
-export interface ObiOneContextVariables extends BaseContextVariables {
-  /** HTTP client (ky instance) pre-configured with JWT token */
-  httpClient: KyInstance;
-
-  /** OBI-One API base URL */
-  obiOneUrl: string;
-
-  /** Virtual lab ID (optional) */
-  vlabId?: string;
-
-  /** Project ID (optional) */
-  projectId?: string;
-}
 
 /**
  * Tool to get the circuit population.
@@ -100,9 +84,16 @@ export class CircuitPopulationGetOneTool extends BaseTool<
       // Validate response with Zod schema
       return zCircuitPopulationsResponse.parse(response);
     } catch (error) {
-      if (error instanceof Error) {
+      if (error instanceof HTTPError) {
+        const { status, statusText } = error.response;
+        let responseBody = '';
+        try {
+          responseBody = await error.response.text();
+        } catch {
+          // Ignore if we can't read the body
+        }
         throw new Error(
-          `The circuit population endpoint returned a non 200 response code. Error: ${error.message}`
+          `The circuit population endpoint returned a non 200 response code. Error: ${status} ${statusText}${responseBody ? ': ' + responseBody : ''}`
         );
       }
       throw error;

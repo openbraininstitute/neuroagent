@@ -4,8 +4,9 @@
  */
 
 import { z } from 'zod';
-import { type KyInstance } from 'ky';
-import { BaseTool, type BaseContextVariables } from '../base-tool';
+import { HTTPError } from 'ky';
+import { BaseTool } from '../base-tool';
+import { ObiOneContextVariables } from './types';
 import {
   zConnectivityMetricsRequest,
   zConnectivityMetricsOutput,
@@ -51,23 +52,6 @@ const CircuitConnectivityMetricsGetOneInputSchema = zConnectivityMetricsRequest.
         'If not provided, only post_node_set filter is applied.'
     ),
 });
-
-/**
- * Context variables for the circuit connectivity metrics tool.
- */
-export interface ObiOneContextVariables extends BaseContextVariables {
-  /** HTTP client (ky instance) pre-configured with JWT token */
-  httpClient: KyInstance;
-
-  /** OBI-One API base URL */
-  obiOneUrl: string;
-
-  /** Virtual lab ID (optional) */
-  vlabId?: string;
-
-  /** Project ID (optional) */
-  projectId?: string;
-}
 
 /**
  * Tool to compute the circuit connectivity metrics.
@@ -153,9 +137,16 @@ export class CircuitConnectivityMetricsGetOneTool extends BaseTool<
       // Validate response with Zod schema
       return zConnectivityMetricsOutput.parse(response);
     } catch (error) {
-      if (error instanceof Error) {
+      if (error instanceof HTTPError) {
+        const { status, statusText } = error.response;
+        let responseBody = '';
+        try {
+          responseBody = await error.response.text();
+        } catch {
+          // Ignore if we can't read the body
+        }
         throw new Error(
-          `The connectivity metrics endpoint returned an error: ${error.message}`
+          `The connectivity metrics endpoint returned a non 200 response code. Error: ${status} ${statusText}${responseBody ? ': ' + responseBody : ''}`
         );
       }
       throw error;

@@ -4,8 +4,9 @@
  */
 
 import { z } from 'zod';
-import { type KyInstance } from 'ky';
-import { BaseTool, type BaseContextVariables } from '../base-tool';
+import { HTTPError } from 'ky';
+import { BaseTool } from '../base-tool';
+import { ObiOneContextVariables } from './types';
 import {
   zElectrophysiologyrecordingMetricsEndpointDeclaredElectrophysiologyrecordingMetricsTraceIdGetData,
   zElectrophysiologyMetricsOutput,
@@ -28,37 +29,7 @@ const EphysMetricsGetOneInputSchema =
     .merge(
       zElectrophysiologyrecordingMetricsEndpointDeclaredElectrophysiologyrecordingMetricsTraceIdGetData.shape.query
         .unwrap()
-        .extend({
-          // Rename trace_id to electrical_cell_recording_id for consistency with Python
-          electrical_cell_recording_id: z
-            .string()
-            .uuid()
-            .optional()
-            .describe(
-              'Id of the electrical cell recording from which features must be computed.'
-            ),
-        })
-        .omit({
-          trace_id: true, // Remove the duplicate trace_id from query
-        })
     );
-
-/**
- * Context variables for the electrophysiology metrics tool.
- */
-export interface ObiOneContextVariables extends BaseContextVariables {
-  /** HTTP client (ky instance) pre-configured with JWT token */
-  httpClient: KyInstance;
-
-  /** OBI-One API base URL */
-  obiOneUrl: string;
-
-  /** Virtual lab ID (optional) */
-  vlabId?: string;
-
-  /** Project ID (optional) */
-  projectId?: string;
-}
 
 /**
  * Tool to compute electrophysiology metrics.
@@ -117,16 +88,25 @@ export class EphysMetricsGetOneTool extends BaseTool<
     }
 
     // Prepare query params (exclude trace_id which goes in the path)
-    const queryParams: Record<string, unknown> = {};
-    const { trace_id, electrical_cell_recording_id, ...restParams } = input;
+    // Note: We use URLSearchParams to properly handle arrays as repeated parameters
+    // (e.g., param=val1&param=val2) instead of comma-separated (param=val1,val2)
+    // This matches the Python backend's httpx behavior
+    const searchParams = new URLSearchParams();
+    const { trace_id, ...restParams } = input;
 
-    // Use electrical_cell_recording_id if provided, otherwise use trace_id
-    const recordingId = electrical_cell_recording_id || trace_id;
+    // Use trace_id from path
+    const recordingId = trace_id;
 
     // Add remaining query params
+    // Arrays are added as repeated parameters to match httpx behavior
     Object.entries(restParams).forEach(([key, value]) => {
-      if (value !== undefined) {
-        queryParams[key] = value;
+      if (value !== undefined && value !== null) {
+        if (Array.isArray(value)) {
+          // Add each array element as a separate parameter
+          value.forEach((item) => searchParams.append(key, String(item)));
+        } else {
+          searchParams.append(key, String(value));
+        }
       }
     });
 
@@ -136,7 +116,7 @@ export class EphysMetricsGetOneTool extends BaseTool<
           `${obiOneUrl}/declared/electrophysiologyrecording-metrics/${recordingId}`,
           {
             headers,
-            searchParams: queryParams,
+            searchParams,
           }
         )
         .json();
@@ -144,9 +124,16 @@ export class EphysMetricsGetOneTool extends BaseTool<
       // Validate response with Zod schema
       return zElectrophysiologyMetricsOutput.parse(response);
     } catch (error) {
-      if (error instanceof Error) {
+      if (error instanceof HTTPError) {
+        const { status, statusText } = error.response;
+        let responseBody = '';
+        try {
+          responseBody = await error.response.text();
+        } catch {
+          // Ignore if we can't read the body
+        }
         throw new Error(
-          `The electrophysiology metrics endpoint returned a non 200 response code. Error: ${error.message}`
+          `The electrophysiology metrics endpoint returned a non 200 response code. Error: ${status} ${statusText}${responseBody ? ': ' + responseBody : ''}`
         );
       }
       throw error;

@@ -4,7 +4,7 @@
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { MorphometricsGetOneTool } from '../morphometrics-getone';
-import type { ObiOneContextVariables } from '../morphometrics-getone';
+import type { ObiOneContextVariables } from '../types';
 
 describe('MorphometricsGetOneTool', () => {
   let mockHttpClient: any;

@@ -423,10 +423,11 @@ export async function GET(
 
       // If the tool call buffer is not empty, add a dummy AI message
       if (parts.length > 0) {
+        const lastMessage = reversedMessages[reversedMessages.length - 1];
         messages.push({
           id: crypto.randomUUID(),
           role: 'assistant',
-          createdAt: reversedMessages[reversedMessages.length - 1].creationDate.toISOString(),
+          createdAt: lastMessage?.creationDate.toISOString() || new Date().toISOString(),
           content: '',
           parts,
           annotations,

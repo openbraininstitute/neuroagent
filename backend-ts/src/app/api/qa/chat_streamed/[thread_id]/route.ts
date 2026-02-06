@@ -33,13 +33,21 @@ import { initializeTools } from '@/lib/tools';
 import { Entity } from '@/types';
 
 /**
- * Request body schema for chat streaming
+ * Shared state schema (matches Python SharedState)
+ */
+const SharedStateSchema = z.object({
+  smc_simulation_config: z.record(z.any()).nullable().optional(),
+});
+
+/**
+ * Request body schema for chat streaming (matches Python ClientRequest)
  */
 const ChatStreamRequestSchema = z.object({
   content: z.string().min(1, 'Message content cannot be empty'),
   model: z.string().optional(),
   tool_selection: z.array(z.string()).optional(),
   frontend_url: z.string().optional(),
+  shared_state: SharedStateSchema.nullable().optional(),
 });
 
 /**
@@ -227,7 +235,8 @@ export async function POST(
       // Log which tools were selected and which were not found
       if (selectedToolClasses.length !== body.tool_selection.length) {
         const foundTools = selectedToolClasses.map(t => t.toolName);
-        const notFound = body.tool_selection.filter(name => !foundTools.includes(name));
+        const notFoundTools = body.tool_selection.filter(name => !foundTools.includes(name));
+        console.warn('[chat_streamed] Tools not found:', notFoundTools);
       }
     }
 
@@ -322,6 +331,11 @@ export async function POST(
         vlabId: thread.vlabId || undefined,
         projectId: thread.projectId || undefined,
         obiOneUrl: settings.tools.obiOne.url,
+        currentFrontendUrl: body.frontend_url || undefined,
+        sharedState: body.shared_state || undefined,
+        threadId: thread_id,
+        userId: userInfo.sub,
+        openaiApiKey: settings.llm.openaiToken, // For tools that use Vercel AI SDK
       },
       instructions:
         'You are a helpful neuroscience research assistant. ' +

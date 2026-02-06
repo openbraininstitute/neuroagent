@@ -53,3 +53,17 @@ export interface RateLimitResult {
   limited: boolean;
   headers: Record<string, string>;
 }
+
+// Shared state between backend and frontend (matches Python SharedState)
+export interface SharedState {
+  smc_simulation_config?: Record<string, any> | null;
+}
+
+// Client request body (matches Python ClientRequest)
+export interface ClientRequest {
+  content: string;
+  tool_selection?: string[];
+  model?: string;
+  frontend_url?: string;
+  shared_state?: SharedState | null;
+}

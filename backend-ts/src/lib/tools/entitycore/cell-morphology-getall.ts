@@ -7,6 +7,7 @@
  */
 
 import { z } from 'zod';
+import { HTTPError } from 'ky';
 
 import { BaseTool, type EntitycoreContextVariables } from '../base-tool';
 import {
@@ -188,10 +189,20 @@ Specify brain region and optional criteria to find relevant morphologies.`;
       // Validate response with Zod schema
       const validated = zListResponseCellMorphologyRead.parse(data);
       return validated;
-    } catch (error: any) {
-      throw new Error(
-        `The cell-morphology endpoint returned an error: ${error.message || JSON.stringify(error)}`
-      );
+    } catch (error) {
+      if (error instanceof HTTPError) {
+        const { status, statusText } = error.response;
+        let responseBody = '';
+        try {
+          responseBody = await error.response.text();
+        } catch {
+          // Ignore if we can't read the body
+        }
+        throw new Error(
+          `The cell-morphology endpoint returned a non 200 response code. Error: ${status} ${statusText}${responseBody ? ': ' + responseBody : ''}`
+        );
+      }
+      throw error;
     }
   }
 

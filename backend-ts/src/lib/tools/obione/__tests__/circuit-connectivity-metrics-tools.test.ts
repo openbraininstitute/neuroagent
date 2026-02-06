@@ -6,7 +6,7 @@
 
 import { describe, it, expect } from 'vitest';
 import { CircuitConnectivityMetricsGetOneTool } from '../circuit-connectivity-metrics-getone';
-import type { ObiOneContextVariables } from '../circuit-connectivity-metrics-getone';
+import type { ObiOneContextVariables } from '../types';
 
 describe('Circuit Connectivity Metrics Tool', () => {
   const mockContextVariables: ObiOneContextVariables = {

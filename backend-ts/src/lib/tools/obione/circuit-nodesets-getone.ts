@@ -4,8 +4,9 @@
  */
 
 import { z } from 'zod';
-import { type KyInstance } from 'ky';
-import { BaseTool, type BaseContextVariables } from '../base-tool';
+import { HTTPError } from 'ky';
+import { BaseTool } from '../base-tool';
+import { ObiOneContextVariables } from './types';
 import {
   zCircuitNodesetsEndpointDeclaredCircuitCircuitIdNodesetsGetData,
   zCircuitNodesetsResponse,
@@ -22,23 +23,6 @@ const CircuitNodesetsGetOneInputSchema =
       .uuid()
       .describe('ID of the circuit from which the nodesets should be retrieved.'),
   });
-
-/**
- * Context variables for the circuit nodesets tool.
- */
-export interface ObiOneContextVariables extends BaseContextVariables {
-  /** HTTP client (ky instance) pre-configured with JWT token */
-  httpClient: KyInstance;
-
-  /** OBI-One API base URL */
-  obiOneUrl: string;
-
-  /** Virtual lab ID (optional) */
-  vlabId?: string;
-
-  /** Project ID (optional) */
-  projectId?: string;
-}
 
 /**
  * Tool to get the circuit nodesets.
@@ -96,9 +80,16 @@ export class CircuitNodesetsGetOneTool extends BaseTool<
       // Validate response with Zod schema
       return zCircuitNodesetsResponse.parse(response);
     } catch (error) {
-      if (error instanceof Error) {
+      if (error instanceof HTTPError) {
+        const { status, statusText } = error.response;
+        let responseBody = '';
+        try {
+          responseBody = await error.response.text();
+        } catch {
+          // Ignore if we can't read the body
+        }
         throw new Error(
-          `The circuit nodesets endpoint returned a non 200 response code. Error: ${error.message}`
+          `The circuit nodesets endpoint returned a non 200 response code. Error: ${status} ${statusText}${responseBody ? ': ' + responseBody : ''}`
         );
       }
       throw error;

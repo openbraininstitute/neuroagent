@@ -4,7 +4,7 @@
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { EphysMetricsGetOneTool } from '../ephys-metrics-getone';
-import type { ObiOneContextVariables } from '../ephys-metrics-getone';
+import type { ObiOneContextVariables } from '../types';
 
 describe('EphysMetricsGetOneTool', () => {
   let mockHttpClient: any;

@@ -4,8 +4,9 @@
  */
 
 import { z } from 'zod';
-import { type KyInstance } from 'ky';
-import { BaseTool, type BaseContextVariables } from '../base-tool';
+import { HTTPError } from 'ky';
+import { BaseTool } from '../base-tool';
+import { ObiOneContextVariables } from './types';
 import {
   zCircuitMetricsEndpointDeclaredCircuitMetricsCircuitIdGetData,
   zCircuitMetricsOutput,
@@ -27,13 +28,14 @@ const CircuitMetricGetOneInputSchema =
       zCircuitMetricsEndpointDeclaredCircuitMetricsCircuitIdGetData.shape.query
         .unwrap()
         .extend({
-          // Override the query params with proper constraints
+          // Override the query params with proper constraints and make them optional with defaults
           level_of_detail_nodes: z
             .number()
             .int()
             .gte(0)
             .lte(3)
             .default(1)
+            .optional()
             .describe('Level of detail for nodes in the response.'),
           level_of_detail_edges: z
             .number()
@@ -41,26 +43,10 @@ const CircuitMetricGetOneInputSchema =
             .gte(0)
             .lte(3)
             .default(1)
+            .optional()
             .describe('Level of detail for edges in the response.'),
         })
     );
-
-/**
- * Context variables for the circuit metrics tool.
- */
-export interface ObiOneContextVariables extends BaseContextVariables {
-  /** HTTP client (ky instance) pre-configured with JWT token */
-  httpClient: KyInstance;
-
-  /** OBI-One API base URL */
-  obiOneUrl: string;
-
-  /** Virtual lab ID (optional) */
-  vlabId?: string;
-
-  /** Project ID (optional) */
-  projectId?: string;
-}
 
 /**
  * Tool to compute the circuit metrics.
@@ -140,28 +126,36 @@ export class CircuitMetricGetOneTool extends BaseTool<
     }
 
     // Prepare query params (exclude circuit_id which goes in the path)
-    const queryParams: Record<string, unknown> = {};
-    if (input.level_of_detail_nodes !== undefined) {
-      queryParams.level_of_detail_nodes = input.level_of_detail_nodes;
+    // Note: We use URLSearchParams to properly handle parameters
+    const searchParams = new URLSearchParams();
+    if (input['level_of_detail_nodes'] !== undefined) {
+      searchParams.append('level_of_detail_nodes', String(input['level_of_detail_nodes']));
     }
-    if (input.level_of_detail_edges !== undefined) {
-      queryParams.level_of_detail_edges = input.level_of_detail_edges;
+    if (input['level_of_detail_edges'] !== undefined) {
+      searchParams.append('level_of_detail_edges', String(input['level_of_detail_edges']));
     }
 
     try {
       const response = await httpClient
         .get(`${obiOneUrl}/declared/circuit-metrics/${input.circuit_id}`, {
           headers,
-          searchParams: queryParams,
+          searchParams,
         })
         .json();
 
       // Validate response with Zod schema
       return zCircuitMetricsOutput.parse(response);
     } catch (error) {
-      if (error instanceof Error) {
+      if (error instanceof HTTPError) {
+        const { status, statusText } = error.response;
+        let responseBody = '';
+        try {
+          responseBody = await error.response.text();
+        } catch {
+          // Ignore if we can't read the body
+        }
         throw new Error(
-          `The circuit metrics endpoint returned a non 200 response code. Error: ${error.message}`
+          `The circuit metrics endpoint returned a non 200 response code. Error: ${status} ${statusText}${responseBody ? ': ' + responseBody : ''}`
         );
       }
       throw error;

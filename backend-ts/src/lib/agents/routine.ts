@@ -8,6 +8,17 @@
  * - Token consumption tracking
  * - Streaming interruption handling via abortSignal listener + onChunk tracking
  * - Multi-turn conversation management
+ * - Real-time tool call streaming (enabled via toolCallStreaming: true)
+ *
+ * Tool Call Streaming:
+ * In Vercel AI SDK v4.x, tool call streaming is DISABLED by default. We enable it
+ * via toolCallStreaming: true to match Python backend behavior where tool calls
+ * appear in the UI as soon as the LLM starts generating them (not after completion).
+ * This provides immediate feedback with:
+ * - 'tool-call-streaming-start' events when tool call begins
+ * - 'tool-call-delta' events as arguments stream in
+ * - 'tool-call' events when tool call completes
+ * Note: In AI SDK v5+, tool call streaming is enabled by default.
  *
  * Streaming Interruption Handling:
  * When a client disconnects or stops streaming (e.g., user clicks stop button),
@@ -189,6 +200,7 @@ export class AgentsRoutine {
         // This matches the Python backend behavior where:
         // 1. Tool calls beyond the limit receive an error message asking them to retry
         // 2. HIL tools are blocked from execution and require explicit validation
+        // 3. Tool execution errors are caught and returned as error messages (not thrown)
         const wrappedTool = {
           ...originalTool,
           execute: async (
@@ -229,15 +241,29 @@ export class AgentsRoutine {
               return `The tool ${toolName} with arguments ${JSON.stringify(args)} could not be executed due to rate limit. Call it again.`;
             }
 
+            // Execute the tool and catch any errors
+            // Matches Python backend behavior where errors are returned as tool results
+            // instead of breaking the agent loop
             try {
               const result = await originalExecute(args, options);
               return result;
             } catch (error) {
+              // Log the error for debugging
               console.error(
                 `[streamChat] Tool execution failed: ${toolName} (ID: ${toolCallId})`,
                 error
               );
-              throw error;
+
+              // Return error as a string result instead of throwing
+              // This allows the LLM to see the error and potentially retry or adjust
+              // Matches Python backend: return {"role": "tool", "content": str(err)}
+              if (error instanceof Error) {
+                return `Error executing tool: ${error.message}`;
+              } else if (typeof error === 'string') {
+                return `Error executing tool: ${error}`;
+              } else {
+                return `Error executing tool: ${JSON.stringify(error)}`;
+              }
             }
           },
         };
@@ -320,17 +346,14 @@ export class AgentsRoutine {
         temperature: agent.temperature,
         maxTokens: agent.maxTokens,
         maxSteps: maxTurns, // Enable automatic multi-step tool execution
+        toolCallStreaming: true, // Enable streaming of tool call deltas (disabled by default in v4)
         abortSignal, // Forward abort signal from request to detect client disconnect
-        experimental_telemetry: {
-          isEnabled: false,
-          functionId: 'neuroagent-chat',
-        },
         onChunk: async ({ chunk }) => {
-          // Track streaming content in real-time
+          // Track streaming content in real-time for abort handling
           if (chunk.type === 'text-delta') {
             currentStreamingMessage += chunk.textDelta;
           } else if (chunk.type === 'tool-call-delta') {
-            // Track tool call deltas
+            // Track tool call deltas for abort handling
             const existingToolCall = currentToolCalls.find(tc => tc.toolCallId === chunk.toolCallId);
             if (!existingToolCall && chunk.toolName) {
               currentToolCalls.push({
@@ -376,7 +399,7 @@ export class AgentsRoutine {
           currentStreamingMessage = '';
           currentToolCalls = [];
         },
-        onFinish: async ({ response, usage, finishReason }) => {
+        onFinish: async ({ response, usage }) => {
           // Only save if not aborted (abort handler will save partial messages)
           if (!abortSignal?.aborted) {
             try {
@@ -400,8 +423,9 @@ export class AgentsRoutine {
         },
       });
 
-      // We need to wrap the stream to detect HIL validation requirements
-      // and send annotation data before the stream ends
+      // Convert to data stream response with error handling
+      // Note: Vercel AI SDK v4.3.19 automatically streams tool-call-delta chunks
+      // in the data stream format, so tool calls appear in real-time in the UI
       const originalResponse = result.toDataStreamResponse({
         getErrorMessage: (error: unknown) => {
           console.error('[streamChat] Error in stream:', error);
@@ -429,8 +453,7 @@ export class AgentsRoutine {
         },
       });
 
-      // Check if we need to wrap the stream for HIL validation
-      // We'll check the database after the stream completes to see if HIL validation is needed
+      // Wrap the stream to add HIL validation annotations if needed
       const wrappedResponse = await this.wrapStreamForHIL(originalResponse, threadId);
 
       return wrappedResponse;

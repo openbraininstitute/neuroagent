@@ -4,8 +4,9 @@
  */
 
 import { z } from 'zod';
-import { type KyInstance } from 'ky';
-import { BaseTool, type BaseContextVariables } from '../base-tool';
+import { HTTPError } from 'ky';
+import { BaseTool } from '../base-tool';
+import { ObiOneContextVariables } from './types';
 import {
   zNeuronMorphologyMetricsEndpointDeclaredNeuronMorphologyMetricsCellMorphologyIdGetData,
   zMorphologyMetricsOutput,
@@ -28,37 +29,7 @@ const MorphometricsGetOneInputSchema =
     .merge(
       zNeuronMorphologyMetricsEndpointDeclaredNeuronMorphologyMetricsCellMorphologyIdGetData.shape.query
         .unwrap()
-        .extend({
-          // Add morphology_id as an alias for consistency with Python
-          morphology_id: z
-            .string()
-            .uuid()
-            .optional()
-            .describe(
-              'Id of the morphology from which features must be computed. This is NOT an `asset.id`, you must provide the morphology `id`'
-            ),
-        })
-        .omit({
-          cell_morphology_id: true, // Remove the duplicate from query
-        })
     );
-
-/**
- * Context variables for the morphometrics tool.
- */
-export interface ObiOneContextVariables extends BaseContextVariables {
-  /** HTTP client (ky instance) pre-configured with JWT token */
-  httpClient: KyInstance;
-
-  /** OBI-One API base URL */
-  obiOneUrl: string;
-
-  /** Virtual lab ID (optional) */
-  vlabId?: string;
-
-  /** Project ID (optional) */
-  projectId?: string;
-}
 
 /**
  * Tool to compute morphology metrics.
@@ -115,16 +86,23 @@ export class MorphometricsGetOneTool extends BaseTool<
     }
 
     // Prepare query params (exclude cell_morphology_id which goes in the path)
-    const queryParams: Record<string, unknown> = {};
-    const { cell_morphology_id, morphology_id, ...restParams } = input;
+    // Note: We use URLSearchParams to properly handle arrays as repeated parameters
+    const searchParams = new URLSearchParams();
+    const { cell_morphology_id, ...restParams } = input;
 
-    // Use morphology_id if provided, otherwise use cell_morphology_id
-    const morphId = morphology_id || cell_morphology_id;
+    // Use cell_morphology_id from path
+    const morphId = cell_morphology_id;
 
     // Add remaining query params
+    // Arrays are added as repeated parameters to match httpx behavior
     Object.entries(restParams).forEach(([key, value]) => {
-      if (value !== undefined) {
-        queryParams[key] = value;
+      if (value !== undefined && value !== null) {
+        if (Array.isArray(value)) {
+          // Add each array element as a separate parameter
+          value.forEach((item) => searchParams.append(key, String(item)));
+        } else {
+          searchParams.append(key, String(value));
+        }
       }
     });
 
@@ -132,16 +110,23 @@ export class MorphometricsGetOneTool extends BaseTool<
       const response = await httpClient
         .get(`${obiOneUrl}/declared/neuron-morphology-metrics/${morphId}`, {
           headers,
-          searchParams: queryParams,
+          searchParams,
         })
         .json();
 
       // Validate response with Zod schema
       return zMorphologyMetricsOutput.parse(response);
     } catch (error) {
-      if (error instanceof Error) {
+      if (error instanceof HTTPError) {
+        const { status, statusText } = error.response;
+        let responseBody = '';
+        try {
+          responseBody = await error.response.text();
+        } catch {
+          // Ignore if we can't read the body
+        }
         throw new Error(
-          `The morpho metrics endpoint returned a non 200 response code. Error: ${error.message}`
+          `The morpho metrics endpoint returned a non 200 response code. Error: ${status} ${statusText}${responseBody ? ': ' + responseBody : ''}`
         );
       }
       throw error;
