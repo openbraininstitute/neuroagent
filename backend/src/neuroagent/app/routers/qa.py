@@ -24,6 +24,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from neuroagent.agent_routine import AgentsRoutine
 from neuroagent.app.app_utils import (
     commit_messages,
+    extract_frontend_context,
     rate_limit,
     validate_project,
 )
@@ -55,11 +56,6 @@ from neuroagent.new_types import (
     ClientRequest,
 )
 from neuroagent.tools.base_tool import BaseTool
-from neuroagent.tools.context_analyzer_tool import (
-    ContextAnalyzerInput,
-    ContextAnalyzerMetdata,
-    ContextAnalyzerTool,
-)
 from neuroagent.utils import messages_to_openai_content
 
 router = APIRouter(prefix="/qa", tags=["Run the agent"])
@@ -181,13 +177,9 @@ Available Tools:
     else:
         # Get current page context
         if body.frontend_url:
-            context_tool = ContextAnalyzerTool(
-                metadata=ContextAnalyzerMetdata(current_frontend_url=body.frontend_url),
-                input_schema=ContextAnalyzerInput(),
-            )
             try:
                 # Get current page info
-                context_output = await context_tool.arun()
+                context_output = extract_frontend_context(body.frontend_url)
 
                 # Get BR name from ID
                 if context_output.brain_region_id is not None:

@@ -21,6 +21,7 @@ from starlette.status import HTTP_401_UNAUTHORIZED
 
 from neuroagent.agent_routine import AgentsRoutine
 from neuroagent.app.app_utils import (
+    extract_frontend_context,
     filter_tools_and_model_by_conversation,
     validate_project,
 )
@@ -49,7 +50,6 @@ from neuroagent.tools import (
     CircuitNodesetsGetOneTool,
     CircuitPopulationAnalysisTool,
     CircuitPopulationGetOneTool,
-    ContextAnalyzerTool,
     ContributionGetAllTool,
     ContributionGetOneTool,
     ElectricalCellRecordingGetAllTool,
@@ -405,7 +405,6 @@ def get_tool_list(
         CircuitNodesetsGetOneTool,
         CircuitPopulationAnalysisTool,
         CircuitPopulationGetOneTool,
-        ContextAnalyzerTool,
         ContributionGetAllTool,
         ContributionGetOneTool,
         ElectricalCellRecordingGetAllTool,
@@ -593,8 +592,9 @@ def get_rules_dir() -> Path:
     return rules_dir
 
 
-@cache
-def get_system_prompt(rules_dir: Annotated[Path, Depends(get_rules_dir)]) -> str:
+async def get_system_prompt(
+    rules_dir: Annotated[Path, Depends(get_rules_dir)], request: Request
+) -> str:
     """Get the concatenated rules from all .mdc files in the rules directory."""
     # Initialize the system prompt with base instructions
     system_prompt = """# NEUROSCIENCE AI ASSISTANT
@@ -649,7 +649,14 @@ Current time: {datetime.now(timezone.utc).isoformat()}"""
 # CURRENT CONTEXT
 
 Current time: {datetime.now(timezone.utc).isoformat()}"""
-    return system_prompt
+    if request.method == "GET":
+        return system_prompt
+    else:
+        body = await request.json()
+        if body.get("frontend_url"):
+            system_prompt += f"""
+Current page being browsed: {extract_frontend_context(body["frontend_url"]).model_dump()}"""
+        return system_prompt
 
 
 async def get_starting_agent(

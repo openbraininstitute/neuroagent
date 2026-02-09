@@ -36,8 +36,9 @@ def extract_model_structure(model: type[BaseModel]) -> dict[str, Any]:
 class GenerateSimulationsConfigInput(BaseModel):
     """Inputs of the GenerateSimulationsConfig tool."""
 
-    circuit_id: UUID = Field(
-        description="UUID of the target circuit that has to be simulated."
+    circuit_id: UUID | None = Field(
+        default=None,
+        description="UUID of the target circuit that has to be simulated. ONLY CIRCUITS CAN BE SIMULATED. NO OTHER ENTITY. Specify it only if you are sure about which circuit must be simulated. Otherwise it will be infered from the app state.",
     )
     config_request: str = Field(
         description="A detailed description of the desired simulation configuration that will be processed by an LLM to generate JSON. This should contain either: (1) a complete specification for a new configuration including all required parameters and settings, or (2) specific modifications to be applied to an existing configuration (e.g., 'change simulation length to 5000ms', 'Apply an extra stimulus for excitatory neurons', 'record only inhibitory neurons instead'). Be explicit about which approach you're using and provide clear, actionable details."
@@ -52,8 +53,8 @@ class GenerateSimulationsConfigMetadata(BaseMetadata):
     obi_one_url: str
     vlab_id: UUID | None
     project_id: UUID | None
-    shared_state: SharedState | None
-    entity_frontend_url: str
+    shared_state: SharedState
+    current_frontend_url: str | None = None
     token_consumption: dict[str, str | int | None] | None = None
 
 
@@ -73,6 +74,13 @@ class CircuitSimulationScanConfigModified(CircuitSimulationScanConfig):
     )
 
 
+class GenerateSimulationConfigOutput(BaseModel):
+    """Output of the GenerateSimulationsConfig tool."""
+
+    smc_simulation_config: CircuitSimulationScanConfig
+    url_link: str | None = None
+
+
 class GenerateSimulationsConfigTool(BaseTool):
     """Class defining the GenerateSimulationsConfig tool."""
 
@@ -83,30 +91,37 @@ class GenerateSimulationsConfigTool(BaseTool):
         "Generate a config for me",
         "Set up simulation parameters",
     ]
-    description: ClassVar[
-        str
-    ] = f"""This tool generates JSON configurations for simulations based on natural language descriptions. It accepts both complete configuration specifications and modification requests for existing configurations, using an LLM with structured output to produce the corresponding JSON.
-    Always use a circuit ID with this tool. If you can't see a reference to an existing circuit in the chat, ask for clarifications.
+    description: ClassVar[str] = f"""# Role and Objective
+This tool generates JSON configurations for CIRCUIT simulations based on natural language descriptions. Only CIRCUIT simulations are supported; do not attempt to process other ENTITY types.
 
-For modifications, you can provide incremental change descriptions - the tool will interpret these in the context of the existing configuration. You don't need to describe the entire final state; focused modification requests are fully supported.
+# Instructions
+- Accept as input either a comprehensive new configuration description or incremental modifications to an existing configuration.
+- For new simulations, only provide a circuit ID if the user explicitly specifies it; otherwise, let the application state infer the circuit ID.
+- For modification requests, support focused/incremental descriptions relative to the existing configuration. Users do not need to provide the full target configuration.
+- If a request is vague, generate a basic simulation config and offer guidance on further refinement. Do not force users to provide all parameters. Defaults are handled by the underlying LLM.
+- In the `config_request` parameter, only include what the user explicitly requested. Exclude default or standard parameters, as they will be filled in automatically by the downstream LLM.
+- Here are the available fields in the simulation ford {extract_model_structure(CircuitSimulationScanConfig)}. Base your description in `config_request` on them.
+- If the user is not on a circuit-related page, and has not mentioned any circuit previously, ask the user for clarification to ensure the request is intended for a CIRCUIT simulation before proceeding.
 
-Input: Either a comprehensive new configuration description OR specific modifications to an existing configuration
-IMPORTANT: In the config_request parameter, only describe what the user explicitly requested. Do NOT include default values or standard parameters - the downstream LLM will handle those automatically. The output will always be valid JSON.
-The downstream LLM uses structured output. It has a lot of information about the structure and defaults of the simulations form.
+# Output Format
+- Output: Valid simulation configuration JSON (produced by the tool; NEVER display this directly in chat).
+- Summarize the simulation setup and scenario concisely, focusing on the main changes or intent, not on listing each parameter or the full JSON structure.
+- Indicate clearly that the generated simulation JSON is a suggestion. Encourage users to modify it as needed.
+- If a `url_link` field is present, guide the user to the simulation page unless they are already viewing it (no action required if `url_link` is None).
 
-Available configuration fields: {extract_model_structure(CircuitSimulationScanConfig)}
+# Use Cases
+Call this tool whenever users:
+- Want to create new CIRCUIT simulation configurations.
+- Need to modify or tweak existing configurations.
+- Request conversion of requirements to structured CIRCUIT JSON.
 
-Output: Valid simulation config json
+# Constraints
+- Only support CIRCUIT simulations; do not handle other entities.
+- Never generate the simulation JSON yourself if the tool fails.
+- Do not show, copy, or enumerate the raw JSON output in chat.
 
-Use this tool when users need to:
-- Create new configurations from scratch
-- Modify, update, or tweak existing configurations
-- Convert configuration requirements into structured JSON format
-
-Always call this tool to generate a simulation config, never attempt to generate one yourself.
-Do not try to generate a simulation config yourself if the tool fails.
-
-CRITICAL: DO NOT WRITE THE FINAL JSON OUTPUT IN THE CHAT. It will be automatically taken care of by the platform.
+# Verbosity
+- Provide concise, high-level summaries clearly stating the overall setup and nature of each simulation.
 """
     description_frontend: ClassVar[
         str
@@ -115,8 +130,27 @@ Simply specify in plain english what you want your configuration to achieve or w
     metadata: GenerateSimulationsConfigMetadata
     input_schema: GenerateSimulationsConfigInput
 
-    async def arun(self) -> CircuitSimulationScanConfig:
+    async def arun(self) -> GenerateSimulationConfigOutput:
         """Run the tool."""
+        # Check for existing state passed by frontend
+        if not self.metadata.shared_state:
+            raise ValueError(
+                "A state with key `smc_simulation_config` must be provided in the request body to trigger this tool."
+            )
+        base_simulation_form = self.metadata.shared_state.smc_simulation_config
+        if not base_simulation_form:
+            raise ValueError(
+                "An SMC simulation form must be provided in the state when calling this tool."
+            )
+
+        circuit_id = self.input_schema.circuit_id or base_simulation_form.get(
+            "initialize", {}
+        ).get("circuit", {}).get("id_str")
+        if not circuit_id:
+            raise ValueError(
+                "A circuit ID must be provided either in the tool input or in the state. Please validate for which circuit we must generate a simulation config."
+            )
+
         # Get the available nodesest in the circuit
         headers: dict[str, str] = {}
         if self.metadata.vlab_id is not None:
@@ -132,17 +166,6 @@ Simply specify in plain english what you want your configuration to achieve or w
         if circuit_node_set.status_code != 200:
             raise ValueError(
                 f"The nodesets endpoint returned a non 200 response code. Error: {circuit_node_set.text}"
-            )
-
-        # Check for existing state passed by frontend
-        if not self.metadata.shared_state:
-            raise ValueError(
-                "A state with key `smc_simulation_config` must be provided in the request body to trigger this tool."
-            )
-        base_simulation_form = self.metadata.shared_state.smc_simulation_config
-        if base_simulation_form is None:
-            raise ValueError(
-                f"To edit a Small Microcircuit Simulation, first navigate to {self.metadata.entity_frontend_url + '/simulate?&s=new&t=small-microcircuit'}, pick a circuit, click 'New Simulation' and call the tool again."
             )
 
         # List obi-one rules
@@ -246,14 +269,43 @@ REQUIREMENTS:
             # Assign token usage
             token_consumption = get_token_count(response.usage)
             self.metadata.token_consumption = {**token_consumption, "model": model}
+
         else:
             raise ValueError("Couldn't generate a valid simulation config.")
-        return ts_number_normalize(output_config)
+
+        if not self.metadata.current_frontend_url:
+            url_link = None
+        else:
+            parts = self.metadata.current_frontend_url.split("/")
+            url_link = (
+                "/".join(parts[:7])
+                + f"/workflows/simulate/configure/circuit/{circuit_id}"
+                if not self.is_simulation_page(self.metadata.current_frontend_url)
+                else None
+            )
+
+        return GenerateSimulationConfigOutput(
+            smc_simulation_config=ts_number_normalize(output_config), url_link=url_link
+        )
 
     @classmethod
     async def is_online(cls) -> bool:
         """Check if the tool is online."""
         return True
+
+    @staticmethod
+    def is_simulation_page(url: str | None = None) -> bool:
+        """We are on the simulation page if the url contains /workflows/simulate/configure/circuit and `panel=configuration`."""
+        if not url:
+            return False
+
+        if "/workflows/simulate/configure/circuit" not in url:
+            return False
+
+        if "panel=" not in url:
+            return True
+
+        return "panel=configuration" in url
 
 
 def ts_number_normalize(value: Any) -> Any:

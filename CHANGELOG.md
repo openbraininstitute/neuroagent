@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- Simulation config tool outputs link to simulation page + prompt engineering.
+
+### Removed
+- Context analyzer tool.
+
 ## [0.15.1] - 05.02.2026
 
 ### Added
