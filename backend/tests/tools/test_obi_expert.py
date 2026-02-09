@@ -1,6 +1,7 @@
 """Tests for the OBI Expert tool."""
 
 from neuroagent.tools.obi_expert import (
+    CreditsDocument,
     FutureFeature,
     GlossaryItemDocument,
     NewsDocument,
@@ -1019,3 +1020,108 @@ def test_planv2_document_instantiation():
     assert enterprise_plan.support[0].value is True
     assert enterprise_plan.support[2].label == "Dedicated account manager"
     assert enterprise_plan.support[2].value is True
+
+
+def test_credits_document_instantiation():
+    """Test instantiating CreditsDocument sanity documents using sanity_mapping.
+
+    Credits documents represent additional credit purchases (priced in CHF with
+    volume discounts). This is distinct from planV2, which represents subscription
+    plans that include a monthly credit allowance.
+
+    Tests with 2 real tiers from staging: the base tier (1-499) and a mid-range
+    tier (500-999).
+    """
+    # Raw JSON from Sanity - base tier (no discount)
+    base_tier_json = {
+        "_createdAt": "2025-11-03T13:21:21Z",
+        "_id": "fb81d940-5658-441d-8f04-890a50fd41c7",
+        "_rev": "jH6y3IPLvd80rupaLl37M3",
+        "_type": "credits",
+        "_updatedAt": "2025-11-06T14:49:10Z",
+        "price": 10,
+        "pricePerCredit": 0.1,
+        "quantity": "1-499",
+    }
+
+    # Map the raw JSON using sanity_mapping
+    mapped_data = {}
+    for pydantic_field, sanity_field in CreditsDocument.sanity_mapping.items():
+        if sanity_field in base_tier_json:
+            mapped_data[pydantic_field] = base_tier_json[sanity_field]
+
+    # Instantiate the CreditsDocument
+    base_tier = CreditsDocument(**mapped_data)
+
+    # Assert the mapped fields are correct
+    assert base_tier.id == "fb81d940-5658-441d-8f04-890a50fd41c7"
+    assert base_tier.created_at == "2025-11-03T13:21:21Z"
+    assert base_tier.updated_at == "2025-11-06T14:49:10Z"
+    assert base_tier.quantity == "1-499"
+    assert base_tier.price == 10
+    assert base_tier.price_per_credit == 0.1
+    # Base tier has no discount field in the response
+    assert base_tier.discount is None
+
+    # Raw JSON from Sanity - mid-range tier (5% discount)
+    mid_tier_json = {
+        "_createdAt": "2025-11-03T13:26:37Z",
+        "_id": "11957dc1-16ba-4bbe-b639-5b21cf2093ce",
+        "_rev": "66DC1hGFarnez6h7FTnncj",
+        "_type": "credits",
+        "_updatedAt": "2025-11-06T14:41:44Z",
+        "discount": 5,
+        "price": 48,
+        "pricePerCredit": 0.095,
+        "quantity": "500-999",
+    }
+
+    # Map the raw JSON using sanity_mapping
+    mapped_data = {}
+    for pydantic_field, sanity_field in CreditsDocument.sanity_mapping.items():
+        if sanity_field in mid_tier_json:
+            mapped_data[pydantic_field] = mid_tier_json[sanity_field]
+
+    # Instantiate the CreditsDocument
+    mid_tier = CreditsDocument(**mapped_data)
+
+    # Assert the mapped fields are correct
+    assert mid_tier.id == "11957dc1-16ba-4bbe-b639-5b21cf2093ce"
+    assert mid_tier.created_at == "2025-11-03T13:26:37Z"
+    assert mid_tier.updated_at == "2025-11-06T14:41:44Z"
+    assert mid_tier.quantity == "500-999"
+    assert mid_tier.discount == 5
+    assert mid_tier.price == 48
+    assert mid_tier.price_per_credit == 0.095
+
+
+def test_credits_document_with_missing_fields():
+    """Test CreditsDocument instantiation with some optional fields missing."""
+    raw_json = {
+        "_createdAt": "2025-11-03T13:21:21Z",
+        "_id": "fb81d940-5658-441d-8f04-890a50fd41c7",
+        "_updatedAt": "2025-11-06T14:49:10Z",
+        "_type": "credits",
+        "quantity": "1-499",
+        # price, discount, pricePerCredit are missing
+    }
+
+    # Map the raw JSON using sanity_mapping
+    mapped_data = {}
+    for pydantic_field, sanity_field in CreditsDocument.sanity_mapping.items():
+        if sanity_field in raw_json:
+            mapped_data[pydantic_field] = raw_json[sanity_field]
+
+    # Instantiate the CreditsDocument - should work with missing fields
+    credits_document = CreditsDocument(**mapped_data)
+
+    # Assert the guaranteed fields are present
+    assert credits_document.id == "fb81d940-5658-441d-8f04-890a50fd41c7"
+    assert credits_document.created_at == "2025-11-03T13:21:21Z"
+    assert credits_document.updated_at == "2025-11-06T14:49:10Z"
+
+    # Assert optional fields
+    assert credits_document.quantity == "1-499"
+    assert credits_document.discount is None
+    assert credits_document.price is None
+    assert credits_document.price_per_credit is None
