@@ -926,6 +926,8 @@ class OBIExpertTool(BaseTool):
        - Each tier shows: quantity range, total price, price per credit, and discount percentage
        - Use this when users want to buy ADDITIONAL credits on top of what their subscription plan provides
        - Example tiers: 1-499 credits at CHF 0.10/credit, 50000+ credits at CHF 0.07/credit (30% discount)
+       - IMPORTANT: There are only ~7 credit tiers total, so always use page_size=10 and do NOT
+         use the query parameter. This ensures all tiers are returned in a single request.
        - Example user questions that should use this document type:
          * "How much do additional credits cost?"
          * "What volume discounts are available for credits?"
