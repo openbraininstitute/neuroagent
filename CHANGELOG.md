@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Fetch credits documents in OBI Expert tool.
+
 ## [0.15.1] - 05.02.2026
 
 ### Added
