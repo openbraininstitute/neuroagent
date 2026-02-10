@@ -99,6 +99,13 @@ export * from './obione/ephys-metrics-getone';
 export * from './obione/morphometrics-getone';
 export * from './obione/generate-simulations-config';
 
+// Standalone tools
+export * from './standalone/literature-search';
+export * from './standalone/web-search';
+export * from './standalone/read-paper';
+export * from './standalone/circuit-population-analysis';
+export * from './standalone/obi-expert';
+
 // Thumbnail Generation tools
 export * from './thumbnail_generation/types'; // Export shared ThumbnailGenerationContextVariables
 export * from './thumbnail_generation/plot-electrical-cell-recording-getone';
@@ -141,6 +148,10 @@ export interface ToolConfig {
   userId?: string;
   bucketName?: string;
   threadId?: string;
+
+  // Standalone tool config
+  exaApiKey?: string; // For Literature Search, Web Search, Read Paper tools
+  sanityUrl?: string; // For OBI Expert tool
 
   // Add more tool configs as needed
 }
@@ -247,6 +258,13 @@ export async function registerToolClasses() {
     const { PlotElectricalCellRecordingGetOneTool } = await import('./thumbnail_generation/plot-electrical-cell-recording-getone');
     const { PlotMorphologyGetOneTool } = await import('./thumbnail_generation/plot-morphology-getone');
 
+    // Import Standalone tools
+    const { LiteratureSearchTool } = await import('./standalone/literature-search');
+    const { WebSearchTool } = await import('./standalone/web-search');
+    const { ReadPaperTool } = await import('./standalone/read-paper');
+    const { CircuitPopulationAnalysisTool } = await import('./standalone/circuit-population-analysis');
+    const { OBIExpertTool } = await import('./standalone/obi-expert');
+
     // Import test tools
     const { WeatherTool } = await import('./test/WeatherTool');
     const { TranslatorTool } = await import('./test/TranslatorTool');
@@ -327,6 +345,11 @@ export async function registerToolClasses() {
       { name: 'GenerateSimulationsConfigTool', cls: GenerateSimulationsConfigTool },
       { name: 'PlotElectricalCellRecordingGetOneTool', cls: PlotElectricalCellRecordingGetOneTool },
       { name: 'PlotMorphologyGetOneTool', cls: PlotMorphologyGetOneTool },
+      { name: 'LiteratureSearchTool', cls: LiteratureSearchTool },
+      { name: 'WebSearchTool', cls: WebSearchTool },
+      { name: 'ReadPaperTool', cls: ReadPaperTool },
+      { name: 'CircuitPopulationAnalysisTool', cls: CircuitPopulationAnalysisTool },
+      { name: 'OBIExpertTool', cls: OBIExpertTool },
       { name: 'WeatherTool', cls: WeatherTool },
       { name: 'TranslatorTool', cls: TranslatorTool },
       { name: 'TimeTool', cls: TimeTool },
@@ -530,6 +553,28 @@ export async function getAvailableToolClasses(config: ToolConfig): Promise<any[]
     const { PlotMorphologyGetOneTool } = await import('./thumbnail_generation/plot-morphology-getone');
     availableClasses.push(PlotElectricalCellRecordingGetOneTool);
     availableClasses.push(PlotMorphologyGetOneTool);
+  }
+
+  // Standalone tools are available if Exa API key is configured
+  if (config.exaApiKey) {
+    const { LiteratureSearchTool } = await import('./standalone/literature-search');
+    const { WebSearchTool } = await import('./standalone/web-search');
+    const { ReadPaperTool } = await import('./standalone/read-paper');
+    availableClasses.push(LiteratureSearchTool);
+    availableClasses.push(WebSearchTool);
+    availableClasses.push(ReadPaperTool);
+  }
+
+  // Circuit Population Analysis tool requires EntityCore URL and OpenAI API key
+  if (config.entitycoreUrl && config.openaiApiKey) {
+    const { CircuitPopulationAnalysisTool } = await import('./standalone/circuit-population-analysis');
+    availableClasses.push(CircuitPopulationAnalysisTool);
+  }
+
+  // OBI Expert tool requires Sanity URL
+  if (config.sanityUrl) {
+    const { OBIExpertTool } = await import('./standalone/obi-expert');
+    availableClasses.push(OBIExpertTool);
   }
 
   // Test tools are always available (for testing filtering)
@@ -1621,6 +1666,70 @@ export async function createToolInstance(ToolCls: any, config: ToolConfig): Prom
       threadId: config.threadId || '',
       vlabId: config.vlabId,
       projectId: config.projectId,
+    });
+  }
+
+  // Standalone tools
+  if (toolName === 'literature-search-tool') {
+    if (!config.exaApiKey) {
+      throw new Error('Literature Search tool requires exaApiKey');
+    }
+
+    const { LiteratureSearchTool } = await import('./standalone/literature-search');
+    return new LiteratureSearchTool({
+      httpClient: config.httpClient,
+      exaApiKey: config.exaApiKey,
+    });
+  }
+
+  if (toolName === 'web-search-tool') {
+    if (!config.exaApiKey) {
+      throw new Error('Web Search tool requires exaApiKey');
+    }
+
+    const { WebSearchTool } = await import('./standalone/web-search');
+    return new WebSearchTool({
+      httpClient: config.httpClient,
+      exaApiKey: config.exaApiKey,
+    });
+  }
+
+  if (toolName === 'read-paper') {
+    if (!config.exaApiKey) {
+      throw new Error('Read Paper tool requires exaApiKey');
+    }
+
+    const { ReadPaperTool } = await import('./standalone/read-paper');
+    return new ReadPaperTool({
+      httpClient: config.httpClient,
+      exaApiKey: config.exaApiKey,
+    });
+  }
+
+  if (toolName === 'circuit-population-data-analysis') {
+    if (!config.entitycoreUrl || !config.openaiApiKey) {
+      throw new Error('Circuit Population Analysis tool requires entitycoreUrl and openaiApiKey');
+    }
+
+    const { CircuitPopulationAnalysisTool } = await import('./standalone/circuit-population-analysis');
+    return new CircuitPopulationAnalysisTool({
+      httpClient: config.httpClient,
+      entitycoreUrl: config.entitycoreUrl,
+      vlabId: config.vlabId,
+      projectId: config.projectId,
+      openaiApiKey: config.openaiApiKey,
+    });
+  }
+
+  if (toolName === 'obi-expert') {
+    if (!config.sanityUrl) {
+      throw new Error('OBI Expert tool requires sanityUrl');
+    }
+
+    const { OBIExpertTool } = await import('./standalone/obi-expert');
+    return new OBIExpertTool({
+      httpClient: config.httpClient,
+      sanityUrl: config.sanityUrl,
     });
   }
 
