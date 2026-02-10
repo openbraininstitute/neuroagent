@@ -56,6 +56,7 @@ class GenerateSimulationsConfigMetadata(BaseMetadata):
     shared_state: SharedState
     current_frontend_url: str | None = None
     token_consumption: dict[str, str | int | None] | None = None
+    request_id: str | None = None
 
 
 class InitializeNoCircuit(Initialize1):
@@ -283,6 +284,8 @@ REQUIREMENTS:
                 if not self.is_simulation_page(self.metadata.current_frontend_url)
                 else None
             )
+            if url_link and self.metadata.request_id:
+                url_link += f"?x-request-id={self.metadata.request_id}"
 
         return GenerateSimulationConfigOutput(
             smc_simulation_config=ts_number_normalize(output_config), url_link=url_link

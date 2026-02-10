@@ -9,6 +9,7 @@ from pathlib import Path
 from typing import Annotated, Any, AsyncIterator
 
 import boto3
+from asgi_correlation_id import correlation_id
 from fastapi import Depends, HTTPException, Request
 from fastapi.security import HTTPBearer
 from httpx import AsyncClient, HTTPStatusError, get
@@ -720,6 +721,7 @@ async def get_context_variables(
     shared_state = body.get("shared_state")
     # Get the url for entitycore links
     entity_frontend_url = settings.tools.frontend_base_url.rstrip("/") + "/app/entity"
+    request_id = correlation_id.get()
 
     return {
         "bluenaas_url": settings.tools.bluenaas.url,
@@ -735,6 +737,7 @@ async def get_context_variables(
         "openai_client": openai_client,
         "project_id": thread.project_id,
         "python_sandbox": python_sandbox,
+        "request_id": request_id,
         "s3_client": s3_client,
         "sanity_url": settings.tools.sanity.url,
         "shared_state": shared_state,
