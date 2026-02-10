@@ -2,6 +2,7 @@
 
 import json
 from typing import Any, ClassVar
+from urllib.parse import urlparse
 from uuid import UUID
 
 from httpx import AsyncClient
@@ -277,15 +278,20 @@ REQUIREMENTS:
         if not self.metadata.current_frontend_url:
             url_link = None
         else:
-            parts = self.metadata.current_frontend_url.split("/")
-            url_link = (
-                "/".join(parts[:7])
-                + f"/workflows/simulate/configure/circuit/{circuit_id}"
-                if not self.is_simulation_page(self.metadata.current_frontend_url)
-                else None
-            )
-            if url_link and self.metadata.request_id:
-                url_link += f"?x-request-id={self.metadata.request_id}"
+            parsed = urlparse(self.metadata.current_frontend_url)
+            parts = parsed.path.split("/")
+            # Expect: ['', 'app', 'virtual-lab', 'vlab-id', 'project-id', ...]
+            if len(parts) >= 5 and parts[1:3] == ["app", "virtual-lab"]:
+                base_path = "/".join(parts[:5])
+                url_link = (
+                    f"{parsed.scheme}://{parsed.netloc}{base_path}/workflows/simulate/configure/circuit/{circuit_id}"
+                    if not self.is_simulation_page(self.metadata.current_frontend_url)
+                    else None
+                )
+                if url_link and self.metadata.request_id:
+                    url_link += f"?x-request-id={self.metadata.request_id}"
+            else:
+                url_link = None
 
         return GenerateSimulationConfigOutput(
             smc_simulation_config=ts_number_normalize(output_config), url_link=url_link
