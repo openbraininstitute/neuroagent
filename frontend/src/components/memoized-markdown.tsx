@@ -39,15 +39,15 @@ const ConditionalImageRenderer = ({
     );
   }
 
-  const storageId = src.match(/\/storage\/([^/]+)/)?.[1];
+  const storageIdMatch = src.match(/\/storage\/([^/]+)/);
 
-  if (!storageId) {
+  if (!storageIdMatch) {
     return (
       <div className="ml-20 text-red-500">Error: Unable to load image</div>
     );
   }
 
-  return <PlotInChat storageId={storageId} />;
+  return <PlotInChat storageId={storageIdMatch[1]} />;
 };
 
 function parseMarkdownIntoBlocks(markdown: string): string[] {
