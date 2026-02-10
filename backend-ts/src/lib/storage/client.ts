@@ -18,8 +18,13 @@ export function getS3Client(): S3Client {
 
   const settings = getSettings();
 
+  // For MinIO compatibility, we need to ensure the endpoint URL is properly formatted
+  // AWS SDK v3 has issues with port numbers in endpoints for presigned URLs
+  // See: https://github.com/minio/minio/discussions/14709
+  const endpointUrl = settings.storage.endpointUrl;
+
   s3ClientInstance = new S3Client({
-    endpoint: settings.storage.endpointUrl,
+    endpoint: endpointUrl,
     region: 'us-east-1', // MinIO doesn't care about region, but SDK requires it
     credentials:
       settings.storage.accessKey && settings.storage.secretKey
@@ -29,6 +34,9 @@ export function getS3Client(): S3Client {
           }
         : undefined,
     forcePathStyle: true, // Required for MinIO compatibility
+    // Disable host prefix injection to ensure endpoint is used as-is
+    // This is critical for MinIO with non-standard ports
+    disableHostPrefix: true,
   });
 
   return s3ClientInstance;

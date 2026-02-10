@@ -22,6 +22,7 @@ import { z } from 'zod';
 import { AgentsRoutine } from '@/lib/agents/routine';
 import { getSettings } from '@/lib/config/settings';
 import { prisma } from '@/lib/db/client';
+import { getS3Client } from '@/lib/storage/client';
 import {
   validateAuth,
   validateProject,
@@ -92,6 +93,17 @@ export async function POST(
   try {
     // Await params (Next.js 15+ requirement)
     const { thread_id } = await params;
+
+    // Validate thread_id is a valid UUID
+    if (!thread_id || thread_id === 'undefined' || thread_id === 'null') {
+      return errorResponse('Invalid thread ID: Thread ID is required and must be a valid UUID', 400);
+    }
+
+    // Basic UUID format validation
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (!uuidRegex.test(thread_id)) {
+      return errorResponse('Invalid thread ID: Thread ID must be a valid UUID format', 400);
+    }
 
     // ========================================================================
     // 1. Authentication
@@ -336,6 +348,10 @@ export async function POST(
         threadId: thread_id,
         userId: userInfo.sub,
         openaiApiKey: settings.llm.openaiToken, // For tools that use Vercel AI SDK
+        // Thumbnail generation context
+        thumbnailGenerationUrl: settings.tools.thumbnailGeneration.url,
+        s3Client: getS3Client(),
+        bucketName: settings.storage.bucketName,
       },
       instructions:
         'You are a helpful neuroscience research assistant. ' +

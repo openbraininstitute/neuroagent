@@ -34,9 +34,19 @@ export async function GET(
     const params = await context.params;
     const fileIdentifier = params.file_identifier;
 
-    if (!fileIdentifier) {
+    // Validate file identifier
+    if (!fileIdentifier || fileIdentifier === 'undefined' || fileIdentifier === 'null') {
       return NextResponse.json(
         { error: 'Bad Request', message: 'File identifier is required' },
+        { status: 400 }
+      );
+    }
+
+    // Basic UUID format validation
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (!uuidRegex.test(fileIdentifier)) {
+      return NextResponse.json(
+        { error: 'Bad Request', message: 'File identifier must be a valid UUID format' },
         { status: 400 }
       );
     }
@@ -75,16 +85,19 @@ export async function GET(
       Key: key,
     });
 
+    // Generate presigned URL with explicit configuration for MinIO compatibility
+    // AWS SDK v3 has known issues with MinIO and non-standard ports
+    // We need to ensure the URL uses the correct endpoint
     const presignedUrl = await getSignedUrl(s3Client, command, {
       expiresIn: settings.storage.expiresIn || 600, // Default 10 minutes
+      // Ensure signature version 4 is used (required for MinIO)
+      signableHeaders: new Set(['host']),
     });
 
-    // Return the presigned URL as plain text (matching Python backend)
-    return new NextResponse(presignedUrl, {
+    // Return the presigned URL as JSON string (matching Python backend)
+    // Python FastAPI returns str as JSON, so we need to match that format
+    return NextResponse.json(presignedUrl, {
       status: 200,
-      headers: {
-        'Content-Type': 'text/plain',
-      },
     });
   } catch (error) {
     console.error('Error generating presigned URL:', error);
@@ -126,9 +139,19 @@ export async function POST(
     const params = await context.params;
     const fileIdentifier = params.file_identifier;
 
-    if (!fileIdentifier) {
+    // Validate file identifier
+    if (!fileIdentifier || fileIdentifier === 'undefined' || fileIdentifier === 'null') {
       return NextResponse.json(
         { error: 'Bad Request', message: 'File identifier is required' },
+        { status: 400 }
+      );
+    }
+
+    // Basic UUID format validation
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (!uuidRegex.test(fileIdentifier)) {
+      return NextResponse.json(
+        { error: 'Bad Request', message: 'File identifier must be a valid UUID format' },
         { status: 400 }
       );
     }
@@ -161,12 +184,9 @@ export async function POST(
       expiresIn: settings.storage.expiresIn || 600, // Default 10 minutes
     });
 
-    // Return the presigned URL as plain text
-    return new NextResponse(presignedUrl, {
+    // Return the presigned URL as JSON string (matching Python backend)
+    return NextResponse.json(presignedUrl, {
       status: 200,
-      headers: {
-        'Content-Type': 'text/plain',
-      },
     });
   } catch (error) {
     console.error('Error generating upload presigned URL:', error);

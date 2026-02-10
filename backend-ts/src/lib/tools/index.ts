@@ -99,6 +99,11 @@ export * from './obione/ephys-metrics-getone';
 export * from './obione/morphometrics-getone';
 export * from './obione/generate-simulations-config';
 
+// Thumbnail Generation tools
+export * from './thumbnail_generation/types'; // Export shared ThumbnailGenerationContextVariables
+export * from './thumbnail_generation/plot-electrical-cell-recording-getone';
+export * from './thumbnail_generation/plot-morphology-getone';
+
 // Test tools for filtering
 export * from './test';
 
@@ -129,6 +134,13 @@ export interface ToolConfig {
   model?: string;
   tokenConsumption?: any;
   openaiApiKey?: string; // For tools that use Vercel AI SDK
+
+  // Thumbnail Generation tool config
+  thumbnailGenerationUrl?: string;
+  s3Client?: any;
+  userId?: string;
+  bucketName?: string;
+  threadId?: string;
 
   // Add more tool configs as needed
 }
@@ -231,6 +243,10 @@ export async function registerToolClasses() {
     const { MorphometricsGetOneTool } = await import('./obione/morphometrics-getone');
     const { GenerateSimulationsConfigTool } = await import('./obione/generate-simulations-config');
 
+    // Import Thumbnail Generation tools
+    const { PlotElectricalCellRecordingGetOneTool } = await import('./thumbnail_generation/plot-electrical-cell-recording-getone');
+    const { PlotMorphologyGetOneTool } = await import('./thumbnail_generation/plot-morphology-getone');
+
     // Import test tools
     const { WeatherTool } = await import('./test/WeatherTool');
     const { TranslatorTool } = await import('./test/TranslatorTool');
@@ -309,6 +325,8 @@ export async function registerToolClasses() {
       { name: 'EphysMetricsGetOneTool', cls: EphysMetricsGetOneTool },
       { name: 'MorphometricsGetOneTool', cls: MorphometricsGetOneTool },
       { name: 'GenerateSimulationsConfigTool', cls: GenerateSimulationsConfigTool },
+      { name: 'PlotElectricalCellRecordingGetOneTool', cls: PlotElectricalCellRecordingGetOneTool },
+      { name: 'PlotMorphologyGetOneTool', cls: PlotMorphologyGetOneTool },
       { name: 'WeatherTool', cls: WeatherTool },
       { name: 'TranslatorTool', cls: TranslatorTool },
       { name: 'TimeTool', cls: TimeTool },
@@ -504,6 +522,14 @@ export async function getAvailableToolClasses(config: ToolConfig): Promise<any[]
     availableClasses.push(EphysMetricsGetOneTool);
     availableClasses.push(MorphometricsGetOneTool);
     availableClasses.push(GenerateSimulationsConfigTool);
+  }
+
+  // Thumbnail Generation tools are available if thumbnail generation URL is configured
+  if (config.thumbnailGenerationUrl && config.entitycoreUrl) {
+    const { PlotElectricalCellRecordingGetOneTool } = await import('./thumbnail_generation/plot-electrical-cell-recording-getone');
+    const { PlotMorphologyGetOneTool } = await import('./thumbnail_generation/plot-morphology-getone');
+    availableClasses.push(PlotElectricalCellRecordingGetOneTool);
+    availableClasses.push(PlotMorphologyGetOneTool);
   }
 
   // Test tools are always available (for testing filtering)
@@ -1556,6 +1582,45 @@ export async function createToolInstance(ToolCls: any, config: ToolConfig): Prom
       model: config.model,
       openaiApiKey: config.openaiApiKey,
       tokenConsumption: config.tokenConsumption,
+    });
+  }
+
+  // Thumbnail Generation tools
+  if (toolName === 'thumbnail-generation-electricalcellrecording-getone') {
+    if (!config.thumbnailGenerationUrl || !config.entitycoreUrl) {
+      throw new Error('Thumbnail Generation tools require thumbnailGenerationUrl and entitycoreUrl');
+    }
+
+    const { PlotElectricalCellRecordingGetOneTool } = await import('./thumbnail_generation/plot-electrical-cell-recording-getone');
+    return new PlotElectricalCellRecordingGetOneTool({
+      httpClient: config.httpClient,
+      thumbnailGenerationUrl: config.thumbnailGenerationUrl,
+      entitycoreUrl: config.entitycoreUrl,
+      s3Client: config.s3Client,
+      userId: config.userId || '',
+      bucketName: config.bucketName || '',
+      threadId: config.threadId || '',
+      vlabId: config.vlabId,
+      projectId: config.projectId,
+    });
+  }
+
+  if (toolName === 'thumbnail-generation-morphology-getone') {
+    if (!config.thumbnailGenerationUrl || !config.entitycoreUrl) {
+      throw new Error('Thumbnail Generation tools require thumbnailGenerationUrl and entitycoreUrl');
+    }
+
+    const { PlotMorphologyGetOneTool } = await import('./thumbnail_generation/plot-morphology-getone');
+    return new PlotMorphologyGetOneTool({
+      httpClient: config.httpClient,
+      thumbnailGenerationUrl: config.thumbnailGenerationUrl,
+      entitycoreUrl: config.entitycoreUrl,
+      s3Client: config.s3Client,
+      userId: config.userId || '',
+      bucketName: config.bucketName || '',
+      threadId: config.threadId || '',
+      vlabId: config.vlabId,
+      projectId: config.projectId,
     });
   }
 

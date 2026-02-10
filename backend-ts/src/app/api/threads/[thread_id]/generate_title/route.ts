@@ -89,6 +89,23 @@ export async function PATCH(
     // Await params (Next.js 15+ requirement)
     const { thread_id } = await params;
 
+    // Validate thread_id is a valid UUID
+    if (!thread_id || thread_id === 'undefined' || thread_id === 'null') {
+      return NextResponse.json(
+        { error: 'Invalid thread ID', message: 'Thread ID is required and must be a valid UUID' },
+        { status: 400 }
+      );
+    }
+
+    // Basic UUID format validation
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (!uuidRegex.test(thread_id)) {
+      return NextResponse.json(
+        { error: 'Invalid thread ID', message: 'Thread ID must be a valid UUID format' },
+        { status: 400 }
+      );
+    }
+
     // Load settings
     const settings = getSettings();
 
