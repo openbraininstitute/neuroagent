@@ -1,13 +1,13 @@
 {
-  "total_tests": 30,
+  "total_tests": 37,
   "metrics_df": [
     {
       "test_name": "cerebellum_morphologies",
       "Correctness [GEval]": 0.8142110364455852,
       "Tool Correctness": 1.0,
       "Argument Correctness": 0.0,
-      "Deterministic Argument Correctness": 1.0,
-      "Overall Argument Correctness": 1.0
+      "Deterministic Argument Correctness": 0.75,
+      "Overall Argument Correctness": 0.75
     },
     {
       "test_name": "cerebellum_morphologies_descendants",
@@ -58,6 +58,14 @@
       "Overall Argument Correctness": 1.0
     },
     {
+      "test_name": "ilike_pattern_test",
+      "Correctness [GEval]": 0.8407150503110674,
+      "Tool Correctness": 1.0,
+      "Argument Correctness": 1.0,
+      "Deterministic Argument Correctness": 0.0,
+      "Overall Argument Correctness": 1.0
+    },
+    {
       "test_name": "ion_channel",
       "Correctness [GEval]": 0.704552344483199,
       "Tool Correctness": 1.0,
@@ -86,7 +94,7 @@
       "Correctness [GEval]": 0.6916249287539549,
       "Tool Correctness": 1.0,
       "Argument Correctness": 1.0,
-      "Deterministic Argument Correctness": 1.0,
+      "Deterministic Argument Correctness": 0.0,
       "Overall Argument Correctness": 1.0
     },
     {
@@ -101,6 +109,14 @@
       "test_name": "neuroscientists_search",
       "Correctness [GEval]": 0.6995019187022369,
       "Tool Correctness": 1.0,
+      "Argument Correctness": 1.0,
+      "Deterministic Argument Correctness": 0.0,
+      "Overall Argument Correctness": 1.0
+    },
+    {
+      "test_name": "obione_generatesimulationsconfig",
+      "Correctness [GEval]": 0.584053710425622,
+      "Tool Correctness": 0.0,
       "Argument Correctness": 1.0,
       "Deterministic Argument Correctness": 0.0,
       "Overall Argument Correctness": 1.0

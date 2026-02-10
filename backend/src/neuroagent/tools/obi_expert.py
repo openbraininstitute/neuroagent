@@ -256,6 +256,126 @@ class PublicProject(SanityDocument):
         return flattened
 
 
+# --- PlanV2 nested object types ---
+
+
+class SubscriptionItem(BaseModel):
+    """Schema for subscription items within PlanV2."""
+
+    name: str | None = None
+    price: float | None = None
+    currency: str | None = None
+    has_special_label: bool | None = None
+    special_label: str | None = None
+    features: list[str] | None = None
+
+
+class AdvantageItem(BaseModel):
+    """Schema for advantage items within PlanV2."""
+
+    title: str | None = None
+    tooltip: str | None = None
+
+
+class BooleanOptionsItem(BaseModel):
+    """Schema for boolean options within PlanV2 (general_features, support)."""
+
+    label: str | None = None
+    value: bool | None = None
+
+
+class PlanFeaturesItem(BaseModel):
+    """Schema for plan features within PlanV2 (ai_assistant, build, simulate, notebooks)."""
+
+    name: str | None = None
+    cost: str | None = None
+
+
+class CreditsDocument(SanityDocument):
+    """Schema for credits documents (additional credit purchases).
+
+    Use this document type when users ask about:
+    - Buying additional credits beyond what their plan includes
+    - Credit pricing tiers and volume discounts
+    - How much credits cost in CHF
+    - Price per credit at different quantity levels
+    - Bulk credit purchase options
+
+    NOTE: This is DIFFERENT from planV2. planV2 describes subscription plans
+    (Free, Pro, Education, Enterprise) that include a certain number of credits
+    per month as part of the subscription. Credits documents describe purchasing
+    ADDITIONAL credits on top of the plan allowance, priced in CHF with volume
+    discounts.
+    """
+
+    quantity: str | None = None
+    discount: float | None = None
+    price: float | None = None
+    price_per_credit: float | None = None
+
+    sanity_mapping: ClassVar[dict[str, str]] = {
+        **SanityDocument.sanity_mapping,
+        "quantity": "quantity",
+        "discount": "discount",
+        "price": "price",
+        "price_per_credit": "pricePerCredit",
+    }
+
+
+class PlanV2Document(SanityDocument):
+    """Schema for planV2 documents (subscription plans).
+
+    Use this document type when users ask about:
+    - Subscription plans and plan tiers (Free, Pro, Education, Enterprise)
+    - Plan features and comparisons between tiers
+    - Monthly vs yearly subscription pricing
+    - What's included in Free vs Pro plans
+    - Credits included per month with each plan
+    - AI assistant, Build, Simulate, Notebooks features per plan
+    - Support options per plan
+
+    NOTE: This is DIFFERENT from credits. PlanV2 describes subscription plans
+    that include a certain number of credits per month. For purchasing ADDITIONAL
+    credits beyond the plan allowance (priced in CHF with volume discounts),
+    use the credits document type instead.
+    """
+
+    name: str | None = None
+    has_subtitle: bool | None = None
+    subtitle: str | None = None
+    custom_plan: bool | None = None
+    has_contact_button: bool | None = None
+    has_subscription: bool | None = None
+    monthly_subscriptions: list[SubscriptionItem] | None = None
+    yearly_subscriptions: list[SubscriptionItem] | None = None
+    advantages: list[AdvantageItem] | None = None
+    general_features: list[BooleanOptionsItem] | None = None
+    ai_assistant_features: list[PlanFeaturesItem] | None = None
+    build_features: list[PlanFeaturesItem] | None = None
+    simulate_features: list[PlanFeaturesItem] | None = None
+    notebooks_features: list[PlanFeaturesItem] | None = None
+    support: list[BooleanOptionsItem] | None = None
+
+    sanity_mapping: ClassVar[dict[str, str]] = {
+        **SanityDocument.sanity_mapping,
+        "name": "name",
+        "has_subtitle": "has_subtitle",
+        "subtitle": "subtitle",
+        "custom_plan": "custom_plan",
+        "has_contact_button": "has_contact_button",
+        "has_subscription": "has_subscription",
+        "monthly_subscriptions": "monthly_subscriptions",
+        "yearly_subscriptions": "yearly_subscriptions",
+        "advantages": "advantages",
+        "general_features": "general_features",
+        "ai_assistant_features": "ai_assistant_features",
+        "build_features": "build_features",
+        "simulate_features": "simulate_features",
+        "notebooks_features": "notebooks_features",
+        "support": "support",
+    }
+
+
 class Page(SanityDocument):
     """Schema for page documents."""
 
@@ -455,11 +575,13 @@ class DocumentationProduct(SanityDocument):
 
 
 SANITY_TYPE_TO_MODEL: dict[str, type[SanityDocument]] = {
+    "credits": CreditsDocument,
     "documentationProduct": DocumentationProduct,
     "futureFeaturesItem": FutureFeature,
     "glossaryItem": GlossaryItemDocument,
     "news": NewsDocument,
     "pages": Page,
+    "planV2": PlanV2Document,
     "publicProjects": PublicProject,
     "tutorial": Tutorial,
 }
@@ -630,11 +752,13 @@ class OBIExpertInput(BaseModel):
     """Inputs for the OBI Expert tool."""
 
     document_type: Literal[
+        "credits",
         "documentationProduct",
         "futureFeaturesItem",
         "glossaryItem",
         "news",
         "pages",
+        "planV2",
         "publicProjects",
         "tutorial",
     ] = Field(description="Type of documents to retrieve")
@@ -664,11 +788,13 @@ class OBIExpertOutput(BaseModel):
     """Output schema for the OBI Expert tool."""
 
     results: (
-        list[DocumentationProduct]
+        list[CreditsDocument]
+        | list[DocumentationProduct]
         | list[FutureFeature]
         | list[GlossaryItemDocument]
         | list[NewsDocument]
         | list[Page]
+        | list[PlanV2Document]
         | list[PublicProject]
         | list[Tutorial]
     )
@@ -701,6 +827,29 @@ class OBIExpertTool(BaseTool):
         "What's new in the platform?",
         "When will brain region simulation be available?",
         "Where can I learn about the platform?",
+        # Pricing-related utterances (use document_type: "planV2")
+        "What are your pricing plans?",
+        "How much does a subscription cost?",
+        "What's the difference between Free and Pro?",
+        "What features are included in each plan?",
+        "Do you have monthly or yearly pricing?",
+        "What's included in the Pro plan?",
+        "Is there a free tier?",
+        "Compare your subscription options",
+        "What AI assistant features come with each plan?",
+        "How much does simulation cost per plan?",
+        "What support options do I get with Pro?",
+        "Tell me about your pricing tiers",
+        "What are the plan advantages?",
+        # Credits purchase utterances (use document_type: "credits")
+        "How much do additional credits cost?",
+        "What are the credit pricing tiers?",
+        "Can I buy more credits?",
+        "What volume discounts are available for credits?",
+        "How much is the price per credit?",
+        "What's the bulk pricing for credits?",
+        "I need to buy extra credits",
+        "Show me the credit packages",
     ]
     description: ClassVar[
         str
@@ -750,6 +899,42 @@ class OBIExpertTool(BaseTool):
        - View legal documents (Privacy Policy, Terms)
        - Find product information (Pricing, Resources)
        - Get support information (Contact)
+
+    8. Subscription Plans (document_type: "planV2")
+       - Get detailed information about subscription plan tiers (Free, Pro, Education, Enterprise)
+       - Each plan includes a certain number of credits per month as part of the subscription
+       - Compare plan features, monthly vs yearly pricing, and what's included
+       - Access plan advantages and highlights
+       - See feature breakdowns by category:
+         * General features (what's included/excluded per plan)
+         * AI assistant features with costs
+         * Build features with costs
+         * Simulate features with costs
+         * Notebooks features with costs
+         * Support options per plan
+       - Example user questions that should use this document type:
+         * "What are your pricing plans?"
+         * "How much does a Pro subscription cost?"
+         * "What's the difference between Free and Pro?"
+         * "What features are included in each plan?"
+         * "Do you offer monthly or yearly billing?"
+         * "What AI assistant features come with Pro?"
+       - NOTE: For buying additional credits beyond the plan allowance, use "credits" instead.
+
+    9. Additional Credit Purchases (document_type: "credits")
+       - Browse available credit purchase tiers with volume-based pricing in CHF
+       - Each tier shows: quantity range, total price, price per credit, and discount percentage
+       - Use this when users want to buy ADDITIONAL credits on top of what their subscription plan provides
+       - Example tiers: 1-499 credits at CHF 0.10/credit, 50000+ credits at CHF 0.07/credit (30% discount)
+       - IMPORTANT: There are only ~7 credit tiers total, so always use page_size=10 and do NOT
+         use the query parameter. This ensures all tiers are returned in a single request.
+       - Example user questions that should use this document type:
+         * "How much do additional credits cost?"
+         * "What volume discounts are available for credits?"
+         * "Can I buy more credits?"
+         * "What's the price per credit?"
+         * "Show me the credit packages"
+       - NOTE: For subscription plans that include monthly credits, use "planV2" instead.
     """
     description_frontend: ClassVar[str] = (
         """Search and retrieve documents from the OBI Sanity API."""

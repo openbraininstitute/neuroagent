@@ -7,10 +7,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Fetch credits documents in OBI Expert tool.
+
 ### Changed
 - Plots are now embeded in chat.
+
+## [0.15.1] - 05.02.2026
+
+### Added
+- Support for predefined nodesets in smc simulation config.
+- OBI Expert tool contains info about pricing
+- State sharing (from the frontend).
+
+## [0.15.0] - 03.02.2026
+
+### Added
+- Rule on how to format `ilike` wildcards.
+
+### Changed
+
+- Route all writing to `/tmp`.
 - OBI expert points at the documentationProduct instead of documentationGithub
 - Expose the `x-request-id` header for CORS requests.
+- Expose the `x-ratelimit-...` headers for CORS requests.
+- Simplify docker compose.
 
 ## [0.14.3] - 26.01.2026
 
@@ -45,7 +66,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Use `within_brain_region_direction=ascendants_and_descendants` in every applicable tool.
 - Optimized the rules.
 - Experiment with more transparent agent, i.e. plan at the top + explanation alongside tool calls.
-
 
 ## [0.12.3] - 20.11.2025
 

@@ -1,0 +1,8 @@
+[
+  {
+    "name": "entitycore-cellmorphology-getall",
+    "arguments": {
+      "name_ilike": "mtC_______B\\_%"
+    }
+  }
+]

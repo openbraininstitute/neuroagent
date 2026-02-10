@@ -36,7 +36,7 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = [
-    "bandit[toml]",
+    "bandit[toml]>=1.9.3",
     "colorama>=0.4.6",
     "datamodel-code-generator[ruff]>=0.53.0",
     "deepeval>=3.6.6",
@@ -47,7 +47,7 @@ dev = [
     "pytest-cov",
     "pytest-httpx",
     "responses",
-    "ruff",
+    "ruff>=0.15.0",
     "types-requests",
 ]
 docs = [

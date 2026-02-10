@@ -4,18 +4,19 @@ import {
   ToolInvocationUIPart,
   UIMessage,
 } from "@ai-sdk/ui-utils";
-import { components } from "./neuroagent_types";
+import { components as ObiOneComponents } from "./obione";
+import { components as NeuroagentComponents } from "./neuroagent_types";
 
 export type BPaginatedResponseThread =
-  components["schemas"]["PaginatedResponse_ThreadsRead_"];
+  NeuroagentComponents["schemas"]["PaginatedResponse_ThreadsRead_"];
 
 // This type needs to use native vercel AI types which are not defined the backend
 export type BPaginatedResponseMessage = Omit<
-  components["schemas"]["PaginatedResponse_MessagesReadVercel_"],
+  NeuroagentComponents["schemas"]["PaginatedResponse_MessagesReadVercel_"],
   "results"
 > & { results: BMessage[] };
 
-export type BThread = components["schemas"]["ThreadsRead"];
+export type BThread = NeuroagentComponents["schemas"]["ThreadsRead"];
 
 export type Thread = {
   threadId: string;
@@ -29,7 +30,7 @@ export type Annotation = {
   isComplete?: boolean;
 };
 
-export type BTextPart = components["schemas"]["TextPartVercel"];
+export type BTextPart = NeuroagentComponents["schemas"]["TextPartVercel"];
 
 // This type needs to use native vercel AI types which are not defined the backend
 export type BMessageUser = {
@@ -60,12 +61,12 @@ export type MessageStrict = Omit<UIMessage, "annotations"> & {
 };
 
 export type BExecuteToolCallRequest =
-  components["schemas"]["ExecuteToolCallRequest"];
+  NeuroagentComponents["schemas"]["ExecuteToolCallRequest"];
 
 export type BExecuteToolCallResponse =
-  components["schemas"]["ExecuteToolCallResponse"];
+  NeuroagentComponents["schemas"]["ExecuteToolCallResponse"];
 
-export type BToolMetadata = components["schemas"]["ToolMetadata"];
+export type BToolMetadata = NeuroagentComponents["schemas"]["ToolMetadata"];
 
 export type ToolMetadata = {
   name: string;
@@ -73,7 +74,7 @@ export type ToolMetadata = {
 };
 
 export type BToolMetadataDetailed =
-  components["schemas"]["ToolMetadataDetailed"];
+  NeuroagentComponents["schemas"]["ToolMetadataDetailed"];
 
 export type ToolDetailedMetadata = {
   name: string;
@@ -93,7 +94,7 @@ export type PlotProp = {
 };
 
 export type BQuestionsSuggestions =
-  components["schemas"]["QuestionsSuggestions"];
+  NeuroagentComponents["schemas"]["QuestionsSuggestions"];
 
 export class CustomError extends Error {
   public statusCode: number;
@@ -105,7 +106,7 @@ export class CustomError extends Error {
   }
 }
 
-export type UserHistory = Array<components["schemas"]["UserJourney"]>;
+export type UserHistory = Array<NeuroagentComponents["schemas"]["UserJourney"]>;
 
 export type LLMModel = {
   id: string;
@@ -114,7 +115,10 @@ export type LLMModel = {
 };
 
 export type BOpenRouterModelResponse =
-  components["schemas"]["OpenRouterModelResponse"];
+  NeuroagentComponents["schemas"]["OpenRouterModelResponse"];
+
+export type CircuitSimulationScanConfig =
+  ObiOneComponents["schemas"]["CircuitSimulationScanConfig"];
 
 export const threadPageSize = "25";
 export const messagePageSize = "25";

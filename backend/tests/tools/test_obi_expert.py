@@ -1,10 +1,12 @@
 """Tests for the OBI Expert tool."""
 
 from neuroagent.tools.obi_expert import (
+    CreditsDocument,
     FutureFeature,
     GlossaryItemDocument,
     NewsDocument,
     Page,
+    PlanV2Document,
     PublicProject,
     Tutorial,
     flatten_portable_text,
@@ -837,3 +839,289 @@ def test_glossary_item_document_with_missing_fields():
     assert glossary_document.name == "ME-model"
     assert glossary_document.description is None
     assert glossary_document.definition is None
+
+
+def test_planv2_document_instantiation():
+    """Test instantiating PlanV2Document sanity documents using sanity_mapping.
+
+    Tests with the first 2 plans from staging: Education and Enterprise.
+    """
+    # Raw JSON from Sanity - Education plan
+    education_plan_json = {
+        "_createdAt": "2025-12-15T10:49:44Z",
+        "_id": "1e8ea4a7-5e82-43b8-aaad-d168d1849cbe",
+        "_rev": "tSHp35e2txlUpol1IAWfle",
+        "_type": "planV2",
+        "_updatedAt": "2026-02-02T12:38:53Z",
+        "custom_plan": False,
+        "general_features": [
+            {
+                "_key": "12a992a01be2",
+                "_type": "booleanOptions",
+                "label": "All Virtual Lab features",
+                "value": True,
+            },
+            {
+                "_key": "54317ebcfd5d",
+                "_type": "booleanOptions",
+                "label": "Seat-based access for instructors & students",
+                "value": True,
+            },
+            {
+                "_key": "ad71dd6dc11b",
+                "_type": "booleanOptions",
+                "label": "Compute credits included for teaching",
+                "value": True,
+            },
+            {
+                "_key": "6daed2eed7bc",
+                "_type": "booleanOptions",
+                "label": "Free storage for course materials",
+                "value": True,
+            },
+        ],
+        "has_contact_button": True,
+        "has_subscription": False,
+        "has_subtitle": True,
+        "name": "Education",
+        "subtitle": "For courses and classroom teaching",
+        "support": [
+            {
+                "_key": "521ba1cea249",
+                "_type": "booleanOptions",
+                "label": "Onboarding",
+                "value": True,
+            }
+        ],
+    }
+
+    # Map the raw JSON using sanity_mapping
+    mapped_data = {}
+    for pydantic_field, sanity_field in PlanV2Document.sanity_mapping.items():
+        if sanity_field in education_plan_json:
+            mapped_data[pydantic_field] = education_plan_json[sanity_field]
+
+    # Instantiate the PlanV2Document
+    education_plan = PlanV2Document(**mapped_data)
+
+    # Assert the mapped fields are correct
+    assert education_plan.id == "1e8ea4a7-5e82-43b8-aaad-d168d1849cbe"
+    assert education_plan.created_at == "2025-12-15T10:49:44Z"
+    assert education_plan.updated_at == "2026-02-02T12:38:53Z"
+    assert education_plan.name == "Education"
+    assert education_plan.has_subtitle is True
+    assert education_plan.subtitle == "For courses and classroom teaching"
+    assert education_plan.custom_plan is False
+    assert education_plan.has_contact_button is True
+    assert education_plan.has_subscription is False
+
+    # Test general_features
+    assert education_plan.general_features is not None
+    assert len(education_plan.general_features) == 4
+    assert education_plan.general_features[0].label == "All Virtual Lab features"
+    assert education_plan.general_features[0].value is True
+
+    # Test support
+    assert education_plan.support is not None
+    assert len(education_plan.support) == 1
+    assert education_plan.support[0].label == "Onboarding"
+    assert education_plan.support[0].value is True
+
+    # Raw JSON from Sanity - Enterprise plan
+    enterprise_plan_json = {
+        "_createdAt": "2025-12-15T10:50:50Z",
+        "_id": "33a59ede-61bf-44bd-95b9-586abe8c48a6",
+        "_rev": "4JFsJ7XF1lf73b2rk0o9z5",
+        "_type": "planV2",
+        "_updatedAt": "2025-12-16T14:00:38Z",
+        "custom_plan": False,
+        "general_features": [
+            {
+                "_key": "fb9d520b4721",
+                "_type": "booleanOptions",
+                "label": "All Virtual Lab features",
+                "value": True,
+            },
+            {
+                "_key": "ec8da3b4404c",
+                "_type": "booleanOptions",
+                "label": "Seat-based access for teams",
+                "value": True,
+            },
+            {
+                "_key": "3f71b386817a",
+                "_type": "booleanOptions",
+                "label": "Scalable compute & storage options",
+                "value": True,
+            },
+            {
+                "_key": "3ee53253f7e8",
+                "_type": "booleanOptions",
+                "label": "Custom feature development",
+                "value": True,
+            },
+        ],
+        "has_contact_button": True,
+        "has_subscription": False,
+        "has_subtitle": True,
+        "name": "Enterprise",
+        "subtitle": "For commercial and organizational use",
+        "support": [
+            {
+                "_key": "89c0772c3189",
+                "_type": "booleanOptions",
+                "label": "Priority support",
+                "value": True,
+            },
+            {
+                "_key": "37ec7d82b185",
+                "_type": "booleanOptions",
+                "label": "Onboarding",
+                "value": True,
+            },
+            {
+                "_key": "13a73843e6ed",
+                "_type": "booleanOptions",
+                "label": "Dedicated account manager",
+                "value": True,
+            },
+        ],
+    }
+
+    # Map the raw JSON using sanity_mapping
+    mapped_data = {}
+    for pydantic_field, sanity_field in PlanV2Document.sanity_mapping.items():
+        if sanity_field in enterprise_plan_json:
+            mapped_data[pydantic_field] = enterprise_plan_json[sanity_field]
+
+    # Instantiate the PlanV2Document
+    enterprise_plan = PlanV2Document(**mapped_data)
+
+    # Assert the mapped fields are correct
+    assert enterprise_plan.id == "33a59ede-61bf-44bd-95b9-586abe8c48a6"
+    assert enterprise_plan.created_at == "2025-12-15T10:50:50Z"
+    assert enterprise_plan.updated_at == "2025-12-16T14:00:38Z"
+    assert enterprise_plan.name == "Enterprise"
+    assert enterprise_plan.has_subtitle is True
+    assert enterprise_plan.subtitle == "For commercial and organizational use"
+    assert enterprise_plan.custom_plan is False
+    assert enterprise_plan.has_contact_button is True
+    assert enterprise_plan.has_subscription is False
+
+    # Test general_features
+    assert enterprise_plan.general_features is not None
+    assert len(enterprise_plan.general_features) == 4
+    assert enterprise_plan.general_features[1].label == "Seat-based access for teams"
+
+    # Test support - Enterprise has more support options
+    assert enterprise_plan.support is not None
+    assert len(enterprise_plan.support) == 3
+    assert enterprise_plan.support[0].label == "Priority support"
+    assert enterprise_plan.support[0].value is True
+    assert enterprise_plan.support[2].label == "Dedicated account manager"
+    assert enterprise_plan.support[2].value is True
+
+
+def test_credits_document_instantiation():
+    """Test instantiating CreditsDocument sanity documents using sanity_mapping.
+
+    Credits documents represent additional credit purchases (priced in CHF with
+    volume discounts). This is distinct from planV2, which represents subscription
+    plans that include a monthly credit allowance.
+
+    Tests with 2 real tiers from staging: the base tier (1-499) and a mid-range
+    tier (500-999).
+    """
+    # Raw JSON from Sanity - base tier (no discount)
+    base_tier_json = {
+        "_createdAt": "2025-11-03T13:21:21Z",
+        "_id": "fb81d940-5658-441d-8f04-890a50fd41c7",
+        "_rev": "jH6y3IPLvd80rupaLl37M3",
+        "_type": "credits",
+        "_updatedAt": "2025-11-06T14:49:10Z",
+        "price": 10,
+        "pricePerCredit": 0.1,
+        "quantity": "1-499",
+    }
+
+    # Map the raw JSON using sanity_mapping
+    mapped_data = {}
+    for pydantic_field, sanity_field in CreditsDocument.sanity_mapping.items():
+        if sanity_field in base_tier_json:
+            mapped_data[pydantic_field] = base_tier_json[sanity_field]
+
+    # Instantiate the CreditsDocument
+    base_tier = CreditsDocument(**mapped_data)
+
+    # Assert the mapped fields are correct
+    assert base_tier.id == "fb81d940-5658-441d-8f04-890a50fd41c7"
+    assert base_tier.created_at == "2025-11-03T13:21:21Z"
+    assert base_tier.updated_at == "2025-11-06T14:49:10Z"
+    assert base_tier.quantity == "1-499"
+    assert base_tier.price == 10
+    assert base_tier.price_per_credit == 0.1
+    # Base tier has no discount field in the response
+    assert base_tier.discount is None
+
+    # Raw JSON from Sanity - mid-range tier (5% discount)
+    mid_tier_json = {
+        "_createdAt": "2025-11-03T13:26:37Z",
+        "_id": "11957dc1-16ba-4bbe-b639-5b21cf2093ce",
+        "_rev": "66DC1hGFarnez6h7FTnncj",
+        "_type": "credits",
+        "_updatedAt": "2025-11-06T14:41:44Z",
+        "discount": 5,
+        "price": 48,
+        "pricePerCredit": 0.095,
+        "quantity": "500-999",
+    }
+
+    # Map the raw JSON using sanity_mapping
+    mapped_data = {}
+    for pydantic_field, sanity_field in CreditsDocument.sanity_mapping.items():
+        if sanity_field in mid_tier_json:
+            mapped_data[pydantic_field] = mid_tier_json[sanity_field]
+
+    # Instantiate the CreditsDocument
+    mid_tier = CreditsDocument(**mapped_data)
+
+    # Assert the mapped fields are correct
+    assert mid_tier.id == "11957dc1-16ba-4bbe-b639-5b21cf2093ce"
+    assert mid_tier.created_at == "2025-11-03T13:26:37Z"
+    assert mid_tier.updated_at == "2025-11-06T14:41:44Z"
+    assert mid_tier.quantity == "500-999"
+    assert mid_tier.discount == 5
+    assert mid_tier.price == 48
+    assert mid_tier.price_per_credit == 0.095
+
+
+def test_credits_document_with_missing_fields():
+    """Test CreditsDocument instantiation with some optional fields missing."""
+    raw_json = {
+        "_createdAt": "2025-11-03T13:21:21Z",
+        "_id": "fb81d940-5658-441d-8f04-890a50fd41c7",
+        "_updatedAt": "2025-11-06T14:49:10Z",
+        "_type": "credits",
+        "quantity": "1-499",
+        # price, discount, pricePerCredit are missing
+    }
+
+    # Map the raw JSON using sanity_mapping
+    mapped_data = {}
+    for pydantic_field, sanity_field in CreditsDocument.sanity_mapping.items():
+        if sanity_field in raw_json:
+            mapped_data[pydantic_field] = raw_json[sanity_field]
+
+    # Instantiate the CreditsDocument - should work with missing fields
+    credits_document = CreditsDocument(**mapped_data)
+
+    # Assert the guaranteed fields are present
+    assert credits_document.id == "fb81d940-5658-441d-8f04-890a50fd41c7"
+    assert credits_document.created_at == "2025-11-03T13:21:21Z"
+    assert credits_document.updated_at == "2025-11-06T14:49:10Z"
+
+    # Assert optional fields
+    assert credits_document.quantity == "1-499"
+    assert credits_document.discount is None
+    assert credits_document.price is None
+    assert credits_document.price_per_credit is None
