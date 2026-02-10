@@ -3,7 +3,7 @@
 import uuid
 from datetime import datetime, timezone
 from typing import AsyncIterator
-from unittest.mock import Mock, patch
+from unittest.mock import AsyncMock, Mock, patch
 
 import pytest
 from fastapi import HTTPException
@@ -429,8 +429,10 @@ async def test_get_system_prompt_with_frontend_url(tmp_path):
         # Mock request for POST method with frontend_url
         request = Mock()
         request.method = "POST"
-        request.json = Mock(
-            return_value={"frontend_url": "https://example.com/app/entity/123"}
+        request.json = AsyncMock(
+            return_value={
+                "frontend_url": "https://staging.openbraininstitute.org/app/virtual-lab/840d9ea7-f2d9-8264-cd4a-c1e9fa10cde2/93040453-2934-2945-1029-102938475632/data/browse/entity/electrical-cell-recording?br_id=abe63c70-1eb0-4b42-9421-d2c914ecb493&br_av=688&group=experimental"
+            }
         )
 
         # Call the function
