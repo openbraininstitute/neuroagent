@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Fetch credits documents in OBI Expert tool.
+
 ### Changed
 - Simulation config tool outputs link to simulation page + prompt engineering.
 
