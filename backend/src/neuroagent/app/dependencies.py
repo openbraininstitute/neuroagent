@@ -552,6 +552,8 @@ async def filtered_tools(
                     status_code=404,
                     detail={"error": f"Model {body['model']} not found."},
                 )
+        if frontend_url := body.get("frontend_url"):
+            context = extract_frontend_context(frontend_url)
 
         return await filter_tools_and_model_by_conversation(
             messages=messages,
@@ -559,6 +561,7 @@ async def filtered_tools(
             openai_client=openai_client,
             settings=settings,
             selected_model=selected_model,
+            context=context if frontend_url else None,
         )
 
     # HIL
@@ -656,7 +659,7 @@ Current time: {datetime.now(timezone.utc).isoformat()}"""
         body = await request.json()
         if body.get("frontend_url"):
             system_prompt += f"""
-Current page being browsed: {extract_frontend_context(body["frontend_url"]).model_dump()}"""
+Information about the entity the user is currently viewing, extracted from the URL of the page they are on: {extract_frontend_context(body["frontend_url"]).model_dump()}. Treat this information as context for the user's request. If the user has a vague question about the website, consider this context. The values provided reflect the latest page the user is on."""
         return system_prompt
 
 

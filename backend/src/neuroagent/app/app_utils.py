@@ -457,6 +457,7 @@ async def filter_tools_and_model_by_conversation(
     openai_client: AsyncOpenAI,
     settings: Settings,
     selected_model: str | None = None,
+    context: FrontendContextOutput | None = None,
 ) -> tuple[list[type[BaseTool]], dict[str, str | None]]:
     """Filter tools and select model based on conversation context and query complexity.
 
@@ -528,6 +529,11 @@ async def filter_tools_and_model_by_conversation(
 3. BIAS TOWARD INCLUSION: If uncertain about a tool's relevance, include it - better to provide too many tools than too few
 4. Only exclude tools that are clearly irrelevant to the conversation
 5. Each tool must be selected only once""")
+        if context:
+            instructions.append(
+                f"6. Information about the page the user is currently viewing, extracted from the URL of the page they are on: {context.model_dump()}. Treat this information as context for the user's request."
+            )
+
         output_fields.append("selected_tools: [tool_name1, tool_name2, ...]")
 
     if need_model_selection:
