@@ -86,12 +86,29 @@ export function getStorageID(
     const parsedResult =
       typeof rawResult === "string" ? safeParse(rawResult) : rawResult;
 
-    const storageId = parsedResult.storage_id;
-    if (storageId) {
-      if (Array.isArray(storageId)) {
-        storageId.forEach((id: string) => storageIds.push(id));
-      } else {
-        storageIds.push(storageId);
+    // Check for image_link first (new format)
+    const imageLink = parsedResult.image_link;
+    if (imageLink) {
+      const links = Array.isArray(imageLink) ? imageLink : [imageLink];
+      links.forEach((link: string) => {
+        const match = link.match(
+          /\/storage\/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/i,
+        );
+        if (match) {
+          storageIds.push(match[1]);
+        }
+      });
+    }
+
+    // Fallback to legacy storage_id if no image_link found
+    if (storageIds.length === 0) {
+      const storageId = parsedResult.storage_id;
+      if (storageId) {
+        if (Array.isArray(storageId)) {
+          storageId.forEach((id: string) => storageIds.push(id));
+        } else {
+          storageIds.push(storageId);
+        }
       }
     }
   } catch {

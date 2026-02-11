@@ -10,6 +10,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Fetch credits documents in OBI Expert tool.
 
+### Changed
+- Plots are now embeded in chat.
+
 ## [0.15.1] - 05.02.2026
 
 ### Added
@@ -23,6 +26,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Rule on how to format `ilike` wildcards.
 
 ### Changed
+
 - Route all writing to `/tmp`.
 - OBI expert points at the documentationProduct instead of documentationGithub
 - Expose the `x-request-id` header for CORS requests.
