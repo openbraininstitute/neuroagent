@@ -33,12 +33,13 @@ const QuestionsSuggestionsSchema = z.object({
 
 /**
  * Schema for request body
+ * Note: Uses snake_case to match Python backend and frontend expectations
  */
 const RequestBodySchema = z.object({
-  threadId: z.string().uuid().optional(),
-  frontendUrl: z.string().url().optional(),
-  vlabId: z.string().uuid().optional(),
-  projectId: z.string().uuid().optional(),
+  thread_id: z.string().uuid().optional(),
+  frontend_url: z.string().url().optional(),
+  vlab_id: z.string().uuid().optional(),
+  project_id: z.string().uuid().optional(),
 });
 
 // ============================================================================
@@ -46,19 +47,32 @@ const RequestBodySchema = z.object({
 // ============================================================================
 
 /**
- * Get static tool descriptions for LLM context
+ * Get tool descriptions for LLM context
  *
- * Returns hardcoded descriptions to avoid tool initialization overhead.
- * This is much faster than initializing all tools (especially MCP tools).
+ * Returns tool descriptions from the actual tool registry.
+ * This ensures the LLM has accurate information about available tools.
  */
-function getToolDescriptions(): string[] {
-  return [
-    'web_search: Search the web for current information using Exa AI',
-    'literature_search: Search across 100M+ research papers using Exa AI',
-    'entitycore-brainregion-getall: Search and retrieve brain regions from EntityCore',
-    'entitycore-cellmorphology-getall: Search and retrieve cell morphologies from EntityCore',
-    'obione-circuitmetrics-getone: Get circuit metrics from OBIOne',
-  ];
+async function getToolDescriptions(): Promise<string[]> {
+  // Initialize tools first to ensure they're registered
+  const { initializeTools } = await import('@/lib/tools');
+  const { getSettings } = await import('@/lib/config/settings');
+
+  const settings = getSettings();
+
+  // Initialize tools with configuration
+  await initializeTools({
+    exaApiKey: settings.tools.exaApiKey,
+    sanityUrl: settings.tools.sanity.url,
+    entitycoreUrl: settings.tools.entitycore.url,
+    obiOneUrl: settings.tools.obiOne.url,
+    mcpConfig: settings.mcp,
+  });
+
+  // Get metadata from registry
+  const { toolRegistry } = await import('@/lib/tools/base-tool');
+  const allMetadata = toolRegistry.getAllMetadata();
+
+  return allMetadata.map((tool) => `${tool.name}: ${tool.description}`);
 }
 
 /**
@@ -166,7 +180,9 @@ export async function POST(request: NextRequest) {
     // Parse request body
     const body = await request.json();
     const validatedBody = RequestBodySchema.parse(body);
-    const { threadId, frontendUrl, vlabId, projectId } = validatedBody;
+    const { thread_id: threadId, frontend_url: frontendUrl, vlab_id: vlabId, project_id: projectId } = validatedBody;
+
+    console.log('[question_suggestions] Request params:', { threadId, frontendUrl, vlabId, projectId });
 
     // Determine rate limit based on vlab/project context
     const limit =
@@ -192,17 +208,21 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Get tool descriptions (static, no initialization needed)
-    const toolInfo = getToolDescriptions();
+    // Get tool descriptions from actual tool registry
+    const toolInfo = await getToolDescriptions();
 
     let systemPrompt = '';
     let userMessages: Array<{ role: 'user' | 'assistant'; content: string }> = [];
     let isInChat = false;
 
     // ========================================================================
-    // IN CHAT - Generate suggestions based on conversation history
+    // Determine if we're in chat by checking for thread messages
     // ========================================================================
-    if (threadId) {
+    if (!threadId) {
+      // No thread ID means we're not in a chat context
+      isInChat = false;
+      console.log('[question_suggestions] No threadId provided, isInChat: false');
+    } else {
       // Fetch last 4 user/AI messages
       const messages = await prisma.message.findMany({
         where: {
@@ -217,18 +237,52 @@ export async function POST(request: NextRequest) {
         take: 4,
       });
 
-      if (messages.length > 0) {
-        isInChat = true;
+      // Set isInChat based on whether we have messages
+      isInChat = messages.length > 0;
+
+      console.log(`[question_suggestions] threadId: ${threadId}, messages.length: ${messages.length}, isInChat: ${isInChat}`);
+
+      // ========================================================================
+      // IN CHAT - Generate suggestions based on conversation history
+      // ========================================================================
+      if (isInChat) {
+        console.log('[question_suggestions] Using IN CHAT prompt');
 
         // Reverse to get chronological order
         const chronologicalMessages = messages.reverse();
 
         // Convert to OpenAI format
         userMessages = chronologicalMessages.map((msg) => {
-          const content = JSON.parse(msg.content);
+          let content: any;
+          try {
+            content = JSON.parse(msg.content);
+          } catch {
+            content = msg.content;
+          }
+
+          // Extract text content from various message formats
+          let textContent: string;
+          if (typeof content === 'string') {
+            textContent = content;
+          } else if (content.content) {
+            if (typeof content.content === 'string') {
+              textContent = content.content;
+            } else if (Array.isArray(content.content)) {
+              // Handle array of content parts (e.g., [{type: 'text', text: '...'}])
+              textContent = content.content
+                .filter((part: any) => part.type === 'text')
+                .map((part: any) => part.text)
+                .join('\n');
+            } else {
+              textContent = JSON.stringify(content.content);
+            }
+          } else {
+            textContent = JSON.stringify(content);
+          }
+
           return {
             role: msg.entity === entity.USER ? ('user' as const) : ('assistant' as const),
-            content: content.content || content,
+            content: textContent,
           };
         });
 
@@ -236,7 +290,7 @@ export async function POST(request: NextRequest) {
 Guidelines:
 
 - Generate three user actions, each targeting a significantly different aspect or subtopic relevant to the main topic of the conversation. Each action should be phrased exactly as if the user is instructing the system to perform the action (e.g., "Show...", "Find...", "Analyze..."). Each action should be independent, and information contained or revealed in one action cannot be re-used, referred to, or assumed in the others. Any shared context or information must be restated in each action where necessary.
-- **CRITICAL OUTPUT FORMAT**: Return a JSON object with a "suggestions" array containing exactly 3 objects, each with a "question" field containing the action string. Example: {"suggestions": [{"question": "Show me..."}, {"question": "Find..."}, {"question": "Analyze..."}]}
+
 - **CRITICAL**: Actions must be in imperative mood (commands), NOT interrogative (questions). Do NOT end actions with question marks. Actions must always be phrased strictly from the user's perspective only. Do NOT generate or rephrase actions from the LLM's perspective. Avoid any formulations such as: "Would you like me to...", "Should I analyze...", "Do you want me to...", "Would it be helpful if I...", "Shall I retrieve...", "Can you...", "What is..." etc.
 - Explore various distinct possibilities, e.g., visuals, metrics, literature, associated models, etc. Be creative.
 - Only include actions that can be performed using the available tools described below.
@@ -255,18 +309,18 @@ Tool Description Format
 
 Output Format
 - Output must be a JSON object with a "suggestions" array containing exactly three objects, each with a "question" field.
-- Example: {"suggestions": [{"question": "Show me brain regions in the hippocampus"}, {"question": "Find papers about synaptic plasticity"}, {"question": "Analyze morphology data for layer 5 neurons"}]}
 - Always return exactly three appropriate actions (never more, never less). If the conversation context or tools do not support three contextually relevant actions, produce the most logically appropriate or useful actions, ensuring the output contains three question objects.
 
 Available Tools:
 ${toolInfo.join('\n')}`;
       }
-    }
+    } // end if (threadId)
 
     // ========================================================================
     // OUT OF CHAT - Generate suggestions based on page context
     // ========================================================================
     if (!isInChat) {
+      console.log('[question_suggestions] Using OUT OF CHAT prompt');
       let contextInfo = '';
       let brainRegionName: string | null = null;
 
@@ -370,7 +424,6 @@ Typical action patterns:
 
 Output format:
 - Output must strictly be a JSON object with a "suggestions" array containing exactly three objects, each with a "question" field containing the action string.
-- Example: {"suggestions": [{"question": "Show me..."}, {"question": "Find papers about..."}, {"question": "Analyze..."}]}
 - After producing the actions, briefly validate that all requirements are satisfied (distinctness, literature, page context, tool set limits) before finalizing the output.
 
 Tool description:
@@ -393,6 +446,7 @@ ${toolInfo.join('\n')}`;
       schema: QuestionsSuggestionsSchema,
       messages,
     };
+    console.log(systemPrompt)
 
     // Add reasoning effort for gpt-5 models
     if (settings.llm.suggestionModel.includes('gpt-5')) {
