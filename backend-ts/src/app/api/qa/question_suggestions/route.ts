@@ -182,8 +182,6 @@ export async function POST(request: NextRequest) {
     const validatedBody = RequestBodySchema.parse(body);
     const { thread_id: threadId, frontend_url: frontendUrl, vlab_id: vlabId, project_id: projectId } = validatedBody;
 
-    console.log('[question_suggestions] Request params:', { threadId, frontendUrl, vlabId, projectId });
-
     // Determine rate limit based on vlab/project context
     const limit =
       vlabId && projectId
@@ -221,7 +219,6 @@ export async function POST(request: NextRequest) {
     if (!threadId) {
       // No thread ID means we're not in a chat context
       isInChat = false;
-      console.log('[question_suggestions] No threadId provided, isInChat: false');
     } else {
       // Fetch last 4 user/AI messages
       const messages = await prisma.message.findMany({
@@ -240,13 +237,10 @@ export async function POST(request: NextRequest) {
       // Set isInChat based on whether we have messages
       isInChat = messages.length > 0;
 
-      console.log(`[question_suggestions] threadId: ${threadId}, messages.length: ${messages.length}, isInChat: ${isInChat}`);
-
       // ========================================================================
       // IN CHAT - Generate suggestions based on conversation history
       // ========================================================================
       if (isInChat) {
-        console.log('[question_suggestions] Using IN CHAT prompt');
 
         // Reverse to get chronological order
         const chronologicalMessages = messages.reverse();
@@ -320,7 +314,6 @@ ${toolInfo.join('\n')}`;
     // OUT OF CHAT - Generate suggestions based on page context
     // ========================================================================
     if (!isInChat) {
-      console.log('[question_suggestions] Using OUT OF CHAT prompt');
       let contextInfo = '';
       let brainRegionName: string | null = null;
 
@@ -446,7 +439,6 @@ ${toolInfo.join('\n')}`;
       schema: QuestionsSuggestionsSchema,
       messages,
     };
-    console.log(systemPrompt)
 
     // Add reasoning effort for gpt-5 models
     if (settings.llm.suggestionModel.includes('gpt-5')) {
