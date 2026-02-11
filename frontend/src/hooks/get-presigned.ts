@@ -23,5 +23,6 @@ export function useGetPresignedUrl(storageId: string) {
       }
       return true;
     },
+    staleTime: 0,
   });
 }

@@ -40,7 +40,6 @@ class PlotMorphologyGetOneMetadata(BaseMetadata):
 class PlotMorphologyGetOneOutput(BaseModel):
     """Output of the PlotMorphologyGetOneTool."""
 
-    storage_id: str
     image_link: str
 
 
@@ -136,7 +135,7 @@ class PlotMorphologyGetOneTool(BaseTool):
         )
 
         url = f"{self.metadata.storage_frontend_url}/{identifier}"
-        return PlotMorphologyGetOneOutput(storage_id=identifier, image_link=url)
+        return PlotMorphologyGetOneOutput(image_link=url)
 
     @classmethod
     async def is_online(

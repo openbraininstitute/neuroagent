@@ -35,7 +35,6 @@ class RunPythonOutput(BaseModel):
     """Output class for the RunPython tool."""
 
     result: SuccessOutput | FailureOutput
-    storage_id: list[str]
     image_link: list[str]
 
 
@@ -138,7 +137,7 @@ AVAILABLE LIBRARIES:
                     )
 
         urls = [f"{self.metadata.storage_frontend_url}/{id}" for id in identifiers]
-        return RunPythonOutput(result=result, storage_id=identifiers, image_link=urls)
+        return RunPythonOutput(result=result, image_link=urls)
 
     @classmethod
     async def is_online(cls) -> bool:

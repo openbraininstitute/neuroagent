@@ -40,7 +40,6 @@ class PlotElectricalCellRecordingGetOneMetadata(BaseMetadata):
 class PlotElectricalCellRecordingGetOneOutput(BaseModel):
     """Output of the PlotElectricalCellRecordingGetOneTool."""
 
-    storage_id: str
     image_link: str
 
 
@@ -139,9 +138,7 @@ class PlotElectricalCellRecordingGetOneTool(BaseTool):
         )
 
         url = f"{self.metadata.storage_frontend_url}/{identifier}"
-        return PlotElectricalCellRecordingGetOneOutput(
-            storage_id=identifier, image_link=url
-        )
+        return PlotElectricalCellRecordingGetOneOutput(image_link=url)
 
     @classmethod
     async def is_online(
