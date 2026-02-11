@@ -659,7 +659,7 @@ Current time: {datetime.now(timezone.utc).isoformat()}"""
         body = await request.json()
         if body.get("frontend_url"):
             system_prompt += f"""
-Information about the entity the user is currently viewing, extracted from the URL of the page they are on: {extract_frontend_context(body["frontend_url"]).model_dump()}. Treat this information as context for the user's request. If the user has a vague question about the website, consider this context. The values provided reflect the latest page the user is on."""
+Information about the entity the user is currently viewing, extracted from the URL of the page they are on: {extract_frontend_context(body["frontend_url"]).model_dump()}. Treat this information as context for the user's request, but only use it when the user's request is vague or ambiguous. If the user's request is explicit or specific, you should disregard this contextual information and instead prioritize and override it with the user's explicit request. The values provided should be assumed to reflect the latest page the user is on. If additional or more detailed information is needed beyond what is provided, you may use tool calls to expand upon the basic information available here."""
         return system_prompt
 
 
