@@ -14,15 +14,19 @@ const PlotInChat = memo(({ storageId }: { storageId: string }) => {
     isError,
   } = useGetPresignedUrl(storageId);
   const { data: responseHeader, isError: isStorageError } =
-    useGetObjectFromStorage(presignedUrl as string, !isPending, true);
+    useGetObjectFromStorage(
+      presignedUrl as string,
+      !isPending && !isError,
+      true,
+    );
   const category = responseHeader?.get("X-Amz-Meta-Category");
 
   if (isError || isStorageError) {
     return (
       <div className="ml-20 block">
         <span className="flex">
-          <span className="inline-block px-2 py-1 text-xs text-red-700">
-            Error loading plot
+          <span className="inline-block rounded-lg border border-yellow-400/50 bg-yellow-50/80 px-4 py-2 text-xs text-yellow-700 dark:border-yellow-600/30 dark:bg-yellow-900/20 dark:text-yellow-400/80">
+            Error loading plot. Plots can be seen above.
           </span>
         </span>
       </div>

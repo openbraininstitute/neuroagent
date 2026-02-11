@@ -40,10 +40,21 @@ const ConditionalImageRenderer = ({
   }
 
   const storageIdMatch = src.match(/\/storage\/([^/]+)/);
+  const isValidUUID =
+    storageIdMatch &&
+    /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
+      storageIdMatch[1],
+    );
 
-  if (!storageIdMatch) {
+  if (!storageIdMatch || !isValidUUID) {
     return (
-      <div className="ml-20 text-red-500">Error: Unable to load image</div>
+      <div className="ml-20 block">
+        <span className="flex">
+          <span className="inline-block rounded-lg border border-yellow-400/50 bg-yellow-50/80 px-4 py-2 text-xs text-yellow-700 dark:border-yellow-600/30 dark:bg-yellow-900/20 dark:text-yellow-400/80">
+            Error loading plot. Plots can be seen above.
+          </span>
+        </span>
+      </div>
     );
   }
 
