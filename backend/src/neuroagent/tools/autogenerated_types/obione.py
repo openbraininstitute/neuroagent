@@ -108,20 +108,20 @@ class BodyMorphologyMetricsCalculationDeclaredRegisterMorphologyWithCalculatedMe
     metadata: str = Field(default='{}', title='Metadata')
 
 
-class BodyTestNeuronFileDeclaredTestNeuronFilePost(BaseModel):
+class BodyValidateMeshFileDeclaredTestMeshFilePost(BaseModel):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    file: bytes = Field(..., description='MESH file to upload (.obj)', title='File')
+
+
+class BodyValidateNeuronFileDeclaredTestNeuronFilePost(BaseModel):
     model_config = ConfigDict(
         extra='ignore',
     )
     file: bytes = Field(
         ..., description='Neuron file to upload (.swc, .h5, or .asc)', title='File'
     )
-
-
-class BodyValidateMeshFileDeclaredTestMeshFilePost(BaseModel):
-    model_config = ConfigDict(
-        extra='ignore',
-    )
-    file: bytes = Field(..., description='MESH file to upload (.obj)', title='File')
 
 
 class BodyValidateNwbFileDeclaredValidateElectrophysiologyProtocolNwbFilePost(
@@ -608,20 +608,15 @@ class InhibitoryNeurons(BaseModel):
     )
 
 
-class SimulationLength2(SimulationLength):
-    pass
-
-
-class SimulationLength3Item(SimulationLength1Item):
-    pass
-
-
-class SimulationLength3(RootModel[list[SimulationLength3Item]]):
-    root: list[SimulationLength3Item] = Field(
-        1000.0,
-        description='Simulation length in milliseconds (ms).',
-        min_length=1,
-        title='Duration',
+class Initialize2(BaseModel):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    type: Literal['MorphologyMetricsScanConfig.Initialize'] = Field(
+        default='MorphologyMetricsScanConfig.Initialize', title='Type'
+    )
+    morphology: CellMorphologyFromID | list[CellMorphologyFromID] = Field(
+        ..., description='3. Morphology description', title='Morphology'
     )
 
 
@@ -675,20 +670,20 @@ class MEModelFromID(BaseModel):
     type: Literal['MEModelFromID'] = Field(default='MEModelFromID', title='Type')
 
 
-class Circuit4(RootModel[MEModelCircuit | MEModelFromID]):
+class Circuit3(RootModel[MEModelCircuit | MEModelFromID]):
     root: MEModelCircuit | MEModelFromID = Field(..., discriminator='type')
 
 
-class SimulationLength4(SimulationLength):
+class SimulationLength2(SimulationLength):
     pass
 
 
-class SimulationLength5Item(SimulationLength1Item):
+class SimulationLength3Item(SimulationLength1Item):
     pass
 
 
-class SimulationLength5(RootModel[list[SimulationLength5Item]]):
-    root: list[SimulationLength5Item] = Field(
+class SimulationLength3(RootModel[list[SimulationLength3Item]]):
+    root: list[SimulationLength3Item] = Field(
         1000.0,
         description='Simulation length in milliseconds (ms).',
         min_length=1,
@@ -703,11 +698,11 @@ class Initialize4(BaseModel):
     type: Literal['MEModelSimulationScanConfig.Initialize'] = Field(
         default='MEModelSimulationScanConfig.Initialize', title='Type'
     )
-    circuit: MEModelCircuit | MEModelFromID | list[Circuit4] = Field(
+    circuit: MEModelCircuit | MEModelFromID | list[Circuit3] = Field(
         ..., description='ME Model to simulate.', title='ME Model'
     )
-    simulation_length: SimulationLength4 | SimulationLength5 = Field(
-        default_factory=lambda: SimulationLength4(1000.0),
+    simulation_length: SimulationLength2 | SimulationLength3 = Field(
+        default_factory=lambda: SimulationLength2(1000.0),
         description='Simulation length in milliseconds (ms).',
         title='Duration',
     )
@@ -752,7 +747,7 @@ class MEModelWithSynapsesCircuitFromID(BaseModel):
     )
 
 
-class Circuit5(
+class Circuit4(
     RootModel[MEModelWithSynapsesCircuit | MEModelWithSynapsesCircuitFromID]
 ):
     root: MEModelWithSynapsesCircuit | MEModelWithSynapsesCircuitFromID = Field(
@@ -760,16 +755,16 @@ class Circuit5(
     )
 
 
-class SimulationLength6(SimulationLength):
+class SimulationLength4(SimulationLength):
     pass
 
 
-class SimulationLength7Item(SimulationLength1Item):
+class SimulationLength5Item(SimulationLength1Item):
     pass
 
 
-class SimulationLength7(RootModel[list[SimulationLength7Item]]):
-    root: list[SimulationLength7Item] = Field(
+class SimulationLength5(RootModel[list[SimulationLength5Item]]):
+    root: list[SimulationLength5Item] = Field(
         1000.0,
         description='Simulation length in milliseconds (ms).',
         min_length=1,
@@ -786,14 +781,14 @@ class Initialize5(BaseModel):
         title='Type',
     )
     circuit: (
-        MEModelWithSynapsesCircuit | MEModelWithSynapsesCircuitFromID | list[Circuit5]
+        MEModelWithSynapsesCircuit | MEModelWithSynapsesCircuitFromID | list[Circuit4]
     ) = Field(
         ...,
         description='MEModel with synapses to simulate.',
         title='MEModel With Synapses',
     )
-    simulation_length: SimulationLength6 | SimulationLength7 = Field(
-        default_factory=lambda: SimulationLength6(1000.0),
+    simulation_length: SimulationLength4 | SimulationLength5 = Field(
+        default_factory=lambda: SimulationLength4(1000.0),
         description='Simulation length in milliseconds (ms).',
         title='Duration',
     )
@@ -937,6 +932,16 @@ class MorphologyMetricsOutput(BaseModel):
         description='The distribution of strahler branch orders of sections, computed from                 terminals.',
         title='section_strahler_orders',
     )
+
+
+class MorphologyMetricsScanConfig(BaseModel):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    type: Literal['MorphologyMetricsScanConfig'] = Field(
+        default='MorphologyMetricsScanConfig', title='Type'
+    )
+    initialize: Initialize2
 
 
 class Width(RootModel[float]):
@@ -1464,6 +1469,16 @@ class ScaleAcetylcholineUSESynapticManipulation(BaseModel):
     type: Literal['ScaleAcetylcholineUSESynapticManipulation'] = Field(
         default='ScaleAcetylcholineUSESynapticManipulation', title='Type'
     )
+    presynaptic_neuron_set: NeuronSetReference | None = Field(
+        default=None,
+        description='The manipulation is applied to all synapses between the presynaptic and postsynaptic neuron sets.',
+        title='Presynaptic Neuron Set',
+    )
+    postsynaptic_neuron_set: NeuronSetReference | None = Field(
+        default=None,
+        description='The manipulation is applied to all synapses between the presynaptic and postsynaptic neuron sets.',
+        title='Postsynaptic Neuron Set',
+    )
     use_scaling: UseScaling | list[UseScalingItem] = Field(
         default_factory=lambda: UseScaling(0.7050728631217412),
         description='Scale the U_SE (ACh) parameter of the Tsodyks-Markram synaptic model.',
@@ -1471,7 +1486,7 @@ class ScaleAcetylcholineUSESynapticManipulation(BaseModel):
     )
 
 
-class Circuit6(Circuit2):
+class Circuit5(Circuit2):
     pass
 
 
@@ -1482,7 +1497,7 @@ class Initialize6(BaseModel):
     type: Literal['SchemaExampleScanConfig.Initialize'] = Field(
         default='SchemaExampleScanConfig.Initialize', title='Type'
     )
-    circuit: Circuit | CircuitFromID | list[Circuit6] = Field(
+    circuit: Circuit | CircuitFromID | list[Circuit5] = Field(
         ...,
         description='Parent circuit to extract a sub-circuit from.',
         title='Circuit',
@@ -1865,6 +1880,16 @@ class SynapticMgManipulation(BaseModel):
     type: Literal['SynapticMgManipulation'] = Field(
         default='SynapticMgManipulation', title='Type'
     )
+    presynaptic_neuron_set: NeuronSetReference | None = Field(
+        default=None,
+        description='The manipulation is applied to all synapses between the presynaptic and postsynaptic neuron sets.',
+        title='Presynaptic Neuron Set',
+    )
+    postsynaptic_neuron_set: NeuronSetReference | None = Field(
+        default=None,
+        description='The manipulation is applied to all synapses between the presynaptic and postsynaptic neuron sets.',
+        title='Postsynaptic Neuron Set',
+    )
     magnesium_value: MagnesiumValue | list[MagnesiumValueItem] = Field(
         default_factory=lambda: MagnesiumValue(2.4),
         description='Extracellular magnesium concentration in millimoles (mM).',
@@ -2078,7 +2103,7 @@ class ObiOneScientificTasksCircuitExtractionCircuitExtractionScanConfigInitializ
     type: Literal['CircuitExtractionScanConfig.Initialize'] = Field(
         default='CircuitExtractionScanConfig.Initialize', title='Type'
     )
-    circuit: Circuit | CircuitFromID | list[Circuit6] = Field(
+    circuit: Circuit | CircuitFromID | list[Circuit5] = Field(
         ...,
         description='Parent circuit to extract a sub-circuit from.',
         title='Circuit',
@@ -2227,16 +2252,16 @@ class ObiOneScientificTasksFolderCompressionFolderCompressionScanConfigInitializ
     archive_name: str | None = Field(default=None, title='Archive Name')
 
 
-class SimulationLength8(SimulationLength):
+class SimulationLength6(SimulationLength):
     pass
 
 
-class SimulationLength9Item(SimulationLength1Item):
+class SimulationLength7Item(SimulationLength1Item):
     pass
 
 
-class SimulationLength9(RootModel[list[SimulationLength9Item]]):
-    root: list[SimulationLength9Item] = Field(
+class SimulationLength7(RootModel[list[SimulationLength7Item]]):
+    root: list[SimulationLength7Item] = Field(
         1000.0,
         description='Simulation length in milliseconds (ms).',
         min_length=1,
@@ -2253,11 +2278,11 @@ class ObiOneScientificTasksGenerateSimulationConfigsCircuitSimulationScanConfigI
     type: Literal['CircuitSimulationScanConfig.Initialize'] = Field(
         default='CircuitSimulationScanConfig.Initialize', title='Type'
     )
-    circuit: Circuit | CircuitFromID | list[Circuit6] = Field(
+    circuit: Circuit | CircuitFromID | list[Circuit5] = Field(
         ..., description='Circuit to simulate.', title='Circuit'
     )
-    simulation_length: SimulationLength8 | SimulationLength9 = Field(
-        default_factory=lambda: SimulationLength8(1000.0),
+    simulation_length: SimulationLength6 | SimulationLength7 = Field(
+        default_factory=lambda: SimulationLength6(1000.0),
         description='Simulation length in milliseconds (ms).',
         title='Duration',
     )
@@ -2278,6 +2303,61 @@ class ObiOneScientificTasksGenerateSimulationConfigsCircuitSimulationScanConfigI
     )
     node_set: NeuronSetReference | None = Field(
         default=None, description='Neuron set to simulate.', title='Neuron Set'
+    )
+
+
+class Circuit8(Circuit3):
+    pass
+
+
+class SimulationLength8(SimulationLength):
+    pass
+
+
+class SimulationLength9Item(SimulationLength1Item):
+    pass
+
+
+class SimulationLength9(RootModel[list[SimulationLength9Item]]):
+    root: list[SimulationLength9Item] = Field(
+        1000.0,
+        description='Simulation length in milliseconds (ms).',
+        min_length=1,
+        title='Duration',
+    )
+
+
+class ObiOneScientificTasksGenerateSimulationConfigsMEModelSimulationScanConfigInitialize(
+    BaseModel
+):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    type: Literal['MEModelSimulationScanConfig.Initialize'] = Field(
+        default='MEModelSimulationScanConfig.Initialize', title='Type'
+    )
+    circuit: MEModelCircuit | MEModelFromID | list[Circuit8] = Field(
+        ..., description='ME Model to simulate.', title='ME Model'
+    )
+    simulation_length: SimulationLength8 | SimulationLength9 = Field(
+        default_factory=lambda: SimulationLength8(1000.0),
+        description='Simulation length in milliseconds (ms).',
+        title='Duration',
+    )
+    extracellular_calcium_concentration: (
+        ExtracellularCalciumConcentration | list[ExtracellularCalciumConcentrationItem]
+    ) = Field(
+        default_factory=lambda: ExtracellularCalciumConcentration(1.1),
+        description='Extracellular calcium concentration around the synapse in millimoles (mM). Increasing this value increases the probability of synaptic vesicle release, which in turn increases the level of network activity. In vivo values are estimated to be ~0.9-1.2mM, whilst in vitro values are on the order of 2mM.',
+        title='Extracellular Calcium Concentration',
+    )
+    v_init: float | list[float] = Field(
+        default=-80.0,
+        description='Initial membrane potential in millivolts (mV).',
+        title='Initial Voltage',
+    )
+    random_seed: int | list[int] = Field(
+        default=1, description='Random seed for the simulation.', title='Random Seed'
     )
 
 
@@ -2302,61 +2382,6 @@ class SimulationLength11(RootModel[list[SimulationLength11Item]]):
     )
 
 
-class ObiOneScientificTasksGenerateSimulationConfigsMEModelSimulationScanConfigInitialize(
-    BaseModel
-):
-    model_config = ConfigDict(
-        extra='ignore',
-    )
-    type: Literal['MEModelSimulationScanConfig.Initialize'] = Field(
-        default='MEModelSimulationScanConfig.Initialize', title='Type'
-    )
-    circuit: MEModelCircuit | MEModelFromID | list[Circuit9] = Field(
-        ..., description='ME Model to simulate.', title='ME Model'
-    )
-    simulation_length: SimulationLength10 | SimulationLength11 = Field(
-        default_factory=lambda: SimulationLength10(1000.0),
-        description='Simulation length in milliseconds (ms).',
-        title='Duration',
-    )
-    extracellular_calcium_concentration: (
-        ExtracellularCalciumConcentration | list[ExtracellularCalciumConcentrationItem]
-    ) = Field(
-        default_factory=lambda: ExtracellularCalciumConcentration(1.1),
-        description='Extracellular calcium concentration around the synapse in millimoles (mM). Increasing this value increases the probability of synaptic vesicle release, which in turn increases the level of network activity. In vivo values are estimated to be ~0.9-1.2mM, whilst in vitro values are on the order of 2mM.',
-        title='Extracellular Calcium Concentration',
-    )
-    v_init: float | list[float] = Field(
-        default=-80.0,
-        description='Initial membrane potential in millivolts (mV).',
-        title='Initial Voltage',
-    )
-    random_seed: int | list[int] = Field(
-        default=1, description='Random seed for the simulation.', title='Random Seed'
-    )
-
-
-class Circuit10(Circuit5):
-    pass
-
-
-class SimulationLength12(SimulationLength):
-    pass
-
-
-class SimulationLength13Item(SimulationLength1Item):
-    pass
-
-
-class SimulationLength13(RootModel[list[SimulationLength13Item]]):
-    root: list[SimulationLength13Item] = Field(
-        1000.0,
-        description='Simulation length in milliseconds (ms).',
-        min_length=1,
-        title='Duration',
-    )
-
-
 class ObiOneScientificTasksGenerateSimulationConfigsMEModelWithSynapsesCircuitSimulationScanConfigInitialize(
     BaseModel
 ):
@@ -2368,14 +2393,14 @@ class ObiOneScientificTasksGenerateSimulationConfigsMEModelWithSynapsesCircuitSi
         title='Type',
     )
     circuit: (
-        MEModelWithSynapsesCircuit | MEModelWithSynapsesCircuitFromID | list[Circuit10]
+        MEModelWithSynapsesCircuit | MEModelWithSynapsesCircuitFromID | list[Circuit9]
     ) = Field(
         ...,
         description='MEModel with synapses to simulate.',
         title='MEModel With Synapses',
     )
-    simulation_length: SimulationLength12 | SimulationLength13 = Field(
-        default_factory=lambda: SimulationLength12(1000.0),
+    simulation_length: SimulationLength10 | SimulationLength11 = Field(
+        default_factory=lambda: SimulationLength10(1000.0),
         description='Simulation length in milliseconds (ms).',
         title='Duration',
     )
@@ -2464,21 +2489,7 @@ class ObiOneScientificTasksMorphologyLocationsMorphologyLocationsScanConfigIniti
     )
 
 
-class ObiOneScientificTasksMorphologyMetricsMorphologyMetricsScanConfigInitialize(
-    BaseModel
-):
-    model_config = ConfigDict(
-        extra='ignore',
-    )
-    type: Literal['MorphologyMetricsScanConfig.Initialize'] = Field(
-        default='MorphologyMetricsScanConfig.Initialize', title='Type'
-    )
-    morphology: CellMorphologyFromID | list[CellMorphologyFromID] = Field(
-        ..., description='3. Morphology description', title='Morphology'
-    )
-
-
-class Circuit11(Circuit2):
+class Circuit10(Circuit2):
     pass
 
 
@@ -2489,7 +2500,7 @@ class ObiOneScientificTasksSchemaExampleSchemaExampleScanConfigInitialize(BaseMo
     type: Literal['SchemaExampleScanConfig.Initialize'] = Field(
         default='SchemaExampleScanConfig.Initialize', title='Type'
     )
-    circuit: Circuit | CircuitFromID | list[Circuit11] = Field(
+    circuit: Circuit | CircuitFromID | list[Circuit10] = Field(
         ...,
         description='Parent circuit to extract a sub-circuit from.',
         title='Circuit',
@@ -2517,6 +2528,58 @@ class ObiOneScientificTasksSkeletonizationSkeletonizationScanConfigInitialize(
     Initialize7
 ):
     pass
+
+
+class SimulationLength12(SimulationLength):
+    pass
+
+
+class SimulationLength13Item(SimulationLength1Item):
+    pass
+
+
+class SimulationLength13(RootModel[list[SimulationLength13Item]]):
+    root: list[SimulationLength13Item] = Field(
+        1000.0,
+        description='Simulation length in milliseconds (ms).',
+        min_length=1,
+        title='Duration',
+    )
+
+
+class ObiOneScientificUnionsAliasesSimulationsFormInitialize(BaseModel):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    type: Literal['SimulationsForm.Initialize'] = Field(
+        default='SimulationsForm.Initialize', title='Type'
+    )
+    circuit: Circuit | CircuitFromID | list[Circuit10] = Field(
+        ..., description='Circuit to simulate.', title='Circuit'
+    )
+    simulation_length: SimulationLength12 | SimulationLength13 = Field(
+        default_factory=lambda: SimulationLength12(1000.0),
+        description='Simulation length in milliseconds (ms).',
+        title='Duration',
+    )
+    extracellular_calcium_concentration: (
+        ExtracellularCalciumConcentration | list[ExtracellularCalciumConcentrationItem]
+    ) = Field(
+        default_factory=lambda: ExtracellularCalciumConcentration(1.1),
+        description='Extracellular calcium concentration around the synapse in millimoles (mM). Increasing this value increases the probability of synaptic vesicle release, which in turn increases the level of network activity. In vivo values are estimated to be ~0.9-1.2mM, whilst in vitro values are on the order of 2mM.',
+        title='Extracellular Calcium Concentration',
+    )
+    v_init: float | list[float] = Field(
+        default=-80.0,
+        description='Initial membrane potential in millivolts (mV).',
+        title='Initial Voltage',
+    )
+    random_seed: int | list[int] = Field(
+        default=1, description='Random seed for the simulation.', title='Random Seed'
+    )
+    node_set: NeuronSetReference | None = Field(
+        default=None, description='Neuron set to simulate.', title='Neuron Set'
+    )
 
 
 class RootGetResponse(BaseModel):
@@ -2672,7 +2735,7 @@ class NeuronMorphologyMetricsEndpointDeclaredNeuronMorphologyMetricsCellMorpholo
     )
 
 
-class TestNeuronFileDeclaredTestNeuronFilePostParametersQuery(BaseModel):
+class ValidateNeuronFileDeclaredTestNeuronFilePostParametersQuery(BaseModel):
     model_config = ConfigDict(
         extra='ignore',
     )
@@ -2771,7 +2834,7 @@ class Initialize(BaseModel):
     type: Literal['CircuitExtractionScanConfig.Initialize'] = Field(
         default='CircuitExtractionScanConfig.Initialize', title='Type'
     )
-    circuit: Circuit | CircuitFromID | list[Circuit11] = Field(
+    circuit: Circuit | CircuitFromID | list[Circuit10] = Field(
         ...,
         description='Parent circuit to extract a sub-circuit from.',
         title='Circuit',
@@ -2901,6 +2964,35 @@ class Initialize1(BaseModel):
     )
 
 
+class ConnectSynapticManipulation(BaseModel):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    type: Literal['ConnectSynapticManipulation'] = Field(
+        default='ConnectSynapticManipulation', title='Type'
+    )
+    presynaptic_neuron_set: NeuronSetReference | None = Field(
+        default=None,
+        description='The manipulation is applied to all synapses between the presynaptic and postsynaptic neuron sets.',
+        title='Presynaptic Neuron Set',
+    )
+    postsynaptic_neuron_set: NeuronSetReference | None = Field(
+        default=None,
+        description='The manipulation is applied to all synapses between the presynaptic and postsynaptic neuron sets.',
+        title='Postsynaptic Neuron Set',
+    )
+    timestamps: TimestampsReference | None = Field(
+        default=None,
+        description='Timestamps at which the manipulation is applied.',
+        title='Timestamps',
+    )
+    timestamp_offset: float | list[float] | None = Field(
+        default=0.0,
+        description='An optional offset of the manipulation relative to each timestamp in milliseconds (ms).',
+        title='Timestamp Offset',
+    )
+
+
 class ConnectivityMatrixExtractionScanConfig(BaseModel):
     model_config = ConfigDict(
         extra='ignore',
@@ -2987,6 +3079,35 @@ class ContributeSubjectScanConfig(BaseModel):
     )
     subject: Subject | None = Field(
         default=None, description='Information about the subject.'
+    )
+
+
+class DisconnectSynapticManipulation(BaseModel):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    type: Literal['DisconnectSynapticManipulation'] = Field(
+        default='DisconnectSynapticManipulation', title='Type'
+    )
+    presynaptic_neuron_set: NeuronSetReference | None = Field(
+        default=None,
+        description='The manipulation is applied to all synapses between the presynaptic and postsynaptic neuron sets.',
+        title='Presynaptic Neuron Set',
+    )
+    postsynaptic_neuron_set: NeuronSetReference | None = Field(
+        default=None,
+        description='The manipulation is applied to all synapses between the presynaptic and postsynaptic neuron sets.',
+        title='Postsynaptic Neuron Set',
+    )
+    timestamps: TimestampsReference | None = Field(
+        default=None,
+        description='Timestamps at which the manipulation is applied.',
+        title='Timestamps',
+    )
+    timestamp_offset: float | list[float] | None = Field(
+        default=0.0,
+        description='An optional offset of the manipulation relative to each timestamp in milliseconds (ms).',
+        title='Timestamp Offset',
     )
 
 
@@ -3105,41 +3226,6 @@ class IDNeuronSet(BaseModel):
         ...,
         description='List of neuron IDs to include in the neuron set.',
         title='ID Neuronset',
-    )
-
-
-class Initialize2(BaseModel):
-    model_config = ConfigDict(
-        extra='ignore',
-    )
-    type: Literal['SimulationsForm.Initialize'] = Field(
-        default='SimulationsForm.Initialize', title='Type'
-    )
-    circuit: Circuit | CircuitFromID | list[Circuit2] = Field(
-        ..., description='Circuit to simulate.', title='Circuit'
-    )
-    simulation_length: SimulationLength2 | SimulationLength3 = Field(
-        default_factory=lambda: SimulationLength2(1000.0),
-        description='Simulation length in milliseconds (ms).',
-        title='Duration',
-    )
-    extracellular_calcium_concentration: (
-        ExtracellularCalciumConcentration | list[ExtracellularCalciumConcentrationItem]
-    ) = Field(
-        default_factory=lambda: ExtracellularCalciumConcentration(1.1),
-        description='Extracellular calcium concentration around the synapse in millimoles (mM). Increasing this value increases the probability of synaptic vesicle release, which in turn increases the level of network activity. In vivo values are estimated to be ~0.9-1.2mM, whilst in vitro values are on the order of 2mM.',
-        title='Extracellular Calcium Concentration',
-    )
-    v_init: float | list[float] = Field(
-        default=-80.0,
-        description='Initial membrane potential in millivolts (mV).',
-        title='Initial Voltage',
-    )
-    random_seed: int | list[int] = Field(
-        default=1, description='Random seed for the simulation.', title='Random Seed'
-    )
-    node_set: NeuronSetReference | None = Field(
-        default=None, description='Neuron set to simulate.', title='Neuron Set'
     )
 
 
@@ -3281,18 +3367,6 @@ class MorphologyLocationsScanConfig(BaseModel):
         description='Parameterization of locations on the neurites of the morphology',
         discriminator='type',
         title='Morphology locations',
-    )
-
-
-class MorphologyMetricsScanConfig(BaseModel):
-    model_config = ConfigDict(
-        extra='ignore',
-    )
-    type: Literal['MorphologyMetricsScanConfig'] = Field(
-        default='MorphologyMetricsScanConfig', title='Type'
-    )
-    initialize: (
-        ObiOneScientificTasksMorphologyMetricsMorphologyMetricsScanConfigInitialize
     )
 
 
@@ -3961,7 +4035,13 @@ class CircuitSimulationScanConfig(BaseModel):
         default=None, description='Neuron sets for the simulation.', title='Neuron Sets'
     )
     synaptic_manipulations: (
-        dict[str, SynapticMgManipulation | ScaleAcetylcholineUSESynapticManipulation]
+        dict[
+            str,
+            DisconnectSynapticManipulation
+            | ConnectSynapticManipulation
+            | SynapticMgManipulation
+            | ScaleAcetylcholineUSESynapticManipulation,
+        ]
         | None
     ) = Field(
         default=None,
@@ -4059,7 +4139,13 @@ class MEModelWithSynapsesCircuitSimulationScanConfig(BaseModel):
         default=None, description='Neuron sets for the simulation.', title='Neuron Sets'
     )
     synaptic_manipulations: (
-        dict[str, SynapticMgManipulation | ScaleAcetylcholineUSESynapticManipulation]
+        dict[
+            str,
+            DisconnectSynapticManipulation
+            | ConnectSynapticManipulation
+            | SynapticMgManipulation
+            | ScaleAcetylcholineUSESynapticManipulation,
+        ]
         | None
     ) = Field(
         default=None,
@@ -4125,14 +4211,20 @@ class SimulationsForm(BaseModel):
         default=None, description='Neuron sets for the simulation.', title='Neuron Sets'
     )
     synaptic_manipulations: (
-        dict[str, SynapticMgManipulation | ScaleAcetylcholineUSESynapticManipulation]
+        dict[
+            str,
+            DisconnectSynapticManipulation
+            | ConnectSynapticManipulation
+            | SynapticMgManipulation
+            | ScaleAcetylcholineUSESynapticManipulation,
+        ]
         | None
     ) = Field(
         default=None,
         description='Synaptic manipulations for the simulation.',
         title='Synaptic Manipulations',
     )
-    initialize: Initialize2
+    initialize: ObiOneScientificUnionsAliasesSimulationsFormInitialize
     stimuli: (
         dict[
             str,

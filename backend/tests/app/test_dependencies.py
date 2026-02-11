@@ -3,7 +3,7 @@
 import uuid
 from datetime import datetime, timezone
 from typing import AsyncIterator
-from unittest.mock import Mock, patch
+from unittest.mock import AsyncMock, Mock, patch
 
 import pytest
 from fastapi import HTTPException
@@ -257,7 +257,8 @@ async def test_get_healthcheck_variables():
     }
 
 
-def test_get_system_prompt_with_mdc_files(tmp_path):
+@pytest.mark.asyncio
+async def test_get_system_prompt_with_mdc_files(tmp_path):
     """Test get_system_prompt function with mock .mdc files."""
     # Create mock .mdc files in tmp_path
     rule1_content = """---
@@ -299,8 +300,12 @@ Only the content after the frontmatter should be included.
     with patch("neuroagent.app.dependencies.datetime") as mock_datetime:
         mock_datetime.now.return_value = fixed_time
 
+        # Mock request for GET method
+        request = Mock()
+        request.method = "GET"
+
         # Call the function with our mock rules directory
-        result = get_system_prompt(rules_dir=tmp_path)
+        result = await get_system_prompt(rules_dir=tmp_path, request=request)
 
     # Expected result
     expected_base = """# NEUROSCIENCE AI ASSISTANT
@@ -340,7 +345,8 @@ Only the content after the frontmatter should be included.
     assert result == expected_result
 
 
-def test_get_system_prompt_no_rules_directory(tmp_path):
+@pytest.mark.asyncio
+async def test_get_system_prompt_no_rules_directory(tmp_path):
     """Test get_system_prompt function when rules directory doesn't exist."""
     # Use a non-existent directory
     non_existent_dir = tmp_path / "non_existent"
@@ -351,8 +357,12 @@ def test_get_system_prompt_no_rules_directory(tmp_path):
     with patch("neuroagent.app.dependencies.datetime") as mock_datetime:
         mock_datetime.now.return_value = fixed_time
 
+        # Mock request for GET method
+        request = Mock()
+        request.method = "GET"
+
         # Call the function with non-existent directory
-        result = get_system_prompt(rules_dir=non_existent_dir)
+        result = await get_system_prompt(rules_dir=non_existent_dir, request=request)
 
     # Should return only the base prompt
     expected_result = f"""# NEUROSCIENCE AI ASSISTANT
@@ -369,7 +379,8 @@ Current time: {fixed_time.isoformat()}"""
     assert result == expected_result
 
 
-def test_get_system_prompt_empty_mdc_files(tmp_path):
+@pytest.mark.asyncio
+async def test_get_system_prompt_empty_mdc_files(tmp_path):
     """Test get_system_prompt function with empty .mdc files."""
     # Create empty .mdc files
     empty_file1 = tmp_path / "empty1.mdc"
@@ -384,8 +395,12 @@ def test_get_system_prompt_empty_mdc_files(tmp_path):
     with patch("neuroagent.app.dependencies.datetime") as mock_datetime:
         mock_datetime.now.return_value = fixed_time
 
+        # Mock request for GET method
+        request = Mock()
+        request.method = "GET"
+
         # Call the function with empty files
-        result = get_system_prompt(rules_dir=tmp_path)
+        result = await get_system_prompt(rules_dir=tmp_path, request=request)
 
     # Should return only the base prompt (empty files are ignored)
     expected_result = f"""# NEUROSCIENCE AI ASSISTANT
@@ -400,3 +415,29 @@ You are a neuroscience AI assistant for the Open Brain Platform.
 Current time: {fixed_time.isoformat()}"""
 
     assert result == expected_result
+
+
+@pytest.mark.asyncio
+async def test_get_system_prompt_with_frontend_url(tmp_path):
+    """Test get_system_prompt function with frontend_url in POST request."""
+    # Mock datetime to have a predictable timestamp
+    fixed_time = datetime(2024, 1, 15, 12, 30, 45, tzinfo=timezone.utc)
+
+    with patch("neuroagent.app.dependencies.datetime") as mock_datetime:
+        mock_datetime.now.return_value = fixed_time
+
+        # Mock request for POST method with frontend_url
+        request = Mock()
+        request.method = "POST"
+        request.json = AsyncMock(
+            return_value={
+                "frontend_url": "https://staging.openbraininstitute.org/app/virtual-lab/840d9ea7-f2d9-8264-cd4a-c1e9fa10cde2/93040453-2934-2945-1029-102938475632/data/browse/entity/electrical-cell-recording?br_id=abe63c70-1eb0-4b42-9421-d2c914ecb493&br_av=688&group=experimental"
+            }
+        )
+
+        # Call the function
+        result = await get_system_prompt(rules_dir=tmp_path, request=request)
+
+    # Should include frontend context
+    assert "Information about the entity the user is currently viewing" in result
+    assert "Current time:" in result

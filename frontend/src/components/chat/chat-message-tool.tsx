@@ -93,10 +93,10 @@ export const ChatMessageTool = function ChatMessageTool({
       tool.state === "result"
     ) {
       try {
-        const newSimConfigJson = JSON.parse(
-          tool.result,
-        ) as CircuitSimulationScanConfig;
-        setSimConfigJson({ smc_simulation_config: newSimConfigJson });
+        const toolOutput = JSON.parse(tool.result) as {
+          smc_simulation_config: CircuitSimulationScanConfig;
+        };
+        setSimConfigJson(toolOutput);
       } catch {
         toast.error("JSON Edit Error", {
           description: "The tool output is not a valid JSON",
