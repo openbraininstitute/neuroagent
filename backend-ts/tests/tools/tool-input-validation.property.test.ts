@@ -22,8 +22,6 @@ import { test } from '@fast-check/vitest';
 import * as fc from 'fast-check';
 import { z } from 'zod';
 import { BaseTool, BaseContextVariables } from '@/lib/tools/base-tool';
-import { ExampleTool } from '@/lib/tools/example-tool';
-import { CalculatorTool } from '@/lib/tools/calculator-tool';
 
 /**
  * Test tool with various input types for comprehensive validation testing
@@ -265,71 +263,6 @@ describe('Tool Input Validation Property Tests', () => {
         // Optional number with default should have default value
         expect(result.data.optionalNumberWithDefault).toBe(10);
       }
-    });
-
-    /**
-     * Test ExampleTool validation
-     */
-    test.prop([
-      fc.record({
-        query: fc.string({ minLength: 1 }),
-        maxResults: fc.integer({ min: 1, max: 100 }),
-        includeMetadata: fc.option(fc.boolean(), { nil: undefined }),
-      }),
-    ])('should validate ExampleTool inputs correctly', async (validInput) => {
-      const tool = new ExampleTool({
-        apiUrl: 'https://api.example.com',
-        apiKey: 'test-key',
-      });
-
-      const result = tool.inputSchema.safeParse(validInput);
-
-      expect(result.success).toBe(true);
-      if (result.success) {
-        expect(result.data.query).toBe(validInput.query);
-        expect(result.data.maxResults).toBe(validInput.maxResults);
-      }
-    });
-
-    /**
-     * Test CalculatorTool validation
-     */
-    test.prop([
-      fc.record({
-        operation: fc.constantFrom('add', 'subtract', 'multiply', 'divide'),
-        a: fc.integer({ min: -1000, max: 1000 }),
-        b: fc.integer({ min: -1000, max: 1000 }),
-      }),
-    ])('should validate CalculatorTool inputs correctly', async (validInput) => {
-      const tool = new CalculatorTool();
-
-      const result = tool.inputSchema.safeParse(validInput);
-
-      expect(result.success).toBe(true);
-      if (result.success) {
-        expect(result.data.operation).toBe(validInput.operation);
-        expect(result.data.a).toBe(validInput.a);
-        expect(result.data.b).toBe(validInput.b);
-      }
-    });
-
-    /**
-     * Test that invalid calculator operations fail
-     */
-    test.prop([
-      fc.record({
-        operation: fc
-          .string()
-          .filter((s) => !['add', 'subtract', 'multiply', 'divide'].includes(s)),
-        a: fc.integer(),
-        b: fc.integer(),
-      }),
-    ])('should reject invalid calculator operations', async (invalidInput) => {
-      const tool = new CalculatorTool();
-
-      const result = tool.inputSchema.safeParse(invalidInput);
-
-      expect(result.success).toBe(false);
     });
 
     /**

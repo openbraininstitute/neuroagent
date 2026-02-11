@@ -97,17 +97,6 @@ describe('Tool Integration and Testing', () => {
       expect(toolNames).toContain('obi-expert');
     });
 
-    it('should include test tools for filtering', async () => {
-      const toolClasses = await getAvailableToolClasses(config);
-      const toolNames = toolClasses.map((cls) => cls.toolName);
-
-      // Check for test tools
-      expect(toolNames).toContain('get_weather');
-      expect(toolNames).toContain('translate_text');
-      expect(toolNames).toContain('get_time');
-      expect(toolNames).toContain('convert_currency');
-    });
-
     it('should not include tools when dependencies are missing', async () => {
       const minimalConfig: ToolConfig = {};
       const toolClasses = await getAvailableToolClasses(minimalConfig);
@@ -122,13 +111,9 @@ describe('Tool Integration and Testing', () => {
       // Should not include Thumbnail Generation tools
       expect(toolNames).not.toContain('thumbnail-generation-morphology-getone');
 
-      // Should not include Standalone tools (except test tools)
+      // Should not include Standalone tools
       expect(toolNames).not.toContain('literature-search-tool');
       expect(toolNames).not.toContain('obi-expert');
-
-      // Should still include test tools
-      expect(toolNames).toContain('get_weather');
-      expect(toolNames).toContain('calculator');
     });
   });
 
@@ -388,39 +373,6 @@ describe('Tool Integration and Testing', () => {
         expect(tool.parameters).toBeDefined();
         expect(typeof tool.execute).toBe('function');
       });
-    });
-  });
-
-  describe('Tool Execution', () => {
-    it('should execute calculator tool (no external dependencies)', async () => {
-      const { CalculatorTool } = await import('../calculator-tool');
-      const instance = await createToolInstance(CalculatorTool, config);
-
-      const result = await instance.execute({
-        operation: 'add',
-        a: 5,
-        b: 3,
-      });
-
-      // Calculator tool returns an object with result property
-      expect(result).toHaveProperty('result');
-      expect(result.result).toBe(8);
-    });
-
-    it('should validate tool input with Zod schema', async () => {
-      const { CalculatorTool } = await import('../calculator-tool');
-      const instance = await createToolInstance(CalculatorTool, config);
-
-      // Test with valid input - calculator doesn't throw on invalid operation
-      // It just returns undefined result
-      const result = await instance.execute({
-        operation: 'invalid',
-        a: 5,
-        b: 3,
-      } as any);
-
-      // Result should be undefined for invalid operation
-      expect(result.result).toBeUndefined();
     });
   });
 

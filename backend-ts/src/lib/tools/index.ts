@@ -23,10 +23,6 @@
 // Base tool system
 export * from './base-tool';
 
-// Example tools
-export * from './example-tool';
-export * from './calculator-tool';
-
 // EntityCore tools
 export * from './entitycore/asset-getall';
 export * from './entitycore/asset-getone';
@@ -111,9 +107,6 @@ export * from './thumbnail_generation/types'; // Export shared ThumbnailGenerati
 export * from './thumbnail_generation/plot-electrical-cell-recording-getone';
 export * from './thumbnail_generation/plot-morphology-getone';
 
-// Test tools for filtering
-export * from './test';
-
 /**
  * Tool configuration interface
  *
@@ -121,13 +114,6 @@ export * from './test';
  * and to instantiate them with proper context.
  */
 export interface ToolConfig {
-  // Example tool config
-  exampleApiUrl?: string;
-  exampleApiKey?: string;
-
-  // Calculator tool config
-  calculatorMaxValue?: number;
-
   // EntityCore tool config
   entitycoreUrl?: string;
   entityFrontendUrl?: string;
@@ -185,10 +171,6 @@ export async function registerToolClasses() {
   const { toolRegistry } = await import('./base-tool');
 
   try {
-    // Import tool classes (NOT instances - just the class definitions)
-    const { ExampleTool } = await import('./example-tool');
-    const { CalculatorTool } = await import('./calculator-tool');
-
     // Import EntityCore tools
     const { AssetGetAllTool } = await import('./entitycore/asset-getall');
     const { AssetGetOneTool } = await import('./entitycore/asset-getone');
@@ -271,17 +253,9 @@ export async function registerToolClasses() {
     const { CircuitPopulationAnalysisTool } = await import('./standalone/circuit-population-analysis');
     const { OBIExpertTool } = await import('./standalone/obi-expert');
 
-    // Import test tools
-    const { WeatherTool } = await import('./test/WeatherTool');
-    const { TranslatorTool } = await import('./test/TranslatorTool');
-    const { TimeTool } = await import('./test/TimeTool');
-    const { CurrencyTool } = await import('./test/CurrencyTool');
-
     // Store class references in registry (NO INSTANTIATION - just storing the class types)
-    // This is like Python's: tool_list = [ExampleTool, CalculatorTool, ...]
+    // This is like Python's: tool_list = [AssetGetAllTool, ...]
     const toolClasses = [
-      { name: 'ExampleTool', cls: ExampleTool },
-      { name: 'CalculatorTool', cls: CalculatorTool },
       { name: 'AssetGetAllTool', cls: AssetGetAllTool },
       { name: 'AssetGetOneTool', cls: AssetGetOneTool },
       { name: 'AssetDownloadOneTool', cls: AssetDownloadOneTool },
@@ -356,10 +330,6 @@ export async function registerToolClasses() {
       { name: 'ReadPaperTool', cls: ReadPaperTool },
       { name: 'CircuitPopulationAnalysisTool', cls: CircuitPopulationAnalysisTool },
       { name: 'OBIExpertTool', cls: OBIExpertTool },
-      { name: 'WeatherTool', cls: WeatherTool },
-      { name: 'TranslatorTool', cls: TranslatorTool },
-      { name: 'TimeTool', cls: TimeTool },
-      { name: 'CurrencyTool', cls: CurrencyTool },
     ];
 
     for (const { name, cls: ToolCls } of toolClasses) {
@@ -400,16 +370,6 @@ export async function registerToolClasses() {
  */
 export async function getAvailableToolClasses(config: ToolConfig): Promise<any[]> {
   const availableClasses: any[] = [];
-
-  // Example tool is available if API URL is configured
-  if (config.exampleApiUrl) {
-    const { ExampleTool } = await import('./example-tool');
-    availableClasses.push(ExampleTool);
-  }
-
-  // Calculator tool is always available (no external dependencies)
-  const { CalculatorTool } = await import('./calculator-tool');
-  availableClasses.push(CalculatorTool);
 
   // EntityCore tools are available if EntityCore URL is configured
   if (config.entitycoreUrl) {
@@ -583,17 +543,6 @@ export async function getAvailableToolClasses(config: ToolConfig): Promise<any[]
     availableClasses.push(OBIExpertTool);
   }
 
-  // Test tools are always available (for testing filtering)
-  const { WeatherTool } = await import('./test/WeatherTool');
-  const { TranslatorTool } = await import('./test/TranslatorTool');
-  const { TimeTool } = await import('./test/TimeTool');
-  const { CurrencyTool } = await import('./test/CurrencyTool');
-
-  availableClasses.push(WeatherTool);
-  availableClasses.push(TranslatorTool);
-  availableClasses.push(TimeTool);
-  availableClasses.push(CurrencyTool);
-
   // MCP tools are available if MCP configuration is provided
   if (config.mcpConfig) {
     try {
@@ -640,26 +589,6 @@ export async function getAvailableToolClasses(config: ToolConfig): Promise<any[]
  */
 export async function createToolInstance(ToolCls: any, config: ToolConfig): Promise<any> {
   const toolName = ToolCls.toolName;
-
-  // Instantiate based on tool name
-  if (toolName === 'example_tool') {
-    if (!config.exampleApiUrl) {
-      throw new Error('Example tool requires exampleApiUrl');
-    }
-
-    const { ExampleTool } = await import('./example-tool');
-    return new ExampleTool({
-      apiUrl: config.exampleApiUrl,
-      apiKey: config.exampleApiKey,
-    });
-  }
-
-  if (toolName === 'calculator') {
-    const { CalculatorTool } = await import('./calculator-tool');
-    return new CalculatorTool({
-      maxValue: config.calculatorMaxValue,
-    });
-  }
 
   // EntityCore tools
   if (toolName === 'entitycore-asset-getall') {

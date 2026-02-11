@@ -6,8 +6,9 @@
 
 import { describe, it, expect, beforeEach } from 'vitest';
 import { initializeTools, ToolConfig } from '../index';
-import { toolRegistry } from '../base-tool';
+import { toolRegistry, BaseTool } from '../base-tool';
 import { SettingsMCP } from '@/lib/config/settings';
+import { z } from 'zod';
 
 describe('MCP Tool Integration', () => {
   beforeEach(() => {
@@ -49,28 +50,53 @@ describe('MCP Tool Integration', () => {
   });
 
   it('should handle MCP tool classes in the registry', async () => {
-    // MCP tools are now classes, just like regular tools
-    // They should be registered as classes, not instances
-    const { CalculatorTool } = await import('../calculator-tool');
-    toolRegistry.registerClass(CalculatorTool);
+    // Create a simple test tool class for this test
+    class SimpleTestTool extends BaseTool<z.ZodObject<any>> {
+      static readonly toolName = 'simple_test_tool';
+      static readonly toolDescription = 'A simple test tool';
+      static readonly toolUtterances = ['test'];
+      static readonly toolHil = false;
+
+      override contextVariables = {};
+      override inputSchema = z.object({ value: z.string() });
+
+      async execute(input: any): Promise<any> {
+        return { result: input.value };
+      }
+    }
+
+    toolRegistry.registerClass(SimpleTestTool);
 
     // Should be able to retrieve it
-    const retrieved = toolRegistry.getClass('calculator');
+    const retrieved = toolRegistry.getClass('simple_test_tool');
     expect(retrieved).toBeDefined();
-    expect(retrieved?.toolName).toBe('calculator');
+    expect(retrieved?.toolName).toBe('simple_test_tool');
 
     // Should be able to check HIL requirement
-    const requiresHIL = toolRegistry.requiresHIL('calculator');
+    const requiresHIL = toolRegistry.requiresHIL('simple_test_tool');
     expect(requiresHIL).toBe(false);
   });
 
   it('should handle tool classes in requiresHIL check', async () => {
-    // Test with a class
-    const { CalculatorTool } = await import('../calculator-tool');
-    toolRegistry.registerClass(CalculatorTool);
+    // Create a simple test tool class
+    class AnotherTestTool extends BaseTool<z.ZodObject<any>> {
+      static readonly toolName = 'another_test_tool';
+      static readonly toolDescription = 'Another test tool';
+      static readonly toolUtterances = ['test'];
+      static readonly toolHil = true; // This one requires HIL
 
-    const classRequiresHIL = toolRegistry.requiresHIL('calculator');
-    expect(classRequiresHIL).toBe(false);
+      override contextVariables = {};
+      override inputSchema = z.object({ value: z.string() });
+
+      async execute(input: any): Promise<any> {
+        return { result: input.value };
+      }
+    }
+
+    toolRegistry.registerClass(AnotherTestTool);
+
+    const classRequiresHIL = toolRegistry.requiresHIL('another_test_tool');
+    expect(classRequiresHIL).toBe(true);
   });
 
   it('should return false for unknown tools in requiresHIL check', () => {
@@ -79,12 +105,37 @@ describe('MCP Tool Integration', () => {
   });
 
   it('should include all tool classes in getAllMetadata', async () => {
-    // Register regular tool classes
-    const { CalculatorTool } = await import('../calculator-tool');
-    const { ExampleTool } = await import('../example-tool');
+    // Create test tool classes
+    class TestTool1 extends BaseTool<z.ZodObject<any>> {
+      static readonly toolName = 'test_tool_1';
+      static readonly toolDescription = 'Test tool 1';
+      static readonly toolUtterances = ['test'];
+      static readonly toolHil = false;
 
-    toolRegistry.registerClass(CalculatorTool);
-    toolRegistry.registerClass(ExampleTool);
+      override contextVariables = {};
+      override inputSchema = z.object({ value: z.string() });
+
+      async execute(input: any): Promise<any> {
+        return { result: input.value };
+      }
+    }
+
+    class TestTool2 extends BaseTool<z.ZodObject<any>> {
+      static readonly toolName = 'test_tool_2';
+      static readonly toolDescription = 'Test tool 2';
+      static readonly toolUtterances = ['test'];
+      static readonly toolHil = false;
+
+      override contextVariables = {};
+      override inputSchema = z.object({ value: z.string() });
+
+      async execute(input: any): Promise<any> {
+        return { result: input.value };
+      }
+    }
+
+    toolRegistry.registerClass(TestTool1);
+    toolRegistry.registerClass(TestTool2);
 
     // Get all metadata
     const allMetadata = toolRegistry.getAllMetadata();
@@ -92,13 +143,12 @@ describe('MCP Tool Integration', () => {
     // Should include both tools
     expect(allMetadata.length).toBeGreaterThanOrEqual(2);
 
-    // Should include the calculator tool
-    const calculatorMeta = allMetadata.find((m) => m.name === 'calculator');
-    expect(calculatorMeta).toBeDefined();
-    expect(calculatorMeta?.nameFrontend).toBe('Calculator');
+    // Should include test_tool_1
+    const tool1Meta = allMetadata.find((m) => m.name === 'test_tool_1');
+    expect(tool1Meta).toBeDefined();
 
-    // Should include the example tool
-    const exampleMeta = allMetadata.find((m) => m.name === 'example_tool');
-    expect(exampleMeta).toBeDefined();
+    // Should include test_tool_2
+    const tool2Meta = allMetadata.find((m) => m.name === 'test_tool_2');
+    expect(tool2Meta).toBeDefined();
   });
 });

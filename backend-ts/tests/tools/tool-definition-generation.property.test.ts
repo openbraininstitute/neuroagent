@@ -22,8 +22,6 @@ import { test } from '@fast-check/vitest';
 import * as fc from 'fast-check';
 import { z } from 'zod';
 import { BaseTool, BaseContextVariables } from '@/lib/tools/base-tool';
-import { CalculatorTool } from '@/lib/tools/calculator-tool';
-import { ExampleTool } from '@/lib/tools/example-tool';
 
 /**
  * Helper function to create a test tool with a given Zod schema
@@ -62,48 +60,53 @@ describe('Tool Definition Generation Property Tests', () => {
      * Test that any tool with a Zod schema generates a valid Vercel AI SDK definition
      */
     it('should generate valid Vercel AI SDK tool definition for any tool', () => {
-      // Test with existing tools
-      const calculatorTool = new CalculatorTool();
-      const exampleTool = new ExampleTool({
-        apiUrl: 'https://example.com',
+      // Create a test tool with a simple schema
+      const schema = z.object({
+        value: z.string(),
+        count: z.number().optional(),
       });
 
-      const calculatorVercelTool = calculatorTool.toVercelTool();
-      const exampleVercelTool = exampleTool.toVercelTool();
+      const testTool = createTestTool('test_tool', schema, async (input) => {
+        return { result: `${input.value} (${input.count || 0})` };
+      });
+
+      const vercelTool = testTool.toVercelTool();
 
       // Verify the tool definition has required properties
-      expect(calculatorVercelTool).toBeDefined();
-      expect(calculatorVercelTool.description).toBeDefined();
-      expect(calculatorVercelTool.parameters).toBeDefined();
-      expect(calculatorVercelTool.execute).toBeDefined();
-      expect(typeof calculatorVercelTool.execute).toBe('function');
-
-      expect(exampleVercelTool).toBeDefined();
-      expect(exampleVercelTool.description).toBeDefined();
-      expect(exampleVercelTool.parameters).toBeDefined();
-      expect(exampleVercelTool.execute).toBeDefined();
-      expect(typeof exampleVercelTool.execute).toBe('function');
+      expect(vercelTool).toBeDefined();
+      expect(vercelTool.description).toBeDefined();
+      expect(vercelTool.parameters).toBeDefined();
+      expect(vercelTool.execute).toBeDefined();
+      expect(typeof vercelTool.execute).toBe('function');
     });
 
     /**
      * Test that tool definitions include the correct description
      */
     it('should include tool description in Vercel AI SDK definition', () => {
-      const calculatorTool = new CalculatorTool();
-      const vercelTool = calculatorTool.toVercelTool();
+      const schema = z.object({ value: z.string() });
+      const testTool = createTestTool('test_tool', schema, async (input) => {
+        return { result: input.value };
+      });
 
-      expect(vercelTool.description).toBe(CalculatorTool.toolDescription);
+      const vercelTool = testTool.toVercelTool();
+
+      expect(vercelTool.description).toBe('Test tool: test_tool');
     });
 
     /**
      * Test that tool definitions include the Zod schema as parameters
      */
     it('should include Zod schema as parameters in Vercel AI SDK definition', () => {
-      const calculatorTool = new CalculatorTool();
-      const vercelTool = calculatorTool.toVercelTool();
+      const schema = z.object({ value: z.string() });
+      const testTool = createTestTool('test_tool', schema, async (input) => {
+        return { result: input.value };
+      });
+
+      const vercelTool = testTool.toVercelTool();
 
       // The parameters should be the Zod schema
-      expect(vercelTool.parameters).toBe(calculatorTool.inputSchema);
+      expect(vercelTool.parameters).toBe(testTool.inputSchema);
     });
 
     /**
@@ -339,149 +342,16 @@ describe('Tool Definition Generation Property Tests', () => {
     );
 
     /**
-     * Test that calculator tool generates valid definition and executes correctly
-     */
-    test.prop([
-      fc.constantFrom('add', 'subtract', 'multiply', 'divide'),
-      fc.integer({ min: -1000, max: 1000 }),
-      fc.integer({ min: 1, max: 1000 }), // Avoid division by zero
-    ])(
-      'should generate valid definition for calculator tool and execute correctly',
-      async (operation, a, b) => {
-        const calculatorTool = new CalculatorTool();
-        const vercelTool = calculatorTool.toVercelTool();
-
-        // Verify structure
-        expect(vercelTool).toBeDefined();
-        expect(vercelTool.description).toBe(CalculatorTool.toolDescription);
-        expect(vercelTool.parameters).toBe(calculatorTool.inputSchema);
-
-        // Execute the tool
-        const result = await vercelTool.execute({ operation, a, b });
-
-        // Verify result structure
-        expect(result).toBeDefined();
-        expect(typeof result).toBe('object');
-        expect(result).toHaveProperty('operation');
-        expect(result).toHaveProperty('operands');
-        expect(result).toHaveProperty('result');
-        expect(result).toHaveProperty('expression');
-
-        // Verify the calculation is correct
-        const resultObj = result as {
-          operation: string;
-          operands: { a: number; b: number };
-          result: number;
-          expression: string;
-        };
-
-        expect(resultObj.operation).toBe(operation);
-        expect(resultObj.operands).toEqual({ a, b });
-
-        let expectedResult: number;
-        switch (operation) {
-          case 'add':
-            expectedResult = a + b;
-            break;
-          case 'subtract':
-            expectedResult = a - b;
-            break;
-          case 'multiply':
-            expectedResult = a * b;
-            break;
-          case 'divide':
-            expectedResult = a / b;
-            break;
-        }
-
-        expect(resultObj.result).toBe(expectedResult);
-      }
-    );
-
-    /**
-     * Test that example tool generates valid definition and executes correctly
-     */
-    test.prop([
-      fc.string().filter((s) => s.length > 0),
-      fc.integer({ min: 1, max: 10 }),
-      fc.boolean(),
-    ])(
-      'should generate valid definition for example tool and execute correctly',
-      async (query, maxResults, includeMetadata) => {
-        const exampleTool = new ExampleTool({
-          apiUrl: 'https://test.example.com',
-          apiKey: 'test-key',
-        });
-
-        const vercelTool = exampleTool.toVercelTool();
-
-        // Verify structure
-        expect(vercelTool).toBeDefined();
-        expect(vercelTool.description).toBe(ExampleTool.toolDescription);
-        expect(vercelTool.parameters).toBe(exampleTool.inputSchema);
-
-        // Execute the tool
-        const result = await vercelTool.execute({
-          query,
-          maxResults,
-          includeMetadata,
-        });
-
-        // Verify result structure
-        expect(result).toBeDefined();
-        expect(typeof result).toBe('object');
-        expect(result).toHaveProperty('query');
-        expect(result).toHaveProperty('resultCount');
-        expect(result).toHaveProperty('results');
-
-        const resultObj = result as {
-          query: string;
-          resultCount: number;
-          results: Array<{
-            id: number;
-            title: string;
-            content: string;
-            source: string;
-            metadata?: {
-              timestamp: string;
-              relevance: number;
-              authenticated: boolean;
-            };
-          }>;
-        };
-
-        expect(resultObj.query).toBe(query);
-        expect(resultObj.resultCount).toBeGreaterThan(0);
-        expect(resultObj.resultCount).toBeLessThanOrEqual(maxResults);
-        expect(Array.isArray(resultObj.results)).toBe(true);
-
-        // Verify each result has the expected structure
-        for (const item of resultObj.results) {
-          expect(item).toHaveProperty('id');
-          expect(item).toHaveProperty('title');
-          expect(item).toHaveProperty('content');
-          expect(item).toHaveProperty('source');
-          expect(item.source).toBe('https://test.example.com');
-
-          if (includeMetadata) {
-            expect(item).toHaveProperty('metadata');
-            expect(item.metadata).toHaveProperty('timestamp');
-            expect(item.metadata).toHaveProperty('relevance');
-            expect(item.metadata).toHaveProperty('authenticated');
-            expect(item.metadata!.authenticated).toBe(true);
-          }
-        }
-      }
-    );
-
-    /**
      * Test that tool definition generation is consistent across multiple calls
      */
     it('should generate consistent tool definitions across multiple calls', () => {
-      const calculatorTool = new CalculatorTool();
+      const schema = z.object({ value: z.string() });
+      const testTool = createTestTool('test_tool', schema, async (input) => {
+        return { result: input.value };
+      });
 
-      const vercelTool1 = calculatorTool.toVercelTool();
-      const vercelTool2 = calculatorTool.toVercelTool();
+      const vercelTool1 = testTool.toVercelTool();
+      const vercelTool2 = testTool.toVercelTool();
 
       // Verify both definitions have the same structure
       expect(vercelTool1.description).toBe(vercelTool2.description);
