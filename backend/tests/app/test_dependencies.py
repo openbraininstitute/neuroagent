@@ -439,5 +439,5 @@ async def test_get_system_prompt_with_frontend_url(tmp_path):
         result = await get_system_prompt(rules_dir=tmp_path, request=request)
 
     # Should include frontend context
-    assert "Current page being browsed:" in result
+    assert "Information about the entity the user is currently viewing" in result
     assert "Current time:" in result
