@@ -237,15 +237,7 @@ const { messages, isLoading } = useChat({
 
 SDK supports this by default when LLM requests multiple tools.
 
-### 2. HIL (Human-in-the-Loop)
-
-Can be implemented by:
-
-- Pausing after tool call
-- Requesting user confirmation
-- Resuming with result
-
-### 3. Progress Callbacks
+### 2. Progress Callbacks
 
 ```typescript
 const result = streamText({

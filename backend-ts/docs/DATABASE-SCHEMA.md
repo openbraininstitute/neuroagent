@@ -194,7 +194,6 @@ Represents a tool invocation by the AI.
 | `id` | String | No | - | Tool call ID (from LLM) |
 | `name` | String | No | - | Tool name |
 | `arguments` | String | No | - | Tool arguments (JSON) |
-| `validated` | Boolean | Yes | - | HIL validation status |
 | `messageId` | UUID | No | - | Parent message ID |
 
 **Prisma Model:**

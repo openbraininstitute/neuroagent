@@ -65,7 +65,6 @@ Specify optional criteria to find relevant m-types.`;
     'Show me available m-types',
     'What m-types are there?',
   ];
-  static readonly toolHil = false;
 
   override contextVariables: EntitycoreContextVariables;
   override inputSchema = MtypeGetAllInputSchema;

@@ -52,7 +52,6 @@ Specify the person ID to retrieve their full details.`;
     'Show me information about this person',
     'What are the properties of this person?',
   ];
-  static readonly toolHil = false;
 
   override contextVariables: EntitycoreContextVariables;
   override inputSchema = PersonGetOneInputSchema;

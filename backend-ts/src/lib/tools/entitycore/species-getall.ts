@@ -84,7 +84,6 @@ Specify optional criteria to find relevant species.`;
     'Show me available species',
     'What species are there?',
   ];
-  static readonly toolHil = false;
 
   override contextVariables: EntitycoreContextVariables;
   override inputSchema = SpeciesGetAllInputSchema;

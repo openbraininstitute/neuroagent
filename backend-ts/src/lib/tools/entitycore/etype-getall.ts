@@ -65,7 +65,6 @@ Specify optional criteria to find relevant e-types.`;
     'Show me available e-types',
     'What e-types are there?',
   ];
-  static readonly toolHil = false;
 
   override contextVariables: EntitycoreContextVariables;
   override inputSchema = EtypeGetAllInputSchema;

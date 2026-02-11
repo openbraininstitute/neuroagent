@@ -48,7 +48,6 @@ import { streamText, type CoreMessage, type Tool, type LanguageModelUsage } from
 
 import { Entity, Task, TokenType } from '../../types';
 import { prisma } from '../db/client';
-import { toolRegistry } from '../tools/base-tool';
 
 import { getSystemPrompt } from './system-prompt';
 
@@ -173,35 +172,26 @@ export class AgentsRoutine {
       const coreMessages: CoreMessage[] = this.convertToCoreMessages(dbMessages);
 
       // Convert tool classes to Vercel AI SDK format WITH execute functions
-      // and wrap them to enforce parallel execution limits and HIL validation
+      // and wrap them to enforce parallel execution limits
       const tools: Record<string, Tool> = {};
 
       // Track tool calls per step to enforce parallel execution limits
       // Key: message count (step identifier), Value: number of tools called in that step
       const toolCallsPerStep = new Map<number, number>();
 
-      // Track HIL tool classes for validation checks
-      const hilToolNames = new Set<string>();
-
       for (const ToolClass of agent.tools) {
         // All tools are now classes (including MCP tools)
         const toolName = ToolClass.toolName;
         const tempInstance = new ToolClass(agent.contextVariables || {});
 
-        // Track if this tool requires HIL validation
-        if (tempInstance.requiresHIL()) {
-          hilToolNames.add(toolName);
-        }
-
         // Get the original tool definition
         const originalTool = tempInstance.toVercelTool();
         const originalExecute = originalTool.execute;
 
-        // Wrap the execute function to enforce parallel execution limits and HIL validation
+        // Wrap the execute function to enforce parallel execution limits
         // This matches the Python backend behavior where:
         // 1. Tool calls beyond the limit receive an error message asking them to retry
-        // 2. HIL tools are blocked from execution and require explicit validation
-        // 3. Tool execution errors are caught and returned as error messages (not thrown)
+        // 2. Tool execution errors are caught and returned as error messages (not thrown)
         const wrappedTool = {
           ...originalTool,
           execute: async (
@@ -209,20 +199,6 @@ export class AgentsRoutine {
             options: { toolCallId: string; messages: any[]; abortSignal?: AbortSignal }
           ) => {
             const { toolCallId, messages } = options;
-
-            // Check if this tool requires HIL validation
-            // HIL tools should NEVER execute automatically - they need explicit user validation
-            if (hilToolNames.has(toolName)) {
-              // Return a special marker that indicates HIL validation is required
-              // This will be caught by the onFinish handler to send annotation data
-              return {
-                __hil_required: true,
-                toolName,
-                toolCallId,
-                args,
-                message: `Tool "${toolName}" requires human validation before execution.`,
-              };
-            }
 
             // Use message count as step identifier
             // All tool calls in the same step will have the same message count
@@ -404,18 +380,13 @@ export class AgentsRoutine {
           // Only save if not aborted (abort handler will save partial messages)
           if (!abortSignal?.aborted) {
             try {
-              const saveResult = await this.saveMessagesToDatabase(
+              await this.saveMessagesToDatabase(
                 threadId,
                 response.messages || [],
                 usage,
                 agent.model,
                 false // Mark as complete (is_complete=true)
               );
-
-              // Check if HIL validation is required
-              if (saveResult.hilRequired) {
-                // The annotation data will be sent via the custom stream wrapper below
-              }
             } catch (error) {
               console.error('[streamChat] Error saving messages to database:', error);
               throw error;
@@ -427,7 +398,7 @@ export class AgentsRoutine {
       // Convert to data stream response with error handling
       // Note: Vercel AI SDK v4.3.19 automatically streams tool-call-delta chunks
       // in the data stream format, so tool calls appear in real-time in the UI
-      const originalResponse = result.toDataStreamResponse({
+      return result.toDataStreamResponse({
         getErrorMessage: (error: unknown) => {
           console.error('[streamChat] Error in stream:', error);
 
@@ -453,11 +424,6 @@ export class AgentsRoutine {
           }
         },
       });
-
-      // Wrap the stream to add HIL validation annotations if needed
-      const wrappedResponse = await this.wrapStreamForHIL(originalResponse, threadId);
-
-      return wrappedResponse;
     } catch (error) {
       console.error('[streamChat] Error setting up agent:', error);
       console.error(
@@ -498,7 +464,6 @@ export class AgentsRoutine {
    * - Assistant messages without tool calls use Entity.AI_MESSAGE
    * - Tool results use Entity.TOOL
    * - Message content follows Python format with role, content, and optional tool_calls
-   * - HIL tool calls are saved with validated: null (pending validation)
    * - When stream is aborted, messages are marked with is_complete=false
    *
    * @param threadId - Thread ID
@@ -506,7 +471,6 @@ export class AgentsRoutine {
    * @param usage - Token usage information
    * @param model - Model identifier
    * @param isAborted - Whether the stream was aborted by the client
-   * @returns Object indicating if HIL validation is required and which tool calls need validation
    */
   private async saveMessagesToDatabase(
     threadId: string,
@@ -514,14 +478,8 @@ export class AgentsRoutine {
     usage: LanguageModelUsage | undefined,
     model: string,
     isAborted: boolean = false
-  ): Promise<{
-    hilRequired: boolean;
-    hilToolCalls: Array<{ toolCallId: string; toolName: string; args: any }>;
-  }> {
+  ): Promise<void> {
     try {
-      const hilToolCalls: Array<{ toolCallId: string; toolName: string; args: any }> = [];
-      let hilRequired = false;
-
       for (const message of messages) {
         if (message.role === 'assistant') {
           // Extract text content and tool calls
@@ -598,26 +556,6 @@ export class AgentsRoutine {
           if (Array.isArray(message.content)) {
             for (const part of message.content) {
               if (part.type === 'tool-result') {
-                // Check if this is a HIL validation marker
-                const result = part.result;
-                if (
-                  typeof result === 'object' &&
-                  result !== null &&
-                  '__hil_required' in result &&
-                  result.__hil_required === true
-                ) {
-                  hilRequired = true;
-                  hilToolCalls.push({
-                    toolCallId: part.toolCallId,
-                    toolName: part.toolName,
-                    args: (result as any).args,
-                  });
-
-                  // Don't save the HIL marker as a tool result message
-                  // The tool call is already saved in the assistant message above
-                  continue;
-                }
-
                 await prisma.message.create({
                   data: {
                     id: crypto.randomUUID(),
@@ -639,110 +577,10 @@ export class AgentsRoutine {
           }
         }
       }
-
-      return { hilRequired, hilToolCalls };
     } catch (error) {
       console.error('[saveMessagesToDatabase] Error:', error);
       throw error;
     }
-  }
-
-  /**
-   * Wrap the stream response to add HIL validation annotations
-   *
-   * This method wraps the original stream to check if any tool calls require
-   * Human-in-the-Loop validation. If HIL validation is needed, it appends
-   * annotation data to the stream before closing.
-   *
-   * Matches Python backend behavior:
-   * - Sends annotation data with format: 8:[{"toolCallId":"...","validated":"pending"}]
-   * - Sends finish event after annotations
-   *
-   * @param originalResponse - Original response from Vercel AI SDK
-   * @param threadId - Thread ID to check for HIL tool calls
-   * @returns Wrapped response with HIL annotations if needed
-   */
-  private async wrapStreamForHIL(originalResponse: Response, threadId: string): Promise<Response> {
-    const originalBody = originalResponse.body;
-    if (!originalBody) {
-      return originalResponse;
-    }
-
-    // Create a new readable stream that wraps the original
-    const wrappedStream = new ReadableStream({
-      async start(controller) {
-        const reader = originalBody.getReader();
-        const encoder = new TextEncoder();
-
-        try {
-          // Read and forward all chunks from the original stream
-          while (true) {
-            const { done, value } = await reader.read();
-
-            if (done) {
-              // Stream is complete - check if HIL validation is needed
-              // Query the database to find any tool calls with validated: null
-              // These are tool calls that require HIL validation
-              const pendingToolCalls = await prisma.toolCall.findMany({
-                where: {
-                  message: {
-                    threadId,
-                  },
-                  validated: null,
-                },
-                include: {
-                  message: true,
-                },
-                orderBy: {
-                  message: {
-                    creationDate: 'desc',
-                  },
-                },
-              });
-
-              // Filter to only include tool calls that actually require HIL validation
-              // Non-HIL tools may have validated: null but shouldn't trigger HIL flow
-              const hilToolCalls = pendingToolCalls.filter((tc) => {
-                return toolRegistry.requiresHIL(tc.name);
-              });
-
-              if (hilToolCalls.length > 0) {
-                // Send annotation data for each pending tool call
-                // Format: 8:[{"toolCallId":"...","validated":"pending"}]
-                const annotationData = hilToolCalls.map((tc) => ({
-                  toolCallId: tc.id,
-                  validated: 'pending',
-                }));
-
-                const annotationChunk = `8:${JSON.stringify(annotationData)}\n`;
-                controller.enqueue(encoder.encode(annotationChunk));
-
-                // Send finish event after annotations
-                const finishData = { finishReason: 'stop' };
-                const finishChunk = `e:${JSON.stringify(finishData)}\n`;
-                controller.enqueue(encoder.encode(finishChunk));
-              }
-
-              controller.close();
-              break;
-            }
-
-            // Forward the chunk to the client
-            controller.enqueue(value);
-          }
-        } catch (error) {
-          console.error('[wrapStreamForHIL] Error in stream wrapper:', error);
-          controller.error(error);
-        }
-      },
-    });
-
-    // Return a new response with the wrapped stream
-    return new Response(wrappedStream, {
-      status: originalResponse.status,
-      statusText: originalResponse.statusText,
-      headers: originalResponse.headers,
-    });
   }
 
   /**

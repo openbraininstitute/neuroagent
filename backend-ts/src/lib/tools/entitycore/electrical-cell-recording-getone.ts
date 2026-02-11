@@ -64,7 +64,6 @@ Specify the recording ID to retrieve its full details.`;
     'Show me information about this recording',
     'What are the properties of this electrical cell recording?',
   ];
-  static readonly toolHil = false;
 
   override contextVariables: EntitycoreContextVariables;
   override inputSchema = ElectricalCellRecordingGetOneInputSchema;

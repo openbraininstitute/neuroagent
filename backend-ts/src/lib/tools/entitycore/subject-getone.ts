@@ -53,7 +53,6 @@ Specify the subject ID to retrieve its full details.`;
     'Show me information about this subject',
     'What are the properties of this subject?',
   ];
-  static readonly toolHil = false;
 
   override contextVariables: EntitycoreContextVariables;
   override inputSchema = SubjectGetOneInputSchema;

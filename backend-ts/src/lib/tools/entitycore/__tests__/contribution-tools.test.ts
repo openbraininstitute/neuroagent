@@ -25,7 +25,6 @@ describe('Contribution Tools', () => {
       expect(ContributionGetAllTool.toolDescription).toContain('knowledge graph');
       expect(ContributionGetAllTool.toolUtterances).toBeInstanceOf(Array);
       expect(ContributionGetAllTool.toolUtterances.length).toBeGreaterThan(0);
-      expect(ContributionGetAllTool.toolHil).toBe(false);
     });
 
     it('should instantiate with context variables', () => {
@@ -121,7 +120,6 @@ describe('Contribution Tools', () => {
       expect(ContributionGetOneTool.toolDescription).toContain('specific contribution');
       expect(ContributionGetOneTool.toolUtterances).toBeInstanceOf(Array);
       expect(ContributionGetOneTool.toolUtterances.length).toBeGreaterThan(0);
-      expect(ContributionGetOneTool.toolHil).toBe(false);
     });
 
     it('should instantiate with context variables', () => {

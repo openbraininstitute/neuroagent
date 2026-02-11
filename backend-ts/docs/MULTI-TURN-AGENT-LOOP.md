@@ -303,15 +303,7 @@ Test with real LLM and tools to verify multi-step execution works end-to-end.
 
 Vercel AI SDK supports parallel tool calls by default when the LLM requests multiple tools simultaneously.
 
-### 2. HIL (Human-in-the-Loop)
-
-For tools requiring user confirmation, we can:
-
-- Pause execution after tool call
-- Request user confirmation
-- Resume with confirmed/denied result
-
-### 3. Progress Callbacks
+### 2. Progress Callbacks
 
 ```typescript
 const result = streamText({

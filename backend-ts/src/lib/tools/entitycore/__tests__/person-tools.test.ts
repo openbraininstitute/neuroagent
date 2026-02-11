@@ -25,7 +25,6 @@ describe('Person Tools', () => {
       expect(PersonGetAllTool.toolDescription).toContain('persons');
       expect(PersonGetAllTool.toolUtterances).toBeInstanceOf(Array);
       expect(PersonGetAllTool.toolUtterances.length).toBeGreaterThan(0);
-      expect(PersonGetAllTool.toolHil).toBe(false);
     });
 
     it('should instantiate with context variables', () => {
@@ -284,7 +283,6 @@ describe('Person Tools', () => {
       expect(PersonGetOneTool.toolDescription).toContain('specific person');
       expect(PersonGetOneTool.toolUtterances).toBeInstanceOf(Array);
       expect(PersonGetOneTool.toolUtterances.length).toBeGreaterThan(0);
-      expect(PersonGetOneTool.toolHil).toBe(false);
     });
 
     it('should instantiate with context variables', () => {

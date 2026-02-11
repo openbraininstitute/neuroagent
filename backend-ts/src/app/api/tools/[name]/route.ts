@@ -28,7 +28,6 @@ interface ToolMetadataDetailed {
   description_frontend: string;
   utterances: string[];
   input_schema: string; // JSON string
-  hil: boolean;
   is_online: boolean;
 }
 
@@ -103,7 +102,6 @@ function extractInputSchema(zodSchema: any): InputSchema {
  * Returns detailed metadata for a specific tool including:
  * - Basic metadata (name, description, utterances)
  * - Input schema with parameter details
- * - Human-in-the-loop (HIL) requirement
  * - Online status
  *
  * Matches Python's get_tool_metadata() endpoint.
@@ -174,7 +172,6 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       description_frontend: ToolClass.toolDescriptionFrontend || ToolClass.toolDescription,
       utterances: ToolClass.toolUtterances || [],
       input_schema: JSON.stringify(inputSchema),
-      hil: ToolClass.toolHil || false,
       is_online: isOnline,
     };
 

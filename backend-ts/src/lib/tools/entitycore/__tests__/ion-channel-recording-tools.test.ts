@@ -31,7 +31,6 @@ describe('Ion Channel Recording Tools', () => {
       );
       expect(IonChannelRecordingGetAllTool.toolUtterances).toBeInstanceOf(Array);
       expect(IonChannelRecordingGetAllTool.toolUtterances.length).toBeGreaterThan(0);
-      expect(IonChannelRecordingGetAllTool.toolHil).toBe(false);
     });
 
     it('should instantiate with context variables', () => {
@@ -177,7 +176,6 @@ describe('Ion Channel Recording Tools', () => {
       );
       expect(IonChannelRecordingGetOneTool.toolUtterances).toBeInstanceOf(Array);
       expect(IonChannelRecordingGetOneTool.toolUtterances.length).toBeGreaterThan(0);
-      expect(IonChannelRecordingGetOneTool.toolHil).toBe(false);
     });
 
     it('should instantiate with context variables', () => {

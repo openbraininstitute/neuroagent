@@ -35,7 +35,6 @@ export class ExampleTool extends BaseTool<...> {
   static readonly toolDescription = '...';
   static readonly toolDescriptionFrontend = '...';
   static readonly toolUtterances = ['example', 'demo'];
-  static readonly toolHil = false;
 
   // Instance field (runtime dependencies)
   override contextVariables: ExampleToolContextVariables;
@@ -54,7 +53,6 @@ We use prefixed names (`toolName`, `toolDescription`, etc.) instead of plain nam
 - `name` → `toolName` (avoids conflict with `Function.name`)
 - `description` → `toolDescription`
 - `utterances` → `toolUtterances`
-- `hil` → `toolHil`
 - `nameFrontend` → `toolNameFrontend`
 - `descriptionFrontend` → `toolDescriptionFrontend`
 
@@ -101,7 +99,6 @@ export interface EntitycoreContextVariables extends BaseContextVariables {
 | `name: ClassVar[str]`             | `static readonly toolName: string`             |
 | `description: ClassVar[str]`      | `static readonly toolDescription: string`      |
 | `utterances: ClassVar[list[str]]` | `static readonly toolUtterances: string[]`     |
-| `hil: ClassVar[bool]`             | `static readonly toolHil: boolean`             |
 | `metadata: EntitycoreMetadata`    | `contextVariables: EntitycoreContextVariables` |
 
 ## Migration Guide

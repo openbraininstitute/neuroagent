@@ -85,7 +85,6 @@ class MCPDynamicTool extends BaseTool<typeof inputSchema> {
   static readonly toolDescription = 'Get the latest documentation...';
   static readonly toolDescriptionFrontend = 'Get the latest documentation...';
   static readonly toolUtterances = ['Get OBI documentation', ...];
-  static readonly toolHil = false;
 
   // Static method for health check
   static async isOnline(): Promise<boolean> {
@@ -136,7 +135,6 @@ Tests cover:
 - Loading MCP tools with configuration
 - Handling missing configuration gracefully
 - Registering and retrieving tool classes
-- HIL validation for tool classes
 - Metadata retrieval for all tools
 
 All tests pass ✓

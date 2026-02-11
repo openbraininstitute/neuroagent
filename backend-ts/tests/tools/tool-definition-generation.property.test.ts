@@ -35,7 +35,6 @@ function createTestTool<TSchema extends z.ZodType>(
     static readonly toolName = name;
     static readonly toolDescription = `Test tool: ${name}`;
     static readonly toolUtterances = ['test'];
-    static readonly toolHil = false;
 
     override contextVariables: BaseContextVariables = {};
     override inputSchema = schema;

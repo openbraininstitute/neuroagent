@@ -30,7 +30,6 @@ describe('Experimental Bouton Density Tools', () => {
       expect(ExperimentalBoutonDensityGetAllTool.toolDescription).toContain('brain region');
       expect(ExperimentalBoutonDensityGetAllTool.toolUtterances).toBeInstanceOf(Array);
       expect(ExperimentalBoutonDensityGetAllTool.toolUtterances.length).toBeGreaterThan(0);
-      expect(ExperimentalBoutonDensityGetAllTool.toolHil).toBe(false);
     });
 
     it('should instantiate with context variables', () => {
@@ -201,7 +200,6 @@ describe('Experimental Bouton Density Tools', () => {
       expect(ExperimentalBoutonDensityGetOneTool.toolDescription).toContain('bouton_density_id');
       expect(ExperimentalBoutonDensityGetOneTool.toolUtterances).toBeInstanceOf(Array);
       expect(ExperimentalBoutonDensityGetOneTool.toolUtterances.length).toBeGreaterThan(0);
-      expect(ExperimentalBoutonDensityGetOneTool.toolHil).toBe(false);
     });
 
     it('should instantiate with context variables', () => {

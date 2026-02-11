@@ -25,7 +25,6 @@ describe('Cell Morphology Tools', () => {
       expect(CellMorphologyGetAllTool.toolDescription).toContain('cell morphologies');
       expect(CellMorphologyGetAllTool.toolUtterances).toBeInstanceOf(Array);
       expect(CellMorphologyGetAllTool.toolUtterances.length).toBeGreaterThan(0);
-      expect(CellMorphologyGetAllTool.toolHil).toBe(false);
     });
 
     it('should instantiate with context variables', () => {
@@ -145,7 +144,6 @@ describe('Cell Morphology Tools', () => {
       expect(CellMorphologyGetOneTool.toolDescription).toContain('specific cell morphology');
       expect(CellMorphologyGetOneTool.toolUtterances).toBeInstanceOf(Array);
       expect(CellMorphologyGetOneTool.toolUtterances.length).toBeGreaterThan(0);
-      expect(CellMorphologyGetOneTool.toolHil).toBe(false);
     });
 
     it('should instantiate with context variables', () => {

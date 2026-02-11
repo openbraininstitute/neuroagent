@@ -32,7 +32,6 @@ describe('Experimental Synapses Per Connection Tools', () => {
       expect(ExperimentalSynapsesPerConnectionGetAllTool.toolDescription).toContain('measurements');
       expect(ExperimentalSynapsesPerConnectionGetAllTool.toolUtterances).toBeInstanceOf(Array);
       expect(ExperimentalSynapsesPerConnectionGetAllTool.toolUtterances.length).toBeGreaterThan(0);
-      expect(ExperimentalSynapsesPerConnectionGetAllTool.toolHil).toBe(false);
     });
 
     it('should instantiate with context variables', () => {
@@ -229,7 +228,6 @@ describe('Experimental Synapses Per Connection Tools', () => {
       );
       expect(ExperimentalSynapsesPerConnectionGetOneTool.toolUtterances).toBeInstanceOf(Array);
       expect(ExperimentalSynapsesPerConnectionGetOneTool.toolUtterances.length).toBeGreaterThan(0);
-      expect(ExperimentalSynapsesPerConnectionGetOneTool.toolHil).toBe(false);
     });
 
     it('should instantiate with context variables', () => {

@@ -50,7 +50,6 @@ The output contains detailed information about the ion-channel, including:
 
 Specify the ion-channel ID to retrieve its full details.`;
   static readonly toolUtterances: string[] = [];
-  static readonly toolHil = false;
 
   override contextVariables: EntitycoreContextVariables;
   override inputSchema = IonChannelGetOneInputSchema;

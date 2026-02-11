@@ -36,7 +36,6 @@ interface _ToolMetadataDetailed extends ToolMetadata {
   description_frontend: string;
   utterances: string[];
   input_schema: string; // JSON string
-  hil: boolean;
   is_online: boolean;
 }
 

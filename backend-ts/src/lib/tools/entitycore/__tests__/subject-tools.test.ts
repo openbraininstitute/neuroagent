@@ -25,7 +25,6 @@ describe('Subject Tools', () => {
       expect(SubjectGetAllTool.toolDescription).toContain('subjects');
       expect(SubjectGetAllTool.toolUtterances).toBeInstanceOf(Array);
       expect(SubjectGetAllTool.toolUtterances.length).toBeGreaterThan(0);
-      expect(SubjectGetAllTool.toolHil).toBe(false);
     });
 
     it('should instantiate with context variables', () => {
@@ -206,7 +205,6 @@ describe('Subject Tools', () => {
       expect(SubjectGetOneTool.toolDescription).toContain('specific subject');
       expect(SubjectGetOneTool.toolUtterances).toBeInstanceOf(Array);
       expect(SubjectGetOneTool.toolUtterances.length).toBeGreaterThan(0);
-      expect(SubjectGetOneTool.toolHil).toBe(false);
     });
 
     it('should instantiate with context variables', () => {

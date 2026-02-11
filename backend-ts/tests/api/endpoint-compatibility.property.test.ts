@@ -98,14 +98,6 @@ const PYTHON_ENDPOINTS: EndpointDefinition[] = [
     requiresAuth: true,
     description: 'Get detailed metadata for a specific tool',
   },
-  // NOTE: This endpoint is not yet implemented in TypeScript backend
-  // It's used for Human-in-the-Loop tool validation
-  // {
-  //   path: '/tools/{thread_id}/execute/{tool_call_id}',
-  //   methods: ['PATCH'],
-  //   requiresAuth: true,
-  //   description: 'Execute a specific tool call',
-  // },
   // Storage endpoints
   {
     path: '/storage/{file_identifier}/presigned-url',
@@ -297,7 +289,7 @@ describe('API Endpoint Compatibility Property Tests', () => {
 
       // Known intentional additions in TypeScript backend
       const intentionalAdditions = new Set([
-        '/qa/validate_tool', // New endpoint for tool validation
+        // No additional endpoints beyond Python backend
       ]);
 
       for (const [tsPath, methods] of typeScriptRoutes.entries()) {

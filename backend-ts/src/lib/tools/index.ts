@@ -68,12 +68,17 @@ export * from './entitycore/organization-getone';
 export * from './entitycore/person-getall';
 export * from './entitycore/person-getone';
 export * from './entitycore/simulation-campaign-getall';
+export * from './entitycore/simulation-campaign-getone';
 export * from './entitycore/simulation-execution-getall';
 export * from './entitycore/simulation-execution-getone';
 export * from './entitycore/simulation-generation-getall';
 export * from './entitycore/simulation-generation-getone';
+export * from './entitycore/simulation-getall';
+export * from './entitycore/simulation-getone';
 export * from './entitycore/simulation-result-getall';
 export * from './entitycore/simulation-result-getone';
+export * from './entitycore/single-neuron-simulation-getall';
+export * from './entitycore/single-neuron-simulation-getone';
 export * from './entitycore/single-neuron-synaptome-getall';
 export * from './entitycore/single-neuron-synaptome-getone';
 export * from './entitycore/single-neuron-synaptome-simulation-getall';
@@ -215,13 +220,18 @@ export async function registerToolClasses() {
     const { OrganizationGetOneTool } = await import('./entitycore/organization-getone');
     const { PersonGetAllTool } = await import('./entitycore/person-getall');
     const { PersonGetOneTool } = await import('./entitycore/person-getone');
+    const { SimulationGetAllTool } = await import('./entitycore/simulation-getall');
+    const { SimulationGetOneTool } = await import('./entitycore/simulation-getone');
     const { SimulationExecutionGetAllTool } = await import('./entitycore/simulation-execution-getall');
     const { SimulationExecutionGetOneTool } = await import('./entitycore/simulation-execution-getone');
     const { SimulationGenerationGetAllTool } = await import('./entitycore/simulation-generation-getall');
     const { SimulationGenerationGetOneTool } = await import('./entitycore/simulation-generation-getone');
     const { SimulationCampaignGetAllTool } = await import('./entitycore/simulation-campaign-getall');
+    const { SimulationCampaignGetOneTool } = await import('./entitycore/simulation-campaign-getone');
     const { SimulationResultGetAllTool } = await import('./entitycore/simulation-result-getall');
     const { SimulationResultGetOneTool } = await import('./entitycore/simulation-result-getone');
+    const { SingleNeuronSimulationGetAllTool } = await import('./entitycore/single-neuron-simulation-getall');
+    const { SingleNeuronSimulationGetOneTool } = await import('./entitycore/single-neuron-simulation-getone');
     const { SingleNeuronSynaptomeGetAllTool } = await import('./entitycore/single-neuron-synaptome-getall');
     const { SingleNeuronSynaptomeGetOneTool } = await import('./entitycore/single-neuron-synaptome-getone');
     const { SingleNeuronSynaptomeSimulationGetAllTool } = await import('./entitycore/single-neuron-synaptome-simulation-getall');
@@ -299,13 +309,18 @@ export async function registerToolClasses() {
       { name: 'OrganizationGetOneTool', cls: OrganizationGetOneTool },
       { name: 'PersonGetAllTool', cls: PersonGetAllTool },
       { name: 'PersonGetOneTool', cls: PersonGetOneTool },
+      { name: 'SimulationGetAllTool', cls: SimulationGetAllTool },
+      { name: 'SimulationGetOneTool', cls: SimulationGetOneTool },
       { name: 'SimulationExecutionGetAllTool', cls: SimulationExecutionGetAllTool },
       { name: 'SimulationExecutionGetOneTool', cls: SimulationExecutionGetOneTool },
       { name: 'SimulationGenerationGetAllTool', cls: SimulationGenerationGetAllTool },
       { name: 'SimulationGenerationGetOneTool', cls: SimulationGenerationGetOneTool },
       { name: 'SimulationCampaignGetAllTool', cls: SimulationCampaignGetAllTool },
+      { name: 'SimulationCampaignGetOneTool', cls: SimulationCampaignGetOneTool },
       { name: 'SimulationResultGetAllTool', cls: SimulationResultGetAllTool },
       { name: 'SimulationResultGetOneTool', cls: SimulationResultGetOneTool },
+      { name: 'SingleNeuronSimulationGetAllTool', cls: SingleNeuronSimulationGetAllTool },
+      { name: 'SingleNeuronSimulationGetOneTool', cls: SingleNeuronSimulationGetOneTool },
       { name: 'SingleNeuronSynaptomeGetAllTool', cls: SingleNeuronSynaptomeGetAllTool },
       { name: 'SingleNeuronSynaptomeGetOneTool', cls: SingleNeuronSynaptomeGetOneTool },
       { name: 'SingleNeuronSynaptomeSimulationGetAllTool', cls: SingleNeuronSynaptomeSimulationGetAllTool },
@@ -416,13 +431,18 @@ export async function getAvailableToolClasses(config: ToolConfig): Promise<any[]
     const { OrganizationGetOneTool } = await import('./entitycore/organization-getone');
     const { PersonGetAllTool } = await import('./entitycore/person-getall');
     const { PersonGetOneTool } = await import('./entitycore/person-getone');
+    const { SimulationGetAllTool } = await import('./entitycore/simulation-getall');
+    const { SimulationGetOneTool } = await import('./entitycore/simulation-getone');
     const { SimulationCampaignGetAllTool } = await import('./entitycore/simulation-campaign-getall');
+    const { SimulationCampaignGetOneTool } = await import('./entitycore/simulation-campaign-getone');
     const { SimulationExecutionGetAllTool } = await import('./entitycore/simulation-execution-getall');
     const { SimulationExecutionGetOneTool } = await import('./entitycore/simulation-execution-getone');
     const { SimulationGenerationGetAllTool } = await import('./entitycore/simulation-generation-getall');
     const { SimulationGenerationGetOneTool } = await import('./entitycore/simulation-generation-getone');
     const { SimulationResultGetAllTool } = await import('./entitycore/simulation-result-getall');
     const { SimulationResultGetOneTool } = await import('./entitycore/simulation-result-getone');
+    const { SingleNeuronSimulationGetAllTool } = await import('./entitycore/single-neuron-simulation-getall');
+    const { SingleNeuronSimulationGetOneTool } = await import('./entitycore/single-neuron-simulation-getone');
     const { SingleNeuronSynaptomeGetAllTool } = await import('./entitycore/single-neuron-synaptome-getall');
     const { SingleNeuronSynaptomeGetOneTool } = await import('./entitycore/single-neuron-synaptome-getone');
     const { SingleNeuronSynaptomeSimulationGetAllTool } = await import('./entitycore/single-neuron-synaptome-simulation-getall');
@@ -476,13 +496,18 @@ export async function getAvailableToolClasses(config: ToolConfig): Promise<any[]
     availableClasses.push(OrganizationGetOneTool);
     availableClasses.push(PersonGetAllTool);
     availableClasses.push(PersonGetOneTool);
+    availableClasses.push(SimulationGetAllTool);
+    availableClasses.push(SimulationGetOneTool);
     availableClasses.push(SimulationCampaignGetAllTool);
+    availableClasses.push(SimulationCampaignGetOneTool);
     availableClasses.push(SimulationExecutionGetAllTool);
     availableClasses.push(SimulationExecutionGetOneTool);
     availableClasses.push(SimulationGenerationGetAllTool);
     availableClasses.push(SimulationGenerationGetOneTool);
     availableClasses.push(SimulationResultGetAllTool);
     availableClasses.push(SimulationResultGetOneTool);
+    availableClasses.push(SingleNeuronSimulationGetAllTool);
+    availableClasses.push(SingleNeuronSimulationGetOneTool);
     availableClasses.push(SingleNeuronSynaptomeGetAllTool);
     availableClasses.push(SingleNeuronSynaptomeGetOneTool);
     availableClasses.push(SingleNeuronSynaptomeSimulationGetAllTool);
@@ -1236,6 +1261,36 @@ export async function createToolInstance(ToolCls: any, config: ToolConfig): Prom
     });
   }
 
+  if (toolName === 'entitycore-simulation-getall') {
+    if (!config.entitycoreUrl || !config.entityFrontendUrl) {
+      throw new Error('EntityCore tools require entitycoreUrl and entityFrontendUrl');
+    }
+
+    const { SimulationGetAllTool } = await import('./entitycore/simulation-getall');
+    return new SimulationGetAllTool({
+      httpClient: config.httpClient,
+      entitycoreUrl: config.entitycoreUrl,
+      entityFrontendUrl: config.entityFrontendUrl,
+      vlabId: config.vlabId,
+      projectId: config.projectId,
+    });
+  }
+
+  if (toolName === 'entitycore-simulation-getone') {
+    if (!config.entitycoreUrl || !config.entityFrontendUrl) {
+      throw new Error('EntityCore tools require entitycoreUrl and entityFrontendUrl');
+    }
+
+    const { SimulationGetOneTool } = await import('./entitycore/simulation-getone');
+    return new SimulationGetOneTool({
+      httpClient: config.httpClient,
+      entitycoreUrl: config.entitycoreUrl,
+      entityFrontendUrl: config.entityFrontendUrl,
+      vlabId: config.vlabId,
+      projectId: config.projectId,
+    });
+  }
+
   if (toolName === 'entitycore-simulationcampaign-getall') {
     if (!config.entitycoreUrl || !config.entityFrontendUrl) {
       throw new Error('EntityCore tools require entitycoreUrl and entityFrontendUrl');
@@ -1243,6 +1298,21 @@ export async function createToolInstance(ToolCls: any, config: ToolConfig): Prom
 
     const { SimulationCampaignGetAllTool } = await import('./entitycore/simulation-campaign-getall');
     return new SimulationCampaignGetAllTool({
+      httpClient: config.httpClient,
+      entitycoreUrl: config.entitycoreUrl,
+      entityFrontendUrl: config.entityFrontendUrl,
+      vlabId: config.vlabId,
+      projectId: config.projectId,
+    });
+  }
+
+  if (toolName === 'entitycore-simulationcampaign-getone') {
+    if (!config.entitycoreUrl || !config.entityFrontendUrl) {
+      throw new Error('EntityCore tools require entitycoreUrl and entityFrontendUrl');
+    }
+
+    const { SimulationCampaignGetOneTool } = await import('./entitycore/simulation-campaign-getone');
+    return new SimulationCampaignGetOneTool({
       httpClient: config.httpClient,
       entitycoreUrl: config.entitycoreUrl,
       entityFrontendUrl: config.entityFrontendUrl,
@@ -1333,6 +1403,36 @@ export async function createToolInstance(ToolCls: any, config: ToolConfig): Prom
 
     const { SimulationResultGetOneTool } = await import('./entitycore/simulation-result-getone');
     return new SimulationResultGetOneTool({
+      httpClient: config.httpClient,
+      entitycoreUrl: config.entitycoreUrl,
+      entityFrontendUrl: config.entityFrontendUrl,
+      vlabId: config.vlabId,
+      projectId: config.projectId,
+    });
+  }
+
+  if (toolName === 'entitycore-singleneuronsimulation-getall') {
+    if (!config.entitycoreUrl || !config.entityFrontendUrl) {
+      throw new Error('EntityCore tools require entitycoreUrl and entityFrontendUrl');
+    }
+
+    const { SingleNeuronSimulationGetAllTool } = await import('./entitycore/single-neuron-simulation-getall');
+    return new SingleNeuronSimulationGetAllTool({
+      httpClient: config.httpClient,
+      entitycoreUrl: config.entitycoreUrl,
+      entityFrontendUrl: config.entityFrontendUrl,
+      vlabId: config.vlabId,
+      projectId: config.projectId,
+    });
+  }
+
+  if (toolName === 'entitycore-singleneuronsimulation-getone') {
+    if (!config.entitycoreUrl || !config.entityFrontendUrl) {
+      throw new Error('EntityCore tools require entitycoreUrl and entityFrontendUrl');
+    }
+
+    const { SingleNeuronSimulationGetOneTool } = await import('./entitycore/single-neuron-simulation-getone');
+    return new SingleNeuronSimulationGetOneTool({
       httpClient: config.httpClient,
       entitycoreUrl: config.entitycoreUrl,
       entityFrontendUrl: config.entityFrontendUrl,
@@ -1715,7 +1815,7 @@ export async function createToolInstance(ToolCls: any, config: ToolConfig): Prom
  * // Access static metadata without instantiation
  * toolClasses.forEach(ToolClass => {
  *   console.log(ToolClass.toolName);
- *   console.log(ToolClass.toolHil);
+ *   console.log(ToolClass.toolDescription);
  * });
  *
  * // Later, when LLM calls a tool, instantiate it

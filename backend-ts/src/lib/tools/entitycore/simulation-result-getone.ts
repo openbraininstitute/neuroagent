@@ -56,7 +56,6 @@ Specify the simulation-result ID to retrieve its full details.`;
     'Show me information about this simulation result',
     'What are the properties of this simulation result?',
   ];
-  static readonly toolHil = false;
 
   override contextVariables: EntitycoreContextVariables;
   override inputSchema = SimulationResultGetOneInputSchema;

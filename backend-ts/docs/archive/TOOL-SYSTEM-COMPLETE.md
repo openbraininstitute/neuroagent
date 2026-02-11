@@ -28,7 +28,6 @@ export class CalculatorTool extends BaseTool<...> {
   static readonly toolNameFrontend = 'Calculator';
   static readonly toolDescription = 'Performs basic arithmetic...';
   static readonly toolUtterances = ['calculate', 'add', ...];
-  static readonly toolHil = false;
 
   // Instance properties - only available after instantiation
   override contextVariables: CalculatorToolContextVariables;

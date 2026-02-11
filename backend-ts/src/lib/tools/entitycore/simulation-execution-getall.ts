@@ -72,7 +72,6 @@ Specify optional criteria to find relevant simulation-executions.`;
     'Show me available simulation executions',
     'What simulation executions are there?',
   ];
-  static readonly toolHil = false;
 
   override contextVariables: EntitycoreContextVariables;
   override inputSchema = SimulationExecutionGetAllInputSchema;

@@ -48,7 +48,6 @@ Use this for basic circuit info only. For detailed analysis, use:
     'Show me information about this circuit',
     'What are the properties of this circuit?',
   ];
-  static readonly toolHil = false;
 
   override contextVariables: EntitycoreContextVariables;
   override inputSchema = CircuitGetOneInputSchema;

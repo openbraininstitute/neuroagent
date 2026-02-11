@@ -49,68 +49,12 @@ describe('MCP Tool Integration', () => {
     expect(Array.isArray(tools)).toBe(true);
   });
 
-  it('should handle MCP tool classes in the registry', async () => {
-    // Create a simple test tool class for this test
-    class SimpleTestTool extends BaseTool<z.ZodObject<any>> {
-      static readonly toolName = 'simple_test_tool';
-      static readonly toolDescription = 'A simple test tool';
-      static readonly toolUtterances = ['test'];
-      static readonly toolHil = false;
-
-      override contextVariables = {};
-      override inputSchema = z.object({ value: z.string() });
-
-      async execute(input: any): Promise<any> {
-        return { result: input.value };
-      }
-    }
-
-    toolRegistry.registerClass(SimpleTestTool);
-
-    // Should be able to retrieve it
-    const retrieved = toolRegistry.getClass('simple_test_tool');
-    expect(retrieved).toBeDefined();
-    expect(retrieved?.toolName).toBe('simple_test_tool');
-
-    // Should be able to check HIL requirement
-    const requiresHIL = toolRegistry.requiresHIL('simple_test_tool');
-    expect(requiresHIL).toBe(false);
-  });
-
-  it('should handle tool classes in requiresHIL check', async () => {
-    // Create a simple test tool class
-    class AnotherTestTool extends BaseTool<z.ZodObject<any>> {
-      static readonly toolName = 'another_test_tool';
-      static readonly toolDescription = 'Another test tool';
-      static readonly toolUtterances = ['test'];
-      static readonly toolHil = true; // This one requires HIL
-
-      override contextVariables = {};
-      override inputSchema = z.object({ value: z.string() });
-
-      async execute(input: any): Promise<any> {
-        return { result: input.value };
-      }
-    }
-
-    toolRegistry.registerClass(AnotherTestTool);
-
-    const classRequiresHIL = toolRegistry.requiresHIL('another_test_tool');
-    expect(classRequiresHIL).toBe(true);
-  });
-
-  it('should return false for unknown tools in requiresHIL check', () => {
-    const requiresHIL = toolRegistry.requiresHIL('unknown-tool');
-    expect(requiresHIL).toBe(false);
-  });
-
   it('should include all tool classes in getAllMetadata', async () => {
     // Create test tool classes
     class TestTool1 extends BaseTool<z.ZodObject<any>> {
       static readonly toolName = 'test_tool_1';
       static readonly toolDescription = 'Test tool 1';
       static readonly toolUtterances = ['test'];
-      static readonly toolHil = false;
 
       override contextVariables = {};
       override inputSchema = z.object({ value: z.string() });
@@ -124,7 +68,6 @@ describe('MCP Tool Integration', () => {
       static readonly toolName = 'test_tool_2';
       static readonly toolDescription = 'Test tool 2';
       static readonly toolUtterances = ['test'];
-      static readonly toolHil = false;
 
       override contextVariables = {};
       override inputSchema = z.object({ value: z.string() });

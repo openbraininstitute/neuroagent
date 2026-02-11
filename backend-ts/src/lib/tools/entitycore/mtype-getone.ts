@@ -52,7 +52,6 @@ Specify the m-type ID to retrieve its full details.`;
     'Show me information about this m-type',
     'What are the properties of this m-type?',
   ];
-  static readonly toolHil = false;
 
   override contextVariables: EntitycoreContextVariables;
   override inputSchema = MtypeGetOneInputSchema;

@@ -66,7 +66,6 @@ Specify optional criteria to find relevant contributions.`;
     'Show me available contributions',
     'What contributions are there?',
   ];
-  static readonly toolHil = false;
 
   override contextVariables: EntitycoreContextVariables;
   override inputSchema = ContributionGetAllInputSchema;

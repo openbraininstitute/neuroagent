@@ -21,7 +21,6 @@
  * - a:{json} - Tool result (with toolCallId, result)
  * - e:{json} - Finish event (with finishReason)
  * - d:{json} - Done event (with finishReason)
- * - 8:{json} - Annotation data for HIL validation (with toolCallId, validated)
  * - g:{json} - Reasoning content delta
  *
  * The TypeScript backend uses Vercel AI SDK which has its own streaming format.
@@ -54,29 +53,6 @@ class TestTool extends BaseTool<typeof TestToolInputSchema> {
 
   async execute(input: z.infer<typeof TestToolInputSchema>): Promise<string> {
     return `Result for: ${input.query}`;
-  }
-}
-
-/**
- * HIL tool for testing annotation format
- */
-const HILToolInputSchema = z.object({
-  action: z.string().describe('Action to validate'),
-});
-
-class HILTool extends BaseTool<typeof HILToolInputSchema> {
-  static readonly toolName = 'hil_tool';
-  static readonly toolDescription = 'A tool requiring human validation';
-
-  contextVariables: BaseContextVariables = {};
-  inputSchema = HILToolInputSchema;
-
-  requiresHIL(): boolean {
-    return true;
-  }
-
-  async execute(input: z.infer<typeof HILToolInputSchema>): Promise<string> {
-    return `Action validated: ${input.action}`;
   }
 }
 
@@ -184,26 +160,9 @@ describe('Streaming Format Consistency Property Tests', () => {
     );
 
     /**
-     * Test that HIL annotation events are formatted correctly
-     */
-    it('should parse HIL annotation events with validated status', () => {
-      const toolCallId = 'call-hil-123';
-      const mockStreamData = `8:${JSON.stringify([{ toolCallId, validated: 'pending' }])}\n`;
-
-      const events = parseStreamChunks(mockStreamData);
-
-      expect(events.length).toBe(1);
-      expect(events[0]!.type).toBe('8');
-      expect(Array.isArray(events[0]!.data)).toBe(true);
-      expect(events[0]!.data[0]).toHaveProperty('toolCallId');
-      expect(events[0]!.data[0]).toHaveProperty('validated');
-      expect(events[0]!.data[0]!.validated).toBe('pending');
-    });
-
-    /**
      * Test that all event types use JSON format
      */
-    test.prop([fc.constantFrom('0', '9', 'b', 'c', 'a', 'e', 'd', '8', 'g')])(
+    test.prop([fc.constantFrom('0', '9', 'b', 'c', 'a', 'e', 'd', 'g')])(
       'should format all events as type:json',
       (eventType) => {
         // Create appropriate mock data for each event type
@@ -215,7 +174,6 @@ describe('Streaming Format Consistency Property Tests', () => {
           a: { toolCallId: 'call-1', result: 'result' },
           e: { finishReason: 'stop' },
           d: { finishReason: 'stop' },
-          '8': [{ toolCallId: 'call-1', validated: 'pending' }],
           g: 'reasoning content',
         };
 

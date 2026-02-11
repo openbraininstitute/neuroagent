@@ -76,11 +76,6 @@ describe('Tool Metadata Property Tests', () => {
           expect(typeof ToolClass.toolDescriptionFrontend).toBe('string');
           expect(ToolClass.toolDescriptionFrontend.length).toBeGreaterThan(0);
         }
-
-        // Property: HIL flag (if provided) must be a boolean
-        if (ToolClass.toolHil !== undefined) {
-          expect(typeof ToolClass.toolHil).toBe('boolean');
-        }
       }
     });
 
@@ -151,10 +146,6 @@ describe('Tool Metadata Property Tests', () => {
 
         if (meta.utterances !== undefined) {
           expect(Array.isArray(meta.utterances)).toBe(true);
-        }
-
-        if (meta.hil !== undefined) {
-          expect(typeof meta.hil).toBe('boolean');
         }
       }
     });
@@ -351,7 +342,6 @@ describe('Tool Metadata Property Tests', () => {
         expect('toolNameFrontend' in ToolClass || true).toBe(true);
         expect('toolDescriptionFrontend' in ToolClass || true).toBe(true);
         expect('toolUtterances' in ToolClass || true).toBe(true);
-        expect('toolHil' in ToolClass || true).toBe(true);
       }
     });
 

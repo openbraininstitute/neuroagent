@@ -327,7 +327,6 @@ export function createDynamicMCPToolClass(
     static readonly toolDescriptionFrontend =
       toolMetadata?.descriptionFrontend || tool.description || '';
     static readonly toolUtterances = toolMetadata?.utterances || [];
-    static readonly toolHil = false; // MCP tools don't require HIL by default
 
     // Static method for health check
     static async isOnline(): Promise<boolean> {

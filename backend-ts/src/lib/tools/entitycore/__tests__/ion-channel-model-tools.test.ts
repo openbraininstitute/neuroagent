@@ -25,7 +25,6 @@ describe('Ion Channel Model Tools', () => {
       expect(IonChannelModelGetAllTool.toolDescription).toContain('ion channel models');
       expect(IonChannelModelGetAllTool.toolUtterances).toBeInstanceOf(Array);
       expect(IonChannelModelGetAllTool.toolUtterances.length).toBeGreaterThan(0);
-      expect(IonChannelModelGetAllTool.toolHil).toBe(false);
     });
 
     it('should instantiate with context variables', () => {
@@ -259,7 +258,6 @@ describe('Ion Channel Model Tools', () => {
       expect(IonChannelModelGetOneTool.toolDescription).toContain('specific ion channel model');
       expect(IonChannelModelGetOneTool.toolUtterances).toBeInstanceOf(Array);
       expect(IonChannelModelGetOneTool.toolUtterances.length).toBeGreaterThan(0);
-      expect(IonChannelModelGetOneTool.toolHil).toBe(false);
     });
 
     it('should instantiate with context variables', () => {

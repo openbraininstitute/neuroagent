@@ -106,7 +106,6 @@ Specify brain region and optional criteria to find relevant recordings.`;
     'Find a trace in the isocortex',
     'Show me traces in this region',
   ];
-  static readonly toolHil = false;
 
   override contextVariables: EntitycoreContextVariables;
   override inputSchema = ElectricalCellRecordingGetAllInputSchema;

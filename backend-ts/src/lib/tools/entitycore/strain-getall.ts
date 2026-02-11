@@ -84,7 +84,6 @@ Specify optional criteria to find relevant strains.`;
     'Show me available strains',
     'What strains are there?',
   ];
-  static readonly toolHil = false;
 
   override contextVariables: EntitycoreContextVariables;
   override inputSchema = StrainGetAllInputSchema;

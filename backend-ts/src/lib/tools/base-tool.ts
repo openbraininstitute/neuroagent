@@ -84,9 +84,6 @@ export interface ToolClass {
   /** Example utterances that might trigger this tool */
   readonly toolUtterances?: string[];
 
-  /** Whether this tool requires Human-in-the-Loop validation */
-  readonly toolHil?: boolean;
-
   /** Static method to check if tool is operational (optional) */
   isOnline?(contextVariables: BaseContextVariables): Promise<boolean>;
 
@@ -219,16 +216,6 @@ export abstract class BaseTool<
   }
 
   /**
-   * Check if this tool requires Human-in-the-Loop validation
-   *
-   * @returns True if HIL validation is required
-   */
-  requiresHIL(): boolean {
-    const ToolClass = this.constructor as any;
-    return ToolClass.toolHil === true;
-  }
-
-  /**
    * Get tool utterances for matching user intent
    *
    * @returns Array of example utterances or empty array
@@ -259,9 +246,6 @@ export interface ToolMetadata {
 
   /** Example utterances that might trigger this tool */
   utterances?: string[];
-
-  /** Whether this tool requires Human-in-the-Loop validation */
-  hil?: boolean;
 }
 
 /**
@@ -345,7 +329,6 @@ export class ToolRegistry {
       description: ToolClass.toolDescription,
       descriptionFrontend: ToolClass.toolDescriptionFrontend,
       utterances: ToolClass.toolUtterances,
-      hil: ToolClass.toolHil,
     }));
   }
 
@@ -378,20 +361,6 @@ export class ToolRegistry {
     );
 
     return healthMap;
-  }
-
-  /**
-   * Check if a tool requires HIL validation by name
-   *
-   * @param name - Tool name to check
-   * @returns true if tool requires HIL, false otherwise
-   */
-  requiresHIL(name: string): boolean {
-    const ToolClass = this.toolClasses.get(name);
-    if (ToolClass) {
-      return ToolClass.toolHil === true;
-    }
-    return false;
   }
 
   /**

@@ -26,7 +26,6 @@ describe('Asset Tools', () => {
       expect(AssetGetAllTool.toolDescription).toContain('assets');
       expect(AssetGetAllTool.toolUtterances).toBeInstanceOf(Array);
       expect(AssetGetAllTool.toolUtterances.length).toBeGreaterThan(0);
-      expect(AssetGetAllTool.toolHil).toBe(false);
     });
 
     it('should instantiate with context variables', () => {
@@ -141,7 +140,6 @@ describe('Asset Tools', () => {
       expect(AssetGetOneTool.toolDescription).toContain('single asset');
       expect(AssetGetOneTool.toolUtterances).toBeInstanceOf(Array);
       expect(AssetGetOneTool.toolUtterances.length).toBeGreaterThan(0);
-      expect(AssetGetOneTool.toolHil).toBe(false);
     });
 
     it('should instantiate with context variables', () => {
@@ -253,7 +251,6 @@ describe('Asset Tools', () => {
       expect(AssetDownloadOneTool.toolDescription).toContain('presigned URL');
       expect(AssetDownloadOneTool.toolUtterances).toBeInstanceOf(Array);
       expect(AssetDownloadOneTool.toolUtterances.length).toBeGreaterThan(0);
-      expect(AssetDownloadOneTool.toolHil).toBe(false);
     });
 
     it('should instantiate with context variables', () => {
@@ -414,12 +411,6 @@ describe('Asset Tools', () => {
       expect(AssetGetAllTool.toolUtterances.length).toBeGreaterThanOrEqual(1);
       expect(AssetGetOneTool.toolUtterances.length).toBeGreaterThanOrEqual(1);
       expect(AssetDownloadOneTool.toolUtterances.length).toBeGreaterThanOrEqual(1);
-    });
-
-    it('should not require HIL validation', () => {
-      expect(AssetGetAllTool.toolHil).toBe(false);
-      expect(AssetGetOneTool.toolHil).toBe(false);
-      expect(AssetDownloadOneTool.toolHil).toBe(false);
     });
   });
 

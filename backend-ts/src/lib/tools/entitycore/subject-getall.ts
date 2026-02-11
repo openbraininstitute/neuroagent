@@ -70,7 +70,6 @@ Specify optional criteria to find relevant subjects.`;
     'Show me available subjects',
     'What subjects are there?',
   ];
-  static readonly toolHil = false;
 
   override contextVariables: EntitycoreContextVariables;
   override inputSchema = SubjectGetAllInputSchema;

@@ -59,7 +59,6 @@ Specify the e-model ID to retrieve its full details.`;
     'Show me information about this e-model',
     'What are the properties of this e-model?',
   ];
-  static readonly toolHil = false;
 
   override contextVariables: EntitycoreContextVariables;
   override inputSchema = EModelGetOneInputSchema;

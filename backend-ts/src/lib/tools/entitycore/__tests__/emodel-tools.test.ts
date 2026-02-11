@@ -25,7 +25,6 @@ describe('EModel Tools', () => {
       expect(EModelGetAllTool.toolDescription).toContain('e-models');
       expect(EModelGetAllTool.toolUtterances).toBeInstanceOf(Array);
       expect(EModelGetAllTool.toolUtterances.length).toBeGreaterThan(0);
-      expect(EModelGetAllTool.toolHil).toBe(false);
     });
 
     it('should instantiate with context variables', () => {
@@ -183,7 +182,6 @@ describe('EModel Tools', () => {
       expect(EModelGetOneTool.toolDescription).toContain('specific e-model');
       expect(EModelGetOneTool.toolUtterances).toBeInstanceOf(Array);
       expect(EModelGetOneTool.toolUtterances.length).toBeGreaterThan(0);
-      expect(EModelGetOneTool.toolHil).toBe(false);
     });
 
     it('should instantiate with context variables', () => {

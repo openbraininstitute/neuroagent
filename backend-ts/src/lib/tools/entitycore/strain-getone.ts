@@ -52,7 +52,6 @@ Specify the strain ID to retrieve its full details.`;
     'Show me information about this strain',
     'What are the properties of this strain?',
   ];
-  static readonly toolHil = false;
 
   override contextVariables: EntitycoreContextVariables;
   override inputSchema = StrainGetOneInputSchema;

@@ -98,7 +98,6 @@ Specify brain region and optional criteria to find relevant densities.`;
     'Show me available bouton densities',
     'What bouton densities are there?',
   ];
-  static readonly toolHil = false;
 
   override contextVariables: EntitycoreContextVariables;
   override inputSchema = ExperimentalBoutonDensityGetAllInputSchema;

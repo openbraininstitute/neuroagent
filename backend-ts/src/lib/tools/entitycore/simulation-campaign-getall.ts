@@ -84,7 +84,6 @@ Specify optional criteria to find relevant simulation-campaigns.`;
     'Show me available simulation campaigns',
     'What simulation campaigns are there?',
   ];
-  static readonly toolHil = false;
 
   override contextVariables: EntitycoreContextVariables;
   override inputSchema = SimulationCampaignGetAllInputSchema;

@@ -60,7 +60,6 @@ Specify the brain region ID to retrieve its full details.`;
     'Show me information about this region',
     'What are the properties of this brain region?',
   ];
-  static readonly toolHil = false;
 
   override contextVariables: EntitycoreContextVariables;
   override inputSchema = BrainRegionGetOneInputSchema;

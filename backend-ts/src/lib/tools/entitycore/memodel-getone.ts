@@ -43,7 +43,6 @@ export class MEModelGetOneTool extends BaseTool<
     'Show me information about this ME-model',
     'What are the properties of this ME-model?',
   ];
-  static readonly toolHil = false;
 
   override contextVariables: EntitycoreContextVariables;
   override inputSchema = MEModelGetOneInputSchema;

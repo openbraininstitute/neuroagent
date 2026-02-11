@@ -25,7 +25,6 @@ describe('Etype Tools', () => {
       expect(EtypeGetAllTool.toolDescription).toContain('e-types');
       expect(EtypeGetAllTool.toolUtterances).toBeInstanceOf(Array);
       expect(EtypeGetAllTool.toolUtterances.length).toBeGreaterThan(0);
-      expect(EtypeGetAllTool.toolHil).toBe(false);
     });
 
     it('should instantiate with context variables', () => {
@@ -177,7 +176,6 @@ describe('Etype Tools', () => {
       expect(EtypeGetOneTool.toolDescription).toContain('specific e-type');
       expect(EtypeGetOneTool.toolUtterances).toBeInstanceOf(Array);
       expect(EtypeGetOneTool.toolUtterances.length).toBeGreaterThan(0);
-      expect(EtypeGetOneTool.toolHil).toBe(false);
     });
 
     it('should instantiate with context variables', () => {

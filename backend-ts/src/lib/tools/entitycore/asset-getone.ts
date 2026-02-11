@@ -59,7 +59,6 @@ Specify the entity route and entity ID to retrieve the asset.`;
     'Show me information about this file',
     'What are the properties of this asset?',
   ];
-  static readonly toolHil = false;
 
   override contextVariables: EntitycoreContextVariables;
   override inputSchema = AssetGetOneInputSchema;

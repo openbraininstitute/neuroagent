@@ -93,7 +93,6 @@ Specify optional criteria to find relevant ion-channel-recordings.`;
     'What ion channel recordings are there?',
     'Search for ion channel recordings',
   ];
-  static readonly toolHil = false;
 
   override contextVariables: EntitycoreContextVariables;
   override inputSchema = IonChannelRecordingGetAllInputSchema;

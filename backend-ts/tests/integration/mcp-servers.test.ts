@@ -398,7 +398,6 @@ describe('Integration: MCP Server Integration', () => {
       expect(dynamicTool.metadata.nameFrontend).toBe('Custom Tool Name');
       expect(dynamicTool.metadata.descriptionFrontend).toBe('Custom description for frontend');
       expect(dynamicTool.metadata.utterances).toEqual(['custom', 'utterance']);
-      // Note: hil is not part of the createDynamicMCPTool metadata options
     });
   });
 

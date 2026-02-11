@@ -57,7 +57,6 @@ Specify the contribution ID to retrieve its full details.`;
     'Show me information about this contribution',
     'What are the properties of this contribution?',
   ];
-  static readonly toolHil = false;
 
   override contextVariables: EntitycoreContextVariables;
   override inputSchema = ContributionGetOneInputSchema;

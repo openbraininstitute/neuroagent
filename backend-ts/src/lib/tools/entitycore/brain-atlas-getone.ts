@@ -56,7 +56,6 @@ Specify the brain atlas ID to retrieve its full details.`;
     'Show me information about this atlas',
     'What are the properties of this brain atlas?',
   ];
-  static readonly toolHil = false;
 
   override contextVariables: EntitycoreContextVariables;
   override inputSchema = BrainAtlasGetOneInputSchema;

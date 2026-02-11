@@ -55,7 +55,6 @@ Specify the simulation-generation ID to retrieve its full details.`;
     'Show me information about this simulation generation',
     'What are the properties of this simulation generation?',
   ];
-  static readonly toolHil = false;
 
   override contextVariables: EntitycoreContextVariables;
   override inputSchema = SimulationGenerationGetOneInputSchema;

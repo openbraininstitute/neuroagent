@@ -60,7 +60,6 @@ Specify the single-neuron-synaptome-simulation ID to retrieve its full details.`
     'Show me information about this single neuron synaptome simulation',
     'What are the properties of this single neuron synaptome simulation?',
   ];
-  static readonly toolHil = false;
 
   override contextVariables: EntitycoreContextVariables;
   override inputSchema = SingleNeuronSynaptomeSimulationGetOneInputSchema;

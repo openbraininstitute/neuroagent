@@ -91,7 +91,6 @@ Each tool provides:
 - `description`: LLM context description
 - `descriptionFrontend`: User-facing description
 - `utterances`: Example phrases that trigger the tool
-- `hil`: Human-in-the-loop flag
 
 ### Type Safety
 

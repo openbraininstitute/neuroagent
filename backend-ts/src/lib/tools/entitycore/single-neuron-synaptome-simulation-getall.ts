@@ -91,7 +91,6 @@ Specify optional criteria to find relevant single-neuron-synaptome-simulations.`
     'Show me available single neuron synaptome simulations',
     'What single neuron synaptome simulations are there?',
   ];
-  static readonly toolHil = false;
 
   override contextVariables: EntitycoreContextVariables;
   override inputSchema = SingleNeuronSynaptomeSimulationGetAllInputSchema;

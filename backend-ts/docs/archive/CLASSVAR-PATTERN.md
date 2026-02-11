@@ -53,7 +53,6 @@ export interface ToolClass {
   readonly toolDescription: string;
   readonly toolDescriptionFrontend?: string;
   readonly toolUtterances?: string[];
-  readonly toolHil?: boolean;
 
   // Static health check method
   isOnline?(contextVariables: BaseContextVariables): Promise<boolean>;
@@ -236,7 +235,6 @@ For each tool class:
 - [ ] Add `static readonly toolDescription`
 - [ ] Add `static readonly toolDescriptionFrontend` (optional)
 - [ ] Add `static readonly toolUtterances` (optional)
-- [ ] Add `static readonly toolHil` (optional)
 - [ ] Add `static isOnline()` method if health check needed
 - [ ] Keep instance properties for execution context
 
@@ -250,7 +248,6 @@ export class BrainRegionGetAllTool extends EntityCoreTool<typeof BrainRegionGetA
   static readonly toolDescription = 'Searches a neuroscience based knowledge graph...';
   static readonly toolDescriptionFrontend = 'Search and retrieve brain regions...';
   static readonly toolUtterances = ['Find brain regions.', 'Show me available brain regions.'];
-  static readonly toolHil = false;
 
   // Instance properties (for execution)
   contextVariables: EntitycoreContextVariables;

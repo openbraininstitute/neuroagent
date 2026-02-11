@@ -67,7 +67,6 @@ Specify optional criteria to find relevant brain atlases.`;
     'Show me available brain atlases',
     'What brain atlases are there?',
   ];
-  static readonly toolHil = false;
 
   override contextVariables: EntitycoreContextVariables;
   override inputSchema = BrainAtlasGetAllInputSchema;

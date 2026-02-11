@@ -25,7 +25,6 @@ describe('Species Tools', () => {
       expect(SpeciesGetAllTool.toolDescription).toContain('species');
       expect(SpeciesGetAllTool.toolUtterances).toBeInstanceOf(Array);
       expect(SpeciesGetAllTool.toolUtterances.length).toBeGreaterThan(0);
-      expect(SpeciesGetAllTool.toolHil).toBe(false);
     });
 
     it('should instantiate with context variables', () => {
@@ -207,7 +206,6 @@ describe('Species Tools', () => {
       expect(SpeciesGetOneTool.toolDescription).toContain('specific species');
       expect(SpeciesGetOneTool.toolUtterances).toBeInstanceOf(Array);
       expect(SpeciesGetOneTool.toolUtterances.length).toBeGreaterThan(0);
-      expect(SpeciesGetOneTool.toolHil).toBe(false);
     });
 
     it('should instantiate with context variables', () => {

@@ -91,7 +91,6 @@ Specify optional criteria to find relevant single-neuron-synaptomes.`;
     'Show me available single neuron synaptomes',
     'What single neuron synaptomes are there?',
   ];
-  static readonly toolHil = false;
 
   override contextVariables: EntitycoreContextVariables;
   override inputSchema = SingleNeuronSynaptomeGetAllInputSchema;

@@ -63,7 +63,6 @@ The output is a list of ion-channels, containing:
 
 Specify optional criteria to find relevant ion-channels.`;
   static readonly toolUtterances: string[] = [];
-  static readonly toolHil = false;
 
   override contextVariables: EntitycoreContextVariables;
   override inputSchema = IonChannelGetAllInputSchema;

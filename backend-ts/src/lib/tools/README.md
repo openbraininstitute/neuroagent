@@ -47,7 +47,6 @@ export class MyTool extends BaseTool<typeof MyToolInputSchema> {
     description: 'Description for LLM context',
     descriptionFrontend: 'User-friendly description',
     utterances: ['search', 'find', 'lookup'],
-    hil: false, // Set to true if requires human validation
   };
 
   inputSchema = MyToolInputSchema;
@@ -93,7 +92,6 @@ toolRegistry.register(myTool);
 - `nameFrontend`: Display name for UI (defaults to `name`)
 - `descriptionFrontend`: User-friendly description (defaults to `description`)
 - `utterances`: Example phrases that might trigger this tool
-- `hil`: Whether tool requires Human-in-the-Loop validation
 
 ## Input Validation
 
@@ -158,19 +156,7 @@ const result = streamText({
 });
 ```
 
-## Human-in-the-Loop (HIL) Tools
 
-Tools requiring human validation should set `hil: true` in metadata:
-
-```typescript
-metadata: ToolMetadata = {
-  name: 'sensitive_operation',
-  description: 'Performs a sensitive operation',
-  hil: true, // Requires human approval
-};
-```
-
-The agent routine will pause execution and wait for explicit validation before proceeding.
 
 ## Testing Tools
 

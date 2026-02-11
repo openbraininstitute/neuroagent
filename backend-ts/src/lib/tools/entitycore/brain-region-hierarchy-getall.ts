@@ -65,7 +65,6 @@ Specify optional criteria to find relevant hierarchies.`;
     'Show me available hierarchies',
     'What hierarchies are there?',
   ];
-  static readonly toolHil = false;
 
   override contextVariables: EntitycoreContextVariables;
   override inputSchema = BrainRegionHierarchyGetAllInputSchema;

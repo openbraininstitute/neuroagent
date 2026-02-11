@@ -66,7 +66,6 @@ Specify optional criteria to find relevant persons.`;
     'Show me available persons',
     'What persons are there?',
   ];
-  static readonly toolHil = false;
 
   override contextVariables: EntitycoreContextVariables;
   override inputSchema = PersonGetAllInputSchema;

@@ -89,7 +89,6 @@ Specify brain region and optional criteria to find relevant annotations.`;
     'Show me available measurement annotations',
     'What measurement annotations are there?',
   ];
-  static readonly toolHil = false;
 
   override contextVariables: EntitycoreContextVariables;
   override inputSchema = MeasurementAnnotationGetAllInputSchema;

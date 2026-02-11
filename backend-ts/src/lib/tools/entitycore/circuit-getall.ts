@@ -113,7 +113,6 @@ Specify optional criteria to find relevant circuits.`;
     'Show me available circuits',
     'What circuits are there?',
   ];
-  static readonly toolHil = false;
 
   override contextVariables: EntitycoreContextVariables;
   override inputSchema = CircuitGetAllInputSchema;

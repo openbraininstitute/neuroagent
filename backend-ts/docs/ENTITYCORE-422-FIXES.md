@@ -75,14 +75,11 @@ Fixed `ReferenceError: toolRegistry is not defined` by adding the missing import
 import { toolRegistry } from '../tools/base-tool';
 ```
 
-This was causing the Human-in-Loop (HIL) validation flow to crash when checking which tools require validation.
-
 ## Testing
 
 After these fixes:
 - Tools should no longer send `within_brain_region_direction` unless brain region filtering is explicitly requested
 - The agent should be able to call these tools without 422 errors
-- HIL validation flow should work correctly
 
 ## Related Files
 

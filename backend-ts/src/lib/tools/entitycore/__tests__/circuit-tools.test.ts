@@ -26,7 +26,6 @@ describe('Circuit Tools', () => {
       expect(CircuitGetAllTool.toolDescription).toContain('obione-circuitmetrics-getone');
       expect(CircuitGetAllTool.toolUtterances).toBeInstanceOf(Array);
       expect(CircuitGetAllTool.toolUtterances.length).toBeGreaterThan(0);
-      expect(CircuitGetAllTool.toolHil).toBe(false);
     });
 
     it('should instantiate with context variables', () => {
@@ -186,7 +185,6 @@ describe('Circuit Tools', () => {
       expect(CircuitGetOneTool.toolDescription).toContain('obione-circuitmetrics-getone');
       expect(CircuitGetOneTool.toolUtterances).toBeInstanceOf(Array);
       expect(CircuitGetOneTool.toolUtterances.length).toBeGreaterThan(0);
-      expect(CircuitGetOneTool.toolHil).toBe(false);
     });
 
     it('should instantiate with context variables', () => {

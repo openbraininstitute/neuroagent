@@ -140,7 +140,6 @@ export class WebSearchTool extends BaseTool<
     'find information online',
     'look up on the internet',
   ];
-  static readonly toolHil = false; // No human-in-the-loop required
 
   // Instance properties
   contextVariables: WebSearchContextVariables;
@@ -206,7 +205,6 @@ export class WebSearchTool extends BaseTool<
 | `toolNameFrontend`        | `string`   | No       | Display name for UI               |
 | `toolDescriptionFrontend` | `string`   | No       | User-friendly description         |
 | `toolUtterances`          | `string[]` | No       | Example phrases that trigger tool |
-| `toolHil`                 | `boolean`  | No       | Requires human validation         |
 
 ### Naming Conventions
 
@@ -808,28 +806,6 @@ const result = await toolInstance.execute(input);
 
 ## Advanced Patterns
 
-### Human-in-the-Loop (HIL) Validation
-
-For tools that require user confirmation:
-
-```typescript
-export class DeleteDataTool extends BaseTool<...> {
-  static readonly toolName = 'delete_data';
-  static readonly toolDescription = 'Delete user data (requires confirmation)';
-  static readonly toolHil = true;  // Enable HIL
-
-  async execute(input: z.infer<typeof this.inputSchema>) {
-    // Tool execution will pause here for user validation
-    // The agent routine handles the validation flow
-
-    // If validated, proceed with deletion
-    await this.performDeletion(input.dataId);
-
-    return { success: true, message: 'Data deleted' };
-  }
-}
-```
-
 ### Health Checks
 
 Implement custom health checks:
@@ -1167,7 +1143,6 @@ export class BrainRegionSearchTool extends BaseTool<
     'look up brain structure',
     'what is the hippocampus',
   ];
-  static readonly toolHil = false;
 
   // Instance properties
   contextVariables: BrainRegionSearchContext;

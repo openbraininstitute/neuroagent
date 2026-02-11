@@ -94,7 +94,6 @@ else if (msg.entity === entity.AI_TOOL) {
 
   // Add tool calls to buffer
   for (const tc of msg.toolCalls) {
-    const requiresValidation = toolHilMapping[tc.name] || false;
     let status: 'accepted' | 'rejected' | 'pending' | 'not_required';
 
     if (tc.validated === true) {

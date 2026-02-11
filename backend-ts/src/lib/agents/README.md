@@ -222,7 +222,6 @@ return response;
 ## Future Enhancements
 
 - Parallel tool execution (task 22)
-- HIL tool validation (task 23)
 - Custom OpenAI base URL support
 - Cached token tracking
 - Streaming progress callbacks

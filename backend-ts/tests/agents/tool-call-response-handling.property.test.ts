@@ -34,7 +34,6 @@ class TestTool extends BaseTool<typeof TestToolInputSchema, BaseContextVariables
   static readonly toolName = 'test_tool';
   static readonly toolDescription = 'A test tool for property testing';
   static readonly toolUtterances = ['test'];
-  static readonly toolHil = false;
 
   override contextVariables: BaseContextVariables = {};
   override inputSchema = z.object({

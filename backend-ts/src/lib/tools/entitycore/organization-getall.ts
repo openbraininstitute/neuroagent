@@ -64,7 +64,6 @@ Specify optional criteria to find relevant organizations.`;
     'Show me available organizations',
     'What organizations are there?',
   ];
-  static readonly toolHil = false;
 
   override contextVariables: EntitycoreContextVariables;
   override inputSchema = OrganizationGetAllInputSchema;

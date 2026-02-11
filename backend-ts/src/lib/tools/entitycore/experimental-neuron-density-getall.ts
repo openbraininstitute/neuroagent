@@ -95,7 +95,6 @@ Specify brain region and optional criteria to find relevant densities.`;
     'Show me available neuron densities',
     'What neuron densities are there?',
   ];
-  static readonly toolHil = false;
 
   override contextVariables: EntitycoreContextVariables;
   override inputSchema = ExperimentalNeuronDensityGetAllInputSchema;

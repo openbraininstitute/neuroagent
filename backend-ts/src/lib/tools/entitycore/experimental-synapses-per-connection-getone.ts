@@ -66,7 +66,6 @@ Specify the synapses per connection ID to retrieve its full details.`;
     'Show me information about this synapses per connection',
     'What are the properties of this experimental synapses per connection?',
   ];
-  static readonly toolHil = false;
 
   override contextVariables: EntitycoreContextVariables;
   override inputSchema = ExperimentalSynapsesPerConnectionGetOneInputSchema;

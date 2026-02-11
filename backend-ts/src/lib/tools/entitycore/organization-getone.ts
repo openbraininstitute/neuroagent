@@ -54,7 +54,6 @@ Specify the organization ID to retrieve its full details.`;
     'Show me information about this organization',
     'What are the properties of this organization?',
   ];
-  static readonly toolHil = false;
 
   override contextVariables: EntitycoreContextVariables;
   override inputSchema = OrganizationGetOneInputSchema;

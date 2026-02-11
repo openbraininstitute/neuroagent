@@ -68,7 +68,6 @@ Specify the entity route and entity ID to retrieve the assets.`;
     'Show me all assets',
     'What assets are available?',
   ];
-  static readonly toolHil = false;
 
   override contextVariables: EntitycoreContextVariables;
   override inputSchema = AssetGetAllInputSchema;

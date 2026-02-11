@@ -112,7 +112,6 @@ All tools have complete metadata:
 - `toolDescription`: Description for LLM
 - `toolDescriptionFrontend`: Optional user-facing description
 - `toolUtterances`: Optional example queries
-- `toolHil`: Human-in-the-loop flag
 
 ## Test Coverage
 

@@ -281,7 +281,6 @@ describe('Streaming Interruption Handling', () => {
         parameters: {},
         execute: vi.fn().mockResolvedValue('Tool result'),
       }),
-      requiresHIL: () => false,
     };
 
     const agent = {

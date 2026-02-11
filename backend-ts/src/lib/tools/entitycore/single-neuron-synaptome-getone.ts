@@ -57,7 +57,6 @@ Specify the single-neuron-synaptome ID to retrieve its full details.`;
     'Show me information about this single neuron synaptome',
     'What are the properties of this single neuron synaptome?',
   ];
-  static readonly toolHil = false;
 
   override contextVariables: EntitycoreContextVariables;
   override inputSchema = SingleNeuronSynaptomeGetOneInputSchema;

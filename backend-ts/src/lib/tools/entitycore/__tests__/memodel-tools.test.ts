@@ -26,7 +26,6 @@ describe('MEModel Tools', () => {
       expect(MEModelGetAllTool.toolDescription).toContain('simulated');
       expect(MEModelGetAllTool.toolUtterances).toBeInstanceOf(Array);
       expect(MEModelGetAllTool.toolUtterances.length).toBeGreaterThan(0);
-      expect(MEModelGetAllTool.toolHil).toBe(false);
     });
 
     it('should instantiate with context variables', () => {
@@ -246,7 +245,6 @@ describe('MEModel Tools', () => {
       expect(MEModelGetOneTool.toolDescription).toContain('UUID');
       expect(MEModelGetOneTool.toolUtterances).toBeInstanceOf(Array);
       expect(MEModelGetOneTool.toolUtterances.length).toBeGreaterThan(0);
-      expect(MEModelGetOneTool.toolHil).toBe(false);
     });
 
     it('should instantiate with context variables', () => {

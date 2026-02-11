@@ -27,7 +27,6 @@ describe('SimulationExecution Tools', () => {
       expect(SimulationExecutionGetAllTool.toolDescription).toContain('simulation-executions');
       expect(SimulationExecutionGetAllTool.toolUtterances).toBeInstanceOf(Array);
       expect(SimulationExecutionGetAllTool.toolUtterances.length).toBeGreaterThan(0);
-      expect(SimulationExecutionGetAllTool.toolHil).toBe(false);
     });
 
     it('should instantiate with context variables', () => {
@@ -254,7 +253,6 @@ describe('SimulationExecution Tools', () => {
       );
       expect(SimulationExecutionGetOneTool.toolUtterances).toBeInstanceOf(Array);
       expect(SimulationExecutionGetOneTool.toolUtterances.length).toBeGreaterThan(0);
-      expect(SimulationExecutionGetOneTool.toolHil).toBe(false);
     });
 
     it('should instantiate with context variables', () => {

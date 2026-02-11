@@ -11,7 +11,6 @@
  * - Thread ownership validation
  * - Two-phase pagination for Vercel format (matches Python implementation)
  * - Entity filtering (USER, AI_MESSAGE, TOOL, AI_TOOL)
- * - Tool HIL (Human-in-Loop) status tracking
  */
 
 import { entity } from '@prisma/client';
@@ -114,7 +113,7 @@ export async function GET(
       );
     }
 
-    // Get tool HIL mapping (for Vercel format annotations)
+    // Initialize tools for this thread
     const settings = getSettings();
     const authHeader = request.headers.get('authorization');
     const jwtToken = authHeader?.replace('Bearer ', '');
@@ -130,12 +129,6 @@ export async function GET(
       jwtToken,
       obiOneUrl: settings.tools.obiOne.url,
       mcpConfig: settings.mcp,
-    });
-
-    // Build HIL mapping from tool classes (static properties)
-    const toolHilMapping: Record<string, boolean> = {};
-    toolClasses.forEach((ToolClass) => {
-      toolHilMapping[ToolClass.toolName] = ToolClass.toolHil || false;
     });
 
     // Determine entity filter for pagination cursor query
@@ -386,17 +379,16 @@ export async function GET(
 
           // Add tool calls to buffer
           for (const tc of msg.toolCalls) {
-            const requiresValidation = toolHilMapping[tc.name] || false;
+            // Tools don't require validation
             let status: 'accepted' | 'rejected' | 'pending' | 'not_required';
 
             if (tc.validated === true) {
               status = 'accepted';
             } else if (tc.validated === false) {
               status = 'rejected';
-            } else if (!requiresValidation) {
-              status = 'not_required';
             } else {
-              status = 'pending';
+              // Default status for tools
+              status = 'not_required';
             }
 
             parts.push({

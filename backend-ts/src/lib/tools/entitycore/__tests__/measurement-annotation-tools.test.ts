@@ -26,7 +26,6 @@ describe('Measurement Annotation Tools', () => {
       expect(MeasurementAnnotationGetAllTool.toolDescription).toContain('measurement annotation ID');
       expect(MeasurementAnnotationGetAllTool.toolUtterances).toBeInstanceOf(Array);
       expect(MeasurementAnnotationGetAllTool.toolUtterances.length).toBeGreaterThan(0);
-      expect(MeasurementAnnotationGetAllTool.toolHil).toBe(false);
     });
 
     it('should instantiate with context variables', () => {
@@ -232,7 +231,6 @@ describe('Measurement Annotation Tools', () => {
       expect(MeasurementAnnotationGetOneTool.toolDescription).toContain('measurement_annotation_id');
       expect(MeasurementAnnotationGetOneTool.toolUtterances).toBeInstanceOf(Array);
       expect(MeasurementAnnotationGetOneTool.toolUtterances.length).toBeGreaterThan(0);
-      expect(MeasurementAnnotationGetOneTool.toolHil).toBe(false);
     });
 
     it('should instantiate with context variables', () => {

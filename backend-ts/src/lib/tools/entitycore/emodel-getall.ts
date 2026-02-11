@@ -99,7 +99,6 @@ Specify optional criteria to find relevant e-models.`;
     'Show me available e-models',
     'What e-models are there?',
   ];
-  static readonly toolHil = false;
 
   override contextVariables: EntitycoreContextVariables;
   override inputSchema = EModelGetAllInputSchema;

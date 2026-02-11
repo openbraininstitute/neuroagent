@@ -25,7 +25,6 @@ describe('Organization Tools', () => {
       expect(OrganizationGetAllTool.toolDescription).toContain('organizations');
       expect(OrganizationGetAllTool.toolUtterances).toBeInstanceOf(Array);
       expect(OrganizationGetAllTool.toolUtterances.length).toBeGreaterThan(0);
-      expect(OrganizationGetAllTool.toolHil).toBe(false);
     });
 
     it('should instantiate with context variables', () => {
@@ -240,7 +239,6 @@ describe('Organization Tools', () => {
       expect(OrganizationGetOneTool.toolDescription).toContain('specific organization');
       expect(OrganizationGetOneTool.toolUtterances).toBeInstanceOf(Array);
       expect(OrganizationGetOneTool.toolUtterances.length).toBeGreaterThan(0);
-      expect(OrganizationGetOneTool.toolHil).toBe(false);
     });
 
     it('should instantiate with context variables', () => {

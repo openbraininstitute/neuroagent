@@ -25,7 +25,6 @@ describe('Brain Atlas Tools', () => {
       expect(BrainAtlasGetAllTool.toolDescription).toContain('brain atlases');
       expect(BrainAtlasGetAllTool.toolUtterances).toBeInstanceOf(Array);
       expect(BrainAtlasGetAllTool.toolUtterances.length).toBeGreaterThan(0);
-      expect(BrainAtlasGetAllTool.toolHil).toBe(false);
     });
 
     it('should instantiate with context variables', () => {
@@ -126,7 +125,6 @@ describe('Brain Atlas Tools', () => {
       expect(BrainAtlasGetOneTool.toolDescription).toContain('specific brain atlas');
       expect(BrainAtlasGetOneTool.toolUtterances).toBeInstanceOf(Array);
       expect(BrainAtlasGetOneTool.toolUtterances.length).toBeGreaterThan(0);
-      expect(BrainAtlasGetOneTool.toolHil).toBe(false);
     });
 
     it('should instantiate with context variables', () => {
@@ -244,11 +242,6 @@ describe('Brain Atlas Tools', () => {
     it('should have at least one utterance each', () => {
       expect(BrainAtlasGetAllTool.toolUtterances.length).toBeGreaterThanOrEqual(1);
       expect(BrainAtlasGetOneTool.toolUtterances.length).toBeGreaterThanOrEqual(1);
-    });
-
-    it('should not require HIL validation', () => {
-      expect(BrainAtlasGetAllTool.toolHil).toBe(false);
-      expect(BrainAtlasGetOneTool.toolHil).toBe(false);
     });
   });
 });

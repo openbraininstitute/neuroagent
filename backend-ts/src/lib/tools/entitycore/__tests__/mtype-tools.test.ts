@@ -25,7 +25,6 @@ describe('Mtype Tools', () => {
       expect(MtypeGetAllTool.toolDescription).toContain('m-types');
       expect(MtypeGetAllTool.toolUtterances).toBeInstanceOf(Array);
       expect(MtypeGetAllTool.toolUtterances.length).toBeGreaterThan(0);
-      expect(MtypeGetAllTool.toolHil).toBe(false);
     });
 
     it('should instantiate with context variables', () => {
@@ -221,7 +220,6 @@ describe('Mtype Tools', () => {
       expect(MtypeGetOneTool.toolDescription).toContain('specific m-type');
       expect(MtypeGetOneTool.toolUtterances).toBeInstanceOf(Array);
       expect(MtypeGetOneTool.toolUtterances.length).toBeGreaterThan(0);
-      expect(MtypeGetOneTool.toolHil).toBe(false);
     });
 
     it('should instantiate with context variables', () => {

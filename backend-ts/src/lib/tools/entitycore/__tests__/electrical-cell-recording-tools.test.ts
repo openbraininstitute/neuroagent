@@ -32,7 +32,6 @@ describe('Electrical Cell Recording Tools', () => {
       expect(ElectricalCellRecordingGetAllTool.toolDescription).toContain('trace');
       expect(ElectricalCellRecordingGetAllTool.toolUtterances).toBeInstanceOf(Array);
       expect(ElectricalCellRecordingGetAllTool.toolUtterances.length).toBeGreaterThan(0);
-      expect(ElectricalCellRecordingGetAllTool.toolHil).toBe(false);
     });
 
     it('should instantiate with context variables', () => {
@@ -222,7 +221,6 @@ describe('Electrical Cell Recording Tools', () => {
       );
       expect(ElectricalCellRecordingGetOneTool.toolUtterances).toBeInstanceOf(Array);
       expect(ElectricalCellRecordingGetOneTool.toolUtterances.length).toBeGreaterThan(0);
-      expect(ElectricalCellRecordingGetOneTool.toolHil).toBe(false);
     });
 
     it('should instantiate with context variables', () => {

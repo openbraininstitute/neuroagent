@@ -86,7 +86,6 @@ These are models that are ready to be simulated. You will need the ID of the mod
     'Show me available ME-models',
     'What ME-models are there?',
   ];
-  static readonly toolHil = false;
 
   override contextVariables: EntitycoreContextVariables;
   override inputSchema = MEModelGetAllInputSchema;

@@ -61,7 +61,6 @@ Specify the measurement annotation ID to retrieve its full details.`;
     'Show me information about this measurement annotation',
     'What are the properties of this measurement annotation?',
   ];
-  static readonly toolHil = false;
 
   override contextVariables: EntitycoreContextVariables;
   override inputSchema = MeasurementAnnotationGetOneInputSchema;

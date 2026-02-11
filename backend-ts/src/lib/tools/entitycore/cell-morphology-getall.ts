@@ -99,7 +99,6 @@ Specify brain region and optional criteria to find relevant morphologies.`;
     'Show me available cell morphologies',
     'What cell morphologies are there?',
   ];
-  static readonly toolHil = false;
 
   override contextVariables: EntitycoreContextVariables;
   override inputSchema = CellMorphologyGetAllInputSchema;

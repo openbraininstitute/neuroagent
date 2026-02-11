@@ -62,7 +62,6 @@ Specify the entity route and entity ID to get the download URL.`;
     'Get download link for the file',
     'I need to download this data',
   ];
-  static readonly toolHil = false;
 
   override contextVariables: EntitycoreContextVariables;
   override inputSchema = AssetDownloadOneInputSchema;

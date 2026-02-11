@@ -100,7 +100,6 @@ Specify brain region and optional criteria to find relevant connections.`;
     'Show me available synapses per connection',
     'What synapses per connection are there?',
   ];
-  static readonly toolHil = false;
 
   override contextVariables: EntitycoreContextVariables;
   override inputSchema = ExperimentalSynapsesPerConnectionGetAllInputSchema;

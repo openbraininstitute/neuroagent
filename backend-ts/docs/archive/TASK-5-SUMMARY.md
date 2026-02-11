@@ -49,13 +49,12 @@ Successfully implemented the complete Base Tool System for the TypeScript backen
 - ✅ Automatic conversion to Vercel AI SDK format via `toVercelTool()`
 - ✅ Default health check implementation (returns true)
 - ✅ Helper methods for frontend display names and descriptions
-- ✅ HIL (Human-in-the-Loop) detection
 - ✅ Utterance management for intent matching
 
 ### ToolMetadata Interface
 
 - ✅ Required fields: `name`, `description`
-- ✅ Optional fields: `nameFrontend`, `descriptionFrontend`, `utterances`, `hil`
+- ✅ Optional fields: `nameFrontend`, `descriptionFrontend`, `utterances`
 - ✅ Full TypeScript type safety
 
 ### ToolRegistry Class

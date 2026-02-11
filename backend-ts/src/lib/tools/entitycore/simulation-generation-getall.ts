@@ -84,7 +84,6 @@ Specify optional criteria to find relevant simulation-generations.`;
     'Show me available simulation generations',
     'What simulation generations are there?',
   ];
-  static readonly toolHil = false;
 
   override contextVariables: EntitycoreContextVariables;
   override inputSchema = SimulationGenerationGetAllInputSchema;

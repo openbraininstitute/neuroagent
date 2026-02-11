@@ -36,7 +36,6 @@ class SimpleTestTool extends BaseTool<typeof SimpleTestToolInputSchema, BaseCont
   static readonly toolName = 'simple_test_tool';
   static readonly toolDescription = 'A simple test tool';
   static readonly toolUtterances = ['test'];
-  static readonly toolHil = false;
 
   override contextVariables: BaseContextVariables = {};
   override inputSchema = z.object({

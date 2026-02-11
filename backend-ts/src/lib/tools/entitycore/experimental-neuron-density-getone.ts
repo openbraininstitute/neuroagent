@@ -62,7 +62,6 @@ Specify the density ID to retrieve its full details.`;
     'Show me information about this neuron density',
     'What are the properties of this experimental neuron density?',
   ];
-  static readonly toolHil = false;
 
   override contextVariables: EntitycoreContextVariables;
   override inputSchema = ExperimentalNeuronDensityGetOneInputSchema;

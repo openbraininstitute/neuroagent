@@ -65,7 +65,6 @@ Specify the ion-channel-recording ID to retrieve its full details.`;
     'What is this ion channel recording?',
     'Get information about ion channel recording',
   ];
-  static readonly toolHil = false;
 
   override contextVariables: EntitycoreContextVariables;
   override inputSchema = IonChannelRecordingGetOneInputSchema;

@@ -58,7 +58,6 @@ Specify the morphology ID to retrieve its full details.`;
     'Show me information about this cell morphology',
     'What are the properties of this cell morphology?',
   ];
-  static readonly toolHil = false;
 
   override contextVariables: EntitycoreContextVariables;
   override inputSchema = CellMorphologyGetOneInputSchema;

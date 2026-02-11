@@ -56,7 +56,6 @@ Specify the hierarchy ID to retrieve its full details.`;
     'Show me information about this hierarchy',
     'What are the properties of this brain region hierarchy?',
   ];
-  static readonly toolHil = false;
 
   override contextVariables: EntitycoreContextVariables;
   override inputSchema = BrainRegionHierarchyGetOneInputSchema;

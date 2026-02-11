@@ -101,7 +101,6 @@ Specify brain region and optional criteria to find relevant models.`;
     'Show me available ion channel models',
     'What ion channel models are there?',
   ];
-  static readonly toolHil = false;
 
   override contextVariables: EntitycoreContextVariables;
   override inputSchema = IonChannelModelGetAllInputSchema;

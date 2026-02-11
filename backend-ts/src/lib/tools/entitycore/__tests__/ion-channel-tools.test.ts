@@ -24,7 +24,6 @@ describe('Ion Channel Tools', () => {
       expect(IonChannelGetAllTool.toolNameFrontend).toBe('Get All Ion Channels');
       expect(IonChannelGetAllTool.toolDescription).toContain('ion-channels');
       expect(IonChannelGetAllTool.toolUtterances).toBeInstanceOf(Array);
-      expect(IonChannelGetAllTool.toolHil).toBe(false);
     });
 
     it('should instantiate with context variables', () => {
@@ -117,7 +116,6 @@ describe('Ion Channel Tools', () => {
       expect(IonChannelGetOneTool.toolNameFrontend).toBe('Get One Ion Channel');
       expect(IonChannelGetOneTool.toolDescription).toContain('specific ion-channel');
       expect(IonChannelGetOneTool.toolUtterances).toBeInstanceOf(Array);
-      expect(IonChannelGetOneTool.toolHil).toBe(false);
     });
 
     it('should instantiate with context variables', () => {
@@ -223,11 +221,6 @@ describe('Ion Channel Tools', () => {
       expect(IonChannelGetOneTool.toolDescription.length).toBeGreaterThan(0);
       expect(IonChannelGetAllTool.toolDescriptionFrontend.length).toBeGreaterThan(0);
       expect(IonChannelGetOneTool.toolDescriptionFrontend.length).toBeGreaterThan(0);
-    });
-
-    it('should not require HIL validation', () => {
-      expect(IonChannelGetAllTool.toolHil).toBe(false);
-      expect(IonChannelGetOneTool.toolHil).toBe(false);
     });
   });
 });

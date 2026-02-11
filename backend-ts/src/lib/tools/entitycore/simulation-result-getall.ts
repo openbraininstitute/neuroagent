@@ -84,7 +84,6 @@ Specify optional criteria to find relevant simulation-results.`;
     'Show me available simulation results',
     'What simulation results are there?',
   ];
-  static readonly toolHil = false;
 
   override contextVariables: EntitycoreContextVariables;
   override inputSchema = SimulationResultGetAllInputSchema;

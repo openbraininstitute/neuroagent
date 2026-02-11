@@ -52,7 +52,6 @@ Specify the e-type ID to retrieve its full details.`;
     'Show me information about this e-type',
     'What are the properties of this e-type?',
   ];
-  static readonly toolHil = false;
 
   override contextVariables: EntitycoreContextVariables;
   override inputSchema = EtypeGetOneInputSchema;

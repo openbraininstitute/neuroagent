@@ -100,7 +100,6 @@ Specify optional criteria to find relevant brain regions.`;
     'Are there circuits in the sscx ?',
     'Find all of the thalamical neurons.',
   ];
-  static readonly toolHil = false;
 
   override contextVariables: EntitycoreContextVariables;
   override inputSchema = BrainRegionGetAllInputSchema;

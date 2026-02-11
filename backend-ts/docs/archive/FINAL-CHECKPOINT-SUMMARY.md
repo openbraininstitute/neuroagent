@@ -55,7 +55,6 @@ The only failing test is `proxy-verification.test.ts` which attempts to reach an
    - EntityCore tools ✅
    - OBIOne tools ✅
    - MCP dynamic tools ✅
-   - HIL (Human-in-the-Loop) validation ✅
 
 5. **Middleware**
    - Authentication (JWT/Keycloak) ✅

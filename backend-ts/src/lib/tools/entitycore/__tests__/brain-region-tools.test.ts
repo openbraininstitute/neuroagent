@@ -25,7 +25,6 @@ describe('Brain Region Tools', () => {
       expect(BrainRegionGetAllTool.toolDescription).toContain('knowledge graph');
       expect(BrainRegionGetAllTool.toolUtterances).toBeInstanceOf(Array);
       expect(BrainRegionGetAllTool.toolUtterances.length).toBeGreaterThan(0);
-      expect(BrainRegionGetAllTool.toolHil).toBe(false);
     });
 
     it('should instantiate with context variables', () => {
@@ -88,7 +87,6 @@ describe('Brain Region Tools', () => {
       expect(BrainRegionGetOneTool.toolDescription).toContain('specific brain region');
       expect(BrainRegionGetOneTool.toolUtterances).toBeInstanceOf(Array);
       expect(BrainRegionGetOneTool.toolUtterances.length).toBeGreaterThan(0);
-      expect(BrainRegionGetOneTool.toolHil).toBe(false);
     });
 
     it('should instantiate with context variables', () => {

@@ -25,7 +25,6 @@ describe('Strain Tools', () => {
       expect(StrainGetAllTool.toolDescription).toContain('strains');
       expect(StrainGetAllTool.toolUtterances).toBeInstanceOf(Array);
       expect(StrainGetAllTool.toolUtterances.length).toBeGreaterThan(0);
-      expect(StrainGetAllTool.toolHil).toBe(false);
     });
 
     it('should instantiate with context variables', () => {
@@ -225,7 +224,6 @@ describe('Strain Tools', () => {
       expect(StrainGetOneTool.toolDescription).toContain('specific strain');
       expect(StrainGetOneTool.toolUtterances).toBeInstanceOf(Array);
       expect(StrainGetOneTool.toolUtterances.length).toBeGreaterThan(0);
-      expect(StrainGetOneTool.toolHil).toBe(false);
     });
 
     it('should instantiate with context variables', () => {

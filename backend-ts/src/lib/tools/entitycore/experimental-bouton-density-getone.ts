@@ -64,7 +64,6 @@ Specify the bouton density ID to retrieve its full details.`;
     'Show me information about this bouton density',
     'What are the properties of this experimental bouton density?',
   ];
-  static readonly toolHil = false;
 
   override contextVariables: EntitycoreContextVariables;
   override inputSchema = ExperimentalBoutonDensityGetOneInputSchema;

@@ -31,7 +31,6 @@ describe('Single Neuron Synaptome Simulation Tools', () => {
       );
       expect(SingleNeuronSynaptomeSimulationGetAllTool.toolUtterances).toBeInstanceOf(Array);
       expect(SingleNeuronSynaptomeSimulationGetAllTool.toolUtterances.length).toBeGreaterThan(0);
-      expect(SingleNeuronSynaptomeSimulationGetAllTool.toolHil).toBe(false);
     });
 
     it('should instantiate with context variables', () => {
@@ -253,7 +252,6 @@ describe('Single Neuron Synaptome Simulation Tools', () => {
       );
       expect(SingleNeuronSynaptomeSimulationGetOneTool.toolUtterances).toBeInstanceOf(Array);
       expect(SingleNeuronSynaptomeSimulationGetOneTool.toolUtterances.length).toBeGreaterThan(0);
-      expect(SingleNeuronSynaptomeSimulationGetOneTool.toolHil).toBe(false);
     });
 
     it('should instantiate with context variables', () => {

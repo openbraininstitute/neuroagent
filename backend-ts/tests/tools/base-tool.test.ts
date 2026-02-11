@@ -21,7 +21,6 @@ class TestTool extends BaseTool<typeof TestToolInputSchema> {
   static readonly toolDescription = 'A test tool for unit testing';
   static readonly toolDescriptionFrontend = 'Test tool for users';
   static readonly toolUtterances = ['test', 'check'];
-  static readonly toolHil = false;
 
   contextVariables = {};
   inputSchema = TestToolInputSchema;
@@ -34,11 +33,10 @@ class TestTool extends BaseTool<typeof TestToolInputSchema> {
   }
 }
 
-// HIL test tool
-class HILTestTool extends BaseTool<typeof TestToolInputSchema> {
-  static readonly toolName = 'hil_test_tool';
-  static readonly toolDescription = 'A tool requiring human validation';
-  static readonly toolHil = true;
+// Alternative test tool (formerly HIL test tool, now just a second test tool)
+class AlternativeTestTool extends BaseTool<typeof TestToolInputSchema> {
+  static readonly toolName = 'alternative_test_tool';
+  static readonly toolDescription = 'An alternative test tool';
 
   contextVariables = {};
   inputSchema = TestToolInputSchema;
@@ -116,9 +114,9 @@ describe('BaseTool', () => {
   });
 
   it('should fallback to backend name if no frontend name', () => {
-    const tool = new HILTestTool();
+    const tool = new AlternativeTestTool();
 
-    expect(tool.getFrontendName()).toBe('hil_test_tool');
+    expect(tool.getFrontendName()).toBe('alternative_test_tool');
   });
 
   it('should return frontend description', () => {
@@ -128,17 +126,9 @@ describe('BaseTool', () => {
   });
 
   it('should fallback to backend description if no frontend description', () => {
-    const tool = new HILTestTool();
+    const tool = new AlternativeTestTool();
 
-    expect(tool.getFrontendDescription()).toBe('A tool requiring human validation');
-  });
-
-  it('should identify HIL tools', () => {
-    const regularTool = new TestTool();
-    const hilTool = new HILTestTool();
-
-    expect(regularTool.requiresHIL()).toBe(false);
-    expect(hilTool.requiresHIL()).toBe(true);
+    expect(tool.getFrontendDescription()).toBe('An alternative test tool');
   });
 
   it('should return utterances', () => {
@@ -148,7 +138,7 @@ describe('BaseTool', () => {
   });
 
   it('should return empty array if no utterances', () => {
-    const tool = new HILTestTool();
+    const tool = new AlternativeTestTool();
 
     expect(tool.getUtterances()).toEqual([]);
   });
@@ -196,23 +186,23 @@ describe('ToolRegistry', () => {
 
   it('should return all registered tool classes', () => {
     registry.registerClass(TestTool);
-    registry.registerClass(HILTestTool);
+    registry.registerClass(AlternativeTestTool);
 
     const allTools = registry.getAllClasses();
     expect(allTools).toHaveLength(2);
     expect(allTools).toContain(TestTool);
-    expect(allTools).toContain(HILTestTool);
+    expect(allTools).toContain(AlternativeTestTool);
   });
 
   it('should return all tool metadata', () => {
     registry.registerClass(TestTool);
-    registry.registerClass(HILTestTool);
+    registry.registerClass(AlternativeTestTool);
 
     const metadata = registry.getAllMetadata();
 
     expect(metadata).toHaveLength(2);
     expect(metadata[0]!.name).toBe('test_tool');
-    expect(metadata[1].name).toBe('hil_test_tool');
+    expect(metadata[1].name).toBe('alternative_test_tool');
   });
 
   it('should check health of all tools', async () => {
@@ -251,7 +241,7 @@ describe('ToolRegistry', () => {
 
   it('should clear all tools', () => {
     registry.registerClass(TestTool);
-    registry.registerClass(HILTestTool);
+    registry.registerClass(AlternativeTestTool);
 
     expect(registry.getAllClasses()).toHaveLength(2);
 

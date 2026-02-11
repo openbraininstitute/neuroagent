@@ -26,7 +26,6 @@ describe('Brain Region Hierarchy Tools', () => {
       expect(BrainRegionHierarchyGetAllTool.toolDescription).toContain('hierarchies');
       expect(BrainRegionHierarchyGetAllTool.toolUtterances).toBeInstanceOf(Array);
       expect(BrainRegionHierarchyGetAllTool.toolUtterances.length).toBeGreaterThan(0);
-      expect(BrainRegionHierarchyGetAllTool.toolHil).toBe(false);
     });
 
     it('should instantiate with context variables', () => {
@@ -139,7 +138,6 @@ describe('Brain Region Hierarchy Tools', () => {
       expect(BrainRegionHierarchyGetOneTool.toolDescription).toContain('hierarchy_id');
       expect(BrainRegionHierarchyGetOneTool.toolUtterances).toBeInstanceOf(Array);
       expect(BrainRegionHierarchyGetOneTool.toolUtterances.length).toBeGreaterThan(0);
-      expect(BrainRegionHierarchyGetOneTool.toolHil).toBe(false);
     });
 
     it('should instantiate with context variables', () => {
