@@ -16,7 +16,7 @@ import { type Tool } from '@modelcontextprotocol/sdk/types.js';
 import { z } from 'zod';
 
 import { type MCPServerConfig, type SettingsMCP } from '../config/settings';
-import { BaseTool, type ToolMetadata } from '../tools/base-tool';
+import { BaseTool } from '../tools/base-tool';
 
 const SERVER_TOOL_SEPARATOR = '|||';
 
@@ -434,7 +434,7 @@ export async function initializeMCPTools(config: SettingsMCP): Promise<Array<any
     // If not found, check if this tool was renamed and look up by original name
     if (!toolMetadata && serverConfig?.toolMetadata) {
       // Find the original tool name by checking all metadata entries
-      for (const [originalName, metadata] of Object.entries(serverConfig.toolMetadata)) {
+      for (const [_originalName, metadata] of Object.entries(serverConfig.toolMetadata)) {
         if (metadata.name === tool.name) {
           toolMetadata = metadata;
           break;

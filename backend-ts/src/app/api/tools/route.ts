@@ -16,7 +16,7 @@
 import { NextResponse, type NextRequest } from 'next/server';
 
 import { validateAuth, AuthenticationError } from '@/lib/middleware/auth';
-import { toolRegistry, registerToolClasses } from '@/lib/tools';
+import { toolRegistry } from '@/lib/tools';
 
 /**
  * Tool response schema - matches Python ToolMetadata

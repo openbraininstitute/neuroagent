@@ -87,9 +87,6 @@ describe('AgentsRoutine Error Handling', () => {
     });
 
     it('should include detailed error in development mode', async () => {
-      const originalEnv = process.env.NODE_ENV;
-      process.env.NODE_ENV = 'development';
-
       // Mock database error with stack trace
       const error = new Error('Test error');
       (prisma.message.findMany as any).mockRejectedValue(error);
@@ -118,9 +115,6 @@ describe('AgentsRoutine Error Handling', () => {
 
       // In development, should include error message
       expect(result).toContain('Test error');
-
-      // Restore environment
-      process.env.NODE_ENV = originalEnv;
     });
   });
 

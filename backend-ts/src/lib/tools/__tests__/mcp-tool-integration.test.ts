@@ -23,7 +23,6 @@ describe('MCP Tool Integration', () => {
           command: 'echo',
           args: ['test'],
           env: {},
-          autoApprove: [],
         },
       },
     };

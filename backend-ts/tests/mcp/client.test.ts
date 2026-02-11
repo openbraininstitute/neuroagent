@@ -3,7 +3,7 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { MCPClient, createDynamicMCPToolClass, initializeMCPTools } from '@/lib/mcp/client';
+import { MCPClient, createDynamicMCPToolClass as createDynamicMCPTool, initializeMCPTools } from '@/lib/mcp/client';
 import { SettingsMCP } from '@/lib/config/settings';
 import { Tool } from '@modelcontextprotocol/sdk/types.js';
 
@@ -93,11 +93,11 @@ describe('createDynamicMCPTool', () => {
       },
     };
 
-    const dynamicTool = createDynamicMCPTool('test-server', mcpTool, mockClient);
+    const DynamicToolClass = createDynamicMCPTool('test-server', mcpTool, mockClient);
 
-    expect(dynamicTool).toBeDefined();
-    expect(dynamicTool.metadata.name).toBe('test-tool');
-    expect(dynamicTool.metadata.description).toBe('A test tool');
+    expect(DynamicToolClass).toBeDefined();
+    expect(DynamicToolClass.toolName).toBe('test-tool');
+    expect(DynamicToolClass.toolDescription).toBe('A test tool');
   });
 
   it('should apply custom metadata overrides', () => {
@@ -115,15 +115,15 @@ describe('createDynamicMCPTool', () => {
       },
     };
 
-    const dynamicTool = createDynamicMCPTool('test-server', mcpTool, mockClient, {
+    const DynamicToolClass = createDynamicMCPTool('test-server', mcpTool, mockClient, {
       nameFrontend: 'Custom Test Tool',
       descriptionFrontend: 'Custom description',
       utterances: ['test', 'sample'],
     });
 
-    expect(dynamicTool.metadata.nameFrontend).toBe('Custom Test Tool');
-    expect(dynamicTool.metadata.descriptionFrontend).toBe('Custom description');
-    expect(dynamicTool.metadata.utterances).toEqual(['test', 'sample']);
+    expect(DynamicToolClass.toolNameFrontend).toBe('Custom Test Tool');
+    expect(DynamicToolClass.toolDescriptionFrontend).toBe('Custom description');
+    expect(DynamicToolClass.toolUtterances).toEqual(['test', 'sample']);
   });
 
   it('should generate frontend name from tool name', () => {
@@ -141,9 +141,9 @@ describe('createDynamicMCPTool', () => {
       },
     };
 
-    const dynamicTool = createDynamicMCPTool('test-server', mcpTool, mockClient);
+    const DynamicToolClass = createDynamicMCPTool('test-server', mcpTool, mockClient);
 
-    expect(dynamicTool.metadata.nameFrontend).toBe('Get User Data');
+    expect(DynamicToolClass.toolNameFrontend).toBe('Get User Data');
   });
 
   it('should execute tool and return structured content', async () => {
@@ -163,8 +163,9 @@ describe('createDynamicMCPTool', () => {
       },
     };
 
-    const dynamicTool = createDynamicMCPTool('test-server', mcpTool, mockClient);
-    const result = await dynamicTool.execute({ input: 'test' });
+    const DynamicToolClass = createDynamicMCPTool('test-server', mcpTool, mockClient);
+    const toolInstance = new DynamicToolClass();
+    const result = await toolInstance.execute({ input: 'test' });
 
     expect(result).toEqual({ result: 'success' });
     expect(mockClient.callTool).toHaveBeenCalledWith('test-server', 'test-tool', {
@@ -192,8 +193,9 @@ describe('createDynamicMCPTool', () => {
       },
     };
 
-    const dynamicTool = createDynamicMCPTool('test-server', mcpTool, mockClient);
-    const result = await dynamicTool.execute({});
+    const DynamicToolClass = createDynamicMCPTool('test-server', mcpTool, mockClient);
+    const toolInstance = new DynamicToolClass();
+    const result = await toolInstance.execute({});
 
     expect(result).toBe('Line 1\nLine 2');
   });
@@ -213,8 +215,8 @@ describe('createDynamicMCPTool', () => {
       },
     };
 
-    const dynamicTool = createDynamicMCPTool('test-server', mcpTool, mockClient);
-    const isOnline = await dynamicTool.isOnline();
+    const DynamicToolClass = createDynamicMCPTool('test-server', mcpTool, mockClient);
+    const isOnline = await DynamicToolClass.isOnline();
 
     expect(isOnline).toBe(true);
     expect(mockClient.isServerOnline).toHaveBeenCalledWith('test-server');

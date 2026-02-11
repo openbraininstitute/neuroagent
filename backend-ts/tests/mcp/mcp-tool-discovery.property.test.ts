@@ -21,7 +21,7 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { test } from '@fast-check/vitest';
 import * as fc from 'fast-check';
-import { MCPClient, createDynamicMCPTool, initializeMCPTools } from '@/lib/mcp/client';
+import { MCPClient, createDynamicMCPToolClass as createDynamicMCPTool, initializeMCPTools } from '@/lib/mcp/client';
 import { SettingsMCP, MCPServerConfig } from '@/lib/config/settings';
 import { Tool } from '@modelcontextprotocol/sdk/types.js';
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
@@ -401,15 +401,18 @@ describe('MCP Tool Discovery Property Tests', () => {
 
       // Property: Each discovered tool can be converted to BaseTool
       for (const { serverName, tool } of discoveredTools) {
-        const baseTool = createDynamicMCPTool(serverName, tool, mcpClient);
+        const ToolClass = createDynamicMCPTool(serverName, tool, mcpClient);
 
-        expect(baseTool).toBeDefined();
-        expect(baseTool.metadata).toBeDefined();
-        expect(baseTool.metadata.name).toBe(tool.name);
-        expect(baseTool.metadata.description).toBe(tool.description);
-        expect(baseTool.inputSchema).toBeDefined();
-        expect(typeof baseTool.execute).toBe('function');
-        expect(typeof baseTool.isOnline).toBe('function');
+        expect(ToolClass).toBeDefined();
+        expect(ToolClass.toolName).toBe(tool.name);
+        expect(ToolClass.toolDescription).toBe(tool.description);
+        expect(typeof ToolClass.isOnline).toBe('function');
+
+        // Test instance methods
+        const toolInstance = new ToolClass();
+        expect(toolInstance.inputSchema).toBeDefined();
+        expect(typeof toolInstance.execute).toBe('function');
+        expect(typeof toolInstance.isOnline).toBe('function');
       }
 
       await mcpClient.disconnect();
@@ -464,18 +467,19 @@ describe('MCP Tool Discovery Property Tests', () => {
       const discoveredTools = mcpClient.getAllTools();
       expect(discoveredTools).toHaveLength(1);
 
-      const baseTool = createDynamicMCPTool(
+      const ToolClass = createDynamicMCPTool(
         discoveredTools[0].serverName,
         discoveredTools[0].tool,
         mcpClient
       );
 
       // Property: Tool should be executable and return expected result
-      const result = await baseTool.execute({ input: 'test' });
+      const toolInstance = new ToolClass();
+      const result = await toolInstance.execute({ input: 'test' });
       expect(result).toBe(toolSpec.result);
 
       // Property: Tool should report online status
-      const isOnline = await baseTool.isOnline();
+      const isOnline = await ToolClass.isOnline();
       expect(isOnline).toBe(true);
 
       await mcpClient.disconnect();
@@ -545,19 +549,22 @@ describe('MCP Tool Discovery Property Tests', () => {
       // Property: All tools from all servers should be initialized
       expect(tools).toHaveLength(3);
 
-      // Property: Each tool should be a valid BaseTool instance
-      for (const tool of tools) {
-        expect(tool).toBeDefined();
-        expect(tool.metadata).toBeDefined();
-        expect(tool.metadata.name).toBeDefined();
-        expect(tool.metadata.description).toBeDefined();
-        expect(tool.inputSchema).toBeDefined();
-        expect(typeof tool.execute).toBe('function');
-        expect(typeof tool.isOnline).toBe('function');
+      // Property: Each tool should be a valid BaseTool class
+      for (const ToolClass of tools) {
+        expect(ToolClass).toBeDefined();
+        expect(ToolClass.toolName).toBeDefined();
+        expect(ToolClass.toolDescription).toBeDefined();
+        expect(typeof ToolClass.isOnline).toBe('function');
+
+        // Test instance methods
+        const toolInstance = new ToolClass();
+        expect(toolInstance.inputSchema).toBeDefined();
+        expect(typeof toolInstance.execute).toBe('function');
+        expect(typeof toolInstance.isOnline).toBe('function');
       }
 
       // Property: Tool names should match discovered tools
-      const toolNames = tools.map((t) => t.metadata.name);
+      const toolNames = tools.map((t) => t.toolName);
       expect(toolNames).toContain('server1-tool1');
       expect(toolNames).toContain('server1-tool2');
       expect(toolNames).toContain('server2-tool1');

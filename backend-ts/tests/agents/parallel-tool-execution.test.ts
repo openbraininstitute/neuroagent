@@ -8,7 +8,6 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { AgentsRoutine } from '@/lib/agents/routine';
 import { BaseTool } from '@/lib/tools/base-tool';
 import { z } from 'zod';
-import { prisma } from '@/lib/db/client';
 
 // Mock Prisma
 vi.mock('@/lib/db/client', () => ({
@@ -20,8 +19,9 @@ vi.mock('@/lib/db/client', () => ({
   },
 }));
 
-// Mock tool for testing
-class MockTool extends BaseTool<typeof MockToolInputSchema> {
+// Mock tool for testing (currently unused but kept for future tests)
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+class _MockTool extends BaseTool<typeof MockToolInputSchema> {
   static toolName = 'mock_tool';
 
   metadata = {
@@ -45,11 +45,12 @@ const MockToolInputSchema = z.object({
 });
 
 describe('AgentsRoutine - Parallel Tool Execution', () => {
-  let routine: AgentsRoutine;
-
   beforeEach(() => {
     vi.clearAllMocks();
-    routine = new AgentsRoutine('test-api-key', undefined, undefined);
+    // Routine instance created but not used in current tests
+    // Kept for future test expansion
+    const _routine = new AgentsRoutine('test-api-key', undefined, undefined);
+    void _routine; // Explicitly mark as intentionally unused
   });
 
   it('should track tool calls per step using message count', () => {

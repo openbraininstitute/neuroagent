@@ -31,7 +31,6 @@ describe('MCP Tool Metadata Overrides', () => {
           command: 'echo',
           args: ['{"tools":[{"name":"original-tool","description":"Original description"}]}'],
           env: {},
-          autoApprove: [],
           toolMetadata: {
             'original-tool': {
               name: 'renamed-tool',
@@ -60,7 +59,6 @@ describe('MCP Tool Metadata Overrides', () => {
           command: 'echo',
           args: ['test'],
           env: {},
-          autoApprove: [],
           // No toolMetadata specified
         },
       },
@@ -82,7 +80,6 @@ describe('MCP Tool Metadata Overrides', () => {
           command: 'echo',
           args: ['test'],
           env: {},
-          autoApprove: [],
           toolMetadata: {
             'my-test-tool': {
               name: 'my-test-tool',

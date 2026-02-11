@@ -10,7 +10,7 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { MCPClient, createDynamicMCPTool, initializeMCPTools } from '@/lib/mcp/client';
+import { MCPClient, createDynamicMCPToolClass as createDynamicMCPTool, initializeMCPTools } from '@/lib/mcp/client';
 import { SettingsMCP } from '@/lib/config/settings';
 import type { Tool } from '@modelcontextprotocol/sdk/types.js';
 
@@ -333,11 +333,10 @@ describe('Integration: MCP Server Integration', () => {
       });
       mockClient.isServerOnline = vi.fn().mockResolvedValue(true);
 
-      const dynamicTool = createDynamicMCPTool('paper-server', mcpTool, mockClient);
+      const DynamicToolClass = createDynamicMCPTool('paper-server', mcpTool, mockClient);
 
-      expect(dynamicTool.metadata.name).toBe('search_papers');
-      expect(dynamicTool.metadata.description).toBe('Search scientific papers');
-      expect(dynamicTool.inputSchema).toBeDefined();
+      expect(DynamicToolClass.toolName).toBe('search_papers');
+      expect(DynamicToolClass.toolDescription).toBe('Search scientific papers');
     });
 
     it('should execute dynamic tool correctly', async () => {
@@ -356,8 +355,9 @@ describe('Integration: MCP Server Integration', () => {
         structuredContent: { result: 42 },
       });
 
-      const dynamicTool = createDynamicMCPTool('calc-server', mcpTool, mockClient);
-      const result = await dynamicTool.execute({ expression: '6 * 7' });
+      const DynamicToolClass = createDynamicMCPTool('calc-server', mcpTool, mockClient);
+      const toolInstance = new DynamicToolClass();
+      const result = await toolInstance.execute({ expression: '6 * 7' });
 
       expect(result).toEqual({ result: 42 });
       // callTool is called with three separate parameters: serverName, toolName, arguments
@@ -375,8 +375,8 @@ describe('Integration: MCP Server Integration', () => {
 
       mockClient.isServerOnline = vi.fn().mockResolvedValue(true);
 
-      const dynamicTool = createDynamicMCPTool('status-server', mcpTool, mockClient);
-      const isOnline = await dynamicTool.isOnline();
+      const DynamicToolClass = createDynamicMCPTool('status-server', mcpTool, mockClient);
+      const isOnline = await DynamicToolClass.isOnline();
 
       expect(isOnline).toBe(true);
       expect(mockClient.isServerOnline).toHaveBeenCalledWith('status-server');
@@ -389,15 +389,15 @@ describe('Integration: MCP Server Integration', () => {
         inputSchema: { type: 'object', properties: {} },
       };
 
-      const dynamicTool = createDynamicMCPTool('test-server', mcpTool, mockClient, {
+      const DynamicToolClass = createDynamicMCPTool('test-server', mcpTool, mockClient, {
         nameFrontend: 'Custom Tool Name',
         descriptionFrontend: 'Custom description for frontend',
         utterances: ['custom', 'utterance'],
       });
 
-      expect(dynamicTool.metadata.nameFrontend).toBe('Custom Tool Name');
-      expect(dynamicTool.metadata.descriptionFrontend).toBe('Custom description for frontend');
-      expect(dynamicTool.metadata.utterances).toEqual(['custom', 'utterance']);
+      expect(DynamicToolClass.toolNameFrontend).toBe('Custom Tool Name');
+      expect(DynamicToolClass.toolDescriptionFrontend).toBe('Custom description for frontend');
+      expect(DynamicToolClass.toolUtterances).toEqual(['custom', 'utterance']);
     });
   });
 

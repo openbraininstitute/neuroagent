@@ -78,10 +78,10 @@ export class CircuitPopulationAnalysisTool extends BaseTool<
   typeof CircuitPopulationAnalysisInputSchema,
   CircuitPopulationAnalysisContextVariables
 > {
-  static override toolName = 'circuit-population-data-analysis';
-  static override toolNameFrontend = 'Analyze Circuit Population';
+  static readonly toolName = 'circuit-population-data-analysis';
+  static readonly toolNameFrontend = 'Analyze Circuit Population';
 
-  static override utterances = [
+  static readonly utterances = [
     'What is the most common morphological type in the circuit?',
     'What is the number of excitatory neurons in layer 3?',
     'What is the distribution of cells per layer',
@@ -89,7 +89,7 @@ export class CircuitPopulationAnalysisTool extends BaseTool<
     'Give me the unique e-types of the population S1nonbarrel_neurons.',
   ];
 
-  static override toolDescription = `This tool allows analyzing SONATA neural circuit population data using natural language questions about neurons.
+  static readonly toolDescription = `This tool allows analyzing SONATA neural circuit population data using natural language questions about neurons.
 
 It converts natural language questions about neural circuit populations into SQL queries and executes them
 against the population DataFrame. The tool supports comprehensive analysis of neuron populations following

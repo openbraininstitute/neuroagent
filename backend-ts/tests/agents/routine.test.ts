@@ -6,7 +6,7 @@
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { AgentsRoutine } from '@/lib/agents/routine';
-import { Entity, Task, TokenType } from '@/types';
+import { Task, TokenType } from '@/types';
 import type { Message, ToolCall } from '@prisma/client';
 
 // Mock Prisma client
@@ -73,7 +73,6 @@ describe('AgentsRoutine', () => {
           content: JSON.stringify({ role: 'user', content: 'Hello' }),
           isComplete: true,
           threadId: 'thread-1',
-          searchVector: null,
           toolCalls: [],
         },
       ];
@@ -97,7 +96,6 @@ describe('AgentsRoutine', () => {
           content: JSON.stringify({ role: 'assistant', content: 'Hi there!' }),
           isComplete: true,
           threadId: 'thread-1',
-          searchVector: null,
           toolCalls: [],
         },
       ];
@@ -133,7 +131,6 @@ describe('AgentsRoutine', () => {
           }),
           isComplete: true,
           threadId: 'thread-1',
-          searchVector: null,
           toolCalls: [],
         },
       ];
@@ -158,7 +155,6 @@ describe('AgentsRoutine', () => {
           }),
           isComplete: true,
           threadId: 'thread-1',
-          searchVector: null,
           toolCalls: [],
         },
       ];
@@ -178,7 +174,6 @@ describe('AgentsRoutine', () => {
           content: 'invalid json',
           isComplete: true,
           threadId: 'thread-1',
-          searchVector: null,
           toolCalls: [],
         },
       ];

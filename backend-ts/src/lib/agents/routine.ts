@@ -543,7 +543,7 @@ export class AgentsRoutine {
                   id: tc.toolCallId,
                   name: tc.toolName,
                   arguments: JSON.stringify(tc.args),
-                  validated: null, // Will be set to true/false after validation
+                  validated: null,
                 })),
               },
               tokenConsumption: {

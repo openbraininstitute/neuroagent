@@ -118,8 +118,8 @@ export async function GET(
     const authHeader = request.headers.get('authorization');
     const jwtToken = authHeader?.replace('Bearer ', '');
 
-    // Get tool CLASSES (not instances) - following ClassVar pattern
-    const toolClasses = await initializeTools({
+    // Initialize tools (not used directly but ensures MCP tools are loaded)
+    await initializeTools({
       exaApiKey: settings.tools.exaApiKey,
       sanityUrl: settings.tools.sanity.url,
       entitycoreUrl: settings.tools.entitycore.url,
@@ -379,18 +379,6 @@ export async function GET(
 
           // Add tool calls to buffer
           for (const tc of msg.toolCalls) {
-            // Tools don't require validation
-            let status: 'accepted' | 'rejected' | 'pending' | 'not_required';
-
-            if (tc.validated === true) {
-              status = 'accepted';
-            } else if (tc.validated === false) {
-              status = 'rejected';
-            } else {
-              // Default status for tools
-              status = 'not_required';
-            }
-
             parts.push({
               type: 'tool-invocation',
               toolInvocation: {
@@ -403,7 +391,6 @@ export async function GET(
 
             annotations.push({
               toolCallId: tc.id,
-              validated: status,
               isComplete: msg.isComplete,
             });
           }

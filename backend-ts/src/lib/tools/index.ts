@@ -1793,7 +1793,6 @@ export async function createToolInstance(ToolCls: any, config: ToolConfig): Prom
 
     const { OBIExpertTool } = await import('./standalone/obi-expert');
     return new OBIExpertTool({
-      httpClient: config.httpClient,
       sanityUrl: config.sanityUrl,
     });
   }

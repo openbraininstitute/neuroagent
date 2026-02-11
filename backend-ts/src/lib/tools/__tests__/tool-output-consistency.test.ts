@@ -128,7 +128,11 @@ describe('Property 27: Tool Output Consistency', () => {
       expect(LiteratureSearchTool.toolDescription).toBeDefined();
 
       // Verify tool has input schema
-      const instance = new LiteratureSearchTool({ exaApiKey: 'test' });
+      const mockHttpClient = {} as any; // Mock httpClient for test
+      const instance = new LiteratureSearchTool({
+        exaApiKey: 'test',
+        httpClient: mockHttpClient,
+      });
       expect(instance.inputSchema).toBeDefined();
     });
 
@@ -141,7 +145,11 @@ describe('Property 27: Tool Output Consistency', () => {
       expect(WebSearchTool.toolDescription).toBeDefined();
 
       // Verify tool has input schema
-      const instance = new WebSearchTool({ exaApiKey: 'test' });
+      const mockHttpClient = {} as any; // Mock httpClient for test
+      const instance = new WebSearchTool({
+        exaApiKey: 'test',
+        httpClient: mockHttpClient,
+      });
       expect(instance.inputSchema).toBeDefined();
     });
 
@@ -288,7 +296,12 @@ describe('Property 27: Tool Output Consistency', () => {
       type InputType = ReturnType<typeof instance.inputSchema.parse>;
 
       // This should compile without errors, proving type inference works
-      const input: InputType = { page: 1, page_size: 5 };
+      const input: InputType = {
+        page: 1,
+        page_size: 5,
+        hierarchy_id: 'e3e70682-c209-4cac-a29f-6fbed82c07cd',
+        order_by: [],
+      };
       expect(input).toBeDefined();
     });
   });
