@@ -58,7 +58,7 @@ const ConditionalImageRenderer = ({
     );
   }
 
-  return <PlotInChat storageId={storageIdMatch[1]} />;
+  return <PlotInChat storageId={storageIdMatch[1]} isInChat={true} />;
 };
 
 function parseMarkdownIntoBlocks(markdown: string): string[] {

@@ -34,7 +34,7 @@ export function BackupPlot({
   return (
     <div className="my-4 space-y-12">
       {storageIdsWithoutImageLink.map((storageId) => (
-        <PlotInChat key={storageId} storageId={storageId} />
+        <PlotInChat key={storageId} storageId={storageId} isInChat={false} />
       ))}
     </div>
   );
