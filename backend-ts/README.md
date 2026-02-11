@@ -302,7 +302,6 @@ DATABASE_URL="postgresql://user:password@localhost:5432/neuroagent"
 
 ```env
 NEUROAGENT_LLM__OPENAI_TOKEN=sk-...
-NEUROAGENT_LLM__OPENAI_BASE_URL=https://api.openai.com/v1  # Optional
 NEUROAGENT_LLM__OPEN_ROUTER_TOKEN=sk-or-...
 NEUROAGENT_LLM__DEFAULT_CHAT_MODEL=gpt-4
 NEUROAGENT_LLM__SUGGESTION_MODEL=gpt-3.5-turbo

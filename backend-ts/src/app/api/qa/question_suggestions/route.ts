@@ -385,7 +385,6 @@ ${toolInfo.join('\n')}`;
     // Create OpenAI client with API key from settings
     const openai = createOpenAI({
       apiKey: settings.llm.openaiToken,
-      baseURL: settings.llm.openaiBaseUrl,
     });
 
     // Prepare generation parameters

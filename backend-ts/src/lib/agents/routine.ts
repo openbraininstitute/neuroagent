@@ -99,17 +99,15 @@ export class AgentsRoutine {
    * Initialize the agent routine with API credentials
    *
    * @param openaiApiKey - OpenAI API key (optional)
-   * @param openaiBaseUrl - OpenAI base URL (optional)
    * @param openrouterApiKey - OpenRouter API key (optional)
    */
-  constructor(openaiApiKey?: string, openaiBaseUrl?: string, openrouterApiKey?: string) {
+  constructor(openaiApiKey?: string, openrouterApiKey?: string) {
     if (openaiApiKey) {
       // Initialize OpenAI provider with API key
       // Note: We don't set compatibility mode to let Vercel AI SDK handle
       // OpenAI's structured outputs correctly with strict: false by default
       this.openaiClient = createOpenAI({
         apiKey: openaiApiKey,
-        baseURL: openaiBaseUrl,
       });
     }
     if (openrouterApiKey) {

@@ -10,6 +10,9 @@ WORKDIR /app
 # Copy package files
 COPY package.json package-lock.json* ./
 
+# Copy Prisma schema (required for postinstall script)
+COPY prisma ./prisma
+
 # Install production dependencies
 RUN npm ci --only=production && \
     npm cache clean --force
@@ -25,14 +28,12 @@ RUN apk add --no-cache libc6-compat openssl
 # Copy package files
 COPY package.json package-lock.json* ./
 
-# Install all dependencies (including dev dependencies for build)
-RUN npm ci
-
-# Copy Prisma schema first for better layer caching
+# Copy Prisma schema BEFORE npm ci (required for postinstall script)
 COPY prisma ./prisma
 
-# Generate Prisma client
-RUN npx prisma generate
+# Install all dependencies (including dev dependencies for build)
+# This will automatically run prisma generate via postinstall script
+RUN npm ci
 
 # Copy source code
 COPY src ./src
@@ -51,10 +52,11 @@ WORKDIR /app
 ENV NODE_ENV=production \
     NEXT_TELEMETRY_DISABLED=1
 
-# Install runtime dependencies
+# Install runtime dependencies including netcat for database health checks
 RUN apk add --no-cache \
     openssl \
-    dumb-init
+    dumb-init \
+    netcat-openbsd
 
 # Create non-root user for security
 RUN addgroup --system --gid 1001 nodejs && \

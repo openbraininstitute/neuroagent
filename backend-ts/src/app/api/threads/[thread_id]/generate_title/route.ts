@@ -143,7 +143,6 @@ export async function PATCH(
     // Create OpenAI client
     const openai = createOpenAI({
       apiKey: settings.llm.openaiToken,
-      baseURL: settings.llm.openaiBaseUrl,
     });
 
     // Prepare messages for title generation

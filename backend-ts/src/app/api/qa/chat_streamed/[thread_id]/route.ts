@@ -224,6 +224,8 @@ export async function POST(
       projectId: thread.projectId || undefined,
       jwtToken, // Pass JWT token to tools
       obiOneUrl: settings.tools.obiOne.url,
+      thumbnailGenerationUrl: settings.tools.thumbnailGeneration.url,
+      openaiApiKey: settings.llm.openaiToken,
       mcpConfig: settings.mcp,
     });
 
@@ -367,7 +369,6 @@ export async function POST(
     // ========================================================================
     const routine = new AgentsRoutine(
       settings.llm.openaiToken,
-      settings.llm.openaiBaseUrl,
       settings.llm.openRouterToken
     );
 

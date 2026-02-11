@@ -110,7 +110,7 @@ const SettingsToolsSchema = z.object({
   frontendBaseUrl: z.string().default('https://openbraininstitute.org'),
   minToolSelection: z.number().int().min(0).default(5),
   whitelistedToolRegex: z.string().optional(),
-  denoAllocatedMemory: z.number().int().default(8192),
+  denoAllocatedMemory: z.number().int().optional().default(8192),
   exaApiKey: z.string().optional(),
 });
 
@@ -119,7 +119,6 @@ const SettingsToolsSchema = z.object({
  */
 const SettingsLLMSchema = z.object({
   openaiToken: z.string().optional(),
-  openaiBaseUrl: z.string().optional(),
   openRouterToken: z.string().optional(),
   suggestionModel: z.string().default('gpt-5-nano'),
   defaultChatModel: z.string().default('gpt-5-mini'),
@@ -423,8 +422,7 @@ export function getSettings(): Settings {
     },
     llm: {
       openaiToken: parseEnvVar('LLM__OPENAI_TOKEN'),
-      openaiBaseUrl: parseEnvVar('LLM__OPENAI_BASE_URL'),
-      openRouterToken: parseEnvVar('LLM__OPENROUTER_TOKEN'),
+      openRouterToken: parseEnvVar('LLM__OPEN_ROUTER_TOKEN'),
       suggestionModel: parseEnvVar('LLM__SUGGESTION_MODEL'),
       defaultChatModel: parseEnvVar('LLM__DEFAULT_CHAT_MODEL'),
       defaultChatReasoning: parseEnvVar('LLM__DEFAULT_CHAT_REASONING'),
@@ -499,4 +497,45 @@ export function getCachedSettings(): Settings {
  */
 export function clearSettingsCache(): void {
   cachedSettings = null;
+}
+
+/**
+ * Get database connection string.
+ * Constructs connection string from individual components if DATABASE_URL is not set.
+ * Matches Python's get_connection_string logic in dependencies.py
+ */
+export function getDatabaseConnectionString(settings: Settings): string | null {
+  // First check if DATABASE_URL is set directly (Prisma's preferred method)
+  if (process.env['DATABASE_URL']) {
+    return process.env['DATABASE_URL'];
+  }
+
+  // Otherwise, construct from individual components (matching Python backend)
+  if (settings.db.prefix) {
+    let connectionString = settings.db.prefix;
+
+    if (settings.db.user && settings.db.password) {
+      // Add authentication
+      connectionString += `${settings.db.user}:${settings.db.password}@`;
+    }
+
+    if (settings.db.host) {
+      // Either in file DB or connect to remote host
+      connectionString += settings.db.host;
+    }
+
+    if (settings.db.port) {
+      // Add the port if remote host
+      connectionString += `:${settings.db.port}`;
+    }
+
+    if (settings.db.name) {
+      // Add database name if specified
+      connectionString += `/${settings.db.name}`;
+    }
+
+    return connectionString;
+  }
+
+  return null;
 }

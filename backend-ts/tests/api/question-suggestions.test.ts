@@ -29,7 +29,6 @@ vi.mock('@/lib/config/settings', () => ({
   getSettings: vi.fn(() => ({
     llm: {
       openaiToken: 'test-openai-token',
-      openaiBaseUrl: 'https://api.openai.com/v1',
       suggestionModel: 'gpt-4o-mini',
     },
     rateLimiter: {

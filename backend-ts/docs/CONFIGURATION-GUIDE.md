@@ -115,7 +115,6 @@ LLM provider settings and model configuration.
 ```bash
 # OpenAI
 NEUROAGENT_LLM__OPENAI_TOKEN=sk-...
-NEUROAGENT_LLM__OPENAI_BASE_URL=https://api.openai.com/v1
 
 # OpenRouter
 NEUROAGENT_LLM__OPENROUTER_TOKEN=sk-or-...
@@ -138,7 +137,6 @@ NEUROAGENT_LLM__WHITELISTED_MODEL_IDS_REGEX=openai.*
 ```typescript
 {
   openaiToken?: string,
-  openaiBaseUrl?: string,
   openRouterToken?: string,
   suggestionModel: string,        // Default: 'gpt-5-nano'
   defaultChatModel: string,       // Default: 'gpt-5-mini'

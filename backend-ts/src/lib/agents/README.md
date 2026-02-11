@@ -24,7 +24,6 @@ import { AgentsRoutine } from '@/lib/agents';
 // Initialize with API keys
 const routine = new AgentsRoutine(
   process.env.OPENAI_API_KEY,
-  undefined, // openaiBaseUrl (optional)
   process.env.OPENROUTER_API_KEY
 );
 
@@ -188,7 +187,6 @@ const tools = await initializeTools({
 // Create routine
 const routine = new AgentsRoutine(
   settings.llm.openaiToken,
-  settings.llm.openaiBaseUrl,
   settings.llm.openRouterToken
 );
 

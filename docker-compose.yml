@@ -1,33 +1,33 @@
 services:
-  backend:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
-    ports:
-      - "8078:8078"
-    read_only: true
-    tmpfs:
-      - /tmp:exec,mode=1777
-    env_file: "backend/.env"
-    environment:
-      - NEUROAGENT_DB__PREFIX=postgresql+asyncpg://
-      - NEUROAGENT_DB__HOST=postgres
-      - NEUROAGENT_DB__PORT=5432
-      - NEUROAGENT_DB__USER=postgres
-      - NEUROAGENT_DB__PASSWORD=pwd
-      - NEUROAGENT_DB__NAME=neuroagent
-      - NEUROAGENT_STORAGE__ENDPOINT_URL=http://minio:9000
-      - NEUROAGENT_STORAGE__BUCKET_NAME=neuroagent
-      - NEUROAGENT_STORAGE__ACCESS_KEY=minioadmin
-      - NEUROAGENT_STORAGE__SECRET_KEY=minioadmin
-      - NEUROAGENT_RATE_LIMITER__REDIS_HOST=redis
-      - NEUROAGENT_RATE_LIMITER__REDIS_PORT=6379
-    networks:
-      - app-network
-    depends_on:
-      - postgres
-      - minio
-      - redis
+  # backend:
+  #   build:
+  #     context: ./backend
+  #     dockerfile: Dockerfile
+  #   ports:
+  #     - "8078:8078"
+  #   read_only: true
+  #   tmpfs:
+  #     - /tmp:exec,mode=1777
+  #   env_file: "backend/.env"
+  #   environment:
+  #     - NEUROAGENT_DB__PREFIX=postgresql+asyncpg://
+  #     - NEUROAGENT_DB__HOST=postgres
+  #     - NEUROAGENT_DB__PORT=5432
+  #     - NEUROAGENT_DB__USER=postgres
+  #     - NEUROAGENT_DB__PASSWORD=pwd
+  #     - NEUROAGENT_DB__NAME=neuroagent
+  #     - NEUROAGENT_STORAGE__ENDPOINT_URL=http://minio:9000
+  #     - NEUROAGENT_STORAGE__BUCKET_NAME=neuroagent
+  #     - NEUROAGENT_STORAGE__ACCESS_KEY=minioadmin
+  #     - NEUROAGENT_STORAGE__SECRET_KEY=minioadmin
+  #     - NEUROAGENT_RATE_LIMITER__REDIS_HOST=redis
+  #     - NEUROAGENT_RATE_LIMITER__REDIS_PORT=6379
+  #   networks:
+  #     - app-network
+  #   depends_on:
+  #     - postgres
+  #     - minio
+  #     - redis
 
   backend-ts:
     build:
@@ -39,6 +39,7 @@ services:
     environment:
       # Database Configuration
       - DATABASE_URL=postgresql://postgres:pwd@postgres:5432/neuroagent
+      - NEUROAGENT_DB__PREFIX=postgresql://
       - NEUROAGENT_DB__HOST=postgres
       - NEUROAGENT_DB__PORT=5432
       - NEUROAGENT_DB__USER=postgres
@@ -77,18 +78,18 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
       args:
-        - NEXT_PUBLIC_BACKEND_URL=http://localhost:8078
+        - NEXT_PUBLIC_BACKEND_URL=http://localhost:8079/api
     env_file: "frontend/.env.local"
     environment:
       - NEXTAUTH_URL=http://localhost:3000
-      - SERVER_SIDE_BACKEND_URL=http://backend:8078
+      - SERVER_SIDE_BACKEND_URL=http://backend-ts:8079/api
       - NODE_OPTIONS=--dns-result-order=ipv4first
     ports:
       - "3000:3000"
     networks:
       - app-network
     depends_on:
-      - backend
+      - backend-ts
 
   postgres:
     image: postgres:15
