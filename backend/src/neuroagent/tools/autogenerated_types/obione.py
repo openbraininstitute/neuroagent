@@ -612,13 +612,12 @@ class Initialize2(BaseModel):
     model_config = ConfigDict(
         extra='ignore',
     )
-    type: Literal['MorphologyDecontainerizationScanConfig.Initialize'] = Field(
-        default='MorphologyDecontainerizationScanConfig.Initialize', title='Type'
+    type: Literal['MorphologyContainerizationScanConfig.Initialize'] = Field(
+        default='MorphologyContainerizationScanConfig.Initialize', title='Type'
     )
     circuit: Circuit | list[Circuit] = Field(..., title='Circuit')
-    output_format: Literal['h5', 'asc', 'swc'] | list[Literal['h5', 'asc', 'swc']] = (
-        Field(default='h5', title='Output Format')
-    )
+    hoc_template_old: str = Field(..., title='Hoc Template Old')
+    hoc_template_new: str = Field(..., title='Hoc Template New')
 
 
 class IntRange(BaseModel):
@@ -824,12 +823,12 @@ class MTypeClassification(BaseModel):
     )
 
 
-class MorphologyDecontainerizationScanConfig(BaseModel):
+class MorphologyContainerizationScanConfig(BaseModel):
     model_config = ConfigDict(
         extra='ignore',
     )
-    type: Literal['MorphologyDecontainerizationScanConfig'] = Field(
-        default='MorphologyDecontainerizationScanConfig', title='Type'
+    type: Literal['MorphologyContainerizationScanConfig'] = Field(
+        default='MorphologyContainerizationScanConfig', title='Type'
     )
     initialize: Initialize2
 
@@ -2423,18 +2422,19 @@ class ObiOneScientificTasksIonChannelModelingIonChannelFittingScanConfigInitiali
     )
 
 
-class ObiOneScientificTasksMorphologyContainerizationMorphologyContainerizationScanConfigInitialize(
+class ObiOneScientificTasksMorphologyDecontainerizationMorphologyDecontainerizationScanConfigInitialize(
     BaseModel
 ):
     model_config = ConfigDict(
         extra='ignore',
     )
-    type: Literal['MorphologyContainerizationScanConfig.Initialize'] = Field(
-        default='MorphologyContainerizationScanConfig.Initialize', title='Type'
+    type: Literal['MorphologyDecontainerizationScanConfig.Initialize'] = Field(
+        default='MorphologyDecontainerizationScanConfig.Initialize', title='Type'
     )
     circuit: Circuit | list[Circuit] = Field(..., title='Circuit')
-    hoc_template_old: str = Field(..., title='Hoc Template Old')
-    hoc_template_new: str = Field(..., title='Hoc Template New')
+    output_format: Literal['h5', 'asc', 'swc'] | list[Literal['h5', 'asc', 'swc']] = (
+        Field(default='h5', title='Output Format')
+    )
 
 
 class ObiOneScientificTasksMorphologyLocationsMorphologyLocationsScanConfigInitialize(
@@ -3247,14 +3247,14 @@ class MESHValidationResponse(BaseModel):
     message: str = Field(..., title='Message')
 
 
-class MorphologyContainerizationScanConfig(BaseModel):
+class MorphologyDecontainerizationScanConfig(BaseModel):
     model_config = ConfigDict(
         extra='ignore',
     )
-    type: Literal['MorphologyContainerizationScanConfig'] = Field(
-        default='MorphologyContainerizationScanConfig', title='Type'
+    type: Literal['MorphologyDecontainerizationScanConfig'] = Field(
+        default='MorphologyDecontainerizationScanConfig', title='Type'
     )
-    initialize: ObiOneScientificTasksMorphologyContainerizationMorphologyContainerizationScanConfigInitialize
+    initialize: ObiOneScientificTasksMorphologyDecontainerizationMorphologyDecontainerizationScanConfigInitialize
 
 
 class MorphologyLocationsScanConfig(BaseModel):
