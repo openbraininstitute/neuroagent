@@ -608,6 +608,18 @@ class InhibitoryNeurons(BaseModel):
     )
 
 
+class Initialize2(BaseModel):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    type: Literal['MorphologyContainerizationScanConfig.Initialize'] = Field(
+        default='MorphologyContainerizationScanConfig.Initialize', title='Type'
+    )
+    circuit: Circuit | list[Circuit] = Field(..., title='Circuit')
+    hoc_template_old: str = Field(..., title='Hoc Template Old')
+    hoc_template_new: str = Field(..., title='Hoc Template New')
+
+
 class IntRange(BaseModel):
     model_config = ConfigDict(
         extra='ignore',
@@ -809,6 +821,16 @@ class MTypeClassification(BaseModel):
         description='UUID for MType classification',
         title='Mtype Class Id',
     )
+
+
+class MorphologyContainerizationScanConfig(BaseModel):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    type: Literal['MorphologyContainerizationScanConfig'] = Field(
+        default='MorphologyContainerizationScanConfig', title='Type'
+    )
+    initialize: Initialize2
 
 
 class MorphologyMetricsOutput(BaseModel):
@@ -2024,6 +2046,34 @@ class NbS1VPMInputs(BaseModel):
     )
 
 
+class ObiOneScientificTasksBasicConnectivityPlotsBasicConnectivityPlotsScanConfigInitialize(
+    BaseModel
+):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    type: Literal['BasicConnectivityPlotsScanConfig.Initialize'] = Field(
+        default='BasicConnectivityPlotsScanConfig.Initialize', title='Type'
+    )
+    matrix_path: NamedPath | list[NamedPath] = Field(..., title='Matrix Path')
+    plot_formats: list[str] = Field(default=['png', 'pdf', 'svg'], title='Plot Formats')
+    plot_types: list[str] = Field(
+        default=[
+            'nodes',
+            'connectivity_global',
+            'connectivity_pathway',
+            'small_adj_and_stats',
+            'network_in_2D',
+            'network_in_2D_circular',
+            'property_table',
+        ],
+        title='Plot Types',
+    )
+    rendering_cmap: str | None = Field(default=None, title='Rendering Cmap')
+    rendering_color_file: str | None = Field(default=None, title='Rendering Color File')
+    dpi: int = Field(default=300, title='Dpi')
+
+
 class ObiOneScientificTasksCircuitExtractionCircuitExtractionScanConfigInitialize(
     BaseModel
 ):
@@ -2370,20 +2420,6 @@ class ObiOneScientificTasksIonChannelModelingIonChannelFittingScanConfigInitiali
         pattern='^[A-Za-z_][A-Za-z0-9_]*$',
         title='Ion channel name',
     )
-
-
-class ObiOneScientificTasksMorphologyContainerizationMorphologyContainerizationScanConfigInitialize(
-    BaseModel
-):
-    model_config = ConfigDict(
-        extra='ignore',
-    )
-    type: Literal['MorphologyContainerizationScanConfig.Initialize'] = Field(
-        default='MorphologyContainerizationScanConfig.Initialize', title='Type'
-    )
-    circuit: Circuit | list[Circuit] = Field(..., title='Circuit')
-    hoc_template_old: str = Field(..., title='Hoc Template Old')
-    hoc_template_new: str = Field(..., title='Hoc Template New')
 
 
 class ObiOneScientificTasksMorphologyDecontainerizationMorphologyDecontainerizationScanConfigInitialize(
@@ -2761,7 +2797,17 @@ class AccountingParameters(BaseModel):
     count: int = Field(..., title='Count')
 
 
-class Initialize1(BaseModel):
+class BasicConnectivityPlotsScanConfig(BaseModel):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    type: Literal['BasicConnectivityPlotsScanConfig'] = Field(
+        default='BasicConnectivityPlotsScanConfig', title='Type'
+    )
+    initialize: ObiOneScientificTasksBasicConnectivityPlotsBasicConnectivityPlotsScanConfigInitialize
+
+
+class Initialize(BaseModel):
     model_config = ConfigDict(
         extra='ignore',
     )
@@ -2863,7 +2909,7 @@ class CircuitMetricsOutput(BaseModel):
     )
 
 
-class Initialize2(BaseModel):
+class Initialize1(BaseModel):
     model_config = ConfigDict(
         extra='ignore',
     )
@@ -3105,32 +3151,6 @@ class IDNeuronSet(BaseModel):
     )
 
 
-class Initialize(BaseModel):
-    model_config = ConfigDict(
-        extra='ignore',
-    )
-    type: Literal['BasicConnectivityPlotsScanConfig.Initialize'] = Field(
-        default='BasicConnectivityPlotsScanConfig.Initialize', title='Type'
-    )
-    matrix_path: NamedPath | list[NamedPath] = Field(..., title='Matrix Path')
-    plot_formats: list[str] = Field(default=['png', 'pdf', 'svg'], title='Plot Formats')
-    plot_types: list[str] = Field(
-        default=[
-            'nodes',
-            'connectivity_global',
-            'connectivity_pathway',
-            'small_adj_and_stats',
-            'network_in_2D',
-            'network_in_2D_circular',
-            'property_table',
-        ],
-        title='Plot Types',
-    )
-    rendering_cmap: str | None = Field(default=None, title='Rendering Cmap')
-    rendering_color_file: str | None = Field(default=None, title='Rendering Color File')
-    dpi: int = Field(default=300, title='Dpi')
-
-
 class Initialize3(
     ObiOneScientificTasksIonChannelModelingIonChannelFittingScanConfigInitialize
 ):
@@ -3225,16 +3245,6 @@ class MESHValidationResponse(BaseModel):
     )
     status: ValidationStatus
     message: str = Field(..., title='Message')
-
-
-class MorphologyContainerizationScanConfig(BaseModel):
-    model_config = ConfigDict(
-        extra='ignore',
-    )
-    type: Literal['MorphologyContainerizationScanConfig'] = Field(
-        default='MorphologyContainerizationScanConfig', title='Type'
-    )
-    initialize: ObiOneScientificTasksMorphologyContainerizationMorphologyContainerizationScanConfigInitialize
 
 
 class MorphologyDecontainerizationScanConfig(BaseModel):
@@ -3888,16 +3898,6 @@ class TaskLaunchSubmit(TaskAccountingCreate):
     pass
 
 
-class BasicConnectivityPlotsScanConfig(BaseModel):
-    model_config = ConfigDict(
-        extra='ignore',
-    )
-    type: Literal['BasicConnectivityPlotsScanConfig'] = Field(
-        default='BasicConnectivityPlotsScanConfig', title='Type'
-    )
-    initialize: Initialize
-
-
 class CircuitExtractionScanConfig(BaseModel):
     model_config = ConfigDict(
         extra='ignore',
@@ -3908,7 +3908,7 @@ class CircuitExtractionScanConfig(BaseModel):
     info: Info = Field(
         ..., description='Information about the circuit extraction campaign.'
     )
-    initialize: Initialize1 = Field(
+    initialize: Initialize = Field(
         ...,
         description='Parameters for initializing the circuit extraction campaign.',
         title='Initialization',
@@ -3966,7 +3966,7 @@ class CircuitSimulationScanConfig(BaseModel):
         description='Synaptic manipulations for the simulation.',
         title='Synaptic Manipulations',
     )
-    initialize: Initialize2 = Field(
+    initialize: Initialize1 = Field(
         ...,
         description='Parameters for initializing the simulation.',
         title='Initialization',
