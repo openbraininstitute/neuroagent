@@ -17,11 +17,11 @@ export function useGetPresignedUrl(storageId: string) {
   return useQuery({
     queryKey: [storageId],
     queryFn: fetchPresignedUrl,
-    retry: (_, error) => {
+    retry: (failureCount, error) => {
       if (error instanceof CustomError && error.statusCode === 404) {
         return false;
       }
-      return true;
+      return failureCount < 3;
     },
     staleTime: 0,
   });

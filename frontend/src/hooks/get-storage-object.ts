@@ -21,11 +21,11 @@ export function useGetObjectFromStorage(
     queryKey: [presignedUrl, getHeadersOnly],
     queryFn: fetchPresignedUrl,
     enabled: enabled,
-    retry: (_, error) => {
+    retry: (failureCount, error) => {
       if (error instanceof Error && error.message.includes("404")) {
         return false;
       }
-      return true;
+      return failureCount < 3;
     },
   });
 }
