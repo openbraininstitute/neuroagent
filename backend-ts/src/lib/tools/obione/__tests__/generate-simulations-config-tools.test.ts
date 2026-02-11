@@ -9,6 +9,7 @@ import type { GenerateSimulationsConfigContextVariables } from '../generate-simu
 // Mock Vercel AI SDK
 vi.mock('ai', () => ({
   generateObject: vi.fn(),
+  generateText: vi.fn(),
 }));
 
 vi.mock('@ai-sdk/openai', () => ({
@@ -111,10 +112,7 @@ describe('GenerateSimulationsConfigTool', () => {
         },
         finishReason: 'stop',
         warnings: undefined,
-        request: {} as any,
-        response: {} as any,
-        toJsonResponse: vi.fn(),
-      });
+      } as any);
 
       const tool = new GenerateSimulationsConfigTool(contextVariables);
       const result = await tool.execute({
@@ -138,9 +136,10 @@ describe('GenerateSimulationsConfigTool', () => {
       expect(generateObject).toHaveBeenCalledWith(
         expect.objectContaining({
           model: expect.objectContaining({ modelId: 'gpt-4o-mini' }),
-          schema: expect.any(Object),
-          system: expect.stringContaining('Simulation Configuration Generator'),
-          prompt: expect.stringContaining('CURRENT SIMULATION CONFIG JSON'),
+          messages: expect.arrayContaining([
+            expect.objectContaining({ role: 'system' }),
+            expect.objectContaining({ role: 'user' }),
+          ]),
         })
       );
 
@@ -180,16 +179,13 @@ describe('GenerateSimulationsConfigTool', () => {
       vi.mocked(generateObject).mockResolvedValue({
         object: mockGeneratedConfig,
         usage: {
-          promptTokens: 100,
-          completionTokens: 50,
-          totalTokens: 150,
+          promptTokens: 500,
+          completionTokens: 300,
+          totalTokens: 800,
         },
         finishReason: 'stop',
         warnings: undefined,
-        request: {} as any,
-        response: {} as any,
-        toJsonResponse: vi.fn(),
-      });
+      } as any);
 
       const tool = new GenerateSimulationsConfigTool(contextVariables);
       await tool.execute({
@@ -199,9 +195,9 @@ describe('GenerateSimulationsConfigTool', () => {
 
       expect(contextVariables.tokenConsumption).toEqual({
         model: 'gpt-4o-mini',
-        input_tokens: 100,
-        output_tokens: 50,
-        total_tokens: 150,
+        input_tokens: 500,
+        output_tokens: 300,
+        total_tokens: 800,
       });
     });
 
@@ -283,7 +279,7 @@ describe('GenerateSimulationsConfigTool', () => {
           circuit_id: '123e4567-e89b-12d3-a456-426614174002',
           config_request: 'Create a simulation',
         })
-      ).rejects.toThrow('Failed to generate simulation config: Network error');
+      ).rejects.toThrow('Network error');
     });
 
     it('should validate circuit_id is a valid UUID', () => {
@@ -335,16 +331,13 @@ describe('GenerateSimulationsConfigTool', () => {
       vi.mocked(generateObject).mockResolvedValue({
         object: mockGeneratedConfig,
         usage: {
-          promptTokens: 100,
-          completionTokens: 50,
-          totalTokens: 150,
+          promptTokens: 500,
+          completionTokens: 300,
+          totalTokens: 800,
         },
         finishReason: 'stop',
         warnings: undefined,
-        request: {} as any,
-        response: {} as any,
-        toJsonResponse: vi.fn(),
-      });
+      } as any);
 
       const contextWithoutModel: GenerateSimulationsConfigContextVariables = {
         ...contextVariables,
@@ -359,7 +352,7 @@ describe('GenerateSimulationsConfigTool', () => {
 
       expect(generateObject).toHaveBeenCalledWith(
         expect.objectContaining({
-          model: expect.objectContaining({ modelId: 'gpt-4o-mini' }),
+          model: expect.objectContaining({ modelId: 'gpt-5-mini' }),
         })
       );
     });

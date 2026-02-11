@@ -1758,16 +1758,14 @@ export async function createToolInstance(ToolCls: any, config: ToolConfig): Prom
  * await instance.execute(input);
  * ```
  *
- * @param _config - Configuration to determine available tools (currently unused)
+ * @param config - Configuration to determine available tools
  * @returns Array of tool classes (NOT instances)
  */
-export async function initializeTools(_config?: any): Promise<any[]> {
+export async function initializeTools(config?: ToolConfig): Promise<any[]> {
   // Register tool classes if not already done
   await registerToolClasses();
 
-  const { toolRegistry } = await import('./base-tool');
-
-  // Return all registered tool classes
-  // These are CLASS REFERENCES, not instances
-  return toolRegistry.getAllClasses();
+  // Return only tools that are available based on configuration
+  // This ensures tools with missing dependencies are not included
+  return getAvailableToolClasses(config || {});
 }

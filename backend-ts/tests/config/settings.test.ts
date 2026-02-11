@@ -269,7 +269,7 @@ describe('Configuration System', () => {
       expect(settings.tools.entitycore.url).toBe('https://openbraininstitute.org/api/entitycore');
       expect(settings.tools.obiOne.url).toBe('https://openbraininstitute.org/api/obi-one');
       expect(settings.tools.bluenaas.url).toBe('https://www.openbraininstitute.org/api/bluenaas');
-      expect(settings.tools.minToolSelection).toBe(2);
+      expect(settings.tools.minToolSelection).toBe(5);
       expect(settings.tools.denoAllocatedMemory).toBe(8192);
     });
 

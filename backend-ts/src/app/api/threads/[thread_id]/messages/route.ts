@@ -122,6 +122,7 @@ export async function GET(
     // Get tool CLASSES (not instances) - following ClassVar pattern
     const toolClasses = await initializeTools({
       exaApiKey: settings.tools.exaApiKey,
+      sanityUrl: settings.tools.sanity.url,
       entitycoreUrl: settings.tools.entitycore.url,
       entityFrontendUrl: settings.tools.frontendBaseUrl,
       vlabId: thread.vlabId || undefined,

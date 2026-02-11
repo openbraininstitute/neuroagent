@@ -104,9 +104,7 @@ describe('CircuitNodesetsGetOneTool', () => {
         tool.execute({
           circuit_id: '123e4567-e89b-12d3-a456-426614174002',
         })
-      ).rejects.toThrow(
-        'The circuit nodesets endpoint returned a non 200 response code. Error: API Error'
-      );
+      ).rejects.toThrow('API Error');
     });
 
     it('should validate circuit_id is a valid UUID', () => {

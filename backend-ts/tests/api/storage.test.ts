@@ -35,6 +35,10 @@ describe('Storage API Routes', () => {
     groups: [],
   };
 
+  // Use valid UUIDs for file identifiers
+  const validFileId = '123e4567-e89b-12d3-a456-426614174000';
+  const anotherFileId = '123e4567-e89b-12d3-a456-426614174001';
+
   let mockS3Send: any;
 
   beforeEach(async () => {
@@ -55,9 +59,9 @@ describe('Storage API Routes', () => {
     it('should return 401 for unauthenticated requests', async () => {
       vi.mocked(validateAuth).mockResolvedValueOnce(null);
 
-      const request = new NextRequest('http://localhost/api/storage/test-file/presigned-url');
+      const request = new NextRequest(`http://localhost/api/storage/${validFileId}/presigned-url`);
       const response = await GET(request, {
-        params: Promise.resolve({ file_identifier: 'test-file' }),
+        params: Promise.resolve({ file_identifier: validFileId }),
       });
 
       expect(response.status).toBe(401);
@@ -72,27 +76,27 @@ describe('Storage API Routes', () => {
         $metadata: { httpStatusCode: 404 },
       });
 
-      const request = new NextRequest('http://localhost/api/storage/test-file/presigned-url');
+      const request = new NextRequest(`http://localhost/api/storage/${validFileId}/presigned-url`);
       const response = await GET(request, {
-        params: Promise.resolve({ file_identifier: 'test-file' }),
+        params: Promise.resolve({ file_identifier: validFileId }),
       });
 
       expect(response.status).toBe(404);
       const data = await response.json();
       expect(data.error).toBe('Not Found');
-      expect(data.message).toContain('test-file');
+      expect(data.message).toContain(validFileId);
     });
 
     it('should generate presigned URL for existing file', async () => {
-      const request = new NextRequest('http://localhost/api/storage/test-file.txt/presigned-url');
+      const request = new NextRequest(`http://localhost/api/storage/${validFileId}/presigned-url`);
       const response = await GET(request, {
-        params: Promise.resolve({ file_identifier: 'test-file.txt' }),
+        params: Promise.resolve({ file_identifier: validFileId }),
       });
 
       expect(response.status).toBe(200);
-      expect(response.headers.get('Content-Type')).toBe('text/plain');
+      expect(response.headers.get('Content-Type')).toContain('application/json');
 
-      const url = await response.text();
+      const url = await response.json();
       expect(url).toBeTruthy();
       expect(typeof url).toBe('string');
       // Presigned URL should contain the bucket and key
@@ -100,17 +104,17 @@ describe('Storage API Routes', () => {
     });
 
     it('should use user-specific path for file key', async () => {
-      const request = new NextRequest('http://localhost/api/storage/my-document.pdf/presigned-url');
+      const request = new NextRequest(`http://localhost/api/storage/${anotherFileId}/presigned-url`);
       const response = await GET(request, {
-        params: Promise.resolve({ file_identifier: 'my-document.pdf' }),
+        params: Promise.resolve({ file_identifier: anotherFileId }),
       });
 
       expect(response.status).toBe(200);
 
-      const url = await response.text();
+      const url = await response.json();
       expect(url).toBeTruthy();
       // URL should contain user-specific path (not URL-encoded in the path)
-      expect(url).toContain(`${mockUserInfo.sub}/my-document.pdf`);
+      expect(url).toContain(`${mockUserInfo.sub}/${anotherFileId}`);
     });
   });
 
@@ -118,11 +122,11 @@ describe('Storage API Routes', () => {
     it('should return 401 for unauthenticated requests', async () => {
       vi.mocked(validateAuth).mockResolvedValueOnce(null);
 
-      const request = new NextRequest('http://localhost/api/storage/test-file/presigned-url', {
+      const request = new NextRequest(`http://localhost/api/storage/${validFileId}/presigned-url`, {
         method: 'POST',
       });
       const response = await POST(request, {
-        params: Promise.resolve({ file_identifier: 'test-file' }),
+        params: Promise.resolve({ file_identifier: validFileId }),
       });
 
       expect(response.status).toBe(401);
@@ -131,23 +135,23 @@ describe('Storage API Routes', () => {
     });
 
     it('should generate presigned URL for upload', async () => {
-      const request = new NextRequest('http://localhost/api/storage/new-file.txt/presigned-url', {
+      const request = new NextRequest(`http://localhost/api/storage/${validFileId}/presigned-url`, {
         method: 'POST',
       });
       const response = await POST(request, {
-        params: Promise.resolve({ file_identifier: 'new-file.txt' }),
+        params: Promise.resolve({ file_identifier: validFileId }),
       });
 
       expect(response.status).toBe(200);
-      expect(response.headers.get('Content-Type')).toBe('text/plain');
+      expect(response.headers.get('Content-Type')).toContain('application/json');
 
-      const url = await response.text();
+      const url = await response.json();
       expect(url).toBeTruthy();
       expect(typeof url).toBe('string');
     });
 
     it('should accept custom content type in request body', async () => {
-      const request = new NextRequest('http://localhost/api/storage/image.png/presigned-url', {
+      const request = new NextRequest(`http://localhost/api/storage/${anotherFileId}/presigned-url`, {
         method: 'POST',
         body: JSON.stringify({ contentType: 'image/png' }),
         headers: {
@@ -156,39 +160,39 @@ describe('Storage API Routes', () => {
       });
 
       const response = await POST(request, {
-        params: Promise.resolve({ file_identifier: 'image.png' }),
+        params: Promise.resolve({ file_identifier: anotherFileId }),
       });
 
       expect(response.status).toBe(200);
-      const url = await response.text();
+      const url = await response.json();
       expect(url).toBeTruthy();
     });
 
     it('should use default content type when not specified', async () => {
-      const request = new NextRequest('http://localhost/api/storage/file.bin/presigned-url', {
+      const request = new NextRequest(`http://localhost/api/storage/${validFileId}/presigned-url`, {
         method: 'POST',
       });
 
       const response = await POST(request, {
-        params: Promise.resolve({ file_identifier: 'file.bin' }),
+        params: Promise.resolve({ file_identifier: validFileId }),
       });
 
       expect(response.status).toBe(200);
-      const url = await response.text();
+      const url = await response.json();
       expect(url).toBeTruthy();
     });
 
     it('should use user-specific path for upload key', async () => {
-      const request = new NextRequest('http://localhost/api/storage/upload.csv/presigned-url', {
+      const request = new NextRequest(`http://localhost/api/storage/${anotherFileId}/presigned-url`, {
         method: 'POST',
       });
 
       const response = await POST(request, {
-        params: Promise.resolve({ file_identifier: 'upload.csv' }),
+        params: Promise.resolve({ file_identifier: anotherFileId }),
       });
 
       expect(response.status).toBe(200);
-      const url = await response.text();
+      const url = await response.json();
       expect(url).toBeTruthy();
     });
   });
@@ -198,9 +202,9 @@ describe('Storage API Routes', () => {
       // Mock S3 to throw a generic error
       mockS3Send.mockRejectedValueOnce(new Error('S3 connection failed'));
 
-      const request = new NextRequest('http://localhost/api/storage/test-file/presigned-url');
+      const request = new NextRequest(`http://localhost/api/storage/${validFileId}/presigned-url`);
       const response = await GET(request, {
-        params: Promise.resolve({ file_identifier: 'test-file' }),
+        params: Promise.resolve({ file_identifier: validFileId }),
       });
 
       expect(response.status).toBe(500);

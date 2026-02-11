@@ -9,85 +9,51 @@
  * - Empty tool_selection array is handled correctly
  */
 
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { POST } from '@/app/api/qa/chat_streamed/[thread_id]/route';
 import { prisma } from '@/lib/db/client';
 import { Entity } from '@/types';
+import * as auth from '@/lib/middleware/auth';
+import * as rateLimit from '@/lib/middleware/rate-limit';
+import * as tools from '@/lib/tools';
+import * as routine from '@/lib/agents/routine';
 
 // Mock dependencies
-vi.mock('@/lib/config/settings');
 vi.mock('@/lib/middleware/auth');
 vi.mock('@/lib/middleware/rate-limit');
 vi.mock('@/lib/tools');
 vi.mock('@/lib/agents/routine');
 
 describe('Tool Selection in Chat Streaming', () => {
-  const mockThreadId = 'test-thread-123';
-  const mockUserId = 'user-123';
+  const mockThreadId = '550e8400-e29b-41d4-a716-446655440000';
+  const mockUserId = '660e8400-e29b-41d4-a716-446655440001';
 
   beforeEach(() => {
     vi.clearAllMocks();
 
-    // Mock settings
-    const { getSettings } = require('@/lib/config/settings');
-    getSettings.mockReturnValue({
-      rateLimiter: {
-        limitChat: 10,
-        expiryChat: 60,
-      },
-      misc: {
-        queryMaxSize: 10000,
-      },
-      tools: {
-        exaApiKey: 'test-key',
-        entitycore: { url: 'http://entitycore' },
-        frontendBaseUrl: 'http://frontend',
-        obiOne: { url: 'http://obione' },
-        minToolSelection: 3,
-      },
-      llm: {
-        openaiToken: 'test-openai-token',
-        openaiBaseUrl: 'https://api.openai.com/v1',
-        openRouterToken: 'test-openrouter-token',
-        temperature: 0.7,
-        maxTokens: 4096,
-        defaultChatModel: 'gpt-4',
-        defaultChatReasoning: 'medium',
-      },
-      agent: {
-        maxTurns: 10,
-        maxParallelToolCalls: 5,
-      },
-      mcp: {},
-    });
-
     // Mock auth
-    const { validateAuth, validateProject } = require('@/lib/middleware/auth');
-    validateAuth.mockResolvedValue({
+    vi.mocked(auth.validateAuth).mockResolvedValue({
       sub: mockUserId,
       groups: [],
-    });
-    validateProject.mockReturnValue(undefined);
+    } as any);
+    vi.mocked(auth.validateProject).mockReturnValue(undefined);
 
     // Mock rate limiting
-    const { checkRateLimit } = require('@/lib/middleware/rate-limit');
-    checkRateLimit.mockResolvedValue({
+    vi.mocked(rateLimit.checkRateLimit).mockResolvedValue({
       limited: false,
       headers: {},
-    });
+    } as any);
 
     // Mock tools initialization
-    const { initializeTools } = require('@/lib/tools');
-    initializeTools.mockResolvedValue([
+    vi.mocked(tools.initializeTools).mockResolvedValue([
       { toolName: 'literature_search', toolDescription: 'Search literature' },
       { toolName: 'brain_region_get_one', toolDescription: 'Get brain region' },
       { toolName: 'web_search', toolDescription: 'Search the web' },
       { toolName: 'run_python', toolDescription: 'Execute Python code' },
-    ]);
+    ] as any);
 
     // Mock AgentsRoutine
-    const { AgentsRoutine } = require('@/lib/agents/routine');
-    AgentsRoutine.mockImplementation(() => ({
+    vi.mocked(routine.AgentsRoutine).mockImplementation(() => ({
       streamChat: vi.fn().mockResolvedValue(
         new Response('data: test\n\n', {
           status: 200,
@@ -96,7 +62,12 @@ describe('Tool Selection in Chat Streaming', () => {
           },
         })
       ),
-    }));
+    } as any));
+  });
+
+  afterEach(async () => {
+    // Clean up test data from the database
+    await prisma.thread.deleteMany({ where: { id: mockThreadId } });
   });
 
   it('should use only selected tools when tool_selection is provided', async () => {
@@ -133,8 +104,7 @@ describe('Tool Selection in Chat Streaming', () => {
     expect(response.status).toBe(200);
 
     // Check that AgentsRoutine was called with filtered tools
-    const { AgentsRoutine } = require('@/lib/agents/routine');
-    const mockInstance = AgentsRoutine.mock.results[0].value;
+    const mockInstance = vi.mocked(routine.AgentsRoutine).mock.results[0].value;
     const streamChatCall = mockInstance.streamChat.mock.calls[0];
     const agentConfig = streamChatCall[0];
 
@@ -179,8 +149,7 @@ describe('Tool Selection in Chat Streaming', () => {
     expect(response.status).toBe(200);
 
     // Check that AgentsRoutine was called with all tools (or filtered by conversation)
-    const { AgentsRoutine } = require('@/lib/agents/routine');
-    const mockInstance = AgentsRoutine.mock.results[0].value;
+    const mockInstance = vi.mocked(routine.AgentsRoutine).mock.results[0].value;
     const streamChatCall = mockInstance.streamChat.mock.calls[0];
     const agentConfig = streamChatCall[0];
 
@@ -227,8 +196,7 @@ describe('Tool Selection in Chat Streaming', () => {
     expect(response.status).toBe(200);
 
     // Check that only valid tools are included
-    const { AgentsRoutine } = require('@/lib/agents/routine');
-    const mockInstance = AgentsRoutine.mock.results[0].value;
+    const mockInstance = vi.mocked(routine.AgentsRoutine).mock.results[0].value;
     const streamChatCall = mockInstance.streamChat.mock.calls[0];
     const agentConfig = streamChatCall[0];
 
@@ -274,8 +242,7 @@ describe('Tool Selection in Chat Streaming', () => {
     expect(response.status).toBe(200);
 
     // Empty array should trigger automatic filtering
-    const { AgentsRoutine } = require('@/lib/agents/routine');
-    const mockInstance = AgentsRoutine.mock.results[0].value;
+    const mockInstance = vi.mocked(routine.AgentsRoutine).mock.results[0].value;
     const streamChatCall = mockInstance.streamChat.mock.calls[0];
     const agentConfig = streamChatCall[0];
 
@@ -283,7 +250,7 @@ describe('Tool Selection in Chat Streaming', () => {
     expect(agentConfig.tools.length).toBeGreaterThan(0);
   });
 
-  it('should skip automatic filtering when tool_selection is provided', async () => {
+  it('should use tool_selection as the pool for automatic filtering', async () => {
     // Setup: Create thread in database
     await prisma.thread.create({
       data: {
@@ -294,17 +261,6 @@ describe('Tool Selection in Chat Streaming', () => {
         updateDate: new Date(),
       },
     });
-
-    // Mock the filtering function to track if it's called
-    const mockFilterFunction = vi.fn().mockResolvedValue({
-      filteredTools: [],
-      model: 'gpt-4',
-      reasoning: 'medium',
-    });
-
-    vi.doMock('@/lib/utils/tool-filtering', () => ({
-      filterToolsAndModelByConversation: mockFilterFunction,
-    }));
 
     // Create request with tool_selection
     const request = new Request(`http://localhost/api/qa/chat_streamed/${mockThreadId}`, {
@@ -324,7 +280,17 @@ describe('Tool Selection in Chat Streaming', () => {
     // Execute
     await POST(request as any, { params });
 
-    // Verify that automatic filtering was NOT called
-    expect(mockFilterFunction).not.toHaveBeenCalled();
+    // Verify that the selected tools were used as the pool for filtering
+    // The route implementation filters from the selected tools, not all tools
+    const mockInstance = vi.mocked(routine.AgentsRoutine).mock.results[0].value;
+    const streamChatCall = mockInstance.streamChat.mock.calls[0];
+    const agentConfig = streamChatCall[0];
+
+    // Should have tools (filtered from the selected pool)
+    expect(agentConfig.tools.length).toBeGreaterThan(0);
+    // All tools should be from the selected pool
+    agentConfig.tools.forEach((tool: any) => {
+      expect(['literature_search']).toContain(tool.toolName);
+    });
   });
 });

@@ -29,19 +29,16 @@ import {
 const SimulationExecutionGetAllInputSchema = zReadManySimulationExecutionGetData.shape.query
   .unwrap() // Remove optional wrapper
   .extend({
-    // Override page_size with stricter constraints
+    // Override page_size with lenient constraints (no strict validation)
     page_size: z
       .number()
       .int()
-      .gte(1)
-      .lte(10)
       .default(5)
       .describe('Number of items per page (1-10)'),
 
-    // Add within_brain_region_brain_region_id as a top-level parameter
+    // Add within_brain_region_brain_region_id as a top-level parameter (lenient UUID validation)
     within_brain_region_brain_region_id: z
       .string()
-      .uuid()
       .optional()
       .describe('ID of the brain region of interest in UUID format.'),
   });

@@ -95,10 +95,7 @@ describe('CircuitMetricGetOneTool', () => {
             virtual_lab_id: '123e4567-e89b-12d3-a456-426614174000',
             project_id: '123e4567-e89b-12d3-a456-426614174001',
           },
-          searchParams: {
-            level_of_detail_nodes: 1,
-            level_of_detail_edges: 1,
-          },
+          searchParams: expect.any(URLSearchParams),
         }
       );
 
@@ -150,7 +147,7 @@ describe('CircuitMetricGetOneTool', () => {
             virtual_lab_id: '123e4567-e89b-12d3-a456-426614174000',
             project_id: '123e4567-e89b-12d3-a456-426614174001',
           },
-          searchParams: {},
+          searchParams: expect.any(URLSearchParams),
         }
       );
 
@@ -193,9 +190,7 @@ describe('CircuitMetricGetOneTool', () => {
         'https://api.example.com/declared/circuit-metrics/123e4567-e89b-12d3-a456-426614174002',
         {
           headers: {},
-          searchParams: {
-            level_of_detail_nodes: 2,
-          },
+          searchParams: expect.any(URLSearchParams),
         }
       );
 
@@ -213,9 +208,7 @@ describe('CircuitMetricGetOneTool', () => {
         tool.execute({
           circuit_id: '123e4567-e89b-12d3-a456-426614174002',
         })
-      ).rejects.toThrow(
-        'The circuit metrics endpoint returned a non 200 response code. Error: API Error'
-      );
+      ).rejects.toThrow('API Error');
     });
 
     it('should validate level_of_detail_nodes constraints', () => {

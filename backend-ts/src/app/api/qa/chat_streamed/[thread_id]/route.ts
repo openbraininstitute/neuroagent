@@ -217,6 +217,7 @@ export async function POST(
     // Get tool CLASSES (not instances) - following ClassVar pattern
     const allToolClasses = await initializeTools({
       exaApiKey: settings.tools.exaApiKey,
+      sanityUrl: settings.tools.sanity.url,
       entitycoreUrl: settings.tools.entitycore.url,
       entityFrontendUrl: settings.tools.frontendBaseUrl,
       vlabId: thread.vlabId || undefined,
@@ -338,6 +339,7 @@ export async function POST(
       contextVariables: {
         httpClient, // Pass ky instance with JWT token
         exaApiKey: settings.tools.exaApiKey,
+        sanityUrl: settings.tools.sanity.url,
         entitycoreUrl: settings.tools.entitycore.url,
         entityFrontendUrl: settings.tools.frontendBaseUrl,
         vlabId: thread.vlabId || undefined,

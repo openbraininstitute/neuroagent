@@ -25,8 +25,8 @@ describe('OBIExpertTool', () => {
     });
 
     it('should have utterances', () => {
-      expect(OBIExpertTool.utterances).toBeInstanceOf(Array);
-      expect(OBIExpertTool.utterances.length).toBeGreaterThan(0);
+      expect(OBIExpertTool.toolUtterances).toBeInstanceOf(Array);
+      expect(OBIExpertTool.toolUtterances.length).toBeGreaterThan(0);
     });
 
     it('should have tool description', () => {
@@ -171,9 +171,9 @@ describe('OBIExpertTool', () => {
 
       expect(result.results).toHaveLength(1);
       expect(result.total_items).toBe(1);
-      expect(result.results[0]?.id).toBe('glossary-1');
-      expect(result.results[0]?.name).toBe('Neuron');
-      expect(result.results[0]?.definition).toBe('A neuron is a nerve cell.');
+      expect(result.results[0]?.['id']).toBe('glossary-1');
+      expect(result.results[0]?.['name']).toBe('Neuron');
+      expect(result.results[0]?.['definition']).toBe('A neuron is a nerve cell.');
     });
 
     it('should handle API errors gracefully', async () => {

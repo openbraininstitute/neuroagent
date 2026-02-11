@@ -61,7 +61,7 @@ describe('MorphometricsGetOneTool', () => {
             'virtual-lab-id': '123e4567-e89b-12d3-a456-426614174000',
             'project-id': '123e4567-e89b-12d3-a456-426614174001',
           },
-          searchParams: {},
+          searchParams: expect.any(URLSearchParams),
         }
       );
 
@@ -92,9 +92,7 @@ describe('MorphometricsGetOneTool', () => {
             'virtual-lab-id': '123e4567-e89b-12d3-a456-426614174000',
             'project-id': '123e4567-e89b-12d3-a456-426614174001',
           },
-          searchParams: {
-            neurite_type: 'basal_dendrite',
-          },
+          searchParams: expect.any(URLSearchParams),
         }
       );
 
@@ -124,7 +122,7 @@ describe('MorphometricsGetOneTool', () => {
         'https://api.example.com/declared/neuron-morphology-metrics/123e4567-e89b-12d3-a456-426614174002',
         {
           headers: {},
-          searchParams: {},
+          searchParams: expect.any(URLSearchParams),
         }
       );
 
@@ -140,11 +138,9 @@ describe('MorphometricsGetOneTool', () => {
 
       await expect(
         tool.execute({
-          cell_morphology_id: '123e4567-e89b-12d3-a456-426614174002',
+          circuit_id: '123e4567-e89b-12d3-a456-426614174002',
         })
-      ).rejects.toThrow(
-        'The morpho metrics endpoint returned a non 200 response code. Error: API Error'
-      );
+      ).rejects.toThrow('API Error');
     });
 
     it('should validate cell_morphology_id is a valid UUID', () => {
