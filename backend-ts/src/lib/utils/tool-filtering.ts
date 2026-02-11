@@ -220,7 +220,7 @@ AVAILABLE TOOLS:
 ${toolList
   .map(
     (tool) =>
-      `${tool.toolName}: ${tool.description}\nExample utterances:\n${tool.utterances?.map((u: string) => `- ${u}`).join('\n') || '- No examples'}`
+      `${tool.toolName}: ${tool.toolDescription}\nExample utterances:\n${tool.toolUtterances?.map((u: string) => `- ${u}`).join('\n') || '- No examples'}`
   )
   .join('\n\n')}`;
 

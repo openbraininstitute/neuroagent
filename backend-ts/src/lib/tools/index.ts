@@ -590,8 +590,6 @@ export async function getAvailableToolClasses(config: ToolConfig): Promise<any[]
 
       // Add them to available classes
       availableClasses.push(...mcpToolClasses);
-
-      console.log(`[getAvailableToolClasses] Loaded ${mcpToolClasses.length} MCP tool classes`);
     } catch (error) {
       console.error('[getAvailableToolClasses] Error loading MCP tools:', error);
       // Don't throw - just continue without MCP tools

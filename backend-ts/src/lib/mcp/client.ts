@@ -405,7 +405,6 @@ export async function initializeMCPTools(config: SettingsMCP): Promise<Array<any
 
   // Return cached tools if config hasn't changed
   if (cache.classes && cache.configKey === configKey) {
-    console.log(`[MCP] Using cached ${cache.classes.length} tool classes`);
     return cache.classes;
   }
 
