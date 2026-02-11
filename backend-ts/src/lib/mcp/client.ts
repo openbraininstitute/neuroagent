@@ -28,6 +28,7 @@ export class MCPClient {
   private clients: Map<string, Client> = new Map();
   private tools: Map<string, Tool[]> = new Map();
   private toolNameMapping: Map<string, string> = new Map();
+  private originalToolNames: Map<string, string> = new Map(); // Maps new name -> original name
 
   constructor(config: SettingsMCP) {
     this.config = config;
@@ -127,6 +128,8 @@ export class MCPClient {
       const newName = metadata.name || tool.name;
       if (newName !== tool.name) {
         this.toolNameMapping.set(`${serverName}${SERVER_TOOL_SEPARATOR}${newName}`, tool.name);
+        // Also store reverse mapping for metadata lookup
+        this.originalToolNames.set(newName, originalToolName);
       }
 
       // Override tool properties
@@ -220,38 +223,120 @@ export class MCPClient {
 }
 
 /**
- * Create a dynamic BaseTool subclass for an MCP tool
+ * Convert MCP tool's JSON Schema to Zod schema
+ *
+ * MCP tools provide their input schema as JSON Schema.
+ * We need to convert it to Zod so the Vercel AI SDK can validate inputs.
  */
-export function createDynamicMCPTool(
+function convertJSONSchemaToZod(jsonSchema: any): z.ZodType {
+  // If no schema provided, accept any object
+  if (!jsonSchema || !jsonSchema.properties) {
+    return z.object({}).passthrough();
+  }
+
+  const shape: Record<string, z.ZodType> = {};
+
+  for (const [key, propSchema] of Object.entries(jsonSchema.properties as Record<string, any>)) {
+    let zodType: z.ZodType;
+
+    // Convert based on JSON Schema type
+    switch (propSchema.type) {
+      case 'string':
+        zodType = z.string();
+        if (propSchema.description) {
+          zodType = zodType.describe(propSchema.description);
+        }
+        break;
+      case 'number':
+      case 'integer':
+        zodType = z.number();
+        if (propSchema.description) {
+          zodType = zodType.describe(propSchema.description);
+        }
+        break;
+      case 'boolean':
+        zodType = z.boolean();
+        if (propSchema.description) {
+          zodType = zodType.describe(propSchema.description);
+        }
+        break;
+      case 'array':
+        zodType = z.array(z.any());
+        if (propSchema.description) {
+          zodType = zodType.describe(propSchema.description);
+        }
+        break;
+      case 'object':
+        zodType = z.object({}).passthrough();
+        if (propSchema.description) {
+          zodType = zodType.describe(propSchema.description);
+        }
+        break;
+      default:
+        zodType = z.any();
+        if (propSchema.description) {
+          zodType = zodType.describe(propSchema.description);
+        }
+    }
+
+    // Check if field is required
+    const required = jsonSchema.required?.includes(key) ?? false;
+    if (!required) {
+      zodType = zodType.optional();
+    }
+
+    shape[key] = zodType;
+  }
+
+  return z.object(shape);
+}
+
+/**
+ * Create a dynamic BaseTool class for an MCP tool
+ *
+ * Returns a CLASS (not an instance) that can be registered in the tool registry
+ * just like regular tools. This allows MCP tools to be treated identically to
+ * regular tools throughout the system.
+ */
+export function createDynamicMCPToolClass(
   serverName: string,
   tool: Tool,
   mcpClient: MCPClient,
   toolMetadata?: {
+    name?: string;
     nameFrontend?: string;
+    description?: string;
     descriptionFrontend?: string;
     utterances?: string[];
   }
-): BaseTool<any> {
-  // Create a Zod schema that accepts any object (we'll rely on MCP server validation)
-  const inputSchema = z.object({}).passthrough();
+): any {
+  // Convert MCP tool's JSON Schema to Zod schema
+  const inputSchema = convertJSONSchemaToZod(tool.inputSchema);
 
-  // Create an instance of a dynamic tool class
+  // Create a dynamic tool class with static properties (like regular tools)
   class MCPDynamicTool extends BaseTool<typeof inputSchema> {
-    metadata: ToolMetadata = {
-      name: tool.name,
-      nameFrontend:
-        toolMetadata?.nameFrontend ||
-        tool.name
-          .split(/[-/_=+*]/)
-          .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-          .join(' '),
-      description: tool.description || '',
-      descriptionFrontend: toolMetadata?.descriptionFrontend || tool.description || '',
-      utterances: toolMetadata?.utterances || [],
-    };
+    // Static properties (ClassVar equivalent) - accessed without instantiation
+    static readonly toolName = tool.name; // Already renamed by applyToolMetadataOverrides
+    static readonly toolNameFrontend =
+      toolMetadata?.nameFrontend ||
+      tool.name
+        .split(/[-/_=+*]/)
+        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(' ');
+    static readonly toolDescription = toolMetadata?.description || tool.description || '';
+    static readonly toolDescriptionFrontend =
+      toolMetadata?.descriptionFrontend || tool.description || '';
+    static readonly toolUtterances = toolMetadata?.utterances || [];
+    static readonly toolHil = false; // MCP tools don't require HIL by default
 
+    // Static method for health check
+    static async isOnline(): Promise<boolean> {
+      return mcpClient.isServerOnline(serverName);
+    }
+
+    // Instance properties
     inputSchema = inputSchema;
-    contextVariables = {}; // Add required contextVariables property
+    contextVariables = {}; // MCP tools don't need context variables
 
     override async execute(input: any): Promise<any> {
       const result = await mcpClient.callTool(serverName, tool.name, input);
@@ -278,36 +363,106 @@ export function createDynamicMCPTool(
     }
   }
 
-  return new MCPDynamicTool();
+  // Return the CLASS itself, not an instance
+  return MCPDynamicTool;
 }
 
 /**
- * Initialize MCP client and generate dynamic tools
+ * Global MCP tools cache
+ *
+ * In Next.js, we need to use globalThis to persist the cache across
+ * hot module reloads in development mode.
  */
-export async function initializeMCPTools(config: SettingsMCP): Promise<Array<BaseTool<any>>> {
+interface MCPToolsCache {
+  classes: Array<any> | null;
+  configKey: string | null;
+}
+
+const CACHE_KEY = '__neuroagent_mcp_tools_cache__';
+
+function getMCPCache(): MCPToolsCache {
+  if (!(globalThis as any)[CACHE_KEY]) {
+    (globalThis as any)[CACHE_KEY] = {
+      classes: null,
+      configKey: null,
+    };
+  }
+  return (globalThis as any)[CACHE_KEY];
+}
+
+/**
+ * Initialize MCP client and generate dynamic tool classes
+ *
+ * Returns an array of tool CLASSES (not instances), just like regular tools.
+ * This allows MCP tools to be registered and used identically to regular tools.
+ *
+ * Results are cached globally to avoid reconnecting to MCP servers on every request.
+ */
+export async function initializeMCPTools(config: SettingsMCP): Promise<Array<any>> {
+  const cache = getMCPCache();
+
+  // Create a cache key from the config
+  const configKey = JSON.stringify(config);
+
+  // Return cached tools if config hasn't changed
+  if (cache.classes && cache.configKey === configKey) {
+    console.log(`[MCP] Using cached ${cache.classes.length} tool classes`);
+    return cache.classes;
+  }
+
+  console.log('[MCP] Initializing MCP tools...');
   const mcpClient = new MCPClient(config);
 
   try {
     await mcpClient.connect();
   } catch (error) {
-    console.error('Failed to initialize MCP client:', error);
+    console.error('[MCP] Failed to initialize MCP client:', error);
     return [];
   }
 
   const allTools = mcpClient.getAllTools();
-  const dynamicTools: Array<BaseTool<any>> = [];
+  const dynamicToolClasses: Array<any> = [];
 
   for (const { serverName, tool } of allTools) {
     // Get tool metadata overrides if configured
+    // Note: tool.name may have been changed by applyToolMetadataOverrides
+    // We need to look up metadata using the original tool name
     const serverConfig = config.servers?.[serverName];
-    const toolMetadata = serverConfig?.toolMetadata?.[tool.name];
 
-    const dynamicTool = createDynamicMCPTool(serverName, tool, mcpClient, toolMetadata);
-    dynamicTools.push(dynamicTool);
+    // Try to find metadata using the current tool name first (in case it wasn't renamed)
+    let toolMetadata = serverConfig?.toolMetadata?.[tool.name];
+
+    // If not found, check if this tool was renamed and look up by original name
+    if (!toolMetadata && serverConfig?.toolMetadata) {
+      // Find the original tool name by checking all metadata entries
+      for (const [originalName, metadata] of Object.entries(serverConfig.toolMetadata)) {
+        if (metadata.name === tool.name) {
+          toolMetadata = metadata;
+          break;
+        }
+      }
+    }
+
+    const ToolClass = createDynamicMCPToolClass(serverName, tool, mcpClient, toolMetadata);
+    dynamicToolClasses.push(ToolClass);
   }
 
-  // Log initialization summary (matches Python backend logger.info)
-  console.log(`Initialized ${dynamicTools.length} MCP tools`);
+  console.log(`[MCP] Initialized ${dynamicToolClasses.length} tool classes`);
 
-  return dynamicTools;
+  // Cache the results globally
+  cache.classes = dynamicToolClasses;
+  cache.configKey = configKey;
+
+  return dynamicToolClasses;
+}
+
+/**
+ * Clear the MCP tools cache
+ * Useful for testing or when configuration changes
+ */
+export function clearMCPToolsCache(): void {
+  const cache = getMCPCache();
+  cache.classes = null;
+  cache.configKey = null;
+  console.log('[MCP] Cache cleared');
 }

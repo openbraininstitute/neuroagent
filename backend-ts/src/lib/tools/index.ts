@@ -153,6 +153,12 @@ export interface ToolConfig {
   exaApiKey?: string; // For Literature Search, Web Search, Read Paper tools
   sanityUrl?: string; // For OBI Expert tool
 
+  // MCP tool config
+  mcpConfig?: any; // SettingsMCP type from settings.ts
+
+  // JWT token for authenticated requests
+  jwtToken?: string;
+
   // Add more tool configs as needed
 }
 
@@ -587,6 +593,36 @@ export async function getAvailableToolClasses(config: ToolConfig): Promise<any[]
   availableClasses.push(TranslatorTool);
   availableClasses.push(TimeTool);
   availableClasses.push(CurrencyTool);
+
+  // MCP tools are available if MCP configuration is provided
+  if (config.mcpConfig) {
+    try {
+      const { initializeMCPTools } = await import('../mcp');
+      const mcpToolClasses = await initializeMCPTools(config.mcpConfig);
+
+      // MCP tools are now classes, just like regular tools
+      // Register them in the tool registry so they appear in getAllMetadata()
+      const { toolRegistry } = await import('./base-tool');
+      for (const ToolClass of mcpToolClasses) {
+        try {
+          toolRegistry.registerClass(ToolClass);
+        } catch (error) {
+          // Ignore if already registered
+          if (!(error instanceof Error && error.message.includes('already registered'))) {
+            console.error(`[getAvailableToolClasses] Error registering MCP tool class:`, error);
+          }
+        }
+      }
+
+      // Add them to available classes
+      availableClasses.push(...mcpToolClasses);
+
+      console.log(`[getAvailableToolClasses] Loaded ${mcpToolClasses.length} MCP tool classes`);
+    } catch (error) {
+      console.error('[getAvailableToolClasses] Error loading MCP tools:', error);
+      // Don't throw - just continue without MCP tools
+    }
+  }
 
   return availableClasses;
 }

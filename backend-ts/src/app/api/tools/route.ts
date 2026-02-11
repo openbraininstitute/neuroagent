@@ -78,21 +78,31 @@ export async function GET(request: NextRequest) {
     // Validate authentication (required like Python backend)
     await validateAuth(request);
 
-    // Register tool classes if not already registered
-    // This is a lightweight operation that only registers class references
-    if (toolRegistry.getAllClasses().length === 0) {
-      await registerToolClasses();
-    }
+    // Initialize all tools (including MCP tools)
+    // This ensures MCP tools are loaded and registered
+    const { initializeTools } = await import('@/lib/tools');
+    const { getSettings } = await import('@/lib/config/settings');
 
-    // Get all registered tool classes (no instantiation needed!)
-    // This matches Python's pattern: tool_list is list[type[BaseTool]]
-    const toolClasses = toolRegistry.getAllClasses();
+    const settings = getSettings();
 
-    // Build response - access static properties directly from classes
-    // Equivalent to Python: [ToolMetadata(name=tool.name, name_frontend=tool.name_frontend) for tool in tool_list]
-    const toolsResponse: ToolMetadata[] = toolClasses.map((ToolClass) => ({
-      name: ToolClass.toolName,
-      name_frontend: ToolClass.toolNameFrontend || ToolClass.toolName,
+    // Initialize tools with full configuration (including MCP)
+    await initializeTools({
+      exaApiKey: settings.tools.exaApiKey,
+      sanityUrl: settings.tools.sanity.url,
+      entitycoreUrl: settings.tools.entitycore.url,
+      entityFrontendUrl: settings.tools.frontendBaseUrl,
+      obiOneUrl: settings.tools.obiOne.url,
+      mcpConfig: settings.mcp, // ← This loads MCP tools
+    });
+
+    // Get metadata for all tools (both classes and instances)
+    // This includes MCP tools which are registered as instances
+    const allMetadata = toolRegistry.getAllMetadata();
+
+    // Build response - convert to API format
+    const toolsResponse: ToolMetadata[] = allMetadata.map((metadata) => ({
+      name: metadata.name,
+      name_frontend: metadata.nameFrontend || metadata.name,
     }));
 
     return NextResponse.json(toolsResponse);

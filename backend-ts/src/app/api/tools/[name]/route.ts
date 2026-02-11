@@ -120,12 +120,23 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     // Await params (Next.js 15 requirement)
     const { name } = await params;
 
-    // Register tool classes if not already registered
-    if (toolRegistry.getAllClasses().length === 0) {
-      await registerToolClasses();
-    }
+    // Initialize tools to ensure MCP tools are loaded
+    const { initializeTools } = await import('@/lib/tools');
+    const { getSettings } = await import('@/lib/config/settings');
 
-    // Find the tool class by name
+    const settings = getSettings();
+
+    // Initialize tools with full configuration (including MCP)
+    await initializeTools({
+      exaApiKey: settings.tools.exaApiKey,
+      sanityUrl: settings.tools.sanity.url,
+      entitycoreUrl: settings.tools.entitycore.url,
+      entityFrontendUrl: settings.tools.frontendBaseUrl,
+      obiOneUrl: settings.tools.obiOne.url,
+      mcpConfig: settings.mcp, // ← This loads MCP tools
+    });
+
+    // Find the tool class by name (works for both regular and MCP tools now)
     const ToolClass = toolRegistry.getClass(name);
 
     if (!ToolClass) {
@@ -133,12 +144,10 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     }
 
     // Check if tool is online
-    // Like Python, we call the static isOnline method if available
     let isOnline = true;
     try {
       if (ToolClass.isOnline) {
-        // TODO: Pass healthcheck context variables when available
-        // For now, we call without context (tools that need context will default to true)
+        // Call the static isOnline method
         isOnline = await ToolClass.isOnline({});
       }
     } catch (error) {
@@ -147,13 +156,10 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     }
 
     // Extract input schema from the tool class
-    // We need to instantiate temporarily to access the inputSchema
-    // In Python, this is accessed via __annotations__["input_schema"]
     let inputSchema: InputSchema = { parameters: [] };
 
     try {
       // Create a minimal instance just to access the schema
-      // This is safe because we're only reading the schema, not executing
       const tempInstance = new ToolClass({} as any);
       inputSchema = extractInputSchema(tempInstance.inputSchema);
     } catch (error) {

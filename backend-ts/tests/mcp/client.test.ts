@@ -3,7 +3,7 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { MCPClient, createDynamicMCPTool, initializeMCPTools } from '@/lib/mcp/client';
+import { MCPClient, createDynamicMCPToolClass, initializeMCPTools } from '@/lib/mcp/client';
 import { SettingsMCP } from '@/lib/config/settings';
 import { Tool } from '@modelcontextprotocol/sdk/types.js';
 

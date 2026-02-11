@@ -381,6 +381,20 @@ export class ToolRegistry {
   }
 
   /**
+   * Check if a tool requires HIL validation by name
+   *
+   * @param name - Tool name to check
+   * @returns true if tool requires HIL, false otherwise
+   */
+  requiresHIL(name: string): boolean {
+    const ToolClass = this.toolClasses.get(name);
+    if (ToolClass) {
+      return ToolClass.toolHil === true;
+    }
+    return false;
+  }
+
+  /**
    * Clear all registered tools
    * Useful for testing
    */

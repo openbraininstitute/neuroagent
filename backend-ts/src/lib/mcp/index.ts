@@ -2,4 +2,4 @@
  * MCP (Model Context Protocol) module exports
  */
 
-export { MCPClient, createDynamicMCPTool, initializeMCPTools } from './client';
+export { MCPClient, createDynamicMCPToolClass, initializeMCPTools, clearMCPToolsCache } from './client';

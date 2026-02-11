@@ -184,6 +184,7 @@ export class AgentsRoutine {
       const hilToolNames = new Set<string>();
 
       for (const ToolClass of agent.tools) {
+        // All tools are now classes (including MCP tools)
         const toolName = ToolClass.toolName;
         const tempInstance = new ToolClass(agent.contextVariables || {});
 
@@ -702,8 +703,7 @@ export class AgentsRoutine {
               // Filter to only include tool calls that actually require HIL validation
               // Non-HIL tools may have validated: null but shouldn't trigger HIL flow
               const hilToolCalls = pendingToolCalls.filter((tc) => {
-                const toolClass = toolRegistry.getClass(tc.name);
-                return toolClass && new toolClass({}).requiresHIL();
+                return toolRegistry.requiresHIL(tc.name);
               });
 
               if (hilToolCalls.length > 0) {
