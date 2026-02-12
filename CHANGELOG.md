@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- nodeset failure doesn't raise an error anymore in circuit simulation config tool.
+
 ## [0.16.0] - 11.02.2026
 
 ### Added
