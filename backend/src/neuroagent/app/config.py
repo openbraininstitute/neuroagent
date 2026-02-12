@@ -290,7 +290,13 @@ class Settings(BaseSettings):
 
         mcps: dict[str, dict[str, Any]] = {"servers": {}}
         # Parse and set the mcp servers
-        for server, config in json.loads(servers).items():
+        try:
+            parsed_servers = json.loads(servers)
+        except Exception as e:
+            logger.warning(f"Could not parse mcp.json: {e}")
+            return data
+
+        for server, config in parsed_servers.items():
             # If a secret is not set, do not include the associated server
             if config.get("env") and any(
                 "NEUROAGENT_MCP__SECRETS__" in value for value in config["env"].values()

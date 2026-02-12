@@ -165,10 +165,9 @@ Simply specify in plain english what you want your configuration to achieve or w
             + f"/declared/circuit/{self.input_schema.circuit_id}/nodesets",
             headers=headers,
         )
-        if circuit_node_set.status_code != 200:
-            raise ValueError(
-                f"The nodesets endpoint returned a non 200 response code. Error: {circuit_node_set.text}"
-            )
+        nodesets = (
+            circuit_node_set.json() if circuit_node_set.status_code == 200 else None
+        )
 
         # List obi-one rules
         system_prompt = f"""# Simulation Configuration Generator
@@ -214,7 +213,7 @@ Apply the requested changes to the provided configuration, replacing or adding e
   - `block_name`: the dictionary key (e.g., "all_neurons")
   - `block_dict_name`: the parent dictionary name (e.g., "neuron_sets", "timestamps")
 - Avoid duplicate or unused neuron sets unless specifically requested
-- Whenever you see a `circuit_property_type = CircuitNodeSet` in the schema of the neuron_sets you want to use, the string value within `node_set` must be one of the following: {circuit_node_set.json()}
+{f"- Whenever you see a `circuit_property_type = CircuitNodeSet` in the schema of the neuron_sets you want to use, the string value within `node_set` must be one of the following: {nodesets}" if nodesets is not None else ""}
 
 ## Validation Checklist
 Before outputting, verify:
