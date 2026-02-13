@@ -223,8 +223,8 @@ Apply the requested changes to the provided configuration, replacing or adding e
   - `block_name`: the dictionary key (e.g., "all_neurons")
   - `block_dict_name`: the parent dictionary name (e.g., "neuron_sets", "timestamps")
 - Avoid duplicate or unused neuron sets unless specifically requested
-{f"- Whenever you see a `circuit_property_type = CircuitNodeSet` in the schema of the neuron_sets you want to use, the string value within `node_set` must be one of the following: {nodesets}" if nodesets is not None else ""}
-- PredefinedNeuronSets allow the user to use node_sets defined for the circuit. Where possible, prefer using other neuron set types.
+- Whenever you see a `circuit_property_type = CircuitNodeSet` in the schema of the neuron_sets you want to use, the string value within `node_set` must be one of the following: {nodesets}" if nodesets is not None else ""
+- Usage of PredefinedNeuronSets should be avoided where possible. Prefer using other neuron set types.
 
 ## Validation Checklist
 Before outputting, verify:
