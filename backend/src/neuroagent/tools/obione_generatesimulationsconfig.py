@@ -186,7 +186,7 @@ Apply the requested changes to the provided configuration, replacing or adding e
 
 ## Info
 - Fill the title and description in the "info" block with human readable text based on the overall simulation scenario. Summarize the main intent and setup of the simulation in a concise manner.
-- Do not leave title and description empty. 
+- Do not leave title and description empty.
 - If the existing title and description describe the scenario well and the user request is only about a specific parameter change, you can keep them as they are.
 
 ## Timestamps and Stimuli Logic
