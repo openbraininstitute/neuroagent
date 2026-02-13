@@ -124,6 +124,10 @@ Call this tool whenever users:
 
 # Verbosity
 - Provide concise, high-level summaries clearly stating the overall setup and nature of each simulation.
+
+# Future features (currently unsupported)
+- Users might still ask for particular features which have not yet been implemented. If they are listed here, you can tell them they are planned for future.
+- In future, the user will be able to record voltage from any location in neurons, and also specify extracellular recordings.
 """
     description_frontend: ClassVar[
         str
@@ -200,7 +204,6 @@ Apply the requested changes to the provided configuration, replacing or adding e
 ## Recordings
 - Existing recording options are for somatic voltages.
 - Spike times of all neurons in the simulation are recorded by default so there is no need to specify recording blocks unless the user asks for voltage recordings or you think the particular use case requires it.
-- In future, the user will be able to record voltage from any location in neurons, and also specify extracellular recordings.
 
 ## Parameter Values
 - Use single values, not single-element lists (e.g., `"duration": 500.0` not `"duration": [500.0]`)
