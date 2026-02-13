@@ -170,8 +170,7 @@ Simply specify in plain english what you want your configuration to achieve or w
         )
 
         # List obi-one rules
-        system_prompt = """# Simulation Configuration Generator"""  # nosec B608
-        system_prompt += f"""
+        system_prompt = f"""# Simulation Configuration Generator
 
 You are an expert at generating valid JSON simulation configurations following the CircuitSimulationScanConfig schema.
 You will receive two inputs:
@@ -237,7 +236,7 @@ Before outputting, verify:
 - [ ] Configuration structure remains valid and consistent
 
 Generate only the JSON configuration, ensuring all references are internally consistent.
-"""
+"""  # nosec B608
 
         user_message = f"""
 CURRENT SIMULATION CONFIG JSON:
