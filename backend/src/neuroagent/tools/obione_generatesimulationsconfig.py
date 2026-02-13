@@ -124,6 +124,10 @@ Call this tool whenever users:
 
 # Verbosity
 - Provide concise, high-level summaries clearly stating the overall setup and nature of each simulation.
+
+# Future features (currently unsupported)
+- Users might still ask for particular features which have not yet been implemented. If they are listed here, you can tell them they are planned for future.
+- In future, the user will be able to record voltage from any location in neurons, and also specify extracellular recordings.
 """
     description_frontend: ClassVar[
         str
@@ -184,6 +188,11 @@ You are always modifying the provided configuration. The nature of modifications
 
 Apply the requested changes to the provided configuration, replacing or adding elements as needed.
 
+## Info
+- Fill the title and description in the "info" block with human readable text based on the overall simulation scenario. Summarize the main intent and setup of the simulation in a concise manner.
+- Do not leave title and description empty.
+- If the existing title and description describe the scenario well and the user request is only about a specific parameter change, you can keep them as they are.
+
 ## Timestamps and Stimuli Logic
 - **Only generate timestamps if stimuli will use them**
 - Choose stimulus type based on timing pattern:
@@ -191,6 +200,10 @@ Apply the requested changes to the provided configuration, replacing or adding e
   - **Multiple timestamps + single-pulse stimulus**: For stimuli at different timepoints
   - **Never combine MultiPulse with repetitive timestamps**
 - Modify existing timing logic only when specifically requested
+
+## Recordings
+- Existing recording options are for somatic voltages.
+- Spike times of all neurons in the simulation are recorded by default so there is no need to specify recording blocks unless the user asks for voltage recordings or you think the particular use case requires it.
 
 ## Parameter Values
 - Use single values, not single-element lists (e.g., `"duration": 500.0` not `"duration": [500.0]`)
@@ -213,7 +226,8 @@ Apply the requested changes to the provided configuration, replacing or adding e
   - `block_name`: the dictionary key (e.g., "all_neurons")
   - `block_dict_name`: the parent dictionary name (e.g., "neuron_sets", "timestamps")
 - Avoid duplicate or unused neuron sets unless specifically requested
-{f"- Whenever you see a `circuit_property_type = CircuitNodeSet` in the schema of the neuron_sets you want to use, the string value within `node_set` must be one of the following: {nodesets}" if nodesets is not None else ""}
+- {f"Whenever you see a `circuit_property_type = CircuitNodeSet` in the schema of the neuron_sets you want to use, the string value within `node_set` must be one of the following: {nodesets}" if nodesets is not None else ""}
+- Usage of PredefinedNeuronSets should be avoided where possible. Prefer using other neuron set types.
 
 ## Validation Checklist
 Before outputting, verify:
@@ -225,7 +239,7 @@ Before outputting, verify:
 - [ ] Configuration structure remains valid and consistent
 
 Generate only the JSON configuration, ensuring all references are internally consistent.
-"""
+"""  # nosec B608
 
         user_message = f"""
 CURRENT SIMULATION CONFIG JSON:
