@@ -114,10 +114,10 @@ from neuroagent.tools import (
     WebSearchTool,
 )
 from neuroagent.tools.base_tool import BaseTool
+from neuroagent.tools.getstate import GetStateTool
 from neuroagent.tools.obione_designcircuitsimulationscanconfig import (
     DesignSimulationsConfigTool,
 )
-from neuroagent.tools.getstate import GetStateTool
 
 logger = logging.getLogger(__name__)
 

@@ -48,18 +48,14 @@ Returns the current shared state JSON from the application. The state contains c
 # Output Format
 - Summarize the relevant parts of the state concisely in natural language. Do not dump raw JSON in chat.
 """
-    description_frontend: ClassVar[str] = (
-        """Retrieve the current application state."""
-    )
+    description_frontend: ClassVar[str] = """Retrieve the current application state."""
     metadata: GetStateMetadata
     input_schema: GetStateInput
 
     async def arun(self) -> GetStateOutput:
         """Return the current shared state."""
         if not self.metadata.shared_state:
-            raise ValueError(
-                "No shared state was provided in the request body."
-            )
+            raise ValueError("No shared state was provided in the request body.")
 
         return GetStateOutput(
             state=self.metadata.shared_state.model_dump(exclude_none=True)
