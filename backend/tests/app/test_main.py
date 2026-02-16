@@ -43,9 +43,9 @@ def test_lifespan(caplog, monkeypatch, db_connection):
     get_settings.cache_clear()
     caplog.set_level(logging.INFO)
 
-    monkeypatch.setenv("NEUROAGENT_LOGGING__LEVEL", "info")
-    monkeypatch.setenv("NEUROAGENT_LOGGING__EXTERNAL_PACKAGES", "warning")
-    monkeypatch.setenv("NEUROAGENT_DB__PREFIX", db_connection)
+    monkeypatch.setenv("NEUROAGENT__LOGGING__LEVEL", "info")
+    monkeypatch.setenv("NEUROAGENT__LOGGING__EXTERNAL_PACKAGES", "warning")
+    monkeypatch.setenv("NEUROAGENT__DB__PREFIX", db_connection)
 
     # The with statement triggers the startup.
     with TestClient(app) as test_client:

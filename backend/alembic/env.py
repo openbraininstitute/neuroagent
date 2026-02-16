@@ -32,12 +32,12 @@ if db_url:
     sqlalchemy_url = db_url
 else:
     # Construct the database URL from environment variables
-    db_prefix = os.getenv("NEUROAGENT_DB__PREFIX")
-    db_host = os.getenv("NEUROAGENT_DB__HOST", "localhost")
-    db_port = os.getenv("NEUROAGENT_DB__PORT", "5432")
-    db_user = os.getenv("NEUROAGENT_DB__USER", "postgres")
-    db_password = os.getenv("NEUROAGENT_DB__PASSWORD", "secret")
-    db_name = os.getenv("NEUROAGENT_DB__NAME", "")
+    db_prefix = os.getenv("NEUROAGENT__DB__PREFIX")
+    db_host = os.getenv("NEUROAGENT__DB__HOST", "localhost")
+    db_port = os.getenv("NEUROAGENT__DB__PORT", "5432")
+    db_user = os.getenv("NEUROAGENT__DB__USER", "postgres")
+    db_password = os.getenv("NEUROAGENT__DB__PASSWORD", "secret")
+    db_name = os.getenv("NEUROAGENT__DB__NAME", "")
 
     # Set the SQLAlchemy URL dynamically
     db_prefix = db_prefix.replace("postgresql+asyncpg", "postgresql")
