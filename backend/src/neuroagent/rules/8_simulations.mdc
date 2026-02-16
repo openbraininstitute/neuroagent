@@ -1,0 +1,41 @@
+---
+description: Simulation domain model and related tools
+---
+## SIMULATIONS
+
+### Domain Model (W3C PROV-DM Pattern)
+
+The simulation subsystem follows the W3C PROV-DM (Provenance Data Model) pattern, separating data (Entities) from processes (Activities).
+
+#### Entities (data)
+- **SimulationCampaign**: Top-level specification. Holds `scan_parameters` that define a parameter sweep and references another entity (e.g. a circuit) via `entity_id`. Has many Simulations (direct FK).
+- **Simulation**: One concrete simulation configuration belonging to a SimulationCampaign (FK). Has its own `scan_parameters`, `number_neurons`, and references an entity via `entity_id`.
+- **SimulationResult**: Output data from running a simulation (SONATA format). Points to a Simulation via `simulation_id`. Not unique — multiple results per simulation are allowed (e.g. retries).
+
+#### Activities (processes)
+- **SimulationGeneration**: Expands a SimulationCampaign into individual Simulation configs. Linked via usage/generation association tables (uses campaign, generates simulations).
+- **SimulationExecution**: Runs a Simulation and produces a SimulationResult. Tracks executor type and an external `execution_id`. Also linked via usage/generation tables (uses simulation, generates result).
+
+#### Wiring
+- Direct FKs: SimulationCampaign (1)→(N) Simulation (1)→(N) SimulationResult.
+- PROV layer: Activities connect to Entities through generic `usage` (input) and `generation` (output) join tables on the Activity base class.
+
+### Circuit Scales
+
+Each scale will have its own design tool; currently only small circuit is implemented:
+- **Single neuron** — design tool planned
+- **Pair** — design tool planned
+- **Small circuit** — `obione-designcircuitsimulationscanconfig`
+
+### Frontend Workflow (3 steps)
+
+1. **Designing** — The user (optionally assisted by a design tool) drafts a simulation campaign configuration. Nothing is persisted yet.
+2. **Generation** — The frontend submits the approved design. Creates 1 SimulationCampaign, N Simulations (one per parameter combination), and 1 SimulationGeneration.
+3. **Execution** — Each Simulation is run. Creates 1 SimulationResult and 1 SimulationExecution per Simulation.
+
+### How the Tools Relate
+
+- **Entitycore tools** (`entitycore-simulationcampaign-getall/getone`, `entitycore-simulation-getall/getone`, `entitycore-simulationresult-getall/getone`, `entitycore-simulationgeneration-getall/getone`, `entitycore-simulationexecution-getall/getone`) — read-only retrieval from the database.
+- **Design tools** (currently only `obione-designcircuitsimulationscanconfig`) — help the user draft and iterate on a configuration via natural language. They do **not** persist anything; the designed config is handed off to the frontend for generation and execution.
+
+---
