@@ -114,7 +114,7 @@ from neuroagent.tools import (
     WebSearchTool,
 )
 from neuroagent.tools.base_tool import BaseTool
-from neuroagent.tools.obione_generatesimulationsconfig import (
+from neuroagent.tools.obione_designcircuitsimulationscanconfig import (
     GenerateSimulationsConfigTool,
 )
 
