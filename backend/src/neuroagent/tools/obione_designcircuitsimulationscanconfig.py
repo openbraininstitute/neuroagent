@@ -1,4 +1,4 @@
-"""Tool to generate an obi-one compatible simulation config."""
+"""Tool to design an obi-one compatible simulation config."""
 
 import json
 from typing import Any, ClassVar
@@ -34,20 +34,20 @@ def extract_model_structure(model: type[BaseModel]) -> dict[str, Any]:
     return result
 
 
-class GenerateSimulationsConfigInput(BaseModel):
-    """Inputs of the GenerateSimulationsConfig tool."""
+class DesignSimulationsConfigInput(BaseModel):
+    """Inputs of the DesignSimulationsConfig tool."""
 
     circuit_id: UUID | None = Field(
         default=None,
         description="UUID of the target circuit that has to be simulated. ONLY CIRCUITS CAN BE SIMULATED. NO OTHER ENTITY. Specify it only if you are sure about which circuit must be simulated. Otherwise it will be infered from the app state.",
     )
     config_request: str = Field(
-        description="A detailed description of the desired simulation configuration that will be processed by an LLM to generate JSON. This should contain either: (1) a complete specification for a new configuration including all required parameters and settings, or (2) specific modifications to be applied to an existing configuration (e.g., 'change simulation length to 5000ms', 'Apply an extra stimulus for excitatory neurons', 'record only inhibitory neurons instead'). Be explicit about which approach you're using and provide clear, actionable details."
+        description="A detailed description of the desired simulation configuration that will be processed by an LLM to produce JSON. This should contain either: (1) a complete specification for a new configuration including all required parameters and settings, or (2) specific modifications to be applied to an existing configuration (e.g., 'change simulation length to 5000ms', 'Apply an extra stimulus for excitatory neurons', 'record only inhibitory neurons instead'). Be explicit about which approach you're using and provide clear, actionable details."
     )
 
 
-class GenerateSimulationsConfigMetadata(BaseMetadata):
-    """Metadata of the GenerateSimulationsConfig tool."""
+class DesignSimulationsConfigMetadata(BaseMetadata):
+    """Metadata of the DesignSimulationsConfig tool."""
 
     openai_client: AsyncOpenAI
     httpx_client: AsyncClient
@@ -76,31 +76,31 @@ class CircuitSimulationScanConfigModified(CircuitSimulationScanConfig):
     )
 
 
-class GenerateSimulationConfigOutput(BaseModel):
-    """Output of the GenerateSimulationsConfig tool."""
+class DesignSimulationConfigOutput(BaseModel):
+    """Output of the DesignSimulationsConfig tool."""
 
     smc_simulation_config: CircuitSimulationScanConfig
     url_link: str | None = None
 
 
-class GenerateSimulationsConfigTool(BaseTool):
-    """Class defining the GenerateSimulationsConfig tool."""
+class DesignSimulationsConfigTool(BaseTool):
+    """Class defining the DesignSimulationsConfig tool."""
 
-    name: ClassVar[str] = "obione-generatesimulationsconfig"
-    name_frontend: ClassVar[str] = "Generate Simulation Config"
+    name: ClassVar[str] = "obione-designcircuitsimulationscanconfig"
+    name_frontend: ClassVar[str] = "Design Circuit Simulation Config"
     utterances: ClassVar[list[str]] = [
         "Create a simulation configuration",
-        "Generate a config for me",
+        "Design a config for me",
         "Set up simulation parameters",
     ]
     description: ClassVar[str] = f"""# Role and Objective
-This tool generates JSON configurations for CIRCUIT simulations based on natural language descriptions. Only CIRCUIT simulations are supported; do not attempt to process other ENTITY types.
+This tool designs JSON configurations for CIRCUIT simulations based on natural language descriptions. Only CIRCUIT simulations are supported; do not attempt to process other ENTITY types.
 
 # Instructions
 - Accept as input either a comprehensive new configuration description or incremental modifications to an existing configuration.
 - For new simulations, only provide a circuit ID if the user explicitly specifies it; otherwise, let the application state infer the circuit ID.
 - For modification requests, support focused/incremental descriptions relative to the existing configuration. Users do not need to provide the full target configuration.
-- If a request is vague, generate a basic simulation config and offer guidance on further refinement. Do not force users to provide all parameters. Defaults are handled by the underlying LLM.
+- If a request is vague, design a basic simulation config and offer guidance on further refinement. Do not force users to provide all parameters. Defaults are handled by the underlying LLM.
 - In the `config_request` parameter, only include what the user explicitly requested. Exclude default or standard parameters, as they will be filled in automatically by the downstream LLM.
 - Here are the available fields in the simulation ford {extract_model_structure(CircuitSimulationScanConfig)}. Base your description in `config_request` on them.
 - If the user is not on a circuit-related page, and has not mentioned any circuit previously, ask the user for clarification to ensure the request is intended for a CIRCUIT simulation before proceeding.
@@ -108,7 +108,7 @@ This tool generates JSON configurations for CIRCUIT simulations based on natural
 # Output Format
 - Output: Valid simulation configuration JSON (produced by the tool; NEVER display this directly in chat).
 - Summarize the simulation setup and scenario concisely, focusing on the main changes or intent, not on listing each parameter or the full JSON structure.
-- Indicate clearly that the generated simulation JSON is a suggestion. Encourage users to modify it as needed.
+- Indicate clearly that the designed simulation JSON is a suggestion. Encourage users to modify it as needed.
 - If a `url_link` field is present, guide the user to the simulation page unless they are already viewing it (no action required if `url_link` is None).
 
 # Use Cases
@@ -119,7 +119,7 @@ Call this tool whenever users:
 
 # Constraints
 - Only support CIRCUIT simulations; do not handle other entities.
-- Never generate the simulation JSON yourself if the tool fails.
+- Never produce the simulation JSON yourself if the tool fails.
 - Do not show, copy, or enumerate the raw JSON output in chat.
 
 # Verbosity
@@ -133,10 +133,10 @@ Call this tool whenever users:
         str
     ] = """Create or modify JSON configurations using natural language.
 Simply specify in plain english what you want your configuration to achieve or what changes you'd like to make."""
-    metadata: GenerateSimulationsConfigMetadata
-    input_schema: GenerateSimulationsConfigInput
+    metadata: DesignSimulationsConfigMetadata
+    input_schema: DesignSimulationsConfigInput
 
-    async def arun(self) -> GenerateSimulationConfigOutput:
+    async def arun(self) -> DesignSimulationConfigOutput:
         """Run the tool."""
         # Check for existing state passed by frontend
         if not self.metadata.shared_state:
@@ -154,7 +154,7 @@ Simply specify in plain english what you want your configuration to achieve or w
         ).get("circuit", {}).get("id_str")
         if not circuit_id:
             raise ValueError(
-                "A circuit ID must be provided either in the tool input or in the state. Please validate for which circuit we must generate a simulation config."
+                "A circuit ID must be provided either in the tool input or in the state. Please validate for which circuit we must design a simulation config."
             )
 
         # Get the available nodesest in the circuit
@@ -174,16 +174,16 @@ Simply specify in plain english what you want your configuration to achieve or w
         )
 
         # List obi-one rules
-        system_prompt = f"""# Simulation Configuration Generator
+        system_prompt = f"""# Simulation Configuration Designer
 
-You are an expert at generating valid JSON simulation configurations following the CircuitSimulationScanConfig schema.
+You are an expert at producing valid JSON simulation configurations following the CircuitSimulationScanConfig schema.
 You will receive two inputs:
 1. A description of the required configuration changes or specifications
 2. The current simulation configuration JSON (either a default/empty config or an existing one)
 
 ## Task Approach
 You are always modifying the provided configuration. The nature of modifications depends on the starting point:
-- **Starting from default config**: User requests typically describe complete simulation requirements ("Generate a simulation with X neurons for Y duration")
+- **Starting from default config**: User requests typically describe complete simulation requirements ("Design a simulation with X neurons for Y duration")
 - **Starting from existing config**: User requests typically describe incremental changes ("Add stimulus X", "Set parameter Y to Z")
 
 Apply the requested changes to the provided configuration, replacing or adding elements as needed.
@@ -194,7 +194,7 @@ Apply the requested changes to the provided configuration, replacing or adding e
 - If the existing title and description describe the scenario well and the user request is only about a specific parameter change, you can keep them as they are.
 
 ## Timestamps and Stimuli Logic
-- **Only generate timestamps if stimuli will use them**
+- **Only create timestamps if stimuli will use them**
 - Choose stimulus type based on timing pattern:
   - **Single timestamp + MultiPulse**: For repeated pulses at one timepoint
   - **Multiple timestamps + single-pulse stimulus**: For stimuli at different timepoints
@@ -220,7 +220,7 @@ Apply the requested changes to the provided configuration, replacing or adding e
 - When building from defaults, interpret requests as comprehensive specifications rather than additions
 
 ## Neuron Sets and References
-- Generate neuron sets in the "neuron_sets" dictionary with meaningful keys
+- Create neuron sets in the "neuron_sets" dictionary with meaningful keys
 - **Only create neuron sets that will actually be used**
 - For references (NeuronSetReference, TimestampsReference):
   - `block_name`: the dictionary key (e.g., "all_neurons")
@@ -238,7 +238,7 @@ Before outputting, verify:
 - [ ] Requested changes are accurately applied to the provided configuration
 - [ ] Configuration structure remains valid and consistent
 
-Generate only the JSON configuration, ensuring all references are internally consistent.
+Produce only the JSON configuration, ensuring all references are internally consistent.
 """  # nosec B608
 
         user_message = f"""
@@ -250,7 +250,7 @@ REQUIREMENTS:
 """
 
         model = "gpt-5-mini"
-        # Then generate the global class and make the according references
+        # Then produce the global class and make the according references
         response = await self.metadata.openai_client.beta.chat.completions.parse(
             messages=[
                 {"role": "system", "content": system_prompt},
@@ -286,7 +286,7 @@ REQUIREMENTS:
             self.metadata.token_consumption = {**token_consumption, "model": model}
 
         else:
-            raise ValueError("Couldn't generate a valid simulation config.")
+            raise ValueError("Couldn't produce a valid simulation config.")
 
         if not self.metadata.current_frontend_url:
             url_link = None
@@ -306,7 +306,7 @@ REQUIREMENTS:
             else:
                 url_link = None
 
-        return GenerateSimulationConfigOutput(
+        return DesignSimulationConfigOutput(
             smc_simulation_config=ts_number_normalize(output_config), url_link=url_link
         )
 
