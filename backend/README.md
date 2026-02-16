@@ -62,6 +62,8 @@ Their keys follow the following naming convention:
 The servers in use are defined in the file `mcp.json`.
 The potential secrets that can be set are also displayed in this file.
 
+**Note:** MCP is disabled by default (`NEUROAGENT_MCP__SKIP_INIT=true`). To enable MCP tools, set `NEUROAGENT_MCP__SKIP_INIT=false` in `.env` (adds ~2min to startup).
+
 6. Start the server:
 ```bash
 neuroagent-api

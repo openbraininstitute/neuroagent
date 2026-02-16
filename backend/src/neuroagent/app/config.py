@@ -308,6 +308,8 @@ class Settings(BaseSettings):
                 continue
             mcps["servers"][server] = config
 
+        if "mcp" not in data:
+            data["mcp"] = {}
         data["mcp"].update(mcps)
         return data
 

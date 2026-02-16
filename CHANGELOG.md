@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
-- Env var to skip MCP initialization.
+- `NEUROAGENT_MCP__SKIP_INIT` env var to skip MCP initialization for faster local development.
 
 ### Changed
 - nodeset failure doesn't raise an error anymore in circuit simulation config tool.
