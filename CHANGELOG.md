@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Get state tool
 - Explain the relationship between designing simulation configurations and retrieving them from entitycore
+- NEUROAGENT__MCP__SKIP_INIT env var to skip MCP initialization for faster local development.
 
 ### Changed
 - Rename the `obione_generatesimulationconfig` tool to `obione_designcircuitsimulationscanconfig`
