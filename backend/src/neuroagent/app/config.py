@@ -319,7 +319,7 @@ class Settings(BaseSettings):
 # Necessary for things like SSL_CERT_FILE
 config = dotenv_values()
 for k, v in config.items():
-    if k.lower().startswith("neuroagent_"):
+    if k.lower().startswith("neuroagent__"):
         continue
     if v is None:
         continue
