@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Env var to skip MCP initialization.
+
 ### Changed
 - nodeset failure doesn't raise an error anymore in circuit simulation config tool.
 - Prompt engineering of inner LLM in `obi_generatesimulationconfig`.

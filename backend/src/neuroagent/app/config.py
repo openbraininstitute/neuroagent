@@ -232,6 +232,7 @@ class SettingsMCP(BaseModel):
     """Settings for the MCP."""
 
     servers: dict[str, MCPServerConfig] | None = None
+    skip_init: bool = False
 
     model_config = ConfigDict(frozen=True)
 
@@ -307,8 +308,7 @@ class Settings(BaseSettings):
                 continue
             mcps["servers"][server] = config
 
-        data["mcp"] = mcps
-
+        data["mcp"].update(mcps)
         return data
 
 
