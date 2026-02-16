@@ -811,16 +811,6 @@ class MTypeClassification(BaseModel):
     )
 
 
-class MorphologyContainerizationScanConfig(BaseModel):
-    model_config = ConfigDict(
-        extra='ignore',
-    )
-    type: Literal['MorphologyContainerizationScanConfig'] = Field(
-        default='MorphologyContainerizationScanConfig', title='Type'
-    )
-    initialize: Initialize2
-
-
 class MorphologyMetricsOutput(BaseModel):
     model_config = ConfigDict(
         extra='ignore',
@@ -3317,6 +3307,16 @@ class MESHValidationResponse(BaseModel):
     )
     status: ValidationStatus
     message: str = Field(..., title='Message')
+
+
+class MorphologyContainerizationScanConfig(BaseModel):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    type: Literal['MorphologyContainerizationScanConfig'] = Field(
+        default='MorphologyContainerizationScanConfig', title='Type'
+    )
+    initialize: ObiOneScientificTasksMorphologyContainerizationMorphologyContainerizationScanConfigInitialize
 
 
 class MorphologyDecontainerizationScanConfig(BaseModel):
