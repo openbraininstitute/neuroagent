@@ -44,7 +44,7 @@ async def test_get_httpx_client():
 
 @pytest.mark.asyncio
 async def test_get_user(httpx_mock, monkeypatch, test_user_info):
-    monkeypatch.setenv("NEUROAGENT_KEYCLOAK__ISSUER", "https://great_issuer.com")
+    monkeypatch.setenv("NEUROAGENT__KEYCLOAK__ISSUER", "https://great_issuer.com")
 
     fake_response = {
         "sub": str(test_user_info[0]),
@@ -69,12 +69,12 @@ async def test_get_user(httpx_mock, monkeypatch, test_user_info):
 
 
 def test_get_connection_string_full(monkeypatch):
-    monkeypatch.setenv("NEUROAGENT_DB__PREFIX", "http://")
-    monkeypatch.setenv("NEUROAGENT_DB__USER", "John")
-    monkeypatch.setenv("NEUROAGENT_DB__PASSWORD", "Doe")
-    monkeypatch.setenv("NEUROAGENT_DB__HOST", "localhost")
-    monkeypatch.setenv("NEUROAGENT_DB__PORT", "5000")
-    monkeypatch.setenv("NEUROAGENT_DB__NAME", "test")
+    monkeypatch.setenv("NEUROAGENT__DB__PREFIX", "http://")
+    monkeypatch.setenv("NEUROAGENT__DB__USER", "John")
+    monkeypatch.setenv("NEUROAGENT__DB__PASSWORD", "Doe")
+    monkeypatch.setenv("NEUROAGENT__DB__HOST", "localhost")
+    monkeypatch.setenv("NEUROAGENT__DB__PORT", "5000")
+    monkeypatch.setenv("NEUROAGENT__DB__NAME", "test")
 
     settings = Settings()
     result = get_connection_string(settings)

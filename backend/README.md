@@ -45,24 +45,24 @@ docker run -d -p 6379:6379 redis
 Rate limiting can be configured in the `.env` file:
 ```bash
 # Redis connection
-NEUROAGENT_RATE_LIMITER__REDIS_HOST=localhost
-NEUROAGENT_RATE_LIMITER__REDIS_PORT=6379
+NEUROAGENT__RATE_LIMITER__REDIS_HOST=localhost
+NEUROAGENT__RATE_LIMITER__REDIS_PORT=6379
 
 # Rate limits (per 24h by default)
-NEUROAGENT_RATE_LIMITER__LIMIT_CHAT=10          # Max chat requests
-NEUROAGENT_RATE_LIMITER__LIMIT_SUGGESTIONS=100  # Max suggestion requests
+NEUROAGENT__RATE_LIMITER__LIMIT_CHAT=10          # Max chat requests
+NEUROAGENT__RATE_LIMITER__LIMIT_SUGGESTIONS=100  # Max suggestion requests
 
 # Disable rate limiting entirely
-NEUROAGENT_RATE_LIMITER__DISABLED=true
+NEUROAGENT__RATE_LIMITER__DISABLED=true
 ```
 
 5. (Optional) MCP server secrets can also be configured in the `.env` file.
 Their keys follow the following naming convention:
-`NEUROAGENT_MCP__SECRETS__${secret_name}=${secret_value}`
+`NEUROAGENT__MCP__SECRETS__${secret_name}=${secret_value}`
 The servers in use are defined in the file `mcp.json`.
 The potential secrets that can be set are also displayed in this file.
 
-**Note:** MCP is disabled by default (`NEUROAGENT_MCP__SKIP_INIT=true`). To enable MCP tools, set `NEUROAGENT_MCP__SKIP_INIT=false` in `.env` (adds ~2min to startup).
+**Note:** MCP is disabled by default (`NEUROAGENT__MCP__SKIP_INIT=true`). To enable MCP tools, set `NEUROAGENT__MCP__SKIP_INIT=false` in `.env` (adds ~2min to startup).
 
 6. Start the server:
 ```bash

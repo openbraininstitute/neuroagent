@@ -268,7 +268,7 @@ class Settings(BaseSettings):
 
     model_config = SettingsConfigDict(
         env_file=".env",
-        env_prefix="NEUROAGENT_",
+        env_prefix="NEUROAGENT__",
         env_nested_delimiter="__",
         frozen=True,
         extra="ignore",
@@ -285,7 +285,7 @@ class Settings(BaseSettings):
         # Replace placeholders with secret values in server config
         if "mcp" in data.keys():
             for secret_key, secret_value in data["mcp"].get("secrets", {}).items():
-                placeholder = f"NEUROAGENT_MCP__SECRETS__{secret_key.upper()}"
+                placeholder = f"NEUROAGENT__MCP__SECRETS__{secret_key.upper()}"
                 replacement = secret_value or ""
                 servers = servers.replace(placeholder, replacement)
 
@@ -300,7 +300,8 @@ class Settings(BaseSettings):
         for server, config in parsed_servers.items():
             # If a secret is not set, do not include the associated server
             if config.get("env") and any(
-                "NEUROAGENT_MCP__SECRETS__" in value for value in config["env"].values()
+                "NEUROAGENT__MCP__SECRETS__" in value
+                for value in config["env"].values()
             ):
                 logger.warning(
                     f"MCP server {server} deactivated because some of its secrets were not provided."
