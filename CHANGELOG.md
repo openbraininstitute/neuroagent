@@ -7,7 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Get state tool
+- Explain the relationship between designing simulation configurations and retrieving them from entitycore
+
 ### Changed
+- Rename the `obione_generatesimulationconfig` tool to `obione_designcircuitsimulationscanconfig`
 - nodeset failure doesn't raise an error anymore in circuit simulation config tool.
 - Prompt engineering of inner LLM in `obi_generatesimulationconfig`.
 
