@@ -303,3 +303,13 @@ class SearchMessagesList(BaseModel):
     """Class for the message search result list."""
 
     result_list: list[SearchMessagesResult]
+
+
+class FrontendContextOutput(BaseModel):
+    """Output of the Context Analyzer tool."""
+
+    raw_path: str
+    query_params: dict[str, list[str]]
+    brain_region_id: str | None = None
+    observed_entity_type: str | None = None
+    current_entity_id: str | None = None

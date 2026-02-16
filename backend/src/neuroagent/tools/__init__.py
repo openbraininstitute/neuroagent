@@ -3,7 +3,6 @@
 from neuroagent.tools.circuit_population_analysis_tool import (
     CircuitPopulationAnalysisTool,
 )
-from neuroagent.tools.context_analyzer_tool import ContextAnalyzerTool
 from neuroagent.tools.entitycore_asset_downloadone import AssetDownloadOneTool
 from neuroagent.tools.entitycore_asset_getall import AssetGetAllTool
 from neuroagent.tools.entitycore_asset_getone import AssetGetOneTool
@@ -174,7 +173,6 @@ __all__ = [
     "CircuitPopulationGetOneTool",
     "ContributionGetAllTool",
     "ContributionGetOneTool",
-    "ContextAnalyzerTool",
     "CircuitPopulationAnalysisTool",
     "ElectricalCellRecordingGetAllTool",
     "ElectricalCellRecordingGetOneTool",

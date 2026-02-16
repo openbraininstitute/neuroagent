@@ -59,6 +59,13 @@ export function ChatPage({
   const [isInvalidating, setIsInvalidating] = useState(false);
   // For frontend url
   const frontendUrl = Cookies.get("frontendUrl") || "";
+  const circuitId = frontendUrl.includes(
+    "/workflows/simulate/configure/circuit/",
+  )
+    ? frontendUrl
+        .split("/workflows/simulate/configure/circuit/")[1]
+        ?.split(/[?/]/)[0]
+    : undefined;
   // Simulation config json
   const [simConfigJson, setSimConfigJson] = useState<
     Record<string, CircuitSimulationScanConfig>
@@ -71,7 +78,7 @@ export function ChatPage({
       },
       initialize: {
         circuit: {
-          id_str: "d311460b-4169-407c-b9c9-39015fa1e65a",
+          id_str: circuitId ?? "",
           type: "CircuitFromID",
         },
         extracellular_calcium_concentration: 1.1,

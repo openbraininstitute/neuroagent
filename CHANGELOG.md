@@ -7,11 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- Plots are now embeded in chat.
+- nodeset failure doesn't raise an error anymore in circuit simulation config tool.
+- Prompt engineering of inner LLM in `obi_generatesimulationconfig`.
+
+## [0.16.0] - 11.02.2026
+
 ### Added
 - Fetch credits documents in OBI Expert tool.
 
 ### Changed
-- Plots are now embeded in chat.
+- Simulation config tool outputs link to simulation page + prompt engineering.
+
+### Removed
+- Context analyzer tool.
+
 
 ## [0.15.1] - 05.02.2026
 

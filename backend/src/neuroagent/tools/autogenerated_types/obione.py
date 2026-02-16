@@ -108,20 +108,20 @@ class BodyMorphologyMetricsCalculationDeclaredRegisterMorphologyWithCalculatedMe
     metadata: str = Field(default='{}', title='Metadata')
 
 
-class BodyTestNeuronFileDeclaredTestNeuronFilePost(BaseModel):
+class BodyValidateMeshFileDeclaredTestMeshFilePost(BaseModel):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    file: bytes = Field(..., description='MESH file to upload (.obj)', title='File')
+
+
+class BodyValidateNeuronFileDeclaredTestNeuronFilePost(BaseModel):
     model_config = ConfigDict(
         extra='ignore',
     )
     file: bytes = Field(
         ..., description='Neuron file to upload (.swc, .h5, or .asc)', title='File'
     )
-
-
-class BodyValidateMeshFileDeclaredTestMeshFilePost(BaseModel):
-    model_config = ConfigDict(
-        extra='ignore',
-    )
-    file: bytes = Field(..., description='MESH file to upload (.obj)', title='File')
 
 
 class BodyValidateNwbFileDeclaredValidateElectrophysiologyProtocolNwbFilePost(
@@ -606,18 +606,6 @@ class InhibitoryNeurons(BaseModel):
     sample_seed: int | list[int] = Field(
         default=1, description='Seed for random sampling.', title='Sample Seed'
     )
-
-
-class Initialize2(BaseModel):
-    model_config = ConfigDict(
-        extra='ignore',
-    )
-    type: Literal['MorphologyContainerizationScanConfig.Initialize'] = Field(
-        default='MorphologyContainerizationScanConfig.Initialize', title='Type'
-    )
-    circuit: Circuit | list[Circuit] = Field(..., title='Circuit')
-    hoc_template_old: str = Field(..., title='Hoc Template Old')
-    hoc_template_new: str = Field(..., title='Hoc Template New')
 
 
 class IntRange(BaseModel):
@@ -1469,6 +1457,16 @@ class ScaleAcetylcholineUSESynapticManipulation(BaseModel):
     type: Literal['ScaleAcetylcholineUSESynapticManipulation'] = Field(
         default='ScaleAcetylcholineUSESynapticManipulation', title='Type'
     )
+    presynaptic_neuron_set: NeuronSetReference | None = Field(
+        default=None,
+        description='The manipulation is applied to all synapses between the presynaptic and postsynaptic neuron sets.',
+        title='Presynaptic Neuron Set',
+    )
+    postsynaptic_neuron_set: NeuronSetReference | None = Field(
+        default=None,
+        description='The manipulation is applied to all synapses between the presynaptic and postsynaptic neuron sets.',
+        title='Postsynaptic Neuron Set',
+    )
     use_scaling: UseScaling | list[UseScalingItem] = Field(
         default_factory=lambda: UseScaling(0.7050728631217412),
         description='Scale the U_SE (ACh) parameter of the Tsodyks-Markram synaptic model.',
@@ -1869,6 +1867,16 @@ class SynapticMgManipulation(BaseModel):
     )
     type: Literal['SynapticMgManipulation'] = Field(
         default='SynapticMgManipulation', title='Type'
+    )
+    presynaptic_neuron_set: NeuronSetReference | None = Field(
+        default=None,
+        description='The manipulation is applied to all synapses between the presynaptic and postsynaptic neuron sets.',
+        title='Presynaptic Neuron Set',
+    )
+    postsynaptic_neuron_set: NeuronSetReference | None = Field(
+        default=None,
+        description='The manipulation is applied to all synapses between the presynaptic and postsynaptic neuron sets.',
+        title='Postsynaptic Neuron Set',
     )
     magnesium_value: MagnesiumValue | list[MagnesiumValueItem] = Field(
         default_factory=lambda: MagnesiumValue(2.4),
@@ -2401,25 +2409,18 @@ class ObiOneScientificTasksGenerateSimulationConfigsMEModelWithSynapsesCircuitSi
     )
 
 
-class ObiOneScientificTasksIonChannelModelingIonChannelFittingScanConfigInitialize(
+class ObiOneScientificTasksMorphologyContainerizationMorphologyContainerizationScanConfigInitialize(
     BaseModel
 ):
     model_config = ConfigDict(
         extra='ignore',
     )
-    type: Literal['IonChannelFittingScanConfig.Initialize'] = Field(
-        default='IonChannelFittingScanConfig.Initialize', title='Type'
+    type: Literal['MorphologyContainerizationScanConfig.Initialize'] = Field(
+        default='MorphologyContainerizationScanConfig.Initialize', title='Type'
     )
-    recordings: IonChannelRecordingFromID = Field(
-        ..., description='IDs of the traces of interest.', title='Ion channel recording'
-    )
-    ion_channel_name: str = Field(
-        default='DefaultIonChannelName',
-        description='The name you want to give to the generated ion channel model (used as SUFFIX in the mod file). Name must start with a letter or underscore, and can only contain letters, numbers, and underscores.',
-        min_length=1,
-        pattern='^[A-Za-z_][A-Za-z0-9_]*$',
-        title='Ion channel name',
-    )
+    circuit: Circuit | list[Circuit] = Field(..., title='Circuit')
+    hoc_template_old: str = Field(..., title='Hoc Template Old')
+    hoc_template_new: str = Field(..., title='Hoc Template New')
 
 
 class ObiOneScientificTasksMorphologyDecontainerizationMorphologyDecontainerizationScanConfigInitialize(
@@ -2715,7 +2716,7 @@ class NeuronMorphologyMetricsEndpointDeclaredNeuronMorphologyMetricsCellMorpholo
     )
 
 
-class TestNeuronFileDeclaredTestNeuronFilePostParametersQuery(BaseModel):
+class ValidateNeuronFileDeclaredTestNeuronFilePostParametersQuery(BaseModel):
     model_config = ConfigDict(
         extra='ignore',
     )
@@ -2944,6 +2945,35 @@ class Initialize1(BaseModel):
     )
 
 
+class ConnectSynapticManipulation(BaseModel):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    type: Literal['ConnectSynapticManipulation'] = Field(
+        default='ConnectSynapticManipulation', title='Type'
+    )
+    presynaptic_neuron_set: NeuronSetReference | None = Field(
+        default=None,
+        description='The manipulation is applied to all synapses between the presynaptic and postsynaptic neuron sets.',
+        title='Presynaptic Neuron Set',
+    )
+    postsynaptic_neuron_set: NeuronSetReference | None = Field(
+        default=None,
+        description='The manipulation is applied to all synapses between the presynaptic and postsynaptic neuron sets.',
+        title='Postsynaptic Neuron Set',
+    )
+    timestamps: TimestampsReference | None = Field(
+        default=None,
+        description='Timestamps at which the manipulation is applied.',
+        title='Timestamps',
+    )
+    timestamp_offset: float | list[float] | None = Field(
+        default=0.0,
+        description='An optional offset of the manipulation relative to each timestamp in milliseconds (ms).',
+        title='Timestamp Offset',
+    )
+
+
 class ConnectivityMatrixExtractionScanConfig(BaseModel):
     model_config = ConfigDict(
         extra='ignore',
@@ -3030,6 +3060,35 @@ class ContributeSubjectScanConfig(BaseModel):
     )
     subject: Subject | None = Field(
         default=None, description='Information about the subject.'
+    )
+
+
+class DisconnectSynapticManipulation(BaseModel):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    type: Literal['DisconnectSynapticManipulation'] = Field(
+        default='DisconnectSynapticManipulation', title='Type'
+    )
+    presynaptic_neuron_set: NeuronSetReference | None = Field(
+        default=None,
+        description='The manipulation is applied to all synapses between the presynaptic and postsynaptic neuron sets.',
+        title='Presynaptic Neuron Set',
+    )
+    postsynaptic_neuron_set: NeuronSetReference | None = Field(
+        default=None,
+        description='The manipulation is applied to all synapses between the presynaptic and postsynaptic neuron sets.',
+        title='Postsynaptic Neuron Set',
+    )
+    timestamps: TimestampsReference | None = Field(
+        default=None,
+        description='Timestamps at which the manipulation is applied.',
+        title='Timestamps',
+    )
+    timestamp_offset: float | list[float] | None = Field(
+        default=0.0,
+        description='An optional offset of the manipulation relative to each timestamp in milliseconds (ms).',
+        title='Timestamp Offset',
     )
 
 
@@ -3151,10 +3210,23 @@ class IDNeuronSet(BaseModel):
     )
 
 
-class Initialize3(
-    ObiOneScientificTasksIonChannelModelingIonChannelFittingScanConfigInitialize
-):
-    pass
+class Initialize2(BaseModel):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    type: Literal['IonChannelFittingScanConfig.Initialize'] = Field(
+        default='IonChannelFittingScanConfig.Initialize', title='Type'
+    )
+    recordings: IonChannelRecordingFromID = Field(
+        ..., description='IDs of the traces of interest.', title='Ion channel recording'
+    )
+    ion_channel_name: str = Field(
+        default='DefaultIonChannelName',
+        description='The name you want to give to the generated ion channel model (used as SUFFIX in the mod file). Name must start with a letter or underscore, and can only contain letters, numbers, and underscores.',
+        min_length=1,
+        pattern='^[A-Za-z_][A-Za-z0-9_]*$',
+        title='Ion channel name',
+    )
 
 
 class IonChannelFittingScanConfig(BaseModel):
@@ -3164,7 +3236,7 @@ class IonChannelFittingScanConfig(BaseModel):
     type: Literal['IonChannelFittingScanConfig'] = Field(
         default='IonChannelFittingScanConfig', title='Type'
     )
-    initialize: Initialize3 = Field(
+    initialize: Initialize2 = Field(
         ...,
         description='Parameters for initializing the simulation.',
         title='Initialization',
@@ -3959,7 +4031,13 @@ class CircuitSimulationScanConfig(BaseModel):
         default=None, description='Neuron sets for the simulation.', title='Neuron Sets'
     )
     synaptic_manipulations: (
-        dict[str, SynapticMgManipulation | ScaleAcetylcholineUSESynapticManipulation]
+        dict[
+            str,
+            DisconnectSynapticManipulation
+            | ConnectSynapticManipulation
+            | SynapticMgManipulation
+            | ScaleAcetylcholineUSESynapticManipulation,
+        ]
         | None
     ) = Field(
         default=None,
@@ -4057,7 +4135,13 @@ class MEModelWithSynapsesCircuitSimulationScanConfig(BaseModel):
         default=None, description='Neuron sets for the simulation.', title='Neuron Sets'
     )
     synaptic_manipulations: (
-        dict[str, SynapticMgManipulation | ScaleAcetylcholineUSESynapticManipulation]
+        dict[
+            str,
+            DisconnectSynapticManipulation
+            | ConnectSynapticManipulation
+            | SynapticMgManipulation
+            | ScaleAcetylcholineUSESynapticManipulation,
+        ]
         | None
     ) = Field(
         default=None,
@@ -4123,7 +4207,13 @@ class SimulationsForm(BaseModel):
         default=None, description='Neuron sets for the simulation.', title='Neuron Sets'
     )
     synaptic_manipulations: (
-        dict[str, SynapticMgManipulation | ScaleAcetylcholineUSESynapticManipulation]
+        dict[
+            str,
+            DisconnectSynapticManipulation
+            | ConnectSynapticManipulation
+            | SynapticMgManipulation
+            | ScaleAcetylcholineUSESynapticManipulation,
+        ]
         | None
     ) = Field(
         default=None,
