@@ -14,7 +14,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Rename the `obione_generatesimulationconfig` tool to `obione_designcircuitsimulationscanconfig`
 - nodeset failure doesn't raise an error anymore in circuit simulation config tool.
+- Fixed a couple of small bugs + reduce in between tool calls verbosity.
 - Prompt engineering of inner LLM in `obi_generatesimulationconfig`.
+- Modify all env var names from `NEUROAGENT_...` to `NEUROAGENT__...`.
 
 ## [0.16.0] - 11.02.2026
 

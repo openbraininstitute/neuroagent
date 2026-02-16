@@ -121,7 +121,7 @@ async def test_validate_project_empty_groups(vlab_id, proj_id):
 def test_setup_engine(create_engine_mock, monkeypatch):
     create_engine_mock.return_value = AsyncMock()
 
-    monkeypatch.setenv("NEUROAGENT_DB__PREFIX", "prefix")
+    monkeypatch.setenv("NEUROAGENT__DB__PREFIX", "prefix")
 
     settings = Settings()
 
@@ -134,7 +134,7 @@ def test_setup_engine(create_engine_mock, monkeypatch):
 def test_setup_engine_no_connection_string(create_engine_mock, monkeypatch):
     create_engine_mock.return_value = AsyncMock()
 
-    monkeypatch.setenv("NEUROAGENT_DB__PREFIX", "prefix")
+    monkeypatch.setenv("NEUROAGENT__DB__PREFIX", "prefix")
 
     settings = Settings()
 
@@ -756,7 +756,7 @@ async def test_filter_tools_only_model_selection(get_weather_tool):
     mock_openai_client.set_response(
         create_mock_response(
             {"role": "assistant", "content": ""},
-            structured_output_class=ComplexityFiltering(complexity=7),
+            structured_output_class=ComplexityFiltering(complexity=9),
         )
     )
     messages = [

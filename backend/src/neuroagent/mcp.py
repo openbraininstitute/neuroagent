@@ -34,7 +34,8 @@ class MCPClient:
 
     async def __aenter__(self) -> "MCPClient | None":
         """Enter the async context manager."""
-        if not self.config.servers:
+        if not self.config.servers or self.config.skip_init:
+            logger.info("Skipping MCP client initialization")
             return None
 
         await self.group_session.__aenter__()
