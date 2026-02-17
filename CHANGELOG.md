@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - NEUROAGENT__MCP__SKIP_INIT env var to skip MCP initialization for faster local development.
 
 ### Changed
+- Plots are now embeded in chat.
 - Rename the `obione_generatesimulationconfig` tool to `obione_designcircuitsimulationscanconfig`
 - nodeset failure doesn't raise an error anymore in circuit simulation config tool.
 - Fixed a couple of small bugs + reduce in between tool calls verbosity.
@@ -30,6 +31,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 - Context analyzer tool.
 
+
 ## [0.15.1] - 05.02.2026
 
 ### Added
@@ -43,6 +45,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Rule on how to format `ilike` wildcards.
 
 ### Changed
+
 - Route all writing to `/tmp`.
 - OBI expert points at the documentationProduct instead of documentationGithub
 - Expose the `x-request-id` header for CORS requests.

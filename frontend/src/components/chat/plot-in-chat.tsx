@@ -2,61 +2,62 @@
 
 import { ImagePlot } from "@/components/plots/image";
 import { Plots } from "@/components/plots/plotly";
+import { PlotSkeleton } from "@/components/plots/skeleton";
 import { useGetPresignedUrl } from "@/hooks/get-presigned";
 import { useGetObjectFromStorage } from "@/hooks/get-storage-object";
 import { memo } from "react";
 
-type PlotDisplayProps = {
-  storageIds: string[];
-};
-
-export default function PlotsInChat({ storageIds }: PlotDisplayProps) {
-  if (storageIds.length === 0) {
-    return null;
-  }
-
-  return (
-    <div className="max-w ml-20 grid grid-cols-2 gap-4">
-      {storageIds.map((storageId) => (
-        <div key={storageId} className="flex min-h-[27rem] justify-start">
-          <SinglePlotInChat key={storageId} storageId={storageId} />
-        </div>
-      ))}
-    </div>
-  );
-}
-
-const SinglePlotInChat = memo(({ storageId }: { storageId: string }) => {
-  const { data: presignedUrl, isPending } = useGetPresignedUrl(storageId);
-  const { data: responseHeader } = useGetObjectFromStorage(
-    presignedUrl as string,
-    !isPending,
-    true,
-  );
+const PlotInChat = memo(({ storageId }: { storageId: string }) => {
+  const {
+    data: presignedUrl,
+    isPending,
+    isError,
+  } = useGetPresignedUrl(storageId);
+  const { data: responseHeader, isError: isStorageError } =
+    useGetObjectFromStorage(
+      presignedUrl as string,
+      !isPending && !isError,
+      true,
+    );
   const category = responseHeader?.get("X-Amz-Meta-Category");
 
-  if (!category) {
+  if (isError || isStorageError) {
     return (
-      <div className="flex h-full w-full items-center justify-center border-4">
-        <div className="h-6 w-6 animate-spin rounded-full border-2 border-gray-500 border-t-transparent p-1" />
+      <div className="ml-20 block">
+        <span className="flex">
+          <span className="inline-block rounded-lg border border-yellow-400/50 bg-yellow-50/80 px-4 py-2 text-xs text-yellow-700 dark:border-yellow-600/30 dark:bg-yellow-900/20 dark:text-yellow-400/80">
+            Error loading plot. Plots can be seen above.
+          </span>
+        </span>
       </div>
     );
   }
 
-  switch (category) {
-    case "image":
-      return <ImagePlot url={presignedUrl ?? ""} storageId={storageId} />;
-    case "json":
-      return (
+  if (!category) {
+    return <PlotSkeleton className="ml-20" />;
+  }
+
+  return (
+    <div className="ml-20 block">
+      {category === "image" ? (
+        <ImagePlot
+          url={presignedUrl ?? ""}
+          storageId={storageId}
+          isInChat={true}
+        />
+      ) : category === "json" ? (
         <Plots
           presignedUrl={presignedUrl ?? ""}
           storageId={storageId}
           isInChat={true}
         />
-      );
-    default:
-      return <p>Error: Unsupported file category: {category}</p>;
-  }
+      ) : (
+        <p>Error: Unsupported file category: {category}</p>
+      )}
+    </div>
+  );
 });
 
-SinglePlotInChat.displayName = "SinglePlotInChat";
+PlotInChat.displayName = "PlotInChat";
+
+export default PlotInChat;

@@ -352,7 +352,7 @@
           "score": 0.0,
           "success": false,
           "threshold": 0.5,
-          "reason": "[\n\t Tool Calling Reason: Incomplete tool usage: missing tools [ToolCall(\n    name=\"web-search-tool\",\n    input_parameters={\n        \"query\": \"NEURON simulation software\",\n        \"num_results\": 5\n    }\n)]; expected ['web-search-tool'], called ['web-search-tool']. See more details above.\n\t Tool Selection Reason: No available tools were provided to assess tool selection criteria\n]\n"
+          "reason": "Incomplete tool usage: missing tools [ToolCall(\n    name=\"web-search-tool\",\n    input_parameters={\n        \"query\": \"NEURON simulation software\",\n        \"num_results\": 5\n    }\n)]; expected ['web-search-tool'], called ['web-search-tool']. See more details above."
         },
         {
           "name": "Overall Argument Correctness",
@@ -673,7 +673,7 @@
           "score": 1.0,
           "success": true,
           "threshold": 0.5,
-          "reason": "[\n\t Tool Calling Reason: Correct ordering: all expected tools ['entitycore-brainregion-getall', 'entitycore-cellmorphology-getall'] were called in the correct order.\n\t Tool Selection Reason: No available tools were provided to assess tool selection criteria\n]\n"
+          "reason": "Correct ordering: all expected tools ['entitycore-brainregion-getall', 'entitycore-cellmorphology-getall'] were called in the correct order."
         },
         {
           "name": "Argument Correctness",
@@ -1158,7 +1158,7 @@
           "score": 0.0,
           "success": false,
           "threshold": 0.5,
-          "reason": "[\n\t Tool Calling Reason: Incomplete tool usage: missing tools [ToolCall(\n    name=\"literature-search-tool\",\n    input_parameters={\n        \"query\": \"neuron morphology cerebrum\",\n        \"numResults\": 5,\n        \"maxCharacters\": 1000\n    }\n)]; expected ['literature-search-tool'], called ['literature-search-tool']. See more details above.\n\t Tool Selection Reason: No available tools were provided to assess tool selection criteria\n]\n"
+          "reason": "Incomplete tool usage: missing tools [ToolCall(\n    name=\"literature-search-tool\",\n    input_parameters={\n        \"query\": \"neuron morphology cerebrum\",\n        \"numResults\": 5,\n        \"maxCharacters\": 1000\n    }\n)]; expected ['literature-search-tool'], called ['literature-search-tool']. See more details above."
         },
         {
           "name": "Overall Argument Correctness",

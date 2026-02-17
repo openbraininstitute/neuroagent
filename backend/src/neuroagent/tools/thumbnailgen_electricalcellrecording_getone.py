@@ -34,12 +34,13 @@ class PlotElectricalCellRecordingGetOneMetadata(BaseMetadata):
     thread_id: UUID
     vlab_id: UUID | None
     project_id: UUID | None
+    storage_frontend_url: str
 
 
 class PlotElectricalCellRecordingGetOneOutput(BaseModel):
     """Output of the PlotElectricalCellRecordingGetOneTool."""
 
-    storage_id: str
+    image_link: str
 
 
 class PlotElectricalCellRecordingGetOneTool(BaseTool):
@@ -65,10 +66,7 @@ class PlotElectricalCellRecordingGetOneTool(BaseTool):
         entity_id: ID of the target entity.
 
         **Output**:
-        storage_id: Identifier for where the generated plot is stored.
-
-        **Notes**:
-        Do not embed or display the plot link directly in your response.
+        image_link: URL to the stored plot image that should be embedded as an image in responses.
     """
     description_frontend: ClassVar[
         str
@@ -138,7 +136,8 @@ class PlotElectricalCellRecordingGetOneTool(BaseTool):
             thread_id=self.metadata.thread_id,
         )
 
-        return PlotElectricalCellRecordingGetOneOutput(storage_id=identifier)
+        url = f"{self.metadata.storage_frontend_url}/{identifier}"
+        return PlotElectricalCellRecordingGetOneOutput(image_link=url)
 
     @classmethod
     async def is_online(
