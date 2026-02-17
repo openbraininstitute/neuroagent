@@ -66,7 +66,6 @@ class PlotElectricalCellRecordingGetOneTool(BaseTool):
         entity_id: ID of the target entity.
 
         **Output**:
-        storage_id: Identifier for where the generated plot is stored.
         image_link: URL to the stored plot image that should be embedded as an image in responses.
     """
     description_frontend: ClassVar[

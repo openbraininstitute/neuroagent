@@ -21,7 +21,10 @@ const ConditionalImageRenderer = ({
     );
   }
 
-  const isSameOrigin = new URL(src).origin === window.location.origin;
+  const origin = new URL(src).origin;
+  const isSameOrigin =
+    origin === window.location.origin ||
+    origin === "https://staging.openbraininstitute.org";
 
   if (!isSameOrigin) {
     return (
