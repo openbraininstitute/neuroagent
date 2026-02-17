@@ -114,8 +114,9 @@ from neuroagent.tools import (
     WebSearchTool,
 )
 from neuroagent.tools.base_tool import BaseTool
-from neuroagent.tools.obione_generatesimulationsconfig import (
-    GenerateSimulationsConfigTool,
+from neuroagent.tools.getstate import GetStateTool
+from neuroagent.tools.obione_designcircuitsimulationscanconfig import (
+    DesignSimulationsConfigTool,
 )
 
 logger = logging.getLogger(__name__)
@@ -421,7 +422,8 @@ def get_tool_list(
         ExperimentalNeuronDensityGetOneTool,
         ExperimentalSynapsesPerConnectionGetAllTool,
         ExperimentalSynapsesPerConnectionGetOneTool,
-        GenerateSimulationsConfigTool,
+        DesignSimulationsConfigTool,
+        GetStateTool,
         IonChannelGetAllTool,
         IonChannelGetOneTool,
         IonChannelModelGetAllTool,

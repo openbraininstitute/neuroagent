@@ -89,7 +89,7 @@ export const ChatMessageTool = function ChatMessageTool({
   // Check for state update when sim config tool
   useEffect(() => {
     if (
-      tool.toolName === "obione-generatesimulationsconfig" &&
+      tool.toolName === "obione-designcircuitsimulationscanconfig" &&
       tool.state === "result"
     ) {
       try {
@@ -130,7 +130,7 @@ export const ChatMessageTool = function ChatMessageTool({
             onValidationClick={() => setDialogOpen(true)}
           />
         </div>
-        {tool.toolName === "obione-generatesimulationsconfig" && (
+        {tool.toolName === "obione-designcircuitsimulationscanconfig" && (
           <button
             onClick={() => setIsSidebarOpen((prev) => !prev)}
             className="ml-2 rounded-lg p-1 transition-colors hover:bg-gray-200"
@@ -140,7 +140,7 @@ export const ChatMessageTool = function ChatMessageTool({
           </button>
         )}
       </div>
-      {tool.toolName === "obione-generatesimulationsconfig" && (
+      {tool.toolName === "obione-designcircuitsimulationscanconfig" && (
         <JsonSidebar
           isOpen={isSidebarOpen}
           onClose={() => setIsSidebarOpen(false)}
