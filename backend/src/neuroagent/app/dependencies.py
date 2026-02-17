@@ -114,8 +114,9 @@ from neuroagent.tools import (
     WebSearchTool,
 )
 from neuroagent.tools.base_tool import BaseTool
-from neuroagent.tools.obione_generatesimulationsconfig import (
-    GenerateSimulationsConfigTool,
+from neuroagent.tools.getstate import GetStateTool
+from neuroagent.tools.obione_designcircuitsimulationscanconfig import (
+    DesignSimulationsConfigTool,
 )
 
 logger = logging.getLogger(__name__)
@@ -421,7 +422,8 @@ def get_tool_list(
         ExperimentalNeuronDensityGetOneTool,
         ExperimentalSynapsesPerConnectionGetAllTool,
         ExperimentalSynapsesPerConnectionGetOneTool,
-        GenerateSimulationsConfigTool,
+        DesignSimulationsConfigTool,
+        GetStateTool,
         IonChannelGetAllTool,
         IonChannelGetOneTool,
         IonChannelModelGetAllTool,
@@ -659,7 +661,11 @@ Current time: {datetime.now(timezone.utc).isoformat()}"""
         body = await request.json()
         if body.get("frontend_url"):
             system_prompt += f"""
-Information about the entity the user is currently viewing, extracted from the URL of the page they are on: {extract_frontend_context(body["frontend_url"]).model_dump()}. Treat this information as context for the user's request, but only use it when the user's request is vague or ambiguous. If the user's request is explicit or specific, you should disregard this contextual information and instead prioritize and override it with the user's explicit request. The values provided should be assumed to reflect the latest page the user is on. If additional or more detailed information is needed beyond what is provided, you may use tool calls to expand upon the basic information available here."""
+Information extracted from the user's current page URL: {extract_frontend_context(body["frontend_url"]).model_dump()}.
+NOTE: This context contains only IDs (e.g., brain_region_id, current_entity_id), not names or labels. Use these IDs ONLY when:
+- The user clearly references "this brain region," "current page," or similar terms
+- The user's query unmistakably concerns the viewed entity
+DO NOT assume relevance of these IDs unless the user specifies. For queries about brain regions by name or generic references (e.g., "a brain region"), ALWAYS use tool calls to resolve to the correct entity. Treat this context as a reference; do not override explicit user instructions or named entities."""
         return system_prompt
 
 

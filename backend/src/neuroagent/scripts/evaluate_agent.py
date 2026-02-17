@@ -41,6 +41,8 @@ class TestCaseParams(BaseModel):
     """Model for params.json files."""
 
     tags: list[str] = Field(default_factory=list)
+    frontend_url: str | None = Field(default=None)
+    shared_state: dict[str, Any] | None = Field(default=None)
 
 
 class ToolCallModel(BaseModel):
@@ -452,12 +454,29 @@ async def eval_sample(
         else:
             raise RuntimeError(f"Failed to create a thread. Reason: {response.text}")
         try:
+            # Build request body with defaults
+            default_frontend_url = "https://staging.openbraininstitute.org/app/virtual-lab/82b783eb-fac6-45ec-a928-84322e3a9672/7ef8dc29-233a-4c01-94b8-8c1420105304/data/browse"
+            default_shared_state: dict[str, Any] = {"smc_simulation_config": None}
+
+            params: TestCaseParams = test_case["params"]
+            frontend_url = (
+                params.frontend_url
+                if params.frontend_url is not None
+                else default_frontend_url
+            )
+            shared_state = (
+                params.shared_state
+                if params.shared_state is not None
+                else default_shared_state
+            )
+
             # Send the request to chat_streamed using the previously created thread
             response = await client.post(
                 f"{url}/qa/chat_streamed/{thread_id}",
                 json={
                     "content": test_case["input"],
-                    "frontend_url": "https://staging.openbraininstitute.org/app/virtual-lab/82b783eb-fac6-45ec-a928-84322e3a9672/7ef8dc29-233a-4c01-94b8-8c1420105304/data/browse/entity/cell-morphology?br_id=2a156e47-0842-4a40-bd1e-2afffb4dbafd&br_av=477",
+                    "frontend_url": frontend_url,
+                    "shared_state": shared_state,
                     "model": "auto",
                 },
             )
@@ -645,7 +664,7 @@ async def run_eval(
 
 if __name__ == "__main__":
     load_dotenv()
-    os.environ["OPENAI_API_KEY"] = os.getenv("NEUROAGENT_LLM__OPENAI_TOKEN", "")
+    os.environ["OPENAI_API_KEY"] = os.getenv("NEUROAGENT__LLM__OPENAI_TOKEN", "")
 
     parser = get_parser()
     args = parser.parse_args()

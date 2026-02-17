@@ -7,10 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Get state tool
+- Explain the relationship between designing simulation configurations and retrieving them from entitycore
+- NEUROAGENT__MCP__SKIP_INIT env var to skip MCP initialization for faster local development.
+
 ### Changed
 - Plots are now embeded in chat.
+- Rename the `obione_generatesimulationconfig` tool to `obione_designcircuitsimulationscanconfig`
 - nodeset failure doesn't raise an error anymore in circuit simulation config tool.
+- Fixed a couple of small bugs + reduce in between tool calls verbosity.
 - Prompt engineering of inner LLM in `obi_generatesimulationconfig`.
+- Modify all env var names from `NEUROAGENT_...` to `NEUROAGENT__...`.
 
 ## [0.16.0] - 11.02.2026
 

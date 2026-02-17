@@ -1,6 +1,6 @@
 [
   {
-    "name": "obione-generatesimulationsconfig",
+    "name": "obione-designcircuitsimulationscanconfig",
     "arguments": {
       "circuit_id": "abc123",
       "config_request": "100 neurons, duration of 500ms, and a current clamp stimulus at 50ms"
