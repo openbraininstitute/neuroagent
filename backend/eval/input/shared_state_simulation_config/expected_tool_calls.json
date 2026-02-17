@@ -1,6 +1,8 @@
 [
   {
     "name": "getstate",
-    "arguments": {}
+    "arguments": {
+      "path": "/smc_simulation_config"
+    }
   }
 ]

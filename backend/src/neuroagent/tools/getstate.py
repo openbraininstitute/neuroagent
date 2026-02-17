@@ -1,17 +1,20 @@
 """Tool to retrieve the current shared state from the frontend."""
 
-from typing import Any, ClassVar
+from typing import Any, ClassVar, Literal
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from neuroagent.new_types import SharedState
 from neuroagent.tools.base_tool import BaseMetadata, BaseTool
 
 
 class GetStateInput(BaseModel):
-    """Input schema (no parameters needed)."""
+    """Input schema for the GetState tool."""
 
-    pass
+    path: Literal["/", "/smc_simulation_config"] = Field(
+        default="/",
+        description="Sub-path to retrieve. Use '/' for the full state or '/smc_simulation_config' for just the simulation configuration.",
+    )
 
 
 class GetStateMetadata(BaseMetadata):
@@ -53,13 +56,23 @@ Returns the current shared state JSON from the application. The state contains c
     input_schema: GetStateInput
 
     async def arun(self) -> GetStateOutput:
-        """Return the current shared state."""
+        """Return the current shared state or a sub-path of it."""
         if not self.metadata.shared_state:
             raise ValueError("No shared state was provided in the request body.")
 
-        return GetStateOutput(
-            state=self.metadata.shared_state.model_dump(exclude_none=True)
-        )
+        full_state = self.metadata.shared_state.model_dump(exclude_none=True)
+
+        if self.input_schema.path == "/":
+            return GetStateOutput(state=full_state)
+
+        key = self.input_schema.path.lstrip("/")
+        if key not in full_state:
+            raise ValueError(
+                f"Key '{key}' not found in shared state. "
+                f"Available keys: {list(full_state.keys())}"
+            )
+
+        return GetStateOutput(state={key: full_state[key]})
 
     @classmethod
     async def is_online(cls) -> bool:
