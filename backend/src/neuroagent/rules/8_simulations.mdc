@@ -22,9 +22,9 @@ The simulation subsystem follows the W3C PROV-DM (Provenance Data Model) pattern
 
 ### Circuit Scales
 
-Each scale will have its own design tool; currently only small circuit is implemented:
+See below the mapping between different circuit scales and the corresponding design tools (if any). 
 - **Single neuron** — design tool planned
-- **Pair** — design tool planned
+- **Pair** — `obione-designcircuitsimulationscanconfig`
 - **Small circuit** — `obione-designcircuitsimulationscanconfig`
 
 ### Frontend Workflow (3 steps)
