@@ -531,7 +531,7 @@ async def filter_tools_and_model_by_conversation(
 5. Each tool must be selected only once""")
         if context:
             instructions.append(
-                f"6. Information about the page the user is currently viewing, extracted from the URL of the page they are on: {context.model_dump()}. Treat this information as context for the user's request."
+                f"6. Information about the page the user is currently viewing, extracted from the URL of the page they are on: {context.model_dump(mode='json')}. Treat this information as context for the user's request."
             )
 
         output_fields.append("selected_tools: [tool_name1, tool_name2, ...]")
@@ -717,7 +717,7 @@ def extract_frontend_context(url: str) -> FrontendContextOutput:
 
     # Find entity type and ID (searching backwards for the last valid entity)
     observed_entity_type = None
-    current_entity_id = None
+    current_entity_id: UUID | None = None
 
     # Locate the potential entity
     for i in range(len(current_page) - 1, -1, -1):
@@ -725,7 +725,13 @@ def extract_frontend_context(url: str) -> FrontendContextOutput:
             observed_entity_type = current_page[i]
             # Check if next segment is a UUID
             if i + 1 < len(current_page) and is_uuid(current_page[i + 1]):
-                current_entity_id = current_page[i + 1]
+                try:
+                    current_entity_id = UUID(current_page[i + 1])
+                except (ValueError, TypeError):
+                    logger.warning(
+                        f"Invalid UUID format for current_entity_id: {current_page[i + 1]}"
+                    )
+                    current_entity_id = None
             break
 
     # Map frontend types to ec native types to make it simpler for following tc
@@ -737,10 +743,19 @@ def extract_frontend_context(url: str) -> FrontendContextOutput:
         )
         observed_entity_type = "simulation-campaign"
 
+    # Extract brain_region_id
+    br_id_value = query_params.get("br_id", [None])[0]
+    brain_region_id: UUID | None = None
+    if br_id_value:
+        try:
+            brain_region_id = UUID(br_id_value)
+        except (ValueError, TypeError):
+            logger.warning(f"Invalid UUID format for brain_region_id: {br_id_value}")
+
     return FrontendContextOutput(
         raw_path="/".join(current_page),
         query_params=query_params,
-        brain_region_id=query_params.get("br_id", [None])[0],
+        brain_region_id=brain_region_id,
         observed_entity_type=observed_entity_type,
         current_entity_id=current_entity_id,
     )

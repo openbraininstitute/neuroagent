@@ -835,7 +835,7 @@ async def test_url_with_entity_id():
 
     assert result.raw_path == "cell-morphology/c3d4e5f6-a7b8-4c5d-0e1f-2a3b4c5d6e7f"
     assert result.observed_entity_type == "cell-morphology"
-    assert str(result.current_entity_id) == "c3d4e5f6-a7b8-4c5d-0e1f-2a3b4c5d6e7f"
+    assert result.current_entity_id == UUID("c3d4e5f6-a7b8-4c5d-0e1f-2a3b4c5d6e7f")
 
 
 @pytest.mark.asyncio
@@ -848,7 +848,7 @@ async def test_url_with_query_params():
     assert result.raw_path == "electrical-cell-recording"
     assert result.query_params["br_id"] == ["d4e5f6a7-b8c9-4d5e-1f2a-3b4c5d6e7f8a"]
     assert result.query_params["filter"] == ["active"]
-    assert result.brain_region_id == "d4e5f6a7-b8c9-4d5e-1f2a-3b4c5d6e7f8a"
+    assert result.brain_region_id == UUID("d4e5f6a7-b8c9-4d5e-1f2a-3b4c5d6e7f8a")
     assert result.observed_entity_type == "electrical-cell-recording"
 
 
@@ -860,7 +860,7 @@ async def test_url_with_nested_path():
     result = extract_frontend_context(url)
 
     assert result.raw_path == "emodel/c3d4e5f6-a7b8-4c5d-0e1f-2a3b4c5d6e7f/results"
-    assert str(result.current_entity_id) == "c3d4e5f6-a7b8-4c5d-0e1f-2a3b4c5d6e7f"
+    assert result.current_entity_id == UUID("c3d4e5f6-a7b8-4c5d-0e1f-2a3b4c5d6e7f")
     assert result.observed_entity_type == "emodel"
 
 
@@ -876,8 +876,8 @@ async def test_complex_url_with_cell_morphology():
         == "some/path/entity/cell-morphology/c3d4e5f6-a7b8-4c5d-0e1f-2a3b4c5d6e7f"
     )
     assert result.observed_entity_type == "cell-morphology"
-    assert str(result.current_entity_id) == "c3d4e5f6-a7b8-4c5d-0e1f-2a3b4c5d6e7f"
-    assert result.brain_region_id == "d4e5f6a7-b8c9-4d5e-1f2a-3b4c5d6e7f8a"
+    assert result.current_entity_id == UUID("c3d4e5f6-a7b8-4c5d-0e1f-2a3b4c5d6e7f")
+    assert result.brain_region_id == UUID("d4e5f6a7-b8c9-4d5e-1f2a-3b4c5d6e7f8a")
 
 
 @pytest.mark.asyncio
@@ -890,7 +890,7 @@ async def test_complex_url_without_optional_uuid():
     assert result.raw_path == "some/path/entity/cell-morphology"
     assert result.observed_entity_type == "cell-morphology"
     assert result.current_entity_id is None
-    assert result.brain_region_id == "d4e5f6a7-b8c9-4d5e-1f2a-3b4c5d6e7f8a"
+    assert result.brain_region_id == UUID("d4e5f6a7-b8c9-4d5e-1f2a-3b4c5d6e7f8a")
 
 
 @pytest.mark.asyncio
@@ -946,7 +946,7 @@ async def test_url_with_multiple_uuid():
         == "cell-morphology/c3d4e5f6-a7b8-4c5d-0e1f-2a3b4c5d6e7f/a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c5d"
     )
     assert result.observed_entity_type == "cell-morphology"
-    assert str(result.current_entity_id) == "c3d4e5f6-a7b8-4c5d-0e1f-2a3b4c5d6e7f"
+    assert result.current_entity_id == UUID("c3d4e5f6-a7b8-4c5d-0e1f-2a3b4c5d6e7f")
 
 
 @pytest.mark.asyncio
