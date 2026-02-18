@@ -60,7 +60,7 @@ Returns the current shared state JSON from the application. The state contains c
         if not self.metadata.shared_state:
             raise ValueError("No shared state was provided in the request body.")
 
-        full_state = self.metadata.shared_state.model_dump(exclude_none=True)
+        full_state = self.metadata.shared_state.model_dump()
 
         if self.input_schema.path == "/":
             return GetStateOutput(state=full_state)

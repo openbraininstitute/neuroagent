@@ -53,6 +53,7 @@ from neuroagent.tools import (
     CircuitPopulationGetOneTool,
     ContributionGetAllTool,
     ContributionGetOneTool,
+    EditStateTool,
     ElectricalCellRecordingGetAllTool,
     ElectricalCellRecordingGetOneTool,
     EModelGetAllTool,
@@ -66,6 +67,7 @@ from neuroagent.tools import (
     ExperimentalNeuronDensityGetOneTool,
     ExperimentalSynapsesPerConnectionGetAllTool,
     ExperimentalSynapsesPerConnectionGetOneTool,
+    GetStateTool,
     IonChannelGetAllTool,
     IonChannelGetOneTool,
     IonChannelModelGetAllTool,
@@ -111,10 +113,10 @@ from neuroagent.tools import (
     StrainGetOneTool,
     SubjectGetAllTool,
     SubjectGetOneTool,
+    ValidateStateTool,
     WebSearchTool,
 )
 from neuroagent.tools.base_tool import BaseTool
-from neuroagent.tools.getstate import GetStateTool
 from neuroagent.tools.obione_designcircuitsimulationscanconfig import (
     DesignSimulationsConfigTool,
 )
@@ -423,6 +425,7 @@ def get_tool_list(
         ExperimentalSynapsesPerConnectionGetAllTool,
         ExperimentalSynapsesPerConnectionGetOneTool,
         DesignSimulationsConfigTool,
+        EditStateTool,
         GetStateTool,
         IonChannelGetAllTool,
         IonChannelGetOneTool,
@@ -469,6 +472,7 @@ def get_tool_list(
         SubjectGetOneTool,
         ReadPaperTool,
         RunPythonTool,
+        ValidateStateTool,
         WebSearchTool,
         # NowTool,
         # WeatherTool,

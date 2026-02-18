@@ -105,7 +105,7 @@ This tool designs JSON configurations for CIRCUIT simulations based on natural l
 - For modification requests, support focused/incremental descriptions relative to the existing configuration. Users do not need to provide the full target configuration.
 - If a request is vague, design a basic simulation config and offer guidance on further refinement. Do not force users to provide all parameters. Defaults are handled by the underlying LLM.
 - In the `config_request` parameter, only include what the user explicitly requested. Exclude default or standard parameters, as they will be filled in automatically by the downstream LLM.
-- Here are the available fields in the simulation ford {extract_model_structure(CircuitSimulationScanConfig)}. Base your description in `config_request` on them.
+- Here are the available fields in the simulation form {extract_model_structure(CircuitSimulationScanConfig)}. Base your description in `config_request` on them.
 - If the user is not on a circuit-related page, and has not mentioned any circuit previously, ask the user for clarification to ensure the request is intended for a CIRCUIT simulation before proceeding.
 
 # Output Format

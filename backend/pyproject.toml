@@ -19,6 +19,7 @@ dependencies = [
     "boto3",
     "duckdb",
     "fastapi>=0.118.0",
+    "jsonpatch",
     "mcp",
     "obp-accounting-sdk",
     "openai",
