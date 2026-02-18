@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed a couple of small bugs + reduce in between tool calls verbosity.
 - Prompt engineering of inner LLM in `obi_generatesimulationconfig`.
 - Modify all env var names from `NEUROAGENT_...` to `NEUROAGENT__...`.
+- Check the `circuit_id` to see if we are on the right page.
 
 ## [0.16.0] - 11.02.2026
 
