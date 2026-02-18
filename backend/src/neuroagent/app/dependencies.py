@@ -661,7 +661,7 @@ Current time: {datetime.now(timezone.utc).isoformat()}"""
         body = await request.json()
         if body.get("frontend_url"):
             system_prompt += f"""
-Information extracted from the user's current page URL: {extract_frontend_context(body["frontend_url"]).model_dump()}.
+Information extracted from the user's current page URL: {extract_frontend_context(body["frontend_url"]).model_dump(mode="json")}.
 NOTE: This context contains only IDs (e.g., brain_region_id, current_entity_id), not names or labels. Use these IDs ONLY when:
 - The user clearly references "this brain region," "current page," or similar terms
 - The user's query unmistakably concerns the viewed entity

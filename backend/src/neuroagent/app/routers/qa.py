@@ -192,7 +192,7 @@ Available Tools:
                     # Query GET ONE Brain Region in entitycore
                     response = await httpx_client.get(
                         url=settings.tools.entitycore.url.rstrip("/")
-                        + f"/brain-region/{context_output.brain_region_id}",
+                        + f"/brain-region/{str(context_output.brain_region_id)}",
                         headers=headers,
                     )
                     if response.status_code != 200:

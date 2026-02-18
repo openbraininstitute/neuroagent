@@ -310,6 +310,6 @@ class FrontendContextOutput(BaseModel):
 
     raw_path: str
     query_params: dict[str, list[str]]
-    brain_region_id: str | None = None
+    brain_region_id: UUID | None = None
     observed_entity_type: str | None = None
-    current_entity_id: str | None = None
+    current_entity_id: UUID | None = None
