@@ -725,7 +725,13 @@ def extract_frontend_context(url: str) -> FrontendContextOutput:
             observed_entity_type = current_page[i]
             # Check if next segment is a UUID
             if i + 1 < len(current_page) and is_uuid(current_page[i + 1]):
-                current_entity_id = UUID(current_page[i + 1])
+                try:
+                    current_entity_id = UUID(current_page[i + 1])
+                except (ValueError, TypeError):
+                    logger.warning(
+                        f"Invalid UUID format for current_entity_id: {current_page[i + 1]}"
+                    )
+                    current_entity_id = None
             break
 
     # Map frontend types to ec native types to make it simpler for following tc
@@ -737,12 +743,19 @@ def extract_frontend_context(url: str) -> FrontendContextOutput:
         )
         observed_entity_type = "simulation-campaign"
 
+    # Extract brain_region_id
+    br_id_value = query_params.get("br_id", [None])[0]
+    brain_region_id: UUID | None = None
+    if br_id_value:
+        try:
+            brain_region_id = UUID(br_id_value)
+        except (ValueError, TypeError):
+            logger.warning(f"Invalid UUID format for brain_region_id: {br_id_value}")
+
     return FrontendContextOutput(
         raw_path="/".join(current_page),
         query_params=query_params,
-        brain_region_id=UUID(query_params.get("br_id", [None])[0])
-        if query_params.get("br_id", [None])[0]
-        else None,
+        brain_region_id=brain_region_id,
         observed_entity_type=observed_entity_type,
         current_entity_id=current_entity_id,
     )
