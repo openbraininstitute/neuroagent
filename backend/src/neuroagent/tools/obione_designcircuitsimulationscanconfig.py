@@ -344,7 +344,7 @@ REQUIREMENTS:
 
         if circuit_id:
             context = extract_frontend_context(url)
-            if context.current_entity_id and circuit_id != context.current_entity_id:
+            if not context.current_entity_id or circuit_id != context.current_entity_id:
                 return False
 
         return True
