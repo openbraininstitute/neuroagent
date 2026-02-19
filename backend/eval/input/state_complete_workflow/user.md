@@ -1,0 +1,1 @@
+Generate a basic simulation config on all neuron sets (sample seed 1, 100% sampling) with description `Simulate entire circuit using all neuron sets` and name `Basic all-neuron simulation`. Name the neuron set block "my_neuron_set".

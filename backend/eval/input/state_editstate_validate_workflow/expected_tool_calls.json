@@ -1,0 +1,29 @@
+[
+  {
+    "name": "getstate",
+    "arguments": {
+      "path": "/smc_simulation_config"
+    }
+  },
+  {
+    "name": "editstate",
+    "arguments": {
+      "patches": [
+        {
+          "op": "replace",
+          "path": "/smc_simulation_config/info/title",
+          "value": "Complete Setup"
+        },
+        {
+          "op": "replace",
+          "path": "/smc_simulation_config/initialize/duration",
+          "value": 1500.0
+        }
+      ]
+    }
+  },
+  {
+    "name": "validatestate",
+    "arguments": {}
+  }
+]
