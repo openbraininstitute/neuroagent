@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.16.1] - 19.02.2026
+
 ### Added
 - `NEUROAGENT__MCP__SKIP_INIT` env var to skip MCP initialization for faster local development.
 
