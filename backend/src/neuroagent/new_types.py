@@ -16,7 +16,7 @@ class Agent(BaseModel):
     reasoning: str | None = "minimal"
     instructions: str | Callable[[], str] = "You are a helpful agent."
     temperature: float = 0
-    tools: list[type["BaseTool"]] = []
+    tools: list[type[BaseTool]] = []
     tool_choice: str | None = None
     parallel_tool_calls: bool = True
 

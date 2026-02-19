@@ -562,7 +562,6 @@ AVAILABLE TOOLS:
 
     # Prepare the dynamic pydantic output class
     class_fields: dict[str, Any] = {}
-
     if need_tool_selection:
         tool_names = [tool.name for tool in tool_list]
         TOOL_NAMES_LITERAL = Literal[*tool_names]  # type: ignore
