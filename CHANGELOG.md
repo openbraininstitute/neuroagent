@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Get state tool
 - Explain the relationship between designing simulation configurations and retrieving them from entitycore
 - NEUROAGENT__MCP__SKIP_INIT env var to skip MCP initialization for faster local development.
+- Global state manipulation tools.
 
 ### Changed
 - Plots are now embeded in chat.
