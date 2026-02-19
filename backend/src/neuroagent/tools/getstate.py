@@ -4,7 +4,7 @@ from typing import Any, ClassVar, Literal
 
 from pydantic import BaseModel, Field
 
-from neuroagent.new_types import SharedState
+from neuroagent.shared_state import SharedState
 from neuroagent.tools.base_tool import BaseMetadata, BaseTool
 
 

@@ -4,13 +4,8 @@ from typing import Any, Callable
 
 from pydantic import BaseModel, ConfigDict
 
+from neuroagent.shared_state import SharedState
 from neuroagent.tools.base_tool import BaseTool
-
-
-class SharedState(BaseModel):
-    """State shared between backend and frontend."""
-
-    smc_simulation_config: dict[str, Any] | None = None
 
 
 class Agent(BaseModel):
@@ -21,7 +16,7 @@ class Agent(BaseModel):
     reasoning: str | None = "minimal"
     instructions: str | Callable[[], str] = "You are a helpful agent."
     temperature: float = 0
-    tools: list[type[BaseTool]] = []
+    tools: list[type["BaseTool"]] = []
     tool_choice: str | None = None
     parallel_tool_calls: bool = True
 
