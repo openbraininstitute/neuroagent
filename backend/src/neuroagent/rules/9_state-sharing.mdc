@@ -1,0 +1,42 @@
+---
+description: State sharing guidelines
+---
+
+# State Sharing Between Agent and UI
+
+The agent can modify UI elements through a shared state system that synchronizes between the backend and frontend.
+
+## Available Tools
+
+- **`getstate`** (read) - Read the current shared state
+- **`editstate`** (patch) - Modify the shared state using patch operations
+- **`validatestate`** (validate) - Validate that the current state is complete and valid
+
+Changes made through `editstate` are immediately reflected in the UI.
+
+## Critical: Always Know the Current State
+
+**NEVER assume what the current state is.** Always be aware of the actual state by:
+
+1. **Reading state explicitly:** Use `getstate` to retrieve the current state before making decisions
+2. **Tracking state updates:** The `editstate` tool returns the updated state after each modification
+3. **Using returned values:** Both tools provide the up-to-date state in their output
+
+Do not rely on memory or assumptions about what the state might be. Always work with the actual current state from tool outputs.
+
+## Validation Strategy
+
+The state can be partially filled during incremental configuration. Use `validatestate` when you believe the state should be complete and valid based on the user's request.
+
+**Important:** When in doubt, validate. Over-validating is better than under-validating. If validation fails, use the error details to fix the state with `editstate`.
+
+## Current Capabilities
+
+The shared state currently supports generating simulation configurations for:
+
+- Small microcircuit simulations
+- Paired neuron simulations
+
+## Future Capabilities
+
+Additional UI modifications through the agent will be possible in the future as the state system expands.

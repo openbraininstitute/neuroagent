@@ -46,7 +46,7 @@ Returns the current shared state JSON from the application. The state contains c
 - The user asks about something that lives in the application state (e.g. the current simulation config) and no preceding tool call in this conversation already returned it.
 
 # When NOT to Use
-- Right after calling a tool that already returns the state in its output (e.g. `obione-designcircuitsimulationscanconfig`).
+- Right after calling a tool that already returns the state in its output.
 
 # Output Format
 - Summarize the relevant parts of the state concisely in natural language. Do not dump raw JSON in chat.

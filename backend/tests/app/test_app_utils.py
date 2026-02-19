@@ -11,11 +11,9 @@ from fastapi.exceptions import HTTPException
 from pydantic import BaseModel, Field
 
 from neuroagent.app.app_utils import (
-    extract_frontend_context,
     filter_tools_and_model_by_conversation,
     format_messages_output,
     format_messages_vercel,
-    is_uuid,
     parse_redis_data,
     rate_limit,
     setup_engine,
@@ -36,6 +34,7 @@ from neuroagent.app.schemas import (
     ToolCallVercel,
     UserInfo,
 )
+from neuroagent.utils import extract_frontend_context, is_uuid
 from tests.mock_client import MockOpenAIClient, create_mock_response
 
 
