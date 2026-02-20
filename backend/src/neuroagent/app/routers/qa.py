@@ -353,7 +353,7 @@ async def stream_chat_agent(
         subtype=ServiceSubtype.ML_LLM,
         user_id=thread.user_id,
         proj_id=thread.project_id,
-        count=10000000,
+        count=1,
     ):
         stream_generator = agents_routine.astream(
             agent=agent,
