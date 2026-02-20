@@ -4,7 +4,7 @@ from typing import Any, ClassVar, Literal
 
 from pydantic import BaseModel, Field
 
-from neuroagent.new_types import SharedState
+from neuroagent.shared_state import SharedStateLoosened
 from neuroagent.tools.base_tool import BaseMetadata, BaseTool
 
 
@@ -20,7 +20,7 @@ class GetStateInput(BaseModel):
 class GetStateMetadata(BaseMetadata):
     """Metadata for the GetState tool."""
 
-    shared_state: SharedState
+    shared_state: SharedStateLoosened
 
 
 class GetStateOutput(BaseModel):
@@ -46,7 +46,7 @@ Returns the current shared state JSON from the application. The state contains c
 - The user asks about something that lives in the application state (e.g. the current simulation config) and no preceding tool call in this conversation already returned it.
 
 # When NOT to Use
-- Right after calling a tool that already returns the state in its output (e.g. `obione-designcircuitsimulationscanconfig`).
+- Right after calling a tool that already returns the state in its output.
 
 # Output Format
 - Summarize the relevant parts of the state concisely in natural language. Do not dump raw JSON in chat.
@@ -60,7 +60,7 @@ Returns the current shared state JSON from the application. The state contains c
         if not self.metadata.shared_state:
             raise ValueError("No shared state was provided in the request body.")
 
-        full_state = self.metadata.shared_state.model_dump(exclude_none=True)
+        full_state = self.metadata.shared_state.model_dump()
 
         if self.input_schema.path == "/":
             return GetStateOutput(state=full_state)

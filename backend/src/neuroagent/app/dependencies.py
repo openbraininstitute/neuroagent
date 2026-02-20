@@ -22,7 +22,6 @@ from starlette.status import HTTP_401_UNAUTHORIZED
 
 from neuroagent.agent_routine import AgentsRoutine
 from neuroagent.app.app_utils import (
-    extract_frontend_context,
     filter_tools_and_model_by_conversation,
     validate_project,
 )
@@ -53,6 +52,7 @@ from neuroagent.tools import (
     CircuitPopulationGetOneTool,
     ContributionGetAllTool,
     ContributionGetOneTool,
+    EditStateTool,
     ElectricalCellRecordingGetAllTool,
     ElectricalCellRecordingGetOneTool,
     EModelGetAllTool,
@@ -66,6 +66,7 @@ from neuroagent.tools import (
     ExperimentalNeuronDensityGetOneTool,
     ExperimentalSynapsesPerConnectionGetAllTool,
     ExperimentalSynapsesPerConnectionGetOneTool,
+    GetStateTool,
     IonChannelGetAllTool,
     IonChannelGetOneTool,
     IonChannelModelGetAllTool,
@@ -111,13 +112,11 @@ from neuroagent.tools import (
     StrainGetOneTool,
     SubjectGetAllTool,
     SubjectGetOneTool,
+    ValidateStateTool,
     WebSearchTool,
 )
 from neuroagent.tools.base_tool import BaseTool
-from neuroagent.tools.getstate import GetStateTool
-from neuroagent.tools.obione_designcircuitsimulationscanconfig import (
-    DesignSimulationsConfigTool,
-)
+from neuroagent.utils import extract_frontend_context
 
 logger = logging.getLogger(__name__)
 
@@ -422,7 +421,7 @@ def get_tool_list(
         ExperimentalNeuronDensityGetOneTool,
         ExperimentalSynapsesPerConnectionGetAllTool,
         ExperimentalSynapsesPerConnectionGetOneTool,
-        DesignSimulationsConfigTool,
+        EditStateTool,
         GetStateTool,
         IonChannelGetAllTool,
         IonChannelGetOneTool,
@@ -469,6 +468,7 @@ def get_tool_list(
         SubjectGetOneTool,
         ReadPaperTool,
         RunPythonTool,
+        ValidateStateTool,
         WebSearchTool,
         # NowTool,
         # WeatherTool,

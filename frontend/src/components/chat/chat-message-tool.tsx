@@ -86,24 +86,27 @@ export const ChatMessageTool = function ChatMessageTool({
     availableTools.filter((toolObj) => toolObj.slug === tool.toolName)?.[0]
       ?.label ?? tool.toolName;
 
-  // Check for state update when sim config tool
+  // Check for state update when editstate tool is called
   useEffect(() => {
-    if (
-      tool.toolName === "obione-designcircuitsimulationscanconfig" &&
-      tool.state === "result"
-    ) {
+    if (tool.toolName === "editstate" && tool.state === "result") {
       try {
-        const toolOutput = JSON.parse(tool.result) as {
-          smc_simulation_config: CircuitSimulationScanConfig;
+        const toolOutput = JSON.parse(
+          "result" in tool ? tool.result : "{}",
+        ) as {
+          state?: { smc_simulation_config?: CircuitSimulationScanConfig };
         };
-        setSimConfigJson(toolOutput);
+
+        // Handle editstate output format (nested under "state")
+        if (toolOutput.state) {
+          setSimConfigJson(toolOutput.state);
+        }
       } catch {
         toast.error("JSON Edit Error", {
           description: "The tool output is not a valid JSON",
         });
       }
     }
-  }, [tool.state]);
+  }, [tool.state, tool.toolName, setSimConfigJson]);
 
   return (
     <div className="border-white-300 ml-5 border-solid p-0.5">
@@ -130,7 +133,7 @@ export const ChatMessageTool = function ChatMessageTool({
             onValidationClick={() => setDialogOpen(true)}
           />
         </div>
-        {tool.toolName === "obione-designcircuitsimulationscanconfig" && (
+        {tool.toolName === "getstate" && (
           <button
             onClick={() => setIsSidebarOpen((prev) => !prev)}
             className="ml-2 rounded-lg p-1 transition-colors hover:bg-gray-200"
@@ -140,7 +143,7 @@ export const ChatMessageTool = function ChatMessageTool({
           </button>
         )}
       </div>
-      {tool.toolName === "obione-designcircuitsimulationscanconfig" && (
+      {tool.toolName === "getstate" && (
         <JsonSidebar
           isOpen={isSidebarOpen}
           onClose={() => setIsSidebarOpen(false)}

@@ -1,0 +1,25 @@
+[
+  {
+    "name": "getstate",
+    "arguments": {
+      "path": "/smc_simulation_config"
+    }
+  },
+  {
+    "name": "editstate",
+    "arguments": {
+      "patches": [
+        {
+          "op": "replace",
+          "path": "/smc_simulation_config/info/title",
+          "value": "Cortical Layer 5 Analysis"
+        },
+        {
+          "op": "replace",
+          "path": "/smc_simulation_config/initialize/duration",
+          "value": 2000.0
+        }
+      ]
+    }
+  }
+]

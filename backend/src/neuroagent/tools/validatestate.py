@@ -1,0 +1,84 @@
+"""Tool to validate the shared state."""
+
+from typing import ClassVar, Literal
+
+from pydantic import BaseModel
+
+from neuroagent.shared_state import SharedStateLoosened, SharedStatePartial
+from neuroagent.tools.base_tool import BaseMetadata, BaseTool
+
+
+class ValidateStateInput(BaseModel):
+    """Input schema for the ValidateState tool."""
+
+    pass  # No input needed
+
+
+class ValidateStateMetadata(BaseMetadata):
+    """Metadata for the ValidateState tool."""
+
+    shared_state: SharedStateLoosened
+
+
+class ValidateStateOutput(BaseModel):
+    """Output of the ValidateState tool."""
+
+    is_valid: Literal[True] = True
+
+
+class ValidateStateTool(BaseTool):
+    """Class defining the ValidateState tool."""
+
+    name: ClassVar[str] = "validatestate"
+    name_frontend: ClassVar[str] = "Validate State"
+    utterances: ClassVar[list[str]] = [
+        "Check if the configuration is valid",
+        "Validate the state",
+        "Is this configuration correct?",
+    ]
+    description: ClassVar[
+        str
+    ] = """Validates whether the current shared state is complete and valid.
+
+# When to Call This Tool
+Call `validatestate` when:
+- The user's request implies the configuration should be complete (e.g., "configure the simulation", "set everything up")
+- You've modified a previously valid state and want to ensure it remains valid
+- You believe all required fields are now filled and the state should be valid
+- The user explicitly asks to validate or check the configuration
+
+# When NOT to Call This Tool
+Do NOT call `validatestate` when:
+- The user requests partial changes to an incomplete state (e.g., "set the title to X" on an empty form)
+- The state was already invalid and the user only asked for a small modification
+- The user is incrementally building up the configuration step by step
+
+# Behavior
+- Returns success if the state is valid
+- Raises an error with detailed validation messages if invalid
+- If invalid, use the error details to correct the state with `editstate`, then call `validatestate` again
+
+# Important Notes
+- A state can be partially filled and invalid - this is normal during incremental configuration
+- Only validate when you expect the state to be complete based on the user's intent
+- If a previously valid state becomes invalid after changes, warn the user or fix obvious issues"""
+    description_frontend: ClassVar[str] = """Validate the application state."""
+    metadata: ValidateStateMetadata
+    input_schema: ValidateStateInput
+
+    async def arun(self) -> ValidateStateOutput:
+        """Validate the shared state."""
+        if not self.metadata.shared_state:
+            raise ValueError("No shared state provided.")
+
+        state = self.metadata.shared_state.model_dump()
+
+        # Validate state (pydantic for now)
+        SharedStatePartial(**state)
+
+        return ValidateStateOutput(message="State is valid")
+
+    @classmethod
+    async def is_online(cls) -> bool:
+        """Check if the tool is online."""
+        return True

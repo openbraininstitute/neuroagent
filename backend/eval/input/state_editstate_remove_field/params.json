@@ -1,0 +1,25 @@
+{
+  "tags": ["state", "editstate"],
+  "shared_state": {
+    "smc_simulation_config": {
+      "type": "CircuitSimulationScanConfig",
+      "info": {
+        "title": "My Simulation",
+        "description": "This description will be removed"
+      },
+      "initialize": {
+        "circuit": {
+          "type": "CircuitFromID",
+          "id_str": "circuit-789"
+        },
+        "duration": 500.0,
+        "dt": 0.025
+      },
+      "timestamps": {},
+      "stimuli": {},
+      "recordings": {},
+      "neuron_sets": {},
+      "synaptic_manipulations": {}
+    }
+  }
+}

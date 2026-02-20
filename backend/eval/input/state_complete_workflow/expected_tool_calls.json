@@ -1,0 +1,36 @@
+[
+  {
+    "name": "getstate",
+    "arguments": {
+      "path": "/smc_simulation_config"
+    }
+  },
+  {
+    "name": "editstate",
+    "arguments": {
+      "patches": [
+        {
+          "op": "replace",
+          "path": "/smc_simulation_config/info",
+          "value": {
+            "campaign_name": "Basic all-neuron simulation",
+            "campaign_description": "Simulate entire circuit using all neuron sets"
+          }
+        },
+        {
+          "op": "add",
+          "path": "/smc_simulation_config/neuron_sets/my_neuron_set",
+          "value": {
+            "type": "AllNeurons",
+            "sample_percentage": 100.0,
+            "sample_seed": 1
+          }
+        }
+      ]
+    }
+  },
+  {
+    "name": "validatestate",
+    "arguments": {}
+  }
+]

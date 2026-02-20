@@ -1,0 +1,19 @@
+[
+  {
+    "name": "getstate",
+    "arguments": {
+      "path": "/smc_simulation_config"
+    }
+  },
+  {
+    "name": "editstate",
+    "arguments": {
+      "patches": [
+        {
+          "op": "remove",
+          "path": "/smc_simulation_config/info/description"
+        }
+      ]
+    }
+  }
+]
