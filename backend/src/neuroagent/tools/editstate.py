@@ -7,7 +7,7 @@ from uuid import UUID
 import jsonpatch
 from pydantic import BaseModel, Field
 
-from neuroagent.shared_state import SharedStatePartial, SharedStateStrict
+from neuroagent.shared_state import SharedStateLoosened, SharedStatePartial
 from neuroagent.tools.base_tool import BaseMetadata, BaseTool
 from neuroagent.utils import extract_frontend_context
 
@@ -44,7 +44,7 @@ class EditStateInput(BaseModel):
 class EditStateMetadata(BaseMetadata):
     """Metadata for the EditState tool."""
 
-    shared_state: SharedStatePartial
+    shared_state: SharedStateLoosened
     current_frontend_url: str | None = None
     request_id: str | None = None
 
@@ -52,7 +52,7 @@ class EditStateMetadata(BaseMetadata):
 class EditStateOutput(BaseModel):
     """Output of the EditState tool."""
 
-    state: SharedStatePartial = Field(
+    state: SharedStateLoosened = Field(
         description="The updated state after applying patches"
     )
     url_links: dict[str, str] | None = None
@@ -71,7 +71,7 @@ class EditStateTool(BaseTool):
     description: ClassVar[str] = f"""Modify the shared state using JSONPatch operations.
 
 # Shared State Schema
-{SharedStateStrict.model_json_schema()}
+{SharedStatePartial.model_json_schema()}
 
 **CRITICAL:** All modifications must conform to the schema above as much as possible.
 
@@ -128,7 +128,7 @@ After making changes, use your judgment: if you think the state should now be va
 
         # Convert patches to jsonpatch format and apply directly
         patch_dicts = [patch.model_dump() for patch in self.input_schema.patches]
-        updated_state = SharedStatePartial(
+        updated_state = SharedStateLoosened(
             **jsonpatch.apply_patch(current_state, patch_dicts)
         )
 
@@ -144,7 +144,7 @@ After making changes, use your judgment: if you think the state should now be va
         """Check if the tool is online."""
         return True
 
-    def get_return_url(self, state: SharedStatePartial) -> dict[str, str] | None:
+    def get_return_url(self, state: SharedStateLoosened) -> dict[str, str] | None:
         """Generate urls to which the user should go to see the state."""
         if not self.metadata.current_frontend_url:
             return None

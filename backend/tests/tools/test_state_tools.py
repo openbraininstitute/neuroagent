@@ -5,7 +5,7 @@ from uuid import UUID
 import pytest
 from pydantic import ValidationError
 
-from neuroagent.shared_state import SharedStatePartial
+from neuroagent.shared_state import SharedStateLoosened
 from neuroagent.tools.editstate import (
     EditStateInput,
     EditStateMetadata,
@@ -48,16 +48,16 @@ def sample_simulation_config() -> dict:
 
 
 @pytest.fixture
-def shared_state(sample_simulation_config: dict) -> SharedStatePartial:
-    """Create a SharedStatePartial instance for testing."""
-    return SharedStatePartial(smc_simulation_config=sample_simulation_config)
+def shared_state(sample_simulation_config: dict) -> SharedStateLoosened:
+    """Create a SharedStateLoosened instance for testing."""
+    return SharedStateLoosened(smc_simulation_config=sample_simulation_config)
 
 
 class TestGetStateTool:
     """Tests for GetStateTool."""
 
     @pytest.mark.asyncio
-    async def test_get_full_state(self, shared_state: SharedStatePartial) -> None:
+    async def test_get_full_state(self, shared_state: SharedStateLoosened) -> None:
         """Test retrieving the full state."""
         tool = GetStateTool(
             metadata=GetStateMetadata(shared_state=shared_state),
@@ -70,7 +70,7 @@ class TestGetStateTool:
         )
 
     @pytest.mark.asyncio
-    async def test_get_subpath(self, shared_state: SharedStatePartial) -> None:
+    async def test_get_subpath(self, shared_state: SharedStateLoosened) -> None:
         """Test retrieving a specific sub-path."""
         tool = GetStateTool(
             metadata=GetStateMetadata(shared_state=shared_state),
@@ -83,7 +83,9 @@ class TestGetStateTool:
         )
 
     @pytest.mark.asyncio
-    async def test_get_nonexistent_path(self, shared_state: SharedStatePartial) -> None:
+    async def test_get_nonexistent_path(
+        self, shared_state: SharedStateLoosened
+    ) -> None:
         """Test retrieving a non-existent path raises validation error."""
         # The path is validated by Pydantic, so invalid paths raise ValidationError
         with pytest.raises(ValidationError):
@@ -94,7 +96,7 @@ class TestEditStateTool:
     """Tests for EditStateTool."""
 
     @pytest.mark.asyncio
-    async def test_replace_operation(self, shared_state: SharedStatePartial) -> None:
+    async def test_replace_operation(self, shared_state: SharedStateLoosened) -> None:
         """Test replacing a value in the state."""
         tool = EditStateTool(
             metadata=EditStateMetadata(shared_state=shared_state),
@@ -112,7 +114,7 @@ class TestEditStateTool:
         assert result.state.smc_simulation_config["initialize"]["duration"] == 5000.0
 
     @pytest.mark.asyncio
-    async def test_add_operation(self, shared_state: SharedStatePartial) -> None:
+    async def test_add_operation(self, shared_state: SharedStateLoosened) -> None:
         """Test adding a new value to the state."""
         tool = EditStateTool(
             metadata=EditStateMetadata(shared_state=shared_state),
@@ -133,7 +135,7 @@ class TestEditStateTool:
         assert "test_stimulus" in result.state.smc_simulation_config["stimuli"]
 
     @pytest.mark.asyncio
-    async def test_remove_operation(self, shared_state: SharedStatePartial) -> None:
+    async def test_remove_operation(self, shared_state: SharedStateLoosened) -> None:
         """Test removing a value from the state."""
         # First add something to remove
         shared_state.smc_simulation_config["stimuli"] = {"to_remove": {"type": "test"}}  # type: ignore
@@ -153,7 +155,7 @@ class TestEditStateTool:
         assert "to_remove" not in result.state.smc_simulation_config["stimuli"]
 
     @pytest.mark.asyncio
-    async def test_multiple_patches(self, shared_state: SharedStatePartial) -> None:
+    async def test_multiple_patches(self, shared_state: SharedStateLoosened) -> None:
         """Test applying multiple patches in sequence."""
         tool = EditStateTool(
             metadata=EditStateMetadata(shared_state=shared_state),
@@ -177,7 +179,7 @@ class TestEditStateTool:
         assert result.state.smc_simulation_config["initialize"]["duration"] == 2000.0
 
     @pytest.mark.asyncio
-    async def test_invalid_patch(self, shared_state: SharedStatePartial) -> None:
+    async def test_invalid_patch(self, shared_state: SharedStateLoosened) -> None:
         """Test that invalid patches raise jsonpatch exceptions."""
         tool = EditStateTool(
             metadata=EditStateMetadata(shared_state=shared_state),
@@ -197,7 +199,7 @@ class TestEditStateTool:
 
     @pytest.mark.asyncio
     async def test_no_url_links_without_frontend_url(
-        self, shared_state: SharedStatePartial
+        self, shared_state: SharedStateLoosened
     ) -> None:
         """Test that url_links is None when no frontend URL is provided."""
         tool = EditStateTool(
@@ -217,7 +219,7 @@ class TestEditStateTool:
 
     @pytest.mark.asyncio
     async def test_url_links_for_simulation_config_change(
-        self, shared_state: SharedStatePartial
+        self, shared_state: SharedStateLoosened
     ) -> None:
         """Test that url_links is generated when smc_simulation_config is modified."""
         circuit_id = "12345678-1234-1234-1234-123456789abc"
@@ -251,7 +253,7 @@ class TestEditStateTool:
 
     @pytest.mark.asyncio
     async def test_no_url_links_when_already_on_simulation_page(
-        self, shared_state: SharedStatePartial
+        self, shared_state: SharedStateLoosened
     ) -> None:
         """Test that url_links is None when user is already on the simulation page."""
         circuit_id = "12345678-1234-1234-1234-123456789abc"
@@ -279,7 +281,7 @@ class TestEditStateTool:
 
     @pytest.mark.asyncio
     async def test_url_links_not_generated_for_non_simulation_changes(
-        self, shared_state: SharedStatePartial
+        self, shared_state: SharedStateLoosened
     ) -> None:
         """Test that url_links is None when modifying non-simulation state fields."""
         # Modify a field within smc_simulation_config but not the top-level key
@@ -345,7 +347,7 @@ class TestEditStateToolURLGeneration:
         assert EditStateTool.is_correct_simulation_page(url, None) is True
 
     def test_get_return_url_with_invalid_frontend_url(
-        self, shared_state: SharedStatePartial
+        self, shared_state: SharedStateLoosened
     ) -> None:
         """Test get_return_url returns None for invalid frontend URLs."""
         tool = EditStateTool(
@@ -369,7 +371,7 @@ class TestEditStateToolURLGeneration:
         assert result is None
 
     def test_get_return_url_with_missing_circuit_id(
-        self, shared_state: SharedStatePartial
+        self, shared_state: SharedStateLoosened
     ) -> None:
         """Test get_return_url handles missing circuit ID gracefully."""
         # Remove circuit ID from state
@@ -401,7 +403,7 @@ class TestStateToolsWorkflow:
     """Integration tests for the complete workflow."""
 
     @pytest.mark.asyncio
-    async def test_complete_workflow(self, shared_state: SharedStatePartial) -> None:
+    async def test_complete_workflow(self, shared_state: SharedStateLoosened) -> None:
         """Test the complete get -> edit workflow."""
         # Step 1: Get the current state
         get_tool = GetStateTool(
@@ -444,7 +446,7 @@ class TestStateToolsWorkflow:
 
     @pytest.mark.asyncio
     async def test_iterative_edit_workflow(
-        self, shared_state: SharedStatePartial
+        self, shared_state: SharedStateLoosened
     ) -> None:
         """Test making multiple edits iteratively."""
         # Step 1: First edit

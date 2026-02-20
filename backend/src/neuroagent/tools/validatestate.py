@@ -4,7 +4,7 @@ from typing import ClassVar, Literal
 
 from pydantic import BaseModel
 
-from neuroagent.shared_state import SharedStatePartial, SharedStateStrict
+from neuroagent.shared_state import SharedStateLoosened, SharedStatePartial
 from neuroagent.tools.base_tool import BaseMetadata, BaseTool
 
 
@@ -17,7 +17,7 @@ class ValidateStateInput(BaseModel):
 class ValidateStateMetadata(BaseMetadata):
     """Metadata for the ValidateState tool."""
 
-    shared_state: SharedStatePartial
+    shared_state: SharedStateLoosened
 
 
 class ValidateStateOutput(BaseModel):
@@ -74,7 +74,7 @@ Do NOT call `validatestate` when:
         state = self.metadata.shared_state.model_dump()
 
         # Validate state (pydantic for now)
-        SharedStateStrict(**state)
+        SharedStatePartial(**state)
 
         return ValidateStateOutput(message="State is valid")
 
