@@ -4,7 +4,7 @@ from typing import Any, Callable
 
 from pydantic import BaseModel, ConfigDict
 
-from neuroagent.shared_state import SharedState
+from neuroagent.shared_state import SharedStatePartial
 from neuroagent.tools.base_tool import BaseTool
 
 
@@ -65,7 +65,7 @@ class ClientRequest(BaseModel):
     tool_selection: list[str] | None = None
     model: str = "auto"
     frontend_url: str | None = None
-    shared_state: SharedState | None = None
+    shared_state: SharedStatePartial | None = None
 
     model_config = ConfigDict(extra="ignore")
 

@@ -4,7 +4,7 @@ from typing import Any, ClassVar, Literal
 
 from pydantic import BaseModel, Field
 
-from neuroagent.shared_state import SharedState
+from neuroagent.shared_state import SharedStatePartial
 from neuroagent.tools.base_tool import BaseMetadata, BaseTool
 
 
@@ -20,7 +20,7 @@ class GetStateInput(BaseModel):
 class GetStateMetadata(BaseMetadata):
     """Metadata for the GetState tool."""
 
-    shared_state: SharedState
+    shared_state: SharedStatePartial
 
 
 class GetStateOutput(BaseModel):
