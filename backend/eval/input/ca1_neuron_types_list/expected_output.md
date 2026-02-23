@@ -1,1 +1,1 @@
-PLACEHOLDER
+Could you clarify what you mean by "neuron types"? In the platform, neurons are classified by morphological type (m-type), electrical type (e-type), and morpho-electrical type (ME-type). Which classification are you interested in for the CA1 region?
