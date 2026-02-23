@@ -1,1 +1,1 @@
-PLACEHOLDER
+Virtual Labs are accessed after logging in — each project within a Virtual Lab has a top navigation menu with sections: Home, Data, Workflows, Notebooks, Reports, and Help. To find Circuits, go to Data (which serves as the Explore section), switch to the "Model Data" tab, and select "Circuits" from the available model data types.

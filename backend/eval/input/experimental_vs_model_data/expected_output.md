@@ -1,1 +1,1 @@
-PLACEHOLDER
+Experimental data consists of direct measurements and recordings from real biological experiments (neuron density, bouton density, cell morphology reconstructions, electrophysiological recordings, ion channel recordings, EM cell meshes), while model data consists of computational representations built from or validated against that experimental data (e-models, ME-models, circuits, synaptomes, ion channel models). The platform's Explore section separates these into distinct tabs so users can browse each category independently.

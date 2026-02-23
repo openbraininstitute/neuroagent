@@ -1,1 +1,1 @@
-PLACEHOLDER
+The platform's 3D brain atlas viewer uses a mouse brain atlas (Allen Brain Atlas hierarchy) as the default and only available atlas for spatial navigation, regardless of the species of the selected data. The mouse brain serves as the structural reference for region selection, while the data tables filter by species.

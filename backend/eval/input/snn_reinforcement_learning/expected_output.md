@@ -1,1 +1,1 @@
-PLACEHOLDER
+This platform focuses on biophysically detailed, multi-compartment neuron simulations using NEURON-based models with real morphology and ion channel data, rather than abstract spiking neural networks or AI/RL integration. Unlike BMTK (which supports multiple simulation engines and network scales including point-neuron models), this platform provides an integrated web-based environment with data exploration, model building, and simulation workflows centered on the Blue Brain Project's detailed neuron models.

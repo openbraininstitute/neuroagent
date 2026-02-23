@@ -1,1 +1,1 @@
-PLACEHOLDER
+The Open Brain Institute platform is designed for neuroscience researchers, modelers, and students to explore brain data, build computational neuron models, and run biophysically detailed simulations, supporting research into brain function and dysfunction. Real-world applications include understanding neural circuits, studying disease mechanisms at the cellular level, validating computational models against experimental data, and enabling collaborative neuroscience research through shared virtual labs.

@@ -1,1 +1,1 @@
-PLACEHOLDER
+The platform provides experimental data types including cell morphology, electrical cell recordings, and synapses-per-connection data, all organized by brain region in a hierarchical atlas. You can navigate to the basal forebrain region in the Explore section to check if data is available there

@@ -1,1 +1,1 @@
-PLACEHOLDER
+The genetic Kv ion channel electrophysiology recordings (~33k) under Data > Public > Experimental > Ion channel eletrophysiology are from Channelpedia. Several ion channel models (> 50) under Data >Public >  Model > Ion channel model come from public models on Channelpedia. These can be found by using the corresponding model names. Currently, there is no distinctions made for Channelpedia models with other ion channel models.

@@ -1,1 +1,1 @@
-PLACEHOLDER
+The platform supports single-neuron and small microcircuit simulations using ME-models from the hippocampal region, but it does not currently have built-in features for modeling aging or traumatic brain injury conditions.

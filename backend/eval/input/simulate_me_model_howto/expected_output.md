@@ -1,1 +1,1 @@
-PLACEHOLDER
+From an ME-model detail page, navigate to Workflows > Simulate > Single Neuron, where you can select that ME-model as input and configure stimulation parameters, recording locations, and experimental setup before running the simulation. Simulations run through the built-in simulator rather than notebooks, but you can launch a Jupyter notebook from the Notebooks section to do additional analysis on simulation outputs using the `entitysdk` library.

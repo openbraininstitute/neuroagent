@@ -1,1 +1,1 @@
-PLACEHOLDER
+Go to Workflows > Simulate > Single Neuron, select an ME-model, set the `max_time` parameter to 1000 ms (1 second) in the Experimental Setup, configure a stimulation protocol and recording location, then click Run. The simulation executes via the small-scale simulator backend and displays voltage traces in the results panel

@@ -1,1 +1,1 @@
-PLACEHOLDER
+you submit simulation jobs through the Workflows > Simulate interface (graphical UI) or programmatically via Jupyter notebooks. The platform also has an AI chat assistant that accepts natural language queries for data exploration and literature search.
