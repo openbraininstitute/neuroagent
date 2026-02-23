@@ -1,1 +1,8 @@
-[]
+[
+  {
+    "name": "literature-search-tool",
+    "arguments": {
+      "query": "time constant PSP parvalbumin PV cells cortex"
+    }
+  }
+]
