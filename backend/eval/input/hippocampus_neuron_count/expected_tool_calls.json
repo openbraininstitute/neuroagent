@@ -1,1 +1,14 @@
-[]
+[
+  {
+    "name": "entitycore-brainregion-getall",
+    "arguments": {
+      "semantic_search": "hippocampus"
+    }
+  },
+  {
+    "name": "entitycore-experimentalneurondensity-getall",
+    "arguments": {
+      "within_brain_region_brain_region_id": "dynamic"
+    }
+  }
+]
