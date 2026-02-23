@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Retry mechanism for tool selection with exponential backoff.
+
 ## [0.16.1] - 19.02.2026
 
 ### Added
