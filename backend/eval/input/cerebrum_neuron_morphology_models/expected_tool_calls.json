@@ -1,1 +1,14 @@
-[]
+[
+  {
+    "name": "entitycore-brainregion-getall",
+    "arguments": {
+      "semantic_search": "cerebrum"
+    }
+  },
+  {
+    "name": "entitycore-cellmorphology-getall",
+    "arguments": {
+      "within_brain_region_brain_region_id": "dynamic"
+    }
+  }
+]
