@@ -174,15 +174,15 @@ def dont_look_at_env_file():
 
 @pytest.fixture(autouse=True)
 def dont_look_at_os_environ(monkeypatch):
-    """Make sure that NEUROAGENT_* env vars are deleted from `os.environ`.
+    """Make sure that NEUROAGENT__* env vars are deleted from `os.environ`.
 
     Note that the `dont_look_at_env_file` fixture makes sure we don't read them from the .env file.
     This one is also important since `litellm` loads all variables from .env file
     on import into `os.environ` and we don't want to use them in tests.
     """
     for env_var in os.environ:
-        if env_var.startswith("NEUROAGENT_"):
-            # Delete all NEUROAGENT_* env vars
+        if env_var.startswith("NEUROAGENT__"):
+            # Delete all NEUROAGENT__* env vars
             monkeypatch.delenv(env_var, raising=False)
 
 

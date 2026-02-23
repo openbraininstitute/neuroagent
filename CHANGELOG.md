@@ -7,8 +7,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.16.1] - 19.02.2026
+
+### Added
+- Get state tool
+- Explain the relationship between designing simulation configurations and retrieving them from entitycore
+- NEUROAGENT__MCP__SKIP_INIT env var to skip MCP initialization for faster local development.
+
+### Changed
+- Plots are now embeded in chat.
+- Rename the `obione_generatesimulationconfig` tool to `obione_designcircuitsimulationscanconfig`
+- nodeset failure doesn't raise an error anymore in circuit simulation config tool.
+- Fixed a couple of small bugs + reduce in between tool calls verbosity.
+- Prompt engineering of inner LLM in `obi_generatesimulationconfig`.
+- Modify all env var names from `NEUROAGENT_...` to `NEUROAGENT__...`.
+- Check the `circuit_id` to see if we are on the right page.
+
+## [0.16.0] - 11.02.2026
+
 ### Added
 - Fetch credits documents in OBI Expert tool.
+
+### Changed
+- Simulation config tool outputs link to simulation page + prompt engineering.
+
+### Removed
+- Context analyzer tool.
+
 
 ## [0.15.1] - 05.02.2026
 
@@ -23,6 +48,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Rule on how to format `ilike` wildcards.
 
 ### Changed
+
 - Route all writing to `/tmp`.
 - OBI expert points at the documentationProduct instead of documentationGithub
 - Expose the `x-request-id` header for CORS requests.

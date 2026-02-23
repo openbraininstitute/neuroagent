@@ -1,0 +1,28 @@
+{
+  "tags": ["shared_state", "simulation"],
+  "shared_state": {
+    "smc_simulation_config": {
+      "circuit_id": "abc123",
+      "duration": 500,
+      "dt": 0.025,
+      "conditions": {
+        "celsius": 34,
+        "v_init": -65
+      },
+      "stimuli": [
+        {
+          "type": "current_clamp",
+          "delay": 50,
+          "duration": 200,
+          "amplitude": 0.5
+        }
+      ],
+      "neuron_sets": [
+        {
+          "population": "All",
+          "limit": 100
+        }
+      ]
+    }
+  }
+}

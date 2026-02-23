@@ -34,12 +34,13 @@ class PlotMorphologyGetOneMetadata(BaseMetadata):
     thread_id: UUID
     vlab_id: UUID | None
     project_id: UUID | None
+    storage_frontend_url: str
 
 
 class PlotMorphologyGetOneOutput(BaseModel):
     """Output of the PlotMorphologyGetOneTool."""
 
-    storage_id: str
+    image_link: str
 
 
 class PlotMorphologyGetOneTool(BaseTool):
@@ -62,10 +63,7 @@ class PlotMorphologyGetOneTool(BaseTool):
         entity_id: ID of the target entity.
 
         **Output**:
-        storage_id: Identifier for where the generated plot is stored.
-
-        **Notes**:
-        Do not embed or display the plot link directly in your response.
+        image_link: URL to the stored plot image that should be embedded as an image in responses.
     """
     description_frontend: ClassVar[
         str
@@ -135,7 +133,8 @@ class PlotMorphologyGetOneTool(BaseTool):
             thread_id=self.metadata.thread_id,
         )
 
-        return PlotMorphologyGetOneOutput(storage_id=identifier)
+        url = f"{self.metadata.storage_frontend_url}/{identifier}"
+        return PlotMorphologyGetOneOutput(image_link=url)
 
     @classmethod
     async def is_online(

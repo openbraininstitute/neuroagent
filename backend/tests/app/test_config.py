@@ -9,7 +9,7 @@ def test_required(monkeypatch):
     assert settings.llm.openai_token is None
 
     # make sure not case sensitive
-    monkeypatch.setenv("neuroagent_tools__entitycore__URL", "https://new_fake_url")
+    monkeypatch.setenv("neuroagent__tools__entitycore__URL", "https://new_fake_url")
 
     settings = Settings()
     assert settings.tools.entitycore.url == "https://new_fake_url"
