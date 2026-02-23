@@ -1,1 +1,15 @@
-[]
+[
+  {
+    "name": "entitycore-circuit-getall",
+    "arguments": {
+      "number_neurons__gte": 4000,
+      "number_neurons__lte": 6000
+    }
+  },
+  {
+    "name": "obione-circuitconnectivitymetrics-getone",
+    "arguments": {
+      "circuit_id": "dynamic"
+    }
+  }
+]
