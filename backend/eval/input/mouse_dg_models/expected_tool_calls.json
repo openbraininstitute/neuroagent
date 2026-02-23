@@ -1,1 +1,21 @@
-[]
+[
+  {
+    "name": "entitycore-species-getall",
+    "arguments": {
+      "semantic_search": "mouse"
+    }
+  },
+  {
+    "name": "entitycore-brainregion-getall",
+    "arguments": {
+      "semantic_search": "dentate gyrus"
+    }
+  },
+  {
+    "name": "entitycore-memodel-getall",
+    "arguments": {
+      "within_brain_region_brain_region_id": "dynamic",
+      "species_id__in": "dynamic"
+    }
+  }
+]
