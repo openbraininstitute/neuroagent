@@ -8,6 +8,7 @@ import json
 import logging
 import os
 import re
+import time
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Literal
@@ -236,6 +237,7 @@ def filter_test_cases_by_pattern(
         - Simple substring matching: 'cerebellum'
         - OR patterns: 'cerebellum or morphology'
         - AND patterns: 'cerebellum and morphology'
+        - NOT patterns: 'not benchmark' or 'circuit and not metrics'
         - Wildcard patterns: 'cerebellum*' or '*morphology'
 
         Pattern matching is case-insensitive.
@@ -258,6 +260,9 @@ def filter_test_cases_by_pattern(
 
     >>> filter_test_cases_by_pattern(test_cases, 'morphology*')
     [{'name': 'cerebellum_morphologies'}, {'name': 'morphology_studies'}]
+
+    >>> filter_test_cases_by_pattern(test_cases, 'not cerebellum*')
+    [{'name': 'matplotlib_plot'}, {'name': 'morphology_studies'}]
     """
     if not pattern:
         return test_cases
@@ -283,13 +288,21 @@ def filter_test_cases_by_pattern(
             # All AND patterns must match for this OR pattern to be valid
             and_matches = []
             for and_pattern in and_patterns:
-                # Use fnmatch for wildcard support
-                if fnmatch.fnmatch(test_name.lower(), and_pattern.lower()):
-                    and_matches.append(True)
-                elif and_pattern.lower() in test_name.lower():
-                    and_matches.append(True)
-                else:
+                token = and_pattern.strip()
+                negate = False
+                while token.lower().startswith("not "):
+                    negate = not negate
+                    token = token[4:].strip()
+
+                if not token:
                     and_matches.append(False)
+                    continue
+
+                # Use fnmatch for wildcard support
+                is_match = fnmatch.fnmatch(test_name.lower(), token.lower()) or (
+                    token.lower() in test_name.lower()
+                )
+                and_matches.append(not is_match if negate else is_match)
 
             # If all AND patterns match, this OR pattern is valid
             if all(and_matches):
@@ -543,97 +556,117 @@ async def eval_sample(
     url: str = "http://localhost:8000",
 ) -> LLMTestCase:
     """Run a single test case against our API."""
-    logger.info(f"Running test case: {test_case['name']}")
-    async with semaphore:
-        # Create a thread to work with
-        response = await client.post(f"{url}/threads")
-        if response.status_code == 200:
-            thread_id = response.json()["thread_id"]
-        else:
-            raise RuntimeError(f"Failed to create a thread. Reason: {response.text}")
-        try:
-            # Build request body with defaults
-            default_frontend_url = "https://staging.openbraininstitute.org/app/virtual-lab/82b783eb-fac6-45ec-a928-84322e3a9672/7ef8dc29-233a-4c01-94b8-8c1420105304/data/browse"
-            default_shared_state: dict[str, Any] = {"smc_simulation_config": None}
-
-            params: TestCaseParams = test_case["params"]
-            frontend_url = (
-                params.frontend_url
-                if params.frontend_url is not None
-                else default_frontend_url
-            )
-            shared_state = (
-                params.shared_state
-                if params.shared_state is not None
-                else default_shared_state
-            )
-
-            # Send the request to chat_streamed using the previously created thread
-            response = await client.post(
-                f"{url}/qa/chat_streamed/{thread_id}",
-                json={
-                    "content": test_case["input"],
-                    "frontend_url": frontend_url,
-                    "shared_state": shared_state,
-                    "model": "auto",
-                },
-            )
-            # Delete the original thread
-        finally:
-            await client.delete(f"http://localhost:8000/threads/{thread_id}")
-
-    # "unvercel" the response
-    decoded = parse_ai_sdk_streaming_response(response.text)
-
-    # Remove default arguments from streamed tool calls,
-    # i.e. we evaluate only the non-default args the LLM gave
-    if "tool_calls" in decoded:
-        for i, tool_call in enumerate(decoded["tool_calls"]):
+    test_name = test_case["name"]
+    request_started_at: float | None = None
+    test_started_at = time.perf_counter()
+    try:
+        async with semaphore:
+            # Create a thread to work with
+            thread_id: str | None = None
+            response = await client.post(f"{url}/threads")
+            if response.status_code == 200:
+                thread_id = response.json()["thread_id"]
+            else:
+                raise RuntimeError(f"Failed to create a thread. Reason: {response.text}")
             try:
-                tool_class = next(
-                    tool for tool in tool_list if tool.name == tool_call["name"]
-                )
-            except StopIteration:
-                logger.warning(
-                    f"Tool '{tool_call['name']}' not found in available tools."
-                )
-                # Keep the original tool call with all arguments intact
-                continue
-            try:
-                input_class = tool_class.__annotations__["input_schema"](
-                    **tool_call["arguments"]
-                )
-            except ValidationError:
-                logger.warning(
-                    f"Tool '{tool_call['name']}' arguments could not be validated against the tool's input schema."
-                )
-                continue
-            decoded["tool_calls"][i]["arguments"] = input_class.model_dump(
-                exclude_defaults=True,
-                mode="json",
-            )
+                # Build request body with defaults
+                default_frontend_url = "https://staging.openbraininstitute.org/app/virtual-lab/82b783eb-fac6-45ec-a928-84322e3a9672/7ef8dc29-233a-4c01-94b8-8c1420105304/data/browse"
+                default_shared_state: dict[str, Any] = {"smc_simulation_config": None}
 
-    tools_called = [
-        ToolCall(name=tool["name"], input_parameters=tool["arguments"])
-        for tool in decoded.get("tool_calls", [])
-    ]
-    expected_tool_calls = [
-        ToolCall(name=tool["name"], input_parameters=tool["arguments"])
-        for tool in test_case["expected_tool_calls"]
-    ]
-    test_case_obj = LLMTestCase(
-        name=test_case["name"],
-        input=test_case["input"],
-        actual_output=decoded["response"],
-        expected_output=test_case["expected_output"],
-        tools_called=tools_called,
-        expected_tools=expected_tool_calls,
-        additional_metadata={
-            "actual_tool_calls": decoded.get("tool_calls", []),
-        },
-    )
+                params: TestCaseParams = test_case["params"]
+                frontend_url = (
+                    params.frontend_url
+                    if params.frontend_url is not None
+                    else default_frontend_url
+                )
+                shared_state = (
+                    params.shared_state
+                    if params.shared_state is not None
+                    else default_shared_state
+                )
 
-    return test_case_obj
+                # Send the request to chat_streamed using the previously created thread
+                request_started_at = time.perf_counter()
+                logger.info(f"[START] test case: {test_name}")
+                response = await client.post(
+                    f"{url}/qa/chat_streamed/{thread_id}",
+                    json={
+                        "content": test_case["input"],
+                        "frontend_url": frontend_url,
+                        "shared_state": shared_state,
+                        "model": "auto",
+                    },
+                )
+            finally:
+                if thread_id is not None:
+                    await client.delete(f"{url}/threads/{thread_id}")
+
+        # "unvercel" the response
+        decoded = parse_ai_sdk_streaming_response(response.text)
+
+        # Remove default arguments from streamed tool calls,
+        # i.e. we evaluate only the non-default args the LLM gave
+        if "tool_calls" in decoded:
+            for i, tool_call in enumerate(decoded["tool_calls"]):
+                try:
+                    tool_class = next(
+                        tool for tool in tool_list if tool.name == tool_call["name"]
+                    )
+                except StopIteration:
+                    logger.warning(
+                        f"Tool '{tool_call['name']}' not found in available tools."
+                    )
+                    # Keep the original tool call with all arguments intact
+                    continue
+                try:
+                    input_class = tool_class.__annotations__["input_schema"](
+                        **tool_call["arguments"]
+                    )
+                except ValidationError:
+                    logger.warning(
+                        f"Tool '{tool_call['name']}' arguments could not be validated against the tool's input schema."
+                    )
+                    continue
+                decoded["tool_calls"][i]["arguments"] = input_class.model_dump(
+                    exclude_defaults=True,
+                    mode="json",
+                )
+
+        tools_called = [
+            ToolCall(name=tool["name"], input_parameters=tool["arguments"])
+            for tool in decoded.get("tool_calls", [])
+        ]
+        expected_tool_calls = [
+            ToolCall(name=tool["name"], input_parameters=tool["arguments"])
+            for tool in test_case["expected_tool_calls"]
+        ]
+        test_case_obj = LLMTestCase(
+            name=test_case["name"],
+            input=test_case["input"],
+            actual_output=decoded["response"],
+            expected_output=test_case["expected_output"],
+            tools_called=tools_called,
+            expected_tools=expected_tool_calls,
+            additional_metadata={
+                "actual_tool_calls": decoded.get("tool_calls", []),
+            },
+        )
+
+        elapsed = (
+            time.perf_counter() - request_started_at
+            if request_started_at is not None
+            else time.perf_counter() - test_started_at
+        )
+        logger.info(f"[DONE]  test case: {test_name} ({elapsed:.1f}s)")
+        return test_case_obj
+    except Exception:
+        elapsed = (
+            time.perf_counter() - request_started_at
+            if request_started_at is not None
+            else time.perf_counter() - test_started_at
+        )
+        logger.exception(f"[FAIL]  test case: {test_name} ({elapsed:.1f}s)")
+        raise
 
 
 async def run_eval(
