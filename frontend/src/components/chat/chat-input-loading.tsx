@@ -2,6 +2,7 @@ import React from "react";
 import { ChatMessageHuman } from "@/components/chat/chat-message-human";
 import TextareaAutosize from "react-textarea-autosize";
 import { ChatMessageLoading } from "./chat-message-loading";
+import { TokenUsageIndicator } from "@/components/chat/token-usage-indicator";
 
 interface ChatComponentProps {
   newMessage: string;
@@ -28,7 +29,10 @@ export default function ChatInputLoading({ newMessage }: ChatComponentProps) {
           </div>
 
           <div className="flex items-center justify-between px-6 pb-3 pt-1">
-            <div />
+            <div className="flex items-center gap-3">
+              <div />
+              <TokenUsageIndicator usage={0} />
+            </div>
             <div className="flex items-center gap-3">
               <button className="ml-3 rounded-full p-3">
                 <div className="ml-2 h-5 w-5 animate-spin rounded-full border-2 border-gray-500 border-t-transparent p-1" />

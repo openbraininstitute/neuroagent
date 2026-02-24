@@ -27,6 +27,7 @@ type ChatPageProps = {
   initialNextCursor?: string;
   availableTools: Array<{ slug: string; label: string }>;
   availableModels: Array<LLMModel>;
+  initialTokenUsage?: number;
 };
 
 export function ChatPage({
@@ -35,6 +36,7 @@ export function ChatPage({
   initialNextCursor,
   availableTools,
   availableModels,
+  initialTokenUsage,
 }: ChatPageProps) {
   // Auth and store data
   const { data: session } = useSession() as { data: ExtendedSession | null };
@@ -66,6 +68,8 @@ export function ChatPage({
         .split("/workflows/simulate/configure/circuit/")[1]
         ?.split(/[?/]/)[0]
     : undefined;
+
+  const [usage, setUsage] = useState(initialTokenUsage || 0);
   // Simulation config json
   const [simConfigJson, setSimConfigJson] = useState<
     Record<string, CircuitSimulationScanConfig>
@@ -132,6 +136,21 @@ export function ChatPage({
       Authorization: `Bearer ${session?.accessToken}`,
     },
     initialMessages: retrievedMessages,
+    onFinish: (message, options) => {
+      console.log("onFinish called:", { message, options });
+      // AI SDK v4 parses the e: events and provides usage in options
+      if (options?.usage?.totalTokens) {
+        setUsage(options.usage.totalTokens);
+      } else if (options?.usage) {
+        // Fallback: calculate from promptTokens + completionTokens
+        const total =
+          (options.usage.promptTokens || 0) +
+          (options.usage.completionTokens || 0);
+        if (total > 0) {
+          setUsage(total);
+        }
+      }
+    },
     experimental_prepareRequestBody: ({ messages }) => {
       const lastMessage = messages[messages.length - 1];
       const selectedTools = Object.keys(checkedTools).filter(
@@ -322,7 +341,7 @@ export function ChatPage({
       });
     }
   }, [error, messages, setMessages]);
-
+  console.log(messages);
   return (
     <div className="flex h-full flex-col">
       <div
@@ -358,6 +377,7 @@ export function ChatPage({
         currentModel={currentModel}
         threadId={threadId}
         lastMessageId={messages[messages.length - 1]?.id}
+        usage={usage}
         setCheckedTools={setCheckedTools}
         setCurrentModel={setCurrentModel}
         handleInputChange={handleInputChange}

@@ -44,8 +44,8 @@ class Task(enum.Enum):
 class TokenType(enum.Enum):
     """Type of token consumed."""
 
-    INPUT_NONCACHED = "input-noncached"
-    INPUT_CACHED = "input-cached"
+    INPUT_NONCACHED = "input_noncached"
+    INPUT_CACHED = "input_cached"
     COMPLETION = "completion"
 
 

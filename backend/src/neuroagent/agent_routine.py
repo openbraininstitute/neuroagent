@@ -545,8 +545,13 @@ class AgentsRoutine:
 
             done_data = {
                 "finishReason": "stop",
+                "usage": {
+                    "promptTokens": (token_count.get("input_cached") or 0)
+                    + (token_count.get("input_noncached") or 0),
+                    "completionTokens": token_count.get("completion") or 0,
+                },
             }
-            yield f"d:{json.dumps(done_data)}\n"
+            yield f"d:{json.dumps(done_data, separators=(',', ':'))}\n"
 
         # User interrupts streaming
         except asyncio.exceptions.CancelledError:

@@ -12,6 +12,7 @@ import {
   BOpenRouterModelResponse,
   BPaginatedResponseThread,
   BPaginatedResponseMessage,
+  BTokenUsage,
 } from "@/lib/types";
 import { threadPageSize, messagePageSize, LLMModel } from "@/lib/types";
 
@@ -245,5 +246,36 @@ export async function getModels(): Promise<Array<LLMModel>> {
     } else {
       throw error;
     }
+  }
+}
+
+export async function getThreadUsage(threadId: string): Promise<number> {
+  try {
+    const session = await auth();
+    if (!session?.accessToken) {
+      throw new Error("No session found");
+    }
+
+    const usage = (await fetcher({
+      method: "GET",
+      path: "/threads/usage/{threadId}",
+      pathParams: { threadId },
+      headers: { Authorization: `Bearer ${session.accessToken}` },
+      next: { tags: [`thread/${threadId}/usage`] },
+    })) as BTokenUsage;
+
+    // Calculate total tokens on the server
+    console.log(usage.input_noncached);
+    console.log(usage.input_cached);
+    console.log(usage.completion);
+    return (
+      (usage.input_noncached || 0) +
+      (usage.input_cached || 0) +
+      (usage.completion || 0)
+    );
+  } catch (error) {
+    console.error(`Error fetching thread usage for ${threadId}:`, error);
+    // Return 0 on error
+    return 0;
   }
 }

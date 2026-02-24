@@ -122,3 +122,9 @@ export type CircuitSimulationScanConfig =
 
 export const threadPageSize = "25";
 export const messagePageSize = "25";
+
+export type BTokenUsage = {
+  input_noncached?: number;
+  input_cached?: number;
+  completion?: number;
+};

@@ -823,3 +823,273 @@ def test_get_threads_creation_date_filters(
         )
         assert response.status_code == 422
         assert "timezone info" in response.json()["detail"][0]["msg"]
+
+
+@pytest.mark.asyncio
+async def test_get_thread_usage_with_token_data(
+    app_client,
+    db_connection,
+    populate_db,
+):
+    """Test get_thread_usage returns token consumption for latest AI message."""
+    from neuroagent.app.database.sql_schemas import Task, TokenConsumption, TokenType
+
+    test_settings = Settings(db={"prefix": db_connection})
+    app.dependency_overrides[get_settings] = lambda: test_settings
+
+    db_items, session = populate_db
+    thread = db_items["thread"]
+    messages = db_items["messages"]
+
+    # Store thread_id before session operations
+    thread_id = thread.thread_id
+
+    # Get the latest AI_MESSAGE (last message in the list)
+    latest_ai_message = messages[-1]
+
+    # Refresh to ensure we have the message_id loaded
+    await session.refresh(latest_ai_message)
+    message_id = latest_ai_message.message_id
+
+    # Add token consumption data for the latest AI message
+    token_data = [
+        TokenConsumption(
+            message_id=message_id,
+            type=TokenType.INPUT_NONCACHED,
+            task=Task.CHAT_COMPLETION,
+            count=100,
+            model="gpt-4",
+        ),
+        TokenConsumption(
+            message_id=message_id,
+            type=TokenType.INPUT_CACHED,
+            task=Task.CHAT_COMPLETION,
+            count=50,
+            model="gpt-4",
+        ),
+        TokenConsumption(
+            message_id=message_id,
+            type=TokenType.COMPLETION,
+            task=Task.CHAT_COMPLETION,
+            count=75,
+            model="gpt-4",
+        ),
+    ]
+
+    session.add_all(token_data)
+    await session.commit()
+
+    with app_client as client:
+        response = client.get(f"/threads/usage/{thread_id}")
+
+    assert response.status_code == 200
+    usage = response.json()
+
+    assert usage == {
+        "input-noncached": 100,
+        "input-cached": 50,
+        "completion": 75,
+    }
+
+    assert response.status_code == 200
+    usage = response.json()
+
+    assert usage == {
+        "input-noncached": 100,
+        "input-cached": 50,
+        "completion": 75,
+    }
+
+
+@pytest.mark.httpx_mock(can_send_already_matched_responses=True)
+@pytest.mark.asyncio
+async def test_get_thread_usage_empty_thread(
+    httpx_mock,
+    app_client,
+    db_connection,
+    test_user_info,
+):
+    """Test get_thread_usage returns empty dict for thread with no messages."""
+    mock_keycloak_user_identification(httpx_mock, test_user_info)
+    test_settings = Settings(
+        db={"prefix": db_connection}, keycloak={"issuer": "https://great_issuer.com"}
+    )
+    app.dependency_overrides[get_settings] = lambda: test_settings
+
+    _, vlab, proj = test_user_info
+
+    with app_client as client:
+        # Create a new thread with no messages
+        create_output = client.post(
+            "/threads",
+            json={"virtual_lab_id": str(vlab), "project_id": str(proj)},
+        ).json()
+        thread_id = create_output["thread_id"]
+
+        response = client.get(f"/threads/usage/{thread_id}")
+
+    assert response.status_code == 200
+    usage = response.json()
+    assert usage == {}
+
+
+@pytest.mark.asyncio
+async def test_get_thread_usage_no_token_data(
+    app_client,
+    db_connection,
+    populate_db,
+):
+    """Test get_thread_usage returns empty dict when no token consumption exists."""
+    test_settings = Settings(db={"prefix": db_connection})
+    app.dependency_overrides[get_settings] = lambda: test_settings
+
+    db_items, _ = populate_db
+    thread = db_items["thread"]
+    thread_id = thread.thread_id
+
+    with app_client as client:
+        response = client.get(f"/threads/usage/{thread_id}")
+
+    assert response.status_code == 200
+    usage = response.json()
+    assert usage == {}
+
+
+@pytest.mark.asyncio
+async def test_get_thread_usage_only_latest_message(
+    app_client,
+    db_connection,
+    populate_db,
+):
+    """Test get_thread_usage only returns token data from the latest AI message."""
+    from neuroagent.app.database.sql_schemas import Task, TokenConsumption, TokenType
+
+    test_settings = Settings(db={"prefix": db_connection})
+    app.dependency_overrides[get_settings] = lambda: test_settings
+
+    db_items, session = populate_db
+    thread = db_items["thread"]
+    messages = db_items["messages"]
+    thread_id = thread.thread_id
+
+    # Add token data to the AI_TOOL message (second message, not the latest)
+    ai_tool_message = messages[1]
+    await session.refresh(ai_tool_message)
+    ai_tool_message_id = ai_tool_message.message_id
+
+    old_token_data = [
+        TokenConsumption(
+            message_id=ai_tool_message_id,
+            type=TokenType.INPUT_NONCACHED,
+            task=Task.TOOL_SELECTION,
+            count=200,
+            model="gpt-3.5-turbo",
+        ),
+    ]
+
+    # Add token data to the latest AI_MESSAGE (last message)
+    latest_ai_message = messages[-1]
+    await session.refresh(latest_ai_message)
+    latest_message_id = latest_ai_message.message_id
+
+    latest_token_data = [
+        TokenConsumption(
+            message_id=latest_message_id,
+            type=TokenType.INPUT_NONCACHED,
+            task=Task.CHAT_COMPLETION,
+            count=100,
+            model="gpt-4",
+        ),
+        TokenConsumption(
+            message_id=latest_message_id,
+            type=TokenType.COMPLETION,
+            task=Task.CHAT_COMPLETION,
+            count=50,
+            model="gpt-4",
+        ),
+    ]
+
+    session.add_all(old_token_data + latest_token_data)
+    await session.commit()
+
+    with app_client as client:
+        response = client.get(f"/threads/usage/{thread_id}")
+
+    assert response.status_code == 200
+    usage = response.json()
+
+    # Should only return data from the latest AI message, not the older AI_TOOL message
+    assert usage == {
+        "input-noncached": 100,
+        "completion": 50,
+    }
+    # Should NOT include the old token data
+    assert usage.get("input-noncached") != 200
+
+
+def test_get_thread_usage_nonexistent_thread(
+    app_client,
+    db_connection,
+):
+    """Test get_thread_usage returns empty dict for non-existent thread."""
+    test_settings = Settings(db={"prefix": db_connection})
+    app.dependency_overrides[get_settings] = lambda: test_settings
+
+    with app_client as client:
+        # Use a random UUID that doesn't exist
+        fake_thread_id = uuid.uuid4()
+        response = client.get(f"/threads/usage/{fake_thread_id}")
+
+    assert response.status_code == 200
+    usage = response.json()
+    assert usage == {}
+
+
+@pytest.mark.asyncio
+async def test_get_thread_usage_partial_token_types(
+    app_client,
+    db_connection,
+    populate_db,
+):
+    """Test get_thread_usage with only some token types present."""
+    from neuroagent.app.database.sql_schemas import Task, TokenConsumption, TokenType
+
+    test_settings = Settings(db={"prefix": db_connection})
+    app.dependency_overrides[get_settings] = lambda: test_settings
+
+    db_items, session = populate_db
+    thread = db_items["thread"]
+    messages = db_items["messages"]
+    thread_id = thread.thread_id
+
+    # Get the latest AI_MESSAGE
+    latest_ai_message = messages[-1]
+    await session.refresh(latest_ai_message)
+    message_id = latest_ai_message.message_id
+
+    # Add only completion tokens (no input tokens)
+    token_data = [
+        TokenConsumption(
+            message_id=message_id,
+            type=TokenType.COMPLETION,
+            task=Task.CHAT_COMPLETION,
+            count=42,
+            model="gpt-4",
+        ),
+    ]
+
+    session.add_all(token_data)
+    await session.commit()
+
+    with app_client as client:
+        response = client.get(f"/threads/usage/{thread_id}")
+
+    assert response.status_code == 200
+    usage = response.json()
+
+    # Should only have completion tokens
+    assert usage == {
+        "completion": 42,
+    }
+    assert "input-noncached" not in usage
+    assert "input-cached" not in usage

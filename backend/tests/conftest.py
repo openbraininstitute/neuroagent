@@ -249,6 +249,13 @@ async def setup_sql_db(request):
     async with engine.begin() as conn:
         await conn.run_sync(metadata.reflect)
         tables = metadata.tables
+        # Delete in order to respect foreign key constraints
+        if "token_consumption" in tables:
+            await session.execute(tables["token_consumption"].delete())
+        if "tool_selection" in tables:
+            await session.execute(tables["tool_selection"].delete())
+        if "complexity_estimation" in tables:
+            await session.execute(tables["complexity_estimation"].delete())
         await session.execute(tables["tool_calls"].delete())
         await session.execute(tables["messages"].delete())
         await session.execute(tables["threads"].delete())

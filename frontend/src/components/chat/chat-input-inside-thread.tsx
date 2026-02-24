@@ -16,6 +16,7 @@ import { ModelSelectionDropdown } from "./model-selection";
 import { LLMModel } from "@/lib/types";
 import { ChatSuggestionsButton } from "@/components/chat/chat-suggestions-button";
 import { getSuggestionsForThread } from "@/actions/get-suggestions";
+import { TokenUsageIndicator } from "@/components/chat/token-usage-indicator";
 
 type ChatInputInsideThreadProps = {
   input: string;
@@ -26,6 +27,7 @@ type ChatInputInsideThreadProps = {
   currentModel: LLMModel;
   threadId: string;
   lastMessageId?: string;
+  usage: number;
   setCheckedTools: (tools: Record<string, boolean>) => void;
   setCurrentModel: (model: LLMModel) => void;
   handleInputChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
@@ -47,6 +49,7 @@ export function ChatInputInsideThread({
   currentModel,
   threadId,
   lastMessageId,
+  usage,
   setCheckedTools,
   setCurrentModel,
   handleInputChange,
@@ -127,11 +130,14 @@ export function ChatInputInsideThread({
           </div>
 
           <div className="flex items-center justify-between px-6 pb-3 pt-1">
-            <ToolSelectionDropdown
-              availableTools={availableTools}
-              checkedTools={checkedTools}
-              setCheckedTools={setCheckedTools}
-            />
+            <div className="flex items-center gap-3">
+              <ToolSelectionDropdown
+                availableTools={availableTools}
+                checkedTools={checkedTools}
+                setCheckedTools={setCheckedTools}
+              />
+              <TokenUsageIndicator usage={usage} />
+            </div>
             <div className="flex items-center gap-3">
               <ModelSelectionDropdown
                 currentModel={currentModel}

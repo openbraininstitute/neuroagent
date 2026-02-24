@@ -20,7 +20,14 @@ from neuroagent.app.app_utils import (
     validate_project,
 )
 from neuroagent.app.config import Settings
-from neuroagent.app.database.sql_schemas import Entity, Messages, Threads, utc_now
+from neuroagent.app.database.sql_schemas import (
+    Entity,
+    Messages,
+    Threads,
+    TokenConsumption,
+    TokenType,
+    utc_now,
+)
 from neuroagent.app.dependencies import (
     get_openai_client,
     get_redis_client,
@@ -429,3 +436,28 @@ async def get_thread_messages(
         return format_messages_output(
             db_messages, tool_hil_mapping, has_more, pagination_params.page_size
         )
+
+
+@router.get("/usage/{thread_id}")
+async def get_thread_usage(
+    session: Annotated[AsyncSession, Depends(get_session)],
+    thread_id: UUID,
+) -> dict[str, int]:
+    """Get token usage for a thread."""
+    latest_message_subq = (
+        select(Messages.message_id)
+        .where(
+            Messages.thread_id == thread_id,
+            Messages.entity.in_([Entity.AI_TOOL, Entity.AI_MESSAGE]),
+        )
+        .order_by(desc(Messages.creation_date))
+        .limit(1)
+        .scalar_subquery()
+    )
+    result = await session.execute(
+        select(TokenConsumption.type, TokenConsumption.count).where(
+            TokenConsumption.message_id == latest_message_subq
+        )
+    )
+
+    return {TokenType(row[0]).value: row[1] for row in result.all()}
