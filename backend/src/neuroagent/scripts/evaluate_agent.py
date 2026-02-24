@@ -715,7 +715,7 @@ async def run_eval(
     # 1. Answer Relevance (GEval)
     answer_relevance = GEval(
         name="Correctness",
-        criteria="Determine whether the actual output responds to the input, based on the input and the expected output. Evaluate the content of the output, not the styling. CRITICAL: Content wrapped in {{...}} placeholders represents variable information that WILL differ between runs - these are NOT meant to be exact matches. The evaluator must ignore differences in {{...}} placeholder content and only assess whether the overall structure, relevant sections, and non-placeholder content are present and appropriate. Inputs unrelated to neuroscience or the Open Brain Platform must be politely declined.",
+        criteria="Evaluate the content of the output, not the styling. RULE 1 (ground-truth mode): if expected_output is non-empty after trimming whitespace, you MUST treat expected_output as the authoritative ground truth and score by alignment with it. In this mode, do NOT use your own external judgment or world knowledge to decide correctness beyond comparing actual_output to expected_output. RULE 2 (reference-free mode): if expected_output is empty after trimming whitespace, evaluate based only on input and actual_output using your own judgment for relevance, correctness, completeness, and safety. CRITICAL: Content wrapped in {{...}} placeholders in expected_output represents variable information that may differ between runs; ignore differences inside {{...}} and evaluate structure and non-placeholder content. Inputs unrelated to neuroscience or the Open Brain Platform should be politely declined.",
         evaluation_params=[
             LLMTestCaseParams.INPUT,
             LLMTestCaseParams.ACTUAL_OUTPUT,
