@@ -715,9 +715,14 @@ async def run_eval(
     # 1. Answer Relevance (GEval)
     answer_relevance = GEval(
         name="Correctness",
-        criteria="Evaluate the content of the output, not the styling. RULE 1 (ground-truth mode): if expected_output is non-empty after trimming whitespace, you MUST treat expected_output as the authoritative ground truth and score by alignment with it. In this mode, do NOT use your own external judgment or world knowledge to decide correctness beyond comparing actual_output to expected_output. RULE 2 (empty-reference mode): if expected_output is empty after trimming whitespace, you MUST assign score 0.0 and mark unsuccessful. Do not use your own judgment in this case and do not grant partial credit. CRITICAL: Content wrapped in {{...}} placeholders in expected_output represents variable information that may differ between runs; ignore differences inside {{...}} and evaluate structure and non-placeholder content. Inputs unrelated to neuroscience or the Open Brain Platform should be politely declined.",
+        evaluation_steps=[
+            "If 'expected output' is empty after trimming whitespace, assign score 0.0 and fail immediately. Do not evaluate further.",
+            "If 'expected output' is non-empty, treat it as the only ground truth and score only by alignment of 'actual output' to 'expected output'.",
+            "Do not use external knowledge or personal judgment to override 'expected output'.",
+            "Ignore differences only inside '{{...}}' placeholders in 'expected output'; compare structure and non-placeholder content strictly.",
+            "Heavily penalize omissions of required details from 'expected output'.",
+        ],
         evaluation_params=[
-            LLMTestCaseParams.INPUT,
             LLMTestCaseParams.ACTUAL_OUTPUT,
             LLMTestCaseParams.EXPECTED_OUTPUT,
         ],
@@ -770,6 +775,17 @@ async def run_eval(
         metrics_data = test_result.metrics_data
         if metrics_data:
             for metric in metrics_data:
+                # Hard deterministic guard: empty expected_output should always yield 0 for GEval.
+                if (
+                    metric.name == "Correctness [GEval]"
+                    and not test_case["expected_output"].strip()
+                ):
+                    metric.score = 0.0
+                    metric.success = False
+                    metric.reason = (
+                        "Forced to 0.0: expected_output is empty, so this test is not "
+                        "eligible for reference-based GEval correctness scoring."
+                    )
                 metrics.append(
                     MetricResult(
                         name=metric.name,
