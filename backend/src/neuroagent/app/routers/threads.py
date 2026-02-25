@@ -23,6 +23,7 @@ from neuroagent.app.config import Settings
 from neuroagent.app.database.sql_schemas import (
     Entity,
     Messages,
+    Task,
     Threads,
     TokenConsumption,
     TokenType,
@@ -53,7 +54,11 @@ from neuroagent.app.schemas import (
     UserInfo,
 )
 from neuroagent.tools.base_tool import BaseTool
-from neuroagent.utils import delete_from_storage
+from neuroagent.utils import (
+    delete_from_storage,
+    get_token_count,
+    messages_to_openai_content,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -461,3 +466,129 @@ async def get_thread_usage(
     )
 
     return {TokenType(row[0]).value: row[1] for row in result.all()}
+
+
+@router.post("/{thread_id}/compress")
+async def compress_conversation(
+    thread: Annotated[Threads, Depends(get_thread)],
+    session: Annotated[AsyncSession, Depends(get_session)],
+    openai_client: Annotated[AsyncOpenAI, Depends(get_openai_client)],
+    settings: Annotated[Settings, Depends(get_settings)],
+):
+    """Compress the current thread to manage the context window"""
+    sql_messages = await thread.awaitable_attrs.messages
+    openai_messages = await messages_to_openai_content(sql_messages)
+
+    # Build summarization prompt
+    system_prompt = """You are a specialized conversation summarizer for a neuroscience research AI assistant.
+
+Your task is to create a structured summary that preserves all information needed for the assistant to continue helping with neuroscience research.
+
+Output format (use these exact section headers):
+
+## Research Intent
+What scientific questions is the user investigating? What are the research goals?
+
+## Data Accessed
+Which brain regions, cell types, morphologies, or datasets were queried?
+- For each data artifact, note: what it is, what was retrieved, key findings
+
+## Analyses Performed
+What computational analyses, visualizations, or workflows were executed?
+- Include tool names, parameters used, and results
+
+## Key Scientific Details
+Preserve exact technical information:
+- Brain region names (e.g., "SSp", "primary somatosensory cortex")
+- Cell type classifications (e.g., "L5_TPC:A", "pyramidal")
+- Morphology IDs and circuit identifiers
+- Query parameters and API calls
+- Literature references (DOIs, paper titles, authors)
+- Data values and statistical results
+
+## Current State
+- What has been completed?
+- What analyses are in progress?
+- What remains to be investigated?
+
+## Breadcrumbs
+Identifiers and references needed to reconstruct context:
+- Morphology IDs
+- Brain region IDs
+- File paths for plots/data
+- API endpoints used
+- Search queries executed
+
+RULES:
+1. Be specific with identifiers - "morphology_id: 12345" not "some morphology"
+2. Preserve exact brain region names and cell type classifications
+3. Keep all data IDs and file paths
+4. Maintain chronological flow within sections
+5. If a section has no content, write "None" - don't skip it
+6. For tool calls, preserve: tool names, key parameters, result summaries
+
+{previous_summary_instruction}"""
+
+    previous_summary_instruction = (
+        """## Previous Summary Update
+A previous summary already exists (provided in the conversation). You MUST update it rather than create a new one from scratch.
+Merge the new conversation elements into the existing summary:
+- Add new objectives or research questions to ## Research Intent
+- Append newly accessed data to ## Data Accessed
+- Append new analyses to ## Analyses Performed
+- Update ## Key Scientific Details with any new identifiers, values, or references
+- Reflect the latest state in ## Current State
+- Add any new breadcrumbs to ## Breadcrumbs
+Do not discard any information from the previous summary."""
+        if thread.parent_thread_id
+        else ""
+    )
+    system_prompt = system_prompt.format(
+        previous_summary_instruction=previous_summary_instruction
+    )
+
+    messages = [{"role": "system", "content": system_prompt}, *openai_messages]
+    completion_kwargs = {
+        "messages": messages,
+        "model": settings.llm.compression_model,
+    }
+    if "gpt-5" in settings.llm.suggestion_model:
+        completion_kwargs["reasoning_effort"] = "medium"
+
+    response = await openai_client.chat.completions.create(**completion_kwargs)
+    token_count = get_token_count(response.usage)
+    new_thread = Threads(
+        user_id=thread.user_id,
+        name=thread.title,
+        parent_thread_id=thread.thread_id,
+        project_id=thread.project_id,
+        vlab_id=thread.vlab_id,
+        messages=[
+            Messages(
+                thread_id=thread.thread_id,
+                entity=Entity.USER,
+                content=json.dumps(
+                    {"role": "user", "content": response.choices[0].message.content}
+                ),
+                is_complete=True,
+                token_consumption=[
+                    TokenConsumption(
+                        type=token_type,
+                        task=Task.CHAT_COMPLETION,
+                        count=count,
+                        model=settings.llm.compression_model,
+                    )
+                    for token_type, count in [
+                        (TokenType.INPUT_CACHED, token_count["input_cached"]),
+                        (TokenType.INPUT_NONCACHED, token_count["input_noncached"]),
+                        (TokenType.COMPLETION, token_count["completion"]),
+                    ]
+                    if count
+                ],
+            )
+        ],
+    )
+    session.add(new_thread)
+    await session.commit()
+    await session.refresh(new_thread)
+    return {"thread_id": new_thread.thread_id}

@@ -83,6 +83,7 @@ class Threads(Base):
     update_date: Mapped[datetime.datetime] = mapped_column(
         DateTime(timezone=True), default=utc_now
     )
+    parent_thread_id: Mapped[uuid.UUID] = mapped_column(UUID, nullable=True)
 
     user_id: Mapped[uuid.UUID] = mapped_column(UUID, nullable=False)
     messages: Mapped[list["Messages"]] = relationship(
