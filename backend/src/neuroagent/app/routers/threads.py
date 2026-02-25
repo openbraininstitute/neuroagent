@@ -40,6 +40,7 @@ from neuroagent.app.dependencies import (
     get_user_info,
 )
 from neuroagent.app.schemas import (
+    CompressResponse,
     MessagesRead,
     MessagesReadVercel,
     PaginatedParams,
@@ -51,6 +52,7 @@ from neuroagent.app.schemas import (
     ThreadGeneratedTitle,
     ThreadsRead,
     ThreadUpdate,
+    ThreadUsage,
     UserInfo,
 )
 from neuroagent.tools.base_tool import BaseTool
@@ -447,7 +449,7 @@ async def get_thread_messages(
 async def get_thread_usage(
     session: Annotated[AsyncSession, Depends(get_session)],
     thread_id: UUID,
-) -> dict[str, int]:
+) -> ThreadUsage:
     """Get token usage for a thread."""
     latest_message_subq = (
         select(Messages.message_id)
@@ -465,7 +467,7 @@ async def get_thread_usage(
         )
     )
 
-    return {TokenType(row[0]).value: row[1] for row in result.all()}
+    return ThreadUsage(**{TokenType(row[0]).value: row[1] for row in result.all()})
 
 
 @router.post("/{thread_id}/compress")
@@ -474,10 +476,17 @@ async def compress_conversation(
     session: Annotated[AsyncSession, Depends(get_session)],
     openai_client: Annotated[AsyncOpenAI, Depends(get_openai_client)],
     settings: Annotated[Settings, Depends(get_settings)],
-):
-    """Compress the current thread to manage the context window"""
+) -> CompressResponse:
+    """Compress the current thread to manage the context window."""
     sql_messages = await thread.awaitable_attrs.messages
     openai_messages = await messages_to_openai_content(sql_messages)
+
+    # Check if first message is a previous summary (when thread has parent)
+    has_previous_summary = (
+        thread.parent_thread_id
+        and openai_messages
+        and openai_messages[0].get("role") == "user"
+    )
 
     # Build summarization prompt
     system_prompt = """You are a specialized conversation summarizer for a neuroscience research AI assistant.
@@ -530,17 +539,13 @@ RULES:
 {previous_summary_instruction}"""
 
     previous_summary_instruction = (
-        """## Previous Summary Update
-A previous summary already exists (provided in the conversation). You MUST update it rather than create a new one from scratch.
-Merge the new conversation elements into the existing summary:
-- Add new objectives or research questions to ## Research Intent
-- Append newly accessed data to ## Data Accessed
-- Append new analyses to ## Analyses Performed
-- Update ## Key Scientific Details with any new identifiers, values, or references
-- Reflect the latest state in ## Current State
-- Add any new breadcrumbs to ## Breadcrumbs
-Do not discard any information from the previous summary."""
-        if thread.parent_thread_id
+        """
+## Previous Summary Update
+The first user message contains a previous summary. Update it with new information from subsequent messages:
+- Merge new content into existing sections
+- Preserve all existing identifiers, data, and references
+- Do not discard any information from the previous summary"""
+        if has_previous_summary
         else ""
     )
     system_prompt = system_prompt.format(
@@ -555,11 +560,11 @@ Do not discard any information from the previous summary."""
     if "gpt-5" in settings.llm.suggestion_model:
         completion_kwargs["reasoning_effort"] = "medium"
 
-    response = await openai_client.chat.completions.create(**completion_kwargs)
+    response = await openai_client.chat.completions.create(**completion_kwargs)  # type: ignore
     token_count = get_token_count(response.usage)
     new_thread = Threads(
         user_id=thread.user_id,
-        name=thread.title,
+        title=thread.title,
         parent_thread_id=thread.thread_id,
         project_id=thread.project_id,
         vlab_id=thread.vlab_id,
@@ -591,4 +596,4 @@ Do not discard any information from the previous summary."""
     session.add(new_thread)
     await session.commit()
     await session.refresh(new_thread)
-    return {"thread_id": new_thread.thread_id}
+    return CompressResponse(thread_id=new_thread.thread_id)

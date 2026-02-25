@@ -305,6 +305,20 @@ class SearchMessagesList(BaseModel):
     result_list: list[SearchMessagesResult]
 
 
+class CompressResponse(BaseModel):
+    """Response for thread compression."""
+
+    thread_id: UUID
+
+
+class ThreadUsage(BaseModel):
+    """Token usage for a thread."""
+
+    input_noncached: int = 0
+    input_cached: int = 0
+    completion: int = 0
+
+
 class FrontendContextOutput(BaseModel):
     """Output of the Context Analyzer tool."""
 
