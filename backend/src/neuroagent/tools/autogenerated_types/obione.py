@@ -317,6 +317,34 @@ class ClusteredPathDistanceMorphologyLocations(BaseModel):
     )
 
 
+class ConfigValidationRequest(BaseModel):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    class_name: Literal[
+        'CircuitExtractionScanConfig',
+        'ContributeMorphologyScanConfig',
+        'ContributeSubjectScanConfig',
+        'CircuitSimulationScanConfig',
+        'MEModelSimulationScanConfig',
+        'MEModelWithSynapsesCircuitSimulationScanConfig',
+        'IonChannelFittingScanConfig',
+        'MorphologyMetricsScanConfig',
+        'SchemaExampleScanConfig',
+        'SkeletonizationScanConfig',
+        'SimulationsForm',
+    ] = Field(..., title='Class Name')
+    data: dict[str, Any] = Field(..., title='Data')
+
+
+class ConfigValidationResponse(BaseModel):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    valid: bool = Field(..., title='Valid')
+    message: str = Field(..., title='Message')
+
+
 class ConnectivityMetricsOutput(BaseModel):
     model_config = ConfigDict(
         extra='ignore',
@@ -1697,6 +1725,8 @@ class ValidationError(BaseModel):
     loc: list[str | int] = Field(..., title='Location')
     msg: str = Field(..., title='Message')
     type: str = Field(..., title='Error Type')
+    input: Any | None = Field(default=None, title='Input')
+    ctx: dict[str, Any] | None = Field(default=None, title='Context')
 
 
 class ValidationStatus(RootModel[Literal['success', 'failure']]):
@@ -2153,6 +2183,27 @@ class ObiOneScientificTasksGenerateSimulationConfigsMEModelWithSynapsesCircuitSi
     )
 
 
+class ObiOneScientificTasksIonChannelModelingIonChannelFittingScanConfigInitialize(
+    BaseModel
+):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    type: Literal['IonChannelFittingScanConfig.Initialize'] = Field(
+        default='IonChannelFittingScanConfig.Initialize', title='Type'
+    )
+    recordings: IonChannelRecordingFromID = Field(
+        ..., description='IDs of the traces of interest.', title='Ion channel recording'
+    )
+    ion_channel_name: str = Field(
+        default='DefaultIonChannelName',
+        description='The name you want to give to the generated ion channel model (used as SUFFIX in the mod file). Name must start with a letter or underscore, and can only contain letters, numbers, and underscores.',
+        min_length=1,
+        pattern='^[A-Za-z_][A-Za-z0-9_]*$',
+        title='Ion channel name',
+    )
+
+
 class ObiOneScientificTasksMorphologyContainerizationMorphologyContainerizationScanConfigInitialize(
     BaseModel
 ):
@@ -2508,6 +2559,12 @@ class NeuronMorphologyMetricsEndpointDeclaredNeuronMorphologyMetricsCellMorpholo
     ) = Field(
         default=None, description='List of requested metrics', title='Requested Metrics'
     )
+
+
+class RegisterMorphologyMetricsDeclaredNeuronMorphologyMetricsCellMorphologyIdRegisterPostResponse(
+    RootGetResponse
+):
+    pass
 
 
 class ValidateNeuronFileDeclaredTestNeuronFilePostParametersQuery(BaseModel):
@@ -2945,25 +3002,6 @@ class IDNeuronSet(BaseModel):
     )
 
 
-class Initialize(BaseModel):
-    model_config = ConfigDict(
-        extra='ignore',
-    )
-    type: Literal['IonChannelFittingScanConfig.Initialize'] = Field(
-        default='IonChannelFittingScanConfig.Initialize', title='Type'
-    )
-    recordings: IonChannelRecordingFromID = Field(
-        ..., description='IDs of the traces of interest.', title='Ion channel recording'
-    )
-    ion_channel_name: str = Field(
-        default='DefaultIonChannelName',
-        description='The name you want to give to the generated ion channel model (used as SUFFIX in the mod file). Name must start with a letter or underscore, and can only contain letters, numbers, and underscores.',
-        min_length=1,
-        pattern='^[A-Za-z_][A-Za-z0-9_]*$',
-        title='Ion channel name',
-    )
-
-
 class IonChannelFittingScanConfig(BaseModel):
     model_config = ConfigDict(
         extra='ignore',
@@ -2971,7 +3009,9 @@ class IonChannelFittingScanConfig(BaseModel):
     type: Literal['IonChannelFittingScanConfig'] = Field(
         default='IonChannelFittingScanConfig', title='Type'
     )
-    initialize: Initialize = Field(
+    initialize: (
+        ObiOneScientificTasksIonChannelModelingIonChannelFittingScanConfigInitialize
+    ) = Field(
         ...,
         description='Parameters for initializing the simulation.',
         title='Initialization',
@@ -3720,6 +3760,15 @@ class TaskAccountingInfo(BaseModel):
     config_id: UUID = Field(..., title='Config Id')
     cost: float = Field(..., title='Cost')
     parameters: AccountingParameters
+
+
+class TaskCallBackSuccessRequest(BaseModel):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    task_type: TaskType
+    job_id: UUID = Field(..., title='Job Id')
+    count: int = Field(..., title='Count')
 
 
 class TaskLaunchInfo(BaseModel):
