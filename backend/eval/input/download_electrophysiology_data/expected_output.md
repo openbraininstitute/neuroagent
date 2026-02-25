@@ -1,0 +1,1 @@
+Navigate to Explore > Experimental Data > Electrical Cell Recordings, filter by mouse species, select the entities you want (up to 100 per download), and use the download button to get them as a compressed `.tar.gz` archive. The archive includes the recording files (NWB format) along with metadata CSV and JSON files.

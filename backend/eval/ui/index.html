@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Eval Results - Tests</title>
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <main class="container">
+    <h1>Eval Results</h1>
+
+    <section class="controls">
+      <label>
+        Metric
+        <select id="metricSelect"></select>
+      </label>
+      <label>
+        Sort
+        <select id="sortDir">
+          <option value="desc">High to low</option>
+          <option value="asc">Low to high</option>
+        </select>
+      </label>
+      <label>
+        Search
+        <input id="searchInput" type="text" placeholder="test name contains..." />
+      </label>
+      <button id="reloadBtn" type="button">Reload</button>
+    </section>
+
+    <p id="statusLine" class="muted"></p>
+
+    <table id="testsTable">
+      <thead>
+        <tr>
+          <th>Test</th>
+          <th>Score</th>
+          <th>Pass</th>
+          <th>Tags</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </main>
+
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+  <script src="./app.js"></script>
+</body>
+</html>
