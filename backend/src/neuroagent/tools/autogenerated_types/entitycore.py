@@ -156,6 +156,9 @@ class ApiErrorCode(
             'ASSET_NOT_A_DIRECTORY',
             'ASSET_INVALID_SCHEMA',
             'ASSET_INVALID_CONTENT_TYPE',
+            'ASSET_UPLOAD_INCOMPLETE',
+            'ASSET_UPLOAD_INCONSISTENT_SIZE',
+            'ASSET_NOT_UPLOADING',
             'ION_NAME_NOT_FOUND',
             'S3_CANNOT_CREATE_PRESIGNED_URL',
             'OPENAI_API_KEY_MISSING',
@@ -179,6 +182,9 @@ class ApiErrorCode(
         'ASSET_NOT_A_DIRECTORY',
         'ASSET_INVALID_SCHEMA',
         'ASSET_INVALID_CONTENT_TYPE',
+        'ASSET_UPLOAD_INCOMPLETE',
+        'ASSET_UPLOAD_INCONSISTENT_SIZE',
+        'ASSET_NOT_UPLOADING',
         'ION_NAME_NOT_FOUND',
         'S3_CANNOT_CREATE_PRESIGNED_URL',
         'OPENAI_API_KEY_MISSING',
@@ -284,8 +290,8 @@ class AssetLabel(
     ] = Field(..., description='See docs/asset-labels.md.', title='AssetLabel')
 
 
-class AssetStatus(RootModel[Literal['created', 'deleted']]):
-    root: Literal['created', 'deleted'] = Field(..., title='AssetStatus')
+class AssetStatus(RootModel[Literal['created', 'uploading', 'deleted']]):
+    root: Literal['created', 'uploading', 'deleted'] = Field(..., title='AssetStatus')
 
 
 class Author(BaseModel):
@@ -1337,6 +1343,30 @@ class HierarchyTree(BaseModel):
     )
     derivation_type: DerivationType
     data: list[HierarchyNode] = Field(..., title='Data')
+
+
+class InitiateUploadRequest(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
+    filename: str = Field(
+        ..., description='File name to be uploaded.', title='Filename'
+    )
+    filesize: int = Field(
+        ..., description='File size to be uploaded in bytes.', gt=0, title='Filesize'
+    )
+    sha256_digest: str = Field(..., title='Sha256 Digest')
+    content_type: str | None = Field(
+        default=None,
+        description="Content type of file. If not provided it will be deduced from the file's extension.",
+        title='Content Type',
+    )
+    label: AssetLabel
+    preferred_part_count: int = Field(
+        default=100,
+        description='Hint of desired part count.',
+        title='Preferred Part Count',
+    )
 
 
 class IonChannelAdminUpdate(BaseModel):
@@ -2936,6 +2966,28 @@ class SubjectUserUpdate(BaseModel):
     )
     strain_id: UUID | Literal['<NOT_SET>'] | None = Field(
         default='<NOT_SET>', title='Strain Id'
+    )
+
+
+class ToUploadPart(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
+    part_number: int = Field(
+        ...,
+        description='Index of this part in the multipart upload.',
+        title='Part Number',
+    )
+    url: str = Field(..., description='Presigned url to upload file part.', title='Url')
+
+
+class UploadMetaRead(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
+    parts: list[ToUploadPart] = Field(..., title='Parts')
+    part_size: int = Field(
+        ..., description='Size in bytes for each part.', title='Part Size'
     )
 
 
@@ -10622,6 +10674,24 @@ class AssetRead(BaseModel):
     storage_type: StorageType
     id: UUID = Field(..., title='Id')
     status: AssetStatus
+
+
+class AssetReadWithUploadMeta(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
+    size: int = Field(..., title='Size')
+    sha256_digest: str | None = Field(..., title='Sha256 Digest')
+    path: str = Field(..., title='Path')
+    full_path: str = Field(..., title='Full Path')
+    is_directory: bool = Field(..., title='Is Directory')
+    content_type: ContentType
+    meta: dict[str, Any] = Field(default={}, title='Meta')
+    label: AssetLabel
+    storage_type: StorageType
+    id: UUID = Field(..., title='Id')
+    status: AssetStatus
+    upload_meta: UploadMetaRead | None = None
 
 
 class AssetRegister(BaseModel):
