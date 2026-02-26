@@ -36,9 +36,10 @@ class Entity(enum.Enum):
 class Task(enum.Enum):
     """Type of request that generated token consumption."""
 
-    CHAT_COMPLETION = "chat-completion"
-    TOOL_SELECTION = "tool-selection"
-    CALL_WITHIN_TOOL = "call-within-tool"
+    CHAT_COMPLETION = "chat_completion"
+    TOOL_SELECTION = "tool_selection"
+    CALL_WITHIN_TOOL = "call_within-tool"
+    SUMMARY = "summary"
 
 
 class TokenType(enum.Enum):

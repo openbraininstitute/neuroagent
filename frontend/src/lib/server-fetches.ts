@@ -255,15 +255,15 @@ export async function getThreadUsage(threadId: string): Promise<number> {
     if (!session?.accessToken) {
       throw new Error("No session found");
     }
-
+    console.log("BEFORE");
     const usage = (await fetcher({
       method: "GET",
-      path: "/threads/usage/{threadId}",
+      path: "/threads/{threadId}/usage",
       pathParams: { threadId },
       headers: { Authorization: `Bearer ${session.accessToken}` },
       next: { tags: [`thread/${threadId}/usage`] },
     })) as BTokenUsage;
-
+    console.log("AFTER");
     // Calculate total tokens on the server
     console.log(usage.input_noncached);
     console.log(usage.input_cached);

@@ -1,3 +1,4 @@
+import json
 import uuid
 from datetime import datetime, timedelta, timezone
 from unittest.mock import Mock
@@ -886,8 +887,8 @@ async def test_get_thread_usage_with_token_data(
     usage = response.json()
 
     assert usage == {
-        "input-noncached": 100,
-        "input-cached": 50,
+        "input_noncached": 100,
+        "input_cached": 50,
         "completion": 75,
     }
 
@@ -895,8 +896,8 @@ async def test_get_thread_usage_with_token_data(
     usage = response.json()
 
     assert usage == {
-        "input-noncached": 100,
-        "input-cached": 50,
+        "input_noncached": 100,
+        "input_cached": 50,
         "completion": 75,
     }
 
@@ -930,7 +931,11 @@ async def test_get_thread_usage_empty_thread(
 
     assert response.status_code == 200
     usage = response.json()
-    assert usage == {}
+    assert usage == {
+        "input_noncached": 0,
+        "input_cached": 0,
+        "completion": 0,
+    }
 
 
 @pytest.mark.asyncio
@@ -952,7 +957,11 @@ async def test_get_thread_usage_no_token_data(
 
     assert response.status_code == 200
     usage = response.json()
-    assert usage == {}
+    assert usage == {
+        "input_noncached": 0,
+        "input_cached": 0,
+        "completion": 0,
+    }
 
 
 @pytest.mark.asyncio
@@ -1020,7 +1029,8 @@ async def test_get_thread_usage_only_latest_message(
 
     # Should only return data from the latest AI message, not the older AI_TOOL message
     assert usage == {
-        "input-noncached": 100,
+        "input_noncached": 100,
+        "input_cached": 0,
         "completion": 50,
     }
     # Should NOT include the old token data
@@ -1042,7 +1052,11 @@ def test_get_thread_usage_nonexistent_thread(
 
     assert response.status_code == 200
     usage = response.json()
-    assert usage == {}
+    assert usage == {
+        "input_noncached": 0,
+        "input_cached": 0,
+        "completion": 0,
+    }
 
 
 @pytest.mark.asyncio
@@ -1089,7 +1103,110 @@ async def test_get_thread_usage_partial_token_types(
 
     # Should only have completion tokens
     assert usage == {
+        "input_noncached": 0,
+        "input_cached": 0,
         "completion": 42,
     }
-    assert "input-noncached" not in usage
-    assert "input-cached" not in usage
+
+
+@pytest.mark.httpx_mock(can_send_already_matched_responses=True)
+@pytest.mark.asyncio
+async def test_compress_conversation_without_parent(
+    httpx_mock, app_client, db_connection, test_user_info, populate_db
+):
+    """Test compress_conversation without parent thread (first compression)."""
+    mock_keycloak_user_identification(httpx_mock, test_user_info)
+    test_settings = Settings(
+        db={"prefix": db_connection},
+        keycloak={"issuer": "https://great_issuer.com"},
+        llm={"compression_model": "gpt-4"},
+    )
+
+    mock_openai_client = MockOpenAIClient()
+    mock_response = create_mock_response(
+        {"role": "assistant", "content": "## Research Intent\nTest summary"}
+    )
+    mock_response.usage = Mock(
+        prompt_tokens=100,
+        completion_tokens=50,
+        total_tokens=150,
+        prompt_tokens_details=Mock(cached_tokens=0),
+    )
+    mock_openai_client.set_response(mock_response)
+
+    app.dependency_overrides[get_settings] = lambda: test_settings
+    app.dependency_overrides[get_openai_client] = lambda: mock_openai_client
+
+    db_items, _ = populate_db
+    thread = db_items["thread"]
+
+    with app_client as client:
+        # Compress the conversation
+        compress_response = client.post(f"/threads/{thread.thread_id}/compress").json()
+
+        assert "thread_id" in compress_response
+
+        # Verify the system prompt does NOT include update instruction
+        call_kwargs = mock_openai_client.chat.completions.create.call_args.kwargs
+        system_message = call_kwargs["messages"][0]["content"]
+        assert "Previous Summary Update" not in system_message
+
+
+@pytest.mark.httpx_mock(can_send_already_matched_responses=True)
+@pytest.mark.asyncio
+async def test_compress_conversation_with_parent(
+    httpx_mock, app_client, db_connection, test_user_info, populate_db
+):
+    """Test compress_conversation with parent thread (updating existing summary)."""
+    from neuroagent.app.database.sql_schemas import Entity, Messages
+
+    mock_keycloak_user_identification(httpx_mock, test_user_info)
+    test_settings = Settings(
+        db={"prefix": db_connection},
+        keycloak={"issuer": "https://great_issuer.com"},
+        llm={"compression_model": "gpt-4"},
+    )
+
+    mock_openai_client = MockOpenAIClient()
+    mock_response = create_mock_response(
+        {"role": "assistant", "content": "## Research Intent\nUpdated summary"}
+    )
+    mock_response.usage = Mock(
+        prompt_tokens=200,
+        completion_tokens=75,
+        total_tokens=275,
+        prompt_tokens_details=Mock(cached_tokens=50),
+    )
+    mock_openai_client.set_response(mock_response)
+
+    app.dependency_overrides[get_settings] = lambda: test_settings
+    app.dependency_overrides[get_openai_client] = lambda: mock_openai_client
+
+    db_items, session = populate_db
+    thread = db_items["thread"]
+    thread_id = str(thread.thread_id)
+
+    # Set parent_thread_id to simulate a compressed thread
+    thread.parent_thread_id = uuid.uuid4()
+
+    # Add a user message at the beginning (simulating previous summary)
+    summary_message = Messages(
+        thread_id=thread.thread_id,
+        entity=Entity.USER,
+        content=json.dumps({"role": "user", "content": "Previous summary content"}),
+        is_complete=True,
+    )
+    session.add(summary_message)
+    await session.commit()
+
+    with app_client as client:
+        # Compress the conversation
+        compress_response = client.post(f"/threads/{thread_id}/compress").json()
+
+        assert "thread_id" in compress_response
+
+        # Verify the system prompt includes update instruction
+        call_kwargs = mock_openai_client.chat.completions.create.call_args.kwargs
+        system_message = call_kwargs["messages"][0]["content"]
+        assert "Previous Summary Update" in system_message
+        assert "first user message contains a previous summary" in system_message

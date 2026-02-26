@@ -136,18 +136,17 @@ export function ChatPage({
       Authorization: `Bearer ${session?.accessToken}`,
     },
     initialMessages: retrievedMessages,
-    onFinish: (message, options) => {
-      console.log("onFinish called:", { message, options });
-      // AI SDK v4 parses the e: events and provides usage in options
+    onFinish: async (_, options) => {
+      let totalTokens = 0;
       if (options?.usage?.totalTokens) {
-        setUsage(options.usage.totalTokens);
+        totalTokens = options.usage.totalTokens;
+        setUsage(totalTokens);
       } else if (options?.usage) {
-        // Fallback: calculate from promptTokens + completionTokens
-        const total =
+        totalTokens =
           (options.usage.promptTokens || 0) +
           (options.usage.completionTokens || 0);
-        if (total > 0) {
-          setUsage(total);
+        if (totalTokens > 0) {
+          setUsage(totalTokens);
         }
       }
     },
@@ -334,6 +333,16 @@ export function ChatPage({
         description: `Please try again in ${retryAfterHours} ${
           retryAfterHours === 1 ? "hour" : "hours"
         }.`,
+      });
+    } else if (
+      error.message.includes("context_length_exceeded") ||
+      error.message.includes("maximum context length") ||
+      error.message.includes("too many tokens")
+    ) {
+      toast.error("Context Window Exceeded", {
+        description:
+          "The conversation has exceeded the maximum token limit. Please use the Summarize button to compress the conversation.",
+        duration: 10000,
       });
     } else {
       toast.error("Chat Error", {

@@ -528,7 +528,7 @@ async def filtered_tools(
     messages: list[Messages] = await thread.awaitable_attrs.messages
     if (
         not messages
-        or messages[-1].entity == Entity.AI_MESSAGE
+        or messages[-1].entity != Entity.AI_TOOL
         or not messages[-1].is_complete
     ):
         messages.append(

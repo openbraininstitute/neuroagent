@@ -2,6 +2,7 @@
 
 import json
 import logging
+import time
 from typing import Annotated, Any, Literal
 from uuid import UUID
 
@@ -445,29 +446,52 @@ async def get_thread_messages(
         )
 
 
-@router.get("/usage/{thread_id}")
+@router.get("/{thread_id}/usage")
 async def get_thread_usage(
     session: Annotated[AsyncSession, Depends(get_session)],
     thread_id: UUID,
 ) -> ThreadUsage:
-    """Get token usage for a thread."""
+    """Get token usage for a thread.
+
+    If the last message is a summary (only message in thread), only completion
+    tokens are returned since the summary prompt is not part of the conversation.
+    """
     latest_message_subq = (
         select(Messages.message_id)
         .where(
             Messages.thread_id == thread_id,
-            Messages.entity.in_([Entity.AI_TOOL, Entity.AI_MESSAGE]),
+            Messages.entity.in_([Entity.AI_TOOL, Entity.AI_MESSAGE, Entity.USER]),
         )
         .order_by(desc(Messages.creation_date))
         .limit(1)
         .scalar_subquery()
     )
+
     result = await session.execute(
-        select(TokenConsumption.type, TokenConsumption.count).where(
-            TokenConsumption.message_id == latest_message_subq
-        )
+        select(
+            TokenConsumption.type, TokenConsumption.count, TokenConsumption.task
+        ).where(TokenConsumption.message_id == latest_message_subq)
     )
 
-    return ThreadUsage(**{TokenType(row[0]).value: row[1] for row in result.all()})
+    tokens = result.all()
+
+    if not tokens:
+        return ThreadUsage()
+
+    # Check if any token has SUMMARY task
+    is_summary = any(row[2] == Task.SUMMARY for row in tokens)
+
+    # If last message is a summary, only return completion tokens
+    if is_summary:
+        return ThreadUsage(
+            **{
+                TokenType(row[0]).value: row[1]
+                for row in tokens
+                if TokenType(row[0]) == TokenType.COMPLETION
+            }
+        )
+
+    return ThreadUsage(**{TokenType(row[0]).value: row[1] for row in tokens})
 
 
 @router.post("/{thread_id}/compress")
@@ -558,9 +582,13 @@ The first user message contains a previous summary. Update it with new informati
         "model": settings.llm.compression_model,
     }
     if "gpt-5" in settings.llm.suggestion_model:
-        completion_kwargs["reasoning_effort"] = "medium"
+        completion_kwargs["reasoning_effort"] = "minimal"
 
+    start = time.time()
     response = await openai_client.chat.completions.create(**completion_kwargs)  # type: ignore
+    logger.info(
+        f"Compression took {time.time() - start:.2f}s for {len(openai_messages)} messages"
+    )
     token_count = get_token_count(response.usage)
     new_thread = Threads(
         user_id=thread.user_id,
@@ -579,7 +607,7 @@ The first user message contains a previous summary. Update it with new informati
                 token_consumption=[
                     TokenConsumption(
                         type=token_type,
-                        task=Task.CHAT_COMPLETION,
+                        task=Task.SUMMARY,
                         count=count,
                         model=settings.llm.compression_model,
                     )
