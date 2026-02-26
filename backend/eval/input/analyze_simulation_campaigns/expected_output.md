@@ -1,0 +1,1 @@
+Yes, the platform supports simulation campaigns that generate multiple simulations from parameter sweeps; you can view, select, and run them in batch, then track execution status for each. Simulation results include voltage traces and ionic current recordings that can be visualized directly in the platform's results panel or further analyzed in Jupyter notebooks.

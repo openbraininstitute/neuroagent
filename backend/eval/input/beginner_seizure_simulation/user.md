@@ -1,0 +1,1 @@
+I am a beginner. I want to simulate a neuron for seizure research in the virtual lab. Can I do that? Tell me how to find neuron models from seizure-relevant brain regions (e.g., hippocampus) and provide me with a simulation notebook to run the model.

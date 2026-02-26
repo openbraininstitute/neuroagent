@@ -2565,14 +2565,19 @@
       "created_at": "2026-02-19 15:47:03.209124"
     }
   },
-  "platform_ui_simulate": {
-    "user": "Where can I find the simulation section in the platform ?\n",
-    "expected_output": "I don't have access to the platform's UI and can't tell you where features are located in the interface.\n\nAlternatives I can offer:\n\nCheck the platform documentation or Help pages for a \"Simulations\", \"Simulation\", or \"Run simulation\" section.\nSearch the site for keywords like \"simulation\", \"simulation campaign\", \"simulation execution\", or \"simulation notebook\".\nContact the platform support team or your administrator for guided navigation.\nIf you want, I can search the platform documentation or news/tutorial pages for mentions of the simulation feature \u2014 tell me which of those you'd like me to look up (documentation/tutorials/news/public projects).\n",
+  "enable_functional_networks": {
+    "user": "How do I enable the Functional Networks module for my virtual lab?\n",
+    "expected_output": "The Functional Networks module does not exist as a feature in the current codebase.\n",
     "expected_tool_calls": [],
     "params": {
       "tags": [
-        "platform_ui",
-        "rejection"
+        "benchmark",
+        "5155f559-9e7f-4ad8-a7d3-736b3251e595",
+        "interface",
+        "how-to",
+        "modules",
+        "functional-networks",
+        "virtual-lab"
       ],
       "frontend_url": null,
       "shared_state": null
@@ -2620,20 +2625,19 @@
       "created_at": "2026-02-19 15:47:03.209135"
     }
   },
-  "ilike_pattern_test": {
-    "user": "Find all morphologies that start with \"mtC\" and have the letter \"B\" at the 10th position followed by an underscore.\n",
-    "expected_output": "I found {{total_items}} morphologies matching the pattern (starting with \"mtC\", letter \"B\" at position 10, followed by underscore):\n\n{{Morphology List}}\n\n{{Links}}\n",
-    "expected_tool_calls": [
-      {
-        "name": "entitycore-cellmorphology-getall",
-        "arguments": {
-          "name_ilike": "mtC_______B\\_%"
-        }
-      }
-    ],
+  "ca1_neuron_types_list": {
+    "user": "How many neuron types are in the CA1 region of mouse? Make a list.\n",
+    "expected_output": "Could you clarify what you mean by \"neuron types\"? In the platform, neurons are classified by morphological type (m-type), electrical type (e-type), and morpho-electrical type (ME-type). Which classification are you interested in for the CA1 region?\n",
+    "expected_tool_calls": [],
     "params": {
       "tags": [
-        "entitycore"
+        "benchmark",
+        "c519422a-35e5-449e-8efa-9cbd501ac790",
+        "data-query",
+        "cell-types",
+        "ca1",
+        "hippocampus",
+        "mouse"
       ],
       "frontend_url": null,
       "shared_state": null
@@ -2681,14 +2685,19 @@
       "created_at": "2026-02-19 15:47:03.209147"
     }
   },
-  "off_topic_sports": {
-    "user": "Who won the World Cup last year?\n",
-    "expected_output": "I'm specialized in neuroscience and the Open Brain Platform. I can't help with that topic, but I'd be happy to assist with brain research or platform-related questions.\n",
+  "simulate_simple_neuron": {
+    "user": "How do you simulate a neuron on this platform? Can I simulate 1 simple neuron for 1 second?\n",
+    "expected_output": "Go to Workflows > Simulate > Single Neuron, select an ME-model, set the `max_time` parameter to 1000 ms (1 second) in the Experimental Setup, configure a stimulation protocol and recording location, then click Run. The simulation executes via the small-scale simulator backend and displays voltage traces in the results panel\n",
     "expected_tool_calls": [],
     "params": {
       "tags": [
-        "off_topic",
-        "rejection"
+        "benchmark",
+        "52cc2ac2-d0ee-4077-b3cc-2a097ae549c5",
+        "interface",
+        "how-to",
+        "simulation",
+        "single-neuron",
+        "beginner"
       ],
       "frontend_url": null,
       "shared_state": null
@@ -2758,7 +2767,7 @@
     "ai_response": "I'll generate the 8 evenly spaced points and plot them with Plotly now.## Plot: y = sin(x) with 8 evenly spaced points from 0 to 2\\u03c0\\n\\nHere is the plot of y = sin(x) evaluated at 8 evenly spaced points between 0 and 2\\u03c0:\\n\\n![y = sin(x) \\u2014 8 evenly spaced points](http://localhost:3000/app/storage/33851537-7fc7-4c64-a06d-e7ea6d825ba9)\\n\\nDetails:\\n- **Points used:** 8\\n- **x range:** **(x: 0.00 \\u2192 x: 6.28)** (0 to 2\\u03c0)\\n- **Plotted as:** lines + markers\\n\\nIf you want the exact coordinates listed, a denser plot, or a CSV download of the points, tell me which format you prefer and I\\u2019ll provide it.",
     "actual_tool_calls": [
       {
-        "name": "run-python",
+        "name": "obi-expert",
         "arguments": {
           "python_script": "import numpy as np\nimport plotly.graph_objects as go\n\n# create 8 evenly spaced points from 0 to 2*pi\nx = np.linspace(0, 2 * np.pi, 8)\ny = np.sin(x)\n\nfig = go.Figure()\nfig.add_trace(go.Scatter(x=x, y=y, mode='lines+markers', name='sin(x)', marker=dict(size=8)))\nfig.update_layout(title='y = sin(x) \u2014 8 evenly spaced points from 0 to 2\u03c0',\n                  xaxis_title='x', yaxis_title='sin(x)',\n                  xaxis=dict(tickmode='array', tickvals=x, ticktext=[f'{v:.2f}' for v in x]))\n\n# show the figure (the platform captures and stores the image)\nfig\n"
         }
@@ -2775,15 +2784,15 @@
         },
         {
           "name": "Tool Correctness",
-          "score": 1.0,
-          "success": true,
+          "score": 0.0,
+          "success": false,
           "threshold": 0.5,
-          "reason": "[\n\t Tool Calling Reason: Correct ordering: all expected tools ['run-python'] were called in the correct order.\n\t Tool Selection Reason: No available tools were provided to assess tool selection criteria\n]\n"
+          "reason": "[\n\t Tool Calling Reason: Incorrect tool usage: ; expected [], called ['obi-expert']. See more details above.\n\t Tool Selection Reason: No available tools were provided to assess tool selection criteria\n]\n"
         },
         {
           "name": "Argument Correctness",
-          "score": 1.0,
-          "success": true,
+          "score": 0.0,
+          "success": false,
           "threshold": 0.5,
           "reason": "The score is 1.00 because the input request is clear and correctly specifies the task of plotting y=sin(x) with 8 evenly spaced points from 0 to 2pi."
         },
@@ -2792,12 +2801,12 @@
           "score": 0.0,
           "success": false,
           "threshold": 0.5,
-          "reason": "[\n\t Tool Calling Reason: Incomplete tool usage: missing tools [ToolCall(\n    name=\"run-python\",\n    input_parameters={\n        \"python_script\": \"import numpy as np\\nimport plotly.graph_objects as go\\n\\n# generate 8 evenly spaced points from 0 to 2pi\\nx = np.linspace(0, 2*np.pi, 8)\\ny = np.sin(x)\\n\\nfig = go.Figure()\\nfig.add_trace(go.Scatter(x=x, y=y, mode='markers+lines', name='sin(x)'))\\nfig.update_layout(title='y = sin(x) (8 evenly spaced points from 0 to 2\u03c0)',\\n                  xaxis_title='x', yaxis_title='y',\\n                  xaxis = dict(tickmode='array', tickvals=x, ticktext=[f'{val:.2f}' for val in x]))\\n\\nfig.show()\\n\\n# return numeric lists for reference\\n{\\\"x\\\": x.tolist(), \\\"y\\\": y.tolist()}\"\n    }\n)]; expected ['run-python'], called ['run-python']. See more details above.\n\t Tool Selection Reason: No available tools were provided to assess tool selection criteria\n]\n"
+          "reason": "[\n\t Tool Calling Reason: Incomplete tool usage: missing tools []; expected [], called ['obi-expert']. See more details above.\n\t Tool Selection Reason: No available tools were provided to assess tool selection criteria\n]\n"
         },
         {
           "name": "Overall Argument Correctness",
-          "score": 1.0,
-          "success": true,
+          "score": 0.0,
+          "success": false,
           "threshold": 0.5,
           "reason": ""
         }
@@ -2947,20 +2956,20 @@
       "created_at": "2026-02-19 15:47:03.209186"
     }
   },
-  "thalamus_id": {
-    "user": "Find the id of the thalamus\n",
-    "expected_output": "The id of the thalamus is 75e3944e-8dcd-4310-a3a2-258f93de63d6\n",
-    "expected_tool_calls": [
-      {
-        "name": "entitycore-brainregion-getall",
-        "arguments": {
-          "semantic_search": "thalamus"
-        }
-      }
-    ],
+  "basal_forebrain_synaptic_data": {
+    "user": "Can you retrieve synaptic data, neuron morphology, or electrophysiological data for basal forebrain cholinergic regions?\n",
+    "expected_output": "The platform provides experimental data types including cell morphology, electrical cell recordings, and synapses-per-connection data, all organized by brain region in a hierarchical atlas. You can navigate to the basal forebrain region in the Explore section to check if data is available there\n",
+    "expected_tool_calls": [],
     "params": {
       "tags": [
-        "entitycore"
+        "benchmark",
+        "bc9c2f3f-f462-40b4-9c58-1cffbe797366",
+        "data-query",
+        "synaptic",
+        "morphology",
+        "electrophysiology",
+        "basal-forebrain",
+        "cholinergic"
       ],
       "frontend_url": null,
       "shared_state": null
@@ -2970,7 +2979,7 @@
       {
         "name": "entitycore-brainregion-getall",
         "arguments": {
-          "semantic_search": "thalamus",
+          "semantic_search": "basal forebrain cholinergic",
           "page_size": 10
         }
       }
@@ -2986,29 +2995,29 @@
         },
         {
           "name": "Tool Correctness",
-          "score": 1.0,
-          "success": true,
+          "score": 0.0,
+          "success": false,
           "threshold": 0.5,
-          "reason": "[\n\t Tool Calling Reason: Correct ordering: all expected tools ['entitycore-brainregion-getall'] were called in the correct order.\n\t Tool Selection Reason: No available tools were provided to assess tool selection criteria\n]\n"
+          "reason": "[\n\t Tool Calling Reason: Incorrect tool usage: ; expected [], called ['entitycore-brainregion-getall']. See more details above.\n\t Tool Selection Reason: No available tools were provided to assess tool selection criteria\n]\n"
         },
         {
           "name": "Argument Correctness",
-          "score": 1.0,
-          "success": true,
+          "score": 0.0,
+          "success": false,
           "threshold": 0.5,
-          "reason": "The score is 1.00 because the input is clear and correctly asks for the identification of the thalamus, with no incorrect tool calls present."
+          "reason": "The score is 0.00 because the input does not specify the required synaptic data, neuron morphology, or electrophysiological data, leading to an inability to fulfill the request."
         },
         {
           "name": "Deterministic Argument Correctness",
-          "score": 0.5,
-          "success": true,
+          "score": 0.0,
+          "success": false,
           "threshold": 0.5,
-          "reason": "[\n\t Tool Calling Reason: Incomplete tool usage: missing tools [ToolCall(\n    name=\"entitycore-brainregion-getall\",\n    input_parameters={\n        \"semantic_search\": \"thalamus\"\n    }\n)]; expected ['entitycore-brainregion-getall'], called ['entitycore-brainregion-getall']. See more details above.\n\t Tool Selection Reason: No available tools were provided to assess tool selection criteria\n]\n"
+          "reason": "[\n\t Tool Calling Reason: Incomplete tool usage: missing tools []; expected [], called ['entitycore-brainregion-getall']. See more details above.\n\t Tool Selection Reason: No available tools were provided to assess tool selection criteria\n]\n"
         },
         {
           "name": "Overall Argument Correctness",
-          "score": 1.0,
-          "success": true,
+          "score": 0.0,
+          "success": false,
           "threshold": 0.5,
           "reason": ""
         }
@@ -3016,21 +3025,19 @@
       "created_at": "2026-02-19 15:47:03.209202"
     }
   },
-  "neuroscientists_search": {
-    "user": "Can you check online who are some of the most impactful computational neuroscientists?\n",
-    "expected_output": "{{Year}} Brain Prize Winners in Theoretical and Computational Neuroscience\n\n{{Name 1}} ({{Institution 1}})\n{{Name 2}} ({{Institution 2}})\n{{Name 3}} ({{Institution 3}})\n\nThese three physicists have been recognized for pioneering work in modeling brain structure and function, applying physics and mathematics to neuroscience. They shared the {{Year}} Brain Prize, the largest award in neuroscience.\n\n{{Link 1}}\n\nOther Notable Figures\n\n{{Name 4}} ({{Institution 4}})\nKnown for {{Achievement 1}} in neuroscience.\n\n{{Link 2}}\n\n{{Name 5}} ({{Institution 5}})\nA pioneer in {{Achievement 2}}. Developed {{Achievement 3}} and {{Achievement 4}}.\n\n{{Link 3}}\n{{Link 4}}\n\n{{Name 6}}\nKnown for contributions to {{Achievement 5}} and {{Achievement 6}}. Co-founder of {{Company 1}}.\n\n{{Link 5}}\n\nIf you want more detailed profiles or additional names, just let me know!\n",
-    "expected_tool_calls": [
-      {
-        "name": "web-search-tool",
-        "arguments": {
-          "query": "most impactful computational neuroscientists",
-          "numResults": 5
-        }
-      }
-    ],
+  "simulate_me_model_howto": {
+    "user": "I have selected an ME-model. How do I move to simulating this ME type? Can you provide details on how to access simulation notebooks for running ME-models?\n",
+    "expected_output": "From an ME-model detail page, navigate to Workflows > Simulate > Single Neuron, where you can select that ME-model as input and configure stimulation parameters, recording locations, and experimental setup before running the simulation. Simulations run through the built-in simulator rather than notebooks, but you can launch a Jupyter notebook from the Notebooks section to do additional analysis on simulation outputs using the `entitysdk` library.\n",
+    "expected_tool_calls": [],
     "params": {
       "tags": [
-        "web_search"
+        "benchmark",
+        "b5f796e0-f90f-40fe-a9a0-c462a27ee755",
+        "interface",
+        "how-to",
+        "me-model",
+        "simulation",
+        "notebooks"
       ],
       "frontend_url": null,
       "shared_state": null
@@ -3038,7 +3045,7 @@
     "ai_response": "I'll search the web for lists and articles mentioning the most impactful computational neuroscientists.## Summary \\u2014 notable, impactful computational neuroscientists (online sources)\\n\\nBelow are several widely recognized, high-impact researchers in computational and theoretical neuroscience found in recent online coverage. For each person I list the source(s) returned by the web search and a short note on why they appear influential (based only on the tool outputs).\\n\\n### 1) **Larry F. Abbott**\\n- Why highlighted: Named one of the 2024 Brain Prize winners for foundational work in computational/theoretical neuroscience.\\n- Sources:\\n  - **The Brain Prize 2024** announcement \\u2014 read the winner profile: [Computational and theoretical neuroscience \\u2014 The Brain Prize](https://brainprize.org/winners/computational-and-theoretical-neuroscience-2024)  \\n  ![Larry Abbott portrait image](https://brainprize.org/files/styles/open_graph/public/media/image/Grafik-til-Brain-Prize-2024.png?h=0ea5be51&itok=OJl9WouM)\\n\\n### 2) **Terrence J. Sejnowski**\\n- Why highlighted: 2024 Brain Prize winner; pioneer linking computation and neuroscience, influential for brain-inspired AI and neural modelling.\\n- Sources:\\n  - **The Brain Prize 2024** winner page: [Computational and theoretical neuroscience \\u2014 The Brain Prize](https://brainprize.org/winners/computational-and-theoretical-neuroscience-2024)  \\n  ![Terrence Sejnowski portrait image](https://brainprize.org/files/styles/open_graph/public/media/image/Grafik-til-Brain-Prize-2024.png?h=0ea5be51&itok=OJl9WouM)\\n\\n### 3) **Haim Sompolinsky**\\n- Why highlighted: 2024 Brain Prize winner; noted for foundational theoretical contributions to understanding brain dynamics and representation.\\n- Sources:\\n  - **The Brain Prize 2024** winner page: [Computational and theoretical neuroscience \\u2014 The Brain Prize](https://brainprize.org/winners/computational-and-theoretical-neuroscience-2024)  \\n  ![Haim Sompolinsky portrait image](https://brainprize.org/files/styles/open_graph/public/media/image/Grafik-til-Brain-Prize-2024.png?h=0ea5be51&itok=OJl9WouM)\\n\\n### 4) **Adrienne Fairhall**\\n- Why highlighted: Prominent computational neuroscientist discussed in a Simons Foundation piece about the state of the field and the role of theory in analysing large neural datasets.\\n- Sources:\\n  - Simons Foundation article \\u201cThe State of Computational Neuroscience\\u201d: [Simons Foundation \\u2014 The State of Computational Neuroscience](https://www.simonsfoundation.org/2018/01/02/the-state-of-computational-neuroscience/)  \\n  ![Adrienne Fairhall image](https://simonsfoundation.imgix.net/wp-content/uploads/2018/01/02111041/Fairhall_Adrienne.png?auto=format&q=90)\\n\\n### 5) **Christian K. Machens**\\n- Why highlighted: Co-editor/leader in discussions of major challenges and advances in computational neuroscience (mentioned in the Simons Foundation coverage).\\n- Sources:\\n  - Simons Foundation article: [Simons Foundation \\u2014 The State of Computational Neuroscience](https://www.simonsfoundation.org/2018/01/02/the-state-of-computational-neuroscience/)\\n\\n### 6) **Emery N. Brown**\\n- Why highlighted: Listed among systems-neuroscience members of the U.S. National Academy of Sciences (reflecting high impact and recognition in computational/statistical neuroscience).\\n- Sources:\\n  - Wikipedia list of NAS systems neuroscience members (returned by search): [List of members of the National Academy of Sciences (Systems neuroscience) \\u2014 Wikipedia](https://en.wikipedia.org/wiki/List_of_members_of_the_National_Academy_of_Sciences_(Systems_neuroscience))\\n\\n### 7) **Nancy Kopell**\\n- Why highlighted: Appears on the NAS systems neuroscience list \\u2014 long-standing influential theorist in dynamics of neural systems.\\n- Sources:\\n  - NAS systems neuroscience list: [Wikipedia \\u2014 NAS (Systems neuroscience) list](https://en.wikipedia.org/wiki/List_of_members_of_the_National_Academy_of_Sciences_(Systems_neuroscience))\\n\\n### 8) **Demis Hassabis**\\n- Why highlighted: Mentioned in a recent article summarizing highly-cited neuroscience work and AI impact; cited for work connecting AI advances and neuroscience relevance.\\n- Sources:\\n  - The Transmitter article summarizing highly cited neuroscience papers and noting AI\\u2011related influence: [The Transmitter \\u2014 What are the most-cited neuroscience papers from the past 30 years?](https://www.thetransmitter.org/publishing/what-are-the-most-cited-neuroscience-papers-from-the-past-30-years/)  \\n  ![Transmitter illustration image](https://www.thetransmitter.org/wp-content/uploads/2025/11/MostCited-1200.png)\\n\\n---\\n\\n## Notes, scope, and next steps\\n- These names come from the web search results returned above (Brain Prize 2024 announcement, Simons Foundation piece, NAS list and news articles). I used only the content returned by the web search tool.\\n- The field is large; many other influential computational neuroscientists exist (e.g., Gerald Edelman, Wilfrid Rall historically; current leaders like Karl Friston, Peter Dayan, Eve Marder, Chris Eliasmith, etc.). If you\\u2019d like, I can:\\n  - Search specifically for \\u201ctop computational neuroscientists\\u201d lists from major organizations or citation-based rankings, or\\n  - Produce a longer curated list with short bios and links (more comprehensive),\\n  - Or assemble a list focused on a subfield (theory, statistical methods, neural networks, neuroinformatics).\\nWhich would you prefer?",
     "actual_tool_calls": [
       {
-        "name": "web-search-tool",
+        "name": "obi-expert",
         "arguments": {
           "query": "most impactful computational neuroscientists list influential computational neuroscience researchers",
           "num_results": 6
@@ -3056,24 +3063,673 @@
         },
         {
           "name": "Tool Correctness",
-          "score": 1.0,
-          "success": true,
+          "score": 0.0,
+          "success": false,
           "threshold": 0.5,
-          "reason": "[\n\t Tool Calling Reason: Correct ordering: all expected tools ['web-search-tool'] were called in the correct order.\n\t Tool Selection Reason: No available tools were provided to assess tool selection criteria\n]\n"
+          "reason": "[\n\t Tool Calling Reason: Incorrect tool usage: ; expected [], called ['obi-expert', 'obi-expert', 'obi-expert']. See more details above.\n\t Tool Selection Reason: No available tools were provided to assess tool selection criteria\n]\n"
         },
         {
           "name": "Argument Correctness",
-          "score": 1.0,
-          "success": true,
+          "score": 0.0,
+          "success": false,
           "threshold": 0.5,
-          "reason": "The score is 1.00 because there were no incorrect tool calls and the input was clear and relevant."
+          "reason": "The score is 0.00 because the input lacks specific details on how to access simulation notebooks for running ME-models, which is crucial for addressing the query effectively."
         },
         {
           "name": "Deterministic Argument Correctness",
           "score": 0.0,
           "success": false,
           "threshold": 0.5,
-          "reason": "[\n\t Tool Calling Reason: Incomplete tool usage: missing tools [ToolCall(\n    name=\"web-search-tool\",\n    input_parameters={\n        \"query\": \"most impactful computational neuroscientists\",\n        \"numResults\": 5\n    }\n)]; expected ['web-search-tool'], called ['web-search-tool']. See more details above.\n\t Tool Selection Reason: No available tools were provided to assess tool selection criteria\n]\n"
+          "reason": "[\n\t Tool Calling Reason: Incomplete tool usage: missing tools []; expected [], called ['obi-expert', 'obi-expert', 'obi-expert']. See more details above.\n\t Tool Selection Reason: No available tools were provided to assess tool selection criteria\n]\n"
+        },
+        {
+          "name": "Overall Argument Correctness",
+          "score": 0.0,
+          "success": false,
+          "threshold": 0.5,
+          "reason": ""
+        }
+      ],
+      "created_at": "2026-02-24 13:08:16.756025"
+    }
+  },
+  "synaptic_input_meaning": {
+    "user": "What does the \"synaptic input\" on the current page mean? Is it a signal input from a specified position?\n",
+    "expected_output": "",
+    "expected_tool_calls": [],
+    "params": {
+      "tags": [
+        "benchmark",
+        "03ddc33e-0f47-4c34-8865-838d61564d1f",
+        "interface",
+        "terminology",
+        "ui-elements",
+        "synaptic-input"
+      ],
+      "frontend_url": null,
+      "shared_state": null
+    },
+    "ai_response": "I'll check the platform glossary/documentation for the exact meaning of \\synaptic input\\ on the site.## Short answer\\n**\\Synaptic input\\** on the platform refers to the set of *incoming synaptic connections* onto a neuron model (its synaptome): the actual synapses (their counts, types and distributions) that deliver signals to the model. It is not merely an abstract scalar \\u201csignal input\\u201d; it represents biological synaptic inputs that can be described by their location on the morphology (dendrite/shaft/spine), origin type (intrinsic vs extrinsic), and synapse properties.\\n\\n## Details (platform glossary-based)\\n- **Synaptome** \\u2014 *definition from the platform glossary*:  \\n  A synaptome is a combination of a neuronal morphology, an electrical model, and a set of incoming synaptic connections from other neurons.  \\n  - Each synaptome can include multiple **synapse sets**, where each set represents a synaptic input distribution (for example: intrinsic inputs from the same circuit, or extrinsic inputs from other circuits/brain regions).\\n  - Synaptomes are used to study the effect of synaptic inputs at the single-neuron level and can be simulated with those synapse sets.\\n\\n## Does \\u201csynaptic input\\u201d mean a signal from a specified position?\\n- Partly yes: a synaptic input on the platform usually includes *where* the synapses are placed on the neuron's morphology (e.g., particular dendritic branches, spines, or soma). So the model contains positional information (locations along the morphology) for synapses or a distribution rule that places them.\\n- However, it is not limited to a single abstract \\u201csignal port\\u201d at one location. It represents one or more biological synapses (possibly many) whose positions and properties define the input. Synapse sets can specify distributions of many synapses across the morphology rather than a single localized current injection.\\n\\n## Practical implications\\n- If you see a listed **synapse set** or **synaptic input** on a page, expect:  \\n  - Metadata about origin (intrinsic vs extrinsic), neurotransmitter type, and perhaps synapse counts.  \\n  - Spatial distribution information (where synapses are located or how they were distributed over the morphology).  \\n  - That this set will deliver synaptic events during simulation (not just a scalar input port).\\n- If you need to know the exact positions (coordinates) or the list of synapse locations for the synapse set shown on your page, I can fetch that for the specific synaptome/synapse set \\u2014 tell me which entity or page you mean and I\\u2019ll retrieve the details.\\n\\nWould you like me to pull the synapse-set details (counts and per-synapse coordinates) for the synaptic input shown on your current page?",
+    "actual_tool_calls": [
+      {
+        "name": "obi-expert",
+        "arguments": {
+          "document_type": "glossaryItem",
+          "query": "synaptic"
+        }
+      }
+    ],
+    "results": {
+      "metrics": [
+        {
+          "name": "Correctness [GEval]",
+          "score": 0.0,
+          "success": false,
+          "threshold": 0.5,
+          "reason": "Forced to 0.0: expected_output is empty, so this test is not eligible for reference-based GEval correctness scoring."
+        },
+        {
+          "name": "Tool Correctness",
+          "score": 0.0,
+          "success": false,
+          "threshold": 0.5,
+          "reason": "[\n\t Tool Calling Reason: Incorrect tool usage: ; expected [], called ['obi-expert']. See more details above.\n\t Tool Selection Reason: No available tools were provided to assess tool selection criteria\n]\n"
+        },
+        {
+          "name": "Argument Correctness",
+          "score": 0.0,
+          "success": false,
+          "threshold": 0.5,
+          "reason": "The score is 0.00 because there was no input parameter provided, which is essential for evaluating the argument correctly."
+        },
+        {
+          "name": "Deterministic Argument Correctness",
+          "score": 0.0,
+          "success": false,
+          "threshold": 0.5,
+          "reason": "[\n\t Tool Calling Reason: Incomplete tool usage: missing tools []; expected [], called ['obi-expert']. See more details above.\n\t Tool Selection Reason: No available tools were provided to assess tool selection criteria\n]\n"
+        },
+        {
+          "name": "Overall Argument Correctness",
+          "score": 0.0,
+          "success": false,
+          "threshold": 0.5,
+          "reason": ""
+        }
+      ],
+      "created_at": "2026-02-24 13:08:16.756055"
+    }
+  },
+  "run_simulation_file": {
+    "user": "How do I run a simulation file like \"passive_neuron_1dend.py\" on the platform?\n",
+    "expected_output": "",
+    "expected_tool_calls": [],
+    "params": {
+      "tags": [
+        "benchmark",
+        "127c5a85-9a91-4b86-b29d-e91b69198698",
+        "interface",
+        "how-to",
+        "simulation",
+        "python",
+        "run-file"
+      ],
+      "frontend_url": null,
+      "shared_state": null
+    },
+    "ai_response": "I'll search the platform documentation for running single-neuron simulation files. I'll look up the Single Cell Simulation / Circuit Simulation docs now.I'll search documentation for single-cell / single neuron simulation instructions and running Python simulation scripts.I'll search using \\singlecell\\ and \\single_neuron\\\".## Short answer \\u2014 two main ways\\n\\n- Use the platform web UI (recommended for most users): Workflows \\u2192 Simulate \\u2192 **Single Neuron**, load/select your ME-model and run the simulation from the interface.  \\n- Use the programmatic OBI-one interface (for scripts / notebooks): convert your Python/ME-model to an MEModel entity or point the OBI-one task at your model, use the GenerateSimulationTask / MEModelSimulationSingleConfig to produce a SONATA simulation_config.json and execute the simulation backend.\\n\\nBelow I give step-by-step instructions for both approaches and practical tips.\\n\\n---\\n\\n## 1) Web UI \\u2014 run \\passive_neuron_1dend.py\\ via Single Neuron workflow\\n\\n1. Prepare your model\\n   - Ensure your model is available as an ME-model (MEModel) that the platform can use (MEModelCircuit or a model already stored in the platform). If your Python file defines an ME-model, upload it to your project or convert it to a platform MEModel entity (ask me if you need help with that).\\n2. Open the Single Neuron simulation workflow\\n   - Navigate: Workflows \\u2192 Simulate \\u2192 choose **Single Neuron**.\\n3. Select the ME-model to simulate\\n   - Choose the ME-model (your model uploaded to the project) from the selection list or from public data.\\n4. Configure simulation parameters (left-hand configuration panel)\\n   - Info: name / description.\\n   - Experimental setup: maximum time (ms), timestep (ms), temperature (\\u00b0C), v_init (mV), random seed.\\n   - Stimulation protocol: choose current_clamp and set injection location (e.g., soma[0] or dendrite section), amplitude(s), and protocol (Step, AP_WAVEFORM, etc.).\\n   - Recordings: add recording locations (click in the 3D neuron viewer or enter section+offset).\\n   - Use defaults if unsure \\u2014 the UI provides defaults for timestep, v_init, etc.\\n5. Validate & Run\\n   - Review validation warnings shown by the UI.\\n   - Click **Run Simulation**. Monitor status (launching \\u2192 running \\u2192 completed).\\n6. View / download results\\n   - Switch to the Results panel to view voltage traces, currents (if recorded), and download outputs (NWB, traces, spike files).\\n   - Note: the platform warns if outputs exceed ~150 MB.\\n\\nReferences from docs: single-cell Getting Started, Configuration, Running & Results pages (Single cell simulation docs).\\n\\n---\\n\\n## 2) Programmatic (OBI-one) \\u2014 run from notebook or script\\n\\n1. Convert or reference your model\\n   - If your model is already an MEModel entity on the platform, use its entity ID.\\n   - Otherwise, prepare a MEModelCircuit or MEModelFromID that the OBI-one tasks can resolve (you can stage files locally and point the GenerateSimulationTask to them or register the model in the platform).\\n2. Create a MEModelSimulationSingleConfig\\n   - Use the OBI-one class MEModelSimulationSingleConfig to define:\\n     - initialize.block: circuit (MEModel), simulation_length (ms), v_init (mV), extracellular_calcium_concentration (mM), random_seed, timestep (ms)\\n     - stimuli: current_clamp with injection location and amplitudes\\n     - recordings: soma or other section recordings\\n   - Only include the parameters the user explicitly requests in the config; defaults will be filled in by the downstream code.\\n3. Use GenerateSimulationTask\\n   - The GenerateSimulationTask converts the configuration to SONATA format and writes:\\n     - simulation_config.json (SONATA simulation config)\\n     - node_sets.json (if needed)\\n   - It resolves the model, sets synaptic mechanisms (if relevant), and stages files.\\n4. Execute the simulation\\n   - The simulation execution module (obi_one/scientific/library/simulation_execution.py) runs the simulation (BlueCelluLab backend using NEURON; supports MPI).\\n   - Execution will produce voltage traces, spike times, and NWB outputs.\\n5. Inspect outputs programmatically or download from project results.\\n\\nReferences from docs: *OBI-one: Programmatic Single Cell Simulations*, *MEModelSimulationSingleConfig*, *GenerateSimulationTask*, and *simulation_execution* documentation.\\n\\n---\\n\\n## Practical notes / tips\\n\\n- 3D visualization in the web UI helps pick injection and recording locations (soma, dendrites, axon sections).\\n- Simulation parameters defaults: timestep default ~0.025 ms, v_init default -80 mV \\u2014 change them if your model or protocol needs it.\\n- Output size: the platform warns if your configuration will generate very large result files (>150 MB). Reduce number of recording locations, disable currents recording, or shorten simulation length to reduce output size.\\n- If your Python file is an executable script (e.g., passive_neuron_1dend.py) rather than an MEModel entity, you usually need to extract the ME-model definition (morphology + mechanisms) and register it as an MEModel entity or port the relevant model parts into a supported MEModel format so the platform can run it under the single-cell pipeline.\\n- Examples and notebooks: check examples/F_single_cell_simulations/ in the docs repository for runnable examples.\\n\\n---\\n\\n## Do you want help with any of the following?\\n- I can walk you through uploading/ registering your model file so it's recognized as an MEModel on the platform.\\n- I can draft a minimal MEModelSimulationSingleConfig or an OBI-one snippet to run passive_neuron_1dend.py programmatically (tell me whether you prefer notebook/script).\\n- I can point to the exact example notebook and adapt it to your model.\\n\\nWhich approach do you want to use \\u2014 web UI or programmatic? If programmatic, do you already have a platform MEModel entity ID or only the local Python file?",
+    "actual_tool_calls": [
+      {
+        "name": "obi-expert",
+        "arguments": {
+          "document_type": "documentationProduct",
+          "query": "simulation"
+        }
+      },
+      {
+        "name": "obi-expert",
+        "arguments": {
+          "document_type": "documentationProduct",
+          "page": 1,
+          "page_size": 10,
+          "sort": "newest",
+          "query": "single cell simulation"
+        }
+      },
+      {
+        "name": "obi-expert",
+        "arguments": {
+          "document_type": "documentationProduct",
+          "page_size": 10,
+          "query": "singlecell"
+        }
+      },
+      {
+        "name": "obi-expert",
+        "arguments": {
+          "document_type": "documentationProduct",
+          "page_size": 10,
+          "query": "single-neuron"
+        }
+      },
+      {
+        "name": "obi-expert",
+        "arguments": {
+          "document_type": "documentationProduct",
+          "page_size": 10,
+          "query": "single"
+        }
+      }
+    ],
+    "results": {
+      "metrics": [
+        {
+          "name": "Correctness [GEval]",
+          "score": 0.0,
+          "success": false,
+          "threshold": 0.5,
+          "reason": "Forced to 0.0: expected_output is empty, so this test is not eligible for reference-based GEval correctness scoring."
+        },
+        {
+          "name": "Tool Correctness",
+          "score": 0.0,
+          "success": false,
+          "threshold": 0.5,
+          "reason": "[\n\t Tool Calling Reason: Incorrect tool usage: ; expected [], called ['obi-expert', 'obi-expert', 'obi-expert', 'obi-expert', 'obi-expert']. See more details above.\n\t Tool Selection Reason: No available tools were provided to assess tool selection criteria\n]\n"
+        },
+        {
+          "name": "Argument Correctness",
+          "score": 0.0,
+          "success": false,
+          "threshold": 0.5,
+          "reason": "The score is 0.00 because there were multiple instances of missing input parameters that specifically address how to run the simulation file. This lack of clarity and detail in the tool calls prevented the argument from being more accurate."
+        },
+        {
+          "name": "Deterministic Argument Correctness",
+          "score": 0.0,
+          "success": false,
+          "threshold": 0.5,
+          "reason": "[\n\t Tool Calling Reason: Incomplete tool usage: missing tools []; expected [], called ['obi-expert', 'obi-expert', 'obi-expert', 'obi-expert', 'obi-expert']. See more details above.\n\t Tool Selection Reason: No available tools were provided to assess tool selection criteria\n]\n"
+        },
+        {
+          "name": "Overall Argument Correctness",
+          "score": 0.0,
+          "success": false,
+          "threshold": 0.5,
+          "reason": ""
+        }
+      ],
+      "created_at": "2026-02-24 13:08:16.756092"
+    }
+  },
+  "thalamic_electrophysiology_model": {
+    "user": "I want to obtain an electrophysiological model of thalamic neurons from rat or mice.\n",
+    "expected_output": "Here is a thalamic model of a rat.(display a table with me-model properties)  You can click on the link to navigate to the details of the model.\n",
+    "expected_tool_calls": [],
+    "params": {
+      "tags": [
+        "benchmark",
+        "03faefba-4d5c-4478-b6b1-0946b8414c44",
+        "data-query",
+        "thalamus",
+        "electrophysiology",
+        "models",
+        "rodent"
+      ],
+      "frontend_url": null,
+      "shared_state": null
+    },
+    "ai_response": "I'll search the EntityCore e-models database for electrophysiological (e-)models related to the thalamus (mouse or rat). I'll start with a semantic search for \\thalamus\\ across species.I'll query the e-models database for entries whose brain region name matches \\thalamus\\\".I'll search the e-models using the general search field for \\thalamus\\\".## Results \\u2014 available thalamic e-models (mouse)\\n\\nI searched the platform e-models for thalamus-related electrophysiological models (thalamic electrical models). The search returned **5** matching e-models (page 1 / total_items: **5**). Below I summarize each model and provide direct links to their EntityCore pages so you can inspect or download assets.\\n\\n### Summary table\\n| Name | ID | Species | Brain region | M-type(s) | E-type(s) | Source / notes |\\n|---|---:|---|---|---|---|---|\\n| **EM__thalamoreticular__dNAD_ltb__0** | **e19cac05-525d-40e6-9482-5126c8c00453** | *Mus musculus* | **Thalamus (TH)** | **VPM_TC** | **dNAD_ltb** (Delayed non-adapting low-threshold bursting) | Iavarone et al., 2023 Cell Reports \\u2014 DOI in description. [View Details](https://openbraininstitute.org/app/entity/e19cac05-525d-40e6-9482-5126c8c00453) |\\n| **EM__thalamoreticular__dAD_ltb__0** | **5f501261-2bc2-45b0-b0c5-14daa9ee115d** | *Mus musculus* | **Thalamus (TH)** | **Rt_RC** | **dAD_ltb** (Delayed adapting low-threshold bursting) | Iavarone et al., 2023. [View Details](https://openbraininstitute.org/app/entity/5f501261-2bc2-45b0-b0c5-14daa9ee115d) |\\n| **EM__thalamoreticular__cNAD_noscltb__0** | **7ff017d9-10cf-4ff4-8169-5b93bf5b575b** | *Mus musculus* | **Thalamus (TH)** | **Rt_RC** | **cNAD_noscltb** (Continuous non\\u2011adapting non\\u2011oscillatory low\\u2011threshold bursting) | Iavarone et al., 2023. [View Details](https://openbraininstitute.org/app/entity/7ff017d9-10cf-4ff4-8169-5b93bf5b575b) |\\n| **EM__thalamoreticular__cAD_noscltb__0** | **1d93f3da-d99f-47fd-88b2-8adaa2247039** | *Mus musculus* | **Thalamus (TH)** | **Rt_RC** | **cAD_noscltb** (Continuous adapting non\\u2011oscillatory low\\u2011threshold bursting) | Iavarone et al., 2023. [View Details](https://openbraininstitute.org/app/entity/1d93f3da-d99f-47fd-88b2-8adaa2247039) |\\n| **EM__thalamoreticular__bAC_IN__0** | **f1595258-3b35-4fbc-a8de-fabc61867527** | *Mus musculus* | **Thalamus (TH)** | **VPM_IN** | **bAC_IN** (single\\u2011burst\\u2011accommodating thalamic interneuron e\\u2011type) | Iavarone et al., 2023. [View Details](https://openbraininstitute.org/app/entity/f1595258-3b35-4fbc-a8de-fabc61867527) |\\n\\n---\\n\\n## Detailed entries\\n\\n### 1) EM__thalamoreticular__dNAD_ltb__0\\n- **ID:** **e19cac05-525d-40e6-9482-5126c8c00453**  \\n- **Species:** *Mus musculus*  \\n- **Brain region:** **Thalamus (TH)** \\u2014 annotation_value: 549  \\n- **M-type:** **VPM_TC** (Ventral posteromedial nucleus thalamo-cortical cell)  \\n- **E-type:** **dNAD_ltb** \\u2014 Delayed non-adapting low-threshold bursting electrical type  \\n- **Description / source:** \\Thalamus mouse electrical model. Source of this model: Iavarone et al., 2023, Cell Reports 42, 112200.\\  \\n  - DOI referenced in entry: https://doi.org/10.1016/j.celrep.2023.112200  \\n- **Entity page:** [View Details](https://openbraininstitute.org/app/entity/e19cac05-525d-40e6-9482-5126c8c00453)\\n\\n### 2) EM__thalamoreticular__dAD_ltb__0\\n- **ID:** **5f501261-2bc2-45b0-b0c5-14daa9ee115d**  \\n- **Species:** *Mus musculus*  \\n- **Brain region:** **Thalamus (TH)**  \\n- **M-type:** **Rt_RC** (Reticular nucleus reticular cell)  \\n- **E-type:** **dAD_ltb** \\u2014 Delayed adapting low-threshold bursting electrical type  \\n- **Description / source:** Iavarone et al., 2023 (Cell Reports).  \\n- **Entity page:** [View Details](https://openbraininstitute.org/app/entity/5f501261-2bc2-45b0-b0c5-14daa9ee115d)\\n\\n### 3) EM__thalamoreticular__cNAD_noscltb__0\\n- **ID:** **7ff017d9-10cf-4ff4-8169-5b93bf5b575b**  \\n- **Species:** *Mus musculus*  \\n- **Brain region:** **Thalamus (TH)**  \\n- **M-type:** **Rt_RC**  \\n- **E-type:** **cNAD_noscltb** \\u2014 Continuous non\\u2011adapting non\\u2011oscillatory low\\u2011threshold bursting  \\n- **Description / source:** Iavarone et al., 2023 (Cell Reports).  \\n- **Entity page:** [View Details](https://openbraininstitute.org/app/entity/7ff017d9-10cf-4ff4-8169-5b93bf5b575b)\\n\\n### 4) EM__thalamoreticular__cAD_noscltb__0\\n- **ID:** **1d93f3da-d99f-47fd-88b2-8adaa2247039**  \\n- **Species:** *Mus musculus*  \\n- **Brain region:** **Thalamus (TH)**  \\n- **M-type:** **Rt_RC**  \\n- **E-type:** **cAD_noscltb** \\u2014 Continuous adapting non\\u2011oscillatory low\\u2011threshold bursting  \\n- **Description / source:** Iavarone et al., 2023 (Cell Reports).  \\n- **Entity page:** [View Details](https://openbraininstitute.org/app/entity/1d93f3da-d99f-47fd-88b2-8adaa2247039)\\n\\n### 5) EM__thalamoreticular__bAC_IN__0\\n- **ID:** **f1595258-3b35-4fbc-a8de-fabc61867527**  \\n- **Species:** *Mus musculus*  \\n- **Brain region:** **Thalamus (TH)**  \\n- **M-type:** **VPM_IN** (thalamic interneuron)  \\n- **E-type:** **bAC_IN** \\u2014 single-burst-accommodating thalamic interneuron e\\u2011type  \\n- **Description / source:** Iavarone et al., 2023 (Cell Reports).  \\n- **Entity page:** [View Details](https://openbraininstitute.org/app/entity/f1595258-3b35-4fbc-a8de-fabc61867527)\\n\\n---\\n\\n## Notes and next steps\\n\\n- All returned e-models are for *Mus musculus* (mouse). The entries cite Iavarone et al., 2023 (Cell Reports 42, 112200) as the source model/circuit. The DOI given in the model descriptions is: https://doi.org/10.1016/j.celrep.2023.112200.\\n- The e-model records returned show **no ion channel model assets listed** in the brief listing; to see available files or downloads you should open the entity page (links above) or request the full e-model record.\\n- If you prefer **rat** models specifically, I can:\\n  - Search the e-model database restricted to *Rattus norvegicus* (semantic/species filters), or\\n  - Expand the search (increase page size / other naming variants) to make sure we didn't miss rat entries.\\n- If you want the full model details (assets, parameter files, NeuroML/NEURON files, or the full e-model JSON), I can fetch a single e-model record with its ID using the e-model GET ONE tool. Tell me which ID you want to inspect (or say \\u201call\\u201d), and I\\u2019ll retrieve the full details.\\n\\nWhat would you like me to do next?\\n- Retrieve full details for one of the listed e-models (specify ID or name), or\\n- Search specifically for rat thalamic e-models, or\\n- Open the entity pages yourself (links above) and let me know which one to fetch.",
+    "actual_tool_calls": [
+      {
+        "name": "entitycore-emodel-getall",
+        "arguments": {
+          "page_size": 10,
+          "semantic_search": "thalamus"
+        }
+      },
+      {
+        "name": "entitycore-emodel-getall",
+        "arguments": {
+          "brain_region__name__ilike": "%thalamus%",
+          "page": 1,
+          "page_size": 10,
+          "order_by": [
+            "-creation_date"
+          ]
+        }
+      },
+      {
+        "name": "entitycore-emodel-getall",
+        "arguments": {
+          "page_size": 10,
+          "search": "thalamus"
+        }
+      }
+    ],
+    "results": {
+      "metrics": [
+        {
+          "name": "Correctness [GEval]",
+          "score": 0.15191305121994048,
+          "success": false,
+          "threshold": 0.5,
+          "reason": "The actual output provides detailed information about thalamic e-models for mice, including a summary table and links to each model's details. However, it does not align with the expected output, which specifically requests a model of a rat and a simple table display. The omission of rat models and the complexity of the actual output compared to the simplicity of the expected output results in a low score."
+        },
+        {
+          "name": "Tool Correctness",
+          "score": 0.0,
+          "success": false,
+          "threshold": 0.5,
+          "reason": "[\n\t Tool Calling Reason: Incorrect tool usage: ; expected [], called ['entitycore-emodel-getall', 'entitycore-emodel-getall', 'entitycore-emodel-getall']. See more details above.\n\t Tool Selection Reason: No available tools were provided to assess tool selection criteria\n]\n"
+        },
+        {
+          "name": "Argument Correctness",
+          "score": 0.0,
+          "success": false,
+          "threshold": 0.5,
+          "reason": "The score is 0.00 because the input lacks specific details regarding the species for the electrophysiological model, which is crucial for accurate results. This omission led to multiple incorrect tool calls, preventing a higher score."
+        },
+        {
+          "name": "Deterministic Argument Correctness",
+          "score": 0.0,
+          "success": false,
+          "threshold": 0.5,
+          "reason": "[\n\t Tool Calling Reason: Incomplete tool usage: missing tools []; expected [], called ['entitycore-emodel-getall', 'entitycore-emodel-getall', 'entitycore-emodel-getall']. See more details above.\n\t Tool Selection Reason: No available tools were provided to assess tool selection criteria\n]\n"
+        },
+        {
+          "name": "Overall Argument Correctness",
+          "score": 0.0,
+          "success": false,
+          "threshold": 0.5,
+          "reason": ""
+        }
+      ],
+      "created_at": "2026-02-24 13:08:16.756125"
+    }
+  },
+  "gin_mtype_meaning": {
+    "user": "What is GIN_mtype? What does this term mean in the context of the Open Brain Institute?\n",
+    "expected_output": "Generic Inhibitory Neuron MType. In the context of the open brain institute, we insert simplified morphologies to fill in for all inhibitory morphologies when the exact morphology is unspecified.\n",
+    "expected_tool_calls": [],
+    "params": {
+      "tags": [
+        "benchmark",
+        "fde47e24-37f0-4f83-940c-2a72a7157d0b",
+        "interface",
+        "terminology",
+        "gin-mtype",
+        "cell-types"
+      ],
+      "frontend_url": null,
+      "shared_state": null
+    },
+    "ai_response": "I'll search the platform knowledge graph for m-types matching \\GIN_mtype\\\".I'll retrieve the full m-type record for that ID now.## Summary \\u2014 What is **GIN_mtype**\\n\\n- **Name (pref_label):** **GIN_mtype**  \\n- **Alt label:** **Generic Inhibitory Neuron MType**  \\n- **Definition:** *Generic Inhibitory Neuron MType*  \\n- **ID:** **75ca8d3a-fbd7-48e7-8d21-3a41a71d5535**  \\n- **Creation date:** 2022-11-01T10:44:54.732000Z  \\n- **Last updated:** 2024-11-22T11:17:10.853770Z\\n\\n### What this means (from the platform record)\\nThe knowledge-graph entry labeled **GIN_mtype** is an m-type (morphological / cell-type entry) in the Open Brain Institute database whose preferred label is **GIN_mtype**, with the alternative label **Generic Inhibitory Neuron MType**, and the explicit definition stored as *Generic Inhibitory Neuron MType*. The entry includes its unique identifier and timestamps for creation and last update.\\n\\n### Want to explore further?\\nI can:\\n- List neurons or models associated with this m-type (show how many items are linked).  \\n- Retrieve full entity records that reference this m-type.  \\n- Show related m-types or search by similar labels.\\n\\nWhich would you like me to do next?",
+    "actual_tool_calls": [
+      {
+        "name": "entitycore-mtype-getall",
+        "arguments": {
+          "page_size": 10,
+          "pref_label__ilike": "GIN_mtype"
+        }
+      },
+      {
+        "name": "entitycore-mtype-getone",
+        "arguments": {
+          "mtype_id": "75ca8d3a-fbd7-48e7-8d21-3a41a71d5535"
+        }
+      }
+    ],
+    "results": {
+      "metrics": [
+        {
+          "name": "Correctness [GEval]",
+          "score": 0.18152875551210357,
+          "success": false,
+          "threshold": 0.5,
+          "reason": "The actual output provides detailed information about the m-type 'GIN_mtype', including its definition, ID, and related actions, but it does not align with the expected output, which is a simplified statement about the m-type in the context of the Open Brain Institute. The actual output is overly detailed and does not capture the essence of the expected output, leading to a significant omission of the required simplicity and context."
+        },
+        {
+          "name": "Tool Correctness",
+          "score": 0.0,
+          "success": false,
+          "threshold": 0.5,
+          "reason": "[\n\t Tool Calling Reason: Incorrect tool usage: ; expected [], called ['entitycore-mtype-getall', 'entitycore-mtype-getone']. See more details above.\n\t Tool Selection Reason: No available tools were provided to assess tool selection criteria\n]\n"
+        },
+        {
+          "name": "Argument Correctness",
+          "score": 0.5,
+          "success": true,
+          "threshold": 0.5,
+          "reason": "The score is 0.50 because the input lacks sufficient context regarding 'GIN_mtype' in relation to the Open Brain Institute, which limits the ability to provide a comprehensive answer."
+        },
+        {
+          "name": "Deterministic Argument Correctness",
+          "score": 0.0,
+          "success": false,
+          "threshold": 0.5,
+          "reason": "[\n\t Tool Calling Reason: Incomplete tool usage: missing tools []; expected [], called ['entitycore-mtype-getall', 'entitycore-mtype-getone']. See more details above.\n\t Tool Selection Reason: No available tools were provided to assess tool selection criteria\n]\n"
+        },
+        {
+          "name": "Overall Argument Correctness",
+          "score": 0.5,
+          "success": true,
+          "threshold": 0.5,
+          "reason": ""
+        }
+      ],
+      "created_at": "2026-02-24 13:08:16.756156"
+    }
+  },
+  "brain_malformation_simulation": {
+    "user": "I want to simulate a brain malformation. How would I do that? My objective is to simulate a Chiari malformation for surgical planning. How do I incorporate that to simulate a 3D brain on this platform?\n",
+    "expected_output": "",
+    "expected_tool_calls": [],
+    "params": {
+      "tags": [
+        "benchmark",
+        "553d7a93-45d3-4306-b9bd-8d0d593e9a37",
+        "interface",
+        "how-to",
+        "simulation",
+        "malformation",
+        "clinical",
+        "3d-modeling"
+      ],
+      "frontend_url": null,
+      "shared_state": null
+    },
+    "ai_response": "I'll check the platform documentation for brain-region and 3D simulation capabilities now.I'll search the documentation pages for mentions of \\brain\\\", \\3D\\\", or imaging support.## Short answer / bottom line\\n- The Open Brain Platform (OBP) supports building and running biophysical neuron and circuit simulations (single neurons \\u2192 circuits \\u2192 brain regions), plus uploading and managing user assets.  \\n- The platform documentation does **not** describe a built-in patient-specific 3D biomechanical / surgical-planning module (no explicit finite-element deformation, CSF flow, or surgical simulation tool is described).  \\n- For a Chiari malformation workflow you will therefore typically: (A) use external imaging & biomechanical tools to create patient-specific 3D anatomical meshes, (B) upload those assets to the platform and link them to neural/circuit models, and (C) use OBI-one circuit / neural simulation capabilities to model electrophysiological effects of compression (or to test hypotheses about neural dysfunction).  \\n\\nBelow I give a recommended stepwise pipeline, concrete platform actions you can take, and the inputs I need from you to prepare a simulation configuration.\\n\\n---\\n\\n## What the platform *does* provide (relevant docs)\\n- Support for digital brain models across scales: molecular \\u2192 single neuron \\u2192 circuits \\u2192 brain regions (documentation overview).  \\n- Neuron morphology and preprocessing: *Neuron Skeletonization* workflows to prepare morphologies for simulation.  \\n- Circuit simulations (OBI-one): small microcircuit simulation support (SONATA circuit format), node sets, synaptic mechanisms, stimuli, recordings, and campaign generation ([Circuit simulation docs], [Small Microcircuit Simulation (Web Interface)], [OBI\\u2011one: Small Circuit Simulations]).  \\n- Tools to build ion-channel models and integrate them into neuron models (ion channel workflows).  \\n- Data contribution: you may upload Users Background Assets (datasets, models, meshes) to your Virtual Lab and use them in workflows (Terms & Contribute docs).\\n\\n(References are from the platform documentation pages I looked up: \\u201cCircuit simulation\\u201d, \\u201cSmall Microcircuit Simulation (Web Interface)\\u201d, \\u201cOBI-one: Small Circuit Simulations\\u201d, \\u201cNeuron Skeletonization\\u201d, \\u201cOverview / Build modules\\u201d, and the Terms that describe uploading assets.)\\n\\n---\\n\\n## Recommended pipeline to simulate a Chiari malformation (practical steps)\\n\\n### 1) Define the scientific / clinical question (choose the simulation goal)\\n- Electrophysiological objective: e.g., \\u201cHow does tonsillar herniation compress the brainstem and alter activity in respiratory / arousal circuits?\\u201d \\u2192 use circuit/neural simulations.  \\n- Anatomical / surgical objective: e.g., \\u201cHow will surgical decompression change posterior fossa volume or CSF pathways?\\u201d \\u2192 requires biomechanical / fluid-dynamics modelling (not provided natively in OBP docs).\\n\\nTell me which objective you want to prioritize.\\n\\n### 2) Prepare patient-specific anatomical data (usually outside the platform)\\n- Create MRI/CT segmentations and derive 3D meshes (posterior fossa, cerebellar tonsils, brainstem, skull).  \\n- Generate any deformation scenarios you want to test (pre-op, post-op, different decompression extents).  \\nNote: The platform docs allow uploading user assets; the actual segmentation / FEM work is done externally.\\n\\n### 3) Upload and register anatomical assets on the platform\\n- Upload the meshes / models as Users Background Assets in your Virtual Lab (Terms & Contribute docs).  \\n- Decide whether those assets remain private or become Shared Assets.\\n\\n### 4) Map anatomy \\u2192 neural model\\nOptions depending on your question:\\n- If modelling electrophysiology effects of compression:\\n  - Identify the brain regions and canonical circuits affected (e.g., brainstem respiratory centers, cerebellar circuits).  \\n  - Use existing circuit models (SONATA circuits) if available, or build/modify circuits to represent affected neuron populations.  \\n  - Use *Neuron Skeletonization* and ion-channel workflows if you need to prepare or refine single-neuron morphologies and channel complements.\\n- If modelling structural consequences only (anatomy/biomechanics):\\n  - The platform docs do not describe a built-in solver for tissue deformation or CSF flow; prepare those external results and upload them as assets to compare scenarios.\\n\\n### 5) Configure and run electrophysiology / network simulations\\n- Use the OBI-one circuit simulation system (SONATA format). Key documented features you can use:\\n  - Neuron sets / node_sets to select which neurons participate (AllNeurons, ID-based, property-based sets).  \\n  - Synaptic manipulations and built-in synaptic mechanisms (ProbAMPANMDA_EMS, ProbGABAAB_EMS).  \\n  - Initialize block: v_init, extracellular_calcium_concentration, random_seed, simulation_length.  \\n  - Stimuli: current clamp, Poisson spike sources, targeted stimuli to neuron sets.  \\n  - Recordings: soma voltage traces, spike times, NWB outputs.  \\n- Start small (OBI-one supports \\u201csmall microcircuit\\u201d simulations up to 20 biophysical neurons for rapid testing). For larger models, the platform supports larger circuits but resource demands increase.\\n\\nPractical knobs to mimic compression effects (documented options you can set):\\n- Reduce neuronal excitability in compressed regions by adjusting ion-channel properties or v_init (use ion-channel workflows).  \\n- Modify connectivity or synaptic strength between populations (use synaptic manipulations / connection_overrides).  \\n- Change extracellular parameters (initialize.extracellular_calcium_concentration) or add stimuli that mimic altered inputs.\\n\\n### 6) Analyze outputs\\n- Platform produces voltage traces, spike times, NWB files and other reports (Circuit simulation docs).  \\n- Compare pre/post-decompression scenarios by modifying node sets, synaptic manipulations, or uploaded anatomical assets that annotate which neurons are compressed.\\n\\n---\\n\\n## Things the documentation does NOT show (important limitations)\\n- No explicit, built-in patient\\u2011specific 3D surgical-planning module (no documented FEM mechanics, CSF hydrodynamics, or surgical tool simulation).  \\n- No ready-made \\u201cChiari malformation\\u201d anatomical model in the docs; you must prepare or upload patient-specific meshes and build neural models or circuits to study functional consequences.  \\n- If you need fully integrated surgical planning (mesh deformation, surgical tool simulation, biomechanics), the workflow will require external biomechanical software and then integration of results into OBP as uploaded assets.\\n\\n---\\n\\n## Example minimal electrophysiology scenario (how you could start quickly)\\n- Goal: test whether compression of a small population in the medulla reduces respiratory center output.\\n- Steps:\\n  1. Build a small circuit (3\\u201320 biophysical neurons) representing the respiratory network (or use a pre-existing circuit if available).  \\n  2. Define a NodeSet for the compressed neurons (PredefinedNeuronSet / IDNeuronSet).  \\n  3. Apply a SynapticManipulation or alter ion-channel parameters for that NodeSet to reduce excitability (documented synaptic manipulations & ion-channel workflows).  \\n  4. Run two simulations (baseline vs compressed) with identical stimuli and compare spike output / voltage traces (the platform supports simulation campaigns and comparisons).  \\n- I can design a starter circuit simulation config for this if you want \\u2014 tell me target neuron counts, simulation length, recordings you want, and whether you have a circuit ID on the platform.\\n\\n---\\n\\n## Next steps \\u2014 how I can help right now\\nTell me which of these you want me to do next (I can act immediately):\\n\\n- A) Help craft an OBI-one circuit simulation design (I will call the simulation design tool to produce a suggested JSON config). \\u2014 If yes, tell me: electrophysiology vs biomechanics; target regions (e.g., medulla, cerebellum); number of neurons; simulation length; recordings required; and whether you have a circuit ID or morphologies on the platform.\\n- B) Help outline the exact data/mesh formats and metadata to upload (I can summarize what to prepare for upload to a Virtual Lab).\\n- C) Provide a checklist and recommended experimental parameter ranges for an initial test simulation (small-circuit electrophysiology).\\n- D) If you want to pursue patient\\u2011specific surgical planning (biomechanics), confirm and I\\u2019ll draft an integration plan showing which steps must be done outside OBP and how to bring results into OBP as assets.\\n\\nWhich option do you want to proceed with?",
+    "actual_tool_calls": [
+      {
+        "name": "obi-expert",
+        "arguments": {
+          "document_type": "documentationProduct",
+          "page_size": 10
+        }
+      },
+      {
+        "name": "obi-expert",
+        "arguments": {
+          "document_type": "pages",
+          "page_size": 10,
+          "query": "brain"
+        }
+      }
+    ],
+    "results": {
+      "metrics": [
+        {
+          "name": "Correctness [GEval]",
+          "score": 0.0,
+          "success": false,
+          "threshold": 0.5,
+          "reason": "Forced to 0.0: expected_output is empty, so this test is not eligible for reference-based GEval correctness scoring."
+        },
+        {
+          "name": "Tool Correctness",
+          "score": 0.0,
+          "success": false,
+          "threshold": 0.5,
+          "reason": "[\n\t Tool Calling Reason: Incorrect tool usage: ; expected [], called ['obi-expert', 'obi-expert']. See more details above.\n\t Tool Selection Reason: No available tools were provided to assess tool selection criteria\n]\n"
+        },
+        {
+          "name": "Argument Correctness",
+          "score": 0.0,
+          "success": false,
+          "threshold": 0.5,
+          "reason": "The score is 0.00 because there were no input parameters provided to simulate a brain malformation or a Chiari malformation, which are essential for the simulation process."
+        },
+        {
+          "name": "Deterministic Argument Correctness",
+          "score": 0.0,
+          "success": false,
+          "threshold": 0.5,
+          "reason": "[\n\t Tool Calling Reason: Incomplete tool usage: missing tools []; expected [], called ['obi-expert', 'obi-expert']. See more details above.\n\t Tool Selection Reason: No available tools were provided to assess tool selection criteria\n]\n"
+        },
+        {
+          "name": "Overall Argument Correctness",
+          "score": 0.0,
+          "success": false,
+          "threshold": 0.5,
+          "reason": ""
+        }
+      ],
+      "created_at": "2026-02-24 13:08:16.756185"
+    }
+  },
+  "mtypes_hippocampus": {
+    "user": "What are the m-types (morphological types) in the hippocampus? Can you list the morphoelectrical types available in the isocortex?\n",
+    "expected_output": "Extracting unique m-types per brain region is not currently supported on the platform. However, here is what the literature says:\n\n{{literature_search_results}}\n\nAs for the morphoelectrical types in the isocortex, here are the ME-models available:\n\n{{isocortex_me_models}}\n",
+    "expected_tool_calls": [
+      {
+        "name": "literature-search-tool",
+        "arguments": {
+          "query": "morphological types m-types hippocampus"
+        }
+      },
+      {
+        "name": "entitycore-brainregion-getall",
+        "arguments": {
+          "semantic_search": "isocortex"
+        }
+      },
+      {
+        "name": "entitycore-memodel-getall",
+        "arguments": {
+          "within_brain_region_brain_region_id": "dynamic"
+        }
+      }
+    ],
+    "params": {
+      "tags": [
+        "benchmark",
+        "843731ce-88d9-436c-995e-5e0abc8855b6",
+        "interface",
+        "terminology",
+        "m-types",
+        "hippocampus",
+        "isocortex",
+        "data"
+      ],
+      "frontend_url": null,
+      "shared_state": null
+    },
+    "ai_response": "I'll look up the brain region IDs for \\hippocampus\\ and \\isocortex\\\", then retrieve ME-models for each region to extract m-types and morphoelectrical types. I'll run both region lookups in parallel.I'll retrieve ME-model entries for the Hippocampal region and Isocortex (first page, 10 items each) to extract m-types and morphoelectrical types.## Quick plan\\n- I looked up the brain regions you named (hippocampus, isocortex).\\n- Next I queried the ME-models within the **Hippocampal region** to extract available m-types.\\n- The ME-model query returned multiple pages. I\\u2019ll ask before retrieving the full lists (per platform rules) and then fetch ME-models for **Isocortex** if you want.\\n\\n---\\n\\n## Regions found\\n- **Hippocampal region** \\u2014 **ID: 08f3ff18-88db-48cc-bac5-d58c2fd16ec8** (annotation_value: 1080, acronym: HIP)  \\n- **Isocortex** \\u2014 **ID: f007ec1f-5257-4c2d-8f6b-444c5fe14e06** (annotation_value: 315, acronym: Isocortex)\\n\\n(I resolved both names via the platform brain-region search.)\\n\\n---\\n\\n## Hippocampus \\u2014 ME-model query summary\\n- I ran a ME-model search within the Hippocampal region (**within_brain_region_brain_region_id = 08f3ff18-88db-48cc-bac5-d58c2fd16ec8**).\\n- Result summary: **total_items = 89** ME-models (page 1 returned up to 10 items).\\n  - Platform rule: when a GET ALL returns multiple pages I must ask before using pagination to retrieve more pages.\\n\\nIf you want I can:\\n- Retrieve and list unique M-types (morphological types) across all 89 ME-models (this requires fetching additional pages), or\\n- Return the m-types found on the first page only (quick), or\\n- Export a full table (m-type pref_label, id, definition, associated ME-model(s) and entity links).\\n\\nWhich would you prefer?\\n\\n---\\n\\n## Isocortex \\u2014 next step\\nI haven't yet queried ME-models for the Isocortex region. If you want the list of morpho-electrical (ME) types available in the Isocortex I will:\\n- Run the ME-model get-all for Isocortex (first page) and report the morphoelectrical types found, and\\n- Ask to paginate if you want the full set.\\n\\nDo you want:\\n- Full lists (Hippocampus m-types across all 89 items, and Isocortex morphoelectrical types across all pages), or\\n- Just the first-page summaries for each region?\\n\\nReply with your preference and I\\u2019ll fetch the full lists (or first pages) now.",
+    "actual_tool_calls": [
+      {
+        "name": "entitycore-brainregion-getall",
+        "arguments": {
+          "semantic_search": "hippocampus"
+        }
+      },
+      {
+        "name": "entitycore-brainregion-getall",
+        "arguments": {
+          "semantic_search": "isocortex"
+        }
+      },
+      {
+        "name": "entitycore-memodel-getall",
+        "arguments": {
+          "page_size": 10,
+          "within_brain_region_brain_region_id": "08f3ff18-88db-48cc-bac5-d58c2fd16ec8"
+        }
+      }
+    ],
+    "results": {
+      "metrics": [
+        {
+          "name": "Correctness [GEval]",
+          "score": 0.1263013365280789,
+          "success": false,
+          "threshold": 0.5,
+          "reason": "The actual output provides detailed steps and information about the brain regions and ME-models, but it fails to align with the expected output, which states that extracting unique m-types is not supported and provides placeholders for literature search results and ME-models. The actual output does not mention the limitation on extracting m-types and instead offers a detailed plan, which is a significant omission."
+        },
+        {
+          "name": "Tool Correctness",
+          "score": 0.6666666666666666,
+          "success": true,
+          "threshold": 0.5,
+          "reason": "[\n\t Tool Calling Reason: Incorrect tool usage: missing tools ['literature-search-tool'] and out-of-order tools ['literature-search-tool']; expected ['literature-search-tool', 'entitycore-brainregion-getall', 'entitycore-memodel-getall'], called ['entitycore-brainregion-getall', 'entitycore-brainregion-getall', 'entitycore-memodel-getall']. See more details above.\n\t Tool Selection Reason: No available tools were provided to assess tool selection criteria\n]\n"
+        },
+        {
+          "name": "Argument Correctness",
+          "score": 0.6666666666666666,
+          "success": true,
+          "threshold": 0.5,
+          "reason": "The score is 0.67 because the input lacks specificity regarding the brain region for the morphoelectrical types, which affects the relevance of the response. However, the question about m-types in the hippocampus is clear and well-posed."
+        },
+        {
+          "name": "Deterministic Argument Correctness",
+          "score": 0.3333333333333333,
+          "success": false,
+          "threshold": 0.5,
+          "reason": "[\n\t Tool Calling Reason: Incomplete tool usage: missing tools [ToolCall(\n    name=\"literature-search-tool\",\n    input_parameters={\n        \"query\": \"morphological types m-types hippocampus\"\n    }\n), ToolCall(\n    name=\"entitycore-memodel-getall\",\n    input_parameters={\n        \"within_brain_region_brain_region_id\": \"dynamic\"\n    }\n)]; expected ['literature-search-tool', 'entitycore-brainregion-getall', 'entitycore-memodel-getall'], called ['entitycore-brainregion-getall', 'entitycore-brainregion-getall', 'entitycore-memodel-getall']. See more details above.\n\t Tool Selection Reason: No available tools were provided to assess tool selection criteria\n]\n"
+        },
+        {
+          "name": "Overall Argument Correctness",
+          "score": 0.6666666666666666,
+          "success": true,
+          "threshold": 0.5,
+          "reason": ""
+        }
+      ],
+      "created_at": "2026-02-24 13:08:16.756215"
+    }
+  },
+  "multi_neuron_simulation": {
+    "user": "How can I run a multi-neuron simulation on the platform?\n",
+    "expected_output": "",
+    "expected_tool_calls": [],
+    "params": {
+      "tags": [
+        "benchmark",
+        "ed4e1eda-529b-44b5-8a7b-e8ca3b25b055",
+        "interface",
+        "how-to",
+        "simulation",
+        "multi-neuron",
+        "network"
+      ],
+      "frontend_url": null,
+      "shared_state": null
+    },
+    "ai_response": "I'll search the platform documentation for \\circuit\\ (circuit simulation guides and tutorials).## How to run a multi-neuron (circuit) simulation on the Open Brain Platform\\n\\nBelow is a concise, step-by-step guide based entirely on the platform documentation for circuit (multi\\u2011neuron) simulations. I\\u2019ll summarize both the Web Interface workflow (small microcircuit) and the programmatic OBI-one route, plus key configuration elements, synaptic defaults, typical outputs, and practical tips.\\n\\n### Quick overview\\n- Circuit simulations model networks of multiple biophysical neurons (synapses and connectivity included).\\n- \\u201cSmall circuits\\u201d are up to 20 biophysical neurons; larger circuits are classified as microcircuits and need more resources.\\n- Simulation configurations follow a JSON schema and are executed as simulation campaigns that generate one or more simulations.\\n\\n## Web interface (recommended for interactive use \\u2014 Small Microcircuit)\\n### 1) Start a new simulation\\n- Navigate to Workflows \\u2192 Simulate \\u2192 choose **Small Microcircuit** as the simulation type.\\n- Select a circuit model from your project or public data.\\n\\n### 2) Configure the simulation (Configuration tab)\\n- Use the three-column UI: categories (left), detailed form (middle), model preview (right).\\n- Add or edit configuration elements by category (expand/collapse sections).\\n- Typical elements to create/edit:\\n  - Initialize block: circuit selection, node_set, simulation_length, v_init, extracellular_calcium_concentration, random_seed, timestep\\n  - Neuron sets: which biophysical neurons participate (AllNeurons, IDNeuronSet, PropertyNeuronSet, CombinedNeuronSet, etc.)\\n  - Stimuli: current clamps, spike-train generators (Poisson, synchronous), targeted stimuli\\n  - Recordings: soma voltage traces, spike recordings, time-windowed recordings\\n  - Synaptic manipulations (optional): e.g., Mg block changes, neuromodulator scaling\\n- The interface validates your configuration and shows errors (fix before generating).\\n\\n### 3) Generate a simulation campaign\\n- Click the Generate Campaign button.\\n- The system validates the schema and, if valid, creates a campaign and returns a campaign ID.\\n- The campaign expands into one or more simulations (each representing parameter combinations you specified).\\n\\n### 4) Run simulations (Simulations tab)\\n- Switch to the Simulations tab to view generated simulations and statuses (Created, Running, Completed, Error).\\n- Select one or more simulations and click Run.\\n- Monitor progress in real time and access results when they complete.\\n\\n### 5) Get outputs\\n- Available outputs include voltage traces, spike times, connectivity data, standardized NWB files, HDF5 spike files, and other reports.\\n- You can preview files in the UI or download them for analysis.\\n\\n## Programmatic route: OBI-one (for reproducible / scripted workflows)\\n### Key classes/tasks (documentation summary)\\n- Use the CircuitSimulationSingleConfig and GenerateSimulationTask classes to create SONATA simulation configs.\\n- The Circuit class represents SONATA circuits (path, node populations, edge populations, node sets, optional connectivity matrix).\\n- GenerateSimulationTask:\\n  - Resolves the circuit (local path or CircuitFromID)\\n  - Writes SONATA simulation_config.json and node_sets.json\\n  - Configures synaptic mechanisms, stimuli, recordings, and manipulations\\n  - Stages circuit files if needed\\n\\n### Required / common configuration fields\\n- initialize.circuit: Circuit (or CircuitFromID)\\n- initialize.node_set: Reference to a biophysical neuron set (required)\\n- initialize.simulation_length (ms) \\u2014 default 1000.0 ms\\n- initialize.v_init (mV) \\u2014 default -80.0 mV\\n- initialize.extracellular_calcium_concentration (mM) \\u2014 default 1.1 mM\\n- initialize.random_seed \\u2014 for reproducibility\\n- timestep (ms) \\u2014 default 0.025 ms\\n- spike_location: \\soma\\ or \\AIS\\ (default: \\soma\\\")\\n\\n### Neuron sets\\n- Node sets can be:\\n  - AllNeurons (all biophysical neurons)\\n  - IDNeuronSet (explicit IDs)\\n  - PropertyNeuronSet (filter by properties)\\n  - PredefinedNeuronSet or CombinedNeuronSet (logical ops)\\n- The initialize.node_set must reference biophysical neurons.\\n\\n### Stimuli and recordings (examples)\\n- Stimuli: current clamps (steady, linear, sinusoidal), spike-based inputs (Poisson), targeted to neuron sets.\\n- Recordings: SomaVoltageRecording, TimeWindowSomaVoltageRecording, spike reports (automatic spike detection).\\n\\n### Execution backend\\n- Uses the same backend as single-cell simulations (BlueCelluLab / NEURON), with MPI support for distributed execution.\\n- Neuron distribution across MPI ranks and automatic result gathering (voltage traces, spikes).\\n\\n## Synaptic mechanisms (applied automatically)\\n- Circuit simulations automatically include:\\n  - **ProbAMPANMDA_EMS** \\u2014 excitatory AMPA/NMDA mechanism (probabilistic release, single-vesicle minis)\\n  - **ProbGABAAB_EMS** \\u2014 inhibitory GABA-A/B mechanism (probabilistic release)\\n- These support initial depletion state and probabilistic minis and are included by default in generated SONATA configs.\\n- Synaptic manipulations (e.g., SynapticMgManipulation or neuromodulator scaling) can be applied as connection_overrides.\\n\\n## Outputs produced by a circuit simulation\\n- Voltage traces (per recorded neuron)\\n- Spike times (per neuron / population; HDF5)\\n- NWB files (standardized outputs)\\n- Connectivity data and analysis reports\\n- Simulation configuration files and node_sets.json for reproducibility\\n\\n## Practical tips (from the documentation)\\n- Start simple: use minimal, validated configurations first.\\n- Check validation errors before generating campaigns.\\n- Use the model preview to verify which neurons and connections are in the circuit.\\n- Save campaign IDs for later reference.\\n- Batch runs: run multiple simulations from the same campaign to sweep parameters.\\n- Incremental testing: limit parameter ranges initially before scaling runs.\\n\\n## Typical workflow summary\\n1. Configure (web UI or OBI-one) \\u2014 ensure initialize.block.node_set references biophysical neurons.\\n2. Generate Simulation Campaign (creates simulation configs).\\n3. Run selected simulations (monitor statuses).\\n4. Retrieve and analyze outputs (voltage traces, spikes, NWB files).\\n\\n---\\n\\nIf you want, I can:\\n- Help design a basic circuit simulation configuration (web or OBI-one) for a specific circuit you have in mind.\\n- Walk through creating a simple campaign (I can draft the config via the design tool if you want a programmatic JSON suggestion).\\n- Or, if you prefer, point to specific example notebooks and the examples directory referenced in the docs.\\n\\nWhich of these would you like next?",
+    "actual_tool_calls": [
+      {
+        "name": "obi-expert",
+        "arguments": {
+          "document_type": "documentationProduct",
+          "query": "circuit"
+        }
+      }
+    ],
+    "results": {
+      "metrics": [
+        {
+          "name": "Correctness [GEval]",
+          "score": 0.0,
+          "success": false,
+          "threshold": 0.5,
+          "reason": "Forced to 0.0: expected_output is empty, so this test is not eligible for reference-based GEval correctness scoring."
+        },
+        {
+          "name": "Tool Correctness",
+          "score": 0.0,
+          "success": false,
+          "threshold": 0.5,
+          "reason": "[\n\t Tool Calling Reason: Incorrect tool usage: ; expected [], called ['obi-expert']. See more details above.\n\t Tool Selection Reason: No available tools were provided to assess tool selection criteria\n]\n"
+        },
+        {
+          "name": "Argument Correctness",
+          "score": 0.0,
+          "success": false,
+          "threshold": 0.5,
+          "reason": "The score is 0.00 because there was no input parameter provided that directly addresses how to run a multi-neuron simulation. This lack of specific information prevents the argument from being evaluated positively, resulting in a low score."
+        },
+        {
+          "name": "Deterministic Argument Correctness",
+          "score": 0.0,
+          "success": false,
+          "threshold": 0.5,
+          "reason": "[\n\t Tool Calling Reason: Incomplete tool usage: missing tools []; expected [], called ['obi-expert']. See more details above.\n\t Tool Selection Reason: No available tools were provided to assess tool selection criteria\n]\n"
+        },
+        {
+          "name": "Overall Argument Correctness",
+          "score": 0.0,
+          "success": false,
+          "threshold": 0.5,
+          "reason": ""
+        }
+      ],
+      "created_at": "2026-02-24 13:08:16.756243"
+    }
+  },
+  "sst_ipsp_amplitude": {
+    "user": "What is the amplitude of the inhibitory postsynaptic potentials of SST cells over pyramidal cells or PV cells in the cortex?\n",
+    "expected_output": "This data is not directly available on the platform. However, here is what the literature says:\n\n{{literature_search_results}}\n",
+    "expected_tool_calls": [
+      {
+        "name": "literature-search-tool",
+        "arguments": {
+          "query": "amplitude inhibitory postsynaptic potential SST somatostatin cells pyramidal PV cortex"
+        }
+      }
+    ],
+    "params": {
+      "tags": [
+        "benchmark",
+        "dfe82664-55ba-43dd-ac23-bb7eaed1c627",
+        "data-query",
+        "electrophysiology",
+        "ipsp",
+        "sst",
+        "interneurons",
+        "cortex"
+      ],
+      "frontend_url": null,
+      "shared_state": null
+    },
+    "ai_response": "I'll search the literature for experiments measuring SST\\u2192pyramidal and SST\\u2192PV inhibitory postsynaptic potential amplitudes in cortex. I'll return key measurements and sources.## Summary \\u2014 search results found\\nI searched the literature for measurements of SST (somatostatin-expressing) \\u2192 pyramidal and SST \\u2192 PV inhibitory postsynaptic potentials (IPSPs/IPSCs) in cortex. I found several relevant review and experimental articles that discuss SST connectivity and synaptic physiology, but the search results returned so far are broad reviews or papers whose main text or figures would need to be read to extract specific unitary amplitude values.\\n\\nKey items found:\\n- **Somatostatin-expressing neurons in cortical networks** (Nature Reviews Neuroscience, 2016) \\u2014 review summarizing SST cell roles and connection targets; discusses that SST cells target distal dendrites of pyramidal cells and inhibit other interneurons, but does not give a single canonical amplitude value.\\n  - ![Figure from review](https://media.springernature.com/m685/springer-static/image/art%3A10.1038%2Fnrn.2016.53/MediaObjects/41583_2016_Article_BFnrn201653_Fig1_HTML.jpg)\\n  - [View paper](https://www.nature.com/articles/nrn.2016.53)\\n\\n- **Somatostatin-expressing interneurons modulate neocortical network through GABAb receptors in a synapse-specific manner** (Scientific Reports, 2023) \\u2014 in vitro whole-cell patch recordings in mouse somatosensory cortex; compares effects on pyramidal neurons and PV cells. Includes experimental data (IPSP/IPSCs and receptor components) that can be queried for amplitudes.\\n  - ![Figure from paper](https://media.springernature.com/m685/springer-static/image/art%3A10.1038%2Fs41598-023-35890-2/MediaObjects/41598_2023_35890_Fig1_HTML.png)\\n  - [View paper](https://www.nature.com/articles/s41598-023-35890-2)  \\n  - PDF available: https://www.nature.com/articles/s41598-023-35890-2.pdf?error=cookies_not_supported&code=eceb6368-6632-48d2-b40b-adf71a035f12\\n\\n- Frontiers reviews and experimental papers that discuss SST \\u2192 Pyr and SST \\u2192 PV connectivity across cortical areas (Frontiers in Neural Circuits and Frontiers in Cellular Neuroscience, 2016\\u20132017). These summarize diversity of SST synapses (often facilitating, dendrite-targeting, slower GABAB components) and the presence of inhibition onto PV cells in some circuits.\\n  - [Somatostatin-Expressing Inhibitory Interneurons in Cortical Circuits (Frontiers, 2016)](https://www.frontiersin.org/articles/10.3389/fncir.2016.00076/full)\\n  - [Distinct Activity Profiles of Somatostatin-Expressing Interneurons in the Neocortex (Frontiers, 2017)](https://www.frontiersin.org/articles/10.3389/fncel.2017.00273/full)\\n\\n- Region-specific experimental study: **Inhibition by Somatostatin Interneurons in Olfactory Cortex** (Frontiers in Neural Circuits, 2016) \\u2014 reports SST\\u2192PC and SST\\u2192PV inhibition in piriform cortex and includes electrophysiological measures that could provide amplitudes for that region.\\n  - PDF (contains experimental amplitudes): https://www.frontiersin.org/articles/10.3389/fncir.2016.00062/pdf\\n\\n## What I can do next\\nIf you want specific numerical amplitudes (unitary IPSP or IPSC peak amplitudes and whether measured as mV or pA), tell me:\\n- which species (e.g., *Mus musculus* / mouse, rat, human),\\n- which cortical area or layer (e.g., somatosensory L2/3, visual cortex, piriform cortex, hippocampus CA1),\\n- whether you prefer IPSP (current-clamp, mV) or IPSC (voltage-clamp, pA), and\\n- whether you want peak amplitudes for single-unit (unitary) connections, averaged pair recordings, or optogenetically evoked population responses.\\n\\nI can then:\\n- Read the full text / figures of the most relevant experimental papers and extract exact amplitude values (unitary IPSP/IPSC means \\u00b1 SEM, holding potentials, and receptor contributions), or\\n- Compile a short table comparing reported SST\\u2192Pyr vs SST\\u2192PV amplitudes across studies/areas.\\n\\nNext action: If you confirm the species/area and measurement type, I will read the primary papers found above to extract the numeric amplitudes and citation details.",
+    "actual_tool_calls": [
+      {
+        "name": "literature-search-tool",
+        "arguments": {
+          "query": "SST inhibitory postsynaptic potential amplitude onto pyramidal cells and PV cells cortex unitary IPSP amplitude somatostatin interneuron to pyramidal PV",
+          "num_results": 6
+        }
+      }
+    ],
+    "results": {
+      "metrics": [
+        {
+          "name": "Correctness [GEval]",
+          "score": 0.08350462609807678,
+          "success": false,
+          "threshold": 0.5,
+          "reason": "The actual output does not align with the expected output, which specifies that the data is not directly available and should only include a placeholder for literature search results. Instead, the actual output provides extensive details about literature findings, which is a significant deviation from the expected structure and content."
+        },
+        {
+          "name": "Tool Correctness",
+          "score": 1.0,
+          "success": true,
+          "threshold": 0.5,
+          "reason": "[\n\t Tool Calling Reason: Correct ordering: all expected tools ['literature-search-tool'] were called in the correct order.\n\t Tool Selection Reason: No available tools were provided to assess tool selection criteria\n]\n"
+        },
+        {
+          "name": "Argument Correctness",
+          "score": 1.0,
+          "success": true,
+          "threshold": 0.5,
+          "reason": "The score is 1.00 because there are no incorrect tool calls, indicating that the input is well-formed and relevant to the topic."
+        },
+        {
+          "name": "Deterministic Argument Correctness",
+          "score": 0.0,
+          "success": false,
+          "threshold": 0.5,
+          "reason": "[\n\t Tool Calling Reason: Incomplete tool usage: missing tools [ToolCall(\n    name=\"literature-search-tool\",\n    input_parameters={\n        \"query\": \"amplitude inhibitory postsynaptic potential SST somatostatin cells pyramidal PV cortex\"\n    }\n)]; expected ['literature-search-tool'], called ['literature-search-tool']. See more details above.\n\t Tool Selection Reason: No available tools were provided to assess tool selection criteria\n]\n"
         },
         {
           "name": "Overall Argument Correctness",
@@ -3086,22 +3742,19 @@
       "created_at": "2026-02-19 15:47:03.209215"
     }
   },
-  "pricing_free_vs_pro": {
-    "user": "What's the difference between Free and Pro plans?\n",
-    "expected_output": "## Free vs Pro Plan Comparison\n\n| Feature | Free | Pro |\n|---------|------|-----|\n| **Price** | Free | CHF 25/month or CHF 275/year |\n| **Initial Credits** | 100 free credits | 50/month or 650/year |\n| **Private Storage** | 1 GB | 2 GB |\n| **Public Storage** | Free | Free |\n\n### AI Assistant\n| Feature | Free | Pro |\n|---------|------|-----|\n| Queries | 30 free/24h, then 1 credit | 30 free/24h, then 0.5 credits |\n\n### Build Costs\n| Feature | Free | Pro |\n|---------|------|-----|\n| Single neuron | 1 credit/build | 0.5 credits/build |\n| Synaptome | 1 credit/build | 0.5 credits/build |\n| Ion channel | 6 credits/build | 3 credits/build |\n\n### Simulate Costs\n| Feature | Free | Pro |\n|---------|------|-----|\n| E-model | 1 credit/sim | 0.5 credits/sim |\n| Ion channel | 1 credit/sim | 0.5 credits/sim |\n| Single cell | 1 credit/sim | 0.5 credits/sim |\n| Synaptome | 1 credit/sim | 0.5 credits/sim |\n| Small microcircuit (\u226410 neurons) | 10 credits/sim | 5 credits/sim |\n| Microcircuit (>10 neurons) | 0.05 credits/neuron/sec | 0.025 credits/neuron/sec |\n\n### Notebooks\n| Feature | Free | Pro |\n|---------|------|-----|\n| Running notebooks | 4 credits/hour | 2 credits/hour |\n| EM skeletonization | 0.05 credits/\u00b5m\u00b3 | 0.025 credits/\u00b5m\u00b3 |\n\n### Support\n| Feature | Free | Pro |\n|---------|------|-----|\n| Priority support | No | Yes |\n| Onboarding | No | No |\n| Dedicated account manager | No | No |\n\n**Summary:** Pro plan offers ~50% cost reduction on most operations, double the storage, and priority support.\n\nSource: OBI pricing plans (Sanity planV2).\n",
-    "expected_tool_calls": [
-      {
-        "name": "obi-expert",
-        "arguments": {
-          "document_type": "planV2"
-        }
-      }
-    ],
+  "aging_vs_tbi_hippocampus": {
+    "user": "I would like to make a simulation of an aging mouse hippocampal region and compare that with an adult mouse that has a traumatic brain injury in the hippocampal region.\n",
+    "expected_output": "The platform supports single-neuron and small microcircuit simulations using ME-models from the hippocampal region, but it does not currently have built-in features for modeling aging or traumatic brain injury conditions.\n",
+    "expected_tool_calls": [],
     "params": {
       "tags": [
-        "obi-expert",
-        "pricing",
-        "planV2",
+        "benchmark",
+        "b121f6d3-5ec1-475b-b28d-976e9a5cd0b5",
+        "simulation",
+        "hippocampus",
+        "aging",
+        "tbi",
+        "mouse",
         "comparison"
       ],
       "frontend_url": null,
@@ -3110,10 +3763,10 @@
     "ai_response": "I'll look up the platform subscription plans and compare Free vs Pro.## Summary \\u2014 plans found\\nI checked the platform subscription plans (returned **total_items: 4**, including Free and Pro). Below is a focused comparison of **Free** vs **Pro**.\\n\\n## Quick comparison (headline)\\n- **Free**: No recurring subscription. Includes a one-time free credit grant and higher per-operation credit costs. Limited AI/query cost (free daily quota), no priority onboarding or account manager.\\n- **Pro**: Paid subscription (monthly or yearly) that includes recurring free credits, lower per-operation credit costs, better support (priority support), and reduced costs for builds/simulations/notebooks.\\n\\n## Side-by-side table\\n\\n| Feature / Category | **Free** | **Pro** |\\n|---|---:|---:|\\n| Subscription cost | Free | **Monthly:** CHF 25 (includes 50 free credits / month) \\u2014 **Yearly:** CHF 275 (includes 650 free credits / year) |\\n| Initial free credits | 100 free initial credits (expires 1 year, non-transferable) | Recurring free credits: 50 / month (monthly plan) or 650 / year (yearly plan) |\\n| AI assistant (queries) | 30 free queries per 24h, then **1 credit / query** | 30 free queries per 24h, then **0.5 credits / query** |\\n| Build costs | Single neuron: **1 credit / build**<br>Synaptome: **1 credit / build**<br>Ion channel: **6 credits / build** | Single neuron: **0.5 credits / build**<br>Synaptome: **0.5 credits / build**<br>Ion channel: **3 credits / build** |\\n| Simulation costs | E-model / Ion channel / Single cell / Synaptome: **1 credit / sim**<br>Small microcircuit (\\u226410 neurons): **10 credits / sim**<br>Microcircuit (>10 neurons): **0.05 credits / neuron / sec** | E-model / Ion channel / Single cell / Synaptome: **0.5 credits / sim**<br>Small microcircuit (\\u226410 neurons): **5 credits / sim**<br>Microcircuit (>10 neurons): **0.025 credits / neuron / sec** |\\n| Notebooks / compute | Running notebooks: **4 credits / hour**<br>EM skeletonization: **0.05 credits / \\u00b5m\\u00b3** | Running notebooks: **2 credits / hour**<br>EM skeletonization: **0.025 credits / \\u00b5m\\u00b3** |\\n| Virtual Lab features | Get a Virtual Lab, join labs, invite members | Same (Get a Virtual Lab, join labs, invite members) |\\n| Support & onboarding | Priority support: **No**<br>Onboarding: **No**<br>Dedicated account manager: **No** | Priority support: **Yes**<br>Onboarding: **No**<br>Dedicated account manager: **No** |\\n| Other | One-time initial credits expire in 1 year | Monthly plan note: special label \\Expires in 1 year, non-transferable\\ shown for the monthly free credits |\\n\\n## Practical implications\\n- If you plan to run many builds, simulations, or notebooks, **Pro** reduces per-operation credit costs roughly by half \\u2014 so the subscription cost can quickly pay off.\\n- **Pro** also provides a steady monthly/yearly credit allowance (50/month or 650/year), whereas **Free** gives a one-off 100-credit grant.\\n- AI query overage is cheaper on **Pro** (0.5 vs 1 credit per query) after the daily free quota.\\n\\n## Want help calculating costs?\\nIf you tell me a typical usage profile (e.g., number of single-neuron builds, hours of notebooks per month, microcircuit simulation seconds), I can estimate monthly credit consumption and show whether Free or Pro is more economical for you.\\n\\nWould you like that cost estimate or a recommendation based on your expected usage?",
     "actual_tool_calls": [
       {
-        "name": "obi-expert",
+        "name": "obione-designcircuitsimulationscanconfig",
         "arguments": {
-          "document_type": "planV2",
-          "page_size": 10
+          "circuit_id": null,
+          "config_request": "Campaign: Compare aging mouse hippocampus vs adult mouse hippocampus with traumatic brain injury (TBI).\n\nHigh-level goals:\n- Simulate hippocampal microcircuit activity for two conditions and compare network-level metrics (firing rates, synchrony, evoked response, synaptic currents).\n- Species: Mus musculus. Do not include explicit circuit_id (let app state infer hippocampal circuit if available).\n\nCampaign-level info:\n- campaign_name: \"Hippocampus_Aging_vs_Adult_TBI\"\n- campaign_description: \"Compare network dynamics of an aging mouse hippocampal circuit vs an adult hippocampus after focal TBI. Two simulation conditions in same circuit baseline: (1) Aging mouse (reduced synapse counts, reduced excitability, increased membrane leak), (2) Adult mouse with TBI (partial cell loss, increased excitability of surviving neurons, altered synaptic efficacies, inflammatory/extracellular changes).\"\n\nSimulation specifics (two simulations):\n1) Aging condition\n- initialize: type: 'from_circuit', simulation_length: 20000 ms, extracellular_calcium_concentration: 1.1 mM (slightly reduced), v_init: -70 mV, random_seed: 42\n- neuron_sets: target hippocampal node sets for CA1_pyramidal, CA3_pyramidal, DG_granule, interneurons (if available by app state). Apply 'aging' flags: reduce excitatory synapse count by 25-40% (specify as synaptic_manipulations scaling factor: excitatory_connectivity_scale: 0.65), reduce inhibitory synapse count by 10% (inhibitory_connectivity_scale: 0.9), increase membrane leak conductance by +20% for pyramidal neurons, decrease Na/K channel densities in pyramidal cells by 10% (reduced intrinsic excitability).\n- stimuli: background Poisson noise to all populations (rate: 800 Hz per virtual afferent with weight scaled to reproduce in vivo-like rates), and a focal evoked stimulus to CA3 (single pulse at 1000 ms) to test propagation.\n- recordings: record spikes from all neurons, record membrane voltage from 10 representative neurons per population, record synaptic currents (AMPA/NMDA/GABA) population averages, LFP proxy (sum of transmembrane currents) in CA1.\n\n2) Adult TBI condition\n- initialize: type: 'from_circuit', simulation_length: 20000 ms, extracellular_calcium_concentration: 1.2 mM (slightly increased), v_init: -70 mV, random_seed: 43\n- neuron_sets: same node sets. Apply 'TBI' manipulations: remove 20% of CA3 pyramidal neurons (cell loss), reduce CA3->CA1 excitatory connection probability by 30% (connectivity_scale for specific edge), increase intrinsic excitability of surviving pyramidal neurons by reducing leak conductance by 15% and increasing Na channel densities by 15%, increase inhibitory interneuron failure rate or reduce inhibitory synaptic weights by 20% to mimic network imbalance. Optionally include astrogliosis effect: increase extracellular potassium/excitability proxy or reduce uptake (represented by small depolarizing shift v_init +2 mV).\n- stimuli: same background Poisson, and an identical focal evoked stimulus at 1000 ms.\n- recordings: same set as aging condition.\n\nOther config fields:\n- recordings summary: record spikes (all), membrane potential (sampled neurons), population rate summaries with 1 ms bins, synaptic event counts per population, pairwise cross-correlations for a subset of neurons.\n- analysis: plan to compute firing rate histograms, evoked response amplitude and latency in CA1, synchrony measures (population spike-time tiling coefficient or pairwise correlation), and total excitatory/inhibitory synaptic charge.\n\nNotes for downstream LLM/default filling: leave exact node_set names for the app to resolve to the hippocampal circuit node sets; the tool should infer canonical hippocampal populations if available. Do not include low-level simulator settings (time step) so defaults can be used. The campaign should produce two Simulations with the above manipulations and recordings.\n\nUser-facing summary to include with the produced JSON: concise description of both simulations, main manipulations (synapse scaling, cell loss, excitability changes), recordings, and suggested analyses. Emphasize that this is a suggested config and can be refined (e.g., different % cell loss, different aging synaptic scaling, different stimulus paradigms)."
         }
       }
     ],
@@ -3128,10 +3781,10 @@
         },
         {
           "name": "Tool Correctness",
-          "score": 1.0,
-          "success": true,
+          "score": 0.0,
+          "success": false,
           "threshold": 0.5,
-          "reason": "[\n\t Tool Calling Reason: Correct ordering: all expected tools ['obi-expert'] were called in the correct order.\n\t Tool Selection Reason: No available tools were provided to assess tool selection criteria\n]\n"
+          "reason": "[\n\t Tool Calling Reason: Incorrect tool usage: ; expected [], called ['obione-designcircuitsimulationscanconfig']. See more details above.\n\t Tool Selection Reason: No available tools were provided to assess tool selection criteria\n]\n"
         },
         {
           "name": "Argument Correctness",
@@ -3142,10 +3795,173 @@
         },
         {
           "name": "Deterministic Argument Correctness",
+          "score": 0.0,
+          "success": false,
+          "threshold": 0.5,
+          "reason": "[\n\t Tool Calling Reason: Incomplete tool usage: missing tools []; expected [], called ['obione-designcircuitsimulationscanconfig']. See more details above.\n\t Tool Selection Reason: No available tools were provided to assess tool selection criteria\n]\n"
+        },
+        {
+          "name": "Overall Argument Correctness",
+          "score": 0.0,
+          "success": false,
+          "threshold": 0.5,
+          "reason": ""
+        }
+      ],
+      "created_at": "2026-02-24 13:08:16.756297"
+    }
+  },
+  "platform_overview_capabilities": {
+    "user": "Explain what is the OpenBrain Institute virtual lab and what can I do in it exactly? Can I model a spiking neural network and run AI models (like reinforcement learning) on them in this platform?\n",
+    "expected_output": "",
+    "expected_tool_calls": [],
+    "params": {
+      "tags": [
+        "benchmark",
+        "b9d63ce5-f587-4e08-92b7-44379dd36a72",
+        "interface",
+        "platform-overview",
+        "capabilities",
+        "snn",
+        "ai-models"
+      ],
+      "frontend_url": null,
+      "shared_state": null
+    },
+    "ai_response": "I'll check the platform documentation about the Virtual Lab. I'll retrieve relevant documentation pages now.## Summary \\u2014 What the OpenBrain Institute \\u201cVirtual Lab\\u201d (OBI-one) is\\n\\n- **OBI-one** (the platform\\u2019s Virtual Labs product) is a standardized library of workflows and tools to create and manage virtual laboratory environments for neuroscience research.\\n- It focuses on **biophysically-detailed brain modeling** and provides supporting infrastructure for reproducible computational experiments.\\n\\n(Source: product documentation \\Overview\\ for virtual-labs)\\n\\n## Key features listed in the documentation\\n\\n- **Database integration**\\n  - Integration with the platform\\u2019s standardized cloud neuroscience database (entities / provenance tracked via the Entity SDK).\\n- **Provenance**\\n  - Standardized provenance for workflows \\u2014 runs and parameter sweeps are tracked.\\n- **Parameter scans**\\n  - Built-in support for standardized parameter scans across modeling workflows.\\n- **API service**\\n  - A FastAPI service is provided for the workflows, with generated OpenAPI schema (docs viewable locally when launched).\\n- **Notebooks & examples**\\n  - Example notebooks are provided in the OBI-one repository (intended to be used as kernels / virtual environments).\\n- **Project and resource management**\\n  - Set up and manage virtual laboratory environments, organize research projects, and manage computational resources and collaborations.\\n\\n(Source: product documentation \\Overview\\ for virtual-labs)\\n\\n## What you can do \\u201cexactly\\u201d (based on the documentation excerpt)\\n\\n- Build and run **standardized, reproducible modeling workflows** for biophysically detailed neurons and circuits.\\n- Perform **parameter sweeps / scans** of model parameters with provenance tracking.\\n- Host workflows behind a **FastAPI service** (with auto-generated API docs).\\n- Work interactively using **Jupyter kernels / notebooks** preconfigured for the OBI-one workflows.\\n- Integrate experiments with the platform database (so results, metadata, and provenance are tracked).\\n\\n## About modeling spiking neural networks and running AI models (reinforcement learning)\\n\\n- The documentation explicitly states OBI-one \\u201cincludes support for biophysically-detailed brain modeling\\u201d and standardized workflows for those models.\\n- The documentation excerpt does **not** mention running reinforcement-learning agents, AI training frameworks (e.g., PyTorch/TF integration), or explicit support for AI-on-spiking-networks.\\n- Because the documentation snippet does not state support for reinforcement learning or AI-model training, I cannot confirm from the doc alone that you can directly run RL agents on spiking neural network models inside the Virtual Lab.\\n\\nIf you need one of the following, I can check further:\\n- Confirm whether the platform provides direct integrations with RL toolkits (e.g., OpenAI Gym-style interfaces), PyTorch/TF wrappers, or spike-to-rate conversion utilities.\\n- Search the Virtual Labs docs and example notebooks for keywords such as \\u201creinforcement\\u201d, \\u201cRL\\u201d, \\u201cAI\\u201d, \\u201cPyTorch\\u201d, \\u201cTensorFlow\\u201d, \\u201cspiking neural network\\u201d, or \\u201cSNN\\u201d.\\n- Find example notebooks demonstrating spiking network simulations (and whether they include interfaces to RL agents).\\n\\nWould you like me to search the Virtual Labs documentation and example notebooks for explicit RL or AI support now?",
+    "actual_tool_calls": [
+      {
+        "name": "obi-expert",
+        "arguments": {
+          "document_type": "documentationProduct",
+          "query": "virtual-labs"
+        }
+      }
+    ],
+    "results": {
+      "metrics": [
+        {
+          "name": "Correctness [GEval]",
+          "score": 0.0,
+          "success": false,
+          "threshold": 0.5,
+          "reason": "Forced to 0.0: expected_output is empty, so this test is not eligible for reference-based GEval correctness scoring."
+        },
+        {
+          "name": "Tool Correctness",
+          "score": 0.0,
+          "success": false,
+          "threshold": 0.5,
+          "reason": "[\n\t Tool Calling Reason: Incorrect tool usage: ; expected [], called ['obi-expert']. See more details above.\n\t Tool Selection Reason: No available tools were provided to assess tool selection criteria\n]\n"
+        },
+        {
+          "name": "Argument Correctness",
+          "score": 0.0,
+          "success": false,
+          "threshold": 0.5,
+          "reason": "The score is 0.00 because the input does not specifically address the question about modeling spiking neural networks and running AI models on the OpenBrain Institute virtual lab, leading to an incorrect tool call."
+        },
+        {
+          "name": "Deterministic Argument Correctness",
+          "score": 0.0,
+          "success": false,
+          "threshold": 0.5,
+          "reason": "[\n\t Tool Calling Reason: Incomplete tool usage: missing tools []; expected [], called ['obi-expert']. See more details above.\n\t Tool Selection Reason: No available tools were provided to assess tool selection criteria\n]\n"
+        },
+        {
+          "name": "Overall Argument Correctness",
+          "score": 0.0,
+          "success": false,
+          "threshold": 0.5,
+          "reason": ""
+        }
+      ],
+      "created_at": "2026-02-24 13:08:16.756324"
+    }
+  },
+  "mouse_dg_models": {
+    "user": "What are the current mouse dentate gyrus (DG) models available?\n",
+    "expected_output": "Here are the mouse dentate gyrus (DG) models available on the platform:\n\n{{me_models_list}}\n",
+    "expected_tool_calls": [
+      {
+        "name": "entitycore-species-getall",
+        "arguments": {
+          "semantic_search": "mouse"
+        }
+      },
+      {
+        "name": "entitycore-brainregion-getall",
+        "arguments": {
+          "semantic_search": "dentate gyrus"
+        }
+      },
+      {
+        "name": "entitycore-memodel-getall",
+        "arguments": {
+          "within_brain_region_brain_region_id": "dynamic",
+          "species_id__in": "dynamic"
+        }
+      }
+    ],
+    "params": {
+      "tags": [
+        "benchmark",
+        "d042b2ed-0b1d-4b5d-a39e-e4880af3e1d3",
+        "data-query",
+        "models",
+        "dentate-gyrus",
+        "hippocampus",
+        "mouse"
+      ],
+      "frontend_url": null,
+      "shared_state": null
+    },
+    "ai_response": "I'll search the brain-region database for \\dentate gyrus\\ to find the correct region ID, then fetch ME-models within that region.I'll retrieve ME-models within the Dentate gyrus region.## Mouse Dentate Gyrus \\u2014 available ME-models (summary)\\n\\nI searched the brain-region database for \\u201cDentate gyrus\\u201d and retrieved ME-models within that region. The query returned a total of **36** ME-models. Below I list the first page (10 models) returned \\u2014 would you like me to fetch the remaining pages?\\n\\n### Summary (page 1 of results)\\n| # | **Model name** | **ID** | **Species** | **M-type(s) / E-type(s)** | **Exemplar morphology** | **Created / Updated** | Link |\\n|---:|---|---:|---|---|---|---|---|\\n| 1 | **MEM__AA0055__bAC_IN_Interneuron** | **e802fec0-9e6f-45e0-b36b-b9d8f372825f** | *Mus musculus* | M-types: MDI_TC (listed) <br> E-types: **bAC_IN** | Morphology **AA0055** (id: **e7c2e910-4b43-40dc-b4e4-06dd3ffb7a44**) | 2025-03-21 / 2025-04-17 | [View Details](https://openbraininstitute.org/app/entity/e802fec0-9e6f-45e0-b36b-b9d8f372825f) |\\n| 2 | **MEM__AA0055__cNAD_noscltb_Interneuron** | **c0455c37-eaad-4bd9-9819-c7a3c8dd3a50** | *Mus musculus* | M-types: MDI_TC <br> E-types: **cNAD_noscltb** | Morphology **AA0055** (id: **e7c2e910-4b43-40dc-b4e4-06dd3ffb7a44**) | 2025-03-21 / 2025-04-17 | [View Details](https://openbraininstitute.org/app/entity/c0455c37-eaad-4bd9-9819-c7a3c8dd3a50) |\\n| 3 | **MEM__cylindrical_morphology_20.6830__bAC_IN** | **006b4ef3-285d-4474-82ff-b9421256ac77** | *Mus musculus* | M-types: \\u2014 <br> E-types: **bAC_IN** | Morphology **cylindrical_morphology_20.6830** (id: **311e00e5-37d4-4ff1-b2c0-e2c99f389e46**) | 2025-03-20 / 2025-04-17 | [View Details](https://openbraininstitute.org/app/entity/006b4ef3-285d-4474-82ff-b9421256ac77) |\\n| 4 | **MEM__AA0322__dNAD_ltb_VPL_TC** | **95ceb131-742a-4e0e-82cc-4a3a6a3a8564** | *Mus musculus* | M-types: **VPL_TC** <br> E-types: **dNAD_ltb** | Morphology **AA0322** (id: **cbfee1a7-3b3d-4805-a028-763b031cb46e**) | 2025-03-20 / 2025-04-17 | [View Details](https://openbraininstitute.org/app/entity/95ceb131-742a-4e0e-82cc-4a3a6a3a8564) |\\n| 5 | **MEM__cylindrical_morphology_20.6830__dNAD_ltb** | **0249a1dc-10b3-4fa2-b02a-ec706c6a852f** | *Mus musculus* | M-types: \\u2014 <br> E-types: **dNAD_ltb** | Morphology **cylindrical_morphology_20.6830** (id: **311e00e5-37d4-4ff1-b2c0-e2c99f389e46**) | 2025-03-20 / 2025-04-17 | [View Details](https://openbraininstitute.org/app/entity/0249a1dc-10b3-4fa2-b02a-ec706c6a852f) |\\n| 6 | **MEM__AA0519__dAD_ltb** | **280f4c61-97f5-476e-8c84-f9ef0b29eb63** | *Mus musculus* | M-types: **VPL_TC** <br> E-types: **dAD_ltb** | Morphology **AA0519** (id: **b3bc2ad7-37ab-4bdd-a1ec-204558bc5818**) | 2025-03-20 / 2025-04-17 | [View Details](https://openbraininstitute.org/app/entity/280f4c61-97f5-476e-8c84-f9ef0b29eb63) |\\n| 7 | **MEM__cylindrical_morphology_20.6830__dAD_ltb** | **f10a5e6e-8ccc-41c6-96a3-5efc894d9104** | *Mus musculus* | M-types: \\u2014 <br> E-types: **dAD_ltb** | Morphology **cylindrical_morphology_20.6830** (id: **311e00e5-37d4-4ff1-b2c0-e2c99f389e46**) | 2025-03-20 / 2025-04-17 | [View Details](https://openbraininstitute.org/app/entity/f10a5e6e-8ccc-41c6-96a3-5efc894d9104) |\\n| 8 | **MEM__cylindrical_morphology_20.6830__cNAD_noscltb** | **3684e5a1-0d5e-41af-97fc-ba7bf2e67022** | *Mus musculus* | M-types: \\u2014 <br> E-types: **cNAD_noscltb** | Morphology **cylindrical_morphology_20.6830** (id: **311e00e5-37d4-4ff1-b2c0-e2c99f389e46**) | 2025-03-20 / 2025-04-17 | [View Details](https://openbraininstitute.org/app/entity/3684e5a1-0d5e-41af-97fc-ba7bf2e67022) |\\n| 9 | **MEM__AA0322__cAD_noscltb_VPL_TC** | **57ac2321-c910-4130-8f5c-302b045c6b65** | *Mus musculus* | M-types: **VPL_TC** <br> E-types: **cAD_noscltb** | Morphology **AA0322** (id: **cbfee1a7-3b3d-4805-a028-763b031cb46e**) | 2025-03-20 / 2025-04-17 | [View Details](https://openbraininstitute.org/app/entity/57ac2321-c910-4130-8f5c-302b045c6b65) |\\n| 10 | **MEM__cylindrical_morphology_20.6830__cAD_noscltb** | **10989035-8546-48ce-8eca-6c550eb373ef** | *Mus musculus* | M-types: \\u2014 <br> E-types: **cAD_noscltb** | Morphology **cylindrical_morphology_20.6830** (id: **311e00e5-37d4-4ff1-b2c0-e2c99f389e46**) | 2025-03-20 / 2025-04-17 | [View Details](https://openbraininstitute.org/app/entity/10989035-8546-48ce-8eca-6c550eb373ef) |\\n\\nNotes:\\n- The search returned **total_items: 36** (page_size shown was 10). I displayed the first page of results above.\\n- Many models are part of the OBI curated morpho\\u2011electric dataset and include:\\n  - model name, id, the assigned electrical type(s) (E-type) and/or morphological type(s) (M-type),\\n  - exemplar morphology where available,\\n  - and the link to the model detail page on the platform.\\n\\nWould you like me to:\\n- Fetch the remaining ME-models (next pages) so you get the full list of 36?  \\n- Or retrieve detailed fields for any specific model(s) from the list (full assets, ion channels, calibration results, license, or download links)?",
+    "actual_tool_calls": [
+      {
+        "name": "entitycore-brainregion-getall",
+        "arguments": {
+          "semantic_search": "dentate gyrus",
+          "page_size": 10
+        }
+      },
+      {
+        "name": "entitycore-memodel-getall",
+        "arguments": {
+          "page_size": 10,
+          "within_brain_region_brain_region_id": "ef346092-81fb-443e-9db7-a0f9f66418a4"
+        }
+      }
+    ],
+    "results": {
+      "metrics": [
+        {
+          "name": "Correctness [GEval]",
+          "score": 0.23467329190188674,
+          "success": false,
+          "threshold": 0.5,
+          "reason": "The actual output provides detailed information about the ME-models in the dentate gyrus, including a summary table and notes, which is more extensive than the expected output. However, it fails to align with the expected output format, which only requires a placeholder for the model list without additional details. This results in a significant penalty for including unnecessary information and not adhering to the expected structure."
+        },
+        {
+          "name": "Tool Correctness",
+          "score": 0.6666666666666666,
+          "success": true,
+          "threshold": 0.5,
+          "reason": "[\n\t Tool Calling Reason: Incorrect tool usage: missing tools ['entitycore-species-getall'] and out-of-order tools ['entitycore-species-getall']; expected ['entitycore-species-getall', 'entitycore-brainregion-getall', 'entitycore-memodel-getall'], called ['entitycore-brainregion-getall', 'entitycore-memodel-getall']. See more details above.\n\t Tool Selection Reason: No available tools were provided to assess tool selection criteria\n]\n"
+        },
+        {
+          "name": "Argument Correctness",
           "score": 0.5,
           "success": true,
           "threshold": 0.5,
-          "reason": "[\n\t Tool Calling Reason: Incomplete tool usage: missing tools [ToolCall(\n    name=\"obi-expert\",\n    input_parameters={\n        \"document_type\": \"planV2\"\n    }\n)]; expected ['obi-expert'], called ['obi-expert']. See more details above.\n\t Tool Selection Reason: No available tools were provided to assess tool selection criteria\n]\n"
+          "reason": "The score is 0.50 because the input lacks specificity regarding the relevant brain region for the models, which is essential to effectively address the question about current DG models."
+        },
+        {
+          "name": "Deterministic Argument Correctness",
+          "score": 0.16666666666666666,
+          "success": false,
+          "threshold": 0.5,
+          "reason": "[\n\t Tool Calling Reason: Incomplete tool usage: missing tools [ToolCall(\n    name=\"entitycore-species-getall\",\n    input_parameters={\n        \"semantic_search\": \"mouse\"\n    }\n), ToolCall(\n    name=\"entitycore-brainregion-getall\",\n    input_parameters={\n        \"semantic_search\": \"dentate gyrus\"\n    }\n), ToolCall(\n    name=\"entitycore-memodel-getall\",\n    input_parameters={\n        \"within_brain_region_brain_region_id\": \"dynamic\",\n        \"species_id__in\": \"dynamic\"\n    }\n)]; expected ['entitycore-species-getall', 'entitycore-brainregion-getall', 'entitycore-memodel-getall'], called ['entitycore-brainregion-getall', 'entitycore-memodel-getall']. See more details above.\n\t Tool Selection Reason: No available tools were provided to assess tool selection criteria\n]\n"
         },
         {
           "name": "Overall Argument Correctness",
@@ -3158,24 +3974,27 @@
       "created_at": "2026-02-19 15:47:03.209228"
     }
   },
-  "software_docs_obione": {
-    "user": "Please show me a code example of how to create a single cell simulation using the obione package.\n",
-    "expected_output": "## Single Cell Simulation Example (OBI-One)\n\nBelow is a step-by-step single-cell simulation example using the OBI-One Python API (openbraininstitute/obi-one). It shows how to:\n\n- select an MEModel (morphology+electrical model),\n- build and validate a simulation configuration (stimulus, recordings, timestamps),\n- generate a grid-scan / single simulation,\n- and run the simulation with BlueCelluLab (the usual backend used in OBI-One examples).\n\nYou will need obi_one installed and configured, plus credentials / db_client as required by your environment. Replace placeholder IDs (e.g., <MEMODEL-ID>) and file paths with real values.\n\n### 1) Select an MEModel to simulate\n```python\n# Option A: use a known MEModel ID\nentity_ID = \\\"<MEMODEL-ID>\\  # <<< Replace with real MEModel UUID\n\n# Option B: (interactive selection helper used in examples)\n# memodel_ids = get_entities.get_entities(\\memodel\\\", token, memodel_ids,\n#                                         project_context=project_context,\n#                                         multi_select=False,\n#                                         default_scale=\\small\\\")\n# memodel_ids[0] would then be used below\n```\n\n### 2) Build the MEModel simulation configuration (form API)\n```python\nfrom pathlib import Path\nimport obi_one as obi\n\n# === Parameters ===\nsim_duration = 3000.0  # ms\n\n# Create an empty config for MEModel-based simulation\nsim_conf = obi.MEModelSimulationScanConfig.empty_config()\n\n# Info block\ninfo = obi.Info(\n    campaign_name=\\MEModel Simulation\\\",\n    campaign_description=\\Single-cell MEModel simulation with constant current stimulus\\\"\n)\nsim_conf.set(info, name=\\info\\\")\n\n# Regular timestamps (example: a single repetition covering simulation)\nregular_timestamps = obi.RegularTimestamps(start_time=0.0, number_of_repetitions=1, interval=sim_duration)\nsim_conf.add(regular_timestamps, name='RegularTimestamps')\n\n# Somatic current clamp stimulus (Constant current)\nstimulus = obi.ConstantCurrentClampSomaticStimulus(\n    timestamps=regular_timestamps.ref,\n    duration=2000.0,\n    amplitude=0.5  # nA (example)\n)\nsim_conf.add(stimulus, name=\\CurrentClampInput\\\")\n\n# Record soma voltage\nvoltage_recording = obi.SomaVoltageRecording()\nsim_conf.add(voltage_recording, name='VoltageRecording')\n\n# Optionally limit the time window recorded\ntime_window_voltage_recording = obi.TimeWindowSomaVoltageRecording(start_time=0.0, end_time=2000.0)\nsim_conf.add(time_window_voltage_recording, name='TimeWindowVoltageRecording')\n\n# Initialization: point to the MEModel by ID and set simulation length\nsimulations_initialize = obi.MEModelSimulationScanConfig.Initialize(\n    circuit=obi.MEModelFromID(id_str=entity_ID),\n    simulation_length=sim_duration\n)\nsim_conf.set(simulations_initialize, name='initialize')\n\n# Validate and get validated configuration object\nvalidated_sim_conf = sim_conf.validated_config()\nprint(\\Validated config:\\\", validated_sim_conf)\n```\n\n### 3) Wrap config into a GridScan / single simulation configuration\n(OBI-One uses GridScan tasks to generate concrete config files; for a single point you still create a grid with a single cell)\n```python\n# Create a GridScan generation task for the validated form\ngrid_scan = obi.GridScanGenerationTask(\n    form=validated_sim_conf,\n    coordinate_directory_option=\\ZERO_INDEX\\\",\n    output_root='../../../obi-output/memodel_simulations/grid_scan'  # change to desired output\n)\n\n# (Optional) inspect multi-value parameters or coordinates\ngrid_scan.multiple_value_parameters(display=True)\ngrid_scan.coordinate_parameters(display=True)\n\n# Execute generation (requires db_client configured)\ngrid_scan.execute(db_client=db_client)\n```\n\n### 4) Run the generated simulation with BlueCelluLab backend\n```python\nfrom obi_one.scientific.library.simulation_execution import run\n\n# Path to simulation_config.json from generated single config\nsimulation_config_path = grid_scan.single_configs[0].coordinate_output_root / \\simulation_config.json\\\"\nprint(\\Simulation config path:\\\", simulation_config_path)\n\n# Run the simulation (bluecellulab is typical)\nrun(\n    simulation_config=simulation_config_path,\n    simulatorluecellulab\\\",  # or \neurodamus\\\"\n    save_nwb=False  # optionally save NWB\n)\n```\n\n### 5) Load and analyze results with bluepysnap\n```python\nimport bluepysnap\n\nsnap_simulation = bluepysnap.Simulation(simulation_config_path)\nspikes = snap_simulation.spikes\n\nprint(\\spikes time_start, time_stop, dt:\\\", spikes.time_start, spikes.time_stop, spikes.dt)\nprint(\\population names:\\\", spikes.population_names)\n\n# Access soma voltage report\nsoma_report = snap_simulation.reports['SomaVoltage']\nprint(\\SomaVoltage time_start, time_stop, dt:\\\", soma_report.time_start, soma_report.time_stop, soma_report.dt)\n\n# Example: inspect the head of the spike report dataframe\nfiltered = spikes.filter(t_start=spikes.time_start, t_stop=spikes.time_stop)\nprint(filtered.report.head())\n```\n\n## Notes, tips and placeholders\n- **Replace** <MEMODEL-ID> with the actual MEModel UUID from EntityCore.\n- You need a configured db_client variable (OBI-One examples use a DB client for GridScan generation) \\u2014 ensure you have credentials and environment set up as per your installation.\n- If you prefer to pick an MEModel interactively or via EntityCore queries, use the platform's EntityCore helpers to get MEModel IDs (examples in the repository show interactive selection).\n- The examples above are adapted from the OBI-One example notebooks:\n  - examples/F_single_cell_simulations/entitysdk_memodel_simulation.ipynb\n  - examples/F_single_cell_simulations/entitysdk_memodel_with_synapses_simulation.ipynb\n\nIf you want, I can:\n- provide a minimal runnable script adjusted to your environment (if you give me the MEModel ID and where your db_client/config is stored),\n- or show how to query EntityCore for available MEModels and pick one programmatically. Which would you like?\n",
+  "psp_time_constant_pv_cells": {
+    "user": "What is the time constant of the PSP for PV (parvalbumin) cells in the cortex?\n",
+    "expected_output": "This data is not directly available on the platform. However, here is what the literature says:\n\n{{literature_search_results}}\n",
     "expected_tool_calls": [
       {
-        "name": "get-obi-software-docs",
+        "name": "literature-search-tool",
         "arguments": {
-          "context7CompatibleLibraryID": "/openbraininstitute/obi-one",
-          "topic": "Single Cell Simulation Example",
-          "tokens": 2000
+          "query": "time constant PSP parvalbumin PV cells cortex"
         }
       }
     ],
     "params": {
       "tags": [
-        "obi",
-        "obi-one",
-        "mcp"
+        "benchmark",
+        "382d5dd6-66d1-4711-94f3-49e8733f888b",
+        "data-query",
+        "electrophysiology",
+        "psp",
+        "parvalbumin",
+        "cortex",
+        "time-constant"
       ],
       "frontend_url": null,
       "shared_state": null
@@ -3196,7 +4015,150 @@
           "score": 0.0,
           "success": false,
           "threshold": 0.5,
-          "reason": "[\n\t Tool Calling Reason: Incorrect tool usage: missing tools ['get-obi-software-docs'] and out-of-order tools ['get-obi-software-docs']; expected ['get-obi-software-docs'], called []. See more details above.\n\t Tool Selection Reason: No available tools were provided to assess tool selection criteria\n]\n"
+          "reason": "[\n\t Tool Calling Reason: Incorrect tool usage: ; expected [], called ['entitycore-brainregion-getall', 'entitycore-brainregion-getall']. See more details above.\n\t Tool Selection Reason: No available tools were provided to assess tool selection criteria\n]\n"
+        },
+        {
+          "name": "Argument Correctness",
+          "score": 1.0,
+          "success": true,
+          "threshold": 0.5,
+          "reason": "The score is 1.00 because there are no incorrect tool calls or issues with the input."
+        },
+        {
+          "name": "Deterministic Argument Correctness",
+          "score": 0.0,
+          "success": false,
+          "threshold": 0.5,
+          "reason": "[\n\t Tool Calling Reason: Incomplete tool usage: missing tools []; expected [], called ['entitycore-brainregion-getall', 'entitycore-brainregion-getall']. See more details above.\n\t Tool Selection Reason: No available tools were provided to assess tool selection criteria\n]\n"
+        },
+        {
+          "name": "Overall Argument Correctness",
+          "score": 1.0,
+          "success": true,
+          "threshold": 0.5,
+          "reason": ""
+        }
+      ],
+      "created_at": "2026-02-24 13:08:16.756408"
+    }
+  },
+  "pv_to_pv_ipsp_amplitude": {
+    "user": "What is the amplitude of the inhibitory postsynaptic potential of parvalbumin cells to other parvalbumin cells in the cortex?\n",
+    "expected_output": "This data is not directly available on the platform. However, here is what the literature says:\n\n{{literature_search_results}}\n",
+    "expected_tool_calls": [
+      {
+        "name": "literature-search-tool",
+        "arguments": {
+          "query": "amplitude inhibitory postsynaptic potential parvalbumin PV to PV cells cortex"
+        }
+      }
+    ],
+    "params": {
+      "tags": [
+        "benchmark",
+        "cae0ab78-ec95-4728-a934-f0da553abbca",
+        "data-query",
+        "electrophysiology",
+        "ipsp",
+        "parvalbumin",
+        "interneurons",
+        "cortex"
+      ],
+      "frontend_url": null,
+      "shared_state": null
+    },
+    "ai_response": "I'll search the literature for measurements of PV\\u2192PV inhibitory postsynaptic potential amplitudes in cortex. I'll return key papers and reported amplitudes.I'll run a follow-up literature search targeting paired-recording measurements of PV\\u2192PV unitary IPSP amplitudes.I can find that, but could you specify the context you want? For example:\\n\\n- Species (mouse, rat, human)?\\n- Cortical area or layer (e.g., V1 L2/3, somatosensory L2/3, mPFC)?\\n- In vitro paired recordings vs. in vivo measurements?\\n- Do you want IPSP peak amplitude (mV), IPSC amplitude (pA), or conductance (nS)?\\n\\nIf you don\\u2019t specify, I\\u2019ll search the literature for unitary PV\\u2192PV IPSP amplitudes in mouse neocortex (paired recordings) and report typical amplitude ranges and key papers. Which would you prefer?",
+    "actual_tool_calls": [
+      {
+        "name": "literature-search-tool",
+        "arguments": {
+          "query": "parvalbumin to parvalbumin inhibitory postsynaptic potential amplitude cortex PV\u2192PV IPSP amplitude mV paired recordings",
+          "num_results": 6
+        }
+      },
+      {
+        "name": "literature-search-tool",
+        "arguments": {
+          "query": "unitary IPSP amplitude PV to PV paired recordings \"parvalbumin\" \"unitary\" IPSP mV cortex paired recording PV\u2192PV \"unitary IPSP\"",
+          "num_results": 10
+        }
+      }
+    ],
+    "results": {
+      "metrics": [
+        {
+          "name": "Correctness [GEval]",
+          "score": 0.16609110342623393,
+          "success": false,
+          "threshold": 0.5,
+          "reason": "The actual output does not align with the expected output, which states that the data is not directly available and should provide literature search results. Instead, the actual output includes a detailed plan for searching literature and asks for clarification, which is not part of the expected response. This indicates a significant omission of required details and a failure to meet the expected structure."
+        },
+        {
+          "name": "Tool Correctness",
+          "score": 1.0,
+          "success": true,
+          "threshold": 0.5,
+          "reason": "[\n\t Tool Calling Reason: Correct ordering: all expected tools ['literature-search-tool'] were called in the correct order.\n\t Tool Selection Reason: No available tools were provided to assess tool selection criteria\n]\n"
+        },
+        {
+          "name": "Argument Correctness",
+          "score": 1.0,
+          "success": true,
+          "threshold": 0.5,
+          "reason": "The score is 1.00 because there are no incorrect tool calls or issues with the input."
+        },
+        {
+          "name": "Deterministic Argument Correctness",
+          "score": 0.0,
+          "success": false,
+          "threshold": 0.5,
+          "reason": "[\n\t Tool Calling Reason: Incomplete tool usage: missing tools [ToolCall(\n    name=\"literature-search-tool\",\n    input_parameters={\n        \"query\": \"amplitude inhibitory postsynaptic potential parvalbumin PV to PV cells cortex\"\n    }\n)]; expected ['literature-search-tool'], called ['literature-search-tool', 'literature-search-tool']. See more details above.\n\t Tool Selection Reason: No available tools were provided to assess tool selection criteria\n]\n"
+        },
+        {
+          "name": "Overall Argument Correctness",
+          "score": 1.0,
+          "success": true,
+          "threshold": 0.5,
+          "reason": ""
+        }
+      ],
+      "created_at": "2026-02-24 13:08:16.756437"
+    }
+  },
+  "visualization_species_mismatch": {
+    "user": "Why is the 3D rotatable mouse brain showing in the visualization panel when the morphologies I selected are from Homo sapiens?\n",
+    "expected_output": "The platform's 3D brain atlas viewer uses a mouse brain atlas (Allen Brain Atlas hierarchy) as the default and only available atlas for spatial navigation, regardless of the species of the selected data. The mouse brain serves as the structural reference for region selection, while the data tables filter by species.\n",
+    "expected_tool_calls": [],
+    "params": {
+      "tags": [
+        "benchmark",
+        "977413f0-79a9-4710-9d23-1bca2fef74de",
+        "interface",
+        "ui-issue",
+        "visualization",
+        "species",
+        "3d-brain"
+      ],
+      "frontend_url": null,
+      "shared_state": null
+    },
+    "ai_response": "## Short answer\\nI don't have access to the platform's UI so I can't inspect the visualization panel or its settings directly. I can't tell you *where* in the interface that 3D rotatable mouse brain control is coming from.  \\n\\n## What I can do instead (helpful checks and next steps)\\nHere are likely causes and the actions you can take to diagnose and fix it:\\n\\n### Possible causes\\n- **Visualization atlas default** \\u2014 The 3D viewer may be defaulting to a mouse brain atlas (atlas/species mismatch) even though your selected morphologies are human.\\n- **Atlas-level layer** \\u2014 The viewer might be showing a global scene layer (mouse brain) that\\u2019s independent of the loaded morphology assets.\\n- **Morphology metadata mismatch** \\u2014 One or more morphology assets might be incorrectly annotated as *Mus musculus* (mouse) at the asset or brain-region level.\\n- **Project or user-default settings** \\u2014 Your project or user preferences could specify a mouse atlas as the default 3D backdrop.\\n- **Session cached state** \\u2014 A previous session or page cached the mouse atlas as the viewer state and the viewer hasn\\u2019t updated when you loaded the human morphologies.\\n- **Multiple atlases available** \\u2014 The viewer might show a selectable atlas and the mouse atlas happens to be the active selection.\\n\\n### What you can check in the UI\\n- Check the 3D viewer\\u2019s **atlas / species** selector and switch it to a *Homo sapiens* atlas if available.\\n- Inspect the **brain-region** or **atlas layer** controls in the visualization panel and toggle off the mouse backdrop.\\n- Open the **metadata** or details for each selected morphology and confirm **subject.species** is *Homo sapiens*.\\n- Look at project or user **visualization defaults** or recent session state to see if a mouse atlas was set.\\n- If there\\u2019s an atlas picker, try explicitly selecting a human atlas and then reloading the morphologies.\\n\\n### If you want me to check the data for you\\nI can verify the species/atlas metadata for the morphologies (to see if they\\u2019re mis-annotated) if you either:\\n- Provide the morphology IDs, or\\n- Tell me the names or links of the morphologies you selected.\\n\\nIf you give me those IDs or names I will check their species and brain-region metadata in the database and report what I find.\\n\\n### When to contact support\\nIf the UI controls look correct (morphologies show *Homo sapiens* in metadata and the viewer still displays a mouse atlas), please contact platform support \\u2014 it could be a visualization bug or a cached session issue. When you contact support, include:\\n- A screenshot of the visualization panel\\n- The morphology IDs you loaded\\n- The time and browser you used\\n\\n---\\n\\nWould you like me to check the morphology metadata now? If so, paste the morphology IDs or names and I\\u2019ll look them up.",
+    "actual_tool_calls": [],
+    "results": {
+      "metrics": [
+        {
+          "name": "Correctness [GEval]",
+          "score": 0.21930826636013764,
+          "success": false,
+          "threshold": 0.5,
+          "reason": "The actual output provides detailed troubleshooting steps and possible causes for the issue, but it diverges significantly from the expected output, which succinctly states that the platform uses a mouse brain atlas as the default. The actual output does not mention the Allen Brain Atlas hierarchy or the structural reference for region selection, leading to a heavy penalty for omissions and lack of alignment with the expected content."
+        },
+        {
+          "name": "Tool Correctness",
+          "score": 1.0,
+          "success": true,
+          "threshold": 0.5,
+          "reason": "[\n\t Tool Calling Reason: Correct ordering: all expected tools [] were called in the correct order.\n\t Tool Selection Reason: No available tools were provided to assess tool selection criteria\n]\n"
         },
         {
           "name": "Argument Correctness",
@@ -3207,10 +4169,10 @@
         },
         {
           "name": "Deterministic Argument Correctness",
-          "score": 0.0,
-          "success": false,
+          "score": 1.0,
+          "success": true,
           "threshold": 0.5,
-          "reason": "[\n\t Tool Calling Reason: Incomplete tool usage: missing tools [ToolCall(\n    name=\"get-obi-software-docs\",\n    input_parameters={\n        \"context7CompatibleLibraryID\": \"/openbraininstitute/obi-one\",\n        \"topic\": \"Single Cell Simulation Example\",\n        \"tokens\": 2000\n    }\n)]; expected ['get-obi-software-docs'], called []. See more details above.\n\t Tool Selection Reason: No available tools were provided to assess tool selection criteria\n]\n"
+          "reason": "[\n\t Tool Calling Reason: All expected tools [] were called (order not considered).\n\t Tool Selection Reason: No available tools were provided to assess tool selection criteria\n]\n"
         },
         {
           "name": "Overall Argument Correctness",
@@ -3223,26 +4185,18 @@
       "created_at": "2026-02-19 15:47:03.209241"
     }
   },
-  "hippocampus_morphologies": {
-    "user": "I need 5 morphologies from hippocampus, skip confirmations.\n",
-    "expected_output": "Here are some neuronal morphologies from the **Hippocampus** in rodents (Mus musculus):\n\n---\n\n### 1. **{{Morphology 1}}**\n- **Description:** {{Description 1}}\n- **Morphological Type:** {{Type 1}}\n- **Contributors:** {{Contributor 1}}\n- **License:** {{License 1}}\n\n---\n\n### 2. **{{Morphology 2}}**\n- **Description:** {{Description 2}}\n- **Morphological Type:** {{Type 2}}\n- **Contributors:** {{Contributor 2}}\n- **License:** {{License 2}}\n\n---\n\n### 3. **{{Morphology 3}}**\n- **Description:** {{Description 3}}\n- **Morphological Type:** {{Type 3}}\n- **Contributors:** {{Contributor 3}}\n- **License:** {{License 3}}\n\n---\n\n### 4. **{{Morphology 4}}**\n- **Description:** {{Description 4}}\n- **Morphological Type:** {{Type 4}}\n- **Contributors:** {{Contributor 4}}\n- **License:** {{License 4}}\n\n---\n\n### 5. **{{Morphology 5}}**\n- **Description:** {{Description 5}}\n- **Morphological Type:** {{Type 5}}\n- **Contributors:** {{Contributor 5}}\n- **License:** {{License 5}}\n\n---\n\nIf you want more morphologies or details on any specific one, please let me know!\n",
-    "expected_tool_calls": [
-      {
-        "name": "entitycore-brainregion-getall",
-        "arguments": {
-          "semantic_search": "hippocampus"
-        }
-      },
-      {
-        "name": "entitycore-cellmorphology-getall",
-        "arguments": {
-          "within_brain_region_brain_region_id": "08f3ff18-88db-48cc-bac5-d58c2fd16ec8"
-        }
-      }
-    ],
+  "metabolism_model_reactions": {
+    "user": "I want to check all reactions in the metabolism model.\n",
+    "expected_output": "Go to the notebook and the equations are written there.\n",
+    "expected_tool_calls": [],
     "params": {
       "tags": [
-        "entitycore"
+        "benchmark",
+        "7a656d0d-6df5-487d-b15e-3e87ef54ab39",
+        "data-query",
+        "metabolism",
+        "reactions",
+        "models"
       ],
       "frontend_url": null,
       "shared_state": null
@@ -3256,7 +4210,7 @@
         }
       },
       {
-        "name": "entitycore-cellmorphology-getall",
+        "name": "entitycore-memodel-getall",
         "arguments": {
           "within_brain_region_brain_region_id": "08f3ff18-88db-48cc-bac5-d58c2fd16ec8"
         }
@@ -3290,7 +4244,14 @@
           "score": 1.0,
           "success": true,
           "threshold": 0.5,
-          "reason": "[\n\t Tool Calling Reason: All expected tools ['entitycore-brainregion-getall', 'entitycore-cellmorphology-getall'] were called (order not considered).\n\t Tool Selection Reason: No available tools were provided to assess tool selection criteria\n]\n"
+          "reason": "The score is 1.00 because there are no incorrect tool calls and the input is clear and relevant."
+        },
+        {
+          "name": "Deterministic Argument Correctness",
+          "score": 0.0,
+          "success": false,
+          "threshold": 0.5,
+          "reason": "[\n\t Tool Calling Reason: Incomplete tool usage: missing tools [ToolCall(\n    name=\"entitycore-brainregion-getall\",\n    input_parameters={\n        \"semantic_search\": \"cerebrum\"\n    }\n), ToolCall(\n    name=\"entitycore-cellmorphology-getall\",\n    input_parameters={\n        \"within_brain_region_brain_region_id\": \"dynamic\"\n    }\n)]; expected ['entitycore-brainregion-getall', 'entitycore-cellmorphology-getall'], called ['entitycore-brainregion-getall', 'entitycore-cellmorphology-getall']. See more details above.\n\t Tool Selection Reason: No available tools were provided to assess tool selection criteria\n]\n"
         },
         {
           "name": "Overall Argument Correctness",

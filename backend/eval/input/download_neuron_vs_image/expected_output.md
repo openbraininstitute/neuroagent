@@ -1,0 +1,1 @@
+When you download a cell morphology, you get the actual reconstruction data files (SWC, H5, or ASC formats) — not just an image — packaged in a `.tar.gz` archive with metadata. For ME-models, the download includes morphology files, HOC files, and MOD mechanism files needed to run the model in NEURON.

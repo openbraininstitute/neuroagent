@@ -1,10 +1,12 @@
 """Tool to validate the shared state."""
 
 from typing import ClassVar, Literal
+from uuid import UUID
 
+from httpx import AsyncClient
 from pydantic import BaseModel
 
-from neuroagent.shared_state import SharedStateLoosened, SharedStatePartial
+from neuroagent.shared_state import SharedStateLoosened
 from neuroagent.tools.base_tool import BaseMetadata, BaseTool
 
 
@@ -18,6 +20,10 @@ class ValidateStateMetadata(BaseMetadata):
     """Metadata for the ValidateState tool."""
 
     shared_state: SharedStateLoosened
+    httpx_client: AsyncClient
+    obi_one_url: str
+    vlab_id: UUID | None
+    project_id: UUID | None
 
 
 class ValidateStateOutput(BaseModel):
@@ -71,12 +77,26 @@ Do NOT call `validatestate` when:
         if not self.metadata.shared_state:
             raise ValueError("No shared state provided.")
 
-        state = self.metadata.shared_state.model_dump()
+        headers: dict[str, str] = {}
+        if self.metadata.vlab_id is not None:
+            headers["virtual_lab_id"] = str(self.metadata.vlab_id)
+        if self.metadata.project_id is not None:
+            headers["project_id"] = str(self.metadata.project_id)
 
-        # Validate state (pydantic for now)
-        SharedStatePartial(**state)
+        validate_response = await self.metadata.httpx_client.post(
+            url=f"{self.metadata.obi_one_url}/config-validation/validate",
+            headers=headers,
+            json={
+                "class_name": "CircuitSimulationScanConfig",
+                "data": self.metadata.shared_state.model_dump(),
+            },
+        )
 
-        return ValidateStateOutput(message="State is valid")
+        if validate_response.status_code != 200:
+            raise ValueError(
+                f"The config validation endpoint returned a non 200 response code. Error: {validate_response.text}"
+            )
+        return ValidateStateOutput(is_valid=True)
 
     @classmethod
     async def is_online(cls) -> bool:

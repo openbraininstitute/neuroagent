@@ -1,0 +1,1 @@
+Currently, some of our infrastructure is set up in a way that precludes modeling of non-vertebrate animals. But we are aware that this is an important use case and are working on supporting it. Please check back in the future!
