@@ -122,7 +122,7 @@ export type CircuitSimulationScanConfig =
 
 export const threadPageSize = "25";
 export const messagePageSize = "25";
-export const GPT5_CONTEXT_WINDOW = 400000; // 400k tokens for gpt-5
+export const GPT5_CONTEXT_WINDOW = 272000; // 400k tokens for gpt-5
 
 export type BTokenUsage = {
   input_noncached?: number;

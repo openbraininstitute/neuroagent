@@ -8,7 +8,7 @@ import uuid
 from collections import defaultdict
 from typing import Any, AsyncIterator
 
-from openai import AsyncOpenAI, AsyncStream
+from openai import AsyncOpenAI, AsyncStream, BadRequestError
 from openai.types.chat.chat_completion_chunk import ChatCompletionChunk
 from pydantic import BaseModel, ValidationError
 
@@ -258,13 +258,30 @@ class AgentsRoutine:
                 }
 
                 # get completion with current history, agent
-                completion = await self.get_chat_completion(
-                    agent=active_agent,
-                    history=history,
-                    context_variables=context_variables,
-                    model_override=model_override,
-                    stream=True,
-                )
+                try:
+                    completion = await self.get_chat_completion(
+                        agent=active_agent,
+                        history=history,
+                        context_variables=context_variables,
+                        model_override=model_override,
+                        stream=True,
+                    )
+                except BadRequestError as e:
+                    # Check if it's a token limit error
+                    error_message = str(e)
+                    if (
+                        "context_length_exceeded" in error_message
+                        or "maximum context length" in error_message.lower()
+                        or "too many tokens" in error_message.lower()
+                    ):
+                        # Send error event to frontend using the correct format
+                        # The Vercel AI SDK expects error parts to be JSON-encoded strings
+                        error_msg = "The conversation has exceeded the maximum token limit. Please use the Summarize button to compress the conversation."
+                        yield f"3:{json.dumps(error_msg, separators=(',', ':'))}\n"
+                        raise
+                    else:
+                        # Re-raise other BadRequestErrors
+                        raise
 
                 turns += 1
                 draft_tool_calls: list[dict[str, str]] = []
@@ -274,6 +291,16 @@ class AgentsRoutine:
                         if choice.finish_reason == "stop":
                             if choice.delta.content:
                                 yield f"0:{json.dumps(choice.delta.content, separators=(',', ':'))}\n"
+
+                        elif choice.finish_reason == "length":
+                            # Token limit reached during generation
+                            if choice.delta.content:
+                                yield f"0:{json.dumps(choice.delta.content, separators=(',', ':'))}\n"
+
+                            # Send error event to frontend using the correct format
+                            # The Vercel AI SDK expects error parts to be JSON-encoded strings
+                            error_msg = "The response was cut off because it reached the maximum token limit. Please use the Summarize button to compress the conversation."
+                            yield f"3:{json.dumps(error_msg, separators=(',', ':'))}\n"
 
                         elif choice.finish_reason == "tool_calls":
                             # Some models stream the whole tool call in one chunk.
@@ -375,7 +402,14 @@ class AgentsRoutine:
                         else "stop",
                     }
                 else:
-                    finish_data = {"finishReason": "stop"}
+                    # Check if the last choice had finish_reason "length"
+                    last_finish_reason = (
+                        chunk.choices[-1].finish_reason if chunk.choices else None
+                    )
+                    if last_finish_reason == "length":
+                        finish_data = {"finishReason": "length"}
+                    else:
+                        finish_data = {"finishReason": "stop"}
 
                 message["tool_calls"] = list(message.get("tool_calls", {}).values())
                 if not message["tool_calls"]:
@@ -430,8 +464,11 @@ class AgentsRoutine:
                     )
                 )
 
+                # Always yield finish data
+                yield f"e:{json.dumps(finish_data)}\n"
+
+                # Break if no tool calls or if we hit token limit
                 if not messages[-1].tool_calls:
-                    yield f"e:{json.dumps(finish_data)}\n"
                     break
 
                 # kick out tool calls that require HIL

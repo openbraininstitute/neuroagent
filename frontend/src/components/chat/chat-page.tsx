@@ -149,6 +149,15 @@ export function ChatPage({
           setUsage(totalTokens);
         }
       }
+
+      // Check if the finish reason indicates token limit was reached
+      if (options?.finishReason === "length") {
+        toast.error("Token Limit Exceeded", {
+          description:
+            "The response was cut off because it reached the maximum token limit. Please use the Summarize button to compress the conversation.",
+          duration: 10000,
+        });
+      }
     },
     experimental_prepareRequestBody: ({ messages }) => {
       const lastMessage = messages[messages.length - 1];
