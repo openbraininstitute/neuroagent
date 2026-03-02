@@ -28,7 +28,7 @@ jobs:
 
       # OBI ECR
     - name: Configure AWS OBI ECR credentials
-      uses: aws-actions/configure-aws-credentials@v1.7.0
+      uses: aws-actions/configure-aws-credentials@v5
 
       with:
         role-to-assume: arn:aws:iam::985539765147:role/gh_ecr_push_neuroagent
