@@ -67,7 +67,7 @@ Do NOT call `validatestate` when:
 # Important Notes
 - A state can be partially filled and invalid - this is normal during incremental configuration
 - Only validate when you expect the state to be complete based on the user's intent
-- If a previously valid state becomes invalid after changes, warn the user or fix obvious issues"""
+- If a previously valid state becomes invalid after changes, fix the errors returned by this tool and call it again."""
     description_frontend: ClassVar[str] = """Validate the application state."""
     metadata: ValidateStateMetadata
     input_schema: ValidateStateInput
@@ -86,16 +86,11 @@ Do NOT call `validatestate` when:
         validate_response = await self.metadata.httpx_client.post(
             url=f"{self.metadata.obi_one_url}/config-validation/validate",
             headers=headers,
-            json={
-                "class_name": "CircuitSimulationScanConfig",
-                "data": self.metadata.shared_state.model_dump(),
-            },
+            json={"state": self.metadata.shared_state.model_dump()},
         )
 
         if validate_response.status_code != 200:
-            raise ValueError(
-                f"The config validation endpoint returned a non 200 response code. Error: {validate_response.text}"
-            )
+            raise ValueError(validate_response.text)
         return ValidateStateOutput(is_valid=True)
 
     @classmethod

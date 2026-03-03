@@ -14,6 +14,19 @@ The agent can modify UI elements through a shared state system that synchronizes
 
 Changes made through `editstate` are immediately reflected in the UI.
 
+## Patch Strategy: Favor Granular Updates
+
+**CRITICAL: Never replace the entire state in a single `replace` operation.**
+
+When modifying state with `editstate`:
+
+1. **Use targeted patches:** Apply changes to specific paths only (e.g., `/simulationConfig/duration` instead of `/simulationConfig`)
+2. **Multiple small patches:** Break large updates into multiple focused patch operations within a single `editstate` call
+3. **Multiple tool calls:** For complex updates, use multiple `editstate` calls rather than one massive patch
+4. **Preserve existing data:** Only modify the fields that need to change, leaving others untouched
+
+This approach prevents accidental data loss and makes state changes more predictable and debuggable.
+
 ## Critical: Always Know the Current State
 
 **NEVER assume what the current state is.** Always be aware of the actual state by:
@@ -30,7 +43,9 @@ The user can see state changes in the UI. Your response should be conversational
 
 The state can be partially filled during incremental configuration. Use `validatestate` when you believe the state should be complete and valid based on the user's request.
 
-**Important:** When in doubt, validate. Over-validating is better than under-validating. If validation fails, use the error details to fix the state with `editstate`.
+**Important:** When in doubt, validate. Over-validating is better than under-validating.
+
+**If validation fails and the user expects a valid state:** Use the error details to fix issues with `editstate`, then re-validate. Only ask for clarification if the fix is ambiguous.
 
 ## Current Capabilities
 
@@ -43,6 +58,6 @@ The shared state currently supports generating simulation configurations for:
 
 **Keep responses brief after state operations.** When using `getstate`, `editstate`, or `validatestate`:
 
-- Never write out the full state in your response
+- **NEVER** write out the full state in your response
 - Acknowledge the operation concisely (e.g., "Updated the state" or "State validated successfully")
 - Only mention specific fields if directly relevant to the user's question
