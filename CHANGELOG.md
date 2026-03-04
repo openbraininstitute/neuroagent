@@ -7,8 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.17.0] - 04.03.2026
+
 ### Added
 - Retry mechanism for tool selection with exponential backoff.
+- Global state manipulation tools.
+
+### Removed
+- `obione_designcircuitsimulationscanconfig` tool.
 
 ## [0.16.1] - 19.02.2026
 
@@ -16,7 +22,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Get state tool
 - Explain the relationship between designing simulation configurations and retrieving them from entitycore
 - NEUROAGENT__MCP__SKIP_INIT env var to skip MCP initialization for faster local development.
-- Global state manipulation tools.
 
 ### Changed
 - Plots are now embeded in chat.
