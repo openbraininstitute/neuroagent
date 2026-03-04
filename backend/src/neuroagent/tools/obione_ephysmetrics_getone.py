@@ -68,9 +68,9 @@ class EphysMetricsGetOneTool(BaseTool):
         """Run the electrophysiology feature extraction logic."""
         headers: dict[str, str] = {}
         if self.metadata.vlab_id is not None:
-            headers["virtual_lab_id"] = str(self.metadata.vlab_id)
+            headers["virtual-lab-id"] = str(self.metadata.vlab_id)
         if self.metadata.project_id is not None:
-            headers["project_id"] = str(self.metadata.project_id)
+            headers["project-id"] = str(self.metadata.project_id)
 
         query_params = self.input_schema.model_dump(
             exclude_defaults=True, exclude={"electrical_cell_recording_id"}

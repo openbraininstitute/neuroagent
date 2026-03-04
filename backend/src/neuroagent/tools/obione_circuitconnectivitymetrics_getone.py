@@ -103,9 +103,9 @@ Supports optional pre_selection and post_selection parameters as additional filt
         """Run the circuit connectivity metrics calculations."""
         headers: dict[str, str] = {}
         if self.metadata.vlab_id is not None:
-            headers["virtual_lab_id"] = str(self.metadata.vlab_id)
+            headers["virtual-lab-id"] = str(self.metadata.vlab_id)
         if self.metadata.project_id is not None:
-            headers["project_id"] = str(self.metadata.project_id)
+            headers["project-id"] = str(self.metadata.project_id)
 
         request_body = self.input_schema.model_dump(
             exclude_defaults=True,

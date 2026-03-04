@@ -48,9 +48,9 @@ class CircuitNodesetsGetOneTool(BaseTool):
         """Run the circuit nodesets retrieval."""
         headers: dict[str, str] = {}
         if self.metadata.vlab_id is not None:
-            headers["virtual_lab_id"] = str(self.metadata.vlab_id)
+            headers["virtual-lab-id"] = str(self.metadata.vlab_id)
         if self.metadata.project_id is not None:
-            headers["project_id"] = str(self.metadata.project_id)
+            headers["project-id"] = str(self.metadata.project_id)
 
         circuit_nodesets_response = await self.metadata.httpx_client.get(
             url=f"{self.metadata.obi_one_url}/declared/circuit/{self.input_schema.circuit_id}/nodesets",
