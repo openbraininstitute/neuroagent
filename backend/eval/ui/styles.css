@@ -1,0 +1,97 @@
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background: #f7f7fa;
+  color: #111;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+h1, h2 {
+  margin-top: 0;
+}
+
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 14px;
+  align-items: end;
+  margin-bottom: 12px;
+}
+
+.controls label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 14px;
+}
+
+select, input, button {
+  height: 34px;
+  padding: 6px 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background: #fff;
+}
+
+button {
+  cursor: pointer;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+}
+
+th, td {
+  padding: 10px 8px;
+  border-bottom: 1px solid #ececec;
+  vertical-align: top;
+  text-align: left;
+}
+
+thead th {
+  background: #f0f2f7;
+}
+
+.muted {
+  color: #666;
+  font-size: 14px;
+}
+
+.score-good { color: #177245; font-weight: 600; }
+.score-bad { color: #a62222; font-weight: 600; }
+
+.pill {
+  display: inline-block;
+  margin: 2px 4px 2px 0;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: #edf0f6;
+  font-size: 12px;
+}
+
+.card {
+  background: #fff;
+  border: 1px solid #ececec;
+  border-radius: 8px;
+  padding: 14px;
+  margin: 14px 0;
+}
+
+pre {
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  background: #fafafa;
+  border: 1px solid #ececec;
+  border-radius: 6px;
+  padding: 10px;
+  margin: 0;
+  max-height: 420px;
+  overflow: auto;
+}

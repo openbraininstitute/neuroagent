@@ -1,0 +1,1 @@
+After selecting the species and brain region, you can view the morphologies, neuron densities, and other data in the selected region. To compare this data in related regions between species you will need to know which regions are analogous between the species.

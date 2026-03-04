@@ -8,6 +8,7 @@ import json
 import logging
 import os
 import re
+import time
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Literal
@@ -135,6 +136,25 @@ def get_parser() -> argparse.ArgumentParser:
         default=None,
         help="Filter test cases by name pattern (supports pytest-style patterns with OR logic). Example: 'cerebellum or morphology'",
     )
+    parser.add_argument(
+        "--include-tags",
+        type=str,
+        default=None,
+        help="Only run test cases with at least one of these tags (comma-separated). Example: 'simulation,hippocampus'",
+    )
+    parser.add_argument(
+        "--exclude-tags",
+        type=str,
+        default="benchmark",
+        help="Skip test cases with any of these tags (comma-separated). Use empty string to run all tests including benchmarks. Example: 'benchmark,slow'",
+    )
+    parser.add_argument(
+        "-n",
+        "--dry-run",
+        action="store_true",
+        default=False,
+        help="List test cases that would be run (alphabetically) without executing them.",
+    )
     return parser
 
 
@@ -217,6 +237,7 @@ def filter_test_cases_by_pattern(
         - Simple substring matching: 'cerebellum'
         - OR patterns: 'cerebellum or morphology'
         - AND patterns: 'cerebellum and morphology'
+        - NOT patterns: 'not benchmark' or 'circuit and not metrics'
         - Wildcard patterns: 'cerebellum*' or '*morphology'
 
         Pattern matching is case-insensitive.
@@ -239,6 +260,9 @@ def filter_test_cases_by_pattern(
 
     >>> filter_test_cases_by_pattern(test_cases, 'morphology*')
     [{'name': 'cerebellum_morphologies'}, {'name': 'morphology_studies'}]
+
+    >>> filter_test_cases_by_pattern(test_cases, 'not cerebellum*')
+    [{'name': 'matplotlib_plot'}, {'name': 'morphology_studies'}]
     """
     if not pattern:
         return test_cases
@@ -264,13 +288,21 @@ def filter_test_cases_by_pattern(
             # All AND patterns must match for this OR pattern to be valid
             and_matches = []
             for and_pattern in and_patterns:
-                # Use fnmatch for wildcard support
-                if fnmatch.fnmatch(test_name.lower(), and_pattern.lower()):
-                    and_matches.append(True)
-                elif and_pattern.lower() in test_name.lower():
-                    and_matches.append(True)
-                else:
+                token = and_pattern.strip()
+                negate = False
+                while token.lower().startswith("not "):
+                    negate = not negate
+                    token = token[4:].strip()
+
+                if not token:
                     and_matches.append(False)
+                    continue
+
+                # Use fnmatch for wildcard support
+                is_match = fnmatch.fnmatch(test_name.lower(), token.lower()) or (
+                    token.lower() in test_name.lower()
+                )
+                and_matches.append(not is_match if negate else is_match)
 
             # If all AND patterns match, this OR pattern is valid
             if all(and_matches):
@@ -280,8 +312,63 @@ def filter_test_cases_by_pattern(
     return filtered_cases
 
 
+def parse_tag_list(tag_string: str | None) -> set[str]:
+    """Parse a comma-separated tag string into a set of tags."""
+    if not tag_string:
+        return set()
+    return {tag.strip() for tag in tag_string.split(",") if tag.strip()}
+
+
+def filter_test_cases_by_tags(
+    test_cases: list[dict[str, Any]],
+    include_tags: set[str],
+    exclude_tags: set[str],
+) -> list[dict[str, Any]]:
+    """
+    Filter test cases based on include and exclude tags.
+
+    A test case is included if:
+    1. It has at least one of the include tags (if include_tags is non-empty)
+    2. AND it has none of the exclude tags
+
+    Parameters
+    ----------
+    test_cases : list[dict[str, Any]]
+        List of test case dictionaries containing test information.
+    include_tags : set[str]
+        Tags to include. If non-empty, test must have at least one.
+    exclude_tags : set[str]
+        Tags to exclude. Test must have none of these.
+
+    Returns
+    -------
+    list[dict[str, Any]]
+        Filtered list of test cases.
+    """
+    filtered_cases = []
+
+    for test_case in test_cases:
+        params: TestCaseParams = test_case["params"]
+        test_tags = set(params.tags)
+
+        # Check include condition: must have at least one include tag (if specified)
+        if include_tags and not test_tags.intersection(include_tags):
+            continue
+
+        # Check exclude condition: must have none of the exclude tags
+        if test_tags.intersection(exclude_tags):
+            continue
+
+        filtered_cases.append(test_case)
+
+    return filtered_cases
+
+
 def load_test_cases(
-    eval_dir: Path, filter_pattern: str | None = None
+    eval_dir: Path,
+    filter_pattern: str | None = None,
+    include_tags: str | None = None,
+    exclude_tags: str | None = None,
 ) -> list[dict[str, Any]]:
     """Load test cases from the input/ folder structure."""
     input_dir = eval_dir / "input"
@@ -323,11 +410,35 @@ def load_test_cases(
             logger.error(f"Error loading test case {test_case_dir.name}: {e}")
             continue
 
-    # Apply filtering if pattern is provided
+    # Apply name pattern filtering if provided
     if filter_pattern:
         test_cases = filter_test_cases_by_pattern(test_cases, filter_pattern)
         logger.info(
             f"Filtered to {len(test_cases)} test cases matching pattern: {filter_pattern}"
+        )
+
+    # Apply tag filtering
+    include_tags_set = parse_tag_list(include_tags)
+    exclude_tags_set = parse_tag_list(exclude_tags)
+
+    # Validate: error if same tag in both include and exclude
+    overlapping_tags = include_tags_set.intersection(exclude_tags_set)
+    if overlapping_tags:
+        raise ValueError(
+            f"Tags cannot be in both --include-tags and --exclude-tags: {', '.join(sorted(overlapping_tags))}"
+        )
+
+    if include_tags_set or exclude_tags_set:
+        test_cases = filter_test_cases_by_tags(
+            test_cases, include_tags_set, exclude_tags_set
+        )
+        filter_desc = []
+        if include_tags_set:
+            filter_desc.append(f"include={','.join(sorted(include_tags_set))}")
+        if exclude_tags_set:
+            filter_desc.append(f"exclude={','.join(sorted(exclude_tags_set))}")
+        logger.info(
+            f"Filtered to {len(test_cases)} test cases by tags ({'; '.join(filter_desc)})"
         )
 
     return test_cases
@@ -445,97 +556,119 @@ async def eval_sample(
     url: str = "http://localhost:8000",
 ) -> LLMTestCase:
     """Run a single test case against our API."""
-    logger.info(f"Running test case: {test_case['name']}")
-    async with semaphore:
-        # Create a thread to work with
-        response = await client.post(f"{url}/threads")
-        if response.status_code == 200:
-            thread_id = response.json()["thread_id"]
-        else:
-            raise RuntimeError(f"Failed to create a thread. Reason: {response.text}")
-        try:
-            # Build request body with defaults
-            default_frontend_url = "https://staging.openbraininstitute.org/app/virtual-lab/82b783eb-fac6-45ec-a928-84322e3a9672/7ef8dc29-233a-4c01-94b8-8c1420105304/data/browse"
-            default_shared_state: dict[str, Any] = {"smc_simulation_config": None}
-
-            params: TestCaseParams = test_case["params"]
-            frontend_url = (
-                params.frontend_url
-                if params.frontend_url is not None
-                else default_frontend_url
-            )
-            shared_state = (
-                params.shared_state
-                if params.shared_state is not None
-                else default_shared_state
-            )
-
-            # Send the request to chat_streamed using the previously created thread
-            response = await client.post(
-                f"{url}/qa/chat_streamed/{thread_id}",
-                json={
-                    "content": test_case["input"],
-                    "frontend_url": frontend_url,
-                    "shared_state": shared_state,
-                    "model": "auto",
-                },
-            )
-            # Delete the original thread
-        finally:
-            await client.delete(f"http://localhost:8000/threads/{thread_id}")
-
-    # "unvercel" the response
-    decoded = parse_ai_sdk_streaming_response(response.text)
-
-    # Remove default arguments from streamed tool calls,
-    # i.e. we evaluate only the non-default args the LLM gave
-    if "tool_calls" in decoded:
-        for i, tool_call in enumerate(decoded["tool_calls"]):
+    test_name = test_case["name"]
+    request_started_at: float | None = None
+    test_started_at = time.perf_counter()
+    try:
+        async with semaphore:
+            # Create a thread to work with
+            thread_id: str | None = None
+            response = await client.post(f"{url}/threads")
+            if response.status_code == 200:
+                thread_id = response.json()["thread_id"]
+            else:
+                raise RuntimeError(
+                    f"Failed to create a thread. Reason: {response.text}"
+                )
             try:
-                tool_class = next(
-                    tool for tool in tool_list if tool.name == tool_call["name"]
-                )
-            except StopIteration:
-                logger.warning(
-                    f"Tool '{tool_call['name']}' not found in available tools."
-                )
-                # Keep the original tool call with all arguments intact
-                continue
-            try:
-                input_class = tool_class.__annotations__["input_schema"](
-                    **tool_call["arguments"]
-                )
-            except ValidationError:
-                logger.warning(
-                    f"Tool '{tool_call['name']}' arguments could not be validated against the tool's input schema."
-                )
-                continue
-            decoded["tool_calls"][i]["arguments"] = input_class.model_dump(
-                exclude_defaults=True,
-                mode="json",
-            )
+                # Build request body with defaults
+                default_frontend_url = "https://staging.openbraininstitute.org/app/virtual-lab/82b783eb-fac6-45ec-a928-84322e3a9672/7ef8dc29-233a-4c01-94b8-8c1420105304/data/browse"
+                default_shared_state: dict[str, Any] = {"smc_simulation_config": None}
 
-    tools_called = [
-        ToolCall(name=tool["name"], input_parameters=tool["arguments"])
-        for tool in decoded.get("tool_calls", [])
-    ]
-    expected_tool_calls = [
-        ToolCall(name=tool["name"], input_parameters=tool["arguments"])
-        for tool in test_case["expected_tool_calls"]
-    ]
-    test_case_obj = LLMTestCase(
-        name=test_case["name"],
-        input=test_case["input"],
-        actual_output=decoded["response"],
-        expected_output=test_case["expected_output"],
-        tools_called=tools_called,
-        expected_tools=expected_tool_calls,
-        additional_metadata={
-            "actual_tool_calls": decoded.get("tool_calls", []),
-        },
-    )
+                params: TestCaseParams = test_case["params"]
+                frontend_url = (
+                    params.frontend_url
+                    if params.frontend_url is not None
+                    else default_frontend_url
+                )
+                shared_state = (
+                    params.shared_state
+                    if params.shared_state is not None
+                    else default_shared_state
+                )
 
-    return test_case_obj
+                # Send the request to chat_streamed using the previously created thread
+                request_started_at = time.perf_counter()
+                logger.info(f"[START] test case: {test_name}")
+                response = await client.post(
+                    f"{url}/qa/chat_streamed/{thread_id}",
+                    json={
+                        "content": test_case["input"],
+                        "frontend_url": frontend_url,
+                        "shared_state": shared_state,
+                        "model": "auto",
+                    },
+                )
+            finally:
+                if thread_id is not None:
+                    await client.delete(f"{url}/threads/{thread_id}")
+
+        # "unvercel" the response
+        decoded = parse_ai_sdk_streaming_response(response.text)
+
+        # Remove default arguments from streamed tool calls,
+        # i.e. we evaluate only the non-default args the LLM gave
+        if "tool_calls" in decoded:
+            for i, tool_call in enumerate(decoded["tool_calls"]):
+                try:
+                    tool_class = next(
+                        tool for tool in tool_list if tool.name == tool_call["name"]
+                    )
+                except StopIteration:
+                    logger.warning(
+                        f"Tool '{tool_call['name']}' not found in available tools."
+                    )
+                    # Keep the original tool call with all arguments intact
+                    continue
+                try:
+                    input_class = tool_class.__annotations__["input_schema"](
+                        **tool_call["arguments"]
+                    )
+                except ValidationError:
+                    logger.warning(
+                        f"Tool '{tool_call['name']}' arguments could not be validated against the tool's input schema."
+                    )
+                    continue
+                decoded["tool_calls"][i]["arguments"] = input_class.model_dump(
+                    exclude_defaults=True,
+                    mode="json",
+                )
+
+        tools_called = [
+            ToolCall(name=tool["name"], input_parameters=tool["arguments"])
+            for tool in decoded.get("tool_calls", [])
+        ]
+        expected_tool_calls = [
+            ToolCall(name=tool["name"], input_parameters=tool["arguments"])
+            for tool in test_case["expected_tool_calls"]
+        ]
+        test_case_obj = LLMTestCase(
+            name=test_case["name"],
+            input=test_case["input"],
+            actual_output=decoded["response"],
+            expected_output=test_case["expected_output"],
+            tools_called=tools_called,
+            expected_tools=expected_tool_calls,
+            additional_metadata={
+                "actual_tool_calls": decoded.get("tool_calls", []),
+            },
+        )
+
+        elapsed = (
+            time.perf_counter() - request_started_at
+            if request_started_at is not None
+            else time.perf_counter() - test_started_at
+        )
+        logger.info(f"[DONE]  test case: {test_name} ({elapsed:.1f}s)")
+        return test_case_obj
+    except Exception:
+        elapsed = (
+            time.perf_counter() - request_started_at
+            if request_started_at is not None
+            else time.perf_counter() - test_started_at
+        )
+        logger.exception(f"[FAIL]  test case: {test_name} ({elapsed:.1f}s)")
+        raise
 
 
 async def run_eval(
@@ -545,10 +678,22 @@ async def run_eval(
     concurrent_requests: int = 5,
     timeout: float = 60.0,
     keyword: str | None = None,
+    include_tags: str | None = None,
+    exclude_tags: str | None = None,
+    dry_run: bool = False,
 ) -> None:
     """Run the evaluation on the test cases."""
     # Load test cases from folder structure
-    test_cases = load_test_cases(eval_dir, keyword)
+    test_cases = load_test_cases(eval_dir, keyword, include_tags, exclude_tags)
+
+    # Dry run: just list test cases alphabetically and exit
+    if dry_run:
+        test_names = sorted(tc["name"] for tc in test_cases)
+        print(f"Would run {len(test_names)} test case(s):\n")
+        for name in test_names:
+            print(f"  {name}")
+        return
+
     logger.info(f"Loaded {len(test_cases)} test cases")
 
     client = httpx.AsyncClient(
@@ -572,9 +717,14 @@ async def run_eval(
     # 1. Answer Relevance (GEval)
     answer_relevance = GEval(
         name="Correctness",
-        criteria="Determine whether the actual output responds to the input, based on the input and the expected output. Evaluate the content of the output, not the styling. CRITICAL: Content wrapped in {{...}} placeholders represents variable information that WILL differ between runs - these are NOT meant to be exact matches. The evaluator must ignore differences in {{...}} placeholder content and only assess whether the overall structure, relevant sections, and non-placeholder content are present and appropriate. Inputs unrelated to neuroscience or the Open Brain Platform must be politely declined.",
+        evaluation_steps=[
+            "If 'expected output' is empty after trimming whitespace, assign score 0.0 and fail immediately. Do not evaluate further.",
+            "If 'expected output' is non-empty, treat it as the only ground truth and score only by alignment of 'actual output' to 'expected output'.",
+            "Do not use external knowledge or personal judgment to override 'expected output'.",
+            "Ignore differences only inside '{{...}}' placeholders in 'expected output'; compare structure and non-placeholder content strictly.",
+            "Heavily penalize omissions of required details from 'expected output'.",
+        ],
         evaluation_params=[
-            LLMTestCaseParams.INPUT,
             LLMTestCaseParams.ACTUAL_OUTPUT,
             LLMTestCaseParams.EXPECTED_OUTPUT,
         ],
@@ -627,6 +777,17 @@ async def run_eval(
         metrics_data = test_result.metrics_data
         if metrics_data:
             for metric in metrics_data:
+                # Hard deterministic guard: empty expected_output should always yield 0 for GEval.
+                if (
+                    metric.name == "Correctness [GEval]"
+                    and not test_case["expected_output"].strip()
+                ):
+                    metric.score = 0.0
+                    metric.success = False
+                    metric.reason = (
+                        "Forced to 0.0: expected_output is empty, so this test is not "
+                        "eligible for reference-based GEval correctness scoring."
+                    )
                 metrics.append(
                     MetricResult(
                         name=metric.name,

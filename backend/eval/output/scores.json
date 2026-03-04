@@ -1,11 +1,19 @@
 {
-  "total_tests": 39,
+  "total_tests": 58,
   "metrics_df": [
     {
       "test_name": "cerebellum_morphologies",
       "Correctness [GEval]": 0.6455079143844892,
       "Tool Correctness": 1.0,
       "Argument Correctness": 0.0,
+      "Deterministic Argument Correctness": 0.0,
+      "Overall Argument Correctness": 0.0
+    },
+    {
+      "test_name": "analyze_simulation_campaigns",
+      "Correctness [GEval]": 0.18053121785814358,
+      "Tool Correctness": 1.0,
+      "Argument Correctness": 1.0,
       "Deterministic Argument Correctness": 1.0,
       "Overall Argument Correctness": 1.0
     },
@@ -77,7 +85,7 @@
       "test_name": "hippocampus_morphologies",
       "Correctness [GEval]": 0.5284251064878303,
       "Tool Correctness": 1.0,
-      "Argument Correctness": 0.0,
+      "Argument Correctness": 1.0,
       "Deterministic Argument Correctness": 1.0,
       "Overall Argument Correctness": 1.0
     },
@@ -94,7 +102,7 @@
       "Correctness [GEval]": 0.6694690549451118,
       "Tool Correctness": 1.0,
       "Argument Correctness": 1.0,
-      "Deterministic Argument Correctness": 0.5,
+      "Deterministic Argument Correctness": 1.0,
       "Overall Argument Correctness": 1.0
     },
     {
@@ -127,7 +135,7 @@
       "Tool Correctness": 1.0,
       "Argument Correctness": 1.0,
       "Deterministic Argument Correctness": 0.0,
-      "Overall Argument Correctness": 1.0
+      "Overall Argument Correctness": 0.0
     },
     {
       "test_name": "neuroscientists_search",
@@ -295,7 +303,7 @@
       "Tool Correctness": 1.0,
       "Argument Correctness": 1.0,
       "Deterministic Argument Correctness": 0.5,
-      "Overall Argument Correctness": 1.0
+      "Overall Argument Correctness": 0.5
     },
     {
       "test_name": "warning_test",
