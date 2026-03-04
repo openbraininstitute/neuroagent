@@ -79,9 +79,9 @@ Do NOT call `validatestate` when:
 
         headers: dict[str, str] = {}
         if self.metadata.vlab_id is not None:
-            headers["virtual_lab_id"] = str(self.metadata.vlab_id)
+            headers["virtual-lab-id"] = str(self.metadata.vlab_id)
         if self.metadata.project_id is not None:
-            headers["project_id"] = str(self.metadata.project_id)
+            headers["project-id"] = str(self.metadata.project_id)
 
         validate_response = await self.metadata.httpx_client.post(
             url=f"{self.metadata.obi_one_url}/config-validation/validate",
