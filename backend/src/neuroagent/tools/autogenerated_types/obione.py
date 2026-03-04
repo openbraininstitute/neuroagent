@@ -462,6 +462,15 @@ class ElectrophysiologyMetricsOutput(BaseModel):
     )
 
 
+class EntityDependentBlockExample(BaseModel):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    type: Literal['EntityDependentBlockExample'] = Field(
+        default='EntityDependentBlockExample', title='Type'
+    )
+
+
 class SamplePercentage2(SamplePercentage):
     pass
 
@@ -1278,6 +1287,32 @@ class MeanPercentageOfThresholdCurrentItem(DurationItem):
     pass
 
 
+class MeanPercentageOfCellsInputConductance(RootModel[float]):
+    root: float = Field(
+        100.0,
+        description="Signal mean as percentage of a cell's input conductance.",
+        ge=0.0,
+        title="Mean Percentage of Cells' Input Conductance",
+    )
+
+
+class MeanPercentageOfCellsInputConductanceItem(DurationItem):
+    pass
+
+
+class StandardDeviationPercentageOfCellsInputConductance(RootModel[float]):
+    root: float = Field(
+        5.0,
+        description="Signal standard deviation as percentage of a cell's input conductance.",
+        gt=0.0,
+        title='Standard Deviation',
+    )
+
+
+class StandardDeviationPercentageOfCellsInputConductanceItem(TimeConstantItem):
+    pass
+
+
 class MeanPercentageOfThresholdCurrent1(RootModel[float]):
     root: float = Field(
         100.0,
@@ -1463,7 +1498,7 @@ class DtItem(RootModel[float]):
     root: float = Field(..., ge=0.025)
 
 
-class Duration13(RootModel[float]):
+class Duration14(RootModel[float]):
     root: float = Field(
         200.0,
         description='Time duration of the stimulus in milliseconds.',
@@ -1473,7 +1508,7 @@ class Duration13(RootModel[float]):
     )
 
 
-class DurationItem13(DurationItem7):
+class DurationItem14(DurationItem7):
     pass
 
 
@@ -1552,6 +1587,42 @@ class SpatialCoordinate(RootModel[Literal['x', 'y', 'z']]):
     root: Literal['x', 'y', 'z'] = Field(..., title='SpatialCoordinate')
 
 
+class Duration15(RootModel[float]):
+    root: float = Field(
+        200.0,
+        description='Time in milliseconds (ms) for how long the main stimulus is activated. The duration does not include the ramp up and ramp down times, so the total length of the stimulus will be the sum of the duration, ramp up and ramp down times.',
+        ge=0.0,
+        le=5000.0,
+        title='Duration',
+    )
+
+
+class RampUpDuration(RootModel[float]):
+    root: float = Field(
+        0.0,
+        description='Time over which the field linearly ramps up from zero to full amplitude, in milliseconds (ms). The duration does not include the ramp up and ramp down times, so the total length of the stimulus will be the sum of the duration, ramp up and ramp down times.',
+        ge=0.0,
+        title='Ramp Up (Duration)',
+    )
+
+
+class RampUpDurationItem(DurationItem):
+    pass
+
+
+class RampDownDuration(RootModel[float]):
+    root: float = Field(
+        0.0,
+        description='Time over which the field linearly ramps down from full amplitude to zero, in milliseconds (ms). The duration does not include the ramp up and ramp down times, so the total length of the stimulus will be the sum of the duration, ramp up and ramp down times.',
+        ge=0.0,
+        title='Ramp Down (Duration)',
+    )
+
+
+class RampDownDurationItem(DurationItem):
+    pass
+
+
 class Weight(RootModel[float]):
     root: float = Field(..., description='Weight in grams', gt=0.0, title='Weight')
 
@@ -1593,11 +1664,11 @@ class SubjectID(BaseModel):
     subject_id: UUID | None = Field(default=None, title='Subject Id')
 
 
-class Duration14(Duration):
+class Duration16(Duration):
     pass
 
 
-class DurationItem14(DurationItem):
+class DurationItem16(DurationItem):
     pass
 
 
@@ -1641,6 +1712,37 @@ class SynapticMgManipulation(BaseModel):
 class TaskType(RootModel[Literal['circuit_extraction', 'circuit_simulation']]):
     root: Literal['circuit_extraction', 'circuit_simulation'] = Field(
         ..., description='Task types supported for job submission.', title='TaskType'
+    )
+
+
+class Duration17(Duration15):
+    pass
+
+
+class DurationItem17(DurationItem7):
+    pass
+
+
+class Frequency3(RootModel[float]):
+    root: float = Field(
+        0.0,
+        description='Frequency of the cosinusoid, in Hz. Must be non-negative. If not provided, assumed to be 0. In this case, a time-invariant field with amplitude [Ex, Ey, Ez] is applied, unless ramp_up_duration or ramp_down_duration is specified, in which case the field will increase/decrease linearly with time during the ramp periods, and will be constant during the remainder of the stimulation period. Note that the signal will be generated with the same time step as the simulation itself. Note that frequency should therefore be less than the Nyquist frequency of the simulation (i.e., 1/(2*dt))',
+        ge=0.0,
+        lt=20000.0,
+        title='Frequency',
+    )
+
+
+class Frequency4Item(RootModel[float]):
+    root: float = Field(..., ge=0.0, lt=20000.0)
+
+
+class Frequency4(RootModel[list[Frequency4Item]]):
+    root: list[Frequency4Item] = Field(
+        0.0,
+        description='Frequency of the cosinusoid, in Hz. Must be non-negative. If not provided, assumed to be 0. In this case, a time-invariant field with amplitude [Ex, Ey, Ez] is applied, unless ramp_up_duration or ramp_down_duration is specified, in which case the field will increase/decrease linearly with time during the ramp periods, and will be constant during the remainder of the stimulation period. Note that the signal will be generated with the same time step as the simulation itself. Note that frequency should therefore be less than the Nyquist frequency of the simulation (i.e., 1/(2*dt))',
+        min_length=1,
+        title='Frequency',
     )
 
 
@@ -3491,6 +3593,61 @@ class RelativeNormallyDistributedCurrentClampSomaticStimulus(BaseModel):
     )
 
 
+class RelativeOrnsteinUhlenbeckConductanceSomaticStimulus(BaseModel):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    type: Literal['RelativeOrnsteinUhlenbeckConductanceSomaticStimulus'] = Field(
+        default='RelativeOrnsteinUhlenbeckConductanceSomaticStimulus', title='Type'
+    )
+    timestamps: TimestampsReference | None = Field(
+        default=None,
+        description='Timestamps at which the stimulus is applied.',
+        title='Timestamps',
+    )
+    neuron_set: NeuronSetReference | None = Field(
+        default=None,
+        description='Neuron set to which the stimulus is applied.',
+        title='Neuron Set',
+    )
+    timestamp_offset: float | list[float] | None = Field(
+        default=0.0,
+        description='The offset of the stimulus relative to each timestamp in milliseconds (ms).',
+        title='Timestamp Offset',
+    )
+    duration: Duration8 | list[DurationItem8] = Field(
+        default_factory=lambda: Duration8(200.0),
+        description='Time duration in milliseconds for how long input is activated.',
+        title='Duration',
+    )
+    time_constant: TimeConstant | list[TimeConstantItem] = Field(
+        default_factory=lambda: TimeConstant(2.7),
+        description='The time constant of the Ornstein-Uhlenbeck process.',
+        title='Tau',
+    )
+    mean_percentage_of_cells_input_conductance: (
+        MeanPercentageOfCellsInputConductance
+        | list[MeanPercentageOfCellsInputConductanceItem]
+    ) = Field(
+        default_factory=lambda: MeanPercentageOfCellsInputConductance(100.0),
+        description="Signal mean as percentage of a cell's input conductance.",
+        title="Mean Percentage of Cells' Input Conductance",
+    )
+    standard_deviation_percentage_of_cells_input_conductance: (
+        StandardDeviationPercentageOfCellsInputConductance
+        | list[StandardDeviationPercentageOfCellsInputConductanceItem]
+    ) = Field(
+        default_factory=lambda: StandardDeviationPercentageOfCellsInputConductance(5.0),
+        description="Signal standard deviation as percentage of a cell's input conductance.",
+        title='Standard Deviation',
+    )
+    reversal_potential: float | list[float] = Field(
+        default=0.0,
+        description='The reversal potential of the conductance injection.',
+        title='Reversal Potential',
+    )
+
+
 class RelativeOrnsteinUhlenbeckCurrentSomaticStimulus(BaseModel):
     model_config = ConfigDict(
         extra='ignore',
@@ -3584,6 +3741,11 @@ class SchemaExampleScanConfig(BaseModel):
     ) = Field(
         default=None, description='Neuron sets for the simulation.', title='Neuron Sets'
     )
+    entity_dependent_block_example: EntityDependentBlockExample = Field(
+        ...,
+        description='Example block which is only usable for certain circuits based on the value of the CircuitUsability.SHOW_INPUT_RESISTANCE_BASED_STIMULI property for that circuit.',
+        title='Entity Dependent Block Example',
+    )
 
 
 class SinusoidalCurrentClampSomaticStimulus(BaseModel):
@@ -3657,8 +3819,8 @@ class SinusoidalPoissonSpikeStimulus(BaseModel):
         description='The offset of the stimulus relative to each timestamp in milliseconds (ms).',
         title='Timestamp Offset',
     )
-    duration: Duration13 | list[DurationItem13] = Field(
-        default_factory=lambda: Duration13(200.0),
+    duration: Duration14 | list[DurationItem14] = Field(
+        default_factory=lambda: Duration14(200.0),
         description='Time duration of the stimulus in milliseconds.',
         title='Duration',
     )
@@ -3710,6 +3872,60 @@ class SkeletonizationScanConfig(BaseModel):
     )
 
 
+class SpatiallyUniformElectricFieldStimulus(BaseModel):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    type: Literal['SpatiallyUniformElectricFieldStimulus'] = Field(
+        default='SpatiallyUniformElectricFieldStimulus', title='Type'
+    )
+    timestamps: TimestampsReference | None = Field(
+        default=None,
+        description='Timestamps at which the stimulus is applied.',
+        title='Timestamps',
+    )
+    neuron_set: NeuronSetReference | None = Field(
+        default=None,
+        description='Neuron set to which the stimulus is applied.',
+        title='Neuron Set',
+    )
+    timestamp_offset: float | list[float] | None = Field(
+        default=0.0,
+        description='The offset of the stimulus relative to each timestamp in milliseconds (ms).',
+        title='Timestamp Offset',
+    )
+    duration: Duration15 | list[DurationItem14] = Field(
+        default_factory=lambda: Duration15(200.0),
+        description='Time in milliseconds (ms) for how long the main stimulus is activated. The duration does not include the ramp up and ramp down times, so the total length of the stimulus will be the sum of the duration, ramp up and ramp down times.',
+        title='Duration',
+    )
+    ramp_up_duration: RampUpDuration | list[RampUpDurationItem] = Field(
+        default_factory=lambda: RampUpDuration(0.0),
+        description='Time over which the field linearly ramps up from zero to full amplitude, in milliseconds (ms). The duration does not include the ramp up and ramp down times, so the total length of the stimulus will be the sum of the duration, ramp up and ramp down times.',
+        title='Ramp Up (Duration)',
+    )
+    ramp_down_duration: RampDownDuration | list[RampDownDurationItem] = Field(
+        default_factory=lambda: RampDownDuration(0.0),
+        description='Time over which the field linearly ramps down from full amplitude to zero, in milliseconds (ms). The duration does not include the ramp up and ramp down times, so the total length of the stimulus will be the sum of the duration, ramp up and ramp down times.',
+        title='Ramp Down (Duration)',
+    )
+    E_x: float | list[float] = Field(
+        default=0.1,
+        description='Amplitude of the electric field in the x-direction, in V/m. May be negative',
+        title='X amplitude',
+    )
+    E_y: float | list[float] = Field(
+        default=0.1,
+        description='Amplitude of the electric field in the y-direction, in V/m. May be negative',
+        title='Y amplitude',
+    )
+    E_z: float | list[float] = Field(
+        default=0.1,
+        description='Amplitude of the electric field in the z-direction, in V/m. May be negative',
+        title='Z amplitude',
+    )
+
+
 class SubthresholdCurrentClampSomaticStimulus(BaseModel):
     model_config = ConfigDict(
         extra='ignore',
@@ -3732,8 +3948,8 @@ class SubthresholdCurrentClampSomaticStimulus(BaseModel):
         description='The offset of the stimulus relative to each timestamp in milliseconds (ms).',
         title='Timestamp Offset',
     )
-    duration: Duration14 | list[DurationItem14] = Field(
-        default_factory=lambda: Duration14(200.0),
+    duration: Duration16 | list[DurationItem16] = Field(
+        default_factory=lambda: Duration16(200.0),
         description='Time duration in milliseconds for how long input is activated.',
         title='Duration',
     )
@@ -3783,6 +3999,68 @@ class TaskLaunchInfo(BaseModel):
 
 class TaskLaunchSubmit(TaskAccountingCreate):
     pass
+
+
+class TemporallyCosineSpatiallyUniformElectricFieldStimulus(BaseModel):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    type: Literal['TemporallyCosineSpatiallyUniformElectricFieldStimulus'] = Field(
+        default='TemporallyCosineSpatiallyUniformElectricFieldStimulus', title='Type'
+    )
+    timestamps: TimestampsReference | None = Field(
+        default=None,
+        description='Timestamps at which the stimulus is applied.',
+        title='Timestamps',
+    )
+    neuron_set: NeuronSetReference | None = Field(
+        default=None,
+        description='Neuron set to which the stimulus is applied.',
+        title='Neuron Set',
+    )
+    timestamp_offset: float | list[float] | None = Field(
+        default=0.0,
+        description='The offset of the stimulus relative to each timestamp in milliseconds (ms).',
+        title='Timestamp Offset',
+    )
+    duration: Duration17 | list[DurationItem17] = Field(
+        default_factory=lambda: Duration17(200.0),
+        description='Time in milliseconds (ms) for how long the main stimulus is activated. The duration does not include the ramp up and ramp down times, so the total length of the stimulus will be the sum of the duration, ramp up and ramp down times.',
+        title='Duration',
+    )
+    ramp_up_duration: RampUpDuration | list[RampUpDurationItem] = Field(
+        default_factory=lambda: RampUpDuration(0.0),
+        description='Time over which the field linearly ramps up from zero to full amplitude, in milliseconds (ms). The duration does not include the ramp up and ramp down times, so the total length of the stimulus will be the sum of the duration, ramp up and ramp down times.',
+        title='Ramp Up (Duration)',
+    )
+    ramp_down_duration: RampDownDuration | list[RampDownDurationItem] = Field(
+        default_factory=lambda: RampDownDuration(0.0),
+        description='Time over which the field linearly ramps down from full amplitude to zero, in milliseconds (ms). The duration does not include the ramp up and ramp down times, so the total length of the stimulus will be the sum of the duration, ramp up and ramp down times.',
+        title='Ramp Down (Duration)',
+    )
+    E_x: float | list[float] = Field(
+        default=0.1,
+        description='Peak amplitude of the cosinusoid in the x-direction, in V/m. May be negative',
+        title='X peak amplitude',
+    )
+    E_y: float | list[float] = Field(
+        default=0.1,
+        description='Peak amplitude of the cosinusoid in the y-direction, in V/m. May be negative',
+        title='Y peak amplitude',
+    )
+    E_z: float | list[float] = Field(
+        default=0.1,
+        description='Peak amplitude of the cosinusoid in the z-direction, in V/m. May be negative',
+        title='Z peak amplitude',
+    )
+    frequency: Frequency3 | Frequency4 = Field(
+        default_factory=lambda: Frequency3(0.0),
+        description='Frequency of the cosinusoid, in Hz. Must be non-negative. If not provided, assumed to be 0. In this case, a time-invariant field with amplitude [Ex, Ey, Ez] is applied, unless ramp_up_duration or ramp_down_duration is specified, in which case the field will increase/decrease linearly with time during the ramp periods, and will be constant during the remainder of the stimulation period. Note that the signal will be generated with the same time step as the simulation itself. Note that frequency should therefore be less than the Nyquist frequency of the simulation (i.e., 1/(2*dt))',
+        title='Frequency',
+    )
+    phase_degrees: float | list[float] = Field(
+        default=0.0, description='Phase of the cosinusoid, in degrees.', title='Phase'
+    )
 
 
 class CircuitExtractionScanConfig(BaseModel):
@@ -3882,9 +4160,12 @@ class CircuitSimulationScanConfig(BaseModel):
             | OrnsteinUhlenbeckCurrentSomaticStimulus
             | OrnsteinUhlenbeckConductanceSomaticStimulus
             | RelativeOrnsteinUhlenbeckCurrentSomaticStimulus
+            | RelativeOrnsteinUhlenbeckConductanceSomaticStimulus
             | PoissonSpikeStimulus
             | FullySynchronousSpikeStimulus
-            | SinusoidalPoissonSpikeStimulus,
+            | SinusoidalPoissonSpikeStimulus
+            | SpatiallyUniformElectricFieldStimulus
+            | TemporallyCosineSpatiallyUniformElectricFieldStimulus,
         ]
         | None
     ) = Field(default=None, description='Stimuli for the simulation.', title='Stimuli')
@@ -3926,7 +4207,8 @@ class MEModelSimulationScanConfig(BaseModel):
             | SubthresholdCurrentClampSomaticStimulus
             | OrnsteinUhlenbeckCurrentSomaticStimulus
             | OrnsteinUhlenbeckConductanceSomaticStimulus
-            | RelativeOrnsteinUhlenbeckCurrentSomaticStimulus,
+            | RelativeOrnsteinUhlenbeckCurrentSomaticStimulus
+            | RelativeOrnsteinUhlenbeckConductanceSomaticStimulus,
         ]
         | None
     ) = Field(default=None, description='Stimuli for the simulation.', title='Stimuli')
@@ -3986,9 +4268,12 @@ class MEModelWithSynapsesCircuitSimulationScanConfig(BaseModel):
             | OrnsteinUhlenbeckCurrentSomaticStimulus
             | OrnsteinUhlenbeckConductanceSomaticStimulus
             | RelativeOrnsteinUhlenbeckCurrentSomaticStimulus
+            | RelativeOrnsteinUhlenbeckConductanceSomaticStimulus
             | PoissonSpikeStimulus
             | FullySynchronousSpikeStimulus
-            | SinusoidalPoissonSpikeStimulus,
+            | SinusoidalPoissonSpikeStimulus
+            | SpatiallyUniformElectricFieldStimulus
+            | TemporallyCosineSpatiallyUniformElectricFieldStimulus,
         ]
         | None
     ) = Field(default=None, description='Stimuli for the simulation.', title='Stimuli')
@@ -4054,9 +4339,12 @@ class SimulationsForm(BaseModel):
             | OrnsteinUhlenbeckCurrentSomaticStimulus
             | OrnsteinUhlenbeckConductanceSomaticStimulus
             | RelativeOrnsteinUhlenbeckCurrentSomaticStimulus
+            | RelativeOrnsteinUhlenbeckConductanceSomaticStimulus
             | PoissonSpikeStimulus
             | FullySynchronousSpikeStimulus
-            | SinusoidalPoissonSpikeStimulus,
+            | SinusoidalPoissonSpikeStimulus
+            | SpatiallyUniformElectricFieldStimulus
+            | TemporallyCosineSpatiallyUniformElectricFieldStimulus,
         ]
         | None
     ) = Field(default=None, description='Stimuli for the simulation.', title='Stimuli')
