@@ -1,5 +1,6 @@
 """App utilities functions."""
 
+import asyncio
 import json
 import logging
 import time
@@ -587,12 +588,27 @@ AVAILABLE TOOLS:
     try:
         # Send the OpenAI request
         model = "google/gemini-2.5-flash"
+        max_retries = settings.llm.tool_filtering_retries
         start_request = time.time()
-        response = await openai_client.beta.chat.completions.parse(
-            messages=[{"role": "system", "content": system_prompt}, *openai_messages],  # type: ignore
-            model=model,
-            response_format=ToolModelFiltering,
-        )
+        for attempt in range(max_retries):
+            try:
+                response = await openai_client.beta.chat.completions.parse(
+                    messages=[
+                        {"role": "system", "content": system_prompt},
+                        *openai_messages,  # type: ignore
+                    ],
+                    model=model,
+                    response_format=ToolModelFiltering,
+                )
+                break
+            except Exception as parse_err:
+                if attempt < max_retries - 1:
+                    await asyncio.sleep(2**attempt)
+                    logger.warning(
+                        f"Retrying tool filtering (attempt {attempt + 1}): {parse_err}"
+                    )
+                else:
+                    raise
 
         # Parse the output
         if response.choices[0].message.parsed:

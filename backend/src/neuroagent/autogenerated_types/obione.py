@@ -329,7 +329,6 @@ class ConfigValidationResponse(BaseModel):
         extra='ignore',
     )
     valid: bool = Field(..., title='Valid')
-    message: str = Field(..., title='Message')
 
 
 class ConnectivityMetricsOutput(BaseModel):
@@ -853,7 +852,7 @@ class NeuronSetReference(BaseModel):
     )
     block_dict_name: str = Field(
         default='',
-        description='Name of the parent field of the dict you reference. E.g. `neuron_sets` when referencing neuron_sets, or `timestamps` when referencing timestamps.',
+        description='Name of the root level dictionary which contains the block you are referencing. E.g. `neuron_sets` when referencing a block within the neuron_sets dictionary, or `timestamps` when referencing a block within the timestamps dictionary.To reference a block at the root (i.e. a block that is not contained within a dictionary), block_dict_name should be an empty string. ',
         title='Block Dict Name',
     )
     block_name: str = Field(..., description='Name of the block.', title='Block Name')
@@ -1806,7 +1805,7 @@ class TimestampsReference(BaseModel):
     )
     block_dict_name: str = Field(
         default='',
-        description='Name of the parent field of the dict you reference. E.g. `neuron_sets` when referencing neuron_sets, or `timestamps` when referencing timestamps.',
+        description='Name of the root level dictionary which contains the block you are referencing. E.g. `neuron_sets` when referencing a block within the neuron_sets dictionary, or `timestamps` when referencing a block within the timestamps dictionary.To reference a block at the root (i.e. a block that is not contained within a dictionary), block_dict_name should be an empty string. ',
         title='Block Dict Name',
     )
     block_name: str = Field(..., description='Name of the block.', title='Block Name')
@@ -4163,11 +4162,7 @@ class CircuitSimulationScanConfig(BaseModel):
             | TemporallyCosineSpatiallyUniformElectricFieldStimulus,
         ]
         | None
-    ) = Field(
-        default=None,
-        description='Stimuli for the simulation. Stimulus time intervals should not overlap',
-        title='Stimuli',
-    )
+    ) = Field(default=None, description='Stimuli for the simulation.', title='Stimuli')
 
 
 class MEModelSimulationScanConfig(BaseModel):
@@ -4275,11 +4270,7 @@ class MEModelWithSynapsesCircuitSimulationScanConfig(BaseModel):
             | TemporallyCosineSpatiallyUniformElectricFieldStimulus,
         ]
         | None
-    ) = Field(
-        default=None,
-        description='Stimuli for the simulation. Stimulus time intervals should not overlap',
-        title='Stimuli',
-    )
+    ) = Field(default=None, description='Stimuli for the simulation.', title='Stimuli')
 
 
 class SimulationsForm(BaseModel):
@@ -4350,11 +4341,7 @@ class SimulationsForm(BaseModel):
             | TemporallyCosineSpatiallyUniformElectricFieldStimulus,
         ]
         | None
-    ) = Field(
-        default=None,
-        description='Stimuli for the simulation. Stimulus time intervals should not overlap',
-        title='Stimuli',
-    )
+    ) = Field(default=None, description='Stimuli for the simulation.', title='Stimuli')
 
 
 class GridScanParametersCountEndpointDeclaredScanConfigGridScanCoordinateCountPostRequest(

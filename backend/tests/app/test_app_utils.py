@@ -8,7 +8,7 @@ from uuid import UUID
 
 import pytest
 from fastapi.exceptions import HTTPException
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ValidationError
 
 from neuroagent.app.app_utils import (
     filter_tools_and_model_by_conversation,
@@ -737,6 +737,89 @@ async def test_filter_tools_no_selection_needed(get_weather_tool):
     assert result[0].name == "get_weather"
     assert model_dict["model"] == "openai/gpt-4"
     assert model_dict["reasoning"] is None
+
+
+@pytest.mark.asyncio
+async def test_filter_tools_retries_on_failure(get_weather_tool, agent_handoff_tool):
+    """Test that the retry mechanism retries on parse errors and succeeds."""
+    mock_openai_client = MockOpenAIClient()
+
+    class ToolFiltering(BaseModel):
+        selected_tools: list[Literal["agent_handoff_tool", "get_weather"]] = Field(
+            min_length=1, description="List of selected tool names."
+        )
+        complexity: int = Field(ge=0, le=10, description="Complexity.")
+
+    success_response = create_mock_response(
+        {"role": "assistant", "content": ""},
+        structured_output_class=ToolFiltering(
+            selected_tools=["get_weather"], complexity=3
+        ),
+    )
+    mock_openai_client.set_sequential_responses(
+        [
+            ValidationError.from_exception_data("ToolModelFiltering", []),
+            success_response,
+        ]
+    )
+    messages = [
+        Messages(
+            entity=Entity.USER,
+            content=json.dumps({"role": "user", "content": "What's the weather?"}),
+            thread_id=UUID("12345678-9123-4567-1234-890123456789"),
+            is_complete=True,
+        )
+    ]
+    settings = Settings(tools={"min_tool_selection": 1})
+    with (
+        patch("neuroagent.app.app_utils.asyncio.sleep", new_callable=AsyncMock),
+        patch(
+            "neuroagent.app.app_utils.get_token_count",
+            lambda *a, **k: {
+                "input_cached": None,
+                "input_noncached": None,
+                "completion": None,
+            },
+        ),
+    ):
+        result, model_dict = await filter_tools_and_model_by_conversation(
+            messages=messages,
+            tool_list=[get_weather_tool, agent_handoff_tool],
+            openai_client=mock_openai_client,
+            settings=settings,
+        )
+
+    assert len(result) == 1
+    assert result[0].name == "get_weather"
+    assert model_dict["model"] == "openai/gpt-5-mini"
+
+
+@pytest.mark.asyncio
+async def test_filter_tools_falls_back_after_all_retries_exhausted(
+    get_weather_tool, agent_handoff_tool
+):
+    """Test that after all retries fail, the function falls back to defaults."""
+    mock_openai_client = MockOpenAIClient()
+    mock_openai_client.set_sequential_responses([Exception("parse error")] * 3)
+    messages = [
+        Messages(
+            entity=Entity.USER,
+            content=json.dumps({"role": "user", "content": "What's the weather?"}),
+            thread_id=UUID("12345678-9123-4567-1234-890123456789"),
+            is_complete=True,
+        )
+    ]
+    settings = Settings(tools={"min_tool_selection": 1})
+    with patch("neuroagent.app.app_utils.asyncio.sleep", new_callable=AsyncMock):
+        result, model_dict = await filter_tools_and_model_by_conversation(
+            messages=messages,
+            tool_list=[get_weather_tool, agent_handoff_tool],
+            openai_client=mock_openai_client,
+            settings=settings,
+        )
+
+    assert result == []
+    assert model_dict["model"] == settings.llm.default_chat_model
 
 
 @pytest.mark.asyncio

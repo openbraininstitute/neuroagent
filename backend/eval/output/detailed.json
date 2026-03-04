@@ -2801,7 +2801,7 @@
           "score": 0.0,
           "success": false,
           "threshold": 0.5,
-          "reason": "[\n\t Tool Calling Reason: Incomplete tool usage: missing tools []; expected [], called ['obi-expert']. See more details above.\n\t Tool Selection Reason: No available tools were provided to assess tool selection criteria\n]\n"
+          "reason": "[\n\t Tool Calling Reason: Incomplete tool usage: missing tools [ToolCall(\n    name=\"run-python\",\n    input_parameters={\n        \"python_script\": \"import numpy as np\\nimport plotly.graph_objects as go\\n\\n# generate 8 evenly spaced points from 0 to 2pi\\nx = np.linspace(0, 2*np.pi, 8)\\ny = np.sin(x)\\n\\nfig = go.Figure()\\nfig.add_trace(go.Scatter(x=x, y=y, mode='markers+lines', name='sin(x)'))\\nfig.update_layout(title='y = sin(x) (8 evenly spaced points from 0 to 2\u03c0)',\\n                  xaxis_title='x', yaxis_title='y',\\n                  xaxis = dict(tickmode='array', tickvals=x, ticktext=[f'{val:.2f}' for val in x]))\\n\\nfig.show()\\n\\n# return numeric lists for reference\\n{\\\"x\\\": x.tolist(), \\\"y\\\": y.tolist()}\"\n    }\n)]; expected ['run-python'], called ['run-python', 'run-python']. See more details above.\n\t Tool Selection Reason: No available tools were provided to assess tool selection criteria\n]\n"
         },
         {
           "name": "Overall Argument Correctness",
@@ -3005,7 +3005,7 @@
           "score": 0.0,
           "success": false,
           "threshold": 0.5,
-          "reason": "The score is 0.00 because the input does not specify the required synaptic data, neuron morphology, or electrophysiological data, leading to an inability to fulfill the request."
+          "reason": "The score is 1.00 because the input is clear and correctly asks for the id of the thalamus, with no incorrect tool calls present."
         },
         {
           "name": "Deterministic Argument Correctness",

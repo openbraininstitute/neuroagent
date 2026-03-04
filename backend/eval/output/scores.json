@@ -223,7 +223,7 @@
       "Tool Correctness": 1.0,
       "Argument Correctness": 0.0,
       "Deterministic Argument Correctness": 0.5,
-      "Overall Argument Correctness": 0.5
+      "Overall Argument Correctness": 1.0
     },
     {
       "test_name": "pricing_plans_overview",
@@ -356,6 +356,30 @@
     {
       "test_name": "web_search",
       "Correctness [GEval]": 0.8212285267036323,
+      "Tool Correctness": 1.0,
+      "Argument Correctness": 1.0,
+      "Deterministic Argument Correctness": 0.5,
+      "Overall Argument Correctness": 1.0
+    },
+    {
+      "test_name": "thalamus_id",
+      "Correctness [GEval]": 0.6588703956987876,
+      "Tool Correctness": 1.0,
+      "Argument Correctness": 1.0,
+      "Deterministic Argument Correctness": 0.5,
+      "Overall Argument Correctness": 0.5
+    },
+    {
+      "test_name": "warning_test",
+      "Correctness [GEval]": 0.3489328448470162,
+      "Tool Correctness": 1.0,
+      "Argument Correctness": 1.0,
+      "Deterministic Argument Correctness": 0.0,
+      "Overall Argument Correctness": 1.0
+    },
+    {
+      "test_name": "web_search",
+      "Correctness [GEval]": 0.794046108387747,
       "Tool Correctness": 1.0,
       "Argument Correctness": 1.0,
       "Deterministic Argument Correctness": 0.5,
