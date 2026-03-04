@@ -22,21 +22,22 @@ The simulation subsystem follows the W3C PROV-DM (Provenance Data Model) pattern
 
 ### Circuit Scales
 
-See below the mapping between different circuit scales and the corresponding design tools (if any). 
-- **Single neuron** — design tool planned
-- **Pair** — `obione-designcircuitsimulationscanconfig`
-- **Small circuit** — `obione-designcircuitsimulationscanconfig`
+See below the mapping between different circuit scales.
+- Single neuron
+- Paired neurons
+- Small circuit
+
+Simulations can be designed using state manipulation tools.
 
 ### Frontend Workflow (3 steps)
 
-1. **Designing** — The user (optionally assisted by a design tool) drafts a simulation campaign configuration. Nothing is persisted yet.
+1. **Designing** — The user (optionally assisted by a state manipulation tool tool) drafts a simulation campaign configuration. Nothing is persisted yet.
 2. **Generation** — The frontend submits the approved design. Creates 1 SimulationCampaign, N Simulations (one per parameter combination), and 1 SimulationGeneration.
 3. **Execution** — Each Simulation is run. Creates 1 SimulationResult and 1 SimulationExecution per Simulation.
 
 ### How the Tools Relate
 
 - **Entitycore tools** (`entitycore-simulationcampaign-getall/getone`, `entitycore-simulation-getall/getone`, `entitycore-simulationresult-getall/getone`, `entitycore-simulationgeneration-getall/getone`, `entitycore-simulationexecution-getall/getone`) — read-only retrieval from the database.
-- **Design tools** (currently only `obione-designcircuitsimulationscanconfig`) — help the user draft and iterate on a configuration via natural language. They do **not** persist anything; the designed config is handed off to the frontend for generation and execution.
-- **`getstate`** — returns the full shared application state. Use it when the user asks about the current configuration *without* having just called the design tool (which already returns the config in its output). Do not call it right after the design tool. Top-level keys may be absent if the frontend hasn't preloaded that data (e.g. the user isn't on the relevant page). Currently the only key is `smc_simulation_config` (small circuit scale, read/modified by `obione-designcircuitsimulationscanconfig`); more will be added as other scales are implemented.
+- **State manipulation tools** — Read, draft iterate and validate simulation configurations via natural language. They do **not** persist anything; the designed config is handed off to the frontend for generation and execution. (Currently in development)
 
 ---

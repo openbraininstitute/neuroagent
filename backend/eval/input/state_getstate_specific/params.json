@@ -1,0 +1,25 @@
+{
+  "tags": ["state", "getstate"],
+  "shared_state": {
+    "smc_simulation_config": {
+      "type": "CircuitSimulationScanConfig",
+      "info": {
+        "title": "Hippocampal Network Simulation",
+        "description": "Simulating CA1 pyramidal cells with current injection"
+      },
+      "initialize": {
+        "circuit": {
+          "type": "CircuitFromID",
+          "id_str": "abc123-def456-789"
+        },
+        "duration": 500.0,
+        "dt": 0.025
+      },
+      "timestamps": {},
+      "stimuli": {},
+      "recordings": {},
+      "neuron_sets": {},
+      "synaptic_manipulations": {}
+    }
+  }
+}

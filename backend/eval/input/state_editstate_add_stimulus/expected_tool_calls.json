@@ -1,0 +1,37 @@
+[
+  {
+    "name": "getstate",
+    "arguments": {
+      "path": "/smc_simulation_config"
+    }
+  },
+  {
+    "name": "editstate",
+    "arguments": {
+      "patches": [
+        {
+          "op": "add",
+          "path": "/smc_simulation_config/timestamps/my_timestamp",
+          "value": {
+            "type": "SingleTimestamp",
+            "start_time": 100
+          }
+        },
+        {
+          "op": "add",
+          "path": "/smc_simulation_config/stimuli/my_stimulus",
+          "value": {
+            "type": "ConstantCurrentClampSomaticStimulus",
+            "timestamps": {
+              "type": "TimestampsReference",
+              "block_name": "my_timestamp"
+            },
+            "timestamp_offset": 100.0,
+            "duration": 300.0,
+            "amplitude": 0.8
+          }
+        }
+      ]
+    }
+  }
+]

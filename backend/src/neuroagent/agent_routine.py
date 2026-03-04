@@ -191,6 +191,9 @@ class AgentsRoutine:
         # pass context_variables to agent functions
         try:
             raw_result = await tool_instance.arun()
+            # Update context_variables from tool metadata changes
+            context_variables.update(tool_instance.metadata.model_dump())
+            # Handle token consumption separately (legacy pattern)
             if hasattr(tool_instance.metadata, "token_consumption"):
                 context_variables["usage_dict"][tool_call.tool_call_id] = (
                     tool_instance.metadata.token_consumption

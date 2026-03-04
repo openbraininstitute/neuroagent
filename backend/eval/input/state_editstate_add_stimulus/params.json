@@ -1,0 +1,25 @@
+{
+  "tags": ["state", "editstate", "simulation"],
+  "shared_state": {
+    "smc_simulation_config": {
+      "type": "CircuitSimulationScanConfig",
+      "info": {
+        "title": "Network Simulation",
+        "description": "Testing stimulus addition"
+      },
+      "initialize": {
+        "circuit": {
+          "type": "CircuitFromID",
+          "id_str": "test-circuit-456"
+        },
+        "duration": 1000.0,
+        "dt": 0.025
+      },
+      "timestamps": {},
+      "stimuli": {},
+      "recordings": {},
+      "neuron_sets": {},
+      "synaptic_manipulations": {}
+    }
+  }
+}

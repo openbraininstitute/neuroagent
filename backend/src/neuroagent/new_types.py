@@ -4,13 +4,8 @@ from typing import Any, Callable
 
 from pydantic import BaseModel, ConfigDict
 
+from neuroagent.shared_state import SharedStateLoosened
 from neuroagent.tools.base_tool import BaseTool
-
-
-class SharedState(BaseModel):
-    """State shared between backend and frontend."""
-
-    smc_simulation_config: dict[str, Any] | None = None
 
 
 class Agent(BaseModel):
@@ -70,7 +65,7 @@ class ClientRequest(BaseModel):
     tool_selection: list[str] | None = None
     model: str = "auto"
     frontend_url: str | None = None
-    shared_state: SharedState | None = None
+    shared_state: SharedStateLoosened | None = None
 
     model_config = ConfigDict(extra="ignore")
 

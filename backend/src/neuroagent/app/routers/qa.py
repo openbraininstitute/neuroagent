@@ -24,7 +24,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from neuroagent.agent_routine import AgentsRoutine
 from neuroagent.app.app_utils import (
     commit_messages,
-    extract_frontend_context,
     rate_limit,
     validate_project,
 )
@@ -56,7 +55,7 @@ from neuroagent.new_types import (
     ClientRequest,
 )
 from neuroagent.tools.base_tool import BaseTool
-from neuroagent.utils import messages_to_openai_content
+from neuroagent.utils import extract_frontend_context, messages_to_openai_content
 
 router = APIRouter(prefix="/qa", tags=["Run the agent"])
 
