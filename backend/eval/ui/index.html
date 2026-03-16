@@ -30,7 +30,15 @@
         Tag
         <select id="tagFilter"></select>
       </label>
-      <button id="reloadBtn" type="button">Reload</button>
+      <label>
+        Answer
+        <select id="answerFilter">
+          <option value="all">all</option>
+          <option value="answer-present">answer-present</option>
+          <option value="answer-missing">answer-missing</option>
+        </select>
+      </label>
+      <button id="clearFiltersBtn" type="button">Clean filters</button>
     </section>
 
     <p id="statusLine" class="muted"></p>
@@ -39,6 +47,7 @@
       <thead>
         <tr>
           <th>Test</th>
+          <th>Expected Output</th>
           <th>Score</th>
           <th>Pass</th>
           <th>Tags</th>
