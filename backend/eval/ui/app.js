@@ -40,6 +40,19 @@
     return Array.from(names).sort((a, b) => a.localeCompare(b));
   }
 
+  function allTags(rows) {
+    const tags = new Set();
+    rows.forEach(({ item }) => {
+      const rowTags = item?.params?.tags || [];
+      rowTags.forEach((tag) => {
+        if (typeof tag === "string" && tag.trim()) {
+          tags.add(tag);
+        }
+      });
+    });
+    return Array.from(tags).sort((a, b) => a.localeCompare(b));
+  }
+
   async function loadData() {
     return $.getJSON(DATA_PATH);
   }
@@ -47,7 +60,10 @@
   function renderListPage(dataObj) {
     const rows = toArray(dataObj);
     const metricNames = allMetricNames(rows);
+    const tags = allTags(rows);
+    const params = new URLSearchParams(window.location.search);
     const $metricSelect = $("#metricSelect");
+    const $tagFilter = $("#tagFilter");
     const $sortDir = $("#sortDir");
     const $searchInput = $("#searchInput");
     const $tbody = $("#testsTable tbody");
@@ -66,12 +82,48 @@
       $metricSelect.val("Correctness [GEval]");
     }
 
+    $tagFilter.empty();
+    $tagFilter.append('<option value="">All tags</option>');
+    tags.forEach((tag) => {
+      $tagFilter.append(`<option value="${escapeHtml(tag)}">${escapeHtml(tag)}</option>`);
+    });
+    const initialTag = params.get("tag") || "";
+    if (initialTag && tags.includes(initialTag)) {
+      $tagFilter.val(initialTag);
+    } else {
+      $tagFilter.val("");
+    }
+
+    function updateSearchParams() {
+      const nextParams = new URLSearchParams(window.location.search);
+      const selectedTag = $tagFilter.val();
+      if (selectedTag) {
+        nextParams.set("tag", selectedTag);
+      } else {
+        nextParams.delete("tag");
+      }
+      const nextQuery = nextParams.toString();
+      const nextUrl = `${window.location.pathname}${nextQuery ? `?${nextQuery}` : ""}`;
+      window.history.replaceState({}, "", nextUrl);
+    }
+
     function draw() {
       const metric = $metricSelect.val();
       const dir = $sortDir.val();
       const q = $searchInput.val().trim().toLowerCase();
+      const selectedTag = $tagFilter.val();
 
-      const filtered = rows.filter(({ name }) => name.toLowerCase().includes(q));
+      const filtered = rows.filter(({ name, item }) => {
+        const matchesName = name.toLowerCase().includes(q);
+        if (!matchesName) {
+          return false;
+        }
+        if (!selectedTag) {
+          return true;
+        }
+        const rowTags = item?.params?.tags || [];
+        return rowTags.includes(selectedTag);
+      });
       filtered.sort((a, b) => {
         const sa = getMetricScore(a.item, metric);
         const sb = getMetricScore(b.item, metric);
@@ -88,7 +140,12 @@
           const passText = pass === null ? "-" : pass ? "yes" : "no";
           const scoreClass = score !== null && score >= 0.5 ? "score-good" : "score-bad";
           const tags = item?.params?.tags || [];
-          const tagsHtml = tags.map((t) => `<span class="pill">${escapeHtml(t)}</span>`).join("");
+          const tagsHtml = tags
+            .map((t) => {
+              const tagHref = `./index.html?tag=${encodeURIComponent(t)}`;
+              return `<a class="pill pill-link" href="${tagHref}">${escapeHtml(t)}</a>`;
+            })
+            .join("");
           const href = `./detail.html?test=${encodeURIComponent(name)}`;
 
           return `
@@ -112,11 +169,15 @@
           : "n/a";
 
       $status.text(
-        `Loaded ${rows.length} tests. Showing ${filtered.length}. Sorted by "${metric}". Average (${metric}) = ${avg}.`
+        `Loaded ${rows.length} tests. Showing ${filtered.length}. Tag filter: ${selectedTag || "none"}. Sorted by "${metric}". Average (${metric}) = ${avg}.`
       );
     }
 
     $metricSelect.on("change", draw);
+    $tagFilter.on("change", function () {
+      updateSearchParams();
+      draw();
+    });
     $sortDir.on("change", draw);
     $searchInput.on("input", draw);
     $("#reloadBtn").on("click", async function () {
@@ -180,6 +241,17 @@
     $("#expectedToolsField").text(prettyJson(item.expected_tool_calls || []));
     $("#actualToolsField").text(prettyJson(item.actual_tool_calls || []));
     $("#paramsField").text(prettyJson(item.params || {}));
+
+    const tags = item?.params?.tags || [];
+    const tagsHtml = tags.length
+      ? tags
+          .map((t) => {
+            const href = `./index.html?tag=${encodeURIComponent(t)}`;
+            return `<a class="pill pill-link" href="${href}">${escapeHtml(t)}</a>`;
+          })
+          .join("")
+      : '<span class="muted">No tags</span>';
+    $("#tagsField").html(tagsHtml);
   }
 
   async function boot() {
