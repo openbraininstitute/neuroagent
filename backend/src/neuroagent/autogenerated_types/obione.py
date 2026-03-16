@@ -133,6 +133,61 @@ class BodyValidateNwbFileDeclaredValidateElectrophysiologyProtocolNwbFilePost(
     file: bytes = Field(..., description='NWB file to upload (.nwb)', title='File')
 
 
+class ChannelName(RootModel[str]):
+    root: str = Field(
+        ...,
+        description="Channel suffix (e.g., 'NaTg') used as key in conditions.mechanisms",
+        min_length=1,
+        title='Channel Name',
+    )
+
+
+class ByNeuronModification(BaseModel):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    ion_channel_id: UUID | None = Field(default=None, title='Ion Channel Id')
+    channel_name: ChannelName | None = Field(default=None, title='Channel Name')
+    variable_name: str = Field(
+        ...,
+        description="Name of the variable (e.g., 'vmin_StochKv3', 'gCa_HVAbar_Ca_HVA2', 'cm', 'Ra')",
+        title='Variable Name',
+    )
+    variable_type: Literal['RANGE', 'GLOBAL'] = Field(
+        default='GLOBAL',
+        description="Variable type: 'RANGE' (section-specific) or 'GLOBAL' (neuron-wide)",
+        title='Variable Type',
+    )
+    new_value: float | list[float] = Field(
+        ...,
+        description='New value(s) that applies to entire neuron (GLOBAL) or all sections (RANGE)',
+        title='New Value',
+    )
+    type: Literal['ByNeuronModification'] = Field(
+        default='ByNeuronModification', title='Type'
+    )
+
+
+class BySectionListModification(BaseModel):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    ion_channel_id: UUID | None = Field(default=None, title='Ion Channel Id')
+    variable_name: str = Field(
+        ...,
+        description="Name of the RANGE variable (e.g., 'gkbar_hh', 'cm', 'Ra')",
+        title='Variable Name',
+    )
+    section_list_modifications: dict[str, float | list[float]] | None = Field(
+        default=None,
+        description="Modifications per section list (e.g., {'somatic': 0.1, 'axonal': 0.2})",
+        title='Section List Modifications',
+    )
+    type: Literal['BySectionListModification'] = Field(
+        default='BySectionListModification', title='Type'
+    )
+
+
 class CellMorphology(BaseModel):
     model_config = ConfigDict(
         extra='ignore',
@@ -601,6 +656,85 @@ class IntRange(BaseModel):
     end: int = Field(..., title='End')
 
 
+class IonChannelModelFromID(BaseModel):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    id_str: str = Field(
+        ..., description='ID of the entity in string format.', title='Id Str'
+    )
+    type: Literal['IonChannelModelFromID'] = Field(
+        default='IonChannelModelFromID', title='Type'
+    )
+
+
+class Conductance(RootModel[float]):
+    root: float = Field(
+        ..., description='Conductance value.', ge=0.0, title='Conductance value'
+    )
+
+
+class ConductanceItem(DurationItem):
+    pass
+
+
+class IonChannelModelWithConductance(BaseModel):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    type: Literal['IonChannelModelWithConductance'] = Field(
+        default='IonChannelModelWithConductance', title='Type'
+    )
+    ion_channel_model: IonChannelModelFromID = Field(
+        ..., description='ID of the model to simulate.', title='Ion channel model'
+    )
+    conductance: Conductance | list[ConductanceItem] = Field(
+        ..., description='Conductance value.', title='Conductance value'
+    )
+
+
+class MaxPermeability(RootModel[float]):
+    root: float = Field(
+        ...,
+        description='Maximum permeability value.',
+        ge=0.0,
+        title='Maximum permeability value',
+    )
+
+
+class MaxPermeabilityItem(DurationItem):
+    pass
+
+
+class IonChannelModelWithMaxPermeability(BaseModel):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    type: Literal['IonChannelModelWithMaxPermeability'] = Field(
+        default='IonChannelModelWithMaxPermeability', title='Type'
+    )
+    ion_channel_model: IonChannelModelFromID = Field(
+        ..., description='ID of the model to simulate.', title='Ion channel model'
+    )
+    max_permeability: MaxPermeability | list[MaxPermeabilityItem] = Field(
+        ...,
+        description='Maximum permeability value.',
+        title='Maximum permeability value',
+    )
+
+
+class IonChannelModelWithoutConductance(BaseModel):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    type: Literal['IonChannelModelWithoutConductance'] = Field(
+        default='IonChannelModelWithoutConductance', title='Type'
+    )
+    ion_channel_model: IonChannelModelFromID = Field(
+        ..., description='ID of the model to simulate.', title='Ion channel model'
+    )
+
+
 class IonChannelRecordingFromID(BaseModel):
     model_config = ConfigDict(
         extra='ignore',
@@ -611,6 +745,34 @@ class IonChannelRecordingFromID(BaseModel):
     type: Literal['IonChannelRecordingFromID'] = Field(
         default='IonChannelRecordingFromID', title='Type'
     )
+
+
+class IonChannelVariableForRecording(BaseModel):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    ion_channel_id: UUID | None = Field(default=None, title='Ion Channel Id')
+    variable_name: str = Field(
+        ...,
+        description="Name of the variable (e.g., 'vmin_StochKv3', 'gCa_HVAbar_Ca_HVA2', 'cm', 'Ra')",
+        title='Variable Name',
+    )
+    type: Literal['IonChannelVariableForRecording'] = Field(
+        default='IonChannelVariableForRecording', title='Type'
+    )
+
+
+class Dt(RootModel[float]):
+    root: float = Field(
+        0.1,
+        description='Interval between recording time steps in milliseconds (ms).',
+        ge=0.025,
+        title='Timestep',
+    )
+
+
+class DtItem(RootModel[float]):
+    root: float = Field(..., ge=0.025)
 
 
 class License(BaseModel):
@@ -1325,6 +1487,49 @@ class StandardDeviationPercentageOfThresholdItem(TimeConstantItem):
     pass
 
 
+class Duration13(RootModel[float]):
+    root: float = Field(
+        200.0,
+        description='Time duration in milliseconds for how long the SEClamp is activated.',
+        ge=0.0,
+        title='Total Duration',
+    )
+
+
+class SEClampSomaticStimulus(BaseModel):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    type: Literal['SEClampSomaticStimulus'] = Field(
+        default='SEClampSomaticStimulus', title='Type'
+    )
+    neuron_set: NeuronSetReference | None = Field(
+        default=None,
+        description='Neuron set to which the stimulus is applied.',
+        title='Neuron Set',
+    )
+    timestamp_offset: float | list[float] = Field(
+        default=0.0,
+        description='The offset of the stimulus relative to each timestamp in milliseconds (ms).',
+        title='Timestamp Offset',
+    )
+    duration: Duration13 | list[DurationItem8] = Field(
+        default_factory=lambda: Duration13(200.0),
+        description='Time duration in milliseconds for how long the SEClamp is activated.',
+        title='Total Duration',
+    )
+    initial_voltage: float | list[float] = Field(
+        default=0.0,
+        description='The initial voltage level in millivolts (mV).',
+        title='Initial Voltage',
+    )
+    step_voltage: float | list[float] = Field(
+        default=0.0,
+        description='The step voltage level in millivolts (mV).',
+        title='Step Voltage Amplitude',
+    )
+
+
 class UseScaling(RootModel[float]):
     root: float = Field(
         0.7050728631217412,
@@ -1466,6 +1671,10 @@ class SingleTimestamp(BaseModel):
     )
 
 
+class Duration14(Duration):
+    pass
+
+
 class Frequency2(RootModel[float]):
     root: float = Field(
         1.0,
@@ -1475,7 +1684,7 @@ class Frequency2(RootModel[float]):
     )
 
 
-class Dt(RootModel[float]):
+class Dt1(RootModel[float]):
     root: float = Field(
         0.025,
         description='Timestep of generated signal in milliseconds (ms).',
@@ -1484,11 +1693,7 @@ class Dt(RootModel[float]):
     )
 
 
-class DtItem(RootModel[float]):
-    root: float = Field(..., ge=0.025)
-
-
-class Duration14(RootModel[float]):
+class Duration15(RootModel[float]):
     root: float = Field(
         200.0,
         description='Time duration of the stimulus in milliseconds.',
@@ -1498,7 +1703,7 @@ class Duration14(RootModel[float]):
     )
 
 
-class DurationItem14(DurationItem7):
+class DurationItem15(DurationItem7):
     pass
 
 
@@ -1547,13 +1752,8 @@ class ModulationFrequencyHzItem(RootModel[float]):
     root: float = Field(..., ge=1e-05, gt=0.0, le=100000.0)
 
 
-class Dt1(RootModel[float]):
-    root: float = Field(
-        0.1,
-        description='Interval between recording time steps in milliseconds (ms).',
-        ge=0.025,
-        title='Timestep',
-    )
+class Dt2(Dt):
+    pass
 
 
 class SomaVoltageRecording(BaseModel):
@@ -1566,8 +1766,8 @@ class SomaVoltageRecording(BaseModel):
     neuron_set: NeuronSetReference | None = Field(
         default=None, description='Neuron set to record from.', title='Neuron Set'
     )
-    dt: Dt1 | list[DtItem] | NonNegativeFloatRange = Field(
-        default_factory=lambda: Dt1(0.1),
+    dt: Dt2 | list[DtItem] | NonNegativeFloatRange = Field(
+        default_factory=lambda: Dt2(0.1),
         description='Interval between recording time steps in milliseconds (ms).',
         title='Timestep',
     )
@@ -1577,7 +1777,7 @@ class SpatialCoordinate(RootModel[Literal['x', 'y', 'z']]):
     root: Literal['x', 'y', 'z'] = Field(..., title='SpatialCoordinate')
 
 
-class Duration15(RootModel[float]):
+class Duration16(RootModel[float]):
     root: float = Field(
         200.0,
         description='Time in milliseconds (ms) for how long the main stimulus is activated. The duration does not include the ramp up and ramp down times, so the total length of the stimulus will be the sum of the duration, ramp up and ramp down times.',
@@ -1654,11 +1854,11 @@ class SubjectID(BaseModel):
     subject_id: UUID | None = Field(default=None, title='Subject Id')
 
 
-class Duration16(Duration):
+class Duration17(Duration):
     pass
 
 
-class DurationItem16(DurationItem):
+class DurationItem17(DurationItem):
     pass
 
 
@@ -1699,17 +1899,25 @@ class SynapticMgManipulation(BaseModel):
     )
 
 
-class TaskType(RootModel[Literal['circuit_extraction', 'circuit_simulation']]):
-    root: Literal['circuit_extraction', 'circuit_simulation'] = Field(
+class TaskType(
+    RootModel[
+        Literal[
+            'circuit_extraction', 'circuit_simulation', 'morphology_skeletonization'
+        ]
+    ]
+):
+    root: Literal[
+        'circuit_extraction', 'circuit_simulation', 'morphology_skeletonization'
+    ] = Field(
         ..., description='Task types supported for job submission.', title='TaskType'
     )
 
 
-class Duration17(Duration15):
+class Duration18(Duration16):
     pass
 
 
-class DurationItem17(DurationItem7):
+class DurationItem18(DurationItem7):
     pass
 
 
@@ -1782,8 +1990,8 @@ class TimeWindowSomaVoltageRecording(BaseModel):
     neuron_set: NeuronSetReference | None = Field(
         default=None, description='Neuron set to record from.', title='Neuron Set'
     )
-    dt: Dt1 | list[DtItem] | NonNegativeFloatRange = Field(
-        default_factory=lambda: Dt1(0.1),
+    dt: Dt2 | list[DtItem] | NonNegativeFloatRange = Field(
+        default_factory=lambda: Dt2(0.1),
         description='Interval between recording time steps in milliseconds (ms).',
         title='Timestep',
     )
@@ -2123,7 +2331,7 @@ class ExtracellularCalciumConcentrationItem(DurationItem):
     pass
 
 
-class ObiOneScientificTasksGenerateSimulationConfigsCircuitSimulationScanConfigInitialize(
+class ObiOneScientificTasksGenerateSimulationsConfigCircuitCircuitSimulationScanConfigInitialize(
     BaseModel
 ):
     model_config = ConfigDict(
@@ -2160,10 +2368,6 @@ class ObiOneScientificTasksGenerateSimulationConfigsCircuitSimulationScanConfigI
     )
 
 
-class Circuit3(RootModel[MEModelCircuit | MEModelFromID]):
-    root: MEModelCircuit | MEModelFromID = Field(..., discriminator='type')
-
-
 class SimulationLength2(SimulationLength):
     pass
 
@@ -2181,7 +2385,70 @@ class SimulationLength3(RootModel[list[SimulationLength3Item]]):
     )
 
 
-class ObiOneScientificTasksGenerateSimulationConfigsMEModelSimulationScanConfigInitialize(
+class Temperature(RootModel[float]):
+    root: float = Field(
+        34.0,
+        description='Temperature of the simulation.',
+        ge=0.0,
+        title='Temperature (in °C)',
+    )
+
+
+class TemperatureItem(DurationItem):
+    pass
+
+
+class ObiOneScientificTasksGenerateSimulationsConfigIonChannelModelsIonChannelModelSimulationScanConfigInitialize(
+    BaseModel
+):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    type: Literal['IonChannelModelSimulationScanConfig.Initialize'] = Field(
+        default='IonChannelModelSimulationScanConfig.Initialize', title='Type'
+    )
+    simulation_length: SimulationLength2 | SimulationLength3 = Field(
+        default_factory=lambda: SimulationLength2(1000.0),
+        description='Simulation length in milliseconds (ms).',
+        title='Duration',
+    )
+    temperature: Temperature | list[TemperatureItem] = Field(
+        default_factory=lambda: Temperature(34.0),
+        description='Temperature of the simulation.',
+        title='Temperature (in °C)',
+    )
+    v_init: float | list[float] = Field(
+        default=-80.0,
+        description='Initial membrane potential in millivolts (mV).',
+        title='Initial Voltage',
+    )
+    random_seed: int | list[int] = Field(
+        default=1, description='Random seed for the simulation.', title='Random Seed'
+    )
+
+
+class Circuit3(RootModel[MEModelCircuit | MEModelFromID]):
+    root: MEModelCircuit | MEModelFromID = Field(..., discriminator='type')
+
+
+class SimulationLength4(SimulationLength):
+    pass
+
+
+class SimulationLength5Item(SimulationLength1Item):
+    pass
+
+
+class SimulationLength5(RootModel[list[SimulationLength5Item]]):
+    root: list[SimulationLength5Item] = Field(
+        1000.0,
+        description='Simulation length in milliseconds (ms).',
+        min_length=1,
+        title='Duration',
+    )
+
+
+class ObiOneScientificTasksGenerateSimulationsConfigMeModelMEModelSimulationScanConfigInitialize(
     BaseModel
 ):
     model_config = ConfigDict(
@@ -2193,8 +2460,8 @@ class ObiOneScientificTasksGenerateSimulationConfigsMEModelSimulationScanConfigI
     circuit: MEModelCircuit | MEModelFromID | list[Circuit3] = Field(
         ..., description='ME Model to simulate.', title='ME Model'
     )
-    simulation_length: SimulationLength2 | SimulationLength3 = Field(
-        default_factory=lambda: SimulationLength2(1000.0),
+    simulation_length: SimulationLength4 | SimulationLength5 = Field(
+        default_factory=lambda: SimulationLength4(1000.0),
         description='Simulation length in milliseconds (ms).',
         title='Duration',
     )
@@ -2223,16 +2490,16 @@ class Circuit4(
     )
 
 
-class SimulationLength4(SimulationLength):
+class SimulationLength6(SimulationLength):
     pass
 
 
-class SimulationLength5Item(SimulationLength1Item):
+class SimulationLength7Item(SimulationLength1Item):
     pass
 
 
-class SimulationLength5(RootModel[list[SimulationLength5Item]]):
-    root: list[SimulationLength5Item] = Field(
+class SimulationLength7(RootModel[list[SimulationLength7Item]]):
+    root: list[SimulationLength7Item] = Field(
         1000.0,
         description='Simulation length in milliseconds (ms).',
         min_length=1,
@@ -2240,7 +2507,7 @@ class SimulationLength5(RootModel[list[SimulationLength5Item]]):
     )
 
 
-class ObiOneScientificTasksGenerateSimulationConfigsMEModelWithSynapsesCircuitSimulationScanConfigInitialize(
+class ObiOneScientificTasksGenerateSimulationsConfigMeModelWithSynapsesMEModelWithSynapsesCircuitSimulationScanConfigInitialize(
     BaseModel
 ):
     model_config = ConfigDict(
@@ -2257,8 +2524,8 @@ class ObiOneScientificTasksGenerateSimulationConfigsMEModelWithSynapsesCircuitSi
         description='MEModel with synapses to simulate.',
         title='MEModel With Synapses',
     )
-    simulation_length: SimulationLength4 | SimulationLength5 = Field(
-        default_factory=lambda: SimulationLength4(1000.0),
+    simulation_length: SimulationLength6 | SimulationLength7 = Field(
+        default_factory=lambda: SimulationLength6(1000.0),
         description='Simulation length in milliseconds (ms).',
         title='Duration',
     )
@@ -2426,7 +2693,7 @@ class SpinesVoxelSizeItem(NeuronVoxelSizeItem):
     pass
 
 
-class ObiOneScientificTasksSkeletonizationSkeletonizationScanConfigInitialize(
+class ObiOneScientificTasksSkeletonizationConfigSkeletonizationScanConfigInitialize(
     BaseModel
 ):
     model_config = ConfigDict(
@@ -2452,16 +2719,16 @@ class ObiOneScientificTasksSkeletonizationSkeletonizationScanConfigInitialize(
     )
 
 
-class SimulationLength6(SimulationLength):
+class SimulationLength8(SimulationLength):
     pass
 
 
-class SimulationLength7Item(SimulationLength1Item):
+class SimulationLength9Item(SimulationLength1Item):
     pass
 
 
-class SimulationLength7(RootModel[list[SimulationLength7Item]]):
-    root: list[SimulationLength7Item] = Field(
+class SimulationLength9(RootModel[list[SimulationLength9Item]]):
+    root: list[SimulationLength9Item] = Field(
         1000.0,
         description='Simulation length in milliseconds (ms).',
         min_length=1,
@@ -2479,8 +2746,8 @@ class ObiOneScientificUnionsAliasesSimulationsFormInitialize(BaseModel):
     circuit: Circuit | CircuitFromID | list[Circuit5] = Field(
         ..., description='Circuit to simulate.', title='Circuit'
     )
-    simulation_length: SimulationLength6 | SimulationLength7 = Field(
-        default_factory=lambda: SimulationLength6(1000.0),
+    simulation_length: SimulationLength8 | SimulationLength9 = Field(
+        default_factory=lambda: SimulationLength8(1000.0),
         description='Simulation length in milliseconds (ms).',
         title='Duration',
     )
@@ -2616,6 +2883,21 @@ class ElectrophysiologyrecordingMetricsEndpointDeclaredElectrophysiologyrecordin
     ) = Field(default=None, title='Protocols')
     min_value: float | None = Field(default=None, title='Min Value')
     max_value: float | None = Field(default=None, title='Max Value')
+
+
+class MappedIonChannelPropertiesEndpointDeclaredMappedIonChannelPropertiesGetParametersQuery(
+    BaseModel
+):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    ion_channel_ids: list[str] = Field(..., title='Ion Channel Ids')
+
+
+class MappedIonChannelPropertiesEndpointDeclaredMappedIonChannelPropertiesGetResponse(
+    RootGetResponse
+):
+    pass
 
 
 class NeuronMorphologyMetricsEndpointDeclaredNeuronMorphologyMetricsCellMorphologyIdGetParametersQuery(
@@ -2755,6 +3037,44 @@ class BasicConnectivityPlotsScanConfig(BaseModel):
     initialize: ObiOneScientificTasksBasicConnectivityPlotsBasicConnectivityPlotsScanConfigInitialize
 
 
+class ByNeuronMechanismVariableNeuronalManipulation(BaseModel):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    type: Literal['ByNeuronMechanismVariableNeuronalManipulation'] = Field(
+        default='ByNeuronMechanismVariableNeuronalManipulation', title='Type'
+    )
+    neuron_set: NeuronSetReference | None = Field(
+        default=None,
+        description='Neuron set to which modification is applied.',
+        title='Neuron Set (Target)',
+    )
+    modification: ByNeuronModification = Field(
+        ...,
+        description='Ion channel variable modification (RANGE or GLOBAL) by neuron.',
+        title='Ion channel variable manipulations by neuron',
+    )
+
+
+class BySectionListMechanismVariableNeuronalManipulation(BaseModel):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    type: Literal['BySectionListMechanismVariableNeuronalManipulation'] = Field(
+        default='BySectionListMechanismVariableNeuronalManipulation', title='Type'
+    )
+    neuron_set: NeuronSetReference | None = Field(
+        default=None,
+        description='Neuron set to which modification is applied.',
+        title='Neuron Set (Target)',
+    )
+    modification: BySectionListModification = Field(
+        ...,
+        description='Ion channel RANGE variable modification by section list.',
+        title='Ion channel variable manipulations by section type',
+    )
+
+
 class CircuitMetricsEdgePopulation(BaseModel):
     model_config = ConfigDict(
         extra='ignore',
@@ -2889,7 +3209,7 @@ class ConstantCurrentClampSomaticStimulus(BaseModel):
         description='Neuron set to which the stimulus is applied.',
         title='Neuron Set',
     )
-    timestamp_offset: float | list[float] | None = Field(
+    timestamp_offset: float | list[float] = Field(
         default=0.0,
         description='The offset of the stimulus relative to each timestamp in milliseconds (ms).',
         title='Timestamp Offset',
@@ -3026,7 +3346,7 @@ class FullySynchronousSpikeStimulus(BaseModel):
         description='Target neuron set to simulate',
         title='Neuron Set (Target)',
     )
-    timestamp_offset: float | list[float] | None = Field(
+    timestamp_offset: float | list[float] = Field(
         default=0.0,
         description='The offset of the stimulus relative to each timestamp in milliseconds (ms).',
         title='Timestamp Offset',
@@ -3057,7 +3377,7 @@ class HyperpolarizingCurrentClampSomaticStimulus(BaseModel):
         description='Neuron set to which the stimulus is applied.',
         title='Neuron Set',
     )
-    timestamp_offset: float | list[float] | None = Field(
+    timestamp_offset: float | list[float] = Field(
         default=0.0,
         description='The offset of the stimulus relative to each timestamp in milliseconds (ms).',
         title='Timestamp Offset',
@@ -3143,6 +3463,28 @@ class IonChannelFittingScanConfig(BaseModel):
     )
 
 
+class IonChannelVariableRecording(BaseModel):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    type: Literal['IonChannelVariableRecording'] = Field(
+        default='IonChannelVariableRecording', title='Type'
+    )
+    neuron_set: NeuronSetReference | None = Field(
+        default=None, description='Neuron set to record from.', title='Neuron Set'
+    )
+    dt: Dt | list[DtItem] | NonNegativeFloatRange = Field(
+        default_factory=lambda: Dt(0.1),
+        description='Interval between recording time steps in milliseconds (ms).',
+        title='Timestep',
+    )
+    variable: IonChannelVariableForRecording = Field(
+        ...,
+        description='Name of the variable to record with its unit, grouped by ion channel model name.',
+        title='Ion Channel Variable Name',
+    )
+
+
 class LinearCurrentClampSomaticStimulus(BaseModel):
     model_config = ConfigDict(
         extra='ignore',
@@ -3160,7 +3502,7 @@ class LinearCurrentClampSomaticStimulus(BaseModel):
         description='Neuron set to which the stimulus is applied.',
         title='Neuron Set',
     )
-    timestamp_offset: float | list[float] | None = Field(
+    timestamp_offset: float | list[float] = Field(
         default=0.0,
         description='The offset of the stimulus relative to each timestamp in milliseconds (ms).',
         title='Timestamp Offset',
@@ -3264,7 +3606,7 @@ class MultiPulseCurrentClampSomaticStimulus(BaseModel):
         description='Neuron set to which the stimulus is applied.',
         title='Neuron Set',
     )
-    timestamp_offset: float | list[float] | None = Field(
+    timestamp_offset: float | list[float] = Field(
         default=0.0,
         description='The offset of the stimulus relative to each timestamp in milliseconds (ms).',
         title='Timestamp Offset',
@@ -3308,7 +3650,7 @@ class NormallyDistributedCurrentClampSomaticStimulus(BaseModel):
         description='Neuron set to which the stimulus is applied.',
         title='Neuron Set',
     )
-    timestamp_offset: float | list[float] | None = Field(
+    timestamp_offset: float | list[float] = Field(
         default=0.0,
         description='The offset of the stimulus relative to each timestamp in milliseconds (ms).',
         title='Timestamp Offset',
@@ -3347,7 +3689,7 @@ class OrnsteinUhlenbeckConductanceSomaticStimulus(BaseModel):
         description='Neuron set to which the stimulus is applied.',
         title='Neuron Set',
     )
-    timestamp_offset: float | list[float] | None = Field(
+    timestamp_offset: float | list[float] = Field(
         default=0.0,
         description='The offset of the stimulus relative to each timestamp in milliseconds (ms).',
         title='Timestamp Offset',
@@ -3396,7 +3738,7 @@ class OrnsteinUhlenbeckCurrentSomaticStimulus(BaseModel):
         description='Neuron set to which the stimulus is applied.',
         title='Neuron Set',
     )
-    timestamp_offset: float | list[float] | None = Field(
+    timestamp_offset: float | list[float] = Field(
         default=0.0,
         description='The offset of the stimulus relative to each timestamp in milliseconds (ms).',
         title='Timestamp Offset',
@@ -3445,7 +3787,7 @@ class PoissonSpikeStimulus(BaseModel):
         description='Target neuron set to simulate',
         title='Neuron Set (Target)',
     )
-    timestamp_offset: float | list[float] | None = Field(
+    timestamp_offset: float | list[float] = Field(
         default=0.0,
         description='The offset of the stimulus relative to each timestamp in milliseconds (ms).',
         title='Timestamp Offset',
@@ -3484,7 +3826,7 @@ class RelativeConstantCurrentClampSomaticStimulus(BaseModel):
         description='Neuron set to which the stimulus is applied.',
         title='Neuron Set',
     )
-    timestamp_offset: float | list[float] | None = Field(
+    timestamp_offset: float | list[float] = Field(
         default=0.0,
         description='The offset of the stimulus relative to each timestamp in milliseconds (ms).',
         title='Timestamp Offset',
@@ -3520,7 +3862,7 @@ class RelativeLinearCurrentClampSomaticStimulus(BaseModel):
         description='Neuron set to which the stimulus is applied.',
         title='Neuron Set',
     )
-    timestamp_offset: float | list[float] | None = Field(
+    timestamp_offset: float | list[float] = Field(
         default=0.0,
         description='The offset of the stimulus relative to each timestamp in milliseconds (ms).',
         title='Timestamp Offset',
@@ -3563,7 +3905,7 @@ class RelativeNormallyDistributedCurrentClampSomaticStimulus(BaseModel):
         description='Neuron set to which the stimulus is applied.',
         title='Neuron Set',
     )
-    timestamp_offset: float | list[float] | None = Field(
+    timestamp_offset: float | list[float] = Field(
         default=0.0,
         description='The offset of the stimulus relative to each timestamp in milliseconds (ms).',
         title='Timestamp Offset',
@@ -3604,7 +3946,7 @@ class RelativeOrnsteinUhlenbeckConductanceSomaticStimulus(BaseModel):
         description='Neuron set to which the stimulus is applied.',
         title='Neuron Set',
     )
-    timestamp_offset: float | list[float] | None = Field(
+    timestamp_offset: float | list[float] = Field(
         default=0.0,
         description='The offset of the stimulus relative to each timestamp in milliseconds (ms).',
         title='Timestamp Offset',
@@ -3659,7 +4001,7 @@ class RelativeOrnsteinUhlenbeckCurrentSomaticStimulus(BaseModel):
         description='Neuron set to which the stimulus is applied.',
         title='Neuron Set',
     )
-    timestamp_offset: float | list[float] | None = Field(
+    timestamp_offset: float | list[float] = Field(
         default=0.0,
         description='The offset of the stimulus relative to each timestamp in milliseconds (ms).',
         title='Timestamp Offset',
@@ -3759,13 +4101,13 @@ class SinusoidalCurrentClampSomaticStimulus(BaseModel):
         description='Neuron set to which the stimulus is applied.',
         title='Neuron Set',
     )
-    timestamp_offset: float | list[float] | None = Field(
+    timestamp_offset: float | list[float] = Field(
         default=0.0,
         description='The offset of the stimulus relative to each timestamp in milliseconds (ms).',
         title='Timestamp Offset',
     )
-    duration: Duration8 | list[DurationItem8] = Field(
-        default_factory=lambda: Duration8(200.0),
+    duration: Duration14 | list[DurationItem8] = Field(
+        default_factory=lambda: Duration14(200.0),
         description='Time duration in milliseconds for how long input is activated.',
         title='Duration',
     )
@@ -3779,8 +4121,8 @@ class SinusoidalCurrentClampSomaticStimulus(BaseModel):
         description='The frequency of the waveform. Given in Hertz (Hz).',
         title='Frequency',
     )
-    dt: Dt | list[DtItem] = Field(
-        default_factory=lambda: Dt(0.025),
+    dt: Dt1 | list[DtItem] = Field(
+        default_factory=lambda: Dt1(0.025),
         description='Timestep of generated signal in milliseconds (ms).',
         title='Timestep',
     )
@@ -3808,13 +4150,13 @@ class SinusoidalPoissonSpikeStimulus(BaseModel):
         description='Target neuron set to simulate',
         title='Neuron Set (Target)',
     )
-    timestamp_offset: float | list[float] | None = Field(
+    timestamp_offset: float | list[float] = Field(
         default=0.0,
         description='The offset of the stimulus relative to each timestamp in milliseconds (ms).',
         title='Timestamp Offset',
     )
-    duration: Duration14 | list[DurationItem14] = Field(
-        default_factory=lambda: Duration14(200.0),
+    duration: Duration15 | list[DurationItem15] = Field(
+        default_factory=lambda: Duration15(200.0),
         description='Time duration of the stimulus in milliseconds.',
         title='Duration',
     )
@@ -3858,7 +4200,7 @@ class SkeletonizationScanConfig(BaseModel):
         ..., description='Information about the skeletonization campaign.'
     )
     initialize: (
-        ObiOneScientificTasksSkeletonizationSkeletonizationScanConfigInitialize
+        ObiOneScientificTasksSkeletonizationConfigSkeletonizationScanConfigInitialize
     ) = Field(
         ...,
         description='Parameters for initializing the skeletonization.',
@@ -3883,13 +4225,13 @@ class SpatiallyUniformElectricFieldStimulus(BaseModel):
         description='Neuron set to which the stimulus is applied.',
         title='Neuron Set',
     )
-    timestamp_offset: float | list[float] | None = Field(
+    timestamp_offset: float | list[float] = Field(
         default=0.0,
         description='The offset of the stimulus relative to each timestamp in milliseconds (ms).',
         title='Timestamp Offset',
     )
-    duration: Duration15 | list[DurationItem14] = Field(
-        default_factory=lambda: Duration15(200.0),
+    duration: Duration16 | list[DurationItem15] = Field(
+        default_factory=lambda: Duration16(200.0),
         description='Time in milliseconds (ms) for how long the main stimulus is activated. The duration does not include the ramp up and ramp down times, so the total length of the stimulus will be the sum of the duration, ramp up and ramp down times.',
         title='Duration',
     )
@@ -3937,13 +4279,13 @@ class SubthresholdCurrentClampSomaticStimulus(BaseModel):
         description='Neuron set to which the stimulus is applied.',
         title='Neuron Set',
     )
-    timestamp_offset: float | list[float] | None = Field(
+    timestamp_offset: float | list[float] = Field(
         default=0.0,
         description='The offset of the stimulus relative to each timestamp in milliseconds (ms).',
         title='Timestamp Offset',
     )
-    duration: Duration16 | list[DurationItem16] = Field(
-        default_factory=lambda: Duration16(200.0),
+    duration: Duration17 | list[DurationItem17] = Field(
+        default_factory=lambda: Duration17(200.0),
         description='Time duration in milliseconds for how long input is activated.',
         title='Duration',
     )
@@ -4012,13 +4354,13 @@ class TemporallyCosineSpatiallyUniformElectricFieldStimulus(BaseModel):
         description='Neuron set to which the stimulus is applied.',
         title='Neuron Set',
     )
-    timestamp_offset: float | list[float] | None = Field(
+    timestamp_offset: float | list[float] = Field(
         default=0.0,
         description='The offset of the stimulus relative to each timestamp in milliseconds (ms).',
         title='Timestamp Offset',
     )
-    duration: Duration17 | list[DurationItem17] = Field(
-        default_factory=lambda: Duration17(200.0),
+    duration: Duration18 | list[DurationItem18] = Field(
+        default_factory=lambda: Duration18(200.0),
         description='Time in milliseconds (ms) for how long the main stimulus is activated. The duration does not include the ramp up and ramp down times, so the total length of the stimulus will be the sum of the duration, ramp up and ramp down times.',
         title='Duration',
     )
@@ -4133,7 +4475,7 @@ class CircuitSimulationScanConfig(BaseModel):
         description='Synaptic manipulations for the simulation.',
         title='Synaptic Manipulations',
     )
-    initialize: ObiOneScientificTasksGenerateSimulationConfigsCircuitSimulationScanConfigInitialize = Field(
+    initialize: ObiOneScientificTasksGenerateSimulationsConfigCircuitCircuitSimulationScanConfigInitialize = Field(
         ...,
         description='Parameters for initializing the simulation.',
         title='Initialization',
@@ -4141,25 +4483,84 @@ class CircuitSimulationScanConfig(BaseModel):
     stimuli: (
         dict[
             str,
-            ConstantCurrentClampSomaticStimulus
+            RelativeNormallyDistributedCurrentClampSomaticStimulus
+            | RelativeConstantCurrentClampSomaticStimulus
+            | RelativeLinearCurrentClampSomaticStimulus
+            | SubthresholdCurrentClampSomaticStimulus
+            | RelativeOrnsteinUhlenbeckCurrentSomaticStimulus
+            | RelativeOrnsteinUhlenbeckConductanceSomaticStimulus
+            | ConstantCurrentClampSomaticStimulus
             | HyperpolarizingCurrentClampSomaticStimulus
             | LinearCurrentClampSomaticStimulus
             | MultiPulseCurrentClampSomaticStimulus
             | NormallyDistributedCurrentClampSomaticStimulus
-            | RelativeNormallyDistributedCurrentClampSomaticStimulus
-            | RelativeConstantCurrentClampSomaticStimulus
-            | RelativeLinearCurrentClampSomaticStimulus
             | SinusoidalCurrentClampSomaticStimulus
-            | SubthresholdCurrentClampSomaticStimulus
             | OrnsteinUhlenbeckCurrentSomaticStimulus
             | OrnsteinUhlenbeckConductanceSomaticStimulus
-            | RelativeOrnsteinUhlenbeckCurrentSomaticStimulus
-            | RelativeOrnsteinUhlenbeckConductanceSomaticStimulus
             | PoissonSpikeStimulus
             | FullySynchronousSpikeStimulus
             | SinusoidalPoissonSpikeStimulus
             | SpatiallyUniformElectricFieldStimulus
             | TemporallyCosineSpatiallyUniformElectricFieldStimulus,
+        ]
+        | None
+    ) = Field(default=None, description='Stimuli for the simulation.', title='Stimuli')
+
+
+class IonChannelModelSimulationScanConfig(BaseModel):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    type: Literal['IonChannelModelSimulationScanConfig'] = Field(
+        default='IonChannelModelSimulationScanConfig', title='Type'
+    )
+    timestamps: dict[str, SingleTimestamp | RegularTimestamps] | None = Field(
+        default=None, description='Timestamps for the simulation.', title='Timestamps'
+    )
+    recordings: (
+        dict[
+            str,
+            IonChannelVariableRecording
+            | SomaVoltageRecording
+            | TimeWindowSomaVoltageRecording,
+        ]
+        | None
+    ) = Field(
+        default=None, description='Recordings for the simulation.', title='Recordings'
+    )
+    info: Info = Field(
+        ..., description='Information about the ion channel model simulation campaign.'
+    )
+    initialize: ObiOneScientificTasksGenerateSimulationsConfigIonChannelModelsIonChannelModelSimulationScanConfigInitialize = Field(
+        ...,
+        description='Parameters for initializing the simulation.',
+        title='Initialization',
+    )
+    ion_channel_models: (
+        dict[
+            str,
+            IonChannelModelWithConductance
+            | IonChannelModelWithMaxPermeability
+            | IonChannelModelWithoutConductance,
+        ]
+        | None
+    ) = Field(
+        default=None,
+        description='Ion channel models and their conductance / max permeability.',
+        title='Ion Channel Models',
+    )
+    stimuli: (
+        dict[
+            str,
+            SEClampSomaticStimulus
+            | ConstantCurrentClampSomaticStimulus
+            | HyperpolarizingCurrentClampSomaticStimulus
+            | LinearCurrentClampSomaticStimulus
+            | MultiPulseCurrentClampSomaticStimulus
+            | NormallyDistributedCurrentClampSomaticStimulus
+            | SinusoidalCurrentClampSomaticStimulus
+            | OrnsteinUhlenbeckCurrentSomaticStimulus
+            | OrnsteinUhlenbeckConductanceSomaticStimulus,
         ]
         | None
     ) = Field(default=None, description='Stimuli for the simulation.', title='Stimuli')
@@ -4181,7 +4582,7 @@ class MEModelSimulationScanConfig(BaseModel):
         default=None, description='Recordings for the simulation.', title='Recordings'
     )
     info: Info = Field(..., description='Information about the simulation campaign.')
-    initialize: ObiOneScientificTasksGenerateSimulationConfigsMEModelSimulationScanConfigInitialize = Field(
+    initialize: ObiOneScientificTasksGenerateSimulationsConfigMeModelMEModelSimulationScanConfigInitialize = Field(
         ...,
         description='Parameters for initializing the simulation.',
         title='Initialization',
@@ -4189,23 +4590,35 @@ class MEModelSimulationScanConfig(BaseModel):
     stimuli: (
         dict[
             str,
-            ConstantCurrentClampSomaticStimulus
+            RelativeNormallyDistributedCurrentClampSomaticStimulus
+            | RelativeConstantCurrentClampSomaticStimulus
+            | RelativeLinearCurrentClampSomaticStimulus
+            | SubthresholdCurrentClampSomaticStimulus
+            | RelativeOrnsteinUhlenbeckCurrentSomaticStimulus
+            | RelativeOrnsteinUhlenbeckConductanceSomaticStimulus
+            | ConstantCurrentClampSomaticStimulus
             | HyperpolarizingCurrentClampSomaticStimulus
             | LinearCurrentClampSomaticStimulus
             | MultiPulseCurrentClampSomaticStimulus
             | NormallyDistributedCurrentClampSomaticStimulus
-            | RelativeNormallyDistributedCurrentClampSomaticStimulus
-            | RelativeConstantCurrentClampSomaticStimulus
-            | RelativeLinearCurrentClampSomaticStimulus
             | SinusoidalCurrentClampSomaticStimulus
-            | SubthresholdCurrentClampSomaticStimulus
             | OrnsteinUhlenbeckCurrentSomaticStimulus
-            | OrnsteinUhlenbeckConductanceSomaticStimulus
-            | RelativeOrnsteinUhlenbeckCurrentSomaticStimulus
-            | RelativeOrnsteinUhlenbeckConductanceSomaticStimulus,
+            | OrnsteinUhlenbeckConductanceSomaticStimulus,
         ]
         | None
     ) = Field(default=None, description='Stimuli for the simulation.', title='Stimuli')
+    neuronal_manipulations: (
+        dict[
+            str,
+            BySectionListMechanismVariableNeuronalManipulation
+            | ByNeuronMechanismVariableNeuronalManipulation,
+        ]
+        | None
+    ) = Field(
+        default=None,
+        description='Neuronal manipulations for the simulation.',
+        title='Neuronal Manipulations',
+    )
 
 
 class MEModelWithSynapsesCircuitSimulationScanConfig(BaseModel):
@@ -4241,7 +4654,7 @@ class MEModelWithSynapsesCircuitSimulationScanConfig(BaseModel):
         description='Synaptic manipulations for the simulation.',
         title='Synaptic Manipulations',
     )
-    initialize: ObiOneScientificTasksGenerateSimulationConfigsMEModelWithSynapsesCircuitSimulationScanConfigInitialize = Field(
+    initialize: ObiOneScientificTasksGenerateSimulationsConfigMeModelWithSynapsesMEModelWithSynapsesCircuitSimulationScanConfigInitialize = Field(
         ...,
         description='Parameters for initializing the simulation.',
         title='Initialization',
@@ -4249,20 +4662,20 @@ class MEModelWithSynapsesCircuitSimulationScanConfig(BaseModel):
     stimuli: (
         dict[
             str,
-            ConstantCurrentClampSomaticStimulus
+            RelativeNormallyDistributedCurrentClampSomaticStimulus
+            | RelativeConstantCurrentClampSomaticStimulus
+            | RelativeLinearCurrentClampSomaticStimulus
+            | SubthresholdCurrentClampSomaticStimulus
+            | RelativeOrnsteinUhlenbeckCurrentSomaticStimulus
+            | RelativeOrnsteinUhlenbeckConductanceSomaticStimulus
+            | ConstantCurrentClampSomaticStimulus
             | HyperpolarizingCurrentClampSomaticStimulus
             | LinearCurrentClampSomaticStimulus
             | MultiPulseCurrentClampSomaticStimulus
             | NormallyDistributedCurrentClampSomaticStimulus
-            | RelativeNormallyDistributedCurrentClampSomaticStimulus
-            | RelativeConstantCurrentClampSomaticStimulus
-            | RelativeLinearCurrentClampSomaticStimulus
             | SinusoidalCurrentClampSomaticStimulus
-            | SubthresholdCurrentClampSomaticStimulus
             | OrnsteinUhlenbeckCurrentSomaticStimulus
             | OrnsteinUhlenbeckConductanceSomaticStimulus
-            | RelativeOrnsteinUhlenbeckCurrentSomaticStimulus
-            | RelativeOrnsteinUhlenbeckConductanceSomaticStimulus
             | PoissonSpikeStimulus
             | FullySynchronousSpikeStimulus
             | SinusoidalPoissonSpikeStimulus
@@ -4320,20 +4733,20 @@ class SimulationsForm(BaseModel):
     stimuli: (
         dict[
             str,
-            ConstantCurrentClampSomaticStimulus
+            RelativeNormallyDistributedCurrentClampSomaticStimulus
+            | RelativeConstantCurrentClampSomaticStimulus
+            | RelativeLinearCurrentClampSomaticStimulus
+            | SubthresholdCurrentClampSomaticStimulus
+            | RelativeOrnsteinUhlenbeckCurrentSomaticStimulus
+            | RelativeOrnsteinUhlenbeckConductanceSomaticStimulus
+            | ConstantCurrentClampSomaticStimulus
             | HyperpolarizingCurrentClampSomaticStimulus
             | LinearCurrentClampSomaticStimulus
             | MultiPulseCurrentClampSomaticStimulus
             | NormallyDistributedCurrentClampSomaticStimulus
-            | RelativeNormallyDistributedCurrentClampSomaticStimulus
-            | RelativeConstantCurrentClampSomaticStimulus
-            | RelativeLinearCurrentClampSomaticStimulus
             | SinusoidalCurrentClampSomaticStimulus
-            | SubthresholdCurrentClampSomaticStimulus
             | OrnsteinUhlenbeckCurrentSomaticStimulus
             | OrnsteinUhlenbeckConductanceSomaticStimulus
-            | RelativeOrnsteinUhlenbeckCurrentSomaticStimulus
-            | RelativeOrnsteinUhlenbeckConductanceSomaticStimulus
             | PoissonSpikeStimulus
             | FullySynchronousSpikeStimulus
             | SinusoidalPoissonSpikeStimulus
@@ -4362,6 +4775,7 @@ class GridScanParametersCountEndpointDeclaredScanConfigGridScanCoordinateCountPo
         | IonChannelFittingScanConfig
         | SkeletonizationScanConfig
         | MEModelWithSynapsesCircuitSimulationScanConfig
+        | IonChannelModelSimulationScanConfig
     ]
 ):
     root: (
@@ -4381,4 +4795,5 @@ class GridScanParametersCountEndpointDeclaredScanConfigGridScanCoordinateCountPo
         | IonChannelFittingScanConfig
         | SkeletonizationScanConfig
         | MEModelWithSynapsesCircuitSimulationScanConfig
+        | IonChannelModelSimulationScanConfig
     ) = Field(..., discriminator='type', title='Scan Config')
