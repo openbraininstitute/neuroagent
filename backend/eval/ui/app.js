@@ -58,6 +58,22 @@
     return typeof raw === "string" && raw.trim().length > 0;
   }
 
+  function interpretEscapedText(value) {
+    if (typeof value !== "string" || !value.includes("\\")) {
+      return value || "";
+    }
+
+    let out = value;
+    out = out.replace(/\\r\\n/g, "\n");
+    out = out.replace(/\\n/g, "\n");
+    out = out.replace(/\\r/g, "\n");
+    out = out.replace(/\\t/g, "\t");
+    out = out.replace(/\\"/g, '"');
+    out = out.replace(/\\\\/g, "\\");
+    out = out.replace(/\\u([0-9a-fA-F]{4})/g, (_, hex) => String.fromCharCode(parseInt(hex, 16)));
+    return out;
+  }
+
   async function loadData() {
     return $.getJSON(DATA_PATH);
   }
@@ -272,11 +288,13 @@
       })
       .join("");
     $("#metricsTable tbody").html(metricsHtml);
-    $("#gevalReasonField").text((gevalMetric && gevalMetric.reason) || "No GEval reason found.");
+    $("#gevalReasonField").text(
+      interpretEscapedText((gevalMetric && gevalMetric.reason) || "No GEval reason found.")
+    );
 
-    $("#userField").text(item.user || "");
-    $("#expectedOutputField").text(item.expected_output || "");
-    $("#aiResponseField").text(item.ai_response || "");
+    $("#userField").text(interpretEscapedText(item.user || ""));
+    $("#expectedOutputField").text(interpretEscapedText(item.expected_output || ""));
+    $("#aiResponseField").text(interpretEscapedText(item.ai_response || ""));
     $("#expectedToolsField").text(prettyJson(item.expected_tool_calls || []));
     $("#actualToolsField").text(prettyJson(item.actual_tool_calls || []));
     $("#paramsField").text(prettyJson(item.params || {}));
