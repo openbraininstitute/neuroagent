@@ -900,8 +900,11 @@ class OBIExpertTool(BaseTool):
        - See project contributors and authors
 
     6. Product Documentation (document_type: "documentationProduct")
-       - Access product-specific docs (Explore, Single Cell Simulation, Circuit Simulation, etc.)
-       - Find guides by product (e.g. launch-notebook, virtual-labs, neuron-skeletonization)
+       - Access product-specific docs for all current products:
+         explore, single-cell-simulation, circuit-simulation, launch-notebook,
+         contribute-and-fix-data, build-ion-channel-model, paired-neuron-simulation,
+         neuron-skeletonization, virtual-labs
+       - Find guides by product tag using the `product` field in documentationProduct
        - Content is Portable Text with title, slug, product, filePath, contentHash, uploadDate
 
     7. Read Static Pages (document_type: "pages")
