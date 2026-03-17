@@ -15,6 +15,30 @@ h1, h2 {
   margin-top: 0;
 }
 
+.top-nav {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.top-nav-link {
+  display: inline-block;
+  text-decoration: none;
+  color: #1d3f72;
+  background: #eef3fb;
+  border: 1px solid #d5e1f2;
+  border-radius: 8px;
+  padding: 6px 10px;
+  font-size: 14px;
+}
+
+.top-nav-link-active {
+  background: #dfeaf9;
+  border-color: #b9cee9;
+  color: #0f2f57;
+  font-weight: 600;
+}
+
 .controls {
   display: flex;
   flex-wrap: wrap;
