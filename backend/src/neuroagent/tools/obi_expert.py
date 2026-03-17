@@ -856,11 +856,15 @@ class OBIExpertTool(BaseTool):
     ] = """Search and retrieve documents from the OBI Sanity API.
 
     IMPORTANT:
+    - Prefer this tool for platform knowledge questions before answering from memory.
+    - This is the primary source for documentation/FAQ-style answers about what the platform supports, does not support, or plans to support.
+    - Especially use this tool for capability/availability questions (e.g., "is X supported?", "can I do Y on this platform?", "where can I find docs about Z?").
     - Use the 'query' parameter when you can identify a clear keyword to search for (e.g., "neuron", "simulation", "tutorial"). The search is case-insensitive.
     - Results are paginated. If you don't find what you're looking for on the first page, try:
       * Dropping the query parameter to see all results, or
       * Increasing the page number to see more results
       * Adjusting the query keyword if it's too specific
+    - For generic platform FAQ requests, use document_type="documentationProduct" with query terms like "FAQ" or a specific feature keyword.
 
     Use this tool to:
 
