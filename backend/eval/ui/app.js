@@ -80,6 +80,10 @@
   }
 
   async function loadData() {
+    if (window.__EVAL_DATA__ && typeof window.__EVAL_DATA__ === "object") {
+      return window.__EVAL_DATA__;
+    }
+
     const sep = DATA_PATH.includes("?") ? "&" : "?";
     const cacheBustedPath = `${DATA_PATH}${sep}_ts=${Date.now()}`;
     return $.getJSON(cacheBustedPath);
