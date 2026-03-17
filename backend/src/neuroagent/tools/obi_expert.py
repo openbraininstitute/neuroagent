@@ -864,6 +864,7 @@ class OBIExpertTool(BaseTool):
     - For platform documentation and capability questions, highly prioritize document_type="documentationProduct" as the most up-to-date source of truth over other document types.
     - This is the primary source for documentation/FAQ-style answers about what the platform supports, does not support, or plans to support.
     - Especially use this tool for capability/availability questions (e.g., "is X supported?", "can I do Y on this platform?", "where can I find docs about Z?").
+    - Query matching is currently keyword-based (no semantic search), so if the first query returns no results, try multiple related keywords before concluding there is no relevant documentation.
     - Use the 'query' parameter when you can identify a clear keyword to search for (e.g., "neuron", "simulation", "tutorial"). The search is case-insensitive.
     - Results are paginated. If you don't find what you're looking for on the first page, try:
       * Dropping the query parameter to see all results, or
