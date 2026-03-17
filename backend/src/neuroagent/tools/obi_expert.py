@@ -624,9 +624,13 @@ def build_base_query(document_type: str, query: str | None = None) -> str:
             for k, v in model.sanity_mapping.items()
             if k not in ["id", "created_at", "updated_at"]
         ]
-        # Build OR conditions for each field
-        # Note: The match operator is case-insensitive by default in GROQ
-        match_conditions = [f'{field} match "*{query}*"' for field in searchable_fields]
+        # Build OR conditions for each field.
+        # Note: `match` is case-insensitive, but Portable Text fields (arrays of blocks)
+        # need `pt::text(...)` to search their nested textual content.
+        match_conditions = [
+            f'({field} match "*{query}*" || pt::text({field}) match "*{query}*")'
+            for field in searchable_fields
+        ]
         base_query += f" && ({' || '.join(match_conditions)})"
 
     # Close filter bracket
