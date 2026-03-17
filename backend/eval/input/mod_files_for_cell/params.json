@@ -6,6 +6,6 @@
     "mod-files",
     "mechanisms",
     "simulation",
-    "product:single-cell"
+    "product:single-cell-simulation"
   ]
 }

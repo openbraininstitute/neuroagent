@@ -7,6 +7,6 @@
     "calcium",
     "dendrite",
     "plateau-potentials",
-    "product:single-cell"
+    "product:single-cell-simulation"
   ]
 }

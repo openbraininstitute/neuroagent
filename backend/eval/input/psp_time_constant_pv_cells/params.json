@@ -8,6 +8,6 @@
     "parvalbumin",
     "cortex",
     "time-constant",
-    "product:single-cell"
+    "product:single-cell-simulation"
   ]
 }

@@ -7,6 +7,6 @@
     "simulation",
     "python",
     "run-file",
-    "product:notebook"
+    "product:launch-notebook"
   ]
 }

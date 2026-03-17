@@ -7,6 +7,6 @@
     "simulation",
     "analysis",
     "campaigns",
-    "product:circuitsimulation"
+    "product:circuit-simulation"
   ]
 }

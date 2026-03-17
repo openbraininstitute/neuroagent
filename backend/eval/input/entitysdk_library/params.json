@@ -7,6 +7,6 @@
     "entitysdk",
     "python",
     "notebook",
-    "product:notebook"
+    "product:launch-notebook"
   ]
 }

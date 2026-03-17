@@ -7,6 +7,6 @@
     "notebooks",
     "project",
     "simulation",
-    "product:notebook"
+    "product:launch-notebook"
   ]
 }
