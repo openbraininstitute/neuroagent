@@ -1,3 +1,12 @@
 {
-  "tags": ["benchmark", "fec0a993-e874-4b07-85e7-868c687371dc", "interface", "capabilities", "simulation", "use-cases", "beginner"]
+  "tags": [
+    "benchmark",
+    "fec0a993-e874-4b07-85e7-868c687371dc",
+    "interface",
+    "capabilities",
+    "simulation",
+    "use-cases",
+    "beginner",
+    "product:circuit-simulation"
+  ]
 }

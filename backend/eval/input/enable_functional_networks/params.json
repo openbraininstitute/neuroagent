@@ -1,3 +1,12 @@
 {
-  "tags": ["benchmark", "5155f559-9e7f-4ad8-a7d3-736b3251e595", "interface", "how-to", "modules", "functional-networks", "virtual-lab"]
+  "tags": [
+    "benchmark",
+    "5155f559-9e7f-4ad8-a7d3-736b3251e595",
+    "interface",
+    "how-to",
+    "modules",
+    "functional-networks",
+    "virtual-lab",
+    "product:virtual-labs"
+  ]
 }

@@ -624,9 +624,13 @@ def build_base_query(document_type: str, query: str | None = None) -> str:
             for k, v in model.sanity_mapping.items()
             if k not in ["id", "created_at", "updated_at"]
         ]
-        # Build OR conditions for each field
-        # Note: The match operator is case-insensitive by default in GROQ
-        match_conditions = [f'{field} match "*{query}*"' for field in searchable_fields]
+        # Build OR conditions for each field.
+        # Note: `match` is case-insensitive, but Portable Text fields (arrays of blocks)
+        # need `pt::text(...)` to search their nested textual content.
+        match_conditions = [
+            f'({field} match "*{query}*" || pt::text({field}) match "*{query}*")'
+            for field in searchable_fields
+        ]
         base_query += f" && ({' || '.join(match_conditions)})"
 
     # Close filter bracket
@@ -856,11 +860,17 @@ class OBIExpertTool(BaseTool):
     ] = """Search and retrieve documents from the OBI Sanity API.
 
     IMPORTANT:
+    - Prefer this tool for platform knowledge questions before answering from memory.
+    - For platform documentation and capability questions, highly prioritize document_type="documentationProduct" as the most up-to-date source of truth over other document types.
+    - This is the primary source for documentation/FAQ-style answers about what the platform supports, does not support, or plans to support.
+    - Especially use this tool for capability/availability questions (e.g., "is X supported?", "can I do Y on this platform?", "where can I find docs about Z?").
+    - Query matching is currently keyword-based (no semantic search), so if the first query returns no results, try multiple related keywords before concluding there is no relevant documentation.
     - Use the 'query' parameter when you can identify a clear keyword to search for (e.g., "neuron", "simulation", "tutorial"). The search is case-insensitive.
     - Results are paginated. If you don't find what you're looking for on the first page, try:
       * Dropping the query parameter to see all results, or
       * Increasing the page number to see more results
       * Adjusting the query keyword if it's too specific
+    - For generic platform FAQ requests, use document_type="documentationProduct" with query terms like "FAQ" or a specific feature keyword.
 
     Use this tool to:
 
@@ -890,8 +900,11 @@ class OBIExpertTool(BaseTool):
        - See project contributors and authors
 
     6. Product Documentation (document_type: "documentationProduct")
-       - Access product-specific docs (Explore, Single Cell Simulation, Circuit Simulation, etc.)
-       - Find guides by product (e.g. launch-notebook, virtual-labs, neuron-skeletonization)
+       - Access product-specific docs for all current products:
+         explore, single-cell-simulation, circuit-simulation, launch-notebook,
+         contribute-and-fix-data, build-ion-channel-model, paired-neuron-simulation,
+         neuron-skeletonization, virtual-labs
+       - Find guides by product tag using the `product` field in documentationProduct
        - Content is Portable Text with title, slug, product, filePath, contentHash, uploadDate
 
     7. Read Static Pages (document_type: "pages")

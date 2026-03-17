@@ -1,3 +1,12 @@
 {
-  "tags": ["benchmark", "c461c463-f94c-401e-82c7-cc27aaa09d75", "simulation", "me-model", "calcium", "dendrite", "plateau-potentials"]
+  "tags": [
+    "benchmark",
+    "c461c463-f94c-401e-82c7-cc27aaa09d75",
+    "simulation",
+    "me-model",
+    "calcium",
+    "dendrite",
+    "plateau-potentials",
+    "product:single-cell-simulation"
+  ]
 }

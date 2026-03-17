@@ -1,0 +1,37 @@
+name: Eval UI Report
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-eval-ui-report:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Download local jQuery bundle
+        run: |
+          mkdir -p .tmp
+          curl -fsSL https://code.jquery.com/jquery-3.7.1.min.js -o .tmp/jquery-3.7.1.min.js
+
+      - name: Build self-contained eval UI report
+        run: |
+          python backend/src/neuroagent/scripts/build_eval_ui_report.py \
+            --detailed-json backend/eval/output/detailed.json \
+            --ui-dir backend/eval/ui \
+            --output-dir backend/eval/output/ui-report \
+            --jquery-file .tmp/jquery-3.7.1.min.js
+
+      - name: Upload eval UI report artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: eval-ui-report
+          path: backend/eval/output/ui-report
+          if-no-files-found: error
+          retention-days: 30

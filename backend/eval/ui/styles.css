@@ -15,6 +15,30 @@ h1, h2 {
   margin-top: 0;
 }
 
+.top-nav {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.top-nav-link {
+  display: inline-block;
+  text-decoration: none;
+  color: #1d3f72;
+  background: #eef3fb;
+  border: 1px solid #d5e1f2;
+  border-radius: 8px;
+  padding: 6px 10px;
+  font-size: 14px;
+}
+
+.top-nav-link-active {
+  background: #dfeaf9;
+  border-color: #b9cee9;
+  color: #0f2f57;
+  font-weight: 600;
+}
+
 .controls {
   display: flex;
   flex-wrap: wrap;
@@ -36,6 +60,9 @@ select, input, button {
   border: 1px solid #ccc;
   border-radius: 6px;
   background: #fff;
+  box-sizing: border-box;
+  line-height: 1.2;
+  margin: 0;
 }
 
 button {
@@ -74,6 +101,40 @@ thead th {
   border-radius: 999px;
   background: #edf0f6;
   font-size: 12px;
+  white-space: nowrap;
+}
+
+.pill-status {
+  white-space: nowrap;
+}
+
+.pill-link {
+  color: inherit;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.pill-link:hover {
+  background: #dde4f3;
+}
+
+#productMetricsTable th:first-child,
+#productMetricsTable td:first-child {
+  width: 320px;
+  min-width: 320px;
+  white-space: nowrap;
+}
+
+.pill-warning {
+  background: #fff4cc;
+  color: #7a5b00;
+  border: 1px solid #f0de9c;
+}
+
+.pill-ok {
+  background: #e9f8ef;
+  color: #12643b;
+  border: 1px solid #b9e7cc;
 }
 
 .card {

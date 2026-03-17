@@ -1,3 +1,12 @@
 {
-  "tags": ["benchmark", "b9d63ce5-f587-4e08-92b7-44379dd36a72", "interface", "platform-overview", "capabilities", "snn", "ai-models"]
+  "tags": [
+    "benchmark",
+    "b9d63ce5-f587-4e08-92b7-44379dd36a72",
+    "interface",
+    "platform-overview",
+    "capabilities",
+    "snn",
+    "ai-models",
+    "product:circuit-simulation"
+  ]
 }

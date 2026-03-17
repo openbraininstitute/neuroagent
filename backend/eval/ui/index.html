@@ -9,6 +9,10 @@
 <body>
   <main class="container">
     <h1>Eval Results</h1>
+    <nav class="top-nav">
+      <a class="top-nav-link top-nav-link-active" href="./index.html">Tests</a>
+      <a class="top-nav-link" href="./products.html">Product Analysis</a>
+    </nav>
 
     <section class="controls">
       <label>
@@ -26,7 +30,19 @@
         Search
         <input id="searchInput" type="text" placeholder="test name contains..." />
       </label>
-      <button id="reloadBtn" type="button">Reload</button>
+      <label>
+        Tag
+        <select id="tagFilter"></select>
+      </label>
+      <label>
+        Answer
+        <select id="answerFilter">
+          <option value="all">all</option>
+          <option value="answer-present">answer-present</option>
+          <option value="answer-missing">answer-missing</option>
+        </select>
+      </label>
+      <button id="clearFiltersBtn" type="button">Clean filters</button>
     </section>
 
     <p id="statusLine" class="muted"></p>
@@ -35,6 +51,7 @@
       <thead>
         <tr>
           <th>Test</th>
+          <th>Expected Output</th>
           <th>Score</th>
           <th>Pass</th>
           <th>Tags</th>

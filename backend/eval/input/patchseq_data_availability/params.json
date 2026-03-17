@@ -1,3 +1,11 @@
 {
-  "tags": ["benchmark", "ac461f87-60ed-44c0-9c6e-111cc83a3aaa", "interface", "data-availability", "patch-seq", "database"]
+  "tags": [
+    "benchmark",
+    "ac461f87-60ed-44c0-9c6e-111cc83a3aaa",
+    "interface",
+    "data-availability",
+    "patch-seq",
+    "database",
+    "product:explore"
+  ]
 }

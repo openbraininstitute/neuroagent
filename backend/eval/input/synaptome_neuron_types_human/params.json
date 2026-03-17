@@ -1,3 +1,13 @@
 {
-  "tags": ["benchmark", "d31d8641-ab2e-4690-aee3-bf3b3e6d2076", "data-query", "synaptome", "cell-types", "human", "substantia-nigra", "cingulate-cortex"]
+  "tags": [
+    "benchmark",
+    "d31d8641-ab2e-4690-aee3-bf3b3e6d2076",
+    "data-query",
+    "synaptome",
+    "cell-types",
+    "human",
+    "substantia-nigra",
+    "cingulate-cortex",
+    "product:single-cell-simulation"
+  ]
 }

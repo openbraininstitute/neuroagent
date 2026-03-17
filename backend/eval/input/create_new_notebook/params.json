@@ -1,3 +1,11 @@
 {
-  "tags": ["benchmark", "f1629bf6-9410-462a-8d80-8bbbbcffcb6e", "interface", "how-to", "notebook", "simulation"]
+  "tags": [
+    "benchmark",
+    "f1629bf6-9410-462a-8d80-8bbbbcffcb6e",
+    "interface",
+    "how-to",
+    "notebook",
+    "simulation",
+    "product:launch-notebook"
+  ]
 }
