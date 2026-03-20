@@ -43,7 +43,7 @@ class FeedbackMetadata(BaseMetadata):
 class FeedbackSubmitOutput(BaseModel):
     """Output schema for Feedback Submit tool."""
 
-    issue_url: str = Field(description="URL of the created GitHub issue")
+    message: str = Field(description="Confirmation message")
     warning: str | None = Field(
         default=None, description="Warning message if any issues occurred"
     )
@@ -97,7 +97,8 @@ class FeedbackSubmitTool(BaseTool):
 
         data = response.json()
         return FeedbackSubmitOutput(
-            issue_url=data["issueUrl"], warning=data.get("warning")
+            message="Feedback submitted successfully. Thank you!",
+            warning=data.get("warning"),
         )
 
     @classmethod
