@@ -587,7 +587,7 @@ AVAILABLE TOOLS:
 
     try:
         # Send the OpenAI request
-        model = "google/gemini-2.5-flash"
+        model = "gpt-5.4-nano"
         max_retries = settings.llm.tool_filtering_retries
         start_request = time.time()
         for attempt in range(max_retries):

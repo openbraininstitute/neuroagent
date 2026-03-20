@@ -135,6 +135,7 @@ from neuroagent.tools.entitycore_subject_getall import SubjectGetAllTool
 from neuroagent.tools.entitycore_subject_getone import SubjectGetOneTool
 from neuroagent.tools.getstate import GetStateTool
 from neuroagent.tools.literature_search import LiteratureSearchTool
+from neuroagent.tools.navigate import NavigateTool
 from neuroagent.tools.obi_expert import OBIExpertTool
 from neuroagent.tools.obione_circuitconnectivitymetrics_getone import (
     CircuitConnectivityMetricsGetOneTool,
@@ -204,6 +205,7 @@ __all__ = [
     "MEModelGetAllTool",
     "MEModelGetOneTool",
     "MorphometricsGetOneTool",
+    "NavigateTool",
     "MtypeGetAllTool",
     "MtypeGetOneTool",
     "OBIExpertTool",
