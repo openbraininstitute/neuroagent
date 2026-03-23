@@ -108,9 +108,6 @@ _BUILD_CONFIGURE_TYPES: tuple[str, ...] = (
     "single-neuron-synaptome",
 )
 
-# build/new — dynamic [type], same types as build/configure
-_BUILD_NEW_TYPES: tuple[str, ...] = _BUILD_CONFIGURE_TYPES
-
 # simulate/configure — static routes, REQUIRES entity_id
 _SIMULATE_CONFIGURE_TYPES: tuple[str, ...] = (
     "circuit",
@@ -131,16 +128,23 @@ _SIMULATE_NEW_TYPES: tuple[str, ...] = (
 
 # All types accepted per phase (union of new + configure for that phase)
 _PHASE_ALLOWED_TYPES: dict[str, tuple[str, ...]] = {
-    "build": tuple(set(_BUILD_NEW_TYPES) | set(_BUILD_CONFIGURE_TYPES)),
+    "build": _BUILD_CONFIGURE_TYPES,
     "simulate": tuple(set(_SIMULATE_NEW_TYPES) | set(_SIMULATE_CONFIGURE_TYPES)),
 }
 
 # Phase+action → allowed types (for precise cross-validation)
 _PHASE_ACTION_ALLOWED_TYPES: dict[tuple[str, str], tuple[str, ...]] = {
-    ("build", "new"): _BUILD_NEW_TYPES,
     ("build", "configure"): _BUILD_CONFIGURE_TYPES,
     ("simulate", "new"): _SIMULATE_NEW_TYPES,
     ("simulate", "configure"): _SIMULATE_CONFIGURE_TYPES,
+}
+
+# Landing page table filter types per phase — only types that appear in the
+# activity table (buildAndSimulateConfiguration[*].properties.<phase>.type).
+# "circuit" is configure-only and does NOT appear in the table.
+_PHASE_TABLE_TYPES: dict[str, tuple[str, ...]] = {
+    "build": _BUILD_CONFIGURE_TYPES,
+    "simulate": _SIMULATE_NEW_TYPES,
 }
 
 # configure routes that REQUIRE entity_id (simulate has [id] in the route)
@@ -149,13 +153,21 @@ _CONFIGURE_REQUIRES_ID: set[str] = {"simulate"}
 # configure routes that MUST NOT have entity_id (build configure has no [id] segment)
 _CONFIGURE_NO_ID: set[str] = {"build"}
 
+# Allowed actions per phase.
+# build: the UI navigates directly to configure (no "new" step).
+# simulate: the UI navigates to new (entity selection) then configure.
+_PHASE_ALLOWED_ACTIONS: dict[str, tuple[str, ...]] = {
+    "build": ("configure", "view"),
+    "simulate": ("new", "configure", "view"),
+}
+
 # Union of all workflow entity types (used in the input schema Literal)
 WorkflowEntityType = Literal[
     # build (new + configure)
     "memodel",
     "ion-channel-modeling-campaign",
     "single-neuron-synaptome",
-    # simulate/configure (model-side — memodel & single-neuron-synaptome already listed)
+    # simulate/configure only (memodel & single-neuron-synaptome already listed)
     "circuit",
     # simulate/new (simulation-result-side)
     "single-neuron-simulation",
@@ -444,6 +456,23 @@ class NavigateInput(BaseModel):
                     "Set workflow_phase to 'build' or 'simulate'."
                 )
 
+            # Validate action is allowed for this phase
+            if action and phase:
+                allowed_actions = _PHASE_ALLOWED_ACTIONS.get(phase, ())
+                if action not in allowed_actions:
+                    errors.append(
+                        f"workflow_action '{action}' is not valid for "
+                        f"workflow_phase '{phase}'. "
+                        f"Allowed actions: {', '.join(allowed_actions)}."
+                    )
+
+            # workflow_entity_type requires workflow_phase (to validate allowed types)
+            if wf_type and not phase:
+                errors.append(
+                    "workflow_entity_type requires workflow_phase. "
+                    "Set workflow_phase to 'build' or 'simulate'."
+                )
+
             # entity_id without action makes no sense in workflows
             if self.entity_id and not action:
                 errors.append(
@@ -467,6 +496,17 @@ class NavigateInput(BaseModel):
                         f"workflow_phase '{phase}'. "
                         f"Allowed: {', '.join(allowed)}."
                     )
+
+                # On the landing page (no action), only table-filterable types
+                # are valid — e.g. 'circuit' is configure-only, not a table type.
+                if not action:
+                    table_types = _PHASE_TABLE_TYPES.get(phase, ())
+                    if wf_type not in table_types:
+                        errors.append(
+                            f"workflow_entity_type '{wf_type}' is not a valid table "
+                            f"filter for workflow_phase '{phase}'. "
+                            f"Allowed: {', '.join(table_types)}."
+                        )
 
             # Validate workflow_entity_type against phase+action (precise)
             if wf_type and phase and action and action != "view":
@@ -596,6 +636,11 @@ to enrich your answer with links — this dramatically improves the user experie
 - You want to point the user to a specific detail view, browse page, or workflow step.
 - You are listing entities or results and want each item to be clickable.
 
+# Important
+**CRITICAL**: when page_type='data' and you have an entity_id (including when the user provided it) but the user did NOT explicitly
+state the entity type, you MUST leave entity_type as `None`. Do NOT guess it under any circumstances.
+The platform will automatically resolve the entity type from the ID.
+
 # Output
 Returns a single `url` field. Always present it to the user as a clickable link in your final summary.
 """
@@ -690,15 +735,17 @@ Returns a single `url` field. Always present it to the user as a clickable link 
         inp = self.input_schema
 
         if not inp.workflow_action:
-            # Workflow landing page — append query params if provided
+            # Workflow landing page:
+            # - `activity` preselects the category in the top selector
+            # - `tactivity`/`ttype` filter the activity table
             url = f"{prefix}/workflows"
             params: list[str] = []
             if inp.workflow_phase:
                 params.append(f"activity={inp.workflow_phase}")
                 params.append(f"tactivity={inp.workflow_phase}")
             if inp.workflow_entity_type:
-                params.append(f"type={inp.workflow_entity_type}")
-                params.append(f"ttype={inp.workflow_entity_type}")
+                us = inp.workflow_entity_type.replace("-", "_")
+                params.append(f"ttype={us}")
             if inp.scope:
                 params.append(f"scope={inp.scope}")
             if params:

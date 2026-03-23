@@ -7,7 +7,6 @@ from pydantic import ValidationError
 
 from neuroagent.tools.navigate import (
     _BUILD_CONFIGURE_TYPES,
-    _BUILD_NEW_TYPES,
     _ENTITY_TYPE_SECTIONS,
     _ENTITY_TYPE_TO_GROUP,
     _SIMULATE_CONFIGURE_TYPES,
@@ -289,8 +288,22 @@ class TestWorkflowUrls:
         url = str(result.url)
         assert "activity=build" in url
         assert "tactivity=build" in url
-        assert "type=memodel" in url
         assert "ttype=memodel" in url
+
+    @pytest.mark.asyncio
+    async def test_workflow_landing_type_kebab_to_underscore(self):
+        """Workflow landing query params use underscore_case (ExtendedEntitiesTypeDict)."""
+        tool = _make_tool(
+            {
+                "page_type": "workflows",
+                "workflow_phase": "simulate",
+                "workflow_entity_type": "single-neuron-simulation",
+            }
+        )
+        result = await tool.arun()
+        url = str(result.url)
+        assert "type=single_neuron_simulation" in url
+        assert "ttype=single_neuron_simulation" in url
 
     @pytest.mark.asyncio
     async def test_workflow_landing_with_scope(self):
@@ -303,19 +316,18 @@ class TestWorkflowUrls:
         result = await tool.arun()
         assert "scope=project" in str(result.url)
 
-    @pytest.mark.parametrize("wf_type", list(_BUILD_NEW_TYPES))
     @pytest.mark.asyncio
-    async def test_build_new(self, wf_type):
-        tool = _make_tool(
-            {
-                "page_type": "workflows",
-                "workflow_phase": "build",
-                "workflow_action": "new",
-                "workflow_entity_type": wf_type,
-            }
-        )
-        result = await tool.arun()
-        assert str(result.url) == f"{PREFIX}/workflows/build/new/{wf_type}"
+    async def test_build_new_rejected(self):
+        """Build phase does not support 'new' action — UI goes directly to configure."""
+        with pytest.raises(
+            ValidationError, match="workflow_action 'new' is not valid.*build"
+        ):
+            _make_input(
+                page_type="workflows",
+                workflow_phase="build",
+                workflow_action="new",
+                workflow_entity_type="memodel",
+            )
 
     @pytest.mark.parametrize("wf_type", list(_SIMULATE_NEW_TYPES))
     @pytest.mark.asyncio
@@ -614,6 +626,15 @@ class TestValidatorWorkflowPage:
                 workflow_entity_type="memodel",
             )
 
+    def test_entity_type_requires_phase(self):
+        with pytest.raises(
+            ValidationError, match="workflow_entity_type requires workflow_phase"
+        ):
+            _make_input(
+                page_type="workflows",
+                workflow_entity_type="memodel",
+            )
+
     def test_entity_id_without_action_rejected(self):
         with pytest.raises(
             ValidationError, match="entity_id in workflows requires workflow_action"
@@ -632,7 +653,7 @@ class TestValidatorWorkflowPage:
             _make_input(
                 page_type="workflows",
                 workflow_phase="build",
-                workflow_action="new",
+                workflow_action="configure",
                 workflow_entity_type="memodel",
                 entity_section="overview",
             )
@@ -645,7 +666,7 @@ class TestValidatorWorkflowPage:
         ):
             _make_input(
                 page_type="workflows",
-                workflow_phase="build",
+                workflow_phase="simulate",
                 workflow_action="new",
             )
 
@@ -655,9 +676,9 @@ class TestValidatorWorkflowPage:
         ):
             _make_input(
                 page_type="workflows",
-                workflow_phase="build",
+                workflow_phase="simulate",
                 workflow_action="new",
-                workflow_entity_type="memodel",
+                workflow_entity_type="single-neuron-simulation",
                 entity_id=str(ENTITY_ID),
             )
 
@@ -724,7 +745,8 @@ class TestValidatorWorkflowPage:
 
     # --- phase+action type cross-validation ---
 
-    def test_build_new_rejects_simulate_type(self):
+    def test_build_new_action_rejected(self):
+        """Build phase does not support 'new' — only configure and view."""
         with pytest.raises(ValidationError, match="not valid for.*build"):
             _make_input(
                 page_type="workflows",
@@ -802,6 +824,15 @@ class TestValidatorWorkflowPage:
             workflow_entity_type="memodel",
         )
         assert inp.workflow_entity_type == "memodel"
+
+    def test_landing_rejects_configure_only_type(self):
+        """'circuit' is simulate/configure-only — not a valid table filter."""
+        with pytest.raises(ValidationError, match="not a valid table filter"):
+            _make_input(
+                page_type="workflows",
+                workflow_phase="simulate",
+                workflow_entity_type="circuit",
+            )
 
 
 # ---------------------------------------------------------------------------
