@@ -7,7 +7,12 @@ from uuid import UUID
 import jsonpatch
 from pydantic import BaseModel, Field
 
-from neuroagent.shared_state import SharedStateLoosened, SharedStatePartial
+from neuroagent.shared_state import (
+    STATE_KEY_ALLOWED_PAGES,
+    SharedStateLoosened,
+    SharedStatePartial,
+    check_state_key_page_access,
+)
 from neuroagent.tools.base_tool import BaseMetadata, BaseTool
 from neuroagent.utils import extract_frontend_context
 
@@ -110,6 +115,11 @@ After making changes, use your judgment: if you think the state should now be va
 - Split up large changes into multiple calls to this tool.
 - Use `null` as value to explicitly set fields to null
 - Don't over-validate - respect partial state modifications
+
+# Page Restriction
+State can only be edited on predefined pages. If this tool errors out because the user is not on the correct page:
+1. If you believe a state-enabled page exists for the user's request, call the `navigate` tool to get a link. NEVER construct the URL yourself. Present its output URL verbatim (do NOT modify it) and ask the user to click it. Keep the message short.
+2. If you believe no state-enabled page exists for the request, tell the user that this action is not available from their current page.
 """
     description_frontend: ClassVar[str] = """Edit the current UI through the agent."""
     metadata: EditStateMetadata
@@ -122,6 +132,21 @@ After making changes, use your judgment: if you think the state should now be va
                 "No shared state was provided in the request body.\n"
                 "The editstate tool requires a state to modify."
             )
+
+        # Check page access for each state key targeted by the patches
+        if self.metadata.current_frontend_url:
+            targeted_keys = {
+                patch.path.lstrip("/").split("/")[0]
+                for patch in self.input_schema.patches
+            }
+            for key in targeted_keys:
+                if key in STATE_KEY_ALLOWED_PAGES and not check_state_key_page_access(
+                    key, self.metadata.current_frontend_url
+                ):
+                    raise ValueError(
+                        f"Cannot edit '{key}': the current page does not allow modifying this state key. "
+                        f"Valid page pattern: {STATE_KEY_ALLOWED_PAGES[key].pattern}"
+                    )
 
         # Get current state as dict
         current_state = self.metadata.shared_state.model_dump()

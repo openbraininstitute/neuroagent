@@ -643,6 +643,9 @@ The platform will automatically resolve the entity type from the ID.
 
 # Output
 Returns a single `url` field. Always present it to the user as a clickable link in your final summary.
+
+# Important Behavior
+This tool only generates a URL — it does NOT change the page. The user must click the link to navigate. After calling this tool, stop and present the link. Do not assume the user is on the new page until their next message.
 """
     description_frontend: ClassVar[str] = (
         "Generate a navigation URL to a platform page."

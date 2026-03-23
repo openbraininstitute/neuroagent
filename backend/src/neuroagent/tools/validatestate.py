@@ -6,7 +6,11 @@ from uuid import UUID
 from httpx import AsyncClient
 from pydantic import BaseModel
 
-from neuroagent.shared_state import SharedStateLoosened
+from neuroagent.shared_state import (
+    STATE_KEY_ALLOWED_PAGES,
+    SharedStateLoosened,
+    check_state_key_page_access,
+)
 from neuroagent.tools.base_tool import BaseMetadata, BaseTool
 
 
@@ -20,6 +24,7 @@ class ValidateStateMetadata(BaseMetadata):
     """Metadata for the ValidateState tool."""
 
     shared_state: SharedStateLoosened
+    current_frontend_url: str | None = None
     httpx_client: AsyncClient
     obi_one_url: str
     vlab_id: UUID | None
@@ -67,7 +72,12 @@ Do NOT call `validatestate` when:
 # Important Notes
 - A state can be partially filled and invalid - this is normal during incremental configuration
 - Only validate when you expect the state to be complete based on the user's intent
-- If a previously valid state becomes invalid after changes, fix the errors returned by this tool and call it again."""
+- If a previously valid state becomes invalid after changes, fix the errors returned by this tool and call it again
+
+# Page Restriction
+State can only be validated on predefined pages. If this tool errors out because the user is not on the correct page:
+1. If you believe a state-enabled page exists for the user's request, call the `navigate` tool to get a link. NEVER construct the URL yourself. Present its output URL verbatim (do NOT modify it) and ask the user to click it. Keep the message short.
+2. If you believe no state-enabled page exists for the request, tell the user that this action is not available from their current page."""
     description_frontend: ClassVar[str] = """Validate the application state."""
     metadata: ValidateStateMetadata
     input_schema: ValidateStateInput
@@ -76,6 +86,17 @@ Do NOT call `validatestate` when:
         """Validate the shared state."""
         if not self.metadata.shared_state:
             raise ValueError("No shared state provided.")
+
+        # Check that the user is on a page associated with at least one state key
+        if self.metadata.current_frontend_url and not any(
+            check_state_key_page_access(key, self.metadata.current_frontend_url)
+            for key in STATE_KEY_ALLOWED_PAGES
+        ):
+            valid_pages = {k: v.pattern for k, v in STATE_KEY_ALLOWED_PAGES.items()}
+            raise ValueError(
+                "Cannot validate state: the current page is not associated with any state key. "
+                f"Valid page patterns: {valid_pages}"
+            )
 
         headers: dict[str, str] = {}
         if self.metadata.vlab_id is not None:
