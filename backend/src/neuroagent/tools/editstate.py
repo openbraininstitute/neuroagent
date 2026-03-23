@@ -1,8 +1,6 @@
 """Tool to edit the shared state using JSONPatch operations."""
 
 from typing import Any, ClassVar
-from urllib.parse import urlparse
-from uuid import UUID
 
 import jsonpatch
 from pydantic import BaseModel, Field
@@ -14,7 +12,6 @@ from neuroagent.shared_state import (
     check_state_key_page_access,
 )
 from neuroagent.tools.base_tool import BaseMetadata, BaseTool
-from neuroagent.utils import extract_frontend_context
 
 
 class JSONPatchOperation(BaseModel):
@@ -51,7 +48,6 @@ class EditStateMetadata(BaseMetadata):
 
     shared_state: SharedStateLoosened
     current_frontend_url: str | None = None
-    request_id: str | None = None
 
 
 class EditStateOutput(BaseModel):
@@ -60,7 +56,6 @@ class EditStateOutput(BaseModel):
     state: SharedStateLoosened = Field(
         description="The updated state after applying patches"
     )
-    url_links: dict[str, str] | None = None
 
 
 class EditStateTool(BaseTool):
@@ -84,9 +79,6 @@ class EditStateTool(BaseTool):
 
 # Return Values
 - `state`: The updated state after applying patches
-- `url_links`: Links to pages where the updated state can be viewed (if user is not already on those pages)
-
-**IMPORTANT:** If `url_links` is present in the response, you MUST present these links to the user in your final summary so they can navigate to see the updated state.
 
 # Validation Strategy
 This tool does NOT validate the state. The state can be partially filled and invalid after your changes.
@@ -160,71 +152,11 @@ State can only be edited on predefined pages. If this tool errors out because th
 
         # Update the context variables with new state
         self.metadata.shared_state = updated_state
-        urls = self.get_return_url(updated_state)
 
-        # Return the state with validation status
-        return EditStateOutput(state=self.metadata.shared_state, url_links=urls)
+        # Return the state
+        return EditStateOutput(state=self.metadata.shared_state)
 
     @classmethod
     async def is_online(cls) -> bool:
         """Check if the tool is online."""
-        return True
-
-    def get_return_url(self, state: SharedStateLoosened) -> dict[str, str] | None:
-        """Generate urls to which the user should go to see the state."""
-        if not self.metadata.current_frontend_url:
-            return None
-
-        parsed = urlparse(self.metadata.current_frontend_url)
-        parts = parsed.path.split("/")
-
-        # Expect: ['', 'app', 'virtual-lab', 'vlab-id', 'project-id', ...]
-        if len(parts) < 5 or parts[1:3] != ["app", "virtual-lab"]:
-            return None
-
-        base_path = "/".join(parts[:5])
-        modified_paths = {
-            patch.path.lstrip("/").split("/")[0] for patch in self.input_schema.patches
-        }
-        urls: dict[str, str] = {}
-
-        # Append new if statements as state grows
-        if "smc_simulation_config" in modified_paths:
-            # Get circuit ID from within the state
-            try:
-                circuit_id = UUID(
-                    state.smc_simulation_config.get("initialize", {})  # type: ignore
-                    .get("circuit", {})
-                    .get("id_str")
-                )
-            except (ValueError, TypeError):
-                circuit_id = None
-            # Compare to the current frontend url
-            if circuit_id and not self.is_correct_simulation_page(
-                self.metadata.current_frontend_url, circuit_id
-            ):
-                urls["smc_simulation_config"] = (
-                    f"{parsed.scheme}://{parsed.netloc}{base_path}/workflows/simulate/configure/circuit/{circuit_id}?x-request-id={self.metadata.request_id}"
-                )
-
-            # More if statements in the future as the state grows
-
-        return urls or None
-
-    @staticmethod
-    def is_correct_simulation_page(
-        url: str | None = None, circuit_id: UUID | None = None
-    ) -> bool:
-        """We are on the simulation page if the url contains /workflows/simulate/configure/circuit and `panel=configuration`."""
-        if not url:
-            return False
-
-        if "/workflows/simulate/configure/circuit" not in url:
-            return False
-
-        if circuit_id:
-            context = extract_frontend_context(url)
-            if not context.current_entity_id or circuit_id != context.current_entity_id:
-                return False
-
         return True
