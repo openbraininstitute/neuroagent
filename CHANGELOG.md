@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - obi-expert - better querying logic and better description
+- Navigation tool.
 
 ## [0.17.1] - 04.03.2026
 
