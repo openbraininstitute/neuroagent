@@ -146,6 +146,7 @@ State can only be edited on predefined pages. If this tool errors out because th
                     raise ValueError(
                         f"Cannot edit '{key}': the current page does not allow modifying this state key. "
                         f"Valid page pattern: {STATE_KEY_ALLOWED_PAGES[key].pattern}"
+                        "Use `navigate` tool to get to a valid page."
                     )
 
         # Get current state as dict

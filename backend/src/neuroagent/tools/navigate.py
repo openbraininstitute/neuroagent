@@ -646,6 +646,9 @@ Returns a single `url` field. Always present it to the user as a clickable link 
 
 # Important Behavior
 This tool only generates a URL — it does NOT change the page. The user must click the link to navigate. After calling this tool, stop and present the link. Do not assume the user is on the new page until their next message.
+
+# State-Enabled Pages
+This tool can also be used to guide the user to a state-enabled page when `editstate`, `getstate`, or `validatestate` require it.
 """
     description_frontend: ClassVar[str] = (
         "Generate a navigation URL to a platform page."

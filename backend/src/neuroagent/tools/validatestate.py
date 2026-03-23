@@ -96,6 +96,7 @@ State can only be validated on predefined pages. If this tool errors out because
             raise ValueError(
                 "Cannot validate state: the current page is not associated with any state key. "
                 f"Valid page patterns: {valid_pages}"
+                "Use `navigate` tool to get to a valid page."
             )
 
         headers: dict[str, str] = {}

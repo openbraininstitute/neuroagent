@@ -79,6 +79,7 @@ State can only be read on predefined pages. If this tool errors out because the 
             raise ValueError(
                 "Cannot get state: the current page is not associated with any state key. "
                 f"Valid page patterns: {valid_pages}"
+                "Use `navigate` tool to get to a valid page."
             )
 
         full_state = self.metadata.shared_state.model_dump()

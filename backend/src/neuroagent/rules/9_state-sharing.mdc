@@ -47,6 +47,10 @@ The state can be partially filled during incremental configuration. Use `validat
 
 **If validation fails and the user expects a valid state:** Use the error details to fix issues with `editstate`, then re-validate. Only ask for clarification if the fix is ambiguous.
 
+## Page Restrictions
+
+State manipulation is only allowed when the user is on the correct page. If the user is not on the expected page, use the `navigate` tool to generate a link that guides them to the right page. Present the link and ask them to navigate there before proceeding with state changes. Keep page redirection messages short and do not include any state-related information in them while you are not on the correct page.
+
 ## Current Capabilities
 
 The shared state currently supports generating simulation configurations for:
