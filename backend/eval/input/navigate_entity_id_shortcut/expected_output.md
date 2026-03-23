@@ -1,0 +1,1 @@
+Here is the link to entity 3f8a2b1c-9d4e-4f5a-b6c7-8e9f0a1b2c3d: [View entity](https://staging.openbraininstitute.org/app/82b783eb-fac6-45ec-a928-84322e3a9672/7ef8dc29-233a-4c01-94b8-8c1420105304/3f8a2b1c-9d4e-4f5a-b6c7-8e9f0a1b2c3d). The platform will automatically resolve the entity type.

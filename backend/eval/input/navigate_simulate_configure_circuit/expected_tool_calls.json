@@ -1,0 +1,12 @@
+[
+  {
+    "name": "navigate",
+    "arguments": {
+      "page_type": "workflows",
+      "workflow_phase": "simulate",
+      "workflow_action": "configure",
+      "workflow_entity_type": "circuit",
+      "entity_id": "3700dfb4-c7e2-40a9-ad2e-378430437d16"
+    }
+  }
+]

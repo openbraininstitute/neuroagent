@@ -1,0 +1,10 @@
+[
+  {
+    "name": "navigate",
+    "arguments": {
+      "page_type": "data",
+      "scope": "project",
+      "entity_type": "memodel"
+    }
+  }
+]
