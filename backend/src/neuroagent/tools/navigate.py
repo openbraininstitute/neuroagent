@@ -622,7 +622,7 @@ class NavigateTool(BaseTool):
     ]
     description: ClassVar[
         str
-    ] = """Generate a valid platform URL to navigate the user to a specific page.
+    ] = """Generate a valid platform URL to prompt the user to go to a specific page.
 
 Use this tool generously. Whenever your answer mentions a page, entity, workflow,
 or section of the platform, call this tool to produce a clickable link so the user
@@ -637,12 +637,12 @@ to enrich your answer with links — this dramatically improves the user experie
 - You are listing entities or results and want each item to be clickable.
 
 # Important
-**CRITICAL**: when page_type='data' and you have an entity_id (including when the user provided it) but the user did NOT explicitly
+**CRITICAL**: when page_type='data' and you have an entity_id but the user did NOT explicitly
 state the entity type, you MUST leave entity_type as `None`. Do NOT guess it under any circumstances.
-The platform will automatically resolve the entity type from the ID.
+The system will automatically resolve the entity type from the ID.
 
 # Output
-Returns a single `url` field. Always present it to the user as a clickable link in your final summary.
+Returns a single `url` field. Always present it to the user as a markdown clickable link in your final summary.
 
 # Important Behavior
 This tool only generates a URL — it does NOT change the page. The user must click the link to navigate. After calling this tool, stop and present the link. Do not assume the user is on the new page until their next message.
