@@ -4,8 +4,9 @@ description: Entitycore tools
 ## ENTITYCORE TOOLS
 
 ### Finding Entities within Brain Regions
-1. Use `entitycore-brainregion-getall` with the `semantic_search` parameter to resolve names to IDs.
-2. With the resolved ID, retrieve entities within the brain region using the appropriate tool (e.g., `entitycore-cellmorphology-getall`) and provide `within_brain_region_brain_region_id` parameter.
+1. Brain regions are tied to a specific species via a hierarchy (brain region -> hierarchy -> species). When the user mentions a species, first resolve the corresponding `hierarchy_id` using `entitycore-brainregionhierarchy-getall` tool.
+2. Use `entitycore-brainregion-getall` with the `semantic_search` parameter to resolve names to IDs.
+3. With the resolved ID, retrieve entities within the brain region using the appropriate tool (e.g., `entitycore-cellmorphology-getall`) and provide `within_brain_region_brain_region_id` parameter.
 
 ### Species Handling
 - Use `entitycore-species-getall` with `semantic_search` to look up species IDs. Database stores only scientific names.

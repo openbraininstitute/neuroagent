@@ -1,0 +1,27 @@
+[
+  {
+    "name": "entitycore-species-getall",
+    "arguments": {
+      "semantic_search": "rat"
+    }
+  },
+  {
+    "name": "entitycore-brainregionhierarchy-getall",
+    "arguments": {
+      "species_id__in": "dynamic"
+    }
+  },
+  {
+    "name": "entitycore-brainregion-getall",
+    "arguments": {
+      "semantic_search": "thalamus",
+      "hierarchy_id__in": "dynamic"
+    }
+  },
+  {
+    "name": "entitycore-memodel-getall",
+    "arguments": {
+      "within_brain_region_brain_region_id": "dynamic"
+    }
+  }
+]

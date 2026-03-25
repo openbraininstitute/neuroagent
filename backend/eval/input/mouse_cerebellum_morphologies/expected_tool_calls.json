@@ -1,0 +1,27 @@
+[
+  {
+    "name": "entitycore-species-getall",
+    "arguments": {
+      "semantic_search": "mouse"
+    }
+  },
+  {
+    "name": "entitycore-brainregionhierarchy-getall",
+    "arguments": {
+      "species_id__in": "dynamic"
+    }
+  },
+  {
+    "name": "entitycore-brainregion-getall",
+    "arguments": {
+      "semantic_search": "cerebellum",
+      "hierarchy_id__in": "dynamic"
+    }
+  },
+  {
+    "name": "entitycore-cellmorphology-getall",
+    "arguments": {
+      "within_brain_region_brain_region_id": "dynamic"
+    }
+  }
+]
