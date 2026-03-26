@@ -2,26 +2,20 @@
   {
     "name": "entitycore-species-getall",
     "arguments": {
-      "semantic_search": "mouse"
-    }
-  },
-  {
-    "name": "entitycore-brainregionhierarchy-getall",
-    "arguments": {
-      "species_id__in": "dynamic"
+      "semantic_search": "Mus musculus"
     }
   },
   {
     "name": "entitycore-brainregion-getall",
     "arguments": {
       "semantic_search": "cerebellum",
-      "hierarchy_id__in": "dynamic"
+      "species__id": "b7ad4cca-4ac2-4095-9781-37fb68fe9ca1"
     }
   },
   {
     "name": "entitycore-cellmorphology-getall",
     "arguments": {
-      "within_brain_region_brain_region_id": "dynamic"
+        "within_brain_region_brain_region_id": "062ebc92-cebb-498a-a76d-b5ef1baf02cf"
     }
   }
 ]

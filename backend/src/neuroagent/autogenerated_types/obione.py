@@ -1487,13 +1487,43 @@ class StandardDeviationPercentageOfThresholdItem(TimeConstantItem):
     pass
 
 
-class Duration13(RootModel[float]):
+class Level1Duration(RootModel[float]):
     root: float = Field(
-        200.0,
-        description='Time duration in milliseconds for how long the SEClamp is activated.',
+        250.0,
+        description='Duration 1 of SEClamp stimulus (in ms)',
         ge=0.0,
-        title='Total Duration',
+        title='Level 1 Duration',
     )
+
+
+class Level1DurationItem(DurationItem):
+    pass
+
+
+class Level2Duration(RootModel[float]):
+    root: float = Field(
+        500.0,
+        description='Duration 2 of SEClamp stimulus (in ms)',
+        ge=0.0,
+        title='Level 2 Duration',
+    )
+
+
+class Level2DurationItem(DurationItem):
+    pass
+
+
+class Level3Duration(RootModel[float]):
+    root: float = Field(
+        250.0,
+        description='Duration 3 of SEClamp stimulus (in ms)',
+        ge=0.0,
+        title='Level 3 Duration',
+    )
+
+
+class Level3DurationItem(DurationItem):
+    pass
 
 
 class SEClampSomaticStimulus(BaseModel):
@@ -1508,25 +1538,35 @@ class SEClampSomaticStimulus(BaseModel):
         description='Neuron set to which the stimulus is applied.',
         title='Neuron Set',
     )
-    timestamp_offset: float | list[float] = Field(
-        default=0.0,
-        description='The offset of the stimulus relative to each timestamp in milliseconds (ms).',
-        title='Timestamp Offset',
+    level1_duration: Level1Duration | list[Level1DurationItem] = Field(
+        default_factory=lambda: Level1Duration(250.0),
+        description='Duration 1 of SEClamp stimulus (in ms)',
+        title='Level 1 Duration',
     )
-    duration: Duration13 | list[DurationItem8] = Field(
-        default_factory=lambda: Duration13(200.0),
-        description='Time duration in milliseconds for how long the SEClamp is activated.',
-        title='Total Duration',
+    level1_voltage: float | list[float] = Field(
+        default=-80.0,
+        description='Amplitude 1 of SEClamp stimulus (in mV)',
+        title='Level 1 Voltage',
     )
-    initial_voltage: float | list[float] = Field(
-        default=0.0,
-        description='The initial voltage level in millivolts (mV).',
-        title='Initial Voltage',
+    level2_duration: Level2Duration | list[Level2DurationItem] = Field(
+        default_factory=lambda: Level2Duration(500.0),
+        description='Duration 2 of SEClamp stimulus (in ms)',
+        title='Level 2 Duration',
     )
-    step_voltage: float | list[float] = Field(
+    level2_voltage: float | list[float] = Field(
         default=0.0,
-        description='The step voltage level in millivolts (mV).',
-        title='Step Voltage Amplitude',
+        description='Amplitude 2 of SEClamp stimulus (in mV)',
+        title='Level 2 Voltage',
+    )
+    level3_duration: Level3Duration | list[Level3DurationItem] = Field(
+        default_factory=lambda: Level3Duration(250.0),
+        description='Duration 3 of SEClamp stimulus (in ms)',
+        title='Level 3 Duration',
+    )
+    level3_voltage: float | list[float] = Field(
+        default=-80.0,
+        description='Amplitude 3 of  SEClamp stimulus (in mV)',
+        title='Level 3 Voltage',
     )
 
 
@@ -1671,10 +1711,6 @@ class SingleTimestamp(BaseModel):
     )
 
 
-class Duration14(Duration):
-    pass
-
-
 class Frequency2(RootModel[float]):
     root: float = Field(
         1.0,
@@ -1693,7 +1729,7 @@ class Dt1(RootModel[float]):
     )
 
 
-class Duration15(RootModel[float]):
+class Duration14(RootModel[float]):
     root: float = Field(
         200.0,
         description='Time duration of the stimulus in milliseconds.',
@@ -1703,7 +1739,7 @@ class Duration15(RootModel[float]):
     )
 
 
-class DurationItem15(DurationItem7):
+class DurationItem14(DurationItem7):
     pass
 
 
@@ -1777,7 +1813,7 @@ class SpatialCoordinate(RootModel[Literal['x', 'y', 'z']]):
     root: Literal['x', 'y', 'z'] = Field(..., title='SpatialCoordinate')
 
 
-class Duration16(RootModel[float]):
+class Duration15(RootModel[float]):
     root: float = Field(
         200.0,
         description='Time in milliseconds (ms) for how long the main stimulus is activated. The duration does not include the ramp up and ramp down times, so the total length of the stimulus will be the sum of the duration, ramp up and ramp down times.',
@@ -1854,11 +1890,11 @@ class SubjectID(BaseModel):
     subject_id: UUID | None = Field(default=None, title='Subject Id')
 
 
-class Duration17(Duration):
+class Duration16(Duration):
     pass
 
 
-class DurationItem17(DurationItem):
+class DurationItem16(DurationItem):
     pass
 
 
@@ -1902,22 +1938,28 @@ class SynapticMgManipulation(BaseModel):
 class TaskType(
     RootModel[
         Literal[
-            'circuit_extraction', 'circuit_simulation', 'morphology_skeletonization'
+            'circuit_extraction',
+            'circuit_simulation',
+            'morphology_skeletonization',
+            'ion_channel_model_simulation_execution',
         ]
     ]
 ):
     root: Literal[
-        'circuit_extraction', 'circuit_simulation', 'morphology_skeletonization'
+        'circuit_extraction',
+        'circuit_simulation',
+        'morphology_skeletonization',
+        'ion_channel_model_simulation_execution',
     ] = Field(
         ..., description='Task types supported for job submission.', title='TaskType'
     )
 
 
-class Duration18(Duration16):
+class Duration17(Duration15):
     pass
 
 
-class DurationItem18(DurationItem7):
+class DurationItem17(DurationItem7):
     pass
 
 
@@ -3199,25 +3241,25 @@ class ConstantCurrentClampSomaticStimulus(BaseModel):
     type: Literal['ConstantCurrentClampSomaticStimulus'] = Field(
         default='ConstantCurrentClampSomaticStimulus', title='Type'
     )
+    duration: Duration | list[DurationItem] = Field(
+        default_factory=lambda: Duration(200.0),
+        description='Time duration in milliseconds for how long input is activated.',
+        title='Duration',
+    )
     timestamps: TimestampsReference | None = Field(
         default=None,
         description='Timestamps at which the stimulus is applied.',
         title='Timestamps',
-    )
-    neuron_set: NeuronSetReference | None = Field(
-        default=None,
-        description='Neuron set to which the stimulus is applied.',
-        title='Neuron Set',
     )
     timestamp_offset: float | list[float] = Field(
         default=0.0,
         description='The offset of the stimulus relative to each timestamp in milliseconds (ms).',
         title='Timestamp Offset',
     )
-    duration: Duration | list[DurationItem] = Field(
-        default_factory=lambda: Duration(200.0),
-        description='Time duration in milliseconds for how long input is activated.',
-        title='Duration',
+    neuron_set: NeuronSetReference | None = Field(
+        default=None,
+        description='Neuron set to which the stimulus is applied.',
+        title='Neuron Set',
     )
     amplitude: float | list[float] | FloatRange = Field(
         default=0.1,
@@ -3336,6 +3378,11 @@ class FullySynchronousSpikeStimulus(BaseModel):
         description='Timestamps at which the stimulus is applied.',
         title='Timestamps',
     )
+    timestamp_offset: float | list[float] = Field(
+        default=0.0,
+        description='The offset of the stimulus relative to each timestamp in milliseconds (ms).',
+        title='Timestamp Offset',
+    )
     source_neuron_set: NeuronSetReference | None = Field(
         default=None,
         description='Source neuron set to simulate',
@@ -3345,11 +3392,6 @@ class FullySynchronousSpikeStimulus(BaseModel):
         default=None,
         description='Target neuron set to simulate',
         title='Neuron Set (Target)',
-    )
-    timestamp_offset: float | list[float] = Field(
-        default=0.0,
-        description='The offset of the stimulus relative to each timestamp in milliseconds (ms).',
-        title='Timestamp Offset',
     )
 
 
@@ -3367,25 +3409,25 @@ class HyperpolarizingCurrentClampSomaticStimulus(BaseModel):
     type: Literal['HyperpolarizingCurrentClampSomaticStimulus'] = Field(
         default='HyperpolarizingCurrentClampSomaticStimulus', title='Type'
     )
+    duration: Duration | list[DurationItem] = Field(
+        default_factory=lambda: Duration(200.0),
+        description='Time duration in milliseconds for how long input is activated.',
+        title='Duration',
+    )
     timestamps: TimestampsReference | None = Field(
         default=None,
         description='Timestamps at which the stimulus is applied.',
         title='Timestamps',
-    )
-    neuron_set: NeuronSetReference | None = Field(
-        default=None,
-        description='Neuron set to which the stimulus is applied.',
-        title='Neuron Set',
     )
     timestamp_offset: float | list[float] = Field(
         default=0.0,
         description='The offset of the stimulus relative to each timestamp in milliseconds (ms).',
         title='Timestamp Offset',
     )
-    duration: Duration | list[DurationItem] = Field(
-        default_factory=lambda: Duration(200.0),
-        description='Time duration in milliseconds for how long input is activated.',
-        title='Duration',
+    neuron_set: NeuronSetReference | None = Field(
+        default=None,
+        description='Neuron set to which the stimulus is applied.',
+        title='Neuron Set',
     )
 
 
@@ -3492,25 +3534,25 @@ class LinearCurrentClampSomaticStimulus(BaseModel):
     type: Literal['LinearCurrentClampSomaticStimulus'] = Field(
         default='LinearCurrentClampSomaticStimulus', title='Type'
     )
+    duration: Duration | list[DurationItem] = Field(
+        default_factory=lambda: Duration(200.0),
+        description='Time duration in milliseconds for how long input is activated.',
+        title='Duration',
+    )
     timestamps: TimestampsReference | None = Field(
         default=None,
         description='Timestamps at which the stimulus is applied.',
         title='Timestamps',
-    )
-    neuron_set: NeuronSetReference | None = Field(
-        default=None,
-        description='Neuron set to which the stimulus is applied.',
-        title='Neuron Set',
     )
     timestamp_offset: float | list[float] = Field(
         default=0.0,
         description='The offset of the stimulus relative to each timestamp in milliseconds (ms).',
         title='Timestamp Offset',
     )
-    duration: Duration | list[DurationItem] = Field(
-        default_factory=lambda: Duration(200.0),
-        description='Time duration in milliseconds for how long input is activated.',
-        title='Duration',
+    neuron_set: NeuronSetReference | None = Field(
+        default=None,
+        description='Neuron set to which the stimulus is applied.',
+        title='Neuron Set',
     )
     amplitude_start: float | list[float] = Field(
         default=0.1,
@@ -3596,25 +3638,25 @@ class MultiPulseCurrentClampSomaticStimulus(BaseModel):
     type: Literal['MultiPulseCurrentClampSomaticStimulus'] = Field(
         default='MultiPulseCurrentClampSomaticStimulus', title='Type'
     )
+    duration: Duration | list[DurationItem] = Field(
+        default_factory=lambda: Duration(200.0),
+        description='Time duration in milliseconds for how long input is activated.',
+        title='Duration',
+    )
     timestamps: TimestampsReference | None = Field(
         default=None,
         description='Timestamps at which the stimulus is applied.',
         title='Timestamps',
-    )
-    neuron_set: NeuronSetReference | None = Field(
-        default=None,
-        description='Neuron set to which the stimulus is applied.',
-        title='Neuron Set',
     )
     timestamp_offset: float | list[float] = Field(
         default=0.0,
         description='The offset of the stimulus relative to each timestamp in milliseconds (ms).',
         title='Timestamp Offset',
     )
-    duration: Duration | list[DurationItem] = Field(
-        default_factory=lambda: Duration(200.0),
-        description='Time duration in milliseconds for how long input is activated.',
-        title='Duration',
+    neuron_set: NeuronSetReference | None = Field(
+        default=None,
+        description='Neuron set to which the stimulus is applied.',
+        title='Neuron Set',
     )
     amplitude: float | list[float] = Field(
         default=0.1,
@@ -3640,25 +3682,25 @@ class NormallyDistributedCurrentClampSomaticStimulus(BaseModel):
     type: Literal['NormallyDistributedCurrentClampSomaticStimulus'] = Field(
         default='NormallyDistributedCurrentClampSomaticStimulus', title='Type'
     )
+    duration: Duration | list[DurationItem] = Field(
+        default_factory=lambda: Duration(200.0),
+        description='Time duration in milliseconds for how long input is activated.',
+        title='Duration',
+    )
     timestamps: TimestampsReference | None = Field(
         default=None,
         description='Timestamps at which the stimulus is applied.',
         title='Timestamps',
-    )
-    neuron_set: NeuronSetReference | None = Field(
-        default=None,
-        description='Neuron set to which the stimulus is applied.',
-        title='Neuron Set',
     )
     timestamp_offset: float | list[float] = Field(
         default=0.0,
         description='The offset of the stimulus relative to each timestamp in milliseconds (ms).',
         title='Timestamp Offset',
     )
-    duration: Duration | list[DurationItem] = Field(
-        default_factory=lambda: Duration(200.0),
-        description='Time duration in milliseconds for how long input is activated.',
-        title='Duration',
+    neuron_set: NeuronSetReference | None = Field(
+        default=None,
+        description='Neuron set to which the stimulus is applied.',
+        title='Neuron Set',
     )
     mean_amplitude: float | list[float] = Field(
         default=0.01,
@@ -3679,25 +3721,25 @@ class OrnsteinUhlenbeckConductanceSomaticStimulus(BaseModel):
     type: Literal['OrnsteinUhlenbeckConductanceSomaticStimulus'] = Field(
         default='OrnsteinUhlenbeckConductanceSomaticStimulus', title='Type'
     )
+    duration: Duration | list[DurationItem] = Field(
+        default_factory=lambda: Duration(200.0),
+        description='Time duration in milliseconds for how long input is activated.',
+        title='Duration',
+    )
     timestamps: TimestampsReference | None = Field(
         default=None,
         description='Timestamps at which the stimulus is applied.',
         title='Timestamps',
-    )
-    neuron_set: NeuronSetReference | None = Field(
-        default=None,
-        description='Neuron set to which the stimulus is applied.',
-        title='Neuron Set',
     )
     timestamp_offset: float | list[float] = Field(
         default=0.0,
         description='The offset of the stimulus relative to each timestamp in milliseconds (ms).',
         title='Timestamp Offset',
     )
-    duration: Duration | list[DurationItem] = Field(
-        default_factory=lambda: Duration(200.0),
-        description='Time duration in milliseconds for how long input is activated.',
-        title='Duration',
+    neuron_set: NeuronSetReference | None = Field(
+        default=None,
+        description='Neuron set to which the stimulus is applied.',
+        title='Neuron Set',
     )
     time_constant: TimeConstant | list[TimeConstantItem] = Field(
         default_factory=lambda: TimeConstant(2.7),
@@ -3728,25 +3770,25 @@ class OrnsteinUhlenbeckCurrentSomaticStimulus(BaseModel):
     type: Literal['OrnsteinUhlenbeckCurrentSomaticStimulus'] = Field(
         default='OrnsteinUhlenbeckCurrentSomaticStimulus', title='Type'
     )
+    duration: Duration | list[DurationItem] = Field(
+        default_factory=lambda: Duration(200.0),
+        description='Time duration in milliseconds for how long input is activated.',
+        title='Duration',
+    )
     timestamps: TimestampsReference | None = Field(
         default=None,
         description='Timestamps at which the stimulus is applied.',
         title='Timestamps',
-    )
-    neuron_set: NeuronSetReference | None = Field(
-        default=None,
-        description='Neuron set to which the stimulus is applied.',
-        title='Neuron Set',
     )
     timestamp_offset: float | list[float] = Field(
         default=0.0,
         description='The offset of the stimulus relative to each timestamp in milliseconds (ms).',
         title='Timestamp Offset',
     )
-    duration: Duration | list[DurationItem] = Field(
-        default_factory=lambda: Duration(200.0),
-        description='Time duration in milliseconds for how long input is activated.',
-        title='Duration',
+    neuron_set: NeuronSetReference | None = Field(
+        default=None,
+        description='Neuron set to which the stimulus is applied.',
+        title='Neuron Set',
     )
     time_constant: TimeConstant | list[TimeConstantItem] = Field(
         default_factory=lambda: TimeConstant(2.7),
@@ -3777,6 +3819,11 @@ class PoissonSpikeStimulus(BaseModel):
         description='Timestamps at which the stimulus is applied.',
         title='Timestamps',
     )
+    timestamp_offset: float | list[float] = Field(
+        default=0.0,
+        description='The offset of the stimulus relative to each timestamp in milliseconds (ms).',
+        title='Timestamp Offset',
+    )
     source_neuron_set: NeuronSetReference | None = Field(
         default=None,
         description='Source neuron set to simulate',
@@ -3786,11 +3833,6 @@ class PoissonSpikeStimulus(BaseModel):
         default=None,
         description='Target neuron set to simulate',
         title='Neuron Set (Target)',
-    )
-    timestamp_offset: float | list[float] = Field(
-        default=0.0,
-        description='The offset of the stimulus relative to each timestamp in milliseconds (ms).',
-        title='Timestamp Offset',
     )
     duration: Duration7 | list[DurationItem7] = Field(
         default_factory=lambda: Duration7(200.0),
@@ -3816,25 +3858,25 @@ class RelativeConstantCurrentClampSomaticStimulus(BaseModel):
     type: Literal['RelativeConstantCurrentClampSomaticStimulus'] = Field(
         default='RelativeConstantCurrentClampSomaticStimulus', title='Type'
     )
+    duration: Duration8 | list[DurationItem8] = Field(
+        default_factory=lambda: Duration8(200.0),
+        description='Time duration in milliseconds for how long input is activated.',
+        title='Duration',
+    )
     timestamps: TimestampsReference | None = Field(
         default=None,
         description='Timestamps at which the stimulus is applied.',
         title='Timestamps',
-    )
-    neuron_set: NeuronSetReference | None = Field(
-        default=None,
-        description='Neuron set to which the stimulus is applied.',
-        title='Neuron Set',
     )
     timestamp_offset: float | list[float] = Field(
         default=0.0,
         description='The offset of the stimulus relative to each timestamp in milliseconds (ms).',
         title='Timestamp Offset',
     )
-    duration: Duration8 | list[DurationItem8] = Field(
-        default_factory=lambda: Duration8(200.0),
-        description='Time duration in milliseconds for how long input is activated.',
-        title='Duration',
+    neuron_set: NeuronSetReference | None = Field(
+        default=None,
+        description='Neuron set to which the stimulus is applied.',
+        title='Neuron Set',
     )
     percentage_of_threshold_current: (
         PercentageOfThresholdCurrent | list[PercentageOfThresholdCurrentItem]
@@ -3852,25 +3894,25 @@ class RelativeLinearCurrentClampSomaticStimulus(BaseModel):
     type: Literal['RelativeLinearCurrentClampSomaticStimulus'] = Field(
         default='RelativeLinearCurrentClampSomaticStimulus', title='Type'
     )
+    duration: Duration8 | list[DurationItem8] = Field(
+        default_factory=lambda: Duration8(200.0),
+        description='Time duration in milliseconds for how long input is activated.',
+        title='Duration',
+    )
     timestamps: TimestampsReference | None = Field(
         default=None,
         description='Timestamps at which the stimulus is applied.',
         title='Timestamps',
-    )
-    neuron_set: NeuronSetReference | None = Field(
-        default=None,
-        description='Neuron set to which the stimulus is applied.',
-        title='Neuron Set',
     )
     timestamp_offset: float | list[float] = Field(
         default=0.0,
         description='The offset of the stimulus relative to each timestamp in milliseconds (ms).',
         title='Timestamp Offset',
     )
-    duration: Duration8 | list[DurationItem8] = Field(
-        default_factory=lambda: Duration8(200.0),
-        description='Time duration in milliseconds for how long input is activated.',
-        title='Duration',
+    neuron_set: NeuronSetReference | None = Field(
+        default=None,
+        description='Neuron set to which the stimulus is applied.',
+        title='Neuron Set',
     )
     percentage_of_threshold_current_start: (
         PercentageOfThresholdCurrentStart | list[PercentageOfThresholdCurrentStartItem]
@@ -3895,25 +3937,25 @@ class RelativeNormallyDistributedCurrentClampSomaticStimulus(BaseModel):
     type: Literal['RelativeNormallyDistributedCurrentClampSomaticStimulus'] = Field(
         default='RelativeNormallyDistributedCurrentClampSomaticStimulus', title='Type'
     )
+    duration: Duration8 | list[DurationItem8] = Field(
+        default_factory=lambda: Duration8(200.0),
+        description='Time duration in milliseconds for how long input is activated.',
+        title='Duration',
+    )
     timestamps: TimestampsReference | None = Field(
         default=None,
         description='Timestamps at which the stimulus is applied.',
         title='Timestamps',
-    )
-    neuron_set: NeuronSetReference | None = Field(
-        default=None,
-        description='Neuron set to which the stimulus is applied.',
-        title='Neuron Set',
     )
     timestamp_offset: float | list[float] = Field(
         default=0.0,
         description='The offset of the stimulus relative to each timestamp in milliseconds (ms).',
         title='Timestamp Offset',
     )
-    duration: Duration8 | list[DurationItem8] = Field(
-        default_factory=lambda: Duration8(200.0),
-        description='Time duration in milliseconds for how long input is activated.',
-        title='Duration',
+    neuron_set: NeuronSetReference | None = Field(
+        default=None,
+        description='Neuron set to which the stimulus is applied.',
+        title='Neuron Set',
     )
     mean_percentage_of_threshold_current: (
         MeanPercentageOfThresholdCurrent | list[MeanPercentageOfThresholdCurrentItem]
@@ -3936,25 +3978,25 @@ class RelativeOrnsteinUhlenbeckConductanceSomaticStimulus(BaseModel):
     type: Literal['RelativeOrnsteinUhlenbeckConductanceSomaticStimulus'] = Field(
         default='RelativeOrnsteinUhlenbeckConductanceSomaticStimulus', title='Type'
     )
+    duration: Duration8 | list[DurationItem8] = Field(
+        default_factory=lambda: Duration8(200.0),
+        description='Time duration in milliseconds for how long input is activated.',
+        title='Duration',
+    )
     timestamps: TimestampsReference | None = Field(
         default=None,
         description='Timestamps at which the stimulus is applied.',
         title='Timestamps',
-    )
-    neuron_set: NeuronSetReference | None = Field(
-        default=None,
-        description='Neuron set to which the stimulus is applied.',
-        title='Neuron Set',
     )
     timestamp_offset: float | list[float] = Field(
         default=0.0,
         description='The offset of the stimulus relative to each timestamp in milliseconds (ms).',
         title='Timestamp Offset',
     )
-    duration: Duration8 | list[DurationItem8] = Field(
-        default_factory=lambda: Duration8(200.0),
-        description='Time duration in milliseconds for how long input is activated.',
-        title='Duration',
+    neuron_set: NeuronSetReference | None = Field(
+        default=None,
+        description='Neuron set to which the stimulus is applied.',
+        title='Neuron Set',
     )
     time_constant: TimeConstant | list[TimeConstantItem] = Field(
         default_factory=lambda: TimeConstant(2.7),
@@ -3991,25 +4033,25 @@ class RelativeOrnsteinUhlenbeckCurrentSomaticStimulus(BaseModel):
     type: Literal['RelativeOrnsteinUhlenbeckCurrentSomaticStimulus'] = Field(
         default='RelativeOrnsteinUhlenbeckCurrentSomaticStimulus', title='Type'
     )
+    duration: Duration8 | list[DurationItem8] = Field(
+        default_factory=lambda: Duration8(200.0),
+        description='Time duration in milliseconds for how long input is activated.',
+        title='Duration',
+    )
     timestamps: TimestampsReference | None = Field(
         default=None,
         description='Timestamps at which the stimulus is applied.',
         title='Timestamps',
-    )
-    neuron_set: NeuronSetReference | None = Field(
-        default=None,
-        description='Neuron set to which the stimulus is applied.',
-        title='Neuron Set',
     )
     timestamp_offset: float | list[float] = Field(
         default=0.0,
         description='The offset of the stimulus relative to each timestamp in milliseconds (ms).',
         title='Timestamp Offset',
     )
-    duration: Duration8 | list[DurationItem8] = Field(
-        default_factory=lambda: Duration8(200.0),
-        description='Time duration in milliseconds for how long input is activated.',
-        title='Duration',
+    neuron_set: NeuronSetReference | None = Field(
+        default=None,
+        description='Neuron set to which the stimulus is applied.',
+        title='Neuron Set',
     )
     time_constant: TimeConstant | list[TimeConstantItem] = Field(
         default_factory=lambda: TimeConstant(2.7),
@@ -4091,25 +4133,25 @@ class SinusoidalCurrentClampSomaticStimulus(BaseModel):
     type: Literal['SinusoidalCurrentClampSomaticStimulus'] = Field(
         default='SinusoidalCurrentClampSomaticStimulus', title='Type'
     )
+    duration: Duration8 | list[DurationItem8] = Field(
+        default_factory=lambda: Duration8(200.0),
+        description='Time duration in milliseconds for how long input is activated.',
+        title='Duration',
+    )
     timestamps: TimestampsReference | None = Field(
         default=None,
         description='Timestamps at which the stimulus is applied.',
         title='Timestamps',
-    )
-    neuron_set: NeuronSetReference | None = Field(
-        default=None,
-        description='Neuron set to which the stimulus is applied.',
-        title='Neuron Set',
     )
     timestamp_offset: float | list[float] = Field(
         default=0.0,
         description='The offset of the stimulus relative to each timestamp in milliseconds (ms).',
         title='Timestamp Offset',
     )
-    duration: Duration14 | list[DurationItem8] = Field(
-        default_factory=lambda: Duration14(200.0),
-        description='Time duration in milliseconds for how long input is activated.',
-        title='Duration',
+    neuron_set: NeuronSetReference | None = Field(
+        default=None,
+        description='Neuron set to which the stimulus is applied.',
+        title='Neuron Set',
     )
     maximum_amplitude: float | list[float] = Field(
         default=0.1,
@@ -4140,6 +4182,11 @@ class SinusoidalPoissonSpikeStimulus(BaseModel):
         description='Timestamps at which the stimulus is applied.',
         title='Timestamps',
     )
+    timestamp_offset: float | list[float] = Field(
+        default=0.0,
+        description='The offset of the stimulus relative to each timestamp in milliseconds (ms).',
+        title='Timestamp Offset',
+    )
     source_neuron_set: NeuronSetReference | None = Field(
         default=None,
         description='Source neuron set to simulate',
@@ -4150,13 +4197,8 @@ class SinusoidalPoissonSpikeStimulus(BaseModel):
         description='Target neuron set to simulate',
         title='Neuron Set (Target)',
     )
-    timestamp_offset: float | list[float] = Field(
-        default=0.0,
-        description='The offset of the stimulus relative to each timestamp in milliseconds (ms).',
-        title='Timestamp Offset',
-    )
-    duration: Duration15 | list[DurationItem15] = Field(
-        default_factory=lambda: Duration15(200.0),
+    duration: Duration14 | list[DurationItem14] = Field(
+        default_factory=lambda: Duration14(200.0),
         description='Time duration of the stimulus in milliseconds.',
         title='Duration',
     )
@@ -4215,25 +4257,25 @@ class SpatiallyUniformElectricFieldStimulus(BaseModel):
     type: Literal['SpatiallyUniformElectricFieldStimulus'] = Field(
         default='SpatiallyUniformElectricFieldStimulus', title='Type'
     )
+    duration: Duration15 | list[DurationItem14] = Field(
+        default_factory=lambda: Duration15(200.0),
+        description='Time in milliseconds (ms) for how long the main stimulus is activated. The duration does not include the ramp up and ramp down times, so the total length of the stimulus will be the sum of the duration, ramp up and ramp down times.',
+        title='Duration',
+    )
     timestamps: TimestampsReference | None = Field(
         default=None,
         description='Timestamps at which the stimulus is applied.',
         title='Timestamps',
-    )
-    neuron_set: NeuronSetReference | None = Field(
-        default=None,
-        description='Neuron set to which the stimulus is applied.',
-        title='Neuron Set',
     )
     timestamp_offset: float | list[float] = Field(
         default=0.0,
         description='The offset of the stimulus relative to each timestamp in milliseconds (ms).',
         title='Timestamp Offset',
     )
-    duration: Duration16 | list[DurationItem15] = Field(
-        default_factory=lambda: Duration16(200.0),
-        description='Time in milliseconds (ms) for how long the main stimulus is activated. The duration does not include the ramp up and ramp down times, so the total length of the stimulus will be the sum of the duration, ramp up and ramp down times.',
-        title='Duration',
+    neuron_set: NeuronSetReference | None = Field(
+        default=None,
+        description='Neuron set to which the stimulus is applied.',
+        title='Neuron Set',
     )
     ramp_up_duration: RampUpDuration | list[RampUpDurationItem] = Field(
         default_factory=lambda: RampUpDuration(0.0),
@@ -4269,25 +4311,25 @@ class SubthresholdCurrentClampSomaticStimulus(BaseModel):
     type: Literal['SubthresholdCurrentClampSomaticStimulus'] = Field(
         default='SubthresholdCurrentClampSomaticStimulus', title='Type'
     )
+    duration: Duration16 | list[DurationItem16] = Field(
+        default_factory=lambda: Duration16(200.0),
+        description='Time duration in milliseconds for how long input is activated.',
+        title='Duration',
+    )
     timestamps: TimestampsReference | None = Field(
         default=None,
         description='Timestamps at which the stimulus is applied.',
         title='Timestamps',
-    )
-    neuron_set: NeuronSetReference | None = Field(
-        default=None,
-        description='Neuron set to which the stimulus is applied.',
-        title='Neuron Set',
     )
     timestamp_offset: float | list[float] = Field(
         default=0.0,
         description='The offset of the stimulus relative to each timestamp in milliseconds (ms).',
         title='Timestamp Offset',
     )
-    duration: Duration17 | list[DurationItem17] = Field(
-        default_factory=lambda: Duration17(200.0),
-        description='Time duration in milliseconds for how long input is activated.',
-        title='Duration',
+    neuron_set: NeuronSetReference | None = Field(
+        default=None,
+        description='Neuron set to which the stimulus is applied.',
+        title='Neuron Set',
     )
     percentage_below_threshold: float | list[float] = Field(
         default=0.1,
@@ -4344,25 +4386,25 @@ class TemporallyCosineSpatiallyUniformElectricFieldStimulus(BaseModel):
     type: Literal['TemporallyCosineSpatiallyUniformElectricFieldStimulus'] = Field(
         default='TemporallyCosineSpatiallyUniformElectricFieldStimulus', title='Type'
     )
+    duration: Duration17 | list[DurationItem17] = Field(
+        default_factory=lambda: Duration17(200.0),
+        description='Time in milliseconds (ms) for how long the main stimulus is activated. The duration does not include the ramp up and ramp down times, so the total length of the stimulus will be the sum of the duration, ramp up and ramp down times.',
+        title='Duration',
+    )
     timestamps: TimestampsReference | None = Field(
         default=None,
         description='Timestamps at which the stimulus is applied.',
         title='Timestamps',
-    )
-    neuron_set: NeuronSetReference | None = Field(
-        default=None,
-        description='Neuron set to which the stimulus is applied.',
-        title='Neuron Set',
     )
     timestamp_offset: float | list[float] = Field(
         default=0.0,
         description='The offset of the stimulus relative to each timestamp in milliseconds (ms).',
         title='Timestamp Offset',
     )
-    duration: Duration18 | list[DurationItem18] = Field(
-        default_factory=lambda: Duration18(200.0),
-        description='Time in milliseconds (ms) for how long the main stimulus is activated. The duration does not include the ramp up and ramp down times, so the total length of the stimulus will be the sum of the duration, ramp up and ramp down times.',
-        title='Duration',
+    neuron_set: NeuronSetReference | None = Field(
+        default=None,
+        description='Neuron set to which the stimulus is applied.',
+        title='Neuron Set',
     )
     ramp_up_duration: RampUpDuration | list[RampUpDurationItem] = Field(
         default_factory=lambda: RampUpDuration(0.0),

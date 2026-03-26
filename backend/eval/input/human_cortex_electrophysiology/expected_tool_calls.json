@@ -2,26 +2,20 @@
   {
     "name": "entitycore-species-getall",
     "arguments": {
-      "semantic_search": "human"
-    }
-  },
-  {
-    "name": "entitycore-brainregionhierarchy-getall",
-    "arguments": {
-      "species_id__in": "dynamic"
+      "semantic_search": "Homo sapiens"
     }
   },
   {
     "name": "entitycore-brainregion-getall",
     "arguments": {
       "semantic_search": "cortex",
-      "hierarchy_id__in": "dynamic"
+      "species__id": "ff3fe32a-30ff-44ee-90a7-bd04e85bfcdd"
     }
   },
   {
     "name": "entitycore-electrophysiologyrecording-getall",
     "arguments": {
-      "within_brain_region_brain_region_id": "dynamic"
+      "within_brain_region_brain_region_id": "ff123301-1a65-463f-956b-2341f08ffb93"
     }
   }
 ]
